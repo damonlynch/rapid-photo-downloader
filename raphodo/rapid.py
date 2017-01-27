@@ -50,6 +50,7 @@ import time
 import shlex
 import subprocess
 from urllib.request import pathname2url
+import tarfile
 
 from gettext import gettext as _
 
@@ -116,7 +117,7 @@ from raphodo.proximity import (TemporalProximityGroups, TemporalProximity)
 from raphodo.utilities import (
     same_file_system, make_internationalized_list, thousands, addPushButtonLabelSpacer,
     make_html_path_non_breaking, prefs_list_from_gconftool2_string,
-    pref_bool_from_gconftool2_string)
+    pref_bool_from_gconftool2_string, create_temp_dir, extract_file_from_tar)
 from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
 from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
@@ -149,7 +150,7 @@ from raphodo.jobcodepanel import JobCodePanel
 from raphodo.backuppanel import BackupPanel
 import raphodo
 import raphodo.exiftool as exiftool
-from raphodo.newversion import (NewVersion, NewVersionCheckDialog, installed_via_pip,
+from raphodo.newversion import (NewVersion, NewVersionCheckDialog,
                                 version_details, DownloadNewVersionDialog)
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
@@ -621,6 +622,9 @@ class RapidWindow(QMainWindow):
         self.offload_controller = context.socket(zmq.PAIR)
         self.offload_controller.bind(inproc.format(ThreadNames.offload))
 
+        self.new_version_controller = context.socket(zmq.PAIR)
+        self.new_version_controller.bind(inproc.format(ThreadNames.new_version))
+
     def sendStopToThread(self, socket: zmq.Socket) -> None:
         socket.send_multipart(create_inproc_msg(b'STOP'))
 
@@ -729,7 +733,6 @@ class RapidWindow(QMainWindow):
         else:
             logging.debug("Default file manager could not be determined")
 
-        # self.program_svg = ':/rapid-photo-downloader.svg'
         # Initialise use of libgphoto2
         logging.debug("Getting gphoto2 context")
         try:
@@ -757,7 +760,7 @@ class RapidWindow(QMainWindow):
         self.unity_progress = False
         if get_desktop() == Desktop.unity:
             if not have_unity:
-                logging.debug("Desktop environment is Unity, but could not load Unity 7.0 module")
+                logging.warning("Desktop environment is Unity, but could not load Unity 7.0 module")
             else:
                 # Unity auto-generated desktop files use underscores, it seems
                 for launcher in ('rapid_photo_downloader.desktop',
@@ -768,7 +771,7 @@ class RapidWindow(QMainWindow):
                         break
 
                 if self.desktop_launcher is None:
-                    logging.debug("Desktop environment is Unity 7.0, but could not find "
+                    logging.warning("Desktop environment is Unity 7.0, but could not find "
                                   "program's .desktop file")
                 else:
                     logging.debug("Unity progress indicator will be used")
@@ -819,11 +822,12 @@ class RapidWindow(QMainWindow):
         logging.debug("Starting version check")
         self.newVersion = NewVersion(self)
         self.newVersionThread = QThread()
-        self.newVersion.moveToThread(self.newVersionThread)
+        self.newVersionThread.started.connect(self.newVersion.start)
         self.newVersion.checkMade.connect(self.newVersionCheckMade)
         self.newVersion.bytesDownloaded.connect(self.newVersionBytesDownloaded)
         self.newVersion.fileDownloaded.connect(self.newVersionDownloaded)
         self.newVersion.downloadSize.connect(self.newVersionDownloadSize)
+        self.newVersion.moveToThread(self.newVersionThread)
 
         QTimer.singleShot(0, self.newVersionThread.start)
 
@@ -1096,11 +1100,13 @@ class RapidWindow(QMainWindow):
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QFont()).height() * 9)
         status.addPermanentWidget(self.downloadProgressBar, 1)
 
-    @pyqtSlot(bool, version_details, version_details, str)
+    @pyqtSlot(bool, version_details, version_details, str, bool, bool)
     def newVersionCheckMade(self, success: bool,
                             stable_version: version_details,
                             dev_version: version_details,
-                            download_page: str) -> None:
+                            download_page: str,
+                            no_upgrade: bool,
+                            pip_install: bool) -> None:
         """
         Respond to a version check, either initiated at program startup, or from the
         application's main menu.
@@ -1113,6 +1119,9 @@ class RapidWindow(QMainWindow):
         :param dev_version: latest development version
         :param download_page: url of the download page on the Rapid
          Photo Downloader website
+        :param no_upgrade: if True, don't offer to do an inplace upgrade
+        :param pip_install: whether pip was used to install this
+         program version
         """
 
         if success:
@@ -1133,23 +1142,20 @@ class RapidWindow(QMainWindow):
 
             # testing code - remove in production!
             if (self.latest_version is not None and str(self.latest_version.version) not in
-                    self.prefs.ignore_versions): # or True
+                    self.prefs.ignore_versions or True):
 
-                # self.latest_version = dev_version
+                self.latest_version = dev_version
 
                 version = str(self.latest_version.version)
 
-                try:
-                    pip_install = installed_via_pip()
-                except Exception:
-                    logging.warning("Exception encountered when checking if pip was used to "
-                                    "install")
-                    pip_install = False
-
                 if pip_install:
                     logging.debug("Installation performed via pip")
-                    download_page = None
-                    state = CheckNewVersionDialogState.prompt_for_download
+                    if no_upgrade:
+                        logging.info("Cannot perform in-place upgrade to this version")
+                        state = CheckNewVersionDialogState.open_website
+                    else:
+                        download_page = None
+                        state = CheckNewVersionDialogState.prompt_for_download
                 else:
                     logging.debug("Installation not performed via pip")
                     state = CheckNewVersionDialogState.open_website
@@ -1207,11 +1213,62 @@ class RapidWindow(QMainWindow):
     @pyqtSlot(str)
     def newVersionDownloaded(self, path: str) -> None:
         self.downloadNewVersionDialog.accept()
-        logging.info("New program version downloaded to %s", path)
+        if path:
+            logging.info("New program version downloaded to %s", path)
+
+            message = _('The new version was successfully downloaded. Do you want to '
+                             'close Rapid Photo Downloader and install it now?')
+            msgBox = QMessageBox(parent=self)
+            msgBox.setWindowTitle(_('Update Rapid Photo Downloader'))
+            msgBox.setText(message)
+            msgBox.setIcon(QMessageBox.Question)
+            msgBox.setStandardButtons(QMessageBox.Cancel)
+            installButton = msgBox.addButton(_('Install'), QMessageBox.AcceptRole)
+            msgBox.setDefaultButton(installButton)
+            if msgBox.exec_() == QMessageBox.AcceptRole:
+                self.installNewVersion(full_tar_path=path)
+            else:
+                # extract the install.py script and move it to the correct location
+                # for testing:
+                # path = '/home/damon/rapid090a7/dist/rapid-photo-downloader-0.9.0a7.tar.gz'
+                extract_file_from_tar(full_tar_path=path, member_filename='install.py')
+                installer_dir = os.path.dirname(path)
+                if self.file_manager:
+                    uri = pathname2url(path)
+                    cmd = '{} {}'.format(self.file_manager, uri)
+                    logging.debug("Launching: %s", cmd)
+                    args = shlex.split(cmd)
+                    subprocess.Popen(args)
+                else:
+                    msgBox = QMessageBox(parent=self)
+                    msgBox.setWindowTitle(_('New version saved'))
+                    message = _('The tar file and installer script are saved '
+                                'at:\n\n %s') % installer_dir
+                    msgBox.setText(message)
+                    msgBox.setIcon(QMessageBox.Information)
+                    msgBox.exec_()
+
+    def installNewVersion(self, full_tar_path: str) -> None:
+        """
+        Launch script to install new version of Rapid Photo Downloader
+        via upgrade.py.
+        :param full_tar_path: path to the tarball
+        :return:
+        """
+        # for testing:
+        # full_tar_path = '/home/damon/rapid090a7/dist/rapid-photo-downloader-0.9.0a7.tar.gz'
+        upgrade_py = 'upgrade.py'
+        installer_dir = os.path.dirname(full_tar_path)
+        if extract_file_from_tar(full_tar_path, upgrade_py):
+            upgrade_script = os.path.join(installer_dir, upgrade_py)
+            cmd = shlex.split('{} {} {}'.format(sys.executable, upgrade_script, full_tar_path))
+            subprocess.Popen(cmd)
+            self.quit()
 
     @pyqtSlot()
     def newVersionDownloadCancelled(self) -> None:
         logging.info("Download of new program version cancelled")
+        self.new_version_controller.send(b'STOP')
 
     def updateProgressBarState(self, thumbnail_generated: bool=None) -> None:
         """
@@ -2086,6 +2143,7 @@ class RapidWindow(QMainWindow):
 
     def doCheckForNewVersion(self) -> None:
         """Check online for a new program version"""
+        self.newVersionCheckDialog.reset()
         self.newVersionCheckDialog.show()
         self.checkForNewVersionRequest.emit()
 
@@ -4817,7 +4875,7 @@ class QtSingleApplication(QApplication):
         self._activateOnMessage = False # type: bool
 
         # Is there another instance running?
-        self._outSocket = QLocalSocket() # type: QLocalSocket
+        self._outSocket = QLocalSocket()  # type: QLocalSocket
         self._outSocket.connectToServer(self._id)
         self._isRunning = self._outSocket.waitForConnected() # type: bool
 
@@ -5060,7 +5118,7 @@ def import_prefs() -> None:
     Requires the command line program gconftool-2.
     """
 
-    def run_cmd(k: str) -> List[str]:
+    def run_cmd(k: str) -> str:
         command_line = '{} --get /apps/rapid-photo-downloader/{}'.format(cmd, k)
         args = shlex.split(command_line)
         return subprocess.check_output(args=args).decode().strip()
@@ -5369,6 +5427,7 @@ def main():
     if args.log_gphoto2:
         gp.use_python_logging()
 
+    # keep next value in sync with value in upgrade.py
     appGuid = '8dbfb490-b20f-49d3-9b7d-2016012d2aa8'
 
     # See note above regarding avoiding crashes

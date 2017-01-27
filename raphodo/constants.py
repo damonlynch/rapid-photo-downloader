@@ -452,6 +452,8 @@ class Distro(Enum):
     ubuntu = 2
     fedora = 3
     unknown = 4
+    manjaro = 5
+    arch = 6
 
 
 orientation_offset = dict(

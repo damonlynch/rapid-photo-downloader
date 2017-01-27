@@ -34,7 +34,7 @@ for Rapid Photo Downloader to run. Specifically, these packages are:
    custom scrollbar implementation does not work with stock Qt without a special environment
    variable being set that disables the custom scrollbars.
 
-Once these dependencies are satisifed, Python's pip is used to install Rapid Photo Downloader
+Once these dependencies are satisfied, Python's pip is used to install Rapid Photo Downloader
 itself, along with several Python packages from PyPi, found in requirements.txt.
 
 The secondary purpose of this install script is to give the option to the user of installing man
@@ -43,7 +43,7 @@ link in ~/bin to the rapid-photo-downloader executable.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016, Damon Lynch"
+__copyright__ = "Copyright 2016-2017, Damon Lynch"
 
 import tarfile
 import os
@@ -52,6 +52,7 @@ import tempfile
 import argparse
 import shlex
 import subprocess
+from subprocess import Popen, PIPE
 import shutil
 from distutils.version import StrictVersion
 from enum import Enum
@@ -332,6 +333,10 @@ def uninstall_old_version(distro: Distro) -> None:
                 uninstall_packages(command_line)
 
 
+def make_pip_command(args: str):
+    return shlex.split('{} -m pip {}'.format(sys.executable, args))
+
+
 def main(installer: str, distro: Distro, distro_version: float) -> None:
 
     check_package_import_requirements(distro, distro_version)
@@ -347,15 +352,27 @@ def main(installer: str, distro: Distro, distro_version: float) -> None:
                 temp_requirements.write(reqbytes)
                 temp_requirements_name = temp_requirements.name
 
-    print("\nInstalling application requirements")
-    i = pip.main(['install', '--user', '-r',temp_requirements.name])
+    print("\nInstalling application requirements...\n")
+
+    # Don't call pip directly - there is no API, and its developers say not to
+    cmd = make_pip_command('install --user -r {}'.format(temp_requirements.name))
+    with Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
+        for line in p.stdout:
+            print(line, end='')
+        p.wait()
+        i = p.returncode
     os.remove(temp_requirements_name)
     if i != 0:
         sys.stderr.write("Failed to install application requirements: exiting\n")
         sys.exit(1)
 
-    print("\nInstalling application")
-    i = pip.main(['install', '--user', '--no-deps', installer])
+    print("\nInstalling application...\n")
+    cmd = make_pip_command('install --user --no-deps {}'.format(installer))
+    with Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
+        for line in p.stdout:
+            print(line, end='')
+        p.wait()
+        i = p.returncode
     if i != 0:
         sys.stderr.write("Failed to install application: exiting\n")
         sys.exit(1)

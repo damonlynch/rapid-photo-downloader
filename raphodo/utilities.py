@@ -30,6 +30,7 @@ import string
 import sys
 import tempfile
 import time
+import tarfile
 from collections import namedtuple, defaultdict
 from datetime import datetime
 from gettext import gettext as _
@@ -278,16 +279,21 @@ TempDirs = namedtuple('TempDirs', 'photo_temp_dir, video_temp_dir')
 CacheDirs = namedtuple('CacheDirs', 'photo_cache_dir, video_cache_dir')
 
 
-def create_temp_dir(folder: Optional[str], prefix: Optional[str]=None) -> str:
+def create_temp_dir(folder: Optional[str],
+                    prefix: Optional[str]=None,
+                    force_no_prefix: bool=False) -> str:
     """
     Creates a temporary director and logs errors
     :param folder: the folder in which the temporary directory should
      be created. If not specified, uses the tempfile.mkstemp default.
-    :param prefix: any name the directory should start with
-    :type prefix: str
+    :param prefix: any name the directory should start with. If None,
+     default rpd-tmp will be used as prefix, unless force_no_prefix
+     is True
+    :param force_no_prefix: if True, a directory prefix will never
+     be used
     :return: full path of the temporary directory
     """
-    if prefix is None:
+    if prefix is None and not force_no_prefix:
         prefix = "rpd-tmp-"
     try:
         temp_dir = tempfile.mkdtemp(prefix=prefix, dir=folder)
@@ -717,11 +723,50 @@ def make_path_end_snippets_unique(*paths) -> List[str]:
     else:
         return basenames
 
+have_logged_os_release = False
 
 def log_os_release() -> None:
+    """
+    Log the entired contents of /etc/os-release, but only if
+    we didn't do so already.
+    """
+
+    global have_logged_os_release
+
+    if not have_logged_os_release:
+        try:
+            with open('/etc/os-release', 'r') as f:
+                for line in f:
+                    logging.debug(line)
+        except:
+            pass
+        have_logged_os_release = True
+
+
+def extract_file_from_tar(full_tar_path, member_filename) -> bool:
+    """
+    Extracts a file from a tar.gz and places it beside the tar file
+    :param full_tar_path: path and filename of the tar.gz file
+    :param member_filename: file wanted
+    :return: True if successful, False otherwise
+    """
+
+    tar_dir, tar_name = os.path.split(full_tar_path)
+    tar_name = tar_name[:len('.tar.gz') * -1]
+    member = os.path.join(tar_name, member_filename)
     try:
-        with open('/etc/os-release', 'r') as f:
-            for line in f:
-                logging.debug(line)
-    except:
-        pass
+        with tarfile.open(full_tar_path) as tar:
+            tar.extractall(members=(tar.getmember(member),), path=tar_dir)
+    except Exception:
+        logging.error('Unable to extract %s from tarfile', member_filename)
+        return False
+    else:
+        try:
+            src = os.path.join(tar_dir, tar_name, member_filename)
+            dst = os.path.join(tar_dir, member_filename)
+            os.rename(src, dst)
+            os.rmdir(os.path.join(tar_dir, tar_name))
+            return True
+        except OSError:
+            logging.error('Unable to move %s to new location', member_filename)
+            return False

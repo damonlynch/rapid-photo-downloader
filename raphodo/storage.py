@@ -57,7 +57,7 @@ import pwd
 from collections import namedtuple
 from typing import Optional, Tuple, List, Dict
 
-from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal, QFileSystemWatcher, QThread, pyqtSlot)
+from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal, QFileSystemWatcher, pyqtSlot)
 from xdg.DesktopEntry import DesktopEntry
 from xdg import BaseDirectory
 import xdg
@@ -130,9 +130,9 @@ def get_media_dir() -> str:
         run_media_dir = '/run{}'.format(media_dir)
         distro = get_distro()
         if os.path.isdir(run_media_dir) and distro not in (Distro.ubuntu, Distro.debian):
-            if distro != Distro.fedora:
+            if distro not in (Distro.fedora, Distro.manjaro, Distro.arch):
                 logging.debug("Detected /run/media directory, but distro does not appear to "
-                              "be Fedora")
+                              "be Fedora, Arch or Manjaro")
                 log_os_release()
             return run_media_dir
         return media_dir

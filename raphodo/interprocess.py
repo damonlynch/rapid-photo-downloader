@@ -130,6 +130,7 @@ class ThreadNames:
     offload = 'offload'
     logger = 'logger'
     load_balancer = 'load_balancer'
+    new_version = 'new_version'
 
 
 class ProcessManager:
