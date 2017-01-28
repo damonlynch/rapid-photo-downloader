@@ -115,6 +115,7 @@ Rapid Photo Downloader requires:
    with old RAW formats.
  - `Qt5 plugin for reading TIFF images`_
  - `distutils-extra`_ for Python 3
+ - Requests_
  - intltool_
  - If using Python 3.4, these additional modules:
     - typing_
@@ -223,3 +224,4 @@ If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 .. _pymediainfo: https://github.com/sbraz/pymediainfo
 .. _Qt: https://www.qt.io/
 .. _SortedContainers: http://www.grantjenks.com/docs/sortedcontainers/
+.. _Requests: http://docs.python-requests.org/

@@ -33,7 +33,7 @@ import os
 import sys
 import pickle
 import logging
-from collections import (namedtuple, defaultdict)
+from collections import (namedtuple, defaultdict, deque, Counter)
 from datetime import datetime
 import tempfile
 
@@ -42,7 +42,7 @@ if sys.version_info < (3,5):
     walk = scandir.walk
 else:
     walk = os.walk
-from typing import List, Dict, Union, Optional
+from typing import List, Dict, Union, Optional, Iterator, Tuple
 
 import gphoto2 as gp
 
@@ -135,6 +135,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.display_name = scan_arguments.device.display_name
             # Scan the files using lightweight high-performance scandir
             logging.info("Scanning {}".format(self.display_name))
+
+            # Before doing anything else, determine time zone approach
+            # Need two different walks because first folder of files
+            # might be videos, then the 2nd folder photos, etc.
+            self.distinguish_non_camera_device_timestamp(path)
+
             if self.scan_preferences.scan_this_path(path):
                 for self.dir_name, subdirs, self.file_list in walk(path):
                     if len(subdirs) > 0:
@@ -144,10 +150,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
                             # [:] ensures the list is altered in place
                             # (mutating slice method)
                             subdirs[:] = filter(self.scan_preferences.scan_this_path, subdirs)
-
-                    if (self.file_list and
-                            self.device_timestamp_type == DeviceTimestampTZ.undetermined):
-                        self.distinguish_non_camera_device_timestamp()
 
                     for self.file_name in self.file_list:
                         self.process_file()
@@ -241,6 +243,24 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         self.disconnect_logging()
         self.send_finished_command()
+
+    def walk_file_system(self, path_to_walk: str) -> Iterator[Tuple[str, str]]:
+        """
+        Return files on local file system, ignoring those in directories
+        the user doesn't want scanned
+        :param path_to_walk: the path to scan
+        """
+
+        for path, dirlist, filelist in walk(path_to_walk):
+            if len(dirlist) > 0:
+                if self.scan_preferences.ignored_paths:
+                    # Don't inspect paths the user wants ignored
+                    # Altering subdirs in place controls the looping
+                    # [:] ensures the list is altered in place
+                    # (mutating slice method)
+                    dirlist[:] = filter(self.scan_preferences.scan_this_path, dirlist)
+            for name in filelist:
+                yield path, name
 
     def locate_files_on_camera(self, path: str, folder_identifier: int, basedir: str) -> None:
         """
@@ -351,13 +371,16 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self.file_type_counter[key] += 1
                 self.file_size_sum[key] += size
 
-                get_sample_metadata = (file_type == FileType.photo and self.sample_exif_source is
-                                       None) or (file_type == FileType.video
-                                                 and self.sample_video_extract_full_file_name is None)
+                get_sample_metadata = (
+                      file_type == FileType.photo and self.sample_exif_source is None) or (
+                      file_type == FileType.video and
+                      self.sample_video_extract_full_file_name is None)
+
                 get_tz = self.device_timestamp_type == DeviceTimestampTZ.undetermined and not (
                         self.ignore_mdatatime_for_mtp_dng and ext_type == FileExtension.raw)
+
                 if get_sample_metadata or get_tz:
-                    logging.info("Extracted sample %s metadata for %s",
+                    logging.info("Extracting sample %s metadata for %s",
                                  file_type.name, self.camera_display_name)
                     sample = self.sample_camera_metadata(path, name, ext_lower, ext_type, size,
                                                          modification_time)
@@ -418,7 +441,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
         for name in folders:
             self.locate_files_on_camera(os.path.join(path, name), folder_identifier, basedir)
 
-
     def process_file(self):
         # Check to see if the process has received a command to terminate or
         # pause
@@ -446,7 +468,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     logging.error("Sample metadata not extracted from photo %s although it should "
                                   "have been used to determine the device timezone", self.file_name)
                 elif file_type == FileType.video and self.sample_video_file_full_file_name is None:
-                    self.sample_non_camera_metadata(self.dir_name, self.file_name,
+                    self.sample_non_camera_metadata(self.dir_name, self.file_name, file,
                                                     FileExtension.video)
             else:
                 base_name = None
@@ -723,6 +745,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
     def sample_non_camera_metadata(self, path: str,
                                    name: str,
+                                   full_file_name: str,
                                    ext_type: FileExtension) -> SampleMetadata:
         """
         Extract sample metadata datetime from a photo or video not on a camera
@@ -736,7 +759,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
         elif ext_type == FileExtension.video:
             determined_by = 'video'
 
-        full_file_name = os.path.join(path, name)
         if ext_type == FileExtension.video:
             with ExifTool() as et_process:
                 metadata = metadatavideo.MetaData(full_file_name, et_process)
@@ -762,38 +784,71 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.file_mdatatime[full_file_name] = dt.timestamp()
         return SampleMetadata(dt, determined_by)
 
-    def distinguish_non_camera_device_timestamp(self) -> None:
+    def examine_sample_file(self, dirname: str,
+                            name: str,
+                            full_file_name: str,
+                            ext_type: FileExtension) -> bool:
+        """
+        Examine the the sample file to extract its metadata and compare it
+        against the file system modificaton time
+        """
+
+        logging.debug("Examining sample %s", full_file_name)
+        sample = self.sample_non_camera_metadata(dirname, name, full_file_name, ext_type)
+        if sample.datetime is not None:
+            self.file_mdatatime[full_file_name] = sample.datetime.timestamp()
+            try:
+                mtime = os.path.getmtime(full_file_name)
+            except OSError:
+                logging.warning("Could not determine modification time for %s",
+                                full_file_name)
+                return False
+            else:
+                # Located sample file: examine
+                self.determine_device_timestamp_tz(
+                    sample.datetime, mtime, sample.determined_by)
+                return True
+
+    def distinguish_non_camera_device_timestamp(self, path: str) -> None:
         """
         Attempt to determine the device's approach to timezones when it
         store timestamps.
         When determining how this device reports modification time, file
         preference is (1) RAW, (2)jpeg, and finally least preferred is (3)
-        video. A RAW is the least likely to be modified.
+        video -- a RAW is the least likely to be modified.
         """
 
         logging.debug("Distinguishing approach to timestamp time zones on %s", self.display_name)
-        attempts = 0
-        for e in (FileExtension.raw, FileExtension.jpeg, FileExtension.video):
-            for file in self.file_list:
-                if rpdfile.extension_type(os.path.splitext(file)[1].lower()[1:]) == e:
-                    logging.debug("Examining sample %s", os.path.join(self.dir_name, file))
-                    sample = self.sample_non_camera_metadata(self.dir_name, file, e)
-                    attempts += 1
-                    if sample.datetime is not None:
-                        full_file_name = os.path.join(self.dir_name, file)
-                        self.file_mdatatime[full_file_name] = sample.datetime.timestamp()
-                        try:
-                            mtime = os.path.getmtime(full_file_name)
-                        except OSError:
-                            logging.warning("Could not determine modification time for %s",
-                                            full_file_name)
-                        else:
-                            self.determine_device_timestamp_tz(
-                                sample.datetime, mtime, sample.determined_by)
-                            return
-                    elif attempts == 5:
-                        self.device_timestamp_type = DeviceTimestampTZ.unknown
+
+        self.device_timestamp_type = DeviceTimestampTZ.unknown
+
+        max_attempts = 10
+        raw_attempts = 0
+        jpegs_and_videos = defaultdict(deque)
+
+        for dirname, name in self.walk_file_system(path):
+            full_file_name = os.path.join(dirname, name)
+            ext_type = rpdfile.extension_type(os.path.splitext(full_file_name)[1].lower()[1:])
+            if ext_type in (FileExtension.raw, FileExtension.jpeg, FileExtension.video):
+                if ext_type == FileExtension.raw and raw_attempts < max_attempts:
+                    # examine right away
+                    raw_attempts += 1
+                    if self.examine_sample_file(dirname=dirname, name=name,
+                                                full_file_name=full_file_name, ext_type=ext_type):
                         return
+                else:
+                    if len(jpegs_and_videos[ext_type]) < max_attempts:
+                        jpegs_and_videos[ext_type].append((dirname, name, full_file_name))
+
+                    if len(jpegs_and_videos[FileExtension.jpeg]) == max_attempts:
+                        break
+
+        # Couldn't locate sample raw file. Are left with up to max_attempts jpeg and video files
+        for ext_type in (FileExtension.jpeg, FileExtension.video):
+            for dirname, name, full_file_name in jpegs_and_videos[ext_type]:
+                if self.examine_sample_file(dirname=dirname, name=name,
+                                            full_file_name=full_file_name, ext_type=ext_type):
+                    return
 
     def determine_device_timestamp_tz(self, mdatatime: datetime,
                                       modification_time: Union[int, float],
