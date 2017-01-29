@@ -4618,7 +4618,7 @@ class RapidWindow(QMainWindow):
 
     def addDeviceToBackupManager(self, path: str) -> None:
         device_id = self.backup_devices.device_id(path)
-        self.backup_controller.send_multipart(create_inproc_msg(b'START',
+        self.backup_controller.send_multipart(create_inproc_msg(b'START_WORKER',
                                 worker_id=device_id,
                                 data=BackupArguments(path, self.backup_devices.name(path))))
 
