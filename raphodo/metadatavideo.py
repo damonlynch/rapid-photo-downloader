@@ -109,11 +109,22 @@ class MetaData:
 
         return self.metadata.get(key, missing)
 
-    def _exiftool_date_time(self, missing: Optional[str]='') -> datetime.datetime:
+    def _exiftool_date_time(self, missing: Optional[str]='',
+                            ignore_file_modify_date: bool = False) -> Union[datetime.datetime, Any]:
+        """
+        Tries to get value from key "DateTimeOriginal"
+        If that fails, tries "CreateDate", and then finally
+        FileModifyDate
+
+        :param ignore_file_modify_date: if True, don't return the file
+        modification date
+        :return  python datetime format the date and time the video was
+        recorded, else missing
+        """
         d = self._get('DateTimeOriginal', None)
         if d is None:
             d = self._get('CreateDate', None)
-        if d is None:
+        if d is None and not ignore_file_modify_date:
             d = self._get('FileModifyDate', None)
         if d is not None:
             d = d.strip()
@@ -136,21 +147,21 @@ class MetaData:
                                 self.filename)
                 return missing
 
-
             return dt
         else:
             return missing
 
-    def date_time(self, missing: Optional[str]='') -> datetime.datetime:
+    def date_time(self, missing: Optional[str]='',
+                  ignore_file_modify_date: bool=False) -> datetime.datetime:
         """
-        Returns in python datetime format the date and time the image was
-        recorded.
+        Use pymediainfo (if present) to extract file encoding date.
 
-        Tries to get value from key "DateTimeOriginal"
-        If that fails, tries "CreateDate", and then finally
-        FileModifyDate
+        Also use ExifTool if appropriate.
 
-        Returns missing either metadata value is not present.
+        :param ignore_file_modify_date: if True, don't return the file
+        modification date
+        :return  python datetime format the date and time the video was
+        recorded, else missing
         """
 
         if have_pymediainfo:
@@ -159,7 +170,8 @@ class MetaData:
             except KeyError:
                 logging.debug('Failed to extract date time from %s using pymediainfo: trying '
                               'ExifTool', self.filename)
-                return self._exiftool_date_time(missing)
+                return self._exiftool_date_time(missing=missing,
+                                                ignore_file_modify_date=ignore_file_modify_date)
             else:
                 # format of date string is something like:
                 # UTC 2016-05-09 03:28:03
@@ -175,18 +187,20 @@ class MetaData:
                         # setting in the video file that ExifTool can extract
                         tz = self._get('TimeZone', None)
                         if tz is None:
-                            logging.debug("Using pymediainfo datetime, because ExifTool did not "
-                                          "detect a time zone in %s", self.filename)
+                            logging.debug("Using pymediainfo datetime (%s), because ExifTool did "
+                                          "not detect a time zone in %s", dt_mi, self.filename)
                         if tz is not None:
-                            dt_et = self._exiftool_date_time(missing=None)
+                            dt_et = self._exiftool_date_time(missing=None,
+                                                             ignore_file_modify_date=True)
                             if dt_et is not None:
                                 hour = tz // 60 * -1
                                 minute = tz % 60 * -1
                                 adjusted_dt_mi = dt_mi.replace(hours=hour, minutes=minute).naive
                                 if datetime_roughly_equal(adjusted_dt_mi, dt_et):
-                                    logging.debug("Favoring ExifTool datetime metadata over "
-                                                  "mediainfo for %s, because it includes a "
-                                                  "timezone", self.filename)
+                                    logging.debug("Favoring ExifTool datetime metadata (%s) "
+                                                  "over mediainfo (%s) for %s, because it includes "
+                                                  "a timezone", dt_et, adjusted_dt_mi,
+                                                  self.filename)
                                     dt = dt_et
                                 else:
                                     logging.debug("Although ExifTool located a time zone"

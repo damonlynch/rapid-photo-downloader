@@ -775,14 +775,14 @@ class ScanWorker(WorkerInPublishPullPipeline):
             temp_name = os.path.join(tempfile.gettempdir(),
                                      GenerateRandomFileName().name(extension=extension))
             with ExifTool() as et_process:
-                for chunk_size in (offset, size):  
+                for chunk_size in (offset, size):
                     if chunk_size == size:
                         logging.debug("Downloading entire video for metadata sample (%s)",
                                       format_size_for_user(size))
                     mtime = int(self.adjusted_mtime(float(modification_time)))
                     if self.camera.save_file_chunk(path, name, chunk_size, temp_name, mtime):
                         metadata = metadatavideo.MetaData(temp_name, et_process)
-                        dt = metadata.date_time(missing=None)
+                        dt = metadata.date_time(missing=None, ignore_file_modify_date=True)
                         width = metadata.width(missing=None)
                         height = metadata.height(missing=None)
                         if dt is not None and width is not None and height is not None:
