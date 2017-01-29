@@ -120,7 +120,7 @@ class MetaData:
             try:
                 # returned value may or may not have a time offset
                 if len(d) > 19:
-                    # remove the : from the timzone component, if it's present
+                    # remove the : from the timezone component, if it's present
                     if d[-3] == ':' and (d[-6] in ('+', '-')):
                         d = d[:-3] + d[-2:]
                     dt = datetime.datetime.strptime(d, "%Y:%m:%d %H:%M:%S%z")
@@ -146,7 +146,7 @@ class MetaData:
         Returns in python datetime format the date and time the image was
         recorded.
 
-        Trys to get value from key "DateTimeOriginal"
+        Tries to get value from key "DateTimeOriginal"
         If that fails, tries "CreateDate", and then finally
         FileModifyDate
 
