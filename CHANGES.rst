@@ -8,13 +8,13 @@ Changelog for Rapid Photo Downloader
    will show the backup destinations like they are shown in the Destinations
    tab.
 
- - A check for a new version is run at program startup. If it the program was
+ - A check for a new version is run at program startup. If the program was
    installed using python's packaging system pip, and the latest version can
    be upgraded without new system dependencies, the program offers to download
-   the new version and upgrade to it directly.
+   the new version and install it with minimal user intervention.
 
  - The graphical user interface is considerably more responsive when the
-   program is under heavy load because of changes made in the ways
+   program is under heavy load because of changes made in the ways helper
    threads are handled by the main window. Long-term program stability will
    also be improved, although in the short-term some bugs may have snuck in
    due to the threading changes.
@@ -23,7 +23,7 @@ Changelog for Rapid Photo Downloader
    include it. Thanks to Monty Taylor for the fix.
 
  - Fixed bug #1656932: in certain circumstances the scan process could crash
-   when trying to determine device time zones by examining sample photos and
+   when trying to determine device time zones when examining sample photos and
    videos.
 
  - Disallow the running of the program as the root user.

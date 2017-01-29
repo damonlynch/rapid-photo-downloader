@@ -517,8 +517,8 @@ all_tags_offset = dict(
     mts=1300000,
     mt2=1300000,
     m2ts=1300000,
-    avi=13000,
-    mov=13000
+    avi=50000,
+    mov=250000
 )
 
 thumbnail_offset = dict(

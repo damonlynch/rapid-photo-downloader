@@ -313,7 +313,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             # 3. Downloading from camera where we've already cached at
             #    least some of the files in the Download Cache
 
-            if rpd_file.cache_full_file_name:
+            if rpd_file.cache_full_file_name and os.path.isfile(rpd_file.cache_full_file_name):
                 # Scenario 3
                 temp_file_name = os.path.basename(rpd_file.cache_full_file_name)
                 temp_name = os.path.splitext(temp_file_name)[0]
@@ -339,7 +339,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 else:
                     # The download folder changed since the scan occurred, and is now
                     # on a different file system compared to that where the devices
-                    # files were cached
+                    # files were cached. Or the file was downloaded in full by the scan
+                    # stage and saved, e.g. a sample video.
                     source = rpd_file.cache_full_file_name
                     destination = temp_full_file_name
                     copy_succeeded = self.copy_from_filesystem(source, destination, rpd_file)

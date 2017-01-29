@@ -121,7 +121,7 @@ from raphodo.utilities import (
 from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
 from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
-                             VIDEO_EXTENSIONS, OTHER_PHOTO_EXTENSIONS, FileTypeCounter)
+                             VIDEO_EXTENSIONS, OTHER_PHOTO_EXTENSIONS, FileTypeCounter, Video)
 import raphodo.downloadtracker as downloadtracker
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.metadataphoto import exiv2_version, gexiv2_version
@@ -3681,7 +3681,7 @@ class RapidWindow(QMainWindow):
             if data.sample_video is not None:
                 logging.info("Updating example file name using sample video from %s",
                              device.display_name)
-                self.devices.sample_video = data.sample_video
+                self.devices.sample_video = data.sample_video  # type: Video
                 self.renamePanel.setSampleVideo(self.devices.sample_video)
                 # sample required for editing download subfolder generation
                 self.videoDestinationDisplay.sample_rpd_file = self.devices.sample_video

@@ -75,7 +75,8 @@ from raphodo.constants import (DeviceType, FileType, DeviceTimestampTZ, CameraEr
                                FileExtension, ThumbnailCacheDiskStatus, all_tags_offset, ExifSource)
 from raphodo.rpdsql import DownloadedSQL, FileDownloaded
 from raphodo.cache import ThumbnailCacheSql
-from raphodo.utilities import stdchannel_redirected, datetime_roughly_equal, GenerateRandomFileName
+from raphodo.utilities import (stdchannel_redirected, datetime_roughly_equal,
+                               GenerateRandomFileName, format_size_for_user)
 from raphodo.exiftool import ExifTool
 import raphodo.metadatavideo as metadatavideo
 import raphodo.metadataphoto as metadataphoto
@@ -629,7 +630,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.sample_exif_bytes = None
                     self.found_sample_photo = True
 
-                # TODO send file location of temporary extract
                 if not self.found_sample_video and file == self.sample_video_file_full_file_name:
                     self.sample_video = self.create_sample_rpdfile(name=self.file_name,
                                                path=self.dir_name,
@@ -638,6 +638,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                file_type=FileType.video,
                                                mtime=modification_time,
                                                ignore_mdatatime=ignore_mdatatime)
+                    if self.sample_video_full_file_downloaded:
+                        rpd_file.cache_full_file_name = self.sample_video_extract_full_file_name
                     self.sample_video_extract_full_file_name = None
                     self.found_sample_video = True
 
@@ -695,7 +697,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 )
         if file_type == FileType.video and self.download_from_camera:
             # relevant only when downloading from a camera
-            rpd_file.sample_full_file_name = self.sample_video_extract_full_file_name
+            rpd_file.temp_sample_full_file_name = self.sample_video_extract_full_file_name
+            rpd_file.temp_sample_is_complete_file = self.sample_video_full_file_downloaded
 
         return rpd_file
 
@@ -772,12 +775,17 @@ class ScanWorker(WorkerInPublishPullPipeline):
             temp_name = os.path.join(tempfile.gettempdir(),
                                      GenerateRandomFileName().name(extension=extension))
             with ExifTool() as et_process:
-                for chunk_size in (offset, size):
+                for chunk_size in (offset, size):  
+                    if chunk_size == size:
+                        logging.debug("Downloading entire video for metadata sample (%s)",
+                                      format_size_for_user(size))
                     mtime = int(self.adjusted_mtime(float(modification_time)))
                     if self.camera.save_file_chunk(path, name, chunk_size, temp_name, mtime):
                         metadata = metadatavideo.MetaData(temp_name, et_process)
                         dt = metadata.date_time(missing=None)
-                        if dt is not None:
+                        width = metadata.width(missing=None)
+                        height = metadata.height(missing=None)
+                        if dt is not None and width is not None and height is not None:
                             self.sample_video_full_file_downloaded = chunk_size == size
                             self.sample_video_extract_full_file_name = temp_name
                             self.sample_video_file_full_file_name = os.path.join(path, name)

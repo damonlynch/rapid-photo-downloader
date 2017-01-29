@@ -520,7 +520,10 @@ class RPDFile:
         # generated values
 
         self.cache_full_file_name = ''
-        self.sample_full_file_name = None  # temp sample files used for video metadata extraction
+        # temporary file used only for video metadata extraction:
+        self.temp_sample_full_file_name = None  # type: Optional[str]
+        # if True, the file is a complete copy of the original
+        self.temp_sample_is_complete_file = False
         self.temp_full_file_name = ''
         self.temp_thm_full_name = ''
         self.temp_audio_full_name = ''
