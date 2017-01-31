@@ -132,7 +132,9 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             self.scan_id = rpd_file.scan_id
             self.verify_file = data.verify_file
 
-            if data.move_succeeded and data.do_backup:
+            if not (data.move_succeeded and data.do_backup):
+                backup_full_file_name = ''
+            else:
                 self.total_reached = False
 
                 if data.path_suffix is None:

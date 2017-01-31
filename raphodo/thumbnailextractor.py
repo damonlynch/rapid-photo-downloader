@@ -538,9 +538,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                           rpd_file.name)
 
             self.write_fdo_thumbnail = data.write_fdo_thumbnail
-            # whether to send the generated thumbnail to the main process
-            send_thumb_to_main = rpd_file.thumbnail_status not in (
-                                ThumbnailCacheStatus.fdo_256_ready, ThumbnailCacheStatus.ready)
+
             try:
                 if rpd_file.fdo_thumbnail_256 is not None and data.write_fdo_thumbnail:
                     if rpd_file.thumbnail_status != ThumbnailCacheStatus.fdo_256_ready:
@@ -572,14 +570,14 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                     Qt.SmoothTransformation)
                             else:
                                 if rpd_file.should_write_fdo() and \
-                                        self.image_large_enough_fdo(thumbnail.size()):
+                                        self.image_large_enough_fdo(thumbnail.size()) \
+                                        and max(thumbnail.height(), thumbnail.width()) > 256:
                                     thumbnail_256 = thumbnail.scaled(
                                         QSize(256, 256),
                                         Qt.KeepAspectRatio,
                                         Qt.SmoothTransformation)
                                     thumbnail = thumbnail_256
-
-                                if send_thumb_to_main:
+                                if data.send_thumb_to_main:
                                     thumbnail = thumbnail.scaled(
                                         self.thumbnailSizeNeeded,
                                         Qt.KeepAspectRatio,
@@ -609,7 +607,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                     orientation_unknown = (ExtractionProcessing.orient in processing and
                                              orientation is None)
 
-                    if send_thumb_to_main and data.use_thumbnail_cache and \
+                    if data.send_thumb_to_main and data.use_thumbnail_cache and \
                             rpd_file.thumbnail_cache_status == ThumbnailCacheDiskStatus.not_found:
                         self.thumbnail_cache.save_thumbnail(
                             full_file_name=rpd_file.full_file_name,
@@ -674,7 +672,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 logging.exception("Traceback:")
 
             # Purge metadata, as it cannot be pickled
-            if not send_thumb_to_main:
+            if not data.send_thumb_to_main:
                 png_data = None
             rpd_file.metadata = None
             self.sender.send_multipart([b'0', b'data',

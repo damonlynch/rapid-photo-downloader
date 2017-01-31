@@ -479,9 +479,14 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             if task != ExtractionTask.undetermined:
                 if origin == ThumbnailCacheOrigin.thumbnail_cache:
                     from_thumb_cache += 1
+                    # logging.debug("Thumbnail for %s found in RPD thumbnail cache",
+                    #               rpd_file.full_file_name)
                 else:
                     assert origin == ThumbnailCacheOrigin.fdo_cache
+                    logging.debug("Thumbnail for %s found in large FDO cache",
+                                  rpd_file.full_file_name)
                     from_fdo_cache += 1
+                    processing.add(ExtractionProcessing.resize)
                     if not rpd_file.mdatatime:
                         # Since we're extracting the thumbnail from the FDO cache,
                         # need to grab its metadata too.
@@ -491,7 +496,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                         # special to do except assign the name of the file from which
                         # to extract the metadata
                         secondary_full_file_name = rpd_file.full_file_name
-
+                        logging.debug("Although thumbnail found in the cache, tasked to extract "
+                                      "file time recorded in metadata from %s",
+                                      secondary_full_file_name)
             if task == ExtractionTask.undetermined:
                 # Thumbnail was not found in any cache: extract it
                 if self.camera:  # type: Camera
@@ -625,10 +632,10 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     thumbnail_bytes = thumbnail_bytes,
                     use_thumbnail_cache=use_thumbnail_cache,
                     file_to_work_on_is_temporary=file_to_work_on_is_temporary,
-                    write_fdo_thumbnail=False),
+                    write_fdo_thumbnail=False,
+                    send_thumb_to_main=True),
                     pickle.HIGHEST_PROTOCOL)
                 self.frontend.send_multipart([b'data', self.content])
-
 
         if arguments.camera:
             self.camera.free_camera()

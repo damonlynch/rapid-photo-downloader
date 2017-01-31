@@ -508,7 +508,7 @@ class RPDFile:
 
         # freedesktop.org cache thumbnails
         # http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
-        self.thumbnail_status = ThumbnailCacheStatus.not_ready  # type; ThumbnailCacheStatus
+        self.thumbnail_status = ThumbnailCacheStatus.not_ready  # type: ThumbnailCacheStatus
         self.fdo_thumbnail_128_name = ''
         self.fdo_thumbnail_256_name = ''
         # PNG data > 128x128 <= 256x256

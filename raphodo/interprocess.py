@@ -1484,7 +1484,8 @@ class ThumbnailExtractorArgument:
                  thumbnail_bytes: bytes,
                  use_thumbnail_cache: bool,
                  file_to_work_on_is_temporary: bool,
-                 write_fdo_thumbnail: bool) -> None:
+                 write_fdo_thumbnail: bool,
+                 send_thumb_to_main: bool) -> None:
         self.rpd_file = rpd_file
         self.task = task
         self.processing = processing
@@ -1495,6 +1496,7 @@ class ThumbnailExtractorArgument:
         self.thumbnail_bytes = thumbnail_bytes
         self.use_thumbnail_cache = use_thumbnail_cache
         self.write_fdo_thumbnail = write_fdo_thumbnail
+        self.send_thumb_to_main = send_thumb_to_main
 
 
 class RenameMoveFileManager(PushPullDaemonManager):

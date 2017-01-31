@@ -26,6 +26,13 @@ Changelog for Rapid Photo Downloader
    when trying to determine device time zones when examining sample photos and
    videos.
 
+ - Fixed a bug too small of a portion of a .mov or .avi file from a camera or
+   phone was being extracted in order to read video metadata.
+
+ - Fixed a bug where thumbnails were not being rendered in the main window
+   when the thumbnail was originally sourced from the Freedesktop.org
+   thumbnail cache.
+
  - Disallow the running of the program as the root user.
 
  - Updated program installer to stop installation on Fedora 23 and Debian

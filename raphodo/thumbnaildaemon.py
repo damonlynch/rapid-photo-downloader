@@ -173,10 +173,11 @@ class DameonThumbnailWorker(DaemonProcess):
                             full_file_name_to_work_on=full_file_name_to_work_on,
                             secondary_full_file_name='',
                             exif_buffer=None,
-                            thumbnail_bytes = thumbnail_bytes,
+                            thumbnail_bytes=thumbnail_bytes,
                             use_thumbnail_cache=data.use_thumbnail_cache,
                             file_to_work_on_is_temporary=False,
-                            write_fdo_thumbnail=data.write_fdo_thumbnail),
+                            write_fdo_thumbnail=data.write_fdo_thumbnail,
+                            send_thumb_to_main=True),
                             pickle.HIGHEST_PROTOCOL)
                         self.frontend.send_multipart([b'data', self.content])
                 except SystemExit as e:
