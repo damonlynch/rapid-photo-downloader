@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-27 14:45-0600\n"
-"PO-Revision-Date: 2014-01-22 00:14+0000\n"
-"Last-Translator: bert <crinbert@yahoo.com>\n"
+"POT-Creation-Date: 2017-01-31 17:52-0600\n"
+"PO-Revision-Date: 2017-01-28 03:27+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-01-23 13:56+0000\n"
-"X-Generator: Launchpad (build 16901)\n"
+"X-Launchpad-Export-Date: 2017-01-31 23:48+0000\n"
+"X-Generator: Launchpad (build 18315)\n"
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
 msgstr "Eroare copiere de siguranță"
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:178 ../raphodo/renameandmovefile.py:270
+#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -42,22 +42,22 @@ msgstr "Erori: %(inst)s"
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr "Directorul de destinație nu poate fi creat: %(directory)s\n"
 
-#: ../raphodo/backupfile.py:167
+#: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr "Copia de siguranță %(file_type)s va fi rescrisă"
 
-#: ../raphodo/backupfile.py:171
+#: ../raphodo/backupfile.py:173
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr "%(file_type)s nu s-a copiat de siguranță"
 
-#: ../raphodo/backupfile.py:175
+#: ../raphodo/backupfile.py:177
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr "Copia de siguranță a %(file_type)s există deja"
 
-#: ../raphodo/backupfile.py:200 ../raphodo/copyfiles.py:184
+#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
 #: ../raphodo/renameandmovefile.py:424 ../raphodo/renameandmovefile.py:550
 #, python-format
@@ -70,7 +70,7 @@ msgstr ""
 msgid "The file could not be copied from the camera"
 msgstr ""
 
-#: ../raphodo/copyfiles.py:389
+#: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
 msgstr ""
 
@@ -84,15 +84,13 @@ msgstr ""
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1750
 #: ../raphodo/rapid.py:1927 ../raphodo/rapid.py:5285
-#, fuzzy
 msgid "Photos"
-msgstr "Fotografii:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1753
 #: ../raphodo/rapid.py:1928 ../raphodo/rapid.py:5286
-#, fuzzy
 msgid "Videos"
-msgstr "Video-uri"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:999
 msgid "Temporarily ignore this device"
@@ -116,77 +114,71 @@ msgstr ""
 msgid "%(no_videos)s Videos"
 msgstr ""
 
-#: ../raphodo/devices.py:423
-#, fuzzy
+#: ../raphodo/devices.py:424
 msgid "Cameras"
-msgstr "Fabricant cameră foto"
+msgstr ""
 
-#: ../raphodo/devices.py:424 ../raphodo/devices.py:852 ../raphodo/rapid.py:1714
+#: ../raphodo/devices.py:425 ../raphodo/devices.py:881 ../raphodo/rapid.py:1714
 msgid "Devices"
 msgstr "Dispozitive"
 
-#: ../raphodo/devices.py:664
+#: ../raphodo/devices.py:685
 #, python-format
 msgid "Downloading from %(device_names)s"
 msgstr ""
 
 #. Translators: e.g. Three Devices
-#: ../raphodo/devices.py:720
-#, fuzzy, python-format
+#: ../raphodo/devices.py:741
+#, python-format
 msgid "%(no_devices)s %(device_type)s"
-msgstr "%(number)s %(filetypes)s"
+msgstr ""
 
-#: ../raphodo/devices.py:837 ../raphodo/rapid.py:1551
-#, fuzzy
+#: ../raphodo/devices.py:866 ../raphodo/rapid.py:1551
 msgid "Select Source"
-msgstr "_Selectați"
+msgstr ""
 
-#: ../raphodo/devices.py:868 ../raphodo/devices.py:879
+#: ../raphodo/devices.py:897 ../raphodo/devices.py:908
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr ""
 
 #. Number of cameras e.g. 3 Cameras
-#: ../raphodo/devices.py:890
+#: ../raphodo/devices.py:919
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:895
+#: ../raphodo/devices.py:924
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:402
-#, fuzzy
 msgid "MB/sec"
-msgstr "MB/s"
+msgstr ""
 
 #. Be friendly in the last few seconds
 #: ../raphodo/downloadtracker.py:532
-#, fuzzy
 msgid "A few seconds"
-msgstr "Milisecunde"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:588
-#, fuzzy
 msgid "1 second"
-msgstr "Milisecunde"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:590
-#, fuzzy, python-format
+#, python-format
 msgid "%d seconds"
-msgstr "Milisecunde"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:595
-#, fuzzy
 msgid "1 minute"
-msgstr "MM (minute)"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:597
-#, fuzzy, python-format
+#, python-format
 msgid "%d minutes"
-msgstr "MM (minute)"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:602 ../raphodo/downloadtracker.py:784
 msgid "1 hour"
@@ -222,9 +214,9 @@ msgid "%d minutes, 1 second"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:797
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)d minutes, %(seconds)d seconds"
-msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:828
 msgid "1 hour, 1 minute"
@@ -570,9 +562,8 @@ msgstr "AAAA-LL-ZZ"
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:314 ../raphodo/generatenameconfig.py:391
-#, fuzzy
 msgid "YYYY_MM_DD"
-msgstr "AAAALLZZ"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -703,9 +694,8 @@ msgid "SS"
 msgstr "SS"
 
 #: ../raphodo/generatenameconfig.py:389
-#, fuzzy
 msgid "Date"
-msgstr "Dată timp"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:390
 msgid "Date (hyphens)"
@@ -717,88 +707,72 @@ msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392 ../raphodo/generatenameconfig.py:438
 #: ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "Date and Job Code"
-msgstr "Introduceți un Cod Sarcină"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392
-#, fuzzy
 msgid "YYYYMM_Job Code"
-msgstr "Cod Sarcină"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "Date and Job Code Subfolder"
-msgstr "Introduceți un Cod Sarcină"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "YYYYMM"
-msgstr "AAAALLZZ"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393 ../raphodo/rapid.py:1596
 msgid "Job Code"
 msgstr "Cod Sarcină"
 
 #: ../raphodo/generatenameconfig.py:433 ../raphodo/generatenameconfig.py:512
-#, fuzzy
 msgid "Original Filename"
-msgstr "Format original"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "Date-Time and Downloads today"
-msgstr "Descărcările de azi"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "YYYYMMDD-HHMM-1"
-msgstr "AAAALLZZ"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "Date and Downloads today"
-msgstr "Descărcările de azi"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "YYYYMMDD-1"
-msgstr "AAAALLZZ"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "Date-Time and Image number"
-msgstr "Număr imagine"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "YYYYMMDD-1234"
-msgstr "AAAALLZZ"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "Date-Time and Job Code"
-msgstr "Introduceți un Cod Sarcină"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "YYYYMMDD-HHMM-Job Code-1"
-msgstr "Cod Sarcină"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:438 ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "YYYYMMDD-Job Code-1"
-msgstr "Cod Sarcină"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "Date-Time and Video number"
-msgstr "Număr video"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "YYYYMMDD_1234"
-msgstr "AAAALLZZ"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:518
 msgid "Resolution"
@@ -1133,47 +1107,47 @@ msgstr ""
 #. Translators: for example Nov 3 or Dec 31
 #: ../raphodo/proximity.py:105 ../raphodo/proximity.py:221
 #: ../raphodo/proximity.py:224 ../raphodo/proximity.py:828
-#, fuzzy, python-format
+#, python-format
 msgid "%(month)s %(numeric_day)s"
-msgstr "%(number)s %(numberdownloaded)s"
+msgstr ""
 
 #. Translators: for example Nov 15 2015
 #. Translators: for example Nov 3 2015
 #: ../raphodo/proximity.py:109 ../raphodo/proximity.py:230
 #: ../raphodo/proximity.py:231 ../raphodo/proximity.py:831
-#, fuzzy, python-format
+#, python-format
 msgid "%(date)s %(year)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators: for example Nov 3 2015, 11:25 AM
 #. Translators: for example, Nov 3, 12:15 PM
 #: ../raphodo/proximity.py:197 ../raphodo/proximity.py:215
 #: ../raphodo/proximity.py:234 ../raphodo/proximity.py:236
-#, fuzzy, python-format
+#, python-format
 msgid "%(date)s, %(time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:209
-#, fuzzy, python-format
+#, python-format
 msgid "%(starttime)s - %(endtime)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
 #: ../raphodo/proximity.py:241
-#, fuzzy, python-format
+#, python-format
 msgid "%(earlier_time)s - %(later_time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators, for example:
 #. Nov 3 2012, 12:15 PM -
 #. Nov 4 2012, 1:00 AM
 #. (please keep the line break signified by \n)
 #: ../raphodo/proximity.py:248
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "%(earlier_time)s -\n"
 "%(later_time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:359
 #, python-format
@@ -1182,9 +1156,9 @@ msgstr ""
 
 #. Translators: for example Nov 2015
 #: ../raphodo/proximity.py:833
-#, fuzzy, python-format
+#, python-format
 msgid "%(month)s %(year)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:1343
 msgid ""
@@ -1197,9 +1171,9 @@ msgstr ""
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
 #: ../raphodo/proximity.py:1405
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)dm"
-msgstr "MM (minute)"
+msgstr ""
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
@@ -1257,15 +1231,13 @@ msgid "Rapid Photo Downloader"
 msgstr "Rapid Foto Descărcător"
 
 #: ../raphodo/rapid.py:1222
-#, fuzzy
 msgid "Download failed"
-msgstr "Timp descărcare"
+msgstr ""
 
 #: ../raphodo/rapid.py:1223
-#, fuzzy
 msgid ""
 "Sorry, the download of the new version of Rapid Photo Downloader failed."
-msgstr "Preferințe: Rapid Foto Descărcător"
+msgstr ""
 
 #: ../raphodo/rapid.py:1229
 msgid ""
@@ -1274,9 +1246,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1232
-#, fuzzy
 msgid "Update Rapid Photo Downloader"
-msgstr "Rapid Foto Descărcător"
+msgstr ""
 
 #: ../raphodo/rapid.py:1236
 msgid "Install"
@@ -1329,24 +1300,20 @@ msgid "Error Log"
 msgstr "Jurnal Erori"
 
 #: ../raphodo/rapid.py:1485
-#, fuzzy
 msgid "Clear Completed Downloads"
-msgstr "_Curăță descărcările Complected"
+msgstr ""
 
 #: ../raphodo/rapid.py:1488
-#, fuzzy
 msgid "Get Help Online..."
-msgstr "_Găsiți Ajutor Online..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1491
-#, fuzzy
 msgid "Report a Problem..."
-msgstr "_Raportați o problemă..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1494
-#, fuzzy
 msgid "Make a Donation..."
-msgstr "_Faceți o Donație..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1497
 msgid "Translate this Application..."
@@ -1369,14 +1336,12 @@ msgid "Destination"
 msgstr ""
 
 #: ../raphodo/rapid.py:1595
-#, fuzzy
 msgid "Rename"
-msgstr "Nume fișier"
+msgstr ""
 
 #: ../raphodo/rapid.py:1597
-#, fuzzy
 msgid "Back Up"
-msgstr "Copie de rezervă"
+msgstr ""
 
 #. Devices Header and View
 #: ../raphodo/rapid.py:1713
@@ -1448,14 +1413,13 @@ msgid "Descending"
 msgstr ""
 
 #: ../raphodo/rapid.py:1917
-#, fuzzy
 msgid "Select All:"
-msgstr "_Selectați"
+msgstr ""
 
 #: ../raphodo/rapid.py:2120
-#, fuzzy, python-format
+#, python-format
 msgid "Download %(files)s"
-msgstr "Timp descărcare"
+msgstr ""
 
 #: ../raphodo/rapid.py:2136
 msgid "Resume Download"
@@ -1600,14 +1564,13 @@ msgid "%d failures"
 msgstr ""
 
 #: ../raphodo/rapid.py:3444
-#, fuzzy
 msgid "1 warning"
-msgstr "avertismente"
+msgstr ""
 
 #: ../raphodo/rapid.py:3446
-#, fuzzy, python-format
+#, python-format
 msgid "%d warnings"
-msgstr "avertismente"
+msgstr ""
 
 #: ../raphodo/rapid.py:3466
 #, python-format
@@ -1625,9 +1588,8 @@ msgid "No files downloaded — %(failures)s"
 msgstr ""
 
 #: ../raphodo/rapid.py:3476
-#, fuzzy
 msgid "No files downloaded"
-msgstr "%(filetype)s descărcate"
+msgstr ""
 
 #: ../raphodo/rapid.py:3500
 #, python-format
@@ -1733,11 +1695,9 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4272
-#, fuzzy, python-format
+#, python-format
 msgid "Should %(device)s be used to download photos and videos from?"
 msgstr ""
-"Poate acest dispozitiv sau partiție să fie folosit pentru descărcare "
-"fotografii sau video de la?"
 
 #: ../raphodo/rapid.py:4469
 #, python-format
@@ -1776,9 +1736,9 @@ msgid "Generating thumbnails for %s"
 msgstr ""
 
 #: ../raphodo/rapid.py:4807
-#, fuzzy, python-format
+#, python-format
 msgid "Scanning %s"
-msgstr "scanez"
+msgstr ""
 
 #: ../raphodo/rapid.py:4817
 #, python-format
@@ -1787,41 +1747,34 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4823
-#, fuzzy, python-format
+#, python-format
 msgid "%(number)s of %(available files)s checked for download"
-msgstr "%(noFiles)s %(filetypes)s descărcare eșuată"
+msgstr ""
 
 #: ../raphodo/rapid.py:5046
-#, fuzzy
 msgid "Display program information when run from the command line."
-msgstr "afișare informații depanare în linia de coandă atunci când rulează"
+msgstr ""
 
 #: ../raphodo/rapid.py:5048
-#, fuzzy
 msgid "Display debugging information when run from the command line."
-msgstr "afișare informații depanare în linia de coandă atunci când rulează"
+msgstr ""
 
 #: ../raphodo/rapid.py:5051
-#, fuzzy
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr ""
-"listează extensiile fișierului fotografie și video pe care progamul le "
-"recunoaște și ieși"
 
 #: ../raphodo/rapid.py:5054
 msgid "Turn on or off the the renaming of photos."
 msgstr ""
 
 #: ../raphodo/rapid.py:5056
-#, fuzzy
 msgid "turn on or off the the renaming of videos."
-msgstr "Detectare automată a copiilor de siguranță a dispozitivelor"
+msgstr ""
 
 #: ../raphodo/rapid.py:5058
-#, fuzzy
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
-msgstr "Detectare automată a copiilor de siguranță a dispozitivelor"
+msgstr ""
 
 #: ../raphodo/rapid.py:5062
 msgid "Turn on or off downloading from this computer."
@@ -1845,64 +1798,44 @@ msgid "The PATH where videos will be downloaded to."
 msgstr ""
 
 #: ../raphodo/rapid.py:5073
-#, fuzzy
 msgid "Turn on or off the backing up of photos and videos while downloading."
-msgstr "Copiază de siguranță fotografiile șî video cănd descărci"
+msgstr ""
 
 #: ../raphodo/rapid.py:5077
-#, fuzzy
 msgid "Turn on or off the automatic detection of backup devices."
-msgstr "Detectare automată a copiilor de siguranță a dispozitivelor"
+msgstr ""
 
 #: ../raphodo/rapid.py:5079 ../raphodo/rapid.py:5085
 msgid "FOLDER"
 msgstr ""
 
 #: ../raphodo/rapid.py:5080
-#, fuzzy
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
 "the device is used for backups. For each device you wish to use for backing "
 "photos up to, create a folder on it with this name."
 msgstr ""
-"Specificaţi dosarul în care copiile de siguranță sunt stocate pe "
-"dispozitiv.  \n"
-"\n"
-"<i>Notă: acest lucru va fi, de asemenea, utilizat pentru a determina dacă "
-"sau nu, dispozitivul este folosit pentru copie de siguranță. Pentru fiecare "
-"dispozitiv pentru care faceți copie de siguranță, creați un dosar în el cu "
-"numele lui.</i>"
 
 #: ../raphodo/rapid.py:5086
-#, fuzzy
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
 "the device is used for backups. For each device you wish to use for backing "
 "up videos to, create a folder on it with this name."
 msgstr ""
-"Specificaţi dosarul în care copiile de siguranță sunt stocate pe "
-"dispozitiv.  \n"
-"\n"
-"<i>Notă: acest lucru va fi, de asemenea, utilizat pentru a determina dacă "
-"sau nu, dispozitivul este folosit pentru copie de siguranță. Pentru fiecare "
-"dispozitiv pentru care faceți copie de siguranță, creați un dosar în el cu "
-"numele lui.</i>"
 
 #: ../raphodo/rapid.py:5092
-#, fuzzy
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
-msgstr "Detectare automată a copiilor de siguranță a dispozitivelor"
+msgstr ""
 
 #: ../raphodo/rapid.py:5096
-#, fuzzy
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
-msgstr "Detectare automată a copiilor de siguranță a dispozitivelor"
+msgstr ""
 
 #: ../raphodo/rapid.py:5099
 #, python-format
@@ -1979,9 +1912,8 @@ msgid "Program aborting."
 msgstr ""
 
 #: ../raphodo/rapid.py:5476
-#, fuzzy
 msgid "All settings and caches have been reset"
-msgstr "Toate setările și preferințele au fost resetate"
+msgstr ""
 
 #: ../raphodo/rapid.py:5484
 msgid "Thumbnail Cache has been reset"
@@ -2021,11 +1953,11 @@ msgstr "fotografii și video"
 msgid "photos or videos"
 msgstr "fotografii și video"
 
-#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:852
+#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:855
 msgid "video"
 msgstr "video"
 
-#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:810
+#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:813
 msgid "photo"
 msgstr "fotografie"
 
@@ -2035,25 +1967,23 @@ msgid "%(number)s %(filetypes)s"
 msgstr "%(number)s %(filetypes)s"
 
 #: ../raphodo/rpdfile.py:312
-#, fuzzy
 msgid "1 Video"
-msgstr "Video"
+msgstr ""
 
 #: ../raphodo/rpdfile.py:317
-#, fuzzy
 msgid "1 Photo"
-msgstr "Fotografie"
+msgstr ""
 
-#: ../raphodo/rpdfile.py:775
+#: ../raphodo/rpdfile.py:778
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:811
+#: ../raphodo/rpdfile.py:814
 msgid "Photo"
 msgstr "Fotografie"
 
-#: ../raphodo/rpdfile.py:853
+#: ../raphodo/rpdfile.py:856
 msgid "Video"
 msgstr "Video"
 
@@ -2078,9 +2008,8 @@ msgid "Memory cards: %s"
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:444
-#, fuzzy
 msgid "Downloaded as:"
-msgstr "Descărcare / Pauză"
+msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:450
 #, python-format
@@ -2135,9 +2064,8 @@ msgid "seven"
 msgstr ""
 
 #: ../raphodo/utilities.py:449
-#, fuzzy
 msgid "eight"
-msgstr "Înălțime"
+msgstr ""
 
 #: ../raphodo/utilities.py:450
 msgid "nine"
@@ -2176,9 +2104,8 @@ msgid "seventeen"
 msgstr ""
 
 #: ../raphodo/utilities.py:459
-#, fuzzy
 msgid "eighteen"
-msgstr "Înălțime"
+msgstr ""
 
 #: ../raphodo/utilities.py:460
 msgid "ninenteen"
@@ -2219,9 +2146,8 @@ msgid ""
 msgstr ""
 
 #: ../data/rapid-photo-downloader.desktop.in.h:2
-#, fuzzy
 msgid "Photo Downloader"
-msgstr "Rapid Foto Descărcător"
+msgstr ""
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
@@ -2231,16 +2157,307 @@ msgid ""
 msgstr ""
 
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
-#, fuzzy
 msgid "Download Photos and Videos with Rapid Photo Downloader"
-msgstr "Preferințe: Rapid Foto Descărcător"
+msgstr ""
+
+#~ msgid "Berlin"
+#~ msgstr "Berlin"
+
+#~ msgid "Paris"
+#~ msgstr "Paris"
+
+#~ msgid "New York"
+#~ msgstr "New York"
+
+#~ msgid "Prague"
+#~ msgstr "Praga"
+
+#~ msgid "Manila"
+#~ msgstr "Manila"
+
+#~ msgid "Wellington"
+#~ msgstr "Wellington"
+
+#~ msgid "Helsinki"
+#~ msgstr "Helsinki"
+
+#~ msgid "Kampala"
+#~ msgstr "Kampala"
+
+#~ msgid "Tehran"
+#~ msgstr "Teheran"
+
+#~ msgid "Stockholm"
+#~ msgstr "Stockholm"
+
+#~ msgid "Rome"
+#~ msgstr "Roma"
+
+#~ msgid "Moscow"
+#~ msgstr "Moscova"
+
+#~ msgid "Sydney"
+#~ msgstr "Sydney"
+
+#~ msgid "Budapest"
+#~ msgstr "Budapesta"
+
+#~ msgid "Jakarta"
+#~ msgstr "Jakarta"
+
+#~ msgid "Madrid"
+#~ msgstr "Madrid"
+
+#~ msgid "Delhi"
+#~ msgstr "Delhi"
+
+#~ msgid "Warsaw"
+#~ msgstr "Varșovia"
+
+#~ msgid "Select a folder to download videos to"
+#~ msgstr "Selectează un dosar unde descarc video"
+
+#~ msgid "<i>Example: %s</i>"
+#~ msgstr "<i>Exemple: %s<i/>"
+
+#~ msgid "externaldrive1"
+#~ msgstr "dispozitiv extern 1"
+
+#~ msgid "externaldrive2"
+#~ msgstr "dispozitiv extern 2"
+
+#~ msgid "scanning..."
+#~ msgstr "scanez"
+
+#~ msgid "Size"
+#~ msgstr "Mărime"
+
+#~ msgid "Download Progress"
+#~ msgstr "Progresul Descărcării"
+
+#~ msgid "_Remember this choice"
+#~ msgstr "_Amintiţi-vă această alegere"
+
+#~ msgid "Device Detected"
+#~ msgstr "Dispozitiv Detectat"
+
+#~ msgid "and"
+#~ msgstr "și"
+
+#~ msgid "MB/s"
+#~ msgstr "MB/s"
+
+#~ msgid "reset all program settings and preferences and exit"
+#~ msgstr "resetează toate setările și preferințele și ieși"
+
+#~ msgid "All settings and preferences have been reset"
+#~ msgstr "Toate setările și preferințele au fost resetate"
+
+#~ msgid "Photos:"
+#~ msgstr "Fotografii:"
+
+#~ msgid "list photo and video file extensions the program recognizes and exit"
+#~ msgstr ""
+#~ "listează extensiile fișierului fotografie și video pe care progamul le "
+#~ "recunoaște și ieși"
+
+#~ msgid "Videos:"
+#~ msgstr "Video-uri"
+
+#~ msgid "and %s"
+#~ msgstr "și %s"
+
+#~ msgid "only output errors to the command line"
+#~ msgstr "doar erorile de ieșire în linie de comandă"
 
 #~ msgid "Name + extension"
 #~ msgstr "Nume + extensie"
 
-#, fuzzy
-#~ msgid "&Remember this choice"
-#~ msgstr "_Amintiţi-vă această alegere"
+#~ msgid " "
+#~ msgstr " "
+
+#~ msgid "<b>Photo Rename</b>"
+#~ msgstr "<b>Redenumire Fotografie</b>"
+
+#~ msgid " hh:mm"
+#~ msgstr " oo:mm"
+
+#~ msgid ":"
+#~ msgstr ":"
+
+#~ msgid "<b>Download Folder</b>"
+#~ msgstr "<b>Dosar Descărcare</b>"
+
+#~ msgid "<b>Compatibility with Other Operating Systems</b>"
+#~ msgstr "<b>Compatibilitate cu Alt Sistem de Operare</b>"
+
+#~ msgid "<b>Example</b>"
+#~ msgstr "<b>Exemplu</b>"
+
+#~ msgid "<i>Original:</i>"
+#~ msgstr "<i>Original:</i>"
+
+#~ msgid "<i>Example:</i>"
+#~ msgstr "<i>Exemplu:</i>"
+
+#~ msgid "<i>New:</i>"
+#~ msgstr "<i>Nou:</i>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Copie de Rezervă</span>\t"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">Redenumire Fotografii</span>\t"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Redenumire Opțiuni</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">Dosar Descărcări Fotografii</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">Dosar Descărcări Video</span>"
+
+#~ msgid "Automatically detect Portable Storage Devices"
+#~ msgstr "Detectare automată a Dispozitivelor de Stocare Portabile"
+
+#~ msgid "Add unique identifier"
+#~ msgstr "Adaugă identificator unic"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
+#~ msgstr ""
+#~ "Copy text \t\r\n"
+#~ "<span weight=\"bold\" size=\"x-large\">Dispozitiv</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Redenumire Video</span>\t"
+
+#~ msgid "Automatically detect devices"
+#~ msgstr "Detectare automată dispozitive"
+
+#~ msgid "Download / Pause"
+#~ msgstr "Descărcare / Pauză"
+
+#~ msgid "Error Handling"
+#~ msgstr "Tratarea erorilor"
+
+#~ msgid "Download folder:"
+#~ msgstr "Dosarul de descărcare:"
+
+#~ msgid "Location:"
+#~ msgstr "Locație:"
+
+#~ msgid "Overwrite"
+#~ msgstr "Suprascrie"
+
+#~ msgid "Photo Rename"
+#~ msgstr "Redenumire Fotografie"
+
+#~ msgid "Photo Folders"
+#~ msgstr "Dosar Fotografii"
+
+#~ msgid "Import your photos and videos efficiently and reliably"
+#~ msgstr "Importați fotografii și video eficien și fiabil"
+
+#~ msgid "Rename Options"
+#~ msgstr "Opțiuni Redenumire"
+
+#~ msgid "Preferences: Rapid Photo Downloader"
+#~ msgstr "Preferințe: Rapid Foto Descărcător"
+
+#~ msgid "Start downloading upon device insertion"
+#~ msgstr "Pornire descărcare la introducerea dispozitivului"
+
+#~ msgid "Skip"
+#~ msgstr "Omite"
+
+#~ msgid "Stored number:"
+#~ msgstr "Număr stocare:"
+
+#~ msgid "Skip download"
+#~ msgstr "Omite descărcare"
+
+#~ msgid "Start downloading at program startup"
+#~ msgstr "Pornire descărcare la pornirea programului"
+
+#~ msgid "Video Rename"
+#~ msgstr "Redenumire Video"
+
+#~ msgid "_Add..."
+#~ msgstr "_Adaugă..."
+
+#~ msgid "Video Folders"
+#~ msgstr "Dosare Video"
+
+#~ msgid "_Error Log"
+#~ msgstr "_Erori Jurnal"
+
+#~ msgid "_Make a Donation..."
+#~ msgstr "_Faceți o Donație..."
+
+#~ msgid "_File"
+#~ msgstr "_Fişier"
+
+#~ msgid "_Help"
+#~ msgstr "_Ajutor"
+
+#~ msgid "_Report a Problem..."
+#~ msgstr "_Raportați o problemă..."
+
+#~ msgid "_Select"
+#~ msgstr "_Selectați"
+
+#~ msgid "_View"
+#~ msgstr "_Vizualizează"
+
+#~ msgid "_Translate this Application..."
+#~ msgstr "_Tradu această aplicație..."
+
+#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
+#~ msgstr "Aproximativ %(minutes)i:%(seconds)-2i minute rămân"
+
+#~ msgid "About 1 minute remaining"
+#~ msgstr "Aprozimativ 1 minut rămâne"
+
+#~ msgid "About %i seconds remaining"
+#~ msgstr "Aproximativ %i secunde rămân"
+
+#~ msgid "<b>Program Automation</b>"
+#~ msgstr "<b>Program Automatizare</b>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Eroare de manipulare</span>"
+
+#~ msgid "<b>Sequence Numbers</b>"
+#~ msgstr "<b>Număr Secvență</b>"
+
+#~ msgid "<i>Example: /home/user/Pictures</i>"
+#~ msgstr "<i>Exemplu: /acasă/utilizator/Poze</i>"
+
+#~ msgid "R_emove All"
+#~ msgstr "Șt_erge tot"
+
+#~ msgid "_Clear Completed Downloads"
+#~ msgstr "_Curăță descărcările Complected"
+
+#~ msgid "Strip incompatible characters"
+#~ msgstr "Curăță caractere incompatibile"
+
+#~ msgid ""
+#~ "Specify whether photo, video and folder names should have any characters "
+#~ "removed that are not allowed by other operating systems."
+#~ msgstr ""
+#~ "Specificaţi dacă foto, video şi nume de dosar ar trebui să aibă caractere "
+#~ "eliminate care nu sunt permise de alte sisteme de operare."
+
+#~ msgid "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+
+#~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
 #~ msgid ""
 #~ "%(date)s\n"
@@ -2249,59 +2466,8 @@ msgstr "Preferințe: Rapid Foto Descărcător"
 #~ "%(date)s\n"
 #~ "%(time)s"
 
-#~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
-#~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
-
-#~ msgid "Size"
-#~ msgstr "Mărime"
-
-#~ msgid "Download Progress"
-#~ msgstr "Progresul Descărcării"
-
-#~ msgid "About 1 second remaining"
-#~ msgstr "Aproximativ 1 secundă rămâne"
-
-#~ msgid "About %i seconds remaining"
-#~ msgstr "Aproximativ %i secunde rămân"
-
-#~ msgid "About 1 minute remaining"
-#~ msgstr "Aprozimativ 1 minut rămâne"
-
-#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
-#~ msgstr "Aproximativ %(minutes)i:%(seconds)-2i minute rămân"
-
-#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
-#~ msgstr "%(number)s din %(total)s %(filetypes)s (%(remaining)s remaining)"
-
-#~ msgid "%(number)s of %(total)s %(filetypes)s"
-#~ msgstr "%(number)s din %(total)s %(filetypes)s"
-
-#~ msgid "Select a folder containing %(file_types)s"
-#~ msgstr "Selectaţi un dosar ce conţine %(file_types)s"
-
-#~ msgid "Select a folder to download photos to"
-#~ msgstr "Alegeți un dosar unde să fie descărcate fotografiile"
-
-#~ msgid "Select a folder to download videos to"
-#~ msgstr "Selectează un dosar unde descarc video"
-
-#~ msgid "and"
-#~ msgstr "și"
-
-#~ msgid "Using backup devices"
-#~ msgstr "Folosesc copia de siguranță a dispozitivelor"
-
-#~ msgid "Using backup device"
-#~ msgstr "Folosesc copia de siguranță a dispozitivului"
-
-#~ msgid "No backup devices detected"
-#~ msgstr "Nu am găsit copie de siguranță a dispozitivului"
-
-#~ msgid "Backing up to %(path)s"
-#~ msgstr "Copiez de siguranță în %(path)s"
-
-#~ msgid "%(freespace)s. %(backuppaths)s."
-#~ msgstr "%(freespace)s. %(backuppaths)s."
+#~ msgid "%(date)s %(time)s"
+#~ msgstr "%(date)s %(time)s"
 
 #~ msgid ""
 #~ "display program information on the command line as the program runs "
@@ -2310,35 +2476,143 @@ msgstr "Preferințe: Rapid Foto Descărcător"
 #~ "afișare informații program în linia de comandă când programul rulează "
 #~ "(default: %default)"
 
-#~ msgid "only output errors to the command line"
-#~ msgstr "doar erorile de ieșire în linie de comandă"
+#~ msgid "display debugging information when run from the command line"
+#~ msgstr "afișare informații depanare în linia de coandă atunci când rulează"
 
-#~ msgid "reset all program settings and preferences and exit"
-#~ msgstr "resetează toate setările și preferințele și ieși"
+#~ msgid "Downloads today:"
+#~ msgstr "Descărcări de azi:"
 
-#~ msgid "and %s"
-#~ msgstr "și %s"
+#~ msgid ""
+#~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
+#~ "sequence number should be reset."
+#~ msgstr ""
+#~ "Specificaţi ora în formatul de 24 de ore la care <i>Descărcări de astăzi</"
+#~ "i> numărul de ordine ar fi resetate."
 
-#~ msgid "Device Detected"
-#~ msgstr "Dispozitiv Detectat"
+#~ msgid ""
+#~ "When a photo or video of the same name has already been downloaded, "
+#~ "choose whether to skip downloading the file, or to add a unique "
+#~ "indentifier."
+#~ msgstr ""
+#~ "Atunci când o fotografie sau video cu acelaşi nume a fost deja descărcat, "
+#~ "alegeţi dacă să săriţi descărcarea fişierul, sau pentru a adăuga un "
+#~ "identificator unic."
 
-#~ msgid "Remove all Job Codes?"
-#~ msgstr "Eliminați toate Codurile Sarcină"
+#~ msgid "Synchronize RAW + JPEG sequence numbers"
+#~ msgstr "Sincronizarea RAW + JPEG numere de secvenţă"
 
-#~ msgid "Should all Job Codes be removed?"
-#~ msgstr "Să elimin toate Codurile Sarcină"
+#~ msgid "Select a folder containing %(file_types)s"
+#~ msgstr "Selectaţi un dosar ce conţine %(file_types)s"
 
-#~ msgid "Error in Photo Rename preferences"
-#~ msgstr "Eroare în preferințele redenumirii fotografiei"
-
-#~ msgid "Error in Video Rename preferences"
-#~ msgstr "Eroare în preferințele redenumirii fișierului video"
+#~ msgid "Error in Video Download Subfolders preferences"
+#~ msgstr "Eroare în preferințe Subdosar Descărcări Video"
 
 #~ msgid "Error in Photo Download Subfolders preferences"
 #~ msgstr "Eroare în preferințe Subdosar Descărcări Foto"
 
-#~ msgid "Error in Video Download Subfolders preferences"
-#~ msgstr "Eroare în preferințe Subdosar Descărcări Video"
+#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
+#~ msgstr "%(number)s din %(total)s %(filetypes)s (%(remaining)s remaining)"
+
+#~ msgid "%(number)s of %(total)s %(filetypes)s"
+#~ msgstr "%(number)s din %(total)s %(filetypes)s"
+
+#~ msgid "%(freespace)s. %(backuppaths)s."
+#~ msgstr "%(freespace)s. %(backuppaths)s."
+
+#~ msgid "No backup devices detected"
+#~ msgstr "Nu am găsit copie de siguranță a dispozitivului"
+
+#~ msgid "Using backup device"
+#~ msgstr "Folosesc copia de siguranță a dispozitivului"
+
+#~ msgid "Using backup devices"
+#~ msgstr "Folosesc copia de siguranță a dispozitivelor"
+
+#~ msgid "Automatically detect backup devices"
+#~ msgstr "Detectare automată a copiilor de siguranță a dispozitivelor"
+
+#~ msgid "<b>Download Subfolders</b>"
+#~ msgstr "<b>Subdosar Descărcări</b>"
+
+#~ msgid "Unmount (\"eject\") device upon download completion"
+#~ msgstr "Demontează (\"scoate\") dispozitiv dacă descărcarea este complectă"
+
+#~ msgid "Photo backup folder name:"
+#~ msgstr "Numele dosarului copie de siguranță pentru fotografii:"
+
+#~ msgid "_Get Help Online..."
+#~ msgstr "_Găsiți Ajutor Online..."
+
+#~ msgid "Error in Video Rename preferences"
+#~ msgstr "Eroare în preferințele redenumirii fișierului video"
+
+#~ msgid "Error in Photo Rename preferences"
+#~ msgstr "Eroare în preferințele redenumirii fotografiei"
+
+#~ msgid "Select a folder to download photos to"
+#~ msgstr "Alegeți un dosar unde să fie descărcate fotografiile"
+
+#~ msgid ""
+#~ "The %(filetype)s subfolder preferences entered are invalid and cannot be "
+#~ "used.\n"
+#~ "They will be reset to their default values."
+#~ msgstr ""
+#~ "Preferințele %(filetype)s subdosarului introduse sunt invalide și nu pot "
+#~ "fi folosite.\n"
+#~ "Ele vor fi resetate la valori implicte."
+
+#~ msgid "Backing up to %(path)s"
+#~ msgstr "Copiez de siguranță în %(path)s"
+
+#~ msgid "About 1 second remaining"
+#~ msgstr "Aproximativ 1 secundă rămâne"
+
+#~ msgid "<b>Backup</b>"
+#~ msgstr "Copie de rezervă"
+
+#~ msgid "<i>/media/externaldrive/Photos</i>"
+#~ msgstr "<i>/media/dispozitiv extern/Fotografii</i>"
+
+#~ msgid "<b>Photo and Video Name Conflicts</b>"
+#~ msgstr "<b>Conflicte în Nume Fotografii și Video</b>"
+
+#~ msgid ""
+#~ "Specify the folder in which backups are stored on the device.  \n"
+#~ "\n"
+#~ "<i>Note: this will also be used to determine whether or not the device is "
+#~ "used for backups. For each device you wish to use for backing up to, "
+#~ "create a folder in it with one of these names.</i>"
+#~ msgstr ""
+#~ "Specificaţi dosarul în care copiile de siguranță sunt stocate pe "
+#~ "dispozitiv.  \n"
+#~ "\n"
+#~ "<i>Notă: acest lucru va fi, de asemenea, utilizat pentru a determina dacă "
+#~ "sau nu, dispozitivul este folosit pentru copie de siguranță. Pentru "
+#~ "fiecare dispozitiv pentru care faceți copie de siguranță, creați un dosar "
+#~ "în el cu numele lui.</i>"
+
+#~ msgid "Video backup folder name:"
+#~ msgstr "Nume dosar copie de siguranță video:"
+
+#~ msgid ""
+#~ "You can have your photos and videos backed up to multiple locations as "
+#~ "they are downloaded, e.g. external hard drives."
+#~ msgstr ""
+#~ "Puteţi avea fotografiile şi video copiate de siguranță în mai multe "
+#~ "locaţii în care sunt descărcate, de exemplu, hard diskuri externe."
+
+#~ msgid ""
+#~ "When backing up, choose whether to overwrite a file on the backup device "
+#~ "that has the same name, or skip backing it up."
+#~ msgstr ""
+#~ "Când copiați de siguranță, alegeți dacă să suprascrieți un fișier de pe "
+#~ "dispozitivul de rezervă care are acelși nume, sau să-l săriți."
+
+#~ msgid "Job Code:"
+#~ msgstr "Cod Sarcină"
+
+#~ msgid "Should all Job Codes be removed?"
+#~ msgstr "Să elimin toate Codurile Sarcină"
 
 #~ msgid "Enter a new Job Code, or select a previous one"
 #~ msgstr "Introduceți un nou Cod Sarcină, sau selectați unul precedent"
@@ -2346,8 +2620,26 @@ msgstr "Preferințe: Rapid Foto Descărcător"
 #~ msgid "Enter a new Job Code"
 #~ msgstr "Introduceți un nou Cod Sarcină"
 
-#~ msgid "Job Code:"
-#~ msgstr "Cod Sarcină"
+#~ msgid "Remove all Job Codes?"
+#~ msgstr "Eliminați toate Codurile Sarcină"
+
+#~ msgid "<b>Job Codes</b>"
+#~ msgstr "<b>Cod Sarcină</b>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Coduri Sarcină</span>"
+
+#~ msgid "Day start:"
+#~ msgstr "Ziua de început:"
+
+#~ msgid "Job Codes"
+#~ msgstr "Coduri Sarcină"
+
+#~ msgid "Select All Without _Job Code"
+#~ msgstr "Selectați tot fără _Cod Sarcină"
+
+#~ msgid "Select All Wit_h Job Code"
+#~ msgstr "Selectați tot c_u Cod Sarcină"
 
 #~ msgid ""
 #~ "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
@@ -2363,150 +2655,17 @@ msgstr "Preferințe: Rapid Foto Descărcător"
 #~ "<i><b>Avertizare:</b> Insuficiente metadata pentru generare complectă a "
 #~ "subdosarului. Folosiți opțiunea de denumire.</i>"
 
-#~ msgid "<i>Example: %s</i>"
-#~ msgstr "<i>Exemple: %s<i/>"
+#~ msgid "Backup"
+#~ msgstr "Copie de rezervă"
 
 #~ msgid ""
-#~ "The %(filetype)s subfolder preferences entered are invalid and cannot be "
-#~ "used.\n"
-#~ "They will be reset to their default values."
+#~ "Should this device or partition be used to download photos or videos from?"
 #~ msgstr ""
-#~ "Preferințele %(filetype)s subdosarului introduse sunt invalide și nu pot "
-#~ "fi folosite.\n"
-#~ "Ele vor fi resetate la valori implicte."
+#~ "Poate acest dispozitiv sau partiție să fie folosit pentru descărcare "
+#~ "fotografii sau video de la?"
 
-#~ msgid "externaldrive1"
-#~ msgstr "dispozitiv extern 1"
-
-#~ msgid "externaldrive2"
-#~ msgstr "dispozitiv extern 2"
-
-#~ msgid "New York"
-#~ msgstr "New York"
-
-#~ msgid "Manila"
-#~ msgstr "Manila"
-
-#~ msgid "Prague"
-#~ msgstr "Praga"
-
-#~ msgid "Helsinki"
-#~ msgstr "Helsinki"
-
-#~ msgid "Wellington"
-#~ msgstr "Wellington"
-
-#~ msgid "Tehran"
-#~ msgstr "Teheran"
-
-#~ msgid "Kampala"
-#~ msgstr "Kampala"
-
-#~ msgid "Paris"
-#~ msgstr "Paris"
-
-#~ msgid "Berlin"
-#~ msgstr "Berlin"
-
-#~ msgid "Sydney"
-#~ msgstr "Sydney"
-
-#~ msgid "Budapest"
-#~ msgstr "Budapesta"
-
-#~ msgid "Rome"
-#~ msgstr "Roma"
-
-#~ msgid "Moscow"
-#~ msgstr "Moscova"
-
-#~ msgid "Delhi"
-#~ msgstr "Delhi"
-
-#~ msgid "Warsaw"
-#~ msgstr "Varșovia"
-
-#~ msgid "Jakarta"
-#~ msgstr "Jakarta"
-
-#~ msgid "Madrid"
-#~ msgstr "Madrid"
-
-#~ msgid "Stockholm"
-#~ msgstr "Stockholm"
-
-#~ msgid "_File"
-#~ msgstr "_Fişier"
-
-#~ msgid "Select All Without _Job Code"
-#~ msgstr "Selectați tot fără _Cod Sarcină"
-
-#~ msgid "Select All Wit_h Job Code"
-#~ msgstr "Selectați tot c_u Cod Sarcină"
-
-#~ msgid "_View"
-#~ msgstr "_Vizualizează"
-
-#~ msgid "_Error Log"
-#~ msgstr "_Erori Jurnal"
-
-#~ msgid "_Help"
-#~ msgstr "_Ajutor"
-
-#~ msgid "_Translate this Application..."
-#~ msgstr "_Tradu această aplicație..."
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Dosar Descărcări Fotografii</span>"
-
-#~ msgid "<i>Example: /home/user/Pictures</i>"
-#~ msgstr "<i>Exemplu: /acasă/utilizator/Poze</i>"
-
-#~ msgid "<b>Download Subfolders</b>"
-#~ msgstr "<b>Subdosar Descărcări</b>"
-
-#~ msgid "Download folder:"
-#~ msgstr "Dosarul de descărcare:"
-
-#~ msgid ""
-#~ "Choose the download folder. Subfolders for the downloaded photos will be "
-#~ "automatically created in this folder using the structure specified below."
-#~ msgstr ""
-#~ "Alegeți dosarul de descărcări. Subdosarul pentru fotografiile descărcate "
-#~ "va fi creat automat în acest dosar folosind structura de mai jos."
-
-#~ msgid "<b>Download Folder</b>"
-#~ msgstr "<b>Dosar Descărcare</b>"
-
-#~ msgid "Photo Folders"
-#~ msgstr "Dosar Fotografii"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Redenumire Fotografii</span>\t"
-
-#~ msgid "<b>Photo Rename</b>"
-#~ msgstr "<b>Redenumire Fotografie</b>"
-
-#~ msgid " "
-#~ msgstr " "
-
-#~ msgid "<i>New:</i>"
-#~ msgstr "<i>Nou:</i>"
-
-#~ msgid "<i>Original:</i>"
-#~ msgstr "<i>Original:</i>"
-
-#~ msgid "<b>Example</b>"
-#~ msgstr "<b>Exemplu</b>"
-
-#~ msgid "Photo Rename"
-#~ msgstr "Redenumire Fotografie"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Dosar Descărcări Video</span>"
+#~ msgid "Enter a Job Code"
+#~ msgstr "Introduceți un Cod Sarcină"
 
 #~ msgid ""
 #~ "Choose the download folder. Subfolders for the downloaded videos will be "
@@ -2515,404 +2674,12 @@ msgstr "Preferințe: Rapid Foto Descărcător"
 #~ "Alegeți dosarul de descărcări. Subdosarul pentru video descărcate va fi "
 #~ "creat automat în acest dosar folosind structura de mai jos."
 
-#~ msgid "Video Folders"
-#~ msgstr "Dosare Video"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Redenumire Video</span>\t"
-
-#~ msgid "Video Rename"
-#~ msgstr "Redenumire Video"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Redenumire Opțiuni</span>"
-
-#~ msgid "<b>Sequence Numbers</b>"
-#~ msgstr "<b>Număr Secvență</b>"
-
 #~ msgid ""
-#~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
-#~ "sequence number should be reset."
+#~ "Choose the download folder. Subfolders for the downloaded photos will be "
+#~ "automatically created in this folder using the structure specified below."
 #~ msgstr ""
-#~ "Specificaţi ora în formatul de 24 de ore la care <i>Descărcări de astăzi</"
-#~ "i> numărul de ordine ar fi resetate."
-
-#~ msgid "Day start:"
-#~ msgstr "Ziua de început:"
-
-#~ msgid "Downloads today:"
-#~ msgstr "Descărcări de azi:"
-
-#~ msgid "Stored number:"
-#~ msgstr "Număr stocare:"
-
-#~ msgid ":"
-#~ msgstr ":"
-
-#~ msgid " hh:mm"
-#~ msgstr " oo:mm"
-
-#~ msgid "Synchronize RAW + JPEG sequence numbers"
-#~ msgstr "Sincronizarea RAW + JPEG numere de secvenţă"
-
-#~ msgid "<b>Compatibility with Other Operating Systems</b>"
-#~ msgstr "<b>Compatibilitate cu Alt Sistem de Operare</b>"
-
-#~ msgid ""
-#~ "Specify whether photo, video and folder names should have any characters "
-#~ "removed that are not allowed by other operating systems."
-#~ msgstr ""
-#~ "Specificaţi dacă foto, video şi nume de dosar ar trebui să aibă caractere "
-#~ "eliminate care nu sunt permise de alte sisteme de operare."
-
-#~ msgid "Strip incompatible characters"
-#~ msgstr "Curăță caractere incompatibile"
-
-#~ msgid "Rename Options"
-#~ msgstr "Opțiuni Redenumire"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Coduri Sarcină</span>"
-
-#~ msgid "<b>Job Codes</b>"
-#~ msgstr "<b>Cod Sarcină</b>"
-
-#~ msgid "_Add..."
-#~ msgstr "_Adaugă..."
-
-#~ msgid "R_emove All"
-#~ msgstr "Șt_erge tot"
-
-#~ msgid "Job Codes"
-#~ msgstr "Coduri Sarcină"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-#~ msgstr ""
-#~ "Copy text \t\r\n"
-#~ "<span weight=\"bold\" size=\"x-large\">Dispozitiv</span>"
-
-#~ msgid "Automatically detect Portable Storage Devices"
-#~ msgstr "Detectare automată a Dispozitivelor de Stocare Portabile"
-
-#~ msgid "Automatically detect devices"
-#~ msgstr "Detectare automată dispozitive"
-
-#~ msgid "Location:"
-#~ msgstr "Locație:"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Copie de Rezervă</span>\t"
-
-#~ msgid "<b>Backup</b>"
-#~ msgstr "Copie de rezervă"
-
-#~ msgid ""
-#~ "You can have your photos and videos backed up to multiple locations as "
-#~ "they are downloaded, e.g. external hard drives."
-#~ msgstr ""
-#~ "Puteţi avea fotografiile şi video copiate de siguranță în mai multe "
-#~ "locaţii în care sunt descărcate, de exemplu, hard diskuri externe."
-
-#~ msgid "Photo backup folder name:"
-#~ msgstr "Numele dosarului copie de siguranță pentru fotografii:"
-
-#~ msgid "<i>Example:</i>"
-#~ msgstr "<i>Exemplu:</i>"
-
-#~ msgid "<i>/media/externaldrive/Photos</i>"
-#~ msgstr "<i>/media/dispozitiv extern/Fotografii</i>"
-
-#~ msgid "Video backup folder name:"
-#~ msgstr "Nume dosar copie de siguranță video:"
-
-#~ msgid "<b>Program Automation</b>"
-#~ msgstr "<b>Program Automatizare</b>"
-
-#~ msgid "Unmount (\"eject\") device upon download completion"
-#~ msgstr "Demontează (\"scoate\") dispozitiv dacă descărcarea este complectă"
-
-#~ msgid "Start downloading at program startup"
-#~ msgstr "Pornire descărcare la pornirea programului"
-
-#~ msgid "Start downloading upon device insertion"
-#~ msgstr "Pornire descărcare la introducerea dispozitivului"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Eroare de manipulare</span>"
-
-#~ msgid "<b>Photo and Video Name Conflicts</b>"
-#~ msgstr "<b>Conflicte în Nume Fotografii și Video</b>"
-
-#~ msgid "Add unique identifier"
-#~ msgstr "Adaugă identificator unic"
-
-#~ msgid "Skip download"
-#~ msgstr "Omite descărcare"
-
-#~ msgid ""
-#~ "When a photo or video of the same name has already been downloaded, "
-#~ "choose whether to skip downloading the file, or to add a unique "
-#~ "indentifier."
-#~ msgstr ""
-#~ "Atunci când o fotografie sau video cu acelaşi nume a fost deja descărcat, "
-#~ "alegeţi dacă să săriţi descărcarea fişierul, sau pentru a adăuga un "
-#~ "identificator unic."
-
-#~ msgid ""
-#~ "When backing up, choose whether to overwrite a file on the backup device "
-#~ "that has the same name, or skip backing it up."
-#~ msgstr ""
-#~ "Când copiați de siguranță, alegeți dacă să suprascrieți un fișier de pe "
-#~ "dispozitivul de rezervă care are acelși nume, sau să-l săriți."
-
-#~ msgid "Overwrite"
-#~ msgstr "Suprascrie"
-
-#~ msgid "Skip"
-#~ msgstr "Omite"
-
-#~ msgid "Error Handling"
-#~ msgstr "Tratarea erorilor"
-
-#~ msgid "Import your photos and videos efficiently and reliably"
-#~ msgstr "Importați fotografii și video eficien și fiabil"
-
-#~ msgid "Resetting to midnight.\n"
-#~ msgstr "Resetarea la miezul nopţii\n"
-
-#~ msgid "There is an error in the program preferences."
-#~ msgstr "Este o eroare în preferințe program."
-
-#~ msgid "errors"
-#~ msgstr "erori"
-
-#~ msgid "Download has started from %s"
-#~ msgstr "Descărcarea a început de la %s"
-
-#~ msgid "Download complete from %s"
-#~ msgstr "Descărcare complectă din %s"
-
-#~ msgid "This device or partition will always be used to download from"
-#~ msgstr ""
-#~ "Acest dispozitiv sau partiţie va fi întotdeauna folosit pentru a descărca "
-#~ "de la"
-
-#~ msgid "This device or partition will never be used to download from"
-#~ msgstr ""
-#~ "Acest dispozitiv sau partiţie nu va fi folosit pentru a descărca de la"
-
-#~ msgid "Some preferences will be reset."
-#~ msgstr "Câteva preferințe vor fi resetate."
-
-#~ msgid ""
-#~ "A newer version of this program was previously run on this computer.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "O versiune mai nouă a acestui program a fost anterior executa pe acest "
-#~ "computer.\n"
-#~ "\n"
-
-#~ msgid "Starting downloads"
-#~ msgstr "Pornire descărcări"
-
-#~ msgid "Warning:"
-#~ msgstr "Atenție:"
-
-#~ msgid "No preferences needed to be changed."
-#~ msgstr "Nicio preferință nu trebuie modificată."
-
-#~ msgid "Preferences were modified."
-#~ msgstr "Preferințele au fost modificate"
-
-#~ msgid "Using manually specified path"
-#~ msgstr "Utilizând o cale specificată manual"
-
-#~ msgid "Automatically start download is false"
-#~ msgstr "Pornirea descărcării în mod automat este falsă"
-
-#~ msgid "Automatically start download is true"
-#~ msgstr "Pornirea descărcării în mod automat este adevărată"
-
-#~ msgid "_Pause"
-#~ msgstr "_Pauză"
-
-#~ msgid "Goodbye"
-#~ msgstr "La revedere"
-
-#~ msgid "Using"
-#~ msgstr "utilizând"
-
-#~ msgid "%s is already running"
-#~ msgstr "%s este deja în execuţie"
-
-#~ msgid "These preferences are not well formed:"
-#~ msgstr "Aceste preferinţe nu sunt bine formate:"
-
-#~ msgid "      "
-#~ msgstr "      "
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Automation</span>"
-#~ msgstr ""
-#~ "Copy text \t\r\n"
-#~ "<span weight=\"bold\" size=\"x-large\">Automatizare</span>"
-
-#~ msgid "Automation"
-#~ msgstr "Automatizare"
-
-#~ msgid "Backup location:"
-#~ msgstr "Locație copie de rezervă"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact backup location."
-#~ msgstr ""
-#~ "Dacă dezactivaţi detectarea automată, alegeţi locaţia copiei de rezervă "
-#~ "exact."
-
-#~ msgid ""
-#~ "If you enable automatic detection of Portable Storage Devices, the entire "
-#~ "device will be scanned for images. On large devices, this could take some "
-#~ "time."
-#~ msgstr ""
-#~ "Dacă activaţi detectarea automată de Dispozitive Portabile de Stocare, "
-#~ "întregul dispozitiv va fi scanat pentru imagini. În cazul dispozitivelor "
-#~ "mari, aceasta ar putea dura ceva timp."
-
-#~ msgid "Device %(device)s (%(path)s) ignored"
-#~ msgstr "Dispozitiv %(device)s (%(path)s) ignorat"
-
-#~ msgid "Detected %(device)s with path %(path)s"
-#~ msgstr "Detectat %(device)s cu calea %(path)s"
-
-#~ msgid "Preference value '%(value)s' is invalid"
-#~ msgstr "Valoare preferință %(value)s' este invalidă"
-
-#~ msgid "%s selected for downloading from"
-#~ msgstr "%s selectate pentru descărcare de la"
-
-#~ msgid "Prompting whether to use %s"
-#~ msgstr "Determinați dacă doriţi să utilizaţi %s"
-
-#~ msgid ""
-#~ "Preference key '%(key)s' is invalid.\n"
-#~ "Expected one of %(value)s"
-#~ msgstr ""
-#~ "Preferința cheii '%(key)s' este invalidă\n"
-#~ "Aștept una dintre %(value)s"
-
-#~ msgid ""
-#~ "Rapid Photo Downloader is free software; you can redistribute it and/or "
-#~ "modify it under the terms of the GNU General Public License as published "
-#~ "by the Free Software Foundation; either version 2 of the License, or (at "
-#~ "your option) any later version.\n"
-#~ "\n"
-#~ "Rapid Photo Downloader is distributed in the hope that it will be useful, "
-#~ "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-#~ "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General "
-#~ "Public License for more details.\n"
-#~ "\n"
-#~ "You should have received a copy of the GNU General Public License along "
-#~ "with Rapid Photo Downloader; if not, write to the Free Software "
-#~ "Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, "
-#~ "USA."
-#~ msgstr ""
-#~ "Rapid Photo Downloader este software liber, îl puteţi redistribui şi / "
-#~ "sau modifica sub termenii GNU General Public License publicate de Free "
-#~ "Software Foundation; fie versiunea 2 a Licenţei, sau (la opţiunea "
-#~ "dumneavoastră) orice versiune ulterioară.\n"
-#~ "\n"
-#~ "Rapid Photo Downloader este distribuit în speranţa că va fi folositor, "
-#~ "dar FĂRĂ NICI O GARANŢIE, nici chiar garanţia implicită de VANDABILITATE "
-#~ "sau POTRIVIRE PENTRU UN SCOP ANUME. Vezi GNU General Public License "
-#~ "pentru mai multe detalii.\n"
-#~ "\n"
-#~ "Trebuie să fi primit o copie a GNU General Public License, împreună cu "
-#~ "Rapid Photo Downloader, dacă nu, scrieţi la Free Software Foundation, "
-#~ "Inc, 51 Franklin Street, Fifth Floor, Boston, MA 02110 la 1301, Statele "
-#~ "Unite ale Americii."
-
-#~ msgid "Sorry,these preferences contain an error:\n"
-#~ msgstr "Aceste preferințe conțin o eroare:\n"
-
-#~ msgid "%s rejected as a download device"
-#~ msgstr "%s rejectat ca și dispozitiv de descărcare"
-
-#~ msgid "Invalid Downloads Today value.\n"
-#~ msgstr "Valoare Invalidă Descărcări Astăzi.\n"
-
-#~ msgid "'Start of day' preference value is corrupted.\n"
-#~ msgstr "Valorile preferinței 'Pornirea zilei' sunt corupte.\n"
-
-#~ msgid "New day has started - resetting 'Downloads Today' sequence number"
-#~ msgstr ""
-#~ "Nouă zi a început - resetați numărul de secvență \"Descărcările de azi\""
-
-#~ msgid "Job Code not entered"
-#~ msgstr "Codul Sarcină nu s-a introdus"
-
-#~ msgid "Job Code entered"
-#~ msgstr "Cod Sarcină introdus"
-
-#~ msgid "Starting downloads that have been waiting for a Job Code"
-#~ msgstr "Ponesc descărcarea care așteaptă un Cod Sarcină"
-
-#~ msgid "Prompting for Job Code"
-#~ msgstr "Determinați pentru Cod Sarcină"
-
-#~ msgid "Already prompting for Job Code, do not prompt again"
-#~ msgstr "Deja determinat pentru Cod Sarcină, nu solicita din nou"
-
-#~ msgid "Problem using pynotify."
-#~ msgstr "Probleme folosind notificarea py."
-
-#~ msgid ""
-#~ "\n"
-#~ "Please check preferences, restart the program, and try again."
-#~ msgstr ""
-#~ "\n"
-#~ "Verificați preferințele, reporniți, și încercați din nou."
-
-#~ msgid ""
-#~ "Program preferences appear to be valid, but please check them to ensure "
-#~ "correct operation."
-#~ msgstr ""
-#~ "Preferinţele programului par a fi valabil, verificaţi pentru a asigura "
-#~ "funcţionarea corectă."
-
-#~ msgid ""
-#~ "This version of the program uses different preferences than the old "
-#~ "version. Your preferences have been updated.\n"
-#~ "\n"
-#~ "Please check them to ensure correct operation."
-#~ msgstr ""
-#~ "Această versiune de program folosește preferințe diferite decât versiunea "
-#~ "veche. Preferințele dvs. au fost actualizate.\n"
-#~ "\n"
-#~ "Verificaţi-le pentru a asigura funcţionarea corectă."
-
-#~ msgid "Sorry, some preferences are invalid and will be reset."
-#~ msgstr "Unele preferinţe sunt invalide şi vor fi resetate."
-
-#~ msgid "Resetting value to zero.\n"
-#~ msgstr "Se resetează valore la zero.\n"
-
-#~ msgid "Resetting to default values."
-#~ msgstr "Se resetează la valori implicite."
-
-#~ msgid "The device can now be safely removed"
-#~ msgstr "Dispozitivul poate fi scos în siguranță"
-
-#~ msgid ""
-#~ "This version of the program is newer than the previously run version. "
-#~ "Checking preferences."
-#~ msgstr ""
-#~ "Această versiune a programului este mai nouă decât versiunea anterioară "
-#~ "ce rulează. Verificați preferinţele."
-
-#~ msgid ""
-#~ "This version of the program uses different preferences than the old "
-#~ "version. Some of your previous preferences were invalid, and could not be "
-#~ "updated. They will be reset."
-#~ msgstr ""
-#~ "Această versiune de program folosește preferințe diferite decât versiunea "
-#~ "veche. Câteva din preferințe sunt invalide și nu pot fi actualizate. Ele "
-#~ "vor fi resetate."
+#~ "Alegeți dosarul de descărcări. Subdosarul pentru fotografiile descărcate "
+#~ "va fi creat automat în acest dosar folosind structura de mai jos."
+
+#~ msgid "Back up photos and videos when downloading"
+#~ msgstr "Copiază de siguranță fotografiile șî video cănd descărci"

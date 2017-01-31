@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-27 14:45-0600\n"
-"PO-Revision-Date: 2013-02-24 09:11+0000\n"
-"Last-Translator: Ilya Tsimokhin <Unknown>\n"
+"POT-Creation-Date: 2017-01-31 17:52-0600\n"
+"PO-Revision-Date: 2017-01-28 03:27+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Belarusian <be@li.org>\n"
 "Language: be\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-08-26 05:21+0000\n"
-"X-Generator: Launchpad (build 16738)\n"
+"X-Launchpad-Export-Date: 2017-01-31 23:48+0000\n"
+"X-Generator: Launchpad (build 18315)\n"
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
 msgstr ""
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:178 ../raphodo/renameandmovefile.py:270
+#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -40,22 +40,22 @@ msgstr "Памылка: %(inst)s"
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr ""
 
-#: ../raphodo/backupfile.py:167
+#: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr ""
 
-#: ../raphodo/backupfile.py:171
-#, fuzzy, python-format
+#: ../raphodo/backupfile.py:173
+#, python-format
 msgid "%(file_type)s not backed up"
-msgstr "%(filetype)s сцягнуты"
+msgstr ""
 
-#: ../raphodo/backupfile.py:175
-#, fuzzy, python-format
+#: ../raphodo/backupfile.py:177
+#, python-format
 msgid "Backup of %(file_type)s already exists"
-msgstr "%(filetype)s ужо існуе"
+msgstr ""
 
-#: ../raphodo/backupfile.py:200 ../raphodo/copyfiles.py:184
+#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
 #: ../raphodo/renameandmovefile.py:424 ../raphodo/renameandmovefile.py:550
 #, python-format
@@ -70,7 +70,7 @@ msgstr ""
 msgid "The file could not be copied from the camera"
 msgstr ""
 
-#: ../raphodo/copyfiles.py:389
+#: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
 msgstr ""
 
@@ -84,15 +84,13 @@ msgstr ""
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1750
 #: ../raphodo/rapid.py:1927 ../raphodo/rapid.py:5285
-#, fuzzy
 msgid "Photos"
-msgstr "Здымкі:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1753
 #: ../raphodo/rapid.py:1928 ../raphodo/rapid.py:5286
-#, fuzzy
 msgid "Videos"
-msgstr "Відэа:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:999
 msgid "Temporarily ignore this device"
@@ -116,51 +114,48 @@ msgstr ""
 msgid "%(no_videos)s Videos"
 msgstr ""
 
-#: ../raphodo/devices.py:423
-#, fuzzy
+#: ../raphodo/devices.py:424
 msgid "Cameras"
-msgstr "Вытворца камеры"
+msgstr ""
 
-#: ../raphodo/devices.py:424 ../raphodo/devices.py:852 ../raphodo/rapid.py:1714
+#: ../raphodo/devices.py:425 ../raphodo/devices.py:881 ../raphodo/rapid.py:1714
 msgid "Devices"
 msgstr "Прылады"
 
-#: ../raphodo/devices.py:664
-#, fuzzy, python-format
+#: ../raphodo/devices.py:685
+#, python-format
 msgid "Downloading from %(device_names)s"
-msgstr "Сцягванне з %(location)s."
+msgstr ""
 
 #. Translators: e.g. Three Devices
-#: ../raphodo/devices.py:720
-#, fuzzy, python-format
+#: ../raphodo/devices.py:741
+#, python-format
 msgid "%(no_devices)s %(device_type)s"
-msgstr "%(number)s %(filetypes)s"
+msgstr ""
 
-#: ../raphodo/devices.py:837 ../raphodo/rapid.py:1551
-#, fuzzy
+#: ../raphodo/devices.py:866 ../raphodo/rapid.py:1551
 msgid "Select Source"
-msgstr "_Выбраць"
+msgstr ""
 
-#: ../raphodo/devices.py:868 ../raphodo/devices.py:879
+#: ../raphodo/devices.py:897 ../raphodo/devices.py:908
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr ""
 
 #. Number of cameras e.g. 3 Cameras
-#: ../raphodo/devices.py:890
+#: ../raphodo/devices.py:919
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:895
+#: ../raphodo/devices.py:924
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:402
-#, fuzzy
 msgid "MB/sec"
-msgstr "МБ/с"
+msgstr ""
 
 #. Be friendly in the last few seconds
 #: ../raphodo/downloadtracker.py:532
@@ -177,14 +172,13 @@ msgid "%d seconds"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:595
-#, fuzzy
 msgid "1 minute"
-msgstr "ХХ"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:597
-#, fuzzy, python-format
+#, python-format
 msgid "%d minutes"
-msgstr "ХХ"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:602 ../raphodo/downloadtracker.py:784
 msgid "1 hour"
@@ -220,9 +214,9 @@ msgid "%d minutes, 1 second"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:797
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)d minutes, %(seconds)d seconds"
-msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:828
 msgid "1 hour, 1 minute"
@@ -568,9 +562,8 @@ msgstr "ГГГГ-ММ-ДД"
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:314 ../raphodo/generatenameconfig.py:391
-#, fuzzy
 msgid "YYYY_MM_DD"
-msgstr "ГГГГММДД"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -701,9 +694,8 @@ msgid "SS"
 msgstr "СС"
 
 #: ../raphodo/generatenameconfig.py:389
-#, fuzzy
 msgid "Date"
-msgstr "Дата/час"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:390
 msgid "Date (hyphens)"
@@ -715,88 +707,72 @@ msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392 ../raphodo/generatenameconfig.py:438
 #: ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "Date and Job Code"
-msgstr "Увядзіце цэтлік"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392
-#, fuzzy
 msgid "YYYYMM_Job Code"
-msgstr "Цэтлікі"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "Date and Job Code Subfolder"
-msgstr "Увядзіце цэтлік"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "YYYYMM"
-msgstr "ГГГГММДД"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393 ../raphodo/rapid.py:1596
 msgid "Job Code"
 msgstr "Цэтлікі"
 
 #: ../raphodo/generatenameconfig.py:433 ../raphodo/generatenameconfig.py:512
-#, fuzzy
 msgid "Original Filename"
-msgstr "Арыгінальнае напісанне"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "Date-Time and Downloads today"
-msgstr "Сцягнута сёння"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "YYYYMMDD-HHMM-1"
-msgstr "ГГГГММДД"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "Date and Downloads today"
-msgstr "Сцягнута сёння"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "YYYYMMDD-1"
-msgstr "ГГГГММДД"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "Date-Time and Image number"
-msgstr "Нумар здымка"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "YYYYMMDD-1234"
-msgstr "ГГГГММДД"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "Date-Time and Job Code"
-msgstr "Увядзіце цэтлік"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "YYYYMMDD-HHMM-Job Code-1"
-msgstr "Цэтлікі"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:438 ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "YYYYMMDD-Job Code-1"
-msgstr "Цэтлікі"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "Date-Time and Video number"
-msgstr "Нумар відэа"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "YYYYMMDD_1234"
-msgstr "ГГГГММДД"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:518
 msgid "Resolution"
@@ -866,14 +842,14 @@ msgid "An error occurred when copying the %(filetype)s"
 msgstr "Памылка капіявання %(filetype)s"
 
 #: ../raphodo/problemnotification.py:116
-#, fuzzy, python-format
+#, python-format
 msgid "An error occurred copying the %(filetype)s from the %(camera)s"
-msgstr "Памылка капіявання %(filetype)s"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:119
-#, fuzzy, python-format
+#, python-format
 msgid "The %(filetype)s did not download correctly"
-msgstr "%(filetype)s не атрымалася сцягнуць"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:122 ../raphodo/problemnotification.py:123
 #, python-format
@@ -1132,9 +1108,9 @@ msgstr ""
 #. Translators: for example Nov 3 or Dec 31
 #: ../raphodo/proximity.py:105 ../raphodo/proximity.py:221
 #: ../raphodo/proximity.py:224 ../raphodo/proximity.py:828
-#, fuzzy, python-format
+#, python-format
 msgid "%(month)s %(numeric_day)s"
-msgstr "%(number)s %(numberdownloaded)s"
+msgstr ""
 
 #. Translators: for example Nov 15 2015
 #. Translators: for example Nov 3 2015
@@ -1196,9 +1172,9 @@ msgstr ""
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
 #: ../raphodo/proximity.py:1405
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)dm"
-msgstr "ХХ"
+msgstr ""
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
@@ -1256,9 +1232,8 @@ msgid "Rapid Photo Downloader"
 msgstr ""
 
 #: ../raphodo/rapid.py:1222
-#, fuzzy
 msgid "Download failed"
-msgstr "Сцягванне"
+msgstr ""
 
 #: ../raphodo/rapid.py:1223
 msgid ""
@@ -1272,9 +1247,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1232
-#, fuzzy
 msgid "Update Rapid Photo Downloader"
-msgstr "Папкі здымкаў"
+msgstr ""
 
 #: ../raphodo/rapid.py:1236
 msgid "Install"
@@ -1343,9 +1317,8 @@ msgid "Make a Donation..."
 msgstr ""
 
 #: ../raphodo/rapid.py:1497
-#, fuzzy
 msgid "Translate this Application..."
-msgstr "_Перакласці праграму..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1500
 msgid "&About..."
@@ -1364,9 +1337,8 @@ msgid "Destination"
 msgstr ""
 
 #: ../raphodo/rapid.py:1595
-#, fuzzy
 msgid "Rename"
-msgstr "Назва файла"
+msgstr ""
 
 #: ../raphodo/rapid.py:1597
 msgid "Back Up"
@@ -1442,19 +1414,17 @@ msgid "Descending"
 msgstr ""
 
 #: ../raphodo/rapid.py:1917
-#, fuzzy
 msgid "Select All:"
-msgstr "_Выбраць"
+msgstr ""
 
 #: ../raphodo/rapid.py:2120
-#, fuzzy, python-format
+#, python-format
 msgid "Download %(files)s"
-msgstr "Сцягванне"
+msgstr ""
 
 #: ../raphodo/rapid.py:2136
-#, fuzzy
 msgid "Resume Download"
-msgstr "Сцягнуць"
+msgstr ""
 
 #: ../raphodo/rapid.py:2138
 msgid "Pause"
@@ -1595,14 +1565,13 @@ msgid "%d failures"
 msgstr ""
 
 #: ../raphodo/rapid.py:3444
-#, fuzzy
 msgid "1 warning"
-msgstr "папярэджанні"
+msgstr ""
 
 #: ../raphodo/rapid.py:3446
-#, fuzzy, python-format
+#, python-format
 msgid "%d warnings"
-msgstr "папярэджанні"
+msgstr ""
 
 #: ../raphodo/rapid.py:3466
 #, python-format
@@ -1620,9 +1589,8 @@ msgid "No files downloaded — %(failures)s"
 msgstr ""
 
 #: ../raphodo/rapid.py:3476
-#, fuzzy
 msgid "No files downloaded"
-msgstr "%(filetype)s сцягнуты"
+msgstr ""
 
 #: ../raphodo/rapid.py:3500
 #, python-format
@@ -1753,18 +1721,15 @@ msgid "Any device with the same name will be ignored."
 msgstr ""
 
 #: ../raphodo/rapid.py:4758
-#, fuzzy, python-format
+#, python-format
 msgid "Downloading from %(location)s on This Computer."
-msgstr "Сцягванне з %(location)s."
+msgstr ""
 
 #: ../raphodo/rapid.py:4760
-#, fuzzy
 msgid ""
 "Do you really want to download from here?<br><br>On some systems, scanning "
 "this location can take a very long time."
 msgstr ""
-"Вы сапраўды хочаце сцягнуць адсюда? На некаторых сістэмах пошук можа доўга "
-"цягнуцца."
 
 #: ../raphodo/rapid.py:4804
 #, python-format
@@ -1772,9 +1737,9 @@ msgid "Generating thumbnails for %s"
 msgstr ""
 
 #: ../raphodo/rapid.py:4807
-#, fuzzy, python-format
+#, python-format
 msgid "Scanning %s"
-msgstr "пошук..."
+msgstr ""
 
 #: ../raphodo/rapid.py:4817
 #, python-format
@@ -1783,9 +1748,9 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4823
-#, fuzzy, python-format
+#, python-format
 msgid "%(number)s of %(available files)s checked for download"
-msgstr "%(noFiles)s %(filetypes)s не атрымалася сцягнуць"
+msgstr ""
 
 #: ../raphodo/rapid.py:5046
 msgid "Display program information when run from the command line."
@@ -1813,9 +1778,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:5062
-#, fuzzy
 msgid "Turn on or off downloading from this computer."
-msgstr "Сцягванне з %(location)s."
+msgstr ""
 
 #: ../raphodo/rapid.py:5064 ../raphodo/rapid.py:5067 ../raphodo/rapid.py:5070
 #: ../raphodo/rapid.py:5091 ../raphodo/rapid.py:5095
@@ -1949,9 +1913,8 @@ msgid "Program aborting."
 msgstr ""
 
 #: ../raphodo/rapid.py:5476
-#, fuzzy
 msgid "All settings and caches have been reset"
-msgstr "Усе наладкі былі скінуты"
+msgstr ""
 
 #: ../raphodo/rapid.py:5484
 msgid "Thumbnail Cache has been reset"
@@ -1991,11 +1954,11 @@ msgstr "здымкі і відэа"
 msgid "photos or videos"
 msgstr "здымкі або відэа"
 
-#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:852
+#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:855
 msgid "video"
 msgstr "відэа"
 
-#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:810
+#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:813
 msgid "photo"
 msgstr "здымкі"
 
@@ -2005,25 +1968,23 @@ msgid "%(number)s %(filetypes)s"
 msgstr "%(number)s %(filetypes)s"
 
 #: ../raphodo/rpdfile.py:312
-#, fuzzy
 msgid "1 Video"
-msgstr "Відэа"
+msgstr ""
 
 #: ../raphodo/rpdfile.py:317
-#, fuzzy
 msgid "1 Photo"
-msgstr "Здымак"
+msgstr ""
 
-#: ../raphodo/rpdfile.py:775
+#: ../raphodo/rpdfile.py:778
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:811
+#: ../raphodo/rpdfile.py:814
 msgid "Photo"
 msgstr "Здымак"
 
-#: ../raphodo/rpdfile.py:853
+#: ../raphodo/rpdfile.py:856
 msgid "Video"
 msgstr "Відэа"
 
@@ -2048,9 +2009,8 @@ msgid "Memory cards: %s"
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:444
-#, fuzzy
 msgid "Downloaded as:"
-msgstr "Сцягваць / Прыпыніць"
+msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:450
 #, python-format
@@ -2067,9 +2027,8 @@ msgid "Open in File Browser..."
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:1481
-#, fuzzy
 msgid "Copy Path"
-msgstr "Капіяваць"
+msgstr ""
 
 #. two things in a list e.g. "device1 and device2"
 #: ../raphodo/utilities.py:369
@@ -2106,9 +2065,8 @@ msgid "seven"
 msgstr ""
 
 #: ../raphodo/utilities.py:449
-#, fuzzy
 msgid "eight"
-msgstr "Вышыня"
+msgstr ""
 
 #: ../raphodo/utilities.py:450
 msgid "nine"
@@ -2147,9 +2105,8 @@ msgid "seventeen"
 msgstr ""
 
 #: ../raphodo/utilities.py:459
-#, fuzzy
 msgid "eighteen"
-msgstr "Вышыня"
+msgstr ""
 
 #: ../raphodo/utilities.py:460
 msgid "ninenteen"
@@ -2190,9 +2147,8 @@ msgid ""
 msgstr ""
 
 #: ../data/rapid-photo-downloader.desktop.in.h:2
-#, fuzzy
 msgid "Photo Downloader"
-msgstr "Папкі здымкаў"
+msgstr ""
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
@@ -2205,42 +2161,17 @@ msgstr ""
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr ""
 
-#~ msgid "Name + extension"
-#~ msgstr "Назва + пашырэнне"
-
-#, fuzzy
-#~ msgid "&Check All"
-#~ msgstr "Пазначыць _усё"
-
-#, fuzzy
-#~ msgid "Check All Photos"
-#~ msgstr "Пазначыць _усё"
-
-#, fuzzy
-#~ msgid "Check All Videos"
-#~ msgstr "Пазначыць _усё"
-
-#, fuzzy
-#~ msgid "&Uncheck All"
-#~ msgstr "_Зняць пазначэнне"
-
-#~ msgid "Previous File"
-#~ msgstr "Папярэдні файл"
-
-#~ msgid "Next File"
-#~ msgstr "Наступны файл"
+#~ msgid "the root of the file system"
+#~ msgstr "корань файлавай сістэмы"
 
 #~ msgid "Size"
 #~ msgstr "Памер"
 
-#~ msgid "%(device)s did not unmount"
-#~ msgstr "%(device)s не адмантаваны"
+#~ msgid "Download Progress"
+#~ msgstr "Сцягванне"
 
-#~ msgid "the root of the file system"
-#~ msgstr "корань файлавай сістэмы"
-
-#~ msgid "About 1 second remaining"
-#~ msgstr "Засталося каля секунды"
+#~ msgid "scanning..."
+#~ msgstr "пошук..."
 
 #~ msgid "About %i seconds remaining"
 #~ msgstr "Засталося каля %i секунд"
@@ -2248,14 +2179,24 @@ msgstr ""
 #~ msgid "About 1 minute remaining"
 #~ msgstr "Засталося каля хвіліны"
 
+#~ msgid "About 1 second remaining"
+#~ msgstr "Засталося каля секунды"
+
+#~ msgid ""
+#~ "Do you really want to download from here? On some systems, scanning this "
+#~ "location can take a very long time."
+#~ msgstr ""
+#~ "Вы сапраўды хочаце сцягнуць адсюда? На некаторых сістэмах пошук можа "
+#~ "доўга цягнуцца."
+
+#~ msgid "Downloading from %(location)s."
+#~ msgstr "Сцягванне з %(location)s."
+
 #~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 #~ msgstr "Засталося каля %(minutes)i:%(seconds)i"
 
-#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
-#~ msgstr "%(number)s з %(total)s %(filetypes)s (%(remaining)s засталося)"
-
-#~ msgid "%(number)s of %(total)s %(filetypes)s"
-#~ msgstr "%(number)s з %(total)s %(filetypes)s"
+#~ msgid "Copy"
+#~ msgstr "Капіяваць"
 
 #~ msgid "From"
 #~ msgstr "Адкуль"
@@ -2263,23 +2204,26 @@ msgstr ""
 #~ msgid "Auto Detect"
 #~ msgstr "Аўта вызначэнне"
 
-#~ msgid "Select a folder containing %(file_types)s"
-#~ msgstr "Выбраць папку з %(file_types)s"
+#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
+#~ msgstr "%(number)s з %(total)s %(filetypes)s (%(remaining)s засталося)"
+
+#~ msgid "%(number)s of %(total)s %(filetypes)s"
+#~ msgstr "%(number)s з %(total)s %(filetypes)s"
+
+#~ msgid "%(device)s did not unmount"
+#~ msgstr "%(device)s не адмантаваны"
+
+#~ msgid "Photos:"
+#~ msgstr "Здымкі:"
+
+#~ msgid "Videos:"
+#~ msgstr "Відэа:"
 
 #~ msgid "Move"
 #~ msgstr "Перанесці"
 
-#~ msgid "Select a folder to download photos to"
-#~ msgstr "Выбярыце папку, куды сцягнуць здымкі"
-
-#~ msgid "Select a folder to download videos to"
-#~ msgstr "Выбярыце папку, куды сцягнуць відэа"
-
 #~ msgid "and"
 #~ msgstr "і"
-
-#~ msgid "Folder: %s"
-#~ msgstr "Папкі: %s"
 
 #~ msgid "Thumbnails"
 #~ msgstr "Мініяцюры"
@@ -2287,14 +2231,32 @@ msgstr ""
 #~ msgid "reset all program settings and preferences and exit"
 #~ msgstr "Скінуць усе наладкі і выйсці"
 
+#~ msgid "All settings and preferences have been reset"
+#~ msgstr "Усе наладкі былі скінуты"
+
 #~ msgid "and %s"
 #~ msgstr "і %s"
+
+#~ msgid "MB/s"
+#~ msgstr "МБ/с"
 
 #~ msgid "Device Detected"
 #~ msgstr "Знойдзена прылада"
 
-#~ msgid "Remove all Job Codes?"
-#~ msgstr "Выдаліць усе цэтлікі?"
+#~ msgid "Name + extension"
+#~ msgstr "Назва + пашырэнне"
+
+#~ msgid "Select a folder containing %(file_types)s"
+#~ msgstr "Выбраць папку з %(file_types)s"
+
+#~ msgid "Select a folder to download videos to"
+#~ msgstr "Выбярыце папку, куды сцягнуць відэа"
+
+#~ msgid "Select a folder to download photos to"
+#~ msgstr "Выбярыце папку, куды сцягнуць здымкі"
+
+#~ msgid "Folder: %s"
+#~ msgstr "Папкі: %s"
 
 #~ msgid "Should all Job Codes be removed?"
 #~ msgstr "Трэба выдаліць усе цэтлікі?"
@@ -2302,8 +2264,14 @@ msgstr ""
 #~ msgid "Error in Photo Rename preferences"
 #~ msgstr "Памылка ў наладках назваў здымкаў"
 
+#~ msgid "Remove all Job Codes?"
+#~ msgstr "Выдаліць усе цэтлікі?"
+
 #~ msgid "Error in Video Rename preferences"
 #~ msgstr "Памылка ў наладках назваў відэа"
+
+#~ msgid "Job Code:"
+#~ msgstr "Цэтлікі:"
 
 #~ msgid "Enter a new Job Code, or select a previous one"
 #~ msgstr "Увядзіце новы цэтлік або выбярыце стары"
@@ -2311,38 +2279,14 @@ msgstr ""
 #~ msgid "Enter a new Job Code"
 #~ msgstr "Увядзіце новы цэтлік"
 
-#~ msgid "Job Code:"
-#~ msgstr "Цэтлікі:"
-
-#~ msgid "<i>Example: %s</i>"
-#~ msgstr "<i>Прыклад: %s</i>"
+#~ msgid "Enter a Job Code"
+#~ msgstr "Увядзіце цэтлік"
 
 #~ msgid "New York"
 #~ msgstr "Нью-Ёрк"
 
-#~ msgid "Manila"
-#~ msgstr "Маніла"
-
-#~ msgid "Prague"
-#~ msgstr "Прага"
-
-#~ msgid "Helsinki"
-#~ msgstr "Хельсінкі"
-
-#~ msgid "Wellington"
-#~ msgstr "Ўэлінгтон"
-
-#~ msgid "Tehran"
-#~ msgstr "Тэгеран"
-
-#~ msgid "Kampala"
-#~ msgstr "Кампала"
-
-#~ msgid "Paris"
-#~ msgstr "Парыж"
-
-#~ msgid "Berlin"
-#~ msgstr "Бэрлін"
+#~ msgid "<i>Example: %s</i>"
+#~ msgstr "<i>Прыклад: %s</i>"
 
 #~ msgid "Sydney"
 #~ msgstr "Сіднэй"
@@ -2350,17 +2294,38 @@ msgstr ""
 #~ msgid "Budapest"
 #~ msgstr "Будапешт"
 
+#~ msgid "Berlin"
+#~ msgstr "Бэрлін"
+
+#~ msgid "Paris"
+#~ msgstr "Парыж"
+
+#~ msgid "Prague"
+#~ msgstr "Прага"
+
+#~ msgid "Manila"
+#~ msgstr "Маніла"
+
+#~ msgid "Wellington"
+#~ msgstr "Ўэлінгтон"
+
+#~ msgid "Helsinki"
+#~ msgstr "Хельсінкі"
+
+#~ msgid "Kampala"
+#~ msgstr "Кампала"
+
+#~ msgid "Tehran"
+#~ msgstr "Тэгеран"
+
+#~ msgid "Stockholm"
+#~ msgstr "Стакгольм"
+
 #~ msgid "Rome"
 #~ msgstr "Рым"
 
 #~ msgid "Moscow"
 #~ msgstr "Масква"
-
-#~ msgid "Delhi"
-#~ msgstr "Дэлі"
-
-#~ msgid "Warsaw"
-#~ msgstr "Варшава"
 
 #~ msgid "Jakarta"
 #~ msgstr "Джакарта"
@@ -2368,23 +2333,50 @@ msgstr ""
 #~ msgid "Madrid"
 #~ msgstr "Мадрыд"
 
-#~ msgid "Stockholm"
-#~ msgstr "Стакгольм"
+#~ msgid "Delhi"
+#~ msgstr "Дэлі"
+
+#~ msgid "Warsaw"
+#~ msgstr "Варшава"
+
+#~ msgid "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
 #~ msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
 #~ msgstr "пошук (знойдзена %(photos)s здымкаў і %(videos)s відэа)..."
 
+#~ msgid "Download / Pause"
+#~ msgstr "Сцягваць / Прыпыніць"
+
 #~ msgid "_File"
 #~ msgstr "_Файл"
+
+#~ msgid "_Select"
+#~ msgstr "_Выбраць"
+
+#~ msgid "Previous File"
+#~ msgstr "Папярэдні файл"
 
 #~ msgid "_View"
 #~ msgstr "_Прагляд"
 
-#~ msgid "_Help"
-#~ msgstr "_Даведка"
+#~ msgid "_Uncheck All"
+#~ msgstr "_Зняць пазначэнне"
 
 #~ msgid "_Include in download"
 #~ msgstr "_Уключыць у сцягванне"
+
+#~ msgid "_Translate this Application..."
+#~ msgstr "_Перакласці праграму..."
+
+#~ msgid "_Check All"
+#~ msgstr "Пазначыць _усё"
+
+#~ msgid "_Help"
+#~ msgstr "_Даведка"
+
+#~ msgid "Next File"
+#~ msgstr "Наступны файл"
 
 #~ msgid "_Download"
 #~ msgstr "_Сцягнуць"
@@ -2392,11 +2384,14 @@ msgstr ""
 #~ msgid "<i>Example: /home/user/Pictures</i>"
 #~ msgstr "<i>Прыклад: /home/user/Pictures</i>"
 
+#~ msgid "<i>New:</i>"
+#~ msgstr "<i>Новае:</i>"
+
 #~ msgid " "
 #~ msgstr " "
 
-#~ msgid "<i>New:</i>"
-#~ msgstr "<i>Новае:</i>"
+#~ msgid "Photo Folders"
+#~ msgstr "Папкі здымкаў"
 
 #~ msgid "<i>Original:</i>"
 #~ msgstr "<i>Арыгінал:</i>"
@@ -2407,26 +2402,26 @@ msgstr ""
 #~ msgid "Video Folders"
 #~ msgstr "Папкі з відэа"
 
-#~ msgid "Day start:"
-#~ msgstr "Пачатак дня:"
-
-#~ msgid "Downloads today:"
-#~ msgstr "Сцягнута сёння:"
-
-#~ msgid ":"
-#~ msgstr ":"
-
 #~ msgid " hh:mm"
 #~ msgstr " гг:хх"
+
+#~ msgid "Day start:"
+#~ msgstr "Пачатак дня:"
 
 #~ msgid "Synchronize RAW + JPEG sequence numbers"
 #~ msgstr "Сінхранізаваць нумары RAW і JPEG"
 
+#~ msgid ":"
+#~ msgstr ":"
+
 #~ msgid "<b>Compatibility with Other Operating Systems</b>"
 #~ msgstr "<b>Сумяшчальнасць з іншымі аперацыйнымі сістэмамі</b>"
 
-#~ msgid "<b>Job Codes</b>"
-#~ msgstr "<b>Цэтлікі</b>"
+#~ msgid "Downloads today:"
+#~ msgstr "Сцягнута сёння:"
+
+#~ msgid "Job Codes"
+#~ msgstr "Цэтлікі"
 
 #~ msgid "_Add..."
 #~ msgstr "_Дадаць…"
@@ -2434,8 +2429,8 @@ msgstr ""
 #~ msgid "R_emove All"
 #~ msgstr "_Выдаліць усё"
 
-#~ msgid "Job Codes"
-#~ msgstr "Цэтлікі"
+#~ msgid "<b>Job Codes</b>"
+#~ msgstr "<b>Цэтлікі</b>"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Прылады</span>"

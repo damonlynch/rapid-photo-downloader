@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-27 14:45-0600\n"
-"PO-Revision-Date: 2015-10-16 09:47+0000\n"
-"Last-Translator: gogo <trebelnik2@gmail.com>\n"
+"POT-Creation-Date: 2017-01-31 17:52-0600\n"
+"PO-Revision-Date: 2017-01-28 03:27+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Croatian <hr@li.org>\n"
 "Language: hr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-11-14 06:56+0000\n"
-"X-Generator: Launchpad (build 18261)\n"
+"X-Launchpad-Export-Date: 2017-01-31 23:48+0000\n"
+"X-Generator: Launchpad (build 18315)\n"
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
 msgstr "Greška prilikom spremanja sigurnosne kopije"
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:178 ../raphodo/renameandmovefile.py:270
+#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -42,22 +42,22 @@ msgstr ""
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr ""
 
-#: ../raphodo/backupfile.py:167
+#: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr ""
 
-#: ../raphodo/backupfile.py:171
+#: ../raphodo/backupfile.py:173
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr ""
 
-#: ../raphodo/backupfile.py:175
+#: ../raphodo/backupfile.py:177
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr ""
 
-#: ../raphodo/backupfile.py:200 ../raphodo/copyfiles.py:184
+#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
 #: ../raphodo/renameandmovefile.py:424 ../raphodo/renameandmovefile.py:550
 #, python-format
@@ -70,7 +70,7 @@ msgstr ""
 msgid "The file could not be copied from the camera"
 msgstr ""
 
-#: ../raphodo/copyfiles.py:389
+#: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
 msgstr ""
 
@@ -84,15 +84,13 @@ msgstr ""
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1750
 #: ../raphodo/rapid.py:1927 ../raphodo/rapid.py:5285
-#, fuzzy
 msgid "Photos"
-msgstr "_Fotografije"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1753
 #: ../raphodo/rapid.py:1928 ../raphodo/rapid.py:5286
-#, fuzzy
 msgid "Videos"
-msgstr "video snimke"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:999
 msgid "Temporarily ignore this device"
@@ -116,51 +114,48 @@ msgstr ""
 msgid "%(no_videos)s Videos"
 msgstr ""
 
-#: ../raphodo/devices.py:423
-#, fuzzy
+#: ../raphodo/devices.py:424
 msgid "Cameras"
-msgstr "Model fotoaparata"
+msgstr ""
 
-#: ../raphodo/devices.py:424 ../raphodo/devices.py:852 ../raphodo/rapid.py:1714
+#: ../raphodo/devices.py:425 ../raphodo/devices.py:881 ../raphodo/rapid.py:1714
 msgid "Devices"
 msgstr "Uređaji"
 
-#: ../raphodo/devices.py:664
+#: ../raphodo/devices.py:685
 #, python-format
 msgid "Downloading from %(device_names)s"
 msgstr ""
 
 #. Translators: e.g. Three Devices
-#: ../raphodo/devices.py:720
+#: ../raphodo/devices.py:741
 #, python-format
 msgid "%(no_devices)s %(device_type)s"
 msgstr ""
 
-#: ../raphodo/devices.py:837 ../raphodo/rapid.py:1551
-#, fuzzy
+#: ../raphodo/devices.py:866 ../raphodo/rapid.py:1551
 msgid "Select Source"
-msgstr "_Odaberite"
+msgstr ""
 
-#: ../raphodo/devices.py:868 ../raphodo/devices.py:879
+#: ../raphodo/devices.py:897 ../raphodo/devices.py:908
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr ""
 
 #. Number of cameras e.g. 3 Cameras
-#: ../raphodo/devices.py:890
+#: ../raphodo/devices.py:919
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:895
+#: ../raphodo/devices.py:924
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:402
-#, fuzzy
 msgid "MB/sec"
-msgstr "MB/s"
+msgstr ""
 
 #. Be friendly in the last few seconds
 #: ../raphodo/downloadtracker.py:532
@@ -567,9 +562,8 @@ msgstr "GGGG-MM-DD"
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:314 ../raphodo/generatenameconfig.py:391
-#, fuzzy
 msgid "YYYY_MM_DD"
-msgstr "GGGGMMDD"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -725,46 +719,40 @@ msgid "Date and Job Code Subfolder"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "YYYYMM"
-msgstr "GGGGMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393 ../raphodo/rapid.py:1596
 msgid "Job Code"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:433 ../raphodo/generatenameconfig.py:512
-#, fuzzy
 msgid "Original Filename"
-msgstr "Ime datoteke"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
 msgid "Date-Time and Downloads today"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "YYYYMMDD-HHMM-1"
-msgstr "GGGGMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
 msgid "Date and Downloads today"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "YYYYMMDD-1"
-msgstr "GGGGMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "Date-Time and Image number"
-msgstr "Broj slike"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "YYYYMMDD-1234"
-msgstr "GGGGMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
 msgid "Date-Time and Job Code"
@@ -783,9 +771,8 @@ msgid "Date-Time and Video number"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "YYYYMMDD_1234"
-msgstr "GGGGMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:518
 msgid "Resolution"
@@ -1243,15 +1230,13 @@ msgid "Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
 
 #: ../raphodo/rapid.py:1222
-#, fuzzy
 msgid "Download failed"
-msgstr "Direktorij preuzimanja:"
+msgstr ""
 
 #: ../raphodo/rapid.py:1223
-#, fuzzy
 msgid ""
 "Sorry, the download of the new version of Rapid Photo Downloader failed."
-msgstr "Postavke: Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/rapid.py:1229
 msgid ""
@@ -1260,9 +1245,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1232
-#, fuzzy
 msgid "Update Rapid Photo Downloader"
-msgstr "Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/rapid.py:1236
 msgid "Install"
@@ -1291,9 +1275,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1464
-#, fuzzy
 msgid "&Source"
-msgstr "Izvor: %s"
+msgstr ""
 
 #: ../raphodo/rapid.py:1467 ../raphodo/rapid.py:2140
 msgid "Download"
@@ -1320,19 +1303,16 @@ msgid "Clear Completed Downloads"
 msgstr ""
 
 #: ../raphodo/rapid.py:1488
-#, fuzzy
 msgid "Get Help Online..."
-msgstr "_Potraži pomoć na Internetu..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1491
-#, fuzzy
 msgid "Report a Problem..."
-msgstr "Prijavi _problem..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1494
-#, fuzzy
 msgid "Make a Donation..."
-msgstr "_Doniraj..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1497
 msgid "Translate this Application..."
@@ -1355,14 +1335,12 @@ msgid "Destination"
 msgstr ""
 
 #: ../raphodo/rapid.py:1595
-#, fuzzy
 msgid "Rename"
-msgstr "Ime datoteke"
+msgstr ""
 
 #: ../raphodo/rapid.py:1597
-#, fuzzy
 msgid "Back Up"
-msgstr "Sigurnosna kopija"
+msgstr ""
 
 #. Devices Header and View
 #: ../raphodo/rapid.py:1713
@@ -1434,14 +1412,13 @@ msgid "Descending"
 msgstr ""
 
 #: ../raphodo/rapid.py:1917
-#, fuzzy
 msgid "Select All:"
-msgstr "_Odaberite"
+msgstr ""
 
 #: ../raphodo/rapid.py:2120
-#, fuzzy, python-format
+#, python-format
 msgid "Download %(files)s"
-msgstr "Direktorij preuzimanja:"
+msgstr ""
 
 #: ../raphodo/rapid.py:2136
 msgid "Resume Download"
@@ -1586,14 +1563,13 @@ msgid "%d failures"
 msgstr ""
 
 #: ../raphodo/rapid.py:3444
-#, fuzzy
 msgid "1 warning"
-msgstr "upozorenja"
+msgstr ""
 
 #: ../raphodo/rapid.py:3446
-#, fuzzy, python-format
+#, python-format
 msgid "%d warnings"
-msgstr "upozorenja"
+msgstr ""
 
 #: ../raphodo/rapid.py:3466
 #, python-format
@@ -1611,9 +1587,8 @@ msgid "No files downloaded — %(failures)s"
 msgstr ""
 
 #: ../raphodo/rapid.py:3476
-#, fuzzy
 msgid "No files downloaded"
-msgstr "Preskoči preuzimanje"
+msgstr ""
 
 #: ../raphodo/rapid.py:3500
 #, python-format
@@ -1760,9 +1735,9 @@ msgid "Generating thumbnails for %s"
 msgstr ""
 
 #: ../raphodo/rapid.py:4807
-#, fuzzy, python-format
+#, python-format
 msgid "Scanning %s"
-msgstr "pretražujem..."
+msgstr ""
 
 #: ../raphodo/rapid.py:4817
 #, python-format
@@ -1918,9 +1893,9 @@ msgid "No prior program preferences detected: exiting"
 msgstr ""
 
 #: ../raphodo/rapid.py:5195
-#, fuzzy, python-format
+#, python-format
 msgid "Importing preferences from Rapid Photo Downloader %(version)s"
-msgstr "Postavke: Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/rapid.py:5257
 #, python-format
@@ -1977,11 +1952,11 @@ msgstr ""
 msgid "photos or videos"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:852
+#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:855
 msgid "video"
 msgstr "video"
 
-#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:810
+#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:813
 msgid "photo"
 msgstr "fotografija"
 
@@ -1991,25 +1966,23 @@ msgid "%(number)s %(filetypes)s"
 msgstr ""
 
 #: ../raphodo/rpdfile.py:312
-#, fuzzy
 msgid "1 Video"
-msgstr "video"
+msgstr ""
 
 #: ../raphodo/rpdfile.py:317
-#, fuzzy
 msgid "1 Photo"
-msgstr "_Fotografije"
+msgstr ""
 
-#: ../raphodo/rpdfile.py:775
+#: ../raphodo/rpdfile.py:778
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:811
+#: ../raphodo/rpdfile.py:814
 msgid "Photo"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:853
+#: ../raphodo/rpdfile.py:856
 msgid "Video"
 msgstr ""
 
@@ -2034,9 +2007,8 @@ msgid "Memory cards: %s"
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:444
-#, fuzzy
 msgid "Downloaded as:"
-msgstr "Preuzmi / Pauziraj"
+msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:450
 #, python-format
@@ -2173,9 +2145,8 @@ msgid ""
 msgstr ""
 
 #: ../data/rapid-photo-downloader.desktop.in.h:2
-#, fuzzy
 msgid "Photo Downloader"
-msgstr "Rapid Photo Downloader"
+msgstr ""
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
@@ -2185,63 +2156,32 @@ msgid ""
 msgstr ""
 
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
-#, fuzzy
 msgid "Download Photos and Videos with Rapid Photo Downloader"
-msgstr "Postavke: Rapid Photo Downloader"
-
-#~ msgid "Size"
-#~ msgstr "Veličina"
-
-#~ msgid "Download Progress"
-#~ msgstr "Napredak preuzimanja"
-
-#~ msgid "Select a folder to download photos to"
-#~ msgstr "Odaberite direktorij za spremanje preuzetih fotografija"
-
-#~ msgid "and"
-#~ msgstr "i"
-
-#~ msgid "Device Detected"
-#~ msgstr "Pronađeni uređaj"
-
-#~ msgid "Name + extension"
-#~ msgstr "Naziv + ekstenzija"
-
-#~ msgid "<i>Example: %s</i>"
-#~ msgstr "<i>Primjer: %s</i>"
-
-#~ msgid "New York"
-#~ msgstr "New York"
-
-#~ msgid "Manila"
-#~ msgstr "Manila"
-
-#~ msgid "Prague"
-#~ msgstr "Prag"
-
-#~ msgid "Helsinki"
-#~ msgstr "Helsinki"
-
-#~ msgid "Wellington"
-#~ msgstr "Wellington"
-
-#~ msgid "Tehran"
-#~ msgstr "Teheran"
-
-#~ msgid "Kampala"
-#~ msgstr "Kampala"
-
-#~ msgid "Paris"
-#~ msgstr "Pariz"
+msgstr ""
 
 #~ msgid "Berlin"
 #~ msgstr "Berlin"
 
-#~ msgid "Sydney"
-#~ msgstr "Sydney"
+#~ msgid "Manila"
+#~ msgstr "Manila"
 
-#~ msgid "Budapest"
-#~ msgstr "Budimpešta"
+#~ msgid "New York"
+#~ msgstr "New York"
+
+#~ msgid "Prague"
+#~ msgstr "Prag"
+
+#~ msgid "Wellington"
+#~ msgstr "Wellington"
+
+#~ msgid "Helsinki"
+#~ msgstr "Helsinki"
+
+#~ msgid "Kampala"
+#~ msgstr "Kampala"
+
+#~ msgid "Stockholm"
+#~ msgstr "Stockholm"
 
 #~ msgid "Rome"
 #~ msgstr "Rim"
@@ -2249,11 +2189,8 @@ msgstr "Postavke: Rapid Photo Downloader"
 #~ msgid "Moscow"
 #~ msgstr "Moskva"
 
-#~ msgid "Delhi"
-#~ msgstr "Delhi"
-
-#~ msgid "Warsaw"
-#~ msgstr "Varšava"
+#~ msgid "Sydney"
+#~ msgstr "Sydney"
 
 #~ msgid "Jakarta"
 #~ msgstr "Jakarta"
@@ -2261,8 +2198,14 @@ msgstr "Postavke: Rapid Photo Downloader"
 #~ msgid "Madrid"
 #~ msgstr "Madrid"
 
-#~ msgid "Stockholm"
-#~ msgstr "Stockholm"
+#~ msgid "Delhi"
+#~ msgstr "Delhi"
+
+#~ msgid "Warsaw"
+#~ msgstr "Varšava"
+
+#~ msgid "Budapest"
+#~ msgstr "Budimpešta"
 
 #~ msgid "_File"
 #~ msgstr "_Datoteka"
@@ -2270,32 +2213,80 @@ msgstr "Postavke: Rapid Photo Downloader"
 #~ msgid "_View"
 #~ msgstr "_Pogled"
 
+#~ msgid "_Get Help Online..."
+#~ msgstr "_Potraži pomoć na Internetu..."
+
 #~ msgid "_Help"
 #~ msgstr "_Pomoć"
 
-#~ msgid "_Translate this Application..."
-#~ msgstr "Prevedi _ovaj program..."
+#~ msgid "_Select"
+#~ msgstr "_Odaberite"
 
-#~ msgid " "
-#~ msgstr " "
+#~ msgid "Device Detected"
+#~ msgstr "Pronađeni uređaj"
 
-#~ msgid "<b>Example</b>"
-#~ msgstr "<b>Primjer</b>"
-
-#~ msgid ":"
-#~ msgstr ":"
-
-#~ msgid "<b>Compatibility with Other Operating Systems</b>"
-#~ msgstr "<b>Kompatibilnost s ostalim operacijskim sustavima</b>"
-
-#~ msgid "_Add..."
-#~ msgstr "_Dodaj..."
+#~ msgid "Size"
+#~ msgstr "Veličina"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Uređaji</span>"
 
+#~ msgid "Download Progress"
+#~ msgstr "Napredak preuzimanja"
+
+#~ msgid "Paris"
+#~ msgstr "Pariz"
+
+#~ msgid "Tehran"
+#~ msgstr "Teheran"
+
+#~ msgid "_Translate this Application..."
+#~ msgstr "Prevedi _ovaj program..."
+
+#~ msgid "_Report a Problem..."
+#~ msgstr "Prijavi _problem..."
+
+#~ msgid "_Make a Donation..."
+#~ msgstr "_Doniraj..."
+
+#~ msgid "Preferences: Rapid Photo Downloader"
+#~ msgstr "Postavke: Rapid Photo Downloader"
+
+#~ msgid "Download / Pause"
+#~ msgstr "Preuzmi / Pauziraj"
+
+#~ msgid "scanning..."
+#~ msgstr "pretražujem..."
+
+#~ msgid "<i>Example: %s</i>"
+#~ msgstr "<i>Primjer: %s</i>"
+
+#~ msgid "Select a folder to download photos to"
+#~ msgstr "Odaberite direktorij za spremanje preuzetih fotografija"
+
+#~ msgid "and"
+#~ msgstr "i"
+
+#~ msgid "MB/s"
+#~ msgstr "MB/s"
+
+#~ msgid "Name + extension"
+#~ msgstr "Naziv + ekstenzija"
+
+#~ msgid " "
+#~ msgstr " "
+
+#~ msgid ":"
+#~ msgstr ":"
+
 #~ msgid "<b>Backup</b>"
 #~ msgstr "<b>Sigurnosna kopija</b>"
+
+#~ msgid "<b>Compatibility with Other Operating Systems</b>"
+#~ msgstr "<b>Kompatibilnost s ostalim operacijskim sustavima</b>"
+
+#~ msgid "<b>Example</b>"
+#~ msgstr "<b>Primjer</b>"
 
 #~ msgid "<i>Example:</i>"
 #~ msgstr "<i>Primjer:</i>"
@@ -2303,138 +2294,17 @@ msgstr "Postavke: Rapid Photo Downloader"
 #~ msgid "Add unique identifier"
 #~ msgstr "Dodaj jedinstveni identifikator"
 
+#~ msgid "Backup"
+#~ msgstr "Sigurnosna kopija"
+
+#~ msgid "Download folder:"
+#~ msgstr "Direktorij preuzimanja:"
+
 #~ msgid "Skip"
 #~ msgstr "Preskoči"
 
-#~ msgid "errors"
-#~ msgstr "greške"
+#~ msgid "Skip download"
+#~ msgstr "Preskoči preuzimanje"
 
-#~ msgid "Report an error"
-#~ msgstr "Prijavi pogrešku"
-
-#~ msgid "_Pause"
-#~ msgstr "_Pauza"
-
-#~ msgid "Sorry,these preferences contain an error:\n"
-#~ msgstr "Žao mi je, ove opcije sadrže grešku:\n"
-
-#~ msgid ""
-#~ "\n"
-#~ "Please check preferences, restart the program, and try again."
-#~ msgstr ""
-#~ "\n"
-#~ "Molim provjerite postavke, ponovno pokrenite program i pokušajte ponovo."
-
-#~ msgid "Could not open image"
-#~ msgstr "Ne mogu otvoriti sliku"
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Izvor: %(source)s\n"
-#~ "Odredište: %(destination)s\n"
-#~ "Problem: %(problem)s"
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Izvor: %(source)s\n"
-#~ "Problem: %(problem)s"
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Error: %(errorno)s %(strerror)s"
-#~ msgstr ""
-#~ "Izvor: %(source)s\n"
-#~ "Odredište: %(destination)s\n"
-#~ "Greška: %(errorno)s %(strerror)s"
-
-#~ msgid "The image was not copied."
-#~ msgstr "Slika nije kopirana."
-
-#~ msgid ""
-#~ "Subfolder: %(subfolder)s\n"
-#~ "Image: %(image)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Poddirektorij: %(subfolder)s\n"
-#~ "Slika: %(image)s\n"
-#~ "Problem: %(problem)s"
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Error: %(errno)s %(strerror)s"
-#~ msgstr ""
-#~ "Izvor: %(source)s\n"
-#~ "Odredište: %(destination)s\n"
-#~ "Greška: %(errno)s %(strerror)s"
-
-#~ msgid ""
-#~ "Destination directory could not be created\n"
-#~ "%(directory)s\n"
-#~ "Error: %(errno)s %(strerror)s"
-#~ msgstr ""
-#~ "Ne može se stvoriti odredišni direktorij\n"
-#~ "%(directory)s\n"
-#~ "Greška: %(errno)s %(strerror)s"
-
-#~ msgid ""
-#~ "A newer version of this program was previously run on this computer.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "Novija verzija ovog programa je prethodno pokrenuta na ovom računalu.\n"
-#~ "\n"
-
-#~ msgid "Warning:"
-#~ msgstr "Upozorenje:"
-
-#~ msgid "No preferences needed to be changed."
-#~ msgstr "Mijenjanje postavki nije potrebno."
-
-#~ msgid ""
-#~ "This version of the program is newer than the previously run version. "
-#~ "Checking preferences."
-#~ msgstr ""
-#~ "Ova verzija programa je novija od prethodno pokrenute verzije. "
-#~ "Provjeravam postavke."
-
-#~ msgid "Using manually specified path"
-#~ msgstr "Koristim ručno zadanu putanju"
-
-#~ msgid "Preferences were changed."
-#~ msgstr "Postavke su promijenjene."
-
-#~ msgid "%s is already running"
-#~ msgstr "Program %s je već pokrenut"
-
-#~ msgid "      "
-#~ msgstr "      "
-
-#~ msgid "Backup photos when downloading"
-#~ msgstr "Napravi sigurnosnu kopiju fotografija prilikom preuzimanja"
-
-#~ msgid "Copyright Damon Lynch 2007-09"
-#~ msgstr "Copyright Damon Lynch 2007-09"
-
-#~ msgid "Automation"
-#~ msgstr "Automatizacija"
-
-#~ msgid "Download Folder"
-#~ msgstr "Direktorij preuzimanja"
-
-#~ msgid "Exit program after completion of successful download"
-#~ msgstr "Zatvori program nakon uspješnog preuzimanja"
-
-#~ msgid "_Thumbnails"
-#~ msgstr "_Umanjene sličice"
-
-#~ msgid "Select a folder in which to backup images"
-#~ msgstr "Odaberite direktorij za spremanje sigurnosnih kopija slika"
-
-#~ msgid "Image already exists"
-#~ msgstr "Slika već postoji"
+#~ msgid "_Add..."
+#~ msgstr "_Dodaj..."

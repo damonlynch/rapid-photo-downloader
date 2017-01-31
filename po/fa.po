@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-27 14:45-0600\n"
-"PO-Revision-Date: 2014-01-22 00:14+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"POT-Creation-Date: 2017-01-31 17:52-0600\n"
+"PO-Revision-Date: 2017-01-28 03:27+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Persian <fa@li.org>\n"
 "Language: fa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-01-23 13:56+0000\n"
-"X-Generator: Launchpad (build 16901)\n"
+"X-Launchpad-Export-Date: 2017-01-31 23:48+0000\n"
+"X-Generator: Launchpad (build 18315)\n"
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
 msgstr ""
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:178 ../raphodo/renameandmovefile.py:270
+#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -40,22 +40,22 @@ msgstr ""
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr ""
 
-#: ../raphodo/backupfile.py:167
+#: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr ""
 
-#: ../raphodo/backupfile.py:171
+#: ../raphodo/backupfile.py:173
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr ""
 
-#: ../raphodo/backupfile.py:175
+#: ../raphodo/backupfile.py:177
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr ""
 
-#: ../raphodo/backupfile.py:200 ../raphodo/copyfiles.py:184
+#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
 #: ../raphodo/renameandmovefile.py:424 ../raphodo/renameandmovefile.py:550
 #, python-format
@@ -68,7 +68,7 @@ msgstr ""
 msgid "The file could not be copied from the camera"
 msgstr ""
 
-#: ../raphodo/copyfiles.py:389
+#: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
 msgstr ""
 
@@ -112,41 +112,41 @@ msgstr ""
 msgid "%(no_videos)s Videos"
 msgstr ""
 
-#: ../raphodo/devices.py:423
+#: ../raphodo/devices.py:424
 msgid "Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:424 ../raphodo/devices.py:852 ../raphodo/rapid.py:1714
+#: ../raphodo/devices.py:425 ../raphodo/devices.py:881 ../raphodo/rapid.py:1714
 msgid "Devices"
 msgstr ""
 
-#: ../raphodo/devices.py:664
+#: ../raphodo/devices.py:685
 #, python-format
 msgid "Downloading from %(device_names)s"
 msgstr ""
 
 #. Translators: e.g. Three Devices
-#: ../raphodo/devices.py:720
+#: ../raphodo/devices.py:741
 #, python-format
 msgid "%(no_devices)s %(device_type)s"
 msgstr ""
 
-#: ../raphodo/devices.py:837 ../raphodo/rapid.py:1551
+#: ../raphodo/devices.py:866 ../raphodo/rapid.py:1551
 msgid "Select Source"
 msgstr ""
 
-#: ../raphodo/devices.py:868 ../raphodo/devices.py:879
+#: ../raphodo/devices.py:897 ../raphodo/devices.py:908
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr ""
 
 #. Number of cameras e.g. 3 Cameras
-#: ../raphodo/devices.py:890
+#: ../raphodo/devices.py:919
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:895
+#: ../raphodo/devices.py:924
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr ""
@@ -709,9 +709,8 @@ msgid "Date and Job Code"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392
-#, fuzzy
 msgid "YYYYMM_Job Code"
-msgstr "کد دستور"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
 msgid "Date and Job Code Subfolder"
@@ -758,14 +757,12 @@ msgid "Date-Time and Job Code"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "YYYYMMDD-HHMM-Job Code-1"
-msgstr "کد دستور"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:438 ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "YYYYMMDD-Job Code-1"
-msgstr "کد دستور"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
 msgid "Date-Time and Video number"
@@ -1231,9 +1228,8 @@ msgid "Rapid Photo Downloader"
 msgstr ""
 
 #: ../raphodo/rapid.py:1222
-#, fuzzy
 msgid "Download failed"
-msgstr "دانلود نمی تواند ادامه پیدا کند..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1223
 msgid ""
@@ -1362,18 +1358,16 @@ msgid "This Computer"
 msgstr ""
 
 #: ../raphodo/rapid.py:1738
-#, fuzzy
 msgid "Select a source folder"
-msgstr "یک پوشه عکس را انتخاب نمایید"
+msgstr ""
 
 #: ../raphodo/rapid.py:1761
 msgid "Storage Space"
 msgstr ""
 
 #: ../raphodo/rapid.py:1775 ../raphodo/rapid.py:1783
-#, fuzzy
 msgid "Select a destination folder"
-msgstr "یک پوشه عکس را انتخاب نمایید"
+msgstr ""
 
 #: ../raphodo/rapid.py:1879
 msgid "Show:"
@@ -1739,9 +1733,9 @@ msgid "Generating thumbnails for %s"
 msgstr ""
 
 #: ../raphodo/rapid.py:4807
-#, fuzzy, python-format
+#, python-format
 msgid "Scanning %s"
-msgstr "در حال پویش..."
+msgstr ""
 
 #: ../raphodo/rapid.py:4817
 #, python-format
@@ -1956,11 +1950,11 @@ msgstr ""
 msgid "photos or videos"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:852
+#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:855
 msgid "video"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:810
+#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:813
 msgid "photo"
 msgstr ""
 
@@ -1977,16 +1971,16 @@ msgstr ""
 msgid "1 Photo"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:775
+#: ../raphodo/rpdfile.py:778
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:811
+#: ../raphodo/rpdfile.py:814
 msgid "Photo"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:853
+#: ../raphodo/rpdfile.py:856
 msgid "Video"
 msgstr ""
 
@@ -2163,6 +2157,60 @@ msgstr ""
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr ""
 
+#~ msgid "Paris"
+#~ msgstr "پاریس"
+
+#~ msgid "Manila"
+#~ msgstr "مانیل"
+
+#~ msgid "Berlin"
+#~ msgstr "برلین"
+
+#~ msgid "New York"
+#~ msgstr "نیویورک"
+
+#~ msgid "Prague"
+#~ msgstr "پراگ"
+
+#~ msgid "Wellington"
+#~ msgstr "ولینگتون"
+
+#~ msgid "Helsinki"
+#~ msgstr "هلسینکی"
+
+#~ msgid "Kampala"
+#~ msgstr "کامپلا"
+
+#~ msgid "Tehran"
+#~ msgstr "تهران"
+
+#~ msgid "Stockholm"
+#~ msgstr "استکهلم"
+
+#~ msgid "Rome"
+#~ msgstr "رم"
+
+#~ msgid "Moscow"
+#~ msgstr "مسکو"
+
+#~ msgid "Sydney"
+#~ msgstr "سیدنی"
+
+#~ msgid "Budapest"
+#~ msgstr "بوداپست"
+
+#~ msgid "Jakarta"
+#~ msgstr "جاکارتا"
+
+#~ msgid "Madrid"
+#~ msgstr "مادرید"
+
+#~ msgid "Delhi"
+#~ msgstr "دهلی"
+
+#~ msgid "Warsaw"
+#~ msgstr "ورشو"
+
 #~ msgid "Select a folder to download photos to"
 #~ msgstr "یک پوشه را برای دانلود عکس انتخاب نمایید"
 
@@ -2175,97 +2223,8 @@ msgstr ""
 #~ msgid "externaldrive2"
 #~ msgstr "درایو خارجی 2"
 
-#~ msgid "New York"
-#~ msgstr "نیویورک"
-
-#~ msgid "Manila"
-#~ msgstr "مانیل"
-
-#~ msgid "Prague"
-#~ msgstr "پراگ"
-
-#~ msgid "Helsinki"
-#~ msgstr "هلسینکی"
-
-#~ msgid "Wellington"
-#~ msgstr "ولینگتون"
-
-#~ msgid "Tehran"
-#~ msgstr "تهران"
-
-#~ msgid "Kampala"
-#~ msgstr "کامپلا"
-
-#~ msgid "Paris"
-#~ msgstr "پاریس"
-
-#~ msgid "Berlin"
-#~ msgstr "برلین"
-
-#~ msgid "Sydney"
-#~ msgstr "سیدنی"
-
-#~ msgid "Budapest"
-#~ msgstr "بوداپست"
-
-#~ msgid "Rome"
-#~ msgstr "رم"
-
-#~ msgid "Moscow"
-#~ msgstr "مسکو"
-
-#~ msgid "Delhi"
-#~ msgstr "دهلی"
-
-#~ msgid "Warsaw"
-#~ msgstr "ورشو"
-
-#~ msgid "Jakarta"
-#~ msgstr "جاکارتا"
-
-#~ msgid "Madrid"
-#~ msgstr "مادرید"
-
-#~ msgid "Stockholm"
-#~ msgstr "استکهلم"
+#~ msgid "scanning..."
+#~ msgstr "در حال پویش..."
 
 #~ msgid " "
 #~ msgstr " "
-
-#~ msgid "Resetting value to zero.\n"
-#~ msgstr "ری ست مقدار به صفر\n"
-
-#~ msgid "Error in Image Rename preferences"
-#~ msgstr "خطای تغیر نام تصویر"
-
-#~ msgid "Error in Download Subfolder preferences"
-#~ msgstr "خطای ایجاد زیر پوشه دانلود"
-
-#~ msgid "Resetting to default values."
-#~ msgstr "مقدار دهی ثانویه مقادیر اولیه"
-
-#~ msgid "The subfolder preferences had some unnecessary values removed."
-#~ msgstr "تنظیمات زیرپوشه دارای تعدادی ارزش های غیر ضروری حذف شده است."
-
-#~ msgid ""
-#~ "The subfolder preferences entered are invalid and cannot be used.\n"
-#~ "They will be reset to their default values."
-#~ msgstr ""
-#~ "تنظیمات زیرپوشه وارد شده نامعتبر است و نمیتوان آنها را استفاده کرد.\n"
-#~ "آنها به مقادیر پیش فرض خود را مجددا تنظیم خواهند شد."
-
-#~ msgid "Select a folder in which to backup images"
-#~ msgstr "یک فولدر را برای گرفتن بک آپ عکس ها انتخاب نماید"
-
-#~ msgid ""
-#~ "\n"
-#~ "Please check preferences, restart the program, and try again."
-#~ msgstr ""
-#~ "\n"
-#~ "لطفا تنظیمات چک کنید ، برنامه را مجدد راه اندازی ، و دوباره سعی کنید."
-
-#~ msgid "There is an error in the program preferences."
-#~ msgstr "خطا در تنظیمات برنامه وجود دارد."
-
-#~ msgid "      "
-#~ msgstr "      "

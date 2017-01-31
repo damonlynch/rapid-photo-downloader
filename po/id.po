@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-27 14:45-0600\n"
-"PO-Revision-Date: 2014-01-22 00:14+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"POT-Creation-Date: 2017-01-31 17:52-0600\n"
+"PO-Revision-Date: 2017-01-28 03:27+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Indonesian <id@li.org>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-01-23 13:56+0000\n"
-"X-Generator: Launchpad (build 16901)\n"
+"X-Launchpad-Export-Date: 2017-01-31 23:48+0000\n"
+"X-Generator: Launchpad (build 18315)\n"
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
 msgstr ""
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:178 ../raphodo/renameandmovefile.py:270
+#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -40,22 +40,22 @@ msgstr ""
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr ""
 
-#: ../raphodo/backupfile.py:167
+#: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr ""
 
-#: ../raphodo/backupfile.py:171
+#: ../raphodo/backupfile.py:173
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr ""
 
-#: ../raphodo/backupfile.py:175
+#: ../raphodo/backupfile.py:177
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr ""
 
-#: ../raphodo/backupfile.py:200 ../raphodo/copyfiles.py:184
+#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
 #: ../raphodo/renameandmovefile.py:424 ../raphodo/renameandmovefile.py:550
 #, python-format
@@ -68,7 +68,7 @@ msgstr ""
 msgid "The file could not be copied from the camera"
 msgstr ""
 
-#: ../raphodo/copyfiles.py:389
+#: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
 msgstr ""
 
@@ -82,15 +82,13 @@ msgstr ""
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1750
 #: ../raphodo/rapid.py:1927 ../raphodo/rapid.py:5285
-#, fuzzy
 msgid "Photos"
-msgstr "Foto:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1753
 #: ../raphodo/rapid.py:1928 ../raphodo/rapid.py:5286
-#, fuzzy
 msgid "Videos"
-msgstr "Video:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:999
 msgid "Temporarily ignore this device"
@@ -114,41 +112,41 @@ msgstr ""
 msgid "%(no_videos)s Videos"
 msgstr ""
 
-#: ../raphodo/devices.py:423
+#: ../raphodo/devices.py:424
 msgid "Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:424 ../raphodo/devices.py:852 ../raphodo/rapid.py:1714
+#: ../raphodo/devices.py:425 ../raphodo/devices.py:881 ../raphodo/rapid.py:1714
 msgid "Devices"
 msgstr ""
 
-#: ../raphodo/devices.py:664
+#: ../raphodo/devices.py:685
 #, python-format
 msgid "Downloading from %(device_names)s"
 msgstr ""
 
 #. Translators: e.g. Three Devices
-#: ../raphodo/devices.py:720
+#: ../raphodo/devices.py:741
 #, python-format
 msgid "%(no_devices)s %(device_type)s"
 msgstr ""
 
-#: ../raphodo/devices.py:837 ../raphodo/rapid.py:1551
+#: ../raphodo/devices.py:866 ../raphodo/rapid.py:1551
 msgid "Select Source"
 msgstr ""
 
-#: ../raphodo/devices.py:868 ../raphodo/devices.py:879
+#: ../raphodo/devices.py:897 ../raphodo/devices.py:908
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr ""
 
 #. Number of cameras e.g. 3 Cameras
-#: ../raphodo/devices.py:890
+#: ../raphodo/devices.py:919
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:895
+#: ../raphodo/devices.py:924
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr ""
@@ -727,9 +725,8 @@ msgid "Job Code"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:433 ../raphodo/generatenameconfig.py:512
-#, fuzzy
 msgid "Original Filename"
-msgstr "Nama Berkas"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
 msgid "Date-Time and Downloads today"
@@ -748,9 +745,8 @@ msgid "YYYYMMDD-1"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "Date-Time and Image number"
-msgstr "Jumlah gambar"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
 msgid "YYYYMMDD-1234"
@@ -769,9 +765,8 @@ msgid "YYYYMMDD-Job Code-1"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "Date-Time and Video number"
-msgstr "Jumlah video"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
 msgid "YYYYMMDD_1234"
@@ -1233,9 +1228,8 @@ msgid "Rapid Photo Downloader"
 msgstr ""
 
 #: ../raphodo/rapid.py:1222
-#, fuzzy
 msgid "Download failed"
-msgstr "Unduh"
+msgstr ""
 
 #: ../raphodo/rapid.py:1223
 msgid ""
@@ -1249,9 +1243,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1232
-#, fuzzy
 msgid "Update Rapid Photo Downloader"
-msgstr "Unduh"
+msgstr ""
 
 #: ../raphodo/rapid.py:1236
 msgid "Install"
@@ -1340,9 +1333,8 @@ msgid "Destination"
 msgstr ""
 
 #: ../raphodo/rapid.py:1595
-#, fuzzy
 msgid "Rename"
-msgstr "Nama Berkas"
+msgstr ""
 
 #: ../raphodo/rapid.py:1597
 msgid "Back Up"
@@ -1422,14 +1414,13 @@ msgid "Select All:"
 msgstr ""
 
 #: ../raphodo/rapid.py:2120
-#, fuzzy, python-format
+#, python-format
 msgid "Download %(files)s"
-msgstr "Unduh"
+msgstr ""
 
 #: ../raphodo/rapid.py:2136
-#, fuzzy
 msgid "Resume Download"
-msgstr "Unduh"
+msgstr ""
 
 #: ../raphodo/rapid.py:2138
 msgid "Pause"
@@ -1964,11 +1955,11 @@ msgstr "Foto dan Video"
 msgid "photos or videos"
 msgstr "Foto dan Video"
 
-#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:852
+#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:855
 msgid "video"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:810
+#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:813
 msgid "photo"
 msgstr ""
 
@@ -1978,25 +1969,23 @@ msgid "%(number)s %(filetypes)s"
 msgstr ""
 
 #: ../raphodo/rpdfile.py:312
-#, fuzzy
 msgid "1 Video"
-msgstr "Video"
+msgstr ""
 
 #: ../raphodo/rpdfile.py:317
-#, fuzzy
 msgid "1 Photo"
-msgstr "Foto"
+msgstr ""
 
-#: ../raphodo/rpdfile.py:775
+#: ../raphodo/rpdfile.py:778
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:811
+#: ../raphodo/rpdfile.py:814
 msgid "Photo"
 msgstr "Foto"
 
-#: ../raphodo/rpdfile.py:853
+#: ../raphodo/rpdfile.py:856
 msgid "Video"
 msgstr "Video"
 
@@ -2021,9 +2010,8 @@ msgid "Memory cards: %s"
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:444
-#, fuzzy
 msgid "Downloaded as:"
-msgstr "Unduh"
+msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:450
 #, python-format
@@ -2160,9 +2148,8 @@ msgid ""
 msgstr ""
 
 #: ../data/rapid-photo-downloader.desktop.in.h:2
-#, fuzzy
 msgid "Photo Downloader"
-msgstr "Unduh"
+msgstr ""
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
@@ -2178,23 +2165,23 @@ msgstr ""
 #~ msgid "Size"
 #~ msgstr "Ukuran"
 
+#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
+#~ msgstr "Sisa %(minutes)i:%(seconds)02i menit"
+
+#~ msgid "About 1 minute remaining"
+#~ msgstr "Sisa 1 menit"
+
 #~ msgid "About 1 second remaining"
 #~ msgstr "Sisa 1 detik"
 
 #~ msgid "About %i seconds remaining"
 #~ msgstr "Sisa %i detik"
 
-#~ msgid "About 1 minute remaining"
-#~ msgstr "Sisa 1 menit"
-
-#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
-#~ msgstr "Sisa %(minutes)i:%(seconds)02i menit"
+#~ msgid "Free space:"
+#~ msgstr "Ruang kosong:"
 
 #~ msgid "and"
 #~ msgstr "dan"
-
-#~ msgid "Free space:"
-#~ msgstr "Ruang kosong:"
 
 #~ msgid "; "
 #~ msgstr "; "
@@ -2204,6 +2191,12 @@ msgstr ""
 
 #~ msgid "Thumbnails"
 #~ msgstr "Miniatur gambar"
+
+#~ msgid "Photos:"
+#~ msgstr "Foto:"
+
+#~ msgid "Videos:"
+#~ msgstr "Video:"
 
 #~ msgid "and %s"
 #~ msgstr "dan %s"

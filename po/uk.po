@@ -8,23 +8,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-27 14:45-0600\n"
-"PO-Revision-Date: 2014-01-22 00:14+0000\n"
-"Last-Translator: Stuartlittle1970@gmail.com <Stuartlittle1970@gmail.com>\n"
+"POT-Creation-Date: 2017-01-31 17:52-0600\n"
+"PO-Revision-Date: 2017-01-28 03:27+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-01-23 13:56+0000\n"
-"X-Generator: Launchpad (build 16901)\n"
+"X-Launchpad-Export-Date: 2017-01-31 23:48+0000\n"
+"X-Generator: Launchpad (build 18315)\n"
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
 msgstr "Помилка резервного копіювання"
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:178 ../raphodo/renameandmovefile.py:270
+#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -43,22 +43,22 @@ msgstr "Помилка: %(inst)s"
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr "Не вдалось створити теку адресата: %(directory)s\n"
 
-#: ../raphodo/backupfile.py:167
+#: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr ""
 
-#: ../raphodo/backupfile.py:171
+#: ../raphodo/backupfile.py:173
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr ""
 
-#: ../raphodo/backupfile.py:175
+#: ../raphodo/backupfile.py:177
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr ""
 
-#: ../raphodo/backupfile.py:200 ../raphodo/copyfiles.py:184
+#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
 #: ../raphodo/renameandmovefile.py:424 ../raphodo/renameandmovefile.py:550
 #, python-format
@@ -73,7 +73,7 @@ msgstr ""
 msgid "The file could not be copied from the camera"
 msgstr ""
 
-#: ../raphodo/copyfiles.py:389
+#: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
 msgstr ""
 
@@ -87,15 +87,13 @@ msgstr ""
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1750
 #: ../raphodo/rapid.py:1927 ../raphodo/rapid.py:5285
-#, fuzzy
 msgid "Photos"
-msgstr "Фото:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1753
 #: ../raphodo/rapid.py:1928 ../raphodo/rapid.py:5286
-#, fuzzy
 msgid "Videos"
-msgstr "Відео:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:999
 msgid "Temporarily ignore this device"
@@ -119,77 +117,71 @@ msgstr ""
 msgid "%(no_videos)s Videos"
 msgstr ""
 
-#: ../raphodo/devices.py:423
-#, fuzzy
+#: ../raphodo/devices.py:424
 msgid "Cameras"
-msgstr "Виробник камери"
+msgstr ""
 
-#: ../raphodo/devices.py:424 ../raphodo/devices.py:852 ../raphodo/rapid.py:1714
+#: ../raphodo/devices.py:425 ../raphodo/devices.py:881 ../raphodo/rapid.py:1714
 msgid "Devices"
 msgstr "Пристрої"
 
-#: ../raphodo/devices.py:664
-#, fuzzy, python-format
+#: ../raphodo/devices.py:685
+#, python-format
 msgid "Downloading from %(device_names)s"
-msgstr "Завантаження з %(location)s."
+msgstr ""
 
 #. Translators: e.g. Three Devices
-#: ../raphodo/devices.py:720
-#, fuzzy, python-format
+#: ../raphodo/devices.py:741
+#, python-format
 msgid "%(no_devices)s %(device_type)s"
-msgstr "%(free)s %(file_type)s"
+msgstr ""
 
-#: ../raphodo/devices.py:837 ../raphodo/rapid.py:1551
-#, fuzzy
+#: ../raphodo/devices.py:866 ../raphodo/rapid.py:1551
 msgid "Select Source"
-msgstr "_Вибрати"
+msgstr ""
 
-#: ../raphodo/devices.py:868 ../raphodo/devices.py:879
+#: ../raphodo/devices.py:897 ../raphodo/devices.py:908
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr ""
 
 #. Number of cameras e.g. 3 Cameras
-#: ../raphodo/devices.py:890
+#: ../raphodo/devices.py:919
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:895
+#: ../raphodo/devices.py:924
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:402
-#, fuzzy
 msgid "MB/sec"
-msgstr "МБ/с"
+msgstr ""
 
 #. Be friendly in the last few seconds
 #: ../raphodo/downloadtracker.py:532
-#, fuzzy
 msgid "A few seconds"
-msgstr "Підсекунди"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:588
-#, fuzzy
 msgid "1 second"
-msgstr "Підсекунди"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:590
-#, fuzzy, python-format
+#, python-format
 msgid "%d seconds"
-msgstr "Підсекунди"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:595
-#, fuzzy
 msgid "1 minute"
-msgstr "ХХ (хвилин)"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:597
-#, fuzzy, python-format
+#, python-format
 msgid "%d minutes"
-msgstr "ХХ (хвилин)"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:602 ../raphodo/downloadtracker.py:784
 msgid "1 hour"
@@ -225,9 +217,9 @@ msgid "%d minutes, 1 second"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:797
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)d minutes, %(seconds)d seconds"
-msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:828
 msgid "1 hour, 1 minute"
@@ -573,9 +565,8 @@ msgstr "РРРР-ММ-ДД"
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:314 ../raphodo/generatenameconfig.py:391
-#, fuzzy
 msgid "YYYY_MM_DD"
-msgstr "РРРРММДД"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -706,9 +697,8 @@ msgid "SS"
 msgstr "СС"
 
 #: ../raphodo/generatenameconfig.py:389
-#, fuzzy
 msgid "Date"
-msgstr "Дата і час"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:390
 msgid "Date (hyphens)"
@@ -720,88 +710,72 @@ msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392 ../raphodo/generatenameconfig.py:438
 #: ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "Date and Job Code"
-msgstr "Введіть мітку"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392
-#, fuzzy
 msgid "YYYYMM_Job Code"
-msgstr "Мітка"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "Date and Job Code Subfolder"
-msgstr "Введіть мітку"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "YYYYMM"
-msgstr "РРРРММДД"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393 ../raphodo/rapid.py:1596
 msgid "Job Code"
 msgstr "Мітка"
 
 #: ../raphodo/generatenameconfig.py:433 ../raphodo/generatenameconfig.py:512
-#, fuzzy
 msgid "Original Filename"
-msgstr "Початковий регістр"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "Date-Time and Downloads today"
-msgstr "Завантажень сьогодні"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "YYYYMMDD-HHMM-1"
-msgstr "РРРРММДД"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "Date and Downloads today"
-msgstr "Завантажень сьогодні"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "YYYYMMDD-1"
-msgstr "РРРРММДД"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "Date-Time and Image number"
-msgstr "Номер фото"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "YYYYMMDD-1234"
-msgstr "РРРРММДД"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "Date-Time and Job Code"
-msgstr "Введіть мітку"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "YYYYMMDD-HHMM-Job Code-1"
-msgstr "Мітка"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:438 ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "YYYYMMDD-Job Code-1"
-msgstr "Мітка"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "Date-Time and Video number"
-msgstr "Номер відео"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "YYYYMMDD_1234"
-msgstr "РРРРММДД"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:518
 msgid "Resolution"
@@ -871,9 +845,9 @@ msgid "An error occurred when copying the %(filetype)s"
 msgstr "Сталася помилка при копіюванні %(filetype)s"
 
 #: ../raphodo/problemnotification.py:116
-#, fuzzy, python-format
+#, python-format
 msgid "An error occurred copying the %(filetype)s from the %(camera)s"
-msgstr "Сталася помилка при копіюванні %(filetype)s"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:119
 #, python-format
@@ -1144,47 +1118,47 @@ msgstr "%(previousproblem)s, ще %(backinguperror)s"
 #. Translators: for example Nov 3 or Dec 31
 #: ../raphodo/proximity.py:105 ../raphodo/proximity.py:221
 #: ../raphodo/proximity.py:224 ../raphodo/proximity.py:828
-#, fuzzy, python-format
+#, python-format
 msgid "%(month)s %(numeric_day)s"
-msgstr "%(number)s %(numberdownloaded)s"
+msgstr ""
 
 #. Translators: for example Nov 15 2015
 #. Translators: for example Nov 3 2015
 #: ../raphodo/proximity.py:109 ../raphodo/proximity.py:230
 #: ../raphodo/proximity.py:231 ../raphodo/proximity.py:831
-#, fuzzy, python-format
+#, python-format
 msgid "%(date)s %(year)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators: for example Nov 3 2015, 11:25 AM
 #. Translators: for example, Nov 3, 12:15 PM
 #: ../raphodo/proximity.py:197 ../raphodo/proximity.py:215
 #: ../raphodo/proximity.py:234 ../raphodo/proximity.py:236
-#, fuzzy, python-format
+#, python-format
 msgid "%(date)s, %(time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:209
-#, fuzzy, python-format
+#, python-format
 msgid "%(starttime)s - %(endtime)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
 #: ../raphodo/proximity.py:241
-#, fuzzy, python-format
+#, python-format
 msgid "%(earlier_time)s - %(later_time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators, for example:
 #. Nov 3 2012, 12:15 PM -
 #. Nov 4 2012, 1:00 AM
 #. (please keep the line break signified by \n)
 #: ../raphodo/proximity.py:248
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "%(earlier_time)s -\n"
 "%(later_time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:359
 #, python-format
@@ -1193,9 +1167,9 @@ msgstr ""
 
 #. Translators: for example Nov 2015
 #: ../raphodo/proximity.py:833
-#, fuzzy, python-format
+#, python-format
 msgid "%(month)s %(year)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:1343
 msgid ""
@@ -1208,9 +1182,9 @@ msgstr ""
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
 #: ../raphodo/proximity.py:1405
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)dm"
-msgstr "ХХ (хвилин)"
+msgstr ""
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
@@ -1268,15 +1242,13 @@ msgid "Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
 
 #: ../raphodo/rapid.py:1222
-#, fuzzy
 msgid "Download failed"
-msgstr "Час та дата завантаження"
+msgstr ""
 
 #: ../raphodo/rapid.py:1223
-#, fuzzy
 msgid ""
 "Sorry, the download of the new version of Rapid Photo Downloader failed."
-msgstr "Параметри: Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/rapid.py:1229
 msgid ""
@@ -1285,9 +1257,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1232
-#, fuzzy
 msgid "Update Rapid Photo Downloader"
-msgstr "Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/rapid.py:1236
 msgid "Install"
@@ -1316,9 +1287,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1464
-#, fuzzy
 msgid "&Source"
-msgstr "Джерело: %s"
+msgstr ""
 
 #: ../raphodo/rapid.py:1467 ../raphodo/rapid.py:2140
 msgid "Download"
@@ -1341,24 +1311,20 @@ msgid "Error Log"
 msgstr "Журнал помилок"
 
 #: ../raphodo/rapid.py:1485
-#, fuzzy
 msgid "Clear Completed Downloads"
-msgstr "_Очистити завершені завантаження"
+msgstr ""
 
 #: ../raphodo/rapid.py:1488
-#, fuzzy
 msgid "Get Help Online..."
-msgstr "О_тримати довідку онлайн..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1491
-#, fuzzy
 msgid "Report a Problem..."
-msgstr "Зв_іт про помилку..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1494
-#, fuzzy
 msgid "Make a Donation..."
-msgstr "_Зробити пожертву..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1497
 msgid "Translate this Application..."
@@ -1381,14 +1347,12 @@ msgid "Destination"
 msgstr ""
 
 #: ../raphodo/rapid.py:1595
-#, fuzzy
 msgid "Rename"
-msgstr "Назва файлу"
+msgstr ""
 
 #: ../raphodo/rapid.py:1597
-#, fuzzy
 msgid "Back Up"
-msgstr "Резервне копіювання"
+msgstr ""
 
 #. Devices Header and View
 #: ../raphodo/rapid.py:1713
@@ -1408,18 +1372,16 @@ msgid "This Computer"
 msgstr ""
 
 #: ../raphodo/rapid.py:1738
-#, fuzzy
 msgid "Select a source folder"
-msgstr "Виберіть теку для фото"
+msgstr ""
 
 #: ../raphodo/rapid.py:1761
 msgid "Storage Space"
 msgstr ""
 
 #: ../raphodo/rapid.py:1775 ../raphodo/rapid.py:1783
-#, fuzzy
 msgid "Select a destination folder"
-msgstr "Виберіть теку для фото"
+msgstr ""
 
 #: ../raphodo/rapid.py:1879
 msgid "Show:"
@@ -1446,9 +1408,8 @@ msgid "Checked State"
 msgstr ""
 
 #: ../raphodo/rapid.py:1893
-#, fuzzy
 msgid "File Type"
-msgstr "Номер файлу"
+msgstr ""
 
 #: ../raphodo/rapid.py:1894
 msgid "Device"
@@ -1463,19 +1424,17 @@ msgid "Descending"
 msgstr ""
 
 #: ../raphodo/rapid.py:1917
-#, fuzzy
 msgid "Select All:"
-msgstr "_Вибрати"
+msgstr ""
 
 #: ../raphodo/rapid.py:2120
-#, fuzzy, python-format
+#, python-format
 msgid "Download %(files)s"
-msgstr "Час та дата завантаження"
+msgstr ""
 
 #: ../raphodo/rapid.py:2136
-#, fuzzy
 msgid "Resume Download"
-msgstr "Завантажити"
+msgstr ""
 
 #: ../raphodo/rapid.py:2138
 msgid "Pause"
@@ -1621,14 +1580,13 @@ msgid "%d failures"
 msgstr ""
 
 #: ../raphodo/rapid.py:3444
-#, fuzzy
 msgid "1 warning"
-msgstr "застереження"
+msgstr ""
 
 #: ../raphodo/rapid.py:3446
-#, fuzzy, python-format
+#, python-format
 msgid "%d warnings"
-msgstr "застереження"
+msgstr ""
 
 #: ../raphodo/rapid.py:3466
 #, python-format
@@ -1646,9 +1604,8 @@ msgid "No files downloaded — %(failures)s"
 msgstr ""
 
 #: ../raphodo/rapid.py:3476
-#, fuzzy
 msgid "No files downloaded"
-msgstr "фото завантажено"
+msgstr ""
 
 #: ../raphodo/rapid.py:3500
 #, python-format
@@ -1731,9 +1688,8 @@ msgid "&Try Again"
 msgstr ""
 
 #: ../raphodo/rapid.py:3732
-#, fuzzy
 msgid "&Ignore This Device"
-msgstr "Пристрої для фото"
+msgstr ""
 
 #: ../raphodo/rapid.py:4107
 #, python-format
@@ -1755,11 +1711,9 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4272
-#, fuzzy, python-format
+#, python-format
 msgid "Should %(device)s be used to download photos and videos from?"
 msgstr ""
-"Чи використовувати цей пристрій або розділ для вивантаження з нього фото та "
-"відео?"
 
 #: ../raphodo/rapid.py:4469
 #, python-format
@@ -1782,28 +1736,25 @@ msgid "Any device with the same name will be ignored."
 msgstr ""
 
 #: ../raphodo/rapid.py:4758
-#, fuzzy, python-format
+#, python-format
 msgid "Downloading from %(location)s on This Computer."
-msgstr "Завантаження з %(location)s."
+msgstr ""
 
 #: ../raphodo/rapid.py:4760
-#, fuzzy
 msgid ""
 "Do you really want to download from here?<br><br>On some systems, scanning "
 "this location can take a very long time."
 msgstr ""
-"Ви справді бажаєте завантажити звідси? На деяких системах сканування цього "
-"місцезнаходження може зайняти багато часу."
 
 #: ../raphodo/rapid.py:4804
-#, fuzzy, python-format
+#, python-format
 msgid "Generating thumbnails for %s"
-msgstr "Створювати мініатюри (довше копіюється)"
+msgstr ""
 
 #: ../raphodo/rapid.py:4807
-#, fuzzy, python-format
+#, python-format
 msgid "Scanning %s"
-msgstr "сканування..."
+msgstr ""
 
 #: ../raphodo/rapid.py:4817
 #, python-format
@@ -1812,47 +1763,38 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4823
-#, fuzzy, python-format
+#, python-format
 msgid "%(number)s of %(available files)s checked for download"
-msgstr "%(noFiles)s %(filetypes)s не вдалось завантажити"
+msgstr ""
 
 #: ../raphodo/rapid.py:5046
-#, fuzzy
 msgid "Display program information when run from the command line."
 msgstr ""
-"показувати інструкцію зі зневадження під час запуску з командного рядка"
 
 #: ../raphodo/rapid.py:5048
-#, fuzzy
 msgid "Display debugging information when run from the command line."
 msgstr ""
-"показувати інструкцію зі зневадження під час запуску з командного рядка"
 
 #: ../raphodo/rapid.py:5051
-#, fuzzy
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr ""
-"вивести список розширень фото та відео файлів, розпізнаних програмою і вийти"
 
 #: ../raphodo/rapid.py:5054
 msgid "Turn on or off the the renaming of photos."
 msgstr ""
 
 #: ../raphodo/rapid.py:5056
-#, fuzzy
 msgid "turn on or off the the renaming of videos."
-msgstr "Автоматичне виявляти пристрої для резервного копіювання"
+msgstr ""
 
 #: ../raphodo/rapid.py:5058
-#, fuzzy
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
-msgstr "Автоматичне виявляти пристрої для резервного копіювання"
+msgstr ""
 
 #: ../raphodo/rapid.py:5062
-#, fuzzy
 msgid "Turn on or off downloading from this computer."
-msgstr "Завантаження з %(location)s."
+msgstr ""
 
 #: ../raphodo/rapid.py:5064 ../raphodo/rapid.py:5067 ../raphodo/rapid.py:5070
 #: ../raphodo/rapid.py:5091 ../raphodo/rapid.py:5095
@@ -1872,62 +1814,44 @@ msgid "The PATH where videos will be downloaded to."
 msgstr ""
 
 #: ../raphodo/rapid.py:5073
-#, fuzzy
 msgid "Turn on or off the backing up of photos and videos while downloading."
-msgstr "Резервне копіювання фото та відео під час завантаження"
+msgstr ""
 
 #: ../raphodo/rapid.py:5077
-#, fuzzy
 msgid "Turn on or off the automatic detection of backup devices."
-msgstr "Автоматичне виявляти пристрої для резервного копіювання"
+msgstr ""
 
 #: ../raphodo/rapid.py:5079 ../raphodo/rapid.py:5085
 msgid "FOLDER"
 msgstr ""
 
 #: ../raphodo/rapid.py:5080
-#, fuzzy
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
 "the device is used for backups. For each device you wish to use for backing "
 "photos up to, create a folder on it with this name."
 msgstr ""
-"Вкажіть каталог, в якому зберігатимуться резервні копії на пристрої.  \n"
-"\n"
-"<i>Примітка: це також визначатиме, чи використовується пристрій для "
-"резервного копіювання, чи ні. Для кожного пристрою, який ви "
-"використовуватимете, в цьому каталозі створюватиметься тека з відповідною "
-"назвою.</i>"
 
 #: ../raphodo/rapid.py:5086
-#, fuzzy
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
 "the device is used for backups. For each device you wish to use for backing "
 "up videos to, create a folder on it with this name."
 msgstr ""
-"Вкажіть каталог, в якому зберігатимуться резервні копії на пристрої.  \n"
-"\n"
-"<i>Примітка: це також визначатиме, чи використовується пристрій для "
-"резервного копіювання, чи ні. Для кожного пристрою, який ви "
-"використовуватимете, в цьому каталозі створюватиметься тека з відповідною "
-"назвою.</i>"
 
 #: ../raphodo/rapid.py:5092
-#, fuzzy
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
-msgstr "Автоматичне виявляти пристрої для резервного копіювання"
+msgstr ""
 
 #: ../raphodo/rapid.py:5096
-#, fuzzy
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
-msgstr "Автоматичне виявляти пристрої для резервного копіювання"
+msgstr ""
 
 #: ../raphodo/rapid.py:5099
 #, python-format
@@ -2004,14 +1928,12 @@ msgid "Program aborting."
 msgstr ""
 
 #: ../raphodo/rapid.py:5476
-#, fuzzy
 msgid "All settings and caches have been reset"
-msgstr "Всі параметри та налаштування скинуті"
+msgstr ""
 
 #: ../raphodo/rapid.py:5484
-#, fuzzy
 msgid "Thumbnail Cache has been reset"
-msgstr "Не можна показати мініатюру"
+msgstr ""
 
 #: ../raphodo/rapid.py:5490
 msgid "Remembered files have been forgotten"
@@ -2047,11 +1969,11 @@ msgstr "фото та відео"
 msgid "photos or videos"
 msgstr "фото або відео"
 
-#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:852
+#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:855
 msgid "video"
 msgstr "відео"
 
-#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:810
+#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:813
 msgid "photo"
 msgstr "фото"
 
@@ -2061,25 +1983,23 @@ msgid "%(number)s %(filetypes)s"
 msgstr "%(number)s %(filetypes)s"
 
 #: ../raphodo/rpdfile.py:312
-#, fuzzy
 msgid "1 Video"
-msgstr "Відео"
+msgstr ""
 
 #: ../raphodo/rpdfile.py:317
-#, fuzzy
 msgid "1 Photo"
-msgstr "Фото"
+msgstr ""
 
-#: ../raphodo/rpdfile.py:775
+#: ../raphodo/rpdfile.py:778
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:811
+#: ../raphodo/rpdfile.py:814
 msgid "Photo"
 msgstr "Фото"
 
-#: ../raphodo/rpdfile.py:853
+#: ../raphodo/rpdfile.py:856
 msgid "Video"
 msgstr "Відео"
 
@@ -2104,9 +2024,8 @@ msgid "Memory cards: %s"
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:444
-#, fuzzy
 msgid "Downloaded as:"
-msgstr "_Завантажити "
+msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:450
 #, python-format
@@ -2123,9 +2042,8 @@ msgid "Open in File Browser..."
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:1481
-#, fuzzy
 msgid "Copy Path"
-msgstr "Копіювати"
+msgstr ""
 
 #. two things in a list e.g. "device1 and device2"
 #: ../raphodo/utilities.py:369
@@ -2162,9 +2080,8 @@ msgid "seven"
 msgstr ""
 
 #: ../raphodo/utilities.py:449
-#, fuzzy
 msgid "eight"
-msgstr "Висота"
+msgstr ""
 
 #: ../raphodo/utilities.py:450
 msgid "nine"
@@ -2203,9 +2120,8 @@ msgid "seventeen"
 msgstr ""
 
 #: ../raphodo/utilities.py:459
-#, fuzzy
 msgid "eighteen"
-msgstr "Висота"
+msgstr ""
 
 #: ../raphodo/utilities.py:460
 msgid "ninenteen"
@@ -2246,9 +2162,8 @@ msgid ""
 msgstr ""
 
 #: ../data/rapid-photo-downloader.desktop.in.h:2
-#, fuzzy
 msgid "Photo Downloader"
-msgstr "Rapid Photo Downloader"
+msgstr ""
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
@@ -2258,303 +2173,11 @@ msgid ""
 msgstr ""
 
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
-#, fuzzy
 msgid "Download Photos and Videos with Rapid Photo Downloader"
-msgstr "Параметри: Rapid Photo Downloader"
-
-#~ msgid "Name + extension"
-#~ msgstr "Назва + розширення"
-
-#, fuzzy
-#~ msgid "&Check All"
-#~ msgstr "_Позначити все"
-
-#, fuzzy
-#~ msgid "&Uncheck All"
-#~ msgstr "_Скасувати позначку всього"
-
-#~ msgid "Previous File"
-#~ msgstr "Попередній Файл"
-
-#~ msgid "Next File"
-#~ msgstr "Наступний файл"
-
-#, fuzzy
-#~ msgid "&Remember this choice"
-#~ msgstr "_Пам’ятати цей вибір"
-
-#~ msgid ""
-#~ "%(date)s\n"
-#~ "%(time)s"
-#~ msgstr ""
-#~ "%(date)s\n"
-#~ "%(time)s"
-
-#~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
-#~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
-
-#~ msgid "Size"
-#~ msgstr "Розмір"
-
-#~ msgid "Download Progress"
-#~ msgstr "Поступ завантаження"
-
-#~ msgid "%(device)s did not unmount"
-#~ msgstr "%(device)s не від’єднано"
-
-#~ msgid "the root of the file system"
-#~ msgstr "корінь файлової системи"
-
-#~ msgid "About 1 second remaining"
-#~ msgstr "Залишилось біля 1 секунди"
-
-#~ msgid "About %i seconds remaining"
-#~ msgstr "Залишилось біля %i секунд"
-
-#~ msgid "About 1 minute remaining"
-#~ msgstr "Залишилось біля 1 хвилини"
-
-#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
-#~ msgstr "Залишилось біля %(minutes)i:%(seconds)02i"
-
-#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
-#~ msgstr "%(number)s з %(total)s %(filetypes)s (%(remaining)s залишилось)"
-
-#~ msgid "%(number)s of %(total)s %(filetypes)s"
-#~ msgstr "%(number)s з %(total)s %(filetypes)s"
-
-#~ msgid "From"
-#~ msgstr "З"
-
-#~ msgid "Auto Detect"
-#~ msgstr "Автоматичне визначення"
-
-#~ msgid "Select a folder containing %(file_types)s"
-#~ msgstr "Виберіть теку, що містить %(file_types)s"
-
-#~ msgid "Move"
-#~ msgstr "Переміщення"
-
-#~ msgid "To"
-#~ msgstr "До"
-
-#~ msgid "Select a folder to download photos to"
-#~ msgstr "Виберіть теку для завантаження фото"
-
-#~ msgid "Select a folder to download videos to"
-#~ msgstr "Виберіть теку для завантаження відео"
-
-#~ msgid "and"
-#~ msgstr "та"
-
-#~ msgid "Using backup devices"
-#~ msgstr "Використання пристроїв для резервного копіювання"
-
-#~ msgid "Using backup device"
-#~ msgstr "Використання пристрою для резервного копіювання"
-
-#~ msgid "No backup devices detected"
-#~ msgstr "Пристроїв для резервного копіювання не виявлено"
-
-#~ msgid "Free space:"
-#~ msgstr "Вільний простір:"
-
-#~ msgid "(%(file_type)s)"
-#~ msgstr "(%(file_type)s)"
-
-#~ msgid "; "
-#~ msgstr "; "
-
-#~ msgid "."
-#~ msgstr ","
-
-#~ msgid "%(free)s free"
-#~ msgstr "%(free)s вільно"
-
-#~ msgid "Backing up photos and videos to %(path)s"
-#~ msgstr "Резервне копіювання фотографій та відеозаписів до %(path)s"
-
-#~ msgid "Backing up to %(path)s"
-#~ msgstr "Резервне копіювання до %(path)s"
-
-#~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
-#~ msgstr ""
-#~ "Резервне копіювання фотографій до %(path)s та відеозаписів до %(path2)s"
-
-#~ msgid "%(freespace)s. %(backuppaths)s."
-#~ msgstr "%(freespace)s. %(backuppaths)s."
-
-#~ msgid "%(file_type)s download folder does not exist"
-#~ msgstr "%(file_type)s каталог завантаження не існує"
-
-#~ msgid "Folder: %s"
-#~ msgstr "Каталог: %s"
-
-#~ msgid "%(file_type)s download folder is invalid"
-#~ msgstr "%(file_type)s каталог завантаження є хибним"
-
-#~ msgid "%(file_type)s download folder is not writable"
-#~ msgstr "%(file_type)s каталог завантаження не доступний для запису"
-
-#~ msgid "Thumbnails"
-#~ msgstr "Мініатюри"
-
-#~ msgid ""
-#~ "display program information on the command line as the program runs "
-#~ "(default: %default)"
-#~ msgstr ""
-#~ "показати дані програми в командному рядку під час запуску (типово: "
-#~ "%default)"
-
-#~ msgid "only output errors to the command line"
-#~ msgstr "виводити в командний рядок лише помилки"
-
-#~ msgid ""
-#~ "automatically detect devices from which to download, overwriting existing "
-#~ "program preferences"
-#~ msgstr ""
-#~ "автоматично визначати пристрій, з якого буде виконуватися завантаження, "
-#~ "замінюючи налаштування програми що існують"
-
-#~ msgid ""
-#~ "manually specify the PATH of the device from which to download, "
-#~ "overwriting existing program preferences"
-#~ msgstr ""
-#~ "самостійно вкажіть розміщення (PATH) пристрою, з якого буде виконуватися "
-#~ "завантаження, замінюючи налаштування програми що існують"
-
-#~ msgid "reset all program settings and preferences and exit"
-#~ msgstr "скинути всі параметри та налаштування програми і вийти"
-
-#~ msgid ""
-#~ "Error: specify device auto-detection or manually specify a device's path "
-#~ "from which to download, but do not do both."
-#~ msgstr ""
-#~ "Помилка: вкажіть автоматичне визначення пристрою або самостійно вкажіть "
-#~ "розміщення пристрою, з якого буде виконуватися завантаження, але не "
-#~ "використовуйте відразу обидва варіанти."
-
-#~ msgid "and %s"
-#~ msgstr "та %s"
-
-#~ msgid "Device Detected"
-#~ msgstr "Виявлений пристрій"
-
-#~ msgid "Remove all Job Codes?"
-#~ msgstr "Вилучити всі мітки?"
-
-#~ msgid "Should all Job Codes be removed?"
-#~ msgstr "Чи потрібно вилучити всі мітки?"
-
-#~ msgid "Remove all Remembered Paths?"
-#~ msgstr "Вилучити усі запам’ятовані розміщення?"
-
-#~ msgid "Should all remembered paths be removed?"
-#~ msgstr "Чи має бути вилучено усі заппам’ятовані розміщення?"
-
-#~ msgid "Remove all Ignored Paths?"
-#~ msgstr "Вилучити усі розміщення що ігноруються?"
-
-#~ msgid "Should all ignored paths be removed?"
-#~ msgstr "Чи має бути вилучено усі ігноровані розміщення?"
-
-#~ msgid "Error in Photo Rename preferences"
-#~ msgstr "Помилка в параметрі «Перейменування фото»"
-
-#~ msgid "Error in Video Rename preferences"
-#~ msgstr "Помилка в налаштуваннях «Перейменування відео»"
-
-#~ msgid "Error in Photo Download Subfolders preferences"
-#~ msgstr "Помилка в налаштуваннях «Підтеки для завантаження фото»"
-
-#~ msgid "Error in Video Download Subfolders preferences"
-#~ msgstr "Помилка в налаштуваннях «Підтеки для завантаження відео»"
-
-#~ msgid "Enter a new Job Code, or select a previous one"
-#~ msgstr "Введіть нову мітку або виберіть попередню"
-
-#~ msgid "Enter a new Job Code"
-#~ msgstr "Введіть нову мітку"
-
-#~ msgid "Job Code:"
-#~ msgstr "Мітка:"
-
-#~ msgid "Enter a Path to Ignore"
-#~ msgstr "Введіть розміщення, яке бажаєте ігнорувати"
-
-#~ msgid "Specify a path that will never be scanned for photos or videos"
-#~ msgstr ""
-#~ "Вкажіть  розміщення, яке не буде скануватися на наявність фотографій або "
-#~ "відеофрагментів"
-
-#~ msgid "Path:"
-#~ msgstr "Шлях:"
-
-#~ msgid "Select a folder in which to backup photos"
-#~ msgstr "Оберіть теку у якій будуть зберігатися резервні копії фотографій"
-
-#~ msgid "Select a folder in which to backup videos"
-#~ msgstr ""
-#~ "Оберіть теку у якій будуть зберігатися резервні копії відеофрагметів"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
-#~ "name. Please use other renaming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Увага:</b> Недостатньо метаданих для повного створення назви. "
-#~ "Використовуйте інші варіанти перейменування.</i>"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient metadata to fully generate "
-#~ "subfolders. Please use other subfolder naming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Увага:</b> Недостатньо метаданих для повного створення підтек. "
-#~ "Використовуйте інші варіанти найменування підтек.</i>"
-
-#~ msgid "<i>Example: %s</i>"
-#~ msgstr "<i>Приклад: %s</i>"
-
-#~ msgid ""
-#~ "The %(filetype)s subfolder preferences entered are invalid and cannot be "
-#~ "used.\n"
-#~ "They will be reset to their default values."
-#~ msgstr ""
-#~ "Введені параметри підтеки %(filetype)s помилкові, вони не "
-#~ "використовуватимуться.\n"
-#~ "Ці значення будуть скинуті до типових."
-
-#~ msgid ""
-#~ "The following regular expressions are invalid, and will be removed unless "
-#~ "you correct them:\n"
-#~ " %s"
-#~ msgstr ""
-#~ "Наступні регулярні вирази неприпустимі й будуть вилучені, якщо ви не "
-#~ "виправите їх:\n"
-#~ " %s"
-
-#~ msgid ""
-#~ "This regular expression is invalid, and will be removed unless you "
-#~ "correct it:\n"
-#~ " %s"
-#~ msgstr ""
-#~ "Регулярний вираз неприпустимий й буде вилучено, якщо ви не виправите "
-#~ "його:\n"
-#~ " %s"
-
-#~ msgid "Invalid regular expression"
-#~ msgstr "Неприпустимий регулярний вираз"
-
-#~ msgid "externaldrive1"
-#~ msgstr "зовнішній пристрій 1"
-
-#~ msgid "externaldrive2"
-#~ msgstr "зовнішній пристрій 2"
+msgstr ""
 
 #~ msgid "New York"
 #~ msgstr "Нью-Йорк"
-
-#~ msgid "Manila"
-#~ msgstr "Маніла"
 
 #~ msgid "Prague"
 #~ msgstr "Прага"
@@ -2604,52 +2227,251 @@ msgstr "Параметри: Rapid Photo Downloader"
 #~ msgid "Stockholm"
 #~ msgstr "Стокгольм"
 
-#~ msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
+#~ msgid "Error in Photo Rename preferences"
+#~ msgstr "Помилка в параметрі «Перейменування фото»"
+
+#~ msgid "Error in Video Rename preferences"
+#~ msgstr "Помилка в налаштуваннях «Перейменування відео»"
+
+#~ msgid "Error in Photo Download Subfolders preferences"
+#~ msgstr "Помилка в налаштуваннях «Підтеки для завантаження фото»"
+
+#~ msgid "Error in Video Download Subfolders preferences"
+#~ msgstr "Помилка в налаштуваннях «Підтеки для завантаження відео»"
+
+#~ msgid "Select a folder to download photos to"
+#~ msgstr "Виберіть теку для завантаження фото"
+
+#~ msgid "Select a folder to download videos to"
+#~ msgstr "Виберіть теку для завантаження відео"
+
+#~ msgid "Select a folder containing %(file_types)s"
+#~ msgstr "Виберіть теку, що містить %(file_types)s"
+
+#~ msgid ""
+#~ "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
+#~ "name. Please use other renaming options.</i>"
 #~ msgstr ""
-#~ "перевірка (знайдено %(photos)s фотографій та %(videos)s відеозаписів)..."
+#~ "<i><b>Увага:</b> Недостатньо метаданих для повного створення назви. "
+#~ "Використовуйте інші варіанти перейменування.</i>"
 
-#~ msgid "_File"
-#~ msgstr "_Файл"
+#~ msgid ""
+#~ "<i><b>Warning:</b> There is insufficient metadata to fully generate "
+#~ "subfolders. Please use other subfolder naming options.</i>"
+#~ msgstr ""
+#~ "<i><b>Увага:</b> Недостатньо метаданих для повного створення підтек. "
+#~ "Використовуйте інші варіанти найменування підтек.</i>"
 
-#~ msgid "Download / Pause"
-#~ msgstr "Завантаження / Призупинити"
+#~ msgid "<i>Example: %s</i>"
+#~ msgstr "<i>Приклад: %s</i>"
 
-#~ msgid "Select All Without _Job Code"
-#~ msgstr "Вибрати всі без _міток"
+#~ msgid ""
+#~ "The %(filetype)s subfolder preferences entered are invalid and cannot be "
+#~ "used.\n"
+#~ "They will be reset to their default values."
+#~ msgstr ""
+#~ "Введені параметри підтеки %(filetype)s помилкові, вони не "
+#~ "використовуватимуться.\n"
+#~ "Ці значення будуть скинуті до типових."
 
-#~ msgid "Select All Wit_h Job Code"
-#~ msgstr "Вибрати всі з _мітками"
+#~ msgid "externaldrive1"
+#~ msgstr "зовнішній пристрій 1"
 
-#~ msgid "_View"
-#~ msgstr "_Перегляд"
+#~ msgid "externaldrive2"
+#~ msgstr "зовнішній пристрій 2"
 
-#~ msgid "_Error Log"
-#~ msgstr "_Журнал помилок"
+#~ msgid "scanning..."
+#~ msgstr "сканування..."
 
-#~ msgid "_Help"
-#~ msgstr "_Довідка"
+#~ msgid "%(number)s of %(total)s %(filetypes)s"
+#~ msgstr "%(number)s з %(total)s %(filetypes)s"
 
-#~ msgid "_Translate this Application..."
-#~ msgstr "_Перекласти цю програму..."
+#~ msgid "Size"
+#~ msgstr "Розмір"
 
-#~ msgid "_Include in download"
-#~ msgstr "Включити у завантаження"
+#~ msgid "Download Progress"
+#~ msgstr "Поступ завантаження"
 
-#~ msgid "_Download"
-#~ msgstr "_Завантажити"
+#~ msgid "Device Detected"
+#~ msgstr "Виявлений пристрій"
+
+#~ msgid ""
+#~ "Should this device or partition be used to download photos or videos from?"
+#~ msgstr ""
+#~ "Чи використовувати цей пристрій або розділ для вивантаження з нього фото "
+#~ "та відео?"
+
+#~ msgid "_Remember this choice"
+#~ msgstr "_Пам’ятати цей вибір"
+
+#~ msgid "Remove all Job Codes?"
+#~ msgstr "Вилучити всі мітки?"
+
+#~ msgid "Should all Job Codes be removed?"
+#~ msgstr "Чи потрібно вилучити всі мітки?"
+
+#~ msgid "Enter a Job Code"
+#~ msgstr "Введіть мітку"
+
+#~ msgid "Job Code:"
+#~ msgstr "Мітка:"
+
+#~ msgid "and"
+#~ msgstr "та"
+
+#~ msgid "Using backup devices"
+#~ msgstr "Використання пристроїв для резервного копіювання"
+
+#~ msgid "Using backup device"
+#~ msgstr "Використання пристрою для резервного копіювання"
+
+#~ msgid "No backup devices detected"
+#~ msgstr "Пристроїв для резервного копіювання не виявлено"
+
+#~ msgid "Backing up to %(path)s"
+#~ msgstr "Резервне копіювання до %(path)s"
+
+#~ msgid "MB/s"
+#~ msgstr "МБ/с"
+
+#~ msgid "About 1 second remaining"
+#~ msgstr "Залишилось біля 1 секунди"
+
+#~ msgid "About %i seconds remaining"
+#~ msgstr "Залишилось біля %i секунд"
+
+#~ msgid "About 1 minute remaining"
+#~ msgstr "Залишилось біля 1 хвилини"
+
+#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
+#~ msgstr "Залишилось біля %(minutes)i:%(seconds)02i"
+
+#~ msgid ""
+#~ "display program information on the command line as the program runs "
+#~ "(default: %default)"
+#~ msgstr ""
+#~ "показати дані програми в командному рядку під час запуску (типово: "
+#~ "%default)"
+
+#~ msgid "only output errors to the command line"
+#~ msgstr "виводити в командний рядок лише помилки"
+
+#~ msgid "list photo and video file extensions the program recognizes and exit"
+#~ msgstr ""
+#~ "вивести список розширень фото та відео файлів, розпізнаних програмою і "
+#~ "вийти"
+
+#~ msgid "reset all program settings and preferences and exit"
+#~ msgstr "скинути всі параметри та налаштування програми і вийти"
+
+#~ msgid "Photos:"
+#~ msgstr "Фото:"
+
+#~ msgid "Videos:"
+#~ msgstr "Відео:"
+
+#~ msgid "and %s"
+#~ msgstr "та %s"
+
+#~ msgid "All settings and preferences have been reset"
+#~ msgstr "Всі параметри та налаштування скинуті"
+
+#~ msgid "Name + extension"
+#~ msgstr "Назва + розширення"
+
+#~ msgid " "
+#~ msgstr " "
+
+#~ msgid " hh:mm"
+#~ msgstr " гг:хх"
+
+#~ msgid ":"
+#~ msgstr ":"
+
+#~ msgid "<b>Backup</b>"
+#~ msgstr "<b>Резервне копіювання</b>"
+
+#~ msgid "<b>Compatibility with Other Operating Systems</b>"
+#~ msgstr "<b>Сумісність з іншими операційними системами</b>"
+
+#~ msgid "<b>Download Folder</b>"
+#~ msgstr "<b>Тека для завантаження</b>"
+
+#~ msgid "<b>Download Subfolders</b>"
+#~ msgstr "<b>Підтеки для завантаження</b>"
+
+#~ msgid "<b>Example</b>"
+#~ msgstr "<b>Приклад</b>"
+
+#~ msgid "<b>Job Codes</b>"
+#~ msgstr "<b>Мітки</b>"
+
+#~ msgid "<b>Photo Rename</b>"
+#~ msgstr "<b>Перейменування фото</b>"
+
+#~ msgid "<b>Photo and Video Name Conflicts</b>"
+#~ msgstr "<b>Конфлікти назв фото та відео</b>"
+
+#~ msgid "<b>Program Automation</b>"
+#~ msgstr "<b>Автоматизація програми</b>"
+
+#~ msgid "<b>Sequence Numbers</b>"
+#~ msgstr "<b>Послідовність номерів</b>"
+
+#~ msgid "<i>/media/externaldrive/Photos</i>"
+#~ msgstr "<i>/media/externaldrive/Photos</i>"
+
+#~ msgid "<i>Example: /home/user/Pictures</i>"
+#~ msgstr "<i>Приклад: /home/user/Pictures</i>"
+
+#~ msgid "<i>Example:</i>"
+#~ msgstr "<i>Приклад:</i>"
+
+#~ msgid "<i>New:</i>"
+#~ msgstr "<i>Нова назва:</i>"
+
+#~ msgid "<i>Original:</i>"
+#~ msgstr "<i>Початкова назва:</i>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Резервне копіювання</span>\t"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Пристрої</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Обробка помилок</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Мітки</span>"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
 #~ msgstr ""
 #~ "<span weight=\"bold\" size=\"x-large\">Теки для завантаження фото</span>"
 
-#~ msgid "<i>Example: /home/user/Pictures</i>"
-#~ msgstr "<i>Приклад: /home/user/Pictures</i>"
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Перейменування фото</span>\t"
 
-#~ msgid "<b>Download Subfolders</b>"
-#~ msgstr "<b>Підтеки для завантаження</b>"
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">Параметри перейменування</span>"
 
-#~ msgid "Download folder:"
-#~ msgstr "Тека для завантаження:"
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">Теки для завантаження відео</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">Перейменування відео</span>\t"
+
+#~ msgid "Add unique identifier"
+#~ msgstr "Додати унікальний ідентифікатор"
+
+#~ msgid "Automatically detect backup devices"
+#~ msgstr "Автоматичне виявляти пристрої для резервного копіювання"
+
+#~ msgid "Backup"
+#~ msgstr "Резервне копіювання"
 
 #~ msgid ""
 #~ "Choose the download folder. Subfolders for the downloaded photos will be "
@@ -2658,46 +2480,6 @@ msgstr "Параметри: Rapid Photo Downloader"
 #~ "Виберіть теку для завантаження. В цій теці автоматично створюватимуться "
 #~ "підтеки для завантажених фото використовуючи структуру, зазначену нижче."
 
-#~ msgid "<b>Download Folder</b>"
-#~ msgstr "<b>Тека для завантаження</b>"
-
-#~ msgid "Photo Folders"
-#~ msgstr "Теки з фото"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Перейменування фото</span>\t"
-
-#~ msgid "<b>Photo Rename</b>"
-#~ msgstr "<b>Перейменування фото</b>"
-
-#~ msgid " "
-#~ msgstr " "
-
-#~ msgid "<i>New:</i>"
-#~ msgstr "<i>Нова назва:</i>"
-
-#~ msgid "<i>Original:</i>"
-#~ msgstr "<i>Початкова назва:</i>"
-
-#~ msgid "<b>Example</b>"
-#~ msgstr "<b>Приклад</b>"
-
-#~ msgid "Photo Rename"
-#~ msgstr "Перейменування фото"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Теки для завантаження відео</span>"
-
-#~ msgid ""
-#~ "Sorry, video downloading functionality disabled. To download videos, "
-#~ "please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> "
-#~ "packages for python, or <i>exiftool</i>."
-#~ msgstr ""
-#~ "Вибачте, але стягнення відео вимкнено. Для того щоб мати можливість "
-#~ "завантажувати відео, будь-ласка, встановіть пакунки <i>hachoir metadata</"
-#~ "i> та <i>kaa metadata</i> для Пітона або <i>exiftool</i>."
-
 #~ msgid ""
 #~ "Choose the download folder. Subfolders for the downloaded videos will be "
 #~ "automatically created in this folder using the structure specified below."
@@ -2705,22 +2487,67 @@ msgstr "Параметри: Rapid Photo Downloader"
 #~ "Виберіть теку для завантаження. В цій теці автоматично створюватимуться "
 #~ "підтеки для завантажених відео використовуючи структуру, зазначену нижче."
 
-#~ msgid "Video Folders"
-#~ msgstr "Теки відео"
+#~ msgid "Day start:"
+#~ msgstr "Початок дня:"
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
+#~ msgid "Download folder:"
+#~ msgstr "Тека для завантаження:"
+
+#~ msgid "Downloads today:"
+#~ msgstr "Завантажень сьогодні:"
+
+#~ msgid "Error Handling"
+#~ msgstr "Обробка помилок"
+
+#~ msgid "Import your photos and videos efficiently and reliably"
+#~ msgstr "Імпортуйте фото та відео ефективно та надійно"
+
+#~ msgid "Job Codes"
+#~ msgstr "Мітки"
+
+#~ msgid "Location:"
+#~ msgstr "Розташування:"
+
+#~ msgid "Overwrite"
+#~ msgstr "Перезаписати"
+
+#~ msgid "Photo Folders"
+#~ msgstr "Теки з фото"
+
+#~ msgid "Photo Rename"
+#~ msgstr "Перейменування фото"
+
+#~ msgid "Photo backup folder name:"
+#~ msgstr "Назва теки для резервного копіювання фото:"
+
+#~ msgid "Preferences: Rapid Photo Downloader"
+#~ msgstr "Параметри: Rapid Photo Downloader"
+
+#~ msgid "R_emove All"
+#~ msgstr "В_илучити все"
+
+#~ msgid "Rename Options"
+#~ msgstr "Параметри перейменування"
+
+#~ msgid "Skip"
+#~ msgstr "Пропустити"
+
+#~ msgid "Skip download"
+#~ msgstr "Пропустити завантаження"
+
+#~ msgid ""
+#~ "Specify the folder in which backups are stored on the device.  \n"
+#~ "\n"
+#~ "<i>Note: this will also be used to determine whether or not the device is "
+#~ "used for backups. For each device you wish to use for backing up to, "
+#~ "create a folder in it with one of these names.</i>"
 #~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Перейменування відео</span>\t"
-
-#~ msgid "Video Rename"
-#~ msgstr "Перейменування відео"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Параметри перейменування</span>"
-
-#~ msgid "<b>Sequence Numbers</b>"
-#~ msgstr "<b>Послідовність номерів</b>"
+#~ "Вкажіть каталог, в якому зберігатимуться резервні копії на пристрої.  \n"
+#~ "\n"
+#~ "<i>Примітка: це також визначатиме, чи використовується пристрій для "
+#~ "резервного копіювання, чи ні. Для кожного пристрою, який ви "
+#~ "використовуватимете, в цьому каталозі створюватиметься тека з відповідною "
+#~ "назвою.</i>"
 
 #~ msgid ""
 #~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
@@ -2729,27 +2556,6 @@ msgstr "Параметри: Rapid Photo Downloader"
 #~ "Вкажіть час в 24-годинному форматі, коли буде скинута послідовність "
 #~ "номерів для параметра <i>Завантажень сьогодні</i>."
 
-#~ msgid "Day start:"
-#~ msgstr "Початок дня:"
-
-#~ msgid "Downloads today:"
-#~ msgstr "Завантажень сьогодні:"
-
-#~ msgid "Stored number:"
-#~ msgstr "Номер зберігання:"
-
-#~ msgid ":"
-#~ msgstr ":"
-
-#~ msgid " hh:mm"
-#~ msgstr " гг:хх"
-
-#~ msgid "Synchronize RAW + JPEG sequence numbers"
-#~ msgstr "Синхронізувати послідовність номерів RAW + JPEG"
-
-#~ msgid "<b>Compatibility with Other Operating Systems</b>"
-#~ msgstr "<b>Сумісність з іншими операційними системами</b>"
-
 #~ msgid ""
 #~ "Specify whether photo, video and folder names should have any characters "
 #~ "removed that are not allowed by other operating systems."
@@ -2757,29 +2563,273 @@ msgstr "Параметри: Rapid Photo Downloader"
 #~ "Вкажіть, чи вилучати з назв фото, відео та тек всі символи, що не "
 #~ "дозволені в інших операційних системах."
 
+#~ msgid "Start downloading at program startup"
+#~ msgstr "Розпочинати завантаження під час запуску програми"
+
+#~ msgid "Start downloading upon device insertion"
+#~ msgstr "Розпочинати завантаження після під’єднання пристрою"
+
+#~ msgid "Stored number:"
+#~ msgstr "Номер зберігання:"
+
 #~ msgid "Strip incompatible characters"
 #~ msgstr "Вилучати несумісні символи"
 
-#~ msgid "Rename Options"
-#~ msgstr "Параметри перейменування"
+#~ msgid "Synchronize RAW + JPEG sequence numbers"
+#~ msgstr "Синхронізувати послідовність номерів RAW + JPEG"
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Мітки</span>"
+#~ msgid "Unmount (\"eject\") device upon download completion"
+#~ msgstr "Від’єднати («витягти») пристрій після завершення завантаження"
 
-#~ msgid "<b>Job Codes</b>"
-#~ msgstr "<b>Мітки</b>"
+#~ msgid "Video Folders"
+#~ msgstr "Теки відео"
+
+#~ msgid "Video Rename"
+#~ msgstr "Перейменування відео"
+
+#~ msgid "Video backup folder name:"
+#~ msgstr "Назва теки для резервного копіювання відео:"
+
+#~ msgid ""
+#~ "When backing up, choose whether to overwrite a file on the backup device "
+#~ "that has the same name, or skip backing it up."
+#~ msgstr ""
+#~ "Чи слід під час резервного копіювання перезаписати файл, що має однакову "
+#~ "назву з файлом на пристрої, чи пропустити його?"
+
+#~ msgid ""
+#~ "You can have your photos and videos backed up to multiple locations as "
+#~ "they are downloaded, e.g. external hard drives."
+#~ msgstr ""
+#~ "Ви можете створювати резервні копії фото та відео в кількох місцях прямо "
+#~ "під час завантаження, наприклад, на зовнішніх жорстких дисках."
 
 #~ msgid "_Add..."
 #~ msgstr "Д_одати..."
 
-#~ msgid "R_emove All"
-#~ msgstr "В_илучити все"
+#~ msgid "_Clear Completed Downloads"
+#~ msgstr "_Очистити завершені завантаження"
 
-#~ msgid "Job Codes"
-#~ msgstr "Мітки"
+#~ msgid "_Error Log"
+#~ msgstr "_Журнал помилок"
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Пристрої</span>"
+#~ msgid "_Get Help Online..."
+#~ msgstr "О_тримати довідку онлайн..."
+
+#~ msgid "_Help"
+#~ msgstr "_Довідка"
+
+#~ msgid "_Make a Donation..."
+#~ msgstr "_Зробити пожертву..."
+
+#~ msgid "_Report a Problem..."
+#~ msgstr "Зв_іт про помилку..."
+
+#~ msgid "_Translate this Application..."
+#~ msgstr "_Перекласти цю програму..."
+
+#~ msgid "_View"
+#~ msgstr "_Перегляд"
+
+#~ msgid "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+
+#~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+
+#~ msgid ""
+#~ "%(date)s\n"
+#~ "%(time)s"
+#~ msgstr ""
+#~ "%(date)s\n"
+#~ "%(time)s"
+
+#~ msgid "%(date)s %(time)s"
+#~ msgstr "%(date)s %(time)s"
+
+#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
+#~ msgstr "%(number)s з %(total)s %(filetypes)s (%(remaining)s залишилось)"
+
+#~ msgid "Enter a new Job Code, or select a previous one"
+#~ msgstr "Введіть нову мітку або виберіть попередню"
+
+#~ msgid "Enter a new Job Code"
+#~ msgstr "Введіть нову мітку"
+
+#~ msgid "Select All Wit_h Job Code"
+#~ msgstr "Вибрати всі з _мітками"
+
+#~ msgid "Select All Without _Job Code"
+#~ msgstr "Вибрати всі без _міток"
+
+#~ msgid "_File"
+#~ msgstr "_Файл"
+
+#~ msgid "_Select"
+#~ msgstr "_Вибрати"
+
+#~ msgid "%(freespace)s. %(backuppaths)s."
+#~ msgstr "%(freespace)s. %(backuppaths)s."
+
+#~ msgid "display debugging information when run from the command line"
+#~ msgstr ""
+#~ "показувати інструкцію зі зневадження під час запуску з командного рядка"
+
+#~ msgid "Free space:"
+#~ msgstr "Вільний простір:"
+
+#~ msgid "; "
+#~ msgstr "; "
+
+#~ msgid "."
+#~ msgstr ","
+
+#~ msgid "(%(file_type)s)"
+#~ msgstr "(%(file_type)s)"
+
+#~ msgid "%(free)s %(file_type)s"
+#~ msgstr "%(free)s %(file_type)s"
+
+#~ msgid "Folder: %s"
+#~ msgstr "Каталог: %s"
+
+#~ msgid "%(file_type)s download folder is invalid"
+#~ msgstr "%(file_type)s каталог завантаження є хибним"
+
+#~ msgid "%(file_type)s download folder does not exist"
+#~ msgstr "%(file_type)s каталог завантаження не існує"
+
+#~ msgid "%(file_type)s download folder is not writable"
+#~ msgstr "%(file_type)s каталог завантаження не доступний для запису"
+
+#~ msgid "%(free)s free"
+#~ msgstr "%(free)s вільно"
+
+#~ msgid "Thumbnails"
+#~ msgstr "Мініатюри"
+
+#~ msgid "%(device)s did not unmount"
+#~ msgstr "%(device)s не від’єднано"
+
+#~ msgid "the root of the file system"
+#~ msgstr "корінь файлової системи"
+
+#~ msgid ""
+#~ "Do you really want to download from here? On some systems, scanning this "
+#~ "location can take a very long time."
+#~ msgstr ""
+#~ "Ви справді бажаєте завантажити звідси? На деяких системах сканування "
+#~ "цього місцезнаходження може зайняти багато часу."
+
+#~ msgid "Downloading from %(location)s."
+#~ msgstr "Завантаження з %(location)s."
+
+#~ msgid "Copy"
+#~ msgstr "Копіювати"
+
+#~ msgid "From"
+#~ msgstr "З"
+
+#~ msgid "Auto Detect"
+#~ msgstr "Автоматичне визначення"
+
+#~ msgid "Move"
+#~ msgstr "Переміщення"
+
+#~ msgid "To"
+#~ msgstr "До"
+
+#~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
+#~ msgstr ""
+#~ "Резервне копіювання фотографій до %(path)s та відеозаписів до %(path2)s"
+
+#~ msgid "Backing up photos and videos to %(path)s"
+#~ msgstr "Резервне копіювання фотографій та відеозаписів до %(path)s"
+
+#~ msgid ""
+#~ "Error: specify device auto-detection or manually specify a device's path "
+#~ "from which to download, but do not do both."
+#~ msgstr ""
+#~ "Помилка: вкажіть автоматичне визначення пристрою або самостійно вкажіть "
+#~ "розміщення пристрою, з якого буде виконуватися завантаження, але не "
+#~ "використовуйте відразу обидва варіанти."
+
+#~ msgid ""
+#~ "manually specify the PATH of the device from which to download, "
+#~ "overwriting existing program preferences"
+#~ msgstr ""
+#~ "самостійно вкажіть розміщення (PATH) пристрою, з якого буде виконуватися "
+#~ "завантаження, замінюючи налаштування програми що існують"
+
+#~ msgid "Remove all Remembered Paths?"
+#~ msgstr "Вилучити усі запам’ятовані розміщення?"
+
+#~ msgid "Remove all Ignored Paths?"
+#~ msgstr "Вилучити усі розміщення що ігноруються?"
+
+#~ msgid "Should all ignored paths be removed?"
+#~ msgstr "Чи має бути вилучено усі ігноровані розміщення?"
+
+#~ msgid "Specify a path that will never be scanned for photos or videos"
+#~ msgstr ""
+#~ "Вкажіть  розміщення, яке не буде скануватися на наявність фотографій або "
+#~ "відеофрагментів"
+
+#~ msgid "Path:"
+#~ msgstr "Шлях:"
+
+#~ msgid "Select a folder in which to backup videos"
+#~ msgstr ""
+#~ "Оберіть теку у якій будуть зберігатися резервні копії відеофрагметів"
+
+#~ msgid "Select a folder in which to backup photos"
+#~ msgstr "Оберіть теку у якій будуть зберігатися резервні копії фотографій"
+
+#~ msgid "Enter a Path to Ignore"
+#~ msgstr "Введіть розміщення, яке бажаєте ігнорувати"
+
+#~ msgid "Invalid regular expression"
+#~ msgstr "Неприпустимий регулярний вираз"
+
+#~ msgid ""
+#~ "The following regular expressions are invalid, and will be removed unless "
+#~ "you correct them:\n"
+#~ " %s"
+#~ msgstr ""
+#~ "Наступні регулярні вирази неприпустимі й будуть вилучені, якщо ви не "
+#~ "виправите їх:\n"
+#~ " %s"
+
+#~ msgid ""
+#~ "This regular expression is invalid, and will be removed unless you "
+#~ "correct it:\n"
+#~ " %s"
+#~ msgstr ""
+#~ "Регулярний вираз неприпустимий й буде вилучено, якщо ви не виправите "
+#~ "його:\n"
+#~ " %s"
+
+#~ msgid "Manila"
+#~ msgstr "Маніла"
+
+#~ msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
+#~ msgstr ""
+#~ "перевірка (знайдено %(photos)s фотографій та %(videos)s відеозаписів)..."
+
+#~ msgid "Previous File"
+#~ msgstr "Попередній Файл"
+
+#~ msgid "_Uncheck All"
+#~ msgstr "_Скасувати позначку всього"
+
+#~ msgid "_Include in download"
+#~ msgstr "Включити у завантаження"
+
+#~ msgid "_Check All"
+#~ msgstr "_Позначити все"
+
+#~ msgid "Next File"
+#~ msgstr "Наступний файл"
 
 #~ msgid ""
 #~ "Devices are from where to download photos and videos, such as cameras, "
@@ -2804,11 +2854,18 @@ msgstr "Параметри: Rapid Photo Downloader"
 #~ "перемикніть її у режим PTP. Якщо це неможливо, використовуйте пристрій "
 #~ "для читання карт пам’яті.</i>"
 
-#~ msgid "Automatically detect Portable Storage Devices"
-#~ msgstr "Автоматично виявляти портативні пристрої зберігання"
+#~ msgid "Ignored Paths"
+#~ msgstr "Ігноровані розміщення"
 
-#~ msgid "Automatically detect devices"
-#~ msgstr "Автоматично виявляти пристрої"
+#~ msgid "Remembered Paths"
+#~ msgstr "Розміщення які запам’ятовано"
+
+#~ msgid ""
+#~ "If you disable automatic detection, choose the exact location of the "
+#~ "photos and videos."
+#~ msgstr ""
+#~ "Якщо ви вимикаєте автовизначення, оберіть містце для резервного "
+#~ "копіювання фото та відео."
 
 #~ msgid ""
 #~ "If you enable automatic detection of Portable Storage Devices, the entire "
@@ -2824,22 +2881,9 @@ msgstr "Параметри: Rapid Photo Downloader"
 #~ "Коли цей параметр увімкнено, й відповідний пристрій знайдено, програма "
 #~ "спитає вас, чи потрібно  його сканувати."
 
-#~ msgid "Location:"
-#~ msgstr "Розташування:"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the "
-#~ "photos and videos."
-#~ msgstr ""
-#~ "Якщо ви вимикаєте автовизначення, оберіть містце для резервного "
-#~ "копіювання фото та відео."
-
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Device Options</span>"
 #~ msgstr ""
 #~ "<span weight=\"bold\" size=\"x-large\">Налаштування пристроїв</span>"
-
-#~ msgid "Remembered Paths"
-#~ msgstr "Розміщення які запам’ятовано"
 
 #~ msgid ""
 #~ "Remembered paths are those associated with devices that you have chosen "
@@ -2851,8 +2895,8 @@ msgstr "Параметри: Rapid Photo Downloader"
 #~ "залученій можливості автоматичного визначення Портативного пристрою "
 #~ "зберігання."
 
-#~ msgid "Ignored Paths"
-#~ msgstr "Ігноровані розміщення"
+#~ msgid "Automatically detect Portable Storage Devices"
+#~ msgstr "Автоматично виявляти портативні пристрої зберігання"
 
 #~ msgid ""
 #~ "Specify the ending portion of any paths you want ignored when scanning "
@@ -2863,79 +2907,31 @@ msgstr "Параметри: Rapid Photo Downloader"
 #~ "скануванні пристроїв, на вміст фотографій та відеозаписів. Усі адреси що "
 #~ "закінчуються значеннями вказаними нижче, скануватися не будуть."
 
-#~ msgid "Re_move All"
-#~ msgstr "Вилучити все"
+#~ msgid "Automatically detect devices"
+#~ msgstr "Автоматично виявляти пристрої"
 
 #~ msgid "Use _python-style regular expressions"
 #~ msgstr "Використовувати регулярні вирази стилю _python"
-
-#~ msgid "Device Options"
-#~ msgstr "Параметри пристрою"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Резервне копіювання</span>\t"
-
-#~ msgid "<b>Backup</b>"
-#~ msgstr "<b>Резервне копіювання</b>"
 
 #~ msgid ""
 #~ "If you disable automatic detection, choose the exact backup locations."
 #~ msgstr ""
 #~ "Якщо ви вимикаєте автовизначення, оберіть місце для резервного копіювання."
 
-#~ msgid ""
-#~ "You can have your photos and videos backed up to multiple locations as "
-#~ "they are downloaded, e.g. external hard drives."
-#~ msgstr ""
-#~ "Ви можете створювати резервні копії фото та відео в кількох місцях прямо "
-#~ "під час завантаження, наприклад, на зовнішніх жорстких дисках."
+#~ msgid "Re_move All"
+#~ msgstr "Вилучити все"
 
-#~ msgid ""
-#~ "Specify the folder in which backups are stored on the device.  \n"
-#~ "\n"
-#~ "<i>Note: this will also be used to determine whether or not the device is "
-#~ "used for backups. For each device you wish to use for backing up to, "
-#~ "create a folder in it with one of these names.</i>"
-#~ msgstr ""
-#~ "Вкажіть каталог, в якому зберігатимуться резервні копії на пристрої.  \n"
-#~ "\n"
-#~ "<i>Примітка: це також визначатиме, чи використовується пристрій для "
-#~ "резервного копіювання, чи ні. Для кожного пристрою, який ви "
-#~ "використовуватимете, в цьому каталозі створюватиметься тека з відповідною "
-#~ "назвою.</i>"
-
-#~ msgid "Photo backup location:"
-#~ msgstr "Розміщення для резервного копіювання фото:"
-
-#~ msgid "Photo backup folder name:"
-#~ msgstr "Назва теки для резервного копіювання фото:"
-
-#~ msgid "<i>Example:</i>"
-#~ msgstr "<i>Приклад:</i>"
-
-#~ msgid "<i>/media/externaldrive/Photos</i>"
-#~ msgstr "<i>/media/externaldrive/Photos</i>"
-
-#~ msgid "Video backup folder name:"
-#~ msgstr "Назва теки для резервного копіювання відео:"
+#~ msgid "Device Options"
+#~ msgstr "Параметри пристрою"
 
 #~ msgid "Video backup location:"
 #~ msgstr "Розміщення для резервного копіювання відео:"
 
+#~ msgid "Photo backup location:"
+#~ msgstr "Розміщення для резервного копіювання фото:"
+
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Решта налаштувань</span>"
-
-#~ msgid "<b>Program Automation</b>"
-#~ msgstr "<b>Автоматизація програми</b>"
-
-#~ msgid "Unmount (\"eject\") device upon download completion"
-#~ msgstr "Від’єднати («витягти») пристрій після завершення завантаження"
-
-#~ msgid "Start downloading at program startup"
-#~ msgstr "Розпочинати завантаження під час запуску програми"
-
-#~ msgid "Start downloading upon device insertion"
-#~ msgstr "Розпочинати завантаження після під’єднання пристрою"
 
 #~ msgid "Exit program when download completes"
 #~ msgstr "Закінчити програму після завантаження"
@@ -2949,20 +2945,36 @@ msgstr "Параметри: Rapid Photo Downloader"
 #~ msgid "Performance"
 #~ msgstr "Швидкодія"
 
+#~ msgid "Generate thumbnails (slower)"
+#~ msgstr "Створювати мініатюри (довше копіюється)"
+
 #~ msgid "Miscellaneous"
 #~ msgstr "Інше"
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Обробка помилок</span>"
+#~ msgid ""
+#~ "automatically detect devices from which to download, overwriting existing "
+#~ "program preferences"
+#~ msgstr ""
+#~ "автоматично визначати пристрій, з якого буде виконуватися завантаження, "
+#~ "замінюючи налаштування програми що існують"
 
-#~ msgid "<b>Photo and Video Name Conflicts</b>"
-#~ msgstr "<b>Конфлікти назв фото та відео</b>"
+#~ msgid "Should all remembered paths be removed?"
+#~ msgstr "Чи має бути вилучено усі заппам’ятовані розміщення?"
 
-#~ msgid "Add unique identifier"
-#~ msgstr "Додати унікальний ідентифікатор"
+#~ msgid "Download / Pause"
+#~ msgstr "Завантаження / Призупинити"
 
-#~ msgid "Skip download"
-#~ msgstr "Пропустити завантаження"
+#~ msgid "_Download"
+#~ msgstr "_Завантажити"
+
+#~ msgid ""
+#~ "Sorry, video downloading functionality disabled. To download videos, "
+#~ "please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> "
+#~ "packages for python, or <i>exiftool</i>."
+#~ msgstr ""
+#~ "Вибачте, але стягнення відео вимкнено. Для того щоб мати можливість "
+#~ "завантажувати відео, будь-ласка, встановіть пакунки <i>hachoir metadata</"
+#~ "i> та <i>kaa metadata</i> для Пітона або <i>exiftool</i>."
 
 #~ msgid ""
 #~ "When a photo or video of the same name has already been downloaded, "
@@ -2972,602 +2984,5 @@ msgstr "Параметри: Rapid Photo Downloader"
 #~ "Коли фото або відео з такою ж назвою вже завантажені, виберіть, чи "
 #~ "пропустити завантаження цього файлу, чи додати унікальний ідентифікатор."
 
-#~ msgid ""
-#~ "When backing up, choose whether to overwrite a file on the backup device "
-#~ "that has the same name, or skip backing it up."
-#~ msgstr ""
-#~ "Чи слід під час резервного копіювання перезаписати файл, що має однакову "
-#~ "назву з файлом на пристрої, чи пропустити його?"
-
-#~ msgid "Overwrite"
-#~ msgstr "Перезаписати"
-
-#~ msgid "Skip"
-#~ msgstr "Пропустити"
-
-#~ msgid "Error Handling"
-#~ msgstr "Обробка помилок"
-
-#~ msgid "Import your photos and videos efficiently and reliably"
-#~ msgstr "Імпортуйте фото та відео ефективно та надійно"
-
-#~ msgid "Invalid Downloads Today value.\n"
-#~ msgstr "Неправильне значення «Завантажень сьогодні».\n"
-
-#~ msgid "Resetting value to zero.\n"
-#~ msgstr "Скинути значення на 0.\n"
-
-#~ msgid "'Start of day' preference value is corrupted.\n"
-#~ msgstr "Значення параметру «Початок дня» пошкоджене.\n"
-
-#~ msgid "Resetting to midnight.\n"
-#~ msgstr "Скидання налаштувань у північ.\n"
-
-#~ msgid "Sorry,these preferences contain an error:\n"
-#~ msgstr "На жаль, ці параметри містять помилку:\n"
-
-#~ msgid "Resetting to default values."
-#~ msgstr "Скинути до типових значень."
-
-#~ msgid "There is an error in the program preferences."
-#~ msgstr "Помилка в налаштуваннях програми."
-
-#~ msgid ""
-#~ "\n"
-#~ "Please check preferences, restart the program, and try again."
-#~ msgstr ""
-#~ "\n"
-#~ "Перевірте налаштування, перезапустіть програму та спробуйте знову."
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Джерело: %(source)s\n"
-#~ "Проблема: %(problem)s"
-
-#~ msgid "Unique identifier '%s' added"
-#~ msgstr "Доданий унікальний ідентифікатор '%s'"
-
-#~ msgid "Download copying error"
-#~ msgstr "Помилка копіювання завантаження"
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Error: %(errorno)s %(strerror)s"
-#~ msgstr ""
-#~ "Джерело: %(source)s\n"
-#~ "Адресат: %(destination)s\n"
-#~ "Помилка: %(errorno)s %(strerror)s"
-
-#~ msgid "New day has started - resetting 'Downloads Today' sequence number"
-#~ msgstr ""
-#~ "Почався новий день - скидання порядкового номера параметра «Завантажень "
-#~ "сьогодні»"
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Error: %(errno)s %(strerror)s"
-#~ msgstr ""
-#~ "Джерело: %(source)s\n"
-#~ "Адресат: %(destination)s\n"
-#~ "Помилка: %(errno)s %(strerror)s"
-
-#~ msgid "The device can now be safely removed"
-#~ msgstr "Зараз можна безпечно вилучити носій"
-
-#~ msgid "errors"
-#~ msgstr "помилки"
-
-#~ msgid "Download has started from %s"
-#~ msgstr "Завантаження почалось з %s"
-
-#~ msgid "Backup device missing"
-#~ msgstr "Відсутній пристрій для резервного копіювання"
-
-#~ msgid "Download complete from %s"
-#~ msgstr "Завершено завантаження з %s"
-
-#~ msgid "It may be corrupted"
-#~ msgstr "Можливо він пошкоджений"
-
-#~ msgid "%s selected for downloading from"
-#~ msgstr "%s вибрано для вивантаження"
-
-#~ msgid "This device or partition will always be used to download from"
-#~ msgstr ""
-#~ "Цей пристрій або розділ завжди використовуватиметься для вивантаження"
-
-#~ msgid "%s rejected as a download device"
-#~ msgstr "%s відкинутий як пристрій для завантаження"
-
-#~ msgid "This device or partition will never be used to download from"
-#~ msgstr ""
-#~ "Цей пристрій або розділ ніколи не використовуватиметься для вивантаження"
-
-#~ msgid "Enter a new job code, or select a previous one."
-#~ msgstr "Введіть нову мітку або виберіть попередню."
-
-#~ msgid "Enter a new job code."
-#~ msgstr "Введіть нову мітку."
-
-#~ msgid "Job Code entered"
-#~ msgstr "Мітка введена"
-
-#~ msgid "Job Code not entered"
-#~ msgstr "Мітка не введена"
-
-#~ msgid "Some preferences will be reset."
-#~ msgstr "Деякі параметри будуть скинуті."
-
-#~ msgid "Prompting whether to use %s"
-#~ msgstr "Чи нагадувати про використання %s"
-
-#~ msgid "Prompting for Job Code"
-#~ msgstr "Нагадування про вибір мітки"
-
-#~ msgid "Already prompting for Job Code, do not prompt again"
-#~ msgstr "Про мітку вже відомо, не нагадувати знову"
-
-#~ msgid "Starting downloads that have been waiting for a Job Code"
-#~ msgstr "Розпочинаються завантаження, що очікували на мітку"
-
-#~ msgid "Starting downloads"
-#~ msgstr "Розпочинаються завантаження"
-
-#~ msgid ""
-#~ "A newer version of this program was previously run on this computer.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "На цьому комп'ютері раніше запускалася новіша версія програми.\n"
-#~ "\n"
-
-#~ msgid ""
-#~ "Program preferences appear to be valid, but please check them to ensure "
-#~ "correct operation."
-#~ msgstr ""
-#~ "Здається параметри програми правильні, але перевірте їх, щоб програма "
-#~ "працювала коректно."
-
-#~ msgid "Sorry, some preferences are invalid and will be reset."
-#~ msgstr "На жаль, деякі параметри помилкові і будуть скинуті."
-
-#~ msgid "Warning:"
-#~ msgstr "Попередження:"
-
-#~ msgid ""
-#~ "This version of the program is newer than the previously run version. "
-#~ "Checking preferences."
-#~ msgstr ""
-#~ "Ця версія програми новіша, ніж та, що працювала раніше. Перевірте "
-#~ "налаштування."
-
-#~ msgid "Preferences were modified."
-#~ msgstr "Параметри були змінені."
-
-#~ msgid ""
-#~ "This version of the program uses different preferences than the old "
-#~ "version. Your preferences have been updated.\n"
-#~ "\n"
-#~ "Please check them to ensure correct operation."
-#~ msgstr ""
-#~ "Ця версія програми використовує інші налаштування, ніж стара. Ваші "
-#~ "налаштування були оновлені.\n"
-#~ "\n"
-#~ "Перевірте їх, щоб програма працювала коректно."
-
-#~ msgid "No preferences needed to be changed."
-#~ msgstr "Немає параметрів, які необхідно було б змінити."
-
-#~ msgid ""
-#~ "This version of the program uses different preferences than the old "
-#~ "version. Some of your previous preferences were invalid, and could not be "
-#~ "updated. They will be reset."
-#~ msgstr ""
-#~ "Ця версія програми використовує інші налаштування, ніж стара. Деякі з "
-#~ "попередніх налаштувань помилкові і не будуть оновлені а будуть скинуті."
-
-#~ msgid "Problem using pynotify."
-#~ msgstr "Проблема з використанням pynotify."
-
-#~ msgid "Failed to receive pynotify server capabilities."
-#~ msgstr "Не вдалося отримати властивості сервера pynotify."
-
-#~ msgid "Device %(device)s (%(path)s) ignored"
-#~ msgstr "Пристрій %(device)s (%(path)s) проігнорований"
-
-#~ msgid "Detected %(device)s with path %(path)s"
-#~ msgstr "Виявлено %(device)s за адресою %(path)s"
-
-#~ msgid "Automatically start download is true"
-#~ msgstr "Автоматичний початок завантаження — так"
-
-#~ msgid "Automatically start download is false"
-#~ msgstr "Автоматичний початок завантаження — ні"
-
-#~ msgid "Using manually specified path"
-#~ msgstr "Використовувати вручну зазначений шлях"
-
-#~ msgid "_Pause"
-#~ msgstr "_Пауза"
-
-#~ msgid "Preferences were changed."
-#~ msgstr "Налаштування були змінені."
-
-#~ msgid "Goodbye"
-#~ msgstr "До побачення"
-
-#~ msgid "Using"
-#~ msgstr "Використання"
-
-#~ msgid "%s is already running"
-#~ msgstr "%s вже функціонує"
-
-#~ msgid ""
-#~ "Preference key '%(key)s' is invalid.\n"
-#~ "Expected one of %(value)s"
-#~ msgstr ""
-#~ "Помилковий ключ параметрів '%(key)s'.\n"
-#~ "Очікувався один з %(value)s"
-
-#~ msgid "Preference value '%(value)s' is invalid"
-#~ msgstr "Помилкове значення параметра '%(value)s'"
-
-#~ msgid "These preferences are not well formed:"
-#~ msgstr "Ці параметри не дуже добре підібрані:"
-
-#~ msgid "Error in date time component. Value %s appears invalid"
-#~ msgstr "Помилка в компоненті дати та часу. Виникає помилкове значення %s"
-
-#~ msgid "error generating name with component %s"
-#~ msgstr "помилка генерування назви компонентом %s"
-
-#~ msgid "      "
-#~ msgstr "      "
-
-#~ msgid "<b>Missing Backup Devices</b>"
-#~ msgstr "<b>Відсутні пристрої резервного копіювання</b>"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Automation</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Автоматизація</span>"
-
-#~ msgid "Automation"
-#~ msgstr "Автоматизація"
-
-#~ msgid "Backup location:"
-#~ msgstr "Місце для резервного копіювання:"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact backup location."
-#~ msgstr ""
-#~ "Якщо автоматичне виявлення вимкнено, виберіть точне місце для резервного "
-#~ "копіювання."
-
-#~ msgid "Ignore"
-#~ msgstr "Ігнорувати"
-
-#~ msgid ""
-#~ "Rapid Photo Downloader is free software; you can redistribute it and/or "
-#~ "modify it under the terms of the GNU General Public License as published "
-#~ "by the Free Software Foundation; either version 2 of the License, or (at "
-#~ "your option) any later version.\n"
-#~ "\n"
-#~ "Rapid Photo Downloader is distributed in the hope that it will be useful, "
-#~ "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-#~ "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General "
-#~ "Public License for more details.\n"
-#~ "\n"
-#~ "You should have received a copy of the GNU General Public License along "
-#~ "with Rapid Photo Downloader; if not, write to the Free Software "
-#~ "Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, "
-#~ "USA."
-#~ msgstr ""
-#~ "Rapid Photo Downloader — це вільне програмне забезпечення; ви можете "
-#~ "розповсюджувати його та/або змінювати за умовами ліцензії GNU General "
-#~ "Public License, як опубліковано Free Software Foundation; або версії 2 "
-#~ "цієї ліцензії, або (на ваш вибір) пізнішою версією.\n"
-#~ "\n"
-#~ "Rapid Photo Downloader розповсюджується з надією, що вона буде корисною, "
-#~ "але БЕЗ БУДЬ-ЯКОЇ ГАРАНТІЇ; і навіть без гарантії КОМЕРЦІЙНОЇ "
-#~ "СПРОМОЖНОСТІ або ПРИДАТНОСТІ ДЛЯ ВИЗНАЧЕНОЇ МЕТИ.  Детальніше дивіться "
-#~ "GNU General Public License.\n"
-#~ "\n"
-#~ "Ви мали отримати копію GNU General Public License разом з Rapid Photo "
-#~ "Downloader; якщо ні, напишіть листа за адресою: Free Software Foundation, "
-#~ "Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA."
-
-#~ msgid "Report a warning"
-#~ msgstr "Попередити"
-
-#~ msgid "Report an error"
-#~ msgstr "Попередити про помилку"
-
-#~ msgid "Specify what to do when there are no backup devices."
-#~ msgstr "Вкажіть, що робити, якщо немає пристроїв для резервного копіювання."
-
-#~ msgid "_Photos"
-#~ msgstr "Фо_то"
-
-#~ msgid "_Thumbnails"
-#~ msgstr "_МІніатюри"
-
-#~ msgid "Error in Image Rename preferences"
-#~ msgstr "Помилка в налаштуваннях «Перейменування фото»"
-
-#~ msgid "Error in Download Subfolder preferences"
-#~ msgstr "Помилка в налаштуваннях «Підтека для завантаження»"
-
-#~ msgid "Select a folder in which to backup images"
-#~ msgstr "Виберіть теку для резервного копіювання фото"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient image metadata to fully generate "
-#~ "the name. Please use other renaming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Увага:</b> Не достатньо метаданих для генерування повної назви "
-#~ "фото. Виберіть інший варіант перейменування.</i>"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient image metadata to fully generate "
-#~ "subfolders. Please use other subfolder naming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Увага:</b> Не достатньо метаданих для генерування повної назви "
-#~ "підтек. Виберіть інший варіант перейменування.</i>"
-
-#~ msgid "The subfolder preferences had some unnecessary values removed."
-#~ msgstr "Налаштування підтеки містили деякі вилучені непотрібні значення."
-
-#~ msgid ""
-#~ "The subfolder preferences entered are invalid and cannot be used.\n"
-#~ "They will be reset to their default values."
-#~ msgstr ""
-#~ "Введені параметри підтеки помилкові, тому не можуть бути використані.\n"
-#~ "Вони будуть скинуті до типових значень."
-
-#~ msgid "0 of %s images copied"
-#~ msgstr "Скопійовано 0 з %s фото"
-
-#~ msgid "Device scan complete: found %(number)s images on %(device)s"
-#~ msgstr ""
-#~ "Сканування пристрою завершено: знайдено %(number)s фото на %(device)s"
-
-#~ msgid "Device scan complete: no images found on %s"
-#~ msgstr "Сканування пристрою завершено: на %s фото не знайдено"
-
-#~ msgid "Image filename could not be generated"
-#~ msgstr "Не вдалось згенерувати назву файла фото"
-
-#~ msgid ""
-#~ "Image filename could not be properly generated. Check to ensure there is "
-#~ "sufficient image metadata."
-#~ msgstr ""
-#~ "Не вдалось правильно згенерувати назву файла фото. Переконайтесь чи "
-#~ "достатньо метаданих."
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Джерело: %(source)s\n"
-#~ "Адресат: %(destination)s\n"
-#~ "Проблема: %(problem)s"
-
-#~ msgid "Could not open image"
-#~ msgstr "Не вдалось відкрити фото"
-
-#~ msgid "Image has no metadata"
-#~ msgstr "Фото не містить метаданих"
-
-#~ msgid ""
-#~ "Metadata is essential for generating subfolders / image names.\n"
-#~ "Source: %s"
-#~ msgstr ""
-#~ "Метадані потрібні для генерування назв підтек та фото.\n"
-#~ "Джерело: %s"
-
-#~ msgid ""
-#~ "Subfolder name could not be properly generated. Check to ensure there is "
-#~ "sufficient image metadata."
-#~ msgstr ""
-#~ "Не вдалось правильно згенерувати назву підтеки. Переконайтесь чи "
-#~ "достатньо метаданих."
-
-#~ msgid ""
-#~ "Subfolder: %(subfolder)s\n"
-#~ "Image: %(image)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Підтека: %(subfolder)s\n"
-#~ "Фото: %(image)s\n"
-#~ "Проблема: %(problem)s"
-
-#~ msgid "The image was not copied."
-#~ msgstr "Фото не скопійоване."
-
-#~ msgid "Backup image already exists"
-#~ msgstr "Резервна копія фото вже наявна"
-
-#~ msgid ""
-#~ "Destination directory could not be created\n"
-#~ "%(directory)s\n"
-#~ "Error: %(errno)s %(strerror)s"
-#~ msgstr ""
-#~ "Не вдалось створити каталог адресата\n"
-#~ "%(directory)s\n"
-#~ "Помилка: %(errno)s %(strerror)s"
-
-#~ msgid "%s images downloaded"
-#~ msgstr "завантажено %s фото"
-
-#~ msgid "%s images skipped"
-#~ msgstr "пропущено %s фото"
-
-#~ msgid "No backup device was detected."
-#~ msgstr "Не виявлено пристрою для резервного копіювання."
-
-#~ msgid "This device has no images to download from."
-#~ msgstr "На пристрої немає фото для завантаження."
-
-#~ msgid "Image skipped"
-#~ msgstr "Фото пропущене"
-
-#~ msgid "Image overwritten"
-#~ msgstr "Фото перезаписане"
-
-#~ msgid "Image already exists"
-#~ msgstr "Фото вже наявне"
-
-#~ msgid "Image has no thumbnail"
-#~ msgstr "Фото не має мініатюри"
-
-#~ msgid "%(number)s of %(total)s images copied"
-#~ msgstr "скопійовано %(number)s фото з %(total)s"
-
-#~ msgid "Should this device or partition be used to download images from?"
-#~ msgstr "Чи використовувати цей пристрій або розділ для вивантаження фото?"
-
-#~ msgid "images skipped"
-#~ msgstr "фото пропущено"
-
-#~ msgid "list image file extensions the program recognizes and exit"
-#~ msgstr ""
-#~ "вивести список розширень файлів зображення, розпізнаних програмою і вийти"
-
-#~ msgid "Subsecond metadata not present in image"
-#~ msgstr "Метаданих підсекунд немає на фото"
-
-#~ msgid "%s metadata is not present in image"
-#~ msgstr "%s метаданих немає на фото"
-
-#~ msgid "extension was specified but image name has no extension"
-#~ msgstr "розширення зазначено, але у назві фото його немає"
-
-#~ msgid "image number was specified but image filename has no number"
-#~ msgstr "номер фото зазначений, але у назві фото його немає"
-
-#~ msgid "<b>Image Devices</b>"
-#~ msgstr "<b>Пристрої для фото</b>"
-
-#~ msgid "<b>Image Name Conflicts</b>"
-#~ msgstr "<b>Конфлікти назв фото</b>"
-
-#~ msgid "<b>Image Rename</b>"
-#~ msgstr "<b>Перейменування фото</b>"
-
-#~ msgid "<i>Example: /home/user/photos</i>"
-#~ msgstr "<i>Приклад: /home/user/photos</i>"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Download Folder</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Тека для завантаження</span>"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Image Devices</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Пристрої для фото</span>"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Image Rename</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Перейменування фото</span>\t"
-
-#~ msgid "Automatically detect image devices"
-#~ msgstr "Автоматично виявляти пристрої для фото"
-
-#~ msgid "Backup folder name:"
-#~ msgstr "Назва теки для резервного копіювання:"
-
-#~ msgid "Backup photos when downloading"
-#~ msgstr "Резервне копіювання фото під час завантаження"
-
-#~ msgid ""
-#~ "Choose whether to skip downloading the image, or to add a unique "
-#~ "indentifier."
-#~ msgstr ""
-#~ "Виберіть, чи пропускати завантаження фото, чи додавати унікальний "
-#~ "ідентифікатор."
-
-#~ msgid "Copyright Damon Lynch 2007-09"
-#~ msgstr "Copyright Damon Lynch 2007-09"
-
-#~ msgid "Download Folder"
-#~ msgstr "Тека для завантаження"
-
-#~ msgid "Exit program after completion of successful download"
-#~ msgstr "Вийти з програми після вдалого завершення завантаження"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the "
-#~ "images."
-#~ msgstr ""
-#~ "Якщо автоматичне виявлення вимкнено, виберіть точне місце розташування "
-#~ "фото."
-
-#~ msgid ""
-#~ "If you enable automatic detection of Portable Storage Devices, the entire "
-#~ "device will be scanned for images. On large devices, this could take some "
-#~ "time."
-#~ msgstr ""
-#~ "Якщо автоматичне виявлення портативних пристроїв для зберігання "
-#~ "увімкнено, вони скануватимуться для пошуку фото. На пристроях великого "
-#~ "об’єму це може зайняти досить багато часу."
-
-#~ msgid "Image Rename"
-#~ msgstr "Перейменування фото"
-
-#~ msgid ""
-#~ "Image devices are devices from which to download photos, such as cameras, "
-#~ "memory cards or Portable Storage Devices.\n"
-#~ "\n"
-#~ "You can download photos from multiple image devices simultaneously.\n"
-#~ "\n"
-#~ "<i>If downloading directly from your camera works poorly or not at all, "
-#~ "try setting it to PTP mode. If that is not possible, consider using a "
-#~ "card reader.</i>"
-#~ msgstr ""
-#~ "Пристрої для фото — це звідки ви завантажуєте фото: камери, карти пам'яті "
-#~ "або портативні пристрої для зберігання даних.\n"
-#~ "\n"
-#~ "Завантажувати фото можна з кількох пристроїв одночасно.\n"
-#~ "\n"
-#~ "<i>Якщо завантаження прямо з камери працює погано або зовсім не працює, "
-#~ "спробуйте встановити режим PTP. Якщо це неможливо, використовуйте "
-#~ "пристрій для читання карток.</i>"
-
-#~ msgid "Image location:"
-#~ msgstr "Розташування фото:"
-
-#~ msgid "Import your images efficiently and reliably"
-#~ msgstr "Імпортуйте фото ефективно та надійно"
-
-#~ msgid ""
-#~ "Specify what to do when an image of the same name has already been "
-#~ "downloaded or backed up."
-#~ msgstr ""
-#~ "Вкажіть, що робити, якщо фото з такою назвою вже завантажено або створена "
-#~ "його резервна копія."
-
-#~ msgid ""
-#~ "Specify whether image and folder names should have any characters removed "
-#~ "that are not allowed by other operating systems."
-#~ msgstr ""
-#~ "Вкажіть, чи вилучати з назв фото та тек всі символи, що не дозволені в "
-#~ "інших операційних системах."
-
-#~ msgid "Start downloading upon image device insertion"
-#~ msgstr "Розпочинати завантаження після під’єднання пристрою"
-
-#~ msgid "Unmount (\"eject\") image device upon download completion"
-#~ msgstr "Від’єднати («витягти») пристрій після завершення завантаження"
-
-#~ msgid ""
-#~ "When backing up, choose whether to overwrite an image on the backup "
-#~ "device that has the same name, or skip backing it up."
-#~ msgstr ""
-#~ "Чи слід під час резервного копіювання перезаписати файл, що має однакову "
-#~ "назву з файлом на пристрої, чи пропустити його?"
-
-#~ msgid ""
-#~ "You can have your photos backed up to multiple locations as they are "
-#~ "downloaded, e.g. external hard drives."
-#~ msgstr ""
-#~ "Ви можете створювати резервні копії фото в кількох місцях прямо під час "
-#~ "завантаження, наприклад, на зовнішніх жорстких дисках."
+#~ msgid "Back up photos and videos when downloading"
+#~ msgstr "Резервне копіювання фото та відео під час завантаження"

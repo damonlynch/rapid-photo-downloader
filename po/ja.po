@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-27 14:45-0600\n"
-"PO-Revision-Date: 2014-04-09 16:34+0000\n"
-"Last-Translator: Koji Yokota <Unknown>\n"
+"POT-Creation-Date: 2017-01-31 17:52-0600\n"
+"PO-Revision-Date: 2017-01-28 03:27+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-05-28 14:01+0000\n"
-"X-Generator: Launchpad (build 17017)\n"
+"X-Launchpad-Export-Date: 2017-01-31 23:48+0000\n"
+"X-Generator: Launchpad (build 18315)\n"
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
 msgstr "バックアップエラー"
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:178 ../raphodo/renameandmovefile.py:270
+#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -42,22 +42,22 @@ msgstr "エラー: %(inst)s"
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr "複写先ディレクトリ %(directory)s を作成できませんでした\n"
 
-#: ../raphodo/backupfile.py:167
+#: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr "%(file_type)sのバックアップは上書きされました"
 
-#: ../raphodo/backupfile.py:171
+#: ../raphodo/backupfile.py:173
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr "%(file_type)sはバックアップされませんでした"
 
-#: ../raphodo/backupfile.py:175
+#: ../raphodo/backupfile.py:177
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr "%(file_type)sのバックアップは既に存在します"
 
-#: ../raphodo/backupfile.py:200 ../raphodo/copyfiles.py:184
+#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
 #: ../raphodo/renameandmovefile.py:424 ../raphodo/renameandmovefile.py:550
 #, python-format
@@ -72,7 +72,7 @@ msgstr ""
 msgid "The file could not be copied from the camera"
 msgstr ""
 
-#: ../raphodo/copyfiles.py:389
+#: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
 msgstr ""
 
@@ -86,15 +86,13 @@ msgstr ""
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1750
 #: ../raphodo/rapid.py:1927 ../raphodo/rapid.py:5285
-#, fuzzy
 msgid "Photos"
-msgstr "写真："
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1753
 #: ../raphodo/rapid.py:1928 ../raphodo/rapid.py:5286
-#, fuzzy
 msgid "Videos"
-msgstr "動画:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:999
 msgid "Temporarily ignore this device"
@@ -118,77 +116,71 @@ msgstr ""
 msgid "%(no_videos)s Videos"
 msgstr ""
 
-#: ../raphodo/devices.py:423
-#, fuzzy
+#: ../raphodo/devices.py:424
 msgid "Cameras"
-msgstr "写真機メーカー"
+msgstr ""
 
-#: ../raphodo/devices.py:424 ../raphodo/devices.py:852 ../raphodo/rapid.py:1714
+#: ../raphodo/devices.py:425 ../raphodo/devices.py:881 ../raphodo/rapid.py:1714
 msgid "Devices"
 msgstr "デバイス"
 
-#: ../raphodo/devices.py:664
-#, fuzzy, python-format
+#: ../raphodo/devices.py:685
+#, python-format
 msgid "Downloading from %(device_names)s"
-msgstr "%(location)sからダウンロードしています"
+msgstr ""
 
 #. Translators: e.g. Three Devices
-#: ../raphodo/devices.py:720
-#, fuzzy, python-format
+#: ../raphodo/devices.py:741
+#, python-format
 msgid "%(no_devices)s %(device_type)s"
-msgstr "%(free)s %(file_type)s"
+msgstr ""
 
-#: ../raphodo/devices.py:837 ../raphodo/rapid.py:1551
-#, fuzzy
+#: ../raphodo/devices.py:866 ../raphodo/rapid.py:1551
 msgid "Select Source"
-msgstr "選択(_S)"
+msgstr ""
 
-#: ../raphodo/devices.py:868 ../raphodo/devices.py:879
+#: ../raphodo/devices.py:897 ../raphodo/devices.py:908
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr ""
 
 #. Number of cameras e.g. 3 Cameras
-#: ../raphodo/devices.py:890
+#: ../raphodo/devices.py:919
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:895
+#: ../raphodo/devices.py:924
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:402
-#, fuzzy
 msgid "MB/sec"
-msgstr "MB/秒"
+msgstr ""
 
 #. Be friendly in the last few seconds
 #: ../raphodo/downloadtracker.py:532
-#, fuzzy
 msgid "A few seconds"
-msgstr "秒未満"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:588
-#, fuzzy
 msgid "1 second"
-msgstr "秒未満"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:590
-#, fuzzy, python-format
+#, python-format
 msgid "%d seconds"
-msgstr "秒未満"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:595
-#, fuzzy
 msgid "1 minute"
-msgstr "MM (分)"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:597
-#, fuzzy, python-format
+#, python-format
 msgid "%d minutes"
-msgstr "MM (分)"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:602 ../raphodo/downloadtracker.py:784
 msgid "1 hour"
@@ -224,9 +216,9 @@ msgid "%d minutes, 1 second"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:797
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)d minutes, %(seconds)d seconds"
-msgstr "%(hour)s時間%(minute)s分%(second)s秒%(subsecond)s"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:828
 msgid "1 hour, 1 minute"
@@ -572,9 +564,8 @@ msgstr "YYYY-MM-DD"
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:314 ../raphodo/generatenameconfig.py:391
-#, fuzzy
 msgid "YYYY_MM_DD"
-msgstr "YYYYMMDD"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -705,9 +696,8 @@ msgid "SS"
 msgstr "SS"
 
 #: ../raphodo/generatenameconfig.py:389
-#, fuzzy
 msgid "Date"
-msgstr "日時"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:390
 msgid "Date (hyphens)"
@@ -719,88 +709,72 @@ msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392 ../raphodo/generatenameconfig.py:438
 #: ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "Date and Job Code"
-msgstr "ジョブコードを入力してください"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392
-#, fuzzy
 msgid "YYYYMM_Job Code"
-msgstr "ジョブコード"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "Date and Job Code Subfolder"
-msgstr "ジョブコードを入力してください"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "YYYYMM"
-msgstr "YYYYMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393 ../raphodo/rapid.py:1596
 msgid "Job Code"
 msgstr "ジョブコード"
 
 #: ../raphodo/generatenameconfig.py:433 ../raphodo/generatenameconfig.py:512
-#, fuzzy
 msgid "Original Filename"
-msgstr "原文通り"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "Date-Time and Downloads today"
-msgstr "本日のダウンロード数"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "YYYYMMDD-HHMM-1"
-msgstr "YYYYMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "Date and Downloads today"
-msgstr "本日のダウンロード数"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "YYYYMMDD-1"
-msgstr "YYYYMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "Date-Time and Image number"
-msgstr "画像番号"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "YYYYMMDD-1234"
-msgstr "YYYYMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "Date-Time and Job Code"
-msgstr "ジョブコードを入力してください"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "YYYYMMDD-HHMM-Job Code-1"
-msgstr "ジョブコード"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:438 ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "YYYYMMDD-Job Code-1"
-msgstr "ジョブコード"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "Date-Time and Video number"
-msgstr "動画番号"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "YYYYMMDD_1234"
-msgstr "YYYYMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:518
 msgid "Resolution"
@@ -870,9 +844,9 @@ msgid "An error occurred when copying the %(filetype)s"
 msgstr "%(filetype)sのコピー時にエラーが発生"
 
 #: ../raphodo/problemnotification.py:116
-#, fuzzy, python-format
+#, python-format
 msgid "An error occurred copying the %(filetype)s from the %(camera)s"
-msgstr "%(filetype)sのコピー時にエラーが発生"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:119
 #, python-format
@@ -1155,47 +1129,47 @@ msgstr "%(previousproblem)s、および%(backinguperror)s"
 #. Translators: for example Nov 3 or Dec 31
 #: ../raphodo/proximity.py:105 ../raphodo/proximity.py:221
 #: ../raphodo/proximity.py:224 ../raphodo/proximity.py:828
-#, fuzzy, python-format
+#, python-format
 msgid "%(month)s %(numeric_day)s"
-msgstr "%(number)s %(numberdownloaded)s"
+msgstr ""
 
 #. Translators: for example Nov 15 2015
 #. Translators: for example Nov 3 2015
 #: ../raphodo/proximity.py:109 ../raphodo/proximity.py:230
 #: ../raphodo/proximity.py:231 ../raphodo/proximity.py:831
-#, fuzzy, python-format
+#, python-format
 msgid "%(date)s %(year)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators: for example Nov 3 2015, 11:25 AM
 #. Translators: for example, Nov 3, 12:15 PM
 #: ../raphodo/proximity.py:197 ../raphodo/proximity.py:215
 #: ../raphodo/proximity.py:234 ../raphodo/proximity.py:236
-#, fuzzy, python-format
+#, python-format
 msgid "%(date)s, %(time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:209
-#, fuzzy, python-format
+#, python-format
 msgid "%(starttime)s - %(endtime)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
 #: ../raphodo/proximity.py:241
-#, fuzzy, python-format
+#, python-format
 msgid "%(earlier_time)s - %(later_time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators, for example:
 #. Nov 3 2012, 12:15 PM -
 #. Nov 4 2012, 1:00 AM
 #. (please keep the line break signified by \n)
 #: ../raphodo/proximity.py:248
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "%(earlier_time)s -\n"
 "%(later_time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:359
 #, python-format
@@ -1204,9 +1178,9 @@ msgstr ""
 
 #. Translators: for example Nov 2015
 #: ../raphodo/proximity.py:833
-#, fuzzy, python-format
+#, python-format
 msgid "%(month)s %(year)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:1343
 msgid ""
@@ -1219,9 +1193,9 @@ msgstr ""
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
 #: ../raphodo/proximity.py:1405
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)dm"
-msgstr "MM (分)"
+msgstr ""
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
@@ -1279,15 +1253,13 @@ msgid "Rapid Photo Downloader"
 msgstr "高速写真ダウンローダ"
 
 #: ../raphodo/rapid.py:1222
-#, fuzzy
 msgid "Download failed"
-msgstr "ダウンロード日時"
+msgstr ""
 
 #: ../raphodo/rapid.py:1223
-#, fuzzy
 msgid ""
 "Sorry, the download of the new version of Rapid Photo Downloader failed."
-msgstr "設定： 高速写真ダウンローダ"
+msgstr ""
 
 #: ../raphodo/rapid.py:1229
 msgid ""
@@ -1296,9 +1268,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1232
-#, fuzzy
 msgid "Update Rapid Photo Downloader"
-msgstr "高速写真ダウンローダ"
+msgstr ""
 
 #: ../raphodo/rapid.py:1236
 msgid "Install"
@@ -1335,53 +1306,44 @@ msgid "Download"
 msgstr "ダウンロード"
 
 #: ../raphodo/rapid.py:1471
-#, fuzzy
 msgid "&Refresh..."
-msgstr "更新"
+msgstr ""
 
 #: ../raphodo/rapid.py:1474
-#, fuzzy
 msgid "&Preferences"
-msgstr "設定"
+msgstr ""
 
 #: ../raphodo/rapid.py:1478
-#, fuzzy
 msgid "&Quit"
-msgstr "終了"
+msgstr ""
 
 #: ../raphodo/rapid.py:1481
-#, fuzzy
 msgid "Error Log"
-msgstr "エラーログ(_E)"
+msgstr ""
 
 #: ../raphodo/rapid.py:1485
-#, fuzzy
 msgid "Clear Completed Downloads"
-msgstr "完了したダウンロードを消去(_C)"
+msgstr ""
 
 #: ../raphodo/rapid.py:1488
-#, fuzzy
 msgid "Get Help Online..."
-msgstr "オンラインでヘルプ(_G)..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1491
-#, fuzzy
 msgid "Report a Problem..."
-msgstr "問題を報告(_R)..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1494
-#, fuzzy
 msgid "Make a Donation..."
-msgstr "寄付をする(_M)..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1497
 msgid "Translate this Application..."
 msgstr "このアプリケーションを翻訳..."
 
 #: ../raphodo/rapid.py:1500
-#, fuzzy
 msgid "&About..."
-msgstr "このプログラムについて..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1502
 msgid "Check for Updates..."
@@ -1396,14 +1358,12 @@ msgid "Destination"
 msgstr ""
 
 #: ../raphodo/rapid.py:1595
-#, fuzzy
 msgid "Rename"
-msgstr "ファイル名"
+msgstr ""
 
 #: ../raphodo/rapid.py:1597
-#, fuzzy
 msgid "Back Up"
-msgstr "バックアップ"
+msgstr ""
 
 #. Devices Header and View
 #: ../raphodo/rapid.py:1713
@@ -1459,9 +1419,8 @@ msgid "Checked State"
 msgstr ""
 
 #: ../raphodo/rapid.py:1893
-#, fuzzy
 msgid "File Type"
-msgstr "ファイル番号"
+msgstr ""
 
 #: ../raphodo/rapid.py:1894
 msgid "Device"
@@ -1476,19 +1435,17 @@ msgid "Descending"
 msgstr ""
 
 #: ../raphodo/rapid.py:1917
-#, fuzzy
 msgid "Select All:"
-msgstr "選択(_S)"
+msgstr ""
 
 #: ../raphodo/rapid.py:2120
-#, fuzzy, python-format
+#, python-format
 msgid "Download %(files)s"
-msgstr "ダウンロード日時"
+msgstr ""
 
 #: ../raphodo/rapid.py:2136
-#, fuzzy
 msgid "Resume Download"
-msgstr "ダウンロード"
+msgstr ""
 
 #: ../raphodo/rapid.py:2138
 msgid "Pause"
@@ -1636,14 +1593,13 @@ msgid "%d failures"
 msgstr ""
 
 #: ../raphodo/rapid.py:3444
-#, fuzzy
 msgid "1 warning"
-msgstr "警告"
+msgstr ""
 
 #: ../raphodo/rapid.py:3446
-#, fuzzy, python-format
+#, python-format
 msgid "%d warnings"
-msgstr "警告"
+msgstr ""
 
 #: ../raphodo/rapid.py:3466
 #, python-format
@@ -1661,9 +1617,8 @@ msgid "No files downloaded — %(failures)s"
 msgstr ""
 
 #: ../raphodo/rapid.py:3476
-#, fuzzy
 msgid "No files downloaded"
-msgstr "%(filetype)sがダウンロードされました"
+msgstr ""
 
 #: ../raphodo/rapid.py:3500
 #, python-format
@@ -1769,11 +1724,9 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4272
-#, fuzzy, python-format
+#, python-format
 msgid "Should %(device)s be used to download photos and videos from?"
 msgstr ""
-"写真や動画をダウンロードするのに、このデバイスもしくはパーティションを使用し"
-"ますか？"
 
 #: ../raphodo/rapid.py:4469
 #, python-format
@@ -1796,28 +1749,25 @@ msgid "Any device with the same name will be ignored."
 msgstr ""
 
 #: ../raphodo/rapid.py:4758
-#, fuzzy, python-format
+#, python-format
 msgid "Downloading from %(location)s on This Computer."
-msgstr "%(location)sからダウンロードしています"
+msgstr ""
 
 #: ../raphodo/rapid.py:4760
-#, fuzzy
 msgid ""
 "Do you really want to download from here?<br><br>On some systems, scanning "
 "this location can take a very long time."
 msgstr ""
-"ここからダウンロードしますか？システムによっては、この場所をスキャンすると、"
-"非常に長い時間がかかります。"
 
 #: ../raphodo/rapid.py:4804
-#, fuzzy, python-format
+#, python-format
 msgid "Generating thumbnails for %s"
-msgstr "サムネールを生成(遅い)"
+msgstr ""
 
 #: ../raphodo/rapid.py:4807
-#, fuzzy, python-format
+#, python-format
 msgid "Scanning %s"
-msgstr "スキャン中…"
+msgstr ""
 
 #: ../raphodo/rapid.py:4817
 #, python-format
@@ -1826,44 +1776,38 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4823
-#, fuzzy, python-format
+#, python-format
 msgid "%(number)s of %(available files)s checked for download"
-msgstr "%(noFiles)s個の%(filetypes)sがダウンロードに失敗しました"
+msgstr ""
 
 #: ../raphodo/rapid.py:5046
-#, fuzzy
 msgid "Display program information when run from the command line."
-msgstr "コマンドラインから実行時にデバッグ情報を表示する"
+msgstr ""
 
 #: ../raphodo/rapid.py:5048
-#, fuzzy
 msgid "Display debugging information when run from the command line."
-msgstr "コマンドラインから実行時にデバッグ情報を表示する"
+msgstr ""
 
 #: ../raphodo/rapid.py:5051
-#, fuzzy
 msgid "List photo and video file extensions the program recognizes and exit."
-msgstr "プログラムが認識する写真・動画ファイルの拡張子を表示して終了する"
+msgstr ""
 
 #: ../raphodo/rapid.py:5054
 msgid "Turn on or off the the renaming of photos."
 msgstr ""
 
 #: ../raphodo/rapid.py:5056
-#, fuzzy
 msgid "turn on or off the the renaming of videos."
-msgstr "バックアップデバイスを自動検出"
+msgstr ""
 
 #: ../raphodo/rapid.py:5058
-#, fuzzy
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
-msgstr "バックアップデバイスを自動検出"
+msgstr ""
 
 #: ../raphodo/rapid.py:5062
-#, fuzzy
 msgid "Turn on or off downloading from this computer."
-msgstr "%(location)sからダウンロードしています"
+msgstr ""
 
 #: ../raphodo/rapid.py:5064 ../raphodo/rapid.py:5067 ../raphodo/rapid.py:5070
 #: ../raphodo/rapid.py:5091 ../raphodo/rapid.py:5095
@@ -1883,60 +1827,44 @@ msgid "The PATH where videos will be downloaded to."
 msgstr ""
 
 #: ../raphodo/rapid.py:5073
-#, fuzzy
 msgid "Turn on or off the backing up of photos and videos while downloading."
-msgstr "ダウンロードの際，写真や動画をバックアップ"
+msgstr ""
 
 #: ../raphodo/rapid.py:5077
-#, fuzzy
 msgid "Turn on or off the automatic detection of backup devices."
-msgstr "バックアップデバイスを自動検出"
+msgstr ""
 
 #: ../raphodo/rapid.py:5079 ../raphodo/rapid.py:5085
 msgid "FOLDER"
 msgstr ""
 
 #: ../raphodo/rapid.py:5080
-#, fuzzy
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
 "the device is used for backups. For each device you wish to use for backing "
 "photos up to, create a folder on it with this name."
 msgstr ""
-"デバイス上でバックアップを保管するフォルダを指定してください．  \n"
-"\n"
-"<i>註: これは，デバイスがバックアップに使われるかどうかを判断するのにも使われ"
-"ます．バックアップ先に用いたい各デバイスには，これらの名前のうちどれかを持つ"
-"フォルダを作成してください．</i>"
 
 #: ../raphodo/rapid.py:5086
-#, fuzzy
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
 "the device is used for backups. For each device you wish to use for backing "
 "up videos to, create a folder on it with this name."
 msgstr ""
-"デバイス上でバックアップを保管するフォルダを指定してください．  \n"
-"\n"
-"<i>註: これは，デバイスがバックアップに使われるかどうかを判断するのにも使われ"
-"ます．バックアップ先に用いたい各デバイスには，これらの名前のうちどれかを持つ"
-"フォルダを作成してください．</i>"
 
 #: ../raphodo/rapid.py:5092
-#, fuzzy
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
-msgstr "バックアップデバイスを自動検出"
+msgstr ""
 
 #: ../raphodo/rapid.py:5096
-#, fuzzy
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
-msgstr "バックアップデバイスを自動検出"
+msgstr ""
 
 #: ../raphodo/rapid.py:5099
 #, python-format
@@ -2013,9 +1941,8 @@ msgid "Program aborting."
 msgstr ""
 
 #: ../raphodo/rapid.py:5476
-#, fuzzy
 msgid "All settings and caches have been reset"
-msgstr "すべての設定が初期化されました"
+msgstr ""
 
 #: ../raphodo/rapid.py:5484
 msgid "Thumbnail Cache has been reset"
@@ -2055,11 +1982,11 @@ msgstr "写真と動画"
 msgid "photos or videos"
 msgstr "写真または動画"
 
-#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:852
+#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:855
 msgid "video"
 msgstr "動画"
 
-#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:810
+#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:813
 msgid "photo"
 msgstr "写真"
 
@@ -2069,25 +1996,23 @@ msgid "%(number)s %(filetypes)s"
 msgstr "%(number)s個の%(filetypes)s"
 
 #: ../raphodo/rpdfile.py:312
-#, fuzzy
 msgid "1 Video"
-msgstr "動画"
+msgstr ""
 
 #: ../raphodo/rpdfile.py:317
-#, fuzzy
 msgid "1 Photo"
-msgstr "写真"
+msgstr ""
 
-#: ../raphodo/rpdfile.py:775
+#: ../raphodo/rpdfile.py:778
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:811
+#: ../raphodo/rpdfile.py:814
 msgid "Photo"
 msgstr "写真"
 
-#: ../raphodo/rpdfile.py:853
+#: ../raphodo/rpdfile.py:856
 msgid "Video"
 msgstr "動画"
 
@@ -2112,9 +2037,8 @@ msgid "Memory cards: %s"
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:444
-#, fuzzy
 msgid "Downloaded as:"
-msgstr "ダウンロード / 停止"
+msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:450
 #, python-format
@@ -2131,9 +2055,8 @@ msgid "Open in File Browser..."
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:1481
-#, fuzzy
 msgid "Copy Path"
-msgstr "コピー"
+msgstr ""
 
 #. two things in a list e.g. "device1 and device2"
 #: ../raphodo/utilities.py:369
@@ -2170,9 +2093,8 @@ msgid "seven"
 msgstr ""
 
 #: ../raphodo/utilities.py:449
-#, fuzzy
 msgid "eight"
-msgstr "縦幅"
+msgstr ""
 
 #: ../raphodo/utilities.py:450
 msgid "nine"
@@ -2211,9 +2133,8 @@ msgid "seventeen"
 msgstr ""
 
 #: ../raphodo/utilities.py:459
-#, fuzzy
 msgid "eighteen"
-msgstr "縦幅"
+msgstr ""
 
 #: ../raphodo/utilities.py:460
 msgid "ninenteen"
@@ -2254,9 +2175,8 @@ msgid ""
 msgstr ""
 
 #: ../data/rapid-photo-downloader.desktop.in.h:2
-#, fuzzy
 msgid "Photo Downloader"
-msgstr "高速写真ダウンローダ"
+msgstr ""
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
@@ -2266,49 +2186,74 @@ msgid ""
 msgstr ""
 
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
-#, fuzzy
 msgid "Download Photos and Videos with Rapid Photo Downloader"
-msgstr "設定： 高速写真ダウンローダ"
+msgstr ""
 
-#~ msgid "Name + extension"
-#~ msgstr "ファイル名＋拡張子"
+#~ msgid "Berlin"
+#~ msgstr "ベルリン"
 
-#, fuzzy
-#~ msgid "&Check All"
-#~ msgstr "全てをチェック(_C)"
+#~ msgid "Paris"
+#~ msgstr "パリ"
 
-#~ msgid "Check All Photos"
-#~ msgstr "写真を全てチェックl"
+#~ msgid "New York"
+#~ msgstr "ニューヨーク"
 
-#~ msgid "Check All Videos"
-#~ msgstr "動画を全てチェック"
+#~ msgid "Prague"
+#~ msgstr "プラハ"
 
-#, fuzzy
-#~ msgid "&Uncheck All"
-#~ msgstr "全てチェックを解除(_U)"
+#~ msgid "Manila"
+#~ msgstr "マニラ"
 
-#~ msgid "Previous File"
-#~ msgstr "前のファイル"
+#~ msgid "Wellington"
+#~ msgstr "ウェリントン"
 
-#~ msgid "Next File"
-#~ msgstr "次のファイル"
+#~ msgid "Helsinki"
+#~ msgstr "ヘルシンキ"
 
-#, fuzzy
-#~ msgid "&Remember this choice"
-#~ msgstr "この選択を記憶する(_R)"
+#~ msgid "Kampala"
+#~ msgstr "カンパラ"
 
-#~ msgid ""
-#~ "%(date)s\n"
-#~ "%(time)s"
-#~ msgstr ""
-#~ "%(date)s\n"
-#~ "%(time)s"
+#~ msgid "Tehran"
+#~ msgstr "テヘラン"
 
-#~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
-#~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgid "Stockholm"
+#~ msgstr "ストックホルム"
 
-#~ msgid "Size"
-#~ msgstr "占有量"
+#~ msgid "Rome"
+#~ msgstr "ローマ"
+
+#~ msgid "Moscow"
+#~ msgstr "モスクワ"
+
+#~ msgid "Sydney"
+#~ msgstr "シドニー"
+
+#~ msgid "Budapest"
+#~ msgstr "ブダペスト"
+
+#~ msgid "Jakarta"
+#~ msgstr "ジャカルタ"
+
+#~ msgid "Madrid"
+#~ msgstr "マドリッド"
+
+#~ msgid "Delhi"
+#~ msgstr "デリー"
+
+#~ msgid "Warsaw"
+#~ msgstr "ワルシャワ"
+
+#~ msgid "externaldrive1"
+#~ msgstr "外部ドライブ1"
+
+#~ msgid "externaldrive2"
+#~ msgstr "外部ドライブ2"
+
+#~ msgid "scanning..."
+#~ msgstr "スキャン中…"
+
+#~ msgid " "
+#~ msgstr " "
 
 #~ msgid "Download Progress"
 #~ msgstr "ダウンロードの進行状況"
@@ -2319,8 +2264,18 @@ msgstr "設定： 高速写真ダウンローダ"
 #~ msgid "the root of the file system"
 #~ msgstr "ファイルシステムのルート"
 
-#~ msgid "About 1 second remaining"
-#~ msgstr "残りおよそ1秒"
+#~ msgid ""
+#~ "Do you really want to download from here? On some systems, scanning this "
+#~ "location can take a very long time."
+#~ msgstr ""
+#~ "ここからダウンロードしますか？システムによっては、この場所をスキャンする"
+#~ "と、非常に長い時間がかかります。"
+
+#~ msgid "Downloading from %(location)s."
+#~ msgstr "%(location)sからダウンロードしています"
+
+#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
+#~ msgstr "残りおよそ%(minutes)i分%(seconds)02i秒"
 
 #~ msgid "About %i seconds remaining"
 #~ msgstr "残りおよそ%i秒"
@@ -2328,56 +2283,60 @@ msgstr "設定： 高速写真ダウンローダ"
 #~ msgid "About 1 minute remaining"
 #~ msgstr "残りおよそ1分"
 
-#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
-#~ msgstr "残りおよそ%(minutes)i分%(seconds)02i秒"
-
-#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
-#~ msgstr "%(total)s個の%(filetypes)s中%(number)s個め (残り%(remaining)s個)"
-
-#~ msgid "%(number)s of %(total)s %(filetypes)s"
-#~ msgstr "%(total)s個の%(filetypes)s中%(number)s個め"
+#~ msgid "About 1 second remaining"
+#~ msgstr "残りおよそ1秒"
 
 #~ msgid "From"
 #~ msgstr "複写元"
 
+#~ msgid "%(number)s of %(total)s %(filetypes)s"
+#~ msgstr "%(total)s個の%(filetypes)s中%(number)s個め"
+
+#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
+#~ msgstr "%(total)s個の%(filetypes)s中%(number)s個め (残り%(remaining)s個)"
+
+#~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+
+#~ msgid ""
+#~ "%(date)s\n"
+#~ "%(time)s"
+#~ msgstr ""
+#~ "%(date)s\n"
+#~ "%(time)s"
+
+#~ msgid "%(date)s %(time)s"
+#~ msgstr "%(date)s %(time)s"
+
+#~ msgid "Size"
+#~ msgstr "占有量"
+
 #~ msgid "Auto Detect"
 #~ msgstr "自動検出"
 
-#~ msgid "Select a folder containing %(file_types)s"
-#~ msgstr "%(file_types)sのあるフォルダを選択してください"
+#~ msgid "Videos:"
+#~ msgstr "動画:"
+
+#~ msgid "Copy"
+#~ msgstr "コピー"
 
 #~ msgid "Move"
 #~ msgstr "移動"
 
-#~ msgid "To"
-#~ msgstr "複写先"
-
-#~ msgid "Select a folder to download photos to"
-#~ msgstr "写真のダウンロード先フォルダを選択してください"
-
 #~ msgid "Select a folder to download videos to"
 #~ msgstr "動画のダウンロード先フォルダを選択してください"
+
+#~ msgid "To"
+#~ msgstr "複写先"
 
 #~ msgid "and"
 #~ msgstr "および"
 
-#~ msgid "Using backup devices"
-#~ msgstr "バックアップデバイスを使用"
+#~ msgid "Select a folder containing %(file_types)s"
+#~ msgstr "%(file_types)sのあるフォルダを選択してください"
 
-#~ msgid "Using backup device"
-#~ msgstr "バックアップデバイスを使用"
-
-#~ msgid "No backup devices detected"
-#~ msgstr "バックアップデバイスを検出できません"
-
-#~ msgid "Free space:"
-#~ msgstr "空き容量:"
-
-#~ msgid "(%(file_type)s)"
-#~ msgstr "(%(file_type)s)"
-
-#~ msgid "; "
-#~ msgstr "; "
+#~ msgid "Select a folder to download photos to"
+#~ msgstr "写真のダウンロード先フォルダを選択してください"
 
 #~ msgid "."
 #~ msgstr "."
@@ -2385,20 +2344,26 @@ msgstr "設定： 高速写真ダウンローダ"
 #~ msgid "%(free)s free"
 #~ msgstr "空き容量 %(free)s"
 
+#~ msgid "Free space:"
+#~ msgstr "空き容量:"
+
+#~ msgid "; "
+#~ msgstr "; "
+
+#~ msgid "(%(file_type)s)"
+#~ msgstr "(%(file_type)s)"
+
+#~ msgid "%(free)s %(file_type)s"
+#~ msgstr "%(free)s %(file_type)s"
+
+#~ msgid "No backup devices detected"
+#~ msgstr "バックアップデバイスを検出できません"
+
 #~ msgid "Backing up photos and videos to %(path)s"
 #~ msgstr "写真と動画を %(path)s にバックアップしています"
 
 #~ msgid "Backing up to %(path)s"
 #~ msgstr "%(path)s にバックアップしています"
-
-#~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
-#~ msgstr "写真を %(path)s に、動画を %(path2)s にバックアップしています"
-
-#~ msgid "%(freespace)s. %(backuppaths)s."
-#~ msgstr "%(freespace)s. %(backuppaths)s."
-
-#~ msgid "%(file_type)s download folder does not exist"
-#~ msgstr "%(file_type)sのダウンロードフォルダが存在しません"
 
 #~ msgid "Folder: %s"
 #~ msgstr "フォルダ: %s"
@@ -2406,36 +2371,20 @@ msgstr "設定： 高速写真ダウンローダ"
 #~ msgid "%(file_type)s download folder is invalid"
 #~ msgstr "%(file_type)sダウンロードフォルダが無効です"
 
+#~ msgid "%(file_type)s download folder does not exist"
+#~ msgstr "%(file_type)sのダウンロードフォルダが存在しません"
+
 #~ msgid "%(file_type)s download folder is not writable"
 #~ msgstr "%(file_type)sダウンロードフォルダが書き込み禁止です"
 
 #~ msgid "Thumbnails"
 #~ msgstr "サムネイル"
 
-#~ msgid ""
-#~ "display program information on the command line as the program runs "
-#~ "(default: %default)"
-#~ msgstr ""
-#~ "プログラム実行時にプログラム情報をコマンドラインに表示(既定値: %default)"
+#~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
+#~ msgstr "写真を %(path)s に、動画を %(path2)s にバックアップしています"
 
-#~ msgid "only output errors to the command line"
-#~ msgstr "コマンドラインにエラーのみ出力する"
-
-#~ msgid ""
-#~ "automatically detect devices from which to download, overwriting existing "
-#~ "program preferences"
-#~ msgstr ""
-#~ "既存のプログラム設定を無視して、ダウンロードするデバイスを自動的に検出する"
-
-#~ msgid ""
-#~ "manually specify the PATH of the device from which to download, "
-#~ "overwriting existing program preferences"
-#~ msgstr ""
-#~ "既存のプログラム設定を無視して、ダウンロードするデバイスのパスを手動で指定"
-#~ "する"
-
-#~ msgid "reset all program settings and preferences and exit"
-#~ msgstr "プログラムの全設定を初期化して終了する"
+#~ msgid "%(freespace)s. %(backuppaths)s."
+#~ msgstr "%(freespace)s. %(backuppaths)s."
 
 #~ msgid ""
 #~ "Error: specify device auto-detection or manually specify a device's path "
@@ -2444,56 +2393,90 @@ msgstr "設定： 高速写真ダウンローダ"
 #~ "エラー: デバイスの自動検出を指定するか、ダウンロードするデバイスのパスを指"
 #~ "定するか、どちらか一つにしてください"
 
+#~ msgid "reset all program settings and preferences and exit"
+#~ msgstr "プログラムの全設定を初期化して終了する"
+
+#~ msgid "All settings and preferences have been reset"
+#~ msgstr "すべての設定が初期化されました"
+
+#~ msgid "list photo and video file extensions the program recognizes and exit"
+#~ msgstr "プログラムが認識する写真・動画ファイルの拡張子を表示して終了する"
+
 #~ msgid "and %s"
 #~ msgstr "および%s"
 
-#~ msgid "An unknown error occurred"
-#~ msgstr "原因不明のエラーが発生しました"
+#~ msgid "only output errors to the command line"
+#~ msgstr "コマンドラインにエラーのみ出力する"
+
+#~ msgid ""
+#~ "display program information on the command line as the program runs "
+#~ "(default: %default)"
+#~ msgstr ""
+#~ "プログラム実行時にプログラム情報をコマンドラインに表示(既定値: %default)"
+
+#~ msgid ""
+#~ "manually specify the PATH of the device from which to download, "
+#~ "overwriting existing program preferences"
+#~ msgstr ""
+#~ "既存のプログラム設定を無視して、ダウンロードするデバイスのパスを手動で指定"
+#~ "する"
+
+#~ msgid ""
+#~ "automatically detect devices from which to download, overwriting existing "
+#~ "program preferences"
+#~ msgstr ""
+#~ "既存のプログラム設定を無視して、ダウンロードするデバイスを自動的に検出する"
+
+#~ msgid "display debugging information when run from the command line"
+#~ msgstr "コマンドラインから実行時にデバッグ情報を表示する"
 
 #~ msgid "Device Detected"
 #~ msgstr "デバイスが検出されました"
 
-#~ msgid "Remove all Job Codes?"
-#~ msgstr "全ジョブコードの削除？"
+#~ msgid "An unknown error occurred"
+#~ msgstr "原因不明のエラーが発生しました"
+
+#~ msgid "MB/s"
+#~ msgstr "MB/秒"
+
+#~ msgid ""
+#~ "Should this device or partition be used to download photos or videos from?"
+#~ msgstr ""
+#~ "写真や動画をダウンロードするのに、このデバイスもしくはパーティションを使用"
+#~ "しますか？"
+
+#~ msgid "Name + extension"
+#~ msgstr "ファイル名＋拡張子"
 
 #~ msgid "Should all Job Codes be removed?"
 #~ msgstr "ジョブコードを全て削除しますか？"
 
-#~ msgid "Remove all Remembered Paths?"
-#~ msgstr "保存パスを全削除？"
-
-#~ msgid "Should all remembered paths be removed?"
-#~ msgstr "保存パスをすべて削除しますか？"
-
-#~ msgid "Remove all Ignored Paths?"
-#~ msgstr "対象外パスを全削除？"
-
-#~ msgid "Should all ignored paths be removed?"
-#~ msgstr "対象外パスをすべて削除しますか？"
-
-#~ msgid "Error in Photo Rename preferences"
-#~ msgstr "写真命名設定でのエラー"
-
-#~ msgid "Error in Video Rename preferences"
-#~ msgstr "動画命名設定でのエラー"
-
-#~ msgid "Error in Photo Download Subfolders preferences"
-#~ msgstr "写真ダウンロードサブフォルダ設定でのエラー"
+#~ msgid "Remove all Job Codes?"
+#~ msgstr "全ジョブコードの削除？"
 
 #~ msgid "Error in Video Download Subfolders preferences"
 #~ msgstr "動画ダウンロードサブフォルダ設定でのエラー"
 
-#~ msgid "Enter a new Job Code, or select a previous one"
-#~ msgstr "新しいジョブコードを入力するか、履歴から選択してください"
+#~ msgid "Error in Photo Download Subfolders preferences"
+#~ msgstr "写真ダウンロードサブフォルダ設定でのエラー"
+
+#~ msgid "Error in Photo Rename preferences"
+#~ msgstr "写真命名設定でのエラー"
 
 #~ msgid "Enter a new Job Code"
 #~ msgstr "新しいジョブコードを入力してください"
 
+#~ msgid "Enter a new Job Code, or select a previous one"
+#~ msgstr "新しいジョブコードを入力するか、履歴から選択してください"
+
 #~ msgid "Job Code:"
 #~ msgstr "ジョブコード："
 
-#~ msgid "Enter a Path to Ignore"
-#~ msgstr "対象外パスを入力してください"
+#~ msgid "Enter a Job Code"
+#~ msgstr "ジョブコードを入力してください"
+
+#~ msgid "Error in Video Rename preferences"
+#~ msgstr "動画命名設定でのエラー"
 
 #~ msgid "Specify a path that will never be scanned for photos or videos"
 #~ msgstr "写真や動画のスキャンで検索されないパスを指定してください"
@@ -2506,6 +2489,15 @@ msgstr "設定： 高速写真ダウンローダ"
 
 #~ msgid "Select a folder in which to backup videos"
 #~ msgstr "動画をバックアップするフォルダを選択してください"
+
+#~ msgid ""
+#~ "The %(filetype)s subfolder preferences entered are invalid and cannot be "
+#~ "used.\n"
+#~ "They will be reset to their default values."
+#~ msgstr ""
+#~ "入力された%(filetype)sサブフォルダ設定は無効なので、使用することができませ"
+#~ "ん。\n"
+#~ "これらは、その既定値に初期化されます。"
 
 #~ msgid ""
 #~ "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
@@ -2521,17 +2513,20 @@ msgstr "設定： 高速写真ダウンローダ"
 #~ "<i><b>警告:</b> サブフォルダを生成するのに十分なメタデータがありません。他"
 #~ "のサブフォルダ命名オプションを使ってください。</i>"
 
+#~ msgid "Enter a Path to Ignore"
+#~ msgstr "対象外パスを入力してください"
+
 #~ msgid "<i>Example: %s</i>"
 #~ msgstr "<i>用例: %s</i>"
 
-#~ msgid ""
-#~ "The %(filetype)s subfolder preferences entered are invalid and cannot be "
-#~ "used.\n"
-#~ "They will be reset to their default values."
-#~ msgstr ""
-#~ "入力された%(filetype)sサブフォルダ設定は無効なので、使用することができませ"
-#~ "ん。\n"
-#~ "これらは、その既定値に初期化されます。"
+#~ msgid "Remove all Ignored Paths?"
+#~ msgstr "対象外パスを全削除？"
+
+#~ msgid "Should all ignored paths be removed?"
+#~ msgstr "対象外パスをすべて削除しますか？"
+
+#~ msgid "Invalid regular expression"
+#~ msgstr "無効な正規表現"
 
 #~ msgid ""
 #~ "The following regular expressions are invalid, and will be removed unless "
@@ -2549,77 +2544,68 @@ msgstr "設定： 高速写真ダウンローダ"
 #~ "この正規表現は無効なので、修正しない限り削除されます:\n"
 #~ "%s"
 
-#~ msgid "Invalid regular expression"
-#~ msgstr "無効な正規表現"
-
-#~ msgid "externaldrive1"
-#~ msgstr "外部ドライブ1"
-
-#~ msgid "externaldrive2"
-#~ msgstr "外部ドライブ2"
-
-#~ msgid "New York"
-#~ msgstr "ニューヨーク"
-
-#~ msgid "Manila"
-#~ msgstr "マニラ"
-
-#~ msgid "Prague"
-#~ msgstr "プラハ"
-
-#~ msgid "Helsinki"
-#~ msgstr "ヘルシンキ"
-
-#~ msgid "Wellington"
-#~ msgstr "ウェリントン"
-
-#~ msgid "Tehran"
-#~ msgstr "テヘラン"
-
-#~ msgid "Kampala"
-#~ msgstr "カンパラ"
-
-#~ msgid "Paris"
-#~ msgstr "パリ"
-
-#~ msgid "Berlin"
-#~ msgstr "ベルリン"
-
-#~ msgid "Sydney"
-#~ msgstr "シドニー"
-
-#~ msgid "Budapest"
-#~ msgstr "ブダペスト"
-
-#~ msgid "Rome"
-#~ msgstr "ローマ"
-
-#~ msgid "Moscow"
-#~ msgstr "モスクワ"
-
-#~ msgid "Delhi"
-#~ msgstr "デリー"
-
-#~ msgid "Warsaw"
-#~ msgstr "ワルシャワ"
-
-#~ msgid "Jakarta"
-#~ msgstr "ジャカルタ"
-
-#~ msgid "Madrid"
-#~ msgstr "マドリッド"
-
-#~ msgid "Stockholm"
-#~ msgstr "ストックホルム"
+#~ msgid "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgstr "%(hour)s時間%(minute)s分%(second)s秒%(subsecond)s"
 
 #~ msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
 #~ msgstr "走査中です(%(photos)s個の写真と%(videos)s個の動画を検出)..."
 
-#~ msgid "Help"
-#~ msgstr "ヘルプ"
+#~ msgid "About..."
+#~ msgstr "このプログラムについて..."
+
+#~ msgid "Using backup device"
+#~ msgstr "バックアップデバイスを使用"
+
+#~ msgid "Using backup devices"
+#~ msgstr "バックアップデバイスを使用"
+
+#~ msgid "Check All Photos"
+#~ msgstr "写真を全てチェックl"
+
+#~ msgid "Check All Videos"
+#~ msgstr "動画を全てチェック"
+
+#~ msgid "_Uncheck All"
+#~ msgstr "全てチェックを解除(_U)"
+
+#~ msgid "_Check All"
+#~ msgstr "全てをチェック(_C)"
+
+#~ msgid "_Report a Problem..."
+#~ msgstr "問題を報告(_R)..."
+
+#~ msgid "_Make a Donation..."
+#~ msgstr "寄付をする(_M)..."
+
+#~ msgid "Download / Pause"
+#~ msgstr "ダウンロード / 停止"
 
 #~ msgid "_File"
 #~ msgstr "ファイル(_F)"
+
+#~ msgid "Help"
+#~ msgstr "ヘルプ"
+
+#~ msgid "Preferences"
+#~ msgstr "設定"
+
+#~ msgid "Quit"
+#~ msgstr "終了"
+
+#~ msgid "Refresh"
+#~ msgstr "更新"
+
+#~ msgid "_Translate this Application..."
+#~ msgstr "このアプリケーションを翻訳(_T)..."
+
+#~ msgid "_Clear Completed Downloads"
+#~ msgstr "完了したダウンロードを消去(_C)"
+
+#~ msgid "_Error Log"
+#~ msgstr "エラーログ(_E)"
+
+#~ msgid "_Help"
+#~ msgstr "ヘルプ(_H)"
 
 #~ msgid "Select All Without _Job Code"
 #~ msgstr "ジョブコード無しで全て選択(_J)"
@@ -2627,71 +2613,51 @@ msgstr "設定： 高速写真ダウンローダ"
 #~ msgid "Select All Wit_h Job Code"
 #~ msgstr "ジョブコード付きで全て選択(_H)"
 
+#~ msgid "_Select"
+#~ msgstr "選択(_S)"
+
+#~ msgid "Next File"
+#~ msgstr "次のファイル"
+
+#~ msgid "Previous File"
+#~ msgstr "前のファイル"
+
 #~ msgid "_View"
 #~ msgstr "表示(_V)"
 
-#~ msgid "_Help"
-#~ msgstr "ヘルプ(_H)"
-
-#~ msgid "_Translate this Application..."
-#~ msgstr "このアプリケーションを翻訳(_T)..."
+#~ msgid "<i>Example: /home/user/Pictures</i>"
+#~ msgstr "<i>例: /home/user/Pictures</i>"
 
 #~ msgid "_Include in download"
 #~ msgstr "ダウンロードに含める(_I)"
 
-#~ msgid "_Download"
-#~ msgstr "ダウンロード(_D)"
+#~ msgid "Preferences: Rapid Photo Downloader"
+#~ msgstr "設定： 高速写真ダウンローダ"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
 #~ msgstr ""
 #~ "<span weight=\"bold\" size=\"x-large\">写真ダウンロードフォルダ</span>"
 
-#~ msgid "<i>Example: /home/user/Pictures</i>"
-#~ msgstr "<i>例: /home/user/Pictures</i>"
+#~ msgid "<b>Download Folder</b>"
+#~ msgstr "<b>ダウンロードフォルダ</b>"
 
 #~ msgid "<b>Download Subfolders</b>"
 #~ msgstr "<b>ダウンロードサブフォルダ</b>"
 
-#~ msgid "Download folder:"
-#~ msgstr "ダウンロードフォルダ："
-
-#~ msgid ""
-#~ "Choose the download folder. Subfolders for the downloaded photos will be "
-#~ "automatically created in this folder using the structure specified below."
-#~ msgstr ""
-#~ "ダウンロードフォルダを選択してください．このフォルダ中に，ダウンロードした"
-#~ "写真のサブフォルダが，以下で指定した構造で自動生成されます．"
-
-#~ msgid "<b>Download Folder</b>"
-#~ msgstr "<b>ダウンロードフォルダ</b>"
-
 #~ msgid "Photo Folders"
 #~ msgstr "写真フォルダ"
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">写真の改名</span>\t"
+#~ msgid "_Download"
+#~ msgstr "ダウンロード(_D)"
 
-#~ msgid "<b>Photo Rename</b>"
-#~ msgstr "<b>写真の改名</b>"
-
-#~ msgid " "
-#~ msgstr " "
-
-#~ msgid "<i>New:</i>"
-#~ msgstr "<i>新規:</i>"
+#~ msgid "Download folder:"
+#~ msgstr "ダウンロードフォルダ："
 
 #~ msgid "<i>Original:</i>"
 #~ msgstr "<i>オリジナル:</i>"
 
-#~ msgid "<b>Example</b>"
-#~ msgstr "<b>例</b>"
-
-#~ msgid "Photo Rename"
-#~ msgstr "写真の改名"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">動画ダウンロードフォルダ</span>"
+#~ msgid "<i>New:</i>"
+#~ msgstr "<i>新規:</i>"
 
 #~ msgid ""
 #~ "Sorry, video downloading functionality disabled. To download videos, "
@@ -2702,6 +2668,293 @@ msgstr "設定： 高速写真ダウンローダ"
 #~ "ロードするには、 python用<i>hachoirメタデータ</i>パッケージか<i>kaaメタ"
 #~ "データ</i>パッケージ、若しくは<i>exiftool</i>を導入してください。"
 
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">動画ダウンロードフォルダ</span>"
+
+#~ msgid "<b>Example</b>"
+#~ msgstr "<b>例</b>"
+
+#~ msgid "Photos:"
+#~ msgstr "写真："
+
+#~ msgid "_Remember this choice"
+#~ msgstr "この選択を記憶する(_R)"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">改名オプション</span>"
+
+#~ msgid "Video Folders"
+#~ msgstr "動画フォルダ"
+
+#~ msgid " hh:mm"
+#~ msgstr " hh:mm"
+
+#~ msgid "Day start:"
+#~ msgstr "開始日："
+
+#~ msgid "Synchronize RAW + JPEG sequence numbers"
+#~ msgstr "RAW + JPEG連番を同期"
+
+#~ msgid "Stored number:"
+#~ msgstr "保管番号："
+
+#~ msgid ":"
+#~ msgstr "："
+
+#~ msgid "<b>Compatibility with Other Operating Systems</b>"
+#~ msgstr "<b>他の基本ソフトとの互換性</b>"
+
+#~ msgid "<b>Sequence Numbers</b>"
+#~ msgstr "<b>連番</b>"
+
+#~ msgid "Downloads today:"
+#~ msgstr "本日のダウンロード"
+
+#~ msgid "Job Codes"
+#~ msgstr "ジョブコード"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">ジョブコード</span>"
+
+#~ msgid "Rename Options"
+#~ msgstr "改名オプション"
+
+#~ msgid "_Add..."
+#~ msgstr "追加(_A)..."
+
+#~ msgid "Strip incompatible characters"
+#~ msgstr "互換性のない文字を削除"
+
+#~ msgid "R_emove All"
+#~ msgstr "全て削除(_R)..."
+
+#~ msgid "<b>Job Codes</b>"
+#~ msgstr "<b>ジョブコード</b>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">デバイス</span>"
+
+#~ msgid "Automatically detect devices"
+#~ msgstr "デバイスを自動的に検出する"
+
+#~ msgid "Location:"
+#~ msgstr "場所:"
+
+#~ msgid ""
+#~ "If you disable automatic detection, choose the exact location of the "
+#~ "photos and videos."
+#~ msgstr ""
+#~ "自動検出を無効にした場合には，写真と動画の正確な場所を選択してください．"
+
+#~ msgid ""
+#~ "If you enable automatic detection of Portable Storage Devices, the entire "
+#~ "device will be scanned. On large devices, this could take some time.\n"
+#~ "\n"
+#~ "When this option is enabled, and a potential device is detected, you will "
+#~ "be prompted to determine if it should be scanned or not."
+#~ msgstr ""
+#~ "ポータブル記憶デバイスの自動検出を有効にすると，デバイス全体が走査されま"
+#~ "す．大きなデバイスでは，時間のかかる可能性があります．\n"
+#~ "\n"
+#~ "このオプションを有効にして，関係ありそうなデバイスが検出されると，走査を行"
+#~ "うかどうかを選択するよう促されます．"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Device Options</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">デバイスオプション</span>"
+
+#~ msgid "Automatically detect Portable Storage Devices"
+#~ msgstr "ポータブル記憶デバイスを自動的に検出する"
+
+#~ msgid "Ignored Paths"
+#~ msgstr "対象外パス"
+
+#~ msgid ""
+#~ "Remembered paths are those associated with devices that you have chosen "
+#~ "to always scan or ignore when automatic detection of Portable Storage "
+#~ "Devices is enabled."
+#~ msgstr ""
+#~ "保存パスは，ポータブル記憶デバイスの自動検出が有効なときに，ユーザーが常に"
+#~ "走査するか無視するかを選択したデバイスのパスのことです．"
+
+#~ msgid "Remembered Paths"
+#~ msgstr "保存パス"
+
+#~ msgid "Remove all Remembered Paths?"
+#~ msgstr "保存パスを全削除？"
+
+#~ msgid "Should all remembered paths be removed?"
+#~ msgstr "保存パスをすべて削除しますか？"
+
+#~ msgid "Use _python-style regular expressions"
+#~ msgstr "_python様式の正規表現を使う"
+
+#~ msgid ""
+#~ "You can have your photos and videos backed up to multiple locations as "
+#~ "they are downloaded, e.g. external hard drives."
+#~ msgstr ""
+#~ "ダウンロードに際して，写真や動画を複数の場所(例: 外部ハードディスク)にバッ"
+#~ "クアップすることができます．"
+
+#~ msgid ""
+#~ "If you disable automatic detection, choose the exact backup locations."
+#~ msgstr ""
+#~ "自動検出を無効にした場合には，正確なバックアップ場所を選択してください．"
+
+#~ msgid "Re_move All"
+#~ msgstr "全て削除(_M)"
+
+#~ msgid "Device Options"
+#~ msgstr "デバイスオプション"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">バックアップ</span>\t"
+
+#~ msgid ""
+#~ "Specify the ending portion of any paths you want ignored when scanning "
+#~ "devices for photos or videos. Any path ending with the values below will "
+#~ "not be scanned."
+#~ msgstr ""
+#~ "写真や動画のデバイスを走査する際，無視したいパスの最後の部分を指定してくだ"
+#~ "さい．以下の値で終わるパスは走査されません．"
+
+#~ msgid "<b>Backup</b>"
+#~ msgstr "<b>バックアップ</b>"
+
+#~ msgid "Automatically detect backup devices"
+#~ msgstr "バックアップデバイスを自動検出"
+
+#~ msgid "Back up photos and videos when downloading"
+#~ msgstr "ダウンロードの際，写真や動画をバックアップ"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">その他</span>"
+
+#~ msgid "<b>Program Automation</b>"
+#~ msgstr "<b>プログラムの自動化</b>"
+
+#~ msgid "Backup"
+#~ msgstr "バックアップ"
+
+#~ msgid "Video backup folder name:"
+#~ msgstr "動画のバックアップフォルダ名:"
+
+#~ msgid "Photo backup folder name:"
+#~ msgstr "写真のバックアップフォルダ名:"
+
+#~ msgid ""
+#~ "Specify the folder in which backups are stored on the device.  \n"
+#~ "\n"
+#~ "<i>Note: this will also be used to determine whether or not the device is "
+#~ "used for backups. For each device you wish to use for backing up to, "
+#~ "create a folder in it with one of these names.</i>"
+#~ msgstr ""
+#~ "デバイス上でバックアップを保管するフォルダを指定してください．  \n"
+#~ "\n"
+#~ "<i>註: これは，デバイスがバックアップに使われるかどうかを判断するのにも使"
+#~ "われます．バックアップ先に用いたい各デバイスには，これらの名前のうちどれか"
+#~ "を持つフォルダを作成してください．</i>"
+
+#~ msgid "<i>Example:</i>"
+#~ msgstr "<i>例:</i>"
+
+#~ msgid "<i>/media/externaldrive/Photos</i>"
+#~ msgstr "<i>/media/externaldrive/Photos</i>"
+
+#~ msgid "Video backup location:"
+#~ msgstr "動画のバックアップ場所:"
+
+#~ msgid "Photo backup location:"
+#~ msgstr "写真のバックアップ場所:"
+
+#~ msgid "Exit program when download completes"
+#~ msgstr "ダウンロード完了とともにプログラムを終了"
+
+#~ msgid "Automatically rotate JPEG images"
+#~ msgstr "JPEG画像を自動的に回転"
+
+#~ msgid "Miscellaneous"
+#~ msgstr "その他"
+
+#~ msgid "Verify files as they are downloaded"
+#~ msgstr "ダウンロードに際してファイルを検証"
+
+#~ msgid "<b>Photo and Video Name Conflicts</b>"
+#~ msgstr "<b>写真・動画名の衝突</b>"
+
+#~ msgid "Skip"
+#~ msgstr "スキップ"
+
+#~ msgid "Overwrite"
+#~ msgstr "上書き"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">エラー処理</span>"
+
+#~ msgid "Add unique identifier"
+#~ msgstr "重複しない識別子を追記"
+
+#~ msgid "Skip download"
+#~ msgstr "ダウンロードをスキップ"
+
+#~ msgid "Error Handling"
+#~ msgstr "エラー処理"
+
+#~ msgid "Start downloading upon device insertion"
+#~ msgstr "デバイス挿入とともにダウンロード開始"
+
+#~ msgid "Exit program even if download had warnings or errors"
+#~ msgstr "ダウンロードに警告やエラーがあった場合でもプログラムを終了"
+
+#~ msgid "Start downloading at program startup"
+#~ msgstr "プログラム開始とともにダウンロード開始"
+
+#~ msgid "Unmount (\"eject\") device upon download completion"
+#~ msgstr ""
+#~ "ダウンロード完了とともにデバイスのマウントを解除(デバイスを\"取り出す\")"
+
+#~ msgid ""
+#~ "When a photo or video of the same name has already been downloaded, "
+#~ "choose whether to skip downloading the file, or to add a unique "
+#~ "indentifier."
+#~ msgstr ""
+#~ "同じ名前の写真や動画がダウンロード済みの場合，ファイルのダウンロードをス"
+#~ "キップするか，重複しない識別子を付けるかを選択します．"
+
+#~ msgid "Performance"
+#~ msgstr "パフォーマンス"
+
+#~ msgid "Generate thumbnails (slower)"
+#~ msgstr "サムネールを生成(遅い)"
+
+#~ msgid ""
+#~ "When backing up, choose whether to overwrite a file on the backup device "
+#~ "that has the same name, or skip backing it up."
+#~ msgstr ""
+#~ "バックアップの際，バックアップデバイス上の同名ファイルを上書きするか，その"
+#~ "バックアップをスキップするかを選択します．"
+
+#~ msgid "Import your photos and videos efficiently and reliably"
+#~ msgstr "あなたの写真や動画を効率的かつ信頼性をもって読み込みます"
+
+#~ msgid "_Get Help Online..."
+#~ msgstr "オンラインでヘルプ(_G)..."
+
+#~ msgid "<b>Photo Rename</b>"
+#~ msgstr "<b>写真の改名</b>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">写真の改名</span>\t"
+
+#~ msgid "Photo Rename"
+#~ msgstr "写真の改名"
+
+#~ msgid "Video Rename"
+#~ msgstr "動画の改名"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">動画の改名</span>\t"
+
 #~ msgid ""
 #~ "Choose the download folder. Subfolders for the downloaded videos will be "
 #~ "automatically created in this folder using the structure specified below."
@@ -2709,20 +2962,12 @@ msgstr "設定： 高速写真ダウンローダ"
 #~ "ダウンロードフォルダを選択してください．このフォルダ中に，ダウンロードした"
 #~ "動画のサブフォルダが，以下で指定した構造で自動生成されます．"
 
-#~ msgid "Video Folders"
-#~ msgstr "動画フォルダ"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">動画の改名</span>\t"
-
-#~ msgid "Video Rename"
-#~ msgstr "動画の改名"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">改名オプション</span>"
-
-#~ msgid "<b>Sequence Numbers</b>"
-#~ msgstr "<b>連番</b>"
+#~ msgid ""
+#~ "Choose the download folder. Subfolders for the downloaded photos will be "
+#~ "automatically created in this folder using the structure specified below."
+#~ msgstr ""
+#~ "ダウンロードフォルダを選択してください．このフォルダ中に，ダウンロードした"
+#~ "写真のサブフォルダが，以下で指定した構造で自動生成されます．"
 
 #~ msgid ""
 #~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
@@ -2731,57 +2976,12 @@ msgstr "設定： 高速写真ダウンローダ"
 #~ "「<i>本日のダウンロード</i>」の連番を初期化する時刻を，24時間形式で指定し"
 #~ "てください．"
 
-#~ msgid "Day start:"
-#~ msgstr "開始日："
-
-#~ msgid "Downloads today:"
-#~ msgstr "本日のダウンロード"
-
-#~ msgid "Stored number:"
-#~ msgstr "保管番号："
-
-#~ msgid ":"
-#~ msgstr "："
-
-#~ msgid " hh:mm"
-#~ msgstr " hh:mm"
-
-#~ msgid "Synchronize RAW + JPEG sequence numbers"
-#~ msgstr "RAW + JPEG連番を同期"
-
-#~ msgid "<b>Compatibility with Other Operating Systems</b>"
-#~ msgstr "<b>他の基本ソフトとの互換性</b>"
-
 #~ msgid ""
 #~ "Specify whether photo, video and folder names should have any characters "
 #~ "removed that are not allowed by other operating systems."
 #~ msgstr ""
 #~ "他の基本ソフトで使用できない文字を，写真や動画，フォルダ名から削除するかど"
 #~ "うかを指定．"
-
-#~ msgid "Strip incompatible characters"
-#~ msgstr "互換性のない文字を削除"
-
-#~ msgid "Rename Options"
-#~ msgstr "改名オプション"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">ジョブコード</span>"
-
-#~ msgid "<b>Job Codes</b>"
-#~ msgstr "<b>ジョブコード</b>"
-
-#~ msgid "_Add..."
-#~ msgstr "追加(_A)..."
-
-#~ msgid "R_emove All"
-#~ msgstr "全て削除(_R)..."
-
-#~ msgid "Job Codes"
-#~ msgstr "ジョブコード"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">デバイス</span>"
 
 #~ msgid ""
 #~ "Devices are from where to download photos and videos, such as cameras, "
@@ -2805,195 +3005,3 @@ msgstr "設定： 高速写真ダウンローダ"
 #~ "カメラからの直接ダウンロードが，うまく行かなかったり全く動作しないような場"
 #~ "合には、PTPモードに切り替えてみてください．これができなければ，カードリー"
 #~ "ダーなどを使わなくてはなりません．</i>"
-
-#~ msgid "Automatically detect Portable Storage Devices"
-#~ msgstr "ポータブル記憶デバイスを自動的に検出する"
-
-#~ msgid "Automatically detect devices"
-#~ msgstr "デバイスを自動的に検出する"
-
-#~ msgid ""
-#~ "If you enable automatic detection of Portable Storage Devices, the entire "
-#~ "device will be scanned. On large devices, this could take some time.\n"
-#~ "\n"
-#~ "When this option is enabled, and a potential device is detected, you will "
-#~ "be prompted to determine if it should be scanned or not."
-#~ msgstr ""
-#~ "ポータブル記憶デバイスの自動検出を有効にすると，デバイス全体が走査されま"
-#~ "す．大きなデバイスでは，時間のかかる可能性があります．\n"
-#~ "\n"
-#~ "このオプションを有効にして，関係ありそうなデバイスが検出されると，走査を行"
-#~ "うかどうかを選択するよう促されます．"
-
-#~ msgid "Location:"
-#~ msgstr "場所:"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the "
-#~ "photos and videos."
-#~ msgstr ""
-#~ "自動検出を無効にした場合には，写真と動画の正確な場所を選択してください．"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Device Options</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">デバイスオプション</span>"
-
-#~ msgid "Remembered Paths"
-#~ msgstr "保存パス"
-
-#~ msgid ""
-#~ "Remembered paths are those associated with devices that you have chosen "
-#~ "to always scan or ignore when automatic detection of Portable Storage "
-#~ "Devices is enabled."
-#~ msgstr ""
-#~ "保存パスは，ポータブル記憶デバイスの自動検出が有効なときに，ユーザーが常に"
-#~ "走査するか無視するかを選択したデバイスのパスのことです．"
-
-#~ msgid "Ignored Paths"
-#~ msgstr "対象外パス"
-
-#~ msgid ""
-#~ "Specify the ending portion of any paths you want ignored when scanning "
-#~ "devices for photos or videos. Any path ending with the values below will "
-#~ "not be scanned."
-#~ msgstr ""
-#~ "写真や動画のデバイスを走査する際，無視したいパスの最後の部分を指定してくだ"
-#~ "さい．以下の値で終わるパスは走査されません．"
-
-#~ msgid "Re_move All"
-#~ msgstr "全て削除(_M)"
-
-#~ msgid "Use _python-style regular expressions"
-#~ msgstr "_python様式の正規表現を使う"
-
-#~ msgid "Device Options"
-#~ msgstr "デバイスオプション"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">バックアップ</span>\t"
-
-#~ msgid "<b>Backup</b>"
-#~ msgstr "<b>バックアップ</b>"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact backup locations."
-#~ msgstr ""
-#~ "自動検出を無効にした場合には，正確なバックアップ場所を選択してください．"
-
-#~ msgid ""
-#~ "You can have your photos and videos backed up to multiple locations as "
-#~ "they are downloaded, e.g. external hard drives."
-#~ msgstr ""
-#~ "ダウンロードに際して，写真や動画を複数の場所(例: 外部ハードディスク)にバッ"
-#~ "クアップすることができます．"
-
-#~ msgid "Photo backup location:"
-#~ msgstr "写真のバックアップ場所:"
-
-#~ msgid "Photo backup folder name:"
-#~ msgstr "写真のバックアップフォルダ名:"
-
-#~ msgid "<i>Example:</i>"
-#~ msgstr "<i>例:</i>"
-
-#~ msgid "<i>/media/externaldrive/Photos</i>"
-#~ msgstr "<i>/media/externaldrive/Photos</i>"
-
-#~ msgid "Video backup folder name:"
-#~ msgstr "動画のバックアップフォルダ名:"
-
-#~ msgid "Video backup location:"
-#~ msgstr "動画のバックアップ場所:"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">その他</span>"
-
-#~ msgid "<b>Program Automation</b>"
-#~ msgstr "<b>プログラムの自動化</b>"
-
-#~ msgid "Unmount (\"eject\") device upon download completion"
-#~ msgstr ""
-#~ "ダウンロード完了とともにデバイスのマウントを解除(デバイスを\"取り出す\")"
-
-#~ msgid "Start downloading at program startup"
-#~ msgstr "プログラム開始とともにダウンロード開始"
-
-#~ msgid "Start downloading upon device insertion"
-#~ msgstr "デバイス挿入とともにダウンロード開始"
-
-#~ msgid "Exit program when download completes"
-#~ msgstr "ダウンロード完了とともにプログラムを終了"
-
-#~ msgid "Exit program even if download had warnings or errors"
-#~ msgstr "ダウンロードに警告やエラーがあった場合でもプログラムを終了"
-
-#~ msgid "Automatically rotate JPEG images"
-#~ msgstr "JPEG画像を自動的に回転"
-
-#~ msgid "Verify files as they are downloaded"
-#~ msgstr "ダウンロードに際してファイルを検証"
-
-#~ msgid "Performance"
-#~ msgstr "パフォーマンス"
-
-#~ msgid "Miscellaneous"
-#~ msgstr "その他"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">エラー処理</span>"
-
-#~ msgid "<b>Photo and Video Name Conflicts</b>"
-#~ msgstr "<b>写真・動画名の衝突</b>"
-
-#~ msgid "Add unique identifier"
-#~ msgstr "重複しない識別子を追記"
-
-#~ msgid "Skip download"
-#~ msgstr "ダウンロードをスキップ"
-
-#~ msgid ""
-#~ "When a photo or video of the same name has already been downloaded, "
-#~ "choose whether to skip downloading the file, or to add a unique "
-#~ "indentifier."
-#~ msgstr ""
-#~ "同じ名前の写真や動画がダウンロード済みの場合，ファイルのダウンロードをス"
-#~ "キップするか，重複しない識別子を付けるかを選択します．"
-
-#~ msgid ""
-#~ "When backing up, choose whether to overwrite a file on the backup device "
-#~ "that has the same name, or skip backing it up."
-#~ msgstr ""
-#~ "バックアップの際，バックアップデバイス上の同名ファイルを上書きするか，その"
-#~ "バックアップをスキップするかを選択します．"
-
-#~ msgid "Overwrite"
-#~ msgstr "上書き"
-
-#~ msgid "Skip"
-#~ msgstr "スキップ"
-
-#~ msgid "Error Handling"
-#~ msgstr "エラー処理"
-
-#~ msgid "Import your photos and videos efficiently and reliably"
-#~ msgstr "あなたの写真や動画を効率的かつ信頼性をもって読み込みます"
-
-#~ msgid "Resetting value to zero.\n"
-#~ msgstr "値をゼロにリセットする\n"
-
-#~ msgid "Resetting to default values."
-#~ msgstr "初期設定の値にリセットする"
-
-#~ msgid "There is an error in the program preferences."
-#~ msgstr "プログラムの設定にエラーがあります"
-
-#~ msgid "Could not open image"
-#~ msgstr "画像を開くことができませんでした"
-
-#~ msgid "Some preferences will be reset."
-#~ msgstr "いくつかの設定はリセットされます"
-
-#~ msgid "Select a folder in which to backup images"
-#~ msgstr "画像をバックアップする先のフォルダを選択してください"
-
-#~ msgid "      "
-#~ msgstr "      "

@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-27 14:45-0600\n"
-"PO-Revision-Date: 2012-09-09 08:00+0000\n"
-"Last-Translator: Ahmed Shubbar <Unknown>\n"
+"POT-Creation-Date: 2017-01-31 17:52-0600\n"
+"PO-Revision-Date: 2017-01-28 03:27+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Arabic <ar@li.org>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-09-11 00:24+0000\n"
-"X-Generator: Launchpad (build 15924)\n"
+"X-Launchpad-Export-Date: 2017-01-31 23:48+0000\n"
+"X-Generator: Launchpad (build 18315)\n"
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
 msgstr "خطأ اثناء الأرشفة"
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:178 ../raphodo/renameandmovefile.py:270
+#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -42,22 +42,22 @@ msgstr "خطأ: %(inst)s"
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr "لم نستطع إنشاء المجلد الهدف: %(directory)s\n"
 
-#: ../raphodo/backupfile.py:167
+#: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr ""
 
-#: ../raphodo/backupfile.py:171
-#, fuzzy, python-format
+#: ../raphodo/backupfile.py:173
+#, python-format
 msgid "%(file_type)s not backed up"
-msgstr "%(filetype)s نوع تم تنزيلها"
+msgstr ""
 
-#: ../raphodo/backupfile.py:175
+#: ../raphodo/backupfile.py:177
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr ""
 
-#: ../raphodo/backupfile.py:200 ../raphodo/copyfiles.py:184
+#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
 #: ../raphodo/renameandmovefile.py:424 ../raphodo/renameandmovefile.py:550
 #, python-format
@@ -72,7 +72,7 @@ msgstr ""
 msgid "The file could not be copied from the camera"
 msgstr ""
 
-#: ../raphodo/copyfiles.py:389
+#: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
 msgstr ""
 
@@ -86,15 +86,13 @@ msgstr ""
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1750
 #: ../raphodo/rapid.py:1927 ../raphodo/rapid.py:5285
-#, fuzzy
 msgid "Photos"
-msgstr "صور:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1753
 #: ../raphodo/rapid.py:1928 ../raphodo/rapid.py:5286
-#, fuzzy
 msgid "Videos"
-msgstr "مقاطع فيديو:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:999
 msgid "Temporarily ignore this device"
@@ -118,66 +116,62 @@ msgstr ""
 msgid "%(no_videos)s Videos"
 msgstr ""
 
-#: ../raphodo/devices.py:423
-#, fuzzy
+#: ../raphodo/devices.py:424
 msgid "Cameras"
-msgstr "مصنع الكاميرا"
+msgstr ""
 
-#: ../raphodo/devices.py:424 ../raphodo/devices.py:852 ../raphodo/rapid.py:1714
+#: ../raphodo/devices.py:425 ../raphodo/devices.py:881 ../raphodo/rapid.py:1714
 msgid "Devices"
 msgstr ""
 
-#: ../raphodo/devices.py:664
-#, fuzzy, python-format
+#: ../raphodo/devices.py:685
+#, python-format
 msgid "Downloading from %(device_names)s"
-msgstr "تنزيل من %(location)s"
+msgstr ""
 
 #. Translators: e.g. Three Devices
-#: ../raphodo/devices.py:720
-#, fuzzy, python-format
+#: ../raphodo/devices.py:741
+#, python-format
 msgid "%(no_devices)s %(device_type)s"
-msgstr "%(free)s %(file_type)s"
+msgstr ""
 
-#: ../raphodo/devices.py:837 ../raphodo/rapid.py:1551
+#: ../raphodo/devices.py:866 ../raphodo/rapid.py:1551
 msgid "Select Source"
 msgstr ""
 
-#: ../raphodo/devices.py:868 ../raphodo/devices.py:879
+#: ../raphodo/devices.py:897 ../raphodo/devices.py:908
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr ""
 
 #. Number of cameras e.g. 3 Cameras
-#: ../raphodo/devices.py:890
+#: ../raphodo/devices.py:919
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:895
+#: ../raphodo/devices.py:924
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:402
-#, fuzzy
 msgid "MB/sec"
-msgstr "م.بايت/ث"
+msgstr ""
 
 #. Be friendly in the last few seconds
 #: ../raphodo/downloadtracker.py:532
-#, fuzzy
 msgid "A few seconds"
-msgstr "جزء من الثانية"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:588
-#, fuzzy
 msgid "1 second"
-msgstr "جزء من الثانية"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:590
-#, fuzzy, python-format
+#, python-format
 msgid "%d seconds"
-msgstr "جزء من الثانية"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:595
 msgid "1 minute"
@@ -702,9 +696,8 @@ msgid "SS"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:389
-#, fuzzy
 msgid "Date"
-msgstr "التاريخ الوقت"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:390
 msgid "Date (hyphens)"
@@ -716,19 +709,16 @@ msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392 ../raphodo/generatenameconfig.py:438
 #: ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "Date and Job Code"
-msgstr "ادخل برمجة مهمة"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392
-#, fuzzy
 msgid "YYYYMM_Job Code"
-msgstr "برمجة مهمة:"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "Date and Job Code Subfolder"
-msgstr "ادخل برمجة مهمة"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
 msgid "YYYYMM"
@@ -739,56 +729,48 @@ msgid "Job Code"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:433 ../raphodo/generatenameconfig.py:512
-#, fuzzy
 msgid "Original Filename"
-msgstr "اسم الملف"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "Date-Time and Downloads today"
-msgstr "عدد الملفات المستوردة اليوم"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
 msgid "YYYYMMDD-HHMM-1"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "Date and Downloads today"
-msgstr "عدد الملفات المستوردة اليوم"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
 msgid "YYYYMMDD-1"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "Date-Time and Image number"
-msgstr "رقم الصورة"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
 msgid "YYYYMMDD-1234"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "Date-Time and Job Code"
-msgstr "ادخل برمجة مهمة"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "YYYYMMDD-HHMM-Job Code-1"
-msgstr "برمجة مهمة:"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:438 ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "YYYYMMDD-Job Code-1"
-msgstr "برمجة مهمة:"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "Date-Time and Video number"
-msgstr "رقم مقطع الفيديو"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
 msgid "YYYYMMDD_1234"
@@ -867,9 +849,9 @@ msgid "An error occurred copying the %(filetype)s from the %(camera)s"
 msgstr ""
 
 #: ../raphodo/problemnotification.py:119
-#, fuzzy, python-format
+#, python-format
 msgid "The %(filetype)s did not download correctly"
-msgstr "%(filetype)s نوع فشل تنزيلها"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:122 ../raphodo/problemnotification.py:123
 #, python-format
@@ -1126,17 +1108,17 @@ msgstr ""
 #. Translators: for example Nov 3 or Dec 31
 #: ../raphodo/proximity.py:105 ../raphodo/proximity.py:221
 #: ../raphodo/proximity.py:224 ../raphodo/proximity.py:828
-#, fuzzy, python-format
+#, python-format
 msgid "%(month)s %(numeric_day)s"
-msgstr "%(number)s %(numberdownloaded)s"
+msgstr ""
 
 #. Translators: for example Nov 15 2015
 #. Translators: for example Nov 3 2015
 #: ../raphodo/proximity.py:109 ../raphodo/proximity.py:230
 #: ../raphodo/proximity.py:231 ../raphodo/proximity.py:831
-#, fuzzy, python-format
+#, python-format
 msgid "%(date)s %(year)s"
-msgstr "%(free)s %(file_type)s"
+msgstr ""
 
 #. Translators: for example Nov 3 2015, 11:25 AM
 #. Translators: for example, Nov 3, 12:15 PM
@@ -1153,20 +1135,20 @@ msgstr ""
 
 #. Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
 #: ../raphodo/proximity.py:241
-#, fuzzy, python-format
+#, python-format
 msgid "%(earlier_time)s - %(later_time)s"
-msgstr "%(free)s %(file_type)s"
+msgstr ""
 
 #. Translators, for example:
 #. Nov 3 2012, 12:15 PM -
 #. Nov 4 2012, 1:00 AM
 #. (please keep the line break signified by \n)
 #: ../raphodo/proximity.py:248
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "%(earlier_time)s -\n"
 "%(later_time)s"
-msgstr "%(free)s %(file_type)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:359
 #, python-format
@@ -1250,9 +1232,8 @@ msgid "Rapid Photo Downloader"
 msgstr ""
 
 #: ../raphodo/rapid.py:1222
-#, fuzzy
 msgid "Download failed"
-msgstr "وقت التنزيل"
+msgstr ""
 
 #: ../raphodo/rapid.py:1223
 msgid ""
@@ -1266,9 +1247,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1232
-#, fuzzy
 msgid "Update Rapid Photo Downloader"
-msgstr "تنزيل"
+msgstr ""
 
 #: ../raphodo/rapid.py:1236
 msgid "Install"
@@ -1357,9 +1337,8 @@ msgid "Destination"
 msgstr ""
 
 #: ../raphodo/rapid.py:1595
-#, fuzzy
 msgid "Rename"
-msgstr "اسم الملف"
+msgstr ""
 
 #: ../raphodo/rapid.py:1597
 msgid "Back Up"
@@ -1419,9 +1398,8 @@ msgid "Checked State"
 msgstr ""
 
 #: ../raphodo/rapid.py:1893
-#, fuzzy
 msgid "File Type"
-msgstr "رقم الملف"
+msgstr ""
 
 #: ../raphodo/rapid.py:1894
 msgid "Device"
@@ -1440,14 +1418,13 @@ msgid "Select All:"
 msgstr ""
 
 #: ../raphodo/rapid.py:2120
-#, fuzzy, python-format
+#, python-format
 msgid "Download %(files)s"
-msgstr "وقت التنزيل"
+msgstr ""
 
 #: ../raphodo/rapid.py:2136
-#, fuzzy
 msgid "Resume Download"
-msgstr "تنزيل"
+msgstr ""
 
 #: ../raphodo/rapid.py:2138
 msgid "Pause"
@@ -1536,9 +1513,8 @@ msgid "videos"
 msgstr "فيديو"
 
 #: ../raphodo/rapid.py:2634
-#, fuzzy
 msgid "Backup problem"
-msgstr "خطأ اثناء الأرشفة"
+msgstr ""
 
 #. Translators - in the middle is a unicode em dash - please retain it
 #. This string is displayed in the status bar when the download is running
@@ -1594,14 +1570,13 @@ msgid "%d failures"
 msgstr ""
 
 #: ../raphodo/rapid.py:3444
-#, fuzzy
 msgid "1 warning"
-msgstr "تحذير"
+msgstr ""
 
 #: ../raphodo/rapid.py:3446
-#, fuzzy, python-format
+#, python-format
 msgid "%d warnings"
-msgstr "تحذير"
+msgstr ""
 
 #: ../raphodo/rapid.py:3466
 #, python-format
@@ -1619,9 +1594,8 @@ msgid "No files downloaded — %(failures)s"
 msgstr ""
 
 #: ../raphodo/rapid.py:3476
-#, fuzzy
 msgid "No files downloaded"
-msgstr "%(filetype)s نوع تم تنزيلها"
+msgstr ""
 
 #: ../raphodo/rapid.py:3500
 #, python-format
@@ -1727,10 +1701,9 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4272
-#, fuzzy, python-format
+#, python-format
 msgid "Should %(device)s be used to download photos and videos from?"
 msgstr ""
-"هل تريد استخدام هذا الجهاز أو جزء القرص الصلب لإستيراد صور ومقاطع فيديو؟"
 
 #: ../raphodo/rapid.py:4469
 #, python-format
@@ -1753,18 +1726,15 @@ msgid "Any device with the same name will be ignored."
 msgstr ""
 
 #: ../raphodo/rapid.py:4758
-#, fuzzy, python-format
+#, python-format
 msgid "Downloading from %(location)s on This Computer."
-msgstr "تنزيل من %(location)s"
+msgstr ""
 
 #: ../raphodo/rapid.py:4760
-#, fuzzy
 msgid ""
 "Do you really want to download from here?<br><br>On some systems, scanning "
 "this location can take a very long time."
 msgstr ""
-"هل فعلا تريد التنزيل من هنا؟ في بعض الانظمة, مسح هذا المكان يستغرق وقتا "
-"طويلا جدا."
 
 #: ../raphodo/rapid.py:4804
 #, python-format
@@ -1772,9 +1742,9 @@ msgid "Generating thumbnails for %s"
 msgstr ""
 
 #: ../raphodo/rapid.py:4807
-#, fuzzy, python-format
+#, python-format
 msgid "Scanning %s"
-msgstr "جاري المسح ..."
+msgstr ""
 
 #: ../raphodo/rapid.py:4817
 #, python-format
@@ -1783,24 +1753,21 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4823
-#, fuzzy, python-format
+#, python-format
 msgid "%(number)s of %(available files)s checked for download"
-msgstr "%(noFiles)s %(filetypes)s فشل تنزيلها"
+msgstr ""
 
 #: ../raphodo/rapid.py:5046
-#, fuzzy
 msgid "Display program information when run from the command line."
-msgstr "اعرض معلومات التدقيق (ديبوق) عند العمل من سطر الأوامر"
+msgstr ""
 
 #: ../raphodo/rapid.py:5048
-#, fuzzy
 msgid "Display debugging information when run from the command line."
-msgstr "اعرض معلومات التدقيق (ديبوق) عند العمل من سطر الأوامر"
+msgstr ""
 
 #: ../raphodo/rapid.py:5051
-#, fuzzy
 msgid "List photo and video file extensions the program recognizes and exit."
-msgstr "اعرض امتدادات الصور ومقاطع الفيديوات التي يتعرف عليها البرنامج واغلق"
+msgstr ""
 
 #: ../raphodo/rapid.py:5054
 msgid "Turn on or off the the renaming of photos."
@@ -1816,9 +1783,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:5062
-#, fuzzy
 msgid "Turn on or off downloading from this computer."
-msgstr "تنزيل من %(location)s"
+msgstr ""
 
 #: ../raphodo/rapid.py:5064 ../raphodo/rapid.py:5067 ../raphodo/rapid.py:5070
 #: ../raphodo/rapid.py:5091 ../raphodo/rapid.py:5095
@@ -1952,9 +1918,8 @@ msgid "Program aborting."
 msgstr ""
 
 #: ../raphodo/rapid.py:5476
-#, fuzzy
 msgid "All settings and caches have been reset"
-msgstr "كل الاعدادات والخيارات تم استعادتها للافتراضي"
+msgstr ""
 
 #: ../raphodo/rapid.py:5484
 msgid "Thumbnail Cache has been reset"
@@ -1994,11 +1959,11 @@ msgstr "صور وفيديو"
 msgid "photos or videos"
 msgstr "صور وفيديو"
 
-#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:852
+#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:855
 msgid "video"
 msgstr "فيديو"
 
-#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:810
+#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:813
 msgid "photo"
 msgstr "صورة"
 
@@ -2008,25 +1973,23 @@ msgid "%(number)s %(filetypes)s"
 msgstr ""
 
 #: ../raphodo/rpdfile.py:312
-#, fuzzy
 msgid "1 Video"
-msgstr "مقطع فيديو"
+msgstr ""
 
 #: ../raphodo/rpdfile.py:317
-#, fuzzy
 msgid "1 Photo"
-msgstr "صورة"
+msgstr ""
 
-#: ../raphodo/rpdfile.py:775
+#: ../raphodo/rpdfile.py:778
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:811
+#: ../raphodo/rpdfile.py:814
 msgid "Photo"
 msgstr "صورة"
 
-#: ../raphodo/rpdfile.py:853
+#: ../raphodo/rpdfile.py:856
 msgid "Video"
 msgstr "مقطع فيديو"
 
@@ -2051,9 +2014,8 @@ msgid "Memory cards: %s"
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:444
-#, fuzzy
 msgid "Downloaded as:"
-msgstr "تنزيل"
+msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:450
 #, python-format
@@ -2070,9 +2032,8 @@ msgid "Open in File Browser..."
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:1481
-#, fuzzy
 msgid "Copy Path"
-msgstr "نسخ"
+msgstr ""
 
 #. two things in a list e.g. "device1 and device2"
 #: ../raphodo/utilities.py:369
@@ -2109,9 +2070,8 @@ msgid "seven"
 msgstr ""
 
 #: ../raphodo/utilities.py:449
-#, fuzzy
 msgid "eight"
-msgstr "الطول"
+msgstr ""
 
 #: ../raphodo/utilities.py:450
 msgid "nine"
@@ -2150,9 +2110,8 @@ msgid "seventeen"
 msgstr ""
 
 #: ../raphodo/utilities.py:459
-#, fuzzy
 msgid "eighteen"
-msgstr "الطول"
+msgstr ""
 
 #: ../raphodo/utilities.py:460
 msgid "ninenteen"
@@ -2193,9 +2152,8 @@ msgid ""
 msgstr ""
 
 #: ../data/rapid-photo-downloader.desktop.in.h:2
-#, fuzzy
 msgid "Photo Downloader"
-msgstr "تنزيل"
+msgstr ""
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
@@ -2208,21 +2166,14 @@ msgstr ""
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr ""
 
-#~ msgid "Name + extension"
-#~ msgstr "الاسم + الامتداد"
-
-#, fuzzy
-#~ msgid "&Remember this choice"
-#~ msgstr "تذكر هذا الخيار"
-
 #~ msgid "Size"
 #~ msgstr "الحجم"
 
 #~ msgid "Download Progress"
 #~ msgstr "اكتمال التنزيل"
 
-#~ msgid "About 1 second remaining"
-#~ msgstr "تبقى حوالي ثانية واحدة"
+#~ msgid "scanning..."
+#~ msgstr "جاري المسح ..."
 
 #~ msgid "About %i seconds remaining"
 #~ msgstr "تبقى حوالي %i ثانية"
@@ -2230,15 +2181,24 @@ msgstr ""
 #~ msgid "About 1 minute remaining"
 #~ msgstr "تبقى حوالي دقيقة واحدة"
 
+#~ msgid "About 1 second remaining"
+#~ msgstr "تبقى حوالي ثانية واحدة"
+
+#~ msgid ""
+#~ "Do you really want to download from here? On some systems, scanning this "
+#~ "location can take a very long time."
+#~ msgstr ""
+#~ "هل فعلا تريد التنزيل من هنا؟ في بعض الانظمة, مسح هذا المكان يستغرق وقتا "
+#~ "طويلا جدا."
+
+#~ msgid "Downloading from %(location)s."
+#~ msgstr "تنزيل من %(location)s"
+
 #~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 #~ msgstr "تبقى حوالي %(minutes)i:%(seconds)02i دقيقة"
 
-#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
-#~ msgstr ""
-#~ "اكتمل %(number)s  من %(total)s من نوع %(filetypes)s (تبقى %(remaining)s)"
-
-#~ msgid "%(number)s of %(total)s %(filetypes)s"
-#~ msgstr "%(number)s من %(total)s من الـ %(filetypes)s"
+#~ msgid "Copy"
+#~ msgstr "نسخ"
 
 #~ msgid "From"
 #~ msgstr "مِن"
@@ -2246,38 +2206,45 @@ msgstr ""
 #~ msgid "Auto Detect"
 #~ msgstr "اكتشاف تلقائي"
 
+#~ msgid "%(number)s of %(total)s %(filetypes)s"
+#~ msgstr "%(number)s من %(total)s من الـ %(filetypes)s"
+
 #~ msgid "Select a folder containing %(file_types)s"
 #~ msgstr "اختر مجلد يحتوى %(file_types)s"
+
+#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
+#~ msgstr ""
+#~ "اكتمل %(number)s  من %(total)s من نوع %(filetypes)s (تبقى %(remaining)s)"
+
+#~ msgid "Photos:"
+#~ msgstr "صور:"
+
+#~ msgid "Videos:"
+#~ msgstr "مقاطع فيديو:"
 
 #~ msgid "Move"
 #~ msgstr "انقل"
 
-#~ msgid "To"
-#~ msgstr "إلى"
-
-#~ msgid "Select a folder to download photos to"
-#~ msgstr "اختر مجلد لتنزيل الصور اليه"
-
 #~ msgid "Select a folder to download videos to"
 #~ msgstr "اختر مجلد لتنزيل مقاطع الفيديو إليه:"
 
-#~ msgid "and"
-#~ msgstr "و"
-
-#~ msgid "Using backup devices"
-#~ msgstr "جاري استخدام اجهزة الارشفة"
-
-#~ msgid "Using backup device"
-#~ msgstr "جاري استخدام جهاز الارشفة"
+#~ msgid "To"
+#~ msgstr "إلى"
 
 #~ msgid "No backup devices detected"
 #~ msgstr "لم نعثر على جهاز أرشفة"
 
-#~ msgid "Free space:"
-#~ msgstr "المساحة الخالية:"
+#~ msgid "and"
+#~ msgstr "و"
 
-#~ msgid "(%(file_type)s)"
-#~ msgstr "(%(file_type)s)"
+#~ msgid "Using backup device"
+#~ msgstr "جاري استخدام جهاز الارشفة"
+
+#~ msgid "Using backup devices"
+#~ msgstr "جاري استخدام اجهزة الارشفة"
+
+#~ msgid "Select a folder to download photos to"
+#~ msgstr "اختر مجلد لتنزيل الصور اليه"
 
 #~ msgid "; "
 #~ msgstr "; "
@@ -2288,21 +2255,30 @@ msgstr ""
 #~ msgid "%(free)s free"
 #~ msgstr "%(free)s خالية"
 
+#~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
+#~ msgstr ""
+#~ "جاري أرشفة الصور الى المسار %(path)s ومقاطع الفيديو الى المسار %(path2)s"
+
 #~ msgid "Backing up photos and videos to %(path)s"
 #~ msgstr "جاري ارشفة الصور ومقاطع الفيديو الى المسار  %(path)s"
 
 #~ msgid "Backing up to %(path)s"
 #~ msgstr "جاري الارشفة الى المسار  %(path)s"
 
-#~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
-#~ msgstr ""
-#~ "جاري أرشفة الصور الى المسار %(path)s ومقاطع الفيديو الى المسار %(path2)s"
+#~ msgid "Free space:"
+#~ msgstr "المساحة الخالية:"
 
 #~ msgid "%(freespace)s. %(backuppaths)s."
 #~ msgstr "%(freespace)s. %(backuppaths)s."
 
-#~ msgid "%(file_type)s download folder does not exist"
-#~ msgstr "مجلد التنزيل لـ %(file_type)s غير موجود"
+#~ msgid "(%(file_type)s)"
+#~ msgstr "(%(file_type)s)"
+
+#~ msgid "%(free)s %(file_type)s"
+#~ msgstr "%(free)s %(file_type)s"
+
+#~ msgid "%(file_type)s download folder is not writable"
+#~ msgstr "مجلد التنزيل لـ %(file_type)s لا يمكن الكتابة فيه"
 
 #~ msgid "Folder: %s"
 #~ msgstr "مجلد: %s"
@@ -2310,8 +2286,8 @@ msgstr ""
 #~ msgid "%(file_type)s download folder is invalid"
 #~ msgstr "مجلد التنزيل لـ %(file_type)s غير صحيح"
 
-#~ msgid "%(file_type)s download folder is not writable"
-#~ msgstr "مجلد التنزيل لـ %(file_type)s لا يمكن الكتابة فيه"
+#~ msgid "%(file_type)s download folder does not exist"
+#~ msgstr "مجلد التنزيل لـ %(file_type)s غير موجود"
 
 #~ msgid "Thumbnails"
 #~ msgstr "صويرات"
@@ -2323,8 +2299,36 @@ msgstr ""
 #~ "اعرض معلومات البرنامج على سطر الأوامر خلال عمل البرنامج (الافتراضي: "
 #~ "%default)"
 
+#~ msgid "display debugging information when run from the command line"
+#~ msgstr "اعرض معلومات التدقيق (ديبوق) عند العمل من سطر الأوامر"
+
+#~ msgid ""
+#~ "Error: specify device auto-detection or manually specify a device's path "
+#~ "from which to download, but do not do both."
+#~ msgstr ""
+#~ "خطأ: اختر كشف جهاز التنزيل تلقائيا أو حدد مسار جهاز التنزيل يدويا, ولا "
+#~ "تختار الاثنين معا."
+
+#~ msgid "reset all program settings and preferences and exit"
+#~ msgstr "استعد كل اعدادات البرنامج الافتراضية واغلق"
+
+#~ msgid "All settings and preferences have been reset"
+#~ msgstr "كل الاعدادات والخيارات تم استعادتها للافتراضي"
+
+#~ msgid "list photo and video file extensions the program recognizes and exit"
+#~ msgstr ""
+#~ "اعرض امتدادات الصور ومقاطع الفيديوات التي يتعرف عليها البرنامج واغلق"
+
+#~ msgid "and %s"
+#~ msgstr "و  %s"
+
 #~ msgid "only output errors to the command line"
 #~ msgstr "فقط اخرج الأخطاء الى سطر الأوامر"
+
+#~ msgid ""
+#~ "manually specify the PATH of the device from which to download, "
+#~ "overwriting existing program preferences"
+#~ msgstr "حدد مسار جهاز التنزيل يدويا, وتخطى بذلك الاعدادات الحالية للبرنامج"
 
 #~ msgid ""
 #~ "automatically detect devices from which to download, overwriting existing "
@@ -2334,28 +2338,21 @@ msgstr ""
 #~ "للبرنامج."
 
 #~ msgid ""
-#~ "manually specify the PATH of the device from which to download, "
-#~ "overwriting existing program preferences"
-#~ msgstr "حدد مسار جهاز التنزيل يدويا, وتخطى بذلك الاعدادات الحالية للبرنامج"
-
-#~ msgid "reset all program settings and preferences and exit"
-#~ msgstr "استعد كل اعدادات البرنامج الافتراضية واغلق"
-
-#~ msgid ""
-#~ "Error: specify device auto-detection or manually specify a device's path "
-#~ "from which to download, but do not do both."
+#~ "Should this device or partition be used to download photos or videos from?"
 #~ msgstr ""
-#~ "خطأ: اختر كشف جهاز التنزيل تلقائيا أو حدد مسار جهاز التنزيل يدويا, ولا "
-#~ "تختار الاثنين معا."
-
-#~ msgid "and %s"
-#~ msgstr "و  %s"
+#~ "هل تريد استخدام هذا الجهاز أو جزء القرص الصلب لإستيراد صور ومقاطع فيديو؟"
 
 #~ msgid "Device Detected"
 #~ msgstr "تم كشف جهاز"
 
-#~ msgid "Remove all Job Codes?"
-#~ msgstr "أزل كل برمجات المهمة؟"
+#~ msgid "MB/s"
+#~ msgstr "م.بايت/ث"
+
+#~ msgid "_Remember this choice"
+#~ msgstr "تذكر هذا الخيار"
+
+#~ msgid "Name + extension"
+#~ msgstr "الاسم + الامتداد"
 
 #~ msgid "Should all Job Codes be removed?"
 #~ msgstr "هل تريد إزالة كل برمجات المهمة؟"
@@ -2366,23 +2363,32 @@ msgstr ""
 #~ msgid "Should all remembered paths be removed?"
 #~ msgstr "هل تريد إزالة كلم المسارات المحفوظة؟"
 
+#~ msgid "Error in Photo Rename preferences"
+#~ msgstr "خطأ في خيارات تغيير أسماء الصور"
+
+#~ msgid "Remove all Job Codes?"
+#~ msgstr "أزل كل برمجات المهمة؟"
+
 #~ msgid "Remove all Ignored Paths?"
 #~ msgstr "أزل كل المسارات المتجاهلة؟"
 
 #~ msgid "Should all ignored paths be removed?"
 #~ msgstr "هل تريد إزالة كل المسارات المتجاهلة؟"
 
-#~ msgid "Error in Photo Rename preferences"
-#~ msgstr "خطأ في خيارات تغيير أسماء الصور"
-
-#~ msgid "Error in Video Rename preferences"
-#~ msgstr "خطأ في إعدادات تغيير أسماء مقاطع الفيديو"
+#~ msgid "Error in Video Download Subfolders preferences"
+#~ msgstr "خطأ في إعدادات المجلدات الفرعية لتنزيل مقاطع الفيديو"
 
 #~ msgid "Error in Photo Download Subfolders preferences"
 #~ msgstr "خطأ في إعدادات المجلدات الفرعية لتنزيل الصور"
 
-#~ msgid "Error in Video Download Subfolders preferences"
-#~ msgstr "خطأ في إعدادات المجلدات الفرعية لتنزيل مقاطع الفيديو"
+#~ msgid "Job Code:"
+#~ msgstr "برمجة مهمة:"
+
+#~ msgid "Specify a path that will never be scanned for photos or videos"
+#~ msgstr "حدد مسار لن يتم أبدا مسح ما فيه من صور أو مقاطع فيديو"
+
+#~ msgid "Path:"
+#~ msgstr "مسار:"
 
 #~ msgid "Enter a new Job Code, or select a previous one"
 #~ msgstr "أدخل برمجة مهمة جديدة, او استخدم برمجة سابقة"
@@ -2393,8 +2399,8 @@ msgstr ""
 #~ msgid "Enter a Path to Ignore"
 #~ msgstr "ادخل مسار لتجاهله"
 
-#~ msgid "Specify a path that will never be scanned for photos or videos"
-#~ msgstr "حدد مسار لن يتم أبدا مسح ما فيه من صور أو مقاطع فيديو"
+#~ msgid "Enter a Job Code"
+#~ msgstr "ادخل برمجة مهمة"
 
-#~ msgid "Path:"
-#~ msgstr "مسار:"
+#~ msgid "Error in Video Rename preferences"
+#~ msgstr "خطأ في إعدادات تغيير أسماء مقاطع الفيديو"

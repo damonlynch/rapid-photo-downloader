@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-27 14:45-0600\n"
-"PO-Revision-Date: 2014-01-22 00:16+0000\n"
-"Last-Translator: Toni Lähdekorpi <toni@lygon.net>\n"
+"POT-Creation-Date: 2017-01-31 17:52-0600\n"
+"PO-Revision-Date: 2017-01-28 03:27+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-01-23 13:56+0000\n"
-"X-Generator: Launchpad (build 16901)\n"
+"X-Launchpad-Export-Date: 2017-01-31 23:48+0000\n"
+"X-Generator: Launchpad (build 18315)\n"
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
 msgstr "Varmuuskopiointi virhe"
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:178 ../raphodo/renameandmovefile.py:270
+#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -42,22 +42,22 @@ msgstr "Virhe: %(inst)s"
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr "Kohdekansiota ei voitu luoda: %(directory)s\n"
 
-#: ../raphodo/backupfile.py:167
+#: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr "%(file_type)s Varmuuskopio ylikirjoitettiin"
 
-#: ../raphodo/backupfile.py:171
+#: ../raphodo/backupfile.py:173
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr "%(file_type)s ei varmuuskopioida"
 
-#: ../raphodo/backupfile.py:175
+#: ../raphodo/backupfile.py:177
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr "%(file_type)s varmuuskopio on jo olemassa"
 
-#: ../raphodo/backupfile.py:200 ../raphodo/copyfiles.py:184
+#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
 #: ../raphodo/renameandmovefile.py:424 ../raphodo/renameandmovefile.py:550
 #, python-format
@@ -70,7 +70,7 @@ msgstr ""
 msgid "The file could not be copied from the camera"
 msgstr ""
 
-#: ../raphodo/copyfiles.py:389
+#: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
 msgstr ""
 
@@ -84,15 +84,13 @@ msgstr ""
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1750
 #: ../raphodo/rapid.py:1927 ../raphodo/rapid.py:5285
-#, fuzzy
 msgid "Photos"
-msgstr "Kuvat:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1753
 #: ../raphodo/rapid.py:1928 ../raphodo/rapid.py:5286
-#, fuzzy
 msgid "Videos"
-msgstr "Videot:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:999
 msgid "Temporarily ignore this device"
@@ -116,77 +114,71 @@ msgstr ""
 msgid "%(no_videos)s Videos"
 msgstr ""
 
-#: ../raphodo/devices.py:423
-#, fuzzy
+#: ../raphodo/devices.py:424
 msgid "Cameras"
-msgstr "Kameran merkki"
+msgstr ""
 
-#: ../raphodo/devices.py:424 ../raphodo/devices.py:852 ../raphodo/rapid.py:1714
+#: ../raphodo/devices.py:425 ../raphodo/devices.py:881 ../raphodo/rapid.py:1714
 msgid "Devices"
 msgstr "Laitteet"
 
-#: ../raphodo/devices.py:664
+#: ../raphodo/devices.py:685
 #, python-format
 msgid "Downloading from %(device_names)s"
 msgstr ""
 
 #. Translators: e.g. Three Devices
-#: ../raphodo/devices.py:720
-#, fuzzy, python-format
+#: ../raphodo/devices.py:741
+#, python-format
 msgid "%(no_devices)s %(device_type)s"
-msgstr "%(number)s %(filetypes)s"
+msgstr ""
 
-#: ../raphodo/devices.py:837 ../raphodo/rapid.py:1551
-#, fuzzy
+#: ../raphodo/devices.py:866 ../raphodo/rapid.py:1551
 msgid "Select Source"
-msgstr "_Valitse"
+msgstr ""
 
-#: ../raphodo/devices.py:868 ../raphodo/devices.py:879
+#: ../raphodo/devices.py:897 ../raphodo/devices.py:908
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr ""
 
 #. Number of cameras e.g. 3 Cameras
-#: ../raphodo/devices.py:890
+#: ../raphodo/devices.py:919
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:895
+#: ../raphodo/devices.py:924
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:402
-#, fuzzy
 msgid "MB/sec"
-msgstr "Mt/s"
+msgstr ""
 
 #. Be friendly in the last few seconds
 #: ../raphodo/downloadtracker.py:532
-#, fuzzy
 msgid "A few seconds"
-msgstr "sekunnin osat"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:588
-#, fuzzy
 msgid "1 second"
-msgstr "sekunnin osat"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:590
-#, fuzzy, python-format
+#, python-format
 msgid "%d seconds"
-msgstr "sekunnin osat"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:595
-#, fuzzy
 msgid "1 minute"
-msgstr "MM"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:597
-#, fuzzy, python-format
+#, python-format
 msgid "%d minutes"
-msgstr "MM"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:602 ../raphodo/downloadtracker.py:784
 msgid "1 hour"
@@ -222,9 +214,9 @@ msgid "%d minutes, 1 second"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:797
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)d minutes, %(seconds)d seconds"
-msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:828
 msgid "1 hour, 1 minute"
@@ -570,9 +562,8 @@ msgstr "VVVV-KK-PP"
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:314 ../raphodo/generatenameconfig.py:391
-#, fuzzy
 msgid "YYYY_MM_DD"
-msgstr "VVVVKKPP"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -703,9 +694,8 @@ msgid "SS"
 msgstr "SS"
 
 #: ../raphodo/generatenameconfig.py:389
-#, fuzzy
 msgid "Date"
-msgstr "Ajankohta"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:390
 msgid "Date (hyphens)"
@@ -717,88 +707,72 @@ msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392 ../raphodo/generatenameconfig.py:438
 #: ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "Date and Job Code"
-msgstr "Syöta työkoodi"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392
-#, fuzzy
 msgid "YYYYMM_Job Code"
-msgstr "Työkoodi"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "Date and Job Code Subfolder"
-msgstr "Syöta työkoodi"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "YYYYMM"
-msgstr "VVVVKKPP"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393 ../raphodo/rapid.py:1596
 msgid "Job Code"
 msgstr "Työkoodi"
 
 #: ../raphodo/generatenameconfig.py:433 ../raphodo/generatenameconfig.py:512
-#, fuzzy
 msgid "Original Filename"
-msgstr "Alkuperäinen kirjoitusasu"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "Date-Time and Downloads today"
-msgstr "Latauksia tänään"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "YYYYMMDD-HHMM-1"
-msgstr "VVVVKKPP"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "Date and Downloads today"
-msgstr "Latauksia tänään"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "YYYYMMDD-1"
-msgstr "VVVVKKPP"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "Date-Time and Image number"
-msgstr "Kuvan numero"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "YYYYMMDD-1234"
-msgstr "VVVVKKPP"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "Date-Time and Job Code"
-msgstr "Syöta työkoodi"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "YYYYMMDD-HHMM-Job Code-1"
-msgstr "Työkoodi"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:438 ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "YYYYMMDD-Job Code-1"
-msgstr "Työkoodi"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "Date-Time and Video number"
-msgstr "Videon numero"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "YYYYMMDD_1234"
-msgstr "VVVVKKPP"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:518
 msgid "Resolution"
@@ -1140,39 +1114,39 @@ msgstr ""
 #. Translators: for example Nov 3 2015
 #: ../raphodo/proximity.py:109 ../raphodo/proximity.py:230
 #: ../raphodo/proximity.py:231 ../raphodo/proximity.py:831
-#, fuzzy, python-format
+#, python-format
 msgid "%(date)s %(year)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators: for example Nov 3 2015, 11:25 AM
 #. Translators: for example, Nov 3, 12:15 PM
 #: ../raphodo/proximity.py:197 ../raphodo/proximity.py:215
 #: ../raphodo/proximity.py:234 ../raphodo/proximity.py:236
-#, fuzzy, python-format
+#, python-format
 msgid "%(date)s, %(time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:209
-#, fuzzy, python-format
+#, python-format
 msgid "%(starttime)s - %(endtime)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
 #: ../raphodo/proximity.py:241
-#, fuzzy, python-format
+#, python-format
 msgid "%(earlier_time)s - %(later_time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators, for example:
 #. Nov 3 2012, 12:15 PM -
 #. Nov 4 2012, 1:00 AM
 #. (please keep the line break signified by \n)
 #: ../raphodo/proximity.py:248
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "%(earlier_time)s -\n"
 "%(later_time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:359
 #, python-format
@@ -1181,9 +1155,9 @@ msgstr ""
 
 #. Translators: for example Nov 2015
 #: ../raphodo/proximity.py:833
-#, fuzzy, python-format
+#, python-format
 msgid "%(month)s %(year)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:1343
 msgid ""
@@ -1196,9 +1170,9 @@ msgstr ""
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
 #: ../raphodo/proximity.py:1405
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)dm"
-msgstr "MM"
+msgstr ""
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
@@ -1256,15 +1230,13 @@ msgid "Rapid Photo Downloader"
 msgstr "Nopea kuvien lataus"
 
 #: ../raphodo/rapid.py:1222
-#, fuzzy
 msgid "Download failed"
-msgstr "Latausaika"
+msgstr ""
 
 #: ../raphodo/rapid.py:1223
-#, fuzzy
 msgid ""
 "Sorry, the download of the new version of Rapid Photo Downloader failed."
-msgstr "Asetukset: Nopea Valokuvien Lataaja"
+msgstr ""
 
 #: ../raphodo/rapid.py:1229
 msgid ""
@@ -1273,9 +1245,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1232
-#, fuzzy
 msgid "Update Rapid Photo Downloader"
-msgstr "Nopea kuvien lataus"
+msgstr ""
 
 #: ../raphodo/rapid.py:1236
 msgid "Install"
@@ -1304,9 +1275,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1464
-#, fuzzy
 msgid "&Source"
-msgstr "Lähde: %s"
+msgstr ""
 
 #: ../raphodo/rapid.py:1467 ../raphodo/rapid.py:2140
 msgid "Download"
@@ -1329,24 +1299,20 @@ msgid "Error Log"
 msgstr "Virheloki"
 
 #: ../raphodo/rapid.py:1485
-#, fuzzy
 msgid "Clear Completed Downloads"
-msgstr "_Tyhjennä valmistuneet lataukset"
+msgstr ""
 
 #: ../raphodo/rapid.py:1488
-#, fuzzy
 msgid "Get Help Online..."
-msgstr "_Hae ohjeita netistä..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1491
-#, fuzzy
 msgid "Report a Problem..."
-msgstr "_Raportoi ongelma..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1494
-#, fuzzy
 msgid "Make a Donation..."
-msgstr "_Tee lahjoitus"
+msgstr ""
 
 #: ../raphodo/rapid.py:1497
 msgid "Translate this Application..."
@@ -1369,14 +1335,12 @@ msgid "Destination"
 msgstr ""
 
 #: ../raphodo/rapid.py:1595
-#, fuzzy
 msgid "Rename"
-msgstr "Tiedostonimi"
+msgstr ""
 
 #: ../raphodo/rapid.py:1597
-#, fuzzy
 msgid "Back Up"
-msgstr "Varmuuskopio"
+msgstr ""
 
 #. Devices Header and View
 #: ../raphodo/rapid.py:1713
@@ -1396,18 +1360,16 @@ msgid "This Computer"
 msgstr ""
 
 #: ../raphodo/rapid.py:1738
-#, fuzzy
 msgid "Select a source folder"
-msgstr "Valitse kuvakansio"
+msgstr ""
 
 #: ../raphodo/rapid.py:1761
 msgid "Storage Space"
 msgstr ""
 
 #: ../raphodo/rapid.py:1775 ../raphodo/rapid.py:1783
-#, fuzzy
 msgid "Select a destination folder"
-msgstr "Valitse kuvakansio"
+msgstr ""
 
 #: ../raphodo/rapid.py:1879
 msgid "Show:"
@@ -1450,19 +1412,17 @@ msgid "Descending"
 msgstr ""
 
 #: ../raphodo/rapid.py:1917
-#, fuzzy
 msgid "Select All:"
-msgstr "_Valitse"
+msgstr ""
 
 #: ../raphodo/rapid.py:2120
-#, fuzzy, python-format
+#, python-format
 msgid "Download %(files)s"
-msgstr "Latausaika"
+msgstr ""
 
 #: ../raphodo/rapid.py:2136
-#, fuzzy
 msgid "Resume Download"
-msgstr "_Lataa "
+msgstr ""
 
 #: ../raphodo/rapid.py:2138
 msgid "Pause"
@@ -1603,14 +1563,13 @@ msgid "%d failures"
 msgstr ""
 
 #: ../raphodo/rapid.py:3444
-#, fuzzy
 msgid "1 warning"
-msgstr "varoitukset"
+msgstr ""
 
 #: ../raphodo/rapid.py:3446
-#, fuzzy, python-format
+#, python-format
 msgid "%d warnings"
-msgstr "varoitukset"
+msgstr ""
 
 #: ../raphodo/rapid.py:3466
 #, python-format
@@ -1628,9 +1587,8 @@ msgid "No files downloaded — %(failures)s"
 msgstr ""
 
 #: ../raphodo/rapid.py:3476
-#, fuzzy
 msgid "No files downloaded"
-msgstr "kuvia ladattu"
+msgstr ""
 
 #: ../raphodo/rapid.py:3500
 #, python-format
@@ -1713,9 +1671,8 @@ msgid "&Try Again"
 msgstr ""
 
 #: ../raphodo/rapid.py:3732
-#, fuzzy
 msgid "&Ignore This Device"
-msgstr "Kuvalaitteet"
+msgstr ""
 
 #: ../raphodo/rapid.py:4107
 #, python-format
@@ -1737,9 +1694,9 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4272
-#, fuzzy, python-format
+#, python-format
 msgid "Should %(device)s be used to download photos and videos from?"
-msgstr "Tulisiko tätä laitetta tai osiota käyttää kuvalaitteena?"
+msgstr ""
 
 #: ../raphodo/rapid.py:4469
 #, python-format
@@ -1778,9 +1735,9 @@ msgid "Generating thumbnails for %s"
 msgstr ""
 
 #: ../raphodo/rapid.py:4807
-#, fuzzy, python-format
+#, python-format
 msgid "Scanning %s"
-msgstr "etsii..."
+msgstr ""
 
 #: ../raphodo/rapid.py:4817
 #, python-format
@@ -1789,40 +1746,34 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4823
-#, fuzzy, python-format
+#, python-format
 msgid "%(number)s of %(available files)s checked for download"
-msgstr "%(noFiles)s %(filetypes)s ei voitu ladata"
+msgstr ""
 
 #: ../raphodo/rapid.py:5046
-#, fuzzy
 msgid "Display program information when run from the command line."
-msgstr "näytä vianhakutietoja suorittaessa komentoriviltä"
+msgstr ""
 
 #: ../raphodo/rapid.py:5048
-#, fuzzy
 msgid "Display debugging information when run from the command line."
-msgstr "näytä vianhakutietoja suorittaessa komentoriviltä"
+msgstr ""
 
 #: ../raphodo/rapid.py:5051
-#, fuzzy
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr ""
-"listaa kuva- ja videotiedostopäätteitä joita ohjelma tunnistaa ja poistu"
 
 #: ../raphodo/rapid.py:5054
 msgid "Turn on or off the the renaming of photos."
 msgstr ""
 
 #: ../raphodo/rapid.py:5056
-#, fuzzy
 msgid "turn on or off the the renaming of videos."
-msgstr "Tunnista automaattisesti varmuuskopiolaitteet"
+msgstr ""
 
 #: ../raphodo/rapid.py:5058
-#, fuzzy
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
-msgstr "Tunnista automaattisesti varmuuskopiolaitteet"
+msgstr ""
 
 #: ../raphodo/rapid.py:5062
 msgid "Turn on or off downloading from this computer."
@@ -1846,58 +1797,44 @@ msgid "The PATH where videos will be downloaded to."
 msgstr ""
 
 #: ../raphodo/rapid.py:5073
-#, fuzzy
 msgid "Turn on or off the backing up of photos and videos while downloading."
-msgstr "Varmuuskopioi kuvat ja videot ladattaessa"
+msgstr ""
 
 #: ../raphodo/rapid.py:5077
-#, fuzzy
 msgid "Turn on or off the automatic detection of backup devices."
-msgstr "Tunnista automaattisesti varmuuskopiolaitteet"
+msgstr ""
 
 #: ../raphodo/rapid.py:5079 ../raphodo/rapid.py:5085
 msgid "FOLDER"
 msgstr ""
 
 #: ../raphodo/rapid.py:5080
-#, fuzzy
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
 "the device is used for backups. For each device you wish to use for backing "
 "photos up to, create a folder on it with this name."
 msgstr ""
-"Määritä kansio johon varmuuskopiot tallennetaan laitteessa.\n"
-"\n"
-"<i>Huomaa: tämä määrittää myös käytetäänkö laitetta varmuuskopiointiin vai "
-"ei. Jokaiseen varmuuskopiolaitteeseen tulee tehdä tämän niminen kansio.</i>"
 
 #: ../raphodo/rapid.py:5086
-#, fuzzy
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
 "the device is used for backups. For each device you wish to use for backing "
 "up videos to, create a folder on it with this name."
 msgstr ""
-"Määritä kansio johon varmuuskopiot tallennetaan laitteessa.\n"
-"\n"
-"<i>Huomaa: tämä määrittää myös käytetäänkö laitetta varmuuskopiointiin vai "
-"ei. Jokaiseen varmuuskopiolaitteeseen tulee tehdä tämän niminen kansio.</i>"
 
 #: ../raphodo/rapid.py:5092
-#, fuzzy
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
-msgstr "Tunnista automaattisesti varmuuskopiolaitteet"
+msgstr ""
 
 #: ../raphodo/rapid.py:5096
-#, fuzzy
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
-msgstr "Tunnista automaattisesti varmuuskopiolaitteet"
+msgstr ""
 
 #: ../raphodo/rapid.py:5099
 #, python-format
@@ -1974,14 +1911,12 @@ msgid "Program aborting."
 msgstr ""
 
 #: ../raphodo/rapid.py:5476
-#, fuzzy
 msgid "All settings and caches have been reset"
-msgstr "Kaikki asetukset ja määritykset tyhjennetty"
+msgstr ""
 
 #: ../raphodo/rapid.py:5484
-#, fuzzy
 msgid "Thumbnail Cache has been reset"
-msgstr "Näytekuvaa ei voida näyttää"
+msgstr ""
 
 #: ../raphodo/rapid.py:5490
 msgid "Remembered files have been forgotten"
@@ -2017,11 +1952,11 @@ msgstr "kuvat ja videot"
 msgid "photos or videos"
 msgstr "kuvat ja videot"
 
-#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:852
+#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:855
 msgid "video"
 msgstr "video"
 
-#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:810
+#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:813
 msgid "photo"
 msgstr "kuva"
 
@@ -2031,25 +1966,23 @@ msgid "%(number)s %(filetypes)s"
 msgstr "%(number)s %(filetypes)s"
 
 #: ../raphodo/rpdfile.py:312
-#, fuzzy
 msgid "1 Video"
-msgstr "Video"
+msgstr ""
 
 #: ../raphodo/rpdfile.py:317
-#, fuzzy
 msgid "1 Photo"
-msgstr "Kuva"
+msgstr ""
 
-#: ../raphodo/rpdfile.py:775
+#: ../raphodo/rpdfile.py:778
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:811
+#: ../raphodo/rpdfile.py:814
 msgid "Photo"
 msgstr "Kuva"
 
-#: ../raphodo/rpdfile.py:853
+#: ../raphodo/rpdfile.py:856
 msgid "Video"
 msgstr "Video"
 
@@ -2074,9 +2007,8 @@ msgid "Memory cards: %s"
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:444
-#, fuzzy
 msgid "Downloaded as:"
-msgstr "_Lataa "
+msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:450
 #, python-format
@@ -2131,9 +2063,8 @@ msgid "seven"
 msgstr ""
 
 #: ../raphodo/utilities.py:449
-#, fuzzy
 msgid "eight"
-msgstr "Korkeus"
+msgstr ""
 
 #: ../raphodo/utilities.py:450
 msgid "nine"
@@ -2172,9 +2103,8 @@ msgid "seventeen"
 msgstr ""
 
 #: ../raphodo/utilities.py:459
-#, fuzzy
 msgid "eighteen"
-msgstr "Korkeus"
+msgstr ""
 
 #: ../raphodo/utilities.py:460
 msgid "ninenteen"
@@ -2215,9 +2145,8 @@ msgid ""
 msgstr ""
 
 #: ../data/rapid-photo-downloader.desktop.in.h:2
-#, fuzzy
 msgid "Photo Downloader"
-msgstr "Nopea kuvien lataus"
+msgstr ""
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
@@ -2227,26 +2156,20 @@ msgid ""
 msgstr ""
 
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
-#, fuzzy
 msgid "Download Photos and Videos with Rapid Photo Downloader"
-msgstr "Asetukset: Nopea Valokuvien Lataaja"
+msgstr ""
 
-#~ msgid "Name + extension"
-#~ msgstr "Nimi + pääte"
+#~ msgid "scanning..."
+#~ msgstr "etsii..."
 
-#, fuzzy
-#~ msgid "&Remember this choice"
-#~ msgstr "_Muista tämä valinta"
+#~ msgid "<i>Example: %s</i>"
+#~ msgstr "<i>Esimerkki: %s</i>"
 
-#~ msgid ""
-#~ "%(date)s\n"
-#~ "%(time)s"
-#~ msgstr ""
-#~ "%(date)s\n"
-#~ "%(time)s"
+#~ msgid "externaldrive1"
+#~ msgstr "ulkoinenasema1"
 
-#~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
-#~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgid "externaldrive2"
+#~ msgstr "ulkoinenasema2"
 
 #~ msgid "Size"
 #~ msgstr "Koko"
@@ -2254,8 +2177,20 @@ msgstr "Asetukset: Nopea Valokuvien Lataaja"
 #~ msgid "Download Progress"
 #~ msgstr "Latauksen edistyminen"
 
-#~ msgid "About 1 second remaining"
-#~ msgstr "Noin 1 sekunti jäljellä"
+#~ msgid "No backup devices detected"
+#~ msgstr "Varmuuskopiolaitetta ei löytynyt"
+
+#~ msgid "and"
+#~ msgstr "ja"
+
+#~ msgid "Using backup device"
+#~ msgstr "Käyttää varmuuskopiolaitetta"
+
+#~ msgid "Using backup devices"
+#~ msgstr "Käyttää varmuuskopiolaitteita"
+
+#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
+#~ msgstr "Noin %(minutes)i:%(seconds)02i minuuttia jäljellä"
 
 #~ msgid "About %i seconds remaining"
 #~ msgstr "Noin %i sekuntia jäljellä"
@@ -2263,38 +2198,17 @@ msgstr "Asetukset: Nopea Valokuvien Lataaja"
 #~ msgid "About 1 minute remaining"
 #~ msgstr "Noin 1 minuutti jäljellä"
 
-#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
-#~ msgstr "Noin %(minutes)i:%(seconds)02i minuuttia jäljellä"
+#~ msgid "MB/s"
+#~ msgstr "Mt/s"
 
-#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
-#~ msgstr "%(number)s / %(total)s %(filetypes)s (%(remaining)s jäljellä)"
+#~ msgid "About 1 second remaining"
+#~ msgstr "Noin 1 sekunti jäljellä"
 
-#~ msgid "%(number)s of %(total)s %(filetypes)s"
-#~ msgstr "%(number)s/%(total)s %(filetypes)s"
+#~ msgid "only output errors to the command line"
+#~ msgstr "tulosta vain virheet komentoriville"
 
-#~ msgid "Select a folder containing %(file_types)s"
-#~ msgstr "valitse kansio joka sisältää %(file_types)s tiedostoja"
-
-#~ msgid "Select a folder to download photos to"
-#~ msgstr "Valitse kansio johon kuvat ladataan"
-
-#~ msgid "Select a folder to download videos to"
-#~ msgstr "valitse johon videot ladataan"
-
-#~ msgid "and"
-#~ msgstr "ja"
-
-#~ msgid "Using backup devices"
-#~ msgstr "Käyttää varmuuskopiolaitteita"
-
-#~ msgid "Using backup device"
-#~ msgstr "Käyttää varmuuskopiolaitetta"
-
-#~ msgid "No backup devices detected"
-#~ msgstr "Varmuuskopiolaitetta ei löytynyt"
-
-#~ msgid "Backing up to %(path)s"
-#~ msgstr "Varmuuskopioidaan kohteeseen %(path)s"
+#~ msgid "and %s"
+#~ msgstr "ja %s"
 
 #~ msgid ""
 #~ "display program information on the command line as the program runs "
@@ -2303,17 +2217,237 @@ msgstr "Asetukset: Nopea Valokuvien Lataaja"
 #~ "näytä ohjelman tiedot komentorivillä kun ohjelma käynnistetään (oletus: "
 #~ "%default)"
 
-#~ msgid "only output errors to the command line"
-#~ msgstr "tulosta vain virheet komentoriville"
+#~ msgid "Name + extension"
+#~ msgstr "Nimi + pääte"
 
-#~ msgid "reset all program settings and preferences and exit"
-#~ msgstr "tyhjennä kaikki ohjelman asetukset ja määritykset, ja poistu"
+#~ msgid " "
+#~ msgstr " "
 
-#~ msgid "and %s"
-#~ msgstr "ja %s"
+#~ msgid "<b>Backup</b>"
+#~ msgstr "<b>Varmuuskopio</b>"
+
+#~ msgid "<b>Compatibility with Other Operating Systems</b>"
+#~ msgstr "<b>Yhteensopivuus käyttöjärjestelmien kanssa</b>"
+
+#~ msgid "<b>Download Folder</b>"
+#~ msgstr "<b>Latauskansio</b>"
+
+#~ msgid "<b>Download Subfolders</b>"
+#~ msgstr "<b>Latausalikansio</b>"
+
+#~ msgid "<b>Example</b>"
+#~ msgstr "<b>Esimerkki</b>"
+
+#~ msgid "<b>Program Automation</b>"
+#~ msgstr "<b>Ohjelman automatiikka</b>"
+
+#~ msgid "<i>/media/externaldrive/Photos</i>"
+#~ msgstr "<i>/media/ulkoinenlevy/Kuvat</i>"
+
+#~ msgid "<i>Example:</i>"
+#~ msgstr "<i>Esimerkki</i>"
+
+#~ msgid "<i>New:</i>"
+#~ msgstr "<i>Uusi:</i>"
+
+#~ msgid "<i>Original:</i>"
+#~ msgstr "<i>Alkuperäinen:</i>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Varmuuskopio</span>\t"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Virheenkäsittely</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">Uudelleennimeämis valinnat</span>"
+
+#~ msgid "Add unique identifier"
+#~ msgstr "Lisää yksilöllinen tunniste"
+
+#~ msgid "Automatically detect Portable Storage Devices"
+#~ msgstr "Tunnista automaattisesti ulkoiset tallennuslaitteet"
+
+#~ msgid "Automatically detect backup devices"
+#~ msgstr "Tunnista automaattisesti varmuuskopiolaitteet"
+
+#~ msgid "Backup"
+#~ msgstr "Varmuuskopio"
+
+#~ msgid ""
+#~ "Choose the download folder. Subfolders for the downloaded photos will be "
+#~ "automatically created in this folder using the structure specified below."
+#~ msgstr ""
+#~ "Valitse latauskansio. Alikansiot ladatuille kuville tehdään "
+#~ "automaattisesti tähän kansioon käyttäen alla määriteltyä rakennetta "
+#~ "käyttäen."
+
+#~ msgid "Day start:"
+#~ msgstr "Päivän alku:"
+
+#~ msgid "Download / Pause"
+#~ msgstr "Lataa / Keskeytä"
+
+#~ msgid "Download folder:"
+#~ msgstr "Latauskansio:"
+
+#~ msgid "Downloads today:"
+#~ msgstr "Latauksia tänään:"
+
+#~ msgid "Error Handling"
+#~ msgstr "Virheenkäsittely"
+
+#~ msgid "Overwrite"
+#~ msgstr "Ylikirjoita"
+
+#~ msgid "Preferences: Rapid Photo Downloader"
+#~ msgstr "Asetukset: Nopea Valokuvien Lataaja"
+
+#~ msgid "Rename Options"
+#~ msgstr "Uudelleennimeämis valinnat"
+
+#~ msgid "Skip"
+#~ msgstr "Ohita"
+
+#~ msgid "Skip download"
+#~ msgstr "Ohita lataus"
+
+#~ msgid ""
+#~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
+#~ "sequence number should be reset."
+#~ msgstr ""
+#~ "Valitse aika 24 tunnin muodossa jossa <i>Latauksia tänään</i> numerointi "
+#~ "tulisi palauttaa."
+
+#~ msgid "Start downloading at program startup"
+#~ msgstr "Aloita lataus kun ohjelma käynnistetään"
+
+#~ msgid "Stored number:"
+#~ msgstr "Tallennettu numero:"
+
+#~ msgid "Strip incompatible characters"
+#~ msgstr "Poista yhteensopimattomat merkit"
+
+#~ msgid "_Clear Completed Downloads"
+#~ msgstr "_Tyhjennä valmistuneet lataukset"
+
+#~ msgid "_Error Log"
+#~ msgstr "Virheloki"
+
+#~ msgid "_Get Help Online..."
+#~ msgstr "_Hae ohjeita netistä..."
+
+#~ msgid "_Help"
+#~ msgstr "_Ohje"
+
+#~ msgid "_Make a Donation..."
+#~ msgstr "_Tee lahjoitus"
+
+#~ msgid "_Report a Problem..."
+#~ msgstr "_Raportoi ongelma..."
+
+#~ msgid "_Translate this Application..."
+#~ msgstr "_Käännä tämä ohjelma..."
+
+#~ msgid "_View"
+#~ msgstr "_Näytä"
+
+#~ msgid ":"
+#~ msgstr ":"
+
+#~ msgid " hh:mm"
+#~ msgstr " hh:mm"
+
+#~ msgid "Select a folder to download photos to"
+#~ msgstr "Valitse kansio johon kuvat ladataan"
+
+#~ msgid "Job Code:"
+#~ msgstr "Työkoodi:"
+
+#~ msgid "Job Codes"
+#~ msgstr "Työkoodit"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Työkoodit</span>"
+
+#~ msgid "<b>Job Codes</b>"
+#~ msgstr "<b>Työkoodit</b>"
+
+#~ msgid "<b>Sequence Numbers</b>"
+#~ msgstr "<b>Numeroinnit</b>"
+
+#~ msgid "Enter a Job Code"
+#~ msgstr "Syöta työkoodi"
+
+#~ msgid "Berlin"
+#~ msgstr "Berliini"
+
+#~ msgid "Paris"
+#~ msgstr "Pariisi"
+
+#~ msgid "New York"
+#~ msgstr "New York"
+
+#~ msgid "Prague"
+#~ msgstr "Praha"
+
+#~ msgid "Manila"
+#~ msgstr "Manila"
+
+#~ msgid "Wellington"
+#~ msgstr "Wellington"
+
+#~ msgid "Helsinki"
+#~ msgstr "Helsinki"
+
+#~ msgid "Kampala"
+#~ msgstr "Guatemala"
+
+#~ msgid "Tehran"
+#~ msgstr "Teheran"
+
+#~ msgid "Stockholm"
+#~ msgstr "Tukholma"
+
+#~ msgid "Rome"
+#~ msgstr "Rooma"
+
+#~ msgid "Moscow"
+#~ msgstr "Moskova"
+
+#~ msgid "Sydney"
+#~ msgstr "Sydney"
+
+#~ msgid "Budapest"
+#~ msgstr "Budapest"
+
+#~ msgid "Jakarta"
+#~ msgstr "Jakarta"
+
+#~ msgid "Madrid"
+#~ msgstr "Madrid"
+
+#~ msgid "Delhi"
+#~ msgstr "Delhi"
+
+#~ msgid "Warsaw"
+#~ msgstr "Varsova"
+
+#~ msgid "_Remember this choice"
+#~ msgstr "_Muista tämä valinta"
 
 #~ msgid "Device Detected"
 #~ msgstr "Laite havaittu"
+
+#~ msgid "R_emove All"
+#~ msgstr "P_oista kaikki"
+
+#~ msgid "_Add..."
+#~ msgstr "_Lisää..."
+
+#~ msgid "Synchronize RAW + JPEG sequence numbers"
+#~ msgstr "Yhtenäistä RAW + JPEG järjestysnumerot"
 
 #~ msgid "Remove all Job Codes?"
 #~ msgstr "Poista kaikki työkoodit?"
@@ -2321,43 +2455,11 @@ msgstr "Asetukset: Nopea Valokuvien Lataaja"
 #~ msgid "Should all Job Codes be removed?"
 #~ msgstr "Tulisiko kaikki työkoodit poistaa?"
 
-#~ msgid "Error in Photo Rename preferences"
-#~ msgstr "Virhe kuvien uudelleennimeämisen määrityksissä"
+#~ msgid "Select a folder to download videos to"
+#~ msgstr "valitse johon videot ladataan"
 
-#~ msgid "Error in Video Rename preferences"
-#~ msgstr "Virhe videoiden uudelleennimeämisen määrityksissä"
-
-#~ msgid "Error in Photo Download Subfolders preferences"
-#~ msgstr "Virhe kuvien latauksen alikansion määrityksissä"
-
-#~ msgid "Error in Video Download Subfolders preferences"
-#~ msgstr "Virhe videoiden latauksen alikansion määrityksissä"
-
-#~ msgid "Enter a new Job Code, or select a previous one"
-#~ msgstr "Syötä työkoodi tai valitse edellisistä"
-
-#~ msgid "Enter a new Job Code"
-#~ msgstr "Syötä uusi työkoodi"
-
-#~ msgid "Job Code:"
-#~ msgstr "Työkoodi:"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
-#~ "name. Please use other renaming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Varoitus:</b> Tiedostossa ei ole riittävästi metatietoja nimen "
-#~ "luomiseksi. Käytä muita uudelleennimeämis valintoja.</i>"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient metadata to fully generate "
-#~ "subfolders. Please use other subfolder naming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Varoitus:</b> Tiedostossa ei ole riittävästi metatietoja "
-#~ "alikansioiden luomiseksi. Käytä muita alikansion nimeämisvalintoja.</i>"
-
-#~ msgid "<i>Example: %s</i>"
-#~ msgstr "<i>Esimerkki: %s</i>"
+#~ msgid "Select a folder containing %(file_types)s"
+#~ msgstr "valitse kansio joka sisältää %(file_types)s tiedostoja"
 
 #~ msgid ""
 #~ "The %(filetype)s subfolder preferences entered are invalid and cannot be "
@@ -2368,193 +2470,131 @@ msgstr "Asetukset: Nopea Valokuvien Lataaja"
 #~ "niitä ei voi käyttää.\n"
 #~ "Asetukset palautetaan oletusarvoihin."
 
-#~ msgid "externaldrive1"
-#~ msgstr "ulkoinenasema1"
+#~ msgid "Photos:"
+#~ msgstr "Kuvat:"
 
-#~ msgid "externaldrive2"
-#~ msgstr "ulkoinenasema2"
-
-#~ msgid "New York"
-#~ msgstr "New York"
-
-#~ msgid "Manila"
-#~ msgstr "Manila"
-
-#~ msgid "Prague"
-#~ msgstr "Praha"
-
-#~ msgid "Helsinki"
-#~ msgstr "Helsinki"
-
-#~ msgid "Wellington"
-#~ msgstr "Wellington"
-
-#~ msgid "Tehran"
-#~ msgstr "Teheran"
-
-#~ msgid "Kampala"
-#~ msgstr "Guatemala"
-
-#~ msgid "Paris"
-#~ msgstr "Pariisi"
-
-#~ msgid "Berlin"
-#~ msgstr "Berliini"
-
-#~ msgid "Sydney"
-#~ msgstr "Sydney"
-
-#~ msgid "Budapest"
-#~ msgstr "Budapest"
-
-#~ msgid "Rome"
-#~ msgstr "Rooma"
-
-#~ msgid "Moscow"
-#~ msgstr "Moskova"
-
-#~ msgid "Delhi"
-#~ msgstr "Delhi"
-
-#~ msgid "Warsaw"
-#~ msgstr "Varsova"
-
-#~ msgid "Jakarta"
-#~ msgstr "Jakarta"
-
-#~ msgid "Madrid"
-#~ msgstr "Madrid"
-
-#~ msgid "Stockholm"
-#~ msgstr "Tukholma"
-
-#~ msgid "_File"
-#~ msgstr "_Tiedosto"
-
-#~ msgid "Download / Pause"
-#~ msgstr "Lataa / Keskeytä"
-
-#~ msgid "Select All Without _Job Code"
-#~ msgstr "Valitse kaikki työ_koodittomat"
-
-#~ msgid "Select All Wit_h Job Code"
-#~ msgstr "Valitse kaikki _työkoodilliset"
-
-#~ msgid "_View"
-#~ msgstr "_Näytä"
-
-#~ msgid "_Error Log"
-#~ msgstr "Virheloki"
-
-#~ msgid "_Help"
-#~ msgstr "_Ohje"
-
-#~ msgid "_Translate this Application..."
-#~ msgstr "_Käännä tämä ohjelma..."
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Kuvien latauskansiot</span>"
+#~ msgid "Videos:"
+#~ msgstr "Videot:"
 
 #~ msgid "<i>Example: /home/user/Pictures</i>"
 #~ msgstr "<i>Esimerkki: /home/user/Kuvat</i>"
 
-#~ msgid "<b>Download Subfolders</b>"
-#~ msgstr "<b>Latausalikansio</b>"
+#~ msgid "<b>Photo Rename</b>"
+#~ msgstr "<b>Kuvan Uudelleennimeäminen</b>"
 
-#~ msgid "Download folder:"
-#~ msgstr "Latauskansio:"
+#~ msgid "Location:"
+#~ msgstr "Sijainti:"
 
-#~ msgid ""
-#~ "Choose the download folder. Subfolders for the downloaded photos will be "
-#~ "automatically created in this folder using the structure specified below."
-#~ msgstr ""
-#~ "Valitse latauskansio. Alikansiot ladatuille kuville tehdään "
-#~ "automaattisesti tähän kansioon käyttäen alla määriteltyä rakennetta "
-#~ "käyttäen."
-
-#~ msgid "<b>Download Folder</b>"
-#~ msgstr "<b>Latauskansio</b>"
+#~ msgid "Photo Rename"
+#~ msgstr "Kuvan Uudelleennimeäminen"
 
 #~ msgid "Photo Folders"
 #~ msgstr "Kuvakansiot"
+
+#~ msgid ""
+#~ "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
+#~ "name. Please use other renaming options.</i>"
+#~ msgstr ""
+#~ "<i><b>Varoitus:</b> Tiedostossa ei ole riittävästi metatietoja nimen "
+#~ "luomiseksi. Käytä muita uudelleennimeämis valintoja.</i>"
+
+#~ msgid ""
+#~ "Should this device or partition be used to download photos or videos from?"
+#~ msgstr "Tulisiko tätä laitetta tai osiota käyttää kuvalaitteena?"
+
+#~ msgid "%(number)s of %(total)s %(filetypes)s"
+#~ msgstr "%(number)s/%(total)s %(filetypes)s"
+
+#~ msgid "reset all program settings and preferences and exit"
+#~ msgstr "tyhjennä kaikki ohjelman asetukset ja määritykset, ja poistu"
+
+#~ msgid "All settings and preferences have been reset"
+#~ msgstr "Kaikki asetukset ja määritykset tyhjennetty"
+
+#~ msgid "list photo and video file extensions the program recognizes and exit"
+#~ msgstr ""
+#~ "listaa kuva- ja videotiedostopäätteitä joita ohjelma tunnistaa ja poistu"
+
+#~ msgid "Backing up to %(path)s"
+#~ msgstr "Varmuuskopioidaan kohteeseen %(path)s"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
 #~ msgstr ""
 #~ "<span weight=\"bold\" size=\"x-large\">Kuvan uudelleenimeäminen</span>\t"
 
-#~ msgid "<b>Photo Rename</b>"
-#~ msgstr "<b>Kuvan Uudelleennimeäminen</b>"
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Laitteet</span>"
 
-#~ msgid " "
-#~ msgstr " "
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">Videon uudelleenimeäminen</span>\t"
 
-#~ msgid "<i>New:</i>"
-#~ msgstr "<i>Uusi:</i>"
+#~ msgid "Automatically detect devices"
+#~ msgstr "Tunnista laitteet automaattisesti"
 
-#~ msgid "<i>Original:</i>"
-#~ msgstr "<i>Alkuperäinen:</i>"
+#~ msgid "Import your photos and videos efficiently and reliably"
+#~ msgstr "Tuo kuvasi ja videosi tehokkaasti ja luotettavasti"
 
-#~ msgid "<b>Example</b>"
-#~ msgstr "<b>Esimerkki</b>"
+#~ msgid "Video Rename"
+#~ msgstr "Videon uudelleenimeäminen"
 
-#~ msgid "Photo Rename"
-#~ msgstr "Kuvan Uudelleennimeäminen"
+#~ msgid "Unmount (\"eject\") device upon download completion"
+#~ msgstr "Irrota (\"poista\") laite latauksen valmistuttua"
+
+#~ msgid "Error in Video Rename preferences"
+#~ msgstr "Virhe videoiden uudelleennimeämisen määrityksissä"
+
+#~ msgid "Error in Photo Rename preferences"
+#~ msgstr "Virhe kuvien uudelleennimeämisen määrityksissä"
+
+#~ msgid "Error in Video Download Subfolders preferences"
+#~ msgstr "Virhe videoiden latauksen alikansion määrityksissä"
+
+#~ msgid "Error in Photo Download Subfolders preferences"
+#~ msgstr "Virhe kuvien latauksen alikansion määrityksissä"
+
+#~ msgid "Video Folders"
+#~ msgstr "Videokansiot"
+
+#~ msgid "Video backup folder name:"
+#~ msgstr "Videoiden varmuuskopiokansion nimi:"
+
+#~ msgid "Photo backup folder name:"
+#~ msgstr "Kuvien varmuuskopiokansion nimi:"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Kuvien latauskansiot</span>"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
 #~ msgstr ""
 #~ "<span weight=\"bold\" size=\"x-large\">Videoiden latauskansiot</span>"
 
 #~ msgid ""
-#~ "Choose the download folder. Subfolders for the downloaded videos will be "
-#~ "automatically created in this folder using the structure specified below."
+#~ "<i><b>Warning:</b> There is insufficient metadata to fully generate "
+#~ "subfolders. Please use other subfolder naming options.</i>"
 #~ msgstr ""
-#~ "Valitse latauskansio. Alikansiot ladattuja videoita varten luodaan tähän "
-#~ "hakemistoon automaattisesti, käyttäen alla määritettyä rakennetta."
+#~ "<i><b>Varoitus:</b> Tiedostossa ei ole riittävästi metatietoja "
+#~ "alikansioiden luomiseksi. Käytä muita alikansion nimeämisvalintoja.</i>"
 
-#~ msgid "Video Folders"
-#~ msgstr "Videokansiot"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Videon uudelleenimeäminen</span>\t"
-
-#~ msgid "Video Rename"
-#~ msgstr "Videon uudelleenimeäminen"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Uudelleennimeämis valinnat</span>"
-
-#~ msgid "<b>Sequence Numbers</b>"
-#~ msgstr "<b>Numeroinnit</b>"
+#~ msgid "<b>Photo and Video Name Conflicts</b>"
+#~ msgstr "<b>Kuva- ja videonimien ristiriidat</b>"
 
 #~ msgid ""
-#~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
-#~ "sequence number should be reset."
+#~ "When backing up, choose whether to overwrite a file on the backup device "
+#~ "that has the same name, or skip backing it up."
 #~ msgstr ""
-#~ "Valitse aika 24 tunnin muodossa jossa <i>Latauksia tänään</i> numerointi "
-#~ "tulisi palauttaa."
+#~ "Kun varmuuskopiodaan, valitse kirjoitetaanko saman nimisten tiedostojen "
+#~ "päälle vai ohitetaanko tiedoston varmuuskopiointi."
 
-#~ msgid "Day start:"
-#~ msgstr "Päivän alku:"
+#~ msgid "Start downloading upon device insertion"
+#~ msgstr "Aloita lataaminen kun laite kiinnitetään"
 
-#~ msgid "Downloads today:"
-#~ msgstr "Latauksia tänään:"
-
-#~ msgid "Stored number:"
-#~ msgstr "Tallennettu numero:"
-
-#~ msgid ":"
-#~ msgstr ":"
-
-#~ msgid " hh:mm"
-#~ msgstr " hh:mm"
-
-#~ msgid "Synchronize RAW + JPEG sequence numbers"
-#~ msgstr "Yhtenäistä RAW + JPEG järjestysnumerot"
-
-#~ msgid "<b>Compatibility with Other Operating Systems</b>"
-#~ msgstr "<b>Yhteensopivuus käyttöjärjestelmien kanssa</b>"
+#~ msgid ""
+#~ "You can have your photos and videos backed up to multiple locations as "
+#~ "they are downloaded, e.g. external hard drives."
+#~ msgstr ""
+#~ "Voit varmuuskopioida kuvat ja videot useaan sijaintiin ladattaessa, "
+#~ "esimerkiksi ulkoisiin kiintolevyihin."
 
 #~ msgid ""
 #~ "Specify whether photo, video and folder names should have any characters "
@@ -2563,51 +2603,12 @@ msgstr "Asetukset: Nopea Valokuvien Lataaja"
 #~ "Määrittele, pitäisikö kuvien, videoiden ja kansioiden nimistä poistaa "
 #~ "merkit, jotka eivät ole sallittuja muissa käyttöjärjestelmissä."
 
-#~ msgid "Strip incompatible characters"
-#~ msgstr "Poista yhteensopimattomat merkit"
-
-#~ msgid "Rename Options"
-#~ msgstr "Uudelleennimeämis valinnat"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Työkoodit</span>"
-
-#~ msgid "<b>Job Codes</b>"
-#~ msgstr "<b>Työkoodit</b>"
-
-#~ msgid "_Add..."
-#~ msgstr "_Lisää..."
-
-#~ msgid "R_emove All"
-#~ msgstr "P_oista kaikki"
-
-#~ msgid "Job Codes"
-#~ msgstr "Työkoodit"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Laitteet</span>"
-
-#~ msgid "Automatically detect Portable Storage Devices"
-#~ msgstr "Tunnista automaattisesti ulkoiset tallennuslaitteet"
-
-#~ msgid "Automatically detect devices"
-#~ msgstr "Tunnista laitteet automaattisesti"
-
-#~ msgid "Location:"
-#~ msgstr "Sijainti:"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Varmuuskopio</span>\t"
-
-#~ msgid "<b>Backup</b>"
-#~ msgstr "<b>Varmuuskopio</b>"
-
 #~ msgid ""
-#~ "You can have your photos and videos backed up to multiple locations as "
-#~ "they are downloaded, e.g. external hard drives."
+#~ "Choose the download folder. Subfolders for the downloaded videos will be "
+#~ "automatically created in this folder using the structure specified below."
 #~ msgstr ""
-#~ "Voit varmuuskopioida kuvat ja videot useaan sijaintiin ladattaessa, "
-#~ "esimerkiksi ulkoisiin kiintolevyihin."
+#~ "Valitse latauskansio. Alikansiot ladattuja videoita varten luodaan tähän "
+#~ "hakemistoon automaattisesti, käyttäen alla määritettyä rakennetta."
 
 #~ msgid ""
 #~ "Specify the folder in which backups are stored on the device.  \n"
@@ -2622,41 +2623,42 @@ msgstr "Asetukset: Nopea Valokuvien Lataaja"
 #~ "varmuuskopiointiin. Luo jokaiseen laitteeseen mitä haluat käyttää "
 #~ "varmuuskopiointiin, kansio käyttäen yhtä näistä nimistä.</i>"
 
-#~ msgid "Photo backup folder name:"
-#~ msgstr "Kuvien varmuuskopiokansion nimi:"
+#~ msgid "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
-#~ msgid "<i>Example:</i>"
-#~ msgstr "<i>Esimerkki</i>"
+#~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
-#~ msgid "<i>/media/externaldrive/Photos</i>"
-#~ msgstr "<i>/media/ulkoinenlevy/Kuvat</i>"
+#~ msgid ""
+#~ "%(date)s\n"
+#~ "%(time)s"
+#~ msgstr ""
+#~ "%(date)s\n"
+#~ "%(time)s"
 
-#~ msgid "Video backup folder name:"
-#~ msgstr "Videoiden varmuuskopiokansion nimi:"
+#~ msgid "%(date)s %(time)s"
+#~ msgstr "%(date)s %(time)s"
 
-#~ msgid "<b>Program Automation</b>"
-#~ msgstr "<b>Ohjelman automatiikka</b>"
+#~ msgid "Enter a new Job Code, or select a previous one"
+#~ msgstr "Syötä työkoodi tai valitse edellisistä"
 
-#~ msgid "Unmount (\"eject\") device upon download completion"
-#~ msgstr "Irrota (\"poista\") laite latauksen valmistuttua"
+#~ msgid "Enter a new Job Code"
+#~ msgstr "Syötä uusi työkoodi"
 
-#~ msgid "Start downloading at program startup"
-#~ msgstr "Aloita lataus kun ohjelma käynnistetään"
+#~ msgid "_File"
+#~ msgstr "_Tiedosto"
 
-#~ msgid "Start downloading upon device insertion"
-#~ msgstr "Aloita lataaminen kun laite kiinnitetään"
+#~ msgid "_Select"
+#~ msgstr "_Valitse"
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Virheenkäsittely</span>"
+#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
+#~ msgstr "%(number)s / %(total)s %(filetypes)s (%(remaining)s jäljellä)"
 
-#~ msgid "<b>Photo and Video Name Conflicts</b>"
-#~ msgstr "<b>Kuva- ja videonimien ristiriidat</b>"
+#~ msgid "Select All Wit_h Job Code"
+#~ msgstr "Valitse kaikki _työkoodilliset"
 
-#~ msgid "Add unique identifier"
-#~ msgstr "Lisää yksilöllinen tunniste"
-
-#~ msgid "Skip download"
-#~ msgstr "Ohita lataus"
+#~ msgid "Select All Without _Job Code"
+#~ msgstr "Valitse kaikki työ_koodittomat"
 
 #~ msgid ""
 #~ "When a photo or video of the same name has already been downloaded, "
@@ -2666,604 +2668,8 @@ msgstr "Asetukset: Nopea Valokuvien Lataaja"
 #~ "Kun kuva tai video samalla nimellä on jo ladattu, valitse ohitetaanko "
 #~ "lataaminen vai lisätäänkö tiedostonimeen yksilöllinen tunniste."
 
-#~ msgid ""
-#~ "When backing up, choose whether to overwrite a file on the backup device "
-#~ "that has the same name, or skip backing it up."
-#~ msgstr ""
-#~ "Kun varmuuskopiodaan, valitse kirjoitetaanko saman nimisten tiedostojen "
-#~ "päälle vai ohitetaanko tiedoston varmuuskopiointi."
-
-#~ msgid "Overwrite"
-#~ msgstr "Ylikirjoita"
-
-#~ msgid "Skip"
-#~ msgstr "Ohita"
-
-#~ msgid "Error Handling"
-#~ msgstr "Virheenkäsittely"
-
-#~ msgid "Import your photos and videos efficiently and reliably"
-#~ msgstr "Tuo kuvasi ja videosi tehokkaasti ja luotettavasti"
-
-#~ msgid "Error in Image Rename preferences"
-#~ msgstr "Virhe kuvan nimeämisasetuksissa"
-
-#~ msgid "0 of %s images copied"
-#~ msgstr "0 kuvaa %s kuvasta kopioitu"
-
-#~ msgid "Could not open image"
-#~ msgstr "Kuvaa ei voitu avata"
-
-#~ msgid ""
-#~ "Image filename could not be properly generated. Check to ensure there is "
-#~ "sufficient image metadata."
-#~ msgstr ""
-#~ "Kuvan tiedostonimeä ei pystytty luomaan oikein. Tarkista että kuvassa on "
-#~ "riittävästi metatietoja."
-
-#~ msgid "Image filename could not be generated"
-#~ msgstr "Kuvan tiedostonimeä ei pystytty luomaan"
-
-#~ msgid "Image has no metadata"
-#~ msgstr "Kuvassa ei ole metatietoja"
-
-#~ msgid ""
-#~ "Metadata is essential for generating subfolders / image names.\n"
-#~ "Source: %s"
-#~ msgstr ""
-#~ "Metatieto on välttämätöntä kansiorakenteen ja tiedostonimien luontiin.\n"
-#~ "Lähde: %s"
-
-#~ msgid ""
-#~ "Subfolder name could not be properly generated. Check to ensure there is "
-#~ "sufficient image metadata."
-#~ msgstr ""
-#~ "Kansiorakennetta ei voitu luoda. Tarkista että kuvassa on riittävästi "
-#~ "metatietoja."
-
-#~ msgid "Backup image already exists"
-#~ msgstr "Kuvan varmuuskopio on jo olemassa"
-
-#~ msgid "The image was not copied."
-#~ msgstr "Kuvaa ei kopioitu."
-
-#~ msgid "New day has started - resetting 'Downloads Today' sequence number"
-#~ msgstr "Uusi päivä on alkanut - Palautetaan 'Latauksia Tänään' luku"
-
-#~ msgid "Unique identifier '%s' added"
-#~ msgstr "Yksilöinti '%s' lisätty"
-
-#~ msgid "%s images skipped"
-#~ msgstr "%s kuvaa ohitettu"
-
-#~ msgid "errors"
-#~ msgstr "virheet"
-
-#~ msgid "%s images downloaded"
-#~ msgstr "%s kuvaa ladattu"
-
-#~ msgid "The device can now be safely removed"
-#~ msgstr "Laite voidaan turvallisesti poistaa"
-
-#~ msgid "Backup device missing"
-#~ msgstr "Varmuuskopiolaite puuttuu"
-
-#~ msgid "No backup device was detected."
-#~ msgstr "Varmuuskopiolaitetta ei löytynyt"
-
-#~ msgid "This device has no images to download from."
-#~ msgstr "Laitteessa ei ole kuvia ladattavaksi."
-
-#~ msgid "Image has no thumbnail"
-#~ msgstr "Kuvalla ei ole näytekuvaa"
-
-#~ msgid "Download complete from %s"
-#~ msgstr "Lataus lähteestä %s valmis"
-
-#~ msgid "Download has started from %s"
-#~ msgstr "Lataus lähteestä %s on alkanut"
-
-#~ msgid "Image skipped"
-#~ msgstr "Kuva ohitettu"
-
-#~ msgid "Image overwritten"
-#~ msgstr "Kuva korvattu"
-
-#~ msgid "Image already exists"
-#~ msgstr "Kuva on jo olemassa"
-
-#~ msgid ""
-#~ "This version of the program is newer than the previously run version. "
-#~ "Checking preferences."
-#~ msgstr ""
-#~ "Tämä ohjelma on uudempi kuin aikaisemmin käytetty. Tarkista asetukset."
-
-#~ msgid "Warning:"
-#~ msgstr "Varoitus:"
-
-#~ msgid "Sorry, some preferences are invalid and will be reset."
-#~ msgstr ""
-#~ "Anteeksi, jotkin asetukset ovat virheellisiä ja ne palautetaan "
-#~ "oletusarvoihin."
-
-#~ msgid ""
-#~ "Program preferences appear to be valid, but please check them to ensure "
-#~ "correct operation."
-#~ msgstr ""
-#~ "Ohjelma on kelpaava, mutta ole hyvä ja tarkista että ohjelma toimii "
-#~ "oikein."
-
-#~ msgid ""
-#~ "A newer version of this program was previously run on this computer.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "Ohjelman uudempaa versiota on käytetty tässä tietokoneessa.\n"
-#~ "\n"
-
-#~ msgid "Preferences were modified."
-#~ msgstr "Asetuksia on muokattu."
-
-#~ msgid "It may be corrupted"
-#~ msgstr "Se voi olla vahingoittunut"
-
-#~ msgid "No preferences needed to be changed."
-#~ msgstr "Asetuksia ei tarvinnut muuttaa."
-
-#~ msgid "Problem using pynotify."
-#~ msgstr "Ongelmia pynotifyn käytössä."
-
-#~ msgid "Using manually specified path"
-#~ msgstr "Käytetään käsin valittua polkua"
-
-#~ msgid "images skipped"
-#~ msgstr "kuvia ohitettu"
-
-#~ msgid ""
-#~ "\n"
-#~ "Please check preferences, restart the program, and try again."
-#~ msgstr ""
-#~ "\n"
-#~ "Ole hyvä ja tarkista asetukset, käynnistä ohjelma uudelleen ja koita "
-#~ "uudestaan."
-
-#~ msgid "The subfolder preferences had some unnecessary values removed."
-#~ msgstr "Alikansioasetuksista poistettiin tarpeettomia arvoja."
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Lähde: %(source)s\n"
-#~ "Kohde: %(destination)s\n"
-#~ "Ongelma: %(problem)s"
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Lähde: %(source)s\n"
-#~ "Ongelma: %(problem)s"
-
-#~ msgid "Device scan complete: no images found on %s"
-#~ msgstr "Laite etsintä on valmis: kuvia ei löytynyt sijainnista %s"
-
-#~ msgid "Device scan complete: found %(number)s images on %(device)s"
-#~ msgstr ""
-#~ "Laite etsintä on valmis: löytyi %(number)s kuvaa %(device)s laitteesta"
-
-#~ msgid ""
-#~ "Subfolder: %(subfolder)s\n"
-#~ "Image: %(image)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Alikansio: %(subfolder)s\n"
-#~ "Kuva: %(image)s\n"
-#~ "Ongelma: %(problem)s"
-
-#~ msgid ""
-#~ "This version of the program uses different preferences than the old "
-#~ "version. Your preferences have been updated.\n"
-#~ "\n"
-#~ "Please check them to ensure correct operation."
-#~ msgstr ""
-#~ "Tämä ohjelmaversio käyttää eri asetuksia kuin vanha versio. Asetuksesi on "
-#~ "päivitettu.\n"
-#~ "\n"
-#~ "Ole hyvä ja tarkista ne varmistaaksesi ohjelman toiminta."
-
-#~ msgid ""
-#~ "This version of the program uses different preferences than the old "
-#~ "version. Some of your previous preferences were invalid, and could not be "
-#~ "updated. They will be reset."
-#~ msgstr ""
-#~ "Tämä ohjelmaversio käyttää eri asetuksia kuin vanha versio. Jotkin "
-#~ "entisistä asetuksistasi olivat virheellisiä ja niitä ei voitu päivittää. "
-#~ "Ne palautetaan oletuksiin."
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Error: %(errno)s %(strerror)s"
-#~ msgstr ""
-#~ "Lähde: %(source)s\n"
-#~ "Kohde: %(destination)s\n"
-#~ "Virhe: %(errno)s %(strerror)s"
-
-#~ msgid "Some preferences will be reset."
-#~ msgstr "Jotkin asetukset palautetaan."
-
-#~ msgid "%(number)s of %(total)s images copied"
-#~ msgstr "%(number)s kuvaa %(total)s kuvasta kopioitu"
-
-#~ msgid "Detected %(device)s with path %(path)s"
-#~ msgstr "Löytyi %(device)s laitetta polusta %(path)s"
-
-#~ msgid "Failed to receive pynotify server capabilities."
-#~ msgstr "Ei saanut pynotify-palvelimen ominaisuuksia."
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Error: %(errorno)s %(strerror)s"
-#~ msgstr ""
-#~ "Lähde: %(source)s\n"
-#~ "Kohde: %(destination)s\n"
-#~ "Virhe: %(errorno)s %(strerror)s"
-
-#~ msgid "Download copying error"
-#~ msgstr "Kopiointivirhe"
-
-#~ msgid "_Pause"
-#~ msgstr "_Keskeytä"
-
-#~ msgid "Preferences were changed."
-#~ msgstr "Asetuksia muutettiin."
-
-#~ msgid "list image file extensions the program recognizes and exit"
-#~ msgstr "Listaa kuvatiedostopäätteet jotka ohjelma tunnistaa ja poistu"
-
-#~ msgid "Goodbye"
-#~ msgstr "Näkemiin"
-
-#~ msgid "Automatically start download is false"
-#~ msgstr "Automaattinen latauksen aloitus on pois päältä"
-
-#~ msgid "Automatically start download is true"
-#~ msgstr "Automaattinen latauksen aloitus on päällä"
-
-#~ msgid "%s is already running"
-#~ msgstr "%s on jo käynnissä"
-
-#~ msgid "Using"
-#~ msgstr "Käyttäen"
-
-#~ msgid "extension was specified but image name has no extension"
-#~ msgstr ""
-#~ "tiedostopääte oli määritelty mutta kuvan nimessä ei ole tiedostopäätettä"
-
-#~ msgid "image number was specified but image filename has no number"
-#~ msgstr "kuvan numero oli määritelty, mutta tiedostonimessä ei ole numeroa"
-
-#~ msgid ""
-#~ "Destination directory could not be created\n"
-#~ "%(directory)s\n"
-#~ "Error: %(errno)s %(strerror)s"
-#~ msgstr ""
-#~ "Kohdekansiota ei voitu luoda\n"
-#~ "%(directory)s\n"
-#~ "Virhe: %(errno)s %(strerror)s"
-
-#~ msgid "Preference value '%(value)s' is invalid"
-#~ msgstr "Asetuksen arvo '%(value)s' on virheellinen"
-
-#~ msgid "These preferences are not well formed:"
-#~ msgstr "Nämä asetukset eivät ole oikeassa muodossa:"
-
-#~ msgid "Subsecond metadata not present in image"
-#~ msgstr "sekunnin osia ei löydy metatiedoista tässä kuvassa"
-
-#~ msgid "%s metadata is not present in image"
-#~ msgstr "%s metatietoa ei löydy tästä kuvasta"
-
-#~ msgid "error generating name with component %s"
-#~ msgstr "virhe luotaessa nimeä osalla %s"
-
-#~ msgid "      "
-#~ msgstr "      "
-
-#~ msgid "<b>Image Devices</b>"
-#~ msgstr "<b>Kuva laitteet</b>"
-
-#~ msgid "<b>Image Rename</b>"
-#~ msgstr "<b>Kuvan uudelleennimeäminen</b>"
-
-#~ msgid "<b>Missing Backup Devices</b>"
-#~ msgstr "<b>Puuttuvat varmusskopiolaitteet</b>"
-
-#~ msgid "<i>Example: /home/user/photos</i>"
-#~ msgstr "<i>Esimerkki: /home/käyttäjä/kuvat</i>"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Automation</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Automatisointi</span>"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Download Folder</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Latauskansio</span>"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Image Devices</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Kuvalaitteet</span>"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Image Rename</span>\t"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Kuvan uudelleennimeäminen</span>\t"
-
-#~ msgid "Automatically detect image devices"
-#~ msgstr "Tunnista automaattisesti kuvalaitteet"
-
-#~ msgid "Automation"
-#~ msgstr "Automatisointi"
-
-#~ msgid "Backup folder name:"
-#~ msgstr "Varmuuskopiokansion nimi:"
-
-#~ msgid "Backup location:"
-#~ msgstr "Varmuuskopioiden sijainti:"
-
-#~ msgid "Backup photos when downloading"
-#~ msgstr "Tee varmuuskopio ladattaessa kuvia"
-
-#~ msgid ""
-#~ "Choose whether to skip downloading the image, or to add a unique "
-#~ "indentifier."
-#~ msgstr ""
-#~ "Valitse ohitetaanko kuva ladattaessa vai lisätäänkö nimeen yksilöllinen "
-#~ "tunniste."
-
-#~ msgid "Download Folder"
-#~ msgstr "Latauskansio"
-
-#~ msgid "Exit program after completion of successful download"
-#~ msgstr "Poistu ohjelmasta onnistuneen latauksen jälkeen"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact backup location."
-#~ msgstr ""
-#~ "Jos poistat automaattisen tunnistuksen käytöstä, määritä varmuuskopioiden "
-#~ "tarkka sijainti."
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the "
-#~ "images."
-#~ msgstr ""
-#~ "Jos poistat automaattisen tunnistuksen käytöstä, määritä tarkka kuvien "
-#~ "sijainti."
-
-#~ msgid ""
-#~ "If you enable automatic detection of Portable Storage Devices, the entire "
-#~ "device will be scanned for images. On large devices, this could take some "
-#~ "time."
-#~ msgstr ""
-#~ "Jos kytket päälle automaattisen kannettavan laitteen tunnistuksen, koko "
-#~ "laite käydään läpi kuvia etsittäessä, tämä voi kestää hetken."
-
-#~ msgid "Ignore"
-#~ msgstr "Ohita"
-
-#~ msgid "Image Rename"
-#~ msgstr "Kuvan uudelleennimeäminen"
-
-#~ msgid ""
-#~ "Image devices are devices from which to download photos, such as cameras, "
-#~ "memory cards or Portable Storage Devices.\n"
-#~ "\n"
-#~ "You can download photos from multiple image devices simultaneously.\n"
-#~ "\n"
-#~ "<i>If downloading directly from your camera works poorly or not at all, "
-#~ "try setting it to PTP mode. If that is not possible, consider using a "
-#~ "card reader.</i>"
-#~ msgstr ""
-#~ "Kuvalaitteet ovat laitteita joista kuvat ladataan, kuten kameroita, "
-#~ "muistikortteja tai muita kannettavia laitteita.\n"
-#~ "\n"
-#~ "Voit ladata valokuvia monesta kuvalaitteesta yhtäaikaa.\n"
-#~ "\n"
-#~ "<i>Jos lataus suoraan kamerasta toimii huonosti tai ei ollenkaan, koita "
-#~ "asettaa se PTP tilaan. Jos ei ole mahdollista, harkitse kortinlukijan "
-#~ "käyttämistä.</i>"
-
-#~ msgid "Image location:"
-#~ msgstr "Kuvan sijainti:"
-
-#~ msgid "Import your images efficiently and reliably"
-#~ msgstr "Tuo kuvasti tehokkaasti ja turvallisesti"
-
-#~ msgid "Report a warning"
-#~ msgstr "Raportoi varoitus"
-
-#~ msgid "Report an error"
-#~ msgstr "Raportoi virhe"
-
-#~ msgid ""
-#~ "Specify what to do when an image of the same name has already been "
-#~ "downloaded or backed up."
-#~ msgstr ""
-#~ "Valitse mitä tehdään kun samanniminen kuva on jo ladattu tai "
-#~ "varmuuskopioitu."
-
-#~ msgid "Specify what to do when there are no backup devices."
-#~ msgstr "Valitse mitä tehdään jos varmuuskopiolaitteita ei löydy."
-
-#~ msgid "Start downloading upon image device insertion"
-#~ msgstr "Aloita lataus kun kuvalaite kytketään"
-
-#~ msgid "Unmount (\"eject\") image device upon download completion"
-#~ msgstr "Poista kuvalaite kun lataus on valmis"
-
-#~ msgid ""
-#~ "When backing up, choose whether to overwrite an image on the backup "
-#~ "device that has the same name, or skip backing it up."
-#~ msgstr ""
-#~ "Varmuuskopioitaessa, valitse ylikirjoitetaanko kuva "
-#~ "varmuuskopiolaitteessa jos saman niminen kuva on jo olemassa, vai "
-#~ "ohitetaanko se."
-
-#~ msgid ""
-#~ "You can have your photos backed up to multiple locations as they are "
-#~ "downloaded, e.g. external hard drives."
-#~ msgstr ""
-#~ "Voit varmuuskopioida kuvasi useaan kohteeseen kun kuvia ladataan, esim. "
-#~ "ulkoisille kovalevyille."
-
-#~ msgid "_Photos"
-#~ msgstr "_Valokuvat"
-
-#~ msgid "_Thumbnails"
-#~ msgstr "_Näytekuvat"
-
-#~ msgid "Error in date time component. Value %s appears invalid"
-#~ msgstr "Virhe aikamäärityksessä. Arvo %s näyttää virheelliseltä"
-
-#~ msgid ""
-#~ "Preference key '%(key)s' is invalid.\n"
-#~ "Expected one of %(value)s"
-#~ msgstr ""
-#~ "Asetus '%(key)s' on virheellinen.\n"
-#~ "Tulisi olla yksi näistä %(value)s"
-
-#~ msgid "<b>Image Name Conflicts</b>"
-#~ msgstr "<b>Kuvannimien konfliktit</b>"
-
-#~ msgid "Resetting value to zero.\n"
-#~ msgstr "Palautetaan arvo nollaan.\n"
-
-#~ msgid "Resetting to default values."
-#~ msgstr "Palautetaan oletusarvot."
-
-#~ msgid "Copyright Damon Lynch 2007-09"
-#~ msgstr "Tekijänoikeus Damon Lynch 2007-09"
-
-#~ msgid "Invalid Downloads Today value.\n"
-#~ msgstr "Virheelliset lataukset tänään\n"
-
-#~ msgid ""
-#~ "Rapid Photo Downloader is free software; you can redistribute it and/or "
-#~ "modify it under the terms of the GNU General Public License as published "
-#~ "by the Free Software Foundation; either version 2 of the License, or (at "
-#~ "your option) any later version.\n"
-#~ "\n"
-#~ "Rapid Photo Downloader is distributed in the hope that it will be useful, "
-#~ "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-#~ "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General "
-#~ "Public License for more details.\n"
-#~ "\n"
-#~ "You should have received a copy of the GNU General Public License along "
-#~ "with Rapid Photo Downloader; if not, write to the Free Software "
-#~ "Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, "
-#~ "USA."
-#~ msgstr ""
-#~ "Rapid Photo Downloader is free software; you can redistribute it and/or "
-#~ "modify it under the terms of the GNU General Public License as published "
-#~ "by the Free Software Foundation; either version 2 of the License, or (at "
-#~ "your option) any later version.\n"
-#~ "\n"
-#~ "Rapid Photo Downloader is distributed in the hope that it will be useful, "
-#~ "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-#~ "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General "
-#~ "Public License for more details.\n"
-#~ "\n"
-#~ "You should have received a copy of the GNU General Public License along "
-#~ "with Rapid Photo Downloader; if not, write to the Free Software "
-#~ "Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, "
-#~ "USA."
-
-#~ msgid "Error in Download Subfolder preferences"
-#~ msgstr "Virhe latauksen alikansioasetuksissa"
-
-#~ msgid ""
-#~ "The subfolder preferences entered are invalid and cannot be used.\n"
-#~ "They will be reset to their default values."
-#~ msgstr ""
-#~ "Alikansioasetukset ovat virheelliset, eikä niitä voida käyttää.\n"
-#~ "Palautetaan oletusasetukset."
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient image metadata to fully generate "
-#~ "the name. Please use other renaming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Varoitus:</b> Kuvassa ei ole riittäviä metadata tietoja kuvan "
-#~ "nimeämiseen. Ole hyvä ja vaihda nimeämisasetuksia.</i>"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient image metadata to fully generate "
-#~ "subfolders. Please use other subfolder naming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Warning:</b> Kuvassa ei ole riittäviä metadata tietoja "
-#~ "alikansioiden luomiseen. Ole hyvä ja vaihda alikansioidenluontiasetukstia."
-#~ "</i>"
-
-#~ msgid "Select a folder in which to backup images"
-#~ msgstr "Valitse kansio johon varmuuskopio tehdään"
-
-#~ msgid "Job Code entered"
-#~ msgstr "Työkoodi syötetty"
-
-#~ msgid "Starting downloads"
-#~ msgstr "Käynnistetään latauksia"
-
-#~ msgid "Starting downloads that have been waiting for a Job Code"
-#~ msgstr "Työkoodia odottaneet lataukset käynnistetään"
-
-#~ msgid "Prompting for Job Code"
-#~ msgstr "Kysyy työkoodia"
-
-#~ msgid "Resetting to midnight.\n"
-#~ msgstr "Palautetaan keskiyöhön.\n"
-
-#~ msgid "There is an error in the program preferences."
-#~ msgstr "Ohjelman asetuksissa on virhe."
-
-#~ msgid "Should this device or partition be used to download images from?"
-#~ msgstr "Tulisiko tätä laitetta tai osiota käyttää kuvien lataamiseen?"
-
-#~ msgid "Job Code not entered"
-#~ msgstr "Työkoodia ei annettu"
-
-#~ msgid "This device or partition will always be used to download from"
-#~ msgstr "Tätä laitetta tai osiota tullaan aina käyttämään kuvien lataamiseen"
-
-#~ msgid "%s rejected as a download device"
-#~ msgstr "%s laitetta ei hyväksytty latauslaitteeksi"
-
-#~ msgid "This device or partition will never be used to download from"
-#~ msgstr "Tästä laitteesta tai osiosta ei ladata koskaan"
-
-#~ msgid "Enter a new job code, or select a previous one."
-#~ msgstr "Anna uusi työkoodi tai valitse aikaisempi."
-
-#~ msgid "Enter a new job code."
-#~ msgstr "Anna uusi työkoodi."
-
-#~ msgid "Device %(device)s (%(path)s) ignored"
-#~ msgstr "Laite %(device)s (%(path)s) ohitettu"
-
-#~ msgid "%s selected for downloading from"
-#~ msgstr "%s valittu ladattavaksi"
-
-#~ msgid "Already prompting for Job Code, do not prompt again"
-#~ msgstr "Työkoodia pyydetään jo, älä pyydä uudestaan"
-
-#~ msgid "Prompting whether to use %s"
-#~ msgstr "Kysyy tulisiko käyttää laitetta %s"
-
-#~ msgid ""
-#~ "Specify whether image and folder names should have any characters removed "
-#~ "that are not allowed by other operating systems."
-#~ msgstr ""
-#~ "Valitse tuleeko kuva ja kansionimistä poistaa merkit joita ei tueta "
-#~ "toisissa käyttöjärjestelmissä."
-
-#~ msgid "'Start of day' preference value is corrupted.\n"
-#~ msgstr "'Päivän alku'-asetuksen arvo on virheellinen.\n"
-
-#~ msgid "Sorry,these preferences contain an error:\n"
-#~ msgstr "Anteeksi, näissä määrityksissä on virhe:\n"
+#~ msgid "display debugging information when run from the command line"
+#~ msgstr "näytä vianhakutietoja suorittaessa komentoriviltä"
+
+#~ msgid "Back up photos and videos when downloading"
+#~ msgstr "Varmuuskopioi kuvat ja videot ladattaessa"

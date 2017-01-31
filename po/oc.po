@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-27 14:45-0600\n"
-"PO-Revision-Date: 2014-01-22 00:17+0000\n"
-"Last-Translator: Cédric VALMARY (Tot en òc) <cvalmary@yahoo.fr>\n"
+"POT-Creation-Date: 2017-01-31 17:52-0600\n"
+"PO-Revision-Date: 2017-01-28 03:27+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Occitan (post 1500) <oc@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-01-23 13:56+0000\n"
-"X-Generator: Launchpad (build 16901)\n"
+"X-Launchpad-Export-Date: 2017-01-31 23:48+0000\n"
+"X-Generator: Launchpad (build 18315)\n"
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
 msgstr ""
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:178 ../raphodo/renameandmovefile.py:270
+#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -42,22 +42,22 @@ msgstr ""
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr ""
 
-#: ../raphodo/backupfile.py:167
+#: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr ""
 
-#: ../raphodo/backupfile.py:171
+#: ../raphodo/backupfile.py:173
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr ""
 
-#: ../raphodo/backupfile.py:175
+#: ../raphodo/backupfile.py:177
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr ""
 
-#: ../raphodo/backupfile.py:200 ../raphodo/copyfiles.py:184
+#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
 #: ../raphodo/renameandmovefile.py:424 ../raphodo/renameandmovefile.py:550
 #, python-format
@@ -70,7 +70,7 @@ msgstr ""
 msgid "The file could not be copied from the camera"
 msgstr ""
 
-#: ../raphodo/copyfiles.py:389
+#: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
 msgstr ""
 
@@ -84,9 +84,8 @@ msgstr ""
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1750
 #: ../raphodo/rapid.py:1927 ../raphodo/rapid.py:5285
-#, fuzzy
 msgid "Photos"
-msgstr "_Fòtos"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1753
 #: ../raphodo/rapid.py:1928 ../raphodo/rapid.py:5286
@@ -115,50 +114,48 @@ msgstr ""
 msgid "%(no_videos)s Videos"
 msgstr ""
 
-#: ../raphodo/devices.py:423
-#, fuzzy
+#: ../raphodo/devices.py:424
 msgid "Cameras"
-msgstr "Marca de l'aparelh"
+msgstr ""
 
-#: ../raphodo/devices.py:424 ../raphodo/devices.py:852 ../raphodo/rapid.py:1714
+#: ../raphodo/devices.py:425 ../raphodo/devices.py:881 ../raphodo/rapid.py:1714
 msgid "Devices"
 msgstr ""
 
-#: ../raphodo/devices.py:664
+#: ../raphodo/devices.py:685
 #, python-format
 msgid "Downloading from %(device_names)s"
 msgstr ""
 
 #. Translators: e.g. Three Devices
-#: ../raphodo/devices.py:720
+#: ../raphodo/devices.py:741
 #, python-format
 msgid "%(no_devices)s %(device_type)s"
 msgstr ""
 
-#: ../raphodo/devices.py:837 ../raphodo/rapid.py:1551
+#: ../raphodo/devices.py:866 ../raphodo/rapid.py:1551
 msgid "Select Source"
 msgstr ""
 
-#: ../raphodo/devices.py:868 ../raphodo/devices.py:879
+#: ../raphodo/devices.py:897 ../raphodo/devices.py:908
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr ""
 
 #. Number of cameras e.g. 3 Cameras
-#: ../raphodo/devices.py:890
+#: ../raphodo/devices.py:919
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:895
+#: ../raphodo/devices.py:924
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:402
-#, fuzzy
 msgid "MB/sec"
-msgstr "Mio/s"
+msgstr ""
 
 #. Be friendly in the last few seconds
 #: ../raphodo/downloadtracker.py:532
@@ -175,14 +172,13 @@ msgid "%d seconds"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:595
-#, fuzzy
 msgid "1 minute"
-msgstr "MM (minutas)"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:597
-#, fuzzy, python-format
+#, python-format
 msgid "%d minutes"
-msgstr "MM (minutas)"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:602 ../raphodo/downloadtracker.py:784
 msgid "1 hour"
@@ -566,9 +562,8 @@ msgstr "AAA-MM-JJ"
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:314 ../raphodo/generatenameconfig.py:391
-#, fuzzy
 msgid "YYYY_MM_DD"
-msgstr "AAAAMMJJ"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -716,78 +711,68 @@ msgid "Date and Job Code"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392
-#, fuzzy
 msgid "YYYYMM_Job Code"
-msgstr "Etiqueta de transferiment"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
 msgid "Date and Job Code Subfolder"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "YYYYMM"
-msgstr "AAAAMMJJ"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393 ../raphodo/rapid.py:1596
 msgid "Job Code"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:433 ../raphodo/generatenameconfig.py:512
-#, fuzzy
 msgid "Original Filename"
-msgstr "Nom del fichièr"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
 msgid "Date-Time and Downloads today"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "YYYYMMDD-HHMM-1"
-msgstr "AAAAMMJJ"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
 msgid "Date and Downloads today"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "YYYYMMDD-1"
-msgstr "AAAAMMJJ"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "Date-Time and Image number"
-msgstr "Numèro de l'imatge"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "YYYYMMDD-1234"
-msgstr "AAAAMMJJ"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
 msgid "Date-Time and Job Code"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "YYYYMMDD-HHMM-Job Code-1"
-msgstr "Etiqueta de transferiment"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:438 ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "YYYYMMDD-Job Code-1"
-msgstr "Etiqueta de transferiment"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
 msgid "Date-Time and Video number"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "YYYYMMDD_1234"
-msgstr "AAAAMMJJ"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:518
 msgid "Resolution"
@@ -1185,9 +1170,9 @@ msgstr ""
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
 #: ../raphodo/proximity.py:1405
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)dm"
-msgstr "MM (minutas)"
+msgstr ""
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
@@ -1245,9 +1230,8 @@ msgid "Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
 
 #: ../raphodo/rapid.py:1222
-#, fuzzy
 msgid "Download failed"
-msgstr "Progression del telecargament"
+msgstr ""
 
 #: ../raphodo/rapid.py:1223
 msgid ""
@@ -1261,9 +1245,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1232
-#, fuzzy
 msgid "Update Rapid Photo Downloader"
-msgstr "Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/rapid.py:1236
 msgid "Install"
@@ -1292,9 +1275,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1464
-#, fuzzy
 msgid "&Source"
-msgstr "Font : %s"
+msgstr ""
 
 #: ../raphodo/rapid.py:1467 ../raphodo/rapid.py:2140
 msgid "Download"
@@ -1329,9 +1311,8 @@ msgid "Report a Problem..."
 msgstr ""
 
 #: ../raphodo/rapid.py:1494
-#, fuzzy
 msgid "Make a Donation..."
-msgstr "_Far un don..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1497
 msgid "Translate this Application..."
@@ -1354,14 +1335,12 @@ msgid "Destination"
 msgstr ""
 
 #: ../raphodo/rapid.py:1595
-#, fuzzy
 msgid "Rename"
-msgstr "Nom del fichièr"
+msgstr ""
 
 #: ../raphodo/rapid.py:1597
-#, fuzzy
 msgid "Back Up"
-msgstr "Salvament"
+msgstr ""
 
 #. Devices Header and View
 #: ../raphodo/rapid.py:1713
@@ -1381,18 +1360,16 @@ msgid "This Computer"
 msgstr ""
 
 #: ../raphodo/rapid.py:1738
-#, fuzzy
 msgid "Select a source folder"
-msgstr "Seleccionar un dorsièr d'imatges"
+msgstr ""
 
 #: ../raphodo/rapid.py:1761
 msgid "Storage Space"
 msgstr ""
 
 #: ../raphodo/rapid.py:1775 ../raphodo/rapid.py:1783
-#, fuzzy
 msgid "Select a destination folder"
-msgstr "Seleccionar un dorsièr d'imatges"
+msgstr ""
 
 #: ../raphodo/rapid.py:1879
 msgid "Show:"
@@ -1439,14 +1416,13 @@ msgid "Select All:"
 msgstr ""
 
 #: ../raphodo/rapid.py:2120
-#, fuzzy, python-format
+#, python-format
 msgid "Download %(files)s"
-msgstr "Progression del telecargament"
+msgstr ""
 
 #: ../raphodo/rapid.py:2136
-#, fuzzy
 msgid "Resume Download"
-msgstr "_Transferiment "
+msgstr ""
 
 #: ../raphodo/rapid.py:2138
 msgid "Pause"
@@ -1587,14 +1563,13 @@ msgid "%d failures"
 msgstr ""
 
 #: ../raphodo/rapid.py:3444
-#, fuzzy
 msgid "1 warning"
-msgstr "avertiments"
+msgstr ""
 
 #: ../raphodo/rapid.py:3446
-#, fuzzy, python-format
+#, python-format
 msgid "%d warnings"
-msgstr "avertiments"
+msgstr ""
 
 #: ../raphodo/rapid.py:3466
 #, python-format
@@ -1612,9 +1587,8 @@ msgid "No files downloaded — %(failures)s"
 msgstr ""
 
 #: ../raphodo/rapid.py:3476
-#, fuzzy
 msgid "No files downloaded"
-msgstr "%s imatges transferits"
+msgstr ""
 
 #: ../raphodo/rapid.py:3500
 #, python-format
@@ -1697,9 +1671,8 @@ msgid "&Try Again"
 msgstr ""
 
 #: ../raphodo/rapid.py:3732
-#, fuzzy
 msgid "&Ignore This Device"
-msgstr "Voums d'imatges"
+msgstr ""
 
 #: ../raphodo/rapid.py:4107
 #, python-format
@@ -1762,9 +1735,9 @@ msgid "Generating thumbnails for %s"
 msgstr ""
 
 #: ../raphodo/rapid.py:4807
-#, fuzzy, python-format
+#, python-format
 msgid "Scanning %s"
-msgstr "Deteccion en cors..."
+msgstr ""
 
 #: ../raphodo/rapid.py:4817
 #, python-format
@@ -1942,9 +1915,8 @@ msgid "All settings and caches have been reset"
 msgstr ""
 
 #: ../raphodo/rapid.py:5484
-#, fuzzy
 msgid "Thumbnail Cache has been reset"
-msgstr "Impossible d'afichar la vinheta"
+msgstr ""
 
 #: ../raphodo/rapid.py:5490
 msgid "Remembered files have been forgotten"
@@ -1980,11 +1952,11 @@ msgstr ""
 msgid "photos or videos"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:852
+#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:855
 msgid "video"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:810
+#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:813
 msgid "photo"
 msgstr ""
 
@@ -1998,20 +1970,19 @@ msgid "1 Video"
 msgstr ""
 
 #: ../raphodo/rpdfile.py:317
-#, fuzzy
 msgid "1 Photo"
-msgstr "_Fòtos"
+msgstr ""
 
-#: ../raphodo/rpdfile.py:775
+#: ../raphodo/rpdfile.py:778
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:811
+#: ../raphodo/rpdfile.py:814
 msgid "Photo"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:853
+#: ../raphodo/rpdfile.py:856
 msgid "Video"
 msgstr ""
 
@@ -2036,9 +2007,8 @@ msgid "Memory cards: %s"
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:444
-#, fuzzy
 msgid "Downloaded as:"
-msgstr "_Transferiment "
+msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:450
 #, python-format
@@ -2175,9 +2145,8 @@ msgid ""
 msgstr ""
 
 #: ../data/rapid-photo-downloader.desktop.in.h:2
-#, fuzzy
 msgid "Photo Downloader"
-msgstr "Rapid Photo Downloader"
+msgstr ""
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
@@ -2190,17 +2159,59 @@ msgstr ""
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr ""
 
-#~ msgid "Name + extension"
-#~ msgstr "Nom + extension"
+#~ msgid "Paris"
+#~ msgstr "París"
 
-#~ msgid "Size"
-#~ msgstr "Talha"
+#~ msgid "Berlin"
+#~ msgstr "Berlin"
 
-#~ msgid "and"
-#~ msgstr "e"
+#~ msgid "New York"
+#~ msgstr "Nòva York"
 
-#~ msgid "and %s"
-#~ msgstr "e %s"
+#~ msgid "Prague"
+#~ msgstr "Praga"
+
+#~ msgid "Manila"
+#~ msgstr "Manilha"
+
+#~ msgid "Wellington"
+#~ msgstr "Wellington"
+
+#~ msgid "Helsinki"
+#~ msgstr "Helsinki"
+
+#~ msgid "Tehran"
+#~ msgstr "Teheran"
+
+#~ msgid "Kampala"
+#~ msgstr "Kampala"
+
+#~ msgid "Stockholm"
+#~ msgstr "Estocòlme"
+
+#~ msgid "Rome"
+#~ msgstr "Roma"
+
+#~ msgid "Moscow"
+#~ msgstr "Moscòu"
+
+#~ msgid "Sydney"
+#~ msgstr "Sydney"
+
+#~ msgid "Budapest"
+#~ msgstr "Budapèst"
+
+#~ msgid "Jakarta"
+#~ msgstr "Jakarta"
+
+#~ msgid "Madrid"
+#~ msgstr "Madrid"
+
+#~ msgid "Delhi"
+#~ msgstr "Delhi"
+
+#~ msgid "Warsaw"
+#~ msgstr "Varsòvia"
 
 #~ msgid "<i>Example: %s</i>"
 #~ msgstr "<i>Exemple : %s</i>"
@@ -2211,92 +2222,47 @@ msgstr ""
 #~ msgid "externaldrive2"
 #~ msgstr "discextèrne2"
 
-#~ msgid "New York"
-#~ msgstr "Nòva York"
+#~ msgid "Size"
+#~ msgstr "Talha"
 
-#~ msgid "Manila"
-#~ msgstr "Manilha"
-
-#~ msgid "Prague"
-#~ msgstr "Praga"
-
-#~ msgid "Helsinki"
-#~ msgstr "Helsinki"
-
-#~ msgid "Wellington"
-#~ msgstr "Wellington"
-
-#~ msgid "Tehran"
-#~ msgstr "Teheran"
-
-#~ msgid "Kampala"
-#~ msgstr "Kampala"
-
-#~ msgid "Paris"
-#~ msgstr "París"
-
-#~ msgid "Berlin"
-#~ msgstr "Berlin"
-
-#~ msgid "Sydney"
-#~ msgstr "Sydney"
-
-#~ msgid "Budapest"
-#~ msgstr "Budapèst"
-
-#~ msgid "Rome"
-#~ msgstr "Roma"
-
-#~ msgid "Moscow"
-#~ msgstr "Moscòu"
-
-#~ msgid "Delhi"
-#~ msgstr "Delhi"
-
-#~ msgid "Warsaw"
-#~ msgstr "Varsòvia"
-
-#~ msgid "Jakarta"
-#~ msgstr "Jakarta"
-
-#~ msgid "Madrid"
-#~ msgstr "Madrid"
-
-#~ msgid "Stockholm"
-#~ msgstr "Estocòlme"
-
-#~ msgid "Download / Pause"
-#~ msgstr "Transferiment / Pausa"
+#~ msgid "Download Progress"
+#~ msgstr "Progression del telecargament"
 
 #~ msgid "_View"
 #~ msgstr "_Afichatge"
 
-#~ msgid "_Help"
-#~ msgstr "_Ajuda"
+#~ msgid "scanning..."
+#~ msgstr "Deteccion en cors..."
 
-#~ msgid "_Translate this Application..."
-#~ msgstr "_Traduire aquesta aplicacion..."
+#~ msgid "and"
+#~ msgstr "e"
 
-#~ msgid "<b>Download Folder</b>"
-#~ msgstr "<b>Dorsièr de destinacion</b>"
+#~ msgid "MB/s"
+#~ msgstr "Mio/s"
+
+#~ msgid "and %s"
+#~ msgstr "e %s"
+
+#~ msgid "Name + extension"
+#~ msgstr "Nom + extension"
 
 #~ msgid " "
 #~ msgstr " "
 
-#~ msgid "<i>Original:</i>"
-#~ msgstr "<i>Original :</i>"
-
-#~ msgid "<b>Example</b>"
-#~ msgstr "<b>Exemple</b>"
+#~ msgid " hh:mm"
+#~ msgstr " hh:mm"
 
 #~ msgid ":"
 #~ msgstr ":"
 
-#~ msgid " hh:mm"
-#~ msgstr " hh:mm"
+#~ msgid "<b>Download Folder</b>"
+#~ msgstr "<b>Dorsièr de destinacion</b>"
 
-#~ msgid "_Add..."
-#~ msgstr "_Apondre..."
+#~ msgid "<b>Example</b>"
+#~ msgstr "<b>Exemple</b>"
+
+#~ msgid "<i>Original:</i>"
+#~ msgstr "<i>Original :</i>"
 
 #~ msgid "<i>Example:</i>"
 #~ msgstr "<i>Exemple :</i>"
@@ -2304,87 +2270,26 @@ msgstr ""
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Gestion de las errors</span>"
 
+#~ msgid "Backup"
+#~ msgstr "Salvament"
+
+#~ msgid "Download / Pause"
+#~ msgstr "Transferiment / Pausa"
+
 #~ msgid "Overwrite"
 #~ msgstr "Espotir"
 
 #~ msgid "Skip"
 #~ msgstr "Ignorar"
 
-#~ msgid "Could not open image"
-#~ msgstr "Impossible de dobrir l'imatge"
+#~ msgid "_Add..."
+#~ msgstr "_Apondre..."
 
-#~ msgid "errors"
-#~ msgstr "errors"
+#~ msgid "_Translate this Application..."
+#~ msgstr "_Traduire aquesta aplicacion..."
 
-#~ msgid "0 of %s images copied"
-#~ msgstr "0 de %s imatges copiats"
+#~ msgid "_Make a Donation..."
+#~ msgstr "_Far un don..."
 
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Font : %(source)s\n"
-#~ "Problèma : %(problem)s"
-
-#~ msgid "Image overwritten"
-#~ msgstr "Imatge espotit"
-
-#~ msgid "Image skipped"
-#~ msgstr "Imatge passat"
-
-#~ msgid "Unique identifier '%s' added"
-#~ msgstr "Identifcant unic '%s' apondut"
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Error: %(errno)s %(strerror)s"
-#~ msgstr ""
-#~ "Font : %(source)s\n"
-#~ "Destinacion : %(destination)s\n"
-#~ "Error : %(errno)s %(strerror)s"
-
-#~ msgid "Image has no thumbnail"
-#~ msgstr "L'imatge a pas d'apercebut"
-
-#~ msgid "%(number)s of %(total)s images copied"
-#~ msgstr "%(number)s imatges copiats sus %(total)s"
-
-#~ msgid "Warning:"
-#~ msgstr "Avertiment :"
-
-#~ msgid "Problem using pynotify."
-#~ msgstr "Problèma d'utilizacion de pynotify"
-
-#~ msgid "_Pause"
-#~ msgstr "_Pausa"
-
-#~ msgid "Goodbye"
-#~ msgstr "Al reveire"
-
-#~ msgid "<b>Image Name Conflicts</b>"
-#~ msgstr "<b>Conflictes de nom d'imatges</b>"
-
-#~ msgid "<b>Image Devices</b>"
-#~ msgstr "<b>Volum d'imatges</b>"
-
-#~ msgid "Automation"
-#~ msgstr "Automatizacion"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Image Devices</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Volum d'imatges</span>"
-
-#~ msgid "Download Folder"
-#~ msgstr "Transferiment"
-
-#~ msgid "Ignore"
-#~ msgstr "Ignorar"
-
-#~ msgid "_Thumbnails"
-#~ msgstr "_Vinhetas"
-
-#~ msgid "Using"
-#~ msgstr "En utilizacion"
-
-#~ msgid "      "
-#~ msgstr "      "
+#~ msgid "_Help"
+#~ msgstr "_Ajuda"

@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-27 14:45-0600\n"
-"PO-Revision-Date: 2014-05-30 06:48+0000\n"
-"Last-Translator: Kevin Brubeck Unhammer <Unknown>\n"
+"POT-Creation-Date: 2017-01-31 17:52-0600\n"
+"PO-Revision-Date: 2017-01-28 03:27+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Norwegian Nynorsk <nn@li.org>\n"
 "Language: nn\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-09-30 15:53+0000\n"
-"X-Generator: Launchpad (build 17196)\n"
+"X-Launchpad-Export-Date: 2017-01-31 23:48+0000\n"
+"X-Generator: Launchpad (build 18315)\n"
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
 msgstr "Feil ved tryggleikskopiering"
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:178 ../raphodo/renameandmovefile.py:270
+#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -42,22 +42,22 @@ msgstr "Feil: %(inst)s"
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr "Klarte ikkje å opprette målmappa %(directory)s\n"
 
-#: ../raphodo/backupfile.py:167
+#: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr "Skreiv over tryggleikskopi av %(file_type)s"
 
-#: ../raphodo/backupfile.py:171
+#: ../raphodo/backupfile.py:173
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr "%(file_type)s ikkje tryggleikskopiert"
 
-#: ../raphodo/backupfile.py:175
+#: ../raphodo/backupfile.py:177
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr "Tryggleikskopi av %(file_type)s finst alt"
 
-#: ../raphodo/backupfile.py:200 ../raphodo/copyfiles.py:184
+#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
 #: ../raphodo/renameandmovefile.py:424 ../raphodo/renameandmovefile.py:550
 #, python-format
@@ -72,7 +72,7 @@ msgstr ""
 msgid "The file could not be copied from the camera"
 msgstr ""
 
-#: ../raphodo/copyfiles.py:389
+#: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
 msgstr ""
 
@@ -86,15 +86,13 @@ msgstr ""
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1750
 #: ../raphodo/rapid.py:1927 ../raphodo/rapid.py:5285
-#, fuzzy
 msgid "Photos"
-msgstr "Bilete:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1753
 #: ../raphodo/rapid.py:1928 ../raphodo/rapid.py:5286
-#, fuzzy
 msgid "Videos"
-msgstr "Videoar:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:999
 msgid "Temporarily ignore this device"
@@ -118,77 +116,71 @@ msgstr ""
 msgid "%(no_videos)s Videos"
 msgstr ""
 
-#: ../raphodo/devices.py:423
-#, fuzzy
+#: ../raphodo/devices.py:424
 msgid "Cameras"
-msgstr "Kameramerke"
+msgstr ""
 
-#: ../raphodo/devices.py:424 ../raphodo/devices.py:852 ../raphodo/rapid.py:1714
+#: ../raphodo/devices.py:425 ../raphodo/devices.py:881 ../raphodo/rapid.py:1714
 msgid "Devices"
 msgstr "Einingar"
 
-#: ../raphodo/devices.py:664
-#, fuzzy, python-format
+#: ../raphodo/devices.py:685
+#, python-format
 msgid "Downloading from %(device_names)s"
-msgstr "Lastar ned frå %(location)s."
+msgstr ""
 
 #. Translators: e.g. Three Devices
-#: ../raphodo/devices.py:720
-#, fuzzy, python-format
+#: ../raphodo/devices.py:741
+#, python-format
 msgid "%(no_devices)s %(device_type)s"
-msgstr "%(free)s %(file_type)s"
+msgstr ""
 
-#: ../raphodo/devices.py:837 ../raphodo/rapid.py:1551
-#, fuzzy
+#: ../raphodo/devices.py:866 ../raphodo/rapid.py:1551
 msgid "Select Source"
-msgstr "_Vel"
+msgstr ""
 
-#: ../raphodo/devices.py:868 ../raphodo/devices.py:879
+#: ../raphodo/devices.py:897 ../raphodo/devices.py:908
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr ""
 
 #. Number of cameras e.g. 3 Cameras
-#: ../raphodo/devices.py:890
+#: ../raphodo/devices.py:919
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:895
+#: ../raphodo/devices.py:924
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:402
-#, fuzzy
 msgid "MB/sec"
-msgstr "MB/s"
+msgstr ""
 
 #. Be friendly in the last few seconds
 #: ../raphodo/downloadtracker.py:532
-#, fuzzy
 msgid "A few seconds"
-msgstr "Delsekund"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:588
-#, fuzzy
 msgid "1 second"
-msgstr "Delsekund"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:590
-#, fuzzy, python-format
+#, python-format
 msgid "%d seconds"
-msgstr "Delsekund"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:595
-#, fuzzy
 msgid "1 minute"
-msgstr "MM (minutt)"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:597
-#, fuzzy, python-format
+#, python-format
 msgid "%d minutes"
-msgstr "MM (minutt)"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:602 ../raphodo/downloadtracker.py:784
 msgid "1 hour"
@@ -224,9 +216,9 @@ msgid "%d minutes, 1 second"
 msgstr ""
 
 #: ../raphodo/downloadtracker.py:797
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)d minutes, %(seconds)d seconds"
-msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+msgstr ""
 
 #: ../raphodo/downloadtracker.py:828
 msgid "1 hour, 1 minute"
@@ -572,9 +564,8 @@ msgstr "ÅÅÅÅ-MM-DD"
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:314 ../raphodo/generatenameconfig.py:391
-#, fuzzy
 msgid "YYYY_MM_DD"
-msgstr "ÅÅÅÅMMDD"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -705,9 +696,8 @@ msgid "SS"
 msgstr "SS"
 
 #: ../raphodo/generatenameconfig.py:389
-#, fuzzy
 msgid "Date"
-msgstr "Dato tid"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:390
 msgid "Date (hyphens)"
@@ -719,88 +709,72 @@ msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392 ../raphodo/generatenameconfig.py:438
 #: ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "Date and Job Code"
-msgstr "Skriv inn eit jobbnamn"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:392
-#, fuzzy
 msgid "YYYYMM_Job Code"
-msgstr "Jobbnamn"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "Date and Job Code Subfolder"
-msgstr "Skriv inn eit jobbnamn"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "YYYYMM"
-msgstr "ÅÅÅÅMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393 ../raphodo/rapid.py:1596
 msgid "Job Code"
 msgstr "Jobbnamn"
 
 #: ../raphodo/generatenameconfig.py:433 ../raphodo/generatenameconfig.py:512
-#, fuzzy
 msgid "Original Filename"
-msgstr "Opphavleg Versalisering"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "Date-Time and Downloads today"
-msgstr "Nedlastingar idag"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "YYYYMMDD-HHMM-1"
-msgstr "ÅÅÅÅMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "Date and Downloads today"
-msgstr "Nedlastingar idag"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "YYYYMMDD-1"
-msgstr "ÅÅÅÅMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "Date-Time and Image number"
-msgstr "Bilettal"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "YYYYMMDD-1234"
-msgstr "ÅÅÅÅMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "Date-Time and Job Code"
-msgstr "Skriv inn eit jobbnamn"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "YYYYMMDD-HHMM-Job Code-1"
-msgstr "Jobbnamn"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:438 ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "YYYYMMDD-Job Code-1"
-msgstr "Jobbnamn"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "Date-Time and Video number"
-msgstr "Videotal"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "YYYYMMDD_1234"
-msgstr "ÅÅÅÅMMDD"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:518
 msgid "Resolution"
@@ -870,9 +844,9 @@ msgid "An error occurred when copying the %(filetype)s"
 msgstr "Ein feil oppstod ved kopiering av %(filetype)s"
 
 #: ../raphodo/problemnotification.py:116
-#, fuzzy, python-format
+#, python-format
 msgid "An error occurred copying the %(filetype)s from the %(camera)s"
-msgstr "Ein feil oppstod ved kopiering av %(filetype)s"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:119
 #, python-format
@@ -1147,47 +1121,47 @@ msgstr "%(previousproblem)s, og %(backinguperror)s"
 #. Translators: for example Nov 3 or Dec 31
 #: ../raphodo/proximity.py:105 ../raphodo/proximity.py:221
 #: ../raphodo/proximity.py:224 ../raphodo/proximity.py:828
-#, fuzzy, python-format
+#, python-format
 msgid "%(month)s %(numeric_day)s"
-msgstr "%(number)s %(numberdownloaded)s"
+msgstr ""
 
 #. Translators: for example Nov 15 2015
 #. Translators: for example Nov 3 2015
 #: ../raphodo/proximity.py:109 ../raphodo/proximity.py:230
 #: ../raphodo/proximity.py:231 ../raphodo/proximity.py:831
-#, fuzzy, python-format
+#, python-format
 msgid "%(date)s %(year)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators: for example Nov 3 2015, 11:25 AM
 #. Translators: for example, Nov 3, 12:15 PM
 #: ../raphodo/proximity.py:197 ../raphodo/proximity.py:215
 #: ../raphodo/proximity.py:234 ../raphodo/proximity.py:236
-#, fuzzy, python-format
+#, python-format
 msgid "%(date)s, %(time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:209
-#, fuzzy, python-format
+#, python-format
 msgid "%(starttime)s - %(endtime)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
 #: ../raphodo/proximity.py:241
-#, fuzzy, python-format
+#, python-format
 msgid "%(earlier_time)s - %(later_time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #. Translators, for example:
 #. Nov 3 2012, 12:15 PM -
 #. Nov 4 2012, 1:00 AM
 #. (please keep the line break signified by \n)
 #: ../raphodo/proximity.py:248
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "%(earlier_time)s -\n"
 "%(later_time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:359
 #, python-format
@@ -1196,9 +1170,9 @@ msgstr ""
 
 #. Translators: for example Nov 2015
 #: ../raphodo/proximity.py:833
-#, fuzzy, python-format
+#, python-format
 msgid "%(month)s %(year)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
 
 #: ../raphodo/proximity.py:1343
 msgid ""
@@ -1211,9 +1185,9 @@ msgstr ""
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
 #: ../raphodo/proximity.py:1405
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)dm"
-msgstr "MM (minutt)"
+msgstr ""
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
@@ -1271,15 +1245,13 @@ msgid "Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
 
 #: ../raphodo/rapid.py:1222
-#, fuzzy
 msgid "Download failed"
-msgstr "Nedlastingstidspunkt"
+msgstr ""
 
 #: ../raphodo/rapid.py:1223
-#, fuzzy
 msgid ""
 "Sorry, the download of the new version of Rapid Photo Downloader failed."
-msgstr "Innstillingar: Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/rapid.py:1229
 msgid ""
@@ -1288,9 +1260,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1232
-#, fuzzy
 msgid "Update Rapid Photo Downloader"
-msgstr "Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/rapid.py:1236
 msgid "Install"
@@ -1327,52 +1298,44 @@ msgid "Download"
 msgstr "Last ned"
 
 #: ../raphodo/rapid.py:1471
-#, fuzzy
 msgid "&Refresh..."
-msgstr "Frisk opp att"
+msgstr ""
 
 #: ../raphodo/rapid.py:1474
-#, fuzzy
 msgid "&Preferences"
-msgstr "Innstillingar"
+msgstr ""
 
 #: ../raphodo/rapid.py:1478
-#, fuzzy
 msgid "&Quit"
-msgstr "Avslutt"
+msgstr ""
 
 #: ../raphodo/rapid.py:1481
 msgid "Error Log"
 msgstr "Feillogg"
 
 #: ../raphodo/rapid.py:1485
-#, fuzzy
 msgid "Clear Completed Downloads"
-msgstr "_Fjern fullførte nedlastingar"
+msgstr ""
 
 #: ../raphodo/rapid.py:1488
-#, fuzzy
 msgid "Get Help Online..."
-msgstr "_Få hjelp på nettet..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1491
-#, fuzzy
 msgid "Report a Problem..."
-msgstr "_Meld frå om eit problem"
+msgstr ""
 
 #: ../raphodo/rapid.py:1494
-#, fuzzy
 msgid "Make a Donation..."
-msgstr "_Doner..."
+msgstr ""
 
 #: ../raphodo/rapid.py:1497
 msgid "Translate this Application..."
 msgstr "Omsett denne applikasjonen …"
 
 #: ../raphodo/rapid.py:1500
-#, fuzzy
 msgid "&About..."
-msgstr "Om …"
+msgstr ""
 
 #: ../raphodo/rapid.py:1502
 msgid "Check for Updates..."
@@ -1387,14 +1350,12 @@ msgid "Destination"
 msgstr ""
 
 #: ../raphodo/rapid.py:1595
-#, fuzzy
 msgid "Rename"
-msgstr "Filnamn"
+msgstr ""
 
 #: ../raphodo/rapid.py:1597
-#, fuzzy
 msgid "Back Up"
-msgstr "Tryggleikskopi"
+msgstr ""
 
 #. Devices Header and View
 #: ../raphodo/rapid.py:1713
@@ -1414,18 +1375,16 @@ msgid "This Computer"
 msgstr ""
 
 #: ../raphodo/rapid.py:1738
-#, fuzzy
 msgid "Select a source folder"
-msgstr "Vel ei biletmappe"
+msgstr ""
 
 #: ../raphodo/rapid.py:1761
 msgid "Storage Space"
 msgstr ""
 
 #: ../raphodo/rapid.py:1775 ../raphodo/rapid.py:1783
-#, fuzzy
 msgid "Select a destination folder"
-msgstr "Vel ei biletmappe"
+msgstr ""
 
 #: ../raphodo/rapid.py:1879
 msgid "Show:"
@@ -1452,9 +1411,8 @@ msgid "Checked State"
 msgstr ""
 
 #: ../raphodo/rapid.py:1893
-#, fuzzy
 msgid "File Type"
-msgstr "Filnummer"
+msgstr ""
 
 #: ../raphodo/rapid.py:1894
 msgid "Device"
@@ -1469,19 +1427,17 @@ msgid "Descending"
 msgstr ""
 
 #: ../raphodo/rapid.py:1917
-#, fuzzy
 msgid "Select All:"
-msgstr "_Vel"
+msgstr ""
 
 #: ../raphodo/rapid.py:2120
-#, fuzzy, python-format
+#, python-format
 msgid "Download %(files)s"
-msgstr "Nedlastingstidspunkt"
+msgstr ""
 
 #: ../raphodo/rapid.py:2136
-#, fuzzy
 msgid "Resume Download"
-msgstr "Last ned"
+msgstr ""
 
 #: ../raphodo/rapid.py:2138
 msgid "Pause"
@@ -1629,14 +1585,13 @@ msgid "%d failures"
 msgstr ""
 
 #: ../raphodo/rapid.py:3444
-#, fuzzy
 msgid "1 warning"
-msgstr "åtvaringar"
+msgstr ""
 
 #: ../raphodo/rapid.py:3446
-#, fuzzy, python-format
+#, python-format
 msgid "%d warnings"
-msgstr "åtvaringar"
+msgstr ""
 
 #: ../raphodo/rapid.py:3466
 #, python-format
@@ -1654,9 +1609,8 @@ msgid "No files downloaded — %(failures)s"
 msgstr ""
 
 #: ../raphodo/rapid.py:3476
-#, fuzzy
 msgid "No files downloaded"
-msgstr "%s bilete lasta ned"
+msgstr ""
 
 #: ../raphodo/rapid.py:3500
 #, python-format
@@ -1762,9 +1716,9 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4272
-#, fuzzy, python-format
+#, python-format
 msgid "Should %(device)s be used to download photos and videos from?"
-msgstr "Vil du laste ned bilete eller videoar frå denne eininga/partisjonen?"
+msgstr ""
 
 #: ../raphodo/rapid.py:4469
 #, python-format
@@ -1787,28 +1741,25 @@ msgid "Any device with the same name will be ignored."
 msgstr ""
 
 #: ../raphodo/rapid.py:4758
-#, fuzzy, python-format
+#, python-format
 msgid "Downloading from %(location)s on This Computer."
-msgstr "Lastar ned frå %(location)s."
+msgstr ""
 
 #: ../raphodo/rapid.py:4760
-#, fuzzy
 msgid ""
 "Do you really want to download from here?<br><br>On some systems, scanning "
 "this location can take a very long time."
 msgstr ""
-"Vil du verkeleg lasta ned herfrå? På visse system kan det ta veldig lang tid "
-"å skanna dette."
 
 #: ../raphodo/rapid.py:4804
-#, fuzzy, python-format
+#, python-format
 msgid "Generating thumbnails for %s"
-msgstr "Lag miniatyrbilete (treigare)"
+msgstr ""
 
 #: ../raphodo/rapid.py:4807
-#, fuzzy, python-format
+#, python-format
 msgid "Scanning %s"
-msgstr "leiter..."
+msgstr ""
 
 #: ../raphodo/rapid.py:4817
 #, python-format
@@ -1817,45 +1768,38 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4823
-#, fuzzy, python-format
+#, python-format
 msgid "%(number)s of %(available files)s checked for download"
-msgstr "Klarte ikkje å laste ned %(noFiles)s %(filetypes)s"
+msgstr ""
 
 #: ../raphodo/rapid.py:5046
-#, fuzzy
 msgid "Display program information when run from the command line."
-msgstr "vis avlusingsinformasjon ved køyring frå kommandolinja"
+msgstr ""
 
 #: ../raphodo/rapid.py:5048
-#, fuzzy
 msgid "Display debugging information when run from the command line."
-msgstr "vis avlusingsinformasjon ved køyring frå kommandolinja"
+msgstr ""
 
 #: ../raphodo/rapid.py:5051
-#, fuzzy
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr ""
-"vis kva for bilet- og videofiltypane programmet gjenkjenner, og avslutt"
 
 #: ../raphodo/rapid.py:5054
 msgid "Turn on or off the the renaming of photos."
 msgstr ""
 
 #: ../raphodo/rapid.py:5056
-#, fuzzy
 msgid "turn on or off the the renaming of videos."
-msgstr "Oppdag einingar for tryggleikskopiering automatisk"
+msgstr ""
 
 #: ../raphodo/rapid.py:5058
-#, fuzzy
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
-msgstr "Oppdag einingar for tryggleikskopiering automatisk"
+msgstr ""
 
 #: ../raphodo/rapid.py:5062
-#, fuzzy
 msgid "Turn on or off downloading from this computer."
-msgstr "Lastar ned frå %(location)s."
+msgstr ""
 
 #: ../raphodo/rapid.py:5064 ../raphodo/rapid.py:5067 ../raphodo/rapid.py:5070
 #: ../raphodo/rapid.py:5091 ../raphodo/rapid.py:5095
@@ -1875,60 +1819,44 @@ msgid "The PATH where videos will be downloaded to."
 msgstr ""
 
 #: ../raphodo/rapid.py:5073
-#, fuzzy
 msgid "Turn on or off the backing up of photos and videos while downloading."
-msgstr "Ta tryggleikskopi av bilete og videoar ved nedlasting"
+msgstr ""
 
 #: ../raphodo/rapid.py:5077
-#, fuzzy
 msgid "Turn on or off the automatic detection of backup devices."
-msgstr "Oppdag einingar for tryggleikskopiering automatisk"
+msgstr ""
 
 #: ../raphodo/rapid.py:5079 ../raphodo/rapid.py:5085
 msgid "FOLDER"
 msgstr ""
 
 #: ../raphodo/rapid.py:5080
-#, fuzzy
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
 "the device is used for backups. For each device you wish to use for backing "
 "photos up to, create a folder on it with this name."
 msgstr ""
-"Oppgi mappa på eininga kor tryggleikskopiar er lagra.  \n"
-"\n"
-"<i>Merk: dette blir au nytta for å finne ut om eininga er nytta til "
-"tryggleikskopiering. Lag ei mappe med eitt av desse namna på kvar eining som "
-"du vil ta tryggleikskopi til.</i>"
 
 #: ../raphodo/rapid.py:5086
-#, fuzzy
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
 "the device is used for backups. For each device you wish to use for backing "
 "up videos to, create a folder on it with this name."
 msgstr ""
-"Oppgi mappa på eininga kor tryggleikskopiar er lagra.  \n"
-"\n"
-"<i>Merk: dette blir au nytta for å finne ut om eininga er nytta til "
-"tryggleikskopiering. Lag ei mappe med eitt av desse namna på kvar eining som "
-"du vil ta tryggleikskopi til.</i>"
 
 #: ../raphodo/rapid.py:5092
-#, fuzzy
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
-msgstr "Oppdag einingar for tryggleikskopiering automatisk"
+msgstr ""
 
 #: ../raphodo/rapid.py:5096
-#, fuzzy
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
-msgstr "Oppdag einingar for tryggleikskopiering automatisk"
+msgstr ""
 
 #: ../raphodo/rapid.py:5099
 #, python-format
@@ -2005,9 +1933,8 @@ msgid "Program aborting."
 msgstr ""
 
 #: ../raphodo/rapid.py:5476
-#, fuzzy
 msgid "All settings and caches have been reset"
-msgstr "Alle innstillingar er nullstilte"
+msgstr ""
 
 #: ../raphodo/rapid.py:5484
 msgid "Thumbnail Cache has been reset"
@@ -2047,11 +1974,11 @@ msgstr "bilete og videoar"
 msgid "photos or videos"
 msgstr "bilete eller videoar"
 
-#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:852
+#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:855
 msgid "video"
 msgstr "video"
 
-#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:810
+#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:813
 msgid "photo"
 msgstr "bilete"
 
@@ -2061,25 +1988,23 @@ msgid "%(number)s %(filetypes)s"
 msgstr "%(number)s %(filetypes)s"
 
 #: ../raphodo/rpdfile.py:312
-#, fuzzy
 msgid "1 Video"
-msgstr "Video"
+msgstr ""
 
 #: ../raphodo/rpdfile.py:317
-#, fuzzy
 msgid "1 Photo"
-msgstr "Bilete"
+msgstr ""
 
-#: ../raphodo/rpdfile.py:775
+#: ../raphodo/rpdfile.py:778
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:811
+#: ../raphodo/rpdfile.py:814
 msgid "Photo"
 msgstr "Bilete"
 
-#: ../raphodo/rpdfile.py:853
+#: ../raphodo/rpdfile.py:856
 msgid "Video"
 msgstr "Video"
 
@@ -2104,9 +2029,8 @@ msgid "Memory cards: %s"
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:444
-#, fuzzy
 msgid "Downloaded as:"
-msgstr "Last ned / Pause"
+msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:450
 #, python-format
@@ -2123,9 +2047,8 @@ msgid "Open in File Browser..."
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:1481
-#, fuzzy
 msgid "Copy Path"
-msgstr "Kopier"
+msgstr ""
 
 #. two things in a list e.g. "device1 and device2"
 #: ../raphodo/utilities.py:369
@@ -2162,9 +2085,8 @@ msgid "seven"
 msgstr ""
 
 #: ../raphodo/utilities.py:449
-#, fuzzy
 msgid "eight"
-msgstr "Høgd"
+msgstr ""
 
 #: ../raphodo/utilities.py:450
 msgid "nine"
@@ -2203,9 +2125,8 @@ msgid "seventeen"
 msgstr ""
 
 #: ../raphodo/utilities.py:459
-#, fuzzy
 msgid "eighteen"
-msgstr "Høgd"
+msgstr ""
 
 #: ../raphodo/utilities.py:460
 msgid "ninenteen"
@@ -2246,9 +2167,8 @@ msgid ""
 msgstr ""
 
 #: ../data/rapid-photo-downloader.desktop.in.h:2
-#, fuzzy
 msgid "Photo Downloader"
-msgstr "Rapid Photo Downloader"
+msgstr ""
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
@@ -2258,212 +2178,62 @@ msgid ""
 msgstr ""
 
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
-#, fuzzy
 msgid "Download Photos and Videos with Rapid Photo Downloader"
-msgstr "Innstillingar: Rapid Photo Downloader"
+msgstr ""
 
-#~ msgid "Name + extension"
-#~ msgstr "Namn + filtype"
+#~ msgid "Berlin"
+#~ msgstr "Berlin"
 
-#, fuzzy
-#~ msgid "&Check All"
-#~ msgstr "_Merk alle"
+#~ msgid "Paris"
+#~ msgstr "Paris"
 
-#~ msgid "Check All Photos"
-#~ msgstr "Sjekk alle bilete"
+#~ msgid "New York"
+#~ msgstr "New York"
 
-#~ msgid "Check All Videos"
-#~ msgstr "Sjekk alle videoar"
+#~ msgid "Prague"
+#~ msgstr "Praha"
 
-#, fuzzy
-#~ msgid "&Uncheck All"
-#~ msgstr "Merk _ingen"
+#~ msgid "Manila"
+#~ msgstr "Manila"
 
-#~ msgid "Previous File"
-#~ msgstr "Førre fil"
+#~ msgid "Wellington"
+#~ msgstr "Wellington"
 
-#~ msgid "Next File"
-#~ msgstr "Neste fil"
+#~ msgid "Helsinki"
+#~ msgstr "Helsinki"
 
-#, fuzzy
-#~ msgid "&Remember this choice"
-#~ msgstr "_Hugs dette valet"
+#~ msgid "Kampala"
+#~ msgstr "Kampala"
 
-#~ msgid ""
-#~ "%(date)s\n"
-#~ "%(time)s"
-#~ msgstr ""
-#~ "%(date)s\n"
-#~ "%(time)s"
+#~ msgid "Tehran"
+#~ msgstr "Teheran"
 
-#~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
-#~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgid "Stockholm"
+#~ msgstr "Stockholm"
 
-#~ msgid "Size"
-#~ msgstr "Storleik"
+#~ msgid "Rome"
+#~ msgstr "Roma"
 
-#~ msgid "Download Progress"
-#~ msgstr "Nedlastingsframgang"
+#~ msgid "Moscow"
+#~ msgstr "Moskva"
 
-#~ msgid "%(device)s did not unmount"
-#~ msgstr "%(device)s vart ikkje avmontert"
+#~ msgid "Sydney"
+#~ msgstr "Sydney"
 
-#~ msgid "the root of the file system"
-#~ msgstr "rotmappa til filsystemet"
+#~ msgid "Budapest"
+#~ msgstr "Budapest"
 
-#~ msgid "About 1 second remaining"
-#~ msgstr "Omtrent eitt sekund igjen"
+#~ msgid "Jakarta"
+#~ msgstr "Jakarta"
 
-#~ msgid "About %i seconds remaining"
-#~ msgstr "Omtrent %i sekund igjen"
+#~ msgid "Madrid"
+#~ msgstr "Madrid"
 
-#~ msgid "About 1 minute remaining"
-#~ msgstr "Omtrent eitt minutt igjen"
+#~ msgid "Delhi"
+#~ msgstr "Delhi"
 
-#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
-#~ msgstr "Omtrent %(minutes)i minutt og %(seconds)02i sekund igjen"
-
-#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
-#~ msgstr "%(number)s av %(total)s %(filetypes)s (%(remaining)s igjen)"
-
-#~ msgid "%(number)s of %(total)s %(filetypes)s"
-#~ msgstr "%(number)s av %(total)s %(filetypes)s"
-
-#~ msgid "From"
-#~ msgstr "Frå"
-
-#~ msgid "Auto Detect"
-#~ msgstr "Oppdag automatisk"
-
-#~ msgid "Select a folder containing %(file_types)s"
-#~ msgstr "Vel ei mappe med %(file_types)s"
-
-#~ msgid "Move"
-#~ msgstr "Flytt"
-
-#~ msgid "To"
-#~ msgstr "Til"
-
-#~ msgid "Select a folder to download photos to"
-#~ msgstr "Vel ei mappe å laste inn bilete til"
-
-#~ msgid "Select a folder to download videos to"
-#~ msgstr "Vel ei mappe å laste inn video til"
-
-#~ msgid "and"
-#~ msgstr "og"
-
-#~ msgid "Using backup devices"
-#~ msgstr "Nyttar einingar for tryggleikskopiering"
-
-#~ msgid "Using backup device"
-#~ msgstr "Nyttar eining for tryggleikskopiering"
-
-#~ msgid "No backup devices detected"
-#~ msgstr "Fann ingen einingar for tryggleikskopiering"
-
-#~ msgid "Free space:"
-#~ msgstr "Ledig plass:"
-
-#~ msgid "(%(file_type)s)"
-#~ msgstr "(%(file_type)s)"
-
-#~ msgid "; "
-#~ msgstr "; "
-
-#~ msgid "."
-#~ msgstr "."
-
-#~ msgid "%(free)s free"
-#~ msgstr "%(free)s tilgjengeleg"
-
-#~ msgid "Backing up photos and videos to %(path)s"
-#~ msgstr "Tek tryggleikskopi av bilete og videoar til %(path)s"
-
-#~ msgid "Backing up to %(path)s"
-#~ msgstr "Tek tryggleikskopi til %(path)s"
-
-#~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
-#~ msgstr "Tek tryggleikskopi av bilete  til %(path)s og videoar til %(path2)s"
-
-#~ msgid "%(freespace)s. %(backuppaths)s."
-#~ msgstr "%(freespace)s. %(backuppaths)s."
-
-#~ msgid "%(file_type)s download folder does not exist"
-#~ msgstr "Nedlastingsmappa til %(file_type)s finst ikkje"
-
-#~ msgid "Folder: %s"
-#~ msgstr "Mappe: %s"
-
-#~ msgid "%(file_type)s download folder is invalid"
-#~ msgstr "Nedlastingsmappa til %(file_type)s er ugyldig"
-
-#~ msgid "%(file_type)s download folder is not writable"
-#~ msgstr "Nedlastingsmappa til %(file_type)s er ikkje skrivbar"
-
-#~ msgid "Thumbnails"
-#~ msgstr "Miniatyrbilete"
-
-#~ msgid ""
-#~ "display program information on the command line as the program runs "
-#~ "(default: %default)"
-#~ msgstr ""
-#~ "vis programinformasjon på kommandolinja når programmet køyrer \n"
-#~ "(standard: %default)"
-
-#~ msgid "only output errors to the command line"
-#~ msgstr "vis berre feil på kommandolinja"
-
-#~ msgid ""
-#~ "automatically detect devices from which to download, overwriting existing "
-#~ "program preferences"
-#~ msgstr ""
-#~ "oppdag automatisk einingar du vil lasta ned frå, overstyrer eksisterande "
-#~ "innstillingar"
-
-#~ msgid ""
-#~ "manually specify the PATH of the device from which to download, "
-#~ "overwriting existing program preferences"
-#~ msgstr ""
-#~ "manuelt spesifiser stien til eininga du vil lasta ned frå, overstyrer "
-#~ "eksisterande innstillingar"
-
-#~ msgid "reset all program settings and preferences and exit"
-#~ msgstr "nullstill alle programinnstillingar og avslutt"
-
-#~ msgid ""
-#~ "Error: specify device auto-detection or manually specify a device's path "
-#~ "from which to download, but do not do both."
-#~ msgstr ""
-#~ "Feil: Bruk auto-oppdaging av einingar eller oppgi ei sti til ei eining du "
-#~ "vil lasta ned frå, men ikkje gjer begge på ein gong."
-
-#~ msgid "and %s"
-#~ msgstr "og %s"
-
-#~ msgid "An unknown error occurred"
-#~ msgstr "Det oppsto en ukjend feil"
-
-#~ msgid "Device Detected"
-#~ msgstr "Oppdaga eining"
-
-#~ msgid "Remove all Job Codes?"
-#~ msgstr "Fjern alle jobbnamn?"
-
-#~ msgid "Should all Job Codes be removed?"
-#~ msgstr "Skal alle jobbnamn fjernast?"
-
-#~ msgid "Remove all Remembered Paths?"
-#~ msgstr "Fjern alle hugsa søkjestiar?"
-
-#~ msgid "Should all remembered paths be removed?"
-#~ msgstr "Skal alle hugsa søkjestiar fjernast?"
-
-#~ msgid "Remove all Ignored Paths?"
-#~ msgstr "Fjern alle oversedde søkjestiar?"
-
-#~ msgid "Should all ignored paths be removed?"
-#~ msgstr "Skal alle oversedde søkjestiar fjernast?"
+#~ msgid "Warsaw"
+#~ msgstr "Warszawa"
 
 #~ msgid "Error in Photo Rename preferences"
 #~ msgstr "Feil i innstillingane til biletomdøping"
@@ -2477,31 +2247,14 @@ msgstr "Innstillingar: Rapid Photo Downloader"
 #~ msgid "Error in Video Download Subfolders preferences"
 #~ msgstr "Feil i innstillingane til undermapper for videonedlasting"
 
-#~ msgid "Enter a new Job Code, or select a previous one"
-#~ msgstr "Skriv inn eit jobbnamn, eller vel eit du har nytta tidlegare"
+#~ msgid "Select a folder to download photos to"
+#~ msgstr "Vel ei mappe å laste inn bilete til"
 
-#~ msgid "Enter a new Job Code"
-#~ msgstr "Skriv inn eit nytt jobbnamn"
+#~ msgid "Select a folder to download videos to"
+#~ msgstr "Vel ei mappe å laste inn video til"
 
-#~ msgid "Job Code:"
-#~ msgstr "Jobbnamn:"
-
-#~ msgid "Enter a Path to Ignore"
-#~ msgstr "Oppgi ein søkjesti å oversjå"
-
-#~ msgid "Specify a path that will never be scanned for photos or videos"
-#~ msgstr ""
-#~ "Oppgi ein sti som du vil aldri skal gjennomsøkjast etter bilete eller "
-#~ "videoar"
-
-#~ msgid "Path:"
-#~ msgstr "Sti:"
-
-#~ msgid "Select a folder in which to backup photos"
-#~ msgstr "Vel ei mappe kor du vil tryggleikskopiera bilete"
-
-#~ msgid "Select a folder in which to backup videos"
-#~ msgstr "Vel ei mappe kor du vil tryggleikskopiera videoar"
+#~ msgid "Select a folder containing %(file_types)s"
+#~ msgstr "Vel ei mappe med %(file_types)s"
 
 #~ msgid ""
 #~ "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
@@ -2520,6 +2273,415 @@ msgstr "Innstillingar: Rapid Photo Downloader"
 #~ msgid "<i>Example: %s</i>"
 #~ msgstr "<i>Døme: %s</i>"
 
+#~ msgid "externaldrive1"
+#~ msgstr "eksterndisk1"
+
+#~ msgid "externaldrive2"
+#~ msgstr "eksterndisk2"
+
+#~ msgid ""
+#~ "%(date)s\n"
+#~ "%(time)s"
+#~ msgstr ""
+#~ "%(date)s\n"
+#~ "%(time)s"
+
+#~ msgid "%(date)s %(time)s"
+#~ msgstr "%(date)s %(time)s"
+
+#~ msgid "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+
+#~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+
+#~ msgid "scanning..."
+#~ msgstr "leiter..."
+
+#~ msgid "%(number)s of %(total)s %(filetypes)s"
+#~ msgstr "%(number)s av %(total)s %(filetypes)s"
+
+#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
+#~ msgstr "%(number)s av %(total)s %(filetypes)s (%(remaining)s igjen)"
+
+#~ msgid "Size"
+#~ msgstr "Storleik"
+
+#~ msgid "Download Progress"
+#~ msgstr "Nedlastingsframgang"
+
+#~ msgid "Device Detected"
+#~ msgstr "Oppdaga eining"
+
+#~ msgid ""
+#~ "Should this device or partition be used to download photos or videos from?"
+#~ msgstr ""
+#~ "Vil du laste ned bilete eller videoar frå denne eininga/partisjonen?"
+
+#~ msgid "_Remember this choice"
+#~ msgstr "_Hugs dette valet"
+
+#~ msgid "Remove all Job Codes?"
+#~ msgstr "Fjern alle jobbnamn?"
+
+#~ msgid "Should all Job Codes be removed?"
+#~ msgstr "Skal alle jobbnamn fjernast?"
+
+#~ msgid "Enter a Job Code"
+#~ msgstr "Skriv inn eit jobbnamn"
+
+#~ msgid "Enter a new Job Code, or select a previous one"
+#~ msgstr "Skriv inn eit jobbnamn, eller vel eit du har nytta tidlegare"
+
+#~ msgid "Enter a new Job Code"
+#~ msgstr "Skriv inn eit nytt jobbnamn"
+
+#~ msgid "Job Code:"
+#~ msgstr "Jobbnamn:"
+
+#~ msgid "Backing up to %(path)s"
+#~ msgstr "Tek tryggleikskopi til %(path)s"
+
+#~ msgid "%(freespace)s. %(backuppaths)s."
+#~ msgstr "%(freespace)s. %(backuppaths)s."
+
+#~ msgid "and"
+#~ msgstr "og"
+
+#~ msgid "Using backup devices"
+#~ msgstr "Nyttar einingar for tryggleikskopiering"
+
+#~ msgid "Using backup device"
+#~ msgstr "Nyttar eining for tryggleikskopiering"
+
+#~ msgid "No backup devices detected"
+#~ msgstr "Fann ingen einingar for tryggleikskopiering"
+
+#~ msgid "MB/s"
+#~ msgstr "MB/s"
+
+#~ msgid "About 1 second remaining"
+#~ msgstr "Omtrent eitt sekund igjen"
+
+#~ msgid "About %i seconds remaining"
+#~ msgstr "Omtrent %i sekund igjen"
+
+#~ msgid "About 1 minute remaining"
+#~ msgstr "Omtrent eitt minutt igjen"
+
+#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
+#~ msgstr "Omtrent %(minutes)i minutt og %(seconds)02i sekund igjen"
+
+#~ msgid ""
+#~ "display program information on the command line as the program runs "
+#~ "(default: %default)"
+#~ msgstr ""
+#~ "vis programinformasjon på kommandolinja når programmet køyrer \n"
+#~ "(standard: %default)"
+
+#~ msgid "only output errors to the command line"
+#~ msgstr "vis berre feil på kommandolinja"
+
+#~ msgid "list photo and video file extensions the program recognizes and exit"
+#~ msgstr ""
+#~ "vis kva for bilet- og videofiltypane programmet gjenkjenner, og avslutt"
+
+#~ msgid "reset all program settings and preferences and exit"
+#~ msgstr "nullstill alle programinnstillingar og avslutt"
+
+#~ msgid "Photos:"
+#~ msgstr "Bilete:"
+
+#~ msgid "Videos:"
+#~ msgstr "Videoar:"
+
+#~ msgid "and %s"
+#~ msgstr "og %s"
+
+#~ msgid "All settings and preferences have been reset"
+#~ msgstr "Alle innstillingar er nullstilte"
+
+#~ msgid "Name + extension"
+#~ msgstr "Namn + filtype"
+
+#~ msgid " "
+#~ msgstr " "
+
+#~ msgid " hh:mm"
+#~ msgstr " tt:mm"
+
+#~ msgid ":"
+#~ msgstr ":"
+
+#~ msgid "<b>Backup</b>"
+#~ msgstr "<b>Tryggleikskopi</b>"
+
+#~ msgid "<b>Compatibility with Other Operating Systems</b>"
+#~ msgstr "<b>Kompatibilitet med andre operativsystem</b>"
+
+#~ msgid "<b>Download Folder</b>"
+#~ msgstr "<b>Nedlastingsmappe</b>"
+
+#~ msgid "<b>Download Subfolders</b>"
+#~ msgstr "<b>Nedlastingsundermapper</b>"
+
+#~ msgid "<b>Example</b>"
+#~ msgstr "<b>Døme</b>"
+
+#~ msgid "<b>Job Codes</b>"
+#~ msgstr "<b>Jobbnamn</b>"
+
+#~ msgid "<b>Photo Rename</b>"
+#~ msgstr "<b>Omdøping av bilete</b>"
+
+#~ msgid "<b>Photo and Video Name Conflicts</b>"
+#~ msgstr "<b>Namnekonfliktar i bilete og video</b>"
+
+#~ msgid "<b>Program Automation</b>"
+#~ msgstr "<b>Automatisering</b>"
+
+#~ msgid "<b>Sequence Numbers</b>"
+#~ msgstr "<b>Sekvenstal</b>"
+
+#~ msgid "<i>/media/externaldrive/Photos</i>"
+#~ msgstr "<i>/media/eksterndisk/Bilete</i>"
+
+#~ msgid "<i>Example: /home/user/Pictures</i>"
+#~ msgstr "<i>Døme: /home/brukar/Bilete</i>"
+
+#~ msgid "<i>Example:</i>"
+#~ msgstr "<i>Døme:</i>"
+
+#~ msgid "<i>New:</i>"
+#~ msgstr "<i>Ny:</i>"
+
+#~ msgid "<i>Original:</i>"
+#~ msgstr "<i>Opphavleg:</i>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Tryggleikskopi</span>\t"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Einingar</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Feilhandtering</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Jobbnamn</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">Biletnedlastingsmapper</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Omdøping av bilete</span>\t"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Omdøpingsval</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">Videonedlastingsmapper</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Omdøping av videoar</span>\t"
+
+#~ msgid "Add unique identifier"
+#~ msgstr "Legg til unik identifikator"
+
+#~ msgid "Automatically detect Portable Storage Devices"
+#~ msgstr "Oppdag portable lagringseiningar automatisk"
+
+#~ msgid "Automatically detect backup devices"
+#~ msgstr "Oppdag einingar for tryggleikskopiering automatisk"
+
+#~ msgid "Automatically detect devices"
+#~ msgstr "Oppdag einingar automatisk"
+
+#~ msgid "Backup"
+#~ msgstr "Tryggleikskopi"
+
+#~ msgid ""
+#~ "Choose the download folder. Subfolders for the downloaded photos will be "
+#~ "automatically created in this folder using the structure specified below."
+#~ msgstr ""
+#~ "Vel ei nedlastingsmappe. Når du nyttar strukturen nedanfor blir det \n"
+#~ "automatisk oppretta undermapper for dei nedlasta bileta i denne mappa."
+
+#~ msgid ""
+#~ "Choose the download folder. Subfolders for the downloaded videos will be "
+#~ "automatically created in this folder using the structure specified below."
+#~ msgstr ""
+#~ "Vel ei nedlastingsmappe. Når du nyttar strukturen nedanfor blir det \n"
+#~ "automatisk oppretta undermapper for dei nedlasta videoane i denne mappa."
+
+#~ msgid "Day start:"
+#~ msgstr "Dag byrjar:"
+
+#~ msgid "Download / Pause"
+#~ msgstr "Last ned / Pause"
+
+#~ msgid "Download folder:"
+#~ msgstr "Nedlastingsmappe:"
+
+#~ msgid "Downloads today:"
+#~ msgstr "Nedlastingar idag:"
+
+#~ msgid "Error Handling"
+#~ msgstr "Feilhandtering"
+
+#~ msgid "Import your photos and videos efficiently and reliably"
+#~ msgstr "Importer bileta og videoane dine trygt og effektivt"
+
+#~ msgid "Job Codes"
+#~ msgstr "Jobbnamn"
+
+#~ msgid "Location:"
+#~ msgstr "Stad:"
+
+#~ msgid "Overwrite"
+#~ msgstr "Overskriv"
+
+#~ msgid "Photo Folders"
+#~ msgstr "Biletmapper"
+
+#~ msgid "Photo Rename"
+#~ msgstr "Omdøping av bilete"
+
+#~ msgid "Photo backup folder name:"
+#~ msgstr "Mappenamn for tryggleikskopiering av bilete:"
+
+#~ msgid "Preferences: Rapid Photo Downloader"
+#~ msgstr "Innstillingar: Rapid Photo Downloader"
+
+#~ msgid "R_emove All"
+#~ msgstr "_Fjern alle"
+
+#~ msgid "Rename Options"
+#~ msgstr "Omdøpingsval"
+
+#~ msgid "Select All Wit_h Job Code"
+#~ msgstr "Vel alle med _jobbnamn"
+
+#~ msgid "Select All Without _Job Code"
+#~ msgstr "Vel alle _utan jobbnamn"
+
+#~ msgid "Skip"
+#~ msgstr "Hopp over"
+
+#~ msgid "Skip download"
+#~ msgstr "Hopp over nedlasting"
+
+#~ msgid ""
+#~ "Specify the folder in which backups are stored on the device.  \n"
+#~ "\n"
+#~ "<i>Note: this will also be used to determine whether or not the device is "
+#~ "used for backups. For each device you wish to use for backing up to, "
+#~ "create a folder in it with one of these names.</i>"
+#~ msgstr ""
+#~ "Oppgi mappa på eininga kor tryggleikskopiar er lagra.  \n"
+#~ "\n"
+#~ "<i>Merk: dette blir au nytta for å finne ut om eininga er nytta til "
+#~ "tryggleikskopiering. Lag ei mappe med eitt av desse namna på kvar eining "
+#~ "som du vil ta tryggleikskopi til.</i>"
+
+#~ msgid ""
+#~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
+#~ "sequence number should be reset."
+#~ msgstr ""
+#~ "Oppgi tida i 24-timarsformat som sekvensteljaren <i>Nedlastingar idag</i> "
+#~ "skal nullstillast til."
+
+#~ msgid ""
+#~ "Specify whether photo, video and folder names should have any characters "
+#~ "removed that are not allowed by other operating systems."
+#~ msgstr ""
+#~ "Oppgi om du vil fjerne teikn som andre operativsystem ikkje forstår frå "
+#~ "bilete, videoar eller mappenamn."
+
+#~ msgid "Start downloading at program startup"
+#~ msgstr "Gå i gang med å laste ned bilete når programmet startar"
+
+#~ msgid "Start downloading upon device insertion"
+#~ msgstr "Gå i gang med å laste ned når einingar blir kopla til"
+
+#~ msgid "Stored number:"
+#~ msgstr "Lagra tal:"
+
+#~ msgid "Strip incompatible characters"
+#~ msgstr "Fjern inkompatible teikn"
+
+#~ msgid "Synchronize RAW + JPEG sequence numbers"
+#~ msgstr "Synkroniser sekvenstal for RAW og JPEG"
+
+#~ msgid "Unmount (\"eject\") device upon download completion"
+#~ msgstr "Avmonter (kople ut) eining når nedlastinga er fullført"
+
+#~ msgid "Video Folders"
+#~ msgstr "Videomapper"
+
+#~ msgid "Video Rename"
+#~ msgstr "Omdøping av videoar"
+
+#~ msgid "Video backup folder name:"
+#~ msgstr "Mappenamn for tryggleikskopiering av video:"
+
+#~ msgid ""
+#~ "When a photo or video of the same name has already been downloaded, "
+#~ "choose whether to skip downloading the file, or to add a unique "
+#~ "indentifier."
+#~ msgstr ""
+#~ "Vel om du skal hoppe over fila eller leggje til ein unik identifikator "
+#~ "når eit bilete eller ein video med det same namnet allereie er lasta ned."
+
+#~ msgid ""
+#~ "When backing up, choose whether to overwrite a file on the backup device "
+#~ "that has the same name, or skip backing it up."
+#~ msgstr ""
+#~ "Ved tryggleikskopiering, vel om du skal overskrive filer på eininga som "
+#~ "har same namn, eller hoppe over den fila."
+
+#~ msgid ""
+#~ "You can have your photos and videos backed up to multiple locations as "
+#~ "they are downloaded, e.g. external hard drives."
+#~ msgstr ""
+#~ "Du kan ta tryggleikskopi av bilete og videoar til fleire stader når du "
+#~ "lastar ned, t.d. til eksterne harddisker."
+
+#~ msgid "_Add..."
+#~ msgstr "_Legg til..."
+
+#~ msgid "_Clear Completed Downloads"
+#~ msgstr "_Fjern fullførte nedlastingar"
+
+#~ msgid "_Error Log"
+#~ msgstr "_Feillogg"
+
+#~ msgid "_File"
+#~ msgstr "_Fil"
+
+#~ msgid "_Get Help Online..."
+#~ msgstr "_Få hjelp på nettet..."
+
+#~ msgid "_Help"
+#~ msgstr "_Hjelp"
+
+#~ msgid "_Make a Donation..."
+#~ msgstr "_Doner..."
+
+#~ msgid "_Report a Problem..."
+#~ msgstr "_Meld frå om eit problem"
+
+#~ msgid "_Select"
+#~ msgstr "_Vel"
+
+#~ msgid "_Translate this Application..."
+#~ msgstr "_Omset dette programmet..."
+
+#~ msgid "_View"
+#~ msgstr "_Vis"
+
 #~ msgid ""
 #~ "The %(filetype)s subfolder preferences entered are invalid and cannot be "
 #~ "used.\n"
@@ -2528,6 +2690,74 @@ msgstr "Innstillingar: Rapid Photo Downloader"
 #~ "Innstillingane til undermapper for filtypen %(filetype)s er ugyldige\n"
 #~ "og kan ikkje nyttast.\n"
 #~ "Dei blir endra til standardverdiar."
+
+#~ msgid "display debugging information when run from the command line"
+#~ msgstr "vis avlusingsinformasjon ved køyring frå kommandolinja"
+
+#~ msgid "(%(file_type)s)"
+#~ msgstr "(%(file_type)s)"
+
+#~ msgid "Free space:"
+#~ msgstr "Ledig plass:"
+
+#~ msgid "; "
+#~ msgstr "; "
+
+#~ msgid "."
+#~ msgstr "."
+
+#~ msgid "%(free)s %(file_type)s"
+#~ msgstr "%(free)s %(file_type)s"
+
+#~ msgid "%(file_type)s download folder is not writable"
+#~ msgstr "Nedlastingsmappa til %(file_type)s er ikkje skrivbar"
+
+#~ msgid "Folder: %s"
+#~ msgstr "Mappe: %s"
+
+#~ msgid "%(file_type)s download folder is invalid"
+#~ msgstr "Nedlastingsmappa til %(file_type)s er ugyldig"
+
+#~ msgid "%(file_type)s download folder does not exist"
+#~ msgstr "Nedlastingsmappa til %(file_type)s finst ikkje"
+
+#~ msgid "Thumbnails"
+#~ msgstr "Miniatyrbilete"
+
+#~ msgid "%(free)s free"
+#~ msgstr "%(free)s tilgjengeleg"
+
+#~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
+#~ msgstr "Tek tryggleikskopi av bilete  til %(path)s og videoar til %(path2)s"
+
+#~ msgid "Backing up photos and videos to %(path)s"
+#~ msgstr "Tek tryggleikskopi av bilete og videoar til %(path)s"
+
+#~ msgid "Specify a path that will never be scanned for photos or videos"
+#~ msgstr ""
+#~ "Oppgi ein sti som du vil aldri skal gjennomsøkjast etter bilete eller "
+#~ "videoar"
+
+#~ msgid "Path:"
+#~ msgstr "Sti:"
+
+#~ msgid "Remove all Remembered Paths?"
+#~ msgstr "Fjern alle hugsa søkjestiar?"
+
+#~ msgid "Should all remembered paths be removed?"
+#~ msgstr "Skal alle hugsa søkjestiar fjernast?"
+
+#~ msgid "Remove all Ignored Paths?"
+#~ msgstr "Fjern alle oversedde søkjestiar?"
+
+#~ msgid "Should all ignored paths be removed?"
+#~ msgstr "Skal alle oversedde søkjestiar fjernast?"
+
+#~ msgid "Enter a Path to Ignore"
+#~ msgstr "Oppgi ein søkjesti å oversjå"
+
+#~ msgid "Invalid regular expression"
+#~ msgstr "Ugyldig regulært uttrykk"
 
 #~ msgid ""
 #~ "The following regular expressions are invalid, and will be removed unless "
@@ -2547,95 +2777,23 @@ msgstr "Innstillingar: Rapid Photo Downloader"
 #~ "ikkje endrar det:\n"
 #~ "%s"
 
-#~ msgid "Invalid regular expression"
-#~ msgstr "Ugyldig regulært uttrykk"
+#~ msgid "Select a folder in which to backup photos"
+#~ msgstr "Vel ei mappe kor du vil tryggleikskopiera bilete"
 
-#~ msgid "externaldrive1"
-#~ msgstr "eksterndisk1"
+#~ msgid "Select a folder in which to backup videos"
+#~ msgstr "Vel ei mappe kor du vil tryggleikskopiera videoar"
 
-#~ msgid "externaldrive2"
-#~ msgstr "eksterndisk2"
+#~ msgid "%(device)s did not unmount"
+#~ msgstr "%(device)s vart ikkje avmontert"
 
-#~ msgid "New York"
-#~ msgstr "New York"
+#~ msgid "Next File"
+#~ msgstr "Neste fil"
 
-#~ msgid "Manila"
-#~ msgstr "Manila"
+#~ msgid "Previous File"
+#~ msgstr "Førre fil"
 
-#~ msgid "Prague"
-#~ msgstr "Praha"
-
-#~ msgid "Helsinki"
-#~ msgstr "Helsinki"
-
-#~ msgid "Wellington"
-#~ msgstr "Wellington"
-
-#~ msgid "Tehran"
-#~ msgstr "Teheran"
-
-#~ msgid "Kampala"
-#~ msgstr "Kampala"
-
-#~ msgid "Paris"
-#~ msgstr "Paris"
-
-#~ msgid "Berlin"
-#~ msgstr "Berlin"
-
-#~ msgid "Sydney"
-#~ msgstr "Sydney"
-
-#~ msgid "Budapest"
-#~ msgstr "Budapest"
-
-#~ msgid "Rome"
-#~ msgstr "Roma"
-
-#~ msgid "Moscow"
-#~ msgstr "Moskva"
-
-#~ msgid "Delhi"
-#~ msgstr "Delhi"
-
-#~ msgid "Warsaw"
-#~ msgstr "Warszawa"
-
-#~ msgid "Jakarta"
-#~ msgstr "Jakarta"
-
-#~ msgid "Madrid"
-#~ msgstr "Madrid"
-
-#~ msgid "Stockholm"
-#~ msgstr "Stockholm"
-
-#~ msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
-#~ msgstr "skannar (fann %(photos)s bilete og %(videos)s videoar) …"
-
-#~ msgid "Help"
-#~ msgstr "Hjelp"
-
-#~ msgid "_File"
-#~ msgstr "_Fil"
-
-#~ msgid "Select All Without _Job Code"
-#~ msgstr "Vel alle _utan jobbnamn"
-
-#~ msgid "Select All Wit_h Job Code"
-#~ msgstr "Vel alle med _jobbnamn"
-
-#~ msgid "_View"
-#~ msgstr "_Vis"
-
-#~ msgid "_Error Log"
-#~ msgstr "_Feillogg"
-
-#~ msgid "_Help"
-#~ msgstr "_Hjelp"
-
-#~ msgid "_Translate this Application..."
-#~ msgstr "_Omset dette programmet..."
+#~ msgid "_Uncheck All"
+#~ msgstr "Merk _ingen"
 
 #~ msgid "_Include in download"
 #~ msgstr "Inkluder i _nedlastinga"
@@ -2643,146 +2801,78 @@ msgstr "Innstillingar: Rapid Photo Downloader"
 #~ msgid "_Download"
 #~ msgstr "_Last ned"
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Biletnedlastingsmapper</span>"
+#~ msgid "_Check All"
+#~ msgstr "_Merk alle"
 
-#~ msgid "<i>Example: /home/user/Pictures</i>"
-#~ msgstr "<i>Døme: /home/brukar/Bilete</i>"
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Device Options</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Einingsinnstillingar</span>"
 
-#~ msgid "<b>Download Subfolders</b>"
-#~ msgstr "<b>Nedlastingsundermapper</b>"
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Ymse</span>"
 
-#~ msgid "Download folder:"
-#~ msgstr "Nedlastingsmappe:"
+#~ msgid "Ignored Paths"
+#~ msgstr "Oversedde stiar"
 
-#~ msgid ""
-#~ "Choose the download folder. Subfolders for the downloaded photos will be "
-#~ "automatically created in this folder using the structure specified below."
-#~ msgstr ""
-#~ "Vel ei nedlastingsmappe. Når du nyttar strukturen nedanfor blir det \n"
-#~ "automatisk oppretta undermapper for dei nedlasta bileta i denne mappa."
+#~ msgid "Exit program when download completes"
+#~ msgstr "Avslutt programmet når nedlastinga er ferdig"
 
-#~ msgid "<b>Download Folder</b>"
-#~ msgstr "<b>Nedlastingsmappe</b>"
-
-#~ msgid "Photo Folders"
-#~ msgstr "Biletmapper"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Omdøping av bilete</span>\t"
-
-#~ msgid "<b>Photo Rename</b>"
-#~ msgstr "<b>Omdøping av bilete</b>"
-
-#~ msgid " "
-#~ msgstr " "
-
-#~ msgid "<i>New:</i>"
-#~ msgstr "<i>Ny:</i>"
-
-#~ msgid "<i>Original:</i>"
-#~ msgstr "<i>Opphavleg:</i>"
-
-#~ msgid "<b>Example</b>"
-#~ msgstr "<b>Døme</b>"
-
-#~ msgid "Photo Rename"
-#~ msgstr "Omdøping av bilete"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Videonedlastingsmapper</span>"
+#~ msgid "Exit program even if download had warnings or errors"
+#~ msgstr "Avslutt programmet sjølv om nedlastinga hadde feil eller åtvaringar"
 
 #~ msgid ""
-#~ "Sorry, video downloading functionality disabled. To download videos, "
-#~ "please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> "
-#~ "packages for python, or <i>exiftool</i>."
+#~ "If you disable automatic detection, choose the exact location of the "
+#~ "photos and videos."
 #~ msgstr ""
-#~ "Orsak, videonedlasting er skrudd av. Ver venleg og last ned anten python-"
-#~ "pakkene <i>hachoir metadata</i> og <i>kaa metadata</i>, eller "
-#~ "<i>exiftool</i>, for å lasta ned videoar."
+#~ "Viss du skrur av automatisk oppdaging, må du oppgi kor bileta og videoane "
+#~ "er."
 
 #~ msgid ""
-#~ "Choose the download folder. Subfolders for the downloaded videos will be "
-#~ "automatically created in this folder using the structure specified below."
+#~ "If you disable automatic detection, choose the exact backup locations."
 #~ msgstr ""
-#~ "Vel ei nedlastingsmappe. Når du nyttar strukturen nedanfor blir det \n"
-#~ "automatisk oppretta undermapper for dei nedlasta videoane i denne mappa."
+#~ "Viss du skrur av automatisk oppdaging, må du oppgi kor du vil ta "
+#~ "tryggleikskopi til."
 
-#~ msgid "Video Folders"
-#~ msgstr "Videomapper"
+#~ msgid "Device Options"
+#~ msgstr "Val for einingar"
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Omdøping av videoar</span>\t"
+#~ msgid "Generate thumbnails (slower)"
+#~ msgstr "Lag miniatyrbilete (treigare)"
 
-#~ msgid "Video Rename"
-#~ msgstr "Omdøping av videoar"
+#~ msgid "Remembered Paths"
+#~ msgstr "Hugsa stiar"
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Omdøpingsval</span>"
+#~ msgid "Photo backup location:"
+#~ msgstr "Ta tryggleikskopi av bilete til:"
 
-#~ msgid "<b>Sequence Numbers</b>"
-#~ msgstr "<b>Sekvenstal</b>"
-
-#~ msgid ""
-#~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
-#~ "sequence number should be reset."
-#~ msgstr ""
-#~ "Oppgi tida i 24-timarsformat som sekvensteljaren <i>Nedlastingar idag</i> "
-#~ "skal nullstillast til."
-
-#~ msgid "Day start:"
-#~ msgstr "Dag byrjar:"
-
-#~ msgid "Downloads today:"
-#~ msgstr "Nedlastingar idag:"
-
-#~ msgid "Stored number:"
-#~ msgstr "Lagra tal:"
-
-#~ msgid ":"
-#~ msgstr ":"
-
-#~ msgid " hh:mm"
-#~ msgstr " tt:mm"
-
-#~ msgid "Synchronize RAW + JPEG sequence numbers"
-#~ msgstr "Synkroniser sekvenstal for RAW og JPEG"
-
-#~ msgid "<b>Compatibility with Other Operating Systems</b>"
-#~ msgstr "<b>Kompatibilitet med andre operativsystem</b>"
-
-#~ msgid ""
-#~ "Specify whether photo, video and folder names should have any characters "
-#~ "removed that are not allowed by other operating systems."
-#~ msgstr ""
-#~ "Oppgi om du vil fjerne teikn som andre operativsystem ikkje forstår frå "
-#~ "bilete, videoar eller mappenamn."
-
-#~ msgid "Strip incompatible characters"
-#~ msgstr "Fjern inkompatible teikn"
-
-#~ msgid "Rename Options"
-#~ msgstr "Omdøpingsval"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Jobbnamn</span>"
-
-#~ msgid "<b>Job Codes</b>"
-#~ msgstr "<b>Jobbnamn</b>"
-
-#~ msgid "_Add..."
-#~ msgstr "_Legg til..."
-
-#~ msgid "R_emove All"
+#~ msgid "Re_move All"
 #~ msgstr "_Fjern alle"
 
-#~ msgid "Job Codes"
-#~ msgstr "Jobbnamn"
+#~ msgid ""
+#~ "Remembered paths are those associated with devices that you have chosen "
+#~ "to always scan or ignore when automatic detection of Portable Storage "
+#~ "Devices is enabled."
+#~ msgstr ""
+#~ "Hugsa stiar er kopla til einingar som du har valt å alltid søkja gjennom, "
+#~ "eller alltid oversjå, ved automatisk oppdaging av berbare "
+#~ "lagringseiningar."
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Einingar</span>"
+#~ msgid "Performance"
+#~ msgstr "Yting"
+
+#~ msgid "Miscellaneous"
+#~ msgstr "Ymse"
+
+#~ msgid ""
+#~ "If you enable automatic detection of Portable Storage Devices, the entire "
+#~ "device will be scanned. On large devices, this could take some time.\n"
+#~ "\n"
+#~ "When this option is enabled, and a potential device is detected, you will "
+#~ "be prompted to determine if it should be scanned or not."
+#~ msgstr ""
+#~ "Viss du skrur på automatisk oppdaging på ei berbar lagringseining, vil "
+#~ "heile eininga gjennomsøkjast. På store einingar kan dette ta litt tid.\n"
+#~ "Når dette er skrudd på, og programmet oppdagar ei mogleg eining, vil det "
+#~ "spørja deg om du vil søkja gjennom eininga eller ikkje."
 
 #~ msgid ""
 #~ "Devices are from where to download photos and videos, such as cameras, "
@@ -2806,51 +2896,8 @@ msgstr "Innstillingar: Rapid Photo Downloader"
 #~ "Viss det fungerer dårleg eller ikkje i det heile, prøv å setja apparatet "
 #~ "i PTP-modus. Viss det ikkje går an, må du bruka ein kortlesar.</i>"
 
-#~ msgid "Automatically detect Portable Storage Devices"
-#~ msgstr "Oppdag portable lagringseiningar automatisk"
-
-#~ msgid "Automatically detect devices"
-#~ msgstr "Oppdag einingar automatisk"
-
-#~ msgid ""
-#~ "If you enable automatic detection of Portable Storage Devices, the entire "
-#~ "device will be scanned. On large devices, this could take some time.\n"
-#~ "\n"
-#~ "When this option is enabled, and a potential device is detected, you will "
-#~ "be prompted to determine if it should be scanned or not."
-#~ msgstr ""
-#~ "Viss du skrur på automatisk oppdaging på ei berbar lagringseining, vil "
-#~ "heile eininga gjennomsøkjast. På store einingar kan dette ta litt tid.\n"
-#~ "Når dette er skrudd på, og programmet oppdagar ei mogleg eining, vil det "
-#~ "spørja deg om du vil søkja gjennom eininga eller ikkje."
-
-#~ msgid "Location:"
-#~ msgstr "Stad:"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the "
-#~ "photos and videos."
-#~ msgstr ""
-#~ "Viss du skrur av automatisk oppdaging, må du oppgi kor bileta og videoane "
-#~ "er."
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Device Options</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Einingsinnstillingar</span>"
-
-#~ msgid "Remembered Paths"
-#~ msgstr "Hugsa stiar"
-
-#~ msgid ""
-#~ "Remembered paths are those associated with devices that you have chosen "
-#~ "to always scan or ignore when automatic detection of Portable Storage "
-#~ "Devices is enabled."
-#~ msgstr ""
-#~ "Hugsa stiar er kopla til einingar som du har valt å alltid søkja gjennom, "
-#~ "eller alltid oversjå, ved automatisk oppdaging av berbare "
-#~ "lagringseiningar."
-
-#~ msgid "Ignored Paths"
-#~ msgstr "Oversedde stiar"
+#~ msgid "Use _python-style regular expressions"
+#~ msgstr "Bruk _python sine regulære uttrykk"
 
 #~ msgid ""
 #~ "Specify the ending portion of any paths you want ignored when scanning "
@@ -2861,374 +2908,99 @@ msgstr "Innstillingar: Rapid Photo Downloader"
 #~ "etter bilete eller videoar. Stiar som ender med verdiane under vil ikkje "
 #~ "bli gjennomsøkt."
 
-#~ msgid "Re_move All"
-#~ msgstr "_Fjern alle"
-
-#~ msgid "Use _python-style regular expressions"
-#~ msgstr "Bruk _python sine regulære uttrykk"
-
-#~ msgid "Device Options"
-#~ msgstr "Val for einingar"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Tryggleikskopi</span>\t"
-
-#~ msgid "<b>Backup</b>"
-#~ msgstr "<b>Tryggleikskopi</b>"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact backup locations."
-#~ msgstr ""
-#~ "Viss du skrur av automatisk oppdaging, må du oppgi kor du vil ta "
-#~ "tryggleikskopi til."
-
-#~ msgid ""
-#~ "You can have your photos and videos backed up to multiple locations as "
-#~ "they are downloaded, e.g. external hard drives."
-#~ msgstr ""
-#~ "Du kan ta tryggleikskopi av bilete og videoar til fleire stader når du "
-#~ "lastar ned, t.d. til eksterne harddisker."
-
-#~ msgid "Photo backup location:"
-#~ msgstr "Ta tryggleikskopi av bilete til:"
-
-#~ msgid "Photo backup folder name:"
-#~ msgstr "Mappenamn for tryggleikskopiering av bilete:"
-
-#~ msgid "<i>Example:</i>"
-#~ msgstr "<i>Døme:</i>"
-
-#~ msgid "<i>/media/externaldrive/Photos</i>"
-#~ msgstr "<i>/media/eksterndisk/Bilete</i>"
-
-#~ msgid "Video backup folder name:"
-#~ msgstr "Mappenamn for tryggleikskopiering av video:"
-
 #~ msgid "Video backup location:"
 #~ msgstr "Ta tryggleikskopi av videoar til:"
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Ymse</span>"
+#~ msgid ""
+#~ "Do you really want to download from here? On some systems, scanning this "
+#~ "location can take a very long time."
+#~ msgstr ""
+#~ "Vil du verkeleg lasta ned herfrå? På visse system kan det ta veldig lang "
+#~ "tid å skanna dette."
 
-#~ msgid "<b>Program Automation</b>"
-#~ msgstr "<b>Automatisering</b>"
+#~ msgid "the root of the file system"
+#~ msgstr "rotmappa til filsystemet"
 
-#~ msgid "Unmount (\"eject\") device upon download completion"
-#~ msgstr "Avmonter (kople ut) eining når nedlastinga er fullført"
+#~ msgid "Downloading from %(location)s."
+#~ msgstr "Lastar ned frå %(location)s."
 
-#~ msgid "Start downloading at program startup"
-#~ msgstr "Gå i gang med å laste ned bilete når programmet startar"
+#~ msgid "Copy"
+#~ msgstr "Kopier"
 
-#~ msgid "Start downloading upon device insertion"
-#~ msgstr "Gå i gang med å laste ned når einingar blir kopla til"
+#~ msgid "Move"
+#~ msgstr "Flytt"
 
-#~ msgid "Exit program when download completes"
-#~ msgstr "Avslutt programmet når nedlastinga er ferdig"
+#~ msgid "From"
+#~ msgstr "Frå"
 
-#~ msgid "Exit program even if download had warnings or errors"
-#~ msgstr "Avslutt programmet sjølv om nedlastinga hadde feil eller åtvaringar"
+#~ msgid "Auto Detect"
+#~ msgstr "Oppdag automatisk"
+
+#~ msgid "To"
+#~ msgstr "Til"
 
 #~ msgid "Automatically rotate JPEG images"
 #~ msgstr "Roter JPEG-bilete automatisk"
 
+#~ msgid ""
+#~ "Sorry, video downloading functionality disabled. To download videos, "
+#~ "please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> "
+#~ "packages for python, or <i>exiftool</i>."
+#~ msgstr ""
+#~ "Orsak, videonedlasting er skrudd av. Ver venleg og last ned anten python-"
+#~ "pakkene <i>hachoir metadata</i> og <i>kaa metadata</i>, eller "
+#~ "<i>exiftool</i>, for å lasta ned videoar."
+
+#~ msgid ""
+#~ "Error: specify device auto-detection or manually specify a device's path "
+#~ "from which to download, but do not do both."
+#~ msgstr ""
+#~ "Feil: Bruk auto-oppdaging av einingar eller oppgi ei sti til ei eining du "
+#~ "vil lasta ned frå, men ikkje gjer begge på ein gong."
+
+#~ msgid "Check All Videos"
+#~ msgstr "Sjekk alle videoar"
+
+#~ msgid "Check All Photos"
+#~ msgstr "Sjekk alle bilete"
+
+#~ msgid "Help"
+#~ msgstr "Hjelp"
+
+#~ msgid "About..."
+#~ msgstr "Om …"
+
+#~ msgid ""
+#~ "manually specify the PATH of the device from which to download, "
+#~ "overwriting existing program preferences"
+#~ msgstr ""
+#~ "manuelt spesifiser stien til eininga du vil lasta ned frå, overstyrer "
+#~ "eksisterande innstillingar"
+
+#~ msgid ""
+#~ "automatically detect devices from which to download, overwriting existing "
+#~ "program preferences"
+#~ msgstr ""
+#~ "oppdag automatisk einingar du vil lasta ned frå, overstyrer eksisterande "
+#~ "innstillingar"
+
+#~ msgid "Preferences"
+#~ msgstr "Innstillingar"
+
+#~ msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
+#~ msgstr "skannar (fann %(photos)s bilete og %(videos)s videoar) …"
+
+#~ msgid "Refresh"
+#~ msgstr "Frisk opp att"
+
+#~ msgid "Quit"
+#~ msgstr "Avslutt"
+
+#~ msgid "Back up photos and videos when downloading"
+#~ msgstr "Ta tryggleikskopi av bilete og videoar ved nedlasting"
+
+#~ msgid "An unknown error occurred"
+#~ msgstr "Det oppsto en ukjend feil"
+
 #~ msgid "Verify files as they are downloaded"
 #~ msgstr "Valider filer ved nedlasting"
-
-#~ msgid "Performance"
-#~ msgstr "Yting"
-
-#~ msgid "Miscellaneous"
-#~ msgstr "Ymse"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Feilhandtering</span>"
-
-#~ msgid "<b>Photo and Video Name Conflicts</b>"
-#~ msgstr "<b>Namnekonfliktar i bilete og video</b>"
-
-#~ msgid "Add unique identifier"
-#~ msgstr "Legg til unik identifikator"
-
-#~ msgid "Skip download"
-#~ msgstr "Hopp over nedlasting"
-
-#~ msgid ""
-#~ "When a photo or video of the same name has already been downloaded, "
-#~ "choose whether to skip downloading the file, or to add a unique "
-#~ "indentifier."
-#~ msgstr ""
-#~ "Vel om du skal hoppe over fila eller leggje til ein unik identifikator "
-#~ "når eit bilete eller ein video med det same namnet allereie er lasta ned."
-
-#~ msgid ""
-#~ "When backing up, choose whether to overwrite a file on the backup device "
-#~ "that has the same name, or skip backing it up."
-#~ msgstr ""
-#~ "Ved tryggleikskopiering, vel om du skal overskrive filer på eininga som "
-#~ "har same namn, eller hoppe over den fila."
-
-#~ msgid "Overwrite"
-#~ msgstr "Overskriv"
-
-#~ msgid "Skip"
-#~ msgstr "Hopp over"
-
-#~ msgid "Error Handling"
-#~ msgstr "Feilhandtering"
-
-#~ msgid "Import your photos and videos efficiently and reliably"
-#~ msgstr "Importer bileta og videoane dine trygt og effektivt"
-
-#~ msgid "Invalid Downloads Today value.\n"
-#~ msgstr "Ugyldig verdi for Nedlastingar idag.\n"
-
-#~ msgid "Resetting value to zero.\n"
-#~ msgstr "Nullstiller verdien.\n"
-
-#~ msgid "'Start of day' preference value is corrupted.\n"
-#~ msgstr "Ugyldig innstillingsverdi for «Byrjar av dag»\n"
-
-#~ msgid "Resetting to midnight.\n"
-#~ msgstr "Nullstiller verdien til midnatt.\n"
-
-#~ msgid "Sorry,these preferences contain an error:\n"
-#~ msgstr "Orsak, det er ein feil i innstillingane:\n"
-
-#~ msgid "Resetting to default values."
-#~ msgstr "Nullstiller til standardverdiar."
-
-#~ msgid "There is an error in the program preferences."
-#~ msgstr "Det er ein feil i innstillingane."
-
-#~ msgid ""
-#~ "\n"
-#~ "Please check preferences, restart the program, and try again."
-#~ msgstr ""
-#~ "\n"
-#~ "Vennligst kontroller innstillingane, start programmet på nytt, og prøv "
-#~ "igjen."
-
-#~ msgid "The device can now be safely removed"
-#~ msgstr "Du kan no trygt fjerne eininga"
-
-#~ msgid "errors"
-#~ msgstr "feil"
-
-#~ msgid "New day has started - resetting 'Downloads Today' sequence number"
-#~ msgstr ""
-#~ "Ei ny dag har byrja - nullstiller sekvensnummeret «Nedlastingar idag»"
-
-#~ msgid "Download has started from %s"
-#~ msgstr "Byrja å laste ned frå %s"
-
-#~ msgid "Download complete from %s"
-#~ msgstr "Ferdig med å laste ned frå %s"
-
-#~ msgid "%s selected for downloading from"
-#~ msgstr "%s velt for nedlasting"
-
-#~ msgid "This device or partition will always be used to download from"
-#~ msgstr "Nyttar alltid denne eininga/partisjonen for nedlasting"
-
-#~ msgid "%s rejected as a download device"
-#~ msgstr "%s ikkje godkjend som nedlastingseining"
-
-#~ msgid "This device or partition will never be used to download from"
-#~ msgstr "Nyttar aldri denne eininga/partisjonen til nedlasting"
-
-#~ msgid "Job Code entered"
-#~ msgstr "Jobbnamn lagra"
-
-#~ msgid "Job Code not entered"
-#~ msgstr "Jobbnamn ikkje lagra"
-
-#~ msgid "Some preferences will be reset."
-#~ msgstr "Visse innstillingar blir nullstilt."
-
-#~ msgid "Prompting whether to use %s"
-#~ msgstr "Spør om å nytte %s"
-
-#~ msgid "Prompting for Job Code"
-#~ msgstr "Spør om jobbnamn"
-
-#~ msgid "Already prompting for Job Code, do not prompt again"
-#~ msgstr "Spør allereie om jobbnamn, ikkje spør igjen"
-
-#~ msgid "Starting downloads"
-#~ msgstr "Byrjar nedlasting"
-
-#~ msgid "Starting downloads that have been waiting for a Job Code"
-#~ msgstr "Byrjar nedlastingar som har venta på jobbnamn"
-
-#~ msgid ""
-#~ "A newer version of this program was previously run on this computer.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "Ei nyare utgåve av dette programmet har køyrt tidlegare på denne "
-#~ "maskinen.\n"
-#~ "\n"
-
-#~ msgid ""
-#~ "Program preferences appear to be valid, but please check them to ensure "
-#~ "correct operation."
-#~ msgstr ""
-#~ "Programinnstillingane kan synast å vere gyldige, men ver vennleg og "
-#~ "kontroller dei for å vere sikker på at alt er som det skal vere."
-
-#~ msgid "Sorry, some preferences are invalid and will be reset."
-#~ msgstr "Orsak, visse innstillingar var ugyldige og blir nullstilt."
-
-#~ msgid "Warning:"
-#~ msgstr "Åtvaring:"
-
-#~ msgid ""
-#~ "This version of the program is newer than the previously run version. "
-#~ "Checking preferences."
-#~ msgstr ""
-#~ "Denne utgåva av programmet er nyare enn den som køyrte tidlegare. "
-#~ "Kontrollerer innstillingar."
-
-#~ msgid "Preferences were modified."
-#~ msgstr "Innstillingane blei endra."
-
-#~ msgid ""
-#~ "This version of the program uses different preferences than the old "
-#~ "version. Your preferences have been updated.\n"
-#~ "\n"
-#~ "Please check them to ensure correct operation."
-#~ msgstr ""
-#~ "Denne utgåva av programmet nyttar andre innstillingar enn den gamle "
-#~ "utgåva. Innstillingane dine er oppdatert.\n"
-#~ "\n"
-#~ "Ver vennleg og kontroller dei for å sjå til at alt er som det skal vere."
-
-#~ msgid "No preferences needed to be changed."
-#~ msgstr "Trengte ikkje å endre nokon innstillingar."
-
-#~ msgid ""
-#~ "This version of the program uses different preferences than the old "
-#~ "version. Some of your previous preferences were invalid, and could not be "
-#~ "updated. They will be reset."
-#~ msgstr ""
-#~ "Denne utgåva av programmet nyttar andre innstillingar enn den gamle "
-#~ "utgåva. Visse gamle innstillingar var ugyldige, og kunne ikkje "
-#~ "oppdaterast. Dei blir nullstilt."
-
-#~ msgid "Problem using pynotify."
-#~ msgstr "Problem med pynotify."
-
-#~ msgid "Failed to receive pynotify server capabilities."
-#~ msgstr "Klarte ikkje å hente inn eigenskapane til pynotify-tenaren."
-
-#~ msgid "Device %(device)s (%(path)s) ignored"
-#~ msgstr "Ignorerte eininga %(device)s (%(path)s)"
-
-#~ msgid "Detected %(device)s with path %(path)s"
-#~ msgstr "Fann %(device)s med sti %(path)s"
-
-#~ msgid "Automatically start download is true"
-#~ msgstr "Byrjar automatisk nedlasting"
-
-#~ msgid "Automatically start download is false"
-#~ msgstr "Byrjar ikkje automatisk nedlasting"
-
-#~ msgid "Using manually specified path"
-#~ msgstr "Nytt manuelt oppgitt sti"
-
-#~ msgid "_Pause"
-#~ msgstr "_Pause"
-
-#~ msgid "Goodbye"
-#~ msgstr "Ha det bra"
-
-#~ msgid "Using"
-#~ msgstr "Nyttar"
-
-#~ msgid "%s is already running"
-#~ msgstr "%s køyrer allereie"
-
-#~ msgid ""
-#~ "Preference key '%(key)s' is invalid.\n"
-#~ "Expected one of %(value)s"
-#~ msgstr ""
-#~ "Innstillingsnøkkelen '%(key)s' er ugyldig.\n"
-#~ "Venta ein av %(value)s"
-
-#~ msgid "Preference value '%(value)s' is invalid"
-#~ msgstr "Innstillingsnøkkelen '%(value)s' er ugyldig"
-
-#~ msgid "These preferences are not well formed:"
-#~ msgstr "Desse innstillingane er ikkje velforma:"
-
-#~ msgid "      "
-#~ msgstr "      "
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Automation</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Automatisering</span>"
-
-#~ msgid "Automation"
-#~ msgstr "Automatisering"
-
-#~ msgid "Backup location:"
-#~ msgstr "Kopier til:"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact backup location."
-#~ msgstr ""
-#~ "Viss du skrur av automatisk oppdaging må du oppgi nøyaktig kor du vil ta "
-#~ "tryggleikskopien."
-
-#~ msgid ""
-#~ "If you enable automatic detection of Portable Storage Devices, the entire "
-#~ "device will be scanned for images. On large devices, this could take some "
-#~ "time."
-#~ msgstr ""
-#~ "Viss du skrur på automatisk oppdaging av portable lagringseiningar blir "
-#~ "heile eininga gjennomsøkt etter bilete. På store einingar kan dette ta "
-#~ "ein del tid."
-
-#~ msgid ""
-#~ "Rapid Photo Downloader is free software; you can redistribute it and/or "
-#~ "modify it under the terms of the GNU General Public License as published "
-#~ "by the Free Software Foundation; either version 2 of the License, or (at "
-#~ "your option) any later version.\n"
-#~ "\n"
-#~ "Rapid Photo Downloader is distributed in the hope that it will be useful, "
-#~ "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-#~ "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General "
-#~ "Public License for more details.\n"
-#~ "\n"
-#~ "You should have received a copy of the GNU General Public License along "
-#~ "with Rapid Photo Downloader; if not, write to the Free Software "
-#~ "Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, "
-#~ "USA."
-#~ msgstr ""
-#~ "Rapid Photo Downloader is free software; you can redistribute it and/or "
-#~ "modify it under the terms of the GNU General Public License as published "
-#~ "by the Free Software Foundation; either version 2 of the License, or (at "
-#~ "your option) any later version.\n"
-#~ "\n"
-#~ "Rapid Photo Downloader is distributed in the hope that it will be useful, "
-#~ "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-#~ "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General "
-#~ "Public License for more details.\n"
-#~ "\n"
-#~ "You should have received a copy of the GNU General Public License along "
-#~ "with Rapid Photo Downloader; if not, write to the Free Software "
-#~ "Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, "
-#~ "USA."
-
-#~ msgid "Select a folder in which to backup images"
-#~ msgstr "Vel ei tryggingskopimappe"
-
-#~ msgid "%s images skipped"
-#~ msgstr "%s bilete hoppa over"
-
-#~ msgid "Backup image already exists"
-#~ msgstr "Tryggingskopibiletet finst alt."
-
-#~ msgid "The image was not copied."
-#~ msgstr "Biletet vart ikkje kopiert."
-
-#~ msgid "Backup device missing"
-#~ msgstr "Tryggingskopieininga finst ikkje"

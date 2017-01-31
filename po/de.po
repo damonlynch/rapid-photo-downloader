@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-27 14:45-0600\n"
-"PO-Revision-Date: 2016-05-09 15:49+0000\n"
-"Last-Translator: Tobias Bannert <tobannert@gmail.com>\n"
+"POT-Creation-Date: 2017-01-31 17:52-0600\n"
+"PO-Revision-Date: 2017-01-28 03:27+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-11-14 06:56+0000\n"
-"X-Generator: Launchpad (build 18261)\n"
+"X-Launchpad-Export-Date: 2017-01-31 23:48+0000\n"
+"X-Generator: Launchpad (build 18315)\n"
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
 msgstr "Fehler beim Erstellen der Sicherungskopie"
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:178 ../raphodo/renameandmovefile.py:270
+#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -42,22 +42,22 @@ msgstr "Fehler: %(inst)s"
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr "Das Zielverzeichnis konnte nicht erstellt werden: %(directory)s\n"
 
-#: ../raphodo/backupfile.py:167
+#: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr "Sicherung %(file_type)s überschrieben"
 
-#: ../raphodo/backupfile.py:171
+#: ../raphodo/backupfile.py:173
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr "%(file_type)s nicht gesichert"
 
-#: ../raphodo/backupfile.py:175
+#: ../raphodo/backupfile.py:177
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr "Sicherung of %(file_type)s bereits vorhanden"
 
-#: ../raphodo/backupfile.py:200 ../raphodo/copyfiles.py:184
+#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
 #: ../raphodo/renameandmovefile.py:424 ../raphodo/renameandmovefile.py:550
 #, python-format
@@ -70,201 +70,193 @@ msgstr ""
 
 #: ../raphodo/copyfiles.py:222
 msgid "The file could not be copied from the camera"
-msgstr ""
+msgstr "Die Datei konnte nicht von der Kamera kopiert werden"
 
-#: ../raphodo/copyfiles.py:389
+#: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
-msgstr ""
+msgstr "Auf die Kamera kann möglicherweise nicht zugegriffen werden"
 
 #: ../raphodo/devicedisplay.py:982
 msgid "Other"
-msgstr ""
+msgstr "Andere"
 
 #: ../raphodo/devicedisplay.py:983
 msgid "Probing device..."
-msgstr ""
+msgstr "Gerät wird untersucht …"
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1750
 #: ../raphodo/rapid.py:1927 ../raphodo/rapid.py:5285
-#, fuzzy
 msgid "Photos"
-msgstr "Fotos:"
+msgstr "Fotos"
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1753
 #: ../raphodo/rapid.py:1928 ../raphodo/rapid.py:5286
-#, fuzzy
 msgid "Videos"
-msgstr "Filme:"
+msgstr "Filme"
 
 #: ../raphodo/devicedisplay.py:999
 msgid "Temporarily ignore this device"
-msgstr ""
+msgstr "Ignoriere Gerät vorübergehend"
 
 #: ../raphodo/devicedisplay.py:1001
 msgid "Permanently ignore this device"
-msgstr ""
+msgstr "Ignoriere Gerät permanent"
 
 #: ../raphodo/devicedisplay.py:1003
 msgid "Rescan"
-msgstr ""
+msgstr "Erneut einlesen"
 
 #: ../raphodo/devicedisplay.py:1078 ../raphodo/rpdfile.py:315
 #, python-format
 msgid "%(no_photos)s Photos"
-msgstr ""
+msgstr "%(no_photos)s Fotos"
 
 #: ../raphodo/devicedisplay.py:1080 ../raphodo/rpdfile.py:310
 #, python-format
 msgid "%(no_videos)s Videos"
-msgstr ""
+msgstr "%(no_videos)s Videos"
 
-#: ../raphodo/devices.py:423
-#, fuzzy
+#: ../raphodo/devices.py:424
 msgid "Cameras"
-msgstr "Kamerahersteller"
+msgstr "Kameras"
 
-#: ../raphodo/devices.py:424 ../raphodo/devices.py:852 ../raphodo/rapid.py:1714
+#: ../raphodo/devices.py:425 ../raphodo/devices.py:881 ../raphodo/rapid.py:1714
 msgid "Devices"
 msgstr "Geräte"
 
-#: ../raphodo/devices.py:664
-#, fuzzy, python-format
+#: ../raphodo/devices.py:685
+#, python-format
 msgid "Downloading from %(device_names)s"
-msgstr "Aus %(location)s wird heruntergeladen."
+msgstr "Von %(device_names)s wird heruntergeladen"
 
 #. Translators: e.g. Three Devices
-#: ../raphodo/devices.py:720
-#, fuzzy, python-format
+#: ../raphodo/devices.py:741
+#, python-format
 msgid "%(no_devices)s %(device_type)s"
-msgstr "%(free)s %(file_type)s"
+msgstr "%(no_devices)s %(device_type)s"
 
-#: ../raphodo/devices.py:837 ../raphodo/rapid.py:1551
-#, fuzzy
+#: ../raphodo/devices.py:866 ../raphodo/rapid.py:1551
 msgid "Select Source"
-msgstr "_Auswahl"
+msgstr "Quelle auswählen"
 
-#: ../raphodo/devices.py:868 ../raphodo/devices.py:879
+#: ../raphodo/devices.py:897 ../raphodo/devices.py:908
 #, python-format
 msgid "%(device1)s + %(device2)s"
-msgstr ""
+msgstr "%(device1)s + %(device2)s"
 
 #. Number of cameras e.g. 3 Cameras
-#: ../raphodo/devices.py:890
+#: ../raphodo/devices.py:919
 #, python-format
 msgid "%(no_cameras)s Cameras"
-msgstr ""
+msgstr "%(no_cameras)s Kameras"
 
-#: ../raphodo/devices.py:895
+#: ../raphodo/devices.py:924
 #, python-format
 msgid "%(no_devices)s Devices"
-msgstr ""
+msgstr "%(no_devices)s Geräte"
 
 #: ../raphodo/downloadtracker.py:402
-#, fuzzy
 msgid "MB/sec"
 msgstr "MB/s"
 
 #. Be friendly in the last few seconds
 #: ../raphodo/downloadtracker.py:532
-#, fuzzy
 msgid "A few seconds"
-msgstr "Hundertstelsekunden"
+msgstr "Ein paar Sekunden"
 
 #: ../raphodo/downloadtracker.py:588
-#, fuzzy
 msgid "1 second"
-msgstr "Hundertstelsekunden"
+msgstr "1 Sekunde"
 
 #: ../raphodo/downloadtracker.py:590
-#, fuzzy, python-format
+#, python-format
 msgid "%d seconds"
-msgstr "Hundertstelsekunden"
+msgstr "%d Sekunden"
 
 #: ../raphodo/downloadtracker.py:595
-#, fuzzy
 msgid "1 minute"
-msgstr "MM (Minuten)"
+msgstr "1 Minute"
 
 #: ../raphodo/downloadtracker.py:597
-#, fuzzy, python-format
+#, python-format
 msgid "%d minutes"
-msgstr "MM (Minuten)"
+msgstr "%d Minuten"
 
 #: ../raphodo/downloadtracker.py:602 ../raphodo/downloadtracker.py:784
 msgid "1 hour"
-msgstr ""
+msgstr "1 Stunde"
 
 #: ../raphodo/downloadtracker.py:604
 #, python-format
 msgid "%d hours"
-msgstr ""
+msgstr "%d Stunden"
 
 #: ../raphodo/downloadtracker.py:609 ../raphodo/downloadtracker.py:813
 #: ../raphodo/downloadtracker.py:821
 msgid "1 day"
-msgstr ""
+msgstr "1 Tag"
 
 #: ../raphodo/downloadtracker.py:611
 #, python-format
 msgid "%d days"
-msgstr ""
+msgstr "%d Tage"
 
 #: ../raphodo/downloadtracker.py:790
 msgid "1 minute, 1 second"
-msgstr ""
+msgstr "1 Minute, 1 Sekunde"
 
 #: ../raphodo/downloadtracker.py:792
 #, python-format
 msgid "1 minute, %d seconds"
-msgstr ""
+msgstr "1 Minute, %d Sekunden"
 
 #: ../raphodo/downloadtracker.py:795
 #, python-format
 msgid "%d minutes, 1 second"
-msgstr ""
+msgstr "%d Minuten, 1 Sekunde"
 
 #: ../raphodo/downloadtracker.py:797
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)d minutes, %(seconds)d seconds"
-msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+msgstr "%(minutes)d Minuten, %(seconds)d Sekunden"
 
 #: ../raphodo/downloadtracker.py:828
 msgid "1 hour, 1 minute"
-msgstr ""
+msgstr "1 Stunde, 1 Minute"
 
 #: ../raphodo/downloadtracker.py:830
 #, python-format
 msgid "1 hour, %d minutes"
-msgstr ""
+msgstr "1 Stunde, %d Minuten"
 
 #: ../raphodo/downloadtracker.py:833
 #, python-format
 msgid "%d hours, 1 minute"
-msgstr ""
+msgstr "%d Stunden, 1 Minute"
 
 #: ../raphodo/downloadtracker.py:835
 #, python-format
 msgid "%(hours)d hours, %(minutes)d minutes"
-msgstr ""
+msgstr "%(hours)d Stunden, %(minutes)d Minuten"
 
 #: ../raphodo/downloadtracker.py:861
 msgid "1 day, 1 hour"
-msgstr ""
+msgstr "1 Tag, 1 Stunde"
 
 #: ../raphodo/downloadtracker.py:863
 #, python-format
 msgid "1 day, %d hours"
-msgstr ""
+msgstr "1 Tag, %d Stunden"
 
 #: ../raphodo/downloadtracker.py:866
 #, python-format
 msgid "%d days, 1 hour"
-msgstr ""
+msgstr "%d Tage, 1 Stunde"
 
 #: ../raphodo/downloadtracker.py:868
 #, python-format
 msgid "%(days)d days, %(hours)d hours"
-msgstr ""
+msgstr "%(days)d Tage, %(hours)d Stunden"
 
 #: ../raphodo/generatenameconfig.py:186
 msgid "Date time"
@@ -572,9 +564,8 @@ msgstr "JJJJ-MM-TT"
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:314 ../raphodo/generatenameconfig.py:391
-#, fuzzy
 msgid "YYYY_MM_DD"
-msgstr "JJJJMMTT"
+msgstr "JJJJ_MM_TT"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -592,7 +583,7 @@ msgstr "JJ-MM-TT"
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:323
 msgid "YY_MM_DD"
-msgstr ""
+msgstr "JJ_MM_TT"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -705,82 +696,69 @@ msgid "SS"
 msgstr "SS"
 
 #: ../raphodo/generatenameconfig.py:389
-#, fuzzy
 msgid "Date"
-msgstr "Datum & Uhrzeit"
+msgstr "Datum"
 
 #: ../raphodo/generatenameconfig.py:390
 msgid "Date (hyphens)"
-msgstr ""
+msgstr "Datum (Bindestriche)"
 
 #: ../raphodo/generatenameconfig.py:391
 msgid "Date (underscores)"
-msgstr ""
+msgstr "Datum (Unterstriche)"
 
 #: ../raphodo/generatenameconfig.py:392 ../raphodo/generatenameconfig.py:438
 #: ../raphodo/generatenameconfig.py:517
-#, fuzzy
 msgid "Date and Job Code"
-msgstr "Geben Sie eine Auftragsbezeichnung ein"
+msgstr "Datum und Auftragsbezeichnung"
 
 #: ../raphodo/generatenameconfig.py:392
-#, fuzzy
 msgid "YYYYMM_Job Code"
-msgstr "Auftragsbezeichnung"
+msgstr "JJJJMM_Auftragsbezeichnung"
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "Date and Job Code Subfolder"
-msgstr "Geben Sie eine Auftragsbezeichnung ein"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393
-#, fuzzy
 msgid "YYYYMM"
-msgstr "JJJJMMTT"
+msgstr "JJJJMM"
 
 #: ../raphodo/generatenameconfig.py:393 ../raphodo/rapid.py:1596
 msgid "Job Code"
 msgstr "Auftragsbezeichnung"
 
 #: ../raphodo/generatenameconfig.py:433 ../raphodo/generatenameconfig.py:512
-#, fuzzy
 msgid "Original Filename"
-msgstr "Ursprüngliche Schreibweise"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "Date-Time and Downloads today"
-msgstr "Übertragen heute"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
-#, fuzzy
 msgid "YYYYMMDD-HHMM-1"
-msgstr "JJJJMMTT"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "Date and Downloads today"
-msgstr "Übertragen heute"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:435 ../raphodo/generatenameconfig.py:514
-#, fuzzy
 msgid "YYYYMMDD-1"
-msgstr "JJJJMMTT"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "Date-Time and Image number"
-msgstr "Bildnummer"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:436
-#, fuzzy
 msgid "YYYYMMDD-1234"
-msgstr "JJJJMMTT"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
-#, fuzzy
 msgid "Date-Time and Job Code"
-msgstr "Geben Sie eine Auftragsbezeichnung ein"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
 msgid "YYYYMMDD-HHMM-Job Code-1"
@@ -791,14 +769,12 @@ msgid "YYYYMMDD-Job Code-1"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "Date-Time and Video number"
-msgstr "Filmnummer"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:515
-#, fuzzy
 msgid "YYYYMMDD_1234"
-msgstr "JJJJMMTT"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:518
 msgid "Resolution"
@@ -869,9 +845,9 @@ msgid "An error occurred when copying the %(filetype)s"
 msgstr "Beim Kopieren von %(filetype)s ist ein Fehler aufgetreten"
 
 #: ../raphodo/problemnotification.py:116
-#, fuzzy, python-format
+#, python-format
 msgid "An error occurred copying the %(filetype)s from the %(camera)s"
-msgstr "Beim Kopieren von %(filetype)s ist ein Fehler aufgetreten"
+msgstr "Fehler beim Kopieren der %(filetype)s von %(camera)s"
 
 #: ../raphodo/problemnotification.py:119
 #, python-format
@@ -1160,79 +1136,83 @@ msgstr "%(previousproblem)s, und %(backinguperror)s"
 #. Translators: for example Nov 3 or Dec 31
 #: ../raphodo/proximity.py:105 ../raphodo/proximity.py:221
 #: ../raphodo/proximity.py:224 ../raphodo/proximity.py:828
-#, fuzzy, python-format
+#, python-format
 msgid "%(month)s %(numeric_day)s"
-msgstr "%(number)s %(numberdownloaded)s"
+msgstr ""
 
 #. Translators: for example Nov 15 2015
 #. Translators: for example Nov 3 2015
 #: ../raphodo/proximity.py:109 ../raphodo/proximity.py:230
 #: ../raphodo/proximity.py:231 ../raphodo/proximity.py:831
-#, fuzzy, python-format
+#, python-format
 msgid "%(date)s %(year)s"
-msgstr "%(date)s %(time)s"
+msgstr "%(date)s %(year)s"
 
 #. Translators: for example Nov 3 2015, 11:25 AM
 #. Translators: for example, Nov 3, 12:15 PM
 #: ../raphodo/proximity.py:197 ../raphodo/proximity.py:215
 #: ../raphodo/proximity.py:234 ../raphodo/proximity.py:236
-#, fuzzy, python-format
+#, python-format
 msgid "%(date)s, %(time)s"
-msgstr "%(date)s %(time)s"
+msgstr "%(date)s, %(time)s"
 
 #: ../raphodo/proximity.py:209
-#, fuzzy, python-format
+#, python-format
 msgid "%(starttime)s - %(endtime)s"
-msgstr "%(date)s %(time)s"
+msgstr "%(starttime)s - %(endtime)s"
 
 #. Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
 #: ../raphodo/proximity.py:241
-#, fuzzy, python-format
+#, python-format
 msgid "%(earlier_time)s - %(later_time)s"
-msgstr "%(date)s %(time)s"
+msgstr "%(earlier_time)s - %(later_time)s"
 
 #. Translators, for example:
 #. Nov 3 2012, 12:15 PM -
 #. Nov 4 2012, 1:00 AM
 #. (please keep the line break signified by \n)
 #: ../raphodo/proximity.py:248
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "%(earlier_time)s -\n"
 "%(later_time)s"
-msgstr "%(date)s %(time)s"
+msgstr ""
+"%(earlier_time)s -\n"
+"%(later_time)s"
 
 #: ../raphodo/proximity.py:359
 #, python-format
 msgid "%(month)s  %(year)s"
-msgstr ""
+msgstr "%(month)s  %(year)s"
 
 #. Translators: for example Nov 2015
 #: ../raphodo/proximity.py:833
-#, fuzzy, python-format
+#, python-format
 msgid "%(month)s %(year)s"
-msgstr "%(date)s %(time)s"
+msgstr "%(month)s %(year)s"
 
 #: ../raphodo/proximity.py:1343
 msgid ""
 "The time elapsed between consecutive photos and videos that is used to build "
 "the Timeline"
 msgstr ""
+"Die Zeit, die zwischen aufeinanderfolgenden Fotos und Videos vergangen ist, "
+"die benutzt wird, um den Zeitstrahl zu erstellen"
 
 #. Translators: e.g. "45m", which is short for 45 minutes.
 #. Replace the very last character (after the d) with the correct
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
 #: ../raphodo/proximity.py:1405
-#, fuzzy, python-format
+#, python-format
 msgid "%(minutes)dm"
-msgstr "MM (Minuten)"
+msgstr "%(minutes)dm"
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
 #: ../raphodo/proximity.py:1409
 msgid "1.5h"
-msgstr ""
+msgstr "1.5h"
 
 #. Translators: e.g. "5h", which is short for 5 hours.
 #. Replace the very last character (after the d) with the correct localized value,
@@ -1240,7 +1220,7 @@ msgstr ""
 #: ../raphodo/proximity.py:1414
 #, python-format
 msgid "%(hours)dh"
-msgstr ""
+msgstr "%(hours)dh"
 
 #: ../raphodo/proximity.py:1458
 msgid ""
@@ -1248,20 +1228,27 @@ msgid ""
 "consecutive shots. Use it to identify photos and videos taken at different "
 "periods in a single day or over consecutive days."
 msgstr ""
+"Der Zeitstrahl gruppiert Fotos und Videos basierend auf der Zeit zwischen "
+"aufeinanderfolgenden Aufnahmen. Benutze ihn, um Fotos und Videos zu "
+"identifizieren, die zu verschiedenen Zeiten an einem Tag oder an "
+"aufeinanderfolgenden Tagen entstanden sind."
 
 #: ../raphodo/proximity.py:1461
 msgid ""
 "Use the slider (below) to adjust the time elapsed between consecutive shots "
 "that is used to build the Timeline."
 msgstr ""
+"Benutze den Schieberegler (unten), um die vergangene Zeit zwischen "
+"aufeinanderfolgenden Aufnahmen anzupassen, die benutzt wird, um den "
+"Zeitstrahl zu erzeugen."
 
 #: ../raphodo/proximity.py:1463
 msgid "Timeline build pending..."
-msgstr ""
+msgstr "Zeitstrahl wird gleich erstellt …"
 
 #: ../raphodo/proximity.py:1464
 msgid "Timeline is building..."
-msgstr ""
+msgstr "Zeitstrahl wird erstellt …"
 
 #: ../raphodo/proximity.py:1465
 msgid ""
@@ -1284,15 +1271,13 @@ msgid "Rapid Photo Downloader"
 msgstr "Rapid-Fotoübertragung"
 
 #: ../raphodo/rapid.py:1222
-#, fuzzy
 msgid "Download failed"
-msgstr "Übertragungszeit"
+msgstr ""
 
 #: ../raphodo/rapid.py:1223
-#, fuzzy
 msgid ""
 "Sorry, the download of the new version of Rapid Photo Downloader failed."
-msgstr "Einstellungen: Rapid-Fotoübertragung"
+msgstr ""
 
 #: ../raphodo/rapid.py:1229
 msgid ""
@@ -1301,9 +1286,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1232
-#, fuzzy
 msgid "Update Rapid Photo Downloader"
-msgstr "Rapid-Fotoübertragung"
+msgstr ""
 
 #: ../raphodo/rapid.py:1236
 msgid "Install"
@@ -1332,61 +1316,52 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1464
-#, fuzzy
 msgid "&Source"
-msgstr "Quelle: %s"
+msgstr "&Quelle"
 
 #: ../raphodo/rapid.py:1467 ../raphodo/rapid.py:2140
 msgid "Download"
 msgstr "Herunterladen"
 
 #: ../raphodo/rapid.py:1471
-#, fuzzy
 msgid "&Refresh..."
-msgstr "Auffrischen"
+msgstr "&Auffrischen …"
 
 #: ../raphodo/rapid.py:1474
-#, fuzzy
 msgid "&Preferences"
-msgstr "Einstellungen"
+msgstr "&Einstellungen"
 
 #: ../raphodo/rapid.py:1478
-#, fuzzy
 msgid "&Quit"
-msgstr "Beenden"
+msgstr "&Beenden"
 
 #: ../raphodo/rapid.py:1481
 msgid "Error Log"
 msgstr "Fehlerprotokoll"
 
 #: ../raphodo/rapid.py:1485
-#, fuzzy
 msgid "Clear Completed Downloads"
-msgstr "_Heruntergeladene Dateien nicht mehr anzeigen"
+msgstr "Abgeschlossene Übertragungen bereinigen"
 
 #: ../raphodo/rapid.py:1488
-#, fuzzy
 msgid "Get Help Online..."
-msgstr "_Im Netz Hilfe erhalten …"
+msgstr "Im Netz Hilfe erhalten …"
 
 #: ../raphodo/rapid.py:1491
-#, fuzzy
 msgid "Report a Problem..."
-msgstr "_Ein Problem melden …"
+msgstr "Ein Problem melden …"
 
 #: ../raphodo/rapid.py:1494
-#, fuzzy
 msgid "Make a Donation..."
-msgstr "_Etwas Spenden …"
+msgstr "Etwas spenden …"
 
 #: ../raphodo/rapid.py:1497
 msgid "Translate this Application..."
 msgstr "Diese Anwendung übersetzen …"
 
 #: ../raphodo/rapid.py:1500
-#, fuzzy
 msgid "&About..."
-msgstr "Über …"
+msgstr "&Über …"
 
 #: ../raphodo/rapid.py:1502
 msgid "Check for Updates..."
@@ -1394,21 +1369,19 @@ msgstr ""
 
 #: ../raphodo/rapid.py:1584
 msgid "Timeline"
-msgstr ""
+msgstr "Zeitstrahl"
 
 #: ../raphodo/rapid.py:1594
 msgid "Destination"
-msgstr ""
+msgstr "Ziel"
 
 #: ../raphodo/rapid.py:1595
-#, fuzzy
 msgid "Rename"
-msgstr "Dateiname"
+msgstr "Umbenennen"
 
 #: ../raphodo/rapid.py:1597
-#, fuzzy
 msgid "Back Up"
-msgstr "Datensicherung"
+msgstr "Sicherung"
 
 #. Devices Header and View
 #: ../raphodo/rapid.py:1713
@@ -1416,59 +1389,60 @@ msgid ""
 "Turn on or off the use of devices attached to this computer as download "
 "sources"
 msgstr ""
+"Die Benutzung von Geräten als Quelle zum Herunterladen an diesem Computer "
+"ein- oder ausschalten"
 
 #. This Computer Header and View
 #: ../raphodo/rapid.py:1726
 msgid ""
 "Turn on or off the use of a folder on this computer as a download source"
 msgstr ""
+"Die Benutzung von Ordnern als Quelle zum Herunterladen an diesem Computer "
+"ein- oder ausschalten"
 
 #: ../raphodo/rapid.py:1727
 msgid "This Computer"
-msgstr ""
+msgstr "Dieser Rechner"
 
 #: ../raphodo/rapid.py:1738
-#, fuzzy
 msgid "Select a source folder"
-msgstr "Wählen Sie ein Bilder Verzeichnis"
+msgstr "Quellordner auswählen"
 
 #: ../raphodo/rapid.py:1761
 msgid "Storage Space"
-msgstr ""
+msgstr "Speicherplatz"
 
 #: ../raphodo/rapid.py:1775 ../raphodo/rapid.py:1783
-#, fuzzy
 msgid "Select a destination folder"
-msgstr "Wählen Sie ein Bilder Verzeichnis"
+msgstr "Zielordner auswählen"
 
 #: ../raphodo/rapid.py:1879
 msgid "Show:"
-msgstr ""
+msgstr "Anzeigen:"
 
 #: ../raphodo/rapid.py:1882
 msgid "All"
-msgstr ""
+msgstr "Alle"
 
 #: ../raphodo/rapid.py:1883
 msgid "New"
-msgstr ""
+msgstr "Neu"
 
 #: ../raphodo/rapid.py:1886
 msgid "Sort:"
-msgstr ""
+msgstr "Sortieren:"
 
 #: ../raphodo/rapid.py:1889
 msgid "Modification Time"
-msgstr ""
+msgstr "Änderungszeit"
 
 #: ../raphodo/rapid.py:1890
 msgid "Checked State"
-msgstr ""
+msgstr "Zustand geprüft"
 
 #: ../raphodo/rapid.py:1893
-#, fuzzy
 msgid "File Type"
-msgstr "Dateinummer"
+msgstr "Dateityp"
 
 #: ../raphodo/rapid.py:1894
 msgid "Device"
@@ -1476,26 +1450,24 @@ msgstr "Gerät"
 
 #: ../raphodo/rapid.py:1898
 msgid "Ascending"
-msgstr ""
+msgstr "Aufsteigend"
 
 #: ../raphodo/rapid.py:1899
 msgid "Descending"
-msgstr ""
+msgstr "Absteigend"
 
 #: ../raphodo/rapid.py:1917
-#, fuzzy
 msgid "Select All:"
-msgstr "_Auswahl"
+msgstr "Alles auswählen:"
 
 #: ../raphodo/rapid.py:2120
-#, fuzzy, python-format
+#, python-format
 msgid "Download %(files)s"
-msgstr "Übertragungszeit"
+msgstr "Lade %(files)s herunter"
 
 #: ../raphodo/rapid.py:2136
-#, fuzzy
 msgid "Resume Download"
-msgstr "Herunterladen"
+msgstr "Herunterladen fortsetzen"
 
 #: ../raphodo/rapid.py:2138
 msgid "Pause"
@@ -1513,6 +1485,14 @@ msgid ""
 "            <a href=\"{log_path}\">here</a> to open the log directory).\n"
 "            "
 msgstr ""
+"<b>Danke für das Melden eines Problems in Rapid Photo\n"
+"            Downloader</b><br><br>\n"
+"            Bitte melde das Problem unter <a href=\"{website}\">{website}</"
+"a>.<br><br>\n"
+"            Falls relevant, füge die Log-Datei <i>{log_file}</i> zu deiner "
+"Meldung (klicke\n"
+"            <a href=\"{log_path}\">hier,</a> um den Log-Ordner zu öffnen).\n"
+"            "
 
 #: ../raphodo/rapid.py:2318
 #, python-format
@@ -1526,6 +1506,7 @@ msgstr ""
 #: ../raphodo/rapid.py:2384
 msgid "You cannot change the download destination while downloading."
 msgstr ""
+"Du kannst das Ziel zum Herunterladen während des Herunterladens nicht ändern."
 
 #: ../raphodo/rapid.py:2393
 #, python-format
@@ -1533,6 +1514,8 @@ msgid ""
 "<b>Confirm Download Destination</b><br><br>Are you sure you want to set the "
 "%(file_type)s download destination to %(path)s?"
 msgstr ""
+"<b>Bestätige Ziel zum Herunterladen</b><br><br>Bist du sicher, dass das Ziel "
+"zum Herunterladen von %(file_type)s auf %(path)s gesetzt werden soll?"
 
 #: ../raphodo/rapid.py:2471
 msgid ""
@@ -1545,6 +1528,12 @@ msgid ""
 "<br><br>\n"
 "                    Do you want to proceed with the download?"
 msgstr ""
+"Das Herunterladen beinhaltet immer alle Dateien, die zum Herunterladen "
+"markiert sind,\n"
+"                    inklusive jener, die momentan nicht angezeigt werden, "
+"weil der Zeitstrahl benutzt wird\n"
+"                    oder weil nur neue Dateien angezeigt werden.<br><br>\n"
+"                    Willst du mit dem Herunterladen fortfahren?"
 
 #: ../raphodo/rapid.py:2609
 #, python-format
@@ -1594,7 +1583,7 @@ msgstr "Sicherungsproblem"
 #: ../raphodo/rapid.py:3266
 #, python-format
 msgid "%(downloading_from)s — %(time_left)s left (%(speed)s)"
-msgstr ""
+msgstr "%(downloading_from)s — %(time_left)s verbleibend (%(speed)s)"
 
 #. Translators: e.g. 23 photos downloaded
 #: ../raphodo/rapid.py:3335
@@ -1635,42 +1624,40 @@ msgstr "%(filetype)s konnten nicht heruntergeladen werden"
 
 #: ../raphodo/rapid.py:3437
 msgid "1 failure"
-msgstr ""
+msgstr "1 Fehler"
 
 #: ../raphodo/rapid.py:3439
 #, python-format
 msgid "%d failures"
-msgstr ""
+msgstr "%d Fehler"
 
 #: ../raphodo/rapid.py:3444
-#, fuzzy
 msgid "1 warning"
-msgstr "Warnungen"
+msgstr "1 Warnung"
 
 #: ../raphodo/rapid.py:3446
-#, fuzzy, python-format
+#, python-format
 msgid "%d warnings"
-msgstr "Warnungen"
+msgstr "%d Warnungen"
 
 #: ../raphodo/rapid.py:3466
 #, python-format
 msgid "Downloaded %(no_files_and_types)s from %(devices)s"
-msgstr ""
+msgstr "%(no_files_and_types)s von %(devices)s heruntergeladen"
 
 #: ../raphodo/rapid.py:3469
 #, python-format
 msgid "Downloaded %(no_files_and_types)s from %(devices)s — %(failures)s"
-msgstr ""
+msgstr "%(no_files_and_types)s von %(devices)s heruntergeladen — %(failures)s"
 
 #: ../raphodo/rapid.py:3474
 #, python-format
 msgid "No files downloaded — %(failures)s"
-msgstr ""
+msgstr "Keine Dateien heruntergeladen — %(failures)s"
 
 #: ../raphodo/rapid.py:3476
-#, fuzzy
 msgid "No files downloaded"
-msgstr "Bilder heruntergeladen"
+msgstr "Keine Dateien heruntergeladen"
 
 #: ../raphodo/rapid.py:3500
 #, python-format
@@ -1678,12 +1665,16 @@ msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for the %(camera)s"
 msgstr ""
+"Die Ziel-Unterordner und der Zeitstrahl werden neu generiert, nachdem alle "
+"Vorschaubilder für %(camera)s erstellt wurden"
 
 #: ../raphodo/rapid.py:3504
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for this computer"
 msgstr ""
+"Die Ziel-Unterordner und der Zeitstrahl werden neu generiert, nachdem alle "
+"Vorschaubilder für diesen Computer erstellt wurden"
 
 #: ../raphodo/rapid.py:3507
 #, python-format
@@ -1691,6 +1682,8 @@ msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(device)s"
 msgstr ""
+"Die Ziel-Unterordner und der Zeitstrahl werden neu generiert, nachdem alle "
+"Vorschaubilder für %(device)s erstellt wurden"
 
 #: ../raphodo/rapid.py:3515
 #, python-format
@@ -1705,6 +1698,8 @@ msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for the %(camera)s and this computer"
 msgstr ""
+"die Zielordner und die Zeitleiste werden neu aufgebaut wenn die Vorschau für "
+"dies %(camera)s und diesen Computer neu erstellt wird."
 
 #: ../raphodo/rapid.py:3532
 #, python-format
@@ -1719,10 +1714,12 @@ msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(number_devices)s devices"
 msgstr ""
+"Die Ziel-Unterordner und der Zeitstrahl werden neu generiert, nachdem alle "
+"Vorschaubilder für %(number_devices)s Geräte erstellt wurden"
 
 #: ../raphodo/rapid.py:3562
 msgid "The Destination subfolders and Timeline have been rebuilt"
-msgstr ""
+msgstr "Die Ziel-Unterordner und der Zeitstrahl wurden neu generiert"
 
 #: ../raphodo/rapid.py:3613
 msgid "Program preferences are invalid"
@@ -1737,6 +1734,12 @@ msgid ""
 "charging</i> to <i>USB for file transfers</i>.<br><br>Alternatively, you can "
 "ignore this device."
 msgstr ""
+"<b>Auf alle Dateien auf %(camera)s kann nicht zugegriffen werden.</"
+"b><br><br>Möglicherweise ist sie gesperrt oder nicht für die "
+"Dateiübertragung per MTP konfiguriert. Du kannst sie entsperren und es noch "
+"einmal versuchen.<br><br>Bei manchen Modellen musst du die Einstellung "
+"<i>USB zum Laden</i> auf <i>USB zur Dateiübertragung</i> ändern."
+"<br><br>Alternativ kannst du dieses Gerät ignorieren."
 
 #: ../raphodo/rapid.py:3720
 #, python-format
@@ -1747,15 +1750,18 @@ msgid ""
 "the computer and plug it in again.<br><br>Alternatively, you can ignore this "
 "device."
 msgstr ""
+"<b>Die %(camera)s scheint von einem anderen Programm verwendet zu werden.</"
+"b><br><br>Du kannst jedes andere Programm beenden (z.B. einen Datei-"
+"Browser), das sie benutzt und es noch einmal versuchen. Falls das nicht "
+"funktioniert, ziehe die %(camera)s vom Computer ab und stecke sie wieder an."
 
 #: ../raphodo/rapid.py:3731
 msgid "&Try Again"
-msgstr ""
+msgstr "&Erneut versuchen"
 
 #: ../raphodo/rapid.py:3732
-#, fuzzy
 msgid "&Ignore This Device"
-msgstr "Laufwerke mit Bildern"
+msgstr "&Dieses Gerät ignorieren"
 
 #: ../raphodo/rapid.py:4107
 #, python-format
@@ -1765,6 +1771,11 @@ msgid ""
 "is using it and try again. If that does not work, unplug the %(camera)s from "
 "the computer and plug it in again."
 msgstr ""
+"<b>Die %(camera)s kann nicht gescannt werden, da sie nicht ausgehangen "
+"werden kann.</b><br><br>Du kannst jedes andere Programm beenden (z.B. einen "
+"Datei-Browser), das sie benutzt und es noch einmal versuchen. Falls das "
+"nicht funktioniert, ziehe die %(camera)s vom Computer ab und stecke sie "
+"wieder an."
 
 #: ../raphodo/rapid.py:4131
 #, python-format
@@ -1777,11 +1788,9 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4272
-#, fuzzy, python-format
+#, python-format
 msgid "Should %(device)s be used to download photos and videos from?"
 msgstr ""
-"Soll dieses Laufwerk oder diese Partition zum Herunterladen von Bildern oder "
-"Filmen verwendet werden?"
 
 #: ../raphodo/rapid.py:4469
 #, python-format
@@ -1792,6 +1801,8 @@ msgstr ""
 msgid ""
 "All cameras, phones and tablets with the same model name will be ignored."
 msgstr ""
+"Alle Kameras, Mobiltelefone und Tablets mit demselben Modellnamen werden "
+"ignoriert."
 
 #: ../raphodo/rapid.py:4475
 #, python-format
@@ -1804,28 +1815,25 @@ msgid "Any device with the same name will be ignored."
 msgstr ""
 
 #: ../raphodo/rapid.py:4758
-#, fuzzy, python-format
+#, python-format
 msgid "Downloading from %(location)s on This Computer."
-msgstr "Aus %(location)s wird heruntergeladen."
+msgstr ""
 
 #: ../raphodo/rapid.py:4760
-#, fuzzy
 msgid ""
 "Do you really want to download from here?<br><br>On some systems, scanning "
 "this location can take a very long time."
 msgstr ""
-"Wollen Sie wirklich von hier herunterladen? Auf manchen Systemen kann das "
-"Einlesen dieses Ortes sehr lange dauern."
 
 #: ../raphodo/rapid.py:4804
-#, fuzzy, python-format
+#, python-format
 msgid "Generating thumbnails for %s"
-msgstr "Vorschaubilder erstellen (langsam)"
+msgstr "Vorschaubilder für %s werden erstellt"
 
 #: ../raphodo/rapid.py:4807
-#, fuzzy, python-format
+#, python-format
 msgid "Scanning %s"
-msgstr "Laufwerk wird durchsucht …"
+msgstr "%s wird eingelesen"
 
 #: ../raphodo/rapid.py:4817
 #, python-format
@@ -1834,28 +1842,21 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:4823
-#, fuzzy, python-format
+#, python-format
 msgid "%(number)s of %(available files)s checked for download"
-msgstr "%(noFiles)s %(filetypes)s konnten nicht heruntergeladen werden"
+msgstr ""
 
 #: ../raphodo/rapid.py:5046
-#, fuzzy
 msgid "Display program information when run from the command line."
 msgstr ""
-"Während des Ausführens von der Befehlszeile Fehlersuchinformationen anzeigen"
 
 #: ../raphodo/rapid.py:5048
-#, fuzzy
 msgid "Display debugging information when run from the command line."
 msgstr ""
-"Während des Ausführens von der Befehlszeile Fehlersuchinformationen anzeigen"
 
 #: ../raphodo/rapid.py:5051
-#, fuzzy
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr ""
-"Anzeigen der Dateitypen für Bilder und Filme anzeigen, welche das Programm "
-"erkennt und beenden"
 
 #: ../raphodo/rapid.py:5054
 msgid "Turn on or off the the renaming of photos."
@@ -1877,7 +1878,7 @@ msgstr ""
 #: ../raphodo/rapid.py:5064 ../raphodo/rapid.py:5067 ../raphodo/rapid.py:5070
 #: ../raphodo/rapid.py:5091 ../raphodo/rapid.py:5095
 msgid "PATH"
-msgstr ""
+msgstr "PFAD"
 
 #: ../raphodo/rapid.py:5065
 msgid "The PATH on this computer from which to download."
@@ -1892,48 +1893,32 @@ msgid "The PATH where videos will be downloaded to."
 msgstr ""
 
 #: ../raphodo/rapid.py:5073
-#, fuzzy
 msgid "Turn on or off the backing up of photos and videos while downloading."
-msgstr "Die Fotos und Filme während des Herunterladens sichern"
+msgstr ""
 
 #: ../raphodo/rapid.py:5077
-#, fuzzy
 msgid "Turn on or off the automatic detection of backup devices."
-msgstr "Automatisch Sicherungsgeräte erkennen"
+msgstr ""
 
 #: ../raphodo/rapid.py:5079 ../raphodo/rapid.py:5085
 msgid "FOLDER"
-msgstr ""
+msgstr "ORDNER"
 
 #: ../raphodo/rapid.py:5080
-#, fuzzy
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
 "the device is used for backups. For each device you wish to use for backing "
 "photos up to, create a folder on it with this name."
 msgstr ""
-"Geben Sie ein Verzeichnis an, in welchem die Sicherungskopien auf dem "
-"Laufwerk gespeichert werden.\n"
-"<i>Hinweis: Diese Einstellung wird auch verwendet um festzulegen, ob das "
-"Laufwerk für Sicherungskopien verwendet wird oder nicht. Bitte erstellen Sie "
-"auf jedem Laufwerk, welches Sie zur Datensicherung verwenden wollen, ein "
-"Verzeichnis mit diesem Namen.</i>"
 
 #: ../raphodo/rapid.py:5086
-#, fuzzy
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
 "the device is used for backups. For each device you wish to use for backing "
 "up videos to, create a folder on it with this name."
 msgstr ""
-"Geben Sie ein Verzeichnis an, in welchem die Sicherungskopien auf dem "
-"Laufwerk gespeichert werden.\n"
-"<i>Hinweis: Diese Einstellung wird auch verwendet um festzulegen, ob das "
-"Laufwerk für Sicherungskopien verwendet wird oder nicht. Bitte erstellen Sie "
-"auf jedem Laufwerk, welches Sie zur Datensicherung verwenden wollen, ein "
-"Verzeichnis mit diesem Namen.</i>"
 
 #: ../raphodo/rapid.py:5092
 msgid ""
@@ -1950,7 +1935,7 @@ msgstr ""
 #: ../raphodo/rapid.py:5099
 #, python-format
 msgid "Ignore photos with the following extensions: %s"
-msgstr ""
+msgstr "Fotos mit folgender Erweiterung auslassen: %s"
 
 #: ../raphodo/rapid.py:5103
 msgid "Turn on or off starting downloads as soon as the program itself starts."
@@ -2004,9 +1989,9 @@ msgid "No prior program preferences detected: exiting"
 msgstr ""
 
 #: ../raphodo/rapid.py:5195
-#, fuzzy, python-format
+#, python-format
 msgid "Importing preferences from Rapid Photo Downloader %(version)s"
-msgstr "Einstellungen: Rapid-Fotoübertragung"
+msgstr ""
 
 #: ../raphodo/rapid.py:5257
 #, python-format
@@ -2022,14 +2007,12 @@ msgid "Program aborting."
 msgstr ""
 
 #: ../raphodo/rapid.py:5476
-#, fuzzy
 msgid "All settings and caches have been reset"
-msgstr "Alle Einstellungen wurden zurückgesetzt"
+msgstr ""
 
 #: ../raphodo/rapid.py:5484
-#, fuzzy
 msgid "Thumbnail Cache has been reset"
-msgstr "Vorschaubild kann nicht angezeigt werden"
+msgstr "Vorschaubildpuffer wurde zurückgesetzt"
 
 #: ../raphodo/rapid.py:5490
 msgid "Remembered files have been forgotten"
@@ -2065,11 +2048,11 @@ msgstr "Fotos und Filme"
 msgid "photos or videos"
 msgstr "Fotos oder Filme"
 
-#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:852
+#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:855
 msgid "video"
 msgstr "Film"
 
-#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:810
+#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:813
 msgid "photo"
 msgstr "Foto"
 
@@ -2079,25 +2062,23 @@ msgid "%(number)s %(filetypes)s"
 msgstr "%(number)s %(filetypes)s"
 
 #: ../raphodo/rpdfile.py:312
-#, fuzzy
 msgid "1 Video"
-msgstr "Film"
+msgstr "1 Video"
 
 #: ../raphodo/rpdfile.py:317
-#, fuzzy
 msgid "1 Photo"
-msgstr "Foto"
+msgstr "1 Foto"
 
-#: ../raphodo/rpdfile.py:775
+#: ../raphodo/rpdfile.py:778
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:811
+#: ../raphodo/rpdfile.py:814
 msgid "Photo"
 msgstr "Foto"
 
-#: ../raphodo/rpdfile.py:853
+#: ../raphodo/rpdfile.py:856
 msgid "Video"
 msgstr "Film"
 
@@ -2119,17 +2100,16 @@ msgstr ""
 #: ../raphodo/thumbnaildisplay.py:438
 #, python-format
 msgid "Memory cards: %s"
-msgstr ""
+msgstr "Speicherkarten: %s"
 
 #: ../raphodo/thumbnaildisplay.py:444
-#, fuzzy
 msgid "Downloaded as:"
-msgstr "_Download "
+msgstr "Heruntergelaen als:"
 
 #: ../raphodo/thumbnaildisplay.py:450
 #, python-format
 msgid "%(error_title)s:"
-msgstr ""
+msgstr "%(error_title)s:"
 
 #: ../raphodo/thumbnaildisplay.py:464
 #, python-format
@@ -2138,18 +2118,17 @@ msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:1479
 msgid "Open in File Browser..."
-msgstr ""
+msgstr "In Dateiverwaltung öffnen …"
 
 #: ../raphodo/thumbnaildisplay.py:1481
-#, fuzzy
 msgid "Copy Path"
-msgstr "Kopieren"
+msgstr "Pfad kopieren"
 
 #. two things in a list e.g. "device1 and device2"
 #: ../raphodo/utilities.py:369
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
-msgstr ""
+msgstr "%(first_item)s und %(last_item)s"
 
 #: ../raphodo/utilities.py:442
 msgid "one"
@@ -2180,9 +2159,8 @@ msgid "seven"
 msgstr ""
 
 #: ../raphodo/utilities.py:449
-#, fuzzy
 msgid "eight"
-msgstr "Höhe"
+msgstr ""
 
 #: ../raphodo/utilities.py:450
 msgid "nine"
@@ -2221,9 +2199,8 @@ msgid "seventeen"
 msgstr ""
 
 #: ../raphodo/utilities.py:459
-#, fuzzy
 msgid "eighteen"
-msgstr "Höhe"
+msgstr ""
 
 #: ../raphodo/utilities.py:460
 msgid "ninenteen"
@@ -2264,9 +2241,8 @@ msgid ""
 msgstr ""
 
 #: ../data/rapid-photo-downloader.desktop.in.h:2
-#, fuzzy
 msgid "Photo Downloader"
-msgstr "Rapid-Fotoübertragung"
+msgstr "Fotoübertragung"
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
@@ -2276,206 +2252,256 @@ msgid ""
 msgstr ""
 
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
-#, fuzzy
 msgid "Download Photos and Videos with Rapid Photo Downloader"
-msgstr "Einstellungen: Rapid-Fotoübertragung"
+msgstr ""
 
-#~ msgid ""
-#~ "%(date)s\n"
-#~ "%(time)s"
-#~ msgstr ""
-#~ "%(date)s\n"
-#~ "%(time)s"
+#~ msgid "<i>Example: %s</i>"
+#~ msgstr "<i>Beispiel: %s</i>"
 
-#~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
-#~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgid "externaldrive1"
+#~ msgstr "ExternesLaufwerk1"
 
-#~ msgid "Size"
-#~ msgstr "Größe"
-
-#~ msgid "Download Progress"
-#~ msgstr "Übertragungsfortschritt"
-
-#~ msgid "%(device)s did not unmount"
-#~ msgstr "%(device)s konnte nicht ausgehängt werden"
-
-#~ msgid "the root of the file system"
-#~ msgstr "Stammverzeichnis des Dateisystems"
-
-#~ msgid "About 1 second remaining"
-#~ msgstr "Etwa 1 Sekunde verbleibend"
-
-#~ msgid "About %i seconds remaining"
-#~ msgstr "Etwa %i Sekunden verbleibend"
-
-#~ msgid "About 1 minute remaining"
-#~ msgstr "Etwa 1 Minute verbleibend"
-
-#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
-#~ msgstr "Etwa %(minutes)i:%(seconds)02i Minuten verbleibend"
-
-#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
-#~ msgstr "%(number)s von %(total)s %(filetypes)s (%(remaining)s verbleibend)"
-
-#~ msgid "%(number)s of %(total)s %(filetypes)s"
-#~ msgstr "%(number)s von %(total)s %(filetypes)s"
-
-#~ msgid "From"
-#~ msgstr "Von"
-
-#~ msgid "Auto Detect"
-#~ msgstr "Automatisch erkennen"
-
-#~ msgid "Select a folder containing %(file_types)s"
-#~ msgstr "Bitte einen Ordner auswählen, welcher %(file_types)s enthält"
-
-#~ msgid "Move"
-#~ msgstr "Verschieben"
-
-#~ msgid "To"
-#~ msgstr "Nach"
-
-#~ msgid "Select a folder to download photos to"
-#~ msgstr "Bitte einen Ordner zum Herunterladen der Fotos auswählen"
-
-#~ msgid "Select a folder to download videos to"
-#~ msgstr "Einen Ordner für das Herunterladen von Filmen auswählen"
+#~ msgid "externaldrive2"
+#~ msgstr "ExternesLaufwerk2"
 
 #~ msgid "and"
 #~ msgstr "und"
 
-#~ msgid "Using backup devices"
-#~ msgstr "Sicherungsgeräte werden verwendet"
-
-#~ msgid "Using backup device"
-#~ msgstr "Sicherungsgerät wird verwendet"
-
-#~ msgid "No backup devices detected"
-#~ msgstr "Es wurden keine Sicherungsgeräte gefunden"
-
-#~ msgid "Free space:"
-#~ msgstr "Freier Speicherplatz:"
-
-#~ msgid "(%(file_type)s)"
-#~ msgstr "(%(file_type)s)"
-
-#~ msgid "; "
-#~ msgstr "; "
-
-#~ msgid "."
-#~ msgstr "."
-
-#~ msgid "%(free)s free"
-#~ msgstr "%(free)s verfügbar"
-
-#~ msgid "Backing up photos and videos to %(path)s"
-#~ msgstr "Eine Sicherungskopie von Fotos und Filmen nach %(path)s erstellen"
-
-#~ msgid "Backing up to %(path)s"
-#~ msgstr "Sicherung in %(path)s erstellen"
-
-#~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
-#~ msgstr ""
-#~ "Eine Sicherungskopie von Fotos in %(path)s und von Filmen in %(path2)s "
-#~ "erstellen"
-
-#~ msgid "%(freespace)s. %(backuppaths)s."
-#~ msgstr "%(freespace)s. %(backuppaths)s."
-
-#~ msgid "%(file_type)s download folder does not exist"
-#~ msgstr "%(file_type)s Übertragungsordner existiert nicht"
-
-#~ msgid "Folder: %s"
-#~ msgstr "Ordner: %s"
-
-#~ msgid "%(file_type)s download folder is invalid"
-#~ msgstr "%(file_type)s Übertragungsordner ist ungültig"
-
-#~ msgid "%(file_type)s download folder is not writable"
-#~ msgstr "%(file_type)s Übertragungsordner ist schreibgeschützt"
-
-#~ msgid "Thumbnails"
-#~ msgstr "Vorschaubilder"
-
-#~ msgid ""
-#~ "display program information on the command line as the program runs "
-#~ "(default: %default)"
-#~ msgstr ""
-#~ "Die Programminformationen anzeigen, wenn das Programm aus der "
-#~ "Befehlszeile aufgerufen wurde (Voreinstellung: %default)"
-
-#~ msgid "only output errors to the command line"
-#~ msgstr "Fehlermeldungen nur auf der Befehlszeile anzeigen"
-
-#~ msgid ""
-#~ "automatically detect devices from which to download, overwriting existing "
-#~ "program preferences"
-#~ msgstr ""
-#~ "Geräte zum Herunterladen automatisch erkennen, bestehende "
-#~ "Programmeinstellungen übergehen"
-
-#~ msgid ""
-#~ "manually specify the PATH of the device from which to download, "
-#~ "overwriting existing program preferences"
-#~ msgstr ""
-#~ "PFAD zum Geräte für das Herunterladen manuell angeben, bestehende "
-#~ "Programmeinstellungen übergehen"
-
-#~ msgid "reset all program settings and preferences and exit"
-#~ msgstr "Alle Einstellungen auf Standardwerte zurücksetzten und beenden"
-
-#~ msgid ""
-#~ "Error: specify device auto-detection or manually specify a device's path "
-#~ "from which to download, but do not do both."
-#~ msgstr ""
-#~ "Fehler: Wählen Sie entweder »Geräte zum Herunterladen automatisch "
-#~ "erkennen« oder »PFAD zum Geräte für das Herunterladen manuell angeben«, "
-#~ "aber nicht beides gleichzeitig."
+#~ msgid "MB/s"
+#~ msgstr "MB/s"
 
 #~ msgid "and %s"
 #~ msgstr "und %s"
 
-#~ msgid "An unknown error occurred"
-#~ msgstr "Es ist ein unbekannter Fehler aufgetreten"
+#~ msgid " "
+#~ msgstr " "
 
-#~ msgid "Device Detected"
-#~ msgstr "Geräte gefunden"
+#~ msgid "<b>Backup</b>"
+#~ msgstr "<b>Datensicherung</b>"
 
-#~ msgid "_Remember this choice"
-#~ msgstr "_Auswahl merken"
+#~ msgid ":"
+#~ msgstr ":"
+
+#~ msgid "<b>Example</b>"
+#~ msgstr "<b>Beispiel</b>"
+
+#~ msgid " hh:mm"
+#~ msgstr " hh:mm"
+
+#~ msgid "<i>Example:</i>"
+#~ msgstr "<i>Beispiel:</i>"
+
+#~ msgid "<i>New:</i>"
+#~ msgstr "<i>Neu:</i>"
+
+#~ msgid "<i>Original:</i>"
+#~ msgstr "<i>Original:</i>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Fehlerbehandlung</span>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Datensicherung</span>\t"
+
+#~ msgid "Automatically detect Portable Storage Devices"
+#~ msgstr "Suche automatisch nach portablen Laufwerken"
+
+#~ msgid "Backup"
+#~ msgstr "Datensicherung"
+
+#~ msgid "Day start:"
+#~ msgstr "Beginn des Tages:"
+
+#~ msgid "Error Handling"
+#~ msgstr "Fehlerbehandlung"
+
+#~ msgid "_Clear Completed Downloads"
+#~ msgstr "_Heruntergeladene Dateien nicht mehr anzeigen"
+
+#~ msgid "Stored number:"
+#~ msgstr "Gespeicherte Nummer"
+
+#~ msgid "_Error Log"
+#~ msgstr "_Fehlerprotokoll"
+
+#~ msgid "_Help"
+#~ msgstr "_Hilfe"
+
+#~ msgid "About %i seconds remaining"
+#~ msgstr "Etwa %i Sekunden verbleibend"
+
+#~ msgid "About 1 second remaining"
+#~ msgstr "Etwa 1 Sekunde verbleibend"
+
+#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
+#~ msgstr "Etwa %(minutes)i:%(seconds)02i Minuten verbleibend"
+
+#~ msgid "About 1 minute remaining"
+#~ msgstr "Etwa 1 Minute verbleibend"
 
 #~ msgid "Name + extension"
 #~ msgstr "Name + Erweiterung"
 
+#~ msgid "<b>Compatibility with Other Operating Systems</b>"
+#~ msgstr "<b>Kompatibilität mit anderen Betriebssystemen</b>"
+
+#~ msgid "<i>/media/externaldrive/Photos</i>"
+#~ msgstr "<i>/medium/externeslaufwerk/Fotos</i>"
+
+#~ msgid "Job Code:"
+#~ msgstr "Auftragsbezeichnung:"
+
+#~ msgid "Enter a Job Code"
+#~ msgstr "Geben Sie eine Auftragsbezeichnung ein"
+
+#~ msgid "<b>Job Codes</b>"
+#~ msgstr "<b>Auftragsbezeichnungen</b>"
+
+#~ msgid "Job Codes"
+#~ msgstr "Auftragsbezeichnungen"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Auftragsbezeichnungen</span>"
+
+#~ msgid "<b>Sequence Numbers</b>"
+#~ msgstr "<b>Sequenznummern</b>"
+
+#~ msgid "Sydney"
+#~ msgstr "Sydney"
+
+#~ msgid "Berlin"
+#~ msgstr "Berlin"
+
+#~ msgid "Paris"
+#~ msgstr "Paris"
+
+#~ msgid "New York"
+#~ msgstr "New York"
+
+#~ msgid "Prague"
+#~ msgstr "Prag"
+
+#~ msgid "Manila"
+#~ msgstr "Manila"
+
+#~ msgid "Wellington"
+#~ msgstr "Wellington"
+
+#~ msgid "Helsinki"
+#~ msgstr "Helsinki"
+
+#~ msgid "Kampala"
+#~ msgstr "Kampala"
+
+#~ msgid "Tehran"
+#~ msgstr "Teheran"
+
+#~ msgid "Stockholm"
+#~ msgstr "Stockholm"
+
+#~ msgid "Rome"
+#~ msgstr "Rom"
+
+#~ msgid "Moscow"
+#~ msgstr "Moskau"
+
+#~ msgid "Budapest"
+#~ msgstr "Budapest"
+
+#~ msgid "Jakarta"
+#~ msgstr "Jakarta"
+
+#~ msgid "Madrid"
+#~ msgstr "Madrid"
+
+#~ msgid "Delhi"
+#~ msgstr "Delhi"
+
+#~ msgid "Warsaw"
+#~ msgstr "Warschau"
+
+#~ msgid "_Remember this choice"
+#~ msgstr "_Auswahl merken"
+
+#~ msgid "_Add..."
+#~ msgstr "_Hinzufügen …"
+
+#~ msgid "R_emove All"
+#~ msgstr "_Alle entfernen"
+
 #~ msgid "Remove all Job Codes?"
 #~ msgstr "Alle Auftragsbezeichnungen entfernen?"
 
-#~ msgid "Should all Job Codes be removed?"
-#~ msgstr "Sollen alle Auftragsbezeichnungen entfernt werden?"
+#~ msgid "Skip"
+#~ msgstr "Überspringen"
 
-#~ msgid "Remove all Remembered Paths?"
-#~ msgstr "Alle gespeicherten Pfade entfernen?"
-
-#~ msgid "Should all remembered paths be removed?"
-#~ msgstr "Sollen alle gespeicherten Pfade entfernt werden?"
-
-#~ msgid "Remove all Ignored Paths?"
-#~ msgstr "Alle ignorierten Pfade entfernen?"
-
-#~ msgid "Should all ignored paths be removed?"
-#~ msgstr "Sollen alle ignorierten Pfade entfernt werden?"
-
-#~ msgid "Error in Photo Rename preferences"
-#~ msgstr "Fehler in den Vorgaben zur Umbennennung von Bildern"
+#~ msgid "Synchronize RAW + JPEG sequence numbers"
+#~ msgstr "Synchronisiere RAW + JPEG Sequenznummern"
 
 #~ msgid "Error in Video Rename preferences"
 #~ msgstr "Fehler in den Vorgaben zur Umbennennung von Filmen"
 
-#~ msgid "Error in Photo Download Subfolders preferences"
-#~ msgstr "Fehler in den Vorgaben für Bilderübertragsunterordner"
+#~ msgid "Error in Photo Rename preferences"
+#~ msgstr "Fehler in den Vorgaben zur Umbennennung von Bildern"
 
-#~ msgid "Error in Video Download Subfolders preferences"
-#~ msgstr "Fehler in den Vorgaben zur Filmeübertragsunterordner"
+#~ msgid "Videos:"
+#~ msgstr "Filme:"
+
+#~ msgid "<i>Example: /home/user/Pictures</i>"
+#~ msgstr "<i>Beispiel: /home/user/Bilder</i>"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Laufwerke</span>"
+
+#~ msgid ""
+#~ "Should this device or partition be used to download photos or videos from?"
+#~ msgstr ""
+#~ "Soll dieses Laufwerk oder diese Partition zum Herunterladen von Bildern "
+#~ "oder Filmen verwendet werden?"
+
+#~ msgid "%(number)s of %(total)s %(filetypes)s"
+#~ msgstr "%(number)s von %(total)s %(filetypes)s"
+
+#~ msgid "reset all program settings and preferences and exit"
+#~ msgstr "Alle Einstellungen auf Standardwerte zurücksetzten und beenden"
+
+#~ msgid "list photo and video file extensions the program recognizes and exit"
+#~ msgstr ""
+#~ "Anzeigen der Dateitypen für Bilder und Filme anzeigen, welche das "
+#~ "Programm erkennt und beenden"
+
+#~ msgid "All settings and preferences have been reset"
+#~ msgstr "Alle Einstellungen wurden zurückgesetzt"
+
+#~ msgid "Location:"
+#~ msgstr "Ort:"
+
+#~ msgid "Video backup folder name:"
+#~ msgstr "Sicherungsordner für Filme:"
+
+#~ msgid ""
+#~ "When backing up, choose whether to overwrite a file on the backup device "
+#~ "that has the same name, or skip backing it up."
+#~ msgstr ""
+#~ "Bitte geben Sie an was geschehen soll, falls bei der Sicherung bereits "
+#~ "eine Datei mit demselben Namen vorhanden ist, Überspringen oder "
+#~ "Überschreiben."
+
+#~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+
+#~ msgid ""
+#~ "%(date)s\n"
+#~ "%(time)s"
+#~ msgstr ""
+#~ "%(date)s\n"
+#~ "%(time)s"
+
+#~ msgid "%(date)s %(time)s"
+#~ msgstr "%(date)s %(time)s"
+
+#~ msgid "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+#~ msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
 #~ msgid "Enter a new Job Code, or select a previous one"
 #~ msgstr ""
@@ -2485,52 +2511,133 @@ msgstr "Einstellungen: Rapid-Fotoübertragung"
 #~ msgid "Enter a new Job Code"
 #~ msgstr "Geben Sie eine neue Auftragsbezeichung ein"
 
-#~ msgid "Job Code:"
-#~ msgstr "Auftragsbezeichnung:"
+#~ msgid "Select All Without _Job Code"
+#~ msgstr "Alle ohne Auftragsbezeichnung auswählen"
 
-#~ msgid "Enter a Path to Ignore"
-#~ msgstr "Geben Sie einen Pfad ein, welcher ignoriert werden sollen"
+#~ msgid "Select All Wit_h Job Code"
+#~ msgstr "Alle mit Auftragsbezeichnung auswählen"
+
+#~ msgid ""
+#~ "When a photo or video of the same name has already been downloaded, "
+#~ "choose whether to skip downloading the file, or to add a unique "
+#~ "indentifier."
+#~ msgstr ""
+#~ "Bitte wählen Sie aus, was zu tun ist, wenn ein Bild oder ein Film bereits "
+#~ "heruntergeladen wurde, entweder Datei überspringen oder eine eindeutige "
+#~ "Bezeichnung anfügen."
+
+#~ msgid "_File"
+#~ msgstr "_Datei"
+
+#~ msgid "_Select"
+#~ msgstr "_Auswahl"
+
+#~ msgid "%(freespace)s. %(backuppaths)s."
+#~ msgstr "%(freespace)s. %(backuppaths)s."
+
+#~ msgid "Free space:"
+#~ msgstr "Freier Speicherplatz:"
+
+#~ msgid "; "
+#~ msgstr "; "
+
+#~ msgid "."
+#~ msgstr "."
+
+#~ msgid "(%(file_type)s)"
+#~ msgstr "(%(file_type)s)"
+
+#~ msgid "%(free)s %(file_type)s"
+#~ msgstr "%(free)s %(file_type)s"
+
+#~ msgid "%(free)s free"
+#~ msgstr "%(free)s verfügbar"
+
+#~ msgid "Thumbnails"
+#~ msgstr "Vorschaubilder"
+
+#~ msgid "Next File"
+#~ msgstr "Nächste Datei"
+
+#~ msgid "Previous File"
+#~ msgstr "Vorherige Datei"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Verschiedenes</span>"
+
+#~ msgid "_Uncheck All"
+#~ msgstr "A_uswahl aufheben"
+
+#~ msgid "_Include in download"
+#~ msgstr "_Datei herunterladen"
+
+#~ msgid "_Download"
+#~ msgstr "_Herunterladen"
+
+#~ msgid "_Check All"
+#~ msgstr "_Alle auswählen"
+
+#~ msgid "Exit program even if download had warnings or errors"
+#~ msgstr "Programm beenden auch wenn Fehler oder Warnungen aufgetreten sind"
+
+#~ msgid "Performance"
+#~ msgstr "Geschwindigkeit"
+
+#~ msgid "Generate thumbnails (slower)"
+#~ msgstr "Vorschaubilder erstellen (langsam)"
+
+#~ msgid "Miscellaneous"
+#~ msgstr "Verschiedenes"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Device Options</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Geräteeinstellungen</span>"
+
+#~ msgid "Device Options"
+#~ msgstr "Geräteeinstellungen"
+
+#~ msgid "Re_move All"
+#~ msgstr "Alle _entfernen"
+
+#~ msgid "Path:"
+#~ msgstr "Pfad:"
 
 #~ msgid "Specify a path that will never be scanned for photos or videos"
 #~ msgstr ""
 #~ "Geben Sie einen Pfad ein, welcher nie nach Bildern oder Filmen durchsucht "
 #~ "werden soll"
 
-#~ msgid "Path:"
-#~ msgstr "Pfad:"
+#~ msgid "Enter a Path to Ignore"
+#~ msgstr "Geben Sie einen Pfad ein, welcher ignoriert werden sollen"
 
-#~ msgid "Select a folder in which to backup photos"
-#~ msgstr "Bitte einen Order für die Sicherungskopien der Fotos auswählen"
+#~ msgid "Use _python-style regular expressions"
+#~ msgstr "Verwende _python-style reguläre Ausdrücke"
 
-#~ msgid "Select a folder in which to backup videos"
-#~ msgstr "Bitte einen Order für die Sicherungskopien der Filme auswählen"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
-#~ "name. Please use other renaming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Achtung:</b> Die Metadaten sind unvollständig, der Namen kann nicht "
-#~ "erstellt werden. Bitte andere Umbenennungsoptionen verwenden.</i>"
+#~ msgid "Remembered Paths"
+#~ msgstr "Gespeicherte Pfade"
 
 #~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient metadata to fully generate "
-#~ "subfolders. Please use other subfolder naming options.</i>"
+#~ "Remembered paths are those associated with devices that you have chosen "
+#~ "to always scan or ignore when automatic detection of Portable Storage "
+#~ "Devices is enabled."
 #~ msgstr ""
-#~ "<i><b>Achtung:</b> Die Metadaten sind unvollständig, die Unterordner "
-#~ "können nicht erstellt werden. Bitte andere Unterordnerbenennungsoptionen "
-#~ "verwenden.</i>"
-
-#~ msgid "<i>Example: %s</i>"
-#~ msgstr "<i>Beispiel: %s</i>"
+#~ "Gespeicherte Pfade sind Geräten zugeordnet, welche nach Ihren Vorgaben "
+#~ "immer durchsucht oder immer ignoriert werden, sobald die automatische "
+#~ "Erkennung von transportablen Speichergeräten eingeschaltet ist."
 
 #~ msgid ""
-#~ "The %(filetype)s subfolder preferences entered are invalid and cannot be "
-#~ "used.\n"
-#~ "They will be reset to their default values."
+#~ "Specify the ending portion of any paths you want ignored when scanning "
+#~ "devices for photos or videos. Any path ending with the values below will "
+#~ "not be scanned."
 #~ msgstr ""
-#~ "Die eingegebenen Unterordnereinstellungen für %(filetype)s  sind ungültig "
-#~ "und können nicht verwendet werden.\n"
-#~ "Sie werden auf die Standardwerte zurückgestellt."
+#~ "Spezifizieren Sie den letzten Teil eines Pfades an, welcher beim "
+#~ "Durchsuchen von Geräten nach Bildern oder Filmen ignoriert werden soll. "
+#~ "Jegliche Pfade welche mit diesen Werten enden, werden nicht durchsucht."
+
+#~ msgid "Invalid regular expression"
+#~ msgstr "Ungültiger regulärer Ausdruck"
+
+#~ msgid "Ignored Paths"
+#~ msgstr "Pfade ignorieren"
 
 #~ msgid ""
 #~ "The following regular expressions are invalid, and will be removed unless "
@@ -2550,129 +2657,178 @@ msgstr "Einstellungen: Rapid-Fotoübertragung"
 #~ "ihn nicht korrigieren:\n"
 #~ " %s"
 
-#~ msgid "Invalid regular expression"
-#~ msgstr "Ungültiger regulärer Ausdruck"
+#~ msgid ""
+#~ "If you enable automatic detection of Portable Storage Devices, the entire "
+#~ "device will be scanned. On large devices, this could take some time.\n"
+#~ "\n"
+#~ "When this option is enabled, and a potential device is detected, you will "
+#~ "be prompted to determine if it should be scanned or not."
+#~ msgstr ""
+#~ "Wenn Sie die automatische Erkennung von transportablen Speichergeräten "
+#~ "einschalten, wird das ganze Gerät durchsucht. Dies kann je nach Grösse "
+#~ "einige Zeit dauern.\n"
+#~ "\n"
+#~ "Ist diese Option eingeschaltet, so werden Sie nach der Erkennung eines "
+#~ "Gerätes gefragt, ob es durchsucht werden soll oder nicht."
 
-#~ msgid "externaldrive1"
-#~ msgstr "ExternesLaufwerk1"
+#~ msgid ""
+#~ "If you disable automatic detection, choose the exact backup locations."
+#~ msgstr ""
+#~ "Wenn Sie die automatische Erkennung ausschalten, wählen Sie den Ort zur "
+#~ "Erstellung der Sicherungskopien."
 
-#~ msgid "externaldrive2"
-#~ msgstr "ExternesLaufwerk2"
+#~ msgid "the root of the file system"
+#~ msgstr "Stammverzeichnis des Dateisystems"
 
-#~ msgid "New York"
-#~ msgstr "New York"
+#~ msgid "Copy"
+#~ msgstr "Kopieren"
 
-#~ msgid "Manila"
-#~ msgstr "Manila"
+#~ msgid "Move"
+#~ msgstr "Verschieben"
 
-#~ msgid "Prague"
-#~ msgstr "Prag"
+#~ msgid "scanning..."
+#~ msgstr "Laufwerk wird durchsucht …"
 
-#~ msgid "Helsinki"
-#~ msgstr "Helsinki"
+#~ msgid "To"
+#~ msgstr "Nach"
 
-#~ msgid "Wellington"
-#~ msgstr "Wellington"
-
-#~ msgid "Tehran"
-#~ msgstr "Teheran"
-
-#~ msgid "Kampala"
-#~ msgstr "Kampala"
-
-#~ msgid "Paris"
-#~ msgstr "Paris"
-
-#~ msgid "Berlin"
-#~ msgstr "Berlin"
-
-#~ msgid "Sydney"
-#~ msgstr "Sydney"
-
-#~ msgid "Budapest"
-#~ msgstr "Budapest"
-
-#~ msgid "Rome"
-#~ msgstr "Rom"
-
-#~ msgid "Moscow"
-#~ msgstr "Moskau"
-
-#~ msgid "Delhi"
-#~ msgstr "Delhi"
-
-#~ msgid "Warsaw"
-#~ msgstr "Warschau"
-
-#~ msgid "Jakarta"
-#~ msgstr "Jakarta"
-
-#~ msgid "Madrid"
-#~ msgstr "Madrid"
-
-#~ msgid "Stockholm"
-#~ msgstr "Stockholm"
+#~ msgid "From"
+#~ msgstr "Von"
 
 #~ msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
 #~ msgstr "Suche läuft (%(photos)s Fotos und %(videos)s Videos gefunden) …"
 
-#~ msgid "_Check All"
-#~ msgstr "_Alle auswählen"
+#~ msgid "_Translate this Application..."
+#~ msgstr "_Diese Anwendung übersetzen …"
 
-#~ msgid "Check All Photos"
-#~ msgstr "Alle Fotos auswählen"
+#~ msgid "_Get Help Online..."
+#~ msgstr "_Im Netz Hilfe erhalten …"
 
-#~ msgid "Check All Videos"
-#~ msgstr "Alle Filme auswählen"
+#~ msgid "_Make a Donation..."
+#~ msgstr "_Etwas Spenden …"
 
-#~ msgid "Help"
-#~ msgstr "Hilfe"
+#~ msgid "_Report a Problem..."
+#~ msgstr "_Ein Problem melden …"
 
-#~ msgid "_Uncheck All"
-#~ msgstr "A_uswahl aufheben"
+#~ msgid "About..."
+#~ msgstr "Über …"
 
-#~ msgid "_File"
-#~ msgstr "_Datei"
+#~ msgid "%(file_type)s download folder is not writable"
+#~ msgstr "%(file_type)s Übertragungsordner ist schreibgeschützt"
+
+#~ msgid "%(file_type)s download folder is invalid"
+#~ msgstr "%(file_type)s Übertragungsordner ist ungültig"
+
+#~ msgid "%(file_type)s download folder does not exist"
+#~ msgstr "%(file_type)s Übertragungsordner existiert nicht"
+
+#~ msgid "Select a folder to download videos to"
+#~ msgstr "Einen Ordner für das Herunterladen von Filmen auswählen"
+
+#~ msgid "Error in Video Download Subfolders preferences"
+#~ msgstr "Fehler in den Vorgaben zur Filmeübertragsunterordner"
+
+#~ msgid "Error in Photo Download Subfolders preferences"
+#~ msgstr "Fehler in den Vorgaben für Bilderübertragsunterordner"
 
 #~ msgid "Download / Pause"
 #~ msgstr "Übertragen / Pause"
 
-#~ msgid "Select All Without _Job Code"
-#~ msgstr "Alle ohne Auftragsbezeichnung auswählen"
-
-#~ msgid "Select All Wit_h Job Code"
-#~ msgstr "Alle mit Auftragsbezeichnung auswählen"
-
-#~ msgid "_View"
-#~ msgstr "An_zeigen"
-
-#~ msgid "_Error Log"
-#~ msgstr "_Fehlerprotokoll"
-
-#~ msgid "Previous File"
-#~ msgstr "Vorherige Datei"
-
-#~ msgid "Next File"
-#~ msgstr "Nächste Datei"
-
-#~ msgid "_Help"
-#~ msgstr "_Hilfe"
-
-#~ msgid "_Translate this Application..."
-#~ msgstr "_Diese Anwendung übersetzen …"
-
-#~ msgid "_Include in download"
-#~ msgstr "_Datei herunterladen"
-
-#~ msgid "_Download"
-#~ msgstr "_Herunterladen"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
+#~ msgid ""
+#~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
+#~ "sequence number should be reset."
 #~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Fotoübertragungsordner</span>"
+#~ "Geben Sie die Uhrzeit im 24-Stunden Format an, wann die Sequenznummer in "
+#~ "<i>Übertragungen heute</i> zurückgesetzt werden soll."
 
-#~ msgid "<i>Example: /home/user/Pictures</i>"
-#~ msgstr "<i>Beispiel: /home/user/Bilder</i>"
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">Filmübertragungsordner</span>"
+
+#~ msgid "<b>Download Folder</b>"
+#~ msgstr "<b>Übertragungsordner</b>"
+
+#~ msgid "Downloads today:"
+#~ msgstr "Übertragungen heute:"
+
+#~ msgid "Exit program when download completes"
+#~ msgstr "Programm beenden wenn alles Übertragungen abgeschlossen sind"
+
+#~ msgid "Skip download"
+#~ msgstr "Herunterladen überspringen"
+
+#~ msgid "Start downloading at program startup"
+#~ msgstr "Herunterladen beim Programmstart beginnen"
+
+#~ msgid "Verify files as they are downloaded"
+#~ msgstr "Nach dem Herunterladen alle Dateien überprüfen"
+
+#~ msgid "An unknown error occurred"
+#~ msgstr "Es ist ein unbekannter Fehler aufgetreten"
+
+#~ msgid "Back up photos and videos when downloading"
+#~ msgstr "Die Fotos und Filme während des Herunterladens sichern"
+
+#~ msgid "Photo backup location:"
+#~ msgstr "Sicherungsort der Fotos:"
+
+#~ msgid "Video backup location:"
+#~ msgstr "Sicherungsort der Filme:"
+
+#~ msgid ""
+#~ "Do you really want to download from here? On some systems, scanning this "
+#~ "location can take a very long time."
+#~ msgstr ""
+#~ "Wollen Sie wirklich von hier herunterladen? Auf manchen Systemen kann das "
+#~ "Einlesen dieses Ortes sehr lange dauern."
+
+#~ msgid "Auto Detect"
+#~ msgstr "Automatisch erkennen"
+
+#~ msgid "Select a folder containing %(file_types)s"
+#~ msgstr "Bitte einen Ordner auswählen, welcher %(file_types)s enthält"
+
+#~ msgid "Quit"
+#~ msgstr "Beenden"
+
+#~ msgid "Help"
+#~ msgstr "Hilfe"
+
+#~ msgid "Preferences"
+#~ msgstr "Einstellungen"
+
+#~ msgid "Refresh"
+#~ msgstr "Auffrischen"
+
+#~ msgid "Rename Options"
+#~ msgstr "Umbenennungoptionen"
+
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Umbenennungoptionen</span>"
+
+#~ msgid "<b>Program Automation</b>"
+#~ msgstr "<b>Programmautomatisierung</b>"
+
+#~ msgid "%(device)s did not unmount"
+#~ msgstr "%(device)s konnte nicht ausgehängt werden"
+
+#~ msgid "Photos:"
+#~ msgstr "Fotos:"
+
+#~ msgid "Backing up photos and videos to %(path)s"
+#~ msgstr "Eine Sicherungskopie von Fotos und Filmen nach %(path)s erstellen"
+
+#~ msgid "Select a folder to download photos to"
+#~ msgstr "Bitte einen Ordner zum Herunterladen der Fotos auswählen"
+
+#~ msgid "Folder: %s"
+#~ msgstr "Ordner: %s"
+
+#~ msgid "Select a folder in which to backup photos"
+#~ msgstr "Bitte einen Order für die Sicherungskopien der Fotos auswählen"
+
+#~ msgid "Select a folder in which to backup videos"
+#~ msgstr "Bitte einen Order für die Sicherungskopien der Filme auswählen"
 
 #~ msgid "<b>Download Subfolders</b>"
 #~ msgstr "<b>Übertragungsunterordner</b>"
@@ -2687,46 +2843,6 @@ msgstr "Einstellungen: Rapid-Fotoübertragung"
 #~ "Bitte den Übertragungsordner auswählen. Unterordner werden je nach "
 #~ "gewählten Voreinstellungen automatisch erzeugt."
 
-#~ msgid "<b>Download Folder</b>"
-#~ msgstr "<b>Übertragungsordner</b>"
-
-#~ msgid "Photo Folders"
-#~ msgstr "Fotoordner"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Fotoumbenennen</span>\t"
-
-#~ msgid "<b>Photo Rename</b>"
-#~ msgstr "<b>Fotoumbenennen</b>"
-
-#~ msgid " "
-#~ msgstr " "
-
-#~ msgid "<i>New:</i>"
-#~ msgstr "<i>Neu:</i>"
-
-#~ msgid "<i>Original:</i>"
-#~ msgstr "<i>Original:</i>"
-
-#~ msgid "<b>Example</b>"
-#~ msgstr "<b>Beispiel</b>"
-
-#~ msgid "Photo Rename"
-#~ msgstr "Fotoumbenennen"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Filmübertragungsordner</span>"
-
-#~ msgid ""
-#~ "Sorry, video downloading functionality disabled. To download videos, "
-#~ "please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> "
-#~ "packages for python, or <i>exiftool</i>."
-#~ msgstr ""
-#~ "Entschuldigung, das Herunterladen von Filmen ist deaktiviert. Bitte "
-#~ "installieren Sie zum Herunterladen von Filmen entweder die »<i>hachoir "
-#~ "metadata</i>«- und »<i>kaa metadata</i>«-Pakete oder »<i>exiftool</i>«."
-
 #~ msgid ""
 #~ "Choose the download folder. Subfolders for the downloaded videos will be "
 #~ "automatically created in this folder using the structure specified below."
@@ -2734,48 +2850,29 @@ msgstr "Einstellungen: Rapid-Fotoübertragung"
 #~ "Bitte den Übertragungsordner auswählen. Unterordner für die Filme werden "
 #~ "automatisch basierend auf der unten angefügten Struktur erstellt."
 
+#~ msgid "Photo Folders"
+#~ msgstr "Fotoordner"
+
 #~ msgid "Video Folders"
 #~ msgstr "Filmordner"
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Filmumbenennen</span>\t"
-
-#~ msgid "Video Rename"
-#~ msgstr "Filmumbenennen"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Umbenennungoptionen</span>"
-
-#~ msgid "<b>Sequence Numbers</b>"
-#~ msgstr "<b>Sequenznummern</b>"
+#~ msgid "Photo backup folder name:"
+#~ msgstr "Ordner für Sicherungskopien der Fotos:"
 
 #~ msgid ""
-#~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
-#~ "sequence number should be reset."
+#~ "Specify the folder in which backups are stored on the device.  \n"
+#~ "\n"
+#~ "<i>Note: this will also be used to determine whether or not the device is "
+#~ "used for backups. For each device you wish to use for backing up to, "
+#~ "create a folder in it with one of these names.</i>"
 #~ msgstr ""
-#~ "Geben Sie die Uhrzeit im 24-Stunden Format an, wann die Sequenznummer in "
-#~ "<i>Übertragungen heute</i> zurückgesetzt werden soll."
-
-#~ msgid "Day start:"
-#~ msgstr "Beginn des Tages:"
-
-#~ msgid "Downloads today:"
-#~ msgstr "Übertragungen heute:"
-
-#~ msgid "Stored number:"
-#~ msgstr "Gespeicherte Nummer"
-
-#~ msgid ":"
-#~ msgstr ":"
-
-#~ msgid " hh:mm"
-#~ msgstr " hh:mm"
-
-#~ msgid "Synchronize RAW + JPEG sequence numbers"
-#~ msgstr "Synchronisiere RAW + JPEG Sequenznummern"
-
-#~ msgid "<b>Compatibility with Other Operating Systems</b>"
-#~ msgstr "<b>Kompatibilität mit anderen Betriebssystemen</b>"
+#~ "Bitte den Ordner angeben, in dem die Sicherungskopien gespeichert werden "
+#~ "sollen.  \n"
+#~ "\n"
+#~ "<i>Hinweis: Dies wird auch für den Entscheid verwendet, ob das Laufwerk "
+#~ "für Sicherungskopien verwendet wird. Bitte erstellen Sie auf jedem "
+#~ "Laufwerk, welches für Sicherungskopien verwendet wird, einen Ordner mit "
+#~ "diesem Namen.</i>"
 
 #~ msgid ""
 #~ "Specify whether photo, video and folder names should have any characters "
@@ -2784,29 +2881,21 @@ msgstr "Einstellungen: Rapid-Fotoübertragung"
 #~ "Bitte angeben, ob Zeichen in Namen oder Ordnern, welche auf einem anderen "
 #~ "Betriebssystem nicht gültig sind, entfernt werden sollen."
 
-#~ msgid "Strip incompatible characters"
-#~ msgstr "Nicht kompatible Zeichen entfernen"
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Fotoumbenennen</span>\t"
 
-#~ msgid "Rename Options"
-#~ msgstr "Umbenennungoptionen"
+#~ msgid "<b>Photo Rename</b>"
+#~ msgstr "<b>Fotoumbenennen</b>"
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Auftragsbezeichnungen</span>"
+#~ msgid "Preferences: Rapid Photo Downloader"
+#~ msgstr "Einstellungen: Rapid-Fotoübertragung"
 
-#~ msgid "<b>Job Codes</b>"
-#~ msgstr "<b>Auftragsbezeichnungen</b>"
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">Fotoübertragungsordner</span>"
 
-#~ msgid "_Add..."
-#~ msgstr "_Hinzufügen …"
-
-#~ msgid "R_emove All"
-#~ msgstr "_Alle entfernen"
-
-#~ msgid "Job Codes"
-#~ msgstr "Auftragsbezeichnungen"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Laufwerke</span>"
+#~ msgid "Photo Rename"
+#~ msgstr "Fotoumbenennen"
 
 #~ msgid ""
 #~ "Devices are from where to download photos and videos, such as cameras, "
@@ -2831,83 +2920,11 @@ msgstr "Einstellungen: Rapid-Fotoübertragung"
 #~ "funktioniert, stellen sie Ihrer Kamera bitte auf den PTP-Modus um. Falls "
 #~ "das nicht möglich ist, müssen sie ein Kartenlesegerät verwenden.</i>"
 
-#~ msgid "Automatically detect Portable Storage Devices"
-#~ msgstr "Suche automatisch nach portablen Laufwerken"
+#~ msgid "<b>Photo and Video Name Conflicts</b>"
+#~ msgstr "<b>Foto- und Filmenamenskonflikte</b>"
 
-#~ msgid "Automatically detect devices"
-#~ msgstr "Automatisch erkannte Geräte"
-
-#~ msgid ""
-#~ "If you enable automatic detection of Portable Storage Devices, the entire "
-#~ "device will be scanned. On large devices, this could take some time.\n"
-#~ "\n"
-#~ "When this option is enabled, and a potential device is detected, you will "
-#~ "be prompted to determine if it should be scanned or not."
-#~ msgstr ""
-#~ "Wenn Sie die automatische Erkennung von transportablen Speichergeräten "
-#~ "einschalten, wird das ganze Gerät durchsucht. Dies kann je nach Grösse "
-#~ "einige Zeit dauern.\n"
-#~ "\n"
-#~ "Ist diese Option eingeschaltet, so werden Sie nach der Erkennung eines "
-#~ "Gerätes gefragt, ob es durchsucht werden soll oder nicht."
-
-#~ msgid "Location:"
-#~ msgstr "Ort:"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the "
-#~ "photos and videos."
-#~ msgstr ""
-#~ "Wenn Sie die automatische Erkennung ausschalten, bitte den genauen Ort "
-#~ "der Fotos und Filme auswählen."
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Device Options</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Geräteeinstellungen</span>"
-
-#~ msgid "Remembered Paths"
-#~ msgstr "Gespeicherte Pfade"
-
-#~ msgid ""
-#~ "Remembered paths are those associated with devices that you have chosen "
-#~ "to always scan or ignore when automatic detection of Portable Storage "
-#~ "Devices is enabled."
-#~ msgstr ""
-#~ "Gespeicherte Pfade sind Geräten zugeordnet, welche nach Ihren Vorgaben "
-#~ "immer durchsucht oder immer ignoriert werden, sobald die automatische "
-#~ "Erkennung von transportablen Speichergeräten eingeschaltet ist."
-
-#~ msgid "Ignored Paths"
-#~ msgstr "Pfade ignorieren"
-
-#~ msgid ""
-#~ "Specify the ending portion of any paths you want ignored when scanning "
-#~ "devices for photos or videos. Any path ending with the values below will "
-#~ "not be scanned."
-#~ msgstr ""
-#~ "Spezifizieren Sie den letzten Teil eines Pfades an, welcher beim "
-#~ "Durchsuchen von Geräten nach Bildern oder Filmen ignoriert werden soll. "
-#~ "Jegliche Pfade welche mit diesen Werten enden, werden nicht durchsucht."
-
-#~ msgid "Re_move All"
-#~ msgstr "Alle _entfernen"
-
-#~ msgid "Use _python-style regular expressions"
-#~ msgstr "Verwende _python-style reguläre Ausdrücke"
-
-#~ msgid "Device Options"
-#~ msgstr "Geräteeinstellungen"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Datensicherung</span>\t"
-
-#~ msgid "<b>Backup</b>"
-#~ msgstr "<b>Datensicherung</b>"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact backup locations."
-#~ msgstr ""
-#~ "Wenn Sie die automatische Erkennung ausschalten, wählen Sie den Ort zur "
-#~ "Erstellung der Sicherungskopien."
+#~ msgid "Import your photos and videos efficiently and reliably"
+#~ msgstr "Fotos und Filme schnell und zuverlässig importieren"
 
 #~ msgid ""
 #~ "You can have your photos and videos backed up to multiple locations as "
@@ -2917,719 +2934,166 @@ msgstr "Einstellungen: Rapid-Fotoübertragung"
 #~ "gespeichert werden, z.B. auf externen Laufwerken."
 
 #~ msgid ""
-#~ "Specify the folder in which backups are stored on the device.  \n"
-#~ "\n"
-#~ "<i>Note: this will also be used to determine whether or not the device is "
-#~ "used for backups. For each device you wish to use for backing up to, "
-#~ "create a folder in it with one of these names.</i>"
+#~ "If you disable automatic detection, choose the exact location of the "
+#~ "photos and videos."
 #~ msgstr ""
-#~ "Bitte den Ordner angeben, in dem die Sicherungskopien gespeichert werden "
-#~ "sollen.  \n"
-#~ "\n"
-#~ "<i>Hinweis: Dies wird auch für den Entscheid verwendet, ob das Laufwerk "
-#~ "für Sicherungskopien verwendet wird. Bitte erstellen Sie auf jedem "
-#~ "Laufwerk, welches für Sicherungskopien verwendet wird, einen Ordner mit "
-#~ "diesem Namen.</i>"
+#~ "Wenn Sie die automatische Erkennung ausschalten, bitte den genauen Ort "
+#~ "der Fotos und Filme auswählen."
 
-#~ msgid "Photo backup location:"
-#~ msgstr "Sicherungsort der Fotos:"
+#~ msgid ""
+#~ "Sorry, video downloading functionality disabled. To download videos, "
+#~ "please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> "
+#~ "packages for python, or <i>exiftool</i>."
+#~ msgstr ""
+#~ "Entschuldigung, das Herunterladen von Filmen ist deaktiviert. Bitte "
+#~ "installieren Sie zum Herunterladen von Filmen entweder die »<i>hachoir "
+#~ "metadata</i>«- und »<i>kaa metadata</i>«-Pakete oder »<i>exiftool</i>«."
 
-#~ msgid "Photo backup folder name:"
-#~ msgstr "Ordner für Sicherungskopien der Fotos:"
+#~ msgid "Video Rename"
+#~ msgstr "Filmumbenennen"
 
-#~ msgid "<i>Example:</i>"
-#~ msgstr "<i>Beispiel:</i>"
+#~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Filmumbenennen</span>\t"
 
-#~ msgid "<i>/media/externaldrive/Photos</i>"
-#~ msgstr "<i>/medium/externeslaufwerk/Fotos</i>"
+#~ msgid ""
+#~ "Error: specify device auto-detection or manually specify a device's path "
+#~ "from which to download, but do not do both."
+#~ msgstr ""
+#~ "Fehler: Wählen Sie entweder »Geräte zum Herunterladen automatisch "
+#~ "erkennen« oder »PFAD zum Geräte für das Herunterladen manuell angeben«, "
+#~ "aber nicht beides gleichzeitig."
 
-#~ msgid "Video backup folder name:"
-#~ msgstr "Sicherungsordner für Filme:"
+#~ msgid "No backup devices detected"
+#~ msgstr "Es wurden keine Sicherungsgeräte gefunden"
 
-#~ msgid "Video backup location:"
-#~ msgstr "Sicherungsort der Filme:"
+#~ msgid "Using backup device"
+#~ msgstr "Sicherungsgerät wird verwendet"
 
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Verschiedenes</span>"
+#~ msgid "Using backup devices"
+#~ msgstr "Sicherungsgeräte werden verwendet"
 
-#~ msgid "<b>Program Automation</b>"
-#~ msgstr "<b>Programmautomatisierung</b>"
+#~ msgid ""
+#~ "manually specify the PATH of the device from which to download, "
+#~ "overwriting existing program preferences"
+#~ msgstr ""
+#~ "PFAD zum Geräte für das Herunterladen manuell angeben, bestehende "
+#~ "Programmeinstellungen übergehen"
+
+#~ msgid ""
+#~ "automatically detect devices from which to download, overwriting existing "
+#~ "program preferences"
+#~ msgstr ""
+#~ "Geräte zum Herunterladen automatisch erkennen, bestehende "
+#~ "Programmeinstellungen übergehen"
+
+#~ msgid "Device Detected"
+#~ msgstr "Geräte gefunden"
+
+#~ msgid "Start downloading upon device insertion"
+#~ msgstr "Mit dem Herunterladen beginnen, sobald ein Geräte verfügbar ist"
+
+#~ msgid "Automatically detect backup devices"
+#~ msgstr "Automatisch Sicherungsgeräte erkennen"
+
+#~ msgid "Automatically detect devices"
+#~ msgstr "Automatisch erkannte Geräte"
+
+#~ msgid "Add unique identifier"
+#~ msgstr "Eine eindeutige Identifizierung hinzufügen"
+
+#~ msgid "Overwrite"
+#~ msgstr "Überschreiben"
+
+#~ msgid "Size"
+#~ msgstr "Größe"
+
+#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
+#~ msgstr "%(number)s von %(total)s %(filetypes)s (%(remaining)s verbleibend)"
+
+#~ msgid "Download Progress"
+#~ msgstr "Übertragungsfortschritt"
+
+#~ msgid "Downloading from %(location)s."
+#~ msgstr "Aus %(location)s wird heruntergeladen."
+
+#~ msgid "Check All Photos"
+#~ msgstr "Alle Fotos auswählen"
+
+#~ msgid "Check All Videos"
+#~ msgstr "Alle Filme auswählen"
+
+#~ msgid "_View"
+#~ msgstr "An_zeigen"
+
+#~ msgid "Automatically rotate JPEG images"
+#~ msgstr "JPEG-Dateien automatisch drehen"
+
+#~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
+#~ msgstr ""
+#~ "Eine Sicherungskopie von Fotos in %(path)s und von Filmen in %(path2)s "
+#~ "erstellen"
+
+#~ msgid "Backing up to %(path)s"
+#~ msgstr "Sicherung in %(path)s erstellen"
+
+#~ msgid ""
+#~ "display program information on the command line as the program runs "
+#~ "(default: %default)"
+#~ msgstr ""
+#~ "Die Programminformationen anzeigen, wenn das Programm aus der "
+#~ "Befehlszeile aufgerufen wurde (Voreinstellung: %default)"
+
+#~ msgid "display debugging information when run from the command line"
+#~ msgstr ""
+#~ "Während des Ausführens von der Befehlszeile Fehlersuchinformationen "
+#~ "anzeigen"
+
+#~ msgid "only output errors to the command line"
+#~ msgstr "Fehlermeldungen nur auf der Befehlszeile anzeigen"
+
+#~ msgid ""
+#~ "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
+#~ "name. Please use other renaming options.</i>"
+#~ msgstr ""
+#~ "<i><b>Achtung:</b> Die Metadaten sind unvollständig, der Namen kann nicht "
+#~ "erstellt werden. Bitte andere Umbenennungsoptionen verwenden.</i>"
+
+#~ msgid ""
+#~ "<i><b>Warning:</b> There is insufficient metadata to fully generate "
+#~ "subfolders. Please use other subfolder naming options.</i>"
+#~ msgstr ""
+#~ "<i><b>Achtung:</b> Die Metadaten sind unvollständig, die Unterordner "
+#~ "können nicht erstellt werden. Bitte andere Unterordnerbenennungsoptionen "
+#~ "verwenden.</i>"
+
+#~ msgid ""
+#~ "The %(filetype)s subfolder preferences entered are invalid and cannot be "
+#~ "used.\n"
+#~ "They will be reset to their default values."
+#~ msgstr ""
+#~ "Die eingegebenen Unterordnereinstellungen für %(filetype)s  sind ungültig "
+#~ "und können nicht verwendet werden.\n"
+#~ "Sie werden auf die Standardwerte zurückgestellt."
 
 #~ msgid "Unmount (\"eject\") device upon download completion"
 #~ msgstr ""
 #~ "Das Gerät aushängen (»auswerfen«), sobald das Herunterladen "
 #~ "fertiggestellt ist"
 
-#~ msgid "Start downloading at program startup"
-#~ msgstr "Herunterladen beim Programmstart beginnen"
+#~ msgid "Strip incompatible characters"
+#~ msgstr "Nicht kompatible Zeichen entfernen"
 
-#~ msgid "Start downloading upon device insertion"
-#~ msgstr "Mit dem Herunterladen beginnen, sobald ein Geräte verfügbar ist"
+#~ msgid "Should all Job Codes be removed?"
+#~ msgstr "Sollen alle Auftragsbezeichnungen entfernt werden?"
 
-#~ msgid "Exit program when download completes"
-#~ msgstr "Programm beenden wenn alles Übertragungen abgeschlossen sind"
+#~ msgid "Remove all Remembered Paths?"
+#~ msgstr "Alle gespeicherten Pfade entfernen?"
 
-#~ msgid "Exit program even if download had warnings or errors"
-#~ msgstr "Programm beenden auch wenn Fehler oder Warnungen aufgetreten sind"
+#~ msgid "Should all remembered paths be removed?"
+#~ msgstr "Sollen alle gespeicherten Pfade entfernt werden?"
 
-#~ msgid "Automatically rotate JPEG images"
-#~ msgstr "JPEG-Dateien automatisch drehen"
+#~ msgid "Remove all Ignored Paths?"
+#~ msgstr "Alle ignorierten Pfade entfernen?"
 
-#~ msgid "Verify files as they are downloaded"
-#~ msgstr "Nach dem Herunterladen alle Dateien überprüfen"
-
-#~ msgid "Performance"
-#~ msgstr "Geschwindigkeit"
-
-#~ msgid "Miscellaneous"
-#~ msgstr "Verschiedenes"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Fehlerbehandlung</span>"
-
-#~ msgid "<b>Photo and Video Name Conflicts</b>"
-#~ msgstr "<b>Foto- und Filmenamenskonflikte</b>"
-
-#~ msgid "Add unique identifier"
-#~ msgstr "Eine eindeutige Identifizierung hinzufügen"
-
-#~ msgid "Skip download"
-#~ msgstr "Herunterladen überspringen"
-
-#~ msgid ""
-#~ "When a photo or video of the same name has already been downloaded, "
-#~ "choose whether to skip downloading the file, or to add a unique "
-#~ "indentifier."
-#~ msgstr ""
-#~ "Bitte wählen Sie aus, was zu tun ist, wenn ein Bild oder ein Film bereits "
-#~ "heruntergeladen wurde, entweder Datei überspringen oder eine eindeutige "
-#~ "Bezeichnung anfügen."
-
-#~ msgid ""
-#~ "When backing up, choose whether to overwrite a file on the backup device "
-#~ "that has the same name, or skip backing it up."
-#~ msgstr ""
-#~ "Bitte geben Sie an was geschehen soll, falls bei der Sicherung bereits "
-#~ "eine Datei mit demselben Namen vorhanden ist, Überspringen oder "
-#~ "Überschreiben."
-
-#~ msgid "Overwrite"
-#~ msgstr "Überschreiben"
-
-#~ msgid "Skip"
-#~ msgstr "Überspringen"
-
-#~ msgid "Error Handling"
-#~ msgstr "Fehlerbehandlung"
-
-#~ msgid "Import your photos and videos efficiently and reliably"
-#~ msgstr "Fotos und Filme schnell und zuverlässig importieren"
-
-#~ msgid "0 of %s images copied"
-#~ msgstr "0 von %s Bildern kopiert"
-
-#~ msgid "Could not open image"
-#~ msgstr "Das Bild konnte nicht geöffnet werden"
-
-#~ msgid "Image filename could not be generated"
-#~ msgstr "Der Dateiname konnte nicht erzeugt werden"
-
-#~ msgid ""
-#~ "Image filename could not be properly generated. Check to ensure there is "
-#~ "sufficient image metadata."
-#~ msgstr ""
-#~ "Der Dateiname konnte nicht erzeugt werden. Bitte überprüfen Sie die "
-#~ "Metadaten der Bilddatei."
-
-#~ msgid "Image has no metadata"
-#~ msgstr "Das Bild enthält keine Metadaten"
-
-#~ msgid "Backup image already exists"
-#~ msgstr "Die Sicherungskopie besteht bereits"
-
-#~ msgid "New day has started - resetting 'Downloads Today' sequence number"
-#~ msgstr ""
-#~ "Ein neuer Tag hat begonnen - die Anzahl der 'Downloads Heute' wird "
-#~ "zurückgesetzt"
-
-#~ msgid "Download copying error"
-#~ msgstr "Fehler beim Kopieren"
-
-#~ msgid "Unique identifier '%s' added"
-#~ msgstr "Die eindeutige Bezeichnung '%s' wurde hinzugefügt"
-
-#~ msgid "%s images skipped"
-#~ msgstr "%s Bilder übersprungen"
-
-#~ msgid "errors"
-#~ msgstr "Fehler"
-
-#~ msgid "%s images downloaded"
-#~ msgstr "%s Bilder heruntergeladen"
-
-#~ msgid "The device can now be safely removed"
-#~ msgstr "Das Laufwerk kann nun entfernt werden"
-
-#~ msgid "Backup device missing"
-#~ msgstr "Das Laufwerk für die Sicherungskopien fehlt"
-
-#~ msgid "Image overwritten"
-#~ msgstr "Bilddatei überschrieben"
-
-#~ msgid "This device has no images to download from."
-#~ msgstr "Das Laufwerk enthält keine Bilddateien."
-
-#~ msgid "Image has no thumbnail"
-#~ msgstr "Die Datei enthält kein Vorschaubild"
-
-#~ msgid "Image skipped"
-#~ msgstr "Bild übersprungen"
-
-#~ msgid "Image already exists"
-#~ msgstr "Bilddatei existiert bereits"
-
-#~ msgid "%(number)s of %(total)s images copied"
-#~ msgstr "%(number)s von %(total)s Bildern kopiert"
-
-#~ msgid "Download complete from %s"
-#~ msgstr "Download von %s abgeschlossen"
-
-#~ msgid "Warning:"
-#~ msgstr "Warnung:"
-
-#~ msgid "Sorry, some preferences are invalid and will be reset."
-#~ msgstr ""
-#~ "Einige Voreinstellungen sind ungültig, sie werden auf die Standardwerte "
-#~ "zurückgesetzt."
-
-#~ msgid ""
-#~ "A newer version of this program was previously run on this computer.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "Eine neuere Version des Programms wurde bereits auf diesem Computer "
-#~ "aufgerufen.\n"
-#~ "\n"
-
-#~ msgid ""
-#~ "This version of the program is newer than the previously run version. "
-#~ "Checking preferences."
-#~ msgstr ""
-#~ "Diese Version des Programms ist neuer als bis bisherige. Die "
-#~ "Voreinstellungen werden überprüft."
-
-#~ msgid "It may be corrupted"
-#~ msgstr "Es könnte defekt sein"
-
-#~ msgid "No preferences needed to be changed."
-#~ msgstr "Es mussten keine Voreinstellungen angepasst werden."
-
-#~ msgid "Device scan complete: found %(number)s images on %(device)s"
-#~ msgstr ""
-#~ "Überprüfung der Laufwerke abgeschlossen: %(number)s Bilder auf %(device)s "
-#~ "gefunden"
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Quelle: %(source)s\n"
-#~ "Ziel: %(destination)s\n"
-#~ "Problem: %(problem)s"
-
-#~ msgid "Device scan complete: no images found on %s"
-#~ msgstr ""
-#~ "Überprüfung der Laufwerke abgeschlossen: Keine Bilder gefunden auf %s"
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Error: %(errorno)s %(strerror)s"
-#~ msgstr ""
-#~ "Quelle: %(source)s\n"
-#~ "Ziel: %(destination)s\n"
-#~ "Fehler: %(errorno)s %(strerror)s"
-
-#~ msgid ""
-#~ "Destination directory could not be created\n"
-#~ "%(directory)s\n"
-#~ "Error: %(errno)s %(strerror)s"
-#~ msgstr ""
-#~ "Das Zielverzeichnis konnte nicht erstellt werden\n"
-#~ "%(directory)s\n"
-#~ "Fehler: %(errno)s %(strerror)s"
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Error: %(errno)s %(strerror)s"
-#~ msgstr ""
-#~ "Quelle: %(source)s\n"
-#~ "Ziel: %(destination)s\n"
-#~ "Fehler: %(errno)s %(strerror)s"
-
-#~ msgid "Problem using pynotify."
-#~ msgstr "Bei der Verwendung von pynotify ist ein Problem aufgetreten."
-
-#~ msgid ""
-#~ "This version of the program uses different preferences than the old "
-#~ "version. Some of your previous preferences were invalid, and could not be "
-#~ "updated. They will be reset."
-#~ msgstr ""
-#~ "Die Version des Programms verwendet andere Voreinstellungen als die "
-#~ "bisherige Version. Einige der bestehenden Einstellungen sind ungültig und "
-#~ "werden auf die Standardwerte zurückgesetzt."
-
-#~ msgid "Failed to receive pynotify server capabilities."
-#~ msgstr "Die Werte des pynotify Servers konnten nicht abgefragt werden."
-
-#~ msgid "Detected %(device)s with path %(path)s"
-#~ msgstr "Die %(device)s gefunden auf Pfad %(path)s"
-
-#~ msgid "Using manually specified path"
-#~ msgstr "Verwende den manuell eingegebenen Pfad"
-
-#~ msgid "_Pause"
-#~ msgstr "_Pause"
-
-#~ msgid "%s is already running"
-#~ msgstr "%s wird bereits ausgeführt"
-
-#~ msgid "Using"
-#~ msgstr "Verwende"
-
-#~ msgid "Goodbye"
-#~ msgstr "Auf Wiedersehen"
-
-#~ msgid "Download has started from %s"
-#~ msgstr "Der Download von %s hat begonnen"
-
-#~ msgid "      "
-#~ msgstr "      "
-
-#~ msgid "These preferences are not well formed:"
-#~ msgstr "Diese Voreinstellungen sind falsch formatiert:"
-
-#~ msgid "Subsecond metadata not present in image"
-#~ msgstr "Das Bild enthält keine Hunderstelsekunden-Informationen"
-
-#~ msgid "%s metadata is not present in image"
-#~ msgstr "%s Metadaten sind im Bild nicht vorhanden"
-
-#~ msgid "Error in date time component. Value %s appears invalid"
-#~ msgstr ""
-#~ "Fehler in den Datum/Zeit Informationen. Der Wert %s scheint ungültig zu "
-#~ "sein"
-
-#~ msgid "image number was specified but image filename has no number"
-#~ msgstr ""
-#~ "Eine Bildnummer wurde angegeben, aber der Dateiname enthält keine Nummer"
-
-#~ msgid "<b>Image Devices</b>"
-#~ msgstr "<b>Laufwerke mit Bilddaten</b>"
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Quelle: %(source)s\n"
-#~ "Problem: %(problem)s"
-
-#~ msgid "<b>Image Rename</b>"
-#~ msgstr "<b>Umbenennung von Bildern</b>"
-
-#~ msgid "<b>Missing Backup Devices</b>"
-#~ msgstr "<b>Fehlende Sicherungslaufwerke</b>"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Image Devices</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Laufwerke</span>"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Download Folder</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Download Verzeichnis</span>"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Image Rename</span>\t"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Umbenennung von Dateien</span>\t"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Automation</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Automatisierung</span>"
-
-#~ msgid "Backup photos when downloading"
-#~ msgstr "Erstelle Sicherung der Bilder beim Herunterladen"
-
-#~ msgid "Automation"
-#~ msgstr "Automatisierung"
-
-#~ msgid "Backup folder name:"
-#~ msgstr "Verzeichnis für Datensicherung:"
-
-#~ msgid "Backup location:"
-#~ msgstr "Ziel der Datensicherung"
-
-#~ msgid "Automatically detect image devices"
-#~ msgstr "Suche automatisch nach Laufwerken mit Bildern"
-
-#~ msgid "Copyright Damon Lynch 2007-09"
-#~ msgstr "Copyright Damon Lynch 2007-09"
-
-#~ msgid "Download Folder"
-#~ msgstr "Downloadverzeichnis"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact backup location."
-#~ msgstr ""
-#~ "Wählen Sie das genaue Verzeichnis für die Datensicherung, falls die "
-#~ "automatische Erkennung ausgeschaltet ist."
-
-#~ msgid "Exit program after completion of successful download"
-#~ msgstr "Beende das Programm nach Abschluss des Downloads"
-
-#~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the "
-#~ "images."
-#~ msgstr ""
-#~ "Wählen Sie das genaue Verzeichnis für die Bilder, falls die automatische "
-#~ "Erkennung ausgeschaltet ist."
-
-#~ msgid "Image Rename"
-#~ msgstr "Dateiumbenennung"
-
-#~ msgid ""
-#~ "Rapid Photo Downloader is free software; you can redistribute it and/or "
-#~ "modify it under the terms of the GNU General Public License as published "
-#~ "by the Free Software Foundation; either version 2 of the License, or (at "
-#~ "your option) any later version.\n"
-#~ "\n"
-#~ "Rapid Photo Downloader is distributed in the hope that it will be useful, "
-#~ "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-#~ "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General "
-#~ "Public License for more details.\n"
-#~ "\n"
-#~ "You should have received a copy of the GNU General Public License along "
-#~ "with Rapid Photo Downloader; if not, write to the Free Software "
-#~ "Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, "
-#~ "USA."
-#~ msgstr ""
-#~ "Rapid Photo Downloader is free software; you can redistribute it and/or "
-#~ "modify it under the terms of the GNU General Public License as published "
-#~ "by the Free Software Foundation; either version 2 of the License, or (at "
-#~ "your option) any later version.\n"
-#~ "\n"
-#~ "Rapid Photo Downloader is distributed in the hope that it will be useful, "
-#~ "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-#~ "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General "
-#~ "Public License for more details.\n"
-#~ "\n"
-#~ "You should have received a copy of the GNU General Public License along "
-#~ "with Rapid Photo Downloader; if not, write to the Free Software "
-#~ "Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, "
-#~ "USA."
-
-#~ msgid "Import your images efficiently and reliably"
-#~ msgstr "Importieren Sie Ihre Bilder effizient und zuverlässig"
-
-#~ msgid "Image location:"
-#~ msgstr "Bilder Quelle:"
-
-#~ msgid "Specify what to do when there are no backup devices."
-#~ msgstr ""
-#~ "Geben Sie an was geschehen soll, falls keine Sicherungslaufwerke "
-#~ "vorhanden sind."
-
-#~ msgid ""
-#~ "Specify whether image and folder names should have any characters removed "
-#~ "that are not allowed by other operating systems."
-#~ msgstr ""
-#~ "Geben Sie an was geschehen soll, wenn die Verzeichnisse Zeichen "
-#~ "enthalten, welche von anderen Betriebssystemen nicht unterstützt werden."
-
-#~ msgid ""
-#~ "When backing up, choose whether to overwrite an image on the backup "
-#~ "device that has the same name, or skip backing it up."
-#~ msgstr ""
-#~ "Während der Datensicherung können bestehende Bilder auf dem "
-#~ "Sicherungslaufwerk überschrieben oder übersprungen werden."
-
-#~ msgid "Unmount (\"eject\") image device upon download completion"
-#~ msgstr "Aufwerfen des Bildlaufwerks nach Beendigung des Downloads"
-
-#~ msgid "Start downloading upon image device insertion"
-#~ msgstr "Beginn des Downloads beim Einfügen von Bilderlaufwerken"
-
-#~ msgid "_Photos"
-#~ msgstr "_Fotos"
-
-#~ msgid "_Thumbnails"
-#~ msgstr "_Vorschaubilder"
-
-#~ msgid "Resetting to midnight.\n"
-#~ msgstr "Die Zeit wird auf Mitternacht zurückgesetzt.\n"
-
-#~ msgid "Resetting value to zero.\n"
-#~ msgstr "Wert wird auf Null zurückgesetzt.\n"
-
-#~ msgid "'Start of day' preference value is corrupted.\n"
-#~ msgstr "Der Vorgabewert für 'Start des Tages' ist ungültig.\n"
-
-#~ msgid "Invalid Downloads Today value.\n"
-#~ msgstr "Anzahl der ungültigen Downloads von heute.\n"
-
-#~ msgid "No backup device was detected."
-#~ msgstr "Das Laufwerk für die Sicherungskopien konnte nicht gefunden werden."
-
-#~ msgid ""
-#~ "This version of the program uses different preferences than the old "
-#~ "version. Your preferences have been updated.\n"
-#~ "\n"
-#~ "Please check them to ensure correct operation."
-#~ msgstr ""
-#~ "Diese Version des Programms ist neuer als bis bisherige. Die "
-#~ "Voreinstellungen wurden angepasst\n"
-#~ "Bitte überprüfen Sie diese."
-
-#~ msgid "Preferences were modified."
-#~ msgstr "Die Voreinstellungen wurden geändert."
-
-#~ msgid "Automatically start download is false"
-#~ msgstr "Der automatische Downloadbeginn ist ausgeschaltet"
-
-#~ msgid "Automatically start download is true"
-#~ msgstr "Der automatische Downloadbeginn ist eingeschaltet"
-
-#~ msgid "Preferences were changed."
-#~ msgstr "Die Voreinstellungen wurden geändert."
-
-#~ msgid "images skipped"
-#~ msgstr "Bilder übersprungen"
-
-#~ msgid "extension was specified but image name has no extension"
-#~ msgstr ""
-#~ "Erweiterung wurde angegeben, aber der Dateiname enthält keine Erweiterung"
-
-#~ msgid "error generating name with component %s"
-#~ msgstr "Ein Fehler ist aufgetreten bei der Erstellung des Namens mit %s"
-
-#~ msgid "<i>Example: /home/user/photos</i>"
-#~ msgstr "<i>Beispiel: /home/user/Fotos</i>"
-
-#~ msgid ""
-#~ "Choose whether to skip downloading the image, or to add a unique "
-#~ "indentifier."
-#~ msgstr ""
-#~ "Wählen Sie das Bild zu überspringen oder eine eindeutige Bezeichnung "
-#~ "einzufügen"
-
-#~ msgid ""
-#~ "You can have your photos backed up to multiple locations as they are "
-#~ "downloaded, e.g. external hard drives."
-#~ msgstr ""
-#~ "Sie können Bilder während des Herunterladens an mehrere Orten sichern, z."
-#~ "B. auf externe Festplatten."
-
-#~ msgid "Job Code entered"
-#~ msgstr "Auftragsbezeichnung eingegeben"
-
-#~ msgid "Starting downloads that have been waiting for a Job Code"
-#~ msgstr ""
-#~ "Beginne mit den Dowaloads welche auf eine Auftragsbezeichnung gewartet "
-#~ "haben"
-
-#~ msgid "Prompting for Job Code"
-#~ msgstr "Frage nach der Auftragsbezeichnung"
-
-#~ msgid "Report an error"
-#~ msgstr "Fehler anzeigen"
-
-#~ msgid "Report a warning"
-#~ msgstr "Warnung anzeigen"
-
-#~ msgid "Ignore"
-#~ msgstr "Ignorieren"
-
-#~ msgid ""
-#~ "Specify what to do when an image of the same name has already been "
-#~ "downloaded or backed up."
-#~ msgstr ""
-#~ "Geben Sie an was geschehen soll, falls eine Datei oder eine "
-#~ "Sicherungskopie mit demselben Namen bereits existiert."
-
-#~ msgid "%s selected for downloading from"
-#~ msgstr "%s wurde zum Herunterladen ausgewählt"
-
-#~ msgid "Prompting whether to use %s"
-#~ msgstr "Abfrage, ob %s zu benutzen ist"
-
-#~ msgid "Job Code not entered"
-#~ msgstr "Keine Auftragsbezeichnung angegeben"
-
-#~ msgid "Already prompting for Job Code, do not prompt again"
-#~ msgstr "Auftragsbezeichnung wurde schon abgefragt, nicht wieder fragen"
-
-#~ msgid "Starting downloads"
-#~ msgstr "Beginne mit den Downloads"
-
-#~ msgid "<b>Image Name Conflicts</b>"
-#~ msgstr "<b>Konflikte der Bildernamen</b>"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient image metadata to fully generate "
-#~ "the name. Please use other renaming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Warnung:</b> Die Bilder enthalten ungenügende Metadaten um den "
-#~ "Dateinamen zu erzeugen. Bitte verwenden Sie eine andere Option zur "
-#~ "Umbenennung.</i>"
-
-#~ msgid "The image was not copied."
-#~ msgstr "Das Bild wurde nicht kopiert."
-
-#~ msgid "This device or partition will always be used to download from"
-#~ msgstr ""
-#~ "Von diesem Laufwerk oder dieser Partition wird immer heruntergeladen"
-
-#~ msgid "%s rejected as a download device"
-#~ msgstr "%s wurde als Laufwerk zum Herunterladen abgelehnt"
-
-#~ msgid "This device or partition will never be used to download from"
-#~ msgstr "Von diesem Laufwerk oder dieser Partition wird nie heruntergeladen"
-
-#~ msgid "Enter a new job code, or select a previous one."
-#~ msgstr ""
-#~ "Geben Sie eine neue Auftragsbezeichnung an oder wählen Sie eine bereits "
-#~ "bestehende."
-
-#~ msgid "Enter a new job code."
-#~ msgstr "Geben Sie eine neue Auftragsbezeichnung an."
-
-#~ msgid "Device %(device)s (%(path)s) ignored"
-#~ msgstr "Laufwerk %(device)s (%(path)s) ignoriert"
-
-#~ msgid "list image file extensions the program recognizes and exit"
-#~ msgstr "Anzeigen der gültigen Dateiendungen und beenden"
-
-#~ msgid "Preference value '%(value)s' is invalid"
-#~ msgstr "Voreingestellter Wert '%(value)s' ist ungültig"
-
-#~ msgid ""
-#~ "Preference key '%(key)s' is invalid.\n"
-#~ "Expected one of %(value)s"
-#~ msgstr ""
-#~ "Voreingestellter Schlüssel '%(key)s' ist ungültig.\n"
-#~ "Erwarteter Wert %(value)s"
-
-#~ msgid ""
-#~ "If you enable automatic detection of Portable Storage Devices, the entire "
-#~ "device will be scanned for images. On large devices, this could take some "
-#~ "time."
-#~ msgstr ""
-#~ "Wenn Sie die automatische Erkennung für portable Laufwerke aktivieren, "
-#~ "wird das gesamte Laufwerk nach Bildern durchsucht. Bei sehr grossen "
-#~ "Datenträgern kann dies eine Weile dauern."
-
-#~ msgid ""
-#~ "Image devices are devices from which to download photos, such as cameras, "
-#~ "memory cards or Portable Storage Devices.\n"
-#~ "\n"
-#~ "You can download photos from multiple image devices simultaneously.\n"
-#~ "\n"
-#~ "<i>If downloading directly from your camera works poorly or not at all, "
-#~ "try setting it to PTP mode. If that is not possible, consider using a "
-#~ "card reader.</i>"
-#~ msgstr ""
-#~ "Laufwerke mit Bilddaten sind Laufwerke, von welchen Bilder "
-#~ "heruntergeladen werden können, z.B. Kameras, Speicherkarten oder portable "
-#~ "Speichermedien.\n"
-#~ "\n"
-#~ "Sie können Bilder von mehreren Speichermedien gleichzeitig "
-#~ "herunterladen.\n"
-#~ "\n"
-#~ "<i>Wenn das direkte Herunterladen von Ihrer Kamera langsam oder überhaupt "
-#~ "nicht funktioniert, versuchen Sie diese in den PTP Modus zu schalten. "
-#~ "Sollte das nicht möglich sein, verwenden Sie bitte einen Kartenleser.</i>"
-
-#~ msgid "Should this device or partition be used to download images from?"
-#~ msgstr ""
-#~ "Sollen Bilder von diesem Laufwerk oder dieser Partition heruntergeladen "
-#~ "werden?"
-
-#~ msgid ""
-#~ "\n"
-#~ "Please check preferences, restart the program, and try again."
-#~ msgstr ""
-#~ "\n"
-#~ "Bitte überprüfen Sie die Voreinstellungen, starten Sie das Programm neu "
-#~ "und versuchen es erneut."
-
-#~ msgid "There is an error in the program preferences."
-#~ msgstr "Fehler in den Programmvoreinstellungen."
-
-#~ msgid "Sorry,these preferences contain an error:\n"
-#~ msgstr "Entschuldigung, diese Voreinstellungen enthalten einen Fehler:\n"
-
-#~ msgid "Resetting to default values."
-#~ msgstr "Die Voreinstellungen werden auf die Standardwerte zurückgesetzt."
-
-#~ msgid "Error in Image Rename preferences"
-#~ msgstr "Fehler in den Voreinstellungen zum Umbenennen der Dateien"
-
-#~ msgid ""
-#~ "Program preferences appear to be valid, but please check them to ensure "
-#~ "correct operation."
-#~ msgstr ""
-#~ "Die Programmvoreinstellungen scheinen gültig zu sein, aber bitte "
-#~ "überprüfen Sie diese, um einen problemlosen Programmablauf zu "
-#~ "gewährleisten."
-
-#~ msgid "Some preferences will be reset."
-#~ msgstr "Einige Voreinstellungen werden zurückgesetzt."
-
-#~ msgid ""
-#~ "The subfolder preferences entered are invalid and cannot be used.\n"
-#~ "They will be reset to their default values."
-#~ msgstr ""
-#~ "Die gewählten Voreinstellungen für Unterverzeichnisse sind ungültig und "
-#~ "können nicht benutzt werden.\n"
-#~ "Sie werden auf Standardwerte zurückgesetzt."
-
-#~ msgid "The subfolder preferences had some unnecessary values removed."
-#~ msgstr ""
-#~ "Es wurden einige unnötige Werte in den Voreinstellungen für "
-#~ "Unterverteichnisse entfernt."
-
-#~ msgid ""
-#~ "Metadata is essential for generating subfolders / image names.\n"
-#~ "Source: %s"
-#~ msgstr ""
-#~ "Die Metadaten sind Voraussetzung für die Erstellung der "
-#~ "Unterverzeichnisse / Dateinamen\n"
-#~ "Quelle: %s"
-
-#~ msgid "Error in Download Subfolder preferences"
-#~ msgstr "Fehler in den Download-Unterverzeichnis Voreinstellungen"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient image metadata to fully generate "
-#~ "subfolders. Please use other subfolder naming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Warnung:</b> Die Bilder enthalten ungenügende Metadaten um die "
-#~ "Unterverzeichnisse zu erzeugen. Bitte verwenden Sie eine andere "
-#~ "Einstellung zur Umbenennung.</i>"
-
-#~ msgid "Select a folder in which to backup images"
-#~ msgstr ""
-#~ "Wählen Sie ein Verzeichnis zur Speicherung der Sicherungskopien der Bilder"
-
-#~ msgid ""
-#~ "Subfolder name could not be properly generated. Check to ensure there is "
-#~ "sufficient image metadata."
-#~ msgstr ""
-#~ "Das Unterverzeichnis konnte nicht erzeugt werden. Bitte überprüfen Sie "
-#~ "die Metadaten der Bilddatei."
-
-#~ msgid ""
-#~ "Subfolder: %(subfolder)s\n"
-#~ "Image: %(image)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Unterverzeichnis: %(subfolder)s\n"
-#~ "Bild: %(image)s\n"
-#~ "Problem: %(problem)s"
+#~ msgid "Should all ignored paths be removed?"
+#~ msgstr "Sollen alle ignorierten Pfade entfernt werden?"

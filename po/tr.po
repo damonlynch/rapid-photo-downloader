@@ -7,23 +7,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-27 14:45-0600\n"
-"PO-Revision-Date: 2011-08-24 15:52+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"POT-Creation-Date: 2017-01-31 17:52-0600\n"
+"PO-Revision-Date: 2017-01-28 03:27+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-09-19 19:06+0000\n"
-"X-Generator: Launchpad (build 13980)\n"
+"X-Launchpad-Export-Date: 2017-01-31 23:48+0000\n"
+"X-Generator: Launchpad (build 18315)\n"
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
 msgstr ""
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:178 ../raphodo/renameandmovefile.py:270
+#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -40,22 +40,22 @@ msgstr ""
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr ""
 
-#: ../raphodo/backupfile.py:167
+#: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr ""
 
-#: ../raphodo/backupfile.py:171
+#: ../raphodo/backupfile.py:173
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr ""
 
-#: ../raphodo/backupfile.py:175
+#: ../raphodo/backupfile.py:177
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr ""
 
-#: ../raphodo/backupfile.py:200 ../raphodo/copyfiles.py:184
+#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
 #: ../raphodo/renameandmovefile.py:424 ../raphodo/renameandmovefile.py:550
 #, python-format
@@ -68,7 +68,7 @@ msgstr ""
 msgid "The file could not be copied from the camera"
 msgstr ""
 
-#: ../raphodo/copyfiles.py:389
+#: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
 msgstr ""
 
@@ -82,15 +82,13 @@ msgstr ""
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1750
 #: ../raphodo/rapid.py:1927 ../raphodo/rapid.py:5285
-#, fuzzy
 msgid "Photos"
-msgstr "Fotoğraflar:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1753
 #: ../raphodo/rapid.py:1928 ../raphodo/rapid.py:5286
-#, fuzzy
 msgid "Videos"
-msgstr "Videolar:"
+msgstr ""
 
 #: ../raphodo/devicedisplay.py:999
 msgid "Temporarily ignore this device"
@@ -114,41 +112,41 @@ msgstr ""
 msgid "%(no_videos)s Videos"
 msgstr ""
 
-#: ../raphodo/devices.py:423
+#: ../raphodo/devices.py:424
 msgid "Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:424 ../raphodo/devices.py:852 ../raphodo/rapid.py:1714
+#: ../raphodo/devices.py:425 ../raphodo/devices.py:881 ../raphodo/rapid.py:1714
 msgid "Devices"
 msgstr ""
 
-#: ../raphodo/devices.py:664
+#: ../raphodo/devices.py:685
 #, python-format
 msgid "Downloading from %(device_names)s"
 msgstr ""
 
 #. Translators: e.g. Three Devices
-#: ../raphodo/devices.py:720
+#: ../raphodo/devices.py:741
 #, python-format
 msgid "%(no_devices)s %(device_type)s"
 msgstr ""
 
-#: ../raphodo/devices.py:837 ../raphodo/rapid.py:1551
+#: ../raphodo/devices.py:866 ../raphodo/rapid.py:1551
 msgid "Select Source"
 msgstr ""
 
-#: ../raphodo/devices.py:868 ../raphodo/devices.py:879
+#: ../raphodo/devices.py:897 ../raphodo/devices.py:908
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr ""
 
 #. Number of cameras e.g. 3 Cameras
-#: ../raphodo/devices.py:890
+#: ../raphodo/devices.py:919
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr ""
 
-#: ../raphodo/devices.py:895
+#: ../raphodo/devices.py:924
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr ""
@@ -393,9 +391,8 @@ msgstr ""
 
 #. Only the folder component of the Exif.Canon.FileNumber value
 #: ../raphodo/generatenameconfig.py:244
-#, fuzzy
 msgid "Folder only"
-msgstr "Klasör: %s"
+msgstr ""
 
 #. The folder and file component of the Exif.Canon.FileNumber value
 #: ../raphodo/generatenameconfig.py:246
@@ -1231,9 +1228,8 @@ msgid "Rapid Photo Downloader"
 msgstr ""
 
 #: ../raphodo/rapid.py:1222
-#, fuzzy
 msgid "Download failed"
-msgstr "İndirme Süreci"
+msgstr ""
 
 #: ../raphodo/rapid.py:1223
 msgid ""
@@ -1247,9 +1243,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:1232
-#, fuzzy
 msgid "Update Rapid Photo Downloader"
-msgstr "İndir"
+msgstr ""
 
 #: ../raphodo/rapid.py:1236
 msgid "Install"
@@ -1419,14 +1414,13 @@ msgid "Select All:"
 msgstr ""
 
 #: ../raphodo/rapid.py:2120
-#, fuzzy, python-format
+#, python-format
 msgid "Download %(files)s"
-msgstr "İndirme Süreci"
+msgstr ""
 
 #: ../raphodo/rapid.py:2136
-#, fuzzy
 msgid "Resume Download"
-msgstr "İndir"
+msgstr ""
 
 #: ../raphodo/rapid.py:2138
 msgid "Pause"
@@ -1569,14 +1563,13 @@ msgid "%d failures"
 msgstr ""
 
 #: ../raphodo/rapid.py:3444
-#, fuzzy
 msgid "1 warning"
-msgstr "uyarılar"
+msgstr ""
 
 #: ../raphodo/rapid.py:3446
-#, fuzzy, python-format
+#, python-format
 msgid "%d warnings"
-msgstr "uyarılar"
+msgstr ""
 
 #: ../raphodo/rapid.py:3466
 #, python-format
@@ -1742,9 +1735,9 @@ msgid "Generating thumbnails for %s"
 msgstr ""
 
 #: ../raphodo/rapid.py:4807
-#, fuzzy, python-format
+#, python-format
 msgid "Scanning %s"
-msgstr "taranıyor..."
+msgstr ""
 
 #: ../raphodo/rapid.py:4817
 #, python-format
@@ -1758,14 +1751,12 @@ msgid "%(number)s of %(available files)s checked for download"
 msgstr ""
 
 #: ../raphodo/rapid.py:5046
-#, fuzzy
 msgid "Display program information when run from the command line."
-msgstr "Komut satırında çalışırken  hata ayıklama bilgisini göster"
+msgstr ""
 
 #: ../raphodo/rapid.py:5048
-#, fuzzy
 msgid "Display debugging information when run from the command line."
-msgstr "Komut satırında çalışırken  hata ayıklama bilgisini göster"
+msgstr ""
 
 #: ../raphodo/rapid.py:5051
 msgid "List photo and video file extensions the program recognizes and exit."
@@ -1920,9 +1911,8 @@ msgid "Program aborting."
 msgstr ""
 
 #: ../raphodo/rapid.py:5476
-#, fuzzy
 msgid "All settings and caches have been reset"
-msgstr "Bütün uygulama ayarları ve tercihleri sıfırlandı"
+msgstr ""
 
 #: ../raphodo/rapid.py:5484
 msgid "Thumbnail Cache has been reset"
@@ -1962,11 +1952,11 @@ msgstr "fotoğraflar ve videolar"
 msgid "photos or videos"
 msgstr "fotoğraflar veya videolar"
 
-#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:852
+#: ../raphodo/rpdfile.py:220 ../raphodo/rpdfile.py:855
 msgid "video"
 msgstr "video"
 
-#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:810
+#: ../raphodo/rpdfile.py:225 ../raphodo/rpdfile.py:813
 msgid "photo"
 msgstr "fotoğraf"
 
@@ -1976,25 +1966,23 @@ msgid "%(number)s %(filetypes)s"
 msgstr ""
 
 #: ../raphodo/rpdfile.py:312
-#, fuzzy
 msgid "1 Video"
-msgstr "Video"
+msgstr ""
 
 #: ../raphodo/rpdfile.py:317
-#, fuzzy
 msgid "1 Photo"
-msgstr "Fotoğraf"
+msgstr ""
 
-#: ../raphodo/rpdfile.py:775
+#: ../raphodo/rpdfile.py:778
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:811
+#: ../raphodo/rpdfile.py:814
 msgid "Photo"
 msgstr "Fotoğraf"
 
-#: ../raphodo/rpdfile.py:853
+#: ../raphodo/rpdfile.py:856
 msgid "Video"
 msgstr "Video"
 
@@ -2019,9 +2007,8 @@ msgid "Memory cards: %s"
 msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:444
-#, fuzzy
 msgid "Downloaded as:"
-msgstr "İndir"
+msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:450
 #, python-format
@@ -2158,9 +2145,8 @@ msgid ""
 msgstr ""
 
 #: ../data/rapid-photo-downloader.desktop.in.h:2
-#, fuzzy
 msgid "Photo Downloader"
-msgstr "İndir"
+msgstr ""
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
@@ -2173,32 +2159,86 @@ msgstr ""
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr ""
 
+#~ msgid "Paris"
+#~ msgstr "Paris"
+
+#~ msgid "Berlin"
+#~ msgstr "Berlin"
+
+#~ msgid "New York"
+#~ msgstr "New York"
+
+#~ msgid "Prague"
+#~ msgstr "Prag"
+
+#~ msgid "Manila"
+#~ msgstr "Manila"
+
+#~ msgid "Wellington"
+#~ msgstr "Wellington"
+
+#~ msgid "Helsinki"
+#~ msgstr "Helsinki"
+
+#~ msgid "Tehran"
+#~ msgstr "Tahran"
+
+#~ msgid "Stockholm"
+#~ msgstr "Stockholm"
+
+#~ msgid "Rome"
+#~ msgstr "Roma"
+
+#~ msgid "Moscow"
+#~ msgstr "Moskova"
+
+#~ msgid "Sydney"
+#~ msgstr "Sidney"
+
+#~ msgid "Budapest"
+#~ msgstr "Budapeşte"
+
+#~ msgid "Jakarta"
+#~ msgstr "Jakarta"
+
+#~ msgid "Delhi"
+#~ msgstr "Delhi"
+
+#~ msgid "Warsaw"
+#~ msgstr "Varşova"
+
+#~ msgid "Madrid"
+#~ msgstr "Madrid"
+
+#~ msgid " "
+#~ msgstr " "
+
 #~ msgid "Size"
 #~ msgstr "Boyut"
 
-#~ msgid "About 1 second remaining"
-#~ msgstr "Yaklaşık 1 saniye kaldı"
+#~ msgid "Download Progress"
+#~ msgstr "İndirme Süreci"
+
+#~ msgid "scanning..."
+#~ msgstr "taranıyor..."
+
+#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
+#~ msgstr "Yaklaşık %(minutes)i:%(seconds)02i dakika kaldı"
 
 #~ msgid "About %i seconds remaining"
 #~ msgstr "Yaklaşık %i saniye kaldı"
 
+#~ msgid "About 1 second remaining"
+#~ msgstr "Yaklaşık 1 saniye kaldı"
+
 #~ msgid "About 1 minute remaining"
 #~ msgstr "Yaklaşık 1 dakika kaldı"
-
-#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
-#~ msgstr "Yaklaşık %(minutes)i:%(seconds)02i dakika kaldı"
 
 #~ msgid "and"
 #~ msgstr "ve"
 
 #~ msgid "Using backup devices"
 #~ msgstr "Yedekleme ünitelerini kullanma"
-
-#~ msgid "Using backup device"
-#~ msgstr "Yedekleme ünitesi kullanma"
-
-#~ msgid "No backup devices detected"
-#~ msgstr "Yedekleme ünitesi bulunamadı"
 
 #~ msgid "Free space:"
 #~ msgstr "Boş alan:"
@@ -2209,8 +2249,14 @@ msgstr ""
 #~ msgid "."
 #~ msgstr ","
 
-#~ msgid "Thumbnails"
-#~ msgstr "Küçük resimler"
+#~ msgid "No backup devices detected"
+#~ msgstr "Yedekleme ünitesi bulunamadı"
+
+#~ msgid "Using backup device"
+#~ msgstr "Yedekleme ünitesi kullanma"
+
+#~ msgid "Folder: %s"
+#~ msgstr "Klasör: %s"
 
 #~ msgid ""
 #~ "display program information on the command line as the program runs "
@@ -2219,68 +2265,26 @@ msgstr ""
 #~ "Uygulama bilgilerini, uygulama çalışırken komut satırında "
 #~ "göster(öntanımlı: %default)"
 
-#~ msgid "only output errors to the command line"
-#~ msgstr "sadece hataqları komut satırında göster"
+#~ msgid "Thumbnails"
+#~ msgstr "Küçük resimler"
+
+#~ msgid "display debugging information when run from the command line"
+#~ msgstr "Komut satırında çalışırken  hata ayıklama bilgisini göster"
 
 #~ msgid "reset all program settings and preferences and exit"
 #~ msgstr "Bütün uygulama ayarlarını ve tercihlerini sıfırla ve çık"
 
+#~ msgid "All settings and preferences have been reset"
+#~ msgstr "Bütün uygulama ayarları ve tercihleri sıfırlandı"
+
+#~ msgid "Photos:"
+#~ msgstr "Fotoğraflar:"
+
+#~ msgid "Videos:"
+#~ msgstr "Videolar:"
+
 #~ msgid "and %s"
 #~ msgstr "ve %s"
 
-#~ msgid "New York"
-#~ msgstr "New York"
-
-#~ msgid "Manila"
-#~ msgstr "Manila"
-
-#~ msgid "Prague"
-#~ msgstr "Prag"
-
-#~ msgid "Helsinki"
-#~ msgstr "Helsinki"
-
-#~ msgid "Wellington"
-#~ msgstr "Wellington"
-
-#~ msgid "Tehran"
-#~ msgstr "Tahran"
-
-#~ msgid "Paris"
-#~ msgstr "Paris"
-
-#~ msgid "Berlin"
-#~ msgstr "Berlin"
-
-#~ msgid "Sydney"
-#~ msgstr "Sidney"
-
-#~ msgid "Budapest"
-#~ msgstr "Budapeşte"
-
-#~ msgid "Rome"
-#~ msgstr "Roma"
-
-#~ msgid "Moscow"
-#~ msgstr "Moskova"
-
-#~ msgid "Delhi"
-#~ msgstr "Delhi"
-
-#~ msgid "Warsaw"
-#~ msgstr "Varşova"
-
-#~ msgid "Jakarta"
-#~ msgstr "Jakarta"
-
-#~ msgid "Madrid"
-#~ msgstr "Madrid"
-
-#~ msgid "Stockholm"
-#~ msgstr "Stockholm"
-
-#~ msgid " "
-#~ msgstr " "
-
-#~ msgid "      "
-#~ msgstr "      "
+#~ msgid "only output errors to the command line"
+#~ msgstr "sadece hataqları komut satırında göster"

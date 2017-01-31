@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0a7 (2017-01-xx)
+0.9.0a7 (2017-01-31)
 --------------------
 
  - Added backup configuration to the user interface. A future alpha release
