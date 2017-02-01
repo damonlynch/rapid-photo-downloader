@@ -259,7 +259,7 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
         packages = 'python3-qt5 gobject-introspection python3-gobject ' \
                    'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ ' \
                    'rpm-build python3-devel python3-distutils-extra intltool ' \
-                   'python3-easygui qt5-qtimageformats python3-psutil libmediainfo' \
+                   'python3-easygui qt5-qtimageformats python3-psutil libmediainfo ' \
                    'python3-requests'.split()
 
         if version <= 24.0 and version > 0.0:
