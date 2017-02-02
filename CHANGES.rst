@@ -1,6 +1,14 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.0a8 (2017-xx-xx)
+--------------------
+
+ -
+
+ - Updated install script to allow for quirks in LinuxMint and KDE Neon.
+
+
 0.9.0a7 (2017-01-31)
 --------------------
 

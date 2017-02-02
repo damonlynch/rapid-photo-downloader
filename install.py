@@ -99,7 +99,12 @@ class Distro(Enum):
     debian = 1
     ubuntu = 2
     fedora = 3
-    unknown = 4
+    neon = 4
+    linuxmint = 5
+    unknown = 6
+
+
+debian_like = (Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint)
 
 
 def check_packages_on_other_systems() -> None:
@@ -172,7 +177,7 @@ def get_distro() -> Distro:
 def get_distro_version(distro: Distro) -> float:
     if distro == Distro.fedora:
         version_string = 'REDHAT_BUGZILLA_PRODUCT_VERSION='
-    elif distro in (Distro.debian, Distro.ubuntu):
+    elif distro in debian_like:
         version_string = 'VERSION_ID="'
     else:
         return 0.0
@@ -223,7 +228,7 @@ def uninstall_packages(command_line: str) -> None:
             sys.stderr.write("Command failed\n")
 
 def check_package_import_requirements(distro: Distro, version: float) -> None:
-    if distro in (Distro.debian, Distro.ubuntu):
+    if distro in debian_like:
         if not have_apt:
             sys.stderr.write('To continue, the package python3-apt must be installed.')
             sys.exit(1)
@@ -312,7 +317,7 @@ def query_uninstall() -> bool:
 def uninstall_old_version(distro: Distro) -> None:
     pkg_name = 'rapid-photo-downloader'
 
-    if distro in (Distro.debian, Distro.ubuntu):
+    if distro in debian_like:
         cache = apt.Cache()
         pkg = cache[pkg_name]
         if pkg.is_installed and query_uninstall():
@@ -381,7 +386,7 @@ def main(installer: str, distro: Distro, distro_version: float) -> None:
     install_path = os.path.join(os.path.expanduser('~'), '.local', 'bin')
 
     if install_path not in path.split(':'):
-        if distro == Distro.debian or distro == Distro.ubuntu:
+        if distro in debian_like:
             bin_dir = os.path.join(os.path.expanduser('~'), 'bin')
             if not os.path.isdir(bin_dir):
                 created_bin_dir = True

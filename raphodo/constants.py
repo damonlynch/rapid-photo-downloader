@@ -454,6 +454,7 @@ class Distro(Enum):
     unknown = 4
     manjaro = 5
     arch = 6
+    neon = 7
 
 
 orientation_offset = dict(
