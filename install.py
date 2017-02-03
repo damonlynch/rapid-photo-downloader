@@ -226,6 +226,7 @@ def uninstall_packages(command_line: str) -> None:
             subprocess.check_call(args)
         except subprocess.CalledProcessError:
             sys.stderr.write("Command failed\n")
+    print()
 
 def check_package_import_requirements(distro: Distro, version: float) -> None:
     if distro in debian_like:
@@ -326,6 +327,8 @@ def uninstall_old_version(distro: Distro) -> None:
             uninstall_packages(command_line)
 
     elif distro == Distro.fedora:
+        print("Querying package system to see if an older version of Rapid Photo Downloader is "
+              "installed (this may take a while)...")
         with dnf.Base() as base:
             base.read_all_repos()
             base.fill_sack()
@@ -343,6 +346,8 @@ def make_pip_command(args: str):
 
 
 def main(installer: str, distro: Distro, distro_version: float) -> None:
+
+    uninstall_old_version(distro)
 
     check_package_import_requirements(distro, distro_version)
 
@@ -406,8 +411,6 @@ def main(installer: str, distro: Distro, distro_version: float) -> None:
         else:
             sys.stderr.write("\nThe application was installed in {}\n".format(install_path))
             sys.stderr.write("Add {} to your PATH to be able to launch it.\n".format(install_path))
-
-    uninstall_old_version(distro)
 
     man_dir = '/usr/local/share/man/man1'
     print("\nDo you want to install the application's man pages?")
