@@ -23,6 +23,9 @@ Changelog for Rapid Photo Downloader
  - Fix bug where backup worker processes were never stopped until program
    exit.
 
+ - Fixed bug where pausing and resuming was not updated to match changes to
+   threading made in the 0.9.0a7.
+
  - Updated install script to allow for quirks in LinuxMint and KDE Neon.
 
  - Updated Spanish, French and Italian translations.

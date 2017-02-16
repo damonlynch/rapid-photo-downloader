@@ -342,6 +342,10 @@ class PullPipelineManager(ProcessManager, QObject):
             self.stop()
         elif directive == b'STOP_WORKER':
             self.stop_worker(worker_id=worker_id)
+        elif directive == b'PAUSE':
+            self.pause()
+        elif directive == b'RESUME':
+            self.resume(worker_id=worker_id)
         elif directive == b'TERMINATE':
             self.forcefully_terminate()
         else:
@@ -368,7 +372,16 @@ class PullPipelineManager(ProcessManager, QObject):
     def stop(self) -> None:
         logging.critical("Member function stop() not implemented in child class of %s",
                          self._process_name)
+
     def stop_worker(self, worker_id: int) -> None:
+        logging.critical("Member function stop_worker() not implemented in child class of %s",
+                         self._process_name)
+
+    def pause(self) -> None:
+        logging.critical("Member function pause() not implemented in child class of %s",
+                         self._process_name)
+
+    def resume(self, worker_id: Optional[bytes]) -> None:
         logging.critical("Member function stop_worker() not implemented in child class of %s",
                          self._process_name)
 
@@ -703,8 +716,6 @@ class PublishPullPipelineManager(PullPipelineManager):
         self.controller_socket = context.socket(zmq.PUB)
         self.controller_port = self.controller_socket.bind_to_random_port("tcp://*")
 
-        self.paused = False
-
     def stop(self) -> None:
         """
         Permanently stop all the workers and terminate
@@ -790,18 +801,14 @@ class PublishPullPipelineManager(PullPipelineManager):
             message = [make_filter_from_worker_id(worker_id), b'PAUSE']
             self.controller_socket.send_multipart(message)
 
-        self.paused = True
-
-    def resume(self, worker_id: Optional[int]=None) -> None:
-        if worker_id is not None:
-            workers = [worker_id]
+    def resume(self, worker_id: bytes) -> None:
+        if worker_id:
+            workers = [int(worker_id)]
         else:
             workers = self.workers
         for worker_id in workers:
             message = [make_filter_from_worker_id(worker_id), b'RESUME']
             self.controller_socket.send_multipart(message)
-
-        self.paused = False
 
 
 class ProcessLoggerPublisher:

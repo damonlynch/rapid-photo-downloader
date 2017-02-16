@@ -571,6 +571,8 @@ class RapidWindow(QMainWindow):
         # cause "Interrupted system call" errors
         app.processEvents()
 
+        self.download_paused = False
+
         self.startThreadControlSockets()
         self.startProcessLogger()
 
@@ -640,6 +642,12 @@ class RapidWindow(QMainWindow):
 
     def sendStartWorkerToThread(self, socket: zmq.Socket, worker_id: int, data: Any) -> None:
         socket.send_multipart(create_inproc_msg(b'START_WORKER', worker_id=worker_id, data=data))
+
+    def sendResumeToThread(self, socket: zmq.Socket, worker_id: Optional[int]=None) -> None:
+        socket.send_multipart(create_inproc_msg(b'RESUME', worker_id=worker_id))
+
+    def sendPauseToThread(self, socket: zmq.Socket) -> None:
+        socket.send_multipart(create_inproc_msg(b'PAUSE'))
 
     def sendDataMessageToThread(self, socket: zmq.Socket,
                                 data: Any,
@@ -2160,7 +2168,7 @@ class RapidWindow(QMainWindow):
         """
 
         if self.devices.downloading:
-            if self.downloadPaused():
+            if self.download_paused:
                 text = _("Resume Download")
             else:
                 text = _("Pause")
@@ -2486,7 +2494,7 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def downloadButtonClicked(self) -> None:
-        if self.copyfilesmq.paused:
+        if self.download_paused:
             logging.debug("Download resumed")
             self.resumeDownload()
         else:
@@ -2525,7 +2533,8 @@ class RapidWindow(QMainWindow):
         """
 
         self.dl_update_timer.stop()
-        self.copyfilesmq.pause()
+        self.download_paused = True
+        self.sendPauseToThread(self.copy_controller)
         self.setDownloadActionLabel()
         self.time_check.pause()
         self.displayMessageInStatusBar()
@@ -2540,7 +2549,8 @@ class RapidWindow(QMainWindow):
             self.time_remaining.set_time_mark(scan_id)
 
         self.time_check.set_download_mark()
-        self.copyfilesmq.resume()
+        self.sendResumeToThread(self.copy_controller)
+        self.download_paused = False
         self.dl_update_timer.start()
         self.download_start_time = time.time()
         self.setDownloadActionLabel()
@@ -2561,9 +2571,6 @@ class RapidWindow(QMainWindow):
                 return False
         else:
             return True
-
-    def downloadPaused(self) -> bool:
-        return self.copyfilesmq.paused
 
     def startDownload(self, scan_id: int=None) -> None:
         """
@@ -2705,6 +2712,7 @@ class RapidWindow(QMainWindow):
                                    generate_thumbnails)
 
             self.setDownloadActionLabel()
+            self.download_paused = False
 
     def downloadFiles(self, files: list,
                       scan_id: int,
@@ -3761,7 +3769,7 @@ class RapidWindow(QMainWindow):
                 self.prompting_for_user_action[device] = msgBox
                 role = msgBox.exec_()
                 if role == QMessageBox.AcceptRole:
-                    self.scanmq.resume(worker_id=scan_id)
+                    self.sendResumeToThread(self.scan_controller, worker_id=scan_id)
                 else:
                     self.removeDevice(scan_id=scan_id, show_warning=False)
                 del self.prompting_for_user_action[device]
@@ -3829,7 +3837,7 @@ class RapidWindow(QMainWindow):
                 model.setSpinnerState(scan_id, DeviceState.idle)
                 self.job_code.get_job_code()
             else:
-                if self.downloadPaused():
+                if self.download_paused:
                     self.devices.queued_to_download.add(scan_id)
                 else:
                     self.startDownload(scan_id=scan_id)
@@ -4428,21 +4436,15 @@ class RapidWindow(QMainWindow):
 
             was_downloading = self.downloadIsRunning()
 
-            if scan_id in self.scanmq.workers:
-                if device_state != DeviceState.scanning:
-                    logging.error("Expected device state to be 'scanning'")
-                self.scanmq.stop_worker(scan_id)
-            elif scan_id in self.copyfilesmq.workers or device_state == DeviceState.downloading:
-                if scan_id in self.copyfilesmq.workers:
-                    self.copyfilesmq.stop_worker(scan_id)
+            if device_state == DeviceState.scanning:
+                self.sendStopWorkerToThread(self.scan_controller, scan_id)
+            elif device_state == DeviceState.downloading:
+                self.sendStopWorkerToThread(self.copy_controller, scan_id)
                 self.download_tracker.device_removed_mid_download(scan_id, device.display_name)
                 del self.time_remaining[scan_id]
                 self.notifyDownloadedFromDevice(scan_id=scan_id)
-
             # TODO need correct check for "is thumbnailing", given is now asynchronous
-            elif scan_id in self.thumbnailModel.thumbnailer.thumbnail_manager:
-                if device_state != DeviceState.thumbnailing:
-                    logging.error("Expected device state to be 'thumbnailing'")
+            elif device_state == DeviceState.thumbnailing:
                 self.thumbnailModel.terminateThumbnailGeneration(scan_id)
 
             if ignore_in_this_program_instantiation:
@@ -4826,7 +4828,7 @@ class RapidWindow(QMainWindow):
         """
 
         if self.downloadIsRunning():
-            if self.downloadPaused():
+            if self.download_paused:
                 downloading = self.devices.downloading_from()
                 # Translators - in the middle is a unicode em dash - please retain it
                 # This string is displayed in the status bar when the download is paused
