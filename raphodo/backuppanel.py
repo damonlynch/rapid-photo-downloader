@@ -23,32 +23,353 @@ Display backup preferences
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2017, Damon Lynch"
 
-from typing import Optional, Dict, Tuple, Union, Set
+from typing import Optional, Dict, Tuple, Union, Set, List, DefaultDict
 import logging
 import os
 import html
+from collections import namedtuple, defaultdict
 
 from gettext import gettext as _
 
 
-from PyQt5.QtCore import (Qt, pyqtSlot)
+from PyQt5.QtCore import (Qt, pyqtSlot, QAbstractListModel, QModelIndex, QSize, QStorageInfo)
 from PyQt5.QtWidgets import (QWidget, QSizePolicy, QComboBox, QFormLayout,
                              QVBoxLayout, QLabel, QLineEdit, QFileDialog, QCheckBox, QPushButton,
-                             QScrollArea, QFrame, QGridLayout)
-from PyQt5.QtGui import (QColor, QPalette, QFontMetrics, QFont)
-
+                             QScrollArea, QFrame, QGridLayout, QStyledItemDelegate,
+                             QStyleOptionViewItem, )
+from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette,
+                         QPixmap, QPaintEvent, QGuiApplication, QPen, QIcon)
 
 from raphodo.constants import (StandardFileLocations, ThumbnailBackgroundName, FileType,
-                               minGridColumnWidth)
-from raphodo.viewutils import QFramedWidget
+                               minGridColumnWidth, Roles, ViewRowType, BackupLocationType)
+from raphodo.viewutils import (QFramedWidget, RowTracker)
+from raphodo.rpdfile import FileTypeCounter, Photo, Video
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
 from raphodo.foldercombo import FolderCombo
 import raphodo.qrc_resources as qrc_resources
-from raphodo.storage import (ValidMounts, get_media_dir)
-from raphodo.devices import BackupDeviceCollection
+from raphodo.storage import (ValidMounts, get_media_dir, StorageSpace, get_path_display_name)
+from raphodo.devices import (BackupDeviceCollection, BackupVolumeDetails)
+from raphodo.devicedisplay import (DeviceDisplay, BodyDetails, icon_size, DeviceView)
+from raphodo.utilities import (thousands, format_size_for_user)
+from raphodo.destinationdisplay import make_body_details, adjusted_download_size
 
 
+BackupVolumeUse = namedtuple('BackupVolumeUse', 'bytes_total bytes_free backup_type marked '
+                                                'photos_size_to_download videos_size_to_download')
+BackupViewRow = namedtuple('BackupViewRow', 'mount display_name backup_type os_stat_device')
+
+
+class BackupDeviceModel(QAbstractListModel):
+    """
+    Stores 'devices' used for backing up photos and videos.
+
+    Want to display:
+    (1) destination on local files systems
+    (2) external devices, e.g. external hard drives
+
+    Need to account for when download destination is same file system
+    as backup destination.
+    """
+
+    def __init__(self, parent) -> None:
+        super().__init__(parent)
+        self.raidApp = parent.rapidApp
+        self.prefs = parent.prefs
+        size = icon_size()
+        self.removableIcon = QIcon(':icons/drive-removable-media.svg').pixmap(size)
+        self.folderIcon = QIcon(':/icons/folder.svg').pixmap(size)
+        self._initValues()
+
+    def _initValues(self):
+        self.rows = RowTracker()  # type: RowTracker
+        self.row_id_counter = 0  # type: int
+        # {row_id}
+        self.headers = set()  # type: Set[int]
+        # path: BackupViewRow
+        self.backup_devices = dict()  # type: Dict[str, BackupViewRow]
+        self.path_to_row_ids = defaultdict(list)  # type: Dict[str, List[int]]
+        self.row_id_to_path = dict()  # type: Dict[int, str]
+
+        self.marked = FileTypeCounter()
+        self.photos_size_to_download = self.videos_size_to_download = 0
+
+        # os_stat_device: Set[FileType]
+        self._downloading_to = defaultdict(list)  # type: DefaultDict[int, Set[FileType]]
+
+    @property
+    def downloading_to(self):
+        return self._downloading_to
+
+    @downloading_to.setter
+    def downloading_to(self, downloading_to: DefaultDict[int, Set[FileType]]):
+        self._downloading_to = downloading_to
+        self.downloadSizeChanged()
+
+    def reset(self) -> None:
+        self.beginResetModel()
+        self._initValues()
+        self.endResetModel()
+
+    def columnCount(self, parent=QModelIndex()):
+        return 1
+
+    def rowCount(self, parent=QModelIndex()):
+        return max(len(self.rows), 1)
+
+    def insertRows(self, position, rows=2, index=QModelIndex()):
+        self.beginInsertRows(QModelIndex(), position, position + rows - 1)
+        self.endInsertRows()
+        return True
+
+    def removeRows(self, position, rows=2, index=QModelIndex()):
+        self.beginRemoveRows(QModelIndex(), position, position + rows - 1)
+        self.endRemoveRows()
+        return True
+
+    def addBackupVolume(self, mount_details: BackupVolumeDetails) -> None:
+
+        mount = mount_details.mount
+        display_name = mount_details.name
+        path = mount_details.path
+        backup_type = mount_details.backup_type
+        os_stat_device = mount_details.os_stat_device
+
+        assert mount is not None
+        assert display_name
+        assert path
+        assert backup_type
+
+        # two rows per device: header row, and detail row
+        row = len(self.rows)
+        self.insertRows(position=row)
+        logging.debug("Adding %s to backup device display with root path %s at rows %s - %s",
+                      display_name, mount.rootPath(), row, row+1)
+
+        for row_id in range(self.row_id_counter, self.row_id_counter + 2):
+            self.row_id_to_path[row_id] = path
+            self.rows[row] = row_id
+            row += 1
+            self.path_to_row_ids[path].append(row_id)
+
+        header_row_id = self.row_id_counter
+        self.headers.add(header_row_id)
+
+        self.row_id_counter += 2
+
+        self.backup_devices[path] = BackupViewRow(mount=mount, display_name=display_name,
+                                                  backup_type=backup_type,
+                                                  os_stat_device=os_stat_device)
+
+    def removeBackupVolume(self, path: str) -> None:
+        """
+        :param path: the value of the volume (mount's path), NOT a
+        manually specified path!
+        """
+
+        row_ids = self.path_to_row_ids[path]
+        header_row_id = row_ids[0]
+        row = self.rows.row(header_row_id)
+        logging.debug("Removing 2 rows from backup view, starting at row %s", row)
+        self.rows.remove_rows(row, 2)
+        self.headers.remove(header_row_id)
+        del self.path_to_row_ids[path]
+        del self.backup_devices[path]
+        for row_id in row_ids:
+            del self.row_id_to_path[row_id]
+        self.removeRows(row, 2)
+
+    def setDownloadAttributes(self, marked: FileTypeCounter,
+                              photos_size: int,
+                              videos_size: int,
+                              merge: bool) -> None:
+        """
+        Set the attributes used to generate the visual display of the
+        files marked to be downloaded
+
+        :param marked: number and type of files marked for download
+        :param photos_size: size in bytes of photos marked for download
+        :param videos_size: size in bytes of videos marked for download
+        :param merge: whether to replace or add to the current values
+        """
+
+        if not merge:
+            self.marked = marked
+            self.photos_size_to_download = photos_size
+            self.videos_size_to_download = videos_size
+        else:
+            self.marked.update(marked)
+            self.photos_size_to_download += photos_size
+            self.videos_size_to_download += videos_size
+        self.downloadSizeChanged()
+
+    def downloadSizeChanged(self) -> None:
+        # TODO possibly optimize for photo vs video rows
+        for row in range(1, len(self.rows), 2):
+            self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
+
+    def _download_size_by_backup_type(self, backup_type: BackupLocationType) -> Tuple[int, int]:
+        """
+        Include photos or videos in download size only if those file types
+        are being backed up to this backup device
+        :param backup_type: which file types are being backed up to this device
+        :return: photos_size_to_download, videos_size_to_download
+        """
+
+        photos_size_to_download = videos_size_to_download = 0
+        if backup_type != BackupLocationType.videos:
+            photos_size_to_download = self.photos_size_to_download
+        if backup_type != BackupLocationType.photos:
+            videos_size_to_download = self.videos_size_to_download
+        return photos_size_to_download, videos_size_to_download
+
+    def data(self, index: QModelIndex, role=Qt.DisplayRole):
+
+        if not index.isValid():
+            return None
+
+        row = index.row()
+
+        # check for special case where no backup devices are active
+        if len(self.rows) == 0:
+            if role == Qt.DisplayRole:
+                return ViewRowType.header
+            else:
+                assert role == Roles.device_details
+                if not self.prefs.backup_files:
+                    return (_('Backups are not configured'), self.removableIcon)
+                elif self.prefs.backup_device_autodetection:
+                    return (_('No backup devices detected'), self.removableIcon)
+                else:
+                    return (_('Valid backup locations not yet specified'), self.folderIcon)
+
+        # at least one device  / location is being used
+        if row >= len(self.rows) or row < 0:
+            return None
+        if row not in self.rows:
+            return None
+
+        row_id = self.rows[row]
+        path = self.row_id_to_path[row_id]
+
+        if role == Qt.DisplayRole:
+            if row_id in self.headers:
+                return ViewRowType.header
+            else:
+                return ViewRowType.content
+        else:
+            device = self.backup_devices[path]
+            mount = device.mount
+
+            if role == Qt.ToolTipRole:
+                return path
+            elif role == Roles.device_details:
+                if self.prefs.backup_device_autodetection:
+                    icon = self.removableIcon
+                else:
+                    icon = self.folderIcon
+                return (device.display_name, icon)
+            elif role == Roles.storage:
+                photos_size_to_download, videos_size_to_download = \
+                    self._download_size_by_backup_type(backup_type=device.backup_type)
+
+
+                photos_size_to_download, videos_size_to_download = adjusted_download_size(
+                    photos_size_to_download=photos_size_to_download,
+                    videos_size_to_download=videos_size_to_download,
+                    os_stat_device=device.os_stat_device,
+                    downloading_to=self._downloading_to)
+
+                return BackupVolumeUse(bytes_total=mount.bytesTotal(),
+                                       bytes_free=mount.bytesFree(),
+                                       backup_type=device.backup_type,
+                                       marked = self.marked,
+                                       photos_size_to_download=photos_size_to_download,
+                                       videos_size_to_download=videos_size_to_download)
+
+        return None
+
+    def sufficientSpaceAvailable(self) -> bool:
+        """
+        Detect if each backup device has sufficient space for backing up, taking
+        into accoutn situations where downloads and backups are going to the same
+        partition.
+
+        :return: False if any backup device has insufficient space, else True.
+         True if there are no backup devices.
+        """
+
+        for device in self.backup_devices.values():
+            photos_size_to_download, videos_size_to_download = \
+                self._download_size_by_backup_type(backup_type=device.backup_type)
+            photos_size_to_download, videos_size_to_download = adjusted_download_size(
+                photos_size_to_download=photos_size_to_download,
+                videos_size_to_download=videos_size_to_download,
+                os_stat_device=device.os_stat_device,
+                downloading_to=self._downloading_to)
+            if photos_size_to_download + videos_size_to_download >= device.mount.bytesFree():
+                return False
+        return True
+
+
+class BackupDeviceView(DeviceView):
+    def __init__(self, rapidApp, parent=None) -> None:
+        super().__init__(rapidApp, parent)
+        self.setMouseTracking(False)
+        self.entered.disconnect()
+
+
+class BackupDeviceDelegate(QStyledItemDelegate):
+    def __init__(self, rapidApp, parent=None) -> None:
+        super().__init__(parent)
+        self.rapidApp = rapidApp
+        self.deviceDisplay = DeviceDisplay()
+
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+        painter.save()
+
+        x = option.rect.x()
+        y = option.rect.y()
+        width = option.rect.width()
+
+        view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
+        if view_type == ViewRowType.header:
+            display_name, icon = index.data(Roles.device_details)
+
+            self.deviceDisplay.paint_header(painter=painter, x=x, y=y, width=width,
+                                            icon=icon,
+                                            display_name=display_name,
+                                            )
+        else:
+            assert view_type == ViewRowType.content
+
+            data = index.data(Roles.storage)  # type: BackupVolumeUse
+            details = make_body_details(bytes_total=data.bytes_total,
+                                        bytes_free=data.bytes_free,
+                                        files_to_display=data.backup_type,
+                                        marked=data.marked,
+                                        photos_size_to_download=data.photos_size_to_download,
+                                        videos_size_to_download=data.videos_size_to_download)
+
+            self.deviceDisplay.paint_body(painter=painter, x=x,
+                                          y=y,
+                                          width=width,
+                                          details=details)
+
+        painter.restore()
+
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
+        view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
+        if view_type == ViewRowType.header:
+            height = self.deviceDisplay.device_name_height
+        else:
+            storage_space = index.data(Roles.storage)
+
+            if storage_space is None:
+                height = self.deviceDisplay.base_height
+            else:
+                height = self.deviceDisplay.storage_height
+        return QSize(self.deviceDisplay.view_width, height)
 
 class BackupOptionsWidget(QFramedWidget):
     """
@@ -279,21 +600,30 @@ class BackupPanel(QScrollArea):
 
     def __init__(self,  parent) -> None:
         super().__init__(parent)
-        if parent is not None:
-            self.rapidApp = parent
-            self.prefs = self.rapidApp.prefs
-        else:
-            self.prefs = None
+
+        assert parent is not None
+        self.rapidApp = parent
+        self.prefs = self.rapidApp.prefs  # type: Preferences
+
+        self.backupDevices = BackupDeviceModel(parent=self)
 
         self.setFrameShape(QFrame.NoFrame)
 
-        self.backupStoragePanel = QPanelView(label=_('Backup Destinations'),
+        self.backupStoragePanel = QPanelView(label=_('Projected Backup Storage Use'),
                                        headerColor=QColor(ThumbnailBackgroundName),
                                        headerFontColor=QColor(Qt.white))
 
         self.backupOptionsPanel = QPanelView(label=_('Backup Options'),
                                        headerColor=QColor(ThumbnailBackgroundName),
                                        headerFontColor=QColor(Qt.white))
+
+        self.backupDevicesView = BackupDeviceView(rapidApp=self.rapidApp, parent=self)
+        self.backupStoragePanel.addWidget(self.backupDevicesView)
+        self.backupDevicesView.setModel(self.backupDevices)
+        self.backupDevicesView.setItemDelegate(BackupDeviceDelegate(rapidApp=self.rapidApp))
+        self.backupDevicesView.setSizePolicy(QSizePolicy.MinimumExpanding,
+                                             QSizePolicy.Fixed)
+        self.backupOptionsPanel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
 
         self.backupOptions = BackupOptionsWidget(prefs=self.prefs, parent=self,
                                                  rapidApp=self.rapidApp)
@@ -303,8 +633,9 @@ class BackupPanel(QScrollArea):
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         widget.setLayout(layout)
-        # layout.addWidget(self.backupStoragePanel)
+        layout.addWidget(self.backupStoragePanel)
         layout.addWidget(self.backupOptionsPanel)
+        # layout.addStretch()
         self.setWidget(widget)
         self.setWidgetResizable(True)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
@@ -316,7 +647,77 @@ class BackupPanel(QScrollArea):
 
         self.backupOptions.updateExample()
 
+    def addBackupVolume(self, mount_details: BackupVolumeDetails) -> None:
+        self.backupDevices.addBackupVolume(mount_details=mount_details)
+        self.backupDevicesView.updateGeometry()
 
+    def removeBackupVolume(self, path: str) -> None:
+        self.backupDevices.removeBackupVolume(path=path)
+        self.backupDevicesView.updateGeometry()
 
+    def resetBackupDisplay(self) -> None:
+        self.backupDevices.reset()
+        self.backupDevicesView.updateGeometry()
 
+    def setupBackupDisplay(self) -> None:
+        """
+        Sets up the backup view list regardless of whether backups
+        are manual specified by the user, or auto-detection is on
+        """
+
+        if not self.prefs.backup_files:
+            logging.debug("No backups configured: no backup destinations to display")
+            return
+
+        backup_devices = self.rapidApp.backup_devices  # type: BackupDeviceCollection
+        if self.prefs.backup_device_autodetection:
+            for path in backup_devices:
+                self.backupDevices.addBackupVolume(
+                    mount_details=backup_devices.get_backup_volume_details(path=path))
+        else:
+            # manually specified backup paths
+            try:
+                mounts = backup_devices.get_manual_mounts()
+                if mounts is None:
+                    return
+
+                self.backupDevices.addBackupVolume(mount_details=mounts[0])
+                if len(mounts) > 1:
+                    self.backupDevices.addBackupVolume(mount_details=mounts[1])
+            except Exception:
+                logging.exception('An unexpected error occurred when adding backup destinations. '
+                                  'Exception:')
+        self.backupDevicesView.updateGeometry()
+
+    def setDownloadAttributes(self, marked: FileTypeCounter,
+                              photos_size: int,
+                              videos_size: int,
+                              merge: bool) -> None:
+        """
+        Set the attributes used to generate the visual display of the
+        files marked to be downloaded
+
+        :param marked: number and type of files marked for download
+        :param photos_size: size in bytes of photos marked for download
+        :param videos_size: size in bytes of videos marked for download
+        :param merge: whether to replace or add to the current values
+        """
+
+        self.backupDevices.setDownloadAttributes(marked=marked, photos_size=photos_size,
+                                                 videos_size=videos_size, merge=merge)
+
+    def sufficientSpaceAvailable(self) -> bool:
+        """
+        Check to see that there is sufficient space with which to perform a download.
+
+        :return: True or False value if sufficient space. Will always return True if
+         backups are disabled or there are no backup devices.
+        """
+        if self.prefs.backup_files:
+            return self.backupDevices.sufficientSpaceAvailable()
+        else:
+            return True
+
+    def setDownloadingTo(self, downloading_to: DefaultDict[int, Set[FileType]]) -> None:
+        self.backupDevices.downloading_to = downloading_to
 

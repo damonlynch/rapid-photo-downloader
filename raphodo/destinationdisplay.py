@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,12 +21,13 @@ Display download destination details
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016, Damon Lynch"
+__copyright__ = "Copyright 2016-2017, Damon Lynch"
 
 import os
 import math
-from typing import Optional, Dict, Tuple, Union
+from typing import Optional, Dict, Tuple, Union, DefaultDict, Set
 import logging
+from collections import defaultdict
 from gettext import gettext as _
 
 
@@ -37,17 +38,124 @@ from PyQt5.QtGui import (QColor, QPixmap, QIcon, QPaintEvent, QPalette, QMouseEv
 
 
 from raphodo.devicedisplay import DeviceDisplay, BodyDetails, icon_size
-from raphodo.storage import StorageSpace
+from raphodo.storage import (StorageSpace, get_path_display_name)
 from raphodo.constants import (CustomColors, DestinationDisplayType, DisplayingFilesOfType,
                                DestinationDisplayMousePos, PresetPrefType, NameGenerationType,
-                               DestinationDisplayTooltipState)
+                               DestinationDisplayTooltipState, FileType)
 from raphodo.utilities import thousands, format_size_for_user
-from raphodo.rpdfile import FileTypeCounter, FileType, Photo, Video
+from raphodo.rpdfile import FileTypeCounter, Photo, Video
 from raphodo.nameeditor import PrefDialog, make_subfolder_menu_entry
-import raphodo.exiftool as exiftool
 import raphodo.generatenameconfig as gnc
 from raphodo.generatenameconfig import *
 
+
+def make_body_details(bytes_total: int,
+                      bytes_free: int,
+                      files_to_display: DisplayingFilesOfType,
+                      marked: FileTypeCounter,
+                      photos_size_to_download: int,
+                      videos_size_to_download: int) -> BodyDetails:
+    """
+    Gather the details to render for destination storage usage
+    for photo and video downloads, and their backups.
+
+    :param bytes_total:
+    :param bytes_free:
+    :param files_to_display:
+    :param marked:
+    :param photos_size_to_download:
+    :param videos_size_to_download:
+    :return:
+    """
+
+    bytes_total_text = format_size_for_user(bytes_total, no_decimals=0)
+    existing_bytes = bytes_total - bytes_free
+    existing_size = format_size_for_user(existing_bytes)
+
+    photos = videos = photos_size = videos_size = ''
+
+    if files_to_display != DisplayingFilesOfType.videos:
+        photos = _('%(no_photos)s Photos') % {'no_photos':
+                                                  thousands(marked[FileType.photo])}
+        photos_size = format_size_for_user(photos_size_to_download)
+    if files_to_display != DisplayingFilesOfType.photos:
+        videos = _('%(no_videos)s Videos') % {'no_videos':
+                                                  thousands(marked[FileType.video])}
+        videos_size = format_size_for_user(videos_size_to_download)
+
+    size_to_download = photos_size_to_download + videos_size_to_download
+    comp1_file_size_sum = photos_size_to_download
+    comp2_file_size_sum = videos_size_to_download
+    comp3_file_size_sum = existing_bytes
+    comp1_text = photos
+    comp2_text = videos
+    comp3_text = _('Used')
+    comp4_text = _('Excess')
+    comp1_size_text = photos_size
+    comp2_size_text = videos_size
+    comp3_size_text = existing_size
+
+    bytes_to_use = size_to_download + existing_bytes
+    percent_used = '{0:.0%}'.format(bytes_to_use / bytes_total)
+    # Translators: percentage full e.g. 75% full
+    percent_used = '%s full' % percent_used
+
+    if bytes_to_use > bytes_total:
+        bytes_total_ = bytes_total
+        bytes_total = bytes_to_use
+        excess_bytes = bytes_to_use - bytes_total_
+        comp4_file_size_sum = excess_bytes
+        comp4_size_text = format_size_for_user(excess_bytes)
+        bytes_free_of_total = _('No space free on %(size_total)s device') % dict(
+            size_total=bytes_total_text)
+    else:
+        comp4_file_size_sum = 0
+        comp4_size_text = 0
+        bytes_free = bytes_total - bytes_to_use
+        bytes_free_of_total = _('%(size_free)s free of %(size_total)s') % dict(
+            size_free=format_size_for_user(bytes_free, no_decimals=1),
+            size_total=bytes_total_text)
+
+    return BodyDetails(bytes_total_text=bytes_total_text,
+                          bytes_total=bytes_total,
+                          percent_used_text=percent_used,
+                          bytes_free_of_total=bytes_free_of_total,
+                          comp1_file_size_sum=comp1_file_size_sum,
+                          comp2_file_size_sum=comp2_file_size_sum,
+                          comp3_file_size_sum=comp3_file_size_sum,
+                          comp4_file_size_sum=comp4_file_size_sum,
+                          comp1_text=comp1_text,
+                          comp2_text=comp2_text,
+                          comp3_text=comp3_text,
+                          comp4_text=comp4_text,
+                          comp1_size_text=comp1_size_text,
+                          comp2_size_text=comp2_size_text,
+                          comp3_size_text=comp3_size_text,
+                          comp4_size_text=comp4_size_text,
+                          color1=QColor(CustomColors.color1.value),
+                          color2=QColor(CustomColors.color2.value),
+                          color3=QColor(CustomColors.color3.value),
+                          displaying_files_of_type=files_to_display
+                          )
+
+def adjusted_download_size(photos_size_to_download: int,
+                           videos_size_to_download: int,
+                           os_stat_device: int,
+                           downloading_to) -> Tuple[int, int]:
+    """
+    Adjust download size to account for situations where
+    photos and videos are being backed up to the same
+    partition (device) they're downloaded to.
+
+    :return: photos_size_to_download, videos_size_to_download
+    """
+    if os_stat_device in downloading_to:
+        file_types = downloading_to[os_stat_device]
+        if FileType.photo in file_types:
+            photos_size_to_download = photos_size_to_download * 2
+        if FileType.video in file_types:
+            videos_size_to_download = videos_size_to_download * 2
+    return photos_size_to_download, videos_size_to_download
 
 class DestinationDisplay(QWidget):
     """
@@ -72,11 +180,9 @@ class DestinationDisplay(QWidget):
     to display their storage space display
     """
 
-    existing = _('Used')
     photos = _('Photos')
     videos = _('Videos')
-    excess = _('Excess')
-    projected_space_msg = _('Projected storage space after download')
+    projected_space_msg = _('Projected storage use after download')
 
     def __init__(self, menu: bool=False,
                  file_type: FileType=None,
@@ -84,7 +190,6 @@ class DestinationDisplay(QWidget):
         """
         :param menu: whether to render a drop down menu
         :param file_type: whether for photos or videos. Relevant only for menu display.
-        :param exiftool_process: main exiftool process. Relevant only for menu actions.
         """
 
         super().__init__(parent)
@@ -125,6 +230,20 @@ class DestinationDisplay(QWidget):
         self.max_presets = 5
 
         self.sample_rpd_file = None  # type: Union[Photo, Video]
+
+        self.os_stat_device = 0  # type: int
+        self._downloading_to = defaultdict(list)  # type: DefaultDict[int, Set[FileType]]
+
+    @property
+    def downloading_to(self) -> DefaultDict[int, Set[FileType]]:
+        return self._downloading_to
+
+    @downloading_to.setter
+    def downloading_to(self, downloading_to) -> None:
+        if downloading_to is not None:
+            self._downloading_to = downloading_to
+            # TODO determine if this is always needed here
+            self.update()
 
     def createActionsAndMenu(self) -> None:
         self.setMouseTracking(True)
@@ -328,13 +447,15 @@ class DestinationDisplay(QWidget):
         :param path: valid path
         """
 
-        if path.endswith(os.sep):
-            path = path[:-1]
-        self.path = path
-        self.display_name = os.path.basename(path)
+        self.display_name, self.path = get_path_display_name(path)
+        try:
+            self.os_stat_device = os.stat(path).st_dev
+        except FileNotFoundError:
+            logging.error('Cannot set download destination display: %s does not exist', path)
+            self.os_stat_device = 0
 
         mount = QStorageInfo(path)
-        self.storage_space=StorageSpace(
+        self.storage_space = StorageSpace(
                         bytes_free=mount.bytesAvailable(),
                         bytes_total=mount.bytesTotal(),
                         path=path)
@@ -390,8 +511,13 @@ class DestinationDisplay(QWidget):
 
         if self.storage_space is None:
             return False
-        return (self.photos_size_to_download + self.videos_size_to_download <
-                self.storage_space.bytes_free)
+
+        photos_size_to_download, videos_size_to_download = adjusted_download_size(
+            photos_size_to_download=self.photos_size_to_download,
+            videos_size_to_download=self.videos_size_to_download,
+            os_stat_device=self.os_stat_device,
+            downloading_to=self._downloading_to)
+        return photos_size_to_download + videos_size_to_download < self.storage_space.bytes_free
 
     def paintEvent(self, event: QPaintEvent) -> None:
         """
@@ -438,75 +564,18 @@ class DestinationDisplay(QWidget):
             if self.display_type == DestinationDisplayType.usage_only:
                 y += self.deviceDisplay.padding
 
-            bytes_total_text = format_size_for_user(self.storage_space.bytes_total, no_decimals=0)
-            existing_bytes = self.storage_space.bytes_total - self.storage_space.bytes_free
-            existing_size = format_size_for_user(existing_bytes)
+            photos_size_to_download, videos_size_to_download = adjusted_download_size(
+                photos_size_to_download=self.photos_size_to_download,
+                videos_size_to_download=self.videos_size_to_download,
+                os_stat_device=self.os_stat_device,
+                downloading_to=self._downloading_to)
 
-            photos = videos = photos_size = videos_size = ''
-
-            if self.files_to_display != DisplayingFilesOfType.videos:
-                photos = _('%(no_photos)s Photos') % {'no_photos':
-                                                          thousands(self.marked[FileType.photo])}
-                photos_size = format_size_for_user(self.photos_size_to_download)
-            if self.files_to_display != DisplayingFilesOfType.photos:
-                videos = _('%(no_videos)s Videos') % {'no_videos':
-                                                          thousands(self.marked[FileType.video])}
-                videos_size = format_size_for_user(self.videos_size_to_download)
-
-            size_to_download = self.photos_size_to_download + self.videos_size_to_download
-            comp1_file_size_sum = self.photos_size_to_download
-            comp2_file_size_sum =  self.videos_size_to_download
-            comp3_file_size_sum =  existing_bytes
-            comp1_text = photos
-            comp2_text = videos
-            comp3_text = self.existing
-            comp4_text = self.excess
-            comp1_size_text = photos_size
-            comp2_size_text = videos_size
-            comp3_size_text = existing_size
-
-            bytes_to_use = size_to_download + existing_bytes
-            percent_used = '{0:.0%}'.format(bytes_to_use / self.storage_space.bytes_total)
-            # Translators: percentage full e.g. 75% full
-            percent_used = '%s full' % percent_used
-
-            if bytes_to_use > self.storage_space.bytes_total:
-                bytes_total = bytes_to_use
-                excess_bytes = bytes_to_use - self.storage_space.bytes_total
-                comp4_file_size_sum = excess_bytes
-                comp4_size_text = format_size_for_user(excess_bytes)
-                bytes_free_of_total = _('No space free of %(size_total)s') % dict(
-                    size_total=bytes_total_text)
-            else:
-                bytes_total = self.storage_space.bytes_total
-                comp4_file_size_sum = 0
-                comp4_size_text = 0
-                bytes_free = self.storage_space.bytes_total - bytes_to_use
-                bytes_free_of_total = _('%(size_free)s free of %(size_total)s') % dict(
-                    size_free=format_size_for_user(bytes_free, no_decimals=1),
-                    size_total=bytes_total_text)
-
-            details = BodyDetails(bytes_total_text=bytes_total_text,
-                                  bytes_total=bytes_total,
-                                  percent_used_text=percent_used,
-                                  bytes_free_of_total=bytes_free_of_total,
-                                  comp1_file_size_sum=comp1_file_size_sum,
-                                  comp2_file_size_sum=comp2_file_size_sum,
-                                  comp3_file_size_sum=comp3_file_size_sum,
-                                  comp4_file_size_sum=comp4_file_size_sum,
-                                  comp1_text = comp1_text,
-                                  comp2_text = comp2_text,
-                                  comp3_text = comp3_text,
-                                  comp4_text = comp4_text,
-                                  comp1_size_text=comp1_size_text,
-                                  comp2_size_text=comp2_size_text,
-                                  comp3_size_text=comp3_size_text,
-                                  comp4_size_text=comp4_size_text,
-                                  color1=QColor(CustomColors.color1.value),
-                                  color2=QColor(CustomColors.color2.value),
-                                  color3=QColor(CustomColors.color3.value),
-                                  displaying_files_of_type=self.files_to_display
-                                  )
+            details = make_body_details(bytes_total=self.storage_space.bytes_total,
+                                        bytes_free=self.storage_space.bytes_free,
+                                        files_to_display=self.files_to_display,
+                                        marked=self.marked,
+                                        photos_size_to_download=photos_size_to_download,
+                                        videos_size_to_download=videos_size_to_download)
 
             self.deviceDisplay.paint_body(painter=painter, x=x,
                                           y=y,
@@ -575,9 +644,9 @@ class DestinationDisplay(QWidget):
                 self.mouse_pos = DestinationDisplayMousePos.menu
 
                 if self.file_type == FileType.photo:
-                    self.setToolTip(_('Control photo subfolder creation'))
+                    self.setToolTip(_('Configure photo subfolder creation'))
                 else:
-                    self.setToolTip(_('Control video subfolder creation'))
+                    self.setToolTip(_('Configure video subfolder creation'))
                 self.tooltip_display_state = DestinationDisplayTooltipState.menu
                 self.update()
 

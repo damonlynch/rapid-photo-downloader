@@ -137,10 +137,13 @@ class ThumbnailCacheOrigin(Enum):
     fdo_cache = 2
 
 
-class BackupLocationType(Enum):
+class DisplayingFilesOfType(Enum):
     photos = 1
     videos = 2
     photos_and_videos = 3
+
+
+BackupLocationType = DisplayingFilesOfType
 
 
 class DestinationDisplayType(Enum):
@@ -154,25 +157,27 @@ class ExifSource(Enum):
     app1_segment = 2
     actual_file = 3
 
+
 class DestinationDisplayMousePos(Enum):
     normal = 1
     menu = 2
+
 
 class DestinationDisplayTooltipState(Enum):
     menu = 1
     path = 2
     storage_space = 3
 
-class DisplayingFilesOfType(Enum):
-    photos = 1
-    videos = 2
-    photos_and_videos = 3
-
 
 class DeviceType(Enum):
     camera = 1
     volume = 2
     path = 3
+
+
+class BackupDeviceType:
+    volume = 1
+    path = 2
 
 
 class DeviceState(Enum):

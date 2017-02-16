@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2016, Damon Lynch"
+__copyright__ = "Copyright 2007-2017, Damon Lynch"
 
 import contextlib
 import locale
@@ -325,9 +325,9 @@ def create_temp_dirs(photo_download_folder: str,
     return TempDirs(photo_temp_dir, video_temp_dir)
 
 
-def same_file_system(file1: str, file2: str) -> bool:
+def same_device(file1: str, file2: str) -> bool:
     """
-    Returns True if the files / directories are on the same filesystem.
+    Returns True if the files / directories are on the same device (partition).
 
     No error checking.
 

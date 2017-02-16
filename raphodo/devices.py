@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -26,15 +26,15 @@ context:
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch"
+__copyright__ = "Copyright 2015-2017, Damon Lynch"
 
 import sys
 import shutil
 import os
 import logging
 import itertools
-from collections import namedtuple, Counter
-from typing import Tuple, List, Optional, Set, Dict, Union
+from collections import namedtuple, Counter, defaultdict
+from typing import Tuple, List, Optional, Set, Dict, Union, DefaultDict
 
 from gettext import gettext as _
 
@@ -46,9 +46,10 @@ import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import (DeviceType, BackupLocationType, FileType, DeviceState,
                                DownloadStatus, ExifSource)
 from raphodo.rpdfile import FileTypeCounter, FileSizeSum
-from raphodo.storage import StorageSpace, udev_attributes, UdevAttr
+from raphodo.storage import StorageSpace, udev_attributes, UdevAttr, get_path_display_name
 from raphodo.camera import Camera, generate_devname
-from raphodo.utilities import number, make_internationalized_list, stdchannel_redirected
+from raphodo.utilities import (number, make_internationalized_list, stdchannel_redirected,
+                               same_device)
 import raphodo.metadataphoto as metadataphoto
 from raphodo.rpdfile import Photo, Video
 import raphodo.exiftool as exiftool
@@ -929,13 +930,19 @@ class DeviceCollection:
                     return device_display_name, icon
 
 
+# QStorageInfo, BackupLocationType
 BackupDevice = namedtuple('BackupDevice', 'mount, backup_type')
+
+# QStorageInfo, str, str, BackupLocationType
+BackupVolumeDetails = namedtuple('BackupVolumeDetails', 'mount name path backup_type '
+                                                        'os_stat_device')
 
 
 def nth(iterable, n, default=None):
     "Returns the nth item or a default value"
 
     return next(itertools.islice(iterable, n, None), default)
+
 
 class BackupDeviceCollection:
     r"""
@@ -945,6 +952,8 @@ class BackupDeviceCollection:
 
     If a BackupDevice's mount is None, then it is assumed to be
     a manually specified path.
+
+    Backup devices are indexed by path, not id
 
     >>> b = BackupDeviceCollection()
     >>> len(b)
@@ -1004,7 +1013,8 @@ class BackupDeviceCollection:
     """
     def __init__(self, rapidApp=None):
         self.rapidApp = rapidApp
-        self.devices = {}  # type: Dict[str, BackupDevice]
+        self.devices = dict()  # type: Dict[str, BackupDevice]
+        # Set[path]
         self.photo_backup_devices = set()  # type: Set[str]
         self.video_backup_devices = set()  # type: Set[str]
 
@@ -1028,11 +1038,9 @@ class BackupDeviceCollection:
 
     def __delitem__(self, path):
         backup_type = self.devices[path].backup_type
-        if backup_type in [BackupLocationType.photos,
-                           BackupLocationType.photos_and_videos]:
+        if backup_type in (BackupLocationType.photos, BackupLocationType.photos_and_videos):
             self.photo_backup_devices.remove(path)
-        if backup_type in [BackupLocationType.videos,
-                                   BackupLocationType.photos_and_videos]:
+        if backup_type in (BackupLocationType.videos, BackupLocationType.photos_and_videos):
             self.video_backup_devices.remove(path)
         del self.devices[path]
         del self._device_ids[path]
@@ -1065,12 +1073,29 @@ class BackupDeviceCollection:
             return self._device_ids[path]
         return None
 
-    def name(self, path) -> str:
+    def name(self, path: str, shorten: bool=False) -> str:
+        """
+        :param path:
+        :param shorten: if True, and backup type is not an
+         automatically detected device, return the path basename
+        :return: device mount name, or path / path basename
+        """
+
         if self.devices[path].mount is None:
-            return path
+            if shorten:
+                return get_path_display_name(path)[0]
+            else:
+                return path
         else:
-            mount = self.devices[path].mount # type:  QStorageInfo
-            return mount.displayName()
+            mount = self.devices[path].mount  # type:  QStorageInfo
+            if not shorten:
+                return mount.displayName()
+            else:
+                name = mount.name()
+                if name:
+                    return name
+                else:
+                    return get_path_display_name(mount.rootPath())[0]
 
     def backup_type(self, path) -> BackupLocationType:
         return self.devices[path].backup_type
@@ -1084,6 +1109,147 @@ class BackupDeviceCollection:
         """
         return ((file_type == FileType.photo and len(self.photo_backup_devices) > 1) or
                 (file_type == FileType.video and len(self.video_backup_devices) > 1))
+
+    def get_download_backup_device_overlap(self,
+               photo_download_folder: str,
+               video_download_folder: str) -> DefaultDict[int, Set[FileType]]:
+        """
+        Determine if the photo/video download locations and the backup locations
+        are going to the same partitions.
+
+        :param photo_download_folder: where photos are downloaded
+        :param video_download_folder: where videos are downloaded
+        :return: partitions that are downloaded and backed up to,
+         referred to by os.stat.st_dev
+        """
+
+        try:
+            photo_device = os.stat(photo_download_folder).st_dev
+        except FileNotFoundError:
+            photo_device = 0
+        try:
+            video_device = os.stat(video_download_folder).st_dev
+        except:
+            video_device = 0
+
+        downloading_to = defaultdict(set)  # type: DefaultDict[int, Set[FileType]]
+
+        if photo_device != video_device:
+            download_dests = (photo_device, video_device)
+        else:
+            download_dests = (photo_device, )
+
+        for path in self.devices:
+            try:
+                backup_device = os.stat(path).st_dev
+            except:
+                backup_device = 0
+            if backup_device != 0:
+                d = self.devices[path]
+                backup_type = d.backup_type
+                for download_device  in download_dests:
+                    if backup_device == download_device:
+                        if backup_type in (BackupLocationType.photos,
+                                           BackupLocationType.photos_and_videos):
+                            downloading_to[backup_device].add(FileType.photo)
+                        if backup_type in (BackupLocationType.videos,
+                                           BackupLocationType.photos_and_videos):
+                            downloading_to[backup_device].add(FileType.video)
+        return downloading_to
+
+    def get_manual_mounts(self) -> Optional[Tuple[BackupVolumeDetails, ...]]:
+        """
+        Get QStorageInfo, display name, and path for each backup
+        destination for manually specified backup destinations.
+
+        Display name is the path basename.
+
+        Lists photo backup destination before video backup destination.
+
+        Exceptions are not caught, however invalid destinations are accounted
+        for.
+
+        :return: Tuple of one or two Tuples containing QStorageInfo, display name,
+         and path. If no valid backup destinations are found, returns None.
+        """
+
+        assert len(self.devices)
+
+        paths = tuple(self.devices.keys())
+
+        if len(paths) == 1:
+            if not os.path.isdir(paths[0]):
+                return None
+            same_path = True
+            path = paths[0]
+            backup_type = BackupLocationType.photos_and_videos
+        else:
+            assert len(paths) == 2
+            photo_path = tuple(self.photo_backup_devices)[0]
+            video_path = tuple(self.video_backup_devices)[0]
+
+            photo_path_valid = os.path.isdir(photo_path)
+            video_path_valid = os.path.isdir(video_path)
+
+            if photo_path_valid and video_path_valid:
+                same_path = False
+            elif photo_path_valid:
+                same_path = True
+                path = photo_path
+                backup_type = BackupLocationType.photos
+            elif video_path_valid:
+                same_path = True
+                path = video_path
+                backup_type = BackupLocationType.videos
+            else:
+                return None
+
+        if same_path:
+            name = self.name(path, shorten=True)
+            mount = QStorageInfo(path)
+            os_stat_device = os.stat(path).st_dev
+            return (BackupVolumeDetails(mount, name, path, backup_type, os_stat_device), )
+        else:
+            photo_name = self.name(photo_path, shorten=True)
+            video_name = self.name(video_path, shorten=True)
+            photo_mount = QStorageInfo(photo_path)
+            photo_os_stat_device = os.stat(photo_path).st_dev
+
+            if same_device(photo_path, video_path):
+                # Translators: two folder names, separated by a plus sign
+                names = _('%s + %s') % (photo_name, video_name)
+                # Translators: two paths, separated by a newline
+                paths = _('%s\n%s') % (photo_path, video_path)
+                return (BackupVolumeDetails(photo_mount, names, paths,
+                                            BackupLocationType.photos_and_videos,
+                                            photo_os_stat_device),)
+            else:
+                video_mount = QStorageInfo(video_path)
+                video_os_stat_device = os.stat(video_path).st_dev
+                return (BackupVolumeDetails(photo_mount, photo_name, photo_path,
+                                            BackupLocationType.photos,
+                                            photo_os_stat_device),
+                        BackupVolumeDetails(video_mount, video_name, video_path,
+                                            BackupLocationType.videos,
+                                            video_os_stat_device))
+
+    def get_backup_volume_details(self, path: str) -> BackupVolumeDetails:
+        """
+        For now only used in case of external mounts i.e. not auto-detected.
+
+        :param path: backup path
+        :return: named tuple of details of the backup volume
+        """
+
+        name = self.name(path, shorten=True)
+        device = self.devices[path]
+        if device.mount is not None:
+            mount = device.mount
+        else:
+            mount = QStorageInfo(path)
+        backup_type = device.backup_type
+        os_stat_device = os.stat(path).st_dev
+        return BackupVolumeDetails(mount, name, path, backup_type, os_stat_device)
 
     def backup_possible(self, file_type: FileType) -> bool:
         """

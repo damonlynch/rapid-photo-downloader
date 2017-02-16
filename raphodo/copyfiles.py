@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2016, Damon Lynch"
+__copyright__ = "Copyright 2011-2017, Damon Lynch"
 
 import os
 import errno
@@ -41,7 +41,7 @@ from raphodo.camera import (Camera, CopyChunks)
 from raphodo.interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
                           CopyFilesResults)
 from raphodo.constants import (FileType, DownloadStatus)
-from raphodo.utilities import (GenerateRandomFileName, create_temp_dirs, same_file_system)
+from raphodo.utilities import (GenerateRandomFileName, create_temp_dirs, same_device)
 from raphodo.rpdfile import RPDFile
 
 from gettext import gettext as _
@@ -277,7 +277,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
         random_filename = GenerateRandomFileName()
 
-        rpd_cache_same_fs = defaultdict(lambda: None)  # type: Dict[FileType, Optional[bool]]
+        rpd_cache_same_device = defaultdict(lambda: None)  # type: Dict[FileType, Optional[bool]]
 
         photo_temp_dir, video_temp_dir = create_temp_dirs(
             args.photo_download_folder, args.video_download_folder)
@@ -319,11 +319,11 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 temp_name = os.path.splitext(temp_file_name)[0]
                 temp_full_file_name = os.path.join(dest_dir,temp_file_name)
 
-                if rpd_cache_same_fs[rpd_file.file_type] is None:
-                    rpd_cache_same_fs[rpd_file.file_type] = same_file_system(
+                if rpd_cache_same_device[rpd_file.file_type] is None:
+                    rpd_cache_same_device[rpd_file.file_type] = same_device(
                         rpd_file.cache_full_file_name, dest_dir)
 
-                if rpd_cache_same_fs[rpd_file.file_type]:
+                if rpd_cache_same_device[rpd_file.file_type]:
                     try:
                         shutil.move(rpd_file.cache_full_file_name, temp_full_file_name)
                         copy_succeeded = True

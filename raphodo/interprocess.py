@@ -731,15 +731,15 @@ class PublishPullPipelineManager(PullPipelineManager):
         else:
             self.terminate_sink()
 
-    def stop_worker(self, worker_id: int) -> None:
+    def stop_worker(self, worker_id: bytes) -> None:
         """
         Permanently stop one worker
         """
 
-        if worker_id in self.workers:
-            message = [make_filter_from_worker_id(worker_id),b'STOP']
+        if int(worker_id) in self.workers:
+            message = [worker_id, b'STOP']
             self.controller_socket.send_multipart(message)
-            message = [make_filter_from_worker_id(worker_id),b'cmd', b'STOP']
+            message = [worker_id, b'cmd', b'STOP']
             self.ventilator_socket.send_multipart(message)
 
     def start_worker(self, worker_id: bytes, data: bytes) -> None:
@@ -986,12 +986,16 @@ class WorkerInPublishPullPipeline(WorkerProcess):
 
     def check_for_command(self, directive: bytes, content) -> None:
         if directive == b'cmd':
-            assert content == b'STOP'
-            self.cleanup_pre_stop()
-            self.disconnect_logging()
-            # signal to sink that we've terminated before finishing
-            self.sender.send_multipart([self.worker_id, b'cmd', b'STOPPED'])
-            sys.exit(0)
+            try:
+                assert content == b'STOP'
+            except AssertionError:
+                logging.critical("Expected STOP command but instead got %s", content.decode())
+            else:
+                self.cleanup_pre_stop()
+                self.disconnect_logging()
+                # signal to sink that we've terminated before finishing
+                self.sender.send_multipart([self.worker_id, b'cmd', b'STOPPED'])
+                sys.exit(0)
 
     def check_for_controller_directive(self) -> None:
         try:

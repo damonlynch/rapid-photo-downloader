@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2008-2015 Canonical Ltd.
 # Copyright (C) 2013 Bernard Baeyens
 
@@ -43,7 +43,7 @@ regarding mount points and XDG related functionality.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2016, Damon Lynch. Copyright 2008-2015 Canonical Ltd. Copyright" \
+__copyright__ = "Copyright 2011-2017, Damon Lynch. Copyright 2008-2015 Canonical Ltd. Copyright" \
                 " 2013 Bernard Baeyens."
 
 import logging
@@ -115,6 +115,25 @@ def get_user_name() -> str:
     """
 
     return pwd.getpwuid(os.getuid())[0]
+
+
+def get_path_display_name(path: str) -> Tuple[str, str]:
+    """
+    Return a name for the path (path basename),
+    removing a final '/' when it's not the root of the
+    file system.
+
+    :param path: path to generate the display name for
+    :return: display name and sanitized path
+    """
+    if path.endswith(os.sep) and path != os.sep:
+        path = path[:-1]
+
+    if path == os.sep:
+        display_name = _('File system root')
+    else:
+        display_name = os.path.basename(path)
+    return display_name, path
 
 
 def get_media_dir() -> str:

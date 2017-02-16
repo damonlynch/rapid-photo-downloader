@@ -36,7 +36,7 @@ Copyright notice from QtWaitingSpinner source:
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch"
+__copyright__ = "Copyright 2015-2017, Damon Lynch"
 
 import math
 from collections import namedtuple, defaultdict
@@ -48,7 +48,7 @@ from gettext import gettext as _
 
 from PyQt5.QtCore import (QModelIndex, QSize, Qt, QPoint, QRect, QRectF,
                           QEvent, QAbstractItemModel, QAbstractListModel, pyqtSlot, QTimer)
-from PyQt5.QtWidgets import (QStyledItemDelegate,QStyleOptionViewItem, QApplication, QStyle,
+from PyQt5.QtWidgets import (QStyledItemDelegate, QStyleOptionViewItem, QApplication, QStyle,
                              QListView, QStyleOptionButton, QAbstractItemView, QMenu, QWidget,
                              QStyleOptionToolButton)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette,
@@ -89,7 +89,7 @@ class DeviceModel(QAbstractListModel):
     a row having a row id, and row ids being linked to a scan id.
     """
 
-    def __init__(self, parent, device_display_type: str):
+    def __init__(self, parent, device_display_type: str) -> None:
         super().__init__(parent)
         self.rapidApp = parent
         self.device_display_type = device_display_type
@@ -374,7 +374,7 @@ class DeviceModel(QAbstractListModel):
 
 
 class DeviceView(QListView):
-    def __init__(self, rapidApp, parent=None):
+    def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent)
         self.rapidApp = rapidApp
         # Disallow the user from being able to select the table cells
@@ -741,7 +741,6 @@ class DeviceDisplay:
         else:
             photos_g2_x =  x
 
-
         # Component 1 details
         # ===================
         
@@ -985,7 +984,7 @@ class DeviceDelegate(QStyledItemDelegate):
     shading_intensity = DeviceShadingIntensity
 
     def __init__(self, rapidApp, parent=None) -> None:
-        super(DeviceDelegate, self).__init__(parent)
+        super().__init__(parent)
         self.rapidApp = rapidApp
 
         sample_number = thousands(999)

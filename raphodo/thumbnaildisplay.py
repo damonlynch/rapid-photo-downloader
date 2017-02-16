@@ -69,6 +69,8 @@ class DownloadTypes:
 DownloadFiles = namedtuple('DownloadFiles', 'files, download_types, download_stats, '
                                             'camera_access_needed')
 
+MarkedSummary = namedtuple('MarkedSummary', 'marked size_photos_marked size_videos_marked')
+
 
 class DownloadStats:
     def __init__(self):
@@ -545,8 +547,15 @@ class ThumbnailListModel(QAbstractListModel):
 
         if self.add_buffer.should_flush():
             self.flushAddBuffer()
-            destinations_good = self.rapidApp.updateDestinationViews()
+            marked_summary = self.getMarkedSummary()
+            destinations_good = self.rapidApp.updateDestinationViews(marked_summary=marked_summary)
             self.rapidApp.destinationButton.setHighlighted(not destinations_good)
+            if self.prefs.backup_files:
+                backups_good = self.rapidApp.updateBackupView(marked_summary=marked_summary)
+            else:
+                backups_good = True
+            self.rapidApp.destinationButton.setHighlighted(not destinations_good)
+            self.rapidApp.backupButton.setHighlighted(not backups_good)
 
     def flushAddBuffer(self):
         if len(self.add_buffer):
@@ -562,6 +571,16 @@ class ThumbnailListModel(QAbstractListModel):
 
             self._resetHighlightingValues()
             self._resetRememberSelection()
+
+    def getMarkedSummary(self) -> MarkedSummary:
+        """
+        :return: summary of files marked for download including sizes in bytes
+        """
+        size_photos_marked = self.getSizeOfFilesMarkedForDownload(FileType.photo)
+        size_videos_marked = self.getSizeOfFilesMarkedForDownload(FileType.video)
+        marked = self.getNoFilesAndTypesMarkedForDownload()
+        return MarkedSummary(marked=marked, size_photos_marked=size_photos_marked,
+                             size_videos_marked=size_videos_marked)
 
     def setFileSort(self, sort: Sort, order: Qt.SortOrder, show: Show) -> None:
         if self.sort_by != sort or self.sort_order != order or self.show != show:

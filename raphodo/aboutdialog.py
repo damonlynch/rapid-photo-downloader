@@ -60,7 +60,7 @@ class AboutDialog(QDialog):
 
         # Standard About view
 
-        msg = """Copyright &copy; 2007-2016 Damon Lynch.<br><br>
+        msg = """Copyright &copy; 2007-2017 Damon Lynch.<br><br>
         <a href="http://www.damonlynch.net/rapid" %(link_style)s>
         www.damonlynch.net/rapid</a><br><br>
         This program comes with absolutely no warranty.<br>

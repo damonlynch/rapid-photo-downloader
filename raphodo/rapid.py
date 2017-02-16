@@ -42,7 +42,7 @@ import pickle
 from collections import namedtuple, defaultdict
 import platform
 import argparse
-from typing import Optional, Tuple, List, Sequence, Dict, Set, Any
+from typing import Optional, Tuple, List, Sequence, Dict, Set, Any, DefaultDict
 import faulthandler
 import pkg_resources
 import webbrowser
@@ -111,11 +111,11 @@ from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                                RememberThisMessage, RightSideButton, CheckNewVersionDialogState,
                                CheckNewVersionDialogResult)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
-                                      DownloadTypes, DownloadStats)
+                                      DownloadTypes, DownloadStats, MarkedSummary)
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
 from raphodo.proximity import (TemporalProximityGroups, TemporalProximity)
 from raphodo.utilities import (
-    same_file_system, make_internationalized_list, thousands, addPushButtonLabelSpacer,
+    same_device, make_internationalized_list, thousands, addPushButtonLabelSpacer,
     make_html_path_non_breaking, prefs_list_from_gconftool2_string,
     pref_bool_from_gconftool2_string, create_temp_dir, extract_file_from_tar)
 from raphodo.rememberthisdialog import RememberThisDialog
@@ -1719,7 +1719,8 @@ class RapidWindow(QMainWindow):
                                             on=self.prefs.device_autodetection)
         self.deviceToggleView.addWidget(self.deviceView)
         self.deviceToggleView.valueChanged.connect(self.deviceToggleViewValueChange)
-        self.deviceToggleView.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        self.deviceToggleView.setSizePolicy(QSizePolicy.MinimumExpanding,
+                                            QSizePolicy.MinimumExpanding)
 
         # This Computer Header and View
 
@@ -1758,7 +1759,7 @@ class RapidWindow(QMainWindow):
         # partition
 
         self.combinedDestinationDisplay = DestinationDisplay()
-        self.combinedDestinationDisplayContainer = QPanelView(_('Storage Space'),
+        self.combinedDestinationDisplayContainer = QPanelView(_('Projected Storage Use'),
                                       headerColor=QColor(ThumbnailBackgroundName),
                                       headerFontColor=QColor(Qt.white))
         self.combinedDestinationDisplayContainer.addWidget(self.combinedDestinationDisplay)
@@ -2014,13 +2015,29 @@ class RapidWindow(QMainWindow):
         :return: True if download destinations are capable of having
         all marked files downloaded to them
         """
+        marked_summary = self.thumbnailModel.getMarkedSummary()
+        if self.prefs.backup_files:
+            downloading_to = self.backup_devices.get_download_backup_device_overlap(
+                photo_download_folder=self.prefs.photo_download_folder,
+                video_download_folder=self.prefs.video_download_folder)
+            self.backupPanel.setDownloadingTo(downloading_to=downloading_to)
+            backups_good = self.updateBackupView(marked_summary=marked_summary)
+        else:
+            backups_good = True
+            downloading_to = defaultdict(set)
 
-        destinations_good = self.updateDestinationViews()
-        self.setDownloadActionState(destinations_good)
+        destinations_good = self.updateDestinationViews(marked_summary=marked_summary,
+                                                        downloading_to=downloading_to)
+
+        download_good = destinations_good and backups_good
+        self.setDownloadActionState(download_good)
         self.destinationButton.setHighlighted(not destinations_good)
-        return destinations_good
+        self.backupButton.setHighlighted(not backups_good)
+        return download_good
 
-    def updateDestinationViews(self) -> bool:
+    def updateDestinationViews(self,
+            marked_summary: MarkedSummary,
+            downloading_to: Optional[DefaultDict[int, Set[FileType]]]=None) -> bool:
         """
         Updates the the header bar and storage space view for the
         photo and video download destinations.
@@ -2029,9 +2046,9 @@ class RapidWindow(QMainWindow):
          and there is sufficient space on them, else False.
         """
 
-        size_photos_marked = self.thumbnailModel.getSizeOfFilesMarkedForDownload(FileType.photo)
-        size_videos_marked = self.thumbnailModel.getSizeOfFilesMarkedForDownload(FileType.video)
-        marked = self.thumbnailModel.getNoFilesAndTypesMarkedForDownload()
+        size_photos_marked = marked_summary.size_photos_marked
+        size_videos_marked = marked_summary.size_videos_marked
+        marked = marked_summary.marked
 
         if self.unity_progress:
             available = self.thumbnailModel.getCountNotPreviouslyDownloadedAvailableForDownload()
@@ -2045,19 +2062,20 @@ class RapidWindow(QMainWindow):
 
         # Assume that invalid destination folders have already been reset to ''
         if self.prefs.photo_download_folder and self.prefs.video_download_folder:
-            same_fs = same_file_system(self.prefs.photo_download_folder,
-                                       self.prefs.video_download_folder)
+            same_dev = same_device(self.prefs.photo_download_folder,
+                                   self.prefs.video_download_folder)
         else:
-            same_fs = False
+            same_dev = False
 
         merge = self.downloadIsRunning()
 
-        if same_fs:
+        if same_dev:
             files_to_display = DisplayingFilesOfType.photos_and_videos
+            self.combinedDestinationDisplay.downloading_to = downloading_to
             self.combinedDestinationDisplay.setDestination(self.prefs.photo_download_folder)
             self.combinedDestinationDisplay.setDownloadAttributes(marked, size_photos_marked,
                           size_videos_marked, files_to_display, DestinationDisplayType.usage_only,
-                                                                  merge)
+                          merge)
             display_type = DestinationDisplayType.folder_only
             self.combinedDestinationDisplayContainer.setVisible(True)
             destinations_good = self.combinedDestinationDisplay.sufficientSpaceAvailable()
@@ -2067,6 +2085,7 @@ class RapidWindow(QMainWindow):
             self.combinedDestinationDisplayContainer.setVisible(False)
 
         if self.prefs.photo_download_folder:
+            self.photoDestinationDisplay.downloading_to = downloading_to
             self.photoDestinationDisplay.setDownloadAttributes(marked, size_photos_marked,
                             0, files_to_display, display_type, merge)
             self.photoDestinationWidget.setViewVisible(True)
@@ -2078,9 +2097,10 @@ class RapidWindow(QMainWindow):
             if size_photos_marked:
                 destinations_good = False
 
-        if not same_fs:
+        if not same_dev:
             files_to_display = DisplayingFilesOfType.videos
         if self.prefs.video_download_folder:
+            self.videoDestinationDisplay.downloading_to = downloading_to
             self.videoDestinationDisplay.setDownloadAttributes(marked, 0,
                            size_videos_marked, files_to_display, display_type, merge)
             self.videoDestinationWidget.setViewVisible(True)
@@ -2094,6 +2114,14 @@ class RapidWindow(QMainWindow):
                 destinations_good = False
 
         return destinations_good
+
+    def updateBackupView(self, marked_summary: MarkedSummary) -> bool:
+        merge = self.downloadIsRunning()
+        self.backupPanel.setDownloadAttributes(marked=marked_summary.marked,
+                                               photos_size=marked_summary.size_photos_marked,
+                                               videos_size=marked_summary.size_videos_marked,
+                                               merge=merge)
+        return self.backupPanel.sufficientSpaceAvailable()
 
     def setDownloadActionState(self, download_destinations_good: bool) -> None:
         """
@@ -4315,6 +4343,8 @@ class RapidWindow(QMainWindow):
                             len(self.backup_devices.photo_backup_devices),
                             len(self.backup_devices.video_backup_devices))
                         self.displayMessageInStatusBar()
+                        self.backupPanel.addBackupVolume(
+                            mount_details=self.backup_devices.get_backup_volume_details(path))
                         if self.prefs.backup_device_autodetection:
                             self.backupPanel.updateExample()
 
@@ -4345,6 +4375,7 @@ class RapidWindow(QMainWindow):
 
         elif path in self.backup_devices:
             self.removeBackupDevice(path)
+            self.backupPanel.removeBackupVolume(path=path)
             self.displayMessageInStatusBar()
             self.download_tracker.set_no_backup_devices(
                 len(self.backup_devices.photo_backup_devices),
@@ -4524,6 +4555,8 @@ class RapidWindow(QMainWindow):
             len(self.backup_devices.photo_backup_devices),
             len(self.backup_devices.video_backup_devices))
 
+        self.backupPanel.setupBackupDisplay()
+
     def removeBackupDevice(self, path: str) -> None:
         device_id = self.backup_devices.device_id(path)
         self.sendStopWorkerToThread(self.backup_controller, worker_id=device_id)
@@ -4547,8 +4580,10 @@ class RapidWindow(QMainWindow):
         for path in self.backup_devices.all_paths():
             self.removeBackupDevice(path)
         self.download_tracker.set_no_backup_devices(0, 0)
+        self.backupPanel.resetBackupDisplay()
 
         self.setupBackupDevices()
+        self.setDownloadCapabilities()
         logging.info("...backup devices configuration is reset")
 
 

@@ -1,10 +1,27 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0a8 (2017-xx-xx)
+0.9.0a8 (2017-02-xx)
 --------------------
 
- -
+ - Display projected backup storage use in the Backup configuration panel, for
+   each backup device (partition). If backing up to the same device as the
+   download, the space taken by both the download and the backup is displayed.
+   For example, supposing you are downloading 100 photos that use 2,000 MB of
+   storage space to /home/user/Pictures, and you are backing them up to
+   another folder in the same partition, the projected backup storage use for
+   that partition will display 100 photos totalling 4,000 MB, because the
+   partition will contain two copies of each photo. Likewise, the projected
+   storage use in the download destinations is similarly adjusted.
+
+ - Renamed 'Storage Space' in Destination configuration panel to 'Projected
+   Storage Use', thereby more accurately describing what it displays.
+
+ - Disallow download if there is insufficient space on any of the backup
+   devices, like is already done for the download destinations.
+
+ - Fix bug where backup worker processes were never stopped until program
+   exit.
 
  - Updated install script to allow for quirks in LinuxMint and KDE Neon.
 
