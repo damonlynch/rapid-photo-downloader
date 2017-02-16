@@ -718,6 +718,12 @@ class RapidWindow(QMainWindow):
 
         self.temporalProximity = TemporalProximity(rapidApp=self, prefs=self.prefs)
 
+        self.file_manager = get_default_file_manager()
+        if self.file_manager:
+            logging.debug("Default file manager: %s", self.file_manager)
+        else:
+            logging.debug("Default file manager could not be determined")
+
         self.createPathViews()
 
         self.createActions()
@@ -735,12 +741,6 @@ class RapidWindow(QMainWindow):
             self.have_libnotify = False
 
         logging.debug("Locale directory: %s", raphodo.localedir)
-
-        self.file_manager = get_default_file_manager()
-        if self.file_manager:
-            logging.debug("Default file manager: %s", self.file_manager)
-        else:
-            logging.debug("Default file manager could not be determined")
 
         # Initialise use of libgphoto2
         logging.debug("Getting gphoto2 context")
@@ -1685,7 +1685,7 @@ class RapidWindow(QMainWindow):
 
         index = self.fileSystemFilter.mapFromSource(self.fileSystemModel.index('/'))
 
-        self.thisComputerFSView = FileSystemView(self.fileSystemModel)
+        self.thisComputerFSView = FileSystemView(model=self.fileSystemModel, rapidApp=self)
         self.thisComputerFSView.setModel(self.fileSystemFilter)
         self.thisComputerFSView.setItemDelegate(self.fileSystemDelegate)
         self.thisComputerFSView.hideColumns()
@@ -1695,7 +1695,7 @@ class RapidWindow(QMainWindow):
         self.thisComputerFSView.activated.connect(self.thisComputerPathChosen)
         self.thisComputerFSView.clicked.connect(self.thisComputerPathChosen)
 
-        self.photoDestinationFSView = FileSystemView(self.fileSystemModel)
+        self.photoDestinationFSView = FileSystemView(model=self.fileSystemModel, rapidApp=self)
         self.photoDestinationFSView.setModel(self.fileSystemFilter)
         self.photoDestinationFSView.setItemDelegate(self.fileSystemDelegate)
         self.photoDestinationFSView.hideColumns()
@@ -1705,7 +1705,7 @@ class RapidWindow(QMainWindow):
         self.photoDestinationFSView.activated.connect(self.photoDestinationPathChosen)
         self.photoDestinationFSView.clicked.connect(self.photoDestinationPathChosen)
 
-        self.videoDestinationFSView = FileSystemView(self.fileSystemModel)
+        self.videoDestinationFSView = FileSystemView(model=self.fileSystemModel, rapidApp=self)
         self.videoDestinationFSView.setModel(self.fileSystemFilter)
         self.videoDestinationFSView.setItemDelegate(self.fileSystemDelegate)
         self.videoDestinationFSView.hideColumns()
@@ -2712,7 +2712,6 @@ class RapidWindow(QMainWindow):
                                    generate_thumbnails)
 
             self.setDownloadActionLabel()
-            self.download_paused = False
 
     def downloadFiles(self, files: list,
                       scan_id: int,

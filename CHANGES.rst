@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0a8 (2017-02-xx)
+0.9.0a8 (2017-02-16)
 --------------------
 
  - Display projected backup storage use in the Backup configuration panel, for
@@ -20,11 +20,14 @@ Changelog for Rapid Photo Downloader
  - Disallow download if there is insufficient space on any of the backup
    devices, like is already done for the download destinations.
 
- - Fix bug where backup worker processes were never stopped until program
+ - Added right-click context menu to file system tree views with the option
+   to open the file browser at the path that was right-clicked on.
+
+ - Fixed a bug where backup worker processes were never stopped until program
    exit.
 
- - Fixed bug where pausing and resuming was not updated to match changes to
-   threading made in the 0.9.0a7.
+ - Fixed a bug where pausing and resuming was not updated to match changes to
+   threading made in version 0.9.0a7.
 
  - Updated install script to allow for quirks in LinuxMint and KDE Neon.
 

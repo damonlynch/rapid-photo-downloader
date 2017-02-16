@@ -26,10 +26,15 @@ __copyright__ = "Copyright 2016, Damon Lynch"
 import os
 import pathlib
 from typing import List, Set
+import logging
+import shlex
+import subprocess
 
-from PyQt5.QtCore import (QDir, Qt, QModelIndex, QItemSelectionModel, QSortFilterProxyModel)
+from gettext import gettext as _
+
+from PyQt5.QtCore import (QDir, Qt, QModelIndex, QItemSelectionModel, QSortFilterProxyModel, QPoint)
 from PyQt5.QtWidgets import (QTreeView, QAbstractItemView, QFileSystemModel, QSizePolicy,
-                             QStyledItemDelegate, QStyleOptionViewItem)
+                             QStyledItemDelegate, QStyleOptionViewItem, QMenu)
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import (QPainter, QFont)
 
@@ -103,8 +108,9 @@ class FileSystemModel(QFileSystemModel):
 
 
 class FileSystemView(QTreeView):
-    def __init__(self, model: FileSystemModel, parent=None) -> None:
+    def __init__(self, model: FileSystemModel, rapidApp, parent=None) -> None:
         super().__init__(parent)
+        self.rapidApp = rapidApp
         self.fileSystemModel = model
         self.setHeaderHidden(True)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -112,6 +118,13 @@ class FileSystemView(QTreeView):
         self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         self.setMinimumWidth(minPanelWidth())
         self.setMinimumHeight(minFileSystemViewHeight())
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.onCustomContextMenu)
+        self.contextMenu = QMenu()
+        self.openInFileBrowserAct = self.contextMenu.addAction(_('Open in File Browser...'))
+        self.openInFileBrowserAct.triggered.connect(self.doOpenInFileBrowserAct)
+        self.openInFileBrowserAct.setEnabled(self.rapidApp.file_manager is not None)
+        self.clickedIndex = None   # type: QModelIndex
 
     def hideColumns(self) -> None:
         """
@@ -156,10 +169,25 @@ class FileSystemView(QTreeView):
                 expanded = True
         return expanded
 
-    def expandPath(self, path):
+    def expandPath(self, path) -> None:
         index = self.model().mapFromSource(self.fileSystemModel.index(path))
         if not self.isExpanded(index):
             self.expand(index)
+
+    def onCustomContextMenu(self, point: QPoint) -> None:
+        index = self.indexAt(point)
+        if index.isValid():
+            self.clickedIndex = index
+            self.contextMenu.exec(self.mapToGlobal(point))
+
+    def doOpenInFileBrowserAct(self):
+        index = self.clickedIndex
+        if index:
+            uri = self.fileSystemModel.filePath(index.model().mapToSource(index))
+            cmd = '{} {}'.format(self.rapidApp.file_manager, uri)
+            logging.debug("Launching: %s", cmd)
+            args = shlex.split(cmd)
+            subprocess.Popen(args)
 
 
 class FileSystemFilter(QSortFilterProxyModel):
