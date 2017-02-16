@@ -899,6 +899,9 @@ class PrefDialog(QDialog):
             self.uniqueFilenameLabel.setAlignment(Qt.AlignTop|Qt.AlignLeft)
             self.messageWidget.addWidget(self.uniqueFilenameLabel)
 
+
+        layout.addWidget(self.messageWidget)
+
         self.area = QScrollArea()
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         sizePolicy.setVerticalStretch(10)
@@ -916,7 +919,6 @@ class PrefDialog(QDialog):
         self.area.setWidget(areaWidget)
         self.area.setWidgetResizable(True)
 
-        areaLayout.addWidget(self.messageWidget)
         areaLayout.setContentsMargins(0, 0, 0, 0)
 
         self.pushButtonSizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -936,6 +938,7 @@ class PrefDialog(QDialog):
             level1 = pref_defn[title]
             gb = QGroupBox(title_i18n)
             gb.setSizePolicy(gbSizePolicy)
+            gb.setFlat(True)
             areaLayout.addWidget(gb)
             gLayout = QGridLayout()
             gb.setLayout(gLayout)

@@ -23,6 +23,9 @@ Changelog for Rapid Photo Downloader
  - Added right-click context menu to file system tree views with the option
    to open the file browser at the path that was right-clicked on.
 
+ - Fixed a bug in the subfolder and file renaming editors to the stop the
+   message area being scrolled out of view.
+
  - Fixed a bug where backup worker processes were never stopped until program
    exit.
 
