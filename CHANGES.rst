@@ -25,6 +25,8 @@ Changelog for Rapid Photo Downloader
 
  - Updated install script to allow for quirks in LinuxMint and KDE Neon.
 
+ - Updated Spanish, French and Italian translations.
+
 
 0.9.0a7 (2017-01-31)
 --------------------

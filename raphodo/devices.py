@@ -1218,8 +1218,7 @@ class BackupDeviceCollection:
             if same_device(photo_path, video_path):
                 # Translators: two folder names, separated by a plus sign
                 names = _('%s + %s') % (photo_name, video_name)
-                # Translators: two paths, separated by a newline
-                paths = _('%s\n%s') % (photo_path, video_path)
+                paths = '%s\n%s' % (photo_path, video_path)
                 return (BackupVolumeDetails(photo_mount, names, paths,
                                             BackupLocationType.photos_and_videos,
                                             photo_os_stat_device),)
