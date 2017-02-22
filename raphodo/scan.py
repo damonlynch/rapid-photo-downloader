@@ -656,6 +656,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.sample_photo = None
                     self.sample_video = None
 
+    def send_message_to_sink(self) -> None:
+        logging.debug("Sending %s scanned files from %s to sink",
+                      len(self.file_batch), self.display_name)
+        super().send_message_to_sink()
+
     def ignore_mdatatime(self, ext: str) -> bool:
         return self.ignore_mdatatime_for_mtp_dng and ext == 'dng'
 

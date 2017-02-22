@@ -89,7 +89,7 @@ from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      mountPaths, get_desktop_environment, get_desktop,
                      gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
                      validate_source_folder, get_fdo_cache_thumb_base_directory,
-                     WatchDownloadDirs, get_media_dir)
+                     WatchDownloadDirs, get_media_dir, StorageSpace)
 from raphodo.interprocess import (
     ScanArguments, CopyFilesArguments, RenameAndMoveFileData, BackupArguments,
     BackupFileData, OffloadData, ProcessLoggingManager, RenameAndMoveFileResults,
@@ -923,7 +923,9 @@ class RapidWindow(QMainWindow):
 
         self.scanThread.started.connect(self.scanmq.run_sink)
         self.scanmq.sinkStarted.connect(self.initStage7)
-        self.scanmq.message.connect(self.scanMessageReceived)
+        self.scanmq.scannedFiles.connect(self.scanFilesReceived)
+        self.scanmq.deviceError.connect(self.scanErrorReceived)
+        self.scanmq.deviceDetails.connect(self.scanDeviceDetailsReceived)
         self.scanmq.workerFinished.connect(self.scanFinished)
 
         self.scanmq.moveToThread(self.scanThread)
@@ -2855,15 +2857,18 @@ class RapidWindow(QMainWindow):
                                      download_count=download_count,
                                      download_succeeded=download_succeeded))
 
-    @pyqtSlot(bytes)
-    def copyfilesBytesDownloaded(self, pickled_data: bytes) -> None:
-        data = pickle.loads(pickled_data) # type: CopyFilesResults
-        scan_id = data.scan_id
+    @pyqtSlot(int, 'PyQt_PyObject', 'PyQt_PyObject')
+    def copyfilesBytesDownloaded(self, scan_id: int,
+                                 total_downloaded: int,
+                                 chunk_downloaded: int) -> None:
+        """
+        Update the tracking and display of how many bytes have been
+        downloaded / copied.
+        """
+
         if scan_id not in self.devices:
             return
 
-        total_downloaded = data.total_downloaded
-        chunk_downloaded = data.chunk_downloaded
         assert total_downloaded >= 0
         assert chunk_downloaded >= 0
         self.download_tracker.set_total_bytes_copied(scan_id, total_downloaded)
@@ -3071,11 +3076,8 @@ class RapidWindow(QMainWindow):
                               rpd_file.download_name)
                 self.fileDownloadFinished(backup_succeeded, rpd_file)
 
-    @pyqtSlot(bytes)
-    def backupFileBytesBackedUp(self, pickled_data: bytes) -> None:
-        data = pickle.loads(pickled_data) # type: BackupResults
-        scan_id = data.scan_id
-        chunk_downloaded = data.chunk_downloaded
+    @pyqtSlot('PyQt_PyObject', 'PyQt_PyObject')
+    def backupFileBytesBackedUp(self, scan_id: int, chunk_downloaded: int) -> None:
         self.download_tracker.increment_bytes_backed_up(scan_id, chunk_downloaded)
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
@@ -3687,105 +3689,124 @@ class RapidWindow(QMainWindow):
 
         return self.devices.device_state[scan_id]
 
-    @pyqtSlot(bytes)
-    def scanMessageReceived(self, pickled_data: bytes) -> None:
+    @pyqtSlot('PyQt_PyObject', 'PyQt_PyObject', FileTypeCounter, 'PyQt_PyObject')
+    def scanFilesReceived(self, rpd_files: List[RPDFile],
+                          sample_files: List[RPDFile],
+                          file_type_counter: FileTypeCounter,
+                          file_size_sum: int) -> None:
         """
-        Process data received from the scan process.
-
-        The data is pickled because PyQt converts the Python int into
-        a C++ int, which unlike Pyhon has an upper limit. Unpickle it
-        too early, and the int wraps around to become a negative
-        number.
+        Process scanned file information received from the scan process
         """
 
-        data = pickle.loads(pickled_data)  # type: ScanResults
-        if data.rpd_files is not None:
-            # Update scan running totals
-            scan_id = data.rpd_files[0].scan_id
-            if scan_id not in self.devices:
-                return
-            device = self.devices[scan_id]
-            if data.sample_photo is not None:
-                logging.info("Updating example file name using sample photo from %s",
-                             device.display_name)
-                self.devices.sample_photo = data.sample_photo
-                self.renamePanel.setSamplePhoto(self.devices.sample_photo)
-                # sample required for editing download subfolder generation
-                self.photoDestinationDisplay.sample_rpd_file = self.devices.sample_photo
+        # Update scan running totals
+        scan_id = rpd_files[0].scan_id
+        if scan_id not in self.devices:
+            return
+        device = self.devices[scan_id]
 
-            if data.sample_video is not None:
-                logging.info("Updating example file name using sample video from %s",
-                             device.display_name)
-                self.devices.sample_video = data.sample_video  # type: Video
-                self.renamePanel.setSampleVideo(self.devices.sample_video)
-                # sample required for editing download subfolder generation
-                self.videoDestinationDisplay.sample_rpd_file = self.devices.sample_video
+        sample_photo, sample_video = sample_files
+        if sample_photo is not None:
+            logging.info("Updating example file name using sample photo from %s",
+                         device.display_name)
+            self.devices.sample_photo = sample_photo
+            self.renamePanel.setSamplePhoto(self.devices.sample_photo)
+            # sample required for editing download subfolder generation
+            self.photoDestinationDisplay.sample_rpd_file = self.devices.sample_photo
 
-            device.file_type_counter = data.file_type_counter
-            device.file_size_sum = data.file_size_sum
-            self.mapModel(scan_id).updateDeviceScan(scan_id)
+        if sample_video is not None:
+            logging.info("Updating example file name using sample video from %s",
+                         device.display_name)
+            self.devices.sample_video = sample_video  # type: Video
+            self.renamePanel.setSampleVideo(self.devices.sample_video)
+            # sample required for editing download subfolder generation
+            self.videoDestinationDisplay.sample_rpd_file = self.devices.sample_video
 
-            self.thumbnailModel.addFiles(scan_id=scan_id,
-                                         rpd_files=data.rpd_files,
-                                         generate_thumbnail=not self.autoStart(scan_id))
-            self.folder_preview_manager.add_rpd_files(rpd_files=data.rpd_files)
+        device.file_type_counter = file_type_counter
+        device.file_size_sum = file_size_sum
+        self.mapModel(scan_id).updateDeviceScan(scan_id)
+
+        self.thumbnailModel.addFiles(scan_id=scan_id,
+                                     rpd_files=rpd_files,
+                                     generate_thumbnail=not self.autoStart(scan_id))
+        self.folder_preview_manager.add_rpd_files(rpd_files=rpd_files)
+
+    @pyqtSlot(int, CameraErrorCode)
+    def scanErrorReceived(self, scan_id: int, error_code: CameraErrorCode) -> None:
+        """
+        Notify the user their camera/phone is inaccessible.
+
+        :param scan_id: scan id of the device
+        :param error_code: the specific libgphoto2 error, mapped onto our own
+         enum
+        """
+
+        if scan_id not in self.devices:
+            return
+
+        # During program startup, the main window may not yet be showing
+        self.showMainWindow()
+
+        # An error occurred
+        device = self.devices[scan_id]
+        camera_model = device.display_name
+        if error_code == CameraErrorCode.locked:
+            title =_('Rapid Photo Downloader')
+            message = _('<b>All files on the %(camera)s are inaccessible</b>.<br><br>It '
+                        'may be locked or not configured for file transfers using MTP. '
+                        'You can unlock it and try again.<br><br>On some models you also '
+                        'need to change the setting <i>USB for charging</i> to <i>USB for '
+                        'file transfers</i>.<br><br>Alternatively, you can ignore this '
+                        'device.') % {'camera': camera_model}
         else:
-            scan_id = data.scan_id
-            if scan_id not in self.devices:
-                return
-            if data.error_code is not None:
+            assert error_code == CameraErrorCode.inaccessible
+            title = _('Rapid Photo Downloader')
+            message = _('<b>The %(camera)s appears to be in use by another '
+                        'application.</b><br><br>You '
+                        'can close any other application (such as a file browser) that is '
+                        'using it and try again. If that '
+                        'does not work, unplug the %(camera)s from the computer and plug '
+                        'it in again.<br><br>Alternatively, you can ignore '
+                        'this device.') % {'camera':camera_model}
 
-                self.showMainWindow()
+        msgBox = QMessageBox(QMessageBox.Warning, title, message,
+                        QMessageBox.NoButton, self)
+        msgBox.setIconPixmap(self.devices[scan_id].get_pixmap())
+        msgBox.addButton(_("&Try Again"), QMessageBox.AcceptRole)
+        msgBox.addButton(_("&Ignore This Device"), QMessageBox.RejectRole)
+        self.prompting_for_user_action[device] = msgBox
+        role = msgBox.exec_()
+        if role == QMessageBox.AcceptRole:
+            self.sendResumeToThread(self.scan_controller, worker_id=scan_id)
+        else:
+            self.removeDevice(scan_id=scan_id, show_warning=False)
+        del self.prompting_for_user_action[device]
 
-                # An error occurred
-                error_code = data.error_code
-                device = self.devices[scan_id]
-                camera_model = device.display_name
-                if error_code == CameraErrorCode.locked:
-                    title =_('Rapid Photo Downloader')
-                    message = _('<b>All files on the %(camera)s are inaccessible</b>.<br><br>It '
-                                'may be locked or not configured for file transfers using MTP. '
-                                'You can unlock it and try again.<br><br>On some models you also '
-                                'need to change the setting <i>USB for charging</i> to <i>USB for '
-                                'file transfers</i>.<br><br>Alternatively, you can ignore this '
-                                'device.') % {'camera': camera_model}
-                else:
-                    assert error_code == CameraErrorCode.inaccessible
-                    title = _('Rapid Photo Downloader')
-                    message = _('<b>The %(camera)s appears to be in use by another '
-                                'application.</b><br><br>You '
-                                'can close any other application (such as a file browser) that is '
-                                'using it and try again. If that '
-                                'does not work, unplug the %(camera)s from the computer and plug '
-                                'it in again.<br><br>Alternatively, you can ignore '
-                                'this device.') % {'camera':camera_model}
+    @pyqtSlot(int, 'PyQt_PyObject', str)
+    def scanDeviceDetailsReceived(self, scan_id: int,
+                                  storage_space: List[StorageSpace],
+                                  optimal_display_name: str) -> None:
+        """
+        Update GUI display and rows DB with definitive camera display name
 
-                msgBox = QMessageBox(QMessageBox.Warning, title, message,
-                                QMessageBox.NoButton, self)
-                msgBox.setIconPixmap(self.devices[scan_id].get_pixmap())
-                msgBox.addButton(_("&Try Again"), QMessageBox.AcceptRole)
-                msgBox.addButton(_("&Ignore This Device"), QMessageBox.RejectRole)
-                self.prompting_for_user_action[device] = msgBox
-                role = msgBox.exec_()
-                if role == QMessageBox.AcceptRole:
-                    self.sendResumeToThread(self.scan_controller, worker_id=scan_id)
-                else:
-                    self.removeDevice(scan_id=scan_id, show_warning=False)
-                del self.prompting_for_user_action[device]
-            else:
-                # Update GUI display and rows DB with definitive camera display name
-                device = self.devices[scan_id]
-                logging.debug('%s with scan id %s is now known as %s',
-                              device.display_name, scan_id, data.optimal_display_name)
-                if len(data.storage_space) > 1:
-                    logging.debug('%s has %s storage devices',
-                              data.optimal_display_name, len(data.storage_space))
-                device.update_camera_attributes(display_name=data.optimal_display_name,
-                                                storage_space=data.storage_space)
-                self.updateSourceButton()
-                self.deviceModel.updateDeviceNameAndStorage(scan_id, device)
-                self.thumbnailModel.addOrUpdateDevice(scan_id=scan_id)
-                self.adjustLeftPanelSliderHandles()
+        :param scan_id: scan id of the device
+        :param storage_space: storage information on the device e.g.
+         memory card(s) capacity and use
+        :param optimal_display_name: canonical name of the device, as
+         reported by libgphoto2
+        """
+
+        device = self.devices[scan_id]
+        logging.debug('%s with scan id %s is now known as %s',
+                      device.display_name, scan_id, optimal_display_name)
+        if len(storage_space) > 1:
+            logging.debug('%s has %s storage devices',
+                      optimal_display_name, len(storage_space))
+        device.update_camera_attributes(display_name=optimal_display_name,
+                                        storage_space=storage_space)
+        self.updateSourceButton()
+        self.deviceModel.updateDeviceNameAndStorage(scan_id, device)
+        self.thumbnailModel.addOrUpdateDevice(scan_id=scan_id)
+        self.adjustLeftPanelSliderHandles()
 
     @pyqtSlot(int)
     def scanFinished(self, scan_id: int) -> None:

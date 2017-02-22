@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.0a9 (2017-02-21)
+--------------------
+
+ - Fix bug #1665879: Work-around an unexpected signal/slot problem with Qt on
+   Fedora 25.
+
 0.9.0a8 (2017-02-16)
 --------------------
 
@@ -29,8 +35,8 @@ Changelog for Rapid Photo Downloader
  - Fixed a bug where backup worker processes were never stopped until program
    exit.
 
- - Fixed a bug where pausing and resuming was not updated to match changes to
-   threading made in version 0.9.0a7.
+ - Fixed a bug where pausing and resuming a download was not updated to match
+   changes to threading made in version 0.9.0a7.
 
  - Updated install script to allow for quirks in LinuxMint and KDE Neon.
 

@@ -1592,7 +1592,9 @@ class ScanManager(PublishPullPipelineManager):
     Handles the processes that scan devices (cameras, external devices,
     this computer path)
     """
-    message = pyqtSignal(bytes)
+    scannedFiles = pyqtSignal('PyQt_PyObject', 'PyQt_PyObject', FileTypeCounter, 'PyQt_PyObject')
+    deviceError = pyqtSignal(int, CameraErrorCode)
+    deviceDetails = pyqtSignal(int, 'PyQt_PyObject', str)
 
     def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port=logging_port, thread_name=ThreadNames.scan)
@@ -1600,7 +1602,19 @@ class ScanManager(PublishPullPipelineManager):
         self._process_to_run = 'scan.py'
 
     def process_sink_data(self) -> None:
-        self.message.emit(self.content)
+        data = pickle.loads(self.content)  # type: ScanResults
+        if data.rpd_files is not None:
+            assert data.file_type_counter
+            assert data.file_size_sum
+            self.scannedFiles.emit(data.rpd_files, (data.sample_photo, data.sample_video),
+                                   data.file_type_counter, data.file_size_sum)
+        else:
+            assert data.scan_id is not None
+            if data.error_code is not None:
+                self.deviceError.emit(data.scan_id, data.error_code)
+            else:
+                assert data.optimal_display_name is not None
+                self.deviceDetails.emit(data.scan_id, data.storage_space, data.optimal_display_name)
 
 
 class BackupManager(PublishPullPipelineManager):
@@ -1614,7 +1628,7 @@ class BackupManager(PublishPullPipelineManager):
     worker process for each drive (2 in total).
     """
     message = pyqtSignal(int, bool, bool, RPDFile, str)
-    bytesBackedUp = pyqtSignal(bytes)
+    bytesBackedUp = pyqtSignal('PyQt_PyObject', 'PyQt_PyObject')
 
     def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port=logging_port, thread_name=ThreadNames.backup)
@@ -1627,10 +1641,7 @@ class BackupManager(PublishPullPipelineManager):
             assert data.scan_id is not None
             assert data.chunk_downloaded >= 0
             assert data.total_downloaded >= 0
-            # Emit the unpickled data, as when PyQt converts an int to a
-            # C++ int, python ints larger that the maximum C++ int are
-            # corrupted
-            self.bytesBackedUp.emit(self.content)
+            self.bytesBackedUp.emit(data.scan_id, data.chunk_downloaded)
         else:
             assert data.backup_succeeded is not None
             assert data.do_backup is not None
@@ -1647,7 +1658,7 @@ class CopyFilesManager(PublishPullPipelineManager):
 
     message = pyqtSignal(bool, RPDFile, int)
     tempDirs = pyqtSignal(int, str,str)
-    bytesDownloaded = pyqtSignal(bytes)
+    bytesDownloaded = pyqtSignal(int, 'PyQt_PyObject', 'PyQt_PyObject')
 
     def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port=logging_port, thread_name=ThreadNames.copy)
@@ -1663,10 +1674,7 @@ class CopyFilesManager(PublishPullPipelineManager):
             if data.total_downloaded < 0:
                 logging.critical("Chunk downloaded is less than zero: %s", data.total_downloaded)
 
-            # Emit the unpickled data, as when PyQt converts an int to a
-            # C++ int, python ints larger that the maximum C++ int are
-            # corrupted
-            self.bytesDownloaded.emit(self.content)
+            self.bytesDownloaded.emit(data.scan_id, data.total_downloaded, data.chunk_downloaded)
 
         elif data.copy_succeeded is not None:
             assert data.rpd_file is not None
