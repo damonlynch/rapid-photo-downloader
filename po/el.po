@@ -1,22 +1,22 @@
-# Croatian translation for rapid
-# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
+# Greek translation for rapid
+# Copyright (c) 2017 Rosetta Contributors and Canonical Ltd 2017
 # This file is distributed under the same license as the rapid package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-03-01 03:35-0600\n"
-"PO-Revision-Date: 2017-02-01 03:21+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
-"Language-Team: Croatian <hr@li.org>\n"
-"Language: hr\n"
+"PO-Revision-Date: 2017-02-28 13:06+0000\n"
+"Last-Translator: Dimitris Xenakis <Unknown>\n"
+"Language-Team: Greek <el@li.org>\n"
+"Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-02-16 06:24+0000\n"
-"X-Generator: Launchpad (build 18326)\n"
+"X-Launchpad-Export-Date: 2017-03-01 09:20+0000\n"
+"X-Generator: Launchpad (build 18329)\n"
 
 #. type: QPushButton
 #: ../raphodo/aboutdialog.py:208
@@ -25,7 +25,7 @@ msgstr ""
 
 #: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
 msgid "Backing up error"
-msgstr "Greška prilikom spremanja sigurnosne kopije"
+msgstr "Σφάλμα κατά την δημιουργία αντίγραφου ασφαλείας"
 
 #: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
 #: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:270
@@ -34,33 +34,33 @@ msgid ""
 "Source: %(source)s\n"
 "Destination: %(destination)s"
 msgstr ""
-"Izvor: %(source)s\n"
-"Odredište: %(destination)s"
+"Πηγή: %(source)s\n"
+"Προορισμός: %(destination)s"
 
 #: ../raphodo/backupfile.py:78 ../raphodo/backupfile.py:99
 #, python-format
 msgid "Error: %(inst)s"
-msgstr ""
+msgstr "Σφάλμα: %(inst)s"
 
 #: ../raphodo/backupfile.py:94
 #, python-format
 msgid "Destination directory could not be created: %(directory)s\n"
-msgstr ""
+msgstr "Αδυναμία δημιουργίας φακέλου προορισμού: %(directory)s\n"
 
 #: ../raphodo/backupfile.py:169
 #, python-format
 msgid "Backup %(file_type)s overwritten"
-msgstr ""
+msgstr "Το αντίγραφο ασφαλείας %(file_type)s αντικαταστάθηκε"
 
 #: ../raphodo/backupfile.py:173
 #, python-format
 msgid "%(file_type)s not backed up"
-msgstr ""
+msgstr "%(file_type)s δεν έχουν αντιγραφεί"
 
 #: ../raphodo/backupfile.py:177
 #, python-format
 msgid "Backup of %(file_type)s already exists"
-msgstr ""
+msgstr "Υπάρχει αντίγραφο ασφαλείας του %(file_type)s"
 
 #: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:184
 #: ../raphodo/copyfiles.py:201 ../raphodo/renameandmovefile.py:284
@@ -70,15 +70,16 @@ msgid ""
 "%(problem)s\n"
 "File: %(file)s"
 msgstr ""
+"%(problem)s\n"
+"Αρχείο: %(file)s"
 
 #: ../raphodo/backuppanel.py:240
 msgid "Backups are not configured"
 msgstr ""
 
 #: ../raphodo/backuppanel.py:242
-#, fuzzy
 msgid "No backup devices detected"
-msgstr "Pronađeni uređaj"
+msgstr ""
 
 #: ../raphodo/backuppanel.py:244
 msgid "Valid backup locations not yet specified"
@@ -116,9 +117,8 @@ msgstr ""
 
 #: ../raphodo/backuppanel.py:427 ../raphodo/nameeditor.py:874
 #: ../raphodo/renamepanel.py:123
-#, fuzzy
 msgid "Example:"
-msgstr "<i>Primjer:</i>"
+msgstr ""
 
 #: ../raphodo/backuppanel.py:432
 msgid "If you disable automatic detection, choose the exact backup locations."
@@ -157,29 +157,28 @@ msgid "Projected Backup Storage Use"
 msgstr ""
 
 #: ../raphodo/backuppanel.py:616
-#, fuzzy
 msgid "Backup Options"
-msgstr "Sigurnosna kopija"
+msgstr ""
 
 #: ../raphodo/copyfiles.py:222
 msgid "The file could not be copied from the camera"
-msgstr ""
+msgstr "Το αρχείο δεν μπορούσε να αντιγραφεί από την κάμερα"
 
 #: ../raphodo/copyfiles.py:390
 msgid "The camera may have been inaccessible"
-msgstr ""
+msgstr "Η κάμερα μπορεί να μη είναι προσβάσιμη"
 
 #: ../raphodo/destinationdisplay.py:78 ../raphodo/devicedisplay.py:1077
 #: ../raphodo/rpdfile.py:317
 #, python-format
 msgid "%(no_photos)s Photos"
-msgstr ""
+msgstr "%(no_photos)s Φωτογραφίες"
 
 #: ../raphodo/destinationdisplay.py:82 ../raphodo/devicedisplay.py:1079
 #: ../raphodo/rpdfile.py:312
 #, python-format
 msgid "%(no_videos)s Videos"
-msgstr ""
+msgstr "%(no_videos)s Βίντεο"
 
 #: ../raphodo/destinationdisplay.py:92
 msgid "Used"
@@ -202,14 +201,14 @@ msgstr ""
 #: ../raphodo/destinationdisplay.py:183 ../raphodo/devicedisplay.py:991
 #: ../raphodo/rapid.py:1775 ../raphodo/rapid.py:1890 ../raphodo/rapid.py:5292
 msgid "Photos"
-msgstr ""
+msgstr "Φωτογραφίες"
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:184 ../raphodo/devicedisplay.py:992
 #: ../raphodo/rapid.py:1778 ../raphodo/rapid.py:1891 ../raphodo/rapid.py:5293
 #: ../raphodo/storage.py:438
 msgid "Videos"
-msgstr ""
+msgstr "Βίντεο"
 
 #: ../raphodo/destinationdisplay.py:185
 msgid "Projected storage use after download"
@@ -231,166 +230,166 @@ msgstr ""
 
 #: ../raphodo/devicedisplay.py:981
 msgid "Other"
-msgstr ""
+msgstr "Άλλο"
 
 #: ../raphodo/devicedisplay.py:982
 msgid "Probing device..."
-msgstr ""
+msgstr "Ανιχνεύεται η συσκευή..."
 
 #: ../raphodo/devicedisplay.py:998
 msgid "Temporarily ignore this device"
-msgstr ""
+msgstr "Προσωρινή αγνόηση συσκευής"
 
 #: ../raphodo/devicedisplay.py:1000
 msgid "Permanently ignore this device"
-msgstr ""
+msgstr "Μόνιμη αγνόηση συσκευής"
 
 #: ../raphodo/devicedisplay.py:1002
 msgid "Rescan"
-msgstr ""
+msgstr "Επανασάρωση"
 
 #: ../raphodo/devices.py:425
 msgid "Cameras"
-msgstr ""
+msgstr "Κάμερες"
 
 #: ../raphodo/devices.py:426 ../raphodo/devices.py:882 ../raphodo/rapid.py:1738
 msgid "Devices"
-msgstr "Uređaji"
+msgstr "Συσκευές"
 
 #: ../raphodo/devices.py:686
 #, python-format
 msgid "Downloading from %(device_names)s"
-msgstr ""
+msgstr "Κατέβασμα από %(device_names)s"
 
 #. Translators: e.g. Three Devices
 #: ../raphodo/devices.py:742
 #, python-format
 msgid "%(no_devices)s %(device_type)s"
-msgstr ""
+msgstr "%(no_devices)s %(device_type)s"
 
 #: ../raphodo/devices.py:867 ../raphodo/rapid.py:1575
 msgid "Select Source"
-msgstr ""
+msgstr "Επιλογή πηγής"
 
 #: ../raphodo/devices.py:898 ../raphodo/devices.py:909
 #, python-format
 msgid "%(device1)s + %(device2)s"
-msgstr ""
+msgstr "%(device1)s + %(device2)s"
 
 #. Number of cameras e.g. 3 Cameras
 #: ../raphodo/devices.py:920
 #, python-format
 msgid "%(no_cameras)s Cameras"
-msgstr ""
+msgstr "%(no_cameras)s Κάμερες"
 
 #: ../raphodo/devices.py:925
 #, python-format
 msgid "%(no_devices)s Devices"
-msgstr ""
+msgstr "%(no_devices)s Συσκευές"
 
 #. Translators: two folder names, separated by a plus sign
 #: ../raphodo/devices.py:1220
 #, python-format
 msgid "%s + %s"
-msgstr ""
+msgstr "%s + %s"
 
 #: ../raphodo/downloadtracker.py:402
 msgid "MB/sec"
-msgstr ""
+msgstr "MB/δευτερόλεπτο"
 
 #. Be friendly in the last few seconds
 #: ../raphodo/downloadtracker.py:532
 msgid "A few seconds"
-msgstr ""
+msgstr "Λίγα δευτερόλεπτα"
 
 #: ../raphodo/downloadtracker.py:588
 msgid "1 second"
-msgstr ""
+msgstr "1 δευτερόλεπτο"
 
 #: ../raphodo/downloadtracker.py:590
 #, python-format
 msgid "%d seconds"
-msgstr ""
+msgstr "%d δευτερόλεπτα"
 
 #: ../raphodo/downloadtracker.py:595
 msgid "1 minute"
-msgstr ""
+msgstr "1 λεπτό"
 
 #: ../raphodo/downloadtracker.py:597
 #, python-format
 msgid "%d minutes"
-msgstr ""
+msgstr "%d λεπτά"
 
 #: ../raphodo/downloadtracker.py:602 ../raphodo/downloadtracker.py:784
 msgid "1 hour"
-msgstr ""
+msgstr "1 ώρα"
 
 #: ../raphodo/downloadtracker.py:604
 #, python-format
 msgid "%d hours"
-msgstr ""
+msgstr "%d ώρες"
 
 #: ../raphodo/downloadtracker.py:609 ../raphodo/downloadtracker.py:813
 #: ../raphodo/downloadtracker.py:821
 msgid "1 day"
-msgstr ""
+msgstr "1 ημέρα"
 
 #: ../raphodo/downloadtracker.py:611
 #, python-format
 msgid "%d days"
-msgstr ""
+msgstr "%d ημέρες"
 
 #: ../raphodo/downloadtracker.py:790
 msgid "1 minute, 1 second"
-msgstr ""
+msgstr "1 λεπτό, 1 δευτερόλεπτο"
 
 #: ../raphodo/downloadtracker.py:792
 #, python-format
 msgid "1 minute, %d seconds"
-msgstr ""
+msgstr "1 λεπτό, %d δευτερόλεπτα"
 
 #: ../raphodo/downloadtracker.py:795
 #, python-format
 msgid "%d minutes, 1 second"
-msgstr ""
+msgstr "%d  λεπτά, δευτερόλεπτο"
 
 #: ../raphodo/downloadtracker.py:797
 #, python-format
 msgid "%(minutes)d minutes, %(seconds)d seconds"
-msgstr ""
+msgstr "%(minutes)d λεπτά, %(seconds)d δευτερόλεπτα"
 
 #: ../raphodo/downloadtracker.py:828
 msgid "1 hour, 1 minute"
-msgstr ""
+msgstr "1 ώρα, 1 λεπτό"
 
 #: ../raphodo/downloadtracker.py:830
 #, python-format
 msgid "1 hour, %d minutes"
-msgstr ""
+msgstr "Μία ώρα, %d λεπτά"
 
 #: ../raphodo/downloadtracker.py:833
 #, python-format
 msgid "%d hours, 1 minute"
-msgstr ""
+msgstr "%d ώρες, 1 λεπτό"
 
 #: ../raphodo/downloadtracker.py:835
 #, python-format
 msgid "%(hours)d hours, %(minutes)d minutes"
-msgstr ""
+msgstr "%(hours)d ώρες, %(minutes)d λεπτά"
 
 #: ../raphodo/downloadtracker.py:861
 msgid "1 day, 1 hour"
-msgstr ""
+msgstr "1 ημέρα, 1 ώρα"
 
 #: ../raphodo/downloadtracker.py:863
 #, python-format
 msgid "1 day, %d hours"
-msgstr ""
+msgstr "1 ημέρα, %d ώρες"
 
 #: ../raphodo/downloadtracker.py:866
 #, python-format
 msgid "%d days, 1 hour"
-msgstr ""
+msgstr "%d ημέρες, 1 ώρα"
 
 #: ../raphodo/downloadtracker.py:868
 #, python-format
@@ -398,9 +397,8 @@ msgid "%(days)d days, %(hours)d hours"
 msgstr ""
 
 #: ../raphodo/excepthook.py:77
-#, fuzzy
 msgid "Problem in Rapid Photo Downloader"
-msgstr "Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/excepthook.py:81
 #, python-brace-format
@@ -416,9 +414,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/excepthook.py:98
-#, fuzzy
 msgid "A problem occurred in Rapid Photo Downloader\n"
-msgstr "Postavke: Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/excepthook.py:99
 #, python-brace-format
@@ -438,8 +435,9 @@ msgid "File System"
 msgstr ""
 
 #: ../raphodo/foldercombo.py:153
+#, fuzzy
 msgid "Other..."
-msgstr ""
+msgstr "Άλλο"
 
 #. Translators: indicate in combobox that a path does not exist
 #: ../raphodo/foldercombo.py:225
@@ -453,11 +451,11 @@ msgstr ""
 
 #: ../raphodo/generatenameconfig.py:187
 msgid "Text"
-msgstr "Tekst"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:188 ../raphodo/rapid.py:1864
 msgid "Filename"
-msgstr "Ime datoteke"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:189
 msgid "Metadata"
@@ -483,35 +481,35 @@ msgstr ""
 
 #: ../raphodo/generatenameconfig.py:196
 msgid "Today"
-msgstr "Danas"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:197
 msgid "Yesterday"
-msgstr "Jučer"
+msgstr "Εχθές"
 
 #. Translators: Download time is the time and date that the download started (when the
 #. user clicked the Download button)
 #: ../raphodo/generatenameconfig.py:200
 msgid "Download time"
-msgstr ""
+msgstr "Ώρα κατεβάσματος"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
 #: ../raphodo/generatenameconfig.py:203
 msgid "Name"
-msgstr "Naziv"
+msgstr "Όνομα"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
 #: ../raphodo/generatenameconfig.py:206 ../raphodo/rapid.py:1865
 msgid "Extension"
-msgstr "Ekstenzija"
+msgstr "Επέκταση"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
 #: ../raphodo/generatenameconfig.py:209
 msgid "Image number"
-msgstr "Broj slike"
+msgstr "Αριθμός εικόνας"
 
 #: ../raphodo/generatenameconfig.py:210
 msgid "Video number"
@@ -521,7 +519,7 @@ msgstr ""
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:213
 msgid "Aperture"
-msgstr ""
+msgstr "Διάφραγμα"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
@@ -533,31 +531,31 @@ msgstr "ISO"
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:219
 msgid "Exposure time"
-msgstr "Dužina ekspozicije"
+msgstr "Χρόνος έκθεσης"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:222
 msgid "Focal length"
-msgstr "Žarišna duljina"
+msgstr "Εστιακή απόσταση"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:225
 msgid "Camera make"
-msgstr ""
+msgstr "Κατασκευαστής κάμερας"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:228
 msgid "Camera model"
-msgstr "Model fotoaparata"
+msgstr "Μοντέλο κάμερας"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:231
 msgid "Short camera model"
-msgstr ""
+msgstr "Συντομογραφία μοντέλου κάμερας"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
@@ -569,7 +567,7 @@ msgstr ""
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:237
 msgid "Serial number"
-msgstr "Serijski broj"
+msgstr "Σειριακός αριθμός"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
@@ -580,7 +578,7 @@ msgstr ""
 #. File number currently refers to the Exif value Exif.Canon.FileNumber
 #: ../raphodo/generatenameconfig.py:242
 msgid "File number"
-msgstr ""
+msgstr "Αριθμός αρχείου"
 
 #. Only the folder component of the Exif.Canon.FileNumber value
 #: ../raphodo/generatenameconfig.py:244
@@ -590,13 +588,13 @@ msgstr ""
 #. The folder and file component of the Exif.Canon.FileNumber value
 #: ../raphodo/generatenameconfig.py:246
 msgid "Folder and file"
-msgstr ""
+msgstr "Φάκελος και αρχείο"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:249
 msgid "Owner name"
-msgstr "Ime vlasnika"
+msgstr "Όνομα κατόχου"
 
 #: ../raphodo/generatenameconfig.py:250
 msgid "Codec"
@@ -696,13 +694,13 @@ msgstr ""
 #. language features capitalization
 #: ../raphodo/generatenameconfig.py:292
 msgid "UPPERCASE"
-msgstr "VELIKA SLOVA"
+msgstr ""
 
 #. Translators: please not the capitalization of this text, and keep it the same if your
 #. language features capitalization
 #: ../raphodo/generatenameconfig.py:295
 msgid "lowercase"
-msgstr "mala slova"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:296
 msgid "One digit"
@@ -742,13 +740,13 @@ msgstr ""
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:308 ../raphodo/generatenameconfig.py:389
 msgid "YYYYMMDD"
-msgstr "GGGGMMDD"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:311 ../raphodo/generatenameconfig.py:390
 msgid "YYYY-MM-DD"
-msgstr "GGGG-MM-DD"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -760,13 +758,13 @@ msgstr ""
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:317
 msgid "YYMMDD"
-msgstr "GGMMDD"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:320
 msgid "YY-MM-DD"
-msgstr "GG-MM-DD"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -778,31 +776,31 @@ msgstr ""
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:326
 msgid "MMDDYYYY"
-msgstr "MMDDGGGG"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:329
 msgid "MMDDYY"
-msgstr "MMDDGG"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:332
 msgid "MMDD"
-msgstr "MMDD"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:335
 msgid "DDMMYYYY"
-msgstr "DDMMGGGG"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:338
 msgid "DDMMYY"
-msgstr "DDMMGG"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -810,25 +808,25 @@ msgstr "DDMMGG"
 #: ../raphodo/generatenameconfig.py:390 ../raphodo/generatenameconfig.py:391
 #: ../raphodo/generatenameconfig.py:392 ../raphodo/generatenameconfig.py:393
 msgid "YYYY"
-msgstr "GGGG"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:344
 msgid "YY"
-msgstr "GG"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:347
 msgid "MM"
-msgstr "MM"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:350
 msgid "DD"
-msgstr "DD"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -1137,9 +1135,8 @@ msgid "Update Custom Preset \"%s\""
 msgstr ""
 
 #: ../raphodo/nameeditor.py:666
-#, fuzzy
 msgid "Save New Custom Preset - Rapid Photo Downloader"
-msgstr "Postavke: Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/nameeditor.py:674
 msgid "Preset Name:"
@@ -1190,9 +1187,8 @@ msgid "Insert"
 msgstr ""
 
 #: ../raphodo/nameeditor.py:1336
-#, fuzzy
 msgid "Save Preset - Rapid Photo Downloader"
-msgstr "Postavke: Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/nameeditor.py:1341
 msgid ""
@@ -1246,12 +1242,11 @@ msgstr ""
 #: ../raphodo/newversion.py:337
 #, fuzzy
 msgid "&Open Download Page"
-msgstr "Preuzmi / Pauziraj"
+msgstr "Ώρα κατεβάσματος"
 
 #: ../raphodo/newversion.py:357
-#, fuzzy
 msgid "Rapid Photo Downloader updates"
-msgstr "Rapid Photo Downloader"
+msgstr ""
 
 #. Translators: shows how much of a file has been downloaded e.g  123 KB of 1.3 MB
 #: ../raphodo/newversion.py:450
@@ -1260,8 +1255,9 @@ msgid "%(downloaded)s of %(total)s"
 msgstr ""
 
 #: ../raphodo/newversion.py:467
+#, fuzzy
 msgid "Downloading..."
-msgstr ""
+msgstr "Ώρα κατεβάσματος"
 
 #: ../raphodo/preferences.py:279
 msgid "Wedding"
@@ -1298,7 +1294,7 @@ msgstr ""
 
 #: ../raphodo/problemnotification.py:31 ../raphodo/renameandmovefile.py:415
 msgid "filename"
-msgstr "ime datoteke"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:104
 #, python-format
@@ -1722,7 +1718,7 @@ msgstr ""
 #: ../raphodo/rememberthisdialog.py:78
 #: ../data/rapid-photo-downloader.desktop.in.h:3
 msgid "Rapid Photo Downloader"
-msgstr "Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/rapid.py:1246
 msgid "Download failed"
@@ -1892,7 +1888,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:1867
 msgid "Device"
-msgstr "Uređaj"
+msgstr ""
 
 #: ../raphodo/rapid.py:1869
 msgid "Sort:"
@@ -1977,7 +1973,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:2603
 msgid "Download cannot proceed"
-msgstr "Preuzimanje se ne može nastaviti"
+msgstr ""
 
 #: ../raphodo/rapid.py:2613 ../raphodo/rapid.py:2619
 #, python-format
@@ -1986,11 +1982,11 @@ msgstr ""
 
 #: ../raphodo/rapid.py:2615 ../raphodo/rpdfile.py:224
 msgid "photos"
-msgstr "fotografije"
+msgstr ""
 
 #: ../raphodo/rapid.py:2621 ../raphodo/rpdfile.py:219
 msgid "videos"
-msgstr "video snimke"
+msgstr ""
 
 #: ../raphodo/rapid.py:2623
 msgid "Backup problem"
@@ -2017,11 +2013,11 @@ msgstr ""
 
 #: ../raphodo/rapid.py:3332 ../raphodo/rapid.py:3405
 msgid "warnings"
-msgstr "upozorenja"
+msgstr ""
 
 #: ../raphodo/rapid.py:3361
 msgid "All downloads complete"
-msgstr "Sva preuzimanja su završena"
+msgstr ""
 
 #. Translators: e.g. 23 photos downloaded
 #: ../raphodo/rapid.py:3368 ../raphodo/rapid.py:3377 ../raphodo/rapid.py:3386
@@ -2438,7 +2434,7 @@ msgstr ""
 #: ../raphodo/renamepanel.py:122
 #, fuzzy
 msgid "Extension:"
-msgstr "Ekstenzija"
+msgstr "Επέκταση"
 
 #. 24 hour format, if wanted in a future release:
 #. self.dayStart.setDisplayFormat('HH:mm:ss')
@@ -2463,12 +2459,12 @@ msgstr ""
 #: ../raphodo/renamepanel.py:345
 #, fuzzy
 msgid "Stored number:"
-msgstr "Serijski broj"
+msgstr "Σειριακός αριθμός"
 
 #: ../raphodo/renamepanel.py:346
 #, fuzzy
 msgid "Downloads today:"
-msgstr "Direktorij preuzimanja:"
+msgstr "Ώρα κατεβάσματος"
 
 #: ../raphodo/renamepanel.py:348
 msgid "Day start:"
@@ -2506,11 +2502,11 @@ msgstr ""
 
 #: ../raphodo/rpdfile.py:221 ../raphodo/rpdfile.py:862
 msgid "video"
-msgstr "video"
+msgstr ""
 
 #: ../raphodo/rpdfile.py:226 ../raphodo/rpdfile.py:820
 msgid "photo"
-msgstr "fotografija"
+msgstr ""
 
 #: ../raphodo/rpdfile.py:302
 #, python-format
@@ -2715,135 +2711,3 @@ msgstr ""
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr ""
-
-#~ msgid "Berlin"
-#~ msgstr "Berlin"
-
-#~ msgid "Manila"
-#~ msgstr "Manila"
-
-#~ msgid "New York"
-#~ msgstr "New York"
-
-#~ msgid "Prague"
-#~ msgstr "Prag"
-
-#~ msgid "Wellington"
-#~ msgstr "Wellington"
-
-#~ msgid "Helsinki"
-#~ msgstr "Helsinki"
-
-#~ msgid "Kampala"
-#~ msgstr "Kampala"
-
-#~ msgid "Stockholm"
-#~ msgstr "Stockholm"
-
-#~ msgid "Rome"
-#~ msgstr "Rim"
-
-#~ msgid "Moscow"
-#~ msgstr "Moskva"
-
-#~ msgid "Sydney"
-#~ msgstr "Sydney"
-
-#~ msgid "Jakarta"
-#~ msgstr "Jakarta"
-
-#~ msgid "Madrid"
-#~ msgstr "Madrid"
-
-#~ msgid "Delhi"
-#~ msgstr "Delhi"
-
-#~ msgid "Warsaw"
-#~ msgstr "Varšava"
-
-#~ msgid "Budapest"
-#~ msgstr "Budimpešta"
-
-#~ msgid "_File"
-#~ msgstr "_Datoteka"
-
-#~ msgid "_View"
-#~ msgstr "_Pogled"
-
-#~ msgid "_Get Help Online..."
-#~ msgstr "_Potraži pomoć na Internetu..."
-
-#~ msgid "_Help"
-#~ msgstr "_Pomoć"
-
-#~ msgid "_Select"
-#~ msgstr "_Odaberite"
-
-#~ msgid "Size"
-#~ msgstr "Veličina"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Uređaji</span>"
-
-#~ msgid "Download Progress"
-#~ msgstr "Napredak preuzimanja"
-
-#~ msgid "Paris"
-#~ msgstr "Pariz"
-
-#~ msgid "Tehran"
-#~ msgstr "Teheran"
-
-#~ msgid "_Translate this Application..."
-#~ msgstr "Prevedi _ovaj program..."
-
-#~ msgid "_Report a Problem..."
-#~ msgstr "Prijavi _problem..."
-
-#~ msgid "_Make a Donation..."
-#~ msgstr "_Doniraj..."
-
-#~ msgid "scanning..."
-#~ msgstr "pretražujem..."
-
-#~ msgid "<i>Example: %s</i>"
-#~ msgstr "<i>Primjer: %s</i>"
-
-#~ msgid "Select a folder to download photos to"
-#~ msgstr "Odaberite direktorij za spremanje preuzetih fotografija"
-
-#~ msgid "and"
-#~ msgstr "i"
-
-#~ msgid "MB/s"
-#~ msgstr "MB/s"
-
-#~ msgid "Name + extension"
-#~ msgstr "Naziv + ekstenzija"
-
-#~ msgid " "
-#~ msgstr " "
-
-#~ msgid ":"
-#~ msgstr ":"
-
-#~ msgid "<b>Backup</b>"
-#~ msgstr "<b>Sigurnosna kopija</b>"
-
-#~ msgid "<b>Compatibility with Other Operating Systems</b>"
-#~ msgstr "<b>Kompatibilnost s ostalim operacijskim sustavima</b>"
-
-#~ msgid "<b>Example</b>"
-#~ msgstr "<b>Primjer</b>"
-
-#~ msgid "Add unique identifier"
-#~ msgstr "Dodaj jedinstveni identifikator"
-
-#~ msgid "Skip"
-#~ msgstr "Preskoči"
-
-#~ msgid "Skip download"
-#~ msgstr "Preskoči preuzimanje"
-
-#~ msgid "_Add..."
-#~ msgstr "_Dodaj..."

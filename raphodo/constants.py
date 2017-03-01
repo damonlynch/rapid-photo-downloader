@@ -236,6 +236,10 @@ class Sort(IntEnum):
     file_type = 5
     device = 6
 
+class JobCodeSort(IntEnum):
+    last_used = 1
+    code = 2
+
 
 Checked_Status = {
     Qt.Checked: 'checked',
@@ -265,6 +269,7 @@ class Roles(IntEnum):
     download_subfolder = Qt.UserRole + 18
     device_type = Qt.UserRole + 19
     download_statuses = Qt.UserRole + 20
+    job_code = Qt.UserRole + 21
 
 
 class ExtractionTask(Enum):

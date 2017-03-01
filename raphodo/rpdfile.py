@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2016, Damon Lynch"
+__copyright__ = "Copyright 2011-2017, Damon Lynch"
 
 import os
 import time
@@ -202,6 +202,7 @@ def get_rpdfile(name: str,
                      raw_exif_bytes=raw_exif_bytes,
                      exif_source=exif_source)
 
+
 def file_types_by_number(no_photos: int, no_videos: int) -> str:
         """
         Generate a string show number of photos and videos
@@ -225,8 +226,10 @@ def file_types_by_number(no_photos: int, no_videos: int) -> str:
                 v = _('photo')
         return v
 
+
 def make_key(file_t: FileType, path: str) -> str:
     return '{}:{}'.format(path, file_t.value)
+
 
 class FileSizeSum(UserDict):
     """ Sum size in bytes of photos and videos """
@@ -244,8 +247,7 @@ class FileSizeSum(UserDict):
 class FileTypeCounter(Counter):
     r"""
     Track the number of photos and videos in a scan or for some other
-    function, and display the results to the user. Only the function
-    running_file_count is scan specific.
+    function, and display the results to the user.
 
     >>> locale.setlocale(locale.LC_ALL, ('en_US', 'utf-8'))
     'en_US.UTF-8'
@@ -302,7 +304,7 @@ class FileTypeCounter(Counter):
                                'filetypes': file_types_present}
         return (file_count_summary, file_types_present)
 
-    def file_types_present_details(self) -> str:
+    def file_types_present_details(self, title_case=True) -> str:
         p = self[FileType.photo]
         v = self[FileType.video]
 
@@ -317,13 +319,18 @@ class FileTypeCounter(Counter):
             photos = _('1 Photo')
 
         if (p > 0) and (v > 0):
-            return make_internationalized_list([photos, videos])
+            s = make_internationalized_list([photos, videos])
         elif (p == 0) and (v == 0):
             return ''
         elif v > 0:
-            return videos
+            s = videos
         else:
-            return photos
+            s = photos
+
+        if title_case:
+            return s
+        else:
+            return s.lower()
 
 
 class RPDFile:

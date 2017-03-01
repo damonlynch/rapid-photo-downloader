@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,7 +22,7 @@ Dialog for editing download subfolder structure and file renaming
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016, Damon Lynch"
+__copyright__ = "Copyright 2016-2017, Damon Lynch"
 
 from typing import Dict, Optional, List, Union, Tuple, Sequence
 import datetime
@@ -33,7 +33,7 @@ from gettext import gettext as _
 
 from PyQt5.QtWidgets import (QTextEdit, QApplication, QComboBox, QPushButton, QLabel, QDialog,
     QDialogButtonBox, QVBoxLayout, QFormLayout,  QGridLayout, QGroupBox, QScrollArea, QWidget,
-                             QFrame, QStyle, QSizePolicy, QStackedWidget, QLineEdit, QMessageBox)
+                             QFrame, QStyle, QSizePolicy, QLineEdit, QMessageBox)
 from PyQt5.QtGui import (QTextCharFormat, QFont, QTextCursor, QMouseEvent, QSyntaxHighlighter,
                          QTextDocument, QBrush, QColor, QFontMetrics, QKeyEvent, QResizeEvent,
                          QStandardItem, QPixmap)
@@ -49,7 +49,9 @@ from raphodo.rpdfile import SamplePhoto, SampleVideo, RPDFile, Photo, Video, Fil
 from raphodo.preferences import DownloadsTodayTracker, Preferences, match_pref_list
 import raphodo.exiftool as exiftool
 from raphodo.utilities import remove_last_char_from_list_str
+from raphodo.messagewidget import MessageWidget
 import raphodo.qrc_resources
+
 
 class PrefEditor(QTextEdit):
     """
@@ -819,30 +821,38 @@ class PrefDialog(QDialog):
 
         # Setup widgets and helper values
 
-        # Display messages using a stacked widget
-
-        self.messageWidget = QStackedWidget()
-        self.messageWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        # For some obscure reason, must set the label types for all labels in the stacked
-        # widget to have the same properties, or else the stacked layout size goes bonkers.
-        # Must make the empty label contain *something*, too, so make it contain a space.
-        blank = QLabel(' ')
-        blank.setWordWrap(True)
-        blank.setTextFormat(Qt.RichText)
-        self.messageWidget.addWidget(blank)
-
         # Translators: please do not modify or leave out html formatting tags like <i> and
         # <b>. These are used to format the text the users sees
         warning_msg = _(
-            "<i><b>Warning:</b> There is insufficient metadata to fully generate the name. "
-            "Please use other renaming options.</i>")
+            '<b><font color="red">Warning:</font></b> <i>There is insufficient metadata to fully '
+            'generate the name. Please use other renaming options.</i>')
 
         self.is_subfolder = generation_type in (NameGenerationType.photo_subfolder,
                                                 NameGenerationType.video_subfolder)
 
-        self.warningLabel = QLabel(warning_msg)
-        self.warningLabel.setWordWrap(True)
-        self.warningLabel.setAlignment(Qt.AlignTop|Qt.AlignLeft)
+        if self.is_subfolder:
+            # Translators: please do not modify, change the order of or leave out html formatting
+            # tags like <i> and <b>. These are used to format the text the users sees.
+            # In this case, the </i> really is supposed to come before the <i>.
+            subfolder_msg = _("The character</i> %(separator)s <i>creates a new subfolder "
+                              "level.") % dict(separator=os.sep)
+            # Translators: please do not modify, change the order of or leave out html formatting
+            # tags like <i> and <b>. These are used to format the text the users sees
+            # In this case, the </i> really is supposed to come before the <i>.
+            subfolder_first_char_msg = _("There is no need start or end with the folder "
+                                         "separator </i> %(separator)s<i>, because it is added "
+                                         "automatically.") % dict(separator=os.sep)
+            messages = (warning_msg, subfolder_msg, subfolder_first_char_msg)
+        else:
+            # Translators: please do not modify or leave out html formatting tags like <i> and
+            # <b>. These are used to format the text the users sees
+            unique_msg = _(
+                '<b><font color="red">Warning:</font></b> <i>Unique filenames may not be '
+                'generated. Make filenames unique by using Sequence values.</i>'
+            )
+            messages = (warning_msg, unique_msg)
+
+        self.messageWidget = MessageWidget(messages=messages)
 
         self.editor = PrefEditor(subfolder=self.is_subfolder)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -869,37 +879,6 @@ class PrefDialog(QDialog):
         layout.addLayout(flayout)
         layout.addSpacing(QFontMetrics(QFont()).height() / 2)
         layout.addWidget(self.editor)
-
-        self.messageWidget.addWidget(self.warningLabel)
-
-        if self.is_subfolder:
-            subfolder_msg = _(
-                "<i><b>Hint:</b> The character</i> %(separator)s <i>creates a new subfolder "
-                "level.</i>"
-            ) % dict(separator=os.sep)
-            self.subfolderSeparatorLabel = QLabel(subfolder_msg)
-            self.subfolderSeparatorLabel.setWordWrap(True)
-            self.subfolderSeparatorLabel.setAlignment(Qt.AlignTop|Qt.AlignLeft)
-            self.messageWidget.addWidget(self.subfolderSeparatorLabel)
-
-            subfolder_first_char_msg = _(
-                "<i><b>Hint:</b> There is no need start or end with the folder separator </i> %("
-                "separator)s<i>, because it is added automatically.</i>"
-            ) % dict(separator=os.sep)
-            self.subfolderPointlessCharLabel = QLabel(subfolder_first_char_msg)
-            self.subfolderPointlessCharLabel.setWordWrap(True)
-            self.subfolderPointlessCharLabel.setAlignment(Qt.AlignTop|Qt.AlignLeft)
-            self.messageWidget.addWidget(self.subfolderPointlessCharLabel)
-        else:
-            unique_msg = _(
-                "<i><b>Hint:</b> Make filenames unique by using Sequence values.</i>"
-            )
-            self.uniqueFilenameLabel = QLabel(unique_msg)
-            self.uniqueFilenameLabel.setWordWrap(True)
-            self.uniqueFilenameLabel.setAlignment(Qt.AlignTop|Qt.AlignLeft)
-            self.messageWidget.addWidget(self.uniqueFilenameLabel)
-
-
         layout.addWidget(self.messageWidget)
 
         self.area = QScrollArea()

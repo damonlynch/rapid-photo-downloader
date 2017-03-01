@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch"
+__copyright__ = "Copyright 2015-2017, Damon Lynch"
 
 import pickle
 import os
@@ -51,7 +51,7 @@ from raphodo.interprocess import (PublishPullPipelineManager, GenerateThumbnails
 from raphodo.constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
                                ThumbnailCacheStatus, Roles, DeviceType, CustomColors, Show, Sort,
                                ThumbnailBackgroundName, Desktop, DeviceState, extensionColor,
-                               FadeSteps, FadeMilliseconds, PaleGray, DarkGray)
+                               FadeSteps, FadeMilliseconds, PaleGray, DarkGray, DoubleDarkGray)
 from raphodo.storage import get_program_cache_directory, get_desktop, validate_download_folder
 from raphodo.utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
 from raphodo.thumbnailer import Thumbnailer
@@ -124,6 +124,7 @@ class AddBuffer:
 
 
 class ThumbnailListModel(QAbstractListModel):
+    selectionReset = pyqtSignal()
 
     def __init__(self, parent, logging_port: int, log_gphoto2: bool) -> None:
         super().__init__(parent)
@@ -294,8 +295,11 @@ class ThumbnailListModel(QAbstractListModel):
         if rememberSelection:
             self.reselect()
 
+    def _selectionModel(self) -> QItemSelectionModel:
+        return self.rapidApp.thumbnailView.selectionModel()
+
     def rememberSelection(self):
-        selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
+        selection = self._selectionModel()
         selected = selection.selection()  # type: QItemSelection
         self.remember_selection_all_selected = len(selected) == len(self.rows)
         if not self.remember_selection_all_selected:
@@ -377,6 +381,8 @@ class ThumbnailListModel(QAbstractListModel):
             return rpd_file.extension, rpd_file.extension_type
         elif role == Roles.download_status:
             return rpd_file.status
+        elif role == Roles.job_code:
+            return rpd_file.job_code
         elif role == Roles.has_audio:
             return rpd_file.has_audio()
         elif role == Roles.secondary_attribute:
@@ -482,7 +488,28 @@ class ThumbnailListModel(QAbstractListModel):
             self.rows[row] = (uid, value == True)
             self.dataChanged.emit(index, index)
             return True
+        elif role == Roles.job_code:
+            self.rpd_files[uid].job_code = value
+            self.tsql.set_job_code_assigned(uids=[uid], job_code=True)
+            self.dataChanged.emit(index, index)
         return False
+
+    def assignJobCodesToMarkedFilesWithNoJobCode(self, job_code: str) -> None:
+        """
+        Called when assigning job codes when a download is initiated and not all
+        files have had a job code assigned to them.
+
+        :param job_code: job code to assign
+        """
+
+        uids = self.tsql.get_uids(marked=True, job_code=False)
+        for uid in uids:
+            self.rpd_files[uid].job_code = job_code
+            rows = [self.uid_to_row[uid] for uid in uids if uid in self.uid_to_row]
+            rows.sort()
+            for first, last in runs(rows):
+                self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
+        self.tsql.set_job_code_assigned(uids=uids, job_code=True)
 
     def updateDisplayPostDataChange(self, scan_id: Optional[int]=None):
         if scan_id is not None:
@@ -538,6 +565,7 @@ class ThumbnailListModel(QAbstractListModel):
                               file_type=rpd_file.file_type,
                               downloaded=False,
                               previously_downloaded=rpd_file.previously_downloaded(),
+                              job_code=False,
                               proximity_col1=-1,
                               proximity_col2=-1)
 
@@ -891,16 +919,35 @@ class ThumbnailListModel(QAbstractListModel):
             return 0
 
     def getNoFilesAndTypesMarkedForDownload(self) -> FileTypeCounter:
-        uids = self.tsql.get_uids(marked=True)
-        return FileTypeCounter(self.rpd_files[uid].file_type for uid in uids)
+        no_photos = self.tsql.get_count(marked=True, file_type=FileType.photo)
+        no_videos = self.tsql.get_count(marked=True, file_type=FileType.video)
+        f = FileTypeCounter()
+        f[FileType.photo] = no_photos
+        f[FileType.video] = no_videos
+        return f
 
     def getSizeOfFilesMarkedForDownload(self, file_type: FileType) -> int:
         uids = self.tsql.get_uids(marked=True, file_type=file_type)
         return sum(self.rpd_files[uid].size for uid in uids)
 
     def getNoFilesAvailableForDownload(self) -> FileTypeCounter:
-        uids = self.tsql.get_uids(downloaded=False)
-        return FileTypeCounter(self.rpd_files[uid].file_type for uid in uids)
+        no_photos = self.tsql.get_count(downloaded=False, file_type=FileType.photo)
+        no_videos = self.tsql.get_count(downloaded=False, file_type=FileType.video)
+        f = FileTypeCounter()
+        f[FileType.photo] = no_photos
+        f[FileType.video] = no_videos
+        return f
+
+    def getNoFilesSelected(self) -> FileTypeCounter:
+        selection = self._selectionModel()
+        selected = selection.selection()  # type: QItemSelection
+
+        if not len(selected) == len(self.rows):
+            # not all files are selected
+            selected_uids = [self.rows[index.row()][0] for index in selected.indexes()]
+            return FileTypeCounter(self.rpd_files[uid].file_type for uid in selected_uids)
+        else:
+            return self.getDisplayedCounter()
 
     def getCountNotPreviouslyDownloadedAvailableForDownload(self) -> int:
         return self.tsql.get_count(previously_downloaded=False, downloaded=False)
@@ -1035,7 +1082,7 @@ class ThumbnailListModel(QAbstractListModel):
 
     def updateSelection(self, reset_selection: bool=False) -> None:
         if reset_selection:
-            self.rapidApp.thumbnailView.selectionModel().reset()
+            self._selectionModel().reset()
         select_all_photos = self.rapidApp.selectAllPhotosCheckbox.isChecked()
         select_all_videos = self.rapidApp.selectAllVideosCheckbox.isChecked()
         self.selectAll(select_all=select_all_photos, file_type=FileType.photo)
@@ -1062,7 +1109,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         logging.debug(action, file_type.name)
 
-        selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
+        selection = self._selectionModel()
         selected = selection.selection()  # type: QItemSelection
 
         if select_all:
@@ -1100,6 +1147,7 @@ class ThumbnailListModel(QAbstractListModel):
                 new_selection.select(self.index(first, 0), self.index(last, 0))
             # print('resetting')
             selection.reset()
+            self.selectionReset.emit()
             # print('doing select')
             selection.select(new_selection, QItemSelectionModel.Select)
 
@@ -1186,6 +1234,18 @@ class ThumbnailListModel(QAbstractListModel):
         return self.tsql.get_count(scan_id=scan_id, downloaded=False, show=self.show,
                                    proximity_col1=self.proximity_col1,
                                    proximity_col2=self.proximity_col2, marked=marked)
+
+    def getDisplayedCounter(self) -> FileTypeCounter:
+        no_photos = self.tsql.get_count(downloaded=False, file_type=FileType.photo, show=self.show,
+                                   proximity_col1=self.proximity_col1,
+                                   proximity_col2=self.proximity_col2)
+        no_videos = self.tsql.get_count(downloaded=False, file_type=FileType.video, show=self.show,
+                                   proximity_col1=self.proximity_col1,
+                                   proximity_col2=self.proximity_col2)
+        f = FileTypeCounter()
+        f[FileType.photo] = no_photos
+        f[FileType.video] = no_videos
+        return f
 
     def _getSampleFileNonCamera(self, file_type: FileType) -> Optional[RPDFile]:
         """
@@ -1406,6 +1466,28 @@ class ThumbnailListModel(QAbstractListModel):
 
         return self.tsql.get_count(marked=True) != self.getDisplayedCount(marked=True)
 
+    def jobCodeNeeded(self) -> bool:
+        """
+        :return: True if any files checked for download do not have job codes
+         assigned to them
+        """
+
+        return self.tsql.any_marked_file_no_job_code()
+
+    def getNoFilesJobCodeNeeded(self) -> FileTypeCounter:
+        """
+        :return: the number of marked files that need a job code assigned to them, and the
+         file types they will be applied to.
+        """
+
+        no_photos = self.tsql.get_count(marked=True, file_type=FileType.photo, job_code=False)
+        no_videos = self.tsql.get_count(marked=True, file_type=FileType.video, job_code=False)
+
+        f = FileTypeCounter()
+        f[FileType.photo] = no_photos
+        f[FileType.video] = no_videos
+
+        return f
 
 class ThumbnailView(QListView):
     def __init__(self, parent: QWidget) -> None:
@@ -1449,6 +1531,7 @@ class ThumbnailView(QListView):
 
         if not checkbox_clicked:
             super().mousePressEvent(event)
+
 
 class ThumbnailDelegate(QStyledItemDelegate):
     """
@@ -1538,6 +1621,20 @@ class ThumbnailDelegate(QStyledItemDelegate):
         for ext in self.emblem_width:
             self.emblem_width[ext] = self.emblem_width[ext] + self.emblem_pad * 2
 
+        self.jobCodeFont = QFont()
+        self.jobCodeFont.setPointSize(self.jobCodeFont.pointSize() - 2)
+        self.jobCodeMetrics = QFontMetrics(self.jobCodeFont)
+        height = self.jobCodeMetrics.height()
+        self.job_code_pad = height // 4
+        self.job_code_height = height + self.job_code_pad * 2
+        self.job_code_width = self.image_width
+        self.job_code_text_width = self.job_code_width - self.job_code_pad * 2
+        self.jobCodeBackground = QColor(DoubleDarkGray)
+        # alternative would be functools.lru_cache() decorator, but it
+        # is required to be a function. It's easier to keep everything
+        # in this class, especially regarding the default font
+        self.job_code_lru = dict()  # type: Dict[str, str]
+
         # Generate the range of colors to be displayed when highlighting
         # files from a particular device
         ch = Color(self.highlight.name())
@@ -1576,6 +1673,12 @@ class ThumbnailDelegate(QStyledItemDelegate):
         secondary_attribute = index.data(Roles.secondary_attribute)
         memory_cards = index.data(Roles.camera_memory_card) # type: List[int]
         highlight = index.data(Roles.highlight)
+        job_code = index.data(Roles.job_code)  # type: Optional[str]
+
+        # job_code = 'An extremely long and complicated Job Code'
+        # job_code = 'Job Code'
+
+        is_selected = option.state & QStyle.State_Selected
 
         x = option.rect.x()
         y = option.rect.y()
@@ -1595,7 +1698,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         else:
             painter.fillRect(boxRect, self.paleGray)
 
-        if option.state & QStyle.State_Selected:
+        if is_selected:
             hightlightRect = QRect(boxRect.left() + self.highlight_offset,
                               boxRect.top() + self.highlight_offset,
                               boxRect.width() - self.highlight_size,
@@ -1630,7 +1733,38 @@ class ThumbnailDelegate(QStyledItemDelegate):
         source = QRect(0, 0, thumbnail_width, thumbnail_height)
         painter.drawPixmap(target, thumbnail, source)
 
-        if previously_downloaded and not checked:
+        dimmed = previously_downloaded and not checked
+
+        # Render the job code near the top of the square, if there is one
+        if job_code:
+            if is_selected:
+                color = self.highlight
+                painter.setOpacity(1.0)
+            else:
+                color = self.jobCodeBackground
+                if not dimmed:
+                    painter.setOpacity(0.75)
+                else:
+                    painter.setOpacity(self.dimmed_opacity)
+
+            jobCodeRect = QRect(x + self.horizontal_margin, y + self.vertical_margin,
+                                self.job_code_width, self.job_code_height)
+            painter.fillRect(jobCodeRect, color)
+            painter.setFont(self.jobCodeFont)
+            painter.setPen(QColor(Qt.white))
+            if job_code in self.job_code_lru:
+                text = self.job_code_lru[job_code]
+            else:
+                text = self.jobCodeMetrics.elidedText(job_code, Qt.ElideRight,
+                                                      self.job_code_text_width)
+                self.job_code_lru[job_code] = text
+            if not dimmed:
+                painter.setOpacity(1.0)
+            else:
+                painter.setOpacity(self.dimmed_opacity)
+            painter.drawText(jobCodeRect, Qt.AlignCenter, text)
+
+        if dimmed:
             painter.setOpacity(self.dimmed_opacity)
 
         # painter.setPen(QColor(Qt.blue))
@@ -1691,7 +1825,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 painter.drawText(cardRect, Qt.AlignCenter, card)
                 text_x = text_x + card_width + self.footer_padding
 
-        if previously_downloaded and not checked:
+        if dimmed:
             painter.setOpacity(1.0)
 
         if download_status == DownloadStatus.not_downloaded:
@@ -1732,7 +1866,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
                     index: QModelIndex) -> bool:
         """
         Change the data in the model and the state of the checkbox
-        if the user presses the left mousebutton or presses
+        if the user presses the left mouse button or presses
         Key_Space or Key_Select and this cell is editable. Otherwise do nothing.
         """
 
@@ -1815,4 +1949,10 @@ class ThumbnailDelegate(QStyledItemDelegate):
     def getCheckBoxRect(self, rect: QRect) -> QRect:
         return QRect(self.getLeftPoint(rect), self.checkboxRect.size())
 
-
+    def applyJobCode(self, job_code: str) -> None:
+        thumbnailModel = self.rapidApp.thumbnailModel  # type: ThumbnailListModel
+        selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
+        if selection.hasSelection():
+            selected = selection.selection()  # type: QItemSelection
+            for i in selected.indexes():
+                thumbnailModel.setData(i, job_code, Roles.job_code)

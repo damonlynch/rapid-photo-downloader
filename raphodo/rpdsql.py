@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch"
+__copyright__ = "Copyright 2015-2017, Damon Lynch"
 
 import sqlite3
 import os
@@ -42,7 +42,7 @@ InCache = namedtuple('InCache', 'md5_name, mdatatime, orientation_unknown, failu
 
 ThumbnailRow = namedtuple('ThumbnailRow', 'uid, scan_id, mtime, marked, file_name, extension, '
                                           'file_type, downloaded, previously_downloaded, '
-                                          'proximity_col1, proximity_col2')
+                                          'job_code, proximity_col1, proximity_col2')
 
 sqlite3.register_adapter(bool, int)
 sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
@@ -85,6 +85,7 @@ class ThumbnailRowsSQL:
             file_type FILETYPE NOT NULL,
             downloaded BOOLEAN NOT NULL,
             previously_downloaded BOOLEAN NOT NULL,
+            job_code BOOLEAN NOT NULL,
             proximity_col1 INTEGER NOT NULL,
             proximity_col2 INTEGER NOT NULL,
             FOREIGN KEY (scan_id) REFERENCES devices (scan_id)
@@ -100,6 +101,9 @@ class ThumbnailRowsSQL:
 
         self.conn.execute("""CREATE INDEX IF NOT EXISTS previously_downloaded_idx ON files 
             (previously_downloaded)""")
+
+        self.conn.execute("""CREATE INDEX IF NOT EXISTS job_code_idx ON files
+            (job_code)""")
 
         self.conn.execute("""CREATE INDEX IF NOT EXISTS proximity_col1_idx ON files
             (proximity_col1)""")
@@ -128,8 +132,9 @@ class ThumbnailRowsSQL:
 
         logging.debug("Adding %s rows to db", len(thumbnail_rows))
         self.conn.executemany(r"""INSERT INTO files (uid, scan_id, mtime, marked, file_name,
-        extension, file_type, downloaded, previously_downloaded, proximity_col1, proximity_col2)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)""", thumbnail_rows)
+        extension, file_type, downloaded, previously_downloaded, job_code, proximity_col1,
+        proximity_col2)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""", thumbnail_rows)
 
         self.conn.commit()
 
@@ -137,6 +142,7 @@ class ThumbnailRowsSQL:
                      show: Optional[Show]=None,
                      previously_downloaded: Optional[bool]=None,
                      downloaded: Optional[bool]=None,
+                     job_code: Optional[bool]=None,
                      file_type: Optional[FileType]=None,
                      marked: Optional[bool]=None,
                      extensions: Optional[List[str]]=None,
@@ -168,6 +174,10 @@ class ThumbnailRowsSQL:
         if downloaded is not None:
             where_clauses.append('downloaded=?')
             where_values.append(downloaded)
+
+        if job_code is not None:
+            where_clauses.append('job_code=?')
+            where_values.append(job_code)
 
         if extensions is not None:
             if len(extensions) == 1:
@@ -245,6 +255,7 @@ class ThumbnailRowsSQL:
                  show: Optional[Show]=None,
                  previously_downloaded: Optional[bool]=None,
                  downloaded: Optional[bool]=None,
+                 job_code: Optional[bool]=None,
                  file_type: Optional[FileType]=None,
                  marked: Optional[bool]=None,
                  proximity_col1: Optional[List[int]]=None,
@@ -255,6 +266,7 @@ class ThumbnailRowsSQL:
         where, where_values = self._build_where(scan_id=scan_id, show=show,
                                                 previously_downloaded=previously_downloaded,
                                                 downloaded=downloaded, file_type=file_type,
+                                                job_code=job_code,
                                                 marked=marked, proximity_col1=proximity_col1,
                                                 proximity_col2=proximity_col2,
                                                 exclude_scan_ids=exclude_scan_ids)
@@ -278,15 +290,17 @@ class ThumbnailRowsSQL:
     def get_count(self, scan_id: Optional[int]=None,
                   show: Optional[Show]=None,
                   previously_downloaded: Optional[bool]=None,
-                  downloaded: Optional[bool] = None,
-                  file_type: Optional[FileType] = None,
+                  downloaded: Optional[bool]=None,
+                  job_code: Optional[bool]=None,
+                  file_type: Optional[FileType]=None,
                   marked: Optional[bool] = None,
                   proximity_col1: Optional[List[int]]=None,
                   proximity_col2: Optional[List[int]]=None) -> int:
 
         where, where_values = self._build_where(scan_id=scan_id, show=show,
                                                 previously_downloaded=previously_downloaded,
-                                                downloaded=downloaded, file_type=file_type,
+                                                downloaded=downloaded, job_code=job_code,
+                                                file_type=file_type,
                                                 marked=marked, proximity_col1=proximity_col1,
                                                 proximity_col2=proximity_col2)
 
@@ -349,6 +363,28 @@ class ThumbnailRowsSQL:
         logging.debug('%s (%s, <uid>)', query, downloaded)
         self.conn.execute(query, (downloaded, uid))
         self.conn.commit()
+
+    def set_job_code_assigned(self, uids: List[bytes], job_code: bool) -> None:
+        if len(uids) == 1:
+            query = 'UPDATE files SET job_code=? WHERE uid=?'
+            # logging.debug('%s (%s, <uid>)', query, job_code)
+            self.conn.execute(query, (job_code, uids[0]))
+        else:
+            # Limit to number of parameters: 999
+            # See https://www.sqlite.org/limits.html
+            if len(uids) > 999:
+                name_chunks = divide_list_on_length(uids, 999)
+                for chunk in name_chunks:
+                    self._mass_set_job_code_assigned(chunk, job_code)
+            else:
+                self._mass_set_job_code_assigned(uids, job_code)
+        self.conn.commit()
+
+    def _mass_set_job_code_assigned(self, uids: List[bytes], job_code: bool) -> None:
+        query = 'UPDATE files SET job_code=? WHERE uid IN ({})'
+        logging.debug('%s (%s files)', query, len(uids))
+        self.conn.execute(query.format(
+            ','.join('?' * len(uids))), [job_code] + uids)
 
     def assign_proximity_groups(self, groups: Sequence[Tuple[int, int, bytes]]) -> None:
         query = 'UPDATE files SET proximity_col1=?, proximity_col2=? WHERE uid=?'
@@ -445,7 +481,12 @@ class ThumbnailRowsSQL:
             return None
         return row[0]
 
-    def _delete_uids(self, uids: List[bytes]):
+    def any_marked_file_no_job_code(self) -> bool:
+        row = self.conn.execute('SELECT uid FROM files WHERE marked=1 AND job_code=0 '
+                                'LIMIT 1').fetchone()
+        return row is not None
+
+    def _delete_uids(self, uids: List[bytes]) -> None:
         query = 'DELETE FROM files WHERE uid IN ({})'
         logging.debug('%s (%s files)', query, len(uids))
         self.conn.execute(query.format(
@@ -807,11 +848,10 @@ if __name__ == '__main__':
 
     d.add_or_update_device(scan_id=scan_id, device_name=device_name)
 
-
     tr = ThumbnailRow(uid=uid, scan_id=scan_id, marked=marked, mtime=mtime, file_name=file_name,
                       file_type=file_type, extension=extension, downloaded=downloaded,
-                      previously_downloaded=previously_downloaded, proximity_col1=proximity_col1,
-                      proximity_col2=proximity_col2
+                      previously_downloaded=previously_downloaded, job_code=False,
+                      proximity_col1=proximity_col1, proximity_col2=proximity_col2
                       )
 
     uid = uuid.uuid4().bytes
@@ -828,9 +868,9 @@ if __name__ == '__main__':
     d.add_or_update_device(scan_id=scan_id, device_name=device_name)
 
     tr2 = ThumbnailRow(uid=uid, scan_id=scan_id, marked=marked, mtime=mtime, file_name=file_name,
-                      file_type=file_type, extension=extension, downloaded=downloaded,
-                      previously_downloaded=previously_downloaded, proximity_col1=proximity_col1,
-                      proximity_col2=proximity_col2
+                       file_type=file_type, extension=extension, downloaded=downloaded,
+                       previously_downloaded=previously_downloaded, job_code=False,
+                       proximity_col1=proximity_col1, proximity_col2=proximity_col2
                       )
 
 
@@ -845,8 +885,8 @@ if __name__ == '__main__':
 
     tr3 = ThumbnailRow(uid=uid, scan_id=scan_id, marked=marked, mtime=mtime, file_name=file_name,
                        file_type=file_type, extension=extension, downloaded=downloaded,
-                       previously_downloaded=previously_downloaded, proximity_col1=proximity_col1,
-                       proximity_col2=proximity_col2
+                       previously_downloaded=previously_downloaded, job_code=False,
+                       proximity_col1=proximity_col1, proximity_col2=proximity_col2
                        )
 
     d.add_thumbnail_rows([tr, tr2, tr3])

@@ -1,6 +1,17 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.0a10 (2017-03-xx)
+---------------------
+
+ - Implement the user interface to enter Job Codes. Job Codes are now easier
+   to assign compared to previous versions of Rapid Photo Downloader. You can
+   assign Job Codes to sets of photos and/or videos before starting the
+   download. That way you can efficiently apply a variety of Job Codes to
+   different sets of photos and videos in the same download.
+
+ - Added preliminary Greek translation, thanks to Dimitris Xenakis.
+
 0.9.0a9 (2017-02-21)
 --------------------
 

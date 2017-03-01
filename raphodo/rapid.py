@@ -142,7 +142,6 @@ from raphodo.computerview import ComputerWidget
 from raphodo.folderspreview import DownloadDestination, FoldersPreview
 from raphodo.destinationdisplay import DestinationDisplay
 from raphodo.aboutdialog import AboutDialog
-from raphodo.jobcode import JobCode
 import raphodo.constants as constants
 from raphodo.menubutton import MenuButton
 from raphodo.renamepanel import RenamePanel
@@ -152,6 +151,7 @@ import raphodo
 import raphodo.exiftool as exiftool
 from raphodo.newversion import (NewVersion, NewVersionCheckDialog,
                                 version_details, DownloadNewVersionDialog)
+from raphodo.chevroncombo import ChevronCombo
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -756,9 +756,6 @@ class RapidWindow(QMainWindow):
         logging.debug("Freedesktop.org thumbnails location: %s",
                        get_fdo_cache_thumb_base_directory())
 
-        logging.debug("Setting up Job Code window")
-        self.job_code = JobCode(self)
-
         logging.debug("Probing desktop environment")
         desktop_env = get_desktop_environment()
         if desktop_env is not None:
@@ -1112,6 +1109,23 @@ class RapidWindow(QMainWindow):
         self.downloadProgressBar = QProgressBar()
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QFont()).height() * 9)
         status.addPermanentWidget(self.downloadProgressBar, 1)
+
+    def anyFilesSelected(self) -> bool:
+        """
+        :return: True if any files are selected
+        """
+
+        return self.thumbnailView.selectionModel().hasSelection()
+
+    def applyJobCode(self, job_code: str) -> None:
+        """
+        Apply job code to all selected photos/videos.
+
+        :param job_code: job code to apply
+        """
+
+        delegate = self.thumbnailView.itemDelegate()  # type: ThumbnailDelegate
+        delegate.applyJobCode(job_code=job_code)
 
     @pyqtSlot(bool, version_details, version_details, str, bool, bool)
     def newVersionCheckMade(self, success: bool,
@@ -1813,7 +1827,7 @@ class RapidWindow(QMainWindow):
         Create the job code panel
         """
 
-        self.jobcodePanel = JobCodePanel(parent=self)
+        self.jobCodePanel = JobCodePanel(parent=self)
 
     def createBackupPanel(self) -> None:
         """
@@ -1835,68 +1849,16 @@ class RapidWindow(QMainWindow):
         layout.setSpacing(self.standard_spacing)
         self.thumbnailControl.setLayout(layout)
 
-        style = """
-        QComboBox {
-            border: 0px;
-            padding: 1px 3px 1px 3px;
-            background-color: palette(window);
-            selection-background-color: palette(highlight);
-            color: palette(window-text);
-        }
-
-        QComboBox:on { /* shift the text when the popup opens */
-            padding-top: 3px;
-            padding-left: 4px;
-        }
-
-        QComboBox::drop-down {
-             subcontrol-origin: padding;
-             subcontrol-position: top right;
-             width: %(width)dpx;
-             border: 0px;
-         }
-
-        QComboBox::down-arrow {
-            image: url(:/chevron-down.svg);
-            width: %(width)dpx;
-        }
-
-        QComboBox QAbstractItemView {
-            outline: none;
-            border: 1px solid palette(shadow);
-            background-color: palette(window);
-            selection-background-color: palette(highlight);
-            selection-color: palette(highlighted-text);
-            color: palette(window-text)
-        }
-
-        QComboBox QAbstractItemView::item {
-            padding: 3px;
-        }
-        """ % dict(width=int(QFontMetrics(QFont()).height() * (2/3)))
-
-        label_style = """
-        QLabel {border-color: palette(window); border-width: 1px; border-style: solid;}
-        """
-
-        # Delegate overrides default delegate for the Combobox, which is
-        # pretty ugly whenever a style sheet color is applied.
-        # See http://stackoverflow.com/questions/13308341/qcombobox-abstractitemviewitem?rq=1
-        self.comboboxDelegate = QStyledItemDelegate()
-
         font = self.font()  # type: QFont
         font.setPointSize(font.pointSize() - 2)
 
-        self.showLabel = QLabel(_("Show:"))
-        self.showLabel.setAlignment(Qt.AlignBottom)
-        self.showCombo = QComboBox()
+        self.showCombo = ChevronCombo()
         self.showCombo.addItem(_('All'), Show.all)
         self.showCombo.addItem(_('New'), Show.new_only)
         self.showCombo.currentIndexChanged.connect(self.showComboChanged)
+        self.showLabel = self.showCombo.makeLabel(_("Show:"))
 
-        self.sortLabel= QLabel(_("Sort:"))
-        self.sortLabel.setAlignment(Qt.AlignBottom)
-        self.sortCombo = QComboBox()
+        self.sortCombo = ChevronCombo()
         self.sortCombo.addItem(_("Modification Time"), Sort.modification_time)
         self.sortCombo.addItem(_("Checked State"), Sort.checked_state)
         self.sortCombo.addItem(_("Filename"), Sort.filename)
@@ -1904,25 +1866,15 @@ class RapidWindow(QMainWindow):
         self.sortCombo.addItem(_("File Type"), Sort.file_type)
         self.sortCombo.addItem(_("Device"), Sort.device)
         self.sortCombo.currentIndexChanged.connect(self.sortComboChanged)
+        self.sortLabel= self.sortCombo.makeLabel(_("Sort:"))
 
-        self.sortOrder = QComboBox()
+        self.sortOrder = ChevronCombo()
         self.sortOrder.addItem(_("Ascending"), Qt.AscendingOrder)
         self.sortOrder.addItem(_("Descending"), Qt.DescendingOrder)
         self.sortOrder.currentIndexChanged.connect(self.sortOrderChanged)
 
-        for combobox in (self.showCombo, self.sortCombo, self.sortOrder):
-            combobox.setItemDelegate(self.comboboxDelegate)
-            combobox.setStyleSheet(style)
-
-        # Add an invisible border to make the lable vertically align with the comboboxes
-        # Otherwise it's off by 1px
-        # TODO come up with a better way to solve this alignment problem, because this sucks
-        for label in (self.sortLabel,self.showLabel):
-            label.setStyleSheet(label_style)
-
         for widget in (self.showLabel, self.sortLabel, self.sortCombo, self.showCombo,
                        self.sortOrder):
-            widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
             widget.setFont(font)
 
         self.checkAllLabel = QLabel(_('Select All:'))
@@ -1984,7 +1936,7 @@ class RapidWindow(QMainWindow):
 
         self.rightPanels.addWidget(self.rightPanelSplitter)
         self.rightPanels.addWidget(self.renamePanel)
-        self.rightPanels.addWidget(self.jobcodePanel)
+        self.rightPanels.addWidget(self.jobCodePanel)
         self.rightPanels.addWidget(self.backupPanel)
 
         self.centerSplitter.addWidget(self.leftPanelSplitter)
@@ -2524,8 +2476,8 @@ class RapidWindow(QMainWindow):
                 if start_download:
                     logging.debug("Download activated")
 
-                    if self.job_code.need_to_prompt():
-                        self.job_code.get_job_code()
+                    if self.jobCodePanel.needToPromptForJobCode():
+                        self.jobCodePanel.getJobCodeBeforeDownload()
                     else:
                         self.startDownload()
 
@@ -2847,7 +2799,6 @@ class RapidWindow(QMainWindow):
         self.download_tracker.set_download_count_for_file(rpd_file.uid, download_count)
         self.download_tracker.set_download_count(scan_id, download_count)
         rpd_file.download_start_time = self.download_start_datetime
-        rpd_file.job_code = self.job_code.job_code
         if rpd_file.file_type == FileType.photo:
             rpd_file.generate_extension_case = self.prefs.photo_extension
         else:
@@ -3266,7 +3217,6 @@ class RapidWindow(QMainWindow):
             self.setDownloadActionLabel()
             self.setDownloadCapabilities()
 
-            self.job_code.job_code = ''
             self.download_start_datetime = None
             self.download_start_time = None
 
@@ -3317,7 +3267,7 @@ class RapidWindow(QMainWindow):
         self.preferencesAct.setEnabled(enabled)
         self.renamePanel.setEnabled(enabled)
         self.backupPanel.setEnabled(enabled)
-        self.jobcodePanel.setEnabled(enabled)
+        self.jobCodePanel.setEnabled(enabled)
 
     def unmountVolume(self, scan_id: int) -> None:
         """
@@ -3853,9 +3803,9 @@ class RapidWindow(QMainWindow):
             self.displayMessageInStatusBar()
         elif auto_start:
             self.displayMessageInStatusBar()
-            if self.job_code.need_to_prompt_on_auto_start():
+            if self.jobCodePanel.needToPromptForJobCode():
                 model.setSpinnerState(scan_id, DeviceState.idle)
-                self.job_code.get_job_code()
+                self.jobCodePanel.getJobCodeBeforeDownload()
             else:
                 if self.download_paused:
                     self.devices.queued_to_download.add(scan_id)

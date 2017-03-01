@@ -276,14 +276,16 @@ class Preferences:
                            stored_sequence_no=0,
                            strip_characters=True,
                            synchronize_raw_jpg=False,
-                           job_codes=[''],
+                           job_codes=[_('Wedding'), _('Birthday')],
                            remember_job_code=True,
                            ignore_mdatatime_for_mtp_dng=True,
                           )
     # custom preset prefs are define below in code such as get_preset()
     timeline_defaults = dict(proximity_seconds=3600)
     display_defaults = dict(detailed_time_remaining=False,
-                            warn_downloading_all=True)
+                            warn_downloading_all=True,
+                            job_code_sort_key=0,
+                            job_code_sort_order=0)
     device_defaults = dict(only_external_mounts=True,
                            device_autodetection=True,
                            this_computer_source = False,
