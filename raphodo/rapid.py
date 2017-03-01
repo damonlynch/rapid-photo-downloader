@@ -2477,7 +2477,8 @@ class RapidWindow(QMainWindow):
                     logging.debug("Download activated")
 
                     if self.jobCodePanel.needToPromptForJobCode():
-                        self.jobCodePanel.getJobCodeBeforeDownload()
+                        if self.jobCodePanel.getJobCodeBeforeDownload():
+                            self.startDownload()
                     else:
                         self.startDownload()
 
@@ -3805,8 +3806,13 @@ class RapidWindow(QMainWindow):
             self.displayMessageInStatusBar()
             if self.jobCodePanel.needToPromptForJobCode():
                 model.setSpinnerState(scan_id, DeviceState.idle)
-                self.jobCodePanel.getJobCodeBeforeDownload()
+                start_download = self.jobCodePanel.getJobCodeBeforeDownload()
+                if not start_download:
+                    logging.debug("Not auto-starting download, because a job code is already "
+                                  "being prompted for.")
             else:
+                start_download = True
+            if start_download:
                 if self.download_paused:
                     self.devices.queued_to_download.add(scan_id)
                 else:

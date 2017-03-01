@@ -10,6 +10,9 @@ Changelog for Rapid Photo Downloader
    download. That way you can efficiently apply a variety of Job Codes to
    different sets of photos and videos in the same download.
 
+ - Fixed bug where a crash would occur after using the "Clear Completed
+   Downloads" menu option.
+
  - Added preliminary Greek translation, thanks to Dimitris Xenakis.
 
 0.9.0a9 (2017-02-21)

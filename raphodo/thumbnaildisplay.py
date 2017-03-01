@@ -503,6 +503,7 @@ class ThumbnailListModel(QAbstractListModel):
         """
 
         uids = self.tsql.get_uids(marked=True, job_code=False)
+        logging.debug("Assigning job code to %s files because a download was initiated", len(uids))
         for uid in uids:
             self.rpd_files[uid].job_code = job_code
             rows = [self.uid_to_row[uid] for uid in uids if uid in self.uid_to_row]
@@ -896,6 +897,8 @@ class ThumbnailListModel(QAbstractListModel):
         uids = self.tsql.get_uids(downloaded=True)
         logging.debug("Removing %s thumbnail and rpd_files rows", len(uids))
         self.purgeRpdFiles(uids)
+
+        self.tsql.delete_uids(uids)
 
     def filesAreMarkedForDownload(self, scan_id: Optional[int]=None) -> bool:
         """
@@ -1954,5 +1957,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
         selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
         if selection.hasSelection():
             selected = selection.selection()  # type: QItemSelection
-            for i in selected.indexes():
+            selectedIndexes = selected.indexes()
+            logging.debug("Applying job code to %s files", len(selectedIndexes))
+            for i in selectedIndexes:
                 thumbnailModel.setData(i, job_code, Roles.job_code)
+        else:
+            logging.debug("Not applying job code because no files selected")

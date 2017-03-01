@@ -438,11 +438,13 @@ class JobCodeOptionsWidget(QFramedWidget):
 
     def getJobCode(self, on_download: bool) -> bool:
         if not self.prompting_for_job_code:
+            logging.debug("Prompting for job code")
             self.prompting_for_job_code = True
             dialog = JobCodeDialog(self.rapidApp, on_download=on_download,
                                    job_codes=self._jobCodes())
             if dialog.exec():
                 self.prompting_for_job_code = False
+                logging.debug("Job code entered / selected")
                 job_code = dialog.job_code
                 if job_code:
                     if dialog.remember:
@@ -462,6 +464,9 @@ class JobCodeOptionsWidget(QFramedWidget):
                     return True
             else:
                 self.prompting_for_job_code = False
+                logging.debug("No job code entered or selected")
+        else:
+            logging.debug("Not prompting for job code, because already doing so")
         return False
 
 
@@ -503,9 +508,10 @@ class JobCodePanel(QScrollArea):
             self.rapidApp.thumbnailModel.selectionReset.connect(self.jobCodeOptions.setWidgetStates)
 
     def needToPromptForJobCode(self) -> bool:
-        return (self.prefs.any_pref_uses_job_code() and self.rapidApp.thumbnailModel.jobCodeNeeded()
-                and not self.jobCodeOptions.prompting_for_job_code)
+        return self.prefs.any_pref_uses_job_code() and self.rapidApp.thumbnailModel.jobCodeNeeded()
 
-    def getJobCodeBeforeDownload(self) -> None:
-        if self.jobCodeOptions.getJobCode(on_download=True):
-            self.rapidApp.startDownload()
+    def getJobCodeBeforeDownload(self) -> bool:
+        """
+        :return: True if job code was entered and applied
+        """
+        return self.jobCodeOptions.getJobCode(on_download=True)
