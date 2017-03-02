@@ -233,9 +233,8 @@ class JobCodeOptionsWidget(QFramedWidget):
                                           QSizePolicy.MinimumExpanding)
 
         if False: # or True: # for testing only
-            self.prefs.job_codes = ['One', 'Two', 'Three', 'Four', 'Five', "Six", 'Seven', 'Eight',
-                                    'Nine', 'Extremely long job code that really takes up much '
-                                            'space']
+            self.prefs.job_codes = ['Wedding', "Birthday", "Minneapolis", "Cricket", "Rugby",
+                                    "Wellington"]
         if self.haveJobCodes():
             self._insertJobCodes(job_code=self.prefs.job_codes[0], clear=False)
 
