@@ -178,7 +178,9 @@ class JobCodeOptionsWidget(QFramedWidget):
              _('Click the Apply button to apply the current Job Code to all selected '
                'photos and/or videos. You can also simply double click the Job Code.'),
              _('Removing a Job Code removes it only from the list of saved Job Codes, '
-               'not from any photos or videos that it may have been applied to.')))
+               'not from any photos or videos that it may have been applied to.'),
+             _('If you want to use Job Codes, configure subfolder names or file renaming to use '
+               'them.')))
 
         self.setDefaultMessage()
 
@@ -322,28 +324,34 @@ class JobCodeOptionsWidget(QFramedWidget):
 
     @pyqtSlot()
     def newButtonActive(self) -> None:
-        if self.file_selected:
-            self.messageWidget.setCurrentIndex(2)
-        else:
-            self.messageWidget.setCurrentIndex(1)
+        if self.prefs.any_pref_uses_job_code():
+            if self.file_selected:
+                self.messageWidget.setCurrentIndex(2)
+            else:
+                self.messageWidget.setCurrentIndex(1)
 
     @pyqtSlot()
     def applyButtonActive(self) -> None:
-        if self.file_selected:
-            self.messageWidget.setCurrentIndex(3)
-        else:
-            self.messageWidget.setCurrentIndex(1)
+        if self.prefs.any_pref_uses_job_code():
+            if self.file_selected:
+                self.messageWidget.setCurrentIndex(3)
+            else:
+                self.messageWidget.setCurrentIndex(1)
 
     @pyqtSlot()
     def removeButtonActive(self) -> None:
-        self.messageWidget.setCurrentIndex(4)
+        if self.prefs.any_pref_uses_job_code():
+            self.messageWidget.setCurrentIndex(4)
 
     @pyqtSlot()
     def setDefaultMessage(self) -> None:
-        if not self.file_selected:
-            self.messageWidget.setCurrentIndex(1)
+        if self.prefs.any_pref_uses_job_code():
+            if not self.file_selected:
+                self.messageWidget.setCurrentIndex(1)
+            else:
+                self.messageWidget.setCurrentIndex(0)
         else:
-            self.messageWidget.setCurrentIndex(0)
+            self.messageWidget.setCurrentIndex(5)
 
     @pyqtSlot(int)
     def rowChanged(self, row: int) -> None:

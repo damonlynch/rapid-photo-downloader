@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0a10 (2017-03-01)
+0.9.0a10 (2017-03-02)
 ---------------------
 
  - Implement the user interface to enter Job Codes. Job Codes are now easier

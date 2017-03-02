@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-03-01 22:07-0600\n"
+"POT-Creation-Date: 2017-03-01 23:50-0600\n"
 "PO-Revision-Date: 2017-02-01 03:21+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Indonesian <id@li.org>\n"
@@ -906,7 +906,7 @@ msgstr ""
 msgid "YYYYMM"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:393 ../raphodo/jobcodepanel.py:187
+#: ../raphodo/generatenameconfig.py:393 ../raphodo/jobcodepanel.py:189
 #: ../raphodo/nameeditor.py:818 ../raphodo/rapid.py:1646
 #: ../raphodo/renamepanel.py:83 ../raphodo/renamepanel.py:242
 msgid "Job Code"
@@ -1051,47 +1051,53 @@ msgid ""
 "from any photos or videos that it may have been applied to."
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:186
+#: ../raphodo/jobcodepanel.py:182
+msgid ""
+"If you want to use Job Codes, configure subfolder names or file renaming to "
+"use them."
+msgstr ""
+
+#: ../raphodo/jobcodepanel.py:188
 msgid "Last Used"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:191
+#: ../raphodo/jobcodepanel.py:193
 msgid "Job Code Sort:"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:194 ../raphodo/rapid.py:1898
+#: ../raphodo/jobcodepanel.py:196 ../raphodo/rapid.py:1898
 msgid "Ascending"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:195 ../raphodo/rapid.py:1899
+#: ../raphodo/jobcodepanel.py:197 ../raphodo/rapid.py:1899
 msgid "Descending"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:205
+#: ../raphodo/jobcodepanel.py:207
 msgid "&New..."
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:209
+#: ../raphodo/jobcodepanel.py:211
 msgid "&Apply"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:213
+#: ../raphodo/jobcodepanel.py:215
 msgid "&Remove"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:217
+#: ../raphodo/jobcodepanel.py:219
 msgid "Remove All"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:423
+#: ../raphodo/jobcodepanel.py:431
 msgid "Do you really want to remove all the Job Codes?"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:425
+#: ../raphodo/jobcodepanel.py:433
 msgid "Remove all Job Codes"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:488
+#: ../raphodo/jobcodepanel.py:496
 msgid "Job Codes"
 msgstr ""
 
