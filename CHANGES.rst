@@ -1,17 +1,23 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0a10 (2017-03-xx)
+0.9.0a10 (2017-03-01)
 ---------------------
 
  - Implement the user interface to enter Job Codes. Job Codes are now easier
    to assign compared to previous versions of Rapid Photo Downloader. You can
    assign Job Codes to sets of photos and/or videos before starting the
    download. That way you can efficiently apply a variety of Job Codes to
-   different sets of photos and videos in the same download.
+   different sets of photos and videos in the same download. Job codes are
+   shown in the upper portion of each thumbnail.
 
  - Fixed bug where a crash would occur after using the "Clear Completed
    Downloads" menu option.
+
+ - Fixed bug where selecting a different part of the timeline did not
+   always update which thumbnails should be selected. (The values in the Photo
+   and Video "Select All" check boxes at the bottom right of the main window
+   determine if a thumbnail should be selected or not).
 
  - Added preliminary Greek translation, thanks to Dimitris Xenakis.
 

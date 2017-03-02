@@ -1145,6 +1145,9 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
 
 class TemporalProximityView(QTableView):
+
+    proximitySelectionHasChanged = pyqtSignal()
+
     def __init__(self, temporalProximityWidget: 'TemporalProximity', rapidApp) -> None:
         super().__init__()
         self.rapidApp = rapidApp
@@ -1322,9 +1325,7 @@ class TemporalProximityView(QTableView):
     @pyqtSlot(QMouseEvent)
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         self.temporalProximityWidget.block_update_device_display = False
-        self.temporalProximityWidget.rapidApp.thumbnailModel.updateAllDeviceDisplayCheckMarks()
-        self.temporalProximityWidget.rapidApp.thumbnailModel.updateSelection(reset_selection=True)
-        self.temporalProximityWidget.rapidApp.thumbnailModel.resetHighlighting()
+        self.proximitySelectionHasChanged.emit()
         super().mouseReleaseEvent(event)
 
 
@@ -1420,6 +1421,8 @@ class TemporalProximity(QWidget):
 
     Main widget to display and control Timeline.
     """
+
+    proximitySelectionHasChanged = pyqtSignal()
 
     def __init__(self, rapidApp,
                  prefs: Preferences,
@@ -1577,9 +1580,7 @@ class TemporalProximity(QWidget):
         self.rapidApp.proximityButton.setHighlighted(True)
 
         if not self.block_update_device_display:
-            self.thumbnailModel.updateAllDeviceDisplayCheckMarks()
-            self.thumbnailModel.updateSelection(reset_selection=True)
-            self.thumbnailModel.resetHighlighting()
+            self.proximitySelectionHasChanged.emit()
 
     def clearThumbnailDisplayFilter(self):
         self.thumbnailModel.setProximityGroupFilter([],[])

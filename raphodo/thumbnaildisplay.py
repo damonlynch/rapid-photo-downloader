@@ -276,7 +276,15 @@ class ThumbnailListModel(QAbstractListModel):
             assert uid in self.thumbnails
         logging.debug("...thumbnail model looks okay")
 
-    def refresh(self, suppress_signal=False, rememberSelection=False):
+    def refresh(self, suppress_signal=False, rememberSelection=False) -> None:
+        """
+        Refresh thumbnail view after files have been added, the proximity filters
+        are used, or the sort criteria is changed.
+
+        :param suppress_signal: if True don't emit signals that layout is changing
+        :param rememberSelection: remember which uids were selected before change,
+         and reselect them
+        """
 
         if rememberSelection:
             self.rememberSelection()
@@ -492,6 +500,7 @@ class ThumbnailListModel(QAbstractListModel):
             self.rpd_files[uid].job_code = value
             self.tsql.set_job_code_assigned(uids=[uid], job_code=True)
             self.dataChanged.emit(index, index)
+            return True
         return False
 
     def assignJobCodesToMarkedFilesWithNoJobCode(self, job_code: str) -> None:
@@ -522,7 +531,7 @@ class ThumbnailListModel(QAbstractListModel):
         self.rapidApp.displayMessageInStatusBar()
         self.rapidApp.setDownloadCapabilities()
 
-    def removeRows(self, position, rows=1, index=QModelIndex()):
+    def removeRows(self, position, rows=1, index=QModelIndex()) -> bool:
         """
         Removes Python list rows only, i.e. self.rows.
 
@@ -605,6 +614,7 @@ class ThumbnailListModel(QAbstractListModel):
         """
         :return: summary of files marked for download including sizes in bytes
         """
+
         size_photos_marked = self.getSizeOfFilesMarkedForDownload(FileType.photo)
         size_videos_marked = self.getSizeOfFilesMarkedForDownload(FileType.video)
         marked = self.getNoFilesAndTypesMarkedForDownload()
@@ -619,9 +629,8 @@ class ThumbnailListModel(QAbstractListModel):
             self.show = show
             self.refresh(rememberSelection=True)
 
-
     @pyqtSlot(int, CacheDirs)
-    def cacheDirsReceived(self, scan_id: int, cache_dirs: CacheDirs):
+    def cacheDirsReceived(self, scan_id: int, cache_dirs: CacheDirs) -> None:
         self.rapidApp.fileSystemFilter.setTempDirs([cache_dirs.photo_cache_dir,
                                                    cache_dirs.video_cache_dir])
         if scan_id in self.rapidApp.devices:
@@ -779,9 +788,10 @@ class ThumbnailListModel(QAbstractListModel):
     def _deleteRows(self, uids: List[bytes]) -> None:
         """
         Delete a list of thumbnails from the thumbnail display
-        :param uids:
-        :return:
+
+        :param uids: files to remove
         """
+
         rows = [self.uid_to_row[uid] for uid in uids]
 
         if rows:
@@ -898,6 +908,7 @@ class ThumbnailListModel(QAbstractListModel):
         logging.debug("Removing %s thumbnail and rpd_files rows", len(uids))
         self.purgeRpdFiles(uids)
 
+        # Delete the files from the internal database that drives the display
         self.tsql.delete_uids(uids)
 
     def filesAreMarkedForDownload(self, scan_id: Optional[int]=None) -> bool:
@@ -1083,16 +1094,20 @@ class ThumbnailListModel(QAbstractListModel):
 
         return self.tsql.get_count(scan_id=scan_id, downloaded=False)
 
-    def updateSelection(self, reset_selection: bool=False) -> None:
-        if reset_selection:
+    def updateSelectionAfterProximityChange(self) -> None:
+        if self._selectionModel().hasSelection():
+            # completely reset the existing selection
             self._selectionModel().reset()
+            self.dataChanged.emit(self.index(0, 0), self.index(len(self.rows)-1, 0))
+
         select_all_photos = self.rapidApp.selectAllPhotosCheckbox.isChecked()
         select_all_videos = self.rapidApp.selectAllVideosCheckbox.isChecked()
-        self.selectAll(select_all=select_all_photos, file_type=FileType.photo)
-        self.selectAll(select_all=select_all_videos, file_type=FileType.video)
+        if select_all_photos:
+            self.selectAll(select_all=select_all_photos, file_type=FileType.photo)
+        if select_all_videos:
+            self.selectAll(select_all=select_all_videos, file_type=FileType.video)
 
-    def selectAll(self, select_all: bool,
-                  file_type: FileType)-> None:
+    def selectAll(self, select_all: bool, file_type: FileType)-> None:
         """
         Check or deselect all visible files that are not downloaded.
 

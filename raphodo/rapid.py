@@ -718,6 +718,12 @@ class RapidWindow(QMainWindow):
 
         self.temporalProximity = TemporalProximity(rapidApp=self, prefs=self.prefs)
 
+        # Respond to the user selecting / deslecting temporal proximity (timeline) cells:
+        self.temporalProximity.proximitySelectionHasChanged.connect(
+            self.updateThumbnailModelAfterProximityChange)
+        self.temporalProximity.temporalProximityView.proximitySelectionHasChanged.connect(
+            self.updateThumbnailModelAfterProximityChange)
+
         self.file_manager = get_default_file_manager()
         if self.file_manager:
             logging.debug("Default file manager: %s", self.file_manager)
@@ -2076,6 +2082,17 @@ class RapidWindow(QMainWindow):
                 destinations_good = False
 
         return destinations_good
+
+    @pyqtSlot()
+    def updateThumbnailModelAfterProximityChange(self) -> None:
+        """
+        Respond to the user selecting / deslecting temporal proximity
+        cells
+        """
+
+        self.thumbnailModel.updateAllDeviceDisplayCheckMarks()
+        self.thumbnailModel.updateSelectionAfterProximityChange()
+        self.thumbnailModel.resetHighlighting()
 
     def updateBackupView(self, marked_summary: MarkedSummary) -> bool:
         merge = self.downloadIsRunning()
