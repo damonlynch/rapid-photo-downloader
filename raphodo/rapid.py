@@ -1440,6 +1440,7 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def jobcodButtonClicked(self) -> None:
+        self.jobCodePanel.updateDefaultMessage()
         self.setRightPanelsAndButtons(RightSideButton.jobcode)
 
     @pyqtSlot()

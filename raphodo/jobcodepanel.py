@@ -179,8 +179,8 @@ class JobCodeOptionsWidget(QFramedWidget):
                'photos and/or videos. You can also simply double click the Job Code.'),
              _('Removing a Job Code removes it only from the list of saved Job Codes, '
                'not from any photos or videos that it may have been applied to.'),
-             _('If you want to use Job Codes, configure subfolder names or file renaming to use '
-               'them.')))
+             _('If you want to use Job Codes, configure file renaming or destination subfolder '
+               'names to use them.')))
 
         self.setDefaultMessage()
 
@@ -523,3 +523,6 @@ class JobCodePanel(QScrollArea):
         :return: True if job code was entered and applied
         """
         return self.jobCodeOptions.getJobCode(on_download=True)
+
+    def updateDefaultMessage(self) -> None:
+        self.jobCodeOptions.setDefaultMessage()
