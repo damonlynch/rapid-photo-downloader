@@ -987,7 +987,6 @@ class PrefDialog(QDialog):
                     gLayout.addWidget(widget2, row, 2)
 
         self.mapper.mapped[str].connect(self.choiceMade)
-        self.editor.setPrefMapper(self.pref_mapper, self.pref_color)
 
         buttonBox = QDialogButtonBox()
         buttonBox.addButton(QDialogButtonBox.Cancel)  # type: QPushButton

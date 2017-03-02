@@ -19,6 +19,9 @@ Changelog for Rapid Photo Downloader
    and Video "Select All" check boxes at the bottom right of the main window
    determine if a thumbnail should be selected or not).
 
+ - Fixed bug in file renaming and subfolder name editors when running
+   under PyQt 5.8 / Qt 5.8.
+
  - Added preliminary Greek translation, thanks to Dimitris Xenakis.
 
 0.9.0a9 (2017-02-21)
