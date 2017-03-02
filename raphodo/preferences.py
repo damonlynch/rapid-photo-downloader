@@ -284,6 +284,7 @@ class Preferences:
     timeline_defaults = dict(proximity_seconds=3600)
     display_defaults = dict(detailed_time_remaining=False,
                             warn_downloading_all=True,
+                            warn_no_libmediainfo=True,
                             job_code_sort_key=0,
                             job_code_sort_order=0)
     device_defaults = dict(only_external_mounts=True,

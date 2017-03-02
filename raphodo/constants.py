@@ -551,3 +551,9 @@ thumbnail_offset = dict(
 class RememberThisMessage(Enum):
     remember_choice = 1
     do_not_ask_again = 2
+    do_not_warn_again = 3
+
+
+class RememberThisButtons(Enum):
+    yes_no = 1
+    ok = 2

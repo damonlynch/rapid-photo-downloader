@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,7 +22,7 @@ or "Don't ask me about this again" checkbox.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2016, Damon Lynch"
+__copyright__ = "Copyright 2016-2017, Damon Lynch"
 
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QPixmap
@@ -30,7 +30,8 @@ from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QCheckBox, QLabel, QGridL
 
 from gettext import gettext as _
 
-from raphodo.constants import RememberThisMessage
+from raphodo.constants import RememberThisMessage, RememberThisButtons
+
 
 class RememberThisDialog(QDialog):
 
@@ -44,7 +45,8 @@ class RememberThisDialog(QDialog):
     def __init__(self, message: str,
                  icon: QPixmap,
                  remember: RememberThisMessage,
-                 parent) -> None:
+                 parent,
+                 buttons: RememberThisButtons=RememberThisButtons.yes_no) -> None:
 
         super().__init__(parent)
 
@@ -58,15 +60,22 @@ class RememberThisDialog(QDialog):
 
         if remember == RememberThisMessage.remember_choice:
             question =  _("&Remember this choice")
-        else:
+        elif remember == RememberThisMessage.do_not_ask_again:
             question = _("&Don't ask me about this again")
+        else:
+            question = _("&Don't warn me about this again")
 
         self.rememberCheckBox = QCheckBox(question)
 
         self.rememberCheckBox.setChecked(False)
         buttonBox = QDialogButtonBox()
-        yesButton = buttonBox.addButton(QDialogButtonBox.Yes)
-        noButton = buttonBox.addButton(QDialogButtonBox.No)
+
+        if buttons == RememberThisButtons.yes_no:
+            yesButton = buttonBox.addButton(QDialogButtonBox.Yes)
+            noButton = buttonBox.addButton(QDialogButtonBox.No)
+        else:
+            okayButton = buttonBox.addButton(QDialogButtonBox.Ok)
+
         grid = QGridLayout()
         grid.setSpacing(11)
         grid.setContentsMargins(11, 11, 11, 11)
@@ -77,10 +86,12 @@ class RememberThisDialog(QDialog):
         self.setLayout(grid)
         self.setWindowTitle(_('Rapid Photo Downloader'))
 
-        yesButton.clicked.connect(self.doAction)
-        noButton.clicked.connect(self.doNotDoAction)
-
-        noButton.setFocus()
+        if buttons == RememberThisButtons.yes_no:
+            yesButton.clicked.connect(self.doAction)
+            noButton.clicked.connect(self.doNotDoAction)
+            noButton.setFocus()
+        else:
+            okayButton.clicked.connect(self.doAction)
 
     @pyqtSlot()
     def doAction(self) -> None:

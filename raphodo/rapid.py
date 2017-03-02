@@ -109,7 +109,7 @@ from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                                DeviceState, Sort, Show, Roles, DestinationDisplayType,
                                DisplayingFilesOfType, DownloadFailure, DownloadWarning,
                                RememberThisMessage, RightSideButton, CheckNewVersionDialogState,
-                               CheckNewVersionDialogResult)
+                               CheckNewVersionDialogResult, RememberThisButtons)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
                                       DownloadTypes, DownloadStats, MarkedSummary)
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
@@ -125,7 +125,7 @@ from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
 import raphodo.downloadtracker as downloadtracker
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.metadataphoto import exiv2_version, gexiv2_version
-from raphodo.metadatavideo import EXIFTOOL_VERSION, pymedia_version_info
+from raphodo.metadatavideo import EXIFTOOL_VERSION, pymedia_version_info, libmediainfo_missing
 from raphodo.camera import gphoto2_version, python_gphoto2_version
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.generatenameconfig import *
@@ -454,6 +454,11 @@ class RapidWindow(QMainWindow):
 
         for version in get_versions():
             logging.info('%s', version)
+
+        if pymedia_version_info() is None:
+            if libmediainfo_missing:
+                logging.error(
+                    "pymediainfo installed, but the library libmediainfo appears to be missing")
 
         self.log_gphoto2 = log_gphoto2 == True
 
@@ -1016,6 +1021,21 @@ class RapidWindow(QMainWindow):
         self.displayMessageInStatusBar()
 
         self.showMainWindow()
+
+        if libmediainfo_missing and self.prefs.warn_no_libmediainfo:
+            message = _('<b>The library libmediainfo appears to be missing</b><br><br> '
+                'Rapid Photo Downloader uses libmediainfo to get the date and time a video was '
+                'shot. The program will run  without it, but installing it is recommended.')
+
+            warning = RememberThisDialog(message=message,
+                                         icon=QPixmap(':/rapid-photo-downloader.svg'),
+                                         remember=RememberThisMessage.do_not_warn_again,
+                                         parent=self,
+                                         buttons=RememberThisButtons.ok)
+
+            warning.exec_()
+            if warning.remember:
+                self.prefs.warn_no_libmediainfo = False
 
         if not prefs_valid:
             self.notifyPrefsAreInvalid(details=msg)
@@ -5287,19 +5307,30 @@ def import_prefs() -> None:
                     _('Do you want to copy the stored sequence number, which has the value %d?') %
                             new_value, resp=False):
                 prefs.stored_sequence_no = new_value
+
+
+def critical_startup_error(message: str) -> None:
+    errorapp = QApplication(sys.argv)
+    msg = QMessageBox()
+    msg.setWindowTitle(_("Rapid Photo Downloader"))
+    # msg.setIconPixmap(QPixmap(':/rapid-photo-downloader.svg'))
+    msg.setIcon(QMessageBox.Critical)
+    msg.setText('<b>%s</b>' % message)
+    msg.setInformativeText(_('Program aborting.'))
+    msg.setStandardButtons(QMessageBox.Ok)
+    msg.show()
+    errorapp.exec_()
+
+
 def main():
 
     if sys.platform.startswith('linux') and os.getuid() == 0:
         sys.stderr.write("Never run this program as the sudo / root user.\n")
-        errorapp = QApplication(sys.argv)
-        msg = QMessageBox()
-        msg.setWindowTitle(_("Rapid Photo Downloader"))
-        msg.setIconPixmap(QPixmap(':/rapid-photo-downloader.svg'))
-        msg.setText(_("<b>Never run this program as the sudo / root user.</b>"))
-        msg.setInformativeText(_('Program aborting.'))
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.show()
-        errorapp.exec_()
+        critical_startup_error(_("Never run this program as the sudo / root user."))
+        sys.exit(1)
+
+    if not shutil.which('exiftool'):
+        critical_startup_error(_('You must install ExifTool to run Rapid Photo Downloader.'))
         sys.exit(1)
 
     parser = parser_options()

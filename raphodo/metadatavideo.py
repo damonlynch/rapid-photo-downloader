@@ -37,15 +37,17 @@ try:
     have_pymediainfo = True
 except ImportError:
     have_pymediainfo = False
+    libmediainfo_missing = None
 
 if have_pymediainfo:
     try:
         # Attempt to parse null... it will fail if libmediainfo is not present, which is
         # what we want to check
         pymediainfo.MediaInfo.parse('/dev/null')
+        libmediainfo_missing = False
     except OSError:
-        logging.error("pymediainfo installed, but the library libmediainfo appears to be missing")
         have_pymediainfo = False
+        libmediainfo_missing = True
 
 def version_info() -> Optional[str]:
     """
@@ -56,7 +58,6 @@ def version_info() -> Optional[str]:
     try:
         return subprocess.check_output(['exiftool', '-ver']).strip().decode()
     except OSError:
-        logging.error("Could not locate Exiftool")
         return None
 
 def pymedia_version_info() -> Optional[str]:
@@ -67,27 +68,24 @@ def pymedia_version_info() -> Optional[str]:
 
 EXIFTOOL_VERSION = version_info()
 
-# Run Exiftool in a context manager, which will ensure it is terminated
-# properly. Then call this class
-# with exiftool.ExifTool() as et_process:
-
 
 class MetaData:
-    """
-    Get video metadata using Exiftool
-
-    :param filename: the file from which to get metadata
-    :param et_process: instance of ExifTool class, which allows
-    calling EXifTool without it exiting with each call
-    """
     def __init__(self, full_file_name: str, et_process: exiftool.ExifTool):
+        """
+        Get video metadata using Exiftool
+
+        :param filename: the file from which to get metadata
+        :param et_process: instance of ExifTool class, which allows
+        calling EXifTool without it exiting with each call
+        """
 
         self.filename = full_file_name
         self.metadata = dict()
         self.metadata_string_format = dict()
         self.et_process = et_process
         if have_pymediainfo:
-            self.media_info =  pymediainfo.MediaInfo.parse(full_file_name)  # type: pymediainfo.MediaInfo
+            self.media_info =  pymediainfo.MediaInfo.parse(
+                full_file_name)  # type: pymediainfo.MediaInfo
         else:
             self.media_info = None
 

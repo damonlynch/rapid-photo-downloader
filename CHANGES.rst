@@ -22,6 +22,12 @@ Changelog for Rapid Photo Downloader
  - Fixed bug in file renaming and subfolder name editors when running
    under PyQt 5.8 / Qt 5.8.
 
+ - In systems where ExifTool is not installed, inform user via
+   error message at startup, and abort.
+
+ - In systems where libmediainfo is not installed, a warning message is
+   displayed after program startup.
+
  - Added preliminary Greek translation, thanks to Dimitris Xenakis.
 
 0.9.0a9 (2017-02-21)
