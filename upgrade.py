@@ -29,10 +29,12 @@ import os
 import tarfile
 import tempfile
 import shutil
+import re
 from typing import List, Optional
 import shlex
 from subprocess import Popen, PIPE
 from queue import Queue, Empty
+import subprocess
 from gettext import gettext as _
 
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot,  Qt, QThread, QObject, QTimer)
@@ -139,6 +141,14 @@ class RPDUpgrade(QObject):
             return None
 
 
+def extract_version_number(installer: str) -> str:
+    targz = os.path.basename(installer)
+    parsed_version = targz[:targz.find('tar') - 1]
+
+    first_digit = re.search("\d", parsed_version)
+    return parsed_version[first_digit.start():]
+
+
 class UpgradeDialog(QDialog):
     """
     Very simple dialog window that allows user to initiate
@@ -152,6 +162,11 @@ class UpgradeDialog(QDialog):
 
         self.installer = installer
         self.setWindowTitle(_('Upgrade Rapid Photo Downloader'))
+
+        try:
+            self.version_no = extract_version_number(installer=installer)
+        except Exception:
+            self.version_no = ''
 
         self.running = False
 
@@ -177,14 +192,24 @@ class UpgradeDialog(QDialog):
                                                  QDialogButtonBox.AcceptRole)  # QPushButton
         # self.startButton.setDefault(True)
 
-        self.explanation = QLabel(_('Click the Upgrade button to start the upgrade.'))
+        if self.version_no:
+            self.explanation = QLabel(_('Click the Upgrade button to upgrade to '
+                                        'version %s.') % self.version_no)
+        else:
+            self.explanation = QLabel(_('Click the Upgrade button to start the upgrade.'))
 
         finishButtonBox = QDialogButtonBox(QDialogButtonBox.Close)
-        finishButtonBox.rejected.connect(self.accept)
+        finishButtonBox.addButton(_('&Run'), QDialogButtonBox.AcceptRole)
+        finishButtonBox.rejected.connect(self.reject)
+        finishButtonBox.accepted.connect(self.runNewVersion)
+
+        failedButtonBox = QDialogButtonBox(QDialogButtonBox.Close)
+        failedButtonBox.rejected.connect(self.reject)
 
         self.stackedButtons = QStackedWidget()
         self.stackedButtons.addWidget(upgradeButtonBox)
         self.stackedButtons.addWidget(finishButtonBox)
+        self.stackedButtons.addWidget(failedButtonBox)
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -233,9 +258,19 @@ class UpgradeDialog(QDialog):
     @pyqtSlot(bool)
     def upgradeFinished(self, success: bool) -> None:
         self.running = False
-        self.stackedButtons.setCurrentIndex(1)
+
         if success:
-            message = _('Upgrade finished successfully. Click Close to exit.')
+            self.stackedButtons.setCurrentIndex(1)
+        else:
+            self.stackedButtons.setCurrentIndex(2)
+
+        if success:
+            if self.version_no:
+                message = _('Successfully upgraded to %s. Click Close to exit, or Run to '
+                            'start the program.' % self.version_no)
+            else:
+                message = _('Upgrade finished successfully. Click Close to exit, or Run to '
+                            'start the program.')
         else:
             message = _('Upgrade failed. Click Close to exit.')
 
@@ -244,7 +279,8 @@ class UpgradeDialog(QDialog):
 
     def deleteTar(self) -> None:
         temp_dir = os.path.dirname(self.installer)
-        shutil.rmtree(temp_dir, ignore_errors=True)
+        if temp_dir:
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
     def closeEvent(self, event) -> None:
         self.upgradeThread.quit()
@@ -257,6 +293,12 @@ class UpgradeDialog(QDialog):
             # strangely, using zmq in this program causes a segfault :-/
             q.put('STOP')
         super().reject()
+
+    @pyqtSlot()
+    def runNewVersion(self) -> None:
+        cmd = shutil.which('rapid-photo-downloader')
+        subprocess.Popen(cmd)
+        super().accept()
 
 
 if __name__ == '__main__':

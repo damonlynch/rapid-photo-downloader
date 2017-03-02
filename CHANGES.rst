@@ -11,6 +11,9 @@ Changelog for Rapid Photo Downloader
    different sets of photos and videos in the same download. Job codes are
    shown in the upper portion of each thumbnail.
 
+ - Added Run button to upgrade dialog window that is shown when the program
+   was successfully upgraded.
+
  - Fixed bug where a crash would occur after using the "Clear Completed
    Downloads" menu option.
 
