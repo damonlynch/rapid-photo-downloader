@@ -14,6 +14,9 @@ Changelog for Rapid Photo Downloader
  - Fixed detection of Unity desktop environment when desktop environment
    variable is set to 'Unity:Unity7'
 
+ - Disable the use of the scrollwheel to insert preference values in the file
+   and subfolder name editors.
+
 0.9.0a10 (2017-03-02)
 ---------------------
 

@@ -36,7 +36,7 @@ from PyQt5.QtWidgets import (QTextEdit, QApplication, QComboBox, QPushButton, QL
                              QFrame, QStyle, QSizePolicy, QLineEdit, QMessageBox)
 from PyQt5.QtGui import (QTextCharFormat, QFont, QTextCursor, QMouseEvent, QSyntaxHighlighter,
                          QTextDocument, QBrush, QColor, QFontMetrics, QKeyEvent, QResizeEvent,
-                         QStandardItem, QPixmap)
+                         QStandardItem, QPixmap, QWheelEvent)
 from PyQt5.QtCore import (Qt, pyqtSlot, QSignalMapper, QSize, pyqtSignal)
 
 from sortedcontainers import SortedList
@@ -747,6 +747,14 @@ def make_sample_rpd_file(sample_job_code: str,
 
     return sample_rpd_file
 
+class EditorCombobox(QComboBox):
+    """
+    Regular combobox, but ignores the mouse wheel
+    """
+
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        event.ignore()
+
 class PrefDialog(QDialog):
     """
     Dialog window to allow editing of file renaming and subfolder generation
@@ -953,7 +961,7 @@ class PrefDialog(QDialog):
                             data.append([METADATA, element, e])
                             self.pref_mapper[(METADATA, element, e)] = item
                             self.pref_color['<{}>'.format(item)] = color
-                widget1 = QComboBox()
+                widget1 = EditorCombobox()
                 for element, data_item in zip(elements, data):
                     widget1.addItem(element, data_item)
                 widget2 = self.makeInsertButton()
@@ -966,7 +974,7 @@ class PrefDialog(QDialog):
                 gLayout.addWidget(widget2, 0, 2)
             else:
                 for row, level1 in enumerate(pref_defn[title]):
-                    widget1 = QComboBox()
+                    widget1 = EditorCombobox()
                     level1_i18n = _(level1)
                     items = (_('{choice} ({variant})').format(
                              choice=level1_i18n, variant=_(element))
