@@ -32,13 +32,11 @@ from collections import namedtuple, defaultdict
 from gettext import gettext as _
 
 
-from PyQt5.QtCore import (Qt, pyqtSlot, QAbstractListModel, QModelIndex, QSize, QStorageInfo)
-from PyQt5.QtWidgets import (QWidget, QSizePolicy, QComboBox, QFormLayout,
-                             QVBoxLayout, QLabel, QLineEdit, QFileDialog, QCheckBox, QPushButton,
+from PyQt5.QtCore import (Qt, pyqtSlot, QAbstractListModel, QModelIndex, QSize)
+from PyQt5.QtWidgets import (QWidget, QSizePolicy, QVBoxLayout, QLabel, QLineEdit, QCheckBox,
                              QScrollArea, QFrame, QGridLayout, QStyledItemDelegate,
-                             QStyleOptionViewItem, )
-from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette,
-                         QPixmap, QPaintEvent, QGuiApplication, QPen, QIcon)
+                             QStyleOptionViewItem, QStyle, QGroupBox, QHBoxLayout, QGridLayout)
+from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QPalette, QIcon)
 
 from raphodo.constants import (StandardFileLocations, ThumbnailBackgroundName, FileType,
                                minGridColumnWidth, Roles, ViewRowType, BackupLocationType)
@@ -397,10 +395,13 @@ class BackupOptionsWidget(QFramedWidget):
                                           'multiple locations as they are downloaded, e.g. '
                                           'external hard drives.'))
         self.backupExplanation.setWordWrap(True)
+        self.backupExplanation.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Minimum)
 
         self.backup = QCheckBox(_('Back up photos and videos when downloading'))
         self.backup.setChecked(self.prefs.backup_files)
         self.backup.stateChanged.connect(self.backupChanged)
+
+        checkbox_width = self.backup.style().pixelMetric(QStyle.PM_IndicatorWidth)
 
         self.autoBackup = QCheckBox(_('Automatically detect backup devices'))
         self.autoBackup.setChecked(self.prefs.backup_device_autodetection)
@@ -415,24 +416,32 @@ class BackupOptionsWidget(QFramedWidget):
                                           'By adding both folders, the same device can be used '
                                           'to back up both photos and videos.</i>'))
         self.folderExplanation.setWordWrap(True)
+        self.folderExplanation.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Minimum)
 
-        self.photoFolderNameLabel = QLabel(_('Photo backup folder name:'))
+        self.photoFolderNameLabel = QLabel(_('Photo folder name:'))
         self.photoFolderName = QLineEdit()
         self.photoFolderName.setText(self.prefs.photo_backup_identifier)
         self.photoFolderName.editingFinished.connect(self.photoFolderIdentifierChanged)
 
-        self.videoFolderNameLabel = QLabel(_('Video backup folder name:'))
+        self.videoFolderNameLabel = QLabel(_('Video folder name:'))
         self.videoFolderName = QLineEdit()
         self.videoFolderName.setText(self.prefs.video_backup_identifier)
         self.videoFolderName.editingFinished.connect(self.videoFolderIdentifierChanged)
 
-        self.autoBackupExampleLabel = QLabel('<i>' + _('Example:') + '</i>')
+        self.autoBackupExampleBox = QGroupBox('Example:')
         self.autoBackupExample = QLabel()
+
+        autoBackupExampleBoxLayout = QHBoxLayout()
+        autoBackupExampleBoxLayout.addWidget(self.autoBackupExample)
+
+        self.autoBackupExampleBox.setLayout(autoBackupExampleBoxLayout)
 
         valid_mounts = ValidMounts(onlyExternalMounts=True)
 
         self.manualLocationExplanation = QLabel(_('If you disable automatic detection, choose the '
                                                   'exact backup locations.'))
+        self.manualLocationExplanation.setWordWrap(True)
+        self.manualLocationExplanation.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Minimum)
         self.photoLocationLabel = QLabel(_('Photo backup location:'))
         self.photoLocation = FolderCombo(self, prefs=self.prefs, file_type=FileType.photo,
                                          file_chooser_title=_('Select Photo Backup Location'),
@@ -457,19 +466,16 @@ class BackupOptionsWidget(QFramedWidget):
         backupLayout.addWidget(self.photoFolderName, 4, 3, 1, 1)
         backupLayout.addWidget(self.videoFolderNameLabel, 5, 2, 1, 1)
         backupLayout.addWidget(self.videoFolderName, 5, 3, 1, 1)
-        backupLayout.addWidget(self.autoBackupExampleLabel, 6, 2, 1, 1, Qt.AlignTop)
-        backupLayout.addWidget(self.autoBackupExample, 6, 3, 1, 1)
+        backupLayout.addWidget(self.autoBackupExampleBox, 6, 2, 1, 2)
         backupLayout.addWidget(self.manualLocationExplanation, 7, 1, 1, 3, Qt.AlignBottom)
         backupLayout.addWidget(self.photoLocationLabel, 8, 1, 1, 2)
         backupLayout.addWidget(self.photoLocation, 8, 3, 1, 1)
         backupLayout.addWidget(self.videoLocationLabel, 9, 1, 1, 2)
         backupLayout.addWidget(self.videoLocation, 9, 3, 1, 1)
 
-        # Give the first two columns some space to breathe
-        min_width = minGridColumnWidth()
-        backupLayout.setColumnMinimumWidth(0, min_width)
-        backupLayout.setColumnMinimumWidth(1, min_width)
-        # Add gap between auto and manual backup options
+        backupLayout.setColumnMinimumWidth(0, checkbox_width)
+        backupLayout.setColumnMinimumWidth(1, checkbox_width)
+
         backupLayout.setRowMinimumHeight(7, QFontMetrics(QFont()).height() +
                                          backupLayout.spacing() * 2)
 
@@ -482,14 +488,12 @@ class BackupOptionsWidget(QFramedWidget):
         self._backup_controls_type = (self.autoBackup, )
         self._backup_controls_auto = (self.folderExplanation, self.photoFolderNameLabel,
                                       self.photoFolderName, self.videoFolderNameLabel,
-                                      self.videoFolderName, self.autoBackupExample,
-                                      self.autoBackupExampleLabel)
+                                      self.videoFolderName, self.autoBackupExampleBox)
         self._backup_controls_manual = (self.manualLocationExplanation, self.photoLocationLabel,
                                         self.photoLocation, self.videoLocationLabel,
                                         self.videoLocation, )
         self.updateExample()
         self.enableControlsByBackupType()
-
 
     @pyqtSlot(int)
     def backupChanged(self, state: int) -> None:
@@ -546,23 +550,19 @@ class BackupOptionsWidget(QFramedWidget):
 
         if self.autoBackup.isChecked() and hasattr(self.rapidApp, 'backup_devices') and len(
                 self.rapidApp.backup_devices):
-            drives = ('<i>{}</i>'.format(html.escape(drive))
-                      for drive in self.rapidApp.backup_devices.sample_device_paths())
+            drives = self.rapidApp.backup_devices.sample_device_paths()
         else:
             # Translators: this value is used as an example device when automatic backup device
             # detection is enabled. You should translate this.
-            drive1 = os.path.join(self.media_dir, _("externaldrive1"))
+            drive1 = os.path.join(self.media_dir, _("drive1"))
             # Translators: this value is used as an example device when automatic backup device
             # detection is enabled. You should translate this.
-            drive2 = os.path.join(self.media_dir, _("externaldrive2"))
+            drive2 = os.path.join(self.media_dir, _("drive2"))
             drives =  (os.path.join(path, identifier)
                        for path, identifier in ((drive1, self.prefs.photo_backup_identifier),
                                                 (drive2, self.prefs.photo_backup_identifier),
                                                 (drive2, self.prefs.video_backup_identifier)))
-            drives = ('<i>{}</i>'.format(html.escape(drive))
-                      for drive in drives)
-
-        paths = '<br>'.join(drives)
+        paths = '\n'.join(drives)
         self.autoBackupExample.setText(paths)
 
     def setBackupButtonHighlight(self) -> None:

@@ -178,6 +178,7 @@ class QNarrowListWidget(QListWidget):
 
     See http://stackoverflow.com/questions/6337589/qlistwidget-adjust-size-to-content
     """
+
     def __init__(self, minimum_rows: int=0, minimum_width: int=0, parent=None) -> None:
         super().__init__(parent=parent)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -201,3 +202,4 @@ class QNarrowListWidget(QListWidget):
             s.setHeight(super().sizeHint().height())
         s.setWidth(max(self.sizeHintForColumn(0) + self.frameWidth() * 2, self._minimum_width))
         return s
+

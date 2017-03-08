@@ -11,6 +11,9 @@ Changelog for Rapid Photo Downloader
  - Fixed bug where URIs with spaces were not opening in the system file
    browser.
 
+ - Minimized width required by Job Code and Backup, and Rename configuration
+   panels.
+
  - Fixed detection of Unity desktop environment when desktop environment
    variable is set to 'Unity:Unity7'
 

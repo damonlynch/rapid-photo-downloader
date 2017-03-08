@@ -29,10 +29,10 @@ from gettext import gettext as _
 
 
 from PyQt5.QtCore import (Qt, pyqtSlot, QSize)
-from PyQt5.QtWidgets import (QWidget, QSizePolicy, QMessageBox, QVBoxLayout, QLabel, QListWidget,
+from PyQt5.QtWidgets import (QWidget, QSizePolicy, QMessageBox, QVBoxLayout, QLabel,
                              QScrollArea, QFrame, QGridLayout, QAbstractItemView, QListWidgetItem,
                              QHBoxLayout, QDialog, QDialogButtonBox, QCheckBox, QComboBox)
-from PyQt5.QtGui import (QColor, QPalette, QFont, QFontMetrics, QIcon)
+from PyQt5.QtGui import (QColor, QPalette, QFont, QFontMetrics, QIcon, QShowEvent)
 
 
 from raphodo.constants import (JobCodeSort, ThumbnailBackgroundName, )
@@ -168,9 +168,10 @@ class JobCodeOptionsWidget(QFramedWidget):
         layout.addLayout(jobCodeLayout)
         self.setLayout(layout)
 
-        explanation = QLabel(_("A Job Code is text that describes sets of photos and videos. "
+        self.explanation = QLabel(_("A Job Code is text that describes sets of photos and videos. "
                                "Job Codes can be used in subfolder and file names."))
-        explanation.setWordWrap(True)
+        self.explanation.setWordWrap(True)
+        self.explanation.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
 
         self.messageWidget = MessageWidget(
             (_('Select photos and videos to be able to apply a new or existing Job Code to them.'),
@@ -223,7 +224,6 @@ class JobCodeOptionsWidget(QFramedWidget):
 
         # explanation_not_done = QLabel(_("<i>This part of the user interface will be "
         #                                 "implemented in a forthcoming alpha release.</i>"))
-        # explanation_not_done.setWordWrap(True)
 
         self.jobCodesWidget = QNarrowListWidget()
         self.jobCodesWidget.currentRowChanged.connect(self.rowChanged)
@@ -244,7 +244,7 @@ class JobCodeOptionsWidget(QFramedWidget):
         sortLayout.addWidget(self.sortOrder)
         sortLayout.addStretch()
 
-        jobCodeLayout.addWidget(explanation, 0, 0, 1, 2)
+        jobCodeLayout.addWidget(self.explanation, 0, 0, 1, 2)
         jobCodeLayout.addWidget(self.jobCodesWidget, 1, 0, 1, 2)
         jobCodeLayout.addLayout(sortLayout, 2, 0, 1, 2)
         jobCodeLayout.addWidget(self.messageWidget, 3, 0, 1, 2)

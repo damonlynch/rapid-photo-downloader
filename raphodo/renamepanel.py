@@ -31,7 +31,7 @@ from gettext import gettext as _
 from PyQt5.QtCore import (Qt, pyqtSlot, QTime)
 from PyQt5.QtWidgets import (QWidget, QSizePolicy, QComboBox, QFormLayout,
                              QVBoxLayout, QLabel, QSpinBox, QTimeEdit, QCheckBox, QGroupBox,
-                             QScrollArea, QFrame)
+                             QScrollArea, QFrame, QGridLayout)
 from PyQt5.QtGui import (QColor, QPalette)
 
 
@@ -281,7 +281,6 @@ class RenameOptionsWidget(QFramedWidget):
         self.setBackgroundRole(QPalette.Base)
         self.setAutoFillBackground(True)
 
-        sequencesLayout = QFormLayout()
         compatibilityLayout = QVBoxLayout()
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -289,10 +288,13 @@ class RenameOptionsWidget(QFramedWidget):
         # QSpinBox cannot display values greater than this value
         c_maxint = platform_c_maxint()
 
+        tip = _('A counter for how many downloads occur on each day')
+        self.downloadsTodayLabel = QLabel(_('Downloads today:'))
         self.downloadsToday = QSpinBox()
         self.downloadsToday.setMinimum(0)
         # QSpinBox defaults to a maximum of 99
         self.downloadsToday.setMaximum(c_maxint)
+        self.downloadsToday.setToolTip(tip)
 
         # This instance of the downloads today tracker is secondary to the
         # instance in the rename files process. That process automatically
@@ -309,9 +311,13 @@ class RenameOptionsWidget(QFramedWidget):
         self.downloadsToday.setValue(downloads_today)
         self.downloadsToday.valueChanged.connect(self.downloadsTodayChanged)
 
+        tip = _('A counter that is remembered each time the program is run ')
+        self.storedNumberLabel = QLabel(_('Stored number:'))
+        self.storedNumberLabel.setToolTip(tip)
         self.storedNumber = QSpinBox()
         self.storedNumber.setMinimum(0)
         self.storedNumber.setMaximum(c_maxint)
+        self.storedNumber.setToolTip(tip)
         try:
             stored_value = int(self.prefs.stored_sequence_no)
             assert stored_value >= 0 and stored_value <= c_maxint
@@ -323,7 +329,12 @@ class RenameOptionsWidget(QFramedWidget):
         self.storedNumber.setValue(stored_value)
         self.storedNumber.valueChanged.connect(self.storedNumberChanged)
 
+        tip = _('The time at which the <i>Downloads today</i> sequence number should be reset')
+        self.dayStartLabel = QLabel(_('Day start:'))
+        self.dayStartLabel.setToolTip(tip)
+
         self.dayStart = QTimeEdit()
+        self.dayStart.setToolTip(tip)
         self.dayStart.setTime(self.prefs.get_day_start_qtime())
         self.dayStart.timeChanged.connect(self.timeChanged)
         # 24 hour format, if wanted in a future release:
@@ -332,37 +343,32 @@ class RenameOptionsWidget(QFramedWidget):
         self.sync = QCheckBox(_('Synchronize RAW + JPEG'))
         self.sync.setChecked(self.prefs.synchronize_raw_jpg)
         self.sync.stateChanged.connect(self.syncChanged)
-        syncExplanation = QLabel('<br>' + _('Synchronize sequence numbers for matching RAW and '
-                                            'JPEG pairs:'))
-        syncExplanation.setWordWrap(True)
-        dayExplanation = QLabel('<br>' + _('Specify the time at which the '
-                                  '<i>Downloads today</i> sequence number should be reset:'))
-        dayExplanation.setWordWrap(True)
+        self.sync.setToolTip(_('Synchronize sequence numbers for matching RAW and JPEG pairs'))
 
         self.sequences = QGroupBox(_('Sequence Numbers'))
-        self.sequences.setLayout(sequencesLayout)
 
-        sequencesLayout.addRow(_('Stored number:'), self.storedNumber)
-        sequencesLayout.addRow(_('Downloads today:'), self.downloadsToday)
-        sequencesLayout.addRow(dayExplanation)
-        sequencesLayout.addRow(_('Day start:'), self.dayStart)
-        sequencesLayout.addRow(syncExplanation)
+        sequencesLayout = QFormLayout()
+
+        sequencesLayout.addRow(self.storedNumberLabel, self.storedNumber)
+        sequencesLayout.addRow(self.downloadsTodayLabel, self.downloadsToday)
+        sequencesLayout.addRow(self.dayStartLabel, self.dayStart)
         sequencesLayout.addRow(self.sync)
+
+        self.sequences.setLayout(sequencesLayout)
 
         self.stripCharacters  = QCheckBox('Strip incompatible characters')
         self.stripCharacters.setChecked(self.prefs.strip_characters)
         self.stripCharacters.stateChanged.connect(self.stripCharactersChanged)
+        self.stripCharacters.setToolTip(_('Whether photo, video and folder names should have any '
+                           'characters removed that are not allowed by other operating systems'))
         self.compatibility =  QGroupBox(_('Compatibility'))
         self.compatibility.setLayout(compatibilityLayout)
-        explanation = QLabel(_('Specify whether photo, video and folder names should have any '
-                           'characters removed that are not allowed by other operating systems:'))
-        explanation.setWordWrap(True)
-        compatibilityLayout.addWidget(explanation)
         compatibilityLayout.addWidget(self.stripCharacters)
 
         layout.addWidget(self.sequences)
         layout.addWidget(self.compatibility)
         layout.addStretch()
+        layout.setSpacing(18)
 
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
 

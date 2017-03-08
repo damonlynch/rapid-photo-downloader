@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-03-07 21:19-0600\n"
+"POT-Creation-Date: 2017-03-08 00:23-0600\n"
 "PO-Revision-Date: 2017-02-01 03:21+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Slovak <sk@li.org>\n"
@@ -71,34 +71,34 @@ msgid ""
 "File: %(file)s"
 msgstr ""
 
-#: ../raphodo/backuppanel.py:240
+#: ../raphodo/backuppanel.py:238
 msgid "Backups are not configured"
 msgstr ""
 
-#: ../raphodo/backuppanel.py:242
+#: ../raphodo/backuppanel.py:240
 #, fuzzy
 msgid "No backup devices detected"
 msgstr "Zariadenie detekované"
 
-#: ../raphodo/backuppanel.py:244
+#: ../raphodo/backuppanel.py:242
 msgid "Valid backup locations not yet specified"
 msgstr ""
 
-#: ../raphodo/backuppanel.py:396
+#: ../raphodo/backuppanel.py:394
 msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
 msgstr ""
 
-#: ../raphodo/backuppanel.py:401
+#: ../raphodo/backuppanel.py:400
 msgid "Back up photos and videos when downloading"
 msgstr ""
 
-#: ../raphodo/backuppanel.py:405
+#: ../raphodo/backuppanel.py:406
 msgid "Automatically detect backup devices"
 msgstr "Automatická detekcia zálohovacích zariadení"
 
-#: ../raphodo/backuppanel.py:409
+#: ../raphodo/backuppanel.py:410
 msgid ""
 "Specify the folder in which backups are stored on the device."
 "<br><br><i>Note: the presence of a folder with this name is used to "
@@ -108,50 +108,46 @@ msgid ""
 "videos.</i>"
 msgstr ""
 
-#: ../raphodo/backuppanel.py:419
-msgid "Photo backup folder name:"
+#: ../raphodo/backuppanel.py:421
+msgid "Photo folder name:"
 msgstr ""
 
-#: ../raphodo/backuppanel.py:424
-msgid "Video backup folder name:"
+#: ../raphodo/backuppanel.py:426
+msgid "Video folder name:"
 msgstr ""
 
-#: ../raphodo/backuppanel.py:429 ../raphodo/nameeditor.py:874
-#: ../raphodo/renamepanel.py:123
-#, fuzzy
-msgid "Example:"
-msgstr "<i>Príklad:</i>"
-
-#: ../raphodo/backuppanel.py:434
+#: ../raphodo/backuppanel.py:441
 msgid "If you disable automatic detection, choose the exact backup locations."
 msgstr ""
 
-#: ../raphodo/backuppanel.py:436
+#: ../raphodo/backuppanel.py:445
 msgid "Photo backup location:"
 msgstr ""
 
-#: ../raphodo/backuppanel.py:438
+#: ../raphodo/backuppanel.py:447
 msgid "Select Photo Backup Location"
 msgstr ""
 
-#: ../raphodo/backuppanel.py:444
+#: ../raphodo/backuppanel.py:453
 msgid "Video backup location:"
 msgstr ""
 
-#: ../raphodo/backuppanel.py:446
+#: ../raphodo/backuppanel.py:455
 msgid "Select Video Backup Location"
 msgstr ""
 
 #. Translators: this value is used as an example device when automatic backup device
 #. detection is enabled. You should translate this.
-#: ../raphodo/backuppanel.py:554
-msgid "externaldrive1"
+#: ../raphodo/backuppanel.py:557
+#, fuzzy
+msgid "drive1"
 msgstr "externýdisk1"
 
 #. Translators: this value is used as an example device when automatic backup device
 #. detection is enabled. You should translate this.
-#: ../raphodo/backuppanel.py:557
-msgid "externaldrive2"
+#: ../raphodo/backuppanel.py:560
+#, fuzzy
+msgid "drive2"
 msgstr "externýdisk2"
 
 #: ../raphodo/backuppanel.py:614
@@ -916,8 +912,8 @@ msgstr ""
 msgid "YYYYMM"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:393 ../raphodo/jobcodepanel.py:189
-#: ../raphodo/nameeditor.py:818 ../raphodo/rapid.py:1689
+#: ../raphodo/generatenameconfig.py:393 ../raphodo/jobcodepanel.py:190
+#: ../raphodo/nameeditor.py:826 ../raphodo/rapid.py:1689
 #: ../raphodo/renamepanel.py:83 ../raphodo/renamepanel.py:242
 msgid "Job Code"
 msgstr ""
@@ -1043,65 +1039,65 @@ msgid ""
 "be used in subfolder and file names."
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:176
+#: ../raphodo/jobcodepanel.py:177
 msgid ""
 "Select photos and videos to be able to apply a new or existing Job Code to "
 "them."
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:177
+#: ../raphodo/jobcodepanel.py:178
 msgid "The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:178
+#: ../raphodo/jobcodepanel.py:179
 msgid ""
 "Click the Apply button to apply the current Job Code to all selected photos "
 "and/or videos. You can also simply double click the Job Code."
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:180
+#: ../raphodo/jobcodepanel.py:181
 msgid ""
 "Removing a Job Code removes it only from the list of saved Job Codes, not "
 "from any photos or videos that it may have been applied to."
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:182
+#: ../raphodo/jobcodepanel.py:183
 msgid ""
 "If you want to use Job Codes, configure file renaming or destination "
 "subfolder names to use them."
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:188
+#: ../raphodo/jobcodepanel.py:189
 msgid "Last Used"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:193
+#: ../raphodo/jobcodepanel.py:194
 #, fuzzy
 msgid "Job Code Sort:"
 msgstr "Pracovný kód:"
 
-#: ../raphodo/jobcodepanel.py:196 ../raphodo/rapid.py:1941
+#: ../raphodo/jobcodepanel.py:197 ../raphodo/rapid.py:1941
 msgid "Ascending"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:197 ../raphodo/rapid.py:1942
+#: ../raphodo/jobcodepanel.py:198 ../raphodo/rapid.py:1942
 msgid "Descending"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:207
+#: ../raphodo/jobcodepanel.py:208
 msgid "&New..."
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:211
+#: ../raphodo/jobcodepanel.py:212
 msgid "&Apply"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:215
+#: ../raphodo/jobcodepanel.py:216
 #, fuzzy
 msgid "&Remove"
 msgstr "O_dstrániť všetko"
 
-#: ../raphodo/jobcodepanel.py:219 ../raphodo/preferencedialog.py:100
+#: ../raphodo/jobcodepanel.py:220 ../raphodo/preferencedialog.py:100
 #: ../raphodo/preferencedialog.py:114
 #, fuzzy
 msgid "Remove All"
@@ -1149,7 +1145,7 @@ msgstr ""
 msgid "%s (edited)"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:578 ../raphodo/nameeditor.py:1354
+#: ../raphodo/nameeditor.py:578 ../raphodo/nameeditor.py:1362
 #, python-format
 msgid "Update Custom Preset \"%s\""
 msgstr ""
@@ -1163,7 +1159,7 @@ msgstr "Nastavenie: Rapid Photo Downloader"
 msgid "Preset Name:"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:827
+#: ../raphodo/nameeditor.py:835
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>There is insufficient metadata "
 "to fully generate the name. Please use other renaming options.</i>"
@@ -1172,7 +1168,7 @@ msgstr ""
 #. Translators: please do not modify, change the order of or leave out html formatting
 #. tags like <i> and <b>. These are used to format the text the users sees.
 #. In this case, the </i> really is supposed to come before the <i>.
-#: ../raphodo/nameeditor.py:837
+#: ../raphodo/nameeditor.py:845
 #, python-format
 msgid "The character</i> %(separator)s <i>creates a new subfolder level."
 msgstr ""
@@ -1180,39 +1176,44 @@ msgstr ""
 #. Translators: please do not modify, change the order of or leave out html formatting
 #. tags like <i> and <b>. These are used to format the text the users sees
 #. In this case, the </i> really is supposed to come before the <i>.
-#: ../raphodo/nameeditor.py:842
+#: ../raphodo/nameeditor.py:850
 #, python-format
 msgid ""
 "There is no need start or end with the folder separator </i> "
 "%(separator)s<i>, because it is added automatically."
 msgstr ""
 
-#: ../raphodo/nameeditor.py:850
+#: ../raphodo/nameeditor.py:858
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>Unique filenames may not be "
 "generated. Make filenames unique by using Sequence values.</i>"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:873 ../raphodo/renamepanel.py:121
+#: ../raphodo/nameeditor.py:881 ../raphodo/renamepanel.py:121
 msgid "Preset:"
 msgstr ""
 
+#: ../raphodo/nameeditor.py:882 ../raphodo/renamepanel.py:123
+#, fuzzy
+msgid "Example:"
+msgstr "<i>Príklad:</i>"
+
 #. Translators: appears in a combobox, e.g. Image Date (YYYY)
-#: ../raphodo/nameeditor.py:950 ../raphodo/nameeditor.py:971
+#: ../raphodo/nameeditor.py:958 ../raphodo/nameeditor.py:979
 #, python-brace-format
 msgid "{choice} ({variant})"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:1006
+#: ../raphodo/nameeditor.py:1014
 msgid "Insert"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:1335
+#: ../raphodo/nameeditor.py:1343
 #, fuzzy
 msgid "Save Preset - Rapid Photo Downloader"
 msgstr "Nastavenie: Rapid Photo Downloader"
 
-#: ../raphodo/nameeditor.py:1340
+#: ../raphodo/nameeditor.py:1348
 msgid ""
 "<b>Do you want to save the changes in a new custom preset?</"
 "b><br><br>Creating a custom preset is not required, but can help you keep "
@@ -1220,7 +1221,7 @@ msgid ""
 "regardless of whether you create a new custom preset or not."
 msgstr ""
 
-#: ../raphodo/nameeditor.py:1349
+#: ../raphodo/nameeditor.py:1357
 msgid ""
 "<b>Do you want to save the changes in a custom preset?</b><br><br>If you "
 "like, you can create a new custom preset or update the existing custom "
@@ -1228,7 +1229,7 @@ msgid ""
 "regardless of whether you save a custom preset or not."
 msgstr ""
 
-#: ../raphodo/nameeditor.py:1356
+#: ../raphodo/nameeditor.py:1364
 msgid "Save New Custom Preset"
 msgstr ""
 
@@ -2757,59 +2758,66 @@ msgstr ""
 msgid "Extension:"
 msgstr "Koncovka"
 
-#. 24 hour format, if wanted in a future release:
-#. self.dayStart.setDisplayFormat('HH:mm:ss')
-#: ../raphodo/renamepanel.py:332
-msgid "Synchronize RAW + JPEG"
+#: ../raphodo/renamepanel.py:291
+msgid "A counter for how many downloads occur on each day"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:335
-msgid "Synchronize sequence numbers for matching RAW and JPEG pairs:"
-msgstr ""
-
-#: ../raphodo/renamepanel.py:338
-msgid ""
-"Specify the time at which the <i>Downloads today</i> sequence number should "
-"be reset:"
-msgstr ""
-
-#: ../raphodo/renamepanel.py:342
-#, fuzzy
-msgid "Sequence Numbers"
-msgstr "<b>Sekvenčná čísla</ b>"
-
-#: ../raphodo/renamepanel.py:345
-msgid "Stored number:"
-msgstr "Skladované číslo:"
-
-#: ../raphodo/renamepanel.py:346
+#: ../raphodo/renamepanel.py:292
 #, fuzzy
 msgid "Downloads today:"
 msgstr "Dnešné stiahnutie"
 
-#: ../raphodo/renamepanel.py:348
+#: ../raphodo/renamepanel.py:314
+msgid "A counter that is remembered each time the program is run "
+msgstr ""
+
+#: ../raphodo/renamepanel.py:315
+msgid "Stored number:"
+msgstr "Skladované číslo:"
+
+#: ../raphodo/renamepanel.py:332
+msgid ""
+"The time at which the <i>Downloads today</i> sequence number should be reset"
+msgstr ""
+
+#: ../raphodo/renamepanel.py:333
 msgid "Day start:"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:355
+#. 24 hour format, if wanted in a future release:
+#. self.dayStart.setDisplayFormat('HH:mm:ss')
+#: ../raphodo/renamepanel.py:343
+msgid "Synchronize RAW + JPEG"
+msgstr ""
+
+#: ../raphodo/renamepanel.py:346
+msgid "Synchronize sequence numbers for matching RAW and JPEG pairs"
+msgstr ""
+
+#: ../raphodo/renamepanel.py:348
+#, fuzzy
+msgid "Sequence Numbers"
+msgstr "<b>Sekvenčná čísla</ b>"
+
+#: ../raphodo/renamepanel.py:362
+msgid ""
+"Whether photo, video and folder names should have any characters removed "
+"that are not allowed by other operating systems"
+msgstr ""
+
+#: ../raphodo/renamepanel.py:364
 msgid "Compatibility"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:357
-msgid ""
-"Specify whether photo, video and folder names should have any characters "
-"removed that are not allowed by other operating systems:"
-msgstr ""
-
-#: ../raphodo/renamepanel.py:426
+#: ../raphodo/renamepanel.py:432
 msgid "Photo Renaming"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:429
+#: ../raphodo/renamepanel.py:435
 msgid "Video Renaming"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:432
+#: ../raphodo/renamepanel.py:438
 #, fuzzy
 msgid "Renaming Options"
 msgstr "Nastavenie premenovanie"
