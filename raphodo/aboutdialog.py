@@ -156,7 +156,7 @@ class AboutDialog(QDialog):
         Ilya Tsimokhin <ilya@tsimokhin.com>
         Ulf Urdén <ulf.urden@purplescout.com>
         Julien Valroff <julien@kirya.net>
-        Dimitris Xenakis
+        Dimitris Xenakis <dx@nkdx.gr>
         Aron Xu <happyaron.xu@gmail.com>
         梁其学 <yalongbay@gmail.com>
         """

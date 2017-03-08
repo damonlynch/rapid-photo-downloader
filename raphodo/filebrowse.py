@@ -184,7 +184,7 @@ class FileSystemView(QTreeView):
         index = self.clickedIndex
         if index:
             uri = self.fileSystemModel.filePath(index.model().mapToSource(index))
-            cmd = '{} {}'.format(self.rapidApp.file_manager, uri)
+            cmd = '{} "{}"'.format(self.rapidApp.file_manager, uri)
             logging.debug("Launching: %s", cmd)
             args = shlex.split(cmd)
             subprocess.Popen(args)

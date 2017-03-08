@@ -39,9 +39,13 @@ from typing import Optional, List, Union, Any
 import struct
 import ctypes
 import signal
+import pkg_resources
+
 
 import arrow
 import psutil
+
+import raphodo.__about__ as __about__
 
 
 # Linux specific code to ensure child processes exit when parent dies
@@ -770,3 +774,10 @@ def extract_file_from_tar(full_tar_path, member_filename) -> bool:
         except OSError:
             logging.error('Unable to move %s to new location', member_filename)
             return False
+
+
+def current_version_is_dev_version(current_version=None) -> bool:
+    if current_version is None:
+        current_version = pkg_resources.parse_version(__about__.__version__)
+    return current_version.is_prerelease
+

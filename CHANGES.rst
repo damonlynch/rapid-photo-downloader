@@ -1,6 +1,19 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.0a11 (2017-03-xx)
+---------------------
+
+ - Added dialog to configure program preferences.
+
+ - Added progress bar to splash screen.
+
+ - Fixed bug where URIs with spaces were not opening in the system file
+   browser.
+
+ - Fixed detection of Unity desktop environment when desktop environment
+   variable is set to 'Unity:Unity7'
+
 0.9.0a10 (2017-03-02)
 ---------------------
 

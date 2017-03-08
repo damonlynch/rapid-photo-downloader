@@ -343,7 +343,9 @@ def get_desktop() -> Desktop:
         # Occurs when there is no value set
         return Desktop.unknown
 
-    if env == 'x-cinnamon':
+    if env == 'unity:unity7':
+        env = 'unity'
+    elif env == 'x-cinnamon':
         env = 'cinnamon'
     try:
         return Desktop[env]

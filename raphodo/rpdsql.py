@@ -624,9 +624,12 @@ class CacheSQL:
     def __init__(self, location: str=None) -> None:
         if location is None:
             location = get_program_cache_directory(create_if_not_exist=True)
-        self.db = os.path.join(location, 'thumbnail_cache.sqlite')
+        self.db = os.path.join(location, self.db_fs_name())
         self.table_name = 'cache'
         self.update_table()
+
+    def db_fs_name(self) -> str:
+        return 'thumbnail_cache.sqlite'
 
     def update_table(self, reset: bool=False) -> None:
         """
@@ -646,7 +649,7 @@ class CacheSQL:
         mtime REAL NOT NULL,
         mdatatime REAL,
         size INTEGER NOT NULL,
-        md5_name INTEGER NOT NULL,
+        md5_name TEXT NOT NULL,
         orientation_unknown BOOLEAN NOT NULL,
         failure BOOLEAN NOT NULL,
         PRIMARY KEY (uri, mtime, size)
@@ -734,6 +737,29 @@ class CacheSQL:
         conn.commit()
         conn.close()
 
+
+    def no_thumbnails(self) -> int:
+        """
+        :return: how many thumbnails are in the db
+        """
+
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        c.execute('SELECT COUNT(*) FROM {tn}'.format(tn=self.table_name))
+        count = c.fetchall()
+        return count[0][0]
+
+    def md5_names(self) -> List[Tuple[str]]:
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        c.execute('SELECT md5_name FROM {tn}'.format(tn=self.table_name))
+        rows = c.fetchall()
+        return rows
+
+    def vacuum(self) -> None:
+        conn = sqlite3.connect(self.db)
+        conn.execute("VACUUM")
+        conn.close()
 
 class FileFormatSQL:
     def __init__(self, data_dir: str=None) -> None:

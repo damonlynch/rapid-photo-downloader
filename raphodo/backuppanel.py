@@ -408,10 +408,12 @@ class BackupOptionsWidget(QFramedWidget):
 
         self.folderExplanation = QLabel(_('Specify the folder in which backups are stored on the '
                                           'device.<br><br>'
-                                          '<i>Note: this will also be used to determine whether or '
-                                          'not the device is used for backups. For each device you '
-                                          'wish to use for backing up to, create a folder in it '
-                                          'with one of these names.</i>'))
+                                          '<i>Note: the presence of a folder with this name '
+                                          'is used to determine if the device is used for backups. '
+                                          'For each device you wish to use for backing up to, '
+                                          'create a folder in it with one of these folder names. '
+                                          'By adding both folders, the same device can be used '
+                                          'to back up both photos and videos.</i>'))
         self.folderExplanation.setWordWrap(True)
 
         self.photoFolderNameLabel = QLabel(_('Photo backup folder name:'))

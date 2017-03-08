@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -47,7 +47,7 @@ http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch"
+__copyright__ = "Copyright 2015-2017, Damon Lynch"
 
 import os
 import sys
@@ -63,7 +63,7 @@ from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QImage
 
 from raphodo.storage import get_program_cache_directory, get_fdo_cache_thumb_base_directory
-from raphodo.utilities import GenerateRandomFileName
+from raphodo.utilities import GenerateRandomFileName, format_size_for_user
 from raphodo.constants import ThumbnailCacheDiskStatus
 from raphodo.rpdsql import CacheSQL
 
@@ -370,8 +370,6 @@ class ThumbnailCacheSql:
 
     not_found = GetThumbnailPath(ThumbnailCacheDiskStatus.not_found, None, None, None)
 
-    # TODO sqlite might grow big - vacuum
-
     def __init__(self):
         self.cache_dir = get_program_cache_directory(create_if_not_exist=True)
         self.valid = self.cache_dir is not None
@@ -495,7 +493,7 @@ class ThumbnailCacheSql:
             return GetThumbnailPath(ThumbnailCacheDiskStatus.failure, None,
                                     in_cache.mdatatime, None)
 
-        path= os.path.join(self.cache_dir, in_cache.md5_name)
+        path = os.path.join(self.cache_dir, in_cache.md5_name)
         if not os.path.exists(path):
             self.thumb_db.delete_thumbnails([in_cache.md5_name])
             return self.not_found
@@ -504,17 +502,19 @@ class ThumbnailCacheSql:
                                 in_cache.mdatatime, in_cache.orientation_unknown)
 
 
-    def cleanup_cache(self):
+    def cleanup_cache(self, days: int=30) -> None:
         """
-        Remove all thumbnails that have not been accessed for 30 days
+        Remove all thumbnails that have not been accessed for x days
+
+        :param how many days to remove from
         """
-        time_period = 60 * 60 * 24 * 30
+        time_period = 60 * 60 * 24 * days
         if self.valid:
             i = 0
             now = time.time()
             deleted_thumbnails = []
-            for name in os.listdir(self.cache_dir ):
-                thumbnail = os.path.join(self.cache_dir , name)
+            for name in os.listdir(self.cache_dir):
+                thumbnail = os.path.join(self.cache_dir, name)
                 if (os.path.isfile(thumbnail) and
                         os.path.getatime(thumbnail) < now - time_period):
                     os.remove(thumbnail)
@@ -522,14 +522,81 @@ class ThumbnailCacheSql:
             if len(deleted_thumbnails):
                 self.thumb_db.delete_thumbnails(deleted_thumbnails)
                 logging.debug('Deleted {} thumbnail files that had not been '
-                          'accessed for 30 or more days'.format(len(deleted_thumbnails)))
+                          'accessed for {} or more days'.format(len(deleted_thumbnails), days))
 
-    def purge_cache(self):
+    def purge_cache(self) -> None:
         """
-        Delete the entire cache of all contents and remvoe the
+        Delete the entire cache of all contents and remove the
         directory
         """
         if self.valid:
             if self.cache_dir is not None and os.path.isdir(self.cache_dir):
                 # Delete the sqlite3 database too
                 shutil.rmtree(self.cache_dir)
+
+    def no_thumbnails(self) -> int:
+        """
+        :return: how many thumbnails there are in the thumbnail database
+        """
+
+        if not self.valid:
+            return 0
+        return self.thumb_db.no_thumbnails()
+
+    def cache_size(self) -> int:
+        """
+        :return: the size of the entire cache (include the database) in bytes
+        """
+
+        if not self.valid:
+            return 0
+        cwd = os.getcwd()
+        os.chdir(self.cache_dir)
+        s = sum(os.path.getsize(f) for f in os.listdir('.') if os.path.isfile(f))
+        os.chdir(cwd)
+        return s
+
+    def db_size(self) -> int:
+        """
+        :return: the size in bytes of the sql database file
+        """
+
+        if not self.valid:
+            return 0
+        return os.path.getsize(self.thumb_db.db)
+
+    def optimize(self) -> Tuple[int, int, int]:
+        """
+        Check for any thumbnails in the db that are not in the file system
+        Check for any thumbnails exist on the file system that are not in the db
+        Vacuum the db
+
+        :return db rows removed, file system photos removed, db size reduction in bytes
+        """
+
+        rows = self.thumb_db.md5_names()
+        rows = {row[0] for row in rows}
+        cwd = os.getcwd()
+        os.chdir(self.cache_dir)
+
+        to_delete_from_db = {md5 for md5 in rows if not os.path.exists(md5)}
+        if len(to_delete_from_db):
+            self.thumb_db.delete_thumbnails(list(to_delete_from_db))
+
+        md5s = {md5 for md5 in os.listdir('.')} - {self.thumb_db.db_fs_name()}
+        to_delete_from_fs = md5s - rows
+        if len(to_delete_from_fs):
+            for md5 in to_delete_from_fs:
+                os.remove(md5)
+
+        os.chdir(cwd)
+
+        size = self.db_size()
+        self.thumb_db.vacuum()
+
+        return len(to_delete_from_db), len(to_delete_from_fs), size - self.db_size()
+
+
+if __name__ == '__main__':
+    db = ThumbnailCacheSql()
+    db.optimize()

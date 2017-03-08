@@ -74,7 +74,7 @@ from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
                           pyqtSlot, QRect, pyqtSignal, QObject)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics,
-                         QFont, QPainter, QMoveEvent)
+                         QFont, QPainter, QMoveEvent, QBrush, QPen, QColor)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QWidget, QDialogButtonBox,
                              QProgressBar, QSplitter,
@@ -117,7 +117,8 @@ from raphodo.proximity import (TemporalProximityGroups, TemporalProximity)
 from raphodo.utilities import (
     same_device, make_internationalized_list, thousands, addPushButtonLabelSpacer,
     make_html_path_non_breaking, prefs_list_from_gconftool2_string,
-    pref_bool_from_gconftool2_string, create_temp_dir, extract_file_from_tar)
+    pref_bool_from_gconftool2_string, create_temp_dir, extract_file_from_tar,
+    format_size_for_user)
 from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
 from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
@@ -152,6 +153,7 @@ import raphodo.exiftool as exiftool
 from raphodo.newversion import (NewVersion, NewVersionCheckDialog,
                                 version_details, DownloadNewVersionDialog)
 from raphodo.chevroncombo import ChevronCombo
+from raphodo.preferencedialog import PreferencesDialog
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -475,6 +477,8 @@ class RapidWindow(QMainWindow):
 
         self.setupWindow()
 
+        splash.setProgress(10)
+
         if photo_rename is not None:
             if photo_rename:
                 self.prefs.photo_rename = PHOTO_RENAME_SIMPLE
@@ -568,9 +572,7 @@ class RapidWindow(QMainWindow):
         self.exiftool_process = exiftool.ExifTool()
         self.exiftool_process.start()
 
-        # self.prefs.synchronize_raw_jpg = False
-
-        # self.prefs.photo_rename = PHOTO_RENAME_COMPLEX
+        self.prefs.validate_max_CPU_cores()
 
         # Don't call processEvents() after initiating 0MQ, as it can
         # cause "Interrupted system call" errors
@@ -678,7 +680,30 @@ class RapidWindow(QMainWindow):
         logging.debug("...logging subscription manager started")
         self.logging_port = logging_port
 
+        self.splash.setProgress(20)
+
         logging.debug("Stage 2 initialization")
+
+        if self.prefs.purge_thumbnails:
+            cache = ThumbnailCacheSql()
+            logging.info("Purging thumbnail cache...")
+            cache.purge_cache()
+            logging.info("...thumbnail Cache has been purged")
+            self.prefs.purge_thumbnails = False
+        elif self.prefs.optimize_thumbnail_db:
+            cache = ThumbnailCacheSql()
+            logging.info("Optimizing thumbnail cache...")
+            db, fs, size = cache.optimize()
+            logging.info("...thumbnail cache has been optimized.")
+
+            if db:
+                logging.info("Removed %s files from thumbnail database", db)
+            if fs:
+                logging.info("Removed %s thumbnails from file system", fs)
+            if size:
+                logging.info("Thumbnail database size reduction: %s", format_size_for_user(size))
+
+            self.prefs.optimize_thumbnail_db = False
 
         # For meaning of 'Devices', see devices.py
         self.devices = DeviceCollection(self.exiftool_process, self)
@@ -698,6 +723,8 @@ class RapidWindow(QMainWindow):
     def initStage3(self) -> None:
         logging.debug("Stage 3 initialization")
 
+        self.splash.setProgress(30)
+
         self.sendStartToThread(self.thumbnail_deamon_controller)
         logging.debug("...thumbnail daemon model started")
 
@@ -712,6 +739,8 @@ class RapidWindow(QMainWindow):
     @pyqtSlot(int)
     def initStage4(self, frontend_port: int) -> None:
         logging.debug("Stage 4 initialization")
+
+        self.splash.setProgress(40)
 
         # logging.debug("...thumbnail model and load balancer started")
 
@@ -897,6 +926,8 @@ class RapidWindow(QMainWindow):
         logging.debug("...offload manager started")
         self.sendStartToThread(self.offload_controller)
 
+        self.splash.setProgress(50)
+
         self.folder_preview_manager = FolderPreviewManager(fsmodel=self.fileSystemModel,
                 prefs=self.prefs,
                 photoDestinationFSView=self.photoDestinationFSView,
@@ -923,6 +954,8 @@ class RapidWindow(QMainWindow):
     def initStage6(self) -> None:
         logging.debug("...rename manager started")
 
+        self.splash.setProgress(60)
+
         self.sendStartToThread(self.rename_controller)
 
         # Setup the scan processes
@@ -945,6 +978,9 @@ class RapidWindow(QMainWindow):
     def initStage7(self) -> None:
         logging.debug("...scan manager started")
 
+        self.splash.setProgress(70)
+
+
         # Setup the copyfiles process
         self.copyfilesThread = QThread()
         self.copyfilesmq = CopyFilesManager(logging_port=self.logging_port)
@@ -965,6 +1001,8 @@ class RapidWindow(QMainWindow):
     def initStage8(self) -> None:
         logging.debug("...copy files manager started")
 
+        self.splash.setProgress(80)
+
         self.backup_devices = BackupDeviceCollection(rapidApp=self)
 
         self.backupThread = QThread()
@@ -983,6 +1021,8 @@ class RapidWindow(QMainWindow):
     @pyqtSlot()
     def initStage9(self) -> None:
         logging.debug("...backup manager started")
+
+        self.splash.setProgress(90)
 
         if self.prefs.backup_files:
             self.setupBackupDevices()
@@ -1012,6 +1052,8 @@ class RapidWindow(QMainWindow):
             self.setRightPanelsAndButtons(RightSideButton(index))
 
         prefs_valid, msg = self.prefs.check_prefs_for_validity()
+
+        self.splash.setProgress(100)
 
         self.setDownloadCapabilities()
         self.searchForCameras(on_startup=True)
@@ -2204,12 +2246,8 @@ class RapidWindow(QMainWindow):
         pass
 
     def doPreferencesAction(self) -> None:
-        message = "<b>Sorry, the GUI to manipulate some program preferences has not yet been " \
-                  "written.</b><br><br>Consider using the command line options to adjust " \
-                  "preferences, including the option to import preferences from previous " \
-                  "versions of the program (0.4.11 or earler)."
-        msgbox = self.standardMessageBox(message, rich_text=True)
-        msgbox.exec()
+        dialog = PreferencesDialog(prefs=self.prefs, parent=self)
+        dialog.exec()
 
     # def doCheckAllAction(self):
     #     self.thumbnailModel.checkAll(check_all=True)
@@ -3978,7 +4016,6 @@ class RapidWindow(QMainWindow):
         if not self.copyfilesThread.wait(1000):
             self.sendTerminateToThread(self.copy_controller)
 
-        #FIXME double check this is satisfactory
         self.sendStopToThread(self.backup_controller)
         self.backupThread.quit()
         if not self.backupThread.wait(1000):
@@ -4013,7 +4050,7 @@ class RapidWindow(QMainWindow):
         self.devices.delete_cache_dirs_and_sample_video()
         tc = ThumbnailCacheSql()
         logging.debug("Cleaning up Thumbnail cache")
-        tc.cleanup_cache()
+        tc.cleanup_cache(days=self.prefs.keep_thumbnails_days)
 
         Notify.uninit()
 
@@ -5077,11 +5114,30 @@ def get_versions() -> List[str]:
 
 
 class SplashScreen(QSplashScreen):
+    def __init__(self, pixmap: QPixmap, flags) -> None:
+        super().__init__(pixmap, flags)
+        self.progress = 0
+        self.image_width = pixmap.width()
+        self.progressBarPen = QPen(QBrush(QColor(Qt.white)), 2.0)
+
     def drawContents(self, painter: QPainter):
         painter.save()
         painter.setPen(QColor(Qt.black))
         painter.drawText(18, 64, __about__.__version__)
+        if self.progress:
+            painter.setPen(self.progressBarPen)
+            x = int(self.progress / 100 * self.image_width)
+            painter.drawLine(0, 360, x, 360)
         painter.restore()
+
+    def setProgress(self, value: int) -> None:
+        """
+        Update splash screen progress bar
+        :param value: percent done, between 0 and 100
+        """
+
+        self.progress = value
+        self.repaint()
 
 
 def parser_options(formatter_class=argparse.HelpFormatter):
@@ -5385,8 +5441,10 @@ def main():
 
     if args.path:
         if args.auto_detect or args.this_computer_source:
-            print('When specifying a path on the command line, do not also specify an\n'
+            msg = _('When specifying a path on the command line, do not also specify an\n'
                   'option for device auto detection or a path on "This Computer".')
+            print(msg)
+            critical_startup_error(msg.replace('\n', ' '))
             sys.exit(1)
 
         media_dir = get_media_dir()
@@ -5508,10 +5566,10 @@ def main():
     if args.log_gphoto2:
         gp.use_python_logging()
 
-    # keep next value in sync with value in upgrade.py
+    # keep appGuid value in sync with value in upgrade.py
     appGuid = '8dbfb490-b20f-49d3-9b7d-2016012d2aa8'
 
-    # See note above regarding avoiding crashes
+    # See note at top regarding avoiding crashes
     global app
     app = QtSingleApplication(appGuid, sys.argv)
     if app.isRunning():

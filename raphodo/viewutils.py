@@ -22,7 +22,9 @@ __copyright__ = "Copyright 2015-2017, Damon Lynch"
 from typing import List, Dict
 from collections import namedtuple
 
-from PyQt5.QtWidgets import (QStyleOptionFrame, QStyle, QStylePainter, QWidget, QLabel)
+from PyQt5.QtWidgets import (QStyleOptionFrame, QStyle, QStylePainter, QWidget, QLabel,
+                             QListWidget)
+from PyQt5.QtCore import (QSize, Qt)
 
 
 class RowTracker:
@@ -168,3 +170,34 @@ class QFramedLabel(QLabel):
         option.initFrom(self)
         painter.drawPrimitive(QStyle.PE_Frame, option)
         super().paintEvent(*opts)
+
+
+class QNarrowListWidget(QListWidget):
+    """
+    Create a list widget that is not by default enormously wide.
+
+    See http://stackoverflow.com/questions/6337589/qlistwidget-adjust-size-to-content
+    """
+    def __init__(self, minimum_rows: int=0, minimum_width: int=0, parent=None) -> None:
+        super().__init__(parent=parent)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._minimum_rows = minimum_rows
+        self._minimum_width = minimum_width
+
+    @property
+    def minimum_width(self) -> int:
+        return self._minimum_width
+
+    @minimum_width.setter
+    def minimum_width(self, width: int) -> None:
+        self._minimum_width = width
+        self.updateGeometry()
+
+    def sizeHint(self):
+        s = QSize()
+        if self._minimum_rows:
+            s.setHeight(self.count() * self.sizeHintForRow(0) + self.frameWidth() * 2)
+        else:
+            s.setHeight(super().sizeHint().height())
+        s.setWidth(max(self.sizeHintForColumn(0) + self.frameWidth() * 2, self._minimum_width))
+        return s

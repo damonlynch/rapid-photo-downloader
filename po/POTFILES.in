@@ -15,6 +15,7 @@ raphodo/jobcodepanel.py
 raphodo/messagewidget.py
 raphodo/nameeditor.py
 raphodo/newversion.py
+raphodo/preferencedialog.py
 raphodo/preferences.py
 raphodo/primarybutton.py
 raphodo/problemnotification.py

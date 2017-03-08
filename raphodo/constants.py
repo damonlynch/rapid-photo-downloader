@@ -208,6 +208,12 @@ class FileSortPriority(IntEnum):
     low = 2
 
 
+class KnownDeviceType(IntEnum):
+    volume_whitelist = 1
+    volume_blacklist = 2
+    camera_blacklist = 3
+
+
 class RenameAndMoveStatus(Enum):
     download_started = 1
     download_completed = 2

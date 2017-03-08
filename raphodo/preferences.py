@@ -316,7 +316,8 @@ class Preferences:
     performance_defaults = dict(generate_thumbnails=True,
                                 use_thumbnail_cache=True,
                                 save_fdo_thumbnails=True,
-                                max_cpu_cores=max(available_cpu_count(physical_only=True), 2)
+                                max_cpu_cores=max(available_cpu_count(physical_only=True), 2),
+                                keep_thumbnails_days=30
                                 )
     error_defaults = dict(conflict_resolution=int(constants.ConflictResolution.skip),
                           backup_duplicate_overwrite=False)
@@ -325,6 +326,8 @@ class Preferences:
     version_check = dict(check_for_new_versions=True,
                          include_development_release=False,
                          ignore_versions=[''])
+    restart_directives = dict(purge_thumbnails=False,
+                              optimize_thumbnail_db=False)
 
 
     def __init__(self) -> None:
@@ -339,9 +342,10 @@ class Preferences:
                  self.device_defaults,
                  self.backup_defaults, self.automation_defaults,
                  self.performance_defaults, self.error_defaults,
-                 self.destinations, self.version_check)
+                 self.destinations, self.version_check, self.restart_directives)
         group_names = ('Program', 'Rename', 'Timeline', 'Display', 'Device', 'Backup',
-                       'Automation', 'Performance', 'ErrorHandling', 'Destinations', 'VersionCheck')
+                       'Automation', 'Performance', 'ErrorHandling', 'Destinations',
+                       'VersionCheck', 'RestartDirectives')
         assert len(dicts) == len(group_names)
 
         # Create quick lookup table for types of each value, including the
@@ -385,6 +389,9 @@ class Preferences:
 
     def sync(self):
         self.settings.sync()
+
+    def restore(self, key: str) -> None:
+        self[key] = self.defaults[key]
 
     def get_preset(self, preset_type: constants.PresetPrefType) -> Tuple[List[str],
                                                                          List[List[str]]]:
@@ -767,7 +774,7 @@ class Preferences:
             else:
                 self[key] = [value] + self[key]
 
-    def del_list_value(self, key, value) -> None:
+    def del_list_value(self, key:str, value) -> None:
         """
         Remove a value from the pref list indicated by key.
 
@@ -787,6 +794,16 @@ class Preferences:
 
         if len(self[key]) == 0:
             self[key] = ['']
+
+    def list_not_empty(self, key: str) -> bool:
+        """
+        In our pref schema, an empty list is [''], not []
+
+        :param key: the preference value to examine
+        :return: True if the pref list is not empty
+        """
+
+        return bool(self[key] and self[key][0])
 
     def reset(self) -> None:
         """
@@ -838,6 +855,14 @@ class Preferences:
             except:
                 logging.warning("Unknown error removing %s preference value", key)
             self.settings.endGroup()
+
+    def validate_max_CPU_cores(self) -> None:
+        logging.debug('Validating CPU core count for thumbnail generation...')
+        available = available_cpu_count(physical_only=True)
+        logging.debug('...%s physical cores detected', available)
+        if self['max_cpu_cores'] > available:
+            logging.info('Setting CPU Cores for thumbnail generation to %s', available)
+            self['max_cpu_cores'] = available
 
 
 def match_pref_list(pref_lists: List[List[str]], user_pref_list: List[str]) -> int:

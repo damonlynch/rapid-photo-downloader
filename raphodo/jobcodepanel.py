@@ -36,7 +36,7 @@ from PyQt5.QtGui import (QColor, QPalette, QFont, QFontMetrics, QIcon)
 
 
 from raphodo.constants import (JobCodeSort, ThumbnailBackgroundName, )
-from raphodo.viewutils import QFramedWidget
+from raphodo.viewutils import QFramedWidget, QNarrowListWidget
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
 from raphodo.messagewidget import MessageWidget, MessageButton
@@ -225,17 +225,17 @@ class JobCodeOptionsWidget(QFramedWidget):
         #                                 "implemented in a forthcoming alpha release.</i>"))
         # explanation_not_done.setWordWrap(True)
 
-        self.jobCodesWidget = QListWidget()
+        self.jobCodesWidget = QNarrowListWidget()
         self.jobCodesWidget.currentRowChanged.connect(self.rowChanged)
         self.jobCodesWidget.itemDoubleClicked.connect(self.rowDoubleClicked)
         self.jobCodesWidget.setSelectionMode(QAbstractItemView.SingleSelection)
         self.jobCodesWidget.setSizePolicy(QSizePolicy.MinimumExpanding,
                                           QSizePolicy.MinimumExpanding)
 
-        if False: # or True: # for testing only
-            self.prefs.job_codes = ['Wedding', "Birthday", "Minneapolis", "Cricket", "Rugby",
-                                    "Wellington"]
-        if self.haveJobCodes():
+        # self.prefs.job_codes = ['Wedding', "Birthday", "Minneapolis", "Cricket", "Rugby",
+        #                         "Wellington"]
+
+        if self.prefs.list_not_empty('job_codes'):
             self._insertJobCodes(job_code=self.prefs.job_codes[0], clear=False)
 
         sortLayout = QHBoxLayout()
@@ -289,7 +289,7 @@ class JobCodeOptionsWidget(QFramedWidget):
         :param clear:
         :return:
         """
-        if not self.haveJobCodes():
+        if not self.prefs.list_not_empty('job_codes'):
             return
 
         if job_code is None:
@@ -362,16 +362,6 @@ class JobCodeOptionsWidget(QFramedWidget):
             assert self.applyButton.isEnabled()
             self.applyButtonClicked()
 
-    def haveJobCodes(self) -> bool:
-        """
-        An empty job code list is [''], not []
-
-        :return: True if the job code list is not empty
-        """
-
-        return bool(self.prefs.job_codes and self.prefs.job_codes[0])
-
-
     @pyqtSlot()
     def setWidgetStates(self) -> None:
         """
@@ -385,7 +375,7 @@ class JobCodeOptionsWidget(QFramedWidget):
         self.newButton.setEnabled(True)
         self.applyButton.setEnabled(job_code_selected and self.file_selected)
         self.removeButton.setEnabled(job_code_selected)
-        self.removeAllButton.setEnabled(self.haveJobCodes())
+        self.removeAllButton.setEnabled(self.prefs.list_not_empty('job_codes'))
         self.setDefaultMessage()
 
     @pyqtSlot()
