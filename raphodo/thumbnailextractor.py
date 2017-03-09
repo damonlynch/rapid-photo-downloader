@@ -292,8 +292,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
                     try:
                         logging.debug("Saving temporary rawkit render to %s", temp_file)
                         raw.save(filename=temp_file)
-                    except:
-                        logging.debug("Rendering %s failed", rpd_file.full_file_name)
+                    except Exception:
+                        logging.exception("Rendering %s failed. Exception:",
+                                          rpd_file.full_file_name)
                     else:
                         thumbnail = QImage(temp_file)
                         os.remove(temp_file)
@@ -310,7 +311,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 if temp_dir:
                     os.rmdir(temp_dir)
             except Exception:
-                logging.debug("Rendering %s not suported", rpd_file.full_file_name)
+                logging.exception("Rendering %s not supported. Exception:", rpd_file.full_file_name)
 
         if thumbnail is None and rpd_file.is_loadable():
             thumbnail = QImage(full_file_name)

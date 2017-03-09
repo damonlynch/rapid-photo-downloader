@@ -81,23 +81,29 @@ class PreferencesDialog(QDialog):
         self.onlyExternal = QCheckBox(_('Scan only external devices'))
         self.onlyExternal.setToolTip(_('Scan for photos and videos only on devices that are '
                                        'external to the computer, including cameras, memory cards, '
-                                       'external hard drives, and USB flash drives.'))
+                                       'external hard drives, and USB flash drives'))
         self.onlyExternal.stateChanged.connect(self.onlyExternalChanged)
 
         self.noDcim = QCheckBox(_('Scan devices lacking a DCIM folder'))
         self.noDcim.setToolTip(_('Scan the entirety of a device for photos and videos, '
                                  'irrespective of whether it contains a DCIM folder, as opposed '
-                                 'to only scanning within a DCIM folder.'))
+                                 'to only scanning within a DCIM folder'))
         self.noDcim.stateChanged.connect(self.noDcimChanged)
 
         scanLayout.addWidget(self.onlyExternal)
         scanLayout.addWidget(self.noDcim)
         self.scanBox.setLayout(scanLayout)
 
-        self.knownDevicesBox = QGroupBox(_('Known Devices'))
+        tip = _('Devices that have been set to automatically ignore or download from')
+        self.knownDevicesBox = QGroupBox(_('Remembered Devices'))
         self.knownDevices = QNarrowListWidget(minimum_rows=5)
+        self.knownDevices.setToolTip(tip)
+        tip = _('Remove a device from the list of devices to automatically ignore or download from')
         self.removeDevice = QPushButton(_('Remove'))
+        self.removeDevice.setToolTip(tip)
         self.removeAllDevice = QPushButton(_('Remove All'))
+        tip = _('Clear the list of devices from which to automatically ignore or download from')
+        self.removeAllDevice.setToolTip(tip)
         self.removeDevice.clicked.connect(self.removeDeviceClicked)
         self.removeAllDevice.clicked.connect(self.removeAllDeviceClicked)
         knownDevicesLayout = QGridLayout()
@@ -108,14 +114,33 @@ class PreferencesDialog(QDialog):
         self.knownDevicesBox.setLayout(knownDevicesLayout)
 
         self.ignoredPathsBox = QGroupBox(_('Ignored Paths on Devices'))
+        tip = _('A portion of the path on a device that should never be scanned for photos or '
+                'videos')
         self.ignoredPaths = QNarrowListWidget(minimum_rows=4)
+        self.ignoredPaths.setToolTip(tip)
         self.addPath = QPushButton(_('Add...'))
+        self.addPath.setToolTip(_('Add a path to the list of paths to ignore'))
         self.removePath = QPushButton(_('Remove'))
+        self.removePath.setToolTip(_('Remove a path from the list of paths to ignore'))
         self.removeAllPath = QPushButton(_('Remove All'))
+        self.removeAllPath.setToolTip(_('Clear the list of paths to ignore'))
         self.addPath.clicked.connect(self.addPathClicked)
         self.removePath.clicked.connect(self.removePathClicked)
         self.removeAllPath.clicked.connect(self.removeAllPathClicked)
-        self.ignoredPathsRe = QCheckBox(_('Use python-style regular expressions'))
+        self.ignoredPathsRe = QCheckBox()
+        self.ignorePathsReLabel = QLabel(
+            _('Use python-style '
+              '<a href="https://developers.google.com/edu/python/regular-expressions">regular '
+              'expressions</a>'))
+        self.ignorePathsReLabel.setToolTip(_('Use regular expressions in the list of ignored '
+                                             'paths'))
+        self.ignorePathsReLabel.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        self.ignorePathsReLabel.setOpenExternalLinks(True)
+        reLayout = QHBoxLayout()
+        reLayout.setSpacing(5)
+        reLayout.addWidget(self.ignoredPathsRe)
+        reLayout.addWidget(self.ignorePathsReLabel)
+        reLayout.addStretch()
         self.ignoredPathsRe.stateChanged.connect(self.ignoredPathsReChanged)
         ignoredPathsLayout = QGridLayout()
         ignoredPathsLayout.setHorizontalSpacing(18)
@@ -123,7 +148,7 @@ class PreferencesDialog(QDialog):
         ignoredPathsLayout.addWidget(self.addPath, 0, 1, 1, 1)
         ignoredPathsLayout.addWidget(self.removePath, 1, 1, 1, 1)
         ignoredPathsLayout.addWidget(self.removeAllPath, 2, 1, 1, 1)
-        ignoredPathsLayout.addWidget(self.ignoredPathsRe, 4, 0, 1, 2)
+        ignoredPathsLayout.addLayout(reLayout, 4, 0, 1, 2)
         self.ignoredPathsBox.setLayout(ignoredPathsLayout)
 
         self.setDeviceWidgetValues()
@@ -178,10 +203,10 @@ class PreferencesDialog(QDialog):
                                              'window'))
         self.useThumbnailCache = QCheckBox(_('Cache thumbnails'))
         self.useThumbnailCache.setToolTip(_("Save thumbnails shown in the main program window in "
-                                            "a thumbnail cache"))
+                                            "a thumbnail cache unique to Rapid Photo Downloader"))
         self.fdoThumbnails = QCheckBox(_('Generate system thumbnails'))
         self.fdoThumbnails.setToolTip(_('While downloading, save thumbnails that can be used by '
-                                        'desktop file managers'))
+                                        'desktop file managers and other programs'))
         self.generateThumbnails.stateChanged.connect(self.generateThumbnailsChanged)
         self.useThumbnailCache.stateChanged.connect(self.useThumbnailCacheChanged)
         self.fdoThumbnails.stateChanged.connect(self.fdoThumbnailsChanged)
@@ -372,7 +397,7 @@ class PreferencesDialog(QDialog):
 
     def _addItems(self, pref_list: str, pref_type: int) -> None:
         if self.prefs.list_not_empty(key=pref_list):
-            for value in enumerate(self.prefs[pref_list]):
+            for value in self.prefs[pref_list]:
                 QListWidgetItem(value, self.knownDevices, pref_type)
 
     def setDeviceWidgetValues(self) -> None:
@@ -506,6 +531,7 @@ class PreferencesDialog(QDialog):
             self.prefs.del_list_value('camera_blacklist', item.text())
 
         self.removeDevice.setEnabled(self.knownDevices.count())
+        self.removeAllDevice.setEnabled(self.knownDevices.count())
 
     @pyqtSlot()
     def removeAllDeviceClicked(self) -> None:

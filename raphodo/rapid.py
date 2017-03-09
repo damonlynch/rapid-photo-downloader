@@ -3822,18 +3822,22 @@ class RapidWindow(QMainWindow):
          reported by libgphoto2
         """
 
-        device = self.devices[scan_id]
-        logging.debug('%s with scan id %s is now known as %s',
-                      device.display_name, scan_id, optimal_display_name)
-        if len(storage_space) > 1:
-            logging.debug('%s has %s storage devices',
-                      optimal_display_name, len(storage_space))
-        device.update_camera_attributes(display_name=optimal_display_name,
-                                        storage_space=storage_space)
-        self.updateSourceButton()
-        self.deviceModel.updateDeviceNameAndStorage(scan_id, device)
-        self.thumbnailModel.addOrUpdateDevice(scan_id=scan_id)
-        self.adjustLeftPanelSliderHandles()
+        if scan_id in self.devices:
+            device = self.devices[scan_id]
+            logging.debug('%s with scan id %s is now known as %s',
+                          device.display_name, scan_id, optimal_display_name)
+            if len(storage_space) > 1:
+                logging.debug('%s has %s storage devices',
+                          optimal_display_name, len(storage_space))
+            device.update_camera_attributes(display_name=optimal_display_name,
+                                            storage_space=storage_space)
+            self.updateSourceButton()
+            self.deviceModel.updateDeviceNameAndStorage(scan_id, device)
+            self.thumbnailModel.addOrUpdateDevice(scan_id=scan_id)
+            self.adjustLeftPanelSliderHandles()
+        else:
+            logging.debug("Ignoring optimal display name %s because that device was removed",
+                          optimal_display_name)
 
     @pyqtSlot(int)
     def scanFinished(self, scan_id: int) -> None:
@@ -4356,11 +4360,11 @@ class RapidWindow(QMainWindow):
                 logging.debug("Prompting whether to use device %s", device.display_name)
                 # prompt user to see if device should be used or not
                 self.showMainWindow()
-                message = _('Should %(device)s be used to download photos and videos from?') % dict(
-                    device=device.display_name)
+                message = _('Do you want to download photos and videos from the device <i>%('
+                            'device)s</i>?') % dict(device=device.display_name)
                 use = RememberThisDialog(message=message, icon=device.get_pixmap(),
                                          remember=RememberThisMessage.remember_choice,
-                                         parent=self)
+                                         parent=self, title=device.display_name)
                 if use.exec():
                     if use.remember:
                         logging.debug("Whitelisting device %s", device.display_name)

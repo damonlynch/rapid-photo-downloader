@@ -24,6 +24,7 @@ or "Don't ask me about this again" checkbox.
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016-2017, Damon Lynch"
 
+from typing import Optional
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QCheckBox, QLabel, QGridLayout
@@ -46,7 +47,8 @@ class RememberThisDialog(QDialog):
                  icon: QPixmap,
                  remember: RememberThisMessage,
                  parent,
-                 buttons: RememberThisButtons=RememberThisButtons.yes_no) -> None:
+                 buttons: RememberThisButtons=RememberThisButtons.yes_no,
+                 title: Optional[str]=None) -> None:
 
         super().__init__(parent)
 
@@ -84,7 +86,10 @@ class RememberThisDialog(QDialog):
         grid.addWidget(self.rememberCheckBox, 1, 1, 1, 1)
         grid.addWidget(buttonBox, 2, 0, 1, 2)
         self.setLayout(grid)
-        self.setWindowTitle(_('Rapid Photo Downloader'))
+        if title is None or not title:
+            self.setWindowTitle(_('Rapid Photo Downloader'))
+        else:
+            self.setWindowTitle(title)
 
         if buttons == RememberThisButtons.yes_no:
             yesButton.clicked.connect(self.doAction)
