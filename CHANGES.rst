@@ -1,6 +1,13 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.0b1 (2017-03-xx)
+--------------------
+
+ - Improved install.py script, adding openSUSE and the Fedora derivative
+   Korora to list of supported distros. Also, now installs program
+   requirements without having to manually restart the script.
+
 0.9.0a11 (2017-03-08)
 ---------------------
 

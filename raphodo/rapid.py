@@ -1073,7 +1073,8 @@ class RapidWindow(QMainWindow):
                                          icon=QPixmap(':/rapid-photo-downloader.svg'),
                                          remember=RememberThisMessage.do_not_warn_again,
                                          parent=self,
-                                         buttons=RememberThisButtons.ok)
+                                         buttons=RememberThisButtons.ok,
+                                         title=_('Problem with libmediainfo'))
 
             warning.exec_()
             if warning.remember:
