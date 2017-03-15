@@ -1211,6 +1211,7 @@ class RapidWindow(QMainWindow):
 
     def setupWindow(self):
         status = self.statusBar()
+        status.setStyleSheet("QStatusBar::item { border: 0px solid black }; ")
         self.downloadProgressBar = QProgressBar()
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QFont()).height() * 9)
         self.errorsPending = SpeechBubble(self)

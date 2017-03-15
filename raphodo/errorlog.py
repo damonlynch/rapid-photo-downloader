@@ -28,12 +28,13 @@ __copyright__ = "Copyright 2017, Damon Lynch"
 import logging
 import shlex
 import subprocess
-import sys
+import math
 from collections import deque
 from gettext import gettext as _
 
 from PyQt5.QtWidgets import (QTextEdit, QDialog, QDialogButtonBox, QLineEdit, QVBoxLayout,
-                             QHBoxLayout, QApplication, QPushButton, QLabel, QTextBrowser)
+                             QHBoxLayout, QApplication, QPushButton, QLabel, QTextBrowser,
+                             QStyle, QFrame)
 from PyQt5.QtGui import (QPalette, QIcon, QFontMetrics, QFont, QColor, QKeyEvent, QKeySequence,
                          QTextDocument, QTextCursor, QPaintEvent, QPainter, QPen, QMouseEvent,
                          QShowEvent)
@@ -147,7 +148,12 @@ class ErrorLog(QDialog):
         message = _('Find in error log')
         self.find = QFindLineEdit(find_text=message)
         self.find.textEdited.connect(self.onFindChanged)
-        self.find.setMinimumWidth(QFontMetrics(QFont()).boundingRect(message).width() + 15)
+        style = self.find.style()  # type: QStyle
+        frame_width = style.pixelMetric(QStyle.PM_DefaultFrameWidth)
+        button_margin = style.pixelMetric(QStyle.PM_ButtonMargin)
+        spacing = (frame_width + button_margin) * 2 + 8
+
+        self.find.setMinimumWidth(QFontMetrics(QFont()).boundingRect(message).width() + spacing)
 
         font_height = QFontMetrics(self.font()).height()
         size = QSize(font_height, font_height)
@@ -178,7 +184,7 @@ class ErrorLog(QDialog):
 
         self.findResults = QLabel()
         self.findResults.setMinimumWidth(QFontMetrics(QFont()).boundingRect(
-                _('%s of %s matches') % (1000, 1000)).width() + 15)
+                _('%s of %s matches') % (1000, 1000)).width() + spacing)
 
         findLayout = QHBoxLayout()
         findLayout.setSpacing(0)
@@ -442,8 +448,9 @@ class SpeechBubble(QLabel):
         self.fillColor = QPalette().color(QPalette.Window)
         self.counterFont = QFont()
         self.counterFont.setPointSize(QFont().pointSize() - 1)
-        self.custom_height = QFontMetrics(self.counterFont).height() * 2
+        self.custom_height = max(math.ceil(QFontMetrics(self.counterFont).height() * 1.7), 24)
         self.counterPen = QPen(QColor(Qt.white))
+        self.setStyleSheet("border: 0px;")
 
     @property
     def count(self) -> int:
