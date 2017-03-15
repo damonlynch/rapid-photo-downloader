@@ -115,6 +115,7 @@ class AboutDialog(QDialog):
         Camera icon courtesy %(artlink1)s.
         Video camera icon courtesy %(artlink2)s.
         Home icon courtesy %(artlink3)s.
+        Speech bubble courtesy %(artlink4)s.
 
         Translators:
 
@@ -170,8 +171,9 @@ class AboutDialog(QDialog):
         artlink1='<a href="http://www.webalys.com" style="color: white;">Vincent Le Moign</a>',
         artlink2="""<a href="https://www.iconfinder.com/bluewolfski" style="color: white;">The
                  Pictographers</a>""",
-        artlink3="""<a href="https://www.iconfinder.com/Enesdal" style="color: white;">Enes Dal</a>
-        """.rstrip())
+        artlink3='<a href="https://www.iconfinder.com/Enesdal" style="color: white;">Enes Dal</a>',
+        artlink4='<a href="http://www.iconsolid.com/" style="color: white;">Icons Solid</a>'
+        )
 
         style_sheet = """QLabel {
         background-color: rgba(0, 0, 0, 0);

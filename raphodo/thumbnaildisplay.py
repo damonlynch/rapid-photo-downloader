@@ -48,22 +48,17 @@ from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics
 from raphodo.rpdfile import RPDFile, FileTypeCounter, ALL_USER_VISIBLE_EXTENSIONS, MUST_CACHE_VIDEOS
 from raphodo.interprocess import (PublishPullPipelineManager, GenerateThumbnailsArguments, Device,
                           GenerateThumbnailsResults)
-from raphodo.constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
-                               ThumbnailCacheStatus, Roles, DeviceType, CustomColors, Show, Sort,
-                               ThumbnailBackgroundName, Desktop, DeviceState, extensionColor,
-                               FadeSteps, FadeMilliseconds, PaleGray, DarkGray, DoubleDarkGray)
+from raphodo.constants import (DownloadStatus, Downloaded, FileType, DownloadingFileTypes,
+                               ThumbnailSize, ThumbnailCacheStatus, Roles, DeviceType, CustomColors,
+                               Show, Sort, ThumbnailBackgroundName, Desktop, DeviceState,
+                               extensionColor, FadeSteps, FadeMilliseconds, PaleGray, DarkGray,
+                               DoubleDarkGray)
 from raphodo.storage import get_program_cache_directory, get_desktop, validate_download_folder
 from raphodo.utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
 from raphodo.thumbnailer import Thumbnailer
 from raphodo.rpdsql import ThumbnailRowsSQL, ThumbnailRow
 from raphodo.viewutils import ThumbnailDataForProximity
 from raphodo.proximity import TemporalProximityState
-
-
-class DownloadTypes:
-    def __init__(self):
-        self.photos = False
-        self.videos = False
 
 
 DownloadFiles = namedtuple('DownloadFiles', 'files, download_types, download_stats, '
@@ -981,8 +976,8 @@ class ThumbnailListModel(QAbstractListModel):
         :param scan_id: if not None, then returns those files only from
         the device associated with that scan_id
         :return: namedtuple DownloadFiles with defaultdict() indexed by
-        scan_id with value List(rpd_file), namedtuple DownloadTypes,
-        and defaultdict() indexed by scan_id with value DownloadStats
+        scan_id with value List(rpd_file), and defaultdict() indexed by
+        scan_id with value DownloadStats
         """
 
         if scan_id is None:
@@ -991,9 +986,9 @@ class ThumbnailListModel(QAbstractListModel):
             exclude_scan_ids = None
 
         files = defaultdict(list)
-        download_types = DownloadTypes()
         download_stats = defaultdict(DownloadStats)
         camera_access_needed = defaultdict(bool)
+        download_photos = download_videos = False
 
         uids = self.tsql.get_uids(scan_id=scan_id, marked=True, downloaded=False,
                                   exclude_scan_ids=exclude_scan_ids)
@@ -1006,11 +1001,11 @@ class ThumbnailListModel(QAbstractListModel):
 
             # TODO contemplate using a counter here
             if rpd_file.file_type == FileType.photo:
-                download_types.photos = True
+                download_photos = True
                 download_stats[scan_id].no_photos += 1
                 download_stats[scan_id].photos_size_in_bytes += rpd_file.size
             else:
-                download_types.videos = True
+                download_videos = True
                 download_stats[scan_id].no_videos += 1
                 download_stats[scan_id].videos_size_in_bytes += rpd_file.size
             if rpd_file.from_camera and not rpd_file.cache_full_file_name:
@@ -1024,6 +1019,15 @@ class ThumbnailListModel(QAbstractListModel):
                 download_stats[scan_id].post_download_thumb_generation += 1
 
         # self.validateModelConsistency()
+        if download_photos:
+            if download_videos:
+                download_types = DownloadingFileTypes.photos_and_videos
+            else:
+                download_types = DownloadingFileTypes.photos
+        elif download_videos:
+            download_types = DownloadingFileTypes.videos
+        else:
+            download_types = None
 
         return DownloadFiles(files=files, download_types=download_types,
                              download_stats=download_stats,

@@ -24,6 +24,7 @@ from collections import namedtuple
 
 from PyQt5.QtWidgets import (QStyleOptionFrame, QStyle, QStylePainter, QWidget, QLabel,
                              QListWidget)
+from PyQt5.QtGui import QFontMetrics, QFont
 from PyQt5.QtCore import (QSize, Qt)
 
 
@@ -203,3 +204,7 @@ class QNarrowListWidget(QListWidget):
         s.setWidth(max(self.sizeHintForColumn(0) + self.frameWidth() * 2, self._minimum_width))
         return s
 
+
+def standardIconSize() -> QSize:
+    size = QFontMetrics(QFont()).height() * 6
+    return QSize(size, size)

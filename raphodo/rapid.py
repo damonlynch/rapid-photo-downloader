@@ -81,7 +81,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QHBoxLayout, QVBoxLayout, QDialog, QLabel,
                              QComboBox, QGridLayout, QCheckBox, QSizePolicy,
                              QMessageBox, QSplashScreen, QStackedWidget,
-                             QScrollArea, QDesktopWidget, QStyledItemDelegate)
+                             QScrollArea, QDesktopWidget, QStyledItemDelegate, QPushButton)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
@@ -105,13 +105,13 @@ from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                                FileType, DownloadStatus, RenameAndMoveStatus,
                                ApplicationState,
                                CameraErrorCode, TemporalProximityState,
-                               ThumbnailBackgroundName, Desktop,
-                               DeviceState, Sort, Show, Roles, DestinationDisplayType,
-                               DisplayingFilesOfType, DownloadFailure, DownloadWarning,
+                               ThumbnailBackgroundName, Desktop, BackupFailureType,
+                               DeviceState, Sort, Show, DestinationDisplayType,
+                               DisplayingFilesOfType, DownloadingFileTypes,
                                RememberThisMessage, RightSideButton, CheckNewVersionDialogState,
                                CheckNewVersionDialogResult, RememberThisButtons)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
-                                      DownloadTypes, DownloadStats, MarkedSummary)
+                                      DownloadStats, MarkedSummary)
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
 from raphodo.proximity import (TemporalProximityGroups, TemporalProximity)
 from raphodo.utilities import (
@@ -154,8 +154,8 @@ from raphodo.newversion import (NewVersion, NewVersionCheckDialog,
                                 version_details, DownloadNewVersionDialog)
 from raphodo.chevroncombo import ChevronCombo
 from raphodo.preferencedialog import PreferencesDialog
+from raphodo.errorlog import ErrorLog, SpeechBubble
 
-BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
 # Avoid segfaults at exit. Recommended by Kovid Goyal:
 # https://www.riverbankcomputing.com/pipermail/pyqt/2016-February/036932.html
@@ -1050,14 +1050,17 @@ class RapidWindow(QMainWindow):
                 button = self.rightSideButtonMapper[index]
             button.setChecked(True)
             self.setRightPanelsAndButtons(RightSideButton(index))
+        settings.endGroup()
 
         prefs_valid, msg = self.prefs.check_prefs_for_validity()
 
-        self.splash.setProgress(100)
+        self.setupErrorLogWindow(settings=settings)
+
 
         self.setDownloadCapabilities()
         self.searchForCameras(on_startup=True)
         self.setupNonCameraDevices(on_startup=True)
+        self.splash.setProgress(100)
         self.setupManualPath(on_startup=True)
         self.updateSourceButton()
         self.displayMessageInStatusBar()
@@ -1070,7 +1073,7 @@ class RapidWindow(QMainWindow):
                 'shot. The program will run  without it, but installing it is recommended.')
 
             warning = RememberThisDialog(message=message,
-                                         icon=QPixmap(':/rapid-photo-downloader.svg'),
+                                         icon=':/rapid-photo-downloader.svg',
                                          remember=RememberThisMessage.do_not_warn_again,
                                          parent=self,
                                          buttons=RememberThisButtons.ok,
@@ -1094,6 +1097,8 @@ class RapidWindow(QMainWindow):
             self.window_show_requested_time = datetime.datetime.now()
             self.show()
 
+            self.errorLog.setVisible(self.errorLogAct.isChecked())
+
     def mapModel(self, scan_id: int) -> DeviceModel:
         """
         Map a scan_id onto Devices' or This Computer's device model.
@@ -1111,6 +1116,31 @@ class RapidWindow(QMainWindow):
         """
 
         return self._mapView[self.devices[scan_id].device_type]
+
+    def setupErrorLogWindow(self, settings: QSettings) -> None:
+        """
+        Creates, moves and resizes error log window, but does not show it.
+        """
+
+        default_x = self.pos().x()
+        default_y = self.pos().y()
+        default_width = int(self.size().width() * 0.5)
+        default_height = int(self.size().height() * 0.5)
+
+        settings.beginGroup("ErrorLog")
+        pos = settings.value("windowPosition", QPoint(default_x, default_y))
+        size = settings.value("windowSize", QSize(default_width, default_height))
+        visible = settings.value('visible', False, type=bool)
+        settings.endGroup()
+
+        self.errorLog = ErrorLog(rapidApp=self)
+        self.errorLogAct.setChecked(visible)
+        self.errorLog.move(pos)
+        self.errorLog.resize(size)
+        self.errorLog.finished.connect(self.setErrorLogAct)
+        self.errorLog.dialogShown.connect(self.setErrorLogAct)
+        self.errorLog.dialogActivated.connect(self.errorsPending.reset)
+        self.errorsPending.clicked.connect(self.errorLog.activate)
 
     def readWindowSettings(self, app: 'QtSingleApplication'):
         settings = QSettings()
@@ -1150,6 +1180,12 @@ class RapidWindow(QMainWindow):
         settings.setValue("rightPanelSplitterSizes", self.rightPanelSplitter.saveState())
         settings.endGroup()
 
+        settings.beginGroup("ErrorLog")
+        settings.setValue("windowPosition", self.errorLog.pos())
+        settings.setValue("windowSize", self.errorLog.size())
+        settings.setValue('visible', self.errorLog.isVisible())
+        settings.endGroup()
+
     def moveEvent(self, event: QMoveEvent) -> None:
         """
         Handle quirks in window positioning.
@@ -1177,6 +1213,9 @@ class RapidWindow(QMainWindow):
         status = self.statusBar()
         self.downloadProgressBar = QProgressBar()
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QFont()).height() * 9)
+        self.errorsPending = SpeechBubble(self)
+        self.errorsPending.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        status.addPermanentWidget(self.errorsPending)
         status.addPermanentWidget(self.downloadProgressBar, 1)
 
     def anyFilesSelected(self) -> bool:
@@ -1554,6 +1593,10 @@ class RapidWindow(QMainWindow):
         select_all = state == Qt.Checked
         self.thumbnailModel.selectAll(select_all=select_all, file_type=FileType.video)
 
+    @pyqtSlot()
+    def setErrorLogAct(self) -> None:
+        self.errorLogAct.setChecked(self.errorLog.isVisible())
+
     def createActions(self) -> None:
         self.sourceAct = QAction(_('&Source'), self, shortcut="Ctrl+s",
                                  triggered=self.doSourceAction)
@@ -1572,7 +1615,7 @@ class RapidWindow(QMainWindow):
         self.quitAct = QAction(_("&Quit"), self, shortcut="Ctrl+Q",
                                triggered=self.close)
 
-        self.errorLogAct = QAction(_("Error Log"), self, enabled=False,
+        self.errorLogAct = QAction(_("Error Log"), self, enabled=True,
                                    checkable=True,
                                    triggered=self.doErrorLogAction)
 
@@ -2263,7 +2306,7 @@ class RapidWindow(QMainWindow):
     #     self.thumbnailModel.checkAll(check_all=False)
 
     def doErrorLogAction(self):
-        pass
+        self.errorLog.setVisible(self.errorLogAct.isChecked())
 
     def doClearDownloadsAction(self):
         self.thumbnailModel.clearCompletedDownloads()
@@ -2542,7 +2585,7 @@ class RapidWindow(QMainWindow):
                     Do you want to proceed with the download?""")
 
                     warning = RememberThisDialog(message=message,
-                                             icon=QPixmap(':/rapid-photo-downloader.svg'),
+                                             icon=':/rapid-photo-downloader.svg',
                                              remember=RememberThisMessage.do_not_ask_again,
                                              parent=self)
 
@@ -2678,27 +2721,67 @@ class RapidWindow(QMainWindow):
                         'folder1': invalid_dirs[0], 'folder2': invalid_dirs[1]}
             else:
                 msg = _("This download folder is invalid:\n%s") % invalid_dirs[0]
-            self.log_error(ErrorType.critical_error, _("Download cannot proceed"), msg)
+            msgBox = QMessageBox(self)
+            msgBox.setIcon(QMessageBox.Critical)
+            msgBox.setWindowTitle(_("Download Failure"))
+            msgBox.setText(_("The download cannot proceed."))
+            msgBox.setInformativeText(msg)
+            msgBox.exec()
         else:
-            missing_destinations = self.backupDestinationsMissing(download_files.download_types)
+            missing_destinations = self.backup_devices.backup_destinations_missing(
+                download_files.download_types)
             if missing_destinations is not None:
                 # Warn user that they have specified that they want to
                 # backup a file type, but no such folder exists on backup
                 # devices
-                if not missing_destinations[0]:
-                    logging.warning("No backup device contains a valid "
-                                    "folder for backing up photos")
-                    msg = _("No backup device contains a valid folder for "
-                            "backing up %(filetype)s") % {'filetype': _(
-                            'photos')}
-                else:
-                    logging.warning("No backup device contains a valid "
-                                    "folder for backing up videos")
-                    msg = _("No backup device contains a valid folder for "
-                            "backing up %(filetype)s") % {'filetype': _(
-                            'videos')}
+                if self.prefs.backup_device_autodetection:
+                    if missing_destinations == BackupFailureType.photos_and_videos:
+                        logging.warning("Photos and videos will not be backed up because there "
+                                        "is nowhere to back them up")
+                        msg = _("Photos and videos will not be backed up because there is nowhere "
+                                "to back them up. Do you still want to start the download?")
+                    elif missing_destinations == BackupFailureType.photos:
+                        logging.warning("No backup device exists for backing up photos")
+                        # Translators: filetype will be replaced with 'photos' or 'videos'
+                        msg = _("No backup device exists for backing up %(filetype)s. Do you "
+                                "still want to start the download?") % {'filetype': _('photos')}
 
-                self.logError(ErrorType.warning, _("Backup problem"), msg)
+                    else:
+                        logging.warning("No backup device contains a valid folder for backing up "
+                                        "videos")
+                        # Translators: filetype will be replaced with 'photos' or 'videos'
+                        msg = _("No backup device exists for backing up %(filetype)s. Do you "
+                                "still want to start the download?") % {'filetype': _('videos')}
+                else:
+                    if missing_destinations == BackupFailureType.photos_and_videos:
+                        logging.warning("The manually specified photo and videos backup paths do "
+                                        "not exist or are not writable")
+                        msg = _("The photo and video backup destinations cannnot be written to. "
+                                "Do you still want to start the download?")
+                    elif missing_destinations == BackupFailureType.photos:
+                        logging.warning("The manually specified photo backup path does not exist "
+                                        "or is not writable")
+                        # Translators: filetype will be replaced by either 'photo' or 'video'
+                        msg = _("The %(filetype)s backup destination cannot be written to. Do you "
+                                "still want to start the download?") % {'filetype': _('photo')}
+                    else:
+                        logging.warning("The manually specified video backup path does not exist "
+                                        "or is not writable")
+                        msg = _("The %(filetype)s backup destination cannot be written to. Do you "
+                                "still want to start the download?")  % {'filetype': _('video')}
+
+
+                if self.prefs.warn_backup_problem:
+                    warning = RememberThisDialog(message=msg,
+                                                 icon=':/rapid-photo-downloader.svg',
+                                                 remember=RememberThisMessage.do_not_ask_again,
+                                                 parent=self,
+                                                 title= _("Backup problem"))
+                    do_download = warning.exec()
+                    if warning.remember:
+                        self.prefs.warn_backup_problem = False
+                    if not do_download:
+                        return
 
             # Suppress showing a notification message about any timeline
             # and provisional folders rebuild - download takes priority
@@ -2728,7 +2811,6 @@ class RapidWindow(QMainWindow):
 
             # Maximum value of progress bar may have been set to the number
             # of thumbnails being generated. Reset it to use a percentage.
-            #TODO confirm it's best to set this here
             self.downloadProgressBar.setMaximum(100)
 
             for scan_id in download_files.files:
@@ -2958,8 +3040,7 @@ class RapidWindow(QMainWindow):
                 self.videoDestinationFSView.update()
 
         if rpd_file.status == DownloadStatus.downloaded_with_warning:
-            self.logError(ErrorType.warning, rpd_file.error_title,
-                           rpd_file.error_msg, rpd_file.error_extra_detail)
+            self.addErrorLogMessage(ErrorType.warning, rpd_file)
 
         if self.prefs.backup_files:
             if self.backup_devices.backup_possible(rpd_file.file_type):
@@ -3210,8 +3291,8 @@ class RapidWindow(QMainWindow):
         # Update error log window if neccessary
         if not succeeded and not self.backup_devices.multiple_backup_devices(
                 rpd_file.file_type):
-            self.logError(ErrorType.serious_error, rpd_file.error_title,
-                           rpd_file.error_msg, rpd_file.error_extra_detail)
+            self.addErrorLogMessage(ErrorType.serious_error, rpd_file)
+
         elif self.prefs.move:
             # record which files to automatically delete when download
             # completes
@@ -3297,6 +3378,11 @@ class RapidWindow(QMainWindow):
 
             self.download_start_datetime = None
             self.download_start_time = None
+
+    def addErrorLogMessage(self, severity: ErrorType, rpd_file: RPDFile) -> None:
+        self.errorLog.addMessage(severity, rpd_file)
+        if not self.errorLog.isActiveWindow():
+            self.errorsPending.incrementCounter()
 
     def immediatelyDisplayDownloadRunningInStatusBar(self):
         """
@@ -3649,7 +3735,7 @@ class RapidWindow(QMainWindow):
 
         self.ctime_update_notification = None
 
-    def invalidDownloadFolders(self, downloading: DownloadTypes) -> List[str]:
+    def invalidDownloadFolders(self, downloading: DownloadingFileTypes) -> List[str]:
         """
         Checks validity of download folders based on the file types the
         user is attempting to download.
@@ -3658,10 +3744,10 @@ class RapidWindow(QMainWindow):
         """
 
         invalid_dirs = []
-        if downloading.photos:
+        if downloading.photos or downloading.photos_and_videos:
             if not validate_download_folder(self.prefs.photo_download_folder).valid:
                 invalid_dirs.append(self.prefs.photo_download_folder)
-        if downloading.videos:
+        if downloading.videos or downloading.photos_and_videos:
             if not validate_download_folder(self.prefs.video_download_folder).valid:
                 invalid_dirs.append(self.prefs.video_download_folder)
         return invalid_dirs
@@ -3679,33 +3765,6 @@ class RapidWindow(QMainWindow):
         message = "<b>%(title)s</b><br><br>%(details)s" % dict(title=title, details=details)
         msgBox = self.standardMessageBox(message=message, rich_text=True)
         msgBox.exec()
-
-    def logError(self, severity, problem, details, extra_detail=None) -> None:
-        """
-        Display error and warning messages to user in log window
-        """
-        #TODO implement error log window
-        pass
-        # self.error_log.add_message(severity, problem, details, extra_detail)
-
-    def backupDestinationsMissing(self, downloading: DownloadTypes) -> BackupMissing:
-        """
-        Checks if there are backup destinations matching the files
-        going to be downloaded
-        :param downloading: the types of file that will be downloaded
-        :return: None if no problems, or BackupMissing
-        """
-        photo_missing = video_missing = False
-        if self.prefs.backup_files and self.prefs.backup_device_autodetection:
-            if downloading.photos and not self.backup_devices.backup_possible(FileType.photo):
-                photo_missing = True
-            if downloading.videos and not self.backup_devices.backup_possible(FileType.video):
-                video_missing = True
-            if not(photo_missing or video_missing):
-                return None
-            else:
-                return BackupMissing(photo=photo_missing, video=video_missing)
-        return None
 
     def deviceState(self, scan_id: int) -> DeviceState:
         """
@@ -3996,6 +4055,9 @@ class RapidWindow(QMainWindow):
         self.writeWindowSettings()
         logging.debug("Cleaning up provisional download folders")
         self.folder_preview_manager.remove_preview_folders()
+
+        # write settings before closing error log window
+        self.errorLog.done(0)
 
         logging.debug("Termainating main ExifTool process")
         self.exiftool_process.terminate()

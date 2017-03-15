@@ -68,7 +68,8 @@ class PreferencesDialog(QDialog):
         self.panels = QStackedWidget()
 
         self.chooser = QNarrowListWidget()
-        self.chooser_items = (_('Devices'), _('Automation'), _('Thumbnails'), _('Miscellaneous'))
+        self.chooser_items = (_('Devices'), _('Automation'), _('Thumbnails'), _('Error Handling'),
+                              _('Miscellaneous'))
         self.chooser.addItems(self.chooser_items )
         self.chooser.currentRowChanged.connect(self.rowChanged)
         self.chooser.setSelectionMode(QAbstractItemView.SingleSelection)
@@ -322,9 +323,15 @@ class PreferencesDialog(QDialog):
         errorBoxLayout.addWidget(self.downloadError)
         errorBoxLayout.addWidget(self.skipDownload)
         errorBoxLayout.addWidget(self.addIdentifier)
+        lbl = '<i>' + ('Using sequence numbers to generate unique filenames is strongly '
+                       'recommended. Configure file renaming in the Rename panel in the main '
+                       'window.') + '</i>'
+        self.recommended = QLabel(lbl)
+        self.recommended.setWordWrap(True)
+        errorBoxLayout.addWidget(self.recommended)
+        errorBoxLayout.addSpacing(18)
         lbl = _('When backing up, choose whether to overwrite a file on the backup device that '
               'has the same name, or skip backing it up:')
-        errorBoxLayout.addSpacing(18)
         self.backupError = QLabel(lbl)
         self.backupError.setWordWrap(True)
         errorBoxLayout.addWidget(self.backupError)
@@ -335,6 +342,40 @@ class PreferencesDialog(QDialog):
         self.setErrorHandingValues()
         self.downloadErrorGroup.buttonClicked.connect(self.downloadErrorGroupClicked)
         self.backupErrorGroup.buttonClicked.connect(self.backupErrorGroupClicked)
+
+        self.errorWidget = QWidget()
+        errorLayout = QVBoxLayout()
+        self.errorWidget.setLayout(errorLayout)
+        errorLayout.addWidget(self.errorBox)
+        errorLayout.addStretch()
+        errorLayout.setContentsMargins(0, 0, 0, 0)
+
+        self.warningBox = QGroupBox(_('Program Warnings'))
+        lbl = _('Show a warning when:')
+        self.warningLabel = QLabel(lbl)
+        self.warningLabel.setWordWrap(True)
+        self.warnDownloadingAll = QCheckBox(_('Downloading invisible files'))
+        tip = _('Warn when about to download files that are not displayed in the main window')
+        self.warnDownloadingAll.setToolTip(tip)
+        self.warnBackupProblem = QCheckBox(_('Backup destinations are missing'))
+        tip = _("Warn before starting a download if it is not possible to back up files")
+        self.warnBackupProblem.setToolTip(tip)
+        self.warnMissingLibraries = QCheckBox(_('Program libraries are missing or broken'))
+        tip = _('Warn if a software library used by Rapid Photo Downloader is missing or not '
+                'functioning')
+        self.warnMissingLibraries.setToolTip(tip)
+
+        self.setWarningValues()
+        self.warnDownloadingAll.stateChanged.connect(self.warnDownloadingAllChanged)
+        self.warnBackupProblem.stateChanged.connect(self.warnBackupProblemChanged)
+        self.warnMissingLibraries.stateChanged.connect(self.warnMissingLibrariesChanged)
+
+        warningBoxLayout = QVBoxLayout()
+        warningBoxLayout.addWidget(self.warningLabel)
+        warningBoxLayout.addWidget(self.warnDownloadingAll)
+        warningBoxLayout.addWidget(self.warnBackupProblem)
+        warningBoxLayout.addWidget(self.warnMissingLibraries)
+        self.warningBox.setLayout(warningBoxLayout)
 
         self.newVersionBox = QGroupBox(_('Version Check'))
         self.checkNewVersion = QCheckBox(_('Check for new version at startup'))
@@ -355,7 +396,7 @@ class PreferencesDialog(QDialog):
 
         self.miscWidget = QWidget()
         miscLayout = QVBoxLayout()
-        miscLayout.addWidget(self.errorBox)
+        miscLayout.addWidget(self.warningBox)
         miscLayout.addWidget(self.newVersionBox)
         miscLayout.addStretch()
         miscLayout.setContentsMargins(0, 0, 0, 0)
@@ -365,6 +406,7 @@ class PreferencesDialog(QDialog):
         self.panels.addWidget(self.devices)
         self.panels.addWidget(self.automation)
         self.panels.addWidget(self.performance)
+        self.panels.addWidget(self.errorWidget)
         self.panels.addWidget(self.miscWidget)
 
         layout = QVBoxLayout()
@@ -474,6 +516,19 @@ class PreferencesDialog(QDialog):
             self.overwriteBackup.setChecked(True)
         else:
             self.skipBackup.setChecked(True)
+
+    def setWarningValues(self) -> None:
+        self.warnDownloadingAll.setChecked(self.prefs.warn_downloading_all)
+        if self.prefs.backup_files:
+            self.warnBackupProblem.setChecked(self.prefs.warn_backup_problem)
+        else:
+            self.warnBackupProblem.setChecked(False)
+        self.warnMissingLibraries.setChecked(self.prefs.warn_no_libmediainfo)
+
+        self.setBackupWarningEnabled()
+
+    def setBackupWarningEnabled(self) -> None:
+        self.warnBackupProblem.setEnabled(self.prefs.backup_files)
 
     def setVersionCheckValues(self) -> None:
         self.checkNewVersion.setChecked(self.prefs.check_for_new_versions)
@@ -656,6 +711,18 @@ class PreferencesDialog(QDialog):
                                                 self.overwriteBackup
 
     @pyqtSlot(int)
+    def warnDownloadingAllChanged(self, state: int) -> None:
+        self.prefs.warn_downloading_all = state == Qt.Checked
+
+    @pyqtSlot(int)
+    def warnBackupProblemChanged(self, state: int) -> None:
+        self.prefs.warn_backup_problem = state == Qt.Checked
+
+    @pyqtSlot(int)
+    def warnMissingLibrariesChanged(self, state: int) -> None:
+        self.prefs.warn_no_libmediainfo = state == Qt.Checked
+
+    @pyqtSlot(int)
     def checkNewVersionChanged(self, state: int) -> None:
         do_check = state == Qt.Checked
         self.prefs.check_for_new_versions = do_check
@@ -688,10 +755,14 @@ class PreferencesDialog(QDialog):
             self.setPerfomanceEnabled()
             self.thumbnailCacheDaysKeep.setValue(self.prefs.keep_thumbnails_days)
         elif row == 3:
-            for value in ('conflict_resolution', 'backup_duplicate_overwrite',
-                          'check_for_new_versions', 'include_development_release'):
+            for value in ('conflict_resolution', 'backup_duplicate_overwrite'):
                 self.prefs.restore(value)
             self.setErrorHandingValues()
+        elif row == 4:
+            for value in ('warn_downloading_all', 'warn_backup_problem', 'check_for_new_versions',
+                          'warn_no_libmediainfo', 'include_development_release'):
+                self.prefs.restore(value)
+            self.setWarningValues()
             self.setVersionCheckValues()
 
     def closeEvent(self, event: QCloseEvent) -> None:

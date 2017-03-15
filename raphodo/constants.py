@@ -27,7 +27,7 @@ from PyQt5.QtGui import QFont, QFontMetrics, QColor
 PROGRAM_NAME = "Rapid Photo Downloader"
 logfile_name = 'rapid-photo-downloader.log'
 
-remote_versions_file = 'http://www.damonlynch.net/rapid/version.json'
+remote_versions_file = 'https://www.damonlynch.net/rapid/version.json'
 
 
 class CheckNewVersionDialogResult(IntEnum):
@@ -144,6 +144,8 @@ class DisplayingFilesOfType(Enum):
 
 
 BackupLocationType = DisplayingFilesOfType
+BackupFailureType = DisplayingFilesOfType
+DownloadingFileTypes = DisplayingFilesOfType
 
 
 class DestinationDisplayType(Enum):
@@ -345,6 +347,7 @@ PaleGray = '#d7d6d5'
 DarkGray = '#35322f'
 MediumGray = '#5d5b59'
 DoubleDarkGray = '#1e1b18'
+
 
 ExtensionColorDict = {
     FileExtension.raw: CustomColors.color1,

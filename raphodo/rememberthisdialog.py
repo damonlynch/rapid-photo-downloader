@@ -24,14 +24,15 @@ or "Don't ask me about this again" checkbox.
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016-2017, Damon Lynch"
 
-from typing import Optional
+from typing import Optional, Union
 from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QCheckBox, QLabel, QGridLayout
 
 from gettext import gettext as _
 
 from raphodo.constants import RememberThisMessage, RememberThisButtons
+from raphodo.viewutils import standardIconSize
 
 
 class RememberThisDialog(QDialog):
@@ -44,7 +45,7 @@ class RememberThisDialog(QDialog):
     """
 
     def __init__(self, message: str,
-                 icon: QPixmap,
+                 icon: Union[QPixmap, str],
                  remember: RememberThisMessage,
                  parent,
                  buttons: RememberThisButtons=RememberThisButtons.yes_no,
@@ -58,7 +59,10 @@ class RememberThisDialog(QDialog):
         messageLabel.setWordWrap(True)
 
         iconLabel = QLabel()
-        iconLabel.setPixmap(icon)
+        if isinstance(icon, str):
+            iconLabel.setPixmap(QIcon(icon).pixmap(standardIconSize()))
+        else:
+            iconLabel.setPixmap(icon)
 
         if remember == RememberThisMessage.remember_choice:
             question =  _("&Remember this choice")

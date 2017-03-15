@@ -8,6 +8,17 @@ Changelog for Rapid Photo Downloader
    Korora to list of supported distros. Also, now installs program
    requirements without having to manually restart the script.
 
+ - Implemented error log window.
+
+ - A message dialog window is now displayed if back ups will not occur or if
+   the download destinations have a problem.
+
+ - Added 'Program Warnings' section to the preferences dialog window.
+
+ - Optimized icon sizes in dialog windows.
+
+ - Check for new version using secure connection.
+
 0.9.0a11 (2017-03-08)
 ---------------------
 

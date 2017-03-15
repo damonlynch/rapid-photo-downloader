@@ -727,6 +727,12 @@ class RPDFile:
         else:
             return self.full_file_name
 
+    def get_current_name(self) -> str:
+        if self.status in Downloaded:
+            return self.download_name
+        else:
+            return self.name
+
     def get_uri(self, desktop_environment: Optional[bool]=False) -> str:
         """
         Generate and return the URI for the file

@@ -243,13 +243,15 @@ class Problem:
         # special cases
 
         if VERIFICATION_PROBLEM in self.categories:
-            return _("File verification failed. The downloaded version is different from the original.")
+            return _("File verification failed. The downloaded version is different from the "
+                     "original.")
 
         if FILE_PROBLEM in self.categories:
-            return _("The metadata might be corrupt.")
+            return _("The metadata could not be parsed.")
 
         if FILE_ALREADY_DOWN_CAT in self.categories:
-            return _("The filename, extension and Exif information indicate it has already been downloaded.")
+            return _("The filename, extension and Exif information indicate it has already been "
+                     "downloaded.")
 
         if FILE_ALREADY_EXISTS in self.categories:
             if EXISTING_FILE in self.extra_detail:
@@ -288,7 +290,8 @@ class Problem:
         if DIFFERENT_EXIF in self.categories:
             v = self.problems[SAME_FILE_DIFFERENT_EXIF][0]
             if METADATA_PROBLEM in self.categories:
-                v = _('Photos detected with the same filenames, but taken at different times: %(details)s' ) % {'details':v}
+                v = _('Photos detected with the same filenames, but taken at different times: '
+                      '%(details)s' ) % {'details':v}
 
         # Problems backing up
         if BACKUP_PROBLEM in self.categories:
@@ -305,15 +308,18 @@ class Problem:
                         volume = details[0]
                         inst = get_backup_error_inst(volume)
                         if inst:
-                            vv += _("An error occurred when backing up on %(volume)s: %(inst)s.") % {'volume': volume, 'inst': inst} + ' '
+                            vv += _("An error occurred when backing up on %(volume)s: "
+                                    "%(inst)s.") % {'volume': volume, 'inst': inst} + ' '
                         else:
-                            vv += _("An error occurred when backing up on %(volume)s.") % {'volume': volume} + ' '
+                            vv += _("An error occurred when backing up on "
+                                    "%(volume)s.") % {'volume': volume} + ' '
                     else:
                         vv += _("Errors occurred when backing up on the following backup devices: ")
                         for volume in details[:-1]:
                             inst = get_backup_error_inst(volume)
                             if inst:
-                                vv += _("%(volume)s (%(inst)s), ") % {'volume': volume, 'inst': inst}
+                                vv += _("%(volume)s (%(inst)s), ") % {'volume': volume,
+                                                                      'inst': inst}
                             else:
                                 vv += _("%(volume)s, ") % {'volume': volume}
                         volume = details[-1]
@@ -329,10 +335,10 @@ class Problem:
                                 'volume': volume} \
                                  + ' '
 
-
                 elif p == BACKUP_EXISTS:
                     if len(details) == 1:
-                        vv += _("Backup already exists on %(volume)s.") % {'volume': details[0]} + ' '
+                        vv += _("Backup already exists on %(volume)s.") % {
+                                                                        'volume': details[0]} + ' '
                     else:
                         vv += _("Backups already exist in these locations: ")
                         for d in details[:-1]:
@@ -357,11 +363,15 @@ class Problem:
                 elif p == BACKUP_DIRECTORY_CREATION:
                     if len(details) == 1:
                         volume = details[0]
-                        vv += _("An error occurred when creating directories on %(volume)s: %(inst)s.") % {'volume': volume, 'inst': get_dir_creation_inst(volume)} + ' '
+                        vv += _("An error occurred when creating directories on %(volume)s: "
+                                "%(inst)s.") % {'volume': volume,
+                                                'inst': get_dir_creation_inst(volume)} + ' '
                     else:
-                        vv += _("Errors occurred when creating directories on the following backup devices: ")
+                        vv += _("Errors occurred when creating directories on the following "
+                                "backup devices: ")
                         for volume in details[:-1]:
-                            vv += _("%(volume)s (%(inst)s), ") % {'volume': volume, 'inst': get_dir_creation_inst(volume)}
+                            vv += _("%(volume)s (%(inst)s), ") % {'volume': volume,
+                                                          'inst': get_dir_creation_inst(volume)}
                         volume = details[-1]
                         vv = _("%(volumes)s and %(volume)s (%(inst)s).") % \
                             {'volumes': vv[:-2],
@@ -371,7 +381,9 @@ class Problem:
 
                 elif p == BACKUP_VERIFICATION_FAILED:
                     if len(details) == 1:
-                        vv += _("File verification failed on %(volume)s. The backed up version is different from the downloaded version.") % {'volume': details[0]} + ' '
+                        vv += _("File verification failed on %(volume)s. The backed up "
+                                "version is different from the "
+                                "downloaded version.") % {'volume': details[0]} + ' '
                     else:
                         vv += _("File verification failed on these devices: ")
                         for d in details[:-1]:
@@ -383,7 +395,8 @@ class Problem:
 
 
             if v:
-                v = _('%(previousproblem)s Additionally, %(newproblem)s') % {'previousproblem': v, 'newproblem': vv[0].lower() + vv[1:]}
+                v = _('%(previousproblem)s Additionally, %(newproblem)s') % {
+                    'previousproblem': v, 'newproblem': vv[0].lower() + vv[1:]}
             else:
                 v = vv
 
@@ -391,9 +404,11 @@ class Problem:
         if v and METADATA_PROBLEM in self.categories:
             vv = self._get_generation_title()
             if self.categories[METADATA_PROBLEM] > 1:
-                v += _(' Furthermore, there were %(problems)s.') % {'problems': vv[0].lower() + vv[1:]}
+                v += _(' Furthermore, there were %(problems)s.') % {
+                    'problems': vv[0].lower() + vv[1:]}
             else:
-                v += _(' Furthermore, there was a %(problem)s.') % {'problem': vv[0].lower() + vv[1:]}
+                v += _(' Furthermore, there was a %(problem)s.') % {
+                    'problem': vv[0].lower() + vv[1:]}
 
         # Problems generating file / subfolder names
         if METADATA_PROBLEM in self.categories:
@@ -407,8 +422,9 @@ class Problem:
                         vv = _("The following metadata is missing: ")
                         for d in details[:-1]:
                             vv += ("%s, ") % d
-                        vv = _("%(missing_metadata_elements)s and %(final_missing_metadata_element)s.") % \
-                            {'missing_metadata_elements': vv[:-2],
+                        vv = _("%(missing_metadata_elements)s and "
+                               "%(final_missing_metadata_element)s.") % {
+                            'missing_metadata_elements': vv[:-2],
                             'final_missing_metadata_element': details[-1]}
 
 
@@ -440,9 +456,11 @@ class Problem:
 
         if BACKUP_OK in self.categories:
             if FILE_ALREADY_EXISTS in self.categories:
-                v = _('%(filetype)s already exists, but it was backed up') % {'filetype': self.extra_detail[BACKUP_OK_TYPE]}
+                v = _('%(filetype)s already exists, but it was backed up') % {
+                    'filetype': self.extra_detail[BACKUP_OK_TYPE]}
             else:
-                v = _('An error occurred when copying the %(filetype)s, but it was backed up') % {'filetype': self.extra_detail[BACKUP_OK_TYPE]}
+                v = _('An error occurred when copying the %(filetype)s, but it was backed up') % {
+                    'filetype': self.extra_detail[BACKUP_OK_TYPE]}
 
         # High priority problems
         elif VERIFICATION_PROBLEM in self.categories:
@@ -479,7 +497,8 @@ class Problem:
                 vv = _("There was an error backing up")
             if v:
                 # e.g.
-                v = _("%(previousproblem)s, and %(backinguperror)s") % {'previousproblem': v, 'backinguperror':vp}
+                v = _("%(previousproblem)s, and %(backinguperror)s") % {'previousproblem': v,
+                                                                        'backinguperror':vp}
             else:
                 v = vv
 

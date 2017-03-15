@@ -36,7 +36,7 @@ from PyQt5.QtGui import (QColor, QPalette, QFont, QFontMetrics, QIcon, QShowEven
 
 
 from raphodo.constants import (JobCodeSort, ThumbnailBackgroundName, )
-from raphodo.viewutils import QFramedWidget, QNarrowListWidget
+from raphodo.viewutils import QFramedWidget, QNarrowListWidget, standardIconSize
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
 from raphodo.messagewidget import MessageWidget, MessageButton
@@ -111,8 +111,7 @@ class JobCodeDialog(QDialog):
         else:
             self.jobCodeComboBox.setInsertPolicy(QComboBox.InsertAlphabetically)
 
-        size = QFontMetrics(QFont()).height() * 6
-        icon = QIcon(':/rapid-photo-downloader.svg').pixmap(QSize(size, size))
+        icon = QIcon(':/rapid-photo-downloader.svg').pixmap(standardIconSize())
         iconLabel = QLabel()
         iconLabel.setPixmap(icon)
         iconLabel.setAlignment(Qt.AlignTop|Qt.AlignLeft)

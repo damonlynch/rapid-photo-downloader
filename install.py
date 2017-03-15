@@ -102,11 +102,13 @@ debian_like = (Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint)
 fedora_like = (Distro.fedora, Distro.korora)
 arch_like = (Distro.arch, Distro.manjaro)
 
+
 installer_cmds = {
     Distro.fedora: 'dnf',
     Distro.debian: 'apt-get',
     Distro.opensuse: 'zypper',
 }
+
 
 def check_packages_on_other_systems() -> None:
     """
@@ -159,11 +161,13 @@ def check_packages_on_other_systems() -> None:
         sys.stderr.write(install_error_message.format('\n'.join(s for s in import_msgs)))
         sys.exit(1)
 
+
 def get_distro_id(id_or_id_like: str) -> Distro:
     try:
         return Distro[id_or_id_like.strip()]
     except KeyError:
         return Distro.unknown
+
 
 def get_distro() -> Distro:
     if os.path.isfile(os_release):
@@ -176,6 +180,7 @@ def get_distro() -> Distro:
                 if line.startswith('ID_LIKE='):
                     return get_distro_id(line[8:])
     return Distro.unknown
+
 
 def get_distro_version(distro: Distro) -> float:
     remove_quotemark = False
@@ -238,7 +243,6 @@ def run_cmd(command_line: str, restart=False, exit_on_failure=True) -> None:
             else:
                 print("Rerun this script, passing the path to the tarfile\n")
                 sys.exit(0)
-
 
 
 def check_package_import_requirements(distro: Distro, version: float) -> None:
@@ -349,9 +353,11 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
     else:
         check_packages_on_other_systems()
 
+
 def query_uninstall() -> bool:
     return input('\nType yes and hit enter if you want to to uninstall the previous version of '
                  'Rapid Photo Downloader: ') == 'yes'
+
 
 def uninstall_old_version(distro: Distro) -> None:
     pkg_name = 'rapid-photo-downloader'

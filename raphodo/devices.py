@@ -44,9 +44,10 @@ from PyQt5.QtGui import QIcon, QPixmap
 
 import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import (DeviceType, BackupLocationType, FileType, DeviceState,
-                               DownloadStatus, ExifSource)
+                               DownloadStatus, ExifSource, DownloadingFileTypes, BackupFailureType)
 from raphodo.rpdfile import FileTypeCounter, FileSizeSum
-from raphodo.storage import StorageSpace, udev_attributes, UdevAttr, get_path_display_name
+from raphodo.storage import (StorageSpace, udev_attributes, UdevAttr, get_path_display_name,
+                             validate_download_folder, ValidatedFolder)
 from raphodo.camera import Camera, generate_devname
 from raphodo.utilities import (number, make_internationalized_list, stdchannel_redirected,
                                same_device)
@@ -1327,3 +1328,38 @@ class BackupDeviceCollection:
                       if path is not None][:3 - len(paths)]
 
         return sorted(paths)
+
+    def backup_destinations_missing(self,
+                                downloading: DownloadingFileTypes) -> Optional[BackupFailureType]:
+        """
+        Checks if there are backup destinations matching the files
+        going to be downloaded
+        :param downloading: the types of file that will be downloaded
+        :return: None if no problems, or BackupFailureType
+        """
+        prefs = self.rapidApp.prefs
+        if prefs.backup_files:
+            photos = downloading in (DownloadingFileTypes.photos,
+                                     DownloadingFileTypes.photos_and_videos)
+            videos = downloading in (DownloadingFileTypes.videos,
+                                     DownloadingFileTypes.photos_and_videos)
+
+            if prefs.backup_device_autodetection:
+                photo_backup_problem = photos and not self.backup_possible(FileType.photo)
+                video_backup_problem = videos and not self.backup_possible(FileType.video)
+            else:
+                photo_backup_problem = photos and validate_download_folder(
+                    prefs.backup_photo_location)
+                video_backup_problem = videos and validate_download_folder(
+                    prefs.backup_video_location)
+
+            if photo_backup_problem:
+                if video_backup_problem:
+                    return BackupFailureType.photos_and_videos
+                else:
+                    return BackupFailureType.photos
+            elif video_backup_problem:
+                return BackupFailureType.videos
+            else:
+                return None
+        return None

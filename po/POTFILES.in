@@ -6,6 +6,7 @@ raphodo/destinationdisplay.py
 raphodo/devicedisplay.py
 raphodo/devices.py
 raphodo/downloadtracker.py
+raphodo/errorlog.py
 raphodo/excepthook.py
 raphodo/filebrowse.py
 raphodo/foldercombo.py
