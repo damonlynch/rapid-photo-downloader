@@ -29,7 +29,8 @@ import logging
 import shlex
 import subprocess
 import math
-from collections import deque
+from collections import deque, namedtuple
+from typing import Optional
 from gettext import gettext as _
 
 from PyQt5.QtWidgets import (QTextEdit, QDialog, QDialogButtonBox, QLineEdit, QVBoxLayout,
@@ -43,6 +44,9 @@ from PyQt5.QtCore import Qt, pyqtSlot, QSize, QUrl, QTimer, QRect, pyqtSignal, Q
 import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import ErrorType
 from raphodo.rpdfile import RPDFile
+
+
+ErrorLogMessage = namedtuple('ErrorLogMessage', 'title body name uri')
 
 
 class QFindLineEdit(QLineEdit):
@@ -378,28 +382,44 @@ class ErrorLog(QDialog):
         self.clear.setEnabled(False)
         self._doFind()
 
-    def _addMessage(self, severity: ErrorType, rpd_file: RPDFile) -> None:
+    def _addMessage(self, severity: ErrorType,
+                    rpd_file: RPDFile,
+                    other_error: Optional[ErrorLogMessage]) -> None:
+
+        if other_error is None:
+            title = rpd_file.problem.get_title()
+            name = rpd_file.get_current_name()
+            uri = rpd_file.get_uri(desktop_environment=True)
+            body = rpd_file.problem.get_problems()
+        else:
+            title = other_error.title
+            name = other_error.name
+            uri = other_error.uri
+            body = other_error.body
+
         if severity == ErrorType.critical_error:
             self.log.setTextColor(self.criticalColor)
         self.log.setFontWeight(QFont.Bold)
-        self.log.append(rpd_file.problem.get_title())
+        self.log.append(title)
         self.log.setFontWeight(QFont.Normal)
         if severity == ErrorType.critical_error:
             self.log.setTextColor(self.textColor)
 
-        uri = rpd_file.get_uri(desktop_environment=True)
-        href = '<a href="{}">{}</a>'.format(uri, rpd_file.get_current_name())
+        href = '<a href="{}">{}</a>'.format(uri, name)
         self.log.append(href)
-        self.log.append(rpd_file.problem.get_problems() + '<br>')
 
-    def addMessage(self, severity: ErrorType, rpd_file: RPDFile) -> None:
+        self.log.append(body + '<br>')
+
+    def addMessage(self, severity: ErrorType,
+                   rpd_file: RPDFile,
+                   other_error: Optional[ErrorLogMessage]) -> None:
         if not self.find.empty and self.find_cursors:
             self._clearSearch()
 
         if not self.find.empty and self.search_pending:
-            self.add_queue.append((severity, rpd_file))
+            self.add_queue.append((severity, rpd_file, other_error))
         else:
-            self._addMessage(severity, rpd_file)
+            self._addMessage(severity, rpd_file, other_error)
 
         if not self.find.empty and not self.search_pending:
             self.search_pending = True
@@ -450,7 +470,9 @@ class SpeechBubble(QLabel):
         self.counterFont.setPointSize(QFont().pointSize() - 1)
         self.custom_height = max(math.ceil(QFontMetrics(self.counterFont).height() * 1.7), 24)
         self.counterPen = QPen(QColor(Qt.white))
-        self.setStyleSheet("border: 0px;")
+        self.setStyleSheet("QLabel {border: 0px;}")
+        self.click_tooltip = _('The number of new entries added to the Error Log since it was last '
+                               'open. Click to open the Error Log.')
 
     @property
     def count(self) -> int:
@@ -459,10 +481,13 @@ class SpeechBubble(QLabel):
     @count.setter
     def count(self, value) -> None:
         self._count = value
+        if value > 0:
+            self.setToolTip(self.click_tooltip)
         self.update()
 
     def incrementCounter(self) -> None:
         self._count += 1
+        self.setToolTip(self.click_tooltip)
         self.update()
 
     def paintEvent(self, event: QPaintEvent ):
@@ -496,7 +521,7 @@ class SpeechBubble(QLabel):
     @pyqtSlot()
     def reset(self) -> None:
         self.count = 0
-
+        self.setToolTip('')
 
 
 if __name__ == '__main__':

@@ -31,7 +31,7 @@ import logging
 import pickle
 from operator import attrgetter
 from collections import defaultdict
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 import gphoto2 as gp
 
@@ -47,7 +47,7 @@ from raphodo.rpdfile import RPDFile
 from gettext import gettext as _
 
 
-def copy_file_metadata(src, dst):
+def copy_file_metadata(src, dst) -> Optional[Tuple]:
     """
     Copy all stat info (mode bits, atime, mtime, flags) from src to
     dst.
@@ -57,26 +57,23 @@ def copy_file_metadata(src, dst):
     Necessary because with some NTFS file systems, there can be
     problems with setting filesystem metadata like permissions and
     modification time
+
+    :return Tuple of errors, if there were any, else None
     """
 
     st = os.stat(src)
     mode = stat.S_IMODE(st.st_mode)
+    errors = []
+
     try:
         os.utime(dst, (st.st_atime, st.st_mtime))
     except OSError as inst:
-        #TODO notify user of this error, somehow
-        pass
-        # logging.warning(
-        #     "Couldn't adjust file modification time when copying %s. %s: %s",
-        #     src, inst.errno, inst.strerror)
+        errors.append(inst)
+
     try:
         os.chmod(dst, mode)
     except OSError as inst:
-        if logging:
-            pass
-            # logging.warning(
-            #     "Couldn't adjust file permissions when copying %s. %s: %s",
-            #     src, inst.errno, inst.strerror)
+        errors.append(inst)
 
     if hasattr(os, 'chflags') and hasattr(st, 'st_flags'):
         try:
@@ -88,6 +85,14 @@ def copy_file_metadata(src, dst):
             else:
                 pass
 
+    if errors:
+        return tuple(errors)
+
+    # test error setting metadata:
+    # try:
+    #     os.chown('/', 1000, 1000)
+    # except OSError as inst:
+    #     return inst,
 
 class FileCopy:
     """
@@ -255,12 +260,9 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 os.utime(temp_full_name, (rpd_file.modification_time, rpd_file.modification_time))
             else:
                 copy_file_metadata(associate_file_fullname, temp_full_name)
-        except:
+        except Exception:
             pass
-            # logging.warning(
-            #     "Could not update filesystem metadata when "
-            #     "copying %s",
-            #     rpd_file.thm_full_name)
+
         return temp_full_name
 
     def do_work(self):
@@ -402,16 +404,10 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             # succeeded or not. It's necessary to keep the user informed.
             self.total_downloaded += rpd_file.size
 
+            metadata_errors = None
+
             if copy_succeeded:
-                try:
-                    copy_file_metadata(rpd_file.full_file_name, temp_full_file_name)
-                except:
-                    pass
-                    # logging.warning(
-                    #     "Could not update filesystem metadata when "
-                    #     "copying %s to %s",
-                    #     rpd_file.full_file_name,
-                    #     rpd_file.temp_full_file_name)
+                metadata_errors = copy_file_metadata(rpd_file.full_file_name, temp_full_file_name)
 
             if copy_succeeded:
                 # copy THM (video thumbnail file) if there is one
@@ -434,7 +430,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             self.content =  pickle.dumps(CopyFilesResults(
                                             copy_succeeded=copy_succeeded,
                                             rpd_file=rpd_file,
-                                            download_count=download_count),
+                                            download_count=download_count,
+                                            metadata_errors=metadata_errors),
                                             pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
 

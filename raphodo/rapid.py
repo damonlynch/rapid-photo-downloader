@@ -89,7 +89,7 @@ from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      mountPaths, get_desktop_environment, get_desktop,
                      gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
                      validate_source_folder, get_fdo_cache_thumb_base_directory,
-                     WatchDownloadDirs, get_media_dir, StorageSpace)
+                     WatchDownloadDirs, get_media_dir, StorageSpace, fs_device_details)
 from raphodo.interprocess import (
     ScanArguments, CopyFilesArguments, RenameAndMoveFileData, BackupArguments,
     BackupFileData, OffloadData, ProcessLoggingManager, RenameAndMoveFileResults,
@@ -154,7 +154,7 @@ from raphodo.newversion import (NewVersion, NewVersionCheckDialog,
                                 version_details, DownloadNewVersionDialog)
 from raphodo.chevroncombo import ChevronCombo
 from raphodo.preferencedialog import PreferencesDialog
-from raphodo.errorlog import ErrorLog, SpeechBubble
+from raphodo.errorlog import ErrorLog, SpeechBubble, ErrorLogMessage
 
 
 # Avoid segfaults at exit. Recommended by Kovid Goyal:
@@ -470,6 +470,9 @@ class RapidWindow(QMainWindow):
         self.prefs = Preferences()
         self.checkPrefsUpgrade()
         self.prefs.program_version = __about__.__version__
+
+        # track devices on which there was an error setting a file's filesystem metadata
+        self.metadata_error_devices = set()  # type: Set[int]
 
         if thumb_cache is not None:
             logging.debug("Use thumbnail cache: %s", thumb_cache)
@@ -2945,10 +2948,11 @@ class RapidWindow(QMainWindow):
         if remove_entry:
             del self.temp_dirs_by_scan_id[scan_id]
 
-    @pyqtSlot(bool, RPDFile, int)
+    @pyqtSlot(bool, RPDFile, int, 'PyQt_PyObject')
     def copyfilesDownloaded(self, download_succeeded: bool,
                             rpd_file: RPDFile,
-                            download_count: int) -> None:
+                            download_count: int,
+                            metadata_errors: Optional[Tuple]) -> None:
 
         scan_id = rpd_file.scan_id
 
@@ -2968,6 +2972,25 @@ class RapidWindow(QMainWindow):
                                      data=RenameAndMoveFileData(rpd_file=rpd_file,
                                      download_count=download_count,
                                      download_succeeded=download_succeeded))
+
+        if metadata_errors is not None and self.prefs.warn_fs_metadata_error:
+            dev = os.stat(rpd_file.temp_full_file_name).st_dev
+
+            if dev not in self.metadata_error_devices:
+                self.metadata_error_devices.add(dev)
+
+                name, uri, root_path, fstype = fs_device_details(rpd_file.temp_full_file_name)
+
+                title = _("Error setting filesystem metadata on the "
+                          "filesystem %(fslabel)s.") % dict(fslabel=name)
+                body = _('If this error occurs again on the same filesystem, it will not be '
+                         'reported again.')
+                for error in metadata_errors:
+                    detail = _("Error: %(errorno)s %(strerror)s") % dict(errorno=error.errno,
+                                                                         strerror=error.strerror)
+                    body = '{}<br>{}'.format(body, detail)
+                other_error = ErrorLogMessage(title=title, body=body, name=root_path, uri=uri)
+                self.addErrorLogMessage(severity=ErrorType.warning, other_error=other_error)
 
     @pyqtSlot(int, 'PyQt_PyObject', 'PyQt_PyObject')
     def copyfilesBytesDownloaded(self, scan_id: int,
@@ -3041,7 +3064,7 @@ class RapidWindow(QMainWindow):
                 self.videoDestinationFSView.update()
 
         if rpd_file.status == DownloadStatus.downloaded_with_warning:
-            self.addErrorLogMessage(ErrorType.warning, rpd_file)
+            self.addErrorLogMessage(severity=ErrorType.warning, rpd_file=rpd_file)
 
         if self.prefs.backup_files:
             if self.backup_devices.backup_possible(rpd_file.file_type):
@@ -3292,7 +3315,7 @@ class RapidWindow(QMainWindow):
         # Update error log window if neccessary
         if not succeeded and not self.backup_devices.multiple_backup_devices(
                 rpd_file.file_type):
-            self.addErrorLogMessage(ErrorType.serious_error, rpd_file)
+            self.addErrorLogMessage(severity=ErrorType.serious_error, rpd_file=rpd_file)
 
         elif self.prefs.move:
             # record which files to automatically delete when download
@@ -3380,8 +3403,10 @@ class RapidWindow(QMainWindow):
             self.download_start_datetime = None
             self.download_start_time = None
 
-    def addErrorLogMessage(self, severity: ErrorType, rpd_file: RPDFile) -> None:
-        self.errorLog.addMessage(severity, rpd_file)
+    def addErrorLogMessage(self, severity: ErrorType,
+                           rpd_file: Optional[RPDFile]=None,
+                           other_error: Optional[ErrorLogMessage]=None) -> None:
+        self.errorLog.addMessage(severity, rpd_file, other_error)
         if not self.errorLog.isActiveWindow():
             self.errorsPending.incrementCounter()
 

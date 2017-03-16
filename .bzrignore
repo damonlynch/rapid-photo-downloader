@@ -19,3 +19,4 @@ test2.py
 ./parts
 ./snap
 ./stage
+./.cloc_ignore

@@ -286,6 +286,7 @@ class Preferences:
                             warn_downloading_all=True,
                             warn_backup_problem=True,
                             warn_no_libmediainfo=True,
+                            warn_fs_metadata_error=True,
                             job_code_sort_key=0,
                             job_code_sort_order=0)
     device_defaults = dict(only_external_mounts=True,

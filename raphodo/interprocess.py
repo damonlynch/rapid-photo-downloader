@@ -1280,7 +1280,8 @@ class CopyFilesResults:
                  chunk_downloaded: Optional[int]=None,
                  copy_succeeded: Optional[bool]=None,
                  rpd_file: Optional[RPDFile]=None,
-                 download_count: Optional[int]=None) -> None:
+                 download_count: Optional[int]=None,
+                 metadata_errors: Optional[Tuple]=None) -> None:
         """
 
         :param scan_id: scan id of the device the files are being
@@ -1297,6 +1298,7 @@ class CopyFilesResults:
         :param rpd_file: details of the file that was copied
         :param download_count: a running count of how many files
          have been copied. Used in download tracking.
+        :param metadata_errors: details of errors setting file metadata
         """
 
         self.scan_id = scan_id
@@ -1310,6 +1312,8 @@ class CopyFilesResults:
         self.copy_succeeded = copy_succeeded
         self.rpd_file = rpd_file
         self.download_count = download_count
+        self.metadata_errors = metadata_errors
+
 
 
 class ThumbnailDaemonData:
@@ -1656,7 +1660,7 @@ class CopyFilesManager(PublishPullPipelineManager):
     during the download process
     """
 
-    message = pyqtSignal(bool, RPDFile, int)
+    message = pyqtSignal(bool, RPDFile, int, 'PyQt_PyObject')
     tempDirs = pyqtSignal(int, str,str)
     bytesDownloaded = pyqtSignal(int, 'PyQt_PyObject', 'PyQt_PyObject')
 
@@ -1679,7 +1683,8 @@ class CopyFilesManager(PublishPullPipelineManager):
         elif data.copy_succeeded is not None:
             assert data.rpd_file is not None
             assert data.download_count is not None
-            self.message.emit(data.copy_succeeded, data.rpd_file, data.download_count)
+            self.message.emit(data.copy_succeeded, data.rpd_file, data.download_count,
+                              data.metadata_errors)
 
         else:
             assert (data.photo_temp_dir is not None and

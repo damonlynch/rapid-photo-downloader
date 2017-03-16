@@ -305,19 +305,25 @@ class PreferencesDialog(QDialog):
 
         self.downloadErrorGroup = QButtonGroup()
         self.skipDownload = QRadioButton(_('Skip download'))
+        self.skipDownload.setToolTip(_("Don't download the file, and issue an error message"))
         self.addIdentifier = QRadioButton(_('Add unique identifier'))
+        self.addIdentifier.setToolTip(_("Add an identifier like _1 or _2 to the end of the "
+                                        "filename, immediately before the file's extension"))
         self.downloadErrorGroup.addButton(self.skipDownload)
         self.downloadErrorGroup.addButton(self.addIdentifier)
 
         self.backupErrorGroup = QButtonGroup()
         self.overwriteBackup = QRadioButton(_('Overwrite'))
+        self.overwriteBackup.setToolTip(_("Overwrite the previously backed up file"))
         self.skipBackup = QRadioButton(_('Skip'))
+        self.skipBackup.setToolTip(_("Don't overwrite the backup file, and issue an error "
+                                       "message"))
         self.backupErrorGroup.addButton(self.overwriteBackup)
         self.backupErrorGroup.addButton(self.skipBackup)
 
         errorBoxLayout = QVBoxLayout()
         lbl = _('When a photo or video of the same name has already been downloaded, choose '
-                'whether to skip downloading the file, or to add a unique indentifier:')
+                'whether to skip downloading the file, or to add a unique identifier:')
         self.downloadError = QLabel(lbl)
         self.downloadError.setWordWrap(True)
         errorBoxLayout.addWidget(self.downloadError)
@@ -364,17 +370,23 @@ class PreferencesDialog(QDialog):
         tip = _('Warn if a software library used by Rapid Photo Downloader is missing or not '
                 'functioning')
         self.warnMissingLibraries.setToolTip(tip)
+        self.warnMetadata = QCheckBox(_('Filesystem metadata cannot be set'))
+        tip = _("Warn if there is an error setting a file's filesystem metadata, "
+                "such as its modification time")
+        self.warnMetadata.setToolTip(tip)
 
         self.setWarningValues()
         self.warnDownloadingAll.stateChanged.connect(self.warnDownloadingAllChanged)
         self.warnBackupProblem.stateChanged.connect(self.warnBackupProblemChanged)
         self.warnMissingLibraries.stateChanged.connect(self.warnMissingLibrariesChanged)
+        self.warnMetadata.stateChanged.connect(self.warnMetadataChanged)
 
         warningBoxLayout = QVBoxLayout()
         warningBoxLayout.addWidget(self.warningLabel)
         warningBoxLayout.addWidget(self.warnDownloadingAll)
         warningBoxLayout.addWidget(self.warnBackupProblem)
         warningBoxLayout.addWidget(self.warnMissingLibraries)
+        warningBoxLayout.addWidget(self.warnMetadata)
         self.warningBox.setLayout(warningBoxLayout)
 
         self.newVersionBox = QGroupBox(_('Version Check'))
@@ -524,6 +536,7 @@ class PreferencesDialog(QDialog):
         else:
             self.warnBackupProblem.setChecked(False)
         self.warnMissingLibraries.setChecked(self.prefs.warn_no_libmediainfo)
+        self.warnMetadata.setChecked(self.prefs.warn_fs_metadata_error)
 
         self.setBackupWarningEnabled()
 
@@ -723,6 +736,10 @@ class PreferencesDialog(QDialog):
         self.prefs.warn_no_libmediainfo = state == Qt.Checked
 
     @pyqtSlot(int)
+    def warnMetadataChanged(self, state: int) -> None:
+        self.prefs.warn_fs_metadata_error = state == Qt.Checked
+
+    @pyqtSlot(int)
     def checkNewVersionChanged(self, state: int) -> None:
         do_check = state == Qt.Checked
         self.prefs.check_for_new_versions = do_check
@@ -760,7 +777,7 @@ class PreferencesDialog(QDialog):
             self.setErrorHandingValues()
         elif row == 4:
             for value in ('warn_downloading_all', 'warn_backup_problem', 'check_for_new_versions',
-                          'warn_no_libmediainfo', 'include_development_release'):
+                          'warn_no_libmediainfo', 'include_development_release', 'warnMetadata'):
                 self.prefs.restore(value)
             self.setWarningValues()
             self.setVersionCheckValues()

@@ -56,6 +56,7 @@ import shlex
 import pwd
 from collections import namedtuple
 from typing import Optional, Tuple, List, Dict
+from urllib.request import pathname2url
 
 from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal, QFileSystemWatcher, pyqtSlot)
 from xdg.DesktopEntry import DesktopEntry
@@ -640,6 +641,21 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
             vendor = vendor.replace('_', ' ').strip()
             return UdevAttr(is_mtp, vendor, model)
     return None
+
+
+def fs_device_details(path: str) -> Tuple:
+    """
+    :return: device (volume) name, uri, root path and filesystem type of the mount
+    """
+    qsInfo = QStorageInfo(path)
+    name = qsInfo.displayName()
+    root_path = qsInfo.rootPath()
+    uri = 'file://{}'.format(pathname2url(root_path))
+    fstype = qsInfo.fileSystemType()
+    if isinstance(fstype, bytes):
+        fstype = fstype.decode()
+    return name, uri, root_path, fstype
+
 
 class WatchDownloadDirs(QFileSystemWatcher):
     """
