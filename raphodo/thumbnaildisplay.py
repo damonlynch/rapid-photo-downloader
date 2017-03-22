@@ -399,7 +399,7 @@ class ThumbnailListModel(QAbstractListModel):
             else:
                 return rpd_file.full_file_name
         elif role == Roles.uri:
-            return rpd_file.get_uri(desktop_environment=True)
+            return rpd_file.get_uri()
         elif role == Roles.camera_memory_card:
             return rpd_file.camera_memory_card_identifiers
         elif role == Roles.mtp:

@@ -70,59 +70,63 @@ import zmq
 import psutil
 import gphoto2 as gp
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
-                          QSize, QTimer, QTextStream, QModelIndex,
-                          pyqtSlot, QRect, pyqtSignal, QObject)
-from PyQt5.QtGui import (QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics,
-                         QFont, QPainter, QMoveEvent, QBrush, QPen, QColor)
-from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
-                             QWidget, QDialogButtonBox,
-                             QProgressBar, QSplitter,
-                             QHBoxLayout, QVBoxLayout, QDialog, QLabel,
-                             QComboBox, QGridLayout, QCheckBox, QSizePolicy,
-                             QMessageBox, QSplashScreen, QStackedWidget,
-                             QScrollArea, QDesktopWidget, QStyledItemDelegate, QPushButton)
+from PyQt5.QtCore import (
+    QThread, Qt, QStorageInfo, QSettings, QPoint, QSize, QTimer, QTextStream, QModelIndex,
+    pyqtSlot, QRect, pyqtSignal, QObject
+)
+from PyQt5.QtGui import (
+    QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics, QFont, QPainter, QMoveEvent, QBrush,
+    QPen, QColor
+)
+from PyQt5.QtWidgets import (
+    QAction, QApplication, QMainWindow, QMenu, QWidget, QDialogButtonBox,
+    QProgressBar, QSplitter, QHBoxLayout, QVBoxLayout, QDialog, QLabel, QComboBox, QGridLayout,
+    QCheckBox, QSizePolicy, QMessageBox, QSplashScreen, QStackedWidget, QScrollArea,
+    QDesktopWidget, QStyledItemDelegate, QPushButton
+)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
-from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
-                     GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
-                     mountPaths, get_desktop_environment, get_desktop,
-                     gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
-                     validate_source_folder, get_fdo_cache_thumb_base_directory,
-                     WatchDownloadDirs, get_media_dir, StorageSpace, fs_device_details)
+from raphodo.storage import (
+    ValidMounts, CameraHotplug, UDisks2Monitor, GVolumeMonitor, have_gio,
+    has_non_empty_dcim_folder, mountPaths, get_desktop_environment, get_desktop,
+    gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
+    validate_source_folder, get_fdo_cache_thumb_base_directory, WatchDownloadDirs, get_media_dir,
+    StorageSpace, fs_device_details
+)
 from raphodo.interprocess import (
     ScanArguments, CopyFilesArguments, RenameAndMoveFileData, BackupArguments,
-    BackupFileData, OffloadData, ProcessLoggingManager, RenameAndMoveFileResults,
-    OffloadResults, BackupResults, CopyFilesResults,
-    GenerateThumbnailsResults, ThumbnailDaemonData, ScanResults, ThreadNames,
-    RenameAndMoveStatus, OffloadManager, CopyFilesManager, ThumbnailDaemonManager,
+    BackupFileData, OffloadData, ProcessLoggingManager, ThumbnailDaemonData, ThreadNames,
+    OffloadManager, CopyFilesManager, ThumbnailDaemonManager,
     ScanManager, BackupManager, stop_process_logging_manager, RenameMoveFileManager,
     create_inproc_msg)
-from raphodo.devices import (Device, DeviceCollection, BackupDevice,
-                     BackupDeviceCollection)
-from raphodo.preferences import (Preferences, ScanPreferences)
-from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
-                               FileType, DownloadStatus, RenameAndMoveStatus,
-                               ApplicationState,
-                               CameraErrorCode, TemporalProximityState,
-                               ThumbnailBackgroundName, Desktop, BackupFailureType,
-                               DeviceState, Sort, Show, DestinationDisplayType,
-                               DisplayingFilesOfType, DownloadingFileTypes,
-                               RememberThisMessage, RightSideButton, CheckNewVersionDialogState,
-                               CheckNewVersionDialogResult, RememberThisButtons)
-from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
-                                      DownloadStats, MarkedSummary)
+from raphodo.devices import (
+    Device, DeviceCollection, BackupDevice, BackupDeviceCollection
+)
+from raphodo.preferences import Preferences
+from raphodo.constants import (
+    BackupLocationType, DeviceType, ErrorType, FileType, DownloadStatus, RenameAndMoveStatus,
+    ApplicationState, CameraErrorCode, TemporalProximityState, ThumbnailBackgroundName,
+    Desktop, BackupFailureType, DeviceState, Sort, Show, DestinationDisplayType,
+    DisplayingFilesOfType, DownloadingFileTypes, RememberThisMessage, RightSideButton,
+    CheckNewVersionDialogState, CheckNewVersionDialogResult, RememberThisButtons,
+    download_status_error_severity
+)
+from raphodo.thumbnaildisplay import (
+    ThumbnailView, ThumbnailListModel, ThumbnailDelegate, DownloadStats, MarkedSummary
+)
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
 from raphodo.proximity import (TemporalProximityGroups, TemporalProximity)
 from raphodo.utilities import (
     same_device, make_internationalized_list, thousands, addPushButtonLabelSpacer,
     make_html_path_non_breaking, prefs_list_from_gconftool2_string,
-    pref_bool_from_gconftool2_string, create_temp_dir, extract_file_from_tar,
-    format_size_for_user)
+    pref_bool_from_gconftool2_string, extract_file_from_tar, format_size_for_user
+)
 from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
-from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
-                             VIDEO_EXTENSIONS, OTHER_PHOTO_EXTENSIONS, FileTypeCounter, Video)
+from raphodo.rpdfile import (
+    RPDFile, file_types_by_number, PHOTO_EXTENSIONS, VIDEO_EXTENSIONS, OTHER_PHOTO_EXTENSIONS,
+    FileTypeCounter, Video
+)
 import raphodo.downloadtracker as downloadtracker
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.metadataphoto import exiv2_version, gexiv2_version
@@ -132,8 +136,9 @@ from raphodo.rpdsql import DownloadedSQL
 from raphodo.generatenameconfig import *
 from raphodo.rotatedpushbutton import RotatedButton, FlatButton
 from raphodo.primarybutton import TopPushButton, DownloadButton
-from raphodo.filebrowse import (FileSystemView, FileSystemModel, FileSystemFilter,
-                                FileSystemDelegate)
+from raphodo.filebrowse import (
+    FileSystemView, FileSystemModel, FileSystemFilter, FileSystemDelegate
+)
 from raphodo.toggleview import QToggleView
 import raphodo.__about__ as __about__
 import raphodo.iplogging as iplogging
@@ -150,15 +155,17 @@ from raphodo.jobcodepanel import JobCodePanel
 from raphodo.backuppanel import BackupPanel
 import raphodo
 import raphodo.exiftool as exiftool
-from raphodo.newversion import (NewVersion, NewVersionCheckDialog,
-                                version_details, DownloadNewVersionDialog)
+from raphodo.newversion import (
+    NewVersion, NewVersionCheckDialog, version_details, DownloadNewVersionDialog
+)
 from raphodo.chevroncombo import ChevronCombo
 from raphodo.preferencedialog import PreferencesDialog
-from raphodo.errorlog import ErrorLog, SpeechBubble, ErrorLogMessage
+from raphodo.errorlog import ErrorReport, SpeechBubble
+from raphodo.problemnotification import (FsMetadataWriteProblem, Problem, Problems, CopyingProblems)
 
 
-# Avoid segfaults at exit. Recommended by Kovid Goyal:
-# https://www.riverbankcomputing.com/pipermail/pyqt/2016-February/036932.html
+# Avoid segfaults at exit:
+# http://pyqt.sourceforge.net/Docs/PyQt5/gotchas.html#crashes-on-exit
 app = None  # type: 'QtSingleApplication'
 
 faulthandler.enable()
@@ -576,6 +583,7 @@ class RapidWindow(QMainWindow):
         self.exiftool_process.start()
 
         self.prefs.validate_max_CPU_cores()
+        self.prefs.validate_ignore_unhandled_file_exts()
 
         # Don't call processEvents() after initiating 0MQ, as it can
         # cause "Interrupted system call" errors
@@ -970,6 +978,7 @@ class RapidWindow(QMainWindow):
         self.scanmq.scannedFiles.connect(self.scanFilesReceived)
         self.scanmq.deviceError.connect(self.scanErrorReceived)
         self.scanmq.deviceDetails.connect(self.scanDeviceDetailsReceived)
+        self.scanmq.scanProblems.connect(self.scanProblemsReceived)
         self.scanmq.workerFinished.connect(self.scanFinished)
 
         self.scanmq.moveToThread(self.scanThread)
@@ -1136,7 +1145,7 @@ class RapidWindow(QMainWindow):
         visible = settings.value('visible', False, type=bool)
         settings.endGroup()
 
-        self.errorLog = ErrorLog(rapidApp=self)
+        self.errorLog = ErrorReport(rapidApp=self)
         self.errorLogAct.setChecked(visible)
         self.errorLog.move(pos)
         self.errorLog.resize(size)
@@ -1619,7 +1628,7 @@ class RapidWindow(QMainWindow):
         self.quitAct = QAction(_("&Quit"), self, shortcut="Ctrl+Q",
                                triggered=self.close)
 
-        self.errorLogAct = QAction(_("Error Log"), self, enabled=True,
+        self.errorLogAct = QAction(_("Error Reports"), self, enabled=True,
                                    checkable=True,
                                    triggered=self.doErrorLogAction)
 
@@ -2296,30 +2305,13 @@ class RapidWindow(QMainWindow):
     def doPreferencesAction(self) -> None:
         dialog = PreferencesDialog(prefs=self.prefs, parent=self)
         dialog.exec()
-
-    # def doCheckAllAction(self):
-    #     self.thumbnailModel.checkAll(check_all=True)
-    #
-    # def doCheckAllPhotosAction(self):
-    #     self.thumbnailModel.checkAll(check_all=True, file_type=FileType.photo)
-    #
-    # def doCheckAllVideosAction(self):
-    #     self.thumbnailModel.checkAll(check_all=True, file_type=FileType.video)
-    #
-    # def doUncheckAllAction(self):
-    #     self.thumbnailModel.checkAll(check_all=False)
+        self.prefs.sync()
 
     def doErrorLogAction(self):
         self.errorLog.setVisible(self.errorLogAct.isChecked())
 
     def doClearDownloadsAction(self):
         self.thumbnailModel.clearCompletedDownloads()
-
-    # def doPreviousFileAction(self):
-    #     pass
-    #
-    # def doNextFileAction(self):
-    #     pass
 
     def doHelpAction(self):
         webbrowser.open_new_tab("http://www.damonlynch.net/rapid/help.html")
@@ -2952,7 +2944,7 @@ class RapidWindow(QMainWindow):
     def copyfilesDownloaded(self, download_succeeded: bool,
                             rpd_file: RPDFile,
                             download_count: int,
-                            metadata_errors: Optional[Tuple]) -> None:
+                            mdata_exceptions: Optional[Tuple]) -> None:
 
         scan_id = rpd_file.scan_id
 
@@ -2973,7 +2965,7 @@ class RapidWindow(QMainWindow):
                                      download_count=download_count,
                                      download_succeeded=download_succeeded))
 
-        if metadata_errors is not None and self.prefs.warn_fs_metadata_error:
+        if mdata_exceptions is not None and self.prefs.warn_fs_metadata_error:
             dev = os.stat(rpd_file.temp_full_file_name).st_dev
 
             if dev not in self.metadata_error_devices:
@@ -2981,16 +2973,14 @@ class RapidWindow(QMainWindow):
 
                 name, uri, root_path, fstype = fs_device_details(rpd_file.temp_full_file_name)
 
-                title = _("Error setting filesystem metadata on the "
-                          "filesystem %(fslabel)s.") % dict(fslabel=name)
-                body = _('If this error occurs again on the same filesystem, it will not be '
-                         'reported again.')
-                for error in metadata_errors:
-                    detail = _("Error: %(errorno)s %(strerror)s") % dict(errorno=error.errno,
-                                                                         strerror=error.strerror)
-                    body = '{}<br>{}'.format(body, detail)
-                other_error = ErrorLogMessage(title=title, body=body, name=root_path, uri=uri)
-                self.addErrorLogMessage(severity=ErrorType.warning, other_error=other_error)
+                problem = FsMetadataWriteProblem(
+                    name=name, uri=uri, mdata_exceptions=mdata_exceptions
+                )
+
+                device = self.devices[rpd_file.scan_id]
+                problems = CopyingProblems(name=device.display_name, uri=device.uri,
+                                           problem=problem)
+                self.addErrorLogMessage(problems=problems)
 
     @pyqtSlot(int, 'PyQt_PyObject', 'PyQt_PyObject')
     def copyfilesBytesDownloaded(self, scan_id: int,
@@ -3063,8 +3053,9 @@ class RapidWindow(QMainWindow):
                 self.videoDestinationFSView.expandPath(rpd_file.download_path)
                 self.videoDestinationFSView.update()
 
-        if rpd_file.status == DownloadStatus.downloaded_with_warning:
-            self.addErrorLogMessage(severity=ErrorType.warning, rpd_file=rpd_file)
+        if rpd_file.status != DownloadStatus.downloaded:
+            pass
+            # self.addErrorLogMessage(rpd_file=rpd_file)
 
         if self.prefs.backup_files:
             if self.backup_devices.backup_possible(rpd_file.file_type):
@@ -3170,7 +3161,7 @@ class RapidWindow(QMainWindow):
             # Even if not going to backup to this device, need to send it
             # anyway so progress bar can be updated. Not this most efficient
             # but the code is much more simple
-            # TODO: check if this is still correct with new code!
+            # TODO: check if this is still optimal with new code!
 
             device_id = self.backup_devices.device_id(path)
             data = BackupFileData(rpd_file, move_succeeded, do_backup,
@@ -3313,9 +3304,11 @@ class RapidWindow(QMainWindow):
         """
         scan_id = rpd_file.scan_id
         # Update error log window if neccessary
+        # FIXME log errors properly
         if not succeeded and not self.backup_devices.multiple_backup_devices(
                 rpd_file.file_type):
-            self.addErrorLogMessage(severity=ErrorType.serious_error, rpd_file=rpd_file)
+            pass
+            # self.addErrorLogMessage(severity=ErrorType.serious_error, rpd_file=rpd_file)
 
         elif self.prefs.move:
             # record which files to automatically delete when download
@@ -3403,12 +3396,12 @@ class RapidWindow(QMainWindow):
             self.download_start_datetime = None
             self.download_start_time = None
 
-    def addErrorLogMessage(self, severity: ErrorType,
-                           rpd_file: Optional[RPDFile]=None,
-                           other_error: Optional[ErrorLogMessage]=None) -> None:
-        self.errorLog.addMessage(severity, rpd_file, other_error)
+    def addErrorLogMessage(self, problems: Problems) -> None:
+
+        self.errorLog.addProblems(problems)
+        increment = len(problems)
         if not self.errorLog.isActiveWindow():
-            self.errorsPending.incrementCounter()
+            self.errorsPending.incrementCounter(increment=increment)
 
     def immediatelyDisplayDownloadRunningInStatusBar(self):
         """
@@ -3894,9 +3887,10 @@ class RapidWindow(QMainWindow):
             self.removeDevice(scan_id=scan_id, show_warning=False)
         del self.prompting_for_user_action[device]
 
-    @pyqtSlot(int, 'PyQt_PyObject', str)
+    @pyqtSlot(int, 'PyQt_PyObject', 'PyQt_PyObject', str)
     def scanDeviceDetailsReceived(self, scan_id: int,
                                   storage_space: List[StorageSpace],
+                                  storage_descriptions: List[str],
                                   optimal_display_name: str) -> None:
         """
         Update GUI display and rows DB with definitive camera display name
@@ -3904,6 +3898,7 @@ class RapidWindow(QMainWindow):
         :param scan_id: scan id of the device
         :param storage_space: storage information on the device e.g.
          memory card(s) capacity and use
+        :param  storage_desctriptions: names of storage on a camera
         :param optimal_display_name: canonical name of the device, as
          reported by libgphoto2
         """
@@ -3915,8 +3910,10 @@ class RapidWindow(QMainWindow):
             if len(storage_space) > 1:
                 logging.debug('%s has %s storage devices',
                           optimal_display_name, len(storage_space))
-            device.update_camera_attributes(display_name=optimal_display_name,
-                                            storage_space=storage_space)
+            device.update_camera_attributes(
+                display_name=optimal_display_name, storage_space=storage_space,
+                storage_descriptions=storage_descriptions
+            )
             self.updateSourceButton()
             self.deviceModel.updateDeviceNameAndStorage(scan_id, device)
             self.thumbnailModel.addOrUpdateDevice(scan_id=scan_id)
@@ -3924,6 +3921,10 @@ class RapidWindow(QMainWindow):
         else:
             logging.debug("Ignoring optimal display name %s because that device was removed",
                           optimal_display_name)
+
+    @pyqtSlot(int, 'PyQt_PyObject')
+    def scanProblemsReceived(self, scan_id: int, problems: Problems) -> None:
+        self.addErrorLogMessage(problems=problems)
 
     @pyqtSlot(int)
     def scanFinished(self, scan_id: int) -> None:
@@ -4385,14 +4386,11 @@ class RapidWindow(QMainWindow):
         self.thumbnailModel.addOrUpdateDevice(scan_id)
         self.addToDeviceDisplay(device, scan_id)
         self.updateSourceButton()
-        scan_preferences = ScanPreferences(self.prefs.ignored_paths)
-        scan_arguments = ScanArguments(scan_preferences=scan_preferences,
-                           device=device,
-                           ignore_other_types=self.ignore_other_photo_types,
-                           ignore_mdatatime_for_mtp_dng=self.prefs.ignore_mdatatime_for_mtp_dng,
-                           log_gphoto2=self.log_gphoto2,
-                           use_thumbnail_cache=self.prefs.use_thumbnail_cache,
-                           scan_only_DCIM=not self.prefs.device_without_dcim_autodetection)
+        scan_arguments = ScanArguments(
+            device=device,
+            ignore_other_types=self.ignore_other_photo_types,
+            log_gphoto2=self.log_gphoto2,
+        )
         self.sendStartWorkerToThread(self.scan_controller, worker_id=scan_id, data=scan_arguments)
         self.devices.set_device_state(scan_id, DeviceState.scanning)
         self.setDownloadCapabilities()

@@ -38,6 +38,7 @@ from raphodo.generatenameconfig import *
 import raphodo.constants as constants
 from raphodo.utilities import available_cpu_count
 import raphodo.__about__
+from raphodo.rpdfile import ALL_KNOWN_EXTENSIONS
 
 
 class ScanPreferences:
@@ -88,12 +89,16 @@ class ScanPreferences:
         Assumes path is a full path
 
         :return: True|False
-
         """
-        if not self.ignored_paths:
+
+        # see method list_not_empty() in Preferences class to see
+        # what an "empty" list is: ['']
+        if not (self.ignored_paths and self.ignored_paths[0]):
             return True
+
         if not self.use_regular_expressions:
             return not path.endswith(tuple(self.ignored_paths))
+
         return not self.re_pattern.match(path)
 
     def _check_and_compile_re(self) -> bool:
@@ -257,6 +262,7 @@ class DownloadsTodayTracker:
 def today():
     return datetime.date.today().strftime('%Y-%m-%d')
 
+
 class Preferences:
     """
     Program preferences, being a mix of user facing and non-user facing prefs.
@@ -287,6 +293,8 @@ class Preferences:
                             warn_backup_problem=True,
                             warn_no_libmediainfo=True,
                             warn_fs_metadata_error=True,
+                            warn_unhandled_files=True,
+                            ignore_unhandled_file_exts=['TMP', 'DAT'],
                             job_code_sort_key=0,
                             job_code_sort_order=0)
     device_defaults = dict(only_external_mounts=True,
@@ -865,6 +873,20 @@ class Preferences:
         if self['max_cpu_cores'] > available:
             logging.info('Setting CPU Cores for thumbnail generation to %s', available)
             self['max_cpu_cores'] = available
+
+    def validate_ignore_unhandled_file_exts(self) -> None:
+        # logging.debug('Validating list of file extension to not warn about...')
+        self['ignore_unhandled_file_exts'] = [ext.upper() for ext in self[
+            'ignore_unhandled_file_exts'] if ext.lower() not in ALL_KNOWN_EXTENSIONS]
+
+    def warn_about_unknown_file(self, ext: str) -> bool:
+        if not self['warn_unhandled_files']:
+            return False
+
+        if not self['ignore_unhandled_file_exts'][0]:
+            return True
+
+        return ext.upper() not in self['ignore_unhandled_file_exts']
 
 
 def match_pref_list(pref_lists: List[List[str]], user_pref_list: List[str]) -> int:

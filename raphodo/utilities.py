@@ -345,7 +345,7 @@ def same_device(file1: str, file2: str) -> bool:
     return dev1 == dev2
 
 
-def make_internationalized_list(items) -> str:
+def make_internationalized_list(items: List[str]) -> str:
     r"""
     Makes a string of items conforming to i18n
 
@@ -781,3 +781,8 @@ def current_version_is_dev_version(current_version=None) -> bool:
         current_version = pkg_resources.parse_version(__about__.__version__)
     return current_version.is_prerelease
 
+
+def remove_topmost_directory_from_path(path: str) -> str:
+    if os.sep not in path:
+        return path
+    return path[path[1:].find(os.sep) + 1:]

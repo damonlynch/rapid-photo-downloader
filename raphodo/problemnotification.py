@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-
-# Copyright (C) 2010-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2010-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,19 +16,41 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
+"""
+Notify user of problems when downloading: problems with subfolder and filename generation,
+download errors, and so forth
+
+Goals:
+Group problems into tasks:
+1. scanning
+2. copying
+3. renaming
+4. backing up - per backup device
+
+Present message in human readable manner
+There can be duplicate problems
+Distinguish error severity
+
+"""
+
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2010-2016, Damon Lynch"
+__copyright__ = "Copyright 2010-2017, Damon Lynch"
 
 import sys
 from enum import Enum
+from collections import deque
+from typing import Tuple, Optional, List, Union, Iterator
+from html import escape
 from gettext import gettext as _
 
+import logging
 
 # components
 SUBFOLDER_COMPONENT = _('subfolder')
 FILENAME_COMPONENT = _('filename')
 
-class ProblemType(Enum):
+# Problem categories
+class ProblemCat(Enum):
     metadata = 1
     file = 2
     generation = 3
@@ -41,7 +61,9 @@ class ProblemType(Enum):
     backup = 8
     download_failed_backup_ok = 9
     file_already_downloaded = 10
-    verification_problem = 11
+    verification = 11
+    fs_metadata = 12
+
 
 # problem categories
 METADATA_PROBLEM = 1
@@ -142,19 +164,165 @@ extra_detail_definitions = {
     BACKUP_OK_TYPE:                     "%s",
 }
 
-# class Problem:
-#     def __init__(self):
-#         self.problems = set()
-#     def add_problem(self, problem: ProblemType):
-#         self.problems.add(problem)
-#
-#     def get_problem(self) -> str:
-#         s = ''
-#         for problem in self.problems:
-#
-
-
 class Problem:
+    def __init__(self, name: Optional[str]=None,
+                 uri: Optional[str]=None,
+                 exception: Optional[Exception]=None,
+                 **attrs) -> None:
+        for attr, value in attrs.items():
+            setattr(self, attr, value)
+        self.name = name
+        self.uri = uri
+        self.exception = exception
+
+    @property
+    def title(self) -> str:
+        logging.critical('title() not implemented in subclass %s', self.__class__.__name__)
+        return 'undefined'
+
+    @property
+    def body(self) -> str:
+        logging.critical('body() not implemented in subclass %s', self.__class__.__name__)
+        return 'undefined'
+
+    @property
+    def details(self) -> List[str]:
+        if self.exception is not None:
+            return [escape(_("Error: %(errno)s %(strerror)s")) % dict(
+                errno=self.exception.errno, strerror=self.exception.strerror)]
+        else:
+            return []
+
+    @property
+    def href(self) -> str:
+        if self.name and self.uri:
+            return '<a href="{}">{}</a>'.format(self.uri, escape(self.name))
+        else:
+            logging.critical('href() is missing name or uri in subclass %s',
+                             self.__class__.__name__)
+
+
+class CameraGpProblem(Problem):
+    @property
+    def details(self) -> List[str]:
+            return [escape(_("GPhoto2 Error: %s")) % self.gp_code]
+
+
+class CameraDirectoryReadProblem(CameraGpProblem):
+    @property
+    def body(self) -> str:
+        return escape(_("Unable to read directory %s")) % self.href
+
+
+class CameraFileInfoProblem(CameraGpProblem):
+    @property
+    def body(self) -> str:
+        return escape(_('Unable to access modification time or size from %s')) % self.href
+
+
+class CameraFileReadProblem(Problem):
+    @property
+    def body(self) -> str:
+        return escape(_('Unable to read file %s')) % self.href
+
+
+class FileWriteProblem(Problem):
+    @property
+    def body(self) -> str:
+        return escape(_('Unable to write file %s')) % self.href
+
+
+class FsMetadataReadProblem(Problem):
+    @property
+    def body(self) -> str:
+        return escape(_("Could not determine filesystem modification time for %s")) % self.href
+
+
+class FileMetadataLoadProblem(Problem):
+    @property
+    def body(self) -> str:
+        return escape(_('Unable to load metadata from %s')) % self.href
+
+
+class FsMetadataWriteProblem(Problem):
+    @property
+    def body(self) -> str:
+        return escape(_(
+            "An error occurred setting a file's filesystem metadata on the filesystem %s. "
+            "If this error occurs again on the same filesystem, it will not be reported again."
+        )) % self.href
+
+    @property
+    def details(self) -> List[str]:
+        return [escape(_("Error: %(errno)s %(strerror)s")) % dict(errno=e.errno,
+                                                                  strerror=e.strerror)
+                for e in self.mdata_exceptions]
+
+
+class UnhandledFileProblem(Problem):
+    @property
+    def body(self) -> str:
+        return escape(_('Encountered unhandled file %s. It will not be downloaded.')) % self.href
+
+
+class Problems:
+    def __init__(self, name: Optional[str]='',
+                 uri: Optional[str]='',
+                 problem: Optional[Problem]=None) -> None:
+        self.problems = deque()
+        self.name = name
+        self.uri = uri
+        if problem:
+            self.append(problem=problem)
+
+    def __len__(self) -> int:
+        return len(self.problems)
+
+    def __iter__(self) -> Iterator[Problem]:
+        return iter(self.problems)
+
+    def __getitem__(self, index: int) -> Problem:
+        return self.problems[index]
+
+    def append(self, problem: Problem) -> None:
+        self.problems.append(problem)
+
+    @property
+    def title(self) -> str:
+        logging.critical('title() not implemented in subclass %s', self.__class__.__name__)
+        return 'undefined'
+
+    @property
+    def body(self) -> str:
+        return 'body'
+
+    @property
+    def details(self) -> List[str]:
+        return []
+
+    @property
+    def href(self) -> str:
+        if self.name and self.uri:
+            return '<a href="{}">{}</a>'.format(self.uri, self.name)
+        else:
+            logging.critical('href() is missing name or uri in %s', self.__class__.__name__)
+
+
+class ScanProblems(Problems):
+
+    @property
+    def title(self) -> str:
+        return escape(_('Problems scanning %s')) % self.href
+
+
+class CopyingProblems(Problems):
+
+    @property
+    def title(self) -> str:
+        return escape(_('Problems copying from %s')) % self.href
+
+
+class LegacyProblem:
     """
     Collect problems with subfolder and filename generation, download errors, and so forth
 
@@ -507,4 +675,5 @@ class Problem:
 
 
 if __name__ == '__main__':
-     pass
+    p = Problems()
+    print(p.title)

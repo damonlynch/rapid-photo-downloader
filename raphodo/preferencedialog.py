@@ -23,6 +23,7 @@ Dialog window to show and manipulate selected user preferences
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2017, Damon Lynch"
 
+from typing import List
 from gettext import gettext as _
 
 
@@ -31,7 +32,7 @@ from PyQt5.QtWidgets import (QWidget, QSizePolicy, QComboBox, QVBoxLayout, QLabe
                              QSpinBox, QGridLayout, QAbstractItemView, QListWidgetItem,
                              QHBoxLayout, QDialog, QDialogButtonBox, QCheckBox, QStyle,
                              QStackedWidget, QApplication, QPushButton, QGroupBox,  QFormLayout,
-                             QMessageBox, QButtonGroup, QRadioButton, QAbstractButton)
+                             QMessageBox, QButtonGroup, QRadioButton, QAbstractButton, QMessageBox)
 from PyQt5.QtGui import (QColor, QPalette, QFont, QFontMetrics, QIcon, QShowEvent, QCloseEvent)
 
 from raphodo.preferences import Preferences
@@ -40,7 +41,9 @@ from raphodo.viewutils import QNarrowListWidget
 from raphodo.utilities import available_cpu_count, format_size_for_user, thousands
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.constants import ConflictResolution
-from raphodo.utilities import current_version_is_dev_version
+from raphodo.utilities import current_version_is_dev_version, make_internationalized_list
+from raphodo.rpdfile import (ALL_KNOWN_EXTENSIONS, PHOTO_EXTENSIONS, VIDEO_EXTENSIONS,
+    VIDEO_THUMBNAIL_EXTENSIONS, AUDIO_EXTENSIONS)
 
 
 class PreferencesDialog(QDialog):
@@ -69,7 +72,7 @@ class PreferencesDialog(QDialog):
 
         self.chooser = QNarrowListWidget()
         self.chooser_items = (_('Devices'), _('Automation'), _('Thumbnails'), _('Error Handling'),
-                              _('Miscellaneous'))
+                              _('Warnings'), _('Miscellaneous'))
         self.chooser.addItems(self.chooser_items )
         self.chooser.currentRowChanged.connect(self.rowChanged)
         self.chooser.setSelectionMode(QAbstractItemView.SingleSelection)
@@ -85,25 +88,27 @@ class PreferencesDialog(QDialog):
                                        'external hard drives, and USB flash drives'))
         self.onlyExternal.stateChanged.connect(self.onlyExternalChanged)
 
-        self.noDcim = QCheckBox(_('Scan devices lacking a DCIM folder'))
-        self.noDcim.setToolTip(_('Scan the entirety of a device for photos and videos, '
-                                 'irrespective of whether it contains a DCIM folder, as opposed '
-                                 'to only scanning within a DCIM folder'))
+        self.noDcim = QCheckBox(_('Scan non-camera devices lacking a DCIM folder'))
+        tip = _('Scan the entirety of a device for photos and videos, irrespective of whether it '
+                'contains a DCIM folder, as opposed to only scanning within a DCIM folder.\n\n'
+                'Note: With cameras, only the DCIM folder is scanned.')
+        self.noDcim.setToolTip(tip)
         self.noDcim.stateChanged.connect(self.noDcimChanged)
 
         scanLayout.addWidget(self.onlyExternal)
         scanLayout.addWidget(self.noDcim)
         self.scanBox.setLayout(scanLayout)
 
-        tip = _('Devices that have been set to automatically ignore or download from')
+        tip = _('Devices that have been set to automatically ignore or download from.')
         self.knownDevicesBox = QGroupBox(_('Remembered Devices'))
         self.knownDevices = QNarrowListWidget(minimum_rows=5)
         self.knownDevices.setToolTip(tip)
-        tip = _('Remove a device from the list of devices to automatically ignore or download from')
+        tip = _('Remove a device from the list of devices to automatically ignore or download '
+                'from.')
         self.removeDevice = QPushButton(_('Remove'))
         self.removeDevice.setToolTip(tip)
         self.removeAllDevice = QPushButton(_('Remove All'))
-        tip = _('Clear the list of devices from which to automatically ignore or download from')
+        tip = _('Clear the list of devices from which to automatically ignore or download from.')
         self.removeAllDevice.setToolTip(tip)
         self.removeDevice.clicked.connect(self.removeDeviceClicked)
         self.removeAllDevice.clicked.connect(self.removeAllDeviceClicked)
@@ -115,16 +120,16 @@ class PreferencesDialog(QDialog):
         self.knownDevicesBox.setLayout(knownDevicesLayout)
 
         self.ignoredPathsBox = QGroupBox(_('Ignored Paths on Devices'))
-        tip = _('A portion of the path on a device that should never be scanned for photos or '
-                'videos')
+        tip = _('The end part of a path on a device that should never be scanned for photos '
+                'or videos.')
         self.ignoredPaths = QNarrowListWidget(minimum_rows=4)
         self.ignoredPaths.setToolTip(tip)
         self.addPath = QPushButton(_('Add...'))
-        self.addPath.setToolTip(_('Add a path to the list of paths to ignore'))
+        self.addPath.setToolTip(_('Add a path to the list of paths to ignore.'))
         self.removePath = QPushButton(_('Remove'))
-        self.removePath.setToolTip(_('Remove a path from the list of paths to ignore'))
+        self.removePath.setToolTip(_('Remove a path from the list of paths to ignore.'))
         self.removeAllPath = QPushButton(_('Remove All'))
-        self.removeAllPath.setToolTip(_('Clear the list of paths to ignore'))
+        self.removeAllPath.setToolTip(_('Clear the list of paths to ignore.'))
         self.addPath.clicked.connect(self.addPathClicked)
         self.removePath.clicked.connect(self.removePathClicked)
         self.removeAllPath.clicked.connect(self.removeAllPathClicked)
@@ -134,7 +139,7 @@ class PreferencesDialog(QDialog):
               '<a href="https://developers.google.com/edu/python/regular-expressions">regular '
               'expressions</a>'))
         self.ignorePathsReLabel.setToolTip(_('Use regular expressions in the list of ignored '
-                                             'paths'))
+                                             'paths.'))
         self.ignorePathsReLabel.setTextInteractionFlags(Qt.TextBrowserInteraction)
         self.ignorePathsReLabel.setOpenExternalLinks(True)
         reLayout = QHBoxLayout()
@@ -213,12 +218,12 @@ class PreferencesDialog(QDialog):
         self.fdoThumbnails.stateChanged.connect(self.fdoThumbnailsChanged)
         self.maxCores = QComboBox()
         self.maxCores.setEditable(False)
-        core_tooltip = _('Number of CPU cores used to generate thumbnails')
+        tip = _('Number of CPU cores used to generate thumbnails.')
         self.coresLabel = QLabel(_('CPU cores:'))
-        self.coresLabel.setToolTip(core_tooltip)
+        self.coresLabel.setToolTip(tip)
         self.maxCores.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.maxCores.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self.maxCores.setToolTip(core_tooltip)
+        self.maxCores.setToolTip(tip)
 
         self.setPerformanceValues()
 
@@ -329,9 +334,9 @@ class PreferencesDialog(QDialog):
         errorBoxLayout.addWidget(self.downloadError)
         errorBoxLayout.addWidget(self.skipDownload)
         errorBoxLayout.addWidget(self.addIdentifier)
-        lbl = '<i>' + ('Using sequence numbers to generate unique filenames is strongly '
-                       'recommended. Configure file renaming in the Rename panel in the main '
-                       'window.') + '</i>'
+        lbl = '<i>' + ('Using sequence numbers to automatically generate unique filenames is '
+                       'strongly recommended. Configure file renaming in the Rename panel in the '
+                       'main window.') + '</i>'
         self.recommended = QLabel(lbl)
         self.recommended.setWordWrap(True)
         errorBoxLayout.addWidget(self.recommended)
@@ -360,42 +365,82 @@ class PreferencesDialog(QDialog):
         lbl = _('Show a warning when:')
         self.warningLabel = QLabel(lbl)
         self.warningLabel.setWordWrap(True)
-        self.warnDownloadingAll = QCheckBox(_('Downloading invisible files'))
-        tip = _('Warn when about to download files that are not displayed in the main window')
+        self.warnDownloadingAll = QCheckBox(_('Downloading files currently not displayed'))
+        tip = _('Warn when about to download files that are not displayed in the main window.')
         self.warnDownloadingAll.setToolTip(tip)
         self.warnBackupProblem = QCheckBox(_('Backup destinations are missing'))
-        tip = _("Warn before starting a download if it is not possible to back up files")
+        tip = _("Warn before starting a download if it is not possible to back up files.")
         self.warnBackupProblem.setToolTip(tip)
         self.warnMissingLibraries = QCheckBox(_('Program libraries are missing or broken'))
         tip = _('Warn if a software library used by Rapid Photo Downloader is missing or not '
-                'functioning')
+                'functioning.')
         self.warnMissingLibraries.setToolTip(tip)
         self.warnMetadata = QCheckBox(_('Filesystem metadata cannot be set'))
         tip = _("Warn if there is an error setting a file's filesystem metadata, "
-                "such as its modification time")
+                "such as its modification time.")
         self.warnMetadata.setToolTip(tip)
+        self.warnUnhandledFiles = QCheckBox(_('Encountering unhandled files'))
+        tip = _('Warn after scanning a device or this computer if there are unrecognized files '
+                'that will not be included in the download.')
+        self.warnUnhandledFiles.setToolTip(tip)
+        self.exceptTheseFilesLabel = QLabel(_('Do not warn about unhandled files with '
+                                              'extensions:'))
+        self.exceptTheseFilesLabel.setWordWrap(True)
+        self.exceptTheseFiles = QNarrowListWidget(minimum_rows=4)
+        tip = _('File extensions are case insensitive and do not need to include the leading '
+                'dot.')
+        self.exceptTheseFiles.setToolTip(tip)
+        self.addExceptFiles = QPushButton(_('Add'))
+        tip = _('Add a file extension to the list of unhandled file types to not warn about.')
+        self.addExceptFiles.setToolTip(tip)
+        tip = _('Remove a file extension from the list of unhandled file types to not warn about.')
+        self.removeExceptFiles = QPushButton(_('Remove'))
+        self.removeExceptFiles.setToolTip(tip)
+        self.removeAllExceptFiles = QPushButton(_('Remove All'))
+        tip = _('Clear the list of file extensions of unhandled file types to not warn about.')
+        self.removeAllExceptFiles.setToolTip(tip)
+        self.addExceptFiles.clicked.connect(self.addExceptFilesClicked)
+        self.removeExceptFiles.clicked.connect(self.removeExceptFilesClicked)
+        self.removeAllExceptFiles.clicked.connect(self.removeAllExceptFilesClicked)
 
         self.setWarningValues()
         self.warnDownloadingAll.stateChanged.connect(self.warnDownloadingAllChanged)
         self.warnBackupProblem.stateChanged.connect(self.warnBackupProblemChanged)
         self.warnMissingLibraries.stateChanged.connect(self.warnMissingLibrariesChanged)
         self.warnMetadata.stateChanged.connect(self.warnMetadataChanged)
+        self.warnUnhandledFiles.stateChanged.connect(self.warnUnhandledFilesChanged)
 
-        warningBoxLayout = QVBoxLayout()
-        warningBoxLayout.addWidget(self.warningLabel)
-        warningBoxLayout.addWidget(self.warnDownloadingAll)
-        warningBoxLayout.addWidget(self.warnBackupProblem)
-        warningBoxLayout.addWidget(self.warnMissingLibraries)
-        warningBoxLayout.addWidget(self.warnMetadata)
+        warningBoxLayout = QGridLayout()
+        warningBoxLayout.addWidget(self.warningLabel, 0, 0, 1, 3)
+        warningBoxLayout.addWidget(self.warnDownloadingAll, 1, 0, 1, 3)
+        warningBoxLayout.addWidget(self.warnBackupProblem, 2, 0, 1, 3)
+        warningBoxLayout.addWidget(self.warnMissingLibraries, 3, 0, 1, 3)
+        warningBoxLayout.addWidget(self.warnMetadata, 4, 0, 1, 3)
+        warningBoxLayout.addWidget(self.warnUnhandledFiles, 5, 0, 1, 3)
+        warningBoxLayout.addWidget(self.exceptTheseFilesLabel,  6, 1, 1, 2)
+        warningBoxLayout.addWidget(self.exceptTheseFiles, 7, 1, 4, 1)
+        warningBoxLayout.addWidget(self.addExceptFiles, 7, 2, 1, 1)
+        warningBoxLayout.addWidget(self.removeExceptFiles, 8, 2, 1, 1)
+        warningBoxLayout.addWidget(self.removeAllExceptFiles, 9, 2, 1, 1)
+        warningBoxLayout.setColumnMinimumWidth(0, checkbox_width)
         self.warningBox.setLayout(warningBoxLayout)
+
+        self.warnings = QWidget()
+        warningLayout = QVBoxLayout()
+        self.warnings.setLayout(warningLayout)
+        warningLayout.addWidget(self.warningBox)
+        warningLayout.addStretch()
+        warningLayout.setContentsMargins(0, 0, 0, 0)
 
         self.newVersionBox = QGroupBox(_('Version Check'))
         self.checkNewVersion = QCheckBox(_('Check for new version at startup'))
         self.checkNewVersion.setToolTip(_('Check for a new version of the program each time the '
-                                          'program starts'))
+                                          'program starts.'))
         self.includeDevRelease = QCheckBox(_('Include development releases'))
-        self.includeDevRelease.setToolTip(_('Include alpha, beta and other development releases '
-                                            'when checking for a new version of the program'))
+        tip = _('Include alpha, beta and other development releases when checking for a new '
+                'version of the program.\n\nIf you are currently running a development version, '
+                'the check will always occur.')
+        self.includeDevRelease.setToolTip(tip)
         self.setVersionCheckValues()
         self.checkNewVersion.stateChanged.connect(self.checkNewVersionChanged)
         self.includeDevRelease.stateChanged.connect(self.includeDevReleaseChanged)
@@ -406,10 +451,24 @@ class PreferencesDialog(QDialog):
         newVersionLayout.setColumnMinimumWidth(0, checkbox_width)
         self.newVersionBox.setLayout(newVersionLayout)
 
+        self.metadataBox = QGroupBox(_('Metadata'))
+        self.ignoreMdatatimeMtpDng = QCheckBox(_('Ignore DNG date/time metadata on MTP devices'))
+        tip = _("Ignore date/time metadata in DNG files located on MTP devices, and use the "
+                "file's modification time instead.\n\nUseful for devices like some phones and "
+                "tablets that create incorrect DNG metadata.")
+        self.ignoreMdatatimeMtpDng.setToolTip(tip)
+
+        self.setMetdataValues()
+        self.ignoreMdatatimeMtpDng.stateChanged.connect(self.ignoreMdatatimeMtpDngChanged)
+
+        metadataLayout = QVBoxLayout()
+        metadataLayout.addWidget(self.ignoreMdatatimeMtpDng)
+        self.metadataBox.setLayout(metadataLayout)
+
         self.miscWidget = QWidget()
         miscLayout = QVBoxLayout()
-        miscLayout.addWidget(self.warningBox)
         miscLayout.addWidget(self.newVersionBox)
+        miscLayout.addWidget(self.metadataBox)
         miscLayout.addStretch()
         miscLayout.setContentsMargins(0, 0, 0, 0)
         miscLayout.setSpacing(18)
@@ -419,6 +478,7 @@ class PreferencesDialog(QDialog):
         self.panels.addWidget(self.automation)
         self.panels.addWidget(self.performance)
         self.panels.addWidget(self.errorWidget)
+        self.panels.addWidget(self.warnings)
         self.panels.addWidget(self.miscWidget)
 
         layout = QVBoxLayout()
@@ -537,11 +597,28 @@ class PreferencesDialog(QDialog):
             self.warnBackupProblem.setChecked(False)
         self.warnMissingLibraries.setChecked(self.prefs.warn_no_libmediainfo)
         self.warnMetadata.setChecked(self.prefs.warn_fs_metadata_error)
+        self.warnUnhandledFiles.setChecked(self.prefs.warn_unhandled_files)
+        self.setAddExceptFilesValues()
 
         self.setBackupWarningEnabled()
+        self.setUnhandledWarningEnabled()
+
+    def setAddExceptFilesValues(self) -> None:
+        self.exceptTheseFiles.clear()
+        if self.prefs.list_not_empty('ignore_unhandled_file_exts'):
+            self.exceptTheseFiles.addItems(self.prefs.ignore_unhandled_file_exts)
+            self.exceptTheseFiles.setCurrentRow(0)
 
     def setBackupWarningEnabled(self) -> None:
         self.warnBackupProblem.setEnabled(self.prefs.backup_files)
+
+    def setUnhandledWarningEnabled(self) -> None:
+        enabled = self.prefs.warn_unhandled_files
+        for widget in (self.exceptTheseFilesLabel, self.exceptTheseFiles, self.addExceptFiles):
+            widget.setEnabled(enabled)
+        count = bool(self.exceptTheseFiles.count())
+        for widget in (self.removeExceptFiles, self.removeAllExceptFiles):
+            widget.setEnabled(enabled and count)
 
     def setVersionCheckValues(self) -> None:
         self.checkNewVersion.setChecked(self.prefs.check_for_new_versions)
@@ -552,6 +629,9 @@ class PreferencesDialog(QDialog):
     def setVersionCheckEnabled(self) -> None:
         self.includeDevRelease.setEnabled(not(self.is_prerelease or
                                               not self.prefs.check_for_new_versions))
+
+    def setMetdataValues(self) -> None:
+        self.ignoreMdatatimeMtpDng.setChecked(self.prefs.ignore_mdatatime_for_mtp_dng)
 
     @pyqtSlot(int)
     def onlyExternalChanged(self, state: int) -> None:
@@ -740,6 +820,33 @@ class PreferencesDialog(QDialog):
         self.prefs.warn_fs_metadata_error = state == Qt.Checked
 
     @pyqtSlot(int)
+    def warnUnhandledFilesChanged(self, state: int) -> None:
+        self.prefs.warn_unhandled_files = state == Qt.Checked
+        self.setUnhandledWarningEnabled()
+
+    @pyqtSlot()
+    def addExceptFilesClicked(self) -> None:
+        dlg = ExceptFileExtDialog(prefs=self.prefs, parent=self)
+        if dlg.exec():
+            self.setAddExceptFilesValues()
+
+    @pyqtSlot()
+    def removeExceptFilesClicked(self) -> None:
+        row = self.exceptTheseFiles.currentRow()
+        if row >= 0:
+            item = self.exceptTheseFiles.takeItem(row)
+            self.prefs.del_list_value('ignore_unhandled_file_exts', item.text())
+            self.removeExceptFiles.setEnabled(self.exceptTheseFiles.count())
+            self.removeAllExceptFiles.setEnabled(self.exceptTheseFiles.count())
+
+    @pyqtSlot()
+    def removeAllExceptFilesClicked(self) -> None:
+        self.exceptTheseFiles.clear()
+        self.prefs.ignore_unhandled_file_exts = ['']
+        self.removeExceptFiles.setEnabled(False)
+        self.removeAllExceptFiles.setEnabled(False)
+
+    @pyqtSlot(int)
     def checkNewVersionChanged(self, state: int) -> None:
         do_check = state == Qt.Checked
         self.prefs.check_for_new_versions = do_check
@@ -748,6 +855,10 @@ class PreferencesDialog(QDialog):
     @pyqtSlot(int)
     def includeDevReleaseChanged(self, state: int) -> None:
         self.prefs.include_development_release = state == Qt.Checked
+
+    @pyqtSlot(int)
+    def ignoreMdatatimeMtpDngChanged(self, state: int) -> None:
+        self.prefs.ignore_mdatatime_for_mtp_dng = state == Qt.Checked
 
     @pyqtSlot()
     def restoreDefaultsClicked(self) -> None:
@@ -776,11 +887,18 @@ class PreferencesDialog(QDialog):
                 self.prefs.restore(value)
             self.setErrorHandingValues()
         elif row == 4:
-            for value in ('warn_downloading_all', 'warn_backup_problem', 'check_for_new_versions',
-                          'warn_no_libmediainfo', 'include_development_release', 'warnMetadata'):
+            for value in ('warn_downloading_all', 'warn_backup_problem', 'warn_no_libmediainfo',
+                          'warn_fs_metadata_error', 'warn_unhandled_files',
+                          'ignore_unhandled_file_exts'):
                 self.prefs.restore(value)
             self.setWarningValues()
             self.setVersionCheckValues()
+        elif row == 5:
+            for value in ('check_for_new_versions', 'include_development_release',
+                          'ignore_mdatatime_for_mtp_dng'):
+                self.prefs.restore(value)
+            self.setVersionCheckValues()
+            self.setMetdataValues()
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self.cacheSizeThread.quit()
@@ -788,42 +906,111 @@ class PreferencesDialog(QDialog):
         event.accept()
 
 
-class IgnorePathDialog(QDialog):
+class PreferenceAddDialog(QDialog):
     """
-    Dialog prompting for a path to ignore when scanning devices
+    Base class for adding value to pref list
     """
-
-    def __init__(self, prefs: Preferences, parent=None) -> None:
+    def __init__(self, prefs: Preferences,
+                 title: str,
+                 instruction: str,
+                 label: str,
+                 pref_value: str,
+                 parent=None) -> None:
         super().__init__(parent=parent)
 
         self.prefs = prefs
+        self.pref_value = pref_value
 
-        self.setWindowTitle(_('Enter a Path to Ignore'))
+        self.setWindowTitle(title)
 
-        instructionLabel = QLabel(_('Specify a path that will never be scanned for photos or '
-                                   'videos'))
-        instructionLabel.setWordWrap(False)
+        self.instructionLabel = QLabel(instruction)
+        self.instructionLabel.setWordWrap(False)
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        self.pathEdit = QLineEdit()
+        self.valueEdit = QLineEdit()
         formLayout = QFormLayout()
-        formLayout.addRow(_('Path:'), self.pathEdit)
+        formLayout.addRow(label, self.valueEdit)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
         buttons.rejected.connect(self.reject)
         buttons.accepted.connect(self.accept)
 
-        layout.addWidget(instructionLabel)
+        layout.addWidget(self.instructionLabel)
         layout.addLayout(formLayout)
         layout.addWidget(buttons)
 
     def accept(self):
-        path = self.pathEdit.text()
-        if path:
-            self.prefs.add_list_value('ignored_paths', path)
+        value = self.valueEdit.text()
+        if value:
+            self.prefs.add_list_value(self.pref_value, value)
         super().accept()
 
+
+class IgnorePathDialog(PreferenceAddDialog):
+    """
+    Dialog prompting for a path to ignore when scanning devices
+    """
+
+    def __init__(self, prefs: Preferences, parent=None) -> None:
+        super().__init__(
+            prefs=prefs,
+            title=_('Enter a Path to Ignore'),
+            instruction=_('Specify a path that will never be scanned for photos or videos'),
+            label=_('Path:'),
+            pref_value='ignored_paths',
+            parent=parent
+        )
+
+
+class ExceptFileExtDialog(PreferenceAddDialog):
+    """
+    Dialog prompting for file extensions never to warn about
+    """
+
+    def __init__(self, prefs: Preferences, parent=None) -> None:
+        super().__init__(
+            prefs=prefs,
+            title=_('Enter a File Extension'),
+            instruction=_('Specify a file extension (without the leading dot)'),
+            label=_('Extension:'),
+            pref_value='ignore_unhandled_file_exts',
+            parent=parent
+        )
+
+    def exts(self, exts: List[str]) -> str:
+        return make_internationalized_list([ext.upper() for ext in exts])
+
+    def accept(self):
+        value = self.valueEdit.text()
+        if value:
+            while value.startswith('.'):
+                value = value[1:]
+            value = value.upper()
+            if value.lower() in ALL_KNOWN_EXTENSIONS:
+                title = _('Invalid File Extension')
+                message = _("The file extension <b>%s</b> is recognized by Rapid Photo Downloader, "
+                            "so it makes no sense to warn about its presence.") % value
+                details = _('Recognized file types:\n\n'
+                            'Photos:\n%(photos)s\n\nVideos:\n%(videos)s\n\n'
+                            'Audio:\n%(audio)s\n\nOther:\n%(other)s') % dict(
+                    photos=self.exts(PHOTO_EXTENSIONS),
+                    videos=self.exts(VIDEO_EXTENSIONS + VIDEO_THUMBNAIL_EXTENSIONS),
+                    audio=self.exts(AUDIO_EXTENSIONS),
+                    other=self.exts(['xmp'])
+                )
+                msgbox = QMessageBox(parent=self)
+                msgbox.setWindowTitle(title)
+                msgbox.setText(message)
+                msgbox.setDetailedText(details)
+                msgbox.setIcon(QMessageBox.Information)
+                msgbox.exec()
+                self.valueEdit.setText(value)
+                self.valueEdit.selectAll()
+                return
+            else:
+                self.prefs.add_list_value(self.pref_value, value)
+        QDialog.accept(self)
 
 class CacheSize(QObject):
     size = pyqtSignal('PyQt_PyObject')  # don't convert python int to C++ int

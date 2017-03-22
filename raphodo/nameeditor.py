@@ -1111,8 +1111,6 @@ class PrefDialog(QDialog):
             assert self.generation_type == NameGenerationType.video_subfolder
             self.name_generator = gn.VideoSubfolder(user_pref_list)
 
-        self.sample_rpd_file.initialize_problem()
-
         self.name_parts = self.name_generator.generate_name(self.sample_rpd_file, parts=True)
         self.showExample()
         self.updateComboBoxCurrentIndex()

@@ -47,8 +47,8 @@ from raphodo.constants import (DeviceType, BackupLocationType, FileType, DeviceS
                                DownloadStatus, ExifSource, DownloadingFileTypes, BackupFailureType)
 from raphodo.rpdfile import FileTypeCounter, FileSizeSum
 from raphodo.storage import (StorageSpace, udev_attributes, UdevAttr, get_path_display_name,
-                             validate_download_folder, ValidatedFolder)
-from raphodo.camera import Camera, generate_devname
+                             validate_download_folder, ValidatedFolder, CameraDetails, get_uri)
+from raphodo.camera import generate_devname
 from raphodo.utilities import (number, make_internationalized_list, stdchannel_redirected,
                                same_device)
 import raphodo.metadataphoto as metadataphoto
@@ -106,6 +106,9 @@ class Device:
         self.is_mtp_device = False
         self.udev_name = None  # type: str
         self.storage_space = []  # type: List[StorageSpace]
+        # Name of storage on a camera
+        self.storage_descriptions = []  # type: List[str]
+
         self.path = None  # type: str
         self.display_name = None  # type: str
         self.have_optimal_display_name = False
@@ -117,6 +120,7 @@ class Device:
         self.file_size_sum = FileSizeSum()
         self.file_type_counter = FileTypeCounter()
         self.download_statuses = set()  # type: Set[DownloadStatus]
+        self._uri = ''
 
     def __repr__(self):
         if self.device_type == DeviceType.camera:
@@ -158,6 +162,26 @@ class Device:
                     return icon_name
         return None
 
+    @property
+    def uri(self) -> str:
+        if self._uri:
+            return self._uri
+
+        if self.device_type == DeviceType.camera:
+            if self.storage_descriptions:
+                storage_desc = self.storage_descriptions[0]
+            else:
+                storage_desc = ''
+            camera_details = CameraDetails(
+                model=self.camera_model, port=self.camera_port, display_name=self.display_name,
+                is_mtp=self.is_mtp_device, storage_desc=storage_desc
+            )
+            self._uri = get_uri(camera_details=camera_details)
+        else:
+            self._uri = get_uri(path=self.path)
+
+        return self._uri
+
     def set_download_from_camera(self, camera_model: str, camera_port: str) -> None:
         self.clear()
         self.device_type = DeviceType.camera
@@ -183,10 +207,12 @@ class Device:
                           self.camera_model, camera_port)
 
     def update_camera_attributes(self, display_name: str,
-                                 storage_space: List[StorageSpace]) -> None:
+                                 storage_space: List[StorageSpace],
+                                 storage_descriptions: List[str]) -> None:
         self.display_name = display_name
         self.have_optimal_display_name = True
         self.storage_space = storage_space
+        self.storage_descriptions = storage_descriptions
 
     def set_download_from_volume(self, path: str, display_name: str,
                                  icon_names=None, can_eject=None,
@@ -286,6 +312,7 @@ class Device:
     def delete_cache_dirs(self) -> None:
         self._delete_cache_dir(self.photo_cache_dir)
         self._delete_cache_dir(self.video_cache_dir)
+
 
 
 class DeviceCollection:

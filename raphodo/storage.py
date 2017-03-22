@@ -74,7 +74,7 @@ from gi.repository import GUdev, UDisks, GLib
 from gettext import gettext as _
 
 from raphodo.constants import Desktop, Distro
-from raphodo.utilities import process_running, log_os_release
+from raphodo.utilities import process_running, log_os_release, remove_topmost_directory_from_path
 
 logging_level = logging.DEBUG
 
@@ -86,6 +86,7 @@ except ImportError:
     have_gio = False
 
 StorageSpace = namedtuple('StorageSpace', 'bytes_free, bytes_total, path')
+CameraDetails = namedtuple('CameraDetails', 'model, port, display_name, is_mtp, storage_desc')
 UdevAttr = namedtuple('UdevAttr', 'is_mtp_device, vendor, model')
 
 PROGRAM_DIRECTORY = 'rapid-photo-downloader'
@@ -570,6 +571,66 @@ def get_default_file_manager(remove_args: bool = True) -> Optional[str]:
                 return fm
 
 
+def get_uri(full_file_name: Optional[str]=None,
+            path: Optional[str]=None,
+            camera_details: Optional[CameraDetails]=None,
+            desktop_environment: Optional[bool]=True) -> str:
+    """
+    Generate and return the URI for the file, which varies depending on
+    which device it is
+
+    :param full_file_name: full filename and path
+    :param path: straight path when not passing a full_file_name
+    :param camera_details: see named tuple CameraDetails for parameters
+    :param desktop_environment: if True, will to generate a URI accepted
+     by Gnome and KDE desktops, which means adjusting the URI if it appears to be an
+     MTP mount. Includes the port too.
+    :return: the URI
+    """
+
+    if camera_details is None:
+        prefix = 'file://'
+        if desktop_environment:
+            desktop = get_desktop()
+            if full_file_name and desktop in (Desktop.mate, Desktop.kde):
+                full_file_name = os.path.dirname(full_file_name)
+    else:
+        if not desktop_environment:
+            if full_file_name or path:
+                prefix = 'gphoto2://'
+            else:
+                prefix = 'gphoto2://' + pathname2url('[{}]'.format(camera_details.port))
+        else:
+            # Attempt to generate a URI accepted by desktop environments
+            if camera_details.is_mtp:
+                if full_file_name:
+                    full_file_name = remove_topmost_directory_from_path(full_file_name)
+                elif path:
+                    path = remove_topmost_directory_from_path(path)
+
+                desktop = get_desktop()
+                if gvfs_controls_mounts():
+                    prefix = 'mtp://' + pathname2url('[{}]/{}'.format(
+                        camera_details.port, camera_details.storage_desc))
+                elif desktop == Desktop.kde:
+                    prefix = 'mtp:/' + pathname2url('{}/{}'.format(
+                        camera_details.display_name, camera_details.storage_desc))
+                    # Dolphin doesn't highlight the file if it's passed.
+                    # Instead it tries to open it, but fails.
+                    # So don't pass the file, just the directory it's in.
+                    if full_file_name:
+                        full_file_name = os.path.dirname(full_file_name)
+                else:
+                    logging.error("Don't know how to generate MTP prefix for %s", desktop.name)
+            else:
+                prefix = 'gphoto2://' + pathname2url('[{}]'.format(camera_details.port))
+    if full_file_name or path:
+        uri = '{}{}'.format(prefix, pathname2url(full_file_name or path))
+    else:
+        uri = prefix
+    return uri
+
+
 ValidatedFolder = namedtuple('ValidatedFolder', 'valid, absolute_path')
 
 
@@ -645,7 +706,8 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
 
 def fs_device_details(path: str) -> Tuple:
     """
-    :return: device (volume) name, uri, root path and filesystem type of the mount
+    :return: device (volume) name, uri, root path and filesystem type
+     of the mount the path is on
     """
     qsInfo = QStorageInfo(path)
     name = qsInfo.displayName()

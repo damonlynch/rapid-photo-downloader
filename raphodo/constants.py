@@ -101,8 +101,18 @@ Downloaded = (DownloadStatus.downloaded,
               DownloadStatus.downloaded_with_warning,
               DownloadStatus.backup_problem)
 
+
 DownloadWarning = {DownloadStatus.downloaded_with_warning, DownloadStatus.backup_problem}
 DownloadFailure = {DownloadStatus.download_and_backup_failed, DownloadStatus.download_failed}
+
+
+download_status_error_severity = {
+    DownloadStatus.downloaded_with_warning: ErrorType.warning,
+    DownloadStatus.backup_problem: ErrorType.serious_error,
+    DownloadStatus.download_and_backup_failed: ErrorType.serious_error,
+    DownloadStatus.download_failed: ErrorType.serious_error
+}
+
 
 DownloadUpdateMilliseconds = 1000
 DownloadUpdateSeconds = DownloadUpdateMilliseconds / 1000
@@ -314,6 +324,8 @@ class DeviceTimestampTZ(Enum):
 class CameraErrorCode(Enum):
     inaccessible = 1
     locked = 2
+    read = 3
+    write = 4
 
 
 class ViewRowType(Enum):

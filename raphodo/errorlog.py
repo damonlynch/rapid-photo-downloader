@@ -32,21 +32,25 @@ import math
 from collections import deque, namedtuple
 from typing import Optional
 from gettext import gettext as _
+import re
+from html import escape
 
-from PyQt5.QtWidgets import (QTextEdit, QDialog, QDialogButtonBox, QLineEdit, QVBoxLayout,
-                             QHBoxLayout, QApplication, QPushButton, QLabel, QTextBrowser,
-                             QStyle, QFrame)
-from PyQt5.QtGui import (QPalette, QIcon, QFontMetrics, QFont, QColor, QKeyEvent, QKeySequence,
-                         QTextDocument, QTextCursor, QPaintEvent, QPainter, QPen, QMouseEvent,
-                         QShowEvent)
+from PyQt5.QtWidgets import (
+    QTextEdit, QDialog, QDialogButtonBox, QLineEdit, QVBoxLayout, QHBoxLayout, QApplication,
+    QPushButton, QLabel, QTextBrowser, QStyle
+)
+from PyQt5.QtGui import (
+    QPalette, QIcon, QFontMetrics, QFont, QColor, QKeyEvent, QKeySequence, QTextDocument,
+    QTextCursor, QPaintEvent, QPainter, QPen, QMouseEvent, QShowEvent
+)
 from PyQt5.QtCore import Qt, pyqtSlot, QSize, QUrl, QTimer, QRect, pyqtSignal, QEvent
 
 import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import ErrorType
 from raphodo.rpdfile import RPDFile
+from raphodo.problemnotification import Problem, Problems
 
-
-ErrorLogMessage = namedtuple('ErrorLogMessage', 'title body name uri')
+# ErrorLogMessage = namedtuple('ErrorLogMessage', 'title body name uri')
 
 
 class QFindLineEdit(QLineEdit):
@@ -99,7 +103,7 @@ class QFindLineEdit(QLineEdit):
             return self.text()
 
 
-class ErrorLog(QDialog):
+class ErrorReport(QDialog):
     """
     Display error messages from the download in a dialog.
 
@@ -116,6 +120,9 @@ class ErrorLog(QDialog):
     def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent=parent)
 
+        self.uris = []
+        self.get_href = re.compile('<a href="?\'?([^"\'>]*)')
+
         self.setModal(False)
         self.setSizeGripEnabled(True)
 
@@ -125,10 +132,21 @@ class ErrorLog(QDialog):
         self.rapidApp = rapidApp
 
         layout = QVBoxLayout()
-        self.setWindowTitle(_('Rapid Photo Downloader Error Log'))
+        self.setWindowTitle(_('Error Reports - Rapid Photo Downloader'))
 
         self.log = QTextBrowser()
         self.log.setReadOnly(True)
+
+        sheet = """
+        h1 {
+            font-size: large;
+            font-weight: bold;
+        }
+        """
+
+        document = self.log.document()  # type: QTextDocument
+        document.setDefaultStyleSheet(sheet)
+        document.setIndentWidth(QFontMetrics(QFont()).boundingRect('200').width())
 
         self.highlightColor = QColor('#cb1dfa')
         self.textHighlightColor = QColor(Qt.white)
@@ -149,7 +167,7 @@ class ErrorLog(QDialog):
         self.log.setFont(self.defaultFont)
         self.log.textChanged.connect(self.textChanged)
 
-        message = _('Find in error log')
+        message = _('Find in reports')
         self.find = QFindLineEdit(find_text=message)
         self.find.textEdited.connect(self.onFindChanged)
         style = self.find.style()  # type: QStyle
@@ -228,15 +246,6 @@ class ErrorLog(QDialog):
     def textChanged(self) -> None:
         self.clear.setEnabled(bool(self.log.document().characterCount()))
 
-    @pyqtSlot(QUrl)
-    def anchorClicked(self, url: QUrl) -> None:
-        if self.rapidApp.file_manager:
-            uri = bytes(url.toEncoded()).decode()
-            cmd = '{} {}'.format(self.rapidApp.file_manager, uri)
-            logging.debug("Launching: %s", cmd)
-            args = shlex.split(cmd)
-            subprocess.Popen(args)
-
     def _makeFind(self, back: bool=False) -> int:
         flags = QTextDocument.FindFlags()
         if self.matchCase.isChecked():
@@ -265,8 +274,7 @@ class ErrorLog(QDialog):
 
         if self.add_queue:
             while self.add_queue:
-                severity, rpd_file = self.add_queue.popleft()
-                self._addMessage(severity, rpd_file)
+                self._addProblems(problems=self.add_queue.popleft())
             QTimer.singleShot(1000, self._doFind)
             return
 
@@ -382,44 +390,96 @@ class ErrorLog(QDialog):
         self.clear.setEnabled(False)
         self._doFind()
 
-    def _addMessage(self, severity: ErrorType,
-                    rpd_file: RPDFile,
-                    other_error: Optional[ErrorLogMessage]) -> None:
+    @pyqtSlot(QUrl)
+    def anchorClicked(self, url: QUrl) -> None:
+        if self.rapidApp.file_manager:
+            # see documentation for self._saveUrls()
+            fake_uri = url.url(QUrl.None_)
+            index = int(fake_uri[fake_uri.find('///') + 3:])
+            uri = self.uris[index]
 
-        if other_error is None:
-            title = rpd_file.problem.get_title()
-            name = rpd_file.get_current_name()
-            uri = rpd_file.get_uri(desktop_environment=True)
-            body = rpd_file.problem.get_problems()
+            cmd = '{} {}'.format(self.rapidApp.file_manager, uri)
+            logging.debug("Launching: %s", cmd)
+            args = shlex.split(cmd)
+            subprocess.Popen(args)
+
+    def _saveUrls(self, text: str) -> str:
+        """
+        Sadly QTextBrowser uses QUrl, which doesn't understand the kind of URIs
+        used by Gnome. It totally mangles them, in fact.
+
+        So solution is to substitute in a dummy uri and then
+        replace it in self.anchorClicked() when the user clicks on it
+        """
+
+        anchor_start = '<a href="'
+        anchor_end = '</a>'
+
+        start = text.find(anchor_start)
+        if start < 0:
+            return text
+        new_text = text[:start]
+        while start >= 0:
+            href_end = text.find('">', start + 9)
+            href = text[start + 9:href_end]
+            end = text.find(anchor_end, href_end + 2)
+            next_start = text.find(anchor_start, end + 4)
+            if next_start >= end + 4:
+                extra_text = text[end + 4:next_start]
+            else:
+                extra_text = text[end + 4:]
+            new_text = '{}<a href="file:///{}">{}</a>{}'.format(
+                new_text, len(self.uris), text[href_end + 2:end], extra_text
+            )
+            self.uris.append(href)
+            start = next_start
+
+        return new_text
+
+    def _getBody(self, problem: Problem) -> str:
+        """
+        Get the body (subject) of the problem, and any details
+        """
+
+        line = self._saveUrls(problem.body)
+
+        if len(problem.details) == 1:
+            line = '{}<br><i>{}</i>'.format(line, problem.details[0])
+        elif len(problem.details) > 1:
+            line = '{}<ul>'.format(line)
+            for detail in problem.details:
+                line = '{}<li><i>{}</i></li>'.format(line, detail)
+            line = '{}</ul>'.format(line)
+
+        return line
+
+    def _addProblems(self, problems: Problems) -> None:
+        """
+        Add problems to the log window
+        """
+
+        title = self._saveUrls(problems.title)
+        html = '<h1>{}</h1>'.format(title)
+        if len(problems) > 1:
+            html = '{}<ol>'.format(html)
+            for problem in problems:
+                line = self._getBody(problem=problem)
+                html = '{}<li>{}</li>'.format(html, line)
+            html = '{}</ol>'.format(html)
         else:
-            title = other_error.title
-            name = other_error.name
-            uri = other_error.uri
-            body = other_error.body
+            html = '{}<p>{}</p>'.format(html, self._getBody(problem=problems[0]))
 
-        if severity == ErrorType.critical_error:
-            self.log.setTextColor(self.criticalColor)
-        self.log.setFontWeight(QFont.Bold)
-        self.log.append(title)
-        self.log.setFontWeight(QFont.Normal)
-        if severity == ErrorType.critical_error:
-            self.log.setTextColor(self.textColor)
+        html = '{}<br>'.format(html)
+        self.log.append(html)
 
-        href = '<a href="{}">{}</a>'.format(uri, name)
-        self.log.append(href)
-
-        self.log.append(body + '<br>')
-
-    def addMessage(self, severity: ErrorType,
-                   rpd_file: RPDFile,
-                   other_error: Optional[ErrorLogMessage]) -> None:
+    def addProblems(self, problems: Problems) -> None:
         if not self.find.empty and self.find_cursors:
             self._clearSearch()
 
         if not self.find.empty and self.search_pending:
-            self.add_queue.append((severity, rpd_file, other_error))
+            self.add_queue.append(problems)
         else:
-            self._addMessage(severity, rpd_file, other_error)
+            self._addProblems(problems=problems)
 
         if not self.find.empty and not self.search_pending:
             self.search_pending = True
@@ -485,8 +545,8 @@ class SpeechBubble(QLabel):
             self.setToolTip(self.click_tooltip)
         self.update()
 
-    def incrementCounter(self) -> None:
-        self._count += 1
+    def incrementCounter(self, increment: int=1) -> None:
+        self._count += increment
         self.setToolTip(self.click_tooltip)
         self.update()
 
@@ -530,6 +590,6 @@ if __name__ == '__main__':
 
     app = QApplication([])
 
-    log = ErrorLog(None)
+    log = ErrorReport(None)
     log.show()
     app.exec_()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2012-2015 Jim Easterbrook <jim@jim-easterbrook.me.uk>
 
 # This file is part of Rapid Photo Downloader.
@@ -20,7 +20,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
+__copyright__ = "Copyright 2015-2017, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
 
 import logging
 import os
@@ -40,8 +40,6 @@ def python_gphoto2_version():
 def gphoto2_version():
     return gp.gp_library_version(0)[0]
 
-CopyChunks = namedtuple('CopyChunks', 'copy_succeeded, src_bytes')
-
 
 class CameraError(Exception):
     def __init__(self, code: CameraErrorCode) -> None:
@@ -58,6 +56,31 @@ class CameraError(Exception):
             return "The camera is inaccessible"
         else:
             return "The camera is locked"
+
+
+class CameraProblemEx(CameraError):
+    def __init__(self, code: CameraErrorCode,
+                 gp_exception: Optional[gp.GPhoto2Error]=None,
+                 py_exception: Optional[Exception]=None) -> None:
+        super().__init__(code)
+        self.gp_code = gp_exception.code
+        self.py_exception = py_exception
+
+    def __repr__(self) -> str:
+        if self.code == CameraErrorCode.read:
+            return "read error"
+        elif self.code == CameraErrorCode.write:
+            return 'write error'
+        else:
+            return repr(super())
+
+    def __str__(self) -> str:
+        if self.code == CameraErrorCode.read:
+            return "Could not read file from camera"
+        elif self.code == CameraErrorCode.write:
+            return 'Could not write file from camera'
+        else:
+            return str(super())
 
 
 def generate_devname(camera_port: str) -> Optional[str]:
@@ -175,7 +198,7 @@ class Camera:
 
     def get_exif_extract(self, folder: str,
                          file_name: str,
-                         size_in_bytes: int=200) -> Optional[bytearray]:
+                         size_in_bytes: int=200) -> bytearray:
         """"
         Attempt to read only the exif portion of the file.
 
@@ -189,18 +212,19 @@ class Camera:
         :param size_in_bytes: how much of the photo to read, starting
          from the front of the file
         """
+
         buffer = bytearray(size_in_bytes)
         try:
             self.camera.file_read(folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, buffer,
                                   self.context)
         except gp.GPhoto2Error as e:
-            logging.error("Unable to extract exif from camera %s: error %s", self.display_name,
-                          e.code)
-            return None
+            logging.error("Unable to extract portion of file from camera %s: error %s",
+                          self.display_name, e.code)
+            raise CameraProblemEx(code=CameraErrorCode.read, gp_exception=e)
         else:
             return buffer
 
-    def get_exif_extract_from_jpeg(self, folder: str, file_name: str) -> Optional[bytearray]:
+    def get_exif_extract_from_jpeg(self, folder: str, file_name: str) -> bytearray:
         """
         Extract strictly the app1 (exif) section of a jpeg.
 
@@ -216,27 +240,22 @@ class Camera:
 
         """
 
-        succeeded, camera_file = self._get_file(folder, file_name,None, gp.GP_FILE_TYPE_EXIF)
+        camera_file = self._get_file(folder, file_name, None, gp.GP_FILE_TYPE_EXIF)
 
-        if succeeded:
-            exif_data = None
-            try:
-                exif_data = gp.check_result(gp.gp_file_get_data_and_size(camera_file))
-            except gp.GPhoto2Error as ex:
-                logging.error('Error getting exif info for %s from camera %s. Code: '
-                              '%s', os.path.join(folder, file_name), self.display_name, ex.code)
-            if exif_data:
-                return bytearray(exif_data)
-            else:
-                return None
-        return None
+        try:
+            exif_data = gp.check_result(gp.gp_file_get_data_and_size(camera_file))
+        except gp.GPhoto2Error as ex:
+            logging.error('Error getting exif info for %s from camera %s. Code: '
+                          '%s', os.path.join(folder, file_name), self.display_name, ex.code)
+            raise CameraProblemEx(code=CameraErrorCode.read, gp_exception=ex)
+        return bytearray(exif_data)
 
     def get_exif_extract_from_jpeg_manual_parse(self, folder: str,
                                             file_name: str) -> Optional[bytearray]:
         """
         Extract exif section of a jpeg.
 
-        I wrote this before I understood that libpghoto2 provies the
+        I wrote this before I understood that libpghoto2 provides the
         same functionality!
 
         Reads first few bytes of jpeg on camera to determine the
@@ -331,32 +350,30 @@ class Camera:
     def _get_file(self, dir_name: str,
                   file_name: str,
                   dest_full_filename: Optional[str]=None,
-                  file_type: int=gp.GP_FILE_TYPE_NORMAL):
+                  file_type: int=gp.GP_FILE_TYPE_NORMAL) -> gp.CameraFile:
 
-        camera_file = None
-        succeeded = False
         try:
             camera_file = gp.check_result(gp.gp_camera_file_get(
                          self.camera, dir_name, file_name,
                          file_type, self.context))
-            succeeded = True
         except gp.GPhoto2Error as ex:
             logging.error('Error reading %s from camera %s. Code: %s',
                           os.path.join(dir_name, file_name), self.display_name, ex.code)
+            raise CameraProblemEx(code=CameraErrorCode.read, gp_exception=ex)
 
-        if succeeded and dest_full_filename is not None:
+        if dest_full_filename is not None:
             try:
                 gp.check_result(gp.gp_file_save(camera_file, dest_full_filename))
             except gp.GPhoto2Error as ex:
                 logging.error('Error saving %s from camera %s. Code: %s',
                           os.path.join(dir_name, file_name), self.display_name, ex.code)
-                succeeded = False
+                raise CameraProblemEx(code=CameraErrorCode.write, gp_exception=ex)
 
-        return (succeeded, camera_file)
+        return camera_file
 
     def save_file(self, dir_name: str,
                   file_name: str,
-                  dest_full_filename: str) -> bool:
+                  dest_full_filename: str) -> None:
         """
         Save the file from the camera to a local destination.
 
@@ -364,17 +381,15 @@ class Camera:
         :param file_name: the photo or video
         :param dest_full_filename: full path including filename where
         the file will be saved.
-        :return: True if the file was successfully saved, else False
         """
 
-        succeeded, camera_file = self._get_file(dir_name, file_name, dest_full_filename)
-        return succeeded
+        self._get_file(dir_name, file_name, dest_full_filename)
 
     def save_file_chunk(self, dir_name: str,
                         file_name: str,
                         chunk_size_in_bytes: int,
                         dest_full_filename: str,
-                        mtime: int=None) -> bool:
+                        mtime: int=None) -> None:
         """
         Save the file from the camera to a local destination.
 
@@ -385,11 +400,11 @@ class Camera:
         :param dest_full_filename: full path including filename where
         the file will be saved.
         :param mtime: if specified, set the file modification time to this value
-        :return: True if the file was successfully saved, else False
         """
+
+        # get_exif_extract() can raise CameraProblemEx(code=CameraErrorCode.read):
         buffer = self.get_exif_extract(dir_name, file_name, chunk_size_in_bytes)
-        if buffer is None:
-            return False
+
         view = memoryview(buffer)
         dest_file = None
         try:
@@ -399,13 +414,12 @@ class Camera:
             dest_file.close()
             if mtime is not None:
                 os.utime(dest_full_filename, times=(mtime, mtime))
-        except OSError as ex:
+        except (OSError, PermissionError) as ex:
             logging.error('Error saving file %s from camera %s. Code %s',
                           os.path.join(dir_name, file_name), self.display_name, ex.errno)
             if dest_file is not None:
                 dest_file.close()
-            return False
-        return True
+            raise CameraProblemEx(code=CameraErrorCode.write, py_exception=ex)
 
     def save_file_by_chunks(self, dir_name: str,
                             file_name: str,
@@ -414,7 +428,7 @@ class Camera:
                             progress_callback,
                             check_for_command,
                             return_file_bytes = False,
-                            chunk_size=1048576) -> CopyChunks:
+                            chunk_size=1048576) -> Optional[bytes]:
         """
         :param dir_name: directory on the camera
         :param file_name: the photo or video
@@ -432,7 +446,7 @@ class Camera:
         :return: True if the file was successfully saved, else False,
          and the bytes that were copied
         """
-        copy_succeeded = True
+
         src_bytes = None
         view = memoryview(bytearray(size))
         amount_downloaded = 0
@@ -448,34 +462,31 @@ class Camera:
             except gp.GPhoto2Error as ex:
                 logging.error('Error copying file %s from camera %s. Code %s',
                               os.path.join(dir_name, file_name), self.display_name, ex.code)
-                copy_succeeded = False
                 if progress_callback is not None:
                     progress_callback(size, size)
-                break
-        if copy_succeeded:
-            dest_file = None
-            try:
-                dest_file = io.open(dest_full_filename, 'wb')
-                src_bytes = view.tobytes()
-                dest_file.write(src_bytes)
+                raise CameraProblemEx(code=CameraErrorCode.read, gp_exception=ex)
+
+        dest_file = None
+        try:
+            dest_file = io.open(dest_full_filename, 'wb')
+            src_bytes = view.tobytes()
+            dest_file.write(src_bytes)
+            dest_file.close()
+        except OSError as ex:
+            logging.error('Error saving file %s from camera %s. Code %s',
+                          os.path.join(dir_name, file_name), self.display_name, ex.errno)
+            if dest_file is not None:
                 dest_file.close()
-            except OSError as ex:
-                logging.error('Error saving file %s from camera %s. Code %s',
-                              os.path.join(dir_name, file_name), self.display_name, ex.errno)
-                if dest_file is not None:
-                    dest_file.close()
-                copy_succeeded = False
+            raise CameraProblemEx(code=CameraErrorCode.write, py_exception=ex)
+
         if return_file_bytes:
-            return CopyChunks(copy_succeeded, src_bytes)
-        else:
-            return CopyChunks(copy_succeeded, None)
+            return src_bytes
 
     def get_thumbnail(self, dir_name: str,
                       file_name: str,
                       ignore_embedded_thumbnail=False,
-                      cache_full_filename:str=None) -> bytes:
+                      cache_full_filename:str=None) -> Optional[bytes]:
         """
-
         :param dir_name: directory on the camera
         :param file_name: the photo or video
         :param ignore_embedded_thumbnail: if True, do not retrieve the
@@ -485,29 +496,26 @@ class Camera:
         :return: thumbnail in bytes format, which will be full
         resolution if the embedded thumbnail is not selected
         """
+
         if self.can_fetch_thumbnails and not ignore_embedded_thumbnail:
             get_file_type = gp.GP_FILE_TYPE_PREVIEW
         else:
             get_file_type = gp.GP_FILE_TYPE_NORMAL
 
-        succeeded, camera_file = self._get_file(dir_name, file_name,
+        camera_file = self._get_file(dir_name, file_name,
                                       cache_full_filename, get_file_type)
 
-        if succeeded:
-            thumbnail_data = None
-            try:
-                thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
-                    camera_file))
-            except gp.GPhoto2Error as ex:
-                logging.error('Error getting image %s from camera %s. Code: %s',
-                          os.path.join(dir_name, file_name), self.display_name, ex.code)
-            if thumbnail_data:
-                data = memoryview(thumbnail_data)
-                return data.tobytes()
-            else:
-                return None
-        else:
-            return None
+        try:
+            thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
+                camera_file))
+        except gp.GPhoto2Error as ex:
+            logging.error('Error getting image %s from camera %s. Code: %s',
+                      os.path.join(dir_name, file_name), self.display_name, ex.code)
+            raise CameraProblemEx(code=CameraErrorCode.read, gp_exception=ex)
+
+        if thumbnail_data:
+            data = memoryview(thumbnail_data)
+            return data.tobytes()
 
     def get_THM_file(self, full_THM_name: str) -> Optional[bytes]:
         """
@@ -517,23 +525,18 @@ class Camera:
         :return: THM in raw bytes
         """
         dir_name, file_name = os.path.split(full_THM_name)
-        succeeded, camera_file = self._get_file(dir_name, file_name)
-        if succeeded:
-            thumbnail_data = None
-            try:
-                thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
-                    camera_file))
-            except gp.GPhoto2Error as ex:
-                logging.error('Error getting THM file %s from camera %s. Code: %s',
-                              os.path.join(dir_name, file_name), self.display_name, ex.code)
+        camera_file = self._get_file(dir_name, file_name)
+        try:
+            thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
+                camera_file))
+        except gp.GPhoto2Error as ex:
+            logging.error('Error getting THM file %s from camera %s. Code: %s',
+                          os.path.join(dir_name, file_name), self.display_name, ex.code)
+            raise CameraProblemEx(code=CameraErrorCode.read, gp_exception=ex)
 
-            if thumbnail_data:
-                data = memoryview(thumbnail_data)
-                return data.tobytes()
-            else:
-                return None
-        else:
-            return None
+        if thumbnail_data:
+            data = memoryview(thumbnail_data)
+            return data.tobytes()
 
     def _locate_DCIM_folders(self, path: str) -> List[str]:
         """
@@ -550,12 +553,14 @@ class Camera:
         :return: the paths including the DCIM folders (if found), or None
         """
 
-        dcim_folders = [] # type: List[str]
+        dcim_folders = []  # type: List[str]
         # turn list of two items into a dictionary, for easier access
+        # no error checking as exceptions are caught by the caller
         folders = dict(self.camera.folder_list_folders(path, self.context))
+
         if 'DCIM' in folders:
             self.dcim_folder_located = True
-            return os.path.join(path, 'DCIM')
+            return [os.path.join(path, 'DCIM')]
         else:
             for subfolder in folders:
                 subpath = os.path.join(path, subfolder)
@@ -564,7 +569,7 @@ class Camera:
                 if 'DCIM' in subfolders:
                     dcim_folders.append(os.path.join(subpath, 'DCIM'))
         if not dcim_folders:
-            return None
+            return dcim_folders
         else:
             self.dcim_folder_located = True
             return dcim_folders
@@ -632,12 +637,27 @@ class Camera:
             info = self.storage_info[media_index]
             if not (info.fields & gp.GP_STORAGEINFO_MAXCAPACITY and
                     info.fields & gp.GP_STORAGEINFO_FREESPACEKBYTES):
-                return None
+                logging.error('Could not locate storage on %s', self.display_name)
             else:
                 storage_capacity.append(StorageSpace(bytes_free=info.freekbytes * 1024,
                                     bytes_total=info.capacitykbytes * 1024,
                                     path=info.basedir))
         return storage_capacity
+
+    def get_storage_descriptions(self, refresh: bool=False) -> List[str]:
+        """
+        Storage description is used in MTP path names by gvfs and KDE.
+
+        :param refresh: if True, get updated instead of cached values
+        :return: the storage description
+        """
+        self._get_storage_info(refresh)
+        descriptions = []
+        for media_index in range(len(self.storage_info)):
+            info = self.storage_info[media_index]
+            if info.fields & gp.GP_STORAGEINFO_DESCRIPTION:
+                descriptions.append(info.description)
+        return descriptions
 
     def no_storage_media(self, refresh: bool=False) -> int:
         """
@@ -667,7 +687,7 @@ class Camera:
         """
         Smart phones can be in a locked state, such that their
         contents cannot be accessed by gphoto2. Determine if
-        the devic eis unlocked by attempting to locate the DCIM
+        the device is unlocked by attempting to locate the DCIM
         folders in it.
         :return: True if unlocked, else False
         """

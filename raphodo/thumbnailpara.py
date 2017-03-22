@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -32,7 +32,7 @@ the metadata time is not already found in the rpd_file.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2016, Damon Lynch"
+__copyright__ = "Copyright 2011-2017, Damon Lynch"
 
 try:
     using_injected = 'profile' in dict(__builtins__)
@@ -74,7 +74,7 @@ from raphodo.constants import (FileType, ThumbnailSize, ThumbnailCacheStatus,
                        ThumbnailCacheDiskStatus, ExtractionTask,
                        ExtractionProcessing, orientation_offset, thumbnail_offset,
                        ThumbnailCacheOrigin, datetime_offset)
-from raphodo.camera import (Camera, CopyChunks)
+from raphodo.camera import Camera, CameraProblemEx
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge
 from raphodo.utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
 from raphodo.preferences import Preferences
@@ -338,19 +338,22 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         cache_full_file_name = os.path.join(
             cache_dir, '{}.{}'.format(
                 self.random_filename.name(), rpd_file.extension))
-        copy_chunks = self.camera.save_file_by_chunks(
-            dir_name=rpd_file.path,
-            file_name=rpd_file.name,
-            size=rpd_file.size,
-            dest_full_filename=cache_full_file_name,
-            progress_callback=None,
-            check_for_command=self.check_for_controller_directive,
-            return_file_bytes=False)  # type:  CopyChunks
-        if copy_chunks.copy_succeeded:
+        try:
+            self.camera.save_file_by_chunks(
+                dir_name=rpd_file.path,
+                file_name=rpd_file.name,
+                size=rpd_file.size,
+                dest_full_filename=cache_full_file_name,
+                progress_callback=None,
+                check_for_command=self.check_for_controller_directive,
+                return_file_bytes=False
+            )
+        except CameraProblemEx as e:
+            #TODO report error
+            return False
+        else:
             rpd_file.cache_full_file_name = cache_full_file_name
             return True
-        else:
-            return False
 
     def cache_file_chunk_from_camera(self, rpd_file: RPDFile, offset: int) -> bool:
         if rpd_file.file_type == FileType.photo:
@@ -360,14 +363,17 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         cache_full_file_name = os.path.join(
             cache_dir, '{}.{}'.format(
                 self.random_filename.name(), rpd_file.extension))
-        if self.camera.save_file_chunk(
+        try:
+            self.camera.save_file_chunk(
                 dir_name=rpd_file.path,
                 file_name=rpd_file.name,
                 chunk_size_in_bytes=min(offset, rpd_file.size),
-                dest_full_filename=cache_full_file_name):
+                dest_full_filename=cache_full_file_name)
             rpd_file.temp_cache_full_file_chunk = cache_full_file_name
             return True
-        return False
+        except CameraProblemEx as e:
+            #TODO problem reporting
+            return False
 
 
     def do_work(self) -> None:
@@ -507,13 +513,17 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             task = ExtractionTask.load_from_bytes
                             if rpd_file.is_jpeg_type():
                                 # gPhoto2 knows how to get jpeg thumbnails
-                                exif_buffer = self.camera.get_exif_extract_from_jpeg(
+                                try:
+                                    exif_buffer = self.camera.get_exif_extract_from_jpeg(
                                     rpd_file.path, rpd_file.name)
+                                except CameraProblemEx as e:
+                                    # TODO handle error?
+                                    exif_buffer = None
                             else:
                                 # gPhoto2 does not know how to get RAW thumbnails, so we do that
                                 # part ourselves
                                 if rpd_file.extension == 'crw':
-                                    # TODO should be caching this file, since reading its entirety
+                                    # Could cache this file, since reading its entirety
                                     # But does anyone download a CRW file from the camera these
                                     # days?!
                                     bytes_to_read = rpd_file.size
@@ -522,8 +532,12 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                         orientation_offset.get(rpd_file.extension, 500))
                                 exif_buffer = self.camera.get_exif_extract(
                                     rpd_file.path, rpd_file.name, bytes_to_read)
-                            thumbnail_bytes = self.camera.get_thumbnail(rpd_file.path,
-                                                                        rpd_file.name)
+                            try:
+                                thumbnail_bytes = self.camera.get_thumbnail(rpd_file.path,
+                                                                            rpd_file.name)
+                            except CameraProblemEx as e:
+                                #TODO report error
+                                thumbnail_bytes = None
                             processing.add(ExtractionProcessing.strip_bars_photo)
                             processing.add(ExtractionProcessing.orient)
                         else:
@@ -582,7 +596,11 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                 # For some reason was unable to download part of the video file
                                 task = ExtractionTask.load_from_bytes
 
-                            thumbnail_bytes = self.camera.get_THM_file(rpd_file.thm_full_name)
+                            try:
+                                thumbnail_bytes = self.camera.get_THM_file(rpd_file.thm_full_name)
+                            except CameraProblemEx as e:
+                                # TODO report error
+                                thumbnail_bytes = None
                             processing.add(ExtractionProcessing.strip_bars_video)
                             processing.add(ExtractionProcessing.add_film_strip)
                         else:

@@ -36,7 +36,7 @@ from typing import Dict, Optional, Tuple
 import gphoto2 as gp
 
 import problemnotification as pn
-from raphodo.camera import (Camera, CopyChunks)
+from raphodo.camera import Camera, CameraProblemEx
 
 from raphodo.interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
                           CopyFilesResults)
@@ -47,7 +47,7 @@ from raphodo.rpdfile import RPDFile
 from gettext import gettext as _
 
 
-def copy_file_metadata(src, dst) -> Optional[Tuple]:
+def copy_file_metadata(src: str, dst: str) -> Optional[Tuple]:
     """
     Copy all stat info (mode bits, atime, mtime, flags) from src to
     dst.
@@ -88,11 +88,24 @@ def copy_file_metadata(src, dst) -> Optional[Tuple]:
     if errors:
         return tuple(errors)
 
-    # test error setting metadata:
+    # Test code:
     # try:
     #     os.chown('/', 1000, 1000)
     # except OSError as inst:
     #     return inst,
+
+
+def copy_camera_file_metadata(mtime: float, dst: str) -> Optional[Tuple]:
+    # test code:
+    # try:
+    #     os.chown('/', 1000, 1000)
+    # except OSError as inst:
+    #     return inst,
+
+    try:
+        os.utime(dst, (mtime, mtime))
+    except OSError as inst:
+        return (inst)
 
 class FileCopy:
     """
@@ -209,50 +222,52 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
     def copy_from_camera(self, rpd_file: RPDFile) -> bool:
 
-        copy_chunks = self.camera.save_file_by_chunks(
-                             dir_name=rpd_file.path,
-                             file_name=rpd_file.name,
-                             size=rpd_file.size,
-                             dest_full_filename=rpd_file.temp_full_file_name,
-                             progress_callback=self.update_progress,
-                             check_for_command=self.check_for_controller_directive,
-                             return_file_bytes=self.verify_file)
-
-        if copy_chunks.copy_succeeded and self.verify_file:
-            rpd_file.md5 = hashlib.md5(copy_chunks.src_bytes).hexdigest()
-
-        if not copy_chunks.copy_succeeded:
+        try:
+            src_bytes = self.camera.save_file_by_chunks(
+                dir_name=rpd_file.path,
+                file_name=rpd_file.name,
+                size=rpd_file.size,
+                dest_full_filename=rpd_file.temp_full_file_name,
+                progress_callback=self.update_progress,
+                check_for_command=self.check_for_controller_directive,
+                return_file_bytes=self.verify_file
+            )
+        except CameraProblemEx as e:
+            # TODO properly report problem
             self.copying_file_from_camera_error(rpd_file=rpd_file,
                                     display_name=self.display_name,
                                     reason=_("The file could not be copied from the camera"))
+            return False
 
-        return copy_chunks.copy_succeeded
+        if self.verify_file:
+            rpd_file.md5 = hashlib.md5(src_bytes).hexdigest()
+
+        return True
 
     def copy_associate_file(self, rpd_file: RPDFile, temp_name: str,
                             dest_dir: str, associate_file_fullname: str,
-                            file_type: str) -> str:
+                            file_type: str) -> Optional[str]:
 
         ext = os.path.splitext(associate_file_fullname)[1]
         temp_ext = '{}{}'.format(temp_name, ext)
         temp_full_name = os.path.join(dest_dir, temp_ext)
-        try:
-            if rpd_file.from_camera:
-                dir_name, file_name = \
-                    os.path.split(associate_file_fullname)
-                succeeded = self.camera.save_file(dir_name, file_name, temp_full_name)
-                if not succeeded:
-                    raise
-            else:
+        if rpd_file.from_camera:
+            dir_name, file_name = os.path.split(associate_file_fullname)
+            try:
+                self.camera.save_file(dir_name, file_name, temp_full_name)
+            except CameraProblemEx as ex:
+                # TODO report error
+                logging.error("Failed to download %s file: %s", file_type, associate_file_fullname)
+                return None
+        else:
+            try:
                 shutil.copyfile(associate_file_fullname, temp_full_name)
+            except OSError as inst:
+                logging.error("Failed to download %s file: %s", file_type, associate_file_fullname)
+                logging.error("%s: %s", inst.errno, inst.strerror)
+                # TODO report error
+                return None
             logging.debug("Copied %s file %s", file_type, temp_full_name)
-
-        except (IOError, OSError) as inst:
-            logging.error("Failed to download %s file: %s", file_type, associate_file_fullname)
-            logging.error("%s: %s", inst.errno, inst.strerror)
-            return None
-        except:
-            logging.error("Failed to download %s file: %s", file_type, associate_file_fullname)
-            return None
 
         # Adjust file modification times and other file system metadata
         try:
@@ -262,7 +277,6 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 copy_file_metadata(associate_file_fullname, temp_full_name)
         except Exception:
             pass
-
         return temp_full_name
 
     def do_work(self):
@@ -351,17 +365,6 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     except OSError as e:
                         logging.error("Error removing RPD Cache file %s while copying %s. Error "
                                       "code: %s", source, rpd_file.full_file_name, e.errno)
-                if copy_succeeded:
-                    try:
-                        os.utime(temp_full_file_name,
-                                 (rpd_file.modification_time,
-                                  rpd_file.modification_time))
-                    except OSError as inst:
-                        pass
-                        # logging.warning(
-                        #     "Could not update filesystem metadata when "
-                        #     "copying %s",
-                        #     rpd_file.full_file_name)
 
             else:
                 # Scenario 1 or 2
@@ -404,10 +407,16 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             # succeeded or not. It's necessary to keep the user informed.
             self.total_downloaded += rpd_file.size
 
-            metadata_errors = None
+            mdata_exceptions = None
 
             if copy_succeeded:
-                metadata_errors = copy_file_metadata(rpd_file.full_file_name, temp_full_file_name)
+                if rpd_file.from_camera:
+                    mdata_exceptions = copy_camera_file_metadata(
+                        float(rpd_file.modification_time), temp_full_file_name
+                    )
+                else:
+                    mdata_exceptions = copy_file_metadata(rpd_file.full_file_name,
+                                                          temp_full_file_name)
 
             if copy_succeeded:
                 # copy THM (video thumbnail file) if there is one
@@ -428,11 +437,11 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             download_count = idx + 1
 
             self.content =  pickle.dumps(CopyFilesResults(
-                                            copy_succeeded=copy_succeeded,
-                                            rpd_file=rpd_file,
-                                            download_count=download_count,
-                                            metadata_errors=metadata_errors),
-                                            pickle.HIGHEST_PROTOCOL)
+                copy_succeeded=copy_succeeded,
+                rpd_file=rpd_file,
+                download_count=download_count,
+                mdata_exceptions=mdata_exceptions),
+                pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
 
 

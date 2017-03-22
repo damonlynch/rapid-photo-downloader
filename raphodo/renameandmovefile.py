@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -25,7 +25,7 @@ Runs as a daemon process.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2016, Damon Lynch"
+__copyright__ = "Copyright 2011-2017, Damon Lynch"
 
 import os
 import datetime
@@ -249,6 +249,8 @@ class RenameMoveFileWorker(DaemonProcess):
             date = time = ''
 
         if not identifier:
+            # FIXME log errors properly
+
             rpd_file.add_problem(None, pn.FILE_ALREADY_EXISTS_NO_DOWNLOAD,
                                  {'filetype': rpd_file.title_capitalized})
             rpd_file.add_extra_detail(pn.EXISTING_FILE, dict(filetype=rpd_file.title, 
@@ -258,6 +260,8 @@ class RenameMoveFileWorker(DaemonProcess):
                                               pn.EXISTING_FILE] % dict(date=date, time=time, 
                                                                        filetype=rpd_file.title)
         else:
+            # FIXME log errors properly
+
             rpd_file.add_problem(None, pn.UNIQUE_IDENTIFIER_ADDED, dict(
                                  filetype=rpd_file.title_capitalized))
             rpd_file.add_extra_detail(pn.UNIQUE_IDENTIFIER, dict( identifier=identifier, 
@@ -275,6 +279,8 @@ class RenameMoveFileWorker(DaemonProcess):
         Handle cases where file failed to download
         """
         
+        # FIXME log errors properly
+
         rpd_file.add_problem(None, pn.DOWNLOAD_COPYING_ERROR, dict(filetype=rpd_file.title))
         rpd_file.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_DETAIL, inst)
         rpd_file.status = DownloadStatus.download_failed
@@ -321,6 +327,8 @@ class RenameMoveFileWorker(DaemonProcess):
                   image2_time=image2_time)
         
         rpd_file.add_problem(None, pn.SAME_FILE_DIFFERENT_EXIF, detail)
+
+        # FIXME log errors properly
 
         rpd_file.error_title = _(
             'Photos detected with the same filenames, but taken at different times')

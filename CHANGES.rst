@@ -5,10 +5,11 @@ Changelog for Rapid Photo Downloader
 --------------------
 
  - Improved install.py script, adding openSUSE and the Fedora derivative
-   Korora to list of supported distros. Also, now installs program
-   requirements without having to manually restart the script.
+   Korora to list of supported distros. Moreover, the script now installs
+   all program requirements without having to be manually restarted.
 
- - Implemented error log window.
+ - Implemented error log window. Error reports are now grouped by task:
+   scanning a device, copying from a device, renaming files, and backing up.
 
  - A message dialog window is now displayed if back ups will not occur or if
    the download destinations have a problem.
@@ -18,6 +19,23 @@ Changelog for Rapid Photo Downloader
  - Optimized icon sizes in dialog windows.
 
  - Check for new version using secure connection.
+
+ - Added an option to issue a warning if a file type unknown to the program is
+   found on a download device.
+
+ - Added an option to program preferences dialog to ignore DNG date/time
+   metadata when downloading from MTP devices (like cellphones and tablets).
+   When it is ignored, the DNG file's modification time is used instead. Many
+   (if not all) Android 6 and 7 devices create bogus DNG metadata values.
+   Since the first alpha release, by default the program ignores the DNG
+   date/time metadata when downloading from MTP devices.
+
+ - Fixed bug where device scan would indicate a device was empty when the
+   preference value 'Ignored Paths on Devices' contained no paths to ignore.
+
+ - Fixed bug where opening a file on an MTP device in a file browser would
+   sometimes fail when the storage name component of the path was incorrectly
+   identified.
 
 0.9.0a11 (2017-03-08)
 ---------------------

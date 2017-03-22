@@ -41,10 +41,11 @@ from raphodo.constants import (DownloadStatus, FileType, FileExtension, FileSort
                                ThumbnailCacheStatus, Downloaded, Desktop, thumbnail_offset,
                                DeviceTimestampTZ, ThumbnailCacheDiskStatus, ExifSource)
 
-from raphodo.storage import get_desktop, gvfs_controls_mounts
+from raphodo.storage import get_uri, CameraDetails
 import raphodo.metadataphoto as metadataphoto
 import raphodo.metadatavideo as metadatavideo
 from raphodo.utilities import thousands, make_internationalized_list, datetime_roughly_equal
+from raphodo.problemnotification import Problem
 
 import raphodo.problemnotification as pn
 
@@ -76,6 +77,8 @@ VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'm2ts', 'mov', 'mp4', 'mpeg','mpg', 'mo
 VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
 
 ALL_USER_VISIBLE_EXTENSIONS = PHOTO_EXTENSIONS + VIDEO_EXTENSIONS + ['xmp']
+
+ALL_KNOWN_EXTENSIONS = ALL_USER_VISIBLE_EXTENSIONS + AUDIO_EXTENSIONS + VIDEO_THUMBNAIL_EXTENSIONS
 
 MUST_CACHE_VIDEOS = [video for video in VIDEO_EXTENSIONS
                      if thumbnail_offset.get(video) is None]
@@ -147,14 +150,12 @@ def get_rpdfile(name: str,
                 scan_id: bytes,
                 file_type: FileType,
                 from_camera: bool,
-                camera_model: Optional[str],
-                camera_port: Optional[str],
-                camera_display_name: Optional[str],
-                is_mtp_device: Optional[bool],
+                camera_details: Optional[CameraDetails],
                 camera_memory_card_identifiers: Optional[List[int]],
                 never_read_mdatatime: bool,
                 raw_exif_bytes: Optional[bytes],
-                exif_source: Optional[ExifSource]):
+                exif_source: Optional[ExifSource],
+                problem: Optional[Problem]):
 
     if file_type == FileType.video:
         return Video(name=name,
@@ -171,13 +172,11 @@ def get_rpdfile(name: str,
                      xmp_file_full_name=xmp_file_full_name,
                      scan_id=scan_id,
                      from_camera=from_camera,
-                     camera_model=camera_model,
-                     camera_port=camera_port,
-                     camera_display_name=camera_display_name,
-                     is_mtp_device=is_mtp_device,
+                     camera_details=camera_details,
                      camera_memory_card_identifiers=camera_memory_card_identifiers,
                      never_read_mdatatime=never_read_mdatatime,
-                     raw_exif_bytes=raw_exif_bytes)
+                     raw_exif_bytes=raw_exif_bytes,
+                     problem=problem)
     else:
         return Photo(name=name,
                      path=path,
@@ -193,14 +192,12 @@ def get_rpdfile(name: str,
                      xmp_file_full_name=xmp_file_full_name,
                      scan_id=scan_id,
                      from_camera=from_camera,
-                     camera_model=camera_model,
-                     camera_port=camera_port,
-                     camera_display_name=camera_display_name,
-                     is_mtp_device=is_mtp_device,
+                     camera_details=camera_details,
                      camera_memory_card_identifiers=camera_memory_card_identifiers,
                      never_read_mdatatime=never_read_mdatatime,
                      raw_exif_bytes=raw_exif_bytes,
-                     exif_source=exif_source)
+                     exif_source=exif_source,
+                     problem=problem)
 
 
 def file_types_by_number(no_photos: int, no_videos: int) -> str:
@@ -356,13 +353,11 @@ class RPDFile:
                  scan_id: bytes,
                  from_camera: bool,
                  never_read_mdatatime: bool,
-                 camera_model: Optional[str]=None,
-                 camera_port: Optional[str]=None,
-                 camera_display_name: Optional[str]=None,
-                 is_mtp_device: Optional[bool]=None,
+                 camera_details: Optional[CameraDetails]=None,
                  camera_memory_card_identifiers: Optional[List[int]]=None,
                  raw_exif_bytes: Optional[bytes]=None,
-                 exif_source: Optional[ExifSource]=None) -> None:
+                 exif_source: Optional[ExifSource]=None,
+                 problem: Optional[Problem]=None) -> None:
         """
 
         :param name: filename (without path)
@@ -390,25 +385,30 @@ class RPDFile:
         :param never_read_mdatatime: whether to ignore the metadata
          date time when determining a photo or video's creation time,
          and rely only on the file modification time
-        :param camera_model: if downloaded from a camera, the camera
-         model name (not including the port)
-        :param camera_port: if downloaded from a camera, the port
-         as reported by gphoto2
-        :param is_mtp_device: if downloaded from a camera, whether the camera is an
-         MTP device
+        :param camera_details: details about the camera, such as model name,
+         port, etc.
         :param camera_memory_card_identifiers: if downloaded from a
          camera, and the camera has more than one memory card, a list
          of numeric identifiers (i.e. 1 or 2) identifying which memory
          card the file came from
         :param raw_exif_bytes: excerpt of the file's metadata in bytes format
         :param exif_source: source of photo metadata
+        :param problem: any problems encountered
         """
 
         self.from_camera = from_camera
-        self.camera_model = camera_model
-        self.camera_port = camera_port
-        self.camera_display_name = camera_display_name
-        self.is_mtp_device = is_mtp_device == True
+        self.camera_details = camera_details
+
+        if camera_details is not None:
+            self.camera_model = camera_details.model
+            self.camera_port = camera_details.port
+            self.camera_display_name = camera_details.display_name
+            self.is_mtp_device = camera_details.is_mtp == True
+            self.camera_storage_descriptions = camera_details.storage_desc
+        else:
+            self.camera_model = self.camera_port = self.camera_display_name = None
+            self.camera_storage_descriptions = None
+            self.is_mtp_device = False
 
         self.path = path
 
@@ -430,7 +430,6 @@ class RPDFile:
         self.extension = os.path.splitext(name)[1][1:].lower()
         # Classify file based on its type e.g. jpeg, raw or tiff etc.
         self.extension_type = extension_type(self.extension)
-        self.sort_priority = get_sort_priority(self.extension_type, self.file_type)
 
         self.mime_type = mimetypes.guess_type(name)[0]
 
@@ -506,7 +505,7 @@ class RPDFile:
         self.xmp_file_full_name = xmp_file_full_name
 
         self.status = DownloadStatus.not_downloaded
-        self.problem = None # class Problem in problemnotifcation.py
+        self.problem = problem
 
         self.scan_id = int(scan_id)
         self.uid = uuid.uuid4().bytes
@@ -733,50 +732,26 @@ class RPDFile:
         else:
             return self.name
 
-    def get_uri(self, desktop_environment: Optional[bool]=False) -> str:
+    def get_uri(self, desktop_environment: Optional[bool]=True) -> str:
         """
         Generate and return the URI for the file
+
         :param desktop_environment: if True, will to generate a URI accepted
          by Gnome and KDE desktops, which means adjusting the URI if it appears to be an
-         MTP mount. Horribly hackish. Includes the port too.
+         MTP mount. Includes the port too.
         :return: the URI
         """
-        if self.status in Downloaded:
-            uri = 'file://{}'.format(pathname2url(
-                self.download_full_file_name))
-        else:
-            full_file_name = self.full_file_name
-            if self.camera_model is None:
-                prefix = 'file://'
-                if desktop_environment:
-                    desktop = get_desktop()
-                    if desktop in (Desktop.mate, Desktop.kde):
-                        full_file_name = os.path.dirname(full_file_name)
-            else:
-                if not desktop_environment:
-                    prefix = 'gphoto2://'
-                else:
-                    # Attempt to generate a URI accepted by desktop environments
-                    if self.is_mtp_device:
-                        f = full_file_name
-                        # Remove the top level directory
-                        full_file_name = f[f[1:].find('/')+1:]
 
-                        desktop = get_desktop()
-                        if gvfs_controls_mounts():
-                            prefix = 'mtp://'+ pathname2url('[{}]/Internal storage'.format(
-                                self.camera_port))
-                        elif desktop == Desktop.kde:
-                            prefix = 'mtp:/' + pathname2url('{}/Internal storage'.format(
-                                self.camera_display_name))
-                            # Dolphin doesn't highlight the file if it's passed.
-                            # Instead it tries to open it, but fails.
-                            # So don't pass the file, just the directory it's in.
-                            full_file_name = os.path.dirname(full_file_name)
-                    else:
-                        prefix = 'gphoto2://' + pathname2url('[{}]'.format(self.camera_port))
-            uri = '{}{}'.format(prefix, pathname2url(full_file_name))
-        return uri
+        if self.status in Downloaded:
+            return 'file://{}'.format(pathname2url(self.download_full_file_name))
+        else:
+            return get_uri(
+                full_file_name = self.full_file_name, camera_details=self.camera_details,
+                desktop_environment=desktop_environment
+            )
+
+    def get_href(self) -> str:
+        return '<a href="{}">{}</a>'.format(self.get_uri(), self.get_current_name())
 
     def get_display_full_name(self) -> str:
         """
@@ -796,13 +771,6 @@ class RPDFile:
     def _assign_file_type(self):
         self.file_type = None
 
-    def initialize_problem(self):
-        self.problem = pn.Problem()
-        # these next values are used to display in the error log window and the main
-        # window's thumbnail tooltips.
-        # the information in them can vary from other forms of display of errors
-        self.error_title = self.error_msg = self.error_extra_detail = ''
-
     def has_problem(self):
         if self.problem is None:
             return False
@@ -811,11 +779,12 @@ class RPDFile:
 
     def add_problem(self, component, problem_definition, *args):
         if self.problem is None:
-            self.initialize_problem()
-        self.problem.add_problem(component, problem_definition, *args)
+            self.problem = pn.Problem()
+        # self.problem.add_problem(component, problem_definition, *args)
 
     def add_extra_detail(self, extra_detail, *args):
-        self.problem.add_extra_detail(extra_detail, *args)
+        pass
+        # self.problem.add_extra_detail(extra_detail, *args)
 
     def __repr__(self):
         return "{}\t{}".format(self.name, datetime.fromtimestamp(

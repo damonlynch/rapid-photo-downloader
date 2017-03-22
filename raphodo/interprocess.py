@@ -43,7 +43,6 @@ from zmq.eventloop.zmqstream import ZMQStream
 
 from raphodo.rpdfile import (RPDFile, FileTypeCounter, FileSizeSum, Photo, Video)
 from raphodo.devices import Device
-from raphodo.preferences import ScanPreferences
 from raphodo.utilities import CacheDirs, set_pdeathsig
 from raphodo.constants import (RenameAndMoveStatus, ExtractionTask, ExtractionProcessing,
                                CameraErrorCode, FileType, FileExtension)
@@ -52,6 +51,7 @@ from raphodo.storage import StorageSpace
 from raphodo.iplogging import ZeroMQSocketHandler
 from raphodo.viewutils import ThumbnailDataForProximity
 from raphodo.folderspreview import DownloadDestination, FoldersPreview
+from raphodo.problemnotification import ScanProblems
 
 logger = logging.getLogger()
 
@@ -1188,36 +1188,25 @@ class ScanArguments:
     """
     Pass arguments to the scan process
     """
-    def __init__(self, scan_preferences: ScanPreferences,
-                 device: Device,
+    def __init__(self, device: Device,
                  ignore_other_types: bool,
-                 ignore_mdatatime_for_mtp_dng: bool,
-                 log_gphoto2: bool,
-                 use_thumbnail_cache: bool,
-                 scan_only_DCIM: bool) -> None:
+                 log_gphoto2: bool) -> None:
         """
         Pass arguments to the scan process
 
-        :param scan_preferences: portion of user preferences relating
-         to scans
         :param device: the device to scan
         :param ignore_other_types: ignore file types like TIFF
-        :param ignore_mdatatime_for_mtp_dng: if True ignore the metadata
-         date time for DNG files that come from MTP devices
         :param log_gphoto2: whether to generate detailed gphoto2 log
          messages
-        :param use_thumbnail_cache: whether to use the RPD Thumbnail Cache
         :param scan_only_DCIM: if the device is an auto-detected volume,
          then if True, scan only in it's DCIM folder
+        :param warn_unknown_file: whether to issue a warning when
+         encountering an unknown (unrecognized) file
         """
 
-        self.scan_preferences = scan_preferences
         self.device = device
         self.ignore_other_types = ignore_other_types
-        self.ignore_mdatatime_for_mtp_dng = ignore_mdatatime_for_mtp_dng
         self.log_gphoto2 = log_gphoto2
-        self.use_thumbnail_cache = use_thumbnail_cache
-        self.scan_only_DCIM = scan_only_DCIM
 
 
 class ScanResults:
@@ -1232,8 +1221,10 @@ class ScanResults:
                  scan_id: Optional[int]=None,
                  optimal_display_name: Optional[str]=None,
                  storage_space: Optional[List[StorageSpace]]=None,
+                 storage_descriptions: Optional[List[str]]=None,
                  sample_photo: Optional[Photo]=None,
-                 sample_video: Optional[Video]=None) -> None:
+                 sample_video: Optional[Video]=None,
+                 problems: Optional[ScanProblems]=None) -> None:
         self.rpd_files = rpd_files
         self.file_type_counter = file_type_counter
         self.file_size_sum = file_size_sum
@@ -1241,8 +1232,10 @@ class ScanResults:
         self.scan_id = scan_id
         self.optimal_display_name = optimal_display_name
         self.storage_space = storage_space
+        self.storage_descriptions = storage_descriptions
         self.sample_photo = sample_photo
         self.sample_video = sample_video
+        self.problems = problems
 
 
 class CopyFilesArguments:
@@ -1281,7 +1274,7 @@ class CopyFilesResults:
                  copy_succeeded: Optional[bool]=None,
                  rpd_file: Optional[RPDFile]=None,
                  download_count: Optional[int]=None,
-                 metadata_errors: Optional[Tuple]=None) -> None:
+                 mdata_exceptions: Optional[Tuple]=None) -> None:
         """
 
         :param scan_id: scan id of the device the files are being
@@ -1298,7 +1291,7 @@ class CopyFilesResults:
         :param rpd_file: details of the file that was copied
         :param download_count: a running count of how many files
          have been copied. Used in download tracking.
-        :param metadata_errors: details of errors setting file metadata
+        :param mdata_exceptions: details of errors setting file metadata
         """
 
         self.scan_id = scan_id
@@ -1312,7 +1305,7 @@ class CopyFilesResults:
         self.copy_succeeded = copy_succeeded
         self.rpd_file = rpd_file
         self.download_count = download_count
-        self.metadata_errors = metadata_errors
+        self.mdata_exceptions = mdata_exceptions
 
 
 
@@ -1598,7 +1591,8 @@ class ScanManager(PublishPullPipelineManager):
     """
     scannedFiles = pyqtSignal('PyQt_PyObject', 'PyQt_PyObject', FileTypeCounter, 'PyQt_PyObject')
     deviceError = pyqtSignal(int, CameraErrorCode)
-    deviceDetails = pyqtSignal(int, 'PyQt_PyObject', str)
+    deviceDetails = pyqtSignal(int, 'PyQt_PyObject', 'PyQt_PyObject', str)
+    scanProblems = pyqtSignal(int, 'PyQt_PyObject')
 
     def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port=logging_port, thread_name=ThreadNames.scan)
@@ -1616,9 +1610,14 @@ class ScanManager(PublishPullPipelineManager):
             assert data.scan_id is not None
             if data.error_code is not None:
                 self.deviceError.emit(data.scan_id, data.error_code)
+            elif data.optimal_display_name is not None:
+                self.deviceDetails.emit(
+                    data.scan_id, data.storage_space, data.storage_descriptions,
+                    data.optimal_display_name
+                )
             else:
-                assert data.optimal_display_name is not None
-                self.deviceDetails.emit(data.scan_id, data.storage_space, data.optimal_display_name)
+                assert data.problems is not None
+                self.scanProblems.emit(data.scan_id, data.problems)
 
 
 class BackupManager(PublishPullPipelineManager):
@@ -1684,7 +1683,7 @@ class CopyFilesManager(PublishPullPipelineManager):
             assert data.rpd_file is not None
             assert data.download_count is not None
             self.message.emit(data.copy_succeeded, data.rpd_file, data.download_count,
-                              data.metadata_errors)
+                              data.mdata_exceptions)
 
         else:
             assert (data.photo_temp_dir is not None and
