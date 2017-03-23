@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-03-22 23:57-0500\n"
+"POT-Creation-Date: 2017-03-23 03:26-0500\n"
 "PO-Revision-Date: 2017-02-05 02:40+0000\n"
 "Last-Translator: Adolfo Jayme <fitoschido@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -23,12 +23,12 @@ msgstr ""
 msgid "Credits"
 msgstr ""
 
-#: ../raphodo/backupfile.py:74 ../raphodo/backupfile.py:92
+#: ../raphodo/backupfile.py:77 ../raphodo/backupfile.py:95
 msgid "Backing up error"
 msgstr "Error en copia de seguridad"
 
-#: ../raphodo/backupfile.py:76 ../raphodo/backupfile.py:96
-#: ../raphodo/backupfile.py:180 ../raphodo/renameandmovefile.py:274
+#: ../raphodo/backupfile.py:79 ../raphodo/backupfile.py:99
+#: ../raphodo/backupfile.py:183 ../raphodo/renameandmovefile.py:274
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -37,33 +37,32 @@ msgstr ""
 "Origen: %(source)s\n"
 "Destino: %(destination)s"
 
-#: ../raphodo/backupfile.py:78 ../raphodo/backupfile.py:99
+#: ../raphodo/backupfile.py:81 ../raphodo/backupfile.py:102
 #, python-format
 msgid "Error: %(inst)s"
 msgstr "Error: %(inst)s"
 
-#: ../raphodo/backupfile.py:94
+#: ../raphodo/backupfile.py:97
 #, python-format
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr "El directorio de destino no puede ser creado: %(directory)s\n"
 
-#: ../raphodo/backupfile.py:169
+#: ../raphodo/backupfile.py:172
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr "Copia de seguridad %(file_type)s sobreescrita"
 
-#: ../raphodo/backupfile.py:173
+#: ../raphodo/backupfile.py:176
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr "%(file_type)s sin respaldar"
 
-#: ../raphodo/backupfile.py:177
+#: ../raphodo/backupfile.py:180
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr "Ya existe un respaldo de %(file_type)s"
 
-#: ../raphodo/backupfile.py:202 ../raphodo/copyfiles.py:214
-#: ../raphodo/copyfiles.py:231 ../raphodo/renameandmovefile.py:290
+#: ../raphodo/backupfile.py:205 ../raphodo/renameandmovefile.py:290
 #: ../raphodo/renameandmovefile.py:432 ../raphodo/renameandmovefile.py:558
 #, python-format
 msgid ""
@@ -176,14 +175,6 @@ msgstr ""
 #, fuzzy
 msgid "Backup Options"
 msgstr "Opciones de dispositivo"
-
-#: ../raphodo/copyfiles.py:251
-msgid "The file could not be copied from the camera"
-msgstr "No se pudo copiar el archivo de la cámara"
-
-#: ../raphodo/copyfiles.py:407
-msgid "The camera may have been inaccessible"
-msgstr "La cámara puede no haber estado accesible"
 
 #: ../raphodo/destinationdisplay.py:78 ../raphodo/devicedisplay.py:1077
 #: ../raphodo/rpdfile.py:314
@@ -478,8 +469,8 @@ msgstr ""
 
 #: ../raphodo/errorlog.py:534
 msgid ""
-"The number of new entries added to the Error Log since it was last open. "
-"Click to open the Error Log."
+"The number of new entries added to the Error Report since it was last open. "
+"Click to open the Error Report."
 msgstr ""
 
 #: ../raphodo/excepthook.py:77
@@ -2039,47 +2030,68 @@ msgstr "No hay datos que coincidan con el nombre del %(filetype)s."
 msgid "Error: %(errorno)s %(strerror)s"
 msgstr "Error: %(errorno)s %(strerror)s"
 
-#: ../raphodo/problemnotification.py:191 ../raphodo/problemnotification.py:257
+#: ../raphodo/problemnotification.py:191 ../raphodo/problemnotification.py:285
 #, fuzzy, python-format
 msgid "Error: %(errno)s %(strerror)s"
 msgstr "Error: %(errorno)s %(strerror)s"
 
-#: ../raphodo/problemnotification.py:208
+#: ../raphodo/problemnotification.py:209
 #, fuzzy, python-format
 msgid "GPhoto2 Error: %s"
 msgstr "Directorios de fotografías"
 
-#: ../raphodo/problemnotification.py:214
+#: ../raphodo/problemnotification.py:217
+msgid ""
+"Unable to initialize the camera, probably because another program is using "
+"it. No files were copied from it."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:224
 #, python-format
 msgid "Unable to read directory %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:220
+#: ../raphodo/problemnotification.py:230
 #, python-format
 msgid "Unable to access modification time or size from %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:226
+#: ../raphodo/problemnotification.py:236
 #, python-format
 msgid "Unable to read file %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:232
+#: ../raphodo/problemnotification.py:242
 #, python-format
 msgid "Unable to write file %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:238
+#: ../raphodo/problemnotification.py:248
+#, python-format
+msgid "Unable to move file %s"
+msgstr ""
+
+#: ../raphodo/problemnotification.py:254
+#, python-format
+msgid "Unable to remove file %s"
+msgstr ""
+
+#: ../raphodo/problemnotification.py:260
+#, python-format
+msgid "Unable to copy file %s"
+msgstr ""
+
+#: ../raphodo/problemnotification.py:266
 #, python-format
 msgid "Could not determine filesystem modification time for %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:244
+#: ../raphodo/problemnotification.py:272
 #, python-format
 msgid "Unable to load metadata from %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:251
+#: ../raphodo/problemnotification.py:279
 #, python-format
 msgid ""
 "An error occurred setting a file's filesystem metadata on the filesystem %s. "
@@ -2087,26 +2099,31 @@ msgid ""
 "again."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:265
+#: ../raphodo/problemnotification.py:293
 #, python-format
 msgid "Encountered unhandled file %s. It will not be downloaded."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:315
+#: ../raphodo/problemnotification.py:343
 #, fuzzy, python-format
 msgid "Errors scanning %s"
 msgstr "Escaneando %s"
 
-#: ../raphodo/problemnotification.py:322
+#: ../raphodo/problemnotification.py:350
 #, python-format
 msgid "Errors copying from %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:329
+#: ../raphodo/problemnotification.py:357
 msgid "Errors while renaming and generating subfolders"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:422
+#: ../raphodo/problemnotification.py:364
+#, fuzzy, python-format
+msgid "Errors backing up to %s"
+msgstr "Escaneando %s"
+
+#: ../raphodo/problemnotification.py:455
 msgid ""
 "File verification failed. The downloaded version is different from the "
 "original."
@@ -2114,12 +2131,12 @@ msgstr ""
 "Verificación de archivo fallida. La versión descargada es diferente de la "
 "original."
 
-#: ../raphodo/problemnotification.py:426
+#: ../raphodo/problemnotification.py:459
 #, fuzzy
 msgid "The metadata could not be parsed."
 msgstr "%(filetype)s no se pueden leer los metadatos"
 
-#: ../raphodo/problemnotification.py:429
+#: ../raphodo/problemnotification.py:462
 msgid ""
 "The filename, extension and Exif information indicate it has already been "
 "downloaded."
@@ -2127,28 +2144,28 @@ msgstr ""
 "El nombre de archivo, extensión y la información Exif indican que ya ha sido "
 "descargado."
 
-#: ../raphodo/problemnotification.py:452
+#: ../raphodo/problemnotification.py:485
 #, python-format
 msgid " It was backed up to %(volume)s"
 msgstr " Se realizó una copia de seguridad de los datos en %(volume)s"
 
-#: ../raphodo/problemnotification.py:454
+#: ../raphodo/problemnotification.py:487
 msgid " It was backed up to these devices: "
 msgstr " Se realizó una copia de seguridad de los datos en este dispositivo "
 
-#: ../raphodo/problemnotification.py:456 ../raphodo/problemnotification.py:521
-#: ../raphodo/problemnotification.py:533 ../raphodo/problemnotification.py:566
+#: ../raphodo/problemnotification.py:489 ../raphodo/problemnotification.py:554
+#: ../raphodo/problemnotification.py:566 ../raphodo/problemnotification.py:599
 #, python-format
 msgid "%s, "
 msgstr "%s, "
 
-#: ../raphodo/problemnotification.py:457 ../raphodo/problemnotification.py:522
-#: ../raphodo/problemnotification.py:534 ../raphodo/problemnotification.py:567
+#: ../raphodo/problemnotification.py:490 ../raphodo/problemnotification.py:555
+#: ../raphodo/problemnotification.py:567 ../raphodo/problemnotification.py:600
 #, python-format
 msgid "%(volumes)s and %(final_volume)s."
 msgstr "%(volumes)s y %(final_volume)s."
 
-#: ../raphodo/problemnotification.py:469
+#: ../raphodo/problemnotification.py:502
 #, python-format
 msgid ""
 "Photos detected with the same filenames, but taken at different times: "
@@ -2157,75 +2174,75 @@ msgstr ""
 "Detectadas fotos con el mismo nombre, pero distinta fecha de realización: "
 "%(details)s"
 
-#: ../raphodo/problemnotification.py:487
+#: ../raphodo/problemnotification.py:520
 #, python-format
 msgid "An error occurred when backing up on %(volume)s: %(inst)s."
 msgstr ""
 "Ocurrió un error durante la creación de la copia de seguridad en %(volume)s: "
 "%(inst)s."
 
-#: ../raphodo/problemnotification.py:490
+#: ../raphodo/problemnotification.py:523
 #, python-format
 msgid "An error occurred when backing up on %(volume)s."
 msgstr "Ocurrio un error al realizar la copia de seguridad en %(volume)s."
 
-#: ../raphodo/problemnotification.py:493
+#: ../raphodo/problemnotification.py:526
 msgid "Errors occurred when backing up on the following backup devices: "
 msgstr ""
 "Ocurrió un error durante la creación de la copia de seguridad en el "
 "dispositivo: "
 
-#: ../raphodo/problemnotification.py:497 ../raphodo/problemnotification.py:549
+#: ../raphodo/problemnotification.py:530 ../raphodo/problemnotification.py:582
 #, python-format
 msgid "%(volume)s (%(inst)s), "
 msgstr "%(volume)s (%(inst)s), "
 
-#: ../raphodo/problemnotification.py:500
+#: ../raphodo/problemnotification.py:533
 #, python-format
 msgid "%(volume)s, "
 msgstr "%(volume)s, "
 
-#: ../raphodo/problemnotification.py:504 ../raphodo/problemnotification.py:552
+#: ../raphodo/problemnotification.py:537 ../raphodo/problemnotification.py:585
 #, python-format
 msgid "%(volumes)s and %(volume)s (%(inst)s)."
 msgstr "%(volumes)s y %(volume)s (%(inst)s)."
 
-#: ../raphodo/problemnotification.py:509
+#: ../raphodo/problemnotification.py:542
 #, python-format
 msgid "%(volumes)s and %(volume)s."
 msgstr "%(volumes)s y %(volume)s."
 
-#: ../raphodo/problemnotification.py:516
+#: ../raphodo/problemnotification.py:549
 #, python-format
 msgid "Backup already exists on %(volume)s."
 msgstr "La copia de seguridad ya existe en %(volume)s."
 
-#: ../raphodo/problemnotification.py:519
+#: ../raphodo/problemnotification.py:552
 msgid "Backups already exist in these locations: "
 msgstr "Las copias de seguridad están en este directorio: "
 
-#: ../raphodo/problemnotification.py:529
+#: ../raphodo/problemnotification.py:562
 #, python-format
 msgid "Backup overwritten on %(volume)s."
 msgstr "Sobreescrita copia de seguridad en %(volume)s."
 
-#: ../raphodo/problemnotification.py:531
+#: ../raphodo/problemnotification.py:564
 msgid "Backups overwritten on these devices: "
 msgstr "Sobreescritas copias de seguridad en estos dispositivos: "
 
-#: ../raphodo/problemnotification.py:542
+#: ../raphodo/problemnotification.py:575
 #, python-format
 msgid "An error occurred when creating directories on %(volume)s: %(inst)s."
 msgstr "Ocurrió un error al crear los directorios en %(volume)s: %(inst)s."
 
-#: ../raphodo/problemnotification.py:546
+#: ../raphodo/problemnotification.py:579
 msgid ""
 "Errors occurred when creating directories on the following backup devices: "
 msgstr ""
 "Ocurrió un error al crear los directorios en los dispositivos de copia de "
 "seguridad: "
 
-#: ../raphodo/problemnotification.py:560
+#: ../raphodo/problemnotification.py:593
 #, python-format
 msgid ""
 "File verification failed on %(volume)s. The backed up version is different "
@@ -2234,96 +2251,96 @@ msgstr ""
 "La comprobación del archivo falló en %(volume)s. La versión de la copia de "
 "seguridad es diferente de la versión descargada."
 
-#: ../raphodo/problemnotification.py:564
+#: ../raphodo/problemnotification.py:597
 msgid "File verification failed on these devices: "
 msgstr "Falló la comprobación de archivos en estos dispositivos: "
 
-#: ../raphodo/problemnotification.py:574
+#: ../raphodo/problemnotification.py:607
 #, python-format
 msgid "%(previousproblem)s Additionally, %(newproblem)s"
 msgstr "%(previousproblem)s Adicionalmente, %(newproblem)s"
 
-#: ../raphodo/problemnotification.py:583
+#: ../raphodo/problemnotification.py:616
 #, python-format
 msgid " Furthermore, there were %(problems)s."
 msgstr " Además, se encontrarón %(problems)s."
 
-#: ../raphodo/problemnotification.py:586
+#: ../raphodo/problemnotification.py:619
 #, python-format
 msgid " Furthermore, there was a %(problem)s."
 msgstr " Además, se encontró %(problem)s."
 
-#: ../raphodo/problemnotification.py:596
+#: ../raphodo/problemnotification.py:629
 #, python-format
 msgid "The %(type)s metadata is missing."
 msgstr "Faltan los metadatos de %(type)s."
 
-#: ../raphodo/problemnotification.py:598
+#: ../raphodo/problemnotification.py:631
 msgid "The following metadata is missing: "
 msgstr "Los siguientes metadatos faltan: "
 
-#: ../raphodo/problemnotification.py:601
+#: ../raphodo/problemnotification.py:634
 #, python-format
 msgid "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
 msgstr "%(missing_metadata_elements)s y %(final_missing_metadata_element)s."
 
-#: ../raphodo/problemnotification.py:619
+#: ../raphodo/problemnotification.py:652
 msgid "Problems in subfolder and filename generation"
 msgstr "Problemas al crear subdirectorio y nombre de archivo"
 
-#: ../raphodo/problemnotification.py:621
+#: ../raphodo/problemnotification.py:654
 msgid "Problem in subfolder and filename generation"
 msgstr "Problema al crear subdirectorio y nombre de archivo"
 
-#: ../raphodo/problemnotification.py:624
+#: ../raphodo/problemnotification.py:657
 #, python-format
 msgid "Problems in %s generation"
 msgstr "Problemas al %s crear"
 
-#: ../raphodo/problemnotification.py:626
+#: ../raphodo/problemnotification.py:659
 #, python-format
 msgid "Problem in %s generation"
 msgstr "Problema al %s crear"
 
-#: ../raphodo/problemnotification.py:635
+#: ../raphodo/problemnotification.py:668
 #, python-format
 msgid "%(filetype)s already exists, but it was backed up"
 msgstr "%(filetype)s ya existen, pero fue realizada copia de seguridad"
 
-#: ../raphodo/problemnotification.py:638
+#: ../raphodo/problemnotification.py:671
 #, python-format
 msgid "An error occurred when copying the %(filetype)s, but it was backed up"
 msgstr ""
 "Un error ocurrió al copiar los %(filetype)s, pero fue realizada una copia de "
 "seguridad"
 
-#: ../raphodo/problemnotification.py:661
+#: ../raphodo/problemnotification.py:694
 msgid "Multiple problems were encountered"
 msgstr "Se encontraron varios problemas"
 
-#: ../raphodo/problemnotification.py:663 ../raphodo/renameandmovefile.py:334
+#: ../raphodo/problemnotification.py:696 ../raphodo/renameandmovefile.py:334
 msgid "Photos detected with the same filenames, but taken at different times"
 msgstr ""
 "Fotos detectadas con el mismo nombre de archivo, pero tomadas a distinta hora"
 
-#: ../raphodo/problemnotification.py:669
+#: ../raphodo/problemnotification.py:702
 msgid "there were errors backing up"
 msgstr "Se produjeron errores al realizar la copia de seguridad"
 
-#: ../raphodo/problemnotification.py:670
+#: ../raphodo/problemnotification.py:703
 msgid "There were errors backing up"
 msgstr "Se produjeron errores al realizar la copia de seguridad"
 
-#: ../raphodo/problemnotification.py:672
+#: ../raphodo/problemnotification.py:705
 msgid "there was an error backing up"
 msgstr "Se produjo un error al realizar la copia de seguridad"
 
-#: ../raphodo/problemnotification.py:673
+#: ../raphodo/problemnotification.py:706
 msgid "There was an error backing up"
 msgstr "Se produjo un error al realizar la copia de seguridad"
 
 #. e.g.
-#: ../raphodo/problemnotification.py:676
+#: ../raphodo/problemnotification.py:709
 #, python-format
 msgid "%(previousproblem)s, and %(backinguperror)s"
 msgstr "%(previousproblem)s, y %(backinguperror)s"
@@ -3678,6 +3695,12 @@ msgstr ""
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
+
+#~ msgid "The file could not be copied from the camera"
+#~ msgstr "No se pudo copiar el archivo de la cámara"
+
+#~ msgid "The camera may have been inaccessible"
+#~ msgstr "La cámara puede no haber estado accesible"
 
 #, fuzzy
 #~ msgid "Rapid Photo Downloader Error Log"
