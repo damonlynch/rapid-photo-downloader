@@ -51,7 +51,7 @@ from raphodo.storage import StorageSpace
 from raphodo.iplogging import ZeroMQSocketHandler
 from raphodo.viewutils import ThumbnailDataForProximity
 from raphodo.folderspreview import DownloadDestination, FoldersPreview
-from raphodo.problemnotification import ScanProblems
+from raphodo.problemnotification import ScanProblems, CopyingProblems
 
 logger = logging.getLogger()
 
@@ -1274,7 +1274,8 @@ class CopyFilesResults:
                  copy_succeeded: Optional[bool]=None,
                  rpd_file: Optional[RPDFile]=None,
                  download_count: Optional[int]=None,
-                 mdata_exceptions: Optional[Tuple]=None) -> None:
+                 mdata_exceptions: Optional[Tuple]=None,
+                 problems: Optional[CopyingProblems]=None) -> None:
         """
 
         :param scan_id: scan id of the device the files are being
@@ -1292,6 +1293,8 @@ class CopyFilesResults:
         :param download_count: a running count of how many files
          have been copied. Used in download tracking.
         :param mdata_exceptions: details of errors setting file metadata
+        :param problems: details of any problems encountered copying files,
+         not including metedata write problems.
         """
 
         self.scan_id = scan_id
@@ -1306,6 +1309,7 @@ class CopyFilesResults:
         self.rpd_file = rpd_file
         self.download_count = download_count
         self.mdata_exceptions = mdata_exceptions
+        self.problems = problems
 
 
 
@@ -1662,6 +1666,7 @@ class CopyFilesManager(PublishPullPipelineManager):
     message = pyqtSignal(bool, RPDFile, int, 'PyQt_PyObject')
     tempDirs = pyqtSignal(int, str,str)
     bytesDownloaded = pyqtSignal(int, 'PyQt_PyObject', 'PyQt_PyObject')
+    copyProblems = pyqtSignal(int, 'PyQt_PyObject')
 
     def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port=logging_port, thread_name=ThreadNames.copy)
@@ -1684,6 +1689,9 @@ class CopyFilesManager(PublishPullPipelineManager):
             assert data.download_count is not None
             self.message.emit(data.copy_succeeded, data.rpd_file, data.download_count,
                               data.mdata_exceptions)
+
+        elif data.problems is not None:
+            self.copyProblems.emit(data.scan_id, data.problems)
 
         else:
             assert (data.photo_temp_dir is not None and

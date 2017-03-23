@@ -8,7 +8,7 @@ Changelog for Rapid Photo Downloader
    Korora to list of supported distros. Moreover, the script now installs
    all program requirements without having to be manually restarted.
 
- - Implemented error log window. Error reports are now grouped by task:
+ - Implemented error report window. Error reports are now grouped by task:
    scanning a device, copying from a device, renaming files, and backing up.
 
  - A message dialog window is now displayed if back ups will not occur or if

@@ -312,14 +312,22 @@ class ScanProblems(Problems):
 
     @property
     def title(self) -> str:
-        return escape(_('Problems scanning %s')) % self.href
+        return escape(_('Errors scanning %s')) % self.href
 
 
 class CopyingProblems(Problems):
 
     @property
     def title(self) -> str:
-        return escape(_('Problems copying from %s')) % self.href
+        return escape(_('Errors copying from %s')) % self.href
+
+
+class RenamingProblems(Problems):
+
+    @property
+    def title(self) -> str:
+        return escape(_('Errors while renaming and generating subfolders'))
+
 
 
 class LegacyProblem:

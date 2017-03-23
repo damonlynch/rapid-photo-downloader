@@ -91,7 +91,7 @@ from raphodo.storage import (
     has_non_empty_dcim_folder, mountPaths, get_desktop_environment, get_desktop,
     gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
     validate_source_folder, get_fdo_cache_thumb_base_directory, WatchDownloadDirs, get_media_dir,
-    StorageSpace, fs_device_details
+    StorageSpace
 )
 from raphodo.interprocess import (
     ScanArguments, CopyFilesArguments, RenameAndMoveFileData, BackupArguments,
@@ -100,7 +100,7 @@ from raphodo.interprocess import (
     ScanManager, BackupManager, stop_process_logging_manager, RenameMoveFileManager,
     create_inproc_msg)
 from raphodo.devices import (
-    Device, DeviceCollection, BackupDevice, BackupDeviceCollection
+    Device, DeviceCollection, BackupDevice, BackupDeviceCollection, FSMetadataErrors
 )
 from raphodo.preferences import Preferences
 from raphodo.constants import (
@@ -479,7 +479,8 @@ class RapidWindow(QMainWindow):
         self.prefs.program_version = __about__.__version__
 
         # track devices on which there was an error setting a file's filesystem metadata
-        self.metadata_error_devices = set()  # type: Set[int]
+        self.copy_metadata_errors = FSMetadataErrors()
+        self.backup_metadata_errors = FSMetadataErrors()
 
         if thumb_cache is not None:
             logging.debug("Use thumbnail cache: %s", thumb_cache)
@@ -1002,6 +1003,7 @@ class RapidWindow(QMainWindow):
         self.copyfilesmq.message.connect(self.copyfilesDownloaded)
         self.copyfilesmq.bytesDownloaded.connect(self.copyfilesBytesDownloaded)
         self.copyfilesmq.tempDirs.connect(self.tempDirsReceivedFromCopyFiles)
+        self.copyfilesmq.copyProblems.connect(self.copyfilesProblems)
         self.copyfilesmq.workerFinished.connect(self.copyfilesFinished)
 
         self.copyfilesmq.moveToThread(self.copyfilesThread)
@@ -2944,7 +2946,7 @@ class RapidWindow(QMainWindow):
     def copyfilesDownloaded(self, download_succeeded: bool,
                             rpd_file: RPDFile,
                             download_count: int,
-                            mdata_exceptions: Optional[Tuple]) -> None:
+                            mdata_exceptions: Optional[Tuple[Exception]]) -> None:
 
         scan_id = rpd_file.scan_id
 
@@ -2960,27 +2962,17 @@ class RapidWindow(QMainWindow):
             rpd_file.generate_extension_case = self.prefs.photo_extension
         else:
             rpd_file.generate_extension_case = self.prefs.video_extension
+
+        if mdata_exceptions is not None and self.prefs.warn_fs_metadata_error:
+            self.copy_metadata_errors.add_problem(
+                scan_id=scan_id, path=rpd_file.temp_full_file_name,
+                mdata_exceptions=mdata_exceptions
+            )
+
         self.sendDataMessageToThread(self.rename_controller,
                                      data=RenameAndMoveFileData(rpd_file=rpd_file,
                                      download_count=download_count,
                                      download_succeeded=download_succeeded))
-
-        if mdata_exceptions is not None and self.prefs.warn_fs_metadata_error:
-            dev = os.stat(rpd_file.temp_full_file_name).st_dev
-
-            if dev not in self.metadata_error_devices:
-                self.metadata_error_devices.add(dev)
-
-                name, uri, root_path, fstype = fs_device_details(rpd_file.temp_full_file_name)
-
-                problem = FsMetadataWriteProblem(
-                    name=name, uri=uri, mdata_exceptions=mdata_exceptions
-                )
-
-                device = self.devices[rpd_file.scan_id]
-                problems = CopyingProblems(name=device.display_name, uri=device.uri,
-                                           problem=problem)
-                self.addErrorLogMessage(problems=problems)
 
     @pyqtSlot(int, 'PyQt_PyObject', 'PyQt_PyObject')
     def copyfilesBytesDownloaded(self, scan_id: int,
@@ -3003,6 +2995,18 @@ class RapidWindow(QMainWindow):
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
         self.updateFileDownloadDeviceProgress()
+
+    @pyqtSlot(int, 'PyQt_PyObject')
+    def copyfilesProblems(self, scan_id: int, problems: CopyingProblems) -> None:
+        for problem in self.copy_metadata_errors.problems(scan_id=scan_id):
+            problems.append(problem)
+
+        if len(problems):
+            device = self.devices[scan_id]
+            problems.name = device.display_name
+            problems.uri=device.uri
+
+            self.addErrorLogMessage(problems=problems)
 
     @pyqtSlot(int)
     def copyfilesFinished(self, scan_id: int) -> None:

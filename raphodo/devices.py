@@ -43,17 +43,23 @@ from PyQt5.QtWidgets import QFileIconProvider
 from PyQt5.QtGui import QIcon, QPixmap
 
 import raphodo.qrc_resources as qrc_resources
-from raphodo.constants import (DeviceType, BackupLocationType, FileType, DeviceState,
-                               DownloadStatus, ExifSource, DownloadingFileTypes, BackupFailureType)
+from raphodo.constants import (
+    DeviceType, BackupLocationType, FileType, DeviceState, DownloadStatus, ExifSource,
+    DownloadingFileTypes, BackupFailureType
+)
 from raphodo.rpdfile import FileTypeCounter, FileSizeSum
-from raphodo.storage import (StorageSpace, udev_attributes, UdevAttr, get_path_display_name,
-                             validate_download_folder, ValidatedFolder, CameraDetails, get_uri)
+from raphodo.storage import (
+    StorageSpace, udev_attributes, UdevAttr, get_path_display_name, validate_download_folder,
+    ValidatedFolder, CameraDetails, get_uri, fs_device_details
+)
 from raphodo.camera import generate_devname
-from raphodo.utilities import (number, make_internationalized_list, stdchannel_redirected,
-                               same_device)
+from raphodo.utilities import (
+    number, make_internationalized_list, stdchannel_redirected, same_device
+)
 import raphodo.metadataphoto as metadataphoto
 from raphodo.rpdfile import Photo, Video
 import raphodo.exiftool as exiftool
+from raphodo.problemnotification import FsMetadataWriteProblem
 
 display_devices = (DeviceType.volume, DeviceType.camera)
 
@@ -1390,3 +1396,45 @@ class BackupDeviceCollection:
             else:
                 return None
         return None
+
+
+class FSMetadataErrors:
+    """
+    When downloading and backing up, filesystem metadata needs to be copied.
+    Sometimes it's not possible. Track which devices (computer devices,
+    according to the OS, that is, not the same as above) have problems.
+    """
+
+    def __init__(self) -> None:
+        # A 'device' in this class is the st_dev value returned by os.stat
+        self.devices = set()  # type: Set[int]
+        self.archived_devices = set()  # type: Set[int]
+        # device: FsMetadataWriteProblem
+        self.metadata_errors = dict()  # type: Dict[int, FsMetadataWriteProblem]
+        # scan_id: Set[device]
+        self.scan_id_devices = defaultdict(set)  # type: DefaultDict[int, Set[int]]
+
+    def add_problem(self, scan_id: int, path: str, mdata_exceptions: Tuple[Exception]) -> None:
+
+        dev = os.stat(path).st_dev
+
+        if dev not in self.devices:
+            self.devices.add(dev)
+
+            name, uri, root_path, fstype = fs_device_details(path)
+
+            problem = FsMetadataWriteProblem(
+                name=name, uri=uri, mdata_exceptions=mdata_exceptions
+            )
+
+            self.metadata_errors[dev] = problem
+
+            self.scan_id_devices[scan_id].add(dev)
+
+    def problems(self, scan_id: int) -> List[FsMetadataWriteProblem]:
+        problems = []
+        for dev in self.scan_id_devices[scan_id]:
+            if dev not in self.archived_devices:
+                problems.append(self.metadata_errors[dev])
+                self.archived_devices.add(dev)
+        return problems

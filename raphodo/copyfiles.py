@@ -43,6 +43,7 @@ from raphodo.interprocess import (WorkerInPublishPullPipeline, CopyFilesArgument
 from raphodo.constants import (FileType, DownloadStatus)
 from raphodo.utilities import (GenerateRandomFileName, create_temp_dirs, same_device)
 from raphodo.rpdfile import RPDFile
+from raphodo.problemnotification import CopyingProblems
 
 from gettext import gettext as _
 
@@ -97,10 +98,10 @@ def copy_file_metadata(src: str, dst: str) -> Optional[Tuple]:
 
 def copy_camera_file_metadata(mtime: float, dst: str) -> Optional[Tuple]:
     # test code:
-    # try:
-    #     os.chown('/', 1000, 1000)
-    # except OSError as inst:
-    #     return inst,
+    try:
+        os.chown('/', 1000, 1000)
+    except OSError as inst:
+        return inst,
 
     try:
         os.utime(dst, (mtime, mtime))
@@ -161,6 +162,7 @@ class FileCopy:
 class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
     def __init__(self):
+        self.problems = CopyingProblems()
         super().__init__('CopyFiles')
 
     def cleanup_pre_stop(self) -> None:
@@ -168,6 +170,16 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         if self.camera is not None:
             if self.camera.camera_initialized:
                 self.camera.free_camera()
+        self.send_problems()
+
+    def send_problems(self) -> None:
+        self.content = pickle.dumps(
+            CopyFilesResults(
+                scan_id=self.scan_id, problems=self.problems
+            ),
+            pickle.HIGHEST_PROTOCOL
+        )
+        self.send_message_to_sink()
 
     def update_progress(self, amount_downloaded: int, total: int) -> None:
         """
@@ -444,6 +456,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
 
+        self.send_problems()
 
         if self.camera is not None:
             self.camera.free_camera()

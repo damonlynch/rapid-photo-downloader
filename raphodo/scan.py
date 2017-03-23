@@ -290,6 +290,16 @@ class ScanWorker(WorkerInPublishPullPipeline):
             )
             self.send_message_to_sink()
 
+        self.send_problems()
+
+        if self.files_scanned > 0 and not (self.files_scanned == 0 and self.download_from_camera):
+            logging.info("{} total files scanned on {}".format(self.files_scanned,
+                                                               self.display_name))
+
+        self.disconnect_logging()
+        self.send_finished_command()
+
+    def send_problems(self) -> None:
         if self.problems:
             self.content = pickle.dumps(
                 ScanResults(
@@ -298,13 +308,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 pickle.HIGHEST_PROTOCOL
             )
             self.send_message_to_sink()
-
-        if self.files_scanned > 0 and not (self.files_scanned == 0 and self.download_from_camera):
-            logging.info("{} total files scanned on {}".format(self.files_scanned,
-                                                               self.display_name))
-
-        self.disconnect_logging()
-        self.send_finished_command()
 
     def walk_file_system(self, path_to_walk: str) -> Iterator[Tuple[str, str]]:
         """
@@ -1116,6 +1119,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
     def cleanup_pre_stop(self):
         if self.camera is not None:
             self.camera.free_camera()
+        self.send_problems()
 
     @property
     def camera_details(self) -> Optional[CameraDetails]:
