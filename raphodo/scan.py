@@ -203,7 +203,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         )
                         self.send_message_to_sink()
                     break
-                except CameraError as e:
+                except CameraProblemEx as e:
                     self.content = pickle.dumps(ScanResults(
                                                 error_code=e.code,
                                                 scan_id=int(self.worker_id)),

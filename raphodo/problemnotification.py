@@ -205,7 +205,17 @@ class Problem:
 class CameraGpProblem(Problem):
     @property
     def details(self) -> List[str]:
+        try:
             return [escape(_("GPhoto2 Error: %s")) % self.gp_code]
+        except AttributeError:
+            return []
+
+
+class CameraInitializationProblem(CameraGpProblem):
+    @property
+    def body(self) -> str:
+        return escape(_("Unable to initialize the camera, probably because another program is "
+                        "using it. No files were copied from it."))
 
 
 class CameraDirectoryReadProblem(CameraGpProblem):
@@ -220,7 +230,7 @@ class CameraFileInfoProblem(CameraGpProblem):
         return escape(_('Unable to access modification time or size from %s')) % self.href
 
 
-class CameraFileReadProblem(Problem):
+class CameraFileReadProblem(CameraGpProblem):
     @property
     def body(self) -> str:
         return escape(_('Unable to read file %s')) % self.href
@@ -230,6 +240,24 @@ class FileWriteProblem(Problem):
     @property
     def body(self) -> str:
         return escape(_('Unable to write file %s')) % self.href
+
+
+class FileMoveProblem(Problem):
+    @property
+    def body(self) -> str:
+        return escape(_('Unable to move file %s')) % self.href
+
+
+class FileDeleteProblem(Problem):
+    @property
+    def body(self) -> str:
+        return escape(_('Unable to remove file %s')) % self.href
+
+
+class FileCopyProblem(Problem):
+    @property
+    def body(self) -> str:
+        return escape(_('Unable to copy file %s')) % self.href
 
 
 class FsMetadataReadProblem(Problem):
@@ -329,6 +357,11 @@ class RenamingProblems(Problems):
         return escape(_('Errors while renaming and generating subfolders'))
 
 
+class BackingUpProblems(Problems):
+
+    @property
+    def title(self) -> str:
+        return escape(_('Errors backing up to %s')) % self.href
 
 class LegacyProblem:
     """

@@ -63,7 +63,10 @@ class CameraProblemEx(CameraError):
                  gp_exception: Optional[gp.GPhoto2Error]=None,
                  py_exception: Optional[Exception]=None) -> None:
         super().__init__(code)
-        self.gp_code = gp_exception.code
+        if gp_exception is not None:
+            self.gp_code = gp_exception.code
+        else:
+            self.gp_code = None
         self.py_exception = py_exception
 
     def __repr__(self) -> str:
@@ -148,7 +151,7 @@ class Camera:
             else:
                 logging.error("Unable to access camera: error %s", e.code)
             if raise_errors:
-                raise CameraError(CameraErrorCode.inaccessible)
+                raise CameraProblemEx(CameraErrorCode.inaccessible, gp_exception=e)
             return
 
         concise_model_name = self._concise_model_name()
@@ -163,7 +166,7 @@ class Camera:
                               self.display_name, e.code)
                 if raise_errors:
                     self.free_camera()
-                    raise CameraError(CameraErrorCode.locked)
+                    raise CameraProblemEx(CameraErrorCode.locked, gp_exception=e)
 
         self.folders_and_files = []
         self.audio_files = {}

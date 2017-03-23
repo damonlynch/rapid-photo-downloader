@@ -43,10 +43,13 @@ from raphodo.cache import FdoCacheNormal, FdoCacheLarge
 
 import raphodo.problemnotification as pn
 from raphodo.copyfiles import copy_file_metadata
+from raphodo.problemnotification import BackingUpProblems
 
 
 class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
     def __init__(self):
+        #TODO somewhere give this its name and uri
+        self.problems = BackingUpProblems()
         super().__init__('BackupFiles')
 
     def update_progress(self, amount_downloaded, total):

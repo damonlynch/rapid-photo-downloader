@@ -146,7 +146,7 @@ class ErrorReport(QDialog):
 
         document = self.log.document()  # type: QTextDocument
         document.setDefaultStyleSheet(sheet)
-        document.setIndentWidth(QFontMetrics(QFont()).boundingRect('200').width())
+        # document.setIndentWidth(QFontMetrics(QFont()).boundingRect('200').width())
 
         self.highlightColor = QColor('#cb1dfa')
         self.textHighlightColor = QColor(Qt.white)
@@ -531,8 +531,8 @@ class SpeechBubble(QLabel):
         self.custom_height = max(math.ceil(QFontMetrics(self.counterFont).height() * 1.7), 24)
         self.counterPen = QPen(QColor(Qt.white))
         self.setStyleSheet("QLabel {border: 0px;}")
-        self.click_tooltip = _('The number of new entries added to the Error Log since it was last '
-                               'open. Click to open the Error Log.')
+        self.click_tooltip = _('The number of new entries added to the Error Report since it was '
+                               'last open. Click to open the Error Report.')
 
     @property
     def count(self) -> int:
