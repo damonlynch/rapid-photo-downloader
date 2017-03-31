@@ -342,7 +342,9 @@ class RenameOptionsWidget(QFramedWidget):
         self.sync = QCheckBox(_('Synchronize RAW + JPEG'))
         self.sync.setChecked(self.prefs.synchronize_raw_jpg)
         self.sync.stateChanged.connect(self.syncChanged)
-        self.sync.setToolTip(_('Synchronize sequence numbers for matching RAW and JPEG pairs'))
+        tip = _('Synchronize sequence numbers for matching RAW and JPEG pairs.\n\n'
+                'See the online documentation for more details.')
+        self.sync.setToolTip(tip)
 
         self.sequences = QGroupBox(_('Sequence Numbers'))
 

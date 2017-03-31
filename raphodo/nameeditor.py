@@ -832,7 +832,7 @@ class PrefDialog(QDialog):
         # Translators: please do not modify or leave out html formatting tags like <i> and
         # <b>. These are used to format the text the users sees
         warning_msg = _(
-            '<b><font color="red">Warning:</font></b> <i>There is insufficient metadata to fully '
+            '<b><font color="red">Warning:</font></b> <i>There is insufficient data to fully '
             'generate the name. Please use other renaming options.</i>')
 
         self.is_subfolder = generation_type in (NameGenerationType.photo_subfolder,
@@ -1170,7 +1170,7 @@ class PrefDialog(QDialog):
         if self.is_subfolder:
             name = self.name_generator.filter_subfolder_characters(name)
 
-        if self.sample_rpd_file.has_problem():
+        if self.sample_rpd_file.name_generation_problem:
             self.messageWidget.setCurrentIndex(1)
 
         self.example.setTextFormat(Qt.RichText)
@@ -1337,10 +1337,9 @@ class PrefDialog(QDialog):
 
         if self.preset.preset_edited or self.preset.new_preset:
             msgBox = QMessageBox()
-            icon = QPixmap(':/rapid-photo-downloader.svg')
             title = _("Save Preset - Rapid Photo Downloader")
             msgBox.setTextFormat(Qt.RichText)
-            msgBox.setIconPixmap(icon)
+            msgBox.setIcon(QMessageBox.Question)
             msgBox.setWindowTitle(title)
             if self.preset.new_preset:
                 message = _("<b>Do you want to save the changes in a new custom preset?</b><br><br>"

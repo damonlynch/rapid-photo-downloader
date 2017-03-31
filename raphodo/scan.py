@@ -137,6 +137,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
         if scan_arguments.ignore_other_types:
             rpdfile.PHOTO_EXTENSIONS_SCAN = rpdfile.PHOTO_EXTENSIONS_WITHOUT_OTHER
 
+        self.device = scan_arguments.device
+
         self.download_from_camera = scan_arguments.device.device_type == DeviceType.camera
         self.camera_storage_descriptions = []
         if self.download_from_camera:
@@ -670,6 +672,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     camera_details=self.camera_details,
                     camera_memory_card_identifiers=camera_memory_card_identifiers,
                     never_read_mdatatime=ignore_mdatatime,
+                    device_display_name=self.display_name,
+                    device_uri=self.device.uri,
                     raw_exif_bytes=None,
                     exif_source=None,
                     problem=problem
@@ -735,28 +739,30 @@ class ScanWorker(WorkerInPublishPullPipeline):
                      file_type.name, self.display_name)
         problem=None
         rpd_file = rpdfile.get_rpdfile(
-                    name=name,
-                    path=path,
-                    size=size,
-                    prev_full_name=None,
-                    prev_datetime=None,
-                    device_timestamp_type=self.device_timestamp_type,
-                    mtime=mtime,
-                    mdatatime=mdatatime,
-                    thumbnail_cache_status=ThumbnailCacheDiskStatus.unknown,
-                    thm_full_name=None,
-                    audio_file_full_name=None,
-                    xmp_file_full_name=None,
-                    scan_id=self.worker_id,
-                    file_type=file_type,
-                    from_camera=self.download_from_camera,
-                    camera_details=self.camera_details,
-                    camera_memory_card_identifiers=None,
-                    never_read_mdatatime=ignore_mdatatime,
-                    raw_exif_bytes=self.sample_exif_bytes,
-                    exif_source=self.sample_exif_source,
-                    problem=problem
-                )
+            name=name,
+            path=path,
+            size=size,
+            prev_full_name=None,
+            prev_datetime=None,
+            device_timestamp_type=self.device_timestamp_type,
+            mtime=mtime,
+            mdatatime=mdatatime,
+            thumbnail_cache_status=ThumbnailCacheDiskStatus.unknown,
+            thm_full_name=None,
+            audio_file_full_name=None,
+            xmp_file_full_name=None,
+            scan_id=self.worker_id,
+            file_type=file_type,
+            from_camera=self.download_from_camera,
+            camera_details=self.camera_details,
+            camera_memory_card_identifiers=None,
+            never_read_mdatatime=ignore_mdatatime,
+            device_display_name=self.display_name,
+            device_uri=self.device.uri,
+            raw_exif_bytes=self.sample_exif_bytes,
+            exif_source=self.sample_exif_source,
+            problem=problem
+        )
         if file_type == FileType.video and self.download_from_camera:
             # relevant only when downloading from a camera
             rpd_file.temp_sample_full_file_name = self.sample_video_extract_full_file_name

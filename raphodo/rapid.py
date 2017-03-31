@@ -161,7 +161,9 @@ from raphodo.newversion import (
 from raphodo.chevroncombo import ChevronCombo
 from raphodo.preferencedialog import PreferencesDialog
 from raphodo.errorlog import ErrorReport, SpeechBubble
-from raphodo.problemnotification import (FsMetadataWriteProblem, Problem, Problems, CopyingProblems)
+from raphodo.problemnotification import (
+    FsMetadataWriteProblem, Problem, Problems, CopyingProblems, RenamingProblems
+)
 
 
 # Avoid segfaults at exit:
@@ -956,7 +958,8 @@ class RapidWindow(QMainWindow):
         self.renamemq.sinkStarted.connect(self.initStage6)
         self.renamemq.message.connect(self.fileRenamedAndMoved)
         self.renamemq.sequencesUpdate.connect(self.updateSequences)
-        self.renamemq.workerFinished.connect(self.fileRenamedAndMovedFinished)
+        self.renamemq.renameProblems.connect(self.addErrorLogMessage)
+        # self.renamemq.workerFinished.connect(self.fileRenamedAndMovedFinished)
         self.renamemq.moveToThread(self.renameThread)
 
         logging.debug("Starting rename manager...")
@@ -2141,7 +2144,7 @@ class RapidWindow(QMainWindow):
         marked = marked_summary.marked
 
         if self.unity_progress:
-            available = self.thumbnailModel.getCountNotPreviouslyDownloadedAvailableForDownload()
+            available = self.thumbnailModel.getNoFilesMarkedForDownload()
             if available:
                 self.desktop_launcher.set_property("count", available)
                 self.desktop_launcher.set_property("count_visible", True)
@@ -3256,6 +3259,7 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def fileRenamedAndMovedFinished(self) -> None:
+        """Currently not called"""
         pass
 
     def isDownloadCompleteForScan(self, scan_id: int) -> Tuple[bool, int]:
@@ -3400,6 +3404,7 @@ class RapidWindow(QMainWindow):
             self.download_start_datetime = None
             self.download_start_time = None
 
+    @pyqtSlot('PyQt_PyObject')
     def addErrorLogMessage(self, problems: Problems) -> None:
 
         self.errorLog.addProblems(problems)

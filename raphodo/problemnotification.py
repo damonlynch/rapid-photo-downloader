@@ -45,24 +45,14 @@ from gettext import gettext as _
 
 import logging
 
+from raphodo.utilities import make_internationalized_list
+from raphodo.constants import ErrorType
+
 # components
 SUBFOLDER_COMPONENT = _('subfolder')
 FILENAME_COMPONENT = _('filename')
 
-# Problem categories
-class ProblemCat(Enum):
-    metadata = 1
-    file = 2
-    generation = 3
-    download = 4
-    different_exif = 5
-    file_already_exists = 6
-    unique_identifier_added = 7
-    backup = 8
-    download_failed_backup_ok = 9
-    file_already_downloaded = 10
-    verification = 11
-    fs_metadata = 12
+
 
 
 # problem categories
@@ -81,11 +71,6 @@ FILE_ALREADY_DOWN_CAT = 12
 VERIFICATION_PROBLEM = 13
 
 # problem text
-MISSING_METADATA = 1
-INVALID_DATE_TIME = 2
-MISSING_FILE_EXTENSION = 3
-MISSING_IMAGE_NUMBER = 4
-ERROR_IN_GENERATION = 5
 
 CANNOT_DOWNLOAD_BAD_METADATA = 6
 
@@ -122,13 +107,6 @@ BACKUP_OK_TYPE = '__7'
 #                                   category,               text, duplicates allowed
 problem_definitions = {
 
-    MISSING_METADATA:               (METADATA_PROBLEM,        "%s", True),
-    INVALID_DATE_TIME:              (METADATA_PROBLEM,      _('Date time value %s appears invalid.'), False),
-    MISSING_FILE_EXTENSION:         (METADATA_PROBLEM,      _("Filename does not have an extension."), False),
-    # a number component is something like the 8346 in IMG_8346.JPG
-    MISSING_IMAGE_NUMBER:           (METADATA_PROBLEM,      _("Filename does not have a number component."), False),
-    ERROR_IN_GENERATION:            (METADATA_PROBLEM,      _("Error generating component %s."), False), # a generic problem
-
     CANNOT_DOWNLOAD_BAD_METADATA:   (FILE_PROBLEM,          _("%(filetype)s metadata cannot be read"), False),
 
     ERROR_IN_NAME_GENERATION:       (GENERATION_PROBLEM,    _("%(filetype)s %(area)s could not be generated"), False),
@@ -164,6 +142,16 @@ extra_detail_definitions = {
     BACKUP_OK_TYPE:                     "%s",
 }
 
+
+def make_href(name: str, uri: str) -> str:
+    """
+    Construct a hyperlink.
+    """
+
+    # Note: keep consistent with ErrorReport._saveUrls()
+    return '<a href="{}">{}</a>'.format(uri, escape(name))
+
+
 class Problem:
     def __init__(self, name: Optional[str]=None,
                  uri: Optional[str]=None,
@@ -188,21 +176,34 @@ class Problem:
     @property
     def details(self) -> List[str]:
         if self.exception is not None:
-            return [escape(_("Error: %(errno)s %(strerror)s")) % dict(
-                errno=self.exception.errno, strerror=self.exception.strerror)]
+            try:
+                return [escape(_("Error: %(errno)s %(strerror)s")) % dict(
+                    errno=self.exception.errno, strerror=self.exception.strerror)]
+            except AttributeError:
+                return [escape(_("Error: %s")) % self.exception]
         else:
             return []
 
     @property
     def href(self) -> str:
         if self.name and self.uri:
-            return '<a href="{}">{}</a>'.format(self.uri, escape(self.name))
+            return make_href(name=self.name, uri=self.uri)
         else:
             logging.critical('href() is missing name or uri in subclass %s',
                              self.__class__.__name__)
 
+    @property
+    def severity(self) -> ErrorType:
+        return ErrorType.warning
 
-class CameraGpProblem(Problem):
+
+class SeriousProblem(Problem):
+    @property
+    def severity(self) -> ErrorType:
+        return ErrorType.serious_error
+
+
+class CameraGpProblem(SeriousProblem):
     @property
     def details(self) -> List[str]:
         try:
@@ -216,6 +217,9 @@ class CameraInitializationProblem(CameraGpProblem):
     def body(self) -> str:
         return escape(_("Unable to initialize the camera, probably because another program is "
                         "using it. No files were copied from it."))
+    @property
+    def severity(self) -> ErrorType:
+        return ErrorType.critical_error
 
 
 class CameraDirectoryReadProblem(CameraGpProblem):
@@ -236,25 +240,25 @@ class CameraFileReadProblem(CameraGpProblem):
         return escape(_('Unable to read file %s')) % self.href
 
 
-class FileWriteProblem(Problem):
+class FileWriteProblem(SeriousProblem):
     @property
     def body(self) -> str:
         return escape(_('Unable to write file %s')) % self.href
 
 
-class FileMoveProblem(Problem):
+class FileMoveProblem(SeriousProblem):
     @property
     def body(self) -> str:
         return escape(_('Unable to move file %s')) % self.href
 
 
-class FileDeleteProblem(Problem):
+class FileDeleteProblem(SeriousProblem):
     @property
     def body(self) -> str:
         return escape(_('Unable to remove file %s')) % self.href
 
 
-class FileCopyProblem(Problem):
+class FileCopyProblem(SeriousProblem):
     @property
     def body(self) -> str:
         return escape(_('Unable to copy file %s')) % self.href
@@ -272,6 +276,13 @@ class FileMetadataLoadProblem(Problem):
         return escape(_('Unable to load metadata from %s')) % self.href
 
 
+class FileMetadataLoadProblemNoDownload(SeriousProblem):
+    @property
+    def body(self) -> str:
+        return escape(_('Unable to load metadata from %(name)s. The %(filetype)s was not '
+                        'downloaded.')) % dict(filetype=self.file_type, name=self.href)
+
+
 class FsMetadataWriteProblem(Problem):
     @property
     def body(self) -> str:
@@ -287,10 +298,254 @@ class FsMetadataWriteProblem(Problem):
                 for e in self.mdata_exceptions]
 
 
-class UnhandledFileProblem(Problem):
+class UnhandledFileProblem(SeriousProblem):
     @property
     def body(self) -> str:
         return escape(_('Encountered unhandled file %s. It will not be downloaded.')) % self.href
+
+
+class FileAlreadyExistsProblem(SeriousProblem):
+    @property
+    def body(self) -> str:
+        return escape(
+            _("%(filetype)s %(destination)s already exists.")
+        ) % dict(
+            filetype=escape(self.file_type_capitalized),
+            destination=self.href
+        )
+
+    @property
+    def details(self) -> List[str]:
+        d = list()
+        d.append(
+            escape(
+                _("The existing %(filetype)s %(destination)s was last modified on "
+                  "%(date)s at %(time)s.")
+            ) % dict(
+                    filetype=escape(self.file_type),
+                    date=escape(self.date),
+                    time=escape(self.time),
+                    destination=self.href
+            )
+        )
+        d.append(
+            escape(
+                _("The %(filetype)s %(source)s was not downloaded from %(device)s.")
+            ) % dict(
+                filetype=escape(self.file_type),
+                source=self.source,
+                device=self.device
+            )
+        )
+        return d
+
+
+class IdentifierAddedProblem(FileAlreadyExistsProblem):
+
+    @property
+    def details(self) -> List[str]:
+        d = list()
+        d.append(
+            escape(
+                _("The existing %(filetype)s %(destination)s was last modified on "
+                  "%(date)s at %(time)s.")
+            ) % dict(
+                    filetype=escape(self.file_type),
+                    date=escape(self.date),
+                    time=escape(self.time),
+                    destination=self.href
+            )
+        )
+        d.append(
+            escape(
+                _("The %(filetype)s %(source)s was downloaded from %(device)s.")
+            ) % dict(
+                filetype=escape(self.file_type),
+                source=self.source,
+                device=self.device
+            )
+        )
+        d.append(
+            escape(
+                _("The unique identifier '%s' was added to the filename.")) % self.identifier
+        )
+        return d
+
+    @property
+    def severity(self) -> ErrorType:
+        return ErrorType.warning
+
+
+class DuplicateFileWhenSyncingProblem(SeriousProblem):
+    @property
+    def body(self) -> str:
+        return escape(
+            _("When synchronizing RAW + JPEG sequence values, a duplicate %(filetype)s "
+              "%(file)s was encountered, and was not downloaded."
+              )
+        ) % dict(file=self.href, filetype=self.file_type)
+
+
+class SameNameDifferentExif(Problem):
+    @property
+    def body(self) -> str:
+        return escape(
+            _("When synchronizing RAW + JPEG sequence values, photos were detected with the " 
+              "same filenames, but taken at different times:")
+        )
+
+    @property
+    def details(self) -> List[str]:
+        return [escape(
+            _("%(image1)s was taken on %(image1_date)s at %(image1_time)s, and %(image2)s "
+              "on %(image2_date)s at %(image2_time)s.")
+        ) % dict(
+            image1=self.image1,
+            image1_date=self.image1_date,
+            image1_time=self.image1_time,
+            image2=self.image2,
+            image2_date=self.image2_date,
+            image2_time=self.image2_time
+        )]
+
+
+class RenamingAssociateFileProblem(SeriousProblem):
+    @property
+    def body(self) -> str:
+        return escape(
+            _("Unable to finalize the filename for %s")
+        ) % self.source
+
+
+class FilenameNotFullyGeneratedProblem(Problem):
+    def __init__(self, name: Optional[str]=None,
+                 uri: Optional[str]=None,
+                 exception: Optional[Exception]=None,
+                 **attrs) -> None:
+        super().__init__(name=name, uri=uri, exception=exception, **attrs)
+        self.missing_metadata = []
+        self.file_type = ''
+        self.destination = ''
+        self.source = ''
+        self.bad_converstion_date_time = False
+        self.bad_conversion_exception = None  # type: Optional[Exception]
+        self.invalid_date_time = False
+        self.missing_extension = False
+        self.missing_image_no = False
+        self.component_error = False
+        self.component_problem = ''
+        self.component_exception = None
+
+    def has_error(self) -> bool:
+        """
+        :return: True if any of the errors occurred 
+        """
+
+        return bool(self.missing_metadata) or self.invalid_date_time or \
+               self.bad_converstion_date_time or self.missing_extension or self.missing_image_no \
+               or self.component_error
+
+    @property
+    def body(self) -> str:
+        return escape(
+            _("The filename %(destination)s was not fully generated for %(filetype)s %(source)s.")
+        ) % dict(destination=self.destination, filetype=self.file_type, source=self.source)
+
+    @property
+    def details(self) -> List[str]:
+        d = []
+        if len(self.missing_metadata) == 1:
+            d.append(
+                escape(
+                    _("The %(type)s metadata is missing.")
+                ) % dict(type=self.missing_metadata[0])
+            )
+        elif len(self.missing_metadata) > 1:
+            d.append(
+                escape(
+                    _("The following metadata is missing: %s.")
+                ) % make_internationalized_list(self.missing_metadata)
+            )
+
+        if self.bad_converstion_date_time:
+            d.append(
+                escape(_('Date/time conversion failed: %s.')) % self.bad_conversion_exception
+            )
+
+        if self.invalid_date_time:
+            d.append(
+                escape(
+                    _("Could not extract valid date/time metadata or determine the file "
+                      "modification time.")
+                )
+            )
+
+        if self.missing_extension:
+            d.append(escape(_("Filename does not have an extension.")))
+
+        if self.missing_image_no:
+            d.append(escape(_("Filename does not have a number component.")))
+
+        if self.component_error:
+            d.append(
+                escape(_("Error generating component %(component)s. Error: %(error)s")) % dict(
+                    component=self.component_problem,
+                    error=self.component_exception
+                )
+            )
+
+        return d
+
+
+class FolderNotFullyGeneratedProblemProblem(FilenameNotFullyGeneratedProblem):
+    @property
+    def body(self) -> str:
+        return escape(
+            _("The download subfolders %(folder)s were only partially generated for %(filetype)s "
+              "%(source)s.")
+        ) % dict(folder=self.destination, filetype=self.file_type, source=self.source)
+
+
+class NoDataToNameProblem(SeriousProblem):
+    @property
+    def body(self) -> str:
+        return escape(
+            _("There is no data with which to generate the %(subfolder_file)s for %(filename)s. It "
+              "was not downloaded.")
+        ) % dict(
+            subfolder_file = self.area,
+            filename = self.href
+        )
+
+
+class RenamingFileProblem(SeriousProblem):
+    @property
+    def body(self) -> str:
+        return escape(
+            _('Unable to create the %(filetype)s %(destination)s in %(folder)s. The download file '
+              'was %(source)s in %device)s. It was not downloaded.')
+        ) % dict(
+            filetype=escape(self.file_type),
+            destination=escape(self.destination),
+            folder=self.folder,
+            source=self.href,
+            device=self.device
+        )
+
+_("The following metadata is missing: ")
+_("The %(type)s metadata is missing.")
+
+
+class SubfolderCreationProblem(Problem):
+    @property
+    def body(self) -> str:
+        return escape(
+            _('Unable to create the download subfolder %s.')
+        ) % self.folder
+
+    @property
+    def severity(self) -> ErrorType:
+        return ErrorType.critical_error
 
 
 class Problems:
@@ -331,7 +586,7 @@ class Problems:
     @property
     def href(self) -> str:
         if self.name and self.uri:
-            return '<a href="{}">{}</a>'.format(self.uri, self.name)
+            return make_href(name=self.name, uri=self.uri)
         else:
             logging.critical('href() is missing name or uri in %s', self.__class__.__name__)
 
@@ -340,28 +595,28 @@ class ScanProblems(Problems):
 
     @property
     def title(self) -> str:
-        return escape(_('Errors scanning %s')) % self.href
+        return escape(_('Problems scanning %s')) % self.href
 
 
 class CopyingProblems(Problems):
 
     @property
     def title(self) -> str:
-        return escape(_('Errors copying from %s')) % self.href
+        return escape(_('Problems copying from %s')) % self.href
 
 
 class RenamingProblems(Problems):
 
     @property
     def title(self) -> str:
-        return escape(_('Errors while renaming and generating subfolders'))
+        return escape(_('Problems while finalizing filenames and generating subfolders'))
 
 
 class BackingUpProblems(Problems):
 
     @property
     def title(self) -> str:
-        return escape(_('Errors backing up to %s')) % self.href
+        return escape(_('Problems backing up to %s')) % self.href
 
 class LegacyProblem:
     """
@@ -619,28 +874,7 @@ class LegacyProblem:
                 v += _(' Furthermore, there was a %(problem)s.') % {
                     'problem': vv[0].lower() + vv[1:]}
 
-        # Problems generating file / subfolder names
-        if METADATA_PROBLEM in self.categories:
-            for p in self.problems:
-                vv = ''
-                details = self.problems[p]
-                if p == MISSING_METADATA:
-                    if len(details) == 1:
-                        vv = _("The %(type)s metadata is missing.") % {'type': details[0]}
-                    else:
-                        vv = _("The following metadata is missing: ")
-                        for d in details[:-1]:
-                            vv += ("%s, ") % d
-                        vv = _("%(missing_metadata_elements)s and "
-                               "%(final_missing_metadata_element)s.") % {
-                            'missing_metadata_elements': vv[:-2],
-                            'final_missing_metadata_element': details[-1]}
 
-
-                elif p in [MISSING_IMAGE_NUMBER, ERROR_IN_GENERATION, INVALID_DATE_TIME]:
-                    vv = details[0]
-
-                v += ' ' + vv
 
         v = v.strip()
         return v

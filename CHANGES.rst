@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0b1 (2017-03-xx)
+0.9.0b1 (2017-04-xx)
 --------------------
 
  - Improved install.py script, adding openSUSE and the Fedora derivative
@@ -9,7 +9,8 @@ Changelog for Rapid Photo Downloader
    all program requirements without having to be manually restarted.
 
  - Implemented error report window. Error reports are now grouped by task:
-   scanning a device, copying from a device, renaming files, and backing up.
+   scanning a device, copying from a device, finalizing download subfolder and
+   filenames, and backing up.
 
  - A message dialog window is now displayed if back ups will not occur or if
    the download destinations have a problem.
@@ -30,12 +31,19 @@ Changelog for Rapid Photo Downloader
    Since the first alpha release, by default the program ignores the DNG
    date/time metadata when downloading from MTP devices.
 
- - Fixed bug where device scan would indicate a device was empty when the
+ - Changed the count that appears above the program's icon when running on the
+   Unity desktop to show how many files are checked for download, instead of
+   how many new files are available for download.
+
+ - Fixed a bug where device scan would indicate a device was empty when the
    preference value 'Ignored Paths on Devices' contained no paths to ignore.
 
- - Fixed bug where opening a file on an MTP device in a file browser would
+ - Fixed a bug where opening a file on an MTP device in a file browser would
    sometimes fail when the storage name component of the path was incorrectly
    identified.
+
+ - Fixed bug where the case of the extension for XMP files, THM files and WAV
+   files was not matching file renaming preferences.
 
 0.9.0a11 (2017-03-08)
 ---------------------

@@ -239,8 +239,11 @@ class ErrorReport(QDialog):
 
         self.onFindChanged('')
 
-        self.textColor = QPalette().color(QPalette.Text)
-        self.criticalColor = QColor(Qt.red)
+        self.icon_lookup = {
+            ErrorType.warning: ':/downloaded-with-warning.png',
+            ErrorType.serious_error: ':/downloaded-with-error.png',
+            ErrorType.critical_error: ':/icons/error.svg'
+        }
 
     @pyqtSlot()
     def textChanged(self) -> None:
@@ -444,12 +447,10 @@ class ErrorReport(QDialog):
         line = self._saveUrls(problem.body)
 
         if len(problem.details) == 1:
-            line = '{}<br><i>{}</i>'.format(line, problem.details[0])
+            line = '{}<br><i>{}</i>'.format(line, self._saveUrls(problem.details[0]))
         elif len(problem.details) > 1:
-            line = '{}<ul>'.format(line)
             for detail in problem.details:
-                line = '{}<li><i>{}</i></li>'.format(line, detail)
-            line = '{}</ul>'.format(line)
+                line = '{}<br><i>{}</i>'.format(line, self._saveUrls(detail))
 
         return line
 
@@ -459,17 +460,17 @@ class ErrorReport(QDialog):
         """
 
         title = self._saveUrls(problems.title)
-        html = '<h1>{}</h1>'.format(title)
-        if len(problems) > 1:
-            html = '{}<ol>'.format(html)
-            for problem in problems:
-                line = self._getBody(problem=problem)
-                html = '{}<li>{}</li>'.format(html, line)
-            html = '{}</ol>'.format(html)
-        else:
-            html = '{}<p>{}</p>'.format(html, self._getBody(problem=problems[0]))
+        html = '<h1>{}</h1><p></p>'.format(title)
+        html = '{}<table>'.format(html)
+        for problem in problems:
+            line = self._getBody(problem=problem)
+            icon = self.icon_lookup[problem.severity]
+            icon = '<img src="{}" height=16 width=16>'.format(icon)
+            html = '{}<tr><td width=32 align=center>{}</td><td style="padding-bottom: 6px;">' \
+                   '{}</td></tr>'.format(html, icon, line)
+        html = '{}</table>'.format(html)
 
-        html = '{}<br>'.format(html)
+        html = '{}<p></p><p></p>'.format(html)
         self.log.append(html)
 
     def addProblems(self, problems: Problems) -> None:

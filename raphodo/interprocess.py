@@ -51,7 +51,7 @@ from raphodo.storage import StorageSpace
 from raphodo.iplogging import ZeroMQSocketHandler
 from raphodo.viewutils import ThumbnailDataForProximity
 from raphodo.folderspreview import DownloadDestination, FoldersPreview
-from raphodo.problemnotification import ScanProblems, CopyingProblems
+from raphodo.problemnotification import ScanProblems, CopyingProblems, RenamingProblems
 
 logger = logging.getLogger()
 
@@ -1355,12 +1355,14 @@ class RenameAndMoveFileResults:
                  rpd_file: RPDFile=None,
                  download_count: int=None,
                  stored_sequence_no: int=None,
-                 downloads_today: List[str]=None) -> None:
+                 downloads_today: List[str]=None,
+                 problems: Optional[RenamingProblems]=None) -> None:
         self.move_succeeded = move_succeeded
         self.rpd_file = rpd_file
         self.download_count = download_count
         self.stored_sequence_no = stored_sequence_no
         self.downloads_today = downloads_today
+        self.problems = problems
 
 
 class OffloadData:
@@ -1519,6 +1521,7 @@ class RenameMoveFileManager(PushPullDaemonManager):
 
     message = pyqtSignal(bool, RPDFile, int)
     sequencesUpdate = pyqtSignal(int, list)
+    renameProblems = pyqtSignal('PyQt_PyObject')
 
     def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port=logging_port, thread_name=ThreadNames.rename)
@@ -1530,6 +1533,9 @@ class RenameMoveFileManager(PushPullDaemonManager):
         if data.move_succeeded is not None:
 
             self.message.emit(data.move_succeeded, data.rpd_file, data.download_count)
+
+        elif data.problems is not None:
+            self.renameProblems.emit(data.problems)
         else:
             assert data.stored_sequence_no is not None
             assert data.downloads_today is not None

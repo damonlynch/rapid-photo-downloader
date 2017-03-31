@@ -457,11 +457,6 @@ class ThumbnailListModel(QAbstractListModel):
                        '%(path)s' % dict(filename=rpd_file.download_name, path=path,
                                          downloaded_as=downloaded_as)
 
-            if rpd_file.has_problem():
-                error_title=_("%(error_title)s:") % dict(error_title=rpd_file.problem.get_title())
-                msg += '<br><br><i>{}</i><br>{}'.format(error_title,
-                                                        rpd_file.problem.get_problems())
-
             if rpd_file.previously_downloaded():
 
                 prev_datetime = arrow.get(rpd_file.prev_datetime,

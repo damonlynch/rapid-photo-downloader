@@ -28,7 +28,7 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2011-2017, Damon Lynch"
 
 import os
-import datetime
+from datetime import datetime
 from enum import Enum
 from collections import namedtuple
 import errno
@@ -48,6 +48,13 @@ from raphodo.interprocess import (RenameAndMoveFileData, RenameAndMoveFileResult
 from raphodo.rpdfile import RPDFile, Photo, Video
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.utilities import stdchannel_redirected, datetime_roughly_equal, platform_c_maxint
+from raphodo.problemnotification import (
+    FileAlreadyExistsProblem, IdentifierAddedProblem, RenamingProblems, make_href,
+    RenamingFileProblem, SubfolderCreationProblem, DuplicateFileWhenSyncingProblem,
+    SameNameDifferentExif, RenamingAssociateFileProblem, FileMetadataLoadProblemNoDownload,
+    NoDataToNameProblem
+)
+from raphodo.storage import get_uri
 
 
 class SyncRawJpegStatus(Enum):
@@ -62,6 +69,7 @@ SyncRawJpegResult = namedtuple('SyncRawJpegResult', 'sequence_to_use, failed, ph
                                                     'photo_ext')
 SyncRawJpegRecord = namedtuple('SyncRawJpegRecord', 'extension, date_time, sequence_number_used')
 
+
 class SyncRawJpeg:
     """
     Match JPEG and RAW images so they have the same file names
@@ -72,10 +80,10 @@ class SyncRawJpeg:
 
     def add_download(self, name: str,
                      extension: str,
-                     date_time: datetime.datetime,
+                     date_time: datetime,
                      sequence_number_used: gn.MatchedSequences) -> None:
 
-        if not isinstance(date_time, datetime.datetime):
+        if not isinstance(date_time, datetime):
             logging.debug("Rejecting %s for sync RAW jpeg matching because its"
                           "metadata date time does not exist", name)
             return
@@ -90,12 +98,13 @@ class SyncRawJpeg:
 
     def matching_pair(self, name: str,
                       extension: str,
-                      date_time: datetime.datetime) -> SyncRawJpegMatch:
+                      date_time: datetime) -> SyncRawJpegMatch:
         """
         Checks to see if the image matches an image that has already been
         downloaded.
+        
         Image name (minus extension), exif date time are checked. Exif
-        date timeshould be within 30 seconds of each other, because
+        date times should be within 30 seconds of each other, because
         need to allow for the fact that RAW and jpegs might not be
         written to the memory card(s) at the same time.
 
@@ -126,7 +135,7 @@ class SyncRawJpeg:
                 return SyncRawJpegMatch(SyncRawJpegStatus.error_datetime_mismatch, None)
         return SyncRawJpegMatch(SyncRawJpegStatus.no_match, None)
 
-    def ext_exif_date_time(self, name) -> Tuple[str, datetime.datetime]:
+    def ext_exif_date_time(self, name) -> Tuple[str, datetime]:
         """
         Returns first extension, and exif date time data for
         the already downloaded photo
@@ -135,7 +144,9 @@ class SyncRawJpeg:
         return self.photos[name].extension[0], self.photos[name].date_time
 
 
-def load_metadata(rpd_file: Union[Photo, Video], et_process: exiftool.ExifTool) -> bool:
+def load_metadata(rpd_file: Union[Photo, Video],
+                  et_process: exiftool.ExifTool,
+                  problems: RenamingProblems) -> bool:
     """
     Loads the metadata for the file.
 
@@ -149,8 +160,10 @@ def load_metadata(rpd_file: Union[Photo, Video], et_process: exiftool.ExifTool) 
         if not rpd_file.load_metadata(full_file_name=rpd_file.temp_full_file_name,
                                       et_process=et_process):
             # Error in reading metadata
-            rpd_file.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA,
-                                 {'filetype': rpd_file.title_capitalized})
+
+            problems.append(FileMetadataLoadProblemNoDownload(
+                name=rpd_file.name, uri=rpd_file.get_uri(), file_type=rpd_file.title
+            ))
             return False
     return True
 
@@ -158,7 +171,8 @@ def load_metadata(rpd_file: Union[Photo, Video], et_process: exiftool.ExifTool) 
 def _generate_name(generator: Union[gn.PhotoName, gn.PhotoSubfolder, gn.VideoName, 
                                     gn.VideoSubfolder], 
                    rpd_file: Union[Photo, Video], 
-                   et_process: exiftool.ExifTool) -> str:
+                   et_process: exiftool.ExifTool,
+                   problems: RenamingProblems) -> str:
     """
     Generate a subfolder or file name.
     
@@ -168,7 +182,7 @@ def _generate_name(generator: Union[gn.PhotoName, gn.PhotoSubfolder, gn.VideoNam
     :param et_process:  the daemon ExifTool process
     :return: the name in string format, emptry string if error
     """
-    do_generation = load_metadata(rpd_file, et_process)
+    do_generation = load_metadata(rpd_file, et_process, problems)
 
     if do_generation:
         value = generator.generate_name(rpd_file)
@@ -180,7 +194,9 @@ def _generate_name(generator: Union[gn.PhotoName, gn.PhotoSubfolder, gn.VideoNam
     return value
 
 
-def generate_subfolder(rpd_file: Union[Photo, Video], et_process: exiftool.ExifTool) -> None:
+def generate_subfolder(rpd_file: Union[Photo, Video],
+                       et_process: exiftool.ExifTool,
+                       problems: RenamingProblems) -> None:
     """
     Generate subfolder names e.g. 2015/201512
     
@@ -189,14 +205,16 @@ def generate_subfolder(rpd_file: Union[Photo, Video], et_process: exiftool.ExifT
     """
     
     if rpd_file.file_type == FileType.photo:
-        generator = gn.PhotoSubfolder(rpd_file.subfolder_pref_list)
+        generator = gn.PhotoSubfolder(rpd_file.subfolder_pref_list, problems=problems)
     else:
-        generator = gn.VideoSubfolder(rpd_file.subfolder_pref_list)
+        generator = gn.VideoSubfolder(rpd_file.subfolder_pref_list, problems=problems)
 
-    rpd_file.download_subfolder = _generate_name(generator, rpd_file, et_process)
+    rpd_file.download_subfolder = _generate_name(generator, rpd_file, et_process, problems)
 
 
-def generate_name(rpd_file: Union[Photo, Video], et_process: exiftool.ExifTool) -> None:
+def generate_name(rpd_file: Union[Photo, Video],
+                  et_process: exiftool.ExifTool,
+                  problems: RenamingProblems) -> None:
     """
     Generate file names e.g. 20150607-1.cr2
 
@@ -205,11 +223,11 @@ def generate_name(rpd_file: Union[Photo, Video], et_process: exiftool.ExifTool) 
     """
 
     if rpd_file.file_type == FileType.photo:
-        generator = gn.PhotoName(rpd_file.name_pref_list)
+        generator = gn.PhotoName(rpd_file.name_pref_list, problems=problems)
     else:
-        generator = gn.VideoName(rpd_file.name_pref_list)
+        generator = gn.VideoName(rpd_file.name_pref_list, problems=problems)
 
-    rpd_file.download_name = _generate_name(generator, rpd_file, et_process)
+    rpd_file.download_name = _generate_name(generator, rpd_file, et_process, problems)
 
 
 class RenameMoveFileWorker(DaemonProcess):
@@ -231,6 +249,10 @@ class RenameMoveFileWorker(DaemonProcess):
 
         self.platform_c_maxint = platform_c_maxint()
 
+        # This will be assigned again in run(), but initializing it here
+        # clarifies any problems with type checking in an IDE
+        self.problems = RenamingProblems()
+
     def notify_file_already_exists(self, rpd_file: Union[Photo, Video],
                                    identifier: Optional[str]=None) -> None:
         """
@@ -240,55 +262,75 @@ class RenameMoveFileWorker(DaemonProcess):
         # get information on when the existing file was last modified
         try:
             modification_time = os.path.getmtime(rpd_file.download_full_file_name)
-            dt = datetime.datetime.fromtimestamp(modification_time)
+            dt = datetime.fromtimestamp(modification_time)
             date = dt.strftime("%x")
             time = dt.strftime("%X")
         except:
-            logging.warning("Could not determine the file modification time of %s",
+            logging.error("Could not determine the file modification time of %s",
                 rpd_file.download_full_file_name)
             date = time = ''
 
+        source = rpd_file.get_souce_href()
+
+        device = make_href(name=rpd_file.device_display_name, uri=rpd_file.device_uri)
+
         if not identifier:
-            # FIXME log errors properly
+            problem = FileAlreadyExistsProblem(
+                file_type_capitalized=rpd_file.title_capitalized,
+                file_type=rpd_file.title,
+                name=rpd_file.download_name,
+                uri=get_uri(full_file_name=rpd_file.download_full_file_name),
+                source=source,
+                device=device,
+                date=date,
+                time=time
+            )
 
-            rpd_file.add_problem(None, pn.FILE_ALREADY_EXISTS_NO_DOWNLOAD,
-                                 {'filetype': rpd_file.title_capitalized})
-            rpd_file.add_extra_detail(pn.EXISTING_FILE, dict(filetype=rpd_file.title, 
-                                                             date=date, time=time))
             rpd_file.status = DownloadStatus.download_failed
-            rpd_file.error_extra_detail = pn.extra_detail_definitions[
-                                              pn.EXISTING_FILE] % dict(date=date, time=time, 
-                                                                       filetype=rpd_file.title)
         else:
-            # FIXME log errors properly
+            problem = IdentifierAddedProblem(
+                file_type_capitalized=rpd_file.title_capitalized,
+                file_type=rpd_file.title,
+                name=rpd_file.download_name,
+                uri=get_uri(full_file_name=rpd_file.download_full_file_name),
+                source=source,
+                device=device,
+                date=date,
+                time=time,
+                identifier=identifier
+            )
 
-            rpd_file.add_problem(None, pn.UNIQUE_IDENTIFIER_ADDED, dict(
-                                 filetype=rpd_file.title_capitalized))
-            rpd_file.add_extra_detail(pn.UNIQUE_IDENTIFIER, dict( identifier=identifier, 
-                                      filetype=rpd_file.title, date=date, time=time))
             rpd_file.status = DownloadStatus.downloaded_with_warning
-            rpd_file.error_extra_detail = pn.extra_detail_definitions[
-                                          pn.UNIQUE_IDENTIFIER] % dict( identifier=identifier,
-                                          filetype=rpd_file.title, date=date, time=time)
-        rpd_file.error_title = rpd_file.problem.get_title()
-        rpd_file.error_msg = _("Source: %(source)s\nDestination: %(destination)s") % dict(
-            source=rpd_file.full_file_name, destination=rpd_file.download_full_file_name)
 
-    def notify_download_failure_file_error(self, rpd_file: Union[Photo, Video], inst) -> None:
+        self.problems.append(problem)
+
+    def notify_download_failure_file_error(
+            self, rpd_file: Union[Photo, Video], inst: Exception) -> None:
         """
         Handle cases where file failed to download
         """
-        
-        # FIXME log errors properly
+        uri=get_uri(
+                full_file_name=rpd_file.full_file_name, camera_details=rpd_file.camera_details
+        )
+        device = make_href(name=rpd_file.device_display_name, uri=rpd_file.device_uri)
 
-        rpd_file.add_problem(None, pn.DOWNLOAD_COPYING_ERROR, dict(filetype=rpd_file.title))
-        rpd_file.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_DETAIL, inst)
+        problem = RenamingFileProblem(
+            file_type=rpd_file.title,
+            destination=rpd_file.download_name,
+            folder=rpd_file.download_path,
+            name=rpd_file.name,
+            uri=uri,
+            device=device,
+            exception=inst
+        )
+        self.problems.append(problem)
+
         rpd_file.status = DownloadStatus.download_failed
-        logging.error("Failed to create file %s: %s", rpd_file.download_full_file_name, inst)
 
-        rpd_file.error_title = rpd_file.problem.get_title()
-        rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % dict(
-                             problem=rpd_file.problem.get_problems(), file=rpd_file.full_file_name)
+        logging.error(
+            "Failed to create file %s: %s %s", rpd_file.download_full_file_name,
+            inst.errno, inst.strerror
+        )
 
     def download_file_exists(self, rpd_file: Union[Photo, Video]) -> bool:
         """
@@ -312,65 +354,77 @@ class RenameMoveFileWorker(DaemonProcess):
         
         i1_ext, i1_date_time = self.sync_raw_jpeg.ext_exif_date_time(sync_photo_name)
         image2_date_time = rpd_file.date_time()
-        assert isinstance(i1_date_time, datetime.datetime)
+        assert isinstance(i1_date_time, datetime)
         i1_date = i1_date_time.strftime("%x")
         i1_time = i1_date_time.strftime("%X")
-        isinstance(image2_date_time,datetime.datetime)
+        assert isinstance(image2_date_time,datetime)
         image2_date = image2_date_time.strftime("%x")
         image2_time = image2_date_time.strftime("%X")
 
-        detail = dict(image1="%s%s" % (sync_photo_name, i1_ext),
-                  image1_date=i1_date,
-                  image1_time=i1_time,
-                  image2=rpd_file.name,
-                  image2_date=image2_date,
-                  image2_time=image2_time)
-        
-        rpd_file.add_problem(None, pn.SAME_FILE_DIFFERENT_EXIF, detail)
-
-        # FIXME log errors properly
-
-        rpd_file.error_title = _(
-            'Photos detected with the same filenames, but taken at different times')
-        rpd_file.error_msg = pn.problem_definitions[pn.SAME_FILE_DIFFERENT_EXIF][1] % detail
+        self.problems.append(
+            SameNameDifferentExif(
+                image1='%s%s' % (sync_photo_name, i1_ext),
+                image1_date=i1_date,
+                image1_time=i1_time,
+                image2=rpd_file.name,
+                image2_date=image2_date,
+                image2_time=image2_time
+            )
+        )
         rpd_file.status = DownloadStatus.downloaded_with_warning
 
     def _move_associate_file(self, extension: str,
                              full_base_name: str,
-                             temp_associate_file: str) -> Tuple[bool, str]:
+                             temp_associate_file: str) ->  str:
         """
         Move (rename) the associate file using the pre-generated name.
+        
+        Exceptions are not caught.
 
-        :return: tuple of result (True if succeeded, False otherwise)
-         and full path and filename
+        :return: full path and filename
         """
 
         download_full_name = full_base_name + extension
 
         # move (rename) associate file
-        try:
-            # don't check to see if it already exists
-            os.rename(temp_associate_file, download_full_name)
-            success = True
-        except:
-            success = False
+        # don't check to see if it already exists
+        os.rename(temp_associate_file, download_full_name)
 
-        return success, download_full_name
+        return download_full_name
 
     def move_thm_file(self, rpd_file: Union[Photo, Video]) -> None:
         """
-        Move (rename) the THM thumbnail file using the pregenerated name
+        Move (rename) the THM thumbnail file using the pre-generated name
         """
 
-        if hasattr(rpd_file, 'thm_extension') and rpd_file.thm_extension:
-            ext = rpd_file.thm_extension
-        else:
+        try:
+            if rpd_file.thm_extension:
+                ext = rpd_file.thm_extension
+            else:
+                ext = '.THM'
+        except AttributeError:
             ext = '.THM'
 
-        result, rpd_file.download_thm_full_name = self._move_associate_file(
-            ext, rpd_file.download_full_base_name, rpd_file.temp_thm_full_name)
+        try:
+            rpd_file.download_thm_full_name = self._move_associate_file(
+                extension=ext,
+                full_base_name=rpd_file.download_full_base_name,
+                temp_associate_file=rpd_file.temp_thm_full_name
+            )
+        except (OSError, FileNotFoundError) as e:
+            self.problems.append(
+                RenamingAssociateFileProblem(
+                    source=make_href(
+                        name=os.path.basename(rpd_file.download_thm_full_name),
+                        uri=get_uri(
+                            full_file_name=rpd_file.download_thm_full_name,
+                            camera_details=rpd_file.camera_details
+                        )
+                    ),
+                    exception=e
+                )
+            )
 
-        if not result:
             logging.error("Failed to move video THM file %s", rpd_file.download_thm_full_name)
 
     def move_audio_file(self, rpd_file: Union[Photo, Video]) -> None:
@@ -379,16 +433,33 @@ class RenameMoveFileWorker(DaemonProcess):
         name
         """
 
-        if hasattr(rpd_file, 'audio_extension') and rpd_file.audio_extension:
-            ext = rpd_file.audio_extension
-        else:
+        try:
+            if rpd_file.audio_extension:
+                ext = rpd_file.audio_extension
+            else:
+                ext = '.WAV'
+        except AttributeError:
             ext = '.WAV'
 
-        result, rpd_file.download_audio_full_name = self._move_associate_file(
-            ext, rpd_file.download_full_base_name,
-            rpd_file.temp_audio_full_name)
-
-        if not result:
+        try:
+            rpd_file.download_audio_full_name = self._move_associate_file(
+                extension=ext,
+                full_base_name=rpd_file.download_full_base_name,
+                temp_associate_file=rpd_file.temp_audio_full_name
+            )
+        except (OSError, FileNotFoundError) as e:
+            self.problems.append(
+                RenamingAssociateFileProblem(
+                    source=make_href(
+                        name=os.path.basename(rpd_file.download_audio_full_name),
+                        uri=get_uri(
+                            full_file_name=rpd_file.download_audio_full_name,
+                            camera_details=rpd_file.camera_details
+                        )
+                    ),
+                    exception=e
+                )
+            )
             logging.error("Failed to move file's associated audio file %s",
                           rpd_file.download_audio_full_name)
 
@@ -398,15 +469,33 @@ class RenameMoveFileWorker(DaemonProcess):
         name
         """
 
-        if hasattr(rpd_file, 'xmp_extension') and rpd_file.xmp_extension:
-            ext = rpd_file.xmp_extension
-        else:
+        try:
+            if rpd_file.xmp_extension:
+                ext = rpd_file.xmp_extension
+            else:
+                ext = '.XMP'
+        except AttributeError:
             ext = '.XMP'
 
-        result, rpd_file.download_xmp_full_name = self._move_associate_file(
-            ext, rpd_file.download_full_base_name, rpd_file.temp_xmp_full_name)
-
-        if not result:
+        try:
+            rpd_file.download_xmp_full_name = self._move_associate_file(
+                extension=ext,
+                full_base_name=rpd_file.download_full_base_name,
+                temp_associate_file=rpd_file.temp_xmp_full_name
+            )
+        except (OSError, FileNotFoundError) as e:
+            self.problems.append(
+                RenamingAssociateFileProblem(
+                    source=make_href(
+                        name=os.path.basename(rpd_file.download_xmp_full_name),
+                        uri=get_uri(
+                            full_file_name=rpd_file.download_xmp_full_name,
+                            camera_details=rpd_file.camera_details
+                        )
+                    ),
+                    exception=e
+                )
+            )
             logging.error("Failed to move file's associated XMP file %s",
                           rpd_file.download_xmp_full_name)
 
@@ -423,14 +512,13 @@ class RenameMoveFileWorker(DaemonProcess):
                 area = _("filename")
             else:
                 area = _("subfolder")
-            rpd_file.add_problem(None, pn.ERROR_IN_NAME_GENERATION, dict(
-                                 filetype=rpd_file.title_capitalized, area=area))
-            rpd_file.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
-            rpd_file.status = DownloadStatus.download_failed
 
-            rpd_file.error_title = rpd_file.problem.get_title()
-            rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % dict(
-                           problem=rpd_file.problem.get_problems(), file=rpd_file.full_file_name)
+            rpd_file.status = DownloadStatus.download_failed
+            self.problems.append(
+                NoDataToNameProblem(
+                    name=rpd_file.name, uri=rpd_file.get_uri(), area=area
+                )
+            )
             return False
         else:
             return True
@@ -456,7 +544,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
             try:
                 if os.path.exists(rpd_file.download_full_file_name):
-                    raise IOError(errno.EEXIST, "File exists: %s" %
+                    raise OSError(errno.EEXIST, "File exists: %s" %
                                   rpd_file.download_full_file_name)
                 os.rename(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
                 self.notify_file_already_exists(rpd_file, identifier)
@@ -472,13 +560,13 @@ class RenameMoveFileWorker(DaemonProcess):
         failed = False
         sequence_to_use = None
         photo_name, photo_ext = os.path.splitext(rpd_file.name)
-        if not load_metadata(rpd_file, self.exiftool_process):
+        if not load_metadata(rpd_file, self.exiftool_process, self.problems):
             failed = True
             rpd_file.status = DownloadStatus.download_failed
             self.check_for_fatal_name_generation_errors(rpd_file)
         else:
             date_time = rpd_file.date_time()
-            if not isinstance(date_time, datetime.datetime):
+            if not isinstance(date_time, datetime):
                 failed = True
                 rpd_file.status = DownloadStatus.download_failed
                 self.check_for_fatal_name_generation_errors(rpd_file)
@@ -492,11 +580,14 @@ class RenameMoveFileWorker(DaemonProcess):
                     # downloaded (same extension, same filename,
                     # and roughly the same exif date time  info)
                     if self.prefs.conflict_resolution != ConflictResolution.add_identifier:
-                        rpd_file.add_problem(None,
-                            pn.FILE_ALREADY_DOWNLOADED, dict(filetype=rpd_file.title_capitalized))
-                        rpd_file.error_title = _('Photo has already been downloaded')
-                        rpd_file.error_msg = _("Source: %(source)s") % dict(
-                            source=rpd_file.full_file_name)
+                        self.problems.append(
+                            DuplicateFileWhenSyncingProblem(
+                                name=rpd_file.name,
+                                uri=rpd_file.get_uri(),
+                                file_type = rpd_file.title,
+                            )
+                        )
+
                         rpd_file.status = DownloadStatus.download_failed
                         failed = True
                 else:
@@ -521,14 +612,6 @@ class RenameMoveFileWorker(DaemonProcess):
             rpd_file.name_pref_list = self.prefs.video_rename
 
     def process_rename_failure(self, rpd_file: RPDFile) -> None:
-        if rpd_file.problem is None:
-            logging.error("%s (%s) has no problem information",
-                          rpd_file.full_file_name,
-                          rpd_file.download_full_file_name)
-        else:
-            logging.error("%s: %s - %s", rpd_file.full_file_name,
-                      rpd_file.problem.get_title(),
-                      rpd_file.problem.get_problems())
         try:
             os.remove(rpd_file.temp_full_file_name)
         except OSError:
@@ -538,7 +621,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
         rpd_file.strip_characters = self.prefs.strip_characters
 
-        generate_subfolder(rpd_file, self.exiftool_process)
+        generate_subfolder(rpd_file, self.exiftool_process, self.problems)
 
         if rpd_file.download_subfolder:
             logging.debug("Generated subfolder name %s for file %s",
@@ -548,15 +631,12 @@ class RenameMoveFileWorker(DaemonProcess):
             rpd_file.sequences = self.sequences
 
             # generate the file name
-            generate_name(rpd_file, self.exiftool_process)
+            generate_name(rpd_file, self.exiftool_process, self.problems)
 
-            if rpd_file.has_problem():
+            if rpd_file.name_generation_problem:
                 logging.warning("Encountered a problem generating file name for file %s",
                     rpd_file.name)
                 rpd_file.status = DownloadStatus.downloaded_with_warning
-                rpd_file.error_title = rpd_file.problem.get_title()
-                rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % dict(
-                    problem=rpd_file.problem.get_problems(), file=rpd_file.full_file_name)
             else:
                 logging.debug("Generated file name %s for file %s", rpd_file.download_name,
                               rpd_file.name)
@@ -583,19 +663,26 @@ class RenameMoveFileWorker(DaemonProcess):
         if not os.path.isdir(rpd_file.download_path):
             try:
                 os.makedirs(rpd_file.download_path)
-            except IOError as inst:
+            except OSError as inst:
                 if inst.errno != errno.EEXIST:
                     logging.error("Failed to create download subfolder: %s", rpd_file.download_path)
                     logging.error(inst)
-                    rpd_file.error_title = _("Failed to create download subfolder")
-                    rpd_file.error_msg = _("Path: %s") % rpd_file.download_path
+
+                    problem = SubfolderCreationProblem(
+                        folder=make_href(
+                            name=rpd_file.download_subfolder,
+                            uri=get_uri(path=rpd_file.download_path)
+                        ),
+                        exception=inst
+                    )
+                    self.problems.append(problem)
 
         # Move temp file to subfolder
 
         add_unique_identifier = False
         try:
             if os.path.exists(rpd_file.download_full_file_name):
-                raise IOError(errno.EEXIST, "File exists: %s" % rpd_file.download_full_file_name)
+                raise OSError(errno.EEXIST, "File exists: %s" % rpd_file.download_full_file_name)
             logging.debug("Renaming %s to %s .....",
                 rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
             os.rename(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
@@ -607,13 +694,9 @@ class RenameMoveFileWorker(DaemonProcess):
             if inst.errno == errno.EEXIST:
                 add_unique_identifier = self.download_file_exists(rpd_file)
             else:
-                self.notify_download_failure_file_error(rpd_file, inst.strerror)
+                self.notify_download_failure_file_error(rpd_file, inst)
         except Exception as inst:
-            self.notify_download_failure_file_error(
-                rpd_file, "An error occurred while renaming the file: %s"  % inst)
-        except:
-            self.notify_download_failure_file_error(
-                rpd_file, "An unknown error occurred while renaming the file")
+            self.notify_download_failure_file_error(rpd_file, inst)
 
         if add_unique_identifier:
             self.add_unique_identifier(rpd_file)
@@ -695,7 +778,7 @@ class RenameMoveFileWorker(DaemonProcess):
         # suffixes to duplicate files
         self.duplicate_files = {}
 
-        with  stdchannel_redirected(sys.stderr, os.devnull):
+        with stdchannel_redirected(sys.stderr, os.devnull):
             with exiftool.ExifTool() as self.exiftool_process:
                 while True:
                     if i:
@@ -723,15 +806,29 @@ class RenameMoveFileWorker(DaemonProcess):
                         dl_today = self.downloads_today_tracker.get_or_reset_downloads_today()
                         logging.debug("Completed downloads today: %s", dl_today)
 
+                        self.problems = RenamingProblems()
+
                     elif data.message == RenameAndMoveStatus.download_completed:
+                        if len(self.problems):
+                            self.content = pickle.dumps(
+                                RenameAndMoveFileResults(
+                                    problems=self.problems
+                                ),
+                                pickle.HIGHEST_PROTOCOL
+                            )
+                            self.send_message_to_sink()
+
                         # Ask main application process to update prefs with stored
                         # sequence number and downloads today values. Cannot do it
                         # here because to save QSettings, QApplication should be
                         # used.
-                        self.content = pickle.dumps(RenameAndMoveFileResults(
-                            stored_sequence_no=self.sequences.stored_sequence_no,
-                            downloads_today=self.downloads_today_tracker.downloads_today),
-                            pickle.HIGHEST_PROTOCOL)
+                        self.content = pickle.dumps(
+                            RenameAndMoveFileResults(
+                                stored_sequence_no=self.sequences.stored_sequence_no,
+                                downloads_today=self.downloads_today_tracker.downloads_today
+                            ),
+                            pickle.HIGHEST_PROTOCOL
+                        )
                         dl_today = self.downloads_today_tracker.get_or_reset_downloads_today()
                         logging.debug("Downloads today: %s", dl_today)
                         self.send_message_to_sink()
@@ -753,11 +850,14 @@ class RenameMoveFileWorker(DaemonProcess):
                             move_succeeded = False
 
                         rpd_file.metadata = None
-                        self.content = pickle.dumps(RenameAndMoveFileResults(
-                            move_succeeded=move_succeeded,
-                            rpd_file=rpd_file,
-                            download_count=download_count),
-                            pickle.HIGHEST_PROTOCOL)
+                        self.content = pickle.dumps(
+                            RenameAndMoveFileResults(
+                                move_succeeded=move_succeeded,
+                                rpd_file=rpd_file,
+                                download_count=download_count
+                            ),
+                            pickle.HIGHEST_PROTOCOL
+                        )
                         self.send_message_to_sink()
 
                         i += 1

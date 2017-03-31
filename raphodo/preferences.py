@@ -645,8 +645,8 @@ class Preferences:
             h, m = self.day_start.split(":")
             h = int(h)
             m = int(m)
-            assert h >= 0 and h <= 23
-            assert m >= 0 and m <= 59
+            assert 0 <= h <= 23
+            assert 0 <= m <= 59
             return QTime(h, m)
         except (ValueError, AssertionError):
             logging.error(
@@ -870,23 +870,23 @@ class Preferences:
         logging.debug('Validating CPU core count for thumbnail generation...')
         available = available_cpu_count(physical_only=True)
         logging.debug('...%s physical cores detected', available)
-        if self['max_cpu_cores'] > available:
+        if self.max_cpu_cores > available:
             logging.info('Setting CPU Cores for thumbnail generation to %s', available)
-            self['max_cpu_cores'] = available
+            self.max_cpu_cores = available
 
     def validate_ignore_unhandled_file_exts(self) -> None:
         # logging.debug('Validating list of file extension to not warn about...')
-        self['ignore_unhandled_file_exts'] = [ext.upper() for ext in self[
-            'ignore_unhandled_file_exts'] if ext.lower() not in ALL_KNOWN_EXTENSIONS]
+        self.ignore_unhandled_file_exts = [ext.upper() for ext in self.ignore_unhandled_file_exts
+                                           if ext.lower() not in ALL_KNOWN_EXTENSIONS]
 
     def warn_about_unknown_file(self, ext: str) -> bool:
-        if not self['warn_unhandled_files']:
+        if not self.warn_unhandled_files:
             return False
 
-        if not self['ignore_unhandled_file_exts'][0]:
+        if not self.ignore_unhandled_file_exts[0]:
             return True
 
-        return ext.upper() not in self['ignore_unhandled_file_exts']
+        return ext.upper() not in self.ignore_unhandled_file_exts
 
 
 def match_pref_list(pref_lists: List[List[str]], user_pref_list: List[str]) -> int:

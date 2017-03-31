@@ -45,7 +45,7 @@ from raphodo.storage import get_uri, CameraDetails
 import raphodo.metadataphoto as metadataphoto
 import raphodo.metadatavideo as metadatavideo
 from raphodo.utilities import thousands, make_internationalized_list, datetime_roughly_equal
-from raphodo.problemnotification import Problem
+from raphodo.problemnotification import Problem, make_href
 
 import raphodo.problemnotification as pn
 
@@ -153,6 +153,8 @@ def get_rpdfile(name: str,
                 camera_details: Optional[CameraDetails],
                 camera_memory_card_identifiers: Optional[List[int]],
                 never_read_mdatatime: bool,
+                device_display_name: str,
+                device_uri: str,
                 raw_exif_bytes: Optional[bytes],
                 exif_source: Optional[ExifSource],
                 problem: Optional[Problem]):
@@ -175,6 +177,8 @@ def get_rpdfile(name: str,
                      camera_details=camera_details,
                      camera_memory_card_identifiers=camera_memory_card_identifiers,
                      never_read_mdatatime=never_read_mdatatime,
+                     device_display_name=device_display_name,
+                     device_uri=device_uri,
                      raw_exif_bytes=raw_exif_bytes,
                      problem=problem)
     else:
@@ -195,6 +199,8 @@ def get_rpdfile(name: str,
                      camera_details=camera_details,
                      camera_memory_card_identifiers=camera_memory_card_identifiers,
                      never_read_mdatatime=never_read_mdatatime,
+                     device_display_name=device_display_name,
+                     device_uri=device_uri,
                      raw_exif_bytes=raw_exif_bytes,
                      exif_source=exif_source,
                      problem=problem)
@@ -353,6 +359,8 @@ class RPDFile:
                  scan_id: bytes,
                  from_camera: bool,
                  never_read_mdatatime: bool,
+                 device_display_name: str,
+                 device_uri:str,
                  camera_details: Optional[CameraDetails]=None,
                  camera_memory_card_identifiers: Optional[List[int]]=None,
                  raw_exif_bytes: Optional[bytes]=None,
@@ -385,6 +393,8 @@ class RPDFile:
         :param never_read_mdatatime: whether to ignore the metadata
          date time when determining a photo or video's creation time,
          and rely only on the file modification time
+        :param device_display_name: display name of the device the file was found on 
+        :param device_uri: the uri of the device the file was found on
         :param camera_details: details about the camera, such as model name,
          port, etc.
         :param camera_memory_card_identifiers: if downloaded from a
@@ -398,6 +408,9 @@ class RPDFile:
 
         self.from_camera = from_camera
         self.camera_details = camera_details
+
+        self.device_display_name = device_display_name
+        self.device_uri = device_uri
 
         if camera_details is not None:
             self.camera_model = camera_details.model
@@ -540,7 +553,7 @@ class RPDFile:
 
         self.download_folder = ''
         self.download_subfolder = ''
-        self.download_path = ''
+        self.download_path = ''  # os.path.join(download_folder, download_subfolder)
         self.download_name = ''
         self.download_full_file_name = '' # filename with path
         self.download_full_base_name = '' # filename with path but no extension
@@ -557,6 +570,9 @@ class RPDFile:
         self.generate_extension_case = ''  # type: str
 
         self.modified_via_daemon_process = False
+
+        # If true, there was a name generation problem
+        self.name_generation_problem = False
 
     def should_write_fdo(self) -> bool:
         """
@@ -750,8 +766,16 @@ class RPDFile:
                 desktop_environment=desktop_environment
             )
 
-    def get_href(self) -> str:
-        return '<a href="{}">{}</a>'.format(self.get_uri(), self.get_current_name())
+    def get_souce_href(self) -> str:
+        return make_href(
+            name=self.name,
+            uri=get_uri(
+                full_file_name=self.full_file_name, camera_details=self.camera_details
+            )
+        )
+
+    def get_current_href(self) -> str:
+        return make_href(name=self.get_current_name(), uri=self.get_uri())
 
     def get_display_full_name(self) -> str:
         """
@@ -772,15 +796,12 @@ class RPDFile:
         self.file_type = None
 
     def has_problem(self):
-        if self.problem is None:
-            return False
-        else:
-            return self.problem.has_problem()
+        # legacy code, to purge
+        return False
 
     def add_problem(self, component, problem_definition, *args):
-        if self.problem is None:
-            self.problem = pn.Problem()
-        # self.problem.add_problem(component, problem_definition, *args)
+        # legacy code, to purge
+        pass
 
     def add_extra_detail(self, extra_detail, *args):
         pass
@@ -790,6 +811,7 @@ class RPDFile:
         return "{}\t{}".format(self.name, datetime.fromtimestamp(
             self.modification_time).strftime('%Y-%m-%d %H:%M:%S'))
 
+
 class Photo(RPDFile):
 
     title = _("photo")
@@ -797,8 +819,6 @@ class Photo(RPDFile):
 
     def _assign_file_type(self):
         self.file_type = FileType.photo
-
-
 
     def load_metadata(self, full_file_name: Optional[str]=None,
                  raw_bytes: Optional[bytearray]=None,
@@ -864,43 +884,52 @@ class Video(RPDFile):
 class SamplePhoto(Photo):
     def __init__(self, sample_name='IMG_1234.CR2', sequences=None):
         mtime = time.time()
-        super().__init__(name=sample_name,
-                         path='/media/EOS_DIGITAL/DCIM/100EOS5D',
-                         size=23516764,
-                         prev_full_name=None,
-                         prev_datetime=None,
-                         device_timestamp_type=DeviceTimestampTZ.is_local,
-                         mtime=mtime,
-                         mdatatime=mtime,
-                         thumbnail_cache_status=ThumbnailCacheDiskStatus.not_found,
-                         thm_full_name=None,
-                         audio_file_full_name=None,
-                         xmp_file_full_name=None,
-                         scan_id=b'0',
-                         from_camera=False,
-                         never_read_mdatatime=False)
+        super().__init__(
+            name=sample_name,
+            path='/media/EOS_DIGITAL/DCIM/100EOS5D',
+            size=23516764,
+            prev_full_name=None,
+            prev_datetime=None,
+            device_timestamp_type=DeviceTimestampTZ.is_local,
+            mtime=mtime,
+            mdatatime=mtime,
+            thumbnail_cache_status=ThumbnailCacheDiskStatus.not_found,
+            thm_full_name=None,
+            audio_file_full_name=None,
+            xmp_file_full_name=None,
+            scan_id=b'0',
+            from_camera=False,
+            never_read_mdatatime=False,
+            device_display_name=_('Photos'),
+            device_uri='file:///media/EOS_DIGITAL/'
+        )
         self.sequences = sequences
         self.metadata = metadataphoto.DummyMetaData()
         self.download_start_time = datetime.now()
 
+
 class SampleVideo(Video):
     def __init__(self, sample_name='MVI_1234.MOV', sequences=None):
         mtime = time.time()
-        Video.__init__(self, name=sample_name,
-                       path='/media/EOS_DIGITAL/DCIM/100EOS5D',
-                       size=823513764,
-                       prev_full_name=None,
-                       prev_datetime=None,
-                       device_timestamp_type=DeviceTimestampTZ.is_local,
-                       mtime=mtime,
-                       mdatatime=mtime,
-                       thumbnail_cache_status=ThumbnailCacheDiskStatus.not_found,
-                       thm_full_name=None,
-                       audio_file_full_name=None,
-                       xmp_file_full_name=None,
-                       scan_id=b'0',
-                       from_camera=False,
-                       never_read_mdatatime=False)
+        super().__init__(
+            name=sample_name,
+            path='/media/EOS_DIGITAL/DCIM/100EOS5D',
+            size=823513764,
+            prev_full_name=None,
+            prev_datetime=None,
+            device_timestamp_type=DeviceTimestampTZ.is_local,
+            mtime=mtime,
+            mdatatime=mtime,
+            thumbnail_cache_status=ThumbnailCacheDiskStatus.not_found,
+            thm_full_name=None,
+            audio_file_full_name=None,
+            xmp_file_full_name=None,
+            scan_id=b'0',
+            from_camera=False,
+            never_read_mdatatime=False,
+            device_display_name=_('Videos'),
+            device_uri='file:///media/EOS_DIGITAL/'
+        )
         self.sequences = sequences
         self.metadata = metadatavideo.DummyMetaData(sample_name, None)
         self.download_start_time = datetime.now()

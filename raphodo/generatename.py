@@ -23,7 +23,7 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2007-2016, Damon Lynch"
 
 import re
-import datetime
+from datetime import datetime, timedelta
 import string
 from collections import namedtuple
 import logging
@@ -33,7 +33,12 @@ from gettext import gettext as _
 
 from raphodo.preferences import DownloadsTodayTracker
 import raphodo.problemnotification as pn
+from raphodo.problemnotification import (
+    RenamingProblems, FilenameNotFullyGeneratedProblem, make_href,
+    FolderNotFullyGeneratedProblemProblem, Problem
+)
 from raphodo.rpdfile import RPDFile, Photo, Video
+from raphodo.storage import get_uri
 
 from raphodo.generatenameconfig import *
 
@@ -45,26 +50,67 @@ MatchedSequences = namedtuple('MatchedSequences',
 def convert_date_for_strftime(datetime_user_choice):
     try:
         return DATE_TIME_CONVERT[LIST_DATE_TIME_L2.index(datetime_user_choice)]
-    except:
+    except KeyError:
         raise PrefValueInvalidError(datetime_user_choice)
 
 
-class PhotoName:
+class abstract_attribute():
+    """
+    http://stackoverflow.com/questions/32536176/how-to-define-lazy-variable-in-python-which-will-
+    raise-notimplementederror-for-a/32536493
+    """
+
+    def __get__(self, obj, type):
+        # Now we will iterate over the names on the class,
+        # and all its superclasses, and try to find the attribute
+        # name for this descriptor
+        # traverse the parents in the method resolution order
+        for cls in type.__mro__:
+            # for each cls thus, see what attributes they set
+            for name, value in cls.__dict__.items():
+                # we found ourselves here
+                if value is self:
+                    # if the property gets accessed as Child.variable,
+                    # obj will be done. For this case
+                    # If accessed as a_child.variable, the class Child is
+                    # in the type, and a_child in the obj.
+                    this_obj = obj if obj else type
+
+                    raise NotImplementedError(
+                         "%r does not have the attribute %r "
+                         "(abstract from class %r)" %
+                             (this_obj, name, cls.__name__))
+
+        # we did not find a match, should be rare, but prepare for it
+        raise NotImplementedError(
+            "%s does not set the abstract attribute <unknown>", type.__name__)
+
+
+GenerationErrors = Union[FilenameNotFullyGeneratedProblem, FolderNotFullyGeneratedProblemProblem]
+
+
+class NameGeneration:
     """
     Generate the name of a photo. Used as a base class for generating names
     of videos, as well as subfolder names for both file types
     """
 
-    def __init__(self, pref_list):
+    def __init__(self,
+                 pref_list: List[str],
+                 problems: Optional[RenamingProblems]=None) -> None:
         self.pref_list = pref_list
         self.no_metadata = False
 
-        # Some of the next values are overwritten in derived classes
-        self.strip_initial_period_from_extension = False
-        self.strip_forward_slash = True
-        self.add_extension = True
-        self.L1_date_check = IMAGE_DATE  # used in _get_date_component()
-        self.component = pn.FILENAME_COMPONENT  # used in error reporting
+        self.problems = problems
+        self.problem = abstract_attribute()  # type: GenerationErrors
+
+        self.strip_forward_slash = abstract_attribute()
+        self.add_extension = abstract_attribute()
+        self.L1_date_check = abstract_attribute()
+
+        self.L0 = ''
+        self.L1 = ''
+        self.L2 = ''
 
     def _get_values_from_pref_list(self):
         for i in range(0, len(self.pref_list), 3):
@@ -80,7 +126,7 @@ class PhotoName:
         if self.L1 == self.L1_date_check:
             if self.no_metadata:
                 if self.L2 == SUBSECONDS:
-                    d = datetime.datetime.fromtimestamp(self.rpd_file.modification_time)
+                    d = datetime.fromtimestamp(self.rpd_file.modification_time)
                     if not d.microsecond:
                         d = '00'
                     try:
@@ -88,13 +134,12 @@ class PhotoName:
                     except:
                         d = '00'
                     return d
-                d = datetime.datetime.fromtimestamp(self.rpd_file.ctime)
+                d = datetime.fromtimestamp(self.rpd_file.ctime)
             else:
                 if self.L2 == SUBSECONDS:
                     d = self.rpd_file.metadata.sub_seconds(missing=None)
                     if d is None:
-                        self.rpd_file.problem.add_problem(self.component,
-                            pn.MISSING_METADATA, _(self.L2))
+                        self.problem.missing_metadata.append(_(self.L2))
                         return ''
                     else:
                         return d
@@ -102,45 +147,46 @@ class PhotoName:
                     d = self.rpd_file.date_time(missing=None)
 
         elif self.L1 == TODAY:
-            d = datetime.datetime.now()
+            d = datetime.now()
         elif self.L1 == YESTERDAY:
-            delta = datetime.timedelta(days=1)
-            d = datetime.datetime.now() - delta
+            delta = timedelta(days=1)
+            d = datetime.now() - delta
         elif self.L1 == DOWNLOAD_TIME:
             d = self.rpd_file.download_start_time
         else:
-            raise ("Date options invalid")
+            raise TypeError("Date options invalid")
 
         # step 2: if have a value, try to convert it to string format
         if d:
             try:
                 return d.strftime(convert_date_for_strftime(self.L2))
-            except:
-                logging.warning("Exif date time value appears invalid for file %s",
+            except Exception as e:
+                logging.warning("Problem converting date/time value for file %s",
                     self.rpd_file.full_file_name)
+                self.problem.bad_converstion_date_time = True
+                self.problem.bad_conversion_exception = e
 
         # step 3: handle a missing value using file modification time
         if self.rpd_file.modification_time:
             try:
-                d = datetime.datetime.fromtimestamp(self.rpd_file.modification_time)
-            except:
-                self.rpd_file.add_problem(self.component, pn.INVALID_DATE_TIME,
-                                          '')
+                d = datetime.fromtimestamp(self.rpd_file.modification_time)
+            except Exception:
                 logging.error(
                     "Both file modification time and metadata date & time "
                     "are invalid for file %s", self.rpd_file.full_file_name)
+                self.problem.invalid_date_time = True
                 return ''
         else:
-            self.rpd_file.add_problem(self.component, pn.MISSING_METADATA, _(self.L1))
+            self.problem.missing_metadata.append(_(self.L1))
             return ''
 
         try:
             return d.strftime(convert_date_for_strftime(self.L2))
         except:
-            self.rpd_file.add_problem(self.component, pn.INVALID_DATE_TIME, d)
             logging.error(
                 "Both file modification time and metadata date & time are "
                 "invalid for file %s", self.rpd_file.full_file_name)
+            self.problem.invalid_date_time = True
             return ''
 
     def _get_associated_file_extension(self, associate_file):
@@ -148,23 +194,25 @@ class PhotoName:
         Generates extensions with correct capitalization for files like
         thumbnail or audio files.
         """
-        if associate_file:
-            extension = os.path.splitext(associate_file)[1]
-            if self.L2 == UPPERCASE:
-                extension = extension.upper()
-            elif self.L2 == LOWERCASE:
-                extension = extension.lower()
-        else:
-            extension = None
-        return extension
 
+        if not associate_file:
+            return None
+
+        extension = os.path.splitext(associate_file)[1]
+        if self.rpd_file.generate_extension_case == UPPERCASE:
+            extension = extension.upper()
+        elif self.rpd_file.generate_extension_case == LOWERCASE:
+            extension = extension.lower()
+        # else keep extension case the same as what it originally was
+        return extension
 
     def _get_thm_extension(self):
         """
         Generates THM extension with correct capitalization, if needed
         """
         self.rpd_file.thm_extension = self._get_associated_file_extension(
-            self.rpd_file.thm_full_name)
+            self.rpd_file.thm_full_name
+        )
 
     def _get_audio_extension(self):
         """
@@ -172,26 +220,17 @@ class PhotoName:
         e.g. WAV or wav
         """
         self.rpd_file.audio_extension = self._get_associated_file_extension(
-            self.rpd_file.audio_file_full_name)
+            self.rpd_file.audio_file_full_name
+        )
 
-    def _get_xmp_extension(self, extension):
+    def _get_xmp_extension(self):
         """
         Generates XMP extension with correct capitalization, if needed.
         """
-        if self.rpd_file.temp_xmp_full_name:
-            if self.L2 == UPPERCASE:
-                self.rpd_file.xmp_extension = '.XMP'
-            elif self.L2 == LOWERCASE:
-                self.rpd_file.xmp_extension = '.xmp'
-            else:
-                # mimic capitalization of extension
-                if extension.isupper():
-                    self.rpd_file.xmp_extension = '.XMP'
-                else:
-                    self.rpd_file.xmp_extension = '.xmp'
-        else:
-            self.rpd_file.xmp_extension = None
 
+        self.rpd_file.xmp_extension = self._get_associated_file_extension(
+            self.rpd_file.xmp_file_full_name
+        )
 
     def _get_filename_component(self):
         """
@@ -200,37 +239,22 @@ class PhotoName:
 
         name, extension = os.path.splitext(self.rpd_file.name)
 
-        if self.L1 == NAME_EXTENSION:
-            filename = self.rpd_file.name
-            self._get_thm_extension()
-            self._get_audio_extension()
-            self._get_xmp_extension(extension)
-        elif self.L1 == NAME:
+        if self.L1 == NAME:
             filename = name
         elif self.L1 == EXTENSION:
-            self._get_thm_extension()
-            self._get_audio_extension()
-            self._get_xmp_extension(extension)
+            # Used in subfolder name generation
             if extension:
-                if not self.strip_initial_period_from_extension:
-                    # keep the period / dot of the extension, so the user
-                    # does not
-                    # need to manually specify it
-                    filename = extension
-                else:
-                    # having the period when this is used as a part of a
-                    # subfolder name
-                    # is a bad idea when it is at the start!
-                    filename = extension[1:]
+                # having the period when this is used as a part of a
+                # subfolder name
+                # is a bad idea when it is at the start!
+                filename = extension[1:]
             else:
-                self.rpd_file.add_problem(self.component,
-                                          pn.MISSING_FILE_EXTENSION)
+                self.problem.missing_extension = True
                 return ""
         elif self.L1 == IMAGE_NUMBER or self.L1 == VIDEO_NUMBER:
             n = re.search("(?P<image_number>[0-9]+$)", name)
             if not n:
-                self.rpd_file.add_problem(self.component,
-                                          pn.MISSING_IMAGE_NUMBER)
+                self.problem.missing_image_no = True
                 return ''
             else:
                 image_number = n.group("image_number")
@@ -243,7 +267,8 @@ class PhotoName:
                     filename = image_number[-2:]
                 elif self.L2 == IMAGE_NUMBER_3:
                     filename = image_number[-3:]
-                elif self.L2 == IMAGE_NUMBER_4:
+                else:
+                    assert  self.L2 == IMAGE_NUMBER_4
                     filename = image_number[-4:]
         else:
             raise TypeError("Incorrect filename option")
@@ -277,8 +302,7 @@ class PhotoName:
         elif self.L1 == SHORT_CAMERA_MODEL:
             v = self.rpd_file.metadata.short_camera_model()
         elif self.L1 == SHORT_CAMERA_MODEL_HYPHEN:
-            v = self.rpd_file.metadata.short_camera_model(
-                includeCharacters="\-")
+            v = self.rpd_file.metadata.short_camera_model(includeCharacters="\-")
         elif self.L1 == SERIAL_NUMBER:
             v = self.rpd_file.metadata.camera_serial()
         elif self.L1 == SHUTTER_COUNT:
@@ -300,16 +324,15 @@ class PhotoName:
             v = self.rpd_file.metadata.copyright()
         else:
             raise TypeError("Invalid metadata option specified")
-        if self.L1 in [CAMERA_MAKE, CAMERA_MODEL, SHORT_CAMERA_MODEL,
+        if self.L1 in (CAMERA_MAKE, CAMERA_MODEL, SHORT_CAMERA_MODEL,
                        SHORT_CAMERA_MODEL_HYPHEN, OWNER_NAME, ARTIST,
-                       COPYRIGHT]:
+                       COPYRIGHT):
             if self.L2 == UPPERCASE:
                 v = v.upper()
             elif self.L2 == LOWERCASE:
                 v = v.lower()
         if not v:
-            self.rpd_file.add_problem(self.component, pn.MISSING_METADATA,
-                                      _(self.L1))
+            self.problem.missing_metadata.append(_(self.L1))
         return v
 
     def _calculate_letter_sequence(self, sequence):
@@ -366,11 +389,6 @@ class PhotoName:
         elif self.L1 == SEQUENCE_LETTER:
             return self._get_sequence_letter()
 
-
-            # ~ elif self.L1 == SUBFOLDER_SEQ_NUMBER:
-            #~ return self._getSubfolderSequenceNo()
-
-
     def _get_component(self):
         try:
             if self.L0 == DATE_TIME:
@@ -387,9 +405,9 @@ class PhotoName:
                 return self.rpd_file.job_code
             elif self.L0 == SEPARATOR:
                 return os.sep
-        except:
-            self.rpd_file.add_problem(self.component, pn.ERROR_IN_GENERATION,
-                                      _(self.L0))
+        except Exception as e:
+            self.problem.component_problem = _(self.L0)
+            self.problem.component_exception = e
             return ''
 
     def filter_strip_characters(self, name: str) -> str:
@@ -413,13 +431,21 @@ class PhotoName:
             name = name.replace('/', '')
         return name
 
+    def _destination(self, rpd_file: RPDFile, name: str) -> str:
+        # implement in subclass
+        return ''
+
+    def _filter_name(self, name: str, parts: bool) -> str:
+        # implement in subclass if need be
+        return name
+
     def generate_name(self, rpd_file: RPDFile,
                       parts: Optional[bool]=False) -> Union[str, List[str]]:
         """
         Generate subfolder name(s), and photo/video filenames
 
         :param rpd_file: rpd file for the name to generate
-        :param parts: if True, return string components
+        :param parts: if True, return string components in a list
         :return: complete string or list of name components
         """
 
@@ -458,12 +484,62 @@ class PhotoName:
             else:
                 name += extension
 
+            self._get_thm_extension()
+            self._get_audio_extension()
+            self._get_xmp_extension()
+
+        name = self._filter_name(name, parts)
+
+        if self.problem.has_error():
+
+            rpd_file.name_generation_problem = True
+
+            if self.problems is not None:
+                self.problem.destination = self._destination(rpd_file=rpd_file, name=name)
+                self.problem.file_type = rpd_file.title
+                self.problem.source = rpd_file.get_souce_href()
+                self.problems.append(self.problem)
+
         return name
 
 
+class PhotoName(NameGeneration):
+    """
+    Generate filenames for photos
+    """
+    def __init__(self, pref_list: List[str],
+                 problems: Optional[RenamingProblems]=None) -> None:
+        super().__init__(pref_list, problems)
+
+        self.problem = FilenameNotFullyGeneratedProblem()
+
+        self.strip_forward_slash = True
+        self.add_extension = True
+        self.L1_date_check = IMAGE_DATE  # used in _get_date_component()
+
+    def _destination(self, rpd_file: RPDFile, name: str) -> str:
+        if rpd_file.download_subfolder:
+            return make_href(
+                name=name,
+                uri=get_uri(
+                    full_file_name=os.path.join(
+                        rpd_file.download_folder, rpd_file.download_subfolder, name
+                    )
+                )
+            )
+        else:
+            return name
+
+
 class VideoName(PhotoName):
-    def __init__(self, pref_list):
-        PhotoName.__init__(self, pref_list)
+    """
+    Generate filenames for videos
+    """
+    def __init__(self, pref_list: List[str],
+                 problems: Optional[RenamingProblems]=None) -> None:
+
+        super().__init__(pref_list, problems)
+
         self.L1_date_check = VIDEO_DATE  # used in _get_date_component()
 
     def _get_metadata_component(self):
@@ -475,51 +551,46 @@ class VideoName(PhotoName):
         return get_video_metadata_component(self)
 
 
-class PhotoSubfolder(PhotoName):
+class PhotoSubfolder(NameGeneration):
     """
     Generate subfolder names for photo files
     """
 
-    def __init__(self, pref_list: List[str], no_metadata: bool=False) -> None:
+    def __init__(self, pref_list: List[str],
+                 problems: Optional[RenamingProblems]=None,
+                 no_metadata: Optional[bool]=False) -> None:
         """
         :param pref_list: subfolder generation preferences list
         :param no_metadata: if True, halt as soon as the need for metadata
         or a job code or sequence number becomes necessary
         """
 
-        # No need to call __init__ of parent class, because all values will be
-        # overwritten
+        super().__init__(pref_list, problems)
 
         if no_metadata:
             self.pref_list = truncate_before_unwanted_subfolder_component(pref_list)
         else:
             self.pref_list = pref_list
+
         self.no_metadata = no_metadata
 
+        self.problem = FolderNotFullyGeneratedProblemProblem()
+
         self.strip_extraneous_white_space = re.compile(r'\s*%s\s*' % os.sep)
-        self.strip_initial_period_from_extension = True
         self.strip_forward_slash = False
         self.add_extension = False
         self.L1_date_check = IMAGE_DATE  # used in _get_date_component()
-        self.component = pn.SUBFOLDER_COMPONENT  # used in error reporting
 
-    def generate_name(self, rpd_file: Union[Photo, Video],
-                      parts: Optional[bool]=False) -> Union[str, List[str]]:
-        """
-        Generate subfolder name(s)
-
-        :param rpd_file: rpd file for the name to generate
-        :param parts: if True, return string components
-        :return: complete string (incl. os.sep if more than one subfolder) or
-         list of subfolder components
-        """
-
-        subfolders = PhotoName.generate_name(self, rpd_file, parts)
-
+    def _filter_name(self, name: str, parts: bool) -> str:
         if not parts:
-            subfolders = self.filter_subfolder_characters(subfolders)
+            return self.filter_subfolder_characters(name)
+        return name
 
-        return subfolders
+    def _destination(self, rpd_file: RPDFile, name: str) -> str:
+        return make_href(
+                    name=name,
+                    uri = get_uri(path=os.path.join(rpd_file.download_folder, name))
+                )
 
     def filter_subfolder_characters(self, subfolders: str) -> str:
         """
@@ -539,20 +610,32 @@ class PhotoSubfolder(PhotoName):
         # remove any spaces before and after a directory name
         if subfolders and self.rpd_file.strip_characters:
             subfolders = self.strip_extraneous_white_space.sub(os.sep, subfolders)
+
+        # remove any repeated directory separators
+        double_sep = os.sep * 2
+        subfolders = subfolders.replace(double_sep, os.sep)
+
+        # remove any trailing directory separators
+        while subfolders.endswith(os.sep):
+            subfolders = subfolders[:-1]
+
         return subfolders
+
 
 class VideoSubfolder(PhotoSubfolder):
     """
     Generate subfolder names for video files
     """
 
-    def __init__(self, pref_list, no_metadata: bool=False) -> None:
+    def __init__(self, pref_list: List[str],
+                 problems: Optional[RenamingProblems] = None,
+                 no_metadata: bool=False) -> None:
         """
         :param pref_list: subfolder generation preferences list
         :param no_metadata: if True, halt as soon as the need for metadata
         or a job code or sequence number becomes necessary
         """
-        PhotoSubfolder.__init__(self, pref_list, no_metadata)
+        super().__init__(pref_list, problems, no_metadata)
         self.L1_date_check = VIDEO_DATE  # used in _get_date_component()
 
 
@@ -607,7 +690,7 @@ def truncate_before_unwanted_subfolder_component(pref_list: List[str]) -> List[s
     return []
 
 
-def get_video_metadata_component(video):
+def get_video_metadata_component(video: Union[VideoSubfolder, VideoName]):
     """
     Returns portion of video / subfolder name based on the metadata
 
@@ -633,8 +716,7 @@ def get_video_metadata_component(video):
         elif video.L2 == LOWERCASE:
             v = v.lower()
     if not v:
-        video.rpd_file.add_problem(video.component, pn.MISSING_METADATA,
-                                   _(video.L1))
+        video.problem.missing_metadata.append(_(video.L1))
     return v
 
 

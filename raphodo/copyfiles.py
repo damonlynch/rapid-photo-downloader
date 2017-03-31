@@ -470,12 +470,15 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
             download_count = idx + 1
 
-            self.content =  pickle.dumps(CopyFilesResults(
-                copy_succeeded=copy_succeeded,
-                rpd_file=rpd_file,
-                download_count=download_count,
-                mdata_exceptions=mdata_exceptions),
-                pickle.HIGHEST_PROTOCOL)
+            self.content =  pickle.dumps(
+                CopyFilesResults(
+                    copy_succeeded=copy_succeeded,
+                    rpd_file=rpd_file,
+                    download_count=download_count,
+                    mdata_exceptions=mdata_exceptions
+                ),
+                pickle.HIGHEST_PROTOCOL
+            )
             self.send_message_to_sink()
 
         if len(self.problems):
