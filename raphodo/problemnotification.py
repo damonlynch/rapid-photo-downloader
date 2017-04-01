@@ -510,11 +510,12 @@ class NoDataToNameProblem(SeriousProblem):
     @property
     def body(self) -> str:
         return escape(
-            _("There is no data with which to generate the %(subfolder_file)s for %(filename)s. It "
-              "was not downloaded.")
+            _("There is no data with which to generate the %(subfolder_file)s for %(filename)s. "
+              "The %(filetype)s was not downloaded.")
         ) % dict(
             subfolder_file = self.area,
-            filename = self.href
+            filename = self.href,
+            filetype=self.file_type,
         )
 
 

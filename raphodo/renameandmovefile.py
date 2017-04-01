@@ -51,7 +51,7 @@ from raphodo.utilities import stdchannel_redirected, datetime_roughly_equal, pla
 from raphodo.problemnotification import (
     FileAlreadyExistsProblem, IdentifierAddedProblem, RenamingProblems, make_href,
     RenamingFileProblem, SubfolderCreationProblem, DuplicateFileWhenSyncingProblem,
-    SameNameDifferentExif, RenamingAssociateFileProblem, FileMetadataLoadProblemNoDownload,
+    SameNameDifferentExif, RenamingAssociateFileProblem, FileMetadataLoadProblem,
     NoDataToNameProblem
 )
 from raphodo.storage import get_uri
@@ -161,7 +161,7 @@ def load_metadata(rpd_file: Union[Photo, Video],
                                       et_process=et_process):
             # Error in reading metadata
 
-            problems.append(FileMetadataLoadProblemNoDownload(
+            problems.append(FileMetadataLoadProblem(
                 name=rpd_file.name, uri=rpd_file.get_uri(), file_type=rpd_file.title
             ))
             return False
@@ -516,7 +516,7 @@ class RenameMoveFileWorker(DaemonProcess):
             rpd_file.status = DownloadStatus.download_failed
             self.problems.append(
                 NoDataToNameProblem(
-                    name=rpd_file.name, uri=rpd_file.get_uri(), area=area
+                    name=rpd_file.name, uri=rpd_file.get_uri(), area=area, file_type=rpd_file.title
                 )
             )
             return False
