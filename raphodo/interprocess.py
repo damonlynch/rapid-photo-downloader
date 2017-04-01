@@ -44,14 +44,18 @@ from zmq.eventloop.zmqstream import ZMQStream
 from raphodo.rpdfile import (RPDFile, FileTypeCounter, FileSizeSum, Photo, Video)
 from raphodo.devices import Device
 from raphodo.utilities import CacheDirs, set_pdeathsig
-from raphodo.constants import (RenameAndMoveStatus, ExtractionTask, ExtractionProcessing,
-                               CameraErrorCode, FileType, FileExtension)
+from raphodo.constants import (
+    RenameAndMoveStatus, ExtractionTask, ExtractionProcessing, CameraErrorCode, FileType,
+    FileExtension, BackupStatus
+)
 from raphodo.proximity import TemporalProximityGroups
 from raphodo.storage import StorageSpace
 from raphodo.iplogging import ZeroMQSocketHandler
 from raphodo.viewutils import ThumbnailDataForProximity
 from raphodo.folderspreview import DownloadDestination, FoldersPreview
-from raphodo.problemnotification import ScanProblems, CopyingProblems, RenamingProblems
+from raphodo.problemnotification import (
+    ScanProblems, CopyingProblems, RenamingProblems, BackingUpProblems
+)
 
 logger = logging.getLogger()
 
@@ -1393,14 +1397,20 @@ class BackupArguments:
         self.path = path
         self.device_name = device_name
 
+
 class BackupFileData:
     """
     Pass file data to the backup process
     """
-    def __init__(self, rpd_file: RPDFile, move_succeeded: bool,
-                 do_backup: bool, path_suffix: str,
-                 backup_duplicate_overwrite: bool, verify_file: bool,
-                 download_count: int, save_fdo_thumbnail: int) -> None:
+    def __init__(self, rpd_file: Optional[RPDFile]=None,
+                 move_succeeded: Optional[bool]=None,
+                 do_backup: Optional[bool]=None,
+                 path_suffix: Optional[str]=None,
+                 backup_duplicate_overwrite: Optional[bool]=None,
+                 verify_file: Optional[bool]=None,
+                 download_count: Optional[int]=None,
+                 save_fdo_thumbnail: Optional[int]=None,
+                 message: Optional[BackupStatus]=None) -> None:
         self.rpd_file = rpd_file
         self.move_succeeded = move_succeeded
         self.do_backup = do_backup
@@ -1409,6 +1419,8 @@ class BackupFileData:
         self.verify_file = verify_file
         self.download_count = download_count
         self.save_fdo_thumbnail = save_fdo_thumbnail
+        self.message = message
+
 
 class BackupResults:
     def __init__(self, scan_id: int,
@@ -1418,7 +1430,9 @@ class BackupResults:
                  backup_succeeded: Optional[bool]=None,
                  do_backup: Optional[bool]=None,
                  rpd_file: Optional[RPDFile] = None,
-                 backup_full_file_name: Optional[str]=None) -> None:
+                 backup_full_file_name: Optional[str]=None,
+                 mdata_exceptions: Optional[Tuple] = None,
+                 problems: Optional[BackingUpProblems]=None) -> None:
         self.scan_id = scan_id
         self.device_id = device_id
         self.total_downloaded = total_downloaded
@@ -1427,6 +1441,8 @@ class BackupResults:
         self.do_backup = do_backup
         self.rpd_file = rpd_file
         self.backup_full_file_name = backup_full_file_name
+        self.mdata_exceptions = mdata_exceptions
+        self.problems = problems
 
 
 class GenerateThumbnailsArguments:
@@ -1640,8 +1656,9 @@ class BackupManager(PublishPullPipelineManager):
     backed up to one drive, and videos to another, there would be a
     worker process for each drive (2 in total).
     """
-    message = pyqtSignal(int, bool, bool, RPDFile, str)
+    message = pyqtSignal(int, bool, bool, RPDFile, str, 'PyQt_PyObject')
     bytesBackedUp = pyqtSignal('PyQt_PyObject', 'PyQt_PyObject')
+    backupProblems = pyqtSignal(int, 'PyQt_PyObject')
 
     def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port=logging_port, thread_name=ThreadNames.backup)
@@ -1655,12 +1672,15 @@ class BackupManager(PublishPullPipelineManager):
             assert data.chunk_downloaded >= 0
             assert data.total_downloaded >= 0
             self.bytesBackedUp.emit(data.scan_id, data.chunk_downloaded)
-        else:
-            assert data.backup_succeeded is not None
+        elif data.backup_succeeded is not None:
             assert data.do_backup is not None
             assert data.rpd_file is not None
-            self.message.emit(data.device_id, data.backup_succeeded,
-                              data.do_backup, data.rpd_file, data.backup_full_file_name)
+            self.message.emit(
+                data.device_id, data.backup_succeeded, data.do_backup, data.rpd_file,
+                data.backup_full_file_name, data.mdata_exceptions)
+        else:
+            assert data.problems is not None
+            self.backupProblems.emit(data.device_id, data.problems)
 
 
 class CopyFilesManager(PublishPullPipelineManager):

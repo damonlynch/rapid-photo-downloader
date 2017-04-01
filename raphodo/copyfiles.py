@@ -450,23 +450,29 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                         float(rpd_file.modification_time), temp_full_file_name
                     )
                 else:
-                    mdata_exceptions = copy_file_metadata(rpd_file.full_file_name,
-                                                          temp_full_file_name)
+                    mdata_exceptions = copy_file_metadata(
+                        rpd_file.full_file_name, temp_full_file_name
+                    )
 
                 # copy THM (video thumbnail file) if there is one
                 if rpd_file.thm_full_name:
                     rpd_file.temp_thm_full_name = self.copy_associate_file(
-                        rpd_file, temp_name, dest_dir, rpd_file.thm_full_name, 'video THM')
+                        # translators: refers to the video thumbnail file that some
+                        # cameras generate -- it has a .THM file extension
+                        rpd_file, temp_name, dest_dir, rpd_file.thm_full_name, _('video THM')
+                    )
 
                 # copy audio file if there is one
                 if rpd_file.audio_file_full_name:
                     rpd_file.temp_audio_full_name = self.copy_associate_file(
-                        rpd_file, temp_name, dest_dir, rpd_file.audio_file_full_name, 'audio')
+                        rpd_file, temp_name, dest_dir, rpd_file.audio_file_full_name, _('audio')
+                    )
 
                 # copy XMP file if there is one
                 if rpd_file.xmp_file_full_name:
                     rpd_file.temp_xmp_full_name = self.copy_associate_file(
-                        rpd_file, temp_name, dest_dir, rpd_file.xmp_file_full_name, 'XMP')
+                        rpd_file, temp_name, dest_dir, rpd_file.xmp_file_full_name, 'XMP'
+                    )
 
             download_count = idx + 1
 

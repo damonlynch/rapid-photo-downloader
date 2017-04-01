@@ -795,18 +795,6 @@ class RPDFile:
     def _assign_file_type(self):
         self.file_type = None
 
-    def has_problem(self):
-        # legacy code, to purge
-        return False
-
-    def add_problem(self, component, problem_definition, *args):
-        # legacy code, to purge
-        pass
-
-    def add_extra_detail(self, extra_detail, *args):
-        pass
-        # self.problem.add_extra_detail(extra_detail, *args)
-
     def __repr__(self):
         return "{}\t{}".format(self.name, datetime.fromtimestamp(
             self.modification_time).strftime('%Y-%m-%d %H:%M:%S'))

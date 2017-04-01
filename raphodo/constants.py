@@ -231,6 +231,11 @@ class RenameAndMoveStatus(Enum):
     download_completed = 2
 
 
+class BackupStatus(Enum):
+    backup_started = 1
+    backup_completed = 2
+
+
 class ThumbnailSize(IntEnum):
     width = 160
     height = 120

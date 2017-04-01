@@ -109,7 +109,7 @@ from raphodo.constants import (
     Desktop, BackupFailureType, DeviceState, Sort, Show, DestinationDisplayType,
     DisplayingFilesOfType, DownloadingFileTypes, RememberThisMessage, RightSideButton,
     CheckNewVersionDialogState, CheckNewVersionDialogResult, RememberThisButtons,
-    download_status_error_severity
+    BackupStatus
 )
 from raphodo.thumbnaildisplay import (
     ThumbnailView, ThumbnailListModel, ThumbnailDelegate, DownloadStats, MarkedSummary
@@ -162,7 +162,7 @@ from raphodo.chevroncombo import ChevronCombo
 from raphodo.preferencedialog import PreferencesDialog
 from raphodo.errorlog import ErrorReport, SpeechBubble
 from raphodo.problemnotification import (
-    FsMetadataWriteProblem, Problem, Problems, CopyingProblems, RenamingProblems
+    FsMetadataWriteProblem, Problem, Problems, CopyingProblems, RenamingProblems, BackingUpProblems
 )
 
 
@@ -1029,6 +1029,7 @@ class RapidWindow(QMainWindow):
         self.backupmq.sinkStarted.connect(self.initStage9)
         self.backupmq.message.connect(self.fileBackedUp)
         self.backupmq.bytesBackedUp.connect(self.backupFileBytesBackedUp)
+        self.backupmq.backupProblems.connect(self.backupFileProblems)
 
         self.backupmq.moveToThread(self.backupThread)
 
@@ -2810,6 +2811,9 @@ class RapidWindow(QMainWindow):
             data = RenameAndMoveFileData(message=RenameAndMoveStatus.download_started)
             self.sendDataMessageToThread(self.rename_controller, data=data)
 
+            # notify backup processes to reset their problem reports
+            self.sendBackupStartFinishMessageToWorkers(BackupStatus.backup_started)
+
             # Maximum value of progress bar may have been set to the number
             # of thumbnails being generated. Reset it to use a percentage.
             self.downloadProgressBar.setMaximum(100)
@@ -2864,7 +2868,6 @@ class RapidWindow(QMainWindow):
                                len(self.backup_devices.video_backup_devices) *
                                download_stats.videos_size_in_bytes))
 
-
         self.time_remaining[scan_id] = download_size
         self.time_check.set_download_mark()
 
@@ -2873,10 +2876,8 @@ class RapidWindow(QMainWindow):
         self.immediatelyDisplayDownloadRunningInStatusBar()
         self.setDownloadActionState(True)
 
-        #TODO implement check for not paused
         if not self.dl_update_timer.isActive():
             self.dl_update_timer.start()
-
 
         if self.autoStart(scan_id) and self.prefs.generate_thumbnails:
             for rpd_file in files:
@@ -2884,13 +2885,6 @@ class RapidWindow(QMainWindow):
             generate_thumbnails = True
 
         verify_file = self.prefs.verify_file
-        if verify_file:
-            # since a file might be modified in the file modify process,
-            # if it will be backed up, need to refresh the md5 once it has
-            # been modified
-            refresh_md5_on_file_change = self.prefs.backup_files
-        else:
-            refresh_md5_on_file_change = False
 
         # Initiate copy files process
 
@@ -2968,7 +2962,7 @@ class RapidWindow(QMainWindow):
 
         if mdata_exceptions is not None and self.prefs.warn_fs_metadata_error:
             self.copy_metadata_errors.add_problem(
-                scan_id=scan_id, path=rpd_file.temp_full_file_name,
+                worker_id=scan_id, path=rpd_file.temp_full_file_name,
                 mdata_exceptions=mdata_exceptions
             )
 
@@ -3001,10 +2995,10 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot(int, 'PyQt_PyObject')
     def copyfilesProblems(self, scan_id: int, problems: CopyingProblems) -> None:
-        for problem in self.copy_metadata_errors.problems(scan_id=scan_id):
+        for problem in self.copy_metadata_errors.problems(worker_id=scan_id):
             problems.append(problem)
 
-        if len(problems):
+        if problems:
             device = self.devices[scan_id]
             problems.name = device.display_name
             problems.uri=device.uri
@@ -3131,7 +3125,7 @@ class RapidWindow(QMainWindow):
             device = self.devices[scan_id]
             if scan_id in self.devices.cameras_to_stop_thumbnailing:
                 self.devices.cameras_to_stop_thumbnailing.remove(scan_id)
-                logging.debug("Thumbnailing sucessfully terminated for %s", device.display_name)
+                logging.debug("Thumbnailing successfully terminated for %s", device.display_name)
                 if not self.devices.download_start_blocked():
                     self.startDownloadPhase2()
             else:
@@ -3139,8 +3133,29 @@ class RapidWindow(QMainWindow):
                               "not for a camera from which a download was waiting to be started",
                               device.display_name)
 
-    def backupFile(self, rpd_file: RPDFile, move_succeeded: bool,
-                   download_count: int) -> None:
+    @pyqtSlot(int, 'PyQt_PyObject')
+    def backupFileProblems(self, device_id: int, problems: BackingUpProblems) -> None:
+        for problem in self.backup_metadata_errors.problems(worker_id=device_id):
+            problems.append(problem)
+
+        if problems:
+            self.addErrorLogMessage(problems=problems)
+
+    def sendBackupStartFinishMessageToWorkers(self, message: BackupStatus) -> None:
+        if self.prefs.backup_files:
+            download_types = self.download_files.download_types
+            for path in self.backup_devices:
+                backup_type = self.backup_devices[path].backup_type
+                if ((backup_type == BackupLocationType.photos_and_videos or
+                             download_types == DownloadingFileTypes.photos_and_videos) or
+                            backup_type == download_types):
+                    device_id = self.backup_devices.device_id(path)
+                    data = BackupFileData(message=message)
+                    self.sendDataMessageToThread(
+                        self.backup_controller, worker_id=device_id, data=data
+                    )
+
+    def backupFile(self, rpd_file: RPDFile, move_succeeded: bool, download_count: int) -> None:
         if self.prefs.backup_device_autodetection:
             if rpd_file.file_type == FileType.photo:
                 path_suffix = self.prefs.photo_backup_identifier
@@ -3148,6 +3163,7 @@ class RapidWindow(QMainWindow):
                 path_suffix = self.prefs.video_backup_identifier
         else:
             path_suffix = None
+
         if rpd_file.file_type == FileType.photo:
             logging.debug("Backing up photo %s", rpd_file.download_name)
         else:
@@ -3167,8 +3183,8 @@ class RapidWindow(QMainWindow):
                 logging.debug("Not backing up to %s", path)
             # Even if not going to backup to this device, need to send it
             # anyway so progress bar can be updated. Not this most efficient
-            # but the code is much more simple
-            # TODO: check if this is still optimal with new code!
+            # but the code is more simpler
+            # TODO: investigate a more optimal approach!
 
             device_id = self.backup_devices.device_id(path)
             data = BackupFileData(rpd_file, move_succeeded, do_backup,
@@ -3178,22 +3194,13 @@ class RapidWindow(QMainWindow):
                                   self.prefs.save_fdo_thumbnails)
             self.sendDataMessageToThread(self.backup_controller, worker_id=device_id, data=data)
 
-    @pyqtSlot(int, bool, bool, RPDFile, str)
-    def fileBackedUp(self, device_id: int, backup_succeeded: bool, do_backup: bool,
-                     rpd_file: RPDFile, backup_full_file_name: str) -> None:
-
-        # Only show an error message if there is more than one device
-        # backing up files of this type - if that is the case,
-        # do not want to rely on showing an error message in the
-        # function file_download_finished, as it is only called once,
-        # when all files have been backed up
-        if not backup_succeeded and self.backup_devices.multiple_backup_devices(
-                rpd_file.file_type) and do_backup:
-            # TODO implement error notification on backups
-            pass
-            # self.log_error(config.SERIOUS_ERROR,
-            #     rpd_file.error_title,
-            #     rpd_file.error_msg, rpd_file.error_extra_detail)
+    @pyqtSlot(int, bool, bool, RPDFile, str, 'PyQt_PyObject')
+    def fileBackedUp(self, device_id: int,
+                     backup_succeeded: bool,
+                     do_backup: bool,
+                     rpd_file: RPDFile,
+                     backup_full_file_name: str,
+                     mdata_exceptions: Optional[Tuple[Exception]]) -> None:
 
         if do_backup:
             if self.prefs.generate_thumbnails and self.prefs.save_fdo_thumbnails and \
@@ -3202,6 +3209,13 @@ class RapidWindow(QMainWindow):
                                                 backup_full_file_name=backup_full_file_name)
 
             self.download_tracker.file_backed_up(rpd_file.scan_id, rpd_file.uid)
+
+            if mdata_exceptions is not None and self.prefs.warn_fs_metadata_error:
+                self.backup_metadata_errors.add_problem(
+                    worker_id=device_id, path=backup_full_file_name,
+                    mdata_exceptions=mdata_exceptions
+                )
+
             if self.download_tracker.file_backed_up_to_all_locations(
                     rpd_file.uid, rpd_file.file_type):
                 logging.debug("File %s will not be backed up to any more locations",
@@ -3311,22 +3325,16 @@ class RapidWindow(QMainWindow):
         and backed up
         """
         scan_id = rpd_file.scan_id
-        # Update error log window if neccessary
-        # FIXME log errors properly
-        if not succeeded and not self.backup_devices.multiple_backup_devices(
-                rpd_file.file_type):
-            pass
-            # self.addErrorLogMessage(severity=ErrorType.serious_error, rpd_file=rpd_file)
 
-        elif self.prefs.move:
+        if self.prefs.move:
             # record which files to automatically delete when download
             # completes
             self.download_tracker.add_to_auto_delete(rpd_file)
 
         self.thumbnailModel.updateStatusPostDownload(rpd_file)
-        self.download_tracker.file_downloaded_increment(scan_id,
-                                                        rpd_file.file_type,
-                                                        rpd_file.status)
+        self.download_tracker.file_downloaded_increment(
+            scan_id, rpd_file.file_type, rpd_file.status
+        )
 
         device = self.devices[scan_id]
         device.download_statuses.add(rpd_file.status)
@@ -3374,6 +3382,9 @@ class RapidWindow(QMainWindow):
             self.unmountVolume(scan_id)
 
         if not self.downloadIsRunning():
+            # Ask backup processes to send problem reports
+            self.sendBackupStartFinishMessageToWorkers(message=BackupStatus.backup_completed)
+
             logging.debug("Download completed")
             self.dl_update_timer.stop()
             self.enablePrefsAndRefresh(enabled=True)

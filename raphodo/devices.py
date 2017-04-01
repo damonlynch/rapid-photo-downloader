@@ -1411,10 +1411,12 @@ class FSMetadataErrors:
         self.archived_devices = set()  # type: Set[int]
         # device: FsMetadataWriteProblem
         self.metadata_errors = dict()  # type: Dict[int, FsMetadataWriteProblem]
-        # scan_id: Set[device]
-        self.scan_id_devices = defaultdict(set)  # type: DefaultDict[int, Set[int]]
+        # scan_id / device_id: Set[device]
+        self.worker_id_devices = defaultdict(set)  # type: DefaultDict[int, Set[int]]
 
-    def add_problem(self, scan_id: int, path: str, mdata_exceptions: Tuple[Exception]) -> None:
+    def add_problem(self, worker_id: int,
+                    path: str,
+                    mdata_exceptions: Tuple[Exception]) -> None:
 
         dev = os.stat(path).st_dev
 
@@ -1429,11 +1431,12 @@ class FSMetadataErrors:
 
             self.metadata_errors[dev] = problem
 
-            self.scan_id_devices[scan_id].add(dev)
+            if worker_id is not None:
+                self.worker_id_devices[worker_id].add(dev)
 
-    def problems(self, scan_id: int) -> List[FsMetadataWriteProblem]:
+    def problems(self, worker_id: int) -> List[FsMetadataWriteProblem]:
         problems = []
-        for dev in self.scan_id_devices[scan_id]:
+        for dev in self.worker_id_devices[worker_id]:
             if dev not in self.archived_devices:
                 problems.append(self.metadata_errors[dev])
                 self.archived_devices.add(dev)
