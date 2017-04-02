@@ -167,6 +167,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # Scan the files using lightweight high-performance scandir
             logging.info("Scanning {}".format(self.display_name))
 
+            self.problems.uri = get_uri(path=path)
+            self.problems.name = self.display_name
+
             # Before doing anything else, determine time zone approach
             # Need two different walks because first folder of files
             # might be videos, then the 2nd folder photos, etc.
@@ -918,7 +921,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             try:
                 with stdchannel_redirected(sys.stderr, os.devnull):
                     metadata = metadataphoto.MetaData(full_file_name=full_file_name)
-            except:
+            except Exception:
                 logging.warning("Scanner failed to load metadata from %s on %s", name,
                               self.display_name)
                 uri = get_uri(full_file_name=full_file_name)

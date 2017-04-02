@@ -310,8 +310,12 @@ class ThumbnailExtractor(LoadBalancerWorker):
                             orientation = '1'
                 if temp_dir:
                     os.rmdir(temp_dir)
-            except Exception:
-                logging.exception("Rendering %s not supported. Exception:", rpd_file.full_file_name)
+            except ImportError as e:
+                logging.warning('Cannot use rawkit to render thumbnail for %s',
+                                rpd_file.full_file_name)
+            except Exception as e:
+                logging.exception("Rendering thumbnail for %s not supported. Exception:",
+                                  rpd_file.full_file_name)
 
         if thumbnail is None and rpd_file.is_loadable():
             thumbnail = QImage(full_file_name)

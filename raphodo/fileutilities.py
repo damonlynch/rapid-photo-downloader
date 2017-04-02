@@ -26,12 +26,12 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
 import sys
+import os
 if sys.version_info < (3,5):
     import scandir
     walk = scandir.walk
 else:
     walk = os.walk
-import os
 import datetime
 import time
 

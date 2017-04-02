@@ -3382,9 +3382,6 @@ class RapidWindow(QMainWindow):
             self.unmountVolume(scan_id)
 
         if not self.downloadIsRunning():
-            # Ask backup processes to send problem reports
-            self.sendBackupStartFinishMessageToWorkers(message=BackupStatus.backup_completed)
-
             logging.debug("Download completed")
             self.dl_update_timer.stop()
             self.enablePrefsAndRefresh(enabled=True)
@@ -3401,6 +3398,9 @@ class RapidWindow(QMainWindow):
             # values
             data = RenameAndMoveFileData(message=RenameAndMoveStatus.download_completed)
             self.sendDataMessageToThread(self.rename_controller, data=data)
+
+            # Ask backup processes to send problem reports
+            self.sendBackupStartFinishMessageToWorkers(message=BackupStatus.backup_completed)
 
             if ((self.prefs.auto_exit and self.download_tracker.no_errors_or_warnings())
                                             or self.prefs.auto_exit_force):

@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0b1 (2017-04-xx)
+0.9.0b1 (2017-04-01)
 --------------------
 
  - Improved install.py script, adding openSUSE and the Fedora derivative
@@ -10,7 +10,9 @@ Changelog for Rapid Photo Downloader
 
  - Implemented error report window. Error reports are now grouped by task:
    scanning a device, copying from a device, finalizing download subfolder and
-   filenames, and backing up.
+   filenames, and backing up. Furthermore, reports now contain hyperlinks to
+   the files on the filesystem and/or cameras, allowing easy access to them
+   using a file manager.
 
  - A message dialog window is now displayed if back ups will not occur or if
    the download destinations have a problem.

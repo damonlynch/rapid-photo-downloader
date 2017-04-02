@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-03-23 03:26-0500\n"
+"POT-Creation-Date: 2017-04-01 18:46-0500\n"
 "PO-Revision-Date: 2009-11-18 01:30+0000\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
@@ -21,51 +21,6 @@ msgstr ""
 #. type: QPushButton
 #: ../raphodo/aboutdialog.py:210
 msgid "Credits"
-msgstr ""
-
-#: ../raphodo/backupfile.py:77 ../raphodo/backupfile.py:95
-msgid "Backing up error"
-msgstr ""
-
-#: ../raphodo/backupfile.py:79 ../raphodo/backupfile.py:99
-#: ../raphodo/backupfile.py:183 ../raphodo/renameandmovefile.py:274
-#, python-format
-msgid ""
-"Source: %(source)s\n"
-"Destination: %(destination)s"
-msgstr ""
-
-#: ../raphodo/backupfile.py:81 ../raphodo/backupfile.py:102
-#, python-format
-msgid "Error: %(inst)s"
-msgstr ""
-
-#: ../raphodo/backupfile.py:97
-#, python-format
-msgid "Destination directory could not be created: %(directory)s\n"
-msgstr ""
-
-#: ../raphodo/backupfile.py:172
-#, python-format
-msgid "Backup %(file_type)s overwritten"
-msgstr ""
-
-#: ../raphodo/backupfile.py:176
-#, python-format
-msgid "%(file_type)s not backed up"
-msgstr ""
-
-#: ../raphodo/backupfile.py:180
-#, python-format
-msgid "Backup of %(file_type)s already exists"
-msgstr ""
-
-#: ../raphodo/backupfile.py:205 ../raphodo/renameandmovefile.py:290
-#: ../raphodo/renameandmovefile.py:432 ../raphodo/renameandmovefile.py:558
-#, python-format
-msgid ""
-"%(problem)s\n"
-"File: %(file)s"
 msgstr ""
 
 #: ../raphodo/backuppanel.py:238
@@ -153,14 +108,24 @@ msgstr ""
 msgid "Backup Options"
 msgstr ""
 
+#. translators: refers to the video thumbnail file that some
+#. cameras generate -- it has a .THM file extension
+#: ../raphodo/copyfiles.py:462
+msgid "video THM"
+msgstr ""
+
+#: ../raphodo/copyfiles.py:468
+msgid "audio"
+msgstr ""
+
 #: ../raphodo/destinationdisplay.py:78 ../raphodo/devicedisplay.py:1077
-#: ../raphodo/rpdfile.py:314
+#: ../raphodo/rpdfile.py:320
 #, python-format
 msgid "%(no_photos)s Photos"
 msgstr ""
 
 #: ../raphodo/destinationdisplay.py:82 ../raphodo/devicedisplay.py:1079
-#: ../raphodo/rpdfile.py:309
+#: ../raphodo/rpdfile.py:315
 #, python-format
 msgid "%(no_videos)s Videos"
 msgstr ""
@@ -184,14 +149,15 @@ msgid "%(size_free)s free of %(size_total)s"
 msgstr ""
 
 #: ../raphodo/destinationdisplay.py:183 ../raphodo/devicedisplay.py:991
-#: ../raphodo/rapid.py:1903 ../raphodo/rapid.py:2018 ../raphodo/rapid.py:5498
+#: ../raphodo/rapid.py:1907 ../raphodo/rapid.py:2022 ../raphodo/rapid.py:5514
+#: ../raphodo/rpdfile.py:891
 msgid "Photos"
 msgstr ""
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:184 ../raphodo/devicedisplay.py:992
-#: ../raphodo/rapid.py:1906 ../raphodo/rapid.py:2019 ../raphodo/rapid.py:5499
-#: ../raphodo/storage.py:442
+#: ../raphodo/rapid.py:1910 ../raphodo/rapid.py:2023 ../raphodo/rapid.py:5515
+#: ../raphodo/rpdfile.py:918 ../raphodo/storage.py:442
 msgid "Videos"
 msgstr ""
 
@@ -238,7 +204,7 @@ msgid "Cameras"
 msgstr ""
 
 #: ../raphodo/devices.py:460 ../raphodo/devices.py:916
-#: ../raphodo/preferencedialog.py:74 ../raphodo/rapid.py:1866
+#: ../raphodo/preferencedialog.py:74 ../raphodo/rapid.py:1870
 msgid "Devices"
 msgstr ""
 
@@ -253,7 +219,7 @@ msgstr ""
 msgid "%(no_devices)s %(device_type)s"
 msgstr ""
 
-#: ../raphodo/devices.py:901 ../raphodo/rapid.py:1703
+#: ../raphodo/devices.py:901 ../raphodo/rapid.py:1707
 msgid "Select Source"
 msgstr ""
 
@@ -427,7 +393,7 @@ msgstr ""
 msgid "Search whole words only"
 msgstr ""
 
-#: ../raphodo/errorlog.py:209 ../raphodo/errorlog.py:338
+#: ../raphodo/errorlog.py:209 ../raphodo/errorlog.py:341
 #, python-format
 msgid "%s of %s matches"
 msgstr ""
@@ -436,15 +402,15 @@ msgstr ""
 msgid "Clear"
 msgstr ""
 
-#: ../raphodo/errorlog.py:325
+#: ../raphodo/errorlog.py:328
 msgid "Phrase not found"
 msgstr ""
 
-#: ../raphodo/errorlog.py:486
+#: ../raphodo/errorlog.py:487
 msgid "Search pending..."
 msgstr ""
 
-#: ../raphodo/errorlog.py:534
+#: ../raphodo/errorlog.py:535
 msgid ""
 "The number of new entries added to the Error Report since it was last open. "
 "Click to open the Error Report."
@@ -482,7 +448,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1603
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1598
 msgid "Open in File Browser..."
 msgstr ""
 
@@ -508,7 +474,7 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:188 ../raphodo/rapid.py:1992
+#: ../raphodo/generatenameconfig.py:188 ../raphodo/rapid.py:1996
 msgid "Filename"
 msgstr ""
 
@@ -556,7 +522,7 @@ msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: ../raphodo/generatenameconfig.py:206 ../raphodo/rapid.py:1993
+#: ../raphodo/generatenameconfig.py:206 ../raphodo/rapid.py:1997
 msgid "Extension"
 msgstr ""
 
@@ -967,7 +933,7 @@ msgid "YYYYMM"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:393 ../raphodo/jobcodepanel.py:189
-#: ../raphodo/nameeditor.py:826 ../raphodo/rapid.py:1748
+#: ../raphodo/nameeditor.py:826 ../raphodo/rapid.py:1752
 #: ../raphodo/renamepanel.py:83 ../raphodo/renamepanel.py:241
 msgid "Job Code"
 msgstr ""
@@ -1127,11 +1093,11 @@ msgstr ""
 msgid "Job Code Sort:"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:196 ../raphodo/rapid.py:2000
+#: ../raphodo/jobcodepanel.py:196 ../raphodo/rapid.py:2004
 msgid "Ascending"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:197 ../raphodo/rapid.py:2001
+#: ../raphodo/jobcodepanel.py:197 ../raphodo/rapid.py:2005
 msgid "Descending"
 msgstr ""
 
@@ -1193,7 +1159,7 @@ msgstr ""
 msgid "%s (edited)"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:578 ../raphodo/nameeditor.py:1360
+#: ../raphodo/nameeditor.py:578 ../raphodo/nameeditor.py:1359
 #, python-format
 msgid "Update Custom Preset \"%s\""
 msgstr ""
@@ -1209,8 +1175,8 @@ msgstr ""
 
 #: ../raphodo/nameeditor.py:835
 msgid ""
-"<b><font color=\"red\">Warning:</font></b> <i>There is insufficient metadata "
-"to fully generate the name. Please use other renaming options.</i>"
+"<b><font color=\"red\">Warning:</font></b> <i>There is insufficient data to "
+"fully generate the name. Please use other renaming options.</i>"
 msgstr ""
 
 #. Translators: please do not modify, change the order of or leave out html formatting
@@ -1255,12 +1221,12 @@ msgstr ""
 msgid "Insert"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:1341
+#: ../raphodo/nameeditor.py:1340
 #, fuzzy
 msgid "Save Preset - Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
 
-#: ../raphodo/nameeditor.py:1346
+#: ../raphodo/nameeditor.py:1345
 msgid ""
 "<b>Do you want to save the changes in a new custom preset?</"
 "b><br><br>Creating a custom preset is not required, but can help you keep "
@@ -1268,7 +1234,7 @@ msgid ""
 "regardless of whether you create a new custom preset or not."
 msgstr ""
 
-#: ../raphodo/nameeditor.py:1355
+#: ../raphodo/nameeditor.py:1354
 msgid ""
 "<b>Do you want to save the changes in a custom preset?</b><br><br>If you "
 "like, you can create a new custom preset or update the existing custom "
@@ -1276,7 +1242,7 @@ msgid ""
 "regardless of whether you save a custom preset or not."
 msgstr ""
 
-#: ../raphodo/nameeditor.py:1362
+#: ../raphodo/nameeditor.py:1361
 msgid "Save New Custom Preset"
 msgstr ""
 
@@ -1834,168 +1800,79 @@ msgstr ""
 msgid "Download 8 Photos and 10 Videos"
 msgstr ""
 
-#. components
-#: ../raphodo/problemnotification.py:49 ../raphodo/renameandmovefile.py:425
-msgid "subfolder"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:50 ../raphodo/renameandmovefile.py:423
-msgid "filename"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:126
-#, python-format
-msgid "Date time value %s appears invalid."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:127
-msgid "Filename does not have an extension."
-msgstr ""
-
-#. a number component is something like the 8346 in IMG_8346.JPG
-#: ../raphodo/problemnotification.py:129
-msgid "Filename does not have a number component."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:130
-#, python-format
-msgid "Error generating component %s."
-msgstr ""
-
-#. a generic problem
-#: ../raphodo/problemnotification.py:132
-#, python-format
-msgid "%(filetype)s metadata cannot be read"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:134
-#, fuzzy, python-format
-msgid "%(filetype)s %(area)s could not be generated"
-msgstr "Image filename could not be generated"
-
-#: ../raphodo/problemnotification.py:136 ../raphodo/problemnotification.py:137
-#, python-format
-msgid "An error occurred when copying the %(filetype)s"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:138
-#, python-format
-msgid "An error occurred copying the %(filetype)s from the %(camera)s"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:141
-#, python-format
-msgid "The %(filetype)s did not download correctly"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:144 ../raphodo/problemnotification.py:145
-#, python-format
-msgid "%(filetype)s already exists"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:148
-#, python-format
-msgid ""
-"%(filetype)s could not be backed up because no suitable backup locations "
-"were found."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:153
-#, python-format
-msgid ""
-"%(image1)s was taken on %(image1_date)s at %(image1_time)s, and %(image2)s "
-"on %(image2_date)s at %(image2_time)s."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:154
-#, python-format
-msgid "%(filetype)s was already downloaded"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:158
-#, python-format
-msgid ""
-"The existing %(filetype)s was last modified on %(date)s at %(time)s. Unique "
-"identifier '%(identifier)s' added."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:159
-#, python-format
-msgid "The existing %(filetype)s was last modified on %(date)s at %(time)s."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:160
-#, python-format
-msgid "There is no data with which to name the %(filetype)s."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:162
-#, python-format
-msgid "Error: %(errorno)s %(strerror)s"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:191 ../raphodo/problemnotification.py:285
+#: ../raphodo/problemnotification.py:86 ../raphodo/problemnotification.py:202
 #, python-format
 msgid "Error: %(errno)s %(strerror)s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:209
+#: ../raphodo/problemnotification.py:89
+#, python-format
+msgid "Error: %s"
+msgstr ""
+
+#: ../raphodo/problemnotification.py:116
 #, python-format
 msgid "GPhoto2 Error: %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:217
+#: ../raphodo/problemnotification.py:124
 msgid ""
 "Unable to initialize the camera, probably because another program is using "
 "it. No files were copied from it."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:224
+#: ../raphodo/problemnotification.py:134
 #, python-format
 msgid "Unable to read directory %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:230
+#: ../raphodo/problemnotification.py:140
 #, python-format
 msgid "Unable to access modification time or size from %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:236
+#: ../raphodo/problemnotification.py:146
 #, python-format
 msgid "Unable to read file %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:242
+#: ../raphodo/problemnotification.py:152
 #, python-format
 msgid "Unable to write file %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:248
+#: ../raphodo/problemnotification.py:158
 #, python-format
 msgid "Unable to move file %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:254
+#: ../raphodo/problemnotification.py:164
 #, python-format
 msgid "Unable to remove file %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:260
+#: ../raphodo/problemnotification.py:170
 #, python-format
 msgid "Unable to copy file %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:266
+#: ../raphodo/problemnotification.py:176
 #, python-format
 msgid "Could not determine filesystem modification time for %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:272
+#: ../raphodo/problemnotification.py:182
 #, python-format
 msgid "Unable to load metadata from %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:279
+#: ../raphodo/problemnotification.py:188
+#, python-format
+msgid ""
+"Unable to load metadata from %(name)s. The %(filetype)s was not downloaded."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:196
 #, python-format
 msgid ""
 "An error occurred setting a file's filesystem metadata on the filesystem %s. "
@@ -2003,232 +1880,177 @@ msgid ""
 "again."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:293
+#: ../raphodo/problemnotification.py:210
 #, python-format
 msgid "Encountered unhandled file %s. It will not be downloaded."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:343
+#: ../raphodo/problemnotification.py:217
 #, python-format
-msgid "Errors scanning %s"
+msgid "%(filetype)s %(destination)s already exists."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:228 ../raphodo/problemnotification.py:256
+#, python-format
+msgid ""
+"The existing %(filetype)s %(destination)s was last modified on %(date)s at "
+"%(time)s."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:239
+#, python-format
+msgid "The %(filetype)s %(source)s was not downloaded from %(device)s."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:267
+#, python-format
+msgid "The %(filetype)s %(source)s was downloaded from %(device)s."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:276
+#, python-format
+msgid "The unique identifier '%s' was added to the filename."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:292
+#, python-format
+msgid ""
+"The existing backup %(filetype)s %(destination)s was last modified on "
+"%(date)s at %(time)s."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:303
+#, python-format
+msgid "The %(filetype)s %(source)s was not backed up from %(device)s."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:320
+#, python-format
+msgid ""
+"The previous backup %(filetype)s %(destination)s was last modified on "
+"%(date)s at %(time)s."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:331
+#, python-format
+msgid ""
+"The %(filetype)s %(source)s from %(device)s was backed up, overwriting the "
+"previous backup %(filetype)s."
 msgstr ""
 
 #: ../raphodo/problemnotification.py:350
 #, python-format
-msgid "Errors copying from %s"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:357
-msgid "Errors while renaming and generating subfolders"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:364
-#, python-format
-msgid "Errors backing up to %s"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:455
 msgid ""
-"File verification failed. The downloaded version is different from the "
-"original."
+"When synchronizing RAW + JPEG sequence values, a duplicate %(filetype)s "
+"%(file)s was encountered, and was not downloaded."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:459
-msgid "The metadata could not be parsed."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:462
+#: ../raphodo/problemnotification.py:360
 msgid ""
-"The filename, extension and Exif information indicate it has already been "
-"downloaded."
+"When synchronizing RAW + JPEG sequence values, photos were detected with the "
+"same filenames, but taken at different times:"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:485
-#, python-format
-msgid " It was backed up to %(volume)s"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:487
-msgid " It was backed up to these devices: "
-msgstr ""
-
-#: ../raphodo/problemnotification.py:489 ../raphodo/problemnotification.py:554
-#: ../raphodo/problemnotification.py:566 ../raphodo/problemnotification.py:599
-#, python-format
-msgid "%s, "
-msgstr ""
-
-#: ../raphodo/problemnotification.py:490 ../raphodo/problemnotification.py:555
-#: ../raphodo/problemnotification.py:567 ../raphodo/problemnotification.py:600
-#, python-format
-msgid "%(volumes)s and %(final_volume)s."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:502
+#: ../raphodo/problemnotification.py:367
 #, python-format
 msgid ""
-"Photos detected with the same filenames, but taken at different times: "
-"%(details)s"
+"%(image1)s was taken on %(image1_date)s at %(image1_time)s, and %(image2)s "
+"on %(image2_date)s at %(image2_time)s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:520
+#: ../raphodo/problemnotification.py:383
 #, python-format
-msgid "An error occurred when backing up on %(volume)s: %(inst)s."
+msgid "Unable to finalize the filename for %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:523
-#, python-format
-msgid "An error occurred when backing up on %(volume)s."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:526
-msgid "Errors occurred when backing up on the following backup devices: "
-msgstr ""
-
-#: ../raphodo/problemnotification.py:530 ../raphodo/problemnotification.py:582
-#, python-format
-msgid "%(volume)s (%(inst)s), "
-msgstr ""
-
-#: ../raphodo/problemnotification.py:533
-#, python-format
-msgid "%(volume)s, "
-msgstr ""
-
-#: ../raphodo/problemnotification.py:537 ../raphodo/problemnotification.py:585
-#, python-format
-msgid "%(volumes)s and %(volume)s (%(inst)s)."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:542
-#, python-format
-msgid "%(volumes)s and %(volume)s."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:549
-#, python-format
-msgid "Backup already exists on %(volume)s."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:552
-msgid "Backups already exist in these locations: "
-msgstr ""
-
-#: ../raphodo/problemnotification.py:562
-#, python-format
-msgid "Backup overwritten on %(volume)s."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:564
-msgid "Backups overwritten on these devices: "
-msgstr ""
-
-#: ../raphodo/problemnotification.py:575
-#, python-format
-msgid "An error occurred when creating directories on %(volume)s: %(inst)s."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:579
-msgid ""
-"Errors occurred when creating directories on the following backup devices: "
-msgstr ""
-
-#: ../raphodo/problemnotification.py:593
+#: ../raphodo/problemnotification.py:418
 #, python-format
 msgid ""
-"File verification failed on %(volume)s. The backed up version is different "
-"from the downloaded version."
+"The filename %(destination)s was not fully generated for %(filetype)s "
+"%(source)s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:597
-msgid "File verification failed on these devices: "
-msgstr ""
-
-#: ../raphodo/problemnotification.py:607
-#, python-format
-msgid "%(previousproblem)s Additionally, %(newproblem)s"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:616
-#, python-format
-msgid " Furthermore, there were %(problems)s."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:619
-#, python-format
-msgid " Furthermore, there was a %(problem)s."
-msgstr ""
-
-#: ../raphodo/problemnotification.py:629
+#: ../raphodo/problemnotification.py:427
 #, python-format
 msgid "The %(type)s metadata is missing."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:631
-msgid "The following metadata is missing: "
-msgstr ""
-
-#: ../raphodo/problemnotification.py:634
+#: ../raphodo/problemnotification.py:433
 #, python-format
-msgid "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
+msgid "The following metadata is missing: %s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:652
-msgid "Problems in subfolder and filename generation"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:654
-msgid "Problem in subfolder and filename generation"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:657
+#: ../raphodo/problemnotification.py:439
 #, python-format
-msgid "Problems in %s generation"
+msgid "Date/time conversion failed: %s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:659
+#: ../raphodo/problemnotification.py:445
+msgid ""
+"Could not extract valid date/time metadata or determine the file "
+"modification time."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:451
+msgid "Filename does not have an extension."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:454
+msgid "Filename does not have a number component."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:458
 #, python-format
-msgid "Problem in %s generation"
+msgid "Error generating component %(component)s. Error: %(error)s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:668
+#: ../raphodo/problemnotification.py:471
 #, python-format
-msgid "%(filetype)s already exists, but it was backed up"
+msgid ""
+"The download subfolders %(folder)s were only partially generated for "
+"%(filetype)s %(source)s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:671
+#: ../raphodo/problemnotification.py:480
 #, python-format
-msgid "An error occurred when copying the %(filetype)s, but it was backed up"
+msgid ""
+"There is no data with which to generate the %(subfolder_file)s for "
+"%(filename)s. The %(filetype)s was not downloaded."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:694
-msgid "Multiple problems were encountered"
+#: ../raphodo/problemnotification.py:493
+msgid ""
+"Unable to create the %(filetype)s %(destination)s in %(folder)s. The "
+"download file was %(source)s in %device)s. It was not downloaded."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:696 ../raphodo/renameandmovefile.py:334
-msgid "Photos detected with the same filenames, but taken at different times"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:702
-msgid "there were errors backing up"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:703
-msgid "There were errors backing up"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:705
-msgid "there was an error backing up"
-msgstr ""
-
-#: ../raphodo/problemnotification.py:706
-msgid "There was an error backing up"
-msgstr ""
-
-#. e.g.
-#: ../raphodo/problemnotification.py:709
+#: ../raphodo/problemnotification.py:508
 #, python-format
-msgid "%(previousproblem)s, and %(backinguperror)s"
+msgid "Unable to create the download subfolder %s."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:520
+#, python-format
+msgid "Unable to create the backup subfolder %s."
+msgstr ""
+
+#: ../raphodo/problemnotification.py:571
+#, python-format
+msgid "Problems scanning %s"
+msgstr ""
+
+#: ../raphodo/problemnotification.py:578
+#, python-format
+msgid "Problems copying from %s"
+msgstr ""
+
+#: ../raphodo/problemnotification.py:585
+msgid "Problems while finalizing filenames and generating subfolders"
+msgstr ""
+
+#: ../raphodo/problemnotification.py:592
+#, python-format
+msgid "Problems backing up to %s"
 msgstr ""
 
 #. Translators: for example Nov 3 or Dec 31
@@ -2351,55 +2173,55 @@ msgid ""
 "downloading, which is when the metadata is read."
 msgstr ""
 
-#: ../raphodo/rapid.py:474 ../raphodo/rapid.py:2358 ../raphodo/rapid.py:3597
-#: ../raphodo/rapid.py:3715 ../raphodo/rapid.py:3719 ../raphodo/rapid.py:3739
-#: ../raphodo/rapid.py:3743 ../raphodo/rapid.py:3863 ../raphodo/rapid.py:3872
-#: ../raphodo/rapid.py:4315 ../raphodo/rapid.py:4659 ../raphodo/rapid.py:5467
+#: ../raphodo/rapid.py:476 ../raphodo/rapid.py:2362 ../raphodo/rapid.py:3613
+#: ../raphodo/rapid.py:3731 ../raphodo/rapid.py:3735 ../raphodo/rapid.py:3755
+#: ../raphodo/rapid.py:3759 ../raphodo/rapid.py:3879 ../raphodo/rapid.py:3888
+#: ../raphodo/rapid.py:4331 ../raphodo/rapid.py:4675 ../raphodo/rapid.py:5483
 #: ../raphodo/rememberthisdialog.py:94
 #: ../data/rapid-photo-downloader.desktop.in.h:3
 msgid "Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
 
-#: ../raphodo/rapid.py:1085
+#: ../raphodo/rapid.py:1089
 msgid ""
 "<b>The library libmediainfo appears to be missing</b><br><br> Rapid Photo "
 "Downloader uses libmediainfo to get the date and time a video was shot. The "
 "program will run  without it, but installing it is recommended."
 msgstr ""
 
-#: ../raphodo/rapid.py:1094
+#: ../raphodo/rapid.py:1098
 msgid "Problem with libmediainfo"
 msgstr ""
 
-#: ../raphodo/rapid.py:1369
+#: ../raphodo/rapid.py:1373
 msgid "Download failed"
 msgstr ""
 
-#: ../raphodo/rapid.py:1370
+#: ../raphodo/rapid.py:1374
 msgid ""
 "Sorry, the download of the new version of Rapid Photo Downloader failed."
 msgstr ""
 
-#: ../raphodo/rapid.py:1376
+#: ../raphodo/rapid.py:1380
 msgid ""
 "The new version was successfully downloaded. Do you want to close Rapid "
 "Photo Downloader and install it now?"
 msgstr ""
 
-#: ../raphodo/rapid.py:1379
+#: ../raphodo/rapid.py:1383
 #, fuzzy
 msgid "Update Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
 
-#: ../raphodo/rapid.py:1383
+#: ../raphodo/rapid.py:1387
 msgid "Install"
 msgstr ""
 
-#: ../raphodo/rapid.py:1401
+#: ../raphodo/rapid.py:1405
 msgid "New version saved"
 msgstr ""
 
-#: ../raphodo/rapid.py:1402
+#: ../raphodo/rapid.py:1406
 #, python-format
 msgid ""
 "The tar file and installer script are saved at:\n"
@@ -2407,165 +2229,165 @@ msgid ""
 " %s"
 msgstr ""
 
-#: ../raphodo/rapid.py:1419
+#: ../raphodo/rapid.py:1423
 msgid "Upgrade failed"
 msgstr ""
 
-#: ../raphodo/rapid.py:1420
+#: ../raphodo/rapid.py:1424
 msgid ""
 "Sorry, upgrading Rapid Photo Downloader failed because there was an error "
 "opening the installer."
 msgstr ""
 
-#: ../raphodo/rapid.py:1616
+#: ../raphodo/rapid.py:1620
 msgid "&Source"
 msgstr ""
 
-#: ../raphodo/rapid.py:1619 ../raphodo/rapid.py:2269
+#: ../raphodo/rapid.py:1623 ../raphodo/rapid.py:2273
 msgid "Download"
 msgstr ""
 
-#: ../raphodo/rapid.py:1623
+#: ../raphodo/rapid.py:1627
 msgid "&Refresh..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1626
+#: ../raphodo/rapid.py:1630
 msgid "&Preferences"
 msgstr ""
 
-#: ../raphodo/rapid.py:1630
+#: ../raphodo/rapid.py:1634
 msgid "&Quit"
 msgstr ""
 
-#: ../raphodo/rapid.py:1633
+#: ../raphodo/rapid.py:1637
 msgid "Error Reports"
 msgstr ""
 
-#: ../raphodo/rapid.py:1637
+#: ../raphodo/rapid.py:1641
 msgid "Clear Completed Downloads"
 msgstr ""
 
-#: ../raphodo/rapid.py:1640
+#: ../raphodo/rapid.py:1644
 msgid "Get Help Online..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1643
+#: ../raphodo/rapid.py:1647
 msgid "Report a Problem..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1646
+#: ../raphodo/rapid.py:1650
 msgid "Make a Donation..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1649
+#: ../raphodo/rapid.py:1653
 msgid "Translate this Application..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1652
+#: ../raphodo/rapid.py:1656
 msgid "&About..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1654
+#: ../raphodo/rapid.py:1658
 msgid "Check for Updates..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1736
+#: ../raphodo/rapid.py:1740
 msgid "Timeline"
 msgstr ""
 
-#: ../raphodo/rapid.py:1746
+#: ../raphodo/rapid.py:1750
 msgid "Destination"
 msgstr ""
 
-#: ../raphodo/rapid.py:1747
+#: ../raphodo/rapid.py:1751
 msgid "Rename"
 msgstr ""
 
-#: ../raphodo/rapid.py:1749
+#: ../raphodo/rapid.py:1753
 msgid "Back Up"
 msgstr ""
 
 #. Devices Header and View
-#: ../raphodo/rapid.py:1865
+#: ../raphodo/rapid.py:1869
 msgid ""
 "Turn on or off the use of devices attached to this computer as download "
 "sources"
 msgstr ""
 
 #. This Computer Header and View
-#: ../raphodo/rapid.py:1879
+#: ../raphodo/rapid.py:1883
 msgid ""
 "Turn on or off the use of a folder on this computer as a download source"
 msgstr ""
 
-#: ../raphodo/rapid.py:1880
+#: ../raphodo/rapid.py:1884
 msgid "This Computer"
 msgstr ""
 
-#: ../raphodo/rapid.py:1891
+#: ../raphodo/rapid.py:1895
 #, fuzzy
 msgid "Select a source folder"
 msgstr "Select an image folder"
 
-#: ../raphodo/rapid.py:1914
+#: ../raphodo/rapid.py:1918
 msgid "Projected Storage Use"
 msgstr ""
 
-#: ../raphodo/rapid.py:1928 ../raphodo/rapid.py:1936
+#: ../raphodo/rapid.py:1932 ../raphodo/rapid.py:1940
 #, fuzzy
 msgid "Select a destination folder"
 msgstr "Select an image folder"
 
-#: ../raphodo/rapid.py:1984
+#: ../raphodo/rapid.py:1988
 msgid "All"
 msgstr ""
 
-#: ../raphodo/rapid.py:1985
+#: ../raphodo/rapid.py:1989
 msgid "New"
 msgstr ""
 
-#: ../raphodo/rapid.py:1987
+#: ../raphodo/rapid.py:1991
 msgid "Show:"
 msgstr ""
 
-#: ../raphodo/rapid.py:1990
+#: ../raphodo/rapid.py:1994
 msgid "Modification Time"
 msgstr ""
 
-#: ../raphodo/rapid.py:1991
+#: ../raphodo/rapid.py:1995
 msgid "Checked State"
 msgstr ""
 
-#: ../raphodo/rapid.py:1994
+#: ../raphodo/rapid.py:1998
 msgid "File Type"
 msgstr ""
 
-#: ../raphodo/rapid.py:1995
+#: ../raphodo/rapid.py:1999
 msgid "Device"
 msgstr ""
 
-#: ../raphodo/rapid.py:1997
+#: ../raphodo/rapid.py:2001
 msgid "Sort:"
 msgstr ""
 
-#: ../raphodo/rapid.py:2008
+#: ../raphodo/rapid.py:2012
 msgid "Select All:"
 msgstr ""
 
-#: ../raphodo/rapid.py:2249
+#: ../raphodo/rapid.py:2253
 #, python-format
 msgid "Download %(files)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:2265
+#: ../raphodo/rapid.py:2269
 msgid "Resume Download"
 msgstr ""
 
-#: ../raphodo/rapid.py:2267
+#: ../raphodo/rapid.py:2271
 msgid "Pause"
 msgstr ""
 
-#: ../raphodo/rapid.py:2326
+#: ../raphodo/rapid.py:2330
 #, python-brace-format
 msgid ""
 "<b>Thank you for reporting a problem in Rapid Photo\n"
@@ -2578,7 +2400,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: ../raphodo/rapid.py:2426
+#: ../raphodo/rapid.py:2430
 #, python-format
 msgid ""
 "<b>Changing This Computer source path</b><br><br>Do you really want to "
@@ -2587,18 +2409,18 @@ msgid ""
 "from This Computer will be cancelled."
 msgstr ""
 
-#: ../raphodo/rapid.py:2492
+#: ../raphodo/rapid.py:2496
 msgid "You cannot change the download destination while downloading."
 msgstr ""
 
-#: ../raphodo/rapid.py:2501
+#: ../raphodo/rapid.py:2505
 #, python-format
 msgid ""
 "<b>Confirm Download Destination</b><br><br>Are you sure you want to set the "
 "%(file_type)s download destination to %(path)s?"
 msgstr ""
 
-#: ../raphodo/rapid.py:2579
+#: ../raphodo/rapid.py:2583
 msgid ""
 "<b>Downloading all files</b><br><br>\n"
 "                    A download always includes all files that are checked "
@@ -2610,7 +2432,7 @@ msgid ""
 "                    Do you want to proceed with the download?"
 msgstr ""
 
-#: ../raphodo/rapid.py:2717
+#: ../raphodo/rapid.py:2721
 #, python-format
 msgid ""
 "These download folders are invalid:\n"
@@ -2618,208 +2440,208 @@ msgid ""
 "%(folder2)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:2721
+#: ../raphodo/rapid.py:2725
 #, python-format
 msgid ""
 "This download folder is invalid:\n"
 "%s"
 msgstr ""
 
-#: ../raphodo/rapid.py:2724
+#: ../raphodo/rapid.py:2728
 #, fuzzy
 msgid "Download Failure"
 msgstr "Invalid Downloads Today value.\n"
 
-#: ../raphodo/rapid.py:2725
+#: ../raphodo/rapid.py:2729
 msgid "The download cannot proceed."
 msgstr ""
 
-#: ../raphodo/rapid.py:2739
+#: ../raphodo/rapid.py:2743
 msgid ""
 "Photos and videos will not be backed up because there is nowhere to back "
 "them up. Do you still want to start the download?"
 msgstr ""
 
 #. Translators: filetype will be replaced with 'photos' or 'videos'
-#: ../raphodo/rapid.py:2744 ../raphodo/rapid.py:2751
+#: ../raphodo/rapid.py:2748 ../raphodo/rapid.py:2755
 #, python-format
 msgid ""
 "No backup device exists for backing up %(filetype)s. Do you still want to "
 "start the download?"
 msgstr ""
 
-#: ../raphodo/rapid.py:2745 ../raphodo/rpdfile.py:221
+#: ../raphodo/rapid.py:2749 ../raphodo/rpdfile.py:227
 msgid "photos"
 msgstr ""
 
-#: ../raphodo/rapid.py:2752 ../raphodo/rpdfile.py:216
+#: ../raphodo/rapid.py:2756 ../raphodo/rpdfile.py:222
 msgid "videos"
 msgstr ""
 
-#: ../raphodo/rapid.py:2757
+#: ../raphodo/rapid.py:2761
 msgid ""
 "The photo and video backup destinations cannnot be written to. Do you still "
 "want to start the download?"
 msgstr ""
 
 #. Translators: filetype will be replaced by either 'photo' or 'video'
-#: ../raphodo/rapid.py:2763 ../raphodo/rapid.py:2768
+#: ../raphodo/rapid.py:2767 ../raphodo/rapid.py:2772
 #, python-format
 msgid ""
 "The %(filetype)s backup destination cannot be written to. Do you still want "
 "to start the download?"
 msgstr ""
 
-#: ../raphodo/rapid.py:2764 ../raphodo/rpdfile.py:223 ../raphodo/rpdfile.py:795
+#: ../raphodo/rapid.py:2768 ../raphodo/rpdfile.py:229 ../raphodo/rpdfile.py:805
 msgid "photo"
 msgstr ""
 
-#: ../raphodo/rapid.py:2769 ../raphodo/rpdfile.py:218 ../raphodo/rpdfile.py:837
+#: ../raphodo/rapid.py:2773 ../raphodo/rpdfile.py:224 ../raphodo/rpdfile.py:845
 msgid "video"
 msgstr ""
 
-#: ../raphodo/rapid.py:2777
+#: ../raphodo/rapid.py:2781
 msgid "Backup problem"
 msgstr ""
 
 #. Translators - in the middle is a unicode em dash - please retain it
 #. This string is displayed in the status bar when the download is running
-#: ../raphodo/rapid.py:3440
+#: ../raphodo/rapid.py:3456
 #, python-format
 msgid "%(downloading_from)s — %(time_left)s left (%(speed)s)"
 msgstr ""
 
 #. Translators: e.g. 23 photos downloaded
-#: ../raphodo/rapid.py:3509
+#: ../raphodo/rapid.py:3525
 #, python-format
 msgid "%(noFiles)s %(filetypes)s downloaded"
 msgstr ""
 
 #. Translators: e.g. 2 videos failed to download
-#: ../raphodo/rapid.py:3514
+#: ../raphodo/rapid.py:3530
 #, python-format
 msgid "%(noFiles)s %(filetypes)s failed to download"
 msgstr ""
 
-#: ../raphodo/rapid.py:3519 ../raphodo/rapid.py:3592
+#: ../raphodo/rapid.py:3535 ../raphodo/rapid.py:3608
 msgid "warnings"
 msgstr ""
 
-#: ../raphodo/rapid.py:3548
+#: ../raphodo/rapid.py:3564
 msgid "All downloads complete"
 msgstr ""
 
 #. Translators: e.g. 23 photos downloaded
-#: ../raphodo/rapid.py:3555 ../raphodo/rapid.py:3564 ../raphodo/rapid.py:3573
-#: ../raphodo/rapid.py:3582 ../raphodo/rapid.py:3590
+#: ../raphodo/rapid.py:3571 ../raphodo/rapid.py:3580 ../raphodo/rapid.py:3589
+#: ../raphodo/rapid.py:3598 ../raphodo/rapid.py:3606
 #, python-format
 msgid "%(number)s %(numberdownloaded)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:3557 ../raphodo/rapid.py:3575
+#: ../raphodo/rapid.py:3573 ../raphodo/rapid.py:3591
 #, python-format
 msgid "%(filetype)s downloaded"
 msgstr ""
 
-#: ../raphodo/rapid.py:3566 ../raphodo/rapid.py:3584
+#: ../raphodo/rapid.py:3582 ../raphodo/rapid.py:3600
 #, python-format
 msgid "%(filetype)s failed to download"
 msgstr ""
 
-#: ../raphodo/rapid.py:3611
+#: ../raphodo/rapid.py:3627
 msgid "1 failure"
 msgstr ""
 
-#: ../raphodo/rapid.py:3613
+#: ../raphodo/rapid.py:3629
 #, python-format
 msgid "%d failures"
 msgstr ""
 
-#: ../raphodo/rapid.py:3618
+#: ../raphodo/rapid.py:3634
 msgid "1 warning"
 msgstr ""
 
-#: ../raphodo/rapid.py:3620
+#: ../raphodo/rapid.py:3636
 #, python-format
 msgid "%d warnings"
 msgstr ""
 
-#: ../raphodo/rapid.py:3640
+#: ../raphodo/rapid.py:3656
 #, python-format
 msgid "Downloaded %(no_files_and_types)s from %(devices)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:3643
+#: ../raphodo/rapid.py:3659
 #, python-format
 msgid "Downloaded %(no_files_and_types)s from %(devices)s — %(failures)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:3648
+#: ../raphodo/rapid.py:3664
 #, python-format
 msgid "No files downloaded — %(failures)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:3650
+#: ../raphodo/rapid.py:3666
 msgid "No files downloaded"
 msgstr ""
 
-#: ../raphodo/rapid.py:3674
+#: ../raphodo/rapid.py:3690
 #, python-format
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for the %(camera)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:3678
+#: ../raphodo/rapid.py:3694
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for this computer"
 msgstr ""
 
-#: ../raphodo/rapid.py:3681
+#: ../raphodo/rapid.py:3697
 #, python-format
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(device)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:3689
+#: ../raphodo/rapid.py:3705
 #, python-format
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(number_devices)s devices and this computer"
 msgstr ""
 
-#: ../raphodo/rapid.py:3702
+#: ../raphodo/rapid.py:3718
 #, python-format
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for the %(camera)s and this computer"
 msgstr ""
 
-#: ../raphodo/rapid.py:3706
+#: ../raphodo/rapid.py:3722
 #, python-format
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(device)s and this computer"
 msgstr ""
 
-#: ../raphodo/rapid.py:3710
+#: ../raphodo/rapid.py:3726
 #, python-format
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(number_devices)s devices"
 msgstr ""
 
-#: ../raphodo/rapid.py:3736
+#: ../raphodo/rapid.py:3752
 msgid "The Destination subfolders and Timeline have been rebuilt"
 msgstr ""
 
-#: ../raphodo/rapid.py:3787
+#: ../raphodo/rapid.py:3803
 msgid "Program preferences are invalid"
 msgstr ""
 
-#: ../raphodo/rapid.py:3864
+#: ../raphodo/rapid.py:3880
 #, python-format
 msgid ""
 "<b>All files on the %(camera)s are inaccessible</b>.<br><br>It may be locked "
@@ -2829,7 +2651,7 @@ msgid ""
 "ignore this device."
 msgstr ""
 
-#: ../raphodo/rapid.py:3873
+#: ../raphodo/rapid.py:3889
 #, python-format
 msgid ""
 "<b>The %(camera)s appears to be in use by another application.</"
@@ -2839,15 +2661,15 @@ msgid ""
 "device."
 msgstr ""
 
-#: ../raphodo/rapid.py:3884
+#: ../raphodo/rapid.py:3900
 msgid "&Try Again"
 msgstr ""
 
-#: ../raphodo/rapid.py:3885
+#: ../raphodo/rapid.py:3901
 msgid "&Ignore This Device"
 msgstr ""
 
-#: ../raphodo/rapid.py:4292
+#: ../raphodo/rapid.py:4308
 #, python-format
 msgid ""
 "<b>The %(camera)s cannot be scanned because it cannot be unmounted.</"
@@ -2856,7 +2678,7 @@ msgid ""
 "the computer and plug it in again."
 msgstr ""
 
-#: ../raphodo/rapid.py:4316
+#: ../raphodo/rapid.py:4332
 #, python-format
 msgid ""
 "<b>The download cannot start because the %(camera)s cannot be unmounted.</"
@@ -2866,124 +2688,124 @@ msgid ""
 "download from it."
 msgstr ""
 
-#: ../raphodo/rapid.py:4454
+#: ../raphodo/rapid.py:4470
 #, python-format
 msgid ""
 "Do you want to download photos and videos from the device <i>%(device)s</i>?"
 msgstr ""
 
-#: ../raphodo/rapid.py:4648
+#: ../raphodo/rapid.py:4664
 #, python-format
 msgid "<b>Do you want to ignore the %s whenever this program is run?</b>"
 msgstr ""
 
-#: ../raphodo/rapid.py:4650
+#: ../raphodo/rapid.py:4666
 msgid ""
 "All cameras, phones and tablets with the same model name will be ignored."
 msgstr ""
 
-#: ../raphodo/rapid.py:4654
+#: ../raphodo/rapid.py:4670
 #, python-format
 msgid ""
 "<b>Do you want to ignore the device %s whenever this program is run?</b>"
 msgstr ""
 
-#: ../raphodo/rapid.py:4656
+#: ../raphodo/rapid.py:4672
 msgid "Any device with the same name will be ignored."
 msgstr ""
 
-#: ../raphodo/rapid.py:4941
+#: ../raphodo/rapid.py:4957
 #, python-format
 msgid "Downloading from %(location)s on This Computer."
 msgstr ""
 
-#: ../raphodo/rapid.py:4943
+#: ../raphodo/rapid.py:4959
 msgid ""
 "Do you really want to download from here?<br><br>On some systems, scanning "
 "this location can take a very long time."
 msgstr ""
 
-#: ../raphodo/rapid.py:4987
+#: ../raphodo/rapid.py:5003
 #, python-format
 msgid "Generating thumbnails for %s"
 msgstr ""
 
-#: ../raphodo/rapid.py:4990
+#: ../raphodo/rapid.py:5006
 #, python-format
 msgid "Scanning %s"
 msgstr ""
 
-#: ../raphodo/rapid.py:5000
+#: ../raphodo/rapid.py:5016
 #, python-format
 msgid ""
 "%(number)s of %(available files)s checked for download (%(hidden)s hidden)"
 msgstr ""
 
-#: ../raphodo/rapid.py:5006
+#: ../raphodo/rapid.py:5022
 #, python-format
 msgid "%(number)s of %(available files)s checked for download"
 msgstr ""
 
-#: ../raphodo/rapid.py:5248
+#: ../raphodo/rapid.py:5264
 msgid "Display program information when run from the command line."
 msgstr ""
 
-#: ../raphodo/rapid.py:5250
+#: ../raphodo/rapid.py:5266
 msgid "Display debugging information when run from the command line."
 msgstr ""
 
-#: ../raphodo/rapid.py:5253
+#: ../raphodo/rapid.py:5269
 #, fuzzy
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr "list image file extensions the program recognises and exit"
 
-#: ../raphodo/rapid.py:5256
+#: ../raphodo/rapid.py:5272
 msgid "Turn on or off the the renaming of photos."
 msgstr ""
 
-#: ../raphodo/rapid.py:5258
+#: ../raphodo/rapid.py:5274
 msgid "turn on or off the the renaming of videos."
 msgstr ""
 
-#: ../raphodo/rapid.py:5260
+#: ../raphodo/rapid.py:5276
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
 msgstr ""
 
-#: ../raphodo/rapid.py:5264
+#: ../raphodo/rapid.py:5280
 msgid "Turn on or off downloading from this computer."
 msgstr ""
 
-#: ../raphodo/rapid.py:5266 ../raphodo/rapid.py:5269 ../raphodo/rapid.py:5272
-#: ../raphodo/rapid.py:5293 ../raphodo/rapid.py:5297
+#: ../raphodo/rapid.py:5282 ../raphodo/rapid.py:5285 ../raphodo/rapid.py:5288
+#: ../raphodo/rapid.py:5309 ../raphodo/rapid.py:5313
 msgid "PATH"
 msgstr ""
 
-#: ../raphodo/rapid.py:5267
+#: ../raphodo/rapid.py:5283
 msgid "The PATH on this computer from which to download."
 msgstr ""
 
-#: ../raphodo/rapid.py:5270
+#: ../raphodo/rapid.py:5286
 msgid "The PATH where photos will be downloaded to."
 msgstr ""
 
-#: ../raphodo/rapid.py:5273
+#: ../raphodo/rapid.py:5289
 msgid "The PATH where videos will be downloaded to."
 msgstr ""
 
-#: ../raphodo/rapid.py:5275
+#: ../raphodo/rapid.py:5291
 msgid "Turn on or off the backing up of photos and videos while downloading."
 msgstr ""
 
-#: ../raphodo/rapid.py:5279
+#: ../raphodo/rapid.py:5295
 msgid "Turn on or off the automatic detection of backup devices."
 msgstr ""
 
-#: ../raphodo/rapid.py:5281 ../raphodo/rapid.py:5287
+#: ../raphodo/rapid.py:5297 ../raphodo/rapid.py:5303
 msgid "FOLDER"
 msgstr ""
 
-#: ../raphodo/rapid.py:5282
+#: ../raphodo/rapid.py:5298
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
@@ -2991,7 +2813,7 @@ msgid ""
 "photos up to, create a folder on it with this name."
 msgstr ""
 
-#: ../raphodo/rapid.py:5288
+#: ../raphodo/rapid.py:5304
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
@@ -2999,112 +2821,112 @@ msgid ""
 "up videos to, create a folder on it with this name."
 msgstr ""
 
-#: ../raphodo/rapid.py:5294
+#: ../raphodo/rapid.py:5310
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
 msgstr ""
 
-#: ../raphodo/rapid.py:5298
+#: ../raphodo/rapid.py:5314
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
 msgstr ""
 
-#: ../raphodo/rapid.py:5301
+#: ../raphodo/rapid.py:5317
 #, python-format
 msgid "Ignore photos with the following extensions: %s"
 msgstr ""
 
-#: ../raphodo/rapid.py:5305
+#: ../raphodo/rapid.py:5321
 msgid "Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 
-#: ../raphodo/rapid.py:5308
+#: ../raphodo/rapid.py:5324
 msgid "Turn on or off starting downloads as soon as a device is inserted."
 msgstr ""
 
-#: ../raphodo/rapid.py:5311
+#: ../raphodo/rapid.py:5327
 msgid ""
 "Turn on or off use of the Rapid Photo Downloader Thumbnail Cache. Turning it "
 "off does not delete existing cache contents."
 msgstr ""
 
-#: ../raphodo/rapid.py:5315
+#: ../raphodo/rapid.py:5331
 msgid ""
 "Delete all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and "
 "exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:5319
+#: ../raphodo/rapid.py:5335
 msgid "Forget which files have been previously downloaded, and exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:5322
+#: ../raphodo/rapid.py:5338
 msgid ""
 "Import preferences from an old program version and exit. Requires the "
 "command line program gconftool-2."
 msgstr ""
 
-#: ../raphodo/rapid.py:5325
+#: ../raphodo/rapid.py:5341
 msgid ""
 "Reset all program settings to their default values, delete all thumbnails in "
 "the Thumbnail cache, forget which files have been previously downloaded, and "
 "exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:5329
+#: ../raphodo/rapid.py:5345
 msgid "Include gphoto2 debugging information in log files."
 msgstr ""
 
-#: ../raphodo/rapid.py:5385
+#: ../raphodo/rapid.py:5401
 msgid ""
 "To import preferences from the old version of Rapid Photo Downloader, you "
 "must install the program gconftool-2."
 msgstr ""
 
-#: ../raphodo/rapid.py:5394
+#: ../raphodo/rapid.py:5410
 msgid "No prior program preferences detected: exiting"
 msgstr ""
 
-#: ../raphodo/rapid.py:5397
+#: ../raphodo/rapid.py:5413
 #, python-format
 msgid "Importing preferences from Rapid Photo Downloader %(version)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:5459
+#: ../raphodo/rapid.py:5475
 #, python-format
 msgid "Do you want to copy the stored sequence number, which has the value %d?"
 msgstr ""
 
-#: ../raphodo/rapid.py:5471
+#: ../raphodo/rapid.py:5487
 msgid "Program aborting."
 msgstr ""
 
-#: ../raphodo/rapid.py:5481
+#: ../raphodo/rapid.py:5497
 msgid "Never run this program as the sudo / root user."
 msgstr ""
 
-#: ../raphodo/rapid.py:5485
+#: ../raphodo/rapid.py:5501
 #, fuzzy
 msgid "You must install ExifTool to run Rapid Photo Downloader."
 msgstr "Rapid Photo Downloader"
 
-#: ../raphodo/rapid.py:5539
+#: ../raphodo/rapid.py:5555
 msgid ""
 "When specifying a path on the command line, do not also specify an\n"
 "option for device auto detection or a path on \"This Computer\"."
 msgstr ""
 
-#: ../raphodo/rapid.py:5691
+#: ../raphodo/rapid.py:5707
 msgid "All settings and caches have been reset"
 msgstr ""
 
-#: ../raphodo/rapid.py:5699
+#: ../raphodo/rapid.py:5715
 msgid "Thumbnail Cache has been reset"
 msgstr ""
 
-#: ../raphodo/rapid.py:5705
+#: ../raphodo/rapid.py:5721
 msgid "Remembered files have been forgotten"
 msgstr ""
 
@@ -3116,26 +2938,16 @@ msgstr ""
 msgid "&Don't warn me about this again"
 msgstr ""
 
-#: ../raphodo/renameandmovefile.py:421
+#: ../raphodo/renameandmovefile.py:510
 msgid "subfolder and filename"
 msgstr ""
 
-#: ../raphodo/renameandmovefile.py:497
-msgid "Photo has already been downloaded"
+#: ../raphodo/renameandmovefile.py:512
+msgid "filename"
 msgstr ""
 
-#: ../raphodo/renameandmovefile.py:498
-#, python-format
-msgid "Source: %(source)s"
-msgstr ""
-
-#: ../raphodo/renameandmovefile.py:590
-msgid "Failed to create download subfolder"
-msgstr ""
-
-#: ../raphodo/renameandmovefile.py:591
-#, python-format
-msgid "Path: %s"
+#: ../raphodo/renameandmovefile.py:514
+msgid "subfolder"
 msgstr ""
 
 #: ../raphodo/renamepanel.py:290
@@ -3171,66 +2983,69 @@ msgid "Synchronize RAW + JPEG"
 msgstr ""
 
 #: ../raphodo/renamepanel.py:345
-msgid "Synchronize sequence numbers for matching RAW and JPEG pairs"
+msgid ""
+"Synchronize sequence numbers for matching RAW and JPEG pairs.\n"
+"\n"
+"See the online documentation for more details."
 msgstr ""
 
-#: ../raphodo/renamepanel.py:347
+#: ../raphodo/renamepanel.py:349
 msgid "Sequence Numbers"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:361
+#: ../raphodo/renamepanel.py:363
 msgid ""
 "Whether photo, video and folder names should have any characters removed "
 "that are not allowed by other operating systems"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:363
+#: ../raphodo/renamepanel.py:365
 msgid "Compatibility"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:431
+#: ../raphodo/renamepanel.py:433
 msgid "Photo Renaming"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:434
+#: ../raphodo/renamepanel.py:436
 msgid "Video Renaming"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:437
+#: ../raphodo/renamepanel.py:439
 msgid "Renaming Options"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:211
+#: ../raphodo/rpdfile.py:217
 msgid "photos and videos"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:213
+#: ../raphodo/rpdfile.py:219
 msgid "photos or videos"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:299
+#: ../raphodo/rpdfile.py:305
 #, python-format
 msgid "%(number)s %(filetypes)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:311
+#: ../raphodo/rpdfile.py:317
 msgid "1 Video"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:316
+#: ../raphodo/rpdfile.py:322
 msgid "1 Photo"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:766
+#: ../raphodo/rpdfile.py:790
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:796
+#: ../raphodo/rpdfile.py:806
 msgid "Photo"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:838
+#: ../raphodo/rpdfile.py:846
 msgid "Video"
 msgstr ""
 
@@ -3253,7 +3068,7 @@ msgstr ""
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:435 ../raphodo/thumbnaildisplay.py:469
+#: ../raphodo/thumbnaildisplay.py:435 ../raphodo/thumbnaildisplay.py:464
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr ""
@@ -3267,17 +3082,12 @@ msgstr ""
 msgid "Downloaded as:"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:461
-#, python-format
-msgid "%(error_title)s:"
-msgstr ""
-
-#: ../raphodo/thumbnaildisplay.py:475
+#: ../raphodo/thumbnaildisplay.py:470
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:1605
+#: ../raphodo/thumbnaildisplay.py:1600
 msgid "Copy Path"
 msgstr ""
 
@@ -3412,6 +3222,10 @@ msgstr ""
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr ""
+
+#, fuzzy
+#~ msgid "%(filetype)s %(area)s could not be generated"
+#~ msgstr "Image filename could not be generated"
 
 #, fuzzy
 #~ msgid "Rapid Photo Downloader Error Log"

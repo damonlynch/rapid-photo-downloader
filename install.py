@@ -375,7 +375,13 @@ def uninstall_old_version(distro: Distro) -> None:
               "installed (this may take a while)...")
         with dnf.Base() as base:
             base.read_all_repos()
-            base.fill_sack()
+            try:
+                base.fill_sack()
+            except dnf.exceptions.RepoError as e:
+                print("Unable to query package system. Please check your internet connection and "
+                      "try again")
+                sys.exit(1)
+
             q = base.sack.query()
             q_inst = q.installed()
             i = q_inst.filter(name=pkg_name)
@@ -432,7 +438,7 @@ def main(installer: str, distro: Distro, distro_version: float) -> None:
         sys.exit(1)
 
     print("\nInstalling application...\n")
-    cmd = make_pip_command('install --user --no-deps {}'.format(installer))
+    cmd = make_pip_command('install --user --upgrade --no-deps {}'.format(installer))
     with Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
         for line in p.stdout:
             print(line, end='')
