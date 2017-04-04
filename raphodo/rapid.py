@@ -3783,10 +3783,14 @@ class RapidWindow(QMainWindow):
         """
 
         invalid_dirs = []
-        if downloading.photos or downloading.photos_and_videos:
+
+        # sadly this causes an exception on python 3.4:
+        # downloading.photos or downloading.photos_and_videos
+
+        if downloading in (DownloadingFileTypes.photos,  DownloadingFileTypes.photos_and_videos):
             if not validate_download_folder(self.prefs.photo_download_folder).valid:
                 invalid_dirs.append(self.prefs.photo_download_folder)
-        if downloading.videos or downloading.photos_and_videos:
+        if downloading in (DownloadingFileTypes.videos,  DownloadingFileTypes.photos_and_videos):
             if not validate_download_folder(self.prefs.video_download_folder).valid:
                 invalid_dirs.append(self.prefs.video_download_folder)
         return invalid_dirs
