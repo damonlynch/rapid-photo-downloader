@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -20,7 +20,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2016, Damon Lynch"
+__copyright__ = "Copyright 2007-2017, Damon Lynch"
 
 import re
 import datetime
@@ -34,6 +34,7 @@ from gi.repository import GExiv2
 
 import raphodo.exiftool as exiftool
 
+
 def gexiv2_version() -> str:
     """
     :return: version number of GExiv2
@@ -42,6 +43,7 @@ def gexiv2_version() -> str:
     # major version, YY is the minor version, and ZZ is the micro version
     v = '{0:06d}'.format(GExiv2.get_version())
     return '{}.{}.{}'.format(v[0:2], v[2:4], v[4:6]).replace('00', '0')
+
 
 def exiv2_version() -> str:
     """
@@ -215,7 +217,7 @@ class MetaData(GExiv2.Metadata):
         Returns missing if the metadata value is not present.
         """
         try:
-            return self["Exif.Image.Make"].strip()
+            return self.get_tag_string("Exif.Image.Make").strip()
         except:
             return missing
 
@@ -226,7 +228,7 @@ class MetaData(GExiv2.Metadata):
         Returns missing if the metadata value is not present.
         """
         try:
-            return self["Exif.Image.Model"].strip()
+            return self.get_tag_string("Exif.Image.Model").strip()
         except:
             return missing
 
@@ -249,7 +251,7 @@ class MetaData(GExiv2.Metadata):
         Returns Exif.CanonFi.FileNumber, not to be confused with
         Exif.Canon.FileNumber.
 
-        Uses exiftool to extract the value, as the exiv2
+        Uses ExifTool to extract the value, as the exiv2
         implementation is broken
 
         See:
@@ -268,19 +270,19 @@ class MetaData(GExiv2.Metadata):
 
     def owner_name(self, missing=''):
         try:
-            return self['Exif.Canon.OwnerName'].strip()
+            return self.get_tag_string('Exif.Canon.OwnerName').strip()
         except KeyError:
             return missing
 
     def copyright(self, missing=''):
         try:
-            return self['Exif.Image.Copyright'].strip()
+            return self.get_tag_string('Exif.Image.Copyright').strip()
         except KeyError:
             return missing
 
     def artist(self, missing=''):
         try:
-            return self['Exif.Image.Artist'].strip()
+            return self.get_tag_string('Exif.Image.Artist').strip()
         except KeyError:
             return missing
 
@@ -384,7 +386,7 @@ class MetaData(GExiv2.Metadata):
         for tag in ('Exif.Photo.DateTimeOriginal', 'Exif.Image.DateTimeOriginal',
                     'Exif.Image.DateTime'):
             try:
-                dt_string = self[tag]
+                dt_string = self.get_tag_string(tag)
             except:
                 pass
             else:
@@ -424,7 +426,7 @@ class MetaData(GExiv2.Metadata):
         """
 
         try:
-            return self["Exif.Photo.SubSecTimeOriginal"]
+            return self.get_tag_string("Exif.Photo.SubSecTimeOriginal")
         except:
             return missing
 

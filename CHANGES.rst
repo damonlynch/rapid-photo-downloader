@@ -10,6 +10,8 @@ Changelog for Rapid Photo Downloader
  - Fixed bug to allow the error report window to run on versions
    of PyQt5 older than 5.6.
 
+ - Workaround bug in openSUSE Gexiv2 introspection.
+
 0.9.0b1 (2017-04-01)
 --------------------
 

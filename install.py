@@ -482,8 +482,8 @@ def main(installer: str, distro: Distro, distro_version: float) -> None:
                     os.symlink(os.path.join(install_path, executable), symlink)
 
             if created_bin_dir:
-                print(bcolors.BOLD + "\nLogout and login again to be able to run the program "\
-                                 "from the commmand line or application launcher" + bcolors.ENDC)
+                print(bcolors.BOLD + "\nYou may have to restart the computer to be able to run the "
+                         "program from the commmand line or application launcher" + bcolors.ENDC)
         else:
             sys.stderr.write("\nThe application was installed in {}\n".format(install_path))
             sys.stderr.write("Add {} to your PATH to be able to launch it.\n".format(install_path))

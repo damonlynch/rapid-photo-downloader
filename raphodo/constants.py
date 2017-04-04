@@ -491,6 +491,7 @@ class Distro(Enum):
     manjaro = 5
     arch = 6
     neon = 7
+    opensuse = 8
 
 
 orientation_offset = dict(
