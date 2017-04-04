@@ -196,7 +196,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
         thumbnail = orientation = None
         try:
-            orientation = rpd_file.metadata['Exif.Image.Orientation']
+            orientation = rpd_file.metadata.get_tag_string('Exif.Image.Orientation')
         except KeyError:
             pass
 
@@ -348,7 +348,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
         if rpd_file.metadata is not None:
             try:
-                return rpd_file.metadata['Exif.Image.Orientation']
+                return rpd_file.metadata.get_tag_string('Exif.Image.Orientation')
             except KeyError:
                 pass
         return None

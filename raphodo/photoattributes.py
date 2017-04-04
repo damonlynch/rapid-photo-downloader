@@ -115,12 +115,12 @@ class PhotoAttributes:
         self.width = metadata.get_pixel_width()
         self.height = metadata.get_pixel_height()
         try:
-            self.orientation = metadata['Exif.Image.Orientation']
+            self.orientation = metadata.get_tag_string('Exif.Image.Orientation')
         except KeyError:
             pass
-        if 'Exif.Image.Make' in metadata and 'Exif.Image.Model' in metadata:
-            self.model = '{} {}'.format(metadata['Exif.Image.Make'].strip(),
-                                   metadata['Exif.Image.Model'].strip())
+        if metadata.has_tag('Exif.Image.Make') and metadata.has_tag('Exif.Image.Model'):
+            self.model = '{} {}'.format(metadata.get_tag_string('Exif.Image.Make').strip(),
+                                   metadata.get_tag_string('Exif.Image.Model').strip())
         self.has_gps = metadata.get_gps_info()[0]
         self.iso = metadata.get_iso_speed()
         try:

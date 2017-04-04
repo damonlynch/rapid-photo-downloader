@@ -103,7 +103,8 @@ class MetaData(GExiv2.Metadata):
         """
 
         if full_file_name:
-            super().__init__(full_file_name)
+            super().__init__()
+            self.open_path(full_file_name)
         else:
             super().__init__()
             if raw_bytes is not None:

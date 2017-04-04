@@ -34,7 +34,7 @@ A helper command-line program accompanying Rapid Photo Downloader is
 ``analyze_pv_structure``, which analyzes photos and videos to help determine
 how much of a file needs to be read to extract its metadata and thumbnail.
 
-The version of the program described here, 0.9.0b1, is alpha quality software,
+The version of the program described here, 0.9.0b2, is alpha quality software,
 meaning that not all its features have been written. The main missing features
 are the components of the graphical user interface that are used to configure
 file renaming, backups, and miscellaneous other program preferences.
@@ -55,7 +55,7 @@ Install on Ubuntu, openSUSE, Debian, and Fedora
 
 To install Rapid Photo Downloader, run as your regular user (i.e. *without* sudo):
 
-``python3 install.py rapid-photo-downloader-0.9.0b1.tar.gz``
+``python3 install.py rapid-photo-downloader-0.9.0b2.tar.gz``
 
 **Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
 install`` *is* **not** *supported, and* **not** *recommended.*
@@ -172,7 +172,7 @@ The following command will install all required and optional Python modules not 
 installed on your system, with the exception of those specified above in
 `satisfying software requirements`_:
 
-``python3 install.py rapid-photo-downloader-0.9.0b1.tar.gz``
+``python3 install.py rapid-photo-downloader-0.9.0b2.tar.gz``
 
 Substitute the name of the correct compressed tar file if necessary, and run it as your regular
 user (i.e. *without* sudo).
