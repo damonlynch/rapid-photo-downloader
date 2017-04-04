@@ -210,7 +210,7 @@ def get_distro_version(distro: Distro) -> float:
     return 0.0
 
 
-def run_cmd(command_line: str, restart=False, exit_on_failure=True) -> None:
+def run_cmd(command_line: str, restart=False, exit_on_failure=True, shell=False) -> None:
     print("The following command will be run:\n")
     print(command_line)
     if command_line.startswith('sudo'):
@@ -227,7 +227,7 @@ def run_cmd(command_line: str, restart=False, exit_on_failure=True) -> None:
     print()
 
     try:
-        subprocess.check_call(args)
+        subprocess.check_call(args, shell=shell)
     except subprocess.CalledProcessError:
         sys.stderr.write("Command failed\n")
         if exit_on_failure:
@@ -244,6 +244,18 @@ def run_cmd(command_line: str, restart=False, exit_on_failure=True) -> None:
                 print("Rerun this script, passing the path to the tarfile\n")
                 sys.exit(0)
 
+
+def enable_universe():
+    try:
+        repos = subprocess.check_output(['apt-cache', 'policy'], universal_newlines=True)
+        version = subprocess.check_output(['lsb_release', '-sc'], universal_newlines=True).strip()
+        if not '{}/universe'.format(version) in repos:
+            print("The Universe repository must be enabled. Do you want do that now?\n")
+            run_cmd(command_line='sudo add-apt-repository universe', restart=False)
+            run_cmd(command_line='sudo apt update', restart=True)
+
+    except Exception:
+        pass
 
 def check_package_import_requirements(distro: Distro, version: float) -> None:
     if distro in debian_like:
@@ -267,7 +279,7 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
                 if not cache[package].is_installed:
                     missing_packages.append(package)
             except KeyError:
-                sys.stderr.write('The following package is unknown on your system: {}\n'.format(
+                print('The following package is unknown on your system: {}\n'.format(
                     package))
                 sys.exit(1)
 
@@ -363,12 +375,15 @@ def uninstall_old_version(distro: Distro) -> None:
     pkg_name = 'rapid-photo-downloader'
 
     if distro in debian_like:
-        cache = apt.Cache()
-        pkg = cache[pkg_name]
-        if pkg.is_installed and query_uninstall():
-            cmd = shutil.which('apt-get')
-            command_line = 'sudo {} remove {}'.format(cmd, pkg_name)
-            run_cmd(command_line)
+        try:
+            cache = apt.Cache()
+            pkg = cache[pkg_name]
+            if pkg.is_installed and query_uninstall():
+                cmd = shutil.which('apt-get')
+                command_line = 'sudo {} remove {}'.format(cmd, pkg_name)
+                run_cmd(command_line)
+        except Exception:
+            pass
 
     elif distro in fedora_like:
         print("Querying package system to see if an older version of Rapid Photo Downloader is "
@@ -529,6 +544,9 @@ if __name__ == '__main__':
               'https://aur.archlinux.org/packages/rapid-photo-downloader-bzr/')
         print("Exiting...")
         sys.exit(0)
+
+    if distro == Distro.ubuntu:
+        enable_universe()
 
     if distro in debian_like:
         distro_family = Distro.debian

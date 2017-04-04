@@ -5730,25 +5730,27 @@ def main():
     splash.show()
     app.processEvents()
 
-    rw = RapidWindow(photo_rename=photo_rename,
-                     video_rename=video_rename,
-                     auto_detect=auto_detect,
-                     this_computer_source=this_computer_source,
-                     this_computer_location=this_computer_location,
-                     photo_download_folder=photo_location,
-                     video_download_folder=video_location,
-                     backup=backup,
-                     backup_auto_detect=backup_auto_detect,
-                     photo_backup_identifier=photo_backup_identifier,
-                     video_backup_identifier=video_backup_identifier,
-                     photo_backup_location=photo_backup_location,
-                     video_backup_location=video_backup_location,
-                     ignore_other_photo_types=args.ignore_other,
-                     thumb_cache=thumb_cache,
-                     auto_download_startup=auto_download_startup,
-                     auto_download_insertion=auto_download_insertion,
-                     log_gphoto2=args.log_gphoto2,
-                     splash=splash)
+    rw = RapidWindow(
+        photo_rename=photo_rename,
+        video_rename=video_rename,
+        auto_detect=auto_detect,
+        this_computer_source=this_computer_source,
+        this_computer_location=this_computer_location,
+        photo_download_folder=photo_location,
+        video_download_folder=video_location,
+        backup=backup,
+        backup_auto_detect=backup_auto_detect,
+        photo_backup_identifier=photo_backup_identifier,
+        video_backup_identifier=video_backup_identifier,
+        photo_backup_location=photo_backup_location,
+        video_backup_location=video_backup_location,
+        ignore_other_photo_types=args.ignore_other,
+        thumb_cache=thumb_cache,
+        auto_download_startup=auto_download_startup,
+        auto_download_insertion=auto_download_insertion,
+        log_gphoto2=args.log_gphoto2,
+        splash=splash
+    )
 
     app.setActivationWindow(rw)
     code = app.exec_()

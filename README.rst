@@ -73,7 +73,7 @@ Supported Linux Versions
  - LinuxMint 18 or newer
  - Debian sid
  - Fedora 24 or newer
- - openSuse Leap 42.2 or newer
+ - openSUSE Leap 42.2 or newer
  - Any distribution meeting the software requirements below
 
 Software Requirements and Program Installation on Other Systems

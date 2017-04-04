@@ -397,7 +397,7 @@ class ErrorReport(QDialog):
     def anchorClicked(self, url: QUrl) -> None:
         if self.rapidApp.file_manager:
             # see documentation for self._saveUrls()
-            fake_uri = url.url(QUrl.None_)
+            fake_uri = url.url()
             index = int(fake_uri[fake_uri.find('///') + 3:])
             uri = self.uris[index]
 

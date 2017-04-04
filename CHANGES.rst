@@ -1,6 +1,15 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.0b2 (2017-04-xx)
+--------------------
+
+ - Fixed bug where installer would crash on Ubuntu when the Universe
+   repository was not enabled.
+
+ - Fixed bug to allow the error report window to run on versions
+   of PyQt5 older than 5.6.
+
 0.9.0b1 (2017-04-01)
 --------------------
 
