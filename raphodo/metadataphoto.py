@@ -25,7 +25,7 @@ __copyright__ = "Copyright 2007-2017, Damon Lynch"
 import re
 import datetime
 import subprocess
-from typing import Optional, Union, Any
+from typing import Optional, Union, Any, Tuple
 import logging
 
 import gi
@@ -118,6 +118,25 @@ class MetaData(GExiv2.Metadata):
         self.et_process = et_process
         self.rpd_full_file_name = full_file_name
 
+    def _get_rational_components(self, tag: str) -> Optional[Tuple[Any, Any]]:
+        try:
+            x = self.get_exif_tag_rational(tag)
+        except Exception:
+            return (None, None)
+
+        try:
+            return x.numerator, x.denominator
+        except AttributeError:
+            try:
+                return x.nom, x.den
+            except Exception:
+                return (None, None)
+
+    def _get_rational(self, tag: str) -> Optional[float]:
+        x, y = self._get_rational_components(tag)
+        if x is not None and y is not None:
+            return float(x) / float(y)
+
     def aperture(self, missing='') -> Union[str, Any]:
         """
         Returns in string format the floating point value of the image's
@@ -125,13 +144,12 @@ class MetaData(GExiv2.Metadata):
 
         Returns missing if the metadata value is not present.
         """
-        try:
-            a = self.get_exif_tag_rational("Exif.Photo.FNumber")
+        a = self._get_rational("Exif.Photo.FNumber")
 
-            a = float(a.numerator) / float(a.denominator)
-            return "%.1f" % a
-        except:
+        if a is None:
             return missing
+        else:
+            return "%.1f" % a
 
     def iso(self, missing='') -> Union[str, Any]:
         """
@@ -168,11 +186,12 @@ class MetaData(GExiv2.Metadata):
         For exposures greater than or equal to one second, the value is
         formatted as an integer with a trailing s e.g. 30s
         """
-        try:
-            e = self.get_exif_tag_rational("Exif.Photo.ExposureTime")
 
-            e0 = int(e.numerator)
-            e1 = int(e.denominator)
+        e0, e1 = self._get_rational_components("Exif.Photo.ExposureTime")
+        if e0 is not None and e1 is not None:
+
+            e0 = int(e0)
+            e1 = int(e1)
 
             if e1 > e0:
                 if alternativeFormat:
@@ -190,7 +209,7 @@ class MetaData(GExiv2.Metadata):
                     return "%.0f" % e
             else:
                 return "1s"
-        except:
+        else:
             return missing
 
     def focal_length(self, missing=''):
@@ -200,13 +219,10 @@ class MetaData(GExiv2.Metadata):
 
         Returns missing if the metadata value is not present.
         """
-        try:
-            f = self.get_exif_tag_rational("Exif.Photo.FocalLength")
-            f0 = float(f.numerator)
-            f1 = float(f.denominator)
-
-            return "%.0f" % (f0 / f1)
-        except:
+        f = self._get_rational("Exif.Photo.FocalLength")
+        if f is not None:
+            return "%.0f" % f
+        else:
             return missing
 
     def camera_make(self, missing=''):
@@ -235,8 +251,8 @@ class MetaData(GExiv2.Metadata):
     def _fetch_vendor(self, vendor_codes, missing=''):
         for key in vendor_codes:
             try:
-                return self[key].strip()
-            except KeyError:
+                return self.get_tag_string(key).strip()
+            except (KeyError, AttributeError):
                 pass
         return missing
 
@@ -390,6 +406,9 @@ class MetaData(GExiv2.Metadata):
             except:
                 pass
             else:
+                if dt_string is None:
+                    continue
+
                 # ignore all zero values, e.g. '0000:00:00 00:00:00'
                 try:
                     digits = int(''.join(c for c in dt_string if c.isdigit()))

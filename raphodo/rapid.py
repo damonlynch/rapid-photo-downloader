@@ -818,6 +818,7 @@ class RapidWindow(QMainWindow):
             logging.debug("Desktop environment variable not set")
 
         self.unity_progress = False
+        self.desktop_launchers = []
         if get_desktop() == Desktop.unity:
             if not have_unity:
                 logging.warning("Desktop environment is Unity, but could not load Unity 7.0 module")
@@ -825,16 +826,16 @@ class RapidWindow(QMainWindow):
                 # Unity auto-generated desktop files use underscores, it seems
                 for launcher in ('rapid_photo_downloader.desktop',
                                  'rapid-photo-downloader.desktop'):
-                    self.desktop_launcher = Unity.LauncherEntry.get_for_desktop_id(launcher)
-                    if self.desktop_launcher is not None:
+                    desktop_launcher = Unity.LauncherEntry.get_for_desktop_id(launcher)
+                    if desktop_launcher is not None:
+                        self.desktop_launchers.append(desktop_launcher)
                         self.unity_progress = True
-                        break
 
-                if self.desktop_launcher is None:
+                if not self.desktop_launchers:
                     logging.warning("Desktop environment is Unity 7.0, but could not find "
                                   "program's .desktop file")
                 else:
-                    logging.debug("Unity progress indicator will be used")
+                    logging.debug("Unity progress indicator found")
 
         logging.debug("Have GIO module: %s", have_gio)
         self.gvfsControlsMounts = gvfs_controls_mounts() and have_gio
@@ -1461,7 +1462,8 @@ class RapidWindow(QMainWindow):
             return
 
         if self.unity_progress:
-            self.desktop_launcher.set_property('progress_visible', False)
+            for launcher in self.desktop_launchers:
+                launcher.set_property('progress_visible', False)
 
         if len(self.devices.thumbnailing):
             if self.downloadProgressBar.maximum() != self.thumbnailModel.total_thumbs_to_generate:
@@ -2146,11 +2148,12 @@ class RapidWindow(QMainWindow):
 
         if self.unity_progress:
             available = self.thumbnailModel.getNoFilesMarkedForDownload()
-            if available:
-                self.desktop_launcher.set_property("count", available)
-                self.desktop_launcher.set_property("count_visible", True)
-            else:
-                self.desktop_launcher.set_property("count_visible", False)
+            for launcher in self.desktop_launchers:
+                if available:
+                    launcher.set_property("count", available)
+                    launcher.set_property("count_visible", True)
+                else:
+                    launcher.set_property("count_visible", False)
 
         destinations_good = True
 
@@ -3316,8 +3319,9 @@ class RapidWindow(QMainWindow):
         percent_complete = self.download_tracker.get_overall_percent_complete()
         self.downloadProgressBar.setValue(round(percent_complete * 100))
         if self.unity_progress:
-            self.desktop_launcher.set_property('progress', percent_complete)
-            self.desktop_launcher.set_property('progress_visible', True)
+            for launcher in self.desktop_launchers:
+                launcher.set_property('progress', percent_complete)
+                launcher.set_property('progress_visible', True)
 
     def fileDownloadFinished(self, succeeded: bool, rpd_file: RPDFile) -> None:
         """
@@ -3390,7 +3394,8 @@ class RapidWindow(QMainWindow):
             if self.prefs.backup_files:
                 self.initializeBackupThumbCache()
             if self.unity_progress:
-                self.desktop_launcher.set_property('progress_visible', False)
+                for launcher in self.desktop_launchers:
+                    launcher.set_property('progress_visible', False)
 
             self.folder_preview_manager.remove_folders_for_queued_devices()
 

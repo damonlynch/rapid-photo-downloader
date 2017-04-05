@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0b2 (2017-04-xx)
+0.9.0b2 (2017-04-04)
 --------------------
 
  - Fixed bug where installer would crash on Ubuntu when the Universe
@@ -10,7 +10,15 @@ Changelog for Rapid Photo Downloader
  - Fixed bug to allow the error report window to run on versions
    of PyQt5 older than 5.6.
 
- - Workaround bug in openSUSE Gexiv2 introspection.
+ - Implemented workarounds for several bugs in openSUSE GExiv2 introspection.
+
+ - Fixed bug when comparing Enums on Python 3.4.
+
+ - Fixed bug when reporting a file renaming problem in the error reporting
+   window.
+
+ - When running on the Unity 7 desktop, show count and download progress
+   regardless of whether the .desktop file has hyphens or underscores.
 
 0.9.0b1 (2017-04-01)
 --------------------

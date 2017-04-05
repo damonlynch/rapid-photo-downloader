@@ -491,7 +491,7 @@ class RenamingFileProblem(SeriousProblem):
     def body(self) -> str:
         return escape(
             _('Unable to create the %(filetype)s %(destination)s in %(folder)s. The download file '
-              'was %(source)s in %device)s. It was not downloaded.')
+              'was %(source)s in %(device)s. It was not downloaded.')
         ) % dict(
             filetype=escape(self.file_type),
             destination=escape(self.destination),
