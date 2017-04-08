@@ -57,6 +57,7 @@ import pwd
 from collections import namedtuple
 from typing import Optional, Tuple, List, Dict
 from urllib.request import pathname2url
+from tempfile import NamedTemporaryFile
 
 from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal, QFileSystemWatcher, pyqtSlot)
 from xdg.DesktopEntry import DesktopEntry
@@ -634,13 +635,16 @@ def get_uri(full_file_name: Optional[str]=None,
 ValidatedFolder = namedtuple('ValidatedFolder', 'valid, absolute_path')
 
 
-def validate_download_folder(path: Optional[str]) -> ValidatedFolder:
+def validate_download_folder(path: Optional[str],
+                             write_on_waccesss_failure: bool=False) -> ValidatedFolder:
     r"""
     Check if folder exists and is writeable.
 
     Accepts None as a folder, which will always be invalid.
 
     :param path: path to analyze
+    :param write_on_waccesss_failure: if os.access reports path is not writable, test
+     nonetheless to see if it's writable by writing and deleting a test file 
     :return: Tuple indicating validity and path made absolute
 
     >>> validate_download_folder('/some/bogus/and/ridiculous/path')
@@ -655,6 +659,15 @@ def validate_download_folder(path: Optional[str]) -> ValidatedFolder:
         return ValidatedFolder(False, '')
     absolute_path = os.path.abspath(path)
     valid = os.path.isdir(path) and os.access(path, os.W_OK)
+    if not valid and write_on_waccesss_failure and os.path.isdir(path):
+        try:
+            with NamedTemporaryFile(dir=path):
+                # the path is in fact writeable -- can happen with NFS
+                valid = True
+        except Exception:
+            logging.warning('While validating download / backup folder, failed to write a '
+                            'temporary file to %s', path)
+
     return ValidatedFolder(valid, absolute_path)
 
 

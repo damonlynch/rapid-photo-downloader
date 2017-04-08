@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.0xx (2017-04-xx)
+--------------------
+
+ - Fixed bug where NFS backup destination might not appear as writeable even
+   though it is.
+
 0.9.0b2 (2017-04-04)
 --------------------
 
