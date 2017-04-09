@@ -2333,7 +2333,7 @@ class RapidWindow(QMainWindow):
         message = _(r"""<b>Thank you for reporting a problem in Rapid Photo
             Downloader</b><br><br>
             Please report the problem at <a href="{website}">{website}</a>.<br><br>
-            If relevant, attach the log file <i>{log_file}</i> to your report (click
+            Attach the log file <i>{log_file}</i> to your report (click
             <a href="{log_path}">here</a> to open the log directory).
             """).format(website='https://bugs.launchpad.net/rapid', log_path=log_uri,
                         log_file=log_file)
