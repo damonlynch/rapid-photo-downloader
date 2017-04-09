@@ -357,7 +357,7 @@ class RenameOptionsWidget(QFramedWidget):
 
         self.sequences.setLayout(sequencesLayout)
 
-        self.stripCharacters  = QCheckBox('Strip incompatible characters')
+        self.stripCharacters  = QCheckBox(_('Strip incompatible characters'))
         self.stripCharacters.setChecked(self.prefs.strip_characters)
         self.stripCharacters.stateChanged.connect(self.stripCharactersChanged)
         self.stripCharacters.setToolTip(_('Whether photo, video and folder names should have any '

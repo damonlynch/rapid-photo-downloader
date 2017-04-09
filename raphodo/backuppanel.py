@@ -428,7 +428,7 @@ class BackupOptionsWidget(QFramedWidget):
         self.videoFolderName.setText(self.prefs.video_backup_identifier)
         self.videoFolderName.editingFinished.connect(self.videoFolderIdentifierChanged)
 
-        self.autoBackupExampleBox = QGroupBox('Example:')
+        self.autoBackupExampleBox = QGroupBox(_('Example:'))
         self.autoBackupExample = QLabel()
 
         autoBackupExampleBoxLayout = QHBoxLayout()

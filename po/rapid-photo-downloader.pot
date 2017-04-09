@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-04-07 14:32-0500\n"
+"POT-Creation-Date: 2017-04-09 15:30-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -64,6 +64,11 @@ msgstr ""
 
 #: ../raphodo/backuppanel.py:426
 msgid "Video folder name:"
+msgstr ""
+
+#: ../raphodo/backuppanel.py:431 ../raphodo/nameeditor.py:882
+#: ../raphodo/renamepanel.py:123
+msgid "Example:"
 msgstr ""
 
 #: ../raphodo/backuppanel.py:441
@@ -155,7 +160,7 @@ msgstr ""
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:184 ../raphodo/devicedisplay.py:992
 #: ../raphodo/rapid.py:1912 ../raphodo/rapid.py:2025 ../raphodo/rapid.py:5524
-#: ../raphodo/rpdfile.py:918 ../raphodo/storage.py:442
+#: ../raphodo/rpdfile.py:918 ../raphodo/storage.py:443
 msgid "Videos"
 msgstr ""
 
@@ -1197,10 +1202,6 @@ msgstr ""
 
 #: ../raphodo/nameeditor.py:881 ../raphodo/renamepanel.py:121
 msgid "Preset:"
-msgstr ""
-
-#: ../raphodo/nameeditor.py:882 ../raphodo/renamepanel.py:123
-msgid "Example:"
 msgstr ""
 
 #. Translators: appears in a combobox, e.g. Image Date (YYYY)
@@ -2976,6 +2977,10 @@ msgstr ""
 msgid "Sequence Numbers"
 msgstr ""
 
+#: ../raphodo/renamepanel.py:360
+msgid "Strip incompatible characters"
+msgstr ""
+
 #: ../raphodo/renamepanel.py:363
 msgid ""
 "Whether photo, video and folder names should have any characters removed "
@@ -3032,12 +3037,12 @@ msgstr ""
 msgid "Video"
 msgstr ""
 
-#: ../raphodo/storage.py:135
+#: ../raphodo/storage.py:136
 msgid "File system root"
 msgstr ""
 
 #. translators: the name of the Pictures folder
-#: ../raphodo/storage.py:430
+#: ../raphodo/storage.py:431
 msgid "Pictures"
 msgstr ""
 

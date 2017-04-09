@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-04-07 14:32-0500\n"
+"POT-Creation-Date: 2017-04-09 15:30-0500\n"
 "PO-Revision-Date: 2017-02-01 03:21+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
@@ -79,6 +79,12 @@ msgstr "Назва теки для резервного копіювання ф�
 #, fuzzy
 msgid "Video folder name:"
 msgstr "Назва теки для резервного копіювання відео:"
+
+#: ../raphodo/backuppanel.py:431 ../raphodo/nameeditor.py:882
+#: ../raphodo/renamepanel.py:123
+#, fuzzy
+msgid "Example:"
+msgstr "<i>Приклад:</i>"
 
 #: ../raphodo/backuppanel.py:441
 msgid "If you disable automatic detection, choose the exact backup locations."
@@ -176,7 +182,7 @@ msgstr ""
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:184 ../raphodo/devicedisplay.py:992
 #: ../raphodo/rapid.py:1912 ../raphodo/rapid.py:2025 ../raphodo/rapid.py:5524
-#: ../raphodo/rpdfile.py:918 ../raphodo/storage.py:442
+#: ../raphodo/rpdfile.py:918 ../raphodo/storage.py:443
 msgid "Videos"
 msgstr ""
 
@@ -1237,11 +1243,6 @@ msgstr ""
 #: ../raphodo/nameeditor.py:881 ../raphodo/renamepanel.py:121
 msgid "Preset:"
 msgstr ""
-
-#: ../raphodo/nameeditor.py:882 ../raphodo/renamepanel.py:123
-#, fuzzy
-msgid "Example:"
-msgstr "<i>Приклад:</i>"
 
 #. Translators: appears in a combobox, e.g. Image Date (YYYY)
 #: ../raphodo/nameeditor.py:958 ../raphodo/nameeditor.py:979
@@ -3075,6 +3076,10 @@ msgstr ""
 msgid "Sequence Numbers"
 msgstr "<b>Послідовність номерів</b>"
 
+#: ../raphodo/renamepanel.py:360
+msgid "Strip incompatible characters"
+msgstr "Вилучати несумісні символи"
+
 #: ../raphodo/renamepanel.py:363
 #, fuzzy
 msgid ""
@@ -3137,12 +3142,12 @@ msgstr "Фото"
 msgid "Video"
 msgstr "Відео"
 
-#: ../raphodo/storage.py:135
+#: ../raphodo/storage.py:136
 msgid "File system root"
 msgstr ""
 
 #. translators: the name of the Pictures folder
-#: ../raphodo/storage.py:430
+#: ../raphodo/storage.py:431
 msgid "Pictures"
 msgstr ""
 
@@ -3776,9 +3781,6 @@ msgstr ""
 
 #~ msgid "Import your photos and videos efficiently and reliably"
 #~ msgstr "Імпортуйте фото та відео ефективно та надійно"
-
-#~ msgid "Strip incompatible characters"
-#~ msgstr "Вилучати несумісні символи"
 
 #~ msgid "Video Folders"
 #~ msgstr "Теки відео"

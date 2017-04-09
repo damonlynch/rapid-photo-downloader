@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-04-07 14:32-0500\n"
+"POT-Creation-Date: 2017-04-09 15:30-0500\n"
 "PO-Revision-Date: 2017-02-05 02:40+0000\n"
 "Last-Translator: Adolfo Jayme <fitoschido@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -79,6 +79,12 @@ msgstr "Directorio para copia de seguridad de fotografías:"
 #, fuzzy
 msgid "Video folder name:"
 msgstr "Nombre de la carpeta para copia de seguridad de videos:"
+
+#: ../raphodo/backuppanel.py:431 ../raphodo/nameeditor.py:882
+#: ../raphodo/renamepanel.py:123
+#, fuzzy
+msgid "Example:"
+msgstr "<i>Ejemplo:</i>"
 
 #: ../raphodo/backuppanel.py:441
 msgid "If you disable automatic detection, choose the exact backup locations."
@@ -177,7 +183,7 @@ msgstr "Fotos"
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:184 ../raphodo/devicedisplay.py:992
 #: ../raphodo/rapid.py:1912 ../raphodo/rapid.py:2025 ../raphodo/rapid.py:5524
-#: ../raphodo/rpdfile.py:918 ../raphodo/storage.py:442
+#: ../raphodo/rpdfile.py:918 ../raphodo/storage.py:443
 msgid "Videos"
 msgstr "Vídeos"
 
@@ -1247,11 +1253,6 @@ msgstr ""
 #: ../raphodo/nameeditor.py:881 ../raphodo/renamepanel.py:121
 msgid "Preset:"
 msgstr ""
-
-#: ../raphodo/nameeditor.py:882 ../raphodo/renamepanel.py:123
-#, fuzzy
-msgid "Example:"
-msgstr "<i>Ejemplo:</i>"
 
 #. Translators: appears in a combobox, e.g. Image Date (YYYY)
 #: ../raphodo/nameeditor.py:958 ../raphodo/nameeditor.py:979
@@ -3235,6 +3236,10 @@ msgstr ""
 msgid "Sequence Numbers"
 msgstr "<b>Números de secuencia</b>"
 
+#: ../raphodo/renamepanel.py:360
+msgid "Strip incompatible characters"
+msgstr "Quitar carácteres incompatibles"
+
 #: ../raphodo/renamepanel.py:363
 #, fuzzy
 msgid ""
@@ -3297,12 +3302,12 @@ msgstr "Foto"
 msgid "Video"
 msgstr "Vídeo"
 
-#: ../raphodo/storage.py:135
+#: ../raphodo/storage.py:136
 msgid "File system root"
 msgstr ""
 
 #. translators: the name of the Pictures folder
-#: ../raphodo/storage.py:430
+#: ../raphodo/storage.py:431
 msgid "Pictures"
 msgstr ""
 
@@ -3816,9 +3821,6 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 
 #~ msgid "Automatically detect Portable Storage Devices"
 #~ msgstr "Detectar automáticamente dispositivos de almacenamiento portables"
-
-#~ msgid "Strip incompatible characters"
-#~ msgstr "Quitar carácteres incompatibles"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Manejo de errores</span>"
