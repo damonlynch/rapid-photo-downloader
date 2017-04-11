@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-04-09 17:17-0500\n"
-"PO-Revision-Date: 2017-02-28 13:06+0000\n"
-"Last-Translator: Dimitris Xenakis <Unknown>\n"
+"PO-Revision-Date: 2017-04-09 19:21+0000\n"
+"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Greek <el@li.org>\n"
-"Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-03-01 09:20+0000\n"
-"X-Generator: Launchpad (build 18329)\n"
+"X-Launchpad-Export-Date: 2017-04-11 22:40+0000\n"
+"X-Generator: Launchpad (build 18343)\n"
+"Language: el\n"
 
 #. type: QPushButton
 #: ../raphodo/aboutdialog.py:210
@@ -51,8 +51,8 @@ msgstr ""
 
 #: ../raphodo/backuppanel.py:410
 msgid ""
-"Specify the folder in which backups are stored on the device."
-"<br><br><i>Note: the presence of a folder with this name is used to "
+"Specify the folder in which backups are stored on the "
+"device.<br><br><i>Note: the presence of a folder with this name is used to "
 "determine if the device is used for backups. For each device you wish to use "
 "for backing up to, create a folder in it with one of these folder names. By "
 "adding both folders, the same device can be used to back up both photos and "
@@ -73,7 +73,8 @@ msgid "Example:"
 msgstr ""
 
 #: ../raphodo/backuppanel.py:441
-msgid "If you disable automatic detection, choose the exact backup locations."
+msgid ""
+"If you disable automatic detection, choose the exact backup locations."
 msgstr ""
 
 #: ../raphodo/backuppanel.py:445
@@ -427,8 +428,8 @@ msgstr ""
 #, python-brace-format
 msgid ""
 "<b>A problem occurred in Rapid Photo Downloader</b><br><br>\n"
-"    Please report the problem at <a href=\"{website}\">{website}</a>."
-"<br><br>\n"
+"    Please report the problem at <a "
+"href=\"{website}\">{website}</a>.<br><br>\n"
 "    Attach the log file <i>{log_file}</i> to your bug report (click\n"
 "    <a href=\"{log_path}\">here</a> to open the log directory).<br><br>If "
 "the same problem occurs\n"
@@ -458,9 +459,8 @@ msgid "File System"
 msgstr ""
 
 #: ../raphodo/foldercombo.py:153
-#, fuzzy
 msgid "Other..."
-msgstr "Άλλο"
+msgstr ""
 
 #. Translators: indicate in combobox that a path does not exist
 #: ../raphodo/foldercombo.py:225
@@ -1064,7 +1064,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:177
-msgid "The new Job Code will be applied to all selected photos and/or videos."
+msgid ""
+"The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:178
@@ -1222,10 +1223,10 @@ msgstr ""
 
 #: ../raphodo/nameeditor.py:1345
 msgid ""
-"<b>Do you want to save the changes in a new custom preset?</"
-"b><br><br>Creating a custom preset is not required, but can help you keep "
-"organized.<br><br>The changes to the preferences will still be applied "
-"regardless of whether you create a new custom preset or not."
+"<b>Do you want to save the changes in a new custom "
+"preset?</b><br><br>Creating a custom preset is not required, but can help "
+"you keep organized.<br><br>The changes to the preferences will still be "
+"applied regardless of whether you create a new custom preset or not."
 msgstr ""
 
 #: ../raphodo/nameeditor.py:1354
@@ -1270,9 +1271,8 @@ msgstr ""
 #. Translators: this text appears in a button - the & sets the o key in combination with
 #. the alt key to act as the keyboard shortcut
 #: ../raphodo/newversion.py:337
-#, fuzzy
 msgid "&Open Download Page"
-msgstr "Ώρα κατεβάσματος"
+msgstr ""
 
 #: ../raphodo/newversion.py:357
 msgid "Rapid Photo Downloader updates"
@@ -1285,9 +1285,8 @@ msgid "%(downloaded)s of %(total)s"
 msgstr ""
 
 #: ../raphodo/newversion.py:467
-#, fuzzy
 msgid "Downloading..."
-msgstr "Ώρα κατεβάσματος"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:65
 msgid "Preferences"
@@ -1481,9 +1480,8 @@ msgid "Calculating..."
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:268
-#, fuzzy
 msgid "days"
-msgstr "%d ημέρες"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:269
 msgid "forever"
@@ -1585,7 +1583,8 @@ msgid "Backup destinations are missing"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:372
-msgid "Warn before starting a download if it is not possible to back up files."
+msgid ""
+"Warn before starting a download if it is not possible to back up files."
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:374
@@ -1735,9 +1734,8 @@ msgid "Specify a file extension (without the leading dot)"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:976 ../raphodo/renamepanel.py:122
-#, fuzzy
 msgid "Extension:"
-msgstr "Επέκταση"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:991
 msgid "Invalid File Extension"
@@ -1797,14 +1795,14 @@ msgid "Download 8 Photos and 10 Videos"
 msgstr ""
 
 #: ../raphodo/problemnotification.py:86 ../raphodo/problemnotification.py:202
-#, fuzzy, python-format
+#, python-format
 msgid "Error: %(errno)s %(strerror)s"
-msgstr "Σφάλμα: %(inst)s"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:89
-#, fuzzy, python-format
+#, python-format
 msgid "Error: %s"
-msgstr "Σφάλμα: %(inst)s"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:116
 #, python-format
@@ -1882,9 +1880,9 @@ msgid "Encountered unhandled file %s. It will not be downloaded."
 msgstr ""
 
 #: ../raphodo/problemnotification.py:217
-#, fuzzy, python-format
+#, python-format
 msgid "%(filetype)s %(destination)s already exists."
-msgstr "Υπάρχει αντίγραφο ασφαλείας του %(file_type)s"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:228 ../raphodo/problemnotification.py:256
 #, python-format
@@ -2386,8 +2384,8 @@ msgstr ""
 msgid ""
 "<b>Thank you for reporting a problem in Rapid Photo\n"
 "            Downloader</b><br><br>\n"
-"            Please report the problem at <a href=\"{website}\">{website}</a>."
-"<br><br>\n"
+"            Please report the problem at <a "
+"href=\"{website}\">{website}</a>.<br><br>\n"
 "            Attach the log file <i>{log_file}</i> to your report (click\n"
 "            <a href=\"{log_path}\">here</a> to open the log directory).\n"
 "            "
@@ -2420,8 +2418,8 @@ msgid ""
 "for download,\n"
 "                    including those that are not currently displayed because "
 "the Timeline\n"
-"                    is being used or because only new files are being shown."
-"<br><br>\n"
+"                    is being used or because only new files are being "
+"shown.<br><br>\n"
 "                    Do you want to proceed with the download?"
 msgstr ""
 
@@ -2441,9 +2439,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:2731
-#, fuzzy
 msgid "Download Failure"
-msgstr "Ώρα κατεβάσματος"
+msgstr ""
 
 #: ../raphodo/rapid.py:2732
 msgid "The download cannot proceed."
@@ -2647,11 +2644,11 @@ msgstr ""
 #: ../raphodo/rapid.py:3898
 #, python-format
 msgid ""
-"<b>The %(camera)s appears to be in use by another application.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again.<br><br>Alternatively, you can ignore this "
-"device."
+"<b>The %(camera)s appears to be in use by another "
+"application.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again.<br><br>Alternatively, you "
+"can ignore this device."
 msgstr ""
 
 #: ../raphodo/rapid.py:3909
@@ -2665,20 +2662,20 @@ msgstr ""
 #: ../raphodo/rapid.py:4317
 #, python-format
 msgid ""
-"<b>The %(camera)s cannot be scanned because it cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again."
+"<b>The %(camera)s cannot be scanned because it cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again."
 msgstr ""
 
 #: ../raphodo/rapid.py:4341
 #, python-format
 msgid ""
-"<b>The download cannot start because the %(camera)s cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again, and choose which files you want to "
-"download from it."
+"<b>The download cannot start because the %(camera)s cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again, and choose which files "
+"you want to download from it."
 msgstr ""
 
 #: ../raphodo/rapid.py:4479
@@ -2831,7 +2828,8 @@ msgid "Ignore photos with the following extensions: %s"
 msgstr ""
 
 #: ../raphodo/rapid.py:5330
-msgid "Turn on or off starting downloads as soon as the program itself starts."
+msgid ""
+"Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 
 #: ../raphodo/rapid.py:5333
@@ -2888,7 +2886,8 @@ msgstr ""
 
 #: ../raphodo/rapid.py:5484
 #, python-format
-msgid "Do you want to copy the stored sequence number, which has the value %d?"
+msgid ""
+"Do you want to copy the stored sequence number, which has the value %d?"
 msgstr ""
 
 #: ../raphodo/rapid.py:5496
@@ -2946,18 +2945,16 @@ msgid "A counter for how many downloads occur on each day"
 msgstr ""
 
 #: ../raphodo/renamepanel.py:291
-#, fuzzy
 msgid "Downloads today:"
-msgstr "Ώρα κατεβάσματος"
+msgstr ""
 
 #: ../raphodo/renamepanel.py:313
 msgid "A counter that is remembered each time the program is run "
 msgstr ""
 
 #: ../raphodo/renamepanel.py:314
-#, fuzzy
 msgid "Stored number:"
-msgstr "Σειριακός αριθμός"
+msgstr ""
 
 #: ../raphodo/renamepanel.py:331
 msgid ""
@@ -3210,33 +3207,34 @@ msgstr ""
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
 msgid ""
-"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
-"memory;card;"
+"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
+";card;"
 msgstr ""
 
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr ""
 
-#~ msgid "Backing up error"
-#~ msgstr "Σφάλμα κατά την δημιουργία αντίγραφου ασφαλείας"
+#, python-format
+#~ msgid "Backup of %(file_type)s already exists"
+#~ msgstr "Υπάρχει αντίγραφο ασφαλείας του %(file_type)s"
 
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s"
-#~ msgstr ""
-#~ "Πηγή: %(source)s\n"
-#~ "Προορισμός: %(destination)s"
-
-#~ msgid "Destination directory could not be created: %(directory)s\n"
-#~ msgstr "Αδυναμία δημιουργίας φακέλου προορισμού: %(directory)s\n"
-
+#, python-format
 #~ msgid "Backup %(file_type)s overwritten"
 #~ msgstr "Το αντίγραφο ασφαλείας %(file_type)s αντικαταστάθηκε"
 
+#, python-format
 #~ msgid "%(file_type)s not backed up"
 #~ msgstr "%(file_type)s δεν έχουν αντιγραφεί"
 
+#~ msgid "Backing up error"
+#~ msgstr "Σφάλμα κατά την δημιουργία αντίγραφου ασφαλείας"
+
+#, python-format
+#~ msgid "Destination directory could not be created: %(directory)s\n"
+#~ msgstr "Αδυναμία δημιουργίας φακέλου προορισμού: %(directory)s\n"
+
+#, python-format
 #~ msgid ""
 #~ "%(problem)s\n"
 #~ "File: %(file)s"
@@ -3244,12 +3242,14 @@ msgstr ""
 #~ "%(problem)s\n"
 #~ "Αρχείο: %(file)s"
 
-#~ msgid "The file could not be copied from the camera"
-#~ msgstr "Το αρχείο δεν μπορούσε να αντιγραφεί από την κάμερα"
+#, python-format
+#~ msgid ""
+#~ "Source: %(source)s\n"
+#~ "Destination: %(destination)s"
+#~ msgstr ""
+#~ "Πηγή: %(source)s\n"
+#~ "Προορισμός: %(destination)s"
 
-#~ msgid "The camera may have been inaccessible"
-#~ msgstr "Η κάμερα μπορεί να μη είναι προσβάσιμη"
-
-#, fuzzy
-#~ msgid "Known Devices"
-#~ msgstr "Συσκευές"
+#, python-format
+#~ msgid "Error: %(inst)s"
+#~ msgstr "Σφάλμα: %(inst)s"

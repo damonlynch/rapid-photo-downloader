@@ -10,6 +10,9 @@ Changelog for Rapid Photo Downloader
  - Fixed some translation bugs. Thanks to Jose Luis Tirado for pointing them
    out.
 
+ - Updated Spanish and Czech translations, by Jose Luis Tirado and Pavel
+   Borecki.
+
 0.9.0b2 (2017-04-04)
 --------------------
 

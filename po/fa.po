@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-04-09 17:17-0500\n"
-"PO-Revision-Date: 2017-02-01 03:21+0000\n"
+"PO-Revision-Date: 2017-04-09 19:04+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Persian <fa@li.org>\n"
-"Language: fa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-02-16 06:24+0000\n"
-"X-Generator: Launchpad (build 18326)\n"
+"X-Launchpad-Export-Date: 2017-04-11 22:41+0000\n"
+"X-Generator: Launchpad (build 18343)\n"
+"Language: fa\n"
 
 #. type: QPushButton
 #: ../raphodo/aboutdialog.py:210
@@ -51,8 +51,8 @@ msgstr ""
 
 #: ../raphodo/backuppanel.py:410
 msgid ""
-"Specify the folder in which backups are stored on the device."
-"<br><br><i>Note: the presence of a folder with this name is used to "
+"Specify the folder in which backups are stored on the "
+"device.<br><br><i>Note: the presence of a folder with this name is used to "
 "determine if the device is used for backups. For each device you wish to use "
 "for backing up to, create a folder in it with one of these folder names. By "
 "adding both folders, the same device can be used to back up both photos and "
@@ -69,12 +69,12 @@ msgstr ""
 
 #: ../raphodo/backuppanel.py:431 ../raphodo/nameeditor.py:882
 #: ../raphodo/renamepanel.py:123
-#, fuzzy
 msgid "Example:"
-msgstr "<i>مثال : %s</i>"
+msgstr ""
 
 #: ../raphodo/backuppanel.py:441
-msgid "If you disable automatic detection, choose the exact backup locations."
+msgid ""
+"If you disable automatic detection, choose the exact backup locations."
 msgstr ""
 
 #: ../raphodo/backuppanel.py:445
@@ -96,16 +96,14 @@ msgstr ""
 #. Translators: this value is used as an example device when automatic backup device
 #. detection is enabled. You should translate this.
 #: ../raphodo/backuppanel.py:557
-#, fuzzy
 msgid "drive1"
-msgstr "درایو خارجی 1"
+msgstr ""
 
 #. Translators: this value is used as an example device when automatic backup device
 #. detection is enabled. You should translate this.
 #: ../raphodo/backuppanel.py:560
-#, fuzzy
 msgid "drive2"
-msgstr "درایو خارجی 2"
+msgstr ""
 
 #: ../raphodo/backuppanel.py:614
 msgid "Projected Backup Storage Use"
@@ -430,8 +428,8 @@ msgstr ""
 #, python-brace-format
 msgid ""
 "<b>A problem occurred in Rapid Photo Downloader</b><br><br>\n"
-"    Please report the problem at <a href=\"{website}\">{website}</a>."
-"<br><br>\n"
+"    Please report the problem at <a "
+"href=\"{website}\">{website}</a>.<br><br>\n"
 "    Attach the log file <i>{log_file}</i> to your bug report (click\n"
 "    <a href=\"{log_path}\">here</a> to open the log directory).<br><br>If "
 "the same problem occurs\n"
@@ -1042,14 +1040,12 @@ msgid "The new Job Code will be applied to %s."
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:94
-#, fuzzy
 msgid "New Job Code"
-msgstr "کد دستور"
+msgstr ""
 
 #: ../raphodo/jobcodepanel.py:120
-#, fuzzy
 msgid "&Job Code:"
-msgstr "کد دستور"
+msgstr ""
 
 #: ../raphodo/jobcodepanel.py:122 ../raphodo/rememberthisdialog.py:68
 msgid "&Remember this choice"
@@ -1068,7 +1064,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:177
-msgid "The new Job Code will be applied to all selected photos and/or videos."
+msgid ""
+"The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:178
@@ -1094,9 +1091,8 @@ msgid "Last Used"
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:193
-#, fuzzy
 msgid "Job Code Sort:"
-msgstr "کد دستور"
+msgstr ""
 
 #: ../raphodo/jobcodepanel.py:196 ../raphodo/rapid.py:2006
 msgid "Ascending"
@@ -1132,9 +1128,8 @@ msgid "Remove all Job Codes"
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:484
-#, fuzzy
 msgid "Job Codes"
-msgstr "کد دستور"
+msgstr ""
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and
 #. <b>. These are used to format the text the users sees
@@ -1228,10 +1223,10 @@ msgstr ""
 
 #: ../raphodo/nameeditor.py:1345
 msgid ""
-"<b>Do you want to save the changes in a new custom preset?</"
-"b><br><br>Creating a custom preset is not required, but can help you keep "
-"organized.<br><br>The changes to the preferences will still be applied "
-"regardless of whether you create a new custom preset or not."
+"<b>Do you want to save the changes in a new custom "
+"preset?</b><br><br>Creating a custom preset is not required, but can help "
+"you keep organized.<br><br>The changes to the preferences will still be "
+"applied regardless of whether you create a new custom preset or not."
 msgstr ""
 
 #: ../raphodo/nameeditor.py:1354
@@ -1481,9 +1476,8 @@ msgid "Thumbnail Cache"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:262
-#, fuzzy
 msgid "Calculating..."
-msgstr "در حال پویش..."
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:268
 msgid "days"
@@ -1589,7 +1583,8 @@ msgid "Backup destinations are missing"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:372
-msgid "Warn before starting a download if it is not possible to back up files."
+msgid ""
+"Warn before starting a download if it is not possible to back up files."
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:374
@@ -2389,8 +2384,8 @@ msgstr ""
 msgid ""
 "<b>Thank you for reporting a problem in Rapid Photo\n"
 "            Downloader</b><br><br>\n"
-"            Please report the problem at <a href=\"{website}\">{website}</a>."
-"<br><br>\n"
+"            Please report the problem at <a "
+"href=\"{website}\">{website}</a>.<br><br>\n"
 "            Attach the log file <i>{log_file}</i> to your report (click\n"
 "            <a href=\"{log_path}\">here</a> to open the log directory).\n"
 "            "
@@ -2423,8 +2418,8 @@ msgid ""
 "for download,\n"
 "                    including those that are not currently displayed because "
 "the Timeline\n"
-"                    is being used or because only new files are being shown."
-"<br><br>\n"
+"                    is being used or because only new files are being "
+"shown.<br><br>\n"
 "                    Do you want to proceed with the download?"
 msgstr ""
 
@@ -2444,14 +2439,12 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:2731
-#, fuzzy
 msgid "Download Failure"
-msgstr "دانلود نمی تواند ادامه پیدا کند..."
+msgstr ""
 
 #: ../raphodo/rapid.py:2732
-#, fuzzy
 msgid "The download cannot proceed."
-msgstr "دانلود نمی تواند ادامه پیدا کند..."
+msgstr ""
 
 #: ../raphodo/rapid.py:2746
 msgid ""
@@ -2651,11 +2644,11 @@ msgstr ""
 #: ../raphodo/rapid.py:3898
 #, python-format
 msgid ""
-"<b>The %(camera)s appears to be in use by another application.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again.<br><br>Alternatively, you can ignore this "
-"device."
+"<b>The %(camera)s appears to be in use by another "
+"application.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again.<br><br>Alternatively, you "
+"can ignore this device."
 msgstr ""
 
 #: ../raphodo/rapid.py:3909
@@ -2669,20 +2662,20 @@ msgstr ""
 #: ../raphodo/rapid.py:4317
 #, python-format
 msgid ""
-"<b>The %(camera)s cannot be scanned because it cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again."
+"<b>The %(camera)s cannot be scanned because it cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again."
 msgstr ""
 
 #: ../raphodo/rapid.py:4341
 #, python-format
 msgid ""
-"<b>The download cannot start because the %(camera)s cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again, and choose which files you want to "
-"download from it."
+"<b>The download cannot start because the %(camera)s cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again, and choose which files "
+"you want to download from it."
 msgstr ""
 
 #: ../raphodo/rapid.py:4479
@@ -2835,7 +2828,8 @@ msgid "Ignore photos with the following extensions: %s"
 msgstr ""
 
 #: ../raphodo/rapid.py:5330
-msgid "Turn on or off starting downloads as soon as the program itself starts."
+msgid ""
+"Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 
 #: ../raphodo/rapid.py:5333
@@ -2892,7 +2886,8 @@ msgstr ""
 
 #: ../raphodo/rapid.py:5484
 #, python-format
-msgid "Do you want to copy the stored sequence number, which has the value %d?"
+msgid ""
+"Do you want to copy the stored sequence number, which has the value %d?"
 msgstr ""
 
 #: ../raphodo/rapid.py:5496
@@ -2950,9 +2945,8 @@ msgid "A counter for how many downloads occur on each day"
 msgstr ""
 
 #: ../raphodo/renamepanel.py:291
-#, fuzzy
 msgid "Downloads today:"
-msgstr "دانلود نمی تواند ادامه پیدا کند..."
+msgstr ""
 
 #: ../raphodo/renamepanel.py:313
 msgid "A counter that is remembered each time the program is run "
@@ -3213,8 +3207,8 @@ msgstr ""
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
 msgid ""
-"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
-"memory;card;"
+"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
+";card;"
 msgstr ""
 
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
@@ -3277,6 +3271,22 @@ msgstr ""
 
 #~ msgid "Select a folder to download photos to"
 #~ msgstr "یک پوشه را برای دانلود عکس انتخاب نمایید"
+
+#, python-format
+#~ msgid "<i>Example: %s</i>"
+#~ msgstr "<i>مثال : %s</i>"
+
+#~ msgid "externaldrive1"
+#~ msgstr "درایو خارجی 1"
+
+#~ msgid "externaldrive2"
+#~ msgstr "درایو خارجی 2"
+
+#~ msgid "Download cannot proceed"
+#~ msgstr "دانلود نمی تواند ادامه پیدا کند..."
+
+#~ msgid "scanning..."
+#~ msgstr "در حال پویش..."
 
 #~ msgid " "
 #~ msgstr " "

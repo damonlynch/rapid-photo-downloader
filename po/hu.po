@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-04-09 17:17-0500\n"
-"PO-Revision-Date: 2017-02-01 03:21+0000\n"
+"PO-Revision-Date: 2017-04-09 19:04+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
-"Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-02-16 06:24+0000\n"
-"X-Generator: Launchpad (build 18326)\n"
+"X-Launchpad-Export-Date: 2017-04-11 22:41+0000\n"
+"X-Generator: Launchpad (build 18343)\n"
+"Language: hu\n"
 
 #. type: QPushButton
 #: ../raphodo/aboutdialog.py:210
@@ -32,9 +32,8 @@ msgid "No backup devices detected"
 msgstr "Nincs elérhető biztonsági mentés eszköz"
 
 #: ../raphodo/backuppanel.py:242
-#, fuzzy
 msgid "Valid backup locations not yet specified"
-msgstr "Videó biztonsági mentésének helye:"
+msgstr ""
 
 #: ../raphodo/backuppanel.py:394
 msgid ""
@@ -53,34 +52,31 @@ msgid "Automatically detect backup devices"
 msgstr "Biztonsági mentés eszközök automatikus érzékelése"
 
 #: ../raphodo/backuppanel.py:410
-#, fuzzy
 msgid ""
-"Specify the folder in which backups are stored on the device."
-"<br><br><i>Note: the presence of a folder with this name is used to "
+"Specify the folder in which backups are stored on the "
+"device.<br><br><i>Note: the presence of a folder with this name is used to "
 "determine if the device is used for backups. For each device you wish to use "
 "for backing up to, create a folder in it with one of these folder names. By "
 "adding both folders, the same device can be used to back up both photos and "
 "videos.</i>"
-msgstr "Adja meg a könyvtárat, ahová a biztonsági másolatok készülnek."
+msgstr ""
 
 #: ../raphodo/backuppanel.py:421
-#, fuzzy
 msgid "Photo folder name:"
-msgstr "A biztonsági másolat mappa neve:"
+msgstr ""
 
 #: ../raphodo/backuppanel.py:426
-#, fuzzy
 msgid "Video folder name:"
-msgstr "A videó biztonsági mentési könyvtára"
+msgstr ""
 
 #: ../raphodo/backuppanel.py:431 ../raphodo/nameeditor.py:882
 #: ../raphodo/renamepanel.py:123
-#, fuzzy
 msgid "Example:"
-msgstr "<i>Példa:</i>"
+msgstr ""
 
 #: ../raphodo/backuppanel.py:441
-msgid "If you disable automatic detection, choose the exact backup locations."
+msgid ""
+"If you disable automatic detection, choose the exact backup locations."
 msgstr ""
 "Kérlek válassz könyvtárt a biztonsági mentésnek, ha nem akarod hogy "
 "automatikusan kerüljön meghatározásra (disable auto detection)."
@@ -90,48 +86,42 @@ msgid "Photo backup location:"
 msgstr "Fotók biztonsági mentésének helye:"
 
 #: ../raphodo/backuppanel.py:447
-#, fuzzy
 msgid "Select Photo Backup Location"
-msgstr "Fotók biztonsági mentésének helye:"
+msgstr ""
 
 #: ../raphodo/backuppanel.py:453
 msgid "Video backup location:"
 msgstr "Videó biztonsági mentésének helye:"
 
 #: ../raphodo/backuppanel.py:455
-#, fuzzy
 msgid "Select Video Backup Location"
-msgstr "Videó biztonsági mentésének helye:"
+msgstr ""
 
 #. Translators: this value is used as an example device when automatic backup device
 #. detection is enabled. You should translate this.
 #: ../raphodo/backuppanel.py:557
-#, fuzzy
 msgid "drive1"
-msgstr "külső_meghajtó1"
+msgstr ""
 
 #. Translators: this value is used as an example device when automatic backup device
 #. detection is enabled. You should translate this.
 #: ../raphodo/backuppanel.py:560
-#, fuzzy
 msgid "drive2"
-msgstr "külső_meghajtó2"
+msgstr ""
 
 #: ../raphodo/backuppanel.py:614
 msgid "Projected Backup Storage Use"
 msgstr ""
 
 #: ../raphodo/backuppanel.py:618
-#, fuzzy
 msgid "Backup Options"
-msgstr "Átnevezési lehetőségek"
+msgstr ""
 
 #. translators: refers to the video thumbnail file that some
 #. cameras generate -- it has a .THM file extension
 #: ../raphodo/copyfiles.py:462
-#, fuzzy
 msgid "video THM"
-msgstr "videó"
+msgstr ""
 
 #: ../raphodo/copyfiles.py:468
 msgid "audio"
@@ -372,9 +362,8 @@ msgid "Find"
 msgstr ""
 
 #: ../raphodo/errorlog.py:135
-#, fuzzy
 msgid "Error Reports - Rapid Photo Downloader"
-msgstr "Gyors Fotó Letöltő"
+msgstr ""
 
 #: ../raphodo/errorlog.py:170
 msgid "Find in reports"
@@ -436,16 +425,15 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/excepthook.py:77
-#, fuzzy
 msgid "Problem in Rapid Photo Downloader"
-msgstr "Gyors Fotó Letöltő"
+msgstr ""
 
 #: ../raphodo/excepthook.py:81
 #, python-brace-format
 msgid ""
 "<b>A problem occurred in Rapid Photo Downloader</b><br><br>\n"
-"    Please report the problem at <a href=\"{website}\">{website}</a>."
-"<br><br>\n"
+"    Please report the problem at <a "
+"href=\"{website}\">{website}</a>.<br><br>\n"
 "    Attach the log file <i>{log_file}</i> to your bug report (click\n"
 "    <a href=\"{log_path}\">here</a> to open the log directory).<br><br>If "
 "the same problem occurs\n"
@@ -454,9 +442,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/excepthook.py:98
-#, fuzzy
 msgid "A problem occurred in Rapid Photo Downloader\n"
-msgstr "Beállítások: Gyors Fénykép Letöltő"
+msgstr ""
 
 #: ../raphodo/excepthook.py:99
 #, python-brace-format
@@ -481,9 +468,9 @@ msgstr ""
 
 #. Translators: indicate in combobox that a path does not exist
 #: ../raphodo/foldercombo.py:225
-#, fuzzy, python-format
+#, python-format
 msgid "%s (location does not exist)"
-msgstr "%(file_type)s letöltési könyvtár nem létezik"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:186
 msgid "Date time"
@@ -1039,11 +1026,8 @@ msgid "Enter a new Job Code"
 msgstr "Adjon meg új munka-kódot"
 
 #: ../raphodo/jobcodepanel.py:81
-#, fuzzy
 msgid "The new Job Code will not be applied to any photos or videos."
 msgstr ""
-"Kérlek add meg azt a könyvtárt ahol soha ne keressek fényképeket vagy "
-"videókat"
 
 #. Translators: the value substituted will be something like '100 photos and 5
 #. videos'.
@@ -1060,19 +1044,16 @@ msgid "The new Job Code will be applied to %s."
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:94
-#, fuzzy
 msgid "New Job Code"
-msgstr "Munka kód"
+msgstr ""
 
 #: ../raphodo/jobcodepanel.py:120
-#, fuzzy
 msgid "&Job Code:"
-msgstr "Munka-szám:"
+msgstr ""
 
 #: ../raphodo/jobcodepanel.py:122 ../raphodo/rememberthisdialog.py:68
-#, fuzzy
 msgid "&Remember this choice"
-msgstr "_Emlékezzen erre a választásra"
+msgstr ""
 
 #: ../raphodo/jobcodepanel.py:170
 msgid ""
@@ -1087,7 +1068,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:177
-msgid "The new Job Code will be applied to all selected photos and/or videos."
+msgid ""
+"The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:178
@@ -1109,14 +1091,12 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:188
-#, fuzzy
 msgid "Last Used"
-msgstr "Utolsó számjegy"
+msgstr ""
 
 #: ../raphodo/jobcodepanel.py:193
-#, fuzzy
 msgid "Job Code Sort:"
-msgstr "Munka-szám:"
+msgstr ""
 
 #: ../raphodo/jobcodepanel.py:196 ../raphodo/rapid.py:2006
 msgid "Ascending"
@@ -1135,24 +1115,21 @@ msgid "&Apply"
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:215
-#, fuzzy
 msgid "&Remove"
-msgstr "Összes törlése"
+msgstr ""
 
 #: ../raphodo/jobcodepanel.py:219 ../raphodo/preferencedialog.py:110
 #: ../raphodo/preferencedialog.py:131 ../raphodo/preferencedialog.py:399
-#, fuzzy
 msgid "Remove All"
-msgstr "Összes törlése"
+msgstr ""
 
 #: ../raphodo/jobcodepanel.py:419
 msgid "Do you really want to remove all the Job Codes?"
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:421
-#, fuzzy
 msgid "Remove all Job Codes"
-msgstr "Minden Munka-szám eltávolítása?"
+msgstr ""
 
 #: ../raphodo/jobcodepanel.py:484
 msgid "Job Codes"
@@ -1193,22 +1170,18 @@ msgid "Update Custom Preset \"%s\""
 msgstr ""
 
 #: ../raphodo/nameeditor.py:666
-#, fuzzy
 msgid "Save New Custom Preset - Rapid Photo Downloader"
-msgstr "Beállítások: Gyors Fénykép Letöltő"
+msgstr ""
 
 #: ../raphodo/nameeditor.py:674
 msgid "Preset Name:"
 msgstr ""
 
 #: ../raphodo/nameeditor.py:835
-#, fuzzy
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>There is insufficient data to "
 "fully generate the name. Please use other renaming options.</i>"
 msgstr ""
-"<i><b>Figyelem:</b> Nincs elegendő metaadat a fájl teljes átnevezéshez. "
-"Kérem válasszon más metaadatot az átnevezéshez.</i>"
 
 #. Translators: please do not modify, change the order of or leave out html formatting
 #. tags like <i> and <b>. These are used to format the text the users sees.
@@ -1249,16 +1222,15 @@ msgid "Insert"
 msgstr ""
 
 #: ../raphodo/nameeditor.py:1340
-#, fuzzy
 msgid "Save Preset - Rapid Photo Downloader"
-msgstr "Beállítások: Gyors Fénykép Letöltő"
+msgstr ""
 
 #: ../raphodo/nameeditor.py:1345
 msgid ""
-"<b>Do you want to save the changes in a new custom preset?</"
-"b><br><br>Creating a custom preset is not required, but can help you keep "
-"organized.<br><br>The changes to the preferences will still be applied "
-"regardless of whether you create a new custom preset or not."
+"<b>Do you want to save the changes in a new custom "
+"preset?</b><br><br>Creating a custom preset is not required, but can help "
+"you keep organized.<br><br>The changes to the preferences will still be "
+"applied regardless of whether you create a new custom preset or not."
 msgstr ""
 
 #: ../raphodo/nameeditor.py:1354
@@ -1303,14 +1275,12 @@ msgstr ""
 #. Translators: this text appears in a button - the & sets the o key in combination with
 #. the alt key to act as the keyboard shortcut
 #: ../raphodo/newversion.py:337
-#, fuzzy
 msgid "&Open Download Page"
-msgstr "Letöltés / Megszakítás"
+msgstr ""
 
 #: ../raphodo/newversion.py:357
-#, fuzzy
 msgid "Rapid Photo Downloader updates"
-msgstr "Gyors Fotó Letöltő"
+msgstr ""
 
 #. Translators: shows how much of a file has been downloaded e.g  123 KB of 1.3 MB
 #: ../raphodo/newversion.py:450
@@ -1319,18 +1289,16 @@ msgid "%(downloaded)s of %(total)s"
 msgstr ""
 
 #: ../raphodo/newversion.py:467
-#, fuzzy
 msgid "Downloading..."
-msgstr "Letöltés"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:65
 msgid "Preferences"
 msgstr "Beállítások"
 
 #: ../raphodo/preferencedialog.py:74
-#, fuzzy
 msgid "Automation"
-msgstr "Hely:"
+msgstr "Automatizálás"
 
 #: ../raphodo/preferencedialog.py:74
 msgid "Thumbnails"
@@ -1341,18 +1309,16 @@ msgid "Error Handling"
 msgstr "Hibakezelés"
 
 #: ../raphodo/preferencedialog.py:75
-#, fuzzy
 msgid "Warnings"
-msgstr "figyelmeztetések"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:75
 msgid "Miscellaneous"
 msgstr "Egyebek"
 
 #: ../raphodo/preferencedialog.py:83
-#, fuzzy
 msgid "Device Scanning"
-msgstr "Eszköz beállítások"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:85
 msgid "Scan only external devices"
@@ -1383,9 +1349,8 @@ msgid "Devices that have been set to automatically ignore or download from."
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:103
-#, fuzzy
 msgid "Remembered Devices"
-msgstr "Megjegyzett elérési utak"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:106
 msgid ""
@@ -1395,9 +1360,8 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:108 ../raphodo/preferencedialog.py:129
 #: ../raphodo/preferencedialog.py:397
-#, fuzzy
 msgid "Remove"
-msgstr "Összes törlése"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:111
 msgid ""
@@ -1406,23 +1370,18 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:122
-#, fuzzy
 msgid "Ignored Paths on Devices"
-msgstr "Mellőzött útvonal"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:123
-#, fuzzy
 msgid ""
 "The end part of a path on a device that should never be scanned for photos "
 "or videos."
 msgstr ""
-"Kérlek add meg azt a könyvtárt ahol soha ne keressek fényképeket vagy "
-"videókat"
 
 #: ../raphodo/preferencedialog.py:127
-#, fuzzy
 msgid "Add..."
-msgstr "_Hozzáadás…"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:128
 msgid "Add a path to the list of paths to ignore."
@@ -1447,9 +1406,8 @@ msgid "Use regular expressions in the list of ignored paths."
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:174
-#, fuzzy
 msgid "Program Automation"
-msgstr "<b>Automatizálás</b>"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:175
 msgid "Start downloading at program startup"
@@ -1460,9 +1418,8 @@ msgid "Start downloading upon device insertion"
 msgstr "Azonnali letöltés a készülék csatlakoztatását követően."
 
 #: ../raphodo/preferencedialog.py:177
-#, fuzzy
 msgid "Unmount (eject) device upon download completion"
-msgstr "A készülék lecsatlakoztatása a letöltést követően."
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:178
 msgid "Exit program when download completes"
@@ -1470,27 +1427,24 @@ msgstr "Kilépés a programból a letöltés végeztével"
 
 #: ../raphodo/preferencedialog.py:179
 msgid "Exit program even if download had warnings or errors"
-msgstr "Kilépés a programból letöltési hibák és figyelmeztetések ellenére is."
+msgstr ""
+"Kilépés a programból letöltési hibák és figyelmeztetések ellenére is."
 
 #: ../raphodo/preferencedialog.py:206
-#, fuzzy
 msgid "Thumbnail Generation"
-msgstr "Előnézeti képek"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:207
-#, fuzzy
 msgid "Generate thumbnails"
-msgstr "Bélyegkép létrehozás (lassabb)"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:208
-#, fuzzy
 msgid "Generate thumbnails to show in the main program window"
-msgstr "Bélyegkép létrehozás (lassabb)"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:210
-#, fuzzy
 msgid "Cache thumbnails"
-msgstr "Előnézeti képek"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:211
 msgid ""
@@ -1499,9 +1453,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:213
-#, fuzzy
 msgid "Generate system thumbnails"
-msgstr "Bélyegkép létrehozás (lassabb)"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:214
 msgid ""
@@ -1524,14 +1477,12 @@ msgid "*"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:260
-#, fuzzy
 msgid "Thumbnail Cache"
-msgstr "Előnézeti képek"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:262
-#, fuzzy
 msgid "Calculating..."
-msgstr "keresés..."
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:268
 msgid "days"
@@ -1554,9 +1505,8 @@ msgid "Database size:"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:280
-#, fuzzy
 msgid "Cache unaccessed thumbnails for:"
-msgstr "Bélyegkép létrehozás (lassabb)"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:288
 msgid "Purge Cache..."
@@ -1605,27 +1555,20 @@ msgid "Don't overwrite the backup file, and issue an error message"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:330
-#, fuzzy
 msgid ""
 "When a photo or video of the same name has already been downloaded, choose "
 "whether to skip downloading the file, or to add a unique identifier:"
 msgstr ""
-"Ha egyező nevű kép vagy videó már le lett töltve, ajánlja fel a kihagyást, "
-"vagy a letöltés folytatását egyedi azonosító hozzáadásával"
 
 #: ../raphodo/preferencedialog.py:344
-#, fuzzy
 msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up:"
 msgstr ""
-"Adja meg, hogy a biztonsági másolatok készítésekor felül legyenek-e írva az "
-"azonos néven létező fájlok, vagy át legyenek ugorva."
 
 #: ../raphodo/preferencedialog.py:364
-#, fuzzy
 msgid "Program Warnings"
-msgstr "<b>Automatizálás</b>"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:365
 msgid "Show a warning when:"
@@ -1645,7 +1588,8 @@ msgid "Backup destinations are missing"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:372
-msgid "Warn before starting a download if it is not possible to back up files."
+msgid ""
+"Warn before starting a download if it is not possible to back up files."
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:374
@@ -1659,9 +1603,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:378
-#, fuzzy
 msgid "Filesystem metadata cannot be set"
-msgstr "%(filetype)s métadatatát nem tudom olvasni"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:379
 msgid ""
@@ -1690,9 +1633,8 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:393
-#, fuzzy
 msgid "Add"
-msgstr "_Hozzáadás…"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:394
 msgid ""
@@ -1781,7 +1723,6 @@ msgid "Enter a Path to Ignore"
 msgstr "Add meg a mellőzni kívánt útvonalat"
 
 #: ../raphodo/preferencedialog.py:959
-#, fuzzy
 msgid "Specify a path that will never be scanned for photos or videos"
 msgstr ""
 "Kérlek add meg azt a könyvtárt ahol soha ne keressek fényképeket vagy "
@@ -1792,23 +1733,20 @@ msgid "Path:"
 msgstr "Útvonal:"
 
 #: ../raphodo/preferencedialog.py:974
-#, fuzzy
 msgid "Enter a File Extension"
-msgstr "Név + kiterjesztés"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:975
 msgid "Specify a file extension (without the leading dot)"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:976 ../raphodo/renamepanel.py:122
-#, fuzzy
 msgid "Extension:"
-msgstr "Kiterjesztés"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:991
-#, fuzzy
 msgid "Invalid File Extension"
-msgstr "Érvénytelen reguláris kifejezés"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:992
 #, python-format
@@ -1856,28 +1794,28 @@ msgstr "Alkönyvtár beállítások nem végződhetnek %s értékkel"
 #: ../raphodo/preferences.py:593
 #, python-format
 msgid "Subfolder preferences should not contain two %s one after the other"
-msgstr "Alkönyvtár beállítások nem tartalmazhatnak két %s értéket egymás után"
+msgstr ""
+"Alkönyvtár beállítások nem tartalmazhatnak két %s értéket egymás után"
 
 #. self.setFlat(True)
 #: ../raphodo/primarybutton.py:72
-#, fuzzy
 msgid "Download 8 Photos and 10 Videos"
-msgstr "fényképek és videók"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:86 ../raphodo/problemnotification.py:202
-#, fuzzy, python-format
+#, python-format
 msgid "Error: %(errno)s %(strerror)s"
-msgstr "Hiba: %(errorno)s %(strerror)s"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:89
-#, fuzzy, python-format
+#, python-format
 msgid "Error: %s"
-msgstr "Hiba: %(inst)s"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:116
-#, fuzzy, python-format
+#, python-format
 msgid "GPhoto2 Error: %s"
-msgstr "Fénykép Könyvtár"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:124
 msgid ""
@@ -1950,26 +1888,26 @@ msgid "Encountered unhandled file %s. It will not be downloaded."
 msgstr ""
 
 #: ../raphodo/problemnotification.py:217
-#, fuzzy, python-format
+#, python-format
 msgid "%(filetype)s %(destination)s already exists."
-msgstr "%(filetype)s már létezik (le van töltve)"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:228 ../raphodo/problemnotification.py:256
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "The existing %(filetype)s %(destination)s was last modified on %(date)s at "
 "%(time)s."
-msgstr "A létező %(filetype)s módosítva lett: %(date)s  %(time)s."
+msgstr ""
 
 #: ../raphodo/problemnotification.py:239
-#, fuzzy, python-format
+#, python-format
 msgid "The %(filetype)s %(source)s was not downloaded from %(device)s."
-msgstr "A  %(filetype)s letöltése nem volt hibátlan."
+msgstr ""
 
 #: ../raphodo/problemnotification.py:267
-#, fuzzy, python-format
+#, python-format
 msgid "The %(filetype)s %(source)s was downloaded from %(device)s."
-msgstr "A  %(filetype)s letöltése nem volt hibátlan."
+msgstr ""
 
 #: ../raphodo/problemnotification.py:276
 #, python-format
@@ -1977,11 +1915,11 @@ msgid "The unique identifier '%s' was added to the filename."
 msgstr ""
 
 #: ../raphodo/problemnotification.py:292
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "The existing backup %(filetype)s %(destination)s was last modified on "
 "%(date)s at %(time)s."
-msgstr "A létező %(filetype)s módosítva lett: %(date)s  %(time)s."
+msgstr ""
 
 #: ../raphodo/problemnotification.py:303
 #, python-format
@@ -1989,11 +1927,11 @@ msgid "The %(filetype)s %(source)s was not backed up from %(device)s."
 msgstr ""
 
 #: ../raphodo/problemnotification.py:320
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "The previous backup %(filetype)s %(destination)s was last modified on "
 "%(date)s at %(time)s."
-msgstr "A létező %(filetype)s módosítva lett: %(date)s  %(time)s."
+msgstr ""
 
 #: ../raphodo/problemnotification.py:331
 #, python-format
@@ -2010,12 +1948,10 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/problemnotification.py:360
-#, fuzzy
 msgid ""
 "When synchronizing RAW + JPEG sequence values, photos were detected with the "
 "same filenames, but taken at different times:"
 msgstr ""
-"A program egyező nevű, de különböző időpontban készített képeket talált."
 
 #: ../raphodo/problemnotification.py:367
 #, python-format
@@ -2044,9 +1980,9 @@ msgid "The %(type)s metadata is missing."
 msgstr "A %(type)s métaadat hiányzik."
 
 #: ../raphodo/problemnotification.py:433
-#, fuzzy, python-format
+#, python-format
 msgid "The following metadata is missing: %s."
-msgstr "A következő métaadatad hiányzik: "
+msgstr ""
 
 #: ../raphodo/problemnotification.py:439
 #, python-format
@@ -2068,9 +2004,9 @@ msgid "Filename does not have a number component."
 msgstr "A fájlnévnek nincs szám része."
 
 #: ../raphodo/problemnotification.py:458
-#, fuzzy, python-format
+#, python-format
 msgid "Error generating component %(component)s. Error: %(error)s"
-msgstr "Hiba a komponens elkészítésekor: %s."
+msgstr ""
 
 #: ../raphodo/problemnotification.py:471
 #, python-format
@@ -2080,11 +2016,11 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/problemnotification.py:480
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "There is no data with which to generate the %(subfolder_file)s for "
 "%(filename)s. The %(filetype)s was not downloaded."
-msgstr "Nincs adat a %(filetype)s elnevezéséhez"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:493
 #, python-format
@@ -2094,19 +2030,19 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/problemnotification.py:508
-#, fuzzy, python-format
+#, python-format
 msgid "Unable to create the download subfolder %s."
-msgstr "Nem sikerült az alkönyvtár létrehozás"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:520
-#, fuzzy, python-format
+#, python-format
 msgid "Unable to create the backup subfolder %s."
-msgstr "Nem sikerült az alkönyvtár létrehozás"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:571
-#, fuzzy, python-format
+#, python-format
 msgid "Problems scanning %s"
-msgstr "Probléma a %s létrehozásakor"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:578
 #, python-format
@@ -2114,14 +2050,13 @@ msgid "Problems copying from %s"
 msgstr ""
 
 #: ../raphodo/problemnotification.py:585
-#, fuzzy
 msgid "Problems while finalizing filenames and generating subfolders"
-msgstr "Probléma az alkönyvtár és a fájlnév létrehozásakor"
+msgstr ""
 
 #: ../raphodo/problemnotification.py:592
-#, fuzzy, python-format
+#, python-format
 msgid "Problems backing up to %s"
-msgstr "Probléma a %s létrehozásakor"
+msgstr ""
 
 #. Translators: for example Nov 3 or Dec 31
 #. The start and end dates are on a different day
@@ -2329,9 +2264,8 @@ msgid "&Quit"
 msgstr ""
 
 #: ../raphodo/rapid.py:1639
-#, fuzzy
 msgid "Error Reports"
-msgstr "Hibanapló"
+msgstr ""
 
 #: ../raphodo/rapid.py:1643
 msgid "Clear Completed Downloads"
@@ -2460,8 +2394,8 @@ msgstr "Megállítás"
 msgid ""
 "<b>Thank you for reporting a problem in Rapid Photo\n"
 "            Downloader</b><br><br>\n"
-"            Please report the problem at <a href=\"{website}\">{website}</a>."
-"<br><br>\n"
+"            Please report the problem at <a "
+"href=\"{website}\">{website}</a>.<br><br>\n"
 "            Attach the log file <i>{log_file}</i> to your report (click\n"
 "            <a href=\"{log_path}\">here</a> to open the log directory).\n"
 "            "
@@ -2494,8 +2428,8 @@ msgid ""
 "for download,\n"
 "                    including those that are not currently displayed because "
 "the Timeline\n"
-"                    is being used or because only new files are being shown."
-"<br><br>\n"
+"                    is being used or because only new files are being "
+"shown.<br><br>\n"
 "                    Do you want to proceed with the download?"
 msgstr ""
 
@@ -2520,14 +2454,12 @@ msgstr ""
 "%s"
 
 #: ../raphodo/rapid.py:2731
-#, fuzzy
 msgid "Download Failure"
-msgstr "Letöltési idő"
+msgstr ""
 
 #: ../raphodo/rapid.py:2732
-#, fuzzy
 msgid "The download cannot proceed."
-msgstr "A letöltés megszakadt."
+msgstr ""
 
 #: ../raphodo/rapid.py:2746
 msgid ""
@@ -2727,11 +2659,11 @@ msgstr ""
 #: ../raphodo/rapid.py:3898
 #, python-format
 msgid ""
-"<b>The %(camera)s appears to be in use by another application.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again.<br><br>Alternatively, you can ignore this "
-"device."
+"<b>The %(camera)s appears to be in use by another "
+"application.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again.<br><br>Alternatively, you "
+"can ignore this device."
 msgstr ""
 
 #: ../raphodo/rapid.py:3909
@@ -2745,20 +2677,20 @@ msgstr ""
 #: ../raphodo/rapid.py:4317
 #, python-format
 msgid ""
-"<b>The %(camera)s cannot be scanned because it cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again."
+"<b>The %(camera)s cannot be scanned because it cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again."
 msgstr ""
 
 #: ../raphodo/rapid.py:4341
 #, python-format
 msgid ""
-"<b>The download cannot start because the %(camera)s cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again, and choose which files you want to "
-"download from it."
+"<b>The download cannot start because the %(camera)s cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again, and choose which files "
+"you want to download from it."
 msgstr ""
 
 #: ../raphodo/rapid.py:4479
@@ -2911,7 +2843,8 @@ msgid "Ignore photos with the following extensions: %s"
 msgstr ""
 
 #: ../raphodo/rapid.py:5330
-msgid "Turn on or off starting downloads as soon as the program itself starts."
+msgid ""
+"Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 
 #: ../raphodo/rapid.py:5333
@@ -2968,7 +2901,8 @@ msgstr ""
 
 #: ../raphodo/rapid.py:5484
 #, python-format
-msgid "Do you want to copy the stored sequence number, which has the value %d?"
+msgid ""
+"Do you want to copy the stored sequence number, which has the value %d?"
 msgstr ""
 
 #: ../raphodo/rapid.py:5496
@@ -2980,9 +2914,8 @@ msgid "Never run this program as the sudo / root user."
 msgstr ""
 
 #: ../raphodo/rapid.py:5510
-#, fuzzy
 msgid "You must install ExifTool to run Rapid Photo Downloader."
-msgstr "Gyors Fotó Letöltő"
+msgstr ""
 
 #: ../raphodo/rapid.py:5564
 msgid ""
@@ -3039,12 +2972,9 @@ msgid "Stored number:"
 msgstr "Tárolt szám:"
 
 #: ../raphodo/renamepanel.py:331
-#, fuzzy
 msgid ""
 "The time at which the <i>Downloads today</i> sequence number should be reset"
 msgstr ""
-"Határozza meg azt az időt 24 órás formában, ahol a <i>Downloads today</i> "
-"sorozatszámot vissza kell állítani."
 
 #: ../raphodo/renamepanel.py:332
 msgid "Day start:"
@@ -3053,9 +2983,8 @@ msgstr "Nap kezdete:"
 #. 24 hour format, if wanted in a future release:
 #. self.dayStart.setDisplayFormat('HH:mm:ss')
 #: ../raphodo/renamepanel.py:342
-#, fuzzy
 msgid "Synchronize RAW + JPEG"
-msgstr "RAW és JPEG fájlok számkiosztásának szinkronizálása"
+msgstr ""
 
 #: ../raphodo/renamepanel.py:345
 msgid ""
@@ -3065,41 +2994,34 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/renamepanel.py:349
-#, fuzzy
 msgid "Sequence Numbers"
-msgstr "<b>Sorozat szám</b>"
+msgstr ""
 
 #: ../raphodo/renamepanel.py:360
 msgid "Strip incompatible characters"
 msgstr "Az inkompatibilis karakterek kihagyása"
 
 #: ../raphodo/renamepanel.py:363
-#, fuzzy
 msgid ""
 "Whether photo, video and folder names should have any characters removed "
 "that are not allowed by other operating systems"
 msgstr ""
-"Adja meg, hogy a képek és videók nevéből el legyenek-e távolítva az egyéb "
-"operációs rendszerek által nem megengedett karakterek."
 
 #: ../raphodo/renamepanel.py:365
 msgid "Compatibility"
 msgstr ""
 
 #: ../raphodo/renamepanel.py:433
-#, fuzzy
 msgid "Photo Renaming"
-msgstr "Fénykép Átnevezés"
+msgstr ""
 
 #: ../raphodo/renamepanel.py:436
-#, fuzzy
 msgid "Video Renaming"
-msgstr "Videó Átnevezés"
+msgstr ""
 
 #: ../raphodo/renamepanel.py:439
-#, fuzzy
 msgid "Renaming Options"
-msgstr "Átnevezési lehetőségek"
+msgstr ""
 
 #: ../raphodo/rpdfile.py:217
 msgid "photos and videos"
@@ -3300,17 +3222,37 @@ msgstr ""
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/rapid-photo-downloader.desktop.in.h:5
 msgid ""
-"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
-"memory;card;"
+"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
+";card;"
 msgstr ""
 
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr ""
 
+#~ msgid "Select a folder to download photos to"
+#~ msgstr "Válasszon egy letöltési könyvtárat"
+
+#, python-format
+#~ msgid "<i>Example: %s</i>"
+#~ msgstr "<i>Példa: %s</i>"
+
+#~ msgid "externaldrive1"
+#~ msgstr "külső_meghajtó1"
+
+#~ msgid "externaldrive2"
+#~ msgstr "külső_meghajtó2"
+
+#~ msgid "Download cannot proceed"
+#~ msgstr "A letöltés megszakadt."
+
+#~ msgid "scanning..."
+#~ msgstr "keresés..."
+
 #~ msgid "Backing up error"
 #~ msgstr "A biztonsági másolat készítése során hiba történt."
 
+#, python-format
 #~ msgid ""
 #~ "Source: %(source)s\n"
 #~ "Destination: %(destination)s"
@@ -3318,224 +3260,8 @@ msgstr ""
 #~ "Forrás: %(source)s\n"
 #~ "Cél: %(destination)s"
 
-#~ msgid "Destination directory could not be created: %(directory)s\n"
-#~ msgstr "A cél könyvtár nem hozható létre: %(directory)s\n"
-
-#~ msgid ""
-#~ "%(problem)s\n"
-#~ "File: %(file)s"
-#~ msgstr ""
-#~ "%(problem)s\n"
-#~ "Fájl: %(file)s"
-
-#~ msgid "Date time value %s appears invalid."
-#~ msgstr "Ez a dátim, idő érték nem tűnik valósnak: %s"
-
-#~ msgid "%(filetype)s metadata cannot be read"
-#~ msgstr "%(filetype)s métadatatát nem tudom olvasni"
-
-#~ msgid "%(filetype)s %(area)s could not be generated"
-#~ msgstr "%(filetype)s %(area)s nem lehet létrehozni"
-
-#~ msgid "An error occurred when copying the %(filetype)s"
-#~ msgstr "Hiba lépett fel a %(filetype)s másolása közben"
-
-#~ msgid ""
-#~ "%(filetype)s could not be backed up because no suitable backup locations "
-#~ "were found."
-#~ msgstr ""
-#~ "%(filetype)s biztonsági mentése nem készül el, mert nincs használható "
-#~ "hely számára"
-
-#~ msgid "%(filetype)s was already downloaded"
-#~ msgstr "%(filetype)s már le van töltve"
-
-#~ msgid ""
-#~ "The existing %(filetype)s was last modified on %(date)s at %(time)s. "
-#~ "Unique identifier '%(identifier)s' added."
-#~ msgstr ""
-#~ "A létező %(filetype)s  típus utoljára %(date)s %(time)s lett módosítva."
-#~ "\r\n"
-#~ "Az alábbi azonosító hozzáadva: %(identifier)s"
-
-#~ msgid "Error: %(errorno)s %(strerror)s"
-#~ msgstr "Hiba: %(errorno)s %(strerror)s"
-
-#~ msgid ""
-#~ "File verification failed. The downloaded version is different from the "
-#~ "original."
-#~ msgstr ""
-#~ "A fájl ellenőrzés hibát talált. A letöltött verzió eltér az eredetitől."
-
-#, fuzzy
-#~ msgid "The metadata could not be parsed."
-#~ msgstr "%(filetype)s métadatatát nem tudom olvasni"
-
-#~ msgid ""
-#~ "The filename, extension and Exif information indicate it has already been "
-#~ "downloaded."
-#~ msgstr ""
-#~ "A fájlnév, a kiterjesztés, és az Exif információ szerint ez már le van "
-#~ "töltve."
-
-#~ msgid " It was backed up to %(volume)s"
-#~ msgstr " Biztonsági mentés létrehozva: %(volume)s"
-
-#~ msgid " It was backed up to these devices: "
-#~ msgstr " Biztonsági mentés létrehozva ezeken az eszközökön: "
-
-#~ msgid "%s, "
-#~ msgstr "%s, "
-
-#~ msgid "%(volumes)s and %(final_volume)s."
-#~ msgstr "%(volumes)s és %(final_volume)s."
-
-#~ msgid ""
-#~ "Photos detected with the same filenames, but taken at different times: "
-#~ "%(details)s"
-#~ msgstr ""
-#~ "A fényképeknek azonos a neve, de eltérő időben készültek:%(details)s"
-
-#~ msgid "An error occurred when backing up on %(volume)s: %(inst)s."
-#~ msgstr ""
-#~ "Hiba történt a biztonsági mentés közben ezen az eszközön: %(volume)s: "
-#~ "%(inst)s."
-
-#~ msgid "An error occurred when backing up on %(volume)s."
-#~ msgstr ""
-#~ "Hiba történt a biztonsági mentés közben ezen az eszközön %(volume)s."
-
-#~ msgid "Errors occurred when backing up on the following backup devices: "
-#~ msgstr "Hiba történt a biztonsági mentés közben az alábbi eszközökön: "
-
-#~ msgid "%(volume)s (%(inst)s), "
-#~ msgstr "%(volume)s (%(inst)s), "
-
-#~ msgid "%(volume)s, "
-#~ msgstr "%(volume)s, "
-
-#~ msgid "%(volumes)s and %(volume)s (%(inst)s)."
-#~ msgstr "%(volumes)s és %(volume)s (%(inst)s)."
-
-#~ msgid "%(volumes)s and %(volume)s."
-#~ msgstr "%(volumes)s és %(volume)s."
-
-#~ msgid "Backup already exists on %(volume)s."
-#~ msgstr "A biztonsági mentés már létezik itt: %(volume)s."
-
-#~ msgid "Backups already exist in these locations: "
-#~ msgstr "A biztonsági mentés az elábbi eszközökön már létezik: "
-
-#~ msgid "Backup overwritten on %(volume)s."
-#~ msgstr "A biztonsági mentés felülírva ezen az eszközön: %(volume)s."
-
-#~ msgid "Backups overwritten on these devices: "
-#~ msgstr "A biztonsági mentés felülírva ezeken az eszközökön: "
-
-#~ msgid "An error occurred when creating directories on %(volume)s: %(inst)s."
-#~ msgstr ""
-#~ "Hiba lépett fel a könyvtárak létrehozáskor ezen az eszközön: %(volume)s: "
-#~ "%(inst)s."
-
-#~ msgid ""
-#~ "Errors occurred when creating directories on the following backup "
-#~ "devices: "
-#~ msgstr "Hiba lépett fel a könyvtárak létrehozáskor ezen az eszközökön: "
-
-#~ msgid ""
-#~ "File verification failed on %(volume)s. The backed up version is "
-#~ "different from the downloaded version."
-#~ msgstr ""
-#~ "A fájl ellenőrzés hibát talált a %(volume)s. A letöltött verzió eltér az "
-#~ "eredetitől."
-
-#~ msgid "File verification failed on these devices: "
-#~ msgstr "A fájl ellenörzés hibát talált ezen az eszközön: "
-
-#~ msgid "%(previousproblem)s Additionally, %(newproblem)s"
-#~ msgstr "%(previousproblem)s továbbá, %(newproblem)s"
-
-#~ msgid " Furthermore, there were %(problems)s."
-#~ msgstr " Továbbá, még ezek %(problems)s."
-
-#~ msgid " Furthermore, there was a %(problem)s."
-#~ msgstr " Továbbá, még ez %(problem)s."
-
-#~ msgid ""
-#~ "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
-#~ msgstr ""
-#~ "%(missing_metadata_elements)s és %(final_missing_metadata_element)s."
-
-#~ msgid "Problem in subfolder and filename generation"
-#~ msgstr "Probléma az alkönyvtár és a fájlnév létrehozásakor"
-
-#~ msgid "Problems in %s generation"
-#~ msgstr "Probléma a %s létrehozásakor"
-
-#~ msgid "Problem in %s generation"
-#~ msgstr "Probléma a %s létrehozásakor"
-
-#~ msgid "%(filetype)s already exists, but it was backed up"
-#~ msgstr "%(filetype)s már létezik, de biztonsági mentés létrehozva"
-
-#~ msgid ""
-#~ "An error occurred when copying the %(filetype)s, but it was backed up"
-#~ msgstr ""
-#~ "Hiba történt a %(filetype)s másolásakor, de a biztonsági mentés "
-#~ "létrehozva."
-
-#~ msgid "Multiple problems were encountered"
-#~ msgstr "Több probléma lépett fel."
-
-#~ msgid "there were errors backing up"
-#~ msgstr "hibák voltak a biztonsági mentés közben"
-
-#~ msgid "There were errors backing up"
-#~ msgstr "Hibák voltak a biztonsági mentés közben"
-
-#~ msgid "there was an error backing up"
-#~ msgstr "hiba volt a biztonsági mentés közben"
-
-#~ msgid "There was an error backing up"
-#~ msgstr "Hiba volt a biztonsági mentés közben"
-
-#~ msgid "%(previousproblem)s, and %(backinguperror)s"
-#~ msgstr "%(previousproblem)s, és %(backinguperror)s"
-
-#~ msgid "Photo has already been downloaded"
-#~ msgstr "A kép már korábban le lett töltve."
-
-#~ msgid "Source: %(source)s"
-#~ msgstr "Forrás: %(source)s"
-
-#~ msgid "Path: %s"
-#~ msgstr "Path: %s"
-
-#, fuzzy
-#~ msgid "Rapid Photo Downloader Error Log"
-#~ msgstr "Gyors Fotó Letöltő"
-
-#~ msgid "The metadata might be corrupt."
-#~ msgstr "A métadatad hibás lehet"
-
-#~ msgid "No backup device contains a valid folder for backing up %(filetype)s"
-#~ msgstr ""
-#~ "A biztonsági másolat eszköze nem tartalmaz megfelelő könyvtárat a "
-#~ "%(filetype)  számára."
-
-#, fuzzy
-#~ msgid "Known Devices"
-#~ msgstr "Eszközök"
-
-#, fuzzy
-#~ msgid "Use python-style regular expressions"
-#~ msgstr "Használj python stílusú reguláris kifejezést"
-
-#~ msgid "Select a folder to download photos to"
-#~ msgstr "Válasszon egy letöltési könyvtárat"
-
-#~ msgid "<i>Example: %s</i>"
-#~ msgstr "<i>Példa: %s</i>"
+#~ msgid "Job Code:"
+#~ msgstr "Munka-szám:"
 
 #~ msgid "Download Progress"
 #~ msgstr "Letöltés Folyamatban"
@@ -3552,9 +3278,11 @@ msgstr ""
 #~ msgid "Using backup devices"
 #~ msgstr "A biztonsági mentés eszközök használata"
 
+#, python-format
 #~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 #~ msgstr "Kb. %(minutes)i:%(seconds)02i perc van hátra"
 
+#, python-format
 #~ msgid "About %i seconds remaining"
 #~ msgstr "Kb. %i másodperc van hátra"
 
@@ -3567,6 +3295,7 @@ msgstr ""
 #~ msgid "About 1 second remaining"
 #~ msgstr "Kb. 1 másodperc van hátra"
 
+#, python-format
 #~ msgid ""
 #~ "display program information on the command line as the program runs "
 #~ "(default: %default)"
@@ -3574,8 +3303,12 @@ msgstr ""
 #~ "futás közben program információ megjelenítése a terminálban (default: "
 #~ "%default)"
 
+#, python-format
 #~ msgid "and %s"
 #~ msgstr "és %s"
+
+#~ msgid "Name + extension"
+#~ msgstr "Név + kiterjesztés"
 
 #~ msgid " "
 #~ msgstr " "
@@ -3604,6 +3337,12 @@ msgstr ""
 #~ msgid "<i>Original:</i>"
 #~ msgstr "<i>Eredeti:</i>"
 
+#~ msgid "<b>Program Automation</b>"
+#~ msgstr "<b>Automatizálás</b>"
+
+#~ msgid "<i>Example:</i>"
+#~ msgstr "<i>Példa:</i>"
+
 #~ msgid "<i>New:</i>"
 #~ msgstr "<i>Új:</i>"
 
@@ -3612,6 +3351,9 @@ msgstr ""
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
+
+#~ msgid "<b>Sequence Numbers</b>"
+#~ msgstr "<b>Sorozat szám</b>"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
@@ -3622,8 +3364,20 @@ msgstr ""
 #~ msgid "Backup"
 #~ msgstr "Biztonsági mentés"
 
+#~ msgid "Download / Pause"
+#~ msgstr "Letöltés / Megszakítás"
+
 #~ msgid "Download folder:"
 #~ msgstr "Letöltési könyvtár:"
+
+#~ msgid "Error Log"
+#~ msgstr "Hibanapló"
+
+#~ msgid "Rename Options"
+#~ msgstr "Átnevezési lehetőségek"
+
+#~ msgid "Preferences: Rapid Photo Downloader"
+#~ msgstr "Beállítások: Gyors Fénykép Letöltő"
 
 #~ msgid "_Report a Problem..."
 #~ msgstr "_Hibajelentés küldése..."
@@ -3648,6 +3402,13 @@ msgstr ""
 
 #~ msgid "_View"
 #~ msgstr "_Nézet"
+
+#~ msgid ""
+#~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
+#~ "sequence number should be reset."
+#~ msgstr ""
+#~ "Határozza meg azt az időt 24 órás formában, ahol a <i>Downloads today</i> "
+#~ "sorozatszámot vissza kell állítani."
 
 #~ msgid "only output errors to the command line"
 #~ msgstr "csak a hibák megjelenítése a terminálban"
@@ -3706,11 +3467,34 @@ msgstr ""
 #~ msgid "Budapest"
 #~ msgstr "Budapest"
 
+#~ msgid "_Remember this choice"
+#~ msgstr "_Emlékezzen erre a választásra"
+
 #~ msgid "Device Detected"
 #~ msgstr "Eszköz érzékelve"
 
+#~ msgid "_Add..."
+#~ msgstr "_Hozzáadás…"
+
+#~ msgid "R_emove All"
+#~ msgstr "Összes törlése"
+
+#, python-format
+#~ msgid "Source: %(source)s"
+#~ msgstr "Forrás: %(source)s"
+
+#~ msgid "Synchronize RAW + JPEG sequence numbers"
+#~ msgstr "RAW és JPEG fájlok számkiosztásának szinkronizálása"
+
+#~ msgid "Remove all Job Codes?"
+#~ msgstr "Minden Munka-szám eltávolítása?"
+
 #~ msgid "Should all Job Codes be removed?"
 #~ msgstr "Minden Munka-szám el legyen távolítva?"
+
+#, python-format
+#~ msgid "Destination directory could not be created: %(directory)s\n"
+#~ msgstr "A cél könyvtár nem hozható létre: %(directory)s\n"
 
 #~ msgid "Error in Photo Rename preferences"
 #~ msgstr "Hiba a fénykép átnevezési beállításoknál"
@@ -3720,6 +3504,13 @@ msgstr ""
 
 #~ msgid "Error in Photo Download Subfolders preferences"
 #~ msgstr "Hiba a fénykép letöltési alkönyvtár beállításoknál"
+
+#~ msgid ""
+#~ "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
+#~ "name. Please use other renaming options.</i>"
+#~ msgstr ""
+#~ "<i><b>Figyelem:</b> Nincs elegendő metaadat a fájl teljes átnevezéshez. "
+#~ "Kérem válasszon más metaadatot az átnevezéshez.</i>"
 
 #~ msgid ""
 #~ "<i><b>Warning:</b> There is insufficient metadata to fully generate "
@@ -3771,11 +3562,30 @@ msgstr ""
 #~ msgid "Import your photos and videos efficiently and reliably"
 #~ msgstr "Importáld a fényképeidet és videóidat hatékonyan és megbízhatóan"
 
+#~ msgid "Location:"
+#~ msgstr "Hely:"
+
+#~ msgid "Photo Rename"
+#~ msgstr "Fénykép Átnevezés"
+
+#~ msgid "Photo Folders"
+#~ msgstr "Fénykép Könyvtár"
+
+#~ msgid "Video Rename"
+#~ msgstr "Videó Átnevezés"
+
 #~ msgid "Video Folders"
 #~ msgstr "Videó Könyvtár"
 
+#~ msgid "Video backup folder name:"
+#~ msgstr "A videó biztonsági mentési könyvtára"
+
+#, python-format
 #~ msgid "Select a folder containing %(file_types)s"
 #~ msgstr "Válasszon egy könyvtárt az alábbiaknak: %(file_types)s"
+
+#~ msgid "Photo backup folder name:"
+#~ msgstr "A biztonsági másolat mappa neve:"
 
 #~ msgid "reset all program settings and preferences and exit"
 #~ msgstr "A program beállításainak visszaállítása, majd kilépés"
@@ -3788,9 +3598,36 @@ msgstr ""
 #~ "A program által felismerhető kép és videó kiterjesztések listázása, majd "
 #~ "kilépés"
 
+#, python-format
 #~ msgid "Backing up to %(path)s"
 #~ msgstr "Biztonsági mentés készül az alábbi helyre: %(path)s"
 
+#~ msgid ""
+#~ "Specify the folder in which backups are stored on the device.  \n"
+#~ "\n"
+#~ "<i>Note: this will also be used to determine whether or not the device is "
+#~ "used for backups. For each device you wish to use for backing up to, create "
+#~ "a folder in it with one of these names.</i>"
+#~ msgstr "Adja meg a könyvtárat, ahová a biztonsági másolatok készülnek."
+
+#~ msgid "Unmount (\"eject\") device upon download completion"
+#~ msgstr "A készülék lecsatlakoztatása a letöltést követően."
+
+#~ msgid ""
+#~ "Specify whether photo, video and folder names should have any characters "
+#~ "removed that are not allowed by other operating systems."
+#~ msgstr ""
+#~ "Adja meg, hogy a képek és videók nevéből el legyenek-e távolítva az egyéb "
+#~ "operációs rendszerek által nem megengedett karakterek."
+
+#~ msgid ""
+#~ "When backing up, choose whether to overwrite a file on the backup device "
+#~ "that has the same name, or skip backing it up."
+#~ msgstr ""
+#~ "Adja meg, hogy a biztonsági másolatok készítésekor felül legyenek-e írva az "
+#~ "azonos néven létező fájlok, vagy át legyenek ugorva."
+
+#, python-format
 #~ msgid ""
 #~ "The %(filetype)s subfolder preferences entered are invalid and cannot be "
 #~ "used.\n"
@@ -3799,12 +3636,15 @@ msgstr ""
 #~ "A %(filetype)s alkönyvtár beállítások érvénytelenek, nem használhatóak.\n"
 #~ "Az alapértelmezett értékek kerülnek visszaállításra."
 
+#, python-format
 #~ msgid "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 #~ msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
+#, python-format
 #~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 #~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
+#, python-format
 #~ msgid ""
 #~ "%(date)s\n"
 #~ "%(time)s"
@@ -3812,11 +3652,31 @@ msgstr ""
 #~ "%(date)s\n"
 #~ "%(time)s"
 
+#, python-format
 #~ msgid "%(date)s %(time)s"
 #~ msgstr "%(date)s %(time)s"
 
+#, python-format
+#~ msgid "Error: %(inst)s"
+#~ msgstr "Hiba: %(inst)s"
+
+#~ msgid "Photo has already been downloaded"
+#~ msgstr "A kép már korábban le lett töltve."
+
+#~ msgid "Photos detected with the same filenames, but taken at different times"
+#~ msgstr ""
+#~ "A program egyező nevű, de különböző időpontban készített képeket talált."
+
+#, python-format
 #~ msgid "%(freespace)s. %(backuppaths)s."
 #~ msgstr "%(freespace)s. %(backuppaths)s."
+
+#~ msgid ""
+#~ "When a photo or video of the same name has already been downloaded, choose "
+#~ "whether to skip downloading the file, or to add a unique indentifier."
+#~ msgstr ""
+#~ "Ha egyező nevű kép vagy videó már le lett töltve, ajánlja fel a kihagyást, "
+#~ "vagy a letöltés folytatását egyedi azonosító hozzáadásával"
 
 #~ msgid "_File"
 #~ msgstr "_Fájl"
@@ -3830,34 +3690,221 @@ msgstr ""
 #~ msgid "Size"
 #~ msgstr "Méret"
 
+#, python-format
 #~ msgid "%(device)s did not unmount"
 #~ msgstr "%(device)s eszköz nem lett csatlakoztatva"
 
 #~ msgid "Free space:"
 #~ msgstr "Szabad hely:"
 
+#, python-format
 #~ msgid "%(number)s of %(total)s %(filetypes)s"
 #~ msgstr "%(total)s %(filetypes)s összesen.  Letöltve: %(number)s"
 
+#, python-format
 #~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
 #~ msgstr ""
-#~ "%(total)s %(filetypes)s  összesen. Letöltve: %(number)s  (%(remaining)s "
-#~ "még hátra van)"
+#~ "%(total)s %(filetypes)s  összesen. Letöltve: %(number)s  (%(remaining)s még "
+#~ "hátra van)"
 
+#, python-format
 #~ msgid "Folder: %s"
 #~ msgstr "könyvtár: %s"
+
+#, python-format
+#~ msgid "%(file_type)s download folder does not exist"
+#~ msgstr "%(file_type)s letöltési könyvtár nem létezik"
 
 #~ msgid "; "
 #~ msgstr "; "
 
+#, python-format
 #~ msgid "%(file_type)s download folder is not writable"
 #~ msgstr "%(file_type)s letöltési könyvtár nem írható"
 
+#, python-format
 #~ msgid "%(file_type)s download folder is invalid"
 #~ msgstr "%(file_type)s letöltési könyvtár nem jó"
 
+#, python-format
+#~ msgid ""
+#~ "%(problem)s\n"
+#~ "File: %(file)s"
+#~ msgstr ""
+#~ "%(problem)s\n"
+#~ "Fájl: %(file)s"
+
+#, python-format
+#~ msgid "%(filetype)s metadata cannot be read"
+#~ msgstr "%(filetype)s métadatatát nem tudom olvasni"
+
+#, python-format
+#~ msgid "Error generating component %s."
+#~ msgstr "Hiba a komponens elkészítésekor: %s."
+
+#, python-format
+#~ msgid "Date time value %s appears invalid."
+#~ msgstr "Ez a dátim, idő érték nem tűnik valósnak: %s"
+
+#, python-format
 #~ msgid "%(free)s free"
 #~ msgstr "%(free)s üres"
+
+#, python-format
+#~ msgid ""
+#~ "%(filetype)s could not be backed up because no suitable backup locations "
+#~ "were found."
+#~ msgstr ""
+#~ "%(filetype)s biztonsági mentése nem készül el, mert nincs használható hely "
+#~ "számára"
+
+#, python-format
+#~ msgid "%(filetype)s already exists"
+#~ msgstr "%(filetype)s már létezik (le van töltve)"
+
+#, python-format
+#~ msgid "%(filetype)s was already downloaded"
+#~ msgstr "%(filetype)s már le van töltve"
+
+#, python-format
+#~ msgid "%(filetype)s %(area)s could not be generated"
+#~ msgstr "%(filetype)s %(area)s nem lehet létrehozni"
+
+#, python-format
+#~ msgid "An error occurred when copying the %(filetype)s"
+#~ msgstr "Hiba lépett fel a %(filetype)s másolása közben"
+
+#, python-format
+#~ msgid "An error occurred when backing up on %(volume)s."
+#~ msgstr "Hiba történt a biztonsági mentés közben ezen az eszközön %(volume)s."
+
+#, python-format
+#~ msgid ""
+#~ "Photos detected with the same filenames, but taken at different times: "
+#~ "%(details)s"
+#~ msgstr "A fényképeknek azonos a neve, de eltérő időben készültek:%(details)s"
+
+#, python-format
+#~ msgid "An error occurred when backing up on %(volume)s: %(inst)s."
+#~ msgstr ""
+#~ "Hiba történt a biztonsági mentés közben ezen az eszközön: %(volume)s: "
+#~ "%(inst)s."
+
+#~ msgid "The metadata might be corrupt."
+#~ msgstr "A métadatad hibás lehet"
+
+#~ msgid ""
+#~ "The filename, extension and Exif information indicate it has already been "
+#~ "downloaded."
+#~ msgstr ""
+#~ "A fájlnév, a kiterjesztés, és az Exif információ szerint ez már le van "
+#~ "töltve."
+
+#, python-format
+#~ msgid " It was backed up to %(volume)s"
+#~ msgstr " Biztonsági mentés létrehozva: %(volume)s"
+
+#~ msgid " It was backed up to these devices: "
+#~ msgstr " Biztonsági mentés létrehozva ezeken az eszközökön: "
+
+#, python-format
+#~ msgid "%s, "
+#~ msgstr "%s, "
+
+#, python-format
+#~ msgid "%(volumes)s and %(final_volume)s."
+#~ msgstr "%(volumes)s és %(final_volume)s."
+
+#~ msgid "Errors occurred when backing up on the following backup devices: "
+#~ msgstr "Hiba történt a biztonsági mentés közben az alábbi eszközökön: "
+
+#~ msgid "Backups overwritten on these devices: "
+#~ msgstr "A biztonsági mentés felülírva ezeken az eszközökön: "
+
+#, python-format
+#~ msgid "Backup overwritten on %(volume)s."
+#~ msgstr "A biztonsági mentés felülírva ezen az eszközön: %(volume)s."
+
+#~ msgid "Backups already exist in these locations: "
+#~ msgstr "A biztonsági mentés az elábbi eszközökön már létezik: "
+
+#, python-format
+#~ msgid "Backup already exists on %(volume)s."
+#~ msgstr "A biztonsági mentés már létezik itt: %(volume)s."
+
+#, python-format
+#~ msgid "%(volumes)s and %(volume)s."
+#~ msgstr "%(volumes)s és %(volume)s."
+
+#, python-format
+#~ msgid "%(volumes)s and %(volume)s (%(inst)s)."
+#~ msgstr "%(volumes)s és %(volume)s (%(inst)s)."
+
+#, python-format
+#~ msgid "An error occurred when creating directories on %(volume)s: %(inst)s."
+#~ msgstr ""
+#~ "Hiba lépett fel a könyvtárak létrehozáskor ezen az eszközön: %(volume)s: "
+#~ "%(inst)s."
+
+#~ msgid ""
+#~ "Errors occurred when creating directories on the following backup devices: "
+#~ msgstr "Hiba lépett fel a könyvtárak létrehozáskor ezen az eszközökön: "
+
+#, python-format
+#~ msgid "Problem in %s generation"
+#~ msgstr "Probléma a %s létrehozásakor"
+
+#, python-format
+#~ msgid "Problems in %s generation"
+#~ msgstr "Probléma a %s létrehozásakor"
+
+#~ msgid "Problems in subfolder and filename generation"
+#~ msgstr "Probléma az alkönyvtár és a fájlnév létrehozásakor"
+
+#~ msgid "Problem in subfolder and filename generation"
+#~ msgstr "Probléma az alkönyvtár és a fájlnév létrehozásakor"
+
+#~ msgid "The following metadata is missing: "
+#~ msgstr "A következő métaadatad hiányzik: "
+
+#, python-format
+#~ msgid "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
+#~ msgstr "%(missing_metadata_elements)s és %(final_missing_metadata_element)s."
+
+#, python-format
+#~ msgid "An error occurred when copying the %(filetype)s, but it was backed up"
+#~ msgstr ""
+#~ "Hiba történt a %(filetype)s másolásakor, de a biztonsági mentés létrehozva."
+
+#, python-format
+#~ msgid "%(filetype)s already exists, but it was backed up"
+#~ msgstr "%(filetype)s már létezik, de biztonsági mentés létrehozva"
+
+#~ msgid "there were errors backing up"
+#~ msgstr "hibák voltak a biztonsági mentés közben"
+
+#~ msgid "Multiple problems were encountered"
+#~ msgstr "Több probléma lépett fel."
+
+#~ msgid "there was an error backing up"
+#~ msgstr "hiba volt a biztonsági mentés közben"
+
+#~ msgid "There were errors backing up"
+#~ msgstr "Hibák voltak a biztonsági mentés közben"
+
+#, python-format
+#~ msgid "%(previousproblem)s, and %(backinguperror)s"
+#~ msgstr "%(previousproblem)s, és %(backinguperror)s"
+
+#~ msgid "There was an error backing up"
+#~ msgstr "Hiba volt a biztonsági mentés közben"
+
+#, python-format
+#~ msgid "Path: %s"
+#~ msgstr "Path: %s"
+
+#~ msgid "Failed to create download subfolder"
+#~ msgstr "Nem sikerült az alkönyvtár létrehozás"
 
 #~ msgid "Next File"
 #~ msgstr "Következő fájl"
@@ -3874,30 +3921,61 @@ msgstr ""
 #~ msgid "Performance"
 #~ msgstr "Teljesítmény"
 
+#~ msgid "Generate thumbnails (slower)"
+#~ msgstr "Bélyegkép létrehozás (lassabb)"
+
+#, python-format
+#~ msgid "%(volume)s, "
+#~ msgstr "%(volume)s, "
+
+#, python-format
+#~ msgid "%(volume)s (%(inst)s), "
+#~ msgstr "%(volume)s (%(inst)s), "
+
+#, python-format
+#~ msgid "Error: %(errorno)s %(strerror)s"
+#~ msgstr "Hiba: %(errorno)s %(strerror)s"
+
+#, python-format
+#~ msgid "%(previousproblem)s Additionally, %(newproblem)s"
+#~ msgstr "%(previousproblem)s továbbá, %(newproblem)s"
+
+#, python-format
+#~ msgid " Furthermore, there were %(problems)s."
+#~ msgstr " Továbbá, még ezek %(problems)s."
+
+#, python-format
+#~ msgid " Furthermore, there was a %(problem)s."
+#~ msgstr " Továbbá, még ez %(problem)s."
+
 #~ msgid "."
 #~ msgstr "."
 
+#~ msgid "Invalid regular expression"
+#~ msgstr "Érvénytelen reguláris kifejezés"
+
+#, python-format
 #~ msgid ""
 #~ "The following regular expressions are invalid, and will be removed unless "
 #~ "you correct them:\n"
 #~ " %s"
 #~ msgstr ""
-#~ "A következő reguláris kifejezések hibásak, és távolításra kerülnek, ha "
-#~ "nem javítod ki őket:\n"
+#~ "A következő reguláris kifejezések hibásak, és távolításra kerülnek, ha nem "
+#~ "javítod ki őket:\n"
 #~ " %s"
 
+#, python-format
 #~ msgid ""
-#~ "This regular expression is invalid, and will be removed unless you "
-#~ "correct it:\n"
+#~ "This regular expression is invalid, and will be removed unless you correct "
+#~ "it:\n"
 #~ " %s"
 #~ msgstr ""
-#~ "Ez a reguláris kifejezés hibás,  és távolításra kerül, ha nem javítod "
-#~ "ki:\n"
+#~ "Ez a reguláris kifejezés hibás,  és távolításra kerül, ha nem javítod ki:\n"
 #~ " %s"
 
 #~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the "
-#~ "photos and videos."
+#~ "If you disable automatic detection, choose the exact location of the photos "
+#~ "and videos."
 #~ msgstr ""
 #~ "Kérlek válassz könyvtárt a fotók és a videók számára, ha nem akarod hogy "
 #~ "automatikusan kerüljenek meghatározásra (disable auto detection)."
@@ -3906,22 +3984,22 @@ msgstr ""
 #~ "If you enable automatic detection of Portable Storage Devices, the entire "
 #~ "device will be scanned. On large devices, this could take some time.\n"
 #~ "\n"
-#~ "When this option is enabled, and a potential device is detected, you will "
-#~ "be prompted to determine if it should be scanned or not."
+#~ "When this option is enabled, and a potential device is detected, you will be "
+#~ "prompted to determine if it should be scanned or not."
 #~ msgstr ""
-#~ "Ha engedélyezed az automatikus felderítést a hordozható eszközre, akkor "
-#~ "az egész eszközön fogok keresni. Nagy méretű eszközön ez sokáig "
-#~ "tarthat. \n"
+#~ "Ha engedélyezed az automatikus felderítést a hordozható eszközre, akkor az "
+#~ "egész eszközön fogok keresni. Nagy méretű eszközön ez sokáig tarthat. \n"
 #~ "\n"
-#~ "Ha ez a lehetőség engedélyezve van, akkor a lehetséges eszköz "
-#~ "érzékelésekor rá fogok kérdezni, hogy akarod-e az automatikus felderítést "
-#~ "ezen az eszközön."
+#~ "Ha ez a lehetőség engedélyezve van, akkor a lehetséges eszköz érzékelésekor "
+#~ "rá fogok kérdezni, hogy akarod-e az automatikus felderítést ezen az eszközön."
 
+#, python-format
 #~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
 #~ msgstr ""
 #~ "A fotók biztonsági mentése a %(path)s könyvtárba és a videók biztonsági "
 #~ "mentése a %(path2)s könyvtárba"
 
+#, python-format
 #~ msgid "Backing up photos and videos to %(path)s"
 #~ msgstr "Fotók és videók biztonsági mentésének helye: %(path)s"
 
@@ -3936,8 +4014,7 @@ msgstr ""
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
 #~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">A Fényképek Letöltési Könyvtára</"
-#~ "span>"
+#~ "<span weight=\"bold\" size=\"x-large\">A Fényképek Letöltési Könyvtára</span>"
 
 #~ msgid "<b>Example</b>"
 #~ msgstr "<b>Példa:</b>"
@@ -3957,8 +4034,7 @@ msgstr ""
 #~ "fognak jönni az általad megadott könyvtár alá."
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Átnevezési lehetőségek</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Átnevezési lehetőségek</span>"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Munka-szám</span>"
@@ -3967,23 +4043,23 @@ msgstr ""
 #~ "Devices are from where to download photos and videos, such as cameras, "
 #~ "memory cards or Portable Storage Devices.\n"
 #~ "\n"
-#~ "You can download from multiple devices simultaneously, or you can specify "
-#~ "a location on your hard drive.\n"
+#~ "You can download from multiple devices simultaneously, or you can specify a "
+#~ "location on your hard drive.\n"
 #~ "\n"
-#~ "<i>Downloading directly from cameras is currently an experimental "
-#~ "feature. If downloading directly from your camera works poorly or not at "
-#~ "all, try setting it to PTP mode. If that is not possible, a card reader "
-#~ "must be used.</i>"
+#~ "<i>Downloading directly from cameras is currently an experimental feature. "
+#~ "If downloading directly from your camera works poorly or not at all, try "
+#~ "setting it to PTP mode. If that is not possible, a card reader must be "
+#~ "used.</i>"
 #~ msgstr ""
-#~ "Eszközök ahonnan a fotókat és a videókat letöltjük, mint például "
-#~ "fényképező gépek, memória kártyák, pendirve-ok.\n"
+#~ "Eszközök ahonnan a fotókat és a videókat letöltjük, mint például fényképező "
+#~ "gépek, memória kártyák, pendirve-ok.\n"
 #~ "\n"
 #~ "Letölthetsz egyszerre több eszközről, vagy kijelölhetsz egy könyvtárat a "
 #~ "merevlemezeden.\n"
 #~ "\n"
-#~ "<i>A fényképezőgépről történő közvetlen letöltés még kísérleti lehetőség. "
-#~ "Ha a fényképezőgépről a letöltés lassú, vagy nem működik akkor próbáld "
-#~ "meg a fényképezőgépet PTP módba állítani. Ha ez nem lehetséges használj "
+#~ "<i>A fényképezőgépről történő közvetlen letöltés még kísérleti lehetőség. Ha "
+#~ "a fényképezőgépről a letöltés lassú, vagy nem működik akkor próbáld meg a "
+#~ "fényképezőgépet PTP módba állítani. Ha ez nem lehetséges használj "
 #~ "kártyaolvasót.</i>"
 
 #~ msgid "Automatically detect devices"
@@ -3991,6 +4067,12 @@ msgstr ""
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Device Options</span>"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Eszköz beállítások</span>"
+
+#~ msgid "Device Options"
+#~ msgstr "Eszköz beállítások"
+
+#~ msgid "Remembered Paths"
+#~ msgstr "Megjegyzett elérési utak"
 
 #~ msgid "Remove all Remembered Paths?"
 #~ msgstr "Minden megjegyzett elérési út eltávolítása?"
@@ -4018,6 +4100,7 @@ msgstr ""
 #~ msgid "Auto Detect"
 #~ msgstr "Automatikus Felismerés"
 
+#, python-format
 #~ msgid "Downloading from %(location)s."
 #~ msgstr "Letöltés  innen: %(location)s."
 
@@ -4042,38 +4125,62 @@ msgstr ""
 #~ msgid "_Include in download"
 #~ msgstr "Letöltésben szerepel"
 
+#~ msgid "Ignored Paths"
+#~ msgstr "Mellőzött útvonal"
+
 #~ msgid ""
-#~ "Sorry, video downloading functionality disabled. To download videos, "
-#~ "please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> "
-#~ "packages for python, or <i>exiftool</i>."
+#~ "Sorry, video downloading functionality disabled. To download videos, please "
+#~ "install either the <i>hachoir metadata</i> and <i>kaa metadata</i> packages "
+#~ "for python, or <i>exiftool</i>."
 #~ msgstr ""
 #~ "Sajnálom, a videó letöltési lehetőség le van tiltva. A videó letöltéshez, "
-#~ "kérlek telepítsd <i>hachoir metadata</i> és a <i>kaa metadata</i> "
-#~ "csomagokat a python részére, vagy az <i>exiftool</i> csomagot."
+#~ "kérlek telepítsd <i>hachoir metadata</i> és a <i>kaa metadata</i> csomagokat "
+#~ "a python részére, vagy az <i>exiftool</i> csomagot."
 
 #~ msgid "Select a folder in which to backup videos"
 #~ msgstr "Add meg a videók biztonsági mentésének útvonalát"
 
 #~ msgid ""
-#~ "Remembered paths are those associated with devices that you have chosen "
-#~ "to always scan or ignore when automatic detection of Portable Storage "
-#~ "Devices is enabled."
+#~ "Remembered paths are those associated with devices that you have chosen to "
+#~ "always scan or ignore when automatic detection of Portable Storage Devices "
+#~ "is enabled."
 #~ msgstr ""
 #~ "Megjegyzett útvonalak azok, amelyeket a különböző hordozható eszközökkel "
 #~ "kapcsolatban kiválasztasz letöltésre vagy mellőzésre."
 
+#, python-format
+#~ msgid ""
+#~ "The existing %(filetype)s was last modified on %(date)s at %(time)s. Unique "
+#~ "identifier '%(identifier)s' added."
+#~ msgstr ""
+#~ "A létező %(filetype)s  típus utoljára %(date)s %(time)s lett módosítva.\r\n"
+#~ "Az alábbi azonosító hozzáadva: %(identifier)s"
+
+#, python-format
+#~ msgid "There is no data with which to name the %(filetype)s."
+#~ msgstr "Nincs adat a %(filetype)s elnevezéséhez"
+
+#, python-format
+#~ msgid "The existing %(filetype)s was last modified on %(date)s at %(time)s."
+#~ msgstr "A létező %(filetype)s módosítva lett: %(date)s  %(time)s."
+
+#~ msgid "Use _python-style regular expressions"
+#~ msgstr "Használj python stílusú reguláris kifejezést"
+
 #~ msgid ""
 #~ "Specify the ending portion of any paths you want ignored when scanning "
-#~ "devices for photos or videos. Any path ending with the values below will "
-#~ "not be scanned."
+#~ "devices for photos or videos. Any path ending with the values below will not "
+#~ "be scanned."
 #~ msgstr ""
 #~ "Add meg azt az útvonal végződést amit figyelmen kívül hagyjak  amikor "
 #~ "fotókat vagy videókat keresek a letöltéshez. Bármilyen útvonal ami a "
 #~ "megadott értékre végződik nem lesz ellenőrizve."
 
+#, python-format
 #~ msgid "(%(file_type)s)"
 #~ msgstr "(%(file_type)s)"
 
+#, python-format
 #~ msgid "%(free)s %(file_type)s"
 #~ msgstr "%(free)s %(file_type)s"
 
@@ -4095,11 +4202,39 @@ msgstr ""
 #~ msgid "About..."
 #~ msgstr "Névjegy…"
 
+#, python-format
 #~ msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
 #~ msgstr "keresés  (found %(photos)s photos and %(videos)s videos)..."
+
+#, python-format
+#~ msgid "The %(filetype)s did not download correctly"
+#~ msgstr "A  %(filetype)s letöltése nem volt hibátlan."
 
 #~ msgid "Quit"
 #~ msgstr "Kilépés"
 
 #~ msgid "Refresh"
 #~ msgstr "Újratöltés"
+
+#, python-format
+#~ msgid "No backup device contains a valid folder for backing up %(filetype)s"
+#~ msgstr ""
+#~ "A biztonsági másolat eszköze nem tartalmaz megfelelő könyvtárat a "
+#~ "%(filetype)  számára."
+
+#~ msgid ""
+#~ "File verification failed. The downloaded version is different from the "
+#~ "original."
+#~ msgstr ""
+#~ "A fájl ellenőrzés hibát talált. A letöltött verzió eltér az eredetitől."
+
+#, python-format
+#~ msgid ""
+#~ "File verification failed on %(volume)s. The backed up version is different "
+#~ "from the downloaded version."
+#~ msgstr ""
+#~ "A fájl ellenőrzés hibát talált a %(volume)s. A letöltött verzió eltér az "
+#~ "eredetitől."
+
+#~ msgid "File verification failed on these devices: "
+#~ msgstr "A fájl ellenörzés hibát talált ezen az eszközön: "
