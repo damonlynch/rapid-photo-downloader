@@ -5,7 +5,7 @@ Changelog for Rapid Photo Downloader
 --------------------
 
  - Fixed bug where a warning dialog window could be wrongly issued about a
-   backup destination not being writeable even though it though it is.
+   backup destination not being writable even though it though it is.
 
  - Fixed bug where tracking of bytes downloaded could occasionally fail when
    file copy errors were encountered.
