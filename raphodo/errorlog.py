@@ -242,7 +242,7 @@ class ErrorReport(QDialog):
         self.icon_lookup = {
             ErrorType.warning: ':/report-warning.png',
             ErrorType.serious_error: ':/report-error.png',
-            ErrorType.critical_error: ':/report-critical.svg'
+            ErrorType.critical_error: ':/report-critical.png'
         }
 
     @pyqtSlot()

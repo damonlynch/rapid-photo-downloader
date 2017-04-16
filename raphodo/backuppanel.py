@@ -593,6 +593,13 @@ class BackupOptionsWidget(QFramedWidget):
         for widget in self._backup_controls_auto:
             widget.setEnabled(autoEnabled)
 
+    def updateLocationCombos(self) -> None:
+        """
+        Update backup locatation comboboxes in case directory status has changed.
+        """
+        for combo in self.photoLocation, self.videoLocation:
+            combo.refreshFolderList()
+
 
 class BackupPanel(QScrollArea):
     """
@@ -648,6 +655,13 @@ class BackupPanel(QScrollArea):
         """
 
         self.backupOptions.updateExample()
+
+    def updateLocationCombos(self) -> None:
+        """
+        Update backup locatation comboboxes in case directory status has changed.
+        """
+
+        self.backupOptions.updateLocationCombos()
 
     def addBackupVolume(self, mount_details: BackupVolumeDetails) -> None:
         self.backupDevices.addBackupVolume(mount_details=mount_details)

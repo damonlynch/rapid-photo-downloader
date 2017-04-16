@@ -1506,6 +1506,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         return f
 
+
 class ThumbnailView(QListView):
     def __init__(self, parent: QWidget) -> None:
         style = """QAbstractScrollArea { background-color: %s;}""" % ThumbnailBackgroundName

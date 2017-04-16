@@ -126,7 +126,7 @@ class AboutDialog(QDialog):
         Adolfo Jayme Barrientos <fitoschido@gmail.com>
         Alain J. Baudrez <a.baudrez@gmail.com>
         Kevin Brubeck Unhammer <unhammer@fsfe.org>
-        Pavel Borecki 
+        Pavel Borecki <pavel.borecki@gmail.com>
         Bert <crinbert@yahoo.com>
         Martin Dahl Moe
         Marco de Freitas <marcodefreitas@gmail.com>

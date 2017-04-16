@@ -91,8 +91,12 @@ class FolderCombo(QComboBox):
         # Any external mounts
         mounts = ()
         if self.valid_mounts is not None:
-            mounts = tuple(((mount.name(), mount.rootPath())
-                      for mount in self.valid_mounts.mountedValidMountPoints()))
+            mounts = tuple(
+                (
+                    (mount.name(), mount.rootPath())
+                    for mount in self.valid_mounts.mountedValidMountPoints()
+                )
+            )
 
         # Pictures and Videos directories, if required and if they exist
         pictures_dir = pictures_label = videos_dir = videos_label = None
@@ -159,10 +163,16 @@ class FolderCombo(QComboBox):
         or removing of external volumes or default directories
         """
 
+        self.refreshFolderList()
+        super().showPopup()
+
+    def refreshFolderList(self) -> None:
+        """
+        Refresh the combobox to reflect any file system changes
+        """
         self.clear()
         self._setup_entries()
         self.setPath(self.chosen_path)
-        super().showPopup()
 
     def setPath(self, path: str) -> None:
         """

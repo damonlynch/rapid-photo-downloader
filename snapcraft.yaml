@@ -1,5 +1,5 @@
 name: rapid-photo-downloader
-version: 0.9.0a2
+version: '0.9.0b3'
 summary: Download, rename and back up photos and videos from cameras and other devices
 description: |
   Rapid Photo Downloader imports photos and videos from cameras, phones,
@@ -8,22 +8,27 @@ description: |
   back up photos and videos as they are downloaded. It downloads from and backs
   up to multiple devices simultaneously.
 
+grade: devel
+confinement: classic
+
 apps:
   run:
-    command: $SNAP/usr/bin/rapid-photo-downloader
+    command: rapid-photo-downloader
     plugs: [home, network, network-bind, unity7, x11, mount-observe]
 
 parts:
   python-gphoto2:
-    plugin: python3
+    plugin: python
     python-packages:
       - gphoto2
+    stage-packages:
+      - libgphoto2
     build-packages:
       - g++
       - libgphoto2-dev
       - python3-dev
   python-pyzmq:
-    plugin: python3
+    plugin: python
     python-packages:
       - pyzmq=15.1.0
     build-packages:

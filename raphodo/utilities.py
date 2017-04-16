@@ -741,7 +741,7 @@ def log_os_release() -> None:
         try:
             with open('/etc/os-release', 'r') as f:
                 for line in f:
-                    logging.debug(line)
+                    logging.debug(line.rstrip('\n'))
         except:
             pass
         have_logged_os_release = True

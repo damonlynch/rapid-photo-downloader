@@ -2761,19 +2761,25 @@ class RapidWindow(QMainWindow):
                     if missing_destinations == BackupFailureType.photos_and_videos:
                         logging.warning("The manually specified photo and videos backup paths do "
                                         "not exist or are not writable")
-                        msg = _("The photo and video backup destinations cannnot be written to. "
-                                "Do you still want to start the download?")
+                        msg = _(
+                            "<b>The photo and video backup destinations do not exist or cannot "
+                            "be written to.</b><br><br>Do you still want to start the download?"
+                        )
                     elif missing_destinations == BackupFailureType.photos:
                         logging.warning("The manually specified photo backup path does not exist "
                                         "or is not writable")
                         # Translators: filetype will be replaced by either 'photo' or 'video'
-                        msg = _("The %(filetype)s backup destination cannot be written to. Do you "
-                                "still want to start the download?") % {'filetype': _('photo')}
+                        msg = _(
+                            "<b>The %(filetype)s backup destination does not exist or cannot be "
+                                "written to.</b><br><br>Do you still want to start the download?"
+                        ) % {'filetype': _('photo')}
                     else:
                         logging.warning("The manually specified video backup path does not exist "
                                         "or is not writable")
-                        msg = _("The %(filetype)s backup destination cannot be written to. Do you "
-                                "still want to start the download?")  % {'filetype': _('video')}
+                        msg = _(
+                            "<b>The %(filetype)s backup destination does not exist or cannot be "
+                                "written to.</b><br><br>Do you still want to start the download?"
+                        )  % {'filetype': _('video')}
 
 
                 if self.prefs.warn_backup_problem:
@@ -2986,8 +2992,13 @@ class RapidWindow(QMainWindow):
         if scan_id not in self.devices:
             return
 
-        assert total_downloaded >= 0
-        assert chunk_downloaded >= 0
+        try:
+            assert total_downloaded >= 0
+            assert chunk_downloaded >= 0
+        except AssertionError:
+            logging.critical("Unexpected negative values for total / chunk downloaded: %s %s ",
+                             total_downloaded, chunk_downloaded)
+
         self.download_tracker.set_total_bytes_copied(scan_id, total_downloaded)
         if len(self.devices.have_downloaded_from) > 1:
             model = self.mapModel(scan_id)
@@ -3393,6 +3404,8 @@ class RapidWindow(QMainWindow):
             self.downloadProgressBar.reset()
             if self.prefs.backup_files:
                 self.initializeBackupThumbCache()
+                self.backupPanel.updateLocationCombos()
+
             if self.unity_progress:
                 for launcher in self.desktop_launchers:
                     launcher.set_property('progress_visible', False)
@@ -4654,6 +4667,7 @@ class RapidWindow(QMainWindow):
         """
 
         device = self.devices[scan_id]
+        logging.debug("Rescanning %s", device.display_name)
         self.removeDevice(scan_id=scan_id)
         if device.device_type == DeviceType.camera:
             self.startCameraScan(device.camera_model, device.camera_port)

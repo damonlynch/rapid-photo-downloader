@@ -64,8 +64,8 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
 
-            if amount_downloaded == total:
-                self.bytes_downloaded = 0
+            # if amount_downloaded == total:
+            #     self.bytes_downloaded = 0
 
     def backup_associate_file(self, dest_dir: str, full_file_name: str) -> None:
         """
@@ -261,7 +261,6 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         self.fdo_cache_large = FdoCacheLarge()
 
         while True:
-            self.amount_downloaded = 0
             worker_id, directive, content = self.receiver.recv_multipart()
             self.device_id = int(worker_id)
 
@@ -273,6 +272,9 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             elif data.message == BackupStatus.backup_completed:
                 self.send_problems()
             else:
+                self.amount_downloaded = 0
+                self.init_copy_progress()
+
                 self.do_backup(data=data)
 
 

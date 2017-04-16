@@ -153,9 +153,10 @@ def get_media_dir() -> str:
         distro = get_distro()
         if os.path.isdir(run_media_dir) and distro not in (Distro.ubuntu, Distro.debian,
                                                            Distro.neon):
-            if distro not in (Distro.fedora, Distro.manjaro, Distro.arch, Distro.opensuse):
+            if distro not in (Distro.fedora, Distro.manjaro, Distro.arch, Distro.opensuse,
+                              Distro.gentoo):
                 logging.debug("Detected /run/media directory, but distro does not appear to "
-                              "be Fedora, Arch, openSUSE or Manjaro")
+                              "be Fedora, Arch, openSUSE, Gentoo or Manjaro")
                 log_os_release()
             return run_media_dir
         return media_dir
@@ -225,8 +226,7 @@ class ValidMounts():
         :return: tuple of currently mounted valid partition
         """
 
-        return tuple(filter(self.isValidMountPoint,
-                            QStorageInfo.mountedVolumes()))
+        return tuple(filter(self.isValidMountPoint, QStorageInfo.mountedVolumes()))
 
     def _setValidMountFolders(self) -> None:
         """

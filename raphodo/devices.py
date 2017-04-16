@@ -1381,14 +1381,14 @@ class BackupDeviceCollection:
                 photo_backup_problem = photos and not self.backup_possible(FileType.photo)
                 video_backup_problem = videos and not self.backup_possible(FileType.video)
             else:
-                photo_backup_problem = photos and validate_download_folder(
+                photo_backup_problem = photos and not validate_download_folder(
                     path=prefs.backup_photo_location,
                     write_on_waccesss_failure=True
-                )
-                video_backup_problem = videos and validate_download_folder(
+                ).valid
+                video_backup_problem = videos and not validate_download_folder(
                     path=prefs.backup_video_location,
                     write_on_waccesss_failure=True
-                )
+                ).valid
 
             if photo_backup_problem:
                 if video_backup_problem:

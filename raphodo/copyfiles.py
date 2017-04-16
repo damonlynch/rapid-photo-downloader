@@ -112,6 +112,7 @@ def copy_camera_file_metadata(mtime: float, dst: str) -> Optional[Tuple]:
     except OSError as inst:
         return (inst)
 
+
 class FileCopy:
     """
     Used by classes CopyFilesWorker and BackupFilesWorker
@@ -130,6 +131,9 @@ class FileCopy:
         if self.src is not None:
             self.src.close()
 
+    def init_copy_progress(self) -> None:
+        self.bytes_downloaded = 0
+
     def copy_from_filesystem(self, source: str, destination: str, rpd_file: RPDFile) -> bool:
         src_chunks = []
         try:
@@ -137,6 +141,7 @@ class FileCopy:
             self.src = io.open(source, 'rb', self.io_buffer)
             total = rpd_file.size
             amount_downloaded = 0
+
             while True:
                 # first check if process is being stopped or paused
                 self.check_for_controller_directive()
@@ -164,6 +169,11 @@ class FileCopy:
                     name=os.path.basename(source), uri=get_uri(full_file_name=source), exception=e
                 )
             )
+            try:
+                msg = '%s: %s' % (e.errno, e.strerror)
+            except AttributeError:
+                msg = str(e)
+            logging.error("%s. Failed to copy %s to %s", msg, source, destination)
             return False
 
 
@@ -208,15 +218,16 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         chunk_downloaded = amount_downloaded - self.bytes_downloaded
         if (chunk_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
             self.bytes_downloaded = amount_downloaded
-            self.content= pickle.dumps(CopyFilesResults(
-                scan_id=self.scan_id,
-                total_downloaded=self.total_downloaded + amount_downloaded,
-                chunk_downloaded=chunk_downloaded),
+            self.content = pickle.dumps(
+                CopyFilesResults(
+                    scan_id=self.scan_id,
+                    total_downloaded=self.total_downloaded + amount_downloaded,
+                    chunk_downloaded=chunk_downloaded),
                pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
 
-            if amount_downloaded == total:
-                self.bytes_downloaded = 0
+            # if amount_downloaded == total:
+            #     self.bytes_downloaded = 0
 
     def copy_from_camera(self, rpd_file: RPDFile) -> bool:
 
@@ -344,6 +355,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             # 3. Downloading from camera where we've already cached at
             #    least some of the files in the Download Cache
 
+            self.init_copy_progress()
+
             if rpd_file.cache_full_file_name and os.path.isfile(rpd_file.cache_full_file_name):
                 # Scenario 3
                 temp_file_name = os.path.basename(rpd_file.cache_full_file_name)
@@ -444,6 +457,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
             if not copy_succeeded:
                 rpd_file.status = DownloadStatus.download_failed
+                logging.debug("Download failed for %s", rpd_file.full_file_name)
             else:
                 if rpd_file.from_camera:
                     mdata_exceptions = copy_camera_file_metadata(
