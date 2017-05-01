@@ -283,7 +283,7 @@ TempDirs = namedtuple('TempDirs', 'photo_temp_dir, video_temp_dir')
 CacheDirs = namedtuple('CacheDirs', 'photo_cache_dir, video_cache_dir')
 
 
-def create_temp_dir(folder: Optional[str],
+def create_temp_dir(folder: Optional[str]=None,
                     prefix: Optional[str]=None,
                     force_no_prefix: bool=False) -> str:
     """

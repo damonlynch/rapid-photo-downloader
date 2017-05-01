@@ -115,7 +115,7 @@ class Camera:
                  get_folders: bool=True,
                  raise_errors: bool=False)  -> None:
         """
-        Initalize a camera via libgphoto2.
+        Initialize a camera via libgphoto2.
 
         :param model: camera model, as returned by camera_autodetect()
         :param port: camera port, as returned by camera_autodetect()
@@ -617,8 +617,7 @@ class Camera:
         for i in range(child_count):
             child1 = self.camera_config.get_child(i)
             child_type = child1.get_type()
-            if child1.get_name() == 'status' and child_type == \
-                    gp.GP_WIDGET_SECTION:
+            if child1.get_name() == 'status' and child_type == gp.GP_WIDGET_SECTION:
                 child1_count = child1.count_children()
                 for j in range(child1_count):
                     child2 = child1.get_child(j)

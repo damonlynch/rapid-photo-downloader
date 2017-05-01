@@ -237,7 +237,7 @@ class NewVersion(QObject):
          will not do md5sum check for the download.
         """
 
-        temp_dir = create_temp_dir(folder=None, force_no_prefix=True)
+        temp_dir = create_temp_dir()
         if temp_dir is not None:
             try:
                 r = requests.get(tarball_url, stream=True)

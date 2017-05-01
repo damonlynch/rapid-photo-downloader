@@ -4128,7 +4128,7 @@ class RapidWindow(QMainWindow):
         # write settings before closing error log window
         self.errorLog.done(0)
 
-        logging.debug("Termainating main ExifTool process")
+        logging.debug("Terminating main ExifTool process")
         self.exiftool_process.terminate()
 
         if self.ctime_update_notification is not None:

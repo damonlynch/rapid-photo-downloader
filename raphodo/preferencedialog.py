@@ -83,15 +83,21 @@ class PreferencesDialog(QDialog):
         self.scanBox = QGroupBox(_('Device Scanning'))
         scanLayout = QVBoxLayout()
         self.onlyExternal = QCheckBox(_('Scan only external devices'))
-        self.onlyExternal.setToolTip(_('Scan for photos and videos only on devices that are '
-                                       'external to the computer, including cameras, memory cards, '
-                                       'external hard drives, and USB flash drives'))
+        self.onlyExternal.setToolTip(_(
+            'Scan for photos and videos only on devices that are external to the computer,\n'
+            'including cameras, memory cards, external hard drives, and USB flash drives.\n\n'
+            'Changing this setting causes all devices to be scanned again.'
+        ))
         self.onlyExternal.stateChanged.connect(self.onlyExternalChanged)
 
         self.noDcim = QCheckBox(_('Scan non-camera devices lacking a DCIM folder'))
-        tip = _('Scan the entirety of a device for photos and videos, irrespective of whether it '
-                'contains a DCIM folder, as opposed to only scanning within a DCIM folder.\n\n'
-                'Note: With cameras, only the DCIM folder is scanned.')
+        tip = _(
+            'Scan the entirety of a device for photos and videos, irrespective of whether it '
+            'contains a DCIM folder,\n'
+            'as opposed to only scanning within a DCIM folder.\n\n'
+            'Changing this setting causes all devices to be scanned again.\n\n'
+            'Note: With cameras, only the DCIM folder is scanned.'
+        )
         self.noDcim.setToolTip(tip)
         self.noDcim.stateChanged.connect(self.noDcimChanged)
 
@@ -103,12 +109,17 @@ class PreferencesDialog(QDialog):
         self.knownDevicesBox = QGroupBox(_('Remembered Devices'))
         self.knownDevices = QNarrowListWidget(minimum_rows=5)
         self.knownDevices.setToolTip(tip)
-        tip = _('Remove a device from the list of devices to automatically ignore or download '
-                'from.')
+        tip = _(
+            'Remove a device from the list of devices to automatically ignore or download from.\n\n'
+            'Note: Changes take effect when the computer is next scanned for devices.'
+        )
         self.removeDevice = QPushButton(_('Remove'))
         self.removeDevice.setToolTip(tip)
         self.removeAllDevice = QPushButton(_('Remove All'))
-        tip = _('Clear the list of devices from which to automatically ignore or download from.')
+        tip = _(
+            'Clear the list of devices from which to automatically ignore or download from.\n\n'
+            'Note: Changes take effect when the computer is next scanned for devices.'
+        )
         self.removeAllDevice.setToolTip(tip)
         self.removeDevice.clicked.connect(self.removeDeviceClicked)
         self.removeAllDevice.clicked.connect(self.removeAllDeviceClicked)
@@ -119,17 +130,25 @@ class PreferencesDialog(QDialog):
         knownDevicesLayout.addWidget(self.removeAllDevice, 1, 1, 1, 1)
         self.knownDevicesBox.setLayout(knownDevicesLayout)
 
-        self.ignoredPathsBox = QGroupBox(_('Ignored Paths on Devices'))
-        tip = _('The end part of a path on a device that should never be scanned for photos '
-                'or videos.')
+        self.ignoredPathsBox = QGroupBox(_('Ignored Paths'))
+        tip = _('The end part of a path that should never be scanned for photos or videos.')
         self.ignoredPaths = QNarrowListWidget(minimum_rows=4)
         self.ignoredPaths.setToolTip(tip)
         self.addPath = QPushButton(_('Add...'))
-        self.addPath.setToolTip(_('Add a path to the list of paths to ignore.'))
+        self.addPath.setToolTip(_(
+            'Add a path to the list of paths to ignore.\n\n'
+            'Changing this setting causes all devices to be scanned again.'
+        ))
         self.removePath = QPushButton(_('Remove'))
-        self.removePath.setToolTip(_('Remove a path from the list of paths to ignore.'))
+        self.removePath.setToolTip(_(
+            'Remove a path from the list of paths to ignore.\n\n'
+            'Changing this setting causes all devices to be scanned again.'
+        ))
         self.removeAllPath = QPushButton(_('Remove All'))
-        self.removeAllPath.setToolTip(_('Clear the list of paths to ignore.'))
+        self.removeAllPath.setToolTip(_(
+            'Clear the list of paths to ignore.\n\n'
+            'Changing this setting causes all devices to be scanned again.'
+        ))
         self.addPath.clicked.connect(self.addPathClicked)
         self.removePath.clicked.connect(self.removePathClicked)
         self.removeAllPath.clicked.connect(self.removeAllPathClicked)
@@ -138,8 +157,10 @@ class PreferencesDialog(QDialog):
             _('Use python-style '
               '<a href="https://developers.google.com/edu/python/regular-expressions">regular '
               'expressions</a>'))
-        self.ignorePathsReLabel.setToolTip(_('Use regular expressions in the list of ignored '
-                                             'paths.'))
+        self.ignorePathsReLabel.setToolTip(_(
+            'Use regular expressions in the list of ignored paths.\n\n'
+            'Changing this setting causes all devices to be scanned again.'
+        ))
         self.ignorePathsReLabel.setTextInteractionFlags(Qt.TextBrowserInteraction)
         self.ignorePathsReLabel.setOpenExternalLinks(True)
         reLayout = QHBoxLayout()
