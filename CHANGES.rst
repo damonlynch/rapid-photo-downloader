@@ -7,6 +7,9 @@ Changelog for Rapid Photo Downloader
  - Fixed bug on systems using Python 3.4 (such as openSUSE Leap 42.2) when
    creating a temporary directory during program upgrade.
 
+ - Fixed bug where exception would occur when auto exit after download was
+   activated.
+
  - Re-scan download sources after relevant program preference changes.
 
 0.9.0b3 (2017-04-15)

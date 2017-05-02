@@ -463,6 +463,8 @@ class RapidWindow(QMainWindow):
         self.application_state = ApplicationState.normal
         self.prompting_for_user_action = {}  # type: Dict[Device, QMessageBox]
 
+        self.close_event_run = False
+
         for version in get_versions():
             logging.info('%s', version)
 
@@ -3423,7 +3425,8 @@ class RapidWindow(QMainWindow):
             if ((self.prefs.auto_exit and self.download_tracker.no_errors_or_warnings())
                                             or self.prefs.auto_exit_force):
                 if not self.thumbnailModel.filesRemainToDownload():
-                    self.quit()
+                    logging.debug("Auto exit is initiated")
+                    self.close()
 
             self.download_tracker.purge_all()
 
@@ -4097,6 +4100,13 @@ class RapidWindow(QMainWindow):
                 self.ctime_notification_issued = False
 
     def closeEvent(self, event) -> None:
+        logging.debug("Close event activated")
+
+        if self.close_event_run:
+            logging.debug("Close event already run: accepting close event")
+            event.accept()
+            return
+
         if self.application_state == ApplicationState.normal:
             self.application_state = ApplicationState.exiting
             self.sendStopToThread(self.scan_controller)
@@ -4115,6 +4125,7 @@ class RapidWindow(QMainWindow):
                 # program preferences, resume closing and this close event
                 # will again be called, but this time the application state
                 # flag will indicate the need to resume below.
+                logging.debug("Ignoring close event")
                 event.ignore()
                 return
                 # Incidentally, it's the renameandmovefile process that
@@ -4190,6 +4201,9 @@ class RapidWindow(QMainWindow):
 
         Notify.uninit()
 
+        self.close_event_run = True
+
+        logging.debug("Accepting close event")
         event.accept()
 
     def getIconsAndEjectableForMount(self, mount: QStorageInfo) -> Tuple[List[str], bool]:
