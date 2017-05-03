@@ -1144,13 +1144,21 @@ class ScanWorker(WorkerInPublishPullPipeline):
         if not self.camera_storage_descriptions:
             self.camera_storage_descriptions = self.camera.get_storage_descriptions()
 
+        if not self.camera_storage_descriptions:
+            # Problem: there are no descriptions for the storage
+            self._camera_details = CameraDetails(
+                model=self.camera_model, port=self.camera_port,
+                display_name=self.camera_display_name,
+                is_mtp=self.is_mtp_device, storage_desc=[]
+            )
+            return
+
         index = index or 0
 
         self._camera_details = CameraDetails(
             model=self.camera_model, port=self.camera_port, display_name=self.camera_display_name,
             is_mtp=self.is_mtp_device, storage_desc=self.camera_storage_descriptions[index]
         )
-
 
 
 def trace_lines(frame, event, arg):

@@ -37,6 +37,8 @@ Options:
     --import-old-version-preferences
     --reset
     --log-gphoto2
+    --camera-info
+
 
 =head1 DESCRIPTION
 
@@ -213,6 +215,10 @@ cache, forgets which files have been previously downloaded, and exits.
 
 Includes gphoto2 debugging information in log files, which can be useful when analyzing
 any problems libgphoto2 might have accessing a camera.
+
+=item B<--camera-info>
+
+Print information to the terminal about attached cameras and exit.
 
 =back
 

@@ -32,6 +32,7 @@ from typing import Optional, List, Tuple
 import gphoto2 as gp
 from raphodo.storage import StorageSpace
 from raphodo.constants import CameraErrorCode
+from raphodo.utilities import format_size_for_user
 
 
 def python_gphoto2_version():
@@ -113,7 +114,8 @@ class Camera:
     def __init__(self, model: str,
                  port:str,
                  get_folders: bool=True,
-                 raise_errors: bool=False)  -> None:
+                 raise_errors: bool=False,
+                 context: gp.Context=None) -> None:
         """
         Initialize a camera via libgphoto2.
 
@@ -131,7 +133,11 @@ class Camera:
         self.display_name = model
         self.camera_config = None
 
-        self.context = gp.Context()
+        if context is None:
+            self.context = gp.Context()
+        else:
+            self.context = context
+
         self._select_camera(model, port)
 
         self.dcim_folders = None # type: List[str]
@@ -254,7 +260,7 @@ class Camera:
         return bytearray(exif_data)
 
     def get_exif_extract_from_jpeg_manual_parse(self, folder: str,
-                                            file_name: str) -> Optional[bytearray]:
+                                            file_name: str) -> Optional[bytes]:
         """
         Extract exif section of a jpeg.
 
@@ -681,8 +687,10 @@ class Camera:
             try:
                 self.storage_info = self.camera.get_storageinfo(self.context)
             except gp.GPhoto2Error as e:
-                logging.error("Unable to determin storage info for camera %s: "
-                          "error %s.", self.display_name, e.code)
+                logging.error(
+                    "Unable to determine storage info for camera %s: error %s.",
+                    self.display_name, e.code
+                )
                 self.storage_info = []
 
     def unlocked(self) -> bool:
@@ -702,6 +710,54 @@ class Camera:
         else:
             return True
 
+
+
+def dump_camera_details() -> None:
+    context = gp.Context()
+    cameras = context.camera_autodetect()
+    for model, port in cameras:
+        c = Camera(model=model, port=port, context=context)
+        if not c.camera_initialized:
+            logging.error("Camera %s could not be initialized", model)
+        else:
+            print()
+            print(c.display_name)
+            print('=' * len(c.display_name))
+            print()
+            if not c.dcim_folder_located:
+                print("DCIM folder was not located")
+            else:
+                if len(c.dcim_folders) == 1:
+                    msg = 'folder'
+                else:
+                    msg = 'folders'
+                print("DCIM {}:".format(msg), ', '.join(c.dcim_folders))
+                print("Can fetch thumbnails:", c.can_fetch_thumbnails)
+
+                sc = c.get_storage_media_capacity()
+                if not sc:
+                    print("Unable to determine storage media capacity")
+                else:
+                    title = 'Storage capacity'
+                    print('\n{}\n{}'.format(title, '-' * len(title)))
+                    for ss in sc:
+                        print(
+                            '\nPath: {}\nCapacity: {}\nFree {}'.format(
+                                ss.path,
+                                format_size_for_user(ss.bytes_total),
+                                format_size_for_user(ss.bytes_free)
+                            )
+                        )
+                sd = c.get_storage_descriptions()
+                if not sd:
+                    print("Unable to determine storage descriptions")
+                else:
+                    title = 'Storage description(s)'
+                    print('\n{}\n{}'.format(title, '-' * len(title)))
+                    for ss in sd:
+                        print('\n{}'.format(ss))
+
+        c.free_camera()
 
 
 if __name__ == "__main__":

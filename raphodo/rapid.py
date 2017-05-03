@@ -131,7 +131,7 @@ import raphodo.downloadtracker as downloadtracker
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.metadataphoto import exiv2_version, gexiv2_version
 from raphodo.metadatavideo import EXIFTOOL_VERSION, pymedia_version_info, libmediainfo_missing
-from raphodo.camera import gphoto2_version, python_gphoto2_version
+from raphodo.camera import gphoto2_version, python_gphoto2_version, dump_camera_details
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.generatenameconfig import *
 from raphodo.rotatedpushbutton import RotatedButton, FlatButton
@@ -3974,9 +3974,21 @@ class RapidWindow(QMainWindow):
             device = self.devices[scan_id]
             logging.debug('%s with scan id %s is now known as %s',
                           device.display_name, scan_id, optimal_display_name)
+
             if len(storage_space) > 1:
-                logging.debug('%s has %s storage devices',
-                          optimal_display_name, len(storage_space))
+                logging.debug(
+                    '%s has %s storage devices', optimal_display_name, len(storage_space)
+                )
+
+            if not storage_descriptions:
+                logging.warning("No storage descriptors available for %s", optimal_display_name)
+            else:
+                if len(storage_descriptions) == 1:
+                    msg = 'description'
+                else:
+                    msg = 'descriptions'
+                logging.debug("Storage %s: %s", msg, ', '.join(storage_descriptions))
+
             device.update_camera_attributes(
                 display_name=optimal_display_name, storage_space=storage_space,
                 storage_descriptions=storage_descriptions
@@ -3986,8 +3998,10 @@ class RapidWindow(QMainWindow):
             self.thumbnailModel.addOrUpdateDevice(scan_id=scan_id)
             self.adjustLeftPanelSliderHandles()
         else:
-            logging.debug("Ignoring optimal display name %s because that device was removed",
-                          optimal_display_name)
+            logging.debug(
+                "Ignoring optimal display name %s and other details because that device was "
+                "removed", optimal_display_name
+            )
 
     @pyqtSlot(int, 'PyQt_PyObject')
     def scanProblemsReceived(self, scan_id: int, problems: Problems) -> None:
@@ -5455,6 +5469,12 @@ def parser_options(formatter_class=argparse.HelpFormatter):
     parser.add_argument("--log-gphoto2", action="store_true",
         help=_("Include gphoto2 debugging information in log files."))
 
+    parser.add_argument(
+        "--camera-info", action="store_true", help=_(
+            "Print information to the terminal about attached cameras and exit."
+        )
+    )
+
     parser.add_argument('path', nargs='?')
 
     return parser
@@ -5787,6 +5807,10 @@ def main():
 
     if args.log_gphoto2:
         gp.use_python_logging()
+
+    if args.camera_info:
+        dump_camera_details()
+        sys.exit(0)
 
     # keep appGuid value in sync with value in upgrade.py
     appGuid = '8dbfb490-b20f-49d3-9b7d-2016012d2aa8'
