@@ -753,6 +753,10 @@ class DeviceCollection:
             self.cameras_to_gvfs_unmount_for_download.remove(scan_id)
         if scan_id in self.cameras_to_stop_thumbnailing:
             self.cameras_to_stop_thumbnailing.remove(scan_id)
+        if scan_id in self.this_computer:
+            self.this_computer.remove(scan_id)
+        if scan_id in self.volumes_and_cameras:
+            self.volumes_and_cameras.remove(scan_id)
         del self.device_state[scan_id]
 
     def __getitem__(self, scan_id: int) -> Device:

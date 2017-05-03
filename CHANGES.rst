@@ -4,6 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.0b4 (2017-05-xx)
 --------------------
 
+ - Added Help buttons to Program Preferences and File Renaming and Download
+   Subfolder Generator editors that open the online documentation.
+
  - Fixed bug on systems using Python 3.4 (such as openSUSE Leap 42.2) when
    creating a temporary directory during program upgrade.
 

@@ -25,6 +25,7 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016-2017, Damon Lynch"
 
 from typing import Dict, Optional, List, Union, Tuple, Sequence
+import webbrowser
 import datetime
 import copy
 import logging
@@ -996,9 +997,12 @@ class PrefDialog(QDialog):
 
         self.mapper.mapped[str].connect(self.choiceMade)
 
-        buttonBox = QDialogButtonBox()
-        buttonBox.addButton(QDialogButtonBox.Cancel)  # type: QPushButton
-        buttonBox.addButton(QDialogButtonBox.Ok)  # type: QPushButton
+        buttonBox = QDialogButtonBox(
+            QDialogButtonBox.Cancel | QDialogButtonBox.Ok | QDialogButtonBox.Help
+        )
+        self.helpButton = buttonBox.button(QDialogButtonBox.Help)  # type: QPushButton
+        self.helpButton.clicked.connect(self.helpButtonClicked)
+        self.helpButton.setToolTip(_('Get help online...'))
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
 
@@ -1009,6 +1013,13 @@ class PrefDialog(QDialog):
 
         self.show()
         self.setWidgetSizes()
+
+    def helpButtonClicked(self) -> None:
+        if self.generation_type in (NameGenerationType.photo_name, NameGenerationType.video_name):
+            location = '#rename'
+        else:
+            location = '#subfoldergeneration'
+        webbrowser.open_new_tab("http://www.damonlynch.net/rapid/documentation/{}".format(location))
 
     def makeInsertButton(self) -> QPushButton:
         w = QPushButton(_('Insert'))

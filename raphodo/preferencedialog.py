@@ -23,17 +23,19 @@ Dialog window to show and manipulate selected user preferences
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2017, Damon Lynch"
 
+import webbrowser
 from typing import List
 from gettext import gettext as _
 
 
 from PyQt5.QtCore import (Qt, pyqtSlot, pyqtSignal, QObject, QThread, QTimer)
-from PyQt5.QtWidgets import (QWidget, QSizePolicy, QComboBox, QVBoxLayout, QLabel, QLineEdit,
-                             QSpinBox, QGridLayout, QAbstractItemView, QListWidgetItem,
-                             QHBoxLayout, QDialog, QDialogButtonBox, QCheckBox, QStyle,
-                             QStackedWidget, QApplication, QPushButton, QGroupBox,  QFormLayout,
-                             QMessageBox, QButtonGroup, QRadioButton, QAbstractButton, QMessageBox)
-from PyQt5.QtGui import (QColor, QPalette, QFont, QFontMetrics, QIcon, QShowEvent, QCloseEvent)
+from PyQt5.QtWidgets import (
+    QWidget, QSizePolicy, QComboBox, QVBoxLayout, QLabel, QLineEdit, QSpinBox, QGridLayout,
+    QAbstractItemView, QListWidgetItem, QHBoxLayout, QDialog, QDialogButtonBox, QCheckBox,
+    QStyle, QStackedWidget, QApplication, QPushButton, QGroupBox,  QFormLayout, QMessageBox,
+    QButtonGroup, QRadioButton, QAbstractButton
+)
+from PyQt5.QtGui import (QShowEvent, QCloseEvent, QMouseEvent)
 
 from raphodo.preferences import Preferences
 from raphodo.constants import KnownDeviceType
@@ -44,6 +46,13 @@ from raphodo.constants import ConflictResolution
 from raphodo.utilities import current_version_is_dev_version, make_internationalized_list
 from raphodo.rpdfile import (ALL_KNOWN_EXTENSIONS, PHOTO_EXTENSIONS, VIDEO_EXTENSIONS,
     VIDEO_THUMBNAIL_EXTENSIONS, AUDIO_EXTENSIONS)
+
+
+class ClickableLabel(QLabel):
+    clicked = pyqtSignal()
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        self.clicked.emit()
 
 
 class PreferencesDialog(QDialog):
@@ -61,6 +70,8 @@ class PreferencesDialog(QDialog):
 
     def __init__(self, prefs: Preferences, parent=None) -> None:
         super().__init__(parent=parent)
+
+        self.rapidApp = parent
 
         self.setWindowTitle(_('Preferences'))
 
@@ -85,10 +96,8 @@ class PreferencesDialog(QDialog):
         self.onlyExternal = QCheckBox(_('Scan only external devices'))
         self.onlyExternal.setToolTip(_(
             'Scan for photos and videos only on devices that are external to the computer,\n'
-            'including cameras, memory cards, external hard drives, and USB flash drives.\n\n'
-            'Changing this setting causes all devices to be scanned again.'
+            'including cameras, memory cards, external hard drives, and USB flash drives.'
         ))
-        self.onlyExternal.stateChanged.connect(self.onlyExternalChanged)
 
         self.noDcim = QCheckBox(_('Scan non-camera devices lacking a DCIM folder'))
         tip = _(
@@ -99,7 +108,6 @@ class PreferencesDialog(QDialog):
             'Note: With cameras, only the DCIM folder is scanned.'
         )
         self.noDcim.setToolTip(tip)
-        self.noDcim.stateChanged.connect(self.noDcimChanged)
 
         scanLayout.addWidget(self.onlyExternal)
         scanLayout.addWidget(self.noDcim)
@@ -110,8 +118,7 @@ class PreferencesDialog(QDialog):
         self.knownDevices = QNarrowListWidget(minimum_rows=5)
         self.knownDevices.setToolTip(tip)
         tip = _(
-            'Remove a device from the list of devices to automatically ignore or download from.\n\n'
-            'Note: Changes take effect when the computer is next scanned for devices.'
+            'Remove a device from the list of devices to automatically ignore or download from.'
         )
         self.removeDevice = QPushButton(_('Remove'))
         self.removeDevice.setToolTip(tip)
@@ -153,9 +160,9 @@ class PreferencesDialog(QDialog):
         self.removePath.clicked.connect(self.removePathClicked)
         self.removeAllPath.clicked.connect(self.removeAllPathClicked)
         self.ignoredPathsRe = QCheckBox()
-        self.ignorePathsReLabel = QLabel(
+        self.ignorePathsReLabel = ClickableLabel(
             _('Use python-style '
-              '<a href="https://developers.google.com/edu/python/regular-expressions">regular '
+              '<a href="http://damonlynch.net/rapid/documentation/#regularexpressions">regular '
               'expressions</a>'))
         self.ignorePathsReLabel.setToolTip(_(
             'Use regular expressions in the list of ignored paths.\n\n'
@@ -163,12 +170,12 @@ class PreferencesDialog(QDialog):
         ))
         self.ignorePathsReLabel.setTextInteractionFlags(Qt.TextBrowserInteraction)
         self.ignorePathsReLabel.setOpenExternalLinks(True)
+        self.ignorePathsReLabel.clicked.connect(self.ignorePathsReLabelClicked)
         reLayout = QHBoxLayout()
         reLayout.setSpacing(5)
         reLayout.addWidget(self.ignoredPathsRe)
         reLayout.addWidget(self.ignorePathsReLabel)
         reLayout.addStretch()
-        self.ignoredPathsRe.stateChanged.connect(self.ignoredPathsReChanged)
         ignoredPathsLayout = QGridLayout()
         ignoredPathsLayout.setHorizontalSpacing(18)
         ignoredPathsLayout.addWidget(self.ignoredPaths, 0, 0, 4, 1)
@@ -179,6 +186,12 @@ class PreferencesDialog(QDialog):
         self.ignoredPathsBox.setLayout(ignoredPathsLayout)
 
         self.setDeviceWidgetValues()
+
+        # connect these next 3 only after having set their values, so rescan / search again
+        # in rapidApp is not triggered
+        self.onlyExternal.stateChanged.connect(self.onlyExternalChanged)
+        self.noDcim.stateChanged.connect(self.noDcimChanged)
+        self.ignoredPathsRe.stateChanged.connect(self.ignoredPathsReChanged)
 
         devicesLayout = QVBoxLayout()
         devicesLayout.addWidget(self.scanBox)
@@ -507,10 +520,15 @@ class PreferencesDialog(QDialog):
         layout.setSpacing(layout.contentsMargins().left() * 2)
         layout.setContentsMargins(18, 18, 18, 18)
 
-        buttons = QDialogButtonBox(QDialogButtonBox.RestoreDefaults|QDialogButtonBox.Close)
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.RestoreDefaults | QDialogButtonBox.Close | QDialogButtonBox.Help
+        )
         self.restoreButton = buttons.button(QDialogButtonBox.RestoreDefaults)  # type: QPushButton
         self.restoreButton.clicked.connect(self.restoreDefaultsClicked)
-        self.closeButton = buttons.button(QDialogButtonBox.Close)
+        self.helpButton = buttons.button(QDialogButtonBox.Help)  # type: QPushButton
+        self.helpButton.clicked.connect(self.helpButtonClicked)
+        self.helpButton.setToolTip(_('Get help online...'))
+        self.closeButton = buttons.button(QDialogButtonBox.Close)   # type: QPushButton
         self.closeButton.clicked.connect(self.close)
 
         controlsLayout = QHBoxLayout()
@@ -657,14 +675,20 @@ class PreferencesDialog(QDialog):
     @pyqtSlot(int)
     def onlyExternalChanged(self, state: int) -> None:
         self.prefs.only_external_mounts = state == Qt.Checked
+        if self.rapidApp is not None:
+            self.rapidApp.search_for_devices_again = True
 
     @pyqtSlot(int)
     def noDcimChanged(self, state: int) -> None:
         self.prefs.device_without_dcim_autodetection = state == Qt.Checked
+        if self.rapidApp is not None:
+            self.rapidApp.scan_non_cameras_again = True
 
     @pyqtSlot(int)
     def ignoredPathsReChanged(self, state: int) -> None:
         self.prefs.use_re_ignored_paths = state == Qt.Checked
+        if self.rapidApp is not None:
+            self.rapidApp.scan_all_again = True
 
     def _equalizeWidgetWidth(self, widget_list) -> None:
         max_width = max(widget.width() for widget in widget_list)
@@ -702,6 +726,9 @@ class PreferencesDialog(QDialog):
         self.removeDevice.setEnabled(self.knownDevices.count())
         self.removeAllDevice.setEnabled(self.knownDevices.count())
 
+        if self.rapidApp is not None:
+            self.rapidApp.search_for_devices_again = True
+
     @pyqtSlot()
     def removeAllDeviceClicked(self) -> None:
         self.knownDevices.clear()
@@ -710,6 +737,9 @@ class PreferencesDialog(QDialog):
         self.prefs.camera_blacklist = ['']
         self.removeDevice.setEnabled(False)
         self.removeAllDevice.setEnabled(False)
+
+        if self.rapidApp is not None:
+            self.rapidApp.search_for_devices_again = True
 
     @pyqtSlot()
     def removePathClicked(self) -> None:
@@ -720,6 +750,10 @@ class PreferencesDialog(QDialog):
             self.removePath.setEnabled(self.ignoredPaths.count())
             self.removeAllPath.setEnabled(self.ignoredPaths.count())
 
+            if self.rapidApp is not None:
+                self.rapidApp.scan_all_again = True
+
+
     @pyqtSlot()
     def removeAllPathClicked(self) -> None:
         self.ignoredPaths.clear()
@@ -727,11 +761,22 @@ class PreferencesDialog(QDialog):
         self.removePath.setEnabled(False)
         self.removeAllPath.setEnabled(False)
 
+        if self.rapidApp is not None:
+            self.rapidApp.scan_all_again = True
+
     @pyqtSlot()
     def addPathClicked(self) -> None:
         dlg = IgnorePathDialog(prefs=self.prefs, parent=self)
         if dlg.exec():
             self.setIgnorePathWidgetValues()
+
+            if self.rapidApp is not None:
+                self.rapidApp.scan_all_again = True
+
+    @pyqtSlot()
+    def ignorePathsReLabelClicked(self) -> None:
+        self.ignoredPathsRe.click()
+
 
     @pyqtSlot(int)
     def autoDownloadStartupChanged(self, state: int) -> None:
@@ -920,6 +965,26 @@ class PreferencesDialog(QDialog):
                 self.prefs.restore(value)
             self.setVersionCheckValues()
             self.setMetdataValues()
+
+    @pyqtSlot()
+    def helpButtonClicked(self) -> None:
+        row = self.chooser.currentRow()
+        if row == 0:
+            location = '#devicepreferences'
+        elif row == 1:
+            location = '#automationpreferences'
+        elif row == 2:
+            location = '#thumbnailpreferences'
+        elif row == 3:
+            location = '#errorhandlingpreferences'
+        elif row == 4:
+            location = '#warningpreferences'
+        elif row == 5:
+            location = '#miscellaneousnpreferences'
+        else:
+            location = ''
+
+        webbrowser.open_new_tab("http://www.damonlynch.net/rapid/documentation/{}".format(location))
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self.cacheSizeThread.quit()

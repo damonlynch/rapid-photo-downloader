@@ -471,7 +471,8 @@ class RapidWindow(QMainWindow):
         if pymedia_version_info() is None:
             if libmediainfo_missing:
                 logging.error(
-                    "pymediainfo installed, but the library libmediainfo appears to be missing")
+                    "pymediainfo installed, but the library libmediainfo appears to be missing"
+                )
 
         self.log_gphoto2 = log_gphoto2 == True
 
@@ -2314,9 +2315,30 @@ class RapidWindow(QMainWindow):
         pass
 
     def doPreferencesAction(self) -> None:
+        self.scan_all_again = self.scan_non_camera_devices_again = False
+        self.search_for_devices_again = False
+
         dialog = PreferencesDialog(prefs=self.prefs, parent=self)
         dialog.exec()
         self.prefs.sync()
+
+        if self.scan_all_again or self.scan_non_camera_devices_again:
+            self.rescanDevicesAndComputer(
+                ignore_cameras=not self.scan_all_again,
+                rescan_path=self.scan_all_again
+            )
+
+        if self.search_for_devices_again:
+            # Update the list of valid mounts
+            logging.debug(
+                "Updating the list of valid mounts after preference change to only_external_mounts"
+            )
+            self.validMounts = ValidMounts(onlyExternalMounts=self.prefs.only_external_mounts)
+            self.searchForDevicesAgain()
+
+        # Just to be extra safe, reset these values to their 'off' state:
+        self.scan_all_again = self.scan_non_camera_devices_again = False
+        self.search_for_devices_again = False
 
     def doErrorLogAction(self):
         self.errorLog.setVisible(self.errorLogAct.isChecked())
@@ -4550,14 +4572,16 @@ class RapidWindow(QMainWindow):
                             len(self.backup_devices.video_backup_devices))
                         self.displayMessageInStatusBar()
                         self.backupPanel.addBackupVolume(
-                            mount_details=self.backup_devices.get_backup_volume_details(path))
+                            mount_details=self.backup_devices.get_backup_volume_details(path)
+                        )
                         if self.prefs.backup_device_autodetection:
                             self.backupPanel.updateExample()
 
                 elif self.shouldScanMount(mount):
                     device = Device()
-                    device.set_download_from_volume(path, mount.displayName(),
-                                                    iconNames, canEject, mount)
+                    device.set_download_from_volume(
+                        path, mount.displayName(), iconNames, canEject, mount
+                    )
                     self.prepareNonCameraDeviceScan(device)
 
     @pyqtSlot(str)
@@ -4585,7 +4609,8 @@ class RapidWindow(QMainWindow):
             self.displayMessageInStatusBar()
             self.download_tracker.set_no_backup_devices(
                 len(self.backup_devices.photo_backup_devices),
-                len(self.backup_devices.video_backup_devices))
+                len(self.backup_devices.video_backup_devices)
+            )
             if self.prefs.backup_device_autodetection:
                 self.backupPanel.updateExample()
 
@@ -4688,6 +4713,45 @@ class RapidWindow(QMainWindow):
         else:
             self.startDeviceScan(device=device)
 
+    def rescanDevicesAndComputer(self, ignore_cameras: bool, rescan_path: bool) -> None:
+        """
+        After a preference change, rescan already scanned devices
+        :param ignore_cameras: if True, don't rescan cameras
+        :param rescan_path: if True, include manually specified paths
+         (i.e. This Computer)  
+        """
+
+        if rescan_path:
+            logging.info("Rescanning all paths and devices")
+        if ignore_cameras:
+            logging.info("Rescanning non camera devices")
+
+        # Collect the scan ids to work on - don't modify the
+        # collection of devices in place!
+        scan_ids = []
+        for scan_id in self.devices:
+            device = self.devices[scan_id]
+            if not ignore_cameras or device.device_type == DeviceType.volume:
+                scan_ids.append(scan_id)
+            elif rescan_path and device.device_type == DeviceType.path:
+                scan_ids.append(scan_id)
+
+        for scan_id in scan_ids:
+            self.rescanDevice(scan_id=scan_id)
+
+    def searchForDevicesAgain(self) -> None:
+        """
+        Called after a preference change to only_external_mounts
+        """
+
+        # only scan again if the new pref value is more permissive than the former
+        # (don't remove existing devices)
+        if not self.prefs.only_external_mounts:
+            logging.debug("Searching for new volumes to scan...")
+            self.setupNonCameraDevices(scanning_again=True)
+            logging.debug("... finished searching for volumes to scan")
+
+
     def blacklistDevice(self, scan_id: int) -> None:
         """
         Query user if they really want to to permanently ignore a camera or
@@ -4787,13 +4851,14 @@ class RapidWindow(QMainWindow):
         self.setDownloadCapabilities()
         logging.info("...backup devices configuration is reset")
 
-
-    def setupNonCameraDevices(self, on_startup: bool=False) -> None:
+    def setupNonCameraDevices(self, on_startup: bool=False, scanning_again: bool=False) -> None:
         """
         Setup devices from which to download and initiates their scan.
 
         :param on_startup: if True, the search is occurring during
          the program's startup phase
+        :param scanning_again: if True, the search is occurring after a preference
+         value change, where devices may have already been scanned.
         """
 
         if not self.prefs.device_autodetection:
@@ -4803,6 +4868,15 @@ class RapidWindow(QMainWindow):
         for mount in self.validMounts.mountedValidMountPoints():
             if self.partitionValid(mount):
                 path = mount.rootPath()
+
+                if scanning_again and \
+                        self.devices.known_path(path=path, device_type=DeviceType.volume):
+                    logging.debug(
+                        "Will not scan %s, because it's associated with an existing device",
+                        mount.displayName()
+                    )
+                    continue
+
                 if path not in self.backup_devices and self.shouldScanMount(mount):
                     logging.debug("Will scan %s", mount.displayName())
                     mounts.append(mount)
