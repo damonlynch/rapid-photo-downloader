@@ -50,7 +50,7 @@ from raphodo.constants import (remote_versions_file, CheckNewVersionDialogState,
 from raphodo.utilities import (create_temp_dir, format_size_for_user)
 from raphodo.interprocess import ThreadNames
 
-version_details = namedtuple('version_details', 'version release_date url md5')
+version_details = namedtuple('version_details', 'version release_date url md5 changelog_url')
 
 class NewVersion(QObject):
     """
@@ -107,8 +107,8 @@ class NewVersion(QObject):
     @pyqtSlot()
     def check(self) -> None:
         success = False
-        dev_version = version_details('', '', '', '')
-        stable_version = version_details('', '', '', '')
+        dev_version = version_details('', '', '', '', '')
+        stable_version = version_details('', '', '', '', '')
         download_page = ''
         no_upgrade = True
         try:
@@ -134,15 +134,19 @@ class NewVersion(QObject):
                     stable = self.version['stable']
                     dev = self.version['dev']
                     dev_version = version_details(
-                                           version=pkg_resources.parse_version(dev['version']),
-                                           release_date=arrow.get(dev['date']).to('local'),
-                                           url=dev['url'],
-                                           md5=dev['md5'])
+                        version=pkg_resources.parse_version(dev['version']),
+                        release_date=arrow.get(dev['date']).to('local'),
+                        url=dev['url'],
+                        md5=dev['md5'],
+                        changelog_url=dev['changelog']
+                    )
                     stable_version = version_details(
-                                           version=pkg_resources.parse_version(stable['version']),
-                                           release_date=arrow.get(stable['date']).to('local'),
-                                           url=stable['url'],
-                                           md5 =stable['md5'])
+                        version=pkg_resources.parse_version(stable['version']),
+                        release_date=arrow.get(stable['date']).to('local'),
+                        url=stable['url'],
+                        md5 =stable['md5'],
+                        changelog_url=stable['changelog']
+                    )
                     download_page = self.version['download_page']
                     no_upgrade = self.version['no_upgrade']
 
@@ -301,10 +305,19 @@ class NewVersionCheckDialog(QDialog):
         self.failedToCheck = QLabel(_('Failed to contact the update server.'))
         self.url = "http://www.damonlynch.net/rapid/download.html"
         self.new_version_message = _('A new version of Rapid Photo Downloader (%s) is available.')
-        self.download_it = _('Do you want to download it?')
+        self.new_version_message = '<b>{}</b>'.format(self.new_version_message)
+        self.download_it = _('Do you want to download the new version?') + '<br>'
+        self.changelog_msg = _('Changes in the new release can be viewed <a href="%s">here</a>.')
 
-        self.newVersion = QLabel(self._makeDownloadMsg('1.2.3a10', offer_download=True))
+        self.newVersion = QLabel(
+            self._makeDownloadMsg(
+                '1.2.3a10', offer_download=True, changelog_url=''
+            )
+        )
         self.newVersion.setOpenExternalLinks(True)
+
+        self.changelog = QLabel(self.changelog_msg)
+        self.changelog.setOpenExternalLinks(True)
 
         self.messages = QStackedWidget()
         self.messages.addWidget(self.checkingLabel)
@@ -356,8 +369,12 @@ class NewVersionCheckDialog(QDialog):
         self.setLayout(grid)
         self.setWindowTitle(_('Rapid Photo Downloader updates'))
 
-    def _makeDownloadMsg(self, new_version_number: str, offer_download: bool) -> str:
-        s = self.new_version_message % new_version_number
+    def _makeDownloadMsg(self, new_version_number: str,
+                         offer_download: bool,
+                         changelog_url: str) -> str:
+        s1 = self.new_version_message % new_version_number
+        s2 = self.changelog_msg % changelog_url
+        s = '{}<br><br>{}'.format(s1, s2)
         if offer_download:
             return '<br><br>'.join((s, self.download_it))
         else:
@@ -365,7 +382,8 @@ class NewVersionCheckDialog(QDialog):
 
     def displayUserMessage(self, new_state: CheckNewVersionDialogState,
                            version: Optional[str]=None,
-                           download_page: Optional[str]=None) -> None:
+                           download_page: Optional[str]=None,
+                           changelog_url: Optional[str]=None) -> None:
 
         self.current_state = new_state
 
@@ -382,11 +400,15 @@ class NewVersionCheckDialog(QDialog):
             assert new_state in (CheckNewVersionDialogState.open_website,
                                  CheckNewVersionDialogState.prompt_for_download)
             assert version is not None
+            assert changelog_url is not None
             self.new_version_number = version
             self.url = download_page
             offer_download = new_state == CheckNewVersionDialogState.prompt_for_download
-            self.newVersion.setText(self._makeDownloadMsg(version,
-                                                          offer_download=offer_download))
+            self.newVersion.setText(
+                self._makeDownloadMsg(
+                    version, offer_download=offer_download, changelog_url=changelog_url
+                )
+            )
             self.messages.setCurrentIndex(2)
             if offer_download:
                 self.buttons.setCurrentIndex(2)

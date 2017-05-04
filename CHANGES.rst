@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0b4 (2017-05-xx)
+0.9.0b4 (2017-05-04)
 --------------------
 
  - Added Help buttons to Program Preferences and File Renaming and Download
@@ -10,6 +10,12 @@ Changelog for Rapid Photo Downloader
  - Added command line option to dump to the terminal basic information about
    attached cameras, which is useful for diagnosing potential problems with
    libgphoto2 and python-gphoto2.
+
+ - Added dialog to inform user if the scan process had an unexpected fatal
+   problem.
+
+ - Added link to Changelog in dialog window notifying a new release is
+   available.
 
  - Fixed bug on systems using Python 3.4 (such as openSUSE Leap 42.2) when
    creating a temporary directory during program upgrade.

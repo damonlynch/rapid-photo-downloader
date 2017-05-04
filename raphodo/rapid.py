@@ -164,6 +164,7 @@ from raphodo.errorlog import ErrorReport, SpeechBubble
 from raphodo.problemnotification import (
     FsMetadataWriteProblem, Problem, Problems, CopyingProblems, RenamingProblems, BackingUpProblems
 )
+from raphodo.viewutils import standardIconSize
 
 
 # Avoid segfaults at exit:
@@ -988,6 +989,7 @@ class RapidWindow(QMainWindow):
         self.scanmq.deviceDetails.connect(self.scanDeviceDetailsReceived)
         self.scanmq.scanProblems.connect(self.scanProblemsReceived)
         self.scanmq.workerFinished.connect(self.scanFinished)
+        self.scanmq.fatalError.connect(self.scanFatalError)
 
         self.scanmq.moveToThread(self.scanThread)
 
@@ -1299,12 +1301,15 @@ class RapidWindow(QMainWindow):
                     self.latest_version = stable_version
 
             # remove in production testing code if in production!
-            if (self.latest_version is not None and str(self.latest_version.version) not in
-                    self.prefs.ignore_versions): # or True
+            if (
+                    self.latest_version is not None and str(self.latest_version.version) not in
+                    self.prefs.ignore_versions
+                ): # or True:
 
                 self.latest_version = dev_version
 
                 version = str(self.latest_version.version)
+                changelog_url = self.latest_version.changelog_url
 
                 if pip_install:
                     logging.debug("Installation performed via pip")
@@ -1320,8 +1325,12 @@ class RapidWindow(QMainWindow):
 
                 self.latest_version_download_page = download_page
 
-                self.newVersionCheckDialog.displayUserMessage(new_state=state, version=version,
-                                                              download_page=download_page)
+                self.newVersionCheckDialog.displayUserMessage(
+                    new_state=state,
+                    version=version,
+                    download_page=download_page,
+                    changelog_url=changelog_url
+                )
                 if not self.newVersionCheckDialog.isVisible():
                     self.newVersionCheckDialog.show()
 
@@ -1375,8 +1384,9 @@ class RapidWindow(QMainWindow):
             msgBox = QMessageBox(parent=self)
             msgBox.setIcon(QMessageBox.Warning)
             msgBox.setWindowTitle(_("Download failed"))
-            msgBox.setText(_('Sorry, the download of the new version of Rapid Photo '
-                             'Downloader failed.'))
+            msgBox.setText(
+                _('Sorry, the download of the new version of Rapid Photo Downloader failed.')
+            )
             msgBox.exec_()
         elif path:
             logging.info("New program version downloaded to %s", path)
@@ -2349,21 +2359,29 @@ class RapidWindow(QMainWindow):
     def doHelpAction(self):
         webbrowser.open_new_tab("http://www.damonlynch.net/rapid/help.html")
 
-    def doReportProblemAction(self) -> None:
 
+    def makeProblemReportDialog(self, header: str, title: Optional[str]=None) -> None:
         log_path, log_file = os.path.split(iplogging.full_log_file_path())
         log_uri = pathname2url(log_path)
 
-        message = _(r"""<b>Thank you for reporting a problem in Rapid Photo
-            Downloader</b><br><br>
-            Please report the problem at <a href="{website}">{website}</a>.<br><br>
+        body = _(
+            r"""Please report the problem at <a href="{website}">{website}</a>.<br><br>
             Attach the log file <i>{log_file}</i> to your report (click
             <a href="{log_path}">here</a> to open the log directory).
-            """).format(website='https://bugs.launchpad.net/rapid', log_path=log_uri,
-                        log_file=log_file)
+            """
+        ).format(
+            website='https://bugs.launchpad.net/rapid', log_path=log_uri, log_file=log_file
+        )
 
-        errorbox = self.standardMessageBox(message=message, rich_text=True)
+        message = '{header}<br><br>{body}'.format(header=header, body=body)
+
+        errorbox = self.standardMessageBox(message=message, rich_text=True, title=title)
         errorbox.exec_()
+
+    def doReportProblemAction(self) -> None:
+        header = _('Thank you for reporting a problem in Rapid Photo Downloader')
+        header = '<b>{}</b>'.format(header)
+        self.makeProblemReportDialog(header)
 
     def doMakeDonationAction(self) -> None:
         webbrowser.open_new_tab("http://www.damonlynch.net/rapid/donate.html")
@@ -2375,18 +2393,23 @@ class RapidWindow(QMainWindow):
         about = AboutDialog(self)
         about.exec()
 
-    def standardMessageBox(self, message: str, rich_text: bool) -> QMessageBox:
+    def standardMessageBox(self, message: str,
+                           rich_text: bool,
+                           title: Optional[str]=None) -> QMessageBox:
         """
         Create a standard messagebox to be displayed to the user
 
         :param message: the text to display
         :param rich_text: whether it text to display is in HTML format
+        :param title: optional title for message box, else defaults to 
+         localized 'Rapid Photo Downloader'
         :return: the message box
         """
 
         msgBox = QMessageBox()
-        icon = QPixmap(':/rapid-photo-downloader.svg')
-        title = _("Rapid Photo Downloader")
+        icon = QIcon(':/rapid-photo-downloader.svg').pixmap(standardIconSize())
+        if title is None:
+            title = _("Rapid Photo Downloader")
         if rich_text:
             msgBox.setTextFormat(Qt.RichText)
         msgBox.setIconPixmap(icon)
@@ -4008,6 +4031,25 @@ class RapidWindow(QMainWindow):
         self.addErrorLogMessage(problems=problems)
 
     @pyqtSlot(int)
+    def scanFatalError(self, scan_id: int) -> None:
+        device = self.devices[scan_id]
+
+        h1 = _('Sorry, an unexpected problem occurred while scanning %s.') % device.display_name
+        h2 = _('Unfortunately you cannot download from this device.')
+        header = '<b>{}</b><br><br>{}'.format(h1, h2)
+        if device.device_type == DeviceType.camera and not device.is_mtp_device:
+            h3 = _(
+                "A possible workaround for the problem might be downloading from the camera's "
+                "memory card using a card reader."
+            )
+            header = '{}<br><br><i>{}</i>'.format(header, h3)
+
+        title = _('Device scan failed')
+        self.makeProblemReportDialog(header=header, title=title)
+
+        self.removeDevice(scan_id=scan_id, show_warning=False)
+
+    @pyqtSlot(int)
     def scanFinished(self, scan_id: int) -> None:
         """
         A single device has finished its scan. Other devices can be in any
@@ -4691,6 +4733,9 @@ class RapidWindow(QMainWindow):
 
             del self.devices[scan_id]
             self.adjustLeftPanelSliderHandles()
+
+            if device.device_type == DeviceType.path:
+                self.thisComputer.setViewVisible(False)
 
             self.updateSourceButton()
             self.setDownloadCapabilities()

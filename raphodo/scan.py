@@ -128,6 +128,24 @@ class ScanWorker(WorkerInPublishPullPipeline):
         super().__init__('Scan')
 
     def do_work(self) -> None:
+        try:
+            self.do_scan()
+        except Exception as e:
+            try:
+                device = self.display_name
+            except AttributeError:
+                device = ''
+            logging.exception("Unexpected exception while scanning %s", device)
+
+            self.content = pickle.dumps(
+                ScanResults(scan_id=int(self.worker_id), fatal_error=True),
+                pickle.HIGHEST_PROTOCOL
+            )
+            self.send_message_to_sink()
+            self.disconnect_logging()
+            self.send_finished_command()
+
+    def do_scan(self) -> None:
         logging.debug("Scan {} worker started".format(self.worker_id.decode()))
 
         scan_arguments = pickle.loads(self.content)  # type: ScanArguments
@@ -722,8 +740,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.sample_video = None
 
     def send_message_to_sink(self) -> None:
-        logging.debug("Sending %s scanned files from %s to sink",
-                      len(self.file_batch), self.display_name)
+        try:
+            logging.debug(
+                "Sending %s scanned files from %s to sink", len(self.file_batch), self.display_name
+            )
+        except AttributeError:
+            pass
         super().send_message_to_sink()
 
     def ignore_mdatatime(self, ext: str) -> bool:

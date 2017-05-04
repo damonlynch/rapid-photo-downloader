@@ -1228,7 +1228,8 @@ class ScanResults:
                  storage_descriptions: Optional[List[str]]=None,
                  sample_photo: Optional[Photo]=None,
                  sample_video: Optional[Video]=None,
-                 problems: Optional[ScanProblems]=None) -> None:
+                 problems: Optional[ScanProblems]=None,
+                 fatal_error: Optional[bool]=None) -> None:
         self.rpd_files = rpd_files
         self.file_type_counter = file_type_counter
         self.file_size_sum = file_size_sum
@@ -1240,6 +1241,7 @@ class ScanResults:
         self.sample_photo = sample_photo
         self.sample_video = sample_video
         self.problems = problems
+        self.fatal_error = fatal_error
 
 
 class CopyFilesArguments:
@@ -1619,6 +1621,7 @@ class ScanManager(PublishPullPipelineManager):
     deviceError = pyqtSignal(int, CameraErrorCode)
     deviceDetails = pyqtSignal(int, 'PyQt_PyObject', 'PyQt_PyObject', str)
     scanProblems = pyqtSignal(int, 'PyQt_PyObject')
+    fatalError = pyqtSignal(int)
 
     def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port=logging_port, thread_name=ThreadNames.scan)
@@ -1641,9 +1644,12 @@ class ScanManager(PublishPullPipelineManager):
                     data.scan_id, data.storage_space, data.storage_descriptions,
                     data.optimal_display_name
                 )
-            else:
-                assert data.problems is not None
+            elif data.problems is not None:
                 self.scanProblems.emit(data.scan_id, data.problems)
+            else:
+                assert data.fatal_error
+                self.fatalError.emit(data.scan_id)
+
 
 
 class BackupManager(PublishPullPipelineManager):
