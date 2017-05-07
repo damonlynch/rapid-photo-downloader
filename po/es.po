@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-05-04 17:02-0500\n"
+"POT-Creation-Date: 2017-05-06 20:43-0500\n"
 "PO-Revision-Date: 2017-04-10 07:39+0000\n"
 "Last-Translator: Abel O'Rian <abel.orian@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -133,13 +133,13 @@ msgstr "vídeo THM"
 msgid "audio"
 msgstr "audio"
 
-#: ../raphodo/destinationdisplay.py:78 ../raphodo/devicedisplay.py:1077
+#: ../raphodo/destinationdisplay.py:78 ../raphodo/devicedisplay.py:1079
 #: ../raphodo/rpdfile.py:320
 #, python-format
 msgid "%(no_photos)s Photos"
 msgstr "%(no_photos)s fotos"
 
-#: ../raphodo/destinationdisplay.py:82 ../raphodo/devicedisplay.py:1079
+#: ../raphodo/destinationdisplay.py:82 ../raphodo/devicedisplay.py:1081
 #: ../raphodo/rpdfile.py:315
 #, python-format
 msgid "%(no_videos)s Videos"
@@ -153,66 +153,77 @@ msgstr "Usado"
 msgid "Excess"
 msgstr "Exceso"
 
-#: ../raphodo/destinationdisplay.py:109
+#: ../raphodo/destinationdisplay.py:102
+#, fuzzy
+msgid "Device size unknown"
+msgstr "Opciones de dispositivo"
+
+#: ../raphodo/destinationdisplay.py:112
 #, python-format
 msgid "No space free on %(size_total)s device"
 msgstr "No hay espacio libre en %(size_total)s dispositivo"
 
-#: ../raphodo/destinationdisplay.py:115
+#: ../raphodo/destinationdisplay.py:119
 #, python-format
 msgid "%(size_free)s free of %(size_total)s"
 msgstr "%(size_free)s libre de %(size_total)s"
 
-#: ../raphodo/destinationdisplay.py:183 ../raphodo/devicedisplay.py:991
+#: ../raphodo/destinationdisplay.py:189 ../raphodo/devicedisplay.py:993
 #: ../raphodo/rapid.py:1922 ../raphodo/rapid.py:2037 ../raphodo/rapid.py:5690
 #: ../raphodo/rpdfile.py:891
 msgid "Photos"
 msgstr "Fotos"
 
 #. translators: the name of the Videos folder
-#: ../raphodo/destinationdisplay.py:184 ../raphodo/devicedisplay.py:992
+#: ../raphodo/destinationdisplay.py:190 ../raphodo/devicedisplay.py:994
 #: ../raphodo/rapid.py:1925 ../raphodo/rapid.py:2038 ../raphodo/rapid.py:5691
 #: ../raphodo/rpdfile.py:918 ../raphodo/storage.py:443
 msgid "Videos"
 msgstr "Vídeos"
 
-#: ../raphodo/destinationdisplay.py:185
+#: ../raphodo/destinationdisplay.py:191
 msgid "Projected storage use after download"
 msgstr "Espacio usado previsto después de la descarga"
 
 #. Translators: Custom refers to the user choosing a non-default value that
 #. they customize themselves
-#: ../raphodo/destinationdisplay.py:299 ../raphodo/nameeditor.py:516
+#: ../raphodo/destinationdisplay.py:305 ../raphodo/nameeditor.py:516
 msgid "Custom..."
 msgstr "Personalizado..."
 
-#: ../raphodo/destinationdisplay.py:647
+#: ../raphodo/destinationdisplay.py:657
 msgid "Configure photo subfolder creation"
 msgstr "Configurar creación de subcarpetas de fotos"
 
-#: ../raphodo/destinationdisplay.py:649
+#: ../raphodo/destinationdisplay.py:659
 msgid "Configure video subfolder creation"
 msgstr "Configurar creación de subcarpetas de vídeos"
 
-#: ../raphodo/devicedisplay.py:981
+#: ../raphodo/devicedisplay.py:983
 msgid "Other"
 msgstr "Otros"
 
-#: ../raphodo/devicedisplay.py:982
+#: ../raphodo/devicedisplay.py:984
 msgid "Probing device..."
 msgstr "Comprobando dispositivo..."
 
-#: ../raphodo/devicedisplay.py:998
+#: ../raphodo/devicedisplay.py:1000
 msgid "Temporarily ignore this device"
 msgstr "Ignorar temporalmente este dispositivo"
 
-#: ../raphodo/devicedisplay.py:1000
+#: ../raphodo/devicedisplay.py:1002
 msgid "Permanently ignore this device"
 msgstr "Ignorar de forma permanente este dispositivo"
 
-#: ../raphodo/devicedisplay.py:1002
+#: ../raphodo/devicedisplay.py:1004
 msgid "Rescan"
 msgstr "Reescanear"
+
+#. Translators: percentage full e.g. 75% full
+#: ../raphodo/devicedisplay.py:1093
+#, python-format
+msgid "%s full"
+msgstr ""
 
 #: ../raphodo/devices.py:459
 msgid "Cameras"
@@ -4173,9 +4184,6 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 
 #~ msgid "Generate thumbnails (slower)"
 #~ msgstr "Generar miniaturas (lento)"
-
-#~ msgid "Device Options"
-#~ msgstr "Opciones de dispositivo"
 
 #~ msgid "Download folder:"
 #~ msgstr "Directorio de descarga"

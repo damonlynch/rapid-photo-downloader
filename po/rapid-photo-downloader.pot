@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-05-04 17:02-0500\n"
+"POT-Creation-Date: 2017-05-06 20:43-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -121,13 +121,13 @@ msgstr ""
 msgid "audio"
 msgstr ""
 
-#: ../raphodo/destinationdisplay.py:78 ../raphodo/devicedisplay.py:1077
+#: ../raphodo/destinationdisplay.py:78 ../raphodo/devicedisplay.py:1079
 #: ../raphodo/rpdfile.py:320
 #, python-format
 msgid "%(no_photos)s Photos"
 msgstr ""
 
-#: ../raphodo/destinationdisplay.py:82 ../raphodo/devicedisplay.py:1079
+#: ../raphodo/destinationdisplay.py:82 ../raphodo/devicedisplay.py:1081
 #: ../raphodo/rpdfile.py:315
 #, python-format
 msgid "%(no_videos)s Videos"
@@ -141,65 +141,75 @@ msgstr ""
 msgid "Excess"
 msgstr ""
 
-#: ../raphodo/destinationdisplay.py:109
+#: ../raphodo/destinationdisplay.py:102
+msgid "Device size unknown"
+msgstr ""
+
+#: ../raphodo/destinationdisplay.py:112
 #, python-format
 msgid "No space free on %(size_total)s device"
 msgstr ""
 
-#: ../raphodo/destinationdisplay.py:115
+#: ../raphodo/destinationdisplay.py:119
 #, python-format
 msgid "%(size_free)s free of %(size_total)s"
 msgstr ""
 
-#: ../raphodo/destinationdisplay.py:183 ../raphodo/devicedisplay.py:991
+#: ../raphodo/destinationdisplay.py:189 ../raphodo/devicedisplay.py:993
 #: ../raphodo/rapid.py:1922 ../raphodo/rapid.py:2037 ../raphodo/rapid.py:5690
 #: ../raphodo/rpdfile.py:891
 msgid "Photos"
 msgstr ""
 
 #. translators: the name of the Videos folder
-#: ../raphodo/destinationdisplay.py:184 ../raphodo/devicedisplay.py:992
+#: ../raphodo/destinationdisplay.py:190 ../raphodo/devicedisplay.py:994
 #: ../raphodo/rapid.py:1925 ../raphodo/rapid.py:2038 ../raphodo/rapid.py:5691
 #: ../raphodo/rpdfile.py:918 ../raphodo/storage.py:443
 msgid "Videos"
 msgstr ""
 
-#: ../raphodo/destinationdisplay.py:185
+#: ../raphodo/destinationdisplay.py:191
 msgid "Projected storage use after download"
 msgstr ""
 
 #. Translators: Custom refers to the user choosing a non-default value that
 #. they customize themselves
-#: ../raphodo/destinationdisplay.py:299 ../raphodo/nameeditor.py:516
+#: ../raphodo/destinationdisplay.py:305 ../raphodo/nameeditor.py:516
 msgid "Custom..."
 msgstr ""
 
-#: ../raphodo/destinationdisplay.py:647
+#: ../raphodo/destinationdisplay.py:657
 msgid "Configure photo subfolder creation"
 msgstr ""
 
-#: ../raphodo/destinationdisplay.py:649
+#: ../raphodo/destinationdisplay.py:659
 msgid "Configure video subfolder creation"
 msgstr ""
 
-#: ../raphodo/devicedisplay.py:981
+#: ../raphodo/devicedisplay.py:983
 msgid "Other"
 msgstr ""
 
-#: ../raphodo/devicedisplay.py:982
+#: ../raphodo/devicedisplay.py:984
 msgid "Probing device..."
 msgstr ""
 
-#: ../raphodo/devicedisplay.py:998
+#: ../raphodo/devicedisplay.py:1000
 msgid "Temporarily ignore this device"
 msgstr ""
 
-#: ../raphodo/devicedisplay.py:1000
+#: ../raphodo/devicedisplay.py:1002
 msgid "Permanently ignore this device"
 msgstr ""
 
-#: ../raphodo/devicedisplay.py:1002
+#: ../raphodo/devicedisplay.py:1004
 msgid "Rescan"
+msgstr ""
+
+#. Translators: percentage full e.g. 75% full
+#: ../raphodo/devicedisplay.py:1093
+#, python-format
+msgid "%s full"
 msgstr ""
 
 #: ../raphodo/devices.py:459
