@@ -249,7 +249,8 @@ def enable_universe():
     try:
         repos = subprocess.check_output(['apt-cache', 'policy'], universal_newlines=True)
         version = subprocess.check_output(['lsb_release', '-sc'], universal_newlines=True).strip()
-        if not '{}/universe'.format(version) in repos:
+        if not '{}/universe'.format(version) in repos and version not in (
+                'sarah', 'serena', 'sonya'):
             print("The Universe repository must be enabled. Do you want do that now?\n")
             run_cmd(command_line='sudo add-apt-repository universe', restart=False)
             run_cmd(command_line='sudo apt update', restart=True)
