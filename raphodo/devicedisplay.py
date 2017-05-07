@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
 # Copyright (c) 2012-2014 Alexander Turkin
 
 # This file is part of Rapid Photo Downloader.
@@ -648,18 +648,19 @@ class DeviceDisplay:
 
         skip_comp1 = d.displaying_files_of_type == DisplayingFilesOfType.videos
         skip_comp2 = d.displaying_files_of_type == DisplayingFilesOfType.photos
-        skip_comp3 = False
+        skip_comp3 = d.comp3_size_text == 0
 
-        photos_g_width = (comp1_file_size_sum / d.bytes_total * width)
         photos_g_x = device_size_x
         g_y = device_size_y + self.padding
-        linearGradient = QLinearGradient(photos_g_x, g_y, photos_g_x, g_y + self.g_height)
+        if d.bytes_total:
+            photos_g_width = (comp1_file_size_sum / d.bytes_total * width)
+            linearGradient = QLinearGradient(photos_g_x, g_y, photos_g_x, g_y + self.g_height)
 
         rect = QRectF(photos_g_x, g_y, width, self.g_height)
         # Apply subtle shade to empty space
         painter.fillRect(rect, self.emptySpaceColor)
 
-        if comp1_file_size_sum:
+        if comp1_file_size_sum and d.bytes_total:
             photos_g_rect = QRectF(photos_g_x, g_y, photos_g_width, self.g_height)
             linearGradient.setColorAt(0.2, color1.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, color1.darker(self.shading_intensity))
@@ -668,7 +669,7 @@ class DeviceDisplay:
             photos_g_width = 0
 
         videos_g_x = photos_g_x + photos_g_width
-        if comp2_file_size_sum:
+        if comp2_file_size_sum and d.bytes_total:
             videos_g_width = (comp2_file_size_sum / d.bytes_total * width)
             videos_g_rect = QRectF(videos_g_x, g_y, videos_g_width, self.g_height)
             linearGradient.setColorAt(0.2, color2.lighter(self.shading_intensity))
@@ -677,7 +678,7 @@ class DeviceDisplay:
         else:
             videos_g_width = 0
 
-        if comp3_file_size_sum:
+        if comp3_file_size_sum and d.bytes_total:
             other_g_width = comp3_file_size_sum / d.bytes_total * width
             other_g_x = videos_g_x + videos_g_width
             other_g_rect = QRectF(other_g_x, g_y, other_g_width, self.g_height)
@@ -688,7 +689,7 @@ class DeviceDisplay:
             other_g_width = 0
         
 
-        if d.comp4_file_size_sum:
+        if d.comp4_file_size_sum and d.bytes_total:
             # Excess usage, only for download destinations
             color4 = QColor(CustomColors.color6.value)
             comp4_g_width = d.comp4_file_size_sum / d.bytes_total * width
@@ -798,7 +799,7 @@ class DeviceDisplay:
         else:
             other_g2_x = videos_g2_x
 
-        if (d.comp3_file_size_sum and not skip_comp3) or self.rendering_destination:
+        if not skip_comp3 and (d.comp3_file_size_sum or self.rendering_destination):
             # Other details
             # =============
 
@@ -974,6 +975,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
     def getCheckBoxRect(self, x: int, y: int) -> QRect:
         return QRect(self.getLeftPoint(x, y), self.checkboxRect.size())
 
+
 class DeviceDelegate(QStyledItemDelegate):
 
     padding = DeviceDisplayPadding
@@ -1088,7 +1090,7 @@ class DeviceDelegate(QStyledItemDelegate):
 
                 percent_used = '{0:.0%}'.format(bytes_used / storage_space.bytes_total)
                 # Translators: percentage full e.g. 75% full
-                percent_used = '%s full' % percent_used
+                percent_used = _('%s full') % percent_used
 
                 details = BodyDetails(bytes_total_text=bytes_total_text,
                                   bytes_total=storage_space.bytes_total,

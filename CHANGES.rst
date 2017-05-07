@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.0b5 (2017-05-xx)
+--------------------
+
+ - Fixed bug where rendering destination storage space would crash when the
+   destination device's storage space is reported as zero bytes in size.
+
 0.9.0b4 (2017-05-04)
 --------------------
 

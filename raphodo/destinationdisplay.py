@@ -96,47 +96,53 @@ def make_body_details(bytes_total: int,
     comp3_size_text = existing_size
 
     bytes_to_use = size_to_download + existing_bytes
-    percent_used = '{0:.0%}'.format(bytes_to_use / bytes_total)
-    # Translators: percentage full e.g. 75% full
-    percent_used = '%s full' % percent_used
+    percent_used = ''
 
-    if bytes_to_use > bytes_total:
+    if bytes_total == 0:
+        bytes_free_of_total = _('Device size unknown')
+        comp4_file_size_sum = 0
+        comp4_size_text = 0
+        comp3_size_text = 0
+    elif bytes_to_use > bytes_total:
         bytes_total_ = bytes_total
         bytes_total = bytes_to_use
         excess_bytes = bytes_to_use - bytes_total_
         comp4_file_size_sum = excess_bytes
         comp4_size_text = format_size_for_user(excess_bytes)
         bytes_free_of_total = _('No space free on %(size_total)s device') % dict(
-            size_total=bytes_total_text)
+            size_total=bytes_total_text
+        )
     else:
         comp4_file_size_sum = 0
         comp4_size_text = 0
         bytes_free = bytes_total - bytes_to_use
         bytes_free_of_total = _('%(size_free)s free of %(size_total)s') % dict(
             size_free=format_size_for_user(bytes_free, no_decimals=1),
-            size_total=bytes_total_text)
+            size_total=bytes_total_text
+        )
 
-    return BodyDetails(bytes_total_text=bytes_total_text,
-                          bytes_total=bytes_total,
-                          percent_used_text=percent_used,
-                          bytes_free_of_total=bytes_free_of_total,
-                          comp1_file_size_sum=comp1_file_size_sum,
-                          comp2_file_size_sum=comp2_file_size_sum,
-                          comp3_file_size_sum=comp3_file_size_sum,
-                          comp4_file_size_sum=comp4_file_size_sum,
-                          comp1_text=comp1_text,
-                          comp2_text=comp2_text,
-                          comp3_text=comp3_text,
-                          comp4_text=comp4_text,
-                          comp1_size_text=comp1_size_text,
-                          comp2_size_text=comp2_size_text,
-                          comp3_size_text=comp3_size_text,
-                          comp4_size_text=comp4_size_text,
-                          color1=QColor(CustomColors.color1.value),
-                          color2=QColor(CustomColors.color2.value),
-                          color3=QColor(CustomColors.color3.value),
-                          displaying_files_of_type=files_to_display
-                          )
+    return BodyDetails(
+        bytes_total_text=bytes_total_text,
+        bytes_total=bytes_total,
+        percent_used_text=percent_used,
+        bytes_free_of_total=bytes_free_of_total,
+        comp1_file_size_sum=comp1_file_size_sum,
+        comp2_file_size_sum=comp2_file_size_sum,
+        comp3_file_size_sum=comp3_file_size_sum,
+        comp4_file_size_sum=comp4_file_size_sum,
+        comp1_text=comp1_text,
+        comp2_text=comp2_text,
+        comp3_text=comp3_text,
+        comp4_text=comp4_text,
+        comp1_size_text=comp1_size_text,
+        comp2_size_text=comp2_size_text,
+        comp3_size_text=comp3_size_text,
+        comp4_size_text=comp4_size_text,
+        color1=QColor(CustomColors.color1.value),
+        color2=QColor(CustomColors.color2.value),
+        color3=QColor(CustomColors.color3.value),
+        displaying_files_of_type=files_to_display
+    )
 
 def adjusted_download_size(photos_size_to_download: int,
                            videos_size_to_download: int,
@@ -511,6 +517,10 @@ class DestinationDisplay(QWidget):
 
         if self.storage_space is None:
             return False
+
+        # allow for destinations that don't properly report their size
+        if self.storage_space.bytes_total == 0:
+            return True
 
         photos_size_to_download, videos_size_to_download = adjusted_download_size(
             photos_size_to_download=self.photos_size_to_download,
