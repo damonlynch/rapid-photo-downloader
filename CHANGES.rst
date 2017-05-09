@@ -4,6 +4,8 @@ Changelog for Rapid Photo Downloader
 0.9.0b5 (2017-05-xx)
 --------------------
 
+ - Added a Tip of the Day dialog.
+
  - Fixed bug where rendering destination storage space would crash when the
    destination device's storage space is reported as zero bytes in size.
 

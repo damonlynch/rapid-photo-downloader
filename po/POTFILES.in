@@ -5,6 +5,7 @@ raphodo/copyfiles.py
 raphodo/destinationdisplay.py
 raphodo/devicedisplay.py
 raphodo/devices.py
+raphodo/didyouknow.py
 raphodo/downloadtracker.py
 raphodo/errorlog.py
 raphodo/excepthook.py

@@ -116,6 +116,7 @@ class AboutDialog(QDialog):
         Video camera icon courtesy %(artlink2)s.
         Home icon courtesy %(artlink3)s.
         Speech bubble courtesy %(artlink4)s.
+        Lightbulb icon courtesy %(artlink5)s.
 
         Translators:
 
@@ -166,14 +167,16 @@ class AboutDialog(QDialog):
         for i, j in (('<', '&lt;'), ('>', '&gt;'), ('\n', '<br>\n')):
             credits_text = credits_text.replace(i, j)
 
-        credits_text = credits_text % dict(photolink=
-        """<a href="https://500px.com/photo/65727425/afghan-men-pulling-heavy-load-by-damon
-        -lynch" style="color: white;">Afghan Men Pulling Heavy Load</a>""",
-        artlink1='<a href="http://www.webalys.com" style="color: white;">Vincent Le Moign</a>',
-        artlink2="""<a href="https://www.iconfinder.com/bluewolfski" style="color: white;">The
+        credits_text = credits_text % dict(
+            photolink="""<a href="https://500px.com/photo/65727425/afghan-men-pulling-heavy-load-by
+            -damon-lynch" style="color: white;">Afghan Men Pulling Heavy Load</a>""",
+            artlink1='<a href="http://www.webalys.com" style="color: white;">Vincent Le Moign</a>',
+            artlink2="""<a href="https://www.iconfinder.com/bluewolfski" style="color: white;">The
                  Pictographers</a>""",
-        artlink3='<a href="https://www.iconfinder.com/Enesdal" style="color: white;">Enes Dal</a>',
-        artlink4='<a href="http://www.iconsolid.com/" style="color: white;">Icons Solid</a>'
+            artlink3='<a href="https://www.iconfinder.com/Enesdal" style="color: white;">Enes'
+                     ' Dal</a>',
+            artlink4='<a href="http://www.iconsolid.com/" style="color: white;">Icons Solid</a>',
+            artlink5='<a href="https://sellfy.com/designcoon" style="color: white;">Icon Coon</a>'
         )
 
         style_sheet = """QLabel {

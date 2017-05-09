@@ -268,76 +268,95 @@ class Preferences:
     Program preferences, being a mix of user facing and non-user facing prefs.
     """
     program_defaults = dict(program_version='')
-    rename_defaults = dict(photo_download_folder=xdg_photos_directory(),
-                           video_download_folder=xdg_videos_directory(),
-                           photo_subfolder=DEFAULT_SUBFOLDER_PREFS,
-                           video_subfolder=DEFAULT_VIDEO_SUBFOLDER_PREFS,
-                           photo_rename=DEFAULT_PHOTO_RENAME_PREFS,
-                           video_rename=DEFAULT_VIDEO_RENAME_PREFS,
-                           # following two extension values introduced in 0.9.0a4:
-                           photo_extension=LOWERCASE,
-                           video_extension=LOWERCASE,
-                           day_start="03:00",
-                           downloads_today=[today(), '0'],
-                           stored_sequence_no=0,
-                           strip_characters=True,
-                           synchronize_raw_jpg=False,
-                           job_codes=[_('Wedding'), _('Birthday')],
-                           remember_job_code=True,
-                           ignore_mdatatime_for_mtp_dng=True,
-                          )
+    rename_defaults = dict(
+        photo_download_folder=xdg_photos_directory(),
+        video_download_folder=xdg_videos_directory(),
+        photo_subfolder=DEFAULT_SUBFOLDER_PREFS,
+        video_subfolder=DEFAULT_VIDEO_SUBFOLDER_PREFS,
+        photo_rename=DEFAULT_PHOTO_RENAME_PREFS,
+        video_rename=DEFAULT_VIDEO_RENAME_PREFS,
+        # following two extension values introduced in 0.9.0a4:
+        photo_extension=LOWERCASE,
+        video_extension=LOWERCASE,
+        day_start="03:00",
+        downloads_today=[today(), '0'],
+        stored_sequence_no=0,
+        strip_characters=True,
+        synchronize_raw_jpg=False,
+        job_codes=[_('Wedding'), _('Birthday')],
+        remember_job_code=True,
+        ignore_mdatatime_for_mtp_dng=True,
+    )
+
     # custom preset prefs are define below in code such as get_preset()
     timeline_defaults = dict(proximity_seconds=3600)
-    display_defaults = dict(detailed_time_remaining=False,
-                            warn_downloading_all=True,
-                            warn_backup_problem=True,
-                            warn_no_libmediainfo=True,
-                            warn_fs_metadata_error=True,
-                            warn_unhandled_files=True,
-                            ignore_unhandled_file_exts=['TMP', 'DAT'],
-                            job_code_sort_key=0,
-                            job_code_sort_order=0)
-    device_defaults = dict(only_external_mounts=True,
-                           device_autodetection=True,
-                           this_computer_source = False,
-                           this_computer_path='',
-                           device_without_dcim_autodetection=False,
-                           volume_whitelist=[''],
-                           volume_blacklist=[''],
-                           camera_blacklist=[''],
-                           ignored_paths=['.Trash', '.thumbnails'],
-                           use_re_ignored_paths=False
-                          )
-    backup_defaults = dict(backup_files=False,
-                           backup_device_autodetection=True,
-                           photo_backup_identifier=xdg_photos_identifier(),
-                           video_backup_identifier=xdg_videos_identifier(),
-                           backup_photo_location=os.path.expanduser('~'),
-                           backup_video_location=os.path.expanduser('~'),
-                          )
-    automation_defaults = dict(auto_download_at_startup=False,
-                               auto_download_upon_device_insertion=False,
-                               auto_unmount=False,
-                               auto_exit=False,
-                               auto_exit_force=False,
-                               move=False,
-                               verify_file=False
-                              )
-    performance_defaults = dict(generate_thumbnails=True,
-                                use_thumbnail_cache=True,
-                                save_fdo_thumbnails=True,
-                                max_cpu_cores=max(available_cpu_count(physical_only=True), 2),
-                                keep_thumbnails_days=30
-                                )
-    error_defaults = dict(conflict_resolution=int(constants.ConflictResolution.skip),
-                          backup_duplicate_overwrite=False)
-    destinations = dict(photo_backup_destinations=[''],
-                        video_backup_destinations=[''])
-    version_check = dict(check_for_new_versions=True,
-                         include_development_release=False,
-                         ignore_versions=[''])
-    restart_directives = dict(purge_thumbnails=False,
-                              optimize_thumbnail_db=False)
+
+    display_defaults = dict(
+        detailed_time_remaining=False,
+        warn_downloading_all=True,
+        warn_backup_problem=True,
+        warn_no_libmediainfo=True,
+        warn_fs_metadata_error=True,
+        warn_unhandled_files=True,
+        ignore_unhandled_file_exts=['TMP', 'DAT'],
+        job_code_sort_key=0,
+        job_code_sort_order=0,
+        did_you_know_on_startup=True,
+        did_you_know_index=0
+    )
+    device_defaults = dict(
+        only_external_mounts=True,
+        device_autodetection=True,
+        this_computer_source = False,
+        this_computer_path='',
+        device_without_dcim_autodetection=False,
+        volume_whitelist=[''],
+        volume_blacklist=[''],
+        camera_blacklist=[''],
+        ignored_paths=['.Trash', '.thumbnails'],
+        use_re_ignored_paths=False
+    )
+    backup_defaults = dict(
+        backup_files=False,
+        backup_device_autodetection=True,
+        photo_backup_identifier=xdg_photos_identifier(),
+        video_backup_identifier=xdg_videos_identifier(),
+        backup_photo_location=os.path.expanduser('~'),
+        backup_video_location=os.path.expanduser('~'),
+    )
+    automation_defaults = dict(
+        auto_download_at_startup=False,
+        auto_download_upon_device_insertion=False,
+        auto_unmount=False,
+        auto_exit=False,
+        auto_exit_force=False,
+        move=False,
+        verify_file=False
+    )
+    performance_defaults = dict(
+        generate_thumbnails=True,
+        use_thumbnail_cache=True,
+        save_fdo_thumbnails=True,
+        max_cpu_cores=max(available_cpu_count(physical_only=True), 2),
+        keep_thumbnails_days=30
+    )
+    error_defaults = dict(
+        conflict_resolution=int(constants.ConflictResolution.skip),
+        backup_duplicate_overwrite=False
+    )
+    destinations = dict(
+        photo_backup_destinations=[''],
+        video_backup_destinations=['']
+    )
+    version_check = dict(
+        check_for_new_versions=True,
+        include_development_release=False,
+        ignore_versions=['']
+    )
+    restart_directives = dict(
+        purge_thumbnails=False,
+        optimize_thumbnail_db=False
+    )
 
 
     def __init__(self) -> None:

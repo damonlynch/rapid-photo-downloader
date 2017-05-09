@@ -33,5 +33,23 @@
 <file alias="icons/error.svg">../images/error.svg</file>
 <file alias="icons/up.svg">../images/up.svg</file>
 <file alias="icons/down.svg">../images/down.svg</file>
+<file alias="did-you-know.svg">../images/know.svg</file>
+<file alias="tips/deviceshidden.png">../tips/deviceshidden.png</file>
+<file alias="tips/markall.png">../tips/markall.png</file>
+<file alias="tips/markmany.png">../tips/markmany.png</file>
+<file alias="tips/marksingle.png">../tips/marksingle.png</file>
+<file alias="tips/multipledevices.png">../tips/multipledevices.png</file>
+<file alias="tips/previouslydownloaded.png">../tips/previouslydownloaded.png</file>
+<file alias="tips/thumbnailsort.png">../tips/thumbnailsort.png</file>
+<file alias="tips/timeline.png">../tips/timeline.png</file>
+<file alias="tips/timelineadjust.png">../tips/timelineadjust.png</file>
+<file alias="tips/timelineselect.png">../tips/timelineselect.png</file>
+<file alias="tips/downloadwhereandrename.png">../tips/downloadwhereandrename.png</file>
+<file alias="tips/defaultdownloaddirectory.png">../tips/defaultdownloaddirectory.png</file>
+<file alias="tips/downloadsubfolders.png">../tips/downloadsubfolders.png</file>
+<file alias="tips/subfoldermenu.png">../tips/subfoldermenu.png</file>
+<file alias="tips/subfoldergeneration.png">../tips/subfoldergeneration.png</file>
+<file alias="tips/subfoldergenerationext.png">../tips/subfoldergenerationext.png</file>
+
 </qresource>
 </RCC>
