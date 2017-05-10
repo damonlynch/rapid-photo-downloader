@@ -1300,7 +1300,7 @@ class RapidWindow(QMainWindow):
                 else:
                     self.latest_version = stable_version
 
-            # remove in production testing code if in production!
+            # remove in development testing code if in production!
             if (
                     self.latest_version is not None and str(self.latest_version.version) not in
                     self.prefs.ignore_versions

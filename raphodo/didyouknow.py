@@ -57,7 +57,8 @@ tips = (
     (
         _(
             "If more than one file is selected, they'll all take the mark of the file whose "
-            "checkbox was clicked, regardless of whether they were previously marked or not."
+            "checkbox was clicked, regardless of whether they previously had a "
+            "checkmark or not."
         ),
         'markmany.png'
     ),
@@ -77,7 +78,8 @@ tips = (
     ),
     (
         _(
-            "The Timeline groups photos and videos based on how much time elapsed between "
+            "The <b>Timeline</b> groups photos and videos based on how much "
+            "time elapsed between "
             "consecutive shots. Use it to identify photos and videos taken at different periods "
             "in a single day or over consecutive days."
         ),
@@ -118,14 +120,14 @@ the Timeline:</p>
           """
           Thumbnails can be sorted using a variety of criteria:
 <ol>
-<li><i>Modification Time:</i> when the file was last modified, according to its metadata (where 
+<li><b>Modification Time:</b> when the file was last modified, according to its metadata (where 
  available) or according to the filesystem (as a fallback).</li>
-<li><i>Checked State:</i> whether the file is marked for download.</li>
-<li><i>Filename:</i> the full filename, including extension.</li>
-<li><i>Extension:</i> the filename's extension. You can use this to group jpeg and raw images, for 
+<li><b>Checked State:</b> whether the file is marked for download.</li>
+<li><b>Filename:</b> the full filename, including extension.</li>
+<li><b>Extension:</b> the filename's extension. You can use this to group jpeg and raw images, for 
 instance.</li>
-<li><i>File Type:</i> photo or video.</li>
-<li><i>Device:</i> name of the device the photos and videos are being downloaded from.</li>
+<li><b>File Type:</b> photo or video.</li>
+<li><b>Device:</b> name of the device the photos and videos are being downloaded from.</li>
 </ol> """
         ),
         'thumbnailsort.png'
@@ -305,28 +307,15 @@ recommended!.
         'photoeditordefault.png',
         _(
             """
-<p>Three types of sequence numbers are available to help you assign unique names to your photos and 
+<p>Four types of sequence values are available to help you assign unique names to your photos and 
 videos:
 <ol>
 <li><b>Downloads today</b>: tracks downloads completed during that day.</li>
 <li><b>Stored number</b>: similar to Downloads today, but it is remembered from the last time the  
 program was run.</li>
 <li><b>Session number</b>: reset each time the program is run.</li>
+<li><b>Sequence letter</b>: like session numbers, but uses letters.</li>
 </ol></p>
-<p>
-<b>Sequence number updates</b></p>
-<p><i>Stored</i> and <i>session</i> numbers are incremented only when you use them. For instance, 
-if you download 
-some photos without using these sequence numbers, and then download some more photos using them, 
-the prior download will have no effect on the value of the sequence numbers. 
-</p>
-<p><i>Downloads today</i> tracks the number of successful downloads made on any one day. 
-At the start of each new day, it is reset.</p>
-<p>
-In contrast to other sequence numbers, <i>Downloads today</i> is updated regardless of whether it 
-is used or not. That is, whether or not you use the Downloads Today sequence number as part of 
-the photo or video file name, the number will always reflect how many successful downloads were 
-completed on that day.</p>
 <p>
 Read more about sequence numbers in the <a 
 href="http://damonlynch.net/rapid/documentation/#sequencenumbers">online documentation</a>.</p>
@@ -336,7 +325,7 @@ href="http://damonlynch.net/rapid/documentation/#sequencenumbers">online documen
     (
         _(
             """
-The <i>Rename</i> panel allows you to configure file renaming. To rename your files, you can choose
+The <b>Rename</b> panel allows you to configure file renaming. To rename your files, you can choose
 from among existing renaming presets or define your own.              
             """
         ),
@@ -364,7 +353,7 @@ backup locations specified.
         ),
         'backup.png',
         _(
-            "In this example, the drive <i>photobackup</i> does not contain a folder named "
+            "In this example, the drive <b>photobackup</b> does not contain a folder named "
             "<tt>Videos</tt>, so videos will not be backed up to it."
         )
     ),
@@ -441,6 +430,8 @@ class DidYouKnowDialog(QDialog):
 
         self.setWindowTitle(_("Tip of the Day"))
 
+        self.setSizeGripEnabled(True)
+
         titleFont = QFont()
         titleFont.setPointSize(titleFont.pointSize() + 3)
         pixsize = int(QFontMetrics(QFont()).height() * 1.75)
@@ -459,7 +450,16 @@ class DidYouKnowDialog(QDialog):
         self.text = QTextBrowser()
         self.text.setOpenExternalLinks(True)
         self.text.setViewportMargins(10, 10, 10, 10)
-        self.text.setStyleSheet("QTextEdit { background: palette(base); }")
+        self.text.setStyleSheet("""
+        QTextEdit { background: palette(base); }
+        """)
+
+        self.text.document().setDefaultStyleSheet(
+            """
+            b {color: grey;}
+            tt {color: darkRed; font-weight: bold;}
+            """
+        )
 
         self.tips = Tips()
 

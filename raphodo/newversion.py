@@ -309,6 +309,9 @@ class NewVersionCheckDialog(QDialog):
         self.download_it = _('Do you want to download the new version?') + '<br>'
         self.changelog_msg = _('Changes in the new release can be viewed <a href="%s">here</a>.')
 
+        for label in (self.checkingLabel, self.noNewVersion, self.failedToCheck):
+            label.setAlignment(Qt.AlignLeft|Qt.AlignTop)
+
         self.newVersion = QLabel(
             self._makeDownloadMsg(
                 '1.2.3a10', offer_download=True, changelog_url=''
