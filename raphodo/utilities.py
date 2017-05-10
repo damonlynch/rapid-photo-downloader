@@ -345,6 +345,24 @@ def same_device(file1: str, file2: str) -> bool:
     return dev1 == dev2
 
 
+def find_mount_point(path: str) -> str:
+    """
+    Find the mount point of a path
+    See:
+    http://stackoverflow.com/questions/4453602/how-to-find-the-mountpoint-a-file-resides-on
+    
+    >>> print(find_mount_point('/crazy/path'))
+    /
+    
+    :param path: 
+    :return: 
+    """
+    path = os.path.realpath(path)
+    while not os.path.ismount(path):
+        path = os.path.dirname(path)
+    return path
+
+
 def make_internationalized_list(items: List[str]) -> str:
     r"""
     Makes a string of items conforming to i18n

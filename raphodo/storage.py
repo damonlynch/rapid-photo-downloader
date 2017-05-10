@@ -55,7 +55,7 @@ import subprocess
 import shlex
 import pwd
 from collections import namedtuple
-from typing import Optional, Tuple, List, Dict
+from typing import Optional, Tuple, List, Dict, Any
 from urllib.request import pathname2url
 from tempfile import NamedTemporaryFile
 
@@ -75,7 +75,9 @@ from gi.repository import GUdev, UDisks, GLib
 from gettext import gettext as _
 
 from raphodo.constants import Desktop, Distro
-from raphodo.utilities import process_running, log_os_release, remove_topmost_directory_from_path
+from raphodo.utilities import (
+    process_running, log_os_release, remove_topmost_directory_from_path, find_mount_point
+)
 
 logging_level = logging.DEBUG
 
@@ -1340,7 +1342,7 @@ if have_gio:
 
             return icon_names
 
-        def getProps(self, path: str) -> Optional[Tuple[List[str], bool]]:
+        def getProps(self, path: str) -> Tuple[Optional[List[str]], Optional[bool]]:
             """
             Given a mount's path, get the icon names suggested by the
             volume monitor, and determine whether the mount is
@@ -1357,3 +1359,37 @@ if have_gio:
                         icon_names = self.getIconNames(mount)
                         return (icon_names, mount.can_eject())
             return (None, None)
+
+
+def _get_info_size_value(info: Gio.FileInfo, attr: str) -> int:
+    if info.get_attribute_data(attr).type ==  Gio.FileAttributeType.UINT64:
+        return info.get_attribute_uint64(attr)
+    else:
+        return info.get_attribute_uint32(attr)
+
+
+def get_mount_size(mount: QStorageInfo) -> Tuple[int, int]:
+    """
+    Uses GIO to get bytes total and bytes free (available) for the mount that a
+    path is in.
+    
+    :param path: path located anywhere in the mount
+    :return: bytes_total, bytes_free
+    """
+
+    bytes_free = mount.bytesAvailable()
+    bytes_total = mount.bytesTotal()
+
+    if bytes_total or not have_gio:
+        return bytes_total, bytes_free
+
+    path = mount.rootPath()
+
+    logging.debug("Using GIO to query file system attributes for %s...", path)
+    p = Gio.File.new_for_path(os.path.abspath(path))
+    info = p.query_filesystem_info(','.join((Gio.FILE_ATTRIBUTE_FILESYSTEM_SIZE,
+                                             Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)))
+    logging.debug("...query of file system attributes for %s completed", path)
+    bytes_total = _get_info_size_value(info, Gio.FILE_ATTRIBUTE_FILESYSTEM_SIZE)
+    bytes_free = _get_info_size_value(info, Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
+    return bytes_total, bytes_free

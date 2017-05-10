@@ -38,7 +38,7 @@ from PyQt5.QtGui import (QColor, QPixmap, QIcon, QPaintEvent, QPalette, QMouseEv
 
 
 from raphodo.devicedisplay import DeviceDisplay, BodyDetails, icon_size
-from raphodo.storage import (StorageSpace, get_path_display_name)
+from raphodo.storage import (StorageSpace, get_path_display_name, get_mount_size)
 from raphodo.constants import (CustomColors, DestinationDisplayType, DisplayingFilesOfType,
                                DestinationDisplayMousePos, PresetPrefType, NameGenerationType,
                                DestinationDisplayTooltipState, FileType)
@@ -163,6 +163,7 @@ def adjusted_download_size(photos_size_to_download: int,
             videos_size_to_download = videos_size_to_download * 2
     return photos_size_to_download, videos_size_to_download
 
+
 class DestinationDisplay(QWidget):
     """
     Custom widget handling the display of download destinations, not including the file system
@@ -260,53 +261,74 @@ class DestinationDisplay(QWidget):
         else:
             defaults = gnc.VIDEO_SUBFOLDER_MENU_DEFAULTS
 
-        self.subfolder0Act = QAction(make_subfolder_menu_entry(defaults[0]),
-                                     self,
-                                     checkable=True,
-                                     triggered=self.doSubfolder0)
-        self.subfolder1Act = QAction(make_subfolder_menu_entry(defaults[1]),
-                                     self,
-                                     checkable=True,
-                                     triggered=self.doSubfolder1)
-        self.subfolder2Act = QAction(make_subfolder_menu_entry(defaults[2]),
-                                     self,
-                                     checkable=True,
-                                     triggered=self.doSubfolder2)
-        self.subfolder3Act = QAction(make_subfolder_menu_entry(defaults[3]),
-                                     self,
-                                     checkable=True,
-                                     triggered=self.doSubfolder3)
-        self.subfolder4Act = QAction(make_subfolder_menu_entry(defaults[4]),
-                                     self,
-                                     checkable=True,
-                                     triggered=self.doSubfolder4)
-        self.subfolder5Act = QAction('Preset 0',
-                                     self,
-                                     checkable=True,
-                                     triggered=self.doSubfolder5)
-        self.subfolder6Act = QAction('Preset 1',
-                                     self,
-                                     checkable=True,
-                                     triggered=self.doSubfolder6)
-        self.subfolder7Act = QAction('Preset 2',
-                                     self,
-                                     checkable=True,
-                                     triggered=self.doSubfolder7)
-        self.subfolder8Act = QAction('Preset 3',
-                                     self,
-                                     checkable=True,
-                                     triggered=self.doSubfolder8)
-        self.subfolder9Act = QAction('Preset 4',
-                                     self,
-                                     checkable=True,
-                                     triggered=self.doSubfolder9)
+        self.subfolder0Act = QAction(
+            make_subfolder_menu_entry(defaults[0]),
+            self,
+            checkable=True,
+            triggered=self.doSubfolder0
+        )
+        self.subfolder1Act = QAction(
+            make_subfolder_menu_entry(defaults[1]),
+            self,
+            checkable=True,
+            triggered=self.doSubfolder1
+        )
+        self.subfolder2Act = QAction(
+            make_subfolder_menu_entry(defaults[2]),
+            self,
+            checkable=True,
+            triggered=self.doSubfolder2
+        )
+        self.subfolder3Act = QAction(
+            make_subfolder_menu_entry(defaults[3]),
+            self,
+            checkable=True,
+            triggered=self.doSubfolder3
+        )
+        self.subfolder4Act = QAction(
+            make_subfolder_menu_entry(defaults[4]),
+            self,
+            checkable=True,
+            triggered=self.doSubfolder4
+        )
+        self.subfolder5Act = QAction(
+            'Preset 0',
+            self,
+            checkable=True,
+            triggered=self.doSubfolder5
+        )
+        self.subfolder6Act = QAction(
+            'Preset 1',
+            self,
+            checkable=True,
+            triggered=self.doSubfolder6
+        )
+        self.subfolder7Act = QAction(
+            'Preset 2',
+            self,
+            checkable=True,
+            triggered=self.doSubfolder7
+        )
+        self.subfolder8Act = QAction(
+            'Preset 3',
+            self,
+            checkable=True,
+            triggered=self.doSubfolder8
+        )
+        self.subfolder9Act = QAction(
+            'Preset 4',
+            self,
+            checkable=True,
+            triggered=self.doSubfolder9
+        )
         # Translators: Custom refers to the user choosing a non-default value that
         # they customize themselves
-        self.subfolderCustomAct = QAction(_('Custom...'),
-                                               self,
-                                               checkable=True,
-                                               triggered=self.doSubfolderCustom
-                                               )
+        self.subfolderCustomAct = QAction(
+            _('Custom...'),
+            self,
+            checkable=True,
+            triggered=self.doSubfolderCustom
+        )
 
         self.subfolderGroup = QActionGroup(self)
 
@@ -461,10 +483,9 @@ class DestinationDisplay(QWidget):
             self.os_stat_device = 0
 
         mount = QStorageInfo(path)
-        self.storage_space = StorageSpace(
-                        bytes_free=mount.bytesAvailable(),
-                        bytes_total=mount.bytesTotal(),
-                        path=path)
+        bytes_total, bytes_free = get_mount_size(mount=mount)
+
+        self.storage_space = StorageSpace(bytes_free=bytes_free, bytes_total=bytes_total, path=path)
 
     def setDownloadAttributes(self, marked: FileTypeCounter,
                               photos_size: int,

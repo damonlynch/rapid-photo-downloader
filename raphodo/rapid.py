@@ -783,13 +783,6 @@ class RapidWindow(QMainWindow):
         else:
             logging.debug("Default file manager could not be determined")
 
-        self.createPathViews()
-
-        self.createActions()
-        logging.debug("Laying out main window")
-        self.createMenus()
-        self.createLayoutAndButtons(centralWidget)
-
         # Setup notification system
         try:
             self.have_libnotify = Notify.init('rapid-photo-downloader')
@@ -884,6 +877,13 @@ class RapidWindow(QMainWindow):
             self.gvolumeMonitor.partitionUnmounted.connect(self.partitionUmounted)
             self.gvolumeMonitor.volumeAddedNoAutomount.connect(self.noGVFSAutoMount)
             self.gvolumeMonitor.cameraPossiblyRemoved.connect(self.cameraRemoved)
+
+        self.createPathViews()
+
+        self.createActions()
+        logging.debug("Laying out main window")
+        self.createMenus()
+        self.createLayoutAndButtons(centralWidget)
 
         logging.debug("Starting version check")
         self.newVersion = NewVersion(self)
@@ -1949,7 +1949,7 @@ class RapidWindow(QMainWindow):
         # Display storage space when photos and videos are being downloaded to the same
         # partition
 
-        self.combinedDestinationDisplay = DestinationDisplay()
+        self.combinedDestinationDisplay = DestinationDisplay(parent=self)
         self.combinedDestinationDisplayContainer = QPanelView(_('Projected Storage Use'),
                                       headerColor=QColor(ThumbnailBackgroundName),
                                       headerFontColor=QColor(Qt.white))
@@ -4972,11 +4972,9 @@ class RapidWindow(QMainWindow):
         for mount in mounts:
             icon_names, can_eject = self.getIconsAndEjectableForMount(mount)
             device = Device()
-            device.set_download_from_volume(mount.rootPath(),
-                                          mount.displayName(),
-                                          icon_names,
-                                          can_eject,
-                                          mount)
+            device.set_download_from_volume(
+                mount.rootPath(), mount.displayName(), icon_names, can_eject, mount
+            )
             self.prepareNonCameraDeviceScan(device=device, on_startup=on_startup)
 
     def setupManualPath(self, on_startup: bool=False) -> None:

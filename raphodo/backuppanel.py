@@ -51,6 +51,7 @@ from raphodo.devices import (BackupDeviceCollection, BackupVolumeDetails)
 from raphodo.devicedisplay import (DeviceDisplay, BodyDetails, icon_size, DeviceView)
 from raphodo.utilities import (thousands, format_size_for_user)
 from raphodo.destinationdisplay import make_body_details, adjusted_download_size
+from raphodo.storage import get_mount_size
 
 
 BackupVolumeUse = namedtuple('BackupVolumeUse', 'bytes_total bytes_free backup_type marked '
@@ -271,19 +272,22 @@ class BackupDeviceModel(QAbstractListModel):
                 photos_size_to_download, videos_size_to_download = \
                     self._download_size_by_backup_type(backup_type=device.backup_type)
 
-
                 photos_size_to_download, videos_size_to_download = adjusted_download_size(
                     photos_size_to_download=photos_size_to_download,
                     videos_size_to_download=videos_size_to_download,
                     os_stat_device=device.os_stat_device,
                     downloading_to=self._downloading_to)
 
-                return BackupVolumeUse(bytes_total=mount.bytesTotal(),
-                                       bytes_free=mount.bytesFree(),
-                                       backup_type=device.backup_type,
-                                       marked = self.marked,
-                                       photos_size_to_download=photos_size_to_download,
-                                       videos_size_to_download=videos_size_to_download)
+                bytes_total, bytes_free = get_mount_size(mount=mount)
+
+                return BackupVolumeUse(
+                    bytes_total=bytes_total,
+                    bytes_free=bytes_free,
+                    backup_type=device.backup_type,
+                    marked = self.marked,
+                    photos_size_to_download=photos_size_to_download,
+                    videos_size_to_download=videos_size_to_download
+                )
 
         return None
 
@@ -304,8 +308,11 @@ class BackupDeviceModel(QAbstractListModel):
                 photos_size_to_download=photos_size_to_download,
                 videos_size_to_download=videos_size_to_download,
                 os_stat_device=device.os_stat_device,
-                downloading_to=self._downloading_to)
-            if photos_size_to_download + videos_size_to_download >= device.mount.bytesFree():
+                downloading_to=self._downloading_to
+            )
+
+            bytes_total, bytes_free = get_mount_size(mount=device.mount)
+            if photos_size_to_download + videos_size_to_download >= bytes_free:
                 return False
         return True
 
