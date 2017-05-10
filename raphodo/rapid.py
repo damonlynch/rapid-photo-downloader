@@ -165,6 +165,7 @@ from raphodo.problemnotification import (
     FsMetadataWriteProblem, Problem, Problems, CopyingProblems, RenamingProblems, BackingUpProblems
 )
 from raphodo.viewutils import standardIconSize
+import raphodo.didyouknow as didyouknow
 
 
 # Avoid segfaults at exit:
@@ -472,7 +473,7 @@ class RapidWindow(QMainWindow):
         if pymedia_version_info() is None:
             if libmediainfo_missing:
                 logging.error(
-                    "pymediainfo installed, but the library libmediainfo appears to be missing"
+                    "pymediainfo is installed, but the library libmediainfo appears to be missing"
                 )
 
         self.log_gphoto2 = log_gphoto2 == True
@@ -1107,6 +1108,10 @@ class RapidWindow(QMainWindow):
             if warning.remember:
                 self.prefs.warn_no_libmediainfo = False
 
+        self.tip = didyouknow.DidYouKnowDialog(self.prefs, self)
+        if self.prefs.did_you_know_on_startup:
+            self.tip.activate()
+
         if not prefs_valid:
             self.notifyPrefsAreInvalid(details=msg)
         else:
@@ -1632,46 +1637,61 @@ class RapidWindow(QMainWindow):
         self.errorLogAct.setChecked(self.errorLog.isVisible())
 
     def createActions(self) -> None:
-        self.sourceAct = QAction(_('&Source'), self, shortcut="Ctrl+s",
-                                 triggered=self.doSourceAction)
+        self.sourceAct = QAction(
+            _('&Source'), self, shortcut="Ctrl+s", triggered=self.doSourceAction
+        )
 
-        self.downloadAct = QAction(_("Download"), self,
-                                   shortcut="Ctrl+Return",
-                                   triggered=self.doDownloadAction)
+        self.downloadAct = QAction(
+            _("Download"), self, shortcut="Ctrl+Return", triggered=self.doDownloadAction
+        )
 
-        self.refreshAct = QAction(_("&Refresh..."), self, shortcut="Ctrl+R",
-                                  triggered=self.doRefreshAction)
+        self.refreshAct = QAction(
+            _("&Refresh..."), self, shortcut="Ctrl+R", triggered=self.doRefreshAction
+        )
 
-        self.preferencesAct = QAction(_("&Preferences"), self,
-                                      shortcut="Ctrl+P",
-                                      triggered=self.doPreferencesAction)
+        self.preferencesAct = QAction(
+            _("&Preferences"), self, shortcut="Ctrl+P", triggered=self.doPreferencesAction
+        )
 
-        self.quitAct = QAction(_("&Quit"), self, shortcut="Ctrl+Q",
-                               triggered=self.close)
+        self.quitAct = QAction(
+            _("&Quit"), self, shortcut="Ctrl+Q", triggered=self.close
+        )
 
-        self.errorLogAct = QAction(_("Error Reports"), self, enabled=True,
-                                   checkable=True,
-                                   triggered=self.doErrorLogAction)
+        self.errorLogAct = QAction(
+            _("Error &Reports"), self, enabled=True, checkable=True, triggered=self.doErrorLogAction
+        )
 
-        self.clearDownloadsAct = QAction(_("Clear Completed Downloads"), self,
-                                         triggered=self.doClearDownloadsAction)
+        self.clearDownloadsAct = QAction(
+            _("Clear Completed Downloads"), self, triggered=self.doClearDownloadsAction
+        )
 
-        self.helpAct = QAction(_("Get Help Online..."), self, shortcut="F1",
-                               triggered=self.doHelpAction)
+        self.helpAct = QAction(
+            _("Get Help Online..."), self, shortcut="F1", triggered=self.doHelpAction
+        )
 
-        self.reportProblemAct = QAction(_("Report a Problem..."), self,
-                                        triggered=self.doReportProblemAction)
+        self.didYouKnowAct = QAction(
+            _("&Tip of the Day..."), self, triggered=self.doDidYouKnowAction
+        )
 
-        self.makeDonationAct = QAction(_("Make a Donation..."), self,
-                                       triggered=self.doMakeDonationAction)
+        self.reportProblemAct = QAction(
+            _("Report a Problem..."), self, triggered=self.doReportProblemAction
+        )
 
-        self.translateApplicationAct = QAction(_("Translate this Application..."),
-                           self, triggered=self.doTranslateApplicationAction)
+        self.makeDonationAct = QAction(
+            _("Make a Donation..."), self, triggered=self.doMakeDonationAction
+        )
 
-        self.aboutAct = QAction(_("&About..."), self, triggered=self.doAboutAction)
+        self.translateApplicationAct = QAction(
+            _("Translate this Application..."), self, triggered=self.doTranslateApplicationAction
+        )
 
-        self.newVersionAct = QAction(_("Check for Updates..."), self,
-                                     triggered=self.doCheckForNewVersion)
+        self.aboutAct = QAction(
+            _("&About..."), self, triggered=self.doAboutAction
+        )
+
+        self.newVersionAct = QAction(
+            _("Check for Updates..."), self, triggered=self.doCheckForNewVersion
+        )
 
     def createLayoutAndButtons(self, centralWidget) -> None:
         """
@@ -2300,6 +2320,7 @@ class RapidWindow(QMainWindow):
         self.menu.addAction(self.clearDownloadsAct)
         self.menu.addSeparator()
         self.menu.addAction(self.helpAct)
+        self.menu.addAction(self.didYouKnowAct)
         self.menu.addAction(self.newVersionAct)
         self.menu.addAction(self.reportProblemAct)
         self.menu.addAction(self.makeDonationAct)
@@ -2350,15 +2371,21 @@ class RapidWindow(QMainWindow):
         self.scan_all_again = self.scan_non_camera_devices_again = False
         self.search_for_devices_again = False
 
-    def doErrorLogAction(self):
+    def doErrorLogAction(self) -> None:
         self.errorLog.setVisible(self.errorLogAct.isChecked())
 
     def doClearDownloadsAction(self):
         self.thumbnailModel.clearCompletedDownloads()
 
-    def doHelpAction(self):
+    def doHelpAction(self) -> None:
         webbrowser.open_new_tab("http://www.damonlynch.net/rapid/help.html")
 
+    def doDidYouKnowAction(self) -> None:
+        try:
+            self.tip.activate()
+        except AttributeError:
+            self.tip = didyouknow.DidYouKnowDialog(self.prefs, self)
+            self.tip.activate()
 
     def makeProblemReportDialog(self, header: str, title: Optional[str]=None) -> None:
         log_path, log_file = os.path.split(iplogging.full_log_file_path())

@@ -534,18 +534,36 @@ class DidYouKnowDialog(QDialog):
         self.decrementTip()
         self.showTip()
 
+    @pyqtSlot()
+    def activate(self) -> None:
+        self.showTip()
+        self.setVisible(True)
+        self.activateWindow()
+        self.raise_()
+
     def reject(self) -> None:
-        self.incrementTip()
-        super().reject()
+        """
+        Called when user hits escape key
+        """
+
+        self.saveSettings()
+        if self.rapidApp is None:
+            super().reject()
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        self.incrementTip()
+        self.saveSettings()
+        if self.rapidApp is None:
+            event.accept()
+        else:
+            event.ignore()
+            self.hide()
 
+    def saveSettings(self) -> None:
+        self.incrementTip()
         settings = QSettings()
         settings.beginGroup("DidYouKnowWindow")
         settings.setValue("windowSize", self.size())
         settings.endGroup()
-        event.accept()
 
 
 if __name__ == '__main__':
