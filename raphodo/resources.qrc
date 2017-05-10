@@ -50,6 +50,13 @@
 <file alias="tips/subfoldermenu.png">../tips/subfoldermenu.png</file>
 <file alias="tips/subfoldergeneration.png">../tips/subfoldergeneration.png</file>
 <file alias="tips/subfoldergenerationext.png">../tips/subfoldergenerationext.png</file>
+<file alias="tips/jobcodes.png">../tips/jobcodes.png</file>
+<file alias="tips/jobcodehint.png">../tips/jobcodehint.png</file>
+<file alias="tips/commandline.png">../tips/commandline.png</file>
+<file alias="tips/renameoptions.png">../tips/renameoptions.png</file>
+<file alias="tips/backup.png">../tips/backup.png</file>
+<file alias="tips/photoeditordefault.png">../tips/photoeditordefault.png</file>
+<file alias="tips/customdate.png">../tips/customdate.png</file>
 
 </qresource>
 </RCC>

@@ -167,11 +167,6 @@ class JobCodeOptionsWidget(QFramedWidget):
         layout.addLayout(jobCodeLayout)
         self.setLayout(layout)
 
-        self.explanation = QLabel(_("A Job Code is text that describes sets of photos and videos. "
-                               "Job Codes can be used in subfolder and file names."))
-        self.explanation.setWordWrap(True)
-        self.explanation.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
-
         self.messageWidget = MessageWidget(
             (_('Select photos and videos to be able to apply a new or existing Job Code to them.'),
              _('The new Job Code will be applied to all selected photos and/or videos.'),
@@ -243,14 +238,13 @@ class JobCodeOptionsWidget(QFramedWidget):
         sortLayout.addWidget(self.sortOrder)
         sortLayout.addStretch()
 
-        jobCodeLayout.addWidget(self.explanation, 0, 0, 1, 2)
-        jobCodeLayout.addWidget(self.jobCodesWidget, 1, 0, 1, 2)
-        jobCodeLayout.addLayout(sortLayout, 2, 0, 1, 2)
-        jobCodeLayout.addWidget(self.messageWidget, 3, 0, 1, 2)
-        jobCodeLayout.addWidget(self.newButton, 4, 0, 1, 1)
-        jobCodeLayout.addWidget(self.applyButton, 4, 1, 1, 1)
-        jobCodeLayout.addWidget(self.removeButton, 5, 0, 1, 1)
-        jobCodeLayout.addWidget(self.removeAllButton, 5, 1, 1, 1)
+        jobCodeLayout.addWidget(self.jobCodesWidget, 0, 0, 1, 2)
+        jobCodeLayout.addLayout(sortLayout, 1, 0, 1, 2)
+        jobCodeLayout.addWidget(self.messageWidget, 2, 0, 1, 2)
+        jobCodeLayout.addWidget(self.newButton, 3, 0, 1, 1)
+        jobCodeLayout.addWidget(self.applyButton, 3, 1, 1, 1)
+        jobCodeLayout.addWidget(self.removeButton, 4, 0, 1, 1)
+        jobCodeLayout.addWidget(self.removeAllButton, 4, 1, 1, 1)
 
         self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding)
 
