@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0b5 (2017-05-xx)
+0.9.0b5 (2017-05-10)
 --------------------
 
  - Added a Tip of the Day dialog.
@@ -9,8 +9,9 @@ Changelog for Rapid Photo Downloader
  - Fixed bug where rendering destination storage space would crash when the
    destination device's storage space is reported as zero bytes in size.
 
- - Fixed bug where install.py could go into a repetitive state when distro
-   is Linux Mint, but /etc/os-release wrongly identifies it as Ubuntu.
+ - Fixed bug where install.py could get into an infinitely recurring state
+   when the Linux distribution is is Linux Mint, but /etc/os-release wrongly
+   identifies it as Ubuntu.
 
 0.9.0b4 (2017-05-04)
 --------------------
