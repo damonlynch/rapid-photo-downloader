@@ -95,10 +95,11 @@ class Distro(Enum):
     arch = 7
     opensuse = 8
     manjaro = 9
+    galliumos = 10
     unknown = 20
 
 
-debian_like = (Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint)
+debian_like = (Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint, Distro.galliumos)
 fedora_like = (Distro.fedora, Distro.korora)
 arch_like = (Distro.arch, Distro.manjaro)
 

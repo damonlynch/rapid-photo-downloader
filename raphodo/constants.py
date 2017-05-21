@@ -493,6 +493,7 @@ class Distro(Enum):
     neon = 7
     opensuse = 8
     gentoo = 9
+    galliumos = 10
 
 
 orientation_offset = dict(

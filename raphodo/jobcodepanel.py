@@ -28,11 +28,15 @@ import logging
 from gettext import gettext as _
 
 
-from PyQt5.QtCore import (Qt, pyqtSlot, QSize)
-from PyQt5.QtWidgets import (QWidget, QSizePolicy, QMessageBox, QVBoxLayout, QLabel,
-                             QScrollArea, QFrame, QGridLayout, QAbstractItemView, QListWidgetItem,
-                             QHBoxLayout, QDialog, QDialogButtonBox, QCheckBox, QComboBox)
-from PyQt5.QtGui import (QColor, QPalette, QFont, QFontMetrics, QIcon, QShowEvent)
+from PyQt5.QtCore import (Qt, pyqtSlot, QRegularExpression)
+from PyQt5.QtWidgets import (
+    QWidget, QSizePolicy, QMessageBox, QVBoxLayout, QLabel, QScrollArea, QFrame, QGridLayout,
+    QAbstractItemView, QListWidgetItem, QHBoxLayout, QDialog, QDialogButtonBox, QCheckBox,
+    QComboBox
+)
+from PyQt5.QtGui import (
+    QColor, QPalette, QFont, QRegularExpressionValidator, QIcon, QShowEvent
+)
 
 
 from raphodo.constants import (JobCodeSort, ThumbnailBackgroundName, )
@@ -55,6 +59,7 @@ class JobCodeDialog(QDialog):
         self.rapidApp = parent  # type: 'RapidWindow'
         self.prefs = self.rapidApp.prefs
         thumbnailModel = self.rapidApp.thumbnailModel
+
         if on_download:
             directive = _('Enter a new Job Code, or select a previous one')
 
@@ -99,6 +104,15 @@ class JobCodeDialog(QDialog):
         self.jobCodeComboBox = QComboBox()
         self.jobCodeComboBox.addItems(job_codes)
         self.jobCodeComboBox.setEditable(True)
+
+        if not self.prefs.strip_characters:
+            exp = "[^/\\0]+"
+        else:
+            exp = '[^\\:\*\?"<>|\\0/]+'
+        self.jobCodeExp = QRegularExpression()
+        self.jobCodeExp.setPattern(exp)
+        self.jobCodeValidator = QRegularExpressionValidator(self.jobCodeExp, self.jobCodeComboBox)
+        self.jobCodeComboBox.setValidator(self.jobCodeValidator)
 
         if not on_download:
             self.jobCodeComboBox.clearEditText()
