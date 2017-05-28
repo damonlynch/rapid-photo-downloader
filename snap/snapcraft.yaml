@@ -1,5 +1,5 @@
 name: rapid-photo-downloader
-version: '0.9.0b3'
+version: '0.9.0b5'
 summary: Download, rename and back up photos and videos from cameras and other devices
 description: |
   Rapid Photo Downloader imports photos and videos from cameras, phones,
@@ -12,27 +12,33 @@ grade: devel
 confinement: classic
 
 apps:
-  run:
+  rapid-photo-downloader:
     command: rapid-photo-downloader
     plugs: [home, network, network-bind, unity7, x11, mount-observe]
 
 parts:
-  python-gphoto2:
+  rapid-photo-downloader:
     plugin: python
-    python-packages:
-      - gphoto2
+    source: ../
     stage-packages:
-      - libgphoto2
+     - python3-distutils-extra
+     - libgphoto2-6
+     - python3-pyqt5
+     - qt5-image-formats-plugins
+     - libimage-exiftool-perl
+     - exiv2
+     - libmediainfo0v5
+     - libraw-bin
+     - python3-gi
+     - gir1.2-gexiv2-0.10
+     - gir1.2-gudev-1.0
+     - gir1.2-udisks-2.0
+     - gir1.2-notify-0.7
+     - gir1.2-glib-2.0
+     - gir1.2-gstreamer-1.0
     build-packages:
-      - g++
-      - libgphoto2-dev
-      - python3-dev
-  python-pyzmq:
-    plugin: python
-    python-packages:
-      - pyzmq=15.1.0
-    build-packages:
-      - g++
-      - python3-dev
-      - libzmq3-dev
-
+     - build-essential
+     - python3-distutils-extra
+     - libgphoto2-dev
+     - python3-dev
+     - libzmq3-dev

@@ -126,6 +126,7 @@ class AboutDialog(QDialog):
         Tobias Bannert <tobannert@gmail.com>
         Adolfo Jayme Barrientos <fitoschido@gmail.com>
         Alain J. Baudrez <a.baudrez@gmail.com>
+        Mohammed Belkacem <belkacem77@gmail.com>
         Kevin Brubeck Unhammer <unhammer@fsfe.org>
         Pavel Borecki <pavel.borecki@gmail.com>
         Bert <crinbert@yahoo.com>
@@ -138,6 +139,7 @@ class AboutDialog(QDialog):
         Torben Gundtofte-Bruun <torben@g-b.dk>
         Мирослав Николић <miroslavnikolic@rocketmail.com>
         Joachim Johansson <joachim.j@gmail.com>
+        Jean-Marc Lartigue <m.balthazar@orange.fr>
         Miroslav Matejaš <silverspace@ubuntu-hr.org>
         Nicolás M. Zahlut <nzahlut@live.com>
         Erik M

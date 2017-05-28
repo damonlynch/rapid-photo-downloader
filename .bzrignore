@@ -20,3 +20,7 @@ test2.py
 ./snap
 ./stage
 ./.cloc_ignore
+parts
+prime
+stage
+rapid-photo-downloader_0.9.0b5_amd64.snap
