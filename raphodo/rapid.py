@@ -4823,6 +4823,8 @@ class RapidWindow(QMainWindow):
         if device.device_type == DeviceType.camera:
             self.startCameraScan(device.camera_model, device.camera_port)
         else:
+            if device.device_type == DeviceType.path:
+                self.thisComputer.setViewVisible(True)
             self.startDeviceScan(device=device)
 
     def rescanDevicesAndComputer(self, ignore_cameras: bool, rescan_path: bool) -> None:

@@ -11,6 +11,9 @@ Changelog for Rapid Photo Downloader
 
  - Added GalliumOS to the list of Linux distros supported by the install.py.
 
+ - Fixed bug where "Select a source folder" was displayed after rescanning
+   a folder on This Computer.
+
 0.9.0b5 (2017-05-10)
 --------------------
 
