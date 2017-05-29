@@ -20,11 +20,10 @@ parts:
   rapid-photo-downloader:
     plugin: python
     source: ../
+    python-packages:
+     - PyQt5
     stage-packages:
-     - python3-distutils-extra
      - libgphoto2-6
-     - python3-pyqt5
-     - qt5-image-formats-plugins
      - libimage-exiftool-perl
      - exiv2
      - libmediainfo0v5
@@ -38,7 +37,6 @@ parts:
      - gir1.2-gstreamer-1.0
     build-packages:
      - build-essential
-     - python3-distutils-extra
      - libgphoto2-dev
      - python3-dev
      - libzmq3-dev
