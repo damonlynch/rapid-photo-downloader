@@ -49,24 +49,13 @@ if have_pymediainfo:
         have_pymediainfo = False
         libmediainfo_missing = True
 
-def version_info() -> Optional[str]:
-    """
-    returns the version of Exiftool being used
-
-    :return version number, or None if Exiftool cannot be found
-    """
-    try:
-        return subprocess.check_output(['exiftool', '-ver']).strip().decode()
-    except OSError:
-        return None
-
 def pymedia_version_info() -> Optional[str]:
     if have_pymediainfo:
         return pymediainfo.__version__
     else:
         return None
 
-EXIFTOOL_VERSION = version_info()
+EXIFTOOL_VERSION = exiftool.version_info()
 
 
 class MetaData:
@@ -92,18 +81,24 @@ class MetaData:
     def _get(self, key, missing):
 
         if key in ("VideoStreamType", "FileNumber"):
-            # special case: want exiftool's string formatting
+            # special case: want ExifTool's string formatting
             # i.e. no -n tag
             if not self.metadata_string_format:
-                self.metadata_string_format = \
-                    self.et_process.execute_json_no_formatting(self.filename)
+                try:
+                    self.metadata_string_format = \
+                        self.et_process.execute_json_no_formatting(self.filename)
+                except ValueError:
+                    return missing
             try:
                 return self.metadata_string_format[0][key]
             except:
                 return missing
 
         elif not self.metadata:
-            self.metadata = self.et_process.get_metadata(self.filename)
+            try:
+                self.metadata = self.et_process.get_metadata(self.filename)
+            except ValueError:
+                return missing
 
         return self.metadata.get(key, missing)
 

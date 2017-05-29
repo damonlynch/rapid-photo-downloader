@@ -581,6 +581,7 @@ class RememberThisMessage(Enum):
     remember_choice = 1
     do_not_ask_again = 2
     do_not_warn_again = 3
+    do_not_warn_again_about_missing_libraries = 4
 
 
 class RememberThisButtons(Enum):

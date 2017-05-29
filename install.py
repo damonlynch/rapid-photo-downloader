@@ -530,7 +530,7 @@ if __name__ == '__main__':
 
     distro = get_distro()
     if distro != Distro.unknown:
-        distro_version =    get_distro_version(distro)
+        distro_version = get_distro_version(distro)
     else:
         distro_version = 0.0
 

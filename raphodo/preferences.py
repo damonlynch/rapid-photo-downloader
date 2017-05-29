@@ -295,7 +295,7 @@ class Preferences:
         detailed_time_remaining=False,
         warn_downloading_all=True,
         warn_backup_problem=True,
-        warn_no_libmediainfo=True,
+        warn_broken_or_missing_libraries=True,
         warn_fs_metadata_error=True,
         warn_unhandled_files=True,
         ignore_unhandled_file_exts=['TMP', 'DAT'],
@@ -415,6 +415,16 @@ class Preferences:
 
     def __setattr__(self, key, value):
         self[key] = value
+
+    def value_is_set(self, key, group: Optional[str]=None) -> bool:
+        if group is None:
+            group = 'General'
+
+        group = self.groups.get(key, group)
+        self.settings.beginGroup(group)
+        v = self.settings.contains(key)
+        self.settings.endGroup()
+        return v
 
     def sync(self):
         self.settings.sync()
@@ -884,6 +894,28 @@ class Preferences:
             except:
                 logging.warning("Unknown error removing %s preference value", key)
             self.settings.endGroup()
+
+        v090b6 = pkg_resources.parse_version('0.9.0b6')
+
+        if previous_version < v090b6 and not self.value_is_set('warn_broken_or_missing_libraries'):
+            # Versions prior to 0.9.0b6 may have a preference value 'warn_no_libmediainfo'
+            # which is now renamed to 'broken_or_missing_libraries'
+            group = 'Display'
+            if self.value_is_set('warn_no_libmediainfo', group):
+                self.settings.beginGroup(group)
+                v = self.settings.value('warn_no_libmediainfo', True, type(True))
+                self.settings.remove('warn_no_libmediainfo')
+                self.settings.endGroup()
+                logging.debug(
+                    "Transferring preference value %s for warn_no_libmediainfo to "
+                    "warn_broken_or_missing_libraries", v
+                )
+                self.warn_broken_or_missing_libraries = v
+            else:
+                logging.debug(
+                    "Not transferring preference value warn_no_libmediainfo to "
+                    "warn_broken_or_missing_libraries because it doesn't exist"
+                )
 
     def validate_max_CPU_cores(self) -> None:
         logging.debug('Validating CPU core count for thumbnail generation...')

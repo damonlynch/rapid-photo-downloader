@@ -57,6 +57,7 @@ Added "common arguments".
 Grouping tag names is no longer the default.
 The function set_pdeathsig is used to automatically terminate the process when the
 program exits.
+Add version_info()
 """
 
 from __future__ import unicode_literals
@@ -67,8 +68,22 @@ import os
 import json
 import warnings
 import codecs
+from typing import Optional
 
 from raphodo.utilities import set_pdeathsig
+
+
+def version_info() -> Optional[str]:
+    """
+    returns the version of Exiftool being used
+
+    :return version number, or None if Exiftool cannot be found
+    """
+    try:
+        return subprocess.check_output(['exiftool', '-ver']).strip().decode()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
 
 basestring = (bytes, str)
 
@@ -181,6 +196,11 @@ class ExifTool(object):
         if self.running:
             warnings.warn("ExifTool already running; doing nothing.")
             return
+
+        if version_info() is None:
+            warnings.warn("ExifTool cannot be started; doing nothing.")
+            return
+
         with open(os.devnull, "w") as devnull:
             cmd = [self.executable, "-stay_open", "True",  "-@", "-",
                  "-common_args"] + self.common_arguments
@@ -199,8 +219,12 @@ class ExifTool(object):
         if not self.running:
             return
         self._process.stdin.write(b"-stay_open\nFalse\n")
-        self._process.stdin.flush()
-        self._process.communicate()
+        try:
+            self._process.stdin.flush()
+            self._process.communicate()
+        except (BrokenPipeError, subprocess.TimeoutExpired):
+            import logging
+            logging.error("Encountered problem when closing long-running ExifTool process")
         del self._process
         self.running = False
 
@@ -271,7 +295,6 @@ class ExifTool(object):
     def execute_json_no_formatting(self, *params):
         params = map(fsencode, params)
         return json.loads(self.execute(b"-j", *params).decode("utf-8"))
-
 
     def get_metadata_batch(self, filenames):
         """Return all meta-data for the given files.

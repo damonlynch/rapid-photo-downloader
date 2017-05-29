@@ -68,8 +68,11 @@ class RememberThisDialog(QDialog):
             question =  _("&Remember this choice")
         elif remember == RememberThisMessage.do_not_ask_again:
             question = _("&Don't ask me about this again")
-        else:
+        elif remember == RememberThisMessage.do_not_warn_again:
             question = _("&Don't warn me about this again")
+        else:
+            assert remember == RememberThisMessage.do_not_warn_again_about_missing_libraries
+            question = _("&Don't warn me again about missing or broken program libraries")
 
         self.rememberCheckBox = QCheckBox(question)
 

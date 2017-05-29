@@ -1,11 +1,13 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0 (2017-xx-xx)
-------------------
+0.9.0b6 (2017-xx-xx)
+--------------------
 
  - Don't allow entry of illegal or unwanted characters in Job Codes, such as
    / (forward slash).
+
+ - Added warning message when ExifTool is not working.
 
  - Added GalliumOS to the list of Linux distros supported by the install.py.
 

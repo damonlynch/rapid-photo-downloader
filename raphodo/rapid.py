@@ -470,6 +470,9 @@ class RapidWindow(QMainWindow):
         for version in get_versions():
             logging.info('%s', version)
 
+        if EXIFTOOL_VERSION is None:
+            logging.error("ExifTool is either missing or has a problem")
+
         if pymedia_version_info() is None:
             if libmediainfo_missing:
                 logging.error(
@@ -1092,21 +1095,44 @@ class RapidWindow(QMainWindow):
 
         self.showMainWindow()
 
-        if libmediainfo_missing and self.prefs.warn_no_libmediainfo:
-            message = _('<b>The library libmediainfo appears to be missing</b><br><br> '
-                'Rapid Photo Downloader uses libmediainfo to get the date and time a video was '
-                'shot. The program will run  without it, but installing it is recommended.')
-
-            warning = RememberThisDialog(message=message,
-                                         icon=':/rapid-photo-downloader.svg',
-                                         remember=RememberThisMessage.do_not_warn_again,
-                                         parent=self,
-                                         buttons=RememberThisButtons.ok,
-                                         title=_('Problem with libmediainfo'))
+        if EXIFTOOL_VERSION is None and self.prefs.warn_broken_or_missing_libraries:
+            message = _(
+                '<b>ExifTool has a problem</b><br><br> '
+                'Rapid Photo Downloader uses ExifTool to get metadata from videos and photos. '
+                'The program will run without it, but installing it is <b>highly</b> recommended.'
+            )
+            warning = RememberThisDialog(
+                message=message,
+                icon=':/rapid-photo-downloader.svg',
+                remember=RememberThisMessage.do_not_warn_again_about_missing_libraries,
+                parent=self,
+                buttons=RememberThisButtons.ok,
+                title=_('Problem with libmediainfo')
+            )
 
             warning.exec_()
             if warning.remember:
-                self.prefs.warn_no_libmediainfo = False
+                self.prefs.warn_broken_or_missing_libraries = False
+
+        if libmediainfo_missing and self.prefs.warn_broken_or_missing_libraries:
+            message = _(
+                '<b>The library libmediainfo appears to be missing</b><br><br> '
+                'Rapid Photo Downloader uses libmediainfo to get the date and time a video was '
+                'shot. The program will run  without it, but installing it is recommended.'
+            )
+
+            warning = RememberThisDialog(
+                message=message,
+                icon=':/rapid-photo-downloader.svg',
+                remember=RememberThisMessage.do_not_warn_again_about_missing_libraries,
+                parent=self,
+                buttons=RememberThisButtons.ok,
+                title=_('Problem with libmediainfo')
+            )
+
+            warning.exec_()
+            if warning.remember:
+                self.prefs.warn_broken_or_missing_libraries = False
 
         self.tip = didyouknow.DidYouKnowDialog(self.prefs, self)
         if self.prefs.did_you_know_on_startup:
@@ -5559,7 +5585,10 @@ def import_prefs() -> None:
     def run_cmd(k: str) -> str:
         command_line = '{} --get /apps/rapid-photo-downloader/{}'.format(cmd, k)
         args = shlex.split(command_line)
-        return subprocess.check_output(args=args).decode().strip()
+        try:
+            return subprocess.check_output(args=args).decode().strip()
+        except subprocess.SubprocessError:
+            return ''
 
 
     cmd = shutil.which('gconftool-2')

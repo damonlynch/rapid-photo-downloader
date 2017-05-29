@@ -45,7 +45,7 @@ def gexiv2_version() -> str:
     return '{}.{}.{}'.format(v[0:2], v[2:4], v[4:6]).replace('00', '0')
 
 
-def exiv2_version() -> str:
+def exiv2_version() -> Optional[str]:
     """
     :return: version number of exiv2, if available, else None
     """
@@ -60,7 +60,7 @@ def exiv2_version() -> str:
             return v.group(1)
         else:
             return None
-    except:
+    except (OSError, subprocess.CalledProcessError):
         return None
 
 
@@ -267,16 +267,20 @@ class MetaData(GExiv2.Metadata):
         Returns Exif.CanonFi.FileNumber, not to be confused with
         Exif.Canon.FileNumber.
 
-        Uses ExifTool to extract the value, as the exiv2
-        implementation is broken
+        Uses ExifTool to extract the value, because the exiv2
+        implementation is currently problematic
 
         See:
         https://bugs.launchpad.net/rapid/+bug/754531
         """
         if 'Exif.CanonFi.FileNumber' in self:
             assert self.et_process is not None
-            fn = self.et_process.get_tags(['FileNumber'],
-                                        self.rpd_full_file_name)
+            try:
+                fn = self.et_process.get_tags(['FileNumber'],
+                                            self.rpd_full_file_name)
+            except (ValueError, TypeError):
+                return missing
+
             if fn:
                 return fn['FileNumber']
             else:

@@ -1,17 +1,17 @@
-# Occitan (post 1500) translation for rapid
-# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
+# Kabyle translation for rapid
+# Copyright (c) 2017 Rosetta Contributors and Canonical Ltd 2017
 # This file is distributed under the same license as the rapid package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-05-28 21:22-0500\n"
-"PO-Revision-Date: 2017-05-21 01:42+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
-"Language-Team: Occitan (post 1500) <oc@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2017-05-24 03:18+0000\n"
+"Last-Translator: Belkacem Mohammed <belkacem77@gmail.com>\n"
+"Language-Team: Kabyle <kab@li.org>\n"
+"Language: kab\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,33 +21,35 @@ msgstr ""
 #. type: QPushButton
 #: ../raphodo/aboutdialog.py:216
 msgid "Credits"
-msgstr ""
+msgstr "Ismaden"
 
 #: ../raphodo/backuppanel.py:239
 msgid "Backups are not configured"
-msgstr ""
+msgstr "Aḥraz ur ittuswel ara"
 
 #: ../raphodo/backuppanel.py:241
 msgid "No backup devices detected"
-msgstr ""
+msgstr "Ulac ibenkan n uḥraz yettwafen"
 
 #: ../raphodo/backuppanel.py:243
 msgid "Valid backup locations not yet specified"
-msgstr ""
+msgstr "Idigen n uḥraz imeɣta ur ttwamlen ara yakan"
 
 #: ../raphodo/backuppanel.py:401
 msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
 msgstr ""
+"Aḥraz n teqlafin-ik akked tvidyutin-ik izmer ad yili ɣef des n ibenkan ticki "
+"ttwasidren-d, md. idebṣiyen iquranen izɣarayen."
 
 #: ../raphodo/backuppanel.py:407
 msgid "Back up photos and videos when downloading"
-msgstr ""
+msgstr "Ḥrez tiwlafin akked tvidyutin deg usider"
 
 #: ../raphodo/backuppanel.py:413
 msgid "Automatically detect backup devices"
-msgstr ""
+msgstr "Ṭṭef s wudem awurman ibenkan n uḥraz"
 
 #: ../raphodo/backuppanel.py:417
 msgid ""
@@ -61,16 +63,16 @@ msgstr ""
 
 #: ../raphodo/backuppanel.py:428
 msgid "Photo folder name:"
-msgstr ""
+msgstr "Isem n ukaram n tewlaft:"
 
 #: ../raphodo/backuppanel.py:433
 msgid "Video folder name:"
-msgstr ""
+msgstr "Isem n ularam n tvidyut:"
 
 #: ../raphodo/backuppanel.py:438 ../raphodo/nameeditor.py:883
 #: ../raphodo/renamepanel.py:123
 msgid "Example:"
-msgstr ""
+msgstr "Amedya:"
 
 #: ../raphodo/backuppanel.py:448
 msgid "If you disable automatic detection, choose the exact backup locations."
@@ -78,31 +80,31 @@ msgstr ""
 
 #: ../raphodo/backuppanel.py:452
 msgid "Photo backup location:"
-msgstr ""
+msgstr "Adig n uḥraz n tewlaft:"
 
 #: ../raphodo/backuppanel.py:454
 msgid "Select Photo Backup Location"
-msgstr ""
+msgstr "Fren adig n uḥraz n tewlaft:"
 
 #: ../raphodo/backuppanel.py:460
 msgid "Video backup location:"
-msgstr ""
+msgstr "Adig n uḥraz n tvidyut:"
 
 #: ../raphodo/backuppanel.py:462
 msgid "Select Video Backup Location"
-msgstr ""
+msgstr "Fren Adig n uḥraz n tvidyut:"
 
 #. Translators: this value is used as an example device when automatic backup device
 #. detection is enabled. You should translate this.
 #: ../raphodo/backuppanel.py:564
 msgid "drive1"
-msgstr ""
+msgstr "ameɣri1"
 
 #. Translators: this value is used as an example device when automatic backup device
 #. detection is enabled. You should translate this.
 #: ../raphodo/backuppanel.py:567
 msgid "drive2"
-msgstr ""
+msgstr "ameɣri2"
 
 #: ../raphodo/backuppanel.py:628
 msgid "Projected Backup Storage Use"
@@ -110,33 +112,33 @@ msgstr ""
 
 #: ../raphodo/backuppanel.py:632
 msgid "Backup Options"
-msgstr ""
+msgstr "Iɣewwaṛen n uḥraz"
 
 #. translators: refers to the video thumbnail file that some
 #. cameras generate -- it has a .THM file extension
 #: ../raphodo/copyfiles.py:476
 msgid "video THM"
-msgstr ""
+msgstr "tavidyut THM"
 
 #: ../raphodo/copyfiles.py:482
 msgid "audio"
-msgstr ""
+msgstr "ameslaw"
 
 #: ../raphodo/destinationdisplay.py:78 ../raphodo/devicedisplay.py:1079
 #: ../raphodo/rpdfile.py:320
 #, python-format
 msgid "%(no_photos)s Photos"
-msgstr ""
+msgstr "%(no_photos)s n tewlafin"
 
 #: ../raphodo/destinationdisplay.py:82 ../raphodo/devicedisplay.py:1081
 #: ../raphodo/rpdfile.py:315
 #, python-format
 msgid "%(no_videos)s Videos"
-msgstr ""
+msgstr "%(no_videos)s n tvidyutin"
 
 #: ../raphodo/destinationdisplay.py:92
 msgid "Used"
-msgstr ""
+msgstr "Yettwaseqdec"
 
 #: ../raphodo/destinationdisplay.py:93
 msgid "Excess"
@@ -160,14 +162,14 @@ msgstr ""
 #: ../raphodo/rapid.py:1968 ../raphodo/rapid.py:2083 ../raphodo/rapid.py:5744
 #: ../raphodo/rpdfile.py:891
 msgid "Photos"
-msgstr ""
+msgstr "Tiwlafin"
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:191 ../raphodo/devicedisplay.py:994
 #: ../raphodo/rapid.py:1971 ../raphodo/rapid.py:2084 ../raphodo/rapid.py:5745
 #: ../raphodo/rpdfile.py:918 ../raphodo/storage.py:445
 msgid "Videos"
-msgstr ""
+msgstr "Tividyutin"
 
 #: ../raphodo/destinationdisplay.py:192
 msgid "Projected storage use after download"
@@ -183,11 +185,11 @@ msgstr ""
 
 #: ../raphodo/destinationdisplay.py:680
 msgid "Configure video subfolder creation"
-msgstr ""
+msgstr "Swel timerna n ukaram asnawan n tvidyut"
 
 #: ../raphodo/devicedisplay.py:983
 msgid "Other"
-msgstr ""
+msgstr "Wayeḍ"
 
 #: ../raphodo/devicedisplay.py:984
 msgid "Probing device..."
@@ -209,53 +211,53 @@ msgstr ""
 #: ../raphodo/devicedisplay.py:1093
 #, python-format
 msgid "%s full"
-msgstr ""
+msgstr "%s n taččart"
 
 #: ../raphodo/devices.py:459
 msgid "Cameras"
-msgstr ""
+msgstr "Takamiṛat"
 
 #: ../raphodo/devices.py:460 ../raphodo/devices.py:920
 #: ../raphodo/preferencedialog.py:85 ../raphodo/rapid.py:1931
 msgid "Devices"
-msgstr ""
+msgstr "Ibenkan"
 
 #: ../raphodo/devices.py:720
 #, python-format
 msgid "Downloading from %(device_names)s"
-msgstr ""
+msgstr "Asider seg %(device_names)s"
 
 #. Translators: e.g. Three Devices
 #: ../raphodo/devices.py:780
 #, python-format
 msgid "%(no_devices)s %(device_type)s"
-msgstr ""
+msgstr "%(no_devices)s %(device_type)s"
 
 #: ../raphodo/devices.py:905 ../raphodo/rapid.py:1768
 msgid "Select Source"
-msgstr ""
+msgstr "Fren aɣbalu"
 
 #: ../raphodo/devices.py:936 ../raphodo/devices.py:947
 #, python-format
 msgid "%(device1)s + %(device2)s"
-msgstr ""
+msgstr "%(device1)s + %(device2)s"
 
 #. Number of cameras e.g. 3 Cameras
 #: ../raphodo/devices.py:958
 #, python-format
 msgid "%(no_cameras)s Cameras"
-msgstr ""
+msgstr "%(no_cameras)s n tkamiratin"
 
 #: ../raphodo/devices.py:963
 #, python-format
 msgid "%(no_devices)s Devices"
-msgstr ""
+msgstr "%(no_devices)s n ibenkan"
 
 #. Translators: two folder names, separated by a plus sign
 #: ../raphodo/devices.py:1258
 #, python-format
 msgid "%s + %s"
-msgstr ""
+msgstr "%s + %s"
 
 #: ../raphodo/didyouknow.py:44
 msgid "Click on a file's checkbox to mark or unmark it for download."
@@ -909,29 +911,29 @@ msgstr ""
 
 #: ../raphodo/generatenameconfig.py:187
 msgid "Text"
-msgstr "Tèxte"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:188 ../raphodo/rapid.py:2057
 msgid "Filename"
-msgstr "Nom del fichièr"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:189 ../raphodo/preferencedialog.py:488
 msgid "Metadata"
-msgstr "Metadonadas"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:190
 msgid "Sequences"
-msgstr "Sequéncias"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#jobcode
 #: ../raphodo/generatenameconfig.py:193
 msgid "Job code"
-msgstr "Etiqueta de transferiment"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:194
 msgid "Image date"
-msgstr "Data de l'imatge"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:195
 msgid "Video date"
@@ -939,11 +941,11 @@ msgstr ""
 
 #: ../raphodo/generatenameconfig.py:196
 msgid "Today"
-msgstr "Uèi"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:197
 msgid "Yesterday"
-msgstr "Ièr"
+msgstr ""
 
 #. Translators: Download time is the time and date that the download started (when the
 #. user clicked the Download button)
@@ -955,19 +957,19 @@ msgstr ""
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
 #: ../raphodo/generatenameconfig.py:203
 msgid "Name"
-msgstr "Nom"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
 #: ../raphodo/generatenameconfig.py:206 ../raphodo/rapid.py:2058
 msgid "Extension"
-msgstr "Extension"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
 #: ../raphodo/generatenameconfig.py:209
 msgid "Image number"
-msgstr "Numèro de l'imatge"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:210
 msgid "Video number"
@@ -977,37 +979,37 @@ msgstr ""
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:213
 msgid "Aperture"
-msgstr "Dobertura"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:216
 msgid "ISO"
-msgstr "ISO"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:219
 msgid "Exposure time"
-msgstr "Temps d'exposicion"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:222
 msgid "Focal length"
-msgstr "Distància focala"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:225
 msgid "Camera make"
-msgstr "Marca de l'aparelh"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:228
 msgid "Camera model"
-msgstr "Modèl d'aparelh de fòto"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
@@ -1025,7 +1027,7 @@ msgstr ""
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:237
 msgid "Serial number"
-msgstr "Numèro de seria"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
@@ -1152,41 +1154,41 @@ msgstr ""
 #. language features capitalization
 #: ../raphodo/generatenameconfig.py:292
 msgid "UPPERCASE"
-msgstr "MAJUSCULA"
+msgstr ""
 
 #. Translators: please not the capitalization of this text, and keep it the same if your
 #. language features capitalization
 #: ../raphodo/generatenameconfig.py:295
 msgid "lowercase"
-msgstr "minuscula"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:296
 msgid "One digit"
-msgstr "Una chifra"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:297
 msgid "Two digits"
-msgstr "Doas chifras"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:298
 msgid "Three digits"
-msgstr "Tres chifras"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:299
 msgid "Four digits"
-msgstr "Quatre chifras"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:300
 msgid "Five digits"
-msgstr "Cinc chifras"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:301
 msgid "Six digits"
-msgstr "Sièis chifras"
+msgstr ""
 
 #: ../raphodo/generatenameconfig.py:302
 msgid "Seven digits"
-msgstr "Sèt chifras"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -1198,13 +1200,13 @@ msgstr ""
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:308 ../raphodo/generatenameconfig.py:389
 msgid "YYYYMMDD"
-msgstr "AAAAMMJJ"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:311 ../raphodo/generatenameconfig.py:390
 msgid "YYYY-MM-DD"
-msgstr "AAA-MM-JJ"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -1216,13 +1218,13 @@ msgstr ""
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:317
 msgid "YYMMDD"
-msgstr "AAMMJJ"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:320
 msgid "YY-MM-DD"
-msgstr "AA-MM-JJ"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -1234,31 +1236,31 @@ msgstr ""
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:326
 msgid "MMDDYYYY"
-msgstr "MM-JJ-AAAA"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:329
 msgid "MMDDYY"
-msgstr "MM-JJ-AA"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:332
 msgid "MMDD"
-msgstr "MMJJ"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:335
 msgid "DDMMYYYY"
-msgstr "JJMMAAAA"
+msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:338
 msgid "DDMMYY"
-msgstr "JJMMAA"
+msgstr "DDMMYY"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -1266,13 +1268,13 @@ msgstr "JJMMAA"
 #: ../raphodo/generatenameconfig.py:390 ../raphodo/generatenameconfig.py:391
 #: ../raphodo/generatenameconfig.py:392 ../raphodo/generatenameconfig.py:393
 msgid "YYYY"
-msgstr "AAAA"
+msgstr "YYYY"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:344
 msgid "YY"
-msgstr "AA"
+msgstr "YY"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -1284,19 +1286,19 @@ msgstr "MM"
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:350
 msgid "DD"
-msgstr "JJ"
+msgstr "DD"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:353
 msgid "Month (full)"
-msgstr ""
+msgstr "Ayyur (ummid)"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:356
 msgid "Month (abbreviated)"
-msgstr ""
+msgstr "Ayyur (awezlan)"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -1332,7 +1334,7 @@ msgstr "HH"
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:374
 msgid "MM (minutes)"
-msgstr "MM (minutas)"
+msgstr "MM (tisdatin)"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -1342,7 +1344,7 @@ msgstr "SS"
 
 #: ../raphodo/generatenameconfig.py:389
 msgid "Date"
-msgstr ""
+msgstr "Azemz"
 
 #: ../raphodo/generatenameconfig.py:390
 msgid "Date (hyphens)"
@@ -1731,7 +1733,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:85
 msgid "Automation"
-msgstr "Automatizacion"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:85
 msgid "Thumbnails"
@@ -1987,7 +1989,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:355
 msgid "Overwrite"
-msgstr "Espotir"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:356
 msgid "Overwrite the previously backed up file"
@@ -1995,7 +1997,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:357
 msgid "Skip"
-msgstr "Ignorar"
+msgstr ""
 
 #: ../raphodo/preferencedialog.py:358
 msgid "Don't overwrite the backup file, and issue an error message"
@@ -2576,7 +2578,7 @@ msgstr ""
 #. Replace the entire string with the correct localized value
 #: ../raphodo/proximity.py:1410
 msgid "1.5h"
-msgstr ""
+msgstr "1.5sr"
 
 #. Translators: e.g. "5h", which is short for 5 hours.
 #. Replace the very last character (after the d) with the correct localized value,
@@ -2584,7 +2586,7 @@ msgstr ""
 #: ../raphodo/proximity.py:1415
 #, python-format
 msgid "%(hours)dh"
-msgstr ""
+msgstr "%(hours)dsr"
 
 #: ../raphodo/proximity.py:1461
 msgid ""
@@ -2626,7 +2628,7 @@ msgstr ""
 #: ../raphodo/rememberthisdialog.py:97
 #: ../data/rapid-photo-downloader.desktop.in.h:3
 msgid "Rapid Photo Downloader"
-msgstr "Rapid Photo Downloader"
+msgstr ""
 
 #: ../raphodo/rapid.py:1100
 msgid ""
@@ -2648,7 +2650,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:1417
 msgid "Download failed"
-msgstr ""
+msgstr "Asider ur yeddi ara"
 
 #: ../raphodo/rapid.py:1419
 msgid ""
@@ -2667,7 +2669,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:1432
 msgid "Install"
-msgstr ""
+msgstr "Sebded"
 
 #: ../raphodo/rapid.py:1450
 msgid "New version saved"
@@ -2693,19 +2695,19 @@ msgstr ""
 
 #: ../raphodo/rapid.py:1667
 msgid "&Source"
-msgstr ""
+msgstr "&Aɣbalu"
 
 #: ../raphodo/rapid.py:1671 ../raphodo/rapid.py:2335
 msgid "Download"
-msgstr ""
+msgstr "Sider"
 
 #: ../raphodo/rapid.py:1675
 msgid "&Refresh..."
-msgstr ""
+msgstr "&Smiren..."
 
 #: ../raphodo/rapid.py:1679
 msgid "&Preferences"
-msgstr ""
+msgstr "&Ismenyifen"
 
 #: ../raphodo/rapid.py:1683
 msgid "&Quit"
@@ -2733,19 +2735,19 @@ msgstr ""
 
 #: ../raphodo/rapid.py:1707
 msgid "Make a Donation..."
-msgstr ""
+msgstr "Mudd tawsa..."
 
 #: ../raphodo/rapid.py:1711
 msgid "Translate this Application..."
-msgstr ""
+msgstr "Suqel asnas-agi..."
 
 #: ../raphodo/rapid.py:1715
 msgid "&About..."
-msgstr ""
+msgstr "&Ɣef..."
 
 #: ../raphodo/rapid.py:1719
 msgid "Check for Updates..."
-msgstr ""
+msgstr "Senqed ileqman..."
 
 #: ../raphodo/rapid.py:1801
 msgid "Timeline"
@@ -2753,11 +2755,11 @@ msgstr ""
 
 #: ../raphodo/rapid.py:1811
 msgid "Destination"
-msgstr ""
+msgstr "Taniɣert"
 
 #: ../raphodo/rapid.py:1812
 msgid "Rename"
-msgstr ""
+msgstr "Snifel isem"
 
 #: ../raphodo/rapid.py:1814
 msgid "Back Up"
@@ -2818,7 +2820,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:2060
 msgid "Device"
-msgstr "Periferic"
+msgstr ""
 
 #: ../raphodo/rapid.py:2062
 msgid "Sort:"
@@ -2977,7 +2979,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:3654 ../raphodo/rapid.py:3727
 msgid "warnings"
-msgstr "avertiments"
+msgstr ""
 
 #: ../raphodo/rapid.py:3683
 msgid "All downloads complete"
@@ -3627,35 +3629,35 @@ msgstr ""
 
 #: ../raphodo/utilities.py:476
 msgid "thirteen"
-msgstr ""
+msgstr "mraw krad"
 
 #: ../raphodo/utilities.py:477
 msgid "fourteen"
-msgstr ""
+msgstr "mraw kuẓ"
 
 #: ../raphodo/utilities.py:478
 msgid "fifteen"
-msgstr ""
+msgstr "mraw semmus"
 
 #: ../raphodo/utilities.py:479
 msgid "sixteen"
-msgstr ""
+msgstr "mraw sḍis"
 
 #: ../raphodo/utilities.py:480
 msgid "seventeen"
-msgstr ""
+msgstr "mraw sa"
 
 #: ../raphodo/utilities.py:481
 msgid "eighteen"
-msgstr ""
+msgstr "mraw ṭam"
 
 #: ../raphodo/utilities.py:482
 msgid "ninenteen"
-msgstr ""
+msgstr "mraw tza"
 
 #: ../raphodo/utilities.py:483
 msgid "twenty"
-msgstr ""
+msgstr "sin imrawen"
 
 #: ../data/rapid-photo-downloader.appdata.xml.in.h:1
 msgid ""
@@ -3701,145 +3703,3 @@ msgstr ""
 #: ../data/kde/rapid-photo-downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr ""
-
-#~ msgid "Paris"
-#~ msgstr "París"
-
-#~ msgid "Berlin"
-#~ msgstr "Berlin"
-
-#~ msgid "New York"
-#~ msgstr "Nòva York"
-
-#~ msgid "Prague"
-#~ msgstr "Praga"
-
-#~ msgid "Manila"
-#~ msgstr "Manilha"
-
-#~ msgid "Wellington"
-#~ msgstr "Wellington"
-
-#~ msgid "Helsinki"
-#~ msgstr "Helsinki"
-
-#~ msgid "Tehran"
-#~ msgstr "Teheran"
-
-#~ msgid "Kampala"
-#~ msgstr "Kampala"
-
-#~ msgid "Stockholm"
-#~ msgstr "Estocòlme"
-
-#~ msgid "Rome"
-#~ msgstr "Roma"
-
-#~ msgid "Moscow"
-#~ msgstr "Moscòu"
-
-#~ msgid "Sydney"
-#~ msgstr "Sydney"
-
-#~ msgid "Budapest"
-#~ msgstr "Budapèst"
-
-#~ msgid "Jakarta"
-#~ msgstr "Jakarta"
-
-#~ msgid "Madrid"
-#~ msgstr "Madrid"
-
-#~ msgid "Delhi"
-#~ msgstr "Delhi"
-
-#~ msgid "Warsaw"
-#~ msgstr "Varsòvia"
-
-#~ msgid "<i>Example: %s</i>"
-#~ msgstr "<i>Exemple : %s</i>"
-
-#~ msgid "externaldrive1"
-#~ msgstr "discextèrne1"
-
-#~ msgid "externaldrive2"
-#~ msgstr "discextèrne2"
-
-#~ msgid "Source: %(source)s"
-#~ msgstr "Font : %(source)s"
-
-#~ msgid "Size"
-#~ msgstr "Talha"
-
-#~ msgid "Download Progress"
-#~ msgstr "Progression del telecargament"
-
-#~ msgid "_View"
-#~ msgstr "_Afichatge"
-
-#~ msgid "scanning..."
-#~ msgstr "Deteccion en cors..."
-
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s"
-#~ msgstr ""
-#~ "Font : %(source)s\n"
-#~ "Destinacion : %(destination)s"
-
-#~ msgid "Download cannot proceed"
-#~ msgstr "Impossible de procedir al transferiment"
-
-#~ msgid "and"
-#~ msgstr "e"
-
-#~ msgid "MB/s"
-#~ msgstr "Mio/s"
-
-#~ msgid "and %s"
-#~ msgstr "e %s"
-
-#~ msgid "Name + extension"
-#~ msgstr "Nom + extension"
-
-#~ msgid " "
-#~ msgstr " "
-
-#~ msgid " hh:mm"
-#~ msgstr " hh:mm"
-
-#~ msgid ":"
-#~ msgstr ":"
-
-#~ msgid "<b>Download Folder</b>"
-#~ msgstr "<b>Dorsièr de destinacion</b>"
-
-#~ msgid "<b>Example</b>"
-#~ msgstr "<b>Exemple</b>"
-
-#~ msgid "<i>Original:</i>"
-#~ msgstr "<i>Original :</i>"
-
-#~ msgid "<i>Example:</i>"
-#~ msgstr "<i>Exemple :</i>"
-
-#~ msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Gestion de las errors</span>"
-
-#~ msgid "Backup"
-#~ msgstr "Salvament"
-
-#~ msgid "Download / Pause"
-#~ msgstr "Transferiment / Pausa"
-
-#~ msgid "_Add..."
-#~ msgstr "_Apondre..."
-
-#~ msgid "_Translate this Application..."
-#~ msgstr "_Traduire aquesta aplicacion..."
-
-#~ msgid "_Make a Donation..."
-#~ msgstr "_Far un don..."
-
-#~ msgid "_Help"
-#~ msgstr "_Ajuda"

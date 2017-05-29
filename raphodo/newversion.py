@@ -101,7 +101,10 @@ class NewVersion(QObject):
 
         command_line = '{} -m pip show --verbose {}'.format(sys.executable, package)
         args = shlex.split(command_line)
-        pip_output = subprocess.check_output(args)
+        try:
+            pip_output = subprocess.check_output(args)
+        except subprocess.SubprocessError:
+            return False
         return pip_output.decode().find('Installer: pip') >= 0
 
     @pyqtSlot()

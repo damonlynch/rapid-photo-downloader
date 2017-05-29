@@ -634,7 +634,7 @@ class PreferencesDialog(QDialog):
             self.warnBackupProblem.setChecked(self.prefs.warn_backup_problem)
         else:
             self.warnBackupProblem.setChecked(False)
-        self.warnMissingLibraries.setChecked(self.prefs.warn_no_libmediainfo)
+        self.warnMissingLibraries.setChecked(self.prefs.warn_broken_or_missing_libraries)
         self.warnMetadata.setChecked(self.prefs.warn_fs_metadata_error)
         self.warnUnhandledFiles.setChecked(self.prefs.warn_unhandled_files)
         self.setAddExceptFilesValues()
@@ -879,7 +879,7 @@ class PreferencesDialog(QDialog):
 
     @pyqtSlot(int)
     def warnMissingLibrariesChanged(self, state: int) -> None:
-        self.prefs.warn_no_libmediainfo = state == Qt.Checked
+        self.prefs.warn_broken_or_missing_libraries = state == Qt.Checked
 
     @pyqtSlot(int)
     def warnMetadataChanged(self, state: int) -> None:
@@ -953,9 +953,10 @@ class PreferencesDialog(QDialog):
                 self.prefs.restore(value)
             self.setErrorHandingValues()
         elif row == 4:
-            for value in ('warn_downloading_all', 'warn_backup_problem', 'warn_no_libmediainfo',
-                          'warn_fs_metadata_error', 'warn_unhandled_files',
-                          'ignore_unhandled_file_exts'):
+            for value in (
+                    'warn_downloading_all', 'warn_backup_problem',
+                    'warn_broken_or_missing_libraries', 'warn_fs_metadata_error',
+                    'warn_unhandled_files', 'ignore_unhandled_file_exts'):
                 self.prefs.restore(value)
             self.setWarningValues()
             self.setVersionCheckValues()
