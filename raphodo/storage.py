@@ -1142,6 +1142,7 @@ if have_gio:
             self.vm.connect('mount-removed', self.mountRemoved)
             self.vm.connect('volume-removed', self.volumeRemoved)
             self.portSearch = re.compile(r'usb:([\d]+),([\d]+)')
+            self.scsiPortSearch = re.compile(r'usbscsi:(.+)')
             self.validMounts = validMounts
 
         def cameraMountPoint(self, model: str, port: str) -> Gio.Mount:
@@ -1150,10 +1151,16 @@ if have_gio:
              else None
             """
             p = self.portSearch.match(port)
-            assert p is not None
-            p1 = p.group(1)
-            p2 = p.group(2)
-            pattern = re.compile(r'%\S\Susb%\S\S{}%\S\S{}%\S\S'.format(p1, p2))
+            if p is not None:
+                p1 = p.group(1)
+                p2 = p.group(2)
+                pattern = re.compile(r'%\S\Susb%\S\S{}%\S\S{}%\S\S'.format(p1, p2))
+            else:
+                p = self.scsiPortSearch.match(port)
+                assert p is not None
+                p1 = p.group(1)
+                pattern = re.compile(r'%\S\Susbscsi%\S\S{}%\S\S'.format(p1))
+
             to_unmount = None
 
             for mount in self.vm.get_mounts():

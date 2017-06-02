@@ -1,5 +1,5 @@
 name: rapid-photo-downloader
-version: '0.9.0b5'
+version: '0.9.0b6'
 summary: Download, rename and back up photos and videos from cameras and other devices
 description: |
   Rapid Photo Downloader imports photos and videos from cameras, phones,
@@ -23,6 +23,7 @@ parts:
     python-packages:
      - PyQt5
     stage-packages:
+     - python3-distutils-extra
      - libgphoto2-6
      - libimage-exiftool-perl
      - exiv2
@@ -36,6 +37,7 @@ parts:
      - gir1.2-glib-2.0
      - gir1.2-gstreamer-1.0
     build-packages:
+     - python3-distutils-extra
      - build-essential
      - libgphoto2-dev
      - python3-dev
