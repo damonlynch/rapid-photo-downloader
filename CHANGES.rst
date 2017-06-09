@@ -4,7 +4,7 @@ Changelog for Rapid Photo Downloader
 0.9.0b6 (2017-xx-xx)
 --------------------
 
- - Don't allow entry of illegal or unwanted characters in Job Codes, such as
+ - Don't allow entry of illegal filename characters in Job Codes, such as
    / (forward slash).
 
  - Handle cameras mounted using usbscsi.
@@ -15,6 +15,10 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug where "Select a source folder" was displayed after rescanning
    a folder on This Computer.
+
+ - Removed DistUtilsExtra from the list of dependencies by copying its
+   core functionality into the setup.py file. This should make creating
+   a Snap / AppImage / Flatpak easier.
 
 0.9.0b5 (2017-05-10)
 --------------------

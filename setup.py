@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (C) 2009-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2009-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,23 +18,21 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-# Copyright 2009-2016 Damon Lynch
+# Copyright 2009-2017 Damon Lynch
 # Contains portions Copyright 2014 Donald Stufft
 # Contains portions Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, Canonical Ltd
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2009-2016, Damon Lynch"
+__copyright__ = "Copyright 2009-2017, Damon Lynch"
 
 import os
-import sys
-import shutil
 import os.path
 from glob import glob
-from distutils.version import StrictVersion
+import distutils
+import distutils.command.build
 from distutils.command.clean import clean
 from setuptools import setup, Command
 from setuptools.command.install import install
-from DistUtilsExtra.command  import *  # build_extra, build_i18n, build_icons, clean_i18n
 
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -44,7 +42,53 @@ with open(os.path.join(here, "raphodo", "__about__.py")) as f:
     exec(f.read(), about)
 
 
-class build_extra(build_extra.build):
+class build_extra(distutils.command.build.build):
+    """
+    Adds the extra commands to the build target. This class should be used
+    with the core distutils
+
+    Taken straight from DistutilsExtra, minus finalize_options
+    """
+    def __init__(self, dist):
+        distutils.command.build.build.__init__(self, dist)
+
+        self.user_options.extend([("i18n", None, "use the localisation"),
+                                  ("icons", None, "use icons"),
+                                  ("kdeui", None, "use kdeui"),
+                                  ("help", None, "use help system")])
+    def initialize_options(self):
+        distutils.command.build.build.initialize_options(self)
+        self.i18n = False
+        self.icons = False
+        self.help = False
+        self.kdeui = False
+
+
+class build_extra_commands(build_extra):
+    """
+    Adds the extra commands to the build target.
+    This class should be used with setuptools.
+
+    Taken straight from DistutilsExtra
+    """
+
+    def finalize_options(self):
+        def has_help(command):
+            return self.help == "True"
+        def has_icons(command):
+            return self.icons == "True"
+        def has_i18n(command):
+            return self.i18n == "True"
+        def has_kdeui(command):
+            return self.kdeui == "True"
+        distutils.command.build.build.finalize_options(self)
+        self.sub_commands.append(("build_i18n", has_i18n))
+        self.sub_commands.append(("build_icons", has_icons))
+        self.sub_commands.append(("build_help", has_help))
+        self.sub_commands.insert(0, ("build_kdeui", has_kdeui))  # need to run before build_py
+
+
+class build_extra_man_page(build_extra_commands):
     """
     Taken from the Canonical project 'germinate'
     """
@@ -89,6 +133,172 @@ class build_pod2man(Command):
                     pod_file, build_path])
 
 
+class build_i18n(distutils.cmd.Command):
+    """ Taken straight from DistutilsExtra"""
+
+    description = "integrate the gettext framework"
+
+    user_options = [
+        ('desktop-files=', None, '.desktop.in files that should be merged'),
+        ('xml-files=', None, '.xml.in files that should be merged'),
+        ('schemas-files=', None, '.schemas.in files that should be merged'),
+        ('ba-files=', None, 'bonobo-activation files that should be merged'),
+        ('rfc822deb-files=', None, 'RFC822 files that should be merged'),
+        ('key-files=', None, '.key.in files that should be merged'),
+        ('domain=', 'd', 'gettext domain'),
+        ('merge-po', 'm', 'merge po files against template'),
+        ('po-dir=', 'p', 'directory that holds the i18n files'),
+        ('bug-contact=', None, 'contact address for msgid bugs')
+    ]
+
+    boolean_options = ['merge-po']
+
+    def initialize_options(self):
+        self.desktop_files = []
+        self.xml_files = []
+        self.key_files = []
+        self.schemas_files = []
+        self.ba_files = []
+        self.rfc822deb_files = []
+        self.domain = None
+        self.merge_po = False
+        self.bug_contact = None
+        self.po_dir = None
+
+    def finalize_options(self):
+        if self.domain is None:
+            self.domain = self.distribution.metadata.name
+        if self.po_dir is None:
+            self.po_dir = "po"
+
+    def run(self):
+        """
+        Update the language files, generate mo files and add them
+        to the to be installed files
+        """
+        if not os.path.isdir(self.po_dir):
+            return
+
+        data_files = self.distribution.data_files
+        if data_files is None:
+            # in case not data_files are defined in setup.py
+            self.distribution.data_files = data_files = []
+
+        if self.bug_contact is not None:
+            os.environ["XGETTEXT_ARGS"] = "--msgid-bugs-address=%s " % \
+                                          self.bug_contact
+
+        # Print a warning if there is a Makefile that would overwrite our
+        # values
+        if os.path.exists("%s/Makefile" % self.po_dir):
+            self.announce("""
+WARNING: Intltool will use the values specified from the
+         existing po/Makefile in favor of the vaules
+         from setup.cfg.
+         Remove the Makefile to avoid problems.""")
+
+        # If there is a po/LINGUAS file, or the LINGUAS environment variable
+        # is set, only compile the languages listed there.
+        selected_languages = None
+        linguas_file = os.path.join(self.po_dir, "LINGUAS")
+        if os.path.isfile(linguas_file):
+            selected_languages = open(linguas_file).read().split()
+        if "LINGUAS" in os.environ:
+            selected_languages = os.environ["LINGUAS"].split()
+
+        # Update po(t) files and print a report
+        # We have to change the working dir to the po dir for intltool
+        cmd = ["intltool-update", (self.merge_po and "-r" or "-p"), "-g", self.domain]
+        wd = os.getcwd()
+        os.chdir(self.po_dir)
+        self.spawn(cmd)
+        os.chdir(wd)
+        max_po_mtime = 0
+        for po_file in glob("%s/*.po" % self.po_dir):
+            lang = os.path.basename(po_file[:-3])
+            if selected_languages and not lang in selected_languages:
+                continue
+            mo_dir =  os.path.join("build", "mo", lang, "LC_MESSAGES")
+            mo_file = os.path.join(mo_dir, "%s.mo" % self.domain)
+            if not os.path.exists(mo_dir):
+                os.makedirs(mo_dir)
+            cmd = ["msgfmt", po_file, "-o", mo_file]
+            po_mtime = os.path.getmtime(po_file)
+            mo_mtime = os.path.exists(mo_file) and os.path.getmtime(mo_file) or 0
+            if po_mtime > max_po_mtime:
+                max_po_mtime = po_mtime
+            if po_mtime > mo_mtime:
+                self.spawn(cmd)
+
+            targetpath = os.path.join("share/locale", lang, "LC_MESSAGES")
+            data_files.append((targetpath, (mo_file,)))
+
+        # merge .in with translation
+        for (option, switch) in ((self.xml_files, "-x"),
+                                 (self.desktop_files, "-d"),
+                                 (self.schemas_files, "-s"),
+                                 (self.rfc822deb_files, "-r"),
+                                 (self.ba_files, "-b"),
+                                 (self.key_files, "-k"),):
+            try:
+                file_set = eval(option)
+            except:
+                continue
+            for (target, files) in file_set:
+                build_target = os.path.join("build", target)
+                if not os.path.exists(build_target):
+                    os.makedirs(build_target)
+                files_merged = []
+                for file in files:
+                    if file.endswith(".in"):
+                        file_merged = os.path.basename(file[:-3])
+                    else:
+                        file_merged = os.path.basename(file)
+                    file_merged = os.path.join(build_target, file_merged)
+                    cmd = ["intltool-merge", switch, self.po_dir, file,
+                           file_merged]
+                    mtime_merged = os.path.exists(file_merged) and \
+                                   os.path.getmtime(file_merged) or 0
+                    mtime_file = os.path.getmtime(file)
+                    if mtime_merged < max_po_mtime or mtime_merged < mtime_file:
+                        # Only build if output is older than input (.po,.in)
+                        self.spawn(cmd)
+                    files_merged.append(file_merged)
+                data_files.append((target, files_merged))
+
+
+class build_icons(distutils.cmd.Command):
+    """ Taken straight from DistutilsExtra"""
+
+    description = "select all icons for installation"
+
+    user_options= [('icon-dir=', 'i', 'icon directory of the source tree')]
+
+    def initialize_options(self):
+        self.icon_dir = None
+
+    def finalize_options(self):
+        if self.icon_dir is None:
+            self.icon_dir = os.path.join("data","icons")
+
+    def run(self):
+        data_files = self.distribution.data_files
+
+        for size in glob(os.path.join(self.icon_dir, "*")):
+            for category in glob(os.path.join(size, "*")):
+                icons = []
+                for icon in glob(os.path.join(category,"*")):
+                    if not os.path.islink(icon):
+                        icons.append(icon)
+                if icons:
+                    data_files.append(
+                        (
+                            "share/icons/hicolor/%s/%s" % (
+                                os.path.basename(size), os.path.basename(category)
+                            ), icons
+                        )
+                    )
+
 class clean_extra(clean):
     def run(self):
         clean.run(self)
@@ -124,20 +334,21 @@ setup(
     author=about["__author__"],
     author_email=about["__email__"],
     zip_safe=False,
-    install_requires=['gphoto2',
-                      'pyzmq',
-                      'psutil',
-                      'pyxdg',
-                      'arrow',
-                      'python-dateutil',
-                      'colorlog',
-                      'pyprind',
-                      'rawkit',
-                      'easygui',
-                      'colour',
-                      'pymediainfo',
-                      'sortedcontainers'
-                      ],
+    install_requires=[
+        'gphoto2',
+        'pyzmq',
+        'psutil',
+        'pyxdg',
+        'arrow',
+        'python-dateutil',
+        'colorlog',
+        'pyprind',
+        'rawkit',
+        'easygui',
+        'colour',
+        'pymediainfo',
+        'sortedcontainers'
+    ],
     extras_require={':python_version == "3.4"': ['scandir', 'typing']},
     include_package_data = False,
     data_files = [
@@ -167,15 +378,15 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Topic :: Multimedia :: Graphics',
         'Topic :: Multimedia :: Video'
-        ],
+    ],
     keywords='photo, video, download, ingest, import, camera, phone, backup, rename, photography,' \
              ' photographer, transfer, copy, raw, cr2, nef, arw',
     cmdclass={
-        'build': build_extra,
+        'build': build_extra_man_page,
         'build_pod2man': build_pod2man,
-        "build_icons" : build_icons.build_icons,
+        "build_icons" : build_icons,
         'install': install,
         'clean': clean_extra,
-        "build_i18n": build_i18n.build_i18n,
+        "build_i18n": build_i18n,
     },
 )

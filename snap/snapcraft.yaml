@@ -23,7 +23,6 @@ parts:
     python-packages:
      - PyQt5
     stage-packages:
-     - python3-distutils-extra
      - libgphoto2-6
      - libimage-exiftool-perl
      - exiv2
@@ -37,8 +36,8 @@ parts:
      - gir1.2-glib-2.0
      - gir1.2-gstreamer-1.0
     build-packages:
-     - python3-distutils-extra
      - build-essential
+     - intltool
      - libgphoto2-dev
      - python3-dev
      - libzmq3-dev

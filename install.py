@@ -270,7 +270,7 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
         cache = apt.Cache()
         missing_packages = []
         packages = 'libimage-exiftool-perl python3-pyqt5 python3-dev ' \
-             'python3-distutils-extra gir1.2-gexiv2-0.10 python3-gi gir1.2-gudev-1.0 ' \
+             'intltool gir1.2-gexiv2-0.10 python3-gi gir1.2-gudev-1.0 ' \
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
              'libgphoto2-dev python3-arrow python3-psutil g++ libmediainfo0v5 '\
              'qt5-image-formats-plugins python3-zmq exiv2 python3-colorlog libraw-bin ' \
@@ -302,7 +302,7 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
         missing_packages = []
         packages = 'python3-qt5 gobject-introspection python3-gobject ' \
                    'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ ' \
-                   'rpm-build python3-devel python3-distutils-extra intltool ' \
+                   'rpm-build python3-devel intltool ' \
                    'python3-easygui qt5-qtimageformats python3-psutil libmediainfo ' \
                    'python3-requests'.split()
 
@@ -352,11 +352,11 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
     elif distro == Distro.opensuse:
         cmd = shutil.which('zypper')
         packages = 'python3-qt5 girepository-1_0 python3-gobject ' \
-                   'zeromq-devel exiv2 exiftool python3-devel python3-distutils-extra ' \
+                   'zeromq-devel exiv2 exiftool python3-devel ' \
                    'libgphoto2-devel libraw-devel gcc-c++ rpm-build intltool ' \
                    'libqt5-qtimageformats python3-requests python3-psutil ' \
                    'typelib-1_0-GExiv2-0_10 typelib-1_0-UDisks-2_0 typelib-1_0-Notify-0_7 ' \
-                   'typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0  '
+                   'typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0'
         command_line = 'sudo {} in {}'.format(cmd, packages)
         print("To continue, some packages required to run the application will be checked or "
               "installed.\n")
