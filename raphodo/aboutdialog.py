@@ -163,6 +163,7 @@ class AboutDialog(QDialog):
         Julien Valroff <julien@kirya.net>
         Dimitris Xenakis <dx@nkdx.gr>
         Aron Xu <happyaron.xu@gmail.com>
+        Koji Yokota <yokota6@gmail.com>
         梁其学 <yalongbay@gmail.com>
         """
 

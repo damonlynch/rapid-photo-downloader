@@ -2797,7 +2797,7 @@ class RapidWindow(QMainWindow):
                     device = self.devices[scan_id]
                     model = device.camera_model
                     port = device.camera_port
-                    mount_point = self.gvolumeMonitor.cameraMountPoint(model, port)
+                    mount_point = self.gvolumeMonitor.ptpCameraMountPoint(model, port)
                     if mount_point is not None:
                         self.devices.cameras_to_gvfs_unmount_for_download.add(scan_id)
                         camera_unmounts_called.add((model, port))
@@ -4410,6 +4410,7 @@ class RapidWindow(QMainWindow):
         Try to handle those cases.
         """
         #TODO Implement noGVFSAutoMount()
+        # however, I have no idea under what circumstances it is called
         logging.error("Implement noGVFSAutoMount()")
 
     @pyqtSlot()
@@ -4534,13 +4535,14 @@ class RapidWindow(QMainWindow):
                         logging.debug("Ignoring blacklisted camera %s", model)
                     else:
                         logging.debug("Detected %s on port %s", model, port)
-                        # libgphoto2 cannot access a camera when it is mounted
-                        # by another process, like Gnome's GVFS or any other
-                        # system. Before attempting to scan the camera, check
-                        # to see if it's mounted and if so, unmount it.
-                        # Unmounting is asynchronous.
-                        if not self.unmountCameraToEnableScan(model=model, port=port,
-                                                              on_startup=on_startup):
+                        # almost always, libgphoto2 cannot access a camera when
+                        # it is mounted by another process, like Gnome's GVFS
+                        # or any other system. Before attempting to scan the
+                        # camera, check to see if it's mounted and if so,
+                        # unmount it. Unmounting is asynchronous.
+                        if not self.unmountCameraToEnableScan(
+                                model=model, port=port, on_startup=on_startup
+                        ):
                             self.startCameraScan(model=model, port=port, on_startup=on_startup)
 
     def startCameraScan(self, model: str,

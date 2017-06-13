@@ -1145,11 +1145,13 @@ if have_gio:
             self.scsiPortSearch = re.compile(r'usbscsi:(.+)')
             self.validMounts = validMounts
 
-        def cameraMountPoint(self, model: str, port: str) -> Gio.Mount:
+        def ptpCameraMountPoint(self, model: str, port: str) -> Optional[Gio.Mount]:
             """
-            :return: the mount point of the camera, if it is mounted,
-             else None
+            :return: the mount point of the PTP / MTP camera, if it is mounted,
+             else None. If camera is not mounted with PTP / MTP, None is
+             returned.
             """
+
             p = self.portSearch.match(port)
             if p is not None:
                 p1 = p.group(1)
@@ -1157,9 +1159,9 @@ if have_gio:
                 pattern = re.compile(r'%\S\Susb%\S\S{}%\S\S{}%\S\S'.format(p1, p2))
             else:
                 p = self.scsiPortSearch.match(port)
-                assert p is not None
-                p1 = p.group(1)
-                pattern = re.compile(r'%\S\Susbscsi%\S\S{}%\S\S'.format(p1))
+                if p is None:
+                    logging.error("Unknown camera mount method %s %s", model, port)
+                return None
 
             to_unmount = None
 
@@ -1175,7 +1177,7 @@ if have_gio:
                           port: str,
                           download_starting: bool=False,
                           on_startup: bool=False,
-                          mount_point: Gio.Mount = None) -> bool:
+                          mount_point: Optional[Gio.Mount]=None) -> bool:
             """
             Unmount camera mounted on gvfs mount point, if it is
             mounted. If not mounted, ignore.
@@ -1193,7 +1195,7 @@ if have_gio:
             """
 
             if mount_point is None:
-                to_unmount = self.cameraMountPoint(model, port)
+                to_unmount = self.ptpCameraMountPoint(model, port)
             else:
                 to_unmount = mount_point
 
