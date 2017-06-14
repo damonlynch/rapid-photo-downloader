@@ -1,13 +1,14 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0b6 (2017-xx-xx)
+0.9.0b6 (2017-06-13)
 --------------------
 
  - Don't allow entry of illegal filename characters in Job Codes, such as
    / (forward slash).
 
- - Handle cameras mounted using usbscsi.
+ - Handle cameras that are mounted using libgphoto2's legacy connection method
+   usbscsi.
 
  - Added warning message when ExifTool is not working.
 
@@ -19,6 +20,10 @@ Changelog for Rapid Photo Downloader
  - Removed DistUtilsExtra from the list of dependencies by copying its
    core functionality into the setup.py file. This should make creating
    a Snap / AppImage / Flatpak easier.
+
+ - Updated Arabic, Brazilian Portuguese, Catalan, Chinese, Czech, Danish,
+   Dutch, French, Italian, Japanese, Kabyle, Norwegian Bokmal, Serbian,
+   Slovak, Spanish, Swedish, and Ukrainian translations.
 
 0.9.0b5 (2017-05-10)
 --------------------
