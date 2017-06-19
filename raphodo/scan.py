@@ -81,7 +81,8 @@ import raphodo.metadatavideo as metadatavideo
 import raphodo.metadataphoto as metadataphoto
 from raphodo.problemnotification import (
     ScanProblems, UnhandledFileProblem, CameraDirectoryReadProblem, CameraFileInfoProblem,
-    CameraFileReadProblem, FileMetadataLoadProblem, FileWriteProblem, FsMetadataReadProblem
+    CameraFileReadProblem, FileMetadataLoadProblem, FileWriteProblem, FsMetadataReadProblem,
+    FileZeroLengthProblem
 )
 from raphodo.storage import get_uri, CameraDetails
 
@@ -429,54 +430,64 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 try:
                     modification_time, size = self.camera.get_file_info(path, name)
                 except gp.GPhoto2Error as e:
-                    logging.error("Unable to access modification_time or size from %s on %s. "
-                                  "Error code: %s", os.path.join(path, name), self.display_name,
-                                  e.code)
+                    logging.error(
+                        "Unable to access modification_time or size from %s on %s. Error code: %s",
+                        os.path.join(path, name), self.display_name, e.code
+                    )
                     modification_time, size = 0, 0
-                    uri = get_uri(full_file_name=os.path.join(path, name),
-                                  camera_details=self.camera_details)
+                    uri = get_uri(
+                        full_file_name=os.path.join(path, name), camera_details=self.camera_details
+                    )
                     self.problems.append(CameraFileInfoProblem(uri=uri, gp_code=e.code))
+                else:
+                    if size <= 0:
+                        full_file_name = os.path.join(path, name)
+                        logging.error(
+                            "Zero length file %s will not be downloaded from %s",
+                            full_file_name, self.display_name
+                        )
+                        uri = get_uri(
+                            full_file_name=full_file_name, camera_details=self.camera_details
+                        )
+                        self.problems.append(FileZeroLengthProblem(name=name, uri=uri))
 
-                key = rpdfile.make_key(file_type, basedir)
-                self.file_type_counter[key] += 1
-                self.file_size_sum[key] += size
+                if size > 0:
+                    key = rpdfile.make_key(file_type, basedir)
+                    self.file_type_counter[key] += 1
+                    self.file_size_sum[key] += size
 
-                # Store the directory this file is stored in, used when
-                # determining if associate files are part of the download
-                cf = CameraFile(name=name, size=size)
-                self._camera_directories_for_file[cf].append(path)
+                    # Store the directory this file is stored in, used when
+                    # determining if associate files are part of the download
+                    cf = CameraFile(name=name, size=size)
+                    self._camera_directories_for_file[cf].append(path)
 
-                if folder_identifier is not None:
-                    # Store which which card the file came from using a
-                    # simple numeric identifier i.e. 1 or 2.
-                    self._folder_identifers_for_file[cf].append(folder_identifier)
+                    if folder_identifier is not None:
+                        # Store which which card the file came from using a
+                        # simple numeric identifier i.e. 1 or 2.
+                        self._folder_identifers_for_file[cf].append(folder_identifier)
 
-                if name in self._camera_file_names:
-                    for existing_file_info in self._camera_file_names[name]:
-                        # Don't compare file modification time in this
-                        # comparison, because files can be written to
-                        # different cards several seconds apart when
-                        # the write speeds of the cards differ
-                        if existing_file_info.size == size:
-                            file_is_unique = False
-                            break
-                if file_is_unique:
-                    file_info = FileInfo(path=path,
-                                         modification_time=modification_time,
-                                         size=size, file_type=file_type,
-                                         base_name=base_name,
-                                         ext_lower=ext_lower)
-                    metadata_details = CameraMetadataDetails(
-                        path=path, name=name, size=size, extension=ext_lower,
-                        mtime=modification_time, file_type=file_type)
-                    self._camera_file_names[name].append(file_info)
-                    self._camera_folders_and_files.append([path, name])
-                    self._camera_photos_videos_by_type[ext_type].append(metadata_details)
-                # uri = get_uri(
-                #     full_file_name=os.path.join(path, name),
-                #     camera_details=self.camera_details
-                # )
-                # self.problems.append(UnhandledFileProblem(name=name, uri=uri))
+                    if name in self._camera_file_names:
+                        for existing_file_info in self._camera_file_names[name]:
+                            # Don't compare file modification time in this
+                            # comparison, because files can be written to
+                            # different cards several seconds apart when
+                            # the write speeds of the cards differ
+                            if existing_file_info.size == size:
+                                file_is_unique = False
+                                break
+                    if file_is_unique:
+                        file_info = FileInfo(
+                            path=path, modification_time=modification_time,
+                            size=size, file_type=file_type, base_name=base_name,
+                            ext_lower=ext_lower
+                        )
+                        metadata_details = CameraMetadataDetails(
+                            path=path, name=name, size=size, extension=ext_lower,
+                            mtime=modification_time, file_type=file_type
+                        )
+                        self._camera_file_names[name].append(file_info)
+                        self._camera_folders_and_files.append([path, name])
+                        self._camera_photos_videos_by_type[ext_type].append(metadata_details)
             else:
                 # this file on the camera is not a photo or video
                 if ext_lower in rpdfile.AUDIO_EXTENSIONS:
@@ -556,7 +567,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 if not (need_sample_photo or need_sample_video):
                     break
 
-    def process_file(self):
+    def process_file(self) -> None:
         # Check to see if the process has received a command to terminate or
         # pause
         self.check_for_controller_directive()
@@ -605,11 +616,20 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
                 if self.download_from_camera:
                     modification_time = file_info.modification_time
+                    # zero length files have already been filtered out
                     size = file_info.size
                     camera_file = CameraFile(name=self.file_name, size=size)
                 else:
                     stat = os.stat(file)
                     size = stat.st_size
+                    if size <= 0:
+                        logging.error(
+                            "Zero length file %s will not be downloaded from %s",
+                            file, self.display_name
+                        )
+                        uri = get_uri(full_file_name=file)
+                        self.problems.append(FileZeroLengthProblem(name=self.file_name, uri=uri))
+                        return
                     modification_time = stat.st_mtime
                     camera_file = None
 
@@ -648,14 +668,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     # Was there a thumbnail generated for the file?
                     # If so, get the metadata date time from that
                     get_thumbnail = self.thumbnail_cache.get_thumbnail_path(
-                                            full_file_name=file,
-                                            mtime=adjusted_mtime,
-                                            size=size,
-                                            camera_model=self.camera_model
-                                            )
+                        full_file_name=file, mtime=adjusted_mtime,
+                        size=size, camera_model=self.camera_model
+                    )
                     thumbnail_cache_status = get_thumbnail.disk_status
-                    if thumbnail_cache_status in (ThumbnailCacheDiskStatus.found,
-                                                     ThumbnailCacheDiskStatus.failure):
+                    if thumbnail_cache_status in (
+                            ThumbnailCacheDiskStatus.found, ThumbnailCacheDiskStatus.failure):
                         mdatatime = get_thumbnail.mdatatime
 
                 if downloaded is not None:

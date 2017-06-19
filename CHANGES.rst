@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.0b7 (2017-06-xx)
+--------------------
+
+ - Don't attempt to download photos or videos of zero bytes length.
+
 0.9.0b6 (2017-06-13)
 --------------------
 

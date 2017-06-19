@@ -47,7 +47,7 @@ Install on Ubuntu, openSUSE, Debian, and Fedora
 
 To install Rapid Photo Downloader, run as your regular user (i.e. *without* sudo):
 
-``python3 install.py rapid-photo-downloader-0.9.0b6.tar.gz``
+``python3 install.py rapid-photo-downloader-0.9.0b7.tar.gz``
 
 **Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
 install`` *is* **not** *supported, and* **not** *recommended.*
@@ -102,7 +102,6 @@ Rapid Photo Downloader requires:
    libraw_, which is especially useful when downloading DNG files from Android phones or working
    with old RAW formats.
  - `Qt5 plugin for reading TIFF images`_
- - `distutils-extra`_ for Python 3
  - Requests_
  - intltool_
  - If using Python 3.4, these additional modules:
@@ -126,7 +125,6 @@ Downloader. The Python module requirements are the Python 3 versions of:
 
  - PyQt_ 5.4 or greater
  - All `Python gobject introspection`_ modules listed above
- - `distutils-extra`_
 
 The non-Python programs required are:
 
@@ -164,7 +162,7 @@ The following command will install all required and optional Python modules not 
 installed on your system, with the exception of those specified above in
 `satisfying software requirements`_:
 
-``python3 install.py rapid-photo-downloader-0.9.0b6.tar.gz``
+``python3 install.py rapid-photo-downloader-0.9.0b7.tar.gz``
 
 Substitute the name of the correct compressed tar file if necessary, and run it as your regular
 user (i.e. *without* sudo).
@@ -205,7 +203,6 @@ If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 .. _PyQt: https://riverbankcomputing.com/software/pyqt/intro
 .. _EasyGUI: https://github.com/robertlugg/easygui
 .. _Colour: https://github.com/vaab/colour
-.. _distutils-extra: https://launchpad.net/python-distutils-extra
 .. _intltool: https://freedesktop.org/wiki/Software/intltool/
 .. _Tkinter: https://wiki.python.org/moin/TkInter
 .. _`Qt5 plugin for reading TIFF images`: http://doc.qt.io/qt-5/qtimageformats-index.html

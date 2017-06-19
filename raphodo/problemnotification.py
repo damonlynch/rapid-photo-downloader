@@ -170,6 +170,12 @@ class FileCopyProblem(SeriousProblem):
         return escape(_('Unable to copy file %s')) % self.href
 
 
+class FileZeroLengthProblem(SeriousProblem):
+    @property
+    def body(self) -> str:
+        return escape(_('Zero length file %s will not be downloaded')) % self.href
+
+
 class FsMetadataReadProblem(Problem):
     @property
     def body(self) -> str:
