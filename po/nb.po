@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-05-28 21:22-0500\n"
-"PO-Revision-Date: 2017-06-07 10:44+0000\n"
+"PO-Revision-Date: 2017-06-16 20:45+0000\n"
 "Last-Translator: Harald H. <haarektrans@gmail.com>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-06-13 21:56+0000\n"
-"X-Generator: Launchpad (build 18404)\n"
+"X-Launchpad-Export-Date: 2017-06-19 02:08+0000\n"
+"X-Generator: Launchpad (build 18416)\n"
 "Language: nb\n"
 
 #. type: QPushButton
@@ -40,8 +40,8 @@ msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
 msgstr ""
-"Du kan få dine bilder og videoer sikkerhetskopiert til flere steder etter "
-"hvert som de lastes ned, f.eks. eksterne harddisker."
+"Du kan sikkerhetskopiere dine bilder og videoer til flere steder etter hvert "
+"som de lastes ned, f.eks. til eksterne harddisker."
 
 #: ../raphodo/backuppanel.py:407
 msgid "Back up photos and videos when downloading"
@@ -524,8 +524,7 @@ msgid ""
 "This illustration shows a saved custom preset named &quot;My custom "
 "preset&quot;."
 msgstr ""
-"Denne illustrasjonen viser et lagret tilpasset forvalg kalt &quot;My custom "
-"preset&quot;."
+"Denne illustrasjonen viser et tilpasset forvalg kalt «My custom preset»."
 
 #: ../raphodo/didyouknow.py:246
 msgid ""
@@ -890,7 +889,7 @@ msgstr "%s av %s treff"
 
 #: ../raphodo/errorlog.py:228
 msgid "Clear"
-msgstr ""
+msgstr "Fjern"
 
 #: ../raphodo/errorlog.py:328
 msgid "Phrase not found"
@@ -1676,6 +1675,9 @@ msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>There is insufficient data to "
 "fully generate the name. Please use other renaming options.</i>"
 msgstr ""
+"<b><font color=\"red\">Advarsel:</font></b> <i>Det er ikke nok data til å "
+"kunne generere navnet fullt ut. Vennligst bruk andre alternativer for "
+"endring av navn.</i>"
 
 #. Translators: please do not modify, change the order of or leave out html formatting
 #. tags like <i> and <b>. These are used to format the text the users sees.
@@ -1942,11 +1944,11 @@ msgstr "Start nedlasting når programmet starter"
 
 #: ../raphodo/preferencedialog.py:210
 msgid "Start downloading upon device insertion"
-msgstr "Begynn nedlasting når enheter settes inn"
+msgstr "Start nedlasting når enheter settes inn"
 
 #: ../raphodo/preferencedialog.py:211
 msgid "Unmount (eject) device upon download completion"
-msgstr ""
+msgstr "Avmonter (løs ut) enheten etter fullført nedlasting"
 
 #: ../raphodo/preferencedialog.py:212
 msgid "Exit program when download completes"
@@ -1962,25 +1964,27 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:241
 msgid "Generate thumbnails"
-msgstr ""
+msgstr "Generer miniatyrbilder"
 
 #: ../raphodo/preferencedialog.py:242
 msgid "Generate thumbnails to show in the main program window"
-msgstr ""
+msgstr "Generer miniatyrbilder som vil vises i hovedvinduet"
 
 #: ../raphodo/preferencedialog.py:244
 msgid "Cache thumbnails"
-msgstr ""
+msgstr "Hurtiglagre miniatyrbilder"
 
 #: ../raphodo/preferencedialog.py:245
 msgid ""
 "Save thumbnails shown in the main program window in a thumbnail cache unique "
 "to Rapid Photo Downloader"
 msgstr ""
+"Lagre miniatyrbilder vist i hovedprogramvinduet i et hurtiglager unikt for "
+"Rapid Photo Downloader"
 
 #: ../raphodo/preferencedialog.py:247
 msgid "Generate system thumbnails"
-msgstr ""
+msgstr "Generer system miniatyrbilder"
 
 #: ../raphodo/preferencedialog.py:248
 msgid ""
@@ -1990,7 +1994,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:255
 msgid "Number of CPU cores used to generate thumbnails."
-msgstr "Antall CPU-kjerner brukt for å generere miniatyrbilder."
+msgstr "Antall CPU-kjerner som skal brukes  for å generere miniatyrbilder."
 
 #: ../raphodo/preferencedialog.py:256
 msgid "CPU cores:"
@@ -2004,7 +2008,7 @@ msgstr "*"
 
 #: ../raphodo/preferencedialog.py:294
 msgid "Thumbnail Cache"
-msgstr "Mellomlager for miniatyrbilder"
+msgstr "Hurtiglager for miniatyrbilder"
 
 #: ../raphodo/preferencedialog.py:296
 msgid "Calculating..."
@@ -2020,7 +2024,7 @@ msgstr "alltid"
 
 #: ../raphodo/preferencedialog.py:308
 msgid "Cache size:"
-msgstr ""
+msgstr "Hurtiglagerets størrelse:"
 
 #: ../raphodo/preferencedialog.py:310
 msgid "Number of thumbnails:"
@@ -2032,15 +2036,15 @@ msgstr "Databasestørrelse:"
 
 #: ../raphodo/preferencedialog.py:314
 msgid "Cache unaccessed thumbnails for:"
-msgstr ""
+msgstr "Hurtiglagre utilgjengelige miniatyrbilder i:"
 
 #: ../raphodo/preferencedialog.py:322
 msgid "Purge Cache..."
-msgstr ""
+msgstr "Rens hurtiglager ..."
 
 #: ../raphodo/preferencedialog.py:323
 msgid "Optimize Cache..."
-msgstr ""
+msgstr "Optimaliser hurtiglager ..."
 
 #: ../raphodo/preferencedialog.py:336
 msgid "* Takes effect upon program restart"
@@ -2085,20 +2089,25 @@ msgid ""
 "When a photo or video of the same name has already been downloaded, choose "
 "whether to skip downloading the file, or to add a unique identifier:"
 msgstr ""
+"Velg du om du vil hoppe over nedlasting eller legge til en unik "
+"identifikator når et bilde eller en video med samme navn allerede er lastet "
+"ned:"
 
 #: ../raphodo/preferencedialog.py:378
 msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up:"
 msgstr ""
+"Velg om du skal overskrive en fil på sikkerhetskopienheten som har samme "
+"navn når du sikkerhetskopierer, eller hoppe over sikkerhetskopiering:"
 
 #: ../raphodo/preferencedialog.py:398
 msgid "Program Warnings"
-msgstr ""
+msgstr "Programadvarsler"
 
 #: ../raphodo/preferencedialog.py:399
 msgid "Show a warning when:"
-msgstr ""
+msgstr "Vis en advarsel når:"
 
 #: ../raphodo/preferencedialog.py:402
 msgid "Downloading files currently not displayed"
@@ -2108,6 +2117,7 @@ msgstr ""
 msgid ""
 "Warn when about to download files that are not displayed in the main window."
 msgstr ""
+"Advar når du skal til å laste ned filer som ikke vises i hovedvinduet."
 
 #: ../raphodo/preferencedialog.py:405
 msgid "Backup destinations are missing"
@@ -2117,16 +2127,20 @@ msgstr ""
 msgid ""
 "Warn before starting a download if it is not possible to back up files."
 msgstr ""
+"Advar før du starter en nedlasting hvis det ikke er mulig å "
+"sikkerhetskopiere filer."
 
 #: ../raphodo/preferencedialog.py:408
 msgid "Program libraries are missing or broken"
-msgstr ""
+msgstr "Programbiblioteker mangler eller er skadet"
 
 #: ../raphodo/preferencedialog.py:409
 msgid ""
 "Warn if a software library used by Rapid Photo Downloader is missing or not "
 "functioning."
 msgstr ""
+"Advar om et programvarebibliotek som brukes av Rapid Photo Downloader "
+"mangler eller ikke fungerer."
 
 #: ../raphodo/preferencedialog.py:412
 msgid "Filesystem metadata cannot be set"
@@ -2137,6 +2151,8 @@ msgid ""
 "Warn if there is an error setting a file's filesystem metadata, such as its "
 "modification time."
 msgstr ""
+"Advar om det oppstår en feil ved å angi metadata for en fil, slik som filens "
+"endringstidspunkt."
 
 #: ../raphodo/preferencedialog.py:416
 msgid "Encountering unhandled files"
@@ -2147,10 +2163,12 @@ msgid ""
 "Warn after scanning a device or this computer if there are unrecognized "
 "files that will not be included in the download."
 msgstr ""
+"Advar etter skanning av en enhet eller denne datamaskinen om det finnes "
+"ukjente filer som ikke vil bli inkludert under nedlastingen."
 
 #: ../raphodo/preferencedialog.py:420
 msgid "Do not warn about unhandled files with extensions:"
-msgstr ""
+msgstr "Ikke advar om ubehandlede filer av filtypene:"
 
 #: ../raphodo/preferencedialog.py:424
 msgid ""
@@ -2166,21 +2184,25 @@ msgstr "Legg til"
 msgid ""
 "Add a file extension to the list of unhandled file types to not warn about."
 msgstr ""
+"Legg til filtyper i listen over ubehandlede filtyper det ikke skal advares "
+"om."
 
 #: ../raphodo/preferencedialog.py:430
 msgid ""
 "Remove a file extension from the list of unhandled file types to not warn "
 "about."
 msgstr ""
+"Fjern en filtype fra listen over ubehandlede filtyper det ikke skal advares "
+"om."
 
 #: ../raphodo/preferencedialog.py:434
 msgid ""
 "Clear the list of file extensions of unhandled file types to not warn about."
-msgstr ""
+msgstr "Tøm hele listen over ubehandlede filtyper det ikke skal advares om."
 
 #: ../raphodo/preferencedialog.py:469
 msgid "Version Check"
-msgstr ""
+msgstr "Kontroller versjon"
 
 #: ../raphodo/preferencedialog.py:470
 msgid "Check for new version at startup"
@@ -2188,7 +2210,7 @@ msgstr "Se etter ny versjon ved oppstart"
 
 #: ../raphodo/preferencedialog.py:471
 msgid "Check for a new version of the program each time the program starts."
-msgstr ""
+msgstr "Se etter en ny versjon av programmet hver gang programmet starter."
 
 #: ../raphodo/preferencedialog.py:473
 msgid "Include development releases"
@@ -2202,10 +2224,15 @@ msgid ""
 "If you are currently running a development version, the check will always "
 "occur."
 msgstr ""
+"Inkluder alfa-, beta- og andre utviklingsutgivelser når du ser etter en ny "
+"versjon av programmet.\n"
+"\n"
+"Hvis du for øyeblikket kjører en utviklingsversjon, vil dette alltid "
+"forekomme."
 
 #: ../raphodo/preferencedialog.py:489
 msgid "Ignore DNG date/time metadata on MTP devices"
-msgstr ""
+msgstr "Ignorer DNG dato/tid metadata på MTP enheter."
 
 #: ../raphodo/preferencedialog.py:490
 msgid ""
@@ -2215,6 +2242,11 @@ msgid ""
 "Useful for devices like some phones and tablets that create incorrect DNG "
 "metadata."
 msgstr ""
+"Ignorer dato/tid metadata i DNG filer plassert på MTP enheter, og bruk i "
+"stedet filens endringstidspunkt\n"
+"\n"
+"Nyttig for enheter som oppretter feil DNG-metadata, slik som noen telefoner "
+"og nettbrett."
 
 #. Translators: substituted value is a description for the set of preferences
 #. shown in the preference dialog window, e.g. Devices, Automation, etc.
@@ -2229,20 +2261,24 @@ msgid ""
 "Do you want to purge the thumbnail cache? The cache will be purged when the "
 "program is next started."
 msgstr ""
+"Vil du rense hurtiglageret? Hurtiglageret blir renset neste gang programmet "
+"startes."
 
 #: ../raphodo/preferencedialog.py:835
 msgid "Purge Thumbnail Cache"
-msgstr ""
+msgstr "Rens hurtiglager for miniatyrbilder"
 
 #: ../raphodo/preferencedialog.py:847
 msgid ""
 "Do you want to optimize the thumbnail cache? The cache will be optimized "
 "when the program is next started."
 msgstr ""
+"Vil du optimalisere hurtiglageret? Hurtiglageret vil bli optimalisert neste "
+"gang programmet startes."
 
 #: ../raphodo/preferencedialog.py:850
 msgid "Optimize Thumbnail Cache"
-msgstr ""
+msgstr "Optimaliser hurtiglager for miniatyrbilder"
 
 #: ../raphodo/preferencedialog.py:1045
 msgid "Enter a Path to Ignore"
@@ -2278,6 +2314,8 @@ msgid ""
 "The file extension <b>%s</b> is recognized by Rapid Photo Downloader, so it "
 "makes no sense to warn about its presence."
 msgstr ""
+"Filtypen <b>%s</b> gjenkjennes av Rapid Photo Downloader, så det gir ikke "
+"mening å advare om dens tilstedeværelse."
 
 #: ../raphodo/preferencedialog.py:1081
 #, python-format
@@ -2448,7 +2486,7 @@ msgstr ""
 #: ../raphodo/problemnotification.py:276
 #, python-format
 msgid "The unique identifier '%s' was added to the filename."
-msgstr ""
+msgstr "Den unike identifikatoren «%s» ble lagt til filnavnet."
 
 #: ../raphodo/problemnotification.py:292
 #, python-format
@@ -2592,7 +2630,7 @@ msgstr ""
 #: ../raphodo/problemnotification.py:592
 #, python-format
 msgid "Problems backing up to %s"
-msgstr ""
+msgstr "Problemer med sikkerhetskopiering til %s"
 
 #. Translators: for example Nov 3 or Dec 31
 #. The start and end dates are on a different day
@@ -2754,12 +2792,16 @@ msgstr ""
 msgid ""
 "Sorry, the download of the new version of Rapid Photo Downloader failed."
 msgstr ""
+"Dessverre, nedlastingen av den nye versjonen av Rapid Photo Downloader "
+"mislyktes."
 
 #: ../raphodo/rapid.py:1425
 msgid ""
 "The new version was successfully downloaded. Do you want to close Rapid "
 "Photo Downloader and install it now?"
 msgstr ""
+"Den nye versjonen ble lastet ned. Vil du lukke Rapid Photo Downloader og "
+"installere den nå?"
 
 #: ../raphodo/rapid.py:1428
 msgid "Update Rapid Photo Downloader"
@@ -2771,7 +2813,7 @@ msgstr "Installer"
 
 #: ../raphodo/rapid.py:1450
 msgid "New version saved"
-msgstr ""
+msgstr "Ny versjon lagret"
 
 #: ../raphodo/rapid.py:1451
 #, python-format
@@ -2817,7 +2859,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:1691
 msgid "Clear Completed Downloads"
-msgstr ""
+msgstr "Fjern fullførte nedlastinger"
 
 #: ../raphodo/rapid.py:1695
 msgid "Get Help Online..."
@@ -3448,6 +3490,8 @@ msgid ""
 "Import preferences from an old program version and exit. Requires the "
 "command line program gconftool-2."
 msgstr ""
+"Importer innstillinger fra en eldre programversjon og avslutt. Krever "
+"kommandolinjeprogrammet gconftool-2."
 
 #: ../raphodo/rapid.py:5562
 msgid ""
@@ -3469,6 +3513,8 @@ msgid ""
 "To import preferences from the old version of Rapid Photo Downloader, you "
 "must install the program gconftool-2."
 msgstr ""
+"For å kunne importere innstillinger fra den eldre versjonen av Rapid Photo "
+"Downloader, kreves det at du installerer programmet gconftool-2."
 
 #: ../raphodo/rapid.py:5640
 msgid "No prior program preferences detected: exiting"
@@ -3477,7 +3523,7 @@ msgstr ""
 #: ../raphodo/rapid.py:5643
 #, python-format
 msgid "Importing preferences from Rapid Photo Downloader %(version)s"
-msgstr ""
+msgstr "Importerer innstillinger fra Rapid Photo Downloader %(version)s"
 
 #: ../raphodo/rapid.py:5705
 #, python-format
@@ -3568,7 +3614,7 @@ msgstr "Dag begynner:"
 #. self.dayStart.setDisplayFormat('HH:mm:ss')
 #: ../raphodo/renamepanel.py:342
 msgid "Synchronize RAW + JPEG"
-msgstr ""
+msgstr "Synkroniser RAW + JPEG"
 
 #: ../raphodo/renamepanel.py:345
 msgid ""
