@@ -6,7 +6,7 @@ Changelog for Rapid Photo Downloader
 
  - Don't attempt to download photos or videos of zero bytes length.
 
- - Updated Norwegian Bokmal translation.
+ - Updated Czech, French, Norwegian Bokmal translations.
 
 0.9.0b6 (2017-06-13)
 --------------------
