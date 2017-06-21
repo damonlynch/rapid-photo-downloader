@@ -1,12 +1,13 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0b7 (2017-06-xx)
+0.9.0b7 (2017-06-21)
 --------------------
 
  - Don't attempt to download photos or videos of zero bytes length.
 
- - Updated Czech, French, Norwegian Bokmal, and Spanish translations.
+ - Updated Czech, French, Norwegian Bokmal, Japanese, Polish, Serbian, and
+   Spanish translations.
 
 0.9.0b6 (2017-06-13)
 --------------------

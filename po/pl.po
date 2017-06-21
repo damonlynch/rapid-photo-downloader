@@ -8,20 +8,20 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-06-18 21:16-0500\n"
-"PO-Revision-Date: 2017-06-19 08:07+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"PO-Revision-Date: 2017-06-20 20:55+0000\n"
+"Last-Translator: Michal Predotka <mpredotka@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-06-20 19:12+0000\n"
+"X-Launchpad-Export-Date: 2017-06-21 22:28+0000\n"
 "X-Generator: Launchpad (build 18416)\n"
 "Language: pl\n"
 
 #. type: QPushButton
 #: ../raphodo/aboutdialog.py:217
 msgid "Credits"
-msgstr ""
+msgstr "Autorzy"
 
 #: ../raphodo/backuppanel.py:239
 msgid "Backups are not configured"
@@ -73,7 +73,7 @@ msgstr ""
 #: ../raphodo/backuppanel.py:438 ../raphodo/nameeditor.py:883
 #: ../raphodo/renamepanel.py:123
 msgid "Example:"
-msgstr ""
+msgstr "Przykład:"
 
 #: ../raphodo/backuppanel.py:448
 msgid ""
@@ -166,14 +166,14 @@ msgstr ""
 #: ../raphodo/rapid.py:1968 ../raphodo/rapid.py:2083 ../raphodo/rapid.py:5748
 #: ../raphodo/rpdfile.py:891
 msgid "Photos"
-msgstr ""
+msgstr "Zdjęcia"
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:191 ../raphodo/devicedisplay.py:994
 #: ../raphodo/rapid.py:1971 ../raphodo/rapid.py:2084 ../raphodo/rapid.py:5749
 #: ../raphodo/rpdfile.py:918 ../raphodo/storage.py:445
 msgid "Videos"
-msgstr ""
+msgstr "Filmy"
 
 #: ../raphodo/destinationdisplay.py:192
 msgid "Projected storage use after download"
@@ -209,7 +209,7 @@ msgstr ""
 
 #: ../raphodo/devicedisplay.py:1004
 msgid "Rescan"
-msgstr ""
+msgstr "Skanuj ponownie"
 
 #. Translators: percentage full e.g. 75% full
 #: ../raphodo/devicedisplay.py:1093
@@ -219,7 +219,7 @@ msgstr ""
 
 #: ../raphodo/devices.py:459
 msgid "Cameras"
-msgstr ""
+msgstr "Aparaty"
 
 #: ../raphodo/devices.py:460 ../raphodo/devices.py:920
 #: ../raphodo/preferencedialog.py:85 ../raphodo/rapid.py:1931
@@ -239,7 +239,7 @@ msgstr ""
 
 #: ../raphodo/devices.py:905 ../raphodo/rapid.py:1768
 msgid "Select Source"
-msgstr ""
+msgstr "Wybór źródła"
 
 #: ../raphodo/devices.py:936 ../raphodo/devices.py:947
 #, python-format
@@ -261,7 +261,7 @@ msgstr ""
 #: ../raphodo/devices.py:1258
 #, python-format
 msgid "%s + %s"
-msgstr ""
+msgstr "%s + %s"
 
 #: ../raphodo/didyouknow.py:44
 msgid "Click on a file's checkbox to mark or unmark it for download."
@@ -673,7 +673,7 @@ msgstr ""
 
 #: ../raphodo/didyouknow.py:431
 msgid "Tip of the Day"
-msgstr ""
+msgstr "Porada dnia"
 
 #: ../raphodo/didyouknow.py:439
 msgid "Did you know...?"
@@ -681,7 +681,7 @@ msgstr ""
 
 #: ../raphodo/didyouknow.py:466
 msgid "Show tips on startup"
-msgstr ""
+msgstr "Pokaż porady po uruchomieniu"
 
 #: ../raphodo/didyouknow.py:470
 msgid "&Next"
@@ -702,7 +702,7 @@ msgstr ""
 
 #: ../raphodo/downloadtracker.py:588
 msgid "1 second"
-msgstr ""
+msgstr "1 sekunda"
 
 #: ../raphodo/downloadtracker.py:590
 #, python-format
@@ -711,7 +711,7 @@ msgstr ""
 
 #: ../raphodo/downloadtracker.py:595
 msgid "1 minute"
-msgstr ""
+msgstr "1 minuta"
 
 #: ../raphodo/downloadtracker.py:597
 #, python-format
@@ -720,7 +720,7 @@ msgstr ""
 
 #: ../raphodo/downloadtracker.py:602 ../raphodo/downloadtracker.py:784
 msgid "1 hour"
-msgstr ""
+msgstr "1 godzina"
 
 #: ../raphodo/downloadtracker.py:604
 #, python-format
@@ -730,7 +730,7 @@ msgstr ""
 #: ../raphodo/downloadtracker.py:609 ../raphodo/downloadtracker.py:813
 #: ../raphodo/downloadtracker.py:821
 msgid "1 day"
-msgstr ""
+msgstr "1 dzień"
 
 #: ../raphodo/downloadtracker.py:611
 #, python-format
