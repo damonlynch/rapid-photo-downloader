@@ -1274,7 +1274,7 @@ if have_gio:
                 logging.exception('Traceback:')
 
 
-        def mountIsCamera(self, mount: Gio.Mount) -> str:
+        def mountIsCamera(self, mount: Gio.Mount) -> Optional[str]:
             """
             Determine if the mount point is that of a camera
             :param mount: the mount to examine
@@ -1282,16 +1282,18 @@ if have_gio:
             folder name that indicates on which port it is mounted
             """
             root = mount.get_root()
-            if root is not None:
+            if root is None:
+                logging.warning('Unable to get mount root')
+            else:
                 path = root.get_path()
                 if path:
-                    # logging.debug("GIO: Looking for camera at mount {}".format(path))
+                    logging.debug("GIO: Looking for camera at mount {}".format(path))
                     folder_name = os.path.split(path)[1]
                     for s in ('gphoto2:host=', 'mtp:host='):
                         if folder_name.startswith(s):
                             return folder_name[len(s):]
-            # if path is not None:
-            #     logging.debug("GIO: camera not found at {}".format(path))
+                if path is not None:
+                    logging.debug("GIO: camera not found at {}".format(path))
             return None
 
         def mountIsPartition(self, mount: Gio.Mount) -> bool:
@@ -1303,15 +1305,17 @@ if have_gio:
             :return: True if the mount is a valid partiion
             """
             root = mount.get_root()
-            if root is not None:
+            if root is None:
+                logging.warning('Unable to get mount root')
+            else:
                 path = root.get_path()
                 if path:
-                    # logging.debug("GIO: Looking for valid partition at mount {}".format(path))
+                    logging.debug("GIO: Looking for valid partition at mount {}".format(path))
                     if self.validMounts.pathIsValidMountPoint(path):
-                        # logging.debug("GIO: partition found at {}".format(path))
+                        logging.debug("GIO: partition found at {}".format(path))
                         return True
-            # if path is not None:
-            #     logging.debug("GIO: partition is not valid: {}".format(path))
+                if path is not None:
+                    logging.debug("GIO: partition is not valid mount: {}".format(path))
             return False
 
         def mountAdded(self, volumeMonitor, mount: Gio.Mount) -> None:
@@ -1340,7 +1344,7 @@ if have_gio:
         def volumeRemoved(self, volumeMonitor, volume: Gio.Volume) -> None:
             logging.debug("GIO: %s volume removed", volume.get_name())
             if volume.get_activation_root() is not None:
-                # logging.debug("GIO: %s might be a camera", volume.get_name())
+                logging.debug("GIO: %s might be a camera", volume.get_name())
                 self.cameraPossiblyRemoved.emit()
 
         def getIconNames(self, mount: Gio.Mount) -> List[str]:
