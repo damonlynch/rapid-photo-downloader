@@ -73,7 +73,7 @@ from typing import Optional
 from raphodo.utilities import set_pdeathsig
 
 
-def version_info() -> Optional[str]:
+def version_info() -> str:
     """
     returns the version of Exiftool being used
 
@@ -82,7 +82,7 @@ def version_info() -> Optional[str]:
     try:
         return subprocess.check_output(['exiftool', '-ver']).strip().decode()
     except (OSError, subprocess.CalledProcessError):
-        return None
+        return ''
 
 
 basestring = (bytes, str)

@@ -38,8 +38,9 @@ from gi.repository import Gst
 from PyQt5.QtGui import QImage, QTransform
 from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
 try:
-    from rawkit.raw import Raw
-    from rawkit.options import WhiteBalance
+    import rawkit
+    import rawkit.options
+    import rawkit.raw
     have_rawkit = True
 except ImportError:
     have_rawkit = False
@@ -59,9 +60,69 @@ import atexit
 have_gst = Gst.init_check(None)
 
 
+def gst_version() -> str:
+    """
+    :return: version of gstreamer, if it exists and is functioning, else ''
+    """
+
+    if have_gst:
+        try:
+            return Gst.version_string().replace('GStreamer ', '')
+        except Exception:
+            pass
+    return ''
+
+
+def libraw_version(suppress_errors: bool=True) -> str:
+    """
+    Return version number of libraw, using rawkit
+
+    :param suppress_errors:
+    :return: version number if available, else ''
+    """
+
+    if not have_rawkit:
+        return ''
+
+    import libraw.bindings
+    try:
+        return libraw.bindings.LibRaw().version
+    except ImportError as e:
+        if not suppress_errors:
+            raise
+        v = str(e)
+        if v.startswith('Unsupported'):
+            import re
+            v = ''.join(re.findall(r'\d+\.?', str(e)))
+            return v[:-1] if v.endswith('.') else v
+        return v
+    except Exception:
+        if not suppress_errors:
+            raise
+        return ''
+
+
+if not have_rawkit:
+    have_functioning_rawkit = False
+else:
+    try:
+        have_functioning_rawkit = bool(libraw_version(suppress_errors=False))
+    except Exception:
+        have_functioning_rawkit = False
+
+
+def rawkit_version() -> str:
+    if have_rawkit:
+        if have_functioning_rawkit:
+            return rawkit.VERSION
+        else:
+            return '{} (not functional)'.format(rawkit.VERSION)
+    return ''
+
+
 def get_video_frame(full_file_name: str,
                     offset: Optional[float]=5.0,
-                    caps=Gst.Caps.from_string('image/png')) -> bytes:
+                    caps=Gst.Caps.from_string('image/png')) -> Optional[bytes]:
     """
     Source: https://gist.github.com/dplanella/5563018
 
@@ -82,10 +143,16 @@ def get_video_frame(full_file_name: str,
     # Seek offset seconds into the video, if the video is long enough
     # If video is shorter than offset, seek 0.25 seconds less than the duration,
     # but always at least zero.
-    offset=max(min(pipeline.query_duration(Gst.Format.TIME)[1] - Gst.SECOND / 4, offset *
-                   Gst.SECOND), 0)
+    offset = max(
+        min(
+            pipeline.query_duration(Gst.Format.TIME)[1] - Gst.SECOND / 4, offset * Gst.SECOND
+        ), 0
+    )
 
-    assert pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, offset)
+    try:
+        assert pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, offset)
+    except AssertionError:
+        return None
     # Wait for seek to finish.
     pipeline.get_state(Gst.CLOCK_TIME_NONE)
     sample = pipeline.emit('convert-sample', caps)
@@ -268,13 +335,12 @@ class ThumbnailExtractor(LoadBalancerWorker):
             photo_details = self._extract_metadata(rpd_file, processing)
             thumbnail = photo_details.thumbnail
 
-        if thumbnail is not None or not have_rawkit:
+        if thumbnail is not None:
             return photo_details
-        elif rpd_file.is_raw():
-            assert have_rawkit
+        elif rpd_file.is_raw() and have_functioning_rawkit:
             try:
-                with Raw(filename=full_file_name) as raw:
-                    raw.options.white_balance = WhiteBalance(camera=True, auto=False)
+                with rawkit.raw.Raw(filename=full_file_name) as raw:
+                    raw.options.white_balance = rawkit.options.WhiteBalance(camera=True, auto=False)
                     if rpd_file.cache_full_file_name and not rpd_file.download_full_file_name:
                         temp_file = '{}.tiff'.format(os.path.splitext(full_file_name)[0])
                         cache_dir = os.path.dirname(rpd_file.cache_full_file_name)
@@ -496,16 +562,19 @@ class ThumbnailExtractor(LoadBalancerWorker):
             assert rpd_file.file_type == FileType.video
 
             if ExtractionTask.extract_from_file_and_load_metadata:
-                self.assign_video_mdatatime(rpd_file=rpd_file,
-                                        full_file_name=data.full_file_name_to_work_on)
+                self.assign_video_mdatatime(
+                    rpd_file=rpd_file, full_file_name=data.full_file_name_to_work_on
+                )
             if not have_gst:
                 thumbnail = None
             else:
                 png = get_video_frame(data.full_file_name_to_work_on, 0.0)
                 if not png:
                     thumbnail = None
-                    logging.warning("Could not extract video thumbnail from %s",
-                                    data.rpd_file.get_display_full_name())
+                    logging.warning(
+                        "Could not extract video thumbnail from %s",
+                        data.rpd_file.get_display_full_name()
+                    )
                 else:
                     thumbnail = QImage.fromData(png)
                     if thumbnail.isNull():

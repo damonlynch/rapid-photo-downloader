@@ -166,6 +166,7 @@ from raphodo.problemnotification import (
 )
 from raphodo.viewutils import standardIconSize
 import raphodo.didyouknow as didyouknow
+from raphodo.thumbnailextractor import gst_version, libraw_version, rawkit_version
 
 
 # Avoid segfaults at exit:
@@ -5417,7 +5418,11 @@ def get_versions() -> List[str]:
         'ExifTool: {}'.format(EXIFTOOL_VERSION),
         'pymediainfo: {}'.format(pymedia_version_info()),
         'GExiv2: {}'.format(gexiv2_version()),
-        'psutil: {}'.format('.'.join((str(v) for v in psutil.version_info)))]
+        'Gstreamer: {}'.format(gst_version()),
+        'PyGObject: {}'.format('.'.join(map(str, gi.version_info))),
+        'libraw: {}'.format(libraw_version()),
+        'rawkit: {}'.format(rawkit_version()),
+        'psutil: {}'.format('.'.join(map(str, psutil.version_info)))]
     v = exiv2_version()
     if v:
         versions.append('Exiv2: {}'.format(v))
