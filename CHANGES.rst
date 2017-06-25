@@ -6,6 +6,8 @@ Changelog for Rapid Photo Downloader
 
  - Include additional programs in detailed version output.
 
+ - Updated Turkish translation.
+
 0.9.0b7 (2017-06-21)
 --------------------
 

@@ -5,7 +5,7 @@ Release Notes for Rapid Photo Downloader 0.9.0
    including icons for menus. To resolve this problem, from the command line
    issue the following command:
 
-   pip3 install --user PyQt5
+   python3 -m pip install --user PyQt5
 
    This command will upgrade the version of PyQt and Qt for your user (the
    rest of the system will be unaffected). When Rapid Photo Downloader is next
@@ -27,7 +27,7 @@ Release Notes for Rapid Photo Downloader 0.9.0
    You are using pip version 8.1.1, however version 9.0.1 is available.
    You should consider upgrading via the 'pip install --upgrade pip' command.
 
-   This message can be ignored. However, if you do want to upgrade pip, on
-   most systems the safest way to upgrade is like this:
+   This message can be ignored. However, if you do want to upgrade pip, the
+   safest way to upgrade is like this:
 
    python3 -m pip install --upgrade --user pip

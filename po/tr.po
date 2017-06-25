@@ -8,24 +8,24 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-06-18 21:16-0500\n"
-"PO-Revision-Date: 2017-06-19 08:07+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"PO-Revision-Date: 2017-06-22 18:51+0000\n"
+"Last-Translator: Uygar Demir Koç <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-06-20 19:12+0000\n"
+"X-Launchpad-Export-Date: 2017-06-25 20:44+0000\n"
 "X-Generator: Launchpad (build 18416)\n"
 "Language: tr\n"
 
 #. type: QPushButton
 #: ../raphodo/aboutdialog.py:217
 msgid "Credits"
-msgstr ""
+msgstr "Destekleyenler"
 
 #: ../raphodo/backuppanel.py:239
 msgid "Backups are not configured"
-msgstr ""
+msgstr "Yedeklemeler yapılandırılmadı"
 
 #: ../raphodo/backuppanel.py:241
 msgid "No backup devices detected"
@@ -33,21 +33,23 @@ msgstr "Yedekleme ünitesi bulunamadı"
 
 #: ../raphodo/backuppanel.py:243
 msgid "Valid backup locations not yet specified"
-msgstr ""
+msgstr "Geçerli yedekleme yerleri henüz belirtilmemiş"
 
 #: ../raphodo/backuppanel.py:401
 msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
 msgstr ""
+"Fotoğraflarınızı ve videolarınızı, indirildikçe birden fazla yere "
+"yedeklenmesini sağlayabilirsiniz, ör. Harici sabit sürücüler."
 
 #: ../raphodo/backuppanel.py:407
 msgid "Back up photos and videos when downloading"
-msgstr ""
+msgstr "İndirirken fotoğrafları ve videoları yedekle"
 
 #: ../raphodo/backuppanel.py:413
 msgid "Automatically detect backup devices"
-msgstr ""
+msgstr "Yedekleme aygıtlarını otomatik olarak algıla"
 
 #: ../raphodo/backuppanel.py:417
 msgid ""
@@ -61,49 +63,50 @@ msgstr ""
 
 #: ../raphodo/backuppanel.py:428
 msgid "Photo folder name:"
-msgstr ""
+msgstr "Fotoğraf klasörü adı:"
 
 #: ../raphodo/backuppanel.py:433
 msgid "Video folder name:"
-msgstr ""
+msgstr "Video klasörü adı:"
 
 #: ../raphodo/backuppanel.py:438 ../raphodo/nameeditor.py:883
 #: ../raphodo/renamepanel.py:123
 msgid "Example:"
-msgstr ""
+msgstr "Örnek:"
 
 #: ../raphodo/backuppanel.py:448
 msgid ""
 "If you disable automatic detection, choose the exact backup locations."
 msgstr ""
+"Otomatik algılamayı devre dışı bırakırsanız, tam yedekleme konumlarını seçin."
 
 #: ../raphodo/backuppanel.py:452
 msgid "Photo backup location:"
-msgstr ""
+msgstr "Fotoğraf yedekleme konumu:"
 
 #: ../raphodo/backuppanel.py:454
 msgid "Select Photo Backup Location"
-msgstr ""
+msgstr "Fotoğraf Yedekleme Konumunu Seçin"
 
 #: ../raphodo/backuppanel.py:460
 msgid "Video backup location:"
-msgstr ""
+msgstr "Video yedekleme konumu:"
 
 #: ../raphodo/backuppanel.py:462
 msgid "Select Video Backup Location"
-msgstr ""
+msgstr "Video Yedekleme Konumunu Seçin"
 
 #. Translators: this value is used as an example device when automatic backup device
 #. detection is enabled. You should translate this.
 #: ../raphodo/backuppanel.py:564
 msgid "drive1"
-msgstr ""
+msgstr "sürücü1"
 
 #. Translators: this value is used as an example device when automatic backup device
 #. detection is enabled. You should translate this.
 #: ../raphodo/backuppanel.py:567
 msgid "drive2"
-msgstr ""
+msgstr "sürücü2"
 
 #: ../raphodo/backuppanel.py:628
 msgid "Projected Backup Storage Use"
@@ -111,7 +114,7 @@ msgstr ""
 
 #: ../raphodo/backuppanel.py:632
 msgid "Backup Options"
-msgstr ""
+msgstr "Yedekleme Seçenekleri"
 
 #. translators: refers to the video thumbnail file that some
 #. cameras generate -- it has a .THM file extension
@@ -121,7 +124,7 @@ msgstr ""
 
 #: ../raphodo/copyfiles.py:482
 msgid "audio"
-msgstr ""
+msgstr "ses"
 
 #: ../raphodo/destinationdisplay.py:78 ../raphodo/devicedisplay.py:1079
 #: ../raphodo/rpdfile.py:320
@@ -137,7 +140,7 @@ msgstr ""
 
 #: ../raphodo/destinationdisplay.py:92
 msgid "Used"
-msgstr ""
+msgstr "Kullanımda"
 
 #: ../raphodo/destinationdisplay.py:93
 msgid "Excess"
@@ -145,30 +148,30 @@ msgstr ""
 
 #: ../raphodo/destinationdisplay.py:102
 msgid "Device size unknown"
-msgstr ""
+msgstr "Cihazın boyutu bilinmiyor"
 
 #: ../raphodo/destinationdisplay.py:112
 #, python-format
 msgid "No space free on %(size_total)s device"
-msgstr ""
+msgstr "%(size_total)s cihazında boş alan yok."
 
 #: ../raphodo/destinationdisplay.py:119
 #, python-format
 msgid "%(size_free)s free of %(size_total)s"
-msgstr ""
+msgstr "%(size_free)s / %(size_total)s boş"
 
 #: ../raphodo/destinationdisplay.py:190 ../raphodo/devicedisplay.py:993
 #: ../raphodo/rapid.py:1968 ../raphodo/rapid.py:2083 ../raphodo/rapid.py:5748
 #: ../raphodo/rpdfile.py:891
 msgid "Photos"
-msgstr ""
+msgstr "Fotoğraflar"
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:191 ../raphodo/devicedisplay.py:994
 #: ../raphodo/rapid.py:1971 ../raphodo/rapid.py:2084 ../raphodo/rapid.py:5749
 #: ../raphodo/rpdfile.py:918 ../raphodo/storage.py:445
 msgid "Videos"
-msgstr ""
+msgstr "Videolar"
 
 #: ../raphodo/destinationdisplay.py:192
 msgid "Projected storage use after download"
