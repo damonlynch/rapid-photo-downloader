@@ -5409,6 +5409,7 @@ def get_versions() -> List[str]:
         'Rapid Photo Downloader: {}'.format(__about__.__version__),
         'Platform: {}'.format(platform.platform()),
         'Python: {}'.format(platform.python_version()),
+        'Python executable: {}'.format(sys.executable),
         'Qt: {}'.format(QtCore.QT_VERSION_STR),
         'PyQt: {}'.format(QtCore.PYQT_VERSION_STR),
         'ZeroMQ: {}'.format(zmq.zmq_version()),
@@ -5426,6 +5427,10 @@ def get_versions() -> List[str]:
     v = exiv2_version()
     if v:
         versions.append('Exiv2: {}'.format(v))
+    try:
+        versions.append('{}: {}'.format(*platform.libc_ver()))
+    except:
+        pass
     return versions
 
 # def darkFusion(app: QApplication):
