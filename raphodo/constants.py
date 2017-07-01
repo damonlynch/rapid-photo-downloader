@@ -480,6 +480,7 @@ class Desktop(Enum):
     xfce = 5
     mate = 6
     lxde = 7
+    lxqt = 8
     unknown = 10
 
 
