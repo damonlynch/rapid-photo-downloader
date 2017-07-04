@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0 (2017-06-xx)
+0.9.0 (2017-07-03)
 ------------------
 
  - Include additional programs in detailed version output.

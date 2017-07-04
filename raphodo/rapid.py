@@ -1326,19 +1326,19 @@ class RapidWindow(QMainWindow):
             if current_version < stable_version.version:
                 self.latest_version = stable_version
 
-            if check_dev_version and current_version < dev_version.version:
+            if check_dev_version and (
+                current_version < dev_version.version or
+                current_version < stable_version.version
+                ):
                 if dev_version.version > stable_version.version:
                     self.latest_version = dev_version
                 else:
                     self.latest_version = stable_version
 
-            # remove in development testing code if in production!
             if (
                     self.latest_version is not None and str(self.latest_version.version) not in
                     self.prefs.ignore_versions
-                ): # or True:
-
-                self.latest_version = dev_version
+                ):
 
                 version = str(self.latest_version.version)
                 changelog_url = self.latest_version.changelog_url
@@ -1664,10 +1664,6 @@ class RapidWindow(QMainWindow):
         self.errorLogAct.setChecked(self.errorLog.isVisible())
 
     def createActions(self) -> None:
-        self.sourceAct = QAction(
-            _('&Source'), self, shortcut="Ctrl+s", triggered=self.doSourceAction
-        )
-
         self.downloadAct = QAction(
             _("Download"), self, shortcut="Ctrl+Return", triggered=self.doDownloadAction
         )
