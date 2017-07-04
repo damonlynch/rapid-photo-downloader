@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2014-2016 Damon Lynch <damonlynch@gmail.com> -->
+<!-- Copyright 2014-2017 Damon Lynch <damonlynch@gmail.com> -->
 <application>
-  <id type="desktop">rapid-photo-downloader.desktop</id>
+  <id type="desktop">net.damonlynch.rapid-photo-downloader.desktop</id>
   <metadata_license>CC-BY</metadata_license>
   <project_license>GPL-3.0+</project_license>
   <description>
@@ -28,6 +28,9 @@
   <url type="homepage">http://www.damonlynch.net/rapid/</url>
   <url type="translate">http://www.damonlynch.net/rapid/translate.html</url>
   <url type="donation">http://www.damonlynch.net/rapid/</url>
+
+  <launchable type="desktop-id">rapid-photo-downloader.desktop</launchable>
+
   <keywords>
     <keyword>RAW</keyword>
     <keyword>ingest</keyword>
@@ -39,13 +42,24 @@
     <keyword>choose</keyword>
     <keyword>automate</keyword>
     <keyword>workflow</keyword>
-    <keyword></keyword>
   </keywords>
   <screenshots>
-    <screenshot type="default">http://www.damonlynch.net/rapid/appdata/2016/05/mainwindow.png</screenshot>
-    <screenshot>http://www.damonlynch.net/rapid/appdata/2016/05/downloading.png</screenshot>
-    <screenshot>http://www.damonlynch.net/rapid/appdata/2016/05/timeline.png</screenshot>    
-    <screenshot>http://www.damonlynch.net/rapid/appdata/2016/05/rightclick.png</screenshot>
+    <screenshot type="default">
+        <_caption>The main window</_caption>
+        <image>http://www.damonlynch.net/rapid/appdata/2017/07/mainwindow.png</image>
+    </screenshot>
+    <screenshot>
+        <_caption>Downloading</_caption>
+        <image>http://www.damonlynch.net/rapid/appdata/2017/07/downloading.png</image>
+    </screenshot>
+    <screenshot>
+        <_caption>The Timeline</_caption>
+        <image>http://www.damonlynch.net/rapid/appdata/2017/07/timeline.png</image>
+    </screenshot>
+    <screenshot>
+        <_caption>Right-clicking on a device</_caption>
+        <image>http://www.damonlynch.net/rapid/appdata/2017/07/rightclick.png</image>
+    </screenshot>
   </screenshots>
   <updatecontact>damonlynch@gmail.com</updatecontact>
 </application>
