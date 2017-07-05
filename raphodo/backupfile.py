@@ -209,6 +209,8 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     self.backup_associate_file(dest_dir, rpd_file.download_audio_full_name)
                 if rpd_file.download_xmp_full_name:
                     self.backup_associate_file(dest_dir, rpd_file.download_xmp_full_name)
+                if rpd_file.download_log_full_name:
+                    self.backup_associate_file(dest_dir, rpd_file.download_log_full_name)
 
         self.total_downloaded += rpd_file.size
         bytes_not_downloaded = rpd_file.size - self.amount_downloaded

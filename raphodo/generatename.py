@@ -206,7 +206,7 @@ class NameGeneration:
         # else keep extension case the same as what it originally was
         return extension
 
-    def _get_thm_extension(self):
+    def _get_thm_extension(self) -> None:
         """
         Generates THM extension with correct capitalization, if needed
         """
@@ -214,7 +214,7 @@ class NameGeneration:
             self.rpd_file.thm_full_name
         )
 
-    def _get_audio_extension(self):
+    def _get_audio_extension(self) -> None:
         """
         Generates audio extension with correct capitalization, if needed
         e.g. WAV or wav
@@ -223,13 +223,22 @@ class NameGeneration:
             self.rpd_file.audio_file_full_name
         )
 
-    def _get_xmp_extension(self):
+    def _get_xmp_extension(self) -> None:
         """
         Generates XMP extension with correct capitalization, if needed.
         """
 
         self.rpd_file.xmp_extension = self._get_associated_file_extension(
             self.rpd_file.xmp_file_full_name
+        )
+
+    def _get_log_extension(self) -> None:
+        """
+        Generates LOG extension with correct capitalization, if needed.
+        """
+
+        self.rpd_file.log_extension = self._get_associated_file_extension(
+            self.rpd_file.log_file_full_name
         )
 
     def _get_filename_component(self):
@@ -487,6 +496,7 @@ class NameGeneration:
             self._get_thm_extension()
             self._get_audio_extension()
             self._get_xmp_extension()
+            self._get_log_extension()
 
         name = self._filter_name(name, parts)
 

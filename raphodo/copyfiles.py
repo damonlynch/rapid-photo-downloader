@@ -488,9 +488,15 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                         rpd_file, temp_name, dest_dir, rpd_file.xmp_file_full_name, 'XMP'
                     )
 
+                # copy magic lantern LOG file if there is one
+                if rpd_file.log_file_full_name:
+                    rpd_file.temp_log_full_name = self.copy_associate_file(
+                        rpd_file, temp_name, dest_dir, rpd_file.log_file_full_name, 'LOG'
+                    )
+
             download_count = idx + 1
 
-            self.content =  pickle.dumps(
+            self.content = pickle.dumps(
                 CopyFilesResults(
                     copy_succeeded=copy_succeeded,
                     rpd_file=rpd_file,

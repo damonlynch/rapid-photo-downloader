@@ -499,6 +499,42 @@ class RenameMoveFileWorker(DaemonProcess):
             logging.error("Failed to move file's associated XMP file %s",
                           rpd_file.download_xmp_full_name)
 
+    def move_log_file(self, rpd_file: Union[Photo, Video]) -> None:
+        """
+        Move (rename) the associate XMP file using the pre-generated
+        name
+        """
+
+        try:
+            if rpd_file.log_extension:
+                ext = rpd_file.log_extension
+            else:
+                ext = '.LOG'
+        except AttributeError:
+            ext = '.LOG'
+
+        try:
+            rpd_file.download_log_full_name = self._move_associate_file(
+                extension=ext,
+                full_base_name=rpd_file.download_full_base_name,
+                temp_associate_file=rpd_file.temp_log_full_name
+            )
+        except (OSError, FileNotFoundError) as e:
+            self.problems.append(
+                RenamingAssociateFileProblem(
+                    source=make_href(
+                        name=os.path.basename(rpd_file.download_log_full_name),
+                        uri=get_uri(
+                            full_file_name=rpd_file.download_log_full_name,
+                            camera_details=rpd_file.camera_details
+                        )
+                    ),
+                    exception=e
+                )
+            )
+            logging.error("Failed to move file's associated LOG file %s",
+                          rpd_file.download_log_full_name)
+
     def check_for_fatal_name_generation_errors(self, rpd_file: Union[Photo, Video]) -> bool:
         """
         :return False if either the download subfolder or filename are
@@ -758,6 +794,9 @@ class RenameMoveFileWorker(DaemonProcess):
 
             if rpd_file.temp_xmp_full_name:
                 self.move_xmp_file(rpd_file)
+
+            if rpd_file.temp_log_full_name:
+                self.move_log_file(rpd_file)
 
         return move_succeeded
 

@@ -47,8 +47,6 @@ import raphodo.metadatavideo as metadatavideo
 from raphodo.utilities import thousands, make_internationalized_list, datetime_roughly_equal
 from raphodo.problemnotification import Problem, make_href
 
-import raphodo.problemnotification as pn
-
 
 RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',
                   'nef', 'nrw', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2',
@@ -76,7 +74,7 @@ VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'm2ts', 'mov', 'mp4', 'mpeg','mpg', 'mo
 
 VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
 
-ALL_USER_VISIBLE_EXTENSIONS = PHOTO_EXTENSIONS + VIDEO_EXTENSIONS + ['xmp']
+ALL_USER_VISIBLE_EXTENSIONS = PHOTO_EXTENSIONS + VIDEO_EXTENSIONS + ['xmp', 'log']
 
 ALL_KNOWN_EXTENSIONS = ALL_USER_VISIBLE_EXTENSIONS + AUDIO_EXTENSIONS + VIDEO_THUMBNAIL_EXTENSIONS
 
@@ -84,7 +82,7 @@ MUST_CACHE_VIDEOS = [video for video in VIDEO_EXTENSIONS
                      if thumbnail_offset.get(video) is None]
 
 
-def file_type(file_extension: str) -> FileType:
+def file_type(file_extension: str) -> Optional[FileType]:
     """
     Returns file type (photo/video), or None if it's neither.
     Checks only the file's extension
@@ -147,6 +145,7 @@ def get_rpdfile(name: str,
                 thm_full_name: Optional[str],
                 audio_file_full_name: Optional[str],
                 xmp_file_full_name: Optional[str],
+                log_file_full_name: Optional[str],
                 scan_id: bytes,
                 file_type: FileType,
                 from_camera: bool,
@@ -172,6 +171,7 @@ def get_rpdfile(name: str,
                      thm_full_name=thm_full_name,
                      audio_file_full_name=audio_file_full_name,
                      xmp_file_full_name=xmp_file_full_name,
+                     log_file_full_name=log_file_full_name,
                      scan_id=scan_id,
                      from_camera=from_camera,
                      camera_details=camera_details,
@@ -194,6 +194,7 @@ def get_rpdfile(name: str,
                      thm_full_name=thm_full_name,
                      audio_file_full_name=audio_file_full_name,
                      xmp_file_full_name=xmp_file_full_name,
+                     log_file_full_name=log_file_full_name,
                      scan_id=scan_id,
                      from_camera=from_camera,
                      camera_details=camera_details,
@@ -356,6 +357,7 @@ class RPDFile:
                  thm_full_name: Optional[str],
                  audio_file_full_name: Optional[str],
                  xmp_file_full_name: Optional[str],
+                 log_file_full_name: Optional[str],
                  scan_id: bytes,
                  from_camera: bool,
                  never_read_mdatatime: bool,
@@ -387,6 +389,8 @@ class RPDFile:
          audio file
         :param xmp_file_full_name: name and path of any associated XMP
          file
+        :param log_file_full_name: name and path of any associated LOG
+          file
         :param scan_id: id of the scan
         :param from_camera: whether the file is being downloaded from a
          camera
@@ -516,6 +520,8 @@ class RPDFile:
         self.audio_file_full_name = audio_file_full_name
 
         self.xmp_file_full_name = xmp_file_full_name
+        # log files: see https://wiki.magiclantern.fm/userguide#movie_logging
+        self.log_file_full_name = log_file_full_name
 
         self.status = DownloadStatus.not_downloaded
         self.problem = problem
@@ -547,6 +553,7 @@ class RPDFile:
         self.temp_thm_full_name = ''
         self.temp_audio_full_name = ''
         self.temp_xmp_full_name = ''
+        self.temp_log_full_name = ''
         self.temp_cache_full_file_chunk = ''
 
         self.download_start_time = None
@@ -559,7 +566,13 @@ class RPDFile:
         self.download_full_base_name = '' # filename with path but no extension
         self.download_thm_full_name = ''  # name of THM (thumbnail) file with path
         self.download_xmp_full_name = ''  # name of XMP sidecar with path
+        self.download_log_full_name = ''  # name of LOG associate file with path
         self.download_audio_full_name = ''  # name of the WAV or MP3 audio file with path
+
+        self.thm_extension = ''
+        self.audio_extension = ''
+        self.xmp_extension = ''
+        self.log_extension = ''
 
         self.metadata = None # type: Optional[Union[metadataphoto.MetaData, metadatavideo.MetaData]]
         self.metadata_failure = False # type: bool
@@ -885,6 +898,7 @@ class SamplePhoto(Photo):
             thm_full_name=None,
             audio_file_full_name=None,
             xmp_file_full_name=None,
+            log_file_full_name=None,
             scan_id=b'0',
             from_camera=False,
             never_read_mdatatime=False,
@@ -912,6 +926,7 @@ class SampleVideo(Video):
             thm_full_name=None,
             audio_file_full_name=None,
             xmp_file_full_name=None,
+            log_file_full_name=None,
             scan_id=b'0',
             from_camera=False,
             never_read_mdatatime=False,

@@ -391,6 +391,8 @@ class ThumbnailListModel(QAbstractListModel):
         elif role == Roles.secondary_attribute:
             if rpd_file.xmp_file_full_name:
                 return 'XMP'
+            elif rpd_file.log_file_full_name:
+                return 'LOG'
             else:
                 return None
         elif role== Roles.path:

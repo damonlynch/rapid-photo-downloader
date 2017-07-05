@@ -256,6 +256,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self._camera_audio_files = defaultdict(list)
                 self._camera_video_thumbnails = defaultdict(list)
                 self._camera_xmp_files = defaultdict(list)
+                self._camera_log_files = defaultdict(list)
                 self._folder_identifiers = {}
                 self._folder_identifers_for_file = \
                     defaultdict(list) # type: DefaultDict[int, List[int]]
@@ -496,6 +497,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self._camera_video_thumbnails[base_name].append((path, ext))
                 elif ext_lower == 'xmp':
                     self._camera_xmp_files[base_name].append((path, ext))
+                elif ext_lower == 'log':
+                    self._camera_log_files[base_name].append((path, ext))
                 else:
                     logging.info("Ignoring unknown file %s on %s",
                                   os.path.join(path, name), self.display_name)
@@ -644,6 +647,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 # check if an XMP file is associated with the photo or video
                 xmp_file_full_name = self.get_xmp_file(base_name, camera_file)
 
+                # check if a Magic Lantern LOG file is associated with the video
+                log_file_full_name = self.get_log_file(base_name, camera_file)
+
                 # check if an audio file is associated with the photo or video
                 audio_file_full_name = self.get_audio_file(base_name, camera_file)
 
@@ -705,6 +711,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     thm_full_name=thm_full_name,
                     audio_file_full_name=audio_file_full_name,
                     xmp_file_full_name=xmp_file_full_name,
+                    log_file_full_name=log_file_full_name,
                     scan_id=self.worker_id,
                     file_type=file_type,
                     from_camera=self.download_from_camera,
@@ -794,6 +801,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             thm_full_name=None,
             audio_file_full_name=None,
             xmp_file_full_name=None,
+            log_file_full_name=None,
             scan_id=self.worker_id,
             file_type=file_type,
             from_camera=self.download_from_camera,
@@ -1139,10 +1147,25 @@ class ScanWorker(WorkerInPublishPullPipeline):
         else:
             return self._get_associate_file(base_name, rpdfile.AUDIO_EXTENSIONS)
 
+    def get_log_file(self, base_name: str, camera_file: CameraFile) -> Optional[str]:
+        """
+        Checks to see if an XMP file with the same base name
+        is in the same directory as the file.
+
+        :param base_name: the file name without the extension
+        :return: filename, including path, if found, else returns None
+        """
+        if self.download_from_camera:
+            return  self._get_associate_file_from_camera(
+                base_name, self._camera_log_files, camera_file
+            )
+        else:
+            return self._get_associate_file(base_name, ['log'])
+
     def get_xmp_file(self, base_name: str, camera_file: CameraFile) -> Optional[str]:
         """
         Checks to see if an XMP file with the same base name
-        is in the same directory as tthe file.
+        is in the same directory as the file.
 
         :param base_name: the file name without the extension
         :return: filename, including path, if found, else returns None
@@ -1152,14 +1175,20 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 base_name, self._camera_xmp_files, camera_file
             )
         else:
-            return self._get_associate_file(base_name, ['XMP'])
+            return self._get_associate_file(base_name, ['xmp'])
 
     def _get_associate_file(self, base_name: str, extensions_to_check: List[str]) -> Optional[str]:
+        """
+        :param base_name: base name of file, without directory
+        :param extensions_to_check: list of extensions in lower case without leading period
+        :return: full file path if found, else None
+        """
+
         full_file_name_no_ext = os.path.join(self.dir_name, base_name)
         for e in extensions_to_check:
             possible_file = '{}.{}'.format(full_file_name_no_ext, e)
             if os.path.exists(possible_file):
-                return  possible_file
+                return possible_file
             possible_file = '{}.{}'.format(full_file_name_no_ext, e.upper())
             if os.path.exists(possible_file):
                 return possible_file

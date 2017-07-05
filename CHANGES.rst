@@ -1,6 +1,16 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.1 (2017-07-xx)
+------------------
+
+ - Add support for downloading, renaming and backing up log files, which can
+   be associated with videos made using Magic Lantern.
+
+ - Updated program AppData.
+
+ - Fixed bug in checking for new version.
+
 0.9.0 (2017-07-03)
 ------------------
 
