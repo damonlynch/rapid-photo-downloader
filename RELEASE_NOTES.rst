@@ -1,4 +1,4 @@
-Release Notes for Rapid Photo Downloader 0.9.0
+Release Notes for Rapid Photo Downloader 0.9.1
 ==============================================
 
  - On certain Linux distributions the program's icons may be missing,
@@ -13,7 +13,8 @@ Release Notes for Rapid Photo Downloader 0.9.0
 
  - On some systems, Rapid Photo Downloader cannot use gstreamer to generate
    video thumbnails. These systems include Fedora 24 and Fedora 25, Ubuntu
-   16.10 and 17.04, LinuxMint 18.1, and openSUSE 42.2 and openSUSE Tumbleweed.
+   16.10 and 17.04, LinuxMint 18.1 and 18.2, and openSUSE 42.2 and openSUSE
+   Tumbleweed.
 
  - On systems with version 0.18 of libraw, Rapid Photo Downloader cannot
    render thumbnails for raw images that don't have embedded thumbnails,

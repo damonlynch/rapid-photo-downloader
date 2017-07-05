@@ -47,7 +47,7 @@ Install on Ubuntu, openSUSE, Debian, and Fedora
 
 To install Rapid Photo Downloader, run as your regular user (i.e. *without* sudo):
 
-``python3 install.py rapid-photo-downloader-0.9.0.tar.gz``
+``python3 install.py rapid-photo-downloader-0.9.1.tar.gz``
 
 **Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
 install`` *is* **not** *supported, and* **not** *recommended.*
@@ -162,7 +162,7 @@ The following command will install all required and optional Python modules not 
 installed on your system, with the exception of those specified above in
 `satisfying software requirements`_:
 
-``python3 install.py rapid-photo-downloader-0.9.0.tar.gz``
+``python3 install.py rapid-photo-downloader-0.9.1.tar.gz``
 
 Substitute the name of the correct compressed tar file if necessary, and run it as your regular
 user (i.e. *without* sudo).

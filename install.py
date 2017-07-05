@@ -163,6 +163,10 @@ def check_packages_on_other_systems() -> None:
         sys.exit(1)
 
 
+def get_yes_no(response: str) -> bool:
+    return response.lower() in ('y', 'yes', '')
+
+
 def get_distro_id(id_or_id_like: str) -> Distro:
     try:
         return Distro[id_or_id_like.strip()]
@@ -219,9 +223,9 @@ def run_cmd(command_line: str, restart=False, exit_on_failure=True, shell=False)
     print()
 
     args = shlex.split(command_line)
-    answer = input('Would you like to run the command now? (If you do, type yes and hit enter): ')
+    answer = input('Would you like to run the command now? [Y/n]: ')
 
-    if answer != 'yes':
+    if not get_yes_no(answer):
         print('Answer is not yes, exiting.')
         sys.exit(0)
 
@@ -262,10 +266,15 @@ def enable_universe():
 def check_package_import_requirements(distro: Distro, version: float) -> None:
     if distro in debian_like:
         if not have_apt:
-            print('To continue, the package python3-apt must be installed.\n')
-            cmd = shutil.which('apt-get')
-            command_line = 'sudo {} install python3-apt'.format(cmd)
-            run_cmd(command_line, restart=True)
+            if not custom_python():
+                print('To continue, the package python3-apt must be installed.\n')
+                cmd = shutil.which('apt-get')
+                command_line = 'sudo {} install python3-apt'.format(cmd)
+                run_cmd(command_line, restart=True)
+            else:
+                sys.stderr.write("Sorry, this installer does not support a custom python "
+                                 "installation.\nExiting\n")
+                sys.exit(1)
 
         cache = apt.Cache()
         missing_packages = []
@@ -274,7 +283,7 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
              'libgphoto2-dev python3-arrow python3-psutil g++ libmediainfo0v5 '\
              'qt5-image-formats-plugins python3-zmq exiv2 python3-colorlog libraw-bin ' \
-             'python3-easygui python3-sortedcontainers python3-wheel python3-requests'.split()
+             'python3-easygui python3-sortedcontainers python3-requests'.split()
 
         for package in packages:
             try:
@@ -294,10 +303,15 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
 
     elif distro in fedora_like:
         if not have_dnf:
-            print('To continue, the package python3-dnf must be installed.\n')
-            cmd = shutil.which('dnf')
-            command_line = 'sudo {} install python3-dnf'.format(cmd)
-            run_cmd(command_line, restart=True)
+            if not custom_python():
+                print('To continue, the package python3-dnf must be installed.\n')
+                cmd = shutil.which('dnf')
+                command_line = 'sudo {} install python3-dnf'.format(cmd)
+                run_cmd(command_line, restart=True)
+            else:
+                sys.stderr.write("Sorry, this installer does not support a custom python "
+                                 "installation.\nExiting\n")
+                sys.exit(1)
 
         missing_packages = []
         packages = 'python3-qt5 gobject-introspection python3-gobject ' \
@@ -369,8 +383,10 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
 
 
 def query_uninstall() -> bool:
-    return input('\nType yes and hit enter if you want to to uninstall the previous version of '
-                 'Rapid Photo Downloader: ') == 'yes'
+    answer = input(
+        '\nDo you want to to uninstall the previous version of Rapid Photo Downloader: [Y/n]'
+    )
+    return get_yes_no(answer)
 
 
 def uninstall_old_version(distro: Distro) -> None:
@@ -495,8 +511,8 @@ def main(installer: str, distro: Distro, distro_version: float) -> None:
     print("They will be installed into {}".format(man_dir))
     print("If you uninstall the application, remove these manpages yourself.")
     print("sudo may prompt you for the sudo password.")
-    answer = input('Type yes and hit enter if you do want to install the man pages: ')
-    if answer == 'yes':
+    answer = input('Do want to install the man pages? [Y/n] ')
+    if get_yes_no(answer):
         if not os.path.isdir(man_dir):
             cmd = shutil.which('mkdir')
             command_line = 'sudo {} -p {}'.format(cmd, man_dir)
@@ -519,6 +535,22 @@ def main(installer: str, distro: Distro, distro_version: float) -> None:
             except subprocess.CalledProcessError:
                 sys.stderr.write("Failed to copy man page: exiting\n")
                 sys.exit(1)
+
+
+def custom_python() -> bool:
+    return not sys.executable.startswith('/usr/bin/python')
+
+
+def user_pip() -> bool:
+    args = shlex.split('pip3 --version')
+    try:
+        v = subprocess.check_output(args, universal_newlines=True)
+        return os.path.expanduser('~/.local/lib/python3') in v
+    except Exception:
+        return False
+
+def pip_package(package: str, local_pip: bool) -> str:
+    return package if local_pip else 'python3-{}'.format(package)
 
 
 if __name__ == '__main__':
@@ -558,20 +590,23 @@ if __name__ == '__main__':
         distro_family = distro
 
     packages = []
+
     try:
         import pip
+        local_pip = custom_python() or user_pip()
     except ImportError:
         packages.append('python3-pip')
+        local_pip = False
 
     try:
         import setuptools
     except ImportError:
-        packages.append('python3-setuptools')
+        packages.append(pip_package('setuptools', local_pip))
 
     try:
         import wheel
     except:
-        packages.append('python3-wheel')
+        packages.append(pip_package('wheel', local_pip))
 
     if packages:
         packages = ' '.join(packages)
@@ -586,8 +621,11 @@ if __name__ == '__main__':
         print("To run this program, you must first install some programs to assist "
               "Python 3 and its package management.\n")
 
-        installer = installer_cmds[distro_family]
-        command_line = 'sudo {} install '.format(installer) + packages
+        if not local_pip:
+            installer = installer_cmds[distro_family]
+            command_line = 'sudo {} install '.format(installer) + packages
+        else:
+            command_line = 'pip3 install --user ' + packages
         run_cmd(command_line, restart=True)
 
     # Can now assume that both pip and wheel have been installed
