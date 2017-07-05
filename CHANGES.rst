@@ -11,6 +11,8 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug in checking for new version.
 
+ - Updated Czech translation.
+
 0.9.0 (2017-07-03)
 ------------------
 
