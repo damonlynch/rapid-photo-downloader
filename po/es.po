@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-07-03 23:21-0500\n"
-"PO-Revision-Date: 2017-07-04 11:06+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"PO-Revision-Date: 2017-07-06 08:32+0000\n"
+"Last-Translator: Jose Luis Tirado <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-05 23:04+0000\n"
+"X-Launchpad-Export-Date: 2017-07-06 19:24+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 "Language: es\n"
 
@@ -322,8 +322,8 @@ msgid ""
 "between consecutive shots. Use it to identify photos and videos taken at "
 "different periods in a single day or over consecutive days."
 msgstr ""
-"La<b>línea de tiempos</b> agrupa fotos y vídeos basados en el tiempo "
-"transcurrido entre dos disparos consecutivos. Úselo para identificar fotos y "
+"La <b>línea de tiempo</b> agrupa fotos y vídeos basados en el tiempo "
+"transcurrido entre dos disparos consecutivos. Úsela para identificar fotos y "
 "vídeos tomados en diferentes periodos en un único día o en varios días "
 "consecutivos."
 
@@ -4350,19 +4350,19 @@ msgstr ""
 
 #: ../data/rapid-photo-downloader.appdata.xml.in.h:4
 msgid "The main window"
-msgstr ""
+msgstr "La ventana principal"
 
 #: ../data/rapid-photo-downloader.appdata.xml.in.h:5
 msgid "Downloading"
-msgstr ""
+msgstr "Descargando"
 
 #: ../data/rapid-photo-downloader.appdata.xml.in.h:6
 msgid "The Timeline"
-msgstr ""
+msgstr "La línea de tiempo"
 
 #: ../data/rapid-photo-downloader.appdata.xml.in.h:7
 msgid "Right-clicking on a device"
-msgstr ""
+msgstr "Haciendo clic con el botón secundario en un dispositivo"
 
 #: ../data/rapid-photo-downloader.desktop.in.h:1
 msgid ""
