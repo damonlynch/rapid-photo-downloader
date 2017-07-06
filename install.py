@@ -215,6 +215,14 @@ def get_distro_version(distro: Distro) -> float:
     return 0.0
 
 
+def is_debian_testing_or_unstable() -> bool:
+    with open(os_release, 'r') as f:
+        for line in f:
+            if line.startswith('PRETTY_NAME'):
+                return 'buster' in line or 'sid' in line
+    return False
+
+
 def run_cmd(command_line: str, restart=False, exit_on_failure=True, shell=False) -> None:
     print("The following command will be run:\n")
     print(command_line)
@@ -566,10 +574,15 @@ if __name__ == '__main__':
     else:
         distro_version = 0.0
 
-    if distro == Distro.debian and distro_version <= 8.0:
-        sys.stderr.write("Sorry, Debian Jessie is too old to be able to run this version of Rapid "
-                         "Photo Downloader.\n")
-        sys.exit(1)
+    if distro == Distro.debian:
+        if distro_version == 0.0:
+            if not is_debian_testing_or_unstable():
+                print('Warning: this version of Debian may not work with Rapid Photo Downloader.')
+        elif distro_version <= 8.0:
+            sys.stderr.write("Sorry, Debian Jessie is too old to be able to run this version of "
+                             "Rapid Photo Downloader.\n")
+            sys.exit(1)
+
     elif distro in fedora_like and 0.0 > distro_version <= 23.0:
         sys.stderr.write("Sorry, Fedora 23 is no longer supported by Rapid Photo Downloader.\n")
         sys.exit(1)

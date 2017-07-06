@@ -14,7 +14,9 @@ Changelog for Rapid Photo Downloader
  - Rearranged order to startup tasks to avoid rare bug where the user
    interface is not initialized before devices are handled.
 
- - Updated Czech translation.
+ - Updated install.py script to allow installation on Debian buster/sid.
+
+ - Updated Czech and Spanish translations.
 
 0.9.0 (2017-07-03)
 ------------------
