@@ -11,6 +11,9 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug in checking for new version.
 
+ - Rearranged order to startup tasks to avoid rare bug where the user
+   interface is not initialized before devices are handled.
+
  - Updated Czech translation.
 
 0.9.0 (2017-07-03)

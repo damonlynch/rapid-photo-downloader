@@ -730,6 +730,7 @@ class RapidWindow(QMainWindow):
 
         # For meaning of 'Devices', see devices.py
         self.devices = DeviceCollection(self.exiftool_process, self)
+        self.backup_devices = BackupDeviceCollection(rapidApp=self)
 
         logging.debug("Starting thumbnail daemon model")
 
@@ -839,6 +840,13 @@ class RapidWindow(QMainWindow):
                 else:
                     logging.debug("Unity progress indicator found")
 
+        self.createPathViews()
+
+        self.createActions()
+        logging.debug("Laying out main window")
+        self.createMenus()
+        self.createLayoutAndButtons(centralWidget)
+
         logging.debug("Have GIO module: %s", have_gio)
         self.gvfsControlsMounts = gvfs_controls_mounts() and have_gio
         if have_gio:
@@ -881,13 +889,6 @@ class RapidWindow(QMainWindow):
             self.gvolumeMonitor.partitionUnmounted.connect(self.partitionUmounted)
             self.gvolumeMonitor.volumeAddedNoAutomount.connect(self.noGVFSAutoMount)
             self.gvolumeMonitor.cameraPossiblyRemoved.connect(self.cameraRemoved)
-
-        self.createPathViews()
-
-        self.createActions()
-        logging.debug("Laying out main window")
-        self.createMenus()
-        self.createLayoutAndButtons(centralWidget)
 
         logging.debug("Starting version check")
         self.newVersion = NewVersion(self)
@@ -1030,8 +1031,6 @@ class RapidWindow(QMainWindow):
         logging.debug("...copy files manager started")
 
         self.splash.setProgress(80)
-
-        self.backup_devices = BackupDeviceCollection(rapidApp=self)
 
         self.backupThread = QThread()
         self.backupmq = BackupManager(logging_port=self.logging_port)
