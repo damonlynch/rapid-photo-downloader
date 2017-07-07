@@ -286,7 +286,8 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
 
         cache = apt.Cache()
         missing_packages = []
-        packages = 'libimage-exiftool-perl python3-pyqt5 python3-dev ' \
+        packages = 'gstreamer1.0-libav gstreamer1.0-plugins-good ' \
+             'libimage-exiftool-perl python3-pyqt5 python3-dev ' \
              'intltool gir1.2-gexiv2-0.10 python3-gi gir1.2-gudev-1.0 ' \
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
              'libgphoto2-dev python3-arrow python3-psutil g++ libmediainfo0v5 '\
@@ -298,9 +299,9 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
                 if not cache[package].is_installed:
                     missing_packages.append(package)
             except KeyError:
-                print('The following package is unknown on your system: {}\n'.format(
-                    package))
-                sys.exit(1)
+                    print('The following package is unknown on your system: {}\n'.format(
+                        package))
+                    sys.exit(1)
 
         if missing_packages:
             cmd = shutil.which('apt-get')
@@ -322,7 +323,8 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
                 sys.exit(1)
 
         missing_packages = []
-        packages = 'python3-qt5 gobject-introspection python3-gobject ' \
+        packages = 'gstreamer1-libav gstreamer1-plugins-good ' \
+                   'python3-qt5 gobject-introspection python3-gobject ' \
                    'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ ' \
                    'rpm-build python3-devel intltool ' \
                    'python3-easygui qt5-qtimageformats python3-psutil libmediainfo ' \
@@ -358,10 +360,18 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
                 if package not in installed:
                     if package in available:
                         missing_packages.append(package)
+                    elif package == 'gstreamer1-libav':
+                        print(
+                            bcolors.BOLD + "\nTo be able to generate thumbnails for a wider range "
+                            "of video formats, install gstreamer1-libav after having first added"
+                            "an appropriate software repository" + bcolors.ENDC
+                        )
                     else:
                         sys.stderr.write(
                             'The following package is unavailable on your system: {}\n'.format(
-                            package))
+                                package
+                            )
+                        )
                         sys.exit(1)
 
         if missing_packages:

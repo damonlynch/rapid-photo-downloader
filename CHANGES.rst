@@ -16,7 +16,11 @@ Changelog for Rapid Photo Downloader
 
  - Updated install.py script to allow installation on Debian buster/sid.
 
- - Updated Czech and Spanish translations.
+ - To be able to generate video thumbnails for a wider range of video formats,
+   on Debian-like Linux distributions and Fedora, install the 'good' gstreamer
+   plugin and where possible gstreamer-libav.
+
+ - Updated Czech, German, Slovak and Spanish translations.
 
 0.9.0 (2017-07-03)
 ------------------

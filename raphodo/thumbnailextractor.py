@@ -152,9 +152,13 @@ def get_video_frame(full_file_name: str,
     try:
         assert pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, offset)
     except AssertionError:
+        logging.warning(
+            'seek_simple() failed for %s. Is the necessary gstreamer plugin installed for this '
+            'file format?', full_file_name
+        )
         return None
     # Wait for seek to finish.
-    pipeline.get_state(Gst.CLOCK_TIME_NONE)
+    pipeline.get_state(Gst.CLOCK_TIME_NONE)  # alternative is Gst.SECOND * 10
     sample = pipeline.emit('convert-sample', caps)
     if sample is not None:
         buffer = sample.get_buffer()
