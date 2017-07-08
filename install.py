@@ -52,6 +52,7 @@ import tempfile
 import argparse
 import shlex
 import subprocess
+import platform
 from subprocess import Popen, PIPE
 import shutil
 from distutils.version import StrictVersion
@@ -470,6 +471,10 @@ def main(installer: str, distro: Distro, distro_version: float) -> None:
     with tarfile.open(installer) as tar:
         with tar.extractfile(rpath) as requirements:
             reqbytes = requirements.read()
+            if platform.machine() == 'x86_64' and platform.python_version_tuple()[1] in (
+                    '5', '6'):
+                reqbytes = reqbytes.rstrip() + b'\nPyQt5'
+
             with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
                 temp_requirements.write(reqbytes)
                 temp_requirements_name = temp_requirements.name

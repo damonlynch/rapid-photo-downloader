@@ -16,9 +16,13 @@ Changelog for Rapid Photo Downloader
 
  - Updated install.py script to allow installation on Debian buster/sid.
 
+ - Install PyQt5 from PyPi on x86_64 platforms with Python 3.5 or 3.6,
+   avoiding segfaults on exit in Fedora and missing program icons in some
+   Linux distributions.
+
  - To be able to generate video thumbnails for a wider range of video formats,
-   on Debian-like Linux distributions and Fedora, install the 'good' gstreamer
-   plugin and where possible gstreamer-libav.
+   on Debian-like Linux distributions and Fedora, install where possible
+   gstreamer-libav.
 
  - Updated Czech, German, Slovak and Spanish translations.
 

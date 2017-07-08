@@ -35,6 +35,7 @@ import shlex
 from subprocess import Popen, PIPE
 from queue import Queue, Empty
 import subprocess
+import platform
 from gettext import gettext as _
 
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot,  Qt, QThread, QObject, QTimer)
@@ -72,6 +73,9 @@ class RPDUpgrade(QObject):
             with tarfile.open(installer) as tar:
                 with tar.extractfile(rpath) as requirements:
                     reqbytes = requirements.read()
+                    if platform.machine() == 'x86_64' and platform.python_version_tuple()[1] in (
+                            '5', '6'):
+                        reqbytes = reqbytes.rstrip() + b'\nPyQt5'
                     with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
                         temp_requirements.write(reqbytes)
                         temp_requirements_name = temp_requirements.name
