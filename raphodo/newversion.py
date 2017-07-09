@@ -99,7 +99,9 @@ class NewVersion(QObject):
         :return: True if installed via pip, else False
         """
 
-        command_line = '{} -m pip show --verbose {}'.format(sys.executable, package)
+        command_line = '{} -m pip show --disable-pip-version-check --verbose {}'.format(
+            sys.executable, package
+        )
         args = shlex.split(command_line)
         try:
             pip_output = subprocess.check_output(args)
@@ -122,16 +124,14 @@ class NewVersion(QObject):
             status_code = r.status_code
             success = status_code == 200
             if not success:
-                logging.debug("Got error code %d while accessing versions file", self.status_code)
-                self._reset_values()
+                logging.debug("Got error code %d while accessing versions file", status_code)
                 self.status_code = r.status_code
             else:
                 try:
                     self.version = r.json()
                 except:
-                    logging.error("Error accessing versions JSON file", self.status_code)
+                    logging.error("Error %d accessing versions JSON file", status_code)
                     success = False
-                    self._reset_values()
                     self.status_code = r.status_code
                 else:
                     stable = self.version['stable']

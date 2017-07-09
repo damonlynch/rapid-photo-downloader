@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2014-2017 Damon Lynch <damonlynch@gmail.com> -->
 <application>
-  <id type="desktop">net.damonlynch.rapid-photo-downloader.desktop</id>
+  <id type="desktop">net.damonlynch.rapid-photo-downloader</id>
   <provides>
     <id>rapid-photo-downloader.desktop</id>
+    <binary>rapid-photo-downloader</binary>
   </provides>
   <metadata_license>CC-BY</metadata_license>
   <project_license>GPL-3.0+</project_license>
@@ -31,8 +32,9 @@
   <url type="homepage">http://www.damonlynch.net/rapid/</url>
   <url type="translate">http://www.damonlynch.net/rapid/translate.html</url>
   <url type="donation">http://www.damonlynch.net/rapid/</url>
-
-  <launchable type="desktop-id">rapid-photo-downloader.desktop</launchable>
+  <developer_name>Damon Lynch</developer_name>
+  <update_contact>damonlynch@gmail.com</update_contact>
+  <launchable type="desktop-id">net.damonlynch.rapid-photo-downloader.desktop</launchable>
 
   <keywords>
     <keyword>RAW</keyword>

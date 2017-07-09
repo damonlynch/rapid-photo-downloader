@@ -7,12 +7,16 @@ Changelog for Rapid Photo Downloader
  - Add support for downloading, renaming and backing up log files, which can
    be associated with videos made using Magic Lantern.
 
- - Updated program AppData.
+ - Updated program AppData, renaming .desktop and .appdata.xml files to
+   conform to reversed fully qualified domain name requirements.
 
- - Fixed bug in checking for new version.
+ - Fixed bug in checking for new stable version.
 
- - Rearranged order to startup tasks to avoid rare bug where the user
+ - Rearranged order of startup tasks to avoid rare bug where the user
    interface is not initialized before devices are handled.
+
+ - Updated install script to automatically download latest version and
+   run interactively only if asked to.
 
  - Updated install.py script to allow installation on Debian buster/sid.
 
@@ -21,10 +25,11 @@ Changelog for Rapid Photo Downloader
    Linux distributions.
 
  - To be able to generate video thumbnails for a wider range of video formats,
-   on Debian-like Linux distributions and Fedora, install where possible
-   gstreamer-libav.
+   on Debian-like Linux distributions and Fedora, where possible the
+   install.py script installs the packages gstreamer-libav and
+   gstreamer-plugins-good.
 
- - Updated Czech, German, Slovak and Spanish translations.
+ - Updated Czech, French, German, Slovak and Spanish translations.
 
 0.9.0 (2017-07-03)
 ------------------

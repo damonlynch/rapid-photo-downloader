@@ -352,23 +352,34 @@ setup(
     extras_require={':python_version == "3.4"': ['scandir', 'typing']},
     include_package_data = False,
     data_files = [
-        ('share/man/man1', ['build/doc/rapid-photo-downloader.1',
-                            'build/doc/analyze-pv-structure.1']),
-        ('share/applications', ['build/share/applications/rapid-photo-downloader.desktop']),
-        ('share/solid/actions', ['build/share/solid/actions/rapid-photo-downloader.desktop'],),
-        ('share/appdata', ['build/share/appdata/rapid-photo-downloader.appdata.xml'])
+        (
+            'share/man/man1', [
+                'build/doc/rapid-photo-downloader.1', 'build/doc/analyze-pv-structure.1'
+            ]
+        ),
+        (
+            'share/applications', [
+                'build/share/applications/net.damonlynch.rapid-photo-downloader.desktop'
+            ]
+        ),
+        (
+            'share/solid/actions', [
+                'build/share/solid/actions/net.damonlynch.rapid-photo-downloader.desktop'
+            ],
+        ),
+        (
+            'share/appdata', [
+                'build/share/appdata/net.damonlynch.rapid-photo-downloader.appdata.xml'
+            ]
+        )
     ],
     packages = ['raphodo'],
     entry_points={
-        'gui_scripts': [
-            'rapid-photo-downloader=raphodo.rapid:main',
-        ],
-        'console_scripts': [
-            'analyze-pv-structure=raphodo.analyzephotos:main'
-        ]
+        'gui_scripts': ['rapid-photo-downloader=raphodo.rapid:main'],
+        'console_scripts': ['analyze-pv-structure=raphodo.analyzephotos:main']
     },
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: X11 Applications :: Qt',
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',

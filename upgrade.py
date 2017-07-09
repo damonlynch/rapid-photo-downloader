@@ -36,6 +36,7 @@ from subprocess import Popen, PIPE
 from queue import Queue, Empty
 import subprocess
 import platform
+from distutils.version import StrictVersion
 from gettext import gettext as _
 
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot,  Qt, QThread, QObject, QTimer)
@@ -62,8 +63,49 @@ class RPDUpgrade(QObject):
     def make_pip_command(self, args: str) -> List[str]:
         return shlex.split('{} -m pip {}'.format(sys.executable, args))
 
+    def pip_version(self) -> StrictVersion:
+        import pip
+
+        return StrictVersion(pip.__version__)
+
     @pyqtSlot(str)
     def start(self, installer: str) -> None:
+
+        # explicitly uninstall any previous version installed with pip
+        self.sendMessage("Uninstalling previous version installed with pip...\n")
+        l_command_line = 'list --user --disable-pip-version-check'
+        if self.pip_version() >= StrictVersion('9.0.0'):
+            l_command_line = '{} --format=columns'.format(l_command_line)
+        l_args = self.make_pip_command(l_command_line)
+
+        u_command_line = 'uninstall --disable-pip-version-check -y rapid-photo-downloader'
+        u_args = self.make_pip_command(u_command_line)
+        while True:
+            try:
+                output = subprocess.check_output(l_args, universal_newlines=True)
+                if 'rapid-photo-downloader' in output:
+                    with Popen(
+                            u_args, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True
+                    ) as p:
+                        for line in p.stdout:
+                            self.sendMessage(line, truncate=True)
+                            cmd = self.checkForCmd()
+                            if cmd is not None:
+                                assert cmd == 'STOP'
+                                self.failure('\nTermination requested')
+                                return
+                        p.wait()
+                        i = p.returncode
+                    if i != 0:
+                        self.sendMessage(
+                            "Encountered an error uninstalling previous version installed with "
+                            "pip\n"
+                        )
+                else:
+                    break
+            except Exception:
+                break
+        self.sendMessage('...done uninstalling previous version.\n')
 
         name = os.path.basename(installer)
         name = name[:len('.tar.gz') * -1]
@@ -85,7 +127,9 @@ class RPDUpgrade(QObject):
 
         self.sendMessage("Installing application requirements...\n")
         try:
-            cmd = self.make_pip_command('install --user -r {}'.format(temp_requirements.name))
+            cmd = self.make_pip_command(
+                'install --user --disable-pip-version-check -r {}'.format(temp_requirements.name)
+            )
             with Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
                 for line in p.stdout:
                     self.sendMessage(line, truncate=True)
@@ -107,7 +151,9 @@ class RPDUpgrade(QObject):
 
         self.sendMessage("\nInstalling application...\n")
         try:
-            cmd = self.make_pip_command('install --user --no-deps {}'.format(installer))
+            cmd = self.make_pip_command(
+                'install --user --disable-pip-version-check --no-deps {}'.format(installer)
+            )
             with Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
                 for line in p.stdout:
                     self.sendMessage(line, truncate=True)

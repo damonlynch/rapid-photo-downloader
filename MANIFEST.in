@@ -15,7 +15,7 @@ recursive-include po *.pot
 recursive-include raphodo *.py
 recursive-include raphodo *.qrc
 recursive-include raphodo *.txt
-global-exclude *~ *.pyc
+global-exclude *~ *.pyc *~1~ *~2~
 exclude raphodo/test.py
 exclude raphodo/test2.py
 prune raphodo/tests

@@ -31,6 +31,6 @@ raphodo/storage.py
 raphodo/thumbnaildaemon.py
 raphodo/thumbnaildisplay.py
 raphodo/utilities.py
-data/rapid-photo-downloader.appdata.xml.in
-data/rapid-photo-downloader.desktop.in
-data/kde/rapid-photo-downloader.desktop.in
+data/net.damonlynch.rapid-photo-downloader.appdata.xml.in
+data/net.damonlynch.rapid-photo-downloader.desktop.in
+data/kde/net.damonlynch.rapid-photo-downloader.desktop.in
