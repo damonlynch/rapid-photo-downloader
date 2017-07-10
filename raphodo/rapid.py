@@ -827,8 +827,11 @@ class RapidWindow(QMainWindow):
                 logging.warning("Desktop environment is Unity, but could not load Unity 7.0 module")
             else:
                 # Unity auto-generated desktop files use underscores, it seems
-                for launcher in ('rapid_photo_downloader.desktop',
-                                 'rapid-photo-downloader.desktop'):
+                launchers = (
+                    'net.damonlynch.rapid-photo-downloader.desktop',
+                    'net.damonlynch.rapid_photo_downloader.desktop',
+                )
+                for launcher in launchers:
                     desktop_launcher = Unity.LauncherEntry.get_for_desktop_id(launcher)
                     if desktop_launcher is not None:
                         self.desktop_launchers.append(desktop_launcher)

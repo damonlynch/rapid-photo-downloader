@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.1 (2017-07-xx)
+0.9.1 (2017-07-10)
 ------------------
 
  - Add support for downloading, renaming and backing up log files, which can
@@ -28,6 +28,10 @@ Changelog for Rapid Photo Downloader
    on Debian-like Linux distributions and Fedora, where possible the
    install.py script installs the packages gstreamer-libav and
    gstreamer-plugins-good.
+
+ - With rawkit 0.6.0 now supporting libraw 0.18, recent Linux distributions
+   like Fedora 26 and Ubuntu 17.04 / 17.10 can now render thumbnails from
+   raw files like DNG files produced by Android phones.
 
  - Updated Czech, French, German, Slovak and Spanish translations.
 

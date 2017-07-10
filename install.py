@@ -38,10 +38,14 @@ import time
 from subprocess import Popen, PIPE
 import shutil
 import tarfile
+import re
+import random
+import string
 
-__version__ = '0.1'
+
+__version__ = '0.1.0'
 __title__ = 'Rapid Photo Downloader installer'
-__description__ = "Download and install latest version of Rapid Photo Downloader"
+__description__ = "Download and install latest version of Rapid Photo Downloader."
 
 
 try:
@@ -69,7 +73,6 @@ try:
 except ImportError:
     have_pip = False
     pip_version = None
-
 
 try:
     import pyprind
@@ -119,6 +122,10 @@ installer_cmds = {
 
 
 def get_distro() -> Distro:
+    """
+    Determine the Linux distribution using /etc/os-release
+    """
+
     if os.path.isfile(os_release):
         with open(os_release, 'r') as f:
             for line in f:
@@ -132,6 +139,12 @@ def get_distro() -> Distro:
 
 
 def get_distro_id(id_or_id_like: str) -> Distro:
+    """
+    Determine the Linux distribution using an ID or ID_LIKE line from
+    /etc/os-release
+    :param id_or_id_like: the line from /etc/os-release
+    """
+
     try:
         return Distro[id_or_id_like.strip()]
     except KeyError:
@@ -139,6 +152,12 @@ def get_distro_id(id_or_id_like: str) -> Distro:
 
 
 def get_distro_version(distro: Distro) -> float:
+    """
+    Get the numeric version of the Linux distribution, if it exists
+    :param distro: the already determine Linux distribution
+    :return version in floating point format, if found, else 0.0
+    """
+
     remove_quotemark = False
     if distro == Distro.fedora:
         version_string = 'REDHAT_BUGZILLA_PRODUCT_VERSION='
@@ -167,6 +186,10 @@ def get_distro_version(distro: Distro) -> float:
 
 
 def is_debian_testing_or_unstable() -> bool:
+    """
+    :return: True if Debian distribution is testing or unstable, else False.
+    """
+
     with open(os_release, 'r') as f:
         for line in f:
             if line.startswith('PRETTY_NAME'):
@@ -175,10 +198,22 @@ def is_debian_testing_or_unstable() -> bool:
 
 
 def pypi_pyqt5_capable() -> bool:
+    """
+    :return: True if the platform supports running PyQt5 directly from Python's Pypi,
+     else False.
+    """
+
     return platform.machine() == 'x86_64' and platform.python_version_tuple()[1] in ('5', '6')
 
 
 def make_pip_command(args: str, split: bool=True):
+    """
+    Construct a call to python's pip
+    :param args: arguments to pass to the command
+    :param split: whether to split the result into a list or not using shlex
+    :return: command line in string or list format
+    """
+
     cmd_line = '{} -m pip --disable-pip-version-check {}'.format(sys.executable, args)
     if split:
         return shlex.split(cmd_line)
@@ -191,6 +226,16 @@ def make_distro_packager_commmand(distro_family: Distro,
                                   interactive: bool,
                                   command: str='install',
                                   sudo: bool=True) -> str:
+    """
+    Construct a call to the Linux distribution's packaging command
+
+    :param distro_family: the Linux distribution
+    :param packages: packages to query / install / remove
+    :param interactive: whether the command should require user intervention
+    :param command: the command the packaging program should run
+    :param sudo: whehter to prefix the call with sudo
+    :return: the command line in string format
+    """
 
     installer = installer_cmds[distro_family]
     cmd = shutil.which(installer)
@@ -205,15 +250,27 @@ def make_distro_packager_commmand(distro_family: Distro,
     else:
         super = ''
 
-
-    return '{}{} {} {} {}'.format(super, cmd, automatic, command, packages)
+    if distro_family != Distro.opensuse:
+        return '{}{} {} {} {}'.format(super, cmd, automatic, command, packages)
+    else:
+        return '{}{} {} {} {}'.format(super, cmd, command, automatic, packages)
 
 
 def custom_python() -> bool:
+    """
+    :return: True if the python executable is a custom version of python, rather
+     than a standard distro version.
+    """
+
     return not sys.executable.startswith('/usr/bin/python')
 
 
 def user_pip() -> bool:
+    """
+    :return: True if the version of pip has been installed from Pypi
+     for this user, False if pip has been installed system wide.
+    """
+
     args = make_pip_command('--version')
     try:
         v = subprocess.check_output(args, universal_newlines=True)
@@ -223,11 +280,40 @@ def user_pip() -> bool:
 
 
 def pip_package(package: str, local_pip: bool) -> str:
+    """
+    Helper function to construct installing core pythong packages
+    :param package: the python package
+    :param local_pip: if True, install the package using pip and Pypi,
+     else install using the Linux distribution package tools.
+    :return: string of package names
+    """
+
     return package if local_pip else 'python3-{}'.format(package)
 
 
 def get_yes_no(response: str) -> bool:
+    """
+    :param response: the user's response
+    :return: True if user response is yes or empty, else False
+    """
+
     return response.lower() in ('y', 'yes', '')
+
+
+
+def generate_random_file_name(length = 5) -> str:
+    """
+    Generate a random file name
+    :param length: file name length
+    :return: the file name
+    """
+
+    filename_characters = list(string.ascii_letters + string.digits)
+    try:
+        r = random.SystemRandom()
+        return ''.join(r.sample(filename_characters, length))
+    except NotImplementedError:
+        return ''.join(random.sample(filename_characters, length))
 
 
 def run_cmd(command_line: str,
@@ -235,6 +321,18 @@ def run_cmd(command_line: str,
             exit_on_failure=True,
             shell=False,
             interactive=False) -> None:
+    """
+    Run command using subprocess.check_call, and then restart if requested.
+
+    :param command_line: the command to run with args
+    :param restart: if True, restart this script using the same command line
+     arguments as it was called with
+    :param exit_on_failure: if True, exit if the subprocess call fails
+    :param shell: if True, run the subprocess using a shell
+    :param interactive: if True, the user should be prompted to confirm
+     the command
+    """
+
 
     print("The following command will be run:\n")
     print(command_line)
@@ -267,7 +365,14 @@ def run_cmd(command_line: str,
             os.execl(sys.executable, sys.executable, *sys.argv)
 
 
-def enable_universe(interacive: bool):
+def enable_universe(interactive: bool) -> None:
+    """
+    Enable the universe repository on Ubuntu
+
+    :param interactive: if True, the user should be prompted to confirm
+     the command
+    """
+
     try:
         repos = subprocess.check_output(['apt-cache', 'policy'], universal_newlines=True)
         version = subprocess.check_output(['lsb_release', '-sc'], universal_newlines=True).strip()
@@ -276,15 +381,22 @@ def enable_universe(interacive: bool):
             print("The Universe repository must be enabled.\n")
             run_cmd(
                 command_line='sudo add-apt-repository universe', restart=False,
-                interactive=interacive
+                interactive=interactive
             )
-            run_cmd(command_line='sudo apt update', restart=True, interactive=interacive)
+            run_cmd(command_line='sudo apt update', restart=True, interactive=interactive)
 
     except Exception:
         pass
 
 
 def query_uninstall(interactive: bool) -> bool:
+    """
+    Query the user whether to uninstall the previous version of Rapid Photo Downloader
+    that was packaged using a Linux distribution package manager.
+
+    :param interactive: if False, the user will not be queried
+    :return:
+    """
     if not interactive:
         return True
 
@@ -295,6 +407,13 @@ def query_uninstall(interactive: bool) -> bool:
 
 
 def opensuse_missing_packages(packages: str):
+    """
+    Return which of the packages have not already been installed on openSUSE.
+
+    :param packages: the packages to to check, in a string separated by white space
+    :return: list of packages
+    """
+
     command_line = make_distro_packager_commmand(Distro.opensuse, packages, True, 'se', False)
     args = shlex.split(command_line)
     output = subprocess.check_output(args, universal_newlines=True)
@@ -302,10 +421,24 @@ def opensuse_missing_packages(packages: str):
 
 
 def opensuse_package_installed(package) -> bool:
+    """
+    :param package: package to check
+    :return: True if the package is installed in the openSUSE distribution, else False
+    """
+
     return not opensuse_missing_packages(package)
 
 
 def uninstall_old_version(distro_family: Distro, interactive: bool) -> None:
+    """
+    Uninstall old version of Rapid Photo Downloader that was installed using the
+    distribution package manager and also with pip
+
+    :param distro_family: the Linux distro family that this distro is in
+    :param interactive: if True, the user should be prompted to confirm
+     the commands
+    """
+
     pkg_name = 'rapid-photo-downloader'
 
     if distro_family == Distro.debian:
@@ -325,7 +458,7 @@ def uninstall_old_version(distro_family: Distro, interactive: bool) -> None:
             try:
                 base.fill_sack()
             except dnf.exceptions.RepoError as e:
-                print("Unable to query package system. Please check your internet connection and "
+                print("Unable to query package system. Please check your Internet connection and "
                       "try again")
                 sys.exit(1)
 
@@ -342,10 +475,14 @@ def uninstall_old_version(distro_family: Distro, interactive: bool) -> None:
         if opensuse_package_installed('rapid-photo-downloader') and query_uninstall(interactive):
             run_cmd(make_distro_packager_commmand(distro, pkg_name, interactive, 'rm'))
 
-    # explicitly uninstall any previous version installed with pip
+    # Explicitly uninstall any previous version installed with pip
+    # Loop through to see if multiple versions need to be removed (as can happen with
+    # the Debian / Ubuntu pip)
+
     print("Checking if previous version installed with pip...")
     l_command_line = 'list --user --disable-pip-version-check'
     if pip_version >= StrictVersion('9.0.0'):
+        # pip 9.0 issues a red warning if format not specified
         l_command_line = '{} --format=columns'.format(l_command_line)
     l_args = make_pip_command(l_command_line)
 
@@ -419,9 +556,18 @@ def check_packages_on_other_systems() -> None:
         sys.exit(1)
 
 
-def check_package_import_requirements(distro_family: Distro,
-                                      version: float,
-                                      interactive: bool) -> None:
+def install_required_distro_packages(distro: Distro,
+                                     distro_family: Distro,
+                                     version: float,
+                                     interactive: bool) -> None:
+    """
+    Install packages supplied by the Linux distribution
+    :param distro: the specific Linux distribution
+    :param distro_family: the family of distros the Linux distribution belongs too
+    :param version: the Linux distribution's version
+    :param interactive: if True, the user should be prompted to confirm
+     the commands
+    """
 
     if distro_family == Distro.debian:
 
@@ -475,7 +621,7 @@ def check_package_import_requirements(distro_family: Distro,
         if not have_requests:
             packages = 'python3-requests {}'.format(packages)
 
-        if 0.0 < version <= 24.0:
+        if distro == Distro.fedora and 0.0 < version <= 24.0:
             packages = 'libgexiv2-python3 {}'.format(packages)
         else:
             packages = 'python3-gexiv2 {}'.format(packages)
@@ -561,13 +707,20 @@ def check_package_import_requirements(distro_family: Distro,
         check_packages_on_other_systems()
 
 
-
 def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentParser:
+    """
+    Construct the command line arguments for the script
+
+    :return: the parser
+    """
+
     parser = argparse.ArgumentParser(
         prog=__title__, formatter_class=formatter_class, description=__description__
     )
+
     parser.add_argument(
-        '--version', action='version', version='%(prog)s {}'.format(__version__)
+        '--version', action='version', version='%(prog)s {}'.format(__version__),
+        help="Show program's version number and exit."
     )
     parser.add_argument(
         "-i", "--interactive",  action="store_true", dest="interactive", default=False,
@@ -575,12 +728,31 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
     )
     parser.add_argument(
         '--devel', action="store_true", dest="devel", default=False,
-        help="Install latest development version if it is newer than latest stable version"
+        help="When downloading the latest version, install the development version if it is "
+             "newer than the stable version."
     )
 
     parser.add_argument(
         'tarfile',  action='store', nargs='?',
-        help="Optional tar.gz Rapid Photo Downloader installer archive"
+        help="Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
+             "the latest version is downloaded from the Internet."
+    )
+
+    parser.add_argument(
+        '--delete-install-script-and-containing-dir', action='store_true',
+        dest='delete_install_script', help=argparse.SUPPRESS
+    )
+
+    parser.add_argument(
+        '--delete-tar-and-containing-dir', action='store_true', dest='delete_tar_and_dir',
+        help=argparse.SUPPRESS
+    )
+
+    parser.add_argument(
+        '--force-this-installer-version', action='store_true', dest='force_this_version',
+        help="Do not run the installer in the tar.gz Rapid Photo Downloader installer archive if "
+             "it is newer than this version ({}). The default is to run whichever installer is "
+             "newer.".format(__version__)
     )
 
     return parser
@@ -629,9 +801,8 @@ def get_installer_url_md5(devel: bool):
                 stable = version['stable']
                 dev = version['dev']
 
-                if devel and \
-                        pkg_resources.parse_version(dev['version']) > \
-                        pkg_resources.parse_version(stable['version']).version:
+                if devel and pkg_resources.parse_version(dev['version']) > \
+                        pkg_resources.parse_version(stable['version']):
                     tarball_url = dev['url']
                     md5 = dev['md5']
                 else:
@@ -690,9 +861,10 @@ def format_size_for_user(size_in_bytes: int,
     return s + ' ' + suffixes[i]
 
 
-def delete_installer_and_its_temp_dir(full_file_name):
+def delete_installer_and_its_temp_dir(full_file_name) -> None:
     temp_dir = os.path.dirname(full_file_name)
     if temp_dir:
+        # print("Removing directory {}".format(temp_dir))
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 
@@ -725,7 +897,9 @@ class progress_bar_scanning(threading.Thread):
 def download_installer(devel):
     tarball_url, md5_url = get_installer_url_md5(devel)
     if not tarball_url:
-        sys.stderr.write("Sorry, could not locate installer. Exiting.")
+        sys.stderr.write("\nSorry, could not locate installer. Please check your Internet "
+                         "connection and verify if you can reach "
+                         "https://www.damonlynch.net\n\nExiting.\n")
         sys.exit(1)
 
     temp_dir = tempfile.mkdtemp()
@@ -736,8 +910,8 @@ def download_installer(devel):
         chunk_size = 1024
         total_size = int(r.headers['content-length'])
         size_human = format_size_for_user(total_size)
-        print("Downloading {} ({})".format(tarball_url, size_human))
         no_iterations = int(math.ceil(total_size / chunk_size))
+        pbar_title = "Downloading {} ({})".format(tarball_url, size_human)
 
         global stop_pbs
         global kill_pbs
@@ -745,9 +919,10 @@ def download_installer(devel):
         stop_pbs = kill_pbs = False
         if have_pyprind_progressbar:
             bar = pyprind.ProgBar(
-                iterations=no_iterations, stream=1, track_time=False, width=80
+                iterations=no_iterations, track_time=True, title=pbar_title
             )
         else:
+            print(pbar_title)
             pbs = progress_bar_scanning()
             pbs.start()
 
@@ -774,33 +949,105 @@ def download_installer(devel):
             delete_installer_and_its_temp_dir(local_file)
             sys.exit(1)
     except Exception:
-        sys.stderr.write("There was a problem verifying the download\n")
+        sys.stderr.write("There was a problem verifying the download. Exiting\n")
         delete_installer_and_its_temp_dir(local_file)
         sys.exit(1)
+
+
+def tarfile_content_name(installer: str, file_name: str) -> str:
+    """
+    Construct a path into a tar file to be able to extract a single file
+    :param installer: the tar file
+    :param file_name: the file wanted
+    :return: the path including file name
+    """
+
+    name = os.path.basename(installer)
+    name = name[:len('.tar.gz') * -1]
+    return os.path.join(name, file_name)
+
+
+def run_latest_install(installer: str, delete_installer: bool) -> None:
+    """
+    If the install script is newer than this script (as determined by
+    the version number at the head of this script), run that newer
+    script instead.
+
+    :param installer: the tar.gz installer
+    :param delete_installer: whether to delete the tar.gz archive
+    """
+
+    install_script = ''
+    v = ''
+    with tarfile.open(installer) as tar:
+        with tar.extractfile(tarfile_content_name(installer, 'install.py')) as install_py:
+            raw_lines = install_py.read()
+            lines = raw_lines.decode()
+            r = re.search(r"""^__version__\s*=\s*[\'\"](.+)[\'\"]""", lines, re.MULTILINE)
+            if r:
+                v = r.group(1)
+                if pkg_resources.parse_version(__version__) < \
+                        pkg_resources.parse_version(v):
+                    temp_dir = tempfile.mkdtemp()
+                    install_script = os.path.join(temp_dir, generate_random_file_name(10))
+                    with open(install_script, 'w') as new_install_py:
+                        new_install_py.write(lines)
+    if install_script:
+        print("Loading new installer script version {}".format(v))
+        sys.stdout.flush()
+        sys.stderr.flush()
+
+        new_args = [install_script, '--delete-install-script-and-containing-dir']
+        if delete_installer:
+            new_args.append('--delete-tar-and-containing-dir')
+        new_args = new_args + sys.argv[1:]
+        # restart the script
+        os.execl(sys.executable, sys.executable, *new_args)
+
 
 def main(installer: str,
          distro: Distro,
          distro_family: Distro,
          distro_version: float,
          interactive: bool,
-         devel: bool) -> None:
+         devel: bool,
+         delete_install_script: bool,
+         delete_tar_and_dir: bool,
+         force_this_version: bool) -> None:
+    """
 
-    uninstall_old_version(distro_family, interactive)
-
-    check_package_import_requirements(distro_family, distro_version, interactive)
+    :param installer: the tar.gz installer archive (optional)
+    :param distro: specific Linux distribution
+    :param distro_family: the family of distros the specific distro is part of
+    :param distro_version: the distributions version, if it exists
+    :param interactive: whether to prompt to confirm commands
+    :param devel: download and install latest development version
+    :param delete_install_script: hidden command line option to delete the
+     install.py script and its containing directory, which is assumed to be
+     a temporary directory
+    :param delete_tar_and_dir: hidden command line option to delete the
+     tar.gz installer archive and its containing directory, which is assumed to be
+     a temporary directory
+    :param force_this_version: do not attempt to run a newer version of this script
+    """
 
     if installer is None:
         delete_installer = True
         installer = download_installer(devel)
+    elif delete_tar_and_dir:
+        delete_installer = True
     else:
         delete_installer = False
 
-    name = os.path.basename(installer)
-    name = name[:len('.tar.gz') * -1]
+    if not force_this_version:
+        run_latest_install(installer, delete_installer)
 
-    rpath = os.path.join(name, 'requirements.txt')
+    uninstall_old_version(distro_family, interactive)
+
+    install_required_distro_packages(distro, distro_family, distro_version, interactive)
+
     with tarfile.open(installer) as tar:
-        with tar.extractfile(rpath) as requirements:
+        with tar.extractfile(tarfile_content_name(installer, 'requirements.txt')) as requirements:
             reqbytes = requirements.read()
             if pypi_pyqt5_capable():
                 reqbytes = reqbytes.rstrip() + b'\nPyQt5'
@@ -909,8 +1156,16 @@ def main(installer: str,
     if delete_installer:
         delete_installer_and_its_temp_dir(installer)
 
+    if delete_install_script:
+        delete_installer_and_its_temp_dir(sys.argv[0])
+
 
 if __name__ == '__main__':
+    """
+    Setup core Python modules if needed: pip, setuptools, wheel, and requests
+    Setup repositories if needed.
+    Then call main install logic.
+    """
 
     if os.getuid() == 0:
         sys.stderr.write("Do not run this installer script as sudo / root user.\nRun it using the "
@@ -920,6 +1175,9 @@ if __name__ == '__main__':
     parser = parser_options()
 
     args = parser.parse_args()
+
+    if args.devel and args.tarfile:
+        print("Ignoring command line option --devel because a tar.gz archive is specified.\n")
 
     distro = get_distro()
     if distro != Distro.unknown:
@@ -944,7 +1202,6 @@ if __name__ == '__main__':
               'https://aur.archlinux.org/packages/rapid-photo-downloader-bzr/')
         print("Exiting...")
         sys.exit(0)
-
 
     if distro == Distro.ubuntu:
         enable_universe(args.interactive)
@@ -980,7 +1237,6 @@ if __name__ == '__main__':
         packages.append('python3-pip')
         local_pip = False
 
-
     try:
         import setuptools
     except ImportError:
@@ -1011,7 +1267,7 @@ if __name__ == '__main__':
 
         run_cmd(command_line, restart=True, interactive=args.interactive)
 
-    # Can now assume that both pip and wheel have been installed
+    # Can now assume that both pip, setuptools and wheel have been installed
     if pip_version < StrictVersion('8.1'):
         print("\nPython 3's pip and setuptools must be upgraded for your user.\n")
 
@@ -1037,4 +1293,9 @@ if __name__ == '__main__':
         print("Installer not in tar.gz format:", installer)
         sys.exit(1)
 
-    main(installer, distro, distro_family, distro_version, args.interactive, args.devel)
+    main(
+        installer=installer, distro=distro, distro_family=distro_family,
+        distro_version=distro_version, interactive=args.interactive, devel=args.devel,
+        delete_install_script=args.delete_install_script,
+        delete_tar_and_dir=args.delete_tar_and_dir, force_this_version=args.force_this_version
+    )
