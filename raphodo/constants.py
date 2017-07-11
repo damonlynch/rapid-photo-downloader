@@ -495,6 +495,7 @@ class Distro(Enum):
     opensuse = 8
     gentoo = 9
     galliumos = 10
+    peppermint = 11
 
 
 orientation_offset = dict(

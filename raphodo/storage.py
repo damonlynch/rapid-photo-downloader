@@ -154,7 +154,7 @@ def get_media_dir() -> str:
         run_media_dir = '/run{}'.format(media_dir)
         distro = get_distro()
         if os.path.isdir(run_media_dir) and distro not in (
-                Distro.ubuntu, Distro.debian, Distro.neon, Distro.galliumos):
+                Distro.ubuntu, Distro.debian, Distro.neon, Distro.galliumos, Distro.peppermint):
             if distro not in (Distro.fedora, Distro.manjaro, Distro.arch, Distro.opensuse,
                               Distro.gentoo):
                 logging.debug("Detected /run/media directory, but distro does not appear to "

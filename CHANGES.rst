@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.2 (2017-07-xx)
+------------------
+
+ - Added support for Peppermint OS.
+
+
 0.9.1 (2017-07-10)
 ------------------
 

@@ -47,10 +47,14 @@ Install on Ubuntu, openSUSE, Debian, and Fedora
 
 To install Rapid Photo Downloader, run as your regular user (i.e. *without* sudo):
 
-``python3 install.py rapid-photo-downloader-0.9.1.tar.gz``
+``python3 install.py``
 
-**Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
-install`` *is* **not** *supported, and* **not** *recommended.*
+The program sudo may prompt for your administrator (root) password during the
+install process, if required.
+
+For a list of optional commands you can give the insaller, run:
+
+``python3 install.py --help``
 
 Finally, to uninstall:
 
@@ -63,7 +67,7 @@ Supported Linux Versions
 
  - Ubuntu 16.04 or newer
  - LinuxMint 18 or newer
- - Debian sid
+ - Debian 9, unstable or testing
  - Fedora 24 or newer
  - openSUSE Leap 42.2 or newer
  - Any distribution meeting the software requirements below
@@ -152,20 +156,13 @@ First, you may need to update your user's copy of pip and setuptools:
 
 ``python3 -m pip install --user --upgrade pip``
 
-``python3 -m pip install --user --upgrade setuptools``
-
-**Caution:** the previous two steps will update pip and setuptools for your user. Potentially this
-could negatively affect the installation of other, older Python packages by your user, but the
-risk is small and is normally nothing to worry about.
+``python3 -m pip install --user --upgrade setuptools wheel``
 
 The following command will install all required and optional Python modules not already
 installed on your system, with the exception of those specified above in
 `satisfying software requirements`_:
 
-``python3 install.py rapid-photo-downloader-0.9.1.tar.gz``
-
-Substitute the name of the correct compressed tar file if necessary, and run it as your regular
-user (i.e. *without* sudo).
+``python3 install.py``
 
 **Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
 install`` *is* **not** *supported, and* **not** *recommended.*

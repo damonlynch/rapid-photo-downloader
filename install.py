@@ -43,7 +43,7 @@ import random
 import string
 
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __title__ = 'Rapid Photo Downloader installer'
 __description__ = "Download and install latest version of Rapid Photo Downloader."
 
@@ -106,10 +106,13 @@ class Distro(Enum):
     opensuse = 8
     manjaro = 9
     galliumos = 10
+    peppermint = 11
     unknown = 20
 
 
-debian_like = (Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint, Distro.galliumos)
+debian_like = (
+    Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint, Distro.galliumos, Distro.peppermint
+)
 fedora_like = (Distro.fedora, Distro.korora)
 arch_like = (Distro.arch, Distro.manjaro)
 
@@ -1202,8 +1205,12 @@ if __name__ == '__main__':
               'https://aur.archlinux.org/packages/rapid-photo-downloader-bzr/')
         print("Exiting...")
         sys.exit(0)
+    elif distro == Distro.peppermint and 0.0 > distro_version < 7.0:
+        sys.stderr.write("Sorry, this version of Peppermint is to old to run this version of "
+                         "Rapid Photo Downloader.\n")
+        sys.exit(1)
 
-    if distro == Distro.ubuntu:
+    if distro in (Distro.ubuntu, Distro.peppermint):
         enable_universe(args.interactive)
 
     if distro in debian_like:
