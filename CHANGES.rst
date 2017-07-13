@@ -4,7 +4,10 @@ Changelog for Rapid Photo Downloader
 0.9.2 (2017-07-xx)
 ------------------
 
- - Added support for Peppermint OS.
+ - Added support for Peppermint OS to install.py.
+
+ - Added uninstall and uninstall including dependencies options to install.py
+   script.
 
 
 0.9.1 (2017-07-10)

@@ -496,6 +496,7 @@ class Distro(Enum):
     gentoo = 9
     galliumos = 10
     peppermint = 11
+    antergos = 12
 
 
 orientation_offset = dict(

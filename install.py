@@ -107,6 +107,7 @@ class Distro(Enum):
     manjaro = 9
     galliumos = 10
     peppermint = 11
+    antergos = 12
     unknown = 20
 
 
@@ -114,7 +115,7 @@ debian_like = (
     Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint, Distro.galliumos, Distro.peppermint
 )
 fedora_like = (Distro.fedora, Distro.korora)
-arch_like = (Distro.arch, Distro.manjaro)
+arch_like = (Distro.arch, Distro.manjaro, Distro.antergos)
 
 
 installer_cmds = {
@@ -147,7 +148,8 @@ def get_distro_id(id_or_id_like: str) -> Distro:
     /etc/os-release
     :param id_or_id_like: the line from /etc/os-release
     """
-
+    if id_or_id_like[0] in ('"', "'"):
+        id_or_id_like = id_or_id_like[1:-1]
     try:
         return Distro[id_or_id_like.strip()]
     except KeyError:
@@ -432,6 +434,54 @@ def opensuse_package_installed(package) -> bool:
     return not opensuse_missing_packages(package)
 
 
+def uninstall_pip_package(package: str, no_deps_only: bool) -> None:
+    """
+    Uninstall a package from the local user using pip.
+
+    Uninstall all local instances, including those installed multiple times,
+    as can happen with the Debian patch to pip
+
+    :param package: package to remove
+    :param no_deps_only: if True, remove a package only if no other package
+     depends on it
+    """
+
+    l_command_line = 'list --user --disable-pip-version-check'
+    if pip_version >= StrictVersion('9.0.0'):
+        # pip 9.0 issues a red warning if format not specified
+        l_command_line = '{} --format=columns'.format(l_command_line)
+        if no_deps_only:
+            l_command_line = '{} --not-required'.format(l_command_line)
+    l_args = make_pip_command(l_command_line)
+
+    u_command_line = 'uninstall --disable-pip-version-check -y {}'.format(package)
+    u_args = make_pip_command(u_command_line)
+    while True:
+        try:
+            output = subprocess.check_output(l_args, universal_newlines=True)
+            if package in output:
+                try:
+                    subprocess.check_call(u_args)
+                except subprocess.CalledProcessError:
+                    print("Encountered an error uninstalling previous version installed with pip")
+                    break
+            else:
+                break
+        except Exception:
+            break
+
+def uninstall_with_deps():
+    uninstall_pip_package('rapid-photo-downloader', no_deps_only=False)
+
+    packages = 'psutil gphoto2 pyzmq pyxdg arrow python-dateutil rawkit PyPrind colorlog easygui ' \
+               'colour pymediainfo sortedcontainers requests'
+    if pypi_pyqt5_capable():
+        packages = '{} PyQt5 sip'.format(packages)
+
+    for package in packages.split():
+        uninstall_pip_package(package, no_deps_only=True)
+
+
 def uninstall_old_version(distro_family: Distro, interactive: bool) -> None:
     """
     Uninstall old version of Rapid Photo Downloader that was installed using the
@@ -478,32 +528,8 @@ def uninstall_old_version(distro_family: Distro, interactive: bool) -> None:
         if opensuse_package_installed('rapid-photo-downloader') and query_uninstall(interactive):
             run_cmd(make_distro_packager_commmand(distro, pkg_name, interactive, 'rm'))
 
-    # Explicitly uninstall any previous version installed with pip
-    # Loop through to see if multiple versions need to be removed (as can happen with
-    # the Debian / Ubuntu pip)
-
     print("Checking if previous version installed with pip...")
-    l_command_line = 'list --user --disable-pip-version-check'
-    if pip_version >= StrictVersion('9.0.0'):
-        # pip 9.0 issues a red warning if format not specified
-        l_command_line = '{} --format=columns'.format(l_command_line)
-    l_args = make_pip_command(l_command_line)
-
-    u_command_line = 'uninstall --disable-pip-version-check -y rapid-photo-downloader'
-    u_args = make_pip_command(u_command_line)
-    while True:
-        try:
-            output = subprocess.check_output(l_args, universal_newlines=True)
-            if 'rapid-photo-downloader' in output:
-                try:
-                    subprocess.check_call(u_args)
-                except subprocess.CalledProcessError:
-                    print("Encountered an error uninstalling previous version installed with pip")
-                    break
-            else:
-                break
-        except Exception:
-            break
+    uninstall_pip_package('rapid-photo-downloader', no_deps_only=False)
 
 
 def check_packages_on_other_systems() -> None:
@@ -729,13 +755,15 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
         "-i", "--interactive",  action="store_true", dest="interactive", default=False,
         help="Query to confirm action at each step."
     )
-    parser.add_argument(
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
         '--devel', action="store_true", dest="devel", default=False,
         help="When downloading the latest version, install the development version if it is "
              "newer than the stable version."
     )
 
-    parser.add_argument(
+    group.add_argument(
         'tarfile',  action='store', nargs='?',
         help="Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
              "the latest version is downloaded from the Internet."
@@ -756,6 +784,38 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
         help="Do not run the installer in the tar.gz Rapid Photo Downloader installer archive if "
              "it is newer than this version ({}). The default is to run whichever installer is "
              "newer.".format(__version__)
+    )
+
+    msg = "Uninstall Rapid Photo Downloader, keeping its dependencies."
+
+    msg2 = "Uninstall the dependencies installed by pip during Rapid Photo Downloader's " \
+           "installation, and Rapid Photo Downloader itself, then exit. "
+
+    pip_only = "Note: this will not uninstall any version of Rapid Photo Downloader installed " \
+               "by your Linux distribution's package manager."
+
+    msg = "{} {}".format(msg, pip_only)
+
+    if pip_version >= StrictVersion('9.0.0'):
+        note = "Dependencies will only be removed if they are not required by other programs."
+        note = "{} {}".format(note, pip_only)
+
+    else:
+        note = "Note: this option will remove the dependencies regardless of whether they are " \
+               "required by another program pip has installed. Upgrade to pip 9.0 or " \
+               "above if you want to avoid this behavior. You can do so using the command " \
+               "'python3 -m pip install pip -U --user'. " \
+               "Also note that any version of Rapid Photo Downloader installed " \
+               "by your Linux distribution's package manager will not be uninstalled."
+    msg2 = "{} {}".format(msg2, note)
+
+    parser.add_argument(
+        '--uninstall', action='store_true',
+        help=msg)
+
+    parser.add_argument(
+        '--uninstall-including-pip-dependencies', action='store_true', dest='uninstall_with_deps',
+        help=msg2
     )
 
     return parser
@@ -1179,8 +1239,21 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if args.devel and args.tarfile:
-        print("Ignoring command line option --devel because a tar.gz archive is specified.\n")
+    if args.uninstall_with_deps:
+        if len(sys.argv) > 2:
+            sys.stderr.write("Do not include any other command line arguments when specifying "
+                             "--uninstall-with-pip-dependencies")
+            sys.exit(1)
+        uninstall_with_deps()
+        sys.exit(0)
+
+    if args.uninstall:
+        if len(sys.argv) > 2:
+            sys.stderr.write("Do not include any other command line arguments when specifying "
+                             "--uninstall")
+            sys.exit(1)
+        uninstall_pip_package('rapid-photo-downloader', no_deps_only=False)
+        sys.exit(0)
 
     distro = get_distro()
     if distro != Distro.unknown:

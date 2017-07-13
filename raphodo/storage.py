@@ -96,6 +96,8 @@ PROGRAM_DIRECTORY = 'rapid-photo-downloader'
 
 
 def get_distro_id(id_or_id_like: str) -> Distro:
+    if id_or_id_like[0] in ('"', "'"):
+        id_or_id_like = id_or_id_like[1:-1]
     try:
         return Distro[id_or_id_like.strip()]
     except KeyError:
@@ -156,9 +158,9 @@ def get_media_dir() -> str:
         if os.path.isdir(run_media_dir) and distro not in (
                 Distro.ubuntu, Distro.debian, Distro.neon, Distro.galliumos, Distro.peppermint):
             if distro not in (Distro.fedora, Distro.manjaro, Distro.arch, Distro.opensuse,
-                              Distro.gentoo):
+                              Distro.gentoo, Distro.antergos):
                 logging.debug("Detected /run/media directory, but distro does not appear to "
-                              "be Fedora, Arch, openSUSE, Gentoo or Manjaro")
+                              "be Fedora, Arch, openSUSE, Gentoo, Manjaro or Antergos")
                 log_os_release()
             return run_media_dir
         return media_dir
