@@ -15,6 +15,9 @@ Changelog for Rapid Photo Downloader
  - Catch permission errors more effectively in copy files, rename files, and
    backup files processes.
 
+ - Fixed bug when deleting certain sample videos from a device that had
+   already been removed.
+
 0.9.1 (2017-07-10)
 ------------------
 

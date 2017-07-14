@@ -796,6 +796,9 @@ class DeviceCollection:
             # attempt to find an appropriate file from the in memory sql database of displayed
             # files
             scan_id = rpd_file.scan_id
+            if not scan_id in self.devices:
+                logging.debug('Failed to set a new sample because the device no longer exists')
+                return
             rpd_file = self.rapidApp.thumbnailModel.getSampleFile(scan_id=scan_id,
                                       device_type=self[scan_id].device_type, file_type=file_type)
             if rpd_file is None:
@@ -888,7 +891,7 @@ class DeviceCollection:
             # Instead add it to a list of files to possibly expunge at program exit
             logging.debug("Adding %s to list of complete sample video files to potentially delete "
                           "at program exit", self._sample_video.temp_sample_full_file_name)
-            self._sample_videos_complete_files.append(self.sample_video.temp_sample_full_file_name)
+            self._sample_videos_complete_files.append(self._sample_video.temp_sample_full_file_name)
         else:
             self._delete_sample_video(at_program_close=False)
         self._sample_video = video

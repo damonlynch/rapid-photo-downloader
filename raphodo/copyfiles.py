@@ -110,7 +110,7 @@ def copy_camera_file_metadata(mtime: float, dst: str) -> Optional[Tuple]:
     try:
         os.utime(dst, (mtime, mtime))
     except (OSError, PermissionError, FileNotFoundError) as inst:
-        return inst,
+        return inst,  # note the comma: return a Tuple
 
 
 class FileCopy:
