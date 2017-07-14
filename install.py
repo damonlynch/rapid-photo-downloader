@@ -1284,7 +1284,7 @@ def main(installer: str,
 
 
 def pip_needed_to_uninstall():
-    sys.stderr.write("The python tool pip is required to uninstall a version of Rapid Photo "
+    sys.stderr.write("The python3 tool pip is required to uninstall a version of Rapid Photo "
                      "Downloader that was installed with pip.\nCannot continue. Exiting.\n")
     sys.exit(1)
 

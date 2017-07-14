@@ -12,6 +12,9 @@ Changelog for Rapid Photo Downloader
 
  - Added support for Peppermint OS to the install.py script.
 
+ - Report gphoto2 errors on the command line with the name of the error rather
+   than its numeric code.
+
  - Catch permission errors more effectively in copy, rename, and backup
    processes.
 
