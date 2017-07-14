@@ -139,9 +139,9 @@ class AboutDialog(QDialog):
         Torben Gundtofte-Bruun <torben@g-b.dk>
         Мирослав Николић <miroslavnikolic@rocketmail.com>
         Joachim Johansson <joachim.j@gmail.com>
+        Evgeny Kozlov <evgeny.kozlov.mailbox@gmail.com>
         Jean-Marc Lartigue <m.balthazar@orange.fr>
         Miroslav Matejaš <silverspace@ubuntu-hr.org>
-        Nicolás M. Zahlut <nzahlut@live.com>
         Erik M
         Toni Lähdekorpi <toni@lygon.net>
         Jose Luis Navarro <jlnavarro111@gmail.com>
@@ -164,6 +164,7 @@ class AboutDialog(QDialog):
         Dimitris Xenakis <dx@nkdx.gr>
         Aron Xu <happyaron.xu@gmail.com>
         Koji Yokota <yokota6@gmail.com>
+        Nicolás M. Zahlut <nzahlut@live.com>
         梁其学 <yalongbay@gmail.com>
         """
 

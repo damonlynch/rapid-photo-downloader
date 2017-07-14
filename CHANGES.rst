@@ -21,8 +21,9 @@ Changelog for Rapid Photo Downloader
  - Fixed bug when deleting certain sample videos from a device that had
    already been removed.
 
- - Updated Japanese translation. Applied a patch from Mikael Wiesel to fix a
-   bug where several strings were not available for translation.
+ - Updated Japanese and Russian translations. Applied a patch from Mikael
+   Wiesel to fix a bug where several strings were not available for
+   translation.
 
 0.9.1 (2017-07-10)
 ------------------
