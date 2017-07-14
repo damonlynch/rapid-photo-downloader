@@ -846,7 +846,7 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
              "newer.".format(__version__)
     )
 
-    msg = "Uninstall Rapid Photo Downloader, keeping its dependencies."
+    msg = "Uninstall Rapid Photo Downloader that was installed with pip, keeping its dependencies."
 
     msg2 = "Uninstall the dependencies installed by pip during Rapid Photo Downloader's " \
            "installation, and Rapid Photo Downloader itself, then exit. "
@@ -856,7 +856,7 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
 
     msg = "{} {}".format(msg, pip_only)
 
-    if pip_version >= StrictVersion('9.0.0'):
+    if have_pip and pip_version >= StrictVersion('9.0.0'):
         note = "Dependencies will only be removed if they are not required by other programs."
         note = "{} {}".format(note, pip_only)
 
@@ -1283,6 +1283,11 @@ def main(installer: str,
         delete_installer_and_its_temp_dir(sys.argv[0])
 
 
+def pip_needed_to_uninstall():
+    sys.stderr.write("The python tool pip is required to uninstall a version of Rapid Photo "
+                     "Downloader that was installed with pip.\nCannot continue. Exiting.\n")
+    sys.exit(1)
+
 if __name__ == '__main__':
     """
     Setup core Python modules if needed: pip, setuptools, wheel, and requests
@@ -1304,6 +1309,8 @@ if __name__ == '__main__':
             sys.stderr.write("Do not include any other command line arguments when specifying "
                              "--uninstall-with-pip-dependencies")
             sys.exit(1)
+        if not have_pip:
+            pip_needed_to_uninstall()
         uninstall_with_deps()
         sys.exit(0)
 
@@ -1312,6 +1319,8 @@ if __name__ == '__main__':
             sys.stderr.write("Do not include any other command line arguments when specifying "
                              "--uninstall")
             sys.exit(1)
+        if not have_pip:
+            pip_needed_to_uninstall()
         uninstall_pip_package('rapid-photo-downloader', no_deps_only=False)
         sys.exit(0)
 

@@ -12,14 +12,14 @@ Changelog for Rapid Photo Downloader
 
  - Added support for Peppermint OS to the install.py script.
 
- - Catch permission errors more effectively in copy files, rename files, and
-   backup files processes.
+ - Catch permission errors more effectively in copy, rename, and backup
+   processes.
 
  - Fixed bug when deleting certain sample videos from a device that had
    already been removed.
 
  - Updated Japanese translation. Applied a patch from Mikael Wiesel to fix a
-   bug where several strings were not available for translation. 
+   bug where several strings were not available for translation.
 
 0.9.1 (2017-07-10)
 ------------------
