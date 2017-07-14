@@ -72,12 +72,12 @@ def copy_file_metadata(src: str, dst: str) -> Optional[Tuple]:
 
     try:
         os.utime(dst, (st.st_atime, st.st_mtime))
-    except OSError as inst:
+    except (OSError, PermissionError, FileNotFoundError) as inst:
         errors.append(inst)
 
     try:
         os.chmod(dst, mode)
-    except OSError as inst:
+    except (OSError, PermissionError, FileNotFoundError) as inst:
         errors.append(inst)
 
     if hasattr(os, 'chflags') and hasattr(st, 'st_flags'):
@@ -109,8 +109,8 @@ def copy_camera_file_metadata(mtime: float, dst: str) -> Optional[Tuple]:
 
     try:
         os.utime(dst, (mtime, mtime))
-    except OSError as inst:
-        return (inst)
+    except (OSError, PermissionError, FileNotFoundError) as inst:
+        return inst,
 
 
 class FileCopy:
@@ -163,7 +163,7 @@ class FileCopy:
                 rpd_file.md5 = hashlib.md5(src_bytes).hexdigest()
 
             return True
-        except (OSError, FileNotFoundError) as e:
+        except (OSError, FileNotFoundError, PermissionError) as e:
             self.problems.append(
                 FileCopyProblem(
                     name=os.path.basename(source), uri=get_uri(full_file_name=source), exception=e
@@ -174,6 +174,18 @@ class FileCopy:
             except AttributeError:
                 msg = str(e)
             logging.error("%s. Failed to copy %s to %s", msg, source, destination)
+            return False
+        except Exception as e:
+            self.problems.append(
+                FileCopyProblem(
+                    name=os.path.basename(source), uri=get_uri(full_file_name=source), exception=e
+                )
+            )
+            try:
+                msg = '%s: %s' % (e.errno, e.strerror)
+            except AttributeError:
+                msg = str(e)
+            logging.error("Unexpected error: %s. Failed to copy %s to %s", msg, source, destination)
             return False
 
 
@@ -285,7 +297,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         else:
             try:
                 shutil.copyfile(associate_file_fullname, temp_full_name)
-            except OSError as e:
+            except (OSError, FileNotFoundError, PermissionError) as e:
                 logging.error("Failed to download %s file: %s", file_type, associate_file_fullname)
                 logging.error("%s: %s", e.errno, e.strerror)
                 name = os.path.basename(associate_file_fullname)
@@ -371,7 +383,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     try:
                         shutil.move(rpd_file.cache_full_file_name, temp_full_file_name)
                         copy_succeeded = True
-                    except OSError as inst:
+                    except (OSError, PermissionError, FileNotFoundError) as inst:
                         copy_succeeded = False
                         logging.error("Could not move cached file %s to temporary file %s. Error "
                                       "code: %s", rpd_file.cache_full_file_name,
@@ -395,7 +407,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     copy_succeeded = self.copy_from_filesystem(source, destination, rpd_file)
                     try:
                         os.remove(source)
-                    except (OSError, FileNotFoundError) as e:
+                    except (OSError, PermissionError, FileNotFoundError) as e:
                         logging.error("Error removing RPD Cache file %s while copying %s. Error "
                                       "code: %s", source, rpd_file.full_file_name, e.errno)
                         self.problems.append(
@@ -488,7 +500,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                         rpd_file, temp_name, dest_dir, rpd_file.xmp_file_full_name, 'XMP'
                     )
 
-                # copy magic lantern LOG file if there is one
+                # copy Magic Lantern LOG file if there is one
                 if rpd_file.log_file_full_name:
                     rpd_file.temp_log_full_name = self.copy_associate_file(
                         rpd_file, temp_name, dest_dir, rpd_file.log_file_full_name, 'LOG'

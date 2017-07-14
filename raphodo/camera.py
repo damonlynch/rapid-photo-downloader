@@ -481,9 +481,11 @@ class Camera:
             src_bytes = view.tobytes()
             dest_file.write(src_bytes)
             dest_file.close()
-        except OSError as ex:
-            logging.error('Error saving file %s from camera %s. Code %s',
-                          os.path.join(dir_name, file_name), self.display_name, ex.errno)
+        except (OSError, PermissionError) as ex:
+            logging.error(
+                'Error saving file %s from camera %s. Error %s: %s',
+                os.path.join(dir_name, file_name), self.display_name, ex.errno, ex.strerror
+            )
             if dest_file is not None:
                 dest_file.close()
             raise CameraProblemEx(code=CameraErrorCode.write, py_exception=ex)

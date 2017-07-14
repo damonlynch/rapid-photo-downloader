@@ -327,10 +327,15 @@ class RenameMoveFileWorker(DaemonProcess):
 
         rpd_file.status = DownloadStatus.download_failed
 
-        logging.error(
-            "Failed to create file %s: %s %s", rpd_file.download_full_file_name,
-            inst.errno, inst.strerror
-        )
+        try:
+            msg = "Failed to create file {}: {} {}".format(
+                rpd_file.download_full_file_name, inst.errno, inst.strerror
+            )
+            logging.error(msg)
+        except AttributeError:
+            logging.error(
+                "Failed to create file %s: %s ", rpd_file.download_full_file_name, str(inst)
+            )
 
     def download_file_exists(self, rpd_file: Union[Photo, Video]) -> bool:
         """
@@ -732,6 +737,7 @@ class RenameMoveFileWorker(DaemonProcess):
             else:
                 self.notify_download_failure_file_error(rpd_file, inst)
         except Exception as inst:
+            # all other errors, including PermissionError
             self.notify_download_failure_file_error(rpd_file, inst)
 
         if add_unique_identifier:

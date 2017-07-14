@@ -116,7 +116,7 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                                   dest_dir, self.device_name)
                     os.makedirs(dest_dir)
                     logging.debug("...backup subfolder created")
-                except OSError as inst:
+                except (OSError, PermissionError, FileNotFoundError) as inst:
                     # There is a minuscule chance directory may have been
                     # created by another process between the time it
                     # takes to query and the time it takes to create a

@@ -316,12 +316,13 @@ def local_folder_permissions(interactive) -> None:
         owner = os.getuid()
         group = os.getgid()
 
+        # 0700
         u_only = stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR
+        # 0775
         u_g_o = u_only | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
 
         base = site.getuserbase()
         lib = os.path.join(base, 'lib')
-
         site_packages = site.getusersitepackages()  # type: str
 
         perms = [
@@ -333,6 +334,7 @@ def local_folder_permissions(interactive) -> None:
             ('share/locale', u_g_o),
         ]
 
+        # add python site packages directory, e.g. ~/.local/lib/python3.6/site-packages
         if site_packages.startswith(lib):
             path = ''
             for p in os.path.split(site_packages[len(lib) + 1:]):
@@ -347,6 +349,10 @@ def local_folder_permissions(interactive) -> None:
                 if st.st_uid != owner or st.st_gid != group:
                     print("Incorrect folder ownership detected. Changing ownership of and "
                           "resetting permissions for", path)
+                    # For some bizarre reason, some users report that
+                    # root owns key directories like ~/.local/lib , so need sudo
+                    # to fix a problem like that, not python's os.chown -- we don't
+                    # have permission given we're running as the regular user
                     cmd = shutil.which('chown')
                     cmd = 'sudo {} {}:{} {}'.format(cmd, owner, group, path)
                     run_cmd(cmd, exit_on_failure=True, interactive=interactive)
@@ -354,7 +360,7 @@ def local_folder_permissions(interactive) -> None:
                     # reset permissions too
                     try:
                         os.chmod(path, perm)
-                    except OSError as e:
+                    except (OSError, PermissionError) as e:
                         sys.stderr.write("Unexpected error %s setting permission for %s. "
                                          "Exiting\n".format(e, path))
 
