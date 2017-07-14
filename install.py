@@ -41,6 +41,8 @@ import tarfile
 import re
 import random
 import string
+import site
+import stat
 
 
 __version__ = '0.1.1'
@@ -219,7 +221,7 @@ def make_pip_command(args: str, split: bool=True):
     :return: command line in string or list format
     """
 
-    cmd_line = '{} -m pip --disable-pip-version-check {}'.format(sys.executable, args)
+    cmd_line = '{} -m pip {} --disable-pip-version-check'.format(sys.executable, args)
     if split:
         return shlex.split(cmd_line)
     else:
@@ -304,6 +306,57 @@ def get_yes_no(response: str) -> bool:
 
     return response.lower() in ('y', 'yes', '')
 
+
+def local_folder_permissions(interactive) -> None:
+    """
+    Check and if necessary fix ownership and permissions for key installation folders
+    """
+
+    if site.ENABLE_USER_SITE:
+        owner = os.getuid()
+        group = os.getgid()
+
+        u_only = stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR
+        u_g_o = u_only | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
+
+        base = site.getuserbase()
+        lib = os.path.join(base, 'lib')
+
+        site_packages = site.getusersitepackages()  # type: str
+
+        perms = [
+            ('bin', u_g_o),
+            ('lib', u_only),
+            ('share', u_only),
+            ('share/applications', u_g_o),
+            ('share/icons', u_g_o),
+            ('share/locale', u_g_o),
+        ]
+
+        if site_packages.startswith(lib):
+            path = ''
+            for p in os.path.split(site_packages[len(lib) + 1:]):
+                perms.append((os.path.join(path, p), u_only))
+                path = os.path.join(path, p)
+
+        for folder, perm  in perms:
+            path = os.path.join(base, folder)
+
+            if os.path.isdir(path):
+                st = os.stat(path)
+                if st.st_uid != owner or st.st_gid != group:
+                    print("Incorrect folder ownership detected. Changing ownership of and "
+                          "resetting permissions for", path)
+                    cmd = shutil.which('chown')
+                    cmd = 'sudo {} {}:{} {}'.format(cmd, owner, group, path)
+                    run_cmd(cmd, exit_on_failure=True, interactive=interactive)
+
+                    # reset permissions too
+                    try:
+                        os.chmod(path, perm)
+                    except OSError as e:
+                        sys.stderr.write("Unexpected error %s setting permission for %s. "
+                                         "Exiting\n".format(e, path))
 
 
 def generate_random_file_name(length = 5) -> str:
@@ -446,15 +499,16 @@ def uninstall_pip_package(package: str, no_deps_only: bool) -> None:
      depends on it
     """
 
-    l_command_line = 'list --user --disable-pip-version-check'
+    l_command_line = 'list --user'
     if pip_version >= StrictVersion('9.0.0'):
         # pip 9.0 issues a red warning if format not specified
         l_command_line = '{} --format=columns'.format(l_command_line)
         if no_deps_only:
             l_command_line = '{} --not-required'.format(l_command_line)
+
     l_args = make_pip_command(l_command_line)
 
-    u_command_line = 'uninstall --disable-pip-version-check -y {}'.format(package)
+    u_command_line = 'uninstall -y {}'.format(package)
     u_args = make_pip_command(u_command_line)
     while True:
         try:
@@ -1153,7 +1207,7 @@ def main(installer: str,
         sys.exit(1)
 
     path = os.getenv('PATH')
-    install_path = os.path.join(os.path.expanduser('~'), '.local', 'bin')
+    install_path = os.path.join(os.path.expanduser('~'), site.getuserbase(), 'bin')
 
     if install_path not in path.split(':'):
         if distro in debian_like or distro == Distro.opensuse:
@@ -1254,6 +1308,8 @@ if __name__ == '__main__':
             sys.exit(1)
         uninstall_pip_package('rapid-photo-downloader', no_deps_only=False)
         sys.exit(0)
+
+    local_folder_permissions(interactive=args.interactive)
 
     distro = get_distro()
     if distro != Distro.unknown:
