@@ -790,25 +790,25 @@ class PrefDialog(QDialog):
 
         self.generation_type = generation_type
         if generation_type == NameGenerationType.photo_subfolder:
-            self.setWindowTitle('Photo Subfolder Generation Editor')
+            self.setWindowTitle(_('Photo Subfolder Generation Editor'))
             self.preset_type = PresetPrefType.preset_photo_subfolder
             self.builtin_pref_lists = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV
             self.builtin_pref_names = [make_subfolder_menu_entry(pref)
                                        for pref in PHOTO_SUBFOLDER_MENU_DEFAULTS]
         elif generation_type == NameGenerationType.video_subfolder:
-            self.setWindowTitle('Video Subfolder Generation Editor')
+            self.setWindowTitle(_('Video Subfolder Generation Editor'))
             self.preset_type = PresetPrefType.preset_video_subfolder
             self.builtin_pref_lists = VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV
             self.builtin_pref_names = [make_subfolder_menu_entry(pref)
                                        for pref in VIDEO_SUBFOLDER_MENU_DEFAULTS]
         elif generation_type == NameGenerationType.photo_name:
-            self.setWindowTitle('Photo Renaming Editor')
+            self.setWindowTitle(_('Photo Renaming Editor'))
             self.preset_type = PresetPrefType.preset_photo_rename
             self.builtin_pref_lists = PHOTO_RENAME_MENU_DEFAULTS_CONV
             self.builtin_pref_names = [make_rename_menu_entry(pref)
                                        for pref in PHOTO_RENAME_MENU_DEFAULTS]
         else:
-            self.setWindowTitle('Video Renaming Editor')
+            self.setWindowTitle(_('Video Renaming Editor'))
             self.preset_type = PresetPrefType.preset_video_rename
             self.builtin_pref_lists = VIDEO_RENAME_MENU_DEFAULTS_CONV
             self.builtin_pref_names = [make_rename_menu_entry(pref)

@@ -368,7 +368,7 @@ class PreferencesDialog(QDialog):
         errorBoxLayout.addWidget(self.downloadError)
         errorBoxLayout.addWidget(self.skipDownload)
         errorBoxLayout.addWidget(self.addIdentifier)
-        lbl = '<i>' + ('Using sequence numbers to automatically generate unique filenames is '
+        lbl = '<i>' + _('Using sequence numbers to automatically generate unique filenames is '
                        'strongly recommended. Configure file renaming in the Rename panel in the '
                        'main window.') + '</i>'
         self.recommended = QLabel(lbl)
@@ -487,9 +487,11 @@ class PreferencesDialog(QDialog):
 
         self.metadataBox = QGroupBox(_('Metadata'))
         self.ignoreMdatatimeMtpDng = QCheckBox(_('Ignore DNG date/time metadata on MTP devices'))
-        tip = _("Ignore date/time metadata in DNG files located on MTP devices, and use the "
-                "file's modification time instead.\n\nUseful for devices like some phones and "
-                "tablets that create incorrect DNG metadata.")
+        tip = _(
+            "Ignore date/time metadata in DNG files located on MTP devices, and use the "
+            "file's modification time instead.\n\nUseful for devices like some phones and "
+            "tablets that create incorrect DNG metadata."
+        )
         self.ignoreMdatatimeMtpDng.setToolTip(tip)
 
         self.setMetdataValues()
@@ -499,10 +501,29 @@ class PreferencesDialog(QDialog):
         metadataLayout.addWidget(self.ignoreMdatatimeMtpDng)
         self.metadataBox.setLayout(metadataLayout)
 
+        self.rawjpegBox = QGroupBox(_('RAW + JPEG'))
+        self.nojpegWhenRaw = QCheckBox(_('Do not mark JPEG of matching pairs'))
+        tip = _(
+            "When matching RAW and JPEG photos are found, do not automatically mark the JPEG for\n"
+            "download. You can still mark it for download yourself."
+        )
+        self.nojpegWhenRaw.setToolTip(tip)
+        self.norawWhenJpeg = QCheckBox(_('Do not mark RAW of matching pairs'))
+        tip = _(
+            "When matching RAW and JPEG photos are found, do not automatically mark the RAW for\n"
+            "download. You can still mark it for download yourself."
+        )
+        self.norawWhenJpeg.setToolTip(tip)
+        rawjpegLayout = QVBoxLayout()
+        rawjpegLayout.addWidget(self.nojpegWhenRaw)
+        rawjpegLayout.addWidget(self.norawWhenJpeg)
+        self.rawjpegBox.setLayout(rawjpegLayout)
+
         self.miscWidget = QWidget()
         miscLayout = QVBoxLayout()
         miscLayout.addWidget(self.newVersionBox)
         miscLayout.addWidget(self.metadataBox)
+        miscLayout.addWidget(self.rawjpegBox)
         miscLayout.addStretch()
         miscLayout.setContentsMargins(0, 0, 0, 0)
         miscLayout.setSpacing(18)
