@@ -229,45 +229,44 @@ def humanize_time_span(start: Arrow, end: Arrow,
                 time=time_span
             )
 
-
     # The start and end dates are on a different day
 
     # Translators: for example Nov 3 or Dec 31
-    start_date = _('%(month)s %(numeric_day)s') % {
-        'month': start.datetime.strftime('%b'),
-        'numeric_day': start.format('D')
-    }
-    end_date = _('%(month)s %(numeric_day)s') % {
-        'month': end.datetime.strftime('%b'),
-        'numeric_day': end.format('D')
-    }
+    start_date = _('%(month)s %(numeric_day)s') % dict(
+        month=start.datetime.strftime('%b'),
+        numeric_day=start.format('D')
+    )
+    end_date = _('%(month)s %(numeric_day)s') % dict(
+        month=end.datetime.strftime('%b'),
+        numeric_day=end.format('D')
+    )
 
     if start.floor('year') != end.floor('year') or long_format:
         # Translators: for example Nov 3 2015
-        start_date = _('%(date)s %(year)s') % {'date': start_date, 'year': start.year}
-        end_date = _('%(date)s %(year)s') % {'date': end_date, 'year': end.year}
+        start_date = _('%(date)s %(year)s') % dict(date=start_date, year=start.year)
+        end_date = _('%(date)s %(year)s') % dict(date=end_date, year=end.year)
 
     # Translators: for example, Nov 3, 12:15 PM
-    start_datetime = _('%(date)s, %(time)s') % {
-        'date': start_date, 'time': strip_zero(locale_time(start.datetime), strip)
-    }
-    end_datetime = _('%(date)s, %(time)s') % {
-        'date': end_date, 'time': strip_zero(locale_time(end.datetime), strip)
-    }
+    start_datetime = _('%(date)s, %(time)s') % dict(
+        date=start_date, time=strip_zero(locale_time(start.datetime), strip)
+    )
+    end_datetime = _('%(date)s, %(time)s') % dict(
+        date=end_date, time=strip_zero(locale_time(end.datetime), strip)
+    )
 
     if not insert_cr_on_long_line or long_format:
         # Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
-        return _('%(earlier_time)s - %(later_time)s') % {
-            'earlier_time': start_datetime, 'later_time': end_datetime
-        }
+        return _('%(earlier_time)s - %(later_time)s') % dict(
+            earlier_time=start_datetime, later_time=end_datetime
+        )
     else:
         # Translators, for example:
         # Nov 3 2012, 12:15 PM -
         # Nov 4 2012, 1:00 AM
         # (please keep the line break signified by \n)
-        return _('%(earlier_time)s -\n%(later_time)s') % {
-            'earlier_time': start_datetime, 'later_time': end_datetime
-        }
+        return _('%(earlier_time)s -\n%(later_time)s') % dict(
+            earlier_time=start_datetime, later_time=end_datetime
+        )
 
 FontKerning = namedtuple('FontKerning', 'font, kerning')
 
@@ -382,7 +381,7 @@ class ProximityDisplayValues:
 
     def get_month_text(self, month, year) -> str:
         if self.depth == 3:
-            return _('%(month)s  %(year)s') % {'month': month.upper(), 'year': year}
+            return _('%(month)s  %(year)s') % dict(month=month.upper(), year=year)
         else:
             return month.upper()
 
@@ -731,8 +730,12 @@ class TemporalProximityGroups:
             row_index += 1 + column2_span
             thumbnail_row_index += 1
 
-            self.rows.append(self.make_row(arrowtime, col2_text, new_file, prev_day, row_index,
-                                           thumbnail_row_index, tooltip_col2_text))
+            self.rows.append(
+                self.make_row(
+                    arrowtime, col2_text, new_file, prev_day, row_index, thumbnail_row_index,
+                    tooltip_col2_text
+                )
+            )
             uids = self.uids_by_proximity[group_no]
             self.uids[(row_index, 2)] = uids
 
@@ -746,9 +749,12 @@ class TemporalProximityGroups:
                     if prev_day != day:
                         prev_day = day
                         column2_span += 1
-                        self.rows.append(self.make_row(arrowtime, '', new_file, prev_day,
-                                                       row_index + column2_span,
-                                                       thumbnail_row_index, ''))
+                        self.rows.append(
+                            self.make_row(
+                                arrowtime, '', new_file, prev_day, row_index + column2_span,
+                                thumbnail_row_index, ''
+                            )
+                        )
 
         # Phase 5: Determine the row spans for each column
         column = -1
@@ -880,7 +886,7 @@ class TemporalProximityGroups:
     def __iter__(self):
         return iter(self.rows)
 
-    def depth(self):
+    def depth(self) -> int:
         if self._depth is None:
             if len(self.year_groups) > 1 or self._previous_year:
                 self._depth = 3
@@ -908,6 +914,7 @@ def base64_thumbnail(pixmap: QPixmap, size: QSize) -> str:
     :param size: size to scale to
     :return: data in base 64 format
     """
+
     pixmap = pixmap.scaled(size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
     buffer = QBuffer()
     buffer.open(QIODevice.WriteOnly)
@@ -919,15 +926,15 @@ def base64_thumbnail(pixmap: QPixmap, size: QSize) -> str:
 class TemporalProximityModel(QAbstractTableModel):
     tooltip_image_size = QSize(90, 90)
 
-    def __init__(self, rapidApp, groups: TemporalProximityGroups = None, parent=None):
+    def __init__(self, rapidApp, groups: TemporalProximityGroups = None, parent=None) -> None:
         super().__init__(parent)
         self.rapidApp = rapidApp
         self.groups = groups
 
-    def columnCount(self, parent=QModelIndex()):
+    def columnCount(self, parent=QModelIndex()) -> int:
         return 3
 
-    def rowCount(self, parent=QModelIndex()):
+    def rowCount(self, parent=QModelIndex()) -> int:
         if self.groups:
             return len(self.groups)
         else:
@@ -1253,7 +1260,6 @@ class TemporalProximityView(QTableView):
             self.selectionModel().select(
                 model.index(r, 1), QItemSelectionModel.Select
             )
-        #FIXME
         model.dataChanged.emit(model.index(row, 1), model.index(r, 1))
 
     def _updateSelectionRowParent(self, row: int,
@@ -1391,8 +1397,12 @@ class TemporalValuePicker(QWidget):
         super().__init__(parent)
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setTickPosition(QSlider.TicksBelow)
-        self.slider.setToolTip(_("The time elapsed between consecutive photos and "
-                                 "videos that is used to build the Timeline"))
+        self.slider.setToolTip(
+            _(
+                "The time elapsed between consecutive photos and videos that is used to build the "
+                "Timeline"
+            )
+        )
         self.slider.setMaximum(len(proximity_time_steps) - 1)
         self.slider.setValue(proximity_time_steps.index(minutes))
 
@@ -1493,10 +1503,12 @@ class TemporalProximity(QWidget):
         self.temporalProximityDelegate = TemporalProximityDelegate()
         self.temporalProximityView.setItemDelegate(self.temporalProximityDelegate)
         self.temporalProximityView.selectionModel().selectionChanged.connect(
-                                                self.proximitySelectionChanged)
+            self.proximitySelectionChanged
+        )
 
-        self.temporalProximityView.setSizePolicy(QSizePolicy.Preferred,
-                                                 QSizePolicy.Expanding)
+        self.temporalProximityView.setSizePolicy(
+            QSizePolicy.Preferred, QSizePolicy.Expanding
+        )
 
         self.temporalValuePicker = TemporalValuePicker(self.prefs.get_proximity())
         self.temporalValuePicker.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
