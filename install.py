@@ -1224,7 +1224,7 @@ def main(installer: str,
             else:
                 created_bin_dir = False
             for executable in ('rapid-photo-downloader', 'analyze-pv-structure'):
-                symlink =  os.path.join(bin_dir, executable)
+                symlink = os.path.join(bin_dir, executable)
                 if not os.path.exists(symlink):
                     print('Creating symlink', symlink)
                     print("If you uninstall the application, remove this symlink yourself.")

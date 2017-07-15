@@ -61,8 +61,9 @@ from raphodo.viewutils import ThumbnailDataForProximity
 from raphodo.proximity import TemporalProximityState
 
 
-DownloadFiles = namedtuple('DownloadFiles', 'files, download_types, download_stats, '
-                                            'camera_access_needed')
+DownloadFiles = namedtuple(
+    'DownloadFiles', 'files, download_types, download_stats, camera_access_needed'
+)
 
 MarkedSummary = namedtuple('MarkedSummary', 'marked size_photos_marked size_videos_marked')
 
@@ -1026,9 +1027,12 @@ class ThumbnailListModel(QAbstractListModel):
         else:
             download_types = None
 
-        return DownloadFiles(files=files, download_types=download_types,
-                             download_stats=download_stats,
-                             camera_access_needed=camera_access_needed)
+        return DownloadFiles(
+            files=files,
+            download_types=download_types,
+            download_stats=download_stats,
+            camera_access_needed=camera_access_needed
+        )
 
     def sendToDaemonThumbnailer(self, rpd_file: RPDFile) -> bool:
         """
