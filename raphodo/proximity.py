@@ -732,8 +732,9 @@ class TemporalProximityGroups:
 
             self.rows.append(
                 self.make_row(
-                    arrowtime, col2_text, new_file, prev_day, row_index, thumbnail_row_index,
-                    tooltip_col2_text
+                    arrowtime=arrowtime, col2_text=col2_text, new_file=new_file, day=prev_day,
+                    row_index=row_index, thumbnail_row_index=thumbnail_row_index,
+                    tooltip_col2_text=tooltip_col2_text
                 )
             )
             uids = self.uids_by_proximity[group_no]
@@ -751,8 +752,9 @@ class TemporalProximityGroups:
                         column2_span += 1
                         self.rows.append(
                             self.make_row(
-                                arrowtime, '', new_file, prev_day, row_index + column2_span,
-                                thumbnail_row_index, ''
+                                arrowtime=arrowtime, col2_text='', new_file=new_file, day=prev_day,
+                                row_index=row_index + column2_span, thumbnail_row_index=
+                                thumbnail_row_index, tooltip_col2_text=''
                             )
                         )
 

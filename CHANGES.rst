@@ -12,6 +12,10 @@ Changelog for Rapid Photo Downloader
 
  - Added support for Peppermint OS to the install.py script.
 
+ - Terminate program at startup if the program's own module imports are being
+   loaded from conflicting sources, indicating more than one copy of the
+   program has been installed.
+
  - Report gphoto2 errors on the command line with the name of the error rather
    than its numeric code.
 

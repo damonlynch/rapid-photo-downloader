@@ -51,6 +51,7 @@ import shlex
 import subprocess
 from urllib.request import pathname2url
 import tarfile
+import inspect
 
 from gettext import gettext as _
 
@@ -69,7 +70,7 @@ except (ImportError, ValueError):
 import zmq
 import psutil
 import gphoto2 as gp
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtCore
 from PyQt5.QtCore import (
     QThread, Qt, QStorageInfo, QSettings, QPoint, QSize, QTimer, QTextStream, QModelIndex,
     pyqtSlot, QRect, pyqtSignal, QObject
@@ -5518,7 +5519,7 @@ class QtSingleApplication(QApplication):
     -for-pyside-or-pyqt
     """
 
-    messageReceived = QtCore.pyqtSignal(str)
+    messageReceived = pyqtSignal(str)
 
     def __init__(self, programId: str, *argv) -> None:
         super().__init__(*argv)
@@ -5953,6 +5954,21 @@ def main():
 
     if not shutil.which('exiftool'):
         critical_startup_error(_('You must install ExifTool to run Rapid Photo Downloader.'))
+        sys.exit(1)
+
+    rapid_path = os.path.abspath(os.path.dirname(inspect.getfile(inspect.currentframe())))
+    import_path = os.path.abspath(os.path.dirname(inspect.getfile(downloadtracker)))
+    if rapid_path != import_path:
+        sys.stderr.write(
+            "Rapid Photo Downloader is installed in multiple locations. Uninstall all copies "
+            "except the version you want to run.\n"
+        )
+        critical_startup_error(
+            _(
+                "Rapid Photo Downloader is installed in multiple locations.\n\nUninstall all "
+                "copies except the version you want to run."
+            )
+        )
         sys.exit(1)
 
     parser = parser_options()
