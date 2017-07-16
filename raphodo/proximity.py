@@ -873,8 +873,9 @@ class TemporalProximityGroups:
         )
 
         return ProximityRow(
-            year, month, weekday, numeric_day, col2_text, new_file, tooltip_col0, tooltip_col1,
-            tooltip_col2_text
+            year=year, month=month, weekday=weekday, day=numeric_day, proximity=col2_text,
+            new_file=new_file, tooltip_date_col0=tooltip_col0, tooltip_date_col1=tooltip_col1,
+            tooltip_date_col2=tooltip_col2_text
         )
 
     def __len__(self):
@@ -926,7 +927,7 @@ def base64_thumbnail(pixmap: QPixmap, size: QSize) -> str:
 class TemporalProximityModel(QAbstractTableModel):
     tooltip_image_size = QSize(90, 90)
 
-    def __init__(self, rapidApp, groups: TemporalProximityGroups = None, parent=None) -> None:
+    def __init__(self, rapidApp, groups: TemporalProximityGroups=None, parent=None) -> None:
         super().__init__(parent)
         self.rapidApp = rapidApp
         self.groups = groups
@@ -960,6 +961,7 @@ class TemporalProximityModel(QAbstractTableModel):
                 return proximity_row.weekday, proximity_row.day
             else:
                 return proximity_row.proximity, proximity_row.new_file
+
         elif role == Qt.ToolTipRole:
             thumbnails = self.rapidApp.thumbnailModel.thumbnails
 
@@ -1012,7 +1014,14 @@ class TemporalProximityDelegate(QStyledItemDelegate):
     Render table cell for Timeline.
 
     All cell size calculations are done prior to rendering.
+
+    The table has 3 columns:
+
+     - Col 0: month & year (col will be hidden if all dates are in the current month)
+     - Col 1: day e.g. 'Fri 16'
+     - Col 2: time(s), e.g. '5:09 AM', or '4:09 - 5:27 PM'
     """
+
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
