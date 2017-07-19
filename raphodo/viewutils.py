@@ -22,10 +22,12 @@ __copyright__ = "Copyright 2015-2017, Damon Lynch"
 from typing import List, Dict
 from collections import namedtuple
 
-from PyQt5.QtWidgets import (QStyleOptionFrame, QStyle, QStylePainter, QWidget, QLabel,
-                             QListWidget)
-from PyQt5.QtGui import QFontMetrics, QFont
-from PyQt5.QtCore import (QSize, Qt)
+from PyQt5.QtWidgets import (
+    QStyleOptionFrame, QStyle, QStylePainter, QWidget, QLabel, QListWidget, QProxyStyle,
+    QStyleOption
+)
+from PyQt5.QtGui import QFontMetrics, QFont, QPainter
+from PyQt5.QtCore import QSize, Qt
 
 
 class RowTracker:
@@ -139,8 +141,9 @@ class RowTracker:
         return ids_to_remove
 
 
-ThumbnailDataForProximity = namedtuple('ThumbnailDataForProximity', 'uid, ctime, file_type, '
-                                                               'previously_downloaded')
+ThumbnailDataForProximity = namedtuple(
+    'ThumbnailDataForProximity', 'uid, ctime, file_type, previously_downloaded'
+)
 
 
 class QFramedWidget(QWidget):
@@ -173,6 +176,21 @@ class QFramedLabel(QLabel):
         super().paintEvent(*opts)
 
 
+class ProxyStyleNoFocusRectangle(QProxyStyle):
+    """
+    Remove the focus rectangle from a widget
+    """
+
+    def drawPrimitive(self, element: QStyle.PrimitiveElement,
+                      option: QStyleOption, painter: QPainter,
+                      widget: QWidget) -> None:
+
+        if QStyle.PE_FrameFocusRect == element:
+            pass
+        else:
+            super().drawPrimitive(element, option, painter, widget)
+
+
 class QNarrowListWidget(QListWidget):
     """
     Create a list widget that is not by default enormously wide.
@@ -180,11 +198,16 @@ class QNarrowListWidget(QListWidget):
     See http://stackoverflow.com/questions/6337589/qlistwidget-adjust-size-to-content
     """
 
-    def __init__(self, minimum_rows: int=0, minimum_width: int=0, parent=None) -> None:
+    def __init__(self, minimum_rows: int=0,
+                 minimum_width: int=0,
+                 no_focus_recentangle: bool=False,
+                 parent=None) -> None:
         super().__init__(parent=parent)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self._minimum_rows = minimum_rows
         self._minimum_width = minimum_width
+        if no_focus_recentangle:
+            self.setStyle(ProxyStyleNoFocusRectangle())
 
     @property
     def minimum_width(self) -> int:

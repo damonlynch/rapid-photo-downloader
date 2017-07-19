@@ -265,7 +265,16 @@ class FileTypeCounter(Counter):
     ('1 photo', 'photo')
     >>> f.file_types_present_details()
     '1 Photo'
-    >>> f[FileType.video] += 3
+    >>> f.file_types_present_details(singular_natural=True)
+    'a photo'
+    >>> f[FileType.photo] = 0
+    >>> f[FileType.video] = 1
+    >>> f.file_types_present_details(singular_natural=True)
+    'a video'
+    >>> f[FileType.photo] += 1
+    >>> f.file_types_present_details(singular_natural=True)
+    'a photo and a video'
+    >>> f[FileType.video] += 2
     >>> f
     FileTypeCounter({<FileType.video: 2>: 3, <FileType.photo: 1>: 1})
     >>> f.file_types_present_details()
@@ -308,19 +317,35 @@ class FileTypeCounter(Counter):
                                'filetypes': file_types_present}
         return (file_count_summary, file_types_present)
 
-    def file_types_present_details(self, title_case=True) -> str:
+    def file_types_present_details(self, title_case=True, singular_natural=False) -> str:
+        """
+
+        :param title_case:
+        :param singular_natural: if True, instead of '1 photo', return 'A photo'. If True,
+         title_case parameter is treated as always False.
+        :return:
+        """
+
         p = self[FileType.photo]
         v = self[FileType.video]
 
         if v > 1:
             videos =  _('%(no_videos)s Videos') % dict(no_videos=thousands(v))
         elif v == 1:
-            videos =  _('1 Video')
+            if singular_natural:
+                # translators: natural language expression signifying a single video
+                videos = _('a video')
+            else:
+                videos =  _('1 Video')
 
         if p > 1:
             photos = _('%(no_photos)s Photos') % dict(no_photos=thousands(p))
         elif p == 1:
-            photos = _('1 Photo')
+            if singular_natural:
+                # translators: natural language expression signifying a single photo
+                photos = _('a photo')
+            else:
+                photos = _('1 Photo')
 
         if (p > 0) and (v > 0):
             s = make_internationalized_list([photos, videos])
@@ -331,7 +356,7 @@ class FileTypeCounter(Counter):
         else:
             s = photos
 
-        if title_case:
+        if title_case or singular_natural:
             return s
         else:
             return s.lower()

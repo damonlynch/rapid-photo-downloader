@@ -158,8 +158,12 @@ class MetaData(GExiv2.Metadata):
         Returns missing if the metadata value is not present.
         """
         try:
-            return self.get_tag_interpreted_string("Exif.Photo.ISOSpeedRatings")
-        except:
+            v = self.get_tag_interpreted_string("Exif.Photo.ISOSpeedRatings")
+            if v:
+                return v
+            else:
+                return missing
+        except Exception:
             return missing
 
     def exposure_time(self, alternativeFormat=False, missing=''):
@@ -234,7 +238,7 @@ class MetaData(GExiv2.Metadata):
         """
         try:
             return self.get_tag_string("Exif.Image.Make").strip()
-        except:
+        except Exception:
             return missing
 
     def camera_model(self, missing=''):
@@ -245,7 +249,7 @@ class MetaData(GExiv2.Metadata):
         """
         try:
             return self.get_tag_string("Exif.Image.Model").strip()
-        except:
+        except Exception:
             return missing
 
     def _fetch_vendor(self, vendor_codes, missing=''):

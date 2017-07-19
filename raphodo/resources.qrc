@@ -20,7 +20,6 @@
 <file alias="icons/folder-filled.svg">../images/folder-symbolic-filled.svg</file>
 <file alias="icons/smartphone.svg">../images/phone-smartphone-symbolic.svg</file>
 <file alias="icons/media-eject.svg">../images/media-eject.svg</file>
-<file alias="icons/sdcard.svg">../images/sdcard-symbolic.svg</file>
 <file alias="icons/drive-removable-media.svg">../images/drive-removable-media-symbolic.svg</file>
 <file alias="icons/drive-harddisk.svg">../images/drive-harddisk-symbolic.svg</file>
 <file alias="icons/image-x-generic.svg">../images/image-x-generic-symbolic.svg</file>
@@ -57,6 +56,15 @@
 <file alias="tips/backup.png">../tips/backup.png</file>
 <file alias="tips/photoeditordefault.png">../tips/photoeditordefault.png</file>
 <file alias="tips/customdate.png">../tips/customdate.png</file>
-
+<file alias="tips/errorreport.png">../tips/errorreport.png</file>
+<file alias="tips/errorreporticon.png">../tips/errorreporticon.png</file>
+<file alias="tips/downloaded.png">../tips/downloaded.png</file>
+<file alias="prefs/devices.svg">../images/preferences/devices.svg</file>
+<file alias="prefs/automation.svg">../images/preferences/automation.svg</file>
+<file alias="prefs/consolidation.svg">../images/preferences/consolidation.svg</file>
+<file alias="prefs/error-handling.svg">../images/preferences/error-handling.svg</file>
+<file alias="prefs/miscellaneous.svg">../images/preferences/miscellaneous.svg</file>
+<file alias="prefs/thumbnails.svg">../images/preferences/thumbnails.svg</file>
+<file alias="prefs/warnings.svg">../images/preferences/warnings.svg</file>
 </qresource>
 </RCC>

@@ -414,6 +414,10 @@ class ThumbnailRowsSQL:
             row = self.conn.execute('SELECT uid FROM files WHERE downloaded=0 LIMIT 1').fetchone()
         return row is not None
 
+    def any_files_download_completed(self) -> bool:
+        row = self.conn.execute('SELECT uid FROM files WHERE downloaded=1 LIMIT 1').fetchone()
+        return row is not None
+
     def any_files(self, scan_id: Optional[int]=None) -> bool:
         """
         Determine if there are any files associated with this scan_id, of if no scan_id

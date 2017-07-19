@@ -110,7 +110,7 @@ from raphodo.constants import (
     Desktop, BackupFailureType, DeviceState, Sort, Show, DestinationDisplayType,
     DisplayingFilesOfType, DownloadingFileTypes, RememberThisMessage, RightSideButton,
     CheckNewVersionDialogState, CheckNewVersionDialogResult, RememberThisButtons,
-    BackupStatus
+    BackupStatus, CompletedDownloads
 )
 from raphodo.thumbnaildisplay import (
     ThumbnailView, ThumbnailListModel, ThumbnailDelegate, DownloadStats, MarkedSummary
@@ -2776,11 +2776,13 @@ class RapidWindow(QMainWindow):
                 if self.prefs.warn_downloading_all and \
                         self.thumbnailModel.anyCheckedFilesFiltered():
                     message = _(
-                        """<b>Downloading all files</b><br><br>
-                        A download always includes all files that are checked for download,
-                        including those that are not currently displayed because the Timeline
-                        is being used or because only new files are being shown.<br><br>
-                        Do you want to proceed with the download?"""
+                        """
+<b>Downloading all files</b><br><br>
+A download always includes all files that are checked for download,
+including those that are not currently displayed because the Timeline
+is being used or because only new files are being shown.<br><br>
+Do you want to proceed with the download?
+                        """
                     )
 
                     warning = RememberThisDialog(
@@ -4816,6 +4818,51 @@ class RapidWindow(QMainWindow):
         self.updateProgressBarState()
         self.displayMessageInStatusBar()
 
+        if not on_startup and self.thumbnailModel.anyCompletedDownloads():
+
+            if self.prefs.completed_downloads == int(CompletedDownloads.prompt):
+                logging.info("Querying whether to clear completed downloads")
+                counter = self.thumbnailModel.getFileDownloadsCompleted()
+
+                numbers = counter.file_types_present_details(singular_natural=True).capitalize()
+                plural = sum(counter.values()) > 1
+                if plural:
+                    title = _('Completed Downloads Present')
+                    body = _(
+                        '%s whose download has completed are displayed.'
+                    ) % numbers
+                    question = _('Do you want to clear the completed downloads?')
+                else:
+                    title = _('Completed Download Present')
+                    body = _(
+                        '%s whose download has completed is displayed.'
+                    ) % numbers
+                    question = _('Do you want to clear the completed download?')
+                message = "<b>{}</b><br><br>{}<br><br>{}".format(title, body, question)
+
+                questionDialog = RememberThisDialog(
+                    message=message,
+                    icon=':/rapid-photo-downloader.svg',
+                    remember=RememberThisMessage.do_not_ask_again,
+                    parent=self
+                )
+
+                clear = questionDialog.exec_()
+                if clear:
+                    self.thumbnailModel.clearCompletedDownloads()
+
+                if questionDialog.remember:
+                    if clear:
+                        self.prefs.completed_downloads = int(CompletedDownloads.clear)
+                    else:
+                        self.prefs.completed_downloads = int(CompletedDownloads.keep)
+
+            elif self.prefs.completed_downloads == int(CompletedDownloads.clear):
+                logging.info("Clearing completed downloads")
+                self.thumbnailModel.clearCompletedDownloads()
+            else:
+                logging.info("Keeping completed downloads")
+
     def partitionValid(self, mount: QStorageInfo) -> bool:
         """
         A valid partition is one that is:
@@ -5956,8 +6003,8 @@ def main():
         critical_startup_error(_('You must install ExifTool to run Rapid Photo Downloader.'))
         sys.exit(1)
 
-    rapid_path = os.path.abspath(os.path.dirname(inspect.getfile(inspect.currentframe())))
-    import_path = os.path.abspath(os.path.dirname(inspect.getfile(downloadtracker)))
+    rapid_path = os.path.realpath(os.path.dirname(inspect.getfile(inspect.currentframe())))
+    import_path = os.path.realpath(os.path.dirname(inspect.getfile(downloadtracker)))
     if rapid_path != import_path:
         sys.stderr.write(
             "Rapid Photo Downloader is installed in multiple locations. Uninstall all copies "
@@ -5969,6 +6016,7 @@ def main():
                 "copies except the version you want to run."
             )
         )
+
         sys.exit(1)
 
     parser = parser_options()

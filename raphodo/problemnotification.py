@@ -47,6 +47,7 @@ import logging
 
 from raphodo.utilities import make_internationalized_list
 from raphodo.constants import ErrorType
+from raphodo.camera import gphoto2_named_error
 
 
 def make_href(name: str, uri: str) -> str:
@@ -113,7 +114,7 @@ class CameraGpProblem(SeriousProblem):
     @property
     def details(self) -> List[str]:
         try:
-            return [escape(_("GPhoto2 Error: %s")) % self.gp_code]
+            return [escape(_("GPhoto2 Error: %s")) % escape(gphoto2_named_error(self.gp_code))]
         except AttributeError:
             return []
 

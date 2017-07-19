@@ -43,8 +43,9 @@ from raphodo.storage import get_uri
 from raphodo.generatenameconfig import *
 
 
-MatchedSequences = namedtuple('MatchedSequences',
-                   'session_sequence_no, sequence_letter, downloads_today, stored_sequence_no')
+MatchedSequences = namedtuple(
+    'MatchedSequences', 'session_sequence_no, sequence_letter, downloads_today, stored_sequence_no'
+)
 
 
 def convert_date_for_strftime(datetime_user_choice):
@@ -116,7 +117,7 @@ class NameGeneration:
         for i in range(0, len(self.pref_list), 3):
             yield (self.pref_list[i], self.pref_list[i + 1], self.pref_list[i + 2])
 
-    def _get_date_component(self):
+    def _get_date_component(self) -> str:
         """
         Returns portion of new file / subfolder name based on date time.
         If the date is missing, will attempt to use the fallback date.
@@ -161,8 +162,9 @@ class NameGeneration:
             try:
                 return d.strftime(convert_date_for_strftime(self.L2))
             except Exception as e:
-                logging.warning("Problem converting date/time value for file %s",
-                    self.rpd_file.full_file_name)
+                logging.warning(
+                    "Problem converting date/time value for file %s", self.rpd_file.full_file_name
+                )
                 self.problem.bad_converstion_date_time = True
                 self.problem.bad_conversion_exception = e
 
@@ -172,8 +174,9 @@ class NameGeneration:
                 d = datetime.fromtimestamp(self.rpd_file.modification_time)
             except Exception:
                 logging.error(
-                    "Both file modification time and metadata date & time "
-                    "are invalid for file %s", self.rpd_file.full_file_name)
+                    "Both file modification time and metadata date & time are invalid for file %s",
+                    self.rpd_file.full_file_name
+                )
                 self.problem.invalid_date_time = True
                 return ''
         else:
@@ -184,8 +187,9 @@ class NameGeneration:
             return d.strftime(convert_date_for_strftime(self.L2))
         except:
             logging.error(
-                "Both file modification time and metadata date & time are "
-                "invalid for file %s", self.rpd_file.full_file_name)
+                "Both file modification time and metadata date & time are invalid for file %s",
+                self.rpd_file.full_file_name
+            )
             self.problem.invalid_date_time = True
             return ''
 
@@ -333,9 +337,8 @@ class NameGeneration:
             v = self.rpd_file.metadata.copyright()
         else:
             raise TypeError("Invalid metadata option specified")
-        if self.L1 in (CAMERA_MAKE, CAMERA_MODEL, SHORT_CAMERA_MODEL,
-                       SHORT_CAMERA_MODEL_HYPHEN, OWNER_NAME, ARTIST,
-                       COPYRIGHT):
+        if self.L1 in (CAMERA_MAKE, CAMERA_MODEL, SHORT_CAMERA_MODEL, SHORT_CAMERA_MODEL_HYPHEN,
+                        OWNER_NAME, ARTIST, COPYRIGHT):
             if self.L2 == UPPERCASE:
                 v = v.upper()
             elif self.L2 == LOWERCASE:
@@ -374,19 +377,23 @@ class NameGeneration:
 
     def _get_downloads_today(self):
         return self._format_sequence_no(
-            self.rpd_file.sequences.get_downloads_today(), self.L2)
+            self.rpd_file.sequences.get_downloads_today(), self.L2
+        )
 
     def _get_session_sequence_no(self):
         return self._format_sequence_no(
-            self.rpd_file.sequences.get_session_sequence_no(), self.L2)
+            self.rpd_file.sequences.get_session_sequence_no(), self.L2
+        )
 
     def _get_stored_sequence_no(self):
         return self._format_sequence_no(
-            self.rpd_file.sequences.get_stored_sequence_no(), self.L2)
+            self.rpd_file.sequences.get_stored_sequence_no(), self.L2
+        )
 
     def _get_sequence_letter(self):
         return self._calculate_letter_sequence(
-            self.rpd_file.sequences.get_sequence_letter())
+            self.rpd_file.sequences.get_sequence_letter()
+        )
 
     def _get_sequences_component(self):
         if self.L1 == DOWNLOAD_SEQ_NUMBER:

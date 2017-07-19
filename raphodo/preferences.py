@@ -302,7 +302,14 @@ class Preferences:
         job_code_sort_key=0,
         job_code_sort_order=0,
         did_you_know_on_startup=True,
-        did_you_know_index=0
+        did_you_know_index=0,
+        # see constants.CompletedDownloads:
+        completed_downloads=3,
+        consolidate_identical=True,
+        # see constants.TreatRawJpeg:
+        treat_raw_jpeg=2,
+        # see constants.MarkRawJpeg:
+        mark_raw_jpeg=3,
     )
     device_defaults = dict(
         only_external_mounts=True,

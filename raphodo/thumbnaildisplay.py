@@ -46,13 +46,13 @@ from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics
                          QGuiApplication, QPen, QMouseEvent, QFont)
 
 from raphodo.rpdfile import RPDFile, FileTypeCounter, ALL_USER_VISIBLE_EXTENSIONS, MUST_CACHE_VIDEOS
-from raphodo.interprocess import (PublishPullPipelineManager, GenerateThumbnailsArguments, Device,
-                          GenerateThumbnailsResults)
-from raphodo.constants import (DownloadStatus, Downloaded, FileType, DownloadingFileTypes,
-                               ThumbnailSize, ThumbnailCacheStatus, Roles, DeviceType, CustomColors,
-                               Show, Sort, ThumbnailBackgroundName, Desktop, DeviceState,
-                               extensionColor, FadeSteps, FadeMilliseconds, PaleGray, DarkGray,
-                               DoubleDarkGray)
+from raphodo.interprocess import GenerateThumbnailsArguments, Device, GenerateThumbnailsResults
+from raphodo.constants import (
+    DownloadStatus, Downloaded, FileType, DownloadingFileTypes, ThumbnailSize,
+    ThumbnailCacheStatus, Roles, DeviceType, CustomColors, Show, Sort, ThumbnailBackgroundName,
+    Desktop, DeviceState, extensionColor, FadeSteps, FadeMilliseconds, PaleGray, DarkGray,
+    DoubleDarkGray
+)
 from raphodo.storage import get_program_cache_directory, get_desktop, validate_download_folder
 from raphodo.utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
 from raphodo.thumbnailer import Thumbnailer
@@ -1488,6 +1488,26 @@ class ThumbnailListModel(QAbstractListModel):
         """
 
         return self.tsql.get_count(marked=True) != self.getDisplayedCount(marked=True)
+
+    def getFileDownloadsCompleted(self) -> FileTypeCounter:
+        """
+        :return: counter for how many photos and videos have their downloads completed
+         whether successfully or not
+        """
+
+        return FileTypeCounter(
+            {
+                FileType.photo: self.tsql.get_count(downloaded=True, file_type=FileType.photo),
+                FileType.video: self.tsql.get_count(downloaded=True, file_type=FileType.video)
+            }
+        )
+
+    def anyCompletedDownloads(self) -> bool:
+        """
+        :return: True if any files have been downloaded (including failures)
+        """
+
+        return self.tsql.any_files_download_completed()
 
     def jobCodeNeeded(self) -> bool:
         """

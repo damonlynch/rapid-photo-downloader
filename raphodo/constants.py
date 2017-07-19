@@ -590,3 +590,20 @@ class RememberThisMessage(Enum):
 class RememberThisButtons(Enum):
     yes_no = 1
     ok = 2
+
+
+class CompletedDownloads(IntEnum):
+    keep = 1
+    clear = 2
+    prompt = 3
+
+
+class TreatRawJpeg(IntEnum):
+    one_photo = 1
+    two_photos = 2
+
+
+class MarkRawJpeg(IntEnum):
+    no_jpeg = 1
+    no_raw = 2
+    both = 3

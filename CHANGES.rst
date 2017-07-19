@@ -4,6 +4,13 @@ Changelog for Rapid Photo Downloader
 0.9.2 (2017-07-xx)
 ------------------
 
+ - When a download device is inserted and downloaded files are already in the
+   main window, the program will now ask if the completed downloads should be
+   cleared. A new, associated program preference controls if the program
+   should query and what action to take.
+
+ - Improved appearance of preferences window.
+
  - Added uninstall and uninstall including dependencies options to the
    install.py script.
 
@@ -16,8 +23,8 @@ Changelog for Rapid Photo Downloader
    loaded from conflicting sources, indicating more than one copy of the
    program has been installed.
 
- - Report gphoto2 errors on the command line with the name of the error rather
-   than its numeric code.
+ - Report gphoto2 errors on the command line and Error Reports window with
+   the name of the error rather than its numeric code.
 
  - Catch permission errors more effectively in copy, rename, and backup
    processes.

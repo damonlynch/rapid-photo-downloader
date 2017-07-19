@@ -71,6 +71,34 @@ tips = (
     ),
     (
         _(
+            "After a download finishes, an icon replaces the thumbnail's checkbox. The icon's "
+            "color indicates whether the download was successful (green), had file renaming "
+            "problems (yellow/orange), or failed (red)."
+        ),
+        'downloaded.png'
+    ),
+    (
+        _(
+            """
+            In case of any problems, a red icon will appear at the bottom of the window
+            indicating how many error reports there are. Clicking on it opens the Error Report 
+            window.
+            """
+        ),
+        'errorreporticon.png',
+        _(
+            """
+            The Error Report window lists any problems encountered before, during or after the 
+            download. An orange triangle represents a warning, a red circle indicates a failure, 
+            and a black circle indicates more serious failures. You can click on the hyperlinks to 
+            open its file or device in a file manager. You can also search the reports using the 
+            search box in the lower left of the Error Report window.
+            """
+        ),
+        'errorreport.png',
+    ),
+    (
+        _(
             "You can simultaneously download from multiple cameras, smartphones, memory cards, "
             "and hard drives&mdash;as many devices as your computer can handle at one time."
         ),
