@@ -4829,7 +4829,7 @@ Do you want to proceed with the download?
                 if plural:
                     title = _('Completed Downloads Present')
                     body = _(
-                        '%s whose download has completed are displayed.'
+                        '%s whose download have completed are displayed.'
                     ) % numbers
                     question = _('Do you want to clear the completed downloads?')
                 else:
