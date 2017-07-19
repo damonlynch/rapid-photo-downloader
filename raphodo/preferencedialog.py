@@ -60,8 +60,8 @@ class ClickableLabel(QLabel):
         self.clicked.emit()
 
 
-# consolidation_implemented = False
-consolidation_implemented = True
+consolidation_implemented = False
+# consolidation_implemented = True
 
 
 
