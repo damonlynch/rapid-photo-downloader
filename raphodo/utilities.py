@@ -41,7 +41,6 @@ import ctypes
 import signal
 import pkg_resources
 
-
 import arrow
 import psutil
 

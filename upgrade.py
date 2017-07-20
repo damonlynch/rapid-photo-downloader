@@ -41,12 +41,39 @@ from gettext import gettext as _
 
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot,  Qt, QThread, QObject, QTimer)
 from PyQt5.QtGui import QIcon, QFontMetrics, QFont, QFontDatabase
-from PyQt5.QtWidgets import (QApplication, QDialog, QPushButton, QVBoxLayout, QTextEdit,
-                             QDialogButtonBox, QStackedWidget, QLabel)
+from PyQt5.QtWidgets import (
+    QApplication, QDialog, QVBoxLayout, QTextEdit, QDialogButtonBox, QStackedWidget, QLabel
+)
 from PyQt5.QtNetwork import QLocalSocket
+from xdg import BaseDirectory
+import gettext
 
 import raphodo.qrc_resources as qrc_resources
 
+i18n_domain = 'rapid-photo-downloader'
+
+def locale_directory():
+    """
+    Locate locale directory. Prioritizes whatever is newer, comparing the locale
+    directory at xdg_data_home and the one in /usr/share/
+
+    :return: the locale directory with the most recent messages for Rapid Photo
+    Downloader, if found, else None.
+    """
+
+    mo_file = '{}.mo'.format(i18n_domain)
+    # Test the Spanish file
+    sample_lang_path = os.path.join('es', 'LC_MESSAGES', mo_file)
+    locale_mtime = 0.0
+    locale_dir = None
+
+    for path in (BaseDirectory.xdg_data_home, '/usr/share'):
+        locale_path = os.path.join(path, 'locale')
+        sample_path = os.path.join(locale_path, sample_lang_path)
+        if os.path.isfile(sample_path) and os.access(sample_path, os.R_OK):
+            if os.path.getmtime(sample_path) > locale_mtime:
+                locale_dir = locale_path
+    return locale_dir
 
 q = Queue()
 
@@ -243,17 +270,20 @@ class UpgradeDialog(QDialog):
         # self.startButton.setDefault(True)
 
         if self.version_no:
-            self.explanation = QLabel(_('Click the Upgrade button to upgrade to '
-                                        'version %s.') % self.version_no)
+            self.explanation = QLabel(
+                _('Click the Upgrade button to upgrade to version %s.') % self.version_no
+            )
         else:
             self.explanation = QLabel(_('Click the Upgrade button to start the upgrade.'))
 
         finishButtonBox = QDialogButtonBox(QDialogButtonBox.Close)
+        finishButtonBox.button(QDialogButtonBox.Close).setText(_('&Close'))
         finishButtonBox.addButton(_('&Run'), QDialogButtonBox.AcceptRole)
         finishButtonBox.rejected.connect(self.reject)
         finishButtonBox.accepted.connect(self.runNewVersion)
 
         failedButtonBox = QDialogButtonBox(QDialogButtonBox.Close)
+        failedButtonBox.button(QDialogButtonBox.Close).setText(_('&Close'))
         failedButtonBox.rejected.connect(self.reject)
 
         self.stackedButtons = QStackedWidget()
@@ -316,11 +346,15 @@ class UpgradeDialog(QDialog):
 
         if success:
             if self.version_no:
-                message = _('Successfully upgraded to %s. Click Close to exit, or Run to '
-                            'start the program.' % self.version_no)
+                message = _(
+                    'Successfully upgraded to %s. Click Close to exit, or Run to '
+                    'start the program.' % self.version_no
+                )
             else:
-                message = _('Upgrade finished successfully. Click Close to exit, or Run to '
-                            'start the program.')
+                message = _(
+                    'Upgrade finished successfully. Click Close to exit, or Run to '
+                    'start the program.'
+                )
         else:
             message = _('Upgrade failed. Click Close to exit.')
 
@@ -340,7 +374,7 @@ class UpgradeDialog(QDialog):
     @pyqtSlot()
     def reject(self) -> None:
         if self.running:
-            # strangely, using zmq in this program causes a segfault :-/
+            # strangely, using zmq in this script causes a segfault :-/
             q.put('STOP')
         super().reject()
 
@@ -352,6 +386,9 @@ class UpgradeDialog(QDialog):
 
 
 if __name__ == '__main__':
+    gettext.bindtextdomain(i18n_domain, localedir=locale_directory())
+    gettext.textdomain(i18n_domain)
+
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(':/rapid-photo-downloader.svg'))
     widget = UpgradeDialog(sys.argv[1])

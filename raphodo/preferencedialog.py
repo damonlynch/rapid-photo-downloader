@@ -41,7 +41,7 @@ from PyQt5.QtGui import (
 
 from raphodo.preferences import Preferences
 from raphodo.constants import (KnownDeviceType, CompletedDownloads, TreatRawJpeg, MarkRawJpeg)
-from raphodo.viewutils import QNarrowListWidget
+from raphodo.viewutils import QNarrowListWidget, translateButtons
 from raphodo.utilities import available_cpu_count, format_size_for_user, thousands
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.constants import ConflictResolution
@@ -754,6 +754,7 @@ class PreferencesDialog(QDialog):
         buttons = QDialogButtonBox(
             QDialogButtonBox.RestoreDefaults | QDialogButtonBox.Close | QDialogButtonBox.Help
         )
+        translateButtons(buttons)
         self.restoreButton = buttons.button(QDialogButtonBox.RestoreDefaults)  # type: QPushButton
         self.restoreButton.clicked.connect(self.restoreDefaultsClicked)
         self.helpButton = buttons.button(QDialogButtonBox.Help)  # type: QPushButton
@@ -1397,6 +1398,7 @@ class PreferenceAddDialog(QDialog):
         formLayout.addRow(label, self.valueEdit)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
+        translateButtons(buttons)
         buttons.rejected.connect(self.reject)
         buttons.accepted.connect(self.accept)
 

@@ -40,7 +40,7 @@ from PyQt5.QtGui import (
 
 
 from raphodo.constants import (JobCodeSort, ThumbnailBackgroundName, )
-from raphodo.viewutils import QFramedWidget, QNarrowListWidget, standardIconSize
+from raphodo.viewutils import QFramedWidget, QNarrowListWidget, standardIconSize, translateButtons
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
 from raphodo.messagewidget import MessageWidget, MessageButton
@@ -135,8 +135,9 @@ class JobCodeDialog(QDialog):
         jobCodeLabel.setBuddy(self.jobCodeComboBox)
         self.rememberCheckBox = QCheckBox(_("&Remember this choice"))
         self.rememberCheckBox.setChecked(parent.prefs.remember_job_code)
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok|
-                                     QDialogButtonBox.Cancel)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
+        translateButtons(buttonBox)
+
         grid = QGridLayout()
         grid.addWidget(iconLabel, 0, 0, 4, 1)
         grid.addWidget(instructionLabel, 0, 1, 1, 2)

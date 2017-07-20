@@ -32,25 +32,30 @@ import logging
 
 from gettext import gettext as _
 
-from PyQt5.QtWidgets import (QTextEdit, QApplication, QComboBox, QPushButton, QLabel, QDialog,
-    QDialogButtonBox, QVBoxLayout, QFormLayout,  QGridLayout, QGroupBox, QScrollArea, QWidget,
-                             QFrame, QStyle, QSizePolicy, QLineEdit, QMessageBox)
-from PyQt5.QtGui import (QTextCharFormat, QFont, QTextCursor, QMouseEvent, QSyntaxHighlighter,
-                         QTextDocument, QBrush, QColor, QFontMetrics, QKeyEvent, QResizeEvent,
-                         QStandardItem, QPixmap, QWheelEvent)
+from PyQt5.QtWidgets import (
+    QTextEdit, QApplication, QComboBox, QPushButton, QLabel, QDialog, QDialogButtonBox,
+    QVBoxLayout, QFormLayout, QGridLayout, QGroupBox, QScrollArea, QWidget, QFrame, QStyle,
+    QSizePolicy, QLineEdit, QMessageBox
+)
+from PyQt5.QtGui import (
+    QTextCharFormat, QFont, QTextCursor, QMouseEvent, QSyntaxHighlighter, QTextDocument, QBrush,
+    QColor, QFontMetrics, QKeyEvent, QResizeEvent, QStandardItem, QWheelEvent
+)
 from PyQt5.QtCore import (Qt, pyqtSlot, QSignalMapper, QSize, pyqtSignal)
 
 from sortedcontainers import SortedList
 
 from raphodo.generatenameconfig import *
 import raphodo.generatename as gn
-from raphodo.constants import (CustomColors, PrefPosition, NameGenerationType, PresetPrefType,
-                               PresetClass)
+from raphodo.constants import (
+    CustomColors, PrefPosition, NameGenerationType, PresetPrefType, PresetClass
+)
 from raphodo.rpdfile import SamplePhoto, SampleVideo, RPDFile, Photo, Video, FileType
 from raphodo.preferences import DownloadsTodayTracker, Preferences, match_pref_list
 import raphodo.exiftool as exiftool
 from raphodo.utilities import remove_last_char_from_list_str
 from raphodo.messagewidget import MessageWidget
+from raphodo.viewutils import translateButtons
 import raphodo.qrc_resources
 
 
@@ -678,6 +683,7 @@ class CreatePreset(QDialog):
         buttonBox.addButton(QDialogButtonBox.Cancel)  # type: QPushButton
         self.saveButton = buttonBox.addButton(QDialogButtonBox.Save)  # type: QPushButton
         self.saveButton.setEnabled(False)
+        translateButtons(buttonBox)
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
 
@@ -836,8 +842,9 @@ class PrefDialog(QDialog):
             '<b><font color="red">Warning:</font></b> <i>There is insufficient data to fully '
             'generate the name. Please use other renaming options.</i>')
 
-        self.is_subfolder = generation_type in (NameGenerationType.photo_subfolder,
-                                                NameGenerationType.video_subfolder)
+        self.is_subfolder = generation_type in (
+            NameGenerationType.photo_subfolder, NameGenerationType.video_subfolder
+        )
 
         if self.is_subfolder:
             # Translators: please do not modify, change the order of or leave out html formatting
@@ -1003,6 +1010,8 @@ class PrefDialog(QDialog):
         self.helpButton = buttonBox.button(QDialogButtonBox.Help)  # type: QPushButton
         self.helpButton.clicked.connect(self.helpButtonClicked)
         self.helpButton.setToolTip(_('Get help online...'))
+        translateButtons(buttonBox)
+
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
 

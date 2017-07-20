@@ -41,14 +41,18 @@ import requests
 
 import arrow
 from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, Qt)
-from PyQt5.QtWidgets import (QDialog, QLabel, QStackedWidget, QDialogButtonBox, QGridLayout,
-                             QPushButton, QProgressBar)
+from PyQt5.QtWidgets import (
+    QDialog, QLabel, QStackedWidget, QDialogButtonBox, QGridLayout, QPushButton, QProgressBar
+)
 import zmq
 
-from raphodo.constants import (remote_versions_file, CheckNewVersionDialogState,
-                               CheckNewVersionDialogResult, standardProgressBarWidth)
+from raphodo.constants import (
+    remote_versions_file, CheckNewVersionDialogState, CheckNewVersionDialogResult,
+    standardProgressBarWidth
+)
 from raphodo.utilities import (create_temp_dir, format_size_for_user)
 from raphodo.interprocess import ThreadNames
+from raphodo.viewutils import translateButtons
 
 version_details = namedtuple('version_details', 'version release_date url md5 changelog_url')
 
@@ -157,8 +161,9 @@ class NewVersion(QObject):
             try:
                 self.installed_via_pip = self.installedUsingPip()
             except Exception:
-                logging.warning("Exception encountered when checking if pip was used to "
-                                "install")
+                logging.warning(
+                    "Exception encountered when checking if pip was used to install"
+                )
                 self.installed_via_pip = False
 
         self.checkMade.emit(success, stable_version, dev_version, download_page, no_upgrade,
@@ -206,8 +211,9 @@ class NewVersion(QObject):
             logging.exception("Could not open tarfile %s for hash reverification", downloaded_tar)
             self.reverified.emit(False, '')
         except Exception:
-            logging.exception("Unknown exception when doing hash reverification of tarfile %s",
-                          downloaded_tar)
+            logging.exception(
+                "Unknown exception when doing hash reverification of tarfile %s", downloaded_tar
+            )
             self.reverified.emit(False, '')
 
     def checkForCmd(self) -> Optional[bytes]:
@@ -332,9 +338,11 @@ class NewVersionCheckDialog(QDialog):
         self.messages.addWidget(self.failedToCheck)
 
         cancelBox = QDialogButtonBox(QDialogButtonBox.Cancel)
+        translateButtons(cancelBox)
         cancelBox.rejected.connect(self.reject)
 
         self.downloadItBox = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.No)
+        translateButtons(self.downloadItBox)
         # Translators: this text appears in a button - the & sets the s key in combination with
         # the alt key to act as the keyboard shortcut
         self.dlItSkipButton = QPushButton(_('&Skip this release'))
@@ -345,9 +353,11 @@ class NewVersionCheckDialog(QDialog):
         self.downloadItBox.clicked.connect(self.downloadItClicked)
 
         closeBox = QDialogButtonBox(QDialogButtonBox.Close)
+        translateButtons(closeBox)
         closeBox.rejected.connect(self.reject)
 
         openDownloadPageBox = QDialogButtonBox(QDialogButtonBox.Close)
+        translateButtons(openDownloadPageBox)
         # Translators: this text appears in a button - the & sets the s key in combination with
         # the alt key to act as the keyboard shortcut
         self.openDlPageSkipButton = QPushButton(_('&Skip this release'))
@@ -476,8 +486,9 @@ class DownloadNewVersionDialog(QDialog):
 
         # Translators: shows how much of a file has been downloaded e.g  123 KB of 1.3 MB
         self.text = _('%(downloaded)s of %(total)s')
-        self.message = QLabel(self.text % dict(downloaded=bytes_downloaded_display,
-                                               total=self.download_size_display))
+        self.message = QLabel(
+            self.text % dict(downloaded=bytes_downloaded_display, total=self.download_size_display)
+        )
 
         self.progressBar = QProgressBar()
         self.progressBar.setMinimumWidth(standardProgressBarWidth())
@@ -485,6 +496,7 @@ class DownloadNewVersionDialog(QDialog):
         self.progressBar.setValue(bytes_downloaded)
 
         buttonBox = QDialogButtonBox(QDialogButtonBox.Cancel)
+        translateButtons(buttonBox)
         buttonBox.rejected.connect(self.reject)
 
         grid = QGridLayout()
@@ -496,8 +508,9 @@ class DownloadNewVersionDialog(QDialog):
 
     def updateProgress(self, bytes_downloaded: int) -> None:
         bytes_downloaded_display = format_size_for_user(bytes_downloaded, zero_string='0 KB')
-        self.message.setText(self.text % dict(downloaded=bytes_downloaded_display,
-                                               total=self.download_size_display))
+        self.message.setText(
+            self.text % dict(downloaded=bytes_downloaded_display, total=self.download_size_display)
+        )
         self.progressBar.setValue(bytes_downloaded)
 
     def setDownloadSize(self, download_size: int) -> None:

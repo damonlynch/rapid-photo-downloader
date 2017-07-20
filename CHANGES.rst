@@ -35,6 +35,8 @@ Changelog for Rapid Photo Downloader
  - Updated Belarusian, Chinese (Simplified), Czech, French, German, Japanese,
    Russian and Spanish translations. Applied a patch from Mikael Wiesel to fix
    a bug where several strings were not available for translation.
+   Additionally made available for translation some buttons whose text was
+   untranslated.
 
 0.9.1 (2017-07-10)
 ------------------

@@ -22,9 +22,11 @@ __copyright__ = "Copyright 2015-2017, Damon Lynch"
 from typing import List, Dict
 from collections import namedtuple
 
+from gettext import gettext as _
+
 from PyQt5.QtWidgets import (
     QStyleOptionFrame, QStyle, QStylePainter, QWidget, QLabel, QListWidget, QProxyStyle,
-    QStyleOption
+    QStyleOption, QDialogButtonBox
 )
 from PyQt5.QtGui import QFontMetrics, QFont, QPainter
 from PyQt5.QtCore import QSize, Qt
@@ -231,3 +233,20 @@ class QNarrowListWidget(QListWidget):
 def standardIconSize() -> QSize:
     size = QFontMetrics(QFont()).height() * 6
     return QSize(size, size)
+
+
+def translateButtons(buttonBox: QDialogButtonBox) -> None:
+    buttons = (
+        (QDialogButtonBox.Ok, _('&OK')),
+        (QDialogButtonBox.Close, _('&Close') ),
+        (QDialogButtonBox.Cancel, _('&Cancel')),
+        (QDialogButtonBox.Save, _('&Save')),
+        (QDialogButtonBox.Help, _('&Help')),
+        (QDialogButtonBox.RestoreDefaults), _('Restore Defaults'),
+        (QDialogButtonBox.Yes, _('&Yes')),
+        (QDialogButtonBox.No, _('&No')),
+    )
+    for role, text in buttons:
+        button = buttonBox.button(role)
+        if button:
+            button.setText(text)

@@ -28,11 +28,14 @@ from gettext import gettext as _
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtGui import QPixmap,  QFont
 
-from PyQt5.QtWidgets import (QDialog, QLabel, QVBoxLayout, QDialogButtonBox, QSizePolicy,
-                             QHBoxLayout, QStackedWidget, QWidget, QScrollArea, QPushButton)
+from PyQt5.QtWidgets import (
+    QDialog, QLabel, QVBoxLayout, QDialogButtonBox, QSizePolicy, QHBoxLayout, QStackedWidget,
+    QWidget, QScrollArea, QPushButton
+)
 
 import raphodo.qrc_resources
 import raphodo.__about__ as __about__
+from raphodo.viewutils import translateButtons
 
 
 class AboutDialog(QDialog):
@@ -215,7 +218,10 @@ class AboutDialog(QDialog):
 
         buttonBox = QDialogButtonBox()
         closeButton = buttonBox.addButton(QDialogButtonBox.Close)  # type: QPushButton
-        self.creditsButton = buttonBox.addButton(_('Credits'), QDialogButtonBox.HelpRole)  # type: QPushButton
+        translateButtons(buttonBox)
+        self.creditsButton = buttonBox.addButton(
+            _('Credits'), QDialogButtonBox.HelpRole
+        )  # type: QPushButton
         self.creditsButton.setDefault(False)
         self.creditsButton.setCheckable(True)
         closeButton.setDefault(True)

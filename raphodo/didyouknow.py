@@ -37,6 +37,7 @@ from gettext import gettext as _
 
 import raphodo.qrc_resources as qrc_resources
 from raphodo.preferences import Preferences
+from raphodo.viewutils import translateButtons
 
 tips = (
     (
@@ -499,6 +500,7 @@ class DidYouKnowDialog(QDialog):
         self.previousButton = QPushButton(_('&Previous'))
 
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        translateButtons(buttons)
         buttons.addButton(self.previousButton, QDialogButtonBox.ActionRole)
         buttons.addButton(self.nextButton, QDialogButtonBox.ActionRole)
         self.previousButton.clicked.connect(self.previousButtonClicked)

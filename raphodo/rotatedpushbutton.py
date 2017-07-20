@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch"
+__copyright__ = "Copyright 2015-2017, Damon Lynch"
 
 from enum import IntEnum
 
@@ -31,7 +31,8 @@ class VerticalRotation(IntEnum):
 class FlatButton:
     _padding = 'padding-left: {padding_side}px; padding-right: {padding_side}px; padding-top: ' \
                '{padding_top}px; padding-bottom: {padding_bottom}px;'.format(
-                 padding_top=6, padding_side=7, padding_bottom=6)
+                 padding_top=6, padding_side=7, padding_bottom=6
+    )
 
     def setFlatStyle(self, button: QPushButton,
                      darker_if_checked: bool=True,

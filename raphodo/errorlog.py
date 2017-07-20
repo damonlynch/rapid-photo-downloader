@@ -49,6 +49,7 @@ import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import ErrorType
 from raphodo.rpdfile import RPDFile
 from raphodo.problemnotification import Problem, Problems
+from raphodo.viewutils import translateButtons
 
 # ErrorLogMessage = namedtuple('ErrorLogMessage', 'title body name uri')
 
@@ -205,8 +206,10 @@ class ErrorReport(QDialog):
         self.wholeWords.toggled.connect(self.wholeWordsToggled)
 
         self.findResults = QLabel()
-        self.findResults.setMinimumWidth(QFontMetrics(QFont()).boundingRect(
-                _('%s of %s matches') % (1000, 1000)).width() + spacing)
+        self.findResults.setMinimumWidth(
+            QFontMetrics(QFont()).boundingRect(_('%s of %s matches') % (1000, 1000)).width()
+            + spacing
+        )
 
         findLayout = QHBoxLayout()
         findLayout.setSpacing(0)
@@ -225,6 +228,7 @@ class ErrorReport(QDialog):
 
 
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        translateButtons(buttons)
         self.clear = buttons.addButton(_('Clear'), QDialogButtonBox.ActionRole)  # type: QPushButton
         buttons.rejected.connect(self.reject)
         self.clear.clicked.connect(self.clearClicked)
