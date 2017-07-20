@@ -1,3 +1,5 @@
+install.py
+upgrade.py
 raphodo/aboutdialog.py
 raphodo/backupfile.py
 raphodo/backuppanel.py
@@ -31,6 +33,7 @@ raphodo/storage.py
 raphodo/thumbnaildaemon.py
 raphodo/thumbnaildisplay.py
 raphodo/utilities.py
+raphodo/viewutils.py
 data/net.damonlynch.rapid-photo-downloader.appdata.xml.in
 data/net.damonlynch.rapid-photo-downloader.desktop.in
 data/kde/net.damonlynch.rapid-photo-downloader.desktop.in
