@@ -242,7 +242,7 @@ def translateButtons(buttonBox: QDialogButtonBox) -> None:
         (QDialogButtonBox.Cancel, _('&Cancel')),
         (QDialogButtonBox.Save, _('&Save')),
         (QDialogButtonBox.Help, _('&Help')),
-        (QDialogButtonBox.RestoreDefaults), _('Restore Defaults'),
+        (QDialogButtonBox.RestoreDefaults, _('Restore Defaults')),
         (QDialogButtonBox.Yes, _('&Yes')),
         (QDialogButtonBox.No, _('&No')),
     )
