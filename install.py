@@ -521,10 +521,16 @@ def opensuse_missing_packages(packages: str):
     :return: list of packages
     """
 
-    command_line = make_distro_packager_commmand(Distro.opensuse, packages, True, 'se', False)
+    command_line = make_distro_packager_commmand(
+        distro_family=Distro.opensuse, packages=packages, interactive=True, command='se', sudo=False
+    )
     args = shlex.split(command_line)
     output = subprocess.check_output(args, universal_newlines=True)
-    return [package for package in packages.split() if '\ni | {}'.format(package) not in output]
+
+    return [
+        package for package in packages.split()
+        if re.search(r"^i\+?\s+\|\s*{}".format(re.escape(package)), output, re.MULTILINE) is None
+    ]
 
 
 def opensuse_package_installed(package) -> bool:
