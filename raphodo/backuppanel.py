@@ -466,6 +466,7 @@ class BackupOptionsWidget(QFramedWidget):
         # the text entry boxes where the user can enter the photo folder name and the video
         # folder name. See http://damonlynch.net/rapid/documentation/thumbnails/backup.png
         self.photoLocationLabel = QLabel(_('Photo backup location:'))
+        self.photoLocationLabel.setWordWrap(True)
         self.photoLocation = FolderCombo(
             self,
             prefs=self.prefs,
@@ -482,6 +483,7 @@ class BackupOptionsWidget(QFramedWidget):
         # the text entry boxes where the user can enter the photo folder name and the video
         # folder name. See http://damonlynch.net/rapid/documentation/thumbnails/backup.png
         self.videoLocationLabel = QLabel(_('Video backup location:'))
+        self.videoLocationLabel.setWordWrap(True)
         self.videoLocation = FolderCombo(
             self,
             prefs=self.prefs,
