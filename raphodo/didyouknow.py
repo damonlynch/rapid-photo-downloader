@@ -330,7 +330,7 @@ a Job Code for them before the download begins.
             """
 When you give your photos and videos unique filenames, you'll never be confused as to 
 which file is which. Using <b>sequence numbers</b> to make filenames unique is highly 
-recommended!.
+recommended!
             """
         ),
         'photoeditordefault.png',
@@ -393,7 +393,7 @@ Several of the program's preferences can be set from the command line, including
 sources, destinations, and backups. Additionally, settings can be reset to their 
 default state, and caches and remembered files cleared.            
             """
-        ),
+        ) + _("You can also import program preferences from the older 0.4 version."),
         'commandline.png'
     ),
     (
