@@ -15,9 +15,10 @@ recursive-include po *.pot
 recursive-include raphodo *.py
 recursive-include raphodo *.qrc
 recursive-include raphodo *.txt
-global-exclude *~ *.pyc *~1~ *~2~
+global-exclude *~ *.pyc *~1~ *~2~ *bak
 exclude raphodo/test.py
 exclude raphodo/test2.py
+prune tasks
 prune raphodo/tests
 prune debian
 prune images

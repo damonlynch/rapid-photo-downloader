@@ -14,8 +14,14 @@ Changelog for Rapid Photo Downloader
  - Added uninstall and uninstall including dependencies options to the
    install.py script.
 
+ - Added localization to the install.py script. The install script now embeds
+   the files needed for localization, and utilizes them if needed.
+
  - The install.py script now checks key installation folders for ownership
    and permission problems, fixing them if necessary.
+
+ - The install script now correctly parses openSUSE's zypper output to
+   ascertain distribution packages that are already installed.
 
  - Added support for Peppermint OS to the install.py script.
 
@@ -33,10 +39,10 @@ Changelog for Rapid Photo Downloader
    already been removed.
 
  - Updated Belarusian, Chinese (Simplified), Czech, French, German, Japanese,
-   Russian and Spanish translations. Applied a patch from Mikael Wiesel to fix
-   a bug where several strings were not available for translation.
-   Additionally made available for translation some buttons whose text was
-   untranslated.
+   Norwegian Nynorsk, Russian and Spanish translations. Applied a patch from
+   Mikael Wiesel to fix a bug where several strings were not available for
+   translation. Additionally made available for translation some buttons whose
+   text was untranslated.
 
 0.9.1 (2017-07-10)
 ------------------

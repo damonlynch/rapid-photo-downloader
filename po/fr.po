@@ -8,138 +8,157 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-21 18:43-0500\n"
-"PO-Revision-Date: 2017-07-20 12:07+0000\n"
+"POT-Creation-Date: 2017-07-23 02:09-0500\n"
+"PO-Revision-Date: 2017-07-22 05:11+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Français <null>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-21 02:44+0000\n"
+"X-Launchpad-Export-Date: 2017-07-23 06:28+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
-#: ../install.py:386
+#: ../install.py:63
+#, fuzzy
+msgid "Rapid Photo Downloader installer"
+msgstr "Rapid Photo Downloader"
+
+#: ../install.py:64
+#, fuzzy
+msgid "Download and install latest version of Rapid Photo Downloader."
+msgstr "Transférer des photos et des vidéos avec Rapid Photo Downloader"
+
+#: ../install.py:233 ../install.py:1677
+msgid "Installer not found:"
+msgstr ""
+
+#. Translators: do not translate the term tar.gz
+#: ../install.py:237 ../install.py:1681
+msgid "Installer not in tar.gz format:"
+msgstr ""
+
+#: ../install.py:442
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
 "permissions for"
 msgstr ""
 
-#: ../install.py:442
+#: ../install.py:498
 msgid "The following command will be run:"
 msgstr ""
 
-#: ../install.py:445 ../install.py:1345 ../install.py:1350
+#: ../install.py:501 ../install.py:1425 ../install.py:1430
 msgid "sudo may prompt you for the sudo password."
 msgstr ""
 
-#: ../install.py:449
+#: ../install.py:505
 msgid "Would you like to run the command now?"
 msgstr ""
 
-#: ../install.py:451
+#: ../install.py:507
 msgid "Answer is not yes, exiting."
 msgstr ""
 
-#: ../install.py:461
+#: ../install.py:517
 msgid "Command failed"
 msgstr ""
 
-#: ../install.py:463
+#: ../install.py:519
 msgid "Exiting"
 msgstr ""
 
-#: ../install.py:486
+#: ../install.py:546
 msgid "The Universe repository must be enabled."
 msgstr ""
 
-#: ../install.py:510
+#: ../install.py:570
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
 msgstr ""
 
-#: ../install.py:617 ../install.py:642
+#: ../install.py:677 ../install.py:702
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
 msgstr ""
 
-#: ../install.py:628
+#: ../install.py:688
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again"
 msgstr ""
 
-#: ../install.py:650
+#: ../install.py:710
 msgid "Checking if previous version installed with pip..."
 msgstr ""
 
-#: ../install.py:744
+#: ../install.py:804
 msgid "The following package is unknown on your system: {}\n"
 msgstr ""
 
-#: ../install.py:751 ../install.py:823 ../install.py:861
+#: ../install.py:811 ../install.py:883 ../install.py:921
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
 
-#: ../install.py:780
+#: ../install.py:840
 msgid "Querying installed and available packages (this may take a while)"
 msgstr ""
 
-#: ../install.py:852
+#: ../install.py:912
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr ""
 
-#: ../install.py:890
+#: ../install.py:950
 msgid "Query to confirm action at each step."
 msgstr ""
 
-#: ../install.py:897
+#: ../install.py:957
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
 msgstr ""
 
-#: ../install.py:906
+#: ../install.py:966
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
 
-#: ../install.py:925
+#: ../install.py:989
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
 "whichever installer is newer."
 msgstr ""
 
-#: ../install.py:932
+#: ../install.py:996
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
 msgstr ""
 
-#: ../install.py:936
+#: ../install.py:1000
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
 
-#: ../install.py:941
+#: ../install.py:1005
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr ""
 
-#: ../install.py:948
+#: ../install.py:1012
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
 
-#: ../install.py:954
+#: ../install.py:1018
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -149,15 +168,15 @@ msgid ""
 "not be uninstalled."
 msgstr ""
 
-#: ../install.py:1004
+#: ../install.py:1068
 msgid "Failed to download versions file"
 msgstr ""
 
-#: ../install.py:1008
+#: ../install.py:1072
 msgid "Got error code {} while accessing versions file"
 msgstr ""
 
-#: ../install.py:1116
+#: ../install.py:1180
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -165,117 +184,108 @@ msgid ""
 "Exiting.\n"
 msgstr ""
 
-#: ../install.py:1277
+#: ../install.py:1355
 msgid "Installing application requirements..."
 msgstr ""
 
-#: ../install.py:1292
+#: ../install.py:1371
 msgid "Failed to install application requirements: exiting"
 msgstr ""
 
-#: ../install.py:1295
+#: ../install.py:1374
 msgid "Installing application..."
 msgstr ""
 
-#: ../install.py:1307
+#: ../install.py:1387
 msgid "Failed to install application: exiting..."
 msgstr ""
 
-#: ../install.py:1331
+#: ../install.py:1411
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "commmand line or application launcher."
 msgstr ""
 
-#: ../install.py:1342
+#: ../install.py:1422
 msgid "Do you want to install the application's man pages?"
 msgstr ""
 
-#: ../install.py:1343
+#: ../install.py:1423
 msgid "They will be installed into {}"
 msgstr ""
 
-#: ../install.py:1344 ../install.py:1349
+#: ../install.py:1424 ../install.py:1429
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr ""
 
-#: ../install.py:1346
+#: ../install.py:1426
 msgid "Do want to install the man pages?"
 msgstr ""
 
-#: ../install.py:1348
+#: ../install.py:1428
 msgid "Installing man pages into {}"
 msgstr ""
 
-#: ../install.py:1364
+#: ../install.py:1445
 msgid "Failed to create man page directory: exiting"
 msgstr ""
 
-#: ../install.py:1376
+#: ../install.py:1457
 msgid "Failed to copy man page."
 msgstr ""
 
-#: ../install.py:1388
+#: ../install.py:1477
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
 "Cannot continue. Exiting."
 msgstr ""
 
-#: ../install.py:1408
+#: ../install.py:1518
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
 msgstr ""
 
-#: ../install.py:1421 ../install.py:1433
+#: ../install.py:1528 ../install.py:1542
 msgid "Do not include any other command line arguments when specifying"
 msgstr ""
 
-#: ../install.py:1469
+#: ../install.py:1580
 msgid "Exiting..."
 msgstr ""
 
 #. Translators: do not translate the term python3-apt
-#: ../install.py:1486
+#: ../install.py:1599
 msgid "To continue, the package python3-apt must be installed."
 msgstr ""
 
-#: ../install.py:1494 ../install.py:1505
+#: ../install.py:1607 ../install.py:1618
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
 msgstr ""
 
-#: ../install.py:1537
+#: ../install.py:1634
 msgid ""
 "Install the following packacges using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
 
-#: ../install.py:1546
+#: ../install.py:1643
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
 msgstr ""
 
 #. Translators: do not translate the terms Python 3, pip and setuptools
-#: ../install.py:1561
+#: ../install.py:1658
 msgid "Python 3's pip and setuptools must be upgraded for your user."
 msgstr ""
 
-#. Translators: do not translate the term python
-#: ../install.py:1574
+#. Translators: do not translate the term python or requests
+#: ../install.py:1671
 msgid "Installing python requests"
-msgstr ""
-
-#: ../install.py:1580
-msgid "Installer not found:"
-msgstr ""
-
-#. Translators: do not translate the term tar.gz
-#: ../install.py:1584
-msgid "Installer not in tar.gz format:"
 msgstr ""
 
 #: ../upgrade.py:241
@@ -1028,7 +1038,6 @@ msgstr ""
 "survol un bouton."
 
 #: ../raphodo/didyouknow.py:330
-#, fuzzy
 msgid ""
 "\n"
 "When you give your photos and videos unique filenames, you'll never be "
@@ -1038,13 +1047,6 @@ msgid ""
 "recommended!\n"
 "            "
 msgstr ""
-"\n"
-"Lorsque vous donnez des noms de fichiers uniques à vos photos et vidéos, "
-"vous éviter les \n"
-"risques d'erreur. L'utilisation de <b>nombres de séquence</b> pour rendre "
-"les noms de fichiers uniques est vivement \n"
-"recommandé !\n"
-"            "
 
 #: ../raphodo/didyouknow.py:338
 msgid ""
@@ -1147,10 +1149,8 @@ msgstr ""
 "            "
 
 #: ../raphodo/didyouknow.py:396
-#, fuzzy
 msgid "You can also import program preferences from the older 0.4 version."
 msgstr ""
-"Importation de préférences à partir de Rapid Photo Downloader %(version)s"
 
 #: ../raphodo/didyouknow.py:401
 msgid ""
