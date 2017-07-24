@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-24 01:07-0500\n"
-"PO-Revision-Date: 2017-07-23 12:28+0000\n"
+"POT-Creation-Date: 2017-07-24 11:55-0500\n"
+"PO-Revision-Date: 2017-07-24 10:23+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-24 06:01+0000\n"
+"X-Launchpad-Export-Date: 2017-07-24 16:44+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
@@ -275,7 +275,7 @@ msgstr ""
 
 #: ../install.py:1634
 msgid ""
-"Install the following packacges using your Linux distribution's standard "
+"Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
 
@@ -1290,7 +1290,7 @@ msgstr ""
 "{log_path}\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1636
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1639
 msgid "Open in File Browser..."
 msgstr "Open in Bestandsbeheerder..."
 
@@ -4106,11 +4106,12 @@ msgstr ""
 
 #: ../raphodo/rememberthisdialog.py:72
 msgid "&Don't warn me about this again"
-msgstr ""
+msgstr "&Verwittig me daarover niet meer"
 
 #: ../raphodo/rememberthisdialog.py:75
 msgid "&Don't warn me again about missing or broken program libraries"
 msgstr ""
+"&Verwittig me niet meer over ontbrekende of gebroken programma bibliotheken"
 
 #: ../raphodo/renameandmovefile.py:551
 msgid "subfolder and filename"
@@ -4126,7 +4127,7 @@ msgstr "submap"
 
 #: ../raphodo/renamepanel.py:290
 msgid "A counter for how many downloads occur on each day"
-msgstr ""
+msgstr "Een teller voor het aantal downloads per dag"
 
 #: ../raphodo/renamepanel.py:291
 msgid "Downloads today:"
@@ -4135,6 +4136,7 @@ msgstr "Downloads vandaag:"
 #: ../raphodo/renamepanel.py:313
 msgid "A counter that is remembered each time the program is run "
 msgstr ""
+"Een teller die bijgewerkt wordt iedere keer het programma gestart wordt "
 
 #: ../raphodo/renamepanel.py:314
 msgid "Stored number:"
@@ -4144,6 +4146,7 @@ msgstr "Opgeslagen nummer:"
 msgid ""
 "The time at which the <i>Downloads today</i> sequence number should be reset"
 msgstr ""
+"De tijd wanneer de <i>Downloads Vandaag</i> volgnummer gereset moet worden"
 
 #: ../raphodo/renamepanel.py:332
 msgid "Day start:"
@@ -4153,7 +4156,7 @@ msgstr "Aanvang dag:"
 #. self.dayStart.setDisplayFormat('HH:mm:ss')
 #: ../raphodo/renamepanel.py:342
 msgid "Synchronize RAW + JPEG"
-msgstr ""
+msgstr "Synchroniseer RAW + JPEG"
 
 #: ../raphodo/renamepanel.py:345
 msgid ""
@@ -4161,10 +4164,13 @@ msgid ""
 "\n"
 "See the online documentation for more details."
 msgstr ""
+"Synchroniseer de volgnummers voor overeenkomende RAW en JPEG paren.\n"
+"\n"
+"Neem de online documentatie door voor meer details."
 
 #: ../raphodo/renamepanel.py:349
 msgid "Sequence Numbers"
-msgstr ""
+msgstr "Volgnummers"
 
 #: ../raphodo/renamepanel.py:360
 msgid "Strip incompatible characters"
@@ -4175,22 +4181,24 @@ msgid ""
 "Whether photo, video and folder names should have any characters removed "
 "that are not allowed by other operating systems"
 msgstr ""
+"Indien bij foto, video en foldernamen karakters verwijderd moeten worden die "
+"niet herkend worden bij andere besturingssystemen."
 
 #: ../raphodo/renamepanel.py:365
 msgid "Compatibility"
-msgstr ""
+msgstr "Compatibiliteit"
 
 #: ../raphodo/renamepanel.py:433
 msgid "Photo Renaming"
-msgstr ""
+msgstr "Foto hernoemen"
 
 #: ../raphodo/renamepanel.py:436
 msgid "Video Renaming"
-msgstr ""
+msgstr "Video hernoemen"
 
 #: ../raphodo/renamepanel.py:439
 msgid "Renaming Options"
-msgstr ""
+msgstr "Hernoem opties"
 
 #: ../raphodo/rpdfile.py:218
 msgid "photos and videos"
@@ -4208,7 +4216,7 @@ msgstr "%(number)s %(filetypes)s"
 #. translators: natural language expression signifying a single video
 #: ../raphodo/rpdfile.py:337
 msgid "a video"
-msgstr ""
+msgstr "een video"
 
 #: ../raphodo/rpdfile.py:339
 msgid "1 Video"
@@ -4217,7 +4225,7 @@ msgstr "1 Video"
 #. translators: natural language expression signifying a single photo
 #: ../raphodo/rpdfile.py:346
 msgid "a photo"
-msgstr ""
+msgstr "een foto"
 
 #: ../raphodo/rpdfile.py:348
 msgid "1 Photo"
@@ -4238,12 +4246,12 @@ msgstr "Video"
 
 #: ../raphodo/storage.py:140
 msgid "File system root"
-msgstr ""
+msgstr "File system root"
 
 #. translators: the name of the Pictures folder
 #: ../raphodo/storage.py:435
 msgid "Pictures"
-msgstr ""
+msgstr "Afbeeldingen"
 
 #: ../raphodo/thumbnaildisplay.py:432
 #, python-format
@@ -4255,26 +4263,31 @@ msgstr "Genomen op %(date_time)s (%(human_readable)s)"
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Bijgewerkt op %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:478
+#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:481
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:463
+#: ../raphodo/thumbnaildisplay.py:464
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Memory cards: %s"
 
-#: ../raphodo/thumbnaildisplay.py:470
+#: ../raphodo/thumbnaildisplay.py:468
+#, fuzzy, python-format
+msgid "Memory card: %s"
+msgstr "Memory cards: %s"
+
+#: ../raphodo/thumbnaildisplay.py:473
 msgid "Downloaded as:"
 msgstr "Gedownloaded als:"
 
-#: ../raphodo/thumbnaildisplay.py:486
+#: ../raphodo/thumbnaildisplay.py:489
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Vorige Download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:1638
+#: ../raphodo/thumbnaildisplay.py:1641
 msgid "Copy Path"
 msgstr "Kopieer Pad"
 
@@ -4282,40 +4295,39 @@ msgstr "Kopieer Pad"
 #. kilobytes, etc.
 #: ../raphodo/utilities.py:170
 msgid "B"
-msgstr ""
+msgstr "B"
 
 #: ../raphodo/utilities.py:170
 msgid "KB"
-msgstr ""
+msgstr "KB"
 
 #: ../raphodo/utilities.py:170
-#, fuzzy
 msgid "MB"
-msgstr "MB/s"
+msgstr "MB"
 
 #: ../raphodo/utilities.py:170
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 #: ../raphodo/utilities.py:170
 msgid "TB"
-msgstr ""
+msgstr "TB"
 
 #: ../raphodo/utilities.py:170
 msgid "PB"
-msgstr ""
+msgstr "PB"
 
 #: ../raphodo/utilities.py:170
 msgid "EB"
-msgstr ""
+msgstr "EB"
 
 #: ../raphodo/utilities.py:170
 msgid "ZB"
-msgstr ""
+msgstr "ZB"
 
 #: ../raphodo/utilities.py:170
 msgid "YB"
-msgstr ""
+msgstr "YB"
 
 #. two things in a list e.g. "device1 and device2"
 #: ../raphodo/utilities.py:392
@@ -4405,31 +4417,31 @@ msgstr "twintig"
 
 #: ../raphodo/viewutils.py:240
 msgid "&OK"
-msgstr ""
+msgstr "&OK"
 
 #: ../raphodo/viewutils.py:242
 msgid "&Cancel"
-msgstr ""
+msgstr "&Annuleer"
 
 #: ../raphodo/viewutils.py:243
 msgid "&Save"
-msgstr ""
+msgstr "Op&slaan"
 
 #: ../raphodo/viewutils.py:244
 msgid "&Help"
-msgstr ""
+msgstr "&Help"
 
 #: ../raphodo/viewutils.py:245
 msgid "Restore Defaults"
-msgstr ""
+msgstr "Beginwaarden terugzetten"
 
 #: ../raphodo/viewutils.py:246
 msgid "&Yes"
-msgstr ""
+msgstr "&Ja"
 
 #: ../raphodo/viewutils.py:247
 msgid "&No"
-msgstr ""
+msgstr "&Nee"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:1
 msgid ""
@@ -4473,19 +4485,19 @@ msgstr ""
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:4
 msgid "The main window"
-msgstr ""
+msgstr "Hoofdvenster"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:5
 msgid "Downloading"
-msgstr ""
+msgstr "Aan het downloaden"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:6
 msgid "The Timeline"
-msgstr ""
+msgstr "Tijdslijn"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:7
 msgid "Right-clicking on a device"
-msgstr ""
+msgstr "Rechts klikken op een apparaat"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.desktop.in.h:1
 msgid ""
@@ -4604,6 +4616,9 @@ msgstr "Download Foto's en Video's met Rapid Photo Downloader"
 
 #~ msgid "and"
 #~ msgstr "en"
+
+#~ msgid "MB/s"
+#~ msgstr "MB/s"
 
 #~ msgid "About 1 second remaining"
 #~ msgstr "Ongeveer 1 seconde te gaan"
@@ -5501,3 +5516,8 @@ msgstr "Download Foto's en Video's met Rapid Photo Downloader"
 #~ msgstr ""
 #~ "Geen enkel back-up apparaat bevat een geldige folder om %(filetype)s te "
 #~ "backuppen"
+
+#~ msgid "translator-credits"
+#~ msgstr ""
+#~ "Launchpad Contributions:\n"
+#~ "  A.J. Baudrez https://launchpad.net/~a.baudrez"

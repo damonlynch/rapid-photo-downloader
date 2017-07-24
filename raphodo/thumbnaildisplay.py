@@ -460,9 +460,12 @@ class ThumbnailListModel(QAbstractListModel):
                 )
 
             if rpd_file.camera_memory_card_identifiers:
-                cards = _('Memory cards: %s') % make_internationalized_list(
-                    rpd_file.camera_memory_card_identifiers
-                )
+                if len(rpd_file.camera_memory_card_identifiers) > 1:
+                    cards = _('Memory cards: %s') % make_internationalized_list(
+                        rpd_file.camera_memory_card_identifiers
+                    )
+                else:
+                    cards = _('Memory card: %s') % rpd_file.camera_memory_card_identifiers[0]
                 msg += '<br>' + cards
 
             if rpd_file.status in Downloaded:

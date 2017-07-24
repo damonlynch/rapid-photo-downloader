@@ -6,15 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-24 01:07-0500\n"
-"PO-Revision-Date: 2017-07-23 12:28+0000\n"
+"POT-Creation-Date: 2017-07-24 11:55-0500\n"
+"PO-Revision-Date: 2017-07-24 10:23+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: српски <gnome-sr@googlegroups.org>\n"
 "Language: sr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-24 06:01+0000\n"
+"X-Launchpad-Export-Date: 2017-07-24 16:44+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
@@ -264,7 +264,7 @@ msgstr ""
 
 #: ../install.py:1634
 msgid ""
-"Install the following packacges using your Linux distribution's standard "
+"Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
 
@@ -1524,7 +1524,7 @@ msgstr ""
 "    Приложите датотеку дневника уз извештај, који се налази на „{log_path}“\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1636
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1639
 msgid "Open in File Browser..."
 msgstr "Отвори у прегледачу датотека..."
 
@@ -4670,26 +4670,31 @@ msgstr "Снимљено %(date_time)s (%(human_readable)s)"
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Измењено %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:478
+#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:481
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:463
+#: ../raphodo/thumbnaildisplay.py:464
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Меморијске картице: %s"
 
-#: ../raphodo/thumbnaildisplay.py:470
+#: ../raphodo/thumbnaildisplay.py:468
+#, fuzzy, python-format
+msgid "Memory card: %s"
+msgstr "Меморијске картице: %s"
+
+#: ../raphodo/thumbnaildisplay.py:473
 msgid "Downloaded as:"
 msgstr "Преузето као:"
 
-#: ../raphodo/thumbnaildisplay.py:486
+#: ../raphodo/thumbnaildisplay.py:489
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Претходно преузимање:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:1638
+#: ../raphodo/thumbnaildisplay.py:1641
 msgid "Copy Path"
 msgstr "Путања умножавања"
 
@@ -4704,9 +4709,8 @@ msgid "KB"
 msgstr ""
 
 #: ../raphodo/utilities.py:170
-#, fuzzy
 msgid "MB"
-msgstr "MB/s"
+msgstr ""
 
 #: ../raphodo/utilities.py:170
 msgid "GB"
@@ -4986,6 +4990,9 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 
 #~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 #~ msgstr "Преостало је %(minutes)i:%(seconds)02i"
+
+#~ msgid "MB/s"
+#~ msgstr "MB/s"
 
 #~ msgid "About 1 second remaining"
 #~ msgstr "Преостала је 1 секунда"
@@ -5898,3 +5905,9 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 
 #~ msgid "Import your photos and videos efficiently and reliably"
 #~ msgstr "Увезите ваше фотографије и снимке брзо и поуздано"
+
+#~ msgid "translator-credits"
+#~ msgstr ""
+#~ "Launchpad Contributions:\n"
+#~ "  Miloš Popović https://launchpad.net/~gpopac\n"
+#~ "  Мирослав Николић https://launchpad.net/~lipek"

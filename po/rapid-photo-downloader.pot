@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-24 01:07-0500\n"
+"POT-Creation-Date: 2017-07-24 11:55-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -264,7 +264,7 @@ msgstr ""
 
 #: ../install.py:1634
 msgid ""
-"Install the following packacges using your Linux distribution's standard "
+"Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
 
@@ -1246,7 +1246,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1636
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1639
 msgid "Open in File Browser..."
 msgstr ""
 
@@ -4093,26 +4093,31 @@ msgstr ""
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:478
+#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:481
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:463
+#: ../raphodo/thumbnaildisplay.py:464
 #, python-format
 msgid "Memory cards: %s"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:470
+#: ../raphodo/thumbnaildisplay.py:468
+#, python-format
+msgid "Memory card: %s"
+msgstr ""
+
+#: ../raphodo/thumbnaildisplay.py:473
 msgid "Downloaded as:"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:486
+#: ../raphodo/thumbnaildisplay.py:489
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:1638
+#: ../raphodo/thumbnaildisplay.py:1641
 msgid "Copy Path"
 msgstr ""
 

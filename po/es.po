@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-24 01:07-0500\n"
-"PO-Revision-Date: 2017-07-23 12:28+0000\n"
+"POT-Creation-Date: 2017-07-24 11:55-0500\n"
+"PO-Revision-Date: 2017-07-24 10:23+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-24 06:01+0000\n"
+"X-Launchpad-Export-Date: 2017-07-24 16:44+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
@@ -310,8 +310,9 @@ msgstr ""
 "Saliendo..."
 
 #: ../install.py:1634
+#, fuzzy
 msgid ""
-"Install the following packacges using your Linux distribution's standard "
+"Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
 "Instale los siguientes paquete usando el gestor de paquetes estándar de su "
@@ -1632,7 +1633,7 @@ msgstr ""
 "en {log_path}\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1636
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1639
 msgid "Open in File Browser..."
 msgstr "Abrir en el Explorador de archivos..."
 
@@ -3726,7 +3727,7 @@ msgstr ""
 "modificación del archivo no coincide con la hora del disparo, para una o más "
 "fotos.<br><br>La línea de tiempo muestra cuando se realizó el disparo. La "
 "hora en que se realizó el disparo se encuentra en los metadatos de la foto o "
-"vídeo. La lectura de los metadatos llea tiempo, asi que Rapid Photo "
+"vídeo. La lectura de los metadatos lleva tiempo, así que Rapid Photo "
 "Downloader evita hacerlo mientras se escanean los archivos. En su lugar usa "
 "la hora de última modificación del archivo como sustituto para la hora en "
 "que se realizó el disparo. La hora de disparo se confirma cuando se generan "
@@ -4274,12 +4275,11 @@ msgid ""
 "charging</i> to <i>USB for file transfers</i>.<br><br>Alternatively, you can "
 "ignore this device."
 msgstr ""
-"<b>Todos los archivos en la %(camera)s son inaccesibles</b>.<br><br>Puede "
-"estar bloqueada o no estar configurada para transmitir archivos usando MTP. "
-"Puede desbloquearla e intentarlo de nuevo.<br><br>En algunos modelos también "
-"es necesario cambiar el parámetro <i>USB para carga</i> a <i>USB para "
-"transferencia de archivos</i>.<br><br>Alternativamente, puede ignorar este "
-"dispositivo."
+"<b>All files on the cámara %(camera)s are inaccessible</b>.<br><br>It may be "
+"locked or not configured for file transfers using MTP. You can unlock it and "
+"try again.<br><br>On some models you also need to change the setting <i>USB "
+"for charging</i> to <i>USB for file transfers</i>.<br><br>Alternatively, you "
+"can ignore this device."
 
 #: ../raphodo/rapid.py:4229
 #, python-format
@@ -4846,26 +4846,31 @@ msgstr "Tomadas a las %(date_time)s (%(human_readable)s)"
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Modificada a las %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:478
+#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:481
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:463
+#: ../raphodo/thumbnaildisplay.py:464
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Tarjetas de memoria: %s"
 
-#: ../raphodo/thumbnaildisplay.py:470
+#: ../raphodo/thumbnaildisplay.py:468
+#, fuzzy, python-format
+msgid "Memory card: %s"
+msgstr "Tarjetas de memoria: %s"
+
+#: ../raphodo/thumbnaildisplay.py:473
 msgid "Downloaded as:"
 msgstr "Descargada como:"
 
-#: ../raphodo/thumbnaildisplay.py:486
+#: ../raphodo/thumbnaildisplay.py:489
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Descarga previas:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:1638
+#: ../raphodo/thumbnaildisplay.py:1641
 msgid "Copy Path"
 msgstr "Copiar ruta"
 
@@ -4873,40 +4878,39 @@ msgstr "Copiar ruta"
 #. kilobytes, etc.
 #: ../raphodo/utilities.py:170
 msgid "B"
-msgstr ""
+msgstr "B"
 
 #: ../raphodo/utilities.py:170
 msgid "KB"
-msgstr ""
+msgstr "KB"
 
 #: ../raphodo/utilities.py:170
-#, fuzzy
 msgid "MB"
-msgstr "MB/s"
+msgstr "MB"
 
 #: ../raphodo/utilities.py:170
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 #: ../raphodo/utilities.py:170
 msgid "TB"
-msgstr ""
+msgstr "TB"
 
 #: ../raphodo/utilities.py:170
 msgid "PB"
-msgstr ""
+msgstr "PB"
 
 #: ../raphodo/utilities.py:170
 msgid "EB"
-msgstr ""
+msgstr "EB"
 
 #: ../raphodo/utilities.py:170
 msgid "ZB"
-msgstr ""
+msgstr "ZB"
 
 #: ../raphodo/utilities.py:170
 msgid "YB"
-msgstr ""
+msgstr "YB"
 
 #. two things in a list e.g. "device1 and device2"
 #: ../raphodo/utilities.py:392
@@ -5104,6 +5108,9 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 
 #~ msgid "<i>Example: %s</i>"
 #~ msgstr "<i>Ejemplo: %s</i>"
+
+#~ msgid "MB/s"
+#~ msgstr "MB/s"
 
 #~ msgid "and"
 #~ msgstr "y"
@@ -6101,3 +6108,22 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgstr ""
 #~ "Especifique la hora en formato de 24 horas en la que el número de "
 #~ "secuencia de las <i> Descargas de hoy </i>, debe ser restablecido."
+
+#~ msgid "translator-credits"
+#~ msgstr ""
+#~ "Launchpad Contributions:\n"
+#~ "  Abel O'Rian https://launchpad.net/~abel-orian\n"
+#~ "  Adolfo Jayme https://launchpad.net/~fitojb\n"
+#~ "  Aiguanachein https://launchpad.net/~aiguanachein\n"
+#~ "  Alejandro Rochette https://launchpad.net/~alexroc\n"
+#~ "  Billy Robshaw https://launchpad.net/~billyrobshaw\n"
+#~ "  Daniel Bernal Dotú https://launchpad.net/~dbernal87\n"
+#~ "  Hector A. Mantellini https://launchpad.net/~xombra\n"
+#~ "  Javier Ampudia https://launchpad.net/~ampudia1987\n"
+#~ "  Jose Luis Navarro https://launchpad.net/~jlnavarro111\n"
+#~ "  Jose Luis Tirado https://launchpad.net/~txelu70\n"
+#~ "  Jose Navajo Bardera https://launchpad.net/~navajo-jose\n"
+#~ "  José Miguel Acosta Martín https://launchpad.net/~josenerja692\n"
+#~ "  Nicolás M. Zahlut https://launchpad.net/~nzahlut\n"
+#~ "  Toni Lähdekorpi https://launchpad.net/~lahdekorpi\n"
+#~ "  simon https://launchpad.net/~sianhulo"

@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-24 01:07-0500\n"
-"PO-Revision-Date: 2017-07-23 12:28+0000\n"
+"POT-Creation-Date: 2017-07-24 11:55-0500\n"
+"PO-Revision-Date: 2017-07-24 10:23+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Italian <it@li.org>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-24 06:01+0000\n"
+"X-Launchpad-Export-Date: 2017-07-24 16:44+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
@@ -265,7 +265,7 @@ msgstr ""
 
 #: ../install.py:1634
 msgid ""
-"Install the following packacges using your Linux distribution's standard "
+"Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
 
@@ -1251,7 +1251,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1636
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1639
 msgid "Open in File Browser..."
 msgstr ""
 
@@ -4111,27 +4111,32 @@ msgstr ""
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:478
+#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:481
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:463
+#: ../raphodo/thumbnaildisplay.py:464
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Schede di memoria: %s"
 
-#: ../raphodo/thumbnaildisplay.py:470
+#: ../raphodo/thumbnaildisplay.py:468
+#, fuzzy, python-format
+msgid "Memory card: %s"
+msgstr "Schede di memoria: %s"
+
+#: ../raphodo/thumbnaildisplay.py:473
 msgid "Downloaded as:"
 msgstr "Scaricato come:"
 
-#: ../raphodo/thumbnaildisplay.py:486
+#: ../raphodo/thumbnaildisplay.py:489
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr ""
 "<br><br>Scaricamenti precedenti:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:1638
+#: ../raphodo/thumbnaildisplay.py:1641
 msgid "Copy Path"
 msgstr "Copia percorso"
 
@@ -4146,9 +4151,8 @@ msgid "KB"
 msgstr ""
 
 #: ../raphodo/utilities.py:170
-#, fuzzy
 msgid "MB"
-msgstr "MB/s"
+msgstr ""
 
 #: ../raphodo/utilities.py:170
 msgid "GB"
@@ -4358,6 +4362,9 @@ msgstr ""
 
 #~ msgid "Size"
 #~ msgstr "Dimensione"
+
+#~ msgid "MB/s"
+#~ msgstr "MB/s"
 
 #~ msgid "<i>Example: %s</i>"
 #~ msgstr "<i>Esempio: %s</i>"
@@ -5344,3 +5351,14 @@ msgstr ""
 
 #~ msgid "File verification failed on these devices: "
 #~ msgstr "Controllo dei file non riuscito sui seguenti dispositivi: "
+
+#~ msgid "translator-credits"
+#~ msgstr ""
+#~ "Launchpad Contributions:\n"
+#~ "  Guybrush88 https://launchpad.net/~guybrush\n"
+#~ "  Luca Reverberi https://launchpad.net/~socketreve\n"
+#~ "  Luigi Agosto https://launchpad.net/~luigi-agosto\n"
+#~ "  Marco Solari https://launchpad.net/~marcosolari\n"
+#~ "  Milo Casagrande https://launchpad.net/~milo\n"
+#~ "  ema.gra https://launchpad.net/~ema.gra\n"
+#~ "  simone.sandri https://launchpad.net/~lexluxsox"

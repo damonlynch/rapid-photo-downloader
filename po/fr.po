@@ -8,15 +8,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-24 01:07-0500\n"
-"PO-Revision-Date: 2017-07-23 20:44+0000\n"
-"Last-Translator: Jean-Marc <Unknown>\n"
+"POT-Creation-Date: 2017-07-24 11:55-0500\n"
+"PO-Revision-Date: 2017-07-24 11:31+0000\n"
+"Last-Translator: Nicolas Boulesteix <Unknown>\n"
 "Language-Team: Français <null>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-24 06:01+0000\n"
+"X-Launchpad-Export-Date: 2017-07-24 16:44+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
@@ -97,7 +97,7 @@ msgstr ""
 
 #: ../install.py:711
 msgid "Checking if previous version installed with pip..."
-msgstr ""
+msgstr "Vérifie si la version précédente a été installée avec pip..."
 
 #: ../install.py:805
 msgid "The following package is unknown on your system: {}\n"
@@ -121,6 +121,8 @@ msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr ""
+"Demande à zypper de voir si des paquets requis sont déjà installés (cela "
+"peut prendre un moment)... "
 
 #: ../install.py:951
 msgid "Query to confirm action at each step."
@@ -139,6 +141,8 @@ msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
+"Archive d'installation optionnelle tar.gz de Rapid Photo Dowloader. Si non "
+"spécifiée, la dernière version est téléchargée depuis internet."
 
 #: ../install.py:990
 msgid ""
@@ -160,6 +164,8 @@ msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
+"Désinstaller les dépendances installées par pip durant l'installation de "
+"Rapid Photo Downloader, et Rapid Photo Dowloader lui-même, puis quitter."
 
 #: ../install.py:1006
 msgid ""
@@ -185,6 +191,13 @@ msgid ""
 "Photo Downloader installed by your Linux distribution's package manager will "
 "not be uninstalled."
 msgstr ""
+"Note: cette option supprime les dépendances sans tenir compte du fait "
+"qu'elles sont requises par d'autres programmes installés par pip. Mettez à "
+"niveau pip en version 9.0 ou plus si vous souhaitez éviter ce comportement. "
+"Vous pouvez le faire avec la commande 'python3 -m pip install pip -U --"
+"user'. Notez également que toute version de Rapid Photo Downloader installée "
+"via le gestionnaire de paquets de votre distribution ne sera pas "
+"désinstallée."
 
 #: ../install.py:1069
 msgid "Failed to download versions file"
@@ -201,14 +214,18 @@ msgid ""
 "\n"
 "Exiting.\n"
 msgstr ""
+"Désolé, l'installateur ne peut être trouvé. Merci de vérifier votre "
+"connexion internet et que vous pouvez ouvrir https://www.damonlynch.net\n"
+"\n"
+"Fermeture\n"
 
 #: ../install.py:1355
 msgid "Installing application requirements..."
-msgstr ""
+msgstr "Installation des applications requises..."
 
 #: ../install.py:1371
 msgid "Failed to install application requirements: exiting"
-msgstr ""
+msgstr "Échec de l'installation des applications requises; Fermeture"
 
 #: ../install.py:1374
 msgid "Installing application..."
@@ -261,12 +278,18 @@ msgid ""
 "Downloader that was installed with pip.\n"
 "Cannot continue. Exiting."
 msgstr ""
+"L'outil python3 pip est requis pour désinstaller une version de Rapid Photo "
+"Downloader qui a été installée avec pip.\n"
+"Impossible de continuer. Fermeture."
 
 #: ../install.py:1518
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
 msgstr ""
+"Ne lancez par le script d'installation avec  sudo ou en tant qu'utilisateur "
+"root\n"
+"Lancez le en tant que l'utilisateur qui exécutera le programme.\n"
 
 #: ../install.py:1528 ../install.py:1542
 msgid "Do not include any other command line arguments when specifying"
@@ -291,8 +314,9 @@ msgstr ""
 "Sortie..."
 
 #: ../install.py:1634
+#, fuzzy
 msgid ""
-"Install the following packacges using your Linux distribution's standard "
+"Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
 "Installez les paquets suivants à l'aide du gestionnaire de paquets de votre "
@@ -310,6 +334,7 @@ msgstr ""
 #: ../install.py:1658
 msgid "Python 3's pip and setuptools must be upgraded for your user."
 msgstr ""
+"Python 3 pip et setuptools doivent être mis à jour pour votre utilisateur."
 
 #. Translators: do not translate the term python or requests
 #: ../install.py:1671
@@ -671,6 +696,10 @@ msgid ""
 "icon's color indicates whether the download was successful (green), had file "
 "renaming problems (yellow/orange), or failed (red)."
 msgstr ""
+"Après la fin du transfert, une icone remplace la case à cocher de la "
+"vignette. La couleur de l'icone indique si le transfert a réussi (vert), a "
+"rencontré un problème de renommage de fichier (jaune/orange), ou a échoué "
+"(rouge)."
 
 #: ../raphodo/didyouknow.py:83
 msgid ""
@@ -682,6 +711,13 @@ msgid ""
 "            window.\n"
 "            "
 msgstr ""
+"\n"
+"            Au moindre problème, une icone rouge apparaîtra en bas de la "
+"fenêtre\n"
+"            indiquant le nombre d'erreur. Cliquer dessus ouvrira la fenêtre "
+"du \n"
+"            rapport d'erreur.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:91
 msgid ""
@@ -697,6 +733,18 @@ msgid ""
 "            search box in the lower left of the Error Report window.\n"
 "            "
 msgstr ""
+"\n"
+"            La fenêtre du rapport d'erreur liste le moindre problème "
+"rencontré rencontré avant, pendant ou après le \n"
+"            transfert. Un triangle orange représente un avertissement, un "
+"cercle rouge indique un échec, \n"
+"            et un cercle noir indique une défaillance plus sérieuse. Vous "
+"pouvez cliquer sur l'hyperlien pour \n"
+"            ouvrir son fichier ou périphérique dans un gestionnaire de "
+"fichier. Vous pouvez aussi chercher les rapports à l'aide \n"
+"            du champ de recherche en bas à gauche de la fenêtre du rapport "
+"d'erreur.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:103
 msgid ""
@@ -851,6 +899,28 @@ msgid ""
 "</ol>\n"
 "            "
 msgstr ""
+"\n"
+"Lorsque que vous pensez à la structure de vos dossiers de transfert, garder "
+"à l'esprit deux types\n"
+"de dossier :\n"
+"<ol>\n"
+"<li>Le <b>dossier de destination</b>, e.g. &quot;Images&quot;, &quot;"
+"Photos&quot;, ou\n"
+"&quot;Vidéos&quot;. Ce dossier doit déjà exister sur votre ordinateur. Sur "
+"l'illustration \n"
+"ci dessous, les dossiers de destination sont &quot;Pictures&quot; et &quot;"
+"Videos&quot;. Le \n"
+"nom du dossier de destination est affiché dans la barre grise juste au "
+"dessus de l'arborescence des dossiers, \n"
+"avec une icone de dossier à gauche et une icone d'engrenage tout à fait à "
+"droite.</li>\n"
+"<li>Les <b>sous-dossiers de transfert</b>, qui sont des répertoires "
+"automatiquement créés \n"
+"par Rapid Photo Downloader. Ils peuvent déjà exister sur votre ordinateur, "
+"mais n'ont pas besoin de l'être.\n"
+"Ils seront générés dans le dossier de destination.</li>\n"
+"</ol>\n"
+"            "
 
 #: ../raphodo/didyouknow.py:196
 msgid ""
@@ -864,6 +934,15 @@ msgid ""
 "type.            \n"
 "            "
 msgstr ""
+"\n"
+"Vous pouvez transférer les photos et vidéos vers le même dossier de "
+"destination, ou spécifier des dossiers \n"
+"de destination différents pour chaque type. De même que pour les sous-"
+"dossiers de transfert photos et \n"
+"les vidéos&mdash;Transférez photos et vidéos vers les mêmes sous-dossiers, "
+"ou utilisez des structures différentes pour chaque \n"
+"type.            \n"
+"            "
 
 #: ../raphodo/didyouknow.py:206
 msgid ""
@@ -1448,7 +1527,7 @@ msgstr ""
 "{log_path}\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1636
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1639
 msgid "Open in File Browser..."
 msgstr "Ouvrir dans l'explorateur de fichiers"
 
@@ -2671,6 +2750,9 @@ msgid ""
 "strongly recommended. Configure file renaming in the Rename panel in the "
 "main window."
 msgstr ""
+"Utiliser des nombres séquentiels pour générer des noms de fichiers uniques "
+"est fortement recommandé. Configurez le renommage de fichier depuis le "
+"panneau Renommer de la fenêtre principale."
 
 #: ../raphodo/preferencedialog.py:454
 msgid ""
@@ -2765,17 +2847,22 @@ msgstr "Ajouter"
 msgid ""
 "Add a file extension to the list of unhandled file types to not warn about."
 msgstr ""
+"Ajoutez une extension de fichier à la liste des types de fichiers non pris "
+"en charge à ne pas traiter."
 
 #: ../raphodo/preferencedialog.py:507
 msgid ""
 "Remove a file extension from the list of unhandled file types to not warn "
 "about."
 msgstr ""
+"Retirez une extension de fichier de la liste des types de fichiers non pris "
+"en charge à ne pas traiter."
 
 #: ../raphodo/preferencedialog.py:511
 msgid ""
 "Clear the list of file extensions of unhandled file types to not warn about."
 msgstr ""
+"Videz la liste des types de fichiers non pris en charge à ne pas traiter."
 
 #: ../raphodo/preferencedialog.py:547
 msgid "Photo and Video Consolidation"
@@ -4610,26 +4697,31 @@ msgstr "Prise le %(date_time)s (%(human_readable)s)"
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Modifiée le %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:478
+#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:481
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:463
+#: ../raphodo/thumbnaildisplay.py:464
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Cartes mémoire : %s"
 
-#: ../raphodo/thumbnaildisplay.py:470
+#: ../raphodo/thumbnaildisplay.py:468
+#, fuzzy, python-format
+msgid "Memory card: %s"
+msgstr "Cartes mémoire : %s"
+
+#: ../raphodo/thumbnaildisplay.py:473
 msgid "Downloaded as:"
 msgstr "Transféré comme :"
 
-#: ../raphodo/thumbnaildisplay.py:486
+#: ../raphodo/thumbnaildisplay.py:489
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Transfert précédent :<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:1638
+#: ../raphodo/thumbnaildisplay.py:1641
 msgid "Copy Path"
 msgstr "Copier le chemin"
 
@@ -4644,9 +4736,8 @@ msgid "KB"
 msgstr ""
 
 #: ../raphodo/utilities.py:170
-#, fuzzy
 msgid "MB"
-msgstr "Mo/s"
+msgstr ""
 
 #: ../raphodo/utilities.py:170
 msgid "GB"
@@ -4885,6 +4976,9 @@ msgstr "Transférer des photos et des vidéos avec Rapid Photo Downloader"
 
 #~ msgid "Download cannot proceed"
 #~ msgstr "Impossible de procéder au transfert"
+
+#~ msgid "MB/s"
+#~ msgstr "Mo/s"
 
 #~ msgid "and"
 #~ msgstr "et"
@@ -5871,3 +5965,18 @@ msgstr "Transférer des photos et des vidéos avec Rapid Photo Downloader"
 
 #~ msgid "The %(filetype)s did not download correctly"
 #~ msgstr "Les %(filetype)s n'ont pas été téléchargés correctement"
+
+#~ msgid "translator-credits"
+#~ msgstr ""
+#~ "Launchpad Contributions:\n"
+#~ "  Damon Lynch https://launchpad.net/~dlynch3\n"
+#~ "  Ersplus https://launchpad.net/~ersplus-free\n"
+#~ "  Gérard Duteil https://launchpad.net/~gerardduteil\n"
+#~ "  Jean-Marc https://launchpad.net/~m-balthazar\n"
+#~ "  Julien Valroff https://launchpad.net/~julienv\n"
+#~ "  LEROY Jean-Christophe https://launchpad.net/~celtic2-"
+#~ "deactivatedaccount\n"
+#~ "  Nicolas Boulesteix https://launchpad.net/~noxx-free\n"
+#~ "  Olivier Girard https://launchpad.net/~eolinwen\n"
+#~ "  Tubuntu https://launchpad.net/~t-ubuntu\n"
+#~ "  loquehumaine https://launchpad.net/~loquehumaine"

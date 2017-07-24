@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-24 01:07-0500\n"
-"PO-Revision-Date: 2017-07-23 19:17+0000\n"
+"POT-Creation-Date: 2017-07-24 11:55-0500\n"
+"PO-Revision-Date: 2017-07-24 15:41+0000\n"
 "Last-Translator: Pavel Borecki <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-24 06:01+0000\n"
+"X-Launchpad-Export-Date: 2017-07-24 16:44+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
@@ -59,7 +59,7 @@ msgstr "Přejete si spustit příkaz nyní?"
 
 #: ../install.py:508
 msgid "Answer is not yes, exiting."
-msgstr "Odpověď není ano, bude ukončeno."
+msgstr "Odpověď není ano – ukončuje se."
 
 #: ../install.py:518
 msgid "Command failed"
@@ -76,7 +76,7 @@ msgstr "Je třeba zapnout používání repozitáře Universe."
 #: ../install.py:571
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
-msgstr "Přejete si odinstalovat předchozí verzi Rapid Photo Downloader:"
+msgstr "Chcete odinstalovat předchozí verzi Rapid Photo Downloader:"
 
 #: ../install.py:678 ../install.py:703
 msgid ""
@@ -91,8 +91,8 @@ msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again"
 msgstr ""
-"Nedaří se dotázat správy balíčků. Zkontrolujte připojení k Internetu a "
-"zkuste to znovu"
+"Nedaří se dotázat systému správy balíčků. Zkontrolujte připojení k Internetu "
+"a zkuste to znovu"
 
 #: ../install.py:711
 msgid "Checking if previous version installed with pip..."
@@ -100,7 +100,7 @@ msgstr "Zjišťování zda předchozí verze byla nainstalována pomocí nástro
 
 #: ../install.py:805
 msgid "The following package is unknown on your system: {}\n"
-msgstr "Následující balíček není známý na vašem systému: {}\n"
+msgstr "Následující balíček je systému neznámý: {}\n"
 
 #: ../install.py:812 ../install.py:884 ../install.py:922
 msgid ""
@@ -118,10 +118,12 @@ msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr ""
+"Dotazování správce balíčků zypper zda jsou už nainstalované potřebné balíčky "
+"(může chvíli trvat)… "
 
 #: ../install.py:951
 msgid "Query to confirm action at each step."
-msgstr ""
+msgstr "Dotázat se na potvrzení při každém z kroků."
 
 #: ../install.py:958
 msgid ""
@@ -145,6 +147,9 @@ msgid ""
 "archive if it is newer than this version ({}). The default is to run "
 "whichever installer is newer."
 msgstr ""
+"Nespouštět instalátor z tar.gz instalačního archivu Rapid Photo Downloader "
+"pokud je novější než tato verze ({}). Výchozím chováním je spustit kdykoli "
+"je instalátor novější."
 
 #: ../install.py:997
 msgid ""
@@ -174,6 +179,8 @@ msgstr ""
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
+"Součásti, na kterých záviselo budou odebrány pouze tehdy, pokud nejsou "
+"potřebné pro žádné další programy."
 
 #: ../install.py:1019
 msgid ""
@@ -184,6 +191,13 @@ msgid ""
 "Photo Downloader installed by your Linux distribution's package manager will "
 "not be uninstalled."
 msgstr ""
+"Pozn.: tato předvolba odebere součásti, na kterých záviselo bez ohledu na to "
+"zda jsou potřebné pro jiné aplikace které byly pomocí pip nainstalované. "
+"Pokud tomuto chování chcete zamezit, přejděte na verzi pip 9.0 a novější. "
+"Můžete to provést pomocí příkazu „python3 -m pip install pip -U --user“. "
+"Také poznamenejme, že nebude odinstalována žádná verze Rapid Photo "
+"Downloader která byla nainstalovaná skrze správu balíčků ve vaší Linuxové "
+"distribuci."
 
 #: ../install.py:1069
 msgid "Failed to download versions file"
@@ -191,7 +205,7 @@ msgstr "Nepodařilo se stáhnout soubor s verzemi"
 
 #: ../install.py:1073
 msgid "Got error code {} while accessing versions file"
-msgstr ""
+msgstr "Při přístupu k souboru s verzemi obdržen chybový kód {}"
 
 #: ../install.py:1181
 msgid ""
@@ -200,6 +214,10 @@ msgid ""
 "\n"
 "Exiting.\n"
 msgstr ""
+"Je nám líto, nepodařilo se najít instalátor. Zkontrolujte připojení k "
+"Internetu a ověřte, že je dosažitelný web https://www.damonlynch.net\n"
+"\n"
+"Ukončuje se.\n"
 
 #: ../install.py:1355
 msgid "Installing application requirements..."
@@ -208,6 +226,7 @@ msgstr "Instalace součástí potřebných pro aplikaci…"
 #: ../install.py:1371
 msgid "Failed to install application requirements: exiting"
 msgstr ""
+"Nepodařilo se nainstalovat součásti, které aplikace potřebuje: ukončuje se"
 
 #: ../install.py:1374
 msgid "Installing application..."
@@ -295,10 +314,13 @@ msgstr ""
 "Ukončuje se…"
 
 #: ../install.py:1634
+#, fuzzy
 msgid ""
-"Install the following packacges using your Linux distribution's standard "
+"Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
+"Pomocí správy balíčků vaší distribuce nainstalujte následující balíčky a "
+"poté instalátor spusťte znovu."
 
 #: ../install.py:1643
 msgid ""
@@ -312,6 +334,8 @@ msgstr ""
 #: ../install.py:1658
 msgid "Python 3's pip and setuptools must be upgraded for your user."
 msgstr ""
+"Pro tohoto uživatele bude třeba přejít na novější verze nástrojů Python 3 "
+"pip a setuptools."
 
 #. Translators: do not translate the term python or requests
 #: ../install.py:1671
@@ -682,6 +706,12 @@ msgid ""
 "            window.\n"
 "            "
 msgstr ""
+"\n"
+"            V případě jakýchkoli problémů se v dolní části okna objeví "
+"červená ikona\n"
+"            s označením kolik chybových hlášení se vyskytlo. Kliknutí na ní "
+"otevře okno s hlášeními chyb.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:91
 msgid ""
@@ -697,6 +727,17 @@ msgid ""
 "            search box in the lower left of the Error Report window.\n"
 "            "
 msgstr ""
+"\n"
+"            Okno s chybovými hlášeními vypisuje jakékoli problémy které se "
+"vyskytly před, v průběhu nebo po \n"
+"            stahování. Oranžový trojúhelník přestavuje varování, červený "
+"kruh značí nezdar, \n"
+"            a černý kruh značí závažnější nezdar. Je možné kliknou na "
+"hypertextový odkaz a otevřít \n"
+"            tak jeho soubor nebo zařízení ve správci souborů. V hlášeních je "
+"možné také vyhledávat pomocí \n"
+"            příslušné kolonky vlevo dole okna s chybovými hlášeními.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:103
 msgid ""
@@ -1129,6 +1170,13 @@ msgid ""
 "recommended!\n"
 "            "
 msgstr ""
+"\n"
+"Pokud budete souborům s fotografiemi a videi dávat neopakující se názvy, "
+"nikdy se vám \n"
+"nebude plést který soubor je který. Použití <b>pořadových čísel</b> pro "
+"zajištění toho, \n"
+"že jsou názvy souborů neopakující je velmi doporučeno!\n"
+"            "
 
 #: ../raphodo/didyouknow.py:338
 msgid ""
@@ -1547,7 +1595,7 @@ msgstr ""
 "{log_path}\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1636
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1639
 msgid "Open in File Browser..."
 msgstr "Otevřít ve správci souborů…"
 
@@ -2887,10 +2935,13 @@ msgid ""
 "RAW and JPEG pairs,\n"
 "comparing them across multiple devices and download sessions."
 msgstr ""
+"Analyzovat výsledky skenů zařízení a hledat duplicitní soubory a "
+"odpovídající si RAW a JPEG dvojice,\n"
+"jejich porovnání napříč vícero zařízeními a stahovacími relacemi."
 
 #: ../raphodo/preferencedialog.py:559
 msgid "Treat matching RAW and JPEG files as:"
-msgstr ""
+msgstr "Zacházet s odpovídajícími si RAW a JPEG soubory jako:"
 
 #: ../raphodo/preferencedialog.py:560
 msgid "One photo"
@@ -2905,16 +2956,20 @@ msgid ""
 "Display matching pairs of RAW and JPEG photos as one photo, and if marked, "
 "download both."
 msgstr ""
+"Zobrazovat odpovídající si dvojice RAW a JPEG fotografií jako jeden snímek a "
+"pokud je označen, stáhnout obojí."
 
 #: ../raphodo/preferencedialog.py:568
 msgid ""
 "Display matching pairs of RAW and JPEG photos as two different photos. You "
 "can still synchronize their sequence numbers."
 msgstr ""
+"Zobrazovat odpovídající si dvojice RAW a JPEG fotografií jako dva různé "
+"snímky. I tak ale je možné synchronizovat jejich pořadová čísla."
 
 #: ../raphodo/preferencedialog.py:577
 msgid "With matching RAW and JPEG photos:"
-msgstr ""
+msgstr "S odpovídajícími si RAW a JPEG fotografiemi:"
 
 #: ../raphodo/preferencedialog.py:579
 msgid "Do not mark JPEG for download"
@@ -2953,17 +3008,23 @@ msgid ""
 "When matching RAW and JPEG photos are found, automatically mark both for "
 "download."
 msgstr ""
+"Když jsou nalezeny odpovídající si RAW a JPEG fotografie, automaticky obojí "
+"označit ke stahování."
 
 #: ../raphodo/preferencedialog.py:604
 msgid ""
 "If you disable file consolidation, choose what to do when a download device "
 "is inserted while completed downloads are displayed:"
 msgstr ""
+"Pokud vypnete konsolidaci souborů, zvolte co dělat když je připojeno "
+"zařízení ke stahování zatímco jsou zobrazena dokončená stahování:"
 
 #: ../raphodo/preferencedialog.py:610
 msgid ""
 "When a download device is inserted while completed downloads are displayed:"
 msgstr ""
+"Když je zařízení, ze kterého je stahováno, připojeno v okamžiku kdy jsou "
+"zobrazená dokončená stahování:"
 
 #: ../raphodo/preferencedialog.py:621
 msgid "Clear completed downloads"
@@ -2971,7 +3032,7 @@ msgstr "Vyčistit dokončená stahování"
 
 #: ../raphodo/preferencedialog.py:622
 msgid "Keep displaying completed downloads"
-msgstr ""
+msgstr "Ponechat dokončená stahování zobrazená"
 
 #: ../raphodo/preferencedialog.py:623
 msgid "Prompt for what to do"
@@ -2982,18 +3043,24 @@ msgid ""
 "Automatically clear the display of completed downloads whenever a new "
 "download device is inserted."
 msgstr ""
+"Automaticky vyčistit zobrazení dokončených stahování kdykoli je připojeno "
+"nové zařízení ke stahování."
 
 #: ../raphodo/preferencedialog.py:633
 msgid ""
 "Keep displaying completed downloads whenever a new download device is "
 "inserted."
 msgstr ""
+"Ponechat dokončená stahování zobrazená kdykoli je připojeno nové zařízení ke "
+"stahování."
 
 #: ../raphodo/preferencedialog.py:637
 msgid ""
 "Prompt whether to keep displaying completed downloads or clear them whenever "
 "a new download device is inserted."
 msgstr ""
+"Dotázat se zda ponechat zobrazená dokončená stahování nebo je vyčistit "
+"kdykoli je připojeno nové zařízení ke stahování."
 
 #: ../raphodo/preferencedialog.py:681
 msgid "Version Check"
@@ -3892,6 +3959,13 @@ msgid ""
 "Do you want to proceed with the download?\n"
 "                        "
 msgstr ""
+"\n"
+"<b>Stahování všech souborů</b><br><br>\n"
+"Stahování vždy obsahuje všechny soubory které jsou označené ke stažení,\n"
+"včetně těch, které nyní nejsou zobrazené protože je používána časová osa\n"
+"nebo protože jsou zobrazeny pouze nové soubory.<br><br>\n"
+"Chcete pokračovat ve stahování?\n"
+"                        "
 
 #: ../raphodo/rapid.py:2931
 #, python-format
@@ -4213,7 +4287,7 @@ msgstr "Současná dokončená stahování"
 #: ../raphodo/rapid.py:4832
 #, python-format
 msgid "%s whose download have completed are displayed."
-msgstr ""
+msgstr "Jsou zobrazeny %s jejihž stahování je dokončeno."
 
 #: ../raphodo/rapid.py:4834
 msgid "Do you want to clear the completed downloads?"
@@ -4221,12 +4295,12 @@ msgstr "Chcete vyčistit dokončená stahování?"
 
 #: ../raphodo/rapid.py:4836
 msgid "Completed Download Present"
-msgstr ""
+msgstr "Prezentace dokončených stahování"
 
 #: ../raphodo/rapid.py:4838
 #, python-format
 msgid "%s whose download has completed is displayed."
-msgstr ""
+msgstr "Je zobrazeno %s jehož stahování je dokončeno."
 
 #: ../raphodo/rapid.py:4840
 msgid "Do you want to clear the completed download?"
@@ -4698,26 +4772,31 @@ msgstr "Pořízeno %(date_time)s (%(human_readable)s)"
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Upraveno %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:478
+#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:481
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:463
+#: ../raphodo/thumbnaildisplay.py:464
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Paměťové karty: %s"
 
-#: ../raphodo/thumbnaildisplay.py:470
+#: ../raphodo/thumbnaildisplay.py:468
+#, fuzzy, python-format
+msgid "Memory card: %s"
+msgstr "Paměťové karty: %s"
+
+#: ../raphodo/thumbnaildisplay.py:473
 msgid "Downloaded as:"
 msgstr "Staženo jako:"
 
-#: ../raphodo/thumbnaildisplay.py:486
+#: ../raphodo/thumbnaildisplay.py:489
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Předchozí stahování:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:1638
+#: ../raphodo/thumbnaildisplay.py:1641
 msgid "Copy Path"
 msgstr "Kopírovat popis umístění"
 
@@ -4725,40 +4804,39 @@ msgstr "Kopírovat popis umístění"
 #. kilobytes, etc.
 #: ../raphodo/utilities.py:170
 msgid "B"
-msgstr ""
+msgstr "B"
 
 #: ../raphodo/utilities.py:170
 msgid "KB"
-msgstr ""
+msgstr "KB"
 
 #: ../raphodo/utilities.py:170
-#, fuzzy
 msgid "MB"
-msgstr "MB/s"
+msgstr "MB"
 
 #: ../raphodo/utilities.py:170
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 #: ../raphodo/utilities.py:170
 msgid "TB"
-msgstr ""
+msgstr "TB"
 
 #: ../raphodo/utilities.py:170
 msgid "PB"
-msgstr ""
+msgstr "PB"
 
 #: ../raphodo/utilities.py:170
 msgid "EB"
-msgstr ""
+msgstr "EB"
 
 #: ../raphodo/utilities.py:170
 msgid "ZB"
-msgstr ""
+msgstr "ZB"
 
 #: ../raphodo/utilities.py:170
 msgid "YB"
-msgstr ""
+msgstr "YB"
 
 #. two things in a list e.g. "device1 and device2"
 #: ../raphodo/utilities.py:392
@@ -4977,6 +5055,9 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 
 #~ msgid "and %s"
 #~ msgstr "a %s"
+
+#~ msgid "MB/s"
+#~ msgstr "MB/s"
 
 #~ msgid "<b>Backup</b>"
 #~ msgstr "<b>Záloha</b>"
@@ -5915,3 +5996,12 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ msgstr ""
 #~ "Ověření souboru selhalo na %(volume)s. Zálohovaná verze je jiná než ta "
 #~ "stažená."
+
+#~ msgid "translator-credits"
+#~ msgstr ""
+#~ "Launchpad Contributions:\n"
+#~ "  Damon Lynch https://launchpad.net/~dlynch3\n"
+#~ "  Jaroslav Lichtblau https://launchpad.net/~svetlemodry\n"
+#~ "  Kuvaly [LCT] https://launchpad.net/~kuvaly\n"
+#~ "  Pavel Borecki https://launchpad.net/~pavel-borecki\n"
+#~ "  Vlastimil Ott https://launchpad.net/~vlastimil-e-ott"
