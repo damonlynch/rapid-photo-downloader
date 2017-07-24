@@ -6,157 +6,155 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-23 02:09-0500\n"
-"PO-Revision-Date: 2017-07-22 05:11+0000\n"
+"POT-Creation-Date: 2017-07-24 01:07-0500\n"
+"PO-Revision-Date: 2017-07-23 12:28+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: српски <gnome-sr@googlegroups.org>\n"
 "Language: sr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-23 06:28+0000\n"
+"X-Launchpad-Export-Date: 2017-07-24 06:01+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
-#, fuzzy
 msgid "Rapid Photo Downloader installer"
-msgstr "Брзи преносилац фотографија"
+msgstr ""
 
 #: ../install.py:64
-#, fuzzy
 msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr "Преузмите фотографије и снимке са Брзим преносиоцем фотографија"
+msgstr ""
 
-#: ../install.py:233 ../install.py:1677
+#: ../install.py:234 ../install.py:1677
 msgid "Installer not found:"
 msgstr ""
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:237 ../install.py:1681
+#: ../install.py:238 ../install.py:1681
 msgid "Installer not in tar.gz format:"
 msgstr ""
 
-#: ../install.py:442
+#: ../install.py:443
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
 "permissions for"
 msgstr ""
 
-#: ../install.py:498
+#: ../install.py:499
 msgid "The following command will be run:"
 msgstr ""
 
-#: ../install.py:501 ../install.py:1425 ../install.py:1430
+#: ../install.py:502 ../install.py:1425 ../install.py:1430
 msgid "sudo may prompt you for the sudo password."
 msgstr ""
 
-#: ../install.py:505
+#: ../install.py:506
 msgid "Would you like to run the command now?"
 msgstr ""
 
-#: ../install.py:507
+#: ../install.py:508
 msgid "Answer is not yes, exiting."
 msgstr ""
 
-#: ../install.py:517
+#: ../install.py:518
 msgid "Command failed"
 msgstr ""
 
-#: ../install.py:519
+#: ../install.py:520
 msgid "Exiting"
 msgstr ""
 
-#: ../install.py:546
+#: ../install.py:547
 msgid "The Universe repository must be enabled."
 msgstr ""
 
-#: ../install.py:570
+#: ../install.py:571
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
 msgstr ""
 
-#: ../install.py:677 ../install.py:702
+#: ../install.py:678 ../install.py:703
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
 msgstr ""
 
-#: ../install.py:688
+#: ../install.py:689
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again"
 msgstr ""
 
-#: ../install.py:710
+#: ../install.py:711
 msgid "Checking if previous version installed with pip..."
 msgstr ""
 
-#: ../install.py:804
+#: ../install.py:805
 msgid "The following package is unknown on your system: {}\n"
 msgstr ""
 
-#: ../install.py:811 ../install.py:883 ../install.py:921
+#: ../install.py:812 ../install.py:884 ../install.py:922
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
 
-#: ../install.py:840
+#: ../install.py:841
 msgid "Querying installed and available packages (this may take a while)"
 msgstr ""
 
-#: ../install.py:912
+#: ../install.py:913
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr ""
 
-#: ../install.py:950
+#: ../install.py:951
 msgid "Query to confirm action at each step."
 msgstr ""
 
-#: ../install.py:957
+#: ../install.py:958
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
 msgstr ""
 
-#: ../install.py:966
+#: ../install.py:967
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
 
-#: ../install.py:989
+#: ../install.py:990
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
 "whichever installer is newer."
 msgstr ""
 
-#: ../install.py:996
+#: ../install.py:997
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
 msgstr ""
 
-#: ../install.py:1000
+#: ../install.py:1001
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
 
-#: ../install.py:1005
+#: ../install.py:1006
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr ""
 
-#: ../install.py:1012
+#: ../install.py:1013
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
 
-#: ../install.py:1018
+#: ../install.py:1019
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -166,15 +164,15 @@ msgid ""
 "not be uninstalled."
 msgstr ""
 
-#: ../install.py:1068
+#: ../install.py:1069
 msgid "Failed to download versions file"
 msgstr ""
 
-#: ../install.py:1072
+#: ../install.py:1073
 msgid "Got error code {} while accessing versions file"
 msgstr ""
 
-#: ../install.py:1180
+#: ../install.py:1181
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -1526,7 +1524,7 @@ msgstr ""
 "    Приложите датотеку дневника уз извештај, који се налази на „{log_path}“\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1625
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1636
 msgid "Open in File Browser..."
 msgstr "Отвори у прегледачу датотека..."
 
@@ -4662,122 +4660,161 @@ msgstr "Корен система датотека"
 msgid "Pictures"
 msgstr "Слике"
 
-#: ../raphodo/thumbnaildisplay.py:427
+#: ../raphodo/thumbnaildisplay.py:432
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
 msgstr "Снимљено %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:432
+#: ../raphodo/thumbnaildisplay.py:439
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Измењено %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:438 ../raphodo/thumbnaildisplay.py:467
+#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:478
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:452
+#: ../raphodo/thumbnaildisplay.py:463
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Меморијске картице: %s"
 
-#: ../raphodo/thumbnaildisplay.py:458
+#: ../raphodo/thumbnaildisplay.py:470
 msgid "Downloaded as:"
 msgstr "Преузето као:"
 
-#: ../raphodo/thumbnaildisplay.py:473
+#: ../raphodo/thumbnaildisplay.py:486
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Претходно преузимање:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:1627
+#: ../raphodo/thumbnaildisplay.py:1638
 msgid "Copy Path"
 msgstr "Путања умножавања"
 
+#. Translators: these values are file size suffixes like B representing bytes, KB representing
+#. kilobytes, etc.
+#: ../raphodo/utilities.py:170
+msgid "B"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "KB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+#, fuzzy
+msgid "MB"
+msgstr "MB/s"
+
+#: ../raphodo/utilities.py:170
+msgid "GB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "TB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "PB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "EB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "ZB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "YB"
+msgstr ""
+
 #. two things in a list e.g. "device1 and device2"
-#: ../raphodo/utilities.py:390
+#: ../raphodo/utilities.py:392
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
 msgstr "„%(first_item)s“ и „%(last_item)s“"
 
-#: ../raphodo/utilities.py:463
+#: ../raphodo/utilities.py:466
 msgid "one"
 msgstr "један"
 
-#: ../raphodo/utilities.py:464
+#: ../raphodo/utilities.py:467
 msgid "two"
 msgstr "два"
 
-#: ../raphodo/utilities.py:465
+#: ../raphodo/utilities.py:468
 msgid "three"
 msgstr "три"
 
-#: ../raphodo/utilities.py:466
+#: ../raphodo/utilities.py:469
 msgid "four"
 msgstr "четири"
 
-#: ../raphodo/utilities.py:467
+#: ../raphodo/utilities.py:470
 msgid "five"
 msgstr "пет"
 
-#: ../raphodo/utilities.py:468
+#: ../raphodo/utilities.py:471
 msgid "six"
 msgstr "шест"
 
-#: ../raphodo/utilities.py:469
+#: ../raphodo/utilities.py:472
 msgid "seven"
 msgstr "седам"
 
-#: ../raphodo/utilities.py:470
+#: ../raphodo/utilities.py:473
 msgid "eight"
 msgstr "осам"
 
-#: ../raphodo/utilities.py:471
+#: ../raphodo/utilities.py:474
 msgid "nine"
 msgstr "девет"
 
-#: ../raphodo/utilities.py:472
+#: ../raphodo/utilities.py:475
 msgid "ten"
 msgstr "десет"
 
-#: ../raphodo/utilities.py:473
+#: ../raphodo/utilities.py:476
 msgid "eleven"
 msgstr "једанаест"
 
-#: ../raphodo/utilities.py:474
+#: ../raphodo/utilities.py:477
 msgid "twelve"
 msgstr "дванаест"
 
-#: ../raphodo/utilities.py:475
+#: ../raphodo/utilities.py:478
 msgid "thirteen"
 msgstr "тринаест"
 
-#: ../raphodo/utilities.py:476
+#: ../raphodo/utilities.py:479
 msgid "fourteen"
 msgstr "четрнаест"
 
-#: ../raphodo/utilities.py:477
+#: ../raphodo/utilities.py:480
 msgid "fifteen"
 msgstr "петнаест"
 
-#: ../raphodo/utilities.py:478
+#: ../raphodo/utilities.py:481
 msgid "sixteen"
 msgstr "шеснаест"
 
-#: ../raphodo/utilities.py:479
+#: ../raphodo/utilities.py:482
 msgid "seventeen"
 msgstr "седамнаест"
 
-#: ../raphodo/utilities.py:480
+#: ../raphodo/utilities.py:483
 msgid "eighteen"
 msgstr "осамнаест"
 
-#: ../raphodo/utilities.py:481
+#: ../raphodo/utilities.py:484
 msgid "ninenteen"
 msgstr "деветнаест"
 
-#: ../raphodo/utilities.py:482
+#: ../raphodo/utilities.py:485
 msgid "twenty"
 msgstr "двадесет"
 
@@ -4949,9 +4986,6 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 
 #~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 #~ msgstr "Преостало је %(minutes)i:%(seconds)02i"
-
-#~ msgid "MB/s"
-#~ msgstr "MB/s"
 
 #~ msgid "About 1 second remaining"
 #~ msgstr "Преостала је 1 секунда"

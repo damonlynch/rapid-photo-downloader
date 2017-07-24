@@ -85,7 +85,7 @@ blocks = (zip_text[s:s + line_length] for s in range(0, len(zip_text), line_leng
 new_code = "{}\n{}\n{}".format(code[:start], '\n'.join(blocks), code[end:])
 
 # backup the existing script
-shutil.copy2(install_script, install_backup)
+# shutil.copy2(install_script, install_backup)
 
 # write out the updated script
 with open(install_script, 'wt') as install_py:

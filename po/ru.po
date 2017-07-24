@@ -7,37 +7,35 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-23 02:09-0500\n"
-"PO-Revision-Date: 2017-07-22 05:11+0000\n"
+"POT-Creation-Date: 2017-07-24 01:07-0500\n"
+"PO-Revision-Date: 2017-07-23 12:28+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-23 06:28+0000\n"
+"X-Launchpad-Export-Date: 2017-07-24 06:01+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
-#, fuzzy
 msgid "Rapid Photo Downloader installer"
-msgstr "Rapid Photo Downloader"
+msgstr ""
 
 #: ../install.py:64
-#, fuzzy
 msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr "Вы хотите удалить предыдущую версию Rapid Photo Downloader:"
+msgstr ""
 
-#: ../install.py:233 ../install.py:1677
+#: ../install.py:234 ../install.py:1677
 msgid "Installer not found:"
 msgstr "Установщик не найден:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:237 ../install.py:1681
+#: ../install.py:238 ../install.py:1681
 msgid "Installer not in tar.gz format:"
 msgstr "Установщие не в формате tar.gz:"
 
-#: ../install.py:442
+#: ../install.py:443
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
 "permissions for"
@@ -45,40 +43,40 @@ msgstr ""
 "Обнаружена некорректная принадлежность папки. Изменение принадлежности и "
 "сброс разрешений для"
 
-#: ../install.py:498
+#: ../install.py:499
 msgid "The following command will be run:"
 msgstr "Будет выполнена следующая команда:"
 
-#: ../install.py:501 ../install.py:1425 ../install.py:1430
+#: ../install.py:502 ../install.py:1425 ../install.py:1430
 msgid "sudo may prompt you for the sudo password."
 msgstr "команда sudo может запросить пароль администратора."
 
-#: ../install.py:505
+#: ../install.py:506
 msgid "Would you like to run the command now?"
 msgstr "Вы хотите выполнить эту команду сейчас?"
 
-#: ../install.py:507
+#: ../install.py:508
 msgid "Answer is not yes, exiting."
 msgstr "Ответ не Да, выход."
 
-#: ../install.py:517
+#: ../install.py:518
 msgid "Command failed"
 msgstr "Действие не удалось"
 
-#: ../install.py:519
+#: ../install.py:520
 msgid "Exiting"
 msgstr "Выход"
 
-#: ../install.py:546
+#: ../install.py:547
 msgid "The Universe repository must be enabled."
 msgstr "Должны быть включены репозитории Universe."
 
-#: ../install.py:570
+#: ../install.py:571
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
 msgstr "Вы хотите удалить предыдущую версию Rapid Photo Downloader:"
 
-#: ../install.py:677 ../install.py:702
+#: ../install.py:678 ../install.py:703
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
@@ -86,7 +84,7 @@ msgstr ""
 "Запрос к системе пакетов по поводу наличия установленной старой версии Rapid "
 "Photo Downloader (может занять некоторое время)..."
 
-#: ../install.py:688
+#: ../install.py:689
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again"
@@ -94,27 +92,27 @@ msgstr ""
 "Невозможно опросить систему пакетов. Пожалуйста, проверьте соединение с "
 "Интернет и попробуйте снова"
 
-#: ../install.py:710
+#: ../install.py:711
 msgid "Checking if previous version installed with pip..."
 msgstr "Проверка, не установлена ли предыдущая версия при помощи pip..."
 
-#: ../install.py:804
+#: ../install.py:805
 msgid "The following package is unknown on your system: {}\n"
 msgstr "Следующий пакет неизвестен на вашей системе: {}\n"
 
-#: ../install.py:811 ../install.py:883 ../install.py:921
+#: ../install.py:812 ../install.py:884 ../install.py:922
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
 "Для продолжения будут установлены некоторые пакеты, необходимые для запуска "
 "приложения."
 
-#: ../install.py:840
+#: ../install.py:841
 msgid "Querying installed and available packages (this may take a while)"
 msgstr ""
 "Проверка установленных и доступных пакетов (может занять некоторое время)"
 
-#: ../install.py:912
+#: ../install.py:913
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
@@ -122,11 +120,11 @@ msgstr ""
 "Проверка, на наличие установленных пакетов из списка необходимых (может "
 "занять некоторое время)... "
 
-#: ../install.py:950
+#: ../install.py:951
 msgid "Query to confirm action at each step."
 msgstr "Запрос на подтверждение действий на каждом шаге."
 
-#: ../install.py:957
+#: ../install.py:958
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
@@ -134,7 +132,7 @@ msgstr ""
 "При загрузке последней версии, устанавливать версию в разработке, если она "
 "новее, чем стабильная версия."
 
-#: ../install.py:966
+#: ../install.py:967
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
@@ -142,7 +140,7 @@ msgstr ""
 "Необязательный tar.gz архив Rapid Photo Downloader. Если не задан, будет "
 "скачана последняя версия из Интернет."
 
-#: ../install.py:989
+#: ../install.py:990
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
@@ -151,7 +149,7 @@ msgstr ""
 "Не запускайте установщик из tar.gz архива Rapid Photo Downloader если он "
 "новее чем эта версия ({}). По умолчанию запускается более новый установщик."
 
-#: ../install.py:996
+#: ../install.py:997
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
@@ -159,7 +157,7 @@ msgstr ""
 "Удалить Rapid Photo Downloader, установленный при помощи pip, оставив "
 "зависимости."
 
-#: ../install.py:1000
+#: ../install.py:1001
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
@@ -167,7 +165,7 @@ msgstr ""
 "Удалить зависимости, установленные при помощи pip во время установки Rapid "
 "Photo Downloader, сам Rapid Photo Downloader, затем выйти."
 
-#: ../install.py:1005
+#: ../install.py:1006
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
@@ -175,12 +173,12 @@ msgstr ""
 "Замечание: версии Rapid Photo Downloader, установленные при помощи менеджера "
 "пакетов вашего дистрибутива Linux, удалены не будут."
 
-#: ../install.py:1012
+#: ../install.py:1013
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr "Зависимости будут удалены только если они не нужны другим программам."
 
-#: ../install.py:1018
+#: ../install.py:1019
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -196,15 +194,15 @@ msgstr ""
 "версии Rapid Photo Downloader, установленные при помощи менеджера пакетов "
 "вашего дистрибутива Linux, удалены не будут."
 
-#: ../install.py:1068
+#: ../install.py:1069
 msgid "Failed to download versions file"
 msgstr "Загрузка файла версий не удалась"
 
-#: ../install.py:1072
+#: ../install.py:1073
 msgid "Got error code {} while accessing versions file"
 msgstr "При обращении к файлу версий получен код ошибки {}"
 
-#: ../install.py:1180
+#: ../install.py:1181
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -1603,7 +1601,7 @@ msgstr ""
 "    Приложить лог файл, найденный в {log_path} к вашему отчету об ошибках\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1625
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1636
 msgid "Open in File Browser..."
 msgstr "Открыть в файл менеджере..."
 
@@ -4768,122 +4766,161 @@ msgstr "Корень файловой системы"
 msgid "Pictures"
 msgstr "Изображения"
 
-#: ../raphodo/thumbnaildisplay.py:427
+#: ../raphodo/thumbnaildisplay.py:432
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
 msgstr "Снято %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:432
+#: ../raphodo/thumbnaildisplay.py:439
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Изменено %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:438 ../raphodo/thumbnaildisplay.py:467
+#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:478
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:452
+#: ../raphodo/thumbnaildisplay.py:463
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Карты памяти: %s"
 
-#: ../raphodo/thumbnaildisplay.py:458
+#: ../raphodo/thumbnaildisplay.py:470
 msgid "Downloaded as:"
 msgstr "Загружено как:"
 
-#: ../raphodo/thumbnaildisplay.py:473
+#: ../raphodo/thumbnaildisplay.py:486
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Предыдущая загрузка:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:1627
+#: ../raphodo/thumbnaildisplay.py:1638
 msgid "Copy Path"
 msgstr "Копировать путь"
 
+#. Translators: these values are file size suffixes like B representing bytes, KB representing
+#. kilobytes, etc.
+#: ../raphodo/utilities.py:170
+msgid "B"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "KB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+#, fuzzy
+msgid "MB"
+msgstr "МБ/с"
+
+#: ../raphodo/utilities.py:170
+msgid "GB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "TB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "PB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "EB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "ZB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "YB"
+msgstr ""
+
 #. two things in a list e.g. "device1 and device2"
-#: ../raphodo/utilities.py:390
+#: ../raphodo/utilities.py:392
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
 msgstr "%(first_item)s и %(last_item)s"
 
-#: ../raphodo/utilities.py:463
+#: ../raphodo/utilities.py:466
 msgid "one"
 msgstr "1"
 
-#: ../raphodo/utilities.py:464
+#: ../raphodo/utilities.py:467
 msgid "two"
 msgstr "2"
 
-#: ../raphodo/utilities.py:465
+#: ../raphodo/utilities.py:468
 msgid "three"
 msgstr "3"
 
-#: ../raphodo/utilities.py:466
+#: ../raphodo/utilities.py:469
 msgid "four"
 msgstr "4"
 
-#: ../raphodo/utilities.py:467
+#: ../raphodo/utilities.py:470
 msgid "five"
 msgstr "5"
 
-#: ../raphodo/utilities.py:468
+#: ../raphodo/utilities.py:471
 msgid "six"
 msgstr "6"
 
-#: ../raphodo/utilities.py:469
+#: ../raphodo/utilities.py:472
 msgid "seven"
 msgstr "7"
 
-#: ../raphodo/utilities.py:470
+#: ../raphodo/utilities.py:473
 msgid "eight"
 msgstr "8"
 
-#: ../raphodo/utilities.py:471
+#: ../raphodo/utilities.py:474
 msgid "nine"
 msgstr "9"
 
-#: ../raphodo/utilities.py:472
+#: ../raphodo/utilities.py:475
 msgid "ten"
 msgstr "10"
 
-#: ../raphodo/utilities.py:473
+#: ../raphodo/utilities.py:476
 msgid "eleven"
 msgstr "11"
 
-#: ../raphodo/utilities.py:474
+#: ../raphodo/utilities.py:477
 msgid "twelve"
 msgstr "12"
 
-#: ../raphodo/utilities.py:475
+#: ../raphodo/utilities.py:478
 msgid "thirteen"
 msgstr "13"
 
-#: ../raphodo/utilities.py:476
+#: ../raphodo/utilities.py:479
 msgid "fourteen"
 msgstr "14"
 
-#: ../raphodo/utilities.py:477
+#: ../raphodo/utilities.py:480
 msgid "fifteen"
 msgstr "15"
 
-#: ../raphodo/utilities.py:478
+#: ../raphodo/utilities.py:481
 msgid "sixteen"
 msgstr "16"
 
-#: ../raphodo/utilities.py:479
+#: ../raphodo/utilities.py:482
 msgid "seventeen"
 msgstr "17"
 
-#: ../raphodo/utilities.py:480
+#: ../raphodo/utilities.py:483
 msgid "eighteen"
 msgstr "18"
 
-#: ../raphodo/utilities.py:481
+#: ../raphodo/utilities.py:484
 msgid "ninenteen"
 msgstr "19"
 
-#: ../raphodo/utilities.py:482
+#: ../raphodo/utilities.py:485
 msgid "twenty"
 msgstr "20"
 
@@ -5184,9 +5221,6 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 
 #~ msgid "_Add..."
 #~ msgstr "_Добавить..."
-
-#~ msgid "MB/s"
-#~ msgstr "МБ/с"
 
 #~ msgid "Source: %(source)s"
 #~ msgstr "Источник: %(source)s"

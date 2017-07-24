@@ -7,157 +7,175 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-23 02:09-0500\n"
-"PO-Revision-Date: 2017-07-22 05:11+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"POT-Creation-Date: 2017-07-24 01:07-0500\n"
+"PO-Revision-Date: 2017-07-23 19:17+0000\n"
+"Last-Translator: Pavel Borecki <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-23 06:28+0000\n"
+"X-Launchpad-Export-Date: 2017-07-24 06:01+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
-#, fuzzy
 msgid "Rapid Photo Downloader installer"
-msgstr "Rapid Photo Downloader"
+msgstr "Instalátor aplikace Rapid Photo Downloader"
 
 #: ../install.py:64
-#, fuzzy
 msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
-
-#: ../install.py:233 ../install.py:1677
-msgid "Installer not found:"
 msgstr ""
+"Stáhnout a nainstalovat nejnovější verzi aplikace Rapid Photo Downloader."
+
+#: ../install.py:234 ../install.py:1677
+msgid "Installer not found:"
+msgstr "Instalátor nenalezen:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:237 ../install.py:1681
+#: ../install.py:238 ../install.py:1681
 msgid "Installer not in tar.gz format:"
-msgstr ""
+msgstr "Instalátor není ve formátu tar.gz:"
 
-#: ../install.py:442
+#: ../install.py:443
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
 "permissions for"
 msgstr ""
+"Zjištěno nesprávné vlastnictví složky. Vlastnictví bude změněno a přístupová "
+"práva resetována pro"
 
-#: ../install.py:498
+#: ../install.py:499
 msgid "The following command will be run:"
-msgstr ""
+msgstr "Bude spuštěn následující příkaz:"
 
-#: ../install.py:501 ../install.py:1425 ../install.py:1430
+#: ../install.py:502 ../install.py:1425 ../install.py:1430
 msgid "sudo may prompt you for the sudo password."
 msgstr ""
+"sudo vás může vyzvat k zadání hesla k účtu, oprávněného k jeho použití."
 
-#: ../install.py:505
+#: ../install.py:506
 msgid "Would you like to run the command now?"
-msgstr ""
+msgstr "Přejete si spustit příkaz nyní?"
 
-#: ../install.py:507
+#: ../install.py:508
 msgid "Answer is not yes, exiting."
-msgstr ""
+msgstr "Odpověď není ano, bude ukončeno."
 
-#: ../install.py:517
+#: ../install.py:518
 msgid "Command failed"
-msgstr ""
+msgstr "Vykonávání příkazu se nezdařilo"
 
-#: ../install.py:519
+#: ../install.py:520
 msgid "Exiting"
-msgstr ""
+msgstr "Ukončování"
 
-#: ../install.py:546
+#: ../install.py:547
 msgid "The Universe repository must be enabled."
-msgstr ""
+msgstr "Je třeba zapnout používání repozitáře Universe."
 
-#: ../install.py:570
+#: ../install.py:571
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
-msgstr ""
+msgstr "Přejete si odinstalovat předchozí verzi Rapid Photo Downloader:"
 
-#: ../install.py:677 ../install.py:702
+#: ../install.py:678 ../install.py:703
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
 msgstr ""
+"Dotazování systému správy balíčků zda je nainstalována starší verze Rapid "
+"Photo Downloader (může to chvíli trvat)…"
 
-#: ../install.py:688
+#: ../install.py:689
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again"
 msgstr ""
+"Nedaří se dotázat správy balíčků. Zkontrolujte připojení k Internetu a "
+"zkuste to znovu"
 
-#: ../install.py:710
+#: ../install.py:711
 msgid "Checking if previous version installed with pip..."
-msgstr ""
+msgstr "Zjišťování zda předchozí verze byla nainstalována pomocí nástroje pip…"
 
-#: ../install.py:804
+#: ../install.py:805
 msgid "The following package is unknown on your system: {}\n"
-msgstr ""
+msgstr "Následující balíček není známý na vašem systému: {}\n"
 
-#: ../install.py:811 ../install.py:883 ../install.py:921
+#: ../install.py:812 ../install.py:884 ../install.py:922
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
+"Aby bylo možné pokračovat, budou nainstalovány balíčky potřebné pro provoz "
+"aplikace."
 
-#: ../install.py:840
+#: ../install.py:841
 msgid "Querying installed and available packages (this may take a while)"
-msgstr ""
+msgstr "Zjišťování nainstalovaných a dostupných balíčků (může chvíli trvat)"
 
-#: ../install.py:912
+#: ../install.py:913
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr ""
 
-#: ../install.py:950
+#: ../install.py:951
 msgid "Query to confirm action at each step."
 msgstr ""
 
-#: ../install.py:957
+#: ../install.py:958
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
 msgstr ""
+"Při stahování nejnovější verze, nainstalovat vývojovou verzi pokud je "
+"novější, než ta stabilní."
 
-#: ../install.py:966
+#: ../install.py:967
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
+"Volitelný tar.gz archiv instalátoru Rapid Photo Downloader. Pokud není "
+"zadán, bude z Internetu stažena nejnovější verze."
 
-#: ../install.py:989
+#: ../install.py:990
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
 "whichever installer is newer."
 msgstr ""
 
-#: ../install.py:996
+#: ../install.py:997
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
 msgstr ""
+"Odinstalovat Rapid Photo Downloader který byl nainstalován pomocí pip, s "
+"ponecháním závislostí nainstalovaných."
 
-#: ../install.py:1000
+#: ../install.py:1001
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
+"Odinstalovat závislosti nainstalované nástrojem pip při instalaci Rapid "
+"Photo Downloader a aplikaci samotnou a pak skončit."
 
-#: ../install.py:1005
+#: ../install.py:1006
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr ""
+"Pozn.: toto neodinstaluje žádnou z verzí Rapid Photo Downloader "
+"nainstalovanou přes správu balíčků vaší Linuxové distribuce."
 
-#: ../install.py:1012
+#: ../install.py:1013
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
 
-#: ../install.py:1018
+#: ../install.py:1019
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -167,15 +185,15 @@ msgid ""
 "not be uninstalled."
 msgstr ""
 
-#: ../install.py:1068
+#: ../install.py:1069
 msgid "Failed to download versions file"
-msgstr ""
+msgstr "Nepodařilo se stáhnout soubor s verzemi"
 
-#: ../install.py:1072
+#: ../install.py:1073
 msgid "Got error code {} while accessing versions file"
 msgstr ""
 
-#: ../install.py:1180
+#: ../install.py:1181
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -185,7 +203,7 @@ msgstr ""
 
 #: ../install.py:1355
 msgid "Installing application requirements..."
-msgstr ""
+msgstr "Instalace součástí potřebných pro aplikaci…"
 
 #: ../install.py:1371
 msgid "Failed to install application requirements: exiting"
@@ -193,45 +211,47 @@ msgstr ""
 
 #: ../install.py:1374
 msgid "Installing application..."
-msgstr ""
+msgstr "Instalace aplikace…"
 
 #: ../install.py:1387
 msgid "Failed to install application: exiting..."
-msgstr ""
+msgstr "Aplikaci se nepodařilo nainstalovat: ukončování…"
 
 #: ../install.py:1411
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "commmand line or application launcher."
 msgstr ""
+"Aby bylo možné aplikaci spustit (z příkazového řádku nebo kliknutím na "
+"zástupce), může být třeba se odhlásit a znovu přihlásit do systému."
 
 #: ../install.py:1422
 msgid "Do you want to install the application's man pages?"
-msgstr ""
+msgstr "Přejete si nainstalovat manuálové stránky aplikace?"
 
 #: ../install.py:1423
 msgid "They will be installed into {}"
-msgstr ""
+msgstr "Budou nainstalovány do {}"
 
 #: ../install.py:1424 ../install.py:1429
 msgid "If you uninstall the application, remove these manpages yourself."
-msgstr ""
+msgstr "Pokud aplikaci odinstalujete, tyto manuálové stránky potom odeberte."
 
 #: ../install.py:1426
 msgid "Do want to install the man pages?"
-msgstr ""
+msgstr "Chcete nainstalovat manuálové stránky?"
 
 #: ../install.py:1428
 msgid "Installing man pages into {}"
-msgstr ""
+msgstr "Instalace manuálových stránek do {}"
 
 #: ../install.py:1445
 msgid "Failed to create man page directory: exiting"
-msgstr ""
+msgstr "Nepodařilo se vytvořit složku pro manuálovou stránku: ukončuje se"
 
 #: ../install.py:1457
 msgid "Failed to copy man page."
-msgstr ""
+msgstr "Nepodařilo se zkopírovat manuálovou stránku."
 
 #: ../install.py:1477
 msgid ""
@@ -239,31 +259,40 @@ msgid ""
 "Downloader that was installed with pip.\n"
 "Cannot continue. Exiting."
 msgstr ""
+"Pro odinstalaci aplikace Rapid Photo Downloader, která byla nainstalovaná "
+"pomocí python3 nástroje pip je třeba,\n"
+"aby tento nástroj byl přítomen. Nelze pokračovat, ukončuje se."
 
 #: ../install.py:1518
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
 msgstr ""
+"Nespouštějte tento instalační skript jako sudo / root.\n"
+"Spusťte ho jako uživatel který bude aplikaci používat.\n"
 
 #: ../install.py:1528 ../install.py:1542
 msgid "Do not include any other command line arguments when specifying"
-msgstr ""
+msgstr "Při specifikování nezadávejte žádné další argumenty příkazového řádku"
 
 #: ../install.py:1580
 msgid "Exiting..."
-msgstr ""
+msgstr "Ukončování..."
 
 #. Translators: do not translate the term python3-apt
 #: ../install.py:1599
 msgid "To continue, the package python3-apt must be installed."
 msgstr ""
+"Aby bylo možné pokračovat, je třeba, aby byl nainstalovaný balíček python3-"
+"apt."
 
 #: ../install.py:1607 ../install.py:1618
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
 msgstr ""
+"Je nám líto, ale tento instalátor nepodporuje vlastní instalace python.\n"
+"Ukončuje se…"
 
 #: ../install.py:1634
 msgid ""
@@ -276,6 +305,8 @@ msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
 msgstr ""
+"Pro spuštění této aplikace je třeba, aby byly nainstalované programy které "
+"asistují Python 3 a jeho správa balíčků."
 
 #. Translators: do not translate the terms Python 3, pip and setuptools
 #: ../install.py:1658
@@ -285,40 +316,41 @@ msgstr ""
 #. Translators: do not translate the term python or requests
 #: ../install.py:1671
 msgid "Installing python requests"
-msgstr ""
+msgstr "Instalace python requests"
 
 #: ../upgrade.py:241
 msgid "Upgrade Rapid Photo Downloader"
-msgstr ""
+msgstr "Přejít na novější verzi Rapid Photo Downloader"
 
 #: ../upgrade.py:268
 msgid "&Upgrade"
-msgstr ""
+msgstr "&Přejít na novější verzi"
 
 #: ../upgrade.py:274
 #, python-format
 msgid "Click the Upgrade button to upgrade to version %s."
-msgstr ""
+msgstr "Kliknutím na tlačítku Přejít na novější verzi přejdete na verzi %s."
 
 #: ../upgrade.py:277
 msgid "Click the Upgrade button to start the upgrade."
-msgstr ""
+msgstr "Přechod na novější verzi zahájíte kliknutím na stejnojmenné tlačítko."
 
 #: ../upgrade.py:280 ../upgrade.py:286 ../raphodo/viewutils.py:241
 msgid "&Close"
-msgstr ""
+msgstr "&Zavřít"
 
 #: ../upgrade.py:281
 msgid "&Run"
-msgstr ""
+msgstr "&Spustit"
 
 #: ../upgrade.py:311
 msgid "Close Rapid Photo Downloader before running this upgrade"
 msgstr ""
+"Před zahájením přechodu na novější verzi Rapid Photo Downloader ukončete"
 
 #: ../upgrade.py:314
 msgid "Upgrade running..."
-msgstr ""
+msgstr "Probíhá přechod na novější verzi…"
 
 #: ../upgrade.py:350
 #, python-format
@@ -326,16 +358,20 @@ msgid ""
 "Successfully upgraded to %s. Click Close to exit, or Run to start the "
 "program."
 msgstr ""
+"Úspěšně povýšeno na %s. Kliknutím na Zavřít ukončete nebo Spustit aplikaci "
+"spusťte."
 
 #: ../upgrade.py:355
 msgid ""
 "Upgrade finished successfully. Click Close to exit, or Run to start the "
 "program."
 msgstr ""
+"Přechod na novější verzi úspěšně dokončen. Kliknutím na Zavřít ukončete nebo "
+"Spustit pro spuštění aplikace."
 
 #: ../upgrade.py:359
 msgid "Upgrade failed. Click Close to exit."
-msgstr ""
+msgstr "Přechod na novější verzi se nezdařil. Kliknutím na Zavřít ukončete."
 
 #: ../raphodo/aboutdialog.py:223
 msgid "Credits"
@@ -632,6 +668,9 @@ msgid ""
 "icon's color indicates whether the download was successful (green), had file "
 "renaming problems (yellow/orange), or failed (red)."
 msgstr ""
+"Po dokončení stahování je zaškrtávací okénko nahrazeno ikonou. Barva ikony "
+"značí zda bylo stahování úspěšné (zelená), vyskytl se problém s "
+"přejmenováním (žlutá/oranžová) nebo se vůbec nezdařilo (červená)."
 
 #: ../raphodo/didyouknow.py:83
 msgid ""
@@ -1223,7 +1262,7 @@ msgstr ""
 
 #: ../raphodo/didyouknow.py:396
 msgid "You can also import program preferences from the older 0.4 version."
-msgstr ""
+msgstr "Je také možné importovat předvolby ze starší verze 0.4."
 
 #: ../raphodo/didyouknow.py:401
 msgid ""
@@ -1508,7 +1547,7 @@ msgstr ""
 "{log_path}\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1625
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1636
 msgid "Open in File Browser..."
 msgstr "Otevřít ve správci souborů…"
 
@@ -2406,7 +2445,7 @@ msgstr "Varování"
 
 #: ../raphodo/preferencedialog.py:109
 msgid "Consolidation"
-msgstr ""
+msgstr "Konsolidace"
 
 #: ../raphodo/preferencedialog.py:109 ../raphodo/preferencedialog.py:119
 msgid "Miscellaneous"
@@ -2836,11 +2875,11 @@ msgstr "Vyčistit seznam přípon neošetřených souborů a varovat tak u všec
 
 #: ../raphodo/preferencedialog.py:547
 msgid "Photo and Video Consolidation"
-msgstr ""
+msgstr "Konsolidace fotografií a videí"
 
 #: ../raphodo/preferencedialog.py:550
 msgid "Consolidate files across devices and downloads"
-msgstr ""
+msgstr "Konsolidovat soubory napříč zařízeními a stahováními"
 
 #: ../raphodo/preferencedialog.py:553
 msgid ""
@@ -2855,11 +2894,11 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:560
 msgid "One photo"
-msgstr ""
+msgstr "Jedna fotografie"
 
 #: ../raphodo/preferencedialog.py:561
 msgid "Two photos"
-msgstr ""
+msgstr "Dvě fotografie"
 
 #: ../raphodo/preferencedialog.py:563
 msgid ""
@@ -2879,15 +2918,15 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:579
 msgid "Do not mark JPEG for download"
-msgstr ""
+msgstr "Neoznačovat JPEG ke stažení"
 
 #: ../raphodo/preferencedialog.py:580
 msgid "Do not mark RAW for download"
-msgstr ""
+msgstr "Neoznačovat RAW ke stažení"
 
 #: ../raphodo/preferencedialog.py:581
 msgid "Mark both for download"
-msgstr ""
+msgstr "Označit obě pro stažení"
 
 #: ../raphodo/preferencedialog.py:588
 msgid ""
@@ -2928,7 +2967,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:621
 msgid "Clear completed downloads"
-msgstr ""
+msgstr "Vyčistit dokončená stahování"
 
 #: ../raphodo/preferencedialog.py:622
 msgid "Keep displaying completed downloads"
@@ -2936,7 +2975,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:623
 msgid "Prompt for what to do"
-msgstr ""
+msgstr "Zeptat se co dělat"
 
 #: ../raphodo/preferencedialog.py:628
 msgid ""
@@ -3006,7 +3045,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:720
 msgid "Completed Downloads"
-msgstr ""
+msgstr "Dokončená stahování"
 
 #. Translators: substituted value is a description for the set of preferences
 #. shown in the preference dialog window, e.g. Devices, Automation, etc.
@@ -4169,7 +4208,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:4830
 msgid "Completed Downloads Present"
-msgstr ""
+msgstr "Současná dokončená stahování"
 
 #: ../raphodo/rapid.py:4832
 #, python-format
@@ -4178,7 +4217,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:4834
 msgid "Do you want to clear the completed downloads?"
-msgstr ""
+msgstr "Chcete vyčistit dokončená stahování?"
 
 #: ../raphodo/rapid.py:4836
 msgid "Completed Download Present"
@@ -4191,7 +4230,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:4840
 msgid "Do you want to clear the completed download?"
-msgstr ""
+msgstr "Chcete vyčistit dokončená stahování?"
 
 #: ../raphodo/rapid.py:4921
 #, python-format
@@ -4612,7 +4651,7 @@ msgstr "%(number)s %(filetypes)s"
 #. translators: natural language expression signifying a single video
 #: ../raphodo/rpdfile.py:337
 msgid "a video"
-msgstr ""
+msgstr "video"
 
 #: ../raphodo/rpdfile.py:339
 msgid "1 Video"
@@ -4621,7 +4660,7 @@ msgstr "1 video"
 #. translators: natural language expression signifying a single photo
 #: ../raphodo/rpdfile.py:346
 msgid "a photo"
-msgstr ""
+msgstr "fotografie"
 
 #: ../raphodo/rpdfile.py:348
 msgid "1 Photo"
@@ -4649,152 +4688,191 @@ msgstr "Kořen souborového systému"
 msgid "Pictures"
 msgstr "Obrázky"
 
-#: ../raphodo/thumbnaildisplay.py:427
+#: ../raphodo/thumbnaildisplay.py:432
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
 msgstr "Pořízeno %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:432
+#: ../raphodo/thumbnaildisplay.py:439
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Upraveno %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:438 ../raphodo/thumbnaildisplay.py:467
+#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:478
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:452
+#: ../raphodo/thumbnaildisplay.py:463
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Paměťové karty: %s"
 
-#: ../raphodo/thumbnaildisplay.py:458
+#: ../raphodo/thumbnaildisplay.py:470
 msgid "Downloaded as:"
 msgstr "Staženo jako:"
 
-#: ../raphodo/thumbnaildisplay.py:473
+#: ../raphodo/thumbnaildisplay.py:486
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Předchozí stahování:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:1627
+#: ../raphodo/thumbnaildisplay.py:1638
 msgid "Copy Path"
 msgstr "Kopírovat popis umístění"
 
+#. Translators: these values are file size suffixes like B representing bytes, KB representing
+#. kilobytes, etc.
+#: ../raphodo/utilities.py:170
+msgid "B"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "KB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+#, fuzzy
+msgid "MB"
+msgstr "MB/s"
+
+#: ../raphodo/utilities.py:170
+msgid "GB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "TB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "PB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "EB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "ZB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "YB"
+msgstr ""
+
 #. two things in a list e.g. "device1 and device2"
-#: ../raphodo/utilities.py:390
+#: ../raphodo/utilities.py:392
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
 msgstr "%(first_item)s a %(last_item)s"
 
-#: ../raphodo/utilities.py:463
+#: ../raphodo/utilities.py:466
 msgid "one"
 msgstr "jedna"
 
-#: ../raphodo/utilities.py:464
+#: ../raphodo/utilities.py:467
 msgid "two"
 msgstr "dvě"
 
-#: ../raphodo/utilities.py:465
+#: ../raphodo/utilities.py:468
 msgid "three"
 msgstr "tři"
 
-#: ../raphodo/utilities.py:466
+#: ../raphodo/utilities.py:469
 msgid "four"
 msgstr "čtyři"
 
-#: ../raphodo/utilities.py:467
+#: ../raphodo/utilities.py:470
 msgid "five"
 msgstr "pět"
 
-#: ../raphodo/utilities.py:468
+#: ../raphodo/utilities.py:471
 msgid "six"
 msgstr "šest"
 
-#: ../raphodo/utilities.py:469
+#: ../raphodo/utilities.py:472
 msgid "seven"
 msgstr "sedm"
 
-#: ../raphodo/utilities.py:470
+#: ../raphodo/utilities.py:473
 msgid "eight"
 msgstr "osm"
 
-#: ../raphodo/utilities.py:471
+#: ../raphodo/utilities.py:474
 msgid "nine"
 msgstr "devět"
 
-#: ../raphodo/utilities.py:472
+#: ../raphodo/utilities.py:475
 msgid "ten"
 msgstr "deset"
 
-#: ../raphodo/utilities.py:473
+#: ../raphodo/utilities.py:476
 msgid "eleven"
 msgstr "jedenáct"
 
-#: ../raphodo/utilities.py:474
+#: ../raphodo/utilities.py:477
 msgid "twelve"
 msgstr "dvanáct"
 
-#: ../raphodo/utilities.py:475
+#: ../raphodo/utilities.py:478
 msgid "thirteen"
 msgstr "třináct"
 
-#: ../raphodo/utilities.py:476
+#: ../raphodo/utilities.py:479
 msgid "fourteen"
 msgstr "patnáct"
 
-#: ../raphodo/utilities.py:477
+#: ../raphodo/utilities.py:480
 msgid "fifteen"
 msgstr "patnáct"
 
-#: ../raphodo/utilities.py:478
+#: ../raphodo/utilities.py:481
 msgid "sixteen"
 msgstr "šestnáct"
 
-#: ../raphodo/utilities.py:479
+#: ../raphodo/utilities.py:482
 msgid "seventeen"
 msgstr "sedmnáct"
 
-#: ../raphodo/utilities.py:480
+#: ../raphodo/utilities.py:483
 msgid "eighteen"
 msgstr "osmnáct"
 
-#: ../raphodo/utilities.py:481
+#: ../raphodo/utilities.py:484
 msgid "ninenteen"
 msgstr "devatenáct"
 
-#: ../raphodo/utilities.py:482
+#: ../raphodo/utilities.py:485
 msgid "twenty"
 msgstr "dvacet"
 
 #: ../raphodo/viewutils.py:240
 msgid "&OK"
-msgstr ""
+msgstr "&OK"
 
 #: ../raphodo/viewutils.py:242
 msgid "&Cancel"
-msgstr ""
+msgstr "&Storno"
 
 #: ../raphodo/viewutils.py:243
 msgid "&Save"
-msgstr ""
+msgstr "&Uložit"
 
 #: ../raphodo/viewutils.py:244
 msgid "&Help"
-msgstr ""
+msgstr "&Nápověda"
 
 #: ../raphodo/viewutils.py:245
 msgid "Restore Defaults"
-msgstr ""
+msgstr "Vrátit na výchozí hodnoty"
 
 #: ../raphodo/viewutils.py:246
 msgid "&Yes"
-msgstr ""
+msgstr "&Ano"
 
 #: ../raphodo/viewutils.py:247
 msgid "&No"
-msgstr ""
+msgstr "&Ne"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:1
 msgid ""
@@ -4899,9 +4977,6 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 
 #~ msgid "and %s"
 #~ msgstr "a %s"
-
-#~ msgid "MB/s"
-#~ msgstr "MB/s"
 
 #~ msgid "<b>Backup</b>"
 #~ msgstr "<b>Záloha</b>"

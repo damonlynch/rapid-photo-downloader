@@ -7,157 +7,165 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-23 02:09-0500\n"
-"PO-Revision-Date: 2017-07-22 05:11+0000\n"
+"POT-Creation-Date: 2017-07-24 01:07-0500\n"
+"PO-Revision-Date: 2017-07-23 12:28+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-23 06:28+0000\n"
+"X-Launchpad-Export-Date: 2017-07-24 06:01+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
-#, fuzzy
 msgid "Rapid Photo Downloader installer"
-msgstr "Rapid Photo Downloader"
+msgstr "Rapid Photo Downloader installeerprogramma"
 
 #: ../install.py:64
-#, fuzzy
 msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr "Download Foto's en Video's met Rapid Photo Downloader"
+msgstr "Download en installeer  de laatste versie van Rapid Photo Downloader."
 
-#: ../install.py:233 ../install.py:1677
+#: ../install.py:234 ../install.py:1677
 msgid "Installer not found:"
-msgstr ""
+msgstr "Installeerprogramma niet gevonden:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:237 ../install.py:1681
+#: ../install.py:238 ../install.py:1681
 msgid "Installer not in tar.gz format:"
-msgstr ""
+msgstr "Installeerprogramma niet in het tar.gz formaat:"
 
-#: ../install.py:442
+#: ../install.py:443
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
 "permissions for"
 msgstr ""
+"Eigenaar van de map niet correct. Veranderen van eigenaar en  aanpassen van "
+"rechten voor"
 
-#: ../install.py:498
+#: ../install.py:499
 msgid "The following command will be run:"
-msgstr ""
+msgstr "De volgende opdracht zal uitgevoerd worden:"
 
-#: ../install.py:501 ../install.py:1425 ../install.py:1430
+#: ../install.py:502 ../install.py:1425 ../install.py:1430
 msgid "sudo may prompt you for the sudo password."
-msgstr ""
+msgstr "sudo kan je om je sudo wachtwoord vragen."
 
-#: ../install.py:505
+#: ../install.py:506
 msgid "Would you like to run the command now?"
-msgstr ""
+msgstr "Wens je de opdracht nu uit te voeren?"
 
-#: ../install.py:507
+#: ../install.py:508
 msgid "Answer is not yes, exiting."
-msgstr ""
+msgstr "Het antwoord was niet  ja, het programma wordt verlaten."
 
-#: ../install.py:517
+#: ../install.py:518
 msgid "Command failed"
-msgstr ""
+msgstr "Opdracht mislukt"
 
-#: ../install.py:519
+#: ../install.py:520
 msgid "Exiting"
-msgstr ""
+msgstr "Afsluiten"
 
-#: ../install.py:546
+#: ../install.py:547
 msgid "The Universe repository must be enabled."
-msgstr ""
+msgstr "De Universe softwarebron moet geactiveerd zijn."
 
-#: ../install.py:570
+#: ../install.py:571
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
-msgstr ""
+msgstr "Wens je de vorige versie van Rapid Photo Downloader verwijderen:"
 
-#: ../install.py:677 ../install.py:702
+#: ../install.py:678 ../install.py:703
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
 msgstr ""
+"Het pakketsysteem wordt nagegaan om een vorige geïnstalleerde versie van "
+"Rapid Photo Downloader te vinden (kan een poosje duren...)"
 
-#: ../install.py:688
+#: ../install.py:689
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again"
 msgstr ""
+"Kan het pakketsysteem niet ondervragen. Controleer je internetverbinding en "
+"probeer opnieuw."
 
-#: ../install.py:710
+#: ../install.py:711
 msgid "Checking if previous version installed with pip..."
-msgstr ""
+msgstr "Nagaan of de vorige versie via pip werd geïnstalleerd..."
 
-#: ../install.py:804
+#: ../install.py:805
 msgid "The following package is unknown on your system: {}\n"
-msgstr ""
+msgstr "Het volgend epakket is niet gekend binnen je systeem: {}\n"
 
-#: ../install.py:811 ../install.py:883 ../install.py:921
+#: ../install.py:812 ../install.py:884 ../install.py:922
 msgid ""
 "To continue, some packages required to run the application will be installed."
-msgstr ""
+msgstr "Om verder te gaan worden bepaalde vereiste pakketten geïnstalleerd."
 
-#: ../install.py:840
+#: ../install.py:841
 msgid "Querying installed and available packages (this may take a while)"
 msgstr ""
+"Geïnstalleerde en beschikbare pakketten worden overlopen (kan een poosje "
+"duren)"
 
-#: ../install.py:912
+#: ../install.py:913
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr ""
+"Zypper wordt overlopen om te zien of er vereiste pakketten zijn die al "
+"geïnstalleerd zijn (kan een poosje duren) "
 
-#: ../install.py:950
+#: ../install.py:951
 msgid "Query to confirm action at each step."
-msgstr ""
+msgstr "Vraag om iedere stap te bevestigien"
 
-#: ../install.py:957
+#: ../install.py:958
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
 msgstr ""
 
-#: ../install.py:966
+#: ../install.py:967
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
 
-#: ../install.py:989
+#: ../install.py:990
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
 "whichever installer is newer."
 msgstr ""
 
-#: ../install.py:996
+#: ../install.py:997
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
 msgstr ""
 
-#: ../install.py:1000
+#: ../install.py:1001
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
 
-#: ../install.py:1005
+#: ../install.py:1006
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr ""
 
-#: ../install.py:1012
+#: ../install.py:1013
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
 
-#: ../install.py:1018
+#: ../install.py:1019
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -167,15 +175,15 @@ msgid ""
 "not be uninstalled."
 msgstr ""
 
-#: ../install.py:1068
+#: ../install.py:1069
 msgid "Failed to download versions file"
 msgstr ""
 
-#: ../install.py:1072
+#: ../install.py:1073
 msgid "Got error code {} while accessing versions file"
-msgstr ""
+msgstr "Fout code {} tijdens benaderen van het versie bestand"
 
-#: ../install.py:1180
+#: ../install.py:1181
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -193,11 +201,11 @@ msgstr ""
 
 #: ../install.py:1374
 msgid "Installing application..."
-msgstr ""
+msgstr "Applicatie aan het installeren..."
 
 #: ../install.py:1387
 msgid "Failed to install application: exiting..."
-msgstr ""
+msgstr "Kan de applicatie niet installeren. Programma wordt gestopt."
 
 #: ../install.py:1411
 msgid ""
@@ -211,7 +219,7 @@ msgstr ""
 
 #: ../install.py:1423
 msgid "They will be installed into {}"
-msgstr ""
+msgstr "Ze worden geïnstalleerd in {}"
 
 #: ../install.py:1424 ../install.py:1429
 msgid "If you uninstall the application, remove these manpages yourself."
@@ -219,11 +227,11 @@ msgstr ""
 
 #: ../install.py:1426
 msgid "Do want to install the man pages?"
-msgstr ""
+msgstr "Wens je de man pages te installeren?"
 
 #: ../install.py:1428
 msgid "Installing man pages into {}"
-msgstr ""
+msgstr "Man pages worden geïnstalleerd in {}"
 
 #: ../install.py:1445
 msgid "Failed to create man page directory: exiting"
@@ -231,7 +239,7 @@ msgstr ""
 
 #: ../install.py:1457
 msgid "Failed to copy man page."
-msgstr ""
+msgstr "Kon man page niet kopiëren."
 
 #: ../install.py:1477
 msgid ""
@@ -252,12 +260,12 @@ msgstr ""
 
 #: ../install.py:1580
 msgid "Exiting..."
-msgstr ""
+msgstr "Afsluiten..."
 
 #. Translators: do not translate the term python3-apt
 #: ../install.py:1599
 msgid "To continue, the package python3-apt must be installed."
-msgstr ""
+msgstr "Om verder te gaan moet het pakket python3-apt geïnstalleerd worden"
 
 #: ../install.py:1607 ../install.py:1618
 msgid ""
@@ -285,40 +293,40 @@ msgstr ""
 #. Translators: do not translate the term python or requests
 #: ../install.py:1671
 msgid "Installing python requests"
-msgstr ""
+msgstr "python requests aan het installeren"
 
 #: ../upgrade.py:241
 msgid "Upgrade Rapid Photo Downloader"
-msgstr ""
+msgstr "Opwaarderen Rapid Photo Downloader"
 
 #: ../upgrade.py:268
 msgid "&Upgrade"
-msgstr ""
+msgstr "&Opwaarderen"
 
 #: ../upgrade.py:274
 #, python-format
 msgid "Click the Upgrade button to upgrade to version %s."
-msgstr ""
+msgstr "Klik de Opwaarderen knop om naar versie %s op te waarderen."
 
 #: ../upgrade.py:277
 msgid "Click the Upgrade button to start the upgrade."
-msgstr ""
+msgstr "Klik de Opwaardeer knop om het opwaarderen te starten."
 
 #: ../upgrade.py:280 ../upgrade.py:286 ../raphodo/viewutils.py:241
 msgid "&Close"
-msgstr ""
+msgstr "&Sluiten"
 
 #: ../upgrade.py:281
 msgid "&Run"
-msgstr ""
+msgstr "&Uitvoeren"
 
 #: ../upgrade.py:311
 msgid "Close Rapid Photo Downloader before running this upgrade"
-msgstr ""
+msgstr "Sluit Rapid Photo Downloader af alvorens het opwaarderen te starten."
 
 #: ../upgrade.py:314
 msgid "Upgrade running..."
-msgstr ""
+msgstr "Opwaardering lopende..."
 
 #: ../upgrade.py:350
 #, python-format
@@ -326,16 +334,20 @@ msgid ""
 "Successfully upgraded to %s. Click Close to exit, or Run to start the "
 "program."
 msgstr ""
+"Met succes naar %s opgewaardeerd. Klik op Sluiten om af te sluiten, of op "
+"Uitvoeren om het programma te starten."
 
 #: ../upgrade.py:355
 msgid ""
 "Upgrade finished successfully. Click Close to exit, or Run to start the "
 "program."
 msgstr ""
+"Opwaarderen met succes afgerond. Klik op Sluiten om af te sluiten, of op "
+"Uitvoeren om het programma te starten."
 
 #: ../upgrade.py:359
 msgid "Upgrade failed. Click Close to exit."
-msgstr ""
+msgstr "Opwaardering mislukt. Klik op Sluiten om af te sluiten."
 
 #: ../raphodo/aboutdialog.py:223
 msgid "Credits"
@@ -632,6 +644,13 @@ msgid ""
 "            window.\n"
 "            "
 msgstr ""
+"\n"
+"            Bij problemen zal een rood icoontje verschijnen onderaan het "
+"venster\n"
+"            dat zal aangeven hoeveel fouten er zijn. Klikken op het "
+"icoontje, opent het Error Report \n"
+"            venster.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:91
 msgid ""
@@ -1007,7 +1026,7 @@ msgstr ""
 
 #: ../raphodo/didyouknow.py:396
 msgid "You can also import program preferences from the older 0.4 version."
-msgstr ""
+msgstr "Ja kan zelfs programma voorkeuren van de oudere versie 0.4 importeren."
 
 #: ../raphodo/didyouknow.py:401
 msgid ""
@@ -1037,23 +1056,23 @@ msgstr ""
 
 #: ../raphodo/didyouknow.py:460
 msgid "Tip of the Day"
-msgstr ""
+msgstr "Tip van de dag"
 
 #: ../raphodo/didyouknow.py:468
 msgid "Did you know...?"
-msgstr ""
+msgstr "Wist je dat...?"
 
 #: ../raphodo/didyouknow.py:495
 msgid "Show tips on startup"
-msgstr ""
+msgstr "Toon tips bij het starten"
 
 #: ../raphodo/didyouknow.py:499
 msgid "&Next"
-msgstr ""
+msgstr "V&olgende"
 
 #: ../raphodo/didyouknow.py:500
 msgid "&Previous"
-msgstr ""
+msgstr "&Vorige"
 
 #: ../raphodo/downloadtracker.py:402
 msgid "MB/sec"
@@ -1271,23 +1290,23 @@ msgstr ""
 "{log_path}\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1625
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1636
 msgid "Open in File Browser..."
 msgstr "Open in Bestandsbeheerder..."
 
 #: ../raphodo/foldercombo.py:120
 msgid "File System"
-msgstr ""
+msgstr "Bestandssysteem"
 
 #: ../raphodo/foldercombo.py:157
 msgid "Other..."
-msgstr ""
+msgstr "Overig..."
 
 #. Translators: indicate in combobox that a path does not exist
 #: ../raphodo/foldercombo.py:235
 #, python-format
 msgid "%s (location does not exist)"
-msgstr ""
+msgstr "%s (locatie bestaat niet)"
 
 #: ../raphodo/generatenameconfig.py:186
 msgid "Date time"
@@ -1826,6 +1845,7 @@ msgstr "Geef een nieuwe Job Code in of selecteer een bestaande"
 #, python-format
 msgid "The Job Code will be applied to %s that does not yet have a Job Code."
 msgstr ""
+"De Job Code zal worden toegepast op %s die deze Job Code nog niet hebben."
 
 #. Translators: the value substituted will be something like '85 photos and 5
 #. videos'.
@@ -1836,7 +1856,7 @@ msgstr ""
 
 #: ../raphodo/jobcodepanel.py:78
 msgid "Apply Job Code to Download"
-msgstr ""
+msgstr "Job Code toepassen op Download"
 
 #: ../raphodo/jobcodepanel.py:80
 msgid "Enter a new Job Code"
@@ -1844,43 +1864,47 @@ msgstr "Geef een nieuwe Job Code in"
 
 #: ../raphodo/jobcodepanel.py:86
 msgid "The new Job Code will not be applied to any photos or videos."
-msgstr ""
+msgstr "De nieuwe Job Code zal niet toegepast worden op foto's of video's."
 
 #. Translators: the value substituted will be something like '100 photos and 5
 #. videos'.
 #: ../raphodo/jobcodepanel.py:92
 #, python-format
 msgid "The new Job Code will <b>not</b> be applied to %s."
-msgstr ""
+msgstr "De nieuwe Job Code zal <b>niet</b> toegepast worden op %s."
 
 #. Translators: the value substituted will be something like '100 photos and 5
 #. videos'.
 #: ../raphodo/jobcodepanel.py:97
 #, python-format
 msgid "The new Job Code will be applied to %s."
-msgstr ""
+msgstr "De nieuwe Job Code zal toegepast worden op %s."
 
 #: ../raphodo/jobcodepanel.py:99
 msgid "New Job Code"
-msgstr ""
+msgstr "Nieuwe Joc Code"
 
 #: ../raphodo/jobcodepanel.py:134
 msgid "&Job Code:"
-msgstr ""
+msgstr "&Job Code:"
 
 #: ../raphodo/jobcodepanel.py:136 ../raphodo/rememberthisdialog.py:68
 msgid "&Remember this choice"
-msgstr ""
+msgstr "Onthoud deze keuze"
 
 #: ../raphodo/jobcodepanel.py:186
 msgid ""
 "Select photos and videos to be able to apply a new or existing Job Code to "
 "them."
 msgstr ""
+"Selecteer foto's en video's waar de nieuwe of bestaande Job Code op moet "
+"worden toegepast."
 
 #: ../raphodo/jobcodepanel.py:187
 msgid "The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
+"De nieuwe Job Code zal toegepast worden op alle geselecteerde foto's en/of "
+"video's."
 
 #: ../raphodo/jobcodepanel.py:188
 msgid ""
@@ -1902,11 +1926,11 @@ msgstr ""
 
 #: ../raphodo/jobcodepanel.py:198
 msgid "Last Used"
-msgstr ""
+msgstr "Laatst gebruikt"
 
 #: ../raphodo/jobcodepanel.py:203
 msgid "Job Code Sort:"
-msgstr ""
+msgstr "Job Code Volgorde:"
 
 #: ../raphodo/jobcodepanel.py:206 ../raphodo/rapid.py:2127
 msgid "Ascending"
@@ -1918,28 +1942,28 @@ msgstr "Aflopend"
 
 #: ../raphodo/jobcodepanel.py:217
 msgid "&New..."
-msgstr ""
+msgstr "&Nieuw..."
 
 #: ../raphodo/jobcodepanel.py:221
 msgid "&Apply"
-msgstr ""
+msgstr "&Toepassen"
 
 #: ../raphodo/jobcodepanel.py:225
 msgid "&Remove"
-msgstr ""
+msgstr "&Verwijderen"
 
 #: ../raphodo/jobcodepanel.py:229 ../raphodo/preferencedialog.py:181
 #: ../raphodo/preferencedialog.py:210 ../raphodo/preferencedialog.py:510
 msgid "Remove All"
-msgstr ""
+msgstr "Alles verwijderen"
 
 #: ../raphodo/jobcodepanel.py:428
 msgid "Do you really want to remove all the Job Codes?"
-msgstr ""
+msgstr "Wens je alle Job Codes te verwijderen?"
 
 #: ../raphodo/jobcodepanel.py:430
 msgid "Remove all Job Codes"
-msgstr ""
+msgstr "Verwijder alle Job Codes"
 
 #: ../raphodo/jobcodepanel.py:493
 msgid "Job Codes"
@@ -1950,64 +1974,67 @@ msgstr "Job Codes"
 #: ../raphodo/messagewidget.py:65
 #, python-format
 msgid "<i><b>Hint:</b> %(message)s"
-msgstr ""
+msgstr "<i><b>Tip:</b> %(message)s"
 
 #: ../raphodo/nameeditor.py:423 ../raphodo/nameeditor.py:437
 #, python-format
 msgid "%(description)s - %(elements)s"
-msgstr ""
+msgstr "%(description)s - %(elements)s"
 
 #: ../raphodo/nameeditor.py:517
 msgid "Save New Custom Preset..."
-msgstr ""
+msgstr "Opslaan nieuwe persoonlijke instellingen..."
 
 #: ../raphodo/nameeditor.py:518
 msgid "Remove All Custom Presets..."
-msgstr ""
+msgstr "Verwijder alle persoonlijke instellingen..."
 
 #: ../raphodo/nameeditor.py:564
 msgid "(New Custom Preset)"
-msgstr ""
+msgstr "(Nieuwe persoonlijke instellingen)"
 
 #: ../raphodo/nameeditor.py:581
 #, python-format
 msgid "%s (edited)"
-msgstr ""
+msgstr "%s (bewerkt)"
 
 #: ../raphodo/nameeditor.py:584 ../raphodo/nameeditor.py:1379
 #, python-format
 msgid "Update Custom Preset \"%s\""
-msgstr ""
+msgstr "Bijwerken persoonlijke instelling \"%s\""
 
 #: ../raphodo/nameeditor.py:672
 msgid "Save New Custom Preset - Rapid Photo Downloader"
-msgstr ""
+msgstr "Opslaan nieuwe persoonlijke instelling - Rapid Photo Downloader"
 
 #: ../raphodo/nameeditor.py:680
 msgid "Preset Name:"
-msgstr ""
+msgstr "Naam Instelling:"
 
 #: ../raphodo/nameeditor.py:799
 msgid "Photo Subfolder Generation Editor"
-msgstr ""
+msgstr "Photo Subfolder Generation Editor"
 
 #: ../raphodo/nameeditor.py:805
 msgid "Video Subfolder Generation Editor"
-msgstr ""
+msgstr "Video Subfolder Generation Editor"
 
 #: ../raphodo/nameeditor.py:811
 msgid "Photo Renaming Editor"
-msgstr ""
+msgstr "Photo Hernoem Editor"
 
 #: ../raphodo/nameeditor.py:817
 msgid "Video Renaming Editor"
-msgstr ""
+msgstr "Video Hernoem Editor"
 
 #: ../raphodo/nameeditor.py:842
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>There is insufficient data to "
 "fully generate the name. Please use other renaming options.</i>"
 msgstr ""
+"<b><font color=\"red\">Opgepast:</font></b> <i>Er zijn onvoldoende gegevens "
+"om een volwaardige naam aan te maken. Gelieve andere hernoem opties te "
+"gebruiken..</i>"
 
 #. Translators: please do not modify, change the order of or leave out html formatting
 #. tags like <i> and <b>. These are used to format the text the users sees.
@@ -2035,25 +2062,25 @@ msgstr ""
 
 #: ../raphodo/nameeditor.py:889 ../raphodo/renamepanel.py:121
 msgid "Preset:"
-msgstr ""
+msgstr "Voorinstelling:"
 
 #. Translators: appears in a combobox, e.g. Image Date (YYYY)
 #: ../raphodo/nameeditor.py:966 ../raphodo/nameeditor.py:987
 #, python-brace-format
 msgid "{choice} ({variant})"
-msgstr ""
+msgstr "{choice} ({variant})"
 
 #: ../raphodo/nameeditor.py:1012 ../raphodo/preferencedialog.py:762
 msgid "Get help online..."
-msgstr ""
+msgstr "Online hulp zoeken"
 
 #: ../raphodo/nameeditor.py:1034
 msgid "Insert"
-msgstr ""
+msgstr "Invoegen"
 
 #: ../raphodo/nameeditor.py:1360
 msgid "Save Preset - Rapid Photo Downloader"
-msgstr ""
+msgstr "Voorinstelling opslaan - Rapid Photo Downloader"
 
 #: ../raphodo/nameeditor.py:1365
 msgid ""
@@ -4218,122 +4245,161 @@ msgstr ""
 msgid "Pictures"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:427
+#: ../raphodo/thumbnaildisplay.py:432
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
 msgstr "Genomen op %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:432
+#: ../raphodo/thumbnaildisplay.py:439
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Bijgewerkt op %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:438 ../raphodo/thumbnaildisplay.py:467
+#: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:478
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:452
+#: ../raphodo/thumbnaildisplay.py:463
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Memory cards: %s"
 
-#: ../raphodo/thumbnaildisplay.py:458
+#: ../raphodo/thumbnaildisplay.py:470
 msgid "Downloaded as:"
 msgstr "Gedownloaded als:"
 
-#: ../raphodo/thumbnaildisplay.py:473
+#: ../raphodo/thumbnaildisplay.py:486
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Vorige Download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:1627
+#: ../raphodo/thumbnaildisplay.py:1638
 msgid "Copy Path"
 msgstr "Kopieer Pad"
 
+#. Translators: these values are file size suffixes like B representing bytes, KB representing
+#. kilobytes, etc.
+#: ../raphodo/utilities.py:170
+msgid "B"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "KB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+#, fuzzy
+msgid "MB"
+msgstr "MB/s"
+
+#: ../raphodo/utilities.py:170
+msgid "GB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "TB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "PB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "EB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "ZB"
+msgstr ""
+
+#: ../raphodo/utilities.py:170
+msgid "YB"
+msgstr ""
+
 #. two things in a list e.g. "device1 and device2"
-#: ../raphodo/utilities.py:390
+#: ../raphodo/utilities.py:392
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
 msgstr "%(first_item)s en %(last_item)s"
 
-#: ../raphodo/utilities.py:463
+#: ../raphodo/utilities.py:466
 msgid "one"
 msgstr "een"
 
-#: ../raphodo/utilities.py:464
+#: ../raphodo/utilities.py:467
 msgid "two"
 msgstr "twee"
 
-#: ../raphodo/utilities.py:465
+#: ../raphodo/utilities.py:468
 msgid "three"
 msgstr "drie"
 
-#: ../raphodo/utilities.py:466
+#: ../raphodo/utilities.py:469
 msgid "four"
 msgstr "vier"
 
-#: ../raphodo/utilities.py:467
+#: ../raphodo/utilities.py:470
 msgid "five"
 msgstr "vijf"
 
-#: ../raphodo/utilities.py:468
+#: ../raphodo/utilities.py:471
 msgid "six"
 msgstr "zes"
 
-#: ../raphodo/utilities.py:469
+#: ../raphodo/utilities.py:472
 msgid "seven"
 msgstr "zeven"
 
-#: ../raphodo/utilities.py:470
+#: ../raphodo/utilities.py:473
 msgid "eight"
 msgstr "acht"
 
-#: ../raphodo/utilities.py:471
+#: ../raphodo/utilities.py:474
 msgid "nine"
 msgstr "negen"
 
-#: ../raphodo/utilities.py:472
+#: ../raphodo/utilities.py:475
 msgid "ten"
 msgstr "tien"
 
-#: ../raphodo/utilities.py:473
+#: ../raphodo/utilities.py:476
 msgid "eleven"
 msgstr "elf"
 
-#: ../raphodo/utilities.py:474
+#: ../raphodo/utilities.py:477
 msgid "twelve"
 msgstr "twaalf"
 
-#: ../raphodo/utilities.py:475
+#: ../raphodo/utilities.py:478
 msgid "thirteen"
 msgstr "dertien"
 
-#: ../raphodo/utilities.py:476
+#: ../raphodo/utilities.py:479
 msgid "fourteen"
 msgstr "veertienv"
 
-#: ../raphodo/utilities.py:477
+#: ../raphodo/utilities.py:480
 msgid "fifteen"
 msgstr "ijftien"
 
-#: ../raphodo/utilities.py:478
+#: ../raphodo/utilities.py:481
 msgid "sixteen"
 msgstr "zestien"
 
-#: ../raphodo/utilities.py:479
+#: ../raphodo/utilities.py:482
 msgid "seventeen"
 msgstr "zeventien"
 
-#: ../raphodo/utilities.py:480
+#: ../raphodo/utilities.py:483
 msgid "eighteen"
 msgstr "achttien"
 
-#: ../raphodo/utilities.py:481
+#: ../raphodo/utilities.py:484
 msgid "ninenteen"
 msgstr "negentien"
 
-#: ../raphodo/utilities.py:482
+#: ../raphodo/utilities.py:485
 msgid "twenty"
 msgstr "twintig"
 
@@ -4538,9 +4604,6 @@ msgstr "Download Foto's en Video's met Rapid Photo Downloader"
 
 #~ msgid "and"
 #~ msgstr "en"
-
-#~ msgid "MB/s"
-#~ msgstr "MB/s"
 
 #~ msgid "About 1 second remaining"
 #~ msgstr "Ongeveer 1 seconde te gaan"
