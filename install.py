@@ -1312,7 +1312,6 @@ def do_install(installer: str,
                delete_tar_and_dir: bool,
                force_this_version: bool) -> None:
     """
-
     :param installer: the tar.gz installer archive (optional)
     :param distro: specific Linux distribution
     :param distro_family: the family of distros the specific distro is part of
@@ -1690,7 +1689,8 @@ def main():
     )
 
 # Base 85 encoded zip of locale data, to be extracted to a temporary directory and uses for
-# translation of this script's output if user's locale is not English:
+# translation of this script's output if user's locale is not English (see the comment at the
+# top of this script):
 
 MO_FILES_ZIP=b"""
 P)h>@6aWAK002Y}_euZ&0000000000000L7003-nV_|G%FHlPZ1QY-O0000)5BEv{00000000000000A0001NZ)0I>WiMfJFHlPZ

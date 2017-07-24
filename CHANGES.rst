@@ -9,7 +9,7 @@ Changelog for Rapid Photo Downloader
    cleared. A new, associated program preference controls if the program
    should query and what action to take.
 
- - Improved appearance of preferences window.
+ - Improved visual appearance of preferences window.
 
  - Added uninstall and uninstall including dependencies options to the
    install.py script.
@@ -20,7 +20,7 @@ Changelog for Rapid Photo Downloader
  - The install.py script now checks key installation folders for ownership
    and permission problems, fixing them if necessary.
 
- - The install script now correctly parses openSUSE's zypper output to
+ - The install.py script now correctly parses openSUSE's zypper output to
    ascertain distribution packages that are already installed.
 
  - Added support for Peppermint OS to the install.py script.
@@ -39,10 +39,14 @@ Changelog for Rapid Photo Downloader
    already been removed.
 
  - Updated Belarusian, Chinese (Simplified), Czech, French, German, Japanese,
-   Norwegian Nynorsk, Russian and Spanish translations. Applied a patch from
-   Mikael Wiesel to fix a bug where several strings were not available for
-   translation. Additionally made available for translation some buttons whose
-   text was untranslated.
+   Norwegian Nynorsk, Russian and Spanish translations.
+
+ - Applied a patch from Mikael Wiesel to fix a bug where several strings were
+   not available for translation. Additionally made available for translation
+   some buttons whose text was untranslated. Moreover, humanized times such as
+   "one hour ago" (all of which are generated using the python library Arrow)
+   are now localized where Arrow supports it. Finally, date/times in tooltips
+   that appear over thumbnails are now localized.
 
 0.9.1 (2017-07-10)
 ------------------

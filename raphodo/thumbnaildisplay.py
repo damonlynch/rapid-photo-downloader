@@ -30,6 +30,7 @@ import shlex
 import logging
 from timeit import timeit
 from typing import Optional, Dict, List, Set, Tuple, Sequence
+import locale
 
 from gettext import gettext as _
 
@@ -54,7 +55,9 @@ from raphodo.constants import (
     DoubleDarkGray
 )
 from raphodo.storage import get_program_cache_directory, get_desktop, validate_download_folder
-from raphodo.utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
+from raphodo.utilities import (
+    CacheDirs, make_internationalized_list, format_size_for_user, runs, arrow_locale
+)
 from raphodo.thumbnailer import Thumbnailer
 from raphodo.rpdsql import ThumbnailRowsSQL, ThumbnailRow
 from raphodo.viewutils import ThumbnailDataForProximity
@@ -153,6 +156,8 @@ class ThumbnailListModel(QAbstractListModel):
         # Connect to the signal that is emitted when a thumbnailing operation is
         # terminated by us, not merely finished
         self.thumbnailer.workerStopped.connect(self.thumbnailWorkerStopped)
+        self.arrow_locale = arrow_locale()
+        logging.debug("Setting arrow locale to %s", self.arrow_locale)
 
     def initialize(self) -> None:
         # uid: QPixmap
@@ -424,56 +429,62 @@ class ThumbnailListModel(QAbstractListModel):
                 ctime = arrow.get(rpd_file.ctime)
 
                 humanized_ctime = _(
-                    'Taken on %(date_time)s (%(human_readable)s)' % dict(
-                     date_time=ctime.to('local').naive.strftime('%c'),
-                     human_readable=ctime.humanize()))
+                    'Taken on %(date_time)s (%(human_readable)s)'
+                ) % dict(
+                        date_time=ctime.to('local').naive.strftime('%c'),
+                        human_readable=ctime.humanize(locale=self.arrow_locale)
+                )
 
                 humanized_mtime = _(
-                    'Modified on %(date_time)s (%(human_readable)s)' % dict(
+                    'Modified on %(date_time)s (%(human_readable)s)'
+                ) % dict(
                     date_time=mtime.to('local').naive.strftime('%c'),
-                    human_readable=mtime.humanize()))
+                    human_readable=mtime.humanize(locale=self.arrow_locale)
+                )
                 humanized_file_time = '{}<br>{}'.format(humanized_ctime, humanized_mtime)
             else:
                 humanized_file_time = _(
-                    '%(date_time)s (%(human_readable)s)' % dict(
+                    '%(date_time)s (%(human_readable)s)'
+                ) % dict(
                     date_time=mtime.to('local').naive.strftime('%c'),
-                    human_readable=mtime.humanize()))
+                    human_readable=mtime.humanize(locale=self.arrow_locale)
+                )
 
             humanized_file_time = humanized_file_time.replace(' ', '&nbsp;')
 
             if not device_name:
-                msg = '<b>{}</b><br>{}<br>{}'.format(rpd_file.name,
-                                      humanized_file_time, size)
+                msg = '<b>{}</b><br>{}<br>{}'.format(rpd_file.name, humanized_file_time, size)
             else:
-                msg = '<b>{}</b><br>{}<br>{}<br>{}'.format(rpd_file.name, device_name,
-                                          humanized_file_time, size)
+                msg = '<b>{}</b><br>{}<br>{}<br>{}'.format(
+                    rpd_file.name, device_name, humanized_file_time, size
+                )
 
             if rpd_file.camera_memory_card_identifiers:
                 cards = _('Memory cards: %s') % make_internationalized_list(
-                    rpd_file.camera_memory_card_identifiers)
+                    rpd_file.camera_memory_card_identifiers
+                )
                 msg += '<br>' + cards
 
             if rpd_file.status in Downloaded:
                 path = rpd_file.download_path + os.sep
                 downloaded_as = _('Downloaded as:')
-                msg += '<br><br><i>%(downloaded_as)s</i><br>%(filename)s<br>' \
-                       '%(path)s' % dict(filename=rpd_file.download_name, path=path,
-                                         downloaded_as=downloaded_as)
+                msg += '<br><br><i>%(downloaded_as)s</i><br>%(filename)s<br>%(path)s' % dict(
+                    filename=rpd_file.download_name, path=path, downloaded_as=downloaded_as
+                )
 
             if rpd_file.previously_downloaded():
 
-                prev_datetime = arrow.get(rpd_file.prev_datetime,
-                                          tzlocal())
-                prev_date = _('%(date_time)s (%(human_readable)s)' % dict(
+                prev_datetime = arrow.get(rpd_file.prev_datetime, tzlocal())
+                prev_date = _('%(date_time)s (%(human_readable)s)') % dict(
                     date_time=prev_datetime.naive.strftime('%c'),
-                    human_readable=prev_datetime.humanize()))
+                    human_readable=prev_datetime.humanize(locale=self.arrow_locale)
+                )
 
                 path, prev_file_name = os.path.split(rpd_file.prev_full_name)
                 path += os.sep
-                msg += _('<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%('
-                         'date)s') % {'date': prev_date,
-                                       'filename': prev_file_name,
-                                       'path': path}
+                msg += _(
+                    '<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s'
+                ) % dict(date=prev_date, filename=prev_file_name, path=path)
             return msg
 
     def setData(self, index: QModelIndex, value, role: int) -> bool:

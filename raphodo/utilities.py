@@ -165,7 +165,9 @@ def stdchannel_redirected(stdchannel, dest_filename):
 def show_errors():
     yield
 
-suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+# Translators: these values are file size suffixes like B representing bytes, KB representing
+# kilobytes, etc.
+suffixes = [_('B'), _('KB'), _('MB'), _('GB'), _('TB'), _('PB'), _('EB'), _('ZB'), _('YB')]
 
 def format_size_for_user(size_in_bytes: int, 
                          zero_string: str='', 
@@ -440,6 +442,7 @@ def first_and_last(iterable):
     for end in iterable: pass
     return start, end
 
+
 def runs(iterable):
     r"""
     identify adjacent elements in pre-sorted data
@@ -644,6 +647,7 @@ def remove_last_char_from_list_str(items: List[str]) -> List[str]:
                 items = items[:-1]
     return items
 
+
 def platform_c_maxint() -> int:
     """
     See http://stackoverflow.com/questions/13795758/what-is-sys-maxint-in-python-3
@@ -651,6 +655,7 @@ def platform_c_maxint() -> int:
     :return: the maximum size of an int in C when compiled the same way Python was
     """
     return 2 ** (struct.Struct('i').size * 8 - 1) - 1
+
 
 def commonprefix(*paths) -> str:
     """
@@ -660,6 +665,7 @@ def commonprefix(*paths) -> str:
     """
 
     return os.path.dirname(os.path.commonprefix(paths))
+
 
 def _recursive_identify_depth(*paths, depth) -> int:
     basenames = [os.path.basename(path) for path in paths]
@@ -672,11 +678,13 @@ def _recursive_identify_depth(*paths, depth) -> int:
             depth = max(depth, _recursive_identify_depth(*chopped, depth=depth + 1))
     return depth
 
+
 def _collect_duplicates(basenames, paths):
     duplicates = defaultdict(list)
     for basename, path in zip(basenames, paths):
         duplicates[basename].append(path)
     return {basename: paths for basename, paths in duplicates.items() if len(paths) > 1}
+
 
 def make_path_end_snippets_unique(*paths) -> List[str]:
     r"""
@@ -746,6 +754,7 @@ def make_path_end_snippets_unique(*paths) -> List[str]:
 
 have_logged_os_release = False
 
+
 def log_os_release() -> None:
     """
     Log the entired contents of /etc/os-release, but only if
@@ -803,3 +812,22 @@ def remove_topmost_directory_from_path(path: str) -> str:
     if os.sep not in path:
         return path
     return path[path[1:].find(os.sep) + 1:]
+
+
+def arrow_locale() -> str:
+    """
+    Test if locale is suitable for use with Arrow.
+    :return: Return user locale if it works with Arrow, else Arrow default ('en_us')
+    """
+
+    default = 'en_us'
+    try:
+        lang = locale.getdefaultlocale()[0]
+    except Exception:
+        return default
+
+    try:
+        arrow.locales.get_locale(lang)
+        return lang
+    except ValueError:
+        return default
