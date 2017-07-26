@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-24 11:55-0500\n"
-"PO-Revision-Date: 2017-07-24 10:23+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"POT-Creation-Date: 2017-07-26 02:34-0500\n"
+"PO-Revision-Date: 2017-07-25 02:21+0000\n"
+"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-24 16:44+0000\n"
+"X-Launchpad-Export-Date: 2017-07-26 07:28+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
@@ -310,13 +310,12 @@ msgstr ""
 "Saliendo..."
 
 #: ../install.py:1634
-#, fuzzy
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
-"Instale los siguientes paquete usando el gestor de paquetes estándar de su "
-"distribución de Linux y luego vuelva a ejecutar el instalador"
+"Instalé los siguientes paquetes usando el gestor de paquetes estándar de su "
+"distribución Linux y luego vuelva a ejecutar este instalador."
 
 #: ../install.py:1643
 msgid ""
@@ -3595,38 +3594,37 @@ msgstr "Problemas al finalizar los nombres de archivo y generar subcarpetas"
 msgid "Problems backing up to %s"
 msgstr "Problemas haciendo copias de seguridad a %s"
 
-#. Translators: for example Nov 3 or Dec 31
-#. The start and end dates are on a different day
-#. Translators: for example Nov 3 or Dec 31
-#: ../raphodo/proximity.py:111 ../raphodo/proximity.py:235
-#: ../raphodo/proximity.py:239 ../raphodo/proximity.py:866
-#, python-format
-msgid "%(month)s %(numeric_day)s"
-msgstr "%(month)s %(numeric_day)s"
-
-#. Translators: for example Nov 15 2015
-#. Translators: for example Nov 3 2015
-#: ../raphodo/proximity.py:116 ../raphodo/proximity.py:246
-#: ../raphodo/proximity.py:247 ../raphodo/proximity.py:870
-#, python-format
-msgid "%(date)s %(year)s"
-msgstr "%(date)s %(year)s"
-
 #. Translators: for example Nov 3 2015, 11:25 AM
 #. Translators: for example, Nov 3, 12:15 PM
-#: ../raphodo/proximity.py:204 ../raphodo/proximity.py:227
-#: ../raphodo/proximity.py:250 ../raphodo/proximity.py:253
+#: ../raphodo/proximity.py:187 ../raphodo/proximity.py:212
+#: ../raphodo/proximity.py:235 ../raphodo/proximity.py:238
 #, python-format
 msgid "%(date)s, %(time)s"
 msgstr "%(date)s, %(time)s"
 
-#: ../raphodo/proximity.py:218
+#: ../raphodo/proximity.py:203
 #, python-format
 msgid "%(starttime)s - %(endtime)s"
 msgstr "%(starttime)s - %(endtime)s"
 
+#. The start and end dates are on a different day
+#. Translators: for example Nov 3 or Dec 31
+#: ../raphodo/proximity.py:220 ../raphodo/proximity.py:224
+#: ../raphodo/proximity.py:851 ../raphodo/timeutils.py:105
+#, python-format
+msgid "%(month)s %(numeric_day)s"
+msgstr "%(month)s %(numeric_day)s"
+
+#. Translators: for example Nov 3 2015
+#. Translators: for example Nov 15 2015
+#: ../raphodo/proximity.py:231 ../raphodo/proximity.py:232
+#: ../raphodo/proximity.py:855 ../raphodo/timeutils.py:110
+#, python-format
+msgid "%(date)s %(year)s"
+msgstr "%(date)s %(year)s"
+
 #. Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
-#: ../raphodo/proximity.py:259
+#: ../raphodo/proximity.py:244
 #, python-format
 msgid "%(earlier_time)s - %(later_time)s"
 msgstr "%(earlier_time)s - %(later_time)s"
@@ -3635,7 +3633,7 @@ msgstr "%(earlier_time)s - %(later_time)s"
 #. Nov 3 2012, 12:15 PM -
 #. Nov 4 2012, 1:00 AM
 #. (please keep the line break signified by \n)
-#: ../raphodo/proximity.py:267
+#: ../raphodo/proximity.py:252
 #, python-format
 msgid ""
 "%(earlier_time)s -\n"
@@ -3644,18 +3642,18 @@ msgstr ""
 "%(earlier_time)s -\n"
 "%(later_time)s"
 
-#: ../raphodo/proximity.py:384
+#: ../raphodo/proximity.py:369
 #, python-format
 msgid "%(month)s  %(year)s"
 msgstr "%(month)s  %(year)s"
 
 #. Translators: for example Nov 2015
-#: ../raphodo/proximity.py:872
+#: ../raphodo/proximity.py:857
 #, python-format
 msgid "%(month)s %(year)s"
 msgstr "%(month)s %(year)s"
 
-#: ../raphodo/proximity.py:1413
+#: ../raphodo/proximity.py:1398
 msgid ""
 "The time elapsed between consecutive photos and videos that is used to build "
 "the Timeline"
@@ -3667,26 +3665,26 @@ msgstr ""
 #. Replace the very last character (after the d) with the correct
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
-#: ../raphodo/proximity.py:1470
+#: ../raphodo/proximity.py:1455
 #, python-format
 msgid "%(minutes)dm"
 msgstr "%(minutes)dm"
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
-#: ../raphodo/proximity.py:1474
+#: ../raphodo/proximity.py:1459
 msgid "1.5h"
 msgstr "1.5h"
 
 #. Translators: e.g. "5h", which is short for 5 hours.
 #. Replace the very last character (after the d) with the correct localized value,
 #. keeping everything else. In other words, change only the h character.
-#: ../raphodo/proximity.py:1479
+#: ../raphodo/proximity.py:1464
 #, python-format
 msgid "%(hours)dh"
 msgstr "%(hours)dh"
 
-#: ../raphodo/proximity.py:1528
+#: ../raphodo/proximity.py:1513
 msgid ""
 "The Timeline groups photos and videos based on how much time elapsed between "
 "consecutive shots. Use it to identify photos and videos taken at different "
@@ -3696,7 +3694,7 @@ msgstr ""
 "entre disparos consecutivos. Úselo para identificar fotos y vídeos tomados "
 "en diferentes períodos en un solo día o en varios días consecutivos."
 
-#: ../raphodo/proximity.py:1533
+#: ../raphodo/proximity.py:1518
 msgid ""
 "Use the slider (below) to adjust the time elapsed between consecutive shots "
 "that is used to build the Timeline."
@@ -3704,15 +3702,15 @@ msgstr ""
 "Use el deslizador (abajo) para ajustar el tiempo transcurrido entre disparos "
 "consecutivos que se usa para construir la línea de tiempo."
 
-#: ../raphodo/proximity.py:1536
+#: ../raphodo/proximity.py:1521
 msgid "Timeline build pending..."
 msgstr "Construcción de línea de tiempo pendiente..."
 
-#: ../raphodo/proximity.py:1537
+#: ../raphodo/proximity.py:1522
 msgid "Timeline is building..."
 msgstr "La línea de tiempo se está construyendo..."
 
-#: ../raphodo/proximity.py:1539
+#: ../raphodo/proximity.py:1524
 msgid ""
 "The Timeline needs to be rebuilt because the file modification time does not "
 "match the time a shot was taken for one or more shots.<br><br>The Timeline "
@@ -4857,9 +4855,9 @@ msgid "Memory cards: %s"
 msgstr "Tarjetas de memoria: %s"
 
 #: ../raphodo/thumbnaildisplay.py:468
-#, fuzzy, python-format
+#, python-format
 msgid "Memory card: %s"
-msgstr "Tarjetas de memoria: %s"
+msgstr "Tarjeta de memoria: %s"
 
 #: ../raphodo/thumbnaildisplay.py:473
 msgid "Downloaded as:"
@@ -4913,88 +4911,88 @@ msgid "YB"
 msgstr "YB"
 
 #. two things in a list e.g. "device1 and device2"
-#: ../raphodo/utilities.py:392
+#: ../raphodo/utilities.py:394
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
 msgstr "%(first_item)s y %(last_item)s"
 
-#: ../raphodo/utilities.py:466
+#: ../raphodo/utilities.py:468
 msgid "one"
 msgstr "uno"
 
-#: ../raphodo/utilities.py:467
+#: ../raphodo/utilities.py:469
 msgid "two"
 msgstr "dos"
 
-#: ../raphodo/utilities.py:468
+#: ../raphodo/utilities.py:470
 msgid "three"
 msgstr "tres"
 
-#: ../raphodo/utilities.py:469
+#: ../raphodo/utilities.py:471
 msgid "four"
 msgstr "cuatro"
 
-#: ../raphodo/utilities.py:470
+#: ../raphodo/utilities.py:472
 msgid "five"
 msgstr "cinco"
 
-#: ../raphodo/utilities.py:471
+#: ../raphodo/utilities.py:473
 msgid "six"
 msgstr "seis"
 
-#: ../raphodo/utilities.py:472
+#: ../raphodo/utilities.py:474
 msgid "seven"
 msgstr "siete"
 
-#: ../raphodo/utilities.py:473
+#: ../raphodo/utilities.py:475
 msgid "eight"
 msgstr "ocho"
 
-#: ../raphodo/utilities.py:474
+#: ../raphodo/utilities.py:476
 msgid "nine"
 msgstr "nueve"
 
-#: ../raphodo/utilities.py:475
+#: ../raphodo/utilities.py:477
 msgid "ten"
 msgstr "diez"
 
-#: ../raphodo/utilities.py:476
+#: ../raphodo/utilities.py:478
 msgid "eleven"
 msgstr "once"
 
-#: ../raphodo/utilities.py:477
+#: ../raphodo/utilities.py:479
 msgid "twelve"
 msgstr "doce"
 
-#: ../raphodo/utilities.py:478
+#: ../raphodo/utilities.py:480
 msgid "thirteen"
 msgstr "trece"
 
-#: ../raphodo/utilities.py:479
+#: ../raphodo/utilities.py:481
 msgid "fourteen"
 msgstr "catorce"
 
-#: ../raphodo/utilities.py:480
+#: ../raphodo/utilities.py:482
 msgid "fifteen"
 msgstr "quince"
 
-#: ../raphodo/utilities.py:481
+#: ../raphodo/utilities.py:483
 msgid "sixteen"
 msgstr "dieciseis"
 
-#: ../raphodo/utilities.py:482
+#: ../raphodo/utilities.py:484
 msgid "seventeen"
 msgstr "diecisiete"
 
-#: ../raphodo/utilities.py:483
+#: ../raphodo/utilities.py:485
 msgid "eighteen"
 msgstr "dieciocho"
 
-#: ../raphodo/utilities.py:484
+#: ../raphodo/utilities.py:486
 msgid "ninenteen"
 msgstr "diecinueve"
 
-#: ../raphodo/utilities.py:485
+#: ../raphodo/utilities.py:487
 msgid "twenty"
 msgstr "veinte"
 
@@ -6108,22 +6106,3 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgstr ""
 #~ "Especifique la hora en formato de 24 horas en la que el número de "
 #~ "secuencia de las <i> Descargas de hoy </i>, debe ser restablecido."
-
-#~ msgid "translator-credits"
-#~ msgstr ""
-#~ "Launchpad Contributions:\n"
-#~ "  Abel O'Rian https://launchpad.net/~abel-orian\n"
-#~ "  Adolfo Jayme https://launchpad.net/~fitojb\n"
-#~ "  Aiguanachein https://launchpad.net/~aiguanachein\n"
-#~ "  Alejandro Rochette https://launchpad.net/~alexroc\n"
-#~ "  Billy Robshaw https://launchpad.net/~billyrobshaw\n"
-#~ "  Daniel Bernal Dotú https://launchpad.net/~dbernal87\n"
-#~ "  Hector A. Mantellini https://launchpad.net/~xombra\n"
-#~ "  Javier Ampudia https://launchpad.net/~ampudia1987\n"
-#~ "  Jose Luis Navarro https://launchpad.net/~jlnavarro111\n"
-#~ "  Jose Luis Tirado https://launchpad.net/~txelu70\n"
-#~ "  Jose Navajo Bardera https://launchpad.net/~navajo-jose\n"
-#~ "  José Miguel Acosta Martín https://launchpad.net/~josenerja692\n"
-#~ "  Nicolás M. Zahlut https://launchpad.net/~nzahlut\n"
-#~ "  Toni Lähdekorpi https://launchpad.net/~lahdekorpi\n"
-#~ "  simon https://launchpad.net/~sianhulo"

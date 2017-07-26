@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-24 11:55-0500\n"
-"PO-Revision-Date: 2017-07-24 10:23+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"POT-Creation-Date: 2017-07-26 02:34-0500\n"
+"PO-Revision-Date: 2017-07-25 13:25+0000\n"
+"Last-Translator: Tobias Bannert <tobannert@gmail.com>\n"
 "Language-Team: German <de@li.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-24 16:44+0000\n"
+"X-Launchpad-Export-Date: 2017-07-26 07:28+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
@@ -250,7 +250,7 @@ msgstr ""
 
 #: ../install.py:1580
 msgid "Exiting..."
-msgstr ""
+msgstr "Wird beendet …"
 
 #. Translators: do not translate the term python3-apt
 #: ../install.py:1599
@@ -503,7 +503,7 @@ msgstr "Prognostizierte Speichernutzung nach der Übertragung"
 
 #: ../raphodo/destinationdisplay.py:327 ../raphodo/nameeditor.py:521
 msgid "Custom..."
-msgstr "Benutzerdefiniert..."
+msgstr "Benutzerdefiniert …"
 
 #: ../raphodo/destinationdisplay.py:678
 msgid "Configure photo subfolder creation"
@@ -519,7 +519,7 @@ msgstr "Andere"
 
 #: ../raphodo/devicedisplay.py:984
 msgid "Probing device..."
-msgstr "Gerät wird untersucht..."
+msgstr "Gerät wird untersucht …"
 
 #: ../raphodo/devicedisplay.py:1000
 msgid "Temporarily ignore this device"
@@ -1037,7 +1037,7 @@ msgstr "Tipp des Tages"
 
 #: ../raphodo/didyouknow.py:468
 msgid "Did you know...?"
-msgstr "Wussten Sie schon...?"
+msgstr "Wussten Sie schon …?"
 
 #: ../raphodo/didyouknow.py:495
 msgid "Show tips on startup"
@@ -1213,7 +1213,7 @@ msgstr "Ausdruck nicht gefunden"
 
 #: ../raphodo/errorlog.py:491
 msgid "Search pending..."
-msgstr "Suche ausstehend..."
+msgstr "Suche ausstehend …"
 
 #: ../raphodo/errorlog.py:539
 msgid ""
@@ -1253,7 +1253,7 @@ msgstr ""
 
 #: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1639
 msgid "Open in File Browser..."
-msgstr "In Dateiverwaltung öffnen..."
+msgstr "In Dateiverwaltung öffnen …"
 
 #: ../raphodo/foldercombo.py:120
 msgid "File System"
@@ -1261,7 +1261,7 @@ msgstr "Dateisystem"
 
 #: ../raphodo/foldercombo.py:157
 msgid "Other..."
-msgstr "Andere..."
+msgstr "Andere …"
 
 #. Translators: indicate in combobox that a path does not exist
 #: ../raphodo/foldercombo.py:235
@@ -1899,7 +1899,7 @@ msgstr "Absteigend"
 
 #: ../raphodo/jobcodepanel.py:217
 msgid "&New..."
-msgstr "&Neu..."
+msgstr "&Neu …"
 
 #: ../raphodo/jobcodepanel.py:221
 msgid "&Apply"
@@ -2027,7 +2027,7 @@ msgstr "{choice} ({variant})"
 
 #: ../raphodo/nameeditor.py:1012 ../raphodo/preferencedialog.py:762
 msgid "Get help online..."
-msgstr "Im Netz Hilfe erhalten..."
+msgstr "Im Netz Hilfe erhalten …"
 
 #: ../raphodo/nameeditor.py:1034
 msgid "Insert"
@@ -2109,7 +2109,7 @@ msgstr "%(downloaded)s von %(total)s"
 
 #: ../raphodo/newversion.py:507
 msgid "Downloading..."
-msgstr "Wird heruntergeladen..."
+msgstr "Wird heruntergeladen …"
 
 #: ../raphodo/preferencedialog.py:86
 msgid "Preferences"
@@ -2208,7 +2208,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:200
 msgid "Add..."
-msgstr "Hinzufügen..."
+msgstr "Hinzufügen …"
 
 #: ../raphodo/preferencedialog.py:202
 msgid ""
@@ -2322,7 +2322,7 @@ msgstr "Vorschaubildzwischenspeicher"
 
 #: ../raphodo/preferencedialog.py:361
 msgid "Calculating..."
-msgstr "Wird berechnet..."
+msgstr "Wird berechnet …"
 
 #: ../raphodo/preferencedialog.py:367
 msgid "days"
@@ -3041,38 +3041,37 @@ msgstr ""
 msgid "Problems backing up to %s"
 msgstr "Probleme beim Sichern nach %s"
 
-#. Translators: for example Nov 3 or Dec 31
-#. The start and end dates are on a different day
-#. Translators: for example Nov 3 or Dec 31
-#: ../raphodo/proximity.py:111 ../raphodo/proximity.py:235
-#: ../raphodo/proximity.py:239 ../raphodo/proximity.py:866
-#, python-format
-msgid "%(month)s %(numeric_day)s"
-msgstr "%(month)s %(numeric_day)s"
-
-#. Translators: for example Nov 15 2015
-#. Translators: for example Nov 3 2015
-#: ../raphodo/proximity.py:116 ../raphodo/proximity.py:246
-#: ../raphodo/proximity.py:247 ../raphodo/proximity.py:870
-#, python-format
-msgid "%(date)s %(year)s"
-msgstr "%(date)s %(year)s"
-
 #. Translators: for example Nov 3 2015, 11:25 AM
 #. Translators: for example, Nov 3, 12:15 PM
-#: ../raphodo/proximity.py:204 ../raphodo/proximity.py:227
-#: ../raphodo/proximity.py:250 ../raphodo/proximity.py:253
+#: ../raphodo/proximity.py:187 ../raphodo/proximity.py:212
+#: ../raphodo/proximity.py:235 ../raphodo/proximity.py:238
 #, python-format
 msgid "%(date)s, %(time)s"
 msgstr "%(date)s, %(time)s"
 
-#: ../raphodo/proximity.py:218
+#: ../raphodo/proximity.py:203
 #, python-format
 msgid "%(starttime)s - %(endtime)s"
 msgstr "%(starttime)s - %(endtime)s"
 
+#. The start and end dates are on a different day
+#. Translators: for example Nov 3 or Dec 31
+#: ../raphodo/proximity.py:220 ../raphodo/proximity.py:224
+#: ../raphodo/proximity.py:851 ../raphodo/timeutils.py:105
+#, python-format
+msgid "%(month)s %(numeric_day)s"
+msgstr "%(month)s %(numeric_day)s"
+
+#. Translators: for example Nov 3 2015
+#. Translators: for example Nov 15 2015
+#: ../raphodo/proximity.py:231 ../raphodo/proximity.py:232
+#: ../raphodo/proximity.py:855 ../raphodo/timeutils.py:110
+#, python-format
+msgid "%(date)s %(year)s"
+msgstr "%(date)s %(year)s"
+
 #. Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
-#: ../raphodo/proximity.py:259
+#: ../raphodo/proximity.py:244
 #, python-format
 msgid "%(earlier_time)s - %(later_time)s"
 msgstr "%(earlier_time)s - %(later_time)s"
@@ -3081,7 +3080,7 @@ msgstr "%(earlier_time)s - %(later_time)s"
 #. Nov 3 2012, 12:15 PM -
 #. Nov 4 2012, 1:00 AM
 #. (please keep the line break signified by \n)
-#: ../raphodo/proximity.py:267
+#: ../raphodo/proximity.py:252
 #, python-format
 msgid ""
 "%(earlier_time)s -\n"
@@ -3090,18 +3089,18 @@ msgstr ""
 "%(earlier_time)s -\n"
 "%(later_time)s"
 
-#: ../raphodo/proximity.py:384
+#: ../raphodo/proximity.py:369
 #, python-format
 msgid "%(month)s  %(year)s"
 msgstr "%(month)s  %(year)s"
 
 #. Translators: for example Nov 2015
-#: ../raphodo/proximity.py:872
+#: ../raphodo/proximity.py:857
 #, python-format
 msgid "%(month)s %(year)s"
 msgstr "%(month)s %(year)s"
 
-#: ../raphodo/proximity.py:1413
+#: ../raphodo/proximity.py:1398
 msgid ""
 "The time elapsed between consecutive photos and videos that is used to build "
 "the Timeline"
@@ -3113,26 +3112,26 @@ msgstr ""
 #. Replace the very last character (after the d) with the correct
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
-#: ../raphodo/proximity.py:1470
+#: ../raphodo/proximity.py:1455
 #, python-format
 msgid "%(minutes)dm"
 msgstr "%(minutes)dm"
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
-#: ../raphodo/proximity.py:1474
+#: ../raphodo/proximity.py:1459
 msgid "1.5h"
 msgstr "1.5h"
 
 #. Translators: e.g. "5h", which is short for 5 hours.
 #. Replace the very last character (after the d) with the correct localized value,
 #. keeping everything else. In other words, change only the h character.
-#: ../raphodo/proximity.py:1479
+#: ../raphodo/proximity.py:1464
 #, python-format
 msgid "%(hours)dh"
 msgstr "%(hours)dh"
 
-#: ../raphodo/proximity.py:1528
+#: ../raphodo/proximity.py:1513
 msgid ""
 "The Timeline groups photos and videos based on how much time elapsed between "
 "consecutive shots. Use it to identify photos and videos taken at different "
@@ -3143,7 +3142,7 @@ msgstr ""
 "identifizieren, die zu verschiedenen Zeiten an einem Tag oder an "
 "aufeinanderfolgenden Tagen entstanden sind."
 
-#: ../raphodo/proximity.py:1533
+#: ../raphodo/proximity.py:1518
 msgid ""
 "Use the slider (below) to adjust the time elapsed between consecutive shots "
 "that is used to build the Timeline."
@@ -3152,15 +3151,15 @@ msgstr ""
 "aufeinanderfolgenden Aufnahmen anzupassen, die benutzt wird, um die "
 "Zeitleiste zu erzeugen."
 
-#: ../raphodo/proximity.py:1536
+#: ../raphodo/proximity.py:1521
 msgid "Timeline build pending..."
 msgstr "Zeitleiste wird gleich erstellt..."
 
-#: ../raphodo/proximity.py:1537
+#: ../raphodo/proximity.py:1522
 msgid "Timeline is building..."
 msgstr "Zeitleiste wird erstellt..."
 
-#: ../raphodo/proximity.py:1539
+#: ../raphodo/proximity.py:1524
 msgid ""
 "The Timeline needs to be rebuilt because the file modification time does not "
 "match the time a shot was taken for one or more shots.<br><br>The Timeline "
@@ -3282,31 +3281,31 @@ msgstr "Abgeschlossene Übertragungen bereinigen"
 
 #: ../raphodo/rapid.py:1727
 msgid "Get Help Online..."
-msgstr "Im Netz Hilfe erhalten..."
+msgstr "Im Netz Hilfe erhalten …"
 
 #: ../raphodo/rapid.py:1731
 msgid "&Tip of the Day..."
-msgstr "&Tipp des Tages..."
+msgstr "&Tipp des Tages …"
 
 #: ../raphodo/rapid.py:1735
 msgid "Report a Problem..."
-msgstr "Ein Problem melden..."
+msgstr "Ein Problem melden …"
 
 #: ../raphodo/rapid.py:1739
 msgid "Make a Donation..."
-msgstr "Etwas spenden..."
+msgstr "Etwas spenden …"
 
 #: ../raphodo/rapid.py:1743
 msgid "Translate this Application..."
-msgstr "Diese Anwendung übersetzen..."
+msgstr "Diese Anwendung übersetzen …"
 
 #: ../raphodo/rapid.py:1747
 msgid "&About..."
-msgstr "&Über..."
+msgstr "&Über …"
 
 #: ../raphodo/rapid.py:1751
 msgid "Check for Updates..."
-msgstr "Auf Aktualisierungen prüfen..."
+msgstr "Auf Aktualisierungen prüfen …"
 
 #: ../raphodo/rapid.py:1834
 msgid "Timeline"
@@ -4202,9 +4201,9 @@ msgid "Memory cards: %s"
 msgstr "Speicherkarten: %s"
 
 #: ../raphodo/thumbnaildisplay.py:468
-#, fuzzy, python-format
+#, python-format
 msgid "Memory card: %s"
-msgstr "Speicherkarten: %s"
+msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:473
 msgid "Downloaded as:"
@@ -4258,88 +4257,88 @@ msgid "YB"
 msgstr ""
 
 #. two things in a list e.g. "device1 and device2"
-#: ../raphodo/utilities.py:392
+#: ../raphodo/utilities.py:394
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
 msgstr "%(first_item)s und %(last_item)s"
 
-#: ../raphodo/utilities.py:466
+#: ../raphodo/utilities.py:468
 msgid "one"
 msgstr "eins"
 
-#: ../raphodo/utilities.py:467
+#: ../raphodo/utilities.py:469
 msgid "two"
 msgstr "zwei"
 
-#: ../raphodo/utilities.py:468
+#: ../raphodo/utilities.py:470
 msgid "three"
 msgstr "drei"
 
-#: ../raphodo/utilities.py:469
+#: ../raphodo/utilities.py:471
 msgid "four"
 msgstr "vier"
 
-#: ../raphodo/utilities.py:470
+#: ../raphodo/utilities.py:472
 msgid "five"
 msgstr "fünf"
 
-#: ../raphodo/utilities.py:471
+#: ../raphodo/utilities.py:473
 msgid "six"
 msgstr "sechs"
 
-#: ../raphodo/utilities.py:472
+#: ../raphodo/utilities.py:474
 msgid "seven"
 msgstr "sieben"
 
-#: ../raphodo/utilities.py:473
+#: ../raphodo/utilities.py:475
 msgid "eight"
 msgstr "acht"
 
-#: ../raphodo/utilities.py:474
+#: ../raphodo/utilities.py:476
 msgid "nine"
 msgstr "neun"
 
-#: ../raphodo/utilities.py:475
+#: ../raphodo/utilities.py:477
 msgid "ten"
 msgstr "zehn"
 
-#: ../raphodo/utilities.py:476
+#: ../raphodo/utilities.py:478
 msgid "eleven"
 msgstr "elf"
 
-#: ../raphodo/utilities.py:477
+#: ../raphodo/utilities.py:479
 msgid "twelve"
 msgstr "zwölf"
 
-#: ../raphodo/utilities.py:478
+#: ../raphodo/utilities.py:480
 msgid "thirteen"
 msgstr "dreizehn"
 
-#: ../raphodo/utilities.py:479
+#: ../raphodo/utilities.py:481
 msgid "fourteen"
 msgstr "vierzehn"
 
-#: ../raphodo/utilities.py:480
+#: ../raphodo/utilities.py:482
 msgid "fifteen"
 msgstr "fünfzehn"
 
-#: ../raphodo/utilities.py:481
+#: ../raphodo/utilities.py:483
 msgid "sixteen"
 msgstr "sechzehn"
 
-#: ../raphodo/utilities.py:482
+#: ../raphodo/utilities.py:484
 msgid "seventeen"
 msgstr "siebzehn"
 
-#: ../raphodo/utilities.py:483
+#: ../raphodo/utilities.py:485
 msgid "eighteen"
 msgstr "achtzehn"
 
-#: ../raphodo/utilities.py:484
+#: ../raphodo/utilities.py:486
 msgid "ninenteen"
 msgstr "neunzehn"
 
-#: ../raphodo/utilities.py:485
+#: ../raphodo/utilities.py:487
 msgid "twenty"
 msgstr "zwanzig"
 
@@ -5435,19 +5434,3 @@ msgstr ""
 
 #~ msgid "Should all ignored paths be removed?"
 #~ msgstr "Sollen alle ignorierten Pfade entfernt werden?"
-
-#~ msgid "translator-credits"
-#~ msgstr ""
-#~ "Launchpad Contributions:\n"
-#~ "  Christian Bühl https://launchpad.net/~christian-buehl\n"
-#~ "  Damon Lynch https://launchpad.net/~dlynch3\n"
-#~ "  Eg https://launchpad.net/~martin-egger-gmx\n"
-#~ "  Ettore Atalan https://launchpad.net/~atalanttore\n"
-#~ "  Ferdinand Thommes https://launchpad.net/~fe-thomm\n"
-#~ "  John Smith https://launchpad.net/~mintlooser\n"
-#~ "  Rico https://launchpad.net/~9w-ubuntu\n"
-#~ "  Seria https://launchpad.net/~andreas-boettger\n"
-#~ "  Tobias Bannert https://launchpad.net/~toba\n"
-#~ "  Uwe Dulz https://launchpad.net/~uwe.dulz\n"
-#~ "  groovy https://launchpad.net/~paessler\n"
-#~ "  grrrk https://launchpad.net/~grrrk"

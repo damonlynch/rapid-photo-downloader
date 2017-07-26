@@ -7,24 +7,24 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-24 11:55-0500\n"
-"PO-Revision-Date: 2017-07-24 10:23+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"POT-Creation-Date: 2017-07-26 02:34-0500\n"
+"PO-Revision-Date: 2017-07-25 02:40+0000\n"
+"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Norwegian Nynorsk <nn@li.org>\n"
 "Language: nn\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-24 16:44+0000\n"
+"X-Launchpad-Export-Date: 2017-07-26 07:28+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
 msgid "Rapid Photo Downloader installer"
-msgstr ""
+msgstr "Rapid Photo Downloader-installasjonsskript"
 
 #: ../install.py:64
 msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr ""
+msgstr "Last ned og installer siste utgåve av Rapid Photo Downloader."
 
 #: ../install.py:234 ../install.py:1677
 msgid "Installer not found:"
@@ -304,13 +304,10 @@ msgstr ""
 "Avsluttar …"
 
 #: ../install.py:1634
-#, fuzzy
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
-"Installer desse pakkene med det vanlege pakkesystemet til Linux-"
-"distribusjonen din og køyr dette installasjonsskriptet på nytt."
 
 #: ../install.py:1643
 msgid ""
@@ -719,6 +716,17 @@ msgid ""
 "            search box in the lower left of the Error Report window.\n"
 "            "
 msgstr ""
+"\n"
+"            Feilrapportvindauget viser problem funne før, under eller etter "
+"nedlasting. Ein oransje\n"
+"            trekant representerer ei åtvaring, ein raud sirkel indikerer ein "
+"feil, og ein svart\n"
+"            sirkel indikerer meir alvorlege feil. Du kan klikka på lenkjene "
+"for å opna fila eller\n"
+"            eininga i filhandsamaren. Du kan òg søkja i rapportane med "
+"søkjeboksen nede til venstre\n"
+"            i Feilrapportvindauget.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:103
 msgid ""
@@ -735,6 +743,9 @@ msgid ""
 "between consecutive shots. Use it to identify photos and videos taken at "
 "different periods in a single day or over consecutive days."
 msgstr ""
+"<b>Tidslinja</b> grupperer bilete og videoar basert på kor mykje tid som "
+"gjekk mellom fotografia. Bruk ho for å finna bilete og videoar teke i ulike "
+"periodar på same dag eller etterfølgande dagar."
 
 #: ../raphodo/didyouknow.py:117
 msgid ""
@@ -1326,6 +1337,8 @@ msgid ""
 "The number of new entries added to the Error Report since it was last open. "
 "Click to open the Error Report."
 msgstr ""
+"Kor mange nye hendingar som oppstod i Feilrapporten sidan sist du opna han. "
+"Klikk for å opna Feilrapporten."
 
 #: ../raphodo/excepthook.py:77
 msgid "Problem in Rapid Photo Downloader"
@@ -2083,19 +2096,19 @@ msgstr "Namn på forval:"
 
 #: ../raphodo/nameeditor.py:799
 msgid "Photo Subfolder Generation Editor"
-msgstr ""
+msgstr "Redigering av biletundermappegenerering"
 
 #: ../raphodo/nameeditor.py:805
 msgid "Video Subfolder Generation Editor"
-msgstr ""
+msgstr "Redigering av videoundermappegenerering"
 
 #: ../raphodo/nameeditor.py:811
 msgid "Photo Renaming Editor"
-msgstr ""
+msgstr "Redigering av biletomdøyping"
 
 #: ../raphodo/nameeditor.py:817
 msgid "Video Renaming Editor"
-msgstr ""
+msgstr "Redigering av videoomdøyping"
 
 #: ../raphodo/nameeditor.py:842
 msgid ""
@@ -2278,7 +2291,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:158
 msgid "Scan non-camera devices lacking a DCIM folder"
-msgstr ""
+msgstr "Skann ikkje-kamera-einingar som manglar DCIM-mappe"
 
 #: ../raphodo/preferencedialog.py:160
 msgid ""
@@ -2293,7 +2306,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:172
 msgid "Devices that have been set to automatically ignore or download from."
-msgstr ""
+msgstr "Einingar som skal automatisk ignorerast eller lastast ned frå"
 
 #: ../raphodo/preferencedialog.py:173
 msgid "Remembered Devices"
@@ -2304,6 +2317,8 @@ msgid ""
 "Remove a device from the list of devices to automatically ignore or download "
 "from."
 msgstr ""
+"Fjern ei eining frå lista med einingar som skal automatisk ignorerast eller "
+"lastast ned frå."
 
 #: ../raphodo/preferencedialog.py:179 ../raphodo/preferencedialog.py:205
 #: ../raphodo/preferencedialog.py:508
@@ -2317,6 +2332,10 @@ msgid ""
 "\n"
 "Note: Changes take effect when the computer is next scanned for devices."
 msgstr ""
+"Tøm lista med einingar som skal automatisk ignorerast eller lastast ned "
+"frå.\n"
+"\n"
+"Merk: Endringane trer i kraft neste gong me skannar etter einingar."
 
 #: ../raphodo/preferencedialog.py:196
 msgid "Ignored Paths"
@@ -2559,7 +2578,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:482
 msgid "Backup destinations are missing"
-msgstr ""
+msgstr "Manglar tryggleikskopieringsmål"
 
 #: ../raphodo/preferencedialog.py:483
 msgid "Warn before starting a download if it is not possible to back up files."
@@ -2581,7 +2600,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:489
 msgid "Filesystem metadata cannot be set"
-msgstr ""
+msgstr "Klarte ikkje endra filsystem-metadata"
 
 #: ../raphodo/preferencedialog.py:490
 msgid ""
@@ -2593,7 +2612,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:493
 msgid "Encountering unhandled files"
-msgstr ""
+msgstr "Fann filer som me ikkje handterer"
 
 #: ../raphodo/preferencedialog.py:494
 msgid ""
@@ -2638,11 +2657,11 @@ msgstr "Tøm heile lista over ubehandla filtyper det ikkje skal åtvarast om."
 
 #: ../raphodo/preferencedialog.py:547
 msgid "Photo and Video Consolidation"
-msgstr ""
+msgstr "Bilet- og videokonsolidering"
 
 #: ../raphodo/preferencedialog.py:550
 msgid "Consolidate files across devices and downloads"
-msgstr ""
+msgstr "Konsolider filer på tvers av einingar og nedlastingar"
 
 #: ../raphodo/preferencedialog.py:553
 msgid ""
@@ -2724,15 +2743,15 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:621
 msgid "Clear completed downloads"
-msgstr ""
+msgstr "Tøm ferdige nedlastingar"
 
 #: ../raphodo/preferencedialog.py:622
 msgid "Keep displaying completed downloads"
-msgstr ""
+msgstr "Fortset og vis ferdige nedlastingar"
 
 #: ../raphodo/preferencedialog.py:623
 msgid "Prompt for what to do"
-msgstr ""
+msgstr "Spør om kva me skal gjera"
 
 #: ../raphodo/preferencedialog.py:628
 msgid ""
@@ -2890,6 +2909,19 @@ msgid ""
 "Other:\n"
 "%(other)s"
 msgstr ""
+"Kjende filtyper:\n"
+"\n"
+"Bilete:\n"
+"%(photos)s\n"
+"\n"
+"Videoar:\n"
+"%(videos)s\n"
+"\n"
+"Lyd:\n"
+"%(audio)s\n"
+"\n"
+"Anna:\n"
+"%(other)s"
 
 #: ../raphodo/preferences.py:286
 msgid "Wedding"
@@ -2916,12 +2948,12 @@ msgstr "Innstillingane for undermapper burde ikkje ha to %s etter kvarandre"
 
 #: ../raphodo/primarybutton.py:72
 msgid "Download 8 Photos and 10 Videos"
-msgstr ""
+msgstr "Lasta ned 8 bilete og 10 videoar"
 
 #: ../raphodo/problemnotification.py:87 ../raphodo/problemnotification.py:209
 #, python-format
 msgid "Error: %(errno)s %(strerror)s"
-msgstr ""
+msgstr "Feil: %(errno)s %(strerror)s"
 
 #: ../raphodo/problemnotification.py:90
 #, python-format
@@ -2931,7 +2963,7 @@ msgstr "Feil: %s"
 #: ../raphodo/problemnotification.py:117
 #, python-format
 msgid "GPhoto2 Error: %s"
-msgstr ""
+msgstr "GPhoto2-feil: %s"
 
 #: ../raphodo/problemnotification.py:125
 msgid ""
@@ -2942,7 +2974,7 @@ msgstr ""
 #: ../raphodo/problemnotification.py:135
 #, python-format
 msgid "Unable to read directory %s"
-msgstr ""
+msgstr "Klarte ikkje lesa mappa %s"
 
 #: ../raphodo/problemnotification.py:141
 #, python-format
@@ -2977,7 +3009,7 @@ msgstr "Kan ikkje kopiera fila %s"
 #: ../raphodo/problemnotification.py:177
 #, python-format
 msgid "Zero length file %s will not be downloaded"
-msgstr ""
+msgstr "Den tomme fila %s blir ikkje lasta ned"
 
 #: ../raphodo/problemnotification.py:183
 #, python-format
@@ -2987,7 +3019,7 @@ msgstr ""
 #: ../raphodo/problemnotification.py:189
 #, python-format
 msgid "Unable to load metadata from %s"
-msgstr ""
+msgstr "Klarte ikkje lasta metadata frå %s"
 
 #: ../raphodo/problemnotification.py:195
 #, python-format
@@ -3011,7 +3043,7 @@ msgstr ""
 #: ../raphodo/problemnotification.py:224
 #, python-format
 msgid "%(filetype)s %(destination)s already exists."
-msgstr ""
+msgstr "%(filetype)s %(destination)s finst alt."
 
 #: ../raphodo/problemnotification.py:235 ../raphodo/problemnotification.py:263
 #, python-format
@@ -3086,7 +3118,7 @@ msgstr ""
 #: ../raphodo/problemnotification.py:390
 #, python-format
 msgid "Unable to finalize the filename for %s"
-msgstr ""
+msgstr "Klarte ikkje fullføra filnamnet for %s"
 
 #: ../raphodo/problemnotification.py:425
 #, python-format
@@ -3179,38 +3211,37 @@ msgstr ""
 msgid "Problems backing up to %s"
 msgstr "Problem med tryggleikskopiering til %s"
 
-#. Translators: for example Nov 3 or Dec 31
-#. The start and end dates are on a different day
-#. Translators: for example Nov 3 or Dec 31
-#: ../raphodo/proximity.py:111 ../raphodo/proximity.py:235
-#: ../raphodo/proximity.py:239 ../raphodo/proximity.py:866
-#, python-format
-msgid "%(month)s %(numeric_day)s"
-msgstr ""
-
-#. Translators: for example Nov 15 2015
-#. Translators: for example Nov 3 2015
-#: ../raphodo/proximity.py:116 ../raphodo/proximity.py:246
-#: ../raphodo/proximity.py:247 ../raphodo/proximity.py:870
-#, python-format
-msgid "%(date)s %(year)s"
-msgstr "%(date)s %(year)s"
-
 #. Translators: for example Nov 3 2015, 11:25 AM
 #. Translators: for example, Nov 3, 12:15 PM
-#: ../raphodo/proximity.py:204 ../raphodo/proximity.py:227
-#: ../raphodo/proximity.py:250 ../raphodo/proximity.py:253
+#: ../raphodo/proximity.py:187 ../raphodo/proximity.py:212
+#: ../raphodo/proximity.py:235 ../raphodo/proximity.py:238
 #, python-format
 msgid "%(date)s, %(time)s"
 msgstr "%(date)s, %(time)s"
 
-#: ../raphodo/proximity.py:218
+#: ../raphodo/proximity.py:203
 #, python-format
 msgid "%(starttime)s - %(endtime)s"
 msgstr "%(starttime)s - %(endtime)s"
 
+#. The start and end dates are on a different day
+#. Translators: for example Nov 3 or Dec 31
+#: ../raphodo/proximity.py:220 ../raphodo/proximity.py:224
+#: ../raphodo/proximity.py:851 ../raphodo/timeutils.py:105
+#, python-format
+msgid "%(month)s %(numeric_day)s"
+msgstr ""
+
+#. Translators: for example Nov 3 2015
+#. Translators: for example Nov 15 2015
+#: ../raphodo/proximity.py:231 ../raphodo/proximity.py:232
+#: ../raphodo/proximity.py:855 ../raphodo/timeutils.py:110
+#, python-format
+msgid "%(date)s %(year)s"
+msgstr "%(date)s %(year)s"
+
 #. Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
-#: ../raphodo/proximity.py:259
+#: ../raphodo/proximity.py:244
 #, python-format
 msgid "%(earlier_time)s - %(later_time)s"
 msgstr "%(earlier_time)s – %(later_time)s"
@@ -3219,7 +3250,7 @@ msgstr "%(earlier_time)s – %(later_time)s"
 #. Nov 3 2012, 12:15 PM -
 #. Nov 4 2012, 1:00 AM
 #. (please keep the line break signified by \n)
-#: ../raphodo/proximity.py:267
+#: ../raphodo/proximity.py:252
 #, python-format
 msgid ""
 "%(earlier_time)s -\n"
@@ -3228,18 +3259,18 @@ msgstr ""
 "%(earlier_time)s –\n"
 "%(later_time)s"
 
-#: ../raphodo/proximity.py:384
+#: ../raphodo/proximity.py:369
 #, python-format
 msgid "%(month)s  %(year)s"
 msgstr "%(month)s  %(year)s"
 
 #. Translators: for example Nov 2015
-#: ../raphodo/proximity.py:872
+#: ../raphodo/proximity.py:857
 #, python-format
 msgid "%(month)s %(year)s"
 msgstr "%(month)s %(year)s"
 
-#: ../raphodo/proximity.py:1413
+#: ../raphodo/proximity.py:1398
 msgid ""
 "The time elapsed between consecutive photos and videos that is used to build "
 "the Timeline"
@@ -3249,47 +3280,47 @@ msgstr ""
 #. Replace the very last character (after the d) with the correct
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
-#: ../raphodo/proximity.py:1470
+#: ../raphodo/proximity.py:1455
 #, python-format
 msgid "%(minutes)dm"
 msgstr "%(minutes)dm"
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
-#: ../raphodo/proximity.py:1474
+#: ../raphodo/proximity.py:1459
 msgid "1.5h"
 msgstr "1.5t"
 
 #. Translators: e.g. "5h", which is short for 5 hours.
 #. Replace the very last character (after the d) with the correct localized value,
 #. keeping everything else. In other words, change only the h character.
-#: ../raphodo/proximity.py:1479
+#: ../raphodo/proximity.py:1464
 #, python-format
 msgid "%(hours)dh"
 msgstr "%(hours)dt"
 
-#: ../raphodo/proximity.py:1528
+#: ../raphodo/proximity.py:1513
 msgid ""
 "The Timeline groups photos and videos based on how much time elapsed between "
 "consecutive shots. Use it to identify photos and videos taken at different "
 "periods in a single day or over consecutive days."
 msgstr ""
 
-#: ../raphodo/proximity.py:1533
+#: ../raphodo/proximity.py:1518
 msgid ""
 "Use the slider (below) to adjust the time elapsed between consecutive shots "
 "that is used to build the Timeline."
 msgstr ""
 
-#: ../raphodo/proximity.py:1536
+#: ../raphodo/proximity.py:1521
 msgid "Timeline build pending..."
 msgstr ""
 
-#: ../raphodo/proximity.py:1537
+#: ../raphodo/proximity.py:1522
 msgid "Timeline is building..."
 msgstr ""
 
-#: ../raphodo/proximity.py:1539
+#: ../raphodo/proximity.py:1524
 msgid ""
 "The Timeline needs to be rebuilt because the file modification time does not "
 "match the time a shot was taken for one or more shots.<br><br>The Timeline "
@@ -4294,9 +4325,9 @@ msgid "Memory cards: %s"
 msgstr "Minnekort: %s"
 
 #: ../raphodo/thumbnaildisplay.py:468
-#, fuzzy, python-format
+#, python-format
 msgid "Memory card: %s"
-msgstr "Minnekort: %s"
+msgstr ""
 
 #: ../raphodo/thumbnaildisplay.py:473
 msgid "Downloaded as:"
@@ -4350,88 +4381,88 @@ msgid "YB"
 msgstr ""
 
 #. two things in a list e.g. "device1 and device2"
-#: ../raphodo/utilities.py:392
+#: ../raphodo/utilities.py:394
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
 msgstr "%(first_item)s og %(last_item)s"
 
-#: ../raphodo/utilities.py:466
+#: ../raphodo/utilities.py:468
 msgid "one"
 msgstr "éin"
 
-#: ../raphodo/utilities.py:467
+#: ../raphodo/utilities.py:469
 msgid "two"
 msgstr "to"
 
-#: ../raphodo/utilities.py:468
+#: ../raphodo/utilities.py:470
 msgid "three"
 msgstr "tre"
 
-#: ../raphodo/utilities.py:469
+#: ../raphodo/utilities.py:471
 msgid "four"
 msgstr "fire"
 
-#: ../raphodo/utilities.py:470
+#: ../raphodo/utilities.py:472
 msgid "five"
 msgstr "fem"
 
-#: ../raphodo/utilities.py:471
+#: ../raphodo/utilities.py:473
 msgid "six"
 msgstr "seks"
 
-#: ../raphodo/utilities.py:472
+#: ../raphodo/utilities.py:474
 msgid "seven"
 msgstr "sju"
 
-#: ../raphodo/utilities.py:473
+#: ../raphodo/utilities.py:475
 msgid "eight"
 msgstr "åtte"
 
-#: ../raphodo/utilities.py:474
+#: ../raphodo/utilities.py:476
 msgid "nine"
 msgstr "ni"
 
-#: ../raphodo/utilities.py:475
+#: ../raphodo/utilities.py:477
 msgid "ten"
 msgstr "ti"
 
-#: ../raphodo/utilities.py:476
+#: ../raphodo/utilities.py:478
 msgid "eleven"
 msgstr "elleve"
 
-#: ../raphodo/utilities.py:477
+#: ../raphodo/utilities.py:479
 msgid "twelve"
 msgstr "tolv"
 
-#: ../raphodo/utilities.py:478
+#: ../raphodo/utilities.py:480
 msgid "thirteen"
 msgstr "tretten"
 
-#: ../raphodo/utilities.py:479
+#: ../raphodo/utilities.py:481
 msgid "fourteen"
 msgstr "fjorten"
 
-#: ../raphodo/utilities.py:480
+#: ../raphodo/utilities.py:482
 msgid "fifteen"
 msgstr "femten"
 
-#: ../raphodo/utilities.py:481
+#: ../raphodo/utilities.py:483
 msgid "sixteen"
 msgstr "seksten"
 
-#: ../raphodo/utilities.py:482
+#: ../raphodo/utilities.py:484
 msgid "seventeen"
 msgstr "sytten"
 
-#: ../raphodo/utilities.py:483
+#: ../raphodo/utilities.py:485
 msgid "eighteen"
 msgstr "atten"
 
-#: ../raphodo/utilities.py:484
+#: ../raphodo/utilities.py:486
 msgid "ninenteen"
 msgstr "nitten"
 
-#: ../raphodo/utilities.py:485
+#: ../raphodo/utilities.py:487
 msgid "twenty"
 msgstr "tjue"
 
@@ -5497,9 +5528,3 @@ msgstr ""
 
 #~ msgid "About..."
 #~ msgstr "Om  …"
-
-#~ msgid "translator-credits"
-#~ msgstr ""
-#~ "Launchpad Contributions:\n"
-#~ "  Damon Lynch https://launchpad.net/~dlynch3\n"
-#~ "  Kevin Brubeck Unhammer https://launchpad.net/~unhammer"

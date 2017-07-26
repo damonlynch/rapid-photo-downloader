@@ -64,10 +64,6 @@ ProximityRow = namedtuple(
 UidTime = namedtuple('UidTime', 'ctime, arrowtime, uid, previously_downloaded')
 
 
-
-
-
-
 def humanize_time_span(start: Arrow, end: Arrow,
                        strip_leading_zero_from_time: bool=True,
                        insert_cr_on_long_line: bool=False,

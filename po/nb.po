@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-07-24 11:55-0500\n"
-"PO-Revision-Date: 2017-07-24 10:23+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"POT-Creation-Date: 2017-07-26 02:34-0500\n"
+"PO-Revision-Date: 2017-07-25 22:29+0000\n"
+"Last-Translator: Harald H. <haarektrans@gmail.com>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "Language: nb\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-24 16:44+0000\n"
+"X-Launchpad-Export-Date: 2017-07-26 07:28+0000\n"
 "X-Generator: Launchpad (build 18419)\n"
 
 #: ../install.py:63
@@ -24,106 +24,121 @@ msgstr ""
 
 #: ../install.py:64
 msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr ""
+msgstr "Last ned og installer siste versjon av Rapid Photo Downloader."
 
 #: ../install.py:234 ../install.py:1677
 msgid "Installer not found:"
-msgstr ""
+msgstr "Fant ikke installasjonsfil:"
 
 #. Translators: do not translate the term tar.gz
 #: ../install.py:238 ../install.py:1681
 msgid "Installer not in tar.gz format:"
-msgstr ""
+msgstr "Installasjonsfilen er ikke i formatet tar.gz:"
 
 #: ../install.py:443
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
 "permissions for"
 msgstr ""
+"Oppdaget feil eier av mappe. Endrer eierskap av og tilbakestiller "
+"tillatelser for"
 
 #: ../install.py:499
 msgid "The following command will be run:"
-msgstr ""
+msgstr "Følgende kommando vil bli kjørt:"
 
 #: ../install.py:502 ../install.py:1425 ../install.py:1430
 msgid "sudo may prompt you for the sudo password."
-msgstr ""
+msgstr "du kan bli forespurt om ditt sudo passord."
 
 #: ../install.py:506
 msgid "Would you like to run the command now?"
-msgstr ""
+msgstr "Vil du kjøre kommandoen nå?"
 
 #: ../install.py:508
 msgid "Answer is not yes, exiting."
-msgstr ""
+msgstr "Svaret er ikke ja, avslutter."
 
 #: ../install.py:518
 msgid "Command failed"
-msgstr ""
+msgstr "Klarte ikke å kjøre kommandoen"
 
 #: ../install.py:520
 msgid "Exiting"
-msgstr ""
+msgstr "Avslutter"
 
 #: ../install.py:547
 msgid "The Universe repository must be enabled."
-msgstr ""
+msgstr "Pakkekilden «Universe» må være aktivert."
 
 #: ../install.py:571
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
-msgstr ""
+msgstr "Vil du avinstallere den forrige versjonen av Rapid Photo Downloader:"
 
 #: ../install.py:678 ../install.py:703
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
 msgstr ""
+"Kontrollerer pakkesystemet for å se om en eldre versjon av Rapid Photo "
+"Downloader er installert (dette kan ta en stund) ..."
 
 #: ../install.py:689
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again"
 msgstr ""
+"Klarte ikke å kontrollere pakkesystemet. Kontroller at du er tilkoblet "
+"Internett og prøv igjen"
 
 #: ../install.py:711
 msgid "Checking if previous version installed with pip..."
-msgstr ""
+msgstr "Kontrollerer om forrige versjon var installert med pip ..."
 
 #: ../install.py:805
 msgid "The following package is unknown on your system: {}\n"
-msgstr ""
+msgstr "Følgende pakke er ukjent på systemet ditt: {}\n"
 
 #: ../install.py:812 ../install.py:884 ../install.py:922
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
+"For å fortsette vil noen pakker som kreves for å kjøre programmet bli "
+"installert."
 
 #: ../install.py:841
 msgid "Querying installed and available packages (this may take a while)"
 msgstr ""
+"Kontrollerer installerte og tilgjengelige pakker (dette kan ta en stund)"
 
 #: ../install.py:913
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr ""
+"Forespør zypper for å se om noen nødvendige pakker allerede er installert "
+"(dette kan ta en stund) ... "
 
 #: ../install.py:951
 msgid "Query to confirm action at each step."
-msgstr ""
+msgstr "Spør om å bekrefte handling for hvert trinn."
 
 #: ../install.py:958
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
 msgstr ""
+"Ved nedlasting av den seneste versjonen velg å installere utviklingsversjon "
+"hvis den er nyere enn den stabile versjonen.."
 
 #: ../install.py:967
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
+"Valgfritt tar.gz installasjonsarkiv. Om ikke spesifisert, lastes den nyeste "
+"versjonen ned fra Internett."
 
 #: ../install.py:990
 msgid ""
@@ -131,29 +146,38 @@ msgid ""
 "archive if it is newer than this version ({}). The default is to run "
 "whichever installer is newer."
 msgstr ""
+"Ikke kjør installasjonsfilen i tar.gz-arkivet for Rapid Photo Downloader om "
+"den er nyere enn denne versjonen ({}). Standard er å installere seneste "
+"versjon."
 
 #: ../install.py:997
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
 msgstr ""
+"Avinstaller Rapid Photo Downloader som ble installert av pip, men behold "
+"avhengighetene."
 
 #: ../install.py:1001
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
+"Avinstallere Rapid Photo Downloader og avhengighetene installert av pip, "
+"avslutt deretter."
 
 #: ../install.py:1006
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr ""
+"Merk: Dette vil ikke fjerne eventuelle versjoner av Rapid Photo Downloader "
+"som er installert med pakkebehandleren i din Linux-distribusjon."
 
 #: ../install.py:1013
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
-msgstr ""
+msgstr "Avhengigheter vil kun fjernes om de ikke kreves av andre programmer."
 
 #: ../install.py:1019
 msgid ""
@@ -164,6 +188,11 @@ msgid ""
 "Photo Downloader installed by your Linux distribution's package manager will "
 "not be uninstalled."
 msgstr ""
+"Merk: Dette valget fjerner avhengigheter uansett om de kreves av et annet "
+"program pip har installert. Oppgrader til pip 9.0 eller senere for å unngå "
+"dette. Du kan oppgradere med kommandoen «python3 -m pip install pip -U --"
+"user». Også merk at eventuelle versjoner av Rapid Photo Downloader som er "
+"installert av pakkebehandleren i din Linux-distribusjon vil ikke bli fjernet."
 
 #: ../install.py:1069
 msgid "Failed to download versions file"
@@ -180,6 +209,10 @@ msgid ""
 "\n"
 "Exiting.\n"
 msgstr ""
+"Klarte ikke å finne installasjonsfilen. Kontroller at du er tilkoblet "
+"internett og se om du kan åpne nettsiden https://www.damonlynch.net\n"
+"\n"
+"Avslutter.\n"
 
 #: ../install.py:1355
 msgid "Installing application requirements..."
@@ -209,7 +242,7 @@ msgstr ""
 
 #: ../install.py:1423
 msgid "They will be installed into {}"
-msgstr ""
+msgstr "De vil bli installert til {}"
 
 #: ../install.py:1424 ../install.py:1429
 msgid "If you uninstall the application, remove these manpages yourself."
@@ -237,12 +270,17 @@ msgid ""
 "Downloader that was installed with pip.\n"
 "Cannot continue. Exiting."
 msgstr ""
+"Python 3 verktøyet pip kreves for å avinstallere en versjon av Rapid Photo "
+"Downloader som var installert med pip.\n"
+"Kan ikke fortsette. Avslutter."
 
 #: ../install.py:1518
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
 msgstr ""
+"Ikke kjør installasjonsskriptet som sudo / root-bruker.\n"
+"Kjør det som brukeren som skal bruke programmet.\n"
 
 #: ../install.py:1528 ../install.py:1542
 msgid "Do not include any other command line arguments when specifying"
@@ -250,18 +288,21 @@ msgstr ""
 
 #: ../install.py:1580
 msgid "Exiting..."
-msgstr ""
+msgstr "Avslutter …"
 
 #. Translators: do not translate the term python3-apt
 #: ../install.py:1599
 msgid "To continue, the package python3-apt must be installed."
-msgstr ""
+msgstr "For å fortsette må pakken python3-apt være installert."
 
 #: ../install.py:1607 ../install.py:1618
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
 msgstr ""
+"Installasjonsprogrammet støtter ikke å bruke en tilpasset python-"
+"installasjon.\n"
+"Avslutter ..."
 
 #: ../install.py:1634
 msgid ""
@@ -300,23 +341,23 @@ msgstr ""
 
 #: ../upgrade.py:277
 msgid "Click the Upgrade button to start the upgrade."
-msgstr ""
+msgstr "Klikk på oppgrader-knappen for å starte oppgraderingen."
 
 #: ../upgrade.py:280 ../upgrade.py:286 ../raphodo/viewutils.py:241
 msgid "&Close"
-msgstr ""
+msgstr "&Lukk"
 
 #: ../upgrade.py:281
 msgid "&Run"
-msgstr ""
+msgstr "&Kjør"
 
 #: ../upgrade.py:311
 msgid "Close Rapid Photo Downloader before running this upgrade"
-msgstr ""
+msgstr "Lukk Rapid Photo Downloader før du oppgraderer"
 
 #: ../upgrade.py:314
 msgid "Upgrade running..."
-msgstr ""
+msgstr "Oppgraderer …"
 
 #: ../upgrade.py:350
 #, python-format
@@ -324,16 +365,20 @@ msgid ""
 "Successfully upgraded to %s. Click Close to exit, or Run to start the "
 "program."
 msgstr ""
+"Oppgradert til %s. Klikk lukk for å avslutte, eller kjør for å starte "
+"programmet."
 
 #: ../upgrade.py:355
 msgid ""
 "Upgrade finished successfully. Click Close to exit, or Run to start the "
 "program."
 msgstr ""
+"Oppgradering fullført. Klikk lukk for å avslutte, eller kjør for å starte "
+"programmet."
 
 #: ../upgrade.py:359
 msgid "Upgrade failed. Click Close to exit."
-msgstr ""
+msgstr "Oppgradering mislyktes. Klikk lukk for å avslutte."
 
 #: ../raphodo/aboutdialog.py:223
 msgid "Credits"
@@ -444,7 +489,7 @@ msgstr "Alternativer for sikkerhetskopiering"
 #. cameras generate -- it has a .THM file extension
 #: ../raphodo/copyfiles.py:488
 msgid "video THM"
-msgstr ""
+msgstr "video THM"
 
 #: ../raphodo/copyfiles.py:494
 msgid "audio"
@@ -477,7 +522,7 @@ msgstr "Ukjent enhetsstørrelse"
 #: ../raphodo/destinationdisplay.py:112
 #, python-format
 msgid "No space free on %(size_total)s device"
-msgstr ""
+msgstr "Ingen ledig plass på %(size_total)s enhet"
 
 #: ../raphodo/destinationdisplay.py:119
 #, python-format
@@ -531,7 +576,7 @@ msgstr "Ignorer denne enheten permanent"
 
 #: ../raphodo/devicedisplay.py:1004
 msgid "Rescan"
-msgstr ""
+msgstr "Skann på nytt"
 
 #. Translators: percentage full e.g. 75% full
 #: ../raphodo/devicedisplay.py:1093
@@ -842,8 +887,8 @@ msgstr ""
 "også \n"
 "inkludere kameraets modellnavn og serienummer, eller filtype som f.eks. JPG "
 "eller CR2.</li>\n"
-"<li>En <b>oppdragskode</b>, som er fri tekst du angir ved nedlasting, slik "
-"som\n"
+"<li>En <b>oppdragsnavn</b>, som er valgfri tekst du angir ved nedlasting, "
+"slik som\n"
 "navnet på et sted eller en begivenhet.</li>\n"
 "<li><b>Tekst</b> som du vil at skal vises hver gang, f.eks. en bindestrek "
 "eller et mellomrom.</li>\n"
@@ -1364,7 +1409,7 @@ msgstr "Sekvenser"
 #. see http://damonlynch.net/rapid/documentation/index.html#jobcode
 #: ../raphodo/generatenameconfig.py:193
 msgid "Job code"
-msgstr "Oppdragskode"
+msgstr "Oppdragsnavn"
 
 #: ../raphodo/generatenameconfig.py:194
 msgid "Image date"
@@ -1792,15 +1837,15 @@ msgstr "Dato (understreker)"
 #: ../raphodo/generatenameconfig.py:392 ../raphodo/generatenameconfig.py:438
 #: ../raphodo/generatenameconfig.py:517
 msgid "Date and Job Code"
-msgstr "Dato og oppdragskode"
+msgstr "Dato og oppdragsnavn"
 
 #: ../raphodo/generatenameconfig.py:392
 msgid "YYYYMM_Job Code"
-msgstr "ÅÅÅÅMM_Oppdragskode"
+msgstr "ÅÅÅÅMM_Oppdragsnavn"
 
 #: ../raphodo/generatenameconfig.py:393
 msgid "Date and Job Code Subfolder"
-msgstr "Dato og oppdragskode undermapper"
+msgstr "Dato og oppdragsnavn-undermapper"
 
 #: ../raphodo/generatenameconfig.py:393
 msgid "YYYYMM"
@@ -1810,7 +1855,7 @@ msgstr "ÅÅÅÅMM"
 #: ../raphodo/nameeditor.py:833 ../raphodo/rapid.py:1846
 #: ../raphodo/renamepanel.py:83 ../raphodo/renamepanel.py:241
 msgid "Job Code"
-msgstr "Oppdragskode"
+msgstr "Oppdragsnavn"
 
 #: ../raphodo/generatenameconfig.py:433 ../raphodo/generatenameconfig.py:512
 msgid "Original Filename"
@@ -1842,15 +1887,15 @@ msgstr "ÅÅMMDD-1234"
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
 msgid "Date-Time and Job Code"
-msgstr "Dato-Tid og oppdragskode"
+msgstr "Dato-Tid og oppdragsnavn"
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:516
 msgid "YYYYMMDD-HHMM-Job Code-1"
-msgstr "ÅÅÅÅMMDD-TTMM-Oppdragskode-1"
+msgstr "ÅÅÅÅMMDD-TTMM-Oppdragsnavn-1"
 
 #: ../raphodo/generatenameconfig.py:438 ../raphodo/generatenameconfig.py:517
 msgid "YYYYMMDD-Job Code-1"
-msgstr "ÅÅÅÅMMDD-Oppdragskode-1"
+msgstr "ÅÅÅÅMMDD-Oppdragsnavn-1"
 
 #: ../raphodo/generatenameconfig.py:515
 msgid "Date-Time and Video number"
@@ -1870,20 +1915,20 @@ msgstr "ÅÅÅÅMM-TTMM-1-1920x1080"
 
 #: ../raphodo/jobcodepanel.py:64
 msgid "Enter a new Job Code, or select a previous one"
-msgstr "Angi en ny oppdragskode, eller velg en tidligere en"
+msgstr "Angi et nytt oppdragsnavn, eller velg et du har brukt tidligere"
 
 #. Translators: the value substituted will be something like '1 photo'.
 #: ../raphodo/jobcodepanel.py:70
 #, python-format
 msgid "The Job Code will be applied to %s that does not yet have a Job Code."
-msgstr "Oppdragskoden vil bli brukt på %s som ennå ikke har en oppdragskode."
+msgstr "Oppdragsnavnet vil bli brukt på %s som ennå ikke har et oppdragsnavn."
 
 #. Translators: the value substituted will be something like '85 photos and 5
 #. videos'.
 #: ../raphodo/jobcodepanel.py:75
 #, python-format
 msgid "The Job Code will be applied to %s that do not yet have a Job Code."
-msgstr "Oppdragskoden vil bli brukt på %s som ennå ikke har en oppdragskode."
+msgstr "Oppdragsnavnet vil bli brukt på %s som ennå ikke har et oppdragsnavn."
 
 #: ../raphodo/jobcodepanel.py:78
 msgid "Apply Job Code to Download"
@@ -1891,33 +1936,34 @@ msgstr ""
 
 #: ../raphodo/jobcodepanel.py:80
 msgid "Enter a new Job Code"
-msgstr "Angi en ny oppdragskode"
+msgstr "Angi et nytt oppdragnavn."
 
 #: ../raphodo/jobcodepanel.py:86
 msgid "The new Job Code will not be applied to any photos or videos."
-msgstr "Den nye oppdragskoden vil ikke bli brukt på noen bilder eller videoer."
+msgstr ""
+"Det nye oppdragsnavnet vil ikke bli brukt på noen bilder eller videoer."
 
 #. Translators: the value substituted will be something like '100 photos and 5
 #. videos'.
 #: ../raphodo/jobcodepanel.py:92
 #, python-format
 msgid "The new Job Code will <b>not</b> be applied to %s."
-msgstr "Den nye oppdragskoden vil <b>ikke</b> bli brukt på %s."
+msgstr "Det nye oppdragsnavnet vil <b>ikke</b> bli brukt på %s."
 
 #. Translators: the value substituted will be something like '100 photos and 5
 #. videos'.
 #: ../raphodo/jobcodepanel.py:97
 #, python-format
 msgid "The new Job Code will be applied to %s."
-msgstr "Den nye oppdragskoden vil bli brukt på %s."
+msgstr "Det nye oppdragsnavnet vil bli brukt på %s."
 
 #: ../raphodo/jobcodepanel.py:99
 msgid "New Job Code"
-msgstr "Ny oppdragskode"
+msgstr "Nytt oppdragsnavn"
 
 #: ../raphodo/jobcodepanel.py:134
 msgid "&Job Code:"
-msgstr "&Oppdragskode:"
+msgstr "&Oppdragsnavn:"
 
 #: ../raphodo/jobcodepanel.py:136 ../raphodo/rememberthisdialog.py:68
 msgid "&Remember this choice"
@@ -1928,13 +1974,13 @@ msgid ""
 "Select photos and videos to be able to apply a new or existing Job Code to "
 "them."
 msgstr ""
-"Velg bilder og videoer for å kunne bruke en ny eller eksisterende "
-"oppdragskode for dem."
+"Velg bilder og videoer for å kunne bruke et nytt eller eksisterende "
+"oppdragsnavn på dem."
 
 #: ../raphodo/jobcodepanel.py:187
 msgid "The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
-"Den nye oppdragskoden vil bli brukt på alle valgte bilder og/eller videoer."
+"Det nye oppdragsnavnet vil bli brukt på alle valgte bilder og/eller videoer."
 
 #: ../raphodo/jobcodepanel.py:188
 msgid ""
@@ -1989,15 +2035,15 @@ msgstr "Fjern alle"
 
 #: ../raphodo/jobcodepanel.py:428
 msgid "Do you really want to remove all the Job Codes?"
-msgstr "Vil du virkelig fjerne alle oppdragskodene?"
+msgstr "Vil du virkelig fjerne alle oppdragsnavnene?"
 
 #: ../raphodo/jobcodepanel.py:430
 msgid "Remove all Job Codes"
-msgstr "Fjern alle oppdragskoder"
+msgstr "Fjern alle oppdragsnavn"
 
 #: ../raphodo/jobcodepanel.py:493
 msgid "Job Codes"
-msgstr "Oppdragskode"
+msgstr "Oppdragsnavn"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and
 #. <b>. These are used to format the text the users sees
@@ -3152,38 +3198,37 @@ msgstr ""
 msgid "Problems backing up to %s"
 msgstr "Problemer med sikkerhetskopiering til %s"
 
-#. Translators: for example Nov 3 or Dec 31
-#. The start and end dates are on a different day
-#. Translators: for example Nov 3 or Dec 31
-#: ../raphodo/proximity.py:111 ../raphodo/proximity.py:235
-#: ../raphodo/proximity.py:239 ../raphodo/proximity.py:866
-#, python-format
-msgid "%(month)s %(numeric_day)s"
-msgstr ""
-
-#. Translators: for example Nov 15 2015
-#. Translators: for example Nov 3 2015
-#: ../raphodo/proximity.py:116 ../raphodo/proximity.py:246
-#: ../raphodo/proximity.py:247 ../raphodo/proximity.py:870
-#, python-format
-msgid "%(date)s %(year)s"
-msgstr ""
-
 #. Translators: for example Nov 3 2015, 11:25 AM
 #. Translators: for example, Nov 3, 12:15 PM
-#: ../raphodo/proximity.py:204 ../raphodo/proximity.py:227
-#: ../raphodo/proximity.py:250 ../raphodo/proximity.py:253
+#: ../raphodo/proximity.py:187 ../raphodo/proximity.py:212
+#: ../raphodo/proximity.py:235 ../raphodo/proximity.py:238
 #, python-format
 msgid "%(date)s, %(time)s"
 msgstr ""
 
-#: ../raphodo/proximity.py:218
+#: ../raphodo/proximity.py:203
 #, python-format
 msgid "%(starttime)s - %(endtime)s"
 msgstr ""
 
+#. The start and end dates are on a different day
+#. Translators: for example Nov 3 or Dec 31
+#: ../raphodo/proximity.py:220 ../raphodo/proximity.py:224
+#: ../raphodo/proximity.py:851 ../raphodo/timeutils.py:105
+#, python-format
+msgid "%(month)s %(numeric_day)s"
+msgstr ""
+
+#. Translators: for example Nov 3 2015
+#. Translators: for example Nov 15 2015
+#: ../raphodo/proximity.py:231 ../raphodo/proximity.py:232
+#: ../raphodo/proximity.py:855 ../raphodo/timeutils.py:110
+#, python-format
+msgid "%(date)s %(year)s"
+msgstr ""
+
 #. Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
-#: ../raphodo/proximity.py:259
+#: ../raphodo/proximity.py:244
 #, python-format
 msgid "%(earlier_time)s - %(later_time)s"
 msgstr "%(earlier_time)s - %(later_time)s"
@@ -3192,7 +3237,7 @@ msgstr "%(earlier_time)s - %(later_time)s"
 #. Nov 3 2012, 12:15 PM -
 #. Nov 4 2012, 1:00 AM
 #. (please keep the line break signified by \n)
-#: ../raphodo/proximity.py:267
+#: ../raphodo/proximity.py:252
 #, python-format
 msgid ""
 "%(earlier_time)s -\n"
@@ -3201,18 +3246,18 @@ msgstr ""
 "%(earlier_time)s -\n"
 "%(later_time)s"
 
-#: ../raphodo/proximity.py:384
+#: ../raphodo/proximity.py:369
 #, python-format
 msgid "%(month)s  %(year)s"
 msgstr "%(month)s  %(year)s"
 
 #. Translators: for example Nov 2015
-#: ../raphodo/proximity.py:872
+#: ../raphodo/proximity.py:857
 #, python-format
 msgid "%(month)s %(year)s"
 msgstr "%(month)s %(year)s"
 
-#: ../raphodo/proximity.py:1413
+#: ../raphodo/proximity.py:1398
 msgid ""
 "The time elapsed between consecutive photos and videos that is used to build "
 "the Timeline"
@@ -3222,47 +3267,47 @@ msgstr ""
 #. Replace the very last character (after the d) with the correct
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
-#: ../raphodo/proximity.py:1470
+#: ../raphodo/proximity.py:1455
 #, python-format
 msgid "%(minutes)dm"
 msgstr "%(minutes)dm"
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
-#: ../raphodo/proximity.py:1474
+#: ../raphodo/proximity.py:1459
 msgid "1.5h"
 msgstr "1.5t"
 
 #. Translators: e.g. "5h", which is short for 5 hours.
 #. Replace the very last character (after the d) with the correct localized value,
 #. keeping everything else. In other words, change only the h character.
-#: ../raphodo/proximity.py:1479
+#: ../raphodo/proximity.py:1464
 #, python-format
 msgid "%(hours)dh"
 msgstr "%(hours)dt"
 
-#: ../raphodo/proximity.py:1528
+#: ../raphodo/proximity.py:1513
 msgid ""
 "The Timeline groups photos and videos based on how much time elapsed between "
 "consecutive shots. Use it to identify photos and videos taken at different "
 "periods in a single day or over consecutive days."
 msgstr ""
 
-#: ../raphodo/proximity.py:1533
+#: ../raphodo/proximity.py:1518
 msgid ""
 "Use the slider (below) to adjust the time elapsed between consecutive shots "
 "that is used to build the Timeline."
 msgstr ""
 
-#: ../raphodo/proximity.py:1536
+#: ../raphodo/proximity.py:1521
 msgid "Timeline build pending..."
 msgstr ""
 
-#: ../raphodo/proximity.py:1537
+#: ../raphodo/proximity.py:1522
 msgid "Timeline is building..."
 msgstr ""
 
-#: ../raphodo/proximity.py:1539
+#: ../raphodo/proximity.py:1524
 msgid ""
 "The Timeline needs to be rebuilt because the file modification time does not "
 "match the time a shot was taken for one or more shots.<br><br>The Timeline "
@@ -4323,88 +4368,88 @@ msgid "YB"
 msgstr ""
 
 #. two things in a list e.g. "device1 and device2"
-#: ../raphodo/utilities.py:392
+#: ../raphodo/utilities.py:394
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
 msgstr ""
 
-#: ../raphodo/utilities.py:466
+#: ../raphodo/utilities.py:468
 msgid "one"
 msgstr "én"
 
-#: ../raphodo/utilities.py:467
+#: ../raphodo/utilities.py:469
 msgid "two"
 msgstr "to"
 
-#: ../raphodo/utilities.py:468
+#: ../raphodo/utilities.py:470
 msgid "three"
 msgstr "tre"
 
-#: ../raphodo/utilities.py:469
+#: ../raphodo/utilities.py:471
 msgid "four"
 msgstr "fire"
 
-#: ../raphodo/utilities.py:470
+#: ../raphodo/utilities.py:472
 msgid "five"
 msgstr "fem"
 
-#: ../raphodo/utilities.py:471
+#: ../raphodo/utilities.py:473
 msgid "six"
 msgstr "seks"
 
-#: ../raphodo/utilities.py:472
+#: ../raphodo/utilities.py:474
 msgid "seven"
 msgstr "syv"
 
-#: ../raphodo/utilities.py:473
+#: ../raphodo/utilities.py:475
 msgid "eight"
 msgstr "åtte"
 
-#: ../raphodo/utilities.py:474
+#: ../raphodo/utilities.py:476
 msgid "nine"
 msgstr "ni"
 
-#: ../raphodo/utilities.py:475
+#: ../raphodo/utilities.py:477
 msgid "ten"
 msgstr "ti"
 
-#: ../raphodo/utilities.py:476
+#: ../raphodo/utilities.py:478
 msgid "eleven"
 msgstr "elleve"
 
-#: ../raphodo/utilities.py:477
+#: ../raphodo/utilities.py:479
 msgid "twelve"
 msgstr "tolv"
 
-#: ../raphodo/utilities.py:478
+#: ../raphodo/utilities.py:480
 msgid "thirteen"
 msgstr "tretten"
 
-#: ../raphodo/utilities.py:479
+#: ../raphodo/utilities.py:481
 msgid "fourteen"
 msgstr "fjorten"
 
-#: ../raphodo/utilities.py:480
+#: ../raphodo/utilities.py:482
 msgid "fifteen"
 msgstr "femten"
 
-#: ../raphodo/utilities.py:481
+#: ../raphodo/utilities.py:483
 msgid "sixteen"
 msgstr "seksten"
 
-#: ../raphodo/utilities.py:482
+#: ../raphodo/utilities.py:484
 msgid "seventeen"
 msgstr "sytten"
 
-#: ../raphodo/utilities.py:483
+#: ../raphodo/utilities.py:485
 msgid "eighteen"
 msgstr "atten"
 
-#: ../raphodo/utilities.py:484
+#: ../raphodo/utilities.py:486
 msgid "ninenteen"
 msgstr "nitten"
 
-#: ../raphodo/utilities.py:485
+#: ../raphodo/utilities.py:487
 msgid "twenty"
 msgstr "tjue"
 
@@ -5297,11 +5342,3 @@ msgstr ""
 
 #~ msgid "_Report a Problem..."
 #~ msgstr "_Rapporter et problem..."
-
-#~ msgid "translator-credits"
-#~ msgstr ""
-#~ "Launchpad Contributions:\n"
-#~ "  Damon Lynch https://launchpad.net/~dlynch3\n"
-#~ "  Erik M https://launchpad.net/~knut-erik-villamehus\n"
-#~ "  Harald H. https://launchpad.net/~haarektrans\n"
-#~ "  Martin Dahl Moe https://launchpad.net/~martindm93"
