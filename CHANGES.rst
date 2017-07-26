@@ -32,7 +32,7 @@ Changelog for Rapid Photo Downloader
  - Report gphoto2 errors on the command line and Error Reports window with
    the name of the error rather than its numeric code.
 
- - Catch permission errors more effectively in copy, rename, and backup
+ - Catch file permission errors more effectively in copy, rename, and backup
    processes.
 
  - Fixed bug when deleting certain sample videos from a device that had

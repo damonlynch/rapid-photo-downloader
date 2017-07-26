@@ -180,6 +180,8 @@ def format_size_for_user(size_in_bytes: int,
     :param size: size in bytes
     :param zero_string: string to use if size == 0
 
+    >>> locale.setlocale(locale.LC_ALL, ('en_US', 'utf-8'))
+    'en_US.UTF-8'
     >>> format_size_for_user(0)
     ''
     >>> format_size_for_user(1)
