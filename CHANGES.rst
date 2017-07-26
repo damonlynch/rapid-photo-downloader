@@ -4,6 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.2 (2017-07-xx)
 ------------------
 
+ - When displaying the time in the Timeline in a locale that does not use a
+   twelve hour clock, correctly display the time using the 24 hour clock.
+
  - When a download device is inserted and downloaded files are already in the
    main window, the program will now ask if the completed downloads should be
    cleared. A new, associated program preference controls if the program

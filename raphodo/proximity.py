@@ -33,6 +33,7 @@ import arrow.arrow
 from arrow.arrow import Arrow
 
 from gettext import gettext as _
+
 from PyQt5.QtCore import (
     QAbstractTableModel, QModelIndex, Qt, QSize, QRect, QItemSelection, QItemSelectionModel,
     QBuffer, QIODevice, pyqtSignal, pyqtSlot, QRectF
@@ -53,6 +54,7 @@ from raphodo.constants import (
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
 from raphodo.viewutils import ThumbnailDataForProximity
+from raphodo.timeutils import locale_time, strip_zero, make_long_date_format, strip_am, strip_pm
 
 ProximityRow = namedtuple(
     'ProximityRow', 'year, month, weekday, day, proximity, new_file, tooltip_date_col0, '
@@ -62,58 +64,9 @@ ProximityRow = namedtuple(
 UidTime = namedtuple('UidTime', 'ctime, arrowtime, uid, previously_downloaded')
 
 
-def locale_time(t: datetime) -> str:
-    """
-    Attempt to localize the time without displaying seconds
-    Adapted from http://stackoverflow.com/questions/2507726/how-to-display
-    -locale-sensitive-time-format-without-seconds-in-python
-    :param t: time in datetime format
-    :return: time in format like "12:08 AM", or locale equivalent
-    """
-
-    replacement_fmts = [
-        ('.%S', ''),
-        (':%S', ''),
-        (',%S', ''),
-        (':%OS', ''),
-        ('ཀསར་ཆ%S', ''),
-        (' %S초', ''),
-        ('%S秒', ''),
-        ('%r', '%I:%M'),
-        ('%t', '%H:%M'),
-        ('%T', '%H:%M')
-    ]
-
-    t_fmt = locale.nl_langinfo(locale.T_FMT_AMPM)
-
-    for fmt in replacement_fmts:
-        new_t_fmt = t_fmt.replace(*fmt)
-        if new_t_fmt != t_fmt:
-            return t.strftime(new_t_fmt)
-    return t.strftime(t_fmt)
 
 
-AM = datetime(2015, 11, 3).strftime('%p')
-PM = datetime(2015, 11, 3, 13).strftime('%p')
 
-
-def strip_zero(t: str, strip_zero) -> str:
-    if not strip_zero:
-        return t
-    return t.lstrip('0')
-
-
-def strip_ampm(t: str) -> str:
-    return t.replace(AM, '').replace(PM, '').strip()
-
-def make_long_date_format(arrowtime: Arrow) -> str:
-    # Translators: for example Nov 3 or Dec 31
-    long_format = _('%(month)s %(numeric_day)s') % {
-        'month': arrowtime.datetime.strftime('%b'),
-        'numeric_day': arrowtime.format('D')
-    }
-    # Translators: for example Nov 15 2015
-    return _('%(date)s %(year)s') % dict(date=long_format, year=arrowtime.year)
 
 def humanize_time_span(start: Arrow, end: Arrow,
                        strip_leading_zero_from_time: bool=True,
@@ -121,6 +74,9 @@ def humanize_time_span(start: Arrow, end: Arrow,
                        long_format: bool=False) -> str:
     r"""
     Make times and time spans human readable.
+
+    To run the doc test, install language packs for Russian, German and Chinese
+    in addition to English. See details in doctest.
 
     :param start: start time
     :param end: end time
@@ -190,6 +146,38 @@ def humanize_time_span(start: Arrow, end: Arrow,
     Nov 2 2015, 03:15 PM
     >>> print(humanize_time_span(start, end, False, True, long_format=True))
     Oct 31 2014, 11:55 AM - Nov 2 2015, 03:15 PM
+    >>> locale.setlocale(locale.LC_ALL, ('ru_RU', 'utf-8'))
+    'ru_RU.UTF-8'
+    >>> start = arrow.Arrow(2015,11,3,9)
+    >>> end = start
+    >>> print(humanize_time_span(start, end))
+    9:00
+    >>> start = arrow.Arrow(2015,11,3,13)
+    >>> end = start
+    >>> print(humanize_time_span(start, end))
+    13:00
+    >>> print(humanize_time_span(start, end, long_format=True))
+    ноя 3 2015, 13:00
+    >>> locale.setlocale(locale.LC_ALL, ('de_DE', 'utf-8'))
+    'de_DE.UTF-8'
+    >>> start = arrow.Arrow(2015,12,18,13,15)
+    >>> end = start
+    >>> print(humanize_time_span(start, end))
+    13:15
+    >>> print(humanize_time_span(start, end, long_format=True))
+    Dez 18 2015, 13:15
+    >>> end = start.shift(hours=1)
+    >>> print(humanize_time_span(start, end))
+    13:15 - 14:15
+    >>> locale.setlocale(locale.LC_ALL, ('zh_CN', 'utf-8'))
+    'zh_CN.UTF-8'
+    >>> start = arrow.Arrow(2015,12,18,19,59,33)
+    >>> end = start
+    >>> print(humanize_time_span(start, end))
+    下午 07时59分
+    >>> end = start.shift(hours=1)
+    >>> print(humanize_time_span(start, end))
+    07时59分 - 下午 08时59分
     """
 
     strip = strip_leading_zero_from_time
@@ -199,7 +187,6 @@ def humanize_time_span(start: Arrow, end: Arrow,
         if not long_format:
             return short_format
         else:
-            long_format_date = make_long_date_format(start)
             # Translators: for example Nov 3 2015, 11:25 AM
             return _('%(date)s, %(time)s') % dict(
                 date=make_long_date_format(start),
@@ -211,9 +198,11 @@ def humanize_time_span(start: Arrow, end: Arrow,
         start_time = strip_zero(locale_time(start.datetime), strip)
         end_time = strip_zero(locale_time(end.datetime), strip)
 
-        if (start.hour < 12 and end.hour < 12) or (start.hour >= 12 and end.hour >= 12):
-            # both dates are in the same meridiem
-            start_time = strip_ampm(start_time)
+        if (start.hour < 12 and end.hour < 12):
+            # both dates are in the same morning
+            start_time = strip_am(start_time)
+        elif (start.hour >= 12 and end.hour >= 12):
+            start_time = strip_pm(start_time)
 
         time_span = _('%(starttime)s - %(endtime)s') % dict(
             starttime=start_time,
