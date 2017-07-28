@@ -81,9 +81,11 @@ def full_log_file_path():
         log_file = os.path.join(os.path.expanduser('~'), logfile_name)
     return log_file
 
+
 def setup_main_process_logging(logging_level: int) -> logging.Logger:
     """
     Setup logging at the module level
+
     :param log_file_path: path where log file should be stored
     :param logging_level: logging module's logging level for console output
     :return: default logging object
@@ -92,18 +94,20 @@ def setup_main_process_logging(logging_level: int) -> logging.Logger:
     log_file = full_log_file_path()
     logger = logging.getLogger()
     max_bytes = 1024 * 1024  # 1 MB
-    filehandler = RotatingGzipFileHandler(log_file, maxBytes=max_bytes, backupCount=5)
+    filehandler = RotatingGzipFileHandler(log_file, maxBytes=max_bytes, backupCount=10)
     filehandler.setLevel(logging.DEBUG)
     filehandler.setFormatter(logging.Formatter(file_logging_format, logging_date_format))
     logger.addHandler(filehandler)
     logger.setLevel(logging.DEBUG)
 
     consolehandler = logging.StreamHandler()
+    consolehandler.set_name('console')
     if not use_colorlog:
         consolehandler.setFormatter(logging.Formatter(logging_format))
     else:
-        consolehandler.setFormatter(colorlog.ColoredFormatter(fmt=colored_logging_format,
-                                                              log_colors=log_colors))
+        consolehandler.setFormatter(
+            colorlog.ColoredFormatter(fmt=colored_logging_format, log_colors=log_colors)
+        )
     consolehandler.setLevel(logging_level)
     logger.addHandler(consolehandler)
     return logger

@@ -6036,8 +6036,6 @@ def main():
             print('{}: {}'.format(file_type, extensions))
         sys.exit(0)
 
-    global logging_level
-
     if args.debug:
         logging_level = logging.DEBUG
     elif args.verbose:

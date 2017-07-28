@@ -5,7 +5,9 @@ Changelog for Rapid Photo Downloader
 ------------------
 
  - When displaying the time in the Timeline in a locale that does not use a
-   twelve hour clock, correctly display the time using the 24 hour clock.
+   twelve hour clock, correctly display the time using the 24 hour clock. If
+   the time is still not displayed correctly in your language, please file a
+   bug report.
 
  - When a download device is inserted and downloaded files are already in the
    main window, the program will now ask if the completed downloads should be
@@ -24,7 +26,8 @@ Changelog for Rapid Photo Downloader
    and permission problems, fixing them if necessary.
 
  - The install.py script now correctly parses openSUSE's zypper output to
-   ascertain distribution packages that are already installed.
+   ascertain distribution packages that are already installed, saving time
+   during installation.
 
  - Added support for Peppermint OS to the install.py script.
 
@@ -41,8 +44,9 @@ Changelog for Rapid Photo Downloader
  - Fixed bug when deleting certain sample videos from a device that had
    already been removed.
 
- - Updated Belarusian, Chinese (Simplified), Czech, French, German, Japanese,
-   Norwegian Nynorsk, Russian and Spanish translations.
+ - Updated Belarusian, Chinese (Simplified), Czech, Dutch, French, German,
+   Hungarian, Japanese, Norwegian Bokmal, Norwegian Nynorsk, Russian and
+   Spanish translations.
 
  - Applied a patch from Mikael Wiesel to fix a bug where several strings were
    not available for translation. Additionally made available for translation

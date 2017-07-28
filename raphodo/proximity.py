@@ -283,6 +283,12 @@ def proximityFont() -> QFont:
     return font
 
 
+def invalidRowFont() -> QFont:
+    font = QFont()
+    font.setPointSize(font.pointSize() - 3)
+    return font
+
+
 class ProximityDisplayValues:
     """
     Temporal Proximity cell sizes.
@@ -329,8 +335,9 @@ class ProximityDisplayValues:
         self.col2_new_file_dot_left_margin = 6
 
         if self.col2_new_file_dot:
-            self.col2_text_left_margin = (self.col2_new_file_dot_left_margin * 2 +
-                                          self.col2_new_file_dot_size)
+            self.col2_text_left_margin = (
+                self.col2_new_file_dot_left_margin * 2 + self.col2_new_file_dot_size
+            )
         else:
             self.col2_text_left_margin = 10
         self.col2_right_margin = 10
@@ -349,6 +356,10 @@ class ProximityDisplayValues:
         self.monthMetrics = QFontMetrics(self.monthFont)
         self.weekdayFont = weekdayFont()
         self.dayFont = dayFont()
+        self.invalidRowFont = invalidRowFont()
+        self.invalidRowFontMetrics = QFontMetrics(self.invalidRowFont)
+        self.invalidRowHeightMin = self.invalidRowFontMetrics.height() + \
+                                   self.proximityMetrics.height()
 
     def prepare_for_pickle(self) -> None:
         self.proximityFont = self.proximityMetrics = None
@@ -356,6 +367,7 @@ class ProximityDisplayValues:
         self.monthFont = self.monthMetrics = None
         self.weekdayFont = None
         self.dayFont = None
+        self.invalidRowFont = self.invalidRowFontMetrics = None
 
     def get_month_size(self, month: str) -> QSize:
         boundingRect = self.monthMetrics.boundingRect(month)  # type: QRect
@@ -572,7 +584,7 @@ class MetaUid:
         Remove unique ids unnecessary for table viewing.
         """
 
-        for col in (0,1,2):
+        for col in (0, 1, 2):
             for row in self._uids[col]:
                 uids = self._uids[col][row]
                 if len(uids) > 1:
@@ -589,6 +601,33 @@ class MetaUid:
     def uids(self, column: int) -> Dict[int, List[bytes]]:
         return self._uids[column]
 
+    def validate_rows(self, no_rows) -> Tuple[int]:
+        """
+        Very simple validation test to see if all rows are present
+        in cols 2 or 1.
+
+        :param no_rows: number of rows to validate
+        :return: Tuple of missing rows
+        """
+        valid = []
+
+        col0, col1, col2 = self._uids
+        no_col0, no_col1, no_col2 = self._no_uids
+
+        for i in range(no_rows):
+            msg0 = ''
+            msg1 = ''
+            if i not in col2 and i not in col1:
+                    msg0 = '_uids'
+            if i not in no_col2 and i not in col1:
+                msg1 = '_no_uids'
+            if msg0 or msg1:
+                msg = ' and '.join((msg0, msg1))
+                logging.error("%s: row %s is missing in %s", self.__class__.__name__, i, msg)
+                valid.append(i)
+
+        return tuple(valid)
+
 
 class TemporalProximityGroups:
     """
@@ -599,6 +638,8 @@ class TemporalProximityGroups:
     def __init__(self, thumbnail_rows: List[ThumbnailDataForProximity],
                  temporal_span: int = 3600):
         self.rows = []  # type: List[ProximityRow]
+
+        self.invalid_rows = tuple()  # type: Tuple[int]
 
         self.uids = MetaUid()
 
@@ -682,7 +723,7 @@ class TemporalProximityGroups:
         if len(uid_times) > 1:
             for current in uid_times[1:]:
                 ctime = current.ctime
-                if (ctime - prev.ctime > temporal_span):
+                if ctime - prev.ctime > temporal_span:
                     group_no += 1
                 self.times_by_proximity[group_no].append(current.arrowtime)
                 self.uids_by_proximity[group_no].append(current.uid)
@@ -697,7 +738,6 @@ class TemporalProximityGroups:
             short_form = humanize_time_span(start, end, insert_cr_on_long_line=True)
             long_form = humanize_time_span(start, end, long_format=True)
             self.text_by_proximity.append((short_form, long_form))
-
 
         # Phase 4: Generate the rows to be displayed in the proximity table view
         self.prev_row_month = None  # type: Tuple[int, int]
@@ -813,6 +853,12 @@ class TemporalProximityGroups:
         self.thumbnail_types = None
         self.text_by_proximity = None
 
+        self.invalid_rows = self.validate()
+        if len(self.invalid_rows):
+            logging.error('Timeline validation failed')
+        else:
+            logging.info('Timeline validation passed')
+
     def make_file_types_in_cell_text(self, slice_start: int, slice_end: int) -> str:
         c = FileTypeCounter(self.thumbnail_types[slice_start:slice_end])
         return c.summarize_file_count()[0]
@@ -891,6 +937,14 @@ class TemporalProximityGroups:
             len(self.rows), self.depth()
         )
 
+    def validate(self, thumbnailModel=None) -> Tuple[int]:
+        """
+        Partial validation of proximity values
+        :return:
+        """
+
+        return self.uids.validate_rows(len(self.rows))
+
 
 def base64_thumbnail(pixmap: QPixmap, size: QSize) -> str:
     """
@@ -919,6 +973,15 @@ class TemporalProximityModel(QAbstractTableModel):
         self.rapidApp = rapidApp
         self.groups = groups
 
+        self.show_debug = False
+        logger = logging.getLogger()
+        for handler in logger.handlers:
+            # name set in iplogging.setup_main_process_logging()
+            if handler.name == 'console':
+                self.show_debug = handler.level <= logging.DEBUG
+
+        self.force_show_debug = False  # set to True to always display debug info in Timeline
+
     def columnCount(self, parent=QModelIndex()) -> int:
         return 3
 
@@ -942,37 +1005,47 @@ class TemporalProximityModel(QAbstractTableModel):
         proximity_row = self.groups[row]  # type: ProximityRow
 
         if role == Qt.DisplayRole:
+            invalid_row = self.show_debug and row in self.groups.invalid_rows
+            invalid_rows = self.show_debug and len(self.groups.invalid_rows) > 0 or \
+                self.force_show_debug
             if column == 0:
                 return proximity_row.year, proximity_row.month
             elif column == 1:
                 return proximity_row.weekday, proximity_row.day
             else:
-                return proximity_row.proximity, proximity_row.new_file
+                return proximity_row.proximity, proximity_row.new_file, invalid_row, invalid_rows
 
         elif role == Qt.ToolTipRole:
             thumbnails = self.rapidApp.thumbnailModel.thumbnails
 
-            if column == 1:
-                uids = self.groups.uids.uids(1)[row]
-                length = self.groups.uids.no_uids((row, 1))
-                date = proximity_row.tooltip_date_col1
-                file_types= self.rapidApp.thumbnailModel.getTypeCountForProximityCell(
-                    col1id=self.groups.proximity_view_cell_id_col1[row]
-                )
-            elif column == 2:
-                prow = self.groups.row_span_for_column_starts_at_row[(row, 2)]
-                uids = self.groups.uids.uids(2)[prow]
-                length = self.groups.uids.no_uids((prow, 2))
-                date = proximity_row.tooltip_date_col2
-                file_types = self.rapidApp.thumbnailModel.getTypeCountForProximityCell(
-                    col2id=self.groups.proximity_view_cell_id_col2[prow]
-                )
-            else:
-                assert column == 0
-                uids = self.groups.uids.uids(0)[row]
-                length = self.groups.uids.no_uids((row, 0))
-                date = proximity_row.tooltip_date_col0
-                file_types = self.groups.file_types_in_cell[row, column]
+            try:
+
+                if column == 1:
+                    uids = self.groups.uids.uids(1)[row]
+                    length = self.groups.uids.no_uids((row, 1))
+                    date = proximity_row.tooltip_date_col1
+                    file_types= self.rapidApp.thumbnailModel.getTypeCountForProximityCell(
+                        col1id=self.groups.proximity_view_cell_id_col1[row]
+                    )
+                elif column == 2:
+                    prow = self.groups.row_span_for_column_starts_at_row[(row, 2)]
+                    uids = self.groups.uids.uids(2)[prow]
+                    length = self.groups.uids.no_uids((prow, 2))
+                    date = proximity_row.tooltip_date_col2
+                    file_types = self.rapidApp.thumbnailModel.getTypeCountForProximityCell(
+                        col2id=self.groups.proximity_view_cell_id_col2[prow]
+                    )
+                else:
+                    assert column == 0
+                    uids = self.groups.uids.uids(0)[row]
+                    length = self.groups.uids.no_uids((row, 0))
+                    date = proximity_row.tooltip_date_col0
+                    file_types = self.groups.file_types_in_cell[row, column]
+
+            except KeyError as e:
+                logging.exception('Error in Timeline generation')
+                self.debugDumpState()
+                return None
 
             pixmap = thumbnails[uids[0]]  # type: QPixmap
 
@@ -994,6 +1067,23 @@ class TemporalProximityModel(QAbstractTableModel):
                 date, html_image1, center, html_image2, file_types
             )
             return tooltip
+
+    def debugDumpState(self, selected_rows_col1: List[int]=None,
+                       selected_rows_col2: List[int]=None) -> None:
+
+        thumbnailModel = self.rapidApp.thumbnailModel
+        logging.debug('%r', self.groups)
+        
+        # Print rows and values to the debugging output
+        if False:
+            for row, prow in enumerate(self.groups.rows):
+                logging.debug('Row %s', row)
+                logging.debug('{} | {} | {}'.format(prow.year, prow.month, prow.day))
+                for col in (0, 1, 2):
+                    if row in self.groups.uids._uids[col]:
+                        uids = self.groups.uids._uids[col][row]
+                        files = ', '.join((thumbnailModel.rpd_files[uid].name for uid in uids))
+                        logging.debug('Col {}: {}'.format(col, files))
 
 
 class TemporalProximityDelegate(QStyledItemDelegate):
@@ -1033,6 +1123,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         column = index.column()
 
         if column == 0:
+            # Month and year
             painter.save()
 
             if option.state & QStyle.State_Selected:
@@ -1073,6 +1164,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             painter.restore()
 
         elif column == 1:
+            # Day of the month
             painter.save()
 
             if option.state & QStyle.State_Selected:
@@ -1116,11 +1208,15 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             painter.restore()
 
         elif column == 2:
-            text, new_file = index.data()
+            # Time during the day
+            text, new_file, invalid_row, invalid_rows = index.data()
 
             painter.save()
 
-            if option.state & QStyle.State_Selected:
+            if invalid_row:
+                color = self.darkGray
+                textColor = QColor(Qt.white)
+            elif option.state & QStyle.State_Selected:
                 color = self.highlight
                 # TODO take into account dark themes
                 if new_file:
@@ -1139,6 +1235,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             align = self.dv.c2_alignment.get(row)
 
             if new_file and self.dv.col2_new_file_dot:
+                # Draw a small circle beside the date (currently unused)
                 painter.setPen(self.newFileColor)
                 painter.setRenderHint(QPainter.Antialiasing)
                 painter.setBrush(self.newFileColor)
@@ -1165,11 +1262,23 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                     rect.translate(self.dv.col2_new_file_dot_left_margin, height)
                 painter.drawEllipse(rect)
 
-            painter.setFont(self.dv.proximityFont)
-            painter.setPen(textColor)
-
             rect = QRect(option.rect)
             rect.translate(self.dv.col2_text_left_margin, 0)
+
+            painter.setPen(textColor)
+
+            if invalid_rows:
+                # Render the row
+                invalidRightRect = QRect(option.rect)
+                invalidRightRect.translate(-2, 1)
+                painter.setFont(self.dv.invalidRowFont)
+                painter.drawText(invalidRightRect, Qt.AlignRight | Qt.AlignTop, str(row))
+                if align != Align.top and self.dv.invalidRowHeightMin < option.rect.height():
+                    invalidLeftRect = QRect(option.rect)
+                    invalidLeftRect.translate(1, 1)
+                    painter.drawText(invalidLeftRect, Qt.AlignLeft | Qt.AlignTop, 'Debug mode')
+
+            painter.setFont(self.dv.proximityFont)
 
             if align is None:
                 painter.drawText(rect, Qt.AlignLeft | Qt.AlignVCenter, text)
@@ -1629,8 +1738,13 @@ class TemporalProximity(QWidget):
                not in selected_rows_col2
         ]
 
-        selected_col1 = [groups.proximity_view_cell_id_col1[row] for row in selected_rows_col1]
-        selected_col2 = [groups.proximity_view_cell_id_col2[row] for row in selected_rows_col2]
+        try:
+            selected_col1 = [groups.proximity_view_cell_id_col1[row] for row in selected_rows_col1]
+            selected_col2 = [groups.proximity_view_cell_id_col2[row] for row in selected_rows_col2]
+        except KeyError as e:
+            logging.exception('Error in Timeline generation')
+            self.temporalProximityModel.debugDumpState(selected_rows_col1, selected_rows_col2)
+            return
 
         # Filter display of thumbnails, or reset the filter if lists are empty
         self.thumbnailModel.setProximityGroupFilter(selected_col1, selected_col2)

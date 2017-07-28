@@ -46,20 +46,24 @@ class OffloadWorker(DaemonProcess):
 
                 data = pickle.loads(content) # type: OffloadData
                 if data.thumbnail_rows:
-                    groups = TemporalProximityGroups(thumbnail_rows=data.thumbnail_rows,
-                                                     temporal_span=data.proximity_seconds)
-                    self.content = pickle.dumps(OffloadResults(
-                        proximity_groups=groups),
-                        pickle.HIGHEST_PROTOCOL)
+                    groups = TemporalProximityGroups(
+                        thumbnail_rows=data.thumbnail_rows, temporal_span=data.proximity_seconds
+                    )
+                    self.content = pickle.dumps(
+                        OffloadResults(proximity_groups=groups),
+                        pickle.HIGHEST_PROTOCOL
+                    )
                     self.send_message_to_sink()
                 else:
                     assert data.folders_preview
                     assert data.rpd_files
-                    data.folders_preview.generate_subfolders(rpd_files=data.rpd_files,
-                                                      strip_characters=data.strip_characters)
-                    self.content = pickle.dumps(OffloadResults(
-                        folders_preview=data.folders_preview),
-                        pickle.HIGHEST_PROTOCOL)
+                    data.folders_preview.generate_subfolders(
+                        rpd_files=data.rpd_files, strip_characters=data.strip_characters
+                    )
+                    self.content = pickle.dumps(
+                        OffloadResults(folders_preview=data.folders_preview),
+                        pickle.HIGHEST_PROTOCOL
+                    )
                     self.send_message_to_sink()
 
         except Exception:
