@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-07-26 02:34-0500\n"
-"PO-Revision-Date: 2017-07-25 22:29+0000\n"
+"PO-Revision-Date: 2017-07-27 13:08+0000\n"
 "Last-Translator: Harald H. <haarektrans@gmail.com>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
-"Language: nb\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-26 07:28+0000\n"
-"X-Generator: Launchpad (build 18419)\n"
+"X-Launchpad-Export-Date: 2017-07-28 06:32+0000\n"
+"X-Generator: Launchpad (build 18439)\n"
+"Language: nb\n"
 
 #: ../install.py:63
 msgid "Rapid Photo Downloader installer"
@@ -196,11 +196,11 @@ msgstr ""
 
 #: ../install.py:1069
 msgid "Failed to download versions file"
-msgstr ""
+msgstr "Klarte ikke å laste ned versjonsfilen"
 
 #: ../install.py:1073
 msgid "Got error code {} while accessing versions file"
-msgstr ""
+msgstr "Fikk feilkode {} ved henting av versjonsfilen"
 
 #: ../install.py:1181
 msgid ""
@@ -216,29 +216,31 @@ msgstr ""
 
 #: ../install.py:1355
 msgid "Installing application requirements..."
-msgstr ""
+msgstr "Installerer programkrav ..."
 
 #: ../install.py:1371
 msgid "Failed to install application requirements: exiting"
-msgstr ""
+msgstr "Klarte ikke å installere programkrav; avslutter"
 
 #: ../install.py:1374
 msgid "Installing application..."
-msgstr ""
+msgstr "Installerer programmet ..."
 
 #: ../install.py:1387
 msgid "Failed to install application: exiting..."
-msgstr ""
+msgstr "Klarte ikke å installere programmer; avslutter ..."
 
 #: ../install.py:1411
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "commmand line or application launcher."
 msgstr ""
+"Du må kanskje starte datamaskinen på nytt for å kunne kjøre programmet fra "
+"kommandolinjen eller programstarteren."
 
 #: ../install.py:1422
 msgid "Do you want to install the application's man pages?"
-msgstr ""
+msgstr "Vil du installere manualsider for programmet?"
 
 #: ../install.py:1423
 msgid "They will be installed into {}"
@@ -246,23 +248,23 @@ msgstr "De vil bli installert til {}"
 
 #: ../install.py:1424 ../install.py:1429
 msgid "If you uninstall the application, remove these manpages yourself."
-msgstr ""
+msgstr "Hvis du avinstallerer programmet, må du fjerne manualsidene manuelt."
 
 #: ../install.py:1426
 msgid "Do want to install the man pages?"
-msgstr ""
+msgstr "Vil du installere manualsidene?"
 
 #: ../install.py:1428
 msgid "Installing man pages into {}"
-msgstr ""
+msgstr "Installerer manualsidene til {}"
 
 #: ../install.py:1445
 msgid "Failed to create man page directory: exiting"
-msgstr ""
+msgstr "Kunne ikke opprette mappe for manualsider: avslutter"
 
 #: ../install.py:1457
 msgid "Failed to copy man page."
-msgstr ""
+msgstr "Klarte ikke å kopiere manualsidene."
 
 #: ../install.py:1477
 msgid ""
@@ -284,7 +286,7 @@ msgstr ""
 
 #: ../install.py:1528 ../install.py:1542
 msgid "Do not include any other command line arguments when specifying"
-msgstr ""
+msgstr "Ikke ta med noen andre kommandolinjeparametre når du angir"
 
 #: ../install.py:1580
 msgid "Exiting..."
@@ -309,35 +311,40 @@ msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
+"Installer følgende pakker med din Linux-distribusjons standard "
+"pakkebehandler, kjør deretter dette installasjonsprogrammet på nytt"
 
 #: ../install.py:1643
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
 msgstr ""
+"For å kjøre dette programmet må programmer som støtter pakkebehandling for "
+"Python 3 installeres."
 
 #. Translators: do not translate the terms Python 3, pip and setuptools
 #: ../install.py:1658
 msgid "Python 3's pip and setuptools must be upgraded for your user."
 msgstr ""
+"Python 3 verktøyene pip og setuptools må oppgraderes for brukeren din."
 
 #. Translators: do not translate the term python or requests
 #: ../install.py:1671
 msgid "Installing python requests"
-msgstr ""
+msgstr "Installerer python requests"
 
 #: ../upgrade.py:241
 msgid "Upgrade Rapid Photo Downloader"
-msgstr ""
+msgstr "Oppgrader Rapid Photo Downloader"
 
 #: ../upgrade.py:268
 msgid "&Upgrade"
-msgstr ""
+msgstr "&Oppgrader"
 
 #: ../upgrade.py:274
 #, python-format
 msgid "Click the Upgrade button to upgrade to version %s."
-msgstr ""
+msgstr "Klikk oppgrader-knappen for å oppgradere til versjon %s."
 
 #: ../upgrade.py:277
 msgid "Click the Upgrade button to start the upgrade."
@@ -394,14 +401,14 @@ msgstr "Fant ingen enheter for sikkerhetskopiering"
 
 #: ../raphodo/backuppanel.py:244
 msgid "Valid backup locations not yet specified"
-msgstr ""
+msgstr "Ingen gyldige steder for sikkerhetskopier er angitt"
 
 #: ../raphodo/backuppanel.py:404
 msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
 msgstr ""
-"Du kan sikkerhetskopiere dine bilder og videoer til flere steder etter hvert "
+"Du kan ta sikkerhetskopi av bilder og videoer til flere steder etter hvert "
 "som de lastes ned, f.eks. til eksterne harddisker."
 
 #: ../raphodo/backuppanel.py:412
@@ -414,21 +421,26 @@ msgstr "Oppdag enheter for sikkerhetskopiering automatisk"
 
 #: ../raphodo/backuppanel.py:424
 msgid ""
-"Specify the folder in which backups are stored on the device."
-"<br><br><i>Note: the presence of a folder with this name is used to "
+"Specify the folder in which backups are stored on the "
+"device.<br><br><i>Note: the presence of a folder with this name is used to "
 "determine if the device is used for backups. For each device you wish to use "
 "for backing up to, create a folder in it with one of these folder names. By "
 "adding both folders, the same device can be used to back up both photos and "
 "videos.</i>"
 msgstr ""
+"Angi mappen hvor sikkerhetskopier skal lagres på enheten.<br>br><i>Merk: "
+"Tilstedeværelsen av en mappe med dette navnet avgjør om enheten skal brukes "
+"til sikkerhetskopieringer. For hver enhet du vil sikkerhetskopiere til lager "
+"du en mappe med et av disse mappenavnene. Ved å legge til begge mappene kan "
+"samme enheten brukes til å sikkerhetskopiere både bilder og videoer.</i>"
 
 #: ../raphodo/backuppanel.py:439
 msgid "Photo folder name:"
-msgstr ""
+msgstr "Navn på bildemappen:"
 
 #: ../raphodo/backuppanel.py:444
 msgid "Video folder name:"
-msgstr ""
+msgstr "Navn på videomappen:"
 
 #: ../raphodo/backuppanel.py:449 ../raphodo/nameeditor.py:890
 #: ../raphodo/renamepanel.py:123
@@ -436,7 +448,8 @@ msgid "Example:"
 msgstr "Eksempel:"
 
 #: ../raphodo/backuppanel.py:460
-msgid "If you disable automatic detection, choose the exact backup locations."
+msgid ""
+"If you disable automatic detection, choose the exact backup locations."
 msgstr ""
 "Om du skrur av automatisk oppdaging, må du angi plasseringer for "
 "sikkerhetskopier."
@@ -451,7 +464,7 @@ msgstr "Skkerhetskopier bilder til:"
 
 #: ../raphodo/backuppanel.py:474
 msgid "Select Photo Backup Location"
-msgstr ""
+msgstr "Velg sted for sikkerhetskopi av bilder"
 
 #. Translators: the word 'location' is optional in your translation. The left
 #. side of the folder chooser combo box will always line up with the left side of the
@@ -463,7 +476,7 @@ msgstr "Skkerhetskopier videoer til:"
 
 #: ../raphodo/backuppanel.py:491
 msgid "Select Video Backup Location"
-msgstr ""
+msgstr "Velg sted for sikkerhetskopi av videoer"
 
 #. Translators: this value is used as an example device when automatic backup device
 #. detection is enabled. You should translate this.
@@ -513,7 +526,7 @@ msgstr "Brukt"
 
 #: ../raphodo/destinationdisplay.py:93
 msgid "Excess"
-msgstr ""
+msgstr "Overflødig"
 
 #: ../raphodo/destinationdisplay.py:102
 msgid "Device size unknown"
@@ -552,11 +565,11 @@ msgstr "Tilpasset …"
 
 #: ../raphodo/destinationdisplay.py:678
 msgid "Configure photo subfolder creation"
-msgstr ""
+msgstr "Konfigurer oppretting av bildeundermapper"
 
 #: ../raphodo/destinationdisplay.py:680
 msgid "Configure video subfolder creation"
-msgstr ""
+msgstr "Konfigurer oppretting av videoundermapper"
 
 #: ../raphodo/devicedisplay.py:983
 msgid "Other"
@@ -564,7 +577,7 @@ msgstr "Annet"
 
 #: ../raphodo/devicedisplay.py:984
 msgid "Probing device..."
-msgstr ""
+msgstr "Undersøker enhet ..."
 
 #: ../raphodo/devicedisplay.py:1000
 msgid "Temporarily ignore this device"
@@ -655,6 +668,9 @@ msgid ""
 "whose checkbox was clicked, regardless of whether they previously had a "
 "checkmark or not."
 msgstr ""
+"Hvis mer enn en fil er valgt, vil de alle få merket til filen hvis "
+"avkryssingsboks ble klikket, uavhengig av om de tidligere hadde et merke "
+"eller ikke."
 
 #: ../raphodo/didyouknow.py:68
 msgid ""
@@ -670,6 +686,10 @@ msgid ""
 "icon's color indicates whether the download was successful (green), had file "
 "renaming problems (yellow/orange), or failed (red)."
 msgstr ""
+"Etter en nedlasting vil et ikon erstatte avkryssingsboksen for "
+"miniatyrbildet. Ikonets farge indikerer om nedlastingen var vellykket "
+"(grønn), om det var et problem ved navngiving (gul/oransje), eller mislyktes "
+"(rød)."
 
 #: ../raphodo/didyouknow.py:83
 msgid ""
@@ -681,6 +701,13 @@ msgid ""
 "            window.\n"
 "            "
 msgstr ""
+"\n"
+"            Om det oppstår problemer vil et rødt ikon vises nederst i "
+"vinduet som indikerer\n"
+"            hvor mange feilmeldinger som finnes. Klikk på ikonet for å åpne "
+"vinduet for \n"
+"            feilmeldinger.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:91
 msgid ""
@@ -696,6 +723,17 @@ msgid ""
 "            search box in the lower left of the Error Report window.\n"
 "            "
 msgstr ""
+"\n"
+"            Feilmeldingsvinduet viser eventuelle problemer som oppstod før, "
+"under, eller etter \n"
+"            nedlastingen. En oransje trekant representerer en advarsel, en "
+"rød sirkel indikerer en \n"
+"            feil, og en svart sirkel indikerer mer alvorlige feil. Du kan "
+"klikke på lenkene for å åpne \n"
+"            filen eller enheten i filbehandleren. Du kan også søke i "
+"rapportene ved å bruke \n"
+"            søkefeltet nede til venstre i feilmeldingsvinduet.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:103
 msgid ""
@@ -712,6 +750,9 @@ msgid ""
 "between consecutive shots. Use it to identify photos and videos taken at "
 "different periods in a single day or over consecutive days."
 msgstr ""
+"<b>Tidslinjen</b> grupperer bilder og videoer basert på hvor mye tid som er "
+"gått mellom påfølgende bilder og videoer. Bruk den for å finne bilder og "
+"videoer tatt på ulike perioder i løpet av samme dag eller over flere dager."
 
 #: ../raphodo/didyouknow.py:117
 msgid ""
@@ -724,6 +765,14 @@ msgid ""
 "the Timeline:</p>\n"
 "            "
 msgstr ""
+"\n"
+"<p>I illustrasjonen ovenfor er den første raden i tidslinjen svart fordi "
+"alle filene på \n"
+"denne datoen har blitt lastet ned tidligere.</p>\n"
+"<p>Tidslinjens glidebryter justerer tidsrommet mellom bildene som brukes for "
+"å lage \n"
+"tidslinjen:</p>\n"
+"            "
 
 #: ../raphodo/didyouknow.py:128
 msgid ""
@@ -795,12 +844,12 @@ msgid ""
 "different types\n"
 "of directory:\n"
 "<ol>\n"
-"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, &quot;"
-"Photos&quot;, or\n"
+"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, "
+"&quot;Photos&quot;, or\n"
 "&quot;Videos&quot;. This directory should already exist on your computer. In "
 "the illustration \n"
-"below, the destination folders are &quot;Pictures&quot; and &quot;"
-"Videos&quot;. The\n"
+"below, the destination folders are &quot;Pictures&quot; and "
+"&quot;Videos&quot;. The\n"
 "name of the destination folder is displayed in the grey bar directly above "
 "the folder tree, \n"
 "with a folder icon to its left and a gear icon to its far right.</li>\n"
@@ -882,18 +931,18 @@ msgstr ""
 "Nedlastingsundermappers navn generes vanligvis ved hjelp av noen eller alle "
 "følgende elementer:\n"
 "<ol>\n"
-"<li><b>Metadata</b>, inkluderer veldig ofte datoen bildet eller videoen var "
-"opprettet, men kan \n"
+"<li><b>Metadata</b>, inkluderer veldig ofte datoen for når bildet eller "
+"videoen var tatt, men kan \n"
 "også \n"
 "inkludere kameraets modellnavn og serienummer, eller filtype som f.eks. JPG "
 "eller CR2.</li>\n"
-"<li>En <b>oppdragsnavn</b>, som er valgfri tekst du angir ved nedlasting, "
-"slik som\n"
+"<li>Et <b>oppdragsnavn</b>, som er valgfri tekst du angir ved nedlasting, "
+"for eksempel\n"
 "navnet på et sted eller en begivenhet.</li>\n"
 "<li><b>Tekst</b> som du vil at skal vises hver gang, f.eks. en bindestrek "
 "eller et mellomrom.</li>\n"
 "</ol>\n"
-"Ved å navngi undermapper med år, etterfulgt av måned og dag i et numerisk "
+"Ved å navngi undermapper med år, etterfulgt av måned og dag i numerisk "
 "format er det \n"
 "enkelt å sortere dem i en filbehandler, derfor er dette standardvalget:\n"
 "            "
@@ -1026,8 +1075,8 @@ msgid ""
 "names to your photos and \n"
 "videos:\n"
 "<ol>\n"
-"<li><b>Downloads today</b>: tracks downloads completed during that day.</"
-"li>\n"
+"<li><b>Downloads today</b>: tracks downloads completed during that "
+"day.</li>\n"
 "<li><b>Stored number</b>: similar to Downloads today, but it is remembered "
 "from the last time the  \n"
 "program was run.</li>\n"
@@ -1052,8 +1101,8 @@ msgstr ""
 "\n"
 "Panelet <b>Endre navn</b> lar deg konfigurere endring av filnavn. For å gi "
 "nytt navn til filene dine, kan du velge \n"
-"blant eksisterende forvalg for endring av navn eller lage ditt eget "
-"forvalg.              \n"
+"blant eksisterende forvalg for endring av navn eller lage ditt eget forvalg. "
+"             \n"
 "            "
 
 #: ../raphodo/didyouknow.py:363
@@ -1117,8 +1166,8 @@ msgid ""
 "memory cards, and other devices.</li>\n"
 "<li>A <b>temporary cache</b> of files downloaded from a camera, one for "
 "photos and another for \n"
-"videos. They are located in temporary subfolders in the download destination."
-"</li>\n"
+"videos. They are located in temporary subfolders in the download "
+"destination.</li>\n"
 "<li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo Downloader "
 "stores thumbnails of \n"
 "RAW and TIFF photos once they have been downloaded. File browsers like Gnome "
@@ -1262,7 +1311,7 @@ msgstr "Finn"
 
 #: ../raphodo/errorlog.py:136
 msgid "Error Reports - Rapid Photo Downloader"
-msgstr "Feilrapporter - Rapid Photo Downloader"
+msgstr "Feilmeldinger - Rapid Photo Downloader"
 
 #: ../raphodo/errorlog.py:171
 msgid "Find in reports"
@@ -1322,6 +1371,8 @@ msgid ""
 "The number of new entries added to the Error Report since it was last open. "
 "Click to open the Error Report."
 msgstr ""
+"Antall nye oppføringer lagt til i feilmeldingsvinduet siden det sist ble "
+"åpnet. Klikk for å åpne feilmeldinger."
 
 #: ../raphodo/excepthook.py:77
 msgid "Problem in Rapid Photo Downloader"
@@ -1331,8 +1382,8 @@ msgstr "Problem i Rapid Photo Downloader"
 #, python-brace-format
 msgid ""
 "<b>A problem occurred in Rapid Photo Downloader</b><br><br>\n"
-"    Please report the problem at <a href=\"{website}\">{website}</a>."
-"<br><br>\n"
+"    Please report the problem at <a "
+"href=\"{website}\">{website}</a>.<br><br>\n"
 "    Attach the log file <i>{log_file}</i> to your bug report (click\n"
 "    <a href=\"{log_path}\">here</a> to open the log directory).<br><br>If "
 "the same problem occurs\n"
@@ -1340,8 +1391,8 @@ msgid ""
 "    "
 msgstr ""
 "<b>Det oppstod en feil i Rapid Photo Downloader</b><br><br>\n"
-"    Vennligst rapporter feilen på <a href=\"{website}\">{website}</a>."
-"<br><br>\n"
+"    Vennligst rapporter feilen på <a "
+"href=\"{website}\">{website}</a>.<br><br>\n"
 "    Legg til loggfilen som et vedlegg <i>{log_file}</i> i feilrapporten din "
 "(trykk\n"
 "    <a href=\"{log_path}\">her</a> for å åpne loggmappen).<br><br>Om den "
@@ -1859,11 +1910,11 @@ msgstr "Oppdragsnavn"
 
 #: ../raphodo/generatenameconfig.py:433 ../raphodo/generatenameconfig.py:512
 msgid "Original Filename"
-msgstr ""
+msgstr "Opprinnelig filnavn"
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
 msgid "Date-Time and Downloads today"
-msgstr ""
+msgstr "Dato-tid og nedlastinger i dag"
 
 #: ../raphodo/generatenameconfig.py:434 ../raphodo/generatenameconfig.py:513
 msgid "YYYYMMDD-HHMM-1"
@@ -1921,18 +1972,20 @@ msgstr "Angi et nytt oppdragsnavn, eller velg et du har brukt tidligere"
 #: ../raphodo/jobcodepanel.py:70
 #, python-format
 msgid "The Job Code will be applied to %s that does not yet have a Job Code."
-msgstr "Oppdragsnavnet vil bli brukt på %s som ennå ikke har et oppdragsnavn."
+msgstr ""
+"Oppdragsnavnet vil bli brukt på %s som ennå ikke har et oppdragsnavn."
 
 #. Translators: the value substituted will be something like '85 photos and 5
 #. videos'.
 #: ../raphodo/jobcodepanel.py:75
 #, python-format
 msgid "The Job Code will be applied to %s that do not yet have a Job Code."
-msgstr "Oppdragsnavnet vil bli brukt på %s som ennå ikke har et oppdragsnavn."
+msgstr ""
+"Oppdragsnavnet vil bli brukt på %s som ennå ikke har et oppdragsnavn."
 
 #: ../raphodo/jobcodepanel.py:78
 msgid "Apply Job Code to Download"
-msgstr ""
+msgstr "Bruk oppdragsnavn på nedlastingen"
 
 #: ../raphodo/jobcodepanel.py:80
 msgid "Enter a new Job Code"
@@ -1978,7 +2031,8 @@ msgstr ""
 "oppdragsnavn på dem."
 
 #: ../raphodo/jobcodepanel.py:187
-msgid "The new Job Code will be applied to all selected photos and/or videos."
+msgid ""
+"The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 "Det nye oppdragsnavnet vil bli brukt på alle valgte bilder og/eller videoer."
 
@@ -1987,6 +2041,8 @@ msgid ""
 "Click the Apply button to apply the current Job Code to all selected photos "
 "and/or videos. You can also simply double click the Job Code."
 msgstr ""
+"Klikk på bruk-knappen for å bruke gjeldende jobbnavn på alle valgte bilder "
+"og/eller videoer. Du kan også bare dobbeltklikke på jobbnavnet."
 
 #: ../raphodo/jobcodepanel.py:190
 msgid ""
@@ -2050,12 +2106,12 @@ msgstr "Oppdragsnavn"
 #: ../raphodo/messagewidget.py:65
 #, python-format
 msgid "<i><b>Hint:</b> %(message)s"
-msgstr ""
+msgstr "<i><b>Hint:</b> %(message)s"
 
 #: ../raphodo/nameeditor.py:423 ../raphodo/nameeditor.py:437
 #, python-format
 msgid "%(description)s - %(elements)s"
-msgstr ""
+msgstr "%(description)s - %(elements)s"
 
 #: ../raphodo/nameeditor.py:517
 msgid "Save New Custom Preset..."
@@ -2160,10 +2216,10 @@ msgstr "Lagre forvalg - Rapid Photo Downloader"
 
 #: ../raphodo/nameeditor.py:1365
 msgid ""
-"<b>Do you want to save the changes in a new custom preset?</"
-"b><br><br>Creating a custom preset is not required, but can help you keep "
-"organized.<br><br>The changes to the preferences will still be applied "
-"regardless of whether you create a new custom preset or not."
+"<b>Do you want to save the changes in a new custom "
+"preset?</b><br><br>Creating a custom preset is not required, but can help "
+"you keep organized.<br><br>The changes to the preferences will still be "
+"applied regardless of whether you create a new custom preset or not."
 msgstr ""
 "<b>Vil du lagre endringene som et nytt tilpasset forvalg?</b><br><br>Å "
 "opprette et tilpasset forvalg er ikke påkrevd, men det kan hjelpe deg med å "
@@ -2273,7 +2329,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:152
 msgid "Scan only external devices"
-msgstr ""
+msgstr "Skann kun eksterne enheter"
 
 #: ../raphodo/preferencedialog.py:154
 msgid ""
@@ -2281,10 +2337,12 @@ msgid ""
 "computer,\n"
 "including cameras, memory cards, external hard drives, and USB flash drives."
 msgstr ""
+"Skann etter bilder og videoer kun på eksterne enheter, inkludert\n"
+"kameraer, minnekort, eksterne harddisker og USB-minnepinner."
 
 #: ../raphodo/preferencedialog.py:158
 msgid "Scan non-camera devices lacking a DCIM folder"
-msgstr ""
+msgstr "Skann enheter som ikke er kamera og mangler en DCIM-mappe"
 
 #: ../raphodo/preferencedialog.py:160
 msgid ""
@@ -2296,6 +2354,13 @@ msgid ""
 "\n"
 "Note: With cameras, only the DCIM folder is scanned."
 msgstr ""
+"Søk gjennom hele enheten etter bilder og videoer, uavhengig av om den "
+"inneholder mappen DCIM,\n"
+"i motsetning til å kun søke i DCIM-mappen.\n"
+"\n"
+"Om du endrer denne innstillingen blir alle enhetene skannet på ny.\n"
+"\n"
+"Merk: For kameraer vil kun mappen DCIM skannes."
 
 #: ../raphodo/preferencedialog.py:172
 msgid "Devices that have been set to automatically ignore or download from."
@@ -2303,7 +2368,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:173
 msgid "Remembered Devices"
-msgstr ""
+msgstr "Husk enheter"
 
 #: ../raphodo/preferencedialog.py:177
 msgid ""
@@ -2360,8 +2425,9 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:220
 msgid ""
-"Use python-style <a href=\"http://damonlynch.net/rapid/documentation/"
-"#regularexpressions\">regular expressions</a>"
+"Use python-style <a "
+"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\">regula"
+"r expressions</a>"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:224
@@ -2560,14 +2626,16 @@ msgstr ""
 #: ../raphodo/preferencedialog.py:480
 msgid ""
 "Warn when about to download files that are not displayed in the main window."
-msgstr "Advar når du skal til å laste ned filer som ikke vises i hovedvinduet."
+msgstr ""
+"Advar når du skal til å laste ned filer som ikke vises i hovedvinduet."
 
 #: ../raphodo/preferencedialog.py:482
 msgid "Backup destinations are missing"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:483
-msgid "Warn before starting a download if it is not possible to back up files."
+msgid ""
+"Warn before starting a download if it is not possible to back up files."
 msgstr ""
 "Advar før du starter en nedlasting hvis det ikke er mulig å "
 "sikkerhetskopiere filer."
@@ -3552,8 +3620,8 @@ msgid ""
 "            <a href=\"{log_path}\">here</a> to open the log directory).\n"
 "            "
 msgstr ""
-"Vennligst rapporter problemet på <a href=\"{website}\">{website}</a>."
-"<br><br>\n"
+"Vennligst rapporter problemet på <a "
+"href=\"{website}\">{website}</a>.<br><br>\n"
 "            Legg ved loggfilen <i>{log_file}</i> i feilrapporten din (trykk\n"
 "            <a href=\"{log_path}\">her</a> for å åpne loggmappen).\n"
 "            "
@@ -3812,11 +3880,11 @@ msgstr ""
 #: ../raphodo/rapid.py:4229
 #, python-format
 msgid ""
-"<b>The %(camera)s appears to be in use by another application.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again.<br><br>Alternatively, you can ignore this "
-"device."
+"<b>The %(camera)s appears to be in use by another "
+"application.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again.<br><br>Alternatively, you "
+"can ignore this device."
 msgstr ""
 
 #: ../raphodo/rapid.py:4242
@@ -3849,20 +3917,20 @@ msgstr ""
 #: ../raphodo/rapid.py:4708
 #, python-format
 msgid ""
-"<b>The %(camera)s cannot be scanned because it cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again."
+"<b>The %(camera)s cannot be scanned because it cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again."
 msgstr ""
 
 #: ../raphodo/rapid.py:4733
 #, python-format
 msgid ""
-"<b>The download cannot start because the %(camera)s cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again, and choose which files you want to "
-"download from it."
+"<b>The download cannot start because the %(camera)s cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again, and choose which files "
+"you want to download from it."
 msgstr ""
 
 #: ../raphodo/rapid.py:4830
@@ -4041,7 +4109,8 @@ msgid "Ignore photos with the following extensions: %s"
 msgstr ""
 
 #: ../raphodo/rapid.py:5813
-msgid "Turn on or off starting downloads as soon as the program itself starts."
+msgid ""
+"Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 
 #: ../raphodo/rapid.py:5816
@@ -4106,7 +4175,8 @@ msgstr "Importerer innstillinger fra Rapid Photo Downloader %(version)s"
 
 #: ../raphodo/rapid.py:5978
 #, python-format
-msgid "Do you want to copy the stored sequence number, which has the value %d?"
+msgid ""
+"Do you want to copy the stored sequence number, which has the value %d?"
 msgstr ""
 
 #: ../raphodo/rapid.py:5989
@@ -4536,8 +4606,8 @@ msgstr ""
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/net.damonlynch.rapid-photo-downloader.desktop.in.h:5
 msgid ""
-"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
-"memory;card;"
+"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
+";card;"
 msgstr ""
 
 #: ../data/kde/net.damonlynch.rapid-photo-downloader.desktop.in.h:1
@@ -4607,6 +4677,7 @@ msgstr ""
 #~ msgid "Select a folder to download videos to"
 #~ msgstr "Velg katalog for å laste inn video"
 
+#, python-format
 #~ msgid "Select a folder containing %(file_types)s"
 #~ msgstr "Velg katalog med %(file_types)r"
 
@@ -4631,6 +4702,7 @@ msgstr ""
 #~ msgid "About 1 second remaining"
 #~ msgstr "Rundt 1 sekund igjen"
 
+#, python-format
 #~ msgid "and %s"
 #~ msgstr "og %s"
 
@@ -4652,9 +4724,11 @@ msgstr ""
 #~ msgid "Photo Folders"
 #~ msgstr "Foto mapper"
 
+#, python-format
 #~ msgid "%(device)s did not unmount"
 #~ msgstr "%(device)s ble ikke utløst"
 
+#, python-format
 #~ msgid "Downloading from %(location)s."
 #~ msgstr "Laster ned fra %(location)s."
 
@@ -4667,15 +4741,18 @@ msgstr ""
 #~ msgid "scanning..."
 #~ msgstr "søker..."
 
+#, python-format
 #~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 #~ msgstr "Omtrent %(minutes)i minutter og %(seconds)02i sekunder igjen"
 
+#, python-format
 #~ msgid "About %i seconds remaining"
 #~ msgstr "Omtrent %i sekunder igjen"
 
 #~ msgid "Download cannot proceed"
 #~ msgstr "Kan ikke fortsette nedlasting"
 
+#, python-format
 #~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
 #~ msgstr "%(number)s av %(total)s %(filetypes)s (%(remaining)s igjen)"
 
@@ -4703,6 +4780,7 @@ msgstr ""
 #~ msgid "Using backup devices"
 #~ msgstr "Bruker sikkerhetskopierings enheter"
 
+#, python-format
 #~ msgid "%(number)s of %(total)s %(filetypes)s"
 #~ msgstr "%(number)s av %(total)s %(filetypes)s"
 
@@ -4715,36 +4793,47 @@ msgstr ""
 #~ msgid "."
 #~ msgstr "."
 
+#, python-format
 #~ msgid "(%(file_type)s)"
 #~ msgstr "(%(file_type)s)"
 
+#, python-format
 #~ msgid "%(free)s %(file_type)s"
 #~ msgstr "%(free)s %(file_type)s"
 
+#, python-format
 #~ msgid "%(free)s free"
 #~ msgstr "%(free)s tilgjengelig"
 
+#, python-format
 #~ msgid "Backing up photos and videos to %(path)s"
 #~ msgstr "Sikkerhetskopierer bilder og video til %(path)s"
 
+#, python-format
 #~ msgid "Backing up to %(path)s"
 #~ msgstr "Sikkerhetskopierer til %(path)s"
 
+#, python-format
 #~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
 #~ msgstr "Sikkerhetskopierer bilder til %(path)s og video til %(path2)s"
 
+#, python-format
 #~ msgid "%(file_type)s download folder is not writable"
 #~ msgstr "Nedlastingsmappen til %(file_type)s er ikke skrivbar"
 
+#, python-format
 #~ msgid "Folder: %s"
 #~ msgstr "Mappe: %s"
 
+#, python-format
 #~ msgid "%(file_type)s download folder is invalid"
 #~ msgstr "Nedlastingsmappe til %(file_type)s er ugyldig"
 
+#, python-format
 #~ msgid "%(file_type)s download folder does not exist"
 #~ msgstr "Nedlastningsmappe til %(file_type)s finnes ikke"
 
+#, python-format
 #~ msgid ""
 #~ "display program information on the command line as the program runs "
 #~ "(default: %default)"
@@ -4752,6 +4841,7 @@ msgstr ""
 #~ "vis programinformasjon på kommandolinjen når programmet kjører (standard: "
 #~ "%default)"
 
+#, python-format
 #~ msgid "%(freespace)s. %(backuppaths)s."
 #~ msgstr "%(freespace)s. %(backuppaths)s."
 
@@ -4759,19 +4849,21 @@ msgstr ""
 #~ "When backing up, choose whether to overwrite a file on the backup device "
 #~ "that has the same name, or skip backing it up."
 #~ msgstr ""
-#~ "Under sikkerhetskopiering, velg om du vil overskrive eller hoppe over "
-#~ "filer med samme navn på sikkerhetskopierings enheten."
+#~ "Under sikkerhetskopiering, velg om du vil overskrive eller hoppe over filer "
+#~ "med samme navn på sikkerhetskopierings enheten."
 
 #~ msgid ""
 #~ "Do you really want to download from here? On some systems, scanning this "
 #~ "location can take a very long time."
 #~ msgstr ""
-#~ "Vil du virkelig laste ned fra denne posisjonen ? På noen system kan det "
-#~ "ta lang tid å søke igjennom filene."
+#~ "Vil du virkelig laste ned fra denne posisjonen ? På noen system kan det ta "
+#~ "lang tid å søke igjennom filene."
 
+#, python-format
 #~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 #~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
+#, python-format
 #~ msgid ""
 #~ "%(date)s\n"
 #~ "%(time)s"
@@ -4779,6 +4871,7 @@ msgstr ""
 #~ "%(date)s\n"
 #~ "%(time)s"
 
+#, python-format
 #~ msgid "%(date)s %(time)s"
 #~ msgstr "%(date)s %(time)s"
 
@@ -4794,6 +4887,7 @@ msgstr ""
 #~ msgid "MB/s"
 #~ msgstr "MB/s"
 
+#, python-format
 #~ msgid ""
 #~ "%(problem)s\n"
 #~ "File: %(file)s"
@@ -4805,15 +4899,18 @@ msgstr ""
 #~ msgstr ""
 #~ "vis hvilke bilde- og videofiltyper programmet gjenkjenner, og avslutt"
 
+#, python-format
 #~ msgid "Destination directory could not be created: %(directory)s\n"
 #~ msgstr "Klarte ikke å opprette målmappen %(directory)s\n"
 
 #~ msgid "only output errors to the command line"
 #~ msgstr "vis bare feil på kommandolinjen"
 
+#, python-format
 #~ msgid "Error: %(inst)s"
 #~ msgstr "Feil: %(inst)s"
 
+#, python-format
 #~ msgid ""
 #~ "Source: %(source)s\n"
 #~ "Destination: %(destination)s"
@@ -4874,12 +4971,13 @@ msgstr ""
 #~ "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
 #~ "name. Please use other renaming options.</i>"
 #~ msgstr ""
-#~ "<i><b>Advarsel:</b> Det er ikke nok metadata til å generere navnet fullt "
-#~ "ut. Bruk andre alternativer for omdøping av navn.</i>"
+#~ "<i><b>Advarsel:</b> Det er ikke nok metadata til å generere navnet fullt ut. "
+#~ "Bruk andre alternativer for omdøping av navn.</i>"
 
 #~ msgid "Invalid regular expression"
 #~ msgstr "Ugyldig regulært uttrykk"
 
+#, python-format
 #~ msgid "<i>Example: %s</i>"
 #~ msgstr "<i>Eksempel: %s</i>"
 
@@ -4889,65 +4987,80 @@ msgstr ""
 #~ msgid "externaldrive2"
 #~ msgstr "eksterndisk2"
 
+#, python-format
 #~ msgid "%(filetype)s was already downloaded"
 #~ msgstr "%(filetype)s er allerede lastet ned"
 
+#, python-format
 #~ msgid "%(volumes)s and %(final_volume)s."
 #~ msgstr "%(volumes)s og %(final_volume)s."
 
+#, python-format
 #~ msgid "%s, "
 #~ msgstr "%s, "
 
+#, python-format
 #~ msgid "%(volume)s, "
 #~ msgstr "%(volume)s, "
 
+#, python-format
 #~ msgid "%(volume)s (%(inst)s), "
 #~ msgstr "%(volume)s (%(inst)s), "
 
+#, python-format
 #~ msgid "%(volumes)s and %(volume)s."
 #~ msgstr "%(volumes)s og %(volume)s."
 
+#, python-format
 #~ msgid "%(volumes)s and %(volume)s (%(inst)s)."
 #~ msgstr "%(volumes)s og %(volume)s (%(inst)s)."
 
 #~ msgid "The following metadata is missing: "
 #~ msgstr "Følgende metadata mangler: "
 
-#~ msgid ""
-#~ "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
-#~ msgstr ""
-#~ "%(missing_metadata_elements)s og %(final_missing_metadata_element)s."
+#, python-format
+#~ msgid "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
+#~ msgstr "%(missing_metadata_elements)s og %(final_missing_metadata_element)s."
 
+#, python-format
 #~ msgid " Furthermore, there was a %(problem)s."
 #~ msgstr " Dessuten, var det ett %(problem)s."
 
+#, python-format
 #~ msgid "%(previousproblem)s Additionally, %(newproblem)s"
 #~ msgstr "%(previousproblem)s i tillegg, %(newproblem)s"
 
+#, python-format
 #~ msgid " Furthermore, there were %(problems)s."
 #~ msgstr " Dessuten, var det %(problems)s."
 
+#, python-format
 #~ msgid "Problem in %s generation"
 #~ msgstr "Problem ved oppretting av %s"
 
+#, python-format
 #~ msgid "Problems in %s generation"
 #~ msgstr "Problemer ved oppretting av %s"
 
 #~ msgid "Multiple problems were encountered"
 #~ msgstr "Flere feil oppstod"
 
+#, python-format
 #~ msgid "Source: %(source)s"
 #~ msgstr "Kilde: %(source)s"
 
+#, python-format
 #~ msgid "%(previousproblem)s, and %(backinguperror)s"
 #~ msgstr "%(previousproblem)s, og %(backinguperror)s"
 
 #~ msgid "_File"
 #~ msgstr "_Fil"
 
+#, python-format
 #~ msgid "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 #~ msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
+#, python-format
 #~ msgid "Path: %s"
 #~ msgstr "Filbane: %s"
 
@@ -4997,8 +5110,7 @@ msgstr ""
 #~ msgstr "_Merk alle"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Bildenedlastingsmapper</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Bildenedlastingsmapper</span>"
 
 #~ msgid "Preferences: Rapid Photo Downloader"
 #~ msgstr "Innstillinger: Rapid Photo Downloader"
@@ -5028,8 +5140,7 @@ msgstr ""
 #~ msgstr "Nedlastingsmappe:"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Videonedlastingsmapper</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Videonedlastingsmapper</span>"
 
 #~ msgid "Video Folders"
 #~ msgstr "Videomapper"
@@ -5098,46 +5209,49 @@ msgstr ""
 #~ msgstr "Lag miniatyrbilder (tregere)"
 
 #~ msgid ""
-#~ "When a photo or video of the same name has already been downloaded, "
-#~ "choose whether to skip downloading the file, or to add a unique "
-#~ "indentifier."
+#~ "When a photo or video of the same name has already been downloaded, choose "
+#~ "whether to skip downloading the file, or to add a unique indentifier."
 #~ msgstr ""
-#~ "Velg om du skal hoppe over filen eller legge til en unik identifikator "
-#~ "når ett bilde eller video med det samme navnet er lastet ned fra før."
+#~ "Velg om du skal hoppe over filen eller legge til en unik identifikator når "
+#~ "ett bilde eller video med det samme navnet er lastet ned fra før."
 
+#, python-format
 #~ msgid ""
 #~ "The following regular expressions are invalid, and will be removed unless "
 #~ "you correct them:\n"
 #~ " %s"
 #~ msgstr ""
-#~ "De følgende regulære uttrykkene er ugyldige, og vil bli fjernet om du "
-#~ "ikke endrer dem:\n"
+#~ "De følgende regulære uttrykkene er ugyldige, og vil bli fjernet om du ikke "
+#~ "endrer dem:\n"
 #~ "%s"
 
+#, python-format
 #~ msgid ""
-#~ "This regular expression is invalid, and will be removed unless you "
-#~ "correct it:\n"
+#~ "This regular expression is invalid, and will be removed unless you correct "
+#~ "it:\n"
 #~ " %s"
 #~ msgstr ""
 #~ "Dette regulære uttrykket er ugyldig, og vil bli fjernet om du ikke retter "
 #~ "det:\n"
 #~ " %s"
 
+#, python-format
 #~ msgid ""
 #~ "The %(filetype)s subfolder preferences entered are invalid and cannot be "
 #~ "used.\n"
 #~ "They will be reset to their default values."
 #~ msgstr ""
-#~ "Innstillingene til %(filetype)s undermappe er ugyldige og kan ikke "
-#~ "brukes.\n"
+#~ "Innstillingene til %(filetype)s undermappe er ugyldige og kan ikke brukes.\n"
 #~ "De vil bli satt tilbake til standard verdier."
 
+#, python-format
 #~ msgid "Date time value %s appears invalid."
 #~ msgstr "Dato tidsverdien %s fremstår som ugyldig."
 
 #~ msgid "Remove all Ignored Paths?"
 #~ msgstr "Fjern alle undertrykte filbaner?"
 
+#, python-format
 #~ msgid ""
 #~ "%(filetype)s could not be backed up because no suitable backup locations "
 #~ "were found."
@@ -5145,39 +5259,49 @@ msgstr ""
 #~ "%(filetype)s could not be backed up because no suitable backup locations "
 #~ "were found."
 
+#, python-format
 #~ msgid "%(filetype)s already exists"
 #~ msgstr "%(filetype)s finnes allerede"
 
+#, python-format
 #~ msgid "%(filetype)s metadata cannot be read"
 #~ msgstr "%(filetype)s metadata kan ikke leses"
 
+#, python-format
 #~ msgid "Error generating component %s."
 #~ msgstr "Feil ved oppretting av %s-komponenten."
 
+#, python-format
 #~ msgid "An error occurred when copying the %(filetype)s"
 #~ msgstr "En feil oppstod ved kopiering av %(filetype)s"
 
+#, python-format
 #~ msgid "%(filetype)s %(area)s could not be generated"
 #~ msgstr "%(filetype)s %(area)s kunne ikke opprettes"
 
 #~ msgid "Errors occurred when backing up on the following backup devices: "
 #~ msgstr "Flere feil oppstod ved sikkerhetskopiering til følgende enheter: "
 
+#, python-format
 #~ msgid "An error occurred when backing up on %(volume)s."
 #~ msgstr "En feil oppstod ved sikkerhetskopiering til %(volume)s."
 
+#, python-format
 #~ msgid "Backup already exists on %(volume)s."
 #~ msgstr "Sikkerhetskopi finnes allerede på %(volume)s."
 
+#, python-format
 #~ msgid "An error occurred when backing up on %(volume)s: %(inst)s."
 #~ msgstr "En feil oppstod ved sikkerhetskopiering til %(volume)s: %(inst)s."
 
+#, python-format
 #~ msgid "Error: %(errorno)s %(strerror)s"
 #~ msgstr "Feil: %(errorno)s %(strerror)s"
 
 #~ msgid "The metadata might be corrupt."
 #~ msgstr "Metadataen kan være korrupt."
 
+#, python-format
 #~ msgid " It was backed up to %(volume)s"
 #~ msgstr " Det ble sikkerhetskopiert til %(volume)s"
 
@@ -5187,20 +5311,21 @@ msgstr ""
 #~ msgid "Backups overwritten on these devices: "
 #~ msgstr "Sikkerhetskopier overskrevet på  disse enhetene: "
 
+#, python-format
 #~ msgid "Backup overwritten on %(volume)s."
 #~ msgstr "Sikkerhetskopi overskrevet på %(volume)s."
 
 #~ msgid "Backups already exist in these locations: "
 #~ msgstr "Sikkerhetskopier finnes allerede i disse plasseringene: "
 
+#, python-format
 #~ msgid "%(filetype)s already exists, but it was backed up"
 #~ msgstr "%(filetype)s finnes allerede, men den ble sikkerhetskopiert"
 
-#~ msgid ""
-#~ "An error occurred when copying the %(filetype)s, but it was backed up"
+#, python-format
+#~ msgid "An error occurred when copying the %(filetype)s, but it was backed up"
 #~ msgstr ""
-#~ "En feil oppstod ved kopiering av %(filetype)s, men den ble "
-#~ "sikkerhetskopiert"
+#~ "En feil oppstod ved kopiering av %(filetype)s, men den ble sikkerhetskopiert"
 
 #~ msgid "Problems in subfolder and filename generation"
 #~ msgstr "Flere problemer ved oppretting av undermapper og filnavn"
@@ -5208,12 +5333,12 @@ msgstr ""
 #~ msgid "Problem in subfolder and filename generation"
 #~ msgstr "Problem ved oppretting av undermappe og filnavn"
 
+#, python-format
 #~ msgid "An error occurred when creating directories on %(volume)s: %(inst)s."
 #~ msgstr "En feil oppstod ved oppretting av mapper på %(volume)s: %(inst)s."
 
 #~ msgid ""
-#~ "Errors occurred when creating directories on the following backup "
-#~ "devices: "
+#~ "Errors occurred when creating directories on the following backup devices: "
 #~ msgstr ""
 #~ "Flere feil oppstod ved oppretting av mapper på følgende enheter for "
 #~ "sikkerhetskopi: "
@@ -5240,9 +5365,9 @@ msgstr ""
 #~ msgstr "_Gi en donasjon..."
 
 #~ msgid ""
-#~ "Sorry, video downloading functionality disabled. To download videos, "
-#~ "please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> "
-#~ "packages for python, or <i>exiftool</i>."
+#~ "Sorry, video downloading functionality disabled. To download videos, please "
+#~ "install either the <i>hachoir metadata</i> and <i>kaa metadata</i> packages "
+#~ "for python, or <i>exiftool</i>."
 #~ msgstr ""
 #~ "Beklager, funksjon for nedlasting av video deaktivert. For å laste ned "
 #~ "video, vær vennlig å installer enten <i>hachoir metadata</i> og <i>kaa "
@@ -5269,8 +5394,7 @@ msgstr ""
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
 #~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Alternativer for å gi nytt navn</"
-#~ "span>"
+#~ "<span weight=\"bold\" size=\"x-large\">Alternativer for å gi nytt navn</span>"
 
 #~ msgid "<b>Sequence Numbers</b>"
 #~ msgstr "<b>Sekvensnummre</b>"
@@ -5282,11 +5406,11 @@ msgstr ""
 #~ msgstr "Alternativer for gi nytt navn"
 
 #~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the "
-#~ "photos and videos."
+#~ "If you disable automatic detection, choose the exact location of the photos "
+#~ "and videos."
 #~ msgstr ""
-#~ "Om du skrur av automatisk oppdaging, velg eksakt plassering der bildene "
-#~ "og video er."
+#~ "Om du skrur av automatisk oppdaging, velg eksakt plassering der bildene og "
+#~ "video er."
 
 #~ msgid "Automatically detect Portable Storage Devices"
 #~ msgstr "Oppdag flyttbare lagringsenheter automatisk"
@@ -5300,6 +5424,7 @@ msgstr ""
 #~ msgid "<b>Program Automation</b>"
 #~ msgstr "<b>Automatisering</b>"
 
+#, python-format
 #~ msgid "There is no data with which to name the %(filetype)s."
 #~ msgstr "Mangler data for å navngi %(filetype)s."
 
@@ -5319,6 +5444,7 @@ msgstr ""
 #~ "opprettet i denne mappen etter de valg du har gjort for "
 #~ "nedlastingsundermapper."
 
+#, python-format
 #~ msgid ""
 #~ "Photos detected with the same filenames, but taken at different times: "
 #~ "%(details)s"
@@ -5329,10 +5455,8 @@ msgstr ""
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Diverse</span>"
 
-#~ msgid ""
-#~ "Photos detected with the same filenames, but taken at different times"
-#~ msgstr ""
-#~ "Bilder funnet med samme filnavn, men tatt ved forskjellige tidspunkt"
+#~ msgid "Photos detected with the same filenames, but taken at different times"
+#~ msgstr "Bilder funnet med samme filnavn, men tatt ved forskjellige tidspunkt"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Jobbnavn</span>"
