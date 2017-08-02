@@ -9,6 +9,11 @@ Changelog for Rapid Photo Downloader
    the time is still not displayed correctly in your language, please file a
    bug report.
 
+ - Fixed a bug where an exception could occur when clicking on some Timeline
+   entries or displaying their thumbnails as a tooltip. It occurred when the
+   Timeline had one or more entries in the right-most column that spanned
+   more than one calendar day.
+
  - When a download device is inserted and downloaded files are already in the
    main window, the program will now ask if the completed downloads should be
    cleared. A new, associated program preference controls if the program
