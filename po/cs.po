@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-07-26 02:34-0500\n"
-"PO-Revision-Date: 2017-07-26 13:56+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"PO-Revision-Date: 2017-07-28 15:31+0000\n"
+"Last-Translator: Pavel Borecki <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-28 06:32+0000\n"
-"X-Generator: Launchpad (build 18439)\n"
+"X-Launchpad-Export-Date: 2017-08-02 04:21+0000\n"
+"X-Generator: Launchpad (build 18441)\n"
 "Language: cs\n"
 
 #: ../install.py:63
@@ -55,7 +55,7 @@ msgstr ""
 
 #: ../install.py:506
 msgid "Would you like to run the command now?"
-msgstr "Přejete si spustit příkaz nyní?"
+msgstr "Chcete spustit příkaz nyní?"
 
 #: ../install.py:508
 msgid "Answer is not yes, exiting."
@@ -83,7 +83,7 @@ msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
 msgstr ""
-"Dotazování systému správy balíčků zda je nainstalována starší verze Rapid "
+"Dotazování systému správy balíčků zda je nainstalovaná starší verze Rapid "
 "Photo Downloader (může to chvíli trvat)…"
 
 #: ../install.py:689
@@ -97,7 +97,7 @@ msgstr ""
 #: ../install.py:711
 msgid "Checking if previous version installed with pip..."
 msgstr ""
-"Zjišťování zda předchozí verze byla nainstalována pomocí nástroje pip…"
+"Zjišťování zda předchozí verze byla nainstalovaná pomocí nástroje pip…"
 
 #: ../install.py:805
 msgid "The following package is unknown on your system: {}\n"
@@ -119,8 +119,8 @@ msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr ""
-"Dotazování správce balíčků zypper zda jsou už nainstalované potřebné balíčky "
-"(může chvíli trvat)… "
+"Dotazování správce balíčků zypper zda a případně které potřebné balíčky už "
+"jsou nainstalované (může chvíli trvat)… "
 
 #: ../install.py:951
 msgid "Query to confirm action at each step."
@@ -149,39 +149,39 @@ msgid ""
 "whichever installer is newer."
 msgstr ""
 "Nespouštět instalátor z tar.gz instalačního archivu Rapid Photo Downloader "
-"pokud je novější než tato verze ({}). Výchozím chováním je spustit kdykoli "
-"je instalátor novější."
+"pokud je novější než tato verze ({}). Výchozím chováním je spustit kterýkoli "
+"novější instalátor."
 
 #: ../install.py:997
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
 msgstr ""
-"Odinstalovat Rapid Photo Downloader který byl nainstalován pomocí pip, s "
-"ponecháním závislostí nainstalovaných."
+"Odinstalovat Rapid Photo Downloader který byl nainstalován pomocí pip s tím, "
+"že zůstanou zachované ostatní součásti, na kterých aplikace závisela."
 
 #: ../install.py:1001
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
-"Odinstalovat závislosti nainstalované nástrojem pip při instalaci Rapid "
-"Photo Downloader a aplikaci samotnou a pak skončit."
+"Odinstalovat ostatní součásti, na kterých aplikace závisela (nainstalované "
+"pomocí pip), následně aplikaci samotnou a pak skončit."
 
 #: ../install.py:1006
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr ""
-"Pozn.: toto neodinstaluje žádnou z verzí Rapid Photo Downloader "
-"nainstalovanou přes správu balíčků vaší Linuxové distribuce."
+"Pozn.: toto nikdy neodebere instalaci Rapid Photo Downloader nainstalovanou "
+"prostřednictvím správy balíčků vámi používané Linuxové distribuce."
 
 #: ../install.py:1013
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
-"Součásti, na kterých záviselo budou odebrány pouze tehdy, pokud nejsou "
-"potřebné pro žádné další programy."
+"Součásti, na kterých aplikace závisela budou odebrány pouze tehdy, pokud "
+"nejsou potřebné pro žádné další programy."
 
 #: ../install.py:1019
 msgid ""
@@ -192,13 +192,13 @@ msgid ""
 "Photo Downloader installed by your Linux distribution's package manager will "
 "not be uninstalled."
 msgstr ""
-"Pozn.: tato předvolba odebere součásti, na kterých záviselo bez ohledu na to "
-"zda jsou potřebné pro jiné aplikace které byly pomocí pip nainstalované. "
-"Pokud tomuto chování chcete zamezit, přejděte na verzi pip 9.0 a novější. "
-"Můžete to provést pomocí příkazu „python3 -m pip install pip -U --user“. "
-"Také poznamenejme, že nebude odinstalována žádná verze Rapid Photo "
-"Downloader která byla nainstalovaná skrze správu balíčků ve vaší Linuxové "
-"distribuci."
+"Pozn.: tato předvolba odebere součásti, na kterých aplikace závisela bez "
+"ohledu na to zda jsou potřebné pro další programy které byly nainstalované "
+"pomocí pip. Pokud chcete tomuto chování zamezit, přejděte na verzi pip 9.0 a "
+"novější. Můžete to provést příkazem „python3 -m pip install pip -U --user“. "
+"Také poznamenejme, že nikdy neodebere instalaci Rapid Photo Downloader "
+"nainstalovanou prostřednictvím správy balíčků vámi používané Linuxové "
+"distribuce."
 
 #: ../install.py:1069
 msgid "Failed to download versions file"
@@ -222,12 +222,13 @@ msgstr ""
 
 #: ../install.py:1355
 msgid "Installing application requirements..."
-msgstr "Instalace součástí potřebných pro aplikaci…"
+msgstr "Instalace ostatních součástí potřebných pro aplikaci…"
 
 #: ../install.py:1371
 msgid "Failed to install application requirements: exiting"
 msgstr ""
-"Nepodařilo se nainstalovat součásti, které aplikace potřebuje: ukončuje se"
+"Nepodařilo se nainstalovat ostatní součásti, které aplikace potřebuje: "
+"ukončuje se"
 
 #: ../install.py:1374
 msgid "Installing application..."
@@ -243,7 +244,7 @@ msgid ""
 "commmand line or application launcher."
 msgstr ""
 "Aby bylo možné aplikaci spustit (z příkazového řádku nebo kliknutím na "
-"zástupce), může být třeba se odhlásit a znovu přihlásit do systému."
+"zástupce), může být třeba restartovat počítač."
 
 #: ../install.py:1422
 msgid "Do you want to install the application's man pages?"
@@ -279,22 +280,23 @@ msgid ""
 "Downloader that was installed with pip.\n"
 "Cannot continue. Exiting."
 msgstr ""
-"Pro odinstalaci aplikace Rapid Photo Downloader, která byla nainstalovaná "
-"pomocí python3 nástroje pip je třeba,\n"
-"aby tento nástroj byl přítomen. Nelze pokračovat, ukončuje se."
+"Pro odebrání instalace Rapid Photo Downloader provedené prostřednictvím "
+"python3 nástroje pip je třeba,\n"
+"aby tento nástroj byl přítomen. Protože tomu tak není, nelze pokračovat a "
+"ukončuje se."
 
 #: ../install.py:1518
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
 msgstr ""
-"Nespouštějte tento instalační skript jako sudo / root.\n"
+"Nespouštějte tento instalační skript s právy správy systému (sudo/root).\n"
 "Spusťte ho jako uživatel který bude aplikaci používat.\n"
 
 #: ../install.py:1528 ../install.py:1542
 msgid "Do not include any other command line arguments when specifying"
 msgstr ""
-"Při specifikování nezadávejte žádné další argumenty příkazového řádku"
+"Pokud použijete tento, nezadávejte už žádné další argumenty příkazového řádku"
 
 #: ../install.py:1580
 msgid "Exiting..."
@@ -320,6 +322,8 @@ msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
+"Prostřednictvím správy balíčků vámi používané Linuxové distribuce "
+"nainstalujte následující balíčky a spusťte tento instalátor znovu"
 
 #: ../install.py:1643
 msgid ""
@@ -333,8 +337,8 @@ msgstr ""
 #: ../install.py:1658
 msgid "Python 3's pip and setuptools must be upgraded for your user."
 msgstr ""
-"Pro tohoto uživatele bude třeba přejít na novější verze nástrojů Python 3 "
-"pip a setuptools."
+"U jejich instalací pro tohoto uživatele je třeba přejít na novější verze "
+"nástrojů Python 3 pip a setuptools."
 
 #. Translators: do not translate the term python or requests
 #: ../install.py:1671
@@ -352,7 +356,7 @@ msgstr "&Přejít na novější verzi"
 #: ../upgrade.py:274
 #, python-format
 msgid "Click the Upgrade button to upgrade to version %s."
-msgstr "Kliknutím na tlačítku Přejít na novější verzi přejdete na verzi %s."
+msgstr "Kliknutím na „Přejít na novější verzi“ přejdete na verzi %s."
 
 #: ../upgrade.py:277
 msgid "Click the Upgrade button to start the upgrade."
@@ -391,7 +395,7 @@ msgid ""
 "program."
 msgstr ""
 "Přechod na novější verzi úspěšně dokončen. Kliknutím na Zavřít ukončete nebo "
-"Spustit pro spuštění aplikace."
+"Spustit aplikaci spusťte."
 
 #: ../upgrade.py:359
 msgid "Upgrade failed. Click Close to exit."
@@ -828,11 +832,11 @@ msgid ""
 "</ol> "
 msgstr ""
 "\n"
-"          Náhledové obrázky mohou být řazeny dle různých kritérií:\n"
+"          Náhledové obrázky mohou být řazeny podle různých kritérií:\n"
 "<ol>\n"
-"<li><b>Okamžik úpravy:</b> kdy byl soubor naposledy upraven dle údajů z jeho "
-"vnitřních metadat (pokud \n"
-" jsou k dispozici) nebo dle údajů souborového systému (náhradní "
+"<li><b>Okamžik úpravy:</b> kdy byl soubor naposledy upraven na základě údajů "
+"z jeho vnitřních metadat (pokud \n"
+" jsou k dispozici) nebo podle údajů souborového systému (náhradní "
 "řešení).</li>\n"
 "<li><b>Zaškrtnuto:</b> zda jsou soubory označené ke stahování.</li>\n"
 "<li><b>Název souboru:</b> úplný název souboru (včetně přípony).</li>\n"
@@ -2536,7 +2540,7 @@ msgid ""
 "\n"
 "Note: With cameras, only the DCIM folder is scanned."
 msgstr ""
-"Hledat fotografie a videa napříč celým zařízení, bez ohledu zda obsahuje "
+"Hledat fotografie a videa napříč celým zařízením, bez ohledu zda obsahuje "
 "složku nazvanou DCIM,\n"
 "oproti hledání pouze v rámci takové složky.\n"
 "\n"
@@ -3921,7 +3925,7 @@ msgstr ""
 "            K hlášení přiložte soubor se záznamem událostí (log) "
 "<i>{log_file}</i> (Složku\n"
 "            ve které se nachází otevřete kliknutím <a "
-"href=\"{log_path}\">sem</a>.\n"
+"href=\"{log_path}\">sem</a>).\n"
 "            "
 
 #: ../raphodo/rapid.py:2519
@@ -4769,7 +4773,7 @@ msgstr "Kořen souborového systému"
 #. translators: the name of the Pictures folder
 #: ../raphodo/storage.py:435
 msgid "Pictures"
-msgstr "Obrázky"
+msgstr "Fotografie"
 
 #: ../raphodo/thumbnaildisplay.py:432
 #, python-format
@@ -4794,7 +4798,7 @@ msgstr "Paměťové karty: %s"
 #: ../raphodo/thumbnaildisplay.py:468
 #, python-format
 msgid "Memory card: %s"
-msgstr ""
+msgstr "Paměťová karta: %s"
 
 #: ../raphodo/thumbnaildisplay.py:473
 msgid "Downloaded as:"

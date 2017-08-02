@@ -8,106 +8,106 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-07-26 02:34-0500\n"
-"PO-Revision-Date: 2017-07-26 13:56+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"PO-Revision-Date: 2017-08-01 14:24+0000\n"
+"Last-Translator: Koji Yokota <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-28 06:32+0000\n"
-"X-Generator: Launchpad (build 18439)\n"
+"X-Launchpad-Export-Date: 2017-08-02 04:21+0000\n"
+"X-Generator: Launchpad (build 18441)\n"
 "Language: ja\n"
 
 #: ../install.py:63
 msgid "Rapid Photo Downloader installer"
-msgstr ""
+msgstr "高速写真ダウンローダ・インストーラ"
 
 #: ../install.py:64
 msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr ""
+msgstr "高速写真ダウンローダの最新版をダウンロードして導入します．"
 
 #: ../install.py:234 ../install.py:1677
 msgid "Installer not found:"
-msgstr ""
+msgstr "インストーラが見つかりません："
 
 #. Translators: do not translate the term tar.gz
 #: ../install.py:238 ../install.py:1681
 msgid "Installer not in tar.gz format:"
-msgstr ""
+msgstr "インストーラがtar.gz形式になっていません："
 
 #: ../install.py:443
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
 "permissions for"
-msgstr ""
+msgstr "フォルダ所有者が正しくないことを検知しました．次の所有権を変更し権限をリセットします："
 
 #: ../install.py:499
 msgid "The following command will be run:"
-msgstr ""
+msgstr "次のコマンドが実行されます："
 
 #: ../install.py:502 ../install.py:1425 ../install.py:1430
 msgid "sudo may prompt you for the sudo password."
-msgstr ""
+msgstr "sudoがsudoパスワードを尋ねるかもしれません．"
 
 #: ../install.py:506
 msgid "Would you like to run the command now?"
-msgstr ""
+msgstr "このコマンドをいま実行しますか？"
 
 #: ../install.py:508
 msgid "Answer is not yes, exiting."
-msgstr ""
+msgstr "回答が「はい」ではありませんでしたので終了します．"
 
 #: ../install.py:518
 msgid "Command failed"
-msgstr ""
+msgstr "コマンド失敗"
 
 #: ../install.py:520
 msgid "Exiting"
-msgstr ""
+msgstr "終了します"
 
 #: ../install.py:547
 msgid "The Universe repository must be enabled."
-msgstr ""
+msgstr "Universeリポジトリを有効にしなくてはなりません．"
 
 #: ../install.py:571
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
-msgstr ""
+msgstr "高速写真ダウンローダの旧版をアンインストールしますか？"
 
 #: ../install.py:678 ../install.py:703
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
-msgstr ""
+msgstr "旧版の高速写真ダウンローダが導入済みかパッケージシステムに問い合わせています（これには時間を要することがあります）…"
 
 #: ../install.py:689
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again"
-msgstr ""
+msgstr "パッケージシステムに問い合わせができませんでした．インターネット接続を確認して再度実行してください"
 
 #: ../install.py:711
 msgid "Checking if previous version installed with pip..."
-msgstr ""
+msgstr "旧版が導入済みかpipで確認しています…"
 
 #: ../install.py:805
 msgid "The following package is unknown on your system: {}\n"
-msgstr ""
+msgstr "次のパッケージはシステム上で既知ではありません：{}\n"
 
 #: ../install.py:812 ../install.py:884 ../install.py:922
 msgid ""
 "To continue, some packages required to run the application will be installed."
-msgstr ""
+msgstr "続けると，アプリケーションを実行するのに必要なパッケージが導入されます．"
 
 #: ../install.py:841
 msgid "Querying installed and available packages (this may take a while)"
-msgstr ""
+msgstr "導入済みで利用できるパッケージを問い合わせています（これには時間を要することがあります）"
 
 #: ../install.py:913
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
-msgstr ""
+msgstr "必要なパッケージが導入済みかzypperに問い合わせています（これには時間を要することがあります）… "
 
 #: ../install.py:951
 msgid "Query to confirm action at each step."
@@ -167,7 +167,7 @@ msgstr ""
 
 #: ../install.py:1069
 msgid "Failed to download versions file"
-msgstr ""
+msgstr "バージョンファイルのダウンロードに失敗しました"
 
 #: ../install.py:1073
 msgid "Got error code {} while accessing versions file"
@@ -183,19 +183,19 @@ msgstr ""
 
 #: ../install.py:1355
 msgid "Installing application requirements..."
-msgstr ""
+msgstr "アプリケーションの必要物を導入しています…"
 
 #: ../install.py:1371
 msgid "Failed to install application requirements: exiting"
-msgstr ""
+msgstr "アプリケーションの必要物を導入するのに失敗しました：終了します"
 
 #: ../install.py:1374
 msgid "Installing application..."
-msgstr ""
+msgstr "アプリケーションを導入しています…"
 
 #: ../install.py:1387
 msgid "Failed to install application: exiting..."
-msgstr ""
+msgstr "アプリケーションの導入に失敗しました：終了します…"
 
 #: ../install.py:1411
 msgid ""
@@ -205,15 +205,15 @@ msgstr ""
 
 #: ../install.py:1422
 msgid "Do you want to install the application's man pages?"
-msgstr ""
+msgstr "アプリケーションのmanページを導入しますか？"
 
 #: ../install.py:1423
 msgid "They will be installed into {}"
-msgstr ""
+msgstr "これらは{}に導入されます"
 
 #: ../install.py:1424 ../install.py:1429
 msgid "If you uninstall the application, remove these manpages yourself."
-msgstr ""
+msgstr "アプリケーションをアンインストールした場合には，これらのmanページをご自身で削除してください．"
 
 #: ../install.py:1426
 msgid "Do want to install the man pages?"

@@ -8,122 +8,142 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-07-26 02:34-0500\n"
-"PO-Revision-Date: 2017-07-26 13:56+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"PO-Revision-Date: 2017-07-31 17:34+0000\n"
+"Last-Translator: rost <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-28 06:32+0000\n"
-"X-Generator: Launchpad (build 18439)\n"
+"X-Launchpad-Export-Date: 2017-08-02 04:21+0000\n"
+"X-Generator: Launchpad (build 18441)\n"
 "Language: de\n"
 
 #: ../install.py:63
 msgid "Rapid Photo Downloader installer"
-msgstr ""
+msgstr "Rapid Photo Downloader Installationsdatei"
 
 #: ../install.py:64
 msgid "Download and install latest version of Rapid Photo Downloader."
 msgstr ""
+"Die neueste Version von Rapid Photo Downloader herunterladen und "
+"installieren."
 
 #: ../install.py:234 ../install.py:1677
 msgid "Installer not found:"
-msgstr ""
+msgstr "Installationsdatei nicht gefunden:"
 
 #. Translators: do not translate the term tar.gz
 #: ../install.py:238 ../install.py:1681
 msgid "Installer not in tar.gz format:"
-msgstr ""
+msgstr "Installationsdatei ist nicht im tar.gz Format:"
 
 #: ../install.py:443
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
 "permissions for"
 msgstr ""
+"Die Ordner-Besitzrechte stimmen nicht. Ändern der Besitzrechte und "
+"zurücksetzen der Zugriffsrechte für"
 
 #: ../install.py:499
 msgid "The following command will be run:"
-msgstr ""
+msgstr "Der folgende Befehl wird ausgeführt:"
 
 #: ../install.py:502 ../install.py:1425 ../install.py:1430
 msgid "sudo may prompt you for the sudo password."
-msgstr ""
+msgstr "Sudo fragt möglicherweise nach dem Sudo - Passwort."
 
 #: ../install.py:506
 msgid "Would you like to run the command now?"
-msgstr ""
+msgstr "Möchten Sie den Befehl jetzt ausführen?"
 
 #: ../install.py:508
 msgid "Answer is not yes, exiting."
-msgstr ""
+msgstr "Die Antwort ist nicht ja, deshalb Abbruch."
 
 #: ../install.py:518
 msgid "Command failed"
-msgstr ""
+msgstr "Ausführung des Befehls fehlgeschlagen"
 
 #: ../install.py:520
 msgid "Exiting"
-msgstr ""
+msgstr "Beenden"
 
 #: ../install.py:547
 msgid "The Universe repository must be enabled."
-msgstr ""
+msgstr "Das Repository \"Universe\" muß aktiviert werden."
 
 #: ../install.py:571
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
 msgstr ""
+"Möchten Sie die bisherige Version von Rapid Photo Downloader deinstallieren:"
 
 #: ../install.py:678 ../install.py:703
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
 msgstr ""
+"Die Paketdatenbank wird nach einer installierten älteren Version von Rapid "
+"Photo Downloader durchsucht. Das kann etwas dauern..."
 
 #: ../install.py:689
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again"
 msgstr ""
+"Das Paketsystem kann nicht durchsucht werden. Bitte die Internetverbindung "
+"überprüfen und neu versuchen"
 
 #: ../install.py:711
 msgid "Checking if previous version installed with pip..."
-msgstr ""
+msgstr "Es wird geprüft, ob eine ältere Version mit pip installiert wurde..."
 
 #: ../install.py:805
 msgid "The following package is unknown on your system: {}\n"
 msgstr ""
+"Das folgende Paket wird für ihr Betriebssystem nicht bereitgestellt: {}\n"
 
 #: ../install.py:812 ../install.py:884 ../install.py:922
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
+"Zur Fortsetzung werden einige von der Anwendung benötigte Pakete installiert."
 
 #: ../install.py:841
 msgid "Querying installed and available packages (this may take a while)"
 msgstr ""
+"Es wird nach installierten und nach verfügbaren Paketen gesucht (kann einen "
+"Moment dauern)"
 
 #: ../install.py:913
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr ""
+"Es wird nach zypper gesucht um zu prüfen, ob benötigte Pakete schon "
+"installiert sind (kann einen Moment dauern) "
 
 #: ../install.py:951
 msgid "Query to confirm action at each step."
-msgstr ""
+msgstr "Query to confirm action at each step."
 
 #: ../install.py:958
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
 msgstr ""
+"Wenn Sie die neueste Version herunter laden, installieren Sie die "
+"Entwicklerversion, falls diese aktueller als die aktuellste 'stabile' "
+"Version ist."
 
 #: ../install.py:967
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
+"Optionales tar.gz Rapid Photo Downloader - Installationsarchiv. Wenn nicht "
+"anders angegeben, wird die aktuellste Version aus dem Internet geladen."
 
 #: ../install.py:990
 msgid ""
@@ -131,29 +151,40 @@ msgid ""
 "archive if it is newer than this version ({}). The default is to run "
 "whichever installer is newer."
 msgstr ""
+"Bitte nicht die Installationsdatei im Rapid Photo Downloader - "
+"Installationsarchiv ausführen, wenn dieses neuer als die Version ({}) ist. "
+"Die Voreinstellung ist, die jeweils neueste Version auszuführen."
 
 #: ../install.py:997
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
 msgstr ""
+"Die mit pip installierte Rapid Photo Downloader - Version wird "
+"deinstalliert. Abhängigkeiten bleiben erhalten."
 
 #: ../install.py:1001
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
+"Die Abhängigkeiten der mit pip installierten Rapid Photo Downloader - "
+"Version werden entfernt, danach wird Rapid Photo Downloader deinstalliert."
 
 #: ../install.py:1006
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr ""
+"Hinweis: dies wird nicht eine über ihren Paket-Manager installierte Version "
+"von Rapid Photo Downloader deinstallieren."
 
 #: ../install.py:1013
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
+"Abhängigkeiten werden nur entfernt, wenn sie nicht von anderen Programmen "
+"benötigt werden."
 
 #: ../install.py:1019
 msgid ""
@@ -164,14 +195,23 @@ msgid ""
 "Photo Downloader installed by your Linux distribution's package manager will "
 "not be uninstalled."
 msgstr ""
+"Hinweis: Diese Option entfernt die Abhängigkeiten unabhängig davon, ob sie "
+"von einem anderen Programm, das pip installiert hat, benötigt werden. "
+"Upgrade auf Pip 9.0 oder höher, wenn Sie dieses Verhalten vermeiden möchten. "
+"Sie können dies mit dem Befehl 'python3 -m pip install pip -U --user' tun. "
+"Beachten Sie auch, dass jede Version von Rapid Photo Downloader, die vom "
+"Paketmanager Ihrer Linux Distribution installiert wurde, nicht deinstalliert "
+"wird."
 
 #: ../install.py:1069
 msgid "Failed to download versions file"
-msgstr ""
+msgstr "Fehler beim Herunterladen der Versions-Datei."
 
 #: ../install.py:1073
 msgid "Got error code {} while accessing versions file"
 msgstr ""
+"Beim Versuch, auf die Versionsdatei zuzugreifen, wurde der Fehlercode {} "
+"zurückgegeben"
 
 #: ../install.py:1181
 msgid ""
@@ -180,56 +220,71 @@ msgid ""
 "\n"
 "Exiting.\n"
 msgstr ""
+"Entschuldigung, aber die Installationsdatei konnte nicht gefunden werden. "
+"Bitte prüfen sie ihre Internetverbindung und testen sie, ob sie die Webseite "
+"http://www.damonlynch.net erreichen können.\n"
+"\n"
+"Programm wird beendet.\n"
 
 #: ../install.py:1355
 msgid "Installing application requirements..."
-msgstr ""
+msgstr "Erforderliche Hilfsdateien werden installiert..."
 
 #: ../install.py:1371
 msgid "Failed to install application requirements: exiting"
 msgstr ""
+"Beim Versuch, die erforderlichen Hifsdateien zu installieren, ist ein Fehler "
+"aufgetreten. Programm wird beendet."
 
 #: ../install.py:1374
 msgid "Installing application..."
-msgstr ""
+msgstr "Das Programm wird installiert..."
 
 #: ../install.py:1387
 msgid "Failed to install application: exiting..."
 msgstr ""
+"Beim Versuch, das Programm zu installieren, ist ein Fehler aufgetreten: "
+"Programm wird beendet."
 
 #: ../install.py:1411
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "commmand line or application launcher."
 msgstr ""
+"Möglicherweise müssen sie den Computer neu starten, um das Programm über das "
+"Terminal oder das Startmenü starten zu können."
 
 #: ../install.py:1422
 msgid "Do you want to install the application's man pages?"
-msgstr ""
+msgstr "Möchten sie die Hilfe-Seiten zum Programm installieren?"
 
 #: ../install.py:1423
 msgid "They will be installed into {}"
-msgstr ""
+msgstr "Sie werden in das Verzeichnis {} installiert"
 
 #: ../install.py:1424 ../install.py:1429
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr ""
+"Wenn sie das Programm deinstallieren, entfernen sie diese Hilfe-Seiten bitte "
+"selbst."
 
 #: ../install.py:1426
 msgid "Do want to install the man pages?"
-msgstr ""
+msgstr "Möchten sie die Hilfe-Seiten installieren?"
 
 #: ../install.py:1428
 msgid "Installing man pages into {}"
-msgstr ""
+msgstr "Die Hilfe-Seiten werden im Verzeichnis {} installiert"
 
 #: ../install.py:1445
 msgid "Failed to create man page directory: exiting"
 msgstr ""
+"Beim Versuch, das Hilfe-Seiten - Verzeichnis anzulegen, ist ein Fehler "
+"aufgetreten. Das Programm wird beendet."
 
 #: ../install.py:1457
 msgid "Failed to copy man page."
-msgstr ""
+msgstr "Fehler beim Versuch, die Hilfe-Seiten zu kopieren."
 
 #: ../install.py:1477
 msgid ""
@@ -237,16 +292,22 @@ msgid ""
 "Downloader that was installed with pip.\n"
 "Cannot continue. Exiting."
 msgstr ""
+"Um eine Rapid Photo Downloader Version zu deinstallieren, die mit dem "
+"Python3 - Werkzeug 'pip' installiert wurde, ist dieses Programm notwendig "
+"(hier aber nicht installiert). Vorgang kann nicht fortgesetzt werden. Das "
+"Programm wird beendet."
 
 #: ../install.py:1518
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
 msgstr ""
+"Bitte rufen sie dieses Installationsskript nicht als sudo oder root auf.\n"
+"Sondern als der Benutzer, der das Programm benutzen wird.\n"
 
 #: ../install.py:1528 ../install.py:1542
 msgid "Do not include any other command line arguments when specifying"
-msgstr ""
+msgstr "Beim Festlegen bitte keine andere Terminalbefehl-Argumente einfügen"
 
 #: ../install.py:1580
 msgid "Exiting..."
@@ -256,67 +317,79 @@ msgstr "Wird beendet …"
 #: ../install.py:1599
 msgid "To continue, the package python3-apt must be installed."
 msgstr ""
+"Um fortsetzen zu können, muss das Paket 'python3-apt' installiert sein."
 
 #: ../install.py:1607 ../install.py:1618
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
 msgstr ""
+"Entschuldigung, aber die Installationsdatei funktioniert nicht mit einer "
+"veränderten Python-Installation.\n"
+"Das Programm wird beendet..."
 
 #: ../install.py:1634
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
+"Bitte installieren sie die folgenden Pakete über ihren Paket-Manager, und "
+"wiederholen sie danach die Installation"
 
 #: ../install.py:1643
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
 msgstr ""
+"Um dieses Programm ausführen zu können, müssten Hilfsprogramme für Python3 "
+"und sein Paket-Management installiert sein."
 
 #. Translators: do not translate the terms Python 3, pip and setuptools
 #: ../install.py:1658
 msgid "Python 3's pip and setuptools must be upgraded for your user."
 msgstr ""
+"Python 3's pip und setuptools müssen für den gewünschten Benutzer "
+"aktualisiert werden."
 
 #. Translators: do not translate the term python or requests
 #: ../install.py:1671
 msgid "Installing python requests"
-msgstr ""
+msgstr "python requests werden installiert"
 
 #: ../upgrade.py:241
 msgid "Upgrade Rapid Photo Downloader"
-msgstr ""
+msgstr "Bitte Rapid Photo Downloader aktualisieren"
 
 #: ../upgrade.py:268
 msgid "&Upgrade"
-msgstr ""
+msgstr "&Systemaktualisierung"
 
 #: ../upgrade.py:274
 #, python-format
 msgid "Click the Upgrade button to upgrade to version %s."
 msgstr ""
+"Bitte den Upgrade button anklicken, um auf Version %s zu aktualisieren."
 
 #: ../upgrade.py:277
 msgid "Click the Upgrade button to start the upgrade."
 msgstr ""
+"Bitte den Upgrade button anklicken, um die Aktualisierung zu beginnen."
 
 #: ../upgrade.py:280 ../upgrade.py:286 ../raphodo/viewutils.py:241
 msgid "&Close"
-msgstr ""
+msgstr "&Schließen"
 
 #: ../upgrade.py:281
 msgid "&Run"
-msgstr ""
+msgstr "&Ausführen"
 
 #: ../upgrade.py:311
 msgid "Close Rapid Photo Downloader before running this upgrade"
-msgstr ""
+msgstr "Bitte vor der Aktualisierung Rapid Photo Downloader schließen"
 
 #: ../upgrade.py:314
 msgid "Upgrade running..."
-msgstr ""
+msgstr "Die Aktualisierung läuft..."
 
 #: ../upgrade.py:350
 #, python-format
@@ -324,16 +397,23 @@ msgid ""
 "Successfully upgraded to %s. Click Close to exit, or Run to start the "
 "program."
 msgstr ""
+"Die Aktualisierung auf die Version %s war erfolgreich. Zum Beenden bitte auf "
+"'Schließen' klicken, zum Starten des aktualisierten Programms bitte 'Start' "
+"anklicken."
 
 #: ../upgrade.py:355
 msgid ""
 "Upgrade finished successfully. Click Close to exit, or Run to start the "
 "program."
 msgstr ""
+"Die Aktualisierung war erfolgreich. Zum Beenden bitte auf 'Schließen' "
+"klicken, zum Starten des aktualisierten Programms bitte 'Start' anklicken."
 
 #: ../upgrade.py:359
 msgid "Upgrade failed. Click Close to exit."
 msgstr ""
+"Die Aktualisierung hat nicht funktioniert. Zum beenden bitte 'Schließen' "
+"anklicken."
 
 #: ../raphodo/aboutdialog.py:223
 msgid "Credits"
@@ -376,6 +456,12 @@ msgid ""
 "adding both folders, the same device can be used to back up both photos and "
 "videos.</i>"
 msgstr ""
+"Benennen Sie die Ordner, in denen Sicherungen auf den Geräten gespeichert "
+"werden. <br><br><i>Hinweis: Nur wenn ein Ordner mit diesem Namen vorhanden "
+"ist, kann das Gerät für Sicherungen genutzt werden. Erstellen Sie in jedem "
+"Gerät, dass Sie für Sicherungen benutzen wollen, einen Ordner mit diesem "
+"Namen. Durch Hinzufügen beider Ordner kann das Gerät zur Sicherung von Fotos "
+"und Videos genutzt werden</i>"
 
 #: ../raphodo/backuppanel.py:439
 msgid "Photo folder name:"
@@ -445,7 +531,7 @@ msgstr "Optionen der Sicherung"
 #. cameras generate -- it has a .THM file extension
 #: ../raphodo/copyfiles.py:488
 msgid "video THM"
-msgstr ""
+msgstr "Video THM"
 
 #: ../raphodo/copyfiles.py:494
 msgid "audio"
@@ -590,6 +676,8 @@ msgstr "%s + %s"
 #: ../raphodo/didyouknow.py:45
 msgid "Click on a file's checkbox to mark or unmark it for download."
 msgstr ""
+"Bitte die Checkbox neben der Datei anklicken, um sie für das Herunterladen "
+"an- oder abzuwählen."
 
 #: ../raphodo/didyouknow.py:51
 msgid ""
@@ -598,6 +686,11 @@ msgid ""
 "default, and their thumbnails are dimmed so you can differentiate them from "
 "files that are yet to be downloaded."
 msgstr ""
+"Das Programm merkt sich Dateien, die schon heruntergeladen wurden. Um sie "
+"trotzdem nochmal herunterzuladen, bitte die Checkbox bei der jeweiligen "
+"Datei anklicken. Normalerweise ist die Checkbox abgewählt und das "
+"Vorschaubild ist grau gekennzeichnet, damit die Datei von erstmalig "
+"herunterzuladenden Dateien unterscheidbar ist."
 
 #: ../raphodo/didyouknow.py:60
 msgid ""
@@ -605,12 +698,17 @@ msgid ""
 "whose checkbox was clicked, regardless of whether they previously had a "
 "checkmark or not."
 msgstr ""
+"Wenn mehr als eine Datei ausgewählt ist, werden sie alle die Markierung der "
+"Datei nehmen, deren Checkbox angeklickt wurde, unabhängig davon, ob sie "
+"zuvor ein Häkchen hatten oder nicht."
 
 #: ../raphodo/didyouknow.py:68
 msgid ""
 "Click on a device's checkbox to quickly mark or unmark all its files for "
 "downloading."
 msgstr ""
+"Klicken Sie auf das Kontrollkästchen eines Geräts, um alle Dateien des "
+"Geräts zum Herunterladen (oder nicht) zu markieren."
 
 #: ../raphodo/didyouknow.py:75
 msgid ""
@@ -618,6 +716,10 @@ msgid ""
 "icon's color indicates whether the download was successful (green), had file "
 "renaming problems (yellow/orange), or failed (red)."
 msgstr ""
+"Nachdem ein Download beendet ist, ersetzt ein Icon das Kontrollkästchen des "
+"Thumbnails. Die Farbe des Symbols zeigt an, ob der Download erfolgreich war "
+"(grün), ob es Umbenennungsprobleme gab (gelb / orange) oder der Download "
+"fehlgeschlagen ist (rot)."
 
 #: ../raphodo/didyouknow.py:83
 msgid ""
@@ -629,6 +731,13 @@ msgid ""
 "            window.\n"
 "            "
 msgstr ""
+"\n"
+"            Im Falle von Problemen erscheint ein rotes Symbol am unteren "
+"Rand des Fensters\n"
+"            und zeigt an, wie viele Fehlerberichte es gibt. Wenn Sie darauf "
+"klicken, öffnet sich der Fehlerbericht-\n"
+"            Fenster.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:91
 msgid ""
@@ -644,6 +753,17 @@ msgid ""
 "            search box in the lower left of the Error Report window.\n"
 "            "
 msgstr ""
+"\n"
+"            The Error Report window lists any problems encountered before, "
+"during or after the \n"
+"            download. An orange triangle represents a warning, a red circle "
+"indicates a failure, \n"
+"            and a black circle indicates more serious failures. You can "
+"click on the hyperlinks to \n"
+"            open its file or device in a file manager. You can also search "
+"the reports using the \n"
+"            search box in the lower left of the Error Report window.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:103
 msgid ""
@@ -658,6 +778,10 @@ msgid ""
 "between consecutive shots. Use it to identify photos and videos taken at "
 "different periods in a single day or over consecutive days."
 msgstr ""
+"Die <b> Timeline </ b> gruppiert Fotos und Videos, auf Grundlage der Zeit, "
+"die zwischen aufeinanderfolgenden Aufnahmen verstrichen ist. Verwenden Sie "
+"es, um Fotos und Videos zu identifizieren, die zu verschiedenen Zeitpunkten "
+"an einem Tag oder an aufeinanderfolgenden Tagen aufgenommen wurden."
 
 #: ../raphodo/didyouknow.py:117
 msgid ""
@@ -678,6 +802,11 @@ msgid ""
 "select time periods. When a time range is selected, the Timeline button on "
 "the left side of the main window will be highlighted."
 msgstr ""
+"Um Fotos und Videos für einen bestimmten Zeitbereich anzuzeigen, verwenden "
+"Sie die Maus (optional in Kombination mit den Tasten <tt>Shift</tt> oder "
+"<tt>Ctrl</tt>), um Zeiträume auszuwählen. Wenn ein Zeitbereich ausgewählt "
+"ist, wird die Timeline-Taste auf der linken Seite des Hauptfensters "
+"hervorgehoben."
 
 #: ../raphodo/didyouknow.py:135
 msgid ""
@@ -685,6 +814,9 @@ msgid ""
 "including those that are not currently displayed because the Timeline is "
 "being used."
 msgstr ""
+"Ein Download enthält immer alle Dateien, die zum Download ausgewählt sind, "
+"einschließlich derjenigen, die derzeit nicht angezeigt werden, weil die "
+"Zeitleiste verwendet wird."
 
 #: ../raphodo/didyouknow.py:142
 msgid ""
@@ -4417,12 +4549,14 @@ msgstr "Die Zeitleiste"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:7
 msgid "Right-clicking on a device"
-msgstr ""
+msgstr "Gerät mit Rechtsklick auswählen"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.desktop.in.h:1
 msgid ""
 "Download, rename and back up photos and videos from cameras and other devices"
 msgstr ""
+"Fotos und Videos  von Kameras oder anderen Geräten und Speichermedien "
+"übertragen und/oder umbenennen sowie Sicherheitskopien erstellen"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.desktop.in.h:2
 msgid "Photo Downloader"
@@ -4434,10 +4568,12 @@ msgid ""
 "photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
 ";card;"
 msgstr ""
+"Foto;übertragen;Fotografie;Import;Video;RAW;Kamera;Smartphone;Laden;Sicherung"
+";Speicher;Speicherkarte;"
 
 #: ../data/kde/net.damonlynch.rapid-photo-downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
-msgstr ""
+msgstr "Fotos und Videos mit Rapid Photo Downloader übertragen"
 
 #, python-format
 #~ msgid "<i>Example: %s</i>"
