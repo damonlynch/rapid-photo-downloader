@@ -24,10 +24,11 @@ from operator import attrgetter
 import locale
 from datetime import datetime
 import logging
+from itertools import groupby
 import pickle
 from pprint import pprint
 import math
-from typing import Dict, List, Tuple, Set, Optional
+from typing import Dict, List, Tuple, Set, Optional, DefaultDict, Deque
 
 import arrow.arrow
 from arrow.arrow import Arrow
@@ -631,7 +632,13 @@ class MetaUid:
 
 class TemporalProximityGroups:
     """
-    Generates values to be displayed in Temporal Proximity (Timeline) view.
+    Generates values to be displayed in Timeline view.
+
+    The Timeline has 3 columns:
+
+    Col 0: the year and month
+    Col 1: the day of the month
+    C0l 3: the proximity groups
     """
 
     # @profile
@@ -641,33 +648,54 @@ class TemporalProximityGroups:
 
         self.invalid_rows = tuple()  # type: Tuple[int]
 
+        # Store uids for each table cell
         self.uids = MetaUid()
 
         self.file_types_in_cell = dict()  # type: Dict[Tuple[int, int], str]
-        self.times_by_proximity = defaultdict(list)
+        times_by_proximity = defaultdict(list)  # type: DefaultDict[int, Arrow]
+
+        # The rows the user sees in column 2 can span more than one row of the Timeline.
+        # Each day always spans at least one row in the Timeline, possibly more.
+
+        # group_no: no days spanned
+        day_spans_by_proximity = dict()  # type: Dict[int, int]
+        # group_no: (
+        uids_by_day_in_proximity_group = dict()  # type: Dict[int, Tuple[[Tuple[int, int, int], List[bytes]]]
+
+        # uid: (year, month, day)
+        year_month_day = dict()  # type: Dict[bytes, Tuple[int, int, int]]
 
         # group_no: List[uid]
-        self.uids_by_proximity = defaultdict(list)  # type: Dict[int, List[bytes, ...]]
-        self.new_files_by_proximity = defaultdict(set)  # type: Dict[int, Set[bool]]
+        uids_by_proximity = defaultdict(list)  # type: Dict[int, List[bytes, ...]]
+        # Determine if proximity group contains any files have not been previously downloaded
+        new_files_by_proximity = defaultdict(set)  # type: Dict[int, Set[bool]]
 
-        self.text_by_proximity = deque()
+        # Text that will appear in column 2 -- they proximity groups
+        text_by_proximity = deque()  # type: Deque[str]
 
-        self.day_groups = defaultdict(list)
-        self.month_groups = defaultdict(list)
-        self.year_groups = defaultdict(list)
+        # (year, month, day): [uid, uid, ...]
+        self.day_groups = defaultdict(list)  # type: DefaultDict[Tuple[int, int, int], List[bytes]]
+        # (year, month): [uid, uid, ...]
+        self.month_groups = defaultdict(list)  # type: DefaultDict[Tuple[int, int], List[bytes]]
+        # year: [uid, uid, ...]
+        self.year_groups = defaultdict(list)  # type: DefaultDict[int, List[bytes]]
 
-        self._depth = None
+        # How many columns the Timeline will display - don't display year when the only dates
+        # are from this year, for instance.
+        self._depth = None  # type: Optional[int]
+        # Compared to right now, does the Timeline contain an entry from the previous year?
         self._previous_year = False
+        # Compared to right now, does the Timeline contain an entry from the previous month?
         self._previous_month = False
 
         # Tuple of (column, row, row_span):
         self.spans = []  # type: List[Tuple[int, int, int]]
         self.row_span_for_column_starts_at_row = {}  # type: Dict[Tuple[int, int], int]
 
-        # Associate view cells with uids
-        # proximity view row: id
+        # Associate Timeline cells with uids
+        # Timeline row: id
         self.proximity_view_cell_id_col1 = {}  # type: Dict[int, int]
-        # proximity view row: id
+        # Timeline row: id
         self.proximity_view_cell_id_col2 = {}  # type: Dict[int, int]
         # col1, col2, uid
         self.col1_col2_uid = []   # type: List[Tuple[int, int, bytes]]
@@ -690,7 +718,7 @@ class TemporalProximityGroups:
             for tr in thumbnail_rows
         ]
 
-        self.thumbnail_types = [row.file_type for row in thumbnail_rows]
+        self.thumbnail_types = tuple(row.file_type for row in thumbnail_rows)
 
         now = arrow.now().to('local')
         current_year = now.year
@@ -708,98 +736,153 @@ class TemporalProximityGroups:
             self.month_groups[(year, month)].append(x.uid)
             self.year_groups[year].append(x.uid)
             if year != current_year:
+                # the Timeline contains an entry from the previous year to now
                 self._previous_year = True
             if month != current_month or self._previous_year:
+                # the Timeline contains an entry from the previous month to now
                 self._previous_month = True
+            # Remember this extracted value
+            year_month_day[x.uid] = year, month, day
 
         # Phase 2: Identify the proximity groups
         group_no = 0
         prev = uid_times[0]
 
-        self.times_by_proximity[group_no].append(prev.arrowtime)
-        self.uids_by_proximity[group_no].append(prev.uid)
-        self.new_files_by_proximity[group_no].add(not prev.previously_downloaded)
+        times_by_proximity[group_no].append(prev.arrowtime)
+        uids_by_proximity[group_no].append(prev.uid)
+        new_files_by_proximity[group_no].add(not prev.previously_downloaded)
 
         if len(uid_times) > 1:
             for current in uid_times[1:]:
                 ctime = current.ctime
                 if ctime - prev.ctime > temporal_span:
                     group_no += 1
-                self.times_by_proximity[group_no].append(current.arrowtime)
-                self.uids_by_proximity[group_no].append(current.uid)
-                self.new_files_by_proximity[group_no].add(not current.previously_downloaded)
+                times_by_proximity[group_no].append(current.arrowtime)
+                uids_by_proximity[group_no].append(current.uid)
+                new_files_by_proximity[group_no].add(not current.previously_downloaded)
                 prev = current
 
         # Phase 3: Generate the proximity group's text that will appear in
-        # the right-most column and its tooltips
-        for i in range(len(self.times_by_proximity)):
-            start = self.times_by_proximity[i][0]  # type: Arrow
-            end = self.times_by_proximity[i][-1]   # type: Arrow
+        # the right-most column and its tooltips.
+
+        # Also calculate the days spanned by each proximity group.
+        # If the days spanned is greater than 1, meaning the number of calendar days
+        # in the proximity group is more than 1, then also keep a copy of the group
+        # where it is broken into separate calendar days
+        for group_no, group in times_by_proximity.items():
+            start = group[0]  # type: Arrow
+            end = group[-1]  # type: Arrow
+
+            # Generate the text
             short_form = humanize_time_span(start, end, insert_cr_on_long_line=True)
             long_form = humanize_time_span(start, end, long_format=True)
-            self.text_by_proximity.append((short_form, long_form))
+            text_by_proximity.append((short_form, long_form))
 
-        # Phase 4: Generate the rows to be displayed in the proximity table view
-        self.prev_row_month = None  # type: Tuple[int, int]
-        self.prev_row_day = None    # type: Tuple[int, int, int]
-        row_index = -1
-        thumbnail_row_index = -1
-        column2_span = 0
-        for group_no in range(len(self.times_by_proximity)):
-            arrowtime = self.times_by_proximity[group_no][0]
-            prev_day = (arrowtime.year, arrowtime.month, arrowtime.day)
+            # Calculate the number of calendar days spanned by this proximity group
+            # e.g. 2015-12-1 12:00 - 2015-12-2 15:00 = 2 days
+            if len(group) > 1:
+                span = len(Arrow.span_range('day', start, end))
+                day_spans_by_proximity[group_no] = span
+                if span > 1:
+                    # break the proximity group members into calendar days
+                    uids_by_day_in_proximity_group[group_no] = tuple(
+                        (y_m_d, list(day))
+                        for y_m_d, day in groupby(
+                            uids_by_proximity[group_no], year_month_day.get
+                        )
+                    )
+            else:
+                # start = end
+                day_spans_by_proximity[group_no] = 1
 
-            col2_text, tooltip_col2_text = self.text_by_proximity.popleft()
-            new_file = any(self.new_files_by_proximity[group_no])
+        # Phase 4: Generate the rows to be displayed in the Timeline
 
-            row_index += 1 + column2_span
-            thumbnail_row_index += 1
+        # Keep in mind, the rows the user sees in column 2 can span more than
+        # one calendar day. In such cases, column 1 will be associated with
+        # one or more Timeline rows, one or more of which may be visible only in
+        # column 1.
+
+        timeline_row = -1  # index into each row in the Timeline
+        thumbnail_index = 0 # index into the
+        self.prev_row_month = (0, 0)
+        self.prev_row_day = (0, 0, 0)
+
+        for group_no, span in day_spans_by_proximity.items():
+
+            timeline_row += 1
+
+            proximity_group_times = times_by_proximity[group_no]
+            atime = proximity_group_times[0]  # type: Arrow
+            uid = uids_by_proximity[group_no][0]  # type: bytes
+            y_m_d = year_month_day[uid]
+
+            col2_text, tooltip_col2_text = text_by_proximity.popleft()
+            new_file = any(new_files_by_proximity[group_no])
 
             self.rows.append(
                 self.make_row(
-                    arrowtime=arrowtime, col2_text=col2_text, new_file=new_file, day=prev_day,
-                    row_index=row_index, thumbnail_row_index=thumbnail_row_index,
-                    tooltip_col2_text=tooltip_col2_text
+                    atime=atime,
+                    col2_text=col2_text,
+                    new_file=new_file,
+                    y_m_d= y_m_d,
+                    timeline_row=timeline_row,
+                    thumbnail_index=thumbnail_index,
+                    tooltip_col2_text=tooltip_col2_text,
                 )
             )
-            uids = self.uids_by_proximity[group_no]
-            self.uids[(row_index, 2)] = uids
 
-            if len(self.times_by_proximity[group_no]) > 1:
-                column2_span = 0
-                for arrowtime in self.times_by_proximity[group_no][1:]:
-                    thumbnail_row_index += 1
+            uids = uids_by_proximity[group_no]
+            self.uids[(timeline_row, 2)] = uids
 
-                    day = (arrowtime.year, arrowtime.month, arrowtime.day)
+            # self.dump_row(group_no)
 
-                    if prev_day != day:
-                        prev_day = day
-                        column2_span += 1
-                        self.rows.append(
-                            self.make_row(
-                                arrowtime=arrowtime, col2_text='', new_file=new_file, day=prev_day,
-                                row_index=row_index + column2_span, thumbnail_row_index=
-                                thumbnail_row_index, tooltip_col2_text=''
-                            )
-                        )
+            if span == 1:
+                thumbnail_index += len(proximity_group_times)
+                continue
+
+            thumbnail_index += len(uids_by_day_in_proximity_group[group_no][0])
+
+            # For any proximity groups that span more than one Timeline row because they span
+            # more than one calander day, add the day to the Timeline, with blank values
+            # for the proximity group (column 2).
+            i = 0
+            for y_m_d, day in uids_by_day_in_proximity_group[group_no][1:]:
+                i += 1
+
+                timeline_row += 1
+                thumbnail_index += len(uids_by_day_in_proximity_group[group_no][i])
+                atime = arrow.get(*y_m_d)
+
+                self.rows.append(
+                    self.make_row(
+                        atime=atime,
+                        col2_text='',
+                        new_file=new_file,
+                        y_m_d=y_m_d,
+                        timeline_row=timeline_row,
+                        thumbnail_index=1,
+                        tooltip_col2_text=''
+                    )
+                )
+                # self.dump_row(group_no)
 
         # Phase 5: Determine the row spans for each column
         column = -1
         for c in (0, 2, 4):
             column += 1
             start_row = 0
-            for row_index, row in enumerate(self.rows):
+            for timeline_row_index, row in enumerate(self.rows):
                 if row[c]:
-                    row_count = row_index - start_row
+                    row_count = timeline_row_index - start_row
                     if row_count > 1:
                         self.spans.append((column, start_row, row_count))
-                    start_row = row_index
-                self.row_span_for_column_starts_at_row[(row_index, column)] = start_row
+                    start_row = timeline_row_index
+                self.row_span_for_column_starts_at_row[(timeline_row_index, column)] = start_row
 
             if start_row != len(self.rows) - 1:
                 self.spans.append((column, start_row, len(self.rows) - start_row))
-                for row_index in range(start_row, len(self.rows)):
-                    self.row_span_for_column_starts_at_row[(row_index, column)] = start_row
+                for timeline_row_index in range(start_row, len(self.rows)):
+                    self.row_span_for_column_starts_at_row[(timeline_row_index, column)] = start_row
 
         assert len(self.row_span_for_column_starts_at_row) == len(self.rows) * 3
 
@@ -812,17 +895,17 @@ class TemporalProximityGroups:
         # Phase 8: associate proximity table cells with uids
 
         uid_rows_c1 = {}
-        for proximity_view_cell_id, row_index in enumerate(self.uids.uids(1)):
-            self.proximity_view_cell_id_col1[row_index] = proximity_view_cell_id
-            uids = self.uids.uids(1)[row_index]
+        for proximity_view_cell_id, timeline_row_index in enumerate(self.uids.uids(1)):
+            self.proximity_view_cell_id_col1[timeline_row_index] = proximity_view_cell_id
+            uids = self.uids.uids(1)[timeline_row_index]
             for uid in uids:
                 uid_rows_c1[uid] = proximity_view_cell_id
 
         uid_rows_c2 = {}
 
-        for proximity_view_cell_id, row_index in enumerate(self.uids.uids(2)):
-            self.proximity_view_cell_id_col2[row_index] = proximity_view_cell_id
-            uids = self.uids.uids(2)[row_index]
+        for proximity_view_cell_id, timeline_row_index in enumerate(self.uids.uids(2)):
+            self.proximity_view_cell_id_col2[timeline_row_index] = proximity_view_cell_id
+            uids = self.uids.uids(2)[timeline_row_index]
             for uid in uids:
                 uid_rows_c2[uid] = proximity_view_cell_id
 
@@ -845,13 +928,7 @@ class TemporalProximityGroups:
         self.month_groups = None
         self.year_groups = None
 
-        self.new_files_by_proximity = None
-        self.text_by_proximity = None
-
-        self.uids_by_proximity = None
-        self.times_by_proximity = None
         self.thumbnail_types = None
-        self.text_by_proximity = None
 
         self.invalid_rows = self.validate()
         if len(self.invalid_rows):
@@ -863,46 +940,47 @@ class TemporalProximityGroups:
         c = FileTypeCounter(self.thumbnail_types[slice_start:slice_end])
         return c.summarize_file_count()[0]
 
-    def make_row(self, arrowtime: Arrow,
+    def make_row(self, atime: Arrow,
                  col2_text: str,
                  new_file: bool,
-                 day: Tuple[int, int, int],
-                 row_index: int,
-                 thumbnail_row_index: int,
+                 y_m_d: Tuple[int, int, int],
+                 timeline_row: int,
+                 thumbnail_index: int,
                  tooltip_col2_text: str) -> ProximityRow:
 
-        arrowmonth = day[:2]
-        if arrowmonth != self.prev_row_month:
-            self.prev_row_month = arrowmonth
-            month = arrowtime.datetime.strftime('%B')
-            year = arrowtime.year
-            uids = self.month_groups[arrowmonth]
-            slice_end = thumbnail_row_index + len(uids)
-            self.file_types_in_cell[(row_index, 0)] = self.make_file_types_in_cell_text(
-                slice_start=thumbnail_row_index, slice_end=slice_end
+        atime_month = y_m_d[:2]
+        if atime_month != self.prev_row_month:
+            self.prev_row_month = atime_month
+            month = atime.datetime.strftime('%B')
+            year = atime.year
+            uids = self.month_groups[atime_month]
+            slice_end = thumbnail_index + len(uids)
+            self.file_types_in_cell[(timeline_row, 0)] = self.make_file_types_in_cell_text(
+                slice_start=thumbnail_index, slice_end=slice_end
             )
-            self.uids[(row_index, 0)] = uids
+            self.uids[(timeline_row, 0)] = uids
         else:
             month = year = ''
 
-        if day != self.prev_row_day:
-            self.prev_row_day = day
-            numeric_day = arrowtime.format('D')
-            weekday = arrowtime.datetime.strftime('%a')
+        if y_m_d != self.prev_row_day:
+            self.prev_row_day = y_m_d
+            numeric_day = atime.format('D')
+            weekday = atime.datetime.strftime('%a')
 
-            self.uids[(row_index, 1)] = self.day_groups[day]
+            self.uids[(timeline_row, 1)] = self.day_groups[y_m_d]
         else:
             weekday = numeric_day = ''
 
         month_day = _('%(month)s %(numeric_day)s') % dict(
-            month=arrowtime.datetime.strftime('%b'),
-            numeric_day=arrowtime.format('D')
+            month=atime.datetime.strftime('%b'),
+            numeric_day=atime.format('D')
         )
-        tooltip_col1 = _('%(date)s %(year)s') % dict(date= month_day, year=arrowtime.year)
+        # Translators: for example Nov 2 2015
+        tooltip_col1 = _('%(date)s %(year)s') % dict(date= month_day, year=atime.year)
         # Translators: for example Nov 2015
         tooltip_col0 = _('%(month)s %(year)s') % dict(
-            month=arrowtime.datetime.strftime('%b'),
-            year=arrowtime.year
+            month=atime.datetime.strftime('%b'),
+            year=atime.year
         )
 
         return ProximityRow(
@@ -911,8 +989,12 @@ class TemporalProximityGroups:
             tooltip_date_col2=tooltip_col2_text
         )
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.rows)
+
+    def dump_row(self, group_no, extra='') -> None:
+        row = self.rows[-1]
+        print(group_no, extra, row.day, row.proximity.replace('\n', ' '))
 
     def __getitem__(self, row_number) -> ProximityRow:
         return self.rows[row_number]
@@ -1073,9 +1155,9 @@ class TemporalProximityModel(QAbstractTableModel):
 
         thumbnailModel = self.rapidApp.thumbnailModel
         logging.debug('%r', self.groups)
-        
+
         # Print rows and values to the debugging output
-        if False:
+        if len(self.groups) < 20:
             for row, prow in enumerate(self.groups.rows):
                 logging.debug('Row %s', row)
                 logging.debug('{} | {} | {}'.format(prow.year, prow.month, prow.day))
