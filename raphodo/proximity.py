@@ -28,7 +28,7 @@ from itertools import groupby
 import pickle
 from pprint import pprint
 import math
-from typing import Dict, List, Tuple, Set, Optional, DefaultDict, Deque
+from typing import Dict, List, Tuple, Set, Optional, DefaultDict
 
 import arrow.arrow
 from arrow.arrow import Arrow
@@ -671,7 +671,7 @@ class TemporalProximityGroups:
         new_files_by_proximity = defaultdict(set)  # type: Dict[int, Set[bool]]
 
         # Text that will appear in column 2 -- they proximity groups
-        text_by_proximity = deque()  # type: Deque[str]
+        text_by_proximity = deque()
 
         # (year, month, day): [uid, uid, ...]
         self.day_groups = defaultdict(list)  # type: DefaultDict[Tuple[int, int, int], List[bytes]]
