@@ -769,6 +769,9 @@ class TemporalProximityGroups:
         # If the days spanned is greater than 1, meaning the number of calendar days
         # in the proximity group is more than 1, then also keep a copy of the group
         # where it is broken into separate calendar days
+
+        # The iteration order doesn't really matter here, so can get away with the
+        # potentially unsorted output of dict.items()
         for group_no, group in times_by_proximity.items():
             start = group[0]  # type: Arrow
             end = group[-1]  # type: Arrow
@@ -792,7 +795,7 @@ class TemporalProximityGroups:
                         )
                     )
             else:
-                # start = end
+                # start == end
                 day_spans_by_proximity[group_no] = 1
 
         # Phase 4: Generate the rows to be displayed in the Timeline
@@ -807,7 +810,10 @@ class TemporalProximityGroups:
         self.prev_row_month = (0, 0)
         self.prev_row_day = (0, 0, 0)
 
-        for group_no, span in day_spans_by_proximity.items():
+        # Iterating through the groups in order is critical. Cannot use dict.items() here.
+        for group_no in range(len(day_spans_by_proximity)):
+
+            span = day_spans_by_proximity[group_no]
 
             timeline_row += 1
 
