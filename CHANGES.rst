@@ -45,6 +45,9 @@ Changelog for Rapid Photo Downloader
 
  - Added support for Peppermint OS to the install.py script.
 
+ - In install.py, catch return code 104 from zypper se when no package is
+   found.
+
  - Terminate program at startup if the program's own module imports are being
    loaded from conflicting sources, indicating more than one copy of the
    program has been installed.

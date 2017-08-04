@@ -578,6 +578,8 @@ def opensuse_missing_packages(packages: str):
     """
     Return which of the packages have not already been installed on openSUSE.
 
+    Does not catch exceptions.
+
     :param packages: the packages to to check, in a string separated by white space
     :return: list of packages
     """
@@ -705,8 +707,16 @@ def uninstall_old_version(distro_family: Distro, distro: Distro, interactive: bo
               )
         )
 
-        if opensuse_package_installed('rapid-photo-downloader') and query_uninstall(interactive):
-            run_cmd(make_distro_packager_commmand(distro, pkg_name, interactive, 'rm'))
+        try:
+            if opensuse_package_installed('rapid-photo-downloader') \
+                    and query_uninstall(interactive):
+                run_cmd(make_distro_packager_commmand(distro, pkg_name, interactive, 'rm'))
+        except subprocess.CalledProcessError as e:
+            if e.returncode != 104:
+                sys.stderr.write(_("Command failed") + "\n")
+                sys.stderr.write(_("Exiting") + "\n")
+                clean_locale_tmpdir()
+                sys.exit(1)
 
     print(_("Checking if previous version installed with pip..."))
     uninstall_pip_package('rapid-photo-downloader', no_deps_only=False)
@@ -914,19 +924,27 @@ def install_required_distro_packages(distro: Distro,
                 "take a while)... "
             )
         )
-        missing_packages = opensuse_missing_packages(packages)
-
-        if missing_packages:
-            print(
-                _(
-                    "To continue, some packages required to run the application will be installed."
-                ) + "\n"
-            )
-            run_cmd(
-                make_distro_packager_commmand(
-                    distro_family, ' '.join(missing_packages), interactive
-                ), interactive=interactive
-            )
+        try:
+            missing_packages = opensuse_missing_packages(packages)
+        except subprocess.CalledProcessError as e:
+            if e.returncode != 104:
+                sys.stderr.write(_("Command failed") + "\n")
+                sys.stderr.write(_("Exiting") + "\n")
+                clean_locale_tmpdir()
+                sys.exit(1)
+        else:
+            if missing_packages:
+                print(
+                    _(
+                        "To continue, some packages required to run the application will be "
+                        "installed."
+                    ) + "\n"
+                )
+                run_cmd(
+                    make_distro_packager_commmand(
+                        distro_family, ' '.join(missing_packages), interactive
+                    ), interactive=interactive
+                )
     else:
         check_packages_on_other_systems()
 
