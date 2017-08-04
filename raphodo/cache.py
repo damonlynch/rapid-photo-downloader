@@ -370,7 +370,7 @@ class ThumbnailCacheSql:
 
     not_found = GetThumbnailPath(ThumbnailCacheDiskStatus.not_found, None, None, None)
 
-    def __init__(self):
+    def __init__(self, create_table_if_not_exists: bool) -> None:
         self.cache_dir = get_program_cache_directory(create_if_not_exist=True)
         self.valid = self.cache_dir is not None
         if not self.valid:
@@ -388,8 +388,9 @@ class ThumbnailCacheSql:
                 os.makedirs(self.cache_dir, 0o700)
                 logging.debug("Created thumbnails cache %s", self.cache_dir)
         except:
-            logging.error("Failed to create Rapid Photo Downloader Thumbnail Cache at %s",
-                          self.cache_dir)
+            logging.error(
+                "Failed to create Rapid Photo Downloader Thumbnail Cache at %s", self.cache_dir
+            )
             self.valid = False
             self.cache_dir = None
             self.random_filename = None
@@ -397,7 +398,7 @@ class ThumbnailCacheSql:
         else:
             self.random_filename = GenerateRandomFileName()
             self.md5 = MD5Name()
-            self.thumb_db = CacheSQL(self.cache_dir)
+            self.thumb_db = CacheSQL(self.cache_dir, create_table_if_not_exists)
 
     def save_thumbnail(self, full_file_name: str, size: int,
                        mtime: float,
@@ -598,5 +599,5 @@ class ThumbnailCacheSql:
 
 
 if __name__ == '__main__':
-    db = ThumbnailCacheSql()
+    db = ThumbnailCacheSql(create_table_if_not_exists=True)
     db.optimize()

@@ -54,9 +54,10 @@ import time
 import subprocess
 import shlex
 import pwd
+import shutil
 from collections import namedtuple
 from typing import Optional, Tuple, List, Dict, Any
-from urllib.request import pathname2url
+from urllib.request import pathname2url, quote
 from tempfile import NamedTemporaryFile
 
 from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal, QFileSystemWatcher, pyqtSlot)
@@ -551,14 +552,15 @@ def get_default_file_manager(remove_args: bool = True) -> Optional[str]:
     assert sys.platform.startswith('linux')
     cmd = shlex.split('xdg-mime query default inode/directory')
     try:
-        desktop_file = subprocess.check_output(cmd, universal_newlines=True)
+        desktop_file = subprocess.check_output(cmd, universal_newlines=True)  # type: str
     except:
         return None
     # Remove new line character from output
     desktop_file = desktop_file[:-1]
     if desktop_file.endswith(';'):
         desktop_file = desktop_file[:-1]
-    for desktop_path in ('/usr/local/share/applications/', '/usr/share/applications/'):
+
+    for desktop_path in (os.path.join(d, 'applications') for d in BaseDirectory.xdg_data_dirs):
         path = os.path.join(desktop_path, desktop_file)
         if os.path.exists(path):
             try:
@@ -574,6 +576,15 @@ def get_default_file_manager(remove_args: bool = True) -> Optional[str]:
                 return fm.split()[0]
             else:
                 return fm
+
+    # Special case: LXQt
+    if get_desktop() == Desktop.lxqt:
+        if shutil.which('pcmanfm-qt'):
+            return 'pcmanfm-qt'
+
+
+_desktop = get_desktop()
+_quoted_comma = quote(',')
 
 
 def get_uri(full_file_name: Optional[str]=None,
@@ -606,6 +617,7 @@ def get_uri(full_file_name: Optional[str]=None,
             else:
                 prefix = 'gphoto2://' + pathname2url('[{}]'.format(camera_details.port))
         else:
+            prefix = ''
             # Attempt to generate a URI accepted by desktop environments
             if camera_details.is_mtp:
                 if full_file_name:
@@ -613,22 +625,31 @@ def get_uri(full_file_name: Optional[str]=None,
                 elif path:
                     path = remove_topmost_directory_from_path(path)
 
-                desktop = get_desktop()
-                if gvfs_controls_mounts():
-                    prefix = 'mtp://' + pathname2url('[{}]/{}'.format(
-                        camera_details.port, camera_details.storage_desc))
-                elif desktop == Desktop.kde:
-                    prefix = 'mtp:/' + pathname2url('{}/{}'.format(
-                        camera_details.display_name, camera_details.storage_desc))
+                if gvfs_controls_mounts() or _desktop == Desktop.lxqt:
+                    prefix = 'mtp://' + pathname2url(
+                        '[{}]/{}'.format(camera_details.port, camera_details.storage_desc)
+                    )
+                elif _desktop == Desktop.kde:
+                    prefix = 'mtp:/' + pathname2url(
+                        '{}/{}'.format(camera_details.display_name, camera_details.storage_desc)
+                    )
                     # Dolphin doesn't highlight the file if it's passed.
                     # Instead it tries to open it, but fails.
                     # So don't pass the file, just the directory it's in.
                     if full_file_name:
                         full_file_name = os.path.dirname(full_file_name)
                 else:
-                    logging.error("Don't know how to generate MTP prefix for %s", desktop.name)
+                    logging.error("Don't know how to generate MTP prefix for %s", _desktop.name)
             else:
                 prefix = 'gphoto2://' + pathname2url('[{}]'.format(camera_details.port))
+
+            if _desktop == Desktop.lxqt:
+                # pcmanfm-qt does not like the quoted form of the comma
+                prefix = prefix.replace(_quoted_comma, ',')
+                if full_file_name:
+                    # pcmanfm-qt does not like the the filename as part of the path
+                    full_file_name = os.path.dirname(full_file_name)
+
     if full_file_name or path:
         uri = '{}{}'.format(prefix, pathname2url(full_file_name or path))
     else:

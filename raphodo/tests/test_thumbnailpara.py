@@ -89,7 +89,7 @@ if __name__ == '__main__':
                  help="reset all thumbnail caches and exit")
     args = parser.parse_args()
     if args.reset:
-        cache = ThumbnailCacheSql()
+        cache = ThumbnailCacheSql(create_table_if_not_exists=False)
         cache.purge_cache()
         print("Thumbnail cache reset")
         cache = os.path.join(BaseDirectory.xdg_cache_home, 'thumbnails')

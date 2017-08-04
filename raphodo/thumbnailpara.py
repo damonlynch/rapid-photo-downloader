@@ -164,7 +164,7 @@ class GetThumbnailFromCache:
     def __init__(self, use_thumbnail_cache: bool) -> None:
 
         if use_thumbnail_cache:
-            self.thumbnail_cache = ThumbnailCacheSql()
+            self.thumbnail_cache = ThumbnailCacheSql(create_table_if_not_exists=False)
         else:
             self.thumbnail_cache = None
 

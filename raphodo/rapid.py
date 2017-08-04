@@ -726,13 +726,15 @@ class RapidWindow(QMainWindow):
         logging.debug("Stage 2 initialization")
 
         if self.prefs.purge_thumbnails:
-            cache = ThumbnailCacheSql()
+            cache = ThumbnailCacheSql(create_table_if_not_exists=False)
             logging.info("Purging thumbnail cache...")
             cache.purge_cache()
             logging.info("...thumbnail Cache has been purged")
             self.prefs.purge_thumbnails = False
+            # Recreate the cache on the file system
+            ThumbnailCacheSql(create_table_if_not_exists=True)
         elif self.prefs.optimize_thumbnail_db:
-            cache = ThumbnailCacheSql()
+            cache = ThumbnailCacheSql(create_table_if_not_exists=True)
             logging.info("Optimizing thumbnail cache...")
             db, fs, size = cache.optimize()
             logging.info("...thumbnail cache has been optimized.")
@@ -745,6 +747,9 @@ class RapidWindow(QMainWindow):
                 logging.info("Thumbnail database size reduction: %s", format_size_for_user(size))
 
             self.prefs.optimize_thumbnail_db = False
+        else:
+            # Recreate the cache on the file system
+            ThumbnailCacheSql(create_table_if_not_exists=True)
 
         # For meaning of 'Devices', see devices.py
         self.devices = DeviceCollection(self.exiftool_process, self)
@@ -804,9 +809,9 @@ class RapidWindow(QMainWindow):
 
         self.file_manager = get_default_file_manager()
         if self.file_manager:
-            logging.debug("Default file manager: %s", self.file_manager)
+            logging.info("Default file manager: %s", self.file_manager)
         else:
-            logging.debug("Default file manager could not be determined")
+            logging.warning("Default file manager could not be determined")
 
         # Setup notification system
         try:
@@ -4556,7 +4561,7 @@ Do you want to proceed with the download?
         self.cleanAllTempDirs()
         logging.debug("Cleaning any device cache dirs and sample video")
         self.devices.delete_cache_dirs_and_sample_video()
-        tc = ThumbnailCacheSql()
+        tc = ThumbnailCacheSql(create_table_if_not_exists=False)
         logging.debug("Cleaning up Thumbnail cache")
         tc.cleanup_cache(days=self.prefs.keep_thumbnails_days)
 
@@ -6227,7 +6232,7 @@ def main():
         prefs.sync()
         d = DownloadedSQL()
         d.update_table(reset=True)
-        cache = ThumbnailCacheSql()
+        cache = ThumbnailCacheSql(create_table_if_not_exists=False)
         cache.purge_cache()
         print(_("All settings and caches have been reset"))
         logging.debug("Exiting immediately after full reset")
@@ -6235,7 +6240,7 @@ def main():
 
     if args.delete_thumb_cache or args.forget_files or args.import_prefs:
         if args.delete_thumb_cache:
-            cache = ThumbnailCacheSql()
+            cache = ThumbnailCacheSql(create_table_if_not_exists=False)
             cache.purge_cache()
             print(_("Thumbnail Cache has been reset"))
             logging.debug("Thumbnail Cache has been reset")

@@ -624,13 +624,20 @@ class DownloadedSQL:
         else:
             return None
 
+
 class CacheSQL:
-    def __init__(self, location: str=None) -> None:
+    def __init__(self, location: str=None, create_table_if_not_exists: bool=True) -> None:
+        """
+
+        :param location: path on the file system where the Table exists
+        :param create_table_if_not_exists:
+        """
         if location is None:
             location = get_program_cache_directory(create_if_not_exist=True)
         self.db = os.path.join(location, self.db_fs_name())
         self.table_name = 'cache'
-        self.update_table()
+        if create_table_if_not_exists:
+            self.update_table()
 
     def db_fs_name(self) -> str:
         return 'thumbnail_cache.sqlite'
@@ -644,8 +651,7 @@ class CacheSQL:
         conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
 
         if reset:
-            conn.execute(r"""DROP TABLE IF EXISTS {tn}""".format(
-                tn=self.table_name))
+            conn.execute(r"""DROP TABLE IF EXISTS {tn}""".format(tn=self.table_name))
             conn.execute("VACUUM")
 
         conn.execute("""CREATE TABLE IF NOT EXISTS {tn} (
@@ -686,10 +692,12 @@ class CacheSQL:
 
         conn = sqlite3.connect(self.db)
 
-        conn.execute(r"""INSERT OR REPLACE INTO {tn} (uri, size, mtime, mdatatime,
-        md5_name, orientation_unknown, failure) VALUES (?,?,?,?,?,?,?)""".format(
-            tn=self.table_name), (uri, size, mtime, mdatatime,
-                                  md5_name, orientation_unknown, failure))
+        conn.execute(
+            r"""INSERT OR REPLACE INTO {tn} (uri, size, mtime, mdatatime,
+            md5_name, orientation_unknown, failure) VALUES (?,?,?,?,?,?,?)""".format(
+                tn=self.table_name
+            ), (uri, size, mtime, mdatatime, md5_name, orientation_unknown, failure)
+        )
 
         conn.commit()
         conn.close()

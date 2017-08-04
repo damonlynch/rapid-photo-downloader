@@ -207,7 +207,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
     def __init__(self) -> None:
         self.thumbnailSizeNeeded = QSize(ThumbnailSize.width, ThumbnailSize.height)
-        self.thumbnail_cache = ThumbnailCacheSql()
+        self.thumbnail_cache = ThumbnailCacheSql(create_table_if_not_exists=False)
         self.fdo_cache_large = FdoCacheLarge()
         self.fdo_cache_normal = FdoCacheNormal()
 

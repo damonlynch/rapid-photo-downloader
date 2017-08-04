@@ -6,8 +6,8 @@ Changelog for Rapid Photo Downloader
 
  - When displaying the time in the Timeline in a locale that does not use a
    twelve hour clock, correctly display the time using the 24 hour clock. If
-   the time is still not displayed correctly in your language, please file a
-   bug report.
+   the times or dates being displayed in the Timeline are not displayed
+   correctly in your language, please file a bug report.
 
  - Fixed a bug where an exception could occur when clicking on some Timeline
    entries or displaying their thumbnails as a tooltip. It occurred when the
@@ -20,6 +20,15 @@ Changelog for Rapid Photo Downloader
    should query and what action to take.
 
  - Improved visual appearance of preferences window.
+
+ - Fixed a bug where the thumbnail extractors might crash when the thumbnail
+   cache database had not yet been created, which could happen in unusual
+   circumstances such as when the disk was under particularly heavy load.
+
+ - When running LXQt, now assume the default file manager is pcmanfm-qt,
+   regardless of what the mime-type handler reports. URIs passed to it
+   now have the specific file stripped from the path, avoiding errors with
+   pcmanfm-qt opening it.
 
  - Added uninstall and uninstall including dependencies options to the
    install.py script.

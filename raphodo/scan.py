@@ -98,7 +98,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
     def __init__(self):
         self.downloaded = DownloadedSQL()
-        self.thumbnail_cache = ThumbnailCacheSql()
+        self.thumbnail_cache = ThumbnailCacheSql(create_table_if_not_exists=False)
         self.no_previously_downloaded = 0
         self.file_batch = []
         self.batch_size = 50

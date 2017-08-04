@@ -343,7 +343,7 @@ class PreferencesDialog(QDialog):
         performanceBoxLayout.addLayout(coresLayout)
         self.performanceBox.setLayout(performanceBoxLayout)
 
-        self.thumbnail_cache = ThumbnailCacheSql()
+        self.thumbnail_cache = ThumbnailCacheSql(create_table_if_not_exists=False)
 
         self.cacheSize = CacheSize()
         self.cacheSizeThread = QThread()
@@ -1483,7 +1483,7 @@ class CacheSize(QObject):
 
     @pyqtSlot()
     def start(self) -> None:
-        self.thumbnail_cache = ThumbnailCacheSql()
+        self.thumbnail_cache = ThumbnailCacheSql(create_table_if_not_exists=False)
 
     @pyqtSlot()
     def getCacheSize(self) -> None:

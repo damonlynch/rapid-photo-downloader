@@ -1954,8 +1954,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
                     if not active_camera:
                         disable_kde = index.data(Roles.mtp) and get_desktop() == Desktop.kde
 
-                self.openInFileBrowserAct.setEnabled(not (disable_kde or active_camera) and
-                                                     have_file_manager)
+                self.openInFileBrowserAct.setEnabled(
+                    not (disable_kde or active_camera) and have_file_manager
+                )
                 self.contextMenu.popup(globalPos)
                 return False
             if event.button() != Qt.LeftButton or not self.getCheckBoxRect(
