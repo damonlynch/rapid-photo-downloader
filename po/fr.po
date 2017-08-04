@@ -9,14 +9,14 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-07-26 02:34-0500\n"
-"PO-Revision-Date: 2017-07-26 13:56+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"PO-Revision-Date: 2017-08-03 19:24+0000\n"
+"Last-Translator: Jean-Marc <Unknown>\n"
 "Language-Team: Français <null>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-28 06:32+0000\n"
-"X-Generator: Launchpad (build 18439)\n"
+"X-Launchpad-Export-Date: 2017-08-04 02:48+0000\n"
+"X-Generator: Launchpad (build 18441)\n"
 "Language: \n"
 
 #: ../install.py:63
@@ -4720,7 +4720,7 @@ msgstr "Cartes mémoire : %s"
 #: ../raphodo/thumbnaildisplay.py:468
 #, python-format
 msgid "Memory card: %s"
-msgstr ""
+msgstr "Carte mémoire : %s"
 
 #: ../raphodo/thumbnaildisplay.py:473
 msgid "Downloaded as:"
@@ -4740,27 +4740,27 @@ msgstr "Copier le chemin"
 #. kilobytes, etc.
 #: ../raphodo/utilities.py:170
 msgid "B"
-msgstr ""
+msgstr "o"
 
 #: ../raphodo/utilities.py:170
 msgid "KB"
-msgstr ""
+msgstr "ko"
 
 #: ../raphodo/utilities.py:170
 msgid "MB"
-msgstr ""
+msgstr "Mo"
 
 #: ../raphodo/utilities.py:170
 msgid "GB"
-msgstr ""
+msgstr "Go"
 
 #: ../raphodo/utilities.py:170
 msgid "TB"
-msgstr ""
+msgstr "To"
 
 #: ../raphodo/utilities.py:170
 msgid "PB"
-msgstr ""
+msgstr "Po"
 
 #: ../raphodo/utilities.py:170
 msgid "EB"
