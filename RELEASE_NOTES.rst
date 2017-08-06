@@ -1,4 +1,4 @@
-Release Notes for Rapid Photo Downloader 0.9.1
+Release Notes for Rapid Photo Downloader 0.9.2
 ==============================================
 
  - On some systems, Rapid Photo Downloader cannot use gstreamer to generate
@@ -15,4 +15,5 @@ Release Notes for Rapid Photo Downloader 0.9.1
    that have been previously scanned, purging the thumbnail cache is needed.
    You can purge the thumbnail cache via the Preferences dialog, accessed via
    the main menu.
+
 
