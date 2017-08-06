@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-07-26 02:34-0500\n"
-"PO-Revision-Date: 2017-07-26 14:52+0000\n"
+"PO-Revision-Date: 2017-08-04 17:59+0000\n"
 "Last-Translator: A.J. Baudrez <a.baudrez@gmail.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-28 06:32+0000\n"
-"X-Generator: Launchpad (build 18439)\n"
+"X-Launchpad-Export-Date: 2017-08-06 16:01+0000\n"
+"X-Generator: Launchpad (build 18441)\n"
 "Language: nl\n"
 
 #: ../install.py:63
@@ -3803,11 +3803,11 @@ msgstr ""
 
 #: ../raphodo/rapid.py:4834
 msgid "Do you want to clear the completed downloads?"
-msgstr ""
+msgstr "Wens je de lijst van complete downloads wissen?"
 
 #: ../raphodo/rapid.py:4836
 msgid "Completed Download Present"
-msgstr ""
+msgstr "Lijst van complete downloads."
 
 #: ../raphodo/rapid.py:4838
 #, python-format

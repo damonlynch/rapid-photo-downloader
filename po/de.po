@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-07-26 02:34-0500\n"
-"PO-Revision-Date: 2017-08-03 09:48+0000\n"
+"PO-Revision-Date: 2017-08-06 15:08+0000\n"
 "Last-Translator: rost <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-08-04 02:48+0000\n"
+"X-Launchpad-Export-Date: 2017-08-06 16:01+0000\n"
 "X-Generator: Launchpad (build 18441)\n"
 "Language: de\n"
 
@@ -2410,7 +2410,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:268
 msgid "Exit program when download completes"
-msgstr "Programm beenden wenn alles Übertragungen abgeschlossen sind"
+msgstr "Programm beenden wenn alle Übertragungen abgeschlossen sind"
 
 #: ../raphodo/preferencedialog.py:269
 msgid "Exit program even if download had warnings or errors"
