@@ -28,6 +28,9 @@ import string
 from collections import namedtuple
 import logging
 from typing import Sequence, Optional, List, Union
+import locale
+# Use the default locale as defined by the LANG variable
+locale.setlocale(locale.LC_ALL, '')
 
 from gettext import gettext as _
 

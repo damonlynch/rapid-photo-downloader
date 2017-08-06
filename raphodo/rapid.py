@@ -37,6 +37,7 @@ import logging
 import shutil
 import datetime
 import locale
+# Use the default locale as defined by the LANG variable
 locale.setlocale(locale.LC_ALL, '')
 import pickle
 from collections import namedtuple, defaultdict

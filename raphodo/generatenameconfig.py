@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -23,7 +23,7 @@
 # these prefs to the user, and dictionaries are unsorted.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2016, Damon Lynch"
+__copyright__ = "Copyright 2007-2017, Damon Lynch"
 
 import os
 from collections import OrderedDict
@@ -168,10 +168,14 @@ LIST_DATE_TIME_L2 = [
 
 LIST_IMAGE_DATE_TIME_L2 = LIST_DATE_TIME_L2 + [SUBSECONDS]
 
-DEFAULT_SUBFOLDER_PREFS = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11], '/',
-                           '', '', DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
-DEFAULT_VIDEO_SUBFOLDER_PREFS = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[
-    11], '/', '', '', DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]]
+DEFAULT_SUBFOLDER_PREFS = [
+    DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11], '/', '', '', DATE_TIME, IMAGE_DATE,
+    LIST_DATE_TIME_L2[0]
+]
+DEFAULT_VIDEO_SUBFOLDER_PREFS = [
+    DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11], '/', '', '', DATE_TIME,
+    VIDEO_DATE, LIST_DATE_TIME_L2[0]
+]
 
 DEFAULT_PHOTO_RENAME_PREFS = [FILENAME, NAME, ORIGINAL_CASE]
 DEFAULT_VIDEO_RENAME_PREFS = [FILENAME, NAME, ORIGINAL_CASE]
@@ -442,69 +446,85 @@ PHOTO_RENAME_MENU_DEFAULTS_CONV = (
     # 0 Original Filename
     [FILENAME, NAME, ORIGINAL_CASE],
     # 1 Date-Time and Downloads today
-    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
-     TEXT, '-', '',
-     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[18],
-     TEXT, '-', '',
-     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    [
+        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
+        TEXT, '-', '',
+        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[18],
+        TEXT, '-', '',
+        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+    ],
     # 2 Date and Downloads today
-    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
-     TEXT, '-', '',
-     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    [
+        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
+        TEXT, '-', '',
+        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+    ],
     # 3 Date-Time and Image number
-    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
-     TEXT, '-', '',
-     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[18],
-     TEXT, '-', '',
-     FILENAME, IMAGE_NUMBER, IMAGE_NUMBER_ALL],
+    [
+        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
+        TEXT, '-', '',
+        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[18],
+        TEXT, '-', '',
+        FILENAME, IMAGE_NUMBER, IMAGE_NUMBER_ALL
+    ],
     # 4 Date-Time and Job Code
-    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
-     TEXT, '-', '',
-     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[18],
-     TEXT, '-', '',
-     JOB_CODE, '', '',
-     TEXT, '-', '',
-     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    [
+        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
+        TEXT, '-', '',
+        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[18],
+        TEXT, '-', '',
+        JOB_CODE, '', '',
+        TEXT, '-', '',
+        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+    ],
     # 5 Date and Job Code
-    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
-     TEXT, '-', '',
-     JOB_CODE, '', '',
-     TEXT, '-', '',
-     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1]
+    [
+        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
+        TEXT, '-', '',
+        JOB_CODE, '', '',
+        TEXT, '-', '',
+        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+    ]
 )
 
 # See notes above regarding keeping values in sync
 VIDEO_SUBFOLDER_MENU_DEFAULTS = PHOTO_SUBFOLDER_MENU_DEFAULTS
 VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV = (
     # 0
-    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-     SEPARATOR, '', '',
-     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]
+    [
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+        SEPARATOR, '', '',
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]
      ],
     # 1
-    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-     SEPARATOR, '', '',
-     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[1]
+    [
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+        SEPARATOR, '', '',
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[1]
      ],
     # 2
-    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-     SEPARATOR, '', '',
-     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[2]
+    [
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+        SEPARATOR, '', '',
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[2]
      ],
     # 3
-    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-     SEPARATOR, '', '',
-     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[13],
-     TEXT, '_', '',
-     JOB_CODE, '', ''],
+    [
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+        SEPARATOR, '', '',
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[13],
+        TEXT, '_', '',
+        JOB_CODE, '', ''
+    ],
     # 4
-    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-     SEPARATOR, '', '',
-     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[13],
-     SEPARATOR, '', '',
-     JOB_CODE, '', '',
+    [
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+        SEPARATOR, '', '',
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[13],
+        SEPARATOR, '', '',
+        JOB_CODE, '', '',
      ],
 )
 
@@ -522,58 +542,90 @@ VIDEO_RENAME_MENU_DEFAULTS_CONV = (
     # 0 Original Filename
     [FILENAME, NAME, ORIGINAL_CASE],
     # 1 Date-Time and Downloads today
-    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
-     TEXT, '-', '',
-     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[18],
-     TEXT, '-', '',
-     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    [
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
+        TEXT, '-', '',
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[18],
+        TEXT, '-', '',
+        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+    ],
     # 2 Date and Downloads today
-    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
-     TEXT, '-', '',
-     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    [
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
+        TEXT, '-', '',
+        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+    ],
     # 3 Date-Time and Image number
-    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
-     TEXT, '-', '',
-     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[18],
-     TEXT, '-', '',
-     FILENAME, VIDEO_NUMBER, IMAGE_NUMBER_ALL],
+    [
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
+        TEXT, '-', '',
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[18],
+        TEXT, '-', '',
+        FILENAME, VIDEO_NUMBER, IMAGE_NUMBER_ALL
+    ],
     # 4 Date-Time and Job Code
-    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
-     TEXT, '-', '',
-     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[18],
-     TEXT, '-', '',
-     JOB_CODE, '', '',
-     TEXT, '-', '',
-     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    [
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
+        TEXT, '-', '',
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[18],
+        TEXT, '-', '',
+        JOB_CODE, '', '',
+        TEXT, '-', '',
+        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+    ],
     # 5 Date and Job Code
-    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
-     TEXT, '-', '',
-     JOB_CODE, '', '',
-     TEXT, '-', '',
-     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    [
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
+        TEXT, '-', '',
+        JOB_CODE, '', '',
+        TEXT, '-', '',
+        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+    ],
     # 6 Resolution
-    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
-     TEXT, '-', '',
-     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[18],
-     TEXT, '-', '',
-     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1,
-     TEXT, '-', '',
-     METADATA, WIDTH, '',
-     TEXT, 'x', '',
-     METADATA, HEIGHT, '']
+    [
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
+        TEXT, '-', '',
+        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[18],
+        TEXT, '-', '',
+        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1,
+        TEXT, '-', '',
+        METADATA, WIDTH, '',
+        TEXT, 'x', '',
+        METADATA, HEIGHT, ''
+    ]
 )
 
 # See notes above regarding keeping values in sync
-DATE_TIME_CONVERT = ['%Y%m%d', '%Y-%m-%d', '%Y_%m_%d', '%y%m%d', '%y-%m-%d',
-                     '%y_%m_%d',
-                     '%m%d%Y', '%m%d%y', '%m%d',
-                     '%d%m%Y', '%d%m%y', '%Y', '%y',
-                     '%m', '%d', '%B', '%b',
-                     '%H%M%S', '%H%M', '%H-%M-%S', '%H-%M',
-                     '%H', '%M', '%S']
+DATE_TIME_CONVERT = [
+    '%Y%m%d',  # 0
+    '%Y-%m-%d',
+    '%Y_%m_%d',  # 2
+    '%y%m%d',
+    '%y-%m-%d',   # 4
+    '%y_%m_%d',
+    '%m%d%Y',  # 6
+    '%m%d%y',
+    '%m%d',  # 8
+    '%d%m%Y',
+    '%d%m%y', # 10
+    '%Y',
+    '%y',  # 12
+    '%m',
+    '%d',  # 14
+    '%B',
+    '%b',  # 16
+    '%H%M%S',
+    '%H%M',  # 18
+    '%H-%M-%S',
+    '%H-%M',  # 20
+    '%H',
+    '%M',  # 22
+    '%S'
+]
 
-LIST_IMAGE_NUMBER_L2 = [IMAGE_NUMBER_ALL, IMAGE_NUMBER_1, IMAGE_NUMBER_2,
-                        IMAGE_NUMBER_3, IMAGE_NUMBER_4]
+LIST_IMAGE_NUMBER_L2 = [
+    IMAGE_NUMBER_ALL, IMAGE_NUMBER_1, IMAGE_NUMBER_2, IMAGE_NUMBER_3, IMAGE_NUMBER_4
+]
 
 LIST_CASE_L2 = [ORIGINAL_CASE, UPPERCASE, LOWERCASE]
 
@@ -605,33 +657,41 @@ FILE_NUMBER_L2 = [
 
 # Level 1
 
-DICT_DATE_TIME_L1 = OrderedDict([
-    (IMAGE_DATE, LIST_IMAGE_DATE_TIME_L2),
-    (TODAY, LIST_DATE_TIME_L2),
-    (YESTERDAY, LIST_DATE_TIME_L2),
-    (DOWNLOAD_TIME, LIST_DATE_TIME_L2),
-])
+DICT_DATE_TIME_L1 = OrderedDict(
+    [
+        (IMAGE_DATE, LIST_IMAGE_DATE_TIME_L2),
+        (TODAY, LIST_DATE_TIME_L2),
+        (YESTERDAY, LIST_DATE_TIME_L2),
+        (DOWNLOAD_TIME, LIST_DATE_TIME_L2),
+    ]
+)
 
-VIDEO_DICT_DATE_TIME_L1 = OrderedDict([
-    (VIDEO_DATE, LIST_IMAGE_DATE_TIME_L2),
-    (TODAY, LIST_DATE_TIME_L2),
-    (YESTERDAY, LIST_DATE_TIME_L2),
-    (DOWNLOAD_TIME, LIST_DATE_TIME_L2),
-])
+VIDEO_DICT_DATE_TIME_L1 = OrderedDict(
+    [
+        (VIDEO_DATE, LIST_IMAGE_DATE_TIME_L2),
+        (TODAY, LIST_DATE_TIME_L2),
+        (YESTERDAY, LIST_DATE_TIME_L2),
+        (DOWNLOAD_TIME, LIST_DATE_TIME_L2),
+    ]
+)
 
-DICT_FILENAME_L1 = OrderedDict([
-    (NAME, LIST_CASE_L2),
-    (IMAGE_NUMBER, LIST_IMAGE_NUMBER_L2),
-])
+DICT_FILENAME_L1 = OrderedDict(
+    [
+        (NAME, LIST_CASE_L2),
+        (IMAGE_NUMBER, LIST_IMAGE_NUMBER_L2),
+    ]
+)
 
 # pre 0.9.0a4 values for DICT_FILENAME_L1:
 #(NAME_EXTENSION, LIST_CASE_L2),
 # (EXTENSION, LIST_CASE_L2),
 
-DICT_VIDEO_FILENAME_L1 = OrderedDict([
-    (NAME, LIST_CASE_L2),
-    (VIDEO_NUMBER, LIST_IMAGE_NUMBER_L2),
-])
+DICT_VIDEO_FILENAME_L1 = OrderedDict(
+    [
+        (NAME, LIST_CASE_L2),
+        (VIDEO_NUMBER, LIST_IMAGE_NUMBER_L2),
+    ]
+)
 
 # pre 0.9.0a4 values for DICT_VIDEO_FILENAME_L1:
 # (NAME_EXTENSION, LIST_CASE_L2),
@@ -641,77 +701,91 @@ DICT_SUBFOLDER_FILENAME_L1 = {
     EXTENSION: LIST_CASE_L2,
 }
 
-DICT_METADATA_L1 = OrderedDict([
-    (APERTURE, None),
-    (ISO, None),
-    (EXPOSURE_TIME, None),
-    (FOCAL_LENGTH, None),
-    (CAMERA_MAKE, LIST_CASE_L2),
-    (CAMERA_MODEL, LIST_CASE_L2),
-    (SHORT_CAMERA_MODEL, LIST_CASE_L2),
-    (SHORT_CAMERA_MODEL_HYPHEN, LIST_CASE_L2),
-    (SERIAL_NUMBER, None),
-    (SHUTTER_COUNT, LIST_SHUTTER_COUNT_L2),
-    (FILE_NUMBER, FILE_NUMBER_L2),
-    (OWNER_NAME, LIST_CASE_L2),
-    (ARTIST, LIST_CASE_L2),
-    (COPYRIGHT, LIST_CASE_L2),
-])
+DICT_METADATA_L1 = OrderedDict(
+    [
+        (APERTURE, None),
+        (ISO, None),
+        (EXPOSURE_TIME, None),
+        (FOCAL_LENGTH, None),
+        (CAMERA_MAKE, LIST_CASE_L2),
+        (CAMERA_MODEL, LIST_CASE_L2),
+        (SHORT_CAMERA_MODEL, LIST_CASE_L2),
+        (SHORT_CAMERA_MODEL_HYPHEN, LIST_CASE_L2),
+        (SERIAL_NUMBER, None),
+        (SHUTTER_COUNT, LIST_SHUTTER_COUNT_L2),
+        (FILE_NUMBER, FILE_NUMBER_L2),
+        (OWNER_NAME, LIST_CASE_L2),
+        (ARTIST, LIST_CASE_L2),
+        (COPYRIGHT, LIST_CASE_L2),
+    ]
+)
 
-DICT_VIDEO_METADATA_L1 = OrderedDict([
-    (CODEC, LIST_CASE_L2),
-    (WIDTH, None),
-    (HEIGHT, None),
-    (LENGTH, None),
-    (FPS, None),
-])
+DICT_VIDEO_METADATA_L1 = OrderedDict(
+    [
+        (CODEC, LIST_CASE_L2),
+        (WIDTH, None),
+        (HEIGHT, None),
+        (LENGTH, None),
+        (FPS, None),
+    ]
+)
 
-DICT_SEQUENCE_L1 = OrderedDict([
-    (DOWNLOAD_SEQ_NUMBER, LIST_SEQUENCE_NUMBERS_L2),
-    (STORED_SEQ_NUMBER, LIST_SEQUENCE_NUMBERS_L2),
-    (SESSION_SEQ_NUMBER, LIST_SEQUENCE_NUMBERS_L2),
-    (SEQUENCE_LETTER, LIST_SEQUENCE_LETTER_L2),
-])
+DICT_SEQUENCE_L1 = OrderedDict(
+    [
+        (DOWNLOAD_SEQ_NUMBER, LIST_SEQUENCE_NUMBERS_L2),
+        (STORED_SEQ_NUMBER, LIST_SEQUENCE_NUMBERS_L2),
+        (SESSION_SEQ_NUMBER, LIST_SEQUENCE_NUMBERS_L2),
+        (SEQUENCE_LETTER, LIST_SEQUENCE_LETTER_L2),
+    ]
+)
 
 LIST_SEQUENCE_L1 = list(DICT_SEQUENCE_L1.keys())
 
 # Level 0
 
-DICT_IMAGE_RENAME_L0 = OrderedDict([
-    (DATE_TIME, DICT_DATE_TIME_L1),
-    (TEXT, None),
-    (FILENAME, DICT_FILENAME_L1),
-    (METADATA, DICT_METADATA_L1),
-    (SEQUENCES, DICT_SEQUENCE_L1),
-    (JOB_CODE, None),
-])
+DICT_IMAGE_RENAME_L0 = OrderedDict(
+    [
+        (DATE_TIME, DICT_DATE_TIME_L1),
+        (TEXT, None),
+        (FILENAME, DICT_FILENAME_L1),
+        (METADATA, DICT_METADATA_L1),
+        (SEQUENCES, DICT_SEQUENCE_L1),
+        (JOB_CODE, None),
+    ]
+)
 
-DICT_VIDEO_RENAME_L0 = OrderedDict([
-    (DATE_TIME, VIDEO_DICT_DATE_TIME_L1),
-    (TEXT, None),
-    (FILENAME, DICT_VIDEO_FILENAME_L1),
-    (METADATA, DICT_VIDEO_METADATA_L1),
-    (SEQUENCES, DICT_SEQUENCE_L1),
-    (JOB_CODE, None),
-])
+DICT_VIDEO_RENAME_L0 = OrderedDict(
+    [
+        (DATE_TIME, VIDEO_DICT_DATE_TIME_L1),
+        (TEXT, None),
+        (FILENAME, DICT_VIDEO_FILENAME_L1),
+        (METADATA, DICT_VIDEO_METADATA_L1),
+        (SEQUENCES, DICT_SEQUENCE_L1),
+        (JOB_CODE, None),
+    ]
+)
 
-DICT_SUBFOLDER_L0 = OrderedDict([
-    (DATE_TIME, DICT_DATE_TIME_L1),
-    (TEXT, None),
-    (FILENAME, DICT_SUBFOLDER_FILENAME_L1),
-    (METADATA, DICT_METADATA_L1),
-    (SEPARATOR, None),
-    (JOB_CODE, None),
-])
+DICT_SUBFOLDER_L0 = OrderedDict(
+    [
+        (DATE_TIME, DICT_DATE_TIME_L1),
+        (TEXT, None),
+        (FILENAME, DICT_SUBFOLDER_FILENAME_L1),
+        (METADATA, DICT_METADATA_L1),
+        (SEPARATOR, None),
+        (JOB_CODE, None),
+    ]
+)
 
-DICT_VIDEO_SUBFOLDER_L0 = OrderedDict([
-    (DATE_TIME, VIDEO_DICT_DATE_TIME_L1),
-    (TEXT, None),
-    (FILENAME, DICT_SUBFOLDER_FILENAME_L1),
-    (METADATA, DICT_VIDEO_METADATA_L1),
-    (SEPARATOR, None),
-    (JOB_CODE, None),
-])
+DICT_VIDEO_SUBFOLDER_L0 = OrderedDict(
+    [
+        (DATE_TIME, VIDEO_DICT_DATE_TIME_L1),
+        (TEXT, None),
+        (FILENAME, DICT_SUBFOLDER_FILENAME_L1),
+        (METADATA, DICT_VIDEO_METADATA_L1),
+        (SEPARATOR, None),
+        (JOB_CODE, None),
+    ]
+)
 
 # preference elements that require metadata
 # note there is no need to specify lower level elements if a higher level 
@@ -724,30 +798,28 @@ SEQUENCE_ELEMENTS = [
     SESSION_SEQ_NUMBER,
     SUBFOLDER_SEQ_NUMBER,
     STORED_SEQ_NUMBER,
-    SEQUENCE_LETTER]
+    SEQUENCE_LETTER
+]
 
 # preference elements that do not require metadata and are not fixed
 # as above, there is no need to specify lower level elements if a higher level 
 # element is necessary for them to be present to begin with
-DYNAMIC_NON_METADATA_ELEMENTS = [
-    TODAY, YESTERDAY,
-    FILENAME] + SEQUENCE_ELEMENTS
+DYNAMIC_NON_METADATA_ELEMENTS = [TODAY, YESTERDAY, FILENAME] + SEQUENCE_ELEMENTS
 
-PHOTO_RENAME_COMPLEX = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '',
-                        'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences',
-                        'Downloads today', 'One digit', 'Text', '-iso', '',
-                        'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata',
-                        'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '',
-                        'Text', 'mm-', '', 'Metadata', 'Exposure time', '']
-
-PHOTO_RENAME_SIMPLE = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '',
-                       'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences',
-                       'Downloads today', 'One digit']
+PHOTO_RENAME_COMPLEX = [
+    'Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM',
+    'Text', '-', '', 'Sequences', 'Downloads today', 'One digit', 'Text', '-iso', '', 'Metadata',
+    'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata',
+    'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', ''
+]
+PHOTO_RENAME_SIMPLE = [
+    'Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM',
+    'Text', '-', '', 'Sequences', 'Downloads today', 'One digit'
+]
 
 VIDEO_RENAME_SIMPLE = [x if x != 'Image date' else 'Video date' for x in PHOTO_RENAME_SIMPLE]
 
-JOB_CODE_RENAME_TEST = ['Job code', '', '', 'Sequences',
-                        'Downloads today', 'One digit']
+JOB_CODE_RENAME_TEST = ['Job code', '', '', 'Sequences', 'Downloads today', 'One digit']
 
 
 def upgrade_pre090a4_rename_pref(pref_list: List[str]) -> Tuple[List[str], str]:

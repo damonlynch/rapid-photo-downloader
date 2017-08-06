@@ -52,6 +52,9 @@ from collections import (namedtuple, defaultdict, deque)
 from datetime import datetime
 import tempfile
 import operator
+import locale
+# Use the default locale as defined by the LANG variable
+locale.setlocale(locale.LC_ALL, '')
 
 if sys.version_info < (3,5):
     import scandir

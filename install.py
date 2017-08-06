@@ -53,6 +53,8 @@ import string
 import site
 import stat
 import locale
+# Use the default locale as defined by the LANG variable
+locale.setlocale(locale.LC_ALL, '')
 from base64 import b85decode
 
 from gettext import gettext as _

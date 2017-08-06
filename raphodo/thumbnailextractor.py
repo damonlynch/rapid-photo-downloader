@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch"
+__copyright__ = "Copyright 2015-2017, Damon Lynch"
 
 import sys
 import logging
@@ -45,11 +45,14 @@ try:
 except ImportError:
     have_rawkit = False
 
-from raphodo.interprocess import (LoadBalancerWorker, ThumbnailExtractorArgument,
-                          GenerateThumbnailsResults)
+from raphodo.interprocess import (
+    LoadBalancerWorker, ThumbnailExtractorArgument, GenerateThumbnailsResults
+)
 
-from raphodo.constants import (ThumbnailSize, ExtractionTask, ExtractionProcessing,
-                               ThumbnailCacheStatus, ThumbnailCacheDiskStatus)
+from raphodo.constants import (
+    ThumbnailSize, ExtractionTask, ExtractionProcessing, ThumbnailCacheStatus,
+    ThumbnailCacheDiskStatus
+)
 from raphodo.rpdfile import RPDFile, Video, Photo, FileType
 from raphodo.utilities import stdchannel_redirected, show_errors
 from raphodo.filmstrip import add_filmstrip
@@ -202,8 +205,10 @@ class ThumbnailExtractor(LoadBalancerWorker):
     rotate_180 = '3'
     rotate_270 = '8'
 
-    maxStandardSize = QSize(max(ThumbnailSize.width, ThumbnailSize.height),
-                            max(ThumbnailSize.width, ThumbnailSize.height))
+    maxStandardSize = QSize(
+        max(ThumbnailSize.width, ThumbnailSize.height),
+        max(ThumbnailSize.width, ThumbnailSize.height)
+    )
 
     def __init__(self) -> None:
         self.thumbnailSizeNeeded = QSize(ThumbnailSize.width, ThumbnailSize.height)
@@ -231,8 +236,10 @@ class ThumbnailExtractor(LoadBalancerWorker):
     def image_large_enough(self, size: QSize) -> bool:
         """Check if image is equal or bigger than thumbnail size."""
 
-        return (size.width() >= self.thumbnailSizeNeeded.width() or
-                size.height() >= self.thumbnailSizeNeeded.height())
+        return (
+            size.width() >= self.thumbnailSizeNeeded.width() or
+            size.height() >= self.thumbnailSizeNeeded.height()
+        )
 
     def image_large_enough_fdo(self, size: QSize) -> bool:
         return size.width() >= 256 or size.height() >= 256
@@ -529,15 +536,18 @@ class ThumbnailExtractor(LoadBalancerWorker):
             thumbnail = QImage(data.full_file_name_to_work_on)
 
             if task == ExtractionTask.load_file_and_exif_directly:
-                self.assign_photo_mdatatime(rpd_file=rpd_file,
-                                            full_file_name=data.full_file_name_to_work_on)
+                self.assign_photo_mdatatime(
+                    rpd_file=rpd_file, full_file_name=data.full_file_name_to_work_on
+                )
             elif task == ExtractionTask.load_file_directly_metadata_from_secondary:
-                self.assign_mdatatime(rpd_file=rpd_file,
-                                      full_file_name=data.secondary_full_file_name)
+                self.assign_mdatatime(
+                    rpd_file=rpd_file, full_file_name=data.secondary_full_file_name
+                )
 
             if ExtractionProcessing.orient in processing:
-                orientation = self.get_photo_orientation(rpd_file=rpd_file,
-                                         full_file_name=data.full_file_name_to_work_on)
+                orientation = self.get_photo_orientation(
+                    rpd_file=rpd_file, full_file_name=data.full_file_name_to_work_on
+                )
 
         elif task in (ExtractionTask.load_from_bytes,
                       ExtractionTask.load_from_bytes_metadata_from_temp_extract):
@@ -547,11 +557,13 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 processing.add(ExtractionProcessing.resize)
                 processing.remove(ExtractionProcessing.strip_bars_photo)
             if data.exif_buffer and ExtractionProcessing.orient in processing:
-                orientation = self.get_photo_orientation(rpd_file=rpd_file,
-                                                         raw_bytes=data.exif_buffer)
+                orientation = self.get_photo_orientation(
+                    rpd_file=rpd_file, raw_bytes=data.exif_buffer
+                )
             if task == ExtractionTask.load_from_bytes_metadata_from_temp_extract:
-                self.assign_mdatatime(rpd_file=rpd_file,
-                                            full_file_name=data.secondary_full_file_name)
+                self.assign_mdatatime(
+                    rpd_file=rpd_file, full_file_name=data.secondary_full_file_name
+                )
                 os.remove(data.secondary_full_file_name)
                 rpd_file.temp_cache_full_file_chunk = ''
 
@@ -561,8 +573,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
             if thumbnail is not None:
                 orientation = thumbnail_details.orientation
         else:
-            assert task in (ExtractionTask.extract_from_file,
-                            ExtractionTask.extract_from_file_and_load_metadata)
+            assert task in (
+                ExtractionTask.extract_from_file, ExtractionTask.extract_from_file_and_load_metadata
+            )
             assert rpd_file.file_type == FileType.video
 
             if ExtractionTask.extract_from_file_and_load_metadata:
@@ -585,8 +598,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
                         thumbnail = None
                     else:
                         processing.add(ExtractionProcessing.add_film_strip)
-                        orientation = self.get_video_rotation(rpd_file,
-                                                            data.full_file_name_to_work_on)
+                        orientation = self.get_video_rotation(
+                            rpd_file, data.full_file_name_to_work_on
+                        )
                         if orientation is not None:
                             processing.add(ExtractionProcessing.orient)
                         processing.add(ExtractionProcessing.resize)
@@ -682,8 +696,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
                         buffer = qimage_to_png_buffer(thumbnail)
                         png_data = buffer.data()
 
-                    orientation_unknown = (ExtractionProcessing.orient in processing and
-                                             orientation is None)
+                    orientation_unknown = (
+                        ExtractionProcessing.orient in processing and orientation is None
+                    )
 
                     if data.send_thumb_to_main and data.use_thumbnail_cache and \
                             rpd_file.thumbnail_cache_status == ThumbnailCacheDiskStatus.not_found:
@@ -695,7 +710,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
                             generation_failed=thumbnail is None,
                             orientation_unknown=orientation_unknown,
                             thumbnail=thumbnail,
-                            camera_model=rpd_file.camera_model)
+                            camera_model=rpd_file.camera_model
+                        )
 
                 if (thumbnail is not None or thumbnail_256 is not None) and \
                         rpd_file.should_write_fdo():
@@ -712,23 +728,27 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                 modification_time=mtime,
                                 generation_failed=False,
                                 thumbnail=thumbnail_256,
-                                free_desktop_org=False)
+                                free_desktop_org=False
+                            )
                             thumbnail_128 = thumbnail_256.scaled(
                                     QSize(128, 128),
                                     Qt.KeepAspectRatio,
-                                    Qt.SmoothTransformation)
+                                    Qt.SmoothTransformation
+                            )
                         else:
                             thumbnail_128 = thumbnail.scaled(
                                 QSize(128, 128),
                                 Qt.KeepAspectRatio,
-                                Qt.SmoothTransformation)
+                                Qt.SmoothTransformation
+                            )
                         rpd_file.fdo_thumbnail_128_name = self.fdo_cache_normal.save_thumbnail(
                         full_file_name=rpd_file.download_full_file_name,
                         size=rpd_file.size,
                         modification_time=mtime,
                         generation_failed=False,
                         thumbnail=thumbnail_128,
-                        free_desktop_org=False)
+                        free_desktop_org=False
+                        )
                     elif thumbnail_256 is not None and rpd_file.fdo_thumbnail_256 is None:
                         rpd_file.fdo_thumbnail_256 = qimage_to_png_buffer(thumbnail).data()
 
@@ -753,12 +773,15 @@ class ThumbnailExtractor(LoadBalancerWorker):
             if not data.send_thumb_to_main:
                 png_data = None
             rpd_file.metadata = None
-            self.sender.send_multipart([b'0', b'data',
+            self.sender.send_multipart(
+                [
+                    b'0', b'data',
                     pickle.dumps(
-                    GenerateThumbnailsResults(
-                        rpd_file=rpd_file,
-                        thumbnail_bytes=png_data),
-                    pickle.HIGHEST_PROTOCOL)])
+                        GenerateThumbnailsResults(rpd_file=rpd_file, thumbnail_bytes=png_data),
+                        pickle.HIGHEST_PROTOCOL
+                    )
+                ]
+            )
             self.requester.send_multipart([b'', b'', b'OK'])
 
     def do_work(self):
@@ -780,8 +803,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
             self.exit()
 
     def cleanup_pre_stop(self) -> None:
-        logging.debug("Terminating thumbnail extractor ExifTool process for %s",
-                      self.identity.decode())
+        logging.debug(
+            "Terminating thumbnail extractor ExifTool process for %s", self.identity.decode()
+        )
         self.exiftool_process.terminate()
 
 if __name__ == "__main__":

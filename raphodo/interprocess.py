@@ -551,12 +551,15 @@ class LoadBalancer:
         sink_port = args.send
         logging_port = args.logging
 
-        self.logger_publisher = ProcessLoggerPublisher(context=context,
-                                                       name=worker_type,
-                                                       notification_port=args.logging)
+        self.logger_publisher = ProcessLoggerPublisher(
+            context=context, name=worker_type, notification_port=args.logging
+        )
 
-        logging.debug("{} load balancer waiting to be notified how many workers to "
-                      "initialize...".format(worker_type))
+        logging.debug(
+            "{} load balancer waiting to be notified how many workers to initialize...".format(
+                worker_type
+            )
+        )
         no_workers = int(reply.recv())
         logging.debug("...{} load balancer will use {} workers".format(worker_type, no_workers))
         reply.send(str(frontend_port).encode())

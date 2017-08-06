@@ -25,6 +25,9 @@ __copyright__ = "Copyright 2015-2016, Damon Lynch"
 import pickle
 import sys
 import logging
+import locale
+# Use the default locale as defined by the LANG variable
+locale.setlocale(locale.LC_ALL, '')
 
 from PyQt5.QtGui import QGuiApplication
 from raphodo.interprocess import (DaemonProcess, OffloadData, OffloadResults, DownloadDestination)

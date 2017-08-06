@@ -36,16 +36,19 @@ import pickle
 import sys
 import os
 from typing import Set, Dict
+import locale
+# Use the default locale as defined by the LANG variable
+locale.setlocale(locale.LC_ALL, '')
 
-from gettext import gettext as _
 import zmq
 
-from raphodo.constants import (FileType, ThumbnailSize, ThumbnailCacheStatus,
-                       ThumbnailCacheDiskStatus, ExtractionTask,
-                       ExtractionProcessing,
-                       ThumbnailCacheOrigin)
-from raphodo.interprocess import (ThumbnailDaemonData, GenerateThumbnailsResults, DaemonProcess,
-                                  ThumbnailExtractorArgument)
+from raphodo.constants import (
+    FileType, ThumbnailSize, ThumbnailCacheStatus, ThumbnailCacheDiskStatus, ExtractionTask,
+    ExtractionProcessing, ThumbnailCacheOrigin
+)
+from raphodo.interprocess import (
+    ThumbnailDaemonData, GenerateThumbnailsResults, DaemonProcess, ThumbnailExtractorArgument
+)
 from raphodo.rpdfile import RPDFile
 from raphodo.thumbnailpara import GetThumbnailFromCache, preprocess_thumbnail_from_disk
 from raphodo.cache import FdoCacheLarge, FdoCacheNormal

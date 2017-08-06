@@ -32,6 +32,9 @@ import pickle
 from operator import attrgetter
 from collections import defaultdict
 from typing import Dict, Optional, Tuple
+import locale
+# Use the default locale as defined by the LANG variable
+locale.setlocale(locale.LC_ALL, '')
 
 import gphoto2 as gp
 

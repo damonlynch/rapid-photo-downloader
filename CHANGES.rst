@@ -78,7 +78,8 @@ Changelog for Rapid Photo Downloader
    some buttons whose text was untranslated. Moreover, humanized times such as
    "one hour ago" (all of which are generated using the python library Arrow)
    are now localized where Arrow supports it. Finally, date/times in tooltips
-   that appear over thumbnails are now localized.
+   that appear over thumbnails are now localized, and locale date / times are
+   used in download subfolder and filename generation for values like months.
 
 0.9.1 (2017-07-10)
 ------------------
