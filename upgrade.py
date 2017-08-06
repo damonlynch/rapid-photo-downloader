@@ -17,12 +17,20 @@
 # see <http://www.gnu.org/licenses/>.
 
 """
-Helper program to upgrade Rapid Photo Downloader using pip
+Helper program to upgrade Rapid Photo Downloader using pip.
+
+Structure, all run from this script:
+
+GUI: main thread in main process
+Installer code: secondary process, no Qt, fully isolated
+Communication: secondary thread in main process, using zeromq
+
+Determining which code block in the structure is determined
+at the script level i.e. in __name__ == '__main__'
 """
 
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2017, Damon Lynch"
-
 
 import sys
 import os
@@ -37,6 +45,9 @@ from queue import Queue, Empty
 import subprocess
 import platform
 from distutils.version import StrictVersion
+import argparse
+
+
 from gettext import gettext as _
 
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot,  Qt, QThread, QObject, QTimer)
@@ -47,8 +58,16 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtNetwork import QLocalSocket
 from xdg import BaseDirectory
 import gettext
+import zmq
+import psutil
+
+
+__title__ = _('Upgrade Rapid Photo Downloader')
+__description__ = "Upgrade to the latest version of Rapid Photo Downloader.\n" \
+                  "Do not run this program yourself."
 
 import raphodo.qrc_resources as qrc_resources
+from raphodo.utilities import set_pdeathsig
 
 i18n_domain = 'rapid-photo-downloader'
 
@@ -78,28 +97,22 @@ def locale_directory():
 q = Queue()
 
 
-class RPDUpgrade(QObject):
+class RunInstallProcesses:
     """
-    Upgrade Rapid Photo Downloader using python's pip
+    Run subprocess pip commmands in an isolated process, connected via zeromq
+    request reply sockets.
     """
 
-    message = pyqtSignal(str)
-    upgradeFinished = pyqtSignal(bool)
+    def __init__(self, socket: str) -> None:
 
+        context = zmq.Context()
+        self.responder = context.socket(zmq.REP)
+        self.responder.connect("tcp://localhost:{}".format(socket))
 
-    def make_pip_command(self, args: str) -> List[str]:
-        return shlex.split('{} -m pip {}'.format(sys.executable, args))
-
-    def pip_version(self) -> StrictVersion:
-        import pip
-
-        return StrictVersion(pip.__version__)
-
-    @pyqtSlot(str)
-    def start(self, installer: str) -> None:
+        installer = self.responder.recv_string()
 
         # explicitly uninstall any previous version installed with pip
-        self.sendMessage("Uninstalling previous version installed with pip...\n")
+        self.send_message("Uninstalling previous version installed with pip...\n")
         l_command_line = 'list --user --disable-pip-version-check'
         if self.pip_version() >= StrictVersion('9.0.0'):
             l_command_line = '{} --format=columns'.format(l_command_line)
@@ -107,24 +120,20 @@ class RPDUpgrade(QObject):
 
         u_command_line = 'uninstall --disable-pip-version-check -y rapid-photo-downloader'
         u_args = self.make_pip_command(u_command_line)
+        pip_list = ''
         while True:
             try:
-                output = subprocess.check_output(l_args, universal_newlines=True)
-                if 'rapid-photo-downloader' in output:
+                pip_list = subprocess.check_output(l_args, universal_newlines=True)
+                if 'rapid-photo-downloader' in pip_list:
                     with Popen(
                             u_args, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True
                     ) as p:
                         for line in p.stdout:
-                            self.sendMessage(line, truncate=True)
-                            cmd = self.checkForCmd()
-                            if cmd is not None:
-                                assert cmd == 'STOP'
-                                self.failure('\nTermination requested')
-                                return
+                            self.send_message(line, truncate=True)
                         p.wait()
                         i = p.returncode
                     if i != 0:
-                        self.sendMessage(
+                        self.send_message(
                             "Encountered an error uninstalling previous version installed with "
                             "pip\n"
                         )
@@ -132,63 +141,70 @@ class RPDUpgrade(QObject):
                     break
             except Exception:
                 break
-        self.sendMessage('...done uninstalling previous version.\n')
+        self.send_message('...done uninstalling previous version.\n')
 
         name = os.path.basename(installer)
         name = name[:len('.tar.gz') * -1]
 
+        # Check the requirements file for any packages we should install using pip
+        # Can't include packages that are already installed, or else a segfault can
+        # occur. Which is a bummer, as that means automatic upgrades cannot occur.
         rpath = os.path.join(name, 'requirements.txt')
+        package_match = re.compile(r'^([a-zA-Z]+[a-zA-Z0-9-]+)')
         try:
             with tarfile.open(installer) as tar:
-                with tar.extractfile(rpath) as requirements:
-                    reqbytes = requirements.read()
-                    if platform.machine() == 'x86_64' and platform.python_version_tuple()[1] in (
-                            '5', '6'):
-                        reqbytes = reqbytes.rstrip() + b'\nPyQt5'
-                    with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
-                        temp_requirements.write(reqbytes)
-                        temp_requirements_name = temp_requirements.name
+                with tar.extractfile(rpath) as requirements_f:
+                    requirements = ''
+                    for line in requirements_f.readlines():
+                        line = line.decode()
+                        results = package_match.search(line)
+                        if results is not None:
+                            package = results.group(0)
+                            # Don't include packages that are already installed
+                            if package not in pip_list and package not in ('typing', 'scandir'):
+                                requirements = '{}\n{}'.format(requirements, line)
+                    if self.need_pyqt5(pip_list):
+                        requirements = '{}\nPyQt5\n'.format(requirements)
+                    if requirements:
+                        with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
+                            temp_requirements.write(requirements.encode())
+                            temp_requirements_name = temp_requirements.name
+                    else:
+                        temp_requirements_name = ''
         except Exception:
             self.failure("Failed to extract application requirements")
             return
 
-        self.sendMessage("Installing application requirements...\n")
-        try:
+        if requirements:
+            self.send_message("Installing application requirements...\n")
             cmd = self.make_pip_command(
-                'install --user --disable-pip-version-check -r {}'.format(temp_requirements.name)
+                'install --user --upgrade --disable-pip-version-check -r {}'.format(
+                    temp_requirements_name
+                )
             )
-            with Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
-                for line in p.stdout:
-                    self.sendMessage(line, truncate=True)
-                    cmd = self.checkForCmd()
-                    if cmd is not None:
-                        assert cmd == 'STOP'
-                        self.failure('\nTermination requested')
-                        return
-                p.wait()
-                i = p.returncode
-            os.remove(temp_requirements_name)
-            if i != 0:
-                self.failure("Failed to install application requirements: %i" % i)
+            try:
+                with Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
+                    for line in p.stdout:
+                        self.send_message(line, truncate=True)
+                    p.wait()
+                    i = p.returncode
+                os.remove(temp_requirements_name)
+                if i != 0:
+                    self.failure("Failed to install application requirements: %i" % i)
+                    return
+            except Exception as e:
+                self.send_message(str(e))
+                self.failure("Failed to install application requirements")
                 return
-        except Exception:
-            self.sendMessage(sys.exc_info())
-            self.failure("Failed to install application requirements")
-            return
 
-        self.sendMessage("\nInstalling application...\n")
+        self.send_message("\nInstalling application...\n")
+        cmd = self.make_pip_command(
+            'install --user --disable-pip-version-check --no-deps {}'.format(installer)
+        )
         try:
-            cmd = self.make_pip_command(
-                'install --user --disable-pip-version-check --no-deps {}'.format(installer)
-            )
             with Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
                 for line in p.stdout:
-                    self.sendMessage(line, truncate=True)
-                    cmd = self.checkForCmd()
-                    if cmd is not None:
-                        assert cmd == 'STOP'
-                        self.failure('\nTermination requested')
-                        return
+                    self.send_message(line, truncate=True)
                 p.wait()
                 i = p.returncode
             if i != 0:
@@ -198,18 +214,92 @@ class RPDUpgrade(QObject):
             self.failure("Failed to install application")
             return
 
-        self.upgradeFinished.emit(True)
+        self.responder.send_multipart([b'cmd', b'FINISHED'])
+
+    def check_cmd(self) -> None:
+        cmd = self.responder.recv()
+        if cmd == b'STOP':
+            self.stop()
+
+    def send_message(self, message: str, truncate: bool=False) -> None:
+        if truncate:
+            self.responder.send_multipart([b'data', message[:-1].encode()])
+        else:
+            self.responder.send_multipart([b'data', message.encode()])
+        self.check_cmd()
 
     def failure(self, message: str) -> None:
-        self.sendMessage(message)
-        self.upgradeFinished.emit(False)
+        self.send_message(message)
+        self.stop()
+
+    def stop(self) -> None:
+        self.responder.send_multipart([b'cmd', 'STOPPED'])
+        sys.exit(0)
+
+    def make_pip_command(self, args: str) -> List[str]:
+        cmd = '{} -m pip {}'.format(sys.executable, args)
+        return shlex.split(cmd)
+
+    def pip_version(self) -> StrictVersion:
+        import pip
+
+        return StrictVersion(pip.__version__)
+
+    def need_pyqt5(self, pip_list) -> bool:
+        if platform.machine() == 'x86_64' and platform.python_version_tuple()[1] in ('5', '6'):
+            return not 'PyQt5' in pip_list
+        return False
 
 
-    def sendMessage(self, message: str, truncate=False) -> None:
-        if truncate:
-            self.message.emit(message[:-1])
-        else:
-            self.message.emit(message)
+class RPDUpgrade(QObject):
+    """
+    Upgrade Rapid Photo Downloader using python's pip
+    """
+
+    message = pyqtSignal(str)
+    upgradeFinished = pyqtSignal(bool)
+
+
+    def run_process(self, port: int) -> bool:
+        command_line = '{} {} --socket={}'.format(sys.executable, __file__, port)
+        args = shlex.split(command_line)
+
+        try:
+            proc = psutil.Popen(args, preexec_fn=set_pdeathsig())
+            return True
+        except OSError as e:
+            return False
+
+    @pyqtSlot(str)
+    def start(self, installer: str) -> None:
+
+        context = zmq.Context()
+        requester = context.socket(zmq.REQ)
+        port = requester.bind_to_random_port('tcp://*')
+
+        if not self.run_process(port=port):
+            self.upgradeFinished.emit(False)
+            return
+
+        requester.send_string(installer)
+
+        while True:
+            directive, content = requester.recv_multipart()
+            if directive == b'data':
+                self.message.emit(content.decode())
+            else:
+                assert directive == b'cmd'
+                if content == b'STOPPED':
+                    self.upgradeFinished.emit(False)
+                elif content == b'FINISHED':
+                    self.upgradeFinished.emit(True)
+                return
+
+            cmd = self.checkForCmd()
+            if cmd is None:
+                requester.send(b'CONT')
+            else:
+                requester.send(b'STOP')
 
     def checkForCmd(self) -> Optional[str]:
         try:
@@ -238,7 +328,7 @@ class UpgradeDialog(QDialog):
         super().__init__()
 
         self.installer = installer
-        self.setWindowTitle(_('Upgrade Rapid Photo Downloader'))
+        self.setWindowTitle(__title__)
 
         try:
             self.version_no = extract_version_number(installer=installer)
@@ -384,13 +474,39 @@ class UpgradeDialog(QDialog):
         subprocess.Popen(cmd)
         super().accept()
 
+def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentParser:
+    """
+    Construct the command line arguments for the script
+
+    :return: the parser
+    """
+
+    parser = argparse.ArgumentParser(
+        prog=__title__, formatter_class=formatter_class, description=__description__
+    )
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('tarfile',  action='store', nargs='?', help=argparse.SUPPRESS)
+    group.add_argument('--socket', action='store', nargs='?', help=argparse.SUPPRESS)
+
+    return parser
+
 
 if __name__ == '__main__':
-    gettext.bindtextdomain(i18n_domain, localedir=locale_directory())
-    gettext.textdomain(i18n_domain)
 
-    app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon(':/rapid-photo-downloader.svg'))
-    widget = UpgradeDialog(sys.argv[1])
-    widget.show()
-    sys.exit(app.exec_())
+    parser = parser_options()
+
+    args = parser.parse_args()
+
+    if args.tarfile:
+        gettext.bindtextdomain(i18n_domain, localedir=locale_directory())
+        gettext.textdomain(i18n_domain)
+
+        app = QApplication(sys.argv)
+        app.setWindowIcon(QIcon(':/rapid-photo-downloader.svg'))
+        widget = UpgradeDialog(args.tarfile)
+        widget.show()
+        sys.exit(app.exec_())
+
+    else:
+        RunInstallProcesses(args.socket)

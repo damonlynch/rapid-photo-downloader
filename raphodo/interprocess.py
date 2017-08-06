@@ -28,8 +28,7 @@ import shlex
 import time
 from collections import deque, namedtuple
 from typing import Optional, Set, List, Dict, Sequence, Any, Tuple
-import signal
-import ctypes
+
 
 import psutil
 
