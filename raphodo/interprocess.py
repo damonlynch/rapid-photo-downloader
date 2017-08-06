@@ -1228,7 +1228,8 @@ class ScanResults:
                  sample_photo: Optional[Photo]=None,
                  sample_video: Optional[Video]=None,
                  problems: Optional[ScanProblems]=None,
-                 fatal_error: Optional[bool]=None) -> None:
+                 fatal_error: Optional[bool]=None,
+                 entire_video_required: Optional[bool]=None) -> None:
         self.rpd_files = rpd_files
         self.file_type_counter = file_type_counter
         self.file_size_sum = file_size_sum
@@ -1241,6 +1242,7 @@ class ScanResults:
         self.sample_video = sample_video
         self.problems = problems
         self.fatal_error = fatal_error
+        self.entire_video_required = entire_video_required
 
 
 class CopyFilesArguments:
@@ -1456,7 +1458,8 @@ class GenerateThumbnailsArguments:
                  frontend_port: int,
                  log_gphoto2: bool,
                  camera: Optional[str]=None,
-                 port: Optional[str]=None) -> None:
+                 port: Optional[str]=None,
+                 entire_video_required: Optional[bool]=None) -> None:
         """
         List of files for which thumbnails are to be generated.
         All files  are assumed to have the same scan id.
@@ -1477,6 +1480,8 @@ class GenerateThumbnailsArguments:
          camera, this is the name of the camera, else None
         :param port: If the thumbnails are being downloaded from a
          camera, this is the port of the camera, else None
+        :param entire_video_required:  if the entire video is
+         required to extract the thumbnail
         """
 
         self.rpd_files = rpd_files
@@ -1488,9 +1493,11 @@ class GenerateThumbnailsArguments:
         self.frontend_port = frontend_port
         if camera is not None:
             assert port is not None
+            assert entire_video_required is not None
         self.camera = camera
         self.port = port
         self.log_gphoto2 = log_gphoto2
+        self.entire_video_required = entire_video_required
 
 
 class GenerateThumbnailsResults:
@@ -1616,7 +1623,9 @@ class ScanManager(PublishPullPipelineManager):
     Handles the processes that scan devices (cameras, external devices,
     this computer path)
     """
-    scannedFiles = pyqtSignal('PyQt_PyObject', 'PyQt_PyObject', FileTypeCounter, 'PyQt_PyObject')
+    scannedFiles = pyqtSignal(
+        'PyQt_PyObject', 'PyQt_PyObject', FileTypeCounter, 'PyQt_PyObject', bool
+    )
     deviceError = pyqtSignal(int, CameraErrorCode)
     deviceDetails = pyqtSignal(int, 'PyQt_PyObject', 'PyQt_PyObject', str)
     scanProblems = pyqtSignal(int, 'PyQt_PyObject')
@@ -1632,8 +1641,14 @@ class ScanManager(PublishPullPipelineManager):
         if data.rpd_files is not None:
             assert data.file_type_counter
             assert data.file_size_sum
-            self.scannedFiles.emit(data.rpd_files, (data.sample_photo, data.sample_video),
-                                   data.file_type_counter, data.file_size_sum)
+            assert data.entire_video_required is not None
+            self.scannedFiles.emit(
+                data.rpd_files,
+                (data.sample_photo, data.sample_video),
+                data.file_type_counter,
+                data.file_size_sum,
+                data.entire_video_required
+            )
         else:
             assert data.scan_id is not None
             if data.error_code is not None:
@@ -1648,7 +1663,6 @@ class ScanManager(PublishPullPipelineManager):
             else:
                 assert data.fatal_error
                 self.fatalError.emit(data.scan_id)
-
 
 
 class BackupManager(PublishPullPipelineManager):

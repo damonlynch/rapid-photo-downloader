@@ -4155,11 +4155,12 @@ Do you want to proceed with the download?
 
         return self.devices.device_state[scan_id]
 
-    @pyqtSlot('PyQt_PyObject', 'PyQt_PyObject', FileTypeCounter, 'PyQt_PyObject')
+    @pyqtSlot('PyQt_PyObject', 'PyQt_PyObject', FileTypeCounter, 'PyQt_PyObject', bool)
     def scanFilesReceived(self, rpd_files: List[RPDFile],
                           sample_files: List[RPDFile],
                           file_type_counter: FileTypeCounter,
-                          file_size_sum: int) -> None:
+                          file_size_sum: int,
+                          entire_video_required: bool) -> None:
         """
         Process scanned file information received from the scan process
         """
@@ -4188,6 +4189,9 @@ Do you want to proceed with the download?
             self.renamePanel.setSampleVideo(self.devices.sample_video)
             # sample required for editing download subfolder generation
             self.videoDestinationDisplay.sample_rpd_file = self.devices.sample_video
+
+        if device.device_type == DeviceType.camera:
+            device.entire_video_required = entire_video_required
 
         device.file_type_counter = file_type_counter
         device.file_size_sum = file_size_sum

@@ -27,11 +27,16 @@ Changelog for Rapid Photo Downloader
    cache database had not yet been created, which could happen in unusual
    circumstances such as when the disk was under particularly heavy load.
 
+ - Fixed bug extracting date/time metadata from videos where devices that
+   create videos from which metadata cannot be extracted until the entire
+   video is downloaded from the device.
+
  - When running LXQt, now assume the default file manager is pcmanfm-qt,
    regardless of what the mime-type handler reports. URIs passed to it
    now have the specific file stripped from the path, avoiding errors with
    pcmanfm-qt opening it. Currently, compared to more mature platforms like
-   Gnome, LXQt has limitations that cannot be worked around.
+   Gnome, LXQt has limitations that limit Rapid Photo Downloader's
+   functionality.
 
  - Added uninstall and uninstall including dependencies options to the
    install.py script.

@@ -119,6 +119,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.sample_video_full_file_downloaded = None  # type: Optional[bool]
         self.found_sample_photo = False
         self.found_sample_video = False
+        # If the entire video is required to extract metadata
+        # (which affects thumbnail generation too).
+        # Set only if downloading from a camera / phone.
+        self.entire_video_required = False
 
         self.prefs = Preferences()
         self.scan_preferences = ScanPreferences(self.prefs.ignored_paths)
@@ -317,7 +321,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.file_type_counter,
                     self.file_size_sum,
                     sample_photo=self.sample_photo,
-                    sample_video=self.sample_video
+                    sample_video=self.sample_video,
+                    entire_video_required=self.entire_video_required
                 ),
                 pickle.HIGHEST_PROTOCOL
             )
@@ -782,7 +787,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                             file_type_counter=self.file_type_counter,
                             file_size_sum=self.file_size_sum,
                             sample_photo=self.sample_photo,
-                            sample_video=self.sample_video
+                            sample_video=self.sample_video,
+                            entire_video_required=self.entire_video_required,
                         ),
                         pickle.HIGHEST_PROTOCOL
                     )
@@ -943,12 +949,21 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 tempfile.gettempdir(), GenerateRandomFileName().name(extension=extension)
             )
             with ExifTool() as et_process:
+                looped = False
                 for chunk_size in (offset, size):
                     if chunk_size == size:
                         logging.debug(
                             "Downloading entire video for metadata sample (%s)",
                             format_size_for_user(size)
                         )
+                        if not looped:
+                            self.entire_video_required = True
+                            logging.debug(
+                                "Unknown if entire video is required to extract metadata and "
+                                "thumbnails from %s, but setting it to required in case it is",
+                                self.display_name
+                            )
+
                     mtime = int(self.adjusted_mtime(float(modification_time)))
                     try:
                         self.camera.save_file_chunk(path, name, chunk_size, temp_name, mtime)
@@ -975,7 +990,18 @@ class ScanWorker(WorkerInPublishPullPipeline):
                             self.sample_video_full_file_downloaded = chunk_size == size
                             self.sample_video_extract_full_file_name = temp_name
                             self.sample_video_file_full_file_name = os.path.join(path, name)
+                            if not self.entire_video_required:
+                                logging.debug(
+                                    "Was able to extract video metadata from %s without "
+                                    "downloading the entire video", self.display_name
+                                )
                             break
+                    self.entire_video_required = True
+                    logging.debug(
+                        "Entire video is required to extract metadata and thumbnails from %s",
+                        self.display_name
+                    )
+                    looped = True
 
         if dt is None:
             logging.warning(

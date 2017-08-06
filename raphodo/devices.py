@@ -127,6 +127,10 @@ class Device:
         self.file_type_counter = FileTypeCounter()
         self.download_statuses = set()  # type: Set[DownloadStatus]
         self._uri = ''
+        # If the entire video is required to extract metadata
+        # (which affects thumbnail generation too).
+        # Set only if downloading from a camera / phone.
+        self.entire_video_required = None  # type: bool
 
     def __repr__(self):
         if self.device_type == DeviceType.camera:

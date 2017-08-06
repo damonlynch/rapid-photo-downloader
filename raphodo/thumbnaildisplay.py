@@ -782,10 +782,14 @@ class ThumbnailListModel(QAbstractListModel):
 
             need_video_cache_dir = False
             if device.device_type == DeviceType.camera:
-                need_video_cache_dir = self.tsql.any_files_of_type(scan_id, FileType.video)
+                need_video_cache_dir = device.entire_video_required or \
+                    self.tsql.any_files_of_type(scan_id, FileType.video)
 
-            gen_args = (scan_id, rpd_files, device.name(), self.rapidApp.prefs.proximity_seconds,
-                        cache_dirs, need_video_cache_dir, device.camera_model, device.camera_port)
+            gen_args = (
+                scan_id, rpd_files, device.name(), self.rapidApp.prefs.proximity_seconds,
+                cache_dirs, need_video_cache_dir, device.camera_model, device.camera_port,
+                device.entire_video_required
+            )
             self.thumbnailer.generateThumbnails(*gen_args)
 
     def resetThumbnailTracking(self):
