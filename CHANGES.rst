@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.2 (2017-07-xx)
+0.9.2 (2017-08-06)
 ------------------
 
  - When displaying the time in the Timeline in a locale that does not use a
@@ -12,7 +12,9 @@ Changelog for Rapid Photo Downloader
  - Fixed a bug where an exception could occur when clicking on some Timeline
    entries or displaying their thumbnails as a tooltip. It occurred when the
    Timeline had one or more entries in the right-most column that spanned
-   more than one calendar day.
+   more than one calendar day. The code that generates the Timeline is among
+   the most complex in the application. If you notice any problems, please
+   file a bug report.
 
  - When a download device is inserted and downloaded files are already in the
    main window, the program will now ask if the completed downloads should be
@@ -28,7 +30,8 @@ Changelog for Rapid Photo Downloader
  - When running LXQt, now assume the default file manager is pcmanfm-qt,
    regardless of what the mime-type handler reports. URIs passed to it
    now have the specific file stripped from the path, avoiding errors with
-   pcmanfm-qt opening it.
+   pcmanfm-qt opening it. Currently, compared to more mature platforms like
+   Gnome, LXQt has limitations that cannot be worked around.
 
  - Added uninstall and uninstall including dependencies options to the
    install.py script.
@@ -43,10 +46,10 @@ Changelog for Rapid Photo Downloader
    ascertain distribution packages that are already installed, saving time
    during installation.
 
- - Added support for Peppermint OS to the install.py script.
-
  - In install.py, catch return code 104 from zypper se when no package is
    found.
+
+ - Added support for Peppermint OS to the install.py script.
 
  - Terminate program at startup if the program's own module imports are being
    loaded from conflicting sources, indicating more than one copy of the

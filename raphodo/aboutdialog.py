@@ -141,6 +141,7 @@ class AboutDialog(QDialog):
         Emanuele Grande <caccolangrifata@gmail.com>
         Torben Gundtofte-Bruun <torben@g-b.dk>
         Мирослав Николић <miroslavnikolic@rocketmail.com>
+        Harald H <haarektrans@gmail.com>
         Joachim Johansson <joachim.j@gmail.com>
         Evgeny Kozlov <evgeny.kozlov.mailbox@gmail.com>
         Jean-Marc Lartigue <m.balthazar@orange.fr>

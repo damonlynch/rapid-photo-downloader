@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,10 +19,9 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2016, Damon Lynch"
+__copyright__ = "Copyright 2011-2017, Damon Lynch"
 
-import subprocess
-import datetime, time
+import datetime
 import logging
 from typing import Optional, Union, Any
 
@@ -132,12 +131,14 @@ class MetaData:
                     dt = datetime.datetime.strptime(d, "%Y:%m:%d %H:%M:%S")
 
             except ValueError:
-                logging.warning("Error parsing date time metadata %s for video %s", d,
-                                self.filename)
+                logging.warning(
+                    "Error parsing date time metadata %s for video %s", d, self.filename
+                )
                 return missing
             except Exception:
-                logging.error("Unknown error parsing date time metadata %s for video %s", d,
-                                self.filename)
+                logging.error(
+                    "Unknown error parsing date time metadata %s for video %s", d, self.filename
+                )
                 return missing
 
             return dt
@@ -161,10 +162,13 @@ class MetaData:
             try:
                 d = self.media_info.to_data()['tracks'][0]['encoded_date']  # type: str
             except KeyError:
-                logging.debug('Failed to extract date time from %s using pymediainfo: trying '
-                              'ExifTool', self.filename)
-                return self._exiftool_date_time(missing=missing,
-                                                ignore_file_modify_date=ignore_file_modify_date)
+                logging.debug(
+                    'Failed to extract date time from %s using pymediainfo: trying ExifTool',
+                    self.filename
+                )
+                return self._exiftool_date_time(
+                    missing=missing, ignore_file_modify_date=ignore_file_modify_date
+                )
             else:
                 # format of date string is something like:
                 # UTC 2016-05-09 03:28:03
@@ -180,45 +184,59 @@ class MetaData:
                         # setting in the video file that ExifTool can extract
                         tz = self._get('TimeZone', None)
                         if tz is None:
-                            logging.debug("Using pymediainfo datetime (%s), because ExifTool did "
-                                          "not detect a time zone in %s", dt_mi, self.filename)
+                            logging.debug(
+                                "Using pymediainfo datetime (%s), because ExifTool did "
+                                "not detect a time zone in %s", dt_mi, self.filename
+                            )
                         if tz is not None:
-                            dt_et = self._exiftool_date_time(missing=None,
-                                                             ignore_file_modify_date=True)
+                            dt_et = self._exiftool_date_time(
+                                missing=None, ignore_file_modify_date=True
+                            )
                             if dt_et is not None:
                                 hour = tz // 60 * -1
                                 minute = tz % 60 * -1
                                 adjusted_dt_mi = dt_mi.replace(hours=hour, minutes=minute).naive
                                 if datetime_roughly_equal(adjusted_dt_mi, dt_et):
-                                    logging.debug("Favoring ExifTool datetime metadata (%s) "
-                                                  "over mediainfo (%s) for %s, because it includes "
-                                                  "a timezone", dt_et, adjusted_dt_mi,
-                                                  self.filename)
+                                    logging.debug(
+                                        "Favoring ExifTool datetime metadata (%s) "
+                                        "over mediainfo (%s) for %s, because it includes "
+                                        "a timezone", dt_et, adjusted_dt_mi, self.filename
+                                    )
                                     dt = dt_et
                                 else:
-                                    logging.debug("Although ExifTool located a time zone"
+                                    logging.debug(
+                                        "Although ExifTool located a time zone"
                                         "in %s's metadata, using the mediainfo result, "
                                         "because the two results are different. Mediainfo: %s / "
                                         "%s  (before / after). ExifTool: %s. Time zone: %s",
-                                        self.filename, dt, adjusted_dt_mi, dt_et, tz)
+                                        self.filename, dt, adjusted_dt_mi, dt_et, tz
+                                    )
 
                     else:
                         dt = datetime.datetime.strptime(d, "%Y-%m-%d %H:%M:%S")
                 except ValueError:
-                    logging.warning("Error parsing date time metadata %s for video %s. Will try "
-                                    "ExifTool.", d, self.filename)
+                    logging.warning(
+                        "Error parsing date time metadata %s for video %s. Will try ExifTool.",
+                        d, self.filename
+                    )
                     return self._exiftool_date_time(missing)
                 except arrow.parser.ParserError:
-                    logging.warning("Error parsing date time metadata using Arrow %s for video "
-                                    "%s. Will try ExifTool.", d, self.filename)
+                    logging.warning(
+                        "Error parsing date time metadata using Arrow %s for video %s. Will try "
+                        "ExifTool.", d, self.filename
+                    )
                     return self._exiftool_date_time(missing)
                 except Exception as e:
-                    logging.error("Unknown error parsing date time metadata %s for video %s. %s. "
-                                  "Will try ExifTool.", d, self.filename, e)
+                    logging.error(
+                        "Unknown error parsing date time metadata %s for video %s. %s. "
+                        "Will try ExifTool.", d, self.filename, e
+                    )
                     return self._exiftool_date_time(missing)
                 except:
-                    logging.error("Unknown error parsing date time metadata %s for video %s. "
-                                  "Will try ExifTool.", d, self.filename)
+                    logging.error(
+                        "Unknown error parsing date time metadata %s for video %s. "
+                        "Will try ExifTool.", d, self.filename
+                    )
                     return self._exiftool_date_time(missing)
                 else:
                     return dt
