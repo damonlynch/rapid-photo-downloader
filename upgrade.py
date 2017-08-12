@@ -352,12 +352,13 @@ class UpgradeDialog(QDialog):
 
         self.textEdit.setMinimumSize(width, height)
 
-        upgradeButtonBox = QDialogButtonBox(QDialogButtonBox.Cancel)
+        upgradeButtonBox = QDialogButtonBox()
+        upgradeButtonBox.addButton(_('&Cancel'), QDialogButtonBox.RejectRole)
         upgradeButtonBox.rejected.connect(self.reject)
         upgradeButtonBox.accepted.connect(self.doUpgrade)
-        self.startButton = upgradeButtonBox.addButton(_('&Upgrade'),
-                                                 QDialogButtonBox.AcceptRole)  # QPushButton
-        # self.startButton.setDefault(True)
+        self.startButton = upgradeButtonBox.addButton(
+            _('&Upgrade'), QDialogButtonBox.AcceptRole
+        )  # QPushButton
 
         if self.version_no:
             self.explanation = QLabel(
@@ -438,8 +439,8 @@ class UpgradeDialog(QDialog):
             if self.version_no:
                 message = _(
                     'Successfully upgraded to %s. Click Close to exit, or Run to '
-                    'start the program.' % self.version_no
-                )
+                    'start the program.'
+                ) % self.version_no
             else:
                 message = _(
                     'Upgrade finished successfully. Click Close to exit, or Run to '
