@@ -49,9 +49,11 @@ from raphodo.storage import validate_download_folder
 from raphodo.filebrowse import FileSystemModel
 
 
-DownloadDestination = namedtuple('DownloadDestination',
-                                 'photo_download_folder, video_download_folder, photo_subfolder, '
-                                 'video_subfolder')
+DownloadDestination = namedtuple(
+    'DownloadDestination',
+    'photo_download_folder, video_download_folder, photo_subfolder, video_subfolder'
+)
+
 
 class FoldersPreview:
     """
@@ -108,8 +110,11 @@ class FoldersPreview:
         self.dirty = False
 
     def __repr__(self):
-        return 'FoldersPreview(%s photo dirs, %s video dirs)' % (len(self._flatten_set(
-            self.created_photo_subfolders)), len(self._flatten_set(self.created_video_subfolders)))
+        return 'FoldersPreview(%s photo dirs, %s video dirs)' % (
+            len(
+                self._flatten_set(self.created_photo_subfolders)
+            ), len(self._flatten_set(self.created_video_subfolders))
+        )
 
     def dump(self) -> None:
         if self.generated_photo_subfolders:
@@ -138,7 +143,6 @@ class FoldersPreview:
             print('\nExisting subfolders')
             print("===================")
             pprint(self.existing_subfolders)
-
 
     def _flatten_set(self, s: Dict[int, Set[str]]) -> Set[str]:
         return {path for level in s for path in s[level]}
@@ -200,7 +204,8 @@ class FoldersPreview:
             self.video_download_folder = destination.video_download_folder
             self.dirty = True
             self.video_download_folder_valid = validate_download_folder(
-                self.video_download_folder).valid
+                self.video_download_folder
+            ).valid
             if self.video_download_folder_valid:
                 # See explanation above.
                 self.existing_subfolders.add(self.video_download_folder)
@@ -210,9 +215,10 @@ class FoldersPreview:
         if destination.photo_subfolder != self.photo_subfolder:
             self.dirty = True
             self.photo_subfolder = destination.photo_subfolder
-            self.clean_generated_folders(remove=self.created_photo_subfolders,
-                                         keep=self.created_video_subfolders,
-                                         fsmodel=fsmodel)
+            self.clean_generated_folders(
+                remove=self.created_photo_subfolders, keep=self.created_video_subfolders,
+                fsmodel=fsmodel
+            )
             self.created_photo_subfolders = defaultdict(set)  # type: Dict[int, Set[str]]
             self.generated_photo_subfolders = set()  # type: Set[str]
             self.generated_photo_subfolders_scan_ids = defaultdict(set)  # type: Dict[str, Set[int]]
@@ -220,9 +226,10 @@ class FoldersPreview:
         if destination.video_subfolder != self.video_subfolder:
             self.dirty = True
             self.video_subfolder = destination.video_subfolder
-            self.clean_generated_folders(remove=self.created_video_subfolders,
-                                         keep=self.created_photo_subfolders,
-                                         fsmodel=fsmodel)
+            self.clean_generated_folders(
+                remove=self.created_video_subfolders, keep=self.created_photo_subfolders,
+                fsmodel=fsmodel
+            )
             self.created_video_subfolders = defaultdict(set)  # type: Dict[int, Set[str]]
             self.generated_video_subfolders = set()  # type: Set[str]
             self.generated_video_subfolders_scan_ids = defaultdict(set)  # type: Dict[str, Set[int]]
@@ -263,17 +270,19 @@ class FoldersPreview:
         """
 
         if photos:
-            self.clean_generated_folders(remove=self.created_photo_subfolders,
-                                         keep=self.created_video_subfolders,
-                                         fsmodel=fsmodel)
+            self.clean_generated_folders(
+                remove=self.created_photo_subfolders, keep=self.created_video_subfolders,
+                fsmodel=fsmodel
+            )
             self.created_photo_subfolders = defaultdict(set)  # type: Dict[int, Set[str]]
             for path in self.generated_photo_subfolders:
                 scan_ids = self.generated_photo_subfolders_scan_ids[path]
                 self.create_path(path=path, photos=True, scan_ids=scan_ids)
         else:
-            self.clean_generated_folders(remove=self.created_video_subfolders,
-                                         keep=self.created_photo_subfolders,
-                                         fsmodel=fsmodel)
+            self.clean_generated_folders(
+                remove=self.created_video_subfolders, keep=self.created_photo_subfolders,
+                fsmodel=fsmodel
+            )
             self.created_video_subfolders = defaultdict(set)  # type: Dict[int, Set[str]]
             for path in self.generated_video_subfolders:
                 scan_ids = self.generated_video_subfolders_scan_ids[path]
@@ -330,9 +339,10 @@ class FoldersPreview:
                             # logging.debug("Removing subfolder %s", subfolder)
                             index = fsmodel.index(subfolder)
                             if not fsmodel.rmdir(index):
-                                logging.debug("While cleaning generated folders, did not "
-                                              "remove %s. The cause for the error is unknown.",
-                                              subfolder)
+                                logging.debug(
+                                    "While cleaning generated folders, did not remove %s. The "
+                                    "cause for the error is unknown.", subfolder
+                                )
 
 
         if scan_id is not None:
@@ -356,10 +366,12 @@ class FoldersPreview:
 
         logging.debug("Cleaning subfolders created for scan id %s", scan_id)
 
-        self.clean_generated_folders(remove=self.created_photo_subfolders, scan_id=scan_id,
-                                     fsmodel=fsmodel)
-        self.clean_generated_folders(remove=self.created_video_subfolders, scan_id=scan_id,
-                                     fsmodel=fsmodel)
+        self.clean_generated_folders(
+            remove=self.created_photo_subfolders, scan_id=scan_id, fsmodel=fsmodel
+        )
+        self.clean_generated_folders(
+            remove=self.created_video_subfolders, scan_id=scan_id, fsmodel=fsmodel
+        )
         for subfolder, scan_ids in self.generated_photo_subfolders_scan_ids.items():
             if scan_id in scan_ids:
                 self.generated_photo_subfolders_scan_ids[subfolder].remove(scan_id)
@@ -418,8 +430,10 @@ class FoldersPreview:
             components = os.path.join(components, component)
             p = os.path.join(dest, components)
             if os.path.isfile(p):
-                logging.error("While generating provisional download folders, "
-                              "found conflicting file %s. Therefore cannot create path %s", p, path)
+                logging.error(
+                    "While generating provisional download folders, found conflicting file %s. "
+                    "Therefore cannot create path %s", p, path
+                )
                 return
 
             if p in already_created:
