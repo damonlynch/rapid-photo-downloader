@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-09-05 21:23-0400\n"
+"POT-Creation-Date: 2017-09-05 23:02-0400\n"
 "PO-Revision-Date: 2017-08-12 07:44+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
@@ -27,12 +27,12 @@ msgid "Download and install latest version of Rapid Photo Downloader."
 msgstr ""
 "Stáhnout a nainstalovat nejnovější verzi aplikace Rapid Photo Downloader."
 
-#: ../install.py:236 ../install.py:1697
+#: ../install.py:236 ../install.py:1700
 msgid "Installer not found:"
 msgstr "Instalátor nenalezen:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:240 ../install.py:1701
+#: ../install.py:240 ../install.py:1704
 msgid "Installer not in tar.gz format:"
 msgstr "Instalátor není ve formátu tar.gz:"
 
@@ -48,7 +48,7 @@ msgstr ""
 msgid "The following command will be run:"
 msgstr "Bude spuštěn následující příkaz:"
 
-#: ../install.py:504 ../install.py:1445 ../install.py:1450
+#: ../install.py:504 ../install.py:1446 ../install.py:1451
 msgid "sudo may prompt you for the sudo password."
 msgstr ""
 "sudo vás může vyzvat k zadání hesla k účtu, oprávněného k jeho použití."
@@ -224,20 +224,24 @@ msgid "Installing application requirements..."
 msgstr "Instalace ostatních součástí potřebných pro aplikaci…"
 
 #: ../install.py:1391
+msgid "Received error code"
+msgstr ""
+
+#: ../install.py:1392
 msgid "Failed to install application requirements: exiting"
 msgstr ""
 "Nepodařilo se nainstalovat ostatní součásti, které aplikace potřebuje: "
 "ukončuje se"
 
-#: ../install.py:1394
+#: ../install.py:1395
 msgid "Installing application..."
 msgstr "Instalace aplikace…"
 
-#: ../install.py:1407
+#: ../install.py:1408
 msgid "Failed to install application: exiting..."
 msgstr "Aplikaci se nepodařilo nainstalovat: ukončování…"
 
-#: ../install.py:1431
+#: ../install.py:1432
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "commmand line or application launcher."
@@ -245,35 +249,39 @@ msgstr ""
 "Aby bylo možné aplikaci spustit (z příkazového řádku nebo kliknutím na "
 "zástupce), může být třeba restartovat počítač."
 
-#: ../install.py:1442
+#: ../install.py:1443
 msgid "Do you want to install the application's man pages?"
 msgstr "Přejete si nainstalovat manuálové stránky aplikace?"
 
-#: ../install.py:1443
+#: ../install.py:1444
 msgid "They will be installed into {}"
 msgstr "Budou nainstalovány do {}"
 
-#: ../install.py:1444 ../install.py:1449
+#: ../install.py:1445 ../install.py:1450
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr "Pokud aplikaci odinstalujete, tyto manuálové stránky potom odeberte."
 
-#: ../install.py:1446
+#: ../install.py:1447
 msgid "Do want to install the man pages?"
 msgstr "Chcete nainstalovat manuálové stránky?"
 
-#: ../install.py:1448
+#: ../install.py:1449
 msgid "Installing man pages into {}"
 msgstr "Instalace manuálových stránek do {}"
 
-#: ../install.py:1465
+#: ../install.py:1466
 msgid "Failed to create man page directory: exiting"
 msgstr "Nepodařilo se vytvořit složku pro manuálovou stránku: ukončuje se"
 
-#: ../install.py:1477
+#: ../install.py:1478
 msgid "Failed to copy man page."
 msgstr "Nepodařilo se zkopírovat manuálovou stránku."
 
-#: ../install.py:1497
+#: ../install.py:1488
+msgid "If a segmentation fault now occurs, you can ignore it:"
+msgstr ""
+
+#: ../install.py:1500
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
@@ -284,7 +292,7 @@ msgstr ""
 "aby tento nástroj byl přítomen. Protože tomu tak není, nelze pokračovat a "
 "ukončuje se."
 
-#: ../install.py:1538
+#: ../install.py:1541
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
@@ -292,23 +300,23 @@ msgstr ""
 "Nespouštějte tento instalační skript s právy správy systému (sudo/root).\n"
 "Spusťte ho jako uživatel který bude aplikaci používat.\n"
 
-#: ../install.py:1548 ../install.py:1562
+#: ../install.py:1551 ../install.py:1565
 msgid "Do not include any other command line arguments when specifying"
 msgstr ""
 "Pokud použijete tento, nezadávejte už žádné další argumenty příkazového řádku"
 
-#: ../install.py:1600
+#: ../install.py:1603
 msgid "Exiting..."
 msgstr "Ukončování..."
 
 #. Translators: do not translate the term python3-apt
-#: ../install.py:1619
+#: ../install.py:1622
 msgid "To continue, the package python3-apt must be installed."
 msgstr ""
 "Aby bylo možné pokračovat, je třeba, aby byl nainstalovaný balíček python3-"
 "apt."
 
-#: ../install.py:1627 ../install.py:1638
+#: ../install.py:1630 ../install.py:1641
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
@@ -316,7 +324,7 @@ msgstr ""
 "Je nám líto, ale tento instalátor nepodporuje vlastní instalace python.\n"
 "Ukončuje se…"
 
-#: ../install.py:1654
+#: ../install.py:1657
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
@@ -324,7 +332,7 @@ msgstr ""
 "Prostřednictvím správy balíčků vámi používané Linuxové distribuce "
 "nainstalujte následující balíčky a spusťte tento instalátor znovu"
 
-#: ../install.py:1663
+#: ../install.py:1666
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
@@ -333,14 +341,14 @@ msgstr ""
 "asistují Python 3 a jeho správa balíčků."
 
 #. Translators: do not translate the terms Python 3, pip and setuptools
-#: ../install.py:1678
+#: ../install.py:1681
 msgid "Python 3's pip and setuptools must be upgraded for your user."
 msgstr ""
 "U jejich instalací pro tohoto uživatele je třeba přejít na novější verze "
 "nástrojů Python 3 pip a setuptools."
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:1691
+#: ../install.py:1694
 msgid "Installing python requests"
 msgstr "Instalace python requests"
 

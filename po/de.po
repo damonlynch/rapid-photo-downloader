@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-09-05 21:23-0400\n"
+"POT-Creation-Date: 2017-09-05 23:02-0400\n"
 "PO-Revision-Date: 2017-08-29 13:09+0000\n"
 "Last-Translator: Tobias Bannert <tobannert@gmail.com>\n"
 "Language-Team: German <de@li.org>\n"
@@ -27,12 +27,12 @@ msgid "Download and install latest version of Rapid Photo Downloader."
 msgstr ""
 "Die neueste Version der Rapid-Fotoübertragung herunterladen und installieren."
 
-#: ../install.py:236 ../install.py:1697
+#: ../install.py:236 ../install.py:1700
 msgid "Installer not found:"
 msgstr "Installationsdatei nicht gefunden:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:240 ../install.py:1701
+#: ../install.py:240 ../install.py:1704
 msgid "Installer not in tar.gz format:"
 msgstr "Installationsdatei ist nicht im tar.gz-Format:"
 
@@ -48,7 +48,7 @@ msgstr ""
 msgid "The following command will be run:"
 msgstr "Der folgende Befehl wird ausgeführt:"
 
-#: ../install.py:504 ../install.py:1445 ../install.py:1450
+#: ../install.py:504 ../install.py:1446 ../install.py:1451
 msgid "sudo may prompt you for the sudo password."
 msgstr "Sudo fragt möglicherweise nach dem Sudo-Passwort."
 
@@ -231,22 +231,26 @@ msgid "Installing application requirements..."
 msgstr "Anwendungsabhängigkeiten werden installiert …"
 
 #: ../install.py:1391
+msgid "Received error code"
+msgstr ""
+
+#: ../install.py:1392
 msgid "Failed to install application requirements: exiting"
 msgstr ""
 "Beim Versuch, die erforderlichen Hifsdateien zu installieren, ist ein Fehler "
 "aufgetreten. Programm wird beendet."
 
-#: ../install.py:1394
+#: ../install.py:1395
 msgid "Installing application..."
 msgstr "Anwendung wird installiert …"
 
-#: ../install.py:1407
+#: ../install.py:1408
 msgid "Failed to install application: exiting..."
 msgstr ""
 "Beim Versuch, das Programm zu installieren, ist ein Fehler aufgetreten: "
 "Programm wird beendet."
 
-#: ../install.py:1431
+#: ../install.py:1432
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "commmand line or application launcher."
@@ -254,38 +258,42 @@ msgstr ""
 "Möglicherweise müssen Sie den Rechner neu starten, um das Programm über das "
 "Terminal oder das Startmenü starten zu können."
 
-#: ../install.py:1442
+#: ../install.py:1443
 msgid "Do you want to install the application's man pages?"
 msgstr "Möchten Sie die Hilfeseiten zum Programm installieren?"
 
-#: ../install.py:1443
+#: ../install.py:1444
 msgid "They will be installed into {}"
 msgstr "Sie werden in das Verzeichnis {} installiert"
 
-#: ../install.py:1444 ../install.py:1449
+#: ../install.py:1445 ../install.py:1450
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr ""
 "Wenn Sie das Programm deinstallieren, bitte diese Hilfeseiten selbst "
 "entfernen."
 
-#: ../install.py:1446
+#: ../install.py:1447
 msgid "Do want to install the man pages?"
 msgstr "Möchten sie die Hilfeseiten installieren?"
 
-#: ../install.py:1448
+#: ../install.py:1449
 msgid "Installing man pages into {}"
 msgstr "Die Hilfeseiten werden im Verzeichnis {} installiert"
 
-#: ../install.py:1465
+#: ../install.py:1466
 msgid "Failed to create man page directory: exiting"
 msgstr ""
 "Das Erstellen des Hilfeseitenverzeichnisses ist fehlgeschlagen. Programmende."
 
-#: ../install.py:1477
+#: ../install.py:1478
 msgid "Failed to copy man page."
 msgstr "Fehler beim Kopieren der Hilfeseiten."
 
-#: ../install.py:1497
+#: ../install.py:1488
+msgid "If a segmentation fault now occurs, you can ignore it:"
+msgstr ""
+
+#: ../install.py:1500
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
@@ -296,7 +304,7 @@ msgstr ""
 "(hier aber nicht installiert). Vorgang kann nicht fortgesetzt werden. Das "
 "Programm wird beendet."
 
-#: ../install.py:1538
+#: ../install.py:1541
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
@@ -304,21 +312,21 @@ msgstr ""
 "Bitte rufen sie dieses Installationsskript nicht als sudo oder root auf.\n"
 "Sondern als der Benutzer, der das Programm benutzen wird.\n"
 
-#: ../install.py:1548 ../install.py:1562
+#: ../install.py:1551 ../install.py:1565
 msgid "Do not include any other command line arguments when specifying"
 msgstr "Beim Festlegen bitte keine andere Terminalbefehl-Argumente einfügen"
 
-#: ../install.py:1600
+#: ../install.py:1603
 msgid "Exiting..."
 msgstr "Wird beendet …"
 
 #. Translators: do not translate the term python3-apt
-#: ../install.py:1619
+#: ../install.py:1622
 msgid "To continue, the package python3-apt must be installed."
 msgstr ""
 "Um fortsetzen zu können, muss das Paket 'python3-apt' installiert sein."
 
-#: ../install.py:1627 ../install.py:1638
+#: ../install.py:1630 ../install.py:1641
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
@@ -327,7 +335,7 @@ msgstr ""
 "veränderten Python-Installation.\n"
 "Das Programm wird beendet..."
 
-#: ../install.py:1654
+#: ../install.py:1657
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
@@ -335,7 +343,7 @@ msgstr ""
 "Bitte installieren sie die folgenden Pakete über ihren Paket-Manager, und "
 "wiederholen sie danach die Installation"
 
-#: ../install.py:1663
+#: ../install.py:1666
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
@@ -344,14 +352,14 @@ msgstr ""
 "und seine Paketverwaltung installiert sein."
 
 #. Translators: do not translate the terms Python 3, pip and setuptools
-#: ../install.py:1678
+#: ../install.py:1681
 msgid "Python 3's pip and setuptools must be upgraded for your user."
 msgstr ""
 "Python 3's pip und setuptools müssen für den gewünschten Benutzer "
 "aktualisiert werden."
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:1691
+#: ../install.py:1694
 msgid "Installing python requests"
 msgstr "python requests werden installiert"
 
