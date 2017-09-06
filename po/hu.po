@@ -2,25 +2,27 @@
 # Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
 # This file is distributed under the same license as the rapid package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
-#
+# csola48 <csola48@gmail.com>, 2017.
+# 
 msgid ""
 msgstr ""
-"Project-Id-Version: rapid\n"
+"Project-Id-Version: Rapid Photo Downloader 0.9.2\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-09-05 23:24-0400\n"
-"PO-Revision-Date: 2017-08-12 07:44+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
-"Language-Team: Hungarian <hu@li.org>\n"
+"POT-Creation-Date: 2017-09-06 00:24-0400\n"
+"PO-Revision-Date: 2017-08-23 16:44+0200\n"
+"Last-Translator: csola48 <csola48@gmail.com>\n"
+"Language-Team: magyar <csola48@gmail.com>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-08-14 01:21+0000\n"
-"X-Generator: Launchpad (build 18446)\n"
+"X-Launchpad-Export-Date: 2017-08-17 15:56+0000\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: ../install.py:65
 msgid "Rapid Photo Downloader installer"
-msgstr "Rapid Photo Letöltő telepítő"
+msgstr "Rapid Photo Downloader telepítő"
 
 #: ../install.py:66
 msgid "Download and install latest version of Rapid Photo Downloader."
@@ -34,7 +36,7 @@ msgstr "Telepítő nem található:"
 #. Translators: do not translate the term tar.gz
 #: ../install.py:240 ../install.py:1704
 msgid "Installer not in tar.gz format:"
-msgstr "A telepítő nem tar.gz típusú"
+msgstr "A telepítő nem tar.gz típusú:"
 
 #: ../install.py:445
 msgid ""
@@ -50,15 +52,15 @@ msgstr "A következő parancs fog futni:"
 
 #: ../install.py:504 ../install.py:1446 ../install.py:1451
 msgid "sudo may prompt you for the sudo password."
-msgstr "sodo lehet, hogy bekérheti a sudo-hoz a jelszót"
+msgstr "A sudo parancs lehet, hogy bekéri a sudohoz a jelszót"
 
 #: ../install.py:508
 msgid "Would you like to run the command now?"
-msgstr "Szeretnéd most futtatni a pancsot?"
+msgstr "Szeretné most futtatni a pancsot?"
 
 #: ../install.py:510
 msgid "Answer is not yes, exiting."
-msgstr "Kilépek mert nem kaptam  \"igen\" választ."
+msgstr "Kilépés, mert nincs \"igen\" válasz."
 
 #: ../install.py:520 ../install.py:718 ../install.py:933
 msgid "Command failed"
@@ -70,12 +72,12 @@ msgstr "Kilépés"
 
 #: ../install.py:549
 msgid "The Universe repository must be enabled."
-msgstr "Engedélyzve kell lennie az Universe tárolónak"
+msgstr "Engedélyezve kell lennie az Universe tárolónak"
 
 #: ../install.py:573
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
-msgstr "Akarod az előző verziójú  Rapid Photo Downloader eltávolítani:"
+msgstr "Akarja az előző verziójú  Rapid Photo Downloader eltávolítását:"
 
 #: ../install.py:682 ../install.py:707
 msgid ""
@@ -90,16 +92,16 @@ msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again"
 msgstr ""
-"A csömagkezelőt nem tudtam lekérdezni. Kérlek ellenőrizd az Internet "
-"kapcsolatodat és próbáld újra"
+"A csomagkezelőt nem tudtam lekérdezni. Kérem ellenőrizze az Internet "
+"kapcsolatodat és próbálja újra"
 
 #: ../install.py:723
 msgid "Checking if previous version installed with pip..."
-msgstr ""
+msgstr "Ellenőrizze, hogy az előző verzió pip-el lett-e telepítve ..."
 
 #: ../install.py:817
 msgid "The following package is unknown on your system: {}\n"
-msgstr "Az következő csomagok ismeretlenek a te rendszeredben:{}\n"
+msgstr "A következő csomagok ismeretlenek a rendszerében: {}\n"
 
 #: ../install.py:824 ../install.py:896 ../install.py:941
 msgid ""
@@ -139,6 +141,8 @@ msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
+"Opcionális tar.gz Rapid Photo Downloader telepítő archívuma. Ha nincs "
+"megadva, a legfrissebb verzió letöltődik az internetről."
 
 #: ../install.py:1010
 msgid ""
@@ -147,27 +151,32 @@ msgid ""
 "whichever installer is newer."
 msgstr ""
 "Ne futtassa a telepítőt a tar.gz Rapid Photo Downloader telepítő "
-"archívumában, ha az újabb, mint ez a verzió ({}). Az alapértelmezés az, hogy "
-"a legújabb telepítőt futtassa."
+"archívumában, ha az újabb, mint ez a verzió  ({}). Az alapértelmezés az, "
+"hogy a legújabb telepítőt futtassa."
 
 #: ../install.py:1017
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
 msgstr ""
+"Távolítsa el a Rapid Photo Downloader-t, amelyet pip-el telepített és tartja "
+"a függőségét."
 
 #: ../install.py:1021
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
+"Távolítsa el a pip segítségével telepített függőségeket a Rapid Photo "
+"Downloader telepítésénél és magát a Rapid Photo Downloader programot, majd "
+"lépjen ki."
 
 #: ../install.py:1026
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr ""
-"Megjegyzés: Ez nem fogja eltávolítani a Linux Distribució csomagkezelője "
+"Megjegyzés: Ez nem fogja eltávolítani a Linux disztribúció csomagkezelője "
 "által telepített Rapid Photo Downloader-t."
 
 #: ../install.py:1033
@@ -184,10 +193,16 @@ msgid ""
 "Photo Downloader installed by your Linux distribution's package manager will "
 "not be uninstalled."
 msgstr ""
+"Megjegyzés: ez az opció eltávolítja a függőséget, függetlenül attól, hogy "
+"egy másik program pip telepítve van-e. Frissítse a pip-et  9.0 vagy újabb "
+"verzióra, ha el akarja kerülni ezt a viselkedést. Ezt a \"python3 -m pip "
+"install pip -U - felhasználó\" paranccsal teheti meg. Ezenkívül vegye "
+"figyelembe, hogy a Linux disztribúció csomagkezelője által telepített Rapid "
+"Photo Downloader bármely verzióját nem távolítják el."
 
 #: ../install.py:1089
 msgid "Failed to download versions file"
-msgstr ""
+msgstr "Nem sikerült letölteni a verziók fájlját"
 
 #: ../install.py:1093
 msgid "Got error code {} while accessing versions file"
@@ -200,8 +215,11 @@ msgid ""
 "\n"
 "Exiting.\n"
 msgstr ""
-"Sajnáljuk, a telepítő nem található. Ellenőrizze az internetkapcsolatot, és "
-"ellenőrizze, hogy elérheti-e a https://www.damonlynch.net címet\n"
+"Sajnáljuk, a telepítő nem található. Ellenőrizze az internetkapcsolatot és "
+"ellenőrizze, hogy elérheti-e a\n"
+"https://www.damonlynch.net címet\n"
+"\n"
+"Kilépés\n"
 
 #: ../install.py:1375
 msgid "Installing application requirements..."
@@ -214,7 +232,7 @@ msgstr ""
 #: ../install.py:1392
 msgid "Failed to install application requirements: exiting"
 msgstr ""
-"Sikeretelen az alkalmazáshoz szükséges követelmények telepítése: kilépés"
+"Sikertelen az alkalmazáshoz szükséges követelmények telepítése: kilépés"
 
 #: ../install.py:1395
 msgid "Installing application..."
@@ -229,12 +247,12 @@ msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "commmand line or application launcher."
 msgstr ""
-"Lehetséges, hogy újra kell indítania a számítógépet, hogy parancsorból vagy "
+"Lehetséges, hogy újra kell indítania a számítógépet, hogy parancssorból vagy "
 "grafikus felületről elindíthassa a programot."
 
 #: ../install.py:1443
 msgid "Do you want to install the application's man pages?"
-msgstr "Akarod az alkalmazáshoz tartozó készikönyv (man) lapokat telepíteni?"
+msgstr "Akarja az alkalmazáshoz tartozó kézikönyv (man) lapokat telepíteni?"
 
 #: ../install.py:1444
 msgid "They will be installed into {}"
@@ -243,12 +261,12 @@ msgstr "Ide lesznek telepítve {}"
 #: ../install.py:1445 ../install.py:1450
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr ""
-"He eltávolítod az alaklmazást, a hozzá tartozó man (kézikönyv) oldalakat "
-"magadnak kell eltávolítanod."
+"Ha eltávolítja az alkalmazást, a hozzá tartozó kézikönyv (man) oldalakat "
+"önmagának kell eltávolítania."
 
 #: ../install.py:1447
 msgid "Do want to install the man pages?"
-msgstr "Akarod telepíteni a kézikönyv (man) oldalakat?"
+msgstr "Akarja telepíteni a kézikönyv (man) oldalakat?"
 
 #: ../install.py:1449
 msgid "Installing man pages into {}"
@@ -261,7 +279,7 @@ msgstr ""
 
 #: ../install.py:1478
 msgid "Failed to copy man page."
-msgstr "Sikeretelen a kézikönyv (man) oldalak másolása."
+msgstr "Sikertelen a kézikönyv (man) oldalak másolása."
 
 #: ../install.py:1488
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
@@ -273,14 +291,17 @@ msgid ""
 "Downloader that was installed with pip.\n"
 "Cannot continue. Exiting."
 msgstr ""
+"A python3 segédprogram eltávolítása szükséges a pipen telepített Rapid Photo "
+"Downloader verziójának eltávolításához.\n"
+"Nem folytatható. Kilépés."
 
 #: ../install.py:1541
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
 msgstr ""
-"Ne futtasd a telepítő szkriptet root  (sudo) felhasználóként.\n"
-"Azzal a felhasználóval futtasd aki használni fogja a programot.\n"
+"Ne futtassa a telepítő szkriptet root / sudo felhasználóként.\n"
+"Azzal a felhasználóval futtassa aki használni fogja a programot.\n"
 
 #: ../install.py:1551 ../install.py:1565
 msgid "Do not include any other command line arguments when specifying"
@@ -316,11 +337,14 @@ msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
 msgstr ""
+"A program futtatásához programokat kell telepíteni a python3 és a "
+"csomagkezelés támogatására."
 
 #. Translators: do not translate the terms Python 3, pip and setuptools
 #: ../install.py:1681
 msgid "Python 3's pip and setuptools must be upgraded for your user."
 msgstr ""
+"A python3 pip-jét és beállítási eszközeit frissíteni kell a felhasználónak."
 
 #. Translators: do not translate the term python or requests
 #: ../install.py:1694
@@ -333,7 +357,7 @@ msgstr "A Rapid Photo Downloader frissítése"
 
 #: ../upgrade.py:356 ../raphodo/viewutils.py:242
 msgid "&Cancel"
-msgstr ""
+msgstr "&Megszünteti"
 
 #: ../upgrade.py:360
 msgid "&Upgrade"
@@ -342,7 +366,7 @@ msgstr "&Frissítés"
 #: ../upgrade.py:365
 #, python-format
 msgid "Click the Upgrade button to upgrade to version %s."
-msgstr "Kattintson a Frissítés gombra a % s verzióra történő frissítéshez."
+msgstr "Kattintson a Frissítés gombra a %s verzióra történő frissítéshez."
 
 #: ../upgrade.py:368
 msgid "Click the Upgrade button to start the upgrade."
@@ -354,7 +378,7 @@ msgstr "&Bezárás"
 
 #: ../upgrade.py:372
 msgid "&Run"
-msgstr "&Futattás"
+msgstr "&Futtatás"
 
 #: ../upgrade.py:402
 msgid "Close Rapid Photo Downloader before running this upgrade"
@@ -396,7 +420,7 @@ msgstr "A biztonsági másolatok nincsenek beállítva"
 
 #: ../raphodo/backuppanel.py:242
 msgid "No backup devices detected"
-msgstr "A biztonsági másolat szköze nem elérhető"
+msgstr "A biztonsági másolat eszköze nem elérhető"
 
 #: ../raphodo/backuppanel.py:244
 msgid "Valid backup locations not yet specified"
@@ -407,12 +431,12 @@ msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
 msgstr ""
-"A képekről és videókról letöltés közben több másolat készülhet, különböző "
-"helyekre, például külső merevlemezre."
+"A fényképekről és videókról letöltés közben több másolat készülhet, "
+"különböző helyekre, például külső merevlemezre."
 
 #: ../raphodo/backuppanel.py:412
 msgid "Back up photos and videos when downloading"
-msgstr "A fényképek és vidók biztonsági mentése letöltés közben"
+msgstr "A fényképek és videók biztonsági mentése letöltés közben"
 
 #: ../raphodo/backuppanel.py:418
 msgid "Automatically detect backup devices"
@@ -427,14 +451,20 @@ msgid ""
 "adding both folders, the same device can be used to back up both photos and "
 "videos.</i>"
 msgstr ""
+"Adja meg azt a mappát, amelyen a mentések tárolódnak az eszközön. <br> <br> "
+"<i> Megjegyzés: ezzel a névvel rendelkező mappa jelenlétét használhatja "
+"annak meghatározására, hogy az eszközt biztonsági mentésekhez használják-e. "
+"Minden olyan eszköz esetében, amelyet vissza akar kapni, hozzon létre egy "
+"mappát a mappák egyikével. Mindkét mappa hozzáadásával ugyanaz az eszköz "
+"használható mind a fotók, mind a videók biztonsági mentéséhez. </i>"
 
 #: ../raphodo/backuppanel.py:439
 msgid "Photo folder name:"
-msgstr "Fotó mappa neve:"
+msgstr "Fénykép mappa neve:"
 
 #: ../raphodo/backuppanel.py:444
 msgid "Video folder name:"
-msgstr "Video mappa neve:"
+msgstr "Videó mappa neve:"
 
 #: ../raphodo/backuppanel.py:449 ../raphodo/nameeditor.py:890
 #: ../raphodo/renamepanel.py:123
@@ -453,11 +483,11 @@ msgstr ""
 #. folder name. See http://damonlynch.net/rapid/documentation/thumbnails/backup.png
 #: ../raphodo/backuppanel.py:468
 msgid "Photo backup location:"
-msgstr "Fotók biztonsági mentésének helye:"
+msgstr "Fényképek biztonsági mentésének helye:"
 
 #: ../raphodo/backuppanel.py:474
 msgid "Select Photo Backup Location"
-msgstr "Fotók biztonsági mentésének helye:"
+msgstr "Fényképek biztonsági mentésének helye:"
 
 #. Translators: the word 'location' is optional in your translation. The left
 #. side of the folder chooser combo box will always line up with the left side of the
@@ -469,33 +499,33 @@ msgstr "Videó biztonsági mentésének helye:"
 
 #: ../raphodo/backuppanel.py:491
 msgid "Select Video Backup Location"
-msgstr "Válassza ki a Videók bitonsági mentésének helyét"
+msgstr "Válassza ki a videók bitonsági mentésének helyét"
 
 #. Translators: this value is used as an example device when automatic backup device
 #. detection is enabled. You should translate this.
 #: ../raphodo/backuppanel.py:595
 msgid "drive1"
-msgstr "drive1"
+msgstr "meghajtó1"
 
 #. Translators: this value is used as an example device when automatic backup device
 #. detection is enabled. You should translate this.
 #: ../raphodo/backuppanel.py:598
 msgid "drive2"
-msgstr "drive2"
+msgstr "meghajtó2"
 
 #: ../raphodo/backuppanel.py:663
 msgid "Projected Backup Storage Use"
-msgstr ""
+msgstr "Előrejelzett biztonsági másolat tárolása"
 
 #: ../raphodo/backuppanel.py:669
 msgid "Backup Options"
-msgstr ""
+msgstr "Biztonsági mentés beállítások"
 
 #. translators: refers to the video thumbnail file that some
 #. cameras generate -- it has a .THM file extension
 #: ../raphodo/copyfiles.py:491
 msgid "video THM"
-msgstr ""
+msgstr "videó THM"
 
 #: ../raphodo/copyfiles.py:497
 msgid "audio"
@@ -505,13 +535,13 @@ msgstr "hang"
 #: ../raphodo/rpdfile.py:342
 #, python-format
 msgid "%(no_photos)s Photos"
-msgstr ""
+msgstr "%(no_photos)s fényképek"
 
 #: ../raphodo/destinationdisplay.py:82 ../raphodo/devicedisplay.py:1081
 #: ../raphodo/rpdfile.py:333
 #, python-format
 msgid "%(no_videos)s Videos"
-msgstr ""
+msgstr "%(no_videos)s videók"
 
 #: ../raphodo/destinationdisplay.py:92
 msgid "Used"
@@ -519,7 +549,7 @@ msgstr "Felhasznált"
 
 #: ../raphodo/destinationdisplay.py:93
 msgid "Excess"
-msgstr ""
+msgstr "Többlet"
 
 #: ../raphodo/destinationdisplay.py:102
 msgid "Device size unknown"
@@ -533,24 +563,24 @@ msgstr "Nincs szabad terület az eszközön %(size_total)s"
 #: ../raphodo/destinationdisplay.py:119
 #, python-format
 msgid "%(size_free)s free of %(size_total)s"
-msgstr "Szabad\t %(size_free)s  a  %(size_total)s -ból"
+msgstr "Szabad %(size_free)s  a(z)  %(size_total)s -ból"
 
 #: ../raphodo/destinationdisplay.py:190 ../raphodo/devicedisplay.py:993
 #: ../raphodo/rapid.py:2023 ../raphodo/rapid.py:2151 ../raphodo/rapid.py:6041
 #: ../raphodo/rpdfile.py:930
 msgid "Photos"
-msgstr "Képek"
+msgstr "Fényképek"
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:191 ../raphodo/devicedisplay.py:994
 #: ../raphodo/rapid.py:2028 ../raphodo/rapid.py:2152 ../raphodo/rapid.py:6042
 #: ../raphodo/rpdfile.py:958 ../raphodo/storage.py:449
 msgid "Videos"
-msgstr "Videó"
+msgstr "Videók"
 
 #: ../raphodo/destinationdisplay.py:192
 msgid "Projected storage use after download"
-msgstr ""
+msgstr "A tervezett tárolás letöltés után"
 
 #: ../raphodo/destinationdisplay.py:327 ../raphodo/nameeditor.py:521
 msgid "Custom..."
@@ -558,41 +588,41 @@ msgstr "Egyéni…"
 
 #: ../raphodo/destinationdisplay.py:678
 msgid "Configure photo subfolder creation"
-msgstr ""
+msgstr "A fénykép almappa létrehozásának konfigurálása"
 
 #: ../raphodo/destinationdisplay.py:680
 msgid "Configure video subfolder creation"
-msgstr ""
+msgstr "A videó almappa létrehozásának konfigurálása"
 
 #: ../raphodo/devicedisplay.py:983
 msgid "Other"
-msgstr ""
+msgstr "Egyéb"
 
 #: ../raphodo/devicedisplay.py:984
 msgid "Probing device..."
-msgstr ""
+msgstr "Tapintó eszköz ..."
 
 #: ../raphodo/devicedisplay.py:1000
 msgid "Temporarily ignore this device"
-msgstr ""
+msgstr "Ideiglenesen figyelmen kívül hagyja ezt az eszközt"
 
 #: ../raphodo/devicedisplay.py:1002
 msgid "Permanently ignore this device"
-msgstr ""
+msgstr "A készüléket tartósan figyelmen kívül hagyja"
 
 #: ../raphodo/devicedisplay.py:1004
 msgid "Rescan"
-msgstr ""
+msgstr "Újrakeresés"
 
 #. Translators: percentage full e.g. 75% full
 #: ../raphodo/devicedisplay.py:1093
 #, python-format
 msgid "%s full"
-msgstr ""
+msgstr "%s teljes"
 
 #: ../raphodo/devices.py:463
 msgid "Cameras"
-msgstr ""
+msgstr "Fényképezőgépek"
 
 #: ../raphodo/devices.py:464 ../raphodo/devices.py:927
 #: ../raphodo/preferencedialog.py:108 ../raphodo/preferencedialog.py:118
@@ -603,43 +633,43 @@ msgstr "Eszközök"
 #: ../raphodo/devices.py:724
 #, python-format
 msgid "Downloading from %(device_names)s"
-msgstr ""
+msgstr "Letöltés: %(device_names)s"
 
 #. Translators: e.g. Three Devices
 #: ../raphodo/devices.py:784
 #, python-format
 msgid "%(no_devices)s %(device_type)s"
-msgstr ""
+msgstr "%(no_devices)s %(device_type)s"
 
 #: ../raphodo/devices.py:912 ../raphodo/rapid.py:1807
 msgid "Select Source"
-msgstr ""
+msgstr "Válassza a Forrás lehetőséget"
 
 #: ../raphodo/devices.py:943 ../raphodo/devices.py:954
 #, python-format
 msgid "%(device1)s + %(device2)s"
-msgstr ""
+msgstr "%(device1)s + %(device2)s"
 
 #. Number of cameras e.g. 3 Cameras
 #: ../raphodo/devices.py:965
 #, python-format
 msgid "%(no_cameras)s Cameras"
-msgstr ""
+msgstr "%(no_cameras)s kamerák"
 
 #: ../raphodo/devices.py:970
 #, python-format
 msgid "%(no_devices)s Devices"
-msgstr ""
+msgstr "%(no_devices)s Eszközök"
 
 #. Translators: two folder names, separated by a plus sign
 #: ../raphodo/devices.py:1265
 #, python-format
 msgid "%s + %s"
-msgstr ""
+msgstr "%s + %s"
 
 #: ../raphodo/didyouknow.py:45
 msgid "Click on a file's checkbox to mark or unmark it for download."
-msgstr ""
+msgstr "Kattintson egy fájl jelölőnégyzetére a letöltéshez vagy jelölje ki."
 
 #: ../raphodo/didyouknow.py:51
 msgid ""
@@ -648,6 +678,10 @@ msgid ""
 "default, and their thumbnails are dimmed so you can differentiate them from "
 "files that are yet to be downloaded."
 msgstr ""
+"A már letöltött fájlokra emlékezik a program. A korábban letöltött fájlokat "
+"továbbra is letöltheti, de alapértelmezés szerint nem ellenőrzik őket és a "
+"bélyegképük elmosódott, így megkülönböztetheti azokat a még le nem töltött "
+"fájloktól."
 
 #: ../raphodo/didyouknow.py:60
 msgid ""
@@ -655,12 +689,17 @@ msgid ""
 "whose checkbox was clicked, regardless of whether they previously had a "
 "checkmark or not."
 msgstr ""
+"Ha egynél több fájl van kiválasztva, akkor mindegyik egy jelet kap, amelyre "
+"egy négyzetet kattintottak rá, függetlenül attól, hogy korábban volt-e abban "
+"egy pipa vagy sem."
 
 #: ../raphodo/didyouknow.py:68
 msgid ""
 "Click on a device's checkbox to quickly mark or unmark all its files for "
 "downloading."
 msgstr ""
+"Az eszköz jelölőnégyzetére kattintva gyorsan letörölheti vagy eltávolíthatja "
+"az összes letöltendő fájlt."
 
 #: ../raphodo/didyouknow.py:75
 msgid ""
@@ -668,6 +707,9 @@ msgid ""
 "icon's color indicates whether the download was successful (green), had file "
 "renaming problems (yellow/orange), or failed (red)."
 msgstr ""
+"Miután befejeződött a letöltés, egy ikon helyettesíti a bélyegkép "
+"jelölőnégyzetét. Az ikon színe jelzi, hogy a letöltés sikeres volt-e (zöld), "
+"az átnevezési (sárga/narancssárga) vagy sikertelen (piros) próbálkozásokat."
 
 #: ../raphodo/didyouknow.py:83
 msgid ""
@@ -679,6 +721,12 @@ msgid ""
 "            window.\n"
 "            "
 msgstr ""
+"\n"
+"             Bármely probléma esetén egy piros ikon jelenik meg az ablak "
+"alján\n"
+"             Jelezve, hogy hány hibajelentés létezik. Kattintson rá a Hiba "
+"jelentés ablakra\n"
+"             "
 
 #: ../raphodo/didyouknow.py:91
 msgid ""
@@ -694,6 +742,17 @@ msgid ""
 "            search box in the lower left of the Error Report window.\n"
 "            "
 msgstr ""
+"\n"
+"            A Hiba jelentés ablak felsorolja az előtte, alatt vagy után "
+"tapasztalt problémákat\n"
+"            Letöltés. A narancssárga háromszög figyelmeztetést jelent, a "
+"piros kör hibát jelez,\n"
+"            És egy fekete kör nagyobb, súlyos hibákat jelez. Kattintson a "
+"hiperhivatkozásokra,\n"
+"            nyissa meg fájlját vagy az eszközt egy fájlkezelőben. A "
+"jelentések Keresőmezőt a\n"
+"             hibajelentés ablak bal alsó részén találja.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:103
 msgid ""
@@ -701,6 +760,9 @@ msgid ""
 "cards, and hard drives&mdash;as many devices as your computer can handle at "
 "one time."
 msgstr ""
+"Egyidejűleg letölthet több kamerából, okostelefonokból, memóriakártyákból és "
+"merevlemezekből is annyi eszközt, amennyit a számítógép egyszerre képes "
+"kezelni."
 
 #: ../raphodo/didyouknow.py:110
 msgid ""
@@ -708,6 +770,10 @@ msgid ""
 "between consecutive shots. Use it to identify photos and videos taken at "
 "different periods in a single day or over consecutive days."
 msgstr ""
+"Az <b> Idővonal </b> a fotókat és videókat csoportosítja, az egymást követő "
+"felvételek között eltelt idő alapján. Használja azt a fényképek és videók "
+"azonosítására, amelyek különböző időszakokban, egyetlen nap alatt vagy "
+"egymást követő napokon kerülnek."
 
 #: ../raphodo/didyouknow.py:117
 msgid ""
@@ -720,6 +786,12 @@ msgid ""
 "the Timeline:</p>\n"
 "            "
 msgstr ""
+"\n"
+"<p> A fenti ábrán az idővonal első sorszáma fekete, mert minden fájl be van "
+"kapcsolva.\n"
+"Ez a dátum korábban letöltött. </p>\n"
+"<p> Az Idővonal csúszkája beállítja az egymást követő lövések közötti időt, "
+"amelyet az elkészítéshez használ az idővonal: </p>"
 
 #: ../raphodo/didyouknow.py:128
 msgid ""
@@ -728,6 +800,10 @@ msgid ""
 "select time periods. When a time range is selected, the Timeline button on "
 "the left side of the main window will be highlighted."
 msgstr ""
+"Az adott időtartományon belüli fényképek és videók megtekintéséhez használja "
+"az egeret (adott esetben a <tt> Shift </tt> vagy <tt> Ctrl </tt> gombokkal "
+"együtt) az időtartamok kiválasztásához. Ha időintervallum van kiválasztva a "
+"főablak bal oldalán megjelenő Idővonal gomb jelenik meg."
 
 #: ../raphodo/didyouknow.py:135
 msgid ""
@@ -735,12 +811,17 @@ msgid ""
 "including those that are not currently displayed because the Timeline is "
 "being used."
 msgstr ""
+"A letöltés mindig tartalmazza az összes letöltésre ellenőrzött fájlt, "
+"beleértve azokat is, amelyeket jelenleg nem jelenítenek meg, mert az "
+"idővonalat használják."
 
 #: ../raphodo/didyouknow.py:142
 msgid ""
 "You can hide or display the download sources by clicking on the name of the "
 "device you're downloading from at the top left of the program window."
 msgstr ""
+"A letöltési forrásokat elrejtheti vagy megjelenítheti a programablak bal "
+"felső sarkában található letöltési eszköz nevére kattintva."
 
 #: ../raphodo/didyouknow.py:149
 msgid ""
@@ -760,6 +841,22 @@ msgid ""
 "downloaded from.</li>\n"
 "</ol> "
 msgstr ""
+"\n"
+"Az bélyegképek különböző kritériumok alapján válogathatók:\n"
+"<ol><li> <b> Módosítási idő: </b> a fájl utolsó módosításakor, metaadatai "
+"szerint (ahol\n"
+" rendelkezésre állnak) vagy a fájlrendszer szerint (visszaállításként). </"
+"li>\n"
+"<li> <b> Ellenőrzött állapot: </b>, hogy a fájl letöltésre van-e jelölve. </"
+"li>\n"
+"<li> <b> Filenév: </b> a teljes fájlnév, beleértve a kiterjesztést. </li>\n"
+"<li> <b> Bővítmény: </b> a fájlnév kiterjesztése. Ezt felhasználhatja a jpeg "
+"és a RAW képek csoportosításához\n"
+"Például. </li>\n"
+"<li> <b> Fájltípus: </b> fénykép vagy videó. </li>\n"
+"<li> <b> Eszköz: </b> a készülék neve, ahová a fotók és videók letöltöttek. "
+"</li></ol>\n"
+" "
 
 #: ../raphodo/didyouknow.py:166
 msgid ""
@@ -767,6 +864,9 @@ msgid ""
 "automatically generate download subfolders and rename files as it downloads, "
 "using a scheme of your choosing."
 msgstr ""
+"A Rapid Photo Downloader egyik leghasznosabb funkciója az a képesség, hogy "
+"automatikusan létrehozza a letöltési almappákat és átnevezi a fájlokat "
+"letöltés közben, az Ön által választott rendszert használva."
 
 #: ../raphodo/didyouknow.py:172
 msgid ""
@@ -774,6 +874,10 @@ msgid ""
 "open the appropriate panel on the right-side of the application window: "
 "<b>Destination</b>, <b>Rename</b>, or <b>Job Code</b>."
 msgstr ""
+"Annak meghatározásához, hogy hol töltse le a fájlokat, és azt, hogy miként "
+"szeretné őket megnevezni, nyissa meg a megfelelő panelt az alkalmazásablak "
+"jobb oldalán: <b> Letöltési cél </b>, <b> Átnevezés </b> vagy <b > Munka-kód "
+"</b>."
 
 #: ../raphodo/didyouknow.py:179
 msgid ""
@@ -799,6 +903,22 @@ msgid ""
 "</ol>\n"
 "            "
 msgstr ""
+"\n"
+"Ha a letöltési könyvtár struktúrájára gondolva tartsa észben annak két "
+"különböző típusát\n"
+"A könyvtárban:\n"
+"<ol>\n"
+"<li> A <b> célmappa </b>, pl. Képek & Fotók vagy\n"
+"Videók. Ez a könyvtár már létezik a számítógépen. Az ábrán\n"
+"az alábbiakban a célmappák a \"Képek\" és \"Videók\".\n"
+"A célmappa neve megjelenik a szürke sávban közvetlenül a mappák felett,\n"
+"Egy bal oldali mappa ikonra és egy fogaskerék ikonra a jobb szélén. </li>\n"
+"<li> A <b> letöltési almappák </b>, amelyek automatikusan létrejövő "
+"könyvtárak\n"
+"a Rapid Photo Downloader segítségével. A számítógépen már nincs szükségük, "
+"de ez rendben van, ha igen.\n"
+"Ezeket a rendeltetési mappa alatt hozza létre. </li></ol>\n"
+"            "
 
 #: ../raphodo/didyouknow.py:196
 msgid ""
@@ -812,6 +932,12 @@ msgid ""
 "type.            \n"
 "            "
 msgstr ""
+"\n"
+"Fotókat és videókat ugyanabba a célmappába tölthet le vagy megadhat más\n"
+"célmappát is. Ugyanez vonatkozik a fotók és videók letöltési almappáira;\n"
+"Fotókat és videókat ugyanabba az almappára töltheti le vagy egy másik sémát "
+"is használhat.\n"
+"             "
 
 #: ../raphodo/didyouknow.py:206
 msgid ""
@@ -819,6 +945,9 @@ msgid ""
 "automatically generated subfolders if need be. A common scheme is to create "
 "a year subfolder and then a series of year-month-day subfolders within it."
 msgstr ""
+"Az automatikusan generált letöltési almappák további automatikusan generált "
+"almappákat is tartalmazhatnak, ha szükséges. Egy közös rendszer egy év "
+"almappa létrehozása, majd egy év-hónapos almappák sorozatának létrehozása."
 
 #: ../raphodo/didyouknow.py:215
 msgid ""
@@ -837,6 +966,20 @@ msgid ""
 "</ol>\n"
 "            "
 msgstr ""
+"\n"
+"Lehetőség szerint a program előnézeti képeket és videófelvételeket letöltő "
+"almappákat tölt le:\n"
+"<ol>\n"
+"<li> A cél könyvtárfája a számítógépen található letöltési almappákat "
+"mutatja\n"
+"     Egy normál, nem dőlt betűs betűtípust), valamint a letöltés során "
+"létrehozott almappákat\n"
+"     (Amelyeknek a neve dőlt.) </li>\n"
+"<li> A mappafájl azt is megmutatja, hogy mely alkönyvtárak töltik le a "
+"fájlokat (azok a színesek\n"
+"     fekete). </li>\n"
+"</ol>\n"
+"            "
 
 #: ../raphodo/didyouknow.py:230
 msgid ""
@@ -861,6 +1004,25 @@ msgid ""
 "option:\n"
 "            "
 msgstr ""
+"\n"
+"Az alkönyvtár nevének letöltése általában a következő elemek közül néhány "
+"vagy mindegyik használatával generálódik:\n"
+"<ol>\n"
+"<li> <b> Fájl metaadat </b>, nagyon gyakran beleértve a fénykép vagy videó "
+"létrehozásának dátumát, de lehet\n"
+"is\n"
+"A fényképezőgép típusának neve, a fényképezőgép sorozatszáma vagy a fájl "
+"kiterjesztése, pl. JPG vagy CR2. </lli>\n"
+"<li> A <b> Munka-kód </b>, amely a letöltéskor megadott szabad szöveg, "
+"például az\n"
+"esemény vagy hely neve. </li>\n"
+"<li> <b> Szöveg </b>, amelyet mindig meg szeretne jeleníteni, például egy "
+"kötőjelet vagy egy szóközt. </ li>\n"
+"</ lo>\n"
+"Az almappák elnevezése az évvel, majd a hónap, majd a nap a numerikus "
+"formátumban\n"
+"Könnyen kezelhetők egy fájlkezelőben, ezért az alapértelmezett beállítás:\n"
+"            "
 
 #: ../raphodo/didyouknow.py:248
 msgid ""
@@ -871,6 +1033,11 @@ msgid ""
 "the gear icon to bring up a drop-down menu:            \n"
 "            "
 msgstr ""
+"\n"
+"Automatikusan létrehozhat almappákat, ha használja a Rapid Photo Downloader "
+"beépített előbeállításait, vagy létrehozhat egyéni beállításokat. \n"
+"Kattintson a fogaskerék ikonra egy legördülő menü megjelenítéséhez.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:256
 msgid ""
@@ -881,6 +1048,12 @@ msgid ""
 "Generation Editor:             \n"
 "            "
 msgstr ""
+"\n"
+"A legördülő menüből válassza ki a beépített előbeállítást, \n"
+"vagy kattintson a <b> Egyéni </b> lehetőségre a sajátrendszer.\n"
+" Saját rendszereit a Fénykép vagy Videó almappák generációs szerkesztője "
+"segítségével hozhatja létre:\n"
+"            "
 
 #: ../raphodo/didyouknow.py:266
 msgid ""
@@ -888,12 +1061,17 @@ msgid ""
 "another. Simply use the <b>Filename Extension</b> as part of your download "
 "subfolder generation scheme:"
 msgstr ""
+"Könnyű letölteni a RAW képeket egy mappába és a jpeg képeket a másikba "
+"átvinni. Egyszerűen használja a <b> Fájlnév kiterjesztés </b> fájlt a "
+"letöltési almappák generációs sémájának részeként:"
 
 #: ../raphodo/didyouknow.py:271
 msgid ""
 "This illustration shows a saved custom preset named &quot;My custom "
 "preset&quot;."
 msgstr ""
+"Ez az illusztráció egy elmentett egyéni beállítást jelenít meg, amelynek "
+"neve \"Saját beállítások\"."
 
 #: ../raphodo/didyouknow.py:275
 msgid ""
@@ -905,6 +1083,13 @@ msgid ""
 "Job Code:\n"
 "            "
 msgstr ""
+"\n"
+"Nem kell egymásba ágyazott letöltési almappákat létrehoznia. Ez az "
+"illusztráció mutatja\n"
+"a letöltési almappák létrehozását, amelyek csak a fotók dátumát "
+"tartalmazzák, és a\n"
+"Munka-kód:\n"
+"           "
 
 #: ../raphodo/didyouknow.py:285
 msgid ""
@@ -919,6 +1104,15 @@ msgid ""
 "circle around the hyphen):\n"
 "            "
 msgstr ""
+"\n"
+"Bár sok beépített dátum/idő elnevezési opció van, előfordulhat, hogy Önnek\n"
+"valami másra van szüksége. Nem probléma egy  saját opció létrehozása.\n"
+"A dátum/idő választása kombinálható és új kombinációkat generál. Feltéve, "
+"hogy olyan\n"
+"dátumformátumot szeretne, amely az év (ÉÉÉÉ), a kötőjel, hónap (HH) "
+"szimbólumokból áll. \n"
+"Létrehozhatja így (jegyezze fel a kötőjel körüli vörös köröket):\n"
+"            "
 
 #: ../raphodo/didyouknow.py:294
 msgid ""
@@ -929,6 +1123,12 @@ msgid ""
 "documentation</a>.\n"
 "            "
 msgstr ""
+"\n"
+"Olvassa el az összes fájlt, amelyen letöltheti az alkönyvtáros neveket és "
+"fájlneveket a\n"
+"<a href = \"http://damonlynch.net/rapid/documentation/#renamedateandtime\"> "
+"online dokumentáció </a>.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:302
 msgid ""
@@ -941,6 +1141,13 @@ msgid ""
 "the Job Code \n"
 "&quot;Green Bazaar&quot;: \n"
 msgstr ""
+"\n"
+"A <b> Munka-kód </b> lehetővé teszi, hogy egyszerűen besorolja a fényképeket "
+"és videókat. \n"
+"Használja őket almappában és fájlnevekben. Ebben az illusztrációban egyes "
+"fájlok rendelkeznek a munka- kóddal\n"
+"\"Utca\" és a kiválasztott fájlok hamarosan megkapják a munka-kódot\n"
+"\"Zöld Bazár\":\n"
 
 #: ../raphodo/didyouknow.py:311
 msgid ""
@@ -952,16 +1159,27 @@ msgid ""
 "a Job Code for them before the download begins.\n"
 "            "
 msgstr ""
+"\n"
+"Új vagy meglévő munka-kódokat alkalmazhat a letöltés megkezdése előtt, ha "
+"van ilyen.\n"
+"A letöltött fájloknál, amelyeknek még nem volt munka-kódjuk, akkor be kell "
+"írnia\n"
+"egy megfelelő kódot a letöltés megkezdése előtt.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:320
 msgid "Look for hints to guide you when working with Job Codes:"
 msgstr ""
+"Keresse meg azokat a tanácsokat, amelyek segítséget nyújtanak a munka-kódok "
+"kezelésében:"
 
 #: ../raphodo/didyouknow.py:324
 msgid ""
 "Hints will vary depending on the context, such as when the mouse is hovering "
 "over a button."
 msgstr ""
+"A tippek a kontextus függvényében változnak, például amikor az egér egy gomb "
+"fölé mozog..."
 
 #: ../raphodo/didyouknow.py:330
 msgid ""
@@ -973,6 +1191,13 @@ msgid ""
 "recommended!\n"
 "            "
 msgstr ""
+"\n"
+"Amikor a fényképek és a videók egyedi fájlneveket kapnak, akkor soha nem "
+"lesz kavarodás, hogy\n"
+"melyik fájl melyik. A <b> sorszámok </b> használatával a fájlnevek "
+"egyedülállóak lesznek, ezért ez\n"
+"erősen ajánlott!\n"
+"            "
 
 #: ../raphodo/didyouknow.py:338
 msgid ""
@@ -995,6 +1220,23 @@ msgid ""
 "documentation</a>.</p>\n"
 "            "
 msgstr ""
+"\n"
+"<p> A szekvenciaértékek négyféle típusa érhető el, amelyek segítségével "
+"egyedi neveket rendelhet a fotókhoz és videókhoz:\n"
+"<ol>\n"
+"<li> <b> A mai letöltések </b>: az adott napon befejezett letöltések nyomon "
+"követése. </li>\n"
+"<li> <b> Tárolt szám </b>: hasonló a mai letöltések számához, de az utoljára "
+"futott ideje</li>\n"
+"<li> <b> Szakasz száma </b>: minden alkalommal, amikor a program fut, "
+"újraindít. </li>\n"
+"<li> <b> Szekvencia betű </b>: hasonlóan a munkamenet számaihoz, de betűket "
+"használ. </li>\n"
+"</ol> </p>\n"
+"<p>\n"
+"További információ a <a href = \"http://damonlynch.net/rapid/documentation/"
+"#sequencenumbers\"> online dokumentációban </a>. </p>\n"
+"            "
 
 #: ../raphodo/didyouknow.py:356
 msgid ""
@@ -1004,6 +1246,11 @@ msgid ""
 "from among existing renaming presets or define your own.              \n"
 "            "
 msgstr ""
+"\n"
+"A <b> Átnevezés </b> panel lehetővé teszi a fájl átnevezését. A fájlok "
+"átnevezéséhez választhat a meglévő átnevezési beállítások közül vagy "
+"létrehozhatja a sajátját.\n"
+"\t"
 
 #: ../raphodo/didyouknow.py:363
 msgid ""
@@ -1023,6 +1270,20 @@ msgid ""
 "documentation</a>.</p>\n"
 "            "
 msgstr ""
+"\n"
+"<p> A <b> RAW + JPEG szinkronizálás </b> beállítás akkor hasznos, ha a RAW + "
+"JPEG funkciót használja a\n"
+"fényképezéskor és a fénykép átnevezésével sorszámokat használhat. Ha "
+"engedélyezi ezt az opciót\n"
+"akkor a program észleli a RAW és JPEG illeszkedő párokat és ha észlelik "
+"őket,\n"
+"ugyanazok a sorszámok kerülnek alkalmazásra mindkét fényképnévre. Továbbá, a "
+"szekvenciák lesznek\n"
+"frissítve, mintha a fotók lennének. </p>\n"
+"<p>\n"
+"További információ a fájl átnevezéséről a <a href = \"http://damonlynch.net/"
+"rapid/documentation/#rename\"> online dokumentációban </a>. </p>\n"
+"\t"
 
 #: ../raphodo/didyouknow.py:377
 msgid ""
@@ -1034,12 +1295,22 @@ msgid ""
 "backup locations specified.\n"
 "            "
 msgstr ""
+"\n"
+"Lehetősége van arra, hogy fényképeit és videóit több helyre mentse le, "
+"amikor letöltötte. Például\n"
+"külső merevlemezek vagy hálózati megosztások. A biztonsági mentés eszközei "
+"automatikusan észlelhetők vagy pontosak\n"
+"A megadott mentési helyek.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:385
 msgid ""
 "In this example, the drive <b>photobackup</b> does not contain a folder "
 "named <tt>Videos</tt>, so videos will not be backed up to it."
 msgstr ""
+"Ebben a példában a <b> Fotó biztonsági mentés </b> meghajtó nem tartalmaz "
+"<tt> Videók </ tt> nevű mappát, így a videókról nem lehet biztonsági "
+"másolatot készíteni."
 
 #: ../raphodo/didyouknow.py:391
 msgid ""
@@ -1051,10 +1322,17 @@ msgid ""
 "default state, and caches and remembered files cleared.            \n"
 "            "
 msgstr ""
+"\n"
+"Több program beállítása a parancssorból állítható be, beleértve a letöltést\n"
+"forrásokat, célokat és mentéseket is. Ezenkívül a beállítások "
+"visszaállíthatók\n"
+"az alapértelmezett állapotba, valamint a gyorsítótárakat és a megjegyzett "
+"fájlokat törölték.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:396
 msgid "You can also import program preferences from the older 0.4 version."
-msgstr ""
+msgstr "A program beállításait a régebbi 0.4 változatból is importálhatja."
 
 #: ../raphodo/didyouknow.py:401
 msgid ""
@@ -1081,200 +1359,224 @@ msgid ""
 "documentation</a>.\n"
 "            "
 msgstr ""
+"\n"
+"A Rapid Photo Downloader háromféle gyorsítótárral foglalkozik:\n"
+"<ol>\n"
+"<li> A <b> bélyegkép gyorsítótár </b>, amelynek kizárólagos célja a fájlok "
+"bélyegképeinek tárolása a fényképezőgépről, memóriakártyák és egyéb "
+"eszközök. </li>\n"
+"<li> A <b> ideiglenes gyorsítótár </b> a kameráról letöltött fájlok a "
+"fényképek és a videók. Ezek az ideiglenes almappákban találhatók a letöltési "
+"célban. </li>\n"
+"<li> Az <b> asztali bélyegkép gyorsítótár </b>, amelyben a Rapid Photo "
+"Downloader bélyegképeket tárol\n"
+"RAW és TIFF képekről, miután letöltötték őket. A fájl-böngészők, mint a "
+"Gnome Files, ezt a gyorsítótárat használják, valamint azt is jelentik, hogy "
+"ezek a fájlok bélyegképüket is megjelenítenek.\n"
+"</ li>\n"
+"</ol>\n"
+"További információ ezekről a gyorsítótárakról és annak a letöltési "
+"teljesítményre gyakorolt hatásáról a\n"
+"<a href = \"http://damonlynch.net/rapid/documentation/#caches\"> online "
+"dokumentációban </a>.\n"
+"\t"
 
 #: ../raphodo/didyouknow.py:460
 msgid "Tip of the Day"
-msgstr ""
+msgstr "A nap tippje"
 
 #: ../raphodo/didyouknow.py:468
 msgid "Did you know...?"
-msgstr ""
+msgstr "Tudta...?"
 
 #: ../raphodo/didyouknow.py:495
 msgid "Show tips on startup"
-msgstr ""
+msgstr "Tippek az indításkor"
 
 #: ../raphodo/didyouknow.py:499
 msgid "&Next"
-msgstr ""
+msgstr "&Következő"
 
 #: ../raphodo/didyouknow.py:500
 msgid "&Previous"
-msgstr ""
+msgstr "&Előző"
 
 #: ../raphodo/downloadtracker.py:402
 msgid "MB/sec"
-msgstr ""
+msgstr "MB/sec"
 
 #. Be friendly in the last few seconds
 #: ../raphodo/downloadtracker.py:532
 msgid "A few seconds"
-msgstr ""
+msgstr "Néhány másodperc"
 
 #: ../raphodo/downloadtracker.py:588
 msgid "1 second"
-msgstr ""
+msgstr "1 másodperc"
 
 #: ../raphodo/downloadtracker.py:590
 #, python-format
 msgid "%d seconds"
-msgstr ""
+msgstr "%d másodperc"
 
 #: ../raphodo/downloadtracker.py:595
 msgid "1 minute"
-msgstr ""
+msgstr "1 perc"
 
 #: ../raphodo/downloadtracker.py:597
 #, python-format
 msgid "%d minutes"
-msgstr ""
+msgstr "%d perc"
 
 #: ../raphodo/downloadtracker.py:602 ../raphodo/downloadtracker.py:784
 msgid "1 hour"
-msgstr ""
+msgstr "1 óra"
 
 #: ../raphodo/downloadtracker.py:604
 #, python-format
 msgid "%d hours"
-msgstr ""
+msgstr "%d óra"
 
 #: ../raphodo/downloadtracker.py:609 ../raphodo/downloadtracker.py:813
 #: ../raphodo/downloadtracker.py:821
 msgid "1 day"
-msgstr ""
+msgstr "1 nap"
 
 #: ../raphodo/downloadtracker.py:611
 #, python-format
 msgid "%d days"
-msgstr ""
+msgstr "%d nap"
 
 #: ../raphodo/downloadtracker.py:790
 msgid "1 minute, 1 second"
-msgstr ""
+msgstr "1 perc 1 másodperc"
 
 #: ../raphodo/downloadtracker.py:792
 #, python-format
 msgid "1 minute, %d seconds"
-msgstr ""
+msgstr "1 perc %d másodperc"
 
 #: ../raphodo/downloadtracker.py:795
 #, python-format
 msgid "%d minutes, 1 second"
-msgstr ""
+msgstr "%d perc 1 másodperc"
 
 #: ../raphodo/downloadtracker.py:797
 #, python-format
 msgid "%(minutes)d minutes, %(seconds)d seconds"
-msgstr ""
+msgstr "%(minutes)d perc %(seconds)d másodperc"
 
 #: ../raphodo/downloadtracker.py:828
 msgid "1 hour, 1 minute"
-msgstr ""
+msgstr "1 óra 1 perc"
 
 #: ../raphodo/downloadtracker.py:830
 #, python-format
 msgid "1 hour, %d minutes"
-msgstr ""
+msgstr "1 óra %d perc"
 
 #: ../raphodo/downloadtracker.py:833
 #, python-format
 msgid "%d hours, 1 minute"
-msgstr ""
+msgstr "%d óra 1 perc"
 
 #: ../raphodo/downloadtracker.py:835
 #, python-format
 msgid "%(hours)d hours, %(minutes)d minutes"
-msgstr ""
+msgstr "%(hours)d óra %(minutes)d perc"
 
 #: ../raphodo/downloadtracker.py:861
 msgid "1 day, 1 hour"
-msgstr ""
+msgstr "1 nap 1 óra"
 
 #: ../raphodo/downloadtracker.py:863
 #, python-format
 msgid "1 day, %d hours"
-msgstr ""
+msgstr "1 nap %d óra"
 
 #: ../raphodo/downloadtracker.py:866
 #, python-format
 msgid "%d days, 1 hour"
-msgstr ""
+msgstr "%d nap 1 óra"
 
 #: ../raphodo/downloadtracker.py:868
 #, python-format
 msgid "%(days)d days, %(hours)d hours"
-msgstr ""
+msgstr "%(days)d nap %(hours)d óra"
 
 #: ../raphodo/errorlog.py:66
 msgid "Find"
-msgstr ""
+msgstr "Találat"
 
 #: ../raphodo/errorlog.py:136
 msgid "Error Reports - Rapid Photo Downloader"
-msgstr ""
+msgstr "Hibajelentések - Rapid Photo Downloader"
 
 #: ../raphodo/errorlog.py:171
 msgid "Find in reports"
-msgstr ""
+msgstr "Jelentések keresése"
 
 #: ../raphodo/errorlog.py:188
 msgid "Find the previous occurrence of the phrase"
-msgstr ""
+msgstr "Keresse meg a kifejezés korábbi előfordulását"
 
 #: ../raphodo/errorlog.py:193
 msgid "Find the next occurrence of the phrase"
-msgstr ""
+msgstr "Keresse meg a kifejezés következő előfordulását"
 
 #: ../raphodo/errorlog.py:195
 msgid "&Highlight All"
-msgstr ""
+msgstr "&Jelölje ki az összeset"
 
 #: ../raphodo/errorlog.py:196
 msgid "Highlight all occurrences of the phrase"
-msgstr ""
+msgstr "Jelölje ki a kifejezés összes előfordulását"
 
+# !!!
 #: ../raphodo/errorlog.py:197
 msgid "&Match Case"
-msgstr ""
+msgstr "&Találat esetén"
 
 #: ../raphodo/errorlog.py:198
 msgid "Search with case sensitivity"
-msgstr ""
+msgstr "Keresés a kisbetűk érzékenységével"
 
 #: ../raphodo/errorlog.py:199
 msgid "&Whole Words"
-msgstr ""
+msgstr "&Teljes szavak"
 
 #: ../raphodo/errorlog.py:200
 msgid "Search whole words only"
-msgstr ""
+msgstr "Keresés teljes szavakra"
 
 #: ../raphodo/errorlog.py:210 ../raphodo/errorlog.py:345
 #, python-format
 msgid "%s of %s matches"
-msgstr ""
+msgstr "%s -l %s találat"
 
 #: ../raphodo/errorlog.py:232
 msgid "Clear"
-msgstr ""
+msgstr "Tiszta"
 
 #: ../raphodo/errorlog.py:332
 msgid "Phrase not found"
-msgstr ""
+msgstr "Kifejezés nem található"
 
 #: ../raphodo/errorlog.py:491
 msgid "Search pending..."
-msgstr ""
+msgstr "Keresés folyamatban ..."
 
 #: ../raphodo/errorlog.py:539
 msgid ""
 "The number of new entries added to the Error Report since it was last open. "
 "Click to open the Error Report."
 msgstr ""
+"Az utolsó bejegyzések óta hozzáadott új bejegyzések száma. Kattintson a "
+"gombra a hibajelentés megnyitásához."
 
 #: ../raphodo/excepthook.py:77
 msgid "Problem in Rapid Photo Downloader"
-msgstr ""
+msgstr "Probléma a Rapid Photo Downloader-ben"
 
 #: ../raphodo/excepthook.py:81
 #, python-brace-format
@@ -1288,10 +1590,18 @@ msgid ""
 "    again before the program exits, this is the only notification about it.\n"
 "    "
 msgstr ""
+"<b> Probléma történt a Rapid Photo Downloader alkalmazásban </b> <br> <br>\n"
+"     Kérjük, jelentse be a problémát <a href=\"{website}\"> {website} </a>\n"
+"     Csatolja a naplófájlt <i> {log_file} </i> a hibajelentéshez (kattintson "
+"a gombra\n"
+"     <a href=\"{log_path}\"> itt </a> a naplókönyvtár megnyitásához.) <br> "
+"<br> Ha ugyanaz a probléma fordul elő \n"
+"     mielőtt a program kilép, ne küldjön újat.\n"
+"    "
 
 #: ../raphodo/excepthook.py:98
 msgid "A problem occurred in Rapid Photo Downloader\n"
-msgstr ""
+msgstr "Probléma történt a Rapid Photo Downloader alkalmazásban\n"
 
 #: ../raphodo/excepthook.py:99
 #, python-brace-format
@@ -1301,24 +1611,28 @@ msgid ""
 "    Attach the log file to your bug report, found at {log_path}\n"
 "\n"
 msgstr ""
+"Kérjük, jelentse a problémát {website}\n"
+"\n"
+"     Csatolja a naplófájlt a hibajelentéshez, amely megtalál a {log_path}\n"
+"\n"
 
 #: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1643
 msgid "Open in File Browser..."
-msgstr ""
+msgstr "Nyissa meg a fájlböngészőben ..."
 
 #: ../raphodo/foldercombo.py:120
 msgid "File System"
-msgstr ""
+msgstr "Fájlrendszer"
 
 #: ../raphodo/foldercombo.py:157
 msgid "Other..."
-msgstr ""
+msgstr "Egyéb..."
 
 #. Translators: indicate in combobox that a path does not exist
 #: ../raphodo/foldercombo.py:235
 #, python-format
 msgid "%s (location does not exist)"
-msgstr ""
+msgstr "%s (hely nem létezik)"
 
 #: ../raphodo/generatenameconfig.py:190
 msgid "Date time"
@@ -1352,7 +1666,7 @@ msgstr "Kép dátuma"
 
 #: ../raphodo/generatenameconfig.py:199
 msgid "Video date"
-msgstr "Videó dátum"
+msgstr "Videó dátuma"
 
 #: ../raphodo/generatenameconfig.py:200
 msgid "Today"
@@ -1388,7 +1702,7 @@ msgstr "Kép száma"
 
 #: ../raphodo/generatenameconfig.py:214
 msgid "Video number"
-msgstr "Videó sorszám"
+msgstr "Videó száma"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
@@ -1424,7 +1738,7 @@ msgstr "Fényképezőgép gyártója"
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:232
 msgid "Camera model"
-msgstr "Fényképezőgép"
+msgstr "Fényképezőgép típusa"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
@@ -1485,7 +1799,7 @@ msgstr "Magasság"
 
 #: ../raphodo/generatenameconfig.py:257
 msgid "Length"
-msgstr "Hossz"
+msgstr "Hosszúság"
 
 #: ../raphodo/generatenameconfig.py:258
 msgid "Frames Per Second"
@@ -1563,7 +1877,7 @@ msgstr "Utolsó 4 számjegy"
 #. language features capitalization
 #: ../raphodo/generatenameconfig.py:293
 msgid "Original Case"
-msgstr "Eredeti kisbetű / nagybetű"
+msgstr "Eredeti kisbetű/nagybetű"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your
 #. language features capitalization
@@ -1579,27 +1893,27 @@ msgstr "kisbetűs"
 
 #: ../raphodo/generatenameconfig.py:300
 msgid "One digit"
-msgstr "Egyszámjegyű"
+msgstr "Egy számjegy"
 
 #: ../raphodo/generatenameconfig.py:301
 msgid "Two digits"
-msgstr "Kétszámjegyű"
+msgstr "Két számjegy"
 
 #: ../raphodo/generatenameconfig.py:302
 msgid "Three digits"
-msgstr "Háromszámjegyű"
+msgstr "Három számjegy"
 
 #: ../raphodo/generatenameconfig.py:303
 msgid "Four digits"
-msgstr "Négyszámjegyű"
+msgstr "Négy számjegy"
 
 #: ../raphodo/generatenameconfig.py:304
 msgid "Five digits"
-msgstr "Ötszámjegyű"
+msgstr "Öt számjegy"
 
 #: ../raphodo/generatenameconfig.py:305
 msgid "Six digits"
-msgstr "Hatszámjegyű"
+msgstr "Hat számjegy"
 
 #: ../raphodo/generatenameconfig.py:306
 msgid "Seven digits"
@@ -1627,7 +1941,7 @@ msgstr "ÉÉÉÉ-HH-NN"
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:318 ../raphodo/generatenameconfig.py:395
 msgid "YYYY_MM_DD"
-msgstr ""
+msgstr "ÉÉÉÉ_HH_NN"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -1645,7 +1959,7 @@ msgstr "ÉÉ-HH-NN"
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:327
 msgid "YY_MM_DD"
-msgstr ""
+msgstr "ÉÉ_HH_NN"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -1759,94 +2073,94 @@ msgstr "MM"
 
 #: ../raphodo/generatenameconfig.py:393
 msgid "Date"
-msgstr ""
+msgstr "Dátum"
 
 #: ../raphodo/generatenameconfig.py:394
 msgid "Date (hyphens)"
-msgstr ""
+msgstr "Dátum (elválasztva)"
 
 #: ../raphodo/generatenameconfig.py:395
 msgid "Date (underscores)"
-msgstr ""
+msgstr "Dátum (aláhúzással)"
 
 #: ../raphodo/generatenameconfig.py:396 ../raphodo/generatenameconfig.py:442
 #: ../raphodo/generatenameconfig.py:537
 msgid "Date and Job Code"
-msgstr ""
+msgstr "Dátum és munka-kód"
 
 #: ../raphodo/generatenameconfig.py:396
 msgid "YYYYMM_Job Code"
-msgstr ""
+msgstr "YYYYMM_munka-kód"
 
 #: ../raphodo/generatenameconfig.py:397
 msgid "Date and Job Code Subfolder"
-msgstr ""
+msgstr "Dátum és munka-kód aldosszié"
 
 #: ../raphodo/generatenameconfig.py:397
 msgid "YYYYMM"
-msgstr ""
+msgstr "ÉÉÉÉHH"
 
 #: ../raphodo/generatenameconfig.py:397 ../raphodo/jobcodepanel.py:199
 #: ../raphodo/nameeditor.py:833 ../raphodo/rapid.py:1852
 #: ../raphodo/renamepanel.py:83 ../raphodo/renamepanel.py:241
 msgid "Job Code"
-msgstr "Munka kód"
+msgstr "Munka-kód"
 
 #: ../raphodo/generatenameconfig.py:437 ../raphodo/generatenameconfig.py:532
 msgid "Original Filename"
-msgstr ""
+msgstr "Eredeti fájlnév"
 
 #: ../raphodo/generatenameconfig.py:438 ../raphodo/generatenameconfig.py:533
 msgid "Date-Time and Downloads today"
-msgstr ""
+msgstr "Dátum-idő és mai letöltések"
 
 #: ../raphodo/generatenameconfig.py:438 ../raphodo/generatenameconfig.py:533
 msgid "YYYYMMDD-HHMM-1"
-msgstr ""
+msgstr "ÉÉÉÉHHNN-ÓÓPP-1"
 
 #: ../raphodo/generatenameconfig.py:439 ../raphodo/generatenameconfig.py:534
 msgid "Date and Downloads today"
-msgstr ""
+msgstr "Dátum és mai letöltések"
 
 #: ../raphodo/generatenameconfig.py:439 ../raphodo/generatenameconfig.py:534
 msgid "YYYYMMDD-1"
-msgstr ""
+msgstr "ÉÉÉÉHHNN-1"
 
 #: ../raphodo/generatenameconfig.py:440
 msgid "Date-Time and Image number"
-msgstr ""
+msgstr "Dátum-idő és Fotó száma"
 
 #: ../raphodo/generatenameconfig.py:440
 msgid "YYYYMMDD-1234"
-msgstr ""
+msgstr "ÉÉÉÉHHNN-1234"
 
 #: ../raphodo/generatenameconfig.py:441 ../raphodo/generatenameconfig.py:536
 msgid "Date-Time and Job Code"
-msgstr ""
+msgstr "Dátum-idő és munka-kód"
 
 #: ../raphodo/generatenameconfig.py:441 ../raphodo/generatenameconfig.py:536
 msgid "YYYYMMDD-HHMM-Job Code-1"
-msgstr ""
+msgstr "ÉÉÉÉHHNN-ÓÓPP-munka-kód-1"
 
 #: ../raphodo/generatenameconfig.py:442 ../raphodo/generatenameconfig.py:537
 msgid "YYYYMMDD-Job Code-1"
-msgstr ""
+msgstr "ÉÉÉÉHHNN-munka-kód-1"
 
 #: ../raphodo/generatenameconfig.py:535
 msgid "Date-Time and Video number"
-msgstr ""
+msgstr "Dátum-idő és Videó száma"
 
 #: ../raphodo/generatenameconfig.py:535
 msgid "YYYYMMDD_1234"
-msgstr ""
+msgstr "ÉÉÉÉHHDD_1234"
 
 #: ../raphodo/generatenameconfig.py:538
 msgid "Resolution"
-msgstr ""
+msgstr "Felbontás"
 
 #: ../raphodo/generatenameconfig.py:538
 msgid "YYYYMMDD-HHMM-1-1920x1080"
-msgstr ""
+msgstr "ÉÉÉÉHHNN-ÓÓPP-1-1920x1080"
 
 #: ../raphodo/jobcodepanel.py:64
 msgid "Enter a new Job Code, or select a previous one"
@@ -1857,6 +2171,8 @@ msgstr "Adjon meg új munka-kódot, vagy válasszon egyet a korábbiakból."
 #, python-format
 msgid "The Job Code will be applied to %s that does not yet have a Job Code."
 msgstr ""
+"A munka-kódot a(z) %s rendszerre alkalmazza, amely még nem rendelkezik munka-"
+"kóddal."
 
 #. Translators: the value substituted will be something like '85 photos and 5
 #. videos'.
@@ -1864,10 +2180,12 @@ msgstr ""
 #, python-format
 msgid "The Job Code will be applied to %s that do not yet have a Job Code."
 msgstr ""
+"A munka-kódot a(z) %s rendszerre alkalmazza, amely még nem rendelkezik munka-"
+"kóddal."
 
 #: ../raphodo/jobcodepanel.py:78
 msgid "Apply Job Code to Download"
-msgstr ""
+msgstr "Munka-kód alkalmazása a letöltéshez"
 
 #: ../raphodo/jobcodepanel.py:80
 msgid "Enter a new Job Code"
@@ -1875,170 +2193,183 @@ msgstr "Adjon meg új munka-kódot"
 
 #: ../raphodo/jobcodepanel.py:86
 msgid "The new Job Code will not be applied to any photos or videos."
-msgstr ""
+msgstr "Az új munka-kód nem alkalmazható semmilyen fényképen vagy videón."
 
 #. Translators: the value substituted will be something like '100 photos and 5
 #. videos'.
 #: ../raphodo/jobcodepanel.py:92
 #, python-format
 msgid "The new Job Code will <b>not</b> be applied to %s."
-msgstr ""
+msgstr "Az új munka-kódot <b> nem </b> kell alkalmazni a %s -ra."
 
 #. Translators: the value substituted will be something like '100 photos and 5
 #. videos'.
 #: ../raphodo/jobcodepanel.py:97
 #, python-format
 msgid "The new Job Code will be applied to %s."
-msgstr ""
+msgstr "Az új munkakódot a(z) %s fájlra kell alkalmazni."
 
 #: ../raphodo/jobcodepanel.py:99
 msgid "New Job Code"
-msgstr ""
+msgstr "Új munka-kód"
 
 #: ../raphodo/jobcodepanel.py:134
 msgid "&Job Code:"
-msgstr ""
+msgstr "&Munka-kód:"
 
 #: ../raphodo/jobcodepanel.py:136 ../raphodo/rememberthisdialog.py:68
 msgid "&Remember this choice"
-msgstr ""
+msgstr "&Emlékezzen erre a választásra"
 
 #: ../raphodo/jobcodepanel.py:186
 msgid ""
 "Select photos and videos to be able to apply a new or existing Job Code to "
 "them."
 msgstr ""
+"Jelöljön ki fényképeket és videókat, hogy új vagy meglévő munka-kódot adjon "
+"hozzájuk."
 
 #: ../raphodo/jobcodepanel.py:187
 msgid "The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
+"Az új munka-kódot minden kiválasztott fényképre és/vagy videóra alkalmazzák."
 
 #: ../raphodo/jobcodepanel.py:188
 msgid ""
 "Click the Apply button to apply the current Job Code to all selected photos "
 "and/or videos. You can also simply double click the Job Code."
 msgstr ""
+"Kattintson az Alkalmaz gombra, hogy az aktuális munka-kódot minden "
+"kiválasztott fényképre és/vagy videóra alkalmazza. Egyszerűen duplán "
+"kattinthat a munka-kódra is."
 
 #: ../raphodo/jobcodepanel.py:190
 msgid ""
 "Removing a Job Code removes it only from the list of saved Job Codes, not "
 "from any photos or videos that it may have been applied to."
 msgstr ""
+"A munka-kód eltávolítása csak az elmentett munkakódok listájából távolítja "
+"el azt és nem olyan fényképekből vagy videókból, amelyekre alkalmazva van."
 
 #: ../raphodo/jobcodepanel.py:192
 msgid ""
 "If you want to use Job Codes, configure file renaming or destination "
 "subfolder names to use them."
 msgstr ""
+"Ha munka-kódokat kíván alkalmazni, konfigurálja a fájl átnevezését vagy a "
+"cél alkönyvtár nevét."
 
 #: ../raphodo/jobcodepanel.py:198
 msgid "Last Used"
-msgstr ""
+msgstr "Utoljára használt"
 
 #: ../raphodo/jobcodepanel.py:203
 msgid "Job Code Sort:"
-msgstr ""
+msgstr "Munka-kód rendezés:"
 
 #: ../raphodo/jobcodepanel.py:206 ../raphodo/rapid.py:2133
 msgid "Ascending"
-msgstr ""
+msgstr "Növekvő"
 
 #: ../raphodo/jobcodepanel.py:207 ../raphodo/rapid.py:2134
 msgid "Descending"
-msgstr ""
+msgstr "Csökkenő"
 
 #: ../raphodo/jobcodepanel.py:217
 msgid "&New..."
-msgstr ""
+msgstr "&Új..."
 
 #: ../raphodo/jobcodepanel.py:221
 msgid "&Apply"
-msgstr ""
+msgstr "&Alkalmaz"
 
 #: ../raphodo/jobcodepanel.py:225
 msgid "&Remove"
-msgstr ""
+msgstr "&Eltávolít"
 
 #: ../raphodo/jobcodepanel.py:229 ../raphodo/preferencedialog.py:200
 #: ../raphodo/preferencedialog.py:229 ../raphodo/preferencedialog.py:531
 msgid "Remove All"
-msgstr ""
+msgstr "Mindent eltávolít"
 
 #: ../raphodo/jobcodepanel.py:428
 msgid "Do you really want to remove all the Job Codes?"
-msgstr ""
+msgstr "Összes munka-kód eltávolítása?"
 
 #: ../raphodo/jobcodepanel.py:430
 msgid "Remove all Job Codes"
-msgstr ""
+msgstr "Összes munka-kód eltávolítása"
 
 #: ../raphodo/jobcodepanel.py:493
 msgid "Job Codes"
-msgstr "Munka-szám"
+msgstr "Munka-kód"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and
 #. <b>. These are used to format the text the users sees
 #: ../raphodo/messagewidget.py:65
 #, python-format
 msgid "<i><b>Hint:</b> %(message)s"
-msgstr ""
+msgstr "<i><b> Tipp: </b> %(message)s"
 
 #: ../raphodo/nameeditor.py:423 ../raphodo/nameeditor.py:437
 #, python-format
 msgid "%(description)s - %(elements)s"
-msgstr ""
+msgstr "%(description)s - %(elements)s"
 
 #: ../raphodo/nameeditor.py:517
 msgid "Save New Custom Preset..."
-msgstr ""
+msgstr "Az új egyéni előbeállítások mentése ..."
 
 #: ../raphodo/nameeditor.py:518
 msgid "Remove All Custom Presets..."
-msgstr ""
+msgstr "Összes egyéni előbeállítás eltávolítása ..."
 
 #: ../raphodo/nameeditor.py:564
 msgid "(New Custom Preset)"
-msgstr ""
+msgstr "(Új egyéni beállítás)"
 
 #: ../raphodo/nameeditor.py:581
 #, python-format
 msgid "%s (edited)"
-msgstr ""
+msgstr "%s (edited)"
 
 #: ../raphodo/nameeditor.py:584 ../raphodo/nameeditor.py:1379
 #, python-format
 msgid "Update Custom Preset \"%s\""
-msgstr ""
+msgstr "Egyéni beállítások frissítése \"%s\""
 
 #: ../raphodo/nameeditor.py:672
 msgid "Save New Custom Preset - Rapid Photo Downloader"
-msgstr ""
+msgstr "Mentse az új egyéni beállításokat - Rapid Photo Downloader"
 
 #: ../raphodo/nameeditor.py:680
 msgid "Preset Name:"
-msgstr ""
+msgstr "Előre beállított név:"
 
 #: ../raphodo/nameeditor.py:799
 msgid "Photo Subfolder Generation Editor"
-msgstr ""
+msgstr "Fénykép alkönyvtár generációs szerkesztő"
 
 #: ../raphodo/nameeditor.py:805
 msgid "Video Subfolder Generation Editor"
-msgstr ""
+msgstr "Videó alkönyvtár generációs szerkesztő"
 
 #: ../raphodo/nameeditor.py:811
 msgid "Photo Renaming Editor"
-msgstr ""
+msgstr "Fénykép átnevezés szerkesztő"
 
 #: ../raphodo/nameeditor.py:817
 msgid "Video Renaming Editor"
-msgstr ""
+msgstr "Videó átnevezés szerkesztő"
 
 #: ../raphodo/nameeditor.py:842
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>There is insufficient data to "
 "fully generate the name. Please use other renaming options.</i>"
 msgstr ""
+"<b><font color = \"red\"> Figyelmeztetés: </font> </b><i> Nincs elég adat a "
+"név teljes generálásához. Kérjük, használjon más átnevezési beállításokat. </"
+"i>"
 
 #. Translators: please do not modify, change the order of or leave out html formatting
 #. tags like <i> and <b>. These are used to format the text the users sees.
@@ -2046,7 +2377,7 @@ msgstr ""
 #: ../raphodo/nameeditor.py:853
 #, python-format
 msgid "The character</i> %(separator)s <i>creates a new subfolder level."
-msgstr ""
+msgstr "A karakter <i> %(separator)s </i> új almappát állít elő."
 
 #. Translators: please do not modify, change the order of or leave out html formatting
 #. tags like <i> and <b>. These are used to format the text the users sees
@@ -2057,34 +2388,39 @@ msgid ""
 "There is no need start or end with the folder separator </i> "
 "%(separator)s<i>, because it is added automatically."
 msgstr ""
+"Nincs szükség a szeparátor <i> %(separator)s </i> elindítására vagy "
+"befejezésére, mert automatikusan hozzáadódik."
 
 #: ../raphodo/nameeditor.py:866
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>Unique filenames may not be "
 "generated. Make filenames unique by using Sequence values.</i>"
 msgstr ""
+"<b> <font color = \"red\"> Figyelmeztetés: </font> </b> <i> Nem hozhatók "
+"létre egyedi fájlnevek.  A szekvenciaértékek használatával egyedi "
+"fájlneveket hozhat létre. </i>"
 
 #: ../raphodo/nameeditor.py:889 ../raphodo/renamepanel.py:121
 msgid "Preset:"
-msgstr ""
+msgstr "Előbeállítás:"
 
 #. Translators: appears in a combobox, e.g. Image Date (YYYY)
 #: ../raphodo/nameeditor.py:966 ../raphodo/nameeditor.py:987
 #, python-brace-format
 msgid "{choice} ({variant})"
-msgstr ""
+msgstr "{choice} ({variant})"
 
 #: ../raphodo/nameeditor.py:1012 ../raphodo/preferencedialog.py:783
 msgid "Get help online..."
-msgstr ""
+msgstr "Online segítség kérése ..."
 
 #: ../raphodo/nameeditor.py:1034
 msgid "Insert"
-msgstr ""
+msgstr "Beszúrás"
 
 #: ../raphodo/nameeditor.py:1360
 msgid "Save Preset - Rapid Photo Downloader"
-msgstr ""
+msgstr "Előbeállítás mentése - Rapid Photo Downloader"
 
 #: ../raphodo/nameeditor.py:1365
 msgid ""
@@ -2093,6 +2429,10 @@ msgid ""
 "organized.<br><br>The changes to the preferences will still be applied "
 "regardless of whether you create a new custom preset or not."
 msgstr ""
+"<b> Szeretné menteni a változtatásokat egy új egyéni programcsomagban? </b> "
+"<br> <br> Egyéni beállítások létrehozása nem szükséges, de segíthet a "
+"szervezettség megőrzésében. A preferenciák továbbra is alkalmazásra kerülnek "
+"függetlenül attól, hogy létrehozott-e egy új egyéni beállítást vagy sem."
 
 #: ../raphodo/nameeditor.py:1374
 msgid ""
@@ -2101,62 +2441,67 @@ msgid ""
 "preset.<br><br>The changes to the preferences will still be applied "
 "regardless of whether you save a custom preset or not."
 msgstr ""
+"<b> Szeretné a változásokat egyéni beállításokba menteni? </b> <br> <br> Ha "
+"igen, létrehozhat egy új egyéni beállítást vagy frissítheti a meglévő egyéni "
+"beállításokat. A preferenciák módosításai továbbra is alkalmazásra kerülnek, "
+"függetlenül attól, hogy egyéni beállításokat mentett-e vagy sem."
 
 #: ../raphodo/nameeditor.py:1381
 msgid "Save New Custom Preset"
-msgstr ""
+msgstr "Új egyéni beállítás mentése"
 
 #: ../raphodo/newversion.py:312
 msgid "Checking for new version..."
-msgstr ""
+msgstr "Új verzió ellenőrzése ..."
 
 #: ../raphodo/newversion.py:313
 msgid "You are running the latest version."
-msgstr ""
+msgstr "Ön a legújabb verziót futtatja."
 
 #: ../raphodo/newversion.py:314
 msgid "Failed to contact the update server."
-msgstr ""
+msgstr "Nem sikerült kapcsolatba lépni a frissítést tartalmazó szerverrel."
 
 #: ../raphodo/newversion.py:316
 #, python-format
 msgid "A new version of Rapid Photo Downloader (%s) is available."
-msgstr ""
+msgstr "A Rapid Photo Downloader (%s) új verziója elérhető."
 
 #: ../raphodo/newversion.py:318
 msgid "Do you want to download the new version?"
-msgstr ""
+msgstr "Szeretné letölteni az új verziót?"
 
 #: ../raphodo/newversion.py:319
 #, python-format
 msgid "Changes in the new release can be viewed <a href=\"%s\">here</a>."
 msgstr ""
+"Az új verzióban történt változások megtekinthetők: <a href=\"%s\"> itt </a>."
 
 #. Translators: this text appears in a button - the & sets the s key in combination with
 #. the alt key to act as the keyboard shortcut
 #: ../raphodo/newversion.py:348 ../raphodo/newversion.py:363
 msgid "&Skip this release"
-msgstr ""
+msgstr "&Kiadás kihagyása"
 
 #. Translators: this text appears in a button - the & sets the o key in combination with
 #. the alt key to act as the keyboard shortcut
 #: ../raphodo/newversion.py:366
 msgid "&Open Download Page"
-msgstr ""
+msgstr "&Letöltési oldal megnyitása"
 
 #: ../raphodo/newversion.py:386
 msgid "Rapid Photo Downloader updates"
-msgstr ""
+msgstr "A Rapid Photo Downloader frissítései"
 
 #. Translators: shows how much of a file has been downloaded e.g  123 KB of 1.3 MB
 #: ../raphodo/newversion.py:488
 #, python-format
 msgid "%(downloaded)s of %(total)s"
-msgstr ""
+msgstr "Letöltve: %(downloaded)s / Összes: %(total)s"
 
 #: ../raphodo/newversion.py:507
 msgid "Downloading..."
-msgstr ""
+msgstr "Letöltés ..."
 
 #: ../raphodo/preferencedialog.py:86
 msgid "Preferences"
@@ -2168,7 +2513,7 @@ msgstr "Automatizálás"
 
 #: ../raphodo/preferencedialog.py:108 ../raphodo/preferencedialog.py:118
 msgid "Thumbnails"
-msgstr "Előnézeti képek"
+msgstr "Bélyegképek"
 
 #: ../raphodo/preferencedialog.py:108 ../raphodo/preferencedialog.py:118
 #: ../raphodo/preferencedialog.py:428
@@ -2177,11 +2522,11 @@ msgstr "Hibakezelés"
 
 #: ../raphodo/preferencedialog.py:108 ../raphodo/preferencedialog.py:118
 msgid "Warnings"
-msgstr ""
+msgstr "Figyelmeztetések"
 
 #: ../raphodo/preferencedialog.py:109
 msgid "Consolidation"
-msgstr ""
+msgstr "Megerősítés"
 
 #: ../raphodo/preferencedialog.py:109 ../raphodo/preferencedialog.py:119
 msgid "Miscellaneous"
@@ -2189,11 +2534,11 @@ msgstr "Egyebek"
 
 #: ../raphodo/preferencedialog.py:147
 msgid "Device Scanning"
-msgstr ""
+msgstr "Eszközkeresés"
 
 #: ../raphodo/preferencedialog.py:148
 msgid "Scan only external devices"
-msgstr ""
+msgstr "Csak külső eszközöket vizsgáljon"
 
 #: ../raphodo/preferencedialog.py:150
 msgid ""
@@ -2201,12 +2546,17 @@ msgid ""
 "computer,\n"
 "including cameras, memory cards, external hard drives, and USB flash drives."
 msgstr ""
+"Fényképek és videók csak a számítógépen kívüli eszközökről,\n"
+"beleértve a fényképezőgépeket, memóriakártyákat, külső merevlemezeket és USB "
+"flash meghajtókat."
 
 #: ../raphodo/preferencedialog.py:153
+#, fuzzy
 msgid "Scan only specific folders on devices"
-msgstr ""
+msgstr "Csak külső eszközöket vizsgáljon"
 
 #: ../raphodo/preferencedialog.py:155
+#, fuzzy
 msgid ""
 "Scan for photos and videos only in the folders specified below (except "
 "paths\n"
@@ -2214,6 +2564,11 @@ msgid ""
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Használjon szabályos kifejezéseket a figyelmen kívül hagyott elérési utak "
+"listáján.\n"
+"\n"
+"Ennek a beállításnak a megváltoztatásával minden eszköz újra beolvasásra "
+"kerül."
 
 #: ../raphodo/preferencedialog.py:161
 #, fuzzy
@@ -2228,40 +2583,56 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:167 ../raphodo/preferencedialog.py:219
 msgid "Add..."
-msgstr ""
+msgstr "Hozzáadás ..."
 
 #: ../raphodo/preferencedialog.py:169
+#, fuzzy
 msgid ""
 "Add a folder to the list of folders to scan for photos and videos.\n"
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Adjon hozzá egy elérési utat a figyelmen kívül hagyandó elérési utak "
+"listájához.\n"
+"\n"
+"Ennek a beállításnak a megváltoztatásával minden eszköz újra beolvasásra "
+"kerül."
 
 #: ../raphodo/preferencedialog.py:172 ../raphodo/preferencedialog.py:198
 #: ../raphodo/preferencedialog.py:224 ../raphodo/preferencedialog.py:529
 msgid "Remove"
-msgstr ""
+msgstr "Eltávolít"
 
 #: ../raphodo/preferencedialog.py:174
+#, fuzzy
 msgid ""
 "Remove a folder from the list of folders to scan for photos and videos.\n"
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Távolítson el egy elérési utat a figyelmen kívül hagyni kívánt elérési utak "
+"listájáról.\n"
+"\n"
+"Ennek a beállításnak a megváltoztatásával minden eszköz újra beolvasásra "
+"kerül."
 
 #: ../raphodo/preferencedialog.py:191
 msgid "Devices that have been set to automatically ignore or download from."
 msgstr ""
+"Olyan eszközök, amelyeket beállított, hogy automatikusan figyelmen kívül "
+"hagyják vagy letöltik."
 
 #: ../raphodo/preferencedialog.py:192
 msgid "Remembered Devices"
-msgstr ""
+msgstr "Megjegyzett eszközök"
 
 #: ../raphodo/preferencedialog.py:196
 msgid ""
 "Remove a device from the list of devices to automatically ignore or download "
 "from."
 msgstr ""
+"Távolítson el egy eszközt az eszközök listájáról, hogy automatikusan "
+"figyelmen kívül hagyja vagy letöltse."
 
 #: ../raphodo/preferencedialog.py:202
 msgid ""
@@ -2270,15 +2641,22 @@ msgid ""
 "\n"
 "Note: Changes take effect when the computer is next scanned for devices."
 msgstr ""
+"Törölje azon eszközök listáját, amelyekről automatikusan figyelmen kívül "
+"hagy vagy letölt.\n"
+"\n"
+"Megjegyzés: A módosítások akkor lépnek életbe, amikor a számítógép a "
+"következő eszközkeresést végzi."
 
 #: ../raphodo/preferencedialog.py:215
 msgid "Ignored Paths"
-msgstr "Mellőzött útvonal"
+msgstr "Mellőzött elérési út"
 
 #: ../raphodo/preferencedialog.py:216
 msgid ""
 "The end part of a path that should never be scanned for photos or videos."
 msgstr ""
+"Az elérési út végső része, amelyen soha nem szabad fényképeket vagy videókat "
+"keresni."
 
 #: ../raphodo/preferencedialog.py:221
 msgid ""
@@ -2286,6 +2664,11 @@ msgid ""
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Adjon hozzá egy elérési utat a figyelmen kívül hagyandó elérési utak "
+"listájához.\n"
+"\n"
+"Ennek a beállításnak a megváltoztatásával minden eszköz újra beolvasásra "
+"kerül."
 
 #: ../raphodo/preferencedialog.py:226
 msgid ""
@@ -2293,6 +2676,11 @@ msgid ""
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Távolítson el egy elérési utat a figyelmen kívül hagyni kívánt elérési utak "
+"listájáról.\n"
+"\n"
+"Ennek a beállításnak a megváltoztatásával minden eszköz újra beolvasásra "
+"kerül."
 
 #: ../raphodo/preferencedialog.py:231
 msgid ""
@@ -2300,12 +2688,18 @@ msgid ""
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Törölje a figyelmen kívül hagyandó elérési utak listáját.\n"
+"\n"
+"Ennek a beállításnak a megváltoztatásával minden eszköz újra beolvasásra "
+"kerül."
 
 #: ../raphodo/preferencedialog.py:239
 msgid ""
 "Use python-style <a href=\"http://damonlynch.net/rapid/documentation/"
 "#regularexpressions\">regular expressions</a>"
 msgstr ""
+"Használjon python stílusú <a href=\"http://damonlynch.net/rapid/"
+"documentation/#regularexpressions\"> szabályos kifejezéseket </a>"
 
 #: ../raphodo/preferencedialog.py:243
 msgid ""
@@ -2313,10 +2707,15 @@ msgid ""
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Használjon szabályos kifejezéseket a figyelmen kívül hagyott elérési utak "
+"listáján.\n"
+"\n"
+"Ennek a beállításnak a megváltoztatásával minden eszköz újra beolvasásra "
+"kerül."
 
 #: ../raphodo/preferencedialog.py:283
 msgid "Program Automation"
-msgstr ""
+msgstr "Program automatizálás"
 
 #: ../raphodo/preferencedialog.py:284
 msgid "Start downloading at program startup"
@@ -2324,11 +2723,11 @@ msgstr "A letöltés megkezdése a program indításakor"
 
 #: ../raphodo/preferencedialog.py:285
 msgid "Start downloading upon device insertion"
-msgstr "Azonnali letöltés a készülék csatlakoztatását követően."
+msgstr "Azonnali letöltés a készülék csatlakoztatását követően"
 
 #: ../raphodo/preferencedialog.py:286
 msgid "Unmount (eject) device upon download completion"
-msgstr ""
+msgstr "A letöltés befejeztével távolítsa el a forrás eszközt"
 
 #: ../raphodo/preferencedialog.py:287
 msgid "Exit program when download completes"
@@ -2340,93 +2739,97 @@ msgstr "Kilépés a programból letöltési hibák és figyelmeztetések ellené
 
 #: ../raphodo/preferencedialog.py:315
 msgid "Thumbnail Generation"
-msgstr ""
+msgstr "Bélyegkép generáció"
 
 #: ../raphodo/preferencedialog.py:316
 msgid "Generate thumbnails"
-msgstr ""
+msgstr "Bélyegképek létrehozása"
 
 #: ../raphodo/preferencedialog.py:318
 msgid "Generate thumbnails to show in the main program window"
-msgstr ""
+msgstr "Bélyegképek létrehozása a fő programablakban"
 
 #: ../raphodo/preferencedialog.py:320
 msgid "Cache thumbnails"
-msgstr ""
+msgstr "Bélyegképek gyorsítótár"
 
 #: ../raphodo/preferencedialog.py:323
 msgid ""
 "Save thumbnails shown in the main program window in a thumbnail cache unique "
 "to Rapid Photo Downloader"
 msgstr ""
+"Mentse el a fő programablakban megjelenített bélyegképeket a Rapid Photo "
+"Downloader egyedi bélyegkép  gyorsítótárában"
 
 #: ../raphodo/preferencedialog.py:327
 msgid "Generate system thumbnails"
-msgstr ""
+msgstr "Rendszerbélyegképek létrehozása"
 
 #: ../raphodo/preferencedialog.py:330
 msgid ""
 "While downloading, save thumbnails that can be used by desktop file managers "
 "and other programs"
 msgstr ""
+"A letöltés során mentse el a bélyegképeket, amelyeket az asztali fájlkezelők "
+"és más programok használhatnak"
 
 #: ../raphodo/preferencedialog.py:339
 msgid "Number of CPU cores used to generate thumbnails."
-msgstr ""
+msgstr "A bélyegképek előállításához használt CPU magok száma."
 
 #: ../raphodo/preferencedialog.py:340
 msgid "CPU cores:"
-msgstr ""
+msgstr "CPU magok:"
 
 #. Translators: the * acts as an asterisk to denote a reference to an annotation
 #. such as '* Takes effect upon program restart'
 #: ../raphodo/preferencedialog.py:355 ../raphodo/preferencedialog.py:401
 msgid "*"
-msgstr ""
+msgstr "*"
 
 #: ../raphodo/preferencedialog.py:378
 msgid "Thumbnail Cache"
-msgstr ""
+msgstr "Bélyegkép gyorsítótár"
 
 #: ../raphodo/preferencedialog.py:380
 msgid "Calculating..."
-msgstr ""
+msgstr "Számítás..."
 
 #: ../raphodo/preferencedialog.py:386
 msgid "days"
-msgstr ""
+msgstr "napok"
 
 #: ../raphodo/preferencedialog.py:387
 msgid "forever"
-msgstr ""
+msgstr "örökké"
 
 #: ../raphodo/preferencedialog.py:392
 msgid "Cache size:"
-msgstr ""
+msgstr "Gyorsítótár méret:"
 
 #: ../raphodo/preferencedialog.py:394
 msgid "Number of thumbnails:"
-msgstr ""
+msgstr "Bélyegképek száma:"
 
 #: ../raphodo/preferencedialog.py:396
 msgid "Database size:"
-msgstr ""
+msgstr "Adatbázis mérete:"
 
 #: ../raphodo/preferencedialog.py:398
 msgid "Cache unaccessed thumbnails for:"
-msgstr ""
+msgstr "Gyorsítótárnak nem elérhető bélyegképek:"
 
 #: ../raphodo/preferencedialog.py:406
 msgid "Purge Cache..."
-msgstr ""
+msgstr "Gyorsítótár tisztítása..."
 
 #: ../raphodo/preferencedialog.py:408
 msgid "Optimize Cache..."
-msgstr ""
+msgstr "Gyorsítás optimalizálása..."
 
 #: ../raphodo/preferencedialog.py:421
 msgid "* Takes effect upon program restart"
-msgstr ""
+msgstr "* A program újraindításakor érvényesül"
 
 #: ../raphodo/preferencedialog.py:431
 msgid "Skip download"
@@ -2434,7 +2837,7 @@ msgstr "A letöltés kihagyása"
 
 #: ../raphodo/preferencedialog.py:432
 msgid "Don't download the file, and issue an error message"
-msgstr ""
+msgstr "Ne töltse le a fájlt és adjon ki hibaüzenetet"
 
 #: ../raphodo/preferencedialog.py:433
 msgid "Add unique identifier"
@@ -2445,6 +2848,8 @@ msgid ""
 "Add an identifier like _1 or _2 to the end of the filename, immediately "
 "before the file's extension"
 msgstr ""
+"Adjon hozzá egy _1 vagy _2 azonosítót a fájlnév végéhez közvetlenül a fájl "
+"kiterjesztése előtt"
 
 #: ../raphodo/preferencedialog.py:444
 msgid "Overwrite"
@@ -2452,7 +2857,7 @@ msgstr "Felülírás"
 
 #: ../raphodo/preferencedialog.py:445
 msgid "Overwrite the previously backed up file"
-msgstr ""
+msgstr "Felülírja az előzőleg mentett fájlt"
 
 #: ../raphodo/preferencedialog.py:446
 msgid "Skip"
@@ -2460,13 +2865,15 @@ msgstr "Kihagyás"
 
 #: ../raphodo/preferencedialog.py:448
 msgid "Don't overwrite the backup file, and issue an error message"
-msgstr ""
+msgstr "Ne írja felül a biztonsági másolatot és adjon ki hibaüzenetet"
 
 #: ../raphodo/preferencedialog.py:455
 msgid ""
 "When a photo or video of the same name has already been downloaded, choose "
 "whether to skip downloading the file, or to add a unique identifier:"
 msgstr ""
+"Ha ugyanazt a fényképet vagy videót már le is töltötte, válassza ki, hogy "
+"kihagyja-e a fájl letöltését vagy egyedi azonosítót ad:"
 
 #: ../raphodo/preferencedialog.py:464
 msgid ""
@@ -2474,105 +2881,129 @@ msgid ""
 "strongly recommended. Configure file renaming in the Rename panel in the "
 "main window."
 msgstr ""
+"Erősen ajánlott a sorozatszámok használata, amelyek automatikusan "
+"létrehoznak egyedi fájlneveket. Állítsa át a fájl átnevezését a főablak "
+"Átnevezés panelen."
 
 #: ../raphodo/preferencedialog.py:473
 msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up:"
 msgstr ""
+"A biztonsági mentés során válassza ki, hogy felülírja-e a mentett eszközön "
+"egy azonos nevet tartalmazó fájlt, vagy hagyja felül írni a biztonsági "
+"másolatot:"
 
 #: ../raphodo/preferencedialog.py:494
 msgid "Program Warnings"
-msgstr ""
+msgstr "Program figyelmeztetések"
 
 #: ../raphodo/preferencedialog.py:495
 msgid "Show a warning when:"
-msgstr ""
+msgstr "Figyelmeztetés megjelenítése, ha:"
 
 #: ../raphodo/preferencedialog.py:498
 msgid "Downloading files currently not displayed"
-msgstr ""
+msgstr "A jelenleg nem megjelenített fájlok letöltése"
 
 #: ../raphodo/preferencedialog.py:499
 msgid ""
 "Warn when about to download files that are not displayed in the main window."
 msgstr ""
+"Figyelmeztetés, amikor olyan fájlokat tölt le, amelyek nem jelennek meg a "
+"főablakban."
 
 #: ../raphodo/preferencedialog.py:501
 msgid "Backup destinations are missing"
-msgstr ""
+msgstr "A mentési célok hiányoznak"
 
 #: ../raphodo/preferencedialog.py:502
 msgid "Warn before starting a download if it is not possible to back up files."
 msgstr ""
+"Figyelmeztetés a letöltés megkezdése előtt, ha a fájlok biztonsági mentése "
+"nem lehetséges."
 
 #: ../raphodo/preferencedialog.py:504
 msgid "Program libraries are missing or broken"
-msgstr ""
+msgstr "A programkönyvtárak hiányoznak vagy hibásak"
 
 #: ../raphodo/preferencedialog.py:505
 msgid ""
 "Warn if a software library used by Rapid Photo Downloader is missing or not "
 "functioning."
 msgstr ""
+"Figyelmeztetés, ha a Rapid Photo Downloader által használt szoftverkönyvtár "
+"hiányzik vagy nem működik."
 
 #: ../raphodo/preferencedialog.py:508
 msgid "Filesystem metadata cannot be set"
-msgstr ""
+msgstr "A fájlrendszer metaadatait nem lehet beállítani"
 
 #: ../raphodo/preferencedialog.py:509
 msgid ""
 "Warn if there is an error setting a file's filesystem metadata, such as its "
 "modification time."
 msgstr ""
+"Figyelmeztetés, ha hiba van a fájl fájlrendszer metaadataiban, például a "
+"módosítási idő beállításának."
 
 #: ../raphodo/preferencedialog.py:512
 msgid "Encountering unhandled files"
-msgstr ""
+msgstr "Nem kezelt fájlok találkozása"
 
 #: ../raphodo/preferencedialog.py:513
 msgid ""
 "Warn after scanning a device or this computer if there are unrecognized "
 "files that will not be included in the download."
 msgstr ""
+"Figyelmeztetés az eszköz vagy a számítógép lekeresése után, ha vannak "
+"ismeretlen fájlok, amelyek nem szerepelnek a letöltésben."
 
 #: ../raphodo/preferencedialog.py:517
 msgid "Do not warn about unhandled files with extensions:"
-msgstr ""
+msgstr "Ne figyelmeztesse a nem kezelt fájlokat kiterjesztéssel:"
 
 #: ../raphodo/preferencedialog.py:522
 msgid ""
 "File extensions are case insensitive and do not need to include the leading "
 "dot."
 msgstr ""
+"A fájlkiterjesztések kis-és nagybetűket nem tartalmaznak és nem kell "
+"tartalmazniuk a vezető pontot."
 
 #: ../raphodo/preferencedialog.py:525
 msgid "Add"
-msgstr ""
+msgstr "Hozzáad"
 
 #: ../raphodo/preferencedialog.py:526
 msgid ""
 "Add a file extension to the list of unhandled file types to not warn about."
 msgstr ""
+"Adjon hozzá egy fájlkiterjesztést a nem kezelt fájltípusok listájához, hogy "
+"ne figyelmeztessen."
 
 #: ../raphodo/preferencedialog.py:528
 msgid ""
 "Remove a file extension from the list of unhandled file types to not warn "
 "about."
 msgstr ""
+"Távolítson el egy fájlkiterjesztést a nem kezelt fájltípusok listájáról, "
+"hogy ne figyelmeztessen."
 
 #: ../raphodo/preferencedialog.py:532
 msgid ""
 "Clear the list of file extensions of unhandled file types to not warn about."
 msgstr ""
+"Törölje a nem kezelt fájltípusok fájlkiterjesztéseinek listáját, hogy ne "
+"figyelmeztessen."
 
 #: ../raphodo/preferencedialog.py:568
 msgid "Photo and Video Consolidation"
-msgstr ""
+msgstr "Fénykép és videó megerősítés"
 
 #: ../raphodo/preferencedialog.py:571
 msgid "Consolidate files across devices and downloads"
-msgstr ""
+msgstr "Erősítse meg a fájlokat eszközökön és letöltéseken"
 
 #: ../raphodo/preferencedialog.py:574
 msgid ""
@@ -2580,46 +3011,53 @@ msgid ""
 "RAW and JPEG pairs,\n"
 "comparing them across multiple devices and download sessions."
 msgstr ""
+"Elemezze az eszközkeresések eredményeit, amelyek duplikátum fájlokat és RAW- "
+"és JPEG-párokat keresnek,\n"
+"összehasonlítva azokat több eszközön és a letöltési munkamenetek között."
 
 #: ../raphodo/preferencedialog.py:580
 msgid "Treat matching RAW and JPEG files as:"
-msgstr ""
+msgstr "Az illeszkedő RAW és JPEG fájlok kezelése:"
 
 #: ../raphodo/preferencedialog.py:581
 msgid "One photo"
-msgstr ""
+msgstr "Egy fénykép"
 
 #: ../raphodo/preferencedialog.py:582
 msgid "Two photos"
-msgstr ""
+msgstr "Két fénykép"
 
 #: ../raphodo/preferencedialog.py:584
 msgid ""
 "Display matching pairs of RAW and JPEG photos as one photo, and if marked, "
 "download both."
 msgstr ""
+"A RAW- és JPEG-képek illesztése páronként egy fotót jelenítsen meg, és ha "
+"jelölve van, töltse le mindkettőt."
 
 #: ../raphodo/preferencedialog.py:589
 msgid ""
 "Display matching pairs of RAW and JPEG photos as two different photos. You "
 "can still synchronize their sequence numbers."
 msgstr ""
+"A RAW- és JPEG-képek egyező párjainak megjelenítése két különböző "
+"fényképként. Később még mindig szinkronizálhatja a sorszámukat."
 
 #: ../raphodo/preferencedialog.py:598
 msgid "With matching RAW and JPEG photos:"
-msgstr ""
+msgstr "Megfelelő RAW és JPEG képekkel:"
 
 #: ../raphodo/preferencedialog.py:600
 msgid "Do not mark JPEG for download"
-msgstr ""
+msgstr "Ne jelölje meg a JPEG letöltést"
 
 #: ../raphodo/preferencedialog.py:601
 msgid "Do not mark RAW for download"
-msgstr ""
+msgstr "Ne jelölje meg a RAW letöltést"
 
 #: ../raphodo/preferencedialog.py:602
 msgid "Mark both for download"
-msgstr ""
+msgstr "Jelölje meg mind a letöltéshez"
 
 #: ../raphodo/preferencedialog.py:609
 msgid ""
@@ -2627,6 +3065,9 @@ msgid ""
 "JPEG for\n"
 "download. You can still mark it for download yourself."
 msgstr ""
+"Amikor RAW és JPEG képeket talál, akkor nem jelöli meg automatikusan a JPEG-"
+"et\n"
+"letöltéshez. Még mindig megjelölheti letöltéshez."
 
 #: ../raphodo/preferencedialog.py:614
 msgid ""
@@ -2634,69 +3075,83 @@ msgid ""
 "RAW for\n"
 "download. You can still mark it for download yourself."
 msgstr ""
+"Amikor RAW és JPEG képeket talál, akkor nem jelöli meg automatikusan a RAW "
+"értéket\n"
+"letöltéshez. Még mindig megjelölheti letöltéshez."
 
 #: ../raphodo/preferencedialog.py:619
 msgid ""
 "When matching RAW and JPEG photos are found, automatically mark both for "
 "download."
 msgstr ""
+"Amikor RAW és JPEG képeket talál, akkor a letöltés automatikusan jelzi."
 
 #: ../raphodo/preferencedialog.py:625
 msgid ""
 "If you disable file consolidation, choose what to do when a download device "
 "is inserted while completed downloads are displayed:"
 msgstr ""
+"Ha letiltja a fájlok összevonását, válassza ki, hogy mit kell tennie, amikor "
+"a letöltési eszköz megjeleníti letöltött fájlokat:"
 
 #: ../raphodo/preferencedialog.py:631
 msgid ""
 "When a download device is inserted while completed downloads are displayed:"
 msgstr ""
+"Ha a letöltési eszköz be van helyezve és a teljes letöltést mutatja a "
+"képernyő:"
 
 #: ../raphodo/preferencedialog.py:642
 msgid "Clear completed downloads"
-msgstr ""
+msgstr "A befejezett letöltések törlése"
 
 #: ../raphodo/preferencedialog.py:643
 msgid "Keep displaying completed downloads"
-msgstr ""
+msgstr "Folytassa a befejezett letöltések megjelenítését"
 
 #: ../raphodo/preferencedialog.py:644
 msgid "Prompt for what to do"
-msgstr ""
+msgstr "Kérje, mit tegyen"
 
 #: ../raphodo/preferencedialog.py:649
 msgid ""
 "Automatically clear the display of completed downloads whenever a new "
 "download device is inserted."
 msgstr ""
+"Automatikusan törölje a befejezett letöltések megjelenítését, amikor egy új "
+"letöltőeszköz be van helyezve."
 
 #: ../raphodo/preferencedialog.py:654
 msgid ""
 "Keep displaying completed downloads whenever a new download device is "
 "inserted."
 msgstr ""
+"Tartsa meg a befejezett letöltések megjelenítését, amikor egy új "
+"letöltőeszköz be van helyezve."
 
 #: ../raphodo/preferencedialog.py:658
 msgid ""
 "Prompt whether to keep displaying completed downloads or clear them whenever "
 "a new download device is inserted."
 msgstr ""
+"Kérdezze meg, hogy folytassa-e a befejezett letöltések megjelenítését vagy "
+"törölje azokat, amikor új letöltési eszközt helyez be."
 
 #: ../raphodo/preferencedialog.py:702
 msgid "Version Check"
-msgstr ""
+msgstr "Verzióellenőrzés"
 
 #: ../raphodo/preferencedialog.py:703
 msgid "Check for new version at startup"
-msgstr ""
+msgstr "Ellenőrizze az új verziót indításkor"
 
 #: ../raphodo/preferencedialog.py:705
 msgid "Check for a new version of the program each time the program starts."
-msgstr ""
+msgstr "A program minden egyes indításakor ellenőrizze a program új verzióját."
 
 #: ../raphodo/preferencedialog.py:707
 msgid "Include development releases"
-msgstr ""
+msgstr "Fejlesztési kiadásokat is tartalmaz"
 
 #: ../raphodo/preferencedialog.py:709
 msgid ""
@@ -2706,10 +3161,15 @@ msgid ""
 "If you are currently running a development version, the check will always "
 "occur."
 msgstr ""
+"Alfa-, béta- és más fejlesztési kiadásokat is tartalmazhat a program új "
+"verziójának ellenőrzéséhez.\n"
+"\n"
+"Ha jelenleg fejlesztési verziót futtat, az ellenőrzés mindig megtörténik."
 
 #: ../raphodo/preferencedialog.py:725
 msgid "Ignore DNG date/time metadata on MTP devices"
 msgstr ""
+"A DNG dátum/idő metaadatainak figyelmen kívül hagyása az MTP-eszközökön"
 
 #: ../raphodo/preferencedialog.py:727
 msgid ""
@@ -2719,10 +3179,14 @@ msgid ""
 "Useful for devices like some phones and tablets that create incorrect DNG "
 "metadata."
 msgstr ""
+"Adja meg a dátum/idő metaadatait az MTP-eszközökön található DNG fájlokban "
+"és használja a fájl módosítási idejét.\n"
+"Hasznos olyan eszközökhöz, mint például olyan telefonok és táblagépek, "
+"amelyek helytelen DNG metaadatokat hoznak létre."
 
 #: ../raphodo/preferencedialog.py:741
 msgid "Completed Downloads"
-msgstr ""
+msgstr "Befejezett letöltések"
 
 #. Translators: substituted value is a description for the set of preferences
 #. shown in the preference dialog window, e.g. Devices, Automation, etc.
@@ -2730,32 +3194,36 @@ msgstr ""
 #: ../raphodo/preferencedialog.py:1067
 #, python-format
 msgid "Restores default %s preference values"
-msgstr ""
+msgstr "Visszaállítja az alapértelmezett %s preferenciaértékeket"
 
 #: ../raphodo/preferencedialog.py:1208
 msgid ""
 "Do you want to purge the thumbnail cache? The cache will be purged when the "
 "program is next started."
 msgstr ""
+"Tisztítja a bélyegkép gyorsítótárat? A gyorsítótár megszűnik, amikor a "
+"programot elindítja."
 
 #: ../raphodo/preferencedialog.py:1212
 msgid "Purge Thumbnail Cache"
-msgstr ""
+msgstr "Törölje a bélyegkép gyorsító fájlt."
 
 #: ../raphodo/preferencedialog.py:1225
 msgid ""
 "Do you want to optimize the thumbnail cache? The cache will be optimized "
 "when the program is next started."
 msgstr ""
+"Szeretné optimalizálni a bélyegkép gyorsítótárat? A gyorsítótár "
+"optimalizálásra kerül, amikor a következő programot elindítjuk."
 
 #: ../raphodo/preferencedialog.py:1229
 msgid "Optimize Thumbnail Cache"
-msgstr ""
+msgstr "A bélyegkép gyorsítótár optimalizálása"
 
 #: ../raphodo/preferencedialog.py:1481
 #, fuzzy
 msgid "Enter a Folder to Scan"
-msgstr "Csak mappa"
+msgstr "Adja meg a fájl kiterjesztését"
 
 #: ../raphodo/preferencedialog.py:1482
 #, fuzzy
@@ -2771,7 +3239,7 @@ msgstr "könyvtár: %s"
 
 #: ../raphodo/preferencedialog.py:1497
 msgid "Enter a Path to Ignore"
-msgstr "Add meg a mellőzni kívánt útvonalat"
+msgstr "Adja meg a mellőzni kívánt elérési útvonalat"
 
 #: ../raphodo/preferencedialog.py:1498
 msgid "Specify a path that will never be scanned for photos or videos"
@@ -2785,19 +3253,19 @@ msgstr "Útvonal:"
 
 #: ../raphodo/preferencedialog.py:1513
 msgid "Enter a File Extension"
-msgstr ""
+msgstr "Adja meg a fájl kiterjesztését"
 
 #: ../raphodo/preferencedialog.py:1514
 msgid "Specify a file extension (without the leading dot)"
-msgstr ""
+msgstr "Adjon meg egy fájlkiterjesztést (a vezető pont nélkül)"
 
 #: ../raphodo/preferencedialog.py:1515 ../raphodo/renamepanel.py:122
 msgid "Extension:"
-msgstr ""
+msgstr "Kiterjesztés:"
 
 #: ../raphodo/preferencedialog.py:1530
 msgid "Invalid File Extension"
-msgstr ""
+msgstr "Érvénytelen fájlkiterjesztés"
 
 #: ../raphodo/preferencedialog.py:1531
 #, python-format
@@ -2805,6 +3273,8 @@ msgid ""
 "The file extension <b>%s</b> is recognized by Rapid Photo Downloader, so it "
 "makes no sense to warn about its presence."
 msgstr ""
+"A <b> %s </b> fájlkiterjesztést a Rapid Photo Downloader felismeri, ezért "
+"nincs értelme figyelmeztetni a jelenlétét."
 
 #: ../raphodo/preferencedialog.py:1533
 #, python-format
@@ -2823,14 +3293,27 @@ msgid ""
 "Other:\n"
 "%(other)s"
 msgstr ""
+"Elfogadott fájltípusok:\n"
+"\n"
+"Fénykép:\n"
+"%(photos)s\n"
+"\n"
+"Videó:\n"
+"%(videos)s\n"
+"\n"
+"Hang:\n"
+"%(audio)s\n"
+"\n"
+"Más:\n"
+"%(other)s"
 
 #: ../raphodo/preferences.py:286
 msgid "Wedding"
-msgstr ""
+msgstr "Esküvő"
 
 #: ../raphodo/preferences.py:286
 msgid "Birthday"
-msgstr ""
+msgstr "Születésnap"
 
 #: ../raphodo/preferences.py:624
 #, python-format
@@ -2849,84 +3332,88 @@ msgstr "Alkönyvtár beállítások nem tartalmazhatnak két %s értéket egymá
 
 #: ../raphodo/primarybutton.py:72
 msgid "Download 8 Photos and 10 Videos"
-msgstr ""
+msgstr "Letölt 8 fényképet és 10 videót"
 
 #: ../raphodo/problemnotification.py:87 ../raphodo/problemnotification.py:209
 #, python-format
 msgid "Error: %(errno)s %(strerror)s"
-msgstr ""
+msgstr "Hiba: %(errno)s %(strerror)s"
 
 #: ../raphodo/problemnotification.py:90
 #, python-format
 msgid "Error: %s"
-msgstr ""
+msgstr "Hiba: %s"
 
 #: ../raphodo/problemnotification.py:117
 #, python-format
 msgid "GPhoto2 Error: %s"
-msgstr ""
+msgstr "GPhoto2 hiba: %s"
 
 #: ../raphodo/problemnotification.py:125
 msgid ""
 "Unable to initialize the camera, probably because another program is using "
 "it. No files were copied from it."
 msgstr ""
+"Nem sikerült inicializálni a kamerát, valószínűleg azért, mert egy másik "
+"program használja. Nincs fájl másolva."
 
 #: ../raphodo/problemnotification.py:135
 #, python-format
 msgid "Unable to read directory %s"
-msgstr ""
+msgstr "A(z) %s könyvtár nem olvasható"
 
 #: ../raphodo/problemnotification.py:141
 #, python-format
 msgid "Unable to access modification time or size from %s"
-msgstr ""
+msgstr "Nem sikerült hozzáférni a módosítási időhöz vagy mérethez %s-ból"
 
 #: ../raphodo/problemnotification.py:147
 #, python-format
 msgid "Unable to read file %s"
-msgstr ""
+msgstr "A(z) %s fájl nem olvasható"
 
 #: ../raphodo/problemnotification.py:153
 #, python-format
 msgid "Unable to write file %s"
-msgstr ""
+msgstr "A(z) %s fájl nem írható"
 
 #: ../raphodo/problemnotification.py:159
 #, python-format
 msgid "Unable to move file %s"
-msgstr ""
+msgstr "A(z) %s fájl nem mozgatható"
 
 #: ../raphodo/problemnotification.py:165
 #, python-format
 msgid "Unable to remove file %s"
-msgstr ""
+msgstr "A(z) %s fájl nem eltávolítható"
 
 #: ../raphodo/problemnotification.py:171
 #, python-format
 msgid "Unable to copy file %s"
-msgstr ""
+msgstr "A(z) %s fájl nem másolható"
 
 #: ../raphodo/problemnotification.py:177
 #, python-format
 msgid "Zero length file %s will not be downloaded"
-msgstr ""
+msgstr "A(z) %s nulla hosszúságú fájl nem töltődik le"
 
 #: ../raphodo/problemnotification.py:183
 #, python-format
 msgid "Could not determine filesystem modification time for %s"
 msgstr ""
+"Nem sikerült meghatározni a fájlrendszer módosítási idejét a(z) %s esetén"
 
 #: ../raphodo/problemnotification.py:189
 #, python-format
 msgid "Unable to load metadata from %s"
-msgstr ""
+msgstr "Nem sikerült betölteni a metaadatokat a következőből: %s"
 
 #: ../raphodo/problemnotification.py:195
 #, python-format
 msgid ""
 "Unable to load metadata from %(name)s. The %(filetype)s was not downloaded."
 msgstr ""
+"A(z) %(name)s metaadatai nem tölthetők be. A %(filetype)s nem lett letöltve."
 
 #: ../raphodo/problemnotification.py:203
 #, python-format
@@ -2935,16 +3422,19 @@ msgid ""
 "If this error occurs again on the same filesystem, it will not be reported "
 "again."
 msgstr ""
+"Hiba történt a fájl fájlrendszer metaadatainak beállítása a(z) %s "
+"fájlrendszeren. Ha ez a hiba ismét ugyanazon a fájlrendszeren fordul elő, "
+"akkor nem jelentik újra."
 
 #: ../raphodo/problemnotification.py:217
 #, python-format
 msgid "Encountered unhandled file %s. It will not be downloaded."
-msgstr ""
+msgstr "%s nem kezelt fájlt észlelt. Nem töltődik le."
 
 #: ../raphodo/problemnotification.py:224
 #, python-format
 msgid "%(filetype)s %(destination)s already exists."
-msgstr ""
+msgstr "%(filetype)s %(destination)s már létezik."
 
 #: ../raphodo/problemnotification.py:235 ../raphodo/problemnotification.py:263
 #, python-format
@@ -2952,21 +3442,24 @@ msgid ""
 "The existing %(filetype)s %(destination)s was last modified on %(date)s at "
 "%(time)s."
 msgstr ""
+"A(z) %(filetype)s %(destination)s létező változata a %(date)s %(time)s az "
+"utolsó módosított verzión volt."
 
 #: ../raphodo/problemnotification.py:246
 #, python-format
 msgid "The %(filetype)s %(source)s was not downloaded from %(device)s."
-msgstr ""
+msgstr "A(z) %(filetype)s %(source)s nem lett letöltve %(device)s-ből."
 
 #: ../raphodo/problemnotification.py:274
 #, python-format
 msgid "The %(filetype)s %(source)s was downloaded from %(device)s."
 msgstr ""
+"A(z) %(filetype)s %(source)s fájlokat a(z) %(device)s fájlból töltötte le."
 
 #: ../raphodo/problemnotification.py:283
 #, python-format
 msgid "The unique identifier '%s' was added to the filename."
-msgstr ""
+msgstr "A(z) '% s' egyedi azonosítót hozzáadta a fájlnévhez."
 
 #: ../raphodo/problemnotification.py:299
 #, python-format
@@ -2974,11 +3467,14 @@ msgid ""
 "The existing backup %(filetype)s %(destination)s was last modified on "
 "%(date)s at %(time)s."
 msgstr ""
+"A(z) %(filetype)s %(destination)s mentési fájlt a(z) %(date)s %(time)s "
+"változónál módosították."
 
 #: ../raphodo/problemnotification.py:310
 #, python-format
 msgid "The %(filetype)s %(source)s was not backed up from %(device)s."
 msgstr ""
+"A(z) %(filetype)s %(source)s nem lett felmentve a(z) %(device)s fájlból."
 
 #: ../raphodo/problemnotification.py:327
 #, python-format
@@ -2986,6 +3482,8 @@ msgid ""
 "The previous backup %(filetype)s %(destination)s was last modified on "
 "%(date)s at %(time)s."
 msgstr ""
+"Az előző %(filetype)s %(destination)s mentést utoljára módosítottuk %(date)s-"
+"ban %(time)s alatt."
 
 #: ../raphodo/problemnotification.py:338
 #, python-format
@@ -2993,6 +3491,8 @@ msgid ""
 "The %(filetype)s %(source)s from %(device)s was backed up, overwriting the "
 "previous backup %(filetype)s."
 msgstr ""
+"A(z) %(filetype)s %(source)s %(device)s fájlt biztonsági másolat készítette "
+"és felülírta az előző %(filetype)s  fájlt."
 
 #: ../raphodo/problemnotification.py:357
 #, python-format
@@ -3000,12 +3500,16 @@ msgid ""
 "When synchronizing RAW + JPEG sequence values, a duplicate %(filetype)s "
 "%(file)s was encountered, and was not downloaded."
 msgstr ""
+"A RAW + JPEG szekvencia értékek szinkronizálásakor %(filetype)s %(file)s "
+"ismétlődő volt, és nem lett letöltve."
 
 #: ../raphodo/problemnotification.py:367
 msgid ""
 "When synchronizing RAW + JPEG sequence values, photos were detected with the "
 "same filenames, but taken at different times:"
 msgstr ""
+"A RAW + JPEG szekvencia értékek szinkronizálásakor a fényképezéseket azonos "
+"fájlnevekkel azonosították, de különböző időpontokban vették őket:"
 
 #: ../raphodo/problemnotification.py:374
 #, python-format
@@ -3013,13 +3517,13 @@ msgid ""
 "%(image1)s was taken on %(image1_date)s at %(image1_time)s, and %(image2)s "
 "on %(image2_date)s at %(image2_time)s."
 msgstr ""
-"A %(image1)s kép %(image1_date)s %(image1_time)s kor készült és, a "
-"%(image2)s kép %(image2_date)s %(image2_time)s kor készült."
+"A %(image1)s kép %(image1_date)s %(image1_time)s -kor készült és a "
+"%(image2)s kép %(image2_date)s %(image2_time)s -kor készült."
 
 #: ../raphodo/problemnotification.py:390
 #, python-format
 msgid "Unable to finalize the filename for %s"
-msgstr ""
+msgstr "A(z) %s fájlnév véglegesítése nem sikerült"
 
 #: ../raphodo/problemnotification.py:425
 #, python-format
@@ -3027,27 +3531,31 @@ msgid ""
 "The filename %(destination)s was not fully generated for %(filetype)s "
 "%(source)s."
 msgstr ""
+"A(z) %(destination)s fájlnév nem teljesen lett generálva a %(filetype)s "
+"%(source)s esetén."
 
 #: ../raphodo/problemnotification.py:434
 #, python-format
 msgid "The %(type)s metadata is missing."
-msgstr "A %(type)s métaadat hiányzik."
+msgstr "A(z) %(type)s metaadat hiányzik."
 
 #: ../raphodo/problemnotification.py:440
 #, python-format
 msgid "The following metadata is missing: %s."
-msgstr ""
+msgstr "A következő metaadatok hiányoznak: %s."
 
 #: ../raphodo/problemnotification.py:446
 #, python-format
 msgid "Date/time conversion failed: %s."
-msgstr ""
+msgstr "A dátum/idő konverzió sikertelen: %s."
 
 #: ../raphodo/problemnotification.py:452
 msgid ""
 "Could not extract valid date/time metadata or determine the file "
 "modification time."
 msgstr ""
+"Nem sikerült kivonni érvényes dátum/idő metaadatokat vagy meghatározni a "
+"fájl módosításának idejét."
 
 #: ../raphodo/problemnotification.py:458
 msgid "Filename does not have an extension."
@@ -3060,7 +3568,7 @@ msgstr "A fájlnévnek nincs szám része."
 #: ../raphodo/problemnotification.py:465
 #, python-format
 msgid "Error generating component %(component)s. Error: %(error)s"
-msgstr ""
+msgstr "Hiba a(z) %(component)s komponens létrehozásában. Hiba: %(error)s"
 
 #: ../raphodo/problemnotification.py:478
 #, python-format
@@ -3068,6 +3576,8 @@ msgid ""
 "The download subfolders %(folder)s were only partially generated for "
 "%(filetype)s %(source)s."
 msgstr ""
+"A(z) %(folder)s letöltési alkönyvtárak csak részlegesen generáltak "
+"%(filetype)s %(source)s esetén."
 
 #: ../raphodo/problemnotification.py:487
 #, python-format
@@ -3075,6 +3585,8 @@ msgid ""
 "There is no data with which to generate the %(subfolder_file)s for "
 "%(filename)s. The %(filetype)s was not downloaded."
 msgstr ""
+"Nincs adat, amellyel a(z) %(subfolder_file)s %(filename)s fájlját "
+"generálnák. A(z) %(filetype)s nem lett letöltve."
 
 #: ../raphodo/problemnotification.py:500
 #, python-format
@@ -3082,35 +3594,37 @@ msgid ""
 "Unable to create the %(filetype)s %(destination)s in %(folder)s. The "
 "download file was %(source)s in %(device)s. It was not downloaded."
 msgstr ""
+"A(z) %(filetype)s %(destination)s %(folder)s létrehozása nem sikerült. A "
+"letöltési fájl %(source)s %(device)s nem lett letöltve."
 
 #: ../raphodo/problemnotification.py:515
 #, python-format
 msgid "Unable to create the download subfolder %s."
-msgstr ""
+msgstr "Nem sikerült létrehozni a %s letöltési almappát."
 
 #: ../raphodo/problemnotification.py:527
 #, python-format
 msgid "Unable to create the backup subfolder %s."
-msgstr ""
+msgstr "Nem sikerült létrehozni a %s biztonsági alkönyvtárt."
 
 #: ../raphodo/problemnotification.py:578
 #, python-format
 msgid "Problems scanning %s"
-msgstr ""
+msgstr "Problémák szkennelése %s"
 
 #: ../raphodo/problemnotification.py:585
 #, python-format
 msgid "Problems copying from %s"
-msgstr ""
+msgstr "Problémák másolása %s-ról"
 
 #: ../raphodo/problemnotification.py:592
 msgid "Problems while finalizing filenames and generating subfolders"
-msgstr ""
+msgstr "Problémák a fájlnevek véglegesítése és alkönyvtárak létrehozása közben"
 
 #: ../raphodo/problemnotification.py:599
 #, python-format
 msgid "Problems backing up to %s"
-msgstr ""
+msgstr "Problémák a %s biztonsági mentésénél"
 
 #. Translators: for example Nov 3 2015, 11:25 AM
 #. Translators: for example, Nov 3, 12:15 PM
@@ -3118,12 +3632,12 @@ msgstr ""
 #: ../raphodo/proximity.py:236 ../raphodo/proximity.py:239
 #, python-format
 msgid "%(date)s, %(time)s"
-msgstr ""
+msgstr "%(date)s, %(time)s"
 
 #: ../raphodo/proximity.py:204
 #, python-format
 msgid "%(starttime)s - %(endtime)s"
-msgstr ""
+msgstr "%(starttime)s - %(endtime)s"
 
 #. The start and end dates are on a different day
 #. Translators: for example Nov 3 or Dec 31
@@ -3131,7 +3645,7 @@ msgstr ""
 #: ../raphodo/proximity.py:980 ../raphodo/timeutils.py:105
 #, python-format
 msgid "%(month)s %(numeric_day)s"
-msgstr ""
+msgstr "%(month)s %(numeric_day)s"
 
 #. Translators: for example Nov 3 2015
 #. Translators: for example Nov 2 2015
@@ -3140,13 +3654,13 @@ msgstr ""
 #: ../raphodo/proximity.py:985 ../raphodo/timeutils.py:110
 #, python-format
 msgid "%(date)s %(year)s"
-msgstr ""
+msgstr "%(date)s %(year)s"
 
 #. Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
 #: ../raphodo/proximity.py:245
 #, python-format
 msgid "%(earlier_time)s - %(later_time)s"
-msgstr ""
+msgstr "%(earlier_time)s - %(later_time)s"
 
 #. Translators, for example:
 #. Nov 3 2012, 12:15 PM -
@@ -3158,23 +3672,27 @@ msgid ""
 "%(earlier_time)s -\n"
 "%(later_time)s"
 msgstr ""
+"%(earlier_time)s -\n"
+"%(later_time)s"
 
 #: ../raphodo/proximity.py:382
 #, python-format
 msgid "%(month)s  %(year)s"
-msgstr ""
+msgstr "%(month)s  %(year)s"
 
 #. Translators: for example Nov 2015
 #: ../raphodo/proximity.py:987
 #, python-format
 msgid "%(month)s %(year)s"
-msgstr ""
+msgstr "%(month)s %(year)s"
 
 #: ../raphodo/proximity.py:1595
 msgid ""
 "The time elapsed between consecutive photos and videos that is used to build "
 "the Timeline"
 msgstr ""
+"Az idővonal elkészítéséhez használt egymást követő fotók és videók között "
+"eltelt idő"
 
 #. Translators: e.g. "45m", which is short for 45 minutes.
 #. Replace the very last character (after the d) with the correct
@@ -3183,13 +3701,13 @@ msgstr ""
 #: ../raphodo/proximity.py:1652
 #, python-format
 msgid "%(minutes)dm"
-msgstr ""
+msgstr "%(minutes)d P"
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
 #: ../raphodo/proximity.py:1656
 msgid "1.5h"
-msgstr ""
+msgstr "1.5 Ó"
 
 #. Translators: e.g. "5h", which is short for 5 hours.
 #. Replace the very last character (after the d) with the correct localized value,
@@ -3197,7 +3715,7 @@ msgstr ""
 #: ../raphodo/proximity.py:1661
 #, python-format
 msgid "%(hours)dh"
-msgstr ""
+msgstr "%(hours)d Ó"
 
 #: ../raphodo/proximity.py:1710
 msgid ""
@@ -3205,20 +3723,26 @@ msgid ""
 "consecutive shots. Use it to identify photos and videos taken at different "
 "periods in a single day or over consecutive days."
 msgstr ""
+"Az Idővonal csoportokat készít fotók és videók alapján, hogy mennyi idő telt "
+"el egymást követő felvételek között. Használja azt a fotók és videók "
+"azonosítására, amelyek különböző időszakokban, egyetlen nap alatt vagy "
+"egymást követő napokon kerülnek."
 
 #: ../raphodo/proximity.py:1715
 msgid ""
 "Use the slider (below) to adjust the time elapsed between consecutive shots "
 "that is used to build the Timeline."
 msgstr ""
+"Használja a csúszkát (lent) az idővonal elkészítéséhez használt egymást "
+"követő felvételek között eltelt idő beállításához."
 
 #: ../raphodo/proximity.py:1718
 msgid "Timeline build pending..."
-msgstr ""
+msgstr "A függőben lévő idővonal létrehozása ..."
 
 #: ../raphodo/proximity.py:1719
 msgid "Timeline is building..."
-msgstr ""
+msgstr "Az idővonal épül ..."
 
 #: ../raphodo/proximity.py:1721
 msgid ""
@@ -3231,6 +3755,15 @@ msgid ""
 "The time a shot was taken is confirmed when generating thumbnails or "
 "downloading, which is when the metadata is read."
 msgstr ""
+"Az idővonalat újra kell építeni, mert a fájl módosításának ideje nem egyezik "
+"meg azzal a pillanattal, amikor egy vagy több felvétel készítése történt. "
+"<br> <br> Az idővonal azt mutatja, hogy mikor készítettek felvételeket. A "
+"felvétel időpontja a fotók vagy videók metaadataiban található meg. A "
+"metaadatok olvasása időigényes, így a Rapid Photo Downloader elkerüli a "
+"metaadatok olvasását a fájlok szkennelése közben. Ehelyett azt az időt "
+"használja, amikor a fájlt utoljára módosították proxyként a felvétel "
+"elkészítésekor. A felvétel elkészítésének ideje megerősítést nyer, amikor "
+"miniatűr vagy letöltődik, vagyis amikor a metaadatokat elolvassa."
 
 #: ../raphodo/rapid.py:493 ../raphodo/rapid.py:2555 ../raphodo/rapid.py:3934
 #: ../raphodo/rapid.py:4065 ../raphodo/rapid.py:4069 ../raphodo/rapid.py:4092
@@ -3247,10 +3780,14 @@ msgid ""
 "to get metadata from videos and photos. The program will run without it, but "
 "installing it is <b>highly</b> recommended."
 msgstr ""
+"<b> ExifTool-nak van egy problémája </b> <br> <br> A Rapid Photo Downloader "
+"az ExifTool-ot használja a metaadatok megszerzéséhez videókról és "
+"fényképekről. A program fut e nélkül is, de telepítése <b> nagyon </b> "
+"ajánlott."
 
 #: ../raphodo/rapid.py:1141 ../raphodo/rapid.py:1161
 msgid "Problem with libmediainfo"
-msgstr ""
+msgstr "Probléma a libmediainfo-val"
 
 #: ../raphodo/rapid.py:1150
 msgid ""
@@ -3258,33 +3795,39 @@ msgid ""
 "Downloader uses libmediainfo to get the date and time a video was shot. The "
 "program will run  without it, but installing it is recommended."
 msgstr ""
+"<b> Úgy tűnik, hogy a könyvtár libmediainfo hiányzik </b> <br> <br> A Rapid "
+"Photo Downloader a libmediainfo használatával kapja meg a dátumot és az "
+"időt. A program fut e nélkül is, de a telepítés ajánlott."
 
 #: ../raphodo/rapid.py:1448
 msgid "Download failed"
-msgstr ""
+msgstr "Sikertelen letöltés"
 
 #: ../raphodo/rapid.py:1450
 msgid ""
 "Sorry, the download of the new version of Rapid Photo Downloader failed."
 msgstr ""
+"Sajnáljuk, a Rapid Photo Downloader új verziójának letöltése nem sikerült."
 
 #: ../raphodo/rapid.py:1457
 msgid ""
 "The new version was successfully downloaded. Do you want to close Rapid "
 "Photo Downloader and install it now?"
 msgstr ""
+"Az új verzió sikeresen letöltött. Szeretné bezárni a Rapid Photo Downloader "
+"programot, és telepíteni?"
 
 #: ../raphodo/rapid.py:1461
 msgid "Update Rapid Photo Downloader"
-msgstr ""
+msgstr "A Rapid Photo Downloader frissítése"
 
 #: ../raphodo/rapid.py:1465
 msgid "Install"
-msgstr ""
+msgstr "Telepítés"
 
 #: ../raphodo/rapid.py:1483
 msgid "New version saved"
-msgstr ""
+msgstr "Új verzió mentve"
 
 #: ../raphodo/rapid.py:1485
 #, python-format
@@ -3293,16 +3836,21 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
+"A tar fájl és a telepítő szkript a következő helyre kerül:\n"
+"\n"
+"%s"
 
 #: ../raphodo/rapid.py:1502
 msgid "Upgrade failed"
-msgstr ""
+msgstr "Frissítés sikertelen"
 
 #: ../raphodo/rapid.py:1505
 msgid ""
 "Sorry, upgrading Rapid Photo Downloader failed because there was an error "
 "opening the installer."
 msgstr ""
+"Sajnáljuk, a Rapid Photo Downloader frissítése sikertelen volt, mert hiba "
+"történt a telepítő megnyitásakor."
 
 #: ../raphodo/rapid.py:1709 ../raphodo/rapid.py:2425
 msgid "Download"
@@ -3310,39 +3858,39 @@ msgstr "Letöltés"
 
 #: ../raphodo/rapid.py:1713
 msgid "&Refresh..."
-msgstr ""
+msgstr "&Frissítés..."
 
 #: ../raphodo/rapid.py:1717
 msgid "&Preferences"
-msgstr ""
+msgstr "&Preferenciák"
 
 #: ../raphodo/rapid.py:1721
 msgid "&Quit"
-msgstr ""
+msgstr "&Kilépés"
 
 #: ../raphodo/rapid.py:1725
 msgid "Error &Reports"
-msgstr ""
+msgstr "&Hibaüzenetek"
 
 #: ../raphodo/rapid.py:1729
 msgid "Clear Completed Downloads"
-msgstr ""
+msgstr "A befejezett letöltések törlése"
 
 #: ../raphodo/rapid.py:1733
 msgid "Get Help Online..."
-msgstr ""
+msgstr "Súgó online ..."
 
 #: ../raphodo/rapid.py:1737
 msgid "&Tip of the Day..."
-msgstr ""
+msgstr "&A nap tippje..."
 
 #: ../raphodo/rapid.py:1741
 msgid "Report a Problem..."
-msgstr ""
+msgstr "Probléma jelentése..."
 
 #: ../raphodo/rapid.py:1745
 msgid "Make a Donation..."
-msgstr ""
+msgstr "Adakozzon..."
 
 #: ../raphodo/rapid.py:1749
 msgid "Translate this Application..."
@@ -3350,27 +3898,27 @@ msgstr "Ezen alkalmazás fordítása…"
 
 #: ../raphodo/rapid.py:1753
 msgid "&About..."
-msgstr ""
+msgstr "&Névjegy"
 
 #: ../raphodo/rapid.py:1757
 msgid "Check for Updates..."
-msgstr ""
+msgstr "Frissítések keresése..."
 
 #: ../raphodo/rapid.py:1840
 msgid "Timeline"
-msgstr ""
+msgstr "Idővonal"
 
 #: ../raphodo/rapid.py:1850
 msgid "Destination"
-msgstr ""
+msgstr "Letöltési cél"
 
 #: ../raphodo/rapid.py:1851
 msgid "Rename"
-msgstr ""
+msgstr "Átnevezés"
 
 #: ../raphodo/rapid.py:1853
 msgid "Back Up"
-msgstr ""
+msgstr "Biztonsági mentés"
 
 #. Devices Header and View
 #: ../raphodo/rapid.py:1977
@@ -3378,52 +3926,54 @@ msgid ""
 "Turn on or off the use of devices attached to this computer as download "
 "sources"
 msgstr ""
+"Kapcsolja be vagy ki a számítógéphez csatlakoztatott eszközöket letöltési "
+"forrásként"
 
 #. This Computer Header and View
 #: ../raphodo/rapid.py:1994
 msgid ""
 "Turn on or off the use of a folder on this computer as a download source"
-msgstr ""
+msgstr "Kapcsolja be vagy ki a mappát ezen a számítógépen letöltési forrásként"
 
 #: ../raphodo/rapid.py:1996
 msgid "This Computer"
-msgstr ""
+msgstr "Ez a számítógép"
 
 #: ../raphodo/rapid.py:2009
 msgid "Select a source folder"
-msgstr ""
+msgstr "Válasszon ki egy forrás mappát"
 
 #: ../raphodo/rapid.py:2038
 msgid "Projected Storage Use"
-msgstr ""
+msgstr "Tervezett tárolási használat"
 
 #: ../raphodo/rapid.py:2056 ../raphodo/rapid.py:2068
 msgid "Select a destination folder"
-msgstr ""
+msgstr "Válasszon ki egy célmappát"
 
 #: ../raphodo/rapid.py:2117
 msgid "All"
-msgstr ""
+msgstr "Minden"
 
 #: ../raphodo/rapid.py:2118
 msgid "New"
-msgstr ""
+msgstr "Új"
 
 #: ../raphodo/rapid.py:2120
 msgid "Show:"
-msgstr ""
+msgstr "Mutat:"
 
 #: ../raphodo/rapid.py:2123
 msgid "Modification Time"
-msgstr ""
+msgstr "Módosítási idő"
 
 #: ../raphodo/rapid.py:2124
 msgid "Checked State"
-msgstr ""
+msgstr "Ellenőrzött állapot"
 
 #: ../raphodo/rapid.py:2127
 msgid "File Type"
-msgstr ""
+msgstr "Fájltípus"
 
 #: ../raphodo/rapid.py:2128
 msgid "Device"
@@ -3431,20 +3981,20 @@ msgstr "Eszköz"
 
 #: ../raphodo/rapid.py:2130
 msgid "Sort:"
-msgstr ""
+msgstr "Fajta:"
 
 #: ../raphodo/rapid.py:2141
 msgid "Select All:"
-msgstr ""
+msgstr "Mindent kiválaszt:"
 
 #: ../raphodo/rapid.py:2405
 #, python-format
 msgid "Download %(files)s"
-msgstr ""
+msgstr "Letöltés %(files)s"
 
 #: ../raphodo/rapid.py:2421
 msgid "Resume Download"
-msgstr ""
+msgstr "Letöltés folytatása "
 
 #: ../raphodo/rapid.py:2423
 msgid "Pause"
@@ -3458,10 +4008,18 @@ msgid ""
 "            <a href=\"{log_path}\">here</a> to open the log directory).\n"
 "            "
 msgstr ""
+"Kérjük, jelentse be a problémát <a href=\"{website}\"> {website} </a>\n"
+"             Csatlakoztassa a naplófájlt <i> {log_file} </i> a jelentéséhez "
+"(kattintson a gombra\n"
+"             <a href=\"{log_path}\"> itt </a> a naplókönyvtár "
+"megnyitásához).\n"
+"            "
 
 #: ../raphodo/rapid.py:2525
 msgid "Thank you for reporting a problem in Rapid Photo Downloader"
 msgstr ""
+"Köszönjük, hogy jelentett egy problémát a Rapid Photo Downloader "
+"alkalmazásban"
 
 #: ../raphodo/rapid.py:2624
 #, python-format
@@ -3471,10 +4029,14 @@ msgid ""
 "from %(source_path)s.<br><br>If you do change the path, the current download "
 "from This Computer will be cancelled."
 msgstr ""
+"<b> A számítógép forrásút megváltoztatása </b> <br> <br> Valóban meg akarja "
+"változtatni a forrás elérési útvonalát %(new_path)s -re? <br> <br> A(z) "
+"%(source_path)s. <br> <br> Ha megváltoztatja az elérési utat, az aktuális "
+"letöltés ezen a számítógépen törlődik."
 
 #: ../raphodo/rapid.py:2694
 msgid "You cannot change the download destination while downloading."
-msgstr ""
+msgstr "Nem cserélheti a letöltési célt a letöltés során."
 
 #: ../raphodo/rapid.py:2704
 #, python-format
@@ -3482,6 +4044,8 @@ msgid ""
 "<b>Confirm Download Destination</b><br><br>Are you sure you want to set the "
 "%(file_type)s download destination to %(path)s?"
 msgstr ""
+"<b> A letöltési cél jóváhagyása </b> <br> <br> Biztosan megadja a(z) "
+"%(file_type)s letöltési célállomását %(path)s számára?"
 
 #: ../raphodo/rapid.py:2785
 msgid ""
@@ -3493,6 +4057,14 @@ msgid ""
 "Do you want to proceed with the download?\n"
 "                        "
 msgstr ""
+"\n"
+"<b> Összes fájl letöltése </b> <br> <br>\n"
+"A letöltés mindig tartalmaz minden olyan fájlt, amelyet letöltöttek,\n"
+"beleértve azokat is, amelyeket jelenleg nem jelenítenek meg az idővonal "
+"miatt\n"
+"vagy mert csak az új fájlok jelennek meg.\n"
+"Szeretné folytatni a letöltést?\n"
+"                        "
 
 #: ../raphodo/rapid.py:2937
 #, python-format
@@ -3501,7 +4073,7 @@ msgid ""
 "%(folder1)s\n"
 "%(folder2)s"
 msgstr ""
-"Nem jók a letöltési könyvtárak:\n"
+"Érvénytelen letöltési könyvtárak:\n"
 "%(folder1)s\n"
 "%(folder2)s"
 
@@ -3511,22 +4083,24 @@ msgid ""
 "This download folder is invalid:\n"
 "%s"
 msgstr ""
-"Nem jó a letöltési könyvtár:\n"
+"Érvénytelen letöltési könyvtár:\n"
 "%s"
 
 #: ../raphodo/rapid.py:2943
 msgid "Download Failure"
-msgstr ""
+msgstr "Letöltés hiba"
 
 #: ../raphodo/rapid.py:2944
 msgid "The download cannot proceed."
-msgstr ""
+msgstr "A letöltés nem folytatható."
 
 #: ../raphodo/rapid.py:2962
 msgid ""
 "Photos and videos will not be backed up because there is nowhere to back "
 "them up. Do you still want to start the download?"
 msgstr ""
+"A fotók és a videók nem lesznek használhatóak, mert nincs hova felvenni "
+"őket. Még mindig el akarja indítani a letöltést?"
 
 #: ../raphodo/rapid.py:2969 ../raphodo/rapid.py:2979
 #, python-format
@@ -3534,6 +4108,8 @@ msgid ""
 "No backup device exists for backing up %(filetype)s. Do you still want to "
 "start the download?"
 msgstr ""
+"Nincs mentési eszköz a(z) %(filetype)s biztonsági másolatának "
+"létrehozásához. Még mindig el akarja indítani a letöltést?"
 
 #: ../raphodo/rapid.py:2971 ../raphodo/rpdfile.py:228
 msgid "photos"
@@ -3548,6 +4124,8 @@ msgid ""
 "<b>The photo and video backup destinations do not exist or cannot be written "
 "to.</b><br><br>Do you still want to start the download?"
 msgstr ""
+"<b> A fotó- és videómentés célállomások nem léteznek vagy nem írhatók. </b> "
+"<br> <br> Még mindig el szeretné indítani a letöltést?"
 
 #: ../raphodo/rapid.py:2999 ../raphodo/rapid.py:3008
 #, python-format
@@ -3555,6 +4133,8 @@ msgid ""
 "<b>The %(filetype)s backup destination does not exist or cannot be written "
 "to.</b><br><br>Do you still want to start the download?"
 msgstr ""
+"<b> A(z) %(filetype)s mentési cél nem létezik vagy nem írható be. </b> <br> "
+"<br> Még mindig el szeretné indítani a letöltést?"
 
 #: ../raphodo/rapid.py:3001 ../raphodo/rpdfile.py:230 ../raphodo/rpdfile.py:843
 msgid "photo"
@@ -3566,12 +4146,12 @@ msgstr "videó"
 
 #: ../raphodo/rapid.py:3018
 msgid "Backup problem"
-msgstr "Probléma a Biztonsági mentéssel"
+msgstr "Probléma a biztonsági mentéssel"
 
 #: ../raphodo/rapid.py:3756
 #, python-format
 msgid "%(downloading_from)s — %(time_left)s left (%(speed)s)"
-msgstr ""
+msgstr "%(downloading_from)s - %(time_left)s maradt (%(speed)s)"
 
 #: ../raphodo/rapid.py:3828
 #, python-format
@@ -3609,40 +4189,40 @@ msgstr "%(filetype)s letöltése sikertelen volt"
 
 #: ../raphodo/rapid.py:3950
 msgid "1 failure"
-msgstr ""
+msgstr "1 hiba"
 
 #: ../raphodo/rapid.py:3952
 #, python-format
 msgid "%d failures"
-msgstr ""
+msgstr "%d hibák"
 
 #: ../raphodo/rapid.py:3957
 msgid "1 warning"
-msgstr ""
+msgstr "1 figyelmeztetés"
 
 #: ../raphodo/rapid.py:3959
 #, python-format
 msgid "%d warnings"
-msgstr ""
+msgstr "%d figyelmeztetés"
 
 #: ../raphodo/rapid.py:3981
 #, python-format
 msgid "Downloaded %(no_files_and_types)s from %(devices)s"
-msgstr ""
+msgstr "Letöltött %(no_files_and_types)s %(devices)s"
 
 #: ../raphodo/rapid.py:3985
 #, python-format
 msgid "Downloaded %(no_files_and_types)s from %(devices)s — %(failures)s"
-msgstr ""
+msgstr "Letöltött %(no_files_and_types)s %(devices)s - %(failures)s"
 
 #: ../raphodo/rapid.py:3989
 #, python-format
 msgid "No files downloaded — %(failures)s"
-msgstr ""
+msgstr "Nincs letöltött fájl - %(failures)s"
 
 #: ../raphodo/rapid.py:3991
 msgid "No files downloaded"
-msgstr ""
+msgstr "Nincs letöltött fájl"
 
 #: ../raphodo/rapid.py:4021
 #, python-format
@@ -3650,12 +4230,16 @@ msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for the %(camera)s"
 msgstr ""
+"A cél alkönyvtárakat és az idővonalat újraépíti, miután a(z) %(camera)s "
+"összes bélyegképét létrehozta"
 
 #: ../raphodo/rapid.py:4026
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for this computer"
 msgstr ""
+"A célkönyvtárak és az idővonal újraszerkesztésre kerül, miután minden "
+"bélyegképet generáltak ehhez a számítógéphez"
 
 #: ../raphodo/rapid.py:4031
 #, python-format
@@ -3663,6 +4247,8 @@ msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(device)s"
 msgstr ""
+"A cél alkönyvtárakat és az idővonalat újraépíti, miután a(z) %(device)s az "
+"összes bélyegképet létrehozta"
 
 #: ../raphodo/rapid.py:4039
 #, python-format
@@ -3670,6 +4256,9 @@ msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(number_devices)s devices and this computer"
 msgstr ""
+"A cél alkönyvtárak és az idővonal újraszerkesztésre kerül, miután a(z) "
+"%(number_devices)s eszközökre és a számítógépre az összes bélyegképet "
+"generálta"
 
 #: ../raphodo/rapid.py:4052
 #, python-format
@@ -3677,6 +4266,8 @@ msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for the %(camera)s and this computer"
 msgstr ""
+"A cél alkönyvtárak és az idővonal újraszerkesztésre kerül, miután a(z) "
+"%(camera)s és a számítógép összes bélyegképe generálva lett"
 
 #: ../raphodo/rapid.py:4056
 #, python-format
@@ -3684,6 +4275,8 @@ msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(device)s and this computer"
 msgstr ""
+"A cél alkönyvtárakat és az idővonalat újraépíti, miután a(z) %(device)s és a "
+"számítógép összes bélyegképet  generálták"
 
 #: ../raphodo/rapid.py:4060
 #, python-format
@@ -3691,10 +4284,12 @@ msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(number_devices)s devices"
 msgstr ""
+"A cél alkönyvtárak és az idővonal újraszerkesztésre kerül, miután a(z) "
+"%(number_devices)s eszközök az összes bélyegképét generálták"
 
 #: ../raphodo/rapid.py:4087
 msgid "The Destination subfolders and Timeline have been rebuilt"
-msgstr ""
+msgstr "A cél alkönyvtárakat és az idővonalat újraépítették"
 
 #: ../raphodo/rapid.py:4144
 msgid "Program preferences are invalid"
@@ -3709,6 +4304,11 @@ msgid ""
 "charging</i> to <i>USB for file transfers</i>.<br><br>Alternatively, you can "
 "ignore this device."
 msgstr ""
+"<b> A(z) %(camera)s összes fájlja elérhetetlen </b>. <br> <br> Lehet, hogy "
+"zárolva vagy nincs konfigurálva az MTP használatával történő fájlátvitelre. "
+"Feloldhatja és megpróbálhatja újra. <br> <br> Néhány modellen is meg kell "
+"változtatnia az <i> USB töltéshez </i> az USB-t a fájlok átviteléhez </i>. "
+"<br> Alternatív megoldásként figyelmen kívül hagyhatja ezt az eszközt."
 
 #: ../raphodo/rapid.py:4239
 #, python-format
@@ -3719,33 +4319,41 @@ msgid ""
 "the computer and plug it in again.<br><br>Alternatively, you can ignore this "
 "device."
 msgstr ""
+"<b> Úgy tűnik, hogy a(z) %(camera)s használatban van egy másik "
+"alkalmazással. </b> <br> <br> Le tud zárni minden olyan alkalmazást (például "
+"egy fájlböngészőt), amelyik használta és próbálja meg újra. Ha ez nem "
+"működik, húzza ki a számítógépből a(z) %(camera)s csatlakozót és "
+"csatlakoztassa újra. <br> <br> Másik lehetőségként figyelmen kívül hagyhatja "
+"a készüléket."
 
 #: ../raphodo/rapid.py:4252
 msgid "&Try Again"
-msgstr ""
+msgstr "&Próbálja újra"
 
 #: ../raphodo/rapid.py:4253
 msgid "&Ignore This Device"
-msgstr ""
+msgstr "&A készülék figyelmen kívül hagyása"
 
 #: ../raphodo/rapid.py:4321
 #, python-format
 msgid "Sorry, an unexpected problem occurred while scanning %s."
-msgstr ""
+msgstr "Sajnáljuk, váratlan probléma történt a(z) %s beolvasása közben."
 
 #: ../raphodo/rapid.py:4322
 msgid "Unfortunately you cannot download from this device."
-msgstr ""
+msgstr "Sajnos nem lehet letölteni az eszközről."
 
 #: ../raphodo/rapid.py:4326
 msgid ""
 "A possible workaround for the problem might be downloading from the camera's "
 "memory card using a card reader."
 msgstr ""
+"A probléma megkerülhető azzal, hogy a letöltendő fájlokat a fényképezőgép "
+"memóriakártyájából egy kártyaolvasó használatával olvassuk be."
 
 #: ../raphodo/rapid.py:4331
 msgid "Device scan failed"
-msgstr ""
+msgstr "Az eszköz lekeresése sikertelen"
 
 #: ../raphodo/rapid.py:4718
 #, python-format
@@ -3755,6 +4363,10 @@ msgid ""
 "is using it and try again. If that does not work, unplug the %(camera)s from "
 "the computer and plug it in again."
 msgstr ""
+"<b> A(z) %(camera)s nem kereshető, mert nem lehet eltávolítani. </b> <br> "
+"<br> Le tud zárni minden olyan alkalmazást (például egy fájlböngészőt), "
+"amely megpróbálja újra használni. Ha ez nem működik, húzza ki a "
+"számítógépből a(z) %(camera)s csatlakozóját és csatlakoztassa újra."
 
 #: ../raphodo/rapid.py:4743
 #, python-format
@@ -3765,148 +4377,168 @@ msgid ""
 "the computer and plug it in again, and choose which files you want to "
 "download from it."
 msgstr ""
+"<B> A letöltés nem indulhat el, mert a(z) %(camera)s nem távolítható el. </"
+"b> <br> <br> Leállíthatja az összes olyan alkalmazást (például egy "
+"fájlböngészőt), amelyik használni fogja és próbálja újra. Ha ez nem működik, "
+"húzza ki a számítógépből a %(camera)s csatlakozóját és csatlakoztassa újra, "
+"majd válassza ki a letölteni kívánt fájlokat."
 
 #: ../raphodo/rapid.py:4840
 msgid "Completed Downloads Present"
-msgstr ""
+msgstr "Befejezett letöltések jelen"
 
 #: ../raphodo/rapid.py:4842
 #, python-format
 msgid "%s whose download have completed are displayed."
-msgstr ""
+msgstr "A(z) %s letöltés befejeződött."
 
 #: ../raphodo/rapid.py:4844
 msgid "Do you want to clear the completed downloads?"
-msgstr ""
+msgstr "Szeretné törölni a befejezett letöltéseket?"
 
 #: ../raphodo/rapid.py:4846
 msgid "Completed Download Present"
-msgstr ""
+msgstr "Befejezett letöltések jelen"
 
 #: ../raphodo/rapid.py:4848
 #, python-format
 msgid "%s whose download has completed is displayed."
-msgstr ""
+msgstr "Megjelenik a(z) %s, amelynek letöltése befejeződött."
 
 #: ../raphodo/rapid.py:4850
 msgid "Do you want to clear the completed download?"
-msgstr ""
+msgstr "Szeretné törölni a befejezett letöltést?"
 
 #: ../raphodo/rapid.py:4931
 #, python-format
 msgid ""
 "Do you want to download photos and videos from the device <i>%(device)s</i>?"
 msgstr ""
+"Szeretne fotókat és videókat letölteni az eszközről <i> %(device)s </i>?"
 
 #: ../raphodo/rapid.py:5181
 #, python-format
 msgid "<b>Do you want to ignore the %s whenever this program is run?</b>"
 msgstr ""
+"<b> Szeretné figyelmen kívül hagyni a(z) %s -ot, ha ez a program fut? </b>"
 
 #: ../raphodo/rapid.py:5184
 msgid ""
 "All cameras, phones and tablets with the same model name will be ignored."
 msgstr ""
+"A fényképezőgépek, a telefonok és a tabletek ugyanazzal a modellnevekkel "
+"figyelmen kívül lesznek hagyva."
 
 #: ../raphodo/rapid.py:5188
 #, python-format
 msgid ""
 "<b>Do you want to ignore the device %s whenever this program is run?</b>"
 msgstr ""
+"<b> Szeretné figyelmen kívül hagyni a(z) %s eszközt, ha ez a program fut? </"
+"b>"
 
 #: ../raphodo/rapid.py:5190
 msgid "Any device with the same name will be ignored."
-msgstr ""
+msgstr "Bármely azonos nevű eszközt figyelmen kívül hagyja."
 
 #: ../raphodo/rapid.py:5490
 #, python-format
 msgid "Downloading from %(location)s on This Computer."
-msgstr ""
+msgstr "A(z) %(location)s letöltése ezen a számítógépen."
 
 #: ../raphodo/rapid.py:5494
 msgid ""
 "Do you really want to download from here?<br><br>On some systems, scanning "
 "this location can take a very long time."
 msgstr ""
+"Tényleg szeretne letölteni innen? <br> <br> Néhány rendszeren a beolvasás "
+"nagyon sokáig tarthat."
 
 #: ../raphodo/rapid.py:5535
 #, python-format
 msgid "Generating thumbnails for %s"
-msgstr ""
+msgstr "Bélyegképek létrehozása a következőhöz: %s"
 
 #: ../raphodo/rapid.py:5538
 #, python-format
 msgid "Scanning %s"
-msgstr ""
+msgstr "A(z) %s beolvasása"
 
 #: ../raphodo/rapid.py:5549
 #, python-format
 msgid ""
 "%(number)s of %(available files)s checked for download (%(hidden)s hidden)"
 msgstr ""
+"%(number)s %(available files)s ellenőrzött letöltés (%(hidden)s rejtett)"
 
 #: ../raphodo/rapid.py:5557
 #, python-format
 msgid "%(number)s of %(available files)s checked for download"
-msgstr ""
+msgstr "%(number)s %(available files)s ellenőrzött a letöltésre"
 
 #: ../raphodo/rapid.py:5762
 msgid "Display program information when run from the command line."
 msgstr ""
+"A program információk megjelenítése a parancssorból történő futtatáskor."
 
 #: ../raphodo/rapid.py:5764
 msgid "Display debugging information when run from the command line."
 msgstr ""
+"A parancssorból történő futtatáskor jelezze ki a hibakeresési információkat."
 
 #: ../raphodo/rapid.py:5767
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr ""
+"Sorolja fel azokat a fényképeket és videófájl-kiterjesztéseket, amelyeket a "
+"program felismer és kilép."
 
 #: ../raphodo/rapid.py:5770
 msgid "Turn on or off the the renaming of photos."
-msgstr ""
+msgstr "Kapcsolja be vagy ki az átnevezés képek."
 
 #: ../raphodo/rapid.py:5772
 msgid "turn on or off the the renaming of videos."
-msgstr ""
+msgstr "Kapcsolja be vagy ki a videók átnevezését."
 
 #: ../raphodo/rapid.py:5774
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
-msgstr ""
+msgstr "Kapcsolja be vagy ki a letöltött eszközök automatikus felismerését."
 
 #: ../raphodo/rapid.py:5778
 msgid "Turn on or off downloading from this computer."
-msgstr ""
+msgstr "A számítógépről történő letöltés be- vagy kikapcsolása."
 
 #: ../raphodo/rapid.py:5780 ../raphodo/rapid.py:5783 ../raphodo/rapid.py:5786
 #: ../raphodo/rapid.py:5807 ../raphodo/rapid.py:5811
 msgid "PATH"
-msgstr ""
+msgstr "ELÉRÉSI ÚT"
 
 #: ../raphodo/rapid.py:5781
 msgid "The PATH on this computer from which to download."
-msgstr ""
+msgstr "Az ELÉRÉSI ÚT ezen a számítógépen, ahonnan letölthet."
 
 #: ../raphodo/rapid.py:5784
 msgid "The PATH where photos will be downloaded to."
-msgstr ""
+msgstr "Az ELÉRÉSI ÚT, ahova a fotókat letölteni fogják."
 
 #: ../raphodo/rapid.py:5787
 msgid "The PATH where videos will be downloaded to."
-msgstr ""
+msgstr "Az ELÉRÉSI ÚT, ahova a videókat letöltve lesznek."
 
 #: ../raphodo/rapid.py:5789
 msgid "Turn on or off the backing up of photos and videos while downloading."
 msgstr ""
+"Fotók és videók biztonsági mentésének bekapcsolása vagy kikapcsolása "
+"letöltés közben."
 
 #: ../raphodo/rapid.py:5793
 msgid "Turn on or off the automatic detection of backup devices."
-msgstr ""
+msgstr "Kapcsolja be vagy ki a biztonsági másolatok automatikus felismerését."
 
 #: ../raphodo/rapid.py:5795 ../raphodo/rapid.py:5801
 msgid "FOLDER"
-msgstr ""
+msgstr "MAPPA"
 
 #: ../raphodo/rapid.py:5796
 msgid ""
@@ -3915,6 +4547,11 @@ msgid ""
 "the device is used for backups. For each device you wish to use for backing "
 "photos up to, create a folder on it with this name."
 msgstr ""
+"A MAPPA, amelyben mentések tárolását a rendszer automatikusan észleli a "
+"fényképet biztonsági eszközt, a mappa neve annak segítségével azonosítják-e "
+"vagy sem az eszközt használják a mentéseket. Minden olyan eszköz esetében, "
+"amelyet a fotók támogatásához használni szeretne, hozzon létre egy mappát "
+"rajta ezzel a névvel."
 
 #: ../raphodo/rapid.py:5802
 msgid ""
@@ -3923,53 +4560,70 @@ msgid ""
 "the device is used for backups. For each device you wish to use for backing "
 "up videos to, create a folder on it with this name."
 msgstr ""
+"A MAPPA, amelyben a mentések az automatikusan észlelt video mentési eszközön "
+"tárolódnak, és a mappa neve azonosítja, hogy a készülék biztonsági "
+"másolatokat használ-e. Minden olyan eszköz esetében, amelyet videofájlok "
+"biztonsági mentéséhez kíván használni, hozzon létre egy mappát rajta ezzel a "
+"névvel."
 
 #: ../raphodo/rapid.py:5808
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
 msgstr ""
+"Az ELÉRÉSI ÚT, ahol a biztonsági mentés automatikus felismerése esetén "
+"biztonsági mentést készül a fotókról."
 
 #: ../raphodo/rapid.py:5812
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
 msgstr ""
+"Az ELÉRÉSI ÚT, ahova a videókról biztonsági másolat készül, amikor a mentési "
+"eszközök automatikus felismerése ki van kapcsolva."
 
 #: ../raphodo/rapid.py:5815
 #, python-format
 msgid "Ignore photos with the following extensions: %s"
 msgstr ""
+"A következő kiterjesztésekkel rendelkező fotók figyelmen kívül hagyása: %s"
 
 #: ../raphodo/rapid.py:5819
 msgid "Turn on or off starting downloads as soon as the program itself starts."
-msgstr ""
+msgstr "Kapcsolja be vagy ki a letöltéseket a program indításakor."
 
 #: ../raphodo/rapid.py:5822
 msgid "Turn on or off starting downloads as soon as a device is inserted."
 msgstr ""
+"Kapcsolja be vagy ki a letöltések indítását, amint egy eszközt behelyez."
 
 #: ../raphodo/rapid.py:5825
 msgid ""
 "Turn on or off use of the Rapid Photo Downloader Thumbnail Cache. Turning it "
 "off does not delete existing cache contents."
 msgstr ""
+"Kapcsolja be vagy ki a Rapid Photo Downloader bélyegkép gyorsítótár "
+"használatát. A kikapcsolás nem törli a meglévő gyorsítótár tartalmát."
 
 #: ../raphodo/rapid.py:5829
 msgid ""
 "Delete all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and "
 "exit."
 msgstr ""
+"Törölje a bélyegképeket a Rapid Photo Downloader bélyegkép gyorsítótárában "
+"és lépjen ki."
 
 #: ../raphodo/rapid.py:5833
 msgid "Forget which files have been previously downloaded, and exit."
-msgstr ""
+msgstr "Felejtse el, hogy mely fájlokat töltötte le és lépjen ki."
 
 #: ../raphodo/rapid.py:5836
 msgid ""
 "Import preferences from an old program version and exit. Requires the "
 "command line program gconftool-2."
 msgstr ""
+"Importáljon preferenciákat egy régi programverzióból és lépjen ki. Szükséges "
+"a gconftool-2 parancssori program."
 
 #: ../raphodo/rapid.py:5839
 msgid ""
@@ -3977,46 +4631,55 @@ msgid ""
 "the Thumbnail cache, forget which files have been previously downloaded, and "
 "exit."
 msgstr ""
+"Állítsa vissza az összes programbeállításot az alapértelmezett értékekre, "
+"törölje az összes bélyegképet a bélyegkép gyorsítótárában, és felejtse el, "
+"hogy mely fájlokat töltötte le korábban és lépjen ki."
 
 #: ../raphodo/rapid.py:5843
 msgid "Include gphoto2 debugging information in log files."
-msgstr ""
+msgstr "Adja meg a gphoto2 hibakeresési információkat a naplófájlokban."
 
 #: ../raphodo/rapid.py:5847
 msgid "Print information to the terminal about attached cameras and exit."
 msgstr ""
+"Nyomtasson információt a terminálhoz a csatlakoztatott kamerákról és lépjen "
+"ki."
 
 #: ../raphodo/rapid.py:5909
 msgid ""
 "To import preferences from the old version of Rapid Photo Downloader, you "
 "must install the program gconftool-2."
 msgstr ""
+"A preferenciák importálásához a Rapid Photo Downloader régi verziójából "
+"telepíteni kell a gconftool-2 programot."
 
 #: ../raphodo/rapid.py:5918
 msgid "No prior program preferences detected: exiting"
-msgstr ""
+msgstr "Nincs korábbi programbeállítás: kilépés"
 
 #: ../raphodo/rapid.py:5921
 #, python-format
 msgid "Importing preferences from Rapid Photo Downloader %(version)s"
-msgstr ""
+msgstr "Preferenciák importálása a Rapid Photo Downloader %(version)s-ból"
 
 #: ../raphodo/rapid.py:5987
 #, python-format
 msgid "Do you want to copy the stored sequence number, which has the value %d?"
-msgstr ""
+msgstr "Szeretné másolni a tárolt sorszámot, amelynek értéke %d?"
 
 #: ../raphodo/rapid.py:5998
 msgid "Program aborting."
-msgstr ""
+msgstr "A program megszakítása."
 
 #: ../raphodo/rapid.py:6008
 msgid "Never run this program as the sudo / root user."
-msgstr ""
+msgstr "Soha ne futtassa ezt a programot sudo/root felhasználóként."
 
 #: ../raphodo/rapid.py:6012
 msgid "You must install ExifTool to run Rapid Photo Downloader."
 msgstr ""
+"A Rapid Photo Downloader futtatásához telepítenie kell az ExifTool "
+"alkalmazást."
 
 #: ../raphodo/rapid.py:6024
 msgid ""
@@ -4024,40 +4687,46 @@ msgid ""
 "\n"
 "Uninstall all copies except the version you want to run."
 msgstr ""
+"A Rapid Photo Downloader több helyre van telepítve.\n"
+"\n"
+"Törölje az összes példányt, kivéve a futtatni kívánt verziót."
 
 #: ../raphodo/rapid.py:6081
 msgid ""
 "When specifying a path on the command line, do not also specify an\n"
 "option for device auto detection or a path on \"This Computer\"."
 msgstr ""
+"Amikor megad egy elérési utat a parancssorban, ne adjon meg egy\n"
+"lehetőséget az eszköz automatikus felismerésére vagy a \"Ez a számítógép\" "
+"elérési útjára."
 
 #: ../raphodo/rapid.py:6241
 msgid "All settings and caches have been reset"
-msgstr ""
+msgstr "Minden beállítás és gyorsítótár vissza lett állítva"
 
 #: ../raphodo/rapid.py:6249
 msgid "Thumbnail Cache has been reset"
-msgstr ""
+msgstr "A bélyegkép gyorsítótár vissza lett állítva"
 
 #: ../raphodo/rapid.py:6255
 msgid "Remembered files have been forgotten"
-msgstr ""
+msgstr "Elfelejtették a megjegyzett fájlokat"
 
 #: ../raphodo/rememberthisdialog.py:70
 msgid "&Don't ask me about this again"
-msgstr ""
+msgstr "&Ne kérdezzen újra erről"
 
 #: ../raphodo/rememberthisdialog.py:72
 msgid "&Don't warn me about this again"
-msgstr ""
+msgstr "&Ne figyelmeztessen újra erről"
 
 #: ../raphodo/rememberthisdialog.py:75
 msgid "&Don't warn me again about missing or broken program libraries"
-msgstr ""
+msgstr "&Ne figyelmeztessen többé a hiányzó vagy törött programkönyvtárakról"
 
 #: ../raphodo/renameandmovefile.py:554
 msgid "subfolder and filename"
-msgstr "alkönyvtár és file neve"
+msgstr "alkönyvtár és fájlnév"
 
 #: ../raphodo/renameandmovefile.py:556
 msgid "filename"
@@ -4069,7 +4738,7 @@ msgstr "alkönyvtár"
 
 #: ../raphodo/renamepanel.py:290
 msgid "A counter for how many downloads occur on each day"
-msgstr ""
+msgstr "Egy számláló, hogy hány letöltés történik minden nap"
 
 #: ../raphodo/renamepanel.py:291
 msgid "Downloads today:"
@@ -4077,7 +4746,7 @@ msgstr "Mai letöltések:"
 
 #: ../raphodo/renamepanel.py:313
 msgid "A counter that is remembered each time the program is run "
-msgstr ""
+msgstr "Egy olyan számláló, amely a program minden egyes futtatására emlékezik"
 
 #: ../raphodo/renamepanel.py:314
 msgid "Stored number:"
@@ -4087,6 +4756,7 @@ msgstr "Tárolt szám:"
 msgid ""
 "The time at which the <i>Downloads today</i> sequence number should be reset"
 msgstr ""
+"Az az időpont, amikor a <i> Letöltések ma </i> sorszámot vissza kell állítani"
 
 #: ../raphodo/renamepanel.py:332
 msgid "Day start:"
@@ -4096,7 +4766,7 @@ msgstr "Nap kezdete:"
 #. self.dayStart.setDisplayFormat('HH:mm:ss')
 #: ../raphodo/renamepanel.py:342
 msgid "Synchronize RAW + JPEG"
-msgstr ""
+msgstr "RAW + JPEG szinkronizálása"
 
 #: ../raphodo/renamepanel.py:345
 msgid ""
@@ -4104,10 +4774,13 @@ msgid ""
 "\n"
 "See the online documentation for more details."
 msgstr ""
+"A RAW és JPEG párhoz tartozó sorszámok szinkronizálása.\n"
+"\n"
+"További részletek az online dokumentációban találhatóak."
 
 #: ../raphodo/renamepanel.py:349
 msgid "Sequence Numbers"
-msgstr ""
+msgstr "Sorszámok"
 
 #: ../raphodo/renamepanel.py:360
 msgid "Strip incompatible characters"
@@ -4118,22 +4791,24 @@ msgid ""
 "Whether photo, video and folder names should have any characters removed "
 "that are not allowed by other operating systems"
 msgstr ""
+"Függetlenül attól, hogy a fotó-, videó- és mappanevek legyenek olyan "
+"karakterek, amelyeket más operációs rendszerek nem engedélyeznek"
 
 #: ../raphodo/renamepanel.py:365
 msgid "Compatibility"
-msgstr ""
+msgstr "Kompatibilitás"
 
 #: ../raphodo/renamepanel.py:433
 msgid "Photo Renaming"
-msgstr ""
+msgstr "Fotó átnevezése"
 
 #: ../raphodo/renamepanel.py:436
 msgid "Video Renaming"
-msgstr ""
+msgstr "Videó átnevezése"
 
 #: ../raphodo/renamepanel.py:439
 msgid "Renaming Options"
-msgstr ""
+msgstr "Átnevezési beállítások"
 
 #: ../raphodo/rpdfile.py:218
 msgid "photos and videos"
@@ -4141,7 +4816,7 @@ msgstr "fényképek és videók"
 
 #: ../raphodo/rpdfile.py:220
 msgid "photos or videos"
-msgstr "fénykép vagy videó"
+msgstr "fényképek vagy videók"
 
 #: ../raphodo/rpdfile.py:315
 #, python-format
@@ -4151,25 +4826,25 @@ msgstr "%(number)s %(filetypes)s"
 #. translators: natural language expression signifying a single video
 #: ../raphodo/rpdfile.py:337
 msgid "a video"
-msgstr ""
+msgstr "egy videó"
 
 #: ../raphodo/rpdfile.py:339
 msgid "1 Video"
-msgstr ""
+msgstr "1 videó"
 
 #. translators: natural language expression signifying a single photo
 #: ../raphodo/rpdfile.py:346
 msgid "a photo"
-msgstr ""
+msgstr "egy fénykép"
 
 #: ../raphodo/rpdfile.py:348
 msgid "1 Photo"
-msgstr ""
+msgstr "1 fénykép"
 
 #: ../raphodo/rpdfile.py:828
 #, python-format
 msgid "%(path)s on %(camera)s"
-msgstr ""
+msgstr "%(path)s %(camera)s"
 
 #: ../raphodo/rpdfile.py:844
 msgid "Photo"
@@ -4181,198 +4856,198 @@ msgstr "Videó"
 
 #: ../raphodo/storage.py:141
 msgid "File system root"
-msgstr ""
+msgstr "A fájlrendszer gyökere"
 
 #. translators: the name of the Pictures folder
 #: ../raphodo/storage.py:437
 msgid "Pictures"
-msgstr ""
+msgstr "Képek"
 
 #: ../raphodo/thumbnaildisplay.py:432
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
-msgstr ""
+msgstr "Felvett %(date_time)s (%(human_readable)s)"
 
 #: ../raphodo/thumbnaildisplay.py:439
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
-msgstr ""
+msgstr "Módosítás dátuma: %(date_time)s (%(human_readable)s)"
 
 #: ../raphodo/thumbnaildisplay.py:447 ../raphodo/thumbnaildisplay.py:481
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
-msgstr ""
+msgstr "%(date_time)s (%(human_readable)s)"
 
 #: ../raphodo/thumbnaildisplay.py:464
 #, python-format
 msgid "Memory cards: %s"
-msgstr ""
+msgstr "Memóriakártyák: %s"
 
 #: ../raphodo/thumbnaildisplay.py:468
 #, python-format
 msgid "Memory card: %s"
-msgstr ""
+msgstr "Memóriakártya: %s"
 
 #: ../raphodo/thumbnaildisplay.py:473
 msgid "Downloaded as:"
-msgstr ""
+msgstr "Letöltve, mint:"
 
 #: ../raphodo/thumbnaildisplay.py:489
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
-msgstr ""
+msgstr "<br><br> Előző letöltés: <br> %(filename)s <br> %(path)s %(date)s"
 
 #: ../raphodo/thumbnaildisplay.py:1645
 msgid "Copy Path"
-msgstr ""
+msgstr "Másolás elérési út"
 
 #. Translators: these values are file size suffixes like B representing bytes, KB representing
 #. kilobytes, etc.
 #: ../raphodo/utilities.py:170
 msgid "B"
-msgstr ""
+msgstr "B"
 
 #: ../raphodo/utilities.py:170
 msgid "KB"
-msgstr ""
+msgstr "KB"
 
 #: ../raphodo/utilities.py:170
 msgid "MB"
-msgstr ""
+msgstr "MB"
 
 #: ../raphodo/utilities.py:170
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 #: ../raphodo/utilities.py:170
 msgid "TB"
-msgstr ""
+msgstr "TB"
 
 #: ../raphodo/utilities.py:170
 msgid "PB"
-msgstr ""
+msgstr "PB"
 
 #: ../raphodo/utilities.py:170
 msgid "EB"
-msgstr ""
+msgstr "EB"
 
 #: ../raphodo/utilities.py:170
 msgid "ZB"
-msgstr ""
+msgstr "ZB"
 
 #: ../raphodo/utilities.py:170
 msgid "YB"
-msgstr ""
+msgstr "YB"
 
 #. two things in a list e.g. "device1 and device2"
 #: ../raphodo/utilities.py:394
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
-msgstr ""
+msgstr "%(first_item)s és %(last_item)s"
 
 #: ../raphodo/utilities.py:468
 msgid "one"
-msgstr ""
+msgstr "egy"
 
 #: ../raphodo/utilities.py:469
 msgid "two"
-msgstr ""
+msgstr "kettő"
 
 #: ../raphodo/utilities.py:470
 msgid "three"
-msgstr ""
+msgstr "három"
 
 #: ../raphodo/utilities.py:471
 msgid "four"
-msgstr ""
+msgstr "négy"
 
 #: ../raphodo/utilities.py:472
 msgid "five"
-msgstr ""
+msgstr "öt"
 
 #: ../raphodo/utilities.py:473
 msgid "six"
-msgstr ""
+msgstr "hat"
 
 #: ../raphodo/utilities.py:474
 msgid "seven"
-msgstr ""
+msgstr "hét"
 
 #: ../raphodo/utilities.py:475
 msgid "eight"
-msgstr ""
+msgstr "nyolc"
 
 #: ../raphodo/utilities.py:476
 msgid "nine"
-msgstr ""
+msgstr "kilenc"
 
 #: ../raphodo/utilities.py:477
 msgid "ten"
-msgstr ""
+msgstr "tíz"
 
 #: ../raphodo/utilities.py:478
 msgid "eleven"
-msgstr ""
+msgstr "tizenegy"
 
 #: ../raphodo/utilities.py:479
 msgid "twelve"
-msgstr ""
+msgstr "tizenkettő"
 
 #: ../raphodo/utilities.py:480
 msgid "thirteen"
-msgstr ""
+msgstr "tizenhárom"
 
 #: ../raphodo/utilities.py:481
 msgid "fourteen"
-msgstr ""
+msgstr "tizennégy"
 
 #: ../raphodo/utilities.py:482
 msgid "fifteen"
-msgstr ""
+msgstr "tizenöt"
 
 #: ../raphodo/utilities.py:483
 msgid "sixteen"
-msgstr ""
+msgstr "tizenhat"
 
 #: ../raphodo/utilities.py:484
 msgid "seventeen"
-msgstr ""
+msgstr "tizenhét"
 
 #: ../raphodo/utilities.py:485
 msgid "eighteen"
-msgstr ""
+msgstr "tizennyolc"
 
 #: ../raphodo/utilities.py:486
 msgid "ninenteen"
-msgstr ""
+msgstr "tizenkilenc"
 
 #: ../raphodo/utilities.py:487
 msgid "twenty"
-msgstr ""
+msgstr "húsz"
 
 #: ../raphodo/viewutils.py:240
 msgid "&OK"
-msgstr ""
+msgstr "&OK"
 
 #: ../raphodo/viewutils.py:243
 msgid "&Save"
-msgstr ""
+msgstr "&Mentés"
 
 #: ../raphodo/viewutils.py:244
 msgid "&Help"
-msgstr ""
+msgstr "&Sugó"
 
 #: ../raphodo/viewutils.py:245
 msgid "Restore Defaults"
-msgstr ""
+msgstr "Alapértékek visszaállítása"
 
 #: ../raphodo/viewutils.py:246
 msgid "&Yes"
-msgstr ""
+msgstr "&Igen"
 
 #: ../raphodo/viewutils.py:247
 msgid "&No"
-msgstr ""
+msgstr "&Nem"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:1
 msgid ""
@@ -4382,6 +5057,11 @@ msgid ""
 "photos and videos as they are downloaded. It downloads from and backs up to "
 "multiple devices simultaneously."
 msgstr ""
+"A Rapid Photo Downloader nagy sebességgel importál fényképeket és videókat "
+"kamerákból, telefonokból, memóriakártyákból és más eszközökből. Úgy van "
+"beállítva, hogy átnevezzen fényképeket és videókat a megadott fájlnevekkel. "
+"A képek és videók biztonsági másolata is letölthető. Egyszerre több "
+"eszközről tölt le és több eszközt támogat."
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:2
 msgid ""
@@ -4390,6 +5070,10 @@ msgid ""
 "identify photos and videos taken at different periods in a single day or "
 "over consecutive days."
 msgstr ""
+"A Rapid Photo Downloader egyedülálló eleme az idővonal, amely a fotókat és "
+"videókat csoportosítja az egymást követő felvételek között eltelt idő "
+"alapján. Használja azt a fotók és videók azonosítására, amelyek különböző "
+"időszakokban, egyetlen nap alatt vagy egymást követő napokon készülnek."
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:3
 msgid ""
@@ -4398,31 +5082,38 @@ msgid ""
 "configured without the need for complicated codes. Common tasks can be "
 "automated, such as unmounting a memory card when the download is complete."
 msgstr ""
+"A professzionális és amatőr fotográfus által készített Rapid Photo "
+"Downloader könnyen konfigurálható és használható. A programbeállítások "
+"bonyolult kódok nélkül konfigurálhatók. A szokásos feladatok "
+"automatizálhatók, például a memóriakártya eltávolítása a letöltés "
+"befejezésekor."
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:4
 msgid "The main window"
-msgstr ""
+msgstr "A főablak"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:5
 msgid "Downloading"
-msgstr ""
+msgstr "Letöltés"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:6
 msgid "The Timeline"
-msgstr ""
+msgstr "Az idővonal"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.appdata.xml.in.h:7
 msgid "Right-clicking on a device"
-msgstr ""
+msgstr "Kattintson jobb gombbal egy eszközre"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.desktop.in.h:1
 msgid ""
 "Download, rename and back up photos and videos from cameras and other devices"
 msgstr ""
+"Fényképek és videók letöltése, átnevezése és biztonsági mentése kamerákból "
+"és egyéb eszközökről"
 
 #: ../data/net.damonlynch.rapid-photo-downloader.desktop.in.h:2
 msgid "Photo Downloader"
-msgstr ""
+msgstr "Photo Downloader"
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/net.damonlynch.rapid-photo-downloader.desktop.in.h:5
@@ -4430,10 +5121,33 @@ msgid ""
 "photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
 "memory;card;"
 msgstr ""
+"fénykép, letöltés, fényképezés, import, videó, RAW, kamera, telefon, mentés, "
+"memória kártya;"
 
 #: ../data/kde/net.damonlynch.rapid-photo-downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
-msgstr ""
+msgstr "Fotók és videók letöltése a Rapid Photo Downloader alkalmazással"
+
+#~ msgid "Scan non-camera devices lacking a DCIM folder"
+#~ msgstr "Keresse le a DCIM mappát nem tartalmazó eszközöket"
+
+#~ msgid ""
+#~ "Scan the entirety of a device for photos and videos, irrespective of "
+#~ "whether it contains a DCIM folder,\n"
+#~ "as opposed to only scanning within a DCIM folder.\n"
+#~ "\n"
+#~ "Changing this setting causes all devices to be scanned again.\n"
+#~ "\n"
+#~ "Note: With cameras, only the DCIM folder is scanned."
+#~ msgstr ""
+#~ "Nézze át a fényképek és videók összes eszközét, függetlenül attól, hogy "
+#~ "egy DCIM mappát tartalmaz-e,\n"
+#~ "szemben a csak DCIM mappában történő beolvasással.\n"
+#~ "\n"
+#~ "Ennek a beállításnak a megváltoztatásával minden eszköz újra beolvasásra "
+#~ "kerül.\n"
+#~ "\n"
+#~ "Megjegyzés: Kamerákkal csak a DCIM mappát vizsgálja."
 
 #~ msgid "Select a folder to download photos to"
 #~ msgstr "Válasszon egy letöltési könyvtárat"
