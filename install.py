@@ -1485,7 +1485,7 @@ def do_install(installer: str,
 
     clean_locale_tmpdir()
 
-    print("\n" + _("If a segmentation fault now occurs, you can ignore it:"))
+    print("\n" + _("(If a segmentation fault occurs at exit, you can ignore it...)"))
 
 
 def clean_locale_tmpdir():
