@@ -44,7 +44,7 @@ from raphodo.rpdfile import ALL_KNOWN_EXTENSIONS
 class ScanPreferences:
     r"""
     Handle user preferences while scanning devices like memory cards,
-    cameras or the filesystem. Pickled and passed between processes.
+    cameras or the filesystem.
 
     Sets data attribute valid to True if ignored paths are valid. An ignored
     path is always assumed to be valid unless regular expressions are used.
@@ -316,12 +316,15 @@ class Preferences:
         device_autodetection=True,
         this_computer_source = False,
         this_computer_path='',
-        device_without_dcim_autodetection=False,
+        scan_specific_folders=True,
+        # pre 0.9.3a1 value: device_without_dcim_autodetection=False, is now replaced by
+        # scan_specific_folders
+        folders_to_scan=['DCIM', 'PRIVATE', 'MP_ROOT'],
+        ignored_paths=['.Trash', '.thumbnails'],
+        use_re_ignored_paths=False,
         volume_whitelist=[''],
         volume_blacklist=[''],
         camera_blacklist=[''],
-        ignored_paths=['.Trash', '.thumbnails'],
-        use_re_ignored_paths=False
     )
     backup_defaults = dict(
         backup_files=False,
@@ -903,11 +906,11 @@ class Preferences:
             self.settings.endGroup()
 
         v090b6 = pkg_resources.parse_version('0.9.0b6')
-
-        if previous_version < v090b6 and not self.value_is_set('warn_broken_or_missing_libraries'):
+        key = 'warn_broken_or_missing_libraries'
+        group = 'Display'
+        if previous_version < v090b6 and not self.value_is_set(key, group):
             # Versions prior to 0.9.0b6 may have a preference value 'warn_no_libmediainfo'
             # which is now renamed to 'broken_or_missing_libraries'
-            group = 'Display'
             if self.value_is_set('warn_no_libmediainfo', group):
                 self.settings.beginGroup(group)
                 v = self.settings.value('warn_no_libmediainfo', True, type(True))
@@ -923,6 +926,31 @@ class Preferences:
                     "Not transferring preference value warn_no_libmediainfo to "
                     "warn_broken_or_missing_libraries because it doesn't exist"
                 )
+
+        v093a1 = pkg_resources.parse_version('0.9.3a1')
+        key = 'scan_specific_folders'
+        group = 'Device'
+        if previous_version < v093a1 and not self.value_is_set(key, group):
+            # Versions prior to 0.9.3a1 used a preference value to indicate if
+            # devices lacking a DCIM folder should be scanned. It is now renamed
+            # to 'scan_specific_folders'
+            if self.value_is_set('device_without_dcim_autodetection'):
+                self.settings.beginGroup(group)
+                v = self.settings.value('device_without_dcim_autodetection', True, type(True))
+                self.settings.remove('device_without_dcim_autodetection')
+                self.settings.endGroup()
+                self.settings.endGroup()
+                logging.debug(
+                    "Transferring preference value %s for device_without_dcim_autodetection to "
+                    "scan_specific_folders as %s", v, not v
+                )
+                self.scan_specific_folders = not v
+            else:
+                logging.debug(
+                    "Not transferring preference value device_without_dcim_autodetection to "
+                    "scan_specific_folders because it doesn't exist"
+                )
+
 
     def validate_max_CPU_cores(self) -> None:
         logging.debug('Validating CPU core count for thumbnail generation...')

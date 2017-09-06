@@ -123,9 +123,6 @@ class PreferencesDialog(QDialog):
                 ":/prefs/error-handling.svg", ":/prefs/warnings.svg", ":/prefs/miscellaneous.svg"
             )
 
-
-
-
         for prefIcon, label in zip(icons, self.chooser_items):
             # make the selected icons be the same colour as the selected text
             icon = QIcon()
@@ -148,25 +145,47 @@ class PreferencesDialog(QDialog):
         self.devices = QWidget()
 
         self.scanBox = QGroupBox(_('Device Scanning'))
-        scanLayout = QVBoxLayout()
         self.onlyExternal = QCheckBox(_('Scan only external devices'))
         self.onlyExternal.setToolTip(_(
             'Scan for photos and videos only on devices that are external to the computer,\n'
             'including cameras, memory cards, external hard drives, and USB flash drives.'
         ))
-
-        self.noDcim = QCheckBox(_('Scan non-camera devices lacking a DCIM folder'))
+        self.scanSpecificFolders = QCheckBox(_('Scan only specific folders on devices'))
         tip = _(
-            'Scan the entirety of a device for photos and videos, irrespective of whether it '
-            'contains a DCIM folder,\n'
-            'as opposed to only scanning within a DCIM folder.\n\n'
-            'Changing this setting causes all devices to be scanned again.\n\n'
-            'Note: With cameras, only the DCIM folder is scanned.'
+            'Scan for photos and videos only in the folders specified below (except paths\n'
+            'specified in Ignored Paths).\n\n'
+            'Changing this setting causes all devices to be scanned again.'
         )
-        self.noDcim.setToolTip(tip)
+        self.scanSpecificFolders.setToolTip(tip)
 
-        scanLayout.addWidget(self.onlyExternal)
-        scanLayout.addWidget(self.noDcim)
+        self.foldersToScanLabel = QLabel(_('Folders to scan:'))
+        self.foldersToScan = QNarrowListWidget(minimum_rows=5)
+        self.foldersToScan.setToolTip(_(
+            'Folders at the base level of device file systems that will be scanned\n'
+            'for photos and videos.'
+        ))
+        self.addFolderToScan = QPushButton(_('Add...'))
+        self.addFolderToScan.setToolTip(_(
+            'Add a folder to the list of folders to scan for photos and videos.\n\n'
+            'Changing this setting causes all devices to be scanned again.'
+        ))
+        self.removeFolderToScan = QPushButton(_('Remove'))
+        self.removeFolderToScan.setToolTip(_(
+            'Remove a folder from the list of folders to scan for photos and videos.\n\n'
+            'Changing this setting causes all devices to be scanned again.'
+        ))
+
+        self.addFolderToScan.clicked.connect(self.addFolderToScanClicked)
+        self.removeFolderToScan.clicked.connect(self.removeFolderToScanClicked)
+
+        scanLayout = QGridLayout()
+        scanLayout.setHorizontalSpacing(18)
+        scanLayout.addWidget(self.onlyExternal, 0, 0, 1, 3)
+        scanLayout.addWidget(self.scanSpecificFolders, 1, 0, 1, 3)
+        scanLayout.addWidget(self.foldersToScanLabel, 2, 1, 1, 2)
+        scanLayout.addWidget(self.foldersToScan, 3, 1, 3, 1)
+        scanLayout.addWidget(self.addFolderToScan, 3, 2, 1, 1)
+        scanLayout.addWidget(self.removeFolderToScan, 4, 2, 1, 1)
         self.scanBox.setLayout(scanLayout)
 
         tip = _('Devices that have been set to automatically ignore or download from.')
@@ -246,13 +265,13 @@ class PreferencesDialog(QDialog):
         # connect these next 3 only after having set their values, so rescan / search again
         # in rapidApp is not triggered
         self.onlyExternal.stateChanged.connect(self.onlyExternalChanged)
-        self.noDcim.stateChanged.connect(self.noDcimChanged)
+        self.scanSpecificFolders.stateChanged.connect(self.noDcimChanged)
         self.ignoredPathsRe.stateChanged.connect(self.ignoredPathsReChanged)
 
         devicesLayout = QVBoxLayout()
         devicesLayout.addWidget(self.scanBox)
-        devicesLayout.addWidget(self.knownDevicesBox)
         devicesLayout.addWidget(self.ignoredPathsBox)
+        devicesLayout.addWidget(self.knownDevicesBox)
         devicesLayout.addStretch()
         devicesLayout.setSpacing(18)
 
@@ -494,12 +513,14 @@ class PreferencesDialog(QDialog):
         tip = _('Warn after scanning a device or this computer if there are unrecognized files '
                 'that will not be included in the download.')
         self.warnUnhandledFiles.setToolTip(tip)
-        self.exceptTheseFilesLabel = QLabel(_('Do not warn about unhandled files with '
-                                              'extensions:'))
+        self.exceptTheseFilesLabel = QLabel(
+            _('Do not warn about unhandled files with extensions:')
+        )
         self.exceptTheseFilesLabel.setWordWrap(True)
         self.exceptTheseFiles = QNarrowListWidget(minimum_rows=4)
-        tip = _('File extensions are case insensitive and do not need to include the leading '
-                'dot.')
+        tip = _(
+            'File extensions are case insensitive and do not need to include the leading dot.'
+        )
         self.exceptTheseFiles.setToolTip(tip)
         self.addExceptFiles = QPushButton(_('Add'))
         tip = _('Add a file extension to the list of unhandled file types to not warn about.')
@@ -774,8 +795,10 @@ class PreferencesDialog(QDialog):
         layout.addLayout(controlsLayout)
         layout.addWidget(buttons)
 
-        self.device_right_side_buttons = (self.removeDevice, self.removeAllDevice, self.addPath,
-                                          self.removePath, self.removeAllPath)
+        self.device_right_side_buttons = (
+            self.removeDevice, self.removeAllDevice, self.addPath, self.removePath,
+            self.removeAllPath
+        )
 
         self.device_list_widgets = (self.knownDevices, self.ignoredPaths)
         self.chooser.setCurrentRow(0)
@@ -787,7 +810,8 @@ class PreferencesDialog(QDialog):
 
     def setDeviceWidgetValues(self) -> None:
         self.onlyExternal.setChecked(self.prefs.only_external_mounts)
-        self.noDcim.setChecked(self.prefs.device_without_dcim_autodetection)
+        self.scanSpecificFolders.setChecked(self.prefs.scan_specific_folders)
+        self.setFoldersToScanWidgetValues()
         self.knownDevices.clear()
         self._addItems('volume_whitelist', KnownDeviceType.volume_whitelist)
         self._addItems('volume_blacklist', KnownDeviceType.volume_blacklist)
@@ -797,6 +821,20 @@ class PreferencesDialog(QDialog):
         self.removeDevice.setEnabled(self.knownDevices.count())
         self.removeAllDevice.setEnabled(self.knownDevices.count())
         self.setIgnorePathWidgetValues()
+
+    def setFoldersToScanWidgetValues(self) -> None:
+        self.foldersToScan.clear()
+        if self.prefs.list_not_empty('folders_to_scan'):
+            self.foldersToScan.addItems(self.prefs.folders_to_scan)
+            self.foldersToScan.setCurrentRow(0)
+        self.setFoldersToScanState()
+
+    def setFoldersToScanState(self) -> None:
+        scan_specific = self.prefs.scan_specific_folders
+        self.foldersToScanLabel.setEnabled(scan_specific)
+        self.foldersToScan.setEnabled(scan_specific)
+        self.addFolderToScan.setEnabled(scan_specific)
+        self.removeFolderToScan.setEnabled(scan_specific and self.foldersToScan.count() > 1)
 
     def setIgnorePathWidgetValues(self) -> None:
         self.ignoredPaths.clear()
@@ -998,7 +1036,8 @@ class PreferencesDialog(QDialog):
 
     @pyqtSlot(int)
     def noDcimChanged(self, state: int) -> None:
-        self.prefs.device_without_dcim_autodetection = state == Qt.Checked
+        self.prefs.scan_specific_folders = state == Qt.Checked
+        self.setFoldersToScanState()
         if self.rapidApp is not None:
             self.rapidApp.scan_non_cameras_again = True
 
@@ -1060,6 +1099,26 @@ class PreferencesDialog(QDialog):
             self.rapidApp.search_for_devices_again = True
 
     @pyqtSlot()
+    def removeFolderToScanClicked(self) -> None:
+        row = self.foldersToScan.currentRow()
+        if row >= 0 and self.foldersToScan.count() > 1:
+            item = self.foldersToScan.takeItem(row)
+            self.prefs.del_list_value('folders_to_scan', item.text())
+            self.removeFolderToScan.setEnabled(self.foldersToScan.count() > 1)
+
+            if self.rapidApp is not None:
+                self.rapidApp.scan_all_again = True
+
+    @pyqtSlot()
+    def addFolderToScanClicked(self) -> None:
+        dlg = FoldersToScanDialog(prefs=self.prefs, parent=self)
+        if dlg.exec():
+            self.setFoldersToScanWidgetValues()
+
+            if self.rapidApp is not None:
+                self.rapidApp.scan_all_again = True
+
+    @pyqtSlot()
     def removePathClicked(self) -> None:
         row = self.ignoredPaths.currentRow()
         if row >= 0:
@@ -1070,7 +1129,6 @@ class PreferencesDialog(QDialog):
 
             if self.rapidApp is not None:
                 self.rapidApp.scan_all_again = True
-
 
     @pyqtSlot()
     def removeAllPathClicked(self) -> None:
@@ -1292,7 +1350,7 @@ class PreferencesDialog(QDialog):
     def restoreDefaultsClicked(self) -> None:
         row = self.chooser.currentRow()
         if row == 0:
-            for value in ('only_external_mounts', 'device_without_dcim_autodetection',
+            for value in ('only_external_mounts', 'scan_specific_folders', 'folders_to_scan',
                            'ignored_paths', 'use_re_ignored_paths'):
                 self.prefs.restore(value)
             self.removeAllDeviceClicked()
@@ -1411,6 +1469,21 @@ class PreferenceAddDialog(QDialog):
         if value:
             self.prefs.add_list_value(self.pref_value, value)
         super().accept()
+
+
+class FoldersToScanDialog(PreferenceAddDialog):
+    """
+    Dialog prompting for a folder on devices to scan for photos and videos
+    """
+    def __init__(self, prefs: Preferences, parent=None) -> None:
+        super().__init__(
+            prefs=prefs,
+            title=_('Enter a Folder to Scan'),
+            instruction=_('Specify a folder that will be scanned for photos and videos'),
+            label=_('Folder:'),
+            pref_value='folders_to_scan',
+            parent=parent
+        )
 
 
 class IgnorePathDialog(PreferenceAddDialog):

@@ -306,25 +306,26 @@ def mountPaths():
         yield m.rootPath()
 
 
-def has_non_empty_dcim_folder(path: str) -> bool:
+def has_one_or_more_folders(path: str, folders: List[str]) -> bool:
     """
-    Checks to see if below the path there is a DCIM folder,
-    if the folder is readable, and if it has any contents
+    Checks to see if directly below the path there is a folder
+    from the list of specified folders, and if the folder is readable.
     :param path: path to check
-    :return: True if has valid DCIM, False otherwise
+    :return: True if has one or more valid folders, False otherwise
     """
 
     try:
-        has_dcim = "DCIM" in os.listdir(path)
+        contents = os.listdir(path)
+        for folder in folders:
+            if folder in contents:
+                full_path = os.path.join(path, folder)
+                if os.path.isdir(full_path) and os.access(full_path, os.R_OK):
+                    return True
     except (PermissionError, FileNotFoundError, OSError):
         return False
     except:
         logging.error("Unknown error occurred while probing potential source folder %s", path)
         return False
-    if has_dcim:
-        dcim_folder = os.path.join(path, 'DCIM')
-        if os.path.isdir(dcim_folder) and os.access(dcim_folder, os.R_OK):
-            return len(os.listdir(dcim_folder)) > 0
     return False
 
 

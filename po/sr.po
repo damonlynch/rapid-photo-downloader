@@ -6,16 +6,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-08-11 21:54-0500\n"
-"PO-Revision-Date: 2017-07-26 13:56+0000\n"
+"POT-Creation-Date: 2017-09-05 21:23-0400\n"
+"PO-Revision-Date: 2017-08-12 07:44+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: српски <gnome-sr@googlegroups.org>\n"
 "Language: sr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-07-28 06:33+0000\n"
-"X-Generator: Launchpad (build 18439)\n"
+"X-Launchpad-Export-Date: 2017-08-14 01:21+0000\n"
+"X-Generator: Launchpad (build 18446)\n"
 
 #: ../install.py:65
 msgid "Rapid Photo Downloader installer"
@@ -493,15 +493,15 @@ msgid "%(size_free)s free of %(size_total)s"
 msgstr "%(size_free)s је слободно од %(size_total)s"
 
 #: ../raphodo/destinationdisplay.py:190 ../raphodo/devicedisplay.py:993
-#: ../raphodo/rapid.py:2023 ../raphodo/rapid.py:2151 ../raphodo/rapid.py:6042
+#: ../raphodo/rapid.py:2023 ../raphodo/rapid.py:2151 ../raphodo/rapid.py:6041
 #: ../raphodo/rpdfile.py:930
 msgid "Photos"
 msgstr "Фотографије"
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:191 ../raphodo/devicedisplay.py:994
-#: ../raphodo/rapid.py:2028 ../raphodo/rapid.py:2152 ../raphodo/rapid.py:6043
-#: ../raphodo/rpdfile.py:958 ../raphodo/storage.py:448
+#: ../raphodo/rapid.py:2028 ../raphodo/rapid.py:2152 ../raphodo/rapid.py:6042
+#: ../raphodo/rpdfile.py:958 ../raphodo/storage.py:449
 msgid "Videos"
 msgstr "Снимци"
 
@@ -1558,7 +1558,7 @@ msgstr "Текст"
 msgid "Filename"
 msgstr "Назив датотеке"
 
-#: ../raphodo/generatenameconfig.py:193 ../raphodo/preferencedialog.py:703
+#: ../raphodo/generatenameconfig.py:193 ../raphodo/preferencedialog.py:724
 msgid "Metadata"
 msgstr "Метаподаци"
 
@@ -2196,8 +2196,8 @@ msgstr "&Примени"
 msgid "&Remove"
 msgstr "&Уклони"
 
-#: ../raphodo/jobcodepanel.py:229 ../raphodo/preferencedialog.py:181
-#: ../raphodo/preferencedialog.py:210 ../raphodo/preferencedialog.py:510
+#: ../raphodo/jobcodepanel.py:229 ../raphodo/preferencedialog.py:200
+#: ../raphodo/preferencedialog.py:229 ../raphodo/preferencedialog.py:531
 msgid "Remove All"
 msgstr "Уклони све"
 
@@ -2318,7 +2318,7 @@ msgstr "Подешеност:"
 msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
-#: ../raphodo/nameeditor.py:1012 ../raphodo/preferencedialog.py:762
+#: ../raphodo/nameeditor.py:1012 ../raphodo/preferencedialog.py:783
 msgid "Get help online..."
 msgstr "Нађи помоћ на мрежи..."
 
@@ -2424,7 +2424,7 @@ msgid "Thumbnails"
 msgstr "Минијатуре"
 
 #: ../raphodo/preferencedialog.py:108 ../raphodo/preferencedialog.py:118
-#: ../raphodo/preferencedialog.py:409
+#: ../raphodo/preferencedialog.py:428
 msgid "Error Handling"
 msgstr "Рад са грешкама"
 
@@ -2440,15 +2440,15 @@ msgstr ""
 msgid "Miscellaneous"
 msgstr "Остало"
 
-#: ../raphodo/preferencedialog.py:150
+#: ../raphodo/preferencedialog.py:147
 msgid "Device Scanning"
 msgstr "Прегледање уређаја"
 
-#: ../raphodo/preferencedialog.py:152
+#: ../raphodo/preferencedialog.py:148
 msgid "Scan only external devices"
 msgstr "Прегледај само спољне уређаје"
 
-#: ../raphodo/preferencedialog.py:154
+#: ../raphodo/preferencedialog.py:150
 msgid ""
 "Scan for photos and videos only on devices that are external to the "
 "computer,\n"
@@ -2458,50 +2458,82 @@ msgstr ""
 "укључујући\n"
 "фото-апарате, меморијске картице, спољне чврсте дискове и УСБ флеш дискове."
 
-#: ../raphodo/preferencedialog.py:158
-msgid "Scan non-camera devices lacking a DCIM folder"
-msgstr ""
-"Прегледај уређаје који нису фото-апарати којима недостаје ДЦИМ фасцикла"
+#: ../raphodo/preferencedialog.py:153
+#, fuzzy
+msgid "Scan only specific folders on devices"
+msgstr "Прегледај само спољне уређаје"
 
-#: ../raphodo/preferencedialog.py:160
+#: ../raphodo/preferencedialog.py:155
+#, fuzzy
 msgid ""
-"Scan the entirety of a device for photos and videos, irrespective of whether "
-"it contains a DCIM folder,\n"
-"as opposed to only scanning within a DCIM folder.\n"
+"Scan for photos and videos only in the folders specified below (except "
+"paths\n"
+"specified in Ignored Paths).\n"
 "\n"
-"Changing this setting causes all devices to be scanned again.\n"
-"\n"
-"Note: With cameras, only the DCIM folder is scanned."
+"Changing this setting causes all devices to be scanned again."
 msgstr ""
-"Прегледајте целину уређаја за фотографијама и снимцима, без обзира на то да "
-"ли садржи ДЦИМ фасциклу,\n"
-"за разлику од прегледања у оквиру ДЦИМ фасцикле.\n"
+"Користите регуларне израе на списку путања за занемаривање.\n"
 "\n"
-"Измена овог подешавања доводи до поновног прегледања свих уређаја.\n"
-"\n"
-"Напомена: Са фото-апаратима, само ДЦИМ фасцикла се прегледа."
+"Измена овог подешавања доводи до поновног прегледања свих уређаја."
 
-#: ../raphodo/preferencedialog.py:172
+#: ../raphodo/preferencedialog.py:161
+#, fuzzy
+msgid "Folders to scan:"
+msgstr "Само фасцикла"
+
+#: ../raphodo/preferencedialog.py:164
+msgid ""
+"Folders at the base level of device file systems that will be scanned\n"
+"for photos and videos."
+msgstr ""
+
+#: ../raphodo/preferencedialog.py:167 ../raphodo/preferencedialog.py:219
+msgid "Add..."
+msgstr "Додај..."
+
+#: ../raphodo/preferencedialog.py:169
+#, fuzzy
+msgid ""
+"Add a folder to the list of folders to scan for photos and videos.\n"
+"\n"
+"Changing this setting causes all devices to be scanned again."
+msgstr ""
+"Додајте путању на списак путања за занемаривање.\n"
+"\n"
+"Измена овог подешавања доводи до поновног прегледања свих уређаја."
+
+#: ../raphodo/preferencedialog.py:172 ../raphodo/preferencedialog.py:198
+#: ../raphodo/preferencedialog.py:224 ../raphodo/preferencedialog.py:529
+msgid "Remove"
+msgstr "Уклони"
+
+#: ../raphodo/preferencedialog.py:174
+#, fuzzy
+msgid ""
+"Remove a folder from the list of folders to scan for photos and videos.\n"
+"\n"
+"Changing this setting causes all devices to be scanned again."
+msgstr ""
+"Уклоните путању са списка путања за занемаривање.\n"
+"\n"
+"Измена овог подешавања доводи до поновног прегледања свих уређаја."
+
+#: ../raphodo/preferencedialog.py:191
 msgid "Devices that have been set to automatically ignore or download from."
 msgstr "Уређаји који су подешени за аутоматско занемаривање или преузимање."
 
-#: ../raphodo/preferencedialog.py:173
+#: ../raphodo/preferencedialog.py:192
 msgid "Remembered Devices"
 msgstr "Запамћени уређаји"
 
-#: ../raphodo/preferencedialog.py:177
+#: ../raphodo/preferencedialog.py:196
 msgid ""
 "Remove a device from the list of devices to automatically ignore or download "
 "from."
 msgstr ""
 "Уклоните уређај са списка уређаја за аутоматско занемаривање или преузимање."
 
-#: ../raphodo/preferencedialog.py:179 ../raphodo/preferencedialog.py:205
-#: ../raphodo/preferencedialog.py:508
-msgid "Remove"
-msgstr "Уклони"
-
-#: ../raphodo/preferencedialog.py:183
+#: ../raphodo/preferencedialog.py:202
 msgid ""
 "Clear the list of devices from which to automatically ignore or download "
 "from.\n"
@@ -2513,22 +2545,18 @@ msgstr ""
 "Напомена: Измене ће ступити на снагу приликом следећег прегледања рачунара "
 "за уређајима."
 
-#: ../raphodo/preferencedialog.py:196
+#: ../raphodo/preferencedialog.py:215
 msgid "Ignored Paths"
 msgstr "Занемарене путање"
 
-#: ../raphodo/preferencedialog.py:197
+#: ../raphodo/preferencedialog.py:216
 msgid ""
 "The end part of a path that should never be scanned for photos or videos."
 msgstr ""
 "Крајњи део путање која никада неће бити прегледана за фотографијама или "
 "снимцима."
 
-#: ../raphodo/preferencedialog.py:200
-msgid "Add..."
-msgstr "Додај..."
-
-#: ../raphodo/preferencedialog.py:202
+#: ../raphodo/preferencedialog.py:221
 msgid ""
 "Add a path to the list of paths to ignore.\n"
 "\n"
@@ -2538,7 +2566,7 @@ msgstr ""
 "\n"
 "Измена овог подешавања доводи до поновног прегледања свих уређаја."
 
-#: ../raphodo/preferencedialog.py:207
+#: ../raphodo/preferencedialog.py:226
 msgid ""
 "Remove a path from the list of paths to ignore.\n"
 "\n"
@@ -2548,7 +2576,7 @@ msgstr ""
 "\n"
 "Измена овог подешавања доводи до поновног прегледања свих уређаја."
 
-#: ../raphodo/preferencedialog.py:212
+#: ../raphodo/preferencedialog.py:231
 msgid ""
 "Clear the list of paths to ignore.\n"
 "\n"
@@ -2558,7 +2586,7 @@ msgstr ""
 "\n"
 "Измена овог подешавања доводи до поновног прегледања свих уређаја."
 
-#: ../raphodo/preferencedialog.py:220
+#: ../raphodo/preferencedialog.py:239
 msgid ""
 "Use python-style <a href=\"http://damonlynch.net/rapid/documentation/"
 "#regularexpressions\">regular expressions</a>"
@@ -2566,7 +2594,7 @@ msgstr ""
 "Користите <a href=\"http://damonlynch.net/rapid/documentation/"
 "#regularexpressions\">регуларне изразе</a> у питон-стилу"
 
-#: ../raphodo/preferencedialog.py:224
+#: ../raphodo/preferencedialog.py:243
 msgid ""
 "Use regular expressions in the list of ignored paths.\n"
 "\n"
@@ -2576,47 +2604,47 @@ msgstr ""
 "\n"
 "Измена овог подешавања доводи до поновног прегледања свих уређаја."
 
-#: ../raphodo/preferencedialog.py:264
+#: ../raphodo/preferencedialog.py:283
 msgid "Program Automation"
 msgstr "Аутоматизација програма"
 
-#: ../raphodo/preferencedialog.py:265
+#: ../raphodo/preferencedialog.py:284
 msgid "Start downloading at program startup"
 msgstr "Започни преузимање по покретању програма"
 
-#: ../raphodo/preferencedialog.py:266
+#: ../raphodo/preferencedialog.py:285
 msgid "Start downloading upon device insertion"
 msgstr "Започни преузимање по прикључивању уређаја"
 
-#: ../raphodo/preferencedialog.py:267
+#: ../raphodo/preferencedialog.py:286
 msgid "Unmount (eject) device upon download completion"
 msgstr "Откачи (избаци) уређај након обављеног преузимања"
 
-#: ../raphodo/preferencedialog.py:268
+#: ../raphodo/preferencedialog.py:287
 msgid "Exit program when download completes"
 msgstr "Изађи из програма након обављеног преузимања"
 
-#: ../raphodo/preferencedialog.py:269
+#: ../raphodo/preferencedialog.py:288
 msgid "Exit program even if download had warnings or errors"
 msgstr "Изађи из програма чак и када постоје грешке у преузимању"
 
-#: ../raphodo/preferencedialog.py:296
+#: ../raphodo/preferencedialog.py:315
 msgid "Thumbnail Generation"
 msgstr "Стварање сличица"
 
-#: ../raphodo/preferencedialog.py:297
+#: ../raphodo/preferencedialog.py:316
 msgid "Generate thumbnails"
 msgstr "Направи сличице"
 
-#: ../raphodo/preferencedialog.py:299
+#: ../raphodo/preferencedialog.py:318
 msgid "Generate thumbnails to show in the main program window"
 msgstr "Направи сличице за приказ у главном прозору програма"
 
-#: ../raphodo/preferencedialog.py:301
+#: ../raphodo/preferencedialog.py:320
 msgid "Cache thumbnails"
 msgstr "Смести сличице у оставу"
 
-#: ../raphodo/preferencedialog.py:304
+#: ../raphodo/preferencedialog.py:323
 msgid ""
 "Save thumbnails shown in the main program window in a thumbnail cache unique "
 "to Rapid Photo Downloader"
@@ -2624,11 +2652,11 @@ msgstr ""
 "Сачувајте сличице приказане у главном прозору програма у остави сличица "
 "јединственој за Брзог преносиоца фотографија"
 
-#: ../raphodo/preferencedialog.py:308
+#: ../raphodo/preferencedialog.py:327
 msgid "Generate system thumbnails"
 msgstr "Направи системске сличице"
 
-#: ../raphodo/preferencedialog.py:311
+#: ../raphodo/preferencedialog.py:330
 msgid ""
 "While downloading, save thumbnails that can be used by desktop file managers "
 "and other programs"
@@ -2636,77 +2664,77 @@ msgstr ""
 "Прилико преузимања, сачувајте сличице које могу користити управници датотека "
 "радне површи и други програми"
 
-#: ../raphodo/preferencedialog.py:320
+#: ../raphodo/preferencedialog.py:339
 msgid "Number of CPU cores used to generate thumbnails."
 msgstr "Број језгара процесора која ће се користити за стварање сличица."
 
-#: ../raphodo/preferencedialog.py:321
+#: ../raphodo/preferencedialog.py:340
 msgid "CPU cores:"
 msgstr "Језгра процесора:"
 
 #. Translators: the * acts as an asterisk to denote a reference to an annotation
 #. such as '* Takes effect upon program restart'
-#: ../raphodo/preferencedialog.py:336 ../raphodo/preferencedialog.py:382
+#: ../raphodo/preferencedialog.py:355 ../raphodo/preferencedialog.py:401
 msgid "*"
 msgstr "*"
 
-#: ../raphodo/preferencedialog.py:359
+#: ../raphodo/preferencedialog.py:378
 msgid "Thumbnail Cache"
 msgstr "Остава сличица"
 
-#: ../raphodo/preferencedialog.py:361
+#: ../raphodo/preferencedialog.py:380
 msgid "Calculating..."
 msgstr "Израчунавам..."
 
-#: ../raphodo/preferencedialog.py:367
+#: ../raphodo/preferencedialog.py:386
 msgid "days"
 msgstr "дана"
 
-#: ../raphodo/preferencedialog.py:368
+#: ../raphodo/preferencedialog.py:387
 msgid "forever"
 msgstr "заувек"
 
-#: ../raphodo/preferencedialog.py:373
+#: ../raphodo/preferencedialog.py:392
 msgid "Cache size:"
 msgstr "Величина оставе:"
 
-#: ../raphodo/preferencedialog.py:375
+#: ../raphodo/preferencedialog.py:394
 msgid "Number of thumbnails:"
 msgstr "Број сличица:"
 
-#: ../raphodo/preferencedialog.py:377
+#: ../raphodo/preferencedialog.py:396
 msgid "Database size:"
 msgstr "Величина базе података:"
 
-#: ../raphodo/preferencedialog.py:379
+#: ../raphodo/preferencedialog.py:398
 msgid "Cache unaccessed thumbnails for:"
 msgstr "Неприступљене сличице оставе за:"
 
-#: ../raphodo/preferencedialog.py:387
+#: ../raphodo/preferencedialog.py:406
 msgid "Purge Cache..."
 msgstr "Очисти оставу..."
 
-#: ../raphodo/preferencedialog.py:389
+#: ../raphodo/preferencedialog.py:408
 msgid "Optimize Cache..."
 msgstr "Оптимизуј оставу..."
 
-#: ../raphodo/preferencedialog.py:402
+#: ../raphodo/preferencedialog.py:421
 msgid "* Takes effect upon program restart"
 msgstr "* Ступа на снагу након пновног покретања програма"
 
-#: ../raphodo/preferencedialog.py:412
+#: ../raphodo/preferencedialog.py:431
 msgid "Skip download"
 msgstr "Прескочи преузимање"
 
-#: ../raphodo/preferencedialog.py:413
+#: ../raphodo/preferencedialog.py:432
 msgid "Don't download the file, and issue an error message"
 msgstr "Не преузима датотеку, и даје поруку грешке"
 
-#: ../raphodo/preferencedialog.py:414
+#: ../raphodo/preferencedialog.py:433
 msgid "Add unique identifier"
 msgstr "Додај јединствену реч"
 
-#: ../raphodo/preferencedialog.py:417
+#: ../raphodo/preferencedialog.py:436
 msgid ""
 "Add an identifier like _1 or _2 to the end of the filename, immediately "
 "before the file's extension"
@@ -2714,23 +2742,23 @@ msgstr ""
 "Додаје одредник као _1 или _2 на крај назива датотеке, одмах пре наставка "
 "датотеке"
 
-#: ../raphodo/preferencedialog.py:425
+#: ../raphodo/preferencedialog.py:444
 msgid "Overwrite"
 msgstr "Препиши"
 
-#: ../raphodo/preferencedialog.py:426
+#: ../raphodo/preferencedialog.py:445
 msgid "Overwrite the previously backed up file"
 msgstr "Преписује претходно направљену резерву датотеке"
 
-#: ../raphodo/preferencedialog.py:427
+#: ../raphodo/preferencedialog.py:446
 msgid "Skip"
 msgstr "Прескочи"
 
-#: ../raphodo/preferencedialog.py:429
+#: ../raphodo/preferencedialog.py:448
 msgid "Don't overwrite the backup file, and issue an error message"
 msgstr "Не преписује датотеку резерве, и даје поруку грешке"
 
-#: ../raphodo/preferencedialog.py:436
+#: ../raphodo/preferencedialog.py:455
 msgid ""
 "When a photo or video of the same name has already been downloaded, choose "
 "whether to skip downloading the file, or to add a unique identifier:"
@@ -2738,7 +2766,7 @@ msgstr ""
 "Када је већ преузета фотографија или снимак са истим називом, изаберите или "
 "да је прескочите или да јој додате јединствену ознаку:"
 
-#: ../raphodo/preferencedialog.py:445
+#: ../raphodo/preferencedialog.py:464
 msgid ""
 "Using sequence numbers to automatically generate unique filenames is "
 "strongly recommended. Configure file renaming in the Rename panel in the "
@@ -2748,7 +2776,7 @@ msgstr ""
 "се строго препоручује. Подесите преименовање датотека у панелу преименовања "
 "у главном прозору."
 
-#: ../raphodo/preferencedialog.py:454
+#: ../raphodo/preferencedialog.py:473
 msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up:"
@@ -2756,38 +2784,38 @@ msgstr ""
 "Приликом прављења резерве, изаберите да ли ће датотека на уређају резерве са "
 "истим називом бити преписана или ће бити прескочена:"
 
-#: ../raphodo/preferencedialog.py:475
+#: ../raphodo/preferencedialog.py:494
 msgid "Program Warnings"
 msgstr "Упозорења програма"
 
-#: ../raphodo/preferencedialog.py:476
+#: ../raphodo/preferencedialog.py:495
 msgid "Show a warning when:"
 msgstr "Покажи упозорење када:"
 
-#: ../raphodo/preferencedialog.py:479
+#: ../raphodo/preferencedialog.py:498
 msgid "Downloading files currently not displayed"
 msgstr "Датотеке преузимања тренутно нису приказане"
 
-#: ../raphodo/preferencedialog.py:480
+#: ../raphodo/preferencedialog.py:499
 msgid ""
 "Warn when about to download files that are not displayed in the main window."
 msgstr ""
 "Упозорава приликом преузимања датотека које нису приказане у главном прозору."
 
-#: ../raphodo/preferencedialog.py:482
+#: ../raphodo/preferencedialog.py:501
 msgid "Backup destinations are missing"
 msgstr "Недостају одредишта резерве"
 
-#: ../raphodo/preferencedialog.py:483
+#: ../raphodo/preferencedialog.py:502
 msgid "Warn before starting a download if it is not possible to back up files."
 msgstr ""
 "Упозорава пре почетка преузимања ако није могуће направити резерву датотека."
 
-#: ../raphodo/preferencedialog.py:485
+#: ../raphodo/preferencedialog.py:504
 msgid "Program libraries are missing or broken"
 msgstr "Недостају или су оштећене библиотеке програма"
 
-#: ../raphodo/preferencedialog.py:486
+#: ../raphodo/preferencedialog.py:505
 msgid ""
 "Warn if a software library used by Rapid Photo Downloader is missing or not "
 "functioning."
@@ -2795,11 +2823,11 @@ msgstr ""
 "Упозорава ако софтверске библиотеке које користи Брзи преносилац фотографија "
 "недостају или не функционишу."
 
-#: ../raphodo/preferencedialog.py:489
+#: ../raphodo/preferencedialog.py:508
 msgid "Filesystem metadata cannot be set"
 msgstr "Мета подаци система датотека не могу бити подешени"
 
-#: ../raphodo/preferencedialog.py:490
+#: ../raphodo/preferencedialog.py:509
 msgid ""
 "Warn if there is an error setting a file's filesystem metadata, such as its "
 "modification time."
@@ -2807,11 +2835,11 @@ msgstr ""
 "Упозорава ако постоји грешка подешавања метаподатака система датотека, као "
 "што је њено време измене."
 
-#: ../raphodo/preferencedialog.py:493
+#: ../raphodo/preferencedialog.py:512
 msgid "Encountering unhandled files"
 msgstr "Наиђе на необрадиве датотеке"
 
-#: ../raphodo/preferencedialog.py:494
+#: ../raphodo/preferencedialog.py:513
 msgid ""
 "Warn after scanning a device or this computer if there are unrecognized "
 "files that will not be included in the download."
@@ -2819,11 +2847,11 @@ msgstr ""
 "Упозорава након прегледања уређаја или овог рачунара ако постоје "
 "непрепознате датотеке које неће бити укључене у преузимање."
 
-#: ../raphodo/preferencedialog.py:497
+#: ../raphodo/preferencedialog.py:517
 msgid "Do not warn about unhandled files with extensions:"
 msgstr "Не упозоравај о необрађеним датотекама са наставцима:"
 
-#: ../raphodo/preferencedialog.py:501
+#: ../raphodo/preferencedialog.py:522
 msgid ""
 "File extensions are case insensitive and do not need to include the leading "
 "dot."
@@ -2831,18 +2859,18 @@ msgstr ""
 "Наставци датотека не разликују величину слова и не морају да укључе водећу "
 "тачку."
 
-#: ../raphodo/preferencedialog.py:504
+#: ../raphodo/preferencedialog.py:525
 msgid "Add"
 msgstr "Додај"
 
-#: ../raphodo/preferencedialog.py:505
+#: ../raphodo/preferencedialog.py:526
 msgid ""
 "Add a file extension to the list of unhandled file types to not warn about."
 msgstr ""
 "Додајте наставак датотеке на списак необрађених врста датотека о којима неће "
 "упозоравати."
 
-#: ../raphodo/preferencedialog.py:507
+#: ../raphodo/preferencedialog.py:528
 msgid ""
 "Remove a file extension from the list of unhandled file types to not warn "
 "about."
@@ -2850,69 +2878,69 @@ msgstr ""
 "Уклоните наставак датотеке са списка необрађених врста датотека о којима "
 "неће упозоравати."
 
-#: ../raphodo/preferencedialog.py:511
+#: ../raphodo/preferencedialog.py:532
 msgid ""
 "Clear the list of file extensions of unhandled file types to not warn about."
 msgstr ""
 "Очистите списак наставака датотека необрађених врста датотека о којима неће "
 "упозоравати."
 
-#: ../raphodo/preferencedialog.py:547
+#: ../raphodo/preferencedialog.py:568
 msgid "Photo and Video Consolidation"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:550
+#: ../raphodo/preferencedialog.py:571
 msgid "Consolidate files across devices and downloads"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:553
+#: ../raphodo/preferencedialog.py:574
 msgid ""
 "Analyze the results of device scans looking for duplicate files and matching "
 "RAW and JPEG pairs,\n"
 "comparing them across multiple devices and download sessions."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:559
+#: ../raphodo/preferencedialog.py:580
 msgid "Treat matching RAW and JPEG files as:"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:560
+#: ../raphodo/preferencedialog.py:581
 msgid "One photo"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:561
+#: ../raphodo/preferencedialog.py:582
 msgid "Two photos"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:563
+#: ../raphodo/preferencedialog.py:584
 msgid ""
 "Display matching pairs of RAW and JPEG photos as one photo, and if marked, "
 "download both."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:568
+#: ../raphodo/preferencedialog.py:589
 msgid ""
 "Display matching pairs of RAW and JPEG photos as two different photos. You "
 "can still synchronize their sequence numbers."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:577
+#: ../raphodo/preferencedialog.py:598
 msgid "With matching RAW and JPEG photos:"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:579
+#: ../raphodo/preferencedialog.py:600
 msgid "Do not mark JPEG for download"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:580
+#: ../raphodo/preferencedialog.py:601
 msgid "Do not mark RAW for download"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:581
+#: ../raphodo/preferencedialog.py:602
 msgid "Mark both for download"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:588
+#: ../raphodo/preferencedialog.py:609
 msgid ""
 "When matching RAW and JPEG photos are found, do not automatically mark the "
 "JPEG for\n"
@@ -2921,7 +2949,7 @@ msgstr ""
 "Када су пронађене сирове и ЈПЕГ фотографије, неће сам означавати ЈПЕГ за\n"
 "преузимање. То ћете моћи још увек сами да урадите."
 
-#: ../raphodo/preferencedialog.py:593
+#: ../raphodo/preferencedialog.py:614
 msgid ""
 "When matching RAW and JPEG photos are found, do not automatically mark the "
 "RAW for\n"
@@ -2931,71 +2959,71 @@ msgstr ""
 "слике за\n"
 "преузимање. То ћете моћи још увек сами да урадите."
 
-#: ../raphodo/preferencedialog.py:598
+#: ../raphodo/preferencedialog.py:619
 msgid ""
 "When matching RAW and JPEG photos are found, automatically mark both for "
 "download."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:604
+#: ../raphodo/preferencedialog.py:625
 msgid ""
 "If you disable file consolidation, choose what to do when a download device "
 "is inserted while completed downloads are displayed:"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:610
+#: ../raphodo/preferencedialog.py:631
 msgid ""
 "When a download device is inserted while completed downloads are displayed:"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:621
+#: ../raphodo/preferencedialog.py:642
 msgid "Clear completed downloads"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:622
+#: ../raphodo/preferencedialog.py:643
 msgid "Keep displaying completed downloads"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:623
+#: ../raphodo/preferencedialog.py:644
 msgid "Prompt for what to do"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:628
+#: ../raphodo/preferencedialog.py:649
 msgid ""
 "Automatically clear the display of completed downloads whenever a new "
 "download device is inserted."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:633
+#: ../raphodo/preferencedialog.py:654
 msgid ""
 "Keep displaying completed downloads whenever a new download device is "
 "inserted."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:637
+#: ../raphodo/preferencedialog.py:658
 msgid ""
 "Prompt whether to keep displaying completed downloads or clear them whenever "
 "a new download device is inserted."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:681
+#: ../raphodo/preferencedialog.py:702
 msgid "Version Check"
 msgstr "Провера издања"
 
-#: ../raphodo/preferencedialog.py:682
+#: ../raphodo/preferencedialog.py:703
 msgid "Check for new version at startup"
 msgstr "Провери има ли новог издања при покретању"
 
-#: ../raphodo/preferencedialog.py:684
+#: ../raphodo/preferencedialog.py:705
 msgid "Check for a new version of the program each time the program starts."
 msgstr ""
 "Проверите има ли новог издања програма приликом сваког покретања програма."
 
-#: ../raphodo/preferencedialog.py:686
+#: ../raphodo/preferencedialog.py:707
 msgid "Include development releases"
 msgstr "Укључи развојна издања"
 
-#: ../raphodo/preferencedialog.py:688
+#: ../raphodo/preferencedialog.py:709
 msgid ""
 "Include alpha, beta and other development releases when checking for a new "
 "version of the program.\n"
@@ -3008,11 +3036,11 @@ msgstr ""
 "\n"
 "Ако тренутно користите развојно издање, провера ће се увек вршити."
 
-#: ../raphodo/preferencedialog.py:704
+#: ../raphodo/preferencedialog.py:725
 msgid "Ignore DNG date/time metadata on MTP devices"
 msgstr "Занемари ДНГ мета податке датума/времена на МТП уређајима"
 
-#: ../raphodo/preferencedialog.py:706
+#: ../raphodo/preferencedialog.py:727
 msgid ""
 "Ignore date/time metadata in DNG files located on MTP devices, and use the "
 "file's modification time instead.\n"
@@ -3026,19 +3054,19 @@ msgstr ""
 "Корисно за уређаје као што су телефони и таблични уређаји који праве "
 "неисправне ДНГ мета податке."
 
-#: ../raphodo/preferencedialog.py:720
+#: ../raphodo/preferencedialog.py:741
 msgid "Completed Downloads"
 msgstr ""
 
 #. Translators: substituted value is a description for the set of preferences
 #. shown in the preference dialog window, e.g. Devices, Automation, etc.
 #. This string is shown in a tooltip for the "Restore Defaults" button
-#: ../raphodo/preferencedialog.py:1028
+#: ../raphodo/preferencedialog.py:1067
 #, python-format
 msgid "Restores default %s preference values"
 msgstr "Враћа подразумеване вредности „%s“ поставке"
 
-#: ../raphodo/preferencedialog.py:1150
+#: ../raphodo/preferencedialog.py:1208
 msgid ""
 "Do you want to purge the thumbnail cache? The cache will be purged when the "
 "program is next started."
@@ -3046,11 +3074,11 @@ msgstr ""
 "Да ли желите да очистите оставу сличица? Остава ће бити очишћена приликом "
 "следећег покретања програма."
 
-#: ../raphodo/preferencedialog.py:1154
+#: ../raphodo/preferencedialog.py:1212
 msgid "Purge Thumbnail Cache"
 msgstr "Очисти оставу сличица"
 
-#: ../raphodo/preferencedialog.py:1167
+#: ../raphodo/preferencedialog.py:1225
 msgid ""
 "Do you want to optimize the thumbnail cache? The cache will be optimized "
 "when the program is next started."
@@ -3058,40 +3086,56 @@ msgstr ""
 "Да ли желите да оптимизујете оставу сличица? Остава ће бити оптимизована "
 "приликом следећег покретања програма."
 
-#: ../raphodo/preferencedialog.py:1171
+#: ../raphodo/preferencedialog.py:1229
 msgid "Optimize Thumbnail Cache"
 msgstr "Оптимизуј оставу сличица"
 
-#: ../raphodo/preferencedialog.py:1424
+#: ../raphodo/preferencedialog.py:1481
+#, fuzzy
+msgid "Enter a Folder to Scan"
+msgstr "Само фасцикла"
+
+#: ../raphodo/preferencedialog.py:1482
+#, fuzzy
+msgid "Specify a folder that will be scanned for photos and videos"
+msgstr ""
+"Одредите путању која никада неће бити прегледана за фотографијама и снимцима"
+
+#: ../raphodo/preferencedialog.py:1483
+#, fuzzy
+msgid "Folder:"
+msgstr "Фасцикла: %s"
+
+#: ../raphodo/preferencedialog.py:1497
 msgid "Enter a Path to Ignore"
 msgstr "Унесите путање за занемаривање"
 
-#: ../raphodo/preferencedialog.py:1425
+#: ../raphodo/preferencedialog.py:1498
 msgid "Specify a path that will never be scanned for photos or videos"
 msgstr ""
 "Одредите путању која никада неће бити прегледана за фотографијама и снимцима"
 
-#: ../raphodo/preferencedialog.py:1426
+#: ../raphodo/preferencedialog.py:1499
 msgid "Path:"
 msgstr "Путања:"
 
-#: ../raphodo/preferencedialog.py:1440
+#: ../raphodo/preferencedialog.py:1513
 msgid "Enter a File Extension"
 msgstr "Унесите наставак датотеке"
 
-#: ../raphodo/preferencedialog.py:1441
+#: ../raphodo/preferencedialog.py:1514
 msgid "Specify a file extension (without the leading dot)"
 msgstr "Наведите наставак датотеке (без водеће тачке)"
 
-#: ../raphodo/preferencedialog.py:1442 ../raphodo/renamepanel.py:122
+#: ../raphodo/preferencedialog.py:1515 ../raphodo/renamepanel.py:122
 msgid "Extension:"
 msgstr "Наставак:"
 
-#: ../raphodo/preferencedialog.py:1457
+#: ../raphodo/preferencedialog.py:1530
 msgid "Invalid File Extension"
 msgstr "Неисправан наставак датотеке"
 
-#: ../raphodo/preferencedialog.py:1458
+#: ../raphodo/preferencedialog.py:1531
 #, python-format
 msgid ""
 "The file extension <b>%s</b> is recognized by Rapid Photo Downloader, so it "
@@ -3100,7 +3144,7 @@ msgstr ""
 "Наставак датотеке <b>%s</b> препознаје Брзи преносилац фотографија, тако да "
 "упозоравање на присутност нема смисла."
 
-#: ../raphodo/preferencedialog.py:1460
+#: ../raphodo/preferencedialog.py:1533
 #, python-format
 msgid ""
 "Recognized file types:\n"
@@ -3139,17 +3183,17 @@ msgstr "Венчање"
 msgid "Birthday"
 msgstr "Рођендан"
 
-#: ../raphodo/preferences.py:621
+#: ../raphodo/preferences.py:624
 #, python-format
 msgid "Subfolder preferences should not start with a %s"
 msgstr "Поставке садржане фасцикле не треба да почињу на „%s“"
 
-#: ../raphodo/preferences.py:624
+#: ../raphodo/preferences.py:627
 #, python-format
 msgid "Subfolder preferences should not end with a %s"
 msgstr "Поставке садржане фасцикле не треба да се завршавају на „%s“"
 
-#: ../raphodo/preferences.py:629
+#: ../raphodo/preferences.py:632
 #, python-format
 msgid "Subfolder preferences should not contain two %s one after the other"
 msgstr "Поставке садржане фасцикле не треба да садрже два „%s“ један за другим"
@@ -3589,7 +3633,7 @@ msgstr ""
 #: ../raphodo/rapid.py:493 ../raphodo/rapid.py:2555 ../raphodo/rapid.py:3934
 #: ../raphodo/rapid.py:4065 ../raphodo/rapid.py:4069 ../raphodo/rapid.py:4092
 #: ../raphodo/rapid.py:4096 ../raphodo/rapid.py:4226 ../raphodo/rapid.py:4237
-#: ../raphodo/rapid.py:4741 ../raphodo/rapid.py:5193 ../raphodo/rapid.py:5996
+#: ../raphodo/rapid.py:4741 ../raphodo/rapid.py:5193 ../raphodo/rapid.py:5995
 #: ../raphodo/rememberthisdialog.py:99
 #: ../data/net.damonlynch.rapid-photo-downloader.desktop.in.h:3
 msgid "Rapid Photo Downloader"
@@ -4264,17 +4308,17 @@ msgstr ""
 "Да ли заиста желите да преузмете одавде?<br><br>На неким системима, "
 "претраживање те путање може да потраје."
 
-#: ../raphodo/rapid.py:5539
+#: ../raphodo/rapid.py:5535
 #, python-format
 msgid "Generating thumbnails for %s"
 msgstr "Стварам сличице за „%s“"
 
-#: ../raphodo/rapid.py:5542
+#: ../raphodo/rapid.py:5538
 #, python-format
 msgid "Scanning %s"
 msgstr "Претражујем „%s“"
 
-#: ../raphodo/rapid.py:5553
+#: ../raphodo/rapid.py:5549
 #, python-format
 msgid ""
 "%(number)s of %(available files)s checked for download (%(hidden)s hidden)"
@@ -4282,75 +4326,75 @@ msgstr ""
 "%(number)s од %(available files)s је означено за преузимање (скривених "
 "%(hidden)s)"
 
-#: ../raphodo/rapid.py:5561
+#: ../raphodo/rapid.py:5557
 #, python-format
 msgid "%(number)s of %(available files)s checked for download"
 msgstr "%(number)s од %(available files)s је означено за преузимање"
 
-#: ../raphodo/rapid.py:5766
+#: ../raphodo/rapid.py:5762
 msgid "Display program information when run from the command line."
 msgstr "Приказује податке о програму када ради са линије наредби."
 
-#: ../raphodo/rapid.py:5768
+#: ../raphodo/rapid.py:5764
 msgid "Display debugging information when run from the command line."
 msgstr "Приказује податке прочишћавања када ради са линије наредби."
 
-#: ../raphodo/rapid.py:5771
+#: ../raphodo/rapid.py:5767
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr ""
 "Исписује наставке датотека фотографија и снимака које програм препознаје и "
 "излази."
 
-#: ../raphodo/rapid.py:5774
+#: ../raphodo/rapid.py:5770
 msgid "Turn on or off the the renaming of photos."
 msgstr "Укључите или искључите преименовање фотографија."
 
-#: ../raphodo/rapid.py:5776
+#: ../raphodo/rapid.py:5772
 msgid "turn on or off the the renaming of videos."
 msgstr "Укључите или искључите преименовање снимака."
 
-#: ../raphodo/rapid.py:5778
+#: ../raphodo/rapid.py:5774
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
 msgstr ""
 "Укључите или искључите аутоматско откривање уређаја са кога преузимати."
 
-#: ../raphodo/rapid.py:5782
+#: ../raphodo/rapid.py:5778
 msgid "Turn on or off downloading from this computer."
 msgstr "Укључите или искључите преузимање са овог рачунара."
 
-#: ../raphodo/rapid.py:5784 ../raphodo/rapid.py:5787 ../raphodo/rapid.py:5790
-#: ../raphodo/rapid.py:5811 ../raphodo/rapid.py:5815
+#: ../raphodo/rapid.py:5780 ../raphodo/rapid.py:5783 ../raphodo/rapid.py:5786
+#: ../raphodo/rapid.py:5807 ../raphodo/rapid.py:5811
 msgid "PATH"
 msgstr "ПУТАЊА"
 
-#: ../raphodo/rapid.py:5785
+#: ../raphodo/rapid.py:5781
 msgid "The PATH on this computer from which to download."
 msgstr "ПУТАЊА на овом рачунару са које ће се вршити преузимање."
 
-#: ../raphodo/rapid.py:5788
+#: ../raphodo/rapid.py:5784
 msgid "The PATH where photos will be downloaded to."
 msgstr "ПУТАЊА на коју ће фотографије бити преузете."
 
-#: ../raphodo/rapid.py:5791
+#: ../raphodo/rapid.py:5787
 msgid "The PATH where videos will be downloaded to."
 msgstr "ПУТАЊА на коју ће снимци бити преузети."
 
-#: ../raphodo/rapid.py:5793
+#: ../raphodo/rapid.py:5789
 msgid "Turn on or off the backing up of photos and videos while downloading."
 msgstr ""
 "Укључите или искључите прављење резерви фотографија и снимака за време "
 "преузимања."
 
-#: ../raphodo/rapid.py:5797
+#: ../raphodo/rapid.py:5793
 msgid "Turn on or off the automatic detection of backup devices."
 msgstr "Укључите или искључите аутоматско откривање уређаја преузимања."
 
-#: ../raphodo/rapid.py:5799 ../raphodo/rapid.py:5805
+#: ../raphodo/rapid.py:5795 ../raphodo/rapid.py:5801
 msgid "FOLDER"
 msgstr "ФАСЦИКЛА"
 
-#: ../raphodo/rapid.py:5800
+#: ../raphodo/rapid.py:5796
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
@@ -4362,7 +4406,7 @@ msgstr ""
 "уређај користи за резерве или не. За сваки уређај који желите да користите "
 "за резерве фотографија, направите фасциклу са овим називом."
 
-#: ../raphodo/rapid.py:5806
+#: ../raphodo/rapid.py:5802
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
@@ -4374,7 +4418,7 @@ msgstr ""
 "уређај користи за резерве или не. За сваки уређај који желите да користите "
 "за резерве снимака, направите фасциклу са овим називом."
 
-#: ../raphodo/rapid.py:5812
+#: ../raphodo/rapid.py:5808
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
@@ -4382,7 +4426,7 @@ msgstr ""
 "ПУТАЊА где ће бити направљена резерва фотографија када је аутоматско "
 "откривање уређаја резерве искључено."
 
-#: ../raphodo/rapid.py:5816
+#: ../raphodo/rapid.py:5812
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
@@ -4390,21 +4434,21 @@ msgstr ""
 "ПУТАЊА где ће бити направљена резерва снимака када је аутоматско откривање "
 "уређаја резерве искључено."
 
-#: ../raphodo/rapid.py:5819
+#: ../raphodo/rapid.py:5815
 #, python-format
 msgid "Ignore photos with the following extensions: %s"
 msgstr "Занемари фотографије са следећим наставцима: %s"
 
-#: ../raphodo/rapid.py:5823
+#: ../raphodo/rapid.py:5819
 msgid "Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 "Укључите или искључите започињање преузимања по самом покретању програма."
 
-#: ../raphodo/rapid.py:5826
+#: ../raphodo/rapid.py:5822
 msgid "Turn on or off starting downloads as soon as a device is inserted."
 msgstr "Укључите или искључите започињање преузимања по самом уметању уређаја."
 
-#: ../raphodo/rapid.py:5829
+#: ../raphodo/rapid.py:5825
 msgid ""
 "Turn on or off use of the Rapid Photo Downloader Thumbnail Cache. Turning it "
 "off does not delete existing cache contents."
@@ -4412,7 +4456,7 @@ msgstr ""
 "Укључите или искључите коришћење оставе сличица Брзог преносиоца "
 "фотографија. Искључивање неће обрисати постојеће садржаје оставе."
 
-#: ../raphodo/rapid.py:5833
+#: ../raphodo/rapid.py:5829
 msgid ""
 "Delete all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and "
 "exit."
@@ -4420,11 +4464,11 @@ msgstr ""
 "Обришите све сличице у остави сличица Брзог преносиоца фотографија, и "
 "изађите."
 
-#: ../raphodo/rapid.py:5837
+#: ../raphodo/rapid.py:5833
 msgid "Forget which files have been previously downloaded, and exit."
 msgstr "Заборавите које су датотеке претходно биле преузете, и изађите."
 
-#: ../raphodo/rapid.py:5840
+#: ../raphodo/rapid.py:5836
 msgid ""
 "Import preferences from an old program version and exit. Requires the "
 "command line program gconftool-2."
@@ -4432,7 +4476,7 @@ msgstr ""
 "Увезите поставке из из старог издања програма и изађите. Захтева програм "
 "линије наредби „gconftool“-2."
 
-#: ../raphodo/rapid.py:5843
+#: ../raphodo/rapid.py:5839
 msgid ""
 "Reset all program settings to their default values, delete all thumbnails in "
 "the Thumbnail cache, forget which files have been previously downloaded, and "
@@ -4442,15 +4486,15 @@ msgstr ""
 "сличице у остави сличица, заборавите које су датотеке биле претходно "
 "преузете, и изађите."
 
-#: ../raphodo/rapid.py:5847
+#: ../raphodo/rapid.py:5843
 msgid "Include gphoto2 debugging information in log files."
 msgstr "Укључите „gphoto2“ податке прочишћавања у датотеке дневника."
 
-#: ../raphodo/rapid.py:5851
+#: ../raphodo/rapid.py:5847
 msgid "Print information to the terminal about attached cameras and exit."
 msgstr "Испишите податке у терминал о прикаченим фото-апаратима и изађите."
 
-#: ../raphodo/rapid.py:5913
+#: ../raphodo/rapid.py:5909
 msgid ""
 "To import preferences from the old version of Rapid Photo Downloader, you "
 "must install the program gconftool-2."
@@ -4458,42 +4502,42 @@ msgstr ""
 "Да увезете поставке из старог издања Брзог преносиоца фотографија, морате да "
 "инсталирате програм „gconftool-2“."
 
-#: ../raphodo/rapid.py:5922
+#: ../raphodo/rapid.py:5918
 msgid "No prior program preferences detected: exiting"
 msgstr "Нисам открио претходне поставке програма: излазим"
 
-#: ../raphodo/rapid.py:5925
+#: ../raphodo/rapid.py:5921
 #, python-format
 msgid "Importing preferences from Rapid Photo Downloader %(version)s"
 msgstr "Увозим поставке из Брзог преносиоца фотографија %(version)s"
 
-#: ../raphodo/rapid.py:5988
+#: ../raphodo/rapid.py:5987
 #, python-format
 msgid "Do you want to copy the stored sequence number, which has the value %d?"
 msgstr "Да ли желите да умножите сачувани број низа, који има вредност %d?"
 
-#: ../raphodo/rapid.py:5999
+#: ../raphodo/rapid.py:5998
 msgid "Program aborting."
 msgstr "Прекид програма."
 
-#: ../raphodo/rapid.py:6009
+#: ../raphodo/rapid.py:6008
 msgid "Never run this program as the sudo / root user."
 msgstr "Никада не покрећите овај програм као администратор."
 
-#: ../raphodo/rapid.py:6013
+#: ../raphodo/rapid.py:6012
 msgid "You must install ExifTool to run Rapid Photo Downloader."
 msgstr ""
 "Морате да инсталирате „ExifTool“ да бисте покренули Брзог преносиоца "
 "фотографија."
 
-#: ../raphodo/rapid.py:6025
+#: ../raphodo/rapid.py:6024
 msgid ""
 "Rapid Photo Downloader is installed in multiple locations.\n"
 "\n"
 "Uninstall all copies except the version you want to run."
 msgstr ""
 
-#: ../raphodo/rapid.py:6082
+#: ../raphodo/rapid.py:6081
 msgid ""
 "When specifying a path on the command line, do not also specify an\n"
 "option for device auto detection or a path on \"This Computer\"."
@@ -4501,15 +4545,15 @@ msgstr ""
 "Приликом навођења путање на линији наредби, немојте такође наводити\n"
 "опцију за аутоматско откривање уређаја или путање на „Овом уређају“."
 
-#: ../raphodo/rapid.py:6242
+#: ../raphodo/rapid.py:6241
 msgid "All settings and caches have been reset"
 msgstr "Сва подешавања и оставе су враћене на основне вредности"
 
-#: ../raphodo/rapid.py:6250
+#: ../raphodo/rapid.py:6249
 msgid "Thumbnail Cache has been reset"
 msgstr "Остава сличица је повраћена"
 
-#: ../raphodo/rapid.py:6256
+#: ../raphodo/rapid.py:6255
 msgid "Remembered files have been forgotten"
 msgstr "Запамћене датотеке су заборављене"
 
@@ -4660,7 +4704,7 @@ msgid "File system root"
 msgstr "Корен система датотека"
 
 #. translators: the name of the Pictures folder
-#: ../raphodo/storage.py:436
+#: ../raphodo/storage.py:437
 msgid "Pictures"
 msgstr "Слике"
 
@@ -4928,6 +4972,37 @@ msgstr ""
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Преузмите фотографије и снимке са Брзим преносиоцем фотографија"
 
+#, fuzzy
+#~ msgid ""
+#~ "Clear the list of folders to scan for photos and videos.\n"
+#~ "\n"
+#~ "Changing this setting causes all devices to be scanned again."
+#~ msgstr ""
+#~ "Очистите списак путања за занемаривање.\n"
+#~ "\n"
+#~ "Измена овог подешавања доводи до поновног прегледања свих уређаја."
+
+#~ msgid "Scan non-camera devices lacking a DCIM folder"
+#~ msgstr ""
+#~ "Прегледај уређаје који нису фото-апарати којима недостаје ДЦИМ фасцикла"
+
+#~ msgid ""
+#~ "Scan the entirety of a device for photos and videos, irrespective of "
+#~ "whether it contains a DCIM folder,\n"
+#~ "as opposed to only scanning within a DCIM folder.\n"
+#~ "\n"
+#~ "Changing this setting causes all devices to be scanned again.\n"
+#~ "\n"
+#~ "Note: With cameras, only the DCIM folder is scanned."
+#~ msgstr ""
+#~ "Прегледајте целину уређаја за фотографијама и снимцима, без обзира на то "
+#~ "да ли садржи ДЦИМ фасциклу,\n"
+#~ "за разлику од прегледања у оквиру ДЦИМ фасцикле.\n"
+#~ "\n"
+#~ "Измена овог подешавања доводи до поновног прегледања свих уређаја.\n"
+#~ "\n"
+#~ "Напомена: Са фото-апаратима, само ДЦИМ фасцикла се прегледа."
+
 #~ msgid "Berlin"
 #~ msgstr "Берлин"
 
@@ -5122,9 +5197,6 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 
 #~ msgid "%(free)s %(file_type)s"
 #~ msgstr "%(free)s %(file_type)s"
-
-#~ msgid "Folder: %s"
-#~ msgstr "Фасцикла: %s"
 
 #~ msgid "; "
 #~ msgstr "; "

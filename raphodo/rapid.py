@@ -90,7 +90,7 @@ from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 from raphodo.storage import (
     ValidMounts, CameraHotplug, UDisks2Monitor, GVolumeMonitor, have_gio,
-    has_non_empty_dcim_folder, mountPaths, get_desktop_environment, get_desktop,
+    has_one_or_more_folders, mountPaths, get_desktop_environment, get_desktop,
     gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
     validate_source_folder, get_fdo_cache_thumb_base_directory, WatchDownloadDirs, get_media_dir,
     StorageSpace
@@ -527,12 +527,12 @@ class RapidWindow(QMainWindow):
             logging.info("Device autodetection: %s", self.prefs.device_autodetection)
 
         if self.prefs.device_autodetection:
-            if self.prefs.device_without_dcim_autodetection:
-                logging.info("Devices do not need a DCIM folder to be scanned")
+            if not self.prefs.scan_specific_folders:
+                logging.info("Devices do not need specific folders to be scanned")
             else:
                 logging.info(
-                    "For automatically detected devices, only the contents of their DCIM folder "
-                    "will be scanned"
+                    "For automatically detected devices, only the contents the following "
+                    "folders will be scanned: %s", ', '.join(self.prefs.folders_to_scan)
                 )
 
         if this_computer_source is not None:
@@ -4877,9 +4877,7 @@ Do you want to proceed with the download?
         """
         A valid partition is one that is:
         1) available
-        2) if devices without DCIM folders are to be scanned (e.g.
-        Portable Storage Devices), then the path should not be
-        blacklisted
+        2) the mount name should not be blacklisted
         :param mount: the mount point to check
         :return: True if valid, False otherwise
         """
@@ -4894,7 +4892,8 @@ Do you want to proceed with the download?
     def shouldScanMount(self, mount: QStorageInfo) -> bool:
         if self.prefs.device_autodetection:
             path = mount.rootPath()
-            if (self.prefs.device_without_dcim_autodetection or has_non_empty_dcim_folder(path)):
+            if (not self.prefs.scan_specific_folders or has_one_or_more_folders(
+                                                path=path, folders=self.prefs.folders_to_scan)):
                 if not self.devices.user_marked_volume_as_ignored(path):
                     return True
                 else:
@@ -4904,8 +4903,8 @@ Do you want to proceed with the download?
                     )
             else:
                 logging.debug(
-                    'Not scanning volume with path %s because it lacks a DCIM folder with at '
-                    'least one file or folder in it', path
+                    'Not scanning volume with path %s because it lacks a folder at the base '
+                    'level that indicates it should be scanned', path
                 )
         return False
 
@@ -4923,7 +4922,8 @@ Do you want to proceed with the download?
         """
 
         if not self.devices.known_device(device):
-            if (self.scanEvenIfNoDCIM() and not device.display_name in self.prefs.volume_whitelist):
+            if (self.scanEvenIfNoFoldersLikeDCIM() and
+                    not device.display_name in self.prefs.volume_whitelist):
                 logging.debug("Prompting whether to use device %s", device.display_name)
                 # prompt user to see if device should be used or not
                 self.showMainWindow()
@@ -5499,19 +5499,15 @@ Do you want to proceed with the download?
             return msgbox.exec() == QMessageBox.Yes
         return True
 
-    def scanEvenIfNoDCIM(self) -> bool:
+    def scanEvenIfNoFoldersLikeDCIM(self) -> bool:
         """
         Determines if partitions should be scanned even if there is
-        no DCIM folder present in the base folder of the file system.
+        no specific folder like a DCIM folder present in the base folder of the file system.
 
-        This is necessary when both portable storage device automatic
-        detection is on, and downloading from automatically detected
-        partitions is on.
         :return: True if scans of such partitions should occur, else
         False
         """
-        return (self.prefs.device_autodetection and
-                self.prefs.device_without_dcim_autodetection)
+        return self.prefs.device_autodetection and not self.prefs.scan_specific_folders
 
     def displayMessageInStatusBar(self) -> None:
         """
@@ -5882,7 +5878,7 @@ def import_prefs() -> None:
             ('video_download_folder','video_download_folder', str),
             ('device_autodetection', 'device_autodetection', pref_bool_from_gconftool2_string),
             ('device_location', 'this_computer_path', str),
-            ('device_autodetection_psd', 'device_without_dcim_autodetection',
+            ('device_autodetection_psd', 'scan_specific_folders',
              pref_bool_from_gconftool2_string),
             ('ignored_paths', 'ignored_paths', prefs_list_from_gconftool2_string),
             ('use_re_ignored_paths', 'use_re_ignored_paths', pref_bool_from_gconftool2_string),
@@ -5946,6 +5942,9 @@ def import_prefs() -> None:
                             print("Setting this_computer_source to True")
                             prefs.device_autodetection = False
                             prefs.this_computer_source = True
+                    elif key == 'device_autodetection_psd':
+                        print("Setting scan_specific_folders to", not new_value)
+                        prefs.scan_specific_folders = not new_value
                     elif key == 'device_location' and prefs.this_computer_source:
                         print("Setting this_computer_path to", new_value)
                         prefs.this_computer_path = new_value

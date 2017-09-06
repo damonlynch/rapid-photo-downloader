@@ -185,15 +185,30 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.camera = None
 
         if not self.download_from_camera:
-            # Download from file system
+            # Download from file system - either on This Computer, or an external volume like a
+            # memory card or USB Flash or external drive of some kind
             path = os.path.abspath(scan_arguments.device.path)
-            if not self.prefs.device_without_dcim_autodetection and \
-                            scan_arguments.device.device_type == DeviceType.volume:
-                path = os.path.join(path, "DCIM")
             self.display_name = scan_arguments.device.display_name
 
-            # Scan the files using lightweight high-performance scandir
-            logging.info("Scanning {}".format(self.display_name))
+            scanning_specific_path = self.prefs.scan_specific_folders and \
+                            scan_arguments.device.device_type == DeviceType.volume
+            if scanning_specific_path:
+                specific_folder_prefs = self.prefs.folders_to_scan
+                paths = tuple(
+                    os.path.join(path, folder) for folder in os.listdir(path)
+                    if folder in specific_folder_prefs and os.path.isdir(os.path.join(path, folder))
+                )
+                logging.info(
+                    "For device %s, identified paths: %s", self.display_name, ', '.join(paths)
+                )
+            else:
+                paths = path,
+
+            if scan_arguments.device.device_type == DeviceType.volume:
+                device_type = 'device'
+            else:
+                device_type = 'This Computer path'
+            logging.info("Scanning {} {}".format(device_type, self.display_name))
 
             self.problems.uri = get_uri(path=path)
             self.problems.name = self.display_name
@@ -201,9 +216,14 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # Before doing anything else, determine time zone approach
             # Need two different walks because first folder of files
             # might be videos, then the 2nd folder photos, etc.
-            self.distinguish_non_camera_device_timestamp(path)
+            for path in paths:
+                self.distinguish_non_camera_device_timestamp(path)
+                if self.device_timestamp_type != DeviceTimestampTZ.undetermined:
+                    break
 
-            if self.scan_preferences.scan_this_path(path):
+            for path in paths:
+                if scanning_specific_path:
+                    logging.info("Scanning {} on {}".format(path, self.display_name))
                 for dir_name, name in self.walk_file_system(path):
                     self.dir_name = dir_name
                     self.file_name = name
@@ -212,12 +232,17 @@ class ScanWorker(WorkerInPublishPullPipeline):
         else:
             # scanning directly from camera
             have_optimal_display_name = scan_arguments.device.have_optimal_display_name
+            if self.prefs.scan_specific_folders:
+                specific_folder_prefs =  self.prefs.folders_to_scan
+            else:
+                specific_folder_prefs = None
             while True:
                 try:
                     self.camera = Camera(
                         model=scan_arguments.device.camera_model,
                         port=scan_arguments.device.camera_port,
-                        raise_errors=True
+                        raise_errors=True,
+                        specific_folders=specific_folder_prefs
                     )
                     if not have_optimal_display_name:
                         # Update the GUI with the real name of the camera
@@ -264,7 +289,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # Download only from the DCIM folder(s) in the camera.
             # Phones especially have many directories with images, which we
             # must ignore
-            if self.camera.camera_has_dcim():
+            if self.camera.camera_has_dcim_like_folder():
                 logging.info("Scanning {}".format(self.display_name))
                 self._camera_folders_and_files = []
                 self._camera_file_names = defaultdict(list)
@@ -279,19 +304,19 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self._camera_photos_videos_by_type = \
                     defaultdict(list)  # type: DefaultDict[FileExtension, List[CameraMetadataDetails]]
 
-                dcim_folders = self.camera.dcim_folders
+                specific_folders = self.camera.specific_folders
 
-                if len(dcim_folders) > 1:
-                    # This camera has dual memory cards.
+                if self.camera.dual_slots_active:
+                    # This camera has dual memory cards in use.
                     # Give each folder an numeric identifier that will be
                     # used to identify which card a given file comes from
-                    dcim_folders.sort()
-                    for idx, folder in enumerate(dcim_folders):
-                        self._folder_identifiers[folder] = idx + 1
+                    for idx, folders in enumerate(specific_folders):
+                        for folder in folders:
+                            self._folder_identifiers[folder] = idx + 1
 
                 # locate photos and videos, identifying duplicate files
                 # identify candidates for extracting metadata
-                for idx, dcim_folder in enumerate(dcim_folders):
+                for idx, folders in enumerate(specific_folders):
                     # Setup camera details for each storage space in the camera
                     self.camera_details = idx
                     # Now initialize the problems container, if not already done so
@@ -299,10 +324,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         self.problems.name = self.camera_display_name
                         self.problems.uri = get_uri(camera_details=self.camera_details)
 
-                    logging.debug("Scanning %s on %s", dcim_folder, self.camera.display_name)
-                    folder_identifier = self._folder_identifiers.get(dcim_folder)
-                    basedir = dcim_folder[:-len('/DCIM')]
-                    self.locate_files_on_camera(dcim_folder, folder_identifier, basedir)
+                    for specific_folder in folders:
+                        logging.debug(
+                            "Scanning %s on %s", specific_folder, self.camera.display_name
+                        )
+                        folder_identifier = self._folder_identifiers.get(specific_folder)
+                        basedir = specific_folder[:-len('/{}'.format(specific_folder))]
+                        self.locate_files_on_camera(specific_folder, folder_identifier, basedir)
 
                 # extract non camera metadata
                 if self._camera_photos_videos_by_type:
@@ -312,7 +340,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 for self.dir_name, self.file_name in self._camera_folders_and_files:
                     self.process_file()
             else:
-                logging.warning("Unable to detect any DCIM folders on %s", self.display_name)
+                logging.warning(
+                    "Unable to detect any specific folders (like DCIM) on %s", self.display_name
+                )
 
             self.camera.free_camera()
 

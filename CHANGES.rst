@@ -1,6 +1,20 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.3b1 (2017-09-05)
+--------------------
+
+ - The preference value "Scan non-camera devices lacking a DCIM folder" is
+   replaced with the new preference value "Scan only specific folders on
+   devices", along with a list of folders to be scanned. By default, the
+   default folders to scan are DCIM, PRIVATE, and MP_ROOT, but you can change
+   these defaults using the program preferences. The change was made to
+   account for camera and phone manufacturers whose devices save photos and
+   videos in locations that differ from the DCIM specification.
+
+ - Updated Catalan, German and Italian translations. Other translations will
+   be updated for the final 0.9.3 release.
+
 0.9.2 (2017-08-06)
 ------------------
 
