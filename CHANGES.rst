@@ -1,6 +1,16 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.3 (2017-09-xx)
+------------------
+
+ - When running a user-installed python such as Anaconda or another custom
+   python, where possible the install.py script now switches over to using
+   the Linux distribution's system python.
+
+ - Updated Catalan, Czech, Dutch, French, German, Greek, Hungarian, Japanese,
+   Kabyle, Norwegian Nynorsk, Russian, and Spanish translations.
+
 0.9.3b1 (2017-09-05)
 --------------------
 
