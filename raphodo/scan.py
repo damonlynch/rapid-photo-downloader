@@ -73,12 +73,15 @@ from raphodo.interprocess import (WorkerInPublishPullPipeline, ScanResults,
                           ScanArguments)
 from raphodo.camera import Camera, CameraError, CameraProblemEx
 import raphodo.rpdfile as rpdfile
-from raphodo.constants import (DeviceType, FileType, DeviceTimestampTZ, CameraErrorCode,
-                               FileExtension, ThumbnailCacheDiskStatus, all_tags_offset, ExifSource)
+from raphodo.constants import (
+    DeviceType, FileType, DeviceTimestampTZ, CameraErrorCode, FileExtension,
+    ThumbnailCacheDiskStatus, all_tags_offset, ExifSource
+)
 from raphodo.rpdsql import DownloadedSQL, FileDownloaded
 from raphodo.cache import ThumbnailCacheSql
-from raphodo.utilities import (stdchannel_redirected, datetime_roughly_equal,
-                               GenerateRandomFileName, format_size_for_user)
+from raphodo.utilities import (
+    stdchannel_redirected, datetime_roughly_equal, GenerateRandomFileName, format_size_for_user
+)
 from raphodo.exiftool import ExifTool
 import raphodo.metadatavideo as metadatavideo
 import raphodo.metadataphoto as metadataphoto
@@ -329,7 +332,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                             "Scanning %s on %s", specific_folder, self.camera.display_name
                         )
                         folder_identifier = self._folder_identifiers.get(specific_folder)
-                        basedir = specific_folder[:-len('/{}'.format(specific_folder))]
+                        basedir = os.path.dirname(specific_folder)
                         self.locate_files_on_camera(specific_folder, folder_identifier, basedir)
 
                 # extract non camera metadata

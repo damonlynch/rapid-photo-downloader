@@ -4237,12 +4237,10 @@ Do you want to proceed with the download?
             title = _('Rapid Photo Downloader')
             message = _(
                 '<b>The %(camera)s appears to be in use by another '
-                'application.</b><br><br>You '
-                'can close any other application (such as a file browser) that is '
-                'using it and try again. If that '
-                'does not work, unplug the %(camera)s from the computer and plug '
-                'it in again.<br><br>Alternatively, you can ignore '
-                'this device.'
+                'application.</b><br><br>You can close any other application (such as a file '
+                'browser) that is using it and try again. If that does not work, unplug the '
+                '%(camera)s from the computer and plug it in again.<br><br>Alternatively, you '
+                'can ignore this device.'
             ) % {'camera':camera_model}
 
         msgBox = QMessageBox(
@@ -4316,7 +4314,11 @@ Do you want to proceed with the download?
 
     @pyqtSlot(int)
     def scanFatalError(self, scan_id: int) -> None:
-        device = self.devices[scan_id]
+        try:
+            device = self.devices[scan_id]
+        except KeyError:
+            logging.debug("Got scan error from device that no longer exists (scan_id %s)", scan_id)
+            return
 
         h1 = _('Sorry, an unexpected problem occurred while scanning %s.') % device.display_name
         h2 = _('Unfortunately you cannot download from this device.')

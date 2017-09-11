@@ -4,6 +4,17 @@ Changelog for Rapid Photo Downloader
 0.9.3 (2017-09-xx)
 ------------------
 
+ - When requesting GIO to unmount a camera / phone so it can be accessed by
+   libgphoto2, retry several times if it fails. Sometimes a GIO client program
+   such as Gnome Files needs a few seconds to relinquish control of the
+   device.
+
+ - Fixed bug where a crash could occur when removing a camera that was in the
+   preliminary stages of being scanned.
+
+ - Fixed a bug introduced in 0.9.3b1 where photo and video numbers and sizes
+   were not displayed in the devices summary in the program's left-hand pane.
+
  - When running a user-installed python such as Anaconda or another custom
    python, where possible the install.py script now switches over to using
    the Linux distribution's system python.

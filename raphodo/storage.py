@@ -60,7 +60,7 @@ from typing import Optional, Tuple, List, Dict, Any
 from urllib.request import pathname2url, quote
 from tempfile import NamedTemporaryFile
 
-from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal, QFileSystemWatcher, pyqtSlot)
+from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal, QFileSystemWatcher, pyqtSlot, QTimer)
 from xdg.DesktopEntry import DesktopEntry
 from xdg import BaseDirectory
 import xdg
@@ -1197,11 +1197,28 @@ if have_gio:
                         break
             return to_unmount
 
+        @pyqtSlot(str, str, bool, bool, int)
+        def reUnmountCamera(self, model: str,
+                          port: str,
+                          download_starting: bool,
+                          on_startup: bool,
+                          attempt_no: int) -> None:
+
+            logging.info(
+                "Attempt #%s to unmount camera %s on port %s",
+                attempt_no + 1, model, port
+            )
+            self.unmountCamera(
+                model=model, port=port, download_starting=download_starting, on_startup=on_startup,
+                attempt_no=attempt_no
+            )
+
         def unmountCamera(self, model: str,
                           port: str,
                           download_starting: bool=False,
                           on_startup: bool=False,
-                          mount_point: Optional[Gio.Mount]=None) -> bool:
+                          mount_point: Optional[Gio.Mount]=None,
+                          attempt_no: Optional[int]=0) -> bool:
             """
             Unmount camera mounted on gvfs mount point, if it is
             mounted. If not mounted, ignore.
@@ -1225,8 +1242,10 @@ if have_gio:
 
             if to_unmount is not None:
                 logging.debug("GIO: Attempting to unmount %s...", model)
-                to_unmount.unmount_with_operation(0, None, None, self.unmountCameraCallback,
-                                                  (model, port, download_starting, on_startup))
+                to_unmount.unmount_with_operation(
+                    0, None, None, self.unmountCameraCallback,
+                    (model, port, download_starting, on_startup, attempt_no)
+                )
                 return True
 
             return False
@@ -1244,7 +1263,7 @@ if have_gio:
             unmounted, in the format of libgphoto2
             """
 
-            model, port, download_starting, on_startup = user_data
+            model, port, download_starting, on_startup, attempt_no = user_data
             try:
                 if mount.unmount_with_operation_finish(result):
                     logging.debug("...successfully unmounted {}".format(model))
@@ -1253,9 +1272,18 @@ if have_gio:
                     logging.debug("...failed to unmount {}".format(model))
                     self.cameraUnmounted.emit(False, model, port, download_starting, on_startup)
             except GLib.GError as e:
-                logging.error('Exception occurred unmounting {}'.format(model))
-                logging.exception('Traceback:')
-                self.cameraUnmounted.emit(False, model, port, download_starting, on_startup)
+                if e.code == 26 and attempt_no < 10:
+                    attempt_no += 1
+                    QTimer.singleShot(
+                        750, lambda : self.reUnmountCamera(
+                            model, port, download_starting,
+                            on_startup, attempt_no
+                        )
+                    )
+                else:
+                    logging.error('Exception occurred unmounting {}'.format(model))
+                    logging.exception('Traceback:')
+                    self.cameraUnmounted.emit(False, model, port, download_starting, on_startup)
 
         def unmountVolume(self, path: str) -> None:
             """
