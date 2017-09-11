@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.3 (2017-09-xx)
+0.9.3 (2017-09-11)
 ------------------
 
  - When requesting GIO to unmount a camera / phone so it can be accessed by
@@ -15,9 +15,15 @@ Changelog for Rapid Photo Downloader
  - Fixed a bug introduced in 0.9.3b1 where photo and video numbers and sizes
    were not displayed in the devices summary in the program's left-hand pane.
 
+ - Fixed a bug on Fedora where the maximum length for an sqlite3 query could
+   be exceeded.
+
  - When running a user-installed python such as Anaconda or another custom
    python, where possible the install.py script now switches over to using
    the Linux distribution's system python.
+
+ - Bumped required version of pyzmq up to 16.0.2, hopefully avoiding a
+   segfault observed with pyzmq 15.1.0 and ZeroMQ 4.1.5.
 
  - Updated Catalan, Czech, Dutch, French, German, Greek, Hungarian, Japanese,
    Kabyle, Norwegian Nynorsk, Russian, and Spanish translations.

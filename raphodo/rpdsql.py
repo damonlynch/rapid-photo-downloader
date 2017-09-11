@@ -348,10 +348,10 @@ class ThumbnailRowsSQL:
         if len(uids) == 0:
             return
 
-        # Limit to number of parameters: 999
+        # Limit to number of parameters: 900
         # See https://www.sqlite.org/limits.html
-        if len(uids) > 999:
-            uid_chunks = divide_list_on_length(uids, 999)
+        if len(uids) > 900:
+            uid_chunks = divide_list_on_length(uids, 900)
             for chunk in uid_chunks:
                 self._update_marked(chunk, marked)
         else:
@@ -370,10 +370,10 @@ class ThumbnailRowsSQL:
             # logging.debug('%s (%s, <uid>)', query, job_code)
             self.conn.execute(query, (job_code, uids[0]))
         else:
-            # Limit to number of parameters: 999
+            # Limit to number of parameters: 900
             # See https://www.sqlite.org/limits.html
-            if len(uids) > 999:
-                name_chunks = divide_list_on_length(uids, 999)
+            if len(uids) > 900:
+                name_chunks = divide_list_on_length(uids, 900)
                 for chunk in name_chunks:
                     self._mass_set_job_code_assigned(chunk, job_code)
             else:
@@ -505,10 +505,10 @@ class ThumbnailRowsSQL:
         if len(uids) == 0:
             return
 
-        # Limit to number of parameters: 999
+        # Limit to number of parameters: 900
         # See https://www.sqlite.org/limits.html
-        if len(uids) > 999:
-            name_chunks = divide_list_on_length(uids, 999)
+        if len(uids) > 900:
+            name_chunks = divide_list_on_length(uids, 900)
             for chunk in name_chunks:
                 self._delete_uids(chunk)
         else:
@@ -738,10 +738,10 @@ class CacheSQL:
             return
 
         conn = sqlite3.connect(self.db)
-        # Limit to number of parameters: 999
+        # Limit to number of parameters: 900
         # See https://www.sqlite.org/limits.html
-        if len(md5_names) > 999:
-            name_chunks = divide_list_on_length(md5_names, 999)
+        if len(md5_names) > 900:
+            name_chunks = divide_list_on_length(md5_names, 900)
             for chunk in name_chunks:
                 self._delete(chunk, conn)
         else:
