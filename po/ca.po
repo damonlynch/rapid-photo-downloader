@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-09-06 00:24-0400\n"
-"PO-Revision-Date: 2017-09-06 13:04+0000\n"
+"PO-Revision-Date: 2017-09-10 22:50+0000\n"
 "Last-Translator: Adolfo Jayme <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-09-10 20:24+0000\n"
+"X-Launchpad-Export-Date: 2017-09-11 16:48+0000\n"
 "X-Generator: Launchpad (build 18449)\n"
 "Language: ca\n"
 
@@ -563,7 +563,7 @@ msgstr "Dispositius"
 #: ../raphodo/devices.py:724
 #, python-format
 msgid "Downloading from %(device_names)s"
-msgstr "S’est baixant des de %(device_names)s"
+msgstr "S’està baixant des de %(device_names)s"
 
 #. Translators: e.g. Three Devices
 #: ../raphodo/devices.py:784
@@ -3981,6 +3981,7 @@ msgstr ""
 #: ../raphodo/rapid.py:6012
 msgid "You must install ExifTool to run Rapid Photo Downloader."
 msgstr ""
+"Heu d’instal·lar l’ExifTool per a executar el Rapid Photo Downloader."
 
 #: ../raphodo/rapid.py:6024
 msgid ""
@@ -3997,7 +3998,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:6241
 msgid "All settings and caches have been reset"
-msgstr ""
+msgstr "S’han reinicialitzat els paràmetres i les memòries cau"
 
 #: ../raphodo/rapid.py:6249
 msgid "Thumbnail Cache has been reset"
@@ -4324,7 +4325,7 @@ msgstr "De&sa"
 
 #: ../raphodo/viewutils.py:244
 msgid "&Help"
-msgstr ""
+msgstr "&Ajuda"
 
 #: ../raphodo/viewutils.py:245
 msgid "Restore Defaults"
