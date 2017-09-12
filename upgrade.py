@@ -165,6 +165,10 @@ class RunInstallProcesses:
                                 requirements = '{}\n{}'.format(requirements, line)
                     if self.need_pyqt5(pip_list):
                         requirements = '{}\nPyQt5\n'.format(requirements)
+                    # if int(platform.python_version_tuple()[1]) >= 6 and \
+                    #         not 'pyzmq' in requirements < 0:
+                    #     Upgrade pyzmq to latest version for Python 3.6 or newer
+                        # requirements = '{}\npyzmq\n'.format(requirements)
                     if requirements:
                         with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
                             temp_requirements.write(requirements.encode())

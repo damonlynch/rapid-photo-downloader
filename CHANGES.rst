@@ -22,8 +22,8 @@ Changelog for Rapid Photo Downloader
    python, where possible the install.py script now switches over to using
    the Linux distribution's system python.
 
- - Bumped required version of pyzmq up to 16.0.2, hopefully avoiding a
-   segfault observed with pyzmq 15.1.0 and ZeroMQ 4.1.5.
+ - Under Python 3.6 or newer, bumped required version of pyzmq up to 16.0.2,
+   hopefully avoiding a segfault observed with pyzmq 15.1.0 and ZeroMQ 4.1.5.
 
  - Updated Catalan, Czech, Dutch, French, German, Greek, Hungarian, Japanese,
    Kabyle, Norwegian Nynorsk, Russian, and Spanish translations.
