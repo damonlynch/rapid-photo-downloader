@@ -144,10 +144,11 @@ class AboutDialog(QDialog):
         Harald H <haarektrans@gmail.com>
         Joachim Johansson <joachim.j@gmail.com>
         Evgeny Kozlov <evgeny.kozlov.mailbox@gmail.com>
+        Toni Lähdekorpi <toni@lygon.net>
         Jean-Marc Lartigue <m.balthazar@orange.fr>
         Miroslav Matejaš <silverspace@ubuntu-hr.org>
         Erik M
-        Toni Lähdekorpi <toni@lygon.net>
+        Frederik Müller <spheniscus@freenet.de>
         Jose Luis Navarro <jlnavarro111@gmail.com>
         Tomas Novak <kuvaly@seznam.cz>
         Abel O'Rian <abel.orian@gmail.com>

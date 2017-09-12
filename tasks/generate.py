@@ -35,8 +35,7 @@ import base64
 
 po_dir = '../po'
 domain = 'rapid-photo-downloader'
-install_script = '../install.py'
-install_backup = '../install.bak'
+scripts = ('../install.py', '../upgrade.py')
 line_length=100
 
 temp_dir = tempfile.mkdtemp()
@@ -68,25 +67,22 @@ with open(zip, 'rb') as myzip:
 # we're done with the temp dir
 shutil.rmtree(temp_dir)
 
-# grab install.py script
-with open(install_script, 'rt') as install_py:
-    code = install_py.read()
+for script in scripts:
+    with open(script, 'rt') as script_py:
+        code = script_py.read()
 
-# locate the binary blob contents
-mo_files_start = 'MO_FILES_ZIP=b"""'
-mo_files_end = '"""'
+    # locate the binary blob contents
+    mo_files_start = 'MO_FILES_ZIP=b"""'
+    mo_files_end = '"""'
 
-start = code.find(mo_files_start) + len(mo_files_start)
-end = code.find(mo_files_end, start)
+    start = code.find(mo_files_start) + len(mo_files_start)
+    end = code.find(mo_files_end, start)
 
-# add the blob, breaking up each line at 100 characters length
-blocks = (zip_text[s:s + line_length] for s in range(0, len(zip_text), line_length))
-# insert the blob
-new_code = "{}\n{}\n{}".format(code[:start], '\n'.join(blocks), code[end:])
+    # add the blob, breaking up each line at 100 characters length
+    blocks = (zip_text[s:s + line_length] for s in range(0, len(zip_text), line_length))
+    # insert the blob
+    new_code = "{}\n{}\n{}".format(code[:start], '\n'.join(blocks), code[end:])
 
-# backup the existing script
-# shutil.copy2(install_script, install_backup)
-
-# write out the updated script
-with open(install_script, 'wt') as install_py:
-    install_py.write(new_code)
+    # write out the updated script
+    with open(script, 'wt') as script_py:
+        script_py.write(new_code)

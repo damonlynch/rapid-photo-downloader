@@ -16,4 +16,13 @@ Release Notes for Rapid Photo Downloader 0.9.3
    You can purge the thumbnail cache via the Preferences dialog, accessed via
    the main menu.
 
+ - For systems running Python 3.6, the recommended pyzmq version is now 16.0.2
+   or newer. If xterm or lxterminal are installed on systems with Python 3.6,
+   the automatic upgrade procedure will attempt to upgrade pymzq if necessary.
+   On Python 3.6 systems lacking either of these terminals, using the
+   install.py script will upgrade pyzmq. Alternatively, the following command
+   will upgrade pyzmq:
+
+   /usr/bin/python3 -m pip install -U --user --disable-pip-version-check pyzmq
+
 

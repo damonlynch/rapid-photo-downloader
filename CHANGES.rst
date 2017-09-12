@@ -24,6 +24,7 @@ Changelog for Rapid Photo Downloader
 
  - Under Python 3.6 or newer, bumped required version of pyzmq up to 16.0.2,
    hopefully avoiding a segfault observed with pyzmq 15.1.0 and ZeroMQ 4.1.5.
+   See the Release Notes for more details.
 
  - Updated Catalan, Czech, Dutch, French, German, Greek, Hungarian, Japanese,
    Kabyle, Norwegian Nynorsk, Russian, and Spanish translations.
