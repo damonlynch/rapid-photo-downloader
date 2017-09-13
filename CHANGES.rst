@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.3 (2017-09-11)
+0.9.3 (2017-09-13)
 ------------------
 
  - When requesting GIO to unmount a camera / phone so it can be accessed by
