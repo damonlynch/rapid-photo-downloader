@@ -831,5 +831,5 @@ def arrow_locale() -> str:
     try:
         arrow.locales.get_locale(lang)
         return lang
-    except ValueError:
+    except (ValueError, AttributeError):
         return default

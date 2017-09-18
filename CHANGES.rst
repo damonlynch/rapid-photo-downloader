@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.4 (2017-xx-xx)
+------------------
+
+ - Don't crash when locale is not correctly set.
+
 0.9.3 (2017-09-13)
 ------------------
 
