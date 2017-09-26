@@ -78,6 +78,7 @@ from raphodo.camera import Camera, CameraProblemEx
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge
 from raphodo.utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
 from raphodo.preferences import Preferences
+from raphodo.rescan import RescanCamera
 
 
 def split_list(alist: list, wanted_parts=2):
@@ -439,7 +440,10 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         rpd_files = rpd_files2
 
         if arguments.camera is not None:
-            self.camera = Camera(arguments.camera, arguments.port)
+            self.camera = Camera(
+                model=arguments.camera, port=arguments.port,
+                specific_folders=self.prefs.folders_to_scan
+            )
 
             if not self.camera.camera_initialized:
                 # There is nothing to do here: exit!
@@ -473,7 +477,23 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         from_thumb_cache = 0
         from_fdo_cache = 0
 
-        for rpd_file in rpd_files: # type: RPDFile
+        if self.camera:
+            rescan = RescanCamera(camera=self.camera, prefs=self.prefs)
+            rescan.rescan_camera(rpd_files)
+            rpd_files = rescan.rpd_files
+            if rescan.missing_rpd_files:
+                logging.error(
+                    "%s files could not be relocated on %s",
+                    len(rescan.missing_rpd_files), self.camera.display_name
+                )
+                for rpd_file in rescan.missing_rpd_files:  # type: RPDFile
+                    self.content = pickle.dumps(
+                        GenerateThumbnailsResults(rpd_file=rpd_file, thumbnail_bytes=None),
+                        pickle.HIGHEST_PROTOCOL
+                    )
+                    self.send_message_to_sink()
+
+        for rpd_file in rpd_files:  # type: RPDFile
             # Check to see if the process has received a command
             self.check_for_controller_directive()
 

@@ -395,7 +395,7 @@ class RPDFile:
                  problem: Optional[Problem]=None) -> None:
         """
 
-        :param name: filename (without path)
+        :param name: filename, including the extension, without its path
         :param path: path of the file
         :param size: file size
         :param device_timestamp_type: the method with which the device

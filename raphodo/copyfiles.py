@@ -30,6 +30,7 @@ import hashlib
 import logging
 import pickle
 from operator import attrgetter
+from itertools import chain
 from collections import defaultdict
 from typing import Dict, Optional, Tuple
 import locale
@@ -53,6 +54,8 @@ from raphodo.problemnotification import (
     FileCopyProblem, CameraInitializationProblem
 )
 from raphodo.storage import get_uri
+from raphodo.preferences import Preferences
+from raphodo.rescan import RescanCamera
 
 
 def copy_file_metadata(src: str, dst: str) -> Optional[Tuple]:
@@ -328,9 +331,44 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         self.scan_id = args.scan_id
         self.verify_file = args.verify_file
 
-        # Initialize use of camera only if it's needed
         self.camera = None
-        self.camera_initialization_failed = False
+
+        # To workaround a bug in iOS and possibly other devices, check if need to rescan the files
+        # on the device
+        rescan_check = [
+            rpd_file for rpd_file in args.files
+            if rpd_file.from_camera and not rpd_file.cache_full_file_name
+         ]
+        no_rescan = [
+            rpd_file for rpd_file in args.files
+            if not rpd_file.from_camera or rpd_file.cache_full_file_name
+        ]
+
+        if rescan_check:
+            prefs = Preferences()
+            # Initialize camera
+            try:
+                self.camera = Camera(
+                    args.device.camera_model, args.device.camera_port,
+                    raise_errors=True, specific_folders=prefs.folders_to_scan
+                )
+            except CameraProblemEx as e:
+                self.problems.append(
+                    CameraInitializationProblem(gp_code=e.gp_code)
+                )
+                logging.error("Could not initialize camera %s", self.display_name)
+            else:
+                rescan = RescanCamera(camera=self.camera, prefs=prefs)
+                rescan.rescan_camera(rpd_files=rescan_check)
+                rescan_check = rescan.rpd_files
+                if rescan.missing_rpd_files:
+                    logging.error(
+                        "%s files could not be relocated on %s",
+                        len(rescan.missing_rpd_files), self.camera.display_name
+                    )
+                    rescan_check = list(chain(rescan_check, rescan.missing_rpd_files))
+
+        rpd_files = list(chain(rescan_check, no_rescan))
 
         random_filename = GenerateRandomFileName()
 
@@ -350,7 +388,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         # Sort the files to be copied by modification time
         # Important to do this with respect to sequence numbers, or else
         # they'll be downloaded in what looks like a random order
-        rpd_files = sorted(args.files, key=attrgetter('modification_time'))
+        rpd_files = sorted(rpd_files, key=attrgetter('modification_time'))
 
         self.display_name = args.device.display_name
 
@@ -434,19 +472,6 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             if not rpd_file.cache_full_file_name:
                 if rpd_file.from_camera:
                     # Scenario 2
-                    if self.camera is None and not self.camera_initialization_failed:
-                        try:
-                            self.camera = Camera(
-                                args.device.camera_model, args.device.camera_port,
-                                raise_errors=True
-                            )
-                        except CameraProblemEx as e:
-                            self.problems.append(
-                                CameraInitializationProblem(gp_code=e.gp_code)
-                            )
-                            logging.error("Could not initialize camera %s", self.display_name)
-                            self.camera_initialization_failed = True
-
                     if not self.camera:
                         copy_succeeded = False
                         logging.error(

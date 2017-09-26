@@ -294,8 +294,9 @@ class Camera:
 
         buffer = bytearray(size_in_bytes)
         try:
-            self.camera.file_read(folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, buffer,
-                                  self.context)
+            self.camera.file_read(
+                folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, buffer, self.context
+            )
         except gp.GPhoto2Error as e:
             logging.error(
                 "Unable to extract portion of file from camera %s: %s",

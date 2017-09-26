@@ -1,8 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.4 (2017-xx-xx)
-------------------
+0.9.4b1 (2017-09-26)
+--------------------
+
+ - Workaround bug in iOS devices that create on-the-fly subfolders from which
+   to download that vary each time the device is initialized.
 
  - Add progress bars and badge counts when running under Ubuntu 17.10's Dash
    to Dock extension.
