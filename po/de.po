@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-09-12 17:01-0400\n"
-"PO-Revision-Date: 2017-09-12 23:26+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"PO-Revision-Date: 2017-09-18 11:22+0000\n"
+"Last-Translator: Spheniscus <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-09-13 16:08+0000\n"
-"X-Generator: Launchpad (build 18449)\n"
+"X-Launchpad-Export-Date: 2017-09-26 22:04+0000\n"
+"X-Generator: Launchpad (build 18463)\n"
 "Language: de\n"
 
 #: ../install.py:65
@@ -292,6 +292,8 @@ msgstr "Fehler beim Kopieren der Hilfeseiten."
 #: ../install.py:1521
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
+"(Falls beim Beenden ein Aufteilungsfehler auftritt, können Sie diesen "
+"ignorieren...)"
 
 #: ../install.py:1534
 msgid ""
@@ -327,7 +329,7 @@ msgstr ""
 
 #: ../install.py:1620
 msgid "Restarting script using system python..."
-msgstr ""
+msgstr "Skript wird mittels System-Python neu gestartet...."
 
 #: ../install.py:1651
 msgid "Exiting..."
@@ -377,7 +379,7 @@ msgstr "Abbre&chen"
 
 #: ../upgrade.py:405
 msgid "&Upgrade"
-msgstr "&Systemaktualisierung"
+msgstr "&Upgrade"
 
 #: ../upgrade.py:410
 #, python-format
@@ -396,7 +398,7 @@ msgstr "&Schließen"
 
 #: ../upgrade.py:417
 msgid "&Run"
-msgstr "&Ausführen"
+msgstr "RPD Starten"
 
 #: ../upgrade.py:447
 msgid "Close Rapid Photo Downloader before running this upgrade"
@@ -433,21 +435,23 @@ msgstr ""
 #: ../upgrade.py:6967
 #, python-format
 msgid "Upgrading %s..."
-msgstr ""
+msgstr "Führe Upgrade durch %s..."
 
 #: ../upgrade.py:6969
 msgid "Press any key to continue..."
-msgstr ""
+msgstr "Bitte eine Taste drücken, um fortzufahren …"
 
 #: ../upgrade.py:6982
 msgid "Rapid Photo Downloader upgrade failed"
-msgstr ""
+msgstr "Rapid Photo Downloader Aktualisierung fehlgeschlagen"
 
 #: ../upgrade.py:6984
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
 msgstr ""
+"Das Python-Paket %s konnte nicht aktualisiert werden. Das Upgrade kann nicht "
+"fortgesetzt werden."
 
 #: ../raphodo/aboutdialog.py:225
 msgid "Credits"
@@ -1105,6 +1109,12 @@ msgid ""
 "Generation Editor:             \n"
 "            "
 msgstr ""
+"\n"
+"Nutzen Sie das Dropdown-Menü, um gegebene Voreinstellungen zu nutzen, oder "
+"wählen sie <b>Benutzerdefiniert</b> \n"
+"für Ihr eigenes Schema. Sie erstellen eigene Schemata mit dem Editor zur "
+"Erzeugung von Unterordnern für Fotos oder Videos:             \n"
+"            "
 
 #: ../raphodo/didyouknow.py:266
 msgid ""
@@ -1155,6 +1165,18 @@ msgid ""
 "circle around the hyphen):\n"
 "            "
 msgstr ""
+"\n"
+"Obwohl es in RPD zahlreiche Vorlagen für die Schreibweise von Datum/Zeit "
+"gibt, kann es \n"
+"sein, dass Sie etwas anderes wünschen. Deshalb können Sie auch Ihre eigenen "
+"Vorlagen erzeugen. Durch die\n"
+"Auswahl vorhandener Datums-/Zeitstempel können Sie neue Schreibweisen "
+"erstellen. Angenommen, \n"
+"Sie wünschen ein Datumsformat, dass Jahr (YYYY), Bindestrich und Monat (MM) "
+"enthält, um \n"
+"YYYY-MM abzubilden, so können Sie dieses so erstellen (beachten Sie den "
+"roten Kreis beim Bindestrich):\n"
+"            "
 
 #: ../raphodo/didyouknow.py:294
 msgid ""
@@ -1263,6 +1285,25 @@ msgid ""
 "documentation</a>.</p>\n"
 "            "
 msgstr ""
+"\n"
+"<p>Vier Arten von Sequenzwerten sind verfügbar, um Sie bei der Zuweisung "
+"eindeutiger Namen \n"
+"für Ihre Fotos und Videos zu unterstützen:\n"
+"<ol>\n"
+"<li><b>Übertragungen heute</b>: Enthält Übertragungen, die während dieses "
+"Tages erfolgten.</li>\n"
+"<li><b>Gespeicherte Nummer</b>: Identisch mit Übertragungen heute, bezieht "
+"sich jedoch auf den letzten  \n"
+"Programmstart.</li>\n"
+"<li><b>Sitzungsnummer</b>: Wird bei jedem Programmstart zurückgesetzt.</li>\n"
+"<li><b>Sequzenzbuchstabe</b>: Wie Sitzungsnummer, verwendet allerdings "
+"Buchstaben.</li>\n"
+"</ol></p>\n"
+"<p>\n"
+"Lesen Sie mehr über Sequenznummern in der <a \n"
+"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers\">Online-"
+"Dokumentation (EN)</a>.</p>\n"
+"            "
 
 #: ../raphodo/didyouknow.py:356
 msgid ""
@@ -3500,6 +3541,8 @@ msgid ""
 "When synchronizing RAW + JPEG sequence values, a duplicate %(filetype)s "
 "%(file)s was encountered, and was not downloaded."
 msgstr ""
+"Beim Synchronisieren der RAW + JPEG Sequenzwerte wurde ein Duplikat "
+"%(filetype)s %(file)s entdeckt und nicht übertragen."
 
 #: ../raphodo/problemnotification.py:367
 msgid ""
@@ -6196,21 +6239,3 @@ msgstr "Fotos und Videos mit Rapid-Fotoübertragung übertragen"
 
 #~ msgid "Should all ignored paths be removed?"
 #~ msgstr "Sollen alle ignorierten Pfade entfernt werden?"
-
-#~ msgid "translator-credits"
-#~ msgstr ""
-#~ "Launchpad Contributions:\n"
-#~ "  Christian Bühl https://launchpad.net/~christian-buehl\n"
-#~ "  Damon Lynch https://launchpad.net/~dlynch3\n"
-#~ "  Eg https://launchpad.net/~martin-egger-gmx\n"
-#~ "  Ettore Atalan https://launchpad.net/~atalanttore\n"
-#~ "  Ferdinand Thommes https://launchpad.net/~fe-thomm\n"
-#~ "  John Smith https://launchpad.net/~mintlooser\n"
-#~ "  Rico https://launchpad.net/~9w-ubuntu\n"
-#~ "  Seria https://launchpad.net/~andreas-boettger\n"
-#~ "  Spheniscus https://launchpad.net/~spheniscus\n"
-#~ "  Tobias Bannert https://launchpad.net/~toba\n"
-#~ "  Uwe Dulz https://launchpad.net/~uwe.dulz\n"
-#~ "  groovy https://launchpad.net/~paessler\n"
-#~ "  grrrk https://launchpad.net/~grrrk\n"
-#~ "  rost https://launchpad.net/~macuser"

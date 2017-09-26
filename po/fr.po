@@ -9,14 +9,14 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-09-12 17:01-0400\n"
-"PO-Revision-Date: 2017-09-12 23:26+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
+"PO-Revision-Date: 2017-09-23 13:19+0000\n"
+"Last-Translator: Jean-Marc <Unknown>\n"
 "Language-Team: Français <null>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-09-13 16:08+0000\n"
-"X-Generator: Launchpad (build 18449)\n"
+"X-Launchpad-Export-Date: 2017-09-26 22:04+0000\n"
+"X-Generator: Launchpad (build 18463)\n"
 "Language: \n"
 
 #: ../install.py:65
@@ -279,6 +279,7 @@ msgstr "Impossible de copier la page de manuel."
 #: ../install.py:1521
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
+"(Si un défaut de segmentation survient en quittant, vous pouvez l'ignorer...)"
 
 #: ../install.py:1534
 msgid ""
@@ -412,21 +413,23 @@ msgstr "Échec de la mise à niveau. Cliquer sur « Fermer » pour sortir."
 #: ../upgrade.py:6967
 #, python-format
 msgid "Upgrading %s..."
-msgstr ""
+msgstr "Mise à niveau de %s..."
 
 #: ../upgrade.py:6969
 msgid "Press any key to continue..."
-msgstr ""
+msgstr "Appuyez sur une touche pour continuer…"
 
 #: ../upgrade.py:6982
 msgid "Rapid Photo Downloader upgrade failed"
-msgstr ""
+msgstr "Mise à niveau de Rapid Photo Downloader échouée"
 
 #: ../upgrade.py:6984
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
 msgstr ""
+"Le paquet python %s n'a pas pu être mis à jour. La mise à niveau ne peut pas "
+"continuer."
 
 #: ../raphodo/aboutdialog.py:225
 msgid "Credits"
@@ -3128,11 +3131,11 @@ msgstr "Optimiser le cache des miniatures"
 
 #: ../raphodo/preferencedialog.py:1481
 msgid "Enter a Folder to Scan"
-msgstr ""
+msgstr "Saisir un dossier à analyser"
 
 #: ../raphodo/preferencedialog.py:1482
 msgid "Specify a folder that will be scanned for photos and videos"
-msgstr ""
+msgstr "Spécifiez un dossier qui sera analysé"
 
 #: ../raphodo/preferencedialog.py:1483
 msgid "Folder:"
@@ -6095,17 +6098,3 @@ msgstr "Transférer des photos et des vidéos avec Rapid Photo Downloader"
 #, python-format
 #~ msgid "The %(filetype)s did not download correctly"
 #~ msgstr "Les %(filetype)s n'ont pas été téléchargés correctement"
-
-#~ msgid "translator-credits"
-#~ msgstr ""
-#~ "Launchpad Contributions:\n"
-#~ "  Damon Lynch https://launchpad.net/~dlynch3\n"
-#~ "  Ersplus https://launchpad.net/~ersplus-free\n"
-#~ "  Gérard Duteil https://launchpad.net/~gerardduteil\n"
-#~ "  Jean-Marc https://launchpad.net/~m-balthazar\n"
-#~ "  Julien Valroff https://launchpad.net/~julienv\n"
-#~ "  LEROY Jean-Christophe https://launchpad.net/~celtic2-deactivatedaccount\n"
-#~ "  Nicolas Boulesteix https://launchpad.net/~noxx-free\n"
-#~ "  Olivier Girard https://launchpad.net/~eolinwen\n"
-#~ "  Tubuntu https://launchpad.net/~t-ubuntu\n"
-#~ "  loquehumaine https://launchpad.net/~loquehumaine"

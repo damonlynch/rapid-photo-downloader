@@ -12,6 +12,8 @@ Changelog for Rapid Photo Downloader
 
  - Don't crash when locale is not correctly set.
 
+ - Updated Dutch, French and German translations.
+
 0.9.3 (2017-09-13)
 ------------------
 
