@@ -848,9 +848,12 @@ class RapidWindow(QMainWindow):
 
         self.unity_progress = False
         self.desktop_launchers = []
-        if get_desktop() == Desktop.unity:
+        if get_desktop() in (Desktop.unity, Desktop.ubuntugnome):
             if not have_unity:
-                logging.warning("Desktop environment is Unity, but could not load Unity 7.0 module")
+                logging.warning(
+                    "Desktop environment is Unity Launcher API compatible, but could not load "
+                    "Unity 7.0 module"
+                )
             else:
                 # Unity auto-generated desktop files use underscores, it seems
                 launchers = (
@@ -865,11 +868,14 @@ class RapidWindow(QMainWindow):
 
                 if not self.desktop_launchers:
                     logging.warning(
-                        "Desktop environment is Unity 7.0, but could not find program's .desktop "
-                        "file"
+                        "Desktop environment is Unity Launcher API compatible, but could not "
+                        "find program's .desktop file"
                     )
                 else:
-                    logging.debug("Unity progress indicator found")
+                    logging.debug(
+                        "Unity progress indicator found, using %s launcher(s)",
+                        len(self.desktop_launchers)
+                    )
 
         self.createPathViews()
 
@@ -1549,8 +1555,10 @@ class RapidWindow(QMainWindow):
 
         if len(self.devices.thumbnailing):
             if self.downloadProgressBar.maximum() != self.thumbnailModel.total_thumbs_to_generate:
-                logging.debug("Setting progress bar maximum to %s",
-                              self.thumbnailModel.total_thumbs_to_generate)
+                logging.debug(
+                    "Setting progress bar maximum to %s",
+                    self.thumbnailModel.total_thumbs_to_generate
+                )
                 self.downloadProgressBar.setMaximum(self.thumbnailModel.total_thumbs_to_generate)
             if thumbnail_generated:
                 self.downloadProgressBar.setValue(self.thumbnailModel.thumbnails_generated)

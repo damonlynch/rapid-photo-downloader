@@ -481,6 +481,7 @@ class Desktop(Enum):
     mate = 6
     lxde = 7
     lxqt = 8
+    ubuntugnome = 9
     unknown = 10
 
 

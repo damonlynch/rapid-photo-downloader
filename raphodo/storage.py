@@ -356,6 +356,8 @@ def get_desktop() -> Desktop:
         env = 'unity'
     elif env == 'x-cinnamon':
         env = 'cinnamon'
+    elif env == 'ubuntu:gnome':
+        env = 'ubuntugnome'
     try:
         return Desktop[env]
     except KeyError:
