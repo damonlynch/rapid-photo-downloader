@@ -29,7 +29,7 @@ __summary__ = 'Downloads, renames and backs up photos and videos from cameras, p
 'memory cards and other devices'
 __uri__ = 'http://www.damonlynch.net/rapid'
 
-__version__ = '0.9.4b1'
+__version__ = '0.9.4'
 
 __author__ = 'Damon Lynch'
 __email__ = 'damonlynch@gmail.com'
