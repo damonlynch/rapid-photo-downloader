@@ -129,11 +129,13 @@ class Distro(Enum):
     galliumos = 10
     peppermint = 11
     antergos = 12
+    elementary = 13
     unknown = 20
 
 
 debian_like = (
-    Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint, Distro.galliumos, Distro.peppermint
+    Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint, Distro.galliumos,
+    Distro.peppermint, Distro.elementary
 )
 fedora_like = (Distro.fedora, Distro.korora)
 arch_like = (Distro.arch, Distro.manjaro, Distro.antergos)
@@ -154,8 +156,11 @@ def get_distro() -> Distro:
     if os.path.isfile(os_release):
         with open(os_release, 'r') as f:
             for line in f:
-                if line.startswith('NAME=') and line.find('Korora') > 0:
-                    return Distro.korora
+                if line.startswith('NAME='):
+                    if line.find('Korora') > 0:
+                        return Distro.korora
+                    if line.find('elementary') > 0:
+                        return Distro.elementary
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):
@@ -201,7 +206,7 @@ def get_distro_version(distro: Distro) -> float:
             if line.startswith(version_string):
                 try:
                     if remove_quotemark:
-                        v = line[len(version_string):-2]
+                        v = line[len(version_string):-1]
                     else:
                         v = line[len(version_string):]
                     return float(v)

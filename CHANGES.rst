@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.5b1 (2017-11-xx)
+--------------------
+
+ - Add elementary OS to list of Linux distributions supported by the
+   install.py script.
+
 0.9.4 (2017-09-30)
 ------------------
 
