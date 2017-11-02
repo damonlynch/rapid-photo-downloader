@@ -104,6 +104,8 @@ except ImportError:
 
 os_release = '/etc/os-release'
 
+unknown_version = StrictVersion('0.0')
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -183,11 +185,11 @@ def get_distro_id(id_or_id_like: str) -> Distro:
         return Distro.unknown
 
 
-def get_distro_version(distro: Distro) -> float:
+def get_distro_version(distro: Distro):
     """
     Get the numeric version of the Linux distribution, if it exists
     :param distro: the already determine Linux distribution
-    :return version in floating point format, if found, else 0.0
+    :return version in StrictVersion format, if found, else unknown_version
     """
 
     remove_quotemark = False
@@ -199,23 +201,26 @@ def get_distro_version(distro: Distro) -> float:
     elif distro == Distro.korora:
         version_string = 'VERSION_ID='
     else:
-        return 0.0
+        return unknown_version
 
     with open(os_release, 'r') as f:
         for line in f:
             if line.startswith(version_string):
+                v = '0.0'
                 try:
                     if remove_quotemark:
-                        v = line[len(version_string):-1]
+                        v = line[len(version_string):-2]
                     else:
                         v = line[len(version_string):]
-                    return float(v)
-                except ValueError:
-                    sys.stderr.write("Unexpected format while parsing {} version\n".format(
-                        distro.name.capitalize())
+                    return StrictVersion(v)
+                except Exception:
+                    sys.stderr.write(
+                        "Unexpected format while parsing {} version {}\n".format(
+                            distro.name.capitalize(), v
+                        )
                     )
-                    return 0.0
-    return 0.0
+                    return unknown_version
+    return unknown_version
 
 
 def is_debian_testing_or_unstable() -> bool:
@@ -1631,13 +1636,13 @@ def main():
     if distro != Distro.unknown:
         distro_version = get_distro_version(distro)
     else:
-        distro_version = 0.0
+        distro_version = unknown_version
 
     if distro == Distro.debian:
-        if distro_version == 0.0:
+        if distro_version == unknown_version:
             if not is_debian_testing_or_unstable():
                 print('Warning: this version of Debian may not work with Rapid Photo Downloader.')
-        elif distro_version <= 8.0:
+        elif distro_version <= StrictVersion('8.0'):
             sys.stderr.write(
                 "Sorry, Debian Jessie is too old to be able to run this version of "
                 "Rapid Photo Downloader.\n"
@@ -1645,8 +1650,8 @@ def main():
             clean_locale_tmpdir()
             sys.exit(1)
 
-    elif distro in fedora_like and 0.0 > distro_version <= 23.0:
-        sys.stderr.write("Sorry, Fedora 23 is no longer supported by Rapid Photo Downloader.\n")
+    elif distro in fedora_like and unknown_version > distro_version <= StrictVersion('24.0'):
+        sys.stderr.write("Sorry, Fedora 24 is no longer supported by Rapid Photo Downloader.\n")
         sys.exit(1)
     elif distro in arch_like:
         print(
@@ -1656,7 +1661,7 @@ def main():
         print(_("Exiting..."))
         clean_locale_tmpdir()
         sys.exit(0)
-    elif distro == Distro.peppermint and 0.0 > distro_version < 7.0:
+    elif distro == Distro.peppermint and unknown_version > distro_version < StrictVersion('7.0'):
         sys.stderr.write(
             "Sorry, this version of Peppermint is to old to run this version of "
             "Rapid Photo Downloader.\n"
