@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-09-12 17:01-0400\n"
-"PO-Revision-Date: 2017-09-13 18:37+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"PO-Revision-Date: 2017-10-20 14:48+0000\n"
+"Last-Translator: Antonio.A <Unknown>\n"
 "Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-09-26 22:04+0000\n"
-"X-Generator: Launchpad (build 18463)\n"
+"X-Launchpad-Export-Date: 2017-11-02 02:52+0000\n"
+"X-Generator: Launchpad (build 18493)\n"
 "Language: it\n"
 
 #: ../install.py:65
@@ -226,19 +226,20 @@ msgstr ""
 
 #: ../install.py:1477
 msgid "They will be installed into {}"
-msgstr ""
+msgstr "Questi saranno installati in {}"
 
 #: ../install.py:1478 ../install.py:1483
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr ""
+"Se disinstallate l'applicazione, rimuovete voi stessi questa documentazione."
 
 #: ../install.py:1480
 msgid "Do want to install the man pages?"
-msgstr ""
+msgstr "Volete installare la documentazione?"
 
 #: ../install.py:1482
 msgid "Installing man pages into {}"
-msgstr ""
+msgstr "Documentazione in installazione in {}"
 
 #: ../install.py:1499
 msgid "Failed to create man page directory: exiting"
@@ -251,6 +252,7 @@ msgstr ""
 #: ../install.py:1521
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
+"(Se accade un errore di segmentazione durante l'uscita potete ignorarlo...)"
 
 #: ../install.py:1534
 msgid ""
@@ -281,18 +283,20 @@ msgstr ""
 
 #: ../install.py:1651
 msgid "Exiting..."
-msgstr ""
+msgstr "In chiusura..."
 
 #. Translators: do not translate the term python3-apt
 #: ../install.py:1670
 msgid "To continue, the package python3-apt must be installed."
-msgstr ""
+msgstr "Per continuare deve essere installato il pacchetto python3-apt."
 
 #: ../install.py:1689
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
+"Installare i seguenti pacchetti usando il gestore standard di pacchetti "
+"della vostra distribuzione Linux, quindi rieseguire l'installatore"
 
 #: ../install.py:1698
 msgid ""
@@ -308,19 +312,19 @@ msgstr ""
 #. Translators: do not translate the term python or requests
 #: ../install.py:1726
 msgid "Installing python requests"
-msgstr ""
+msgstr "Phyton requests in installazione"
 
 #: ../upgrade.py:79
 msgid "Upgrade Rapid Photo Downloader"
-msgstr ""
+msgstr "Aggiorna Rapid Photo Downloader"
 
 #: ../upgrade.py:401 ../raphodo/viewutils.py:242
 msgid "&Cancel"
-msgstr ""
+msgstr "&Annulla"
 
 #: ../upgrade.py:405
 msgid "&Upgrade"
-msgstr ""
+msgstr "A&ggiorna"
 
 #: ../upgrade.py:410
 #, python-format
@@ -333,11 +337,11 @@ msgstr ""
 
 #: ../upgrade.py:416 ../upgrade.py:422 ../raphodo/viewutils.py:241
 msgid "&Close"
-msgstr ""
+msgstr "&Chiudi"
 
 #: ../upgrade.py:417
 msgid "&Run"
-msgstr ""
+msgstr "&Esegui"
 
 #: ../upgrade.py:447
 msgid "Close Rapid Photo Downloader before running this upgrade"
@@ -371,7 +375,7 @@ msgstr ""
 
 #: ../upgrade.py:6969
 msgid "Press any key to continue..."
-msgstr ""
+msgstr "Premere un tasto qualsiasi per continuare..."
 
 #: ../upgrade.py:6982
 msgid "Rapid Photo Downloader upgrade failed"
@@ -513,7 +517,7 @@ msgstr "%(no_videos)s video"
 
 #: ../raphodo/destinationdisplay.py:92
 msgid "Used"
-msgstr ""
+msgstr "Utilizzati"
 
 #: ../raphodo/destinationdisplay.py:93
 msgid "Excess"
@@ -556,11 +560,11 @@ msgstr "Personalizzato..."
 
 #: ../raphodo/destinationdisplay.py:678
 msgid "Configure photo subfolder creation"
-msgstr ""
+msgstr "Configura la creazione delle sottocartelle per le foto"
 
 #: ../raphodo/destinationdisplay.py:680
 msgid "Configure video subfolder creation"
-msgstr ""
+msgstr "Configura la creazione delle sottocartelle per i video"
 
 #: ../raphodo/devicedisplay.py:983
 msgid "Other"
@@ -586,11 +590,11 @@ msgstr "Analizza di nuovo"
 #: ../raphodo/devicedisplay.py:1093
 #, python-format
 msgid "%s full"
-msgstr ""
+msgstr "%s pieno"
 
 #: ../raphodo/devices.py:463
 msgid "Cameras"
-msgstr "Fotocamere"
+msgstr "Camere"
 
 #: ../raphodo/devices.py:464 ../raphodo/devices.py:927
 #: ../raphodo/preferencedialog.py:108 ../raphodo/preferencedialog.py:118
@@ -666,6 +670,9 @@ msgid ""
 "icon's color indicates whether the download was successful (green), had file "
 "renaming problems (yellow/orange), or failed (red)."
 msgstr ""
+"Quando termina uno scaricamento, un'icona sostituisce la casella di spunta. "
+"Il colore dell'icona indica se lo scaricamento ha avuto successo (verde), ha "
+"avuto problemi di rinomina (giallo/arancione) oppure è fallito (rosso)."
 
 #: ../raphodo/didyouknow.py:83
 msgid ""

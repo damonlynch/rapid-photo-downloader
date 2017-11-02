@@ -8,23 +8,23 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2017-09-12 17:01-0400\n"
-"PO-Revision-Date: 2017-09-13 18:36+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"PO-Revision-Date: 2017-10-15 10:56+0000\n"
+"Last-Translator: Test <Unknown>\n"
 "Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-09-26 22:04+0000\n"
-"X-Generator: Launchpad (build 18463)\n"
+"X-Launchpad-Export-Date: 2017-11-02 02:53+0000\n"
+"X-Generator: Launchpad (build 18493)\n"
 "Language: \n"
 
 #: ../install.py:65
 msgid "Rapid Photo Downloader installer"
-msgstr ""
+msgstr "Rapid Photo Downloader 安装器"
 
 #: ../install.py:66
 msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr ""
+msgstr "下载并安装最新版本的Rapid Photo Downloader。"
 
 #: ../install.py:236 ../install.py:1732
 msgid "Installer not found:"
@@ -307,68 +307,68 @@ msgstr ""
 
 #: ../upgrade.py:405
 msgid "&Upgrade"
-msgstr ""
+msgstr "升级(&U)"
 
 #: ../upgrade.py:410
 #, python-format
 msgid "Click the Upgrade button to upgrade to version %s."
-msgstr ""
+msgstr "单击更新键来更新至版本 %s。"
 
 #: ../upgrade.py:413
 msgid "Click the Upgrade button to start the upgrade."
-msgstr ""
+msgstr "单击更新键来开始更新。"
 
 #: ../upgrade.py:416 ../upgrade.py:422 ../raphodo/viewutils.py:241
 msgid "&Close"
-msgstr ""
+msgstr "关闭(&C)"
 
 #: ../upgrade.py:417
 msgid "&Run"
-msgstr ""
+msgstr "运行(&R)"
 
 #: ../upgrade.py:447
 msgid "Close Rapid Photo Downloader before running this upgrade"
-msgstr ""
+msgstr "请在更新前关闭Rapid Photo Downloader。"
 
 #: ../upgrade.py:450
 msgid "Upgrade running..."
-msgstr ""
+msgstr "正在更新..."
 
 #: ../upgrade.py:486
 #, python-format
 msgid ""
 "Successfully upgraded to %s. Click Close to exit, or Run to start the "
 "program."
-msgstr ""
+msgstr "成功更新至 %s。单击关闭键退出，或者单击运行键来运行程序。"
 
 #: ../upgrade.py:491
 msgid ""
 "Upgrade finished successfully. Click Close to exit, or Run to start the "
 "program."
-msgstr ""
+msgstr "更新成功。单击关闭键退出，或者单击运行键来运行程序。"
 
 #: ../upgrade.py:495
 msgid "Upgrade failed. Click Close to exit."
-msgstr ""
+msgstr "更新失败。单击关闭键退出。"
 
 #: ../upgrade.py:6967
 #, python-format
 msgid "Upgrading %s..."
-msgstr ""
+msgstr "正在更新至%s..."
 
 #: ../upgrade.py:6969
 msgid "Press any key to continue..."
-msgstr ""
+msgstr "按任意键继续..."
 
 #: ../upgrade.py:6982
 msgid "Rapid Photo Downloader upgrade failed"
-msgstr ""
+msgstr "Rapid Photo Downloader 更新失败"
 
 #: ../upgrade.py:6984
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
-msgstr ""
+msgstr "Python软件包 %s 无法更新。更新无法继续。"
 
 #: ../raphodo/aboutdialog.py:225
 msgid "Credits"
@@ -520,14 +520,14 @@ msgstr ""
 #: ../raphodo/rapid.py:2023 ../raphodo/rapid.py:2151 ../raphodo/rapid.py:6043
 #: ../raphodo/rpdfile.py:930
 msgid "Photos"
-msgstr ""
+msgstr "照片"
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:191 ../raphodo/devicedisplay.py:994
 #: ../raphodo/rapid.py:2028 ../raphodo/rapid.py:2152 ../raphodo/rapid.py:6044
 #: ../raphodo/rpdfile.py:958 ../raphodo/storage.py:449
 msgid "Videos"
-msgstr ""
+msgstr "视频"
 
 #: ../raphodo/destinationdisplay.py:192
 msgid "Projected storage use after download"

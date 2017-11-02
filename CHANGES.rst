@@ -7,6 +7,8 @@ Changelog for Rapid Photo Downloader
  - Add elementary OS to list of Linux distributions supported by the
    install.py script.
 
+ - Updated Chinese, Dutch and Italian translations.
+
 0.9.4 (2017-09-30)
 ------------------
 
