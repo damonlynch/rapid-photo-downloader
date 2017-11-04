@@ -609,3 +609,15 @@ class MarkRawJpeg(IntEnum):
     no_jpeg = 1
     no_raw = 2
     both = 3
+
+
+# see https://developer.mozilla.org/en-US/docs/Mozilla/Localization/Localization_and_Plurals
+class Plural(Enum):
+    zero = 1
+    two_form_single = 2
+    two_form_plural = 3
+
+
+# Use the character . to for download_name and path to indicate the user manually marked a
+# file as previously downloaded
+manually_marked_previously_downloaded = '.'

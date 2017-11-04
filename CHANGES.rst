@@ -4,10 +4,15 @@ Changelog for Rapid Photo Downloader
 0.9.5b1 (2017-11-xx)
 --------------------
 
+ - Add option to manually mark files as previously downloaded, allowing for
+   occasions when another program has already downloaded the files.
+   Right-click on one or more photo or video thumbnails to mark them as
+   previously downloaded.
+
  - Add elementary OS to list of Linux distributions supported by the
    install.py script.
 
- - Updated Chinese, Dutch and Italian translations.
+ - Updated Chinese, Dutch, Italian, and Norwegian Bokmal translations.
 
 0.9.4 (2017-09-30)
 ------------------

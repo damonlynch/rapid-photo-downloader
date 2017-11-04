@@ -148,7 +148,7 @@ class ThumbnailRowsSQL:
                      extensions: Optional[List[str]]=None,
                      proximity_col1: Optional[List[int]]=None,
                      proximity_col2: Optional[List[int]]=None,
-                     exclude_scan_ids: Optional[List[int]]=None) -> Tuple[str, Tuple[Any]]:
+                     exclude_scan_ids: Optional[List[int]]=None) -> Tuple[str, List[Any]]:
 
         where_clauses = []
         where_values = []
@@ -216,7 +216,7 @@ class ThumbnailRowsSQL:
                 where_clauses.append('({})'.format(' OR '.join(or_clauses)))
 
         where = ' AND '.join(where_clauses)
-        return (where, where_values)
+        return where, where_values
 
     def get_view(self, sort_by: Sort,
                  sort_order: Qt.SortOrder,
@@ -224,15 +224,16 @@ class ThumbnailRowsSQL:
                  proximity_col1: Optional[List[int]] = None,
                  proximity_col2: Optional[List[int]] = None) -> List[Tuple[bytes, bool]]:
 
-        where, where_values = self._build_where(show=show,
-                                                proximity_col1=proximity_col1,
-                                                proximity_col2=proximity_col2)
+        where, where_values = self._build_where(
+            show=show, proximity_col1=proximity_col1, proximity_col2=proximity_col2
+        )
 
         if sort_by == Sort.modification_time:
             sort = 'ORDER BY mtime {}'.format(self.sort_order_map[sort_order])
         else:
-            sort = 'ORDER BY {0} {1}, mtime {1}'.format(self.sort_map[sort_by],
-                                                        self.sort_order_map[sort_order])
+            sort = 'ORDER BY {0} {1}, mtime {1}'.format(
+                self.sort_map[sort_by], self.sort_order_map[sort_order]
+            )
 
         query = 'SELECT uid, marked FROM files'
 
@@ -344,7 +345,12 @@ class ThumbnailRowsSQL:
         logging.debug('%s (%s on %s uids)', query, marked, len(uids))
         self.conn.execute(query.format(','.join('?' * len(uids))), [marked] + uids)
 
-    def set_list_marked(self, uids: List[bytes], marked: bool) -> None:
+    def _update_previously_downloaded(self, uids: List[bytes], previously_downloaded: bool) -> None:
+        query = 'UPDATE files SET previously_downloaded=? WHERE uid IN ({})'
+        logging.debug('%s (%s on %s uids)', query, previously_downloaded, len(uids))
+        self.conn.execute(query.format(','.join('?' * len(uids))), [previously_downloaded] + uids)
+
+    def _set_list_values(self, uids: List[bytes], update_value, value) -> None:
         if len(uids) == 0:
             return
 
@@ -353,10 +359,19 @@ class ThumbnailRowsSQL:
         if len(uids) > 900:
             uid_chunks = divide_list_on_length(uids, 900)
             for chunk in uid_chunks:
-                self._update_marked(chunk, marked)
+                update_value(chunk, value)
         else:
-            self._update_marked(uids, marked)
+            update_value(uids, value)
         self.conn.commit()
+
+    def set_list_marked(self, uids: List[bytes], marked: bool) -> None:
+        self._set_list_values(uids=uids, update_value=self._update_marked, value=marked)
+
+    def set_list_previously_downloaded(self, uids: List[bytes],
+                                       previously_downloaded: bool) -> None:
+        self._set_list_values(
+            uids=uids, update_value=self._update_previously_downloaded, value=previously_downloaded
+        )
 
     def set_downloaded(self, uid: bytes, downloaded: bool) -> None:
         query = 'UPDATE files SET downloaded=? WHERE uid=?'
@@ -576,6 +591,9 @@ class DownloadedSQL:
         PRIMARY KEY (file_name, mtime, size)
         )""".format(tn=self.table_name))
 
+        # Use the character . to for download_name and path to indicate the user manually marked a
+        # file as previously downloaded
+
         conn.execute("""CREATE INDEX IF NOT EXISTS download_datetime_idx ON
         {tn} (download_name)""".format(tn=self.table_name))
 
@@ -589,7 +607,9 @@ class DownloadedSQL:
         :param name: original filename of photo / video, without path
         :param size: file size
         :param modification_time: file modification time
-        :param download_full_file_name: renamed file including path
+        :param download_full_file_name: renamed file including path,
+         or the character . that the user manually marked the file
+         as previously downloaded
         """
         conn = sqlite3.connect(self.db)
 

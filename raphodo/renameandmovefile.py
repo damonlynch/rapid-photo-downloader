@@ -890,10 +890,11 @@ class RenameMoveFileWorker(DaemonProcess):
                                 self.process_rename_failure(rpd_file)
                             else:
                                 # Record file as downloaded in SQLite database
-                                self.downloaded.add_downloaded_file(name=rpd_file.name,
-                                        size=rpd_file.size,
-                                        modification_time=rpd_file.modification_time,
-                                        download_full_file_name=rpd_file.download_full_file_name)
+                                self.downloaded.add_downloaded_file(
+                                    name=rpd_file.name, size=rpd_file.size,
+                                    modification_time=rpd_file.modification_time,
+                                    download_full_file_name=rpd_file.download_full_file_name
+                                )
                         else:
                             move_succeeded = False
 

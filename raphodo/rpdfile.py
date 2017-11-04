@@ -458,6 +458,7 @@ class RPDFile:
 
         self.prev_full_name = prev_full_name
         self.prev_datetime = prev_datetime
+        self.previously_downloaded = prev_full_name is not None
 
         self.full_file_name = os.path.join(path, name)
 
@@ -760,13 +761,6 @@ class RPDFile:
         :return: True if the file is a tiff file
         """
         return self.mime_type == 'image/tiff'
-
-    def previously_downloaded(self) -> bool:
-        """
-        :return: True if the file has been downloaded before,according
-         to our SQL database
-        """
-        return self.prev_full_name is not None
 
     def has_audio(self) -> bool:
         """
