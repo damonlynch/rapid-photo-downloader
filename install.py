@@ -61,7 +61,7 @@ from gettext import gettext as _
 import gettext
 
 
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -822,7 +822,7 @@ def check_packages_on_other_systems() -> None:
 
 def install_required_distro_packages(distro: Distro,
                                      distro_family: Distro,
-                                     version: float,
+                                     version: StrictVersion,
                                      interactive: bool) -> None:
     """
     Install packages supplied by the Linux distribution
@@ -880,18 +880,13 @@ def install_required_distro_packages(distro: Distro,
                    'gobject-introspection python3-gobject ' \
                    'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ ' \
                    'rpm-build python3-devel intltool ' \
-                   'python3-easygui python3-psutil libmediainfo '
+                   'python3-easygui python3-psutil libmediainfo python3-gexiv2'
 
         if not pypi_pyqt5_capable():
             packages = 'qt5-qtimageformats python3-qt5 {}'.format(packages)
 
         if not have_requests:
             packages = 'python3-requests {}'.format(packages)
-
-        if distro == Distro.fedora and 0.0 < version <= 24.0:
-            packages = 'libgexiv2-python3 {}'.format(packages)
-        else:
-            packages = 'python3-gexiv2 {}'.format(packages)
 
         print(_("Querying installed and available packages (this may take a while)"))
 
@@ -1368,7 +1363,7 @@ def run_latest_install(installer: str, delete_installer: bool) -> None:
 def do_install(installer: str,
                distro: Distro,
                distro_family: Distro,
-               distro_version: float,
+               distro_version: StrictVersion,
                interactive: bool,
                devel: bool,
                delete_install_script: bool,
