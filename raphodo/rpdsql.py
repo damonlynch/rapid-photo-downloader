@@ -482,8 +482,10 @@ class ThumbnailRowsSQL:
                             downloaded: Optional[bool] = None,
                             scan_id: Optional[int]=None,
                             exclude_scan_ids: Optional[List[int]] = None) -> Optional[bytes]:
-        where, where_values = self._build_where(scan_id=scan_id, downloaded=downloaded,
-                                                file_type=file_type, exclude_scan_ids=exclude_scan_ids)
+        where, where_values = self._build_where(
+            scan_id=scan_id, downloaded=downloaded, file_type=file_type,
+            exclude_scan_ids=exclude_scan_ids
+        )
         query = 'SELECT uid FROM files'
 
         if where:
@@ -501,15 +503,37 @@ class ThumbnailRowsSQL:
         return row[0]
 
     def any_marked_file_no_job_code(self) -> bool:
-        row = self.conn.execute('SELECT uid FROM files WHERE marked=1 AND job_code=0 '
-                                'LIMIT 1').fetchone()
+        row = self.conn.execute(
+            'SELECT uid FROM files WHERE marked=1 AND job_code=0 LIMIT 1'
+        ).fetchone()
         return row is not None
+
+    def _any_not_previously_downloaded(self, uids: List[bytes]) -> bool:
+        query = 'SELECT uid FROM files WHERE uid IN ({}) AND previously_downloaded=0 LIMIT 1'
+        logging.debug('%s (%s files)', query, len(uids))
+        row = self.conn.execute(query.format(','.join('?' * len(uids))), uids).fetchone()
+        return row is not None
+
+    def any_not_previously_downloaded(self, uids: List[bytes]) -> bool:
+        """
+
+        :param uids: list of UIDs to check
+        :return: True if any of the files associated with the UIDs have not been
+         previously downloaded
+        """
+        if len(uids) > 900:
+            uid_chunks = divide_list_on_length(uids, 900)
+            for chunk in uid_chunks:
+                if self._any_not_previously_downloaded(uids=uid_chunks):
+                    return True
+            return False
+        else:
+            return self._any_not_previously_downloaded(uids=uids)
 
     def _delete_uids(self, uids: List[bytes]) -> None:
         query = 'DELETE FROM files WHERE uid IN ({})'
         logging.debug('%s (%s files)', query, len(uids))
-        self.conn.execute(query.format(
-            ','.join('?' * len(uids))), uids)
+        self.conn.execute(query.format(','.join('?' * len(uids))), uids)
 
     def delete_uids(self, uids: List[bytes]) -> None:
         """

@@ -537,6 +537,7 @@ class ThumbnailListModel(QAbstractListModel):
         uids = [self.rows[row][0] for row in rows]
 
         if role == Roles.previously_downloaded:
+            logging.debug("Manually setting %s files as previously downloaded", len(uids))
             # Set the files as unmarked
             self.tsql.set_list_marked(uids=uids, marked=False)
             for row, uid in zip(rows, uids):
@@ -555,7 +556,8 @@ class ThumbnailListModel(QAbstractListModel):
                     modification_time=rpd_file.modification_time,
                     download_full_file_name=manually_marked_previously_downloaded
                 )
-            #FIXME adjust timeline too
+            # Update Timeline formatting, if needed
+            self.rapidApp.temporalProximity.previouslyDownloadedManuallySet(uids=uids)
 
         # Indicate to the list view that the rows have changed
         for first, last in runs(rows):
@@ -1560,6 +1562,9 @@ class ThumbnailListModel(QAbstractListModel):
         """
 
         return self.tsql.get_count(marked=True) != self.getDisplayedCount(marked=True)
+
+    def anyFileNotPreviouslyDownloaded(self, uids: List[bytes]) -> bool:
+        return self.tsql.any_not_previously_downloaded(uids=uids)
 
     def getFileDownloadsCompleted(self) -> FileTypeCounter:
         """

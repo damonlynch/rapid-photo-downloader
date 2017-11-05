@@ -47,15 +47,15 @@ from PyQt5.QtGui import (
     QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap, QPalette, QMouseEvent
 )
 
-from raphodo.viewutils import QFramedWidget, QFramedLabel
 from raphodo.constants import (
     FileType, Align, proximity_time_steps, TemporalProximityState, fileTypeColor, CustomColors,
     DarkGray, MediumGray, DoubleDarkGray
 )
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
-from raphodo.viewutils import ThumbnailDataForProximity
+from raphodo.viewutils import ThumbnailDataForProximity, QFramedWidget, QFramedLabel
 from raphodo.timeutils import locale_time, strip_zero, make_long_date_format, strip_am, strip_pm
+from raphodo.utilities import runs
 
 ProximityRow = namedtuple(
     'ProximityRow', 'year, month, weekday, day, proximity, new_file, tooltip_date_col0, '
@@ -564,8 +564,9 @@ class MetaUid:
     """
 
     def __init__(self):
-        self._uids = tuple({} for i in (0,1,2))  # type: Tuple[Dict[int, List[bytes, ...]]]
-        self._no_uids = tuple({} for i in (0,1,2))  # type: Tuple[Dict[int, int]]
+        self._uids = tuple({} for i in (0, 1 ,2))  # type: Tuple[Dict[int, List[bytes, ...]]]
+        self._no_uids = tuple({} for i in (0, 1, 2))  # type: Tuple[Dict[int, int]]
+        self._col2_row_index = dict()  # type: Dict[bytes, int]
 
     def __repr__(self):
         return 'MetaUid(%r %r)' % (self._no_uids, self._uids)
@@ -575,6 +576,8 @@ class MetaUid:
         assert row not in self._uids[col]
         self._uids[col][row] = uids
         self._no_uids[col][row] = len(uids)
+        for uid in uids:
+            self._col2_row_index[uid] = row
 
     def __getitem__(self, key: Tuple[int, int]) -> List[bytes]:
         row, col = key
@@ -583,9 +586,12 @@ class MetaUid:
     def trim(self) -> None:
         """
         Remove unique ids unnecessary for table viewing.
+
+        Don't, however, remove ids in col 2, as they're useful, e.g.
+        when manually marking a file as previously downloaded
         """
 
-        for col in (0, 1, 2):
+        for col in (0, 1):
             for row in self._uids[col]:
                 uids = self._uids[col][row]
                 if len(uids) > 1:
@@ -601,6 +607,9 @@ class MetaUid:
 
     def uids(self, column: int) -> Dict[int, List[bytes]]:
         return self._uids[column]
+
+    def uid_to_col2_row(self, uid) -> int:
+        return self._col2_row_index[uid]
 
     def validate_rows(self, no_rows) -> Tuple[int]:
         """
@@ -849,7 +858,7 @@ class TemporalProximityGroups:
             thumbnail_index += len(uids_by_day_in_proximity_group[group_no][0])
 
             # For any proximity groups that span more than one Timeline row because they span
-            # more than one calander day, add the day to the Timeline, with blank values
+            # more than one calender day, add the day to the Timeline, with blank values
             # for the proximity group (column 2).
             i = 0
             for y_m_d, day in uids_by_day_in_proximity_group[group_no][1:]:
@@ -1005,6 +1014,9 @@ class TemporalProximityGroups:
     def __getitem__(self, row_number) -> ProximityRow:
         return self.rows[row_number]
 
+    def __setitem__(self, row_number, proximity_row: ProximityRow) -> None:
+        self.rows[row_number] = proximity_row
+
     def __iter__(self):
         return iter(self.rows)
 
@@ -1032,6 +1044,12 @@ class TemporalProximityGroups:
         """
 
         return self.uids.validate_rows(len(self.rows))
+
+    def uid_to_row(self, uid: bytes) -> int:
+        return self.uids.uid_to_col2_row(uid=uid)
+
+    def row_uids(self, row: int) -> List[bytes]:
+        return self.uids[row, 2]
 
 
 def base64_thumbnail(pixmap: QPixmap, size: QSize) -> str:
@@ -1172,6 +1190,34 @@ class TemporalProximityModel(QAbstractTableModel):
                         uids = self.groups.uids._uids[col][row]
                         files = ', '.join((thumbnailModel.rpd_files[uid].name for uid in uids))
                         logging.debug('Col {}: {}'.format(col, files))
+
+    def updatePreviouslyDownloaded(self, uids: List[bytes]) -> None:
+        """
+        Examine Timeline data to see if any Timeline rows should have their column 2
+        formatting updated to reflect that there are no new files to be downloaded in
+        that particular row
+        :param uids: list of uids that have been manually marked as previously downloaded
+        """
+
+        processed_rows = set()  # type: Set[int]
+        rows_to_update = []
+        for uid in uids:
+            row = self.groups.uid_to_row(uid=uid)
+            if row not in processed_rows:
+                processed_rows.add(row)
+                row_uids = self.groups.row_uids(row)
+                logging.debug(
+                    'Examining row %s to see if any have not been previously downloaded', row
+                )
+                if not self.rapidApp.thumbnailModel.anyFileNotPreviouslyDownloaded(uids=row_uids):
+                    proximity_row = self.groups[row]  # type: ProximityRow
+                    self.groups[row] = proximity_row._replace(new_file=False)
+                    rows_to_update.append(row)
+                    logging.debug('Row %s will be updated to show it has no new files')
+
+        if rows_to_update:
+            for first, last in runs(rows_to_update):
+                self.dataChanged.emit(self.index(first, 2), self.index(last, 2))
 
 
 class TemporalProximityDelegate(QStyledItemDelegate):
@@ -1690,6 +1736,8 @@ class TemporalProximity(QWidget):
 
         self.state = TemporalProximityState.empty
 
+        self.uids_manually_set_previously_downloaded = []  # type: List[bytes]
+
         self.temporalProximityView = TemporalProximityView(self, rapidApp=rapidApp)
         self.temporalProximityModel = TemporalProximityModel(rapidApp=rapidApp)
         self.temporalProximityView.setModel(self.temporalProximityModel)
@@ -1800,7 +1848,6 @@ class TemporalProximity(QWidget):
 
         self.temporalValuePicker.valueChanged.connect(self.temporalValueChanged)
 
-        self.another_generation_needed = False
 
     @pyqtSlot(QItemSelection, QItemSelection)
     def proximitySelectionChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
@@ -1880,6 +1927,13 @@ class TemporalProximity(QWidget):
         self.state = state
 
     def setGroups(self, proximity_groups: TemporalProximityGroups) -> bool:
+        """
+        Display the Timeline using data from the generated proximity_groups
+        :param proximity_groups: Timeline content and formatting hints
+        :return: True if Timeline was updated, False if not updated due to
+         current state
+        """
+
         if self.state == TemporalProximityState.regenerate:
             self.rapidApp.generateTemporalProximityTableData(
                 reason="a change was made while it was already generating"
@@ -1926,6 +1980,15 @@ class TemporalProximity(QWidget):
         self.temporalProximityView.setMinimumWidth(min_width + scrollbar_width + frame_width)
 
         self.setState(TemporalProximityState.generated)
+
+        # Has the user manually set any files as previously downloaded while the Timeline was
+        # generating?
+        if self.uids_manually_set_previously_downloaded:
+            self.temporalProximityModel.updatePreviouslyDownloaded(
+                uids=self.uids_manually_set_previously_downloaded
+            )
+            self.uids_manually_set_previously_downloaded = []
+
         return True
 
     @pyqtSlot(int)
@@ -1937,3 +2000,19 @@ class TemporalProximity(QWidget):
                 reason="the duration between consecutive shots has changed")
         elif self.state == TemporalProximityState.generating:
             self.state = TemporalProximityState.regenerate
+
+    def previouslyDownloadedManuallySet(self, uids: List[bytes]) -> None:
+        """
+        Possibly update the formatting of the Timeline to reflect the user
+        manually setting files to have been previously downloaded
+        """
+
+        logging.debug(
+            "Updating Timeline to reflect %s files manually set as previously downloaded",
+            len(uids)
+        )
+        if self.state != TemporalProximityState.generated:
+            self.uids_manually_set_previously_downloaded.extend(uids)
+        else:
+            self.temporalProximityModel.updatePreviouslyDownloaded(uids=uids)
+
