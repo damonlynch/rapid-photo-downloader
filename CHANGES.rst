@@ -1,8 +1,15 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.5b1 (2017-11-xx)
+0.9.5 (2017-11-05)
 --------------------
+
+ - Added check to install.py installation script and upgrade.py upgrade
+   script to ensure that SIP 4.19.3 is installed when PyQt 5.9 is installed.
+   The combination of SIP  4.19.4 and PyQt 5.9 causes Rapid Photo Downloader
+   to crash. Because SIP 4.19.4 is installed by default when installing
+   PyQt 5.9, the install and upgrade scripts forcibly revert to SIP 4.19.3
+   when PyQt 5.9 is installed.
 
  - Add option to manually mark files as previously downloaded, allowing for
    occasions when another program has already downloaded the files.
@@ -11,6 +18,8 @@ Changelog for Rapid Photo Downloader
 
  - Add elementary OS to list of Linux distributions supported by the
    install.py script.
+
+ - Fixed bug in upgrade script when reporting an operational failure.
 
  - Updated Chinese, Dutch, Italian, and Norwegian Bokmal translations.
 

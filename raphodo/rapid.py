@@ -71,6 +71,7 @@ except (ImportError, ValueError):
 import zmq
 import psutil
 import gphoto2 as gp
+import sip
 from PyQt5 import QtCore
 from PyQt5.QtCore import (
     QThread, Qt, QStorageInfo, QSettings, QPoint, QSize, QTimer, QTextStream, QModelIndex,
@@ -5684,6 +5685,7 @@ def get_versions() -> List[str]:
         'Python executable: {}'.format(sys.executable),
         'Qt: {}'.format(QtCore.QT_VERSION_STR),
         'PyQt: {}'.format(QtCore.PYQT_VERSION_STR),
+        'SIP: {}'.format(sip.SIP_VERSION_STR),
         'ZeroMQ: {}'.format(zmq.zmq_version()),
         'Python ZeroMQ: {} ({} backend)'.format(zmq.pyzmq_version(), pyzmq_backend),
         'gPhoto2: {}'.format(gphoto2_version()),
