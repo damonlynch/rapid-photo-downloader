@@ -1,4 +1,4 @@
-Release Notes for Rapid Photo Downloader 0.9.5
+Release Notes for Rapid Photo Downloader 0.9.6
 ==============================================
 
  - On some systems, Rapid Photo Downloader cannot use gstreamer to generate

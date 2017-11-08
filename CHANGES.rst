@@ -1,8 +1,14 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.6 (2017-xx-xx)
+------------------
+
+ - Updated Catalan, Czech, Danish, Dutch, French,  Norwegian Nyorsk, Russian,
+   and Spanish translations.
+
 0.9.5 (2017-11-05)
---------------------
+------------------
 
  - Added check to install.py installation script and upgrade.py upgrade
    script to ensure that SIP 4.19.3 is installed when PyQt 5.9 is installed.
