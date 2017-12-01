@@ -4,6 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.6 (2017-xx-xx)
 ------------------
 
+ - Work around MediaInfoLib bug #695 that caused the libmediainfo shared
+   object file to be named incorrectly, making it appear to be missing.
+
  - Correctly parse Distribution version in installer when running on Fedora,
    Debian and Peppermint.
 
