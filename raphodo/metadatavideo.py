@@ -34,23 +34,28 @@ from raphodo.utilities import datetime_roughly_equal
 try:
     import pymediainfo
     have_pymediainfo = True
+    pymedia_library_file = 'libmediainfo.so.0'
 except ImportError:
     have_pymediainfo = False
     libmediainfo_missing = None
 
 if have_pymediainfo:
-    try:
-        # Attempt to parse null... it will fail if libmediainfo is not present, which is
-        # what we want to check
-        pymediainfo.MediaInfo.parse('/dev/null')
-        libmediainfo_missing = False
-    except OSError:
-        have_pymediainfo = False
-        libmediainfo_missing = True
+    libmediainfo_missing = False
+    if not pymediainfo.MediaInfo.can_parse(library_file=pymedia_library_file):
+        # attempt to work around MediaInfoLib issue #695:
+        # 'SONAME is different when compiling with CMake and autotools'
+        pymedia_library_file = 'libmediainfo.so.17'
+        if not pymediainfo.MediaInfo.can_parse(library_file=pymedia_library_file):
+            have_pymediainfo = False
+            libmediainfo_missing = True
+
 
 def pymedia_version_info() -> Optional[str]:
     if have_pymediainfo:
-        return pymediainfo.__version__
+        if pymedia_library_file == 'libmediainfo.so.0':
+            return pymediainfo.__version__
+        else:
+            return '{} (using {})'.format(pymediainfo.__version__, pymedia_library_file)
     else:
         return None
 
@@ -72,8 +77,9 @@ class MetaData:
         self.metadata_string_format = dict()
         self.et_process = et_process
         if have_pymediainfo:
-            self.media_info =  pymediainfo.MediaInfo.parse(
-                full_file_name)  # type: pymediainfo.MediaInfo
+            self.media_info = pymediainfo.MediaInfo.parse(
+                filename=full_file_name, library_file=pymedia_library_file
+            )  # type: pymediainfo.MediaInfo
         else:
             self.media_info = None
 
