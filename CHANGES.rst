@@ -26,6 +26,9 @@ Changelog for Rapid Photo Downloader
  - Correctly parse Distribution version in installer when running on Fedora,
    Debian and Peppermint.
 
+ - Install PyQt 5.9.2 or greater. Upgrade pymediainfo to version 2.2.0 or
+   newer.
+
  - Updated Catalan, Chinese, Czech, Danish, Dutch, French, German, Norwegian
    Nyorsk, Russian, and Spanish translations.
 

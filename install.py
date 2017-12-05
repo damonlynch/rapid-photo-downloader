@@ -1433,7 +1433,7 @@ def do_install(installer: str,
         with tar.extractfile(tarfile_content_name(installer, 'requirements.txt')) as requirements:
             reqbytes = requirements.read()
             if pypi_pyqt5_capable():
-                reqbytes = reqbytes.rstrip() + b'\nPyQt5'
+                reqbytes = reqbytes.rstrip() + b'\nPyQt5>=5.9.2'
 
             with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
                 temp_requirements.write(reqbytes)

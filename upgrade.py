@@ -206,7 +206,8 @@ class RunInstallProcesses:
                         if results is not None:
                             package = results.group(0)
                             # Don't include packages that are already installed
-                            if package not in pip_list and package not in ('typing', 'scandir'):
+                            if ((package not in pip_list and package not in ('typing', 'scandir'))
+                                    or package in ('pymediainfo')):
                                 requirements = '{}\n{}'.format(requirements, line)
                     if self.need_pyqt5(pip_list):
                         requirements = '{}\nPyQt5\n'.format(requirements)
@@ -214,14 +215,15 @@ class RunInstallProcesses:
                         with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
                             temp_requirements.write(requirements.encode())
                             temp_requirements_name = temp_requirements.name
+                        self.send_message(requirements)
                     else:
                         temp_requirements_name = ''
-        except Exception:
-            self.failure("Failed to extract application requirements")
+        except Exception as e:
+            self.failure("Failed to extract application requirements:\n" + str(e))
             return
 
         if not self.match_pyqt5_and_sip():
-            self.failure("Failed to downgrade sip")
+            self.failure("Failed to upgrade sip")
             return
 
         if requirements:
