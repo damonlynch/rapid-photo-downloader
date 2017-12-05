@@ -26,8 +26,8 @@ Changelog for Rapid Photo Downloader
  - Correctly parse Distribution version in installer when running on Fedora,
    Debian and Peppermint.
 
- - Updated Catalan, Czech, Danish, Dutch, French, Norwegian Nyorsk, Russian,
-   and Spanish translations.
+ - Updated Catalan, Chinese, Czech, Danish, Dutch, French, German, Norwegian
+   Nyorsk, Russian, and Spanish translations.
 
 0.9.5 (2017-11-05)
 ------------------
