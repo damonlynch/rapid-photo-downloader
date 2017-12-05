@@ -61,7 +61,7 @@ from gettext import gettext as _
 import gettext
 
 
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
