@@ -66,5 +66,6 @@
 <file alias="prefs/miscellaneous.svg">../images/preferences/miscellaneous.svg</file>
 <file alias="prefs/thumbnails.svg">../images/preferences/thumbnails.svg</file>
 <file alias="prefs/warnings.svg">../images/preferences/warnings.svg</file>
+<file alias="icons/link.svg">../images/link.svg</file>
 </qresource>
 </RCC>

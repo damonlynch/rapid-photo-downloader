@@ -1,8 +1,24 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.6 (2017-xx-xx)
-------------------
+0.9.6b1 (2017-12-05)
+--------------------
+
+ - Timeline is now shown by default when the program is first run, or settings
+   are reset.
+
+ - Added option to synchronize Timeline with thumbnails. Scroll one, and the
+   other automatically scrolls too. Use the button at the bottom-right of the
+   Timeline to toggle this feature.
+
+ - After clearing a Timeline selection, the display of thumbnails will be
+   positioned such that the the photos in the previous selection are
+   visible. Previously, the thumbnails display would be scrolled all the way
+   to the top after the Timeline selection had been cleared.
+
+ - Added Hasselblad 3FR files to list of supported file formats. If you detect
+   any problems with the accuracy of the metadata from this format, please let
+   me know.
 
  - Work around MediaInfoLib bug #695 that caused the libmediainfo shared
    object file to be named incorrectly, making it appear to be missing.

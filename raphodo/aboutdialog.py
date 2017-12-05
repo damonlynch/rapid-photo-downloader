@@ -120,6 +120,7 @@ class AboutDialog(QDialog):
         Home icon courtesy %(artlink3)s.
         Speech bubble courtesy %(artlink4)s.
         Lightbulb icon courtesy %(artlink5)s.
+        Unlink icon courtesy %(artlink6)s.
 
         Translators:
 
@@ -185,7 +186,9 @@ class AboutDialog(QDialog):
             artlink3='<a href="https://www.iconfinder.com/Enesdal" style="color: white;">Enes'
                      ' Dal</a>',
             artlink4='<a href="http://www.iconsolid.com/" style="color: white;">Icons Solid</a>',
-            artlink5='<a href="https://sellfy.com/designcoon" style="color: white;">Icon Coon</a>'
+            artlink5='<a href="https://sellfy.com/designcoon" style="color: white;">Icon Coon</a>',
+            artlink6='<a href="https://www.iconfinder.com/icons/1608708/unlink_icon" style="color: '
+                     'white;">Dave Gandy</a>'
         )
 
         style_sheet = """QLabel {

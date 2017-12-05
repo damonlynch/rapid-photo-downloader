@@ -57,7 +57,7 @@ from raphodo.constants import (
     DownloadStatus, Downloaded, FileType, DownloadingFileTypes, ThumbnailSize,
     ThumbnailCacheStatus, Roles, DeviceType, CustomColors, Show, Sort, ThumbnailBackgroundName,
     Desktop, DeviceState, extensionColor, FadeSteps, FadeMilliseconds, PaleGray, DarkGray,
-    DoubleDarkGray, Plural, manually_marked_previously_downloaded
+    DoubleDarkGray, Plural, manually_marked_previously_downloaded, thumbnail_margin
 )
 from raphodo.storage import get_program_cache_directory, get_desktop, validate_download_folder
 from raphodo.utilities import (
@@ -237,9 +237,9 @@ class ThumbnailListModel(QAbstractListModel):
         logging.debug("-- Thumbnail Model --")
 
         db_length = self.tsql.get_count()
-        db_length_and_buffer_length= db_length + len(self.add_buffer)
+        db_length_and_buffer_length = db_length + len(self.add_buffer)
         if (len(self.thumbnails) != db_length_and_buffer_length or
-                    db_length_and_buffer_length != len(self.rpd_files)):
+                db_length_and_buffer_length != len(self.rpd_files)):
             logging.error("Conflicting values: %s thumbnails; %s database rows; %s rpd_files",
                           len(self.thumbnails), db_length, len(self.rpd_files))
         else:
@@ -409,7 +409,7 @@ class ThumbnailListModel(QAbstractListModel):
                 return 'LOG'
             else:
                 return None
-        elif role== Roles.path:
+        elif role == Roles.path:
             if rpd_file.status in Downloaded:
                 return rpd_file.download_full_file_name
             else:
@@ -1284,24 +1284,6 @@ class ThumbnailListModel(QAbstractListModel):
         self.rapidApp.displayMessageInStatusBar()
         self.rapidApp.setDownloadCapabilities()
 
-    def visibleRows(self):
-        """
-        Yield rows visible in viewport. Currently not used.
-        """
-
-        view = self.rapidApp.thumbnailView
-        rect = view.viewport().contentsRect()
-        width = view.itemDelegate().width
-        last_row = rect.bottomRight().x() // width * width
-        top = view.indexAt(rect.topLeft())
-        if top.isValid():
-            bottom = view.indexAt(QPoint(last_row, rect.bottomRight().y()))
-            if not bottom.isValid():
-                # take a guess with an arbitrary figure
-                bottom = self.index(top.row() + 15)
-            for row in range(top.row(), bottom.row() + 1):
-                yield row
-
     def getTypeCountForProximityCell(self, col1id: Optional[int]=None,
                              col2id: Optional[int]=None) -> str:
         """
@@ -1622,6 +1604,20 @@ class ThumbnailView(QListView):
         self.setSpacing(8)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
+    def setScrollTogether(self, on: bool) -> None:
+        """
+        Turn on or off the linking of scrolling the Timeline with the Thumbnail display.
+
+        Called from the Proximity (Timeline) widget
+
+        :param on: whether to turn on or off
+        """
+
+        if on:
+            self.verticalScrollBar().valueChanged.connect(self.scrollTimeline)
+        else:
+            self.verticalScrollBar().valueChanged.disconnect(self.scrollTimeline)
+
     @pyqtSlot(QMouseEvent)
     def mousePressEvent(self, event: QMouseEvent) -> None:
         """
@@ -1653,6 +1649,52 @@ class ThumbnailView(QListView):
         if not checkbox_clicked:
             super().mousePressEvent(event)
 
+    @pyqtSlot(int)
+    def scrollTimeline(self, value) -> None:
+        index = self.indexAt(self.topLeft())  # type: QModelIndex
+        if index.isValid():
+            temporalProximity = self.rapidApp.temporalProximity
+            temporalProximity.setScrollTogether(False)
+            row = index.row()
+            model = self.model()
+            rows = model.rows
+            uid = rows[row][0]
+            temporalProximity.scrollToUid(uid=uid)
+            temporalProximity.setScrollTogether(True)
+
+    def topLeft(self) -> QPoint:
+        return QPoint(thumbnail_margin, thumbnail_margin)
+
+    def visibleRows(self):
+        """
+        Yield rows visible in viewport. Not currently used or properly tested.
+        """
+
+        rect = self.viewport().contentsRect()
+        width = self.itemDelegate().width
+        last_row = rect.bottomRight().x() // width * width
+        topLeft = rect.topLeft() + QPoint(10, 10)
+        print(topLeft.x(), topLeft.y())
+        top = self.indexAt(topLeft)
+        if top.isValid():
+            bottom = self.indexAt(QPoint(last_row, rect.bottomRight().y()))
+            if not bottom.isValid():
+                # take a guess with an arbitrary figure
+                bottom = self.index(top.row() + 15)
+            for row in range(top.row(), bottom.row() + 1):
+                yield row
+
+    def scrollToUid(self, uid: bytes) -> None:
+        """
+        Scroll to this uid in the Thumbnail Display
+        :param uid: uid to scroll to
+        """
+
+        model = self.model()
+        row = model.uid_to_row[uid]
+        index = model.index(row, 0)
+        self.scrollTo(index, QAbstractItemView.PositionAtTop)
+
 
 class ThumbnailDelegate(QStyledItemDelegate):
     """
@@ -1678,8 +1720,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         self.image_width = max(ThumbnailSize.width, ThumbnailSize.height)
         self.image_height = self.image_width
-        self.horizontal_margin = 10
-        self.vertical_margin = 10
+        self.horizontal_margin = thumbnail_margin
+        self.vertical_margin = thumbnail_margin
         self.image_footer = self.checkbox_size
         self.footer_padding = 5
 
