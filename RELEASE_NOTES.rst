@@ -1,5 +1,5 @@
-Release Notes for Rapid Photo Downloader 0.9.6
-==============================================
+Release Notes for Rapid Photo Downloader 0.9.6b1
+================================================
 
  - On some systems, Rapid Photo Downloader cannot use gstreamer to generate
    video thumbnails for all common video files. Install the good and libav

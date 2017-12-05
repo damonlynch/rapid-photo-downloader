@@ -215,7 +215,6 @@ class RunInstallProcesses:
                         with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
                             temp_requirements.write(requirements.encode())
                             temp_requirements_name = temp_requirements.name
-                        self.send_message(requirements)
                     else:
                         temp_requirements_name = ''
         except Exception as e:
