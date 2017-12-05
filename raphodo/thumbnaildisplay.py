@@ -1674,7 +1674,6 @@ class ThumbnailView(QListView):
         width = self.itemDelegate().width
         last_row = rect.bottomRight().x() // width * width
         topLeft = rect.topLeft() + QPoint(10, 10)
-        print(topLeft.x(), topLeft.y())
         top = self.indexAt(topLeft)
         if top.isValid():
             bottom = self.indexAt(QPoint(last_row, rect.bottomRight().y()))

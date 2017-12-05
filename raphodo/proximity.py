@@ -1647,6 +1647,12 @@ class TemporalProximityView(QTableView):
     def scrollThumbnails(self, value) -> None:
         index = self.indexAt(QPoint(200, 0))  # type: QModelIndex
         if index.isValid():
+            if self.selectedIndexes():
+                # It's now possible to scroll the Timeline and there will be
+                # no matching thumbnails to which to scroll to in the display,
+                # because they are not being displayed. Hence this check:
+                 if not index in self.selectedIndexes():
+                     return
             thumbnailView = self.rapidApp.thumbnailView
             thumbnailView.setScrollTogether(False)
             model = self.model()
