@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.6b2 (2017-12-05)
+--------------------
+
+ - Don't crash when Timline ranges are selected and scrolling is synchronized.
+
 0.9.6b1 (2017-12-05)
 --------------------
 
