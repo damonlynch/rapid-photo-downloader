@@ -4,8 +4,8 @@ Changelog for Rapid Photo Downloader
 0.9.6b1 (2017-12-05)
 --------------------
 
- - Timeline is now shown by default when the program is first run, or settings
-   are reset.
+ - The Timeline is now shown by default when the program is first run, or
+   settings are reset.
 
  - Added option to synchronize Timeline with thumbnails. Scroll one, and the
    other automatically scrolls too. Use the button at the bottom-right of the
