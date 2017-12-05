@@ -15,6 +15,6 @@ typing>=3.5.0.1; python_version < '3.5'
 scandir>=1.2; python_version < '3.5'
 easygui<=0.97.4
 colour
-pymediainfo>=2.1.4
+pymediainfo>=2.2.0
 sortedcontainers
 requests

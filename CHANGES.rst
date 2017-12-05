@@ -4,8 +4,8 @@ Changelog for Rapid Photo Downloader
 0.9.6b1 (2017-12-05)
 --------------------
 
- - Timeline is now shown by default when the program is first run, or settings
-   are reset.
+ - The Timeline is now shown by default when the program is first run, or
+   settings are reset.
 
  - Added option to synchronize Timeline with thumbnails. Scroll one, and the
    other automatically scrolls too. Use the button at the bottom-right of the
@@ -26,8 +26,11 @@ Changelog for Rapid Photo Downloader
  - Correctly parse Distribution version in installer when running on Fedora,
    Debian and Peppermint.
 
- - Updated Catalan, Czech, Danish, Dutch, French, Norwegian Nyorsk, Russian,
-   and Spanish translations.
+ - Install PyQt 5.9.2 or greater. Upgrade pymediainfo to version 2.2.0 or
+   newer.
+
+ - Updated Catalan, Chinese, Czech, Danish, Dutch, French, German, Norwegian
+   Nyorsk, Russian, and Spanish translations.
 
 0.9.5 (2017-11-05)
 ------------------

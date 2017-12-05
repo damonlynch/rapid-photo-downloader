@@ -41,13 +41,29 @@ except ImportError:
 
 if have_pymediainfo:
     libmediainfo_missing = False
-    if not pymediainfo.MediaInfo.can_parse(library_file=pymedia_library_file):
-        # attempt to work around MediaInfoLib issue #695:
-        # 'SONAME is different when compiling with CMake and autotools'
-        pymedia_library_file = 'libmediainfo.so.17'
+    try:
         if not pymediainfo.MediaInfo.can_parse(library_file=pymedia_library_file):
+            # attempt to work around MediaInfoLib issue #695:
+            # 'SONAME is different when compiling with CMake and autotools'
+            pymedia_library_file = 'libmediainfo.so.17'
+            if not pymediainfo.MediaInfo.can_parse(library_file=pymedia_library_file):
+                have_pymediainfo = False
+                libmediainfo_missing = True
+    except TypeError:
+        # older versions of pymediainfo do not have the library_file option
+        pymedia_library_file = None
+        if not pymediainfo.MediaInfo.can_parse():
             have_pymediainfo = False
             libmediainfo_missing = True
+    except AttributeError:
+        try:
+            # Attempt to parse null... it will fail if libmediainfo is not present, which is
+            # what we want to check
+            pymediainfo.MediaInfo.parse('/dev/null')
+        except OSError:
+            have_pymediainfo = False
+            libmediainfo_missing = True
+            pymedia_library_file = None
 
 
 def pymedia_version_info() -> Optional[str]:
@@ -77,9 +93,14 @@ class MetaData:
         self.metadata_string_format = dict()
         self.et_process = et_process
         if have_pymediainfo:
-            self.media_info = pymediainfo.MediaInfo.parse(
-                filename=full_file_name, library_file=pymedia_library_file
-            )  # type: pymediainfo.MediaInfo
+            if pymedia_library_file is not None:
+                self.media_info = pymediainfo.MediaInfo.parse(
+                    filename=full_file_name, library_file=pymedia_library_file
+                )  # type: pymediainfo.MediaInfo
+            else:
+                self.media_info = pymediainfo.MediaInfo.parse(
+                    filename=full_file_name
+                )  # type: pymediainfo.MediaInfo
         else:
             self.media_info = None
 
