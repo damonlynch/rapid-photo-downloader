@@ -1098,7 +1098,7 @@ class RapidWindow(QMainWindow):
         settings = QSettings()
         settings.beginGroup("MainWindow")
 
-        self.proximityButton.setChecked(settings.value("proximityButtonPressed", False, bool))
+        self.proximityButton.setChecked(settings.value("proximityButtonPressed", True, bool))
         self.proximityButtonClicked()
 
         self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))

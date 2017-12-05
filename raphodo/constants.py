@@ -259,6 +259,7 @@ class Sort(IntEnum):
     file_type = 5
     device = 6
 
+
 class JobCodeSort(IntEnum):
     last_used = 1
     code = 2
@@ -293,6 +294,7 @@ class Roles(IntEnum):
     device_type = Qt.UserRole + 19
     download_statuses = Qt.UserRole + 20
     job_code = Qt.UserRole + 21
+    uid = Qt.UserRole + 22
 
 
 class ExtractionTask(Enum):
@@ -402,6 +404,7 @@ class PrefPosition(Enum):
     positioned_in = 4
     not_here = 5
 
+
 # Values in minutes:
 proximity_time_steps = [5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 480, 960, 1440]
 
@@ -438,6 +441,10 @@ DeviceShadingIntensity = 104
 # How many steps with which to highlight thumbnail cells
 FadeSteps = 20
 FadeMilliseconds = 700
+
+
+# horizontal and vertical margin for thumbnail rectangles
+thumbnail_margin = 10
 
 
 def minPanelWidth() -> int:

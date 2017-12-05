@@ -37,14 +37,15 @@ from gettext import gettext as _
 
 from PyQt5.QtCore import (
     QAbstractTableModel, QModelIndex, Qt, QSize, QRect, QItemSelection, QItemSelectionModel,
-    QBuffer, QIODevice, pyqtSignal, pyqtSlot, QRectF
+    QBuffer, QIODevice, pyqtSignal, pyqtSlot, QRectF, QPoint,
 )
 from PyQt5.QtWidgets import (
     QTableView, QStyledItemDelegate, QSlider, QLabel, QVBoxLayout, QStyleOptionViewItem, QStyle,
-    QAbstractItemView, QWidget, QHBoxLayout, QSizePolicy, QSplitter, QScrollArea, QStackedWidget
+    QAbstractItemView, QWidget, QHBoxLayout, QSizePolicy, QSplitter, QScrollArea, QStackedWidget,
+    QToolButton, QAction
 )
 from PyQt5.QtGui import (
-    QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap, QPalette, QMouseEvent
+    QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap, QPalette, QMouseEvent, QIcon
 )
 
 from raphodo.constants import (
@@ -56,6 +57,7 @@ from raphodo.preferences import Preferences
 from raphodo.viewutils import ThumbnailDataForProximity, QFramedWidget, QFramedLabel
 from raphodo.timeutils import locale_time, strip_zero, make_long_date_format, strip_am, strip_pm
 from raphodo.utilities import runs
+from raphodo.constants import Roles
 
 ProximityRow = namedtuple(
     'ProximityRow', 'year, month, weekday, day, proximity, new_file, tooltip_date_col0, '
@@ -1121,6 +1123,11 @@ class TemporalProximityModel(QAbstractTableModel):
             else:
                 return proximity_row.proximity, proximity_row.new_file, invalid_row, invalid_rows
 
+        elif role == Roles.uid:
+            prow = self.groups.row_span_for_column_starts_at_row[(row, 2)]
+            uids = self.groups.uids.uids(2)[prow]
+            return uids[0]
+
         elif role == Qt.ToolTipRole:
             thumbnails = self.rapidApp.thumbnailModel.thumbnails
 
@@ -1542,6 +1549,10 @@ class TemporalProximityView(QTableView):
         case.
         """
 
+        # auto_scroll = self.temporalProximityWidget.prefs.auto_scroll
+        # if auto_scroll:
+        #     self.temporalProximityWidget.setTimelineThumbnailAutoScroll(False)
+
         self.selectionModel().blockSignals(True)
 
         model = self.model()  # type: TemporalProximityModel
@@ -1568,6 +1579,9 @@ class TemporalProximityView(QTableView):
 
         self.selectionModel().blockSignals(False)
 
+        # if auto_scroll:
+        #     self.temporalProximityWidget.setTimelineThumbnailAutoScroll(True)
+
     @pyqtSlot(QMouseEvent)
     def mousePressEvent(self, event: QMouseEvent) -> None:
         """
@@ -1585,6 +1599,7 @@ class TemporalProximityView(QTableView):
 
         :param event: the mouse click event
         """
+
         do_selection = True
         do_selection_confirmed = False
         index = self.indexAt(event.pos())  # type: QModelIndex
@@ -1612,16 +1627,32 @@ class TemporalProximityView(QTableView):
                 self.clearSelection()
                 self.rapidApp.proximityButton.setHighlighted(False)
                 do_selection = False
+                thumbnailView = self.rapidApp.thumbnailView
+                model = self.model()
+                uid = model.data(index, Roles.uid)
+                thumbnailView.scrollToUid(uid=uid)
 
         if do_selection:
             self.temporalProximityWidget.block_update_device_display = True
             super().mousePressEvent(event)
+
 
     @pyqtSlot(QMouseEvent)
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         self.temporalProximityWidget.block_update_device_display = False
         self.proximitySelectionHasChanged.emit()
         super().mouseReleaseEvent(event)
+
+    @pyqtSlot(int)
+    def scrollThumbnails(self, value) -> None:
+        index = self.indexAt(QPoint(200, 0))  # type: QModelIndex
+        if index.isValid():
+            thumbnailView = self.rapidApp.thumbnailView
+            thumbnailView.setScrollTogether(False)
+            model = self.model()
+            uid = model.data(index, Roles.uid)
+            thumbnailView.scrollToUid(uid=uid)
+            thumbnailView.setScrollTogether(True)
 
 
 class TemporalValuePicker(QWidget):
@@ -1841,13 +1872,40 @@ class TemporalProximity(QWidget):
             TemporalProximityState.generated: 4
         }
 
+        self.autoScrollButton = QToolButton(self)
+        icon = QIcon(':/icons/link.svg')
+        self.autoScrollButton.setIcon(icon)
+        # self.autoScrollButton.setIconSize(QSize(16, 16))
+        self.autoScrollButton.setAutoRaise(True)
+        self.autoScrollButton.setCheckable(True)
+        self.autoScrollButton.setToolTip(
+            _('Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)')
+        )
+        self.autoScrollButton.setChecked(not self.prefs.auto_scroll)
+        self.autoScrollAct = QAction(
+            '', self, shortcut="Ctrl+T",
+            triggered=self.autoScrollActed, icon=icon
+        )
+        self.autoScrollButton.addAction(self.autoScrollAct)
+        style = "QToolButton {padding: 2px;} QToolButton::menu-indicator {image: none;}"
+        self.autoScrollButton.setStyleSheet(style)
+        self.autoScrollButton.clicked.connect(self.autoScrollClicked)
+
+        pickerLayout = QHBoxLayout()
+        pickerLayout.setSpacing(0)
+        pickerLayout.addWidget(self.temporalValuePicker)
+        pickerLayout.addWidget(self.autoScrollButton)
+
         layout.addWidget(self.stackedWidget)
-        layout.addWidget(self.temporalValuePicker)
+        layout.addLayout(pickerLayout)
 
         self.stackedWidget.setCurrentIndex(0)
 
         self.temporalValuePicker.valueChanged.connect(self.temporalValueChanged)
+        if self.prefs.auto_scroll:
+            self.setTimelineThumbnailAutoScroll(self.prefs.auto_scroll)
 
+        self.suppress_auto_scroll_after_timeline_select = False
 
     @pyqtSlot(QItemSelection, QItemSelection)
     def proximitySelectionChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
@@ -1888,6 +1946,8 @@ class TemporalProximity(QWidget):
 
         if not self.block_update_device_display:
             self.proximitySelectionHasChanged.emit()
+
+        self.suppress_auto_scroll_after_timeline_select = True
 
     def clearThumbnailDisplayFilter(self):
         self.thumbnailModel.setProximityGroupFilter([],[])
@@ -2016,3 +2076,49 @@ class TemporalProximity(QWidget):
         else:
             self.temporalProximityModel.updatePreviouslyDownloaded(uids=uids)
 
+    def scrollToUid(self, uid: bytes) -> None:
+        """
+        Scroll to this uid in the Timeline.
+
+        :param uid: uid to scroll to
+        """
+
+        if self.state == TemporalProximityState.generated:
+            if self.suppress_auto_scroll_after_timeline_select:
+                self.suppress_auto_scroll_after_timeline_select = False
+            else:
+                view = self.temporalProximityView
+                model = self.temporalProximityModel
+                row = model.groups.uid_to_row(uid=uid)
+                index = model.index(row, 2)
+                view.scrollTo(index, QAbstractItemView.PositionAtTop)
+
+    def setTimelineThumbnailAutoScroll(self, on: bool) -> None:
+        """
+        Turn on or off synchronized scrolling between thumbnails and Timeline
+        :param on: whether to turn on or off
+        """
+
+        self.setScrollTogether(on)
+        self.rapidApp.thumbnailView.setScrollTogether(on)
+
+    def setScrollTogether(self, on: bool) -> None:
+        """
+        Turn on or off the linking of scrolling the Timeline with the Thumbnail display
+        :param on: whether to turn on or off
+        """
+
+        view = self.temporalProximityView
+        if on:
+            view.verticalScrollBar().valueChanged.connect(view.scrollThumbnails)
+        else:
+            view.verticalScrollBar().valueChanged.disconnect(view.scrollThumbnails)
+
+    @pyqtSlot(bool)
+    def autoScrollClicked(self, checked: bool) -> None:
+        self.prefs.auto_scroll = not checked
+        self.setTimelineThumbnailAutoScroll(not checked)
+
+    @pyqtSlot(bool)
+    def autoScrollActed(self, on: bool) -> None:
+        self.autoScrollButton.animateClick()

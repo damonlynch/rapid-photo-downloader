@@ -48,9 +48,10 @@ from raphodo.utilities import thousands, make_internationalized_list, datetime_r
 from raphodo.problemnotification import Problem, make_href
 
 
-RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',
-                  'nef', 'nrw', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2',
-                  'srw']
+RAW_EXTENSIONS = [
+    '3fr', 'arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw', 'nef', 'nrw', 'orf', 'pef',
+    'raf', 'raw', 'rw2', 'sr2', 'srw'
+]
 
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
@@ -69,8 +70,9 @@ PHOTO_EXTENSIONS_SCAN = PHOTO_EXTENSIONS
 AUDIO_EXTENSIONS = ['wav', 'mp3']
 
 
-VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'm2ts', 'mov', 'mp4', 'mpeg','mpg', 'mod',
-                    'tod', 'mts']
+VIDEO_EXTENSIONS = [
+    '3gp', 'avi', 'm2t', 'm2ts', 'mov', 'mp4', 'mpeg','mpg', 'mod', 'tod', 'mts'
+]
 
 VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
 
@@ -78,8 +80,7 @@ ALL_USER_VISIBLE_EXTENSIONS = PHOTO_EXTENSIONS + VIDEO_EXTENSIONS + ['xmp', 'log
 
 ALL_KNOWN_EXTENSIONS = ALL_USER_VISIBLE_EXTENSIONS + AUDIO_EXTENSIONS + VIDEO_THUMBNAIL_EXTENSIONS
 
-MUST_CACHE_VIDEOS = [video for video in VIDEO_EXTENSIONS
-                     if thumbnail_offset.get(video) is None]
+MUST_CACHE_VIDEOS = [video for video in VIDEO_EXTENSIONS if thumbnail_offset.get(video) is None]
 
 
 def file_type(file_extension: str) -> Optional[FileType]:
@@ -159,52 +160,56 @@ def get_rpdfile(name: str,
                 problem: Optional[Problem]):
 
     if file_type == FileType.video:
-        return Video(name=name,
-                     path=path,
-                     size=size,
-                     prev_full_name=prev_full_name,
-                     prev_datetime=prev_datetime,
-                     device_timestamp_type=device_timestamp_type,
-                     mtime=mtime,
-                     mdatatime=mdatatime,
-                     thumbnail_cache_status=thumbnail_cache_status,
-                     thm_full_name=thm_full_name,
-                     audio_file_full_name=audio_file_full_name,
-                     xmp_file_full_name=xmp_file_full_name,
-                     log_file_full_name=log_file_full_name,
-                     scan_id=scan_id,
-                     from_camera=from_camera,
-                     camera_details=camera_details,
-                     camera_memory_card_identifiers=camera_memory_card_identifiers,
-                     never_read_mdatatime=never_read_mdatatime,
-                     device_display_name=device_display_name,
-                     device_uri=device_uri,
-                     raw_exif_bytes=raw_exif_bytes,
-                     problem=problem)
+        return Video(
+            name=name,
+            path=path,
+            size=size,
+            prev_full_name=prev_full_name,
+            prev_datetime=prev_datetime,
+            device_timestamp_type=device_timestamp_type,
+            mtime=mtime,
+            mdatatime=mdatatime,
+            thumbnail_cache_status=thumbnail_cache_status,
+            thm_full_name=thm_full_name,
+            audio_file_full_name=audio_file_full_name,
+            xmp_file_full_name=xmp_file_full_name,
+            log_file_full_name=log_file_full_name,
+            scan_id=scan_id,
+            from_camera=from_camera,
+            camera_details=camera_details,
+            camera_memory_card_identifiers=camera_memory_card_identifiers,
+            never_read_mdatatime=never_read_mdatatime,
+            device_display_name=device_display_name,
+            device_uri=device_uri,
+            raw_exif_bytes=raw_exif_bytes,
+            problem=problem
+        )
     else:
-        return Photo(name=name,
-                     path=path,
-                     size=size,
-                     prev_full_name=prev_full_name,
-                     prev_datetime=prev_datetime,
-                     device_timestamp_type=device_timestamp_type,
-                     mtime=mtime,
-                     mdatatime=mdatatime,
-                     thumbnail_cache_status=thumbnail_cache_status,
-                     thm_full_name=thm_full_name,
-                     audio_file_full_name=audio_file_full_name,
-                     xmp_file_full_name=xmp_file_full_name,
-                     log_file_full_name=log_file_full_name,
-                     scan_id=scan_id,
-                     from_camera=from_camera,
-                     camera_details=camera_details,
-                     camera_memory_card_identifiers=camera_memory_card_identifiers,
-                     never_read_mdatatime=never_read_mdatatime,
-                     device_display_name=device_display_name,
-                     device_uri=device_uri,
-                     raw_exif_bytes=raw_exif_bytes,
-                     exif_source=exif_source,
-                     problem=problem)
+        return Photo(
+            name=name,
+            path=path,
+            size=size,
+            prev_full_name=prev_full_name,
+            prev_datetime=prev_datetime,
+            device_timestamp_type=device_timestamp_type,
+            mtime=mtime,
+            mdatatime=mdatatime,
+            thumbnail_cache_status=thumbnail_cache_status,
+            thm_full_name=thm_full_name,
+            audio_file_full_name=audio_file_full_name,
+            xmp_file_full_name=xmp_file_full_name,
+            log_file_full_name=log_file_full_name,
+            scan_id=scan_id,
+            from_camera=from_camera,
+            camera_details=camera_details,
+            camera_memory_card_identifiers=camera_memory_card_identifiers,
+            never_read_mdatatime=never_read_mdatatime,
+            device_display_name=device_display_name,
+            device_uri=device_uri,
+            raw_exif_bytes=raw_exif_bytes,
+            exif_source=exif_source,
+            problem=problem
+        )
 
 
 def file_types_by_number(no_photos: int, no_videos: int) -> str:
@@ -312,10 +317,11 @@ class FileTypeCounter(Counter):
          present e.g. "photos and videos"
         """
         file_types_present = self.file_types_present()
-        file_count_summary = _("%(number)s %(filetypes)s") % \
-                              {'number': thousands(self[FileType.photo] + self[FileType.video]),
-                               'filetypes': file_types_present}
-        return (file_count_summary, file_types_present)
+        file_count_summary = _("%(number)s %(filetypes)s") % dict(
+            number=thousands(self[FileType.photo] + self[FileType.video]),
+            filetypes=file_types_present
+        )
+        return file_count_summary, file_types_present
 
     def file_types_present_details(self, title_case=True, singular_natural=False) -> str:
         """
