@@ -148,7 +148,8 @@ class ThumbnailRowsSQL:
                      extensions: Optional[List[str]]=None,
                      proximity_col1: Optional[List[int]]=None,
                      proximity_col2: Optional[List[int]]=None,
-                     exclude_scan_ids: Optional[List[int]]=None) -> Tuple[str, List[Any]]:
+                     exclude_scan_ids: Optional[List[int]]=None,
+                     uids: Optional[List[bytes]]=None,) -> Tuple[str, List[Any]]:
 
         where_clauses = []
         where_values = []
@@ -187,6 +188,17 @@ class ThumbnailRowsSQL:
                 where_clauses.append('extension IN ({})'.format(','.join('?' * len(extensions))))
                 where_values.extend(extensions)
 
+        if uids is not None:
+            if len(uids) == 1:
+                where_clauses.append('uid=?')
+                where_values.append(uids[0])
+            else:
+                # assume max host parameters in a single SQL statement is 999
+                if len(uids) > 900:
+                    uids = uids[:900]
+                where_clauses.append('uid IN ({})'.format(','.join('?' * len(uids))))
+                where_values.extend(uids)
+
         if exclude_scan_ids is not None:
             if len(exclude_scan_ids) == 1:
                 where_clauses.append(('scan_id!=?'))
@@ -218,6 +230,15 @@ class ThumbnailRowsSQL:
         where = ' AND '.join(where_clauses)
         return where, where_values
 
+    def _build_sort(self, sort_by: Sort, sort_order: Qt.SortOrder) -> str:
+        if sort_by == Sort.modification_time:
+            sort = 'ORDER BY mtime {}'.format(self.sort_order_map[sort_order])
+        else:
+            sort = 'ORDER BY {0} {1}, mtime {1}'.format(
+                self.sort_map[sort_by], self.sort_order_map[sort_order]
+            )
+        return sort
+
     def get_view(self, sort_by: Sort,
                  sort_order: Qt.SortOrder,
                  show: Show,
@@ -228,12 +249,7 @@ class ThumbnailRowsSQL:
             show=show, proximity_col1=proximity_col1, proximity_col2=proximity_col2
         )
 
-        if sort_by == Sort.modification_time:
-            sort = 'ORDER BY mtime {}'.format(self.sort_order_map[sort_order])
-        else:
-            sort = 'ORDER BY {0} {1}, mtime {1}'.format(
-                self.sort_map[sort_by], self.sort_order_map[sort_order]
-            )
+        sort = self._build_sort(sort_by, sort_order)
 
         query = 'SELECT uid, marked FROM files'
 
@@ -257,9 +273,32 @@ class ThumbnailRowsSQL:
                                     show: Show,
                                     uids: List[bytes],
                                     proximity_col1: Optional[List[int]] = None,
-                                    proximity_col2: Optional[List[int]] = None) -> bytes:
-        return None
+                                    proximity_col2: Optional[List[int]] = None) -> Optional[bytes]:
+        """
+        Given a list of uids, and sort and filtering criteria, return the first
+        uid that the user will have displayed -- if any are displayed.
+        """
 
+        where, where_values = self._build_where(
+            show=show, proximity_col1=proximity_col1, proximity_col2=proximity_col2, uids=uids
+        )
+
+        sort = self._build_sort(sort_by, sort_order)
+
+        query = 'SELECT uid FROM files'
+
+        if sort_by == Sort.device:
+            query = '{} NATURAL JOIN devices'.format(query)
+
+        query = '{} WHERE {}'.format(query, where)
+
+        query = '{} {}'.format(query, sort)
+
+        logging.debug('%s (using %s where values)', query, len(where_values))
+        row = self.conn.execute(query, tuple(where_values)).fetchone()
+        if row:
+            return row[0]
+        return None
 
     def get_uids(self, scan_id: Optional[int]=None,
                  show: Optional[Show]=None,

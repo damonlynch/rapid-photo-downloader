@@ -1309,8 +1309,12 @@ class ThumbnailListModel(QAbstractListModel):
                                   marked=marked, file_type=file_type)
 
     def getFirstUidFromUidList(self, uids: List[bytes]) -> Optional[bytes]:
-        return None
-        # return self.tsql.get_first_uid_from_uid_list()
+        return self.tsql.get_first_uid_from_uid_list(
+            sort_by=self.sort_by, sort_order=self.sort_order,
+            show=self.show, proximity_col1=self.proximity_col1,
+            proximity_col2=self.proximity_col2,
+            uids=uids
+        )
 
     def getDisplayedCount(self, scan_id: Optional[int] = None,
                           marked: Optional[bool] = None) -> int:
@@ -1698,7 +1702,7 @@ class ThumbnailView(QListView):
         """
         model = self.model()  # type: ThumbnailListModel
         if self.rapidApp.showOnlyNewFiles():
-            uid = self.getFirstUidFromUidList(uids=uids)
+            uid = model.getFirstUidFromUidList(uids=uids)
             if uid is None:
                 return
         else:
