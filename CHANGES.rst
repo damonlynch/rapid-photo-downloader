@@ -1,10 +1,17 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.6 (2017-12-07)
+0.9.6 (2017-12-08)
 ------------------
 
- - Updated Czech, Dutch, Hungarian, Russian, and Spanish translations.
+ - When scrolling is synchronized, and you click on a thumbnail, the top of
+   the Timeline will be scrolled match to match it.
+
+ - Don't crash when only new files are displayed and the Timeline is scrolled
+   when scrolling is synchronized.
+
+ - Updated Czech, Dutch, Hungarian, Japanese, Russian, and Spanish
+   translations.
 
 0.9.6b2 (2017-12-05)
 --------------------
