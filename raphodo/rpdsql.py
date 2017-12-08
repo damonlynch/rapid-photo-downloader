@@ -252,6 +252,15 @@ class ThumbnailRowsSQL:
             logging.debug('%s', query)
             return self.conn.execute(query).fetchall()
 
+    def get_first_uid_from_uid_list(self, sort_by: Sort,
+                                    sort_order: Qt.SortOrder,
+                                    show: Show,
+                                    uids: List[bytes],
+                                    proximity_col1: Optional[List[int]] = None,
+                                    proximity_col2: Optional[List[int]] = None) -> bytes:
+        return None
+
+
     def get_uids(self, scan_id: Optional[int]=None,
                  show: Optional[Show]=None,
                  previously_downloaded: Optional[bool]=None,

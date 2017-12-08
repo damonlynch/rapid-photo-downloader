@@ -1123,10 +1123,10 @@ class TemporalProximityModel(QAbstractTableModel):
             else:
                 return proximity_row.proximity, proximity_row.new_file, invalid_row, invalid_rows
 
-        elif role == Roles.uid:
+        elif role == Roles.uids:
             prow = self.groups.row_span_for_column_starts_at_row[(row, 2)]
             uids = self.groups.uids.uids(2)[prow]
-            return uids[0]
+            return uids
 
         elif role == Qt.ToolTipRole:
             thumbnails = self.rapidApp.thumbnailModel.thumbnails
@@ -1629,8 +1629,8 @@ class TemporalProximityView(QTableView):
                 do_selection = False
                 thumbnailView = self.rapidApp.thumbnailView
                 model = self.model()
-                uid = model.data(index, Roles.uid)
-                thumbnailView.scrollToUid(uid=uid)
+                uids = model.data(index, Roles.uids)
+                thumbnailView.scrollToUids(uids=uids)
 
         if do_selection:
             self.temporalProximityWidget.block_update_device_display = True
@@ -1656,8 +1656,8 @@ class TemporalProximityView(QTableView):
             thumbnailView = self.rapidApp.thumbnailView
             thumbnailView.setScrollTogether(False)
             model = self.model()
-            uid = model.data(index, Roles.uid)
-            thumbnailView.scrollToUid(uid=uid)
+            uids = model.data(index, Roles.uids)
+            thumbnailView.scrollToUids(uids=uids)
             thumbnailView.setScrollTogether(True)
 
 

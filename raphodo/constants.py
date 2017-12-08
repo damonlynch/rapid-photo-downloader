@@ -294,7 +294,7 @@ class Roles(IntEnum):
     device_type = Qt.UserRole + 19
     download_statuses = Qt.UserRole + 20
     job_code = Qt.UserRole + 21
-    uid = Qt.UserRole + 22
+    uids = Qt.UserRole + 22
 
 
 class ExtractionTask(Enum):

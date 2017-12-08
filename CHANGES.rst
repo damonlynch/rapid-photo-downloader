@@ -4,7 +4,7 @@ Changelog for Rapid Photo Downloader
 0.9.6 (2017-12-07)
 ------------------
 
- - Updated Czech, Dutch, Russian, and Spanish translations.
+ - Updated Czech, Dutch, Hungarian, Russian, and Spanish translations.
 
 0.9.6b2 (2017-12-05)
 --------------------
