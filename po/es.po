@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-12-05 23:19+0000\n"
+"POT-Creation-Date: 2017-12-08 01:08-0500\n"
 "PO-Revision-Date: 2017-12-06 17:39+0000\n"
 "Last-Translator: Jose Luis Tirado <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2017-12-07 06:36+0000\n"
 "X-Generator: Launchpad (build 18511)\n"
-"Language: es\n"
 
 #: ../install.py:65
 msgid "Rapid Photo Downloader installer"
@@ -74,8 +74,7 @@ msgstr "Se debe activar el repositorio Universe"
 #: ../install.py:645
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
-msgstr ""
-"¿Desea desinstalar la versiones anteriores de Rapid Photo Downloader?:"
+msgstr "¿Desea desinstalar la versiones anteriores de Rapid Photo Downloader?:"
 
 #: ../install.py:754 ../install.py:779
 msgid ""
@@ -277,8 +276,7 @@ msgstr "Falló al copiar página man."
 
 #: ../install.py:1558
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
-msgstr ""
-"(si se produce un fallo de segmentación al salir, puede ignorarlo...)"
+msgstr "(si se produce un fallo de segmentación al salir, puede ignorarlo...)"
 
 #: ../install.py:1571
 msgid ""
@@ -300,8 +298,7 @@ msgstr ""
 
 #: ../install.py:1622 ../install.py:1636
 msgid "Do not include any other command line arguments when specifying"
-msgstr ""
-"No incluir ningún otro parámetro de la línea de órdenes al especificar"
+msgstr "No incluir ningún otro parámetro de la línea de órdenes al especificar"
 
 #: ../install.py:1651
 msgid ""
@@ -408,20 +405,20 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr "Falló la actualización. Pulse Cerrar para salir."
 
-#: ../upgrade.py:7114
+#: ../upgrade.py:7121
 #, python-format
 msgid "Upgrading %s..."
 msgstr "Actualizando %s..."
 
-#: ../upgrade.py:7116
+#: ../upgrade.py:7123
 msgid "Press any key to continue..."
 msgstr "Pulse cualquier tecla para continuar..."
 
-#: ../upgrade.py:7129
+#: ../upgrade.py:7136
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr "Falló la actualización de Rapid Photo Downloader"
 
-#: ../upgrade.py:7131
+#: ../upgrade.py:7138
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
@@ -464,8 +461,8 @@ msgstr "Detectar automáticamente dispositivos de copia de seguridad"
 
 #: ../raphodo/backuppanel.py:424
 msgid ""
-"Specify the folder in which backups are stored on the "
-"device.<br><br><i>Note: the presence of a folder with this name is used to "
+"Specify the folder in which backups are stored on the device."
+"<br><br><i>Note: the presence of a folder with this name is used to "
 "determine if the device is used for backups. For each device you wish to use "
 "for backing up to, create a folder in it with one of these folder names. By "
 "adding both folders, the same device can be used to back up both photos and "
@@ -492,8 +489,7 @@ msgid "Example:"
 msgstr "Ejemplo:"
 
 #: ../raphodo/backuppanel.py:460
-msgid ""
-"If you disable automatic detection, choose the exact backup locations."
+msgid "If you disable automatic detection, choose the exact backup locations."
 msgstr ""
 "Si se desactiva la detección automática, elegir la ubicación exacta para la "
 "copia de seguridad."
@@ -881,10 +877,10 @@ msgstr ""
 "según sus metadatos (cuando estén disponible) o según el sistema de "
 "archivos\n"
 "(como alternativa).</li>\n"
-"<li><b>Estado marcado:</b> si el archivo está marcado para ser "
-"descargado.</li>\n"
-"<li><b>Nombre de archivo:</b> el nombre completo, incluyendo la "
-"extensión.</li>\n"
+"<li><b>Estado marcado:</b> si el archivo está marcado para ser descargado.</"
+"li>\n"
+"<li><b>Nombre de archivo:</b> el nombre completo, incluyendo la extensión.</"
+"li>\n"
 "<li><b>Extensión:</b> la extensión del nombre de archivo. Puede usarla para "
 "agrupar imágenes  jpeg y raw, \n"
 "por ejemplo.</li>\n"
@@ -920,12 +916,12 @@ msgid ""
 "different types\n"
 "of directory:\n"
 "<ol>\n"
-"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, "
-"&quot;Photos&quot;, or\n"
+"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, &quot;"
+"Photos&quot;, or\n"
 "&quot;Videos&quot;. This directory should already exist on your computer. In "
 "the illustration \n"
-"below, the destination folders are &quot;Pictures&quot; and "
-"&quot;Videos&quot;. The\n"
+"below, the destination folders are &quot;Pictures&quot; and &quot;"
+"Videos&quot;. The\n"
 "name of the destination folder is displayed in the grey bar directly above "
 "the folder tree, \n"
 "with a folder icon to its left and a gear icon to its far right.</li>\n"
@@ -942,12 +938,12 @@ msgstr ""
 "dos tipos\n"
 "diferentes de directorios:\n"
 "<ol>\n"
-"<li>La <b>carpeta de destino</b>, por ejeplo &quot;Imágenes&quot;, "
-"&quot;Fotos&quot; o\n"
+"<li>La <b>carpeta de destino</b>, por ejeplo &quot;Imágenes&quot;, &quot;"
+"Fotos&quot; o\n"
 "&quot;Vídeos&quot;. Este directorio debería existir ya en su equipo. En la "
 "imagen\n"
-"inferior, las carpetas de destino son &quot;Imágenes&quot; y "
-"&quot;Vídeos&quot;. El\n"
+"inferior, las carpetas de destino son &quot;Imágenes&quot; y &quot;"
+"Vídeos&quot;. El\n"
 "nombre de la carpeta de destino se muestra en la barra gris directamente "
 "sobre el árbol de \n"
 "carpetas, con un icono de carpeta a su izquierda y un icono de engranaje en "
@@ -1061,8 +1057,8 @@ msgstr ""
 "<li>Un <b>código de trabajo</b>, que es un texto libre que se introduce en "
 "el momento de la descarga, tal como\n"
 "el nombre de un evento o ubicación.</li>\n"
-"<li><b>Texto</b> que desea que aparezca cada vez, como un guión o un "
-"espacio.</li>\n"
+"<li><b>Texto</b> que desea que aparezca cada vez, como un guión o un espacio."
+"</li>\n"
 "</ol>\n"
 "Nombrar las subcarpetas con el año, seguido del mes y finalmente el día en "
 "formato numérico hace\n"
@@ -1080,12 +1076,12 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"Para crear automáticamente subcarpetas de descarga según se descargan, puede "
-"\n"
+"Para crear automáticamente subcarpetas de descarga según se descargan, "
+"puede \n"
 "usar una las configuraciones predefinidas en Rapid Photo Downloader o crear "
 "una personalizada.\n"
-"Haga clic el icono del engranaje para abrir el menú desplegable:            "
-"\n"
+"Haga clic el icono del engranaje para abrir el menú "
+"desplegable:            \n"
 "            "
 
 #: ../raphodo/didyouknow.py:256
@@ -1177,9 +1173,8 @@ msgstr ""
 "\n"
 "Lea más sobre todas las maneras en las que puede generar nombres de "
 "subcarpetas de descarga y nombres\n"
-"de archivo en la <a "
-"href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime\">documen"
-"tación en línea</a>.\n"
+"de archivo en la <a href=\"http://damonlynch.net/rapid/documentation/"
+"#renamedateandtime\">documentación en línea</a>.\n"
 "            "
 
 #: ../raphodo/didyouknow.py:302
@@ -1247,8 +1242,8 @@ msgstr ""
 "\n"
 "Cuando asigna nombres de archivos únicos a sus fotos y vídeos no tendrá "
 "dudas en saber \n"
-"qué archivo es cada uno. ¡Es muy recomendable usar <b>número de "
-"secuencia</b> para crear nombres de archivos únicos!\n"
+"qué archivo es cada uno. ¡Es muy recomendable usar <b>número de secuencia</"
+"b> para crear nombres de archivos únicos!\n"
 "            "
 
 #: ../raphodo/didyouknow.py:338
@@ -1258,8 +1253,8 @@ msgid ""
 "names to your photos and \n"
 "videos:\n"
 "<ol>\n"
-"<li><b>Downloads today</b>: tracks downloads completed during that "
-"day.</li>\n"
+"<li><b>Downloads today</b>: tracks downloads completed during that day.</"
+"li>\n"
 "<li><b>Stored number</b>: similar to Downloads today, but it is remembered "
 "from the last time the  \n"
 "program was run.</li>\n"
@@ -1280,15 +1275,15 @@ msgstr ""
 "día.</li>\n"
 "<li><b>Número almacenado</b>: similar al anterior, pero recuerda el valor de "
 "la última ejecución del programa.</li>\n"
-"<li><b>Número de sesión</b>: se reinicia cada vez que el programa se "
-"ejecuta.</li>\n"
+"<li><b>Número de sesión</b>: se reinicia cada vez que el programa se ejecuta."
+"</li>\n"
 "<li><b>Letra de secuencia</b>: es como el número de sesión, pero usando "
 "letras.</li>\n"
 "</ol></p>\n"
 "<p>\n"
 "Lea más sobre números de secuencia en la <a \n"
-"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers\">documenta"
-"ción en línea</a>.</p>\n"
+"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers"
+"\">documentación en línea</a>.</p>\n"
 "            "
 
 #: ../raphodo/didyouknow.py:356
@@ -1398,8 +1393,8 @@ msgid ""
 "memory cards, and other devices.</li>\n"
 "<li>A <b>temporary cache</b> of files downloaded from a camera, one for "
 "photos and another for \n"
-"videos. They are located in temporary subfolders in the download "
-"destination.</li>\n"
+"videos. They are located in temporary subfolders in the download destination."
+"</li>\n"
 "<li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo Downloader "
 "stores thumbnails of \n"
 "RAW and TIFF photos once they have been downloaded. File browsers like Gnome "
@@ -1431,8 +1426,8 @@ msgstr ""
 "archivos. \n"
 "</li>\n"
 "</ol>\n"
-"Lea más sobre estas cachés y su efecto en al velocidad de descarga en la <a "
-"\n"
+"Lea más sobre estas cachés y su efecto en al velocidad de descarga en la "
+"<a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#caches\">documentación en "
 "línea</a>.\n"
 "            "
@@ -1637,8 +1632,8 @@ msgstr "Problema en Rapid Photo Downloader"
 #, python-brace-format
 msgid ""
 "<b>A problem occurred in Rapid Photo Downloader</b><br><br>\n"
-"    Please report the problem at <a "
-"href=\"{website}\">{website}</a>.<br><br>\n"
+"    Please report the problem at <a href=\"{website}\">{website}</a>."
+"<br><br>\n"
 "    Attach the log file <i>{log_file}</i> to your bug report (click\n"
 "    <a href=\"{log_path}\">here</a> to open the log directory).<br><br>If "
 "the same problem occurs\n"
@@ -1646,12 +1641,12 @@ msgid ""
 "    "
 msgstr ""
 "<b>Ha ocurrido un problema en Rapid Photo Downloader</b><br><br>\n"
-"    Por favor, reporte el problema a <a "
-"href=\"{website}\">{website}</a>.<br><br>\n"
+"    Por favor, reporte el problema a <a href=\"{website}\">{website}</a>."
+"<br><br>\n"
 "    Adjunte el archivo de trazas <i>{log_file}</i> a su informe de error "
 "(haga clic\n"
-"    <a href=\"{log_path}\">aquí</a> para abrir el directorio de "
-"trazas).<br><br>Si el mismo problema ocurre\n"
+"    <a href=\"{log_path}\">aquí</a> para abrir el directorio de trazas)."
+"<br><br>Si el mismo problema ocurre\n"
 "    de nuevo antes de que el programa termine esta será la única "
 "notificación que reciba.\n"
 "    "
@@ -1674,7 +1669,7 @@ msgstr ""
 "en {log_path}\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1743
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1756
 msgid "Open in File Browser..."
 msgstr "Abrir en el Explorador de archivos..."
 
@@ -2288,8 +2283,7 @@ msgstr ""
 "nuevo o existente."
 
 #: ../raphodo/jobcodepanel.py:187
-msgid ""
-"The new Job Code will be applied to all selected photos and/or videos."
+msgid "The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 "Se aplicará un nuevo código de trabajo a todas las fotos y vídeos "
 "seleccionadas."
@@ -2485,16 +2479,16 @@ msgstr "Guardar configuración - Rapid Photo Downloader"
 
 #: ../raphodo/nameeditor.py:1365
 msgid ""
-"<b>Do you want to save the changes in a new custom "
-"preset?</b><br><br>Creating a custom preset is not required, but can help "
-"you keep organized.<br><br>The changes to the preferences will still be "
-"applied regardless of whether you create a new custom preset or not."
+"<b>Do you want to save the changes in a new custom preset?</"
+"b><br><br>Creating a custom preset is not required, but can help you keep "
+"organized.<br><br>The changes to the preferences will still be applied "
+"regardless of whether you create a new custom preset or not."
 msgstr ""
-"<b>¿Desea guardar los cambios en una nueva configuración "
-"personalizada?</b><br><br>No es obligatorio crear configuraciones "
-"personalizadas, pero le pueden ayudar a mantenerse organizado.<br><br>Los "
-"cambios a las preferencias se aplicarán independientemente de si crea una "
-"nueva configuración personalizada o no."
+"<b>¿Desea guardar los cambios en una nueva configuración personalizada?</"
+"b><br><br>No es obligatorio crear configuraciones personalizadas, pero le "
+"pueden ayudar a mantenerse organizado.<br><br>Los cambios a las preferencias "
+"se aplicarán independientemente de si crea una nueva configuración "
+"personalizada o no."
 
 #: ../raphodo/nameeditor.py:1374
 msgid ""
@@ -2503,11 +2497,11 @@ msgid ""
 "preset.<br><br>The changes to the preferences will still be applied "
 "regardless of whether you save a custom preset or not."
 msgstr ""
-"<b>¿Desea guardar los cambios en una nueva configuración "
-"personalizada?</b><br><br>Si así lo desea, puede crear una nueva "
-"configuración personalizada o actualizar una existente.<br><br>Los cambios a "
-"las preferencias se aplicarán independientemente de si crea una nueva "
-"configuración personalizada o no."
+"<b>¿Desea guardar los cambios en una nueva configuración personalizada?</"
+"b><br><br>Si así lo desea, puede crear una nueva configuración personalizada "
+"o actualizar una existente.<br><br>Los cambios a las preferencias se "
+"aplicarán independientemente de si crea una nueva configuración "
+"personalizada o no."
 
 #: ../raphodo/nameeditor.py:1381
 msgid "Save New Custom Preset"
@@ -2746,13 +2740,11 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:239
 msgid ""
-"Use python-style <a "
-"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\">regula"
-"r expressions</a>"
+"Use python-style <a href=\"http://damonlynch.net/rapid/documentation/"
+"#regularexpressions\">regular expressions</a>"
 msgstr ""
-"Usar  <a "
-"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\">expres"
-"iones regulares</a> tipo python."
+"Usar  <a href=\"http://damonlynch.net/rapid/documentation/#regularexpressions"
+"\">expresiones regulares</a> tipo python."
 
 #: ../raphodo/preferencedialog.py:243
 msgid ""
@@ -2972,8 +2964,7 @@ msgid "Backup destinations are missing"
 msgstr "Faltan destinos de copias de seguridad"
 
 #: ../raphodo/preferencedialog.py:502
-msgid ""
-"Warn before starting a download if it is not possible to back up files."
+msgid "Warn before starting a download if it is not possible to back up files."
 msgstr ""
 "Avisar antes de comenzar a descargar si no es posible hacer la copia de "
 "seguridad de los archivos."
@@ -3298,8 +3289,7 @@ msgstr "Escriba una ruta para ignorar"
 
 #: ../raphodo/preferencedialog.py:1498
 msgid "Specify a path that will never be scanned for photos or videos"
-msgstr ""
-"Especifique una ruta que nunca se escaneará en busca de fotos o vídeos"
+msgstr "Especifique una ruta que nunca se escaneará en busca de fotos o vídeos"
 
 #: ../raphodo/preferencedialog.py:1499
 msgid "Path:"
@@ -4071,8 +4061,8 @@ msgid ""
 "            <a href=\"{log_path}\">here</a> to open the log directory).\n"
 "            "
 msgstr ""
-"Por favor, informe del problema en <a "
-"href=\"{website}\">{website}</a>.<br><br>\n"
+"Por favor, informe del problema en <a href=\"{website}\">{website}</a>."
+"<br><br>\n"
 "            Adjunte el archivo de trazas <i>{log_file}</i> a su informe "
 "(haga clic\n"
 "            <a href=\"{log_path}\">aquí</a> para abrir el directorio de "
@@ -4376,17 +4366,17 @@ msgstr ""
 #: ../raphodo/rapid.py:4248
 #, python-format
 msgid ""
-"<b>The %(camera)s appears to be in use by another "
-"application.</b><br><br>You can close any other application (such as a file "
-"browser) that is using it and try again. If that does not work, unplug the "
-"%(camera)s from the computer and plug it in again.<br><br>Alternatively, you "
-"can ignore this device."
+"<b>The %(camera)s appears to be in use by another application.</"
+"b><br><br>You can close any other application (such as a file browser) that "
+"is using it and try again. If that does not work, unplug the %(camera)s from "
+"the computer and plug it in again.<br><br>Alternatively, you can ignore this "
+"device."
 msgstr ""
 "<b>La %(camera)s parece estar en uso por otra aplicación.</b><br><br>Puede "
 "cerrar cualquier otra aplicación (tal como un explorador de archivos) que "
 "esté usando e intentarlo de nuevo. Si eso no funciona, desconecte la "
-"%(camera)s del equipo y vuelva a enchufarla de "
-"nuevo.<br><br>Alternativamente, puede ignorar este dispositivo."
+"%(camera)s del equipo y vuelva a enchufarla de nuevo."
+"<br><br>Alternativamente, puede ignorar este dispositivo."
 
 #: ../raphodo/rapid.py:4259
 msgid "&Try Again"
@@ -4422,24 +4412,24 @@ msgstr "La exploración del dispositivo ha fallado."
 #: ../raphodo/rapid.py:4729
 #, python-format
 msgid ""
-"<b>The %(camera)s cannot be scanned because it cannot be "
-"unmounted.</b><br><br>You can close any other application (such as a file "
-"browser) that is using it and try again. If that does not work, unplug the "
-"%(camera)s from the computer and plug it in again."
+"<b>The %(camera)s cannot be scanned because it cannot be unmounted.</"
+"b><br><br>You can close any other application (such as a file browser) that "
+"is using it and try again. If that does not work, unplug the %(camera)s from "
+"the computer and plug it in again."
 msgstr ""
-"<b>La %(camera)s no se puede escanear porque no es posible "
-"desmontar</b><br><br>Puede cerrar cualquier otra aplicación (tal como un "
-"explorador de archivos) que esté usando e intentarlo de nuevo. Si eso no "
-"funciona, desconecte la %(camera)s del equipo y vuelva a enchufarla de nuevo."
+"<b>La %(camera)s no se puede escanear porque no es posible desmontar</"
+"b><br><br>Puede cerrar cualquier otra aplicación (tal como un explorador de "
+"archivos) que esté usando e intentarlo de nuevo. Si eso no funciona, "
+"desconecte la %(camera)s del equipo y vuelva a enchufarla de nuevo."
 
 #: ../raphodo/rapid.py:4754
 #, python-format
 msgid ""
-"<b>The download cannot start because the %(camera)s cannot be "
-"unmounted.</b><br><br>You can close any other application (such as a file "
-"browser) that is using it and try again. If that does not work, unplug the "
-"%(camera)s from the computer and plug it in again, and choose which files "
-"you want to download from it."
+"<b>The download cannot start because the %(camera)s cannot be unmounted.</"
+"b><br><br>You can close any other application (such as a file browser) that "
+"is using it and try again. If that does not work, unplug the %(camera)s from "
+"the computer and plug it in again, and choose which files you want to "
+"download from it."
 msgstr ""
 "<b>La descarga no puede comenzar porque no es posible desmontar la "
 "%(camera)s.</b><br><br>Puede cerrar cualquier otra aplicación (tal como un "
@@ -4495,8 +4485,8 @@ msgstr ""
 msgid ""
 "<b>Do you want to ignore the device %s whenever this program is run?</b>"
 msgstr ""
-"<b>¿Quiere ignorar el dispositivo %s cada vez que se ejecute este "
-"programa?</b>"
+"<b>¿Quiere ignorar el dispositivo %s cada vez que se ejecute este programa?</"
+"b>"
 
 #: ../raphodo/rapid.py:5201
 msgid "Any device with the same name will be ignored."
@@ -4654,8 +4644,7 @@ msgid "Ignore photos with the following extensions: %s"
 msgstr "Ignorar fotos con las siguientes extensiones: %s"
 
 #: ../raphodo/rapid.py:5831
-msgid ""
-"Turn on or off starting downloads as soon as the program itself starts."
+msgid "Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 "Activar o desactivar el inicio de las descargas tan pronto como el propio "
 "programa se inicie."
@@ -4732,8 +4721,7 @@ msgstr "Importando preferencia de Rapid Photo Downloader %(version)s"
 
 #: ../raphodo/rapid.py:5999
 #, python-format
-msgid ""
-"Do you want to copy the stored sequence number, which has the value %d?"
+msgid "Do you want to copy the stored sequence number, which has the value %d?"
 msgstr ""
 "¿Quiere copiar los números de secuencia almacenados, que tienen el valor %d?"
 
@@ -4968,22 +4956,22 @@ msgstr "<br><br>Descarga previas:<br>%(filename)s<br>%(path)s<br>%(date)s"
 #, python-format
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
 msgstr ""
-"<br><br><i>Establecer manualmente como descargados previamente el "
-"%(date)s</i>"
+"<br><br><i>Establecer manualmente como descargados previamente el %(date)s</"
+"i>"
 
-#: ../raphodo/thumbnaildisplay.py:1745
+#: ../raphodo/thumbnaildisplay.py:1758
 msgid "Copy Path"
 msgstr "Copiar ruta"
 
 #. Translators: 'File' here applies to a single file. The command allows users to instruct
 #. Rapid Photo Downloader that photos and videos have been previously downloaded by
 #. another application.
-#: ../raphodo/thumbnaildisplay.py:1750
+#: ../raphodo/thumbnaildisplay.py:1763
 msgid "Mark File as Downloaded"
 msgstr "Marcar archivo como descargado"
 
 #. Translators: 'Files' here applies to two or more files
-#: ../raphodo/thumbnaildisplay.py:1753
+#: ../raphodo/thumbnaildisplay.py:1766
 msgid "Mark Files as Downloaded"
 msgstr "Marcar archivos como descargados"
 
@@ -5205,8 +5193,8 @@ msgstr "Descargador de fotos"
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/net.damonlynch.rapid-photo-downloader.desktop.in.h:5
 msgid ""
-"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
-";card;"
+"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
+"memory;card;"
 msgstr ""
 "foto;descarga;fotografía;importar;vídeo;RAW;cámara;teléfono;ingesta;copia de "
 "seguridad;memoria;tarjeta;"
@@ -5215,7 +5203,6 @@ msgstr ""
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 
-#, python-format
 #~ msgid "<i>Example: %s</i>"
 #~ msgstr "<i>Ejemplo: %s</i>"
 
@@ -5225,7 +5212,6 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "and"
 #~ msgstr "y"
 
-#, python-format
 #~ msgid "and %s"
 #~ msgstr "y %s"
 
@@ -5277,7 +5263,6 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "Name + extension"
 #~ msgstr "Nombre + extensión"
 
-#, python-format
 #~ msgid ""
 #~ "Source: %(source)s\n"
 #~ "Destination: %(destination)s"
@@ -5396,7 +5381,6 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "_Add..."
 #~ msgstr "_Añadir…"
 
-#, python-format
 #~ msgid "Source: %(source)s"
 #~ msgstr "Origen: %(source)s"
 
@@ -5406,7 +5390,6 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "Remove all Job Codes?"
 #~ msgstr "¿Borrar todos los Códigos de Trabajo?"
 
-#, python-format
 #~ msgid "Destination directory could not be created: %(directory)s\n"
 #~ msgstr "El directorio de destino no puede ser creado: %(directory)s\n"
 
@@ -5422,7 +5405,6 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "Sydney"
 #~ msgstr "Sídney"
 
-#, python-format
 #~ msgid ""
 #~ "%(date)s\n"
 #~ "%(time)s"
@@ -5430,27 +5412,21 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "%(date)s\n"
 #~ "%(time)s"
 
-#, python-format
 #~ msgid "%(date)s %(time)s"
 #~ msgstr "%(date)s %(time)s"
 
-#, python-format
 #~ msgid "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 #~ msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
-#, python-format
 #~ msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 #~ msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
-#, python-format
 #~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
 #~ msgstr "%(number)s de %(total)s %(filetypes)s (%(remaining)s restantes)"
 
-#, python-format
 #~ msgid "%(number)s of %(total)s %(filetypes)s"
 #~ msgstr "%(number)s de %(total)s %(filetypes)s"
 
-#, python-format
 #~ msgid "Error: %(inst)s"
 #~ msgstr "Error: %(inst)s"
 
@@ -5476,8 +5452,8 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "Specify whether photo, video and folder names should have any characters "
 #~ "removed that are not allowed by other operating systems."
 #~ msgstr ""
-#~ "Especifique si se debería de retirar algún caracter no permitido por otros "
-#~ "sistemas operativos de los nombres de las fotos, vídeos y carpetas."
+#~ "Especifique si se debería de retirar algún caracter no permitido por "
+#~ "otros sistemas operativos de los nombres de las fotos, vídeos y carpetas."
 
 #~ msgid "Video Rename"
 #~ msgstr "Renombrar vídeo"
@@ -5508,15 +5484,12 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "."
 #~ msgstr "."
 
-#, python-format
 #~ msgid "(%(file_type)s)"
 #~ msgstr "(%(file_type)s)"
 
-#, python-format
 #~ msgid "%(free)s %(file_type)s"
 #~ msgstr "%(free)s %(file_type)s"
 
-#, python-format
 #~ msgid "%(freespace)s. %(backuppaths)s."
 #~ msgstr "%(freespace)s. %(backuppaths)s."
 
@@ -5529,7 +5502,6 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "All settings and preferences have been reset"
 #~ msgstr "Todas las opciones y preferencias se han reestablecido"
 
-#, python-format
 #~ msgid ""
 #~ "%(problem)s\n"
 #~ "File: %(file)s"
@@ -5537,27 +5509,21 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "%(problem)s\n"
 #~ "Archivo: %(file)s"
 
-#, python-format
 #~ msgid "An error occurred when copying the %(filetype)s"
 #~ msgstr "Ocurrió un error al copiar el/los %(filetype)s"
 
-#, python-format
 #~ msgid "%(filetype)s already exists"
 #~ msgstr "%(filetype)s ya existe"
 
-#, python-format
 #~ msgid "Error: %(errorno)s %(strerror)s"
 #~ msgstr "Error: %(errorno)s %(strerror)s"
 
-#, python-format
 #~ msgid "%s, "
 #~ msgstr "%s, "
 
-#, python-format
 #~ msgid "Folder: %s"
 #~ msgstr "Carpeta: %s"
 
-#, python-format
 #~ msgid "Path: %s"
 #~ msgstr "Ruta: %s"
 
@@ -5581,123 +5547,103 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "Download cannot proceed"
 #~ msgstr "No se puede iniciar la descarga"
 
-#, python-format
 #~ msgid "%(file_type)s download folder does not exist"
 #~ msgstr "%(file_type)s directorio de descarga no existe"
 
-#, python-format
 #~ msgid "%(file_type)s download folder is not writable"
 #~ msgstr "%(file_type)s imposible escribir en directorio de descarga"
 
-#, python-format
 #~ msgid "%(file_type)s download folder is invalid"
 #~ msgstr "%(file_type)s directorio de descarga es incorrecto"
 
 #~ msgid "Should all Job Codes be removed?"
 #~ msgstr "¿Quitar todos los Codigos de Trabajo?"
 
-#, python-format
 #~ msgid ""
 #~ "The %(filetype)s subfolder preferences entered are invalid and cannot be "
 #~ "used.\n"
 #~ "They will be reset to their default values."
 #~ msgstr ""
-#~ "El %(filetype)s las preferencias para el subdirectorio son incorrectas y no "
-#~ "pueden ser utilizadas.\n"
+#~ "El %(filetype)s las preferencias para el subdirectorio son incorrectas y "
+#~ "no pueden ser utilizadas.\n"
 #~ "Se ajustaran a los valores por defecto"
 
 #~ msgid ""
 #~ "<i><b>Warning:</b> There is insufficient metadata to fully generate "
 #~ "subfolders. Please use other subfolder naming options.</i>"
 #~ msgstr ""
-#~ "<i><b>Atencion:</b> No hay suficientes metadatos para crear subdirectorios. "
-#~ "Por favor utilice otro nombre para el subdirectorio.</i>"
+#~ "<i><b>Atencion:</b> No hay suficientes metadatos para crear "
+#~ "subdirectorios. Por favor utilice otro nombre para el subdirectorio.</i>"
 
-#, python-format
 #~ msgid "%(filetype)s metadata cannot be read"
 #~ msgstr "%(filetype)s no se pueden leer los metadatos"
 
-#, python-format
 #~ msgid "Date time value %s appears invalid."
 #~ msgstr "Fecha y hora %s parecen incorrectos."
 
-#, python-format
 #~ msgid "Error generating component %s."
 #~ msgstr "Error generando componente %s."
 
-#, python-format
 #~ msgid "There is no data with which to name the %(filetype)s."
 #~ msgstr "No hay datos que coincidan con el nombre del %(filetype)s."
 
 #~ msgid "The metadata might be corrupt."
 #~ msgstr "Los metadatos parecen corruptos."
 
-#, python-format
 #~ msgid "%(volume)s, "
 #~ msgstr "%(volume)s, "
 
-#, python-format
 #~ msgid "%(volume)s (%(inst)s), "
 #~ msgstr "%(volume)s (%(inst)s), "
 
-#, python-format
 #~ msgid "An error occurred when backing up on %(volume)s."
 #~ msgstr "Ocurrio un error al realizar la copia de seguridad en %(volume)s."
 
-#, python-format
 #~ msgid "%(volumes)s and %(volume)s (%(inst)s)."
 #~ msgstr "%(volumes)s y %(volume)s (%(inst)s)."
 
-#, python-format
 #~ msgid "%(volumes)s and %(final_volume)s."
 #~ msgstr "%(volumes)s y %(final_volume)s."
 
-#, python-format
 #~ msgid "%(volumes)s and %(volume)s."
 #~ msgstr "%(volumes)s y %(volume)s."
 
 #~ msgid "Backups overwritten on these devices: "
 #~ msgstr "Sobreescritas copias de seguridad en estos dispositivos: "
 
-#, python-format
 #~ msgid "Backup overwritten on %(volume)s."
 #~ msgstr "Sobreescrita copia de seguridad en %(volume)s."
 
-#, python-format
 #~ msgid "%(previousproblem)s Additionally, %(newproblem)s"
 #~ msgstr "%(previousproblem)s Adicionalmente, %(newproblem)s"
 
-#, python-format
 #~ msgid "Backup already exists on %(volume)s."
 #~ msgstr "La copia de seguridad ya existe en %(volume)s."
 
 #~ msgid ""
-#~ "Errors occurred when creating directories on the following backup devices: "
+#~ "Errors occurred when creating directories on the following backup "
+#~ "devices: "
 #~ msgstr ""
 #~ "Ocurrió un error al crear los directorios en los dispositivos de copia de "
 #~ "seguridad: "
 
-#, python-format
 #~ msgid "An error occurred when creating directories on %(volume)s: %(inst)s."
 #~ msgstr "Ocurrió un error al crear los directorios en %(volume)s: %(inst)s."
 
-#, python-format
 #~ msgid "Problem in %s generation"
 #~ msgstr "Problema al %s crear"
 
-#, python-format
 #~ msgid "Problems in %s generation"
 #~ msgstr "Problemas al %s crear"
 
-#, python-format
 #~ msgid "%(filetype)s already exists, but it was backed up"
 #~ msgstr "%(filetype)s ya existen, pero fue realizada copia de seguridad"
 
-#, python-format
-#~ msgid "An error occurred when copying the %(filetype)s, but it was backed up"
+#~ msgid ""
+#~ "An error occurred when copying the %(filetype)s, but it was backed up"
 #~ msgstr ""
-#~ "Un error ocurrió al copiar los %(filetype)s, pero fue realizada una copia de "
-#~ "seguridad"
+#~ "Un error ocurrió al copiar los %(filetype)s, pero fue realizada una copia "
+#~ "de seguridad"
 
 #~ msgid "Problems in subfolder and filename generation"
 #~ msgstr "Problemas al crear subdirectorio y nombre de archivo"
@@ -5705,18 +5651,19 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "Problem in subfolder and filename generation"
 #~ msgstr "Problema al crear subdirectorio y nombre de archivo"
 
-#, python-format
-#~ msgid "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
+#~ msgid ""
+#~ "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
 #~ msgstr "%(missing_metadata_elements)s y %(final_missing_metadata_element)s."
 
-#~ msgid "Photos detected with the same filenames, but taken at different times"
+#~ msgid ""
+#~ "Photos detected with the same filenames, but taken at different times"
 #~ msgstr ""
-#~ "Fotos detectadas con el mismo nombre de archivo, pero tomadas a distinta hora"
+#~ "Fotos detectadas con el mismo nombre de archivo, pero tomadas a distinta "
+#~ "hora"
 
 #~ msgid "Photo has already been downloaded"
 #~ msgstr "La fotografia ya ha sido descargada"
 
-#, python-format
 #~ msgid "%(previousproblem)s, and %(backinguperror)s"
 #~ msgstr "%(previousproblem)s, y %(backinguperror)s"
 
@@ -5761,8 +5708,8 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "automatically created in this folder using the structure specified below."
 #~ msgstr ""
 #~ "Seleccione una carpeta para descargas. Las subcarpetas para descargar "
-#~ "fotografías serán creadas automáticamente en la carpeta usando la estructura "
-#~ "especificada abajo."
+#~ "fotografías serán creadas automáticamente en la carpeta usando la "
+#~ "estructura especificada abajo."
 
 #~ msgid "Backup"
 #~ msgstr "Copia de seguridad"
@@ -5771,8 +5718,8 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "Choose the download folder. Subfolders for the downloaded videos will be "
 #~ "automatically created in this folder using the structure specified below."
 #~ msgstr ""
-#~ "Seleccione una carpeta para descargas. Las subcarpetas para descargar videos "
-#~ "serán creadas automáticamente en la carpeta usando la estructura "
+#~ "Seleccione una carpeta para descargas. Las subcarpetas para descargar "
+#~ "videos serán creadas automáticamente en la carpeta usando la estructura "
 #~ "especificada abajo."
 
 #~ msgid "Generate thumbnails (slower)"
@@ -5785,11 +5732,11 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgstr "Directorio de descarga"
 
 #~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the photos "
-#~ "and videos."
+#~ "If you disable automatic detection, choose the exact location of the "
+#~ "photos and videos."
 #~ msgstr ""
-#~ "Si se desactiva la detección automática, elegir la ubicación exacta para las "
-#~ "fotografías y videos."
+#~ "Si se desactiva la detección automática, elegir la ubicación exacta para "
+#~ "las fotografías y videos."
 
 #~ msgid "Performance"
 #~ msgstr "Prestaciones"
@@ -5819,13 +5766,13 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgstr "Extraer (\"eject\") el dispositivo al concluir la descarga"
 
 #~ msgid ""
-#~ "When a photo or video of the same name has already been downloaded, choose "
-#~ "whether to skip downloading the file, or to add a unique indentifier."
+#~ "When a photo or video of the same name has already been downloaded, "
+#~ "choose whether to skip downloading the file, or to add a unique "
+#~ "indentifier."
 #~ msgstr ""
 #~ "Cuando una fotografía o video ha sido ya descargada, elegir omitirla "
 #~ "descarga del archivo o añadir un identificador único."
 
-#, python-format
 #~ msgid "%(free)s free"
 #~ msgstr "%(free)s disponible"
 
@@ -5849,7 +5796,8 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 
 #~ msgid "Select a folder in which to backup photos"
 #~ msgstr ""
-#~ "Seleccione una carpeta en la que se hará una copia de seguridad de las fotos"
+#~ "Seleccione una carpeta en la que se hará una copia de seguridad de las "
+#~ "fotos"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Device Options</span>"
 #~ msgstr ""
@@ -5857,7 +5805,8 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 
 #~ msgid "Select a folder in which to backup videos"
 #~ msgstr ""
-#~ "Seleccione una carpeta en la que se hará una copia de seguridad de los vídeos"
+#~ "Seleccione una carpeta en la que se hará una copia de seguridad de los "
+#~ "vídeos"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Renombrar Foto</span>\t"
@@ -5871,15 +5820,15 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
 #~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Carpetas de Descargas de Vídeos</span>"
+#~ "<span weight=\"bold\" size=\"x-large\">Carpetas de Descargas de Vídeos</"
+#~ "span>"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Renombrar Vídeo</span>\t"
 
-#, python-format
 #~ msgid ""
-#~ "This regular expression is invalid, and will be removed unless you correct "
-#~ "it:\n"
+#~ "This regular expression is invalid, and will be removed unless you "
+#~ "correct it:\n"
 #~ " %s"
 #~ msgstr ""
 #~ "Esta expresión regular no es válida, y se eliminará a menos que use una "
@@ -5890,14 +5839,13 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "When backing up, choose whether to overwrite a file on the backup device "
 #~ "that has the same name, or skip backing it up."
 #~ msgstr ""
-#~ "Cuando haga copia de seguridad, elija si desea sobrescribir un archivo en el "
-#~ "dispositivo de copia de seguridad que tenga el mismo nombre, o salte hacer "
-#~ "respaldo."
+#~ "Cuando haga copia de seguridad, elija si desea sobrescribir un archivo en "
+#~ "el dispositivo de copia de seguridad que tenga el mismo nombre, o salte "
+#~ "hacer respaldo."
 
 #~ msgid "_Translate this Application..."
 #~ msgstr "_Traducir esta aplicación…"
 
-#, python-format
 #~ msgid "%(device)s did not unmount"
 #~ msgstr "%(device)s no se desmontó"
 
@@ -5907,7 +5855,6 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "Import your photos and videos efficiently and reliably"
 #~ msgstr "Descargue sus fotografías y vídeos de forma eficaz y segura"
 
-#, python-format
 #~ msgid ""
 #~ "The following regular expressions are invalid, and will be removed unless "
 #~ "you correct them:\n"
@@ -5921,20 +5868,19 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "If you enable automatic detection of Portable Storage Devices, the entire "
 #~ "device will be scanned. On large devices, this could take some time.\n"
 #~ "\n"
-#~ "When this option is enabled, and a potential device is detected, you will be "
-#~ "prompted to determine if it should be scanned or not."
+#~ "When this option is enabled, and a potential device is detected, you will "
+#~ "be prompted to determine if it should be scanned or not."
 #~ msgstr ""
 #~ "Si activa la detección automática de dispositivos de almacenamiento "
 #~ "externos, se analizara el dispositivo completo. En dispositivos de gran "
 #~ "capacidad, esto puede llevar algún tiempo.\n"
 #~ "\n"
-#~ "Cuando está opción esté habilitada y se detecte un dispositivo potencial, se "
-#~ "preguntara si desea analizarlo o no."
+#~ "Cuando está opción esté habilitada y se detecte un dispositivo potencial, "
+#~ "se preguntara si desea analizarlo o no."
 
 #~ msgid "Automatically rotate JPEG images"
 #~ msgstr "Rotar automáticamente las imágenes JPEG"
 
-#, python-format
 #~ msgid "Downloading from %(location)s."
 #~ msgstr "Descargando desde %(location)s."
 
@@ -5942,20 +5888,20 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "Devices are from where to download photos and videos, such as cameras, "
 #~ "memory cards or Portable Storage Devices.\n"
 #~ "\n"
-#~ "You can download from multiple devices simultaneously, or you can specify a "
-#~ "location on your hard drive.\n"
+#~ "You can download from multiple devices simultaneously, or you can specify "
+#~ "a location on your hard drive.\n"
 #~ "\n"
-#~ "<i>Downloading directly from cameras is currently an experimental feature. "
-#~ "If downloading directly from your camera works poorly or not at all, try "
-#~ "setting it to PTP mode. If that is not possible, a card reader must be "
-#~ "used.</i>"
+#~ "<i>Downloading directly from cameras is currently an experimental "
+#~ "feature. If downloading directly from your camera works poorly or not at "
+#~ "all, try setting it to PTP mode. If that is not possible, a card reader "
+#~ "must be used.</i>"
 #~ msgstr ""
 #~ "Los dispositivos son de donde se puede descargar las fotos y los vídeos, "
 #~ "como cámaras, tarjetas de memorias o Dispositivos de Almacenamiento "
 #~ "Portables.\n"
 #~ "\n"
-#~ "Puede descargar desde múltiples dispositivos a la vez, o puede especificar "
-#~ "una localización en su disco duro.\n"
+#~ "Puede descargar desde múltiples dispositivos a la vez, o puede "
+#~ "especificar una localización en su disco duro.\n"
 #~ "\n"
 #~ "<i>Descargar directamente desde cámara es actualmente una característica "
 #~ "experimental. Si la descarga desde su cámara funciona mal o no funciona, "
@@ -5963,13 +5909,13 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "lector de tarjetas.</i>"
 
 #~ msgid ""
-#~ "Sorry, video downloading functionality disabled. To download videos, please "
-#~ "install either the <i>hachoir metadata</i> and <i>kaa metadata</i> packages "
-#~ "for python, or <i>exiftool</i>."
+#~ "Sorry, video downloading functionality disabled. To download videos, "
+#~ "please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> "
+#~ "packages for python, or <i>exiftool</i>."
 #~ msgstr ""
-#~ "Lo sentimos, la funcionalidad de descarga de vídeos está desactivada. Para "
-#~ "descargar los vídeos, por favor instale <i>hachoir metadata</i> y <i>kaa "
-#~ "metadata</i> paquetes de python, o <i>exiftool</i>."
+#~ "Lo sentimos, la funcionalidad de descarga de vídeos está desactivada. "
+#~ "Para descargar los vídeos, por favor instale <i>hachoir metadata</i> y "
+#~ "<i>kaa metadata</i> paquetes de python, o <i>exiftool</i>."
 
 #~ msgid "the root of the file system"
 #~ msgstr "la raíz del sistema de archivos"
@@ -5977,7 +5923,6 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "scanning..."
 #~ msgstr "analizando…"
 
-#, python-format
 #~ msgid "About %i seconds remaining"
 #~ msgstr "Quedan aproximadamente %i segundos"
 
@@ -5991,10 +5936,9 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "Do you really want to download from here? On some systems, scanning this "
 #~ "location can take a very long time."
 #~ msgstr ""
-#~ "¿Quiere realmente descargar desde aquí? En algunos sistemas, analizar esta "
-#~ "ubicación puede tardar mucho tiempo."
+#~ "¿Quiere realmente descargar desde aquí? En algunos sistemas, analizar "
+#~ "esta ubicación puede tardar mucho tiempo."
 
-#, python-format
 #~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 #~ msgstr "Quedan aproximadamente %(minutes)i:%(seconds)02i minutos"
 
@@ -6007,7 +5951,6 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "Auto Detect"
 #~ msgstr "Detectar automáticamente"
 
-#, python-format
 #~ msgid "Select a folder containing %(file_types)s"
 #~ msgstr "Elija un directorio que contenga %(file_types)s"
 
@@ -6029,34 +5972,31 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "Using backup devices"
 #~ msgstr "Usando dispositivos de copia de seguridad"
 
-#, python-format
 #~ msgid "Backing up photos and videos to %(path)s"
 #~ msgstr "Respaldando fotos y vídeos en %(path)s"
 
-#, python-format
 #~ msgid "Backing up to %(path)s"
 #~ msgstr "Respaldando en %(path)s"
 
-#, python-format
 #~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
 #~ msgstr "Respaldando fotos en %(path)s y vídeos en %(path2)s"
 
-#, python-format
 #~ msgid ""
 #~ "display program information on the command line as the program runs "
 #~ "(default: %default)"
 #~ msgstr ""
-#~ "mostrar información del programa en la línea de órdenes mientras se ejecuta "
-#~ "el programa (predet.: %default)"
+#~ "mostrar información del programa en la línea de órdenes mientras se "
+#~ "ejecuta el programa (predet.: %default)"
 
 #~ msgid "display debugging information when run from the command line"
 #~ msgstr ""
-#~ "mostrar información de depuración cuando se ejecute desde la línea de órdenes"
+#~ "mostrar información de depuración cuando se ejecute desde la línea de "
+#~ "órdenes"
 
 #~ msgid ""
-#~ "Remembered paths are those associated with devices that you have chosen to "
-#~ "always scan or ignore when automatic detection of Portable Storage Devices "
-#~ "is enabled."
+#~ "Remembered paths are those associated with devices that you have chosen "
+#~ "to always scan or ignore when automatic detection of Portable Storage "
+#~ "Devices is enabled."
 #~ msgstr ""
 #~ "Recordar las rutas asociadas con los dispositivos elegidos para escanear "
 #~ "siempre o ignorar cuando automáticamente es detectado un dispositivo de "
@@ -6064,8 +6004,8 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 
 #~ msgid ""
 #~ "Specify the ending portion of any paths you want ignored when scanning "
-#~ "devices for photos or videos. Any path ending with the values below will not "
-#~ "be scanned."
+#~ "devices for photos or videos. Any path ending with the values below will "
+#~ "not be scanned."
 #~ msgstr ""
 #~ "Especificar las carpetas o dispositivos a ignorar al escanear en busca de "
 #~ "fotos o videos. Las que estén marcadas no serán exploradas."
@@ -6077,27 +6017,26 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "Specify the folder in which backups are stored on the device.  \n"
 #~ "\n"
 #~ "<i>Note: this will also be used to determine whether or not the device is "
-#~ "used for backups. For each device you wish to use for backing up to, create "
-#~ "a folder in it with one of these names.</i>"
+#~ "used for backups. For each device you wish to use for backing up to, "
+#~ "create a folder in it with one of these names.</i>"
 #~ msgstr ""
 #~ "Especificar la carpeta en la cual se realiza la copia de seguridad en el "
 #~ "dispositivo.  \n"
 #~ " \n"
 #~ "<i>Nota: esto también será utilizado para determinar si el dispositivo se "
 #~ "está utilizado para la copia de seguridad o no. Para cada dispositivo que "
-#~ "desee utilizar para realizar la copia seguridad, cree una carpeta con uno de "
-#~ "estos nombres.</i>"
+#~ "desee utilizar para realizar la copia seguridad, cree una carpeta con uno "
+#~ "de estos nombres.</i>"
 
-#, python-format
 #~ msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
 #~ msgstr "analizando (se encontraron %(photos)s fotos y %(videos)s vídeos)…"
 
 #~ msgid ""
-#~ "manually specify the PATH of the device from which to download, overwriting "
-#~ "existing program preferences"
+#~ "manually specify the PATH of the device from which to download, "
+#~ "overwriting existing program preferences"
 #~ msgstr ""
-#~ "especificar manualmente de que dispositivos descargar, sobreescribiendo las "
-#~ "preferencias existentes del programa"
+#~ "especificar manualmente de que dispositivos descargar, sobreescribiendo "
+#~ "las preferencias existentes del programa"
 
 #~ msgid ""
 #~ "automatically detect devices from which to download, overwriting existing "
@@ -6134,17 +6073,14 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "An unknown error occurred"
 #~ msgstr "Ocurrió un error desconocido"
 
-#, python-format
 #~ msgid "No backup device contains a valid folder for backing up %(filetype)s"
 #~ msgstr ""
 #~ "Ningún dispositivo de respaldo contiene una carpeta válida para respaldar "
 #~ "%(filetype)s"
 
-#, python-format
 #~ msgid "%(file_type)s not backed up"
 #~ msgstr "%(file_type)s sin respaldar"
 
-#, python-format
 #~ msgid "Backup of %(file_type)s already exists"
 #~ msgstr "Ya existe un respaldo de %(file_type)s"
 
@@ -6160,19 +6096,15 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "Jakarta"
 #~ msgstr "Yakarta"
 
-#, python-format
 #~ msgid "Backup %(file_type)s overwritten"
 #~ msgstr "Copia de seguridad %(file_type)s sobreescrita"
 
-#, python-format
 #~ msgid "The %(filetype)s did not download correctly"
 #~ msgstr "El %(filetype)s no se descargó correctamente"
 
-#, python-format
 #~ msgid "%(filetype)s %(area)s could not be generated"
 #~ msgstr "%(filetype)s %(area)s no se pudieron generar"
 
-#, python-format
 #~ msgid ""
 #~ "%(filetype)s could not be backed up because no suitable backup locations "
 #~ "were found."
@@ -6180,19 +6112,16 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "%(filetype)s no se hizo copia de seguridad porque no se encontró una "
 #~ "ubicación donde realizarla."
 
-#, python-format
 #~ msgid "%(filetype)s was already downloaded"
 #~ msgstr "%(filetype)s ya están descargadas"
 
-#, python-format
 #~ msgid ""
-#~ "The existing %(filetype)s was last modified on %(date)s at %(time)s. Unique "
-#~ "identifier '%(identifier)s' added."
+#~ "The existing %(filetype)s was last modified on %(date)s at %(time)s. "
+#~ "Unique identifier '%(identifier)s' added."
 #~ msgstr ""
 #~ "El existente %(filetype)s fue modificado por última vez el %(date)s a las "
 #~ "%(time)s. Identificador único '%(identifier)s' añadido."
 
-#, python-format
 #~ msgid "The existing %(filetype)s was last modified on %(date)s at %(time)s."
 #~ msgstr ""
 #~ "El existente %(filetype)s fue modificado por última vez el %(date)s a las "
@@ -6209,17 +6138,16 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "The filename, extension and Exif information indicate it has already been "
 #~ "downloaded."
 #~ msgstr ""
-#~ "El nombre de archivo, extensión y la información Exif indican que ya ha sido "
-#~ "descargado."
+#~ "El nombre de archivo, extensión y la información Exif indican que ya ha "
+#~ "sido descargado."
 
-#, python-format
 #~ msgid " It was backed up to %(volume)s"
 #~ msgstr " Se realizó una copia de seguridad de los datos en %(volume)s"
 
 #~ msgid " It was backed up to these devices: "
-#~ msgstr " Se realizó una copia de seguridad de los datos en este dispositivo "
+#~ msgstr ""
+#~ " Se realizó una copia de seguridad de los datos en este dispositivo "
 
-#, python-format
 #~ msgid ""
 #~ "Photos detected with the same filenames, but taken at different times: "
 #~ "%(details)s"
@@ -6227,11 +6155,10 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "Detectadas fotos con el mismo nombre, pero distinta fecha de realización: "
 #~ "%(details)s"
 
-#, python-format
 #~ msgid "An error occurred when backing up on %(volume)s: %(inst)s."
 #~ msgstr ""
-#~ "Ocurrió un error durante la creación de la copia de seguridad en %(volume)s: "
-#~ "%(inst)s."
+#~ "Ocurrió un error durante la creación de la copia de seguridad en "
+#~ "%(volume)s: %(inst)s."
 
 #~ msgid "Errors occurred when backing up on the following backup devices: "
 #~ msgstr ""
@@ -6241,19 +6168,16 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ msgid "Backups already exist in these locations: "
 #~ msgstr "Las copias de seguridad están en este directorio: "
 
-#, python-format
 #~ msgid ""
-#~ "File verification failed on %(volume)s. The backed up version is different "
-#~ "from the downloaded version."
+#~ "File verification failed on %(volume)s. The backed up version is "
+#~ "different from the downloaded version."
 #~ msgstr ""
-#~ "La comprobación del archivo falló en %(volume)s. La versión de la copia de "
-#~ "seguridad es diferente de la versión descargada."
+#~ "La comprobación del archivo falló en %(volume)s. La versión de la copia "
+#~ "de seguridad es diferente de la versión descargada."
 
-#, python-format
 #~ msgid " Furthermore, there were %(problems)s."
 #~ msgstr " Además, se encontrarón %(problems)s."
 
-#, python-format
 #~ msgid " Furthermore, there was a %(problem)s."
 #~ msgstr " Además, se encontró %(problem)s."
 
@@ -6279,5 +6203,5 @@ msgstr "Descargue fotos y vídeos con Rapid Photo Downloader"
 #~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
 #~ "sequence number should be reset."
 #~ msgstr ""
-#~ "Especifique la hora en formato de 24 horas en la que el número de secuencia "
-#~ "de las <i> Descargas de hoy </i>, debe ser restablecido."
+#~ "Especifique la hora en formato de 24 horas en la que el número de "
+#~ "secuencia de las <i> Descargas de hoy </i>, debe ser restablecido."
