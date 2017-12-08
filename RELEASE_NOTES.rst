@@ -1,5 +1,12 @@
-Release Notes for Rapid Photo Downloader 0.9.6b2
-================================================
+Release Notes for Rapid Photo Downloader 0.9.6
+==============================================
+
+ - If you installed Rapid Photo Downloader using the install script, you can
+   update it one of two ways: using the install script again, or using the
+   built-in update procedure. The built-in update procedure is very
+   convenient, but somtimes is limited in terms of what it can update. If you
+   use the install script to update the program, it can update more supporting
+   packages, which can sometimes prove helpful.
 
  - On some systems, Rapid Photo Downloader cannot use gstreamer to generate
    video thumbnails for all common video files. Install the good and libav

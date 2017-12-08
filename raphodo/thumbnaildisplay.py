@@ -1308,6 +1308,10 @@ class ThumbnailListModel(QAbstractListModel):
                                   proximity_col2=self.proximity_col2,
                                   marked=marked, file_type=file_type)
 
+    def getFirstUidFromUidList(self, uids: List[bytes]) -> Optional[bytes]:
+        return None
+        # return self.tsql.get_first_uid_from_uid_list()
+
     def getDisplayedCount(self, scan_id: Optional[int] = None,
                           marked: Optional[bool] = None) -> int:
         return self.tsql.get_count(scan_id=scan_id, downloaded=False, show=self.show,
@@ -1683,13 +1687,22 @@ class ThumbnailView(QListView):
             for row in range(top.row(), bottom.row() + 1):
                 yield row
 
-    def scrollToUid(self, uid: bytes) -> None:
+    def scrollToUids(self, uids: List[bytes]) -> None:
         """
-        Scroll to this uid in the Thumbnail Display
-        :param uid: uid to scroll to
-        """
+        Scroll the Thumbnail Display to the first visible uid from the list of uids.
 
-        model = self.model()
+        Remember not all uids are necessarily visible in the Thumbnail Display,
+        because of filtering.
+
+        :param uids: list of uids to scroll to
+        """
+        model = self.model()  # type: ThumbnailListModel
+        if self.rapidApp.showOnlyNewFiles():
+            uid = self.getFirstUidFromUidList(uids=uids)
+            if uid is None:
+                return
+        else:
+            uid = uids[0]
         row = model.uid_to_row[uid]
         index = model.index(row, 0)
         self.scrollTo(index, QAbstractItemView.PositionAtTop)

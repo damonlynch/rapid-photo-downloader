@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-12-05 01:25-0500\n"
-"PO-Revision-Date: 2017-11-18 15:44+0000\n"
-"Last-Translator: Tobias Bannert <tobannert@gmail.com>\n"
+"POT-Creation-Date: 2017-12-08 01:08-0500\n"
+"PO-Revision-Date: 2017-12-05 08:07+0000\n"
+"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-12-05 05:28+0000\n"
+"X-Launchpad-Export-Date: 2017-12-07 06:36+0000\n"
 "X-Generator: Launchpad (build 18511)\n"
 
 #: ../install.py:65
@@ -373,41 +373,41 @@ msgstr "python requests werden installiert"
 msgid "Upgrade Rapid Photo Downloader"
 msgstr "Rapid-Fotoübertragung aktualisieren"
 
-#: ../upgrade.py:445 ../raphodo/viewutils.py:242
+#: ../upgrade.py:446 ../raphodo/viewutils.py:242
 msgid "&Cancel"
 msgstr "Abbre&chen"
 
-#: ../upgrade.py:449
+#: ../upgrade.py:450
 msgid "&Upgrade"
 msgstr "&Aktualisieren"
 
-#: ../upgrade.py:454
+#: ../upgrade.py:455
 #, python-format
 msgid "Click the Upgrade button to upgrade to version %s."
 msgstr ""
 "Bitte den Upgrade button anklicken, um auf Version %s zu aktualisieren."
 
-#: ../upgrade.py:457
+#: ../upgrade.py:458
 msgid "Click the Upgrade button to start the upgrade."
 msgstr "Bitte den Upgrade button anklicken, um die Aktualisierung zu beginnen."
 
-#: ../upgrade.py:460 ../upgrade.py:466 ../raphodo/viewutils.py:241
+#: ../upgrade.py:461 ../upgrade.py:467 ../raphodo/viewutils.py:241
 msgid "&Close"
 msgstr "&Schließen"
 
-#: ../upgrade.py:461
+#: ../upgrade.py:462
 msgid "&Run"
 msgstr "RPD Starten"
 
-#: ../upgrade.py:491
+#: ../upgrade.py:492
 msgid "Close Rapid Photo Downloader before running this upgrade"
 msgstr "Bitte vor der Aktualisierung die Rapid-Fotoübertragung schließen"
 
-#: ../upgrade.py:494
+#: ../upgrade.py:495
 msgid "Upgrade running..."
 msgstr "Die Aktualisierung läuft …"
 
-#: ../upgrade.py:530
+#: ../upgrade.py:531
 #, python-format
 msgid ""
 "Successfully upgraded to %s. Click Close to exit, or Run to start the "
@@ -417,7 +417,7 @@ msgstr ""
 "'Schließen' klicken, zum Starten des aktualisierten Programms bitte 'Start' "
 "anklicken."
 
-#: ../upgrade.py:535
+#: ../upgrade.py:536
 msgid ""
 "Upgrade finished successfully. Click Close to exit, or Run to start the "
 "program."
@@ -425,26 +425,26 @@ msgstr ""
 "Die Aktualisierung war erfolgreich. Zum Beenden bitte auf 'Schließen' "
 "klicken, zum Starten des aktualisierten Programms bitte 'Start' anklicken."
 
-#: ../upgrade.py:539
+#: ../upgrade.py:540
 msgid "Upgrade failed. Click Close to exit."
 msgstr ""
 "Die Aktualisierung hat nicht funktioniert. Zum beenden bitte 'Schließen' "
 "anklicken."
 
-#: ../upgrade.py:7107
+#: ../upgrade.py:7121
 #, python-format
 msgid "Upgrading %s..."
 msgstr "%s wird aktualisiert …"
 
-#: ../upgrade.py:7109
+#: ../upgrade.py:7123
 msgid "Press any key to continue..."
 msgstr "Bitte eine Taste drücken, um fortzufahren …"
 
-#: ../upgrade.py:7122
+#: ../upgrade.py:7136
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr "Rapid Photo Downloader Aktualisierung fehlgeschlagen"
 
-#: ../upgrade.py:7124
+#: ../upgrade.py:7138
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
@@ -1665,7 +1665,7 @@ msgstr ""
 "    Fügen Sie die Log-Datei zur Fehlermeldung hinzu, siehe {log_path}\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1744
+#: ../raphodo/filebrowse.py:124 ../raphodo/thumbnaildisplay.py:1756
 msgid "Open in File Browser..."
 msgstr "In Dateiverwaltung öffnen …"
 
@@ -3720,7 +3720,7 @@ msgstr "%(month)s  %(year)s"
 msgid "%(month)s %(year)s"
 msgstr "%(month)s %(year)s"
 
-#: ../raphodo/proximity.py:1672
+#: ../raphodo/proximity.py:1678
 msgid ""
 "The time elapsed between consecutive photos and videos that is used to build "
 "the Timeline"
@@ -3732,26 +3732,26 @@ msgstr ""
 #. Replace the very last character (after the d) with the correct
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
-#: ../raphodo/proximity.py:1729
+#: ../raphodo/proximity.py:1735
 #, python-format
 msgid "%(minutes)dm"
 msgstr "%(minutes)dm"
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
-#: ../raphodo/proximity.py:1733
+#: ../raphodo/proximity.py:1739
 msgid "1.5h"
 msgstr "1.5h"
 
 #. Translators: e.g. "5h", which is short for 5 hours.
 #. Replace the very last character (after the d) with the correct localized value,
 #. keeping everything else. In other words, change only the h character.
-#: ../raphodo/proximity.py:1738
+#: ../raphodo/proximity.py:1744
 #, python-format
 msgid "%(hours)dh"
 msgstr "%(hours)dh"
 
-#: ../raphodo/proximity.py:1789
+#: ../raphodo/proximity.py:1795
 msgid ""
 "The Timeline groups photos and videos based on how much time elapsed between "
 "consecutive shots. Use it to identify photos and videos taken at different "
@@ -3762,7 +3762,7 @@ msgstr ""
 "identifizieren, die zu verschiedenen Zeiten an einem Tag oder an "
 "aufeinanderfolgenden Tagen entstanden sind."
 
-#: ../raphodo/proximity.py:1794
+#: ../raphodo/proximity.py:1800
 msgid ""
 "Use the slider (below) to adjust the time elapsed between consecutive shots "
 "that is used to build the Timeline."
@@ -3771,15 +3771,15 @@ msgstr ""
 "aufeinanderfolgenden Aufnahmen anzupassen, die benutzt wird, um die "
 "Zeitleiste zu erzeugen."
 
-#: ../raphodo/proximity.py:1797
+#: ../raphodo/proximity.py:1803
 msgid "Timeline build pending..."
 msgstr "Zeitleiste wird gleich erstellt …"
 
-#: ../raphodo/proximity.py:1798
+#: ../raphodo/proximity.py:1804
 msgid "Timeline is building..."
 msgstr "Zeitleiste wird erstellt …"
 
-#: ../raphodo/proximity.py:1800
+#: ../raphodo/proximity.py:1806
 msgid ""
 "The Timeline needs to be rebuilt because the file modification time does not "
 "match the time a shot was taken for one or more shots.<br><br>The Timeline "
@@ -3799,7 +3799,7 @@ msgstr ""
 "Datei. Beim Erstellen der Vorschaubilder bzw. beim Übertragen oder Bilder "
 "wird dann die echte Aufnahmezeit aus den Metadaten ausgelesen."
 
-#: ../raphodo/proximity.py:1882
+#: ../raphodo/proximity.py:1888
 msgid "Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)"
 msgstr ""
 
@@ -4934,19 +4934,19 @@ msgstr "<br><br>Vorherige Übertragung:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:1746
+#: ../raphodo/thumbnaildisplay.py:1758
 msgid "Copy Path"
 msgstr "Pfad kopieren"
 
 #. Translators: 'File' here applies to a single file. The command allows users to instruct
 #. Rapid Photo Downloader that photos and videos have been previously downloaded by
 #. another application.
-#: ../raphodo/thumbnaildisplay.py:1751
+#: ../raphodo/thumbnaildisplay.py:1763
 msgid "Mark File as Downloaded"
 msgstr "Datei als heruntergeladen kennzeichnen"
 
 #. Translators: 'Files' here applies to two or more files
-#: ../raphodo/thumbnaildisplay.py:1754
+#: ../raphodo/thumbnaildisplay.py:1766
 msgid "Mark Files as Downloaded"
 msgstr "Dateien als heruntergeladen kennzeichnen"
 
