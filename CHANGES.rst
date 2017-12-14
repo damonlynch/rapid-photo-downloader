@@ -1,6 +1,13 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.7b1 (2017-12-xx)
+--------------------
+
+ - Fix bug #1737287: Don't allow identical entries in subfolder generation and
+   file renaming presets, where the preset names differ but their content is
+   the same.
+
 0.9.6 (2017-12-08)
 ------------------
 

@@ -640,6 +640,9 @@ class RapidWindow(QMainWindow):
                         "Version downgrade detected, from %s to %s",
                         __about__.__version__, previous_version
                     )
+                if pv < pkg_resources.parse_version('0.9.7b1'):
+                    # Remove any duplicate subfolder generation or file renaming custom presets
+                    self.prefs.filter_duplicate_generation_prefs()
 
     def startThreadControlSockets(self) -> None:
         """
