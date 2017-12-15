@@ -812,7 +812,7 @@ class RapidWindow(QMainWindow):
             self.updateThumbnailModelAfterProximityChange
         )
 
-        self.file_manager = get_default_file_manager()
+        self.file_manager, self.file_manager_type = get_default_file_manager()
         if self.file_manager:
             logging.info("Default file manager: %s", self.file_manager)
         else:

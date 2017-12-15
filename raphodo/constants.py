@@ -430,6 +430,11 @@ class StandardFileLocations(Enum):
     downloads = 8
 
 
+class FileManagerType(Enum):
+    regular = 1
+    select = 2
+
+
 max_remembered_destinations = 10
 
 ThumbnailBackgroundName = MediumGray

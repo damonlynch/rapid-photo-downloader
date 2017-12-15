@@ -4,6 +4,10 @@ Changelog for Rapid Photo Downloader
 0.9.7b1 (2017-12-xx)
 --------------------
 
+ - When opening a file in KDE's Dolphin file manager, select the file
+   (and thus highlight it), like is done with Gnome Files and several other
+   file managers.
+
  - Fix bug #1737287: Don't allow identical entries in subfolder generation and
    file renaming presets, where the preset names differ but their content is
    the same.
