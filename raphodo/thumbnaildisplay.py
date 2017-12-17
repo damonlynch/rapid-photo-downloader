@@ -2075,12 +2075,15 @@ class ThumbnailDelegate(QStyledItemDelegate):
     def oneOrMoreNotDownloaded(self) -> Tuple[int, Plural]:
         i = 0
         selectedIndexes = self.selectedIndexes()
-        noSelected = len(selectedIndexes)
-        for index in selectedIndexes:
-            if not index.data(Roles.previously_downloaded):
-                i += 1
-                if i == 2:
-                    break
+        if selectedIndexes is None:
+            noSelected = 0
+        else:
+            noSelected = len(selectedIndexes)
+            for index in selectedIndexes:
+                if not index.data(Roles.previously_downloaded):
+                    i += 1
+                    if i == 2:
+                        break
 
         if i == 0:
             return noSelected, Plural.zero
@@ -2211,7 +2214,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         else:
             logging.debug("Not applying job code because no files selected")
 
-    def selectedIndexes(self):
+    def selectedIndexes(self) -> Optional[List[QModelIndex]]:
         selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
         if selection.hasSelection():
             selected = selection.selection()  # type: QItemSelection

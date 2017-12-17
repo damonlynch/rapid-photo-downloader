@@ -4,6 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.7b1 (2017-12-xx)
 --------------------
 
+ - Fix bug #1738174: Don't crash when right clicking in thumbnail checkbox
+   and no thumbnail is selected.
+
  - Fix bug #1737416: Don't scan cameras when browsing "This Computer", and
    detect if a camera mount has been passed via the command line (which can
    happen when the program automatically launches in response to a camera
