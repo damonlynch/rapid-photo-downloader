@@ -90,7 +90,7 @@ from raphodo.problemnotification import (
     CameraFileReadProblem, FileMetadataLoadProblem, FileWriteProblem, FsMetadataReadProblem,
     FileZeroLengthProblem
 )
-from raphodo.storage import get_uri, CameraDetails
+from raphodo.storage import get_uri, CameraDetails, gvfs_gphoto2_path
 
 FileInfo = namedtuple('FileInfo', 'path modification_time size ext_lower base_name file_type')
 CameraFile = namedtuple('CameraFile', 'name size')
@@ -393,6 +393,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         for dir_name, dir_list, file_list in walk(path_to_walk):
             if len(dir_list) > 0:
+                # Do not scan gvfs gphoto2 mount
+                dir_list[:] = (d for d in dir_list if not gvfs_gphoto2_path(dir_name + d))
+
                 if self.scan_preferences.ignored_paths:
                     # Don't inspect paths the user wants ignored
                     # Altering subdirs in place controls the looping

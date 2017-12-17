@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Display file system folders and allow the user to select one
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016, Damon Lynch"
+__copyright__ = "Copyright 2016-2017, Damon Lynch"
 
 import os
 import pathlib
@@ -32,14 +32,19 @@ import subprocess
 
 from gettext import gettext as _
 
-from PyQt5.QtCore import (QDir, Qt, QModelIndex, QItemSelectionModel, QSortFilterProxyModel, QPoint)
-from PyQt5.QtWidgets import (QTreeView, QAbstractItemView, QFileSystemModel, QSizePolicy,
-                             QStyledItemDelegate, QStyleOptionViewItem, QMenu)
+from PyQt5.QtCore import (
+    QDir, Qt, QModelIndex, QItemSelectionModel, QSortFilterProxyModel, QPoint
+)
+from PyQt5.QtWidgets import (
+    QTreeView, QAbstractItemView, QFileSystemModel, QSizePolicy, QStyledItemDelegate,
+    QStyleOptionViewItem, QMenu
+)
 from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import (QPainter, QFont)
+from PyQt5.QtGui import QPainter, QFont
 
 import raphodo.qrc_resources as qrc_resources
-from raphodo.constants import (minPanelWidth, minFileSystemViewHeight, Roles)
+from raphodo.constants import minPanelWidth, minFileSystemViewHeight, Roles
+from raphodo.storage import gvfs_gphoto2_path
 
 
 class FileSystemModel(QFileSystemModel):
@@ -130,7 +135,7 @@ class FileSystemView(QTreeView):
         """
         Call only after the model has been initialized
         """
-        for i in (1,2,3):
+        for i in (1, 2, 3):
             self.hideColumn(i)
 
     def goToPath(self, path: str, scrollTo: bool=True) -> None:
@@ -205,10 +210,16 @@ class FileSystemFilter(QSortFilterProxyModel):
         self.invalidateFilter()
 
     def filterAcceptsRow(self, sourceRow: int, sourceParent: QModelIndex=None) -> bool:
+        index = self.sourceModel().index(sourceRow, 0, sourceParent)  # type: QModelIndex
+        path = index.data(QFileSystemModel.FilePathRole)  # type: str
+
+        if gvfs_gphoto2_path(path):
+            logging.debug("Rejecting browsing path %s", path)
+            return False
+
         if not self.filtered_dir_names:
             return True
 
-        index = self.sourceModel().index(sourceRow, 0, sourceParent)  # type: QModelIndex
         file_name = index.data(QFileSystemModel.FileNameRole)
         return file_name not in self.filtered_dir_names
 
@@ -217,6 +228,7 @@ class FileSystemDelegate(QStyledItemDelegate):
     """
     Italicize provisional download folders that were not already created
     """
+
     def __init__(self, parent=None):
         super().__init__(parent)
 

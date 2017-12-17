@@ -170,6 +170,24 @@ def get_media_dir() -> str:
         raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform())
 
 
+_gvfs_gphoto2 = re.compile('gvfs.*gphoto2.*host')
+
+
+def gvfs_gphoto2_path(path: str) -> bool:
+    """
+    :return: True if the path appears to be a GVFS gphoto2 path
+
+    >>> p = "/run/user/1000/gvfs/gphoto2:host=%5Busb%3A002%2C013%5D"
+    >>> gvfs_gphoto2_path(p)
+    True
+    >>> p = '/home/damon'
+    >>> gvfs_gphoto2_path(p)
+    False
+    """
+
+    return _gvfs_gphoto2.search(path) is not None
+
+
 class ValidMounts():
     r"""
     Operations to find 'valid' mount points, i.e. the places in which
