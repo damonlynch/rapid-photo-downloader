@@ -1309,8 +1309,12 @@ class ThumbnailListModel(QAbstractListModel):
                                   marked=marked, file_type=file_type)
 
     def getFirstUidFromUidList(self, uids: List[bytes]) -> Optional[bytes]:
-        return None
-        # return self.tsql.get_first_uid_from_uid_list()
+        return self.tsql.get_first_uid_from_uid_list(
+            sort_by=self.sort_by, sort_order=self.sort_order,
+            show=self.show, proximity_col1=self.proximity_col1,
+            proximity_col2=self.proximity_col2,
+            uids=uids
+        )
 
     def getDisplayedCount(self, scan_id: Optional[int] = None,
                           marked: Optional[bool] = None) -> int:
@@ -1622,6 +1626,18 @@ class ThumbnailView(QListView):
         else:
             self.verticalScrollBar().valueChanged.disconnect(self.scrollTimeline)
 
+    def _scrollTemporalProximity(self, row: Optional[int]=None,
+                                 index: Optional[QModelIndex]=None) -> None:
+        temporalProximity = self.rapidApp.temporalProximity
+        temporalProximity.setScrollTogether(False)
+        if row is None:
+            row = index.row()
+        model = self.model()
+        rows = model.rows
+        uid = rows[row][0]
+        temporalProximity.scrollToUid(uid=uid)
+        temporalProximity.setScrollTogether(True)
+
     @pyqtSlot(QMouseEvent)
     def mousePressEvent(self, event: QMouseEvent) -> None:
         """
@@ -1641,7 +1657,8 @@ class ThumbnailView(QListView):
 
         checkbox_clicked = False
         index = self.indexAt(event.pos())
-        if index.row() >= 0:
+        row = index.row()
+        if row >= 0:
             rect = self.visualRect(index)  # type: QRect
             delegate = self.itemDelegate(index)  # type: ThumbnailDelegate
             checkboxRect = delegate.getCheckBoxRect(rect)
@@ -1651,20 +1668,15 @@ class ThumbnailView(QListView):
                 checkbox_clicked = status not in Downloaded
 
         if not checkbox_clicked:
+            if self.rapidApp.prefs.auto_scroll and row >= 0:
+                self._scrollTemporalProximity(row=row)
             super().mousePressEvent(event)
 
     @pyqtSlot(int)
     def scrollTimeline(self, value) -> None:
         index = self.indexAt(self.topLeft())  # type: QModelIndex
         if index.isValid():
-            temporalProximity = self.rapidApp.temporalProximity
-            temporalProximity.setScrollTogether(False)
-            row = index.row()
-            model = self.model()
-            rows = model.rows
-            uid = rows[row][0]
-            temporalProximity.scrollToUid(uid=uid)
-            temporalProximity.setScrollTogether(True)
+            self._scrollTemporalProximity(index=index)
 
     def topLeft(self) -> QPoint:
         return QPoint(thumbnail_margin, thumbnail_margin)
@@ -1698,7 +1710,7 @@ class ThumbnailView(QListView):
         """
         model = self.model()  # type: ThumbnailListModel
         if self.rapidApp.showOnlyNewFiles():
-            uid = self.getFirstUidFromUidList(uids=uids)
+            uid = model.getFirstUidFromUidList(uids=uids)
             if uid is None:
                 return
         else:
