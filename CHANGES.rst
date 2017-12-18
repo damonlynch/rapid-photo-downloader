@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.7b1 (2017-12-xx)
+0.9.7b1 (2017-12-18)
 --------------------
 
  - Fix bug #1738174: Don't crash when right clicking in thumbnail checkbox
