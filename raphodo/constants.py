@@ -494,7 +494,8 @@ class Desktop(Enum):
     lxde = 7
     lxqt = 8
     ubuntugnome = 9
-    unknown = 10
+    popgnome = 10
+    unknown = 11
 
 
 class Distro(Enum):
