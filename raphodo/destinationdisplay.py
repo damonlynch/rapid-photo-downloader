@@ -444,8 +444,9 @@ class DestinationDisplay(QWidget):
                 pref_list = self.prefs.video_subfolder
                 generation_type = NameGenerationType.video_subfolder
 
-            prefDialog = PrefDialog(pref_defn, pref_list, generation_type, self.prefs,
-                                    self.sample_rpd_file)
+            prefDialog = PrefDialog(
+                pref_defn, pref_list, generation_type, self.prefs, self.sample_rpd_file
+            )
             if prefDialog.exec():
                 user_pref_list = prefDialog.getPrefList()
                 if not user_pref_list:

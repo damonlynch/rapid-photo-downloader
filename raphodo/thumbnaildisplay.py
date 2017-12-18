@@ -59,7 +59,9 @@ from raphodo.constants import (
     Desktop, DeviceState, extensionColor, FadeSteps, FadeMilliseconds, PaleGray, DarkGray,
     DoubleDarkGray, Plural, manually_marked_previously_downloaded, thumbnail_margin
 )
-from raphodo.storage import get_program_cache_directory, get_desktop, validate_download_folder
+from raphodo.storage import (
+    get_program_cache_directory, get_desktop, validate_download_folder, open_in_file_manager
+)
 from raphodo.utilities import (
     CacheDirs, make_internationalized_list, format_size_for_user, runs, arrow_locale
 )
@@ -1766,7 +1768,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         self.contextMenu = QMenu()
         self.openInFileBrowserAct = self.contextMenu.addAction(_('Open in File Browser...'))
-        self.openInFileBrowserAct.triggered.connect(self.doOpenInFileBrowserAct)
+        self.openInFileBrowserAct.triggered.connect(self.doOpenInFileManagerAct)
         self.copyPathAct = self.contextMenu.addAction(_('Copy Path'))
         self.copyPathAct.triggered.connect(self.doCopyPathAction)
         # Translators: 'File' here applies to a single file. The command allows users to instruct
@@ -1844,14 +1846,15 @@ class ThumbnailDelegate(QStyledItemDelegate):
             QApplication.clipboard().setText(path)
 
     @pyqtSlot()
-    def doOpenInFileBrowserAct(self) -> None:
+    def doOpenInFileManagerAct(self) -> None:
         index = self.clickedIndex
         if index:
             uri = index.model().data(index, Roles.uri)
-            cmd = '{} "{}"'.format(self.rapidApp.file_manager, uri)
-            logging.debug("Launching: %s", cmd)
-            args = shlex.split(cmd)
-            subprocess.Popen(args)
+            open_in_file_manager(
+                file_manager=self.rapidApp.file_manager,
+                file_manager_type=self.rapidApp.file_manager_type,
+                uri=uri
+            )
 
     @pyqtSlot()
     def doMarkFileDownloadedAct(self) -> None:
@@ -2072,12 +2075,15 @@ class ThumbnailDelegate(QStyledItemDelegate):
     def oneOrMoreNotDownloaded(self) -> Tuple[int, Plural]:
         i = 0
         selectedIndexes = self.selectedIndexes()
-        noSelected = len(selectedIndexes)
-        for index in selectedIndexes:
-            if not index.data(Roles.previously_downloaded):
-                i += 1
-                if i == 2:
-                    break
+        if selectedIndexes is None:
+            noSelected = 0
+        else:
+            noSelected = len(selectedIndexes)
+            for index in selectedIndexes:
+                if not index.data(Roles.previously_downloaded):
+                    i += 1
+                    if i == 2:
+                        break
 
         if i == 0:
             return noSelected, Plural.zero
@@ -2208,7 +2214,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         else:
             logging.debug("Not applying job code because no files selected")
 
-    def selectedIndexes(self):
+    def selectedIndexes(self) -> Optional[List[QModelIndex]]:
         selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
         if selection.hasSelection():
             selected = selection.selection()  # type: QItemSelection

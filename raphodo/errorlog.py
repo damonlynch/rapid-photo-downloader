@@ -50,6 +50,7 @@ from raphodo.constants import ErrorType
 from raphodo.rpdfile import RPDFile
 from raphodo.problemnotification import Problem, Problems
 from raphodo.viewutils import translateButtons
+from raphodo.storage import open_in_file_manager
 
 # ErrorLogMessage = namedtuple('ErrorLogMessage', 'title body name uri')
 
@@ -405,10 +406,11 @@ class ErrorReport(QDialog):
             index = int(fake_uri[fake_uri.find('///') + 3:])
             uri = self.uris[index]
 
-            cmd = '{} {}'.format(self.rapidApp.file_manager, uri)
-            logging.debug("Launching: %s", cmd)
-            args = shlex.split(cmd)
-            subprocess.Popen(args)
+            open_in_file_manager(
+                file_manager=self.rapidApp.file_manager,
+                file_manager_type=self.rapidApp.file_manager_type,
+                uri=uri
+            )
 
     def _saveUrls(self, text: str) -> str:
         """

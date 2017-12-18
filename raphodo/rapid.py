@@ -94,7 +94,7 @@ from raphodo.storage import (
     has_one_or_more_folders, mountPaths, get_desktop_environment, get_desktop,
     gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
     validate_source_folder, get_fdo_cache_thumb_base_directory, WatchDownloadDirs, get_media_dir,
-    StorageSpace
+    StorageSpace, gvfs_gphoto2_path
 )
 from raphodo.interprocess import (
     ScanArguments, CopyFilesArguments, RenameAndMoveFileData, BackupArguments,
@@ -640,6 +640,9 @@ class RapidWindow(QMainWindow):
                         "Version downgrade detected, from %s to %s",
                         __about__.__version__, previous_version
                     )
+                if pv < pkg_resources.parse_version('0.9.7b1'):
+                    # Remove any duplicate subfolder generation or file renaming custom presets
+                    self.prefs.filter_duplicate_generation_prefs()
 
     def startThreadControlSockets(self) -> None:
         """
@@ -809,7 +812,7 @@ class RapidWindow(QMainWindow):
             self.updateThumbnailModelAfterProximityChange
         )
 
-        self.file_manager = get_default_file_manager()
+        self.file_manager, self.file_manager_type = get_default_file_manager()
         if self.file_manager:
             logging.info("Default file manager: %s", self.file_manager)
         else:
@@ -6098,7 +6101,7 @@ def main():
             sys.exit(1)
 
         media_dir = get_media_dir()
-        auto_detect = args.path.startswith(media_dir)
+        auto_detect = args.path.startswith(media_dir) or gvfs_gphoto2_path(args.path)
         if auto_detect:
             this_computer_source = False
             this_computer_location = None

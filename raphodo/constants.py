@@ -430,6 +430,11 @@ class StandardFileLocations(Enum):
     downloads = 8
 
 
+class FileManagerType(Enum):
+    regular = 1
+    select = 2
+
+
 max_remembered_destinations = 10
 
 ThumbnailBackgroundName = MediumGray
@@ -489,7 +494,8 @@ class Desktop(Enum):
     lxde = 7
     lxqt = 8
     ubuntugnome = 9
-    unknown = 10
+    popgnome = 10
+    unknown = 11
 
 
 class Distro(Enum):

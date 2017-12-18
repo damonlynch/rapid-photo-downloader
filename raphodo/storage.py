@@ -75,7 +75,7 @@ from gi.repository import GUdev, UDisks, GLib
 
 from gettext import gettext as _
 
-from raphodo.constants import Desktop, Distro
+from raphodo.constants import Desktop, Distro, FileManagerType
 from raphodo.utilities import (
     process_running, log_os_release, remove_topmost_directory_from_path, find_mount_point
 )
@@ -168,6 +168,24 @@ def get_media_dir() -> str:
         return media_dir
     else:
         raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform())
+
+
+_gvfs_gphoto2 = re.compile('gvfs.*gphoto2.*host')
+
+
+def gvfs_gphoto2_path(path: str) -> bool:
+    """
+    :return: True if the path appears to be a GVFS gphoto2 path
+
+    >>> p = "/run/user/1000/gvfs/gphoto2:host=%5Busb%3A002%2C013%5D"
+    >>> gvfs_gphoto2_path(p)
+    True
+    >>> p = '/home/damon'
+    >>> gvfs_gphoto2_path(p)
+    False
+    """
+
+    return _gvfs_gphoto2.search(path) is not None
 
 
 class ValidMounts():
@@ -359,6 +377,8 @@ def get_desktop() -> Desktop:
         env = 'cinnamon'
     elif env == 'ubuntu:gnome':
         env = 'ubuntugnome'
+    elif env == 'pop:gnome':
+        env = 'popgnome'
     try:
         return Desktop[env]
     except KeyError:
@@ -546,7 +566,8 @@ def get_fdo_cache_thumb_base_directory() -> str:
     return os.path.join(BaseDirectory.xdg_cache_home, 'thumbnails')
 
 
-def get_default_file_manager(remove_args: bool = True) -> Optional[str]:
+def get_default_file_manager(remove_args: bool = True) -> Tuple[
+                                                        Optional[str], Optional[FileManagerType]]:
     """
     Attempt to determine the default file manager for the system
     :param remove_args: if True, remove any arguments such as %U from
@@ -558,7 +579,7 @@ def get_default_file_manager(remove_args: bool = True) -> Optional[str]:
     try:
         desktop_file = subprocess.check_output(cmd, universal_newlines=True)  # type: str
     except:
-        return None
+        return None, None
     # Remove new line character from output
     desktop_file = desktop_file[:-1]
     if desktop_file.endswith(';'):
@@ -570,21 +591,40 @@ def get_default_file_manager(remove_args: bool = True) -> Optional[str]:
             try:
                 desktop_entry = DesktopEntry(path)
             except xdg.Exceptions.ParsingError:
-                return None
+                return None, None
             try:
                 desktop_entry.parse(path)
             except:
-                return None
+                return None, None
             fm = desktop_entry.getExec()
-            if remove_args:
-                return fm.split()[0]
+            if fm.startswith('dolphin'):
+                file_manager_type = FileManagerType.select
             else:
-                return fm
+                file_manager_type = FileManagerType.regular
+            if remove_args:
+                return fm.split()[0], file_manager_type
+            else:
+                return fm, file_manager_type
 
     # Special case: LXQt
     if get_desktop() == Desktop.lxqt:
         if shutil.which('pcmanfm-qt'):
-            return 'pcmanfm-qt'
+            return 'pcmanfm-qt', FileManagerType.regular
+
+    return None, None
+
+def open_in_file_manager(file_manager: str,
+                         file_manager_type: FileManagerType,
+                         uri: str) -> None:
+    if file_manager_type == FileManagerType.regular:
+        arg = ''
+    else:
+        arg = '--select '
+
+    cmd = '{} {}"{}"'.format(file_manager, arg, uri)
+    logging.debug("Launching: %s", cmd)
+    args = shlex.split(cmd)
+    subprocess.Popen(args)
 
 
 _desktop = get_desktop()
@@ -612,7 +652,7 @@ def get_uri(full_file_name: Optional[str]=None,
         prefix = 'file://'
         if desktop_environment:
             desktop = get_desktop()
-            if full_file_name and desktop in (Desktop.mate, Desktop.kde):
+            if full_file_name and desktop == Desktop.mate:
                 full_file_name = os.path.dirname(full_file_name)
     else:
         if not desktop_environment:
@@ -637,11 +677,6 @@ def get_uri(full_file_name: Optional[str]=None,
                     prefix = 'mtp:/' + pathname2url(
                         '{}/{}'.format(camera_details.display_name, camera_details.storage_desc)
                     )
-                    # Dolphin doesn't highlight the file if it's passed.
-                    # Instead it tries to open it, but fails.
-                    # So don't pass the file, just the directory it's in.
-                    if full_file_name:
-                        full_file_name = os.path.dirname(full_file_name)
                 else:
                     logging.error("Don't know how to generate MTP prefix for %s", _desktop.name)
             else:
