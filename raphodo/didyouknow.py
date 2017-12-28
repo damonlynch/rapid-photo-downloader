@@ -428,7 +428,6 @@ href="http://damonlynch.net/rapid/documentation/#caches">online documentation</a
 # Miscellaneous Preferences
 
 
-
 class Tips:
     def __getitem__(self, item) -> str:
         if 0 > item >= len(tips):

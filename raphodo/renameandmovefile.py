@@ -809,6 +809,18 @@ class RenameMoveFileWorker(DaemonProcess):
 
         return move_succeeded
 
+    def initialise_downloads_today_stored_number(self) -> None:
+        # Synchronize QSettings instance in preferences class
+        self.prefs.sync()
+
+        # Track downloads today, using a class whose purpose is to
+        # take the value in the user prefs, increment, and then
+        # finally used to update the prefs
+        self.downloads_today_tracker = DownloadsTodayTracker(
+            day_start=self.prefs.day_start,
+            downloads_today=self.prefs.downloads_today
+        )
+
     def run(self) -> None:
         """
         Generate subfolder and filename, and attempt to move the file
@@ -826,6 +838,12 @@ class RenameMoveFileWorker(DaemonProcess):
         # suffixes to duplicate files
         self.duplicate_files = {}
 
+        self.initialise_downloads_today_stored_number()
+
+        self.sequences = gn.Sequences(
+            self.downloads_today_tracker, self.prefs.stored_sequence_no
+        )
+
         with stdchannel_redirected(sys.stderr, os.devnull):
             with exiftool.ExifTool() as self.exiftool_process:
                 while True:
@@ -839,18 +857,13 @@ class RenameMoveFileWorker(DaemonProcess):
 
                     data = pickle.loads(content) # type: RenameAndMoveFileData
                     if data.message == RenameAndMoveStatus.download_started:
-                        # Synchronize QSettings instance in preferences class
-                        self.prefs.sync()
 
-                        # Track downloads today, using a class whose purpose is to
-                        # take the value in the user prefs, increment, and then
-                        # finally used to update the prefs
-                        self.downloads_today_tracker = DownloadsTodayTracker(
-                            day_start=self.prefs.day_start,
-                            downloads_today=self.prefs.downloads_today)
+                        # reinitialize downloads today and stored sequence number
+                        # in case the user has updated them via the user interface
+                        self.initialise_downloads_today_stored_number()
+                        self.sequences.downloads_today_tracker = self.downloads_today_tracker
+                        self.sequences.stored_sequence_no = self.prefs.stored_sequence_no
 
-                        self.sequences = gn.Sequences(self.downloads_today_tracker,
-                                                  self.prefs.stored_sequence_no)
                         dl_today = self.downloads_today_tracker.get_or_reset_downloads_today()
                         logging.debug("Completed downloads today: %s", dl_today)
 

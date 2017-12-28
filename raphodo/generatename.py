@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -20,7 +20,7 @@
 ### USA
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2016, Damon Lynch"
+__copyright__ = "Copyright 2007-2017, Damon Lynch"
 
 import re
 from datetime import datetime, timedelta
@@ -35,7 +35,6 @@ locale.setlocale(locale.LC_ALL, '')
 from gettext import gettext as _
 
 from raphodo.preferences import DownloadsTodayTracker
-import raphodo.problemnotification as pn
 from raphodo.problemnotification import (
     RenamingProblems, FilenameNotFullyGeneratedProblem, make_href,
     FolderNotFullyGeneratedProblemProblem, Problem
@@ -746,7 +745,7 @@ class Sequences:
     """
 
     def __init__(self, downloads_today_tracker: DownloadsTodayTracker,
-                 stored_sequence_no: int):
+                 stored_sequence_no: int) -> None:
         self.session_sequence_no = 0
         self.sequence_letter = -1
         self.downloads_today_tracker = downloads_today_tracker
