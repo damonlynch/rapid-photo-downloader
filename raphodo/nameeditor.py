@@ -734,9 +734,9 @@ def make_sample_rpd_file(sample_job_code: str,
 
     downloads_today_tracker = DownloadsTodayTracker(
         day_start=prefs.day_start,
-        downloads_today=prefs.downloads_today)
-    sequences = gn.Sequences(downloads_today_tracker,
-                             prefs.stored_sequence_no)
+        downloads_today=prefs.downloads_today
+    )
+    sequences = gn.Sequences(downloads_today_tracker, prefs.stored_sequence_no)
     if sample_rpd_file is not None:
         if sample_rpd_file.metadata is None:
             logging.debug('Sample file is missing its metadata')

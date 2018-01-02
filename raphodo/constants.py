@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2017, Damon Lynch"
+__copyright__ = "Copyright 2007-2018, Damon Lynch"
 
 from enum import (Enum, IntEnum)
 from PyQt5.QtCore import Qt
@@ -411,7 +411,7 @@ proximity_time_steps = [5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 480, 960, 1440
 
 class TemporalProximityState(Enum):
     empty = 1
-    pending = 2
+    pending = 2  # e.g. 2 devices scanning, only 1 scan finished
     generating = 3
     regenerate = 4
     generated = 5

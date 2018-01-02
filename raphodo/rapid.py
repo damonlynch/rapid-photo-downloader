@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -29,7 +29,7 @@ Project line length: 100 characters (i.e. word wrap at 99)
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2017, Damon Lynch"
+__copyright__ = "Copyright 2011-2018, Damon Lynch"
 
 import sys
 import logging
@@ -2577,7 +2577,7 @@ class RapidWindow(QMainWindow):
         """
         Respond to This Computer Toggle Switch
 
-        :param on: whether swich is on or off
+        :param on: whether switch is on or off
         """
 
         if on:
@@ -2597,14 +2597,15 @@ class RapidWindow(QMainWindow):
         """
         Respond to Devices Toggle Switch
 
-        :param on: whether swich is on or off
+        :param on: whether switch is on or off
         """
 
         self.prefs.device_autodetection = on
         if not on:
             for scan_id in list(self.devices.volumes_and_cameras):
                 self.removeDevice(scan_id=scan_id, adjust_temporal_proximity=False)
-            if len(self.devices) == 0:
+            state = self.proximityStatePostDeviceRemoval()
+            if state == TemporalProximityState.empty:
                 self.temporalProximity.setState(TemporalProximityState.empty)
             else:
                 self.generateTemporalProximityTableData("devices were removed as a download source")
@@ -2613,6 +2614,19 @@ class RapidWindow(QMainWindow):
             # slider redraw itself
             QTimer.singleShot(100, self.devicesViewToggledOn)
         self.adjustLeftPanelSliderHandles()
+
+    def proximityStatePostDeviceRemoval(self) -> TemporalProximityState:
+        """
+        :return: set correct proximity state after a device is removed
+        """
+
+        # ignore devices that are scanning - we don't care about them, because the scan
+        # could take a long time, especially with phones
+        if len(self.devices) - len(self.devices.scanning) > 0:
+            # Other already scanned devices are present
+            return TemporalProximityState.regenerate
+        else:
+            return TemporalProximityState.empty
 
     @pyqtSlot()
     def devicesViewToggledOn(self) -> None:
@@ -4449,13 +4463,6 @@ Do you want to proceed with the download?
         Initiate Timeline generation if it's right to do so
         """
 
-        if len(self.devices.scanning):
-            logging.info(
-                "Was tasked to generate Timeline because %s, but ignoring request "
-                "because a scan is occurring", reason
-            )
-            return
-        
         if self.temporalProximity.state == TemporalProximityState.ctime_rebuild:
             logging.info(
                 "Was tasked to generate Timeline because %s, but ignoring request "
@@ -5109,7 +5116,8 @@ Do you want to proceed with the download?
             self.setDownloadCapabilities()
 
             if adjust_temporal_proximity:
-                if len(self.devices) == 0:
+                state = self.proximityStatePostDeviceRemoval()
+                if state == TemporalProximityState.empty:
                     self.temporalProximity.setState(TemporalProximityState.empty)
                 elif files_removed:
                     self.generateTemporalProximityTableData("a download source was removed")

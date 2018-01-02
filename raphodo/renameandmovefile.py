@@ -44,7 +44,6 @@ from gettext import gettext as _
 
 import raphodo.exiftool as exiftool
 import raphodo.generatename as gn
-import raphodo.problemnotification as pn
 from raphodo.preferences import DownloadsTodayTracker, Preferences
 from raphodo.constants import (ConflictResolution, FileType, DownloadStatus, RenameAndMoveStatus)
 from raphodo.interprocess import (RenameAndMoveFileData, RenameAndMoveFileResults, DaemonProcess)
@@ -153,10 +152,9 @@ def load_metadata(rpd_file: Union[Photo, Video],
     """
     Loads the metadata for the file.
 
+    :param rpd_file: photo or video
     :param et_process: the daemon ExifTool process
-    :param temp_file: If true, the the metadata from the temporary file
-     rather than the original source file is used. This is important,
-     because the metadata  can be modified by the filemodify process
+    :param problems: problems encountered renaming the file
     :return True if operation succeeded, false otherwise
     """
     if rpd_file.metadata is None:
@@ -205,6 +203,7 @@ def generate_subfolder(rpd_file: Union[Photo, Video],
     
     :param rpd_file: file to work on
     :param et_process:  the daemon ExifTool process
+    :param problems: problems encountered renaming the file
     """
     
     if rpd_file.file_type == FileType.photo:
@@ -223,6 +222,7 @@ def generate_name(rpd_file: Union[Photo, Video],
 
     :param rpd_file: file to work on
     :param et_process:  the daemon ExifTool process
+    :param problems: problems encountered renaming the file
     """
 
     if rpd_file.file_type == FileType.photo:
@@ -268,9 +268,11 @@ class RenameMoveFileWorker(DaemonProcess):
             dt = datetime.fromtimestamp(modification_time)
             date = dt.strftime("%x")
             time = dt.strftime("%X")
-        except:
-            logging.error("Could not determine the file modification time of %s",
-                rpd_file.download_full_file_name)
+        except Exception:
+            logging.error(
+                "Could not determine the file modification time of %s",
+                rpd_file.download_full_file_name
+            )
             date = time = ''
 
         source = rpd_file.get_souce_href()
@@ -312,7 +314,7 @@ class RenameMoveFileWorker(DaemonProcess):
         """
         Handle cases where file failed to download
         """
-        uri=get_uri(
+        uri = get_uri(
                 full_file_name=rpd_file.full_file_name, camera_details=rpd_file.camera_details
         )
         device = make_href(name=rpd_file.device_display_name, uri=rpd_file.device_uri)
@@ -365,7 +367,7 @@ class RenameMoveFileWorker(DaemonProcess):
         assert isinstance(i1_date_time, datetime)
         i1_date = i1_date_time.strftime("%x")
         i1_time = i1_date_time.strftime("%X")
-        assert isinstance(image2_date_time,datetime)
+        assert isinstance(image2_date_time, datetime)
         image2_date = image2_date_time.strftime("%x")
         image2_time = image2_date_time.strftime("%X")
 
@@ -383,7 +385,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
     def _move_associate_file(self, extension: str,
                              full_base_name: str,
-                             temp_associate_file: str) ->  str:
+                             temp_associate_file: str) -> str:
         """
         Move (rename) the associate file using the pre-generated name.
         
@@ -628,7 +630,7 @@ class RenameMoveFileWorker(DaemonProcess):
                             DuplicateFileWhenSyncingProblem(
                                 name=rpd_file.name,
                                 uri=rpd_file.get_uri(),
-                                file_type = rpd_file.title,
+                                file_type=rpd_file.title,
                             )
                         )
 
@@ -678,12 +680,15 @@ class RenameMoveFileWorker(DaemonProcess):
             generate_name(rpd_file, self.exiftool_process, self.problems)
 
             if rpd_file.name_generation_problem:
-                logging.warning("Encountered a problem generating file name for file %s",
-                    rpd_file.name)
+                logging.warning(
+                    "Encountered a problem generating file name for file %s",
+                    rpd_file.name
+                )
                 rpd_file.status = DownloadStatus.downloaded_with_warning
             else:
-                logging.debug("Generated file name %s for file %s", rpd_file.download_name,
-                              rpd_file.name)
+                logging.debug(
+                    "Generated file name %s for file %s", rpd_file.download_name, rpd_file.name
+                )
         else:
             logging.error("Failed to generate subfolder name for file: %s", rpd_file.name)
 
@@ -700,8 +705,9 @@ class RenameMoveFileWorker(DaemonProcess):
         move_succeeded = False
 
         rpd_file.download_path = os.path.join(rpd_file.download_folder, rpd_file.download_subfolder)
-        rpd_file.download_full_file_name = os.path.join(rpd_file.download_path,
-                                                        rpd_file.download_name)
+        rpd_file.download_full_file_name = os.path.join(
+            rpd_file.download_path, rpd_file.download_name
+        )
         rpd_file.download_full_base_name = os.path.splitext(rpd_file.download_full_file_name)[0]
 
         if not os.path.isdir(rpd_file.download_path):
@@ -727,8 +733,10 @@ class RenameMoveFileWorker(DaemonProcess):
         try:
             if os.path.exists(rpd_file.download_full_file_name):
                 raise OSError(errno.EEXIST, "File exists: %s" % rpd_file.download_full_file_name)
-            logging.debug("Renaming %s to %s .....",
-                rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
+            logging.debug(
+                "Renaming %s to %s .....",
+                rpd_file.temp_full_file_name, rpd_file.download_full_file_name
+            )
             os.rename(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
             logging.debug("....successfully renamed file")
             move_succeeded = True
@@ -753,8 +761,9 @@ class RenameMoveFileWorker(DaemonProcess):
 
         self.prepare_rpd_file(rpd_file)
 
-        synchronize_raw_jpg = (self.prefs.must_synchronize_raw_jpg() and
-                               rpd_file.file_type == FileType.photo)
+        synchronize_raw_jpg = (
+                self.prefs.must_synchronize_raw_jpg() and rpd_file.file_type == FileType.photo
+        )
         if synchronize_raw_jpg:
             sync_result = self.sync_raw_jpg(rpd_file)
 
@@ -780,8 +789,8 @@ class RenameMoveFileWorker(DaemonProcess):
                     date_time=rpd_file.date_time(),
                     sequence_number_used=sequence)
 
-            if not synchronize_raw_jpg or (synchronize_raw_jpg and
-                                           sync_result.sequence_to_use is None):
+            if not synchronize_raw_jpg or (
+                    synchronize_raw_jpg and sync_result.sequence_to_use is None):
                 uses_sequence_session_no = self.prefs.any_pref_uses_session_sequence_no()
                 uses_sequence_letter = self.prefs.any_pref_uses_sequence_letter_value()
                 if uses_sequence_session_no or uses_sequence_letter:
@@ -809,6 +818,23 @@ class RenameMoveFileWorker(DaemonProcess):
 
         return move_succeeded
 
+    def initialise_downloads_today_stored_number(self) -> None:
+        """
+        Initialize (or reinitialize) Downloads Today and Stored No
+        sequence values from the program preferences.
+        """
+
+        # Synchronize QSettings instance in preferences class
+        self.prefs.sync()
+
+        # Track downloads today, using a class whose purpose is to
+        # take the value in the user prefs, increment, and then
+        # finally used to update the prefs
+        self.downloads_today_tracker = DownloadsTodayTracker(
+            day_start=self.prefs.day_start,
+            downloads_today=self.prefs.downloads_today
+        )
+
     def run(self) -> None:
         """
         Generate subfolder and filename, and attempt to move the file
@@ -826,6 +852,12 @@ class RenameMoveFileWorker(DaemonProcess):
         # suffixes to duplicate files
         self.duplicate_files = {}
 
+        self.initialise_downloads_today_stored_number()
+
+        self.sequences = gn.Sequences(
+            self.downloads_today_tracker, self.prefs.stored_sequence_no
+        )
+
         with stdchannel_redirected(sys.stderr, os.devnull):
             with exiftool.ExifTool() as self.exiftool_process:
                 while True:
@@ -839,18 +871,13 @@ class RenameMoveFileWorker(DaemonProcess):
 
                     data = pickle.loads(content) # type: RenameAndMoveFileData
                     if data.message == RenameAndMoveStatus.download_started:
-                        # Synchronize QSettings instance in preferences class
-                        self.prefs.sync()
 
-                        # Track downloads today, using a class whose purpose is to
-                        # take the value in the user prefs, increment, and then
-                        # finally used to update the prefs
-                        self.downloads_today_tracker = DownloadsTodayTracker(
-                            day_start=self.prefs.day_start,
-                            downloads_today=self.prefs.downloads_today)
+                        # reinitialize downloads today and stored sequence number
+                        # in case the user has updated them via the user interface
+                        self.initialise_downloads_today_stored_number()
+                        self.sequences.downloads_today_tracker = self.downloads_today_tracker
+                        self.sequences.stored_sequence_no = self.prefs.stored_sequence_no
 
-                        self.sequences = gn.Sequences(self.downloads_today_tracker,
-                                                  self.prefs.stored_sequence_no)
                         dl_today = self.downloads_today_tracker.get_or_reset_downloads_today()
                         logging.debug("Completed downloads today: %s", dl_today)
 
@@ -859,9 +886,7 @@ class RenameMoveFileWorker(DaemonProcess):
                     elif data.message == RenameAndMoveStatus.download_completed:
                         if len(self.problems):
                             self.content = pickle.dumps(
-                                RenameAndMoveFileResults(
-                                    problems=self.problems
-                                ),
+                                RenameAndMoveFileResults(problems=self.problems),
                                 pickle.HIGHEST_PROTOCOL
                             )
                             self.send_message_to_sink()
