@@ -1717,9 +1717,13 @@ class ThumbnailView(QListView):
                 return
         else:
             uid = uids[0]
-        row = model.uid_to_row[uid]
-        index = model.index(row, 0)
-        self.scrollTo(index, QAbstractItemView.PositionAtTop)
+        try:
+            row = model.uid_to_row[uid]
+        except KeyError:
+            logging.debug("Ignoring scroll request to unknown thumbnail")
+        else:
+            index = model.index(row, 0)
+            self.scrollTo(index, QAbstractItemView.PositionAtTop)
 
 
 class ThumbnailDelegate(QStyledItemDelegate):

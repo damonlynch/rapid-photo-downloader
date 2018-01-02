@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Display an About window
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2017, Damon Lynch"
+__copyright__ = "Copyright 2016-2018, Damon Lynch"
 
 from gettext import gettext as _
 
@@ -108,7 +108,7 @@ class AboutDialog(QDialog):
         # Credits view
 
         credits_text = """
-        Copyright © 2007-2017 Damon Lynch.
+        Copyright © 2007-2018 Damon Lynch.
         Portions copyright © 2008-2015 Canonical Ltd.
         Portions copyright © 2013 Bernard Baeyens.
         Portions copyright © 2012-2015 Jim Easterbrook.

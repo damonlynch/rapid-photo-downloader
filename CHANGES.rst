@@ -1,8 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.7b2 (2017-12-xx)
---------------------
+0.9.7 (2018-01-01)
+------------------
+
+ - Fixed bug where removing a download source while another source was being
+   scanned could cause a crash when the timeline was scrolled.
 
  - Fixed bug where session sequence values were being reset every time a
    download was initiated, not every time the program was started.
