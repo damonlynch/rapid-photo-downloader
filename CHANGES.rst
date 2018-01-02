@@ -10,7 +10,7 @@ Changelog for Rapid Photo Downloader
  - Fixed bug where session sequence values were being reset every time a
    download was initiated, not every time the program was started.
 
- - Updated Hungarian translation.
+ - Updated German, Hungarian and Norwegian Bokmal translations.
 
 0.9.7b1 (2017-12-18)
 --------------------
