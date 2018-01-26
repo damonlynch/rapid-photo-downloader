@@ -36,6 +36,7 @@ import os
 import glob
 import polib
 import datetime
+import re
 
 
 blacklist = ['gl', 'lt', 'fil', 'en_AU', 'en_GB', 'eo']
@@ -51,6 +52,8 @@ def get_lang(pofile):
     lang = f[len('rapid-photo-downloader-'):-3]
     return lang
 
+
+lang_english_re = re.compile('(.+)<.+>')
 
 home = os.path.expanduser('~')
 po_destination_dir = os.path.abspath(os.path.join(os.path.realpath(__file__), '../../po'))
@@ -93,31 +96,30 @@ else:
         lang = get_lang(pofile)
         po = polib.pofile(pofile)
         date = po.metadata['PO-Revision-Date'].split('+')[0]
-        lang_english = po.metadata['Language-Team'].split()[0]
-        if lang_english == 'Français':
-            lang_english = 'French'
-        elif lang_english == 'српски':
-            lang_english = 'Serbian'
-        # elif lang_english == ''
-        #     lang_english = 'Brazilian Portuguese'
-        print("Working with ", lang_english, pofile)
-        dest_pofile = '{}.po'.format(os.path.join(po_destination_dir, lang))
-        if not os.path.exists(dest_pofile):
-            print('Added ', lang_english)
-            os.rename(pofile, dest_pofile)
-        else:
-            dest_po = polib.pofile(dest_pofile)
-            dest_date = dest_po.metadata['PO-Revision-Date'].split('+')[0]
-            date_p = datetime.datetime.strptime(date, date_format)
-            dest_date_p = datetime.datetime.strptime(dest_date, date_format)
-            if date_p > dest_date_p:
-                updated_langs.append(lang_english)
-                backupfile = os.path.join(po_backup_dir, '%s.po' % lang)
-                if os.path.exists(backupfile):
-                    os.unlink(backupfile)
-                os.rename(dest_pofile, backupfile)
+        match = lang_english_re.search(po.metadata['Language-Team'])
+        if match:
+            lang_english = match.group(1).strip()
+            if lang_english == 'Français':
+                lang_english = 'French'
+            elif lang_english == 'српски':
+                lang_english = 'Serbian'
+            print("Working with ", lang_english, pofile)
+            dest_pofile = '{}.po'.format(os.path.join(po_destination_dir, lang))
+            if not os.path.exists(dest_pofile):
+                print('Added ', lang_english)
                 os.rename(pofile, dest_pofile)
-
+            else:
+                dest_po = polib.pofile(dest_pofile)
+                dest_date = dest_po.metadata['PO-Revision-Date'].split('+')[0]
+                date_p = datetime.datetime.strptime(date, date_format)
+                dest_date_p = datetime.datetime.strptime(dest_date, date_format)
+                if date_p > dest_date_p:
+                    updated_langs.append(lang_english)
+                    backupfile = os.path.join(po_backup_dir, '%s.po' % lang)
+                    if os.path.exists(backupfile):
+                        os.unlink(backupfile)
+                    os.rename(dest_pofile, backupfile)
+                    os.rename(pofile, dest_pofile)
 
     updated_langs.sort()
     updated_langs_english = ''
