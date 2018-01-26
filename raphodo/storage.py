@@ -1008,10 +1008,10 @@ class UDisks2Monitor(QObject):
                     logging.debug("UDisks: attempting to mount %s", path)
                     mount_point = self.retry_mount(fs, fstype)
                     if not mount_point:
-                        raise
+                        raise Exception
                     else:
                         logging.debug("UDisks: successfully mounted at %s", mount_point)
-                except:
+                except Exception:
                     logging.error('UDisks: could not mount the device: %s', path)
                     return
             else:
