@@ -234,8 +234,7 @@ class BackupDeviceModel(QAbstractListModel):
         if len(self.rows) == 0:
             if role == Qt.DisplayRole:
                 return ViewRowType.header
-            else:
-                assert role == Roles.device_details
+            elif role == Roles.device_details:
                 if not self.prefs.backup_files:
                     return (_('Backups are not configured'), self.removableIcon)
                 elif self.prefs.backup_device_autodetection:

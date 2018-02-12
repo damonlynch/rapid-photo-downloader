@@ -603,6 +603,15 @@ class RapidWindow(QMainWindow):
         elif self.prefs.auto_download_upon_device_insertion:
             logging.info("Auto download upon device insertion is on")
 
+        if self.prefs.list_not_empty('volume_whitelist'):
+            logging.info("Whitelisted devices: %s", " ; ".join(self.prefs.volume_whitelist))
+
+        if self.prefs.list_not_empty('volume_blacklist'):
+            logging.info("Blacklisted devices: %s", " ; ".join(self.prefs.volume_blacklist))
+
+        if self.prefs.list_not_empty('camera_blacklist'):
+            logging.info("Blacklisted cameras: %s", " ; ".join(self.prefs.camera_blacklist))
+
         self.prefs.verify_file = False
 
         logging.debug("Starting main ExifTool process")

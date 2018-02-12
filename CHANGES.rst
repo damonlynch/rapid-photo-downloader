@@ -1,8 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.8 (2018-01-xx)
-------------------
+0.9.8b1 (2018-02-xx)
+--------------------
+
+ - Don't crash when getting tooltip for backup devices when no backup devices
+   exist.
 
  - Updated Brazilian Portuguese, German and Greek translations.
 
