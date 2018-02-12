@@ -4,7 +4,7 @@ Changelog for Rapid Photo Downloader
 0.9.8 (2018-01-xx)
 ------------------
 
- - Updated Brazilian Portuguese translation.
+ - Updated Brazilian Portuguese, German and Greek translations.
 
 0.9.7 (2018-01-01)
 ------------------
