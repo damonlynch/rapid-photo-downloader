@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.8b1 (2018-02-xx)
+0.9.8b1 (2018-02-13)
 --------------------
 
  - Don't crash when choosing an existing subfolder generation preset from the
@@ -12,6 +12,7 @@ Changelog for Rapid Photo Downloader
    exist.
 
  - Updated Brazilian Portuguese, German and Greek translations.
+
 
 0.9.7 (2018-01-01)
 ------------------

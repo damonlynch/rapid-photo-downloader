@@ -59,7 +59,7 @@ class AboutDialog(QDialog):
         title_bottom = 45
         left_margin = 16
 
-        transparency = "rgba(0, 0, 0, 200)"
+        transparency = "rgba(0, 0, 0, 130)"
 
         # Standard About view
 
@@ -114,7 +114,7 @@ class AboutDialog(QDialog):
         Portions copyright © 2012-2015 Jim Easterbrook.
         Portions copyright © 2012 Sven Marnach.
 
-        Photo %(photolink)s copyright © 2014 Damon Lynch, all rights reserved.
+        Photo %(photolink)s copyright © 2014-2018 Damon Lynch, all rights reserved.
         Camera icon courtesy %(artlink1)s.
         Video camera icon courtesy %(artlink2)s.
         Home icon courtesy %(artlink3)s.
