@@ -180,6 +180,7 @@ DEFAULT_VIDEO_SUBFOLDER_PREFS = [
 DEFAULT_PHOTO_RENAME_PREFS = [FILENAME, NAME, ORIGINAL_CASE]
 DEFAULT_VIDEO_RENAME_PREFS = [FILENAME, NAME, ORIGINAL_CASE]
 
+
 class i18TranslateMeThanks:
     """ this class is never used in actual running code
     Its purpose is to have these values inserted into the program's i18n template file

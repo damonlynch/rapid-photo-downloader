@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Display file renaming preferences, including sequence numbers
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016, Damon Lynch"
+__copyright__ = "Copyright 2016-2018, Damon Lynch"
 
 from typing import Optional, Dict, Tuple, Union
 import logging
@@ -80,17 +80,19 @@ class RenameWidget(QFramedWidget):
             self.generation_type = NameGenerationType.video_name
 
         self.sample_rpd_file = make_sample_rpd_file(
-                    sample_job_code=self.prefs.most_recent_job_code(missing=_('Job Code')),
-                    prefs=self.prefs,
-                    generation_type=self.generation_type)
+            sample_job_code=self.prefs.most_recent_job_code(missing=_('Job Code')),
+            prefs=self.prefs, generation_type=self.generation_type
+        )
 
         layout = QFormLayout()
         self.setLayout(layout)
 
         self.getCustomPresets()
 
-        self.renameCombo = PresetComboBox(prefs=self.prefs, preset_names=self.preset_names,
-                                          preset_type=preset_type, parent=self, edit_mode=False)
+        self.renameCombo = PresetComboBox(
+            prefs=self.prefs, preset_names=self.preset_names, preset_type=preset_type,
+            parent=self, edit_mode=False
+        )
         self.setRenameComboIndex()
         self.renameCombo.activated.connect(self.renameComboItemActivated)
 
@@ -139,8 +141,10 @@ class RenameWidget(QFramedWidget):
         else:
             # Set to appropriate combobox idex, allowing for possible separator
             cb_index = self.renameCombo.getComboBoxIndex(index)
-        logging.debug("Setting %s combobox chosen value to %s", self.file_type.name,
-                      self.renameCombo.itemText(cb_index))
+        logging.debug(
+            "Setting %s combobox chosen value to %s", self.file_type.name,
+            self.renameCombo.itemText(cb_index)
+        )
         self.renameCombo.setCurrentIndex(cb_index)
 
     def pref_list(self) -> List[str]:
@@ -166,9 +170,10 @@ class RenameWidget(QFramedWidget):
         preset_class =  self.renameCombo.currentData()
         if preset_class == PresetClass.start_editor:
 
-
-            prefDialog = PrefDialog(self.pref_defn, self.pref_list(), self.generation_type,
-                                    self.prefs, self.sample_rpd_file)
+            prefDialog = PrefDialog(
+                self.pref_defn, self.pref_list(), self.generation_type, self.prefs,
+                self.sample_rpd_file
+            )
 
             if prefDialog.exec():
                 user_pref_list = prefDialog.getPrefList()
@@ -237,10 +242,11 @@ class RenameWidget(QFramedWidget):
 
     def updateSampleFile(self, sample_rpd_file: Union[Photo, Video]) -> None:
         self.sample_rpd_file = make_sample_rpd_file(
-                    sample_rpd_file=sample_rpd_file,
-                    sample_job_code=self.prefs.most_recent_job_code(missing=_('Job Code')),
-                    prefs=self.prefs,
-                    generation_type=self.generation_type)
+            sample_rpd_file=sample_rpd_file,
+            sample_job_code=self.prefs.most_recent_job_code(missing=_('Job Code')),
+            prefs=self.prefs,
+            generation_type=self.generation_type
+        )
         self.updateExampleFilename()
 
     @pyqtSlot(int)
@@ -430,29 +436,33 @@ class RenamePanel(QScrollArea):
 
         self.setFrameShape(QFrame.NoFrame)
 
-        self.photoRenamePanel = QPanelView(label=_('Photo Renaming'),
-                                       headerColor=QColor(ThumbnailBackgroundName),
-                                       headerFontColor=QColor(Qt.white))
-        self.videoRenamePanel = QPanelView(label=_('Video Renaming'),
-                                       headerColor=QColor(ThumbnailBackgroundName),
-                                       headerFontColor=QColor(Qt.white))
-        self.renameOptionsPanel = QPanelView(label=_('Renaming Options'),
-                                             headerColor=QColor(ThumbnailBackgroundName),
-                                             headerFontColor=QColor(Qt.white))
-
-        self.photoRenameWidget = RenameWidget(preset_type=PresetPrefType.preset_photo_rename,
-                                              prefs=self.prefs, parent=self,
-                                              exiftool_process=self.rapidApp.exiftool_process)
+        self.photoRenamePanel = QPanelView(
+            label=_('Photo Renaming'), headerColor=QColor(ThumbnailBackgroundName),
+            headerFontColor=QColor(Qt.white)
+        )
+        self.videoRenamePanel = QPanelView(
+            label=_('Video Renaming'), headerColor=QColor(ThumbnailBackgroundName),
+            headerFontColor=QColor(Qt.white)
+        )
+        self.renameOptionsPanel = QPanelView(
+            label=_('Renaming Options'), headerColor=QColor(ThumbnailBackgroundName),
+            headerFontColor=QColor(Qt.white)
+        )
+        self.photoRenameWidget = RenameWidget(
+            preset_type=PresetPrefType.preset_photo_rename, prefs=self.prefs, parent=self,
+            exiftool_process=self.rapidApp.exiftool_process
+        )
         self.photoRenamePanel.addWidget(self.photoRenameWidget)
-
-        self.videoRenameWidget = RenameWidget(preset_type=PresetPrefType.preset_video_rename,
-                                              prefs=self.prefs, parent=self,
-                                              exiftool_process=self.rapidApp.exiftool_process)
+        self.videoRenameWidget = RenameWidget(
+            preset_type=PresetPrefType.preset_video_rename, prefs=self.prefs, parent=self,
+            exiftool_process=self.rapidApp.exiftool_process
+        )
         self.videoRenamePanel.addWidget(self.videoRenameWidget)
 
-        self.renameOptions = RenameOptionsWidget(prefs=self.prefs, parent=self,
-                                                 photoRenameWidget=self.photoRenameWidget,
-                                                 videoRenameWidget=self.videoRenameWidget)
+        self.renameOptions = RenameOptionsWidget(
+            prefs=self.prefs, parent=self, photoRenameWidget=self.photoRenameWidget,
+            videoRenameWidget=self.videoRenameWidget
+        )
         self.renameOptionsPanel.addWidget(self.renameOptions)
 
         widget = QWidget()

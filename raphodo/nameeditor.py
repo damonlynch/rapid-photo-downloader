@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2016-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,7 +22,7 @@ Dialog for editing download subfolder structure and file renaming
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2017, Damon Lynch"
+__copyright__ = "Copyright 2016-2018, Damon Lynch"
 
 from typing import Dict, Optional, List, Union, Tuple, Sequence
 import webbrowser
@@ -719,7 +719,8 @@ class CreatePreset(QDialog):
 def make_sample_rpd_file(sample_job_code: str,
                          prefs: Preferences,
                          generation_type: NameGenerationType,
-                         sample_rpd_file: Optional[Union[Photo, Video]]=None) -> RPDFile:
+                         sample_rpd_file: Optional[Union[Photo, Video]]=None) -> Union[
+                                                                                 Photo, Video]:
     """
     Create a sample_rpd_file used for displaying to the user an example of their
     file renaming preference in action on a sample file.
@@ -782,6 +783,7 @@ class PrefDialog(QDialog):
                  generation_type: NameGenerationType,
                  prefs: Preferences,
                  sample_rpd_file: Optional[Union[Photo, Video]]=None,
+                 max_entries=0,
                  parent=None) -> None:
         """
         Set up dialog to display all its controls based on the preference
@@ -798,6 +800,8 @@ class PrefDialog(QDialog):
         :param exiftool_process: daemon exiftool process
         :param sample_rpd_file: a sample photo or video, whose contents will be
          modified (i.e. don't pass a live RPDFile)
+        :param max_entries: maximum number of entries that will be displayed
+         to the user (in a menu, for example)
         """
 
         super().__init__(parent)
@@ -831,9 +835,10 @@ class PrefDialog(QDialog):
                                        for pref in VIDEO_RENAME_MENU_DEFAULTS]
 
         self.prefs = prefs
+        self.max_entries = max_entries
 
         # Cache custom preset name and pref lists
-        self.udpateCachedPrefLists()
+        self.updateCachedPrefLists()
 
         self.current_custom_name = None
 
@@ -1353,7 +1358,7 @@ class PrefDialog(QDialog):
             preset_pref_lists=self.preset_pref_lists
         )
 
-    def udpateCachedPrefLists(self) -> None:
+    def updateCachedPrefLists(self) -> None:
         self.preset_names, self.preset_pref_lists = self.prefs.get_preset(
             preset_type=self.preset_type)
         self._updateCombinedPrefs()
@@ -1437,6 +1442,13 @@ class PrefDialog(QDialog):
             elif update:
                 self.updateExistingPreset()
 
+        # Check to make sure that in menus (which have a limited number of menu items)
+        # that our chosen entry is displayed
+        if self.max_entries:
+            combobox_index, pref_list_index = self.getPresetMatch()
+            if pref_list_index >= self.max_entries:
+                self.updateExistingPreset()
+
         # Regardless of any user actions, close the dialog box
         super().accept()
 
@@ -1459,11 +1471,11 @@ if __name__ == '__main__':
     #                         NameGenerationType.video_name, prefs)
     prefDialog = PrefDialog(
         DICT_SUBFOLDER_L0, PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
-        NameGenerationType.photo_subfolder, prefs
+        NameGenerationType.photo_subfolder, prefs, max_entries=10
     )
     # prefDialog = PrefDialog(
     #     DICT_VIDEO_SUBFOLDER_L0, VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
-    #     NameGenerationType.video_subfolder, prefs
+    #     NameGenerationType.video_subfolder, prefs, max_entries=10
     # )
     prefDialog.show()
     app.exec_()

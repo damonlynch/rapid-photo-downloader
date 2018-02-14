@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2017, Damon Lynch"
+__copyright__ = "Copyright 2011-2018, Damon Lynch"
 
 import logging
 import re
@@ -446,8 +446,7 @@ class Preferences:
     def restore(self, key: str) -> None:
         self[key] = self.defaults[key]
 
-    def get_preset(self, preset_type: PresetPrefType) -> Tuple[List[str],
-                                                                         List[List[str]]]:
+    def get_preset(self, preset_type: PresetPrefType) -> Tuple[List[str], List[List[str]]]:
         """
         Returns the custom presets for the particular type.
 
@@ -477,7 +476,7 @@ class Preferences:
 
     def set_preset(self, preset_type: PresetPrefType,
                    preset_names: List[str],
-                   preset_pref_lists: List[str]) -> None:
+                   preset_pref_lists: List[List[str]]) -> None:
         """
         Saves a list of custom presets in the user's preferences.
 
@@ -880,7 +879,7 @@ class Preferences:
         An empty list contains only one item: ['']
 
         :param key: the preference key
-        :param value: the value to add
+        :param value: the value to delete
         """
 
         # Must remove the value like this, otherwise the preference value

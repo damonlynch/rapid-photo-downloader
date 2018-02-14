@@ -4,6 +4,10 @@ Changelog for Rapid Photo Downloader
 0.9.8b1 (2018-02-xx)
 --------------------
 
+ - Don't crash when choosing an existing subfolder generation preset from the
+   editor windows that is currently not displayed in the main window's drop-
+   down gear menu.
+
  - Don't crash when getting tooltip for backup devices when no backup devices
    exist.
 

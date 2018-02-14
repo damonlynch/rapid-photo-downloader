@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Display download destination details
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2017, Damon Lynch"
+__copyright__ = "Copyright 2016-2018, Damon Lynch"
 
 import os
 import math
@@ -235,6 +235,8 @@ class DestinationDisplay(QWidget):
         # default number of built-in subfolder generation defaults
         self.no_builtin_defaults = 5
         self.max_presets = 5
+        # maximum number of menu entries showing name generation presets
+        self.max_menu_entries = self.no_builtin_defaults + self.max_presets
 
         self.sample_rpd_file = None  # type: Union[Photo, Video]
 
@@ -369,17 +371,28 @@ class DestinationDisplay(QWidget):
         self.map_action[9] = self.subfolder9Act
         self.map_action[-1] = self.subfolderCustomAct
 
-    def setupMenuActions(self) -> None:
+    def presetType(self) -> PresetPrefType:
         if self.file_type == FileType.photo:
-            preset_type = PresetPrefType.preset_photo_subfolder
+            return PresetPrefType.preset_photo_subfolder
         else:
-            preset_type = PresetPrefType.preset_video_subfolder
+            return PresetPrefType.preset_video_subfolder
+
+    def _cacheCustomPresetValues(self) -> int:
+        """
+        Get custom photo or video presets, and assign them to class members
+        :return: index into the combo of default prefs + custom prefs
+        """
+        preset_type = self.presetType()
         self.preset_names, self.preset_pref_lists = self.prefs.get_preset(preset_type=preset_type)
 
         if self.file_type == FileType.photo:
             index = self.prefs.photo_subfolder_index(self.preset_pref_lists)
         else:
             index = self.prefs.video_subfolder_index(self.preset_pref_lists)
+        return index
+
+    def setupMenuActions(self) -> None:
+        index = self._cacheCustomPresetValues()
 
         action = self.map_action[index]  # type: QAction
         action.setChecked(True)
@@ -445,7 +458,9 @@ class DestinationDisplay(QWidget):
                 generation_type = NameGenerationType.video_subfolder
 
             prefDialog = PrefDialog(
-                pref_defn, pref_list, generation_type, self.prefs, self.sample_rpd_file
+                pref_defn=pref_defn, user_pref_list=pref_list, generation_type=generation_type,
+                prefs=self.prefs, sample_rpd_file=self.sample_rpd_file,
+                max_entries=self.max_menu_entries
             )
             if prefDialog.exec():
                 user_pref_list = prefDialog.getPrefList()
@@ -453,7 +468,7 @@ class DestinationDisplay(QWidget):
                     user_pref_list = None
 
         elif index >= self.no_builtin_defaults:
-            assert index < self.no_builtin_defaults + self.max_presets
+            assert index < self.max_menu_entries
             user_pref_list = self.preset_pref_lists[index - self.no_builtin_defaults]
 
         else:
@@ -586,9 +601,10 @@ class DestinationDisplay(QWidget):
 
         if self.display_type != DestinationDisplayType.usage_only:
             # Render the folder icon, folder name, and the menu icon
-            self.deviceDisplay.paint_header(painter=painter, x=x, y=y, width=width,
-                                            display_name=self.display_name, icon=self.icon,
-                                            highlight_menu=highlight_menu)
+            self.deviceDisplay.paint_header(
+                painter=painter, x=x, y=y, width=width, display_name=self.display_name,
+                icon=self.icon, highlight_menu=highlight_menu
+            )
             y = y + self.deviceDisplay.device_name_height
 
         if self.display_type != DestinationDisplayType.folder_only:
@@ -600,19 +616,21 @@ class DestinationDisplay(QWidget):
                 photos_size_to_download=self.photos_size_to_download,
                 videos_size_to_download=self.videos_size_to_download,
                 os_stat_device=self.os_stat_device,
-                downloading_to=self._downloading_to)
+                downloading_to=self._downloading_to
+            )
 
-            details = make_body_details(bytes_total=self.storage_space.bytes_total,
-                                        bytes_free=self.storage_space.bytes_free,
-                                        files_to_display=self.files_to_display,
-                                        marked=self.marked,
-                                        photos_size_to_download=photos_size_to_download,
-                                        videos_size_to_download=videos_size_to_download)
+            details = make_body_details(
+                bytes_total=self.storage_space.bytes_total,
+                bytes_free=self.storage_space.bytes_free,
+                files_to_display=self.files_to_display,
+                marked=self.marked,
+                photos_size_to_download=photos_size_to_download,
+                videos_size_to_download=videos_size_to_download
+            )
 
-            self.deviceDisplay.paint_body(painter=painter, x=x,
-                                          y=y,
-                                          width=width,
-                                          details=details)
+            self.deviceDisplay.paint_body(
+                painter=painter, x=x, y=y, width=width, details=details
+            )
 
         painter.end()
 
