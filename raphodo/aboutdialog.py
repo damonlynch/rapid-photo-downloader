@@ -178,8 +178,8 @@ class AboutDialog(QDialog):
             credits_text = credits_text.replace(i, j)
 
         credits_text = credits_text % dict(
-            photolink="""<a href="https://500px.com/photo/65727425/afghan-men-pulling-heavy-load-by
-            -damon-lynch" style="color: white;">Afghan Men Pulling Heavy Load</a>""",
+            photolink="""<a href="https://500px.com/photo/246096445/afghan-men-pulling-heavy-load-
+            by-damon-lynch" style="color: white;">Afghan Men Pulling Heavy Load</a>""",
             artlink1='<a href="http://www.webalys.com" style="color: white;">Vincent Le Moign</a>',
             artlink2="""<a href="https://www.iconfinder.com/bluewolfski" style="color: white;">The
                  Pictographers</a>""",
