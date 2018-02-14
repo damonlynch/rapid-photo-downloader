@@ -238,7 +238,7 @@ name of an event or location.</li>
 <li><b>Text</b> which you want to appear every time, such as a hyphen or a space.</li>
 </ol>
 Naming subfolders with the year, followed by the month and finally the day in numeric format makes 
-it easy to keep them sorted in a file manager, which is why its the default option:
+it easy to keep them sorted in a file manager, which is why it's the default option:
             """
         ),
         'downloadsubfolders.png',
