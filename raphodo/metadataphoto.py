@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -20,7 +20,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2017, Damon Lynch"
+__copyright__ = "Copyright 2007-2018, Damon Lynch"
 
 import re
 import datetime
@@ -264,7 +264,19 @@ class MetaData(GExiv2.Metadata):
         return self._fetch_vendor(VENDOR_SERIAL_CODES, missing)
 
     def shutter_count(self, missing=''):
-        return self._fetch_vendor(VENDOR_SHUTTER_COUNT, missing)
+        shutter = self._fetch_vendor(VENDOR_SHUTTER_COUNT, missing)
+        if shutter != missing:
+            return shutter
+
+        if self.camera_make().lower() == 'sony':
+            try:
+                ic = self.et_process.get_tags(['ImageCount'], self.rpd_full_file_name)
+            except (ValueError, TypeError):
+                return missing
+            if ic:
+                return ic['ImageCount']
+
+        return missing
 
     def file_number(self, missing=''):
         """
@@ -280,8 +292,7 @@ class MetaData(GExiv2.Metadata):
         if 'Exif.CanonFi.FileNumber' in self:
             assert self.et_process is not None
             try:
-                fn = self.et_process.get_tags(['FileNumber'],
-                                            self.rpd_full_file_name)
+                fn = self.et_process.get_tags(['FileNumber'], self.rpd_full_file_name)
             except (ValueError, TypeError):
                 return missing
 

@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.8 (2018-02-18)
+------------------
+
+ - On Sony files, use ExifTool to get shutter count metadata. Please note, not
+   all Sony models produce this metadata.
+
 0.9.8b1 (2018-02-13)
 --------------------
 
