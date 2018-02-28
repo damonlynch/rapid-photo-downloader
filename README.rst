@@ -92,6 +92,7 @@ Rapid Photo Downloader requires:
     - Notify 0.7
  - `python-gphoto2`_ 1.4.0 or newer
  - pyzmq_
+ - tornado_
  - psutil_ 3.4.2 or newer
  - pyxdg_
  - Arrow_
@@ -207,3 +208,4 @@ If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 .. _Qt: https://www.qt.io/
 .. _SortedContainers: http://www.grantjenks.com/docs/sortedcontainers/
 .. _Requests: http://docs.python-requests.org/
+.. _tornado: http://www.tornadoweb.org/

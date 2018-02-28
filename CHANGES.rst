@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.9b1 (2018-03-xx)
+--------------------
+
+ - Include tornado as a dependency instead of relying on the deprecated
+   mini-tornado found in pyzmq.
+
 0.9.8 (2018-02-18)
 ------------------
 

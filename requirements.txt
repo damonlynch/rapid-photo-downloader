@@ -18,3 +18,5 @@ colour
 pymediainfo>=2.2.0
 sortedcontainers
 requests
+tornado<5.0
+

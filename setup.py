@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (C) 2009-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2009-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -23,7 +23,7 @@
 # Contains portions Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, Canonical Ltd
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2009-2017, Damon Lynch"
+__copyright__ = "Copyright 2009-2018, Damon Lynch"
 
 import os
 import os.path
@@ -347,7 +347,8 @@ setup(
         'easygui',
         'colour',
         'pymediainfo',
-        'sortedcontainers'
+        'sortedcontainers',
+        'tornado'
     ],
     extras_require={':python_version == "3.4"': ['scandir', 'typing']},
     include_package_data = False,

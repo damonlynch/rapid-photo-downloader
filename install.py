@@ -61,7 +61,7 @@ from gettext import gettext as _
 import gettext
 
 
-__version__ = '0.1.8'
+__version__ = '0.1.9'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -720,7 +720,7 @@ def uninstall_with_deps():
     uninstall_pip_package('rapid-photo-downloader', no_deps_only=False)
 
     packages = 'psutil gphoto2 pyzmq pyxdg arrow python-dateutil rawkit PyPrind colorlog easygui ' \
-               'colour pymediainfo sortedcontainers requests'
+               'colour pymediainfo sortedcontainers requests tornado'
     if pypi_pyqt5_capable():
         packages = '{} PyQt5 sip'.format(packages)
 
@@ -872,7 +872,7 @@ def install_required_distro_packages(distro: Distro,
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
              'libgphoto2-dev python3-arrow python3-psutil g++ libmediainfo0v5 '\
              'python3-zmq exiv2 python3-colorlog libraw-bin ' \
-             'python3-easygui python3-sortedcontainers'
+             'python3-easygui python3-sortedcontainers python3-tornado'
 
         if not pypi_pyqt5_capable():
             packages = 'qt5-image-formats-plugins python3-pyqt5 {}'.format(packages)
@@ -908,7 +908,7 @@ def install_required_distro_packages(distro: Distro,
         packages = 'gstreamer1-libav gstreamer1-plugins-good ' \
                    'gobject-introspection python3-gobject ' \
                    'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ ' \
-                   'rpm-build python3-devel intltool ' \
+                   'rpm-build python3-devel intltool python3-tornado ' \
                    'python3-easygui python3-psutil libmediainfo python3-gexiv2'
 
         if not pypi_pyqt5_capable():
@@ -975,7 +975,7 @@ def install_required_distro_packages(distro: Distro,
         packages = 'girepository-1_0 python3-gobject ' \
                    'zeromq-devel exiv2 exiftool python3-devel ' \
                    'libgphoto2-devel libraw-devel gcc-c++ rpm-build intltool ' \
-                   'python3-psutil ' \
+                   'python3-psutil python3-tornado ' \
                    'typelib-1_0-GExiv2-0_10 typelib-1_0-UDisks-2_0 typelib-1_0-Notify-0_7 ' \
                    'typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0'
 

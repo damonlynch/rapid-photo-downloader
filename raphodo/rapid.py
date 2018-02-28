@@ -5726,6 +5726,11 @@ def get_versions() -> List[str]:
         versions.append('{}: {}'.format(*platform.libc_ver()))
     except:
         pass
+    try:
+        import tornado
+        versions.append('Tornado: {}'.format(tornado.version))
+    except ImportError:
+        pass
     return versions
 
 # def darkFusion(app: QApplication):
