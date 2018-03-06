@@ -29,6 +29,10 @@ logfile_name = 'rapid-photo-downloader.log'
 
 remote_versions_file = 'https://www.damonlynch.net/rapid/version.json'
 
+# If set to True, the ability to check for a new version will be removed
+# from the user interface and disabled in program logic.
+disable_version_check = False
+
 
 class CheckNewVersionDialogResult(IntEnum):
     download = 1

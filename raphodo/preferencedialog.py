@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Dialog window to show and manipulate selected user preferences
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017, Damon Lynch"
+__copyright__ = "Copyright 2017-2018, Damon Lynch"
 
 import webbrowser
 from typing import List
@@ -40,7 +40,9 @@ from PyQt5.QtGui import (
 )
 
 from raphodo.preferences import Preferences
-from raphodo.constants import (KnownDeviceType, CompletedDownloads, TreatRawJpeg, MarkRawJpeg)
+from raphodo.constants import (
+    KnownDeviceType, CompletedDownloads, TreatRawJpeg, MarkRawJpeg, disable_version_check
+)
 from raphodo.viewutils import QNarrowListWidget, translateButtons
 from raphodo.utilities import available_cpu_count, format_size_for_user, thousands
 from raphodo.cache import ThumbnailCacheSql
@@ -699,27 +701,28 @@ class PreferencesDialog(QDialog):
             self.treatRawJpegGroup.buttonClicked.connect(self.treatRawJpegGroupClicked)
             self.markRawJpegGroup.buttonClicked.connect(self.markRawJpegGroupClicked)
 
-        self.newVersionBox = QGroupBox(_('Version Check'))
-        self.checkNewVersion = QCheckBox(_('Check for new version at startup'))
-        self.checkNewVersion.setToolTip(
-            _('Check for a new version of the program each time the program starts.')
-        )
-        self.includeDevRelease = QCheckBox(_('Include development releases'))
-        tip = _(
-            'Include alpha, beta and other development releases when checking for a new '
-            'version of the program.\n\nIf you are currently running a development version, '
-            'the check will always occur.'
-        )
-        self.includeDevRelease.setToolTip(tip)
-        self.setVersionCheckValues()
-        self.checkNewVersion.stateChanged.connect(self.checkNewVersionChanged)
-        self.includeDevRelease.stateChanged.connect(self.includeDevReleaseChanged)
+        if not disable_version_check:
+            self.newVersionBox = QGroupBox(_('Version Check'))
+            self.checkNewVersion = QCheckBox(_('Check for new version at startup'))
+            self.checkNewVersion.setToolTip(
+                _('Check for a new version of the program each time the program starts.')
+            )
+            self.includeDevRelease = QCheckBox(_('Include development releases'))
+            tip = _(
+                'Include alpha, beta and other development releases when checking for a new '
+                'version of the program.\n\nIf you are currently running a development version, '
+                'the check will always occur.'
+            )
+            self.includeDevRelease.setToolTip(tip)
+            self.setVersionCheckValues()
+            self.checkNewVersion.stateChanged.connect(self.checkNewVersionChanged)
+            self.includeDevRelease.stateChanged.connect(self.includeDevReleaseChanged)
 
-        newVersionLayout = QGridLayout()
-        newVersionLayout.addWidget(self.checkNewVersion, 0, 0, 1, 2)
-        newVersionLayout.addWidget(self.includeDevRelease, 1, 1, 1, 1)
-        newVersionLayout.setColumnMinimumWidth(0, checkbox_width)
-        self.newVersionBox.setLayout(newVersionLayout)
+            newVersionLayout = QGridLayout()
+            newVersionLayout.addWidget(self.checkNewVersion, 0, 0, 1, 2)
+            newVersionLayout.addWidget(self.includeDevRelease, 1, 1, 1, 1)
+            newVersionLayout.setColumnMinimumWidth(0, checkbox_width)
+            self.newVersionBox.setLayout(newVersionLayout)
 
         self.metadataBox = QGroupBox(_('Metadata'))
         self.ignoreMdatatimeMtpDng = QCheckBox(_('Ignore DNG date/time metadata on MTP devices'))
@@ -749,7 +752,8 @@ class PreferencesDialog(QDialog):
 
         self.miscWidget = QWidget()
         miscLayout = QVBoxLayout()
-        miscLayout.addWidget(self.newVersionBox)
+        if not disable_version_check:
+            miscLayout.addWidget(self.newVersionBox)
         miscLayout.addWidget(self.metadataBox)
         if not consolidation_implemented:
             miscLayout.addWidget(self.completedDownloadsBox)
@@ -1379,7 +1383,6 @@ class PreferencesDialog(QDialog):
                     'warn_unhandled_files', 'ignore_unhandled_file_exts'):
                 self.prefs.restore(value)
             self.setWarningValues()
-            self.setVersionCheckValues()
         elif row == 5 and consolidation_implemented:
             for value in (
                     'completed_downloads', 'consolidate_identical', 'one_raw_jpeg',
@@ -1388,12 +1391,14 @@ class PreferencesDialog(QDialog):
             self.setConsolidatedValues()
         elif (row == 6 and consolidation_implemented) or (row == 5 and not
                 consolidation_implemented):
-            for value in ('check_for_new_versions', 'include_development_release',
-                          'ignore_mdatatime_for_mtp_dng'):
+            if not disable_version_check:
+                self.prefs.restore('check_for_new_versions')
+            for value in ('include_development_release', 'ignore_mdatatime_for_mtp_dng'):
                 self.prefs.restore(value)
             if not consolidation_implemented:
                 self.prefs.restore('completed_downloads')
-            self.setVersionCheckValues()
+            if not disable_version_check:
+                self.setVersionCheckValues()
             self.setMetdataValues()
             if not consolidation_implemented:
                 self.setCompletedDownloadsValues()

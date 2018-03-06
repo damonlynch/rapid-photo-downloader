@@ -4,6 +4,12 @@ Changelog for Rapid Photo Downloader
 0.9.9b1 (2018-03-xx)
 --------------------
 
+ - Enable the disabling of new version checks in both the program logic and
+   the user interface, which is useful for Linux distributions. To disable the
+   check, Linux package maintainers should patch the file constants.py to
+   change the line `disable_version_check = False` to `disable_version_check =
+   True`. Capitalization is significant.
+
  - Include tornado as a dependency instead of relying on the deprecated
    mini-tornado found in pyzmq.
 

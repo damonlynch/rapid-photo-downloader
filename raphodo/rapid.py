@@ -112,7 +112,7 @@ from raphodo.constants import (
     Desktop, BackupFailureType, DeviceState, Sort, Show, DestinationDisplayType,
     DisplayingFilesOfType, DownloadingFileTypes, RememberThisMessage, RightSideButton,
     CheckNewVersionDialogState, CheckNewVersionDialogResult, RememberThisButtons,
-    BackupStatus, CompletedDownloads
+    BackupStatus, CompletedDownloads, disable_version_check
 )
 from raphodo.thumbnaildisplay import (
     ThumbnailView, ThumbnailListModel, ThumbnailDelegate, DownloadStats, MarkedSummary
@@ -940,27 +940,30 @@ class RapidWindow(QMainWindow):
             self.gvolumeMonitor.volumeAddedNoAutomount.connect(self.noGVFSAutoMount)
             self.gvolumeMonitor.cameraPossiblyRemoved.connect(self.cameraRemoved)
 
-        logging.debug("Starting version check")
-        self.newVersion = NewVersion(self)
-        self.newVersionThread = QThread()
-        self.newVersionThread.started.connect(self.newVersion.start)
-        self.newVersion.checkMade.connect(self.newVersionCheckMade)
-        self.newVersion.bytesDownloaded.connect(self.newVersionBytesDownloaded)
-        self.newVersion.fileDownloaded.connect(self.newVersionDownloaded)
-        self.reverifyDownloadedTar.connect(self.newVersion.reVerifyDownload)
-        self.newVersion.downloadSize.connect(self.newVersionDownloadSize)
-        self.newVersion.reverified.connect(self.installNewVersion)
-        self.newVersion.moveToThread(self.newVersionThread)
+        if disable_version_check:
+            logging.debug("Version check disabled")
+        else:
+            logging.debug("Starting version check")
+            self.newVersion = NewVersion(self)
+            self.newVersionThread = QThread()
+            self.newVersionThread.started.connect(self.newVersion.start)
+            self.newVersion.checkMade.connect(self.newVersionCheckMade)
+            self.newVersion.bytesDownloaded.connect(self.newVersionBytesDownloaded)
+            self.newVersion.fileDownloaded.connect(self.newVersionDownloaded)
+            self.reverifyDownloadedTar.connect(self.newVersion.reVerifyDownload)
+            self.newVersion.downloadSize.connect(self.newVersionDownloadSize)
+            self.newVersion.reverified.connect(self.installNewVersion)
+            self.newVersion.moveToThread(self.newVersionThread)
 
-        QTimer.singleShot(0, self.newVersionThread.start)
+            QTimer.singleShot(0, self.newVersionThread.start)
 
-        self.newVersionCheckDialog = NewVersionCheckDialog(self)
-        self.newVersionCheckDialog.finished.connect(self.newVersionCheckDialogFinished)
+            self.newVersionCheckDialog = NewVersionCheckDialog(self)
+            self.newVersionCheckDialog.finished.connect(self.newVersionCheckDialogFinished)
 
-        # if values set, indicates the latest version of the program, and the main
-        # download page on the Rapid Photo Downloader website
-        self.latest_version = None  # type: version_details
-        self.latest_version_download_page = None  # type: str
+            # if values set, indicates the latest version of the program, and the main
+            # download page on the Rapid Photo Downloader website
+            self.latest_version = None  # type: version_details
+            self.latest_version_download_page = None  # type: str
 
         # Track the creation of temporary directories
         self.temp_dirs_by_scan_id = {}
@@ -2458,7 +2461,8 @@ class RapidWindow(QMainWindow):
         self.menu.addSeparator()
         self.menu.addAction(self.helpAct)
         self.menu.addAction(self.didYouKnowAct)
-        self.menu.addAction(self.newVersionAct)
+        if not disable_version_check:
+            self.menu.addAction(self.newVersionAct)
         self.menu.addAction(self.reportProblemAct)
         self.menu.addAction(self.makeDonationAct)
         self.menu.addAction(self.translateApplicationAct)
@@ -2469,9 +2473,10 @@ class RapidWindow(QMainWindow):
 
     def doCheckForNewVersion(self) -> None:
         """Check online for a new program version"""
-        self.newVersionCheckDialog.reset()
-        self.newVersionCheckDialog.show()
-        self.checkForNewVersionRequest.emit()
+        if not disable_version_check:
+            self.newVersionCheckDialog.reset()
+            self.newVersionCheckDialog.show()
+            self.checkForNewVersionRequest.emit()
 
     def doSourceAction(self) -> None:
         self.sourceButton.animateClick()
@@ -4577,8 +4582,9 @@ Do you want to proceed with the download?
         else:
             del self.gvolumeMonitor
 
-        self.newVersionThread.quit()
-        self.newVersionThread.wait(100)
+        if not disable_version_check:
+            self.newVersionThread.quit()
+            self.newVersionThread.wait(100)
 
         self.sendStopToThread(self.thumbnail_deamon_controller)
         self.thumbnaildaemonmqThread.quit()
@@ -5698,9 +5704,16 @@ def get_versions() -> List[str]:
         pyzmq_backend = 'cython'
     else:
         pyzmq_backend = 'cffi'
+    try:
+        ram = psutil.virtual_memory()
+        total = format_size_for_user(ram.total)
+        used = format_size_for_user(ram.used)
+    except Exception:
+        total = used = 'unknown'
     versions = [
         'Rapid Photo Downloader: {}'.format(__about__.__version__),
         'Platform: {}'.format(platform.platform()),
+        'Memory: {} used of {}'.format(used, total),
         'Python: {}'.format(platform.python_version()),
         'Python executable: {}'.format(sys.executable),
         'Qt: {}'.format(QtCore.QT_VERSION_STR),
