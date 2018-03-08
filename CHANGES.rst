@@ -1,8 +1,13 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.9b1 (2018-03-xx)
---------------------
+0.9.9 (2018-03-08)
+------------------
+
+ - Fix bug #1750879: Sequence numbers increment incorrectly for videos when
+   Synchronize RAW+JPEG enabled.
+
+ - Fix bug in sequence letter generation.
 
  - Enable the disabling of new version checks in both the program logic and
    the user interface, which is useful for Linux distributions. To disable the

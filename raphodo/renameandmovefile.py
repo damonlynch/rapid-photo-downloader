@@ -125,14 +125,19 @@ class SyncRawJpeg:
          Returns SyncRawJpegStatus.no_match and a sequence number
          of None if no match
         """
+
         if name in self.photos:
             if datetime_roughly_equal(self.photos[name].date_time, date_time, 30):
                 if extension in self.photos[name].extension:
-                    return SyncRawJpegMatch(SyncRawJpegStatus.error_already_downloaded,
-                                            self.photos[name].sequence_number_used)
+                    return SyncRawJpegMatch(
+                        SyncRawJpegStatus.error_already_downloaded,
+                        self.photos[name].sequence_number_used
+                    )
                 else:
-                    return SyncRawJpegMatch(SyncRawJpegStatus.matching_pair,
-                                            self.photos[name].sequence_number_used)
+                    return SyncRawJpegMatch(
+                        SyncRawJpegStatus.matching_pair,
+                        self.photos[name].sequence_number_used
+                    )
             else:
                 return SyncRawJpegMatch(SyncRawJpegStatus.error_datetime_mismatch, None)
         return SyncRawJpegMatch(SyncRawJpegStatus.no_match, None)
@@ -169,8 +174,8 @@ def load_metadata(rpd_file: Union[Photo, Video],
     return True
 
 
-def _generate_name(generator: Union[gn.PhotoName, gn.PhotoSubfolder, gn.VideoName, 
-                                    gn.VideoSubfolder], 
+def _generate_name(generator: Union[gn.PhotoName, gn.PhotoSubfolder, gn.VideoName,
+                                    gn.VideoSubfolder],
                    rpd_file: Union[Photo, Video], 
                    et_process: exiftool.ExifTool,
                    problems: RenamingProblems) -> str:
@@ -226,9 +231,9 @@ def generate_name(rpd_file: Union[Photo, Video],
     """
 
     if rpd_file.file_type == FileType.photo:
-        generator = gn.PhotoName(rpd_file.name_pref_list, problems=problems)
+        generator = gn.PhotoName(pref_list=rpd_file.name_pref_list, problems=problems)
     else:
-        generator = gn.VideoName(rpd_file.name_pref_list, problems=problems)
+        generator = gn.VideoName(pref_list=rpd_file.name_pref_list, problems=problems)
 
     rpd_file.download_name = _generate_name(generator, rpd_file, et_process, problems)
 
@@ -619,7 +624,8 @@ class RenameMoveFileWorker(DaemonProcess):
             else:
                 matching_pair = self.sync_raw_jpeg.matching_pair(
                     name=photo_name, extension=photo_ext,
-                    date_time=date_time)  # type: SyncRawJpegMatch
+                    date_time=date_time
+                )  # type: SyncRawJpegMatch
                 sequence_to_use = matching_pair.sequence_number
                 if matching_pair.status == SyncRawJpegStatus.error_already_downloaded:
                     # this exact file has already been
@@ -637,9 +643,12 @@ class RenameMoveFileWorker(DaemonProcess):
                         rpd_file.status = DownloadStatus.download_failed
                         failed = True
                 else:
-                    self.sequences.set_matched_sequence_value(matching_pair.sequence_number)
+                    self.sequences.matched_sequences = matching_pair.sequence_number
+                    self.sequences.use_matched_sequences = self.sequences.matched_sequences is \
+                                                           not None
                     if matching_pair.status == SyncRawJpegStatus.error_datetime_mismatch:
                         self.same_name_different_exif(photo_name, rpd_file)
+
         return SyncRawJpegResult(sequence_to_use, failed, photo_name, photo_ext)
 
     def prepare_rpd_file(self, rpd_file: Union[Photo, Video]) -> None:
@@ -663,7 +672,7 @@ class RenameMoveFileWorker(DaemonProcess):
         except OSError:
             logging.error("Failed to delete temporary file %s", rpd_file.temp_full_file_name)
 
-    def generate_names(self, rpd_file: Union[Photo, Video]) -> bool:
+    def generate_names(self, rpd_file: Union[Photo, Video], synchronize_raw_jpg: bool) -> bool:
 
         rpd_file.strip_characters = self.prefs.strip_characters
 
@@ -674,6 +683,9 @@ class RenameMoveFileWorker(DaemonProcess):
                           rpd_file.download_subfolder, rpd_file.name)
 
             self.sequences.stored_sequence_no = self.prefs.stored_sequence_no
+            if self.must_synchronize_raw_jpg and rpd_file.file_type == FileType.video:
+                self.sequences.use_matched_sequences = False
+
             rpd_file.sequences = self.sequences
 
             # generate the file name
@@ -757,20 +769,26 @@ class RenameMoveFileWorker(DaemonProcess):
         return move_succeeded
 
     def process_file(self, rpd_file: Union[Photo, Video], download_count: int) -> bool:
+        """
+        Generate file & subfolder name, and move (rename) photo / video
+        :param rpd_file: photo or video
+        :param download_count: used to track the file being downloaded via a counter
+        :return: success or otherwise of operation
+        """
+
         move_succeeded = False
 
         self.prepare_rpd_file(rpd_file)
 
-        synchronize_raw_jpg = (
-                self.prefs.must_synchronize_raw_jpg() and rpd_file.file_type == FileType.photo
-        )
+        synchronize_raw_jpg = self.must_synchronize_raw_jpg and rpd_file.file_type == FileType.photo
+
         if synchronize_raw_jpg:
             sync_result = self.sync_raw_jpg(rpd_file)
 
             if sync_result.failed:
                 return False
 
-        generation_succeeded = self.generate_names(rpd_file)
+        generation_succeeded = self.generate_names(rpd_file, synchronize_raw_jpg)
 
         if generation_succeeded:
             move_succeeded = self.move_file(rpd_file)
@@ -789,13 +807,14 @@ class RenameMoveFileWorker(DaemonProcess):
                     date_time=rpd_file.date_time(),
                     sequence_number_used=sequence)
 
-            if not synchronize_raw_jpg or (
-                    synchronize_raw_jpg and sync_result.sequence_to_use is None):
-                uses_sequence_session_no = self.prefs.any_pref_uses_session_sequence_no()
-                uses_sequence_letter = self.prefs.any_pref_uses_sequence_letter_value()
-                if uses_sequence_session_no or uses_sequence_letter:
-                    self.sequences.increment(uses_sequence_session_no, uses_sequence_letter)
-                if self.prefs.any_pref_uses_stored_sequence_no():
+            if not synchronize_raw_jpg or (synchronize_raw_jpg and
+                                           sync_result.sequence_to_use is None):
+
+                if self.uses_sequence_session_no or self.uses_sequence_letter:
+                    self.sequences.increment(
+                        self.uses_sequence_session_no, self.uses_sequence_letter
+                    )
+                if self.uses_stored_sequence_no:
                     if self.prefs.stored_sequence_no == self.platform_c_maxint:
                         # wrap value if it exceeds the maximum size value that Qt can display
                         # in its spinbox
@@ -834,6 +853,15 @@ class RenameMoveFileWorker(DaemonProcess):
             day_start=self.prefs.day_start,
             downloads_today=self.prefs.downloads_today
         )
+
+    def initialise_sequence_number_usage(self) -> None:
+        """
+        Determine what type of sequence numbers are being used in file name generation
+        """
+
+        self.uses_sequence_session_no = self.prefs.any_pref_uses_session_sequence_no()
+        self.uses_sequence_letter = self.prefs.any_pref_uses_sequence_letter_value()
+        self.uses_stored_sequence_no = self.prefs.any_pref_uses_stored_sequence_no()
 
     def run(self) -> None:
         """
@@ -880,6 +908,10 @@ class RenameMoveFileWorker(DaemonProcess):
 
                         dl_today = self.downloads_today_tracker.get_or_reset_downloads_today()
                         logging.debug("Completed downloads today: %s", dl_today)
+
+                        self.initialise_sequence_number_usage()
+
+                        self.must_synchronize_raw_jpg = self.prefs.must_synchronize_raw_jpg()
 
                         self.problems = RenamingProblems()
 

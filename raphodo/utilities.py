@@ -833,3 +833,36 @@ def arrow_locale() -> str:
         return lang
     except (ValueError, AttributeError):
         return default
+
+
+def letters(x: int) -> str:
+    """
+    Return a letter representation of a positive number.
+
+    Adapted from algorithm at
+    http://en.wikipedia.org/wiki/Hexavigesimal
+
+    >>> letters(0)
+    'a'
+    >>> letters(1)
+    'b'
+    >>> letters(2)
+    'c'
+    >>> letters(25)
+    'z'
+    >>> letters(26)
+    'aa'
+    >>> letters(27)
+    'ab'
+    >>> letters(28)
+    'ac'
+    """
+
+    v = ''
+    while x > 25:
+        r = x % 26
+        x = x // 26 - 1
+        v = string.ascii_lowercase[r] + v
+    v = string.ascii_lowercase[x] + v
+
+    return v
