@@ -13,7 +13,7 @@ Changelog for Rapid Photo Downloader
    the user interface, which is useful for Linux distributions. To disable the
    check, Linux package maintainers should patch the file constants.py to
    change the line `disable_version_check = False` to `disable_version_check =
-   True`. Capitalization is significant.
+   True`.
 
  - Include tornado as a dependency instead of relying on the deprecated
    mini-tornado found in pyzmq.
