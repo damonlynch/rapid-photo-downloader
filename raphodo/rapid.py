@@ -53,6 +53,7 @@ import subprocess
 from urllib.request import pathname2url
 import tarfile
 import inspect
+from distutils.version import LooseVersion
 
 from gettext import gettext as _
 
@@ -71,7 +72,6 @@ except (ImportError, ValueError):
 import zmq
 import psutil
 import gphoto2 as gp
-import sip
 from PyQt5 import QtCore
 from PyQt5.QtCore import (
     QThread, Qt, QStorageInfo, QSettings, QPoint, QSize, QTimer, QTextStream, QModelIndex,
@@ -88,6 +88,11 @@ from PyQt5.QtWidgets import (
     QDesktopWidget, QStyledItemDelegate, QPushButton
 )
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
+
+if LooseVersion(QtCore.PYQT_VERSION_STR) >= LooseVersion('5.11'):
+    from PyQt5 import sip
+else:
+    import sip
 
 from raphodo.storage import (
     ValidMounts, CameraHotplug, UDisks2Monitor, GVolumeMonitor, have_gio,

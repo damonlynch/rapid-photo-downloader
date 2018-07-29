@@ -39,7 +39,7 @@ at the script level i.e. in __name__ == '__main__'
 # subfolder, available in the online Rapid Photo Downloader source repository.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017, Damon Lynch"
+__copyright__ = "Copyright 2017-2018, Damon Lynch"
 
 import sys
 import os
@@ -210,7 +210,7 @@ class RunInstallProcesses:
                                     or package in ('pymediainfo')):
                                 requirements = '{}\n{}'.format(requirements, line)
                     if self.need_pyqt5(pip_list):
-                        requirements = '{}\nPyQt5\n'.format(requirements)
+                        requirements = '{}\n{}\n'.format(requirements, self.pypi_pyqt5_version())
                     if requirements:
                         with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
                             temp_requirements.write(requirements.encode())
@@ -291,10 +291,38 @@ class RunInstallProcesses:
 
         return StrictVersion(pip.__version__)
 
-    def need_pyqt5(self, pip_list) -> bool:
-        if platform.machine() == 'x86_64' and platform.python_version_tuple()[1] in ('5', '6'):
-            return not 'PyQt5' in pip_list
+    def package_in_pip_output(self, package: str, output: str) -> bool:
+        """
+        Determine if a package is found in the output of packages installed by pip
+        :param package:
+        :param output:
+        :return: True if found, False otherwise
+        """
+        return re.search('^{}\s'.format(package), output, re.IGNORECASE | re.MULTILINE) is not None
+
+    def need_pyqt5(self, pip_list: str) -> bool:
+        if platform.machine() == 'x86_64' and StrictVersion(platform.python_version()) >= StrictVersion('3.5.0'):
+            return not self.package_in_pip_output('PyQt5', pip_list)
         return False
+
+    def pyqt_511_2_compatible(self) -> bool:
+        """
+        Python 3.5.3 or older fail to run with PyQt 5.11.2
+
+        :return: True if this python version is compatible with PyQt 5.11.2
+        """
+
+        return StrictVersion(platform.python_version()) > StrictVersion('3.5.3')
+
+    def pypi_pyqt5_version(self) -> str:
+        """
+        :return: bytes containing correct version of PyQt5 to install from PyPi
+        """
+
+        if not self.pyqt_511_2_compatible():
+            return 'PyQt5==5.10'
+        else:
+            return 'PyQt5>=5.11'
 
     def make_pip_command(self, args: str, split: bool=True):
         """
@@ -309,7 +337,6 @@ class RunInstallProcesses:
             return shlex.split(cmd_line)
         else:
             return cmd_line
-
 
     def python_package_version(self, package: str) -> str:
         """
@@ -326,7 +353,6 @@ class RunInstallProcesses:
                 return r.group(1)
         except subprocess.CalledProcessError:
             return ''
-
 
     def match_pyqt5_and_sip(self) -> bool:
         if self.python_package_version('PyQt5') == '5.9' and \

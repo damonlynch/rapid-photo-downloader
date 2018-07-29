@@ -1,6 +1,13 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.10 (2018-07-xx)
+-------------------
+
+ - Make application compatible with changes to sip introduced in PyQt 5.11.
+
+ - Do not install PyQt 5.11 on systems with Python 3.5.3 or older.
+
 0.9.9 (2018-03-08)
 ------------------
 

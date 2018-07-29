@@ -61,7 +61,7 @@ from gettext import gettext as _
 import gettext
 
 
-__version__ = '0.1.9'
+__version__ = '0.2.0'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -313,7 +313,40 @@ def pypi_pyqt5_capable() -> bool:
      else False.
     """
 
-    return platform.machine() == 'x86_64' and platform.python_version_tuple()[1] in ('5', '6')
+    return platform.machine() == 'x86_64' and StrictVersion(platform.python_version()) >= StrictVersion('3.5.0')
+
+
+def pyqt_511_2_compatible() -> bool:
+    """
+    Python 3.5.3 or older fail to run with PyQt 5.11.2
+
+    :return: True if this python version is compatible with PyQt 5.11.2
+    """
+
+    return StrictVersion(platform.python_version()) > StrictVersion('3.5.3')
+
+
+def pypi_pyqt5_version() -> bytes:
+    """
+    :return: bytes containing correct version of PyQt5 to install from PyPi
+    """
+
+    if not pyqt_511_2_compatible():
+        return b'PyQt5==5.10'
+    else:
+        return b'PyQt5>=5.11'
+
+
+def uninstall_incompatible_pyqt5() -> None:
+    """
+    If a version of PyQt > 5.10 is installed using pip on a system with
+    Python 3.5.3 or older, uninstall PyQt5
+    """
+
+    if not pyqt_511_2_compatible():
+        version = python_package_version('PyQt5')
+        if version and StrictVersion(version) > StrictVersion('5.10'):
+            uninstall_pip_package(package='PyQt5', no_deps_only=False)
 
 
 def make_pip_command(args: str, split: bool=True):
@@ -440,7 +473,7 @@ def match_pyqt5_and_sip():
 
 def pip_package(package: str, local_pip: bool) -> str:
     """
-    Helper function to construct installing core pythong packages
+    Helper function to construct installing core python packages
     :param package: the python package
     :param local_pip: if True, install the package using pip and Pypi,
      else install using the Linux distribution package tools.
@@ -670,13 +703,22 @@ def opensuse_missing_packages(packages: str):
     ]
 
 
-def opensuse_package_installed(package) -> bool:
+def opensuse_package_installed(package: str) -> bool:
     """
     :param package: package to check
     :return: True if the package is installed in the openSUSE distribution, else False
     """
 
     return not opensuse_missing_packages(package)
+
+def package_in_pip_output(package: str, output: str) -> bool:
+    """
+    Determine if a package is found in the output of packages installed by pip
+    :param package:
+    :param output:
+    :return: True if found, False otherwise
+    """
+    return re.search('^{}\s'.format(package), output, re.IGNORECASE | re.MULTILINE) is not None
 
 
 def uninstall_pip_package(package: str, no_deps_only: bool) -> None:
@@ -705,7 +747,7 @@ def uninstall_pip_package(package: str, no_deps_only: bool) -> None:
     while True:
         try:
             output = subprocess.check_output(l_args, universal_newlines=True)
-            if package in output:
+            if package_in_pip_output(package, output):
                 try:
                     subprocess.check_call(u_args)
                 except subprocess.CalledProcessError:
@@ -722,7 +764,12 @@ def uninstall_with_deps():
     packages = 'psutil gphoto2 pyzmq pyxdg arrow python-dateutil rawkit PyPrind colorlog easygui ' \
                'colour pymediainfo sortedcontainers requests tornado'
     if pypi_pyqt5_capable():
-        packages = '{} PyQt5 sip'.format(packages)
+        version = python_package_version('PyQt5')
+
+        if version and StrictVersion(version) < StrictVersion('5.11'):
+            packages = '{} PyQt5 sip'.format(packages)
+        else:
+            packages = '{} PyQt5 PyQt5_sip'.format(packages)
 
     for package in packages.split():
         uninstall_pip_package(package, no_deps_only=True)
@@ -872,7 +919,10 @@ def install_required_distro_packages(distro: Distro,
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
              'libgphoto2-dev python3-arrow python3-psutil g++ libmediainfo0v5 '\
              'python3-zmq exiv2 python3-colorlog libraw-bin ' \
-             'python3-easygui python3-sortedcontainers python3-tornado'
+             'python3-easygui python3-sortedcontainers python3-tornado python3-setuptools python3-wheel'
+
+        # For some strange reason, setuptools and wheel must be manually specified on Linux Mint
+        # It's odd because sometimes setuptools imports even without this package, and other times, it doesn't
 
         if not pypi_pyqt5_capable():
             packages = 'qt5-image-formats-plugins python3-pyqt5 {}'.format(packages)
@@ -1433,7 +1483,11 @@ def do_install(installer: str,
         with tar.extractfile(tarfile_content_name(installer, 'requirements.txt')) as requirements:
             reqbytes = requirements.read()
             if pypi_pyqt5_capable():
-                reqbytes = reqbytes.rstrip() + b'\nPyQt5>=5.9.2'
+
+                # Possibily remove an incompatible version of PyQt installed via pip
+                uninstall_incompatible_pyqt5()
+
+                reqbytes = reqbytes.rstrip() + b'\n' + pypi_pyqt5_version()
 
             with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
                 temp_requirements.write(reqbytes)
