@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
 # Copyright (c) 2012-2014 Alexander Turkin
 
 # This file is part of Rapid Photo Downloader.
@@ -36,7 +36,7 @@ Copyright notice from QtWaitingSpinner source:
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2017, Damon Lynch"
+__copyright__ = "Copyright 2015-2018, Damon Lynch"
 
 import math
 from collections import namedtuple, defaultdict
@@ -1051,14 +1051,19 @@ class DeviceDelegate(QStyledItemDelegate):
             else:
                 checked = None
 
-            self.deviceDisplay.paint_header(painter=painter, x=x, y=y, width=width,
-                                            rotation=rotation,
-                                            icon=icon,
-                                            device_state=device_state,
-                                            display_name=display_name,
-                                            checked=checked,
-                                            download_statuses=download_statuses,
-                                            percent_complete=percent_complete)
+            self.deviceDisplay.paint_header(
+                painter=painter,
+                x=x,
+                y=y,
+                width=width,
+                rotation=rotation,
+                icon=icon,
+                device_state=device_state,
+                display_name=display_name,
+                checked=checked,
+                download_statuses=download_statuses,
+                percent_complete=percent_complete
+            )
 
         else:
             assert view_type == ViewRowType.content
@@ -1082,39 +1087,52 @@ class DeviceDelegate(QStyledItemDelegate):
                     'no_videos': thousands(device.file_type_counter[video_key])}
                 photos_size = format_size_for_user(device.file_size_sum[photo_key])
                 videos_size = format_size_for_user(device.file_size_sum[video_key])
-                other_bytes = storage_space.bytes_total - device.file_size_sum.sum(sum_key) - \
-                              storage_space.bytes_free
-                other_size = format_size_for_user(other_bytes)
-                bytes_total_text = format_size_for_user(storage_space.bytes_total, no_decimals=0)
-                bytes_used = storage_space.bytes_total-storage_space.bytes_free
 
-                percent_used = '{0:.0%}'.format(bytes_used / storage_space.bytes_total)
-                # Translators: percentage full e.g. 75% full
-                percent_used = _('%s full') % percent_used
+                # Some devices do not report how many bytes total they have, e.g. some SMB shares
+                if storage_space.bytes_total:
+                    other_bytes = storage_space.bytes_total - device.file_size_sum.sum(sum_key) - \
+                                  storage_space.bytes_free
+                    other_size = format_size_for_user(other_bytes)
+                    bytes_total_text = format_size_for_user(
+                        storage_space.bytes_total, no_decimals=0
+                    )
+                    bytes_used = storage_space.bytes_total-storage_space.bytes_free
+                    percent_used = '{0:.0%}'.format(bytes_used / storage_space.bytes_total)
+                    # Translators: percentage full e.g. 75% full
+                    percent_used = _('%s full') % percent_used
+                    bytes_total = storage_space.bytes_total
+                else:
+                    percent_used = _('Device size unknown')
+                    bytes_total = device.file_size_sum.sum(sum_key)
+                    other_bytes = 0
+                    bytes_total_text = format_size_for_user(bytes_total, no_decimals=0)
+                    other_size = '0'
 
-                details = BodyDetails(bytes_total_text=bytes_total_text,
-                                  bytes_total=storage_space.bytes_total,
-                                  percent_used_text=percent_used,
-                                  bytes_free_of_total='',
-                                  comp1_file_size_sum=device.file_size_sum[photo_key],
-                                  comp2_file_size_sum=device.file_size_sum[video_key],
-                                  comp3_file_size_sum=other_bytes,
-                                  comp4_file_size_sum=0,
-                                  comp1_text = photos,
-                                  comp2_text = videos,
-                                  comp3_text = self.other,
-                                  comp4_text = '',
-                                  comp1_size_text=photos_size,
-                                  comp2_size_text=videos_size,
-                                  comp3_size_text=other_size,
-                                  comp4_size_text='',
-                                  color1=QColor(CustomColors.color1.value),
-                                  color2=QColor(CustomColors.color2.value),
-                                  color3=QColor(CustomColors.color3.value),
-                                  displaying_files_of_type=DisplayingFilesOfType.photos_and_videos
-                                  )
-                self.deviceDisplay.paint_body(painter=painter, x=x, y=y, width=width,
-                                              details=details)
+                details = BodyDetails(
+                    bytes_total_text=bytes_total_text,
+                    bytes_total=bytes_total,
+                    percent_used_text=percent_used,
+                    bytes_free_of_total='',
+                    comp1_file_size_sum=device.file_size_sum[photo_key],
+                    comp2_file_size_sum=device.file_size_sum[video_key],
+                    comp3_file_size_sum=other_bytes,
+                    comp4_file_size_sum=0,
+                    comp1_text = photos,
+                    comp2_text = videos,
+                    comp3_text = self.other,
+                    comp4_text = '',
+                    comp1_size_text=photos_size,
+                    comp2_size_text=videos_size,
+                    comp3_size_text=other_size,
+                    comp4_size_text='',
+                    color1=QColor(CustomColors.color1.value),
+                    color2=QColor(CustomColors.color2.value),
+                    color3=QColor(CustomColors.color3.value),
+                    displaying_files_of_type=DisplayingFilesOfType.photos_and_videos
+                )
+                self.deviceDisplay.paint_body(
+                    painter=painter, x=x, y=y, width=width, details=details
+                )
 
             else:
                 assert len(device.storage_space) == 0
