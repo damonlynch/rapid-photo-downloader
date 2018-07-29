@@ -768,7 +768,7 @@ class RapidWindow(QMainWindow):
             self.prefs.optimize_thumbnail_db = False
         else:
             # Recreate the cache on the file system
-            ThumbnailCacheSql(create_table_if_not_exists=True)
+            t = ThumbnailCacheSql(create_table_if_not_exists=True)
 
         # For meaning of 'Devices', see devices.py
         self.devices = DeviceCollection(self.exiftool_process, self)

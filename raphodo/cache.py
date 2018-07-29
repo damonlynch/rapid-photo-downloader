@@ -521,9 +521,13 @@ class ThumbnailCacheSql:
                     os.remove(thumbnail)
                     deleted_thumbnails.append(name)
             if len(deleted_thumbnails):
-                self.thumb_db.delete_thumbnails(deleted_thumbnails)
-                logging.debug('Deleted {} thumbnail files that had not been '
-                          'accessed for {} or more days'.format(len(deleted_thumbnails), days))
+                if self.thumb_db.cache_exists():
+                    self.thumb_db.delete_thumbnails(deleted_thumbnails)
+                logging.debug(
+                    'Deleted {} thumbnail files that had not been accessed for {} or more days'.format(
+                        len(deleted_thumbnails), days
+                    )
+                )
 
     def purge_cache(self) -> None:
         """

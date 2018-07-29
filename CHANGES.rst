@@ -8,7 +8,10 @@ Changelog for Rapid Photo Downloader
    introduced in PyQt 5.11, and do not install PyQt 5.11 on systems with
    Python 3.5.3 or older.
 
- - Fix bug #1775654: optional dependencies listed in setup.py as required
+ - Fix bug #1775654: optional dependencies listed in setup.py as required.
+
+ - Fix bug #1755915: Crash while accessing non-existant SQL database 'cache'
+   while exiting.
 
 0.9.9 (2018-03-08)
 ------------------

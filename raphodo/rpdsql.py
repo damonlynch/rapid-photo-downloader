@@ -734,6 +734,15 @@ class CacheSQL:
     def db_fs_name(self) -> str:
         return 'thumbnail_cache.sqlite'
 
+    def cache_exists(self) -> bool:
+        conn = sqlite3.connect(self.db)
+        row = conn.execute(
+            """SELECT name FROM sqlite_master WHERE type='table' AND name='{}'""".format(self.table_name)
+        ).fetchone()
+        conn.close()
+        return row is not None
+
+
     def update_table(self, reset: bool=False) -> None:
         """
         Create or update the database table
