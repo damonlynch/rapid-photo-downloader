@@ -342,15 +342,19 @@ setup(
         'arrow',
         'python-dateutil',
         'colorlog',
-        'pyprind',
         'rawkit',
         'easygui',
-        'colour',
         'pymediainfo',
         'sortedcontainers',
-        'tornado'
+        'tornado',
+        'scandir;python_version<"3.5"',
+        'typing;python_version<"3.5"',
+        'PyGObject'
     ],
-    extras_require={':python_version == "3.4"': ['scandir', 'typing']},
+    extras_require={
+        'color_ouput': ['colour',],
+        'progress_bar': ['pyprind',]
+    },
     include_package_data = False,
     data_files = [
         (
@@ -388,6 +392,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Multimedia :: Graphics',
         'Topic :: Multimedia :: Video'
     ],

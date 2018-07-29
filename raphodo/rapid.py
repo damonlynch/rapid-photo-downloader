@@ -2923,7 +2923,7 @@ Do you want to proceed with the download?
                              if scan_id in self.devices.thumbnailing]
         for scan_id in stop_thumbnailing:
             device = self.devices[scan_id]
-            if not scan_id in self.thumbnailModel.generating_thumbnails:
+            if scan_id not in self.thumbnailModel.generating_thumbnails:
                 logging.debug(
                     "Not terminating thumbnailing of %s because it's not in the thumbnail manager",
                     device.display_name
