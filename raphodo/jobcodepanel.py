@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Display, edit and apply Job Codes.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017, Damon Lynch"
+__copyright__ = "Copyright 2017-2018, Damon Lynch"
 
 from typing import Optional, Dict, Tuple, Union, List
 import logging
@@ -190,7 +190,8 @@ class JobCodeOptionsWidget(QFramedWidget):
              _('Removing a Job Code removes it only from the list of saved Job Codes, '
                'not from any photos or videos that it may have been applied to.'),
              _('If you want to use Job Codes, configure file renaming or destination subfolder '
-               'names to use them.')))
+               'names to use them.'))
+        )
 
         self.setDefaultMessage()
 
@@ -390,15 +391,17 @@ class JobCodeOptionsWidget(QFramedWidget):
     def applyButtonClicked(self) -> None:
         row = self.jobCodesWidget.currentRow()
         if row < 0:
-            logging.error("Did not expect Apply Job Code button to be enabled when no Job Code "
-                          "is selected.")
+            logging.error(
+                "Did not expect Apply Job Code button to be enabled when no Job Code is selected."
+            )
             return
 
         try:
             job_code = self.jobCodesWidget.item(row).text()
         except:
-            logging.exception("Job Code did not exist when obtaining its value from the list "
-                              "widget")
+            logging.exception(
+                "Job Code did not exist when obtaining its value from the list widget"
+            )
             return
 
         self.rapidApp.applyJobCode(job_code=job_code)
@@ -406,8 +409,10 @@ class JobCodeOptionsWidget(QFramedWidget):
         try:
             self.prefs.del_list_value(key='job_codes', value=job_code)
         except KeyError:
-            logging.exception("Attempted to delete non existent value %s from Job Codes while in "
-                              "process of moving it to the front of the list", job_code)
+            logging.exception(
+                "Attempted to delete non existent value %s from Job Codes while in process of "
+                "moving it to the front of the list", job_code
+            )
         self.prefs.add_list_value(key='job_codes', value=job_code)
 
         if self.sortCombo.currentIndex() != 1:
@@ -420,8 +425,9 @@ class JobCodeOptionsWidget(QFramedWidget):
         try:
             self.prefs.del_list_value(key='job_codes', value=item.text())
         except KeyError:
-            logging.exception("Attempted to delete non existent value %s from Job Codes",
-                              item.text())
+            logging.exception(
+                "Attempted to delete non existent value %s from Job Codes", item.text()
+            )
 
     @pyqtSlot()
     def removeAllButtonClicked(self) -> None:
@@ -445,8 +451,9 @@ class JobCodeOptionsWidget(QFramedWidget):
         if not self.prompting_for_job_code:
             logging.debug("Prompting for job code")
             self.prompting_for_job_code = True
-            dialog = JobCodeDialog(self.rapidApp, on_download=on_download,
-                                   job_codes=self._jobCodes())
+            dialog = JobCodeDialog(
+                self.rapidApp, on_download=on_download, job_codes=self._jobCodes()
+            )
             if dialog.exec():
                 self.prompting_for_job_code = False
                 logging.debug("Job code entered / selected")
@@ -465,7 +472,8 @@ class JobCodeOptionsWidget(QFramedWidget):
                         self.rapidApp.applyJobCode(job_code=job_code)
                     else:
                         self.rapidApp.thumbnailModel.assignJobCodesToMarkedFilesWithNoJobCode(
-                            job_code=job_code)
+                            job_code=job_code
+                        )
                     return True
             else:
                 self.prompting_for_job_code = False
@@ -490,12 +498,15 @@ class JobCodePanel(QScrollArea):
 
         self.setFrameShape(QFrame.NoFrame)
 
-        self.jobCodePanel = QPanelView(label=_('Job Codes'),
-                                       headerColor=QColor(ThumbnailBackgroundName),
-                                       headerFontColor=QColor(Qt.white))
+        self.jobCodePanel = QPanelView(
+            label=_('Job Codes'),
+            headerColor=QColor(ThumbnailBackgroundName),
+            headerFontColor=QColor(Qt.white)
+        )
 
-        self.jobCodeOptions = JobCodeOptionsWidget(prefs=self.prefs, rapidApp=self.rapidApp,
-                                                   parent=self)
+        self.jobCodeOptions = JobCodeOptionsWidget(
+            prefs=self.prefs, rapidApp=self.rapidApp, parent=self
+        )
         self.jobCodePanel.addWidget(self.jobCodeOptions)
 
         widget = QWidget()
@@ -509,7 +520,8 @@ class JobCodePanel(QScrollArea):
 
         if parent is not None:
             self.rapidApp.thumbnailView.selectionModel().selectionChanged.connect(
-                self.jobCodeOptions.setWidgetStates)
+                self.jobCodeOptions.setWidgetStates
+            )
             self.rapidApp.thumbnailModel.selectionReset.connect(self.jobCodeOptions.setWidgetStates)
 
     def needToPromptForJobCode(self) -> bool:

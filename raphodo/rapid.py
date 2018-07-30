@@ -4426,6 +4426,7 @@ Do you want to proceed with the download?
         elif auto_start:
             self.displayMessageInStatusBar()
             if self.jobCodePanel.needToPromptForJobCode():
+                self.showMainWindow()
                 model.setSpinnerState(scan_id, DeviceState.idle)
                 start_download = self.jobCodePanel.getJobCodeBeforeDownload()
                 if not start_download:
@@ -5522,6 +5523,7 @@ Do you want to proceed with the download?
         Returns True if yes or there was no need to ask the user, False if the
         user said no.
         """
+
         self.showMainWindow()
         path = self.prefs.this_computer_path
         if path in (
@@ -5549,6 +5551,7 @@ Do you want to proceed with the download?
         :return: True if scans of such partitions should occur, else
         False
         """
+
         return self.prefs.device_autodetection and not self.prefs.scan_specific_folders
 
     def displayMessageInStatusBar(self) -> None:
