@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.10 (2018-07-xx)
+0.9.10 (2018-07-29)
 -------------------
 
  - Fix bug #1784175: Make application compatible with changes to sip
@@ -20,6 +20,8 @@ Changelog for Rapid Photo Downloader
    download
 
  - Fixed bug in Appstream specification.
+
+ - Updated German translation.
 
 0.9.9 (2018-03-08)
 ------------------
