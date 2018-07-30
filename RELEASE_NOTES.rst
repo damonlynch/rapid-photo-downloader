@@ -1,5 +1,5 @@
-Release Notes for Rapid Photo Downloader 0.9.9
-==============================================
+Release Notes for Rapid Photo Downloader 0.9.10
+===============================================
 
  - If you installed Rapid Photo Downloader using the install script, you can
    update it one of two ways: using the install script again, or using the

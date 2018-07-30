@@ -150,8 +150,7 @@ Installation
 ------------
 
 After `satisfying software requirements`_ using your Linux distribution's standard package
-installation tools, you should install Rapid Photo Downloader using the following steps, assuming
-you use sudo to get super-user (root) access.
+installation tools, you should install Rapid Photo Downloader using the following steps.
 
 First, you may need to update your user's copy of pip and setuptools:
 
