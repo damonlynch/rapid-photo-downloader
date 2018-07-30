@@ -16,6 +16,8 @@ Changelog for Rapid Photo Downloader
  - Fix bug #1764167: Division by zero error when scanning device that does not
    report its size
 
+ - Fixed bug in Appstream specification.
+
 0.9.9 (2018-03-08)
 ------------------
 

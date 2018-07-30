@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2014-2017 Damon Lynch <damonlynch@gmail.com> -->
-<application>
-  <id type="desktop">net.damonlynch.rapid-photo-downloader</id>
+<!-- Copyright 2014-2018 Damon Lynch <damonlynch@gmail.com> -->
+<component type="desktop-application">
+  <id>net.damonlynch.rapid-photo-downloader</id>
   <provides>
     <id>rapid-photo-downloader.desktop</id>
     <binary>rapid-photo-downloader</binary>
@@ -67,4 +67,4 @@
     </screenshot>
   </screenshots>
   <updatecontact>damonlynch@gmail.com</updatecontact>
-</application>
+</component>
