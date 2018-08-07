@@ -341,7 +341,7 @@ setup(
         'pyxdg',
         'arrow',
         'python-dateutil',
-        'colorlog',
+        'colour',
         'rawkit',
         'easygui',
         'pymediainfo',
@@ -352,7 +352,7 @@ setup(
         'PyGObject'
     ],
     extras_require={
-        'color_ouput': ['colour',],
+        'color_ouput': ['colorlog',],
         'progress_bar': ['pyprind',]
     },
     include_package_data = False,

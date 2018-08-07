@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.11 (2018-xx-xx)
+-------------------
+
+ - Correct mistake in fixing bug #1775654: optional dependencies listed in
+   setup.py as required.
+
 0.9.10 (2018-07-29)
 -------------------
 
