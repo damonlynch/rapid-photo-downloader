@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -23,7 +23,7 @@
 # these prefs to the user, and dictionaries are unsorted.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2017, Damon Lynch"
+__copyright__ = "Copyright 2007-2018, Damon Lynch"
 
 import os
 from collections import OrderedDict
@@ -157,12 +157,14 @@ LIST_DATE_TIME_L2 = [
     'DD',  # 14
     'Month (full)',
     'Month (abbreviated)',  # 16
+    'Weekday (full)',
+    'Weekday (abbreviated)', # 18
     'HHMMSS',
-    'HHMM',  # 18
+    'HHMM',  # 20
     'HH-MM-SS',
-    'HH-MM',  # 20
+    'HH-MM',  # 22
     'HH',
-    'MM (minutes)',  # 22
+    'MM (minutes)',  # 24
     'SS'
 ]
 
@@ -359,6 +361,12 @@ class i18TranslateMeThanks:
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('Month (abbreviated)'),
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('Weekday (full)')
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('Weekday (abbreviated)')
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('HHMMSS')
@@ -615,12 +623,14 @@ DATE_TIME_CONVERT = [
     '%d',  # 14
     '%B',
     '%b',  # 16
+    '%A',
+    '%a',     # 18
     '%H%M%S',
-    '%H%M',  # 18
+    '%H%M',  # 20
     '%H-%M-%S',
-    '%H-%M',  # 20
+    '%H-%M',  # 22
     '%H',
-    '%M',  # 22
+    '%M',  # 24
     '%S'
 ]
 

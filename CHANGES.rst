@@ -4,6 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.11 (2018-xx-xx)
 -------------------
 
+ - Add weekday as locale's abbreviated and full name to file renaming and
+   subfolder generation options.
+
  - Correct mistake in fixing bug #1775654: optional dependencies listed in
    setup.py as required.
 
