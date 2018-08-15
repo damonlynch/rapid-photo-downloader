@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2018-08-13 11:49-0400\n"
+"POT-Creation-Date: 2018-08-15 14:16-0400\n"
 "PO-Revision-Date: 2018-02-14 04:22+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
@@ -18,25 +18,31 @@ msgstr ""
 "X-Launchpad-Export-Date: 2018-02-18 19:32+0000\n"
 "X-Generator: Launchpad (build 18553)\n"
 
-#: ../install.py:65
+#: ../install.py:66
+msgid ""
+"To continue, please first install the python3 package setuptools using your "
+"system's package manager."
+msgstr ""
+
+#: ../install.py:73
 msgid "Rapid Photo Downloader installer"
 msgstr "Instalátor aplikace Rapid Photo Downloader"
 
-#: ../install.py:66
+#: ../install.py:74
 msgid "Download and install latest version of Rapid Photo Downloader."
 msgstr ""
 "Stáhnout a nainstalovat nejnovější verzi aplikace Rapid Photo Downloader."
 
-#: ../install.py:246 ../install.py:1822
+#: ../install.py:258 ../install.py:1940
 msgid "Installer not found:"
 msgstr "Instalátor nenalezen:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:250 ../install.py:1826
+#: ../install.py:262 ../install.py:1944
 msgid "Installer not in tar.gz format:"
 msgstr "Instalátor není ve formátu tar.gz:"
 
-#: ../install.py:537
+#: ../install.py:564
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
 "permissions for"
@@ -44,41 +50,46 @@ msgstr ""
 "Zjištěno nesprávné vlastnictví složky. Vlastnictví bude změněno a přístupová "
 "práva resetována pro"
 
-#: ../install.py:612
+#: ../install.py:639
 msgid "The following command will be run:"
 msgstr "Bude spuštěn následující příkaz:"
 
-#: ../install.py:615 ../install.py:1569 ../install.py:1574
+#: ../install.py:642 ../install.py:1677 ../install.py:1682
 msgid "sudo may prompt you for the sudo password."
 msgstr ""
 "sudo vás může vyzvat k zadání hesla k účtu, oprávněného k jeho použití."
 
-#: ../install.py:619
+#: ../install.py:646
 msgid "Would you like to run the command now?"
 msgstr "Chcete spustit příkaz nyní?"
 
-#: ../install.py:621
+#: ../install.py:648
 msgid "Answer is not yes, exiting."
 msgstr "Odpověď není ano – ukončuje se."
 
-#: ../install.py:631 ../install.py:837 ../install.py:1050
+#: ../install.py:658 ../install.py:910 ../install.py:1123 ../install.py:1154
 msgid "Command failed"
 msgstr "Vykonávání příkazu se nezdařilo"
 
-#: ../install.py:633 ../install.py:838 ../install.py:1051
+#: ../install.py:660 ../install.py:911 ../install.py:1124 ../install.py:1155
 msgid "Exiting"
 msgstr "Ukončování"
 
-#: ../install.py:654
+#: ../install.py:681
 msgid "The Universe repository must be enabled."
 msgstr "Je třeba zapnout používání repozitáře Universe."
 
-#: ../install.py:678
+#: ../install.py:702
+#, fuzzy
+msgid "The IUS Community repository must be enabled."
+msgstr "Je třeba zapnout používání repozitáře Universe."
+
+#: ../install.py:727
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
 msgstr "Chcete odinstalovat předchozí verzi Rapid Photo Downloader:"
 
-#: ../install.py:801 ../install.py:826
+#: ../install.py:874 ../install.py:899
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
@@ -86,7 +97,7 @@ msgstr ""
 "Dotazování systému správy balíčků zda je nainstalovaná starší verze Rapid "
 "Photo Downloader (může to chvíli trvat)…"
 
-#: ../install.py:812
+#: ../install.py:885
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again"
@@ -94,26 +105,26 @@ msgstr ""
 "Nedaří se dotázat systému správy balíčků. Zkontrolujte připojení k Internetu "
 "a zkuste to znovu"
 
-#: ../install.py:842
+#: ../install.py:915
 msgid "Checking if previous version installed with pip..."
 msgstr "Zjišťování zda předchozí verze byla nainstalovaná pomocí nástroje pip…"
 
-#: ../install.py:939
+#: ../install.py:1012
 msgid "The following package is unknown on your system: {}\n"
 msgstr "Následující balíček je systému neznámý: {}\n"
 
-#: ../install.py:946 ../install.py:1013 ../install.py:1058
+#: ../install.py:1019 ../install.py:1086 ../install.py:1131 ../install.py:1162
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
 "Aby bylo možné pokračovat, budou nainstalovány balíčky potřebné pro provoz "
 "aplikace."
 
-#: ../install.py:970
+#: ../install.py:1043
 msgid "Querying installed and available packages (this may take a while)"
 msgstr "Zjišťování nainstalovaných a dostupných balíčků (může chvíli trvat)"
 
-#: ../install.py:1042
+#: ../install.py:1115
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
@@ -121,11 +132,20 @@ msgstr ""
 "Dotazování správce balíčků zypper zda a případně které potřebné balíčky už "
 "jsou nainstalované (může chvíli trvat)… "
 
-#: ../install.py:1088
+#: ../install.py:1147
+#, fuzzy
+msgid ""
+"Querying yum to see if any required packages are already installed (this may "
+"take a while)... "
+msgstr ""
+"Dotazování správce balíčků zypper zda a případně které potřebné balíčky už "
+"jsou nainstalované (může chvíli trvat)… "
+
+#: ../install.py:1193
 msgid "Query to confirm action at each step."
 msgstr "Dotázat se na potvrzení při každém z kroků."
 
-#: ../install.py:1095
+#: ../install.py:1200
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
@@ -133,7 +153,7 @@ msgstr ""
 "Při stahování nejnovější verze, nainstalovat vývojovou verzi pokud je "
 "novější, než ta stabilní."
 
-#: ../install.py:1104
+#: ../install.py:1209
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
@@ -141,7 +161,7 @@ msgstr ""
 "Volitelný tar.gz archiv instalátoru Rapid Photo Downloader. Pokud není "
 "zadán, bude z Internetu stažena nejnovější verze."
 
-#: ../install.py:1127
+#: ../install.py:1232
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
@@ -151,7 +171,7 @@ msgstr ""
 "pokud je novější než tato verze ({}). Výchozím chováním je spustit kterýkoli "
 "novější instalátor."
 
-#: ../install.py:1134
+#: ../install.py:1239
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
@@ -159,7 +179,7 @@ msgstr ""
 "Odinstalovat Rapid Photo Downloader který byl nainstalován pomocí pip s tím, "
 "že zůstanou zachované ostatní součásti, na kterých aplikace závisela."
 
-#: ../install.py:1138
+#: ../install.py:1243
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
@@ -167,7 +187,7 @@ msgstr ""
 "Odinstalovat ostatní součásti, na kterých aplikace závisela (nainstalované "
 "pomocí pip), následně aplikaci samotnou a pak skončit."
 
-#: ../install.py:1143
+#: ../install.py:1248
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
@@ -175,14 +195,14 @@ msgstr ""
 "Pozn.: toto nikdy neodebere instalaci Rapid Photo Downloader nainstalovanou "
 "prostřednictvím správy balíčků vámi používané Linuxové distribuce."
 
-#: ../install.py:1150
+#: ../install.py:1255
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
 "Součásti, na kterých aplikace závisela budou odebrány pouze tehdy, pokud "
 "nejsou potřebné pro žádné další programy."
 
-#: ../install.py:1156
+#: ../install.py:1261
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -199,15 +219,15 @@ msgstr ""
 "nainstalovanou prostřednictvím správy balíčků vámi používané Linuxové "
 "distribuce."
 
-#: ../install.py:1206
+#: ../install.py:1311
 msgid "Failed to download versions file"
 msgstr "Nepodařilo se stáhnout soubor s verzemi"
 
-#: ../install.py:1210
+#: ../install.py:1315
 msgid "Got error code {} while accessing versions file"
 msgstr "Při přístupu k souboru s verzemi obdržen chybový kód {}"
 
-#: ../install.py:1318
+#: ../install.py:1423
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -219,29 +239,29 @@ msgstr ""
 "\n"
 "Ukončuje se.\n"
 
-#: ../install.py:1496
+#: ../install.py:1604
 msgid "Installing application requirements..."
 msgstr "Instalace ostatních součástí potřebných pro aplikaci…"
 
-#: ../install.py:1512
+#: ../install.py:1620
 msgid "Received error code"
 msgstr "Obdržen chybový kód"
 
-#: ../install.py:1513
+#: ../install.py:1621
 msgid "Failed to install application requirements: exiting"
 msgstr ""
 "Nepodařilo se nainstalovat ostatní součásti, které aplikace potřebuje: "
 "ukončuje se"
 
-#: ../install.py:1518
+#: ../install.py:1626
 msgid "Installing application..."
 msgstr "Instalace aplikace…"
 
-#: ../install.py:1531
+#: ../install.py:1639
 msgid "Failed to install application: exiting..."
 msgstr "Aplikaci se nepodařilo nainstalovat: ukončování…"
 
-#: ../install.py:1555
+#: ../install.py:1663
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "commmand line or application launcher."
@@ -249,41 +269,41 @@ msgstr ""
 "Aby bylo možné aplikaci spustit (z příkazového řádku nebo kliknutím na "
 "zástupce), může být třeba restartovat počítač."
 
-#: ../install.py:1566
+#: ../install.py:1674
 msgid "Do you want to install the application's man pages?"
 msgstr "Přejete si nainstalovat manuálové stránky aplikace?"
 
-#: ../install.py:1567
+#: ../install.py:1675
 msgid "They will be installed into {}"
 msgstr "Budou nainstalovány do {}"
 
-#: ../install.py:1568 ../install.py:1573
+#: ../install.py:1676 ../install.py:1681
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr "Pokud aplikaci odinstalujete, tyto manuálové stránky potom odeberte."
 
-#: ../install.py:1570
+#: ../install.py:1678
 msgid "Do want to install the man pages?"
 msgstr "Chcete nainstalovat manuálové stránky?"
 
-#: ../install.py:1572
+#: ../install.py:1680
 msgid "Installing man pages into {}"
 msgstr "Instalace manuálových stránek do {}"
 
-#: ../install.py:1589
+#: ../install.py:1697
 msgid "Failed to create man page directory: exiting"
 msgstr "Nepodařilo se vytvořit složku pro manuálovou stránku: ukončuje se"
 
-#: ../install.py:1601
+#: ../install.py:1709
 msgid "Failed to copy man page."
 msgstr "Nepodařilo se zkopírovat manuálovou stránku."
 
-#: ../install.py:1611
+#: ../install.py:1719
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
 "(Pokud při ukončování dojde k Porušení ochrany paměti (segmentation fault), "
 "nemusíte tomu věnovat pozornost…)"
 
-#: ../install.py:1624
+#: ../install.py:1732
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
@@ -294,7 +314,7 @@ msgstr ""
 "aby tento nástroj byl přítomen. Protože tomu tak není, nelze pokračovat a "
 "ukončuje se."
 
-#: ../install.py:1665
+#: ../install.py:1773
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
@@ -302,12 +322,12 @@ msgstr ""
 "Nespouštějte tento instalační skript s právy správy systému (sudo/root).\n"
 "Spusťte ho jako uživatel který bude aplikaci používat.\n"
 
-#: ../install.py:1675 ../install.py:1689
+#: ../install.py:1783 ../install.py:1797
 msgid "Do not include any other command line arguments when specifying"
 msgstr ""
 "Pokud použijete tento, nezadávejte už žádné další argumenty příkazového řádku"
 
-#: ../install.py:1704
+#: ../install.py:1812
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
@@ -315,22 +335,26 @@ msgstr ""
 "Je nám líto, ale tento instalátor nepodporuje vlastní instalace python.\n"
 "Ukončuje se…"
 
-#: ../install.py:1710
+#: ../install.py:1818
 msgid "Restarting script using system python..."
 msgstr "Restartování skriptu pomocí systémové instance interpreteru python…"
 
-#: ../install.py:1741
+#: ../install.py:1829
+msgid "Detected Linux distribution {} {}"
+msgstr ""
+
+#: ../install.py:1851
 msgid "Exiting..."
 msgstr "Ukončování..."
 
 #. Translators: do not translate the term python3-apt
-#: ../install.py:1760
+#: ../install.py:1873
 msgid "To continue, the package python3-apt must be installed."
 msgstr ""
 "Aby bylo možné pokračovat, je třeba, aby byl nainstalovaný balíček python3-"
 "apt."
 
-#: ../install.py:1779
+#: ../install.py:1892
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
@@ -338,7 +362,7 @@ msgstr ""
 "Prostřednictvím správy balíčků vámi používané Linuxové distribuce "
 "nainstalujte následující balíčky a spusťte tento instalátor znovu"
 
-#: ../install.py:1788
+#: ../install.py:1901
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
@@ -347,14 +371,14 @@ msgstr ""
 "asistují Python 3 a jeho správa balíčků."
 
 #. Translators: do not translate the terms Python 3, pip and setuptools
-#: ../install.py:1803
+#: ../install.py:1921
 msgid "Python 3's pip and setuptools must be upgraded for your user."
 msgstr ""
 "U jejich instalací pro tohoto uživatele je třeba přejít na novější verze "
 "nástrojů Python 3 pip a setuptools."
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:1816
+#: ../install.py:1934
 msgid "Installing python requests"
 msgstr "Instalace python requests"
 
