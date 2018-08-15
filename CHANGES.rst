@@ -4,6 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.11 (2018-xx-xx)
 -------------------
 
+ - Added CentOS 7.5 as supported Linux distribution. See the release notes
+   for installation instructions.
+
  - Add weekday as locale's abbreviated and full name to file renaming and
    subfolder generation options.
 

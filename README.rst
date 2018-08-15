@@ -6,6 +6,7 @@ Contents
 
 - `Description`_
 - `Install on Ubuntu, openSUSE, Debian, and Fedora`_
+- `Install on CentOS 7.5`_
 - `Supported Linux Versions`_
 - `Software Requirements and Program Installation on Other Systems`_
     - `Satisfying Software Requirements`_
@@ -62,6 +63,13 @@ Finally, to uninstall:
 
 If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 
+Install on CentOS 7.5
+=====================
+
+Consult the release notes for additional steps to take prior to running
+the installation script. Once completed, the steps are the same as above,
+except the command ``python3`` is replaced by ``python3.6``
+
 Supported Linux Versions
 ========================
 
@@ -70,6 +78,7 @@ Supported Linux Versions
  - Debian 9, unstable or testing
  - Fedora 25 or newer
  - openSUSE Leap 42.2 or newer
+ - CentOS 7.5
  - Any distribution meeting the software requirements below
 
 Software Requirements and Program Installation on Other Systems

@@ -34,7 +34,6 @@ import sys
 import os
 from enum import Enum
 from distutils.version import StrictVersion, LooseVersion
-import pkg_resources
 import hashlib
 import tempfile
 import argparse
@@ -60,8 +59,17 @@ from base64 import b85decode
 from gettext import gettext as _
 import gettext
 
+try:
+    import pkg_resources
+except ImportError:
+    print (
+        _("To continue, please first install the python3 package setuptools using your system's "
+          "package manager."
+          )
+    )
+    sys.exit(1)
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -132,6 +140,7 @@ class Distro(Enum):
     peppermint = 11
     antergos = 12
     elementary = 13
+    centos = 14
     unknown = 20
 
 
@@ -147,6 +156,7 @@ installer_cmds = {
     Distro.fedora: 'dnf',
     Distro.debian: 'apt-get',
     Distro.opensuse: 'zypper',
+    Distro.centos: 'yum',
 }
 
 
@@ -163,6 +173,8 @@ def get_distro() -> Distro:
                         return Distro.korora
                     if line.find('elementary') > 0:
                         return Distro.elementary
+                    if line.find('CentOS Linux') > 0:
+                        return Distro.centos
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):
@@ -195,7 +207,7 @@ def get_distro_version(distro: Distro):
     remove_quotemark = False
     if distro == Distro.fedora:
         version_string = 'REDHAT_BUGZILLA_PRODUCT_VERSION='
-    elif distro in debian_like or distro == Distro.opensuse:
+    elif distro in debian_like or distro == Distro.opensuse or distro == Distro.centos:
         version_string = 'VERSION_ID="'
         remove_quotemark = True
     elif distro == Distro.korora:
@@ -251,7 +263,7 @@ def validate_installer(installer) -> None:
         sys.exit(1)
 
 
-def pip_packages_required():
+def pip_packages_required(distro: Distro):
     """
     Determine which packages are required to ensure all of pip, setuptools
     and wheel are installed. Determines if pip is installed locally.
@@ -263,18 +275,20 @@ def pip_packages_required():
     if have_pip:
         local_pip = custom_python() or user_pip()
     else:
-        packages.append('python3-pip')
+        packages.append('{}-pip'.format(python3_version(distro)))
         local_pip = False
 
-    try:
-        import setuptools
-    except ImportError:
-        packages.append(pip_package('setuptools', local_pip))
+    if distro != Distro.centos:
 
-    try:
-        import wheel
-    except:
-        packages.append(pip_package('wheel', local_pip))
+        try:
+            import setuptools
+        except ImportError:
+            packages.append(pip_package('setuptools', local_pip, distro))
+
+        try:
+            import wheel
+        except:
+            packages.append(pip_package('wheel', local_pip, distro))
 
     return packages, local_pip
 
@@ -376,7 +390,7 @@ def make_distro_packager_commmand(distro_family: Distro,
     :param packages: packages to query / install / remove
     :param interactive: whether the command should require user intervention
     :param command: the command the packaging program should run
-    :param sudo: whehter to prefix the call with sudo
+    :param sudo: whether to prefix the call with sudo
     :return: the command line in string format
     """
 
@@ -417,7 +431,7 @@ def valid_system_python():
 
     cmd = "import platform; v = platform.python_version_tuple(); "\
           "print(int(v[0]) >= 3 and int( v[1]) >=4)"
-    for executable in ('/usr/bin/python3', '/usr/bin/python'):
+    for executable in ('/usr/bin/python3', '/usr/bin/python3.6', '/usr/bin/python'):
         try:
             args = shlex.split('{} -c "{}"'.format(executable, cmd))
             output = subprocess.check_output(args, universal_newlines=True)
@@ -471,7 +485,20 @@ def match_pyqt5_and_sip():
             sys.exit(1)
 
 
-def pip_package(package: str, local_pip: bool) -> str:
+def python3_version(distro: Distro) -> str:
+    """
+    Return package name appropriate to platform
+    :param distro: linux distribution
+    :return: package name appropriate to platform
+    """
+
+    if distro == Distro.centos:
+        return 'python36u'
+    else:
+        return 'python3'
+
+
+def pip_package(package: str, local_pip: bool, distro: Distro) -> str:
     """
     Helper function to construct installing core python packages
     :param package: the python package
@@ -480,7 +507,7 @@ def pip_package(package: str, local_pip: bool) -> str:
     :return: string of package names
     """
 
-    return package if local_pip else 'python3-{}'.format(package)
+    return package if local_pip else '{}-{}'.format(python3_version(distro), package)
 
 
 def get_yes_no(response: str) -> bool:
@@ -649,7 +676,7 @@ def enable_universe(interactive: bool) -> None:
     try:
         repos = subprocess.check_output(['apt-cache', 'policy'], universal_newlines=True)
         version = subprocess.check_output(['lsb_release', '-sc'], universal_newlines=True).strip()
-        if not '{}/universe'.format(version) in repos and version not in (
+        if '{}/universe'.format(version) not in repos and version not in (
                 'sarah', 'serena', 'sonya'):
             print(_("The Universe repository must be enabled.") + "\n")
             run_cmd(
@@ -661,6 +688,28 @@ def enable_universe(interactive: bool) -> None:
     except Exception:
         pass
 
+
+def enable_centos_ius(interactive: bool) -> None:
+    """
+    Enable the IUS repository on CentOS
+
+    :param interactive: if True, the user should be prompted to confirm
+     the command
+    """
+    try:
+        repos = subprocess.check_output(['yum', 'repolist'], universal_newlines=True)
+        if 'IUS Community Packages for Enterprise Linux' not in repos:
+            print(_('The IUS Community repository must be enabled.') + "\n")
+
+            cmds = (
+                'sudo yum -y install yum-utils',
+                'sudo yum -y install https://centos7.iuscommunity.org/ius-release.rpm'
+            )
+
+            for cmd in cmds:
+                run_cmd(command_line=cmd, restart=False, interactive=interactive)
+    except Exception:
+        pass
 
 def query_uninstall(interactive: bool) -> bool:
     """
@@ -710,6 +759,30 @@ def opensuse_package_installed(package: str) -> bool:
     """
 
     return not opensuse_missing_packages(package)
+
+
+def centos_missing_packages(packages: str):
+    """
+    Return which of the packages have not already been installed on openSUSE.
+
+    Does not catch exceptions.
+
+    :param packages: the packages to to check, in a string separated by white space
+    :return: list of packages
+    """
+
+    command_line = make_distro_packager_commmand(
+        distro_family=Distro.centos, packages=packages, interactive=True, command='list installed',
+        sudo=False
+    )
+    args = shlex.split(command_line)
+    output = subprocess.check_output(args, universal_newlines=True)
+
+    return [
+        package for package in packages.split()
+        if re.search(r"^{}\.".format(re.escape(package)), output, re.MULTILINE) is None
+    ]
+
 
 def package_in_pip_output(package: str, output: str) -> bool:
     """
@@ -1064,6 +1137,38 @@ def install_required_distro_packages(distro: Distro,
                         distro_family, ' '.join(missing_packages), interactive
                     ), interactive=interactive
                 )
+    elif distro_family == Distro.centos:
+
+        packages = 'gstreamer1-plugins-good gobject-introspection libgphoto2-devel zeromq-devel ' \
+                   'exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ rpm-build ' \
+                   'gobject-introspection-devel cairo-gobject-devel python36u-devel libmediainfo'
+        print(
+            _(
+                "Querying yum to see if any required packages are already installed (this may "
+                "take a while)... "
+            )
+        )
+        try:
+            missing_packages = centos_missing_packages(packages)
+        except subprocess.CalledProcessError as e:
+            sys.stderr.write(_("Command failed") + "\n")
+            sys.stderr.write(_("Exiting") + "\n")
+            clean_locale_tmpdir()
+            sys.exit(1)
+        else:
+            if missing_packages:
+                print(
+                    _(
+                        "To continue, some packages required to run the application will be "
+                        "installed."
+                    ) + "\n"
+                )
+                run_cmd(
+                    make_distro_packager_commmand(
+                        distro_family, ' '.join(missing_packages), interactive
+                    ), interactive=interactive
+                )
+
     else:
         check_packages_on_other_systems()
 
@@ -1489,6 +1594,9 @@ def do_install(installer: str,
 
                 reqbytes = reqbytes.rstrip() + b'\n' + pypi_pyqt5_version()
 
+            if distro == Distro.centos:
+                reqbytes = reqbytes.rstrip() + b'\nPyGobject'
+
             with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
                 temp_requirements.write(reqbytes)
                 temp_requirements_name = temp_requirements.name
@@ -1718,6 +1826,8 @@ def main():
     else:
         distro_version = unknown_version
 
+    print(_('Detected Linux distribution {} {}'.format(distro.name, distro_version)))
+
     if distro == Distro.debian:
         if distro_version == unknown_version:
             if not is_debian_testing_or_unstable():
@@ -1752,6 +1862,9 @@ def main():
     if distro in (Distro.ubuntu, Distro.peppermint):
         enable_universe(args.interactive)
 
+    if distro == Distro.centos:
+        enable_centos_ius(args.interactive)
+
     if distro in debian_like:
         distro_family = Distro.debian
         if not have_apt:
@@ -1768,12 +1881,12 @@ def main():
     else:
         distro_family = distro
 
-    packages, local_pip = pip_packages_required()
+    packages, local_pip = pip_packages_required(distro)
 
     if packages:
         packages = ' '.join(packages)
 
-        if distro_family not in (Distro.fedora, Distro.debian, Distro.opensuse):
+        if distro_family not in (Distro.fedora, Distro.debian, Distro.opensuse, Distro.centos):
             sys.stderr.write(
                 _(
                     "Install the following packages using your Linux distribution's standard "
@@ -1792,10 +1905,15 @@ def main():
 
         if not local_pip:
             command_line = make_distro_packager_commmand(distro_family, packages, args.interactive)
-        else:
-            command_line = make_pip_command('install --user ' + packages, split=False)
+            run_cmd(command_line, restart=True, interactive=args.interactive)
 
-        run_cmd(command_line, restart=True, interactive=args.interactive)
+        # Special case: CentOS IUS does not have python3 wheel package
+        if distro == Distro.centos:
+            packages = 'wheel'
+
+        if local_pip or distro == Distro.centos:
+            command_line = make_pip_command('install --user ' + packages, split=False)
+            run_cmd(command_line, restart=True, interactive=args.interactive)
 
     # Can now assume that both pip, setuptools and wheel have been installed
     if pip_version < StrictVersion('8.1'):

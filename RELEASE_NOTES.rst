@@ -32,4 +32,13 @@ Release Notes for Rapid Photo Downloader 0.9.11
 
    /usr/bin/python3 -m pip install -U --user --disable-pip-version-check pyzmq
 
+ - To install Rapid Photo Downloader on CentOS 7.5, first install Python 3.6
+   from the  IUS Community repository:
 
+   sudo yum -y install yum-utils
+   sudo yum -y install https://centos7.iuscommunity.org/ius-release.rpm
+   sudo yum -y install python36u python36u-setuptools
+
+   Then run the install.py script:
+
+   python3.6 install.py
