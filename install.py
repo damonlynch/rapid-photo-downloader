@@ -1644,9 +1644,9 @@ def do_install(installer: str,
 
     match_pyqt5_and_sip()
 
-    print("\n" +_("Installing application...") +"\n")
+    print("\n" + _("Installing application...") +"\n")
     cmd = make_pip_command(
-        'install --user --disable-pip-version-check --no-deps {}'.format(installer)
+        'install --user --disable-pip-version-check --no-deps "{}"'.format(installer)
     )
     with Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
         for line in p.stdout:

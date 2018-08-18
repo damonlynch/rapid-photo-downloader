@@ -13,6 +13,9 @@ Changelog for Rapid Photo Downloader
  - Correct mistake in fixing bug #1775654: optional dependencies listed in
    setup.py as required.
 
+ - Fix bug #1787707: install.py does not handle installer tar path with
+   spaces.
+
 0.9.10 (2018-07-29)
 -------------------
 
