@@ -485,6 +485,9 @@ class RapidWindow(QMainWindow):
         for version in get_versions():
             logging.info('%s', version)
 
+        if disable_version_check:
+            logging.debug("Version checking disabled via code")
+
         if EXIFTOOL_VERSION is None:
             logging.error("ExifTool is either missing or has a problem")
 

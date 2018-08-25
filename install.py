@@ -144,6 +144,7 @@ class Distro(Enum):
     antergos = 12
     elementary = 13
     centos = 14
+    gentoo = 15
     unknown = 20
 
 
@@ -178,6 +179,8 @@ def get_distro() -> Distro:
                         return Distro.elementary
                     if line.find('CentOS Linux') > 0:
                         return Distro.centos
+                    if line.find('openSUSE') > 0:
+                        return Distro.opensuse
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):

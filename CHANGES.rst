@@ -16,6 +16,8 @@ Changelog for Rapid Photo Downloader
  - Fix bug #1787707: install.py does not handle installer tar path with
    spaces.
 
+ - Improve detection of openSUSE in install.py script.
+
 0.9.10 (2018-07-29)
 -------------------
 

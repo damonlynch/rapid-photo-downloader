@@ -506,16 +506,19 @@ class Distro(Enum):
     debian = 1
     ubuntu = 2
     fedora = 3
-    unknown = 4
-    manjaro = 5
-    arch = 6
-    neon = 7
+    neon = 4
+    linuxmint = 5
+    korora = 6
+    arch = 7
     opensuse = 8
-    gentoo = 9
+    manjaro = 9
     galliumos = 10
     peppermint = 11
     antergos = 12
     elementary = 13
+    centos = 14
+    gentoo = 15
+    unknown = 20
 
 
 orientation_offset = dict(

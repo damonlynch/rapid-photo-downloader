@@ -106,9 +106,23 @@ def get_distro_id(id_or_id_like: str) -> Distro:
 
 
 def get_distro() -> Distro:
-    if os.path.isfile('/etc/os-release'):
-        with open('/etc/os-release', 'r') as f:
+    """
+    Determine the Linux distribution using /etc/os-release
+    """
+
+    os_release = '/etc/os-release'
+    if os.path.isfile(os_release):
+        with open(os_release, 'r') as f:
             for line in f:
+                if line.startswith('NAME='):
+                    if line.find('Korora') > 0:
+                        return Distro.korora
+                    if line.find('elementary') > 0:
+                        return Distro.elementary
+                    if line.find('CentOS Linux') > 0:
+                        return Distro.centos
+                    if line.find('openSUSE') > 0:
+                        return Distro.opensuse
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):
@@ -160,9 +174,9 @@ def get_media_dir() -> str:
                 Distro.ubuntu, Distro.debian, Distro.neon, Distro.galliumos, Distro.peppermint,
                 Distro.elementary):
             if distro not in (Distro.fedora, Distro.manjaro, Distro.arch, Distro.opensuse,
-                              Distro.gentoo, Distro.antergos):
+                              Distro.gentoo, Distro.antergos, Distro.korora):
                 logging.debug("Detected /run/media directory, but distro does not appear to "
-                              "be Fedora, Arch, openSUSE, Gentoo, Manjaro or Antergos")
+                              "be Fedora, Arch, openSUSE, Gentoo, Korora, Manjaro or Antergos")
                 log_os_release()
             return run_media_dir
         return media_dir
