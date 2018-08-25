@@ -18,6 +18,10 @@ Changelog for Rapid Photo Downloader
 
  - Improve detection of openSUSE in install.py script.
 
+ - Updated Brazilian Portuguese, Czech, Dutch, French, Japanese, Kabyle,
+   Norwegian Nynorsk, and Spanish translations.
+
+
 0.9.10 (2018-07-29)
 -------------------
 

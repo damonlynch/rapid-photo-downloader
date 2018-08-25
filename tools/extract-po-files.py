@@ -21,7 +21,7 @@
 
 """
 Simple utility to update translations for Rapid Photo Downloader using
-Launchpad translations tarball.
+Launchpad translations tarball, which is expected to be in the home directory.
 
 Not included in program tarball distributed to end users.
 """
@@ -39,7 +39,7 @@ import arrow
 import re
 
 
-blacklist = ['gl', 'lt', 'fil', 'en_AU', 'en_GB', 'eo']
+blacklist = ['gl', 'lt', 'fil', 'en_AU', 'en_GB', 'eo', 'ku']
 whitelist = [
     'ar', 'da', 'fr', 'it', 'fi', 'sk', 'ru', 'sr', 'es', 'pl', 'nl', 
     'sv', 'cs', 'hu', 'de', 'uk', 'zh_CN', 'pt_BR', 'tr', 'bg', 'ja', 'oc', 
@@ -58,6 +58,9 @@ po_destination_dir = os.path.abspath(os.path.join(os.path.realpath(__file__), '.
 print("Installing po files into", po_destination_dir)
 
 po_backup_dir = '{}/backup.po'.format(home)
+if not os.path.isdir(po_backup_dir):
+    os.mkdir(po_backup_dir)
+
 date_format = '%Y-%m-%d %H:%M'
 
 translations_tar = os.path.join(home, 'launchpad-export.tar.gz')
