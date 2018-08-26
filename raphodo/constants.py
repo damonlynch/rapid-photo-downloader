@@ -509,7 +509,8 @@ FileManagerBehavior = dict(
     dolphin=FileManagerType.select,
     caja=FileManagerType.dir_only_uri,
     thunar=FileManagerType.dir_only_uri,
-    nemo=FileManagerType.regular
+    nemo=FileManagerType.regular,
+    pcmanfm=FileManagerType.dir_only_uri,
 )
 FileManagerBehavior['pcmanfm-qt'] = FileManagerType.dir_only_uri
 
@@ -523,6 +524,8 @@ DefaultFileBrowserFallback = dict(
     cinnamon='nemo',
     mate='caja',
     xfce='thunar',
+    lxde='pcmanfm',
+    lxqt='pcmanfm-qt',
 )
 
 

@@ -857,8 +857,9 @@ class RapidWindow(QMainWindow):
         logging.debug("Probing for valid mounts")
         self.validMounts = ValidMounts(onlyExternalMounts=self.prefs.only_external_mounts)
 
-        logging.debug("Freedesktop.org thumbnails location: %s",
-                       get_fdo_cache_thumb_base_directory())
+        logging.debug(
+            "Freedesktop.org thumbnails location: %s", get_fdo_cache_thumb_base_directory()
+        )
 
         logging.debug("Probing desktop environment")
         desktop_env = get_desktop_environment()

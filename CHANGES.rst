@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.11 (2018-xx-xx)
+0.9.11 (2018-08-26)
 -------------------
 
  - Added CentOS 7.5 as supported Linux distribution. See the release notes
@@ -17,6 +17,10 @@ Changelog for Rapid Photo Downloader
    spaces.
 
  - Improve detection of openSUSE in install.py script.
+
+ - Better handle file managers that do not allow the selection of files using
+   command line arguments, which is important for desktops like Mate, LXDE,
+   and XFCE.
 
  - Provide sensible fallback when system erroneously reports default file
    manager.

@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2017, Damon Lynch"
+__copyright__ = "Copyright 2015-2018, Damon Lynch"
 
 import pickle
 import os
@@ -417,7 +417,7 @@ class ThumbnailListModel(QAbstractListModel):
             else:
                 return rpd_file.full_file_name
         elif role == Roles.uri:
-            return rpd_file.get_uri(file_manager_type=self.rapidApp.file_manager_type)
+            return rpd_file.get_uri()
         elif role == Roles.camera_memory_card:
             return rpd_file.camera_memory_card_identifiers
         elif role == Roles.mtp:

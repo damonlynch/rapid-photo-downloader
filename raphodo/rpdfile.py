@@ -788,16 +788,13 @@ class RPDFile:
         else:
             return self.name
 
-    def get_uri(self, desktop_environment: Optional[bool]=True,
-                file_manager_type: Optional[FileManagerType]=None) -> str:
+    def get_uri(self, desktop_environment: Optional[bool]=True) -> str:
         """
         Generate and return the URI for the file
 
         :param desktop_environment: if True, will to generate a URI accepted
          by Gnome and KDE desktops, which means adjusting the URI if it appears to be an
          MTP mount. Includes the port too.
-        :param file_manager_type: file manager characteristics. If cannot handle full URI, return
-     only directory component. If None, ignored.
         :return: the URI
         """
 
@@ -809,7 +806,7 @@ class RPDFile:
             camera_details = self.camera_details
         return get_uri(
             full_file_name = path, camera_details=camera_details,
-            desktop_environment=desktop_environment, file_manager_type=file_manager_type
+            desktop_environment=desktop_environment
         )
 
     def get_souce_href(self) -> str:

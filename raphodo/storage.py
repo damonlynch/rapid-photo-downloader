@@ -399,6 +399,9 @@ def get_desktop() -> Desktop:
         env = 'popgnome'
     elif env == 'gnome-classic:gnome':
         env = 'gnome'
+    elif env == 'budgie:gnome':
+        env = 'gnome'
+
     try:
         return Desktop[env]
     except KeyError:
@@ -586,24 +589,67 @@ def get_fdo_cache_thumb_base_directory() -> str:
     return os.path.join(BaseDirectory.xdg_cache_home, 'thumbnails')
 
 
+# Module level variables important for determining among other things the generation of URIs
+# Pretty ugly, but the alternative is passing values around between several processes
 _desktop = get_desktop()
 _quoted_comma = quote(',')
+_default_file_manager_probed = False
+_default_file_manager = None
+_default_file_manager_type = None
 
 
-def get_default_file_manager(remove_args: bool = True) -> Tuple[
-                                                        Optional[str], Optional[FileManagerType]]:
+def _default_file_manager_for_desktop() -> Tuple[Optional[str], Optional[FileManagerType]]:
+    """
+    If default file manager cannot be determined using system tools, guess
+    based on desktop environment.
+
+    Sets module level globals if found.
+
+    :return: file manager command (without path), and type; if not detected, (None, None)
+    """
+
+    global _default_file_manager
+    global _default_file_manager_type
+
+    try:
+        fm = DefaultFileBrowserFallback[_desktop.name]
+        assert shutil.which(fm)
+        t = FileManagerBehavior[fm]
+        _default_file_manager = fm
+        _default_file_manager_type = t
+        return fm, t
+    except KeyError:
+        logging.debug("Error determining default file manager")
+        return None, None
+    except AssertionError:
+        logging.debug("Default file manager %s cannot be found")
+        return None, None
+
+
+def get_default_file_manager() -> Tuple[Optional[str], Optional[FileManagerType]]:
     """
     Attempt to determine the default file manager for the system
     :param remove_args: if True, remove any arguments such as %U from
      the returned command
-    :return: command (without path) if found, else None
+    :return: file manager command (without path), and type; if not detected, (None, None)
     """
+
+    global _default_file_manager_probed
+    global _default_file_manager
+    global _default_file_manager_type
+
+    if _default_file_manager_probed:
+        return _default_file_manager, _default_file_manager_type
+
+    _default_file_manager_probed = True
+
     assert sys.platform.startswith('linux')
     cmd = shlex.split('xdg-mime query default inode/directory')
     try:
         desktop_file = subprocess.check_output(cmd, universal_newlines=True)  # type: str
     except:
-        return None, None
+        return _default_file_manager_for_desktop()
+
     # Remove new line character from output
     desktop_file = desktop_file[:-1]
     if desktop_file.endswith(';'):
@@ -615,43 +661,32 @@ def get_default_file_manager(remove_args: bool = True) -> Tuple[
             try:
                 desktop_entry = DesktopEntry(path)
             except xdg.Exceptions.ParsingError:
-                return None, None
+                return _default_file_manager_for_desktop()
             try:
                 desktop_entry.parse(path)
             except:
-                return None, None
+                return _default_file_manager_for_desktop()
+
             fm = desktop_entry.getExec()
 
-            # A clearly erroneous result:
+            # Unhelpful results
             if fm.startswith('baobab') or fm.startswith('exo-open'):
                 logging.debug('%s returned as default file manager: will substitute', fm)
-                try:
-                    fm = DefaultFileBrowserFallback[_desktop.name]
-                    assert shutil.which(fm)
-                    return fm, FileManagerBehavior[fm]
-                except KeyError:
-                    logging.debug("Error determining default file manager")
-                    return None, None
-                except AssertionError:
-                    logging.debug("Default file manager %s cannot be found")
-                    return None, None
+                return _default_file_manager_for_desktop()
 
+            # Strip away any extraneous arguments
+            fm_cmd = fm.split()[0]
             try:
-                file_manager_type = FileManagerBehavior[fm.split()[0]]
+                file_manager_type = FileManagerBehavior[fm_cmd]
             except KeyError:
                 file_manager_type = FileManagerType.regular
 
-            if remove_args:
-                return fm.split()[0], file_manager_type
-            else:
-                return fm, file_manager_type
+            _default_file_manager = fm_cmd
+            _default_file_manager_type = file_manager_type
+            return _default_file_manager, file_manager_type
 
-    # Special case: LXQt
-    if _desktop == Desktop.lxqt:
-        if shutil.which('pcmanfm-qt'):
-            return 'pcmanfm-qt', FileManagerType.dir_only_uri
-
-    return None, None
+    # Special case: no base dirs set, e.g. LXQt
+    return _default_file_manager_for_desktop()
 
 
 def open_in_file_manager(file_manager: str,
@@ -662,7 +697,7 @@ def open_in_file_manager(file_manager: str,
     else:
         arg = ''
 
-    cmd = '{} {}"{}"'.format(file_manager, arg, uri)
+    cmd = '{} {}{}'.format(file_manager, arg, uri)
     logging.debug("Launching: %s", cmd)
     args = shlex.split(cmd)
     subprocess.Popen(args)
@@ -671,8 +706,7 @@ def open_in_file_manager(file_manager: str,
 def get_uri(full_file_name: Optional[str]=None,
             path: Optional[str]=None,
             camera_details: Optional[CameraDetails]=None,
-            desktop_environment: Optional[bool]=True,
-            file_manager_type: Optional[FileManagerType]=None) -> str:
+            desktop_environment: Optional[bool]=True) -> str:
     """
     Generate and return the URI for the file, which varies depending on
     which device it is
@@ -682,16 +716,18 @@ def get_uri(full_file_name: Optional[str]=None,
     :param camera_details: see named tuple CameraDetails for parameters
     :param desktop_environment: if True, will to generate a URI accepted
      by Gnome, KDE and other desktops, which means adjusting the URI if it appears to be an
-     MTP mount. Includes the port too.
-    :param file_manager_type: file manager characteristics. If cannot handle full URI, return
-     only directory component. If None, ignored.
+     MTP mount. Includes the port too, for cameras. Takes into account
+     file manager characteristics.
     :return: the URI
     """
+
+    if not _default_file_manager_probed:
+        get_default_file_manager()
 
     if camera_details is None:
         prefix = 'file://'
         if desktop_environment:
-            if full_file_name and file_manager_type == FileManagerType.dir_only_uri:
+            if full_file_name and _default_file_manager_type == FileManagerType.dir_only_uri:
                 full_file_name = os.path.dirname(full_file_name)
     else:
         if not desktop_environment:
@@ -721,7 +757,7 @@ def get_uri(full_file_name: Optional[str]=None,
             else:
                 prefix = 'gphoto2://' + pathname2url('[{}]'.format(camera_details.port))
 
-            if _desktop == Desktop.lxqt:
+            if _default_file_manager == 'pcmanfm-qt':
                 # pcmanfm-qt does not like the quoted form of the comma
                 prefix = prefix.replace(_quoted_comma, ',')
                 if full_file_name:

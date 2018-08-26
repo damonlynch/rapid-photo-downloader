@@ -1850,7 +1850,7 @@ def main():
     else:
         distro_version = unknown_version
 
-    print(_('Detected Linux distribution {} {}'.format(distro.name, distro_version)))
+    print(_('Detected Linux distribution {} {}'.format(distro.name.capitalize(), distro_version)))
 
     if distro == Distro.debian:
         if distro_version == unknown_version:
