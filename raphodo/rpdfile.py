@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2017, Damon Lynch"
+__copyright__ = "Copyright 2011-2018, Damon Lynch"
 
 import os
 import time
@@ -37,9 +37,11 @@ gi.require_version('GLib', '2.0')
 from gi.repository import GLib
 
 import raphodo.exiftool as exiftool
-from raphodo.constants import (DownloadStatus, FileType, FileExtension, FileSortPriority,
-                               ThumbnailCacheStatus, Downloaded, Desktop, thumbnail_offset,
-                               DeviceTimestampTZ, ThumbnailCacheDiskStatus, ExifSource)
+from raphodo.constants import (
+    DownloadStatus, FileType, FileExtension, FileSortPriority, ThumbnailCacheStatus, Downloaded,
+    Desktop, thumbnail_offset, DeviceTimestampTZ, ThumbnailCacheDiskStatus, ExifSource,
+    FileManagerType,
+)
 
 from raphodo.storage import get_uri, CameraDetails
 import raphodo.metadataphoto as metadataphoto
@@ -786,23 +788,29 @@ class RPDFile:
         else:
             return self.name
 
-    def get_uri(self, desktop_environment: Optional[bool]=True) -> str:
+    def get_uri(self, desktop_environment: Optional[bool]=True,
+                file_manager_type: Optional[FileManagerType]=None) -> str:
         """
         Generate and return the URI for the file
 
         :param desktop_environment: if True, will to generate a URI accepted
          by Gnome and KDE desktops, which means adjusting the URI if it appears to be an
          MTP mount. Includes the port too.
+        :param file_manager_type: file manager characteristics. If cannot handle full URI, return
+     only directory component. If None, ignored.
         :return: the URI
         """
 
         if self.status in Downloaded:
-            return 'file://{}'.format(pathname2url(self.download_full_file_name))
+            path = self.download_full_file_name
+            camera_details = None
         else:
-            return get_uri(
-                full_file_name = self.full_file_name, camera_details=self.camera_details,
-                desktop_environment=desktop_environment
-            )
+            path = self.full_file_name
+            camera_details = self.camera_details
+        return get_uri(
+            full_file_name = path, camera_details=camera_details,
+            desktop_environment=desktop_environment, file_manager_type=file_manager_type
+        )
 
     def get_souce_href(self) -> str:
         return make_href(

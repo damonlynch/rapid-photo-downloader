@@ -501,19 +501,28 @@ class Desktop(Enum):
 class FileManagerType(Enum):
     regular = 1
     select = 2
+    dir_only_uri = 3
 
 
-nautilus = ('nautilus', FileManagerType.regular)
+FileManagerBehavior = dict(
+    nautilus=FileManagerType.regular,
+    dolphin=FileManagerType.select,
+    caja=FileManagerType.dir_only_uri,
+    thunar=FileManagerType.dir_only_uri,
+    nemo=FileManagerType.regular
+)
+FileManagerBehavior['pcmanfm-qt'] = FileManagerType.dir_only_uri
+
 
 DefaultFileBrowserFallback = dict(
-    gnome=nautilus,
-    ubuntugnome=nautilus,
-    popgnome=nautilus,
-    unity=nautilus,
-    kde=('dolphin', FileManagerType.select),
-    cinnamon=('nemo', FileManagerType.regular),
-    mate=('caja', FileManagerType.regular),
-    xfce=('thunar', FileManagerType.regular),
+    gnome='nautilus',
+    ubuntugnome='nautilus',
+    popgnome='nautilus',
+    unity='nautilus',
+    kde='dolphin',
+    cinnamon='nemo',
+    mate='caja',
+    xfce='thunar',
 )
 
 

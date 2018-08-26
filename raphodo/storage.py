@@ -75,7 +75,9 @@ from gi.repository import GUdev, UDisks, GLib
 
 from gettext import gettext as _
 
-from raphodo.constants import Desktop, Distro, FileManagerType, DefaultFileBrowserFallback
+from raphodo.constants import (
+    Desktop, Distro, FileManagerType, DefaultFileBrowserFallback, FileManagerBehavior
+)
 from raphodo.utilities import (
     process_running, log_os_release, remove_topmost_directory_from_path, find_mount_point
 )
@@ -621,19 +623,23 @@ def get_default_file_manager(remove_args: bool = True) -> Tuple[
             fm = desktop_entry.getExec()
 
             # A clearly erroneous result:
-            if fm.startswith('baobab'):
-                logging.debug('Baobab erroneously returned as default file manager')
+            if fm.startswith('baobab') or fm.startswith('exo-open'):
+                logging.debug('%s returned as default file manager: will substitute', fm)
                 try:
-                    return DefaultFileBrowserFallback[_desktop.name]
-                except:
+                    fm = DefaultFileBrowserFallback[_desktop.name]
+                    assert shutil.which(fm)
+                    return fm, FileManagerBehavior[fm]
+                except KeyError:
+                    logging.debug("Error determining default file manager")
+                    return None, None
+                except AssertionError:
+                    logging.debug("Default file manager %s cannot be found")
                     return None, None
 
-
-            if fm.startswith('dolphin'):
-                file_manager_type = FileManagerType.select
-            else:
+            try:
+                file_manager_type = FileManagerBehavior[fm.split()[0]]
+            except KeyError:
                 file_manager_type = FileManagerType.regular
-
 
             if remove_args:
                 return fm.split()[0], file_manager_type
@@ -643,7 +649,7 @@ def get_default_file_manager(remove_args: bool = True) -> Tuple[
     # Special case: LXQt
     if _desktop == Desktop.lxqt:
         if shutil.which('pcmanfm-qt'):
-            return 'pcmanfm-qt', FileManagerType.regular
+            return 'pcmanfm-qt', FileManagerType.dir_only_uri
 
     return None, None
 
@@ -651,10 +657,10 @@ def get_default_file_manager(remove_args: bool = True) -> Tuple[
 def open_in_file_manager(file_manager: str,
                          file_manager_type: FileManagerType,
                          uri: str) -> None:
-    if file_manager_type == FileManagerType.regular:
-        arg = ''
-    else:
+    if file_manager_type == FileManagerType.select:
         arg = '--select '
+    else:
+        arg = ''
 
     cmd = '{} {}"{}"'.format(file_manager, arg, uri)
     logging.debug("Launching: %s", cmd)
@@ -665,7 +671,8 @@ def open_in_file_manager(file_manager: str,
 def get_uri(full_file_name: Optional[str]=None,
             path: Optional[str]=None,
             camera_details: Optional[CameraDetails]=None,
-            desktop_environment: Optional[bool]=True) -> str:
+            desktop_environment: Optional[bool]=True,
+            file_manager_type: Optional[FileManagerType]=None) -> str:
     """
     Generate and return the URI for the file, which varies depending on
     which device it is
@@ -674,15 +681,17 @@ def get_uri(full_file_name: Optional[str]=None,
     :param path: straight path when not passing a full_file_name
     :param camera_details: see named tuple CameraDetails for parameters
     :param desktop_environment: if True, will to generate a URI accepted
-     by Gnome and KDE desktops, which means adjusting the URI if it appears to be an
+     by Gnome, KDE and other desktops, which means adjusting the URI if it appears to be an
      MTP mount. Includes the port too.
+    :param file_manager_type: file manager characteristics. If cannot handle full URI, return
+     only directory component. If None, ignored.
     :return: the URI
     """
 
     if camera_details is None:
         prefix = 'file://'
         if desktop_environment:
-            if full_file_name and _desktop == Desktop.mate:
+            if full_file_name and file_manager_type == FileManagerType.dir_only_uri:
                 full_file_name = os.path.dirname(full_file_name)
     else:
         if not desktop_environment:
@@ -718,6 +727,7 @@ def get_uri(full_file_name: Optional[str]=None,
                 if full_file_name:
                     # pcmanfm-qt does not like the the filename as part of the path
                     full_file_name = os.path.dirname(full_file_name)
+
 
     if full_file_name or path:
         uri = '{}{}'.format(prefix, pathname2url(full_file_name or path))
