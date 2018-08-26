@@ -18,6 +18,9 @@ Changelog for Rapid Photo Downloader
 
  - Improve detection of openSUSE in install.py script.
 
+ - Provide sensible fallback when system erroneously reports default file
+   manager.
+
  - Updated Brazilian Portuguese, Czech, Dutch, French, Japanese, Kabyle,
    Norwegian Nynorsk, and Spanish translations.
 

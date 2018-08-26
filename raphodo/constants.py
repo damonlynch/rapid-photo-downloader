@@ -434,10 +434,6 @@ class StandardFileLocations(Enum):
     downloads = 8
 
 
-class FileManagerType(Enum):
-    regular = 1
-    select = 2
-
 
 max_remembered_destinations = 10
 
@@ -500,6 +496,25 @@ class Desktop(Enum):
     ubuntugnome = 9
     popgnome = 10
     unknown = 11
+
+
+class FileManagerType(Enum):
+    regular = 1
+    select = 2
+
+
+nautilus = ('nautilus', FileManagerType.regular)
+
+DefaultFileBrowserFallback = dict(
+    gnome=nautilus,
+    ubuntugnome=nautilus,
+    popgnome=nautilus,
+    unity=nautilus,
+    kde=('dolphin', FileManagerType.select),
+    cinnamon=('nemo', FileManagerType.regular),
+    mate=('caja', FileManagerType.regular),
+    xfce=('thunar', FileManagerType.regular),
+)
 
 
 class Distro(Enum):

@@ -75,7 +75,7 @@ from gi.repository import GUdev, UDisks, GLib
 
 from gettext import gettext as _
 
-from raphodo.constants import Desktop, Distro, FileManagerType
+from raphodo.constants import Desktop, Distro, FileManagerType, DefaultFileBrowserFallback
 from raphodo.utilities import (
     process_running, log_os_release, remove_topmost_directory_from_path, find_mount_point
 )
@@ -174,9 +174,11 @@ def get_media_dir() -> str:
                 Distro.ubuntu, Distro.debian, Distro.neon, Distro.galliumos, Distro.peppermint,
                 Distro.elementary):
             if distro not in (Distro.fedora, Distro.manjaro, Distro.arch, Distro.opensuse,
-                              Distro.gentoo, Distro.antergos, Distro.korora):
-                logging.debug("Detected /run/media directory, but distro does not appear to "
-                              "be Fedora, Arch, openSUSE, Gentoo, Korora, Manjaro or Antergos")
+                              Distro.gentoo, Distro.antergos, Distro.korora, Distro.centos):
+                logging.debug(
+                    "Detected /run/media directory, but distro does not appear to be CentOS, "
+                    "Fedora, Arch, openSUSE, Gentoo, Korora, Manjaro, or Antergos"
+                )
                 log_os_release()
             return run_media_dir
         return media_dir
@@ -393,6 +395,8 @@ def get_desktop() -> Desktop:
         env = 'ubuntugnome'
     elif env == 'pop:gnome':
         env = 'popgnome'
+    elif env == 'gnome-classic:gnome':
+        env = 'gnome'
     try:
         return Desktop[env]
     except KeyError:
@@ -580,6 +584,10 @@ def get_fdo_cache_thumb_base_directory() -> str:
     return os.path.join(BaseDirectory.xdg_cache_home, 'thumbnails')
 
 
+_desktop = get_desktop()
+_quoted_comma = quote(',')
+
+
 def get_default_file_manager(remove_args: bool = True) -> Tuple[
                                                         Optional[str], Optional[FileManagerType]]:
     """
@@ -611,21 +619,34 @@ def get_default_file_manager(remove_args: bool = True) -> Tuple[
             except:
                 return None, None
             fm = desktop_entry.getExec()
+
+            # A clearly erroneous result:
+            if fm.startswith('baobab'):
+                logging.debug('Baobab erroneously returned as default file manager')
+                try:
+                    return DefaultFileBrowserFallback[_desktop.name]
+                except:
+                    return None, None
+
+
             if fm.startswith('dolphin'):
                 file_manager_type = FileManagerType.select
             else:
                 file_manager_type = FileManagerType.regular
+
+
             if remove_args:
                 return fm.split()[0], file_manager_type
             else:
                 return fm, file_manager_type
 
     # Special case: LXQt
-    if get_desktop() == Desktop.lxqt:
+    if _desktop == Desktop.lxqt:
         if shutil.which('pcmanfm-qt'):
             return 'pcmanfm-qt', FileManagerType.regular
 
     return None, None
+
 
 def open_in_file_manager(file_manager: str,
                          file_manager_type: FileManagerType,
@@ -639,10 +660,6 @@ def open_in_file_manager(file_manager: str,
     logging.debug("Launching: %s", cmd)
     args = shlex.split(cmd)
     subprocess.Popen(args)
-
-
-_desktop = get_desktop()
-_quoted_comma = quote(',')
 
 
 def get_uri(full_file_name: Optional[str]=None,
@@ -665,8 +682,7 @@ def get_uri(full_file_name: Optional[str]=None,
     if camera_details is None:
         prefix = 'file://'
         if desktop_environment:
-            desktop = get_desktop()
-            if full_file_name and desktop == Desktop.mate:
+            if full_file_name and _desktop == Desktop.mate:
                 full_file_name = os.path.dirname(full_file_name)
     else:
         if not desktop_environment:
