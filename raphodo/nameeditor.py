@@ -389,12 +389,12 @@ class PrefHighlighter(QSyntaxHighlighter):
         :return: yield the position in the document's text
         """
         if not len(pref_defn):
-            raise StopIteration
+            return  # do not use raise StopIteration as it is Python 3.7 incompatible
         start = 0
         while True:
             start = text.find(pref_defn, start)
             if start == -1:
-                raise StopIteration
+                return  # do not use raise StopIteration as it is Python 3.7 incompatible
             yield start
             start += len(pref_defn)
 

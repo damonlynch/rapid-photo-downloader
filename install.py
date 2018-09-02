@@ -72,7 +72,7 @@ except ImportError:
     )
     sys.exit(1)
 
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -333,7 +333,8 @@ def pypi_pyqt5_capable() -> bool:
      else False.
     """
 
-    return platform.machine() == 'x86_64' and StrictVersion(platform.python_version()) >= StrictVersion('3.5.0')
+    return platform.machine() == 'x86_64' and \
+        LooseVersion(platform.python_version()) >= LooseVersion('3.5.0')
 
 
 def pyqt_511_2_compatible() -> bool:
@@ -343,7 +344,7 @@ def pyqt_511_2_compatible() -> bool:
     :return: True if this python version is compatible with PyQt 5.11.2
     """
 
-    return StrictVersion(platform.python_version()) > StrictVersion('3.5.3')
+    return LooseVersion(platform.python_version()) > LooseVersion('3.5.3')
 
 
 def pypi_pyqt5_version() -> bytes:

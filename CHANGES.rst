@@ -1,6 +1,15 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.12 (2018-09-21)
+-------------------
+
+ - Fixed bug #1790278: File renaming and subfolder generation editor breaks
+   with Python 3.7
+
+ - Updated installation script to use "loose" instead of "strict" Python
+   version checking.
+
 0.9.11 (2018-08-26)
 -------------------
 
