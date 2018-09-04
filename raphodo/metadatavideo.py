@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,10 +19,11 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2017, Damon Lynch"
+__copyright__ = "Copyright 2011-2018, Damon Lynch"
 
 import datetime
 import logging
+import re
 from typing import Optional, Union, Any
 
 import arrow.arrow
@@ -75,6 +76,7 @@ def pymedia_version_info() -> Optional[str]:
     else:
         return None
 
+
 EXIFTOOL_VERSION = exiftool.version_info()
 
 
@@ -103,6 +105,9 @@ class MetaData:
                 )  # type: pymediainfo.MediaInfo
         else:
             self.media_info = None
+        self.exiftool_dt_re = re.compile(
+            r"(?P<dt>\d{4}:\d{2}:\d{2}\s\d{2}:\d{2}:\d{2})(?P<ss>\.\d{2})?(?P<tz>(\+|-)\d{2}:\d{2})?(?P<dst>\s(DST))?"
+        )
 
     def _get(self, key, missing):
 
@@ -130,7 +135,7 @@ class MetaData:
 
     def _exiftool_date_time(self, missing: Optional[str]='',
                             ignore_file_modify_date: bool = False) -> Union[datetime.datetime, Any]:
-        """
+        r"""
         Tries to get value from key "DateTimeOriginal"
         If that fails, tries "CreateDate", and then finally
         FileModifyDate
@@ -149,22 +154,59 @@ class MetaData:
             d = d.strip()
             try:
                 # returned value may or may not have a time offset
-                if len(d) > 19:
-                    # remove the : from the timezone component, if it's present
-                    if d[-3] == ':' and (d[-6] in ('+', '-')):
-                        d = d[:-3] + d[-2:]
-                    dt = datetime.datetime.strptime(d, "%Y:%m:%d %H:%M:%S%z")
-                else:
-                    dt = datetime.datetime.strptime(d, "%Y:%m:%d %H:%M:%S")
+                # sample values:
+                # 2018:09:03 14:00:13+01:00 DST
+                # 2010:07:18 01:53:35
+                # 2010:06:03 12:50:41
+                # 2016:02:27 22:18:03.00
+                # 2016:03:19 20:14:33
+                # 2009:02:17 14:35:48
+                # 2010:05:25 17:43:16+02:00
+                # 2010:06:07 14:14:02+00:00
 
-            except ValueError:
+                match = self.exiftool_dt_re.match(d)
+                assert match
+                m = match.groupdict()
+                # groups:
+
+                # dt: date time
+                dte = m['dt']  # date time extract
+                assert dte is not None
+
+                fs = ("%Y:%m:%d %H:%M:%S")  # format string
+
+                # ss: subseconds
+                ss = m['ss']
+                if ss:
+                    dte = '{}{}'.format(dte, ss)
+                    fs = '{}.%f'.format(fs)
+
+                # tz: timezone
+                tze = m['tz']
+                if tze:
+                    dte = '{}{}'.format(dte, tze.replace(':', ''))
+                    fs = '{}%z'.format(fs)
+
+                # dst: daylight savings
+                # no idea how to handle this properly -- so ignore for now!
+
+                dt = datetime.datetime.strptime(dte, fs)
+                logging.debug("Extracted video time %s", dt.strftime(fs))
+
+            except AssertionError:
                 logging.warning(
-                    "Error parsing date time metadata %s for video %s", d, self.filename
+                    "Error extracting date time metadata '%s' for video %s", d, self.filename
+                )
+                return missing
+
+            except (ValueError, OverflowError):
+                logging.warning(
+                    "Error parsing date time metadata '%s' for video %s", d, self.filename
                 )
                 return missing
             except Exception:
                 logging.error(
-                    "Unknown error parsing date time metadata %s for video %s", d, self.filename
+                    "Unknown error parsing date time metadata '%s' for video %s", d, self.filename
                 )
                 return missing
 
@@ -241,7 +283,7 @@ class MetaData:
 
                     else:
                         dt = datetime.datetime.strptime(d, "%Y-%m-%d %H:%M:%S")
-                except ValueError:
+                except (ValueError, OverflowError):
                     logging.warning(
                         "Error parsing date time metadata %s for video %s. Will try ExifTool.",
                         d, self.filename

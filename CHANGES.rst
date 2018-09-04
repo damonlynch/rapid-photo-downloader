@@ -4,8 +4,13 @@ Changelog for Rapid Photo Downloader
 0.9.12 (2018-09-21)
 -------------------
 
+ - Fixed bug #1790351: Video date time metadata not parsed correctly when
+   'DST' appears in time zone component.
+
+ - Added support for FFF and IIQ raw formats.
+
  - Fixed bug #1790278: File renaming and subfolder generation editor breaks
-   with Python 3.7
+   with Python 3.7.
 
  - Updated installation script to use "loose" instead of "strict" Python
    version checking.

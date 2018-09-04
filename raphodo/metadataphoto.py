@@ -392,7 +392,7 @@ class MetaData(GExiv2.Metadata):
         else:
             return missing
 
-    def date_time(self, missing: Optional[str]='') -> datetime.datetime:
+    def date_time(self, missing: Optional[str]='') -> Union[datetime.datetime, Any]:
         """
         Returns in python datetime format the date and time the image was
         recorded.
@@ -432,18 +432,24 @@ class MetaData(GExiv2.Metadata):
                 try:
                     digits = int(''.join(c for c in dt_string if c.isdigit()))
                 except ValueError:
-                    logging.warning('Unexpected malformed date time metadata value %s for photo %s',
-                                        dt_string, self.rpd_full_file_name )
+                    logging.warning(
+                        'Unexpected malformed date time metadata value %s for photo %s',
+                        dt_string, self.rpd_full_file_name
+                    )
                 else:
                     if not digits:
-                        logging.debug('Ignoring date time metadata value %s for photo %s',
-                                            dt_string, self.rpd_full_file_name )
+                        logging.debug(
+                            'Ignoring date time metadata value %s for photo %s',
+                            dt_string, self.rpd_full_file_name
+                        )
                     else:
                         try:
                             return  datetime.datetime.strptime(dt_string, "%Y:%m:%d %H:%M:%S")
                         except (ValueError, OverflowError):
-                            logging.warning('Error parsing date time metadata %s for photo %s',
-                                            dt_string, self.rpd_full_file_name )
+                            logging.warning(
+                                'Error parsing date time metadata %s for photo %s',
+                                dt_string, self.rpd_full_file_name
+                            )
         return missing
 
     def timestamp(self, missing='') -> Union[float, Any]:

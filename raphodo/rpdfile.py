@@ -51,8 +51,8 @@ from raphodo.problemnotification import Problem, make_href
 
 
 RAW_EXTENSIONS = [
-    '3fr', 'arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw', 'nef', 'nrw', 'orf', 'pef',
-    'raf', 'raw', 'rw2', 'sr2', 'srw'
+    '3fr', 'arw', 'dcr', 'cr2', 'crw',  'dng', 'fff', 'iiq', 'mos', 'mef', 'mrw', 'nef', 'nrw',
+    'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2', 'srw'
 ]
 
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
