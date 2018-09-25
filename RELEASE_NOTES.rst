@@ -1,12 +1,24 @@
-Release Notes for Rapid Photo Downloader 0.9.11
+Release Notes for Rapid Photo Downloader 0.9.12
 ===============================================
+
+ - Canon's latest RAW file format CR3 is supported on systems that have
+   ExifTool 10.87 or newer. Most Linux distributions ship an older version
+   of ExifTool. If you need to, fortunately it is easy to install ExifTool
+   yourself. See:
+
+   https://www.sno.phy.queensu.ca/~phil/exiftool/install.html
+
+   Note: program performance with CR3 files is notably slower than other photo
+   file formats. Other photo file formats are read using the high performance
+   library exiv2 to read metadata and extract thumbnails. Unfortunately exiv2
+   does not yet support the CR3 format. Exiv2 0.28 will support the CR3 format.
 
  - If you installed Rapid Photo Downloader using the install script, you can
    update it one of two ways: using the install script again, or using the
    built-in update procedure. The built-in update procedure is very
-   convenient, but somtimes is limited in terms of what it can update. If you
-   use the install script to update the program, it can update more supporting
-   packages, which can sometimes prove helpful.
+   convenient, but faces limitations in terms of updating some of the software
+   the program needs. If you use the install script to update the program, it
+   can update more supporting packages, which can sometimes prove helpful.
 
  - On some systems, Rapid Photo Downloader cannot use gstreamer to generate
    video thumbnails for all common video files. Install the good and libav
@@ -23,12 +35,12 @@ Release Notes for Rapid Photo Downloader 0.9.11
    You can purge the thumbnail cache via the Preferences dialog, accessed via
    the main menu.
 
- - For systems running Python 3.6, the recommended pyzmq version is now 16.0.2
-   or newer. If xterm or lxterminal are installed on systems with Python 3.6,
-   the automatic upgrade procedure will attempt to upgrade pymzq if necessary.
-   On Python 3.6 systems lacking either of these terminals, using the
-   install.py script will upgrade pyzmq. Alternatively, the following command
-   will upgrade pyzmq:
+ - For systems running Python 3.6 or newer, the recommended pyzmq version is
+   now 16.0.2 or newer. If xterm or lxterminal are installed on systems with
+   Python 3.6 or newer, the automatic upgrade procedure will attempt to upgrade
+   pymzq if necessary. On Python 3.6 or newer systems lacking either of these
+   terminals, using the install.py script will upgrade pyzmq. Alternatively,
+   the following command will upgrade pyzmq:
 
    /usr/bin/python3 -m pip install -U --user --disable-pip-version-check pyzmq
 

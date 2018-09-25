@@ -740,14 +740,13 @@ def make_sample_rpd_file(sample_job_code: str,
     sequences = gn.Sequences(downloads_today_tracker, prefs.stored_sequence_no)
     if sample_rpd_file is not None:
         if sample_rpd_file.metadata is None:
-            logging.debug('Sample file is missing its metadata')
+            logging.error('Sample file %s is missing its metadata', sample_rpd_file.full_file_name)
             sample_rpd_file = None
         else:
             sample_rpd_file.sequences = sequences
             sample_rpd_file.download_start_time = datetime.datetime.now()
 
-    else:
-        # sample_rpd_file is None
+    if sample_rpd_file is  None:
         if generation_type in (NameGenerationType.photo_name,
                                NameGenerationType.photo_subfolder):
             sample_rpd_file = SamplePhoto(sequences=sequences)
@@ -844,10 +843,12 @@ class PrefDialog(QDialog):
 
         # Setup values needed for name generation
 
-        self.sample_rpd_file = make_sample_rpd_file(sample_rpd_file=sample_rpd_file,
-                    sample_job_code=self.prefs.most_recent_job_code(missing=_('Job Code')),
-                    prefs=self.prefs,
-                    generation_type=generation_type)
+        self.sample_rpd_file = make_sample_rpd_file(
+            sample_rpd_file=sample_rpd_file,
+            sample_job_code=self.prefs.most_recent_job_code(missing=_('Job Code')),
+            prefs=self.prefs,
+            generation_type=generation_type
+        )
 
         # Setup widgets and helper values
 

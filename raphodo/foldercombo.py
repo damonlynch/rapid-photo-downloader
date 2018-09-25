@@ -36,8 +36,9 @@ from PyQt5.QtGui import (QIcon, )
 import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import StandardFileLocations, FileType, max_remembered_destinations
 from raphodo.preferences import Preferences
-from raphodo.storage import (xdg_desktop_directory, xdg_photos_directory, xdg_videos_directory,
-                             ValidMounts)
+from raphodo.storage import (
+    xdg_desktop_directory, xdg_photos_directory, xdg_videos_directory, ValidMounts
+)
 from raphodo.utilities import make_path_end_snippets_unique
 
 

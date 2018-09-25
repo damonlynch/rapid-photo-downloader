@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2017, Damon Lynch"
+__copyright__ = "Copyright 2007-2018, Damon Lynch"
 
 import contextlib
 import locale
@@ -35,7 +35,7 @@ from collections import namedtuple, defaultdict
 from datetime import datetime
 from gettext import gettext as _
 from itertools import groupby, zip_longest
-from typing import Optional, List, Union, Any
+from typing import Optional, List, Union, Any, Tuple
 import struct
 import ctypes
 import signal
@@ -266,20 +266,22 @@ def addPushButtonLabelSpacer(s: str) -> str:
 
 class GenerateRandomFileName:
     def __init__(self):
-        # the characters used to generate temporary filenames
-        self.filename_characters = list(string.ascii_letters + string.digits)
+        # the characters used to generate temporary file names
+        self.file_name_characters = list(string.ascii_letters + string.digits)
 
     def name(self, extension: str=None) -> str:
         """
-
-        :return: filename 5 characters long without any extension
+        :param extension: if included, random file name will include the
+         file extension
+        :return: file name 5 characters long with or without extension
         """
         if extension is not None:
-            return '{}.{}'.format(''.join(
-                random.sample(self.filename_characters, 5)),
-                extension)
+            return '{}.{}'.format(
+                ''.join(random.sample(self.file_name_characters, 5)),
+                extension
+            )
         else:
-            return ''.join(random.sample(self.filename_characters, 5))
+            return ''.join(random.sample(self.file_name_characters, 5))
 
 
 TempDirs = namedtuple('TempDirs', 'photo_temp_dir, video_temp_dir')
@@ -866,3 +868,65 @@ def letters(x: int) -> str:
     v = string.ascii_lowercase[x] + v
 
     return v
+
+
+# Use to extract time zone information from date / times:
+_flexible_dt_re = re.compile(
+    r"""(?P<year>\d{4})[:-](?P<month>\d{2})[:-](?P<day>\d{2})
+        [\sT]  # separator between date and time
+        (?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})
+        (?P<subsecond>\.\d{2})?
+        (?P<timezone>([+-])\d{2}:\d{2})?
+        (?P<dst>\s(DST))?""", re.VERBOSE
+)
+
+
+def flexible_date_time_parser(dt_string: str) -> Tuple[datetime, str]:
+    r"""
+    Use regular expresion to parse exif date time value, and attempt
+    to convert it to a python date time.
+    No error checking.
+
+    :param dt_string: date time from exif in string format
+    :return: datetime, may or may not have a time zone, and format string
+
+    >>> flexible_date_time_parser('2018:09:03 14:00:13+01:00 DST')
+    datetime.datetime(2018, 9, 3, 14, 0, 13, tzinfo=datetime.timezone(datetime.timedelta(0, 3600)))
+    >>> flexible_date_time_parser('2010:07:18 01:53:35')
+    datetime.datetime(2010, 7, 18, 1, 53, 35)
+    >>> flexible_date_time_parser('2016:02:27 22:18:03.00')
+    datetime.datetime(2016, 2, 27, 22, 18, 3)
+    >>> flexible_date_time_parser('2010:05:25 17:43:16+02:00')
+    datetime.datetime(2010, 5, 25, 17, 43, 16, tzinfo=datetime.timezone(datetime.timedelta(0, 7200)))
+    >>> flexible_date_time_parser('2010:06:07 14:14:02+00:00')
+    datetime.datetime(2010, 6, 7, 14, 14, 2, tzinfo=datetime.timezone.utc)
+    >>> flexible_date_time_parser('2016-11-25T14:31:24')
+    datetime.datetime(2016, 11, 25, 14, 31, 24)
+    >>> flexible_date_time_parser('2016-11-25T14:20:09')
+    datetime.datetime(2016, 11, 25, 14, 20, 9)
+    """
+
+    match = _flexible_dt_re.match(dt_string)
+    assert match
+    m = match.groupdict()
+
+    dte = '{}:{}:{} {}:{}:{}'.format(
+        m['year'], m['month'], m['day'], m['hour'], m['minute'], m['second']
+    )
+
+    fs = "%Y:%m:%d %H:%M:%S"  # format string
+
+    ss = m['subsecond']
+    if ss:
+        dte = '{}{}'.format(dte, ss)
+        fs = '{}.%f'.format(fs)
+
+    tze = m['timezone']
+    if tze:
+        dte = '{}{}'.format(dte, tze.replace(':', ''))
+        fs = '{}%z'.format(fs)
+
+    # dst: daylight savings
+    # no idea how to handle this properly -- so ignore for now!
+
+    return datetime.strptime(dte, fs), fs

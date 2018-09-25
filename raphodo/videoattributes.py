@@ -24,19 +24,27 @@ has to be read in order to extract metadata information or generate a thumbnail.
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
+
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 import os
 import datetime
 from typing import Dict, Union
-from raphodo.photoattributes import vmtouch_output
 import raphodo.exiftool as exiftool
 from raphodo.metadatavideo import MetaData
 from raphodo.utilities import format_size_for_user, datetime_roughly_equal
 from raphodo.thumbnailextractor import get_video_frame
+from raphodo.constants import FileType
+from raphodo.photoattributes import ExifToolMixin, vmtouch_output
 
 
-class VideoAttributes:
+class VideoAttributes(ExifToolMixin):
     def __init__(self, full_file_name: str, ext: str, et_process: exiftool.ExifTool) -> None:
+        all_metadata_tags = 'date_time timestamp file_number width height length ' \
+                            'frames_per_second codec fourcc rotation'
+        super().__init__(
+            FileType.video, full_file_name, et_process, video_metadata_scan_range,
+            all_metadata_tags, MetaData
+        )
         self.datetime = None # type: datetime.datetime
         self.file_name = full_file_name
         self.ext = ext
@@ -45,11 +53,6 @@ class VideoAttributes:
         self.minimum_read_size_in_bytes_thumbnail = None  # type: int
         self.minimum_metadata_read_size_in_bytes_all = None  # type: int
         self.thumbnail_offset = 0.0
-        self.all_metadata_values = dict()  # type: Dict[str, Union[int, str, float, datetime.datetime]]
-
-        stat = os.stat(full_file_name)
-        self.fs_datetime = datetime.datetime.fromtimestamp(stat.st_mtime)
-        self.file_size = stat.st_size
 
         self.assign_video_attributes(et_process)
 
@@ -65,7 +68,7 @@ class VideoAttributes:
         if self.thumbnail:
             self.minimum_extract_for_thumbnail()
 
-        self.minimum_extract_for_all_tags()
+        self.minimum_extract_for_all()
 
 
     def assign_video_attributes(self, et_process: exiftool.ExifTool) -> None:
@@ -90,8 +93,9 @@ class VideoAttributes:
                         f.write(video_extract)
                     try:
                         if get_video_frame(tempname, self.thumbnail_offset) == self.thumbnail:
-                            self.minimum_read_size_in_bytes_thumbnail = min(size_in_bytes,
-                                                                        self.file_size)
+                            self.minimum_read_size_in_bytes_thumbnail = min(
+                                size_in_bytes, self.file_size
+                            )
                             break
                     except AssertionError:
                         pass
@@ -205,3 +209,4 @@ def thumbnail_scan_range(size: int) -> iter:
         for b in range(start, stop, step):
             yield b
     yield size
+

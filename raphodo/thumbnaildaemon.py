@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -29,7 +29,7 @@ Runs as a single instance daemon process, i.e. for the lifetime of the program.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch"
+__copyright__ = "Copyright 2015-2018, Damon Lynch"
 
 import logging
 import pickle
@@ -115,23 +115,29 @@ class DameonThumbnailWorker(DaemonProcess):
                     except OSError:
                         logging.debug("Backup file does not exist: %s", backup_full_file_name)
                     else:
-                        logging.debug("Copying and modifying existing FDO 128 thumbnail for %s",
-                                      backup_full_file_name)
+                        logging.debug(
+                            "Copying and modifying existing FDO 128 thumbnail for %s",
+                            backup_full_file_name
+                        )
                         fdo_cache_normal.modify_existing_thumbnail_and_save_copy(
                             existing_cache_thumbnail=md5_name,
                             full_file_name=backup_full_file_name,
                             size=rpd_file.size,
                             modification_time=mtime,
-                            error_on_missing_thumbnail=True)
+                            error_on_missing_thumbnail=True
+                        )
 
-                        logging.debug("Copying and modifying existing FDO 256 thumbnail for %s",
-                                      backup_full_file_name)
+                        logging.debug(
+                            "Copying and modifying existing FDO 256 thumbnail for %s",
+                            backup_full_file_name
+                        )
                         fdo_cache_large.modify_existing_thumbnail_and_save_copy(
                             existing_cache_thumbnail=md5_name,
                             full_file_name=backup_full_file_name,
                             size=rpd_file.size,
                             modification_time=mtime,
-                            error_on_missing_thumbnail=False)
+                            error_on_missing_thumbnail=False
+                        )
             else:
                 # file has just been downloaded and renamed
                 rpd_file.modified_via_daemon_process = True
@@ -144,15 +150,17 @@ class DameonThumbnailWorker(DaemonProcess):
                         (data.write_fdo_thumbnail and rpd_file.should_write_fdo()))
                     cache_search = thumbnail_caches.get_from_cache(
                         rpd_file=rpd_file,
-                        use_thumbnail_cache=use_thumbnail_cache)
+                        use_thumbnail_cache=use_thumbnail_cache
+                    )
                     task, thumbnail_bytes, full_file_name_to_work_on, origin = cache_search
                     processing = set()  # type: Set[ExtractionProcessing]
 
                     if task == ExtractionTask.undetermined:
                         # Thumbnail was not found in any cache: extract it
 
-                        task = preprocess_thumbnail_from_disk(rpd_file=rpd_file,
-                                                              processing=processing)
+                        task = preprocess_thumbnail_from_disk(
+                            rpd_file=rpd_file, processing=processing
+                        )
                         if task != ExtractionTask.bypass:
                             if rpd_file.thm_full_name is not None:
                                 full_file_name_to_work_on = rpd_file.download_thm_full_name
@@ -160,28 +168,33 @@ class DameonThumbnailWorker(DaemonProcess):
                                 full_file_name_to_work_on = rpd_file.download_full_file_name
 
                     if task == ExtractionTask.bypass:
-                        self.content = pickle.dumps(GenerateThumbnailsResults(
-                            rpd_file=rpd_file, thumbnail_bytes=thumbnail_bytes),
-                            pickle.HIGHEST_PROTOCOL)
+                        self.content = pickle.dumps(
+                            GenerateThumbnailsResults(
+                                rpd_file=rpd_file, thumbnail_bytes=thumbnail_bytes),
+                                pickle.HIGHEST_PROTOCOL
+                        )
                         self.send_message_to_sink()
 
                     elif task != ExtractionTask.undetermined:
                         # Send data to load balancer, which will send to one of its
                         # workers
 
-                        self.content = pickle.dumps(ThumbnailExtractorArgument(
-                            rpd_file=rpd_file,
-                            task=task,
-                            processing=processing,
-                            full_file_name_to_work_on=full_file_name_to_work_on,
-                            secondary_full_file_name='',
-                            exif_buffer=None,
-                            thumbnail_bytes=thumbnail_bytes,
-                            use_thumbnail_cache=data.use_thumbnail_cache,
-                            file_to_work_on_is_temporary=False,
-                            write_fdo_thumbnail=data.write_fdo_thumbnail,
-                            send_thumb_to_main=True),
-                            pickle.HIGHEST_PROTOCOL)
+                        self.content = pickle.dumps(
+                            ThumbnailExtractorArgument(
+                                rpd_file=rpd_file,
+                                task=task,
+                                processing=processing,
+                                full_file_name_to_work_on=full_file_name_to_work_on,
+                                secondary_full_file_name='',
+                                exif_buffer=None,
+                                thumbnail_bytes=thumbnail_bytes,
+                                use_thumbnail_cache=data.use_thumbnail_cache,
+                                file_to_work_on_is_temporary=False,
+                                write_fdo_thumbnail=data.write_fdo_thumbnail,
+                                send_thumb_to_main=True
+                            ),
+                            pickle.HIGHEST_PROTOCOL
+                        )
                         self.frontend.send_multipart([b'data', self.content])
                 except SystemExit as e:
                     sys.exit(e)

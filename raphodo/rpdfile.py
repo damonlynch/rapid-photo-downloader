@@ -26,10 +26,8 @@ import uuid
 import logging
 import mimetypes
 from collections import Counter, UserDict
-from urllib.request import pathname2url
 import locale
-from collections import defaultdict
-from typing import Optional, List, Tuple, Union, Any, Dict
+from typing import Optional, List, Tuple, Union, Any
 
 from gettext import gettext as _
 import gi
@@ -39,84 +37,16 @@ from gi.repository import GLib
 import raphodo.exiftool as exiftool
 from raphodo.constants import (
     DownloadStatus, FileType, FileExtension, FileSortPriority, ThumbnailCacheStatus, Downloaded,
-    Desktop, thumbnail_offset, DeviceTimestampTZ, ThumbnailCacheDiskStatus, ExifSource,
-    FileManagerType,
+    DeviceTimestampTZ, ThumbnailCacheDiskStatus, ExifSource,
 )
 
 from raphodo.storage import get_uri, CameraDetails
 import raphodo.metadataphoto as metadataphoto
 import raphodo.metadatavideo as metadatavideo
+import raphodo.metadataexiftool as metadataexiftool
 from raphodo.utilities import thousands, make_internationalized_list, datetime_roughly_equal
 from raphodo.problemnotification import Problem, make_href
-
-
-RAW_EXTENSIONS = [
-    '3fr', 'arw', 'dcr', 'cr2', 'crw',  'dng', 'fff', 'iiq', 'mos', 'mef', 'mrw', 'nef', 'nrw',
-    'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2', 'srw'
-]
-
-JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
-
-JPEG_TYPE_EXTENSIONS = ['jpg', 'jpe', 'jpeg', 'mpo']
-
-OTHER_PHOTO_EXTENSIONS = ['tif', 'tiff', 'mpo']
-
-NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + OTHER_PHOTO_EXTENSIONS
-
-PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
-
-PHOTO_EXTENSIONS_WITHOUT_OTHER = RAW_EXTENSIONS + JPEG_EXTENSIONS
-
-PHOTO_EXTENSIONS_SCAN = PHOTO_EXTENSIONS
-
-AUDIO_EXTENSIONS = ['wav', 'mp3']
-
-
-VIDEO_EXTENSIONS = [
-    '3gp', 'avi', 'm2t', 'm2ts', 'mov', 'mp4', 'mpeg','mpg', 'mod', 'tod', 'mts'
-]
-
-VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
-
-ALL_USER_VISIBLE_EXTENSIONS = PHOTO_EXTENSIONS + VIDEO_EXTENSIONS + ['xmp', 'log']
-
-ALL_KNOWN_EXTENSIONS = ALL_USER_VISIBLE_EXTENSIONS + AUDIO_EXTENSIONS + VIDEO_THUMBNAIL_EXTENSIONS
-
-MUST_CACHE_VIDEOS = [video for video in VIDEO_EXTENSIONS if thumbnail_offset.get(video) is None]
-
-
-def file_type(file_extension: str) -> Optional[FileType]:
-    """
-    Returns file type (photo/video), or None if it's neither.
-    Checks only the file's extension
-    """
-
-    if file_extension in PHOTO_EXTENSIONS_SCAN:
-        return FileType.photo
-    elif file_extension in VIDEO_EXTENSIONS:
-        return FileType.video
-    return None
-
-
-def extension_type(file_extension: str) -> FileExtension:
-    """
-    Returns the type of file as indicated by the filename extension.
-
-    :param file_extension: lowercase filename extension
-    :return: Enum indicating file type
-    """
-    if file_extension in RAW_EXTENSIONS:
-        return FileExtension.raw
-    elif file_extension in JPEG_EXTENSIONS:
-        return FileExtension.jpeg
-    elif file_extension in OTHER_PHOTO_EXTENSIONS:
-        return FileExtension.other_photo
-    elif file_extension in VIDEO_EXTENSIONS:
-        return FileExtension.video
-    elif file_extension in AUDIO_EXTENSIONS:
-        return FileExtension.audio
-    else:
-        return FileExtension.unknown
+import raphodo.fileformats as fileformats
 
 
 def get_sort_priority(extension: FileExtension, file_type: FileType) -> FileSortPriority:
@@ -478,9 +408,9 @@ class RPDFile:
         self._assign_file_type()
 
         # Remove the period from the extension and make it lower case
-        self.extension = os.path.splitext(name)[1][1:].lower()
+        self.extension = fileformats.extract_extension(name)
         # Classify file based on its type e.g. jpeg, raw or tiff etc.
-        self.extension_type = extension_type(self.extension)
+        self.extension_type = fileformats.extension_type(self.extension)
 
         self.mime_type = mimetypes.guess_type(name)[0]
 
@@ -608,7 +538,7 @@ class RPDFile:
         self.xmp_extension = ''
         self.log_extension = ''
 
-        self.metadata = None # type: Optional[Union[metadataphoto.MetaData, metadatavideo.MetaData]]
+        self.metadata = None # type: Optional[Union[metadataphoto.MetaData, metadatavideo.MetaData, metadataexiftool.MetadataExiftool]]
         self.metadata_failure = False # type: bool
 
         # User preference values used for name generation
@@ -762,7 +692,7 @@ class RPDFile:
 
         :return: True if the image is a RAW file
         """
-        return self.extension in RAW_EXTENSIONS
+        return self.extension in fileformats.RAW_EXTENSIONS
 
     def is_tiff(self) -> bool:
         """
@@ -777,12 +707,34 @@ class RPDFile:
         return self.audio_file_full_name is not None
 
     def get_current_full_file_name(self) -> str:
+        """
+        :return: full file name which depending on download status will be the
+         source file or the destination file
+        """
+
         if self.status in Downloaded:
             return self.download_full_file_name
         else:
             return self.full_file_name
 
+    def get_current_sample_full_file_name(self) -> str:
+        """
+        Sample files can be temporary extracts on the file system, or source
+        or destination files on the file system
+
+        :return: full file name assuming the current file is a sample file.
+        """
+
+        # take advantage of Python's left to right evaluation:
+        return self.temp_sample_full_file_name or self.get_current_full_file_name()
+
+
     def get_current_name(self) -> str:
+        """
+        :return: file name which depending on download status will be the
+         source file or the destination file
+        """
+
         if self.status in Downloaded:
             return self.download_name
         else:
@@ -830,8 +782,9 @@ class RPDFile:
         """
 
         if self.from_camera:
-            return _('%(path)s on %(camera)s') % dict(path=self.full_file_name,
-                                                     camera=self.camera_display_name)
+            return _('%(path)s on %(camera)s') % dict(
+                path=self.full_file_name, camera=self.camera_display_name
+            )
         else:
             return self.full_file_name
 
@@ -839,8 +792,10 @@ class RPDFile:
         self.file_type = None
 
     def __repr__(self):
-        return "{}\t{}".format(self.name, datetime.fromtimestamp(
-            self.modification_time).strftime('%Y-%m-%d %H:%M:%S'))
+        return "{}\t{}\t{}".format(
+            self.name, datetime.fromtimestamp(self.modification_time).strftime('%Y-%m-%d %H:%M:%S'),
+            self.get_current_sample_full_file_name()
+        )
 
 
 class Photo(RPDFile):
@@ -856,7 +811,7 @@ class Photo(RPDFile):
                  app1_segment: Optional[bytearray]=None,
                  et_process: exiftool.ExifTool=None) -> bool:
         """
-        Use GExiv2 to read the photograph's metadata.
+        Use GExiv2 or ExifTool to read the photograph's metadata.
 
         :param full_file_name: full path of file from which file to read
          the metadata.
@@ -868,19 +823,27 @@ class Photo(RPDFile):
         :return: True if successful, False otherwise
         """
 
-        try:
-            self.metadata = metadataphoto.MetaData(full_file_name=full_file_name,
-               raw_bytes=raw_bytes, app1_segment=app1_segment, et_process=et_process)
-        except GLib.GError as e:
-            logging.warning("Could not read metadata from %s. %s", self.full_file_name, e)
-            self.metadata_failure = True
-            return False
-        except:
-            logging.warning("Could not read metadata from %s", self.full_file_name)
-            self.metadata_failure = True
-            return False
-        else:
+        if fileformats.use_exiftool_on_photo(self.extension):
+            self.metadata = metadataexiftool.MetadataExiftool(
+                full_file_name=full_file_name, et_process=et_process, file_type=self.file_type
+            )
             return True
+        else:
+            try:
+                self.metadata = metadataphoto.MetaData(
+                    full_file_name=full_file_name, raw_bytes=raw_bytes,
+                    app1_segment=app1_segment, et_process=et_process,
+                )
+            except GLib.GError as e:
+                logging.warning("Could not read metadata from %s. %s", self.full_file_name, e)
+                self.metadata_failure = True
+                return False
+            except:
+                logging.warning("Could not read metadata from %s", self.full_file_name)
+                self.metadata_failure = True
+                return False
+            else:
+                return True
 
 
 class Video(RPDFile):

@@ -123,10 +123,12 @@ class Thumbnailer(QObject):
                            name: str,
                            proximity_seconds: int,
                            cache_dirs: CacheDirs,
+                           need_photo_cache_dir: bool,
                            need_video_cache_dir: bool,
                            camera_model: Optional[str]==None,
                            camera_port: Optional[str]=None,
-                           entire_video_required: Optional[bool] = None) -> None:
+                           entire_video_required: Optional[bool]=None,
+                           entire_photo_required: Optional[bool] = None) -> None:
         """
         Initiates thumbnail generation.
 
@@ -139,13 +141,19 @@ class Thumbnailer(QObject):
          generation
         :param cache_dirs: the location where the cache directories
          should be created
+        :param need_photo_cache_dir: if True, must use cache dir
+         to extract photo thumbnail
         :param need_video_cache_dir: if True, must use cache dir
          to extract video thumbnail
         :param camera_model: If the thumbnails are being downloaded
          from a camera, this is the name of the camera, else None
         :param camera_port: If the thumbnails are being downloaded
          from a camera, this is the port of the camera, else None,
-        """
+        :param entire_video_required: if the entire video is required
+         to extract the thumbnail
+        :param entire_photo_required: if the entire photo is required
+         to extract the thumbnail
+         """
         self.thumbnailer_controller.send_multipart(
             create_inproc_msg(
                 b'START_WORKER',
@@ -156,12 +164,14 @@ class Thumbnailer(QObject):
                     name=name,
                     proximity_seconds=proximity_seconds,
                     cache_dirs=cache_dirs,
+                    need_photo_cache_dir=need_photo_cache_dir,
                     need_video_cache_dir=need_video_cache_dir,
                     frontend_port=self._frontend_port,
                     log_gphoto2=self.log_gphoto2,
                     camera=camera_model,
                     port=camera_port,
-                    entire_video_required=entire_video_required
+                    entire_video_required=entire_video_required,
+                    entire_photo_required=entire_photo_required
                 )
             )
         )

@@ -57,7 +57,8 @@ Added "common arguments".
 Grouping tag names is no longer the default.
 The function set_pdeathsig is used to automatically terminate the process when the
 program exits.
-Add version_info()
+Added call to exiftool_version_info()
+Added execute_binary()
 """
 
 from __future__ import unicode_literals
@@ -68,22 +69,9 @@ import os
 import json
 import warnings
 import codecs
-from typing import Optional
 
+from raphodo.programversions import exiftool_version_info
 from raphodo.utilities import set_pdeathsig
-
-
-def version_info() -> str:
-    """
-    returns the version of Exiftool being used
-
-    :return version number, or None if Exiftool cannot be found
-    """
-    try:
-        return subprocess.check_output(['exiftool', '-ver']).strip().decode()
-    except (OSError, subprocess.CalledProcessError):
-        return ''
-
 
 basestring = (bytes, str)
 
@@ -197,7 +185,7 @@ class ExifTool(object):
             warnings.warn("ExifTool already running; doing nothing.")
             return
 
-        if version_info() is None:
+        if exiftool_version_info() is None:
             warnings.warn("ExifTool cannot be started; doing nothing.")
             return
 
@@ -295,6 +283,10 @@ class ExifTool(object):
     def execute_json_no_formatting(self, *params):
         params = map(fsencode, params)
         return json.loads(self.execute(b"-j", *params).decode("utf-8"))
+
+    def execute_binary(self, *params):
+        params = map(fsencode, params)
+        return self.execute(b"-b", *params)
 
     def get_metadata_batch(self, filenames):
         """Return all meta-data for the given files.

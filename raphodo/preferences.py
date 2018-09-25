@@ -40,7 +40,7 @@ import raphodo.constants as constants
 from raphodo.constants import PresetPrefType, FileType
 from raphodo.utilities import available_cpu_count, make_internationalized_list
 import raphodo.__about__
-from raphodo.rpdfile import ALL_KNOWN_EXTENSIONS
+from raphodo.fileformats import ALL_KNOWN_EXTENSIONS
 
 
 class ScanPreferences:

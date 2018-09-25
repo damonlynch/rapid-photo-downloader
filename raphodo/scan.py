@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -39,10 +39,12 @@ device, there are two aspects to metadata that are in fact needed:
    or more importantly, gphoto2. It's not an exact science and there are
    problems, but doing this is better than not doing it at all.
 
+A sample photo or video for (1) can be used for (2)
+
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2017, Damon Lynch"
+__copyright__ = "Copyright 2011-2018, Damon Lynch"
 
 import os
 import sys
@@ -69,13 +71,14 @@ import gphoto2 as gp
 # Thus do not remove these two imports
 from raphodo.interprocess import ScanArguments
 from raphodo.preferences import ScanPreferences, Preferences
-from raphodo.interprocess import (WorkerInPublishPullPipeline, ScanResults,
-                          ScanArguments)
+from raphodo.interprocess import (
+    WorkerInPublishPullPipeline, ScanResults, ScanArguments
+)
 from raphodo.camera import Camera, CameraError, CameraProblemEx
 import raphodo.rpdfile as rpdfile
 from raphodo.constants import (
     DeviceType, FileType, DeviceTimestampTZ, CameraErrorCode, FileExtension,
-    ThumbnailCacheDiskStatus, all_tags_offset, ExifSource
+    ThumbnailCacheDiskStatus, all_tags_offset, ExifSource, all_tags_offset_exiftool
 )
 from raphodo.rpdsql import DownloadedSQL, FileDownloaded
 from raphodo.cache import ThumbnailCacheSql
@@ -85,12 +88,15 @@ from raphodo.utilities import (
 from raphodo.exiftool import ExifTool
 import raphodo.metadatavideo as metadatavideo
 import raphodo.metadataphoto as metadataphoto
+import raphodo.metadataexiftool as metadataexiftool
 from raphodo.problemnotification import (
     ScanProblems, UnhandledFileProblem, CameraDirectoryReadProblem, CameraFileInfoProblem,
     CameraFileReadProblem, FileMetadataLoadProblem, FileWriteProblem, FsMetadataReadProblem,
     FileZeroLengthProblem
 )
 from raphodo.storage import get_uri, CameraDetails, gvfs_gphoto2_path
+import raphodo.fileformats as fileformats
+
 
 FileInfo = namedtuple('FileInfo', 'path modification_time size ext_lower base_name file_type')
 CameraFile = namedtuple('CameraFile', 'name size')
@@ -119,15 +125,21 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.sample_exif_source = None  # type: ExifSource
         self.sample_photo = None  # type: rpdfile.Photo
         self.sample_video = None  # type: rpdfile.Video
+        self.sample_photo_source_is_extract = None  # type: Optional[bool]
+        self.sample_photo_extract_full_file_name = None  # type: Optional[str]
         self.sample_video_extract_full_file_name = None  # type: Optional[str]
         self.sample_photo_file_full_file_name = None  # type: Optional[str]
+        self.sample_photo_full_file_downloaded = None  # type: Optional[bool]
         self.sample_video_file_full_file_name = None  # type: Optional[str]
         self.sample_video_full_file_downloaded = None  # type: Optional[bool]
-        self.found_sample_photo = False
-        self.found_sample_video = False
-        # If the entire video is required to extract metadata
+        self.located_sample_photo = False
+        self.located_sample_video = False
+        self.prepared_sample_photo = False
+        self.prepared_sample_video = False
+        # If the entire video or photo is required to extract metadata
         # (which affects thumbnail generation too).
         # Set only if downloading from a camera / phone.
+        self.entire_photo_required = False
         self.entire_video_required = False
 
         self.prefs = Preferences()
@@ -137,7 +149,28 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         self._camera_details = None  # type: Optional[CameraDetails]
 
+        self._et_process = None  # type: Optional[ExifTool]
+
         super().__init__('Scan')
+
+    @property
+    def et_process(self) -> ExifTool:
+        """
+        Instead of using with statement, which starts a new instance of ExifTool every time,
+        start it once for this scan process, if needed
+        :return: ExifTool process
+        """
+        if self._et_process is None:
+            self._et_process = ExifTool()
+            self._et_process.start()
+        return self._et_process
+
+    def exit_exiftool(self):
+        if self._et_process is not None:
+            # explicitly terminate the process right away, not relying on
+            # python's garbage collection (which as the docs indicate, is a bad idea)
+            self._et_process.terminate()
+            self._et_process = None
 
     def do_work(self) -> None:
         try:
@@ -153,6 +186,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 ScanResults(scan_id=int(self.worker_id), fatal_error=True),
                 pickle.HIGHEST_PROTOCOL
             )
+            self.exit_exiftool()
             self.send_message_to_sink()
             self.disconnect_logging()
             self.send_finished_command()
@@ -165,7 +199,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             gp.use_python_logging()
 
         if scan_arguments.ignore_other_types:
-            rpdfile.PHOTO_EXTENSIONS_SCAN = rpdfile.PHOTO_EXTENSIONS_WITHOUT_OTHER
+            fileformats.PHOTO_EXTENSIONS_SCAN = fileformats.PHOTO_EXTENSIONS_WITHOUT_OTHER
 
         self.device = scan_arguments.device
 
@@ -358,7 +392,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.file_size_sum,
                     sample_photo=self.sample_photo,
                     sample_video=self.sample_video,
-                    entire_video_required=self.entire_video_required
+                    entire_video_required=self.entire_video_required,
+                    entire_photo_required=self.entire_photo_required,
                 ),
                 pickle.HIGHEST_PROTOCOL
             )
@@ -371,6 +406,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 "{} total files scanned on {}".format(self.files_scanned, self.display_name)
             )
 
+        self.exit_exiftool()
         self.disconnect_logging()
         self.send_finished_command()
 
@@ -464,7 +500,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # Remove the period from the extension
             exts = [ext[1:] for name, ext in split_names]
             exts_lower = [ext.lower() for ext in exts]
-            ext_types = [rpdfile.extension_type(ext) for ext in exts_lower]
+            ext_types = [fileformats.extension_type(ext) for ext in exts_lower]
 
         for idx, name in enumerate(names):
             # Check to see if the process has received a command to terminate
@@ -476,7 +512,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             ext = exts[idx]
             ext_lower = exts_lower[idx]
             ext_type = ext_types[idx]
-            file_type = rpdfile.file_type(ext_lower)
+            file_type = fileformats.file_type(ext_lower)
 
             if file_type is not None:
                 # file is a photo or video
@@ -544,9 +580,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         self._camera_photos_videos_by_type[ext_type].append(metadata_details)
             else:
                 # this file on the camera is not a photo or video
-                if ext_lower in rpdfile.AUDIO_EXTENSIONS:
+                if ext_lower in fileformats.AUDIO_EXTENSIONS:
                     self._camera_audio_files[base_name].append((path, ext))
-                elif ext_lower in rpdfile.VIDEO_THUMBNAIL_EXTENSIONS:
+                elif ext_lower in fileformats.VIDEO_THUMBNAIL_EXTENSIONS:
                     self._camera_video_thumbnails[base_name].append((path, ext))
                 elif ext_lower == 'xmp':
                     self._camera_xmp_files[base_name].append((path, ext))
@@ -607,10 +643,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.ignore_mdatatime_for_mtp_dng and ext_type == FileExtension.raw
                 )
                 get_sample_metadata = (
-                    file.file_type == FileType.photo and self.sample_exif_source is None
+                    file.file_type == FileType.photo and not self.located_sample_photo
                 ) or (
-                    file.file_type == FileType.video and
-                    self.sample_video_extract_full_file_name is None
+                    file.file_type == FileType.video and not self.located_sample_video
                 )
 
                 if get_tz or get_sample_metadata:
@@ -620,15 +655,14 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     )
                     sample = self.sample_camera_metadata(
                         path=file.path, name=file.name, ext_type=ext_type, extension=file.extension,
-                        modification_time=file.mtime, size=file.size
+                        modification_time=file.mtime, size=file.size, file_type=file.file_type
                     )
                     if get_tz:
                         self.determine_device_timestamp_tz(
                             sample.datetime, file.mtime, sample.determined_by
                         )
-                need_sample_photo = self.sample_exif_source is None and have_photos
-                need_sample_video = self.sample_video_extract_full_file_name is None and \
-                                   have_videos
+                need_sample_photo = not self.located_sample_photo and have_photos
+                need_sample_video = not self.located_sample_video and have_videos
                 if not (need_sample_photo or need_sample_video):
                     break
 
@@ -650,23 +684,25 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
             if not self.download_from_camera:
                 base_name, ext = os.path.splitext(self.file_name)
-                ext = ext.lower()[1:]
-                file_type = rpdfile.file_type(ext)
+                ext = ext[1:].lower()
+                file_type = fileformats.file_type(ext)
 
                 # For next code block, see comment in
                 # self.distinguish_non_camera_device_timestamp()
                 # This only applies to files being scanned on the file system, not
                 # cameras / phones.
-                if file_type == FileType.photo and self.sample_exif_source is None:
+                if file_type == FileType.photo and not self.located_sample_photo:
                     # this should never happen due to photos being prioritized over videos
                     # with respect to time zone determination
                     logging.error(
                         "Sample metadata not extracted from photo %s although it should have "
                         "been used to determine the device timezone", self.file_name
                     )
-                elif file_type == FileType.video and self.sample_video_file_full_file_name is None:
+                elif file_type == FileType.video and not self.located_sample_video:
+                    extension = fileformats.extract_extension(self.file_name)
                     self.sample_non_camera_metadata(
-                        self.dir_name, self.file_name, file, FileExtension.video
+                        self.dir_name, self.file_name, file, FileExtension.video, extension,
+                        file_type
                     )
             else:
                 base_name = None
@@ -791,7 +827,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
                 self.file_batch.append(rpd_file)
 
-                if not self.found_sample_photo and file == self.sample_photo_file_full_file_name:
+                if not self.prepared_sample_photo and file == self.sample_photo_file_full_file_name:
                     self.sample_photo = self.create_sample_rpdfile(
                         name=self.file_name,
                         path=self.dir_name,
@@ -802,9 +838,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         ignore_mdatatime=ignore_mdatatime
                     )
                     self.sample_exif_bytes = None
-                    self.found_sample_photo = True
+                    if self.sample_photo_full_file_downloaded:
+                        rpd_file.cache_full_file_name = self.sample_photo_extract_full_file_name
+                    self.sample_photo_extract_full_file_name = None
+                    self.prepared_sample_photo = True
 
-                if not self.found_sample_video and file == self.sample_video_file_full_file_name:
+                if not self.prepared_sample_video and file == self.sample_video_file_full_file_name:
                     self.sample_video = self.create_sample_rpdfile(
                         name=self.file_name,
                         path=self.dir_name,
@@ -817,7 +856,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     if self.sample_video_full_file_downloaded:
                         rpd_file.cache_full_file_name = self.sample_video_extract_full_file_name
                     self.sample_video_extract_full_file_name = None
-                    self.found_sample_video = True
+                    self.prepared_sample_video = True
 
                 if len(self.file_batch) == self.batch_size:
                     self.content = pickle.dumps(
@@ -828,6 +867,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                             sample_photo=self.sample_photo,
                             sample_video=self.sample_video,
                             entire_video_required=self.entire_video_required,
+                            entire_photo_required=self.entire_photo_required,
                         ),
                         pickle.HIGHEST_PROTOCOL
                     )
@@ -859,6 +899,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.sample_exif_source is not None and self.sample_photo_file_full_file_name or
             self.sample_video_file_full_file_name is not None
         )
+        assert self.located_sample_photo or self.located_sample_video
         logging.info(
             "Successfully extracted sample %s metadata from %s", file_type.name, self.display_name
         )
@@ -889,19 +930,116 @@ class ScanWorker(WorkerInPublishPullPipeline):
             exif_source=self.sample_exif_source,
             problem=problem
         )
-        if file_type == FileType.video and self.download_from_camera:
+        if file_type == FileType.photo and self.download_from_camera \
+                and self.sample_photo_source_is_extract:
+            rpd_file.temp_sample_full_file_name = self.sample_photo_extract_full_file_name
+            rpd_file.temp_sample_is_complete_file = self.sample_photo_full_file_downloaded
+
+        elif file_type == FileType.video and self.download_from_camera:
             # relevant only when downloading from a camera
             rpd_file.temp_sample_full_file_name = self.sample_video_extract_full_file_name
             rpd_file.temp_sample_is_complete_file = self.sample_video_full_file_downloaded
 
         return rpd_file
 
+    def download_chunk_from_camera(self, offset: int,
+                                   size: int,
+                                   extension: str,
+                                   modification_time: int,
+                                   path: str,
+                                   name: str,
+                                   file_type:FileType) -> Tuple[bool, Optional[datetime]]:
+
+        dt = None
+        entire_file_required = False
+        # First try offset value, and if it fails, read the entire video
+        # Reading the metadata on some videos will fail if the entire video
+        # is not read, e.g. an iPhone 5 video
+        temp_name = os.path.join(
+            tempfile.gettempdir(), GenerateRandomFileName().name(extension=extension)
+        )
+        looped = False
+        for chunk_size in (offset, size):
+            if chunk_size == size:
+                logging.debug(
+                    "Downloading entire %s for metadata sample (%s)",
+                    file_type.name, format_size_for_user(size)
+                )
+                if not looped:
+                    entire_file_required = True
+                    logging.debug(
+                        "Unknown if entire %s is required to extract metadata and "
+                        "thumbnails from %s, but setting it to required in case it is",
+                        file_type.name, self.display_name
+                    )
+
+            mtime = int(self.adjusted_mtime(float(modification_time)))
+            try:
+                self.camera.save_file_chunk(path, name, chunk_size, temp_name, mtime)
+            except CameraProblemEx as e:
+                if e.code == CameraErrorCode.read:
+                    uri = get_uri(
+                        os.path.join(path, name), camera_details=self.camera_details
+                    )
+                    self.problems.append(
+                        CameraFileReadProblem(uri=uri, name=name, gp_code=e.gp_code)
+                    )
+                else:
+                    assert e.code == CameraErrorCode.write
+                    uri = get_uri(path=os.path.dirname(temp_name))
+                    self.problems.append(
+                        FileWriteProblem(uri=uri, name=temp_name, exception=e.py_exception)
+                    )
+            else:
+                if file_type == FileType.video:
+                    metadata = metadatavideo.MetaData(temp_name, self.et_process)
+                    dt = metadata.date_time(missing=None, ignore_file_modify_date=True)
+                    width = metadata.width(missing=None)
+                    height = metadata.height(missing=None)
+                    if dt is not None and width is not None and height is not None:
+                        self.sample_video_full_file_downloaded = chunk_size == size
+                        self.sample_video_extract_full_file_name = temp_name
+                        self.sample_video_file_full_file_name = os.path.join(path, name)
+                        if not entire_file_required:
+                            logging.debug(
+                                "Was able to extract video metadata from %s without "
+                                "downloading the entire video", self.display_name
+                            )
+                        break
+                else:
+                    # photo using ExifTool
+                    metadata = metadataexiftool.MetadataExiftool(
+                        temp_name, self.et_process, file_type=file_type
+                    )
+                    dt = metadata.date_time(missing=None, ignore_file_modify_date=True)
+                    if dt is not None:
+                        self.sample_photo_full_file_downloaded = chunk_size == size
+                        self.sample_photo_extract_full_file_name = temp_name
+                        self.sample_photo_file_full_file_name = os.path.join(path, name)
+                        self.sample_photo_source_is_extract = True
+                        self.sample_exif_source = ExifSource.actual_file
+                        if not entire_file_required:
+                            logging.debug(
+                                "Was able to extract photo metadata from %s without "
+                                "downloading the entire photo", self.display_name
+                            )
+                        break
+
+            entire_file_required = True
+            logging.debug(
+                "Entire %s is required to extract metadata and thumbnails from %s",
+                file_type.name, self.display_name
+            )
+            looped = True
+        return entire_file_required, dt
+
     def sample_camera_metadata(self, path: str,
                                name: str,
                                extension: str,
                                ext_type: FileExtension,
                                size: int,
-                               modification_time: int) -> SampleMetadata:
+                               modification_time: int,
+                               file_type: FileType) -> SampleMetadata:
         """
         Extract sample metadata, including specifically datetime, from a photo or video on a camera
         Video files are special in that sometimes the entire file has to be read in order to extract
@@ -909,7 +1047,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
         """
 
         dt = determined_by = None
-        use_app1 = save_chunk = exif_extract = False
+        use_app1 = save_chunk = exif_extract = use_exiftool = False
+
         if ext_type == FileExtension.jpeg:
             determined_by = 'jpeg'
             if self.camera.can_fetch_thumbnails:
@@ -919,6 +1058,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
         elif ext_type == FileExtension.raw:
             determined_by = 'RAW'
             exif_extract = True
+            use_exiftool = fileformats.use_exiftool_on_photo(extension)
+            save_chunk = use_exiftool
         elif ext_type == FileExtension.video:
             determined_by = 'video'
             save_chunk = True
@@ -934,7 +1075,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
             else:
                 try:
                     with stdchannel_redirected(sys.stderr, os.devnull):
-                        metadata = metadataphoto.MetaData(app1_segment=self.sample_exif_bytes)
+                        metadata = metadataphoto.MetaData(
+                            app1_segment=self.sample_exif_bytes, et_process=self.et_process)
                 except:
                     logging.warning(
                         "Scanner failed to load metadata from %s on %s",
@@ -950,97 +1092,57 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.sample_photo_file_full_file_name = os.path.join(path, name)
                     dt = metadata.date_time(missing=None)  # type: datetime
         elif exif_extract:
-            offset = all_tags_offset.get(extension)
-            if offset is None:
-                offset = size
-            offset = min(size, offset)
-            self.sample_exif_bytes = self.camera.get_exif_extract(path, name, offset)
-            if self.sample_exif_bytes is not None:
-                try:
-                    with stdchannel_redirected(sys.stderr, os.devnull):
-                        metadata = metadataphoto.MetaData(raw_bytes=self.sample_exif_bytes)
-                except Exception:
-                    logging.warning(
-                        "Scanner failed to load metadata from %s on %s",
-                        name, self.camera.display_name
-                    )
-                    self.sample_exif_bytes = None
-                    uri = get_uri(
-                        full_file_name=os.path.join(path, name), camera_details=self.camera_details
-                    )
-                    self.problems.append(FileMetadataLoadProblem(uri=uri, name=name))
-                else:
-                    self.sample_exif_source = ExifSource.raw_bytes
-                    self.sample_photo_file_full_file_name = os.path.join(path, name)
-                    dt = metadata.date_time(missing=None)  # type: datetime
+            if use_exiftool:
+                assert save_chunk
+                offset = all_tags_offset_exiftool.get(extension)
+                if offset is None:
+                    max_size = 1024 ** 2 * 2  # approx 2 MB
+                    offset = min(size, max_size)
+                self.entire_photo_required, dt = self.download_chunk_from_camera(
+                    offset=offset, size=size, extension=extension,
+                    modification_time=modification_time, path=path, name=name,
+                    file_type=FileType.photo
+                )
+            else:
+                offset = all_tags_offset.get(extension)
+                if offset is None:
+                    offset = size
+                offset = min(size, offset)
+                self.sample_exif_bytes = self.camera.get_exif_extract(path, name, offset)
+                if self.sample_exif_bytes is not None:
+                    try:
+                        with stdchannel_redirected(sys.stderr, os.devnull):
+                            metadata = metadataphoto.MetaData(
+                                raw_bytes=self.sample_exif_bytes, et_process=self.et_process
+                            )
+                    except Exception:
+                        logging.warning(
+                            "Scanner failed to load metadata from %s on %s",
+                            name, self.camera.display_name
+                        )
+                        self.sample_exif_bytes = None
+                        uri = get_uri(
+                            full_file_name=os.path.join(path, name), camera_details=self.camera_details
+                        )
+                        self.problems.append(FileMetadataLoadProblem(uri=uri, name=name))
+                    else:
+                        self.sample_exif_source = ExifSource.raw_bytes
+                        self.sample_photo_file_full_file_name = os.path.join(path, name)
+                        self.sample_photo_source_is_extract = False
+                        dt = metadata.date_time(missing=None)  # type: datetime
         else:
             assert save_chunk
             # video
-            offset = all_tags_offset.get(extension)
+            offset = all_tags_offset_exiftool.get(extension)
             if offset is None:
                 max_size =  1024**2 * 20  # approx 21 MB
                 offset = min(size, max_size)
-
-            # First try offset value, and if it fails, read the entire video
-            # Reading the metadata on some videos will fail if the entire video
-            # is not read, e.g. an iPhone 5 video
-            temp_name = os.path.join(
-                tempfile.gettempdir(), GenerateRandomFileName().name(extension=extension)
+            self.entire_video_required, dt = self.download_chunk_from_camera(
+                offset=offset, size=size, extension=extension,
+                modification_time=modification_time, path=path, name=name,
+                file_type=FileType.video
             )
-            with ExifTool() as et_process:
-                looped = False
-                for chunk_size in (offset, size):
-                    if chunk_size == size:
-                        logging.debug(
-                            "Downloading entire video for metadata sample (%s)",
-                            format_size_for_user(size)
-                        )
-                        if not looped:
-                            self.entire_video_required = True
-                            logging.debug(
-                                "Unknown if entire video is required to extract metadata and "
-                                "thumbnails from %s, but setting it to required in case it is",
-                                self.display_name
-                            )
 
-                    mtime = int(self.adjusted_mtime(float(modification_time)))
-                    try:
-                        self.camera.save_file_chunk(path, name, chunk_size, temp_name, mtime)
-                    except CameraProblemEx as e:
-                        if e.code == CameraErrorCode.read:
-                            uri = get_uri(
-                                os.path.join(path, name), camera_details=self.camera_details
-                            )
-                            self.problems.append(
-                                CameraFileReadProblem(uri=uri, name=name, gp_code=e.gp_code)
-                            )
-                        else:
-                            assert e.code == CameraErrorCode.write
-                            uri = get_uri(path=os.path.dirname(temp_name))
-                            self.problems.append(
-                                FileWriteProblem(uri=uri, name=temp_name, exception=e.py_exception)
-                            )
-                    else:
-                        metadata = metadatavideo.MetaData(temp_name, et_process)
-                        dt = metadata.date_time(missing=None, ignore_file_modify_date=True)
-                        width = metadata.width(missing=None)
-                        height = metadata.height(missing=None)
-                        if dt is not None and width is not None and height is not None:
-                            self.sample_video_full_file_downloaded = chunk_size == size
-                            self.sample_video_extract_full_file_name = temp_name
-                            self.sample_video_file_full_file_name = os.path.join(path, name)
-                            if not self.entire_video_required:
-                                logging.debug(
-                                    "Was able to extract video metadata from %s without "
-                                    "downloading the entire video", self.display_name
-                                )
-                            break
-                    self.entire_video_required = True
-                    logging.debug(
-                        "Entire video is required to extract metadata and thumbnails from %s",
-                        self.display_name
-                    )
-                    looped = True
 
         if dt is None:
             logging.warning(
@@ -1049,15 +1151,22 @@ class ScanWorker(WorkerInPublishPullPipeline):
             )
         else:
             self.file_mdatatime[os.path.join(path, name)] = float(dt.timestamp())
+            if file_type == FileType.photo:
+                self.located_sample_photo = True
+            else:
+                self.located_sample_video = True
             logging.info(
                 "Extracted date time value %s for %s on %s", dt, name, self.camera_display_name
             )
+
         return SampleMetadata(dt, determined_by)
 
     def sample_non_camera_metadata(self, path: str,
                                    name: str,
                                    full_file_name: str,
-                                   ext_type: FileExtension) -> SampleMetadata:
+                                   ext_type: FileExtension,
+                                   extension: str,
+                                   file_type: FileType) -> SampleMetadata:
         """
         Extract sample metadata datetime from a photo or video not on a camera
         """
@@ -1071,25 +1180,37 @@ class ScanWorker(WorkerInPublishPullPipeline):
             determined_by = 'video'
 
         if ext_type == FileExtension.video:
-            with ExifTool() as et_process:
-                metadata = metadatavideo.MetaData(full_file_name, et_process)
-                self.sample_video_file_full_file_name = os.path.join(path, name)
-                dt = metadata.date_time(missing=None)
+            metadata = metadatavideo.MetaData(
+                full_file_name=full_file_name, et_process=self.et_process
+            )
+            self.sample_video_file_full_file_name = os.path.join(path, name)
+            dt = metadata.date_time(missing=None)
         else:
-           # photo - we don't care if jpeg or RAW
-            try:
-                with stdchannel_redirected(sys.stderr, os.devnull):
-                    metadata = metadataphoto.MetaData(full_file_name=full_file_name)
-            except Exception:
-                logging.warning(
-                    "Scanner failed to load metadata from %s on %s", name, self.display_name
+            # photo - we don't care if jpeg or RAW
+            if fileformats.use_exiftool_on_photo(extension):
+                metadata = metadataexiftool.MetadataExiftool(
+                    full_file_name=full_file_name, et_process=self.et_process,
+                    file_type=file_type
                 )
-                uri = get_uri(full_file_name=full_file_name)
-                self.problems.append(FileMetadataLoadProblem(uri=uri, name=name))
-            else:
                 self.sample_exif_source = ExifSource.actual_file
                 self.sample_photo_file_full_file_name = os.path.join(path, name)
                 dt = metadata.date_time(missing=None)  # type: datetime
+            else:
+                try:
+                    with stdchannel_redirected(sys.stderr, os.devnull):
+                        metadata = metadataphoto.MetaData(
+                            full_file_name=full_file_name, et_process=self.et_process
+                        )
+                except Exception:
+                    logging.warning(
+                        "Scanner failed to load metadata from %s on %s", name, self.display_name
+                    )
+                    uri = get_uri(full_file_name=full_file_name)
+                    self.problems.append(FileMetadataLoadProblem(uri=uri, name=name))
+                else:
+                    self.sample_exif_source = ExifSource.actual_file
+                    self.sample_photo_file_full_file_name = os.path.join(path, name)
+                    dt = metadata.date_time(missing=None)  # type: datetime
 
         if dt is None:
             logging.warning(
@@ -1098,19 +1219,27 @@ class ScanWorker(WorkerInPublishPullPipeline):
             )
         else:
             self.file_mdatatime[full_file_name] = dt.timestamp()
+            if file_type == FileType.photo:
+                self.located_sample_photo = True
+            else:
+                self.located_sample_video = True
         return SampleMetadata(dt, determined_by)
 
     def examine_sample_non_camera_file(self, dirname: str,
                                        name: str,
                                        full_file_name: str,
-                                       ext_type: FileExtension) -> bool:
+                                       ext_type: FileExtension,
+                                       extension: str,
+                                       file_type: FileType) -> bool:
         """
         Examine the the sample file to extract its metadata and compare it
-        against the file system modificaton time
+        against the file system modification time
         """
 
         logging.debug("Examining sample %s", full_file_name)
-        sample = self.sample_non_camera_metadata(dirname, name, full_file_name, ext_type)
+        sample = self.sample_non_camera_metadata(
+            dirname, name, full_file_name, ext_type, extension, file_type
+        )
         if sample.datetime is not None:
             self.file_mdatatime[full_file_name] = sample.datetime.timestamp()
             try:
@@ -1150,28 +1279,33 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         for dir_name, name in self.walk_file_system(path):
             full_file_name = os.path.join(dir_name, name)
-            ext_type = rpdfile.extension_type(os.path.splitext(full_file_name)[1].lower()[1:])
+            extension = fileformats.extract_extension(full_file_name)
+            ext_type = fileformats.extension_type(extension)
             if ext_type in (FileExtension.raw, FileExtension.jpeg, FileExtension.video):
+                file_type = fileformats.file_type(extension)
                 if ext_type == FileExtension.raw and raw_attempts < max_attempts:
                     # examine right away
                     raw_attempts += 1
                     if self.examine_sample_non_camera_file(
                             dirname=dir_name, name=name, full_file_name=full_file_name,
-                            ext_type=ext_type):
+                            ext_type=ext_type, extension=extension, file_type=file_type):
                         return
                 else:
                     if len(jpegs_and_videos[ext_type]) < max_attempts:
-                        jpegs_and_videos[ext_type].append((dir_name, name, full_file_name))
+                        jpegs_and_videos[ext_type].append(
+                            (dir_name, name, full_file_name, extension)
+                        )
 
                     if len(jpegs_and_videos[FileExtension.jpeg]) == max_attempts:
                         break
 
         # Couldn't locate sample raw file. Are left with up to max_attempts jpeg and video files
         for ext_type in (FileExtension.jpeg, FileExtension.video):
-            for dir_name, name, full_file_name in jpegs_and_videos[ext_type]:
+            for dir_name, name, full_file_name, extension in jpegs_and_videos[ext_type]:
+                file_type = fileformats.file_type(extension)
                 if self.examine_sample_non_camera_file(
                         dirname=dir_name, name=name, full_file_name=full_file_name,
-                        ext_type=ext_type):
+                        ext_type=ext_type, extension=extension, file_type=file_type):
                     return
 
     def determine_device_timestamp_tz(self, mdatatime: datetime,
@@ -1254,7 +1388,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 base_name, self._camera_video_thumbnails, camera_file
             )
         else:
-            return self._get_associate_file(base_name, rpdfile.VIDEO_THUMBNAIL_EXTENSIONS)
+            return self._get_associate_file(base_name, fileformats.VIDEO_THUMBNAIL_EXTENSIONS)
 
     def get_audio_file(self, base_name: str, camera_file: CameraFile) -> Optional[str]:
         """
@@ -1270,7 +1404,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 base_name, self._camera_audio_files, camera_file
             )
         else:
-            return self._get_associate_file(base_name, rpdfile.AUDIO_EXTENSIONS)
+            return self._get_associate_file(base_name, fileformats.AUDIO_EXTENSIONS)
 
     def get_log_file(self, base_name: str, camera_file: CameraFile) -> Optional[str]:
         """
@@ -1320,6 +1454,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         return None
 
     def cleanup_pre_stop(self):
+        self.exit_exiftool()
         if self.camera is not None:
             self.camera.free_camera()
         self.send_problems()

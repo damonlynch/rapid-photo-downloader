@@ -41,7 +41,6 @@ import gphoto2 as gp
 
 from gettext import gettext as _
 
-import problemnotification as pn
 from raphodo.camera import Camera, CameraProblemEx
 from raphodo.interprocess import (
     WorkerInPublishPullPipeline, CopyFilesArguments, CopyFilesResults

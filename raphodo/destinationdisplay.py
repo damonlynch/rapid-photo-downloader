@@ -31,17 +31,20 @@ from collections import defaultdict
 from gettext import gettext as _
 
 
-from PyQt5.QtCore import (QSize, Qt, QStorageInfo, QRect, pyqtSlot, QPoint)
-from PyQt5.QtWidgets import (QStyleOptionFrame, QStyle, QStylePainter, QWidget, QSplitter,
-                             QSizePolicy, QAction, QMenu, QActionGroup)
-from PyQt5.QtGui import (QColor, QPixmap, QIcon, QPaintEvent, QPalette, QMouseEvent)
+from PyQt5.QtCore import QSize, Qt, QStorageInfo, QRect, pyqtSlot, QPoint
+from PyQt5.QtWidgets import (
+    QStyleOptionFrame, QStyle, QStylePainter, QWidget, QSplitter, QSizePolicy, QAction, QMenu,
+    QActionGroup
+)
+from PyQt5.QtGui import QColor, QPixmap, QIcon, QPaintEvent, QPalette, QMouseEvent
 
 
 from raphodo.devicedisplay import DeviceDisplay, BodyDetails, icon_size
 from raphodo.storage import (StorageSpace, get_path_display_name, get_mount_size)
-from raphodo.constants import (CustomColors, DestinationDisplayType, DisplayingFilesOfType,
-                               DestinationDisplayMousePos, PresetPrefType, NameGenerationType,
-                               DestinationDisplayTooltipState, FileType)
+from raphodo.constants import (
+    CustomColors, DestinationDisplayType, DisplayingFilesOfType, DestinationDisplayMousePos,
+    PresetPrefType, NameGenerationType, DestinationDisplayTooltipState, FileType
+)
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.rpdfile import FileTypeCounter, Photo, Video
 from raphodo.nameeditor import PrefDialog, make_subfolder_menu_entry

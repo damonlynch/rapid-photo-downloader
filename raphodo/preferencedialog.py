@@ -48,9 +48,9 @@ from raphodo.utilities import available_cpu_count, format_size_for_user, thousan
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.constants import ConflictResolution
 from raphodo.utilities import current_version_is_dev_version, make_internationalized_list
-from raphodo.rpdfile import (
-    ALL_KNOWN_EXTENSIONS, PHOTO_EXTENSIONS, VIDEO_EXTENSIONS, VIDEO_THUMBNAIL_EXTENSIONS,
-    AUDIO_EXTENSIONS
+from raphodo.fileformats import (
+    PHOTO_EXTENSIONS, AUDIO_EXTENSIONS, VIDEO_EXTENSIONS, VIDEO_THUMBNAIL_EXTENSIONS,
+    ALL_KNOWN_EXTENSIONS
 )
 import raphodo.qrc_resources as qrc_resources
 

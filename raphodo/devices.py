@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -26,7 +26,7 @@ context:
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2017, Damon Lynch"
+__copyright__ = "Copyright 2015-2018, Damon Lynch"
 
 import sys
 import shutil
@@ -47,7 +47,7 @@ from raphodo.constants import (
     DeviceType, BackupLocationType, FileType, DeviceState, DownloadStatus, ExifSource,
     DownloadingFileTypes, BackupFailureType
 )
-from raphodo.rpdfile import FileTypeCounter, FileSizeSum
+from raphodo.rpdfile import FileTypeCounter, FileSizeSum, Photo, Video, RPDFile
 from raphodo.storage import (
     StorageSpace, udev_attributes, UdevAttr, get_path_display_name, validate_download_folder,
     ValidatedFolder, CameraDetails, get_uri, fs_device_details
@@ -56,12 +56,12 @@ from raphodo.camera import generate_devname
 from raphodo.utilities import (
     number, make_internationalized_list, stdchannel_redirected, same_device
 )
-import raphodo.metadataphoto as metadataphoto
-from raphodo.rpdfile import Photo, Video
 import raphodo.exiftool as exiftool
 from raphodo.problemnotification import FsMetadataWriteProblem
 
 display_devices = (DeviceType.volume, DeviceType.camera)
+sample_file_complete = namedtuple('sample_file_complete', 'full_file_name, file_type')
+
 
 
 class Device:
@@ -127,10 +127,11 @@ class Device:
         self.file_type_counter = FileTypeCounter()
         self.download_statuses = set()  # type: Set[DownloadStatus]
         self._uri = ''
-        # If the entire video is required to extract metadata
+        # If the entire video or photo is required to extract metadata
         # (which affects thumbnail generation too).
         # Set only if downloading from a camera / phone.
         self.entire_video_required = None  # type: bool
+        self.entire_photo_required = None  # type: bool
 
     def __repr__(self):
         if self.device_type == DeviceType.camera:
@@ -454,14 +455,18 @@ class DeviceCollection:
         # Sample exif bytes of photo on most recent device scanned
         self._sample_photo = None  # type: Optional[Photo]
         self._sample_video = None  # type: Optional[Video]
-        self._sample_videos_complete_files = []  # type: List[str]
+        self._sample_files_complete = []  # type: List[sample_file_complete]
         self.exiftool_process = exiftool_process
 
-        self._map_set = {DeviceType.path: self.this_computer,
-                         DeviceType.camera: self.volumes_and_cameras,
-                         DeviceType.volume: self.volumes_and_cameras}
-        self._map_plural_types = {DeviceType.camera: _('Cameras'),
-                                  DeviceType.volume: _('Devices')}
+        self._map_set = {
+            DeviceType.path: self.this_computer,
+            DeviceType.camera: self.volumes_and_cameras,
+            DeviceType.volume: self.volumes_and_cameras
+        }
+        self._map_plural_types = {
+            DeviceType.camera: _('Cameras'),
+            DeviceType.volume: _('Devices')
+        }
 
     def download_start_blocked(self) -> bool:
         """
@@ -472,25 +477,33 @@ class DeviceCollection:
 
         if len(self.cameras_to_gvfs_unmount_for_download) > 0 and len(
                 self.cameras_to_stop_thumbnailing):
-            logging.debug("Download is blocked because %s camera(s) are being unmounted from GVFS "
-                          "and %s camera(s) are having their thumbnailing terminated",
-                          len(self.cameras_to_gvfs_unmount_for_download),
-                          len(self.cameras_to_stop_thumbnailing))
+            logging.debug(
+                "Download is blocked because %s camera(s) are being unmounted from GVFS "
+                "and %s camera(s) are having their thumbnailing terminated",
+                len(self.cameras_to_gvfs_unmount_for_download),
+                len(self.cameras_to_stop_thumbnailing)
+            )
         elif len(self.cameras_to_gvfs_unmount_for_download) > 0:
-            logging.debug("Download is blocked because %s camera(s) are being unmounted from GVFS",
-                          len(self.cameras_to_gvfs_unmount_for_download))
+            logging.debug(
+                "Download is blocked because %s camera(s) are being unmounted from GVFS",
+                len(self.cameras_to_gvfs_unmount_for_download)
+            )
         elif len(self.cameras_to_stop_thumbnailing) > 0:
-            logging.debug("Download is blocked because %s camera(s) are having their thumbnailing "
-                          "terminated", len(self.cameras_to_stop_thumbnailing))
+            logging.debug(
+                "Download is blocked because %s camera(s) are having their thumbnailing "
+                "terminated", len(self.cameras_to_stop_thumbnailing)
+            )
 
         return len(self.cameras_to_gvfs_unmount_for_download) > 0 or len(
                     self.cameras_to_stop_thumbnailing) > 0
 
     def logState(self) -> None:
         logging.debug("-- Device Collection --")
-        logging.debug('%s devices: %s volumes/cameras (%s cameras), %s this computer',
-                      len(self.devices), len(self.volumes_and_cameras), len(self.cameras),
-                      len(self.this_computer))
+        logging.debug(
+            '%s devices: %s volumes/cameras (%s cameras), %s this computer',
+            len(self.devices), len(self.volumes_and_cameras), len(self.cameras),
+            len(self.this_computer)
+        )
         logging.debug("Device states: %s", ', '.join(
             '%s: %s' % (self[scan_id].display_name, self.device_state[scan_id].name)
             for scan_id in self.device_state))
@@ -500,14 +513,16 @@ class DeviceCollection:
         else:
             logging.debug("No devices scanning")
         if len(self.downloading):
-            downloading = ('%s' % ', '.join(self[scan_id].display_name
-                                         for scan_id in self.downloading))
+            downloading = (
+                    '%s' % ', '.join(self[scan_id].display_name for scan_id in self.downloading)
+            )
             logging.debug("Downloading: %s", downloading)
         else:
             logging.debug("No devices downloading")
         if len(self.thumbnailing):
-            thumbnailing = ('%s' % ', '.join(self[scan_id].display_name
-                                         for scan_id in self.thumbnailing))
+            thumbnailing = (
+                    '%s' % ', '.join(self[scan_id].display_name for scan_id in self.thumbnailing)
+            )
             logging.debug("Thumbnailing: %s", thumbnailing)
         else:
             logging.debug("No devices thumbnailing")
@@ -673,44 +688,101 @@ class DeviceCollection:
         """
         for device in self.devices.values():
             device.delete_cache_dirs()
-        self._delete_sample_video(at_program_close=True)
+        self._delete_sample_photo_video(at_program_close=True)
 
-    def _delete_sample_video(self, at_program_close: bool) -> None:
+    def _add_complete_sample_file(self, sample_photo_video: RPDFile) -> None:
         """
-        Delete sample video that is used for metadata extraction
+        Don't delete this fully downloaded file, as it might be downloaded by the user,
+        in which case it's already been recorded as a RPDFile.cache_full_file_name
+        Instead add it to a list of files to possibly expunge at program exit.
+
+        :param sample_photo_video: sample photo or video
+        """
+
+        logging.debug(
+            "Adding %s to list of complete sample %s files to potentially delete "
+            "at program exit",
+            sample_photo_video.temp_sample_full_file_name, sample_photo_video.file_type.name
+        )
+        self._sample_files_complete.append(
+            sample_file_complete(
+                sample_photo_video.temp_sample_full_file_name,
+                sample_photo_video.file_type.name
+            )
+        )
+
+    def _do_delete__sample_photo_video(self, sample_photo_video: RPDFile) -> None:
+        """
+        Delete a temporary sample photo or video from the file system
+        :param sample_photo_video: file to delete
+        :param sample_type: "photo" or "video"
+        """
+
+        if (sample_photo_video is not None and
+                sample_photo_video.temp_sample_full_file_name is not None and
+                sample_photo_video.from_camera):
+            try:
+                sample_type = sample_photo_video.file_type.name
+            except Exception:
+                sample_type = 'unknown'
+            try:
+                assert sample_photo_video.temp_sample_full_file_name
+            except:
+                logging.error("Expected sample file name in sample %s", sample_type)
+            else:
+                if os.path.isfile(sample_photo_video.temp_sample_full_file_name):
+                    logging.info(
+                        "Removing temporary sample %s %s",
+                        sample_type,
+                        sample_photo_video.temp_sample_full_file_name
+                    )
+                    try:
+                        os.remove(sample_photo_video.temp_sample_full_file_name)
+                    except Exception:
+                        logging.exception(
+                            "Error removing temporary sample %s file %s",
+                            sample_type,
+                            sample_photo_video.temp_sample_full_file_name
+                        )
+
+    def _delete_sample_photo_video(self, at_program_close: bool,
+                                   file_type: Optional[FileType]=None) -> None:
+        """
+        Delete sample photo or video that is used for metadata extraction
         to provide example for file renaming.
 
-        Does not delete
-
         :param at_program_close: if True, the program is exiting
+        :param file_type: if specified, delete sample file of this type
+         regardless of whether the program is exiting
         """
 
-        if (self._sample_video is not None and
-                self._sample_video.temp_sample_full_file_name is not None and
-                self._sample_video.from_camera):
-            try:
-                assert self._sample_video.temp_sample_full_file_name
-            except:
-                logging.error("Expected sample file name in sample video")
-            else:
-                if os.path.isfile(self._sample_video.temp_sample_full_file_name):
-                    logging.info("Removing temporary sample video %s",
-                                 self._sample_video.temp_sample_full_file_name)
-                    try:
-                        os.remove(self._sample_video.temp_sample_full_file_name)
-                    except Exception:
-                        logging.exception("Error removing temporary sample video file %s",
-                                          self._sample_video.temp_sample_full_file_name)
+        if file_type == FileType.photo:
+            samples = self._sample_photo,
+        elif file_type == FileType.video:
+            samples = self._sample_video,
+        else:
+            samples = self._sample_photo, self._sample_video
 
-        if at_program_close and self._sample_videos_complete_files:
-            remaining_videos = (video for video in self._sample_videos_complete_files
-                                if os.path.isfile(video))
-            for video in remaining_videos:
-                logging.info("Removing temporary sample video %s", video)
+        for sample in samples:
+            self._do_delete__sample_photo_video(sample)
+
+        if at_program_close and self._sample_files_complete:
+            remaining_files = (
+                photo_video for photo_video in self._sample_files_complete
+                if os.path.isfile(photo_video.full_file_name)
+            )
+            for photo_video in remaining_files:
+                logging.info(
+                    "Removing temporary sample %s %s",
+                    photo_video.file_type.name, photo_video.full_file_name
+                )
                 try:
-                    os.remove(video)
+                    os.remove(photo_video.full_file_name)
                 except Exception:
-                    logging.exception("Error removing temporary sample video file %s", video)
+                    logging.exception(
+                        "Error removing temporary sample %s file %s",
+                        photo_video.file_type.name, photo_video
+                    )
 
     def map_set(self, device: Device) -> Set:
         return self._map_set[device.device_type]
@@ -788,11 +860,11 @@ class DeviceCollection:
 
         if file_type == FileType.photo:
             assert self._sample_photo.file_type == FileType.photo
-            full_file_name = self._sample_photo.full_file_name
+            full_file_name = self._sample_photo.get_current_sample_full_file_name()
             rpd_file = self._sample_photo
         else:
             assert self._sample_video.file_type == FileType.video
-            full_file_name = self._sample_video_full_file_name()
+            full_file_name = self._sample_video.get_current_sample_full_file_name()
             rpd_file = self._sample_video
 
         if not os.path.isfile(full_file_name):
@@ -803,11 +875,14 @@ class DeviceCollection:
             if not scan_id in self.devices:
                 logging.debug('Failed to set a new sample because the device no longer exists')
                 return
-            rpd_file = self.rapidApp.thumbnailModel.getSampleFile(scan_id=scan_id,
-                                      device_type=self[scan_id].device_type, file_type=file_type)
+            rpd_file = self.rapidApp.thumbnailModel.getSampleFile(
+                scan_id=scan_id, device_type=self[scan_id].device_type, file_type=file_type
+            )
             if rpd_file is None:
-                logging.debug('Failed to set new sample %s because suitable sample does not'
-                              'exist', file_type.name)
+                logging.debug(
+                    'Failed to set new sample %s because suitable sample does not exist',
+                    file_type.name
+                )
             else:
                 sample_full_file_name = rpd_file.get_current_full_file_name()
                 if file_type == FileType.photo:
@@ -819,6 +894,15 @@ class DeviceCollection:
 
     @property
     def sample_photo(self) -> Optional[Photo]:
+        """
+        Sample photos can be:
+        (1) excerpts of a photo from a camera, saved on the file system in a
+            temp file (used by ExifTool)
+        (2) bytes saved in memory i.e. raw_exif_bytes (exiv2)
+        (3) actual complete photos already on the file system (ExifTool or
+            exiv2)
+        """
+
         if self._sample_photo is None:
             return None
 
@@ -830,39 +914,36 @@ class DeviceCollection:
             with stdchannel_redirected(sys.stderr, os.devnull):
                 if self._sample_photo.exif_source == ExifSource.raw_bytes:
                     self._sample_photo.load_metadata(
-                        raw_bytes=bytearray(self._sample_photo.raw_exif_bytes))
+                        raw_bytes=bytearray(self._sample_photo.raw_exif_bytes)
+                    )
                 elif self._sample_photo.exif_source == ExifSource.app1_segment:
                     self._sample_photo.load_metadata(
-                        app1_segment=bytearray(self._sample_photo.raw_exif_bytes))
+                        app1_segment=bytearray(self._sample_photo.raw_exif_bytes)
+                    )
                 else:
                     assert self._sample_photo.exif_source == ExifSource.actual_file
-                    full_file_name = self._sample_photo.get_current_full_file_name()
-                    self._sample_photo.load_metadata(full_file_name=full_file_name,
-                                                     et_process=self.exiftool_process)
+                    full_file_name = self._sample_photo.get_current_sample_full_file_name()
+                    self._sample_photo.load_metadata(
+                        full_file_name=full_file_name, et_process=self.exiftool_process
+                    )
         return self._sample_photo
 
     @sample_photo.setter
     def sample_photo(self, photo: Photo) -> None:
+        if self._sample_photo is not None:
+            if self._sample_photo.temp_sample_is_complete_file:
+                self._add_complete_sample_file(self._sample_photo)
+            elif self._sample_photo.temp_sample_full_file_name:
+                self._delete_sample_photo_video(file_type=FileType.photo, at_program_close=False)
         self._sample_photo = photo
-
-    def _sample_video_full_file_name(self) -> str:
-        """
-        Sample videos can be either excerpts of a video from a camera or
-        actual videos already on the file system.
-
-        :return: the full path and filename of the sample video regardless
-         of which type it is
-        """
-
-        if (self._sample_video is not None and
-                self._sample_video.temp_sample_full_file_name is not None):
-            full_file_name = self._sample_video.temp_sample_full_file_name
-        else:
-            full_file_name = self._sample_video.get_current_full_file_name()
-        return full_file_name
         
     @property
     def sample_video(self) -> Optional[Video]:
+        """
+        Sample videos can be either excerpts of a video from a camera or
+        actual videos already on the file system.
+        """
+
         if self._sample_video is None:
             return None
 
@@ -874,7 +955,7 @@ class DeviceCollection:
                 assert self._sample_video.temp_sample_full_file_name or os.path.isfile(
                     self._sample_video.full_file_name)
 
-                full_file_name = self._sample_video_full_file_name()
+                full_file_name = self._sample_video.get_current_sample_full_file_name()
 
                 self._sample_video.load_metadata(
                     full_file_name=full_file_name,
@@ -890,14 +971,9 @@ class DeviceCollection:
     @sample_video.setter
     def sample_video(self, video: Video) -> None:
         if self._sample_video is not None and self._sample_video.temp_sample_is_complete_file:
-            # Don't delete this fully downloaded file, as it might be downloaded by the user,
-            # in which case it's already been recorded as a RPDFile.cache_full_file_name
-            # Instead add it to a list of files to possibly expunge at program exit
-            logging.debug("Adding %s to list of complete sample video files to potentially delete "
-                          "at program exit", self._sample_video.temp_sample_full_file_name)
-            self._sample_videos_complete_files.append(self._sample_video.temp_sample_full_file_name)
+            self._add_complete_sample_file(self._sample_video)
         else:
-            self._delete_sample_video(at_program_close=False)
+            self._delete_sample_photo_video(file_type=FileType.video, at_program_close=False)
         self._sample_video = video
 
     def get_main_window_display_name_and_icon(self) -> Tuple[str, QIcon]:

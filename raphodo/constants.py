@@ -551,6 +551,7 @@ class Distro(Enum):
 orientation_offset = dict(
     arw=106,
     cr2=126,
+    cr3=60000,  # assuming ExifTool (exiv2 >= 0.28 required for CR3)
     dcr=7684,
     dng=144,
     mef=144,
@@ -565,10 +566,34 @@ orientation_offset = dict(
     sr2=82,
     srw=46
 )
+orientation_offset['3fr'] = 132
+
+orientation_offset_exiftool = dict(
+    arw=350,
+    cr2=320,
+    cr3=60000,
+    crw=20,
+    dcr=8196,
+    dng=644,
+    iiq=20,
+    mef=376,
+    mrw=152580,
+    nef=392,
+    nrw=94,
+    orf=6148,
+    pef=332,
+    raf=70660,
+    raw=548,
+    rw2=709636,
+    sr2=276,
+    srw=126
+)
+orientation_offset_exiftool['3fr'] = 376
 
 datetime_offset = dict(
     arw=1540,
     cr2=1028,
+    cr3=60000,  # assuming ExifTool
     dng=119812,
     mef=772,
     mrw=152580,
@@ -588,11 +613,40 @@ datetime_offset = dict(
     avi=50000,
     mov=250000,
 )
+datetime_offset['3fr'] = 1540
 datetime_offset['3gp'] = 5000
+
+datetime_offset_exiftool = dict(
+    arw=1540,
+    cr2=1000,  # varies widely :-/
+    cr3=60000,
+    crw=20,
+    dng=3000,  # varies widely :-/
+    mef=772,
+    mrw=152580,
+    nef=13316,
+    nrw=488,
+    orf=7172,
+    pef=836,
+    raf=70660,
+    raw=932,
+    rw2=709636,
+    sr2=836,
+    srw=496,
+    mts=5000,
+    m2t=5000,
+    m2ts=5000,
+    mp4=50000,
+    avi=50000,
+    mov=250000,
+)
+datetime_offset_exiftool['3fr'] = 1042
+datetime_offset_exiftool['3gp'] = 5000
 
 all_tags_offset = dict(
     arw=1848,
     cr2=94622,
+    cr3=60000,  # assuming ExifTool
     dng=143774,
     mef=965,
     mrw=183096,
@@ -600,11 +654,31 @@ all_tags_offset = dict(
     nrw=1848,
     orf=812242,
     pef=1042,
-    raf=12907,
+    raf=13522,
     raw=890885,
     rw2=1205458,
     sr2=1080,
     srw=614,
+)
+all_tags_offset['3fr'] = 1848
+
+all_tags_offset_exiftool = dict(
+    arw=1540,
+    cr2=104453,
+    cr3=60000,
+    dng=143774,
+    dcr=10450,
+    mef=965,
+    mrw=183096,
+    nef=77213623,
+    nrw=1848,
+    orf=29113613,
+    pef=183096,
+    raf=84792,
+    raw=890885,
+    rw2=1205458,
+    sr2=1080,
+    srw=222418,
     mp4=130000,
     mts=1300000,
     mt2=1300000,
@@ -612,6 +686,7 @@ all_tags_offset = dict(
     avi=50000,
     mov=250000
 )
+all_tags_offset_exiftool['3fr'] = 1042
 
 thumbnail_offset = dict(
     jpg=100000,
@@ -627,6 +702,30 @@ thumbnail_offset = dict(
     mpeg=500000,
     tod=500000,
 )
+
+# Repeat video information here
+thumbnail_offset_exiftool = dict(
+    cr2=694277,
+    cr3=45470,
+    mrw=84792,
+    nef=77213623,
+    nrw=45470,
+    raf=84792,
+    raw=890885,
+    rw2=1205458,
+    sr2=222418,
+    srw=812242,
+    avi=500000,
+    mod=500000,
+    mov=2000000,
+    mp4=2000000,
+    mts=600000,
+    m2t=600000,
+    mpg=500000,
+    mpeg=500000,
+    tod=500000,
+)
+
 
 
 class RememberThisMessage(Enum):

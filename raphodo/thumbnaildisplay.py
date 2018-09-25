@@ -51,7 +51,8 @@ from PyQt5.QtGui import (
     QFont,
 )
 
-from raphodo.rpdfile import RPDFile, FileTypeCounter, ALL_USER_VISIBLE_EXTENSIONS, MUST_CACHE_VIDEOS
+from raphodo.rpdfile import RPDFile, FileTypeCounter
+from raphodo.fileformats import ALL_USER_VISIBLE_EXTENSIONS, MUST_CACHE_VIDEOS
 from raphodo.interprocess import GenerateThumbnailsArguments, Device, GenerateThumbnailsResults
 from raphodo.constants import (
     DownloadStatus, Downloaded, FileType, DownloadingFileTypes, ThumbnailSize,
@@ -810,8 +811,9 @@ class ThumbnailListModel(QAbstractListModel):
         if not self.ctimes_differ:
             self.rapidApp.temporalProximity.setState(TemporalProximityState.ctime_rebuild_proceed)
             self.rapidApp.generateTemporalProximityTableData(
-                reason="a photo or video's creation time differed from its file "
-                       "system modification time")
+                reason="a photo or video's creation time differed from its file system "
+                       "modification time"
+            )
 
     def _get_cache_location(self, download_folder: str) -> str:
         if validate_download_folder(download_folder).valid:
@@ -838,15 +840,17 @@ class ThumbnailListModel(QAbstractListModel):
             uids = self.tsql.get_uids_for_device(scan_id=scan_id)
             rpd_files = list((self.rpd_files[uid] for uid in uids))
 
-            need_video_cache_dir = False
+            need_video_cache_dir = need_photo_cache_dir = False
             if device.device_type == DeviceType.camera:
                 need_video_cache_dir = device.entire_video_required or \
                     self.tsql.any_files_of_type(scan_id, FileType.video)
+                # defer check to see if ExifTool is needed until later
+                need_photo_cache_dir = device.entire_photo_required
 
             gen_args = (
                 scan_id, rpd_files, device.name(), self.rapidApp.prefs.proximity_seconds,
-                cache_dirs, need_video_cache_dir, device.camera_model, device.camera_port,
-                device.entire_video_required
+                cache_dirs, need_photo_cache_dir, need_video_cache_dir, device.camera_model,
+                device.camera_port, device.entire_video_required, device.entire_photo_required
             )
             self.thumbnailer.generateThumbnails(*gen_args)
 
@@ -1377,10 +1381,10 @@ class ThumbnailListModel(QAbstractListModel):
         :return:
         """
 
-
         if device_type == DeviceType.camera:
-            uid = self.tsql.get_single_file_of_type(scan_id=scan_id, file_type=file_type,
-                                                    downloaded=True)
+            uid = self.tsql.get_single_file_of_type(
+                scan_id=scan_id, file_type=file_type, downloaded=True
+            )
             if uid is not None:
                 return self.rpd_files[uid]
             else:
@@ -1395,9 +1399,9 @@ class ThumbnailListModel(QAbstractListModel):
                 if not exclude_scan_ids:
                     exclude_scan_ids = None
 
-                uid = self.tsql.get_single_file_of_type(file_type=file_type,
-                                                        downloaded=True,
-                                                        exclude_scan_ids=exclude_scan_ids)
+                uid = self.tsql.get_single_file_of_type(
+                    file_type=file_type, downloaded=True, exclude_scan_ids=exclude_scan_ids
+                )
                 if uid is not None:
                     return self.rpd_files[uid]
                 else:

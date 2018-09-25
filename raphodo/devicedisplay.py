@@ -46,19 +46,25 @@ from pprint import pprint
 
 from gettext import gettext as _
 
-from PyQt5.QtCore import (QModelIndex, QSize, Qt, QPoint, QRect, QRectF,
-                          QEvent, QAbstractItemModel, QAbstractListModel, pyqtSlot, QTimer)
-from PyQt5.QtWidgets import (QStyledItemDelegate, QStyleOptionViewItem, QApplication, QStyle,
-                             QListView, QStyleOptionButton, QAbstractItemView, QMenu, QWidget,
-                             QStyleOptionToolButton)
-from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette,
-                         QPixmap, QPaintEvent, QGuiApplication, QPen, QIcon)
+from PyQt5.QtCore import (
+    QModelIndex, QSize, Qt, QPoint, QRect, QRectF, QEvent, QAbstractItemModel, QAbstractListModel,
+    pyqtSlot, QTimer
+)
+from PyQt5.QtWidgets import (
+    QStyledItemDelegate, QStyleOptionViewItem, QApplication, QStyle, QListView, QStyleOptionButton,
+    QAbstractItemView, QMenu, QWidget, QStyleOptionToolButton
+)
+from PyQt5.QtGui import (
+    QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette, QPixmap, QPaintEvent,
+    QGuiApplication, QPen, QIcon
+)
 
 from raphodo.viewutils import RowTracker
-from raphodo.constants import (DeviceState, FileType, CustomColors, DeviceType, Roles,
-                               EmptyViewHeight, ViewRowType, minPanelWidth, Checked_Status,
-                               DeviceDisplayPadding, DeviceShadingIntensity, DisplayingFilesOfType,
-                               DownloadStatus, DownloadWarning, DownloadFailure)
+from raphodo.constants import (
+    DeviceState, FileType, CustomColors, DeviceType, Roles, EmptyViewHeight, ViewRowType,
+    minPanelWidth, Checked_Status, DeviceDisplayPadding, DeviceShadingIntensity,
+    DisplayingFilesOfType, DownloadStatus, DownloadWarning, DownloadFailure
+)
 from raphodo.devices import Device, display_devices
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.storage import StorageSpace

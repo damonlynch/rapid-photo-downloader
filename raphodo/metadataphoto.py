@@ -22,9 +22,7 @@
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2007-2018, Damon Lynch"
 
-import re
 import datetime
-import subprocess
 from typing import Optional, Union, Any, Tuple
 import logging
 
@@ -33,36 +31,9 @@ gi.require_version('GExiv2', '0.10')
 from gi.repository import GExiv2
 
 import raphodo.exiftool as exiftool
-
-
-def gexiv2_version() -> str:
-    """
-    :return: version number of GExiv2
-    """
-    # GExiv2.get_version() returns an integer XXYYZZ, where XX is the
-    # major version, YY is the minor version, and ZZ is the micro version
-    v = '{0:06d}'.format(GExiv2.get_version())
-    return '{}.{}.{}'.format(v[0:2], v[2:4], v[4:6]).replace('00', '0')
-
-
-def exiv2_version() -> Optional[str]:
-    """
-    :return: version number of exiv2, if available, else None
-    """
-
-    # exiv2 outputs a verbose version string, e.g. the first line is
-    # 'exiv2 0.24 001800 (64 bit build)'
-    # followed by the copyright & GPL
-    try:
-        v = subprocess.check_output(['exiv2', '-V', '-v']).strip().decode()
-        v = re.search('exiv2=([0-9\.]+)\n', v)
-        if v:
-            return v.group(1)
-        else:
-            return None
-    except (OSError, subprocess.CalledProcessError):
-        return None
-
+import raphodo.metadataexiftool as metadataexiftool
+from raphodo.utilities import flexible_date_time_parser
+from raphodo.constants import FileType
 
 VENDOR_SERIAL_CODES = (
     'Exif.Photo.BodySerialNumber',
@@ -83,46 +54,45 @@ VENDOR_SHUTTER_COUNT = (
 )
 
 
-class MetaData(GExiv2.Metadata):
+class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
     """
     Provide abstracted access to photo metadata
     """
 
-    def __init__(self, full_file_name: Optional[str]=None,
+    def __init__(self, et_process: exiftool.ExifTool,
+                 full_file_name: Optional[str]=None,
                  raw_bytes: Optional[bytearray]=None,
-                 app1_segment: Optional[bytearray]=None,
-                 et_process: exiftool.ExifTool=None)  -> None:
+                 app1_segment: Optional[bytearray]=None)  -> None:
         """
         Use GExiv2 to read the photograph's metadata.
 
+        :param et_process: deamon exiftool process
         :param full_file_name: full path of file from which file to read
          the metadata.
         :param raw_bytes: portion of a non-jpeg file from which the
          metadata can be extracted
         :param app1_segment: the app1 segment of a jpeg file, from which
          the metadata can be read
-        :param et_process: optional deamon exiftool process
         """
 
+        super().__init__(full_file_name, et_process, FileType.photo)
+
+        self.et_process = et_process
+
         if full_file_name:
-            super().__init__()
             self.open_path(full_file_name)
         else:
-            super().__init__()
             if raw_bytes is not None:
                 self.open_buf(raw_bytes)
             else:
                 assert app1_segment is not None
                 self.from_app1_segment(app1_segment)
 
-        self.et_process = et_process
-        self.rpd_full_file_name = full_file_name
-
     def _get_rational_components(self, tag: str) -> Optional[Tuple[Any, Any]]:
         try:
             x = self.get_exif_tag_rational(tag)
         except Exception:
-            return (None, None)
+            return None, None
 
         try:
             return x.numerator, x.denominator
@@ -130,7 +100,7 @@ class MetaData(GExiv2.Metadata):
             try:
                 return x.nom, x.den
             except Exception:
-                return (None, None)
+                return None, None
 
     def _get_rational(self, tag: str) -> Optional[float]:
         x, y = self._get_rational_components(tag)
@@ -144,12 +114,13 @@ class MetaData(GExiv2.Metadata):
 
         Returns missing if the metadata value is not present.
         """
+
         a = self._get_rational("Exif.Photo.FNumber")
 
         if a is None:
             return missing
         else:
-            return "%.1f" % a
+            return "{:.1f}".format(a)
 
     def iso(self, missing='') -> Union[str, Any]:
         """
@@ -157,64 +128,19 @@ class MetaData(GExiv2.Metadata):
 
         Returns missing if the metadata value is not present.
         """
+
         try:
             v = self.get_tag_interpreted_string("Exif.Photo.ISOSpeedRatings")
             if v:
                 return v
             else:
                 return missing
-        except Exception:
+        except (KeyError, AttributeError):
             return missing
 
-    def exposure_time(self, alternativeFormat=False, missing=''):
-        """
-        Returns in string format the exposure time of the image.
+    def _exposure_time_rational(self) -> Tuple[Any, Any]:
+        return self._get_rational_components("Exif.Photo.ExposureTime")
 
-        Returns missing if the metadata value is not present.
-
-        alternativeFormat is useful if the value is going to be  used in a
-        purpose where / is an invalid character, e.g. file system names.
-
-        alternativeFormat is False:
-        For exposures less than one second, the result is formatted as a
-        fraction e.g. 1/125
-        For exposures greater than or equal to one second, the value is
-        formatted as an integer e.g. 30
-
-        alternativeFormat is True:
-        For exposures less than one second, the result is formatted as an
-        integer e.g. 125
-        For exposures less than one second but more than or equal to
-        one tenth of a second, the result is formatted as an integer
-        e.g. 3 representing 3/10 of a second
-        For exposures greater than or equal to one second, the value is
-        formatted as an integer with a trailing s e.g. 30s
-        """
-
-        e0, e1 = self._get_rational_components("Exif.Photo.ExposureTime")
-        if e0 is not None and e1 is not None:
-
-            e0 = int(e0)
-            e1 = int(e1)
-
-            if e1 > e0:
-                if alternativeFormat:
-                    if e0 == 1:
-                        return str(e1)
-                    else:
-                        return str(e0)
-                else:
-                    return "%s/%s" % (e0, e1)
-            elif e0 > e1:
-                e = float(e0) / e1
-                if alternativeFormat:
-                    return "%.0fs" % e
-                else:
-                    return "%.0f" % e
-            else:
-                return "1s"
-        else:
-            return missing
 
     def focal_length(self, missing=''):
         """
@@ -223,6 +149,7 @@ class MetaData(GExiv2.Metadata):
 
         Returns missing if the metadata value is not present.
         """
+
         f = self._get_rational("Exif.Photo.FocalLength")
         if f is not None:
             return "%.0f" % f
@@ -236,9 +163,10 @@ class MetaData(GExiv2.Metadata):
 
         Returns missing if the metadata value is not present.
         """
+
         try:
             return self.get_tag_string("Exif.Image.Make").strip()
-        except Exception:
+        except (KeyError, AttributeError):
             return missing
 
     def camera_model(self, missing=''):
@@ -247,9 +175,10 @@ class MetaData(GExiv2.Metadata):
 
         Returns missing if the metadata value is not present.
         """
+
         try:
             return self.get_tag_string("Exif.Image.Model").strip()
-        except Exception:
+        except (KeyError, AttributeError):
             return missing
 
     def _fetch_vendor(self, vendor_codes, missing=''):
@@ -268,13 +197,16 @@ class MetaData(GExiv2.Metadata):
         if shutter != missing:
             return shutter
 
+        if self.full_file_name is None:
+            return missing
+
         if self.camera_make().lower() == 'sony':
             try:
-                ic = self.et_process.get_tags(['ImageCount'], self.rpd_full_file_name)
+                ic = self.et_process.get_tags(['ImageCount'], self.full_file_name)
             except (ValueError, TypeError):
                 return missing
             if ic:
-                return ic['ImageCount']
+                return ic.get('ImageCount', missing)
 
         return missing
 
@@ -289,110 +221,31 @@ class MetaData(GExiv2.Metadata):
         See:
         https://bugs.launchpad.net/rapid/+bug/754531
         """
-        if 'Exif.CanonFi.FileNumber' in self:
+        if 'Exif.CanonFi.FileNumber' in self and self.full_file_name is not None:
             assert self.et_process is not None
-            try:
-                fn = self.et_process.get_tags(['FileNumber'], self.rpd_full_file_name)
-            except (ValueError, TypeError):
-                return missing
-
-            if fn:
-                return fn['FileNumber']
-            else:
-                return missing
-        else:
-            return missing
+            return super().file_number(missing)
 
     def owner_name(self, missing=''):
         try:
             return self.get_tag_string('Exif.Canon.OwnerName').strip()
-        except KeyError:
+        except (KeyError, AttributeError):
             return missing
 
     def copyright(self, missing=''):
         try:
             return self.get_tag_string('Exif.Image.Copyright').strip()
-        except KeyError:
+        except (KeyError, AttributeError):
             return missing
 
     def artist(self, missing=''):
         try:
             return self.get_tag_string('Exif.Image.Artist').strip()
-        except KeyError:
+        except (KeyError, AttributeError):
             return missing
 
-    def short_camera_model(self, includeCharacters='', missing=''):
-        """
-        Returns in shorterned string format the camera model used to record
-        the image.
 
-        Returns missing if the metadata value is not present.
-
-        The short format is determined by the first occurrence of a digit in
-        the
-        camera model, including all alphaNumeric characters before and after
-        that digit up till a non-alphanumeric character, but with these
-        interventions:
-
-        1. Canon "Mark" designations are shortened prior to conversion.
-        2. Names like "Canon EOS DIGITAL REBEL XSi" do not have a number and
-        must
-            and treated differently (see below)
-
-        Examples:
-        Canon EOS 300D DIGITAL -> 300D
-        Canon EOS 5D -> 5D
-        Canon EOS 5D Mark II -> 5DMkII
-        NIKON D2X -> D2X
-        NIKON D70 -> D70
-        X100,D540Z,C310Z -> X100
-        Canon EOS DIGITAL REBEL XSi -> XSi
-        Canon EOS Digital Rebel XS -> XS
-        Canon EOS Digital Rebel XTi -> XTi
-        Canon EOS Kiss Digital X -> Digital
-        Canon EOS Digital Rebel XT -> XT
-        EOS Kiss Digital -> Digital
-        Canon Digital IXUS Wireless -> Wireless
-        Canon Digital IXUS i zoom -> zoom
-        Canon EOS Kiss Digital N -> N
-        Canon Digital IXUS IIs -> IIs
-        IXY Digital L -> L
-        Digital IXUS i -> i
-        IXY Digital -> Digital
-        Digital IXUS -> IXUS
-
-        The optional includeCharacters allows additional characters to appear
-        before and after the digits.
-        Note: special includeCharacters MUST be escaped as per syntax of a
-        regular expressions (see documentation for module re)
-
-        Examples:
-
-        includeCharacters = '':
-        DSC-P92 -> P92
-        includeCharacters = '\-':
-        DSC-P92 -> DSC-P92
-
-        If a digit is not found in the camera model, the last word is returned.
-
-        Note: assume exif values are in ENGLISH, regardless of current platform
-        """
-        m = self.camera_model()
-        m = m.replace(' Mark ', 'Mk')
-        if m:
-            s = r"(?:[^a-zA-Z0-9%s]?)(?P<model>[a-zA-Z0-9%s]*\d+[" \
-                r"a-zA-Z0-9%s]*)" \
-                % (includeCharacters, includeCharacters, includeCharacters)
-            r = re.search(s, m)
-            if r:
-                return r.group("model")
-            else:
-                head, space, model = m.strip().rpartition(' ')
-                return model
-        else:
-            return missing
-
-    def date_time(self, missing: Optional[str]='') -> Union[datetime.datetime, Any]:
+    def date_time(self, missing: Optional[str]='',
+                  ignore_file_modify_date: Optional[bool]=False) -> Union[datetime.datetime, Any]:
         """
         Returns in python datetime format the date and time the image was
         recorded.
@@ -434,34 +287,46 @@ class MetaData(GExiv2.Metadata):
                 except ValueError:
                     logging.warning(
                         'Unexpected malformed date time metadata value %s for photo %s',
-                        dt_string, self.rpd_full_file_name
+                        dt_string, self.full_file_name
                     )
                 else:
                     if not digits:
                         logging.debug(
                             'Ignoring date time metadata value %s for photo %s',
-                            dt_string, self.rpd_full_file_name
+                            dt_string, self.full_file_name
                         )
                     else:
                         try:
-                            return  datetime.datetime.strptime(dt_string, "%Y:%m:%d %H:%M:%S")
+                            return datetime.datetime.strptime(dt_string, "%Y:%m:%d %H:%M:%S")
                         except (ValueError, OverflowError):
-                            logging.warning(
-                                'Error parsing date time metadata %s for photo %s',
-                                dt_string, self.rpd_full_file_name
+                            logging.debug(
+                                'Error parsing date time metadata %s for photo %s; attempting '
+                                'flexible approach',
+                                dt_string, self.full_file_name
                             )
+                            try:
+                                dtr, fs = flexible_date_time_parser(dt_string.strip())
+                                logging.debug(
+                                    "Extracted photo time %s using flexible approach",
+                                    dtr.strftime(fs)
+                                )
+                                return dtr
+                            except AssertionError:
+                                logging.warning(
+                                    "Error extracting date time metadata '%s' for %s %s",
+                                    dt_string, self.file_type, self.full_file_name
+                                )
+                            except (ValueError, OverflowError):
+                                logging.warning(
+                                    "Error parsing date time metadata '%s' for %s %s",
+                                    dt_string, self.file_type, self.full_file_name
+                                )
+                            except Exception:
+                                logging.error(
+                                    "Unknown error parsing date time metadata '%s' for %s %s",
+                                    dt_string, self.file_type, self.full_file_name
+                                )
         return missing
-
-    def timestamp(self, missing='') -> Union[float, Any]:
-        dt = self.date_time(missing=None)
-        if dt is not None:
-            try:
-                ts = float(dt.timestamp())
-            except:
-                ts = missing
-        else:
-            ts = missing
-        return ts
 
     def sub_seconds(self, missing='00') -> Union[str, Any]:
         """
@@ -471,19 +336,42 @@ class MetaData(GExiv2.Metadata):
 
         try:
             return self.get_tag_string("Exif.Photo.SubSecTimeOriginal")
-        except:
+        except (KeyError, AttributeError):
             return missing
 
-    def orientation(self, missing='') -> Union[int, Any]:
+    def orientation(self, missing='') -> Union[str, Any]:
         """
         Returns the orientation of the image, as recorded by the camera
         Return type int
         """
 
         try:
-            return int(self.get_orientation())
-        except:
+            return self.get_tag_string('Exif.Image.Orientation')
+        except (KeyError, AttributeError):
             return missing
+
+    def get_small_thumbnail(self) -> bytes:
+        """
+        Get the small thumbnail image (if it exists)
+        :return: thumbnail image in raw bytes
+        """
+
+        return self.get_exif_thumbnail()
+
+    def get_indexed_preview(self, preview_number: int=0) -> Optional[bytes]:
+        """
+        Extract preview image from the metadata
+
+        :param preview_number: which preview to get
+        :return: preview image in raw bytes, if found, else None
+        """
+
+        previews = self.get_preview_properties()
+        if previews:
+            # In every RAW file I've analyzed, the smallest preview is always first
+            preview = previews[preview_number]
+            return self.get_preview_image(preview).get_data()
+        return None
 
 
 class DummyMetaData(MetaData):
@@ -535,7 +423,7 @@ class DummyMetaData(MetaData):
     def owner_name(self, missing=''):
         return 'Photographer Name'
 
-    def date_time(self, missing=''):
+    def date_time(self, missing='', ignore_file_modify_date=False):
         return datetime.datetime.now()
 
     def subSeconds(self, missing='00'):
@@ -554,9 +442,11 @@ if __name__ == '__main__':
     if (len(sys.argv) != 2):
         print('Usage: ' + sys.argv[0] + ' path/to/photo/containing/metadata')
         m = DummyMetaData()
-
+        et_process = None
     else:
-        m = MetaData(full_file_name=sys.argv[1])
+        et_process = exiftool.ExifTool()
+        et_process.start()
+        m = MetaData(full_file_name=sys.argv[1], et_process=et_process)
 
     print("f" + m.aperture('missing '))
     print("ISO " + m.iso('missing '))
@@ -572,3 +462,6 @@ if __name__ == '__main__':
     print('Serial number:', m.camera_serial(missing='missing'))
     print('Shutter count:', m.shutter_count())
     print('Subseconds:', m.sub_seconds(), type(m.sub_seconds()))
+    print("File number:", m.file_number())
+
+    et_process.terminate()

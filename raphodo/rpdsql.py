@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2017, Damon Lynch"
+__copyright__ = "Copyright 2015-2018, Damon Lynch"
 
 import sqlite3
 import os
@@ -30,7 +30,7 @@ import logging
 
 from PyQt5.QtCore import Qt
 
-from raphodo.storage import (get_program_data_directory, get_program_cache_directory)
+from raphodo.storage import get_program_data_directory, get_program_cache_directory
 from raphodo.utilities import divide_list_on_length
 from raphodo.photoattributes import PhotoAttributes
 from raphodo.constants import FileType, Sort, Show
@@ -40,9 +40,11 @@ FileDownloaded = namedtuple('FileDownloaded', 'download_name, download_datetime'
 
 InCache = namedtuple('InCache', 'md5_name, mdatatime, orientation_unknown, failure')
 
-ThumbnailRow = namedtuple('ThumbnailRow', 'uid, scan_id, mtime, marked, file_name, extension, '
-                                          'file_type, downloaded, previously_downloaded, '
-                                          'job_code, proximity_col1, proximity_col2')
+ThumbnailRow = namedtuple(
+    'ThumbnailRow',
+    'uid, scan_id, mtime, marked, file_name, extension, file_type, downloaded, '
+    'previously_downloaded, job_code, proximity_col1, proximity_col2'
+)
 
 sqlite3.register_adapter(bool, int)
 sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
@@ -63,19 +65,21 @@ class ThumbnailRowsSQL:
         self.db = ':memory:'
 
         self.sort_order_map = {Qt.AscendingOrder: 'ASC', Qt.DescendingOrder: 'DESC'}
-        self.sort_map = {Sort.checked_state: 'marked', Sort.filename: 'file_name',
-                         Sort.extension: 'extension', Sort.file_type: 'file_type',
-                         Sort.device: 'device_name'}
+        self.sort_map = {
+            Sort.checked_state: 'marked', Sort.filename: 'file_name',
+            Sort.extension: 'extension', Sort.file_type: 'file_type',
+            Sort.device: 'device_name'
+        }
 
         self.conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
 
-        self.conn.execute("""CREATE TABLE devices (
-            scan_id INTEGER NOT NULL,
-            device_name TEXT NOT NULL,
-            PRIMARY KEY (scan_id)
-            )""")
+        self.conn.execute(
+            """CREATE TABLE devices (scan_id INTEGER NOT NULL, device_name TEXT NOT NULL,
+            PRIMARY KEY (scan_id) )"""
+        )
 
-        self.conn.execute("""CREATE TABLE files (
+        self.conn.execute(
+            """CREATE TABLE files (
             uid BLOB PRIMARY KEY,
             scan_id INTEGER NOT NULL,
             mtime REAL NOT NULL,
@@ -89,7 +93,8 @@ class ThumbnailRowsSQL:
             proximity_col1 INTEGER NOT NULL,
             proximity_col2 INTEGER NOT NULL,
             FOREIGN KEY (scan_id) REFERENCES devices (scan_id)
-            )""")
+            )"""
+        )
 
         self.conn.execute('CREATE INDEX IF NOT EXISTS scand_id_idx ON devices (scan_id)')
 
@@ -99,17 +104,25 @@ class ThumbnailRowsSQL:
 
         self.conn.execute('CREATE INDEX IF NOT EXISTS downloaded_idx ON files (downloaded)')
 
-        self.conn.execute("""CREATE INDEX IF NOT EXISTS previously_downloaded_idx ON files 
-            (previously_downloaded)""")
+        self.conn.execute(
+            """CREATE INDEX IF NOT EXISTS previously_downloaded_idx ON files 
+            (previously_downloaded)"""
+        )
 
-        self.conn.execute("""CREATE INDEX IF NOT EXISTS job_code_idx ON files
-            (job_code)""")
+        self.conn.execute(
+            """CREATE INDEX IF NOT EXISTS job_code_idx ON files
+            (job_code)"""
+        )
 
-        self.conn.execute("""CREATE INDEX IF NOT EXISTS proximity_col1_idx ON files
-            (proximity_col1)""")
+        self.conn.execute(
+            """CREATE INDEX IF NOT EXISTS proximity_col1_idx ON files
+            (proximity_col1)"""
+        )
 
-        self.conn.execute("""CREATE INDEX IF NOT EXISTS proximity_col2_idx ON files
-            (proximity_col2)""")
+        self.conn.execute(
+            """CREATE INDEX IF NOT EXISTS proximity_col2_idx ON files
+            (proximity_col2)"""
+        )
 
         self.conn.commit()
 
@@ -131,10 +144,12 @@ class ThumbnailRowsSQL:
         """
 
         logging.debug("Adding %s rows to db", len(thumbnail_rows))
-        self.conn.executemany(r"""INSERT INTO files (uid, scan_id, mtime, marked, file_name,
-        extension, file_type, downloaded, previously_downloaded, job_code, proximity_col1,
-        proximity_col2)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""", thumbnail_rows)
+        self.conn.executemany(
+            r"""INSERT INTO files (uid, scan_id, mtime, marked, file_name,
+            extension, file_type, downloaded, previously_downloaded, job_code, proximity_col1,
+            proximity_col2)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""", thumbnail_rows
+        )
 
         self.conn.commit()
 
@@ -222,8 +237,9 @@ class ThumbnailRowsSQL:
                         or_clauses.append('{}=?'.format(col_name))
                         where_values.append(first)
                     else:
-                        or_clauses.append('({} BETWEEN ? AND ?)'.format(col_name, first,
-                                                                              last))
+                        or_clauses.append(
+                            '({} BETWEEN ? AND ?)'.format(col_name, first, last)
+                        )
                         where_values.extend((first, last))
                 where_clauses.append('({})'.format(' OR '.join(or_clauses)))
 
@@ -312,13 +328,15 @@ class ThumbnailRowsSQL:
                  exclude_scan_ids: Optional[List[int]]=None,
                  return_file_name=False) -> List[bytes]:
 
-        where, where_values = self._build_where(scan_id=scan_id, show=show,
-                                                previously_downloaded=previously_downloaded,
-                                                downloaded=downloaded, file_type=file_type,
-                                                job_code=job_code,
-                                                marked=marked, proximity_col1=proximity_col1,
-                                                proximity_col2=proximity_col2,
-                                                exclude_scan_ids=exclude_scan_ids)
+        where, where_values = self._build_where(
+            scan_id=scan_id, show=show,
+            previously_downloaded=previously_downloaded,
+            downloaded=downloaded, file_type=file_type,
+            job_code=job_code,
+            marked=marked, proximity_col1=proximity_col1,
+            proximity_col2=proximity_col2,
+            exclude_scan_ids=exclude_scan_ids
+        )
 
         if return_file_name:
             query = 'SELECT file_name FROM files'
@@ -346,12 +364,14 @@ class ThumbnailRowsSQL:
                   proximity_col1: Optional[List[int]]=None,
                   proximity_col2: Optional[List[int]]=None) -> int:
 
-        where, where_values = self._build_where(scan_id=scan_id, show=show,
-                                                previously_downloaded=previously_downloaded,
-                                                downloaded=downloaded, job_code=job_code,
-                                                file_type=file_type,
-                                                marked=marked, proximity_col1=proximity_col1,
-                                                proximity_col2=proximity_col2)
+        where, where_values = self._build_where(
+            scan_id=scan_id, show=show,
+            previously_downloaded=previously_downloaded,
+            downloaded=downloaded, job_code=job_code,
+            file_type=file_type,
+            marked=marked, proximity_col1=proximity_col1,
+            proximity_col2=proximity_col2
+        )
 
         query = 'SELECT COUNT(*) FROM files'
 
@@ -465,14 +485,16 @@ class ThumbnailRowsSQL:
         if scan_id is None:
             row = self.conn.execute('SELECT uid FROM files WHERE marked=1 LIMIT 1').fetchone()
         else:
-            row = self.conn.execute('SELECT uid FROM files WHERE marked=1 AND scan_id=? LIMIT 1',
-                                    (scan_id, )).fetchone()
+            row = self.conn.execute(
+                'SELECT uid FROM files WHERE marked=1 AND scan_id=? LIMIT 1', (scan_id, )
+            ).fetchone()
         return row is not None
 
     def any_files_to_download(self, scan_id: Optional[int]=None) -> bool:
         if scan_id is not None:
-            row = self.conn.execute('SELECT uid FROM files WHERE downloaded=0 AND scan_id=? '
-                                    'LIMIT 1', (scan_id,)).fetchone()
+            row = self.conn.execute(
+                'SELECT uid FROM files WHERE downloaded=0 AND scan_id=? LIMIT 1', (scan_id,)
+            ).fetchone()
         else:
             row = self.conn.execute('SELECT uid FROM files WHERE downloaded=0 LIMIT 1').fetchone()
         return row is not None
@@ -491,8 +513,9 @@ class ThumbnailRowsSQL:
         """
 
         if scan_id is not None:
-            row = self.conn.execute('SELECT uid FROM files WHERE scan_id=? LIMIT 1',
-                                    (scan_id,)).fetchone()
+            row = self.conn.execute(
+                'SELECT uid FROM files WHERE scan_id=? LIMIT 1', (scan_id,)
+            ).fetchone()
         else:
             row = self.conn.execute('SELECT uid FROM files LIMIT 1').fetchone()
         return row is not None
@@ -651,23 +674,28 @@ class DownloadedSQL:
 
         if reset:
             conn.execute(r"""DROP TABLE IF EXISTS {tn}""".format(
-                tn=self.table_name))
+                tn=self.table_name)
+            )
             conn.execute("VACUUM")
 
-        conn.execute("""CREATE TABLE IF NOT EXISTS {tn} (
-        file_name TEXT NOT NULL,
-        mtime REAL NOT NULL,
-        size INTEGER NOT NULL,
-        download_name TEXT NOT NULL,
-        download_datetime timestamp,
-        PRIMARY KEY (file_name, mtime, size)
-        )""".format(tn=self.table_name))
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS {tn} (
+            file_name TEXT NOT NULL,
+            mtime REAL NOT NULL,
+            size INTEGER NOT NULL,
+            download_name TEXT NOT NULL,
+            download_datetime timestamp,
+            PRIMARY KEY (file_name, mtime, size)
+            )""".format(tn=self.table_name)
+        )
 
         # Use the character . to for download_name and path to indicate the user manually marked a
         # file as previously downloaded
 
-        conn.execute("""CREATE INDEX IF NOT EXISTS download_datetime_idx ON
-        {tn} (download_name)""".format(tn=self.table_name))
+        conn.execute(
+            """CREATE INDEX IF NOT EXISTS download_datetime_idx ON
+            {tn} (download_name)""".format(tn=self.table_name)
+        )
 
         conn.commit()
         conn.close()
@@ -687,15 +715,17 @@ class DownloadedSQL:
 
         logging.debug('Adding %s to downloaded files', name)
 
-        conn.execute(r"""INSERT OR REPLACE INTO {tn} (file_name, size, mtime,
-        download_name, download_datetime) VALUES (?,?,?,?,?)""".format(
-            tn=self.table_name), (name, size, modification_time,
-            download_full_file_name, datetime.datetime.now()))
+        conn.execute(
+            r"""INSERT OR REPLACE INTO {tn} (file_name, size, mtime,
+            download_name, download_datetime) VALUES (?,?,?,?,?)""".format(tn=self.table_name),
+            (name, size, modification_time, download_full_file_name, datetime.datetime.now())
+        )
 
         conn.commit()
         conn.close()
 
-    def file_downloaded(self, name: str, size: int, modification_time: float) -> FileDownloaded:
+    def file_downloaded(self, name: str,
+                        size: int, modification_time: float) -> Optional[FileDownloaded]:
         """
         Returns download path and filename if a file with matching
         name, modification time and size has previously been downloaded
@@ -707,9 +737,11 @@ class DownloadedSQL:
         """
         conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
         c = conn.cursor()
-        c.execute("""SELECT download_name, download_datetime as [timestamp] FROM {tn} WHERE
-        file_name=? AND size=? AND mtime=?""".format(
-            tn=self.table_name), (name, size, modification_time))
+        c.execute(
+            """SELECT download_name, download_datetime as [timestamp] FROM {tn} WHERE
+            file_name=? AND size=? AND mtime=?""".format(tn=self.table_name),
+            (name, size, modification_time)
+        )
         row = c.fetchone()
         if row is not None:
             return FileDownloaded._make(row)
@@ -737,7 +769,9 @@ class CacheSQL:
     def cache_exists(self) -> bool:
         conn = sqlite3.connect(self.db)
         row = conn.execute(
-            """SELECT name FROM sqlite_master WHERE type='table' AND name='{}'""".format(self.table_name)
+            """SELECT name FROM sqlite_master WHERE type='table' AND name='{}'""".format(
+                self.table_name
+            )
         ).fetchone()
         conn.close()
         return row is not None
@@ -755,16 +789,18 @@ class CacheSQL:
             conn.execute(r"""DROP TABLE IF EXISTS {tn}""".format(tn=self.table_name))
             conn.execute("VACUUM")
 
-        conn.execute("""CREATE TABLE IF NOT EXISTS {tn} (
-        uri TEXT NOT NULL,
-        mtime REAL NOT NULL,
-        mdatatime REAL,
-        size INTEGER NOT NULL,
-        md5_name TEXT NOT NULL,
-        orientation_unknown BOOLEAN NOT NULL,
-        failure BOOLEAN NOT NULL,
-        PRIMARY KEY (uri, mtime, size)
-        )""".format(tn=self.table_name))
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS {tn} (
+            uri TEXT NOT NULL,
+            mtime REAL NOT NULL,
+            mdatatime REAL,
+            size INTEGER NOT NULL,
+            md5_name TEXT NOT NULL,
+            orientation_unknown BOOLEAN NOT NULL,
+            failure BOOLEAN NOT NULL,
+            PRIMARY KEY (uri, mtime, size)
+            )""".format(tn=self.table_name)
+        )
 
         conn.execute("""CREATE INDEX IF NOT EXISTS md5_name_idx ON
         {tn} (md5_name)""".format(tn=self.table_name))
@@ -817,8 +853,10 @@ class CacheSQL:
 
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
-        c.execute("""SELECT md5_name, mdatatime, orientation_unknown, failure FROM {tn} WHERE
-        uri=? AND size=? AND mtime=?""".format(tn=self.table_name), (uri, size, mtime))
+        c.execute(
+            """SELECT md5_name, mdatatime, orientation_unknown, failure FROM {tn} WHERE
+            uri=? AND size=? AND mtime=?""".format(tn=self.table_name), (uri, size, mtime)
+        )
         row = c.fetchone()
         if row is not None:
             return InCache._make(row)
@@ -901,21 +939,23 @@ class FileFormatSQL:
                 tn=self.table_name))
             conn.execute("VACUUM")
 
-        conn.execute("""CREATE TABLE IF NOT EXISTS {tn} (
-        id INTEGER PRIMARY KEY,
-        extension TEXT NOT NULL,
-        camera TEXT NOT NULL,
-        size INTEGER NOT NULL,
-        orientation_offset INTEGER,
-        datetime_offset INTEGER,
-        cache INTEGER NOT NULL,
-        app0 INTEGER,
-        orientation TEXT,
-        exif_thumbnail TEXT,
-        thumbnail_preview_same INTEGER,
-        preview_source TEXT,
-        previews TEXT
-        )""".format(tn=self.table_name))
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS {tn} (
+            id INTEGER PRIMARY KEY,
+            extension TEXT NOT NULL,
+            camera TEXT NOT NULL,
+            size INTEGER NOT NULL,
+            orientation_offset INTEGER,
+            datetime_offset INTEGER,
+            cache INTEGER NOT NULL,
+            app0 INTEGER,
+            orientation TEXT,
+            exif_thumbnail TEXT,
+            thumbnail_preview_same INTEGER,
+            preview_source TEXT,
+            previews TEXT
+            )""".format(tn=self.table_name)
+        )
 
         conn.execute("""CREATE INDEX IF NOT EXISTS extension_idx ON
         {tn} (extension)""".format(tn=self.table_name))
@@ -928,22 +968,26 @@ class FileFormatSQL:
     def add_format(self, pa: PhotoAttributes) -> None:
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
-        c.execute("""INSERT OR IGNORE INTO {tn} (extension, camera, size, orientation_offset,
-        datetime_offset, cache, app0, orientation, exif_thumbnail, thumbnail_preview_same,
-        preview_source, previews)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""".format(tn=self.table_name),
-                                 (pa.ext,
-                                  pa.model,
-                                  pa.total,
-                                  pa.minimum_exif_read_size_in_bytes_orientation,
-                                  pa.minimum_exif_read_size_in_bytes_datetime,
-                                  pa.bytes_cached_post_thumb,
-                                  pa.has_app0,
-                                  pa.orientation,
-                                  pa.exif_thumbnail_details,
-                                  pa.exif_thumbnail_and_preview_identical,
-                                  pa.preview_source,
-                                  pa.preview_size_and_types))
+        c.execute(
+            """INSERT OR IGNORE INTO {tn} (extension, camera, size, orientation_offset,
+            datetime_offset, cache, app0, orientation, exif_thumbnail, thumbnail_preview_same,
+            preview_source, previews)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""".format(tn=self.table_name),
+            (
+                pa.ext,
+                pa.model,
+                pa.total,
+                pa.minimum_exif_read_size_in_bytes_orientation,
+                pa.minimum_exif_read_size_in_bytes_datetime,
+                pa.bytes_cached_post_thumb,
+                pa.has_app0,
+                pa.orientation,
+                pa.exif_thumbnail_details,
+                pa.exif_thumbnail_and_preview_identical,
+                pa.preview_source,
+                pa.preview_size_and_types
+            )
+        )
 
         conn.commit()
         conn.close()
@@ -951,8 +995,11 @@ class FileFormatSQL:
     def get_orientation_bytes(self, extension: str) -> Optional[int]:
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
-        c.execute("""SELECT max(orientation_offset) FROM {tn} WHERE extension=(?)""".format(
-            tn=self.table_name), (extension,))
+        c.execute(
+            """SELECT max(orientation_offset) FROM {tn} WHERE extension=(?)""".format(
+                tn=self.table_name
+            ), (extension,)
+        )
         row = c.fetchone()
         if row is not None:
             return row[0]
@@ -961,8 +1008,11 @@ class FileFormatSQL:
     def get_datetime_bytes(self, extension: str) -> Optional[int]:
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
-        c.execute("""SELECT max(datetime_offset) FROM {tn} WHERE extension=(?)""".format(
-            tn=self.table_name), (extension,))
+        c.execute(
+            """SELECT max(datetime_offset) FROM {tn} WHERE extension=(?)""".format(
+                tn=self.table_name
+            ), (extension,)
+        )
         row = c.fetchone()
         if row is not None:
             return row[0]
@@ -987,11 +1037,12 @@ if __name__ == '__main__':
 
     d.add_or_update_device(scan_id=scan_id, device_name=device_name)
 
-    tr = ThumbnailRow(uid=uid, scan_id=scan_id, marked=marked, mtime=mtime, file_name=file_name,
-                      file_type=file_type, extension=extension, downloaded=downloaded,
-                      previously_downloaded=previously_downloaded, job_code=False,
-                      proximity_col1=proximity_col1, proximity_col2=proximity_col2
-                      )
+    tr = ThumbnailRow(
+        uid=uid, scan_id=scan_id, marked=marked, mtime=mtime, file_name=file_name,
+        file_type=file_type, extension=extension, downloaded=downloaded,
+        previously_downloaded=previously_downloaded, job_code=False,
+        proximity_col1=proximity_col1, proximity_col2=proximity_col2
+    )
 
     uid = uuid.uuid4().bytes
     scan_id = 1
@@ -1006,11 +1057,12 @@ if __name__ == '__main__':
 
     d.add_or_update_device(scan_id=scan_id, device_name=device_name)
 
-    tr2 = ThumbnailRow(uid=uid, scan_id=scan_id, marked=marked, mtime=mtime, file_name=file_name,
-                       file_type=file_type, extension=extension, downloaded=downloaded,
-                       previously_downloaded=previously_downloaded, job_code=False,
-                       proximity_col1=proximity_col1, proximity_col2=proximity_col2
-                      )
+    tr2 = ThumbnailRow(
+        uid=uid, scan_id=scan_id, marked=marked, mtime=mtime, file_name=file_name,
+        file_type=file_type, extension=extension, downloaded=downloaded,
+        previously_downloaded=previously_downloaded, job_code=False,
+        proximity_col1=proximity_col1, proximity_col2=proximity_col2
+    )
 
 
     uid = uuid.uuid4().bytes
@@ -1022,11 +1074,12 @@ if __name__ == '__main__':
     downloaded = False
     previously_downloaded = True
 
-    tr3 = ThumbnailRow(uid=uid, scan_id=scan_id, marked=marked, mtime=mtime, file_name=file_name,
-                       file_type=file_type, extension=extension, downloaded=downloaded,
-                       previously_downloaded=previously_downloaded, job_code=False,
-                       proximity_col1=proximity_col1, proximity_col2=proximity_col2
-                       )
+    tr3 = ThumbnailRow(
+        uid=uid, scan_id=scan_id, marked=marked, mtime=mtime, file_name=file_name,
+        file_type=file_type, extension=extension, downloaded=downloaded,
+        previously_downloaded=previously_downloaded, job_code=False,
+        proximity_col1=proximity_col1, proximity_col2=proximity_col2
+    )
 
     d.add_thumbnail_rows([tr, tr2, tr3])
 

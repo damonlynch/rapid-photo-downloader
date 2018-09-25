@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2012-2015 Jim Easterbrook <jim@jim-easterbrook.me.uk>
 
 # This file is part of Rapid Photo Downloader.
@@ -20,7 +20,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2017, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
+__copyright__ = "Copyright 2015-2018, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
 
 import logging
 import os
@@ -426,9 +426,11 @@ class Camera:
         # Step 4: read APP1
         view = memoryview(bytearray(app1_data_length))
         try:
-            bytes_read = gp.check_result(self.camera.file_read(
-                folder, file_name, gp.GP_FILE_TYPE_NORMAL,
-                offset, view, self.context))
+            bytes_read = gp.check_result(
+                self.camera.file_read(
+                    folder, file_name, gp.GP_FILE_TYPE_NORMAL, offset, view, self.context
+                )
+            )
         except gp.GPhoto2Error as ex:
             logging.error(
                 'Error reading %s from camera: %s',
@@ -443,9 +445,9 @@ class Camera:
                   file_type: int=gp.GP_FILE_TYPE_NORMAL) -> gp.CameraFile:
 
         try:
-            camera_file = gp.check_result(gp.gp_camera_file_get(
-                         self.camera, dir_name, file_name,
-                         file_type, self.context))
+            camera_file = gp.check_result(
+                gp.gp_camera_file_get(self.camera, dir_name, file_name, file_type, self.context)
+            )
         except gp.GPhoto2Error as ex:
             logging.error(
                 'Error reading %s from camera %s: %s',
@@ -551,8 +553,12 @@ class Camera:
             check_for_command()
             stop = min(offset + chunk_size, size)
             try:
-                bytes_read = gp.check_result(self.camera.file_read(dir_name, file_name,
-                             gp.GP_FILE_TYPE_NORMAL, offset, view[offset:stop], self.context))
+                bytes_read = gp.check_result(
+                    self.camera.file_read(
+                        dir_name, file_name, gp.GP_FILE_TYPE_NORMAL, offset, view[offset:stop],
+                        self.context
+                    )
+                )
                 amount_downloaded += bytes_read
                 if progress_callback is not None:
                     progress_callback(amount_downloaded, size)
@@ -604,12 +610,12 @@ class Camera:
         else:
             get_file_type = gp.GP_FILE_TYPE_NORMAL
 
-        camera_file = self._get_file(dir_name, file_name,
-                                      cache_full_filename, get_file_type)
+        camera_file = self._get_file(
+            dir_name, file_name, cache_full_filename, get_file_type
+        )
 
         try:
-            thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
-                camera_file))
+            thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(camera_file))
         except gp.GPhoto2Error as ex:
             logging.error(
                 'Error getting image %s from camera %s: %s',
@@ -632,8 +638,7 @@ class Camera:
         dir_name, file_name = os.path.split(full_THM_name)
         camera_file = self._get_file(dir_name, file_name)
         try:
-            thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
-                camera_file))
+            thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(camera_file))
         except gp.GPhoto2Error as ex:
             logging.error(
                 'Error getting THM file %s from camera %s: %s',

@@ -132,13 +132,13 @@ from raphodo.utilities import (
 from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
 from raphodo.rpdfile import (
-    RPDFile, file_types_by_number, PHOTO_EXTENSIONS, VIDEO_EXTENSIONS, OTHER_PHOTO_EXTENSIONS,
-    FileTypeCounter, Video
+    RPDFile, file_types_by_number, FileTypeCounter, Video
 )
+import raphodo.fileformats as fileformats
 import raphodo.downloadtracker as downloadtracker
 from raphodo.cache import ThumbnailCacheSql
-from raphodo.metadataphoto import exiv2_version, gexiv2_version
-from raphodo.metadatavideo import EXIFTOOL_VERSION, pymedia_version_info, libmediainfo_missing
+from raphodo.programversions import gexiv2_version, exiv2_version, EXIFTOOL_VERSION
+from raphodo.metadatavideo import pymedia_version_info, libmediainfo_missing
 from raphodo.camera import gphoto2_version, python_gphoto2_version, dump_camera_details
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.generatenameconfig import *
@@ -2920,7 +2920,7 @@ Do you want to proceed with the download?
         self.download_files = self.thumbnailModel.getFilesMarkedForDownload(scan_id)
 
         # model, port
-        camera_unmounts_called = set()  # type: Set[Tuple(str, str)]
+        camera_unmounts_called = set()  # type: Set[Tuple[str, str]]
         stop_thumbnailing_cmd_issued = False
 
         stop_thumbnailing = [scan_id for scan_id in self.download_files.camera_access_needed
@@ -3305,7 +3305,7 @@ Do you want to proceed with the download?
             problems.append(problem)
 
         if problems:
-            device = self.devices[scan_id]
+            device = self.devices[scan_id]  #TODO handle device removed unexpectedly here
             problems.name = device.display_name
             problems.uri=device.uri
 
@@ -4205,12 +4205,13 @@ Do you want to proceed with the download?
 
         return self.devices.device_state[scan_id]
 
-    @pyqtSlot('PyQt_PyObject', 'PyQt_PyObject', FileTypeCounter, 'PyQt_PyObject', bool)
+    @pyqtSlot('PyQt_PyObject', 'PyQt_PyObject', FileTypeCounter, 'PyQt_PyObject', bool, bool)
     def scanFilesReceived(self, rpd_files: List[RPDFile],
                           sample_files: List[RPDFile],
                           file_type_counter: FileTypeCounter,
                           file_size_sum: int,
-                          entire_video_required: bool) -> None:
+                          entire_video_required: Optional[bool],
+                          entire_photo_required: Optional[bool]) -> None:
         """
         Process scanned file information received from the scan process
         """
@@ -4241,7 +4242,10 @@ Do you want to proceed with the download?
             self.videoDestinationDisplay.sample_rpd_file = self.devices.sample_video
 
         if device.device_type == DeviceType.camera:
-            device.entire_video_required = entire_video_required
+            if entire_video_required is not None:
+                device.entire_video_required = entire_video_required
+            if entire_photo_required is not None:
+                device.entire_photo_required = entire_photo_required
 
         device.file_type_counter = file_type_counter
         device.file_size_sum = file_size_sum
@@ -5812,102 +5816,150 @@ class SplashScreen(QSplashScreen):
 
 
 def parser_options(formatter_class=argparse.HelpFormatter):
-    parser = argparse.ArgumentParser(prog=__about__.__title__,
-                                     description=__about__.__summary__,
-                                     formatter_class=formatter_class)
-
-    parser.add_argument('--version', action='version', version=
-        '%(prog)s {}'.format(__about__.__version__))
-    parser.add_argument('--detailed-version', action='store_true',
-        help="Show version numbers of program and its libraries and exit.")
-    parser.add_argument("-v", "--verbose",  action="store_true", dest="verbose",
-         help=_("Display program information when run from the command line."))
-    parser.add_argument("--debug", action="store_true", dest="debug",
-         help=_("Display debugging information when run from the command line."))
-    parser.add_argument("-e",  "--extensions", action="store_true",
-         dest="extensions",
-         help=_("List photo and video file extensions the program recognizes "
-                "and exit."))
-    parser.add_argument("--photo-renaming", choices=['on','off'],
-        dest="photo_renaming", help=_("Turn on or off the the renaming of photos."))
-    parser.add_argument("--video-renaming", choices=['on','off'],
-        dest="video_renaming", help=_("turn on or off the the renaming of videos."))
-    parser.add_argument("-a", "--auto-detect", choices=['on','off'],
-        dest="auto_detect", help=_("Turn on or off the automatic detection of devices from which "
-       "to download."))
-    parser.add_argument("-t", "--this-computer", choices=['on','off'],
-        dest="this_computer_source",
-        help=_("Turn on or off downloading from this computer."))
-    parser.add_argument("--this-computer-location", type=str,
-        metavar=_("PATH"), dest="this_computer_location",
-        help=_("The PATH on this computer from which to download."))
-    parser.add_argument("--photo-destination", type=str,
-        metavar=_("PATH"), dest="photo_location",
-        help=_("The PATH where photos will be downloaded to."))
-    parser.add_argument("--video-destination", type=str,
-        metavar=_("PATH"), dest="video_location",
-        help=_("The PATH where videos will be downloaded to."))
-    parser.add_argument("-b", "--backup", choices=['on','off'],
-        dest="backup", help=_("Turn on or off the backing up of photos and videos while "
-                              "downloading."))
-    parser.add_argument("--backup-auto-detect", choices=['on','off'],
-        dest="backup_auto_detect",
-        help=_("Turn on or off the automatic detection of backup devices."))
-    parser.add_argument("--photo-backup-identifier", type=str,
-        metavar=_("FOLDER"), dest="photo_backup_identifier",
-        help=_("The FOLDER in which backups are stored on the automatically detected photo backup "
-               "device, with the folder's name being used to identify whether or not the device "
-               "is used for backups. For each device you wish to use for backing photos up to, "
-               "create a folder on it with this name."))
-    parser.add_argument("--video-backup-identifier", type=str,
-        metavar=_("FOLDER"), dest="video_backup_identifier",
-        help=_("The FOLDER in which backups are stored on the automatically detected video backup "
-               "device, with the folder's name being used to identify whether or not the device "
-               "is used for backups. For each device you wish to use for backing up videos to, "
-               "create a folder on it with this name."))
-    parser.add_argument("--photo-backup-location", type=str,
-        metavar=_("PATH"), dest="photo_backup_location",
-        help=_("The PATH where photos will be backed up when automatic "
-        "detection of backup devices is turned off."))
-    parser.add_argument("--video-backup-location", type=str,
-        metavar=_("PATH"), dest="video_backup_location",
-        help=_("The PATH where videos will be backed up when automatic "
-        "detection of backup devices is turned off."))
-    parser.add_argument("--ignore-other-photo-file-types", action="store_true", dest="ignore_other",
-                        help=_('Ignore photos with the following extensions: %s') %
-                        make_internationalized_list([s.upper() for s in OTHER_PHOTO_EXTENSIONS]))
-    parser.add_argument("--auto-download-startup", dest="auto_download_startup",
-        choices=['on', 'off'],
-        help=_("Turn on or off starting downloads as soon as the program itself starts."))
-    parser.add_argument("--auto-download-device-insertion", dest="auto_download_insertion",
-        choices=['on', 'off'],
-        help=_("Turn on or off starting downloads as soon as a device is inserted."))
-    parser.add_argument("--thumbnail-cache", dest="thumb_cache",
-                        choices=['on','off'],
-                        help=_("Turn on or off use of the Rapid Photo Downloader Thumbnail Cache. "
-                               "Turning it off does not delete existing cache contents."))
-    parser.add_argument("--delete-thumbnail-cache", dest="delete_thumb_cache",
-                        action="store_true",
-                        help=_("Delete all thumbnails in the Rapid Photo Downloader Thumbnail "
-                               "Cache, and exit."))
-    parser.add_argument("--forget-remembered-files", dest="forget_files",
-                        action="store_true",
-                        help=_("Forget which files have been previously downloaded, and exit."))
-    parser.add_argument("--import-old-version-preferences", action="store_true",
-        dest="import_prefs",
-        help=_("Import preferences from an old program version and exit. Requires the "
-               "command line program gconftool-2."))
-    parser.add_argument("--reset", action="store_true", dest="reset",
-                 help=_("Reset all program settings to their default values, delete all thumbnails "
-                        "in the Thumbnail cache, forget which files have been previously "
-                        "downloaded, and exit."))
-    parser.add_argument("--log-gphoto2", action="store_true",
-        help=_("Include gphoto2 debugging information in log files."))
+    parser = argparse.ArgumentParser(
+        prog=__about__.__title__, description=__about__.__summary__, formatter_class=formatter_class
+    )
 
     parser.add_argument(
-        "--camera-info", action="store_true", help=_(
-            "Print information to the terminal about attached cameras and exit."
+        '--version', action='version', version='%(prog)s {}'.format(__about__.__version__)
+    )
+    parser.add_argument(
+        '--detailed-version', action='store_true',
+        help=_("Show version numbers of program and its libraries and exit.")
+    )
+    parser.add_argument(
+        "-v", "--verbose",  action="store_true", dest="verbose",
+         help=_("Display program information when run from the command line.")
+    )
+    parser.add_argument(
+        "--debug", action="store_true", dest="debug",
+        help=_("Display debugging information when run from the command line.")
+    )
+    parser.add_argument(
+        "-e",  "--extensions", action="store_true", dest="extensions",
+         help=_("List photo and video file extensions the program recognizes and exit.")
+    )
+    parser.add_argument(
+        "--photo-renaming", choices=['on','off'], dest="photo_renaming",
+        help=_("Turn on or off the the renaming of photos.")
+    )
+    parser.add_argument(
+        "--video-renaming", choices=['on','off'], dest="video_renaming",
+        help=_("turn on or off the the renaming of videos.")
+    )
+    parser.add_argument(
+        "-a", "--auto-detect", choices=['on','off'], dest="auto_detect",
+        help=_("Turn on or off the automatic detection of devices from which to download.")
+    )
+    parser.add_argument(
+        "-t", "--this-computer", choices=['on','off'], dest="this_computer_source",
+        help=_("Turn on or off downloading from this computer.")
+    )
+    parser.add_argument(
+        "--this-computer-location", type=str, metavar=_("PATH"), dest="this_computer_location",
+        help=_("The PATH on this computer from which to download.")
+    )
+    parser.add_argument(
+        "--photo-destination", type=str, metavar=_("PATH"), dest="photo_location",
+        help=_("The PATH where photos will be downloaded to.")
+    )
+    parser.add_argument(
+        "--video-destination", type=str, metavar=_("PATH"), dest="video_location",
+        help=_("The PATH where videos will be downloaded to.")
+    )
+    parser.add_argument(
+        "-b", "--backup", choices=['on','off'], dest="backup",
+        help=_("Turn on or off the backing up of photos and videos while downloading.")
+    )
+    parser.add_argument(
+        "--backup-auto-detect", choices=['on','off'], dest="backup_auto_detect",
+        help=_("Turn on or off the automatic detection of backup devices.")
+    )
+    parser.add_argument(
+        "--photo-backup-identifier", type=str, metavar=_("FOLDER"), dest="photo_backup_identifier",
+        help=_(
+            "The FOLDER in which backups are stored on the automatically detected photo backup "
+            "device, with the folder's name being used to identify whether or not the device "
+            "is used for backups. For each device you wish to use for backing photos up to, "
+            "create a folder on it with this name."
         )
+    )
+    parser.add_argument(
+        "--video-backup-identifier", type=str, metavar=_("FOLDER"), dest="video_backup_identifier",
+        help=_(
+            "The FOLDER in which backups are stored on the automatically detected video backup "
+            "device, with the folder's name being used to identify whether or not the device "
+            "is used for backups. For each device you wish to use for backing up videos to, "
+            "create a folder on it with this name."
+        )
+    )
+    parser.add_argument(
+        "--photo-backup-location", type=str, metavar=_("PATH"), dest="photo_backup_location",
+        help=_(
+            "The PATH where photos will be backed up when automatic detection of backup devices is "
+            "turned off."
+        )
+    )
+    parser.add_argument(
+        "--video-backup-location", type=str, metavar=_("PATH"), dest="video_backup_location",
+        help=_(
+            "The PATH where videos will be backed up when automatic detection of backup devices "
+            "is turned off."
+        )
+    )
+    parser.add_argument(
+        "--ignore-other-photo-file-types", action="store_true", dest="ignore_other",
+        help=_('Ignore photos with the following extensions: %s') %
+        make_internationalized_list([s.upper() for s in fileformats.OTHER_PHOTO_EXTENSIONS])
+    )
+    parser.add_argument(
+        "--auto-download-startup", dest="auto_download_startup",
+        choices=['on', 'off'],
+        help=_("Turn on or off starting downloads as soon as the program itself starts.")
+    )
+    parser.add_argument(
+        "--auto-download-device-insertion", dest="auto_download_insertion",
+        choices=['on', 'off'],
+        help=_("Turn on or off starting downloads as soon as a device is inserted.")
+    )
+    parser.add_argument(
+        "--thumbnail-cache", dest="thumb_cache",
+        choices=['on','off'],
+        help=_(
+            "Turn on or off use of the Rapid Photo Downloader Thumbnail Cache. "
+            "Turning it off does not delete existing cache contents."
+        )
+    )
+    parser.add_argument(
+        "--delete-thumbnail-cache", dest="delete_thumb_cache", action="store_true",
+        help=_("Delete all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and exit.")
+    )
+    parser.add_argument(
+        "--forget-remembered-files", dest="forget_files", action="store_true",
+        help=_("Forget which files have been previously downloaded, and exit.")
+    )
+    parser.add_argument(
+        "--import-old-version-preferences", action="store_true", dest="import_prefs",
+        help=_(
+            "Import preferences from an old program version and exit. Requires the "
+            "command line program gconftool-2."
+        )
+    )
+    parser.add_argument(
+        "--reset", action="store_true", dest="reset",
+        help=_(
+            "Reset all program settings to their default values, delete all thumbnails "
+            "in the Thumbnail cache, forget which files have been previously downloaded, and exit."
+        )
+    )
+    parser.add_argument(
+        "--log-gphoto2", action="store_true",
+        help=_("Include gphoto2 debugging information in log files.")
+    )
+
+    parser.add_argument(
+        "--camera-info", action="store_true",
+        help=_("Print information to the terminal about attached cameras and exit.")
     )
 
     parser.add_argument('path', nargs='?')
@@ -6098,8 +6150,8 @@ def main():
         sys.exit(0)
 
     if args.extensions:
-        photos = list((ext.upper() for ext in PHOTO_EXTENSIONS))
-        videos = list((ext.upper() for ext in VIDEO_EXTENSIONS))
+        photos = list((ext.upper() for ext in fileformats.PHOTO_EXTENSIONS))
+        videos = list((ext.upper() for ext in fileformats.VIDEO_EXTENSIONS))
         extensions = ((photos, _("Photos")),
                       (videos, _("Videos")))
         for exts, file_type in extensions:

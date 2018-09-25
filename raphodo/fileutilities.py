@@ -40,6 +40,7 @@ import raphodo.metadatavideo as metadatavideo
 from raphodo.constants import FileType
 import raphodo.rpdfile as rpdfile
 import raphodo.exiftool as exiftool
+import raphodo.fileformats as fileformats
 
 
 def set_file_modified_time_from_metadata(path: str):
@@ -56,19 +57,19 @@ def set_file_modified_time_from_metadata(path: str):
     with exiftool.ExifTool() as exiftool_process:
         for dir_name, subdirs, file_list in walk(path):
             for file_name in file_list:
-                base_name, ext = os.path.splitext(file_name)
-                ext = ext.lower()[1:]
-                file_type = rpdfile.file_type(ext)
+                file_type = fileformats.file_type_from_splitext(file_name=file_name)
                 if file_type is not None:
                     file = os.path.join(dir_name, file_name)
                     modification_time = os.path.getmtime(file)
                     try:
                         if file_type == FileType.photo:
-                            metadata = metadataphoto.MetaData(full_file_name=file,
-                                                              et_process=exiftool_process)
+                            metadata = metadataphoto.MetaData(
+                                full_file_name=file, et_process=exiftool_process
+                            )
                         else:
-                            metadata = metadatavideo.MetaData(full_file_name=file,
-                                                              et_process=exiftool_process)
+                            metadata = metadatavideo.MetaData(
+                                full_file_name=file, et_process=exiftool_process
+                            )
                     except:
                         print("Could not load metadata for %s" % file)
                         break
@@ -79,15 +80,20 @@ def set_file_modified_time_from_metadata(path: str):
                         if ts != modification_time:
                             statinfo = os.stat(file)
                             access_time = statinfo.st_atime
-                            print("Setting modification time for %s to %s"
-                                  %(file_name, dt.strftime('%c')))
+                            print(
+                                "Setting modification time for %s to %s"
+                                  %(file_name, dt.strftime('%c'))
+                            )
                             try:
                                 os.utime(file, times=(access_time, ts))
-                                print("Set modification time for %s to %s"
-                                  %(file_name, dt.strftime('%c')))
+                                print(
+                                    "Set modification time for %s to %s"
+                                     %(file_name, dt.strftime('%c'))
+                                )
                             except:
-                                print("Setting file modificaiton time failed "
-                                      "for %s" % file_name)
+                                print(
+                                    "Setting file modificaiton time failed for %s" % file_name
+                                )
 
 if __name__ == '__main__':
     set_file_modified_time_from_metadata(sys.argv[1])

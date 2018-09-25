@@ -45,8 +45,8 @@ from gettext import gettext as _
 import raphodo.exiftool as exiftool
 import raphodo.generatename as gn
 from raphodo.preferences import DownloadsTodayTracker, Preferences
-from raphodo.constants import (ConflictResolution, FileType, DownloadStatus, RenameAndMoveStatus)
-from raphodo.interprocess import (RenameAndMoveFileData, RenameAndMoveFileResults, DaemonProcess)
+from raphodo.constants import ConflictResolution, FileType, DownloadStatus, RenameAndMoveStatus
+from raphodo.interprocess import RenameAndMoveFileData, RenameAndMoveFileResults, DaemonProcess
 from raphodo.rpdfile import RPDFile, Photo, Video
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.utilities import stdchannel_redirected, datetime_roughly_equal, platform_c_maxint

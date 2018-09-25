@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,28 +22,31 @@ has to be read in order to extract exif information or a preview.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch"
+__copyright__ = "Copyright 2015-2018, Damon Lynch"
 
+import resource
 import shlex
 import subprocess
 from enum import IntEnum
 import os
 import datetime
-import resource
-from typing import Optional, Dict, Union
+from typing import Optional, Dict, Union, Tuple
+from tempfile import NamedTemporaryFile
 
 import gi
 gi.require_version('GExiv2', '0.10')
 from gi.repository import GExiv2
 from PyQt5.QtGui import QImage
 
-from raphodo.utilities import format_size_for_user
+from raphodo.utilities import format_size_for_user, stdchannel_redirected
 from raphodo.metadataphoto import MetaData
+from raphodo.metadataexiftool import MetadataExiftool
+from raphodo.fileformats import FileType
 
-page_size = resource.getpagesize()
-to_kb = page_size // 1024
 
 vmtouch_cmd = 'vmtouch -v "{}"'
+page_size = resource.getpagesize()
+to_kb = page_size // 1024
 
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
@@ -56,10 +59,82 @@ class PreviewSource(IntEnum):
     preview_6 = 5
 
 
+all_metadata_tags = 'aperture iso exposure_time focal_length camera_make camera_model ' \
+                    'camera_serial shutter_count owner_name copyright artist short_camera_model ' \
+                    'date_time timestamp sub_seconds orientation'
+
+class ExifToolMixin:
+    def __init__(self, file_type: FileType,
+                 full_file_name: str,
+                 et_process,
+                 scan_func,
+                 all_metadata_tags: str,
+                 metadata,) -> None:
+
+        stat = os.stat(full_file_name)
+        self.fs_datetime = datetime.datetime.fromtimestamp(stat.st_mtime)
+        self.file_size = stat.st_size
+
+        self.file_type = file_type
+        self.file_name = full_file_name
+        self.scan_func = scan_func
+        self.et_process = et_process
+        self.all_metadata_values = dict()  # type: Dict[str, Union[int, str, float, datetime.datetime]]
+        self.all_metadata_tags = all_metadata_tags
+        self._metadata = metadata
+
+    def minimum_extract_for_tag(self, check_extract):
+        with open(self.file_name, 'rb') as photo_video:
+            for size_in_bytes in self.scan_func(self.file_size):
+                photo_video.seek(0)
+                photo_video_extract = photo_video.read(size_in_bytes)
+                with NamedTemporaryFile('w+b', delete=False) as f:
+                    f.write(photo_video_extract)
+                    name = f.name
+                metadata = self._metadata(name, self.et_process, self.file_type)
+                if check_extract(metadata, size_in_bytes):
+                    os.remove(name)
+                    break
+                os.remove(name)
+
+    def minimum_extract_for_all(self):
+        funcs = self.all_metadata_tags.split()
+
+        metadata = self._metadata(self.file_name, self.et_process)
+        for f in funcs:
+            v = getattr(metadata, f)()
+            if v:
+                self.all_metadata_values[f] = v
+
+        found = set()
+
+        with open(self.file_name, 'rb') as photo_video:
+            for size_in_bytes in self.scan_func(self.file_size):
+                photo_video.seek(0)
+                photo_video_extract = photo_video.read(size_in_bytes)
+                with NamedTemporaryFile('w+b', delete=False) as f:
+                    f.write(photo_video_extract)
+                    name = f.name
+                metadata_extract = self._metadata(name, self.et_process, self.file_type)
+                try:
+                    for tag in self.all_metadata_values:
+                        if (tag not in found and
+                                getattr(metadata_extract, tag)() == self.all_metadata_values[tag]):
+                            found.add(tag)
+                            if len(found) == len(self.all_metadata_values):
+                                self.minimum_metadata_read_size_in_bytes_all = size_in_bytes
+                                os.remove(name)
+                                return
+                except:
+                    pass
+                finally:
+                    if os.path.exists(name):
+                        os.remove(name)
+
+
 class PhotoAttributes:
-    def __init__(self, full_file_name: str, ext: str, metadata: GExiv2.Metadata,
-                 exiftool_process) -> None:
-        self.exiftool_process = exiftool_process
+    def __init__(self, full_file_name: str, ext: str, et_process) -> None:
+        self.et_process = et_process
         self.datetime = None # type: datetime.datetime
         self.iso = None # type: int
         self.height = None # type: int
@@ -69,6 +144,7 @@ class PhotoAttributes:
         self.orientation = None # type: str
         self.no_previews = None # type: int
         self.has_exif_thumbnail = False # type: bool
+        self.exif_thumbnail_or_preview = None  # type: bytes
         self.exif_thumbnail_height = None # type: int
         self.exif_thumbnail_width = None # type: int
         self.exif_thumbnail_details = None # type: str
@@ -82,7 +158,8 @@ class PhotoAttributes:
         self.preview_size_and_types = []
         self.minimum_exif_read_size_in_bytes_orientation = None  # type: int
         self.minimum_exif_read_size_in_bytes_datetime = None  # type: int
-        self.minimum_exif_read_size_in_bytes_all = None  # type: int
+        self.minimum_exif_read_size_in_bytes_thumbnail = None   # type: int
+        self.minimum_metadata_read_size_in_bytes_all = None  # type: int
         self.bytes_cached_post_previews = None
         self.in_memory_post_previews = None
 
@@ -93,14 +170,25 @@ class PhotoAttributes:
         # been cached after simply reading the exif
         self.bytes_cached, self.total, self.in_memory = vmtouch_output(full_file_name)
 
+        self.metadata = None
+
+        stat = os.stat(full_file_name)
+        self.fs_datetime = datetime.datetime.fromtimestamp(stat.st_mtime)
+        self.file_size = stat.st_size
+
+    def process(self):
+
         # Get information about the photo
-        self.assign_photo_attributes(metadata)
-        self.extract_thumbnail(metadata)
+        self.assign_photo_attributes(self.metadata)
+        self.extract_thumbnail(self.metadata)
         self.bytes_cached_post_thumb, total, self.in_memory_post_thumb = vmtouch_output(
-            full_file_name)
-        self.get_preview_sizes(metadata)
+            self.file_name
+        )
+        self.get_preview_sizes(self.metadata)
+
         self.bytes_cached_post_previews, total, self.in_memory_post_previews = vmtouch_output(
-            full_file_name)
+            self.file_name
+        )
 
         if self.orientation is not None or self.ext.lower() in JPEG_EXTENSIONS:
             self.minimum_extract_for_tag(self.orientation_extract)
@@ -108,7 +196,10 @@ class PhotoAttributes:
         if self.datetime is not None:
             self.minimum_extract_for_tag(self.datetime_extract)
 
-        self.minimum_extract_for_all(metadata)
+        if self.exif_thumbnail_or_preview is not None:
+            self.minimum_extract_for_tag(self.thumbnail_extract)
+
+        self.minimum_extract_for_all()
 
     def assign_photo_attributes(self, metadata: GExiv2.Metadata) -> None:
         # I don't know how GExiv2 gets these values:
@@ -119,8 +210,10 @@ class PhotoAttributes:
         except KeyError:
             pass
         if metadata.has_tag('Exif.Image.Make') and metadata.has_tag('Exif.Image.Model'):
-            self.model = '{} {}'.format(metadata.get_tag_string('Exif.Image.Make').strip(),
-                                   metadata.get_tag_string('Exif.Image.Model').strip())
+            self.model = '{} {}'.format(
+                metadata.get_tag_string('Exif.Image.Make').strip(),
+                metadata.get_tag_string('Exif.Image.Model').strip()
+            )
         self.has_gps = metadata.get_gps_info()[0]
         self.iso = metadata.get_iso_speed()
         try:
@@ -128,18 +221,27 @@ class PhotoAttributes:
         except (KeyError, ValueError):
             pass
 
-    def extract_thumbnail(self, metadata: GExiv2.Metadata) -> None:
-        # not all files have an exif preview, but all CR2 seem to
-        exif_thumbnail = metadata.get_exif_thumbnail()
-        if exif_thumbnail:
-            # Get the thumbnail but don't save it
+    def image_height_width(self, thumbnail: bytes) -> Optional[Tuple[int, int]]:
+        qimage = QImage.fromData(thumbnail)
+        if not qimage.isNull():
+            return qimage.width(), qimage.height()
+
+    def process_exif_thumbnail(self, thumbnail: bytes) -> None:
+        if thumbnail:
             self.has_exif_thumbnail = True
-            qimage = QImage.fromData(exif_thumbnail)
-            if not qimage.isNull():
-                self.exif_thumbnail_width = qimage.width()
-                self.exif_thumbnail_height = qimage.height()
-                self.exif_thumbnail_details = '{}x{}'.format(self.exif_thumbnail_width,
-                                                 self.exif_thumbnail_height)
+            self.exif_thumbnail_or_preview = thumbnail
+            width_height = self.image_height_width(thumbnail)
+            if width_height is not None:
+                self.exif_thumbnail_width = width_height[0]
+                self.exif_thumbnail_height = width_height[1]
+                self.exif_thumbnail_details = '{}x{}'.format(
+                    self.exif_thumbnail_width, self.exif_thumbnail_height
+                )
+
+    def extract_thumbnail(self, metadata: GExiv2.Metadata) -> None:
+        # not all files have an exif preview, but all CR2 & CR3 seem to
+        exif_thumbnail = metadata.get_exif_thumbnail()
+        self.process_exif_thumbnail(thumbnail=exif_thumbnail)
 
         previews = metadata.get_preview_properties()
         self.no_previews = len(previews)
@@ -147,10 +249,11 @@ class PhotoAttributes:
         for idx, preview in enumerate(previews):
             image = metadata.get_preview_image(preview)
             if image.get_width() >= 160 and image.get_height() >= 120:
-                # Get the thumbnail but don't save it
                 preview_thumbnail = metadata.get_preview_image(preview).get_data()
                 if self.has_exif_thumbnail:
                     self.exif_thumbnail_and_preview_identical = preview_thumbnail == exif_thumbnail
+                else:
+                    self.exif_thumbnail_or_preview = preview_thumbnail
                 self.preview_source = PreviewSource(idx).name.replace('_', ' ').capitalize()
                 self.preview_width = image.get_width()
                 self.preview_height = image.get_height()
@@ -162,20 +265,36 @@ class PhotoAttributes:
         sizes_and_types = []
         for idx, preview in enumerate(previews):
             image = metadata.get_preview_image(preview)
-            sizes_and_types.append((image.get_width(), image.get_height(),
-                                                image.get_extension()))
-        self.preview_size_and_types = '; '.join(['{}x{} {}'.format(width, height, ext[1:]) for
-                                                 width, height, ext in sizes_and_types])
+            sizes_and_types.append(
+                (image.get_width(), image.get_height(), image.get_extension())
+            )
+        self.preview_size_and_types = '; '.join(
+            ['{}x{} {}'.format(width, height, ext[1:]) for width, height, ext in sizes_and_types]
+        )
 
-    def orientation_extract(self, metadata: GExiv2.Metadata, size_in_bytes):
+    def orientation_extract(self, metadata: GExiv2.Metadata, size_in_bytes) -> bool:
         if metadata['Exif.Image.Orientation'] == self.orientation:
             self.minimum_exif_read_size_in_bytes_orientation = size_in_bytes
             return True
         return False
 
-    def datetime_extract(self, metadata: GExiv2.Metadata, size_in_bytes):
+    def datetime_extract(self, metadata: GExiv2.Metadata, size_in_bytes) -> bool:
         if metadata.get_date_time() == self.datetime:
             self.minimum_exif_read_size_in_bytes_datetime = size_in_bytes
+            return True
+        return False
+
+    def thumbnail_extract(self, metadata: GExiv2.Metadata, size_in_bytes) -> bool:
+        thumbnail = metadata.get_exif_thumbnail()
+        if not thumbnail:
+            previews = metadata.get_preview_properties()
+            if previews:
+                # In every RAW file I've analyzed, the smallest preview is always first
+                preview = previews[0]
+                thumbnail = metadata.get_preview_image(preview).get_data()
+
+        if thumbnail == self.exif_thumbnail_or_preview:
+            self.minimum_exif_read_size_in_bytes_thumbnail = size_in_bytes
             return True
         return False
 
@@ -188,8 +307,9 @@ class PhotoAttributes:
             return self.read_jpeg_2(check_extract)
 
         metadata = GExiv2.Metadata()
-        for size_in_bytes in exif_scan_range():
-            with open(self.file_name, 'rb') as photo:
+        with open(self.file_name, 'rb') as photo:
+            for size_in_bytes in exif_scan_range(self.file_size):
+                photo.seek(0)
                 photo_extract = photo.read(size_in_bytes)
                 try:
                     metadata.open_buf(photo_extract)
@@ -202,28 +322,28 @@ class PhotoAttributes:
                     except KeyError:
                         pass
 
-    def minimum_extract_for_all(self, metadata: MetaData) -> None:
+    def minimum_extract_for_all(self) -> None:
         if self.ext == 'CRW':
             # Exiv2 can crash while scanning for exif in a very small
             # extract of a CRW file
             return
 
-        funcs = 'aperture iso exposure_time focal_length camera_make camera_model camera_serial ' \
-                 'shutter_count owner_name copyright artist short_camera_model ' \
-                 'date_time timestamp sub_seconds orientation'.split()
+        funcs = all_metadata_tags.split()
         for f in funcs:
-            v = getattr(metadata, f)()
+            v = getattr(self.metadata, f)()
             if v:
                 self.all_exif_values[f] = v
 
         found = set()
 
-        for size_in_bytes in exif_scan_range():
+        # with stdchannel_redirected(sys.stdout, os.devnull):
+        for size_in_bytes in exif_scan_range(self.file_size):
             with open(self.file_name, 'rb') as photo:
                 photo_extract = photo.read(size_in_bytes)
                 try:
-                    metadata_extract = MetaData(raw_bytes=bytearray(photo_extract),
-                                                et_process=self.exiftool_process)
+                    metadata_extract = MetaData(
+                        raw_bytes=bytearray(photo_extract), et_process=self.et_process
+                    )
                 except:
                     pass
                 else:
@@ -231,14 +351,13 @@ class PhotoAttributes:
                         for tag in self.all_exif_values:
                             if (tag not in found and
                                     getattr(metadata_extract, tag)() == self.all_exif_values[tag]):
+
                                 found.add(tag)
                                 if len(found) == len(self.all_exif_values):
-                                    self.minimum_exif_read_size_in_bytes_all = size_in_bytes
+                                    self.minimum_metadata_read_size_in_bytes_all = size_in_bytes
                                     return
                     except KeyError:
                         pass
-
-
 
     def get_jpeg_exif_length(self) -> Optional[int]:
         app0_data_length = 0
@@ -269,24 +388,6 @@ class PhotoAttributes:
         app1_data_length = header[0] * 256 + header[1]
         return soi_marker_length + marker_length + app1_data_length + app0_data_length
 
-    def read_jpeg(self, check_extract) -> Optional[int]:
-        length = self.get_jpeg_exif_length()
-        # print("Got exif length of", length)
-        if length is not None:
-            metadata = GExiv2.Metadata()
-            with open(self.file_name, 'rb') as photo:
-                photo_extract = photo.read(length)
-                try:
-                    metadata.open_buf(photo_extract)
-                    # print("read exif okay :-)")
-                except:
-                    print("Failed to read exif!")
-                else:
-                    try:
-                        if not check_extract(metadata, length):
-                            print("Read exif okay, but failed to get value from exif!")
-                    except KeyError:
-                        print("Read exif okay, but failed to get value from exif!")
 
     def read_jpeg_2(self, check_extract) -> None:
 
@@ -359,7 +460,6 @@ class PhotoAttributes:
                 pass
                 # print("Read exif okay, but failed to get value from exif!")
 
-
     def __repr__(self):
         if self.model:
             s = self.model
@@ -372,6 +472,14 @@ class PhotoAttributes:
         if self.ext:
             s += ' {}'.format(self.ext)
         return s
+
+    def show_preview_source(self) -> str:
+        return '{} of {}: {}x{} {}\n'.format(
+            self.preview_source,
+            self.no_previews,
+            self.preview_width, self.preview_height,
+            self.preview_extension[1:]
+        )
 
     def __str__(self):
         s = ''
@@ -392,11 +500,7 @@ class PhotoAttributes:
         if self.has_exif_thumbnail:
             s += 'Exif thumbnail: {}\n'.format(self.exif_thumbnail_details)
         if self.preview_source is not None:
-            s += '{} of {}: {}x{} {}\n'.format(
-                              self.preview_source,
-                              self.no_previews,
-                              self.preview_width, self.preview_height,
-                              self.preview_extension[1:])
+            s += self.show_preview_source()
         if self.exif_thumbnail_and_preview_identical == False:
             # Check against False as value is one of None, True or
             # False
@@ -406,32 +510,133 @@ class PhotoAttributes:
         s += 'Disk cache after exif read:\n[{}]\n'.format(self.in_memory)
         if self.in_memory != self.in_memory_post_thumb:
             s += 'Disk cache after thumbnail / preview extraction:\n[{}]\n'.format(
-                self.in_memory_post_thumb)
+                self.in_memory_post_thumb
+            )
         if self.bytes_cached == self.bytes_cached_post_thumb:
             s += 'Cached: {:,}KB of {:,}KB\n'.format(self.bytes_cached, self.total)
         else:
             s += 'Cached: {:,}KB(+{:,}KB after extraction) of {:,}KB\n'.format(
-                self.bytes_cached, self.bytes_cached_post_thumb, self.total)
+                self.bytes_cached, self.bytes_cached_post_thumb, self.total
+            )
+
+        if self.minimum_exif_read_size_in_bytes_thumbnail is not None:
+            s += 'Minimum read size for thumbnail or first preview: {}\n'.format(
+                format_size_for_user(self.minimum_exif_read_size_in_bytes_thumbnail)
+            )
         if self.minimum_exif_read_size_in_bytes_orientation is not None:
             s += 'Minimum read size to extract orientation tag: {}\n'.format(
-                format_size_for_user(self.minimum_exif_read_size_in_bytes_orientation))
+                format_size_for_user(self.minimum_exif_read_size_in_bytes_orientation)
+            )
         if self.minimum_exif_read_size_in_bytes_orientation is None and self.orientation is not \
                 None:
             s += 'Could not extract orientation tag with minimal read\n'
         if self.minimum_exif_read_size_in_bytes_datetime is not None:
             s += 'Minimum read size to extract datetime tag: {}\n'.format(
-                format_size_for_user(self.minimum_exif_read_size_in_bytes_datetime))
+                format_size_for_user(self.minimum_exif_read_size_in_bytes_datetime)
+            )
         if self.minimum_exif_read_size_in_bytes_datetime is None and self.datetime is not None:
             s += 'Could not extract datetime tag with minimal read\n'
-        if self.minimum_exif_read_size_in_bytes_all is not None:
+        if self.minimum_metadata_read_size_in_bytes_all is not None:
             s += 'Minimum read size to extract variety of tags: {}\n'.format(
-                format_size_for_user(self.minimum_exif_read_size_in_bytes_all))
+                format_size_for_user(self.minimum_metadata_read_size_in_bytes_all)
+            )
         else:
             s += 'Could not extract variety of tags with minimal read\n'
         return s
 
 
-def exif_scan_range() -> iter:
+class ExifToolPhotoAttributes(ExifToolMixin, PhotoAttributes):
+    def __init__(self, full_file_name: str, ext: str, et_process) -> None:
+        super().__init__(
+            FileType.video, full_file_name, et_process, exif_scan_range, all_metadata_tags,
+            MetadataExiftool
+        )
+        ext = os.path.splitext(full_file_name)[1][1:].upper()
+        PhotoAttributes.__init__(self, full_file_name, ext, et_process)
+        self.metadata = MetadataExiftool(full_file_name, et_process, FileType.photo)
+
+        # create reverse lookup for preview names
+        self.index_preview_inverse = {
+            value: key for key, value in self.metadata.index_preview.items()
+        }
+
+    def assign_photo_attributes(self, metadata: MetadataExiftool) -> None:
+        self.width = metadata.width()
+        self.height = metadata.height()
+        try:
+            self.orientation = metadata.orientation()
+        except Exception:
+            pass
+
+        self.model = '{} {}'.format(
+            metadata.camera_make(),
+            metadata.camera_model()
+        )
+        self.iso = metadata.iso()
+        self.datetime = metadata.date_time(ignore_file_modify_date=True)
+
+    def extract_thumbnail(self, metadata: MetadataExiftool) -> None:
+        exif_thumbnail = metadata.get_small_thumbnail()
+        self.process_exif_thumbnail(thumbnail=exif_thumbnail)
+
+        for index in (0, 3, 4):  # PreviewImage, PreviewTIFF, ThumbnailTIFF
+            preview_thumbnail = metadata.get_indexed_preview(index)
+            if preview_thumbnail:
+                if self.has_exif_thumbnail:
+                    self.exif_thumbnail_and_preview_identical = preview_thumbnail == exif_thumbnail
+                width_height = self.image_height_width(preview_thumbnail)
+                if width_height is not None:
+                    self.preview_source = metadata.index_preview[index]
+                    self.preview_width = width_height[0]
+                    self.preview_height = width_height[1]
+                    self.preview_extension = 'jpg' if 'TIFF' not in self.preview_source else 'tiff'
+                    return
+
+    def get_preview_sizes(self, metadata: MetadataExiftool):
+        preview_names = metadata.preview_names()
+        self.no_previews = 0
+        sizes_and_types = []
+        for name in preview_names:
+            preview = metadata.get_indexed_preview(self.index_preview_inverse[name])
+            if preview:
+                width_height = self.image_height_width(preview)
+                if width_height is not None:
+                    sizes_and_types.append(
+                        (width_height[0], width_height[1], name)
+                    )
+                    self.no_previews += 1
+        self.preview_size_and_types = '; '.join(
+            ['{}x{} {}'.format(width, height, name) for width, height, name in sizes_and_types]
+        )
+
+    def show_preview_source(self) -> str:
+        return '{} of {}: {}x{}\n'.format(
+            self.preview_source,
+            self.no_previews,
+            self.preview_width, self.preview_height,
+        )
+
+    def orientation_extract(self, metadata: MetadataExiftool, size_in_bytes):
+        if metadata.orientation() == self.orientation:
+            self.minimum_exif_read_size_in_bytes_orientation = size_in_bytes
+            return True
+        return False
+
+    def datetime_extract(self, metadata: MetadataExiftool, size_in_bytes):
+        if metadata.date_time(ignore_file_modify_date=True) == self.datetime:
+            self.minimum_exif_read_size_in_bytes_datetime = size_in_bytes
+            return True
+        return False
+
+    def thumbnail_extract(self, metadata: MetadataExiftool, size_in_bytes):
+        thumbnail = metadata.get_small_thumbnail_or_first_indexed_preview()
+        if thumbnail == self.exif_thumbnail_or_preview:
+            self.minimum_exif_read_size_in_bytes_thumbnail = size_in_bytes
+            return True
+        return False
+
+
+def exif_scan_range(size) -> iter:
     stop = 20
     for iterations, step in ((108, 1), (97, 4), (16, 32), (16, 256), (16, 512), (8, 1024),
                              (8, 2048 * 4), (32, 2048 * 16)):
@@ -439,6 +644,8 @@ def exif_scan_range() -> iter:
         stop = start + step * iterations
         for b in range(start, stop, step):
             yield b
+    yield size
+
 
 def vmtouch_output(full_file_name: str) -> tuple:
     command = shlex.split(vmtouch_cmd.format(full_file_name))
@@ -449,4 +656,4 @@ def vmtouch_output(full_file_name: str) -> tuple:
             in_memory = line[1:line.find(']')]
             currently_paged_percent = line.rsplit(' ', 1)[-1]
             num, denom = map(int, currently_paged_percent.split('/'))
-            return (num * to_kb, denom * to_kb, in_memory)
+            return num * to_kb, denom * to_kb, in_memory
