@@ -874,13 +874,32 @@ def uninstall_old_version(distro_family: Distro, distro: Distro, interactive: bo
     pkg_name = 'rapid-photo-downloader'
 
     if distro_family == Distro.debian:
+        print(
+            _("Querying package system to see if an older version of Rapid Photo Downloader is "
+              "installed (this may take a while)..."
+              )
+        )
         try:
             cache = apt.Cache()
             pkg = cache[pkg_name]
             if pkg.is_installed and query_uninstall(interactive):
-                run_cmd(make_distro_packager_commmand(distro, pkg_name, interactive, 'remove'))
-        except Exception:
-            pass
+                try:
+                    v = pkg.versions[0]
+                    name = v.package
+                    version = v.version
+                    package = '{} {}'.format(name, version)
+                except Exception:
+                    package = pkg.name
+                print(_("Uninstalling system package"), package)
+        except Exception as e:
+            sys.stderr.write(_("Command failed") + "\n")
+            sys.stderr.write(_("Exiting") + "\n")
+            clean_locale_tmpdir()
+            sys.exit(1)
+        else:
+            cmd = make_distro_packager_commmand(distro_family, pkg_name, interactive, 'remove')
+            run_cmd(cmd)
+
 
     elif distro_family == Distro.fedora:
         print(
@@ -905,7 +924,9 @@ def uninstall_old_version(distro_family: Distro, distro: Distro, interactive: bo
             q_inst = q.installed()
             i = q_inst.filter(name=pkg_name)
             if len(list(i)) and query_uninstall(interactive):
-                run_cmd(make_distro_packager_commmand(distro, pkg_name, interactive, 'remove'))
+                run_cmd(
+                    make_distro_packager_commmand(distro_family, pkg_name, interactive, 'remove')
+                )
 
     elif distro_family == Distro.opensuse:
         print(
@@ -917,7 +938,7 @@ def uninstall_old_version(distro_family: Distro, distro: Distro, interactive: bo
         try:
             if opensuse_package_installed('rapid-photo-downloader') \
                     and query_uninstall(interactive):
-                run_cmd(make_distro_packager_commmand(distro, pkg_name, interactive, 'rm'))
+                run_cmd(make_distro_packager_commmand(distro_family, pkg_name, interactive, 'rm'))
         except subprocess.CalledProcessError as e:
             if e.returncode != 104:
                 sys.stderr.write(_("Command failed") + "\n")

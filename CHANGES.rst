@@ -7,8 +7,8 @@ Changelog for Rapid Photo Downloader
  - Added support for Canon CR3 format. Requires ExifTool 10.87 or newer.
    See the release notes for details on upgrading ExifTool. Note: program
    performance with CR3 files is notably slower than other photo file formats.
-   Other photo file formats are read using the high performance library exiv2 to
-   read metadata and extract thumbnails. Unfortunately exiv2 does not yet
+   Other photo file formats are read using the high performance library exiv2
+   to read metadata and extract thumbnails. Unfortunately exiv2 does not yet
    support the CR3 format. Exiv2 0.28 will support the CR3 format.
 
  - Fixed bug #1790351: Video date time metadata not parsed correctly when
@@ -24,6 +24,9 @@ Changelog for Rapid Photo Downloader
 
  - Updated installation script to use "loose" instead of "strict" Python
    version checking.
+
+ - Fixed bug in installation script where a system installed Rapid Photo
+   Downloader package was not being uninstalled.
 
 0.9.11 (2018-08-26)
 -------------------
