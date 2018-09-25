@@ -28,6 +28,8 @@ Changelog for Rapid Photo Downloader
  - Fixed bug in installation script where a system installed Rapid Photo
    Downloader package was not being uninstalled.
 
+ - Fixed bug #1791131: Report fatal camera access problem without crashing
+
 0.9.11 (2018-08-26)
 -------------------
 

@@ -891,14 +891,14 @@ def uninstall_old_version(distro_family: Distro, distro: Distro, interactive: bo
                 except Exception:
                     package = pkg.name
                 print(_("Uninstalling system package"), package)
+                cmd = make_distro_packager_commmand(distro_family, pkg_name, interactive, 'remove')
+                run_cmd(cmd)
         except Exception as e:
             sys.stderr.write(_("Command failed") + "\n")
             sys.stderr.write(_("Exiting") + "\n")
             clean_locale_tmpdir()
             sys.exit(1)
-        else:
-            cmd = make_distro_packager_commmand(distro_family, pkg_name, interactive, 'remove')
-            run_cmd(cmd)
+
 
 
     elif distro_family == Distro.fedora:

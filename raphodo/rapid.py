@@ -3305,11 +3305,18 @@ Do you want to proceed with the download?
             problems.append(problem)
 
         if problems:
-            device = self.devices[scan_id]  #TODO handle device removed unexpectedly here
-            problems.name = device.display_name
-            problems.uri=device.uri
-
-            self.addErrorLogMessage(problems=problems)
+            try:
+                device = self.devices[scan_id]
+                problems.name = device.display_name
+                problems.uri=device.uri
+            except KeyError:
+                # Device has already been removed
+                logging.error("Device with scan id %s unexpectedly removed", scan_id)
+                device_archive = self.devices.device_archive[scan_id]
+                problems.name = device_archive.name
+                problems.uri = device_archive.uri
+            finally:
+                self.addErrorLogMessage(problems=problems)
 
     @pyqtSlot(int)
     def copyfilesFinished(self, scan_id: int) -> None:

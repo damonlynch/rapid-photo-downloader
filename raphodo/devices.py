@@ -61,6 +61,7 @@ from raphodo.problemnotification import FsMetadataWriteProblem
 
 display_devices = (DeviceType.volume, DeviceType.camera)
 sample_file_complete = namedtuple('sample_file_complete', 'full_file_name, file_type')
+device_name_uri = namedtuple('device_name_uri', 'name uri')
 
 
 
@@ -407,6 +408,11 @@ class DeviceCollection:
         # port: model
         self.cameras = {}  # type: Dict[str, str]
 
+        # Track device names and uris to be able to report this information
+        # after a device has been removed
+        # scan_id: name uri
+        self.device_archive = {}  # type: Dict[int, device_name_uri]
+
         # Used to assign scan ids
         self.scan_counter = 0  # type: int
 
@@ -550,6 +556,8 @@ class DeviceCollection:
             self.volumes_and_cameras.add(scan_id)
         else:
             self.this_computer.add(scan_id)
+
+        self.device_archive[scan_id] = device_name_uri(device.display_name, device.uri)
         return scan_id
 
     def set_device_state(self, scan_id: int, state: DeviceState) -> None:
