@@ -240,7 +240,6 @@ class RenameWidget(QFramedWidget):
             self.name_generator = gn.VideoName(self.prefs.video_rename)
             logging.debug("Updating example video name in rename panel")
 
-        logging.info(self.sample_rpd_file)
         self.example.setText(self.name_generator.generate_name(self.sample_rpd_file))
 
     def updateSampleFile(self, sample_rpd_file: Union[Photo, Video]) -> None:

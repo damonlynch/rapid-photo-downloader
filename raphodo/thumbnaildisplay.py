@@ -787,9 +787,11 @@ class ThumbnailListModel(QAbstractListModel):
         :param rpd_file: sample rpd_file (scan id of the device will be taken from it)
         """
 
-        logging.info('Metadata time differs from file modification time for '
-                     '%s (with possibly more to come, but these will not be logged)',
-                     rpd_file.full_file_name)
+        logging.info(
+            'Metadata time differs from file modification time for '
+            '%s (with possibly more to come, but these will not be logged)',
+            rpd_file.full_file_name
+        )
 
         scan_id = rpd_file.scan_id
         self.ctimes_differ.append(scan_id)

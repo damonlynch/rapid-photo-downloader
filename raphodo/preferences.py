@@ -187,12 +187,14 @@ class DownloadsTodayTracker:
         try:
             adjusted_today = datetime.datetime.strptime(
                 "%s %s:%s" % (self.downloads_today[0], hour, minute),
-                "%Y-%m-%d %H:%M")
+                "%Y-%m-%d %H:%M"
+            )
         except:
             logging.critical(
                 "Failed to calculate date adjustment. Download today values "
                 "appear to be corrupted: %s %s:%s",
-                self.downloads_today[0], hour, minute)
+                self.downloads_today[0], hour, minute
+            )
             adjusted_today = None
 
         now = datetime.datetime.today()
@@ -204,8 +206,7 @@ class DownloadsTodayTracker:
             try:
                 return int(self.downloads_today[1])
             except ValueError:
-                logging.error(
-                    "Invalid Downloads Today value. Resetting value to zero.")
+                logging.error("Invalid Downloads Today value. Resetting value to zero.")
                 self.reset_downloads_today()
                 return 0
         else:
@@ -220,9 +221,9 @@ class DownloadsTodayTracker:
             return int(t1), int(t2)
         except ValueError:
             logging.error(
-                "'Start of day' preference value %s is corrupted. Resetting "
-                "to midnight",
-                self.day_start)
+                "'Start of day' preference value %s is corrupted. Resetting to midnight",
+                self.day_start
+            )
             self.day_start = "0:0"
             return 0, 0
 
@@ -257,8 +258,10 @@ class DownloadsTodayTracker:
         self.day_start = "%s:%s" % (hour, minute)
 
     def log_vals(self) -> None:
-        logging.info("Date %s Value %s Day start %s", self.downloads_today[0],
-                     self.downloads_today[1], self.day_start)
+        logging.info(
+            "Date %s Value %s Day start %s",
+            self.downloads_today[0], self.downloads_today[1], self.day_start
+        )
 
 
 def today():

@@ -412,8 +412,9 @@ class FolderPreviewManager(QObject):
 
     def _remove_provisional_folders_for_device(self, scan_id: int) -> None:
         if scan_id in self.devices:
-            logging.info("Cleaning provisional download folders for %s",
-                          self.devices[scan_id].display_name)
+            logging.info(
+                "Cleaning provisional download folders for %s", self.devices[scan_id].display_name
+            )
         else:
             logging.info("Cleaning provisional download folders for device %d", scan_id)
         self.folders_preview.clean_generated_folders_for_scan_id(

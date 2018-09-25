@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,12 +21,11 @@ Combobox widget to easily choose file locations
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017, Damon Lynch"
+__copyright__ = "Copyright 2017-2018, Damon Lynch"
 
-from typing import Optional, Dict, Tuple, Union, List
+from typing import Optional, Tuple, List
 import os
 import logging
-from collections import defaultdict
 from gettext import gettext as _
 
 from PyQt5.QtCore import (pyqtSlot, pyqtSignal)
@@ -207,14 +206,19 @@ class FolderCombo(QComboBox):
             if self.itemData(i) == path:
                 self.setCurrentIndex(i)
                 standard_path = True
-                logging.info("%s path %s is a default value or path to an external volume",
-                              self.file_type.name, path)
+                logging.info(
+                    "%s path %s is a default value or path to an external volume",
+                    self.file_type.name, path
+                )
                 break
 
         if standard_path:
             if path in dests:
-                logging.info("Removing %s from list of stored %s destinations because its now a "
-                             "standard path", path, self.file_type.name)
+                logging.info(
+                    "Removing %s from list of stored %s destinations because its now a "
+                    "standard path",
+                    path, self.file_type.name
+                )
                 self.prefs.del_list_value(self._get_dest_pref_key(), path)
         else:
             valid_dests = [dest for dest in dests if dest and os.path.isdir(dest)]
@@ -222,8 +226,9 @@ class FolderCombo(QComboBox):
                 self._make_dest_active(path, len(valid_dests))
             elif os.path.isdir(path):
                 # Add path to destinations in prefs, and regenerate the combobox entries
-                self.prefs.add_list_value(self._get_dest_pref_key(), path,
-                                          max_list_size=max_remembered_destinations)
+                self.prefs.add_list_value(
+                    self._get_dest_pref_key(), path, max_list_size=max_remembered_destinations
+                )
                 self.clear()
                 self._setup_entries()
                 # List may or may not have grown in size
@@ -233,8 +238,10 @@ class FolderCombo(QComboBox):
             else:
                 invalid = True
                 # Translators: indicate in combobox that a path does not exist
-                self.insertItem(0, QIcon(':icons/error.svg'), _('%s (location does not exist)') %
-                                os.path.basename(path), path)
+                self.insertItem(
+                    0, QIcon(':icons/error.svg'),
+                    _('%s (location does not exist)') % os.path.basename(path), path
+                )
                 self.setCurrentIndex(0)
                 if self.destinations_start != -1:
                     self.destinations_start += 1
@@ -280,8 +287,9 @@ class FolderCombo(QComboBox):
                     chosen_path = os.path.expanduser('~')
             except AttributeError:
                 chosen_path = os.path.expanduser('~')
-            path = QFileDialog.getExistingDirectory(self, self.file_chooser_title,
-                                                    chosen_path, QFileDialog.ShowDirsOnly)
+            path = QFileDialog.getExistingDirectory(
+                self, self.file_chooser_title, chosen_path, QFileDialog.ShowDirsOnly
+            )
             if path:
                 self.setPath(path)
                 self.pathChosen.emit(path)
