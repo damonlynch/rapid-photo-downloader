@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.12 (2018-09-21)
+0.9.12 (2018-09-27)
 -------------------
 
  - Added support for Canon CR3 format. Requires ExifTool 10.87 or newer.
@@ -16,6 +16,8 @@ Changelog for Rapid Photo Downloader
 
  - Added support for FFF and IIQ raw formats.
 
+ - The MOS and MRW formats are now handled by ExifTool, not exiv2.
+
  - Better handle Exif date time values that unwisely deviate from the Exif
    Version 2.3 specification, e.g. Hasselblad files.
 
@@ -29,6 +31,9 @@ Changelog for Rapid Photo Downloader
    Downloader package was not being uninstalled.
 
  - Fixed bug #1791131: Report fatal camera access problem without crashing
+
+ - Improved install.py script to install libmediainfo0 on openSUSE where the
+   package exists.
 
 0.9.11 (2018-08-26)
 -------------------
@@ -56,7 +61,6 @@ Changelog for Rapid Photo Downloader
 
  - Updated Brazilian Portuguese, Czech, Dutch, French, Japanese, Kabyle,
    Norwegian Nynorsk, and Spanish translations.
-
 
 0.9.10 (2018-07-29)
 -------------------

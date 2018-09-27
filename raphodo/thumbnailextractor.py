@@ -55,11 +55,12 @@ from raphodo.constants import (
 )
 from raphodo.rpdfile import RPDFile, Video, Photo
 from raphodo.constants import FileType
-from raphodo.utilities import stdchannel_redirected, show_errors
+from raphodo.utilities import stdchannel_redirected, show_errors, image_large_enough_fdo
 from raphodo.filmstrip import add_filmstrip
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge, FdoCacheNormal
 import raphodo.exiftool as exiftool
-import atexit
+# from raphodo.fileformats import
+
 
 have_gst = Gst.init_check(None)
 
@@ -242,31 +243,19 @@ class ThumbnailExtractor(LoadBalancerWorker):
             size.height() >= self.thumbnailSizeNeeded.height()
         )
 
-    def image_large_enough_fdo(self, size: QSize) -> bool:
-        return size.width() >= 256 or size.height() >= 256
-
     def _extract_256_thumb(self, rpd_file: RPDFile,
                           processing: Set[ExtractionProcessing],
                           orientation: Optional[str]) -> PhotoDetails:
 
         thumbnail = None
-        previews = rpd_file.metadata.get_preview_properties()
-        if previews:
-            for preview in previews:
-                if self.image_large_enough_fdo(QSize(preview.get_width(), preview.get_height())) \
-                        and preview.get_mime_type() == 'image/jpeg':
-                    break
-
-            # At this point we have a preview that may or may not be bigger than 160x120.
-            # On older RAW files, no. On newer RAW files, yes.
-            data = rpd_file.metadata.get_preview_image(preview).get_data()
-            if isinstance(data, bytes):
-                thumbnail = QImage.fromData(data)
-                if thumbnail.isNull():
-                    thumbnail = None
-                else:
-                    if thumbnail.width() > 160 or thumbnail.height() > 120:
-                        processing.add(ExtractionProcessing.resize)
+        data = rpd_file.metadata.get_preview_256()
+        if isinstance(data, bytes):
+            thumbnail = QImage.fromData(data)
+            if thumbnail.isNull():
+                thumbnail = None
+            else:
+                if thumbnail.width() > 160 or thumbnail.height() > 120:
+                    processing.add(ExtractionProcessing.resize)
 
         return PhotoDetails(thumbnail, orientation)
 
@@ -295,9 +284,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
             # if no valid preview found, fall back to the code below and make do with the best
             # we can get
 
-        exif_preview = rpd_file.metadata.get_small_thumbnail()
-        if exif_preview:
-            thumbnail = QImage.fromData(exif_preview)
+        preview = rpd_file.metadata.get_small_thumbnail_or_first_indexed_preview()
+        if preview:
+            thumbnail = QImage.fromData(preview)
             if thumbnail.isNull():
                 thumbnail = None
             elif thumbnail.width() == 120 and thumbnail.height() == 160:
@@ -309,18 +298,6 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 processing.add(ExtractionProcessing.resize)
             elif not rpd_file.is_jpeg():
                 processing.add(ExtractionProcessing.strip_bars_photo)
-        else:
-            data = rpd_file.metadata.get_indexed_preview()
-            if isinstance(data, bytes):
-                thumbnail = QImage.fromData(data)
-                if thumbnail.isNull():
-                    thumbnail = None
-                else:
-                    if thumbnail.width() > 160 or thumbnail.height() > 120:
-                        processing.add(ExtractionProcessing.resize)
-                    if not rpd_file.is_jpeg():
-                        processing.add(ExtractionProcessing.strip_bars_photo)
-
         return PhotoDetails(thumbnail, orientation)
 
     def get_disk_photo_thumb(self, rpd_file: Photo,
@@ -679,7 +656,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                 )
                             else:
                                 if rpd_file.should_write_fdo() and \
-                                        self.image_large_enough_fdo(thumbnail.size()) \
+                                        image_large_enough_fdo(thumbnail.size()) \
                                         and max(thumbnail.height(), thumbnail.width()) > 256:
                                     thumbnail_256 = thumbnail.scaled(
                                         QSize(256, 256),

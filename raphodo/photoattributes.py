@@ -133,7 +133,7 @@ class ExifToolMixin:
 
 
 class PhotoAttributes:
-    def __init__(self, full_file_name: str, ext: str, et_process) -> None:
+    def __init__(self, full_file_name: str, ext: str, et_process, analyze_previews: bool) -> None:
         self.et_process = et_process
         self.datetime = None # type: datetime.datetime
         self.iso = None # type: int
@@ -162,13 +162,19 @@ class PhotoAttributes:
         self.minimum_metadata_read_size_in_bytes_all = None  # type: int
         self.bytes_cached_post_previews = None
         self.in_memory_post_previews = None
+        self.in_memory_post_thumb = None
+        self.in_memory = None
+        self.bytes_cached = None
+        self.bytes_cached_post_thumb = None
 
         self.file_name = full_file_name
         self.ext = ext
+        self.analyze_previews = analyze_previews
 
-        # Before doing anything else, understand what has already
-        # been cached after simply reading the exif
-        self.bytes_cached, self.total, self.in_memory = vmtouch_output(full_file_name)
+        if not analyze_previews:
+            # Before doing anything else, understand what has already
+            # been cached after simply reading the exif
+            self.bytes_cached, self.total, self.in_memory = vmtouch_output(full_file_name)
 
         self.metadata = None
 
@@ -176,30 +182,33 @@ class PhotoAttributes:
         self.fs_datetime = datetime.datetime.fromtimestamp(stat.st_mtime)
         self.file_size = stat.st_size
 
-    def process(self):
+    def process(self, analyze_previews: bool):
 
         # Get information about the photo
         self.assign_photo_attributes(self.metadata)
         self.extract_thumbnail(self.metadata)
-        self.bytes_cached_post_thumb, total, self.in_memory_post_thumb = vmtouch_output(
-            self.file_name
-        )
+        if not analyze_previews:
+            self.bytes_cached_post_thumb, total, self.in_memory_post_thumb = vmtouch_output(
+                self.file_name
+            )
         self.get_preview_sizes(self.metadata)
 
-        self.bytes_cached_post_previews, total, self.in_memory_post_previews = vmtouch_output(
-            self.file_name
-        )
+        if not analyze_previews:
+            self.bytes_cached_post_previews, total, self.in_memory_post_previews = vmtouch_output(
+                self.file_name
+            )
 
-        if self.orientation is not None or self.ext.lower() in JPEG_EXTENSIONS:
-            self.minimum_extract_for_tag(self.orientation_extract)
+        if not analyze_previews:
+            if self.orientation is not None or self.ext.lower() in JPEG_EXTENSIONS:
+                self.minimum_extract_for_tag(self.orientation_extract)
 
-        if self.datetime is not None:
-            self.minimum_extract_for_tag(self.datetime_extract)
+            if self.datetime is not None:
+                self.minimum_extract_for_tag(self.datetime_extract)
 
-        if self.exif_thumbnail_or_preview is not None:
-            self.minimum_extract_for_tag(self.thumbnail_extract)
+            if self.exif_thumbnail_or_preview is not None:
+                self.minimum_extract_for_tag(self.thumbnail_extract)
 
-        self.minimum_extract_for_all()
+            self.minimum_extract_for_all()
 
     def assign_photo_attributes(self, metadata: GExiv2.Metadata) -> None:
         # I don't know how GExiv2 gets these values:
@@ -507,17 +516,22 @@ class PhotoAttributes:
             s += 'Exif thumbnail differs from smallest preview\n'
         if self.preview_size_and_types:
             s += 'All preview images: {}\n'.format(self.preview_size_and_types)
-        s += 'Disk cache after exif read:\n[{}]\n'.format(self.in_memory)
-        if self.in_memory != self.in_memory_post_thumb:
-            s += 'Disk cache after thumbnail / preview extraction:\n[{}]\n'.format(
-                self.in_memory_post_thumb
-            )
-        if self.bytes_cached == self.bytes_cached_post_thumb:
-            s += 'Cached: {:,}KB of {:,}KB\n'.format(self.bytes_cached, self.total)
-        else:
-            s += 'Cached: {:,}KB(+{:,}KB after extraction) of {:,}KB\n'.format(
-                self.bytes_cached, self.bytes_cached_post_thumb, self.total
-            )
+
+        if self.in_memory is not None:
+            s += 'Disk cache after exif read:\n[{}]\n'.format(self.in_memory)
+
+        if self.in_memory is not None and self.in_memory_post_thumb is not None:
+            if self.in_memory != self.in_memory_post_thumb:
+                s += 'Disk cache after thumbnail / preview extraction:\n[{}]\n'.format(
+                    self.in_memory_post_thumb
+                )
+        if self.bytes_cached is not None and self.bytes_cached_post_thumb is not None:
+            if self.bytes_cached == self.bytes_cached_post_thumb:
+                s += 'Cached: {:,}KB of {:,}KB\n'.format(self.bytes_cached, self.total)
+            else:
+                s += 'Cached: {:,}KB(+{:,}KB after extraction) of {:,}KB\n'.format(
+                    self.bytes_cached, self.bytes_cached_post_thumb, self.total
+                )
 
         if self.minimum_exif_read_size_in_bytes_thumbnail is not None:
             s += 'Minimum read size for thumbnail or first preview: {}\n'.format(
@@ -528,31 +542,32 @@ class PhotoAttributes:
                 format_size_for_user(self.minimum_exif_read_size_in_bytes_orientation)
             )
         if self.minimum_exif_read_size_in_bytes_orientation is None and self.orientation is not \
-                None:
+                None and not self.analyze_previews:
             s += 'Could not extract orientation tag with minimal read\n'
         if self.minimum_exif_read_size_in_bytes_datetime is not None:
             s += 'Minimum read size to extract datetime tag: {}\n'.format(
                 format_size_for_user(self.minimum_exif_read_size_in_bytes_datetime)
             )
-        if self.minimum_exif_read_size_in_bytes_datetime is None and self.datetime is not None:
+        if self.minimum_exif_read_size_in_bytes_datetime is None and self.datetime is not None \
+                and not self.analyze_previews:
             s += 'Could not extract datetime tag with minimal read\n'
         if self.minimum_metadata_read_size_in_bytes_all is not None:
             s += 'Minimum read size to extract variety of tags: {}\n'.format(
                 format_size_for_user(self.minimum_metadata_read_size_in_bytes_all)
             )
-        else:
+        elif self.in_memory is not None:
             s += 'Could not extract variety of tags with minimal read\n'
         return s
 
 
 class ExifToolPhotoAttributes(ExifToolMixin, PhotoAttributes):
-    def __init__(self, full_file_name: str, ext: str, et_process) -> None:
+    def __init__(self, full_file_name: str, ext: str, et_process, analyze_previews: bool) -> None:
         super().__init__(
             FileType.video, full_file_name, et_process, exif_scan_range, all_metadata_tags,
             MetadataExiftool
         )
         ext = os.path.splitext(full_file_name)[1][1:].upper()
-        PhotoAttributes.__init__(self, full_file_name, ext, et_process)
+        PhotoAttributes.__init__(self, full_file_name, ext, et_process, analyze_previews)
         self.metadata = MetadataExiftool(full_file_name, et_process, FileType.photo)
 
         # create reverse lookup for preview names
@@ -608,6 +623,10 @@ class ExifToolPhotoAttributes(ExifToolMixin, PhotoAttributes):
         self.preview_size_and_types = '; '.join(
             ['{}x{} {}'.format(width, height, name) for width, height, name in sizes_and_types]
         )
+        # self.preview_size_and_types = '; '.join(
+        #     [name for width, height, name in sizes_and_types]
+        # )
+
 
     def show_preview_source(self) -> str:
         return '{} of {}: {}x{}\n'.format(

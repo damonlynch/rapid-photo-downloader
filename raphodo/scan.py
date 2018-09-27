@@ -827,7 +827,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
                 self.file_batch.append(rpd_file)
 
-                if not self.prepared_sample_photo and file == self.sample_photo_file_full_file_name:
+                if (not self.prepared_sample_photo and
+                        file == self.sample_photo_file_full_file_name and
+                        self.located_sample_photo):
                     self.sample_photo = self.create_sample_rpdfile(
                         name=self.file_name,
                         path=self.dir_name,
@@ -843,7 +845,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.sample_photo_extract_full_file_name = None
                     self.prepared_sample_photo = True
 
-                if not self.prepared_sample_video and file == self.sample_video_file_full_file_name:
+                if (not self.prepared_sample_video and
+                        file == self.sample_video_file_full_file_name and
+                        self.located_sample_video):
                     self.sample_video = self.create_sample_rpdfile(
                         name=self.file_name,
                         path=self.dir_name,

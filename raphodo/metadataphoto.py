@@ -29,11 +29,13 @@ import logging
 import gi
 gi.require_version('GExiv2', '0.10')
 from gi.repository import GExiv2
+from PyQt5.QtCore import QSize
 
 import raphodo.exiftool as exiftool
 import raphodo.metadataexiftool as metadataexiftool
-from raphodo.utilities import flexible_date_time_parser
+from raphodo.utilities import flexible_date_time_parser, image_large_enough_fdo
 from raphodo.constants import FileType
+
 
 VENDOR_SERIAL_CODES = (
     'Exif.Photo.BodySerialNumber',
@@ -353,12 +355,12 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
     def get_small_thumbnail(self) -> bytes:
         """
         Get the small thumbnail image (if it exists)
-        :return: thumbnail image in raw bytes
+        :return: thumbnail image in raw bytes (could be zero bytes)
         """
 
         return self.get_exif_thumbnail()
 
-    def get_indexed_preview(self, preview_number: int=0) -> Optional[bytes]:
+    def get_indexed_preview(self) -> Optional[bytes]:
         """
         Extract preview image from the metadata
 
@@ -369,9 +371,49 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         previews = self.get_preview_properties()
         if previews:
             # In every RAW file I've analyzed, the smallest preview is always first
-            preview = previews[preview_number]
-            return self.get_preview_image(preview).get_data()
+            for preview in previews:
+                data = self.get_preview_image(preview).get_data()
+                if data:
+                    return data
+        logging.warning("Photo %s has no image previews", self.full_file_name)
         return None
+
+    def get_small_thumbnail_or_first_indexed_preview(self) -> Optional[bytes]:
+        """
+        First attempt to get the small thumbnail image. If it does not exist,
+        extract the smallest preview image from the metadata
+
+        :return: thumbnail / preview image in raw bytes, if found, else None
+        """
+
+        # Look for Thumbnail Image if the file format supports it
+        if self.ext not in self.preview_smallest or self.ext in self.may_have_thumbnail:
+            thumbnail = self.get_small_thumbnail()
+            if thumbnail:
+                return thumbnail
+
+        # Otherwise look for the smallest preview image for this format
+        return self.get_indexed_preview()
+
+    def get_preview_256(self) -> Optional[bytes]:
+        """
+        :return: if possible, return a preview image that is preferrably larger than 256 pixels,
+         else the smallest preview if it exists
+        """
+
+        previews = self.get_preview_properties()
+        if not previews:
+            return None
+
+        for preview in previews:
+            if image_large_enough_fdo(QSize(preview.get_width(), preview.get_height())):
+                if not (self.ext in self.ignore_tiff_preview_256 and
+                            preview.get_mime_type() == 'image/tiff'):
+                    break
+
+        # At this point we have a preview that may or may not be bigger than 160x120.
+        # On older RAW files, no. On newer RAW files, yes.
+        return self.get_preview_image(preview).get_data()
 
 
 class DummyMetaData(MetaData):
@@ -463,5 +505,11 @@ if __name__ == '__main__':
     print('Shutter count:', m.shutter_count())
     print('Subseconds:', m.sub_seconds(), type(m.sub_seconds()))
     print("File number:", m.file_number())
+    preview = m.get_small_thumbnail_or_first_indexed_preview()
+    if m is not None:
+        print("Preview size", len(preview))
+    else:
+        print("Preview not availabe")
+
 
     et_process.terminate()

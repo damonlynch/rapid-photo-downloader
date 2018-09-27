@@ -118,7 +118,8 @@ def scan(folder: str,
          scan_types: List[str],
          errors: bool,
          outfile: str,
-         keep_file_names: bool) -> Tuple[
+         keep_file_names: bool,
+         analyze_previews: bool) -> Tuple[
             List[PhotoAttributes], List[VideoAttributes]]:
 
     global stop
@@ -138,12 +139,16 @@ def scan(folder: str,
     # Phase 1
     # Determine which files are safe to test i.e. are not cached
 
+    if analyze_previews:
+        disk_cach_cleared = True
+
     for dir_name, subdirs, filenames in walk(folder):
         for filename in filenames:
             if filename not in problematic_files:
                 ext = extract_extension(filename)
                 if ext in scan_types:
                     full_file_name = os.path.join(dir_name, filename)
+
                     if disk_cach_cleared:
                         test_files.append((full_file_name, ext.upper()))
                     else:
@@ -152,6 +157,7 @@ def scan(folder: str,
                             test_files.append((full_file_name, ext.upper()))
                         else:
                             not_tested.append(full_file_name)
+
     stop = True
     pbs.join()
 
@@ -209,8 +215,10 @@ def scan(folder: str,
                     videos.append(va)
                 else:
                     if use_exiftool_on_photo(ext.lower()):
-                        pa = ExifToolPhotoAttributes(full_file_name, ext, exiftool_process)
-                        pa.process()
+                        pa = ExifToolPhotoAttributes(
+                            full_file_name, ext, exiftool_process, analyze_previews
+                        )
+                        pa.process(analyze_previews)
                         photos.append(pa)
                     else:
                         try:
@@ -220,9 +228,11 @@ def scan(folder: str,
                         except:
                             metadata_fail.append(full_file_name)
                         else:
-                            pa = PhotoAttributes(full_file_name, ext, exiftool_process)
+                            pa = PhotoAttributes(
+                                full_file_name, ext, exiftool_process, analyze_previews
+                            )
                             pa.metadata = metadata
-                            pa.process()
+                            pa.process(analyze_previews)
                             photos.append(pa)
 
                 if have_progressbar and not errors:
@@ -246,7 +256,26 @@ def scan(folder: str,
     return photos, videos
 
 
-def analyze_photos(photos: List[PhotoAttributes], verbose: bool) -> None:
+def analyze_photos(photos: List[PhotoAttributes],
+                   verbose: bool,
+                   analyze_previews: bool) -> None:
+
+    if analyze_previews:
+        previews_by_extension = defaultdict(list)
+        for pa in photos:  # type: PhotoAttributes
+            previews_by_extension[pa.ext].append((pa.preview_size_and_types, pa.has_exif_thumbnail))
+        exts = list(previews_by_extension.keys())
+        exts.sort()
+        print("\nImage previews:")
+        for ext in exts:
+            print(ext, Counter(previews_by_extension[ext]).most_common())
+            print()
+        if verbose:
+            print()
+            for pa in photos:
+                print(pa)
+        return
+
     size_by_extension= defaultdict(list)
     orientation_read = defaultdict(list)
     datetime_read = defaultdict(list)
@@ -413,8 +442,16 @@ def main():
         help="Don't show progress bar while scanning, and instead show all errors output by exiv2 "
              "(useful if exiv2 crashes, which takes down this script too)"
     )
+    parser.add_argument(
+        '--analyze-previews', dest='analyze_previews', action='store_true',
+        help="Analyze the previews sizes found in photos, do nothing else, and exit. "
+             "Output is set to verbose."
+    )
 
     args = parser.parse_args()
+
+    # if args.analyze_previews:
+    #     args.verbose = True
 
     if not have_progressbar:
         print(
@@ -422,11 +459,15 @@ def main():
             "https://github.com/rasbt/pyprind"
         )
 
-    if not shutil.which('vmtouch'):
+    if not shutil.which('vmtouch') and not args.analyze_previews:
         print(
             'To run this program, you need to install vmtouch. Get it at '
             'http://hoytech.com/vmtouch/'
         )
+        sys.exit(1)
+
+    if args.analyze_previews and args.only_video:
+        print("Cannot examine videos while also examining photo previews")
         sys.exit(1)
 
     if args.load:
@@ -471,11 +512,12 @@ def main():
                 scan_types.extend(VIDEO_EXTENSIONS)
 
         photos, videos = scan(
-            args.source, args.clear, scan_types, args.errors, args.outfile, args.keep
+            args.source, args.clear, scan_types, args.errors, args.outfile, args.keep,
+            args.analyze_previews
         )
         if photos:
             print("\nPhotos\n======")
-            analyze_photos(photos, args.verbose)
+            analyze_photos(photos, args.verbose, args.analyze_previews)
         if videos:
             print("\nVideos\n======")
             analyze_videos(videos, args.verbose)

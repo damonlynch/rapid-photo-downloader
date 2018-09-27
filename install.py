@@ -72,7 +72,7 @@ except ImportError:
     )
     sys.exit(1)
 
-__version__ = '0.2.2'
+__version__ = '0.2.3'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -743,7 +743,7 @@ def query_uninstall(interactive: bool) -> bool:
     return get_yes_no(answer)
 
 
-def opensuse_missing_packages(packages: str):
+def opensuse_package_search(packages: str):
     """
     Return which of the packages have not already been installed on openSUSE.
 
@@ -757,7 +757,37 @@ def opensuse_missing_packages(packages: str):
         distro_family=Distro.opensuse, packages=packages, interactive=True, command='se', sudo=False
     )
     args = shlex.split(command_line)
-    output = subprocess.check_output(args, universal_newlines=True)
+    return subprocess.check_output(args, universal_newlines=True)
+
+def opensuse_known_packages(packages: str):
+    """
+    Return which of the packages listed are able
+    to be installed on this instance openSUSE.
+
+    Does not catch exceptions.
+
+    :param packages: the packages to to check, in a string separated by white space
+    :return: list of packages
+    """
+
+    output = opensuse_package_search(packages)
+
+    return [
+        package for package in packages.split()
+        if re.search(r"^i\+?\s+\|\s*{}".format(re.escape(package)), output, re.MULTILINE) is None
+    ]
+
+def opensuse_missing_packages(packages: str):
+    """
+    Return which of the packages have not already been installed on openSUSE.
+
+    Does not catch exceptions.
+
+    :param packages: the packages to to check, in a string separated by white space
+    :return: list of packages
+    """
+
+    output = opensuse_package_search(packages)
 
     return [
         package for package in packages.split()
@@ -1148,7 +1178,8 @@ def install_required_distro_packages(distro: Distro,
                    'typelib-1_0-GExiv2-0_10 typelib-1_0-UDisks-2_0 typelib-1_0-Notify-0_7 ' \
                    'typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0'
 
-        #TODO libmediainfo - not a default openSUSE package, sadly
+        if opensuse_known_packages('libmediainfo0'):
+            packages = '{} {}'.format(packages, 'libmediainfo0')
 
         if not pypi_pyqt5_capable():
             packages = 'python3-qt5 libqt5-qtimageformats {}'.format(packages)

@@ -79,10 +79,10 @@ if cr3_capable():
 
 RAW_EXTENSIONS.sort()
 
+EXIFTOOL_ONLY_EXTENSIONS = ['mos', 'mrw']
+
 if not _exiv2_cr3 and _exiftool_cr3:
-    EXIFTOOL_ONLY_EXTENSIONS = ['cr3']
-else:
-    EXIFTOOL_ONLY_EXTENSIONS = []
+    EXIFTOOL_ONLY_EXTENSIONS.append('cr3')
 
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
@@ -121,7 +121,7 @@ def use_exiftool_on_photo(extension: str) -> bool:
     :param extension: lower case, no leading period
     """
 
-    return extension in EXIFTOOL_ONLY_EXTENSIONS
+    return extension in EXIFTOOL_ONLY_EXTENSIONS #or True
 
 
 def extract_extension(file_name) -> Optional[str]:

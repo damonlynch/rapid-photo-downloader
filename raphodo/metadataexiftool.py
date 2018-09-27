@@ -30,7 +30,7 @@ import datetime
 import re
 import logging
 from typing import Optional, Union, Any, Tuple, List
-import os
+from collections import OrderedDict
 
 import raphodo.exiftool as exiftool
 from raphodo.utilities import flexible_date_time_parser
@@ -38,6 +38,15 @@ from raphodo.constants import FileType
 import raphodo.programversions as programversions
 import raphodo.fileformats as fileformats
 
+
+# Turned into an OrderedDict below
+_index_preview = {
+            0: 'PreviewImage',
+            1: 'OtherImage',
+            2: 'JpgFromRaw',
+            3: 'PreviewTIFF',
+            4: 'ThumbnailTIFF'
+}
 
 class MetadataExiftool():
     """
@@ -60,29 +69,56 @@ class MetadataExiftool():
         super().__init__()
 
         self.full_file_name = full_file_name
+        self.ext = fileformats.extract_extension(full_file_name)
         self.metadata = dict()
         self.metadata_string_format = dict()
         self.et_process = et_process
         if file_type is None:
-            file_type = fileformats.file_type_from_splitext(file_name=full_file_name)
+            file_type = fileformats.file_type_from_splitext(file_extension=self.ext)
         assert file_type is not None
         self.file_type = file_type
 
         # All the names of the preview images we know about (there may be more, perhaps)
-        self.index_preview = {
-            0: 'PreviewImage',
-            1: 'OtherImage',
-            2: 'JpgFromRaw',
-            3: 'PreviewTIFF',
-            4: 'ThumbnailTIFF'
-        }
+        # Synchronize with preview_smallest and preview256 dicts below
+        self.index_preview = OrderedDict(sorted(_index_preview.items(), key=lambda t: t[0]))
 
-        # synchronize this next dict with previous
-        self.camera_make_preview_name = {
-            "Hasselblad": 3,
-            "Phase One A/S": 3,
-            "NIKON CORPORATION": 4,  # for early Nikon raw files
-        }
+        # If extension is not in dict preview_smallest, that means the file
+        # format always contains a "ThumbnailImage"
+        self.preview_smallest = dict(
+            crw=(2, ),
+            dng=(4, 3, 0),
+            fff=(3, ),
+            iiq=(4, ),
+            mrw=(0, ),
+            nef=(4, 3),
+            raw=(2, ),
+        )
+        self.preview_smallest['3fr'] = 3, 4
+
+        self.may_have_thumbnail = ('crw', 'mrw', 'orf', 'raw')
+
+        self.preview256 = dict(
+            arw=(0, ),
+            cr2=(0, ),
+            cr3=(0, ),
+            crw=(2, ),
+            dng=(0, 3),
+            fff=(3, ),
+            iiq=(4, ),
+            mrw=(0, ),
+            nef=(0, 4, 2, 3),  # along with DNG quite possibly the most inconsistent format
+            nrw=(0, 1),
+            orf=(0, ),
+            pef=(0, ),
+            raf=(0, ),
+            raw=(2, ),
+            rw2=(2, ),
+            sr2=(0, ),
+            srw=(0, ),
+        )
+        self.preview256['3fr'] = 3, 4
+
+        self.ignore_tiff_preview_256 = ('cr2', )
 
     def _get(self, key, missing):
         if key in ("VideoStreamType", "FileNumber", "ExposureTime"):
@@ -508,58 +544,34 @@ class MetadataExiftool():
 
         return self._get_binary("ThumbnailImage")
 
-    def get_indexed_preview(self, preview_number: int = 0) -> Optional[bytes]:
+    def get_indexed_preview(self, preview_number: int=0, force: bool=False) -> Optional[bytes]:
         """
         Extract preview image from the metadata
         If initial preview number does not work, tries others
 
         :param preview_number: which preview to get
+        :param force: if True, get only that preview. Otherwise, take a flexible approach
+         where every preview is tried image, in order found in index_preview
         :return: preview image in raw bytes, if found, else None
         """
 
         key = self.index_preview[preview_number]
-        logging.debug(
-            "Attempting index %s to extract preview image from %s using ExifTool...",
-            key, self.full_file_name
-        )
         b = self._get_binary(key)
         if b:
-            logging.debug("...attempt successful from %s", self.full_file_name)
             return b
-        logging.debug("...attempt failed on %s", self.full_file_name)
-        make = self.camera_make()
-        if not make:
-            index = None
-            logging.debug('Unable to determine camera make for %s', self.full_file_name)
-        else:
-            index = self.camera_make_preview_name.get(make)
-            if index is not None:
-                key = self.index_preview[index]
-                logging.debug(
-                    'Using %s on %s to extract preview image from %s with ExifTool...',
-                    key, make, self.full_file_name
-                )
-                b = self._get_binary(key)
-                if b:
-                    logging.debug("...attempt successful from %s", self.full_file_name)
-                    return b
-                logging.debug(
-                    '...attempt failed. Now attempting other indexes to extract preview image from %s '
-                    'using ExifTool.', self.full_file_name
-                )
-            else:
-                logging.warning(
-                    "Unable to determine appropriate preview image index for camera make %s. "
-                    "Will attempt other indexes to extract preview image from %s using ExifTool.",
-                    make, self.full_file_name
-                )
-        if index is None:
-            index = preview_number
+        if force:
+            return None
 
-        already_tried = (preview_number, index)
-        untried_indexes = (
-            index for index in self.index_preview.keys() if index not in already_tried
+        logging.debug(
+            "Attempt to extract %s using ExifTool from %s failed. Trying flexible approach.",
+            key, self.full_file_name
         )
+
+        assert not force
+        untried_indexes = (
+            index for index in self.index_preview.keys() if index != preview_number
+        )
+
         valid_untried_indexes = [
             index for index in untried_indexes if self.index_preview[index] in self.metadata
         ]
@@ -580,17 +592,45 @@ class MetadataExiftool():
         logging.warning("ExifTool could not extract a preview image from %s", self.full_file_name)
         return None
 
-    def get_small_thumbnail_or_first_indexed_preview(self):
+    def get_small_thumbnail_or_first_indexed_preview(self) -> Optional[bytes]:
         """
         First attempt to get the small thumbnail image. If it does not exist,
-        extract the first preview image from the metadata
+        extract the smallest preview image from the metadata
 
         :return: thumbnail / preview image in raw bytes, if found, else None
         """
-        thumbnail = self.get_small_thumbnail()
-        if thumbnail is not None:
-            return thumbnail
-        return self.get_indexed_preview()
+
+        # Look for "ThumbnailImage" if the file format supports it
+        if self.ext not in self.preview_smallest or self.ext in self.may_have_thumbnail:
+            thumbnail = self.get_small_thumbnail()
+            if thumbnail is not None:
+                return thumbnail
+
+        # Otherwise look for the smallest preview image for this format
+        if self.ext in self.preview_smallest:
+            for index in self.preview_smallest[self.ext]:
+                thumbnail = self.get_indexed_preview(preview_number=index, force=True)
+                if thumbnail:
+                    return thumbnail
+
+        # If that fails, take a flexible approach
+        return self.get_indexed_preview(force=False)
+
+    def get_preview_256(self) -> Optional[bytes]:
+        """
+        :return: if possible, return a preview image that is preferrably larger than 256 pixels,
+         else the smallest preview if it exists
+        """
+
+        # look for the smallest preview
+        if self.ext in self.preview256:
+            for index in self.preview256[self.ext]:
+                thumbnail = self.get_indexed_preview(preview_number=index, force=True)
+                if thumbnail is not None:
+                    return thumbnail
+
+        # If that fails, take a flexible approach
+        return self.get_indexed_preview(force=False)
 
     def preview_names(self) -> Optional[List[str]]:
         """
