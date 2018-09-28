@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.12 (2018-09-27)
+0.9.12 (2018-09-28)
 -------------------
 
  - Added support for Canon CR3 format. Requires ExifTool 10.87 or newer.
