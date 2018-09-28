@@ -466,6 +466,12 @@ class LoadBalancerWorkerManager(ProcessManager):
         for worker_id in range(self.no_workers):
             self.add_worker(worker_id)
 
+    def zombie_workers(self) -> List[int]:
+        return [
+            worker_id for worker_id in self.workers
+            if self.processes[worker_id].status() == psutil.STATUS_ZOMBIE
+        ]
+
 
 class LRUQueue:
     """LRUQueue class using ZMQStream/IOLoop for event dispatching"""
@@ -515,6 +521,10 @@ class LRUQueue:
 
         # add worker back to the list of workers
         self.workers.append(worker_identity)
+
+        zw = self.process_manager.zombie_workers()
+        if zw:
+            logging.error("%s dead thumbnail extractors", len(zw))
 
         # Second frame is empty
         assert empty == b''
@@ -1107,9 +1117,9 @@ class LoadBalancerWorker:
         self.sender = self.context.socket(zmq.PUSH)
         self.sender.connect("tcp://localhost:{}".format(args.send))
         
-        self.logger_publisher = ProcessLoggerPublisher(context=self.context,
-                                                       name=worker_type,
-                                                       notification_port=args.logging)
+        self.logger_publisher = ProcessLoggerPublisher(
+            context=self.context, name=worker_type, notification_port=args.logging
+        )
 
         # Tell the load balancer we are ready for work
         self.requester.send(b"READY")
