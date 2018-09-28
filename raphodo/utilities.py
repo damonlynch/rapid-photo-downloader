@@ -932,10 +932,12 @@ def flexible_date_time_parser(dt_string: str) -> Tuple[datetime, str]:
 
     return datetime.strptime(dte, fs), fs
 
+
 def image_large_enough_fdo(size: QSize) -> bool:
     """
     :param size: image size
     :return: True if image is large enough to meet the FreeDesktop.org
      specs for a large thumbnail
     """
+
     return size.width() >= 256 or size.height() >= 256

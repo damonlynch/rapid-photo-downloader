@@ -121,7 +121,7 @@ def use_exiftool_on_photo(extension: str) -> bool:
     :param extension: lower case, no leading period
     """
 
-    return extension in EXIFTOOL_ONLY_EXTENSIONS #or True
+    return extension in EXIFTOOL_ONLY_EXTENSIONS
 
 
 def extract_extension(file_name) -> Optional[str]:

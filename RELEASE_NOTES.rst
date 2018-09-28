@@ -1,6 +1,14 @@
 Release Notes for Rapid Photo Downloader 0.9.12
 ===============================================
 
+ - Most photo thumbnails are generated using exiv2. Very rarely, exiv2 can
+   cause a segfault (crash) while extracting a thumbnail. If exiv2 does
+   segfault, currently Rapid Photo Downloader will currently fail to complete
+   thumbnailing (the progress bar will never reach 100%) and will not report
+   an error. A future release will address this problem. If you encounter
+   such a situation, report a bug and if at all possible include a test photo
+   that demonstrates the problem.
+
  - Canon's latest RAW file format CR3 is supported on systems that have
    ExifTool 10.87 or newer. Most Linux distributions ship an older version
    of ExifTool. If you need to, fortunately it is easy to install ExifTool
@@ -28,12 +36,9 @@ Release Notes for Rapid Photo Downloader 0.9.12
    Fedora users can enable the rpmfusion.org free repository to be able to
    install gstreamer1-libav.
 
- - With rawkit being updated to 0.6.0, and the addition of extra plugins to
-   gstreamer, many photos and videos whose thumbnail could not previously be
-   displayed now can be. However, to view those thumbnails for those files
-   that have been previously scanned, purging the thumbnail cache is needed.
-   You can purge the thumbnail cache via the Preferences dialog, accessed via
-   the main menu.
+ - The Python library rawkit 0.6.0 may not work with libraw 0.19 or newer.
+   Rawkit and libraw are used to generate thumbnails for RAW files from which
+   a thumbnail cannot be extracted.
 
  - For systems running Python 3.6 or newer, the recommended pyzmq version is
    now 16.0.2 or newer. If xterm or lxterminal are installed on systems with
