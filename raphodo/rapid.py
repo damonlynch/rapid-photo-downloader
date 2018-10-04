@@ -79,13 +79,13 @@ from PyQt5.QtCore import (
 )
 from PyQt5.QtGui import (
     QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics, QFont, QPainter, QMoveEvent, QBrush,
-    QPen, QColor
+    QPen, QColor, QScreen
 )
 from PyQt5.QtWidgets import (
     QAction, QApplication, QMainWindow, QMenu, QWidget, QDialogButtonBox,
     QProgressBar, QSplitter, QHBoxLayout, QVBoxLayout, QDialog, QLabel, QComboBox, QGridLayout,
     QCheckBox, QSizePolicy, QMessageBox, QSplashScreen, QStackedWidget, QScrollArea,
-    QDesktopWidget, QStyledItemDelegate, QPushButton
+    QStyledItemDelegate, QPushButton, QDesktopWidget
 )
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
@@ -467,6 +467,11 @@ class RapidWindow(QMainWindow):
 
         super().__init__()
         self.splash = splash
+        if splash.isVisible():
+            self.screen = splash.windowHandle().screen()  # type: QScreen
+        else:
+            self.screen = None
+
         # Process Qt events - in this case, possible closing of splash screen
         app.processEvents()
 
@@ -1263,21 +1268,31 @@ class RapidWindow(QMainWindow):
     def readWindowSettings(self, app: 'QtSingleApplication'):
         settings = QSettings()
         settings.beginGroup("MainWindow")
-        desktop = app.desktop() # type: QDesktopWidget
 
         # Calculate window sizes
-        available = desktop.availableGeometry(desktop.primaryScreen())  # type: QRect
-        screen = desktop.screenGeometry(desktop.primaryScreen())  # type: QRect
+        if self.screen is None:
+            # Failsafe: should have got screen from the splash window
+            desktop = app.desktop()  # type: QDesktopWidget
+            primaryScreen = desktop.primaryScreen()
+            available = desktop.availableGeometry(primaryScreen)  # type: QRect
+            display = desktop.screenGeometry(primaryScreen)  # type: QRect
+        else:
+            available = self.screen.availableGeometry()  # type: QRect
+            display = self.screen.size()  # type: QSize
         default_width = max(960, available.width() // 2)
         default_width = min(default_width, available.width())
-        default_x = screen.width() - default_width
+        default_x = display.width() - default_width
         default_height = available.height()
-        default_y = screen.height() - default_height
+        default_y = display.height() - default_height
         pos = settings.value("windowPosition", QPoint(default_x, default_y))
         size = settings.value("windowSize", QSize(default_width, default_height))
         settings.endGroup()
         self.resize(size)
         self.move(pos)
+        logging.debug(
+            "Avaiable screen geometry: %sx%s on %sx%s display",
+            available.width(), available.height(), display.width(), display.height()
+        )
 
     def writeWindowSettings(self):
         logging.debug("Writing window settings")
