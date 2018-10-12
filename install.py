@@ -72,7 +72,7 @@ except ImportError:
     )
     sys.exit(1)
 
-__version__ = '0.2.3'
+__version__ = '0.2.4'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -161,6 +161,10 @@ installer_cmds = {
     Distro.debian: 'apt-get',
     Distro.opensuse: 'zypper',
     Distro.centos: 'yum',
+}
+
+manually_mark_cmds = {
+    Distro.debian: ('apt-mark', 'manual'),
 }
 
 
@@ -424,6 +428,30 @@ def make_distro_packager_commmand(distro_family: Distro,
         return '{}{} {} {} {}'.format(super, cmd, automatic, command, packages)
     else:
         return '{}{} {} {} {}'.format(super, cmd, command, automatic, packages)
+
+
+def make_distro_mark_commmand(distro_family: Distro,
+                                  packages: str,
+                                  interactive: bool,
+                                  sudo: bool=True) -> str:
+    """
+    Construct a call to the Linux distribution's packaging command
+
+    :param distro_family: the Linux distribution
+    :param packages: packages to query / install / remove
+    :param sudo: whether to prefix the call with sudo
+    :return: the command line in string format
+    """
+
+    marker, command = manually_mark_cmds[distro_family]
+    cmd = shutil.which(marker)
+
+    if sudo:
+        super = 'sudo '
+    else:
+        super = ''
+
+    return '{}{} {} {}'.format(super, cmd, command, packages)
 
 
 def custom_python() -> bool:
@@ -891,7 +919,7 @@ def uninstall_with_deps():
         uninstall_pip_package(package, no_deps_only=True)
 
 
-def uninstall_old_version(distro_family: Distro, distro: Distro, interactive: bool) -> None:
+def uninstall_old_version(distro_family: Distro, interactive: bool) -> bool:
     """
     Uninstall old version of Rapid Photo Downloader that was installed using the
     distribution package manager and also with pip
@@ -899,7 +927,10 @@ def uninstall_old_version(distro_family: Distro, distro: Distro, interactive: bo
     :param distro_family: the Linux distro family that this distro is in
     :param interactive: if True, the user should be prompted to confirm
      the commands
+    :return True if system package uninstalled, else False
     """
+
+    system_uninstall = False
 
     pkg_name = 'rapid-photo-downloader'
 
@@ -923,13 +954,12 @@ def uninstall_old_version(distro_family: Distro, distro: Distro, interactive: bo
                 print(_("Uninstalling system package"), package)
                 cmd = make_distro_packager_commmand(distro_family, pkg_name, interactive, 'remove')
                 run_cmd(cmd)
+                system_uninstall = True
         except Exception as e:
             sys.stderr.write(_("Command failed") + "\n")
             sys.stderr.write(_("Exiting") + "\n")
             clean_locale_tmpdir()
             sys.exit(1)
-
-
 
     elif distro_family == Distro.fedora:
         print(
@@ -957,6 +987,8 @@ def uninstall_old_version(distro_family: Distro, distro: Distro, interactive: bo
                 run_cmd(
                     make_distro_packager_commmand(distro_family, pkg_name, interactive, 'remove')
                 )
+                system_uninstall = True
+
 
     elif distro_family == Distro.opensuse:
         print(
@@ -969,6 +1001,8 @@ def uninstall_old_version(distro_family: Distro, distro: Distro, interactive: bo
             if opensuse_package_installed('rapid-photo-downloader') \
                     and query_uninstall(interactive):
                 run_cmd(make_distro_packager_commmand(distro_family, pkg_name, interactive, 'rm'))
+                system_uninstall = True
+
         except subprocess.CalledProcessError as e:
             if e.returncode != 104:
                 sys.stderr.write(_("Command failed") + "\n")
@@ -978,6 +1012,9 @@ def uninstall_old_version(distro_family: Distro, distro: Distro, interactive: bo
 
     print(_("Checking if previous version installed with pip..."))
     uninstall_pip_package('rapid-photo-downloader', no_deps_only=False)
+
+    return system_uninstall
+
 
 
 def check_packages_on_other_systems() -> None:
@@ -1036,14 +1073,18 @@ def check_packages_on_other_systems() -> None:
 def install_required_distro_packages(distro: Distro,
                                      distro_family: Distro,
                                      version: LooseVersion,
-                                     interactive: bool) -> None:
+                                     interactive: bool,
+                                     system_uninstall: bool) -> None:
     """
     Install packages supplied by the Linux distribution
     :param distro: the specific Linux distribution
-    :param distro_family: the family of distros the Linux distribution belongs too
+    :param distro_family: the family of distros the Linux distribution belongs
+     to
     :param version: the Linux distribution's version
     :param interactive: if True, the user should be prompted to confirm
      the commands
+    :param system_uninstall: if True, the system package Rapid Photo Downloader
+     was uninstalled
     """
 
     if distro_family == Distro.debian:
@@ -1054,7 +1095,9 @@ def install_required_distro_packages(distro: Distro,
              'libimage-exiftool-perl python3-dev ' \
              'intltool gir1.2-gexiv2-0.10 python3-gi gir1.2-gudev-1.0 ' \
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
-             'libgphoto2-dev g++ exiv2 libraw-bin python3-setuptools python3-wheel'
+             'libgphoto2-dev g++ exiv2 libraw-bin python3-setuptools python3-wheel python3-requests'
+
+        set_manually_installed = []
 
         # For some strange reason, setuptools and wheel must be manually specified on Linux Mint
         # It's odd because sometimes setuptools imports even without this package, and other times,
@@ -1076,13 +1119,13 @@ def install_required_distro_packages(distro: Distro,
         if not pypi_pyqt5_capable():
             packages = 'qt5-image-formats-plugins python3-pyqt5 {}'.format(packages)
 
-        if not have_requests:
-            packages = 'python3-requests {}'.format(packages)
-
         for package in packages.split():
             try:
-                if not cache[package].is_installed:
+                p = cache[package]
+                if not p.is_installed:
                     missing_packages.append(package)
+                elif system_uninstall and p.is_auto_installed:
+                    set_manually_installed.append(package)
             except KeyError:
                     print(
                         _('The following package is unknown on your system: {}\n').format(package)
@@ -1098,6 +1141,14 @@ def install_required_distro_packages(distro: Distro,
             run_cmd(
                 make_distro_packager_commmand(
                     distro_family, ' '.join(missing_packages), interactive
+                ), interactive=interactive
+            )
+
+        # If there are any packages to mark as manually installed, do so now
+        if set_manually_installed:
+            run_cmd(
+                make_distro_mark_commmand(
+                    distro_family, ' '.join(set_manually_installed), interactive
                 ), interactive=interactive
             )
 
@@ -1657,9 +1708,11 @@ def do_install(installer: str,
     if not force_this_version:
         run_latest_install(installer, delete_installer)
 
-    uninstall_old_version(distro_family=distro_family, distro=distro, interactive=interactive)
+    system_uninstall = uninstall_old_version(distro_family=distro_family, interactive=interactive)
 
-    install_required_distro_packages(distro, distro_family, distro_version, interactive)
+    install_required_distro_packages(
+        distro, distro_family, distro_version, interactive, system_uninstall
+    )
 
     with tarfile.open(installer) as tar:
         with tar.extractfile(tarfile_content_name(installer, 'requirements.txt')) as requirements:

@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,18 +22,15 @@ to download them.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017, Damon Lynch"
+__copyright__ = "Copyright 2017-2018, Damon Lynch"
 
 import logging
-import pkg_resources
 from collections import namedtuple
-import shlex
+import pkg_resources
 import hashlib
 import os
 import traceback
 import shutil
-import sys
-import subprocess
 from typing import Optional
 
 from gettext import gettext as _
@@ -95,23 +92,18 @@ class NewVersion(QObject):
 
         Exceptions are not caught.
 
-        Calling pip directly as python code and redirecting stdout
-        totally messes up debugging output, even when using a context
-        manager. So don't do that!
-
         :param package: package name to search for
         :return: True if installed via pip, else False
         """
 
-        command_line = '{} -m pip show --disable-pip-version-check --verbose {}'.format(
-            sys.executable, package
-        )
-        args = shlex.split(command_line)
-        try:
-            pip_output = subprocess.check_output(args)
-        except subprocess.SubprocessError:
-            return False
-        return pip_output.decode().find('Installer: pip') >= 0
+        pip_install = False
+        pkg = pkg_resources.get_distribution(package)
+        if pkg.has_metadata('INSTALLER'):
+            if pkg.get_metadata('INSTALLER').strip() == 'pip':
+                pip_install = True
+
+        logging.debug("Installed using pip: %s", pip_install)
+        return pip_install
 
     @pyqtSlot()
     def check(self) -> None:
@@ -166,8 +158,9 @@ class NewVersion(QObject):
                 )
                 self.installed_via_pip = False
 
-        self.checkMade.emit(success, stable_version, dev_version, download_page, no_upgrade,
-                            self.installed_via_pip)
+        self.checkMade.emit(
+            success, stable_version, dev_version, download_page, no_upgrade, self.installed_via_pip
+        )
 
     def verifyDownload(self, downloaded_tar: str, md5_url: str) -> bool:
         """

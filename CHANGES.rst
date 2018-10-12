@@ -4,7 +4,8 @@ Changelog for Rapid Photo Downloader
 0.9.13 (2018-xx-xx)
 -------------------
 
-
+ - Fix bug #1797479: New version check results in confusing messages on stderr
+   when pip is not installed.
 
 0.9.12 (2018-09-28)
 -------------------
