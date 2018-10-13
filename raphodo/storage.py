@@ -125,6 +125,8 @@ def get_distro() -> Distro:
                         return Distro.centos
                     if line.find('openSUSE') > 0:
                         return Distro.opensuse
+                    if line.find('Deepin') > 0:
+                        return Distro.deepin
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):
@@ -676,6 +678,8 @@ def get_default_file_manager() -> Tuple[Optional[str], Optional[FileManagerType]
 
             # Strip away any extraneous arguments
             fm_cmd = fm.split()[0]
+            # Strip away any path information
+            fm_cmd = os.path.split(fm_cmd)[1]
             try:
                 file_manager_type = FileManagerBehavior[fm_cmd]
             except KeyError:
@@ -694,6 +698,8 @@ def open_in_file_manager(file_manager: str,
                          uri: str) -> None:
     if file_manager_type == FileManagerType.select:
         arg = '--select '
+    elif file_manager_type == FileManagerType.show_item:
+        arg = '--show-item '
     else:
         arg = ''
 

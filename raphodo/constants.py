@@ -495,13 +495,15 @@ class Desktop(Enum):
     lxqt = 8
     ubuntugnome = 9
     popgnome = 10
-    unknown = 11
+    deepin = 11
+    unknown = 12
 
 
 class FileManagerType(Enum):
     regular = 1
     select = 2
     dir_only_uri = 3
+    show_item = 4
 
 
 FileManagerBehavior = dict(
@@ -513,6 +515,7 @@ FileManagerBehavior = dict(
     pcmanfm=FileManagerType.dir_only_uri,
 )
 FileManagerBehavior['pcmanfm-qt'] = FileManagerType.dir_only_uri
+FileManagerBehavior['dde-file-manager'] = FileManagerType.show_item
 
 
 DefaultFileBrowserFallback = dict(
@@ -526,6 +529,7 @@ DefaultFileBrowserFallback = dict(
     xfce='thunar',
     lxde='pcmanfm',
     lxqt='pcmanfm-qt',
+    deepin='dde-file-manager',
 )
 
 
@@ -545,6 +549,7 @@ class Distro(Enum):
     elementary = 13
     centos = 14
     gentoo = 15
+    deepin = 16
     unknown = 20
 
 

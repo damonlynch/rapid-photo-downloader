@@ -72,7 +72,7 @@ except ImportError:
     )
     sys.exit(1)
 
-__version__ = '0.2.4'
+__version__ = '0.2.5'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -145,12 +145,13 @@ class Distro(Enum):
     elementary = 13
     centos = 14
     gentoo = 15
+    deepin = 16
     unknown = 20
 
 
 debian_like = (
     Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint, Distro.galliumos,
-    Distro.peppermint, Distro.elementary
+    Distro.peppermint, Distro.elementary, Distro.deepin
 )
 fedora_like = (Distro.fedora, Distro.korora)
 arch_like = (Distro.arch, Distro.manjaro, Distro.antergos)
@@ -185,6 +186,8 @@ def get_distro() -> Distro:
                         return Distro.centos
                     if line.find('openSUSE') > 0:
                         return Distro.opensuse
+                    if line.find('Deepin') > 0:
+                        return Distro.deepin
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):

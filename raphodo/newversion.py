@@ -153,7 +153,7 @@ class NewVersion(QObject):
             try:
                 self.installed_via_pip = self.installedUsingPip()
             except Exception:
-                logging.warning(
+                logging.debug(
                     "Exception encountered when checking if pip was used to install"
                 )
                 self.installed_via_pip = False

@@ -5,7 +5,9 @@ Changelog for Rapid Photo Downloader
 -------------------
 
  - Fix bug #1797479: New version check results in confusing messages on stderr
-   when pip is not installed.
+   when pip is not installed. Thanks to Eli Schwartz for the fix.
+
+ - Added Deepin to supported Linux distributions.
 
 0.9.12 (2018-09-28)
 -------------------
