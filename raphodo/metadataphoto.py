@@ -511,5 +511,5 @@ if __name__ == '__main__':
     else:
         print("Preview not availabe")
 
-
-    et_process.terminate()
+    if et_process is not None:
+        et_process.terminate()
