@@ -4,6 +4,8 @@ Changelog for Rapid Photo Downloader
 0.9.13 (2018-xx-xx)
 -------------------
 
+ - Added support for Sigma X3F file format.
+
  - Fix bug #1797479: New version check results in confusing messages on stderr
    when pip is not installed. Thanks to Eli Schwartz for the fix.
 

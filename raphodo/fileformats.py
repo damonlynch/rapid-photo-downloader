@@ -71,7 +71,7 @@ def cr3_capable() -> bool:
 
 RAW_EXTENSIONS = [
     '3fr', 'arw', 'dcr', 'cr2', 'crw',  'dng', 'fff', 'iiq', 'mos', 'mef', 'mrw', 'nef',
-    'nrw', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2', 'srw'
+    'nrw', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2', 'srw', 'x3f'
 ]
 
 if cr3_capable():
@@ -79,7 +79,7 @@ if cr3_capable():
 
 RAW_EXTENSIONS.sort()
 
-EXIFTOOL_ONLY_EXTENSIONS = ['mos', 'mrw']
+EXIFTOOL_ONLY_EXTENSIONS = ['mos', 'mrw', 'x3f']
 
 if not _exiv2_cr3 and _exiftool_cr3:
     EXIFTOOL_ONLY_EXTENSIONS.append('cr3')
@@ -127,7 +127,7 @@ def use_exiftool_on_photo(extension: str) -> bool:
 def extract_extension(file_name) -> Optional[str]:
     r"""
     Extract the file extension in the format the rest of the code expects:
-    not leading period, lower case
+    no leading period, lower case
 
     :param file_name: file name, irrelevant if path included or not
     :return: extension

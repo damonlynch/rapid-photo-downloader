@@ -74,7 +74,7 @@ class MetadataExiftool():
         self.metadata_string_format = dict()
         self.et_process = et_process
         if file_type is None:
-            file_type = fileformats.file_type_from_splitext(file_extension=self.ext)
+            file_type = fileformats.file_type_from_splitext(file_name=full_file_name)
         assert file_type is not None
         self.file_type = file_type
 
@@ -95,7 +95,7 @@ class MetadataExiftool():
         )
         self.preview_smallest['3fr'] = 3, 4
 
-        self.may_have_thumbnail = ('crw', 'mrw', 'orf', 'raw')
+        self.may_have_thumbnail = ('crw', 'mrw', 'orf', 'raw', 'x3f')
 
         self.preview256 = dict(
             arw=(0, ),
@@ -115,6 +115,7 @@ class MetadataExiftool():
             rw2=(2, ),
             sr2=(0, ),
             srw=(0, ),
+            x3f=(0, 2),
         )
         self.preview256['3fr'] = 3, 4
 
