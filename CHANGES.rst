@@ -11,6 +11,13 @@ Changelog for Rapid Photo Downloader
 
  - Added Deepin to supported Linux distributions.
 
+ - Fixed bug #1801504: PyQt5_sip not installed or upgraded for local user when
+   system copy already installed (bug seen on Fedora 29).
+
+ - Added support for installing into a Python virtual environment. See the file
+   README.rst for installation instructions. Thanks to Matthias Homann for his
+   code contribution.
+
 0.9.12 (2018-09-28)
 -------------------
 

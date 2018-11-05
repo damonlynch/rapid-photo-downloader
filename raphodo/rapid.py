@@ -89,10 +89,12 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
-if LooseVersion(QtCore.PYQT_VERSION_STR) >= LooseVersion('5.11'):
-    from PyQt5 import sip
-else:
-    import sip
+# PyQt 5.11 introduces from PyQt5 import sip i.e. from a 'private' sip, unique
+# to PyQt5. However we cannot assume that distros will follow this mechanism.
+# So as a defensive measure, merely import sip, doing this only after Qt has
+# already been imported. See:
+# http://pyqt.sourceforge.net/Docs/PyQt5/incompatibilities.html#importing-the-sip-module
+import sip
 
 from raphodo.storage import (
     ValidMounts, CameraHotplug, UDisks2Monitor, GVolumeMonitor, have_gio,

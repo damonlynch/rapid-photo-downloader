@@ -12,6 +12,7 @@ Contents
     - `Satisfying Software Requirements`_
     - `Installation`_
     - `Uninstallation`_
+    - `Installation into a Virtual Environment`_
 
 Description
 ===========
@@ -184,6 +185,32 @@ Assuming you installed using the instructions above, run:
 ``python3 -m pip uninstall rapid-photo-downloader``
 
 If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
+
+Installation into a Virtual Environment
+---------------------------------------
+
+Rapid Photo Downloader can be installed into a virtual environment, allowing you to isolate the
+Python packages it needs from other programs on your system.
+
+Virtual environments created with the --system-site-packages option are not supported. Python 3.5
+or newer is required, as is an Intel or AMD 64 bit platform.
+
+To install Rapid Photo Downloader into a Python virtual environment, create the virtual environment
+using a command like:
+
+``python3 -m env myenv``
+
+Activate the virtual environment:
+
+``source myenv/bin/activate``
+
+Then run the installer, passing the command line option telling the script to install Rapid Photo
+Downloader into the virtual environment:
+
+``python install.py --virtual-env``
+
+To uninstall from the virtual environment, simply delete the virtual environment's directory.
+
 
 
 .. _website: http://damonlynch.net/rapid

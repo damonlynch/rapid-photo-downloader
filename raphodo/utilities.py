@@ -400,11 +400,13 @@ def make_internationalized_list(items: List[str]) -> str:
         s = items[0]
         for item in items[1:-1]:
             # the middle of a list of things
-            s =  '%(first_items)s, %(last_items)s'% dict(first_items=s,
-                                                         last_items=item)
+            s =  '%(first_items)s, %(last_items)s'% dict(
+                first_items=s, last_items=item
+            )
         # the end of a list of things
-        s = '%(start_items)s and %(last_item)s' % dict(start_items=s,
-                                                       last_item=items[-1])
+        s = '%(start_items)s and %(last_item)s' % dict(
+            start_items=s, last_item=items[-1]
+        )
         return s
     return ''
 
