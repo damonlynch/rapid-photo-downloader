@@ -47,7 +47,8 @@ The program is licensed under the GPL3_ or later.
 Install on Ubuntu, openSUSE, Debian, and Fedora
 ===============================================
 
-To install Rapid Photo Downloader, run as your regular user (i.e. *without* sudo):
+To install Rapid Photo Downloader, run as your regular user (i.e. *without*
+sudo):
 
 ``python3 install.py``
 
@@ -86,7 +87,8 @@ Software Requirements and Program Installation on Other Systems
 ===============================================================
 
 The program is installed using the Python tool pip_, which automates almost
-all aspects of the program's installation by using PyPi_ to download Python modules.
+all aspects of the program's installation by using PyPi_ to download Python
+modules.
 
 Rapid Photo Downloader requires:
 
@@ -113,9 +115,9 @@ Rapid Photo Downloader requires:
  - Colour_
  - pymediainfo_
  - SortedContainers_
- - rawkit_: renders thumbnails from RAW images from which a thumbnail cannot be extracted using
-   libraw_, which is especially useful when downloading DNG files from Android phones or working
-   with old RAW formats.
+ - rawkit_: renders thumbnails from RAW images from which a thumbnail cannot be
+   extracted using libraw_, which is especially useful when downloading DNG
+   files from Android phones or working with old RAW formats.
  - `Qt5 plugin for reading TIFF images`_
  - Requests_
  - intltool_
@@ -125,18 +127,19 @@ Rapid Photo Downloader requires:
 
 Highly recommended, optional dependencies:
 
- - colorlog_: generates coloured program output when running Rapid Photo Downloader from the
-   terminal.
+ - colorlog_: generates coloured program output when running Rapid Photo
+   Downloader from the terminal.
  - pyprind_: shows a progress bar on the command line while running the program
    ``analyze_pv_structure``.
 
 Satisfying Software Requirements
 --------------------------------
 
-While Rapid Photo Downloader's installer will automatically download and install most
-required Python modules not already found on your system, there are some it cannot install.
-You must install these Python modules and a few other programs prior to installing Rapid Photo
-Downloader. The Python module requirements are the Python 3 versions of:
+While Rapid Photo Downloader's installer will automatically download and install
+most required Python modules not already found on your system, there are some it
+cannot install. You must install these Python modules and a few other programs
+prior to installing Rapid Photo Downloader. The Python module requirements are
+the Python 3 versions of:
 
  - PyQt_ 5.4 or greater
  - All `Python gobject introspection`_ modules listed above
@@ -145,22 +148,25 @@ The non-Python programs required are:
 
  - ExifTool_
  - exiv2_
- - Given `python-gphoto2`_ will almost certainly be installed from PyPi_, the development
-   packages for libgphoto2 and Python3 must be installed first, e.g. libgphoto2-dev
-   and python3-dev
+ - Given `python-gphoto2`_ will almost certainly be installed from PyPi_, the
+   development packages for libgphoto2 and Python3 must be installed first,
+   e.g. libgphoto2-dev and python3-dev
  - Likewise, given pymediainfo_ will almost certainly be installed from PyPi_,
    the package libmediainfo must be installed.
  - If installing pyzmq_ from PyPi_, you must first install the development
    packages for libzmq3 and Python3, e.g. libzmq3-dev and python3-dev
  - Qt5 plugin for reading TIFF images
- - If installing rawkit_ from PyPi_, libraw is required, e.g. libraw10 or libraw15.
- - If installing EasyGUI_ from PyPi_, ensure the Tkinter package for Python 3 is installed.
+ - If installing rawkit_ from PyPi_, libraw is required, e.g. libraw10 or
+   libraw15.
+ - If installing EasyGUI_ from PyPi_, ensure the Tkinter package for Python 3 is
+   installed.
 
 Installation
 ------------
 
-After `satisfying software requirements`_ using your Linux distribution's standard package
-installation tools, you should install Rapid Photo Downloader using the following steps.
+After `satisfying software requirements`_ using your Linux distribution's
+standard package installation tools, you should install Rapid Photo Downloader
+using the following steps.
 
 First, you may need to update your user's copy of pip and setuptools:
 
@@ -168,14 +174,15 @@ First, you may need to update your user's copy of pip and setuptools:
 
 ``python3 -m pip install --user --upgrade setuptools wheel``
 
-The following command will install all required and optional Python modules not already
-installed on your system, with the exception of those specified above in
-`satisfying software requirements`_:
+The following command will install all required and optional Python modules not
+already installed on your system, with the exception of those specified above
+in `satisfying software requirements`_:
 
 ``python3 install.py``
 
-**Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
-install`` *is* **not** *supported, and* **not** *recommended.*
+**Caution:** *untarring the archive, building it and installing it using*
+``sudo python3 setup.py install`` *is* **not** *supported, and* **not**
+*recommended.*
 
 Uninstallation
 --------------
@@ -189,14 +196,15 @@ If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 Installation into a Virtual Environment
 ---------------------------------------
 
-Rapid Photo Downloader can be installed into a virtual environment, allowing you to isolate the
-Python packages it needs from other programs on your system.
+Rapid Photo Downloader can be installed into a virtual environment, allowing you
+to isolate the Python packages it needs from other programs on your system.
 
-Virtual environments created with the --system-site-packages option are not supported. Python 3.5
-or newer is required, as is an Intel or AMD 64 bit platform.
+Virtual environments created with the --system-site-packages option are not
+supported. Python 3.5 or newer is required, as is an Intel or AMD 64 bit
+platform.
 
-To install Rapid Photo Downloader into a Python virtual environment, create the virtual environment
-using a command like:
+To install Rapid Photo Downloader into a Python virtual environment, create the
+virtual environment (naming it whatever you like):
 
 ``python3 -m env myenv``
 
@@ -204,12 +212,23 @@ Activate the virtual environment:
 
 ``source myenv/bin/activate``
 
-Then run the installer, passing the command line option telling the script to install Rapid Photo
-Downloader into the virtual environment:
+Then run the installer, passing the command line option telling the script to
+install Rapid Photo Downloader into the virtual environment:
 
 ``python install.py --virtual-env``
 
-To uninstall from the virtual environment, simply delete the virtual environment's directory.
+Once the program is installed, you can then deactivate the virtual environment
+with the deactivate command:
+
+``deactivate``
+
+Rapid Photo Downloader can be started without activating the virtual environment
+by running
+
+``myenv/bin/rapid-photo-downloader``
+
+To uninstall from the virtual environment, simply delete the virtual
+environment's directory.
 
 
 

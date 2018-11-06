@@ -73,7 +73,6 @@ except ImportError:
     sys.exit(1)
 
 
-
 __version__ = '0.2.6'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
@@ -135,6 +134,9 @@ unknown_version = LooseVersion('0.0')
 
 # global variable used for constructing pip command
 pip_user = "--user"
+# command line argument to indicate installation into a virtual environment
+virtual_env_cmd_line_arg = '--virtual-env'
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -176,7 +178,6 @@ class Distro(Enum):
     gentoo = 15
     deepin = 16
     unknown = 20
-    venv = 30
 
 
 debian_like = (
@@ -1672,7 +1673,6 @@ def install_required_distro_packages(distro: Distro,
         if venv:
             build_source_packages = 'gcc zlib-devel bzip2 bzip2-devel readline-devel '\
                                     'sqlite sqlite-devel openssl-devel tk-devel git ' \
-                                    'python3-cairo-devel cairo-gobject-devel ' \
 
             packages = '{} {}'.format(packages, build_source_packages)
 
@@ -1813,7 +1813,7 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
     )
 
     parser.add_argument(
-        '--virtual-env', action='store_true', dest='virtual_env',
+        virtual_env_cmd_line_arg, action='store_true', dest='virtual_env',
         help=_(
             "Install in current Python virtual environment. Virtual environments created with "
             "the --system-site-packages option are not supported."
@@ -2140,7 +2140,6 @@ def do_install(installer: str,
     if not force_this_version:
         run_latest_install(installer, delete_installer)
 
-
     if delete_installer:
         installer_to_delete_on_error = installer
     else:
@@ -2151,8 +2150,20 @@ def do_install(installer: str,
             distro_family=distro_family, interactive=interactive,
             installer_to_delete_on_error=installer_to_delete_on_error
         )
+        local_man_dir = os.path.join(os.path.expanduser('~'), '.local/share/man/man1')
+        if not os.path.isdir(local_man_dir):
+            try:
+                os.makedirs(local_man_dir)
+            except Exception:
+                sys.stderr.write(
+                    "Sorry, the man page directory could not be created: {}\n"
+                    "Exiting...\n".format(local_man_dir)
+                )
+                cleanup_on_exit(installer_to_delete_on_error='')
+                sys.exit(1)
     else:
         system_uninstall = False
+        local_man_dir = None
 
     install_required_distro_packages(
         distro, distro_family, distro_version, interactive, system_uninstall, venv,
@@ -2254,11 +2265,11 @@ def do_install(installer: str,
             sys.stderr.write("\nThe application was installed in {}\n".format(install_path))
             sys.stderr.write("Add {} to your PATH to be able to launch it.\n".format(install_path))
 
-    man_dir = '/usr/local/share/man/man1'
+    system_man_dir = '/usr/local/share/man/man1'
 
     if interactive:
         print("\n" + _("Do you want to install the application's man pages?"))
-        print(_("They will be installed into {}").format(man_dir))
+        print(_("They will be installed into {}").format(system_man_dir))
         print(_("If you uninstall the application, remove these manpages yourself."))
         print(_("sudo may prompt you for the sudo password."))
         answer = input(_('Do want to install the man pages?') + '  [Y/n] ')
@@ -2269,36 +2280,43 @@ def do_install(installer: str,
         print("\n" + _("Man pages can be found in {}/share/man/man1").format(sys.prefix))
         answer = 'n'
     else:
-        print("\n" + _("Installing man pages into {}").format(man_dir))
+        print("\n" + _("Installing man pages into {}").format(system_man_dir))
         print(_("If you uninstall the application, remove these manpages yourself."))
         print(_("sudo may prompt you for the sudo password.") + "\n")
         answer = 'y'
 
-    if get_yes_no(answer):
-        if not os.path.isdir(man_dir):
+    if get_yes_no(answer) and local_man_dir is not None:
+        install_man_page = True
+        if not os.path.isdir(system_man_dir):
             cmd = shutil.which('mkdir')
-            command_line = 'sudo {} -p {}'.format(cmd, man_dir)
+            command_line = 'sudo {} -p {}'.format(cmd, system_man_dir)
             print(command_line)
             args = shlex.split(command_line)
             try:
                 subprocess.check_call(args)
             except subprocess.CalledProcessError:
-                if delete_installer:
-                    delete_installer_and_its_temp_dir(installer)
-                clean_locale_tmpdir()
                 sys.stderr.write(_("Failed to create man page directory: exiting") + "\n")
-                sys.exit(1)
-        cmd = shutil.which('cp')
-        for manpage in ('rapid-photo-downloader.1', 'analyze-pv-structure.1'):
-            source = os.path.join(os.path.expanduser('~'), '.local/share/man/man1', manpage)
-            dest = os.path.join(man_dir, manpage)
-            command_line = 'sudo {} {} {}'.format(cmd, source, dest)
-            print(command_line)
-            args = shlex.split(command_line)
-            try:
-                subprocess.check_call(args)
-            except subprocess.CalledProcessError:
-                sys.stderr.write(_("Failed to copy man page."))
+                install_man_page = False
+
+        if install_man_page:
+            cmd = shutil.which('cp')
+            for manpage in ('rapid-photo-downloader.1', 'analyze-pv-structure.1'):
+                source = os.path.join(local_man_dir, manpage)
+                if not os.path.exists(source):
+                    sys.stderr.write(
+                        "Man page {} cannot be copied because it does not exist\n".format(
+                            source
+                        )
+                    )
+                    break
+                dest = os.path.join(system_man_dir, manpage)
+                command_line = 'sudo {} {} {}'.format(cmd, source, dest)
+                print(command_line)
+                args = shlex.split(command_line)
+                try:
+                    subprocess.check_call(args)
+                except subprocess.CalledProcessError:
+                    sys.stderr.write(_("Failed to copy man page.") + "\n")
 
     if delete_installer:
         delete_installer_and_its_temp_dir(installer)
@@ -2393,6 +2411,8 @@ def main():
             +  '  [Y/n] '
         )
         venv = get_yes_no(answer)
+        if venv:
+            sys.argv.append(virtual_env_cmd_line_arg)
 
     if venv:
         if not pypi_pyqt5_capable():
@@ -2454,6 +2474,7 @@ def main():
                     "Exiting..."
                 ) + "\n"
             )
+            cleanup_on_exit(installer_to_delete_on_error='')
             sys.exit(1)
         else:
             print(_("Restarting script using system python...") + "\n")
