@@ -1,3 +1,7 @@
+rapid-photo-downloader (0.9.13-0ubuntu~ppa1) bionic;  urgency=medium
+
+ * First PPA release of 0.9 series
+
 rapid-photo-downloader (0.4.10-0ubuntu1~ppa1) precise; urgency=medium
 
   * Updated Catalan and Portuguese translations.

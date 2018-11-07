@@ -1,7 +1,27 @@
 #!/usr/bin/make -f
+#export DH_VERBOSE=1
 
-export DH_VERBOSE=1
-export PYBUILD_NAME=rapid-photo-downloader
+
+include /usr/share/dpkg/pkg-info.mk
 
 %:
-        dh $@ --with python3 --buildsystem=pybuild
+	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_configure:
+	pod2man --section=1 --release=$(DEB_SOURCE) --center "" doc/rapid-photo-downloader.1.pod > rapid-photo-downloader.1
+	pod2man --section=1 --release=$(DEB_SOURCE) --center "" doc/analyze-pv-structure.1.pod > analyze-pv-structure.1
+
+override_dh_auto_install:
+	dh_auto_install
+	mv $(CURDIR)/debian/rapid-photo-downloader/usr/share/appdata/net.damonlynch.rapid-photo-downloader.appdata.xml \
+	    $(CURDIR)/debian/rapid-photo-downloader/usr/share/metainfo/
+	$(RM) -d $(CURDIR)/debian/rapid-photo-downloader/usr/share/appdata/
+
+override_dh_auto_clean:
+	-rm -f rapid-photo-downloader.1
+	-rm -f analyze-pv-structure.1
+	-rm -rf build/
+	dh_auto_clean
+
+override_dh_installchangelogs:
+	dh_installchangelogs CHANGES.rst

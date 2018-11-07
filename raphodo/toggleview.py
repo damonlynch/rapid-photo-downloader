@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2018 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -25,13 +25,12 @@ similar to the GtkExpander', Copyright 2012 Canonical Ltd
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016, Damon Lynch"
+__copyright__ = "Copyright 2016-2018, Damon Lynch"
 
 from typing import Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QSize
 from PyQt5.QtGui import QColor, QPalette
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
 from raphodo.toggleswitch import QToggleSwitch
 from raphodo.panelview import QPanelView

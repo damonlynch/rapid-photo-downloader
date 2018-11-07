@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
-from raphodo.programversions import EXIFTOOL_VERSION
 
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2011-2018, Damon Lynch"
@@ -29,6 +28,7 @@ from typing import Optional
 import arrow.arrow
 from arrow.arrow import Arrow
 
+from raphodo.programversions import EXIFTOOL_VERSION
 import raphodo.exiftool as exiftool
 import raphodo.metadataexiftool as metadataexiftool
 from raphodo.utilities import datetime_roughly_equal
