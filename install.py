@@ -703,6 +703,38 @@ def get_yes_no(response: str) -> bool:
     return response.lower() in ('y', 'yes', '')
 
 
+def check_and_repair_folder_permission(path: str,
+                                       owner: int,
+                                       group: int,
+                                       perm: int,
+                                       interactive: bool) -> None:
+    if os.path.isdir(path):
+        st = os.stat(path)
+        if st.st_uid != owner or st.st_gid != group:
+            print(
+                _(
+                    "Incorrect folder ownership detected. Changing ownership of and "
+                    "resetting permissions for"
+                ), path
+            )
+            # For some reason (probably they compiled some software as root),
+            # some users report that
+            # root owns key directories like ~/.local/lib , so need sudo
+            # to fix a problem like that, not python's os.chown -- we don't
+            # have permission given we're running as the regular user
+            cmd = shutil.which('chown')
+            cmd = 'sudo {} {}:{} {}'.format(cmd, owner, group, path)
+            run_cmd(cmd, exit_on_failure=True, interactive=interactive)
+
+            # reset permissions too
+            try:
+                os.chmod(path, perm)
+            except (OSError, PermissionError) as e:
+                sys.stderr.write(
+                    "Unexpected error %s setting permission for %s. Exiting\n".format(
+                        e, path
+                    )
+                )
 def local_folder_permissions(interactive: bool) -> None:
     """
     Check and if necessary fix ownership and permissions for key installation folders
@@ -739,35 +771,17 @@ def local_folder_permissions(interactive: bool) -> None:
                 perms.append((os.path.join(path, p), u_only))
                 path = os.path.join(path, p)
 
-        for folder, perm  in perms:
+        for folder, perm in perms:
             path = os.path.join(base, folder)
+            check_and_repair_folder_permission(
+                path=path, owner=owner, group=group, perm=perm, interactive=interactive
+            )
 
-            if os.path.isdir(path):
-                st = os.stat(path)
-                if st.st_uid != owner or st.st_gid != group:
-                    print(
-                        _(
-                            "Incorrect folder ownership detected. Changing ownership of and "
-                            "resetting permissions for"
-                        ), path
-                    )
-                    # For some bizarre reason, some users report that
-                    # root owns key directories like ~/.local/lib , so need sudo
-                    # to fix a problem like that, not python's os.chown -- we don't
-                    # have permission given we're running as the regular user
-                    cmd = shutil.which('chown')
-                    cmd = 'sudo {} {}:{} {}'.format(cmd, owner, group, path)
-                    run_cmd(cmd, exit_on_failure=True, interactive=interactive)
+        check_and_repair_folder_permission(
+            path=os.path.expanduser('~/.ccache'), owner=owner, group=group, perm=u_only,
+            interactive=interactive
+        )
 
-                    # reset permissions too
-                    try:
-                        os.chmod(path, perm)
-                    except (OSError, PermissionError) as e:
-                        sys.stderr.write(
-                            "Unexpected error %s setting permission for %s. Exiting\n".format(
-                                e, path
-                            )
-                        )
 
 
 def generate_random_file_name(length = 5) -> str:
