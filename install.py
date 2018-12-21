@@ -627,16 +627,20 @@ def update_pyqt5_and_sip(venv: bool) -> int:
 
     if pypi_pyqt5_capable():
 
-        pip_installed = installed_using_pip('PyQt5') and installed_using_pip('PyQt5_sip')
+        pyqt_up_to_date = installed_using_pip('PyQt5') and is_latest_pypi_package('PyQt5')
+        sip_up_to_date = installed_using_pip('PyQt5_sip') and is_latest_pypi_package('PyQt5_sip')
 
-        if venv or not (pip_installed and is_latest_pypi_package('PyQt5')
-                and is_latest_pypi_package('PyQt5_sip')):
+        if venv or not pyqt_up_to_date or not sip_up_to_date:
 
             uninstall_pip_package('PyQt5', no_deps_only=False)
             uninstall_pip_package('PyQt5_sip', no_deps_only=False)
 
+            print("Updating PyQt5 and PyQt5_sip...")
+
+            # The --upgrade flag is really important on systems that do not update PyQt5_sip
+            # because the system copy already exists, which breaks our user's copy of PyQt5
             cmd = make_pip_command(
-                'install {} --disable-pip-version-check PyQt5 PyQt5_sip'.format(pip_user)
+                'install {} --disable-pip-version-check --upgrade PyQt5 PyQt5_sip'.format(pip_user)
             )
             return popen_capture_output(cmd)
 

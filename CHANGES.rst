@@ -1,6 +1,13 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.14 (2018-12-21)
+-------------------
+
+ - Again fix bug #1801504: PyQt5_sip not installed or upgraded for local user
+   when system copy already installed (bug seen on Fedora 29). The fix in 0.9.13
+   did not always work.
+
 0.9.13 (2018-11-06)
 -------------------
 
@@ -20,7 +27,6 @@ Changelog for Rapid Photo Downloader
 
  - Import sip regardless of whether it is the private sip bundled with PyQt5
    or a separate sip installation.
-
 
 0.9.12 (2018-09-28)
 -------------------
