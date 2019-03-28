@@ -29,10 +29,10 @@ __summary__ = 'Downloads, renames and backs up photos and videos from cameras, p
 'memory cards and other devices'
 __uri__ = 'http://www.damonlynch.net/rapid'
 
-__version__ = '0.9.14a1'
+__version__ = '0.9.14'
 
 __author__ = 'Damon Lynch'
 __email__ = 'damonlynch@gmail.com'
 
 __license__ = 'GPL'
-__copyright__ = 'Copyright 2007-2018 {}'.format(__author__)
+__copyright__ = 'Copyright 2007-2019 {}'.format(__author__)

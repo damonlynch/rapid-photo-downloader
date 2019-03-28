@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2019 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -29,7 +29,7 @@ Project line length: 100 characters (i.e. word wrap at 99)
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2018, Damon Lynch"
+__copyright__ = "Copyright 2011-2019, Damon Lynch"
 
 import sys
 import logging
@@ -71,6 +71,7 @@ except (ImportError, ValueError):
 
 import zmq
 import psutil
+import arrow
 import gphoto2 as gp
 from PyQt5 import QtCore
 from PyQt5.QtCore import (
@@ -344,7 +345,7 @@ class FolderPreviewManager(QObject):
                 self._change_subfolder_structure()
         else:
             logging.debug(
-                "Not removing or moving provisional download folders becausea download is running"
+                "Not removing or moving provisional download folders because a download is running"
             )
 
         if dirty:
@@ -5665,9 +5666,9 @@ class QtSingleApplication(QApplication):
         self._outSocket.connectToServer(self._id)
         self._isRunning = self._outSocket.waitForConnected() # type: bool
 
-        self._outStream = None # type: QTextStream
+        self._outStream = None  # type: QTextStream
         self._inSocket  = None
-        self._inStream  = None # type: QTextStream
+        self._inStream  = None  # type: QTextStream
         self._server    = None
 
         if self._isRunning:
@@ -5781,6 +5782,10 @@ def get_versions() -> List[str]:
     try:
         versions.append('{}: {}'.format(*platform.libc_ver()))
     except:
+        pass
+    try:
+        versions.append('Arrow: {}'.format(arrow.__version__))
+    except AttributeError:
         pass
     try:
         import tornado

@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2018, Damon Lynch"
+__copyright__ = "Copyright 2015-2019, Damon Lynch"
 
 from collections import (namedtuple, defaultdict, deque, Counter)
 from operator import attrgetter
@@ -795,7 +795,7 @@ class TemporalProximityGroups:
             # Calculate the number of calendar days spanned by this proximity group
             # e.g. 2015-12-1 12:00 - 2015-12-2 15:00 = 2 days
             if len(group) > 1:
-                span = len(Arrow.span_range('day', start, end))
+                span = len(list(Arrow.span_range('day', start, end)))
                 day_spans_by_proximity[group_no] = span
                 if span > 1:
                     # break the proximity group members into calendar days
