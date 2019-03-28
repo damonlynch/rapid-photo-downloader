@@ -206,7 +206,7 @@ platform.
 To install Rapid Photo Downloader into a Python virtual environment, create the
 virtual environment (naming it whatever you like):
 
-``python3 -m env myenv``
+``python3 -m venv myenv``
 
 Activate the virtual environment:
 

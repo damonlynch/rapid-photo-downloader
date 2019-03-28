@@ -8,6 +8,9 @@ Changelog for Rapid Photo Downloader
    when system copy already installed (bug seen on Fedora 29). The fix in 0.9.13
    did not always work.
 
+ - When installing using the install.py script, upgrade pip if its version is
+   less than 9.0.
+
 0.9.13 (2018-11-06)
 -------------------
 

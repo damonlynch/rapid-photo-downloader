@@ -59,7 +59,6 @@ from raphodo.utilities import stdchannel_redirected, show_errors, image_large_en
 from raphodo.filmstrip import add_filmstrip
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge, FdoCacheNormal
 import raphodo.exiftool as exiftool
-# from raphodo.fileformats import
 
 
 have_gst = Gst.init_check(None)

@@ -27,7 +27,7 @@ import os
 import shlex
 import time
 from collections import deque, namedtuple
-from typing import Optional, Set, List, Dict, Sequence, Any, Tuple
+from typing import Optional, Set, List, Dict, Sequence, Any, Tuple, Union
 
 
 import psutil
@@ -66,7 +66,7 @@ from raphodo.problemnotification import (
 logger = logging.getLogger()
 
 
-def make_filter_from_worker_id(worker_id) -> bytes:
+def make_filter_from_worker_id(worker_id: Union[int, str]) -> bytes:
     r"""
     Returns a python byte string from an integer or string
 
@@ -82,6 +82,7 @@ def make_filter_from_worker_id(worker_id) -> bytes:
         return worker_id.encode()
     raise(TypeError)
 
+
 def create_identity(worker_type: str, identity: str) -> bytes:
     r"""Generate identity for a worker's 0mq socket.
 
@@ -95,6 +96,7 @@ def create_identity(worker_type: str, identity: str) -> bytes:
 
     # Replace any whitespace in the strings with a hyphen
     return '{}-{}'.format('-'.join(worker_type.split()), '-'.join(identity.split())).encode()
+
 
 def get_worker_id_from_identity(identity: bytes) -> int:
     r"""Extract worker id from the identity used in a 0mq socket
@@ -168,7 +170,7 @@ class ProcessManager:
 
     def _get_command_line(self, worker_id: int) -> str:
         """
-        Implement in sublcass
+        Implement in subclass
         """
         return ''
 

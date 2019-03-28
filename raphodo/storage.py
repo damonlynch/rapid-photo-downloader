@@ -811,8 +811,10 @@ def validate_download_folder(path: Optional[str],
                 # the path is in fact writeable -- can happen with NFS
                 valid = True
         except Exception:
-            logging.warning('While validating download / backup folder, failed to write a '
-                            'temporary file to %s', path)
+            logging.warning(
+                'While validating download / backup folder, failed to write a temporary file to '
+                '%s', path
+            )
 
     return ValidatedFolder(valid, absolute_path)
 

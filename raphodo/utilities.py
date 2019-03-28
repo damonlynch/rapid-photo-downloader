@@ -311,7 +311,8 @@ def create_temp_dir(folder: Optional[str]=None,
         msg = "Failed to create temporary directory in %s: %s %s" % (
                       folder,
                       inst.errno,
-                      inst.strerror)
+                      inst.strerror
+        )
         logging.critical(msg)
         temp_dir = None
     return temp_dir

@@ -2598,7 +2598,7 @@ def main():
             run_cmd(command_line, restart=True, interactive=args.interactive)
 
     # Can now assume that both pip, setuptools and wheel have been installed
-    if pip_version < StrictVersion('8.1'):
+    if pip_version < StrictVersion('9.0'):
         # Translators: do not translate the terms Python 3, pip and setuptools
         print("\n" + _("Python 3's pip and setuptools must be upgraded for your user.") + "\n")
 
