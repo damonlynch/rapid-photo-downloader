@@ -6,9 +6,11 @@ Changelog for Rapid Photo Downloader
 
  - Fix bug #1821917: Error generating Timeline with Arrow 0.13.1.
 
+ - Fix bug #1817481: Error deleting sample file at program exit.
+
  - Again fix bug #1801504: PyQt5_sip not installed or upgraded for local user
-   when system copy already installed (bug seen on Fedora 29). The fix in 0.9.13
-   did not always work.
+   when system copy already installed (bug seen on Fedora 29). The fix in
+   0.9.13 did not always work.
 
  - When installing using the install.py script, upgrade pip if its version is
    less than 9.0.

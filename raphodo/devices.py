@@ -715,11 +715,11 @@ class DeviceCollection:
         self._sample_files_complete.append(
             sample_file_complete(
                 sample_photo_video.temp_sample_full_file_name,
-                sample_photo_video.file_type.name
+                sample_photo_video.file_type
             )
         )
 
-    def _do_delete__sample_photo_video(self, sample_photo_video: RPDFile) -> None:
+    def _do_delete_sample_photo_video(self, sample_photo_video: RPDFile) -> None:
         """
         Delete a temporary sample photo or video from the file system
         :param sample_photo_video: file to delete
@@ -735,7 +735,7 @@ class DeviceCollection:
                 sample_type = 'unknown'
             try:
                 assert sample_photo_video.temp_sample_full_file_name
-            except:
+            except Exception:
                 logging.error("Expected sample file name in sample %s", sample_type)
             else:
                 if os.path.isfile(sample_photo_video.temp_sample_full_file_name):
@@ -772,7 +772,7 @@ class DeviceCollection:
             samples = self._sample_photo, self._sample_video
 
         for sample in samples:
-            self._do_delete__sample_photo_video(sample)
+            self._do_delete_sample_photo_video(sample)
 
         if at_program_close and self._sample_files_complete:
             remaining_files = (
