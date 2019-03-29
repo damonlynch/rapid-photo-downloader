@@ -684,7 +684,21 @@ class Camera:
          if not found.
         """
         if self.camera_config is None:
-            self.camera_config = self.camera.get_config(self.context)
+            try:
+                self.camera_config = self.camera.get_config(self.context)
+            except gp.GPhoto2Error as e:
+                if e.code == gp.GP_ERROR_NOT_SUPPORTED:
+                    logging.error(
+                        "Getting camera configuration not supported for %s",
+                        self.display_name
+                    )
+                else:
+                    logging.error(
+                        "Unknown error getting camera configuration for %s",
+                        self.display_name
+                    )
+                return ''
+
         # Here we really see the difference between C and python!
         child_count = self.camera_config.count_children()
         for i in range(child_count):

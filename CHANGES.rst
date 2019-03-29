@@ -8,6 +8,8 @@ Changelog for Rapid Photo Downloader
 
  - Fix bug #1817481: Error deleting sample file at program exit.
 
+ - Fix bug #1810572: Error getting camera configuration on certain cameras
+
  - Again fix bug #1801504: PyQt5_sip not installed or upgraded for local user
    when system copy already installed (bug seen on Fedora 29). The fix in
    0.9.13 did not always work.
