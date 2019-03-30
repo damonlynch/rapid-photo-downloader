@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2019 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2012-2015 Jim Easterbrook <jim@jim-easterbrook.me.uk>
 
 # This file is part of Rapid Photo Downloader.
@@ -20,7 +20,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2018, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
+__copyright__ = "Copyright 2015-2019, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
 
 import logging
 import os

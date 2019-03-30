@@ -524,7 +524,7 @@ def custom_python() -> bool:
 
 def is_venv():
     """
-    :return: True if the python running in venv or virtualenv
+    :return: True if the python interpreter is running in venv or virtualenv
     """
 
     return hasattr(sys, 'real_prefix') or \
@@ -2426,7 +2426,7 @@ def main():
     if is_venv() and not venv:
         answer = input(
             _("Do you want to install Rapid Photo Downloader into the current virtual environment?")
-            +  '  [Y/n] '
+            + '  [Y/n] '
         )
         venv = get_yes_no(answer)
         if venv:

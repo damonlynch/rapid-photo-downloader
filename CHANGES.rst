@@ -1,14 +1,14 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.14 (2019-03-28)
+0.9.14 (2019-03-30)
 -------------------
 
  - Fix bug #1821917: Error generating Timeline with Arrow 0.13.1.
 
  - Fix bug #1817481: Error deleting sample file at program exit.
 
- - Fix bug #1810572: Error getting camera configuration on certain cameras
+ - Fix bug #1810572: Error getting camera configuration on certain cameras.
 
  - Again fix bug #1801504: PyQt5_sip not installed or upgraded for local user
    when system copy already installed (bug seen on Fedora 29). The fix in
@@ -16,6 +16,9 @@ Changelog for Rapid Photo Downloader
 
  - When installing using the install.py script, upgrade pip if its version is
    less than 9.0.
+
+ - Disable the program's built-in upgrade procedure when running from within a
+   python virtual environment.
 
 0.9.13 (2018-11-06)
 -------------------

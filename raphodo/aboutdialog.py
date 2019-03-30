@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2019 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -63,7 +63,7 @@ class AboutDialog(QDialog):
 
         # Standard About view
 
-        msg = """Copyright &copy; 2007-2018 Damon Lynch.<br><br>
+        msg = """Copyright &copy; 2007-2019 Damon Lynch.<br><br>
         <a href="http://www.damonlynch.net/rapid" %(link_style)s>
         www.damonlynch.net/rapid</a><br><br>
         This program comes with absolutely no warranty.<br>

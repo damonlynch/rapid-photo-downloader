@@ -1,4 +1,4 @@
-Release Notes for Rapid Photo Downloader 0.9.13
+Release Notes for Rapid Photo Downloader 0.9.14
 ===============================================
 
  - Most photo thumbnails are generated using exiv2. Very rarely, exiv2 can
@@ -23,12 +23,12 @@ Release Notes for Rapid Photo Downloader 0.9.13
 
  - If you installed Rapid Photo Downloader using the install script, you can
    update it one of two ways: using the install script again, or using the
-   built-in update procedure. The built-in update procedure is very
+   in-program update procedure. The in-program update procedure is very
    convenient, but faces limitations in terms of updating some of the software
    the program needs. If you use the install script to update the program, it
    can update more supporting packages, which can sometimes prove helpful.
 
- - On some systems, Rapid Photo Downloader cannot use gstreamer to generate
+  - On some systems, Rapid Photo Downloader cannot use gstreamer to generate
    video thumbnails for all common video files. Install the good and libav
    plugins for gstreamer to solve this problem. In Debian and Ubuntu-like
    systems, the packages are gstreamer1.0-libav gstreamer1.0-plugins-good

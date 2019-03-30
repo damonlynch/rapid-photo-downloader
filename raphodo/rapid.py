@@ -1374,13 +1374,14 @@ class RapidWindow(QMainWindow):
         delegate = self.thumbnailView.itemDelegate()  # type: ThumbnailDelegate
         delegate.applyJobCode(job_code=job_code)
 
-    @pyqtSlot(bool, version_details, version_details, str, bool, bool)
+    @pyqtSlot(bool, version_details, version_details, str, bool, bool, bool)
     def newVersionCheckMade(self, success: bool,
                             stable_version: version_details,
                             dev_version: version_details,
                             download_page: str,
                             no_upgrade: bool,
-                            pip_install: bool) -> None:
+                            pip_install: bool,
+                            is_venv: bool) -> None:
         """
         Respond to a version check, either initiated at program startup, or from the
         application's main menu.
@@ -1396,6 +1397,8 @@ class RapidWindow(QMainWindow):
         :param no_upgrade: if True, don't offer to do an inplace upgrade
         :param pip_install: whether pip was used to install this
          program version
+        :param is_venv: whether the program is running in a python virtual
+         environment
         """
 
         if success:
@@ -1426,7 +1429,13 @@ class RapidWindow(QMainWindow):
 
                 if pip_install:
                     logging.debug("Installation performed via pip")
-                    if no_upgrade:
+                    if is_venv:
+                        logging.info(
+                            "Cannot use in-program update to upgrade program from within virtual "
+                            "environment"
+                        )
+                        state = CheckNewVersionDialogState.open_website
+                    elif no_upgrade:
                         logging.info("Cannot perform in-place upgrade to this version")
                         state = CheckNewVersionDialogState.open_website
                     else:

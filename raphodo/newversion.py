@@ -47,7 +47,7 @@ from raphodo.constants import (
     remote_versions_file, CheckNewVersionDialogState, CheckNewVersionDialogResult,
     standardProgressBarWidth
 )
-from raphodo.utilities import (create_temp_dir, format_size_for_user)
+from raphodo.utilities import (create_temp_dir, format_size_for_user, is_venv)
 from raphodo.interprocess import ThreadNames
 from raphodo.viewutils import translateButtons
 
@@ -60,7 +60,7 @@ class NewVersion(QObject):
     Runs in its own thread.
     """
 
-    checkMade = pyqtSignal(bool, version_details, version_details, str, bool, bool)
+    checkMade = pyqtSignal(bool, version_details, version_details, str, bool, bool, bool)
     # See http://pyqt.sourceforge.net/Docs/PyQt5/signals_slots.html#the-pyqt-pyobject-
     # signal-argument-type
     bytesDownloaded = pyqtSignal('PyQt_PyObject')  # don't convert python int to C++ int
@@ -78,7 +78,9 @@ class NewVersion(QObject):
         self.rapidApp.checkForNewVersionRequest.connect(self.check)
         self.rapidApp.downloadNewVersionRequest.connect(self.download)
         self.installed_via_pip_check_made = False
-        self.installed_via_pip = None  # type: bool
+        self.is_venv_check_made = False
+        self.installed_via_pip = None  # type: Optional[bool]
+        self.is_venv = None  # type: Optional[bool]
 
     @pyqtSlot()
     def start(self) -> None:
@@ -158,8 +160,13 @@ class NewVersion(QObject):
                 )
                 self.installed_via_pip = False
 
+        if not self.is_venv_check_made:
+            self.is_venv = is_venv()
+            self.is_venv_check_made = True
+
         self.checkMade.emit(
-            success, stable_version, dev_version, download_page, no_upgrade, self.installed_via_pip
+            success, stable_version, dev_version, download_page, no_upgrade, self.installed_via_pip,
+            self.is_venv
         )
 
     def verifyDownload(self, downloaded_tar: str, md5_url: str) -> bool:

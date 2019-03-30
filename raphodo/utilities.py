@@ -944,3 +944,12 @@ def image_large_enough_fdo(size: QSize) -> bool:
     """
 
     return size.width() >= 256 or size.height() >= 256
+
+
+def is_venv():
+    """
+    :return: True if the python interpreter is running in venv or virtualenv
+    """
+
+    return hasattr(sys, 'real_prefix') or \
+           (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
