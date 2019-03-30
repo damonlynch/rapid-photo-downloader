@@ -36,9 +36,9 @@ Release Notes for Rapid Photo Downloader 0.9.14
    Fedora users can enable the rpmfusion.org free repository to be able to
    install gstreamer1-libav.
 
- - The Python library rawkit 0.6.0 may not work with libraw 0.19 or newer.
-   Rawkit and libraw are used to generate thumbnails for RAW files from which
-   a thumbnail cannot be extracted.
+ - The Python library rawkit may not work with very recent versions of libraw.
+   Rawkit uses libraw to generate thumbnails for RAW files from which a
+   thumbnail cannot be extracted.
 
  - For systems running Python 3.6 or newer, the recommended pyzmq version is
    now 16.0.2 or newer. If xterm or lxterminal are installed on systems with

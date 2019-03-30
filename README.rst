@@ -78,8 +78,8 @@ Supported Linux Versions
  - Ubuntu 16.04 or newer
  - LinuxMint 18 or newer
  - Debian 9, unstable or testing
- - Fedora 25 or newer
- - openSUSE Leap 42.2 or newer
+ - Fedora 28 or newer
+ - openSUSE Leap 42.3 or newer
  - CentOS 7.5
  - Any distribution meeting the software requirements below
 
