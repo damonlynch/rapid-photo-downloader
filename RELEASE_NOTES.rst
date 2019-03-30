@@ -28,7 +28,7 @@ Release Notes for Rapid Photo Downloader 0.9.14
    the program needs. If you use the install script to update the program, it
    can update more supporting packages, which can sometimes prove helpful.
 
-  - On some systems, Rapid Photo Downloader cannot use gstreamer to generate
+ - On some systems, Rapid Photo Downloader cannot use gstreamer to generate
    video thumbnails for all common video files. Install the good and libav
    plugins for gstreamer to solve this problem. In Debian and Ubuntu-like
    systems, the packages are gstreamer1.0-libav gstreamer1.0-plugins-good

@@ -20,6 +20,8 @@ Changelog for Rapid Photo Downloader
  - Disable the program's built-in upgrade procedure when running from within a
    python virtual environment.
 
+ - Updated Czech, Dutch, Italian, Portuguese, and Spanish translations.
+
 0.9.13 (2018-11-06)
 -------------------
 

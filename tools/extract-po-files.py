@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2010-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2010-2019 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -27,7 +27,7 @@ Not included in program tarball distributed to end users.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2010-2018, Damon Lynch"
+__copyright__ = "Copyright 2010-2019, Damon Lynch"
 
 
 import tarfile
@@ -66,7 +66,7 @@ date_format = '%Y-%m-%d %H:%M'
 translations_tar = os.path.join(home, 'launchpad-export.tar.gz')
 backup_tar = os.path.join(po_backup_dir, 'launchpad-export.tar.gz')
 
-tempdir = tempfile.mkdtemp()
+tempdir = tempfile.mkdtemp(dir=home)
 source_po_dir = os.path.join(tempdir, 'po')
 
 tar = tarfile.open(translations_tar)
