@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.15 (2019-xx-xx)
+-------------------
+
+ - Fixed bug where installing into a virtual environment on Ubuntu 19.04 would
+   fail due to not mandating the installation of GObject introspection runtimes.
+
 0.9.14 (2019-03-30)
 -------------------
 

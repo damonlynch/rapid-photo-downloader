@@ -1414,7 +1414,9 @@ def install_required_distro_packages(distro: Distro,
         missing_packages = []
         packages = 'gstreamer1.0-libav gstreamer1.0-plugins-good libimage-exiftool-perl '\
                    'python3-dev intltool libgphoto2-dev g++ exiv2 libraw-bin build-essential ' \
-                   'python3-wheel python3-setuptools'
+                   'python3-wheel python3-setuptools gir1.2-gexiv2-0.10 ' \
+                   'python3-gi gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 '\
+                   'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
 
         set_manually_installed = []
 
@@ -1425,9 +1427,7 @@ def install_required_distro_packages(distro: Distro,
         if not venv:
             assert have_apt
 
-            base_python_packages = 'gir1.2-gexiv2-0.10 python3-gi gir1.2-gudev-1.0 ' \
-                 'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
-                 'python3-requests'
+            base_python_packages = 'python3-requests'
 
             packages = '{} {}'.format(packages, base_python_packages)
 
@@ -1686,7 +1686,7 @@ def install_required_distro_packages(distro: Distro,
 
         packages = 'gstreamer1-plugins-good gobject-introspection libgphoto2-devel zeromq-devel ' \
                    'exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ rpm-build ' \
-                   'gobject-introspection-devel cairo-gobject-devel python36u-devel libmediainfo'
+                   'gobject-introspection-devel cairo-gobject-devel python36u-devel libmediainfo '
 
         if venv:
             build_source_packages = 'gcc zlib-devel bzip2 bzip2-devel readline-devel '\
