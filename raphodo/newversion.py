@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2019 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,7 +22,7 @@ to download them.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017-2018, Damon Lynch"
+__copyright__ = "Copyright 2017-2019, Damon Lynch"
 
 import logging
 from collections import namedtuple
@@ -156,7 +156,8 @@ class NewVersion(QObject):
                 self.installed_via_pip = self.installedUsingPip()
             except Exception:
                 logging.debug(
-                    "Exception encountered when checking if pip was used to install"
+                    "Exception encountered when checking if pip was used to install "
+                    "(probably the program has not been installed)"
                 )
                 self.installed_via_pip = False
 

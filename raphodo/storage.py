@@ -425,7 +425,8 @@ def gvfs_controls_mounts() -> bool:
 
     desktop = get_desktop()
     if desktop in (Desktop.gnome, Desktop.unity, Desktop.cinnamon, Desktop.xfce,
-                   Desktop.mate, Desktop.lxde):
+                   Desktop.mate, Desktop.lxde, Desktop.ubuntugnome,
+                   Desktop.popgnome, Desktop.gnome, Desktop.lxqt):
         return True
     elif desktop == Desktop.kde:
         return False
@@ -1291,6 +1292,13 @@ if have_gio:
             self.scsiPortSearch = re.compile(r'usbscsi:(.+)')
             self.validMounts = validMounts
 
+        def mountMightBeCamera(self, mount: Gio.Mount) -> bool:
+            """
+            :param mount: the mount to check
+            :return: True if the mount needs to be checked if it is a camera
+            """
+            return not mount.is_shadowed() and mount.get_volume() is not None
+
         def ptpCameraMountPoint(self, model: str, port: str) -> Optional[Gio.Mount]:
             """
             :return: the mount point of the PTP / MTP camera, if it is mounted,
@@ -1302,7 +1310,8 @@ if have_gio:
             if p is not None:
                 p1 = p.group(1)
                 p2 = p.group(2)
-                pattern = re.compile(r'%\S\Susb%\S\S{}%\S\S{}%\S\S'.format(p1, p2))
+                device_path = '/dev/bus/usb/{}/{}'.format(p1, p2)
+                #pattern = re.compile(r'%\S\Susb%\S\S{}%\S\S{}%\S\S'.format(p1, p2))
             else:
                 p = self.scsiPortSearch.match(port)
                 if p is None:
@@ -1312,9 +1321,13 @@ if have_gio:
             to_unmount = None
 
             for mount in self.vm.get_mounts():
-                folder_extract = self.mountIsCamera(mount)
-                if folder_extract is not None:
-                    if pattern.match(folder_extract):
+                if self.mountMightBeCamera(mount):
+                    # According to GTK docs, Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE is
+                    # depreceated, but what should replace it?
+                    identifier = mount.get_volume().get_identifier(
+                        Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE
+                    )
+                    if device_path == identifier:
                         to_unmount = mount
                         break
             return to_unmount
@@ -1448,13 +1461,7 @@ if have_gio:
                 logging.exception('Traceback:')
 
 
-        def mountIsCamera(self, mount: Gio.Mount) -> Optional[str]:
-            """
-            Determine if the mount point is that of a camera
-            :param mount: the mount to examine
-            :return: None if not a camera, or the component of the
-            folder name that indicates on which port it is mounted
-            """
+        def _cameraMountPathExtract(self, mount: Gio.Mount) -> Optional[str]:
             root = mount.get_root()
             if root is None:
                 logging.warning('Unable to get mount root')
@@ -1463,11 +1470,42 @@ if have_gio:
                 if path:
                     logging.debug("GIO: Looking for camera at mount {}".format(path))
                     folder_name = os.path.split(path)[1]
+                    return folder_name
+            return None
+
+        def mountIsCamera(self, mount: Gio.Mount) -> bool:
+            """
+            Determine if the mount refers to a camera by checking the
+            path to see if gphoto2 or mtp is in the last folder in the
+            root path
+
+            :param mount: mount to check
+            :return: True if mount refers to a camera, else False
+            """
+
+            if self.mountMightBeCamera(mount):
+                folder_name = self._cameraMountPathExtract(mount)
+                if folder_name is not None:
                     for s in ('gphoto2:host=', 'mtp:host='):
                         if folder_name.startswith(s):
-                            return folder_name[len(s):]
-                if path is not None:
-                    logging.debug("GIO: camera not found at {}".format(path))
+                            return True
+            return False
+
+        def cameraMountFolderName(self, mount: Gio.Mount) -> Optional[str]:
+            """
+            Deprecated.
+
+            Determine the mount's folder name if the mount is for a camera
+
+            :param mount: the mount to examine
+            :return: None if not a camera, or the component of the
+            folder name of the device's root path
+            """
+
+            folder_name = self._cameraMountPathExtract(mount)
+            for s in ('gphoto2:host=', 'mtp:host='):
+                if folder_name.startswith(s):
+                    return folder_name[len(s):]
             return None
 
         def mountIsPartition(self, mount: Gio.Mount) -> bool:

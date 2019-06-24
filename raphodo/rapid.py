@@ -920,7 +920,7 @@ class RapidWindow(QMainWindow):
         logging.debug("Have GIO module: %s", have_gio)
         self.gvfsControlsMounts = gvfs_controls_mounts() and have_gio
         if have_gio:
-            logging.debug("Using GIO: %s", self.gvfsControlsMounts)
+            logging.debug("GVFS (GIO) controls mounts: %s", self.gvfsControlsMounts)
 
         if not self.gvfsControlsMounts:
             # Monitor when the user adds or removes a camera
@@ -4316,21 +4316,34 @@ Do you want to proceed with the download?
             title =_('Rapid Photo Downloader')
             message = _(
                 '<b>All files on the %(camera)s are inaccessible</b>.<br><br>It '
-                'may be locked or not configured for file transfers using MTP. '
+                'may be locked or not configured for file transfers using USB. '
                 'You can unlock it and try again.<br><br>On some models you also '
-                'need to change the setting <i>USB for charging</i> to <i>USB for '
-                'file transfers</i>.<br><br>Alternatively, you can ignore this '
-                'device.'
+                'need to change the setting to allow the use of USB for '
+                '<i>File Transfer</i>.<br><br>'
+                'Learn more about '
+                '<a href="https://damonlynch.net/rapid/documentation/#downloadingfromcameras">'
+                'downloading from cameras</a> and '
+                '<a href="https://damonlynch.net/rapid/documentation/#downloadingfromphones">'
+                'enabling downloading from phones</a>. <br><br>'
+                'Alternatively, you can ignore the %(camera)s.'
             ) % {'camera': camera_model}
         else:
             assert error_code == CameraErrorCode.inaccessible
             title = _('Rapid Photo Downloader')
             message = _(
                 '<b>The %(camera)s appears to be in use by another '
-                'application.</b><br><br>You can close any other application (such as a file '
-                'browser) that is using it and try again. If that does not work, unplug the '
-                '%(camera)s from the computer and plug it in again.<br><br>Alternatively, you '
-                'can ignore this device.'
+                'application.</b><br><br>Rapid Photo Downloader cannnot access a phone or camera '
+                'that is being used by another program like a file manager.<br><br>'
+                'If the device is mounted in your file manager, you must first &quot;eject&quot; '
+                'it from the other program while keeping the %(camera)s plugged in.<br><br>'
+                'If that does not work, unplug the '
+                '%(camera)s from the computer and plug it in again.<br><br>'
+                'Learn more about '
+                '<a href="https://damonlynch.net/rapid/documentation/#downloadingfromcameras">'
+                'downloading from cameras</a> and '
+                '<a href="https://damonlynch.net/rapid/documentation/#downloadingfromphones">'
+                'enabling downloading from phones</a>. <br><br>'
+                'Alternatively, you can ignore the %(camera)s.'
             ) % {'camera':camera_model}
 
         msgBox = QMessageBox(
@@ -4760,9 +4773,14 @@ Do you want to proceed with the download?
 
         if self.gvfsControlsMounts:
             self.devices.cameras_to_gvfs_unmount_for_scan[port] = model
-            if self.gvolumeMonitor.unmountCamera(model=model, port=port, on_startup=on_startup):
+            unmounted = self.gvolumeMonitor.unmountCamera(
+                model=model, port=port, on_startup=on_startup
+            )
+            if unmounted:
+                logging.debug("Successfully unmounted %s", model)
                 return True
             else:
+                logging.warning("Failed to automatically unmount %s", model)
                 del self.devices.cameras_to_gvfs_unmount_for_scan[port]
         return False
 
@@ -4898,6 +4916,7 @@ Do you want to proceed with the download?
         :param on_startup: if True, the scan is occurring during
          the program's startup phase
         """
+
 
         scan_id = self.devices.add_device(device=device, on_startup=on_startup)
         logging.debug("Assigning scan id %s to %s", scan_id, device.name())

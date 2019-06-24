@@ -484,6 +484,7 @@ def standardProgressBarWidth() -> int:
     return int(QFontMetrics(QFont()).height() * 20)
 
 
+# Be sure to update gvfs_controls_mounts() if updating this
 class Desktop(Enum):
     gnome = 1
     unity = 2

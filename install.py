@@ -73,7 +73,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = '0.2.6'
+__version__ = '0.2.7'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 

@@ -170,13 +170,16 @@ class Camera:
             self.camera_initialized = True
         except gp.GPhoto2Error as e:
             if e.code == gp.GP_ERROR_IO_USB_CLAIM:
+                error_code = CameraErrorCode.inaccessible
                 logging.error("{} is already mounted".format(model))
             elif e.code == gp.GP_ERROR:
                 logging.error("An error occurred initializing the camera using libgphoto2")
+                error_code = CameraErrorCode.inaccessible
             else:
                 logging.error("Unable to access camera: %s", gphoto2_named_error(e.code))
+                error_code = CameraErrorCode.locked
             if raise_errors:
-                raise CameraProblemEx(CameraErrorCode.inaccessible, gp_exception=e)
+                raise CameraProblemEx(error_code, gp_exception=e)
             return
 
         concise_model_name = self._concise_model_name()
