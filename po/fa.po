@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2018-11-06 13:43-0500\n"
+"POT-Creation-Date: 2019-06-24 13:44-0400\n"
 "PO-Revision-Date: 2018-11-06 19:47+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Persian <fa@li.org>\n"
+"Language: fa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2019-03-30 00:28+0000\n"
 "X-Generator: Launchpad (build 18910)\n"
-"Language: fa\n"
 
 #: ../install.py:69
 msgid ""
@@ -39,12 +39,12 @@ msgid ""
 "repository such as rpmfusion.org."
 msgstr ""
 
-#: ../install.py:302 ../install.py:2608
+#: ../install.py:302 ../install.py:2626
 msgid "Installer not found:"
 msgstr ""
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:306 ../install.py:2612
+#: ../install.py:306 ../install.py:2630
 msgid "Installer not in tar.gz format:"
 msgstr ""
 
@@ -52,143 +52,143 @@ msgstr ""
 msgid "{} will be upgraded from version {} to version {}"
 msgstr ""
 
-#: ../install.py:750
+#: ../install.py:720
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
 "permissions for"
 msgstr ""
 
-#: ../install.py:832
+#: ../install.py:850
 msgid "The following command will be run:"
 msgstr ""
 
-#: ../install.py:835 ../install.py:2274 ../install.py:2285
+#: ../install.py:853 ../install.py:2292 ../install.py:2303
 msgid "sudo may prompt you for the sudo password."
 msgstr ""
 
-#: ../install.py:839
+#: ../install.py:857
 msgid "Would you like to run the command now?"
 msgstr ""
 
-#: ../install.py:841
+#: ../install.py:859
 msgid "Answer is not yes, exiting."
 msgstr ""
 
-#: ../install.py:852 ../install.py:1247 ../install.py:1300 ../install.py:1641
-#: ../install.py:1688
+#: ../install.py:870 ../install.py:1265 ../install.py:1318 ../install.py:1659
+#: ../install.py:1706
 msgid "Command failed"
 msgstr ""
 
-#: ../install.py:854 ../install.py:1248 ../install.py:1301 ../install.py:1642
-#: ../install.py:1689
+#: ../install.py:872 ../install.py:1266 ../install.py:1319 ../install.py:1660
+#: ../install.py:1707
 msgid "Exiting"
 msgstr ""
 
-#: ../install.py:875
+#: ../install.py:893
 msgid "The Universe repository must be enabled."
 msgstr ""
 
-#: ../install.py:896
+#: ../install.py:914
 msgid "The IUS Community repository must be enabled."
 msgstr ""
 
-#: ../install.py:921
+#: ../install.py:939
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
 msgstr ""
 
-#: ../install.py:1227 ../install.py:1254 ../install.py:1284
+#: ../install.py:1245 ../install.py:1272 ../install.py:1302
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
 msgstr ""
 
-#: ../install.py:1242
+#: ../install.py:1260
 msgid "Uninstalling system package"
 msgstr ""
 
-#: ../install.py:1265
+#: ../install.py:1283
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again"
 msgstr ""
 
-#: ../install.py:1305
+#: ../install.py:1323
 msgid "Checking if previous version installed with pip..."
 msgstr ""
 
-#: ../install.py:1438 ../install.py:1465 ../install.py:1536
+#: ../install.py:1456 ../install.py:1483 ../install.py:1554
 msgid "The following package is unknown on your system: {}\n"
 msgstr ""
 
-#: ../install.py:1478 ../install.py:1593 ../install.py:1649 ../install.py:1696
+#: ../install.py:1496 ../install.py:1611 ../install.py:1667 ../install.py:1714
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
 
-#: ../install.py:1530 ../install.py:1550
+#: ../install.py:1548 ../install.py:1568
 msgid "Querying installed and available packages (this may take a while)"
 msgstr ""
 
-#: ../install.py:1633
+#: ../install.py:1651
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr ""
 
-#: ../install.py:1681
+#: ../install.py:1699
 msgid ""
 "Querying yum to see if any required packages are already installed (this may "
 "take a while)... "
 msgstr ""
 
-#: ../install.py:1729
+#: ../install.py:1747
 msgid "Query to confirm action at each step."
 msgstr ""
 
-#: ../install.py:1736
+#: ../install.py:1754
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
 msgstr ""
 
-#: ../install.py:1745
+#: ../install.py:1763
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
 
-#: ../install.py:1768
+#: ../install.py:1786
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
 "whichever installer is newer."
 msgstr ""
 
-#: ../install.py:1775
+#: ../install.py:1793
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
 msgstr ""
 
-#: ../install.py:1779
+#: ../install.py:1797
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
 
-#: ../install.py:1784
+#: ../install.py:1802
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr ""
 
-#: ../install.py:1791
+#: ../install.py:1809
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
 
-#: ../install.py:1797
+#: ../install.py:1815
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -198,21 +198,21 @@ msgid ""
 "not be uninstalled."
 msgstr ""
 
-#: ../install.py:1818
+#: ../install.py:1836
 msgid ""
 "Install in current Python virtual environment. Virtual environments created "
 "with the --system-site-packages option are not supported."
 msgstr ""
 
-#: ../install.py:1855
+#: ../install.py:1873
 msgid "Failed to download versions file"
 msgstr ""
 
-#: ../install.py:1859
+#: ../install.py:1877
 msgid "Got error code {} while accessing versions file"
 msgstr ""
 
-#: ../install.py:1967
+#: ../install.py:1985
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -220,157 +220,157 @@ msgid ""
 "Exiting.\n"
 msgstr ""
 
-#: ../install.py:2096
+#: ../install.py:2114
 msgid "Received error code"
 msgstr ""
 
-#: ../install.py:2098
+#: ../install.py:2116
 msgid "Failed to install application requirements: exiting"
 msgstr ""
 
-#: ../install.py:2100
+#: ../install.py:2118
 msgid "Failed to install application: exiting..."
 msgstr ""
 
-#: ../install.py:2181
+#: ../install.py:2199
 msgid "Installing application requirements..."
 msgstr ""
 
-#: ../install.py:2206
+#: ../install.py:2224
 msgid "Installing application..."
 msgstr ""
 
-#: ../install.py:2260
+#: ../install.py:2278
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "commmand line or application launcher."
 msgstr ""
 
-#: ../install.py:2271
+#: ../install.py:2289
 msgid "Do you want to install the application's man pages?"
 msgstr ""
 
-#: ../install.py:2272
+#: ../install.py:2290
 msgid "They will be installed into {}"
 msgstr ""
 
-#: ../install.py:2273 ../install.py:2284
+#: ../install.py:2291 ../install.py:2302
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr ""
 
-#: ../install.py:2275
+#: ../install.py:2293
 msgid "Do want to install the man pages?"
 msgstr ""
 
 #. Keep man pages in install location only
 #. Translators: do not translate {}/share/man/man1
-#: ../install.py:2280
+#: ../install.py:2298
 msgid "Man pages can be found in {}/share/man/man1"
 msgstr ""
 
-#: ../install.py:2283
+#: ../install.py:2301
 msgid "Installing man pages into {}"
 msgstr ""
 
-#: ../install.py:2298
+#: ../install.py:2316
 msgid "Failed to create man page directory: exiting"
 msgstr ""
 
-#: ../install.py:2319
+#: ../install.py:2337
 msgid "Failed to copy man page."
 msgstr ""
 
-#: ../install.py:2334
+#: ../install.py:2352
 msgid ""
 "Rapid Photo Downloader can be started without activating the virtual "
 "environment by running {}/bin/rapid-photo-downloader"
 msgstr ""
 
-#: ../install.py:2343
+#: ../install.py:2361
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
 
-#: ../install.py:2356
+#: ../install.py:2374
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
 "Cannot continue. Exiting."
 msgstr ""
 
-#: ../install.py:2399
+#: ../install.py:2417
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
 msgstr ""
 
-#: ../install.py:2410
+#: ../install.py:2428
 msgid ""
 "Do you want to install Rapid Photo Downloader into the current virtual "
 "environment?"
 msgstr ""
 
-#: ../install.py:2421
+#: ../install.py:2439
 msgid ""
 "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
 "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
 msgstr ""
 
-#: ../install.py:2431
+#: ../install.py:2449
 msgid ""
 "To install Rapid Photo Downloader into a Python virtual environment, create "
 "and activate the virtual environment before starting this script."
 msgstr ""
 
-#: ../install.py:2439
+#: ../install.py:2457
 msgid "Using virtual environment for installation using pip."
 msgstr ""
 
-#: ../install.py:2444 ../install.py:2458
+#: ../install.py:2462 ../install.py:2476
 msgid "Do not include any other command line arguments when specifying"
 msgstr ""
 
-#: ../install.py:2473
+#: ../install.py:2491
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
 msgstr ""
 
-#: ../install.py:2480
+#: ../install.py:2498
 msgid "Restarting script using system python..."
 msgstr ""
 
-#: ../install.py:2492
+#: ../install.py:2510
 msgid "Detected Linux distribution {} {}"
 msgstr ""
 
-#: ../install.py:2514
+#: ../install.py:2532
 msgid "Exiting..."
 msgstr ""
 
 #. Translators: do not translate the term python3-apt
-#: ../install.py:2536
+#: ../install.py:2554
 msgid "To continue, the package python3-apt must be installed."
 msgstr ""
 
-#: ../install.py:2555
+#: ../install.py:2573
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
 
-#: ../install.py:2565
+#: ../install.py:2583
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
 msgstr ""
 
 #. Translators: do not translate the terms Python 3, pip and setuptools
-#: ../install.py:2585
+#: ../install.py:2603
 msgid "Python 3's pip and setuptools must be upgraded for your user."
 msgstr ""
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:2602
+#: ../install.py:2620
 msgid "Installing python requests"
 msgstr ""
 
@@ -428,20 +428,20 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr ""
 
-#: ../upgrade.py:7739
+#: ../upgrade.py:7834
 #, python-format
 msgid "Upgrading %s..."
 msgstr ""
 
-#: ../upgrade.py:7741
+#: ../upgrade.py:7836
 msgid "Press any key to continue..."
 msgstr ""
 
-#: ../upgrade.py:7754
+#: ../upgrade.py:7849
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr ""
 
-#: ../upgrade.py:7756
+#: ../upgrade.py:7851
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
@@ -479,8 +479,8 @@ msgstr ""
 
 #: ../raphodo/backuppanel.py:423
 msgid ""
-"Specify the folder in which backups are stored on the "
-"device.<br><br><i>Note: the presence of a folder with this name is used to "
+"Specify the folder in which backups are stored on the device."
+"<br><br><i>Note: the presence of a folder with this name is used to "
 "determine if the device is used for backups. For each device you wish to use "
 "for backing up to, create a folder in it with one of these folder names. By "
 "adding both folders, the same device can be used to back up both photos and "
@@ -501,8 +501,7 @@ msgid "Example:"
 msgstr ""
 
 #: ../raphodo/backuppanel.py:459
-msgid ""
-"If you disable automatic detection, choose the exact backup locations."
+msgid "If you disable automatic detection, choose the exact backup locations."
 msgstr ""
 
 #. Translators: the word 'location' is optional in your translation. The left
@@ -594,15 +593,15 @@ msgid "%(size_free)s free of %(size_total)s"
 msgstr ""
 
 #: ../raphodo/destinationdisplay.py:193 ../raphodo/devicedisplay.py:999
-#: ../raphodo/rapid.py:2076 ../raphodo/rapid.py:2204 ../raphodo/rapid.py:6182
+#: ../raphodo/rapid.py:2086 ../raphodo/rapid.py:2214 ../raphodo/rapid.py:6215
 #: ../raphodo/rpdfile.py:898
 msgid "Photos"
 msgstr ""
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:194 ../raphodo/devicedisplay.py:1000
-#: ../raphodo/rapid.py:2081 ../raphodo/rapid.py:2205 ../raphodo/rapid.py:6183
-#: ../raphodo/rpdfile.py:926 ../raphodo/storage.py:497
+#: ../raphodo/rapid.py:2091 ../raphodo/rapid.py:2215 ../raphodo/rapid.py:6216
+#: ../raphodo/rpdfile.py:926 ../raphodo/storage.py:498
 msgid "Videos"
 msgstr ""
 
@@ -654,7 +653,7 @@ msgstr ""
 
 #: ../raphodo/devices.py:474 ../raphodo/devices.py:1011
 #: ../raphodo/preferencedialog.py:110 ../raphodo/preferencedialog.py:120
-#: ../raphodo/rapid.py:2032
+#: ../raphodo/rapid.py:2042
 msgid "Devices"
 msgstr ""
 
@@ -669,7 +668,7 @@ msgstr ""
 msgid "%(no_devices)s %(device_type)s"
 msgstr ""
 
-#: ../raphodo/devices.py:996 ../raphodo/rapid.py:1860
+#: ../raphodo/devices.py:996 ../raphodo/rapid.py:1870
 msgid "Select Source"
 msgstr ""
 
@@ -840,12 +839,12 @@ msgid ""
 "different types\n"
 "of directory:\n"
 "<ol>\n"
-"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, "
-"&quot;Photos&quot;, or\n"
+"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, &quot;"
+"Photos&quot;, or\n"
 "&quot;Videos&quot;. This directory should already exist on your computer. In "
 "the illustration \n"
-"below, the destination folders are &quot;Pictures&quot; and "
-"&quot;Videos&quot;. The\n"
+"below, the destination folders are &quot;Pictures&quot; and &quot;"
+"Videos&quot;. The\n"
 "name of the destination folder is displayed in the grey bar directly above "
 "the folder tree, \n"
 "with a folder icon to its left and a gear icon to its far right.</li>\n"
@@ -1039,8 +1038,8 @@ msgid ""
 "names to your photos and \n"
 "videos:\n"
 "<ol>\n"
-"<li><b>Downloads today</b>: tracks downloads completed during that "
-"day.</li>\n"
+"<li><b>Downloads today</b>: tracks downloads completed during that day.</"
+"li>\n"
 "<li><b>Stored number</b>: similar to Downloads today, but it is remembered "
 "from the last time the  \n"
 "program was run.</li>\n"
@@ -1124,8 +1123,8 @@ msgid ""
 "memory cards, and other devices.</li>\n"
 "<li>A <b>temporary cache</b> of files downloaded from a camera, one for "
 "photos and another for \n"
-"videos. They are located in temporary subfolders in the download "
-"destination.</li>\n"
+"videos. They are located in temporary subfolders in the download destination."
+"</li>\n"
 "<li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo Downloader "
 "stores thumbnails of \n"
 "RAW and TIFF photos once they have been downloaded. File browsers like Gnome "
@@ -1330,16 +1329,16 @@ msgid ""
 "Click to open the Error Report."
 msgstr ""
 
-#: ../raphodo/excepthook.py:77
+#: ../raphodo/excepthook.py:82
 msgid "Problem in Rapid Photo Downloader"
 msgstr ""
 
-#: ../raphodo/excepthook.py:81
+#: ../raphodo/excepthook.py:86
 #, python-brace-format
 msgid ""
 "<b>A problem occurred in Rapid Photo Downloader</b><br><br>\n"
-"    Please report the problem at <a "
-"href=\"{website}\">{website}</a>.<br><br>\n"
+"    Please report the problem at <a href=\"{website}\">{website}</a>."
+"<br><br>\n"
 "    Attach the log file <i>{log_file}</i> to your bug report (click\n"
 "    <a href=\"{log_path}\">here</a> to open the log directory).<br><br>If "
 "the same problem occurs\n"
@@ -1347,11 +1346,11 @@ msgid ""
 "    "
 msgstr ""
 
-#: ../raphodo/excepthook.py:98
+#: ../raphodo/excepthook.py:103
 msgid "A problem occurred in Rapid Photo Downloader\n"
 msgstr ""
 
-#: ../raphodo/excepthook.py:99
+#: ../raphodo/excepthook.py:104
 #, python-brace-format
 msgid ""
 "Please report the problem at {website}\n"
@@ -1385,7 +1384,7 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:195 ../raphodo/rapid.py:2178
+#: ../raphodo/generatenameconfig.py:195 ../raphodo/rapid.py:2188
 msgid "Filename"
 msgstr ""
 
@@ -1433,7 +1432,7 @@ msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: ../raphodo/generatenameconfig.py:213 ../raphodo/rapid.py:2179
+#: ../raphodo/generatenameconfig.py:213 ../raphodo/rapid.py:2189
 msgid "Extension"
 msgstr ""
 
@@ -1856,7 +1855,7 @@ msgid "YYYYMM"
 msgstr ""
 
 #: ../raphodo/generatenameconfig.py:406 ../raphodo/jobcodepanel.py:200
-#: ../raphodo/nameeditor.py:848 ../raphodo/rapid.py:1905
+#: ../raphodo/nameeditor.py:848 ../raphodo/rapid.py:1915
 #: ../raphodo/renamepanel.py:85 ../raphodo/renamepanel.py:248
 msgid "Job Code"
 msgstr ""
@@ -1979,8 +1978,7 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:187
-msgid ""
-"The new Job Code will be applied to all selected photos and/or videos."
+msgid "The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 
 #: ../raphodo/jobcodepanel.py:188
@@ -2009,11 +2007,11 @@ msgstr ""
 msgid "Job Code Sort:"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:207 ../raphodo/rapid.py:2186
+#: ../raphodo/jobcodepanel.py:207 ../raphodo/rapid.py:2196
 msgid "Ascending"
 msgstr ""
 
-#: ../raphodo/jobcodepanel.py:208 ../raphodo/rapid.py:2187
+#: ../raphodo/jobcodepanel.py:208 ../raphodo/rapid.py:2197
 msgid "Descending"
 msgstr ""
 
@@ -2152,10 +2150,10 @@ msgstr ""
 
 #: ../raphodo/nameeditor.py:1402
 msgid ""
-"<b>Do you want to save the changes in a new custom "
-"preset?</b><br><br>Creating a custom preset is not required, but can help "
-"you keep organized.<br><br>The changes to the preferences will still be "
-"applied regardless of whether you create a new custom preset or not."
+"<b>Do you want to save the changes in a new custom preset?</"
+"b><br><br>Creating a custom preset is not required, but can help you keep "
+"organized.<br><br>The changes to the preferences will still be applied "
+"regardless of whether you create a new custom preset or not."
 msgstr ""
 
 #: ../raphodo/nameeditor.py:1413
@@ -2170,55 +2168,55 @@ msgstr ""
 msgid "Save New Custom Preset"
 msgstr ""
 
-#: ../raphodo/newversion.py:305
+#: ../raphodo/newversion.py:313
 msgid "Checking for new version..."
 msgstr ""
 
-#: ../raphodo/newversion.py:306
+#: ../raphodo/newversion.py:314
 msgid "You are running the latest version."
 msgstr ""
 
-#: ../raphodo/newversion.py:307
+#: ../raphodo/newversion.py:315
 msgid "Failed to contact the update server."
 msgstr ""
 
-#: ../raphodo/newversion.py:309
+#: ../raphodo/newversion.py:317
 #, python-format
 msgid "A new version of Rapid Photo Downloader (%s) is available."
 msgstr ""
 
-#: ../raphodo/newversion.py:311
+#: ../raphodo/newversion.py:319
 msgid "Do you want to download the new version?"
 msgstr ""
 
-#: ../raphodo/newversion.py:312
+#: ../raphodo/newversion.py:320
 #, python-format
 msgid "Changes in the new release can be viewed <a href=\"%s\">here</a>."
 msgstr ""
 
 #. Translators: this text appears in a button - the & sets the s key in combination with
 #. the alt key to act as the keyboard shortcut
-#: ../raphodo/newversion.py:341 ../raphodo/newversion.py:356
+#: ../raphodo/newversion.py:349 ../raphodo/newversion.py:364
 msgid "&Skip this release"
 msgstr ""
 
 #. Translators: this text appears in a button - the & sets the o key in combination with
 #. the alt key to act as the keyboard shortcut
-#: ../raphodo/newversion.py:359
+#: ../raphodo/newversion.py:367
 msgid "&Open Download Page"
 msgstr ""
 
-#: ../raphodo/newversion.py:379
+#: ../raphodo/newversion.py:387
 msgid "Rapid Photo Downloader updates"
 msgstr ""
 
 #. Translators: shows how much of a file has been downloaded e.g  123 KB of 1.3 MB
-#: ../raphodo/newversion.py:481
+#: ../raphodo/newversion.py:489
 #, python-format
 msgid "%(downloaded)s of %(total)s"
 msgstr ""
 
-#: ../raphodo/newversion.py:500
+#: ../raphodo/newversion.py:508
 msgid "Downloading..."
 msgstr ""
 
@@ -2366,9 +2364,8 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:241
 msgid ""
-"Use python-style <a "
-"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\">regula"
-"r expressions</a>"
+"Use python-style <a href=\"http://damonlynch.net/rapid/documentation/"
+"#regularexpressions\">regular expressions</a>"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:245
@@ -2567,8 +2564,7 @@ msgid "Backup destinations are missing"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:504
-msgid ""
-"Warn before starting a download if it is not possible to back up files."
+msgid "Warn before starting a download if it is not possible to back up files."
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:506
@@ -3292,61 +3288,61 @@ msgstr ""
 msgid "Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)"
 msgstr ""
 
-#: ../raphodo/rapid.py:510 ../raphodo/rapid.py:2610 ../raphodo/rapid.py:4010
-#: ../raphodo/rapid.py:4141 ../raphodo/rapid.py:4145 ../raphodo/rapid.py:4168
-#: ../raphodo/rapid.py:4172 ../raphodo/rapid.py:4306 ../raphodo/rapid.py:4317
-#: ../raphodo/rapid.py:4818 ../raphodo/rapid.py:5271 ../raphodo/rapid.py:6136
+#: ../raphodo/rapid.py:511 ../raphodo/rapid.py:2620 ../raphodo/rapid.py:4020
+#: ../raphodo/rapid.py:4151 ../raphodo/rapid.py:4155 ../raphodo/rapid.py:4178
+#: ../raphodo/rapid.py:4182 ../raphodo/rapid.py:4316 ../raphodo/rapid.py:4332
+#: ../raphodo/rapid.py:4846 ../raphodo/rapid.py:5300 ../raphodo/rapid.py:6169
 #: ../raphodo/rememberthisdialog.py:99
 #: ../data/net.damonlynch.rapid-photo-downloader.desktop.in.h:3
 msgid "Rapid Photo Downloader"
 msgstr ""
 
-#: ../raphodo/rapid.py:1172
+#: ../raphodo/rapid.py:1173
 msgid ""
 "<b>ExifTool has a problem</b><br><br> Rapid Photo Downloader uses ExifTool "
 "to get metadata from videos and photos. The program will run without it, but "
 "installing it is <b>highly</b> recommended."
 msgstr ""
 
-#: ../raphodo/rapid.py:1182 ../raphodo/rapid.py:1202
+#: ../raphodo/rapid.py:1183 ../raphodo/rapid.py:1203
 msgid "Problem with libmediainfo"
 msgstr ""
 
-#: ../raphodo/rapid.py:1191
+#: ../raphodo/rapid.py:1192
 msgid ""
 "<b>The library libmediainfo appears to be missing</b><br><br> Rapid Photo "
 "Downloader uses libmediainfo to get the date and time a video was shot. The "
 "program will run  without it, but installing it is recommended."
 msgstr ""
 
-#: ../raphodo/rapid.py:1499
+#: ../raphodo/rapid.py:1509
 msgid "Download failed"
 msgstr ""
 
-#: ../raphodo/rapid.py:1501
+#: ../raphodo/rapid.py:1511
 msgid ""
 "Sorry, the download of the new version of Rapid Photo Downloader failed."
 msgstr ""
 
-#: ../raphodo/rapid.py:1508
+#: ../raphodo/rapid.py:1518
 msgid ""
 "The new version was successfully downloaded. Do you want to close Rapid "
 "Photo Downloader and install it now?"
 msgstr ""
 
-#: ../raphodo/rapid.py:1512
+#: ../raphodo/rapid.py:1522
 msgid "Update Rapid Photo Downloader"
 msgstr ""
 
-#: ../raphodo/rapid.py:1516
+#: ../raphodo/rapid.py:1526
 msgid "Install"
 msgstr ""
 
-#: ../raphodo/rapid.py:1534
+#: ../raphodo/rapid.py:1544
 msgid "New version saved"
 msgstr ""
 
-#: ../raphodo/rapid.py:1536
+#: ../raphodo/rapid.py:1546
 #, python-format
 msgid ""
 "The tar file and installer script are saved at:\n"
@@ -3354,163 +3350,163 @@ msgid ""
 " %s"
 msgstr ""
 
-#: ../raphodo/rapid.py:1553
+#: ../raphodo/rapid.py:1563
 msgid "Upgrade failed"
 msgstr ""
 
-#: ../raphodo/rapid.py:1556
+#: ../raphodo/rapid.py:1566
 msgid ""
 "Sorry, upgrading Rapid Photo Downloader failed because there was an error "
 "opening the installer."
 msgstr ""
 
-#: ../raphodo/rapid.py:1762 ../raphodo/rapid.py:2478
+#: ../raphodo/rapid.py:1772 ../raphodo/rapid.py:2488
 msgid "Download"
 msgstr ""
 
-#: ../raphodo/rapid.py:1766
+#: ../raphodo/rapid.py:1776
 msgid "&Refresh..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1770
+#: ../raphodo/rapid.py:1780
 msgid "&Preferences"
 msgstr ""
 
-#: ../raphodo/rapid.py:1774
+#: ../raphodo/rapid.py:1784
 msgid "&Quit"
 msgstr ""
 
-#: ../raphodo/rapid.py:1778
+#: ../raphodo/rapid.py:1788
 msgid "Error &Reports"
 msgstr ""
 
-#: ../raphodo/rapid.py:1782
+#: ../raphodo/rapid.py:1792
 msgid "Clear Completed Downloads"
 msgstr ""
 
-#: ../raphodo/rapid.py:1786
+#: ../raphodo/rapid.py:1796
 msgid "Get Help Online..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1790
+#: ../raphodo/rapid.py:1800
 msgid "&Tip of the Day..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1794
+#: ../raphodo/rapid.py:1804
 msgid "Report a Problem..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1798
+#: ../raphodo/rapid.py:1808
 msgid "Make a Donation..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1802
+#: ../raphodo/rapid.py:1812
 msgid "Translate this Application..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1806
+#: ../raphodo/rapid.py:1816
 msgid "&About..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1810
+#: ../raphodo/rapid.py:1820
 msgid "Check for Updates..."
 msgstr ""
 
-#: ../raphodo/rapid.py:1893
+#: ../raphodo/rapid.py:1903
 msgid "Timeline"
 msgstr ""
 
-#: ../raphodo/rapid.py:1903
+#: ../raphodo/rapid.py:1913
 msgid "Destination"
 msgstr ""
 
-#: ../raphodo/rapid.py:1904
+#: ../raphodo/rapid.py:1914
 msgid "Rename"
 msgstr ""
 
-#: ../raphodo/rapid.py:1906
+#: ../raphodo/rapid.py:1916
 msgid "Back Up"
 msgstr ""
 
 #. Devices Header and View
-#: ../raphodo/rapid.py:2030
+#: ../raphodo/rapid.py:2040
 msgid ""
 "Turn on or off the use of devices attached to this computer as download "
 "sources"
 msgstr ""
 
 #. This Computer Header and View
-#: ../raphodo/rapid.py:2047
+#: ../raphodo/rapid.py:2057
 msgid ""
 "Turn on or off the use of a folder on this computer as a download source"
 msgstr ""
 
-#: ../raphodo/rapid.py:2049
+#: ../raphodo/rapid.py:2059
 msgid "This Computer"
 msgstr ""
 
-#: ../raphodo/rapid.py:2062
+#: ../raphodo/rapid.py:2072
 msgid "Select a source folder"
 msgstr ""
 
-#: ../raphodo/rapid.py:2091
+#: ../raphodo/rapid.py:2101
 msgid "Projected Storage Use"
 msgstr ""
 
-#: ../raphodo/rapid.py:2109 ../raphodo/rapid.py:2121
+#: ../raphodo/rapid.py:2119 ../raphodo/rapid.py:2131
 msgid "Select a destination folder"
 msgstr ""
 
-#: ../raphodo/rapid.py:2170
+#: ../raphodo/rapid.py:2180
 msgid "All"
 msgstr ""
 
-#: ../raphodo/rapid.py:2171
+#: ../raphodo/rapid.py:2181
 msgid "New"
 msgstr ""
 
-#: ../raphodo/rapid.py:2173
+#: ../raphodo/rapid.py:2183
 msgid "Show:"
 msgstr ""
 
-#: ../raphodo/rapid.py:2176
+#: ../raphodo/rapid.py:2186
 msgid "Modification Time"
 msgstr ""
 
-#: ../raphodo/rapid.py:2177
+#: ../raphodo/rapid.py:2187
 msgid "Checked State"
 msgstr ""
 
-#: ../raphodo/rapid.py:2180
+#: ../raphodo/rapid.py:2190
 msgid "File Type"
 msgstr ""
 
-#: ../raphodo/rapid.py:2181
+#: ../raphodo/rapid.py:2191
 msgid "Device"
 msgstr ""
 
-#: ../raphodo/rapid.py:2183
+#: ../raphodo/rapid.py:2193
 msgid "Sort:"
 msgstr ""
 
-#: ../raphodo/rapid.py:2194
+#: ../raphodo/rapid.py:2204
 msgid "Select All:"
 msgstr ""
 
-#: ../raphodo/rapid.py:2458
+#: ../raphodo/rapid.py:2468
 #, python-format
 msgid "Download %(files)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:2474
+#: ../raphodo/rapid.py:2484
 msgid "Resume Download"
 msgstr ""
 
-#: ../raphodo/rapid.py:2476
+#: ../raphodo/rapid.py:2486
 msgid "Pause"
 msgstr ""
 
-#: ../raphodo/rapid.py:2566
+#: ../raphodo/rapid.py:2576
 #, python-brace-format
 msgid ""
 "Please report the problem at <a href=\"{website}\">{website}</a>.<br><br>\n"
@@ -3519,11 +3515,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: ../raphodo/rapid.py:2580
+#: ../raphodo/rapid.py:2590
 msgid "Thank you for reporting a problem in Rapid Photo Downloader"
 msgstr ""
 
-#: ../raphodo/rapid.py:2693
+#: ../raphodo/rapid.py:2703
 #, python-format
 msgid ""
 "<b>Changing This Computer source path</b><br><br>Do you really want to "
@@ -3532,18 +3528,18 @@ msgid ""
 "from This Computer will be cancelled."
 msgstr ""
 
-#: ../raphodo/rapid.py:2763
+#: ../raphodo/rapid.py:2773
 msgid "You cannot change the download destination while downloading."
 msgstr ""
 
-#: ../raphodo/rapid.py:2773
+#: ../raphodo/rapid.py:2783
 #, python-format
 msgid ""
 "<b>Confirm Download Destination</b><br><br>Are you sure you want to set the "
 "%(file_type)s download destination to %(path)s?"
 msgstr ""
 
-#: ../raphodo/rapid.py:2854
+#: ../raphodo/rapid.py:2864
 msgid ""
 "\n"
 "<b>Downloading all files</b><br><br>\n"
@@ -3554,7 +3550,7 @@ msgid ""
 "                        "
 msgstr ""
 
-#: ../raphodo/rapid.py:3006
+#: ../raphodo/rapid.py:3016
 #, python-format
 msgid ""
 "These download folders are invalid:\n"
@@ -3562,412 +3558,421 @@ msgid ""
 "%(folder2)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:3009
+#: ../raphodo/rapid.py:3019
 #, python-format
 msgid ""
 "This download folder is invalid:\n"
 "%s"
 msgstr ""
 
-#: ../raphodo/rapid.py:3012
+#: ../raphodo/rapid.py:3022
 msgid "Download Failure"
 msgstr ""
 
-#: ../raphodo/rapid.py:3013
+#: ../raphodo/rapid.py:3023
 msgid "The download cannot proceed."
 msgstr ""
 
-#: ../raphodo/rapid.py:3031
+#: ../raphodo/rapid.py:3041
 msgid ""
 "Photos and videos will not be backed up because there is nowhere to back "
 "them up. Do you still want to start the download?"
 msgstr ""
 
-#: ../raphodo/rapid.py:3038 ../raphodo/rapid.py:3048
+#: ../raphodo/rapid.py:3048 ../raphodo/rapid.py:3058
 #, python-format
 msgid ""
 "No backup device exists for backing up %(filetype)s. Do you still want to "
 "start the download?"
 msgstr ""
 
-#: ../raphodo/rapid.py:3040 ../raphodo/rpdfile.py:165
+#: ../raphodo/rapid.py:3050 ../raphodo/rpdfile.py:165
 msgid "photos"
 msgstr ""
 
-#: ../raphodo/rapid.py:3050 ../raphodo/rpdfile.py:160
+#: ../raphodo/rapid.py:3060 ../raphodo/rpdfile.py:160
 msgid "videos"
 msgstr ""
 
-#: ../raphodo/rapid.py:3058
+#: ../raphodo/rapid.py:3068
 msgid ""
 "<b>The photo and video backup destinations do not exist or cannot be written "
 "to.</b><br><br>Do you still want to start the download?"
 msgstr ""
 
-#: ../raphodo/rapid.py:3068 ../raphodo/rapid.py:3077
+#: ../raphodo/rapid.py:3078 ../raphodo/rapid.py:3087
 #, python-format
 msgid ""
 "<b>The %(filetype)s backup destination does not exist or cannot be written "
 "to.</b><br><br>Do you still want to start the download?"
 msgstr ""
 
-#: ../raphodo/rapid.py:3070 ../raphodo/rpdfile.py:167 ../raphodo/rpdfile.py:803
+#: ../raphodo/rapid.py:3080 ../raphodo/rpdfile.py:167 ../raphodo/rpdfile.py:803
 msgid "photo"
 msgstr ""
 
-#: ../raphodo/rapid.py:3079 ../raphodo/rpdfile.py:162 ../raphodo/rpdfile.py:851
+#: ../raphodo/rapid.py:3089 ../raphodo/rpdfile.py:162 ../raphodo/rpdfile.py:851
 msgid "video"
 msgstr ""
 
-#: ../raphodo/rapid.py:3087
+#: ../raphodo/rapid.py:3097
 msgid "Backup problem"
 msgstr ""
 
-#: ../raphodo/rapid.py:3832
+#: ../raphodo/rapid.py:3842
 #, python-format
 msgid "%(downloading_from)s — %(time_left)s left (%(speed)s)"
 msgstr ""
 
-#: ../raphodo/rapid.py:3904
+#: ../raphodo/rapid.py:3914
 #, python-format
 msgid "%(noFiles)s %(filetypes)s downloaded"
 msgstr ""
 
-#: ../raphodo/rapid.py:3912
+#: ../raphodo/rapid.py:3922
 #, python-format
 msgid "%(noFiles)s %(filetypes)s failed to download"
 msgstr ""
 
-#: ../raphodo/rapid.py:3918 ../raphodo/rapid.py:4003
+#: ../raphodo/rapid.py:3928 ../raphodo/rapid.py:4013
 msgid "warnings"
 msgstr ""
 
-#: ../raphodo/rapid.py:3949
+#: ../raphodo/rapid.py:3959
 msgid "All downloads complete"
 msgstr ""
 
-#: ../raphodo/rapid.py:3957 ../raphodo/rapid.py:3968 ../raphodo/rapid.py:3979
-#: ../raphodo/rapid.py:3990 ../raphodo/rapid.py:4000
+#: ../raphodo/rapid.py:3967 ../raphodo/rapid.py:3978 ../raphodo/rapid.py:3989
+#: ../raphodo/rapid.py:4000 ../raphodo/rapid.py:4010
 #, python-format
 msgid "%(number)s %(numberdownloaded)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:3960 ../raphodo/rapid.py:3982
+#: ../raphodo/rapid.py:3970 ../raphodo/rapid.py:3992
 #, python-format
 msgid "%(filetype)s downloaded"
 msgstr ""
 
-#: ../raphodo/rapid.py:3971 ../raphodo/rapid.py:3993
+#: ../raphodo/rapid.py:3981 ../raphodo/rapid.py:4003
 #, python-format
 msgid "%(filetype)s failed to download"
 msgstr ""
 
-#: ../raphodo/rapid.py:4026
+#: ../raphodo/rapid.py:4036
 msgid "1 failure"
 msgstr ""
 
-#: ../raphodo/rapid.py:4028
+#: ../raphodo/rapid.py:4038
 #, python-format
 msgid "%d failures"
 msgstr ""
 
-#: ../raphodo/rapid.py:4033
+#: ../raphodo/rapid.py:4043
 msgid "1 warning"
 msgstr ""
 
-#: ../raphodo/rapid.py:4035
+#: ../raphodo/rapid.py:4045
 #, python-format
 msgid "%d warnings"
 msgstr ""
 
-#: ../raphodo/rapid.py:4057
+#: ../raphodo/rapid.py:4067
 #, python-format
 msgid "Downloaded %(no_files_and_types)s from %(devices)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:4061
+#: ../raphodo/rapid.py:4071
 #, python-format
 msgid "Downloaded %(no_files_and_types)s from %(devices)s — %(failures)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:4065
+#: ../raphodo/rapid.py:4075
 #, python-format
 msgid "No files downloaded — %(failures)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:4067
+#: ../raphodo/rapid.py:4077
 msgid "No files downloaded"
-msgstr ""
-
-#: ../raphodo/rapid.py:4097
-#, python-format
-msgid ""
-"The Destination subfolders and Timeline will be rebuilt after all thumbnails "
-"have been generated for the %(camera)s"
-msgstr ""
-
-#: ../raphodo/rapid.py:4102
-msgid ""
-"The Destination subfolders and Timeline will be rebuilt after all thumbnails "
-"have been generated for this computer"
 msgstr ""
 
 #: ../raphodo/rapid.py:4107
 #, python-format
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
+"have been generated for the %(camera)s"
+msgstr ""
+
+#: ../raphodo/rapid.py:4112
+msgid ""
+"The Destination subfolders and Timeline will be rebuilt after all thumbnails "
+"have been generated for this computer"
+msgstr ""
+
+#: ../raphodo/rapid.py:4117
+#, python-format
+msgid ""
+"The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(device)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:4115
+#: ../raphodo/rapid.py:4125
 #, python-format
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(number_devices)s devices and this computer"
 msgstr ""
 
-#: ../raphodo/rapid.py:4128
+#: ../raphodo/rapid.py:4138
 #, python-format
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for the %(camera)s and this computer"
 msgstr ""
 
-#: ../raphodo/rapid.py:4132
+#: ../raphodo/rapid.py:4142
 #, python-format
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(device)s and this computer"
 msgstr ""
 
-#: ../raphodo/rapid.py:4136
+#: ../raphodo/rapid.py:4146
 #, python-format
 msgid ""
 "The Destination subfolders and Timeline will be rebuilt after all thumbnails "
 "have been generated for %(number_devices)s devices"
 msgstr ""
 
-#: ../raphodo/rapid.py:4163
+#: ../raphodo/rapid.py:4173
 msgid "The Destination subfolders and Timeline have been rebuilt"
 msgstr ""
 
-#: ../raphodo/rapid.py:4220
+#: ../raphodo/rapid.py:4230
 msgid "Program preferences are invalid"
 msgstr ""
 
-#: ../raphodo/rapid.py:4308
+#: ../raphodo/rapid.py:4318
 #, python-format
 msgid ""
 "<b>All files on the %(camera)s are inaccessible</b>.<br><br>It may be locked "
-"or not configured for file transfers using MTP. You can unlock it and try "
-"again.<br><br>On some models you also need to change the setting <i>USB for "
-"charging</i> to <i>USB for file transfers</i>.<br><br>Alternatively, you can "
-"ignore this device."
+"or not configured for file transfers using USB. You can unlock it and try "
+"again.<br><br>On some models you also need to change the setting to allow "
+"the use of USB for <i>File Transfer</i>.<br><br>Learn more about <a href="
+"\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras"
+"\">downloading from cameras</a> and <a href=\"https://damonlynch.net/rapid/"
+"documentation/#downloadingfromphones\">enabling downloading from phones</a>. "
+"<br><br>Alternatively, you can ignore the %(camera)s."
 msgstr ""
 
-#: ../raphodo/rapid.py:4319
+#: ../raphodo/rapid.py:4334
 #, python-format
 msgid ""
-"<b>The %(camera)s appears to be in use by another "
-"application.</b><br><br>You can close any other application (such as a file "
-"browser) that is using it and try again. If that does not work, unplug the "
-"%(camera)s from the computer and plug it in again.<br><br>Alternatively, you "
-"can ignore this device."
+"<b>The %(camera)s appears to be in use by another application.</"
+"b><br><br>Rapid Photo Downloader cannnot access a phone or camera that is "
+"being used by another program like a file manager.<br><br>If the device is "
+"mounted in your file manager, you must first &quot;eject&quot; it from the "
+"other program while keeping the %(camera)s plugged in.<br><br>If that does "
+"not work, unplug the %(camera)s from the computer and plug it in again."
+"<br><br>Learn more about <a href=\"https://damonlynch.net/rapid/"
+"documentation/#downloadingfromcameras\">downloading from cameras</a> and <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones"
+"\">enabling downloading from phones</a>. <br><br>Alternatively, you can "
+"ignore the %(camera)s."
 msgstr ""
 
-#: ../raphodo/rapid.py:4330
+#: ../raphodo/rapid.py:4353
 msgid "&Try Again"
 msgstr ""
 
-#: ../raphodo/rapid.py:4331
+#: ../raphodo/rapid.py:4354
 msgid "&Ignore This Device"
 msgstr ""
 
-#: ../raphodo/rapid.py:4403
+#: ../raphodo/rapid.py:4426
 #, python-format
 msgid "Sorry, an unexpected problem occurred while scanning %s."
 msgstr ""
 
-#: ../raphodo/rapid.py:4404
+#: ../raphodo/rapid.py:4427
 msgid "Unfortunately you cannot download from this device."
 msgstr ""
 
-#: ../raphodo/rapid.py:4408
+#: ../raphodo/rapid.py:4431
 msgid ""
 "A possible workaround for the problem might be downloading from the camera's "
 "memory card using a card reader."
 msgstr ""
 
-#: ../raphodo/rapid.py:4413
+#: ../raphodo/rapid.py:4436
 msgid "Device scan failed"
 msgstr ""
 
-#: ../raphodo/rapid.py:4795
+#: ../raphodo/rapid.py:4823
 #, python-format
 msgid ""
-"<b>The %(camera)s cannot be scanned because it cannot be "
-"unmounted.</b><br><br>You can close any other application (such as a file "
-"browser) that is using it and try again. If that does not work, unplug the "
-"%(camera)s from the computer and plug it in again."
+"<b>The %(camera)s cannot be scanned because it cannot be unmounted.</"
+"b><br><br>You can close any other application (such as a file browser) that "
+"is using it and try again. If that does not work, unplug the %(camera)s from "
+"the computer and plug it in again."
 msgstr ""
 
-#: ../raphodo/rapid.py:4820
+#: ../raphodo/rapid.py:4848
 #, python-format
 msgid ""
-"<b>The download cannot start because the %(camera)s cannot be "
-"unmounted.</b><br><br>You can close any other application (such as a file "
-"browser) that is using it and try again. If that does not work, unplug the "
-"%(camera)s from the computer and plug it in again, and choose which files "
-"you want to download from it."
+"<b>The download cannot start because the %(camera)s cannot be unmounted.</"
+"b><br><br>You can close any other application (such as a file browser) that "
+"is using it and try again. If that does not work, unplug the %(camera)s from "
+"the computer and plug it in again, and choose which files you want to "
+"download from it."
 msgstr ""
 
-#: ../raphodo/rapid.py:4917
+#: ../raphodo/rapid.py:4946
 msgid "Completed Downloads Present"
 msgstr ""
 
-#: ../raphodo/rapid.py:4919
+#: ../raphodo/rapid.py:4948
 #, python-format
 msgid "%s whose download have completed are displayed."
 msgstr ""
 
-#: ../raphodo/rapid.py:4921
+#: ../raphodo/rapid.py:4950
 msgid "Do you want to clear the completed downloads?"
 msgstr ""
 
-#: ../raphodo/rapid.py:4923
+#: ../raphodo/rapid.py:4952
 msgid "Completed Download Present"
 msgstr ""
 
-#: ../raphodo/rapid.py:4925
+#: ../raphodo/rapid.py:4954
 #, python-format
 msgid "%s whose download has completed is displayed."
 msgstr ""
 
-#: ../raphodo/rapid.py:4927
+#: ../raphodo/rapid.py:4956
 msgid "Do you want to clear the completed download?"
 msgstr ""
 
-#: ../raphodo/rapid.py:5008
+#: ../raphodo/rapid.py:5037
 #, python-format
 msgid ""
 "Do you want to download photos and videos from the device <i>%(device)s</i>?"
 msgstr ""
 
-#: ../raphodo/rapid.py:5259
+#: ../raphodo/rapid.py:5288
 #, python-format
 msgid "<b>Do you want to ignore the %s whenever this program is run?</b>"
 msgstr ""
 
-#: ../raphodo/rapid.py:5262
+#: ../raphodo/rapid.py:5291
 msgid ""
 "All cameras, phones and tablets with the same model name will be ignored."
 msgstr ""
 
-#: ../raphodo/rapid.py:5266
+#: ../raphodo/rapid.py:5295
 #, python-format
 msgid ""
 "<b>Do you want to ignore the device %s whenever this program is run?</b>"
 msgstr ""
 
-#: ../raphodo/rapid.py:5268
+#: ../raphodo/rapid.py:5297
 msgid "Any device with the same name will be ignored."
 msgstr ""
 
-#: ../raphodo/rapid.py:5569
+#: ../raphodo/rapid.py:5598
 #, python-format
 msgid "Downloading from %(location)s on This Computer."
 msgstr ""
 
-#: ../raphodo/rapid.py:5573
+#: ../raphodo/rapid.py:5602
 msgid ""
 "Do you really want to download from here?<br><br>On some systems, scanning "
 "this location can take a very long time."
 msgstr ""
 
-#: ../raphodo/rapid.py:5615
+#: ../raphodo/rapid.py:5644
 #, python-format
 msgid "Generating thumbnails for %s"
 msgstr ""
 
-#: ../raphodo/rapid.py:5618
+#: ../raphodo/rapid.py:5647
 #, python-format
 msgid "Scanning %s"
 msgstr ""
 
-#: ../raphodo/rapid.py:5629
+#: ../raphodo/rapid.py:5658
 #, python-format
 msgid ""
 "%(number)s of %(available files)s checked for download (%(hidden)s hidden)"
 msgstr ""
 
-#: ../raphodo/rapid.py:5637
+#: ../raphodo/rapid.py:5666
 #, python-format
 msgid "%(number)s of %(available files)s checked for download"
 msgstr ""
 
-#: ../raphodo/rapid.py:5855
+#: ../raphodo/rapid.py:5888
 msgid "Show version numbers of program and its libraries and exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:5859
+#: ../raphodo/rapid.py:5892
 msgid "Display program information when run from the command line."
 msgstr ""
 
-#: ../raphodo/rapid.py:5863
+#: ../raphodo/rapid.py:5896
 msgid "Display debugging information when run from the command line."
 msgstr ""
 
-#: ../raphodo/rapid.py:5867
+#: ../raphodo/rapid.py:5900
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:5871
+#: ../raphodo/rapid.py:5904
 msgid "Turn on or off the the renaming of photos."
 msgstr ""
 
-#: ../raphodo/rapid.py:5875
+#: ../raphodo/rapid.py:5908
 msgid "turn on or off the the renaming of videos."
 msgstr ""
 
-#: ../raphodo/rapid.py:5879
+#: ../raphodo/rapid.py:5912
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
 msgstr ""
 
-#: ../raphodo/rapid.py:5883
+#: ../raphodo/rapid.py:5916
 msgid "Turn on or off downloading from this computer."
 msgstr ""
 
-#: ../raphodo/rapid.py:5886 ../raphodo/rapid.py:5890 ../raphodo/rapid.py:5894
-#: ../raphodo/rapid.py:5924 ../raphodo/rapid.py:5931
+#: ../raphodo/rapid.py:5919 ../raphodo/rapid.py:5923 ../raphodo/rapid.py:5927
+#: ../raphodo/rapid.py:5957 ../raphodo/rapid.py:5964
 msgid "PATH"
 msgstr ""
 
-#: ../raphodo/rapid.py:5887
+#: ../raphodo/rapid.py:5920
 msgid "The PATH on this computer from which to download."
 msgstr ""
 
-#: ../raphodo/rapid.py:5891
+#: ../raphodo/rapid.py:5924
 msgid "The PATH where photos will be downloaded to."
 msgstr ""
 
-#: ../raphodo/rapid.py:5895
+#: ../raphodo/rapid.py:5928
 msgid "The PATH where videos will be downloaded to."
 msgstr ""
 
-#: ../raphodo/rapid.py:5899
+#: ../raphodo/rapid.py:5932
 msgid "Turn on or off the backing up of photos and videos while downloading."
 msgstr ""
 
-#: ../raphodo/rapid.py:5903
+#: ../raphodo/rapid.py:5936
 msgid "Turn on or off the automatic detection of backup devices."
 msgstr ""
 
-#: ../raphodo/rapid.py:5906 ../raphodo/rapid.py:5915
+#: ../raphodo/rapid.py:5939 ../raphodo/rapid.py:5948
 msgid "FOLDER"
 msgstr ""
 
-#: ../raphodo/rapid.py:5908
+#: ../raphodo/rapid.py:5941
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
@@ -3975,7 +3980,7 @@ msgid ""
 "photos up to, create a folder on it with this name."
 msgstr ""
 
-#: ../raphodo/rapid.py:5917
+#: ../raphodo/rapid.py:5950
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
@@ -3983,124 +3988,122 @@ msgid ""
 "up videos to, create a folder on it with this name."
 msgstr ""
 
-#: ../raphodo/rapid.py:5926
+#: ../raphodo/rapid.py:5959
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
 msgstr ""
 
-#: ../raphodo/rapid.py:5933
+#: ../raphodo/rapid.py:5966
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
 msgstr ""
 
-#: ../raphodo/rapid.py:5939
+#: ../raphodo/rapid.py:5972
 #, python-format
 msgid "Ignore photos with the following extensions: %s"
 msgstr ""
 
-#: ../raphodo/rapid.py:5945
-msgid ""
-"Turn on or off starting downloads as soon as the program itself starts."
+#: ../raphodo/rapid.py:5978
+msgid "Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 
-#: ../raphodo/rapid.py:5950
+#: ../raphodo/rapid.py:5983
 msgid "Turn on or off starting downloads as soon as a device is inserted."
 msgstr ""
 
-#: ../raphodo/rapid.py:5956
+#: ../raphodo/rapid.py:5989
 msgid ""
 "Turn on or off use of the Rapid Photo Downloader Thumbnail Cache. Turning it "
 "off does not delete existing cache contents."
 msgstr ""
 
-#: ../raphodo/rapid.py:5962
+#: ../raphodo/rapid.py:5995
 msgid ""
 "Delete all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and "
 "exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:5966
+#: ../raphodo/rapid.py:5999
 msgid "Forget which files have been previously downloaded, and exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:5971
+#: ../raphodo/rapid.py:6004
 msgid ""
 "Import preferences from an old program version and exit. Requires the "
 "command line program gconftool-2."
 msgstr ""
 
-#: ../raphodo/rapid.py:5978
+#: ../raphodo/rapid.py:6011
 msgid ""
 "Reset all program settings to their default values, delete all thumbnails in "
 "the Thumbnail cache, forget which files have been previously downloaded, and "
 "exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:5984
+#: ../raphodo/rapid.py:6017
 msgid "Include gphoto2 debugging information in log files."
 msgstr ""
 
-#: ../raphodo/rapid.py:5989
+#: ../raphodo/rapid.py:6022
 msgid "Print information to the terminal about attached cameras and exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:6050
+#: ../raphodo/rapid.py:6083
 msgid ""
 "To import preferences from the old version of Rapid Photo Downloader, you "
 "must install the program gconftool-2."
 msgstr ""
 
-#: ../raphodo/rapid.py:6059
+#: ../raphodo/rapid.py:6092
 msgid "No prior program preferences detected: exiting"
 msgstr ""
 
-#: ../raphodo/rapid.py:6062
+#: ../raphodo/rapid.py:6095
 #, python-format
 msgid "Importing preferences from Rapid Photo Downloader %(version)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:6128
+#: ../raphodo/rapid.py:6161
 #, python-format
-msgid ""
-"Do you want to copy the stored sequence number, which has the value %d?"
+msgid "Do you want to copy the stored sequence number, which has the value %d?"
 msgstr ""
 
-#: ../raphodo/rapid.py:6139
+#: ../raphodo/rapid.py:6172
 msgid "Program aborting."
 msgstr ""
 
-#: ../raphodo/rapid.py:6149
+#: ../raphodo/rapid.py:6182
 msgid "Never run this program as the sudo / root user."
 msgstr ""
 
-#: ../raphodo/rapid.py:6153
+#: ../raphodo/rapid.py:6186
 msgid "You must install ExifTool to run Rapid Photo Downloader."
 msgstr ""
 
-#: ../raphodo/rapid.py:6165
+#: ../raphodo/rapid.py:6198
 msgid ""
 "Rapid Photo Downloader is installed in multiple locations.\n"
 "\n"
 "Uninstall all copies except the version you want to run."
 msgstr ""
 
-#: ../raphodo/rapid.py:6222
+#: ../raphodo/rapid.py:6255
 msgid ""
 "When specifying a path on the command line, do not also specify an\n"
 "option for device auto detection or a path on \"This Computer\"."
 msgstr ""
 
-#: ../raphodo/rapid.py:6382
+#: ../raphodo/rapid.py:6415
 msgid "All settings and caches have been reset"
 msgstr ""
 
-#: ../raphodo/rapid.py:6390
+#: ../raphodo/rapid.py:6423
 msgid "Thumbnail Cache has been reset"
 msgstr ""
 
-#: ../raphodo/rapid.py:6396
+#: ../raphodo/rapid.py:6429
 msgid "Remembered files have been forgotten"
 msgstr ""
 
@@ -4116,15 +4119,15 @@ msgstr ""
 msgid "&Don't warn me again about missing or broken program libraries"
 msgstr ""
 
-#: ../raphodo/renameandmovefile.py:561
+#: ../raphodo/renameandmovefile.py:562
 msgid "subfolder and filename"
 msgstr ""
 
-#: ../raphodo/renameandmovefile.py:563
+#: ../raphodo/renameandmovefile.py:564
 msgid "filename"
 msgstr ""
 
-#: ../raphodo/renameandmovefile.py:565
+#: ../raphodo/renameandmovefile.py:566
 msgid "subfolder"
 msgstr ""
 
@@ -4245,7 +4248,7 @@ msgid "File system root"
 msgstr ""
 
 #. translators: the name of the Pictures folder
-#: ../raphodo/storage.py:485
+#: ../raphodo/storage.py:486
 msgid "Pictures"
 msgstr ""
 
@@ -4343,88 +4346,88 @@ msgid "YB"
 msgstr ""
 
 #. two things in a list e.g. "device1 and device2"
-#: ../raphodo/utilities.py:397
+#: ../raphodo/utilities.py:398
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
 msgstr ""
 
-#: ../raphodo/utilities.py:473
+#: ../raphodo/utilities.py:474
 msgid "one"
 msgstr ""
 
-#: ../raphodo/utilities.py:474
+#: ../raphodo/utilities.py:475
 msgid "two"
 msgstr ""
 
-#: ../raphodo/utilities.py:475
+#: ../raphodo/utilities.py:476
 msgid "three"
 msgstr ""
 
-#: ../raphodo/utilities.py:476
+#: ../raphodo/utilities.py:477
 msgid "four"
 msgstr ""
 
-#: ../raphodo/utilities.py:477
+#: ../raphodo/utilities.py:478
 msgid "five"
 msgstr ""
 
-#: ../raphodo/utilities.py:478
+#: ../raphodo/utilities.py:479
 msgid "six"
 msgstr ""
 
-#: ../raphodo/utilities.py:479
+#: ../raphodo/utilities.py:480
 msgid "seven"
 msgstr ""
 
-#: ../raphodo/utilities.py:480
+#: ../raphodo/utilities.py:481
 msgid "eight"
 msgstr ""
 
-#: ../raphodo/utilities.py:481
+#: ../raphodo/utilities.py:482
 msgid "nine"
 msgstr ""
 
-#: ../raphodo/utilities.py:482
+#: ../raphodo/utilities.py:483
 msgid "ten"
 msgstr ""
 
-#: ../raphodo/utilities.py:483
+#: ../raphodo/utilities.py:484
 msgid "eleven"
 msgstr ""
 
-#: ../raphodo/utilities.py:484
+#: ../raphodo/utilities.py:485
 msgid "twelve"
 msgstr ""
 
-#: ../raphodo/utilities.py:485
+#: ../raphodo/utilities.py:486
 msgid "thirteen"
 msgstr ""
 
-#: ../raphodo/utilities.py:486
+#: ../raphodo/utilities.py:487
 msgid "fourteen"
 msgstr ""
 
-#: ../raphodo/utilities.py:487
+#: ../raphodo/utilities.py:488
 msgid "fifteen"
 msgstr ""
 
-#: ../raphodo/utilities.py:488
+#: ../raphodo/utilities.py:489
 msgid "sixteen"
 msgstr ""
 
-#: ../raphodo/utilities.py:489
+#: ../raphodo/utilities.py:490
 msgid "seventeen"
 msgstr ""
 
-#: ../raphodo/utilities.py:490
+#: ../raphodo/utilities.py:491
 msgid "eighteen"
 msgstr ""
 
-#: ../raphodo/utilities.py:491
+#: ../raphodo/utilities.py:492
 msgid "ninenteen"
 msgstr ""
 
-#: ../raphodo/utilities.py:492
+#: ../raphodo/utilities.py:493
 msgid "twenty"
 msgstr ""
 
@@ -4505,8 +4508,8 @@ msgstr ""
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/net.damonlynch.rapid-photo-downloader.desktop.in.h:5
 msgid ""
-"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
-";card;"
+"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
+"memory;card;"
 msgstr ""
 
 #: ../data/kde/net.damonlynch.rapid-photo-downloader.desktop.in.h:1
@@ -4570,7 +4573,6 @@ msgstr ""
 #~ msgid "Select a folder to download photos to"
 #~ msgstr "یک پوشه را برای دانلود عکس انتخاب نمایید"
 
-#, python-format
 #~ msgid "<i>Example: %s</i>"
 #~ msgstr "<i>مثال : %s</i>"
 
