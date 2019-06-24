@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2019 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,7 +22,7 @@ has to be read in order to extract exif information or a preview.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2018, Damon Lynch"
+__copyright__ = "Copyright 2015-2019, Damon Lynch"
 
 import resource
 import shlex
@@ -39,7 +39,7 @@ from gi.repository import GExiv2
 from PyQt5.QtGui import QImage
 
 from raphodo.utilities import format_size_for_user, stdchannel_redirected
-from raphodo.metadataphoto import MetaData
+from raphodo.metadataphoto import MetaData, photo_date_time
 from raphodo.metadataexiftool import MetadataExiftool
 from raphodo.fileformats import FileType
 
@@ -225,10 +225,7 @@ class PhotoAttributes:
             )
         self.has_gps = metadata.get_gps_info()[0]
         self.iso = metadata.get_iso_speed()
-        try:
-            self.datetime = metadata.get_date_time()
-        except (KeyError, ValueError):
-            pass
+        self.datetime = photo_date_time(metadata)
 
     def image_height_width(self, thumbnail: bytes) -> Optional[Tuple[int, int]]:
         qimage = QImage.fromData(thumbnail)
@@ -288,7 +285,7 @@ class PhotoAttributes:
         return False
 
     def datetime_extract(self, metadata: GExiv2.Metadata, size_in_bytes) -> bool:
-        if metadata.get_date_time() == self.datetime:
+        if photo_date_time(metadata) == self.datetime:
             self.minimum_exif_read_size_in_bytes_datetime = size_in_bytes
             return True
         return False

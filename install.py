@@ -1326,7 +1326,6 @@ def uninstall_old_version(distro_family: Distro,
     return system_uninstall
 
 
-
 def check_packages_on_other_systems(installer_to_delete_on_error: str) -> None:
     """
     Check to see if some (but not all) application dependencies are

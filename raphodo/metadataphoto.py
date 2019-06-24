@@ -56,6 +56,96 @@ VENDOR_SHUTTER_COUNT = (
 )
 
 
+def photo_date_time(metadata: GExiv2.Metadata,
+                    full_file_name: Optional[str] = None,
+                    file_type: Optional[FileType] = None,
+                    ) -> Union[datetime.datetime, Any]:
+    """
+    Returns in python datetime format the date and time the image was
+    recorded.
+
+    Tries these tags, in order:
+    Exif.Photo.DateTimeOriginal
+    Exif.Image.DateTimeOriginal
+    Exif.Image.DateTime
+
+    :return: metadata value, or None if value is not present.
+    """
+
+    # GExiv2.Metadata used to provide get_date_time(), but as of version
+    # 0.10.09 it appears to have been removed!
+
+    # In any case, get_date_time() seems to have tried only one key, Exif.Photo.DateTimeOriginal
+    # Try other keys too, and with a more flexible datetime parser.
+    # For example some or maybe all Android 6.0 DNG files use Exif.Image.DateTimeOriginal
+
+    do_log = full_file_name is not None and file_type is not None
+
+    for tag in ('Exif.Photo.DateTimeOriginal', 'Exif.Image.DateTimeOriginal',
+                'Exif.Image.DateTime'):
+        try:
+            dt_string = metadata.get_tag_string(tag)
+        except Exception:
+            pass
+        else:
+            if dt_string is None:
+                continue
+
+            # ignore all zero values, e.g. '0000:00:00 00:00:00'
+            try:
+                digits = int(''.join(c for c in dt_string if c.isdigit()))
+            except ValueError:
+                if do_log:
+                    logging.warning(
+                        'Unexpected malformed date time metadata value %s for photo %s',
+                        dt_string, full_file_name
+                    )
+            else:
+                if not digits:
+                    if do_log:
+                        logging.debug(
+                            'Ignoring date time metadata value %s for photo %s',
+                            dt_string, full_file_name
+                        )
+                else:
+                    try:
+                        return datetime.datetime.strptime(dt_string, "%Y:%m:%d %H:%M:%S")
+                    except (ValueError, OverflowError):
+                        if do_log:
+                            logging.debug(
+                                'Error parsing date time metadata %s for photo %s; attempting '
+                                'flexible approach',
+                                dt_string, full_file_name
+                            )
+                        try:
+                            dtr, fs = flexible_date_time_parser(dt_string.strip())
+                            if do_log:
+                                logging.debug(
+                                    "Extracted photo time %s using flexible approach",
+                                    dtr.strftime(fs)
+                                )
+                            return dtr
+                        except AssertionError:
+                            if do_log:
+                                logging.warning(
+                                    "Error extracting date time metadata '%s' for %s %s",
+                                    dt_string, file_type, full_file_name
+                                )
+                        except (ValueError, OverflowError):
+                            if do_log:
+                                logging.warning(
+                                    "Error parsing date time metadata '%s' for %s %s",
+                                    dt_string, file_type, full_file_name
+                                )
+                        except Exception:
+                            if do_log:
+                                logging.error(
+                                    "Unknown error parsing date time metadata '%s' for %s %s",
+                                    dt_string, file_type, full_file_name
+                                )
+    return None
+
+
 class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
     """
     Provide abstracted access to photo metadata
@@ -245,7 +335,6 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         except (KeyError, AttributeError):
             return missing
 
-
     def date_time(self, missing: Optional[str]='',
                   ignore_file_modify_date: Optional[bool]=False) -> Union[datetime.datetime, Any]:
         """
@@ -260,75 +349,14 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         :return: metadata value, or missing if value is not present.
         """
 
-        dt = None
-        try:
-            dt = self.get_date_time()
-        except:
-            pass
+        dt = photo_date_time(
+            metadata=self, full_file_name=self.full_file_name, file_type=self.file_type
+        )
 
-        if dt:
+        if dt is None:
+            return missing
+        else:
             return dt
-
-        # get_date_time() seems to try only one key, Exif.Photo.DateTimeOriginal
-        # Try other keys too, and with a more flexible datetime parser.
-        # For example some or maybe all Android 6.0 DNG files use Exif.Image.DateTimeOriginal
-
-        for tag in ('Exif.Photo.DateTimeOriginal', 'Exif.Image.DateTimeOriginal',
-                    'Exif.Image.DateTime'):
-            try:
-                dt_string = self.get_tag_string(tag)
-            except:
-                pass
-            else:
-                if dt_string is None:
-                    continue
-
-                # ignore all zero values, e.g. '0000:00:00 00:00:00'
-                try:
-                    digits = int(''.join(c for c in dt_string if c.isdigit()))
-                except ValueError:
-                    logging.warning(
-                        'Unexpected malformed date time metadata value %s for photo %s',
-                        dt_string, self.full_file_name
-                    )
-                else:
-                    if not digits:
-                        logging.debug(
-                            'Ignoring date time metadata value %s for photo %s',
-                            dt_string, self.full_file_name
-                        )
-                    else:
-                        try:
-                            return datetime.datetime.strptime(dt_string, "%Y:%m:%d %H:%M:%S")
-                        except (ValueError, OverflowError):
-                            logging.debug(
-                                'Error parsing date time metadata %s for photo %s; attempting '
-                                'flexible approach',
-                                dt_string, self.full_file_name
-                            )
-                            try:
-                                dtr, fs = flexible_date_time_parser(dt_string.strip())
-                                logging.debug(
-                                    "Extracted photo time %s using flexible approach",
-                                    dtr.strftime(fs)
-                                )
-                                return dtr
-                            except AssertionError:
-                                logging.warning(
-                                    "Error extracting date time metadata '%s' for %s %s",
-                                    dt_string, self.file_type, self.full_file_name
-                                )
-                            except (ValueError, OverflowError):
-                                logging.warning(
-                                    "Error parsing date time metadata '%s' for %s %s",
-                                    dt_string, self.file_type, self.full_file_name
-                                )
-                            except Exception:
-                                logging.error(
-                                    "Unknown error parsing date time metadata '%s' for %s %s",
-                                    dt_string, self.file_type, self.full_file_name
-                                )
-        return missing
 
     def sub_seconds(self, missing='00') -> Union[str, Any]:
         """

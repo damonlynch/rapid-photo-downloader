@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2019 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2008-2015 Canonical Ltd.
 # Copyright (C) 2013 Bernard Baeyens
 
@@ -43,7 +43,7 @@ regarding mount points and XDG related functionality.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2018, Damon Lynch. Copyright 2008-2015 Canonical Ltd. Copyright" \
+__copyright__ = "Copyright 2011-2019, Damon Lynch. Copyright 2008-2015 Canonical Ltd. Copyright" \
                 " 2013 Bernard Baeyens."
 
 import logging
@@ -1323,7 +1323,7 @@ if have_gio:
             for mount in self.vm.get_mounts():
                 if self.mountMightBeCamera(mount):
                     # According to GTK docs, Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE is
-                    # depreceated, but what should replace it?
+                    # deprecated, but what should replace it?
                     identifier = mount.get_volume().get_identifier(
                         Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE
                     )
