@@ -4,14 +4,16 @@ Changelog for Rapid Photo Downloader
 0.9.15 (2019-06-23)
 -------------------
 
- - Fix bug #1818280: sqlite3 database is locked while adding thumbnails
+ - Fix bug #1818280: sqlite3 database is locked while adding thumbnails.
 
  - Fixed bug where installing into a virtual environment on Ubuntu 19.04 would
    fail due to not mandating the installation of GObject introspection runtimes.
 
- - New Python package requirement: tenacity
+ - New Python package requirement: tenacity.
 
- - Removed restriction on Tornado version limit
+ - Removed restriction on Tornado version limit.
+
+ - Updated Italian translation.
 
 0.9.14 (2019-03-30)
 -------------------
