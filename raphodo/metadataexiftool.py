@@ -69,11 +69,14 @@ class MetadataExiftool():
         super().__init__()
 
         self.full_file_name = full_file_name
-        self.ext = fileformats.extract_extension(full_file_name)
+        if full_file_name is not None:
+            self.ext = fileformats.extract_extension(full_file_name)
+        else:
+            self.ext = None
         self.metadata = dict()
         self.metadata_string_format = dict()
         self.et_process = et_process
-        if file_type is None:
+        if file_type is None and full_file_name is not None:
             file_type = fileformats.file_type_from_splitext(file_name=full_file_name)
         assert file_type is not None
         self.file_type = file_type

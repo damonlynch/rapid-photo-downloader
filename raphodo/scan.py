@@ -1070,7 +1070,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
         if use_app1:
             try:
                 self.sample_exif_bytes = self.camera.get_exif_extract_from_jpeg(path, name)
-                # print(type(self.sample_exif_bytes))
             except CameraProblemEx as e:
                 uri = get_uri(
                     full_file_name=os.path.join(path, name), camera_details=self.camera_details

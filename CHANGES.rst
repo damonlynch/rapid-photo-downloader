@@ -6,11 +6,14 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug #1829145 where Rapid Photo Downloader could no longer access
    cameras, smartphones and tablets because other applications using GIO / GVFS
-   (such as a file manager like Gnome Files) had gained exlusive access over
+   (such as a file manager like Gnome Files) had gained exclusive access over
    them. GIO / Glib changed the way paths were generated for cameras and phones
    in a way that was incompatible with libgphoto2's port nomenclature.
 
  - Fix bug #1818280: sqlite3 database is locked while adding thumbnails.
+
+ - Fixed bug where scan process was failing to extract sample metadata from
+   photos.
 
  - Fixed bug where installing into a virtual environment on Ubuntu 19.04 would
    fail due to not mandating the installation of GObject introspection runtimes.

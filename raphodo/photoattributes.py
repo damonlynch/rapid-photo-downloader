@@ -63,6 +63,7 @@ all_metadata_tags = 'aperture iso exposure_time focal_length camera_make camera_
                     'camera_serial shutter_count owner_name copyright artist short_camera_model ' \
                     'date_time timestamp sub_seconds orientation'
 
+
 class ExifToolMixin:
     def __init__(self, file_type: FileType,
                  full_file_name: str,

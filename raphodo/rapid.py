@@ -4780,7 +4780,7 @@ Do you want to proceed with the download?
                 logging.debug("Successfully unmounted %s", model)
                 return True
             else:
-                logging.warning("Failed to automatically unmount %s", model)
+                logging.debug("%s was not already mounted", model)
                 del self.devices.cameras_to_gvfs_unmount_for_scan[port]
         return False
 

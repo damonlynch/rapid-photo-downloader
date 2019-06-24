@@ -56,7 +56,7 @@ import shlex
 import pwd
 import shutil
 from collections import namedtuple
-from typing import Optional, Tuple, List, Dict, Any
+from typing import Optional, Tuple, List, Dict
 from urllib.request import pathname2url, quote
 from tempfile import NamedTemporaryFile
 
