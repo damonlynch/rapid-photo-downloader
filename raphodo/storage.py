@@ -1460,19 +1460,6 @@ if have_gio:
                 logging.error('Exception occurred unmounting %s', path)
                 logging.exception('Traceback:')
 
-
-        def _cameraMountPathExtract(self, mount: Gio.Mount) -> Optional[str]:
-            root = mount.get_root()
-            if root is None:
-                logging.warning('Unable to get mount root')
-            else:
-                path = root.get_path()
-                if path:
-                    logging.debug("GIO: Looking for camera at mount {}".format(path))
-                    folder_name = os.path.split(path)[1]
-                    return folder_name
-            return None
-
         def mountIsCamera(self, mount: Gio.Mount) -> bool:
             """
             Determine if the mount refers to a camera by checking the
@@ -1484,29 +1471,22 @@ if have_gio:
             """
 
             if self.mountMightBeCamera(mount):
-                folder_name = self._cameraMountPathExtract(mount)
-                if folder_name is not None:
-                    for s in ('gphoto2:host=', 'mtp:host='):
-                        if folder_name.startswith(s):
-                            return True
+                root = mount.get_root()
+                if root is None:
+                    logging.warning('Unable to get mount root')
+                else:
+                    path = root.get_path()
+                    logging.debug("GIO: Looking for camera at mount {}".format(path))
+                    if path:
+                    # check last two levels of the path name, as it might be in a format like
+                    # /run/..../gvfs/gphoto2:host=Canon_Inc._Canon_Digital_Camera/store_00010001
+                        for i in (1, 2):
+                            path, folder_name = os.path.split(path)
+                            if folder_name:
+                                for s in ('gphoto2:host=', 'mtp:host='):
+                                    if folder_name.startswith(s):
+                                        return True
             return False
-
-        def cameraMountFolderName(self, mount: Gio.Mount) -> Optional[str]:
-            """
-            Deprecated.
-
-            Determine the mount's folder name if the mount is for a camera
-
-            :param mount: the mount to examine
-            :return: None if not a camera, or the component of the
-            folder name of the device's root path
-            """
-
-            folder_name = self._cameraMountPathExtract(mount)
-            for s in ('gphoto2:host=', 'mtp:host='):
-                if folder_name.startswith(s):
-                    return folder_name[len(s):]
-            return None
 
         def mountIsPartition(self, mount: Gio.Mount) -> bool:
             """
