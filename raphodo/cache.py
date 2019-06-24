@@ -58,6 +58,7 @@ import time
 import shutil
 from collections import namedtuple
 from typing import Optional, Tuple, Union
+import sqlite3
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QImage
@@ -438,17 +439,21 @@ class ThumbnailCacheSql:
         else:
             logging.debug("Saving thumbnail for %s in RPD thumbnail cache", uri)
 
-        self.thumb_db.add_thumbnail(uri=uri, size=size, mtime=mtime,
+        try:
+            self.thumb_db.add_thumbnail(uri=uri, size=size, mtime=mtime,
                                     mdatatime=mdatatime,
                                     md5_name=md5_name, orientation_unknown=orientation_unknown,
                                     failure=generation_failed)
+        except sqlite3.OperationalError as e:
+            logging.error("Database error adding thumbnail for %s: %s. Will not retry.", uri, e)
+            return None
+
         if generation_failed:
             return None
 
         md5_full_name = os.path.join(self.cache_dir, md5_name)
 
-        temp_path = os.path.join(self.cache_dir, self.random_filename.name(
-            extension='jpg'))
+        temp_path = os.path.join(self.cache_dir, self.random_filename.name(extension='jpg'))
 
         if thumbnail.save(temp_path, format='jpg', quality=75):
             try:

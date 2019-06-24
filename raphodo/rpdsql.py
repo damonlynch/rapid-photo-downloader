@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2019 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2018, Damon Lynch"
+__copyright__ = "Copyright 2015-2019, Damon Lynch"
 
 import sqlite3
 import os
@@ -29,6 +29,7 @@ from typing import Optional, List, Tuple, Any, Sequence
 import logging
 
 from PyQt5.QtCore import Qt
+from tenacity import retry, stop_after_attempt
 
 from raphodo.storage import get_program_data_directory, get_program_cache_directory
 from raphodo.utilities import divide_list_on_length
@@ -51,6 +52,9 @@ sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
 sqlite3.register_adapter(FileType, int)
 sqlite3.register_converter("FILETYPE", lambda v: FileType(int(v)))
 
+# The timeout default is five seconds.
+sqlite3_timeout = 10.0
+sqlite3_retry_attempts = 5
 
 class ThumbnailRowsSQL:
     """
@@ -700,6 +704,7 @@ class DownloadedSQL:
         conn.commit()
         conn.close()
 
+    @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
     def add_downloaded_file(self, name: str, size: int,
                             modification_time: float, download_full_file_name: str) -> None:
         """
@@ -711,18 +716,26 @@ class DownloadedSQL:
          or the character . that the user manually marked the file
          as previously downloaded
         """
-        conn = sqlite3.connect(self.db)
+        conn = sqlite3.connect(self.db, timeout=sqlite3_timeout)
 
         logging.debug('Adding %s to downloaded files', name)
 
-        conn.execute(
-            r"""INSERT OR REPLACE INTO {tn} (file_name, size, mtime,
-            download_name, download_datetime) VALUES (?,?,?,?,?)""".format(tn=self.table_name),
-            (name, size, modification_time, download_full_file_name, datetime.datetime.now())
-        )
-
-        conn.commit()
-        conn.close()
+        try:
+            conn.execute(
+                r"""INSERT OR REPLACE INTO {tn} (file_name, size, mtime,
+                download_name, download_datetime) VALUES (?,?,?,?,?)""".format(tn=self.table_name),
+                (name, size, modification_time, download_full_file_name, datetime.datetime.now())
+            )
+        except sqlite3.OperationalError as e:
+            logging.warning(
+                "Database error adding download file %s: %s. May retry.",
+                download_full_file_name, e
+            )
+            conn.close()
+            raise sqlite3.OperationalError from e
+        else:
+            conn.commit()
+            conn.close()
 
     def file_downloaded(self, name: str,
                         size: int, modification_time: float) -> Optional[FileDownloaded]:
@@ -808,7 +821,9 @@ class CacheSQL:
         conn.commit()
         conn.close()
 
-    def add_thumbnail(self, uri: str, size: int,
+    @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
+    def add_thumbnail(self, uri: str,
+                      size: int,
                       mtime: float,
                       mdatatime: float,
                       md5_name: str,
@@ -827,17 +842,22 @@ class CacheSQL:
          generated, otherwise False
         """
 
-        conn = sqlite3.connect(self.db)
+        conn = sqlite3.connect(self.db, timeout=sqlite3_timeout)
 
-        conn.execute(
-            r"""INSERT OR REPLACE INTO {tn} (uri, size, mtime, mdatatime,
-            md5_name, orientation_unknown, failure) VALUES (?,?,?,?,?,?,?)""".format(
-                tn=self.table_name
-            ), (uri, size, mtime, mdatatime, md5_name, orientation_unknown, failure)
-        )
-
-        conn.commit()
-        conn.close()
+        try:
+            conn.execute(
+                r"""INSERT OR REPLACE INTO {tn} (uri, size, mtime, mdatatime,
+                md5_name, orientation_unknown, failure) VALUES (?,?,?,?,?,?,?)""".format(
+                    tn=self.table_name
+                ), (uri, size, mtime, mdatatime, md5_name, orientation_unknown, failure)
+            )
+        except sqlite3.OperationalError as e:
+            logging.warning("Database error adding thumbnail for %s: %s. May retry.", uri, e)
+            conn.close()
+            raise sqlite3.OperationalError from e
+        else:
+            conn.commit()
+            conn.close()
 
     def have_thumbnail(self, uri: str, size: int, mtime: float) -> Optional[InCache]:
         """
@@ -863,6 +883,7 @@ class CacheSQL:
         else:
             return None
 
+    @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
     def _delete(self, names: List[str], conn):
         conn.execute("""DELETE FROM {tn} WHERE md5_name IN ({values})""".format(
             tn=self.table_name, values=','.join('?' * len(names))), names)
@@ -879,13 +900,17 @@ class CacheSQL:
         conn = sqlite3.connect(self.db)
         # Limit to number of parameters: 900
         # See https://www.sqlite.org/limits.html
-        if len(md5_names) > 900:
-            name_chunks = divide_list_on_length(md5_names, 900)
-            for chunk in name_chunks:
-                self._delete(chunk, conn)
+        try:
+            if len(md5_names) > 900:
+                name_chunks = divide_list_on_length(md5_names, 900)
+                for chunk in name_chunks:
+                    self._delete(chunk, conn)
+            else:
+                self._delete(md5_names, conn)
+        except sqlite3.OperationalError as e:
+            logging.error("Database error while deleting %s thumbnails: %s", len(md5_names), e)
         else:
-            self._delete(md5_names, conn)
-        conn.commit()
+            conn.commit()
         conn.close()
 
 

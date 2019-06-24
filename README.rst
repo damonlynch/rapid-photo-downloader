@@ -120,6 +120,7 @@ Rapid Photo Downloader requires:
    files from Android phones or working with old RAW formats.
  - `Qt5 plugin for reading TIFF images`_
  - Requests_
+ - Tenacity_
  - intltool_
  - If using Python 3.4, these additional modules:
     - typing_
@@ -263,3 +264,4 @@ environment's directory.
 .. _SortedContainers: http://www.grantjenks.com/docs/sortedcontainers/
 .. _Requests: http://docs.python-requests.org/
 .. _tornado: http://www.tornadoweb.org/
+.. _Tenacity: https://github.com/jd/tenacity
