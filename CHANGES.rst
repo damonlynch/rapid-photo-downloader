@@ -5,10 +5,13 @@ Changelog for Rapid Photo Downloader
 ---------------------
 
  - Fixed bug #1829145 where Rapid Photo Downloader could no longer access
-   cameras, smartphones and tablets because other applications using GIO / GVFS
-   (such as a file manager like Gnome Files) had gained exclusive access over
-   them. GIO / Glib changed the way paths were generated for cameras and phones
-   in a way that was incompatible with libgphoto2's port nomenclature.
+   cameras, phones and tablets because other applications using had gained
+   exclusive access over them. Most file managers, including Gnome Files, use
+   GIO to gain control over cameras and phones as soon as they are plugged in.
+   Rapid Photo Downloader therefore must instruct them to relinquish control
+   before it can access the device. GIO / Glib changed the way paths were
+   generated for cameras and phones in a way that was incompatible with
+   libgphoto2's port nomenclature.
 
  - Fix bug #1818280: sqlite3 database is locked while adding thumbnails.
 
@@ -23,7 +26,7 @@ Changelog for Rapid Photo Downloader
 
  - New Python package requirement: tenacity.
 
- - Removed restriction on Tornado version limit.
+ - Removed restriction on Python package Tornado's version limit.
 
  - Improved "Report a Problem" dialog window to include more details.
 

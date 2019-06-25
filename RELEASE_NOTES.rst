@@ -1,5 +1,5 @@
-Release Notes for Rapid Photo Downloader 0.9.15
-===============================================
+Release Notes for Rapid Photo Downloader 0.9.15b1
+=================================================
 
  - Most photo thumbnails are generated using exiv2. Very rarely, exiv2 can
    cause a segfault (crash) while extracting a thumbnail. If exiv2 does
@@ -10,8 +10,8 @@ Release Notes for Rapid Photo Downloader 0.9.15
    that demonstrates the problem.
 
  - Canon's latest RAW file format CR3 is supported on systems that have
-   ExifTool 10.87 or newer. Most Linux distributions ship an older version
-   of ExifTool. If you need to, fortunately it is easy to install ExifTool
+   ExifTool 10.87 or newer. Many Linux distributions ship an older version
+   of ExifTool. If you need to, it is fortunately easy to install ExifTool
    yourself. See:
 
    https://www.sno.phy.queensu.ca/~phil/exiftool/install.html
