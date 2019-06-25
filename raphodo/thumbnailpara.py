@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2019 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -32,7 +32,7 @@ the metadata time is not already found in the rpd_file.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2018, Damon Lynch"
+__copyright__ = "Copyright 2011-2019, Damon Lynch"
 
 try:
     using_injected = 'profile' in dict(__builtins__)
@@ -612,12 +612,12 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             if rpd_file.is_jpeg_type():
                                 # gPhoto2 knows how to get jpeg thumbnails
                                 try:
-                                    exif_buffer = self.camera.get_exif_extract_from_jpeg(
+                                    thumbnail_bytes = self.camera.get_thumbnail(
                                         rpd_file.path, rpd_file.name
                                     )
                                 except CameraProblemEx as e:
                                     # TODO handle error?
-                                    exif_buffer = None
+                                    thumbnail_bytes = None
                             else:
                                 if use_exiftool_on_photo(rpd_file.extension):
                                     task, full_file_name_to_work_on, \

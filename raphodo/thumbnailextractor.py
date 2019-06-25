@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2019 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2018, Damon Lynch"
+__copyright__ = "Copyright 2015-2019, Damon Lynch"
 
 import sys
 import logging
@@ -483,11 +483,11 @@ class ThumbnailExtractor(LoadBalancerWorker):
             return True
         return False
 
-    def extact_thumbnail(self, task: ExtractionTask,
-                         rpd_file: Union[Photo, Video],
-                         processing: Set[ExtractionProcessing],
-                         data: ThumbnailExtractorArgument
-                         ) -> Tuple[Optional[QImage], Optional[str]]:
+    def extract_thumbnail(self, task: ExtractionTask,
+                          rpd_file: Union[Photo, Video],
+                          processing: Set[ExtractionProcessing],
+                          data: ThumbnailExtractorArgument
+                          ) -> Tuple[Optional[QImage], Optional[str]]:
         """
         Extract the thumbnail using one of a variety of methods,
         depending on the file
@@ -530,6 +530,13 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
         elif task in (ExtractionTask.load_from_bytes,
                       ExtractionTask.load_from_bytes_metadata_from_temp_extract):
+            try:
+                assert data.thumbnail_bytes is not None
+            except AssertionError:
+                logging.error(
+                    "Thumbnail bytes not extracted for %s (value is None)",
+                    rpd_file.get_current_full_file_name()
+                )
             thumbnail = QImage.fromData(data.thumbnail_bytes)
             if thumbnail.width() > self.thumbnailSizeNeeded.width() or thumbnail.height()\
                     > self.thumbnailSizeNeeded.height():
@@ -631,7 +638,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
                     thumbnail = thumbnail_256 = QImage.fromData(rpd_file.fdo_thumbnail_256)
                     orientation_unknown = False
                 else:
-                    thumbnail, orientation = self.extact_thumbnail(task, rpd_file, processing, data)
+                    thumbnail, orientation = self.extract_thumbnail(
+                        task, rpd_file, processing, data
+                    )
 
                     if data.file_to_work_on_is_temporary:
                         os.remove(data.full_file_name_to_work_on)

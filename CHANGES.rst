@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.15b1 (2019-06-24)
+0.9.15b1 (2019-06-25)
 ---------------------
 
  - Fixed bug #1829145 where Rapid Photo Downloader could no longer access
@@ -12,8 +12,11 @@ Changelog for Rapid Photo Downloader
 
  - Fix bug #1818280: sqlite3 database is locked while adding thumbnails.
 
+ - Fix bug where thumbnails were not being displayed for jpeg images on cameras.
+
  - Fixed bug where scan process was failing to extract sample metadata from
-   photos.
+   photos, which is needed to determine the time zone of the device being
+   downloaded from.
 
  - Fixed bug where installing into a virtual environment on Ubuntu 19.04 would
    fail due to not mandating the installation of GObject introspection runtimes.
@@ -21,6 +24,8 @@ Changelog for Rapid Photo Downloader
  - New Python package requirement: tenacity.
 
  - Removed restriction on Tornado version limit.
+
+ - Improved "Report a Problem" dialog window to include more details.
 
  - Updated Italian translation.
 

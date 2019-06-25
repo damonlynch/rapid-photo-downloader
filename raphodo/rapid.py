@@ -102,7 +102,7 @@ from raphodo.storage import (
     has_one_or_more_folders, mountPaths, get_desktop_environment, get_desktop,
     gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
     validate_source_folder, get_fdo_cache_thumb_base_directory, WatchDownloadDirs, get_media_dir,
-    StorageSpace, gvfs_gphoto2_path
+    StorageSpace, gvfs_gphoto2_path, get_uri
 )
 from raphodo.interprocess import (
     ScanArguments, CopyFilesArguments, RenameAndMoveFileData, BackupArguments,
@@ -2569,16 +2569,29 @@ class RapidWindow(QMainWindow):
             self.tip.activate()
 
     def makeProblemReportDialog(self, header: str, title: Optional[str]=None) -> None:
+        """
+        Create the dialog window to guide the user in reporting a bug
+        :param header: text at the top of the dialog window
+        :param title: optional title
+        """
+
         log_path, log_file = os.path.split(iplogging.full_log_file_path())
-        log_uri = pathname2url(log_path)
+        log_uri = get_uri(log_path)
+        config_path, config_file = os.path.split(self.prefs.settings_path())
+        config_uri = get_uri(path=config_path)
 
         body = _(
             r"""Please report the problem at <a href="{website}">{website}</a>.<br><br>
-            Attach the log file <i>{log_file}</i> to your report (click
-            <a href="{log_path}">here</a> to open the log directory).
+            Include in your bug report the program's log files. The bug report must include 
+            <i>{log_file}</i>, but attaching the other log files is often helpful.<br><br> 
+            If possible, please also include the program's configuration file
+            <i>{config_file}</i>.<br><br> 
+            Click <a href="{log_path}">here</a> to open the log directory, and 
+            <a href="{config_path}">here</a> to open the configuration directory.
             """
         ).format(
-            website='https://bugs.launchpad.net/rapid', log_path=log_uri, log_file=log_file
+            website='https://bugs.launchpad.net/rapid', log_path=log_uri, log_file=log_file,
+            config_path=config_uri, config_file = config_file
         )
 
         message = '{header}<br><br>{body}'.format(header=header, body=body)

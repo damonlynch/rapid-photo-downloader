@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2019 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,7 @@
 
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016, Damon Lynch"
+__copyright__ = "Copyright 2016-2019, Damon Lynch"
 
 
 import logging
@@ -40,6 +40,8 @@ from gettext import gettext as _
 import raphodo.qrc_resources as qrc_resources
 
 from raphodo.iplogging import full_log_file_path
+from raphodo.storage import get_uri
+from raphodo.preferences import Preferences
 
 message_box_displayed = False
 exceptions_notified = set()
@@ -77,18 +79,31 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
         exceptions_notified.add(key)
 
         log_path, log_file = os.path.split(full_log_file_path())
-        log_uri = pathname2url(log_path)
+        log_uri = get_uri(log_path)
+
+        prefs = Preferences()
+
+        config_path, config_file = os.path.split(prefs.settings_path())
+        config_uri = get_uri(path=config_path)
 
         title = _("Problem in Rapid Photo Downloader")
 
         if QApplication.instance():
 
             message = _(r"""<b>A problem occurred in Rapid Photo Downloader</b><br><br>
-    Please report the problem at <a href="{website}">{website}</a>.<br><br>
-    Attach the log file <i>{log_file}</i> to your bug report (click
-    <a href="{log_path}">here</a> to open the log directory).<br><br>If the same problem occurs
-    again before the program exits, this is the only notification about it.
-    """).format(website='https://bugs.launchpad.net/rapid', log_path=log_uri, log_file=log_file)
+            Please report the problem at <a href="{website}">{website}</a>.<br><br>
+            Include in your bug report the program's log files. The bug report must include 
+            <i>{log_file}</i>, but attaching the other log files is often helpful.<br><br> 
+            If possible, please also include the program's configuration file
+            <i>{config_file}</i>.<br><br> 
+            Click <a href="{log_path}">here</a> to open the log directory, and 
+            <a href="{config_path}">here</a> to open the configuration directory.<br><br>
+            If the same problem occurs again before the program exits, this is the only notification 
+            about it.
+            """).format(
+                website='https://bugs.launchpad.net/rapid', log_path=log_uri, log_file=log_file,
+                config_path=config_uri, config_file=config_file
+            )
 
             icon = QPixmap(':/rapid-photo-downloader.svg')
 

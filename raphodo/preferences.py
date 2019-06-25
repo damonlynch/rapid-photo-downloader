@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2019 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2018, Damon Lynch"
+__copyright__ = "Copyright 2011-2019, Damon Lynch"
 
 import logging
 import re
@@ -374,7 +374,6 @@ class Preferences:
         purge_thumbnails=False,
         optimize_thumbnail_db=False
     )
-
 
     def __init__(self) -> None:
         # To avoid infinite recursions arising from the use of __setattr__,
@@ -1026,6 +1025,12 @@ class Preferences:
             return True
 
         return ext.upper() not in self.ignore_unhandled_file_exts
+
+    def settings_path(self) -> str:
+        """
+        :return: the full path of the settings file
+        """
+        return self.settings.fileName()
 
 
 def match_pref_list(pref_lists: List[List[str]], user_pref_list: List[str]) -> int:
