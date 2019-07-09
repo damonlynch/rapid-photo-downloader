@@ -1,5 +1,5 @@
-Release Notes for Rapid Photo Downloader 0.9.15b1
-=================================================
+Release Notes for Rapid Photo Downloader 0.9.15
+===============================================
 
  - Most photo thumbnails are generated using exiv2. Very rarely, exiv2 can
    cause a segfault (crash) while extracting a thumbnail. If exiv2 does

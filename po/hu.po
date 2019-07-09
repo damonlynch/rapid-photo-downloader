@@ -2,28 +2,31 @@
 # Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
 # This file is distributed under the same license as the rapid package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
-# csola48 <csola48@gmail.com>, 2017.
+# csola48 <csola48@gmail.com>, 2017, 2019.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Rapid Photo Downloader 0.9.2\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2019-06-25 00:21-0400\n"
-"PO-Revision-Date: 2018-11-06 19:47+0000\n"
-"Last-Translator: Launchpad Translations Administrators <Unknown>\n"
-"Language-Team: magyar <csola48@gmail.com>\n"
-"Language: hu\n"
+"PO-Revision-Date: 2019-06-26 12:11+0200\n"
+"Last-Translator: csola48 <csola48@gmail.com>\n"
+"Language-Team: magyar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2019-03-30 00:28+0000\n"
-"X-Generator: Launchpad (build 18910)\n"
+"X-Launchpad-Export-Date: 2019-06-26 08:56+0000\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"Language: hu\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../install.py:69
 msgid ""
 "To continue, please first install the python3 package setuptools using your "
 "system's package manager."
 msgstr ""
+"A folytatáshoz először telepítse a python3 csomag beállításait a rendszer "
+"csomagkezelőjével."
 
 #: ../install.py:77
 msgid "Rapid Photo Downloader installer"
@@ -40,6 +43,9 @@ msgid ""
 "install gstreamer1-libav after having first added an appropriate software "
 "repository such as rpmfusion.org."
 msgstr ""
+"Ahhoz, hogy bélyegképeket állítson elő a szélesebb formátumú videofájlokhoz, "
+"telepítse a gstreamer1-libav-ot, miután először hozzáadott egy megfelelő "
+"szoftvertárat, például az rpmfusion.org-t."
 
 #: ../install.py:302 ../install.py:2625
 msgid "Installer not found:"
@@ -52,7 +58,7 @@ msgstr "A telepítő nem tar.gz típusú:"
 
 #: ../install.py:431
 msgid "{} will be upgraded from version {} to version {}"
-msgstr ""
+msgstr "{} frissítésre kerül a {} verzióról a {} verzióra"
 
 #: ../install.py:720
 msgid ""
@@ -94,7 +100,7 @@ msgstr "Engedélyezve kell lennie az Universe tárolónak"
 
 #: ../install.py:914
 msgid "The IUS Community repository must be enabled."
-msgstr ""
+msgstr "Az IUS közösségi tárolót engedélyezni kell."
 
 #: ../install.py:939
 msgid ""
@@ -111,7 +117,7 @@ msgstr ""
 
 #: ../install.py:1260
 msgid "Uninstalling system package"
-msgstr ""
+msgstr "A rendszercsomag eltávolítása"
 
 #: ../install.py:1283
 msgid ""
@@ -155,6 +161,8 @@ msgid ""
 "Querying yum to see if any required packages are already installed (this may "
 "take a while)... "
 msgstr ""
+"A yum lekérdezése, ha meg szeretné tekinteni, hogy a szükséges csomagok már "
+"telepítve vannak (ez eltarthat egy ideig) ..."
 
 #: ../install.py:1746
 msgid "Query to confirm action at each step."
@@ -237,6 +245,8 @@ msgid ""
 "Install in current Python virtual environment. Virtual environments created "
 "with the --system-site-packages option are not supported."
 msgstr ""
+"Telepítse a jelenlegi Python virtuális környezetbe. A --system-site-package "
+"opcióval létrehozott virtuális környezetek nem támogatottak."
 
 #: ../install.py:1872
 msgid "Failed to download versions file"
@@ -310,7 +320,7 @@ msgstr "Akarja telepíteni a kézikönyv (man) oldalakat?"
 #. Translators: do not translate {}/share/man/man1
 #: ../install.py:2297
 msgid "Man pages can be found in {}/share/man/man1"
-msgstr ""
+msgstr "Az oldalak a {}/share/man/man1 oldalon találhatók"
 
 #: ../install.py:2300
 msgid "Installing man pages into {}"
@@ -330,6 +340,8 @@ msgid ""
 "Rapid Photo Downloader can be started without activating the virtual "
 "environment by running {}/bin/rapid-photo-downloader"
 msgstr ""
+"A Rapid Photo Downloader a virtuális környezet aktiválása nélkül indítható a "
+"{} / bin / quick-photo-downloader futtatásával"
 
 #: ../install.py:2360
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
@@ -358,22 +370,30 @@ msgid ""
 "Do you want to install Rapid Photo Downloader into the current virtual "
 "environment?"
 msgstr ""
+"Szeretné telepíteni a Rapid Photo Downloadert a jelenlegi virtuális "
+"környezetbe?"
 
 #: ../install.py:2438
 msgid ""
 "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
 "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
 msgstr ""
+"Sajnáljuk, a Rapid Photo Downloader Python virtuális környezetbe történő "
+"telepítéséhez Python 3.5 vagy újabb verzióra van szükség egy Intel vagy AMD "
+"64 bites platformon."
 
 #: ../install.py:2448
 msgid ""
 "To install Rapid Photo Downloader into a Python virtual environment, create "
 "and activate the virtual environment before starting this script."
 msgstr ""
+"A Rapid Photo Downloader Python virtuális környezetbe történő telepítéséhez "
+"hozza létre és aktiválja a virtuális környezetet, mielőtt elindítaná ezt a "
+"parancsfájlt."
 
 #: ../install.py:2456
 msgid "Using virtual environment for installation using pip."
-msgstr ""
+msgstr "A virtuális környezet használata a pip használatához."
 
 #: ../install.py:2461 ../install.py:2475
 msgid "Do not include any other command line arguments when specifying"
@@ -393,7 +413,7 @@ msgstr "A szkript újraindítása a python rendszer használatával ..."
 
 #: ../install.py:2509
 msgid "Detected Linux distribution {} {}"
-msgstr ""
+msgstr "Felismert Linux-disztribúció {} {}"
 
 #: ../install.py:2531
 msgid "Exiting..."
@@ -1679,7 +1699,7 @@ msgid "Problem in Rapid Photo Downloader"
 msgstr "Probléma a Rapid Photo Downloader-ben"
 
 #: ../raphodo/excepthook.py:93
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid ""
 "<b>A problem occurred in Rapid Photo Downloader</b><br><br>\n"
 "            Please report the problem at <a href=\"{website}\">{website}</a>."
@@ -1700,14 +1720,23 @@ msgid ""
 "            about it.\n"
 "            "
 msgstr ""
-"<b> Probléma történt a Rapid Photo Downloader alkalmazásban </b> <br> <br>\n"
-"     Kérjük, jelentse be a problémát <a href=\"{website}\"> {website} </a>\n"
-"     Csatolja a naplófájlt <i> {log_file} </i> a hibajelentéshez (kattintson "
-"a gombra\n"
-"     <a href=\"{log_path}\"> itt </a> a naplókönyvtár megnyitásához.) <br> "
-"<br> Ha ugyanaz a probléma fordul elő \n"
-"     mielőtt a program kilép, ne küldjön újat.\n"
-"    "
+"<b> Probléma merült fel a Rapid Photo Downloaderben </b> <br> <br>\n"
+"             Kérjük, jelentse a problémát a <a href=\"{website}\"> {website} "
+"</a> címen. <br> <br>\n"
+"             Tartalmazza a hibajelentésbe a program naplófájljait. A "
+"hibajelentésnek tartalmaznia kell\n"
+"             <i> {log_file} </i>, de a többi naplófájl csatolása gyakran "
+"hasznos. <br> <br>\n"
+"             Ha lehetséges, kérjük, adja meg a program konfigurációs fájlját "
+"is\n"
+"             <I> {konfigurációs_fájl} </ i>. <br>\n"
+"             Kattintson a <a href=\"{log_path}\"> itt </a> a naplókönyvtár "
+"megnyitásához, és\n"
+"             <a href=\"{config_path}\"> itt </a> a konfigurációs könyvtár "
+"megnyitásához. <br> <br>\n"
+"             Ha ugyanaz a probléma ismét jelentkezik, mielőtt a program "
+"kilép, ez az egyetlen értesítés\n"
+"             erről.650"
 
 #: ../raphodo/excepthook.py:118
 msgid "A problem occurred in Rapid Photo Downloader\n"
@@ -2142,13 +2171,13 @@ msgstr "Hónap (rövid)"
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:366
 msgid "Weekday (full)"
-msgstr ""
+msgstr "Hétköznap (teljes)"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:369
 msgid "Weekday (abbreviated)"
-msgstr ""
+msgstr "Hétköznap (rövidítve)"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -4125,6 +4154,19 @@ msgid ""
 "directory.\n"
 "            "
 msgstr ""
+"Kérjük, jelentse a problémát a <a href=\"{website}\"> {website} </a> címen. "
+"<br> <br>\n"
+"             Tartalmazza a hibajelentésbe a program naplófájljait. A "
+"hibajelentésnek tartalmaznia kell\n"
+"             <i> {log_file} </i>, de a többi naplófájl csatolása gyakran "
+"hasznos. <br> <br>\n"
+"             Ha lehetséges, kérjük, adja meg a program konfigurációs fájlját "
+"is\n"
+"             <I> {konfigurációs_fájl} </ i>. <br>\n"
+"             Kattintson a <a href=\"{log_path}\"> itt </a> a naplókönyvtár "
+"megnyitásához, és\n"
+"             <a href=\"{config_path}\"> itt </a> a konfigurációs könyvtár "
+"megnyitásához."
 
 #: ../raphodo/rapid.py:2603
 msgid "Thank you for reporting a problem in Rapid Photo Downloader"
@@ -4407,7 +4449,7 @@ msgid "Program preferences are invalid"
 msgstr "A program beállítása nem jó."
 
 #: ../raphodo/rapid.py:4331
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<b>All files on the %(camera)s are inaccessible</b>.<br><br>It may be locked "
 "or not configured for file transfers using USB. You can unlock it and try "
@@ -4418,11 +4460,15 @@ msgid ""
 "documentation/#downloadingfromphones\">enabling downloading from phones</a>. "
 "<br><br>Alternatively, you can ignore the %(camera)s."
 msgstr ""
-"<b> A(z) %(camera)s összes fájlja elérhetetlen </b>. <br> <br> Lehet, hogy "
-"zárolva vagy nincs konfigurálva az MTP használatával történő fájlátvitelre. "
-"Feloldhatja és megpróbálhatja újra. <br> <br> Néhány modellen is meg kell "
-"változtatnia az <i> USB töltéshez </i> az USB-t a fájlok átviteléhez </i>. "
-"<br> Alternatív megoldásként figyelmen kívül hagyhatja ezt az eszközt."
+"<b> A %(camera) összes fájlja nem érhető el </b>. <br> <br> Lehet, hogy az "
+"USB-n keresztüli fájlátvitelre zárolt vagy nem konfigurált. Feloldhatja és "
+"megpróbálhatja újra. <br> <br> Néhány modellnél módosítania kell a "
+"beállítást, hogy az <i> fájlátvitelhez </i> használható USB-t. <br> <br> "
+"További információ <a href=\"https://damonlynch.net/rapid/documentation/"
+"#downloadingfromcameras\"> letöltés kamerákról </a> és <a href=\"https://"
+"damonlynch.net/rapid/documentation/#downloadingfromphones\"> letölthető a "
+"telefonokról </a>. <br> <br> Alternatív megoldásként figyelmen kívül "
+"hagyhatja a%(camera) -t."
 
 #: ../raphodo/rapid.py:4347
 #, python-format
@@ -4439,6 +4485,16 @@ msgid ""
 "\">enabling downloading from phones</a>. <br><br>Alternatively, you can "
 "ignore the %(camera)s."
 msgstr ""
+"A Downloader nem férhet hozzá olyan telefonhoz vagy fényképezőgéphez, "
+"amelyet egy másik program használ, mint egy fájlkezelő. <br> <br> Ha az "
+"eszköz a fájlkezelőben van, először &quot; eject&quot; a másik programból, "
+"miközben megtartja a %(camera) -t csatlakoztatva. <br> <br> Ha ez nem "
+"működik, húzza ki a %(camera) -t a számítógépről és csatlakoztassa újra. "
+"<br> <br> További információ a <a href=\"https://damonlynch.net/rapid/"
+"documentation/#downloadingfromcameras\"> kamerákról történő letöltésről </a> "
+"és <a href = \"https://damonlynch.net/rapid/documentation/# "
+"letöltésfrissítések a telefonokról </a>. <br> <br> Alternatív megoldásként "
+"figyelmen kívül hagyhatja a %(camera) -t."
 
 #: ../raphodo/rapid.py:4366
 msgid "&Try Again"
@@ -4592,7 +4648,7 @@ msgstr "%(number)s %(available files)s ellenőrzött a letöltésre"
 
 #: ../raphodo/rapid.py:5901
 msgid "Show version numbers of program and its libraries and exit."
-msgstr ""
+msgstr "A program és könyvtárai verziószámainak megjelenítése és kilépés."
 
 #: ../raphodo/rapid.py:5905
 msgid "Display program information when run from the command line."
@@ -5263,34 +5319,6 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid-photo-downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Fotók és videók letöltése a Rapid Photo Downloader alkalmazással"
-
-#~ msgid ""
-#~ "Please report the problem at <a href=\"{website}\">{website}</a>."
-#~ "<br><br>\n"
-#~ "            Attach the log file <i>{log_file}</i> to your report (click\n"
-#~ "            <a href=\"{log_path}\">here</a> to open the log directory).\n"
-#~ "            "
-#~ msgstr ""
-#~ "Kérjük, jelentse be a problémát <a href=\"{website}\"> {website} </a>\n"
-#~ "             Csatlakoztassa a naplófájlt <i> {log_file} </i> a "
-#~ "jelentéséhez (kattintson a gombra\n"
-#~ "             <a href=\"{log_path}\"> itt </a> a naplókönyvtár "
-#~ "megnyitásához).\n"
-#~ "            "
-
-#~ msgid ""
-#~ "<b>The %(camera)s appears to be in use by another application.</"
-#~ "b><br><br>You can close any other application (such as a file browser) "
-#~ "that is using it and try again. If that does not work, unplug the "
-#~ "%(camera)s from the computer and plug it in again.<br><br>Alternatively, "
-#~ "you can ignore this device."
-#~ msgstr ""
-#~ "<b> Úgy tűnik, hogy a(z) %(camera)s használatban van egy másik "
-#~ "alkalmazással. </b> <br> <br> Le tud zárni minden olyan alkalmazást "
-#~ "(például egy fájlböngészőt), amelyik használta és próbálja meg újra. Ha "
-#~ "ez nem működik, húzza ki a számítógépből a(z) %(camera)s csatlakozót és "
-#~ "csatlakoztassa újra. <br> <br> Másik lehetőségként figyelmen kívül "
-#~ "hagyhatja a készüléket."
 
 #~ msgid "Select a folder to download photos to"
 #~ msgstr "Válasszon egy letöltési könyvtárat"

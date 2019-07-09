@@ -37,6 +37,7 @@ import glob
 import polib
 import arrow
 import re
+import argparse
 
 
 blacklist = ['gl', 'lt', 'fil', 'en_AU', 'en_GB', 'eo', 'ku']
@@ -47,9 +48,28 @@ whitelist = [
 ]
 
 
+def parser_options(formatter_class=argparse.HelpFormatter):
+    parser = argparse.ArgumentParser(
+        prog="Extract po files", description="Update translations from launchpad",
+        formatter_class=formatter_class
+    )
+
+    parser.add_argument(
+        '-d', '--dry-run', action='store_true',
+        help="Simulate translation update."
+    )
+
+    return parser
+
+
 def get_lang(pofile_name):
     return os.path.basename(pofile_name)[len('rapid-photo-downloader-'):-3]
 
+
+parser = parser_options()
+args = parser.parse_args()
+
+dry_run = args.dry_run
 
 lang_english_re = re.compile('(.+)<.+>')
 
@@ -98,6 +118,8 @@ else:
         lang = get_lang(pofile)
         po = polib.pofile(pofile)
         date = po.metadata['PO-Revision-Date']
+        last_modified_by = po.metadata['Last-Translator']
+        last_modified_by_lp = last_modified_by.find('Launchpad Translations Administrators') >= 0
         match = lang_english_re.search(po.metadata['Language-Team'])
         if match:
             lang_english = match.group(1).strip()
@@ -116,15 +138,16 @@ else:
                 dest_date = dest_po.metadata['PO-Revision-Date']
                 date_p = arrow.get(date)
                 dest_date_p = arrow.get(dest_date)
-                if date_p > dest_date_p:
+                if not last_modified_by_lp:
                     print('{:21}: modified {}'.format(lang_english, date_p.humanize()))
 
                     updated_langs.append(lang_english)
-                    backupfile = os.path.join(po_backup_dir, '%s.po' % lang)
-                    if os.path.exists(backupfile):
-                        os.unlink(backupfile)
-                    os.rename(dest_pofile, backupfile)
-                    os.rename(pofile, dest_pofile)
+                    if not dry_run:
+                        backupfile = os.path.join(po_backup_dir, '%s.po' % lang)
+                        if os.path.exists(backupfile):
+                            os.unlink(backupfile)
+                        os.rename(dest_pofile, backupfile)
+                        os.rename(pofile, dest_pofile)
                 else:
                     print(
                         '{:21}: no change (last modified {})'.format(
@@ -147,8 +170,9 @@ else:
     if unknown_langs:
         print("WARNING: unrecognized languages are", unknown_langs)
 
-    print("Backing up translations tar %s to %s" % (translations_tar, backup_tar))
-    os.rename(translations_tar, backup_tar)
+    if not dry_run:
+        print("Backing up translations tar %s to %s" % (translations_tar, backup_tar))
+        os.rename(translations_tar, backup_tar)
 
 
 for f in os.listdir(source_po_dir):
