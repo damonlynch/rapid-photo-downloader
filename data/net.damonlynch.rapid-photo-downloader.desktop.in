@@ -1,7 +1,7 @@
 [Desktop Entry]
 Categories=Graphics;Photography;
 _Comment=Download, rename and back up photos and videos from cameras and other devices
-Exec=rapid-photo-downloader
+Exec=rapid-photo-downloader %f
 _GenericName=Photo Downloader
 Icon=rapid-photo-downloader
 MimeType=x-content/image-dcf;

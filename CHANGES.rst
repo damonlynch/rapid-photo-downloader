@@ -1,6 +1,16 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.16 (2019-xx-xx)
+-------------------
+
+ - Added the directory THMBNL to the standard list of ignored directories. This
+   directory is used on some Sony cameras.
+
+ - Added %f argument to Exec component of desktop file, potentially fixing
+   problem with the program not appearing in Gnome's list of applications to
+   deal with memory cards or cameras.
+
 0.9.15 (2019-07-09)
 -------------------
 

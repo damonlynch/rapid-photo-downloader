@@ -327,7 +327,7 @@ class Preferences:
         # pre 0.9.3a1 value: device_without_dcim_autodetection=False, is now replaced by
         # scan_specific_folders
         folders_to_scan=['DCIM', 'PRIVATE', 'MP_ROOT'],
-        ignored_paths=['.Trash', '.thumbnails'],
+        ignored_paths=['.Trash', '.thumbnails', 'THMBNL'],
         use_re_ignored_paths=False,
         volume_whitelist=[''],
         volume_blacklist=[''],
