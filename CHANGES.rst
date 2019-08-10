@@ -14,6 +14,8 @@ Changelog for Rapid Photo Downloader
    problem with the program not appearing in Gnome's list of applications to
    deal with memory cards or cameras.
 
+ - Updated Polish translation.
+
 0.9.15 (2019-07-09)
 -------------------
 
