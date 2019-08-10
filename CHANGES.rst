@@ -1,8 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.16 (2019-xx-xx)
+0.9.16 (2019-08-10)
 -------------------
+
+ - Fixed bug #1839699 where program would fail to start when the python
+   library arrow 0.4.15 or newer is installed.
 
  - Added the directory THMBNL to the standard list of ignored directories. This
    directory is used on some Sony cameras.

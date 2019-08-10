@@ -157,7 +157,7 @@ class MetaData(metadataexiftool.MetadataExiftool):
                             if dt_et is not None:
                                 hour = tz // 60 * -1
                                 minute = tz % 60 * -1
-                                adjusted_dt_mi = dt_mi.replace(hours=hour, minutes=minute).naive
+                                adjusted_dt_mi = dt_mi.shift(hours=hour, minutes=minute).naive
                                 if datetime_roughly_equal(adjusted_dt_mi, dt_et):
                                     logging.debug(
                                         "Favoring ExifTool datetime metadata (%s) "

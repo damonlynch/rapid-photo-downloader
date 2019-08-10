@@ -547,7 +547,7 @@ def datetime_roughly_equal(dt1: Union[datetime, float], dt2: Union[datetime, flo
 
     at1 = arrow.get(dt1)
     at2 = arrow.get(dt2)
-    return at1.replace(seconds=-seconds) < at2 < at1.replace(seconds=+seconds)
+    return at1.shift(seconds=-seconds) < at2 < at1.shift(seconds=+seconds)
 
 
 def process_running(process_name: str, partial_name: bool=True) -> bool:
