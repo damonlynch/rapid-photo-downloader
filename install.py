@@ -55,6 +55,7 @@ import string
 import site
 import stat
 import locale
+import textwrap
 # Use the default locale as defined by the LANG variable
 locale.setlocale(locale.LC_ALL, '')
 from base64 import b85decode
@@ -2235,14 +2236,14 @@ def do_install(installer: str,
     else:
         install_path = os.path.join(os.path.expanduser('~'), site.getuserbase(), 'bin')
 
+    created_bin_dir = False
+
     if install_path not in path.split(':') or venv:
         if not venv and (distro in debian_like or distro == Distro.opensuse):
             bin_dir = os.path.join(os.path.expanduser('~'), 'bin')
             if not os.path.isdir(bin_dir):
                 created_bin_dir = True
                 os.mkdir(bin_dir)
-            else:
-                created_bin_dir = False
 
             for executable in ('rapid-photo-downloader', 'analyze-pv-structure'):
                 symlink = os.path.join(bin_dir, executable)
@@ -2271,13 +2272,6 @@ def do_install(installer: str,
                     else:
                         print('There is another file at targeted symlink location:', symlink)
 
-            if created_bin_dir:
-                print(
-                    bcolors.BOLD + "\n" + _(
-                        "You may have to restart the computer to be able to run the "
-                        "program from the commmand line or application launcher."
-                    ) + bcolors.ENDC
-                )
         else:
             sys.stderr.write("\nThe application was installed in {}\n".format(install_path))
             sys.stderr.write("Add {} to your PATH to be able to launch it.\n".format(install_path))
@@ -2356,6 +2350,24 @@ def do_install(installer: str,
 
     if display_gstreamer_message:
         print(gstreamer_message)
+
+    if created_bin_dir:
+        msg = _(
+            "You may have to restart the computer to be able to run the "
+            "program from the commmand line or application launcher."
+        )
+        cmd = shutil.which('zenity')
+        if cmd is None:
+            print(
+                bcolors.BOLD + "\n" + msg + bcolors.ENDC
+            )
+        else:
+            text = '\n'.join(textwrap.wrap(msg, width=50))
+            command_line = '{} --info --no-wrap ' \
+                           '--title="Rapid Photo Downloader" ' \
+                           '--text="{}"'.format(cmd, text)
+            args = shlex.split(command_line)
+            subprocess.call(args=args)
 
     print("\n" + _("(If a segmentation fault occurs at exit, you can ignore it...)"))
 
