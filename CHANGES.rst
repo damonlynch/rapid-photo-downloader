@@ -12,6 +12,8 @@ Changelog for Rapid Photo Downloader
 
  - Allow the use of the system Python while installing on Gentoo systems.
 
+ - Updated Polish translation.
+
 0.9.16 (2019-08-10)
 -------------------
 

@@ -40,11 +40,16 @@ import re
 import argparse
 import pickle
 from collections import namedtuple
-import pkg_resources
-
+from pkg_resources import parse_version
+import warnings
 import sortedcontainers
 from launchpadlib.launchpad import Launchpad
 
+arrow_version = parse_version(arrow.__version__)
+# Suppress parsing warnings for 0.14.3 <= Arrow version < 0.15
+if arrow_version >= parse_version('0.14.3') and arrow_version < parse_version('0.15.0'):
+    from arrow.factory import ArrowParseWarning
+    warnings.simplefilter("ignore", ArrowParseWarning)
 
 blacklist = ['gl', 'lt', 'fil', 'en_AU', 'en_GB', 'eo', 'ku']
 whitelist = [
@@ -128,7 +133,7 @@ def get_latest_release_date():
                     if first_digit.start():
                         version_raw = parsed_version[first_digit.start():]
                         version_number = version_raw.replace('~', '')
-                        version = pkg_resources.parse_version(version_number)
+                        version = parse_version(version_number)
                         bare_link = 'https://launchpad.net/' + t_name[i:j] + "+download/"
                         link = bare_link + package
                         print('Processing version', version)
@@ -143,7 +148,7 @@ def get_latest_release_date():
                         break
         else:
             version_number, release_date, link, bare_link = cache[str(l)]
-            version = pkg_resources.parse_version(version_number)
+            version = parse_version(version_number)
             release_date = arrow.get(release_date)
             detail = details(release_date, link, bare_link)
             if version.is_prerelease:
