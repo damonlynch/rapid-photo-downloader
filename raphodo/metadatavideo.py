@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2019 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2018, Damon Lynch"
+__copyright__ = "Copyright 2011-2019, Damon Lynch"
 
 import datetime
 import logging
@@ -31,7 +31,7 @@ from arrow.arrow import Arrow
 from raphodo.programversions import EXIFTOOL_VERSION
 import raphodo.exiftool as exiftool
 import raphodo.metadataexiftool as metadataexiftool
-from raphodo.utilities import datetime_roughly_equal
+from raphodo.utilities import datetime_roughly_equal, arrow_shift_support
 from raphodo.constants import FileType
 
 try:
@@ -157,7 +157,10 @@ class MetaData(metadataexiftool.MetadataExiftool):
                             if dt_et is not None:
                                 hour = tz // 60 * -1
                                 minute = tz % 60 * -1
-                                adjusted_dt_mi = dt_mi.shift(hours=hour, minutes=minute).naive
+                                if arrow_shift_support:
+                                    adjusted_dt_mi = dt_mi.shift(hours=hour, minutes=minute).naive
+                                else:
+                                    adjusted_dt_mi = dt_mi.replace(hours=hour, minutes=minute).naive
                                 if datetime_roughly_equal(adjusted_dt_mi, dt_et):
                                     logging.debug(
                                         "Favoring ExifTool datetime metadata (%s) "

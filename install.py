@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2016-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2019 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -31,7 +31,7 @@
 # installed from pypi or another source.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2018, Damon Lynch"
+__copyright__ = "Copyright 2016-2019, Damon Lynch"
 
 import sys
 import os
@@ -74,7 +74,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = '0.2.8'
+__version__ = '0.2.9'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -2494,7 +2494,9 @@ def main():
         cleanup_on_exit(installer_to_delete_on_error='')
         sys.exit(0)
 
-    if custom_python() and not venv:
+    distro = get_distro()
+
+    if custom_python() and not venv and distro != Distro.gentoo:
         excecutable = valid_system_python()
         if excecutable is None:
             sys.stderr.write(
@@ -2510,8 +2512,6 @@ def main():
             restart_script(restart_with=excecutable)
 
     local_folder_permissions(interactive=args.interactive)
-
-    distro = get_distro()
 
     if distro != Distro.unknown:
         distro_version = get_distro_version(distro)

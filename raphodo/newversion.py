@@ -134,6 +134,7 @@ class NewVersion(QObject):
                 else:
                     stable = self.version['stable']
                     dev = self.version['dev']
+                    # Dates in format 2019-08-10T08:01:00+00:00
                     dev_version = version_details(
                         version=pkg_resources.parse_version(dev['version']),
                         release_date=arrow.get(dev['date']).to('local'),

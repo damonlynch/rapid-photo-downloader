@@ -39,13 +39,38 @@ from typing import Optional, List, Union, Any, Tuple
 import struct
 import ctypes
 import signal
-import pkg_resources
+import warnings
+from pkg_resources import parse_version
 
 import arrow
 import psutil
 from PyQt5.QtCore import QSize
 
 import raphodo.__about__ as __about__
+
+
+# Arrow 0.9.0 separated the replace and shift functions into separate calls, deprecating using
+# replace() to do the work of the new shift()
+# Arrow 0.14.5 removed the deprecated shift functionality from the replace()
+try:
+    arrow_version = parse_version(arrow.__version__)
+except AttributeError:
+    arrow_version = None
+
+if arrow_version is not None:
+    arrow_shift_support = arrow_version >= parse_version('0.9.0')
+else:
+    try:
+        now = arrow.now()
+        now.shift(seconds=1)
+        arrow_shift_support = True
+    except AttributeError:
+        arrow_shift_support = False
+
+# Suppress parsing warnings for 0.14.3 <= Arrow version < 0.15
+if arrow_version >= parse_version('0.14.3') and arrow_version < parse_version('0.15.0'):
+    from arrow.factory import ArrowParseWarning
+    warnings.simplefilter("ignore", ArrowParseWarning)
 
 
 # Linux specific code to ensure child processes exit when parent dies
@@ -547,7 +572,10 @@ def datetime_roughly_equal(dt1: Union[datetime, float], dt2: Union[datetime, flo
 
     at1 = arrow.get(dt1)
     at2 = arrow.get(dt2)
-    return at1.shift(seconds=-seconds) < at2 < at1.shift(seconds=+seconds)
+    if arrow_shift_support:
+        return at1.shift(seconds=-seconds) < at2 < at1.shift(seconds=+seconds)
+    else:
+        return at1.replace(seconds=-seconds) < at2 < at1.replace(seconds=+seconds)
 
 
 def process_running(process_name: str, partial_name: bool=True) -> bool:
@@ -812,7 +840,7 @@ def extract_file_from_tar(full_tar_path, member_filename) -> bool:
 
 def current_version_is_dev_version(current_version=None) -> bool:
     if current_version is None:
-        current_version = pkg_resources.parse_version(__about__.__version__)
+        current_version = parse_version(__about__.__version__)
     return current_version.is_prerelease
 
 
