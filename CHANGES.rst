@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.17 (2019-08-17)
+0.9.17 (2019-08-18)
 -------------------
 
  - Fixed bug #1840499: Crash when python library arrow is older than version
@@ -10,7 +10,8 @@ Changelog for Rapid Photo Downloader
  - Suppress parsing warnings issued by python library arrow version >= 0.14.3
    and < 0.15.0.
 
- - Allow the use of the system Python while installing on Gentoo systems.
+ - Allow the use of the Python instance that the install.py script is invoked
+   with on Gentoo systems.
 
  - Updated Polish translation.
 

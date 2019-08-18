@@ -1,4 +1,4 @@
-Release Notes for Rapid Photo Downloader 0.9.16
+Release Notes for Rapid Photo Downloader 0.9.17
 ===============================================
 
  - Most photo thumbnails are generated using exiv2. Very rarely, exiv2 can
