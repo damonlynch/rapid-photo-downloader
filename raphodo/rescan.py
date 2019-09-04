@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2019 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -27,7 +27,7 @@ which is what a gphoto2 process does.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2017, Damon Lynch"
+__copyright__ = "Copyright 2011-2019, Damon Lynch"
 
 from typing import List, DefaultDict, Optional
 import logging
@@ -39,7 +39,7 @@ import gphoto2 as gp
 
 from raphodo.rpdfile import RPDFile
 from raphodo.camera import Camera, CameraProblemEx
-from preferences import ScanPreferences, Preferences
+from raphodo.preferences import ScanPreferences, Preferences
 
 
 class RescanCamera:
@@ -124,7 +124,7 @@ class RescanCamera:
             if name in self.prev_scanned_files:
                 prev_rpd_files = self.prev_scanned_files[name]
                 if len(prev_rpd_files) > 1:
-                    rpd_file = None  # type: RPDFile
+                    rpd_file = None  # type: Optional[RPDFile]
                     # more than one file with the same filename is found on the camera
                     # compare match by modification time and size check
                     for prev_rpd_file in prev_rpd_files:
