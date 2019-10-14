@@ -176,8 +176,9 @@ class Distro(Enum):
     antergos = 12
     elementary = 13
     centos = 14
-    gentoo = 15
-    deepin = 16
+    centos7 = 15
+    gentoo = 16
+    deepin = 17
     unknown = 20
 
 
@@ -185,7 +186,7 @@ debian_like = (
     Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint, Distro.galliumos,
     Distro.peppermint, Distro.elementary, Distro.deepin
 )
-fedora_like = (Distro.fedora, Distro.korora)
+fedora_like = (Distro.fedora, Distro.korora, Distro.centos)
 arch_like = (Distro.arch, Distro.manjaro, Distro.antergos)
 
 
@@ -193,7 +194,8 @@ installer_cmds = {
     Distro.fedora: 'dnf',
     Distro.debian: 'apt-get',
     Distro.opensuse: 'zypper',
-    Distro.centos: 'yum',
+    Distro.centos7: 'yum',
+    Distro.centos: 'dnf',
 }
 
 manually_mark_cmds = {
@@ -335,7 +337,7 @@ def pip_packages_required(distro: Distro):
         packages.append('{}-pip'.format(python3_version(distro)))
         local_pip = False
 
-    if distro != Distro.centos:
+    if distro != Distro.centos7:
 
         try:
             import setuptools
@@ -655,7 +657,7 @@ def python3_version(distro: Distro) -> str:
     :return: package name appropriate to platform
     """
 
-    if distro == Distro.centos:
+    if distro == Distro.centos7:
         return 'python36u'
     else:
         return 'python3'
@@ -740,6 +742,7 @@ def check_and_repair_folder_permission(path: str,
                         e, path
                     )
                 )
+
 def local_folder_permissions(interactive: bool) -> None:
     """
     Check and if necessary fix ownership and permissions for key installation folders
@@ -902,7 +905,7 @@ def enable_universe(interactive: bool) -> None:
         pass
 
 
-def enable_centos_ius(interactive: bool) -> None:
+def enable_centos7_ius(interactive: bool) -> None:
     """
     Enable the IUS repository on CentOS
 
@@ -924,6 +927,7 @@ def enable_centos_ius(interactive: bool) -> None:
     except Exception:
         pass
 
+
 def query_uninstall(interactive: bool) -> bool:
     """
     Query the user whether to uninstall the previous version of Rapid Photo Downloader
@@ -932,6 +936,7 @@ def query_uninstall(interactive: bool) -> bool:
     :param interactive: if False, the user will not be queried
     :return:
     """
+
     if not interactive:
         return True
 
@@ -1513,7 +1518,7 @@ def install_required_distro_packages(distro: Distro,
                 interactive=interactive, installer_to_delete_on_error=installer_to_delete_on_error
             )
 
-    elif distro_family == Distro.fedora:
+    elif distro_family == Distro.fedora:  # Includes CentOS 8
 
         missing_packages = []
         global display_gstreamer_message
@@ -1682,7 +1687,7 @@ def install_required_distro_packages(distro: Distro,
                     interactive=interactive,
                     installer_to_delete_on_error=installer_to_delete_on_error
                 )
-    elif distro_family == Distro.centos:
+    elif distro_family == Distro.centos7:
 
         packages = 'gstreamer1-plugins-good gobject-introspection libgphoto2-devel zeromq-devel ' \
                    'exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ rpm-build ' \
@@ -2550,12 +2555,14 @@ def main():
         )
         clean_locale_tmpdir()
         sys.exit(1)
+    elif distro == Distro.centos and distro_version < LooseVersion('8'):
+        distro = Distro.centos7
 
     if distro in (Distro.ubuntu, Distro.peppermint):
         enable_universe(args.interactive)
 
-    if distro == Distro.centos:
-        enable_centos_ius(args.interactive)
+    if distro == Distro.centos7:
+        enable_centos7_ius(args.interactive)
 
     if distro in debian_like:
         distro_family = Distro.debian
@@ -2568,7 +2575,7 @@ def main():
                 )
                 run_cmd(command_line, restart=True, interactive=args.interactive)
 
-    elif distro in fedora_like:
+    elif distro in fedora_like:  # Includes CentOS >= 8
         distro_family = Distro.fedora
     else:
         distro_family = distro
@@ -2578,7 +2585,8 @@ def main():
     if packages:
         packages = ' '.join(packages)
 
-        if distro_family not in (Distro.fedora, Distro.debian, Distro.opensuse, Distro.centos):
+        if distro_family not in (Distro.fedora, Distro.debian, Distro.opensuse, Distro.centos,
+                                 Distro.centos7):
             sys.stderr.write(
                 _(
                     "Install the following packages using your Linux distribution's standard "
@@ -2601,10 +2609,10 @@ def main():
             run_cmd(command_line, restart=True, interactive=args.interactive)
 
         # Special case: CentOS IUS does not have python3 wheel package
-        if distro == Distro.centos:
+        if distro == Distro.centos7:
             packages = 'wheel'
 
-        if local_pip or distro == Distro.centos:
+        if local_pip or distro == Distro.centos7:
             command_line = make_pip_command('install {} {}'.format(pip_user, packages), split=False)
             run_cmd(command_line, restart=True, interactive=args.interactive)
 
