@@ -7,32 +7,32 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2019-06-25 00:21-0400\n"
+"POT-Creation-Date: 2019-10-14 01:05+0000\n"
 "PO-Revision-Date: 2019-06-26 15:02+0000\n"
 "Last-Translator: Koji <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2019-08-17 22:04+0000\n"
-"X-Generator: Launchpad (build 19022)\n"
+"X-Launchpad-Export-Date: 2020-01-12 22:16+0000\n"
+"X-Generator: Launchpad (build bceb5ef013b87ef7aafe0755545ceb689ca7ac60)\n"
 "Language: ja\n"
 
-#: ../install.py:69
+#: ../install.py:70
 msgid ""
 "To continue, please first install the python3 package setuptools using your "
 "system's package manager."
 msgstr "先に進むには，お使いのシステムのパッケージマネージャを使って，python3パッケージのsetuptoolsをまず導入してください．"
 
-#: ../install.py:77
+#: ../install.py:78
 msgid "Rapid Photo Downloader installer"
 msgstr "高速写真ダウンローダ・インストーラ"
 
-#: ../install.py:78
+#: ../install.py:79
 msgid "Download and install latest version of Rapid Photo Downloader."
 msgstr "高速写真ダウンローダの最新版をダウンロードして導入します．"
 
-#: ../install.py:154
+#: ../install.py:155
 msgid ""
 "To be able to generate thumbnails for a wider range of video formats, "
 "install gstreamer1-libav after having first added an appropriate software "
@@ -41,127 +41,127 @@ msgstr ""
 "より多くの動画形式のサムネイルを生成できるようにするには、rpmfusion.orgなどの適切なソフトウェアリポジトリをまず追加した後に、gstreame"
 "r1-libavをインストールしてください。"
 
-#: ../install.py:302 ../install.py:2625
+#: ../install.py:305 ../install.py:2645
 msgid "Installer not found:"
 msgstr "インストーラが見つかりません："
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:306 ../install.py:2629
+#: ../install.py:309 ../install.py:2649
 msgid "Installer not in tar.gz format:"
 msgstr "インストーラがtar.gz形式になっていません："
 
-#: ../install.py:431
+#: ../install.py:434
 msgid "{} will be upgraded from version {} to version {}"
 msgstr "{}はバージョン{}から{}にアップグレードされます"
 
-#: ../install.py:720
+#: ../install.py:723
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
 "permissions for"
 msgstr "フォルダ所有者が正しくないことを検知しました．次の所有権を変更し権限をリセットします："
 
-#: ../install.py:850
+#: ../install.py:854
 msgid "The following command will be run:"
 msgstr "次のコマンドが実行されます："
 
-#: ../install.py:853 ../install.py:2291 ../install.py:2302
+#: ../install.py:857 ../install.py:2290 ../install.py:2301
 msgid "sudo may prompt you for the sudo password."
 msgstr "sudoがsudoパスワードを尋ねるかもしれません．"
 
-#: ../install.py:857
+#: ../install.py:861
 msgid "Would you like to run the command now?"
 msgstr "このコマンドをいま実行しますか？"
 
-#: ../install.py:859
+#: ../install.py:863
 msgid "Answer is not yes, exiting."
 msgstr "回答が「はい」ではありませんでしたので終了します．"
 
-#: ../install.py:870 ../install.py:1265 ../install.py:1318 ../install.py:1658
-#: ../install.py:1705
+#: ../install.py:874 ../install.py:1271 ../install.py:1324 ../install.py:1664
+#: ../install.py:1711
 msgid "Command failed"
 msgstr "コマンド失敗"
 
-#: ../install.py:872 ../install.py:1266 ../install.py:1319 ../install.py:1659
-#: ../install.py:1706
+#: ../install.py:876 ../install.py:1272 ../install.py:1325 ../install.py:1665
+#: ../install.py:1712
 msgid "Exiting"
 msgstr "終了します"
 
-#: ../install.py:893
+#: ../install.py:897
 msgid "The Universe repository must be enabled."
 msgstr "Universeリポジトリを有効にしなくてはなりません．"
 
-#: ../install.py:914
+#: ../install.py:918
 msgid "The IUS Community repository must be enabled."
 msgstr "IUSコミュニティのリポジトリを有効にする必要があります．"
 
-#: ../install.py:939
+#: ../install.py:945
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader:"
 msgstr "高速写真ダウンローダの旧版をアンインストールしますか？"
 
-#: ../install.py:1245 ../install.py:1272 ../install.py:1302
+#: ../install.py:1251 ../install.py:1278 ../install.py:1308
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
 msgstr "旧版の高速写真ダウンローダが導入済みかパッケージシステムに問い合わせています（これには時間を要することがあります）…"
 
-#: ../install.py:1260
+#: ../install.py:1266
 msgid "Uninstalling system package"
 msgstr "システムパッケージをアンインストールしています"
 
-#: ../install.py:1283
+#: ../install.py:1289
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again"
 msgstr "パッケージシステムに問い合わせができませんでした．インターネット接続を確認して再度実行してください"
 
-#: ../install.py:1323
+#: ../install.py:1329
 msgid "Checking if previous version installed with pip..."
 msgstr "旧版が導入済みかpipで確認しています…"
 
-#: ../install.py:1455 ../install.py:1482 ../install.py:1553
+#: ../install.py:1461 ../install.py:1488 ../install.py:1559
 msgid "The following package is unknown on your system: {}\n"
 msgstr "次のパッケージはシステム上で既知ではありません：{}\n"
 
-#: ../install.py:1495 ../install.py:1610 ../install.py:1666 ../install.py:1713
+#: ../install.py:1501 ../install.py:1616 ../install.py:1672 ../install.py:1719
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr "続けると，アプリケーションを実行するのに必要なパッケージが導入されます．"
 
-#: ../install.py:1547 ../install.py:1567
+#: ../install.py:1553 ../install.py:1573
 msgid "Querying installed and available packages (this may take a while)"
 msgstr "導入済みで利用できるパッケージを問い合わせています（これには時間を要することがあります）"
 
-#: ../install.py:1650
+#: ../install.py:1656
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr "必要なパッケージが導入済みかzypperに問い合わせています（これには時間を要することがあります）… "
 
-#: ../install.py:1698
+#: ../install.py:1704
 msgid ""
 "Querying yum to see if any required packages are already installed (this may "
 "take a while)... "
 msgstr "必要となるパッケージがすでに導入済みかどうかyumに問い合わせています（時間のかかる場合があります）… "
 
-#: ../install.py:1746
+#: ../install.py:1752
 msgid "Query to confirm action at each step."
 msgstr "各段階での操作確認を求める"
 
-#: ../install.py:1753
+#: ../install.py:1759
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
 msgstr "最新版をダウンロードする際，開発版が安定版よりも新しければ，そちらをインストールする"
 
-#: ../install.py:1762
+#: ../install.py:1768
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
 "オプションの高速写真ダウンローダのインストーラのtar.gz版アーカイブ．これを指定しない場合は，最新版がインターネットからダウンロードされます．"
 
-#: ../install.py:1785
+#: ../install.py:1791
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
@@ -170,13 +170,13 @@ msgstr ""
 "高速写真ダウンローダのインストーラのtar.gz版アーカイブが，このバージョン（{}）よりも新しいときでも，アーカイブ内のインストーラは実行しない．既定値"
 "では，新しい方のインストーラを実行します．"
 
-#: ../install.py:1792
+#: ../install.py:1798
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
 msgstr "pipでインストールした高速写真ダウンローダを，依存プログラムは保持したまま，アンインストールします．"
 
-#: ../install.py:1796
+#: ../install.py:1802
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
@@ -184,18 +184,18 @@ msgstr ""
 "高速写真ダウンローダをpipでインストール中にインストールした依存プログラムをアンインストールし，高速写真ダウンローダ自身もアンインストールして，終了しま"
 "す．"
 
-#: ../install.py:1801
+#: ../install.py:1807
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr "【註】この操作では，Linux頒布版のパッケージマネージャがインストールした高速写真ダウンローダは，アンインストールされません．"
 
-#: ../install.py:1808
+#: ../install.py:1814
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr "依存プログラムは，他のプログラムによって必要とされていない場合にのみ削除されます．"
 
-#: ../install.py:1814
+#: ../install.py:1820
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -209,7 +209,7 @@ msgstr ""
 "user」でアップグレードできます．また，Linux頒布版のパッケージマネージャがインストールした高速写真ダウンローダは，アンインストールされないことに注"
 "意してください．"
 
-#: ../install.py:1835
+#: ../install.py:1841
 msgid ""
 "Install in current Python virtual environment. Virtual environments created "
 "with the --system-site-packages option are not supported."
@@ -217,15 +217,15 @@ msgstr ""
 "現在のPythonバーチャル環境にインストールしてください。--system-site-"
 "packagesオプションを付けて生成されたバーチャル環境はサポートされません。"
 
-#: ../install.py:1872
+#: ../install.py:1878
 msgid "Failed to download versions file"
 msgstr "バージョンファイルのダウンロードに失敗しました"
 
-#: ../install.py:1876
+#: ../install.py:1882
 msgid "Got error code {} while accessing versions file"
 msgstr "バージョンファイルへのアクセス中に，エラーコード{}を受け取りました．"
 
-#: ../install.py:1984
+#: ../install.py:1990
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -237,67 +237,61 @@ msgstr ""
 "\n"
 "終了します．\n"
 
-#: ../install.py:2113
+#: ../install.py:2119
 msgid "Received error code"
 msgstr "エラーコードを受け取りました"
 
-#: ../install.py:2115
+#: ../install.py:2121
 msgid "Failed to install application requirements: exiting"
 msgstr "アプリケーションの必要物を導入するのに失敗しました：終了します"
 
-#: ../install.py:2117
+#: ../install.py:2123
 msgid "Failed to install application: exiting..."
 msgstr "アプリケーションの導入に失敗しました：終了します…"
 
-#: ../install.py:2198
+#: ../install.py:2204
 msgid "Installing application requirements..."
 msgstr "アプリケーションの必要物を導入しています…"
 
-#: ../install.py:2223
+#: ../install.py:2229
 msgid "Installing application..."
 msgstr "アプリケーションを導入しています…"
 
-#: ../install.py:2277
-msgid ""
-"You may have to restart the computer to be able to run the program from the "
-"commmand line or application launcher."
-msgstr "プログラムをコマンドラインやアプリケーション・ロンチャーから起動するためには，コンピュータを再起動する必要があるかもしれません．"
-
-#: ../install.py:2288
+#: ../install.py:2287
 msgid "Do you want to install the application's man pages?"
 msgstr "アプリケーションのmanページを導入しますか？"
 
-#: ../install.py:2289
+#: ../install.py:2288
 msgid "They will be installed into {}"
 msgstr "これらは{}に導入されます"
 
-#: ../install.py:2290 ../install.py:2301
+#: ../install.py:2289 ../install.py:2300
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr "アプリケーションをアンインストールした場合には，これらのmanページをご自身で削除してください．"
 
-#: ../install.py:2292
+#: ../install.py:2291
 msgid "Do want to install the man pages?"
 msgstr "manページもインストールしますか？"
 
 #. Keep man pages in install location only
 #. Translators: do not translate {}/share/man/man1
-#: ../install.py:2297
+#: ../install.py:2296
 msgid "Man pages can be found in {}/share/man/man1"
 msgstr "Manページは{}/share/man/man1にあります"
 
-#: ../install.py:2300
+#: ../install.py:2299
 msgid "Installing man pages into {}"
 msgstr "manページを{}にインストールしています"
 
-#: ../install.py:2315
+#: ../install.py:2314
 msgid "Failed to create man page directory: exiting"
 msgstr "manページディレクトリを作成できませんでした：終了します"
 
-#: ../install.py:2336
+#: ../install.py:2335
 msgid "Failed to copy man page."
 msgstr "manページをコピーできませんでした"
 
-#: ../install.py:2351
+#: ../install.py:2350
 msgid ""
 "Rapid Photo Downloader can be started without activating the virtual "
 "environment by running {}/bin/rapid-photo-downloader"
@@ -305,11 +299,17 @@ msgstr ""
 "Rapid Photo Downloaderは{}/bin/rapid-photo-"
 "downloaderを実行すれば、バーチャル環境を有効化せずに起動することができます"
 
-#: ../install.py:2360
+#: ../install.py:2361
+msgid ""
+"You may have to restart the computer to be able to run the program from the "
+"commmand line or application launcher."
+msgstr "プログラムをコマンドラインやアプリケーション・ロンチャーから起動するためには，コンピュータを再起動する必要があるかもしれません．"
+
+#: ../install.py:2377
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr "（終了時にセグメンテーションフォルトが起きたとしても，無視して構いません…）"
 
-#: ../install.py:2373
+#: ../install.py:2390
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
@@ -318,7 +318,7 @@ msgstr ""
 "pipでインストールした高速写真ダウンローダをアンインストールするには，python3ツールのpipが必要です．\n"
 "先に進めません．終了します．"
 
-#: ../install.py:2416
+#: ../install.py:2433
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
@@ -326,13 +326,13 @@ msgstr ""
 "このインストールスクリプトをsudoもしくはrootユーザとして実行してはいけません．\n"
 "このプログラムを実行するユーザとして実行してください．\n"
 
-#: ../install.py:2427
+#: ../install.py:2444
 msgid ""
 "Do you want to install Rapid Photo Downloader into the current virtual "
 "environment?"
 msgstr "Rapid Photo Downloaderを現行のバーチャル環境にインストールしますか？"
 
-#: ../install.py:2438
+#: ../install.py:2455
 msgid ""
 "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
 "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
@@ -340,7 +340,7 @@ msgstr ""
 "申し訳ありません。Rapid Photo "
 "DownloaderをPyrhonバーチャル環境に導入するには、IntelもしくはAMDの64ビットプラットフォーム上のPython3.5以降が必要です。"
 
-#: ../install.py:2448
+#: ../install.py:2465
 msgid ""
 "To install Rapid Photo Downloader into a Python virtual environment, create "
 "and activate the virtual environment before starting this script."
@@ -348,15 +348,15 @@ msgstr ""
 "Rapid Photo "
 "DownloaderをPythonバーチャル環境に導入するには、このスクリプトを起動する前にバーチャル環境を生成し、かつ有効にしてください。"
 
-#: ../install.py:2456
+#: ../install.py:2473
 msgid "Using virtual environment for installation using pip."
 msgstr "pipを使った導入にバーチャル環境を使用しています。"
 
-#: ../install.py:2461 ../install.py:2475
+#: ../install.py:2478 ../install.py:2492
 msgid "Do not include any other command line arguments when specifying"
 msgstr "指定時に他のコマンドライン引数を入れないでください"
 
-#: ../install.py:2490
+#: ../install.py:2509
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
@@ -364,42 +364,42 @@ msgstr ""
 "ごめんなさい，このインストーラはカスタムpythonインストールはサポートしていません．\n"
 "終了します…"
 
-#: ../install.py:2497
+#: ../install.py:2516
 msgid "Restarting script using system python..."
 msgstr "システムpythonを使用してスクリプトを再開します…"
 
-#: ../install.py:2509
+#: ../install.py:2526
 msgid "Detected Linux distribution {} {}"
 msgstr "Linux頒布版{}{}を検出しました"
 
-#: ../install.py:2531
+#: ../install.py:2548
 msgid "Exiting..."
 msgstr "終了します..."
 
 #. Translators: do not translate the term python3-apt
-#: ../install.py:2553
+#: ../install.py:2572
 msgid "To continue, the package python3-apt must be installed."
 msgstr "続けるには，python3-aptパッケージが導入済みでなくてはなりません．"
 
-#: ../install.py:2572
+#: ../install.py:2592
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr "Linux頒布版の標準パッケージマネージャを使用して，以下のパッケージを導入し，このインストーラを再実行してください"
 
-#: ../install.py:2582
+#: ../install.py:2602
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
 msgstr "このプログラムを実行するには，Python3とそのパッケージ管理を行うプログラムが導入済みでなくてはなりません．"
 
 #. Translators: do not translate the terms Python 3, pip and setuptools
-#: ../install.py:2602
+#: ../install.py:2622
 msgid "Python 3's pip and setuptools must be upgraded for your user."
 msgstr "Python3のpipとsetuptoolsが更新されなくてはなりません．"
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:2619
+#: ../install.py:2639
 msgid "Installing python requests"
 msgstr "python requestsを導入しています"
 
@@ -457,20 +457,20 @@ msgstr "更新は成功しました．終了するには閉じるをクリック
 msgid "Upgrade failed. Click Close to exit."
 msgstr "更新に失敗しました．閉じるをクリックして終了してください．"
 
-#: ../upgrade.py:7834
+#: ../upgrade.py:8021
 #, python-format
 msgid "Upgrading %s..."
 msgstr "%sを更新中…"
 
-#: ../upgrade.py:7836
+#: ../upgrade.py:8023
 msgid "Press any key to continue..."
 msgstr "何かキーを押して続けてください…"
 
-#: ../upgrade.py:7849
+#: ../upgrade.py:8036
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr "高速写真ダウンローダの更新に失敗しました"
 
-#: ../upgrade.py:7851
+#: ../upgrade.py:8038
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
@@ -2423,55 +2423,55 @@ msgstr ""
 msgid "Save New Custom Preset"
 msgstr "新規設定スキームを保存"
 
-#: ../raphodo/newversion.py:313
+#: ../raphodo/newversion.py:314
 msgid "Checking for new version..."
 msgstr "新しいバージョンを確認しています..."
 
-#: ../raphodo/newversion.py:314
+#: ../raphodo/newversion.py:315
 msgid "You are running the latest version."
 msgstr "最新バージョンを実行しています．"
 
-#: ../raphodo/newversion.py:315
+#: ../raphodo/newversion.py:316
 msgid "Failed to contact the update server."
 msgstr "更新サーバへの接続に失敗しました．"
 
-#: ../raphodo/newversion.py:317
+#: ../raphodo/newversion.py:318
 #, python-format
 msgid "A new version of Rapid Photo Downloader (%s) is available."
 msgstr "高速写真ダウンローダの新しいバージョン（%s）があります．"
 
-#: ../raphodo/newversion.py:319
+#: ../raphodo/newversion.py:320
 msgid "Do you want to download the new version?"
 msgstr "新しいバージョンをダウンロードしますか？"
 
-#: ../raphodo/newversion.py:320
+#: ../raphodo/newversion.py:321
 #, python-format
 msgid "Changes in the new release can be viewed <a href=\"%s\">here</a>."
 msgstr "新しいリリースの変更点は，<a href=\"%s\">こちら</a>でご覧になれます．"
 
 #. Translators: this text appears in a button - the & sets the s key in combination with
 #. the alt key to act as the keyboard shortcut
-#: ../raphodo/newversion.py:349 ../raphodo/newversion.py:364
+#: ../raphodo/newversion.py:350 ../raphodo/newversion.py:365
 msgid "&Skip this release"
 msgstr "このリリースは無視(&S)"
 
 #. Translators: this text appears in a button - the & sets the o key in combination with
 #. the alt key to act as the keyboard shortcut
-#: ../raphodo/newversion.py:367
+#: ../raphodo/newversion.py:368
 msgid "&Open Download Page"
 msgstr "ダウンロードページを開く(&O)"
 
-#: ../raphodo/newversion.py:387
+#: ../raphodo/newversion.py:388
 msgid "Rapid Photo Downloader updates"
 msgstr "高速写真ダウンローダの更新"
 
 #. Translators: shows how much of a file has been downloaded e.g  123 KB of 1.3 MB
-#: ../raphodo/newversion.py:489
+#: ../raphodo/newversion.py:490
 #, python-format
 msgid "%(downloaded)s of %(total)s"
 msgstr "%(total)s 中 %(downloaded)s"
 
-#: ../raphodo/newversion.py:508
+#: ../raphodo/newversion.py:509
 msgid "Downloading..."
 msgstr "ダウンロード中..."
 
@@ -4716,125 +4716,125 @@ msgstr "各ファイルをダウンロード済として標識する"
 
 #. Translators: these values are file size suffixes like B representing bytes, KB representing
 #. kilobytes, etc.
-#: ../raphodo/utilities.py:171
+#: ../raphodo/utilities.py:196
 msgid "B"
 msgstr "B"
 
-#: ../raphodo/utilities.py:171
+#: ../raphodo/utilities.py:196
 msgid "KB"
 msgstr "KB"
 
-#: ../raphodo/utilities.py:171
+#: ../raphodo/utilities.py:196
 msgid "MB"
 msgstr "MB"
 
-#: ../raphodo/utilities.py:171
+#: ../raphodo/utilities.py:196
 msgid "GB"
 msgstr "GB"
 
-#: ../raphodo/utilities.py:171
+#: ../raphodo/utilities.py:196
 msgid "TB"
 msgstr "TB"
 
-#: ../raphodo/utilities.py:171
+#: ../raphodo/utilities.py:196
 msgid "PB"
 msgstr "PB"
 
-#: ../raphodo/utilities.py:171
+#: ../raphodo/utilities.py:196
 msgid "EB"
 msgstr "EB"
 
-#: ../raphodo/utilities.py:171
+#: ../raphodo/utilities.py:196
 msgid "ZB"
 msgstr "ZB"
 
-#: ../raphodo/utilities.py:171
+#: ../raphodo/utilities.py:196
 msgid "YB"
 msgstr "YB"
 
 #. two things in a list e.g. "device1 and device2"
-#: ../raphodo/utilities.py:398
+#: ../raphodo/utilities.py:423
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
 msgstr "%(first_item)s と %(last_item)s"
 
-#: ../raphodo/utilities.py:474
+#: ../raphodo/utilities.py:499
 msgid "one"
 msgstr "1"
 
-#: ../raphodo/utilities.py:475
+#: ../raphodo/utilities.py:500
 msgid "two"
 msgstr "2"
 
-#: ../raphodo/utilities.py:476
+#: ../raphodo/utilities.py:501
 msgid "three"
 msgstr "3"
 
-#: ../raphodo/utilities.py:477
+#: ../raphodo/utilities.py:502
 msgid "four"
 msgstr "4"
 
-#: ../raphodo/utilities.py:478
+#: ../raphodo/utilities.py:503
 msgid "five"
 msgstr "5"
 
-#: ../raphodo/utilities.py:479
+#: ../raphodo/utilities.py:504
 msgid "six"
 msgstr "6"
 
-#: ../raphodo/utilities.py:480
+#: ../raphodo/utilities.py:505
 msgid "seven"
 msgstr "7"
 
-#: ../raphodo/utilities.py:481
+#: ../raphodo/utilities.py:506
 msgid "eight"
 msgstr "8"
 
-#: ../raphodo/utilities.py:482
+#: ../raphodo/utilities.py:507
 msgid "nine"
 msgstr "9"
 
-#: ../raphodo/utilities.py:483
+#: ../raphodo/utilities.py:508
 msgid "ten"
 msgstr "10"
 
-#: ../raphodo/utilities.py:484
+#: ../raphodo/utilities.py:509
 msgid "eleven"
 msgstr "11"
 
-#: ../raphodo/utilities.py:485
+#: ../raphodo/utilities.py:510
 msgid "twelve"
 msgstr "12"
 
-#: ../raphodo/utilities.py:486
+#: ../raphodo/utilities.py:511
 msgid "thirteen"
 msgstr "13"
 
-#: ../raphodo/utilities.py:487
+#: ../raphodo/utilities.py:512
 msgid "fourteen"
 msgstr "14"
 
-#: ../raphodo/utilities.py:488
+#: ../raphodo/utilities.py:513
 msgid "fifteen"
 msgstr "15"
 
-#: ../raphodo/utilities.py:489
+#: ../raphodo/utilities.py:514
 msgid "sixteen"
 msgstr "16"
 
-#: ../raphodo/utilities.py:490
+#: ../raphodo/utilities.py:515
 msgid "seventeen"
 msgstr "17"
 
-#: ../raphodo/utilities.py:491
+#: ../raphodo/utilities.py:516
 msgid "eighteen"
 msgstr "18"
 
-#: ../raphodo/utilities.py:492
+#: ../raphodo/utilities.py:517
 msgid "ninenteen"
 msgstr "19"
 
-#: ../raphodo/utilities.py:493
+#: ../raphodo/utilities.py:518
 msgid "twenty"
 msgstr "20"
 

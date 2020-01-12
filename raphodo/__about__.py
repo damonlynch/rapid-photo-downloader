@@ -35,4 +35,4 @@ __author__ = 'Damon Lynch'
 __email__ = 'damonlynch@gmail.com'
 
 __license__ = 'GPL'
-__copyright__ = 'Copyright 2007-2019 {}'.format(__author__)
+__copyright__ = 'Copyright 2007-2020 {}'.format(__author__)

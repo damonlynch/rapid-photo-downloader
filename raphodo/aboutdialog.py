@@ -63,7 +63,7 @@ class AboutDialog(QDialog):
 
         # Standard About view
 
-        msg = """Copyright &copy; 2007-2019 Damon Lynch.<br><br>
+        msg = """Copyright &copy; 2007-2020 Damon Lynch.<br><br>
         <a href="http://www.damonlynch.net/rapid" %(link_style)s>
         www.damonlynch.net/rapid</a><br><br>
         This program comes with absolutely no warranty.<br>
@@ -108,7 +108,7 @@ class AboutDialog(QDialog):
         # Credits view
 
         credits_text = """
-        Copyright © 2007-2019 Damon Lynch.
+        Copyright © 2007-2020 Damon Lynch.
         Portions copyright © 2008-2015 Canonical Ltd.
         Portions copyright © 2013 Bernard Baeyens.
         Portions copyright © 2012-2015 Jim Easterbrook.
@@ -124,6 +124,7 @@ class AboutDialog(QDialog):
 
         Translators:
 
+        Ilker Alp <ilkeryus@gmail.com>
         Anton Alyab'ev <subeditor@dolgopa.org>
         Lőrincz András <level.andrasnak@gmail.com>
         Michel Ange <michelange@wanadoo.fr>

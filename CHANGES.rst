@@ -1,10 +1,18 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.18 (2019-10-xx)
+0.9.18 (2020-01-12)
 -------------------
 
- -
+ - Fixed bug in install.py script which meant the most recent version of PyQt5
+   failed to install because pip failed to build it. The solution is to update
+   the user's copy of pip to the latest version (not the system-wide version).
+   If this is not what you want, you can downgrade pip for your user after
+   program installation.
+
+ - Added Turkish translation. Thank you to Ilker Alp for the translation.
+   Updated Brazilian Portuguese, Finnish, German, Indonesian, Italian, Polish,
+   and Spanish translations.
 
 0.9.17 (2019-08-18)
 -------------------
