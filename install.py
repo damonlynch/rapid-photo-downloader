@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2016-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -31,7 +31,7 @@
 # installed from pypi or another source.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2019, Damon Lynch"
+__copyright__ = "Copyright 2016-2020, Damon Lynch"
 
 import sys
 import os
@@ -74,7 +74,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = '0.2.9'
+__version__ = '0.3.0'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -457,11 +457,11 @@ def make_pip_command(args: str, split: bool=True, disable_version_check: bool=Tr
         return cmd_line
 
 
-def make_distro_packager_commmand(distro_family: Distro,
-                                  packages: str,
-                                  interactive: bool,
-                                  command: str='install',
-                                  sudo: bool=True) -> str:
+def make_distro_packager_command(distro_family: Distro,
+                                 packages: str,
+                                 interactive: bool,
+                                 command: str='install',
+                                 sudo: bool=True) -> str:
     """
     Construct a call to the Linux distribution's packaging command
 
@@ -650,6 +650,46 @@ def update_pyqt5_and_sip(venv: bool) -> int:
     return 0
 
 
+def update_pip_setuptools_wheel(interactive: bool):
+    """
+    Update pip, setuptools and wheel to the latest versions, if necessary.
+
+    :param interactive: whether to prompt the user
+    """
+
+    packages = [
+        package for package in ('pip', 'setuptools', 'wheel')
+        if not installed_using_pip(package) or not is_latest_pypi_package(
+            package, show_message=True
+        )
+    ]
+
+    restart_required = False
+    for package in packages:
+        if package != ('pip'):
+            restart_required = True
+            break
+
+    if packages:
+        print(
+            _(
+                'These Python3 packages will be upgraded for your user (i.e. not system-wide): {}'
+            ).format(', '.join(packages))
+        )
+
+        command_line = make_pip_command(
+            'install {} --upgrade {}'.format(pip_user, ' '.join(packages)),
+            split=False, disable_version_check=True
+        )
+        run_cmd(
+            command_line,
+            interactive=interactive
+        )
+
+        if restart_required:
+            restart_script(restart_args='--do-not-upgrade-pip')
+
+
 def python3_version(distro: Distro) -> str:
     """
     Return package name appropriate to platform
@@ -791,7 +831,6 @@ def local_folder_permissions(interactive: bool) -> None:
         )
 
 
-
 def generate_random_file_name(length = 5) -> str:
     """
     Generate a random file name
@@ -807,19 +846,26 @@ def generate_random_file_name(length = 5) -> str:
         return ''.join(random.sample(filename_characters, length))
 
 
-def restart_script(restart_with=None) -> None:
+def restart_script(restart_with: str=None, restart_args: str='') -> None:
     """
     :param restart_with: if not None, instead of restarting with the
      Python that was called, using this python executable, which is the full
      path
+    :param restart_args: if restart is True, then when the script is restarted,
+     add these arguments
     """
 
     sys.stdout.flush()
     sys.stderr.flush()
-    # restart the script
+
+    # command line arguments
     args = sys.argv
     if locale_tmpdir:
         append_locale_cmdline_option(new_args=args)
+    if restart_args:
+        args.append(restart_args)
+    args.append('--script-restarted')
+
     if restart_with is None:
         executable = sys.executable
     else:
@@ -832,6 +878,7 @@ def restart_script(restart_with=None) -> None:
 
 def run_cmd(command_line: str,
             restart: bool=False,
+            restart_args: str='',
             exit_on_failure: bool=True,
             shell: bool=False,
             interactive: bool=False,
@@ -842,6 +889,8 @@ def run_cmd(command_line: str,
     :param command_line: the command to run with args
     :param restart: if True, restart this script using the same command line
      arguments as it was called with
+    :param restart_args: if restart is True, then when the script is restarted,
+     add these arguments
     :param exit_on_failure: if True, exit if the subprocess call fails
     :param shell: if True, run the subprocess using a shell
     :param interactive: if True, the user should be prompted to confirm
@@ -878,7 +927,7 @@ def run_cmd(command_line: str,
             sys.exit(1)
     else:
         if restart:
-            restart_script()
+            restart_script(restart_args=restart_args)
 
 
 def enable_universe(interactive: bool) -> None:
@@ -1086,7 +1135,7 @@ def opensuse_package_search(packages: str):
     :return: list of packages
     """
 
-    command_line = make_distro_packager_commmand(
+    command_line = make_distro_packager_command(
         distro_family=Distro.opensuse, packages=packages, interactive=True, command='se', sudo=False
     )
     args = shlex.split(command_line)
@@ -1149,7 +1198,7 @@ def centos_missing_packages(packages: str):
     :return: list of packages
     """
 
-    command_line = make_distro_packager_commmand(
+    command_line = make_distro_packager_command(
         distro_family=Distro.centos, packages=packages, interactive=True, command='list installed',
         sudo=False
     )
@@ -1264,7 +1313,7 @@ def uninstall_old_version(distro_family: Distro,
                 except Exception:
                     package = pkg.name
                 print(_("Uninstalling system package"), package)
-                cmd = make_distro_packager_commmand(distro_family, pkg_name, interactive, 'remove')
+                cmd = make_distro_packager_command(distro_family, pkg_name, interactive, 'remove')
                 run_cmd(cmd, installer_to_delete_on_error=installer_to_delete_on_error)
                 system_uninstall = True
         except Exception as e:
@@ -1297,7 +1346,7 @@ def uninstall_old_version(distro_family: Distro,
             i = q_inst.filter(name=pkg_name)
             if len(list(i)) and query_uninstall(interactive):
                 run_cmd(
-                    make_distro_packager_commmand(distro_family, pkg_name, interactive, 'remove'),
+                    make_distro_packager_command(distro_family, pkg_name, interactive, 'remove'),
                     installer_to_delete_on_error=installer_to_delete_on_error
                 )
                 system_uninstall = True
@@ -1314,7 +1363,7 @@ def uninstall_old_version(distro_family: Distro,
             if opensuse_package_installed('rapid-photo-downloader') \
                     and query_uninstall(interactive):
                 run_cmd(
-                    make_distro_packager_commmand(distro_family, pkg_name, interactive, 'rm'),
+                    make_distro_packager_command(distro_family, pkg_name, interactive, 'rm'),
                     installer_to_delete_on_error=installer_to_delete_on_error
                 )
                 system_uninstall = True
@@ -1503,7 +1552,7 @@ def install_required_distro_packages(distro: Distro,
             )
 
             run_cmd(
-                make_distro_packager_commmand(
+                make_distro_packager_command(
                     distro_family, ' '.join(missing_packages), interactive
                 ),
                 interactive=interactive, installer_to_delete_on_error=installer_to_delete_on_error
@@ -1618,7 +1667,7 @@ def install_required_distro_packages(distro: Distro,
                 ) + "\n"
             )
             run_cmd(
-                make_distro_packager_commmand(
+                make_distro_packager_command(
                     distro_family, ' '.join(missing_packages), interactive
                 ),
                 interactive=interactive, installer_to_delete_on_error=installer_to_delete_on_error
@@ -1674,7 +1723,7 @@ def install_required_distro_packages(distro: Distro,
                     ) + "\n"
                 )
                 run_cmd(
-                    make_distro_packager_commmand(
+                    make_distro_packager_command(
                         distro_family, ' '.join(missing_packages), interactive
                     ),
                     interactive=interactive,
@@ -1721,7 +1770,7 @@ def install_required_distro_packages(distro: Distro,
                     ) + "\n"
                 )
                 run_cmd(
-                    make_distro_packager_commmand(
+                    make_distro_packager_command(
                         distro_family, ' '.join(missing_packages), interactive
                     ),
                     interactive=interactive,
@@ -1782,6 +1831,14 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
 
     parser.add_argument(
         '--locale-tmpdir', action='store', dest='locale_tmpdir', help=argparse.SUPPRESS
+    )
+
+    parser.add_argument(
+        '--do-not-upgrade-pip', action='store_true', dest='do_not_upgrade_pip', help=argparse.SUPPRESS
+    )
+
+    parser.add_argument(
+        '--script-restarted', action='store_true', dest='script_restarted', help=argparse.SUPPRESS
     )
 
     parser.add_argument(
@@ -2106,7 +2163,7 @@ def run_latest_install(installer: str, delete_installer: bool) -> None:
         new_args = [install_script, '--delete-install-script-and-containing-dir']
         if delete_installer:
             new_args.append('--delete-tar-and-containing-dir')
-        new_args = new_args + sys.argv[1:]
+        new_args = new_args + sys.argv[1:] + '--script-restarted' + '--do-not-upgrade-pip'
         # restart the script
         os.execl(sys.executable, sys.executable, *new_args)
 
@@ -2523,7 +2580,10 @@ def main():
     else:
         distro_version = unknown_version
 
-    print(_('Detected Linux distribution {} {}'.format(distro.name.capitalize(), distro_version)))
+    if not args.script_restarted:
+        print(
+            _('Detected Linux distribution {} {}'.format(distro.name.capitalize(), distro_version))
+        )
 
     if distro == Distro.debian:
         if distro_version == unknown_version:
@@ -2570,7 +2630,7 @@ def main():
             if not custom_python():
                 # Translators: do not translate the term python3-apt
                 print(_('To continue, the package python3-apt must be installed.') + '\n')
-                command_line = make_distro_packager_commmand(
+                command_line = make_distro_packager_command(
                     distro_family, 'python3-apt', args.interactive
                 )
                 run_cmd(command_line, restart=True, interactive=args.interactive)
@@ -2605,7 +2665,7 @@ def main():
         )
 
         if not local_pip:
-            command_line = make_distro_packager_commmand(distro_family, packages, args.interactive)
+            command_line = make_distro_packager_command(distro_family, packages, args.interactive)
             run_cmd(command_line, restart=True, interactive=args.interactive)
 
         # Special case: CentOS IUS does not have python3 wheel package
@@ -2617,19 +2677,12 @@ def main():
             run_cmd(command_line, restart=True, interactive=args.interactive)
 
     # Can now assume that both pip, setuptools and wheel have been installed
-    if pip_version < StrictVersion('9.0'):
-        # Translators: do not translate the terms Python 3, pip and setuptools
-        print("\n" + _("Python 3's pip and setuptools must be upgraded for your user.") + "\n")
 
-        disable_version_check = pip_version >= StrictVersion('6.0')
+    if not args.do_not_upgrade_pip:
+        # Check if upgrade pip, setuptools and wheel to latest version
+        # A recent version of pip is required for some packages e.g. PyQt5
 
-        command_line = make_pip_command(
-            'install --user --upgrade pip setuptools wheel',
-            split=False, disable_version_check=disable_version_check
-        )
-
-        run_cmd(command_line, restart=True, interactive=args.interactive)
-
+        update_pip_setuptools_wheel(interactive=args.interactive)
 
     installer = args.tarfile
 

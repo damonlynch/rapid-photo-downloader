@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,12 +21,12 @@ Display an About window
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2019, Damon Lynch"
+__copyright__ = "Copyright 2016-2020, Damon Lynch"
 
 from gettext import gettext as _
 
 from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtGui import QPixmap,  QFont
+from PyQt5.QtGui import QPixmap, QFont
 
 from PyQt5.QtWidgets import (
     QDialog, QLabel, QVBoxLayout, QDialogButtonBox, QSizePolicy, QHBoxLayout, QStackedWidget,
