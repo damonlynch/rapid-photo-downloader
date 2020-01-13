@@ -1470,7 +1470,7 @@ def install_required_distro_packages(distro: Distro,
                    'python3-dev intltool libgphoto2-dev g++ exiv2 libraw-bin build-essential ' \
                    'python3-wheel python3-setuptools gir1.2-gexiv2-0.10 ' \
                    'python3-gi gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 '\
-                   'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
+                   'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 zenity '
 
         set_manually_installed = []
 
@@ -1575,7 +1575,7 @@ def install_required_distro_packages(distro: Distro,
 
         packages = 'gstreamer1-plugins-good ' \
                    'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ ' \
-                   'rpm-build python3-devel intltool libmediainfo python3-wheel'
+                   'rpm-build python3-devel intltool libmediainfo python3-wheel zenity '
 
         if not venv:
 
@@ -1676,7 +1676,7 @@ def install_required_distro_packages(distro: Distro,
     elif distro_family == Distro.opensuse:
 
         packages = 'zeromq-devel exiv2 exiftool python3-devel ' \
-                   'libgphoto2-devel libraw-devel gcc-c++ rpm-build intltool '
+                   'libgphoto2-devel libraw-devel gcc-c++ rpm-build intltool zenity '
 
         if not venv:
             base_python_packages = 'girepository-1_0 python3-gobject ' \
@@ -1740,7 +1740,8 @@ def install_required_distro_packages(distro: Distro,
 
         packages = 'gstreamer1-plugins-good gobject-introspection libgphoto2-devel zeromq-devel ' \
                    'exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ rpm-build ' \
-                   'gobject-introspection-devel cairo-gobject-devel python36u-devel libmediainfo '
+                   'gobject-introspection-devel cairo-gobject-devel python36u-devel libmediainfo ' \
+                   'zenity '
 
         if venv:
             build_source_packages = 'gcc zlib-devel bzip2 bzip2-devel readline-devel '\
