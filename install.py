@@ -715,7 +715,7 @@ def pip_package(package: str, local_pip: bool, distro: Distro) -> str:
     return package if local_pip else '{}-{}'.format(python3_version(distro), package)
 
 
-def installed_using_pip(package) -> bool:
+def installed_using_pip(package: str) -> bool:
     """
     Determine if python package was installed using pip.
 

@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.18 (2020-01-12)
+0.9.18 (2020-01-13)
 -------------------
 
  - Fixed bug in install.py script which meant the most recent version of PyQt5

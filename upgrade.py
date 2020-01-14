@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -39,7 +39,7 @@ at the script level i.e. in __name__ == '__main__'
 # subfolder, available in the online Rapid Photo Downloader source repository.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017-2018, Damon Lynch"
+__copyright__ = "Copyright 2017-2020, Damon Lynch"
 
 import sys
 import os
@@ -53,6 +53,7 @@ from subprocess import Popen, PIPE
 from queue import Queue, Empty
 import subprocess
 import platform
+import pkg_resources
 from distutils.version import StrictVersion
 import argparse
 import enum
@@ -74,7 +75,7 @@ from xdg import BaseDirectory
 import gettext
 import zmq
 import psutil
-
+import requests
 
 __title__ = _('Upgrade Rapid Photo Downloader')
 __description__ = "Upgrade to the latest version of Rapid Photo Downloader.\n" \
@@ -142,6 +143,88 @@ def clean_locale_tmpdir():
     locale_tmpdir = None
 
 
+def python_package_version(package: str) -> str:
+    """
+    Determine the version of an installed Python package
+    :param package: package name
+    :return: version number, if could be determined, else ''
+    """
+
+    try:
+        return pkg_resources.get_distribution(package).version
+    except pkg_resources.DistributionNotFound:
+        return ''
+
+
+def installed_using_pip(package: str) -> bool:
+    """
+    Determine if python package was installed using pip.
+
+    :param package: package name to search for
+    :return: True if installed via pip, else False
+    """
+
+    pip_install = False
+    try:
+        pkg = pkg_resources.get_distribution(package)
+        if pkg.has_metadata('INSTALLER'):
+            if pkg.get_metadata('INSTALLER').strip() == 'pip':
+                pip_install = True
+    except pkg_resources.DistributionNotFound:
+        pass
+    except Exception as e:
+        sys.stderr.write(
+            'An unknown error occurred checking if Python package {} is installed '
+            'using pip\n'.format(package)
+        )
+        sys.stderr.write(str(e) + '\n')
+
+    return pip_install
+
+
+def pypi_versions(package_name: str):
+    """
+    Determine list of versions available for a package on PyPi.
+    No error checking.
+
+    :param package_name: package to search for
+    :return: list of string versions
+    """
+
+    url = "https://pypi.python.org/pypi/{}/json".format(package_name)
+    data = requests.get(url).json()
+    return sorted(list(data["releases"].keys()), key=pkg_resources.parse_version, reverse=True)
+
+
+def is_latest_pypi_package(package_name: str) -> bool:
+    """
+    Determine if Python package is the most recently installable version
+    :param package_name: package to check
+    :return: True if is most recent, else False
+    """
+
+    current = python_package_version(package_name)
+    if not current:
+        return False
+
+    try:
+        versions = pypi_versions(package_name)
+    except Exception:
+        versions = []
+    if not versions:
+        # Something has gone wrong in the versions check
+        sys.stderr.write(
+            "Failed to determine latest version of Python package {}\n".format(package_name)
+        )
+        return False
+
+    latest = versions[0]
+
+    up_to_date = latest.strip() == current.strip()
+
+    return up_to_date
+
+
 class RunInstallProcesses:
     """
     Run subprocess pip commands in an isolated process, connected via zeromq
@@ -155,6 +238,8 @@ class RunInstallProcesses:
         self.responder.connect("tcp://localhost:{}".format(socket))
 
         installer = self.responder.recv_string()
+
+        self.update_pip_setuptools_wheel()
 
         # explicitly uninstall any previous version installed with pip
         self.send_message("Uninstalling previous version installed with pip...\n")
@@ -338,25 +423,9 @@ class RunInstallProcesses:
         else:
             return cmd_line
 
-    def python_package_version(self, package: str) -> str:
-        """
-        Determine the version of an installed Python package, according to pip
-        :param package: package name
-        :return: version number, if could be determined, else ''
-        """
-
-        args = self.make_pip_command('show {}'.format(package))
-        try:
-            output = subprocess.check_output(args, universal_newlines=True)
-            r = re.search(r"""^Version:\s*(.+)""", output, re.MULTILINE)
-            if r:
-                return r.group(1)
-        except subprocess.CalledProcessError:
-            return ''
-
     def match_pyqt5_and_sip(self) -> bool:
-        if self.python_package_version('PyQt5') == '5.9' and \
-                StrictVersion(self.python_package_version('sip')) == StrictVersion('4.19.4'):
+        if python_package_version('PyQt5') == '5.9' and \
+                StrictVersion(python_package_version('sip')) == StrictVersion('4.19.4'):
             # Upgrade sip to a more recent version
             args = self.make_pip_command('install -U --user sip')
             try:
@@ -366,6 +435,41 @@ class RunInstallProcesses:
                 return False
         return True
 
+    def update_pip_setuptools_wheel(self):
+        """
+        Update pip, setuptools and wheel to the latest versions, if necessary.
+        """
+
+        packages = [
+            package for package in ('pip', 'setuptools', 'wheel')
+            if not installed_using_pip(package) or not is_latest_pypi_package(package)
+        ]
+
+        if packages:
+            self.send_message(
+                'These Python3 packages will be upgraded for your user (i.e. not system-wide): '
+                '{}'.format(', '.join(packages))
+            )
+
+            cmd = self.make_pip_command(
+                'install --user --upgrade {}'.format(
+                    ' '.join(packages)
+                )
+            )
+            try:
+                with Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
+                    for line in p.stdout:
+                        self.send_message(line, truncate=True)
+                    p.wait()
+                    i = p.returncode
+                if i != 0:
+                    self.failure("Failed to upgrade essential Python tools: %i" % i)
+                    return
+            except Exception as e:
+                self.send_message(str(e))
+                self.failure("Failed to upgrade essential Python tools")
+                return
+
 
 class RPDUpgrade(QObject):
     """
@@ -374,7 +478,6 @@ class RPDUpgrade(QObject):
 
     message = pyqtSignal(str)
     upgradeFinished = pyqtSignal(bool)
-
 
     def run_process(self, port: int) -> bool:
         command_line = '{} {} --socket={}'.format(sys.executable, __file__, port)
@@ -590,6 +693,7 @@ class UpgradeDialog(QDialog):
         cmd = shutil.which('rapid-photo-downloader')
         subprocess.Popen(cmd)
         super().accept()
+
 
 def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentParser:
     """
