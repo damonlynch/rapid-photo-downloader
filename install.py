@@ -1844,7 +1844,7 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
 
     parser.add_argument(
         '--force-this-installer-version', action='store_true', dest='force_this_version',
-        # Translators: please don't translate the term tar.gz
+        # Translators: please don't translate the term tar.gz or remove the {}
         help= _(
             "Do not run the installer in the tar.gz Rapid Photo Downloader installer archive if "
             "it is newer than this version ({}). The default is to run whichever installer is "
@@ -2040,7 +2040,7 @@ class progress_bar_scanning(threading.Thread):
                 print('\b\b done!', flush=True)
 
 
-def download_installer(devel):
+def download_installer(devel: bool) -> str:
     tarball_url, md5_url = get_installer_url_md5(devel)
     if not tarball_url:
         sys.stderr.write(
@@ -2129,7 +2129,9 @@ def append_locale_cmdline_option(new_args):
     new_args.append('--locale-tmpdir={}'.format(locale_tmpdir))
 
 
-def run_latest_install(installer: str, delete_installer: bool) -> None:
+def run_latest_install(installer: str,
+                       delete_installer: bool,
+                       installer_downloaded: bool) -> None:
     """
     If the install script is newer than this script (as determined by
     the version number at the head of this script), run that newer
@@ -2137,6 +2139,8 @@ def run_latest_install(installer: str, delete_installer: bool) -> None:
 
     :param installer: the tar.gz installer
     :param delete_installer: whether to delete the tar.gz archive
+    :param installer_downloaded: whether the tar.gz installer was
+     downloaded automatically by this script
     """
 
     install_script = ''
@@ -2161,10 +2165,15 @@ def run_latest_install(installer: str, delete_installer: bool) -> None:
 
         clean_locale_tmpdir()
 
-        new_args = [install_script, '--delete-install-script-and-containing-dir']
+        if installer_downloaded:
+            new_args = [install_script, installer, '--delete-install-script-and-containing-dir']
+        else:
+            new_args = [install_script, '--delete-install-script-and-containing-dir']
         if delete_installer:
             new_args.append('--delete-tar-and-containing-dir')
-        new_args = new_args + sys.argv[1:] + '--script-restarted' + '--do-not-upgrade-pip'
+        new_args = new_args + sys.argv[1:]
+        if not '--script-restarted' in new_args:
+            new_args += ['--script-restarted', '--do-not-upgrade-pip']
         # restart the script
         os.execl(sys.executable, sys.executable, *new_args)
 
@@ -2210,16 +2219,21 @@ def do_install(installer: str,
     :param venv: installing into a virtual environment
     """
 
+    installer_downloaded = False
     if installer is None:
         delete_installer = True
         installer = download_installer(devel)
+        installer_downloaded = True
     elif delete_tar_and_dir:
         delete_installer = True
     else:
         delete_installer = False
 
     if not force_this_version:
-        run_latest_install(installer, delete_installer)
+        run_latest_install(
+            installer=installer, delete_installer=delete_installer,
+            installer_downloaded=installer_downloaded
+        )
 
     if delete_installer:
         installer_to_delete_on_error = installer

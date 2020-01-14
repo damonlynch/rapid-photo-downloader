@@ -1,5 +1,14 @@
-Release Notes for Rapid Photo Downloader 0.9.17
+Release Notes for Rapid Photo Downloader 0.9.18
 ===============================================
+
+ - The install script and the the built-in progrm update now automatically
+   update pip, setuptools and wheel to the latest versions, but only for your
+   user (i.e., not system-wide). They are updated because the latest versions
+   are necessary to install PyQt5. If you previously relied on the system pip
+   for your user, you can revert back to it with the following command (do not
+   run as sudo):
+
+   python3 -m pip uninstall --user pip
 
  - Most photo thumbnails are generated using exiv2. Very rarely, exiv2 can
    cause a segfault (crash) while extracting a thumbnail. If exiv2 does

@@ -1,14 +1,21 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.18 (2020-01-13)
+0.9.18 (2020-01-14)
 -------------------
 
  - Fixed bug in install.py script which meant the most recent version of PyQt5
    failed to install because pip failed to build it. The solution is to update
    the user's copy of pip to the latest version (not the system-wide version).
    If this is not what you want, you can downgrade pip for your user after
-   program installation.
+   program installation. See the release notes for more details.
+
+ - Fixed bug #1857144: with newer versions of the Python date time module Arrow,
+   if Arrow had not been translated to use the user's locale, Arrow will
+   generate an exception when displaying the humanized form of some dates,
+   causing Rapid Photo Downloader to crash. Now Rapid Photo Downloader
+   reverts to English for any humanized string that Arrow fails to handle in the
+   user's locale.
 
  - Added Turkish translation. Thank you to Ilker Alp for the translation.
    Updated Brazilian Portuguese, Finnish, German, Indonesian, Italian, Polish,

@@ -165,8 +165,8 @@ class ThumbnailListModel(QAbstractListModel):
         # Connect to the signal that is emitted when a thumbnailing operation is
         # terminated by us, not merely finished
         self.thumbnailer.workerStopped.connect(self.thumbnailWorkerStopped)
-        self.arrow_locale = arrow_locale()
-        logging.debug("Setting arrow locale to %s", self.arrow_locale)
+        self.arrow_locale_for_humanize = arrow_locale()
+        logging.debug("Setting arrow locale to %s", self.arrow_locale_for_humanize)
 
     def initialize(self) -> None:
         # uid: QPixmap
@@ -436,21 +436,43 @@ class ThumbnailListModel(QAbstractListModel):
             size = format_size_for_user(rpd_file.size)
             mtime = arrow.get(rpd_file.modification_time)
 
+            try:
+                mtime_h = mtime.humanize(locale=self.arrow_locale_for_humanize)
+            except Exception:
+                mtime_h = mtime.humanize()
+                logging.debug(
+                    "Failed to humanize modification time %s with locale %s, reverting to English",
+                    mtime_h, self.arrow_locale_for_humanize
+                )
+
             if rpd_file.ctime_mtime_differ():
                 ctime = arrow.get(rpd_file.ctime)
+
+                # Sadly, arrow raises an exception if it's locale is not translated when using
+                # humanize. So attempt conversion using user's locale, and if that fails, use
+                # English.
+
+                try:
+                    ctime_h = ctime.humanize(locale=self.arrow_locale_for_humanize)
+                except Exception:
+                    ctime_h = ctime.humanize()
+                    logging.debug(
+                        "Failed to humanize taken on time %s with locale %s, reverting to English",
+                        ctime_h, self.arrow_locale_for_humanize
+                    )
 
                 humanized_ctime = _(
                     'Taken on %(date_time)s (%(human_readable)s)'
                 ) % dict(
                         date_time=ctime.to('local').naive.strftime('%c'),
-                        human_readable=ctime.humanize(locale=self.arrow_locale)
+                        human_readable=ctime_h
                 )
 
                 humanized_mtime = _(
                     'Modified on %(date_time)s (%(human_readable)s)'
                 ) % dict(
                     date_time=mtime.to('local').naive.strftime('%c'),
-                    human_readable=mtime.humanize(locale=self.arrow_locale)
+                    human_readable=mtime_h
                 )
                 humanized_file_time = '{}<br>{}'.format(humanized_ctime, humanized_mtime)
             else:
@@ -458,7 +480,7 @@ class ThumbnailListModel(QAbstractListModel):
                     '%(date_time)s (%(human_readable)s)'
                 ) % dict(
                     date_time=mtime.to('local').naive.strftime('%c'),
-                    human_readable=mtime.humanize(locale=self.arrow_locale)
+                    human_readable=mtime_h
                 )
 
             humanized_file_time = humanized_file_time.replace(' ', '&nbsp;')
@@ -489,9 +511,17 @@ class ThumbnailListModel(QAbstractListModel):
             if rpd_file.previously_downloaded:
 
                 prev_datetime = arrow.get(rpd_file.prev_datetime, tzlocal())
+                try:
+                    prev_dt_h = prev_datetime.humanize(locale=self.arrow_locale_for_humanize)
+                except Exception:
+                    prev_dt_h = prev_datetime.humanize()
+                    logging.debug(
+                        "Failed to humanize taken on time %s with locale %s, reverting to English",
+                        prev_dt_h, self.arrow_locale_for_humanize
+                    )
                 prev_date = _('%(date_time)s (%(human_readable)s)') % dict(
                     date_time=prev_datetime.naive.strftime('%c'),
-                    human_readable=prev_datetime.humanize(locale=self.arrow_locale)
+                    human_readable=prev_dt_h
                 )
 
                 if rpd_file.prev_full_name != manually_marked_previously_downloaded:
