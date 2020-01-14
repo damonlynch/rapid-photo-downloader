@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-01-13 00:26-0500\n"
+"POT-Creation-Date: 2020-01-14 02:03-0500\n"
 "PO-Revision-Date: 2019-10-21 07:41+0000\n"
 "Last-Translator: Aydin Ilker Alp <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -44,12 +44,12 @@ msgstr ""
 "oluşturabilmek amacıyla, rpmfusion.org gibi uygun bir yazılım deposu "
 "ekledikten sonra gstreamer1-libav paketini kurun."
 
-#: ../install.py:305 ../install.py:2698
+#: ../install.py:305 ../install.py:2713
 msgid "Installer not found:"
 msgstr "Program kurucu bulunamadı:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:309 ../install.py:2702
+#: ../install.py:309 ../install.py:2717
 msgid "Installer not in tar.gz format:"
 msgstr "Kurucu tar.gz biçiminde değil:"
 
@@ -75,7 +75,7 @@ msgstr ""
 msgid "The following command will be run:"
 msgstr "Aşağıdaki komut çalıştırılacak"
 
-#: ../install.py:906 ../install.py:2347 ../install.py:2358
+#: ../install.py:906 ../install.py:2362 ../install.py:2373
 msgid "sudo may prompt you for the sudo password."
 msgstr "Sizden sudo şifresi istenebilir."
 
@@ -88,12 +88,12 @@ msgid "Answer is not yes, exiting."
 msgstr "Cevap evet değil, çıkılıyor."
 
 #: ../install.py:923 ../install.py:1320 ../install.py:1373 ../install.py:1713
-#: ../install.py:1760
+#: ../install.py:1761
 msgid "Command failed"
 msgstr "Komut başarısız oldu"
 
 #: ../install.py:925 ../install.py:1321 ../install.py:1374 ../install.py:1714
-#: ../install.py:1761
+#: ../install.py:1762
 msgid "Exiting"
 msgstr "Çıkılıyor"
 
@@ -138,7 +138,7 @@ msgstr "Önceki sürümün pip ile kurulu olup olmadığı kontrol ediliyor..."
 msgid "The following package is unknown on your system: {}\n"
 msgstr "Bu paket sisteminizde bilinmiyor: {}\n"
 
-#: ../install.py:1550 ../install.py:1665 ../install.py:1721 ../install.py:1768
+#: ../install.py:1550 ../install.py:1665 ../install.py:1721 ../install.py:1769
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
@@ -158,7 +158,7 @@ msgstr ""
 "Gerekli paketlerin kurulu olup olmadığını görmek için zypper sorgulanıyor "
 "(bu işlem biraz zaman alabilir)... "
 
-#: ../install.py:1753
+#: ../install.py:1754
 msgid ""
 "Querying yum to see if any required packages are already installed (this may "
 "take a while)... "
@@ -166,11 +166,11 @@ msgstr ""
 "Gerekli paketlerin kurulu olup olmadığını görmek için yum sorgulanıyor (bu "
 "biraz zaman alabilir)... "
 
-#: ../install.py:1801
+#: ../install.py:1802
 msgid "Query to confirm action at each step."
 msgstr "Her adımda eylemi onaylamak için sorgula."
 
-#: ../install.py:1808
+#: ../install.py:1809
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
@@ -178,7 +178,7 @@ msgstr ""
 "En son sürümü indirirken, kararlı sürümden daha yeniyse geliştirme sürümünü "
 "kur."
 
-#: ../install.py:1817
+#: ../install.py:1818
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
@@ -186,7 +186,7 @@ msgstr ""
 "İsteğe bağlı tar.gz Rapid Photo Downloader kurucu arşivi. Belirtilmezse, en "
 "son sürüm internetten indirilir."
 
-#: ../install.py:1848
+#: ../install.py:1849
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
@@ -196,7 +196,7 @@ msgstr ""
 "program kurucuyu çalıştırmayın. Varsayılan olarak, daha yeni kurucu "
 "çalıştırılır."
 
-#: ../install.py:1855
+#: ../install.py:1856
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
@@ -204,7 +204,7 @@ msgstr ""
 "Bağımlılıklarını koruyarak, pip ile kurulan Rapid Photo Downloader "
 "uygulamasını kaldır."
 
-#: ../install.py:1859
+#: ../install.py:1860
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
@@ -212,7 +212,7 @@ msgstr ""
 "Rapid Photo Downloader'ın kurulumu sırasında pip tarafından kurulan "
 "bağımlılıkları ve Rapid Photo Downloader'ın kendisini kaldır, sonra çık."
 
-#: ../install.py:1864
+#: ../install.py:1865
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
@@ -220,14 +220,14 @@ msgstr ""
 "Not: Bu, Linux dağıtımınızın paket yöneticisi tarafından kurulan hiçbir "
 "Rapid Photo Downloader sürümünü kaldırmaz."
 
-#: ../install.py:1871
+#: ../install.py:1872
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
 "Bağımlılıklar sadece diğer programlar için gerekli olmadığı takdirde "
 "kaldırılacaktır."
 
-#: ../install.py:1877
+#: ../install.py:1878
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -243,7 +243,7 @@ msgstr ""
 "dağıtımınızın paket yöneticisi tarafından kurulan Rapid Photo Downloader "
 "sürümünün kaldırılmayacağını unutmayın."
 
-#: ../install.py:1898
+#: ../install.py:1899
 msgid ""
 "Install in current Python virtual environment. Virtual environments created "
 "with the --system-site-packages option are not supported."
@@ -251,15 +251,15 @@ msgstr ""
 "Geçerli Python sanal ortamında kur. --system-site-packages seçeneğiyle "
 "oluşturulan sanal ortamlar desteklenmez."
 
-#: ../install.py:1935
+#: ../install.py:1936
 msgid "Failed to download versions file"
 msgstr "Sürüm dosyası indirilemedi"
 
-#: ../install.py:1939
+#: ../install.py:1940
 msgid "Got error code {} while accessing versions file"
 msgstr "Sürüm dosyasına erişirken {} hata kodu alındı"
 
-#: ../install.py:2047
+#: ../install.py:2048
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -271,61 +271,61 @@ msgstr ""
 "\n"
 "Çıkılıyor.\n"
 
-#: ../install.py:2176
+#: ../install.py:2186
 msgid "Received error code"
 msgstr "Hata kodu alındı"
 
-#: ../install.py:2178
+#: ../install.py:2188
 msgid "Failed to install application requirements: exiting"
 msgstr "Uygulama gereksinimleri kurulamadı: çıkılıyor"
 
-#: ../install.py:2180
+#: ../install.py:2190
 msgid "Failed to install application: exiting..."
 msgstr "Uygulama kurulamadı: çıkılıyor..."
 
-#: ../install.py:2261
+#: ../install.py:2276
 msgid "Installing application requirements..."
 msgstr "Uygulama gereksinimleri kuruluyor..."
 
-#: ../install.py:2286
+#: ../install.py:2301
 msgid "Installing application..."
 msgstr "Uygulama kuruluyor..."
 
-#: ../install.py:2344
+#: ../install.py:2359
 msgid "Do you want to install the application's man pages?"
 msgstr "Uygulamanın manuel sayfalarını kurmak ister misiniz?"
 
-#: ../install.py:2345
+#: ../install.py:2360
 msgid "They will be installed into {}"
 msgstr "{} içine kurulacaklar"
 
-#: ../install.py:2346 ../install.py:2357
+#: ../install.py:2361 ../install.py:2372
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr "Uygulamayı kaldırırsanız, bu manuel sayfalarını kendiniz silin."
 
-#: ../install.py:2348
+#: ../install.py:2363
 msgid "Do want to install the man pages?"
 msgstr "Manuel sayfalarını kurmak ister misiniz?"
 
 #. Keep man pages in install location only
 #. Translators: do not translate {}/share/man/man1
-#: ../install.py:2353
+#: ../install.py:2368
 msgid "Man pages can be found in {}/share/man/man1"
 msgstr "Manuel sayfaları {}/share/man/man1 içinde bulunabilir."
 
-#: ../install.py:2356
+#: ../install.py:2371
 msgid "Installing man pages into {}"
 msgstr "Manuel sayfaları {} içine kuruluyor"
 
-#: ../install.py:2371
+#: ../install.py:2386
 msgid "Failed to create man page directory: exiting"
 msgstr "Manuel sayfa dizini oluşturulamadı: çıkılıyor"
 
-#: ../install.py:2392
+#: ../install.py:2407
 msgid "Failed to copy man page."
 msgstr "Manuel sayfası kopyalanamadı."
 
-#: ../install.py:2407
+#: ../install.py:2422
 msgid ""
 "Rapid Photo Downloader can be started without activating the virtual "
 "environment by running {}/bin/rapid-photo-downloader"
@@ -333,7 +333,7 @@ msgstr ""
 "Rapid Photo Downloader, {}/bin/rapid-photo-downloader komutu çalıştırarak "
 "sanal ortamı etkinleştirmeden başlatılabilir."
 
-#: ../install.py:2418
+#: ../install.py:2433
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "commmand line or application launcher."
@@ -341,12 +341,12 @@ msgstr ""
 "Programı komut satırından veya uygulama başlatıcısından çalıştırabilmek için "
 "bilgisayarı yeniden başlatmanız gerekebilir."
 
-#: ../install.py:2434
+#: ../install.py:2449
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
 "(Çıkışta bir segmentasyon hatası meydana gelirse, onu yok sayabilirsiniz...)"
 
-#: ../install.py:2447
+#: ../install.py:2462
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
@@ -356,7 +356,7 @@ msgstr ""
 "kaldırmak için gereklidir.\n"
 "Devam edilemez. Çıkılıyor."
 
-#: ../install.py:2490
+#: ../install.py:2505
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
@@ -364,13 +364,13 @@ msgstr ""
 "Bu kurucu komut dosyasını sudo / root kullanıcısı olarak çalıştırmayın.\n"
 "Programı çalıştıracak kullanıcı olarak çalıştırın.\n"
 
-#: ../install.py:2501
+#: ../install.py:2516
 msgid ""
 "Do you want to install Rapid Photo Downloader into the current virtual "
 "environment?"
 msgstr "Rapid Photo Downloader'ı mevcut sanal ortama kurmak ister misiniz?"
 
-#: ../install.py:2512
+#: ../install.py:2527
 msgid ""
 "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
 "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
@@ -379,7 +379,7 @@ msgstr ""
 "Intel veya AMD 64 bit platformunda Python 3.5 veya daha yeni bir sürüm "
 "gerekir."
 
-#: ../install.py:2522
+#: ../install.py:2537
 msgid ""
 "To install Rapid Photo Downloader into a Python virtual environment, create "
 "and activate the virtual environment before starting this script."
@@ -387,39 +387,39 @@ msgstr ""
 "Rapid Photo Downloader'ı bir Python sanal ortamına kurmak için, bu betiğe "
 "başlamadan önce sanal ortamı oluşturun ve etkinleştirin."
 
-#: ../install.py:2530
+#: ../install.py:2545
 msgid "Using virtual environment for installation using pip."
 msgstr "Pip kullanarak kurulum için sanal ortam kullanımı."
 
-#: ../install.py:2535 ../install.py:2549
+#: ../install.py:2550 ../install.py:2564
 msgid "Do not include any other command line arguments when specifying"
 msgstr "Belirtirken başka bir komut satırı argümanı eklemeyin"
 
-#: ../install.py:2566
+#: ../install.py:2581
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
 msgstr ""
 "Maalesef, bu kurucu özel bir python kurulumunu desteklemiyor. Çıkılıyor..."
 
-#: ../install.py:2573
+#: ../install.py:2588
 msgid "Restarting script using system python..."
 msgstr "Komut dosyası python kullanarak yeniden başlatılıyor..."
 
-#: ../install.py:2585
+#: ../install.py:2600
 msgid "Detected Linux distribution {} {}"
 msgstr "{} {} Linux dağıtımı tespit edildi"
 
-#: ../install.py:2608
+#: ../install.py:2623
 msgid "Exiting..."
 msgstr "Çıkılıyor..."
 
 #. Translators: do not translate the term python3-apt
-#: ../install.py:2632
+#: ../install.py:2647
 msgid "To continue, the package python3-apt must be installed."
 msgstr "Devam etmek için python3-apt paketinin kurulu olması gerekir."
 
-#: ../install.py:2652
+#: ../install.py:2667
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
@@ -427,7 +427,7 @@ msgstr ""
 "Linux dağıtımınızın standart paket yöneticisini kullanarak aşağıdaki "
 "paketleri kurun ve ardından bu kurucuyu yeniden çalıştırın."
 
-#: ../install.py:2662
+#: ../install.py:2677
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
@@ -436,55 +436,55 @@ msgstr ""
 "programlar kurulmalıdır."
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:2692
+#: ../install.py:2707
 msgid "Installing python requests"
 msgstr "Python istekleri kuruluyor"
 
-#: ../upgrade.py:79
+#: ../upgrade.py:80
 msgid "Upgrade Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader sürümünü yükselt"
 
-#: ../upgrade.py:472 ../raphodo/viewutils.py:242
+#: ../upgrade.py:575 ../raphodo/viewutils.py:242
 msgid "&Cancel"
 msgstr "&İptal"
 
-#: ../upgrade.py:476
+#: ../upgrade.py:579
 msgid "&Upgrade"
 msgstr "&Yükselt"
 
-#: ../upgrade.py:481
+#: ../upgrade.py:584
 #, python-format
 msgid "Click the Upgrade button to upgrade to version %s."
 msgstr "%s sürümüne yükseltmek için Yükselt düğmesine tıklayın."
 
-#: ../upgrade.py:484
+#: ../upgrade.py:587
 msgid "Click the Upgrade button to start the upgrade."
 msgstr "Sürüm yükseltmeye başlamak için Yükselt düğmesine tıklayın."
 
-#: ../upgrade.py:487 ../upgrade.py:493 ../raphodo/viewutils.py:241
+#: ../upgrade.py:590 ../upgrade.py:596 ../raphodo/viewutils.py:241
 msgid "&Close"
 msgstr "&Kapat"
 
-#: ../upgrade.py:488
+#: ../upgrade.py:591
 msgid "&Run"
 msgstr "&Çalıştır"
 
-#: ../upgrade.py:518
+#: ../upgrade.py:621
 msgid "Close Rapid Photo Downloader before running this upgrade"
 msgstr "Bu yükseltmeyi çalıştırmadan önce Rapid Photo Downloader'ı kapatın"
 
-#: ../upgrade.py:521
+#: ../upgrade.py:624
 msgid "Upgrade running..."
 msgstr "Sürüm yükseltme çalışıyor..."
 
-#: ../upgrade.py:557
+#: ../upgrade.py:660
 #, python-format
 msgid ""
 "Successfully upgraded to %s. Click Close to exit, or Run to start the "
 "program."
 msgstr ""
 
-#: ../upgrade.py:562
+#: ../upgrade.py:665
 msgid ""
 "Upgrade finished successfully. Click Close to exit, or Run to start the "
 "program."
@@ -492,24 +492,24 @@ msgstr ""
 "Sürüm yükseltme başarıyla tamamlandı. Çıkmak için Kapat'ı, programı "
 "başlatmak için Çalıştır'ı tıklayın."
 
-#: ../upgrade.py:566
+#: ../upgrade.py:669
 msgid "Upgrade failed. Click Close to exit."
 msgstr "Sürüm yükseltme başarısız oldu. Çıkmak için Kapat'ı tıklayın."
 
-#: ../upgrade.py:8704
+#: ../upgrade.py:8808
 #, python-format
 msgid "Upgrading %s..."
 msgstr "%s sürümüne yükseltiiyor..."
 
-#: ../upgrade.py:8706
+#: ../upgrade.py:8810
 msgid "Press any key to continue..."
 msgstr "Devam etmek için herhangi bir tuşa basın..."
 
-#: ../upgrade.py:8719
+#: ../upgrade.py:8823
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr "Rapid Photo Downloader sürüm yükseltmesi başarısız"
 
-#: ../upgrade.py:8721
+#: ../upgrade.py:8825
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
@@ -1756,7 +1756,7 @@ msgstr ""
 "    Günlük dosyasını, {log_path} adresinde bulunan hata raporunuza ekleyin.\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:129 ../raphodo/thumbnaildisplay.py:1780
+#: ../raphodo/filebrowse.py:129 ../raphodo/thumbnaildisplay.py:1810
 msgid "Open in File Browser..."
 msgstr "Dosya Tarayıcıda Aç ..."
 
@@ -5005,58 +5005,58 @@ msgstr "Dosya sistemi kökü"
 msgid "Pictures"
 msgstr "Resimler"
 
-#: ../raphodo/thumbnaildisplay.py:443
+#: ../raphodo/thumbnaildisplay.py:465
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
 msgstr "Alındı:  %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:450
+#: ../raphodo/thumbnaildisplay.py:472
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Değiştirildi: %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:458 ../raphodo/thumbnaildisplay.py:492
+#: ../raphodo/thumbnaildisplay.py:480 ../raphodo/thumbnaildisplay.py:522
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:475
+#: ../raphodo/thumbnaildisplay.py:497
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Bellek kartları: %s"
 
-#: ../raphodo/thumbnaildisplay.py:479
+#: ../raphodo/thumbnaildisplay.py:501
 #, python-format
 msgid "Memory card: %s"
 msgstr "Bellek kartı: %s"
 
-#: ../raphodo/thumbnaildisplay.py:484
+#: ../raphodo/thumbnaildisplay.py:506
 msgid "Downloaded as:"
 msgstr "Şu olarak indirildi:"
 
-#: ../raphodo/thumbnaildisplay.py:501
+#: ../raphodo/thumbnaildisplay.py:531
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Önceki indirme:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:505
+#: ../raphodo/thumbnaildisplay.py:535
 #, python-format
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
 msgstr "<br><br><i>%(date)s tarihinde önceden indirilmiş gibi elle ayarla</i>"
 
-#: ../raphodo/thumbnaildisplay.py:1782
+#: ../raphodo/thumbnaildisplay.py:1812
 msgid "Copy Path"
 msgstr "Yolu Kopyala"
 
 #. Translators: 'File' here applies to a single file. The command allows users to instruct
 #. Rapid Photo Downloader that photos and videos have been previously downloaded by
 #. another application.
-#: ../raphodo/thumbnaildisplay.py:1787
+#: ../raphodo/thumbnaildisplay.py:1817
 msgid "Mark File as Downloaded"
 msgstr "Dosyayı İndirildi Olarak İşaretle"
 
 #. Translators: 'Files' here applies to two or more files
-#: ../raphodo/thumbnaildisplay.py:1790
+#: ../raphodo/thumbnaildisplay.py:1820
 msgid "Mark Files as Downloaded"
 msgstr "Dosyaları İndirildi Olarak İşaretle"
 
