@@ -17,6 +17,9 @@ Changelog for Rapid Photo Downloader
    reverts to English for any humanized string that Arrow fails to handle in the
    user's locale.
 
+ - Fixed bug #1853775: install.py script did not properly handle upgrading pip
+   version < 9.0 when installing into a virtual environment, looping forever.
+
  - Added Turkish translation. Thank you to Ilker Alp for the translation.
    Updated Brazilian Portuguese, Finnish, German, Indonesian, Italian, Polish,
    and Spanish translations.
