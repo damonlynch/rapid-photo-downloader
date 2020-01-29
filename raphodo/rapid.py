@@ -175,7 +175,10 @@ from raphodo.errorlog import ErrorReport, SpeechBubble
 from raphodo.problemnotification import (
     FsMetadataWriteProblem, Problem, Problems, CopyingProblems, RenamingProblems, BackingUpProblems
 )
-from raphodo.viewutils import standardIconSize
+from raphodo.viewutils import (
+    standardIconSize, qt5_screen_scale_environment_variable, QT5_VERSION, validateWindowSizeLimit,
+    validateWindowPosition
+)
 import raphodo.didyouknow as didyouknow
 from raphodo.thumbnailextractor import gst_version, libraw_version, rawkit_version
 
@@ -1224,6 +1227,8 @@ class RapidWindow(QMainWindow):
 
             self.window_show_requested_time = datetime.datetime.now()
             self.show()
+            if self.deferred_resize_and_move_until_after_show:
+                self.resizeAndMoveMainWindow()
 
             self.errorLog.setVisible(self.errorLogAct.isChecked())
 
@@ -1270,34 +1275,85 @@ class RapidWindow(QMainWindow):
         self.errorLog.dialogActivated.connect(self.errorsPending.reset)
         self.errorsPending.clicked.connect(self.errorLog.activate)
 
-    def readWindowSettings(self, app: 'QtSingleApplication'):
-        settings = QSettings()
-        settings.beginGroup("MainWindow")
+    def resizeAndMoveMainWindow(self) -> None:
+        if self.deferred_resize_and_move_until_after_show:
+            logging.debug("Resizing and moving main window after it was deferred")
 
-        # Calculate window sizes
-        if self.screen is None:
-            # Failsafe: should have got screen from the splash window
-            desktop = app.desktop()  # type: QDesktopWidget
-            primaryScreen = desktop.primaryScreen()
-            available = desktop.availableGeometry(primaryScreen)  # type: QRect
-            display = desktop.screenGeometry(primaryScreen)  # type: QRect
-        else:
-            available = self.screen.availableGeometry()  # type: QRect
-            display = self.screen.size()  # type: QSize
+            assert self.isVisible()
+
+            self.screen = self.windowHandle().screen()  # type: QScreen
+
+        assert self.screen is not None
+
+        available = self.screen.availableGeometry()  # type: QRect
+        display = self.screen.size()  # type: QSize
         default_width = max(960, available.width() // 2)
         default_width = min(default_width, available.width())
         default_x = display.width() - default_width
         default_height = available.height()
         default_y = display.height() - default_height
-        pos = settings.value("windowPosition", QPoint(default_x, default_y))
-        size = settings.value("windowSize", QSize(default_width, default_height))
-        settings.endGroup()
-        self.resize(size)
-        self.move(pos)
+
         logging.debug(
             "Avaiable screen geometry: %sx%s on %sx%s display",
             available.width(), available.height(), display.width(), display.height()
         )
+
+        settings = QSettings()
+        settings.beginGroup("MainWindow")
+
+        if QT5_VERSION >= LooseVersion('5.5'):
+            scaling = self.devicePixelRatio()
+        else:
+            scaling = 0
+        if scaling:
+            scaling_message = 'Desktop scaling set to {}'.format(scaling)
+        else:
+            scaling_message = 'Desktop scaling is undetermined'
+        logging.info(scaling_message)
+
+        qt5_variable = qt5_screen_scale_environment_variable()
+        if qt5_variable not in os.environ:
+            logging.error(
+                "Expected screen scaling variable %s to be set to a boolean value", qt5_variable
+            )
+        else:
+            if scaling > 1.0:
+                if os.environ[qt5_variable] == '1':
+                    logging.info("Screen scaling set to ON")
+                else:
+                    logging.info(
+                        "Screen scaling set to OFF. To turn it on, set the environment variable "
+                        "%s to the value 1 and restart this program", qt5_variable
+                    )
+
+        pos = settings.value("windowPosition", QPoint(default_x, default_y))
+        size = settings.value("windowSize", QSize(default_width, default_height))
+        settings.endGroup()
+
+        was_valid, validatedSize = validateWindowSizeLimit(available.size(), size)
+        if not was_valid:
+            logging.warning(
+                "Windows size %sx%s was invalid. Value was reset to %sx%s.",
+                size.width(), size.height(), validatedSize.width(), validatedSize.height()
+            )
+        logging.debug(
+            "Window size: %sx%s", validatedSize.width(), validatedSize.height()
+        )
+        was_valid, validatedPos = validateWindowPosition(pos, available.size(), validatedSize)
+        if not was_valid:
+            logging.warning("Window position %s,%s was invalid", pos.x(), pos.y())
+
+        self.resize(validatedSize)
+        self.move(validatedPos)
+
+    def readWindowSettings(self, app: 'QtSingleApplication'):
+        self.deferred_resize_and_move_until_after_show = False
+
+        # Calculate window sizes
+        if self.screen is None:
+            self.deferred_resize_and_move_until_after_show = True
+        else:
+            self.resizeAndMoveMainWindow()
 
     def writeWindowSettings(self):
         logging.debug("Writing window settings")
@@ -6189,6 +6245,10 @@ def critical_startup_error(message: str) -> None:
 
 
 def main():
+    # Set Qt 5 screen scaling environment variable if it is not already set
+    qt5_variable = qt5_screen_scale_environment_variable()
+    if qt5_variable not in os.environ:
+        os.environ[qt5_variable] = '1'
 
     if sys.platform.startswith('linux') and os.getuid() == 0:
         sys.stderr.write("Never run this program as the sudo / root user.\n")

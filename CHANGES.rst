@@ -1,6 +1,14 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.19b1 (2020-01-29)
+---------------------
+
+ - Improved support for high DPI screens. Requires Qt5.6 or newer. Please report
+   any remaining problems when running on high DPI screens. For now, if you
+   change the desktop's screen scaling while Rapid Photo Downloader is running,
+   please restart it.
+
 0.9.18 (2020-01-14)
 -------------------
 
