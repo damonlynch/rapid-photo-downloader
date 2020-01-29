@@ -1,5 +1,5 @@
-Release Notes for Rapid Photo Downloader 0.9.18
-===============================================
+Release Notes for Rapid Photo Downloader 0.9.19b1
+=================================================
 
  - The install script and the the built-in progrm update now automatically
    update pip, setuptools and wheel to the latest versions, but only for your
@@ -9,6 +9,16 @@ Release Notes for Rapid Photo Downloader 0.9.18
    run as sudo):
 
    python3 -m pip uninstall --user pip
+
+ - On high resolution screens (i.e. those with a high dpi setting) with screen
+   scaling enabled, Rapid Photo Downloader will detect if a special environment
+   variable has been set that instructs Qt5 applications to scale their display.
+   With Qt5 versions older than Qt 5.14, the environment variable is
+   QT_AUTO_SCREEN_SCALE_FACTOR. With Qt5 versions 5.14 or newer, the environment
+   variable is QT_ENABLE_HIGHDPI_SCALING. If the environment variable is not
+   set, Rapid Photo Downloader will set it, thereby enabling its  correct
+   scaling. If for some reason you do not want this, set the value to 0 before
+   starting Rapid Photo Downloader.
 
  - Most photo thumbnails are generated using exiv2. Very rarely, exiv2 can
    cause a segfault (crash) while extracting a thumbnail. If exiv2 does
