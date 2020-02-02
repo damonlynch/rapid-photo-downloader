@@ -1,5 +1,9 @@
 Changelog for Rapid Photo Downloader
 ====================================
+0.9.19b2 (2020-02-xx)
+---------------------
+
+ - Fix bug #1861591: install.py should handle cases with no LANG variable set.
 
 0.9.19b1 (2020-01-29)
 ---------------------

@@ -74,7 +74,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -2488,6 +2488,7 @@ def main():
         # and localize this script
         try:
             lang = locale.getdefaultlocale()[0]
+            assert lang
         except Exception:
             sys.stderr.write("Warning: could not determine locale\n")
         else:
