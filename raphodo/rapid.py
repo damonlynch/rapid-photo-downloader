@@ -1294,7 +1294,7 @@ class RapidWindow(QMainWindow):
         default_y = display.height() - default_height
 
         logging.debug(
-            "Avaiable screen geometry: %sx%s on %sx%s display",
+            "Available screen geometry: %sx%s on %sx%s display",
             available.width(), available.height(), display.width(), display.height()
         )
 

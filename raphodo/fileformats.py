@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -15,39 +15,46 @@
 # You should have received a copy of the GNU General Public License
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
+
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2011-2020, Damon Lynch"
+
+
 import logging
 from distutils.version import LooseVersion
-from typing import Optional
+from typing import Optional, Tuple
 import os
 
 import raphodo.programversions as programversions
 from raphodo.constants import thumbnail_offset, FileType, FileExtension
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2018, Damon Lynch"
 
-
-def exiftool_cr3() -> bool:
+def exiftool_capabilities() -> Tuple[bool, bool]:
     """
-    Determine if ExifTool can be used to read cr3 files
+    Determine if ExifTool can be used to read cr3 and heif/heic files
     """
 
     v = 'unknown'
     try:
-        v = programversions.exiftool_version_info()
-        return LooseVersion(v) >= LooseVersion('10.87')
+        v = LooseVersion(programversions.exiftool_version_info())
+        cr3 = v >= LooseVersion('10.87')
+        heif = v >= LooseVersion('10.63')
+        return cr3, heif
     except:
         logging.error('Unable to compare ExifTool version number: %s', v)
-        return False
+        return False, False
 
 
-_exiftool_cr3 = exiftool_cr3()
+_exiftool_cr3, _exiftool_heif = exiftool_capabilities()
 
 
 def exiv2_cr3() -> bool:
     """
-    Determine if exiv2 can be used to read cr3 files
+    Determine if exiv2 can be used to read cr3 files.
+    Unknown if 0.28 will support CR3.
     """
+
+    return False
 
     v = 'unknown'
     try:
@@ -68,11 +75,16 @@ def cr3_capable() -> bool:
     """
     return _exiftool_cr3 or _exiv2_cr3
 
+def heif_capable() -> bool:
+    return _exiftool_heif
+
 
 RAW_EXTENSIONS = [
     '3fr', 'arw', 'dcr', 'cr2', 'crw',  'dng', 'fff', 'iiq', 'mos', 'mef', 'mrw', 'nef',
     'nrw', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2', 'srw', 'x3f'
 ]
+
+HEIF_EXTENTIONS = ['heif', 'heic', 'hif']
 
 if cr3_capable():
     RAW_EXTENSIONS.append('cr3')
@@ -84,11 +96,17 @@ EXIFTOOL_ONLY_EXTENSIONS = ['mos', 'mrw', 'x3f']
 if not _exiv2_cr3 and _exiftool_cr3:
     EXIFTOOL_ONLY_EXTENSIONS.append('cr3')
 
+if heif_capable():
+    EXIFTOOL_ONLY_EXTENSIONS.extend(HEIF_EXTENTIONS)
+
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
 JPEG_TYPE_EXTENSIONS = ['jpg', 'jpe', 'jpeg', 'mpo']
 
 OTHER_PHOTO_EXTENSIONS = ['tif', 'tiff', 'mpo']
+
+if heif_capable():
+    OTHER_PHOTO_EXTENSIONS.extend(HEIF_EXTENTIONS)
 
 NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + OTHER_PHOTO_EXTENSIONS
 

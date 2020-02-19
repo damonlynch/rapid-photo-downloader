@@ -74,7 +74,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -150,16 +150,18 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-gstreamer_message = '{}\n{}{}'.format(
+rpmfusion_message = '{}\n{}{}'.format(
     bcolors.BOLD, _(
-        "To be able to generate thumbnails for a wider range of video formats, install "
-        "gstreamer1-libav after having first added an appropriate software repository such "
-        "as rpmfusion.org."
+        "The software repository RPM Fusion Free was added to your system to (1) enable generating "
+        "thumbnails for a wider range of video formats, and (2) enable support for the "
+        "HEIC / HEIF image format."
     ),
     bcolors.ENDC
 )
 
-display_gstreamer_message = False
+debian_heif_packages = ['libheif-dev', 'libde265-dev', 'libx265-dev']
+
+display_rpmfusion_message = False
 
 class Distro(Enum):
     debian = 1
@@ -167,7 +169,6 @@ class Distro(Enum):
     fedora = 3
     neon = 4
     linuxmint = 5
-    korora = 6
     arch = 7
     opensuse = 8
     manjaro = 9
@@ -186,8 +187,9 @@ debian_like = (
     Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint, Distro.galliumos,
     Distro.peppermint, Distro.elementary, Distro.deepin
 )
-fedora_like = (Distro.fedora, Distro.korora, Distro.centos)
+fedora_like = (Distro.fedora, Distro.centos)
 arch_like = (Distro.arch, Distro.manjaro, Distro.antergos)
+centos_family = (Distro.centos7, Distro.centos)
 
 
 installer_cmds = {
@@ -212,8 +214,6 @@ def get_distro() -> Distro:
         with open(os_release, 'r') as f:
             for line in f:
                 if line.startswith('NAME='):
-                    if line.find('Korora') > 0:
-                        return Distro.korora
                     if line.find('elementary') > 0:
                         return Distro.elementary
                     if line.find('CentOS Linux') > 0:
@@ -257,8 +257,6 @@ def get_distro_version(distro: Distro):
     elif distro in debian_like or distro == Distro.opensuse or distro == Distro.centos:
         version_string = 'VERSION_ID="'
         remove_quotemark = True
-    elif distro == Distro.korora:
-        version_string = 'VERSION_ID='
     else:
         return unknown_version
 
@@ -619,6 +617,21 @@ def install_pygobject_from_pip() -> int:
     return popen_capture_output(cmd)
 
 
+def install_pyheif_from_pip() -> int:
+    """
+    Install the python module pyheif from PIP.
+    Assumes required libraries already installed
+
+    :return: return code from pip
+    """
+
+    print("Installing Python support for HEIF / HEIC...")
+    cmd = make_pip_command(
+        'install {} -U --disable-pip-version-check pyheif'.format(pip_user)
+    )
+    return popen_capture_output(cmd)
+
+
 def update_pyqt5_and_sip(venv: bool) -> int:
     """
     Update PyQt5 and sip to the latest versions from pypi, if the system is capable
@@ -954,6 +967,20 @@ def enable_universe(interactive: bool) -> None:
         pass
 
 
+def fedora_centos_repolist(distro: Distro) -> str:
+    """
+    Get repository list from CentOS or Fedora
+    :param distro: Linux distribution
+    :return: repository list as string of lines
+    """
+
+    if distro == Distro.centos7:
+        repos = subprocess.check_output(['yum', 'repolist'], universal_newlines=True)
+    else:
+        repos = subprocess.check_output(['dnf', 'repolist'], universal_newlines=True)
+    return repos
+
+
 def enable_centos7_ius(interactive: bool) -> None:
     """
     Enable the IUS repository on CentOS
@@ -962,8 +989,8 @@ def enable_centos7_ius(interactive: bool) -> None:
      the command
     """
     try:
-        repos = subprocess.check_output(['yum', 'repolist'], universal_newlines=True)
-        if 'IUS Community Packages for Enterprise Linux' not in repos:
+        repos = fedora_centos_repolist(distro=Distro.centos7)
+        if 'ius/' not in repos:
             print(_('The IUS Community repository must be enabled.') + "\n")
 
             cmds = (
@@ -973,6 +1000,81 @@ def enable_centos7_ius(interactive: bool) -> None:
 
             for cmd in cmds:
                 run_cmd(command_line=cmd, restart=False, interactive=interactive)
+
+    except Exception:
+        pass
+
+
+def enable_centos_epel(distro: Distro, version: LooseVersion, interactive: bool) -> None:
+    """
+    Enable the EPEL repository on CentOS 7 & 8
+
+    :param interactive: if True, the user should be prompted to confirm
+     the command
+    """
+    repos = fedora_centos_repolist(distro=distro)
+
+    if repos.find('epel') < 0:
+        print(_("The EPEL repository must be enabled"))
+
+        if distro == Distro.centos7:
+            cmds = (
+            'sudo yum -y install https://dl.fedoraproject.org/pub/epel/'
+            'epel-release-latest-7.noarch.rpm',
+            )
+        else:
+            assert version <= LooseVersion('9')
+            cmds = (
+                'sudo dnf -y install --nogpgcheck https://dl.fedoraproject.org/pub/epel/'
+                'epel-release-latest-8.noarch.rpm',
+            )
+        for cmd in cmds:
+            run_cmd(command_line=cmd, restart=False, interactive=interactive)
+
+
+def enable_rpmfusion_free(distro: Distro, version: LooseVersion, interactive: bool):
+    """
+    Add RPM Fusion free repository for Fedora >= 30, and CentOS 7 or 8
+
+    See https://rpmfusion.org/Configuration
+
+    :param distro: Linux distribution
+    :param version: distro version
+    :param interactive: if True, the user should be prompted to confirm
+     the command
+    """
+
+    global display_rpmfusion_message
+
+    try:
+        repos = fedora_centos_repolist(distro=distro)
+        if repos.find('rpmfusion-free') < 0:
+            print(_("The RPM Fusion Free repository must be enabled"))
+
+            if distro == Distro.fedora:
+                cmds = (
+                    'sudo dnf -y install https://download1.rpmfusion.org/free/fedora/rpmfusion-'
+                    'free-release-{}.noarch.rpm'.format(str(version)),
+                )
+            elif distro == Distro.centos:
+                assert version <= LooseVersion('9')
+                cmds = (
+                    'sudo dnf -y install --nogpgcheck https://download1.rpmfusion.org/free/el/'
+                    'rpmfusion-free-release-8.noarch.rpm',
+                    'sudo dnf config-manager --enable PowerTools'
+                )
+            else:
+                assert distro == Distro.centos7
+                cmds = (
+                    'sudo yum -y localinstall --nogpgcheck https://download1.rpmfusion.org/free/el/'
+                    'rpmfusion-free-release-7.noarch.rpm',
+                )
+
+            for cmd in cmds:
+                run_cmd(command_line=cmd, restart=False, interactive=interactive)
+
+            display_rpmfusion_message = True
+
     except Exception:
         pass
 
@@ -1060,6 +1162,7 @@ def debian_package_installed(package: str) -> bool:
             return False
     except subprocess.CalledProcessError:
         return False
+
 
 def fedora_known_packages(packages: str):
     """
@@ -1190,7 +1293,7 @@ def opensuse_package_installed(package: str) -> bool:
 
 def centos_missing_packages(packages: str):
     """
-    Return which of the packages have not already been installed on openSUSE.
+    Return which of the packages have not already been installed on CentOS 7.
 
     Does not catch exceptions.
 
@@ -1199,7 +1302,7 @@ def centos_missing_packages(packages: str):
     """
 
     command_line = make_distro_packager_command(
-        distro_family=Distro.centos, packages=packages, interactive=True, command='list installed',
+        distro_family=Distro.centos7, packages=packages, interactive=True, command='list installed',
         sudo=False
     )
     args = shlex.split(command_line)
@@ -1209,6 +1312,36 @@ def centos_missing_packages(packages: str):
         package for package in packages.split()
         if re.search(r"^{}\.".format(re.escape(package)), output, re.MULTILINE) is None
     ]
+
+
+def distro_has_heif_support(distro: Distro) -> bool:
+    """
+    Determine if this distro has HEIF / HEIC image library support installed
+
+    :param distro: Linux Distribution
+    :return: whether the packages are already installed
+    """
+
+    if distro in fedora_like or distro == Distro.centos7:
+        return True
+    if distro in debian_like:
+        if have_apt:
+            cache = apt.Cache()
+            for package in debian_heif_packages:
+                if package not in cache:
+                    return False
+                else:
+                    p = cache[package]
+                    if not p.is_installed:
+                        return False
+            return True
+        else:
+            for package in debian_heif_packages:
+                if not debian_package_installed(package):
+                    return False
+            return True
+
+    return False
 
 
 def package_in_pip_output(package: str, output: str) -> bool:
@@ -1257,6 +1390,7 @@ def uninstall_pip_package(package: str, no_deps_only: bool) -> None:
                 break
         except Exception:
             break
+
 
 def uninstall_with_deps():
     uninstall_pip_package('rapid-photo-downloader', no_deps_only=False)
@@ -1514,15 +1648,17 @@ def install_required_distro_packages(distro: Distro,
                 cleanup_on_exit(installer_to_delete_on_error=installer_to_delete_on_error)
                 sys.exit(1)
 
+        # libheif and friends exist only in Ubuntu 18.04 and above
+        # at some point libmediainfo0 was renamed to libmediainfo0v5
+        optional_packages = ['libmediainfo0v5', 'libmediainfo0'] + debian_heif_packages
         if have_apt:
-            for p in ('libmediainfo0v5', 'libmediainfo0'):
+            for p in optional_packages:
                 if p in cache:
                     packages = '{} {}'.format(packages, p)
-                    break
         else:
-            package = ' '.join(debian_known_packages('libmediainfo0v5 libmediainfo0'))
-            if package:
-                packages = '{} {}'.format(packages, package)
+            extra_packages = ' '.join(debian_known_packages(' '.join(optional_packages)))
+            if extra_packages:
+                packages = '{} {}'.format(packages, extra_packages)
 
         for package in packages.split():
             if have_apt:
@@ -1570,20 +1706,31 @@ def install_required_distro_packages(distro: Distro,
     elif distro_family == Distro.fedora:  # Includes CentOS 8
 
         missing_packages = []
-        global display_gstreamer_message
-        optional_gstreamer_package = 'gstreamer1-libav'
+        # global display_rpmfusion_message
+        # optional_gstreamer_package = 'gstreamer1-libav'
 
         packages = 'gstreamer1-plugins-good ' \
                    'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ ' \
-                   'rpm-build python3-devel intltool libmediainfo python3-wheel zenity '
+                   'rpm-build intltool libmediainfo python3-wheel zenity ' \
+                   'libheif-devel libde265-devel x265-devel gstreamer1-libav'
+
+        if distro == Distro.fedora:
+            packages = '{} python3-devel'.format(packages)
+        else:
+            packages = '{} python36-devel'.format(packages)
 
         if not venv:
 
-            base_python_packages = 'python3-gexiv2 python3-easygui python3-psutil ' \
+            base_python_packages = 'python3-easygui python3-psutil ' \
                                    'python3-tornado gobject-introspection python3-gobject'
 
-            packages = '{} {} {}'.format(packages, base_python_packages, optional_gstreamer_package)
+            if distro == Distro.fedora:
+                base_python_packages = '{} python3-gexiv2'.format(base_python_packages)
+            else:
+                base_python_packages = '{} gobject-introspection-devel ' \
+                                       'cairo-gobject-devel'.format(base_python_packages)
 
+            packages = '{} {}'.format(packages, base_python_packages)
 
             if not pypi_pyqt5_capable():
                 packages = 'qt5-qtimageformats python3-qt5 {}'.format(packages)
@@ -1594,8 +1741,12 @@ def install_required_distro_packages(distro: Distro,
         else:
             build_source_packages = 'gcc zlib-devel bzip2 bzip2-devel readline-devel '\
                                     'sqlite sqlite-devel openssl-devel tk-devel git ' \
-                                    'python3-cairo-devel cairo-gobject-devel ' \
+                                    'cairo-gobject-devel ' \
                                     'gobject-introspection-devel zeromq'
+
+            if distro == Distro.fedora:
+                build_source_packages = '{} python3-cairo-devel'.format(build_source_packages)
+
 
             packages = '{} {}'.format(packages, build_source_packages)
 
@@ -1611,11 +1762,6 @@ def install_required_distro_packages(distro: Distro,
                     )
                 cleanup_on_exit(installer_to_delete_on_error=installer_to_delete_on_error)
                 sys.exit(1)
-
-            if fedora_unknown_packages(optional_gstreamer_package):
-                display_gstreamer_message = True
-            else:
-                packages = '{} {}'.format(packages, optional_gstreamer_package)
 
         if have_dnf:
 
@@ -1644,8 +1790,6 @@ def install_required_distro_packages(distro: Distro,
                     if package not in installed:
                         if package in available:
                             missing_packages.append(package)
-                        elif package == 'gstreamer1-libav':
-                            display_gstreamer_message = True
                         else:
                             sys.stderr.write(
                                 'The following package is unavailable on your system: {}\n'.format(
@@ -1741,7 +1885,7 @@ def install_required_distro_packages(distro: Distro,
         packages = 'gstreamer1-plugins-good gobject-introspection libgphoto2-devel zeromq-devel ' \
                    'exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ rpm-build ' \
                    'gobject-introspection-devel cairo-gobject-devel python36u-devel libmediainfo ' \
-                   'zenity '
+                   'zenity gstreamer1-libav libheif-devel libde265-devel x265-devel'
 
         if venv:
             build_source_packages = 'gcc zlib-devel bzip2 bzip2-devel readline-devel '\
@@ -2180,16 +2324,25 @@ def run_latest_install(installer: str,
 
 def check_install_status(i: int,
                          installer_to_delete_on_error: str,
-                         is_requirements: bool) -> None:
+                         is_requirements: bool,
+                         warning_only: bool=False,
+                         package_name: str='') -> None:
     if i != 0:
-        cleanup_on_exit(installer_to_delete_on_error)
-        sys.stderr.write(_("Received error code") + " " + str(i) + "\n")
-        if is_requirements:
-            msg = _("Failed to install application requirements: exiting")
+        if warning_only:
+            msg = _(
+                'Package {} failed to install but Rapid Photo Downloader installation will '
+                'continue.'.format(package_name)
+            )
+            sys.stderr.write(msg + "\n")
         else:
-            msg = _("Failed to install application: exiting...")
-        sys.stderr.write(msg + "\n")
-        sys.exit(1)
+            cleanup_on_exit(installer_to_delete_on_error)
+            sys.stderr.write(_("Received error code") + " " + str(i) + "\n")
+            if is_requirements:
+                msg = _("Failed to install application requirements: exiting")
+            else:
+                msg = _("Failed to install application: exiting...")
+            sys.stderr.write(msg + "\n")
+            sys.exit(1)
 
 
 def do_install(installer: str,
@@ -2285,11 +2438,21 @@ def do_install(installer: str,
         i=i, installer_to_delete_on_error=installer_to_delete_on_error, is_requirements=True
     )
 
-    if distro == Distro.centos or venv:
+    if distro in centos_family or venv:
         i = install_pygobject_from_pip()
         check_install_status(
             i=i, installer_to_delete_on_error=installer_to_delete_on_error, is_requirements=True
         )
+
+    if distro_has_heif_support(distro=distro):
+        i = install_pyheif_from_pip()
+        check_install_status(
+            i=i, installer_to_delete_on_error=installer_to_delete_on_error, is_requirements=True,
+            warning_only=True, package_name='pyheif'
+        )
+    else:
+        print()
+        print(_('System support for HEIF / HEIC is unavailable'))
 
     # Update PyQt5 and PyQt5_sip separately. Sometimes it's possible for PyQt5 and PyQt5_sip
     # to get out of sync
@@ -2425,8 +2588,8 @@ def do_install(installer: str,
 
         print('{}{}{}'.format(bcolors.BOLD, msg, bcolors.ENDC))
 
-    if display_gstreamer_message:
-        print(gstreamer_message)
+    if display_rpmfusion_message:
+        print(rpmfusion_message)
 
     if created_bin_dir:
         msg = _(
@@ -2613,8 +2776,10 @@ def main():
             clean_locale_tmpdir()
             sys.exit(1)
 
-    elif distro in fedora_like and unknown_version > distro_version <= LooseVersion('25'):
-        sys.stderr.write("Sorry, Fedora 25 is no longer supported by Rapid Photo Downloader.\n")
+    elif distro == Distro.fedora and unknown_version > distro_version <= LooseVersion('29'):
+        sys.stderr.write(
+            "Sorry, Fedora 29 or older is no longer supported by Rapid Photo Downloader.\n"
+        )
         sys.exit(1)
     elif distro in arch_like:
         print(
@@ -2634,14 +2799,14 @@ def main():
     elif distro == Distro.centos and distro_version < LooseVersion('8'):
         distro = Distro.centos7
 
-    if distro in (Distro.ubuntu, Distro.peppermint):
-        enable_universe(args.interactive)
-
-    if distro == Distro.centos7:
-        enable_centos7_ius(args.interactive)
+    distro_family = distro
 
     if distro in debian_like:
         distro_family = Distro.debian
+
+        if distro in (Distro.ubuntu, Distro.peppermint):
+            enable_universe(args.interactive)
+
         if not have_apt:
             if not custom_python():
                 # Translators: do not translate the term python3-apt
@@ -2650,11 +2815,25 @@ def main():
                     distro_family, 'python3-apt', args.interactive
                 )
                 run_cmd(command_line, restart=True, interactive=args.interactive)
-
-    elif distro in fedora_like:  # Includes CentOS >= 8
+    elif distro == Distro.centos7:
+        enable_centos_epel(
+            distro=distro, version=distro_version, interactive=args.interactive
+        )
+        enable_centos7_ius(args.interactive)
+        enable_rpmfusion_free(
+            distro=distro, version=distro_version, interactive=args.interactive
+        )
+    elif distro in fedora_like:
+        # Includes CentOS >= 8
         distro_family = Distro.fedora
-    else:
-        distro_family = distro
+
+        if distro == Distro.centos:
+            enable_centos_epel(
+                distro=distro, version=distro_version, interactive=args.interactive
+            )
+        enable_rpmfusion_free(
+            distro=distro, version=distro_version, interactive=args.interactive
+        )
 
     packages, local_pip = pip_packages_required(distro)
 
@@ -2685,10 +2864,10 @@ def main():
             run_cmd(command_line, restart=True, interactive=args.interactive)
 
         # Special case: CentOS IUS does not have python3 wheel package
-        if distro == Distro.centos7:
+        if distro in centos_family:
             packages = 'wheel'
 
-        if local_pip or distro == Distro.centos7:
+        if local_pip or distro in centos_family:
             command_line = make_pip_command('install {} {}'.format(pip_user, packages), split=False)
             run_cmd(command_line, restart=True, interactive=args.interactive)
 

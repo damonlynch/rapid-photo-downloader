@@ -1,7 +1,18 @@
 Changelog for Rapid Photo Downloader
 ====================================
+
 0.9.19b2 (2020-02-xx)
 ---------------------
+
+ - Added preliminary HEIF / HEIC support, if your distribution is in the Debian
+   / Ubuntu or Fedora / CentOS family and is new enough to provide HEIF support
+   libraries. Thumbnail generation is not yet supported.
+
+ - Added support for CentOS 8 to installer. Dropped support for Fedora 29 and
+   older.
+
+ - Made Timeline display render more quickly on displays with fractional
+   scaling.
 
  - Fix bug #1861591: install.py should handle cases with no LANG variable set.
 
