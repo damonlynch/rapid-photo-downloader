@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -26,7 +26,7 @@ context:
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2018, Damon Lynch"
+__copyright__ = "Copyright 2015-2020, Damon Lynch"
 
 import sys
 import shutil
@@ -52,7 +52,7 @@ from raphodo.storage import (
     StorageSpace, udev_attributes, UdevAttr, get_path_display_name, validate_download_folder,
     ValidatedFolder, CameraDetails, get_uri, fs_device_details
 )
-from raphodo.camera import generate_devname
+from raphodo.camera import generate_devname, autodetect_cameras
 from raphodo.utilities import (
     number, make_internationalized_list, stdchannel_redirected, same_device
 )
@@ -84,9 +84,7 @@ class Device:
     >>> d.camera_model
     >>> d.camera_port
 
-    >>> import gphoto2 as gp
-    >>> gp_context = gp.Context()
-    >>> cameras = gp_context.camera_autodetect()
+    >>> cameras = autodetect_cameras()
     >>> c = Device()
     >>> for model, port in cameras:
     ...     c.set_download_from_camera(model, port)

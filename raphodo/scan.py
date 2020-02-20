@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -43,7 +43,7 @@ A sample photo or video for (1) can be used for (2)
 
 """
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2019, Damon Lynch"
+__copyright__ = "Copyright 2011-2020, Damon Lynch"
 
 import os
 import sys
@@ -73,7 +73,9 @@ from raphodo.preferences import ScanPreferences, Preferences
 from raphodo.interprocess import (
     WorkerInPublishPullPipeline, ScanResults, ScanArguments
 )
-from raphodo.camera import Camera, CameraError, CameraProblemEx
+from raphodo.camera import (
+    Camera, CameraError, CameraProblemEx, gphoto2_python_logging
+)
 import raphodo.rpdfile as rpdfile
 from raphodo.constants import (
     DeviceType, FileType, DeviceTimestampTZ, CameraErrorCode, FileExtension,
@@ -195,7 +197,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         scan_arguments = pickle.loads(self.content)  # type: ScanArguments
         if scan_arguments.log_gphoto2:
-            gp.use_python_logging()
+            self.gphoto2_logging = gphoto2_python_logging()
 
         if scan_arguments.ignore_other_types:
             fileformats.PHOTO_EXTENSIONS_SCAN = fileformats.PHOTO_EXTENSIONS_WITHOUT_OTHER

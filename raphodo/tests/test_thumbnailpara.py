@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 __author__ = 'Damon Lynch'
 
-# Copyright (C) 2015 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -32,11 +32,12 @@ from PyQt5.QtGui import (QPixmap, QImage)
 from xdg import BaseDirectory
 import gphoto2 as gp
 
-from utilities import CacheDirs
+from raphodo.utilities import CacheDirs
 
-from thumbnailer import Thumbnailer
-from rpdfile import RPDFile
-from cache import ThumbnailCacheSql
+from raphodo.thumbnailer import Thumbnailer
+from raphodo.rpdfile import RPDFile
+from raphodo.cache import ThumbnailCacheSql
+from raphodo.camera import autodetect_cameras
 
 
 class TestThumbnail(QTextEdit):
@@ -113,7 +114,7 @@ if __name__ == '__main__':
         testdata = args.data
         if testdata == 'thumbnail_data_camera':
             gp_context = gp.Context()
-            cameras = gp_context.camera_autodetect()
+            cameras = autodetect_cameras(gp_context)
             camera_model, camera_port = cameras[0]
 
     no_workers = 4

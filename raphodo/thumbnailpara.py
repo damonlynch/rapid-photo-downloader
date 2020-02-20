@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -32,7 +32,7 @@ the metadata time is not already found in the rpd_file.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2019, Damon Lynch"
+__copyright__ = "Copyright 2011-2020, Damon Lynch"
 
 try:
     using_injected = 'profile' in dict(__builtins__)
@@ -78,7 +78,9 @@ from raphodo.constants import (
     ExtractionProcessing, orientation_offset, thumbnail_offset, ThumbnailCacheOrigin,
     datetime_offset, datetime_offset_exiftool, thumbnail_offset_exiftool
 )
-from raphodo.camera import Camera, CameraProblemEx
+from raphodo.camera import (
+    Camera, CameraProblemEx, gphoto2_python_logging
+)
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge
 from raphodo.utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
 from raphodo.preferences import Preferences
@@ -457,7 +459,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         self.device_name = arguments.name
         logging.info("Generating %s thumbnails for %s", len(arguments.rpd_files), arguments.name)
         if arguments.log_gphoto2:
-            gp.use_python_logging()
+            self.gphoto2_loggin = gphoto2_python_logging()
 
         self.frontend = self.context.socket(zmq.PUSH)
         self.frontend.connect("tcp://localhost:{}".format(arguments.frontend_port))

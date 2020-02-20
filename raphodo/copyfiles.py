@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2017, Damon Lynch"
+__copyright__ = "Copyright 2011-2020, Damon Lynch"
 
 import os
 import errno
@@ -41,7 +41,9 @@ import gphoto2 as gp
 
 from gettext import gettext as _
 
-from raphodo.camera import Camera, CameraProblemEx
+from raphodo.camera import (
+    Camera, CameraProblemEx, gphoto2_python_logging
+)
 from raphodo.interprocess import (
     WorkerInPublishPullPipeline, CopyFilesArguments, CopyFilesResults
 )
@@ -325,7 +327,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         args = pickle.loads(self.content)  # type: CopyFilesArguments
 
         if args.log_gphoto2:
-            gp.use_python_logging()
+            self.gphoto2_logging = gphoto2_python_logging()
 
         self.scan_id = args.scan_id
         self.verify_file = args.verify_file

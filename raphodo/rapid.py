@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -29,7 +29,7 @@ Project line length: 100 characters (i.e. word wrap at 99)
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2019, Damon Lynch"
+__copyright__ = "Copyright 2011-2020, Damon Lynch"
 
 import sys
 import logging
@@ -142,7 +142,10 @@ import raphodo.downloadtracker as downloadtracker
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.programversions import gexiv2_version, exiv2_version, EXIFTOOL_VERSION
 from raphodo.metadatavideo import pymedia_version_info, libmediainfo_missing
-from raphodo.camera import gphoto2_version, python_gphoto2_version, dump_camera_details
+from raphodo.camera import (
+    gphoto2_version, python_gphoto2_version, dump_camera_details, gphoto2_python_logging,
+    autodetect_cameras
+)
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.generatenameconfig import *
 from raphodo.rotatedpushbutton import RotatedButton, FlatButton
@@ -4793,7 +4796,7 @@ Do you want to proceed with the download?
         libgphoto2
         """
 
-        sc = self.gp_context.camera_autodetect()
+        sc = autodetect_cameras(self.gp_context)
         system_cameras = ((model, port) for model, port in sc if not
                           port.startswith('disk:'))
         kc = self.devices.cameras.items()
@@ -4936,7 +4939,7 @@ Do you want to proceed with the download?
         """
 
         if self.prefs.device_autodetection:
-            cameras = self.gp_context.camera_autodetect()
+            cameras = autodetect_cameras(self.gp_context)
             for model, port in cameras:
                 if port in self.devices.cameras_to_gvfs_unmount_for_scan:
                     assert self.devices.cameras_to_gvfs_unmount_for_scan[port] == model
@@ -6452,7 +6455,7 @@ def main():
         auto_download_insertion=None
 
     if args.log_gphoto2:
-        gp.use_python_logging()
+        gphoto_logging = gphoto2_python_logging()
 
     if args.camera_info:
         dump_camera_details()

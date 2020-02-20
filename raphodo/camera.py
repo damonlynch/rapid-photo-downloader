@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2012-2015 Jim Easterbrook <jim@jim-easterbrook.me.uk>
 
 # This file is part of Rapid Photo Downloader.
@@ -20,14 +20,15 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2019, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
+__copyright__ = "Copyright 2015-2020, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
 
 import logging
 import os
 import io
 from collections import namedtuple
+from pkg_resources import parse_version
 import re
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union
 
 import gphoto2 as gp
 from raphodo.storage import StorageSpace
@@ -38,8 +39,56 @@ from raphodo.utilities import format_size_for_user
 def python_gphoto2_version():
     return  gp.__version__
 
+
+_parsed_python_gphoto2_version = parse_version(gp.__version__)
+_parsed_python_gphoto_version_180 = parse_version('1.8.0')
+
 def gphoto2_version():
     return gp.gp_library_version(0)[0]
+
+
+def gphoto2_python_logging():
+    """
+    Version 2.0.0 of gphoto2 introduces a COMPATIBILITY CHANGE:
+     gp_log_add_func and use_python_logging now return a
+     Python object which must be stored until logging is no longer needed.
+    :return: either True or a Python object that must be stored until logging
+     is no longer needed
+    """
+
+    if _parsed_python_gphoto2_version < parse_version('2.0.0'):
+        gp.use_python_logging()
+        return True
+    else:
+        return gp.use_python_logging()
+
+
+def autodetect_cameras(context: Optional[gp.Context]=None,
+                       suppress_errors: bool=True) -> Union[gp.CameraList, List]:
+    """
+    Do camera auto detection for multiple versions of gphoto2-python
+
+    Version 2.2.0 of gphoto2 introduces a COMPATIBILITY CHANGE:
+    Removed Context.camera_autodetect method.
+
+    :return: CameraList of model and port
+    """
+
+    if _parsed_python_gphoto2_version < _parsed_python_gphoto_version_180:
+        assert context is not None
+        try:
+            return context.camera_autodetect()
+        except Exception:
+            if not suppress_errors:
+                raise
+            return []
+    else:
+        try:
+            return gp.check_result(gp.gp_camera_autodetect(context))
+        except Exception:
+            if not suppress_errors:
+                raise
+            return []
 
 
 # convert error codes to error names
@@ -132,7 +181,8 @@ class Camera:
         """
         Initialize a camera via libgphoto2.
 
-        :param model: camera model, as returned by camera_autodetect()
+        :param model: camera model, as returned by camera_autodetect() or
+         gp_camera_autodetect()
         :param port: camera port, as returned by camera_autodetect()
         :param get_folders: whether to detect the DCIM folders on the
          camera
@@ -826,7 +876,7 @@ class Camera:
 def dump_camera_details() -> None:
     import itertools
     context = gp.Context()
-    cameras = context.camera_autodetect()
+    cameras = autodetect_cameras(context)
     for model, port in cameras:
         c = Camera(model=model, port=port, context=context)
         if not c.camera_initialized:
@@ -873,8 +923,10 @@ def dump_camera_details() -> None:
 
 
 if __name__ == "__main__":
+    print("gphoto2 python: ", python_gphoto2_version())
+    # logging = gphoto2_python_logging()
 
-    if False:
+    if True:
         dump_camera_details()
 
     if True:
@@ -882,7 +934,7 @@ if __name__ == "__main__":
         #Test stub
         gp_context = gp.Context()
         # Assume gphoto2 version 2.5 or greater
-        cameras = gp_context.camera_autodetect()
+        cameras = autodetect_cameras(gp_context)
         for name, value in cameras:
             camera = name
             port = value
