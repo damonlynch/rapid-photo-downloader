@@ -16,6 +16,8 @@ Changelog for Rapid Photo Downloader
 
  - Fix bug #1861591: install.py should handle cases with no LANG variable set.
 
+ - Handle depreceated code and other changes in Python module for gPhoto2.
+
 0.9.19b1 (2020-01-29)
 ---------------------
 

@@ -43,6 +43,7 @@ def python_gphoto2_version():
 _parsed_python_gphoto2_version = parse_version(gp.__version__)
 _parsed_python_gphoto_version_180 = parse_version('1.8.0')
 
+
 def gphoto2_version():
     return gp.gp_library_version(0)[0]
 
@@ -63,19 +64,19 @@ def gphoto2_python_logging():
         return gp.use_python_logging()
 
 
-def autodetect_cameras(context: Optional[gp.Context]=None,
+def autodetect_cameras(context: gp.Context,
                        suppress_errors: bool=True) -> Union[gp.CameraList, List]:
     """
     Do camera auto detection for multiple versions of gphoto2-python
 
     Version 2.2.0 of gphoto2 introduces a COMPATIBILITY CHANGE:
     Removed Context.camera_autodetect method.
+    Was quickly reintroduced in 2.2.1, but is due for removal.
 
     :return: CameraList of model and port
     """
 
     if _parsed_python_gphoto2_version < _parsed_python_gphoto_version_180:
-        assert context is not None
         try:
             return context.camera_autodetect()
         except Exception:
@@ -870,7 +871,6 @@ class Camera:
             return False
         else:
             return True
-
 
 
 def dump_camera_details() -> None:

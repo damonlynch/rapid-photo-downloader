@@ -84,7 +84,9 @@ class Device:
     >>> d.camera_model
     >>> d.camera_port
 
-    >>> cameras = autodetect_cameras()
+    >>> import gphoto2 as gp
+    >>> context = gp.Context()
+    >>> cameras = autodetect_cameras(context)
     >>> c = Device()
     >>> for model, port in cameras:
     ...     c.set_download_from_camera(model, port)
