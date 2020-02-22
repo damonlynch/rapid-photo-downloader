@@ -86,6 +86,7 @@ from raphodo.utilities import (GenerateRandomFileName, create_temp_dir, CacheDir
 from raphodo.preferences import Preferences
 from raphodo.rescan import RescanCamera
 from raphodo.fileformats import use_exiftool_on_photo
+from raphodo.heif import have_heif_module
 
 
 def split_list(alist: list, wanted_parts=2):
@@ -274,7 +275,21 @@ def preprocess_thumbnail_from_disk(rpd_file: RPDFile,
     """
 
     if rpd_file.file_type == FileType.photo:
-        if rpd_file.is_tiff():
+        if rpd_file.is_heif():
+            if have_heif_module:
+                bytes_to_read = rpd_file.size
+                if rpd_file.mdatatime:
+                    task = ExtractionTask.load_heif_directly
+                else:
+                    task = ExtractionTask.load_heif_and_exif_directly
+                processing.add(ExtractionProcessing.resize)
+                # TODO check if orientation is needed! Maybe not!
+                processing.add(ExtractionProcessing.orient)
+            else:
+                # We have no way to convert the file
+                task = ExtractionTask.bypass
+                bytes_to_read = 0
+        elif rpd_file.is_tiff():
             available = psutil.virtual_memory().available
             if rpd_file.size <= available:
                 bytes_to_read = rpd_file.size
@@ -459,7 +474,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         self.device_name = arguments.name
         logging.info("Generating %s thumbnails for %s", len(arguments.rpd_files), arguments.name)
         if arguments.log_gphoto2:
-            self.gphoto2_loggin = gphoto2_python_logging()
+            self.gphoto2_logging = gphoto2_python_logging()
 
         self.frontend = self.context.socket(zmq.PUSH)
         self.frontend.connect("tcp://localhost:{}".format(arguments.frontend_port))
@@ -521,7 +536,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
             if not cache_file_from_camera:
                 for rpd_file in rpd_files:
-                    if use_exiftool_on_photo(rpd_file.extension):
+                    if use_exiftool_on_photo(rpd_file.extension,
+                                             preview_extraction_irrelevant=False):
                         cache_file_from_camera = True
                         break
 
@@ -583,8 +599,6 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             if task != ExtractionTask.undetermined:
                 if origin == ThumbnailCacheOrigin.thumbnail_cache:
                     from_thumb_cache += 1
-                    # logging.debug("Thumbnail for %s found in RPD thumbnail cache",
-                    #               rpd_file.full_file_name)
                 else:
                     assert origin == ThumbnailCacheOrigin.fdo_cache
                     logging.debug(
@@ -609,7 +623,18 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 # Thumbnail was not found in any cache: extract it
                 if self.camera:  # type: Camera
                     if rpd_file.file_type == FileType.photo:
-                        if self.camera.can_fetch_thumbnails:
+                        if rpd_file.is_heif():
+                            # Load HEIF / HEIC using entire file.
+                            # We are assuming that there is no tool to extract a
+                            # preview image from an HEIF / HEIC, or the file simply
+                            # does not have one to extract.
+                            if self.cache_full_size_file_from_camera(rpd_file):
+                                task = ExtractionTask.load_heif_and_exif_directly
+                                processing.add(ExtractionProcessing.resize)
+                                #TODO check if this orientation check is really necessary:
+                                processing.add(ExtractionProcessing.orient)
+
+                        elif self.camera.can_fetch_thumbnails:
                             task = ExtractionTask.load_from_bytes
                             if rpd_file.is_jpeg_type():
                                 # gPhoto2 knows how to get jpeg thumbnails
@@ -621,7 +646,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                     # TODO handle error?
                                     thumbnail_bytes = None
                             else:
-                                if use_exiftool_on_photo(rpd_file.extension):
+
+                                if use_exiftool_on_photo(rpd_file.extension,
+                                                           preview_extraction_irrelevant=False):
                                     task, full_file_name_to_work_on, \
                                         file_to_work_on_is_temporary =\
                                         self.extract_photo_video_from_camera(
@@ -668,6 +695,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             # from it (which probably doesn't exist!). This is fast.
                             # If have rawkit, download and render an image from the
                             # RAW
+
                             if not rpd_file.is_jpeg() and not have_rawkit:
                                 bytes_to_read = thumbnail_offset.get(rpd_file.extension)
                                 if bytes_to_read:

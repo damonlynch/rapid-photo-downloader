@@ -6,17 +6,17 @@ Changelog for Rapid Photo Downloader
 
  - Added preliminary HEIF / HEIC support, if your distribution is in the Debian
    / Ubuntu or Fedora / CentOS family and is new enough to provide HEIF support
-   libraries. Thumbnail generation is not yet supported.
+   libraries. Not all HEIF / HEIC files can have thumbnails generated. HEIF /
+   HEIC photo metadata is extracted using ExifTool. If the metadata does not
+   look correct, you may need to install a more recent version of ExifTool.
 
- - Added support for CentOS 8 to installer. Dropped support for Fedora 29 and
-   older.
+ - Added support for CentOS 8 to installer script. Dropped support for Fedora 29
+   and older.
 
  - Made Timeline display render more quickly on displays with fractional
    scaling.
 
  - Fix bug #1861591: install.py should handle cases with no LANG variable set.
-
- - Handle depreceated code and other changes in Python module for gPhoto2.
 
 0.9.19b1 (2020-01-29)
 ---------------------

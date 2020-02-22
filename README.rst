@@ -132,6 +132,8 @@ Highly recommended, optional dependencies:
    Downloader from the terminal.
  - pyprind_: shows a progress bar on the command line while running the program
    ``analyze_pv_structure``.
+ - pyheif_: open HEIF / HEIC files
+ - pillow_: work with HEIF / HEIC files
 
 Satisfying Software Requirements
 --------------------------------
@@ -265,3 +267,5 @@ environment's directory.
 .. _Requests: http://docs.python-requests.org/
 .. _tornado: http://www.tornadoweb.org/
 .. _Tenacity: https://github.com/jd/tenacity
+.. _pyheif: https://github.com/david-poirier-csn/pyheif
+.. _pillow: https://github.com/python-pillow/Pillow

@@ -41,7 +41,6 @@ def python_gphoto2_version():
 
 
 _parsed_python_gphoto2_version = parse_version(gp.__version__)
-_parsed_python_gphoto_version_180 = parse_version('1.8.0')
 
 
 def gphoto2_version():
@@ -51,17 +50,16 @@ def gphoto2_version():
 def gphoto2_python_logging():
     """
     Version 2.0.0 of gphoto2 introduces a COMPATIBILITY CHANGE:
-     gp_log_add_func and use_python_logging now return a
-     Python object which must be stored until logging is no longer needed.
+    gp_log_add_func and use_python_logging now return a
+    Python object which must be stored until logging is no longer needed.
+    Could just go with the None returned by default from a function that
+    returns nothing, but want to make this explicit.
+
     :return: either True or a Python object that must be stored until logging
      is no longer needed
     """
 
-    if _parsed_python_gphoto2_version < parse_version('2.0.0'):
-        gp.use_python_logging()
-        return True
-    else:
-        return gp.use_python_logging()
+    return gp.use_python_logging() or True
 
 
 def autodetect_cameras(context: gp.Context,
@@ -76,20 +74,12 @@ def autodetect_cameras(context: gp.Context,
     :return: CameraList of model and port
     """
 
-    if _parsed_python_gphoto2_version < _parsed_python_gphoto_version_180:
-        try:
-            return context.camera_autodetect()
-        except Exception:
-            if not suppress_errors:
-                raise
-            return []
-    else:
-        try:
-            return gp.check_result(gp.gp_camera_autodetect(context))
-        except Exception:
-            if not suppress_errors:
-                raise
-            return []
+    try:
+        return gp.check_result(gp.gp_camera_autodetect(context))
+    except Exception:
+        if not suppress_errors:
+            raise
+        return []
 
 
 # convert error codes to error names

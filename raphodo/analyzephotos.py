@@ -214,7 +214,8 @@ def scan(folder: str,
                     va = VideoAttributes(full_file_name, ext, exiftool_process)
                     videos.append(va)
                 else:
-                    if use_exiftool_on_photo(ext.lower()):
+                    #TODO think about how to handle HEIF files!
+                    if use_exiftool_on_photo(ext.lower(), preview_extraction_irrelevant=False):
                         pa = ExifToolPhotoAttributes(
                             full_file_name, ext, exiftool_process, analyze_previews
                         )

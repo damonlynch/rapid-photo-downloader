@@ -51,19 +51,19 @@ _exiftool_cr3, _exiftool_heif = exiftool_capabilities()
 def exiv2_cr3() -> bool:
     """
     Determine if exiv2 can be used to read cr3 files.
-    Unknown if 0.28 will support CR3.
+    Unknown if 0.28 will definitely support CR3.
     """
 
     return False
 
-    v = 'unknown'
-    try:
-        v = programversions.exiv2_version()
-        if v:
-            return LooseVersion(v) >= LooseVersion('0.28')
-    except:
-        logging.error('Unable to compare Exiv2 version number: %s', v)
-    return False
+    # v = 'unknown'
+    # try:
+    #     v = programversions.exiv2_version()
+    #     if v:
+    #         return LooseVersion(v) >= LooseVersion('0.28')
+    # except:
+    #     logging.error('Unable to compare Exiv2 version number: %s', v)
+    # return False
 
 
 _exiv2_cr3 = exiv2_cr3()
@@ -91,13 +91,10 @@ if cr3_capable():
 
 RAW_EXTENSIONS.sort()
 
-EXIFTOOL_ONLY_EXTENSIONS = ['mos', 'mrw', 'x3f']
+EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS = ['mos', 'mrw', 'x3f']
 
 if not _exiv2_cr3 and _exiftool_cr3:
-    EXIFTOOL_ONLY_EXTENSIONS.append('cr3')
-
-if heif_capable():
-    EXIFTOOL_ONLY_EXTENSIONS.extend(HEIF_EXTENTIONS)
+    EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS.append('cr3')
 
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
@@ -133,13 +130,21 @@ ALL_KNOWN_EXTENSIONS = ALL_USER_VISIBLE_EXTENSIONS + AUDIO_EXTENSIONS + VIDEO_TH
 MUST_CACHE_VIDEOS = [video for video in VIDEO_EXTENSIONS if thumbnail_offset.get(video) is None]
 
 
-def use_exiftool_on_photo(extension: str) -> bool:
+def use_exiftool_on_photo(extension: str, preview_extraction_irrelevant: bool) -> bool:
     """
-    Determine if the file extension indicates it must be analyzed using ExifTool and not Exiv2
+    Determine if the file extension indicates its exif information
+    must be extracted using ExifTool and not Exiv2
     :param extension: lower case, no leading period
+    :param preview_extraction_irrelevant: if True, return True only taking into
+     account the exif string data, not the exif preview data
     """
 
-    return extension in EXIFTOOL_ONLY_EXTENSIONS
+    if extension in HEIF_EXTENTIONS:
+        # Until ExifTool supports thumbnail extraction from HEIF files, we need to load HEIF / HEIC
+        # files directly
+        return preview_extraction_irrelevant
+
+    return extension in EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS
 
 
 def extract_extension(file_name) -> Optional[str]:

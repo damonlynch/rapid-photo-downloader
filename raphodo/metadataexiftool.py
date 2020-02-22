@@ -99,8 +99,10 @@ class MetadataExiftool():
         )
         self.preview_smallest['3fr'] = 3, 4
 
+        # Format might have a thumbnail, but might not
         self.may_have_thumbnail = ('crw', 'mrw', 'orf', 'raw', 'x3f')
 
+        # Preview images that are at least 256 pixels big, according to self.index_preview
         self.preview256 = dict(
             arw=(0, ),
             cr2=(0, ),
@@ -623,7 +625,7 @@ class MetadataExiftool():
 
     def get_preview_256(self) -> Optional[bytes]:
         """
-        :return: if possible, return a preview image that is preferrably larger than 256 pixels,
+        :return: if possible, return a preview image that is preferably larger than 256 pixels,
          else the smallest preview if it exists
         """
 
@@ -639,7 +641,7 @@ class MetadataExiftool():
 
     def preview_names(self) -> Optional[List[str]]:
         """
-        Names of preview image located in the file, including the tag ThumbnailImage
+        Names of preview image located in the file, excluding the tag ThumbnailImage
 
         :return None if unsuccessful, else names of preview images
         """
@@ -682,6 +684,23 @@ if __name__ == '__main__':
             print('Artist', m.artist())
             print('Subseconds:', m.sub_seconds())
             print('Orientation:', m.orientation())
+            print('Preview names (excluding Thumbnail): ', m.preview_names())
+            preview = m.get_small_thumbnail_or_first_indexed_preview()
+
+            thumb = m.get_small_thumbnail()
+            if thumb:
+                print('Thumbnail size: {} bytes'.format(len(thumb)))
+            else:
+                print('No thumbnail detected')
+
+            previews = et_process.execute(file.encode(), b'-preview:all')
+            print("ExifTool raw output:")
+            if previews:
+                print(previews.decode())
+            else:
+                print('No previews detected')
+
+
 
 
             # print("%sx%s" % (m.width(), m.height()))

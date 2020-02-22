@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2019, Damon Lynch"
+__copyright__ = "Copyright 2015-2020, Damon Lynch"
 
 import sys
 import logging
@@ -59,6 +59,7 @@ from raphodo.utilities import stdchannel_redirected, show_errors, image_large_en
 from raphodo.filmstrip import add_filmstrip
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge, FdoCacheNormal
 import raphodo.exiftool as exiftool
+from raphodo.heif import have_heif_module, load_heif
 
 
 have_gst = Gst.init_check(None)
@@ -171,7 +172,9 @@ def get_video_frame(full_file_name: str,
     else:
         return None
 
+
 PhotoDetails = namedtuple('PhotoDetails', 'thumbnail, orientation')
+
 
 def qimage_to_png_buffer(image: QImage) -> QBuffer:
     """
@@ -559,6 +562,23 @@ class ThumbnailExtractor(LoadBalancerWorker):
             thumbnail = thumbnail_details.thumbnail
             if thumbnail is not None:
                 orientation = thumbnail_details.orientation
+
+        elif task in (ExtractionTask.load_heif_directly,
+                      ExtractionTask.load_heif_and_exif_directly):
+            assert have_heif_module
+            thumbnail = load_heif(
+                data.full_file_name_to_work_on, process_name=self.identity.decode()
+            )
+
+            if task == ExtractionTask.load_heif_and_exif_directly:
+                self.assign_photo_mdatatime(
+                    rpd_file=rpd_file, full_file_name=data.full_file_name_to_work_on
+                )
+            if ExtractionProcessing.orient in processing:
+                orientation = self.get_photo_orientation(
+                    rpd_file=rpd_file, full_file_name=data.full_file_name_to_work_on
+                )
+
         else:
             assert task in (
                 ExtractionTask.extract_from_file, ExtractionTask.extract_from_file_and_load_metadata

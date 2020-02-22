@@ -1063,7 +1063,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
         elif ext_type == FileExtension.raw:
             determined_by = 'RAW'
             exif_extract = True
-            use_exiftool = fileformats.use_exiftool_on_photo(extension)
+            use_exiftool = fileformats.use_exiftool_on_photo(
+                extension, preview_extraction_irrelevant=True
+            )
             save_chunk = use_exiftool
         elif ext_type == FileExtension.video:
             determined_by = 'video'
@@ -1192,7 +1194,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             dt = metadata.date_time(missing=None)
         else:
             # photo - we don't care if jpeg or RAW
-            if fileformats.use_exiftool_on_photo(extension):
+            if fileformats.use_exiftool_on_photo(extension, preview_extraction_irrelevant=True):
                 metadata = metadataexiftool.MetadataExiftool(
                     full_file_name=full_file_name, et_process=self.et_process,
                     file_type=file_type
