@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2019, Damon Lynch"
+__copyright__ = "Copyright 2007-2020, Damon Lynch"
 
 import contextlib
 import locale
@@ -41,6 +41,7 @@ import ctypes
 import signal
 import warnings
 from pkg_resources import parse_version
+import pkg_resources
 
 import arrow
 import psutil
@@ -981,3 +982,16 @@ def is_venv():
 
     return hasattr(sys, 'real_prefix') or \
            (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
+
+
+def python_package_version(package: str) -> str:
+    """
+    Determine the version of an installed Python package
+    :param package: package name
+    :return: version number, if could be determined, else ''
+    """
+
+    try:
+        return pkg_resources.get_distribution(package).version
+    except pkg_resources.DistributionNotFound:
+        return ''

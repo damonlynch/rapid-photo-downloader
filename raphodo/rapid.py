@@ -184,6 +184,7 @@ from raphodo.viewutils import (
 )
 import raphodo.didyouknow as didyouknow
 from raphodo.thumbnailextractor import gst_version, libraw_version, rawkit_version
+from raphodo.heif import have_heif_module, pyheif_version, libheif_version
 
 
 # Avoid segfaults at exit:
@@ -5892,6 +5893,11 @@ def get_versions() -> List[str]:
         versions.append('Tornado: {}'.format(tornado.version))
     except ImportError:
         pass
+    if have_heif_module:
+        versions.append('Pyheif: {}'.format(pyheif_version()))
+        v = libheif_version()
+        if v:
+            versions.append('libheif: {}'.format(v))
     return versions
 
 # def darkFusion(app: QApplication):

@@ -22,6 +22,7 @@ __copyright__ = "Copyright 2020, Damon Lynch"
 
 import logging
 from typing import Optional
+import ctypes, ctypes.util
 
 from PyQt5.QtGui import QImage
 try:
@@ -31,8 +32,34 @@ try:
 except ImportError:
     have_heif_module = False
 
+from raphodo.utilities import python_package_version
 
 _error_logged = False
+
+
+def pyheif_version() -> str:
+    """
+    :return: Version of pyheif package
+    """
+    return python_package_version('pyheif')
+
+
+def libheif_version() -> str:
+    """
+    :return: Version of libheif package
+    """
+
+    try:
+        library_name = ctypes.util.find_library("heif")
+        h = ctypes.cdll.LoadLibrary(library_name)
+        return '{}.{}.{}'.format(
+            h.heif_get_version_number_major(),
+            h.heif_get_version_number_minor(),
+            h.heif_get_version_number_maintenance()
+        )
+    except Exception:
+        logging.debug("Error determining libheif version")
+        return ''
 
 
 def load_heif(full_file_name: str, catch_pyheif_exceptions: bool=True, process_name: str=''):
