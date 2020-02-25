@@ -659,7 +659,7 @@ if __name__ == '__main__':
 
     with exiftool.ExifTool() as et_process:
         if (len(sys.argv) != 2):
-            print('Usage: ' + sys.argv[0] + ' path/to/video/containing/metadata')
+            print('Usage: ' + sys.argv[0] + ' path/to/video_or_photo/containing/metadata')
         else:
             file = sys.argv[1]
 

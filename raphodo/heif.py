@@ -21,7 +21,6 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2020, Damon Lynch"
 
 import logging
-from typing import Optional
 
 from PyQt5.QtGui import QImage
 try:
@@ -35,13 +34,11 @@ except ImportError:
 _error_logged = False
 
 
-def load_heif(full_file_name: str,
-              catch_pyheif_exceptions: bool=True,
-              process_name: str='') -> Optional[QImage]:
+def load_heif(full_file_name: str, catch_pyheif_exceptions: bool=True, process_name: str=''):
     """
     Load HEIF file and convert it to a QImage using Pillow
     :param full_file_name: image to load
-    :return: QImage
+    :return: ImageQt (subclass of QImage)
     """
     global _error_logged
 
@@ -66,4 +63,32 @@ def load_heif(full_file_name: str,
     pillow_image = Image.frombytes(mode=image.mode, size=image.size, data=image.data)
     if pillow_image.mode not in ('RGB', 'RGBA', '1', 'L', 'P'):
         pillow_image = pillow_image.convert('RGBA')
+
     return ImageQt.ImageQt(pillow_image)
+
+
+if __name__ == '__main__':
+    # test stub
+    import sys
+    if (len(sys.argv) != 2):
+        print('Usage: ' + sys.argv[0] + ' path/to/heif')
+    else:
+        file = sys.argv[1]
+
+        import os
+        from PyQt5.QtWidgets import QLabel, QWidget, QApplication
+        from PyQt5.QtGui import QPixmap
+
+        app = QApplication(sys.argv)
+        if os.path.splitext(file)[1][1:] in ('jpg', 'png'):
+            image = QPixmap(file)
+        else:
+            image = QImage(load_heif(file, catch_pyheif_exceptions=False))
+            image = QPixmap(image)
+
+        widget = QWidget()
+        widget.setFixedSize(image.size())
+        label = QLabel(widget)
+        label.setPixmap(image)
+        widget.show()
+        sys.exit(app.exec())
