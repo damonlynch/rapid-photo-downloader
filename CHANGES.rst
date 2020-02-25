@@ -14,8 +14,12 @@ Changelog for Rapid Photo Downloader
  - Added support for CentOS 8 to installer script. Dropped support for Fedora 29
    and older.
 
- - Added '__MACOSX' and '.nomedia' to list of paths to ignore while scanning
-   a device for photos and videos.
+ - Added '__MACOSX' and to list of paths to ignore while scanning a device for
+   photos and videos, and if the list of ignored paths is customized, add it
+   and 'THMBNL' to the existing list of ignored paths.
+
+ - No longer look for photos or videos in any directory on a camera or phone
+   that contains a '.nomedia' file.
 
  - Made Timeline display render more quickly on displays with fractional
    scaling.

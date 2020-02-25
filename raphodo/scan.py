@@ -475,6 +475,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
         For duplicate files, we record both directories the file is
         stored on.
 
+        We ignore all folders that contain a file .nomedia
+
         :param path: the path on the camera to analyze for files and
          folders
         :param folder_identifier: if not None, then indicates (1) the
@@ -497,6 +499,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
         if files_in_folder:
             # Distinguish the file type for every file in the folder
             names = [name for name, value in files_in_folder]
+            if '.nomedia' in names:
+                # do nothing with this folder
+                logging.debug("Ignoring %s because it contains a .nomedia file", path)
+                return
             split_names = [os.path.splitext(name) for name in names]
             # Remove the period from the extension
             exts = [ext[1:] for name, ext in split_names]

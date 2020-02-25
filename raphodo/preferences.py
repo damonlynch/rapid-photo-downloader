@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2019, Damon Lynch"
+__copyright__ = "Copyright 2011-2020, Damon Lynch"
 
 import logging
 import re
@@ -328,7 +328,7 @@ class Preferences:
         # pre 0.9.3a1 value: device_without_dcim_autodetection=False, is now replaced by
         # scan_specific_folders
         folders_to_scan=['DCIM', 'PRIVATE', 'MP_ROOT'],
-        ignored_paths=['.Trash', '.thumbnails', 'THMBNL', '__MACOSX', '.nomedia'],
+        ignored_paths=['.Trash', '.thumbnails', 'THMBNL', '__MACOSX'],
         use_re_ignored_paths=False,
         volume_whitelist=[''],
         volume_blacklist=[''],
@@ -1017,7 +1017,7 @@ class Preferences:
             # introduced in 0.9.16 and 0.9.19b2. If the user already has some
             # values, these new defaults will not be added automatically. So add
             # them here.
-            for value in ('THMBNL', '__MACOSX', '.nomedia'):
+            for value in ('THMBNL', '__MACOSX'):
                 # If the value is not already in the list, add it
                 self.add_list_value(key=key, value=value)
 

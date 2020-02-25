@@ -132,7 +132,7 @@ Highly recommended, optional dependencies:
    Downloader from the terminal.
  - pyprind_: shows a progress bar on the command line while running the program
    ``analyze_pv_structure``.
- - pyheif_: open HEIF / HEIC files
+ - pyheif_: open HEIF / HEIC files (requires Python 3.6 or above)
  - pillow_: work with HEIF / HEIC files
 
 Satisfying Software Requirements

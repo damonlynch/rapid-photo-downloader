@@ -2444,14 +2444,14 @@ def do_install(installer: str,
             i=i, installer_to_delete_on_error=installer_to_delete_on_error, is_requirements=True
         )
 
-    if distro_has_heif_support(distro=distro):
+    print()
+    if sys.version_info >= (3, 6) and distro_has_heif_support(distro=distro):
         i = install_pyheif_from_pip()
         check_install_status(
             i=i, installer_to_delete_on_error=installer_to_delete_on_error, is_requirements=True,
             warning_only=True, package_name='pyheif'
         )
     else:
-        print()
         print(_('System support for HEIF / HEIC is unavailable'))
 
     # Update PyQt5 and PyQt5_sip separately. Sometimes it's possible for PyQt5 and PyQt5_sip
