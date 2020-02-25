@@ -183,6 +183,8 @@ def file_type(file_extension: str) -> Optional[FileType]:
     None
     >>> print(file_type('.cr2'))
     None
+    >>> print(file_type('heif'))
+    FileType.photo
     """
 
     if file_extension in PHOTO_EXTENSIONS_SCAN:
@@ -237,6 +239,8 @@ def extension_type(file_extension: str) -> FileExtension:
         return FileExtension.raw
     elif file_extension in JPEG_EXTENSIONS:
         return FileExtension.jpeg
+    elif file_extension in HEIF_EXTENTIONS:
+        return FileExtension.heif
     elif file_extension in OTHER_PHOTO_EXTENSIONS:
         return FileExtension.other_photo
     elif file_extension in VIDEO_EXTENSIONS:

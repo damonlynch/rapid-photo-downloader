@@ -213,10 +213,11 @@ class FileType(IntEnum):
 class FileExtension(Enum):
     raw = 1
     jpeg = 2
-    other_photo = 3
-    video = 4
-    audio = 5
-    unknown = 6
+    heif = 3
+    other_photo = 4
+    video = 5
+    audio = 6
+    unknown = 7
 
 
 class FileSortPriority(IntEnum):

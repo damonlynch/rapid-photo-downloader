@@ -630,16 +630,17 @@ class ScanWorker(WorkerInPublishPullPipeline):
             files.sort(key=operator.attrgetter('size'))
 
         # When determining how a camera reports modification time, extraction order
-        # of preference is (1) jpeg, (2) RAW, and finally least preferred is (3) video
-        # However, if ignore_mdatatime_for_mtp_dng is set, ignore the RAW files
+        # of preference is (1) heif, (2) jpeg, (3) RAW, and finally least preferred
+        # is (4) video. However, if ignore_mdatatime_for_mtp_dng is set, ignore the RAW files
 
         if not self.ignore_mdatatime_for_mtp_dng:
-            order = (FileExtension.jpeg, FileExtension.raw, FileExtension.video)
+            order = (FileExtension.heif, FileExtension.jpeg, FileExtension.raw, FileExtension.video)
         else:
-            order = (FileExtension.jpeg, FileExtension.video, FileExtension.raw)
+            order = (FileExtension.heif, FileExtension.jpeg, FileExtension.video, FileExtension.raw)
 
         have_photos = len(self._camera_photos_videos_by_type[FileExtension.raw]) > 0 or \
-                      len(self._camera_photos_videos_by_type[FileExtension.jpeg]) > 0
+                      len(self._camera_photos_videos_by_type[FileExtension.jpeg]) > 0 or \
+                      len(self._camera_photos_videos_by_type[FileExtension.heif]) > 0
         have_videos = len(self._camera_photos_videos_by_type[FileExtension.video]) > 0
 
         max_attempts = 5
@@ -1191,6 +1192,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
             determined_by = 'RAW'
         elif ext_type == FileExtension.video:
             determined_by = 'video'
+        elif ext_type == FileExtension.heif:
+            determined_by = 'HEIF / HEIC'
 
         if ext_type == FileExtension.video:
             metadata = metadatavideo.MetaData(
@@ -1274,12 +1277,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
         Attempt to determine the device's approach to timezones when it
         store timestamps.
         When determining how this device reports modification time, file
-        preference is (1) RAW, (2)jpeg, and finally least preferred is (3)
-        video -- a RAW is the least likely to be modified.
+        preference is (1) RAW, (2) jpeg, (3) heif / heic, and finally least
+        preferred is (4) video -- a RAW is the least likely to be modified.
 
         NOTE: this creates a sample file for one type of file (RAW if present,
-        if not, then jpeg, if jpeg also not present, then video). However if
-        a raw / jpeg is found, then still need to create sample file for video.
+        if not, then jpeg, if jpeg also not present, then heif / heic, if that
+        not present, then video). However if a photo is found, then still need
+        to create a sample file for video.
         """
 
         logging.debug("Distinguishing approach to timestamp time zones on %s", self.display_name)
@@ -1288,13 +1292,14 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         max_attempts = 10
         raw_attempts = 0
-        jpegs_and_videos = defaultdict(deque)
+        jpegs_heifs_and_videos = defaultdict(deque)
 
         for dir_name, name in self.walk_file_system(path):
             full_file_name = os.path.join(dir_name, name)
             extension = fileformats.extract_extension(full_file_name)
             ext_type = fileformats.extension_type(extension)
-            if ext_type in (FileExtension.raw, FileExtension.jpeg, FileExtension.video):
+            if ext_type in (FileExtension.raw, FileExtension.jpeg,
+                            FileExtension.heif, FileExtension.video):
                 file_type = fileformats.file_type(extension)
                 if ext_type == FileExtension.raw and raw_attempts < max_attempts:
                     # examine right away
@@ -1304,17 +1309,17 @@ class ScanWorker(WorkerInPublishPullPipeline):
                             ext_type=ext_type, extension=extension, file_type=file_type):
                         return
                 else:
-                    if len(jpegs_and_videos[ext_type]) < max_attempts:
-                        jpegs_and_videos[ext_type].append(
+                    if len(jpegs_heifs_and_videos[ext_type]) < max_attempts:
+                        jpegs_heifs_and_videos[ext_type].append(
                             (dir_name, name, full_file_name, extension)
                         )
 
-                    if len(jpegs_and_videos[FileExtension.jpeg]) == max_attempts:
+                    if len(jpegs_heifs_and_videos[FileExtension.jpeg]) == max_attempts:
                         break
 
         # Couldn't locate sample raw file. Are left with up to max_attempts jpeg and video files
-        for ext_type in (FileExtension.jpeg, FileExtension.video):
-            for dir_name, name, full_file_name, extension in jpegs_and_videos[ext_type]:
+        for ext_type in (FileExtension.jpeg, FileExtension.heif, FileExtension.video):
+            for dir_name, name, full_file_name, extension in jpegs_heifs_and_videos[ext_type]:
                 file_type = fileformats.file_type(extension)
                 if self.examine_sample_non_camera_file(
                         dirname=dir_name, name=name, full_file_name=full_file_name,
