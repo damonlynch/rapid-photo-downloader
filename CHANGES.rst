@@ -6,12 +6,16 @@ Changelog for Rapid Photo Downloader
 
  - Added preliminary HEIF / HEIC support, if your distribution is in the Debian
    / Ubuntu or Fedora / CentOS family and is new enough to provide HEIF support
-   libraries. Not all HEIF / HEIC files can have thumbnails generated. HEIF /
-   HEIC photo metadata is extracted using ExifTool. If the metadata does not
-   look correct, you may need to install a more recent version of ExifTool.
+   libraries. Not all HEIF / HEIC files can have thumbnails generated; 10 bit
+   images are currently unsupported. HEIF / HEIC photo metadata is extracted
+   using ExifTool. If the metadata does not look correct, you probably need to
+   install a more recent version of ExifTool.
 
  - Added support for CentOS 8 to installer script. Dropped support for Fedora 29
    and older.
+
+ - Added '__MACOSX' and '.nomedia' to list of paths to ignore while scanning
+   a device for photos and videos.
 
  - Made Timeline display render more quickly on displays with fractional
    scaling.

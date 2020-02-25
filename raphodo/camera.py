@@ -26,7 +26,6 @@ import logging
 import os
 import io
 from collections import namedtuple
-from pkg_resources import parse_version
 import re
 from typing import Optional, List, Tuple, Union
 
@@ -38,9 +37,6 @@ from raphodo.utilities import format_size_for_user
 
 def python_gphoto2_version():
     return  gp.__version__
-
-
-_parsed_python_gphoto2_version = parse_version(gp.__version__)
 
 
 def gphoto2_version():
@@ -199,7 +195,7 @@ class Camera:
 
         self._select_camera(model, port)
 
-        self.specific_folders = None # type: List[str]
+        self.specific_folders = None  # type: Optional[List[str]]
         self.specific_folder_located = False
         self._dual_slots_active = False
 

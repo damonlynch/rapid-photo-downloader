@@ -272,6 +272,7 @@ class Preferences:
     """
     Program preferences, being a mix of user facing and non-user facing prefs.
     """
+
     program_defaults = dict(program_version='')
     rename_defaults = dict(
         photo_download_folder=xdg_photos_directory(),
@@ -327,7 +328,7 @@ class Preferences:
         # pre 0.9.3a1 value: device_without_dcim_autodetection=False, is now replaced by
         # scan_specific_folders
         folders_to_scan=['DCIM', 'PRIVATE', 'MP_ROOT'],
-        ignored_paths=['.Trash', '.thumbnails', 'THMBNL'],
+        ignored_paths=['.Trash', '.thumbnails', 'THMBNL', '__MACOSX', '.nomedia'],
         use_re_ignored_paths=False,
         volume_whitelist=[''],
         volume_blacklist=[''],
@@ -382,15 +383,19 @@ class Preferences:
         self.__dict__['valid'] = True
 
         # These next two values must be kept in sync
-        dicts = (self.program_defaults, self.rename_defaults,
-                 self.timeline_defaults, self.display_defaults,
-                 self.device_defaults,
-                 self.backup_defaults, self.automation_defaults,
-                 self.performance_defaults, self.error_defaults,
-                 self.destinations, self.version_check, self.restart_directives)
-        group_names = ('Program', 'Rename', 'Timeline', 'Display', 'Device', 'Backup',
-                       'Automation', 'Performance', 'ErrorHandling', 'Destinations',
-                       'VersionCheck', 'RestartDirectives')
+        dicts = (
+            self.program_defaults, self.rename_defaults,
+             self.timeline_defaults, self.display_defaults,
+             self.device_defaults,
+             self.backup_defaults, self.automation_defaults,
+             self.performance_defaults, self.error_defaults,
+             self.destinations, self.version_check, self.restart_directives
+        )
+        group_names = (
+            'Program', 'Rename', 'Timeline', 'Display', 'Device', 'Backup',
+            'Automation', 'Performance', 'ErrorHandling', 'Destinations',
+            'VersionCheck', 'RestartDirectives'
+        )
         assert len(dicts) == len(group_names)
 
         # Create quick lookup table for types of each value, including the
@@ -601,7 +606,7 @@ class Preferences:
         3. have two separators in a row
 
         :return: tuple with two values: (1) bool and error message if
-         prefs are invalid (else empy string)
+         prefs are invalid (else empty string)
         """
 
         msg = ''
@@ -943,8 +948,9 @@ class Preferences:
                 self.settings.endGroup()
                 default = self.defaults['conflict_resolution']
                 default_name = constants.ConflictResolution(default).name
-                logging.warning('Resetting Conflict Resolution preference value to %s',
-                                default_name)
+                logging.warning(
+                    'Resetting Conflict Resolution preference value to %s', default_name
+                )
                 self.conflict_resolution = default
             # destinationButtonPressed is no longer used by 0.9.0a5
             self.settings.beginGroup("MainWindow")
@@ -953,7 +959,7 @@ class Preferences:
                 if self.settings.contains(key):
                     logging.debug("Removing preference value %s", key)
                     self.settings.remove(key)
-            except:
+            except Exception:
                 logging.warning("Unknown error removing %s preference value", key)
             self.settings.endGroup()
 
@@ -1002,6 +1008,18 @@ class Preferences:
                     "Not transferring preference value device_without_dcim_autodetection to "
                     "scan_specific_folders because it doesn't exist"
                 )
+
+        v0919b2 = pkg_resources.parse_version('0.9.19b2')
+        key = 'ignored_paths'
+        group = 'device_defaults'
+        if previous_version < v0919b2 and self.value_is_set(key, group):
+            # Versions prior to 0.9.19b2 did not include all the ignored paths
+            # introduced in 0.9.16 and 0.9.19b2. If the user already has some
+            # values, these new defaults will not be added automatically. So add
+            # them here.
+            for value in ('THMBNL', '__MACOSX', '.nomedia'):
+                # If the value is not already in the list, add it
+                self.add_list_value(key=key, value=value)
 
 
     def validate_max_CPU_cores(self) -> None:

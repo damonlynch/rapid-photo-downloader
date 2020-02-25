@@ -21,6 +21,7 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2020, Damon Lynch"
 
 import logging
+from typing import Optional
 
 from PyQt5.QtGui import QImage
 try:
@@ -38,7 +39,8 @@ def load_heif(full_file_name: str, catch_pyheif_exceptions: bool=True, process_n
     """
     Load HEIF file and convert it to a QImage using Pillow
     :param full_file_name: image to load
-    :return: ImageQt (subclass of QImage)
+    :return: ImageQt (subclass of QImage). Must keep this in memory for duration of
+     operations on it
     """
     global _error_logged
 
@@ -64,7 +66,10 @@ def load_heif(full_file_name: str, catch_pyheif_exceptions: bool=True, process_n
     if pillow_image.mode not in ('RGB', 'RGBA', '1', 'L', 'P'):
         pillow_image = pillow_image.convert('RGBA')
 
-    return ImageQt.ImageQt(pillow_image)
+    imageqt = ImageQt.ImageQt(pillow_image)
+    if imageqt is not None and not imageqt.isNull():
+        return imageqt
+    return None
 
 
 if __name__ == '__main__':
@@ -80,15 +85,23 @@ if __name__ == '__main__':
         from PyQt5.QtGui import QPixmap
 
         app = QApplication(sys.argv)
+        image = None
         if os.path.splitext(file)[1][1:] in ('jpg', 'png'):
             image = QPixmap(file)
+        elif have_heif_module:
+            imageqt = load_heif(file, catch_pyheif_exceptions=False)
+            if imageqt is not None:
+                image = QImage(imageqt)
+                image = QPixmap(image)
+            else:
+                print("Error loading HEIF / HEIC image")
         else:
-            image = QImage(load_heif(file, catch_pyheif_exceptions=False))
-            image = QPixmap(image)
+            print("image format not supported")
 
-        widget = QWidget()
-        widget.setFixedSize(image.size())
-        label = QLabel(widget)
-        label.setPixmap(image)
-        widget.show()
-        sys.exit(app.exec())
+        if image is not None:
+            widget = QWidget()
+            widget.setFixedSize(image.size())
+            label = QLabel(widget)
+            label.setPixmap(image)
+            widget.show()
+            sys.exit(app.exec())
