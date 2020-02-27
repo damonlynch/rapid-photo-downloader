@@ -654,6 +654,7 @@ class MetadataExiftool():
 
         return [v for v in self.index_preview.values() if v in self.metadata]
 
+
 if __name__ == '__main__':
     import sys
 

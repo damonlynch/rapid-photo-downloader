@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2018, Damon Lynch"
+__copyright__ = "Copyright 2015-2020, Damon Lynch"
 
 import pickle
 import os
@@ -48,7 +48,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import (
     QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics, QGuiApplication, QPen, QMouseEvent,
-    QFont,
+    QFont, QFontMetricsF
 )
 
 from raphodo.rpdfile import RPDFile, FileTypeCounter

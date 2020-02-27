@@ -41,7 +41,10 @@ def pyheif_version() -> str:
     """
     :return: Version of pyheif package
     """
-    return python_package_version('pyheif')
+    try:
+        return pyheif.__version__
+    except AttributeError:
+        return python_package_version('pyheif')
 
 
 def libheif_version() -> str:
@@ -50,16 +53,19 @@ def libheif_version() -> str:
     """
 
     try:
-        library_name = ctypes.util.find_library("heif")
-        h = ctypes.cdll.LoadLibrary(library_name)
-        return '{}.{}.{}'.format(
-            h.heif_get_version_number_major(),
-            h.heif_get_version_number_minor(),
-            h.heif_get_version_number_maintenance()
-        )
-    except Exception:
-        logging.debug("Error determining libheif version")
-        return ''
+        return pyheif.libheif_version()
+    except AttributeError:
+        try:
+            library_name = ctypes.util.find_library("heif")
+            h = ctypes.cdll.LoadLibrary(library_name)
+            return '{}.{}.{}'.format(
+                h.heif_get_version_number_major(),
+                h.heif_get_version_number_minor(),
+                h.heif_get_version_number_maintenance()
+            )
+        except Exception:
+            logging.debug("Error determining libheif version")
+            return ''
 
 
 def load_heif(full_file_name: str, catch_pyheif_exceptions: bool=True, process_name: str=''):
