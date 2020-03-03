@@ -379,7 +379,8 @@ ExtensionColorDict = {
     FileExtension.raw: CustomColors.color1,
     FileExtension.video: CustomColors.color2,
     FileExtension.jpeg: CustomColors.color4,
-    FileExtension.other_photo: CustomColors.color5,
+    FileExtension.heif: CustomColors.color5,
+    FileExtension.other_photo: CustomColors.color5
 }
 
 

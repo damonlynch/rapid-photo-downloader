@@ -33,18 +33,19 @@ import subprocess
 from gettext import gettext as _
 
 from PyQt5.QtCore import (
-    QDir, Qt, QModelIndex, QItemSelectionModel, QSortFilterProxyModel, QPoint
+    QDir, Qt, QModelIndex, QItemSelectionModel, QSortFilterProxyModel, QPoint, QSize
 )
 from PyQt5.QtWidgets import (
     QTreeView, QAbstractItemView, QFileSystemModel, QSizePolicy, QStyledItemDelegate,
     QStyleOptionViewItem, QMenu
 )
-from PyQt5.QtGui import QIcon
+
 from PyQt5.QtGui import QPainter, QFont
 
 import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import minPanelWidth, minFileSystemViewHeight, Roles
 from raphodo.storage import gvfs_gphoto2_path
+from raphodo.viewutils import scaledIcon, standard_font_size
 
 
 class FileSystemModel(QFileSystemModel):
@@ -57,10 +58,13 @@ class FileSystemModel(QFileSystemModel):
 
     def __init__(self, parent) -> None:
         super().__init__(parent)
+
         # More filtering done in the FileSystemFilter
         self.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot )
-        self.folder_icon = QIcon(':/icons/folder.svg')
-        self.download_folder_icon = QIcon(':/icons/folder-filled.svg')
+
+        self.folder_icon = scaledIcon(':/icons/folder.svg')
+        self.download_folder_icon = scaledIcon(':/icons/folder-filled.svg')
+
         self.setRootPath('/')
 
         # The next two values are set via FolderPreviewManager.update()

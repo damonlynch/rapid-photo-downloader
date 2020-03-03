@@ -222,6 +222,8 @@ def get_distro() -> Distro:
                         return Distro.opensuse
                     if line.find('Deepin') > 0:
                         return Distro.deepin
+                    if line.find('KDE neon'):
+                        return Distro.neon
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):
@@ -2456,10 +2458,25 @@ def do_install(installer: str,
 
     # Update PyQt5 and PyQt5_sip separately. Sometimes it's possible for PyQt5 and PyQt5_sip
     # to get out of sync
-    i = update_pyqt5_and_sip(venv=venv)
-    check_install_status(
-        i=i, installer_to_delete_on_error=installer_to_delete_on_error, is_requirements=True
-    )
+    # Do not install into Neon environment, as KDE Neon has up to date Qt
+    if venv or distro != Distro.neon:
+        i = update_pyqt5_and_sip(venv=venv)
+        check_install_status(
+            i=i, installer_to_delete_on_error=installer_to_delete_on_error, is_requirements=True
+        )
+    else:
+        uninstall_pip_package('PyQt5', no_deps_only=False)
+        uninstall_pip_package('PyQt5_sip', no_deps_only=False)
+        try:
+            import PyQt5.QtWidgets
+            print('\n' + _("Not installing PyPI PyQt5 package into KDE Neon environment"))
+        except ImportError:
+            run_cmd(
+                make_distro_packager_command(
+                    distro_family, 'python3-pyqt5', interactive
+                ),
+                interactive=interactive, installer_to_delete_on_error=installer_to_delete_on_error
+            )
 
     print("\n" + _("Installing application...") +"\n")
     cmd = make_pip_command(

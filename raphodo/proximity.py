@@ -54,7 +54,9 @@ from raphodo.constants import (
 )
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
-from raphodo.viewutils import ThumbnailDataForProximity, QFramedWidget, QFramedLabel
+from raphodo.viewutils import (
+    ThumbnailDataForProximity, QFramedWidget, QFramedLabel, scaledIcon
+)
 from raphodo.timeutils import locale_time, strip_zero, make_long_date_format, strip_am, strip_pm
 from raphodo.utilities import runs
 from raphodo.constants import Roles
@@ -1878,9 +1880,8 @@ class TemporalProximity(QWidget):
         }
 
         self.autoScrollButton = QToolButton(self)
-        icon = QIcon(':/icons/link.svg')
+        icon = scaledIcon(':/icons/link.svg', self.autoScrollButton.iconSize())
         self.autoScrollButton.setIcon(icon)
-        # self.autoScrollButton.setIconSize(QSize(16, 16))
         self.autoScrollButton.setAutoRaise(True)
         self.autoScrollButton.setCheckable(True)
         self.autoScrollButton.setToolTip(

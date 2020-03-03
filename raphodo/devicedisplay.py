@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
 # Copyright (c) 2012-2014 Alexander Turkin
 
 # This file is part of Rapid Photo Downloader.
@@ -36,7 +36,7 @@ Copyright notice from QtWaitingSpinner source:
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2018, Damon Lynch"
+__copyright__ = "Copyright 2015-2020, Damon Lynch"
 
 import math
 from collections import namedtuple, defaultdict
@@ -70,16 +70,16 @@ from raphodo.utilities import thousands, format_size_for_user
 from raphodo.storage import StorageSpace
 from raphodo.rpdfile import make_key
 from raphodo.menubutton import MenuButton
+from raphodo.viewutils import standard_font_size, scaledIcon
 
 
 def icon_size() -> int:
-    height = QFontMetrics(QFont()).height()
-    if height % 2 == 1:
-        height = height + 1
-    return height
+    return standard_font_size(shrink_on_odd=False)
+
 
 number_spinner_lines = 10
 revolutions_per_second = 1
+
 
 class DeviceModel(QAbstractListModel):
     """
@@ -114,7 +114,7 @@ class DeviceModel(QAbstractListModel):
         self.headers = set()  # type: Set[int]
 
         self.icon_size = icon_size()
-        
+
         self.row_ids_active = []  # type: List[int]
 
         # scan_id: 0.0-1.0
@@ -160,8 +160,10 @@ class DeviceModel(QAbstractListModel):
 
         row = self.rowCount()
         self.insertRows(row, no_rows)
-        logging.debug("Adding %s to %s display with scan id %s at row %s",
-                      device.name(), self.device_display_type, scan_id, row)
+        logging.debug(
+            "Adding %s to %s display with scan id %s at row %s",
+            device.name(), self.device_display_type, scan_id, row
+        )
         for row_id in range(self.row_id_counter, self.row_id_counter + no_rows):
             self.row_id_to_scan_id[row_id] = scan_id
             self.rows[row] = row_id
@@ -193,8 +195,9 @@ class DeviceModel(QAbstractListModel):
             # Add a new row after the current empty storage row
             row_id = row_ids[1]
             row = self.rows.row(row_id)
-            logging.debug("Adding row %s for additional storage device for %s",
-                          row, device.display_name)
+            logging.debug(
+                "Adding row %s for additional storage device for %s", row, device.display_name
+            )
 
             for i in range(len(device.storage_space) - 1):
                 row += 1
@@ -209,8 +212,9 @@ class DeviceModel(QAbstractListModel):
             self.storage[row_id] = storage_space
 
         row = self.rows.row(row_ids[0])
-        self.dataChanged.emit(self.index(row, 0),
-                              self.index(row + len(self.devices[scan_id].storage_space), 0))
+        self.dataChanged.emit(
+            self.index(row, 0), self.index(row + len(self.devices[scan_id].storage_space), 0)
+        )
 
     def getHeaderRowId(self, scan_id: int) -> int:
         row_ids = self.scan_id_to_row_ids[scan_id]
@@ -220,8 +224,10 @@ class DeviceModel(QAbstractListModel):
         row_ids = self.scan_id_to_row_ids[scan_id]
         header_row_id = row_ids[0]
         row = self.rows.row(header_row_id)
-        logging.debug("Removing %s rows from %s display, starting at row %s",
-                      len(row_ids), self.device_display_type, row)
+        logging.debug(
+            "Removing %s rows from %s display, starting at row %s",
+            len(row_ids), self.device_display_type, row
+        )
         self.rows.remove_rows(row, len(row_ids))
         del self.devices[scan_id]
         del self.spinner_state[scan_id]
@@ -242,8 +248,9 @@ class DeviceModel(QAbstractListModel):
         row_id = self.scan_id_to_row_ids[scan_id][0]
         row = self.rows.row(row_id)
         # TODO perhaps optimize which storage space is updated
-        self.dataChanged.emit(self.index(row + 1, 0),
-                              self.index(row + len(self.devices[scan_id].storage_space), 0))
+        self.dataChanged.emit(
+            self.index(row + 1, 0), self.index(row + len(self.devices[scan_id].storage_space), 0)
+        )
 
     def setSpinnerState(self, scan_id: int, state: DeviceState) -> None:
         row_id = self.getHeaderRowId(scan_id)
@@ -334,11 +341,22 @@ class DeviceModel(QAbstractListModel):
                 scan_id = self.row_id_to_scan_id[row_id]
                 device = self.devices[scan_id]
                 logging.debug('Row %s: %s', row, device.display_name)
-            logging.debug("Spinner states: %s", ', '.join("%s: %s" %
-                              (self.devices[scan_id].display_name, self.spinner_state[scan_id].name)
-                              for scan_id in self.spinner_state))
-            logging.debug(', '.join('%s: %s' % (self.devices[scan_id].display_name,
-                                Checked_Status[self.checked[scan_id]]) for scan_id in self.checked))
+            logging.debug(
+                "Spinner states: %s", ', '.join(
+                    "%s: %s" % (
+                        self.devices[scan_id].display_name, self.spinner_state[scan_id].name
+                    )
+                    for scan_id in self.spinner_state
+                )
+            )
+            logging.debug(
+                ', '.join(
+                    '%s: %s' % (
+                        self.devices[scan_id].display_name, Checked_Status[self.checked[scan_id]]
+                    )
+                    for scan_id in self.checked
+                )
+            )
 
     def setCheckedValue(self, checked: Qt.CheckState,
                         scan_id: int,
@@ -434,11 +452,14 @@ BodyDetails = namedtuple('BodyDetails', 'bytes_total_text, bytes_total, '
 def standard_height():
     return QFontMetrics(QFont()).height()
 
+
 def device_name_height():
     return  standard_height() + DeviceDisplayPadding * 3
 
+
 def device_header_row_height():
     return device_name_height() +  DeviceDisplayPadding
+
 
 def device_name_highlight_color():
     palette = QPalette()
@@ -540,9 +561,10 @@ class DeviceDisplay:
         self.base_height = (self.padding * 2 + self.standard_height)
 
         # Storage height is when there is storage space to display
-        self.storage_height = (self.standard_height + self.padding +
-                               self.g_height + self.vertical_padding + self.details_height +
-                               self.padding * 2)
+        self.storage_height = (
+                self.standard_height + self.padding + self.g_height + self.vertical_padding +
+                self.details_height + self.padding * 2
+        )
         
         self.emptySpaceColor = QColor('#f2f2f2')
         self.subtlePenColor = QColor('#6d6d6d')
@@ -570,8 +592,11 @@ class DeviceDisplay:
         icon_x = float(x + self.padding + self.icon_x_offset)
         icon_y = self.v_align_header_pixmap(y, self.icon_size)
 
+        # Cannot use icon size for the target, because icons can be scaled to
+        # high resolution
         target = QRectF(icon_x, icon_y, self.icon_size, self.icon_size)
-        source = QRectF(0, 0, self.icon_size, self.icon_size)
+        source = QRectF(0, 0, icon.width(), icon.height())
+
         painter.drawPixmap(target, icon, source)
 
         text_x = target.right() + self.header_horizontal_padding
@@ -860,10 +885,11 @@ class AdvancedDeviceDisplay(DeviceDisplay):
 
         self.icon_x_offset = self.icon_size + self.header_horizontal_padding
 
-        self.downloadedPixmap = QPixmap(':/downloaded.png')
-        self.downloadedWarningPixmap = QPixmap(':/downloaded-with-warning.png')
-        self.downloadedErrorPixmap = QPixmap(':/downloaded-with-error.png')
-        self.downloaded_icon_y = self.v_align_header_pixmap(0, self.downloadedPixmap.height())
+        self.downloaded_icon_size = 16
+        self.downloadedIcon = scaledIcon(':/thumbnail/downloaded.svg')
+        self.downloadedWarningIcon = scaledIcon(':/thumbnail/downloaded-with-warning.svg')
+        self.downloadedErrorIcon = scaledIcon(':/thumbnail/downloaded-with-error.svg')
+        self.downloaded_icon_y = self.v_align_header_pixmap(0, self.downloaded_icon_size)
 
         palette = QGuiApplication.instance().palette()
         color = palette.highlight().color()
@@ -881,18 +907,20 @@ class AdvancedDeviceDisplay(DeviceDisplay):
 
         standard_pen_color = painter.pen().color()
 
-        super().paint_header(painter=painter, x=x, y=y, width=width, display_name=display_name,
-                             icon=icon)
+        super().paint_header(
+            painter=painter, x=x, y=y, width=width, display_name=display_name, icon=icon
+        )
 
         if device_state == DeviceState.finished:
             # indicate that no more files can be downloaded from the device, and if there
             # were any errors or warnings
+            size = QSize(self.downloaded_icon_size, self.downloaded_icon_size)
             if download_statuses & DownloadFailure:
-                pixmap = self.downloadedErrorPixmap
+                pixmap = self.downloadedErrorIcon.pixmap(size)
             elif download_statuses & DownloadWarning:
-                pixmap = self.downloadedWarningPixmap
+                pixmap = self.downloadedWarningIcon.pixmap(size)
             else:
-                pixmap = self.downloadedPixmap
+                pixmap = self.downloadedIcon.pixmap(size)
             painter.drawPixmap(x + self.padding, y + self.downloaded_icon_y, pixmap)
 
         elif device_state not in (DeviceState.scanning, DeviceState.downloading):
@@ -914,21 +942,27 @@ class AdvancedDeviceDisplay(DeviceDisplay):
             x = x + self.padding
             y = y + self.padding
             # Draw spinning widget
+            # TODO use floating point
             painter.setPen(Qt.NoPen)
             for i in range(0, number_spinner_lines):
                 painter.save()
-                painter.translate(x + self.spinner_inner_radius + self.spinner_line_length,
-                                  y + 1 + self.spinner_inner_radius + self.spinner_line_length)
+                painter.translate(
+                    x + self.spinner_inner_radius + self.spinner_line_length,
+                    y + 1 + self.spinner_inner_radius + self.spinner_line_length
+                )
                 rotateAngle = float(360 * i) / float(number_spinner_lines)
                 painter.rotate(rotateAngle)
                 painter.translate(self.spinner_inner_radius, 0)
                 distance = self.lineCountDistanceFromPrimary(i, rotation)
                 color = self.currentLineColor(distance)
                 painter.setBrush(color)
-                rect = QRect(0, -self.spinner_line_width / 2, self.spinner_line_length,
-                             self.spinner_line_width)
-                painter.drawRoundedRect(rect, self.spinner_roundness, self.spinner_roundness,
-                                        Qt.RelativeSize)
+                rect = QRect(
+                    0, -self.spinner_line_width / 2,
+                    self.spinner_line_length, self.spinner_line_width
+                )
+                painter.drawRoundedRect(
+                    rect, self.spinner_roundness, self.spinner_roundness, Qt.RelativeSize
+                )
                 painter.restore()
 
             if percent_complete:
@@ -962,8 +996,9 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         if countDistance == 0:
             return color
         minAlphaF = self.spinner_min_trail_opacity / 100.0
-        distanceThreshold = int(math.ceil((number_spinner_lines - 1) *
-                                          self.spinner_trail_fade_percent / 100.0))
+        distanceThreshold = int(
+            math.ceil((number_spinner_lines - 1) * self.spinner_trail_fade_percent / 100.0)
+        )
         if countDistance > distanceThreshold:
             color.setAlphaF(minAlphaF)
         else:
@@ -999,8 +1034,9 @@ class DeviceDelegate(QStyledItemDelegate):
         sample_no_photos = '{} {}'.format(sample_number, _('Photos'))
         sample_no_videos = '{} {}'.format(sample_number, _('Videos'))
 
-        self.deviceDisplay = AdvancedDeviceDisplay(comp1_sample=sample_no_photos,
-                                                   comp2_sample=sample_no_videos)
+        self.deviceDisplay = AdvancedDeviceDisplay(
+            comp1_sample=sample_no_photos, comp2_sample=sample_no_videos
+        )
 
         self.contextMenu = QMenu()
         self.ignoreDeviceAct = self.contextMenu.addAction(_('Temporarily ignore this device'))
@@ -1046,7 +1082,8 @@ class DeviceDelegate(QStyledItemDelegate):
         view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
         if view_type == ViewRowType.header:
             display_name, icon, device_state, rotation, percent_complete = index.data(
-                Roles.device_details)
+                Roles.device_details
+            )
             if device_state == DeviceState.finished:
                 download_statuses = index.data(Roles.download_statuses)  # type: Set[DownloadStatus]
             else:
@@ -1088,9 +1125,11 @@ class DeviceDelegate(QStyledItemDelegate):
                     sum_key = None
 
                 photos = _('%(no_photos)s Photos') % {
-                    'no_photos': thousands(device.file_type_counter[photo_key])}
+                    'no_photos': thousands(device.file_type_counter[photo_key])
+                }
                 videos = _('%(no_videos)s Videos') % {
-                    'no_videos': thousands(device.file_type_counter[video_key])}
+                    'no_videos': thousands(device.file_type_counter[video_key])
+                }
                 photos_size = format_size_for_user(device.file_size_sum[photo_key])
                 videos_size = format_size_for_user(device.file_size_sum[video_key])
 

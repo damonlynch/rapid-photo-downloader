@@ -7,12 +7,13 @@ Changelog for Rapid Photo Downloader
  - Added preliminary HEIF / HEIC support, if your distribution is in the Debian
    / Ubuntu or Fedora / CentOS family and is new enough to provide HEIF support
    libraries. Not all HEIF / HEIC files can have thumbnails generated; 10 bit
-   images are currently unsupported. HEIF / HEIC photo metadata is extracted
-   using ExifTool. If the metadata does not look correct, you probably need to
-   install a more recent version of ExifTool.
+   images require libheif 1.6.3 or newer. HEIF / HEIC photo metadata is
+   extracted using ExifTool. If the metadata does not look correct, you probably
+   need to install a more recent version of ExifTool.
 
  - Added support for CentOS 8 to installer script. Dropped support for Fedora 29
-   and older.
+   and older. Installer script no longer installs PyQt5 from PyPI on KDE Neon,
+   because KDE Neon PyQt5 package is always up-to-date.
 
  - Added '__MACOSX' and to list of paths to ignore while scanning a device for
    photos and videos, and if the list of ignored paths is customized, add it
@@ -21,8 +22,8 @@ Changelog for Rapid Photo Downloader
  - No longer look for photos or videos in any directory on a camera or phone
    that contains a '.nomedia' file.
 
- - Made Timeline display render more quickly on displays with fractional
-   scaling.
+ - Made Timeline and thumbnails render more quickly and accurately on displays
+   with fractional scaling.
 
  - Fix bug #1861591: install.py should handle cases with no LANG variable set.
 

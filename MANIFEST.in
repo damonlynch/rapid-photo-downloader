@@ -22,3 +22,4 @@ prune tasks
 prune raphodo/tests
 prune debian
 prune images
+prune sourceimages

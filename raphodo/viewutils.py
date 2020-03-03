@@ -19,7 +19,7 @@
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2020, Damon Lynch"
 
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 from collections import namedtuple
 from distutils.version import LooseVersion
 
@@ -29,7 +29,7 @@ from PyQt5.QtWidgets import (
     QStyleOptionFrame, QStyle, QStylePainter, QWidget, QLabel, QListWidget, QProxyStyle,
     QStyleOption, QDialogButtonBox
 )
-from PyQt5.QtGui import QFontMetrics, QFont, QPainter
+from PyQt5.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QIcon
 from PyQt5.QtCore import QSize, Qt, QT_VERSION_STR, QPoint
 
 QT5_VERSION = LooseVersion(QT_VERSION_STR)
@@ -314,3 +314,39 @@ def validateWindowPosition(pos: QPoint, available: QSize, size: QSize) -> Tuple[
         return False, QPoint(
             available.width() - size.width(), available.height() - size.height()
         )
+
+
+def scaledPixmap(path: str, scale: float) -> QPixmap:
+    pixmap = QPixmap(path)
+    if scale > 1.0:
+        pixmap = pixmap.scaledToWidth(pixmap.width() * scale, Qt.SmoothTransformation)
+        pixmap.setDevicePixelRatio(scale)
+    return pixmap
+
+
+def standard_font_size(shrink_on_odd: bool=True) -> int:
+    h = QFontMetrics(QFont()).height()
+    if h % 2 == 1:
+        if shrink_on_odd:
+            h -= 1
+        else:
+            h += 1
+    return h
+
+
+def scaledIcon(path: str, size: Optional[QSize]=None) -> QIcon:
+    """
+    Create a QIcon that scales well
+    Uses .addFile()
+
+    :param path:
+    :param scale:
+    :param size:
+    :return:
+    """
+    i = QIcon()
+    if size is None:
+        s = standard_font_size()
+        size = QSize(s, s)
+    i.addFile(path, size)
+    return i

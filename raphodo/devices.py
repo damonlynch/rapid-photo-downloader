@@ -58,11 +58,11 @@ from raphodo.utilities import (
 )
 import raphodo.exiftool as exiftool
 from raphodo.problemnotification import FsMetadataWriteProblem
+from raphodo.viewutils import scaledIcon
 
 display_devices = (DeviceType.volume, DeviceType.camera)
 sample_file_complete = namedtuple('sample_file_complete', 'full_file_name, file_type')
 device_name_uri = namedtuple('device_name_uri', 'name uri')
-
 
 
 class Device:
@@ -295,8 +295,9 @@ class Device:
     def get_icon(self) -> QIcon:
         """Return icon for the device."""
 
+        # TODO consider scaledIcon() here
         if self.device_type == DeviceType.volume:
-            return QIcon(':icons/drive-removable-media.svg')
+            return QIcon(':/icons/drive-removable-media.svg')
         elif self.device_type == DeviceType.path:
             return QIcon(':/icons/folder.svg')
         else:
@@ -305,12 +306,16 @@ class Device:
                 if self.camera_model.lower().find('tablet') >= 0:
                     #TODO use tablet icon
                     pass
-                return QIcon(':icons/smartphone.svg')
+                return QIcon(':/icons/smartphone.svg')
             return QIcon(':/icons/camera.svg')
 
-    def get_pixmap(self, size: QSize=QSize(30, 30)) -> QPixmap:
+    def get_pixmap(self, size: QSize=QSize(30, 30),
+                   device_pixel_ratio: Optional[float]=None) -> QPixmap:
         icon = self.get_icon()
-        return icon.pixmap(size)
+        pixmap = icon.pixmap(size)
+        if device_pixel_ratio is not None:
+            pixmap.setDevicePixelRatio(device_pixel_ratio)
+        return pixmap
 
     def _delete_cache_dir(self, cache_dir) -> None:
         if cache_dir:

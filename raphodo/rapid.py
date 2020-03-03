@@ -45,7 +45,7 @@ import platform
 import argparse
 from typing import Optional, Tuple, List, Sequence, Dict, Set, Any, DefaultDict
 import faulthandler
-import pkg_resources
+import pkg_resources as pkgr
 import webbrowser
 import time
 import shlex
@@ -180,7 +180,7 @@ from raphodo.problemnotification import (
 )
 from raphodo.viewutils import (
     standardIconSize, qt5_screen_scale_environment_variable, QT5_VERSION, validateWindowSizeLimit,
-    validateWindowPosition
+    validateWindowPosition, scaledPixmap
 )
 import raphodo.didyouknow as didyouknow
 from raphodo.thumbnailextractor import gst_version, libraw_version, rawkit_version
@@ -456,6 +456,7 @@ class RapidWindow(QMainWindow):
     udisks2Unmount = pyqtSignal(str)
 
     def __init__(self, splash: 'SplashScreen',
+                 fractional_scaling: str,
                  photo_rename: Optional[bool]=None,
                  video_rename: Optional[bool]=None,
                  auto_detect: Optional[bool]=None,
@@ -481,6 +482,8 @@ class RapidWindow(QMainWindow):
             self.screen = splash.windowHandle().screen()  # type: QScreen
         else:
             self.screen = None
+
+        self.fractional_scaling = fractional_scaling
 
         # Process Qt events - in this case, possible closing of splash screen
         app.processEvents()
@@ -660,8 +663,8 @@ class RapidWindow(QMainWindow):
             if not len(previous_version):
                 logging.debug("Initial program run detected")
             else:
-                pv = pkg_resources.parse_version(previous_version)
-                rv = pkg_resources.parse_version(__about__.__version__)
+                pv = pkgr.parse_version(previous_version)
+                rv = pkgr.parse_version(__about__.__version__)
                 if pv < rv:
                     logging.info(
                         "Version upgrade detected, from %s to %s",
@@ -673,7 +676,7 @@ class RapidWindow(QMainWindow):
                         "Version downgrade detected, from %s to %s",
                         __about__.__version__, previous_version
                     )
-                if pv < pkg_resources.parse_version('0.9.7b1'):
+                if pv < pkgr.parse_version('0.9.7b1'):
                     # Remove any duplicate subfolder generation or file renaming custom presets
                     self.prefs.filter_duplicate_generation_prefs()
 
@@ -1305,7 +1308,9 @@ class RapidWindow(QMainWindow):
         settings = QSettings()
         settings.beginGroup("MainWindow")
 
-        if QT5_VERSION >= LooseVersion('5.5'):
+        if QT5_VERSION >= LooseVersion('5.6'):
+            scaling = self.devicePixelRatioF()
+        elif QT5_VERSION >= LooseVersion('5.5'):
             scaling = self.devicePixelRatio()
         else:
             scaling = 0
@@ -1314,6 +1319,8 @@ class RapidWindow(QMainWindow):
         else:
             scaling_message = 'Desktop scaling is undetermined'
         logging.info(scaling_message)
+        # Report if fractional scaling is set
+        logging.debug(self.fractional_scaling)
 
         qt5_variable = qt5_screen_scale_environment_variable()
         if qt5_variable not in os.environ:
@@ -1463,7 +1470,7 @@ class RapidWindow(QMainWindow):
 
         if success:
             self.latest_version = None
-            current_version = pkg_resources.parse_version(__about__.__version__)
+            current_version = pkgr.parse_version(__about__.__version__)
 
             check_dev_version = (current_version.is_prerelease or
                                  self.prefs.include_development_release)
@@ -2568,7 +2575,7 @@ class RapidWindow(QMainWindow):
         self.menu.addAction(self.aboutAct)
         self.menu.addAction(self.quitAct)
 
-        self.menuButton = MenuButton(icon=QIcon(':/menu.svg'), menu=self.menu)
+        self.menuButton = MenuButton(icon=':/icons/menu.svg', menu=self.menu)
 
     def doCheckForNewVersion(self) -> None:
         """Check online for a new program version"""
@@ -5898,6 +5905,12 @@ def get_versions() -> List[str]:
         v = libheif_version()
         if v:
             versions.append('libheif: {}'.format(v))
+    for display in ('XDG_SESSION_TYPE', 'WAYLAND_DISPLAY'):
+        session = os.getenv(display, '')
+        if session:
+            break
+    if session:
+        versions.append('Session: {}'.format(session))
     return versions
 
 # def darkFusion(app: QApplication):
@@ -6259,6 +6272,23 @@ def main():
     if qt5_variable not in os.environ:
         os.environ[qt5_variable] = '1'
 
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+
+    try:
+        # Enable fractional scaling support on Qt 5.14 or above
+        # Doesn't seem to be working on Gnome X11, however :-/
+        # Works on KDE Neon
+        if pkgr.parse_version(QtCore.QT_VERSION_STR) >= pkgr.parse_version('5.14.0'):
+            QApplication.setHighDpiScaleFactorRoundingPolicy(
+                Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+            )
+            fractional_scaling = 'Fractional scaling set to pass through'
+        else:
+            fractional_scaling = 'Fractional scaling unable to be set because Qt version is too old'
+    except Exception:
+        fractional_scaling = 'Error setting fractional scaling'
+        logging.warning(fractional_scaling)
+
     if sys.platform.startswith('linux') and os.getuid() == 0:
         sys.stderr.write("Never run this program as the sudo / root user.\n")
         critical_startup_error(_("Never run this program as the sudo / root user."))
@@ -6516,7 +6546,13 @@ def main():
         logging.debug("Exiting immediately after thumbnail cache / remembered files reset")
         sys.exit(0)
 
-    splash = SplashScreen(QPixmap(':/splashscreen.png'), Qt.WindowStaysOnTopHint)
+    try:
+        # Works on Qt 5.6 or above
+        pixmap = scaledPixmap(':/splashscreen.png', app.primaryScreen().devicePixelRatio())
+    except Exception:
+        pixmap = QPixmap(':/splashscreen.png')
+
+    splash = SplashScreen(pixmap, Qt.WindowStaysOnTopHint)
     splash.show()
     app.processEvents()
 
@@ -6539,13 +6575,15 @@ def main():
         auto_download_startup=auto_download_startup,
         auto_download_insertion=auto_download_insertion,
         log_gphoto2=args.log_gphoto2,
-        splash=splash
+        splash=splash,
+        fractional_scaling=fractional_scaling
     )
 
     app.setActivationWindow(rw)
     code = app.exec_()
     logging.debug("Exiting")
     sys.exit(code)
+
 
 if __name__ == "__main__":
     main()

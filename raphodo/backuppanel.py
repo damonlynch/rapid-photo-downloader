@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Display backup preferences
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017, Damon Lynch"
+__copyright__ = "Copyright 2017-2020, Damon Lynch"
 
 from typing import Optional, Dict, Tuple, Union, Set, List, DefaultDict
 import logging
@@ -55,8 +55,10 @@ from raphodo.destinationdisplay import make_body_details, adjusted_download_size
 from raphodo.storage import get_mount_size
 
 
-BackupVolumeUse = namedtuple('BackupVolumeUse', 'bytes_total bytes_free backup_type marked '
-                                                'photos_size_to_download videos_size_to_download')
+BackupVolumeUse = namedtuple(
+    'BackupVolumeUse', 'bytes_total bytes_free backup_type marked photos_size_to_download '
+                       'videos_size_to_download'
+)
 BackupViewRow = namedtuple('BackupViewRow', 'mount display_name backup_type os_stat_device')
 
 
@@ -143,8 +145,10 @@ class BackupDeviceModel(QAbstractListModel):
         # two rows per device: header row, and detail row
         row = len(self.rows)
         self.insertRows(position=row)
-        logging.debug("Adding %s to backup device display with root path %s at rows %s - %s",
-                      display_name, mount.rootPath(), row, row+1)
+        logging.debug(
+            "Adding %s to backup device display with root path %s at rows %s - %s",
+            display_name, mount.rootPath(), row, row + 1
+        )
 
         for row_id in range(self.row_id_counter, self.row_id_counter + 2):
             self.row_id_to_path[row_id] = path
@@ -157,9 +161,10 @@ class BackupDeviceModel(QAbstractListModel):
 
         self.row_id_counter += 2
 
-        self.backup_devices[path] = BackupViewRow(mount=mount, display_name=display_name,
-                                                  backup_type=backup_type,
-                                                  os_stat_device=os_stat_device)
+        self.backup_devices[path] = BackupViewRow(
+            mount=mount, display_name=display_name,
+            backup_type=backup_type, os_stat_device=os_stat_device
+        )
 
     def removeBackupVolume(self, path: str) -> None:
         """
@@ -341,25 +346,25 @@ class BackupDeviceDelegate(QStyledItemDelegate):
         if view_type == ViewRowType.header:
             display_name, icon = index.data(Roles.device_details)
 
-            self.deviceDisplay.paint_header(painter=painter, x=x, y=y, width=width,
-                                            icon=icon,
-                                            display_name=display_name,
-                                            )
+            self.deviceDisplay.paint_header(
+                painter=painter, x=x, y=y, width=width, icon=icon, display_name=display_name
+            )
         else:
             assert view_type == ViewRowType.content
 
             data = index.data(Roles.storage)  # type: BackupVolumeUse
-            details = make_body_details(bytes_total=data.bytes_total,
-                                        bytes_free=data.bytes_free,
-                                        files_to_display=data.backup_type,
-                                        marked=data.marked,
-                                        photos_size_to_download=data.photos_size_to_download,
-                                        videos_size_to_download=data.videos_size_to_download)
+            details = make_body_details(
+                bytes_total=data.bytes_total,
+                bytes_free=data.bytes_free,
+                files_to_display=data.backup_type,
+                marked=data.marked,
+                photos_size_to_download=data.photos_size_to_download,
+                videos_size_to_download=data.videos_size_to_download
+            )
 
-            self.deviceDisplay.paint_body(painter=painter, x=x,
-                                          y=y,
-                                          width=width,
-                                          details=details)
+            self.deviceDisplay.paint_body(
+                painter=painter, x=x, y=y, width=width, details=details
+            )
 
         painter.restore()
 
@@ -375,6 +380,7 @@ class BackupDeviceDelegate(QStyledItemDelegate):
             else:
                 height = self.deviceDisplay.storage_height
         return QSize(self.deviceDisplay.view_width, height)
+
 
 class BackupOptionsWidget(QFramedWidget):
     """

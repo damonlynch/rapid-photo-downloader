@@ -44,7 +44,7 @@ tips = (
         _(
             "Click on a file's checkbox to mark or unmark it for download."
         ),
-        'marksingle.png',
+        ':/tips/marksingle.png',
     ),
     (
         _(
@@ -53,7 +53,7 @@ tips = (
             "unchecked by default, and their thumbnails are dimmed so you can "
             "differentiate them from files that are yet to be downloaded."
         ),
-        'previouslydownloaded.png'
+        ':/tips/previouslydownloaded.png'
     ),
     (
         _(
@@ -61,14 +61,14 @@ tips = (
             "checkbox was clicked, regardless of whether they previously had a "
             "checkmark or not."
         ),
-        'markmany.png'
+        ':/tips/markmany.png'
     ),
     (
         _(
             "Click on a device's checkbox to quickly mark or unmark all its files for "
             "downloading."
         ),
-        'markall.png'
+        ':/tips/markall.png'
     ),
     (
         _(
@@ -76,7 +76,7 @@ tips = (
             "color indicates whether the download was successful (green), had file renaming "
             "problems (yellow/orange), or failed (red)."
         ),
-        'downloaded.png'
+        ':/tips/downloaded.png'
     ),
     (
         _(
@@ -86,7 +86,7 @@ tips = (
             window.
             """
         ),
-        'errorreporticon.png',
+        ':/tips/errorreporticon.png',
         _(
             """
             The Error Report window lists any problems encountered before, during or after the 
@@ -96,14 +96,14 @@ tips = (
             search box in the lower left of the Error Report window.
             """
         ),
-        'errorreport.png',
+        ':/tips/errorreport.png',
     ),
     (
         _(
             "You can simultaneously download from multiple cameras, smartphones, memory cards, "
             "and hard drives&mdash;as many devices as your computer can handle at one time."
         ),
-        'multipledevices.png'
+        ':/tips/multipledevices.png'
     ),
     (
         _(
@@ -112,7 +112,7 @@ tips = (
             "consecutive shots. Use it to identify photos and videos taken at different periods "
             "in a single day or over consecutive days."
         ),
-        'timeline.png',
+        ':/tips/timeline.png',
         _(
             """
 <p>In the illustration above, the first row of the Timeline is black because all the files on 
@@ -121,7 +121,7 @@ that date had been previously downloaded.</p>
 the Timeline:</p>
             """
         ),
-        'timelineadjust.png'
+        ':/tips/timelineadjust.png'
     ),
     (
         _(
@@ -130,7 +130,7 @@ the Timeline:</p>
             "When a time range is selected, the Timeline button on the left side of the main "
             "window will be highlighted."
         ),
-        'timelineselect.png',
+        ':/tips/timelineselect.png',
         _(
             "A download always includes all files that are checked for download, including those "
             "that are not currently displayed because the Timeline is being used."
@@ -142,7 +142,7 @@ the Timeline:</p>
             "You can hide or display the download sources by clicking on the name of "
             "the device you're downloading from at the top left of the program window."
         ),
-        'deviceshidden.png'
+        ':/tips/deviceshidden.png'
     ),
     (
       _(
@@ -159,7 +159,7 @@ instance.</li>
 <li><b>Device:</b> name of the device the photos and videos are being downloaded from.</li>
 </ol> """
         ),
-        'thumbnailsort.png'
+        ':/tips/thumbnailsort.png'
     ),
     (
         _(
@@ -167,7 +167,7 @@ instance.</li>
             "generate download subfolders and rename files as it downloads, using a scheme of your "
             "choosing."
         ),
-        'downloadwhereandrename.png',
+        ':/tips/downloadwhereandrename.png',
         _(
             "To specify where you want your files downloaded and how you want them named, open the "
             "appropriate panel on the right-side of the application window: "
@@ -191,7 +191,7 @@ They will be generated under the destination folder.</li>
 </ol>
             """
         ),
-        'defaultdownloaddirectory.png',
+        ':/tips/defaultdownloaddirectory.png',
         _(
             """
 You can download photos and videos to the same destination folder, or specify a different 
@@ -207,7 +207,7 @@ type.
             "generated subfolders if need be. A common scheme is to create a year "
             "subfolder and then a series of year-month-day subfolders within it."
         ),
-        'downloadsubfolders.png',
+        ':/tips/downloadsubfolders.png',
 
     ),
     (
@@ -223,7 +223,7 @@ Whenever possible, the program previews the download subfolders of photos and vi
 </ol>
             """
         ),
-        'downloadsubfolders.png',
+        ':/tips/downloadsubfolders.png',
     ),
     (
         _(
@@ -241,7 +241,7 @@ Naming subfolders with the year, followed by the month and finally the day in nu
 it easy to keep them sorted in a file manager, which is why it's the default option:
             """
         ),
-        'downloadsubfolders.png',
+        ':/tips/downloadsubfolders.png',
     ),
     (
         _(
@@ -251,14 +251,14 @@ you can use one of Rapid Photo Downloader's built-in presets, or create a custom
 the gear icon to bring up a drop-down menu:            
             """
         ),
-        'subfoldermenu.png',
+        ':/tips/subfoldermenu.png',
         _(
             """
 Using the drop-down menu, select a built-in preset or click on <b>Custom</b> to configure your own 
 scheme. You create your own schemes using the Photo or Video Subfolder Generation Editor:             
             """
         ),
-        'subfoldergeneration.png',
+        ':/tips/subfoldergeneration.png',
 
     ),
     (
@@ -267,7 +267,7 @@ scheme. You create your own schemes using the Photo or Video Subfolder Generatio
             "Simply use the <b>Filename Extension</b> as part of your download subfolder "
             "generation scheme:"
         ),
-        'subfoldergenerationext.png',
+        ':/tips/subfoldergenerationext.png',
         _('This illustration shows a saved custom preset named &quot;My custom preset&quot;.'),
     ),
     (
@@ -278,7 +278,7 @@ the generation of download subfolders that contain only the date the photos were
 Job Code:
             """
         ),
-        'subfoldergeneration.png'
+        ':/tips/subfoldergeneration.png'
     ),
     (
         _(
@@ -289,7 +289,7 @@ generate new combinations. Supposing you wanted a date format that combines year
 and month (MM) to form YYYY-MM. You can create it like this (note the red circle around the hyphen):
             """
         ),
-        'customdate.png',
+        ':/tips/customdate.png',
         _(
             """
 Read more about all the ways you can generate download subfolder names and file names in the <a 
@@ -306,7 +306,7 @@ use them in subfolder and file names. In this illustration, some files have had 
 &quot;Green Bazaar&quot;: 
 """
         ),
-        'jobcodes.png',
+        ':/tips/jobcodes.png',
         _(
             """
 You can apply new or existing Job Codes before you start a download. If there are any 
@@ -319,7 +319,7 @@ a Job Code for them before the download begins.
         _(
             "Look for hints to guide you when working with Job Codes:"
         ),
-        'jobcodehint.png',
+        ':/tips/jobcodehint.png',
         _(
             "Hints will vary depending on the context, such as when the mouse is hovering over a "
             "button."
@@ -333,7 +333,7 @@ which file is which. Using <b>sequence numbers</b> to make filenames unique is h
 recommended!
             """
         ),
-        'photoeditordefault.png',
+        ':/tips/photoeditordefault.png',
         _(
             """
 <p>Four types of sequence values are available to help you assign unique names to your photos and 
@@ -358,7 +358,7 @@ The <b>Rename</b> panel allows you to configure file renaming. To rename your fi
 from among existing renaming presets or define your own.              
             """
         ),
-        'renameoptions.png',
+        ':/tips/renameoptions.png',
         _(
             """
 <p>The <b>Synchronize RAW + JPEG</b> option is useful if you use the RAW + JPEG feature on your 
@@ -380,7 +380,7 @@ external hard drives or network shares. Backup devices can be automatically dete
 backup locations specified.
             """
         ),
-        'backup.png',
+        ':/tips/backup.png',
         _(
             "In this example, the drive <b>photobackup</b> does not contain a folder named "
             "<tt>Videos</tt>, so videos will not be backed up to it."
@@ -394,7 +394,7 @@ sources, destinations, and backups. Additionally, settings can be reset to their
 default state, and caches and remembered files cleared.            
             """
         ) + _("You can also import program preferences from the older 0.4 version."),
-        'commandline.png'
+        ':/tips/commandline.png'
     ),
     (
         _(
@@ -441,7 +441,7 @@ class Tips:
                 else:
                     text = '{}{}<p></p>'.format(text, value)
             else:
-                text = '{}<img src=":/tips/{}">'.format(text, value)
+                text = '{}<img src="{}">'.format(text, value)
         return text
 
     def __len__(self):

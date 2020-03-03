@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Combobox widget to easily choose file locations
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017-2018, Damon Lynch"
+__copyright__ = "Copyright 2017-2020, Damon Lynch"
 
 from typing import Optional, Tuple, List
 import os
@@ -110,7 +110,6 @@ class FolderCombo(QComboBox):
                     videos_dir = xdg_videos_directory(home_on_failure=False)
                     if videos_dir is not None and os.path.isdir(videos_dir):
                         videos_label = os.path.basename(videos_dir)
-
 
         self.addItem(QIcon(':/icons/home.svg'), home_label, home_dir)
         idx = 1
@@ -239,7 +238,7 @@ class FolderCombo(QComboBox):
                 invalid = True
                 # Translators: indicate in combobox that a path does not exist
                 self.insertItem(
-                    0, QIcon(':icons/error.svg'),
+                    0, QIcon(':/icons/error.svg'),
                     _('%s (location does not exist)') % os.path.basename(path), path
                 )
                 self.setCurrentIndex(0)
