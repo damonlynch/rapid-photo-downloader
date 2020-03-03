@@ -5943,7 +5943,7 @@ class SplashScreen(QSplashScreen):
     def __init__(self, pixmap: QPixmap, flags) -> None:
         super().__init__(pixmap, flags)
         self.progress = 0
-        self.image_width = pixmap.width()
+        self.image_width = pixmap.width() / pixmap.devicePixelRatioF()
         self.progressBarPen = QPen(QBrush(QColor(Qt.white)), 2.0)
 
     def drawContents(self, painter: QPainter):
@@ -6546,11 +6546,8 @@ def main():
         logging.debug("Exiting immediately after thumbnail cache / remembered files reset")
         sys.exit(0)
 
-    try:
-        # Works on Qt 5.6 or above
-        pixmap = scaledPixmap(':/splashscreen.png', app.primaryScreen().devicePixelRatio())
-    except Exception:
-        pixmap = QPixmap(':/splashscreen.png')
+    # Use QIcon to render so we get the high DPI version automatically
+    pixmap = QIcon(':/splashscreen.png').pixmap(QSize(600, 400))
 
     splash = SplashScreen(pixmap, Qt.WindowStaysOnTopHint)
     splash.show()

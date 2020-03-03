@@ -70,7 +70,7 @@ class ChevronCombo(QComboBox):
          }
 
         QComboBox::down-arrow {
-            image: url(:/chevron-down.svg);
+            image: url(:/icons/chevron-down.svg);
             width: %(width)dpx;
         }
 

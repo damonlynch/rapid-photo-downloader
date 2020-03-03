@@ -245,9 +245,9 @@ class ErrorReport(QDialog):
         self.onFindChanged('')
 
         self.icon_lookup = {
-            ErrorType.warning: ':/report-warning.png',
-            ErrorType.serious_error: ':/report-error.png',
-            ErrorType.critical_error: ':/report-critical.png'
+            ErrorType.warning: ':/report/warning.png',
+            ErrorType.serious_error: ':/report/error.png',
+            ErrorType.critical_error: ':/report/critical.png'
         }
 
     @pyqtSlot()
@@ -538,8 +538,10 @@ class SpeechBubble(QLabel):
         self.custom_height = max(math.ceil(QFontMetrics(self.counterFont).height() * 1.7), 24)
         self.counterPen = QPen(QColor(Qt.white))
         self.setStyleSheet("QLabel {border: 0px;}")
-        self.click_tooltip = _('The number of new entries added to the Error Report since it was '
-                               'last open. Click to open the Error Report.')
+        self.click_tooltip = _(
+            'The number of new entries added to the Error Report since it was '
+            'last open. Click to open the Error Report.'
+        )
 
     @property
     def count(self) -> int:

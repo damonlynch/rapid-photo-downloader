@@ -1999,16 +1999,17 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         thumbnail_width = thumbnail.size().width()
         thumbnail_height = thumbnail.size().height()
+        ratio = thumbnail.devicePixelRatioF()
 
         thumbnailX = self.horizontal_margin + \
-                     (self.image_area_size - thumbnail_width / self.device_pixel_ratio) / 2 + x
+                     (self.image_area_size - thumbnail_width / ratio) / 2 + x
         thumbnailY = self.vertical_margin + \
-                     (self.image_area_size - thumbnail_height / self.device_pixel_ratio) / 2 + y
+                     (self.image_area_size - thumbnail_height / ratio) / 2 + y
 
         target = QRectF(
             thumbnailX, thumbnailY,
-            thumbnail_width / self.device_pixel_ratio,
-            thumbnail_height / self.device_pixel_ratio)
+            thumbnail_width / ratio, thumbnail_height / ratio
+        )
         source = QRectF(0, 0, thumbnail_width, thumbnail_height)
         painter.drawPixmap(target, thumbnail, source)
 

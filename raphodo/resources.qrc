@@ -1,9 +1,8 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
   <qresource>
-    <file alias="chevron-down.svg">../images/chevron-down.svg</file>
-    <file alias="did-you-know.svg">../images/know.svg</file>
     <file alias="icons/camera.svg">../images/camera-photo-symbolic.svg</file>
+    <file alias="icons/chevron-down.svg">../images/chevron-down.svg</file>
     <file alias="icons/computer.svg">../images/computer-symbolic.svg</file>
     <file alias="icons/desktop.svg">../images/user-desktop-symbolic.svg</file>
     <file alias="icons/down.svg">../images/down.svg</file>
@@ -28,21 +27,28 @@
     <file alias="prefs/thumbnails.svg">../images/preferences/thumbnails.svg</file>
     <file alias="prefs/warnings.svg">../images/preferences/warnings.svg</file>
     <file alias="rapid-photo-downloader.svg">../images/rapid-photo-downloader.svg</file>
-    <file alias="report-critical.png">../images/report-critical.png</file>
-    <file alias="report-error.png">../images/report-error.png</file>
-    <file alias="report-warning.png">../images/report-warning.png</file>
+    <file alias="report/critical.png">../images/report-critical16.png</file>
+    <file alias="report/critical@2x.png">../images/report-critical32.png</file>
+    <file alias="report/error.png">../images/report-error16.png</file>
+    <file alias="report/error@2x.png">../images/report-error32.png</file>
+    <file alias="report/warning.png">../images/report-warning16.png</file>
+    <file alias="report/warning@2x.png">../images/report-warning32.png</file>
     <file alias="speech-bubble.svg">../images/speech-bubble.svg</file>
-    <file alias="splashscreen.png">../images/splashscreen.png</file>
+    <file alias="splashscreen.png">../images/splashscreen600.png</file>
+    <file alias="splashscreen@2x.png">../images/splashscreen1200.png</file>
     <file alias="thumbnail/audio.svg">../images/audio.svg</file>
-    <file alias="thumbnail/downloaded.svg">../images/rapid-photo-downloader-downloaded.svg</file>
     <file alias="thumbnail/download-pending.svg">../images/rapid-photo-downloader-download-pending.svg</file>
     <file alias="thumbnail/downloaded-with-error.svg">../images/rapid-photo-downloader-downloaded-with-error.svg</file>
     <file alias="thumbnail/downloaded-with-warning.svg">../images/rapid-photo-downloader-downloaded-with-warning.svg</file>
+    <file alias="thumbnail/downloaded.svg">../images/rapid-photo-downloader-downloaded.svg</file>
+    <file alias="thumbnail/photo.svg">../images/photo.svg</file>
+    <file alias="thumbnail/video.svg">../images/video.svg</file>
     <file alias="tips/backup.png">../tips/backup.png</file>
     <file alias="tips/commandline.png">../tips/commandline.png</file>
     <file alias="tips/customdate.png">../tips/customdate.png</file>
     <file alias="tips/defaultdownloaddirectory.png">../tips/defaultdownloaddirectory.png</file>
     <file alias="tips/deviceshidden.png">../tips/deviceshidden.png</file>
+    <file alias="tips/did-you-know.svg">../images/know.svg</file>
     <file alias="tips/downloaded.png">../tips/downloaded.png</file>
     <file alias="tips/downloadsubfolders.png">../tips/downloadsubfolders.png</file>
     <file alias="tips/downloadwhereandrename.png">../tips/downloadwhereandrename.png</file>
@@ -64,7 +70,5 @@
     <file alias="tips/timeline.png">../tips/timeline.png</file>
     <file alias="tips/timelineadjust.png">../tips/timelineadjust.png</file>
     <file alias="tips/timelineselect.png">../tips/timelineselect.png</file>
-    <file alias="thumbnail/video.svg">../images/video.svg</file>
-    <file alias="thumbnail/photo.svg">../images/photo.svg</file>
   </qresource>
 </RCC>

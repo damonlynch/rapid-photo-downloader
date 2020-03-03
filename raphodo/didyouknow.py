@@ -466,7 +466,7 @@ class DidYouKnowDialog(QDialog):
 
         title = QLabel(_('Did you know...?'))
         title.setFont(titleFont)
-        pixmap = QIcon(':/did-you-know.svg').pixmap(QSize(pixsize, pixsize))  # type: QPixmap
+        pixmap = QIcon(':/tips/did-you-know.svg').pixmap(QSize(pixsize, pixsize))  # type: QPixmap
 
         icon = QLabel()
         icon.setPixmap(pixmap)

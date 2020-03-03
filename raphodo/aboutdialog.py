@@ -25,7 +25,7 @@ __copyright__ = "Copyright 2016-2020, Damon Lynch"
 
 from gettext import gettext as _
 
-from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtCore import Qt, pyqtSlot, QSize
 from PyQt5.QtGui import QPixmap, QFont
 
 from PyQt5.QtWidgets import (
@@ -51,7 +51,13 @@ class AboutDialog(QDialog):
         self.setObjectName('AboutDialog')
         self.setStyleSheet('QDialog#AboutDialog {background-image: url(:/splashscreen.png);}')
         pixmap = QPixmap(':/splashscreen.png')
-        self.setFixedSize(pixmap.size())
+        ratio = pixmap.devicePixelRatioF()
+        if ratio > 1.0:
+            size = QSize(pixmap.width() / ratio, pixmap.height() / ratio)
+        else:
+            size = pixmap.size()
+
+        self.setFixedSize(size)
 
         # These values are derived from the splash screen image contents.
         # If the image changes, so should these
