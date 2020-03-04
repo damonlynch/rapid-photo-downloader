@@ -1769,7 +1769,6 @@ class ThumbnailDelegate(QStyledItemDelegate):
     """
 
     # TODO: why clicking in checkbox now fails unless it is the first one (or other),
-    #  and selection box now wrong too
 
     def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent)
@@ -1786,11 +1785,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None
             )
         )
-        self.checkbox_size = self.checkboxRect.size().height()
+        self.checkbox_size = self.checkboxRect.height()
 
         size16 = QSize(16, 16)
         size24 = QSize(24, 24)
-        self.downloadPendingIcon = scaledIcon(':/thumbnail/download-pending.svg').pixmap(size16)
+        self.downloadPendingPixmap = scaledIcon(':/thumbnail/download-pending.svg').pixmap(size16)
         self.downloadedPixmap = scaledIcon(':/thumbnail/downloaded.svg').pixmap(size16)
         self.downloadedWarningPixmap = scaledIcon(
             ':/thumbnail/downloaded-with-warning.svg'
@@ -1810,11 +1809,12 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.footer_padding = 5.0
 
         # Position of first memory card indicator
+        pixmap_ratio = self.downloadPendingPixmap.devicePixelRatioF()
         self.card_x = float(
             max(
-                self.checkboxRect.size().width(),
-                self.downloadPendingIcon.width() / self.device_pixel_ratio,
-                self.downloadedPixmap.width() / self.device_pixel_ratio
+                self.checkboxRect.width(),
+                self.downloadPendingPixmap.width() / pixmap_ratio,
+                self.downloadedPixmap.width() / pixmap_ratio
             ) + self.horizontal_margin + self.footer_padding
         )
 
@@ -1851,7 +1851,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         palette = QGuiApplication.palette()
         self.highlight = palette.highlight().color()  # type: QColor
         self.highlight_size = 3
-        self.highlight_offset = 1
+        self.highlight_offset = self.highlight_size / 2
         self.highlightPen = QPen()
         self.highlightPen.setColor(self.highlight)
         self.highlightPen.setWidth(self.highlight_size)
@@ -1861,6 +1861,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.emblemFont = QFont()
         self.emblemFont.setPointSize(self.emblemFont.pointSize() - 3)
         metrics = QFontMetricsF(self.emblemFont)
+
         # Determine the actual height of the largest extension, and the actual
         # width of all extensions.
         # For our purposes, this is more accurate than the generic metrics.height()
@@ -1874,10 +1875,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
             height = max(height, tbr.height())
 
         # Set and calculate the padding to go around each emblem
-        self.emblem_pad = height / 2
+        self.emblem_pad = height / 3
         self.emblem_height = height + self.emblem_pad * 2
-        for ext in self.emblem_width:
-            self.emblem_width[ext] = self.emblem_width[ext] + self.emblem_pad * 2
+        self.emblem_width = {
+            emblem: width + self.emblem_pad * 2 for emblem, width in self.emblem_width.items()
+        }
 
         self.jobCodeFont = QFont()
         self.jobCodeFont.setPointSize(self.jobCodeFont.pointSize() - 2)
@@ -2054,8 +2056,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # painter.drawText(x + 2, y + 15, str(index.row()))
 
         if has_audio:
-            audio_x = self.width / 2 - self.audioIcon.width() / self.device_pixel_ratio / 2 + x
-            audio_y = self.image_frame_bottom + self.footer_padding + y
+            audio_x = self.width / 2 - \
+                      self.audioIcon.width() / self.audioIcon.devicePixelRatioF() / 2 + x
+            audio_y = self.image_frame_bottom + self.footer_padding + y - 1
             painter.drawPixmap(QPointF(audio_x, audio_y), self.audioIcon)
 
         # Draw a small coloured box containing the file extension in the
@@ -2066,7 +2069,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # em_width = self.emblemFontMetrics.width(extension)
         emblem_width = self.emblem_width[extension]
         emblem_rect_x = self.width - self.horizontal_margin - emblem_width + x
-        emblem_rect_y = self.image_frame_bottom + self.footer_padding + y
+        emblem_rect_y = self.image_frame_bottom + self.footer_padding + y - 1
 
         emblemRect = QRectF(
             emblem_rect_x, emblem_rect_y, emblem_width, self.emblem_height
@@ -2121,7 +2124,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             QApplication.style().drawControl(QStyle.CE_CheckBox, checkboxStyleOption, painter)
         else:
             if download_status == DownloadStatus.download_pending:
-                pixmap = self.downloadPendingIcon
+                pixmap = self.downloadPendingPixmap
             elif download_status == DownloadStatus.downloaded:
                 pixmap = self.downloadedPixmap
             elif download_status == DownloadStatus.downloaded_with_warning or \

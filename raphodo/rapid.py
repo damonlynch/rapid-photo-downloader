@@ -76,7 +76,7 @@ import gphoto2 as gp
 from PyQt5 import QtCore
 from PyQt5.QtCore import (
     QThread, Qt, QStorageInfo, QSettings, QPoint, QSize, QTimer, QTextStream, QModelIndex,
-    pyqtSlot, QRect, pyqtSignal, QObject
+    pyqtSlot, QRect, pyqtSignal, QObject, QEvent
 )
 from PyQt5.QtGui import (
     QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics, QFont, QPainter, QMoveEvent, QBrush,
@@ -489,7 +489,7 @@ class RapidWindow(QMainWindow):
         app.processEvents()
 
         # Three values to handle window position quirks under X11:
-        self.window_show_requested_time = None  # type: datetime.datetime
+        self.window_show_requested_time = None  # type: Optional[datetime.datetime]
         self.window_move_triggered_count = 0
         self.windowPositionDelta = QPoint(0, 0)
 
@@ -1167,7 +1167,6 @@ class RapidWindow(QMainWindow):
 
         self.setupErrorLogWindow(settings=settings)
 
-
         self.setDownloadCapabilities()
         self.searchForCameras(on_startup=True)
         self.setupNonCameraDevices(on_startup=True)
@@ -1283,6 +1282,11 @@ class RapidWindow(QMainWindow):
         self.errorsPending.clicked.connect(self.errorLog.activate)
 
     def resizeAndMoveMainWindow(self) -> None:
+        """
+        Load window settings from last application run, after validating they
+        will fit on the screen
+        """
+
         if self.deferred_resize_and_move_until_after_show:
             logging.debug("Resizing and moving main window after it was deferred")
 
@@ -1294,15 +1298,17 @@ class RapidWindow(QMainWindow):
 
         available = self.screen.availableGeometry()  # type: QRect
         display = self.screen.size()  # type: QSize
+
         default_width = max(960, available.width() // 2)
         default_width = min(default_width, available.width())
         default_x = display.width() - default_width
-        default_height = available.height()
+        default_height = int(available.height() * .85)
         default_y = display.height() - default_height
 
         logging.debug(
-            "Available screen geometry: %sx%s on %sx%s display",
-            available.width(), available.height(), display.width(), display.height()
+            "Available screen geometry: %sx%s on %sx%s display. Default window size: %sx%s.",
+            available.width(), available.height(), display.width(), display.height(),
+            default_width, default_height
         )
 
         settings = QSettings()
@@ -1336,6 +1342,11 @@ class RapidWindow(QMainWindow):
                         "Screen scaling set to OFF. To turn it on, set the environment variable "
                         "%s to the value 1 and restart this program", qt5_variable
                     )
+        maximized = settings.value("maximized", False, type=bool)
+        logging.debug("Window maximized when last run: %s", maximized)
+
+        # Even if window is maximized, must restore saved window size and position for when the user
+        # unmaximizes the window
 
         pos = settings.value("windowPosition", QPoint(default_x, default_y))
         size = settings.value("windowSize", QSize(default_width, default_height))
@@ -1357,6 +1368,10 @@ class RapidWindow(QMainWindow):
         self.resize(validatedSize)
         self.move(validatedPos)
 
+        if maximized:
+            logging.debug("Setting window to maximized state")
+            self.setWindowState(Qt.WindowMaximized)
+
     def readWindowSettings(self, app: 'QtSingleApplication'):
         self.deferred_resize_and_move_until_after_show = False
 
@@ -1377,6 +1392,11 @@ class RapidWindow(QMainWindow):
             windowPos.setY(0)
         settings.setValue("windowPosition", windowPos)
         settings.setValue("windowSize", self.size())
+        # Alternative to position and size:
+        # settings.setValue("geometry", self.saveGeometry())
+        state = self.windowState()
+        maximized = bool(state & Qt.WindowMaximized)
+        settings.setValue("maximized", maximized)
         settings.setValue("centerSplitterSizes", self.centerSplitter.saveState())
         settings.setValue("sourceButtonPressed", self.sourceButton.isChecked())
         settings.setValue("rightButtonPressed", self.rightSideButtonPressed())
@@ -1414,7 +1434,7 @@ class RapidWindow(QMainWindow):
                 logging.debug("Window position quirk delta: %s", self.windowPositionDelta)
             self.window_show_requested_time = None
 
-    def setupWindow(self):
+    def setupWindow(self) -> None:
         status = self.statusBar()
         status.setStyleSheet("QStatusBar::item { border: 0px solid black }; ")
         self.downloadProgressBar = QProgressBar()
