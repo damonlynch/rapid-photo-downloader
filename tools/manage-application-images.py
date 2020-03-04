@@ -413,7 +413,14 @@ def export_files(full_file_name: Optional[str]=None) -> None:
         bar = pyprind.ProgBar(iterations=len(svg_files), stream=1, track_time=True, width=80)
 
     for full_file_name in svg_files:
-        export_image = os.path.join(images_directory, os.path.split(full_file_name)[1])
+        source_path, name = os.path.split(full_file_name)
+        if len(source_path) > len(source_images_directory):
+            dest_path = os.path.join(
+                images_directory, source_path[len(source_images_directory) + 1:]
+            )
+        else:
+            dest_path = images_directory
+        export_image = os.path.join(dest_path, name)
         inkscape_export_svg(image=full_file_name, export_image=export_image)
         if bar:
             bar.update()

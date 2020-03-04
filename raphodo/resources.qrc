@@ -27,12 +27,9 @@
     <file alias="prefs/thumbnails.svg">../images/preferences/thumbnails.svg</file>
     <file alias="prefs/warnings.svg">../images/preferences/warnings.svg</file>
     <file alias="rapid-photo-downloader.svg">../images/rapid-photo-downloader.svg</file>
-    <file alias="report/critical.png">../images/report-critical16.png</file>
-    <file alias="report/critical@2x.png">../images/report-critical32.png</file>
-    <file alias="report/error.png">../images/report-error16.png</file>
-    <file alias="report/error@2x.png">../images/report-error32.png</file>
-    <file alias="report/warning.png">../images/report-warning16.png</file>
-    <file alias="report/warning@2x.png">../images/report-warning32.png</file>
+    <file alias="report/critical.svg">../images/report-critical.svg</file>
+    <file alias="report/error.svg">../images/report-error.svg</file>
+    <file alias="report/warning.svg">../images/report-warning.svg</file>
     <file alias="speech-bubble.svg">../images/speech-bubble.svg</file>
     <file alias="splashscreen.png">../images/splashscreen600.png</file>
     <file alias="splashscreen@2x.png">../images/splashscreen1200.png</file>

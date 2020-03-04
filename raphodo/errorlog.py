@@ -245,9 +245,9 @@ class ErrorReport(QDialog):
         self.onFindChanged('')
 
         self.icon_lookup = {
-            ErrorType.warning: ':/report/warning.png',
-            ErrorType.serious_error: ':/report/error.png',
-            ErrorType.critical_error: ':/report/critical.png'
+            ErrorType.warning: ':/report/warning.svg',
+            ErrorType.serious_error: ':/report/error.svg',
+            ErrorType.critical_error: ':/report/critical.svg'
         }
 
     @pyqtSlot()
