@@ -51,7 +51,11 @@ class AboutDialog(QDialog):
         self.setObjectName('AboutDialog')
         self.setStyleSheet('QDialog#AboutDialog {background-image: url(:/splashscreen.png);}')
         pixmap = QPixmap(':/splashscreen.png')
-        ratio = pixmap.devicePixelRatioF()
+        try:
+            ratio = pixmap.devicePixelRatioF()
+        except AttributeError:
+            ratio = pixmap.devicePixelRatio()
+
         if ratio > 1.0:
             size = QSize(pixmap.width() / ratio, pixmap.height() / ratio)
         else:

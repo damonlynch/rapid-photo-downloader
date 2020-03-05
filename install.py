@@ -222,7 +222,7 @@ def get_distro() -> Distro:
                         return Distro.opensuse
                     if line.find('Deepin') > 0:
                         return Distro.deepin
-                    if line.find('KDE neon'):
+                    if line.find('KDE neon') > 0:
                         return Distro.neon
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
@@ -400,6 +400,40 @@ def pypi_versions(package_name: str):
     url = "https://pypi.python.org/pypi/{}/json".format(package_name)
     data = requests.get(url).json()
     return sorted(list(data["releases"].keys()), key=pkg_resources.parse_version, reverse=True)
+
+
+def pypi_version_exists(package_name: str, version: str) -> bool:
+    """
+    Determine if version of package exists. Outputs error message if not.
+    Catches exceptions. Assumes exists if exception occurs.
+
+    :param package_name:
+    :param version:
+    :return:
+    """
+    l = pypi_versions(package_name)
+    if not version in l:
+        sys.stderr.write(
+            _(
+                "The specified PyQt5 version does not exist. Valid versions are: {}."
+            ).format(', '.join(l)) + "\n"
+        )
+        return False
+    return True
+
+
+def latest_pypi_version(package_name: str):
+    """
+    Determine the latest version of a package available on PyPi.
+
+    No error checking.
+
+    :param package_name: package to search for
+    :return: latest version as string
+    """
+
+    versions = pypi_versions(package_name)
+    return versions[0].strip()
 
 
 def is_latest_pypi_package(package_name: str, show_message: bool=True) -> bool:
@@ -634,33 +668,44 @@ def install_pyheif_from_pip() -> int:
     return popen_capture_output(cmd)
 
 
-def update_pyqt5_and_sip(venv: bool) -> int:
+def update_pyqt5_and_sip(version:str) -> int:
     """
-    Update PyQt5 and sip to the latest versions from pypi, if the system is capable
+    Update PyQt5 and sip from pypi, if the system is capable
     of running PyQt5 from pypi
 
     :param venv: whether being installed into a virtual environment
     :return: return code from pip
     """
 
-    if pypi_pyqt5_capable():
+    assert pypi_pyqt5_capable()
 
+    if not version:
         pyqt_up_to_date = installed_using_pip('PyQt5') and is_latest_pypi_package('PyQt5')
         sip_up_to_date = installed_using_pip('PyQt5_sip') and is_latest_pypi_package('PyQt5_sip')
+        do_pypi_install = not pyqt_up_to_date or not sip_up_to_date
+        cmd_line = 'install {} --disable-pip-version-check --upgrade PyQt5 PyQt5_sip'.format(
+            pip_user
+        )
+    else:
+        do_pypi_install = python_package_version('PyQt5') != version
+        cmd_line = 'install {} --disable-pip-version-check --upgrade PyQt5=={} PyQt5_sip'.format(
+            pip_user, version
+        )
 
-        if venv or not pyqt_up_to_date or not sip_up_to_date:
+    if do_pypi_install:
 
-            uninstall_pip_package('PyQt5', no_deps_only=False)
-            uninstall_pip_package('PyQt5_sip', no_deps_only=False)
+        uninstall_pip_package('PyQt5', no_deps_only=False)
+        uninstall_pip_package('PyQt5_sip', no_deps_only=False)
 
+        if not version:
             print("Updating PyQt5 and PyQt5_sip...")
+        else:
+            print("Installing PyQt5 {} and PyQt5_sip".format(version))
 
-            # The --upgrade flag is really important on systems that do not update PyQt5_sip
-            # because the system copy already exists, which breaks our user's copy of PyQt5
-            cmd = make_pip_command(
-                'install {} --disable-pip-version-check --upgrade PyQt5 PyQt5_sip'.format(pip_user)
-            )
-            return popen_capture_output(cmd)
+        # The --upgrade flag is really important on systems that do not update PyQt5_sip
+        # because the system copy already exists, which breaks our user's copy of PyQt5
+        cmd = make_pip_command(cmd_line)
+        return popen_capture_output(cmd)
 
     return 0
 
@@ -1577,6 +1622,7 @@ def install_required_distro_packages(distro: Distro,
                                      interactive: bool,
                                      system_uninstall: bool,
                                      venv: bool,
+                                     install_pyqt5: bool,
                                      installer_to_delete_on_error: str) -> None:
     """
     Install packages supplied by the Linux distribution
@@ -1608,6 +1654,9 @@ def install_required_distro_packages(distro: Distro,
                    'python3-gi gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 '\
                    'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 zenity '
 
+        if install_pyqt5:
+            packages = '{} python3-pyqt5 qt5-image-formats-plugins'.format(packages)
+
         set_manually_installed = []
 
         # For some strange reason, setuptools and wheel must be manually specified on Linux Mint
@@ -1629,8 +1678,6 @@ def install_required_distro_packages(distro: Distro,
             if optional_python_packages:
                 packages = '{} {}'.format(packages, ' '.join(optional_python_packages))
 
-            if not pypi_pyqt5_capable():
-                packages = 'qt5-image-formats-plugins python3-pyqt5 {}'.format(packages)
         else:
 
             build_source_packages = 'libgirepository1.0-dev libbz2-dev libreadline-dev ' \
@@ -1716,6 +1763,9 @@ def install_required_distro_packages(distro: Distro,
                    'rpm-build intltool libmediainfo python3-wheel zenity ' \
                    'libheif-devel libde265-devel x265-devel gstreamer1-libav'
 
+        if install_pyqt5:
+            packages = 'qt5-qtimageformats python3-qt5 {}'.format(packages)
+
         if distro == Distro.fedora:
             packages = '{} python3-devel'.format(packages)
         else:
@@ -1733,9 +1783,6 @@ def install_required_distro_packages(distro: Distro,
                                        'cairo-gobject-devel'.format(base_python_packages)
 
             packages = '{} {}'.format(packages, base_python_packages)
-
-            if not pypi_pyqt5_capable():
-                packages = 'qt5-qtimageformats python3-qt5 {}'.format(packages)
 
             if not have_requests:
                 packages = 'python3-requests {}'.format(packages)
@@ -1824,6 +1871,9 @@ def install_required_distro_packages(distro: Distro,
         packages = 'zeromq-devel exiv2 exiftool python3-devel ' \
                    'libgphoto2-devel libraw-devel gcc-c++ rpm-build intltool zenity '
 
+        if install_pyqt5:
+            packages = 'python3-qt5 libqt5-qtimageformats {}'.format(packages)
+
         if not venv:
             base_python_packages = 'girepository-1_0 python3-gobject ' \
                                    'python3-psutil python3-tornado ' \
@@ -1832,9 +1882,6 @@ def install_required_distro_packages(distro: Distro,
                                    'typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0'
 
             packages = '{} {}'.format(packages, base_python_packages)
-
-            if not pypi_pyqt5_capable():
-                packages = 'python3-qt5 libqt5-qtimageformats {}'.format(packages)
 
             if not have_requests:
                 packages = 'python3-requests {}'.format(packages)
@@ -2044,6 +2091,25 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
         help=_(
             "Install in current Python virtual environment. Virtual environments created with "
             "the --system-site-packages option are not supported."
+        )
+    )
+
+    try:
+        v = ' {}'.format(latest_pypi_version('PyQt5'))
+    except Exception:
+        v = ''
+
+    parser.add_argument(
+        '--PyQt5-version', action='store', metavar='X.X.X', help=_(
+            "Specific version of PyQt5 to install (default is the most recent version{}). If the "
+            "version is 'system', then the system version of PyQt5 will be used."
+        ).format(v)
+    )
+
+    parser.add_argument(
+        '--use-system-PyQt5', action='store_true', default=None, help = _(
+            "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
+            "Uninstalls any PyPi versions already installed."
         )
     )
 
@@ -2347,6 +2413,20 @@ def check_install_status(i: int,
             sys.exit(1)
 
 
+def version_no_valid(version: str) -> bool:
+    """
+    Determine if string version is valid for getting specific PyPi package version
+    :param version: version string
+    :return: True if valid, False otherwise
+    """
+
+    try:
+        x = [int(v) for v in version.split('.')]
+        return 2 <= len(x) <=3
+    except Exception:
+        return False
+
+
 def do_install(installer: str,
                distro: Distro,
                distro_family: Distro,
@@ -2356,7 +2436,9 @@ def do_install(installer: str,
                delete_install_script: bool,
                delete_tar_and_dir: bool,
                force_this_version: bool,
-               venv: bool) -> None:
+               venv: bool,
+               pyqt5_version: str,
+               use_system_pyqt5: bool) -> None:
     """
     :param installer: the tar.gz installer archive (optional)
     :param distro: specific Linux distribution
@@ -2372,6 +2454,8 @@ def do_install(installer: str,
      a temporary directory
     :param force_this_version: do not attempt to run a newer version of this script
     :param venv: installing into a virtual environment
+    :param pyqt5_version: install specific version of PyQt5 from PyPi.
+    :param use_system_pyqt5: do not install PyQt5 from PyPi.
     """
 
     installer_downloaded = False
@@ -2395,6 +2479,10 @@ def do_install(installer: str,
     else:
         installer_to_delete_on_error = ''
 
+    must_install_pypi_pyqt5 = not use_system_pyqt5 and (
+                              (distro == Distro.neon and venv) or
+                              (distro != Distro.neon and (venv or pypi_pyqt5_capable())))
+
     if not venv:
         system_uninstall = uninstall_old_version(
             distro_family=distro_family, interactive=interactive,
@@ -2416,8 +2504,9 @@ def do_install(installer: str,
         local_man_dir = None
 
     install_required_distro_packages(
-        distro, distro_family, distro_version, interactive, system_uninstall, venv,
-        installer_to_delete_on_error
+        distro=distro, distro_family=distro_family, version=distro_version, interactive=interactive,
+        system_uninstall=system_uninstall, venv=venv, install_pyqt5=not must_install_pypi_pyqt5,
+        installer_to_delete_on_error=installer_to_delete_on_error
     )
 
     with tarfile.open(installer) as tar:
@@ -2456,27 +2545,19 @@ def do_install(installer: str,
     else:
         print(_('System support for HEIF / HEIC is unavailable'))
 
-    # Update PyQt5 and PyQt5_sip separately. Sometimes it's possible for PyQt5 and PyQt5_sip
-    # to get out of sync
-    # Do not install into Neon environment, as KDE Neon has up to date Qt
-    if venv or distro != Distro.neon:
-        i = update_pyqt5_and_sip(venv=venv)
+    if must_install_pypi_pyqt5:
+        # Update PyQt5 and PyQt5_sip separately. Sometimes it's possible for PyQt5 and PyQt5_sip
+        # to get out of sync
+        i = update_pyqt5_and_sip(version=pyqt5_version)
         check_install_status(
             i=i, installer_to_delete_on_error=installer_to_delete_on_error, is_requirements=True
         )
     else:
+        if distro == Distro.neon:
+            # KDE Neon has up to date Qt & PyQt5
+            print('\n' + _("Not installing PyPI PyQt5 package into KDE Neon environment"))
         uninstall_pip_package('PyQt5', no_deps_only=False)
         uninstall_pip_package('PyQt5_sip', no_deps_only=False)
-        try:
-            import PyQt5.QtWidgets
-            print('\n' + _("Not installing PyPI PyQt5 package into KDE Neon environment"))
-        except ImportError:
-            run_cmd(
-                make_distro_packager_command(
-                    distro_family, 'python3-pyqt5', interactive
-                ),
-                interactive=interactive, installer_to_delete_on_error=installer_to_delete_on_error
-            )
 
     print("\n" + _("Installing application...") +"\n")
     cmd = make_pip_command(
@@ -2689,6 +2770,44 @@ def main():
         )
         clean_locale_tmpdir()
         sys.exit(1)
+
+    use_system_pyqt5 = args.use_system_PyQt5 is not None
+
+    if args.PyQt5_version is not None and use_system_pyqt5:
+        sys.stderr.write(
+            _(
+                'Specify only one of --PyQt5-version or --use-system-PyQt5.'
+            ) + "\n"
+        )
+        clean_locale_tmpdir()
+        sys.exit(1)
+
+    pyqt5_version = None
+    if args.PyQt5_version is not None:
+        if not pypi_pyqt5_capable():
+            sys.stderr.write(
+                _(
+                    "Sorry, specifying a specific version of PyQt5 "
+                    "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
+                ) + "\n"
+            )
+            cleanup_on_exit(installer_to_delete_on_error='')
+            sys.exit(1)
+
+        if version_no_valid(args.PyQt5_version):
+            pyqt5_version = args.PyQt5_version.strip()
+        else:
+            sys.stderr.write(
+                _(
+                    "Please specify a PyQt5 version in the format X.X or X.X.X"
+                ) + "\n"
+            )
+            cleanup_on_exit(installer_to_delete_on_error='')
+            sys.exit(1)
+
+        if not pypi_version_exists(package_name='PyQt5', version=pyqt5_version):
+            cleanup_on_exit(installer_to_delete_on_error='')
+            sys.exit(1)
 
     venv = args.virtual_env
 
@@ -2919,7 +3038,7 @@ def main():
         distro_version=distro_version, interactive=args.interactive, devel=args.devel,
         delete_install_script=args.delete_install_script,
         delete_tar_and_dir=args.delete_tar_and_dir, force_this_version=args.force_this_version,
-        venv=venv
+        venv=venv, pyqt5_version=pyqt5_version, use_system_pyqt5=use_system_pyqt5
     )
 
 # Base 85 encoded zip of locale data, to be extracted to a temporary directory and used for

@@ -40,7 +40,8 @@ from colour import Color
 
 from PyQt5.QtCore import (
     QAbstractListModel, QModelIndex, Qt, pyqtSignal, QSizeF, QSize, QRect, QRectF, QEvent, QPoint,
-    QItemSelectionModel, QAbstractItemModel, pyqtSlot, QItemSelection, QTimeLine, QPointF
+    QItemSelectionModel, QAbstractItemModel, pyqtSlot, QItemSelection, QTimeLine, QPointF,
+    QT_VERSION_STR
 )
 from PyQt5.QtWidgets import (
     QListView, QStyledItemDelegate, QStyleOptionViewItem, QApplication, QStyle, QStyleOptionButton,
@@ -48,7 +49,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import (
     QPixmap, QImage, QPainter, QColor, QBrush, QFontMetricsF, QGuiApplication, QPen, QMouseEvent,
-    QFont
+    QFont, QKeyEvent
 )
 
 from raphodo.rpdfile import RPDFile, FileTypeCounter
@@ -156,8 +157,10 @@ class ThumbnailListModel(QAbstractListModel):
         self.initialize()
 
         no_workers = parent.prefs.max_cpu_cores
-        self.thumbnailer = Thumbnailer(parent=parent, no_workers=no_workers,
-                                       logging_port=logging_port, log_gphoto2=log_gphoto2)
+        self.thumbnailer = Thumbnailer(
+            parent=parent, no_workers=no_workers,
+            logging_port=logging_port, log_gphoto2=log_gphoto2
+        )
         self.thumbnailer.frontend_port.connect(self.rapidApp.initStage4)
         self.thumbnailer.thumbnailReceived.connect(self.thumbnailReceived)
         self.thumbnailer.cacheDirs.connect(self.cacheDirsReceived)
@@ -1640,6 +1643,7 @@ class ThumbnailListModel(QAbstractListModel):
 
 
 class ThumbnailView(QListView):
+
     def __init__(self, parent: QWidget) -> None:
         style = """QAbstractScrollArea { background-color: %s;}""" % ThumbnailBackgroundName
         super().__init__(parent)
@@ -1650,6 +1654,20 @@ class ThumbnailView(QListView):
         self.setUniformItemSizes(True)
         self.setSpacing(8)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+
+        self.selectionToRestore = self.selectedIndexesToRestore = None
+
+        try:
+            major, minor, patch = [int(v) for v in QT_VERSION_STR.split('.')]
+        except ValueError:
+            logging.error("Could not determine Qt version using %s", QT_VERSION_STR)
+            self.editorEvent_always_triggered = False
+        else:
+            self.editorEvent_always_triggered = minor <= 12 and patch < 7
+            if self.editorEvent_always_triggered:
+                logging.info('Disabling editorEvent workaround with Qt %s', QT_VERSION_STR)
+            else:
+                logging.info('Applying editorEvent workaround')
 
     def setScrollTogether(self, on: bool) -> None:
         """
@@ -1688,28 +1706,39 @@ class ThumbnailView(QListView):
         know about our checkboxes. Therefore if the user is in fact
         clicking on a checkbox, we need to filter that event.
 
-        Note that no matter what we do here, the delegate's editorEvent
-        will still be triggered.
+        On some versions of Qt 5 (to be determined), no matter what we do here,
+        the delegate's editorEvent will still be triggered.
 
         :param event: the mouse click event
         """
 
-        checkbox_clicked = False
-        index = self.indexAt(event.pos())
-        row = index.row()
-        if row >= 0:
-            rect = self.visualRect(index)  # type: QRect
-            delegate = self.itemDelegate(index)  # type: ThumbnailDelegate
-            checkboxRect = delegate.getCheckBoxRect(rect)
-            checkbox_clicked = checkboxRect.contains(event.pos())
-            if checkbox_clicked:
-                status = index.data(Roles.download_status)  # type: DownloadStatus
-                checkbox_clicked = status not in Downloaded
-
-        if not checkbox_clicked:
-            if self.rapidApp.prefs.auto_scroll and row >= 0:
-                self._scrollTemporalProximity(row=row)
+        right_button_pressed = event.button() == Qt.RightButton
+        if right_button_pressed:
             super().mousePressEvent(event)
+
+        else:
+            checkbox_clicked = False
+            index = self.indexAt(event.pos())
+            row = index.row()
+            if row >= 0:
+                rect = self.visualRect(index)  # type: QRect
+                delegate = self.itemDelegate(index)  # type: ThumbnailDelegate
+                checkboxRect = delegate.getCheckBoxRect(rect)
+                checkbox_clicked = checkboxRect.contains(event.pos())
+                if checkbox_clicked:
+                    status = index.data(Roles.download_status)  # type: DownloadStatus
+                    checkbox_clicked = status not in Downloaded
+
+            if not checkbox_clicked:
+                if self.rapidApp.prefs.auto_scroll and row >= 0:
+                    self._scrollTemporalProximity(row=row)
+                super().mousePressEvent(event)
+            elif not self.editorEvent_always_triggered:
+                if self.selectionModel().selection().contains(index):
+                    if len(self.selectionModel().selectedIndexes()) > 1:
+                        super().keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_Space, Qt.NoModifier, ' '))
+                else:
+                    super().mousePressEvent(event)
 
     @pyqtSlot(int)
     def scrollTimeline(self, value) -> None:
@@ -1768,7 +1797,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
     Render thumbnail cells
     """
 
-    # TODO: why clicking in checkbox now fails unless it is the first one (or other),
+    # markedWithMouse = pyqtSignal()
 
     def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent)
@@ -1776,8 +1805,10 @@ class ThumbnailDelegate(QStyledItemDelegate):
         try:
             # Works on Qt 5.6 and above
             self.device_pixel_ratio = rapidApp.devicePixelRatioF()
+            self.devicePixelF = True
         except AttributeError:
             self.device_pixel_ratio = rapidApp.devicePixelRatio()
+            self.devicePixelF = False
 
         self.checkboxStyleOption = QStyleOptionButton()
         self.checkboxRect = QRectF(
@@ -1799,6 +1830,13 @@ class ThumbnailDelegate(QStyledItemDelegate):
         ).pixmap(size16)
         self.audioIcon = scaledIcon(':/thumbnail/audio.svg', size24).pixmap(size24)
 
+        # Determine pixel scaling for SVG files
+        # Applies to all SVG files delegate will load
+        if self.devicePixelF:
+            self.pixmap_ratio = self.downloadPendingPixmap.devicePixelRatioF()
+        else:
+            self.pixmap_ratio = self.downloadedErrorPixmap.devicePixelRatio()
+
         self.dimmed_opacity = 0.5
 
         self.image_width = float(max(ThumbnailSize.width, ThumbnailSize.height))
@@ -1809,12 +1847,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.footer_padding = 5.0
 
         # Position of first memory card indicator
-        pixmap_ratio = self.downloadPendingPixmap.devicePixelRatioF()
         self.card_x = float(
             max(
                 self.checkboxRect.width(),
-                self.downloadPendingPixmap.width() / pixmap_ratio,
-                self.downloadedPixmap.width() / pixmap_ratio
+                self.downloadPendingPixmap.width() / self.pixmap_ratio,
+                self.downloadedPixmap.width() / self.pixmap_ratio
             ) + self.horizontal_margin + self.footer_padding
         )
 
@@ -1988,7 +2025,10 @@ class ThumbnailDelegate(QStyledItemDelegate):
         if previously_downloaded and not checked and \
                 download_status == DownloadStatus.not_downloaded:
             disabled = QPixmap(thumbnail.size())
-            disabled.setDevicePixelRatio(thumbnail.devicePixelRatioF())
+            if self.devicePixelF:
+                disabled.setDevicePixelRatio(thumbnail.devicePixelRatioF())
+            else:
+                disabled.setDevicePixelRatio(thumbnail.devicePixelRatio())
             disabled.fill(Qt.transparent)
             p = QPainter(disabled)
             p.setBackgroundMode(Qt.TransparentMode)
@@ -2001,7 +2041,10 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         thumbnail_width = thumbnail.size().width()
         thumbnail_height = thumbnail.size().height()
-        ratio = thumbnail.devicePixelRatioF()
+        if self.devicePixelF:
+            ratio = thumbnail.devicePixelRatioF()
+        else:
+            ratio = thumbnail.devicePixelRatio()
 
         thumbnailX = self.horizontal_margin + \
                      (self.image_area_size - thumbnail_width / ratio) / 2 + x
@@ -2057,7 +2100,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         if has_audio:
             audio_x = self.width / 2 - \
-                      self.audioIcon.width() / self.audioIcon.devicePixelRatioF() / 2 + x
+                      self.audioIcon.width() / self.pixmap_ratio / 2 + x
             audio_y = self.image_frame_bottom + self.footer_padding + y - 1
             painter.drawPixmap(QPointF(audio_x, audio_y), self.audioIcon)
 
@@ -2151,9 +2194,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
         i = 0
         selectedIndexes = self.selectedIndexes()
         if selectedIndexes is None:
-            noSelected = 0
+            no_selected = 0
         else:
-            noSelected = len(selectedIndexes)
+            no_selected = len(selectedIndexes)
             for index in selectedIndexes:
                 if not index.data(Roles.previously_downloaded):
                     i += 1
@@ -2161,11 +2204,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
                         break
 
         if i == 0:
-            return noSelected, Plural.zero
+            return no_selected, Plural.zero
         elif i == 1:
-            return noSelected, Plural.two_form_single
+            return no_selected, Plural.two_form_single
         else:
-            return noSelected, Plural.two_form_plural
+            return no_selected, Plural.two_form_plural
 
     def editorEvent(self, event: QEvent,
                     model: QAbstractItemModel,
@@ -2176,13 +2219,14 @@ class ThumbnailDelegate(QStyledItemDelegate):
         if the user presses the left mouse button or presses
         Key_Space or Key_Select and this cell is editable. Otherwise do nothing.
 
-        Handle right click
+        Handle right click too.
         """
 
         download_status = index.data(Roles.download_status)
 
         if event.type() == QEvent.MouseButtonRelease or \
                 event.type() == QEvent.MouseButtonDblClick:
+
             if event.button() == Qt.RightButton:
                 self.clickedIndex = index
 

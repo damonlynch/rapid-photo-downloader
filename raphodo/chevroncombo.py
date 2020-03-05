@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Combo box with a chevron selector
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2017, Damon Lynch"
+__copyright__ = "Copyright 2011-2020, Damon Lynch"
 
 from PyQt5.QtWidgets import QStyledItemDelegate, QComboBox, QLabel, QSizePolicy
 from PyQt5.QtGui import QFontMetrics, QFont

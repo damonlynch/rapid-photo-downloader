@@ -1314,17 +1314,12 @@ class RapidWindow(QMainWindow):
         settings = QSettings()
         settings.beginGroup("MainWindow")
 
-        if QT5_VERSION >= LooseVersion('5.6'):
+        try:
             scaling = self.devicePixelRatioF()
-        elif QT5_VERSION >= LooseVersion('5.5'):
+        except AttributeError:
             scaling = self.devicePixelRatio()
-        else:
-            scaling = 0
-        if scaling:
-            scaling_message = 'Desktop scaling set to {}'.format(scaling)
-        else:
-            scaling_message = 'Desktop scaling is undetermined'
-        logging.info(scaling_message)
+
+        logging.info('Desktop scaling set to %s', scaling)
         # Report if fractional scaling is set
         logging.debug(self.fractional_scaling)
 
@@ -5963,7 +5958,11 @@ class SplashScreen(QSplashScreen):
     def __init__(self, pixmap: QPixmap, flags) -> None:
         super().__init__(pixmap, flags)
         self.progress = 0
-        self.image_width = pixmap.width() / pixmap.devicePixelRatioF()
+        try:
+            self.image_width = pixmap.width() / pixmap.devicePixelRatioF()
+        except AttributeError:
+            self.image_width = pixmap.width() / pixmap.devicePixelRatio()
+
         self.progressBarPen = QPen(QBrush(QColor(Qt.white)), 2.0)
 
     def drawContents(self, painter: QPainter):
