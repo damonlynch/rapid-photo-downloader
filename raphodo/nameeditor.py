@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2016-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,7 +22,7 @@ Dialog for editing download subfolder structure and file renaming
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2018, Damon Lynch"
+__copyright__ = "Copyright 2016-2020, Damon Lynch"
 
 from typing import Dict, Optional, List, Union, Tuple, Sequence
 import webbrowser
@@ -900,18 +900,26 @@ class PrefDialog(QDialog):
         self.example = QLabel()
 
         # Combobox with built-in and user defined presets
-        self.preset = PresetComboBox(prefs=prefs, preset_names=self.preset_names,
-                                     preset_type=self.preset_type, edit_mode=True)
+        self.preset = PresetComboBox(
+            prefs=prefs, preset_names=self.preset_names, preset_type=self.preset_type,
+            edit_mode=True
+        )
         self.preset.activated.connect(self.presetComboItemActivated)
 
-        flayout = QFormLayout()
-        flayout.addRow(_('Preset:'), self.preset)
-        flayout.addRow(_('Example:'), self.example)
+        glayout = QGridLayout()
+        presetLabel = QLabel(_('Preset:'))
+        exampleLabel = QLabel(_('Example:'))
+
+        glayout.addWidget(presetLabel, 0, 0)
+        glayout.addWidget(self.preset, 0, 1)
+        glayout.addWidget(exampleLabel, 1, 0)
+        glayout.addWidget(self.example, 1, 1)
+        glayout.setColumnStretch(1, 10)
 
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        layout.addLayout(flayout)
+        layout.addLayout(glayout)
         layout.addSpacing(int(QFontMetrics(QFont()).height() / 2))
         layout.addWidget(self.editor)
         layout.addWidget(self.messageWidget)

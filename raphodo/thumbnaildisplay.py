@@ -1663,7 +1663,7 @@ class ThumbnailView(QListView):
             logging.error("Could not determine Qt version using %s", QT_VERSION_STR)
             self.editorEvent_always_triggered = False
         else:
-            self.editorEvent_always_triggered = minor <= 12 and patch < 7
+            self.editorEvent_always_triggered = major == 5 and minor <= 12 and patch < 7
             if self.editorEvent_always_triggered:
                 logging.info('Disabling editorEvent workaround with Qt %s', QT_VERSION_STR)
             else:
