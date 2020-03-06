@@ -638,9 +638,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
         else:
             order = (FileExtension.heif, FileExtension.jpeg, FileExtension.video, FileExtension.raw)
 
+        if not fileformats.heif_capable():
+            order = order[1:]
+
         have_photos = len(self._camera_photos_videos_by_type[FileExtension.raw]) > 0 or \
-                      len(self._camera_photos_videos_by_type[FileExtension.jpeg]) > 0 or \
-                      len(self._camera_photos_videos_by_type[FileExtension.heif]) > 0
+                      len(self._camera_photos_videos_by_type[FileExtension.jpeg]) > 0
+        if not have_photos and fileformats.heif_capable():
+            have_photos = len(self._camera_photos_videos_by_type[FileExtension.heif]) > 0
         have_videos = len(self._camera_photos_videos_by_type[FileExtension.video]) > 0
 
         max_attempts = 5
@@ -1077,6 +1081,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
         elif ext_type == FileExtension.video:
             determined_by = 'video'
             save_chunk = True
+        elif ext_type == FileExtension.heif:
+            determined_by = 'HEIF / HEIC'
+            exif_extract = True
+            use_exiftool = fileformats.use_exiftool_on_photo(
+                extension, preview_extraction_irrelevant=True
+            )
+            save_chunk = True
 
         if use_app1:
             try:
@@ -1156,7 +1167,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 modification_time=modification_time, path=path, name=name,
                 file_type=FileType.video
             )
-
 
         if dt is None:
             logging.warning(
@@ -1294,12 +1304,20 @@ class ScanWorker(WorkerInPublishPullPipeline):
         raw_attempts = 0
         jpegs_heifs_and_videos = defaultdict(deque)
 
+        # Only use HEIF files if we can read their metadata
+        if fileformats.heif_capable():
+            extensions = (
+                FileExtension.raw, FileExtension.jpeg, FileExtension.heif, FileExtension.video
+            )
+        else:
+            extensions = (FileExtension.raw, FileExtension.jpeg, FileExtension.video)
+        non_raw_extensions = extensions[1:]
+
         for dir_name, name in self.walk_file_system(path):
             full_file_name = os.path.join(dir_name, name)
             extension = fileformats.extract_extension(full_file_name)
             ext_type = fileformats.extension_type(extension)
-            if ext_type in (FileExtension.raw, FileExtension.jpeg,
-                            FileExtension.heif, FileExtension.video):
+            if ext_type in extensions:
                 file_type = fileformats.file_type(extension)
                 if ext_type == FileExtension.raw and raw_attempts < max_attempts:
                     # examine right away
@@ -1318,7 +1336,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         break
 
         # Couldn't locate sample raw file. Are left with up to max_attempts jpeg and video files
-        for ext_type in (FileExtension.jpeg, FileExtension.heif, FileExtension.video):
+        for ext_type in non_raw_extensions:
             for dir_name, name, full_file_name, extension in jpegs_heifs_and_videos[ext_type]:
                 file_type = fileformats.file_type(extension)
                 if self.examine_sample_non_camera_file(

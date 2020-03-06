@@ -2479,7 +2479,7 @@ def do_install(installer: str,
     else:
         installer_to_delete_on_error = ''
 
-    must_install_pypi_pyqt5 = not use_system_pyqt5 and (
+    must_install_pypi_pyqt5 = pyqt5_version is not None or not use_system_pyqt5 and (
                               (distro == Distro.neon and venv) or
                               (distro != Distro.neon and (venv or pypi_pyqt5_capable())))
 
@@ -2543,7 +2543,7 @@ def do_install(installer: str,
             warning_only=True, package_name='pyheif'
         )
     else:
-        print(_('System support for HEIF / HEIC is unavailable'))
+        print(_('System support for generating HEIF / HEIC thumbnails is unavailable'))
 
     if must_install_pypi_pyqt5:
         # Update PyQt5 and PyQt5_sip separately. Sometimes it's possible for PyQt5 and PyQt5_sip

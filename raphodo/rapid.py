@@ -5915,6 +5915,9 @@ def get_versions() -> List[str]:
         versions.append('Tornado: {}'.format(tornado.version))
     except ImportError:
         pass
+    versions.append(
+        "Can read HEIF/HEIC metadata: {}".format('yes' if fileformats.heif_capable() else 'no')
+    )
     if have_heif_module:
         versions.append('Pyheif: {}'.format(pyheif_version()))
         v = libheif_version()
