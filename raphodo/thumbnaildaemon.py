@@ -202,6 +202,7 @@ class DameonThumbnailWorker(DaemonProcess):
                     logging.error("Exception working on file %s", rpd_file.full_file_name)
                     logging.exception("Traceback:")
 
+
 if __name__ == '__main__':
     generate_thumbnails = DameonThumbnailWorker()
     generate_thumbnails.run()

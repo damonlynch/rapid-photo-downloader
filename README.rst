@@ -5,7 +5,7 @@ Contents
 --------
 
 - `Description`_
-- `Install on Ubuntu, openSUSE, Debian, and Fedora`_
+- `Install on Ubuntu, openSUSE, Debian, Fedora, and CentOS 8`_
 - `Install on CentOS 7.5`_
 - `Supported Linux Versions`_
 - `Software Requirements and Program Installation on Other Systems`_
@@ -44,8 +44,8 @@ download directly from cameras unless it used something else.
 
 The program is licensed under the GPL3_ or later.
 
-Install on Ubuntu, openSUSE, Debian, and Fedora
-===============================================
+Install on Ubuntu, openSUSE, Debian, Fedora, and CentOS 8
+=========================================================
 
 To install Rapid Photo Downloader, run as your regular user (i.e. *without*
 sudo):

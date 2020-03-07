@@ -1,7 +1,25 @@
-Release Notes for Rapid Photo Downloader 0.9.19b1
+Release Notes for Rapid Photo Downloader 0.9.19b2
 =================================================
 
- - The install script and the the built-in progrm update now automatically
+ - Rapid Photo Downloader 0.9.19b2 introduces a bug fix when running on versions
+   of Qt 5.12.7 or newer. The bug meant Rapid Photo Downloader failed to respond
+   to a thumbnail checkmark being set on or off. The fix is automatically
+   applied when Rapid Photo Downloader detects Qt 5.12.7 or newer. To override
+   this behavior and manually set the bug fix on or off, set the environment
+   variable RPD_THUMBNAIL_MARK_FIX to 1 or 0, respectively.
+
+ - To be able to download HEIF / HEIC files, ExifTool 10.63 or newer is
+   required. To be able to view their thumbnails, a version of Debian / Ubuntu
+   or Fedora / CentOS that is is new enough to provide HEIF support libraries is
+   required. Currently thumbnails for 10 bit HEIF files fail to render, but
+   future releases of libheif and its Python module pyheif will support them.
+
+   **Note:** HEIF / HEIC support is installed only if installing the program
+   using the install.py script. If you have upgraded Rapid Photo Downloader from
+   an earlier version using the program's builtin updater, HEIF / HEIC support
+   will not be installed.
+
+ - The install script and the the builtin progrm update now automatically
    update pip, setuptools and wheel to the latest versions, but only for your
    user (i.e., not system-wide). They are updated because the latest versions
    are necessary to install PyQt5. If you previously relied on the system pip
@@ -10,15 +28,23 @@ Release Notes for Rapid Photo Downloader 0.9.19b1
 
    python3 -m pip uninstall --user pip
 
- - On high resolution screens (i.e. those with a high dpi setting) with screen
-   scaling enabled, Rapid Photo Downloader will detect if a special environment
-   variable has been set that instructs Qt5 applications to scale their display.
-   With Qt5 versions older than Qt 5.14, the environment variable is
-   QT_AUTO_SCREEN_SCALE_FACTOR. With Qt5 versions 5.14 or newer, the environment
-   variable is QT_ENABLE_HIGHDPI_SCALING. If the environment variable is not
-   set, Rapid Photo Downloader will set it, thereby enabling its  correct
-   scaling. If for some reason you do not want this, set the value to 0 before
-   starting Rapid Photo Downloader.
+ - On high resolution screens (i.e. those with a high DPI setting) with screen
+   scaling enabled, Rapid Photo Downloader will detect if special environment
+   variables have been set that instruct Qt5 applications to scale their
+   display. These environment variables are:
+
+   - QT_SCALE_FACTOR
+   - QT_SCREEN_SCALE_FACTORS
+   - QT_AUTO_SCREEN_SCALE_FACTOR (Qt versions older than 5.14)
+   - QT_ENABLE_HIGHDPI_SCALING (Qt versions 5.14 or newer)
+
+   If none of these environment variables are set, Rapid Photo Downloader will
+   automatically enable high DPI scaling. If they are set, Rapid Photo
+   Downloader will do as they instruct. If for some reason you do not want this,
+   set one of these variables before starting Rapid Photo Downloader.
+   For details, consult:
+
+   https://doc.qt.io/qt-5/highdpi.html#high-dpi-support-in-qt
 
  - Most photo thumbnails are generated using exiv2. Very rarely, exiv2 can
    cause a segfault (crash) while extracting a thumbnail. If exiv2 does

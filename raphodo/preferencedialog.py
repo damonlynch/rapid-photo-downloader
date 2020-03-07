@@ -807,6 +807,10 @@ class PreferencesDialog(QDialog):
         self.device_list_widgets = (self.knownDevices, self.ignoredPaths)
         self.chooser.setCurrentRow(0)
 
+    def reject(self) -> None:
+        # If not called, rejecting this dialog will cause Rapid Photo Downloader to crash
+        self.close()
+
     def _addItems(self, pref_list: str, pref_type: int) -> None:
         if self.prefs.list_not_empty(key=pref_list):
             for value in self.prefs[pref_list]:

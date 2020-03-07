@@ -1,15 +1,16 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.19b2 (2020-02-xx)
+0.9.19b2 (2020-03-06)
 ---------------------
 
- - Added preliminary HEIF / HEIC support, if your distribution is in the Debian
-   / Ubuntu or Fedora / CentOS family and is new enough to provide HEIF support
-   libraries. Not all HEIF / HEIC files can have thumbnails generated; 10 bit
-   images require libheif 1.6.3 or newer. HEIF / HEIC photo metadata is
-   extracted using ExifTool. If the metadata does not look correct, you probably
-   need to install a more recent version of ExifTool.
+ - Fixed a bug where thumbnails would not be able to have their checkmark set on
+   or off with the mouse on recent versions of Qt. See the release notes for
+   details.
+
+ - Improved visual appearance on high DPI screens.
+
+ - Added HEIF / HEIC support. See the Release Notes for details.
 
  - Added support for CentOS 8 to installer script. Dropped support for Fedora 29
    and older. Installer script no longer installs PyQt5 from PyPI on KDE Neon,
@@ -25,7 +26,18 @@ Changelog for Rapid Photo Downloader
  - Made Timeline and thumbnails render more quickly and accurately on displays
    with fractional scaling.
 
- - Fix bug #1861591: install.py should handle cases with no LANG variable set.
+ - Fixed bug #1861591: install.py should handle cases with no LANG variable set.
+
+ - Fixed bug #1833525: when using the filename and subfolder name preference
+   editor, under some desktop styles the example file and subfolder names would
+   shrink to the extent they would be truncated.
+
+ - Fixed bug where Rapid Photo Downloader would crash when the Preferences
+   dialog window was closed with the escape key.
+
+ - Fixed bug where under some desktop styles the right side panel would always
+   be open even if it had been closed when the Rapid Photo Downloader last
+   exited.
 
 0.9.19b1 (2020-01-29)
 ---------------------

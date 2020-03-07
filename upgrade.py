@@ -376,7 +376,8 @@ class RunInstallProcesses:
 
         return StrictVersion(pip.__version__)
 
-    def package_in_pip_output(self, package: str, output: str) -> bool:
+    @staticmethod
+    def package_in_pip_output(package: str, output: str) -> bool:
         """
         Determine if a package is found in the output of packages installed by pip
         :param package:
@@ -409,7 +410,8 @@ class RunInstallProcesses:
         else:
             return 'PyQt5>=5.11'
 
-    def make_pip_command(self, args: str, split: bool=True):
+    @staticmethod
+    def make_pip_command(args: str, split: bool=True):
         """
         Construct a call to python's pip
         :param args: arguments to pass to the command

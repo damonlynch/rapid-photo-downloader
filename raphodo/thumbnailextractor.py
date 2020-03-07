@@ -55,7 +55,9 @@ from raphodo.constants import (
 )
 from raphodo.rpdfile import RPDFile, Video, Photo
 from raphodo.constants import FileType
-from raphodo.utilities import stdchannel_redirected, show_errors, image_large_enough_fdo
+from raphodo.utilities import (
+    stdchannel_redirected, show_errors, image_large_enough_fdo
+)
 from raphodo.filmstrip import add_filmstrip
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge, FdoCacheNormal
 import raphodo.exiftool as exiftool
@@ -229,6 +231,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
         :param orientation: EXIF orientation tag
         :return: possibly rotated thumbnail
         """
+
         if orientation == self.rotate_90:
             thumbnail = thumbnail.transformed(QTransform().rotate(90))
         elif orientation == self.rotate_270:
@@ -661,7 +664,6 @@ class ThumbnailExtractor(LoadBalancerWorker):
                     thumbnail, orientation = self.extract_thumbnail(
                         task, rpd_file, processing, data
                     )
-
                     if data.file_to_work_on_is_temporary:
                         os.remove(data.full_file_name_to_work_on)
                         rpd_file.temp_cache_full_file_chunk = ''
@@ -831,6 +833,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
             "Terminating thumbnail extractor ExifTool process for %s", self.identity.decode()
         )
         self.exiftool_process.terminate()
+
 
 if __name__ == "__main__":
     thumbnail_extractor = ThumbnailExtractor()

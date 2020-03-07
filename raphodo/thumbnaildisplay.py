@@ -31,6 +31,7 @@ import logging
 from timeit import timeit
 from typing import Optional, Dict, List, Set, Tuple, Sequence
 import locale
+import pkg_resources as pkgr
 
 from gettext import gettext as _
 
@@ -1657,17 +1658,24 @@ class ThumbnailView(QListView):
 
         self.selectionToRestore = self.selectedIndexesToRestore = None
 
-        try:
-            major, minor, patch = [int(v) for v in QT_VERSION_STR.split('.')]
-        except ValueError:
-            logging.error("Could not determine Qt version using %s", QT_VERSION_STR)
-            self.editorEvent_always_triggered = False
+        fix = os.getenv('RPD_THUMBNAIL_MARK_FIX', None)
+        if fix is not None:
+            self.apply_editorEvent_bug_fix = fix == "1"
         else:
-            self.editorEvent_always_triggered = major == 5 and minor <= 12 and patch < 7
-            if self.editorEvent_always_triggered:
-                logging.info('Disabling editorEvent workaround with Qt %s', QT_VERSION_STR)
-            else:
-                logging.info('Applying editorEvent workaround')
+            try:
+                self.apply_editorEvent_bug_fix = pkgr.parse_version(QT_VERSION_STR) >= \
+                                                 pkgr.parse_version('5.12.7')
+            except Exception:
+                logging.error("Could not determine Qt version using %s", QT_VERSION_STR)
+                self.apply_editorEvent_bug_fix = False
+
+        if self.apply_editorEvent_bug_fix:
+            logging.info('Enabling thumbnail mark bug workaround')
+        else:
+            logging.info('Disabling thumbnail mark bug workaround with Qt %s', QT_VERSION_STR)
+
+        if fix is not None:
+            logging.info('RPD_THUMBNAIL_MARK_FIX was set to %s', fix)
 
     def setScrollTogether(self, on: bool) -> None:
         """
@@ -1733,7 +1741,7 @@ class ThumbnailView(QListView):
                 if self.rapidApp.prefs.auto_scroll and row >= 0:
                     self._scrollTemporalProximity(row=row)
                 super().mousePressEvent(event)
-            elif not self.editorEvent_always_triggered:
+            elif self.apply_editorEvent_bug_fix:
                 if self.selectionModel().selection().contains(index):
                     if len(self.selectionModel().selectedIndexes()) > 1:
                         super().keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_Space, Qt.NoModifier, ' '))

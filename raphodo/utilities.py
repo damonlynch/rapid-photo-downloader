@@ -995,3 +995,4 @@ def python_package_version(package: str) -> str:
         return pkg_resources.get_distribution(package).version
     except pkg_resources.DistributionNotFound:
         return ''
+

@@ -180,7 +180,7 @@ from raphodo.problemnotification import (
 )
 from raphodo.viewutils import (
     standardIconSize, qt5_screen_scale_environment_variable, QT5_VERSION, validateWindowSizeLimit,
-    validateWindowPosition, scaledPixmap
+    validateWindowPosition, scaledIcon
 )
 import raphodo.didyouknow as didyouknow
 from raphodo.thumbnailextractor import gst_version, libraw_version, rawkit_version
@@ -457,6 +457,7 @@ class RapidWindow(QMainWindow):
 
     def __init__(self, splash: 'SplashScreen',
                  fractional_scaling: str,
+                 scaling_set: str,
                  photo_rename: Optional[bool]=None,
                  video_rename: Optional[bool]=None,
                  auto_detect: Optional[bool]=None,
@@ -483,7 +484,8 @@ class RapidWindow(QMainWindow):
         else:
             self.screen = None
 
-        self.fractional_scaling = fractional_scaling
+        self.fractional_scaling_message = fractional_scaling
+        self.scaling_set_message = scaling_set
 
         # Process Qt events - in this case, possible closing of splash screen
         app.processEvents()
@@ -1161,6 +1163,11 @@ class RapidWindow(QMainWindow):
                 button = self.rightSideButtonMapper[index]
             button.setChecked(True)
             self.setRightPanelsAndButtons(RightSideButton(index))
+        else:
+            # For some unknown reason, under some sessions need to explicitly set this to False,
+            # or else it shows and no button is pressed.
+            self.rightPanels.setVisible(False)
+
         settings.endGroup()
 
         prefs_valid, msg = self.prefs.check_prefs_for_validity()
@@ -1177,7 +1184,7 @@ class RapidWindow(QMainWindow):
 
         self.showMainWindow()
 
-        if EXIFTOOL_VERSION is None and self.prefs.warn_broken_or_missing_libraries:
+        if not EXIFTOOL_VERSION and self.prefs.warn_broken_or_missing_libraries:
             message = _(
                 '<b>ExifTool has a problem</b><br><br> '
                 'Rapid Photo Downloader uses ExifTool to get metadata from videos and photos. '
@@ -1189,7 +1196,7 @@ class RapidWindow(QMainWindow):
                 remember=RememberThisMessage.do_not_warn_again_about_missing_libraries,
                 parent=self,
                 buttons=RememberThisButtons.ok,
-                title=_('Problem with libmediainfo')
+                title=_('Problem with ExifTool')
             )
 
             warning.exec_()
@@ -1319,24 +1326,10 @@ class RapidWindow(QMainWindow):
         except AttributeError:
             scaling = self.devicePixelRatio()
 
+        logging.info("%s", self.scaling_set_message)
         logging.info('Desktop scaling set to %s', scaling)
-        # Report if fractional scaling is set
-        logging.debug(self.fractional_scaling)
+        logging.debug("%s", self.fractional_scaling_message)
 
-        qt5_variable = qt5_screen_scale_environment_variable()
-        if qt5_variable not in os.environ:
-            logging.error(
-                "Expected screen scaling variable %s to be set to a boolean value", qt5_variable
-            )
-        else:
-            if scaling > 1.0:
-                if os.environ[qt5_variable] == '1':
-                    logging.info("Screen scaling set to ON")
-                else:
-                    logging.info(
-                        "Screen scaling set to OFF. To turn it on, set the environment variable "
-                        "%s to the value 1 and restart this program", qt5_variable
-                    )
         maximized = settings.value("maximized", False, type=bool)
         logging.debug("Window maximized when last run: %s", maximized)
 
@@ -1349,7 +1342,7 @@ class RapidWindow(QMainWindow):
 
         was_valid, validatedSize = validateWindowSizeLimit(available.size(), size)
         if not was_valid:
-            logging.warning(
+            logging.debug(
                 "Windows size %sx%s was invalid. Value was reset to %sx%s.",
                 size.width(), size.height(), validatedSize.width(), validatedSize.height()
             )
@@ -1358,7 +1351,7 @@ class RapidWindow(QMainWindow):
         )
         was_valid, validatedPos = validateWindowPosition(pos, available.size(), validatedSize)
         if not was_valid:
-            logging.warning("Window position %s,%s was invalid", pos.x(), pos.y())
+            logging.debug("Window position %s,%s was invalid", pos.x(), pos.y())
 
         self.resize(validatedSize)
         self.move(validatedPos)
@@ -6289,10 +6282,21 @@ def critical_startup_error(message: str) -> None:
 
 
 def main():
-    # Set Qt 5 screen scaling environment variable if it is not already set
+    # Set Qt 5 screen scaling if it is not already set in an environment variable
     qt5_variable = qt5_screen_scale_environment_variable()
-    if qt5_variable not in os.environ:
-        os.environ[qt5_variable] = '1'
+    scaling_variables = {qt5_variable, 'QT_SCALE_FACTOR', 'QT_SCREEN_SCALE_FACTORS'}
+    if not scaling_variables & set(os.environ):
+        scaling_set = 'High DPI scaling automatically set to ON because one of the ' \
+                      'following environment variables not already ' \
+                      'set: {}'.format(', '.join(scaling_variables))
+        if pkgr.parse_version(QtCore.QT_VERSION_STR) >= pkgr.parse_version('5.6.0'):
+            QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+        else:
+            os.environ[qt5_variable] = '1'
+    else:
+        scaling_set = 'High DPI scaling not automatically set to ON because environment ' \
+                      'variable(s) already ' \
+                      'set: {}'.format(', '.join(scaling_variables & set(os.environ)))
 
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
@@ -6569,7 +6573,8 @@ def main():
         sys.exit(0)
 
     # Use QIcon to render so we get the high DPI version automatically
-    pixmap = QIcon(':/splashscreen.png').pixmap(QSize(600, 400))
+    size = QSize(600, 400)
+    pixmap = scaledIcon(':/splashscreen.png', size).pixmap(size)
 
     splash = SplashScreen(pixmap, Qt.WindowStaysOnTopHint)
     splash.show()
@@ -6595,7 +6600,8 @@ def main():
         auto_download_insertion=auto_download_insertion,
         log_gphoto2=args.log_gphoto2,
         splash=splash,
-        fractional_scaling=fractional_scaling
+        fractional_scaling=fractional_scaling,
+        scaling_set=scaling_set
     )
 
     app.setActivationWindow(rw)

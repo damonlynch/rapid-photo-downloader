@@ -283,8 +283,8 @@ def preprocess_thumbnail_from_disk(rpd_file: RPDFile,
                 else:
                     task = ExtractionTask.load_heif_and_exif_directly
                 processing.add(ExtractionProcessing.resize)
-                # TODO check if orientation is needed! Maybe not!
-                processing.add(ExtractionProcessing.orient)
+                # For now, do not orient, as it seems pyheif or libheif does that automatically
+                # processing.add(ExtractionProcessing.orient)
             else:
                 # We have no way to convert the file
                 task = ExtractionTask.bypass
@@ -631,8 +631,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             if self.cache_full_size_file_from_camera(rpd_file):
                                 task = ExtractionTask.load_heif_and_exif_directly
                                 processing.add(ExtractionProcessing.resize)
-                                #TODO check if this orientation check is really necessary:
-                                processing.add(ExtractionProcessing.orient)
+                                # For now, do not orient, as it seems pyheif or libheif does
+                                # that automatically.
+                                # processing.add(ExtractionProcessing.orient)
 
                         elif self.camera.can_fetch_thumbnails:
                             task = ExtractionTask.load_from_bytes
