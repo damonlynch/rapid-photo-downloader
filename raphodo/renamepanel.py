@@ -293,14 +293,14 @@ class RenameOptionsWidget(QFramedWidget):
         self.setLayout(layout)
 
         # QSpinBox cannot display values greater than this value
-        c_maxint = platform_c_maxint()
+        self.c_maxint = platform_c_maxint()
 
         tip = _('A counter for how many downloads occur on each day')
         self.downloadsTodayLabel = QLabel(_('Downloads today:'))
         self.downloadsToday = QSpinBox()
         self.downloadsToday.setMinimum(0)
         # QSpinBox defaults to a maximum of 99
-        self.downloadsToday.setMaximum(c_maxint)
+        self.downloadsToday.setMaximum(self.c_maxint)
         self.downloadsToday.setToolTip(tip)
 
         # This instance of the downloads today tracker is secondary to the
@@ -322,18 +322,12 @@ class RenameOptionsWidget(QFramedWidget):
         self.storedNumberLabel = QLabel(_('Stored number:'))
         self.storedNumberLabel.setToolTip(tip)
         self.storedNumber = QSpinBox()
+        self.storedNumberLabel.setBuddy(self.storedNumber)
         self.storedNumber.setMinimum(0)
-        self.storedNumber.setMaximum(c_maxint)
+        self.storedNumber.setMaximum(self.c_maxint)
         self.storedNumber.setToolTip(tip)
-        try:
-            stored_value = int(self.prefs.stored_sequence_no)
-            assert stored_value >= 0 and stored_value <= c_maxint
-        except (ValueError, AssertionError):
-            stored_value = 0
-            logging.error("Resetting invalid stored sequence number to 0")
-            self.prefs.stored_sequence_no = stored_value
 
-        self.storedNumber.setValue(stored_value)
+        self.storedNumber.setValue(self.stored_sequence_no)
         self.storedNumber.valueChanged.connect(self.storedNumberChanged)
 
         tip = _('The time at which the <i>Downloads today</i> sequence number should be reset')
@@ -381,6 +375,22 @@ class RenameOptionsWidget(QFramedWidget):
 
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
 
+    @property
+    def stored_sequence_no(self) -> int:
+        try:
+            stored_value = int(self.prefs.stored_sequence_no) + 1
+            assert 0 <= stored_value <= self.c_maxint
+        except (ValueError, AssertionError):
+            stored_value = 0
+            logging.error("Resetting invalid stored sequence number to 0")
+            self.prefs.stored_sequence_no = -1
+        return stored_value
+
+    @stored_sequence_no.setter
+    def stored_sequence_no(self, value: int) -> None:
+        logging.debug("Setting stored sequence no to %d", value)
+        self.prefs.stored_sequence_no = value - 1
+
     @pyqtSlot(QTime)
     def timeChanged(self, time: QTime) -> None:
         hour = time.hour()
@@ -402,12 +412,11 @@ class RenameOptionsWidget(QFramedWidget):
 
     @pyqtSlot(int)
     def storedNumberChanged(self, value: int) -> None:
-        logging.debug("Setting stored sequence no to %d", value)
-        self.prefs.stored_sequence_no = value
+        self.stored_sequence_no = value
         if self.prefs.photo_rename_pref_uses_stored_sequence_no():
-            self.photoRenameWidget.updateExampleFilename(stored_sequence_no=value)
+            self.photoRenameWidget.updateExampleFilename(stored_sequence_no=value - 1)
         if self.prefs.video_rename_pref_uses_stored_sequence_no():
-            self.videoRenameWidget.updateExampleFilename(stored_sequence_no=value)
+            self.videoRenameWidget.updateExampleFilename(stored_sequence_no=value - 1)
 
     @pyqtSlot(int)
     def syncChanged(self, state: int) -> None:
@@ -489,7 +498,7 @@ class RenamePanel(QScrollArea):
 
         self.renameOptions.downloadsToday.setValue(int(downloads_today[1]))
         self.renameOptions.downloads_today_tracker.downloads_today = downloads_today
-        self.renameOptions.storedNumber.setValue(stored_sequence_no)
+        self.renameOptions.storedNumber.setValue(stored_sequence_no + 1)
 
     def setSamplePhoto(self, sample_photo: Photo) -> None:
         self.photoRenameWidget.updateSampleFile(sample_rpd_file=sample_photo)

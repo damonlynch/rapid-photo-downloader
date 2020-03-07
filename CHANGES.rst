@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.19 (2020-03-xx)
+-------------------
+
+ - Fixed bug #1842060: Wrong value saved for stored number.
+
 0.9.19b2 (2020-03-06)
 ---------------------
 
@@ -36,8 +41,7 @@ Changelog for Rapid Photo Downloader
    dialog window was closed with the escape key.
 
  - Fixed bug where under some desktop styles the right side panel would always
-   be open even if it had been closed when the Rapid Photo Downloader last
-   exited.
+   be open even if it had been closed when Rapid Photo Downloader last exited.
 
 0.9.19b1 (2020-01-29)
 ---------------------

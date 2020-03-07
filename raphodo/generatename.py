@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -20,7 +20,7 @@
 ### USA
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2017, Damon Lynch"
+__copyright__ = "Copyright 2007-2020, Damon Lynch"
 
 import re
 from datetime import datetime, timedelta
@@ -778,7 +778,7 @@ class Sequences:
         if self.use_matched_sequences:
             return self.matched_sequences.stored_sequence_no
         else:
-            return self._stored_sequence_no
+            return self._stored_sequence_no + 1
 
     @stored_sequence_no.setter
     def stored_sequence_no(self, value: int) -> None:
@@ -789,5 +789,5 @@ class Sequences:
             session_sequence_no=self._session_sequence_no + 1,
             sequence_letter=self._sequence_letter + 1,
             downloads_today=self._get_downloads_today(),
-            stored_sequence_no=self._stored_sequence_no  # no need for +1
+            stored_sequence_no=self._stored_sequence_no
         )
