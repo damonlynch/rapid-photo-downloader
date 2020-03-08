@@ -1656,26 +1656,7 @@ class ThumbnailView(QListView):
         self.setSpacing(8)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
-        self.selectionToRestore = self.selectedIndexesToRestore = None
-
-        fix = os.getenv('RPD_THUMBNAIL_MARK_FIX', None)
-        if fix is not None:
-            self.apply_editorEvent_bug_fix = fix == "1"
-        else:
-            try:
-                self.apply_editorEvent_bug_fix = pkgr.parse_version(QT_VERSION_STR) >= \
-                                                 pkgr.parse_version('5.12.7')
-            except Exception:
-                logging.error("Could not determine Qt version using %s", QT_VERSION_STR)
-                self.apply_editorEvent_bug_fix = False
-
-        if self.apply_editorEvent_bug_fix:
-            logging.info('Enabling thumbnail mark bug workaround')
-        else:
-            logging.info('Disabling thumbnail mark bug workaround with Qt %s', QT_VERSION_STR)
-
-        if fix is not None:
-            logging.info('RPD_THUMBNAIL_MARK_FIX was set to %s', fix)
+        self.possiblyPreserveSelectionPostClick = False
 
     def setScrollTogether(self, on: bool) -> None:
         """
@@ -1703,6 +1684,24 @@ class ThumbnailView(QListView):
         temporalProximity.scrollToUid(uid=uid)
         temporalProximity.setScrollTogether(True)
 
+    def selectionChanged(self, selected: QItemSelection, deselected: QItemSelection) -> None:
+        """
+        Reselect items if the user clicked a checkmark within an existing selection
+        :param selected: new selection
+        :param deselected: previous selection
+        """
+
+        super().selectionChanged(deselected, selected)
+
+        if self.possiblyPreserveSelectionPostClick:
+            # Must set this to False before adjusting the selection!
+            self.possiblyPreserveSelectionPostClick = False
+
+            current = self.currentIndex()
+            if not(len(selected.indexes()) == 1 and selected.indexes()[0] == current):
+                deselected.merge(self.selectionModel().selection(), QItemSelectionModel.Select)
+                self.selectionModel().select(deselected, QItemSelectionModel.Select)
+
     @pyqtSlot(QMouseEvent)
     def mousePressEvent(self, event: QMouseEvent) -> None:
         """
@@ -1725,10 +1724,10 @@ class ThumbnailView(QListView):
             super().mousePressEvent(event)
 
         else:
-            checkbox_clicked = False
             index = self.indexAt(event.pos())
-            row = index.row()
-            if row >= 0:
+            clicked_row = index.row()
+
+            if clicked_row >= 0:
                 rect = self.visualRect(index)  # type: QRect
                 delegate = self.itemDelegate(index)  # type: ThumbnailDelegate
                 checkboxRect = delegate.getCheckBoxRect(rect)
@@ -1737,16 +1736,12 @@ class ThumbnailView(QListView):
                     status = index.data(Roles.download_status)  # type: DownloadStatus
                     checkbox_clicked = status not in Downloaded
 
-            if not checkbox_clicked:
-                if self.rapidApp.prefs.auto_scroll and row >= 0:
-                    self._scrollTemporalProximity(row=row)
-                super().mousePressEvent(event)
-            elif self.apply_editorEvent_bug_fix:
-                if self.selectionModel().selection().contains(index):
-                    if len(self.selectionModel().selectedIndexes()) > 1:
-                        super().keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_Space, Qt.NoModifier, ' '))
+                if not checkbox_clicked:
+                    if self.rapidApp.prefs.auto_scroll and clicked_row >= 0:
+                        self._scrollTemporalProximity(row=clicked_row)
                 else:
-                    super().mousePressEvent(event)
+                    self.possiblyPreserveSelectionPostClick = True
+            super().mousePressEvent(event)
 
     @pyqtSlot(int)
     def scrollTimeline(self, value) -> None:
@@ -2300,6 +2295,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         # Change the checkbox-state
         self.setModelData(None, model, index)
+        # print("Changed the checkbox-state")
+        # print("these are the selected items", [index.row() for index in self.rapidApp.thumbnailView.selectionModel().selectedIndexes()])
         return True
 
     def setModelData (self, editor: QWidget,

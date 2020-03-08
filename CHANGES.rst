@@ -1,8 +1,13 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.19 (2020-03-xx)
+0.9.19 (2020-03-07)
 -------------------
+
+ - Improved fix for a bug where thumbnails would not be able to have their
+   checkmark set on or off with the mouse on recent versions of Qt. The fix in
+   0.9.19b2 did not always work. The environment variable RPD_THUMBNAIL_MARK_FIX
+   introduced in 0.9.19b2 is no longer needed, and will be ignored.
 
  - Fixed bug #1842060: Wrong value saved for stored number.
 

@@ -110,8 +110,8 @@ Rapid Photo Downloader requires:
  - Arrow_
  - dateutil_ 2.2 or newer
  - exiv2_
- - ExifTool_ 0.97.4 or older (0.98 has a critical bug)
- - EasyGUI_
+ - ExifTool_
+ - EasyGUI_ 0.97.4 or older (0.98 has a critical bug)
  - Colour_
  - pymediainfo_
  - SortedContainers_

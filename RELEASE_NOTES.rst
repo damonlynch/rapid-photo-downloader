@@ -1,12 +1,5 @@
-Release Notes for Rapid Photo Downloader 0.9.19b2
+Release Notes for Rapid Photo Downloader 0.9.19b3
 =================================================
-
- - Rapid Photo Downloader 0.9.19b2 introduces a bug fix when running on versions
-   of Qt 5.12.7 or newer. The bug meant Rapid Photo Downloader failed to respond
-   to a thumbnail checkmark being set on or off. The fix is automatically
-   applied when Rapid Photo Downloader detects Qt 5.12.7 or newer. To override
-   this behavior and manually set the bug fix on or off, set the environment
-   variable RPD_THUMBNAIL_MARK_FIX to 1 or 0, respectively.
 
  - To be able to download HEIF / HEIC files, ExifTool 10.63 or newer is
    required. To be able to view their thumbnails, a version of Debian / Ubuntu
