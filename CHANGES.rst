@@ -1,8 +1,8 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.19 (2020-03-07)
--------------------
+0.9.19b3 (2020-03-07)
+---------------------
 
  - Improved fix for a bug where thumbnails would not be able to have their
    checkmark set on or off with the mouse on recent versions of Qt. The fix in
