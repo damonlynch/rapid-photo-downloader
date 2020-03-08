@@ -11,6 +11,8 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug #1842060: Wrong value saved for stored number.
 
+ - Updated Czech, Dutch, French, and Spanish translations.
+
 0.9.19b2 (2020-03-06)
 ---------------------
 

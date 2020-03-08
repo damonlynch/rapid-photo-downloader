@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-03-06 19:59-0500\n"
+"POT-Creation-Date: 2020-03-07 21:30-0500\n"
 "PO-Revision-Date: 2018-11-06 19:47+0000\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -39,12 +39,12 @@ msgid ""
 "enable support for the HEIC / HEIF image format."
 msgstr ""
 
-#: ../install.py:305 ../install.py:3029
+#: ../install.py:305 ../install.py:3028
 msgid "Installer not found:"
 msgstr "No s’ha trobat l’instal·lador:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:309 ../install.py:3033
+#: ../install.py:309 ../install.py:3032
 msgid "Installer not in tar.gz format:"
 msgstr ""
 
@@ -72,7 +72,7 @@ msgstr ""
 msgid "The following command will be run:"
 msgstr "S’executarà l’ordre següent:"
 
-#: ../install.py:966 ../install.py:2623 ../install.py:2634
+#: ../install.py:966 ../install.py:2622 ../install.py:2633
 msgid "sudo may prompt you for the sudo password."
 msgstr ""
 
@@ -228,25 +228,24 @@ msgstr ""
 
 #: ../install.py:2104
 msgid ""
-"Specific version of PyQt5 to install (default is the most recent version{}). "
-"If the version is 'system', then the system version of PyQt5 will be used."
+"Specific version of PyQt5 to install (default is the most recent version{})."
 msgstr ""
 
-#: ../install.py:2111
+#: ../install.py:2110
 msgid ""
 "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
 "Uninstalls any PyPi versions already installed."
 msgstr ""
 
-#: ../install.py:2148
+#: ../install.py:2147
 msgid "Failed to download versions file"
 msgstr "Ha fallat la baixada del fitxer de versions"
 
-#: ../install.py:2152
+#: ../install.py:2151
 msgid "Got error code {} while accessing versions file"
 msgstr ""
 
-#: ../install.py:2260
+#: ../install.py:2259
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -254,183 +253,183 @@ msgid ""
 "Exiting.\n"
 msgstr ""
 
-#: ../install.py:2401
+#: ../install.py:2400
 msgid ""
 "Package {} failed to install but Rapid Photo Downloader installation will "
 "continue."
 msgstr ""
 
-#: ../install.py:2407
+#: ../install.py:2406
 msgid "Received error code"
 msgstr ""
 
-#: ../install.py:2409
+#: ../install.py:2408
 msgid "Failed to install application requirements: exiting"
 msgstr ""
 
-#: ../install.py:2411
+#: ../install.py:2410
 msgid "Failed to install application: exiting..."
 msgstr ""
 
-#: ../install.py:2520
+#: ../install.py:2519
 msgid "Installing application requirements..."
 msgstr ""
 
-#: ../install.py:2546
+#: ../install.py:2545
 msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
 msgstr ""
 
 #. KDE Neon has up to date Qt & PyQt5
-#: ../install.py:2558
+#: ../install.py:2557
 msgid "Not installing PyPI PyQt5 package into KDE Neon environment"
 msgstr ""
 
-#: ../install.py:2562
+#: ../install.py:2561
 msgid "Installing application..."
 msgstr "S’està instal·lant l’aplicació…"
 
-#: ../install.py:2620
+#: ../install.py:2619
 msgid "Do you want to install the application's man pages?"
 msgstr "Voleu instal·lar les pàgines del manual de l’aplicació?"
 
-#: ../install.py:2621
+#: ../install.py:2620
 msgid "They will be installed into {}"
 msgstr ""
 
-#: ../install.py:2622 ../install.py:2633
+#: ../install.py:2621 ../install.py:2632
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr ""
 "Si desinstal·leu l’aplicació, heu de suprimir les pàgines del manual vós "
 "mateix."
 
-#: ../install.py:2624
+#: ../install.py:2623
 msgid "Do want to install the man pages?"
 msgstr ""
 
 #. Keep man pages in install location only
 #. Translators: do not translate {}/share/man/man1
-#: ../install.py:2629
+#: ../install.py:2628
 msgid "Man pages can be found in {}/share/man/man1"
 msgstr ""
 
-#: ../install.py:2632
+#: ../install.py:2631
 msgid "Installing man pages into {}"
 msgstr ""
 
-#: ../install.py:2647
+#: ../install.py:2646
 msgid "Failed to create man page directory: exiting"
 msgstr ""
 
-#: ../install.py:2668
+#: ../install.py:2667
 msgid "Failed to copy man page."
 msgstr ""
 
-#: ../install.py:2683
+#: ../install.py:2682
 msgid ""
 "Rapid Photo Downloader can be started without activating the virtual "
 "environment by running {}/bin/rapid-photo-downloader"
 msgstr ""
 
-#: ../install.py:2694
+#: ../install.py:2693
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "commmand line or application launcher."
 msgstr ""
 
-#: ../install.py:2710
+#: ../install.py:2709
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
 
-#: ../install.py:2723
+#: ../install.py:2722
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
 "Cannot continue. Exiting."
 msgstr ""
 
-#: ../install.py:2767
+#: ../install.py:2766
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
 msgstr ""
 
-#: ../install.py:2779
+#: ../install.py:2778
 msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
 msgstr ""
 
-#: ../install.py:2790
+#: ../install.py:2789
 msgid ""
 "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
 "on an Intel or AMD 64 bit platform."
 msgstr ""
 
-#: ../install.py:2802
+#: ../install.py:2801
 msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
 msgstr ""
 
-#: ../install.py:2816
+#: ../install.py:2815
 msgid ""
 "Do you want to install Rapid Photo Downloader into the current virtual "
 "environment?"
 msgstr ""
 
-#: ../install.py:2827
+#: ../install.py:2826
 msgid ""
 "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
 "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
 msgstr ""
 
-#: ../install.py:2837
+#: ../install.py:2836
 msgid ""
 "To install Rapid Photo Downloader into a Python virtual environment, create "
 "and activate the virtual environment before starting this script."
 msgstr ""
 
-#: ../install.py:2845
+#: ../install.py:2844
 msgid "Using virtual environment for installation using pip."
 msgstr ""
 
-#: ../install.py:2850 ../install.py:2864
+#: ../install.py:2849 ../install.py:2863
 msgid "Do not include any other command line arguments when specifying"
 msgstr ""
 
-#: ../install.py:2881
+#: ../install.py:2880
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
 msgstr ""
 
-#: ../install.py:2888
+#: ../install.py:2887
 msgid "Restarting script using system python..."
 msgstr ""
 
-#: ../install.py:2900
+#: ../install.py:2899
 msgid "Detected Linux distribution {} {}"
 msgstr ""
 
-#: ../install.py:2925
+#: ../install.py:2924
 msgid "Exiting..."
 msgstr ""
 
 #. Translators: do not translate the term python3-apt
-#: ../install.py:2949
+#: ../install.py:2948
 msgid "To continue, the package python3-apt must be installed."
 msgstr "Abans de continuar, heu d’instal·lar el paquet «python3-apt»."
 
-#: ../install.py:2983
+#: ../install.py:2982
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
 msgstr ""
 
-#: ../install.py:2993
+#: ../install.py:2992
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
 msgstr ""
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:3023
+#: ../install.py:3022
 msgid "Installing python requests"
 msgstr ""
 
@@ -1434,7 +1433,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ../raphodo/filebrowse.py:133 ../raphodo/thumbnaildisplay.py:1876
+#: ../raphodo/filebrowse.py:133 ../raphodo/thumbnaildisplay.py:1871
 msgid "Open in File Browser..."
 msgstr "Obre al gestor de fitxers…"
 
@@ -4245,55 +4244,55 @@ msgstr ""
 msgid "Stored number:"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:339
+#: ../raphodo/renamepanel.py:333
 msgid ""
 "The time at which the <i>Downloads today</i> sequence number should be reset"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:340
+#: ../raphodo/renamepanel.py:334
 msgid "Day start:"
 msgstr ""
 
 #. 24 hour format, if wanted in a future release:
 #. self.dayStart.setDisplayFormat('HH:mm:ss')
-#: ../raphodo/renamepanel.py:350
+#: ../raphodo/renamepanel.py:344
 msgid "Synchronize RAW + JPEG"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:353
+#: ../raphodo/renamepanel.py:347
 msgid ""
 "Synchronize sequence numbers for matching RAW and JPEG pairs.\n"
 "\n"
 "See the online documentation for more details."
 msgstr ""
 
-#: ../raphodo/renamepanel.py:357
+#: ../raphodo/renamepanel.py:351
 msgid "Sequence Numbers"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:368
+#: ../raphodo/renamepanel.py:362
 msgid "Strip incompatible characters"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:371
+#: ../raphodo/renamepanel.py:365
 msgid ""
 "Whether photo, video and folder names should have any characters removed "
 "that are not allowed by other operating systems"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:373
+#: ../raphodo/renamepanel.py:367
 msgid "Compatibility"
 msgstr "Compatibilitat"
 
-#: ../raphodo/renamepanel.py:442
+#: ../raphodo/renamepanel.py:451
 msgid "Photo Renaming"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:446
+#: ../raphodo/renamepanel.py:455
 msgid "Video Renaming"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:450
+#: ../raphodo/renamepanel.py:459
 msgid "Renaming Options"
 msgstr ""
 
@@ -4389,19 +4388,19 @@ msgstr ""
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:1878
+#: ../raphodo/thumbnaildisplay.py:1873
 msgid "Copy Path"
 msgstr "Copia el camí d’accés"
 
 #. Translators: 'File' here applies to a single file. The command allows users to instruct
 #. Rapid Photo Downloader that photos and videos have been previously downloaded by
 #. another application.
-#: ../raphodo/thumbnaildisplay.py:1883
+#: ../raphodo/thumbnaildisplay.py:1878
 msgid "Mark File as Downloaded"
 msgstr ""
 
 #. Translators: 'Files' here applies to two or more files
-#: ../raphodo/thumbnaildisplay.py:1886
+#: ../raphodo/thumbnaildisplay.py:1881
 msgid "Mark Files as Downloaded"
 msgstr "Marca els fitxers com a baixats"
 

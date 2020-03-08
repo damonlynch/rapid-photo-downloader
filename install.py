@@ -2101,8 +2101,7 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
 
     parser.add_argument(
         '--PyQt5-version', action='store', metavar='X.X.X', help=_(
-            "Specific version of PyQt5 to install (default is the most recent version{}). If the "
-            "version is 'system', then the system version of PyQt5 will be used."
+            "Specific version of PyQt5 to install (default is the most recent version{})."
         ).format(v)
     )
 

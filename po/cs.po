@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-03-06 19:59-0500\n"
-"PO-Revision-Date: 2019-06-25 12:09+0000\n"
+"POT-Creation-Date: 2020-03-07 21:30-0500\n"
+"PO-Revision-Date: 2020-03-07 06:56+0000\n"
 "Last-Translator: Pavel Borecki <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2020-01-12 22:16+0000\n"
-"X-Generator: Launchpad (build bceb5ef013b87ef7aafe0755545ceb689ca7ac60)\n"
+"X-Launchpad-Export-Date: 2020-03-08 02:08+0000\n"
+"X-Generator: Launchpad (build e0878392dc799b267dea80578fa65500a5d74155)\n"
 
 #: ../install.py:70
 msgid ""
@@ -41,19 +41,22 @@ msgid ""
 "enable generating thumbnails for a wider range of video formats, and (2) "
 "enable support for the HEIC / HEIF image format."
 msgstr ""
+"Do systému byl přidán repozitář software RPM Fusion Free a to z důvodu aby "
+"bylo možné (1) vytvářet náhledy pro větší množství videoformátů, a (2) "
+"pracovat s obrázky ve formátu HEIC / HEIF."
 
-#: ../install.py:305 ../install.py:3029
+#: ../install.py:305 ../install.py:3028
 msgid "Installer not found:"
 msgstr "Instalátor nenalezen:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:309 ../install.py:3033
+#: ../install.py:309 ../install.py:3032
 msgid "Installer not in tar.gz format:"
 msgstr "Instalátor není ve formátu tar.gz:"
 
 #: ../install.py:418
 msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
-msgstr ""
+msgstr "Zadaná verze PyQt5 neexistuje. Platné verze jsou: {}."
 
 #: ../install.py:468
 msgid "{} will be upgraded from version {} to version {}"
@@ -64,6 +67,8 @@ msgid ""
 "These Python3 packages will be upgraded for your user (i.e. not system-"
 "wide): {}"
 msgstr ""
+"Budou nainstalovány novější verze těchto balíčky Python3 a to jen pro tento "
+"uživatelský účet (tj. ne pro celý systém): {}"
 
 #: ../install.py:823
 msgid ""
@@ -77,7 +82,7 @@ msgstr ""
 msgid "The following command will be run:"
 msgstr "Bude spuštěn následující příkaz:"
 
-#: ../install.py:966 ../install.py:2623 ../install.py:2634
+#: ../install.py:966 ../install.py:2622 ../install.py:2633
 msgid "sudo may prompt you for the sudo password."
 msgstr ""
 "sudo vás může vyzvat k zadání hesla k účtu, oprávněného k jeho použití."
@@ -109,14 +114,12 @@ msgid "The IUS Community repository must be enabled."
 msgstr "Je třeba přidat si komunitní repozitář IUS"
 
 #: ../install.py:1065
-#, fuzzy
 msgid "The EPEL repository must be enabled"
-msgstr "Je třeba zapnout používání repozitáře Universe."
+msgstr "Je třeba, aby byl povolen repozitář EPEL"
 
 #: ../install.py:1099
-#, fuzzy
 msgid "The RPM Fusion Free repository must be enabled"
-msgstr "Je třeba zapnout používání repozitáře Universe."
+msgstr "Je třeba, aby byl povolen repozitář RPM Fusion Free"
 
 #: ../install.py:1143
 msgid ""
@@ -266,25 +269,26 @@ msgstr ""
 
 #: ../install.py:2104
 msgid ""
-"Specific version of PyQt5 to install (default is the most recent version{}). "
-"If the version is 'system', then the system version of PyQt5 will be used."
-msgstr ""
+"Specific version of PyQt5 to install (default is the most recent version{})."
+msgstr "Konkrétní verze PyQt5 k instalaci(výchozí je nejnovější version{})."
 
-#: ../install.py:2111
+#: ../install.py:2110
 msgid ""
 "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
 "Uninstalls any PyPi versions already installed."
 msgstr ""
+"Namísto použití PyQt5 z PyPi, použít verzi z vámi využívané linuxové "
+"distribuce. Odinstaluje jakékoli PyPi verze, které už jsou nainstalované."
 
-#: ../install.py:2148
+#: ../install.py:2147
 msgid "Failed to download versions file"
 msgstr "Nepodařilo se stáhnout soubor s verzemi"
 
-#: ../install.py:2152
+#: ../install.py:2151
 msgid "Got error code {} while accessing versions file"
 msgstr "Při přístupu k souboru s verzemi obdržen chybový kód {}"
 
-#: ../install.py:2260
+#: ../install.py:2259
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -296,81 +300,83 @@ msgstr ""
 "\n"
 "Ukončuje se.\n"
 
-#: ../install.py:2401
-#, fuzzy
+#: ../install.py:2400
 msgid ""
 "Package {} failed to install but Rapid Photo Downloader installation will "
 "continue."
 msgstr ""
-"Chcete Rapid Photo Downloader nainstalovat do stávajícího virtuálního "
-"prostředí?"
+"Balíček {} se sice nepodařilo nainstalovat, ale instalace Rapid Photo "
+"Downloader bude pokračovat i tak."
 
-#: ../install.py:2407
+#: ../install.py:2406
 msgid "Received error code"
 msgstr "Obdržen chybový kód"
 
-#: ../install.py:2409
+#: ../install.py:2408
 msgid "Failed to install application requirements: exiting"
 msgstr ""
 "Nepodařilo se nainstalovat ostatní součásti, které aplikace potřebuje: "
 "ukončuje se"
 
-#: ../install.py:2411
+#: ../install.py:2410
 msgid "Failed to install application: exiting..."
 msgstr "Aplikaci se nepodařilo nainstalovat: ukončování…"
 
-#: ../install.py:2520
+#: ../install.py:2519
 msgid "Installing application requirements..."
 msgstr "Instalace ostatních součástí potřebných pro aplikaci…"
 
-#: ../install.py:2546
+#: ../install.py:2545
 msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
 msgstr ""
+"Podpora pro vytváření náhledů z formátu HEIF / HEIC není v systému k "
+"dispozici"
 
 #. KDE Neon has up to date Qt & PyQt5
-#: ../install.py:2558
+#: ../install.py:2557
 msgid "Not installing PyPI PyQt5 package into KDE Neon environment"
 msgstr ""
+"Prostředí KDE Neon -> neinstalují se balíčky PyPI PyQt5 (už jsou v systému)"
 
-#: ../install.py:2562
+#: ../install.py:2561
 msgid "Installing application..."
 msgstr "Instalace aplikace…"
 
-#: ../install.py:2620
+#: ../install.py:2619
 msgid "Do you want to install the application's man pages?"
 msgstr "Přejete si nainstalovat manuálové stránky aplikace?"
 
-#: ../install.py:2621
+#: ../install.py:2620
 msgid "They will be installed into {}"
 msgstr "Budou nainstalovány do {}"
 
-#: ../install.py:2622 ../install.py:2633
+#: ../install.py:2621 ../install.py:2632
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr "Pokud aplikaci odinstalujete, tyto manuálové stránky potom odeberte."
 
-#: ../install.py:2624
+#: ../install.py:2623
 msgid "Do want to install the man pages?"
 msgstr "Chcete nainstalovat manuálové stránky?"
 
 #. Keep man pages in install location only
 #. Translators: do not translate {}/share/man/man1
-#: ../install.py:2629
+#: ../install.py:2628
 msgid "Man pages can be found in {}/share/man/man1"
 msgstr "Manuálové stránky jsou k dispozici v {}/share/man/man1"
 
-#: ../install.py:2632
+#: ../install.py:2631
 msgid "Installing man pages into {}"
 msgstr "Instalace manuálových stránek do {}"
 
-#: ../install.py:2647
+#: ../install.py:2646
 msgid "Failed to create man page directory: exiting"
 msgstr "Nepodařilo se vytvořit složku pro manuálovou stránku: ukončuje se"
 
-#: ../install.py:2668
+#: ../install.py:2667
 msgid "Failed to copy man page."
 msgstr "Nepodařilo se zkopírovat manuálovou stránku."
 
-#: ../install.py:2683
+#: ../install.py:2682
 msgid ""
 "Rapid Photo Downloader can be started without activating the virtual "
 "environment by running {}/bin/rapid-photo-downloader"
@@ -378,7 +384,7 @@ msgstr ""
 "Rapid Photo Downloader je možné spustit bez aktivace virtuálního prostředí "
 "spuštěním {}/bin/rapid-photo-downloader"
 
-#: ../install.py:2694
+#: ../install.py:2693
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "commmand line or application launcher."
@@ -386,13 +392,13 @@ msgstr ""
 "Aby bylo možné aplikaci spustit (z příkazového řádku nebo kliknutím na "
 "zástupce), může být třeba restartovat počítač."
 
-#: ../install.py:2710
+#: ../install.py:2709
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
 "(Pokud při ukončování dojde k Porušení ochrany paměti (segmentation fault), "
 "nemusíte tomu věnovat pozornost…)"
 
-#: ../install.py:2723
+#: ../install.py:2722
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
@@ -403,7 +409,7 @@ msgstr ""
 "aby tento nástroj byl přítomen. Protože tomu tak není, nelze pokračovat a "
 "ukončuje se."
 
-#: ../install.py:2767
+#: ../install.py:2766
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
@@ -411,25 +417,24 @@ msgstr ""
 "Nespouštějte tento instalační skript s právy správy systému (sudo/root).\n"
 "Spusťte ho jako uživatel který bude aplikaci používat.\n"
 
-#: ../install.py:2779
+#: ../install.py:2778
 msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
 msgstr ""
+"Zadejte jen jedno z --PyQt5-version nebo --use-system-PyQt5 – ne obojí naráz."
 
-#: ../install.py:2790
-#, fuzzy
+#: ../install.py:2789
 msgid ""
 "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
 "on an Intel or AMD 64 bit platform."
 msgstr ""
-"Je nám líto, ale instalace Rapid Photo Downloader do Python virtuálního "
-"prostředí vyžaduje Python verze 3.5 a novější a 64 bit Intel nebo AMD "
-"platformu."
+"Je nám líto, ale pro platformu Intel / AMD 64 bit zadání konkrétní verze "
+"PyQt5 vyžaduje Python 3.5 a novější."
 
-#: ../install.py:2802
+#: ../install.py:2801
 msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
-msgstr ""
+msgstr "Zadejte verzi PyQt5 v podobě X.X nebo X.X.X"
 
-#: ../install.py:2816
+#: ../install.py:2815
 msgid ""
 "Do you want to install Rapid Photo Downloader into the current virtual "
 "environment?"
@@ -437,7 +442,7 @@ msgstr ""
 "Chcete Rapid Photo Downloader nainstalovat do stávajícího virtuálního "
 "prostředí?"
 
-#: ../install.py:2827
+#: ../install.py:2826
 msgid ""
 "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
 "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
@@ -446,7 +451,7 @@ msgstr ""
 "prostředí vyžaduje Python verze 3.5 a novější a 64 bit Intel nebo AMD "
 "platformu."
 
-#: ../install.py:2837
+#: ../install.py:2836
 msgid ""
 "To install Rapid Photo Downloader into a Python virtual environment, create "
 "and activate the virtual environment before starting this script."
@@ -454,16 +459,16 @@ msgstr ""
 "Pro instalaci Rapid Photo Downloader do Python virtuálního prostředí, "
 "vytvořte a aktivujte takové, než tento skript spustíte."
 
-#: ../install.py:2845
+#: ../install.py:2844
 msgid "Using virtual environment for installation using pip."
 msgstr "Použitím virtuálnímo prostředí pro instalaci pomocí pip."
 
-#: ../install.py:2850 ../install.py:2864
+#: ../install.py:2849 ../install.py:2863
 msgid "Do not include any other command line arguments when specifying"
 msgstr ""
 "Pokud použijete tento, nezadávejte už žádné další argumenty příkazového řádku"
 
-#: ../install.py:2881
+#: ../install.py:2880
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
@@ -471,26 +476,26 @@ msgstr ""
 "Je nám líto, ale tento instalátor nepodporuje vlastní instalace python.\n"
 "Ukončuje se…"
 
-#: ../install.py:2888
+#: ../install.py:2887
 msgid "Restarting script using system python..."
 msgstr "Restartování skriptu pomocí systémové instance interpreteru python…"
 
-#: ../install.py:2900
+#: ../install.py:2899
 msgid "Detected Linux distribution {} {}"
 msgstr "Zjištěná linuxová distribuce {} {}"
 
-#: ../install.py:2925
+#: ../install.py:2924
 msgid "Exiting..."
 msgstr "Ukončování..."
 
 #. Translators: do not translate the term python3-apt
-#: ../install.py:2949
+#: ../install.py:2948
 msgid "To continue, the package python3-apt must be installed."
 msgstr ""
 "Aby bylo možné pokračovat, je třeba, aby byl nainstalovaný balíček python3-"
 "apt."
 
-#: ../install.py:2983
+#: ../install.py:2982
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer"
@@ -498,7 +503,7 @@ msgstr ""
 "Prostřednictvím správy balíčků vámi používané Linuxové distribuce "
 "nainstalujte následující balíčky a spusťte tento instalátor znovu"
 
-#: ../install.py:2993
+#: ../install.py:2992
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
@@ -507,7 +512,7 @@ msgstr ""
 "asistují Python 3 a jeho správa balíčků."
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:3023
+#: ../install.py:3022
 msgid "Installing python requests"
 msgstr "Instalace python requests"
 
@@ -1806,7 +1811,7 @@ msgstr ""
 "{log_path}\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:133 ../raphodo/thumbnaildisplay.py:1876
+#: ../raphodo/filebrowse.py:133 ../raphodo/thumbnaildisplay.py:1871
 msgid "Open in File Browser..."
 msgstr "Otevřít ve správci souborů…"
 
@@ -3948,9 +3953,8 @@ msgstr ""
 "doporučována."
 
 #: ../raphodo/rapid.py:1199
-#, fuzzy
 msgid "Problem with ExifTool"
-msgstr "Problém s knihovnou libmediainfo"
+msgstr "Problém s ExifTool"
 
 #: ../raphodo/rapid.py:1208
 msgid ""
@@ -4952,23 +4956,23 @@ msgstr ""
 msgid "Stored number:"
 msgstr "Pořadí v celkově stažených:"
 
-#: ../raphodo/renamepanel.py:339
+#: ../raphodo/renamepanel.py:333
 msgid ""
 "The time at which the <i>Downloads today</i> sequence number should be reset"
 msgstr ""
 "Denní doba po které resetovat hodnotu čítače <i>Pořadí v dnes stažených</i>"
 
-#: ../raphodo/renamepanel.py:340
+#: ../raphodo/renamepanel.py:334
 msgid "Day start:"
 msgstr "Den začíná v:"
 
 #. 24 hour format, if wanted in a future release:
 #. self.dayStart.setDisplayFormat('HH:mm:ss')
-#: ../raphodo/renamepanel.py:350
+#: ../raphodo/renamepanel.py:344
 msgid "Synchronize RAW + JPEG"
 msgstr "Synchronizovat RAW + JPEG"
 
-#: ../raphodo/renamepanel.py:353
+#: ../raphodo/renamepanel.py:347
 msgid ""
 "Synchronize sequence numbers for matching RAW and JPEG pairs.\n"
 "\n"
@@ -4979,15 +4983,15 @@ msgstr ""
 "\n"
 "Další podrobnosti jsou uvedeny v dokumentaci na webových stránkách projektu."
 
-#: ../raphodo/renamepanel.py:357
+#: ../raphodo/renamepanel.py:351
 msgid "Sequence Numbers"
 msgstr "Pořadová čísla"
 
-#: ../raphodo/renamepanel.py:368
+#: ../raphodo/renamepanel.py:362
 msgid "Strip incompatible characters"
 msgstr "Odstraňovat nekompatibilní znaky"
 
-#: ../raphodo/renamepanel.py:371
+#: ../raphodo/renamepanel.py:365
 msgid ""
 "Whether photo, video and folder names should have any characters removed "
 "that are not allowed by other operating systems"
@@ -4995,19 +4999,19 @@ msgstr ""
 "Zda z názvů souborů s fotografiemi, videi a složek s nimi odebírat znaky, "
 "které nejsou podporovány v ostatních operačních systémech"
 
-#: ../raphodo/renamepanel.py:373
+#: ../raphodo/renamepanel.py:367
 msgid "Compatibility"
 msgstr "Kompatibilita (slučitelnost)"
 
-#: ../raphodo/renamepanel.py:442
+#: ../raphodo/renamepanel.py:451
 msgid "Photo Renaming"
 msgstr "Přejmenovávání fotografií"
 
-#: ../raphodo/renamepanel.py:446
+#: ../raphodo/renamepanel.py:455
 msgid "Video Renaming"
 msgstr "Přejmenovávání videí"
 
-#: ../raphodo/renamepanel.py:450
+#: ../raphodo/renamepanel.py:459
 msgid "Renaming Options"
 msgstr "Předvolby přejmenovávání"
 
@@ -5103,19 +5107,19 @@ msgstr "<br><br>Předchozí stahování:<br>%(filename)s<br>%(path)s<br>%(date)s
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
 msgstr "<br><br><i>Ručně nastavit jako už stažené %(date)s</i>"
 
-#: ../raphodo/thumbnaildisplay.py:1878
+#: ../raphodo/thumbnaildisplay.py:1873
 msgid "Copy Path"
 msgstr "Kopírovat popis umístění"
 
 #. Translators: 'File' here applies to a single file. The command allows users to instruct
 #. Rapid Photo Downloader that photos and videos have been previously downloaded by
 #. another application.
-#: ../raphodo/thumbnaildisplay.py:1883
+#: ../raphodo/thumbnaildisplay.py:1878
 msgid "Mark File as Downloaded"
 msgstr "Označit soubor jako už stažený"
 
 #. Translators: 'Files' here applies to two or more files
-#: ../raphodo/thumbnaildisplay.py:1886
+#: ../raphodo/thumbnaildisplay.py:1881
 msgid "Mark Files as Downloaded"
 msgstr "Označit soubory jako už stažené"
 
@@ -5346,20 +5350,6 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid-photo-downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
-
-#~ msgid ""
-#~ "To be able to generate thumbnails for a wider range of video formats, "
-#~ "install gstreamer1-libav after having first added an appropriate software "
-#~ "repository such as rpmfusion.org."
-#~ msgstr ""
-#~ "Aby bylo možné vytvářet náhledy pro širokou škálu videoformátů, "
-#~ "nainstalujte gstreamer1-libav (předtím přidejte příslušný repozitář "
-#~ "software, jako třeba rpmfusion.org)."
-
-#~ msgid "Python 3's pip and setuptools must be upgraded for your user."
-#~ msgstr ""
-#~ "U jejich instalací pro tohoto uživatele je třeba přejít na novější verze "
-#~ "nástrojů Python 3 pip a setuptools."
 
 #~ msgid "<i>Example: %s</i>"
 #~ msgstr "<i>Příklad: %s</i>"
