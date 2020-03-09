@@ -420,17 +420,26 @@ def make_internationalized_list(items: List[str]) -> str:
     if len(items) == 1:
         return items[0]
     if len(items) == 2:
-        # two things in a list e.g. "device1 and device2"
+        # Translators: two things in a list e.g. "device1 and device2"
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         return _('%(first_item)s and %(last_item)s') % dict(
             first_item=items[0], last_item=items[1])
     if len(items) > 2:
         s = items[0]
         for item in items[1:-1]:
-            # the middle of a list of things
+            # Translators: the middle of a list of things
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             s =  '%(first_items)s, %(last_items)s'% dict(
                 first_items=s, last_items=item
             )
-        # the end of a list of things
+        # Translators: the end of a list of things
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         s = '%(start_items)s and %(last_item)s' % dict(
             start_items=s, last_item=items[-1]
         )
@@ -447,7 +456,7 @@ def thousands(i: int) -> str:
     :return: string with seperators e.g. '1,000'
     """
     try:
-        return locale.format("%d", i, grouping=True)
+        return locale.format_string("%d", i, grouping=True)
     except TypeError:
         return i
 

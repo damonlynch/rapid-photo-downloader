@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -23,7 +23,7 @@
 # these prefs to the user, and dictionaries are unsorted.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2018, Damon Lynch"
+__copyright__ = "Copyright 2007-2020, Damon Lynch"
 
 import os
 from collections import OrderedDict

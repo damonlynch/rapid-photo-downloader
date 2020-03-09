@@ -78,10 +78,16 @@ def make_body_details(bytes_total: int,
     photos = videos = photos_size = videos_size = ''
 
     if files_to_display != DisplayingFilesOfType.videos:
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         photos = _('%(no_photos)s Photos') % {'no_photos':
                                                   thousands(marked[FileType.photo])}
         photos_size = format_size_for_user(photos_size_to_download)
     if files_to_display != DisplayingFilesOfType.photos:
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         videos = _('%(no_videos)s Videos') % {'no_videos':
                                                   thousands(marked[FileType.video])}
         videos_size = format_size_for_user(videos_size_to_download)
@@ -112,6 +118,9 @@ def make_body_details(bytes_total: int,
         excess_bytes = bytes_to_use - bytes_total_
         comp4_file_size_sum = excess_bytes
         comp4_size_text = format_size_for_user(excess_bytes)
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         bytes_free_of_total = _('No space free on %(size_total)s device') % dict(
             size_total=bytes_total_text
         )
@@ -119,6 +128,9 @@ def make_body_details(bytes_total: int,
         comp4_file_size_sum = 0
         comp4_size_text = 0
         bytes_free = bytes_total - bytes_to_use
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         bytes_free_of_total = _('%(size_free)s free of %(size_total)s') % dict(
             size_free=format_size_for_user(bytes_free, no_decimals=1),
             size_total=bytes_total_text

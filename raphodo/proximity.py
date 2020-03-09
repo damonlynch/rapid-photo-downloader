@@ -189,6 +189,9 @@ def humanize_time_span(start: Arrow, end: Arrow,
             return short_format
         else:
             # Translators: for example Nov 3 2015, 11:25 AM
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             return _('%(date)s, %(time)s') % dict(
                 date=make_long_date_format(start),
                 time=short_format
@@ -205,6 +208,9 @@ def humanize_time_span(start: Arrow, end: Arrow,
         elif (start.hour >= 12 and end.hour >= 12):
             start_time = strip_pm(start_time)
 
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         time_span = _('%(starttime)s - %(endtime)s') % dict(
             starttime=start_time,
             endtime=end_time
@@ -214,6 +220,9 @@ def humanize_time_span(start: Arrow, end: Arrow,
             return time_span
         else:
             # Translators: for example Nov 3 2015, 11:25 AM
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             return _('%(date)s, %(time)s') % dict(
                 date=make_long_date_format(start),
                 time=time_span
@@ -222,10 +231,16 @@ def humanize_time_span(start: Arrow, end: Arrow,
     # The start and end dates are on a different day
 
     # Translators: for example Nov 3 or Dec 31
+    # Translators: %(variable)s represents Python code, not a plural of the term
+    # variable. You must keep the %(variable)s untranslated, or the program will
+    # crash.
     start_date = _('%(month)s %(numeric_day)s') % dict(
         month=start.datetime.strftime('%b'),
         numeric_day=start.format('D')
     )
+    # Translators: %(variable)s represents Python code, not a plural of the term
+    # variable. You must keep the %(variable)s untranslated, or the program will
+    # crash.
     end_date = _('%(month)s %(numeric_day)s') % dict(
         month=end.datetime.strftime('%b'),
         numeric_day=end.format('D')
@@ -233,19 +248,34 @@ def humanize_time_span(start: Arrow, end: Arrow,
 
     if start.floor('year') != end.floor('year') or long_format:
         # Translators: for example Nov 3 2015
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         start_date = _('%(date)s %(year)s') % dict(date=start_date, year=start.year)
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         end_date = _('%(date)s %(year)s') % dict(date=end_date, year=end.year)
 
     # Translators: for example, Nov 3, 12:15 PM
+    # Translators: %(variable)s represents Python code, not a plural of the term
+    # variable. You must keep the %(variable)s untranslated, or the program will
+    # crash.
     start_datetime = _('%(date)s, %(time)s') % dict(
         date=start_date, time=strip_zero(locale_time(start.datetime), strip)
     )
+    # Translators: %(variable)s represents Python code, not a plural of the term
+    # variable. You must keep the %(variable)s untranslated, or the program will
+    # crash.
     end_datetime = _('%(date)s, %(time)s') % dict(
         date=end_date, time=strip_zero(locale_time(end.datetime), strip)
     )
 
     if not insert_cr_on_long_line or long_format:
         # Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         return _('%(earlier_time)s - %(later_time)s') % dict(
             earlier_time=start_datetime, later_time=end_datetime
         )
@@ -254,6 +284,9 @@ def humanize_time_span(start: Arrow, end: Arrow,
         # Nov 3 2012, 12:15 PM -
         # Nov 4 2012, 1:00 AM
         # (please keep the line break signified by \n)
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         return _('%(earlier_time)s -\n%(later_time)s') % dict(
             earlier_time=start_datetime, later_time=end_datetime
         )
@@ -383,6 +416,9 @@ class ProximityDisplayValues:
 
     def get_month_text(self, month, year) -> str:
         if self.depth == 3:
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             return _('%(month)s  %(year)s') % dict(month=month.upper(), year=year)
         else:
             return month.upper()
@@ -990,13 +1026,22 @@ class TemporalProximityGroups:
         else:
             weekday = numeric_day = ''
 
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         month_day = _('%(month)s %(numeric_day)s') % dict(
             month=atime.datetime.strftime('%b'),
             numeric_day=atime.format('D')
         )
         # Translators: for example Nov 2 2015
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         tooltip_col1 = _('%(date)s %(year)s') % dict(date= month_day, year=atime.year)
         # Translators: for example Nov 2015
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         tooltip_col0 = _('%(month)s %(year)s') % dict(
             month=atime.datetime.strftime('%b'),
             year=atime.year

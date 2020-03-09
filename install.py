@@ -66,9 +66,11 @@ import gettext
 try:
     import pkg_resources
 except ImportError:
+    # Translators: do not translate the terms python3 or setuptools
     print (
-        _("To continue, please first install the python3 package setuptools using your system's "
-          "package manager."
+        _(
+            "To continue, please first install the python3 package setuptools using your system's "
+            "package manager."
           )
     )
     sys.exit(1)
@@ -414,6 +416,7 @@ def pypi_version_exists(package_name: str, version: str) -> bool:
     l = pypi_versions(package_name)
     if not version in l:
         sys.stderr.write(
+            # Translators: do not translate the term PyQt5
             _(
                 "The specified PyQt5 version does not exist. Valid versions are: {}."
             ).format(', '.join(l)) + "\n"
@@ -733,6 +736,7 @@ def update_pip_setuptools_wheel(interactive: bool):
     if packages:
         print(
             _(
+                # Translators: "not system-wide" in this context means "not for the entire system"
                 'These Python3 packages will be upgraded for your user (i.e. not system-wide): {}'
             ).format(', '.join(packages))
         )
@@ -963,6 +967,7 @@ def run_cmd(command_line: str,
     print(_("The following command will be run:") + "\n")
     print(command_line)
     if command_line.startswith('sudo'):
+        # Translators: do not translate the term sudo
         print("\n" + _("sudo may prompt you for the sudo password."))
     print()
 
@@ -1038,6 +1043,7 @@ def enable_centos7_ius(interactive: bool) -> None:
     try:
         repos = fedora_centos_repolist(distro=Distro.centos7)
         if 'ius/' not in repos:
+            # Translators: do not translate the term IUS Community
             print(_('The IUS Community repository must be enabled.') + "\n")
 
             cmds = (
@@ -1062,6 +1068,7 @@ def enable_centos_epel(distro: Distro, version: LooseVersion, interactive: bool)
     repos = fedora_centos_repolist(distro=distro)
 
     if repos.find('epel') < 0:
+        # Translators: do not translate the term EPEL
         print(_("The EPEL repository must be enabled"))
 
         if distro == Distro.centos7:
@@ -1096,6 +1103,7 @@ def enable_rpmfusion_free(distro: Distro, version: LooseVersion, interactive: bo
     try:
         repos = fedora_centos_repolist(distro=distro)
         if repos.find('rpmfusion-free') < 0:
+            # Translators: do not translate the term RPM Fusion Free
             print(_("The RPM Fusion Free repository must be enabled"))
 
             if distro == Distro.fedora:
@@ -1556,6 +1564,7 @@ def uninstall_old_version(distro_family: Distro,
                 cleanup_on_exit(installer_to_delete_on_error)
                 sys.exit(1)
 
+    # Translators: do not translate the term pip
     print(_("Checking if previous version installed with pip..."))
     uninstall_pip_package('rapid-photo-downloader', no_deps_only=False)
 
@@ -1894,6 +1903,7 @@ def install_required_distro_packages(distro: Distro,
             packages = '{} {}'.format(packages, 'libmediainfo0')
 
         print(
+            # Translators: do not translate the term zypper
             _(
                 "Querying zypper to see if any required packages are already installed (this may "
                 "take a while)... "
@@ -1943,6 +1953,7 @@ def install_required_distro_packages(distro: Distro,
             packages = '{} {}'.format(packages, build_source_packages)
 
         print(
+            # Translators: do not translate the term yum
             _(
                 "Querying yum to see if any required packages are already installed (this may "
                 "take a while)... "
@@ -2045,10 +2056,12 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
         ).format(__version__)
     )
 
+    # Translators: do not translate the term pip
     msg = _(
         "Uninstall Rapid Photo Downloader that was installed with pip, keeping its dependencies."
     )
 
+    # Translators: do not translate the term pip
     msg2 = _(
         "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
         "installation, and Rapid Photo Downloader itself, then exit."
@@ -2088,6 +2101,7 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
 
     parser.add_argument(
         virtual_env_cmd_line_arg, action='store_true', dest='virtual_env',
+        # Translators: do not translate the terms Python or --system-site-packages
         help=_(
             "Install in current Python virtual environment. Virtual environments created with "
             "the --system-site-packages option are not supported."
@@ -2100,13 +2114,17 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
         v = ''
 
     parser.add_argument(
-        '--PyQt5-version', action='store', metavar='X.X.X', help=_(
+        '--PyQt5-version', action='store', metavar='X.X.X',
+        # Translators: do not translate the term PyQt5
+        help=_(
             "Specific version of PyQt5 to install (default is the most recent version{})."
         ).format(v)
     )
 
     parser.add_argument(
-        '--use-system-PyQt5', action='store_true', default=None, help = _(
+        '--use-system-PyQt5', action='store_true', default=None,
+        # Translators: do not translate the terms PyQt5 or PyPi
+        help = _(
             "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
             "Uninstalls any PyPi versions already installed."
         )
@@ -2554,6 +2572,8 @@ def do_install(installer: str,
     else:
         if distro == Distro.neon:
             # KDE Neon has up to date Qt & PyQt5
+
+            # Translators: do not translate the terms PyQt5, PyPi or KDE Neon
             print('\n' + _("Not installing PyPI PyQt5 package into KDE Neon environment"))
         uninstall_pip_package('PyQt5', no_deps_only=False)
         uninstall_pip_package('PyQt5_sip', no_deps_only=False)
@@ -2718,6 +2738,7 @@ def clean_locale_tmpdir():
 
 def pip_needed_to_uninstall():
     sys.stderr.write(
+        # Translators: do not translate the terms python3 or pip
         _(
             "The python3 tool pip is required to uninstall a version of Rapid Photo "
             "Downloader that was installed with pip.\nCannot continue. Exiting."
@@ -2774,6 +2795,7 @@ def main():
 
     if args.PyQt5_version is not None and use_system_pyqt5:
         sys.stderr.write(
+            # Translators: do not translate the terms --PyQt5-version or --use-system-PyQt5
             _(
                 'Specify only one of --PyQt5-version or --use-system-PyQt5.'
             ) + "\n"
@@ -2785,6 +2807,7 @@ def main():
     if args.PyQt5_version is not None:
         if not pypi_pyqt5_capable():
             sys.stderr.write(
+                # Translators: do not translate the terms PyQt5 or Python 3.5
                 _(
                     "Sorry, specifying a specific version of PyQt5 "
                     "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
@@ -2798,6 +2821,7 @@ def main():
         else:
             sys.stderr.write(
                 _(
+                    # Translators: do not translate the term PyQt5
                     "Please specify a PyQt5 version in the format X.X or X.X.X"
                 ) + "\n"
             )
@@ -2822,6 +2846,7 @@ def main():
     if venv:
         if not pypi_pyqt5_capable():
             sys.stderr.write(
+                # Translators: do not translate the term Python 3.5
                 _(
                     "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
                     "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
@@ -2832,6 +2857,7 @@ def main():
 
         if not is_venv():
             sys.stderr.write(
+                # Translators: do not translate the term Python
                 _(
                     "To install Rapid Photo Downloader into a Python virtual environment, create "
                     "and activate the virtual environment before starting this script."
@@ -2988,6 +3014,7 @@ def main():
             sys.exit(1)
 
         print(
+            # Translators: do not translate the term Python 3
             _(
                 "To run this program, programs to assist Python 3 and its package management must "
                 "be installed."

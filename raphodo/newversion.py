@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,7 +22,7 @@ to download them.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017-2019, Damon Lynch"
+__copyright__ = "Copyright 2017-2020, Damon Lynch"
 
 import logging
 from collections import namedtuple
@@ -487,6 +487,9 @@ class DownloadNewVersionDialog(QDialog):
         bytes_downloaded_display = format_size_for_user(bytes_downloaded, zero_string='0 KB')
 
         # Translators: shows how much of a file has been downloaded e.g  123 KB of 1.3 MB
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         self.text = _('%(downloaded)s of %(total)s')
         self.message = QLabel(
             self.text % dict(downloaded=bytes_downloaded_display, total=self.download_size_display)

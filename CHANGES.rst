@@ -1,6 +1,18 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.19 (2020-03-xx)
+-------------------
+
+ - To better conform to appstream metadata requirements, renamed destktop and
+   metadata files to net.damonlynch.rapid_photo_downloader.desktop and
+   net.damonlynch.rapid_photo_downloader.metainfo.xml. The metainfo file is now
+   installed in /usr/share/metainfo/, not /usr/share/appdata/.
+
+ - Fixed errors in appstream metainfo file.
+
+ - Updated Hungarian and Turkish translations.
+
 0.9.19b3 (2020-03-07)
 ---------------------
 

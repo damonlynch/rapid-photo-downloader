@@ -902,7 +902,6 @@ class RapidWindow(QMainWindow):
             else:
                 # Unity auto-generated desktop files use underscores, it seems
                 launchers = (
-                    'net.damonlynch.rapid-photo-downloader.desktop',
                     'net.damonlynch.rapid_photo_downloader.desktop',
                 )
                 for launcher in launchers:
@@ -2540,6 +2539,9 @@ class RapidWindow(QMainWindow):
             if files_marked:
                 marked = self.thumbnailModel.getNoFilesAndTypesMarkedForDownload()
                 files = marked.file_types_present_details()
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 text = _("Download %(files)s") % dict(files=files)  # type: str
                 self.downloadButton.setText(text)
             else:
@@ -2787,6 +2789,10 @@ class RapidWindow(QMainWindow):
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
 
         if self.downloadIsRunning() and self.prefs.this_computer_path:
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
+            # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b> etc.
             message = _(
                 "<b>Changing This Computer source path</b><br><br>Do you really want to "
                 "change the source path to %(new_path)s?<br><br>You are currently "
@@ -3100,6 +3106,9 @@ Do you want to proceed with the download?
 
         if invalid_dirs:
             if len(invalid_dirs) > 1:
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 msg = _(
                     "These download folders are invalid:\n%(folder1)s\n%(folder2)s"
                 ) % {'folder1': invalid_dirs[0], 'folder2': invalid_dirs[1]}
@@ -3132,6 +3141,9 @@ Do you want to proceed with the download?
                     elif missing_destinations == BackupFailureType.photos:
                         logging.warning("No backup device exists for backing up photos")
                         # Translators: filetype will be replaced with 'photos' or 'videos'
+                        # Translators: %(variable)s represents Python code, not a plural of the term
+                        # variable. You must keep the %(variable)s untranslated, or the program will
+                        # crash.
                         msg = _(
                             "No backup device exists for backing up %(filetype)s. Do you "
                             "still want to start the download?"
@@ -3142,6 +3154,9 @@ Do you want to proceed with the download?
                             "No backup device contains a valid folder for backing up videos"
                         )
                         # Translators: filetype will be replaced with 'photos' or 'videos'
+                        # Translators: %(variable)s represents Python code, not a plural of the term
+                        # variable. You must keep the %(variable)s untranslated, or the program will
+                        # crash.
                         msg = _(
                             "No backup device exists for backing up %(filetype)s. Do you "
                             "still want to start the download?"
@@ -3152,6 +3167,8 @@ Do you want to proceed with the download?
                             "The manually specified photo and videos backup paths do "
                             "not exist or are not writable"
                         )
+                        # Translators: please do not change HTML codes like <br>, <i>, </i>, or
+                        # <b>, </b> etc.
                         msg = _(
                             "<b>The photo and video backup destinations do not exist or cannot "
                             "be written to.</b><br><br>Do you still want to start the download?"
@@ -3162,6 +3179,11 @@ Do you want to proceed with the download?
                             "or is not writable"
                         )
                         # Translators: filetype will be replaced by either 'photo' or 'video'
+                        # Translators: %(variable)s represents Python code, not a plural of the term
+                        # variable. You must keep the %(variable)s untranslated, or the program will
+                        # crash.
+                        # Translators: please do not change HTML codes like <br>, <i>, </i>, or
+                        # <b>, </b> etc.
                         msg = _(
                             "<b>The %(filetype)s backup destination does not exist or cannot be "
                                 "written to.</b><br><br>Do you still want to start the download?"
@@ -3171,6 +3193,12 @@ Do you want to proceed with the download?
                             "The manually specified video backup path does not exist "
                             "or is not writable"
                         )
+                        # Translators: filetype will be replaced by either 'photo' or 'video'
+                        # Translators: %(variable)s represents Python code, not a plural of the term
+                        # variable. You must keep the %(variable)s untranslated, or the program will
+                        # crash.
+                        # Translators: please do not change HTML codes like <br>, <i>, </i>, or
+                        # <b>, </b> etc.
                         msg = _(
                             "<b>The %(filetype)s backup destination does not exist or cannot be "
                                 "written to.</b><br><br>Do you still want to start the download?"
@@ -3926,6 +3954,9 @@ Do you want to proceed with the download?
             else:
                 # Translators - in the middle is a unicode em dash - please retain it
                 # This string is displayed in the status bar when the download is running
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 message = _(
                     '%(downloading_from)s — %(time_left)s left (%(speed)s)'
                 ) % dict(
@@ -3998,6 +4029,9 @@ Do you want to proceed with the download?
         file_types = file_types_by_number(no_photos_downloaded, no_videos_downloaded)
         file_types_failed = file_types_by_number(no_photos_failed, no_videos_failed)
         # Translators: e.g. 23 photos downloaded
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         message = _(
             "%(noFiles)s %(filetypes)s downloaded"
         ) % {
@@ -4006,6 +4040,9 @@ Do you want to proceed with the download?
 
         if no_files_failed:
             # Translators: e.g. 2 videos failed to download
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             message += "\n" + _(
                 "%(noFiles)s %(filetypes)s failed to download"
             ) % {
@@ -4051,10 +4088,16 @@ Do you want to proceed with the download?
         if photo_downloads and show_notification:
             filetype = file_types_by_number(photo_downloads, 0)
             # Translators: e.g. 23 photos downloaded
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             n_message += "\n" + _(
                 "%(number)s %(numberdownloaded)s"
             ) % dict(
                 number=thousands(photo_downloads),
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 numberdownloaded=_("%(filetype)s downloaded") % dict(filetype=filetype)
             )
 
@@ -4062,10 +4105,16 @@ Do you want to proceed with the download?
         photo_failures = self.download_tracker.total_photo_failures
         if photo_failures and show_notification:
             filetype = file_types_by_number(photo_failures, 0)
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             n_message += "\n" + _(
                 "%(number)s %(numberdownloaded)s"
             ) % dict(
                 number=thousands(photo_failures),
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 numberdownloaded=_("%(filetype)s failed to download") % dict(filetype=filetype)
             )
 
@@ -4073,10 +4122,16 @@ Do you want to proceed with the download?
         video_downloads = self.download_tracker.total_videos_downloaded
         if video_downloads and show_notification:
             filetype = file_types_by_number(0, video_downloads)
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             n_message += "\n" + _(
                 "%(number)s %(numberdownloaded)s"
             ) % dict(
                 number=thousands(video_downloads),
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 numberdownloaded=_("%(filetype)s downloaded") % dict(filetype=filetype)
             )
 
@@ -4084,16 +4139,25 @@ Do you want to proceed with the download?
         video_failures = self.download_tracker.total_video_failures
         if video_failures and show_notification:
             filetype = file_types_by_number(0, video_failures)
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             n_message += "\n" + _(
                 "%(number)s %(numberdownloaded)s"
             ) % dict(
                 number=thousands(video_failures),
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 numberdownloaded=_("%(filetype)s failed to download") % dict(filetype=filetype)
             )
 
         # warnings
         warnings = self.download_tracker.total_warnings
         if warnings and show_notification:
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             n_message += "\n" + _(
                 "%(number)s %(numberdownloaded)s"
             ) % dict(
@@ -4151,15 +4215,24 @@ Do you want to proceed with the download?
             no_files_and_types = ftc.file_types_present_details().lower()
 
             if not fw:
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 downloaded = _(
                     'Downloaded %(no_files_and_types)s from %(devices)s'
                 ) % dict(no_files_and_types=no_files_and_types, devices=devices)
             else:
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 downloaded = _(
                     'Downloaded %(no_files_and_types)s from %(devices)s — %(failures)s'
                 ) % dict(no_files_and_types=no_files_and_types, devices=devices, failures=fw)
         else:
             if fw:
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 downloaded = _('No files downloaded — %(failures)s') % dict(failures=fw)
             else:
                 downloaded = _('No files downloaded')
@@ -4191,6 +4264,9 @@ Do you want to proceed with the download?
 
             if simple_message:
                 if device.device_type == DeviceType.camera:
+                    # Translators: %(variable)s represents Python code, not a plural of the term
+                    # variable. You must keep the %(variable)s untranslated, or the program will
+                    # crash.
                     message = _(
                         "The Destination subfolders and Timeline will be rebuilt after "
                         "all thumbnails have been generated for the %(camera)s"
@@ -4201,6 +4277,9 @@ Do you want to proceed with the download?
                         "all thumbnails have been generated for this computer"
                     )
                 else:
+                    # Translators: %(variable)s represents Python code, not a plural of the term
+                    # variable. You must keep the %(variable)s untranslated, or the program will
+                    # crash.
                     message = _(
                         "The Destination subfolders and Timeline will be rebuilt after "
                         "all thumbnails have been generated for %(device)s"
@@ -4210,10 +4289,14 @@ Do you want to proceed with the download?
                 if this_computer:
                     no_devices -= 1
                     if no_devices > 1:
-                        message = _("The Destination subfolders and Timeline will be rebuilt "
-                                    "after all thumbnails have been generated for "
-                                    "%(number_devices)s devices and this computer"
-                                    ) % dict(number_devices=no_devices)
+                        # Translators: %(variable)s represents Python code, not a plural of the term
+                        # variable. You must keep the %(variable)s untranslated, or the program will
+                        # crash.
+                        message = _(
+                            "The Destination subfolders and Timeline will be rebuilt after all "
+                            "thumbnails have been generated for %(number_devices)s devices and "
+                            "this computer"
+                        ) % dict(number_devices=no_devices)
                     else:
                         assert no_devices == 1
                         if device.device_type != DeviceType.path:
@@ -4223,21 +4306,36 @@ Do you want to proceed with the download?
                             other_device = self.devices[notification_devices[0]]
                         name = other_device.display_name
                         if other_device.device_type == DeviceType.camera:
-                            message = _("The Destination subfolders and Timeline will be rebuilt "
-                                        "after all thumbnails have been generated for the "
-                                        "%(camera)s and this computer") % dict(camera=name)
+                            # Translators: %(variable)s represents Python code, not a plural of the
+                            # term variable. You must keep the %(variable)s untranslated, or the
+                            # program will crash.
+                            message = _(
+                                "The Destination subfolders and Timeline will be rebuilt after "
+                                "all thumbnails have been generated for the %(camera)s and this "
+                                "computer"
+                            ) % dict(camera=name)
                         else:
-                            message = _("The Destination subfolders and Timeline will be rebuilt "
-                                        "after all thumbnails have been generated for "
-                                        "%(device)s and this computer") % dict(device=name)
+                            # Translators: %(variable)s represents Python code, not a plural of the
+                            # term variable. You must keep the %(variable)s untranslated, or the
+                            # program will crash.
+                            message = _(
+                                "The Destination subfolders and Timeline will be rebuilt after "
+                                "all thumbnails have been generated for %(device)s and this "
+                                "computer"
+                            ) % dict(device=name)
                 else:
-                        message = _("The Destination subfolders and Timeline will be rebuilt "
-                                    "after all thumbnails have been generated for "
-                                    "%(number_devices)s devices") % dict(number_devices=no_devices)
+                    # Translators: %(variable)s represents Python code, not a plural of the term
+                    # variable. You must keep the %(variable)s untranslated, or the program will
+                    # crash.
+                    message = _(
+                            "The Destination subfolders and Timeline will be rebuilt after all "
+                            "thumbnails have been generated for %(number_devices)s devices"
+                        ) % dict(number_devices=no_devices)
 
             if self.ctime_update_notification is None:
-                notify = Notify.Notification.new(_('Rapid Photo Downloader'), message,
-                                                 'rapid-photo-downloader')
+                notify = Notify.Notification.new(
+                    _('Rapid Photo Downloader'), message, 'rapid-photo-downloader'
+                )
             else:
                 notify = self.ctime_update_notification
                 notify.update(_('Rapid Photo Downloader'), message, 'rapid-photo-downloader')
@@ -4316,6 +4414,10 @@ Do you want to proceed with the download?
 
         logging.error("Program preferences are invalid: %s", details)
         title = _("Program preferences are invalid")
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
+        # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b> etc.
         message = "<b>%(title)s</b><br><br>%(details)s" % dict(title=title, details=details)
         msgBox = self.standardMessageBox(message=message, rich_text=True)
         msgBox.exec()
@@ -4402,6 +4504,10 @@ Do you want to proceed with the download?
         camera_model = device.display_name
         if error_code == CameraErrorCode.locked:
             title =_('Rapid Photo Downloader')
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
+            # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b> etc.
             message = _(
                 '<b>All files on the %(camera)s are inaccessible</b>.<br><br>It '
                 'may be locked or not configured for file transfers using USB. '
@@ -4418,6 +4524,10 @@ Do you want to proceed with the download?
         else:
             assert error_code == CameraErrorCode.inaccessible
             title = _('Rapid Photo Downloader')
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
+            # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b> etc.
             message = _(
                 '<b>The %(camera)s appears to be in use by another '
                 'application.</b><br><br>Rapid Photo Downloader cannnot access a phone or camera '
@@ -4907,6 +5017,11 @@ Do you want to proceed with the download?
                     "Not scanning %s because it could not be unmounted", camera.display_name
                 )
 
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
+                # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b>
+                # etc.
                 message = _(
                     '<b>The %(camera)s cannot be scanned because it cannot be '
                     'unmounted.</b><br><br>You can close any other application (such as a '
@@ -4932,6 +5047,11 @@ Do you want to proceed with the download?
                 display_name = camera.display_name
 
                 title = _('Rapid Photo Downloader')
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
+                # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b>
+                # etc.
                 message = _(
                     '<b>The download cannot start because the %(camera)s cannot be '
                     'unmounted.</b><br><br>You '
@@ -5682,10 +5802,13 @@ Do you want to proceed with the download?
                 '/media', '/run', os.path.expanduser('~'), '/', '/bin', '/boot', '/dev',
                 '/lib', '/lib32', '/lib64', '/mnt', '/opt', '/sbin', '/snap', '/sys', '/tmp',
                 '/usr', '/var', '/proc'):
+
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             message = "<b>" + _(
                 "Downloading from %(location)s on This Computer."
-            ) % dict(
-                location=make_html_path_non_breaking(path)
+            ) % dict(location=make_html_path_non_breaking(path)
             ) + "</b><br><br>" + _(
                 "Do you really want to download from here?<br><br>On some systems, scanning this "
                 "location can take a very long time."
@@ -5723,6 +5846,9 @@ Do you want to proceed with the download?
                 downloading = self.devices.downloading_from()
                 # Translators - in the middle is a unicode em dash - please retain it
                 # This string is displayed in the status bar when the download is paused
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 msg = '%(downloading_from)s — download paused' % dict(downloading_from=downloading)
             else:
                 # status message updates while downloading are handled in another function
@@ -5742,6 +5868,9 @@ Do you want to proceed with the download?
                 files_hidden = self.thumbnailModel.getNoHiddenFiles()
 
                 if files_hidden:
+                    # Translators: %(variable)s represents Python code, not a plural of the term
+                    # variable. You must keep the %(variable)s untranslated, or the program will
+                    # crash.
                     files_checked = _(
                         '%(number)s of %(available files)s checked for download (%(hidden)s hidden)'
                     ) % {
@@ -5750,6 +5879,9 @@ Do you want to proceed with the download?
                         'hidden': files_hidden
                     }
                 else:
+                    # Translators: %(variable)s represents Python code, not a plural of the term
+                    # variable. You must keep the %(variable)s untranslated, or the program will
+                    # crash.
                     files_checked = _(
                         '%(number)s of %(available files)s checked for download'
                     ) % {
@@ -6198,8 +6330,14 @@ def import_prefs() -> None:
             print(_("No prior program preferences detected: exiting"))
             return
         else:
-            print(_("Importing preferences from Rapid Photo Downloader %(version)s") % dict(
-                version=value))
+            print(
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
+                _(
+                    "Importing preferences from Rapid Photo Downloader %(version)s"
+                ) % dict(version=value)
+            )
             print()
 
         for key_triplet in keys:

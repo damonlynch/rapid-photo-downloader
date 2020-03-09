@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2014-2018 Damon Lynch <damonlynch@gmail.com> -->
+<!-- Copyright 2014-2020 Damon Lynch <damonlynch@gmail.com> -->
 <component type="desktop-application">
-  <id>net.damonlynch.rapid-photo-downloader</id>
+  <id>net.damonlynch.rapid_photo_downloader</id>
   <provides>
-    <id>rapid-photo-downloader.desktop</id>
+    <id>rapid_photo_downloader.desktop</id>
     <binary>rapid-photo-downloader</binary>
   </provides>
-  <metadata_license>CC-BY</metadata_license>
+  <metadata_license>CC-BY-4.0</metadata_license>
   <project_license>GPL-3.0+</project_license>
+  <_name>Rapid Photo Downloader</_name>
+  <_summary>Download, rename and back up photos and videos from cameras and other devices</_summary>
   <description>
     <_p>
       Rapid Photo Downloader imports photos and videos from cameras, phones,
@@ -29,12 +31,17 @@
       automated, such as unmounting a memory card when the download is complete.
     </_p>
   </description>
-  <url type="homepage">http://www.damonlynch.net/rapid/</url>
-  <url type="translate">http://www.damonlynch.net/rapid/translate.html</url>
-  <url type="donation">http://www.damonlynch.net/rapid/</url>
+  <url type="homepage">https://www.damonlynch.net/rapid/</url>
+  <url type="translate">https://www.damonlynch.net/rapid/translate.html</url>
+  <url type="donation">https://www.damonlynch.net/rapid/</url>
   <developer_name>Damon Lynch</developer_name>
   <update_contact>damonlynch@gmail.com</update_contact>
-  <launchable type="desktop-id">net.damonlynch.rapid-photo-downloader.desktop</launchable>
+  <translation type="gettext">rapid-photo-downloader</translation>
+  <categories>
+    <category>Graphics</category>
+    <category>Photography</category>
+  </categories>
+  <launchable type="desktop-id">net.damonlynch.rapid_photo_downloader.desktop</launchable>
 
   <keywords>
     <keyword>RAW</keyword>
@@ -51,20 +58,19 @@
   <screenshots>
     <screenshot type="default">
         <_caption>The main window</_caption>
-        <image>http://www.damonlynch.net/rapid/appdata/2017/07/mainwindow.png</image>
+        <image>https://www.damonlynch.net/rapid/appdata/2017/07/mainwindow.png</image>
     </screenshot>
     <screenshot>
         <_caption>Downloading</_caption>
-        <image>http://www.damonlynch.net/rapid/appdata/2017/07/downloading.png</image>
+        <image>https://www.damonlynch.net/rapid/appdata/2017/07/downloading.png</image>
     </screenshot>
     <screenshot>
         <_caption>The Timeline</_caption>
-        <image>http://www.damonlynch.net/rapid/appdata/2017/07/timeline.png</image>
+        <image>https://www.damonlynch.net/rapid/appdata/2017/07/timeline.png</image>
     </screenshot>
     <screenshot>
         <_caption>Right-clicking on a device</_caption>
-        <image>http://www.damonlynch.net/rapid/appdata/2017/07/rightclick.png</image>
+        <image>https://www.damonlynch.net/rapid/appdata/2017/07/rightclick.png</image>
     </screenshot>
   </screenshots>
-  <updatecontact>damonlynch@gmail.com</updatecontact>
 </component>

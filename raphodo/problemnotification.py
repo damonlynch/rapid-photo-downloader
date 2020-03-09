@@ -1,4 +1,4 @@
-# Copyright (C) 2010-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2010-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -36,7 +36,7 @@ Distinguish error severity
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2010-2017, Damon Lynch"
+__copyright__ = "Copyright 2010-2020, Damon Lynch"
 
 from collections import deque
 from typing import Tuple, Optional, List, Union, Iterator
@@ -84,8 +84,14 @@ class Problem:
     def details(self) -> List[str]:
         if self.exception is not None:
             try:
-                return [escape(_("Error: %(errno)s %(strerror)s")) % dict(
-                    errno=self.exception.errno, strerror=self.exception.strerror)]
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
+                return [
+                    escape(_("Error: %(errno)s %(strerror)s")) % dict(
+                        errno=self.exception.errno, strerror=self.exception.strerror
+                    )
+                ]
             except AttributeError:
                 return [escape(_("Error: %s")) % self.exception]
         else:
@@ -96,8 +102,9 @@ class Problem:
         if self.name and self.uri:
             return make_href(name=self.name, uri=self.uri)
         else:
-            logging.critical('href() is missing name or uri in subclass %s',
-                             self.__class__.__name__)
+            logging.critical(
+                'href() is missing name or uri in subclass %s', self.__class__.__name__
+            )
 
     @property
     def severity(self) -> ErrorType:
@@ -122,8 +129,12 @@ class CameraGpProblem(SeriousProblem):
 class CameraInitializationProblem(CameraGpProblem):
     @property
     def body(self) -> str:
-        return escape(_("Unable to initialize the camera, probably because another program is "
-                        "using it. No files were copied from it."))
+        return escape(
+            _(
+                "Unable to initialize the camera, probably because another program is using it. "
+                "No files were copied from it."
+            )
+        )
     @property
     def severity(self) -> ErrorType:
         return ErrorType.critical_error
@@ -192,23 +203,35 @@ class FileMetadataLoadProblem(Problem):
 class FileMetadataLoadProblemNoDownload(SeriousProblem):
     @property
     def body(self) -> str:
-        return escape(_('Unable to load metadata from %(name)s. The %(filetype)s was not '
-                        'downloaded.')) % dict(filetype=self.file_type, name=self.href)
+        return escape(
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
+            _(
+                'Unable to load metadata from %(name)s. The %(filetype)s was not downloaded.'
+            )
+        ) % dict(filetype=self.file_type, name=self.href)
 
 
 class FsMetadataWriteProblem(Problem):
     @property
     def body(self) -> str:
-        return escape(_(
-            "An error occurred setting a file's filesystem metadata on the filesystem %s. "
-            "If this error occurs again on the same filesystem, it will not be reported again."
-        )) % self.href
+        return escape(
+            _(
+                "An error occurred setting a file's filesystem metadata on the filesystem %s. "
+                "If this error occurs again on the same filesystem, it will not be reported again."
+            )
+        ) % self.href
 
     @property
     def details(self) -> List[str]:
-        return [escape(_("Error: %(errno)s %(strerror)s")) % dict(errno=e.errno,
-                                                                  strerror=e.strerror)
-                for e in self.mdata_exceptions]
+        return [
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
+            escape(_("Error: %(errno)s %(strerror)s")) % dict(errno=e.errno, strerror=e.strerror)
+            for e in self.mdata_exceptions
+        ]
 
 
 class UnhandledFileProblem(SeriousProblem):
@@ -221,6 +244,9 @@ class FileAlreadyExistsProblem(SeriousProblem):
     @property
     def body(self) -> str:
         return escape(
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             _("%(filetype)s %(destination)s already exists.")
         ) % dict(
             filetype=escape(self.file_type_capitalized),
@@ -232,8 +258,13 @@ class FileAlreadyExistsProblem(SeriousProblem):
         d = list()
         d.append(
             escape(
-                _("The existing %(filetype)s %(destination)s was last modified on "
-                  "%(date)s at %(time)s.")
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
+                _(
+                    "The existing %(filetype)s %(destination)s was last modified on "
+                    "%(date)s at %(time)s."
+                )
             ) % dict(
                     filetype=escape(self.file_type),
                     date=escape(self.date),
@@ -243,6 +274,9 @@ class FileAlreadyExistsProblem(SeriousProblem):
         )
         d.append(
             escape(
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 _("The %(filetype)s %(source)s was not downloaded from %(device)s.")
             ) % dict(
                 filetype=escape(self.file_type),
@@ -260,8 +294,13 @@ class IdentifierAddedProblem(FileAlreadyExistsProblem):
         d = list()
         d.append(
             escape(
-                _("The existing %(filetype)s %(destination)s was last modified on "
-                  "%(date)s at %(time)s.")
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
+                _(
+                    "The existing %(filetype)s %(destination)s was last modified on "
+                    "%(date)s at %(time)s."
+                )
             ) % dict(
                     filetype=escape(self.file_type),
                     date=escape(self.date),
@@ -271,6 +310,9 @@ class IdentifierAddedProblem(FileAlreadyExistsProblem):
         )
         d.append(
             escape(
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 _("The %(filetype)s %(source)s was downloaded from %(device)s.")
             ) % dict(
                 filetype=escape(self.file_type),
@@ -296,8 +338,13 @@ class BackupAlreadyExistsProblem(FileAlreadyExistsProblem):
         d = list()
         d.append(
             escape(
-                _("The existing backup %(filetype)s %(destination)s was last modified on "
-                  "%(date)s at %(time)s.")
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
+                _(
+                    "The existing backup %(filetype)s %(destination)s was last modified on "
+                    "%(date)s at %(time)s."
+                )
             ) % dict(
                     filetype=escape(self.file_type),
                     date=escape(self.date),
@@ -307,6 +354,9 @@ class BackupAlreadyExistsProblem(FileAlreadyExistsProblem):
         )
         d.append(
             escape(
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 _("The %(filetype)s %(source)s was not backed up from %(device)s.")
             ) % dict(
                 filetype=escape(self.file_type),
@@ -324,8 +374,13 @@ class BackupOverwrittenProblem(BackupAlreadyExistsProblem):
         d = list()
         d.append(
             escape(
-                _("The previous backup %(filetype)s %(destination)s was last modified on "
-                  "%(date)s at %(time)s.")
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
+                _(
+                    "The previous backup %(filetype)s %(destination)s was last modified on "
+                    "%(date)s at %(time)s."
+                )
             ) % dict(
                     filetype=escape(self.file_type),
                     date=escape(self.date),
@@ -334,9 +389,14 @@ class BackupOverwrittenProblem(BackupAlreadyExistsProblem):
             )
         )
         d.append(
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             escape(
-                _("The %(filetype)s %(source)s from %(device)s was backed up, overwriting the "
-                  "previous backup %(filetype)s.")
+                _(
+                    "The %(filetype)s %(source)s from %(device)s was backed up, overwriting the "
+                    "previous backup %(filetype)s."
+                )
             ) % dict(
                 filetype=escape(self.file_type),
                 source=self.source,
@@ -354,9 +414,13 @@ class DuplicateFileWhenSyncingProblem(SeriousProblem):
     @property
     def body(self) -> str:
         return escape(
-            _("When synchronizing RAW + JPEG sequence values, a duplicate %(filetype)s "
-              "%(file)s was encountered, and was not downloaded."
-              )
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
+            _(
+                "When synchronizing RAW + JPEG sequence values, a duplicate %(filetype)s "
+                "%(file)s was encountered, and was not downloaded."
+            )
         ) % dict(file=self.href, filetype=self.file_type)
 
 
@@ -364,23 +428,32 @@ class SameNameDifferentExif(Problem):
     @property
     def body(self) -> str:
         return escape(
-            _("When synchronizing RAW + JPEG sequence values, photos were detected with the " 
-              "same filenames, but taken at different times:")
+            _(
+                "When synchronizing RAW + JPEG sequence values, photos were detected with the " 
+                "same filenames, but taken at different times:"
+            )
         )
 
     @property
     def details(self) -> List[str]:
-        return [escape(
-            _("%(image1)s was taken on %(image1_date)s at %(image1_time)s, and %(image2)s "
-              "on %(image2_date)s at %(image2_time)s.")
-        ) % dict(
-            image1=self.image1,
-            image1_date=self.image1_date,
-            image1_time=self.image1_time,
-            image2=self.image2,
-            image2_date=self.image2_date,
-            image2_time=self.image2_time
-        )]
+        return [
+            escape(
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
+                _(
+                    "%(image1)s was taken on %(image1_date)s at %(image1_time)s, and %(image2)s "
+                    "on %(image2_date)s at %(image2_time)s."
+                )
+            ) % dict(
+                image1=self.image1,
+                image1_date=self.image1_date,
+                image1_time=self.image1_time,
+                image2=self.image2,
+                image2_date=self.image2_date,
+                image2_time=self.image2_time
+            )
+        ]
 
 
 class RenamingAssociateFileProblem(SeriousProblem):
@@ -422,6 +495,9 @@ class FilenameNotFullyGeneratedProblem(Problem):
     @property
     def body(self) -> str:
         return escape(
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             _("The filename %(destination)s was not fully generated for %(filetype)s %(source)s.")
         ) % dict(destination=self.destination, filetype=self.file_type, source=self.source)
 
@@ -431,6 +507,9 @@ class FilenameNotFullyGeneratedProblem(Problem):
         if len(self.missing_metadata) == 1:
             d.append(
                 escape(
+                    # Translators: %(variable)s represents Python code, not a plural of the term
+                    # variable. You must keep the %(variable)s untranslated, or the program will
+                    # crash.
                     _("The %(type)s metadata is missing.")
                 ) % dict(type=self.missing_metadata[0])
             )
@@ -475,8 +554,13 @@ class FolderNotFullyGeneratedProblemProblem(FilenameNotFullyGeneratedProblem):
     @property
     def body(self) -> str:
         return escape(
-            _("The download subfolders %(folder)s were only partially generated for %(filetype)s "
-              "%(source)s.")
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
+            _(
+                "The download subfolders %(folder)s were only partially generated for %(filetype)s "
+                "%(source)s."
+            )
         ) % dict(folder=self.destination, filetype=self.file_type, source=self.source)
 
 
@@ -484,8 +568,13 @@ class NoDataToNameProblem(SeriousProblem):
     @property
     def body(self) -> str:
         return escape(
-            _("There is no data with which to generate the %(subfolder_file)s for %(filename)s. "
-              "The %(filetype)s was not downloaded.")
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
+            _(
+                "There is no data with which to generate the %(subfolder_file)s for %(filename)s. "
+                "The %(filetype)s was not downloaded."
+            )
         ) % dict(
             subfolder_file = self.area,
             filename = self.href,
@@ -497,8 +586,13 @@ class RenamingFileProblem(SeriousProblem):
     @property
     def body(self) -> str:
         return escape(
-            _('Unable to create the %(filetype)s %(destination)s in %(folder)s. The download file '
-              'was %(source)s in %(device)s. It was not downloaded.')
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
+            _(
+                'Unable to create the %(filetype)s %(destination)s in %(folder)s. The download '
+                'file was %(source)s in %(device)s. It was not downloaded.'
+            )
         ) % dict(
             filetype=escape(self.file_type),
             destination=escape(self.destination),

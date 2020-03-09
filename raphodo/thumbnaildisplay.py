@@ -466,6 +466,9 @@ class ThumbnailListModel(QAbstractListModel):
                         ctime_h, self.arrow_locale_for_humanize
                     )
 
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 humanized_ctime = _(
                     'Taken on %(date_time)s (%(human_readable)s)'
                 ) % dict(
@@ -473,6 +476,9 @@ class ThumbnailListModel(QAbstractListModel):
                         human_readable=ctime_h
                 )
 
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 humanized_mtime = _(
                     'Modified on %(date_time)s (%(human_readable)s)'
                 ) % dict(
@@ -481,6 +487,9 @@ class ThumbnailListModel(QAbstractListModel):
                 )
                 humanized_file_time = '{}<br>{}'.format(humanized_ctime, humanized_mtime)
             else:
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 humanized_file_time = _(
                     '%(date_time)s (%(human_readable)s)'
                 ) % dict(
@@ -509,6 +518,11 @@ class ThumbnailListModel(QAbstractListModel):
             if rpd_file.status in Downloaded:
                 path = rpd_file.download_path + os.sep
                 downloaded_as = _('Downloaded as:')
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
+                # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b>
+                # etc.
                 msg += '<br><br><i>%(downloaded_as)s</i><br>%(filename)s<br>%(path)s' % dict(
                     filename=rpd_file.download_name, path=path, downloaded_as=downloaded_as
                 )
@@ -524,6 +538,9 @@ class ThumbnailListModel(QAbstractListModel):
                         "Failed to humanize taken on time %s with locale %s, reverting to English",
                         prev_dt_h, self.arrow_locale_for_humanize
                     )
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 prev_date = _('%(date_time)s (%(human_readable)s)') % dict(
                     date_time=prev_datetime.naive.strftime('%c'),
                     human_readable=prev_dt_h
@@ -532,10 +549,20 @@ class ThumbnailListModel(QAbstractListModel):
                 if rpd_file.prev_full_name != manually_marked_previously_downloaded:
                     path, prev_file_name = os.path.split(rpd_file.prev_full_name)
                     path += os.sep
+                    # Translators: %(variable)s represents Python code, not a plural of the term
+                    # variable. You must keep the %(variable)s untranslated, or the program will
+                    # crash.
+                    # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>,
+                    # </b> etc.
                     msg += _(
                         '<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s'
                     ) % dict(date=prev_date, filename=prev_file_name, path=path)
                 else:
+                    # Translators: %(variable)s represents Python code, not a plural of the term
+                    # variable. You must keep the %(variable)s untranslated, or the program will
+                    # crash.
+                    # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>,
+                    # </b> etc.
                     msg += _(
                         '<br><br><i>Manually set as previously downloaded on %(date)s</i>'
                     ) % dict(date=prev_date)

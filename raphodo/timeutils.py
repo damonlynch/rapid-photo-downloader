@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,6 +17,9 @@
 # see <http://www.gnu.org/licenses/>.
 
 # A few utility functions relating to time conversion and internationalization
+
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2015-2020, Damon Lynch"
 
 import locale
 from datetime import datetime
@@ -102,9 +105,15 @@ def strip_pm(t: str) -> str:
 
 def make_long_date_format(arrowtime: Arrow) -> str:
     # Translators: for example Nov 3 or Dec 31
+    # Translators: %(variable)s represents Python code, not a plural of the term
+    # variable. You must keep the %(variable)s untranslated, or the program will
+    # crash.
     long_format = _('%(month)s %(numeric_day)s') % {
         'month': arrowtime.datetime.strftime('%b'),
         'numeric_day': arrowtime.format('D')
     }
     # Translators: for example Nov 15 2015
+    # Translators: %(variable)s represents Python code, not a plural of the term
+    # variable. You must keep the %(variable)s untranslated, or the program will
+    # crash.
     return _('%(date)s %(year)s') % dict(date=long_format, year=arrowtime.year)

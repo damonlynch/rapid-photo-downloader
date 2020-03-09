@@ -249,6 +249,9 @@ class FileTypeCounter(Counter):
          present e.g. "photos and videos"
         """
         file_types_present = self.file_types_present()
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         file_count_summary = _("%(number)s %(filetypes)s") % dict(
             number=thousands(self[FileType.photo] + self[FileType.video]),
             filetypes=file_types_present
@@ -268,15 +271,21 @@ class FileTypeCounter(Counter):
         v = self[FileType.video]
 
         if v > 1:
-            videos =  _('%(no_videos)s Videos') % dict(no_videos=thousands(v))
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
+            videos = _('%(no_videos)s Videos') % dict(no_videos=thousands(v))
         elif v == 1:
             if singular_natural:
                 # translators: natural language expression signifying a single video
                 videos = _('a video')
             else:
-                videos =  _('1 Video')
+                videos = _('1 Video')
 
         if p > 1:
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             photos = _('%(no_photos)s Photos') % dict(no_photos=thousands(p))
         elif p == 1:
             if singular_natural:
@@ -787,6 +796,8 @@ class RPDFile:
         """
 
         if self.from_camera:
+            # Translators: %(variable)s represents Python code, not a plural of the term variable.
+            # You must keep the %(variable)s untranslated, or the program will crash.
             return _('%(path)s on %(camera)s') % dict(
                 path=self.full_file_name, camera=self.camera_display_name
             )

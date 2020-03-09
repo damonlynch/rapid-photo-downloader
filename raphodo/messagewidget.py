@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Display messages to the user in stacked widget
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017, Damon Lynch"
+__copyright__ = "Copyright 2017-202, Damon Lynch"
 
 from typing import Tuple
 from gettext import gettext as _

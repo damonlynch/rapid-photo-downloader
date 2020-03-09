@@ -806,6 +806,9 @@ class DeviceCollection:
         """
 
         display_names = [self.devices[scan_id].display_name for scan_id in self.downloading]
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         return _('Downloading from %(device_names)s') % dict(
             device_names=make_internationalized_list(display_names))
 
@@ -866,6 +869,9 @@ class DeviceCollection:
         except KeyError:
             text_number = len(self.volumes_and_cameras)
         # Translators: e.g. Three Devices
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
         return _('%(no_devices)s %(device_type)s') % dict(
             no_devices=text_number, device_type=device_type_text)
 
@@ -1029,6 +1035,12 @@ class DeviceCollection:
                     assert len(self.volumes_and_cameras) > 1
                     device_display_name = self._mixed_devices(device_type_text)
 
+                # Translators: this text shows the devices being downloaded from, and is shown at
+                # the top of the window. The plus sign is used instead of 'and' to leave as much
+                # room as possible for the device names.
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 text = _('%(device1)s + %(device2)s') % {'device1': device_display_name,
                                                                 'device2': computer_display_name}
                 return text, icon
@@ -1040,6 +1052,12 @@ class DeviceCollection:
                 if len(device_types) == 1:
                     if len(self) == 2:
                         devices = non_pc_devices
+                        # Translators: this text shows the devices being downloaded from, and is
+                        # shown at the top of the window. The plus sign is used instead of 'and' to
+                        # leave as much room as possible for the device names.
+                        # Translators: %(variable)s represents Python code, not a plural of the term
+                        # variable. You must keep the %(variable)s untranslated, or the program will
+                        # crash.
                         text = _('%(device1)s + %(device2)s') % {'device1': devices[0].display_name,
                                                                 'device2': devices[1].display_name}
                         if device_type == DeviceType.camera and len(mtp_devices) != 2:
@@ -1050,12 +1068,18 @@ class DeviceCollection:
                     except KeyError:
                         text_number = len(self.volumes_and_cameras)
                     if device_type == DeviceType.camera:
-                        # Number of cameras e.g. 3 Cameras
+                        # Translators: Number of cameras e.g. 3 Cameras
+                        # Translators: %(variable)s represents Python code, not a plural of the term
+                        # variable. You must keep the %(variable)s untranslated, or the program will
+                        # crash.
                         text = _('%(no_cameras)s Cameras') % {'no_cameras': text_number}
                         if len(mtp_devices) == len(self.volumes_and_cameras):
                             return text, non_pc_devices[0].get_icon()
                         return text, QIcon(':/icons/camera.svg')
                     elif device_type == DeviceType.volume:
+                        # Translators: %(variable)s represents Python code, not a plural of the term
+                        # variable. You must keep the %(variable)s untranslated, or the program will
+                        # crash.
                         text = _('%(no_devices)s Devices') % dict(no_devices=text_number)
                         return text, QIcon(':/icons/drive-removable-media.svg')
                 else:

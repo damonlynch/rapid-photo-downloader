@@ -1124,9 +1124,15 @@ class DeviceDelegate(QStyledItemDelegate):
                     video_key = FileType.video
                     sum_key = None
 
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 photos = _('%(no_photos)s Photos') % {
                     'no_photos': thousands(device.file_type_counter[photo_key])
                 }
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
                 videos = _('%(no_videos)s Videos') % {
                     'no_videos': thousands(device.file_type_counter[video_key])
                 }

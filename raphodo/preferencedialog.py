@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Dialog window to show and manipulate selected user preferences
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017-2018, Damon Lynch"
+__copyright__ = "Copyright 2017-2020, Damon Lynch"
 
 import webbrowser
 from typing import List
@@ -1537,11 +1537,20 @@ class ExceptFileExtDialog(PreferenceAddDialog):
             value = value.upper()
             if value.lower() in ALL_KNOWN_EXTENSIONS:
                 title = _('Invalid File Extension')
-                message = _("The file extension <b>%s</b> is recognized by Rapid Photo Downloader, "
-                            "so it makes no sense to warn about its presence.") % value
-                details = _('Recognized file types:\n\n'
-                            'Photos:\n%(photos)s\n\nVideos:\n%(videos)s\n\n'
-                            'Audio:\n%(audio)s\n\nOther:\n%(other)s') % dict(
+                # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b>
+                # etc.
+                message = _(
+                    "The file extension <b>%s</b> is recognized by Rapid Photo Downloader, so it "
+                    "makes no sense to warn about its presence."
+                ) % value
+                # Translators: %(variable)s represents Python code, not a plural of the term
+                # variable. You must keep the %(variable)s untranslated, or the program will
+                # crash.
+                details = _(
+                    'Recognized file types:\n\n'
+                    'Photos:\n%(photos)s\n\nVideos:\n%(videos)s\n\n'
+                    'Audio:\n%(audio)s\n\nOther:\n%(other)s'
+                ) % dict(
                     photos=self.exts(PHOTO_EXTENSIONS),
                     videos=self.exts(VIDEO_EXTENSIONS + VIDEO_THUMBNAIL_EXTENSIONS),
                     audio=self.exts(AUDIO_EXTENSIONS),

@@ -1,5 +1,5 @@
-Release Notes for Rapid Photo Downloader 0.9.19b3
-=================================================
+Release Notes for Rapid Photo Downloader 0.9.19
+===============================================
 
  - To be able to download HEIF / HEIC files, ExifTool 10.63 or newer is
    required. To be able to view their thumbnails, a version of Debian / Ubuntu

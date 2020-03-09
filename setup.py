@@ -365,17 +365,17 @@ setup(
         ),
         (
             'share/applications', [
-                'build/share/applications/net.damonlynch.rapid-photo-downloader.desktop'
+                'build/share/applications/net.damonlynch.rapid_photo_downloader.desktop'
             ]
         ),
         (
             'share/solid/actions', [
-                'build/share/solid/actions/net.damonlynch.rapid-photo-downloader.desktop'
+                'build/share/solid/actions/net.damonlynch.rapid_photo_downloader.desktop'
             ],
         ),
         (
-            'share/appdata', [
-                'build/share/appdata/net.damonlynch.rapid-photo-downloader.appdata.xml'
+            'share/metainfo', [
+                'build/share/metainfo/net.damonlynch.rapid_photo_downloader.metainfo.xml'
             ]
         )
     ],
@@ -394,11 +394,12 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Multimedia :: Graphics',
         'Topic :: Multimedia :: Video'
     ],
     keywords='photo, video, download, ingest, import, camera, phone, backup, rename, photography,' \
-             ' photographer, transfer, copy, raw, cr2, nef, arw',
+             ' photographer, transfer, copy, raw, cr2, cr3, nef, arw, dng',
     cmdclass={
         'build': build_extra_man_page,
         'build_pod2man': build_pod2man,

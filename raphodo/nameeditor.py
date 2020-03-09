@@ -422,6 +422,11 @@ def make_subfolder_menu_entry(prefs: Tuple[str]) -> str:
 
     desc = prefs[0]
     elements = prefs[1:]
+    # Translators: this text appears in menus and combo boxes. It displays the
+    # description of an item, and its elements.
+    # Translators: %(variable)s represents Python code, not a plural of the term
+    # variable. You must keep the %(variable)s untranslated, or the program will
+    # crash.
     return _("%(description)s - %(elements)s") % dict(
         description=desc, elements=os.sep.join(elements)
     )
@@ -437,6 +442,11 @@ def make_rename_menu_entry(prefs: Tuple[str]) -> str:
 
     desc = prefs[0]
     elements = prefs[1]
+    # Translators: this text appears in menus and combo boxes. It displays the
+    # description of an item, and its elements.
+    # Translators: %(variable)s represents Python code, not a plural of the term
+    # variable. You must keep the %(variable)s untranslated, or the program will
+    # crash.
     return _("%(description)s - %(elements)s") % dict(description=desc, elements=elements)
 
 
@@ -867,12 +877,18 @@ class PrefDialog(QDialog):
             # Translators: please do not modify, change the order of or leave out html formatting
             # tags like <i> and <b>. These are used to format the text the users sees.
             # In this case, the </i> really is supposed to come before the <i>.
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             subfolder_msg = _(
                 "The character</i> %(separator)s <i>creates a new subfolder level."
             ) % dict(separator=os.sep)
             # Translators: please do not modify, change the order of or leave out html formatting
             # tags like <i> and <b>. These are used to format the text the users sees
             # In this case, the </i> really is supposed to come before the <i>.
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
             subfolder_first_char_msg = _(
                 "There is no need start or end with the folder separator </i> %(separator)s<i>, "
                 "because it is added automatically."
