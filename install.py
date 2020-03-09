@@ -171,6 +171,7 @@ class Distro(Enum):
     fedora = 3
     neon = 4
     linuxmint = 5
+    zorin = 6
     arch = 7
     opensuse = 8
     manjaro = 9
@@ -187,7 +188,7 @@ class Distro(Enum):
 
 debian_like = (
     Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint, Distro.galliumos,
-    Distro.peppermint, Distro.elementary, Distro.deepin
+    Distro.peppermint, Distro.elementary, Distro.deepin, Distro.zorin
 )
 fedora_like = (Distro.fedora, Distro.centos)
 arch_like = (Distro.arch, Distro.manjaro, Distro.antergos)
@@ -226,6 +227,8 @@ def get_distro() -> Distro:
                         return Distro.deepin
                     if line.find('KDE neon') > 0:
                         return Distro.neon
+                    if line.find('Zorin') > 0:
+                        return Distro.zorin
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):

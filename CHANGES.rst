@@ -11,6 +11,8 @@ Changelog for Rapid Photo Downloader
 
  - Fixed errors in appstream metainfo file.
 
+ - Added Zorin OS to install.py script.
+
  - Updated Hungarian and Turkish translations.
 
 0.9.19b3 (2020-03-07)

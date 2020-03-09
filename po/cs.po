@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2020-03-08 18:45-0400\n"
-"PO-Revision-Date: 2020-03-07 06:56+0000\n"
+"PO-Revision-Date: 2020-03-08 23:21-0400\n"
 "Last-Translator: Pavel Borecki <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "Language: cs\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2020-03-08 02:08+0000\n"
-"X-Generator: Launchpad (build e0878392dc799b267dea80578fa65500a5d74155)\n"
+"X-Generator: Poedit 2.2.4\n"
 
 #: ../install.py:72
 msgid ""
@@ -114,7 +114,7 @@ msgstr "Je třeba zapnout používání repozitáře Universe."
 #. Translators: do not translate the term IUS Community
 #: ../install.py:1047
 msgid "The IUS Community repository must be enabled."
-msgstr "Je třeba přidat si komunitní repozitář IUS"
+msgstr "Je třeba přidat si komunitní repozitář IUS."
 
 #. Translators: do not translate the term EPEL
 #: ../install.py:1072
@@ -2929,7 +2929,7 @@ msgid ""
 msgstr ""
 "Používat <a href=\"http://damonlynch.net/rapid/documentation/"
 "#regularexpressions\">regulární výrazy</a> ve stylu programovacího jazyka "
-"Python."
+"Python"
 
 #: ../raphodo/preferencedialog.py:245
 msgid ""

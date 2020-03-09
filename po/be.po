@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2020-03-08 18:45-0400\n"
-"PO-Revision-Date: 2018-11-06 19:47+0000\n"
+"PO-Revision-Date: 2020-03-08 22:33-0400\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Belarusian <be@li.org>\n"
 "Language: be\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2019-03-30 00:28+0000\n"
-"X-Generator: Launchpad (build 18910)\n"
+"X-Generator: Poedit 2.2.4\n"
 
 #: ../install.py:72
 msgid ""
@@ -601,7 +601,7 @@ msgstr "Дыск 1"
 #. detection is enabled. You should translate this.
 #: ../raphodo/backuppanel.py:603
 msgid "drive2"
-msgstr "Дыск 2"
+msgstr "дыск 2"
 
 #: ../raphodo/backuppanel.py:668
 msgid "Projected Backup Storage Use"
@@ -795,7 +795,7 @@ msgstr ""
 
 #: ../raphodo/didyouknow.py:45
 msgid "Click on a file's checkbox to mark or unmark it for download."
-msgstr "Націсніце на сцяжок файла, каб пазначыць яго для загрузкі"
+msgstr "Націсніце на сцяжок файла, каб пазначыць яго для загрузкі."
 
 #: ../raphodo/didyouknow.py:51
 msgid ""
