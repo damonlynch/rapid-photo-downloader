@@ -344,8 +344,10 @@ class RenameOptionsWidget(QFramedWidget):
         self.sync = QCheckBox(_('Synchronize RAW + JPEG'))
         self.sync.setChecked(self.prefs.synchronize_raw_jpg)
         self.sync.stateChanged.connect(self.syncChanged)
-        tip = _('Synchronize sequence numbers for matching RAW and JPEG pairs.\n\n'
-                'See the online documentation for more details.')
+        tip = _(
+            'Synchronize sequence numbers for matching RAW and JPEG pairs.\n\n'
+            'See the online documentation for more details.'
+        )
         self.sync.setToolTip(tip)
 
         self.sequences = QGroupBox(_('Sequence Numbers'))
@@ -362,8 +364,12 @@ class RenameOptionsWidget(QFramedWidget):
         self.stripCharacters  = QCheckBox(_('Strip incompatible characters'))
         self.stripCharacters.setChecked(self.prefs.strip_characters)
         self.stripCharacters.stateChanged.connect(self.stripCharactersChanged)
-        self.stripCharacters.setToolTip(_('Whether photo, video and folder names should have any '
-                           'characters removed that are not allowed by other operating systems'))
+        self.stripCharacters.setToolTip(
+            _(
+                'Whether photo, video and folder names should have any characters removed that '
+                'are not allowed by other operating systems'
+            )
+        )
         self.compatibility =  QGroupBox(_('Compatibility'))
         self.compatibility.setLayout(compatibilityLayout)
         compatibilityLayout.addWidget(self.stripCharacters)

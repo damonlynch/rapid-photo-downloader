@@ -620,7 +620,7 @@ class UpgradeDialog(QDialog):
     @pyqtSlot()
     def doUpgrade(self) -> None:
         if self.rpdRunning():
-            self.explanation.setText(_('Close Rapid Photo Downloader before running this upgrade'))
+            self.explanation.setText(_('Close Rapid Photo Downloader before running this upgrade.'))
         else:
             self.running = True
             self.explanation.setText(_('Upgrade running...'))

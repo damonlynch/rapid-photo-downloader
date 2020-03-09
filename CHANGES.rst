@@ -13,6 +13,9 @@ Changelog for Rapid Photo Downloader
 
  - Added Zorin OS to install.py script.
 
+ - Removed notfication informing the Timeline or provisional download folders
+   was rebuilt.
+
  - Updated Hungarian, Russian and Turkish translations.
 
 0.9.19b3 (2020-03-07)

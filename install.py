@@ -828,8 +828,8 @@ def check_and_repair_folder_permission(path: str,
             print(
                 _(
                     "Incorrect folder ownership detected. Changing ownership of and "
-                    "resetting permissions for"
-                ), path
+                    "resetting permissions for {file_system_path}."
+                ).format(file_system_path=path)
             )
             # For some reason (probably they compiled some software as root),
             # some users report that
@@ -1151,7 +1151,7 @@ def query_uninstall(interactive: bool) -> bool:
 
     answer = input(
         '\n' + _(
-            'Do you want to to uninstall the previous version of Rapid Photo Downloader:'
+            'Do you want to to uninstall the previous version of Rapid Photo Downloader?'
         ) + ' [Y/n]'
     )
     return get_yes_no(answer)
@@ -1528,7 +1528,7 @@ def uninstall_old_version(distro_family: Distro,
                 print(
                     _(
                         "Unable to query package system. Please check your Internet connection and "
-                        "try again"
+                        "try again."
                     )
                 )
                 sys.exit(1)
@@ -1542,7 +1542,6 @@ def uninstall_old_version(distro_family: Distro,
                     installer_to_delete_on_error=installer_to_delete_on_error
                 )
                 system_uninstall = True
-
 
     elif distro_family == Distro.opensuse:
         print(
@@ -3009,7 +3008,7 @@ def main():
             sys.stderr.write(
                 _(
                     "Install the following packages using your Linux distribution's standard "
-                    "package manager, and then rerun this installer"
+                    "package manager, and then rerun this installer:"
                 ) + "\n"
             )
             sys.stderr.write(packages + '\n')

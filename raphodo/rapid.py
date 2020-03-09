@@ -5987,7 +5987,7 @@ def parser_options(formatter_class=argparse.HelpFormatter):
     )
     parser.add_argument(
         "--video-renaming", choices=['on','off'], dest="video_renaming",
-        help=_("turn on or off the the renaming of videos.")
+        help=_("Turn on or off the the renaming of videos.")
     )
     parser.add_argument(
         "-a", "--auto-detect", choices=['on','off'], dest="auto_detect",
@@ -6171,7 +6171,7 @@ def import_prefs() -> None:
     with raphodo.utilities.stdchannel_redirected(sys.stderr, os.devnull):
         value = run_cmd('program_version')
         if not value:
-            print(_("No prior program preferences detected: exiting"))
+            print(_("No prior program preferences detected: exiting."))
             return
         else:
             print(
@@ -6532,7 +6532,7 @@ def main():
         d.update_table(reset=True)
         cache = ThumbnailCacheSql(create_table_if_not_exists=False)
         cache.purge_cache()
-        print(_("All settings and caches have been reset"))
+        print(_("All settings and caches have been reset."))
         logging.debug("Exiting immediately after full reset")
         sys.exit(0)
 
@@ -6540,13 +6540,13 @@ def main():
         if args.delete_thumb_cache:
             cache = ThumbnailCacheSql(create_table_if_not_exists=False)
             cache.purge_cache()
-            print(_("Thumbnail Cache has been reset"))
+            print(_("Thumbnail Cache has been reset."))
             logging.debug("Thumbnail Cache has been reset")
 
         if args.forget_files:
             d = DownloadedSQL()
             d.update_table(reset=True)
-            print(_("Remembered files have been forgotten"))
+            print(_("Remembered files have been forgotten."))
             logging.debug("Remembered files have been forgotten")
 
         if args.import_prefs:
