@@ -860,9 +860,7 @@ class RapidWindow(QMainWindow):
 
         # Setup notification system
         try:
-            self.have_libnotify = Notify.init('rapid-photo-downloader')
-            self.ctime_update_notification = None  # type: Optional[Notify.Notification]
-            self.ctime_notification_issued = False
+            self.have_libnotify = Notify.init(_('Rapid Photo Downloader'))
         except:
             logging.error("Notification intialization problem")
             self.have_libnotify = False
@@ -3218,10 +3216,6 @@ Do you want to proceed with the download?
                     if not do_download:
                         return
 
-            # Suppress showing a notification message about any timeline
-            # and provisional folders rebuild - download takes priority
-            self.ctime_notification_issued = False
-
             # Set time download is starting if it is not already set
             # it is unset when all downloads are completed
             # It is used in file renaming
@@ -4239,150 +4233,6 @@ Do you want to proceed with the download?
         logging.info('%s', downloaded)
         self.statusBar().showMessage(downloaded)
 
-    def notifyFoldersProximityRebuild(self, scan_id) -> None:
-        """
-        Inform the user that a timeline rebuild and folder preview update is pending,
-        taking into account they may have already been notified.
-        """
-
-        if self.have_libnotify:
-            device = self.devices[scan_id]
-            notification_devices = self.thumbnailModel.ctimes_differ
-
-            logging.info(
-                "Need to rebuild timeline and subfolder previews for %s", device.display_name
-            )
-
-            simple_message = len(notification_devices) == 1
-
-            this_computer = len(
-                [
-                    scan_id for scan_id in notification_devices
-                    if self.devices[scan_id].device_type == DeviceType.path
-                ]
-            ) > 0
-
-            if simple_message:
-                if device.device_type == DeviceType.camera:
-                    # Translators: %(variable)s represents Python code, not a plural of the term
-                    # variable. You must keep the %(variable)s untranslated, or the program will
-                    # crash.
-                    message = _(
-                        "The Destination subfolders and Timeline will be rebuilt after "
-                        "all thumbnails have been generated for the %(camera)s"
-                    ) % dict(camera=device.display_name)
-                elif this_computer:
-                    message = _(
-                        "The Destination subfolders and Timeline will be rebuilt after "
-                        "all thumbnails have been generated for this computer"
-                    )
-                else:
-                    # Translators: %(variable)s represents Python code, not a plural of the term
-                    # variable. You must keep the %(variable)s untranslated, or the program will
-                    # crash.
-                    message = _(
-                        "The Destination subfolders and Timeline will be rebuilt after "
-                        "all thumbnails have been generated for %(device)s"
-                    ) % dict(device=device.display_name)
-            else:
-                no_devices = len(notification_devices)
-                if this_computer:
-                    no_devices -= 1
-                    if no_devices > 1:
-                        # Translators: %(variable)s represents Python code, not a plural of the term
-                        # variable. You must keep the %(variable)s untranslated, or the program will
-                        # crash.
-                        message = _(
-                            "The Destination subfolders and Timeline will be rebuilt after all "
-                            "thumbnails have been generated for %(number_devices)s devices and "
-                            "this computer"
-                        ) % dict(number_devices=no_devices)
-                    else:
-                        assert no_devices == 1
-                        if device.device_type != DeviceType.path:
-                            other_device = device
-                        else:
-                            # the other device must be the first one
-                            other_device = self.devices[notification_devices[0]]
-                        name = other_device.display_name
-                        if other_device.device_type == DeviceType.camera:
-                            # Translators: %(variable)s represents Python code, not a plural of the
-                            # term variable. You must keep the %(variable)s untranslated, or the
-                            # program will crash.
-                            message = _(
-                                "The Destination subfolders and Timeline will be rebuilt after "
-                                "all thumbnails have been generated for the %(camera)s and this "
-                                "computer"
-                            ) % dict(camera=name)
-                        else:
-                            # Translators: %(variable)s represents Python code, not a plural of the
-                            # term variable. You must keep the %(variable)s untranslated, or the
-                            # program will crash.
-                            message = _(
-                                "The Destination subfolders and Timeline will be rebuilt after "
-                                "all thumbnails have been generated for %(device)s and this "
-                                "computer"
-                            ) % dict(device=name)
-                else:
-                    # Translators: %(variable)s represents Python code, not a plural of the term
-                    # variable. You must keep the %(variable)s untranslated, or the program will
-                    # crash.
-                    message = _(
-                            "The Destination subfolders and Timeline will be rebuilt after all "
-                            "thumbnails have been generated for %(number_devices)s devices"
-                        ) % dict(number_devices=no_devices)
-
-            if self.ctime_update_notification is None:
-                notify = Notify.Notification.new(
-                    _('Rapid Photo Downloader'), message, 'rapid-photo-downloader'
-                )
-            else:
-                notify = self.ctime_update_notification
-                notify.update(_('Rapid Photo Downloader'), message, 'rapid-photo-downloader')
-            try:
-                message_shown = notify.show()
-                if message_shown:
-                    self.ctime_notification_issued = True
-                notify.connect('closed', self.notificationFoldersProximityRefreshClosed)
-            except:
-                logging.error("Unable to display message using notification system")
-            self.ctime_update_notification = notify
-
-    def notifyFoldersProximityRebuilt(self) -> None:
-        """
-        Inform the user that the the refresh has occurred, updating the existing
-        message if need be.
-        """
-
-        if self.have_libnotify:
-            message = _(
-                "The Destination subfolders and Timeline have been rebuilt"
-            )
-
-            if self.ctime_update_notification is None:
-                notify = Notify.Notification.new(
-                    _('Rapid Photo Downloader'), message, 'rapid-photo-downloader'
-                )
-            else:
-                notify = self.ctime_update_notification
-                notify.update(_('Rapid Photo Downloader'), message, 'rapid-photo-downloader')
-            try:
-                message_shown = notify.show()
-            except:
-                logging.error("Unable to display message using notification system")
-
-            self.ctime_update_notification = None
-
-    def notificationFoldersProximityRefreshClosed(self, notify: Notify.Notification) -> None:
-        """
-        Delete our reference to the notification that was used to inform the user
-        that the timeline and preview folders will be. If it's not deleted, there will
-        be glib problems at program exit, when the reference is deleted.
-        :param notify: the notification itself
-        """
-
-        self.ctime_update_notification = None
-
     def invalidDownloadFolders(self, downloading: DownloadingFileTypes) -> List[str]:
         """
         Checks validity of download folders based on the file types the
@@ -4763,9 +4613,6 @@ Do you want to proceed with the download?
     def proximityGroupsGenerated(self, proximity_groups: TemporalProximityGroups) -> None:
         if self.temporalProximity.setGroups(proximity_groups=proximity_groups):
             self.thumbnailModel.assignProximityGroups(proximity_groups.col1_col2_uid)
-            if self.ctime_notification_issued:
-                self.notifyFoldersProximityRebuilt()
-                self.ctime_notification_issued = False
 
     def closeEvent(self, event) -> None:
         logging.debug("Close event activated")
@@ -4809,9 +4656,6 @@ Do you want to proceed with the download?
 
         logging.debug("Terminating main ExifTool process")
         self.exiftool_process.terminate()
-
-        if self.ctime_update_notification is not None:
-            self.ctime_update_notification = None
 
         self.sendStopToThread(self.offload_controller)
         self.offloadThread.quit()

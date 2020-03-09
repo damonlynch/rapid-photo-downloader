@@ -860,8 +860,8 @@ class ThumbnailListModel(QAbstractListModel):
         self.rapidApp.temporalProximity.setState(TemporalProximityState.ctime_rebuild)
         if not self.rapidApp.downloadIsRunning():
             self.rapidApp.folder_preview_manager.remove_folders_for_device(
-                scan_id=scan_id)
-            self.rapidApp.notifyFoldersProximityRebuild(scan_id)
+                scan_id=scan_id
+            )
 
     def processCtimeDisparity(self, scan_id: int) -> None:
         """

@@ -1072,7 +1072,7 @@ def enable_centos_epel(distro: Distro, version: LooseVersion, interactive: bool)
 
     if repos.find('epel') < 0:
         # Translators: do not translate the term EPEL
-        print(_("The EPEL repository must be enabled"))
+        print(_("The EPEL repository must be enabled."))
 
         if distro == Distro.centos7:
             cmds = (
@@ -1107,7 +1107,7 @@ def enable_rpmfusion_free(distro: Distro, version: LooseVersion, interactive: bo
         repos = fedora_centos_repolist(distro=distro)
         if repos.find('rpmfusion-free') < 0:
             # Translators: do not translate the term RPM Fusion Free
-            print(_("The RPM Fusion Free repository must be enabled"))
+            print(_("The RPM Fusion Free repository must be enabled."))
 
             if distro == Distro.fedora:
                 cmds = (
@@ -2165,7 +2165,7 @@ def get_installer_url_md5(devel: bool):
     try:
         r = requests.get(remote_versions_file)
     except:
-        print(_("Failed to download versions file"), remote_versions_file)
+        print(_("Failed to download versions file."), remote_versions_file)
     else:
         status_code = r.status_code
         if status_code != 200:
@@ -2426,7 +2426,7 @@ def check_install_status(i: int,
             cleanup_on_exit(installer_to_delete_on_error)
             sys.stderr.write(_("Received error code") + " " + str(i) + "\n")
             if is_requirements:
-                msg = _("Failed to install application requirements: exiting")
+                msg = _("Failed to install application requirements: exiting.")
             else:
                 msg = _("Failed to install application: exiting...")
             sys.stderr.write(msg + "\n")
@@ -2666,7 +2666,7 @@ def do_install(installer: str,
             try:
                 subprocess.check_call(args)
             except subprocess.CalledProcessError:
-                sys.stderr.write(_("Failed to create man page directory: exiting") + "\n")
+                sys.stderr.write(_("Failed to create man page directory: exiting.") + "\n")
                 install_man_page = False
 
         if install_man_page:
