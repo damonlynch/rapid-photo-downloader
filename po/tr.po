@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-03-09 16:28-0400\n"
+"POT-Creation-Date: 2020-03-10 15:14-0400\n"
 "PO-Revision-Date: 2020-03-09 17:00-0400\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -5392,16 +5392,9 @@ msgid "The main window"
 msgstr "Ana pencere"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:7
-msgid "Downloading"
-msgstr "İndiriliyor"
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:8
-msgid "The Timeline"
-msgstr "Zaman Çizelgesi"
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:9
-msgid "Right-clicking on a device"
-msgstr "Bir cihaza sağ tıklayarak"
+#, fuzzy
+msgid "Renaming"
+msgstr "Fotoğraf Yeniden Adlandırma"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:2
 msgid "Photo Downloader"
@@ -5419,6 +5412,15 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader ile Fotoğraf ve Video İndirin"
+
+#~ msgid "Downloading"
+#~ msgstr "İndiriliyor"
+
+#~ msgid "The Timeline"
+#~ msgstr "Zaman Çizelgesi"
+
+#~ msgid "Right-clicking on a device"
+#~ msgstr "Bir cihaza sağ tıklayarak"
 
 #~ msgid ""
 #~ "The Destination subfolders and Timeline will be rebuilt after all "

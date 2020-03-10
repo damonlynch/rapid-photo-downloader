@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-03-09 16:28-0400\n"
+"POT-Creation-Date: 2020-03-10 15:14-0400\n"
 "PO-Revision-Date: 2020-03-09 17:02-0400\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
@@ -4666,16 +4666,9 @@ msgid "The main window"
 msgstr ""
 
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:7
-msgid "Downloading"
-msgstr ""
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:8
-msgid "The Timeline"
-msgstr ""
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:9
-msgid "Right-clicking on a device"
-msgstr ""
+#, fuzzy
+msgid "Renaming"
+msgstr "重命名选项"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:2
 msgid "Photo Downloader"
@@ -4997,9 +4990,6 @@ msgstr "使用Rapid Photo Downloader下载照片和视频。"
 
 #~ msgid "Import your photos and videos efficiently and reliably"
 #~ msgstr "高效可靠地导入你的照片和视频"
-
-#~ msgid "Rename Options"
-#~ msgstr "重命名选项"
 
 #~ msgid "R_emove All"
 #~ msgstr "全部删除 (_E)"

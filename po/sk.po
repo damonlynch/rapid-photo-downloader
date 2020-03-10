@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-03-09 16:28-0400\n"
+"POT-Creation-Date: 2020-03-10 15:14-0400\n"
 "PO-Revision-Date: 2020-03-09 16:47-0400\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Slovak <sk@li.org>\n"
@@ -4693,16 +4693,9 @@ msgid "The main window"
 msgstr ""
 
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:7
-msgid "Downloading"
-msgstr ""
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:8
-msgid "The Timeline"
-msgstr ""
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:9
-msgid "Right-clicking on a device"
-msgstr ""
+#, fuzzy
+msgid "Renaming"
+msgstr "Nastavenie premenovanie"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:2
 msgid "Photo Downloader"
@@ -4904,9 +4897,6 @@ msgstr ""
 
 #~ msgid "R_emove All"
 #~ msgstr "O_dstrániť všetko"
-
-#~ msgid "Rename Options"
-#~ msgstr "Nastavenie premenovanie"
 
 #~ msgid "Preferences: Rapid Photo Downloader"
 #~ msgstr "Nastavenie: Rapid Photo Downloader"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-03-09 16:28-0400\n"
+"POT-Creation-Date: 2020-03-10 15:14-0400\n"
 "PO-Revision-Date: 2020-03-09 16:41-0400\n"
 "Last-Translator: João Ornelas <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -4657,16 +4657,9 @@ msgid "The main window"
 msgstr ""
 
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:7
-msgid "Downloading"
-msgstr ""
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:8
-msgid "The Timeline"
-msgstr ""
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:9
-msgid "Right-clicking on a device"
-msgstr ""
+#, fuzzy
+msgid "Renaming"
+msgstr "Renomear Opções"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:2
 msgid "Photo Downloader"
@@ -5487,9 +5480,6 @@ msgstr ""
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Códigos de Tarefa</span>"
-
-#~ msgid "Rename Options"
-#~ msgstr "Renomear Opções"
 
 #~ msgid ""
 #~ "Devices are from where to download photos and videos, such as cameras, "

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-03-09 16:28-0400\n"
+"POT-Creation-Date: 2020-03-10 15:14-0400\n"
 "PO-Revision-Date: 2020-03-09 16:38-0400\n"
 "Last-Translator: Kevin Brubeck Unhammer <Unknown>\n"
 "Language-Team: Norwegian Nynorsk <nn@li.org>\n"
@@ -4938,16 +4938,9 @@ msgid "The main window"
 msgstr "Hovudvindauget"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:7
-msgid "Downloading"
-msgstr "Lastar ned"
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:8
-msgid "The Timeline"
-msgstr "Tidslinja"
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:9
-msgid "Right-clicking on a device"
-msgstr "Høgreklikk på ei eining"
+#, fuzzy
+msgid "Renaming"
+msgstr "Biletomdøyping"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:2
 msgid "Photo Downloader"
@@ -4965,6 +4958,15 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Last ned bilete og videoar med Rapid Photo Downloader"
+
+#~ msgid "Downloading"
+#~ msgstr "Lastar ned"
+
+#~ msgid "The Timeline"
+#~ msgstr "Tidslinja"
+
+#~ msgid "Right-clicking on a device"
+#~ msgstr "Høgreklikk på ei eining"
 
 #~ msgid "Python 3's pip and setuptools must be upgraded for your user."
 #~ msgstr ""

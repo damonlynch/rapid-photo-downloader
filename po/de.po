@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-03-09 16:28-0400\n"
+"POT-Creation-Date: 2020-03-10 15:14-0400\n"
 "PO-Revision-Date: 2020-03-09 16:29-0400\n"
 "Last-Translator: Dan Cooper <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
@@ -5372,16 +5372,9 @@ msgid "The main window"
 msgstr "Das Hauptfenster"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:7
-msgid "Downloading"
-msgstr "Wird heruntergeladen"
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:8
-msgid "The Timeline"
-msgstr "Die Zeitleiste"
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:9
-msgid "Right-clicking on a device"
-msgstr "Gerät mit Rechtsklick auswählen"
+#, fuzzy
+msgid "Renaming"
+msgstr "Fotoumbenennung"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:2
 msgid "Photo Downloader"
@@ -5399,6 +5392,15 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Fotos und Videos mit Rapid-Fotoübertragung übertragen"
+
+#~ msgid "Downloading"
+#~ msgstr "Wird heruntergeladen"
+
+#~ msgid "The Timeline"
+#~ msgstr "Die Zeitleiste"
+
+#~ msgid "Right-clicking on a device"
+#~ msgstr "Gerät mit Rechtsklick auswählen"
 
 #~ msgid ""
 #~ "The Destination subfolders and Timeline will be rebuilt after all "

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-03-09 16:28-0400\n"
+"POT-Creation-Date: 2020-03-10 15:14-0400\n"
 "PO-Revision-Date: 2020-03-09 16:18-0400\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -4673,16 +4673,9 @@ msgid "The main window"
 msgstr "Hovedvinduet"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:7
-msgid "Downloading"
-msgstr "Henter"
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:8
-msgid "The Timeline"
-msgstr "Tidslinien"
-
-#: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:9
-msgid "Right-clicking on a device"
-msgstr "Højreklikke på en enhed"
+#, fuzzy
+msgid "Renaming"
+msgstr "Indstillinger for omdøbning"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:2
 msgid "Photo Downloader"
@@ -4700,6 +4693,15 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Hent fotos og videoer med Rapid Photo Downloader"
+
+#~ msgid "Downloading"
+#~ msgstr "Henter"
+
+#~ msgid "The Timeline"
+#~ msgstr "Tidslinien"
+
+#~ msgid "Right-clicking on a device"
+#~ msgstr "Højreklikke på en enhed"
 
 #~ msgid "%(device)s did not unmount"
 #~ msgstr "%(device)s kunne ikke afmonteres"
@@ -5378,9 +5380,6 @@ msgstr "Hent fotos og videoer med Rapid Photo Downloader"
 
 #~ msgid "Remembered Paths"
 #~ msgstr "Huskede stier"
-
-#~ msgid "Rename Options"
-#~ msgstr "Indstillinger for omdøbning"
 
 #~ msgid "Video Rename"
 #~ msgstr "Video omdøbning"

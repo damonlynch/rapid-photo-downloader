@@ -58,19 +58,11 @@
   <screenshots>
     <screenshot type="default">
         <_caption>The main window</_caption>
-        <image>https://www.damonlynch.net/rapid/appdata/2017/07/mainwindow.png</image>
+        <image type="source" width="1600" height="900">https://www.damonlynch.net/rapid/metainfo/2020/03/mainwindow.png</image>
     </screenshot>
     <screenshot>
-        <_caption>Downloading</_caption>
-        <image>https://www.damonlynch.net/rapid/appdata/2017/07/downloading.png</image>
-    </screenshot>
-    <screenshot>
-        <_caption>The Timeline</_caption>
-        <image>https://www.damonlynch.net/rapid/appdata/2017/07/timeline.png</image>
-    </screenshot>
-    <screenshot>
-        <_caption>Right-clicking on a device</_caption>
-        <image>https://www.damonlynch.net/rapid/appdata/2017/07/rightclick.png</image>
+        <_caption>Renaming</_caption>
+        <image type="source" width="1600" height="900">https://www.damonlynch.net/rapid/metainfo/2020/03/photorename.png</image>
     </screenshot>
   </screenshots>
 </component>
