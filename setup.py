@@ -314,6 +314,7 @@ class build_icons(distutils.cmd.Command):
                         )
                     )
 
+
 class clean_extra(clean):
     def run(self):
         clean.run(self)
