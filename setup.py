@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (C) 2009-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2009-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,7 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-# Copyright 2009-2017 Damon Lynch
+# Copyright 2009-2020 Damon Lynch
 # Contains portions Copyright 2014 Donald Stufft
 # Contains portions Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, Canonical Ltd
 
@@ -48,7 +48,9 @@ class build_extra(distutils.command.build.build):
     Adds the extra commands to the build target. This class should be used
     with the core distutils
 
-    Taken straight from DistutilsExtra, minus finalize_options
+    Taken straight from DistutilsExtra, minus finalize_options.
+
+    March, 2020: delete setup.cfg, place options here
     """
     def __init__(self, dist):
         distutils.command.build.build.__init__(self, dist)
@@ -59,8 +61,8 @@ class build_extra(distutils.command.build.build):
                                   ("help", None, "use help system")])
     def initialize_options(self):
         distutils.command.build.build.initialize_options(self)
-        self.i18n = False
-        self.icons = False
+        self.i18n = True
+        self.icons = True
         self.help = False
         self.kdeui = False
 
@@ -92,6 +94,8 @@ class build_extra_commands(build_extra):
 class build_extra_man_page(build_extra_commands):
     """
     Taken from the Canonical project 'germinate'
+
+    March, 2020: delete setup.cfg, place options here
     """
     def __init__(self, dist):
         super().__init__(dist)
@@ -99,7 +103,7 @@ class build_extra_man_page(build_extra_commands):
 
     def initialize_options(self):
         super().initialize_options()
-        self.pod2man = False
+        self.pod2man = True
 
     def finalize_options(self):
         def has_pod2man(command):
@@ -113,6 +117,7 @@ class build_pod2man(Command):
     """
     Based on code in the Canonical project 'germinate'
     """
+
     description = "build POD manual pages"
 
     user_options = [('pod-files=', None, 'POD files to build')]
@@ -135,7 +140,11 @@ class build_pod2man(Command):
 
 
 class build_i18n(distutils.cmd.Command):
-    """ Taken straight from DistutilsExtra"""
+    """
+    Taken straight from DistutilsExtra
+
+    March, 2020: delete setup.cfg, place options here
+    """
 
     description = "integrate the gettext framework"
 
@@ -155,16 +164,21 @@ class build_i18n(distutils.cmd.Command):
     boolean_options = ['merge-po']
 
     def initialize_options(self):
-        self.desktop_files = []
-        self.xml_files = []
+        self.desktop_files = [
+            ("share/applications", ("data/net.damonlynch.rapid_photo_downloader.desktop.in",)),
+            ("share/solid/actions", ("data/kde/net.damonlynch.rapid_photo_downloader.desktop.in",))
+        ]
+        self.xml_files = [
+            ("share/metainfo", ("data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in",))
+        ]
         self.key_files = []
         self.schemas_files = []
         self.ba_files = []
         self.rfc822deb_files = []
-        self.domain = None
+        self.domain = 'rapid-photo-downloader'
         self.merge_po = False
-        self.bug_contact = None
-        self.po_dir = None
+        self.bug_contact = 'damonlynch@gmail.com'
+        self.po_dir = 'po'
 
     def finalize_options(self):
         if self.domain is None:
