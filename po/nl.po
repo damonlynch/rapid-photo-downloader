@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-03-10 15:14-0400\n"
-"PO-Revision-Date: 2020-03-09 16:35-0400\n"
+"POT-Creation-Date: 2020-03-12 00:48-0400\n"
+"PO-Revision-Date: 2020-03-11 17:24+0000\n"
 "Last-Translator: A.J. Baudrez <a.baudrez@gmail.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2020-03-08 02:08+0000\n"
-"X-Generator: Poedit 2.2.4\n"
+"X-Launchpad-Export-Date: 2020-03-12 02:20+0000\n"
+"X-Generator: Launchpad (build e0878392dc799b267dea80578fa65500a5d74155)\n"
 
 #: ../install.py:72
 msgid ""
@@ -2014,7 +2014,7 @@ msgstr "Camera model (kort)"
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: ../raphodo/generatenameconfig.py:241
 msgid "Hyphenated short camera model"
-msgstr "Model met afgebroken korte camera"
+msgstr "Cameramodel zonder merknaam"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
@@ -5441,9 +5441,8 @@ msgid "The main window"
 msgstr "Hoofdvenster"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:7
-#, fuzzy
 msgid "Renaming"
-msgstr "Foto hernoemen"
+msgstr ""
 
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:2
 msgid "Photo Downloader"
@@ -5461,70 +5460,6 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Download Foto's en Video's met Rapid Photo Downloader"
-
-#~ msgid "Downloading"
-#~ msgstr "Aan het downloaden"
-
-#~ msgid "The Timeline"
-#~ msgstr "Tijdslijn"
-
-#~ msgid "Right-clicking on a device"
-#~ msgstr "Rechts klikken op een apparaat"
-
-#~ msgid ""
-#~ "The Destination subfolders and Timeline will be rebuilt after all "
-#~ "thumbnails have been generated for the %(camera)s"
-#~ msgstr ""
-#~ "De bestemmings subfolders en de Tijdslijn zullen opnieuw aangemaakt "
-#~ "worden nadat de miniaturen voor de %(camera)s gegenereerd  zijn."
-
-#~ msgid ""
-#~ "The Destination subfolders and Timeline will be rebuilt after all "
-#~ "thumbnails have been generated for this computer"
-#~ msgstr ""
-#~ "De bestemmings subfolders en de Tijdslijn zullen opnieuw aangemaakt "
-#~ "worden nadat de miniaturen voor de deze computer gegenereerd zijn."
-
-#~ msgid ""
-#~ "The Destination subfolders and Timeline will be rebuilt after all "
-#~ "thumbnails have been generated for %(device)s"
-#~ msgstr ""
-#~ "De bestemmings subfolders en de Tijdslijn zullen opnieuw aangemaakt "
-#~ "worden nadat de miniaturen voor %(device)s gegenereerd  zijn."
-
-#~ msgid ""
-#~ "The Destination subfolders and Timeline will be rebuilt after all "
-#~ "thumbnails have been generated for %(number_devices)s devices and this "
-#~ "computer"
-#~ msgstr ""
-#~ "De bestemmings subfolders en de Tijdslijn zullen opnieuw aangemaakt "
-#~ "worden nadat de miniaturen voor %(number_devices)s apparaten en deze "
-#~ "computer gegenereerd zijn."
-
-#~ msgid ""
-#~ "The Destination subfolders and Timeline will be rebuilt after all "
-#~ "thumbnails have been generated for the %(camera)s and this computer"
-#~ msgstr ""
-#~ "De bestemmings subfolders en de Tijdslijn zullen opnieuw aangemaakt "
-#~ "worden nadat de miniaturen voor de %(camera)s en deze computer "
-#~ "gegenereerd zijn."
-
-#~ msgid ""
-#~ "The Destination subfolders and Timeline will be rebuilt after all "
-#~ "thumbnails have been generated for %(device)s and this computer"
-#~ msgstr ""
-#~ "De bestemmings subfolder en de Tijdslijn zullen opnieuw aangemaakt worden "
-#~ "nadat de miniaturen voor %(device)s en deze computer gegenereerd zijn."
-
-#~ msgid ""
-#~ "The Destination subfolders and Timeline will be rebuilt after all "
-#~ "thumbnails have been generated for %(number_devices)s devices"
-#~ msgstr ""
-#~ "De bestemmings subfolder en de Tijdslijn zullen opnieuw aangemaakt worden "
-#~ "nadat de miniaturen voor %(number_devices)s apparaten gegenereerd zijn."
-
-#~ msgid "The Destination subfolders and Timeline have been rebuilt"
-#~ msgstr "De bestemmings submappen en de Tijdslijn zijn opnieuw aangemaakt"
 
 #~ msgid "Berlin"
 #~ msgstr "Berlijn"

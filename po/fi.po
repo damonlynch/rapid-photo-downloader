@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-03-10 15:14-0400\n"
+"POT-Creation-Date: 2020-03-12 00:48-0400\n"
 "PO-Revision-Date: 2020-03-09 16:26-0400\n"
 "Last-Translator: Open kartat <Unknown>\n"
 "Language-Team: Finnish <fi@li.org>\n"
@@ -1926,13 +1926,13 @@ msgstr ""
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:372
 msgid "HHMMSS"
-msgstr "HHMMSS"
+msgstr "hhmmss"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: ../raphodo/generatenameconfig.py:375
 msgid "HHMM"
-msgstr "HHMM"
+msgstr "hhmm"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime

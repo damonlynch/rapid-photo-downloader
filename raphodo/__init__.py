@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Initialize gettext translations.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016, Damon Lynch"
+__copyright__ = "Copyright 2016-2020, Damon Lynch"
 
 from typing import Optional
 import os
@@ -51,6 +51,7 @@ def locale_directory() -> Optional[str]:
             if os.path.getmtime(sample_path) > locale_mtime:
                 locale_dir = locale_path
     return locale_dir
+
 
 i18n_domain = 'rapid-photo-downloader'
 localedir = locale_directory()

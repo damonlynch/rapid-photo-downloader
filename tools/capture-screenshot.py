@@ -34,14 +34,36 @@ import os
 import shutil
 import sys
 import shlex
+import glob
+
+from PyQt5.QtGui import QImage, QColor, QGuiApplication, QPainter, QPen
+from PyQt5.QtCore import QRect, Qt
+
+window_x = 920
+window_y = 100
+titlebar_height = 37
+width = 1600
+height = 900
+
+top_border_color = QColor(163, 160, 158, 255)
+left_border_color = QColor(159, 156, 154, 255)
 
 wmctrl = shutil.which('wmctrl')
 gm = shutil.which('gm')
+gnome_screenshot = shutil.which('gnome-screenshot')
 
 
 pictures_directory = os.path.join(os.path.expanduser('~'), 'Pictures')
-mask = os.path.join(pictures_directory, 'mask.png')
 
+# mask = os.path.join(pictures_directory, 'mask.png')
+
+# no longer required:
+gimp_script_directory = os.path.join(
+    os.path.expanduser('~'), '.config', 'GIMP', '2.10', 'scripts'
+)
+gimp = shutil.which('gimp')
+gimp_script_name = 'zealous-crop-png'
+gimp_script = os.path.join(gimp_script_directory, '{}.scm'.format(gimp_script_name))
 
 def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentParser:
     """
@@ -49,14 +71,21 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
 
     :return: the parser
     """
+
     parser = argparse.ArgumentParser(
         prog=__title__, formatter_class=formatter_class, description=__description__
     )
 
     parser.add_argument('file', help='Name of screenshot')
-    parser.add_argument('--gimp', help="Screenshot from Gimp zealous crop", default=False)
+    parser.add_argument(
+        '--screenshot', action='store_true', default=False,
+        help="Screenshot that needs to be cropped, from some other tool"
+    )
+    parser.add_argument(
+        '--titlebar', action='store_true', default=False,
+        help="When moving window, move the image down by the titlebar height"
+    )
     return parser
-
 
 
 def check_requirements() -> None:
@@ -66,8 +95,10 @@ def check_requirements() -> None:
 
     global wmctrl
     global gm
+    global gnome_screenshot
 
-    for program, package in ((wmctrl, 'wmctrl'), (gm, 'graphicsmagick')):
+    for program, package in ((wmctrl, 'wmctrl'), (gm, 'graphicsmagick'),
+                             (gnome_screenshot, 'gnome-screenshot')):
         if program is None:
             print("Installing {}".format(package))
             cmd = 'sudo apt -y install {}'.format(package)
@@ -76,50 +107,201 @@ def check_requirements() -> None:
 
     wmctrl = shutil.which('wmctrl')
     gm = shutil.which('gm')
+    gnome_screenshot = shutil.which('gnome-screenshot')
 
-    if not os.path.isfile(mask):
-        sys.stderr.write("Add {}".format(mask))
+
+def get_program_name() -> str:
+    """
+    Get program title, if it's not English
+
+    Getting translated names automatically does not work. Not sure why.
+
+    :return: name in title bar of Rapid Photo Downloader
+    """
+
+    cmd = '{wmctrl} -l'.format(wmctrl=wmctrl)
+    args = shlex.split(cmd)
+    result = subprocess.run(args, capture_output=True, universal_newlines=True)
+    if result.returncode == 0:
+        window_list = result.stdout
+    else:
+        print("Could not get window list")
         sys.exit(1)
+
+    if "Rapid Photo Downloader" in window_list:
+        return "Rapid Photo Downloader"
+
+    names = (
+        'Rapid foto allalaadija',
+        'Gyors Fotó Letöltő',
+        '高速写真ダウンローダ',
+        'Rapid-Fotoübertragung',
+    )
+
+    for title in names:
+        if title in window_list:
+            return title
+
+    print("Could not determine localized program title")
+    sys.exit(1)
+
+
+def extract_image(image: str) -> QImage:
+    """"
+    Get the program window from the screenshot by detecting its borders
+    and knowing its size ahead of time
+    """
+
+    qimage = QImage(image)
+    assert not qimage.isNull()
+
+    # print("{}: {}x{}".format(image, qimage.width(), qimage.height()))
+
+    y = qimage.height() // 2
+    left = -1
+    lightness = left_border_color.lightness()
+    for x in range(0, qimage.width()):
+        if qimage.pixelColor(x, y).lightness() <= lightness:
+            left = x
+            break
+
+    if left < 0:
+        sys.stderr.write('Could not locate left window border\n')
+        sys.exit(1)
+
+    x = qimage.width() // 2
+    top = -1
+    lightness = top_border_color.lightness()
+    for y in range(0, qimage.height()):
+        if qimage.pixelColor(x, y).lightness() <= lightness:
+            top = y
+            break
+
+    if top < 0:
+        sys.stderr.write('Could not locate top window border\n')
+        sys.exit(1)
+
+    return qimage.copy(QRect(left, top, width, height))
+
+
+def add_border(image: str) -> QImage:
+    """
+    Add border to screenshot that was taken away by screenshot utility
+    :param image: image without borders
+    :return: image with borders
+    """
+
+    qimage = QImage(image)
+    painter = QPainter()
+    painter.begin(qimage)
+    pen = QPen()
+    pen.setColor(left_border_color)
+    pen.setWidth(1)
+    pen.setStyle(Qt.SolidLine)
+    pen.setJoinStyle(Qt.MiterJoin)
+    rect = QRect(0, 0, qimage.width()-1, qimage.height()-1)
+    painter.setPen(pen)
+    painter.drawRect(rect)
+    painter.end()
+    return qimage
+
+
+def add_transparency(qimage: QImage) -> QImage:
+    """
+    Add transparent window borders according to Ubuntu 19.10 titlebar style
+    :param qimage: image with non transparent top left and right corners
+    :return: image with transparent top left and right corners
+    """
+
+    if not qimage.hasAlphaChannel():
+        assert qimage.format() == QImage.Format_RGB32
+        transparent = QImage(qimage.size(), QImage.Format_ARGB32_Premultiplied)
+        transparent.fill(Qt.black)
+        painter = QPainter()
+        painter.begin(transparent)
+        painter.drawImage(0, 0, qimage)
+        painter.end()
+        qimage = transparent
+
+    image_width = qimage.width()
+    y = -1
+    for width in (5, 3, 2, 1):
+        y += 1
+        for x in range(width):
+            color = qimage.pixelColor(x, y)
+            color.setAlpha(0)
+            qimage.setPixelColor(x, y, color)
+            qimage.setPixelColor(image_width - x - 1, y, color)
+
+    return qimage
 
 
 if __name__ == '__main__':
     check_requirements()
 
     parser = parser_options()
-    args = parser.parse_args()
+    parserargs = parser.parse_args()
 
-    x = 900
-    y = 200
-    titlebar_height = 37
-    width = 1600
-    height = 900
+    app = QGuiApplication(sys.argv + ['-platform',  'offscreen'])
 
-    image = os.path.join(pictures_directory, args.file)
+    filename = "{}.png".format(parserargs.file)
 
-    resize = "{program} -r 'Rapid Photo Downloader' -e 0,{x},{y},{width},{height}".format(
-        x=x, y=y, width=width, height=height-titlebar_height, program=wmctrl
-    )
-    capture = "{program} import -window root -crop {width}x{height}+{x}+{y} -quality 90 " \
-              "{file}.png".format(
-        x=x, y=y - titlebar_height, width=width, height=height, file=image, program=gm
-    )
-    remove_offset = "{program} convert +page {file}.png {file}.png".format(
-        file=image, program=gm
+    image = os.path.join(pictures_directory, filename)
 
-    )
-    add_transparency = "{program} composite -compose CopyOpacity {mask} {file}.png " \
-                       "{file}.png".format(mask=mask, file=image, program=gm)
+    if not parserargs.screenshot:
+        program_name = get_program_name()
+        print("Working with", program_name)
 
-    crop = "{program} convert -crop {width}x{height}+17+15 -quality 90 {file}.png {file}.png".format(
-        width=width, height=height, file=image, program=gm
-    )
+        extra = titlebar_height if parserargs.titlebar else 0
 
-    if args.gimp:
-        cmds = (crop, remove_offset, add_transparency)
+        # Adjust width and height allowing for 1px border round outside of window
+        resize = "{program} -r '{program_name}' -e 0,{x},{y},{width},{height}".format(
+            x=window_x + 1, y=window_y + 1 + extra,
+            width=width - 2, height=height - titlebar_height - 2,
+            program=wmctrl, program_name=program_name
+        )
+        capture = "{program} import -window root -crop {width}x{height}+{x}+{y} -quality 90 " \
+                  "{file}".format(
+            x=window_x, y=window_y, width=width, height=height, file=image,
+            program=gm
+        )
+        remove_offset = "{program} convert +page {file} {file}".format(
+            file=image, program=gm
+
+        )
+        cmds = (resize, capture, remove_offset)
+        for cmd in cmds:
+            args = shlex.split(cmd)
+            if subprocess.run(args).returncode != 0:
+                print("Failed to complete tasks")
+                sys.exit(1)
+
+        qimage = add_border(image)
+
     else:
-        cmds = (resize, capture, remove_offset, add_transparency)
 
-    for cmd in cmds:
-        args=shlex.split(cmd)
-        subprocess.run(args)
+        screenshot = glob.glob(os.path.join(pictures_directory, "Screenshot*.png"))
+        if len(screenshot) == 1:
+            os.rename(screenshot[0], image)
+        else:
+            cmd = "{program} -a -f {path}".format(program=gnome_screenshot, path=image)
+            args = shlex.split(cmd)
+            if subprocess.run(args).returncode != 0:
+                print("Failed to capture screenshot")
+                sys.exit(1)
+
+        qimage = extract_image(image)
+
+    qimage = add_transparency(qimage)
+    qimage.save(image)
+    
+    cmd = '/usr/bin/eog {}'.format(image)
+    args = shlex.split(cmd)
+    subprocess.run(args)
+
+
+
+
+
+
 
