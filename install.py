@@ -817,6 +817,13 @@ def get_yes_no(response: str) -> bool:
     return response.lower() in ('y', 'yes', '')
 
 
+def folder_perms():
+    # 0700
+    u_only = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR
+    # 0775
+    u_g_o = u_only | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
+    return u_only, u_g_o
+
 def check_and_repair_folder_permission(path: str,
                                        owner: int,
                                        group: int,
@@ -845,10 +852,11 @@ def check_and_repair_folder_permission(path: str,
                 os.chmod(path, perm)
             except (OSError, PermissionError) as e:
                 sys.stderr.write(
-                    "Unexpected error %s setting permission for %s. Exiting\n".format(
+                    "Unexpected error %s setting permission for %s.\n".format(
                         e, path
                     )
                 )
+
 
 def local_folder_permissions(interactive: bool) -> None:
     """
@@ -861,10 +869,7 @@ def local_folder_permissions(interactive: bool) -> None:
         owner = os.getuid()
         group = os.getgid()
 
-        # 0700
-        u_only = stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR
-        # 0775
-        u_g_o = u_only | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
+        u_only, u_g_o = folder_perms()
 
         base = site.getuserbase()
         lib = os.path.join(base, 'lib')
@@ -1449,12 +1454,25 @@ def uninstall_pip_package(package: str, no_deps_only: bool) -> None:
         except Exception:
             break
 
+    if package == 'rapid-photo-downloader':
+        home_bin = os.path.join(os.path.expanduser('~'), 'bin')
+        install_path = os.path.join(site.getuserbase(), 'bin')
+
+        if dir_accessible(home_bin):
+            for executable in ('rapid-photo-downloader', 'analyze-pv-structure'):
+                symlink = os.path.join(home_bin, executable)
+                if os.path.islink(symlink):
+                    if os.readlink(symlink) == os.path.join(install_path, executable):
+                        print("Removing symlink {}".format(symlink))
+                        os.remove(symlink)
+
 
 def uninstall_with_deps():
     uninstall_pip_package('rapid-photo-downloader', no_deps_only=False)
 
     packages = 'psutil gphoto2 pyzmq pyxdg arrow python-dateutil rawkit PyPrind colorlog easygui ' \
-               'colour pymediainfo sortedcontainers requests tornado'
+               'colour pymediainfo sortedcontainers requests tornado pyheif'
+
     if pypi_pyqt5_capable():
         version = python_package_version('PyQt5')
 
@@ -1489,8 +1507,9 @@ def uninstall_old_version(distro_family: Distro,
 
     if distro_family == Distro.debian:
         print(
-            _("Querying package system to see if an older version of Rapid Photo Downloader is "
-              "installed (this may take a while)..."
+            _(
+                "Querying package system to see if an older version of Rapid Photo Downloader is "
+                "installed (this may take a while)..."
               )
         )
         try:
@@ -2446,6 +2465,124 @@ def version_no_valid(version: str) -> bool:
         return False
 
 
+def file_accessible(path: str) -> bool:
+    return os.path.isfile(path) and os.access(path, os.R_OK)
+
+
+def dir_accessible(path: str) -> bool:
+    return os.path.isdir(path) and os.access(path, os.W_OK)
+
+
+def probe_debian_dot_profile(home: str, subdir: str):
+    """
+    Use Debian profile defaults to determine if subdir is already or
+    (more tricky) would be on the next reboot a valid path
+
+    :param home: user home directory
+    :param subdir: subdirectory to test for
+    """
+
+    bin_dir_to_use = ''
+    created_dir = False
+    user_must_reboot = False
+
+    full_path = os.path.join(home, subdir)
+
+    re_search = r'^[^#]*?\$HOME{}{}'.format(os.sep, subdir)
+    profile = os.path.join(home, '.profile')
+    bash_profile = os.path.join(home, '.bash_profile')
+    bash_login = os.path.join(home, '.bash_login')
+    if file_accessible(profile) and not (
+            file_accessible(bash_login) or file_accessible(bash_profile)):
+        with open(profile, 'r') as dot_profile:
+            content = dot_profile.read()
+            match = re.search(re_search, content, re.MULTILINE)
+            if match:
+                bin_dir_to_use = subdir
+                if not os.path.isdir(full_path):
+                    print("Creating directory", full_path)
+                    os.mkdir(full_path)
+                    created_dir = True
+                    user_must_reboot = True
+                elif full_path not in os.getenv('PATH'):
+                    user_must_reboot = True
+
+    return bin_dir_to_use, created_dir, user_must_reboot
+
+
+def distro_bin_dir(distro_family: Distro, interactive: bool):
+    """
+    Determine the most appropriate bin directory for this distro and its environment.
+
+    :return: Tuple of path to bin directory and details about it
+    """
+
+    bin_dir_to_use = ''
+    created_dir = False
+    user_must_add_to_path = False
+    user_must_reboot = False
+    create_sym_link = False
+
+    home = os.path.expanduser('~')
+    local_bin = os.path.join(os.path.split(site.getuserbase())[1], 'bin')
+    path = os.getenv('PATH')
+
+    local_bin_path = os.path.join(home, local_bin)
+
+    if local_bin_path in path and dir_accessible(local_bin_path):
+        print("Using existing path {} for program executable".format(local_bin_path))
+        bin_dir_to_use = local_bin
+
+    elif distro_family == Distro.debian:
+        bin_dir_to_use, created_dir, user_must_reboot = probe_debian_dot_profile(
+            home=home, subdir=local_bin
+        )
+
+    if not bin_dir_to_use:
+        # Use ~/bin for everything else. Especially true for openSUSE, because that's the only
+        # choice.
+        home_bin = os.path.join(home, 'bin')
+        if dir_accessible(home_bin):
+            bin_dir_to_use = 'bin'
+            if home_bin in path:
+                print("Using existing path {} for program executable".format(home_bin))
+            else:
+                user_must_add_to_path = True
+
+        elif distro_family == Distro.debian:
+            bin_dir_to_use, created_dir, user_must_reboot = probe_debian_dot_profile(
+                home=home, subdir='bin'
+            )
+
+        if not bin_dir_to_use:
+            if not os.path.isdir(home_bin):
+                print("Creating directory", home_bin)
+                os.mkdir(home_bin)
+                bin_dir_to_use = 'bin'
+                created_dir = True
+            else:
+                # Some kind of permissions problem
+                print("Fixing ownership or access permissions for", home_bin)
+                owner = os.getuid()
+                group = os.getgid()
+                u_only, u_g_o = folder_perms()
+                check_and_repair_folder_permission(
+                    path=home_bin, owner=owner, group=group, perm=u_g_o, interactive=interactive
+                )
+                # Check if successful
+                if dir_accessible(home_bin):
+                    bin_dir_to_use = 'bin'
+
+            if bin_dir_to_use:
+                user_must_add_to_path = not home_bin in path
+
+        if bin_dir_to_use:
+            create_sym_link = True
+
+    return os.path.join(home, bin_dir_to_use), created_dir, user_must_add_to_path, \
+        user_must_reboot, create_sym_link
+
+
 def do_install(installer: str,
                distro: Distro,
                distro_family: Distro,
@@ -2584,25 +2721,20 @@ def do_install(installer: str,
     cmd = make_pip_command(
         'install {} --disable-pip-version-check --no-deps "{}"'.format(pip_user, installer)
     )
-    i =  popen_capture_output(cmd)
+    i = popen_capture_output(cmd)
     check_install_status(
         i=i, installer_to_delete_on_error=installer_to_delete_on_error, is_requirements=False
     )
 
-    path = os.getenv('PATH')
     if venv:
-        install_path = os.path.join(sys.prefix, 'bin')
+        bin_dir = os.path.join(sys.prefix, 'bin')
+        user_must_add_to_path = user_must_reboot = True
+        print("\nThe application was installed in {}".format(bin_dir))
     else:
-        install_path = os.path.join(os.path.expanduser('~'), site.getuserbase(), 'bin')
-
-    created_bin_dir = False
-
-    if install_path not in path.split(':') or venv:
-        if not venv and (distro in debian_like or distro == Distro.opensuse):
-            bin_dir = os.path.join(os.path.expanduser('~'), 'bin')
-            if not os.path.isdir(bin_dir):
-                created_bin_dir = True
-                os.mkdir(bin_dir)
+        result = distro_bin_dir(distro_family, interactive)
+        bin_dir, created_dir, user_must_add_to_path, user_must_reboot, create_sym_link = result
+        if bin_dir and create_sym_link:
+            install_path = os.path.join(site.getuserbase(), 'bin')
 
             for executable in ('rapid-photo-downloader', 'analyze-pv-structure'):
                 symlink = os.path.join(bin_dir, executable)
@@ -2610,7 +2742,10 @@ def do_install(installer: str,
                 # Catch broken symlinks
                 if not (os.path.exists(symlink) or os.path.islink(symlink)):
                     print('Creating symlink', symlink)
-                    print("If you uninstall the application, remove this symlink yourself.")
+                    print(
+                        "If you uninstall the application without using this install.py script, "
+                        "remove this symlink yourself."
+                    )
                     os.symlink(os.path.join(install_path, executable), symlink)
                 else:
                     if os.path.islink(symlink):
@@ -2630,10 +2765,6 @@ def do_install(installer: str,
                                 os.symlink(os.path.join(install_path, executable), symlink)
                     else:
                         print('There is another file at targeted symlink location:', symlink)
-
-        else:
-            sys.stderr.write("\nThe application was installed in {}\n".format(install_path))
-            sys.stderr.write("Add {} to your PATH to be able to launch it.\n".format(install_path))
 
     system_man_dir = '/usr/local/share/man/man1'
 
@@ -2710,11 +2841,22 @@ def do_install(installer: str,
     if display_rpmfusion_message:
         print(rpmfusion_message)
 
-    if created_bin_dir:
+    msg = ''
+    if user_must_reboot:
         msg = _(
             "You may have to restart the computer to be able to run the "
-            "program from the commmand line or application launcher."
+            "program from the command line or application launcher."
         )
+    elif user_must_add_to_path or not bin_dir:
+        if not bin_dir:
+            path = os.path.join(site.getuserbase(), 'bin')
+        else:
+            path = bin_dir
+        msg = _(
+            "You must add {path} to your computer's $PATH variable to run the "
+            "program from the command line or application launcher."
+        ).format(path=path)
+    if msg:
         cmd = shutil.which('zenity')
         if cmd is None:
             print(
@@ -2728,7 +2870,8 @@ def do_install(installer: str,
             args = shlex.split(command_line)
             subprocess.call(args=args)
 
-    print("\n" + _("(If a segmentation fault occurs at exit, you can ignore it...)"))
+    if False:
+        print("\n" + _("(If a segmentation fault occurs at exit, you can ignore it...)"))
 
 
 def clean_locale_tmpdir():

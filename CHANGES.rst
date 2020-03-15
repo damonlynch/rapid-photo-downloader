@@ -1,24 +1,33 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.19 (2020-03-xx)
+0.9.19 (2020-03-16)
 -------------------
+
+ - Fixed errors in appstream metainfo file.
 
  - To better conform to appstream metadata requirements, renamed destktop and
    metadata files to net.damonlynch.rapid_photo_downloader.desktop and
    net.damonlynch.rapid_photo_downloader.metainfo.xml. The metainfo file is now
-   installed in /usr/share/metainfo/, not /usr/share/appdata/.
-
- - Fixed errors in appstream metainfo file.
-
- - Overhauled setup.py.
+   installed in share/metainfo/, not share/appdata/.
 
  - Added Zorin OS to install.py script.
 
- - Removed notfication informing the Timeline or provisional download folders
+ - Only install symlinks to the program in a bin directory the users's home
+   directory (i.e. ~/bin) if necessary. On recent installations of Debian /
+   Ubuntu / LinuxMint etc. with a default profile setup, this is no longer
+   necessary.
+
+ - When uninstalling the program that was previously installed with install.py
+   script, remove any symlinks to it created in ~/bin.
+
+ - Removed setup.cfg configuration file.
+
+ - Removed notification informing the Timeline or provisional download folders
    was rebuilt.
 
- - Updated Hungarian, Russian and Turkish translations.
+ - Updated Hungarian, Russian, Spanish and Turkish translations.
+
 
 0.9.19b3 (2020-03-07)
 ---------------------

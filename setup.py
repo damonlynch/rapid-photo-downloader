@@ -42,7 +42,7 @@ with open(os.path.join(here, "raphodo", "__about__.py")) as f:
 
 class build_translations(Command):
     """
-    Adapated from DistutilsExtra.
+    Adapted from DistutilsExtra.
 
     March, 2020: delete setup.cfg, place options here. Cut out extraneous code from
     DistutilsExtra we do not need.
@@ -266,13 +266,14 @@ setup(
         'scandir;python_version<"3.5"',
         'typing;python_version<"3.5"',
         'PyGObject'
+        'PyQt5'
     ],
     extras_require={
         'color_ouput': ['colorlog',],
         'progress_bar': ['pyprind',]
     },
-    include_package_data = False,
-    data_files = [
+    include_package_data=False,
+    data_files=[
         (
             'share/man/man1', [
                 'build/doc/rapid-photo-downloader.1', 'build/doc/analyze-pv-structure.1'
@@ -294,7 +295,7 @@ setup(
             ]
         )
     ],
-    packages = ['raphodo'],
+    packages=['raphodo'],
     python_requires='>=3.4.*, <4',
     entry_points={
         'gui_scripts': ['rapid-photo-downloader=raphodo.rapid:main'],

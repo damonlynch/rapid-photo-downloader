@@ -18,7 +18,7 @@ global-exclude *~ *.pyc *~1~ *~2~ *bak
 exclude raphodo/test.py
 exclude raphodo/test2.py
 prune tasks
+prune tools
 prune raphodo/tests
-prune debian
 prune images
 prune sourceimages
