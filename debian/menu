@@ -1,5 +1,0 @@
-?package(rapid-photo-downloader):needs="X11" \
- section="Applications/Graphics" \
- title="Rapid Photo Downloader" \
- command="/usr/bin/rapid-photo-downloader" \
- icon="/usr/share/pixmaps/rapid-photo-downloader.xpm"

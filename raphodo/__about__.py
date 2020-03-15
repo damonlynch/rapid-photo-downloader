@@ -34,5 +34,5 @@ __version__ = '0.9.19'
 __author__ = 'Damon Lynch'
 __email__ = 'damonlynch@gmail.com'
 
-__license__ = 'GPL'
+__license__ = 'GPL 3+'
 __copyright__ = 'Copyright 2007-2020 {}'.format(__author__)

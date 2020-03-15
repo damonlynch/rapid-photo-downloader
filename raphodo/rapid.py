@@ -39,7 +39,6 @@ import datetime
 import locale
 # Use the default locale as defined by the LANG variable
 locale.setlocale(locale.LC_ALL, '')
-import pickle
 from collections import namedtuple, defaultdict
 import platform
 import argparse
@@ -51,9 +50,7 @@ import time
 import shlex
 import subprocess
 from urllib.request import pathname2url
-import tarfile
 import inspect
-from distutils.version import LooseVersion
 
 from gettext import gettext as _
 

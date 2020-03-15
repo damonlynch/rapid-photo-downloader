@@ -7,7 +7,6 @@ include upgrade.py
 recursive-include data *.in
 recursive-include data *.png
 recursive-include data *.svg
-recursive-include data *.xpm
 recursive-include doc *.pod
 recursive-include po *.in
 recursive-include po *.po

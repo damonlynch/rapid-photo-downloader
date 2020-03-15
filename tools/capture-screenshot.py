@@ -39,12 +39,16 @@ import glob
 from PyQt5.QtGui import QImage, QColor, QGuiApplication, QPainter, QPen
 from PyQt5.QtCore import QRect, Qt
 
+# Position of window
 window_x = 920
 window_y = 100
+# Height of titlebar in default Ubuntu 19.10 theme
 titlebar_height = 37
+# Window width an height
 width = 1600
 height = 900
 
+# Color of top and left window borders in default Ubuntu 19.10 theme
 top_border_color = QColor(163, 160, 158, 255)
 left_border_color = QColor(159, 156, 154, 255)
 
@@ -55,15 +59,6 @@ gnome_screenshot = shutil.which('gnome-screenshot')
 
 pictures_directory = os.path.join(os.path.expanduser('~'), 'Pictures')
 
-# mask = os.path.join(pictures_directory, 'mask.png')
-
-# no longer required:
-gimp_script_directory = os.path.join(
-    os.path.expanduser('~'), '.config', 'GIMP', '2.10', 'scripts'
-)
-gimp = shutil.which('gimp')
-gimp_script_name = 'zealous-crop-png'
-gimp_script = os.path.join(gimp_script_directory, '{}.scm'.format(gimp_script_name))
 
 def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentParser:
     """
@@ -142,7 +137,10 @@ def get_program_name() -> str:
         if title in window_list:
             return title
 
-    print("Could not determine localized program title")
+    print(
+        "Could not determine localized program title.\n"
+        "Add it to the script using output from wmctrl -l.\n"
+    )
     sys.exit(1)
 
 

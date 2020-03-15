@@ -11,6 +11,8 @@ Changelog for Rapid Photo Downloader
 
  - Fixed errors in appstream metainfo file.
 
+ - Overhauled setup.py.
+
  - Added Zorin OS to install.py script.
 
  - Removed notfication informing the Timeline or provisional download folders
