@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.19 (2020-03-16)
+0.9.19 (2020-03-17)
 -------------------
 
  - Fixed errors in appstream metainfo file.
@@ -26,7 +26,8 @@ Changelog for Rapid Photo Downloader
  - Removed notification informing the Timeline or provisional download folders
    was rebuilt.
 
- - Updated Hungarian, Russian, Spanish and Turkish translations.
+ - Updated Dutch, Hungarian, Russian, Spanish, Russian, and Turkish
+   translations.
 
 
 0.9.19b3 (2020-03-07)

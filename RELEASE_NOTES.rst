@@ -12,7 +12,7 @@ Release Notes for Rapid Photo Downloader 0.9.19
    an earlier version using the program's builtin updater, HEIF / HEIC support
    will not be installed.
 
- - The install script and the the builtin progrm update now automatically
+ - The install script and the the builtin program updater now automatically
    update pip, setuptools and wheel to the latest versions, but only for your
    user (i.e., not system-wide). They are updated because the latest versions
    are necessary to install PyQt5. If you previously relied on the system pip
