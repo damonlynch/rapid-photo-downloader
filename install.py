@@ -57,7 +57,11 @@ import stat
 import locale
 import textwrap
 # Use the default locale as defined by the LANG variable
-locale.setlocale(locale.LC_ALL, '')
+try:
+    locale.setlocale(locale.LC_ALL, '')
+except locale.Error:
+    pass
+
 from base64 import b85decode
 
 from gettext import gettext as _
@@ -2668,6 +2672,8 @@ def do_install(installer: str,
     with tarfile.open(installer) as tar:
         with tar.extractfile(tarfile_content_name(installer, 'requirements.txt')) as requirements:
             reqbytes = requirements.read()
+            # Remove PyQt5 from requirements as we will be installing it manually below
+            reqbytes = reqbytes.replace(b'pyqt5', b'')
 
             with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
                 temp_requirements.write(reqbytes)
@@ -2679,7 +2685,7 @@ def do_install(installer: str,
     cmd = make_pip_command(
         'install {} --disable-pip-version-check -r {}'.format(pip_user, temp_requirements.name)
     )
-    i =  popen_capture_output(cmd)
+    i = popen_capture_output(cmd)
     os.remove(temp_requirements_name)
     check_install_status(
         i=i, installer_to_delete_on_error=installer_to_delete_on_error, is_requirements=True

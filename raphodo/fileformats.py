@@ -21,9 +21,9 @@ __copyright__ = "Copyright 2011-2020, Damon Lynch"
 
 
 import logging
-from distutils.version import LooseVersion
 from typing import Optional, Tuple
 import os
+from pkg_resources import parse_version
 
 import raphodo.programversions as programversions
 from raphodo.constants import thumbnail_offset, FileType, FileExtension
@@ -36,10 +36,12 @@ def exiftool_capabilities() -> Tuple[bool, bool]:
 
     v = 'unknown'
     try:
-        v = LooseVersion(programversions.exiftool_version_info())
-        cr3 = v >= LooseVersion('10.87')
-        heif = v >= LooseVersion('10.63')
-        return cr3, heif
+        if programversions.EXIFTOOL_VERSION is not None:
+            v = parse_version(programversions.EXIFTOOL_VERSION)
+            cr3 = v >= parse_version('10.87')
+            heif = v >= parse_version('10.63')
+            return cr3, heif
+        return False, False
     except:
         logging.error('Unable to compare ExifTool version number: %s', v)
         return False, False

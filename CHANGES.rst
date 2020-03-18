@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.20 (2020-03-17)
+-------------------
+
+ - Fix typo in setup.py. Make requirements.txt more conformant.
+
 0.9.19 (2020-03-17)
 -------------------
 

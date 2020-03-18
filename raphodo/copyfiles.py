@@ -34,8 +34,11 @@ from itertools import chain
 from collections import defaultdict
 from typing import Dict, Optional, Tuple
 import locale
-# Use the default locale as defined by the LANG variable
-locale.setlocale(locale.LC_ALL, '')
+try:
+    # Use the default locale as defined by the LANG variable
+    locale.setlocale(locale.LC_ALL, '')
+except locale.Error:
+    pass
 
 import gphoto2 as gp
 

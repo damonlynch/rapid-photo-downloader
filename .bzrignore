@@ -20,10 +20,12 @@ test2.py
 ./snap
 ./stage
 ./.cloc_ignore
+./build
+./dist
 parts
 prime
 stage
-rapid-photo-downloader_0.9.0b5_amd64.snap
 ./snap/snap
 install.bak
 correct-permissions.py
+*.snap

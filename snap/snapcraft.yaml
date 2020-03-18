@@ -1,6 +1,6 @@
 name: rapid-photo-downloader
 base: core18 # the base snap is the execution environment for this snap
-version: '0.9.19' # just for humans, typically '1.2+git' or '1.3.2'
+version: '0.9.20' # just for humans, typically '1.2+git' or '1.3.2'
 summary: Download, rename and back up photos and videos from cameras and other devices
 description: |
   Rapid Photo Downloader imports photos and videos from cameras, phones,
@@ -15,27 +15,33 @@ confinement: devmode # use 'strict' once you have the right plugs and slots
 apps:
   rapid-photo-downloader:
     command: rapid-photo-downloader
+    extensions: [gnome-3-28]
     plugs:
       - home
       - network
       - network-bind
+      - network-control
+      - raw-usb
       - x11
       - unity7
       - wayland
       - desktop
+      - opengl
 
 parts:
   rapid-photo-downloader:
     plugin: python
-    source: ../
+    source: .
     python-packages:
       - pyheif
     stage-packages:
       - libgphoto2-6
       - libimage-exiftool-perl
+      - perl
       - exiv2
       - libmediainfo0v5
       - libraw-bin
+      - libnotify-bin
       - python3-gi
       - gir1.2-gexiv2-0.10
       - gir1.2-gudev-1.0
@@ -51,6 +57,7 @@ parts:
       - libx265-146
       - python3-pyqt5
       - qt5-image-formats-plugins
+      - python3-distutils
       - python3-pil
       - python3-gphoto2
       - python3-setuptools
@@ -80,6 +87,7 @@ parts:
       - libheif-dev
       - libde265-dev
       - libx265-dev
+      - libraw-dev
   #heif:
 
 

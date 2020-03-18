@@ -48,6 +48,7 @@ import psutil
 from PyQt5.QtCore import QSize
 
 import raphodo.__about__ as __about__
+from raphodo.constants import disable_version_check
 
 
 # Arrow 0.9.0 separated the replace and shift functions into separate calls, deprecating using
@@ -503,7 +504,9 @@ def runs(iterable):
     for k, g in groupby(iterable, AdjacentKey):
         yield first_and_last(g)
 
+
 numbers = namedtuple('numbers', 'number, plural')
+
 
 long_numbers = {
     1: _('one'),
@@ -612,6 +615,7 @@ def process_running(process_name: str, partial_name: bool=True) -> bool:
                 if name == process_name:
                     return True
     return False
+
 
 def make_html_path_non_breaking(path: str) -> str:
     """
@@ -1005,3 +1009,21 @@ def python_package_version(package: str) -> str:
     except pkg_resources.DistributionNotFound:
         return ''
 
+
+def is_snap() -> bool:
+    """
+    Determine if program is running in a snap environment
+    :return: True if it is False otherwise
+    """
+
+    snap_name = os.getenv("SNAP_NAME", "")
+    return snap_name.find('rapid-photo-downloader') >= 0
+
+
+def version_check_disabled():
+    """
+    Determine if version checking should be disabled or not
+    :return: True if it should be False otherwise
+    """
+
+    return disable_version_check or is_snap()

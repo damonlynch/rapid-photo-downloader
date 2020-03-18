@@ -265,8 +265,8 @@ setup(
         'tornado',
         'scandir;python_version<"3.5"',
         'typing;python_version<"3.5"',
-        'PyGObject'
-        'PyQt5'
+        'PyGObject',
+        'PyQt5',
     ],
     extras_require={
         'color_ouput': ['colorlog',],
