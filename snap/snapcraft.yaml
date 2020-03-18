@@ -15,14 +15,18 @@ confinement: devmode # use 'strict' once you have the right plugs and slots
 apps:
   rapid-photo-downloader:
     command: rapid-photo-downloader
+    extensions: [gnome-3-28]
     plugs:
       - home
       - network
       - network-bind
+      - network-control
+      - raw-usb
       - x11
       - unity7
       - wayland
       - desktop
+      - opengl
 
 parts:
   rapid-photo-downloader:
@@ -33,6 +37,7 @@ parts:
     stage-packages:
       - libgphoto2-6
       - libimage-exiftool-perl
+      - perl
       - exiv2
       - libmediainfo0v5
       - libraw-bin
@@ -52,6 +57,7 @@ parts:
       - libx265-146
       - python3-pyqt5
       - qt5-image-formats-plugins
+      - python3-distutils
       - python3-pil
       - python3-gphoto2
       - python3-setuptools
@@ -81,6 +87,7 @@ parts:
       - libheif-dev
       - libde265-dev
       - libx265-dev
+      - libraw-dev
   #heif:
 
 
