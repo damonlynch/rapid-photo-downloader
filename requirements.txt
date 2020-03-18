@@ -21,3 +21,4 @@ requests
 tornado
 tenacity
 pillow>=5.1.0
+pyqt5
