@@ -40,7 +40,7 @@ parts:
       - perl
       - exiv2
       - libmediainfo0v5
-      - libraw-bin
+      - libraw16
       - libnotify-bin
       - python3-gi
       - gir1.2-gexiv2-0.10
