@@ -36,6 +36,7 @@ parts:
       - exiv2
       - libmediainfo0v5
       - libraw-bin
+      - libnotify-bin
       - python3-gi
       - gir1.2-gexiv2-0.10
       - gir1.2-gudev-1.0

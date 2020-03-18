@@ -47,7 +47,9 @@ from raphodo.viewutils import QNarrowListWidget, translateButtons
 from raphodo.utilities import available_cpu_count, format_size_for_user, thousands
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.constants import ConflictResolution
-from raphodo.utilities import current_version_is_dev_version, make_internationalized_list
+from raphodo.utilities import (
+    current_version_is_dev_version, make_internationalized_list, version_check_disabled
+)
 from raphodo.fileformats import (
     PHOTO_EXTENSIONS, AUDIO_EXTENSIONS, VIDEO_EXTENSIONS, VIDEO_THUMBNAIL_EXTENSIONS,
     ALL_KNOWN_EXTENSIONS
@@ -701,7 +703,7 @@ class PreferencesDialog(QDialog):
             self.treatRawJpegGroup.buttonClicked.connect(self.treatRawJpegGroupClicked)
             self.markRawJpegGroup.buttonClicked.connect(self.markRawJpegGroupClicked)
 
-        if not disable_version_check:
+        if not version_check_disabled():
             self.newVersionBox = QGroupBox(_('Version Check'))
             self.checkNewVersion = QCheckBox(_('Check for new version at startup'))
             self.checkNewVersion.setToolTip(
@@ -752,7 +754,7 @@ class PreferencesDialog(QDialog):
 
         self.miscWidget = QWidget()
         miscLayout = QVBoxLayout()
-        if not disable_version_check:
+        if not disable_version_check():
             miscLayout.addWidget(self.newVersionBox)
         miscLayout.addWidget(self.metadataBox)
         if not consolidation_implemented:
@@ -1395,13 +1397,13 @@ class PreferencesDialog(QDialog):
             self.setConsolidatedValues()
         elif (row == 6 and consolidation_implemented) or (row == 5 and not
                 consolidation_implemented):
-            if not disable_version_check:
+            if not disable_version_check():
                 self.prefs.restore('check_for_new_versions')
             for value in ('include_development_release', 'ignore_mdatatime_for_mtp_dng'):
                 self.prefs.restore(value)
             if not consolidation_implemented:
                 self.prefs.restore('completed_downloads')
-            if not disable_version_check:
+            if not disable_version_check():
                 self.setVersionCheckValues()
             self.setMetdataValues()
             if not consolidation_implemented:

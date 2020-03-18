@@ -58,8 +58,12 @@ from distutils.version import StrictVersion
 import argparse
 import enum
 import locale
-# Use the default locale as defined by the LANG variable
-locale.setlocale(locale.LC_ALL, '')
+try:
+    # Use the default locale as defined by the LANG variable
+    locale.setlocale(locale.LC_ALL, '')
+except locale.Error:
+    pass
+
 from base64 import b85decode
 
 from gettext import gettext as _

@@ -29,8 +29,12 @@ from datetime import datetime
 import shutil
 import logging
 import locale
-# Use the default locale as defined by the LANG variable
-locale.setlocale(locale.LC_ALL, '')
+try:
+    # Use the default locale as defined by the LANG variable
+    locale.setlocale(locale.LC_ALL, '')
+except locale.Error:
+    pass
+
 from typing import Optional, Tuple
 from gettext import gettext as _
 

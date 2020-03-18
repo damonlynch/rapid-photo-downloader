@@ -37,8 +37,12 @@ import logging
 import shutil
 import datetime
 import locale
-# Use the default locale as defined by the LANG variable
-locale.setlocale(locale.LC_ALL, '')
+try:
+    # Use the default locale as defined by the LANG variable
+    locale.setlocale(locale.LC_ALL, '')
+except locale.Error:
+    pass
+
 from collections import namedtuple, defaultdict
 import platform
 import argparse
@@ -127,7 +131,8 @@ from raphodo.proximity import (TemporalProximityGroups, TemporalProximity)
 from raphodo.utilities import (
     same_device, make_internationalized_list, thousands, addPushButtonLabelSpacer,
     make_html_path_non_breaking, prefs_list_from_gconftool2_string,
-    pref_bool_from_gconftool2_string, extract_file_from_tar, format_size_for_user
+    pref_bool_from_gconftool2_string, extract_file_from_tar, format_size_for_user,
+    is_snap, version_check_disabled
 )
 from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
@@ -505,6 +510,9 @@ class RapidWindow(QMainWindow):
 
         if disable_version_check:
             logging.debug("Version checking disabled via code")
+
+        if is_snap():
+            logging.debug("Version checking disabled because running in a snap")
 
         if EXIFTOOL_VERSION is None:
             logging.error("ExifTool is either missing or has a problem")
@@ -966,7 +974,7 @@ class RapidWindow(QMainWindow):
             self.gvolumeMonitor.volumeAddedNoAutomount.connect(self.noGVFSAutoMount)
             self.gvolumeMonitor.cameraPossiblyRemoved.connect(self.cameraRemoved)
 
-        if disable_version_check:
+        if version_check_disabled():
             logging.debug("Version check disabled")
         else:
             logging.debug("Starting version check")
@@ -2572,7 +2580,7 @@ class RapidWindow(QMainWindow):
         self.menu.addSeparator()
         self.menu.addAction(self.helpAct)
         self.menu.addAction(self.didYouKnowAct)
-        if not disable_version_check:
+        if not version_check_disabled():
             self.menu.addAction(self.newVersionAct)
         self.menu.addAction(self.reportProblemAct)
         self.menu.addAction(self.makeDonationAct)
@@ -2584,7 +2592,7 @@ class RapidWindow(QMainWindow):
 
     def doCheckForNewVersion(self) -> None:
         """Check online for a new program version"""
-        if not disable_version_check:
+        if not version_check_disabled():
             self.newVersionCheckDialog.reset()
             self.newVersionCheckDialog.show()
             self.checkForNewVersionRequest.emit()
@@ -4685,7 +4693,7 @@ Do you want to proceed with the download?
         else:
             del self.gvolumeMonitor
 
-        if not disable_version_check:
+        if not version_check_disabled():
             self.newVersionThread.quit()
             self.newVersionThread.wait(100)
 
@@ -5847,6 +5855,7 @@ def get_versions() -> List[str]:
         'Rapid Photo Downloader: {}'.format(__about__.__version__),
         'Platform: {}'.format(platform.platform()),
         'Memory: {} used of {}'.format(used, total),
+        'Confinement: {}'.format('snap' if is_snap() else 'none'),
         'Python: {}'.format(platform.python_version()),
         'Python executable: {}'.format(sys.executable),
         'Qt: {}'.format(QtCore.QT_VERSION_STR),
@@ -5895,6 +5904,7 @@ def get_versions() -> List[str]:
             break
     if session:
         versions.append('Session: {}'.format(session))
+
     return versions
 
 # def darkFusion(app: QApplication):

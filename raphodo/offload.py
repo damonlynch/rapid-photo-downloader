@@ -26,8 +26,11 @@ import pickle
 import sys
 import logging
 import locale
-# Use the default locale as defined by the LANG variable
-locale.setlocale(locale.LC_ALL, '')
+try:
+    # Use the default locale as defined by the LANG variable
+    locale.setlocale(locale.LC_ALL, '')
+except locale.Error:
+    pass
 
 from PyQt5.QtGui import QGuiApplication
 from raphodo.interprocess import (DaemonProcess, OffloadData, OffloadResults, DownloadDestination)
