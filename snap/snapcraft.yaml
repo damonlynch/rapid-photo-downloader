@@ -27,7 +27,7 @@ apps:
 parts:
   rapid-photo-downloader:
     plugin: python
-    source: ../
+    source: .
     python-packages:
       - pyheif
     stage-packages:
