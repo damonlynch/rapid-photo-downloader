@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-03-16 22:52-0400\n"
+"POT-Creation-Date: 2020-03-18 00:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -496,20 +496,20 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr ""
 
-#: ../upgrade.py:8783
+#: ../upgrade.py:8837
 #, python-format
 msgid "Upgrading %s..."
 msgstr ""
 
-#: ../upgrade.py:8785
+#: ../upgrade.py:8839
 msgid "Press any key to continue..."
 msgstr ""
 
-#: ../upgrade.py:8798
+#: ../upgrade.py:8852
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr ""
 
-#: ../upgrade.py:8800
+#: ../upgrade.py:8854
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."

@@ -779,3 +779,4 @@ class Plural(Enum):
 # Use the character . to for download_name and path to indicate the user manually marked a
 # file as previously downloaded
 manually_marked_previously_downloaded = '.'
+

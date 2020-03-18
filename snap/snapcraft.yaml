@@ -14,7 +14,7 @@ confinement: devmode # use 'strict' once you have the right plugs and slots
 
 apps:
   rapid-photo-downloader:
-    command: bin/rapid-photo-downloader
+    command: rapid-photo-downloader
     plugs:
       - home
       - network
@@ -29,7 +29,7 @@ parts:
     plugin: python
     source: ../
     python-packages:
-      - PyQt5
+      - pyheif
     stage-packages:
       - libgphoto2-6
       - libimage-exiftool-perl
@@ -46,13 +46,40 @@ parts:
       - libzmq5
       - gstreamer1.0-libav
       - gstreamer1.0-plugins-good
+      - libheif1
+      - libde265-0
+      - libx265-146
+      - python3-pyqt5
+      - qt5-image-formats-plugins
+      - python3-pil
+      - python3-gphoto2
+      - python3-setuptools
+      - python3-psutil
+      - python3-zmq
+      - python3-tornado
+      - python3-xdg
+      - python3-arrow
+      - python3-dateutil
+      - python3-rawkit
+      - python3-pyprind
+      - python3-colorlog
+      - python3-easygui
+      - python3-colour
+      - python3-pymediainfo
+      - python3-sortedcontainers
+      - python3-requests
+      - python3-tenacity
+      - libgpm2
+      - libslang2
+      - freeglut3
+      - libglu1-mesa
+      - libgl1-mesa-glx
     build-packages:
       - build-essential
       - intltool
-      - libgphoto2-dev
-      - python3-dev
-      - libzmq3-dev
-      - g++
       - libheif-dev
       - libde265-dev
       - libx265-dev
+  #heif:
+
+
