@@ -615,6 +615,7 @@ def _default_file_manager_for_desktop() -> Tuple[Optional[str], Optional[FileMan
     global _default_file_manager_type
 
     try:
+        fm = ''
         fm = DefaultFileBrowserFallback[_desktop.name]
         assert shutil.which(fm)
         t = FileManagerBehavior[fm]
@@ -625,7 +626,7 @@ def _default_file_manager_for_desktop() -> Tuple[Optional[str], Optional[FileMan
         logging.debug("Error determining default file manager")
         return None, None
     except AssertionError:
-        logging.debug("Default file manager %s cannot be found")
+        logging.debug("Default file manager %s cannot be found", fm)
         return None, None
 
 

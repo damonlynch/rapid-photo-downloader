@@ -6299,7 +6299,8 @@ def main():
             )
             fractional_scaling = 'Fractional scaling set to pass through'
         else:
-            fractional_scaling = 'Fractional scaling unable to be set because Qt version is too old'
+            fractional_scaling = 'Fractional scaling unable to be set because Qt version is older ' \
+                                 'than 5.14'
     except Exception:
         fractional_scaling = 'Error setting fractional scaling'
         logging.warning(fractional_scaling)
