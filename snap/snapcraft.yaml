@@ -12,8 +12,6 @@ description: |
 grade: devel # must be 'stable' to release into candidate/stable channels
 confinement: devmode # use 'strict' once you have the right plugs and slots
 
-# desktop-launch ?
-
 apps:
   rapid-photo-downloader:
     command: rapid-photo-downloader
@@ -28,12 +26,19 @@ apps:
       - network
       - network-bind
       - network-control
+      - camera
       - raw-usb
       - x11
       - unity7
       - wayland
       - desktop
       - opengl
+
+layout:
+  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libgphoto2:
+    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libgphoto2
+  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libgphoto2_port:
+    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libgphoto2_port
 
 parts:
   rapid-photo-downloader:
