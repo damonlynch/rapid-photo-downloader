@@ -87,7 +87,8 @@ from raphodo.constants import (
 from raphodo.rpdsql import DownloadedSQL, FileDownloaded
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.utilities import (
-    stdchannel_redirected, datetime_roughly_equal, GenerateRandomFileName, format_size_for_user
+    stdchannel_redirected, datetime_roughly_equal, GenerateRandomFileName, format_size_for_user,
+    is_snap
 )
 from raphodo.exiftool import ExifTool
 import raphodo.metadatavideo as metadatavideo
@@ -1561,8 +1562,9 @@ def trace_calls(frame, event, arg):
             # Trace into this function
             return trace_lines
 
+
 if __name__ == "__main__":
-    if os.getenv('RPD_SCAN_DEBUG') is not None:
+    if is_snap() or os.getenv('RPD_SCAN_DEBUG') is not None:
         sys.settrace(trace_calls)
     scan = ScanWorker()
 

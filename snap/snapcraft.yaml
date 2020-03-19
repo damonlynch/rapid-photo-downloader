@@ -41,6 +41,7 @@ parts:
     source: .
     python-packages:
       - pyheif
+      - arrow
     stage-packages:
       - libgphoto2-6
       - libimage-exiftool-perl
@@ -72,7 +73,6 @@ parts:
       - python3-zmq
       - python3-tornado
       - python3-xdg
-      - python3-arrow
       - python3-dateutil
       - python3-rawkit
       - python3-pyprind
