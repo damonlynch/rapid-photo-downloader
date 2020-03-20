@@ -1016,7 +1016,7 @@ def is_snap() -> bool:
     :return: True if it is False otherwise
     """
 
-    snap_name = os.getenv("SNAP_NAME", "")
+    snap_name = os.getenv('SNAP_NAME', '')
     return snap_name.find('rapid-photo-downloader') >= 0
 
 

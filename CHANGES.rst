@@ -6,6 +6,8 @@ Changelog for Rapid Photo Downloader
 
  - Fix typo in setup.py. Make requirements.txt more conformant.
 
+ - Better handle missing ExifTool on startup.
+
 0.9.19 (2020-03-17)
 -------------------
 

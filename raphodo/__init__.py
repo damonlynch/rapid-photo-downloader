@@ -34,9 +34,16 @@ def locale_directory() -> Optional[str]:
     Locate locale directory. Prioritizes whatever is newer, comparing the locale
     directory at xdg_data_home and the one in /usr/share/
 
+    If running in a snap, use the snap locale directory.
+
     :return: the locale directory with the most recent messages for Rapid Photo
     Downloader, if found, else None.
     """
+
+    snap_name = os.getenv('SNAP_NAME', '')
+    if snap_name.find('rapid-photo-downloader') >= 0:
+        snap_dir = os.getenv('SNAP', '')
+        return os.path.join(snap_dir, '/usr/lib/locale')
 
     mo_file = '{}.mo'.format(i18n_domain)
     # Test the Spanish file

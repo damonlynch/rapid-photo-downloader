@@ -58,15 +58,6 @@ def exiv2_cr3() -> bool:
 
     return False
 
-    # v = 'unknown'
-    # try:
-    #     v = programversions.exiv2_version()
-    #     if v:
-    #         return LooseVersion(v) >= LooseVersion('0.28')
-    # except:
-    #     logging.error('Unable to compare Exiv2 version number: %s', v)
-    # return False
-
 
 _exiv2_cr3 = exiv2_cr3()
 

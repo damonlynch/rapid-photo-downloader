@@ -21,7 +21,7 @@ __copyright__ = "Copyright 2015-2020, Damon Lynch"
 
 from typing import List, Dict, Tuple, Optional
 from collections import namedtuple
-from distutils.version import LooseVersion
+from pkg_resources import parse_version
 
 from gettext import gettext as _
 
@@ -32,7 +32,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QIcon
 from PyQt5.QtCore import QSize, Qt, QT_VERSION_STR, QPoint
 
-QT5_VERSION = LooseVersion(QT_VERSION_STR)
+QT5_VERSION = parse_version(QT_VERSION_STR)
 
 
 class RowTracker:
@@ -265,7 +265,7 @@ def qt5_screen_scale_environment_variable() -> str:
     :return: correct variable
     """
 
-    if QT5_VERSION < LooseVersion('5.14.0'):
+    if QT5_VERSION < parse_version('5.14.0'):
         return 'QT_AUTO_SCREEN_SCALE_FACTOR'
     else:
         return 'QT_ENABLE_HIGHDPI_SCALING'
