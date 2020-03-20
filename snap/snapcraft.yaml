@@ -25,8 +25,7 @@ apps:
       - home
       - network
       - network-bind
-      - network-control
-      - camera
+      # - network-control needed? see https://forum.snapcraft.io/t/gphoto-snap-cannot-detect-any-cameras/10518/9?u=damonlynch
       - raw-usb
       - x11
       - unity7
@@ -35,6 +34,7 @@ apps:
       - opengl
       - udisks2
       - removable-media
+      - thumbnailer-service
 
 layout:
   /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libgphoto2:

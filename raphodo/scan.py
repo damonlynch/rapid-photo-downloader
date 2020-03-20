@@ -1564,7 +1564,7 @@ def trace_calls(frame, event, arg):
 
 
 if __name__ == "__main__":
-    if is_snap() or os.getenv('RPD_SCAN_DEBUG') is not None:
+    if os.getenv('RPD_SCAN_DEBUG') is not None:
         sys.settrace(trace_calls)
     scan = ScanWorker()
 
