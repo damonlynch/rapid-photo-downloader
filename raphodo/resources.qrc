@@ -23,6 +23,7 @@
     <file alias="prefs/consolidation.svg">../images/preferences/consolidation.svg</file>
     <file alias="prefs/devices.svg">../images/preferences/devices.svg</file>
     <file alias="prefs/error-handling.svg">../images/preferences/error-handling.svg</file>
+    <file alias="prefs/language.svg">../images/preferences/preferences-desktop-locale-symbolic.svg</file>
     <file alias="prefs/miscellaneous.svg">../images/preferences/miscellaneous.svg</file>
     <file alias="prefs/thumbnails.svg">../images/preferences/thumbnails.svg</file>
     <file alias="prefs/warnings.svg">../images/preferences/warnings.svg</file>

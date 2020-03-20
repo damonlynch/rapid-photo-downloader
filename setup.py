@@ -269,6 +269,7 @@ setup(
         'typing;python_version<"3.5"',
         'PyGObject',
         'PyQt5',
+        'babel',
     ],
     extras_require={
         'color_ouput': ['colorlog',],

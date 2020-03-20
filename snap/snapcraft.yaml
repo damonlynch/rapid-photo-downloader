@@ -33,6 +33,8 @@ apps:
       - wayland
       - desktop
       - opengl
+      - udisks2
+      - removable-media
 
 layout:
   /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libgphoto2:

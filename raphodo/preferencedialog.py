@@ -25,6 +25,7 @@ __copyright__ = "Copyright 2017-2020, Damon Lynch"
 
 import webbrowser
 from typing import List
+import logging
 from gettext import gettext as _
 
 
@@ -41,14 +42,15 @@ from PyQt5.QtGui import (
 
 from raphodo.preferences import Preferences
 from raphodo.constants import (
-    KnownDeviceType, CompletedDownloads, TreatRawJpeg, MarkRawJpeg, disable_version_check
+    KnownDeviceType, CompletedDownloads, TreatRawJpeg, MarkRawJpeg
 )
 from raphodo.viewutils import QNarrowListWidget, translateButtons
 from raphodo.utilities import available_cpu_count, format_size_for_user, thousands
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.constants import ConflictResolution
 from raphodo.utilities import (
-    current_version_is_dev_version, make_internationalized_list, version_check_disabled
+    current_version_is_dev_version, make_internationalized_list, version_check_disabled,
+    available_languages
 )
 from raphodo.fileformats import (
     PHOTO_EXTENSIONS, AUDIO_EXTENSIONS, VIDEO_EXTENSIONS, VIDEO_THUMBNAIL_EXTENSIONS,
@@ -67,6 +69,7 @@ class ClickableLabel(QLabel):
 consolidation_implemented = False
 # consolidation_implemented = True
 
+system_language = 'SYSTEM'
 
 
 class PreferencesDialog(QDialog):
@@ -109,22 +112,23 @@ class PreferencesDialog(QDialog):
 
         if consolidation_implemented:
             self.chooser_items = (
-                _('Devices'), _('Automation'), _('Thumbnails'), _('Error Handling'), _('Warnings'),
-                _('Consolidation'), _('Miscellaneous')
+                _('Devices'), _('Language'), _('Automation'), _('Thumbnails'), _('Error Handling'),
+                _('Warnings'), _('Consolidation'), _('Miscellaneous')
             )
             icons = (
-                ":/prefs/devices.svg", ":/prefs/automation.svg", ":/prefs/thumbnails.svg",
-                ":/prefs/error-handling.svg", ":/prefs/warnings.svg", ":/prefs/consolidation.svg",
-                ":/prefs/miscellaneous.svg"
+                ":/prefs/devices.svg", ":/prefs/language.svg", ":/prefs/automation.svg",
+                ":/prefs/thumbnails.svg", ":/prefs/error-handling.svg", ":/prefs/warnings.svg",
+                ":/prefs/consolidation.svg", ":/prefs/miscellaneous.svg"
             )
         else:
             self.chooser_items = (
-                _('Devices'), _('Automation'), _('Thumbnails'), _('Error Handling'), _('Warnings'),
-                _('Miscellaneous')
+                _('Devices'), _('Language'), _('Automation'), _('Thumbnails'), _('Error Handling'),
+                _('Warnings'), _('Miscellaneous')
             )
             icons = (
-                ":/prefs/devices.svg", ":/prefs/automation.svg", ":/prefs/thumbnails.svg",
-                ":/prefs/error-handling.svg", ":/prefs/warnings.svg", ":/prefs/miscellaneous.svg"
+                ":/prefs/devices.svg", ":/prefs/language.svg", ":/prefs/automation.svg",
+                ":/prefs/thumbnails.svg", ":/prefs/error-handling.svg", ":/prefs/warnings.svg",
+                ":/prefs/miscellaneous.svg"
             )
 
         for prefIcon, label in zip(icons, self.chooser_items):
@@ -281,6 +285,34 @@ class PreferencesDialog(QDialog):
 
         self.devices.setLayout(devicesLayout)
         devicesLayout.setContentsMargins(0, 0, 0, 0)
+
+        self.language = QWidget()
+        self.languages = QComboBox()
+        self.languages.setEditable(False)
+        self.languagesLabel = QLabel(_('Language: '))
+        self.languages.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        # self.languages.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+
+        self.setLanguageWidgetValues()
+
+        self.languages.currentIndexChanged.connect(self.languagesChanged)
+
+        languageWidgetsLayout = QHBoxLayout()
+        languageWidgetsLayout.addWidget(self.languagesLabel)
+        languageWidgetsLayout.addWidget(self.languages)
+        # Translators: the * acts as an asterisk to denote a reference to an annotation
+        # such as '* Takes effect upon program restart'
+        languageWidgetsLayout.addWidget(QLabel(_('*')))
+        languageWidgetsLayout.addStretch()
+
+        languageLayout = QVBoxLayout()
+        languageLayout.addLayout(languageWidgetsLayout)
+        # Translators: the * acts as an asterisk to denote a reference to this annotation
+        languageLayout.addWidget(QLabel(_('* Takes effect upon program restart')))
+        languageLayout.addStretch()
+        languageLayout.setContentsMargins(0, 0, 0, 0)
+        languageLayout.setSpacing(18)
+        self.language.setLayout(languageLayout)
 
         self.automation = QWidget()
 
@@ -754,7 +786,7 @@ class PreferencesDialog(QDialog):
 
         self.miscWidget = QWidget()
         miscLayout = QVBoxLayout()
-        if not disable_version_check():
+        if not version_check_disabled():
             miscLayout.addWidget(self.newVersionBox)
         miscLayout.addWidget(self.metadataBox)
         if not consolidation_implemented:
@@ -765,6 +797,7 @@ class PreferencesDialog(QDialog):
         self.miscWidget.setLayout(miscLayout)
 
         self.panels.addWidget(self.devices)
+        self.panels.addWidget(self.language)
         self.panels.addWidget(self.automation)
         self.panels.addWidget(self.performance)
         self.panels.addWidget(self.errorWidget)
@@ -831,6 +864,18 @@ class PreferencesDialog(QDialog):
         self.removeDevice.setEnabled(self.knownDevices.count())
         self.removeAllDevice.setEnabled(self.knownDevices.count())
         self.setIgnorePathWidgetValues()
+
+    def setLanguageWidgetValues(self) -> None:
+        # Translators: this is an option when the user chooses the language to use for
+        # Rapid Photo Downloader and it allows them to reset back to whatever their
+        # system language settings are
+        self.languages.addItem(_('<System Language>'), system_language)
+        for code, language in available_languages():
+            self.languages.addItem(language, code)
+        value = self.prefs.language
+        if value:
+            index = self.languages.findData(value)
+            self.languages.setCurrentIndex(index)
 
     def setFoldersToScanWidgetValues(self) -> None:
         self.foldersToScan.clear()
@@ -1164,6 +1209,15 @@ class PreferencesDialog(QDialog):
         self.ignoredPathsRe.click()
 
     @pyqtSlot(int)
+    def languagesChanged(self, index: int) -> None:
+        if index == 0:
+            self.prefs.language = ''
+            logging.info("Resetting user interface language to system default")
+        elif index > 0:
+            self.prefs.language = self.languages.currentData()
+            logging.info("Setting user interface language to %s", self.prefs.language)
+
+    @pyqtSlot(int)
     def autoDownloadStartupChanged(self, state: int) -> None:
         self.prefs.auto_download_at_startup = state == Qt.Checked
 
@@ -1397,13 +1451,13 @@ class PreferencesDialog(QDialog):
             self.setConsolidatedValues()
         elif (row == 6 and consolidation_implemented) or (row == 5 and not
                 consolidation_implemented):
-            if not disable_version_check():
+            if not version_check_disabled():
                 self.prefs.restore('check_for_new_versions')
             for value in ('include_development_release', 'ignore_mdatatime_for_mtp_dng'):
                 self.prefs.restore(value)
             if not consolidation_implemented:
                 self.prefs.restore('completed_downloads')
-            if not disable_version_check():
+            if not version_check_disabled():
                 self.setVersionCheckValues()
             self.setMetdataValues()
             if not consolidation_implemented:

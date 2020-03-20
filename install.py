@@ -1706,7 +1706,8 @@ def install_required_distro_packages(distro: Distro,
 
             optional_python_packages = (
                 op for op in 'python3-easygui python3-sortedcontainers python3-tornado ' \
-                             'python3-zmq python3-arrow python3-psutil python3-colorlog'.split()
+                             'python3-zmq python3-arrow python3-psutil python3-colorlog ' \
+                             'python3-babel'.split()
                 if op in cache
             )
             if optional_python_packages:
@@ -1808,7 +1809,8 @@ def install_required_distro_packages(distro: Distro,
         if not venv:
 
             base_python_packages = 'python3-easygui python3-psutil ' \
-                                   'python3-tornado gobject-introspection python3-gobject'
+                                   'python3-tornado gobject-introspection python3-gobject ' \
+                                   'python3-babel'
 
             if distro == Distro.fedora:
                 base_python_packages = '{} python3-gexiv2'.format(base_python_packages)
@@ -1910,7 +1912,7 @@ def install_required_distro_packages(distro: Distro,
 
         if not venv:
             base_python_packages = 'girepository-1_0 python3-gobject ' \
-                                   'python3-psutil python3-tornado ' \
+                                   'python3-psutil python3-tornado python3-Babel' \
                                    'typelib-1_0-GExiv2-0_10 typelib-1_0-UDisks-2_0 ' \
                                    'typelib-1_0-Notify-0_7 ' \
                                    'typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0'

@@ -317,7 +317,8 @@ class Preferences:
         # see constants.MarkRawJpeg:
         mark_raw_jpeg=3,
         # introduced in 0.9.6b1:
-        auto_scroll=True
+        auto_scroll=True,
+        language=''
     )
     device_defaults = dict(
         only_external_mounts=True,

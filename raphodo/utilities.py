@@ -35,11 +35,13 @@ from collections import namedtuple, defaultdict
 from datetime import datetime
 from gettext import gettext as _
 from itertools import groupby, zip_longest
-from typing import Optional, List, Union, Any, Tuple
+from typing import Optional, List, Union, Any, Tuple, Iterator
 import struct
 import ctypes
 import signal
 import warnings
+import babel
+from glob import glob
 from pkg_resources import parse_version
 import pkg_resources
 
@@ -49,7 +51,7 @@ from PyQt5.QtCore import QSize
 
 import raphodo.__about__ as __about__
 from raphodo.constants import disable_version_check
-
+from raphodo import localedir, i18n_domain
 
 # Arrow 0.9.0 separated the replace and shift functions into separate calls, deprecating using
 # replace() to do the work of the new shift()
@@ -1027,3 +1029,114 @@ def version_check_disabled():
     """
 
     return disable_version_check or is_snap()
+
+
+def available_lang_codes() -> List[str]:
+    """
+    Detect translations that exist for Rapid Photo Downloader
+    :return: list of language codes
+    """
+
+    if localedir is not None:
+        files = glob(os.path.join(localedir, '*', 'LC_MESSAGES', '%s.mo' % i18n_domain))
+        langs = [file.split(os.path.sep)[-3] for file in files]
+        langs.append('en')
+        return langs
+    else:
+        return []
+
+
+# Auto-generated from extract_language_names.py do not delete
+substitute_languages = {
+    'fa': 'Persian',
+    'sk': 'Slovak',
+    'it': 'Italian',
+    'oc': 'Occitan (post 1500)',
+    'fi': 'Finnish',
+    'sv': 'Swedish',
+    'cs': 'Czech',
+    'pl': 'Polish',
+    'kab': 'Kabyle',
+    'tr': 'Turkish',
+    'hr': 'Croatian',
+    'nn': 'Norwegian Nynorsk',
+    'da': 'Danish',
+    'de': 'German',
+    'sr': 'српски',
+    'pt_BR': 'Brazilian Portuguese',
+    'ja': 'Japanese',
+    'bg': 'Bulgarian',
+    'uk': 'Ukrainian',
+    'ar': 'Arabic',
+    'ca': 'Catalan',
+    'nb': 'Norwegian Bokmal',
+    'ru': 'Russian',
+    'hu': 'magyar',
+    'be': 'Belarusian',
+    'es': 'Spanish',
+    'pt': 'Portuguese',
+    'zh_CN': 'Chinese (Simplified)',
+    'fr': 'Français',
+    'et': 'Estonian',
+    'nl': 'Dutch',
+    'ro': 'Romanian',
+    'id': 'Indonesian',
+    'el': 'Greek',
+}  # Auto-generated from extract_language_names.py do not delete
+
+
+def get_language_display_name(lang_code: str,
+                              make_missing_lower: bool,
+                              locale_code: str) -> str:
+    """
+    Use babel to the human friendly name for a locale, or failing that our
+    auto-generated version
+    :param lang_code: locale code for language to get the display name for
+    :param make_missing_lower: whether to make the default name when
+     babel does not suppply it lower case
+    :param locale_code: current system locale code
+    :return: human friendly version
+    """
+
+    try:
+        return babel.Locale.parse(lang_code).get_display_name(locale_code)
+    except babel.core.UnknownLocaleError:
+        display = substitute_languages[lang_code]
+        return display if not make_missing_lower else display.lower()
+
+
+def available_languages() -> List[Tuple[str, str]]:
+    """
+    Detect translations that exist for Rapid Photo Downloader
+    :return: iterator of Tuple of language code and localized name
+    """
+
+    lang_codes = available_lang_codes()
+
+    if not lang_codes:  # Testing code
+        lang_codes = ['en', 'de', 'es']
+
+    try:
+        locale_code = locale.getdefaultlocale()[0]
+    except Exception:
+        locale_code = 'en_US'
+
+    # Determine if this locale makes its language names lower case
+    babel_sample = babel.Locale.parse('en').get_display_name(locale_code)
+    make_missing_lower = babel_sample.islower()
+
+    langs = zip(
+        lang_codes, [
+            get_language_display_name(code, make_missing_lower, locale_code) for code in lang_codes
+        ]
+    )
+
+    # Sort languages by display name
+    langs = list(langs)
+    try:
+        langs.sort(key=lambda l: locale.strxfrm(l[1]))
+    except Exception:
+        logging.error("Error sorting language names for display in program preferences")
+    return langs
+
+
