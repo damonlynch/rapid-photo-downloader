@@ -16,15 +16,7 @@ old_thumbnail.py
 test2.py
 ./raphodo/core
 ./core
-./parts
-./snap
-./stage
 ./.cloc_ignore
-./build
-./dist
-parts
-prime
-stage
 ./snap/snap
 install.bak
 correct-permissions.py

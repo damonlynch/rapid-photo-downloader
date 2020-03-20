@@ -227,6 +227,8 @@ class raphodo_build(build):
 
 class raphodo_sdist(sdist):
     def run(self):
+        if not os.path.isdir('build'):
+            os.mkdir('build')
         self.run_command('build_man_page')
         self.run_command('build_icons')
         self.run_command('build_translations')
