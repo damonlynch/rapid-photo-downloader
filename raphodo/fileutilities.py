@@ -54,6 +54,7 @@ def set_file_modified_time_from_metadata(path: str):
 
     :param path: the folder which to walk
     """
+
     with exiftool.ExifTool() as exiftool_process:
         for dir_name, subdirs, file_list in walk(path):
             for file_name in file_list:

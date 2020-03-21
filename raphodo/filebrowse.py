@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Display file system folders and allow the user to select one
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2017, Damon Lynch"
+__copyright__ = "Copyright 2016-2020, Damon Lynch"
 
 import os
 import pathlib
@@ -29,8 +29,6 @@ from typing import List, Set
 import logging
 import shlex
 import subprocess
-
-from gettext import gettext as _
 
 from PyQt5.QtCore import (
     QDir, Qt, QModelIndex, QItemSelectionModel, QSortFilterProxyModel, QPoint, QSize

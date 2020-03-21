@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -25,7 +25,7 @@ Runs as a daemon process.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2017, Damon Lynch"
+__copyright__ = "Copyright 2011-2020, Damon Lynch"
 
 import os
 from datetime import datetime
@@ -44,7 +44,7 @@ try:
 except locale.Error:
     pass
 
-from gettext import gettext as _
+
 
 import raphodo.exiftool as exiftool
 import raphodo.generatename as gn

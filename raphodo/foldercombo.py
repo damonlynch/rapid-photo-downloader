@@ -26,7 +26,6 @@ __copyright__ = "Copyright 2017-2020, Damon Lynch"
 from typing import Optional, Tuple, List
 import os
 import logging
-from gettext import gettext as _
 
 from PyQt5.QtCore import (pyqtSlot, pyqtSignal)
 from PyQt5.QtWidgets import (QComboBox, QFileDialog)

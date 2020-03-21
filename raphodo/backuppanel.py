@@ -28,9 +28,6 @@ import logging
 import os
 from collections import namedtuple, defaultdict
 
-from gettext import gettext as _
-
-
 from PyQt5.QtCore import (Qt, pyqtSlot, QAbstractListModel, QModelIndex, QSize)
 from PyQt5.QtWidgets import (
     QWidget, QSizePolicy, QVBoxLayout, QLabel, QLineEdit, QCheckBox, QScrollArea, QFrame,
@@ -272,7 +269,7 @@ class BackupDeviceModel(QAbstractListModel):
                     icon = self.removableIcon
                 else:
                     icon = self.folderIcon
-                return (device.display_name, icon)
+                return device.display_name, icon
             elif role == Roles.storage:
                 photos_size_to_download, videos_size_to_download = \
                     self._download_size_by_backup_type(backup_type=device.backup_type)

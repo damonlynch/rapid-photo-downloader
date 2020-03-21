@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,16 +17,18 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2017, Damon Lynch"
+__copyright__ = "Copyright 2015-2020, Damon Lynch"
 
 from enum import IntEnum
 
 from PyQt5.QtGui import (QColor, QPalette)
 from PyQt5.QtWidgets import (QPushButton, QStylePainter, QStyle, QStyleOptionButton, QHBoxLayout)
 
+
 class VerticalRotation(IntEnum):
     left_side = 270
     right_side = 90
+
 
 class FlatButton:
     _padding = 'padding-left: {padding_side}px; padding-right: {padding_side}px; padding-top: ' \
@@ -78,6 +80,7 @@ class FlatButton:
         color = palette.color(palette.Highlight)
         text_color = palette.color(palette.HighlightedText)
         self.setFlatStyle(button, color=color, text_color=text_color, darker_if_checked=False)
+
 
 class RotatedButton(QPushButton, FlatButton):
     leftSide = 270.0

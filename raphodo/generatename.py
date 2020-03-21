@@ -35,7 +35,7 @@ try:
 except locale.Error:
     pass
 
-from gettext import gettext as _
+
 
 from raphodo.preferences import DownloadsTodayTracker
 from raphodo.problemnotification import (

@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,15 +21,13 @@ Display download destination details
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2018, Damon Lynch"
+__copyright__ = "Copyright 2016-2020, Damon Lynch"
 
 import os
 import math
 from typing import Optional, Dict, Tuple, Union, DefaultDict, Set
 import logging
 from collections import defaultdict
-from gettext import gettext as _
-
 
 from PyQt5.QtCore import QSize, Qt, QStorageInfo, QRect, pyqtSlot, QPoint
 from PyQt5.QtWidgets import (

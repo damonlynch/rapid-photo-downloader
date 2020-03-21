@@ -26,7 +26,20 @@ __copyright__ = "Copyright 2016-2020, Damon Lynch"
 from typing import Optional
 import os
 import gettext
+import locale
 from xdg import BaseDirectory
+import builtins
+
+from PyQt5.QtCore import QSettings
+
+
+def sample_translation() -> str:
+    """
+    :return: return the Spanish translation as a sample translation
+    """
+
+    mo_file = '{}.mo'.format(i18n_domain)
+    return os.path.join('es', 'LC_MESSAGES', mo_file)
 
 
 def locale_directory() -> Optional[str]:
@@ -45,9 +58,7 @@ def locale_directory() -> Optional[str]:
         snap_dir = os.getenv('SNAP', '')
         return os.path.join(snap_dir, '/usr/lib/locale')
 
-    mo_file = '{}.mo'.format(i18n_domain)
-    # Test the Spanish file
-    sample_lang_path = os.path.join('es', 'LC_MESSAGES', mo_file)
+    sample_lang_path = sample_translation()
     locale_mtime = 0.0
     locale_dir = None
 
@@ -60,8 +71,40 @@ def locale_directory() -> Optional[str]:
     return locale_dir
 
 
+def no_translation_performed(s: str) -> str:
+    """
+    We are missing translation mo files. Do nothing but return the string
+    """
+
+    return s
+
+
 i18n_domain = 'rapid-photo-downloader'
 localedir = locale_directory()
 
-gettext.bindtextdomain(i18n_domain, localedir=localedir)
-gettext.textdomain(i18n_domain)
+lang = None
+lang_installed = False
+
+if localedir is not None and os.path.isfile(os.path.join(localedir, sample_translation())):
+    settings = QSettings("Rapid Photo Downloader", "Rapid Photo Downloader")
+    settings.beginGroup('Display')
+    lang = settings.value('language', '', str)
+    settings.endGroup()
+
+    if not lang:
+        lang, encoding = locale.getdefaultlocale()
+
+    lang = [lang]
+
+    try:
+        lang = gettext.translation(i18n_domain, localedir=localedir, languages=lang)
+        lang.install()
+        lang_installed = True
+    except FileNotFoundError:
+        pass
+
+if not lang_installed:
+    # Building on what lang.install() does above - but in this case, pretend we are
+    # translating files
+    builtins.__dict__['_'] = no_translation_performed
+

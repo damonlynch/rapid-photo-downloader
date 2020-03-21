@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,12 +21,10 @@ Display, edit and apply Job Codes.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017-2018, Damon Lynch"
+__copyright__ = "Copyright 2017-2020, Damon Lynch"
 
 from typing import Optional, Dict, Tuple, Union, List
 import logging
-from gettext import gettext as _
-
 
 from PyQt5.QtCore import (Qt, pyqtSlot, QRegularExpression)
 from PyQt5.QtWidgets import (

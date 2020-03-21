@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -23,7 +23,7 @@ Error log window for Rapid Photo Downloader
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017, Damon Lynch"
+__copyright__ = "Copyright 2017-2020, Damon Lynch"
 
 import logging
 import shlex
@@ -31,7 +31,7 @@ import subprocess
 import math
 from collections import deque, namedtuple
 from typing import Optional
-from gettext import gettext as _
+
 import re
 from html import escape
 

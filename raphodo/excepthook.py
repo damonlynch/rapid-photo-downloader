@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,7 @@
 
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2019, Damon Lynch"
+__copyright__ = "Copyright 2016-2020, Damon Lynch"
 
 
 import logging
@@ -36,7 +36,7 @@ except:
     # if import failed for any reason, ignore it
     have_easygui = False
 
-from gettext import gettext as _
+
 import raphodo.qrc_resources as qrc_resources
 
 from raphodo.iplogging import full_log_file_path

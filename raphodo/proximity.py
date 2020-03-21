@@ -32,8 +32,6 @@ from typing import Dict, List, Tuple, Set, Optional, DefaultDict
 import arrow.arrow
 from arrow.arrow import Arrow
 
-from gettext import gettext as _
-
 from PyQt5.QtCore import (
     QAbstractTableModel, QModelIndex, Qt, QSize, QSizeF, QRect, QItemSelection, QItemSelectionModel,
     QBuffer, QIODevice, pyqtSignal, pyqtSlot, QRectF, QPoint,
@@ -709,7 +707,7 @@ class TemporalProximityGroups:
         # group_no: no days spanned
         day_spans_by_proximity = dict()  # type: Dict[int, int]
         # group_no: (
-        uids_by_day_in_proximity_group = dict()  # type: Dict[int, Tuple[[Tuple[int, int, int], List[bytes]]]
+        uids_by_day_in_proximity_group = dict()  # type: Dict[int, Tuple[Tuple[int, int, int], List[bytes]]]
 
         # uid: (year, month, day)
         year_month_day = dict()  # type: Dict[bytes, Tuple[int, int, int]]

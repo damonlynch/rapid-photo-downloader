@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Show 'Did you know?' dialog at start up
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017, Damon Lynch"
+__copyright__ = "Copyright 2017-2020, Damon Lynch"
 
 
 from PyQt5.QtCore import pyqtSlot, QSize, Qt, QSettings, QUrl
@@ -32,8 +32,6 @@ from PyQt5.QtWidgets import (
     QDialog, QCheckBox, QLabel, QVBoxLayout, QPushButton, QHBoxLayout, QApplication,
     QDialogButtonBox, QTextBrowser
 )
-
-from gettext import gettext as _
 
 import raphodo.qrc_resources as qrc_resources
 from raphodo.preferences import Preferences

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -25,7 +25,7 @@ Some version checks are also in the module thumbnailextractor
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2018, Damon Lynch"
+__copyright__ = "Copyright 2015-2020, Damon Lynch"
 
 import re
 import subprocess
@@ -56,7 +56,7 @@ def exiv2_version() -> Optional[str]:
     # followed by the copyright & GPL
     try:
         v = subprocess.check_output(['exiv2', '-V', '-v']).strip().decode()
-        v = re.search('exiv2=([0-9\.]+)\n', v)
+        v = re.search('exiv2=([0-9.]+)\n', v)
         if v:
             return v.group(1)
         else:

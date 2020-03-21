@@ -24,7 +24,7 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2017-202, Damon Lynch"
 
 from typing import Tuple
-from gettext import gettext as _
+
 
 from PyQt5.QtCore import (Qt, pyqtSlot, pyqtSignal)
 from PyQt5.QtWidgets import (QSizePolicy, QStackedWidget, QPushButton, QLabel)

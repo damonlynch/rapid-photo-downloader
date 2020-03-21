@@ -26,7 +26,6 @@ __copyright__ = "Copyright 2017-2020, Damon Lynch"
 import webbrowser
 from typing import List
 import logging
-from gettext import gettext as _
 
 
 from PyQt5.QtCore import (Qt, pyqtSlot, pyqtSignal, QObject, QThread, QTimer, QSize)
@@ -304,6 +303,7 @@ class PreferencesDialog(QDialog):
         # such as '* Takes effect upon program restart'
         languageWidgetsLayout.addWidget(QLabel(_('*')))
         languageWidgetsLayout.addStretch()
+        languageWidgetsLayout.setSpacing(5)
 
         languageLayout = QVBoxLayout()
         languageLayout.addLayout(languageWidgetsLayout)
@@ -867,10 +867,13 @@ class PreferencesDialog(QDialog):
 
     def setLanguageWidgetValues(self) -> None:
         # Translators: this is an option when the user chooses the language to use for
-        # Rapid Photo Downloader and it allows them to reset back to whatever their
-        # system language settings are
+        # Rapid Photo Downloader and it allows them to reset it back to whatever their
+        # system language settings are. The < and > are not HTML codes. They are there
+        # simply to set this choice apart from all the other choices in the drop down list.
+        # You can keep the < > if you like, or replace them with whatever you typically use
+        # in your language.
         self.languages.addItem(_('<System Language>'), system_language)
-        for code, language in available_languages():
+        for code, language in available_languages(display_locale_code=self.prefs.language):
             self.languages.addItem(language, code)
         value = self.prefs.language
         if value:

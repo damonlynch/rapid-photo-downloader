@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2016, Damon Lynch"
+__copyright__ = "Copyright 2011-2020, Damon Lynch"
 
 from collections import defaultdict
 import time
@@ -25,8 +25,6 @@ import math
 import locale
 import logging
 from typing import Optional, Dict, List, Tuple, Set
-
-from gettext import gettext as _
 
 from raphodo.constants import DownloadStatus, FileType, DownloadUpdateSeconds
 from raphodo.thumbnaildisplay import DownloadStats
@@ -36,6 +34,7 @@ try:
     Infinity = math.inf
 except AttributeError:
     Infinity = float("inf")
+
 
 class DownloadTracker:
     """

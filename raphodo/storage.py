@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2008-2015 Canonical Ltd.
 # Copyright (C) 2013 Bernard Baeyens
 
@@ -43,7 +43,7 @@ regarding mount points and XDG related functionality.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2019, Damon Lynch. Copyright 2008-2015 Canonical Ltd. Copyright" \
+__copyright__ = "Copyright 2011-2020, Damon Lynch. Copyright 2008-2015 Canonical Ltd. Copyright" \
                 " 2013 Bernard Baeyens."
 
 import logging
@@ -73,7 +73,7 @@ gi.require_version('GExiv2', '0.10')
 gi.require_version('GLib', '2.0')
 from gi.repository import GUdev, UDisks, GLib
 
-from gettext import gettext as _
+
 
 from raphodo.constants import (
     Desktop, Distro, FileManagerType, DefaultFileBrowserFallback, FileManagerBehavior
@@ -187,7 +187,7 @@ def get_media_dir() -> str:
             return run_media_dir
         return media_dir
     else:
-        raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform())
+        raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform)
 
 
 _gvfs_gphoto2 = re.compile('gvfs.*gphoto2.*host')

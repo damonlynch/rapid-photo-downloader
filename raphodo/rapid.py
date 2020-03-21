@@ -56,9 +56,6 @@ import subprocess
 from urllib.request import pathname2url
 import inspect
 
-from gettext import gettext as _
-
-
 import gi
 gi.require_version('Notify', '0.7')
 from gi.repository import Notify

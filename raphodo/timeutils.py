@@ -26,7 +26,6 @@ from datetime import datetime
 import re
 
 from arrow.arrow import Arrow
-from gettext import gettext as _
 
 
 def twelve_hour_clock() -> bool:

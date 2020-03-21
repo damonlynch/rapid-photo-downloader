@@ -30,7 +30,7 @@ import datetime
 import copy
 import logging
 
-from gettext import gettext as _
+
 
 from PyQt5.QtWidgets import (
     QTextEdit, QApplication, QComboBox, QPushButton, QLabel, QDialog, QDialogButtonBox,

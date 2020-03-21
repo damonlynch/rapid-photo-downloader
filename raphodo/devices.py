@@ -36,7 +36,7 @@ import itertools
 from collections import namedtuple, Counter, defaultdict
 from typing import Tuple, List, Optional, Set, Dict, Union, DefaultDict
 
-from gettext import gettext as _
+
 
 from PyQt5.QtCore import QStorageInfo, QSize
 from PyQt5.QtWidgets import QFileIconProvider

@@ -44,8 +44,6 @@ from typing import Optional, Dict, List, Set
 import logging
 from pprint import pprint
 
-from gettext import gettext as _
-
 from PyQt5.QtCore import (
     QModelIndex, QSize, Qt, QPoint, QRect, QRectF, QEvent, QAbstractItemModel, QAbstractListModel,
     pyqtSlot, QTimer

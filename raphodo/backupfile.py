@@ -36,7 +36,7 @@ except locale.Error:
     pass
 
 from typing import Optional, Tuple
-from gettext import gettext as _
+
 
 from raphodo.interprocess import (BackupFileData, BackupResults, BackupArguments,
                           WorkerInPublishPullPipeline)

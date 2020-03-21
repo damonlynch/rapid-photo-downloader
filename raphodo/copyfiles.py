@@ -42,8 +42,6 @@ except locale.Error:
 
 import gphoto2 as gp
 
-from gettext import gettext as _
-
 from raphodo.camera import (
     Camera, CameraProblemEx, gphoto2_python_logging
 )

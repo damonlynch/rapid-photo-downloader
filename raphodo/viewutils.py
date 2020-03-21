@@ -23,7 +23,7 @@ from typing import List, Dict, Tuple, Optional
 from collections import namedtuple
 from pkg_resources import parse_version
 
-from gettext import gettext as _
+
 
 from PyQt5.QtWidgets import (
     QStyleOptionFrame, QStyle, QStylePainter, QWidget, QLabel, QListWidget, QProxyStyle,

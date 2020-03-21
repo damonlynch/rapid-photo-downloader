@@ -30,7 +30,6 @@ from typing import List, Tuple, Optional
 
 from PyQt5.QtCore import QSettings, QTime, Qt
 
-from gettext import gettext as _
 
 from raphodo.storage import (
     xdg_photos_directory, xdg_videos_directory, xdg_photos_identifier, xdg_videos_identifier

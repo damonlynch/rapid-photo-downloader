@@ -32,8 +32,8 @@ import tempfile
 import time
 import tarfile
 from collections import namedtuple, defaultdict
+
 from datetime import datetime
-from gettext import gettext as _
 from itertools import groupby, zip_longest
 from typing import Optional, List, Union, Any, Tuple, Iterator
 import struct
@@ -52,6 +52,7 @@ from PyQt5.QtCore import QSize
 import raphodo.__about__ as __about__
 from raphodo.constants import disable_version_check
 from raphodo import localedir, i18n_domain
+
 
 # Arrow 0.9.0 separated the replace and shift functions into separate calls, deprecating using
 # replace() to do the work of the new shift()
@@ -866,17 +867,18 @@ def remove_topmost_directory_from_path(path: str) -> str:
     return path[path[1:].find(os.sep) + 1:]
 
 
-def arrow_locale() -> str:
+def arrow_locale(lang: str) -> str:
     """
     Test if locale is suitable for use with Arrow.
     :return: Return user locale if it works with Arrow, else Arrow default ('en_us')
     """
 
     default = 'en_us'
-    try:
-        lang = locale.getdefaultlocale()[0]
-    except Exception:
-        return default
+    if not lang:
+        try:
+            lang = locale.getdefaultlocale()[0]
+        except Exception:
+            return default
 
     try:
         arrow.locales.get_locale(lang)
@@ -1105,7 +1107,7 @@ def get_language_display_name(lang_code: str,
         return display if not make_missing_lower else display.lower()
 
 
-def available_languages() -> List[Tuple[str, str]]:
+def available_languages(display_locale_code: str='') -> List[Tuple[str, str]]:
     """
     Detect translations that exist for Rapid Photo Downloader
     :return: iterator of Tuple of language code and localized name
@@ -1113,13 +1115,16 @@ def available_languages() -> List[Tuple[str, str]]:
 
     lang_codes = available_lang_codes()
 
-    if not lang_codes:  # Testing code
+    if not lang_codes:  # Testing code when translations are not installed
         lang_codes = ['en', 'de', 'es']
 
-    try:
-        locale_code = locale.getdefaultlocale()[0]
-    except Exception:
-        locale_code = 'en_US'
+    if not display_locale_code:
+        try:
+            locale_code = locale.getdefaultlocale()[0]
+        except Exception:
+            locale_code = 'en_US'
+    else:
+        locale_code = display_locale_code
 
     # Determine if this locale makes its language names lower case
     babel_sample = babel.Locale.parse('en').get_display_name(locale_code)

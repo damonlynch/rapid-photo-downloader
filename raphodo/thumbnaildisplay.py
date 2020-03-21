@@ -33,7 +33,7 @@ from typing import Optional, Dict, List, Set, Tuple, Sequence
 import locale
 import pkg_resources as pkgr
 
-from gettext import gettext as _
+
 
 import arrow.arrow
 from dateutil.tz import tzlocal
@@ -169,7 +169,7 @@ class ThumbnailListModel(QAbstractListModel):
         # Connect to the signal that is emitted when a thumbnailing operation is
         # terminated by us, not merely finished
         self.thumbnailer.workerStopped.connect(self.thumbnailWorkerStopped)
-        self.arrow_locale_for_humanize = arrow_locale()
+        self.arrow_locale_for_humanize = arrow_locale(self.prefs.language)
         logging.debug("Setting arrow locale to %s", self.arrow_locale_for_humanize)
 
     def initialize(self) -> None:

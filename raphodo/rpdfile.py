@@ -29,7 +29,6 @@ from collections import Counter, UserDict
 import locale
 from typing import Optional, List, Tuple, Union, Any
 
-from gettext import gettext as _
 import gi
 gi.require_version('GLib', '2.0')
 from gi.repository import GLib

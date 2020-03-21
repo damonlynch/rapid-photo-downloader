@@ -29,7 +29,6 @@ import os
 from collections import OrderedDict
 from typing import List, Optional, Tuple
 
-from gettext import gettext as _
 
 # PLEASE NOTE: these values are duplicated in a dummy class whose function
 # is to have them put into the translation template. If you change the values below

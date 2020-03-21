@@ -33,7 +33,6 @@ import traceback
 import shutil
 from typing import Optional
 
-from gettext import gettext as _
 import requests
 
 import arrow

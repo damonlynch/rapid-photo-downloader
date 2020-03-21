@@ -41,8 +41,6 @@ __copyright__ = "Copyright 2010-2020, Damon Lynch"
 from collections import deque
 from typing import Tuple, Optional, List, Union, Iterator
 from html import escape
-from gettext import gettext as _
-
 import logging
 
 from raphodo.utilities import make_internationalized_list

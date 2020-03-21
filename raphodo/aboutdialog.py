@@ -23,7 +23,6 @@ Display an About window
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016-2020, Damon Lynch"
 
-from gettext import gettext as _
 
 from PyQt5.QtCore import Qt, pyqtSlot, QSize
 from PyQt5.QtGui import QPixmap, QFont
