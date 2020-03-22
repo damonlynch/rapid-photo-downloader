@@ -1690,7 +1690,7 @@ def install_required_distro_packages(distro: Distro,
 
         if install_pyqt5:
             packages = '{} python3-pyqt5 qt5-image-formats-plugins ' \
-                       'python3-pyqt5.qtsvg'.format(packages)
+                       'libqt5svg5'.format(packages)
 
         set_manually_installed = []
 
