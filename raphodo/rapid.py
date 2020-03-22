@@ -4644,6 +4644,12 @@ Do you want to proceed with the download?
                 # updates the SQL database with the file downloads,
                 # so no need to update or close it in this main process
 
+        if self.unity_progress:
+            for launcher in self.desktop_launchers:
+                launcher.set_property("count", 0)
+                launcher.set_property("count_visible", False)
+                launcher.set_property('progress_visible', False)
+
         self.writeWindowSettings()
         logging.debug("Cleaning up provisional download folders")
         self.folder_preview_manager.remove_preview_folders()
