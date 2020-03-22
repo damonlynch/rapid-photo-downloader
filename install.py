@@ -1686,7 +1686,7 @@ def install_required_distro_packages(distro: Distro,
                    'python3-dev intltool libgphoto2-dev g++ exiv2 libraw-bin build-essential ' \
                    'python3-wheel python3-setuptools gir1.2-gexiv2-0.10 ' \
                    'python3-gi gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 '\
-                   'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 zenity '
+                   'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 zenity gir1.2-unity-5.0'
 
         if install_pyqt5:
             packages = '{} python3-pyqt5 qt5-image-formats-plugins'.format(packages)
@@ -1810,7 +1810,7 @@ def install_required_distro_packages(distro: Distro,
 
             base_python_packages = 'python3-easygui python3-psutil ' \
                                    'python3-tornado gobject-introspection python3-gobject ' \
-                                   'python3-babel'
+                                   'python3-babel python3-pillow'
 
             if distro == Distro.fedora:
                 base_python_packages = '{} python3-gexiv2'.format(base_python_packages)
@@ -1831,7 +1831,6 @@ def install_required_distro_packages(distro: Distro,
 
             if distro == Distro.fedora:
                 build_source_packages = '{} python3-cairo-devel'.format(build_source_packages)
-
 
             packages = '{} {}'.format(packages, build_source_packages)
 
@@ -1912,10 +1911,12 @@ def install_required_distro_packages(distro: Distro,
 
         if not venv:
             base_python_packages = 'girepository-1_0 python3-gobject ' \
-                                   'python3-psutil python3-tornado python3-Babel' \
+                                   'python3-psutil python3-tornado python3-Babel ' \
                                    'typelib-1_0-GExiv2-0_10 typelib-1_0-UDisks-2_0 ' \
                                    'typelib-1_0-Notify-0_7 ' \
-                                   'typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0'
+                                   'typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0 ' \
+
+
 
             packages = '{} {}'.format(packages, base_python_packages)
 
@@ -1928,6 +1929,13 @@ def install_required_distro_packages(distro: Distro,
 
         if opensuse_known_packages('libmediainfo0'):
             packages = '{} {}'.format(packages, 'libmediainfo0')
+
+        libunity_packages = opensuse_known_packages(
+            'typelib-1_0-UnityExtras-7_0 typelib-1_0-Unity-7_0 typelib-1_0-Dbusmenu-0_4 '
+            'typelib-1_0-Dee-1_0 '
+        )
+        if libunity_packages:
+            packages = '{} {}'.format(packages, ' '.join(libunity_packages))
 
         print(
             # Translators: do not translate the term zypper

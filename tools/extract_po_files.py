@@ -51,11 +51,11 @@ if arrow_version >= parse_version('0.14.3') and arrow_version < parse_version('0
     from arrow.factory import ArrowParseWarning
     warnings.simplefilter("ignore", ArrowParseWarning)
 
-blacklist = ['gl', 'lt', 'fil', 'en_AU', 'en_GB', 'eo', 'ku']
+blacklist = ['gl', 'lt', 'fil', 'en_AU', 'en_GB', 'eo', 'ku', 'fa']
 whitelist = [
     'ar', 'da', 'fr', 'it', 'fi', 'sk', 'ru', 'sr', 'es', 'pl', 'nl', 
     'sv', 'cs', 'hu', 'de', 'uk', 'zh_CN', 'pt_BR', 'tr', 'bg', 'ja', 'oc', 
-    'fa', 'nn', 'nb', 'pt', 'hr', 'ro', 'id', 'kab', 'et', 'be', 'ca', 'el'
+    'nn', 'nb', 'pt', 'hr', 'ro', 'id', 'kab', 'et', 'be', 'ca', 'el'
 ]
 
 class bcolors:

@@ -78,6 +78,10 @@ def no_translation_performed(s: str) -> str:
 
     return s
 
+# Install translation support
+# Users and specify the translation they want in the program preferences
+# The default is to use the system default
+
 
 i18n_domain = 'rapid-photo-downloader'
 localedir = locale_directory()

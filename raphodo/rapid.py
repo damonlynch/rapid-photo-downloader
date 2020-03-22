@@ -893,33 +893,28 @@ class RapidWindow(QMainWindow):
 
         self.unity_progress = False
         self.desktop_launchers = []
-        if get_desktop() in (Desktop.unity, Desktop.ubuntugnome):
-            if not have_unity:
+
+        if have_unity:
+            logging.info("Unity LauncherEntry API installed")
+            launchers = (
+                'net.damonlynch.rapid_photo_downloader.desktop',
+            )
+            for launcher in launchers:
+                desktop_launcher = Unity.LauncherEntry.get_for_desktop_id(launcher)
+                if desktop_launcher is not None:
+                    self.desktop_launchers.append(desktop_launcher)
+                    self.unity_progress = True
+
+            if not self.desktop_launchers:
                 logging.warning(
-                    "Desktop environment is Unity Launcher API compatible, but could not load "
-                    "Unity 7.0 module"
+                    "Desktop environment is Unity Launcher API compatible, but could not "
+                    "find program's .desktop file"
                 )
             else:
-                # Unity auto-generated desktop files use underscores, it seems
-                launchers = (
-                    'net.damonlynch.rapid_photo_downloader.desktop',
+                logging.debug(
+                    "Unity progress indicator found, using %s launcher(s)",
+                    len(self.desktop_launchers)
                 )
-                for launcher in launchers:
-                    desktop_launcher = Unity.LauncherEntry.get_for_desktop_id(launcher)
-                    if desktop_launcher is not None:
-                        self.desktop_launchers.append(desktop_launcher)
-                        self.unity_progress = True
-
-                if not self.desktop_launchers:
-                    logging.warning(
-                        "Desktop environment is Unity Launcher API compatible, but could not "
-                        "find program's .desktop file"
-                    )
-                else:
-                    logging.debug(
-                        "Unity progress indicator found, using %s launcher(s)",
-                        len(self.desktop_launchers)
-                    )
 
         self.createPathViews()
 

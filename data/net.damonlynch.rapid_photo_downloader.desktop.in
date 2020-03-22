@@ -9,6 +9,7 @@ _Name=Rapid Photo Downloader
 Name[en_US]=Rapid Photo Downloader
 Terminal=false
 Type=Application
+StartupWMClass=rapid-photo-downloader
 Version=1.0
 # TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 _Keywords=photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory;card;

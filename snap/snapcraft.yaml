@@ -64,6 +64,7 @@ parts:
       - gir1.2-notify-0.7
       - gir1.2-glib-2.0
       - gir1.2-gstreamer-1.0
+      - gir1.2-unity-5.0
       - libzmq5
       - gstreamer1.0-libav
       - gstreamer1.0-plugins-good
