@@ -1798,7 +1798,7 @@ def install_required_distro_packages(distro: Distro,
                    'libheif-devel libde265-devel x265-devel gstreamer1-libav'
 
         if install_pyqt5:
-            packages = 'qt5-qtimageformats python3-qt5 {}'.format(packages)
+            packages = 'qt5-qtimageformats python3-qt5 qt5-qtsvg {}'.format(packages)
 
         if distro == Distro.fedora:
             packages = '{} python3-devel'.format(packages)

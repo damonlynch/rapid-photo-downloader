@@ -108,6 +108,7 @@ elif wrong_package_name:
     print("Unknown packages:")
     print('\n'.join(wrong_package_name))
 else:
+    print('#!/bin/sh')
     for package_list in (language_packs, hunspell_packs):
         command = 'sudo apt -y install {}'.format(package_list)
         print(command)

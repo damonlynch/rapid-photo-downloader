@@ -1,28 +1,55 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.20 (2020-03-23)
+0.9.20 (2020-03-22)
 -------------------
 
  - Added support for program icon progress bars and badge counts on any desktop
    that supports the Unity LauncherEntry API, not just Ubuntu Unity or Gnome
    running under Ubuntu. (The Unity LauncherEntry API is used by desktops other
-   than Unity and Ubuntu Gnome, e.g. KDE, Dash to Panel.) For distribution
-   packagers, this adds new package dependencies. For openSUSE:
-   typelib-1_0-UnityExtras-7_0, typelib-1_0-Unity-7_0, typelib-1_0-Dbusmenu-0_4
-   and typelib-1_0-Dee-1_0. For Debian: gir1.2-unity-5.0.
+   than Unity and Ubuntu Gnome, e.g. KDE, Dash to Panel.)
 
  - Added missing property StartupWMClass to the program's desktop file. It's now
-   possible to add it as a Favorite to the Gnome Shell dock and not have it
-   appear as a duplicate entry when the program runs.
+   possible to add the Rapid Photo Downloader launcher as a Favorite to the
+   Gnome Shell dock and not have it appear as a duplicate entry when the program
+   runs. This fix also enables program icon progress bars and badge counts under
+   Gnome Shell extensions that support them.
 
- - Fixed bug #1810102: cannot change language in program preferences.
+ - Implemented feature request in bug #1810102: cannot change language in
+   program preferences. You can now specify the language you want the user
+   interface to display in regardless of the system locale setting.
 
- - Fix problems in setup.py. Make requirements.txt more conformant.
+ - Fixed problems in setup.py. Made requirements.txt more conformant.
 
  - Better handle missing ExifTool on startup.
 
- - New Python dependency: Babel.
+ - For distribution packagers, this release adds new package dependencies. The
+   SVG module for Qt 5 must be listed a required dependency, or else Rapid Photo
+   Downloader's SVG assets will fail to display (this has been happening under
+   Pop!_OS, for example).
+
+   For openSUSE:
+
+   - typelib-1_0-UnityExtras-7_0
+   - typelib-1_0-Unity-7_0
+   - typelib-1_0-Dbusmenu-0_4
+   - typelib-1_0-Dee-1_0
+   - python3-babel
+   - libQt5Svg5
+
+   For Debian:
+
+   - gir1.2-unity-5.0
+   - python3-babel
+   - libqt5svg5
+
+   For Arch:
+
+   - qt5-svg
+
+  For Fedora:
+
+   - qt5-qtsvg
 
 0.9.19 (2020-03-17)
 -------------------
