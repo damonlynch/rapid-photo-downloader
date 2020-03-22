@@ -1689,7 +1689,8 @@ def install_required_distro_packages(distro: Distro,
                    'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 zenity gir1.2-unity-5.0'
 
         if install_pyqt5:
-            packages = '{} python3-pyqt5 qt5-image-formats-plugins'.format(packages)
+            packages = '{} python3-pyqt5 qt5-image-formats-plugins ' \
+                       'python3-pyqt5.qtsvg'.format(packages)
 
         set_manually_installed = []
 
@@ -1790,8 +1791,6 @@ def install_required_distro_packages(distro: Distro,
     elif distro_family == Distro.fedora:  # Includes CentOS 8
 
         missing_packages = []
-        # global display_rpmfusion_message
-        # optional_gstreamer_package = 'gstreamer1-libav'
 
         packages = 'gstreamer1-plugins-good ' \
                    'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ ' \
