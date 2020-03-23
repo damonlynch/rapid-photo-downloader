@@ -47,7 +47,7 @@ Changelog for Rapid Photo Downloader
 
    - qt5-svg
 
-  For Fedora:
+   For Fedora:
 
    - qt5-qtsvg
 

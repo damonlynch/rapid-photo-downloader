@@ -1686,7 +1686,7 @@ def install_required_distro_packages(distro: Distro,
                    'python3-dev intltool libgphoto2-dev g++ exiv2 libraw-bin build-essential ' \
                    'python3-wheel python3-setuptools gir1.2-gexiv2-0.10 ' \
                    'python3-gi gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 '\
-                   'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 zenity gir1.2-unity-5.0'
+                   'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 zenity '
 
         if install_pyqt5:
             packages = '{} python3-pyqt5 qt5-image-formats-plugins ' \
@@ -1735,7 +1735,8 @@ def install_required_distro_packages(distro: Distro,
 
         # libheif and friends exist only in Ubuntu 18.04 and above
         # at some point libmediainfo0 was renamed to libmediainfo0v5
-        optional_packages = ['libmediainfo0v5', 'libmediainfo0'] + debian_heif_packages
+        optional_packages = ['libmediainfo0v5', 'libmediainfo0', 'gir1.2-unity-5.0'] + \
+                            debian_heif_packages
         if have_apt:
             for p in optional_packages:
                 if p in cache:
