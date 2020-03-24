@@ -122,6 +122,7 @@ Rapid Photo Downloader requires:
  - Requests_
  - Tenacity_
  - intltool_
+ - Babel_
  - If using Python 3.4, these additional modules:
     - typing_
     - scandir_
@@ -269,3 +270,4 @@ environment's directory.
 .. _Tenacity: https://github.com/jd/tenacity
 .. _pyheif: https://github.com/david-poirier-csn/pyheif
 .. _pillow: https://github.com/python-pillow/Pillow
+.. _Babel: http://babel.pocoo.org/en/latest/
