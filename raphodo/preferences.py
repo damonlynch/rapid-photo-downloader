@@ -362,7 +362,7 @@ class Preferences:
     )
     error_defaults = dict(
         conflict_resolution=int(constants.ConflictResolution.skip),
-        backup_duplicate_overwrite=False
+        backup_duplicate_overwrite=False,
     )
     destinations = dict(
         photo_backup_destinations=[''],
@@ -377,6 +377,9 @@ class Preferences:
         purge_thumbnails=False,
         optimize_thumbnail_db=False
     )
+    metadata_defaults = dict(
+        force_exiftool=False,
+    )
 
     def __init__(self) -> None:
         # To avoid infinite recursions arising from the use of __setattr__,
@@ -387,16 +390,17 @@ class Preferences:
         # These next two values must be kept in sync
         dicts = (
             self.program_defaults, self.rename_defaults,
-             self.timeline_defaults, self.display_defaults,
-             self.device_defaults,
-             self.backup_defaults, self.automation_defaults,
-             self.performance_defaults, self.error_defaults,
-             self.destinations, self.version_check, self.restart_directives
+            self.timeline_defaults, self.display_defaults,
+            self.device_defaults,
+            self.backup_defaults, self.automation_defaults,
+            self.performance_defaults, self.error_defaults,
+            self.destinations, self.version_check, self.restart_directives,
+            self.metadata_defaults,
         )
         group_names = (
             'Program', 'Rename', 'Timeline', 'Display', 'Device', 'Backup',
             'Automation', 'Performance', 'ErrorHandling', 'Destinations',
-            'VersionCheck', 'RestartDirectives'
+            'VersionCheck', 'RestartDirectives', 'Metadata'
         )
         assert len(dicts) == len(group_names)
 

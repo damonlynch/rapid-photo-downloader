@@ -767,11 +767,19 @@ class PreferencesDialog(QDialog):
         )
         self.ignoreMdatatimeMtpDng.setToolTip(tip)
 
+        self.forceExiftool = QCheckBox(_('Use ExifTool instead of Exiv2'))
+        tip = _(
+            'Use ExifTool instead of Exiv2 to read photo metadata (slower)'
+        )
+        self.forceExiftool.setToolTip(tip)
+
         self.setMetdataValues()
         self.ignoreMdatatimeMtpDng.stateChanged.connect(self.ignoreMdatatimeMtpDngChanged)
+        self.forceExiftool.stateChanged.connect(self.forceExiftoolChanged)
 
         metadataLayout = QVBoxLayout()
         metadataLayout.addWidget(self.ignoreMdatatimeMtpDng)
+        metadataLayout.addWidget(self.forceExiftool)
         self.metadataBox.setLayout(metadataLayout)
 
         if not consolidation_implemented:
@@ -920,10 +928,12 @@ class PreferencesDialog(QDialog):
 
     def setPerformanceValues(self, check_boxes_only: bool=False) -> None:
         self.generateThumbnails.setChecked(self.prefs.generate_thumbnails)
-        self.useThumbnailCache.setChecked(self.prefs.use_thumbnail_cache and
-                                          self.prefs.generate_thumbnails)
-        self.fdoThumbnails.setChecked(self.prefs.save_fdo_thumbnails and
-                                      self.prefs.generate_thumbnails)
+        self.useThumbnailCache.setChecked(
+            self.prefs.use_thumbnail_cache and self.prefs.generate_thumbnails
+        )
+        self.fdoThumbnails.setChecked(
+            self.prefs.save_fdo_thumbnails and self.prefs.generate_thumbnails
+        )
 
         if not check_boxes_only:
             available = available_cpu_count(physical_only=True)
@@ -1076,6 +1086,7 @@ class PreferencesDialog(QDialog):
 
     def setMetdataValues(self) -> None:
         self.ignoreMdatatimeMtpDng.setChecked(self.prefs.ignore_mdatatime_for_mtp_dng)
+        self.forceExiftool.setChecked(self.prefs.force_exiftool)
 
     def setCompletedDownloadsValues(self) -> None:
         s = self.prefs.completed_downloads
@@ -1404,6 +1415,10 @@ class PreferencesDialog(QDialog):
     def ignoreMdatatimeMtpDngChanged(self, state: int) -> None:
         self.prefs.ignore_mdatatime_for_mtp_dng = state == Qt.Checked
 
+    @pyqtSlot(int)
+    def forceExiftoolChanged(self, state: int) -> None:
+        self.prefs.force_exiftool = state == Qt.Checked
+
     @pyqtSlot(QAbstractButton)
     def noConsolidationGroupClicked(self, button: QRadioButton) -> None:
         if button == self.keepCompletedDownloads:
@@ -1423,11 +1438,14 @@ class PreferencesDialog(QDialog):
             self.removeAllDeviceClicked()
             self.setDeviceWidgetValues()
         elif row == 1:
+            self.prefs.restore('language')
+            self.languages.setCurrentIndex(0)
+        elif row == 2:
             for value in ('auto_download_at_startup', 'auto_download_upon_device_insertion',
                           'auto_unmount', 'auto_exit', 'auto_exit_force'):
                 self.prefs.restore(value)
             self.setAutomationWidgetValues()
-        elif row == 2:
+        elif row == 3:
             for value in ('generate_thumbnails', 'use_thumbnail_cache', 'save_fdo_thumbnails',
                           'max_cpu_cores', 'keep_thumbnails_days'):
                 self.prefs.restore(value)
@@ -1435,28 +1453,29 @@ class PreferencesDialog(QDialog):
             self.maxCores.setCurrentText(str(self.prefs.max_cpu_cores))
             self.setPerfomanceEnabled()
             self.thumbnailCacheDaysKeep.setValue(self.prefs.keep_thumbnails_days)
-        elif row == 3:
+        elif row == 4:
             for value in ('conflict_resolution', 'backup_duplicate_overwrite'):
                 self.prefs.restore(value)
             self.setErrorHandingValues()
-        elif row == 4:
+        elif row == 5:
             for value in (
                     'warn_downloading_all', 'warn_backup_problem',
                     'warn_broken_or_missing_libraries', 'warn_fs_metadata_error',
                     'warn_unhandled_files', 'ignore_unhandled_file_exts'):
                 self.prefs.restore(value)
             self.setWarningValues()
-        elif row == 5 and consolidation_implemented:
+        elif row == 6 and consolidation_implemented:
             for value in (
                     'completed_downloads', 'consolidate_identical', 'one_raw_jpeg',
                     'do_not_mark_jpeg', 'do_not_mark_raw'):
                 self.prefs.restore(value)
             self.setConsolidatedValues()
-        elif (row == 6 and consolidation_implemented) or (row == 5 and not
+        elif (row == 7 and consolidation_implemented) or (row == 6 and not
                 consolidation_implemented):
             if not version_check_disabled():
                 self.prefs.restore('check_for_new_versions')
-            for value in ('include_development_release', 'ignore_mdatatime_for_mtp_dng'):
+            for value in ('include_development_release', 'ignore_mdatatime_for_mtp_dng',
+                          'force_exiftool'):
                 self.prefs.restore(value)
             if not consolidation_implemented:
                 self.prefs.restore('completed_downloads')
@@ -1472,19 +1491,21 @@ class PreferencesDialog(QDialog):
         if row == 0:
             location = '#devicepreferences'
         elif row == 1:
-            location = '#automationpreferences'
+            location = '#languagepreferences'
         elif row == 2:
-            location = '#thumbnailpreferences'
+            location = '#automationpreferences'
         elif row == 3:
-            location = '#errorhandlingpreferences'
+            location = '#thumbnailpreferences'
         elif row == 4:
-            location = '#warningpreferences'
+            location = '#errorhandlingpreferences'
         elif row == 5:
+            location = '#warningpreferences'
+        elif row == 6:
             if consolidation_implemented:
                 location = '#consolidationpreferences'
             else:
                 location = '#miscellaneousnpreferences'
-        elif row == 6:
+        elif row == 7:
             location = '#miscellaneousnpreferences'
         else:
             location = ''

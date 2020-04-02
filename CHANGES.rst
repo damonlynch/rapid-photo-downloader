@@ -1,6 +1,16 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.21 (2020-04-xx)
+-------------------
+
+ - Fixed bug #1869065: Debian Buster can't find package
+
+ - Fixed bug in resetting program preferences back to default values in
+   Preferences Dialog window.
+
+ - Updated Japanese, Spanish and Turkish translations.
+
 0.9.20 (2020-03-22)
 -------------------
 
