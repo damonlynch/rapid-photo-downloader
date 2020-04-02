@@ -117,8 +117,6 @@ def get_distro() -> Distro:
         with open(os_release, 'r') as f:
             for line in f:
                 if line.startswith('NAME='):
-                    if line.find('Korora') > 0:
-                        return Distro.korora
                     if line.find('elementary') > 0:
                         return Distro.elementary
                     if line.find('CentOS Linux') > 0:
@@ -127,6 +125,8 @@ def get_distro() -> Distro:
                         return Distro.opensuse
                     if line.find('Deepin') > 0:
                         return Distro.deepin
+                    if line.find('Zorin') > 0:
+                        return Distro.zorin
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):
@@ -176,9 +176,9 @@ def get_media_dir() -> str:
         distro = get_distro()
         if os.path.isdir(run_media_dir) and distro not in (
                 Distro.ubuntu, Distro.debian, Distro.neon, Distro.galliumos, Distro.peppermint,
-                Distro.elementary):
+                Distro.elementary, Distro.zorin):
             if distro not in (Distro.fedora, Distro.manjaro, Distro.arch, Distro.opensuse,
-                              Distro.gentoo, Distro.antergos, Distro.korora, Distro.centos):
+                              Distro.gentoo, Distro.antergos, Distro.centos):
                 logging.debug(
                     "Detected /run/media directory, but distro does not appear to be CentOS, "
                     "Fedora, Arch, openSUSE, Gentoo, Korora, Manjaro, or Antergos"

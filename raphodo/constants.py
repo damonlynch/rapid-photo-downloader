@@ -544,7 +544,7 @@ class Distro(Enum):
     fedora = 3
     neon = 4
     linuxmint = 5
-    korora = 6
+    zorin = 6
     arch = 7
     opensuse = 8
     manjaro = 9
