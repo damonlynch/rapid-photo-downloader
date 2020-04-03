@@ -1074,6 +1074,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             if self.prefs.force_exiftool:
                 exif_extract = True
                 use_exiftool = True
+                save_chunk = True
             else:
                 if self.camera.can_fetch_thumbnails:
                     use_app1 = True

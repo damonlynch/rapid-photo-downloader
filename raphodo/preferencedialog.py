@@ -772,9 +772,10 @@ class PreferencesDialog(QDialog):
             'Use ExifTool instead of Exiv2 to read photo metadata and extract thumbnails.\n\n'
             'The default is to use Exiv2, relying on ExifTool only when Exiv2 does not support the '
             'file format being read.\n\n'
-            'While Exiv2 is fast and reliable, very occasionally it crashes when extracting '
-            'metadata from rare files, such as DNG files produced by Leica M8 cameras.'
+            'Exiv2 is fast, accurate, and almost always reliable, but it crashes when extracting '
+            'metadata from a small number of files, such as DNG files produced by Leica M8 cameras.'
         )
+
         self.forceExiftool.setToolTip(tip)
 
         self.setMetdataValues()

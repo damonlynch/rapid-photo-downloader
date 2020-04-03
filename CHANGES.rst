@@ -6,9 +6,10 @@ Changelog for Rapid Photo Downloader
 
  - Added an option to extract photo metadata (including thumbnails) using only
    ExifTool. Rapid Photo Downloader defaults to using Exiv2, relying on ExifTool
-   only when Exiv2 does not support the file format being read. While Exiv2 is
-   fast and reliable, very occasionally it crashes when extracting metadata from
-   rare files, such as DNG files produced by Leica M8 cameras.
+   only when Exiv2 does not support the file format being read. Exiv2 is
+   fast, accurate, and almost always reliable, but it crashes when extracting
+   metadata from a small number of files, such as DNG files produced by Leica M8
+   cameras.
 
  - Fixed bug #1869065: Debian Buster can't find package
 
