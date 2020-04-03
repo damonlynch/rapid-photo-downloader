@@ -211,7 +211,7 @@ class ErrorReport(QDialog):
             QFontMetrics(QFont()).boundingRect(_('%s of %s matches') % (1000, 1000)).width()
             + spacing
         )
-        # Translators: match number of total matches in a search
+        # Translators: match number of total matches in a search, e.g. 1 of 10 matches
         _('%(matchnumber)s of %(total)s matches')
 
         #TODO implement this once translations done

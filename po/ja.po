@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-04-03 15:58-0400\n"
+"POT-Creation-Date: 2020-04-03 16:16-0400\n"
 "PO-Revision-Date: 2020-03-25 16:35+0000\n"
 "Last-Translator: Koji <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -1748,7 +1748,7 @@ msgstr "単語全体のみを検索"
 msgid "%s of %s matches"
 msgstr "%s (%s 一致中)"
 
-#. Translators: match number of total matches in a search
+#. Translators: match number of total matches in a search, e.g. 1 of 10 matches
 #: ../raphodo/errorlog.py:215
 #, python-format
 msgid "%(matchnumber)s of %(total)s matches"
