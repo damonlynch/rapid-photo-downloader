@@ -501,9 +501,6 @@ class LRUQueue:
 
     def handle_controller(self, msg):
         self.terminating = True
-        # logging.debug(
-        #     "%s load balancer requesting %s workers to stop", self.worker_type, len(self.workers)
-        # )
 
         while len(self.workers):
             worker_identity = self.workers.popleft()
@@ -526,7 +523,7 @@ class LRUQueue:
 
         zw = self.process_manager.zombie_workers()
         if zw:
-            logging.error("%s dead thumbnail extractors", len(zw))
+            logging.critical("%s dead thumbnail extractors", len(zw))
 
         # Second frame is empty
         assert empty == b''
@@ -1064,7 +1061,7 @@ class WorkerInPublishPullPipeline(WorkerProcess):
             # If there is no command,exception will occur
             worker_id, command = self.controller.recv_multipart(zmq.DONTWAIT)
             assert command in [b'PAUSE', b'STOP']
-            assert  worker_id == self.worker_id
+            assert worker_id == self.worker_id
 
             if command == b'PAUSE':
                 # Because the process is paused, do a blocking read to

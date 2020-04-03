@@ -774,9 +774,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 adjusted_mtime = self.adjusted_mtime(modification_time)
 
                 downloaded = self.downloaded.file_downloaded(
-                                        name=self.file_name,
-                                        size=size,
-                                        modification_time=adjusted_mtime)
+                    name=self.file_name, size=size, modification_time=adjusted_mtime
+                )
 
                 thumbnail_cache_status = ThumbnailCacheDiskStatus.unknown
 

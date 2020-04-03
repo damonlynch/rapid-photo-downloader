@@ -16,7 +16,7 @@ Changelog for Rapid Photo Downloader
  - Fixed bug introduced in 0.9.20 when resetting program preferences back to
    default values in Preferences Dialog window.
 
- - Fixed crash on startup when no default locale is set.
+ - Fixed bug #1870566: Missing default locale causes startup failure.
 
  - Updated Japanese, Spanish and Turkish translations.
 

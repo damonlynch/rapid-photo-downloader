@@ -529,6 +529,9 @@ class RapidWindow(QMainWindow):
         self.checkPrefsUpgrade()
         self.prefs.program_version = __about__.__version__
 
+        if self.prefs.force_exiftool:
+            logging.debug("ExifTool and not Exiv2 will be used to read photo metadata")
+
         # track devices on which there was an error setting a file's filesystem metadata
         self.copy_metadata_errors = FSMetadataErrors()
         self.backup_metadata_errors = FSMetadataErrors()
