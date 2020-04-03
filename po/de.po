@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-04-03 02:42-0400\n"
+"POT-Creation-Date: 2020-04-03 13:17-0400\n"
 "PO-Revision-Date: 2020-03-16 01:31+0000\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: German <de@li.org>\n"
@@ -2658,7 +2658,7 @@ msgstr "Voreinstellung:"
 msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
-#: ../raphodo/nameeditor.py:1055 ../raphodo/preferencedialog.py:834
+#: ../raphodo/nameeditor.py:1055 ../raphodo/preferencedialog.py:835
 msgid "Get help online..."
 msgstr "Im Netz Hilfe erhalten …"
 
@@ -3453,12 +3453,12 @@ msgid ""
 "The default is to use Exiv2, relying on ExifTool only when Exiv2 does not "
 "support the file format being read.\n"
 "\n"
-"While Exiv2 is fast and reliable, very occasionally it crashes when "
-"extracting metadata from rare files, such as DNG files produced by Leica M8 "
-"cameras."
+"Exiv2 is fast, accurate, and almost always reliable, but it crashes when "
+"extracting metadata from a small number of files, such as DNG files produced "
+"by Leica M8 cameras."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:790
+#: ../raphodo/preferencedialog.py:791
 msgid "Completed Downloads"
 msgstr "Abgeschlossene Übertragungen"
 
@@ -3468,19 +3468,19 @@ msgstr "Abgeschlossene Übertragungen"
 #. simply to set this choice apart from all the other choices in the drop down list.
 #. You can keep the < > if you like, or replace them with whatever you typically use
 #. in your language.
-#: ../raphodo/preferencedialog.py:887
+#: ../raphodo/preferencedialog.py:888
 msgid "<System Language>"
 msgstr ""
 
 #. Translators: substituted value is a description for the set of preferences
 #. shown in the preference dialog window, e.g. Devices, Automation, etc.
 #. This string is shown in a tooltip for the "Restore Defaults" button
-#: ../raphodo/preferencedialog.py:1140
+#: ../raphodo/preferencedialog.py:1141
 #, python-format
 msgid "Restores default %s preference values"
 msgstr "Stellt Standard-Einstellungen von %s wieder her"
 
-#: ../raphodo/preferencedialog.py:1290
+#: ../raphodo/preferencedialog.py:1291
 msgid ""
 "Do you want to purge the thumbnail cache? The cache will be purged when the "
 "program is next started."
@@ -3488,11 +3488,11 @@ msgstr ""
 "Möchten Sie den Zwischenspeicher der Vorschaubilder bereinigen? Der "
 "Zwischenspeicher wird beim nächsten Programmstart gelöscht."
 
-#: ../raphodo/preferencedialog.py:1294
+#: ../raphodo/preferencedialog.py:1295
 msgid "Purge Thumbnail Cache"
 msgstr "Vorschaubildzwischenspeicher bereinigen"
 
-#: ../raphodo/preferencedialog.py:1307
+#: ../raphodo/preferencedialog.py:1308
 msgid ""
 "Do you want to optimize the thumbnail cache? The cache will be optimized "
 "when the program is next started."
@@ -3500,53 +3500,53 @@ msgstr ""
 "Möchten Sie den Zwischenspeicher der Vorschaubilder optimieren? Der "
 "Zwischenspeicher wird beim nächsten Programmstart optimiert."
 
-#: ../raphodo/preferencedialog.py:1311
+#: ../raphodo/preferencedialog.py:1312
 msgid "Optimize Thumbnail Cache"
 msgstr "Vorschaubildzwischenspeicher optimieren"
 
-#: ../raphodo/preferencedialog.py:1574
+#: ../raphodo/preferencedialog.py:1575
 msgid "Enter a Folder to Scan"
 msgstr "Geben Sie einen Ordner an, der durchsucht werden soll"
 
-#: ../raphodo/preferencedialog.py:1575
+#: ../raphodo/preferencedialog.py:1576
 msgid "Specify a folder that will be scanned for photos and videos"
 msgstr "Geben Sie einen Ordner an, der nach Fotos und Videos durchsucht wird"
 
-#: ../raphodo/preferencedialog.py:1576
+#: ../raphodo/preferencedialog.py:1577
 msgid "Folder:"
 msgstr "Ordner:"
 
-#: ../raphodo/preferencedialog.py:1590
+#: ../raphodo/preferencedialog.py:1591
 msgid "Enter a Path to Ignore"
 msgstr "Geben Sie einen Pfad ein, welcher ignoriert werden sollen"
 
-#: ../raphodo/preferencedialog.py:1591
+#: ../raphodo/preferencedialog.py:1592
 msgid "Specify a path that will never be scanned for photos or videos"
 msgstr ""
 "Geben Sie einen Pfad ein, welcher nie nach Bildern oder Filmen durchsucht "
 "werden soll"
 
-#: ../raphodo/preferencedialog.py:1592
+#: ../raphodo/preferencedialog.py:1593
 msgid "Path:"
 msgstr "Pfad:"
 
-#: ../raphodo/preferencedialog.py:1606
+#: ../raphodo/preferencedialog.py:1607
 msgid "Enter a File Extension"
 msgstr "Dateiendung eingeben"
 
-#: ../raphodo/preferencedialog.py:1607
+#: ../raphodo/preferencedialog.py:1608
 msgid "Specify a file extension (without the leading dot)"
 msgstr "Geben Sie eine Dateiendung an (ohne den führenden Punkt)"
 
-#: ../raphodo/preferencedialog.py:1608 ../raphodo/renamepanel.py:124
+#: ../raphodo/preferencedialog.py:1609 ../raphodo/renamepanel.py:124
 msgid "Extension:"
 msgstr "Endung:"
 
-#: ../raphodo/preferencedialog.py:1623
+#: ../raphodo/preferencedialog.py:1624
 msgid "Invalid File Extension"
 msgstr "Ungültige Dateiendung"
 
-#: ../raphodo/preferencedialog.py:1627
+#: ../raphodo/preferencedialog.py:1628
 #, python-format
 msgid ""
 "The file extension <b>%s</b> is recognized by Rapid Photo Downloader, so it "
@@ -3555,7 +3555,7 @@ msgstr ""
 "Die Dateinamenserweiterung <b>%s</b> wird von Rapid Photo Downloader "
 "erkannt. Deshalb ist ein Warnhinweis unnötig."
 
-#: ../raphodo/preferencedialog.py:1634
+#: ../raphodo/preferencedialog.py:1635
 #, python-format
 msgid ""
 "Recognized file types:\n"
