@@ -4,10 +4,18 @@ Changelog for Rapid Photo Downloader
 0.9.21 (2020-04-xx)
 -------------------
 
+ - Added an option to extract photo metadata (including thumbnails) using only
+   ExifTool. Rapid Photo Downloader defaults to using Exiv2, relying on ExifTool
+   only when Exiv2 does not support the file format being read. While Exiv2 is
+   fast and reliable, very occasionally it crashes when extracting metadata from
+   rare files, such as DNG files produced by Leica M8 cameras.
+
  - Fixed bug #1869065: Debian Buster can't find package
 
- - Fixed bug in resetting program preferences back to default values in
-   Preferences Dialog window.
+ - Fixed bug introduced in 0.9.20 when resetting program preferences back to
+   default values in Preferences Dialog window.
+
+ - Fixed crash on startup when no default locale is set.
 
  - Updated Japanese, Spanish and Turkish translations.
 

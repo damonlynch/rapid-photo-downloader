@@ -481,6 +481,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         self.prefs = Preferences()
 
+        # Whether we must use ExifTool to read photo metadata
+        force_exiftool = self.prefs.force_exiftool
+
         # If the entire photo or video is required to extract the thumbnail, which is determined
         # when extracting sample metadata from a photo or video during the device scan
         entire_photo_required = arguments.entire_photo_required
@@ -492,7 +495,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         thumbnail_caches = GetThumbnailFromCache(use_thumbnail_cache=use_thumbnail_cache)
 
         photo_cache_dir = video_cache_dir = None
-        cache_file_from_camera = False
+        cache_file_from_camera = force_exiftool
 
         rpd_files = arguments.rpd_files
 
@@ -648,7 +651,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                     thumbnail_bytes = None
                             else:
 
-                                if use_exiftool_on_photo(rpd_file.extension,
+                                if force_exiftool or use_exiftool_on_photo(rpd_file.extension,
                                                            preview_extraction_irrelevant=False):
                                     task, full_file_name_to_work_on, \
                                         file_to_work_on_is_temporary =\
@@ -796,7 +799,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                         use_thumbnail_cache=use_thumbnail_cache,
                         file_to_work_on_is_temporary=file_to_work_on_is_temporary,
                         write_fdo_thumbnail=False,
-                        send_thumb_to_main=True
+                        send_thumb_to_main=True,
+                        force_exiftool=force_exiftool
                     ),
                     pickle.HIGHEST_PROTOCOL)
                 self.frontend.send_multipart([b'data', self.content])

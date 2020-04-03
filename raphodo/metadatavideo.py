@@ -84,7 +84,7 @@ class MetaData(metadataexiftool.MetadataExiftool):
                  et_process: exiftool.ExifTool,
                  file_type: Optional[FileType]=FileType.video):
         """
-        Get video metadata using Exiftool
+        Get video metadata using Exiftool or pymediainfo
 
         :param filename: the file from which to get metadata
         :param et_process: instance of ExifTool class, which allows

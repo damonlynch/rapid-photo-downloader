@@ -98,7 +98,8 @@ if localedir is not None and os.path.isfile(os.path.join(localedir, sample_trans
     if not lang:
         lang, encoding = locale.getdefaultlocale()
 
-    lang = [lang]
+    if lang:
+        lang = [lang]
 
     try:
         lang = gettext.translation(i18n_domain, localedir=localedir, languages=lang)

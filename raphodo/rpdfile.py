@@ -822,9 +822,10 @@ class Photo(RPDFile):
         self.file_type = FileType.photo
 
     def load_metadata(self, full_file_name: Optional[str]=None,
-                 raw_bytes: Optional[bytearray]=None,
-                 app1_segment: Optional[bytearray]=None,
-                 et_process: exiftool.ExifTool=None) -> bool:
+                      raw_bytes: Optional[bytearray]=None,
+                      app1_segment: Optional[bytearray]=None,
+                      et_process: exiftool.ExifTool=None,
+                      force_exiftool: Optional[bool] = False) -> bool:
         """
         Use GExiv2 or ExifTool to read the photograph's metadata.
 
@@ -835,10 +836,14 @@ class Photo(RPDFile):
         :param app1_segment: the app1 segment of a jpeg file, from which
          the metadata can be read
         :param et_process: optional daemon ExifTool process
+        :param force_exiftool: whether ExifTool must be used to load the
+         metadata
         :return: True if successful, False otherwise
         """
 
-        if fileformats.use_exiftool_on_photo(self.extension, preview_extraction_irrelevant=True):
+        if force_exiftool or fileformats.use_exiftool_on_photo(
+                self.extension, preview_extraction_irrelevant=True):
+
             self.metadata = metadataexiftool.MetadataExiftool(
                 full_file_name=full_file_name, et_process=et_process, file_type=self.file_type
             )

@@ -3493,7 +3493,8 @@ Do you want to proceed with the download?
                     data=ThumbnailDaemonData(
                         rpd_file=rpd_file,
                         write_fdo_thumbnail=self.prefs.save_fdo_thumbnails,
-                        use_thumbnail_cache=self.prefs.use_thumbnail_cache
+                        use_thumbnail_cache=self.prefs.use_thumbnail_cache,
+                        force_exiftool=self.prefs.force_exiftool,
                     )
                 )
             else:
@@ -3559,7 +3560,8 @@ Do you want to proceed with the download?
                         rpd_file=rpd_file,
                         write_fdo_thumbnail=True,
                         backup_full_file_names=self.backup_fdo_thumbnail_cache[uid],
-                        fdo_name=rpd_file.fdo_thumbnail_128_name
+                        fdo_name=rpd_file.fdo_thumbnail_128_name,
+                        force_exiftool=self.prefs.force_exiftool
                     )
                 )
                 del self.backup_fdo_thumbnail_cache[uid]
@@ -3731,7 +3733,8 @@ Do you want to proceed with the download?
                     rpd_file=rpd_file,
                     write_fdo_thumbnail=True,
                     backup_full_file_names=[backup_full_file_name],
-                    fdo_name=self.generated_fdo_thumbnails[uid]
+                    fdo_name=self.generated_fdo_thumbnails[uid],
+                    force_exiftool=self.prefs.force_exiftool,
                 )
             )
 

@@ -1071,14 +1071,19 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         if ext_type == FileExtension.jpeg:
             determined_by = 'jpeg'
-            if self.camera.can_fetch_thumbnails:
-                use_app1 = True
-            else:
+            if self.prefs.force_exiftool:
                 exif_extract = True
+                use_exiftool = True
+            else:
+                if self.camera.can_fetch_thumbnails:
+                    use_app1 = True
+                else:
+                    exif_extract = True
+
         elif ext_type == FileExtension.raw:
             determined_by = 'RAW'
             exif_extract = True
-            use_exiftool = fileformats.use_exiftool_on_photo(
+            use_exiftool = self.prefs.force_exiftool or fileformats.use_exiftool_on_photo(
                 extension, preview_extraction_irrelevant=True
             )
             save_chunk = use_exiftool
@@ -1088,7 +1093,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         elif ext_type == FileExtension.heif:
             determined_by = 'HEIF / HEIC'
             exif_extract = True
-            use_exiftool = fileformats.use_exiftool_on_photo(
+            use_exiftool = self.prefs.force_exiftool or fileformats.use_exiftool_on_photo(
                 extension, preview_extraction_irrelevant=True
             )
             save_chunk = True
@@ -1217,7 +1222,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
             dt = metadata.date_time(missing=None)
         else:
             # photo - we don't care if jpeg or RAW
-            if fileformats.use_exiftool_on_photo(extension, preview_extraction_irrelevant=True):
+            if self.prefs.force_exiftool or fileformats.use_exiftool_on_photo(
+                    extension, preview_extraction_irrelevant=True):
+
                 metadata = metadataexiftool.MetadataExiftool(
                     full_file_name=full_file_name, et_process=self.et_process,
                     file_type=file_type

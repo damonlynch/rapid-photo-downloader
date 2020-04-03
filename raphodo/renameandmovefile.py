@@ -171,9 +171,11 @@ def load_metadata(rpd_file: Union[Photo, Video],
                                       et_process=et_process):
             # Error in reading metadata
 
-            problems.append(FileMetadataLoadProblem(
-                name=rpd_file.name, uri=rpd_file.get_uri(), file_type=rpd_file.title
-            ))
+            problems.append(
+                FileMetadataLoadProblem(
+                    name=rpd_file.name, uri=rpd_file.get_uri(), file_type=rpd_file.title
+                )
+            )
             return False
     return True
 

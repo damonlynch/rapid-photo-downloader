@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@
 """Starts load balancer used for thumbnail extraction and caching"""
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch"
+__copyright__ = "Copyright 2015-2020, Damon Lynch"
 
 from raphodo.interprocess import LoadBalancerWorkerManager, LoadBalancer
 
@@ -41,10 +41,11 @@ class ThumbnailLoadBalancerWorkerManager(LoadBalancerWorkerManager):
 
 class ThumbnailLoadBalancer(LoadBalancer):
     """
-    Managers the thumbnail load balancer
+    Manages the thumbnail load balancer
     """
     def __init__(self) -> None:
         super().__init__('Thumbnail', ThumbnailLoadBalancerWorkerManager)
+
 
 if __name__ == "__main__":
     loadbalancer = ThumbnailLoadBalancer()

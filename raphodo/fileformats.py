@@ -126,7 +126,8 @@ MUST_CACHE_VIDEOS = [video for video in VIDEO_EXTENSIONS if thumbnail_offset.get
 def use_exiftool_on_photo(extension: str, preview_extraction_irrelevant: bool) -> bool:
     """
     Determine if the file extension indicates its exif information
-    must be extracted using ExifTool and not Exiv2
+    must be extracted using ExifTool and not Exiv2.
+
     :param extension: lower case, no leading period
     :param preview_extraction_irrelevant: if True, return True only taking into
      account the exif string data, not the exif preview data

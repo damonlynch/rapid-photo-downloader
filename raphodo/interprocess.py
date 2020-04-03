@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2019, Damon Lynch"
+__copyright__ = "Copyright 2015-2020, Damon Lynch"
 
 import argparse
 import sys
@@ -1252,10 +1252,6 @@ class ScanArguments:
         :param ignore_other_types: ignore file types like TIFF
         :param log_gphoto2: whether to generate detailed gphoto2 log
          messages
-        :param scan_only_DCIM: if the device is an auto-detected volume,
-         then if True, scan only in it's DCIM folder
-        :param warn_unknown_file: whether to issue a warning when
-         encountering an unknown (unrecognized) file
         """
 
         self.device = device
@@ -1385,13 +1381,15 @@ class ThumbnailDaemonData:
                  write_fdo_thumbnail: Optional[bool]=None,
                  use_thumbnail_cache: Optional[bool]=None,
                  backup_full_file_names: Optional[List[str]]=None,
-                 fdo_name: Optional[str]=None) -> None:
+                 fdo_name: Optional[str]=None,
+                 force_exiftool: Optional[bool]=None) -> None:
         self.frontend_port = frontend_port
         self.rpd_file = rpd_file
         self.write_fdo_thumbnail = write_fdo_thumbnail
         self.use_thumbnail_cache = use_thumbnail_cache
         self.backup_full_file_names = backup_full_file_names
         self.fdo_name = fdo_name
+        self.force_exiftool = force_exiftool
 
 
 class RenameAndMoveFileData:
@@ -1583,7 +1581,8 @@ class ThumbnailExtractorArgument:
                  use_thumbnail_cache: bool,
                  file_to_work_on_is_temporary: bool,
                  write_fdo_thumbnail: bool,
-                 send_thumb_to_main: bool) -> None:
+                 send_thumb_to_main: bool,
+                 force_exiftool: bool) -> None:
         self.rpd_file = rpd_file
         self.task = task
         self.processing = processing
@@ -1595,6 +1594,7 @@ class ThumbnailExtractorArgument:
         self.use_thumbnail_cache = use_thumbnail_cache
         self.write_fdo_thumbnail = write_fdo_thumbnail
         self.send_thumb_to_main = send_thumb_to_main
+        self.force_exiftool = force_exiftool
 
 
 class RenameMoveFileManager(PushPullDaemonManager):
