@@ -14,7 +14,7 @@ Changelog for Rapid Photo Downloader
  - Fixed bug #1869065: Debian Buster can't find package
 
  - Fixed bug introduced in 0.9.20 when resetting program preferences back to
-   default values in Preferences Dialog window.
+   default values in the Preferences Dialog window.
 
  - Fixed bug #1870566: Missing default locale causes startup failure.
 
