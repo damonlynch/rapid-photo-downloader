@@ -18,7 +18,8 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug #1870566: Missing default locale causes startup failure.
 
- - Updated Japanese, Spanish and Turkish translations.
+ - Updated Czech, Dutch, French, German, Japanese, Spanish and Turkish
+   translations.
 
 0.9.20 (2020-03-22)
 -------------------
