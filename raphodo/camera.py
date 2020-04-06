@@ -244,7 +244,7 @@ class Camera:
         abilities = self.camera.get_abilities()
         self.can_fetch_thumbnails = abilities.file_operations & gp.GP_FILE_OPERATION_PREVIEW != 0
 
-    def camera_has_dcim_like_folder(self) -> bool:
+    def camera_has_folders_to_scan(self) -> bool:
         """
         Check whether the camera has been initialized and if a DCIM or other specific folder
         has been located

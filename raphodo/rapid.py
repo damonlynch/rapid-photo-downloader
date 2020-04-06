@@ -134,7 +134,7 @@ from raphodo.utilities import (
 from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
 from raphodo.rpdfile import (
-    RPDFile, file_types_by_number, FileTypeCounter, Video
+    RPDFile, file_types_by_number, FileTypeCounter, Video, Photo, FileSizeSum
 )
 import raphodo.fileformats as fileformats
 import raphodo.downloadtracker as downloadtracker
@@ -4289,7 +4289,7 @@ Do you want to proceed with the download?
     def scanFilesReceived(self, rpd_files: List[RPDFile],
                           sample_files: List[RPDFile],
                           file_type_counter: FileTypeCounter,
-                          file_size_sum: int,
+                          file_size_sum: FileSizeSum,
                           entire_video_required: Optional[bool],
                           entire_photo_required: Optional[bool]) -> None:
         """
@@ -4307,7 +4307,7 @@ Do you want to proceed with the download?
             logging.info(
                 "Updating example file name using sample photo from %s", device.display_name
             )
-            self.devices.sample_photo = sample_photo
+            self.devices.sample_photo = sample_photo  # type: Photo
             self.renamePanel.setSamplePhoto(self.devices.sample_photo)
             # sample required for editing download subfolder generation
             self.photoDestinationDisplay.sample_rpd_file = self.devices.sample_photo
@@ -4329,6 +4329,7 @@ Do you want to proceed with the download?
 
         device.file_type_counter = file_type_counter
         device.file_size_sum = file_size_sum
+
         self.mapModel(scan_id).updateDeviceScan(scan_id)
 
         self.thumbnailModel.addFiles(

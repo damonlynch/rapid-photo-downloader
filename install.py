@@ -2597,6 +2597,27 @@ def distro_bin_dir(distro_family: Distro, interactive: bool):
         user_must_reboot, create_sym_link
 
 
+def man_pages_already_installed(manpages, system_man_dir, local_man_dir) -> bool:
+    """
+    Determine if the same man pages already exist in the system directory that we would
+    install into
+
+    :return: True if already installed, False otherwise
+    """
+
+    match = 0
+    if local_man_dir is not None:
+        for manpage in manpages:
+            source = os.path.join(local_man_dir, manpage)
+            dest = os.path.join(system_man_dir, manpage)
+            if os.path.isfile(dest) and os.path.isfile(source):
+                with open(dest) as dest_man:
+                    with open(source) as source_man:
+                        if dest_man.read() == source_man.read():
+                            match += 1
+    return match == len(manpages)
+
+
 def do_install(installer: str,
                distro: Distro,
                distro_family: Distro,
@@ -2784,56 +2805,59 @@ def do_install(installer: str,
 
     system_man_dir = '/usr/local/share/man/man1'
 
-    if interactive:
-        print("\n" + _("Do you want to install the application's man pages?"))
-        print(_("They will be installed into {}").format(system_man_dir))
-        print(_("If you uninstall the application, remove these manpages yourself."))
-        print(_("sudo may prompt you for the sudo password."))
-        answer = input(_('Do want to install the man pages?') + '  [Y/n] ')
-    elif venv:
+    manpages = ('rapid-photo-downloader.1', 'analyze-pv-structure.1')
+
+    if venv:
         # Keep man pages in install location only
 
         # Translators: do not translate {}/share/man/man1
         print("\n" + _("Man pages can be found in {}/share/man/man1").format(sys.prefix))
-        answer = 'n'
-    else:
-        print("\n" + _("Installing man pages into {}").format(system_man_dir))
-        print(_("If you uninstall the application, remove these manpages yourself."))
-        print(_("sudo may prompt you for the sudo password.") + "\n")
-        answer = 'y'
 
-    if get_yes_no(answer) and local_man_dir is not None:
-        install_man_page = True
-        if not os.path.isdir(system_man_dir):
-            cmd = shutil.which('mkdir')
-            command_line = 'sudo {} -p {}'.format(cmd, system_man_dir)
-            print(command_line)
-            args = shlex.split(command_line)
-            try:
-                subprocess.check_call(args)
-            except subprocess.CalledProcessError:
-                sys.stderr.write(_("Failed to create man page directory: exiting.") + "\n")
-                install_man_page = False
+    elif not man_pages_already_installed(manpages, system_man_dir, local_man_dir):
+        if interactive:
+            print("\n" + _("Do you want to install the application's man pages?"))
+            print(_("They will be installed into {}").format(system_man_dir))
+            print(_("If you uninstall the application, remove these manpages yourself."))
+            print(_("sudo may prompt you for the sudo password."))
+            answer = input(_('Do want to install the man pages?') + '  [Y/n] ')
+        else:
+            print("\n" + _("Installing man pages into {}").format(system_man_dir))
+            print(_("If you uninstall the application, remove these manpages yourself."))
+            print(_("sudo may prompt you for the sudo password.") + "\n")
+            answer = 'y'
 
-        if install_man_page:
-            cmd = shutil.which('cp')
-            for manpage in ('rapid-photo-downloader.1', 'analyze-pv-structure.1'):
-                source = os.path.join(local_man_dir, manpage)
-                if not os.path.exists(source):
-                    sys.stderr.write(
-                        "Man page {} cannot be copied because it does not exist\n".format(
-                            source
-                        )
-                    )
-                    break
-                dest = os.path.join(system_man_dir, manpage)
-                command_line = 'sudo {} {} {}'.format(cmd, source, dest)
+        if get_yes_no(answer):
+            install_man_page = True
+            if not os.path.isdir(system_man_dir):
+                cmd = shutil.which('mkdir')
+                command_line = 'sudo {} -p {}'.format(cmd, system_man_dir)
                 print(command_line)
                 args = shlex.split(command_line)
                 try:
                     subprocess.check_call(args)
                 except subprocess.CalledProcessError:
-                    sys.stderr.write(_("Failed to copy man page.") + "\n")
+                    sys.stderr.write(_("Failed to create man page directory: exiting.") + "\n")
+                    install_man_page = False
+
+            if install_man_page:
+                cmd = shutil.which('cp')
+                for manpage in manpages:
+                    source = os.path.join(local_man_dir, manpage)
+                    if not os.path.exists(source):
+                        sys.stderr.write(
+                            "Man page {} cannot be copied because it does not exist\n".format(
+                                source
+                            )
+                        )
+                        break
+                    dest = os.path.join(system_man_dir, manpage)
+                    command_line = 'sudo {} {} {}'.format(cmd, source, dest)
+                    print(command_line)
+                    args = shlex.split(command_line)
+                    try:
+                        subprocess.check_call(args)
+                    except subprocess.CalledProcessError:
+                        sys.stderr.write(_("Failed to copy man page.") + "\n")
 
     if delete_installer:
         delete_installer_and_its_temp_dir(installer)

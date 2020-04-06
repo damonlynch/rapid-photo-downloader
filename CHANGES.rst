@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.21 (2020-04-xx)
+0.9.21 (2020-04-06)
 -------------------
 
  - Added an option to extract photo metadata (including thumbnails) using only
@@ -18,7 +18,14 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug #1870566: Missing default locale causes startup failure.
 
- - Updated Czech, Dutch, French, German, Japanese, Spanish and Turkish
+ - Fixed a bug where the number of photos and videos for a camera or phone would
+   not be displayed under the devices section if the preference value "Scan only
+   specific folders on devices" was not enabled.
+
+ - The install.py script will now only try to copy man pages to system man page
+   directory if the same man pages were not previously installed.
+
+ - Updated Czech, Dutch, French, German, Japanese, Russian, Spanish and Turkish
    translations.
 
 0.9.20 (2020-03-22)

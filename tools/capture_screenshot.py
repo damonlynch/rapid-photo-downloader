@@ -35,18 +35,20 @@ import shutil
 import sys
 import shlex
 import glob
+import re
+from typing import Tuple
 
 from PyQt5.QtGui import QImage, QColor, QGuiApplication, QPainter, QPen
 from PyQt5.QtCore import QRect, Qt
 
 # Position of window
-window_x = 920
-window_y = 100
+main_window_x = 920
+main_window_y = 100
 # Height of titlebar in default Ubuntu 19.10 theme
 titlebar_height = 37
 # Window width an height
-width = 1600
-height = 900
+main_window_width = 1600
+main_window_height = 900
 
 # Color of top and left window borders in default Ubuntu 19.10 theme
 top_border_color = QColor(163, 160, 158, 255)
@@ -74,12 +76,13 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
     parser.add_argument('file', help='Name of screenshot')
     parser.add_argument(
         '--screenshot', action='store_true', default=False,
-        help="Screenshot that needs to be cropped, from some other tool"
+        help="Screenshot from another tool that needs to be cropped"
     )
     parser.add_argument(
         '--titlebar', action='store_true', default=False,
-        help="When moving window, move the image down by the titlebar height"
+        help="When moving window using wmctrl, move the image down by the titlebar height"
     )
+    parser.add_argument('--name', help="Window name if not main window")
     return parser
 
 
@@ -107,7 +110,7 @@ def check_requirements() -> None:
 
 def get_program_name() -> str:
     """
-    Get program title, if it's not English
+    Get Rapid Photo Downloader program title, if it's not English
 
     Getting translated names automatically does not work. Not sure why.
 
@@ -144,7 +147,33 @@ def get_program_name() -> str:
     sys.exit(1)
 
 
-def extract_image(image: str) -> QImage:
+def get_window_details(window_title: str) -> Tuple[int, int, int, int]:
+    """
+    Get details of window using wmctrl
+
+    :param window_title: title of window
+    :return: x, y, width, height
+    """
+
+    cmd = '{wmctrl} -l -G'.format(wmctrl=wmctrl)
+    args = shlex.split(cmd)
+    result = subprocess.run(args, capture_output=True, universal_newlines=True)
+    if result.returncode == 0:
+        window_list = result.stdout
+    else:
+        print("Could not get window list")
+        sys.exit(1)
+
+    pattern = r"^0x[\da-f]+\s+\d\s+(?P<x>\d+)\s+(?P<y>\d+)\s+(?P<width>\d+)\s+(?P<height>\d+)\s+[\w]+\s+{}$"
+    match = re.search(pattern.format(window_title), window_list, re.MULTILINE, )
+    if match is None:
+        print("Could not get window details")
+        sys.exit(1)
+
+    return int(match.group('x')), int(match.group('y')), int(match.group('width')), int(match.group('height'))
+
+
+def extract_image(image: str, width: int, height: int) -> QImage:
     """"
     Get the program window from the screenshot by detecting its borders
     and knowing its size ahead of time
@@ -246,9 +275,23 @@ if __name__ == '__main__':
 
     image = os.path.join(pictures_directory, filename)
 
+    window_title = parserargs.name
+    if window_title is None:
+        width = main_window_width
+        height = main_window_height
+        window_x = main_window_x
+        window_y = main_window_y
+    else:
+        window_x, window_y, width, height = get_window_details(window_title)
+        height = height + titlebar_height
+
     if not parserargs.screenshot:
-        program_name = get_program_name()
-        print("Working with", program_name)
+        if not parserargs.name:
+            program_name = get_program_name()
+        else:
+            program_name = parserargs.name
+
+        print("{} window".format(program_name))
 
         extra = titlebar_height if parserargs.titlebar else 0
 
@@ -258,6 +301,7 @@ if __name__ == '__main__':
             width=width - 2, height=height - titlebar_height - 2,
             program=wmctrl, program_name=program_name
         )
+
         capture = "{program} import -window root -crop {width}x{height}+{x}+{y} -quality 90 " \
                   "{file}".format(
             x=window_x, y=window_y, width=width, height=height, file=image,
@@ -267,6 +311,7 @@ if __name__ == '__main__':
             file=image, program=gm
 
         )
+
         cmds = (resize, capture, remove_offset)
         for cmd in cmds:
             args = shlex.split(cmd)

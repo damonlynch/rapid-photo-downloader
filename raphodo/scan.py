@@ -328,10 +328,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     "modification date/time used instead", self.display_name
                 )
 
-            # Download only from the DCIM folder(s) in the camera.
-            # Phones especially have many directories with images, which we
-            # must ignore
-            if self.camera.camera_has_dcim_like_folder():
+            # Download only from the DCIM type folder(s) in the camera,
+            # if that's what the user has specified. Otherwise, try to download from everything we
+            # can find.
+            if self.camera.camera_has_folders_to_scan():
                 logging.info("Scanning {}".format(self.display_name))
                 self._camera_folders_and_files = []
                 self._camera_file_names = defaultdict(list)
@@ -341,7 +341,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self._camera_log_files = defaultdict(list)
                 self._folder_identifiers = {}
                 self._folder_identifers_for_file = \
-                    defaultdict(list) # type: DefaultDict[int, List[int]]
+                    defaultdict(list)  # type: DefaultDict[int, List[int]]
                 self._camera_directories_for_file = defaultdict(list)
                 self._camera_photos_videos_by_type = \
                     defaultdict(list)  # type: DefaultDict[FileExtension, List[CameraMetadataDetails]]
@@ -371,10 +371,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
                             "Scanning %s on %s", specific_folder, self.camera.display_name
                         )
                         folder_identifier = self._folder_identifiers.get(specific_folder)
-                        basedir = os.path.dirname(specific_folder)
+                        if specific_folder_prefs is None:
+                            basedir = specific_folder
+                        else:
+                            basedir = os.path.dirname(specific_folder)
                         self.locate_files_on_camera(specific_folder, folder_identifier, basedir)
 
-                # extract non camera metadata
+                # extract camera metadata
                 if self._camera_photos_videos_by_type:
                     self.identify_camera_tz_and_sample_files()
 

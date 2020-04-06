@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2019 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -27,7 +27,7 @@ which is what a gphoto2 process does.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2019, Damon Lynch"
+__copyright__ = "Copyright 2011-2020, Damon Lynch"
 
 from typing import List, DefaultDict, Optional
 import logging
@@ -55,7 +55,7 @@ class RescanCamera:
 
     def __init__(self, camera: Camera, prefs: Preferences) -> None:
         self.camera = camera
-        assert camera.camera_has_dcim_like_folder()
+        assert camera.camera_has_folders_to_scan()
         # Relocated RPD files
         self.rpd_files = []  # type: List[RPDFile]
         # Missing RPD files
