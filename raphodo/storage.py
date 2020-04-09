@@ -403,6 +403,8 @@ def get_desktop() -> Desktop:
         env = 'gnome'
     elif env == 'budgie:gnome':
         env = 'gnome'
+    elif env == 'zorin:gnome':
+        env = 'zorin'
 
     try:
         return Desktop[env]

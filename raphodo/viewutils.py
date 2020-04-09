@@ -22,17 +22,22 @@ __copyright__ = "Copyright 2015-2020, Damon Lynch"
 from typing import List, Dict, Tuple, Optional
 from collections import namedtuple
 from pkg_resources import parse_version
-
-
+import sys
 
 from PyQt5.QtWidgets import (
     QStyleOptionFrame, QStyle, QStylePainter, QWidget, QLabel, QListWidget, QProxyStyle,
     QStyleOption, QDialogButtonBox
 )
-from PyQt5.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QIcon
+from PyQt5.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QIcon, QGuiApplication
 from PyQt5.QtCore import QSize, Qt, QT_VERSION_STR, QPoint
 
+import gi
+gi.require_version('Gdk', '3.0')
+from gi.repository import Gdk
+
 QT5_VERSION = parse_version(QT_VERSION_STR)
+
+from raphodo.constants import ScalingDetected
 
 
 class RowTracker:
@@ -350,3 +355,57 @@ def scaledIcon(path: str, size: Optional[QSize]=None) -> QIcon:
         size = QSize(s, s)
     i.addFile(path, size)
     return i
+
+
+def any_screen_scaled_gdk() -> bool:
+    """
+    Detect if any of the screens o this system have scaling enabled.
+
+    Uses GDK to do the querying.
+
+    :return: True if found, else False
+    """
+
+    try:
+        display = Gdk.Display.get_default()
+        if display:
+            for n in range(display.get_n_monitors()):
+                monitor = display.get_monitor(n)
+                if monitor.get_scale_factor() > 1:
+                    return True
+        return False
+    except Exception:
+        return False
+
+
+def any_screen_scaled_qt() -> bool:
+    """
+    Detect if any of the screens on this system have scaling enabled.
+
+    Call before QApplication is initialized. Uses temporary QGuiApplication.
+
+    :return: True if found, else False
+    """
+
+    app = QGuiApplication(sys.argv)
+    return app.devicePixelRatio() > 1.0
+
+
+def any_screen_scaled() -> ScalingDetected:
+    """
+    Detect if any of the screens on this system have scaling enabled.
+
+    Uses Qt and Gdk to do detection.
+
+    :return: True if found, else False
+    """
+
+    qt_detected_scaling = any_screen_scaled_qt()
+    gdk_detected_scaling = any_screen_scaled_gdk()
+    if qt_detected_scaling:
+        if gdk_detected_scaling:
+            return ScalingDetected.qt_and_gdk
+        return ScalingDetected.qt
+    if gdk_detected_scaling:
+        return ScalingDetected.gdk
+    return ScalingDetected.undetected

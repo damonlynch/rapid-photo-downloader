@@ -501,7 +501,8 @@ class Desktop(Enum):
     ubuntugnome = 9
     popgnome = 10
     deepin = 11
-    unknown = 12
+    zorin = 12
+    unknown = 13
 
 
 class FileManagerType(Enum):
@@ -774,6 +775,19 @@ class Plural(Enum):
     zero = 1
     two_form_single = 2
     two_form_plural = 3
+
+
+class ScalingAction(Enum):
+    turned_on = 1
+    not_set = 2
+    already_set = 3
+
+
+class ScalingDetected(Enum):
+    qt = 1
+    gdk = 2
+    qt_and_gdk = 3
+    undetected = 4
 
 
 # Use the character . to for download_name and path to indicate the user manually marked a

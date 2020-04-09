@@ -80,7 +80,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = '0.3.3'
+__version__ = '0.3.5'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -1686,7 +1686,7 @@ def install_required_distro_packages(distro: Distro,
                    'python3-dev intltool libgphoto2-dev g++ exiv2 libraw-bin build-essential ' \
                    'python3-wheel python3-setuptools gir1.2-gexiv2-0.10 ' \
                    'python3-gi gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 '\
-                   'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 zenity '
+                   'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 gir1.2-gdkpixbuf-2.0 zenity '
 
         if install_pyqt5:
             packages = '{} python3-pyqt5 qt5-image-formats-plugins ' \
@@ -1810,7 +1810,7 @@ def install_required_distro_packages(distro: Distro,
 
             base_python_packages = 'python3-easygui python3-psutil ' \
                                    'python3-tornado gobject-introspection python3-gobject ' \
-                                   'python3-babel python3-pillow'
+                                   'python3-gobject-Gdk python3-babel python3-pillow'
 
             if distro == Distro.fedora:
                 base_python_packages = '{} python3-gexiv2'.format(base_python_packages)
@@ -1915,6 +1915,8 @@ def install_required_distro_packages(distro: Distro,
                                    'typelib-1_0-GExiv2-0_10 typelib-1_0-UDisks-2_0 ' \
                                    'typelib-1_0-Notify-0_7 ' \
                                    'typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0 ' \
+                                   'Typelib-1_0-gdkpixbuf-2_0 ' \
+                                   'python3-gobject-gdk '
 
 
 

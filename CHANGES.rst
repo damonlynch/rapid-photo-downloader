@@ -1,7 +1,28 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.21 (2020-04-06)
+0.9.22a1 (2020-04-09)
+---------------------
+
+ - Fixed bug #1871649: Window corruption when application scaling enabled on
+   certain desktop environments.
+
+ - New package dependency: Python 3 gobject introspection for Gdk 3.0
+
+   For openSUSE:
+
+   - Typelib-1_0-gdkpixbuf-2_0
+   - python3-gobject-gdk
+
+   For Fedora:
+
+   - python3-gobject-Gdk
+
+   For Debian:
+
+   - gir1.2-gdkpixbuf-2.0
+
+0.9.21 (2020-04-07)
 -------------------
 
  - Added an option to extract photo metadata (including thumbnails) using only
@@ -22,8 +43,13 @@ Changelog for Rapid Photo Downloader
    not be displayed under the devices section if the preference value "Scan only
    specific folders on devices" was not enabled.
 
+ - Reinstated creation of build directory in setup.py if the build directory
+   does not exist.
+
  - The install.py script will now only try to copy man pages to system man page
    directory if the same man pages were not previously installed.
+
+ - Simplified release notes by moving content online documentation.
 
  - Updated Czech, Dutch, French, German, Japanese, Russian, Spanish and Turkish
    translations.

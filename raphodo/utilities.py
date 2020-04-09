@@ -1145,3 +1145,20 @@ def available_languages(display_locale_code: str='') -> List[Tuple[str, str]]:
     return langs
 
 
+def installed_using_pip(package='rapid-photo-downloader') -> bool:
+    """
+    Determine if python package was installed using pip.
+
+    Exceptions are not caught.
+
+    :param package: package name to search for
+    :return: True if installed via pip, else False
+    """
+
+    pip_install = False
+    pkg = pkg_resources.get_distribution(package)
+    if pkg.has_metadata('INSTALLER'):
+        if pkg.get_metadata('INSTALLER').strip() == 'pip':
+            pip_install = True
+
+    return pip_install

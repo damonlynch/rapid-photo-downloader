@@ -1516,7 +1516,9 @@ class PreferencesDialog(QDialog):
         else:
             location = ''
 
-        webbrowser.open_new_tab("http://www.damonlynch.net/rapid/documentation/{}".format(location))
+        webbrowser.open_new_tab(
+            "https://www.damonlynch.net/rapid/documentation/{}".format(location)
+        )
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self.cacheSizeThread.quit()

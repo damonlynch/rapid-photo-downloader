@@ -46,7 +46,7 @@ from raphodo.constants import (
     remote_versions_file, CheckNewVersionDialogState, CheckNewVersionDialogResult,
     standardProgressBarWidth
 )
-from raphodo.utilities import (create_temp_dir, format_size_for_user, is_venv)
+from raphodo.utilities import (create_temp_dir, format_size_for_user, is_venv, installed_using_pip)
 from raphodo.interprocess import ThreadNames
 from raphodo.viewutils import translateButtons
 
@@ -86,25 +86,6 @@ class NewVersion(QObject):
         context = zmq.Context.instance()
         self.thread_controller = context.socket(zmq.PAIR)
         self.thread_controller.connect('inproc://{}'.format(ThreadNames.new_version))
-
-    def installedUsingPip(self, package='rapid-photo-downloader') -> bool:
-        """
-        Determine if python package was installed using pip.
-
-        Exceptions are not caught.
-
-        :param package: package name to search for
-        :return: True if installed via pip, else False
-        """
-
-        pip_install = False
-        pkg = pkg_resources.get_distribution(package)
-        if pkg.has_metadata('INSTALLER'):
-            if pkg.get_metadata('INSTALLER').strip() == 'pip':
-                pip_install = True
-
-        logging.debug("Installed using pip: %s", pip_install)
-        return pip_install
 
     @pyqtSlot()
     def check(self) -> None:
@@ -153,7 +134,7 @@ class NewVersion(QObject):
 
         if not self.installed_via_pip_check_made:
             try:
-                self.installed_via_pip = self.installedUsingPip()
+                self.installed_via_pip = installed_using_pip()
             except Exception:
                 logging.debug(
                     "Exception encountered when checking if pip was used to install "

@@ -118,7 +118,8 @@ from raphodo.constants import (
     Desktop, BackupFailureType, DeviceState, Sort, Show, DestinationDisplayType,
     DisplayingFilesOfType, DownloadingFileTypes, RememberThisMessage, RightSideButton,
     CheckNewVersionDialogState, CheckNewVersionDialogResult, RememberThisButtons,
-    BackupStatus, CompletedDownloads, disable_version_check
+    BackupStatus, CompletedDownloads, disable_version_check, FileManagerType, ScalingAction,
+    ScalingDetected
 )
 from raphodo.thumbnaildisplay import (
     ThumbnailView, ThumbnailListModel, ThumbnailDelegate, DownloadStats, MarkedSummary
@@ -129,7 +130,7 @@ from raphodo.utilities import (
     same_device, make_internationalized_list, thousands, addPushButtonLabelSpacer,
     make_html_path_non_breaking, prefs_list_from_gconftool2_string,
     pref_bool_from_gconftool2_string, extract_file_from_tar, format_size_for_user,
-    is_snap, version_check_disabled
+    is_snap, version_check_disabled, installed_using_pip
 )
 from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
@@ -179,7 +180,7 @@ from raphodo.problemnotification import (
 )
 from raphodo.viewutils import (
     standardIconSize, qt5_screen_scale_environment_variable, QT5_VERSION, validateWindowSizeLimit,
-    validateWindowPosition, scaledIcon
+    validateWindowPosition, scaledIcon, any_screen_scaled
 )
 import raphodo.didyouknow as didyouknow
 from raphodo.thumbnailextractor import gst_version, libraw_version, rawkit_version
@@ -457,6 +458,8 @@ class RapidWindow(QMainWindow):
     def __init__(self, splash: 'SplashScreen',
                  fractional_scaling: str,
                  scaling_set: str,
+                 scaling_action: ScalingAction,
+                 scaling_detected: ScalingDetected,
                  photo_rename: Optional[bool]=None,
                  video_rename: Optional[bool]=None,
                  auto_detect: Optional[bool]=None,
@@ -502,7 +505,10 @@ class RapidWindow(QMainWindow):
 
         self.close_event_run = False
 
-        for version in get_versions():
+        self.file_manager, self.file_manager_type = get_default_file_manager()
+
+        for version in get_versions(
+                self.file_manager, self.file_manager_type, scaling_action, scaling_detected):
             logging.info('%s', version)
 
         if disable_version_check:
@@ -855,14 +861,6 @@ class RapidWindow(QMainWindow):
             self.updateThumbnailModelAfterProximityChange
         )
 
-        self.file_manager, self.file_manager_type = get_default_file_manager()
-        if self.file_manager:
-            logging.info(
-                "Default file manager: %s (%s)", self.file_manager, self.file_manager_type.name
-            )
-        else:
-            logging.warning("Default file manager could not be determined")
-
         # Setup notification system
         try:
             self.have_libnotify = Notify.init(_('Rapid Photo Downloader'))
@@ -889,10 +887,6 @@ class RapidWindow(QMainWindow):
 
         logging.debug("Probing desktop environment")
         desktop_env = get_desktop_environment()
-        if desktop_env is not None:
-            logging.debug("Desktop environment: %s", desktop_env)
-        else:
-            logging.debug("Desktop environment variable not set")
 
         self.unity_progress = False
         self.desktop_launchers = []
@@ -5845,7 +5839,10 @@ class QtSingleApplication(QApplication):
             self.messageReceived.emit(msg)
 
 
-def get_versions() -> List[str]:
+def get_versions(file_manager: Optional[str],
+                 file_manager_type: Optional[FileManagerType],
+                 scaling_action: ScalingAction,
+                 scaling_detected: ScalingDetected) -> List[str]:
     if 'cython' in zmq.zmq_version_info.__module__:
         pyzmq_backend = 'cython'
     else:
@@ -5856,11 +5853,18 @@ def get_versions() -> List[str]:
         used = format_size_for_user(ram.used)
     except Exception:
         total = used = 'unknown'
+
+    try:
+        pip_install = installed_using_pip()
+    except Exception:
+        pip_install = False
+
     versions = [
         'Rapid Photo Downloader: {}'.format(__about__.__version__),
         'Platform: {}'.format(platform.platform()),
         'Memory: {} used of {}'.format(used, total),
         'Confinement: {}'.format('snap' if is_snap() else 'none'),
+        'Installed using pip: {}'.format('yes' if pip_install else 'no'),
         'Python: {}'.format(platform.python_version()),
         'Python executable: {}'.format(sys.executable),
         'Qt: {}'.format(QtCore.QT_VERSION_STR),
@@ -5909,6 +5913,21 @@ def get_versions() -> List[str]:
             break
     if session:
         versions.append('Session: {}'.format(session))
+
+    versions.append('Desktop scaling: {}'.format(scaling_action.name.replace('_', ' ')))
+    versions.append('Desktop scaling detection: {}'.format(scaling_detected.name.replace('_', ' ')))
+
+    try:
+        versions.append("Desktop: {} ({})".format(get_desktop_environment(), get_desktop().name))
+    except Exception:
+        pass
+
+    if file_manager:
+        file_manager_details = "{} ({})".format(file_manager, file_manager_type.name)
+    else:
+        file_manager_details = "Unknown"
+
+    versions.append("Default file manager: {}".format(file_manager_details))
 
     return versions
 
@@ -6276,39 +6295,49 @@ def critical_startup_error(message: str) -> None:
 
 
 def main():
-    # Set Qt 5 screen scaling if it is not already set in an environment variable
-    qt5_variable = qt5_screen_scale_environment_variable()
-    scaling_variables = {qt5_variable, 'QT_SCALE_FACTOR', 'QT_SCREEN_SCALE_FACTORS'}
-    if not scaling_variables & set(os.environ):
-        scaling_set = 'High DPI scaling automatically set to ON because one of the ' \
-                      'following environment variables not already ' \
-                      'set: {}'.format(', '.join(scaling_variables))
-        if pkgr.parse_version(QtCore.QT_VERSION_STR) >= pkgr.parse_version('5.6.0'):
-            QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-        else:
-            os.environ[qt5_variable] = '1'
+    scaling_action = ScalingAction.not_set
+
+    scaling_detected = any_screen_scaled()
+
+    if scaling_detected == ScalingDetected.undetected:
+        scaling_set = 'High DPI scaling disabled because no scaled screen was detected'
+        fractional_scaling = 'Fractional scaling not set'
     else:
-        scaling_set = 'High DPI scaling not automatically set to ON because environment ' \
-                      'variable(s) already ' \
-                      'set: {}'.format(', '.join(scaling_variables & set(os.environ)))
-
-    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-
-    try:
-        # Enable fractional scaling support on Qt 5.14 or above
-        # Doesn't seem to be working on Gnome X11, however :-/
-        # Works on KDE Neon
-        if pkgr.parse_version(QtCore.QT_VERSION_STR) >= pkgr.parse_version('5.14.0'):
-            QApplication.setHighDpiScaleFactorRoundingPolicy(
-                Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
-            )
-            fractional_scaling = 'Fractional scaling set to pass through'
+        # Set Qt 5 screen scaling if it is not already set in an environment variable
+        qt5_variable = qt5_screen_scale_environment_variable()
+        scaling_variables = {qt5_variable, 'QT_SCALE_FACTOR', 'QT_SCREEN_SCALE_FACTORS'}
+        if not scaling_variables & set(os.environ):
+            scaling_set = 'High DPI scaling automatically set to ON because one of the ' \
+                          'following environment variables not already ' \
+                          'set: {}'.format(', '.join(scaling_variables))
+            scaling_action = ScalingAction.turned_on
+            if pkgr.parse_version(QtCore.QT_VERSION_STR) >= pkgr.parse_version('5.6.0'):
+                QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+            else:
+                os.environ[qt5_variable] = '1'
         else:
-            fractional_scaling = 'Fractional scaling unable to be set because Qt version is older ' \
-                                 'than 5.14'
-    except Exception:
-        fractional_scaling = 'Error setting fractional scaling'
-        logging.warning(fractional_scaling)
+            scaling_set = 'High DPI scaling not automatically set to ON because environment ' \
+                          'variable(s) already ' \
+                          'set: {}'.format(', '.join(scaling_variables & set(os.environ)))
+            scaling_action = ScalingAction.already_set
+
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+
+        try:
+            # Enable fractional scaling support on Qt 5.14 or above
+            # Doesn't seem to be working on Gnome X11, however :-/
+            # Works on KDE Neon
+            if pkgr.parse_version(QtCore.QT_VERSION_STR) >= pkgr.parse_version('5.14.0'):
+                QApplication.setHighDpiScaleFactorRoundingPolicy(
+                    Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+                )
+                fractional_scaling = 'Fractional scaling set to pass through'
+            else:
+                fractional_scaling = 'Fractional scaling unable to be set because Qt version is ' \
+                                     'older than 5.14'
+        except Exception:
+            fractional_scaling = 'Error setting fractional scaling'
+            logging.warning(fractional_scaling)
 
     if sys.platform.startswith('linux') and os.getuid() == 0:
         sys.stderr.write("Never run this program as the sudo / root user.\n")
@@ -6339,7 +6368,12 @@ def main():
 
     args = parser.parse_args()
     if args.detailed_version:
-        print('\n'.join(get_versions()))
+        file_manager, file_manager_type = get_default_file_manager()
+        print(
+            '\n'.join(
+                get_versions(file_manager, file_manager_type, scaling_action, scaling_detected)
+            )
+        )
         sys.exit(0)
 
     if args.extensions:
@@ -6596,7 +6630,9 @@ def main():
         log_gphoto2=args.log_gphoto2,
         splash=splash,
         fractional_scaling=fractional_scaling,
-        scaling_set=scaling_set
+        scaling_set=scaling_set,
+        scaling_action=scaling_action,
+        scaling_detected=scaling_detected,
     )
 
     app.setActivationWindow(rw)

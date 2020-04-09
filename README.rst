@@ -68,7 +68,7 @@ If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 Install on CentOS 7.5
 =====================
 
-Consult the release notes for additional steps to take prior to running
+Consult the online documentation for additional steps to take prior to running
 the installation script. Once completed, the steps are the same as above,
 except the command ``python3`` is replaced by ``python3.6``
 
@@ -102,6 +102,7 @@ Rapid Photo Downloader requires:
     - GExiv2 0.10
     - Gst 1.0
     - Notify 0.7
+    - Gdk 3.0
  - `python-gphoto2`_ 1.4.0 or newer
  - pyzmq_
  - tornado_
