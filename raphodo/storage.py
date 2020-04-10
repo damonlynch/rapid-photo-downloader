@@ -948,9 +948,13 @@ class CameraHotplug(QObject):
         logging.debug("... camera hotplug monitor started")
         self.enumerateCameras()
         if self.cameras:
-            logging.debug("Camera Hotplug found %d cameras:", len(self.cameras))
+            logging.info(
+                "Camera Hotplug found %d camera(s): %s", len(self.cameras), ', '.join(
+                    (model for port, model in self.cameras.items())
+                )
+            )
             for port, model in self.cameras.items():
-                logging.debug("%s at %s", model, port)
+                logging.debug("%s is at %s", model, port)
 
     def enumerateCameras(self):
         """
@@ -980,34 +984,43 @@ class CameraHotplug(QObject):
         path = device.get_sysfs_path()
         parent_device = device.get_parent()
         parent_path = parent_device.get_sysfs_path()
-        logging.debug("Device change: %s. Path: %s Parent Device: %s Parent path: %s",
-                      action, path, parent_device, parent_path)
+        logging.debug("Device change: %s. Path: %s Parent path: %s", action, path, parent_path)
+
+        # Ignore 'bind' action: seems to add nothing we need to know
 
         if action == 'add':
             if parent_path not in self.cameras:
                 model = device.get_property('ID_MODEL')
-                logging.debug("Hotplug: new camera: %s", model)
+                logging.info("Hotplug: new camera: %s", model)
                 self.cameras[path] = model
                 self.cameraAdded.emit()
             else:
-                logging.debug("Hotplug: already know about %s", self.cameras[
-                    parent_path])
+                logging.debug("Hotplug: already know about %s", self.cameras[parent_path])
 
         elif action == 'remove':
             emit_remove = False
             name = ''
-            if path in self.cameras:
-                name = self.cameras[path]
-                del self.cameras[path]
-                emit_remove = True
-            elif device.get_property('ID_GPHOTO2') == '1':
-                # This should not need to be called. However,
-                # self.enumerateCameras may not have been called earlier
-                name = device.get_property('ID_MODEL')
-                if name is not None:
+
+            # A path might look like:
+            # /sys/devices/pci0000:00/0000:00:1c.6/0000:0e:00.0/usb3/3-2/3-2:1.0
+            # When what we want is:
+            # /sys/devices/pci0000:00/0000:00:1c.6/0000:0e:00.0/usb3/3-2
+            # This unchanged path used to work, so test both the unchanged and modified
+            # path
+            # Note enumerateCameras() above finds only the path as in the 2nd type, without the
+            # 3-2:1.0
+            split_path = os.path.split(path)[0]
+
+            for p in (path, split_path):
+                if p in self.cameras:
+                    name = self.cameras[p]
+                    logging.debug("Hotplug: removing %s on basis of path %s", name, p)
+                    del self.cameras[p]
                     emit_remove = True
+                    break
+
             if emit_remove:
-                logging.debug("Hotplug: %s has been removed", name)
+                logging.info("Hotplug: %s has been removed", name)
                 self.cameraRemoved.emit()
 
 
