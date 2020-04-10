@@ -435,7 +435,7 @@ class RPDFile:
         # If None, haven't tried yet
         # If False, no problems encountered, got it (or it was assigned from mtime
         # when never_read_mdatatime is True)
-        self._no_datetime_metadata = None  #type: Optional[bool]
+        self._no_datetime_metadata = None  # type: Optional[bool]
 
         self.never_read_mdatatime = never_read_mdatatime
         if never_read_mdatatime:

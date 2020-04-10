@@ -36,6 +36,7 @@ import sys
 import shlex
 import glob
 import re
+import time
 from typing import Tuple
 
 from PyQt5.QtGui import QImage, QColor, QGuiApplication, QPainter, QPen
@@ -46,9 +47,15 @@ main_window_x = 920
 main_window_y = 100
 # Height of titlebar in default Ubuntu 19.10 theme
 titlebar_height = 37
-# Window width an height
+
+# Window width and height
 main_window_width = 1600
 main_window_height = 900
+
+home_page_ratio = 463 / 439
+
+features_main_window_width = 1164
+features_main_window_height = 880
 
 # Color of top and left window borders in default Ubuntu 19.10 theme
 top_border_color = QColor(163, 160, 158, 255)
@@ -76,13 +83,25 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
     parser.add_argument('file', help='Name of screenshot')
     parser.add_argument(
         '--screenshot', action='store_true', default=False,
-        help="Screenshot from another tool that needs to be cropped"
+        help="Screenshot from another tool that needs to be cropped. If does not exist in Pictures folder, "
+             "will open the tool to create a new screenshot."
     )
-    parser.add_argument(
-        '--titlebar', action='store_true', default=False,
-        help="When moving window using wmctrl, move the image down by the titlebar height"
-    )
+
     parser.add_argument('--name', help="Window name if not main window")
+
+    parser.add_argument(
+        '--home', action='store_true', default=False, help="Size width / height ratio for home screen slideshow"
+    )
+
+    parser.add_argument(
+        '--features', action='store_true', default=False, help="Size for display on features page"
+    )
+
+    parser.add_argument(
+        '--sixteen-by-nine', action='store_true', default=False,
+        help="Create 16:9 screenshot of main window"
+    )
+
     return parser
 
 
@@ -119,7 +138,7 @@ def get_program_name() -> str:
 
     cmd = '{wmctrl} -l'.format(wmctrl=wmctrl)
     args = shlex.split(cmd)
-    result = subprocess.run(args, capture_output=True, universal_newlines=True)
+    result = subprocess.run(args, stdout=subprocess.PIPE, universal_newlines=True)
     if result.returncode == 0:
         window_list = result.stdout
     else:
@@ -157,7 +176,7 @@ def get_window_details(window_title: str) -> Tuple[int, int, int, int]:
 
     cmd = '{wmctrl} -l -G'.format(wmctrl=wmctrl)
     args = shlex.split(cmd)
-    result = subprocess.run(args, capture_output=True, universal_newlines=True)
+    result = subprocess.run(args, stdout=subprocess.PIPE, universal_newlines=True)
     if result.returncode == 0:
         window_list = result.stdout
     else:
@@ -274,46 +293,76 @@ if __name__ == '__main__':
     filename = "{}.png".format(parserargs.file)
 
     image = os.path.join(pictures_directory, filename)
-
     window_title = parserargs.name
-    if window_title is None:
+
+    if not window_title:
+        program_name = get_program_name()
+    else:
+        program_name = window_title
+
+    if parserargs.home is not None or parserargs.features is not None:
+
+        window_x, window_y, width, height = get_window_details(program_name)
+        restore_x, restore_y, restore_width, restore_height = window_x, window_y, width, height
+
+        if parserargs.home:
+            height = int(width / home_page_ratio)
+
+        if parserargs.features:
+            width = features_main_window_width
+            height = features_main_window_height + titlebar_height
+            # window_x, window_y = 100, 100
+
+        # parserargs.screenshot = False
+
+    elif parserargs.sixteen_by_nine:
+        # 16:9 screenshot of main window
         width = main_window_width
         height = main_window_height
         window_x = main_window_x
         window_y = main_window_y
+        restore_x, restore_y, restore_width, restore_height = 0, 0, 0, 0
+
     else:
-        window_x, window_y, width, height = get_window_details(window_title)
-        height = height + titlebar_height
+        print("Don't know what task to do. Exiting")
+        sys.exit(1)
 
     if not parserargs.screenshot:
-        if not parserargs.name:
-            program_name = get_program_name()
-        else:
-            program_name = parserargs.name
 
-        print("{} window".format(program_name))
-
-        extra = titlebar_height if parserargs.titlebar else 0
+        resize_command = "{program} -r '{program_name}' -e 0,{x},{y},{width},{height}"
 
         # Adjust width and height allowing for 1px border round outside of window
-        resize = "{program} -r '{program_name}' -e 0,{x},{y},{width},{height}".format(
-            x=window_x + 1, y=window_y + 1 + extra,
-            width=width - 2, height=height - titlebar_height - 2,
+        resize = resize_command.format(
+            x=window_x + 1, y=window_y + 1,
+            width=width - 2, height=height - titlebar_height - 1,
+            program=wmctrl, program_name=program_name
+        )
+
+        restore = resize_command.format(
+            x=restore_x - 15, y=restore_y - titlebar_height * 2 - 1,
+            width=restore_width, height=restore_height,
             program=wmctrl, program_name=program_name
         )
 
         capture = "{program} import -window root -crop {width}x{height}+{x}+{y} -quality 90 " \
                   "{file}".format(
-            x=window_x, y=window_y, width=width, height=height, file=image,
+            x=window_x, y=window_y, width=width,
+            height=height, file=image,
             program=gm
         )
+
         remove_offset = "{program} convert +page {file} {file}".format(
             file=image, program=gm
 
         )
 
-        cmds = (resize, capture, remove_offset)
+        if restore_height:
+            cmds = (resize, capture, remove_offset, restore)
+        else:
+            cmds = (resize, capture, remove_offset)
         for cmd in cmds:
+            if cmd == capture:
+                time.sleep(2)
             args = shlex.split(cmd)
             if subprocess.run(args).returncode != 0:
                 print("Failed to complete tasks")
@@ -333,7 +382,7 @@ if __name__ == '__main__':
                 print("Failed to capture screenshot")
                 sys.exit(1)
 
-        qimage = extract_image(image)
+        qimage = extract_image(image, width, height)
 
     qimage = add_transparency(qimage)
     qimage.save(image)

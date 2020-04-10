@@ -72,6 +72,7 @@ else:
     except AttributeError:
         arrow_shift_support = False
 
+
 # Suppress parsing warnings for 0.14.3 <= Arrow version < 0.15
 if arrow_version >= parse_version('0.14.3') and arrow_version < parse_version('0.15.0'):
     from arrow.factory import ArrowParseWarning
@@ -586,6 +587,7 @@ def datetime_roughly_equal(dt1: Union[datetime, float], dt2: Union[datetime, flo
     True
     """
 
+    # arrow.get from time stamp gives UTC time
     at1 = arrow.get(dt1)
     at2 = arrow.get(dt2)
     if arrow_shift_support:
