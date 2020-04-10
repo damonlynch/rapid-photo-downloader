@@ -1,26 +1,23 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.22a1 (2020-04-09)
+0.9.22a1 (2020-04-10)
 ---------------------
 
  - Fixed bug #1871649: Window corruption when application scaling enabled on
-   certain desktop environments.
+   certain desktop environments. The application now uses Qt and Gdk to query
+   whether any monitor has scaling enabled. If no scaling is enabled on any
+   monitor, then Rapid Photo Downloader will not enable automatic scaling.
 
  - New package dependency: Python 3 gobject introspection for Gdk 3.0
 
    For openSUSE:
 
-   - Typelib-1_0-gdkpixbuf-2_0
    - python3-gobject-gdk
 
-   For Fedora:
+ - Fixed packaged detection in install.py script for openSUSE. Fixed bug when
+   enabling RPM Fusion Free on Fedora.
 
-   - python3-gobject-Gdk
-
-   For Debian:
-
-   - gir1.2-gdkpixbuf-2.0
 
 0.9.21 (2020-04-07)
 -------------------

@@ -1112,6 +1112,8 @@ def enable_rpmfusion_free(distro: Distro, version: LooseVersion, interactive: bo
 
     global display_rpmfusion_message
 
+    v = str(version).strip()
+
     try:
         repos = fedora_centos_repolist(distro=distro)
         if repos.find('rpmfusion-free') < 0:
@@ -1121,7 +1123,7 @@ def enable_rpmfusion_free(distro: Distro, version: LooseVersion, interactive: bo
             if distro == Distro.fedora:
                 cmds = (
                     'sudo dnf -y install https://download1.rpmfusion.org/free/fedora/rpmfusion-'
-                    'free-release-{}.noarch.rpm'.format(str(version)),
+                    'free-release-{}.noarch.rpm'.format(v),
                 )
             elif distro == Distro.centos:
                 assert version <= LooseVersion('9')
@@ -1327,7 +1329,8 @@ def opensuse_known_packages(packages: str):
 
     return [
         package for package in packages.split()
-        if re.search(r"^i\+?\s+\|\s*{}".format(re.escape(package)), output, re.MULTILINE) is None
+        if re.search(r"^(i\+)?\s+\|\s*{}".format(re.escape(package)), output, re.MULTILINE)
+            is not None
     ]
 
 
@@ -1640,6 +1643,11 @@ def check_packages_on_other_systems(installer_to_delete_on_error: str) -> None:
             gi.require_version('Notify', '0.7')
         except ValueError:
             import_msgs.append('Notify 0.7 from gi.repository')
+        try:
+            gi.require_version('Gdk', '0.3')
+        except ValueError:
+            import_msgs.append('Gdk 3.0 from gi.repositry')
+
     if shutil.which('exiftool') is None:
         import_msgs.append('ExifTool')
     if len(import_msgs):
@@ -1810,7 +1818,7 @@ def install_required_distro_packages(distro: Distro,
 
             base_python_packages = 'python3-easygui python3-psutil ' \
                                    'python3-tornado gobject-introspection python3-gobject ' \
-                                   'python3-gobject-Gdk python3-babel python3-pillow'
+                                   'python3-babel python3-pillow'
 
             if distro == Distro.fedora:
                 base_python_packages = '{} python3-gexiv2'.format(base_python_packages)
@@ -1915,8 +1923,7 @@ def install_required_distro_packages(distro: Distro,
                                    'typelib-1_0-GExiv2-0_10 typelib-1_0-UDisks-2_0 ' \
                                    'typelib-1_0-Notify-0_7 ' \
                                    'typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0 ' \
-                                   'Typelib-1_0-gdkpixbuf-2_0 ' \
-                                   'python3-gobject-gdk '
+                                   'python3-gobject-Gdk '
 
 
 
@@ -1929,8 +1936,11 @@ def install_required_distro_packages(distro: Distro,
             build_source_packages = 'gobject-introspection-devel python3-cairo-devel openssl zlib git'
             packages = '{} {}'.format(packages, build_source_packages)
 
-        if opensuse_known_packages('libmediainfo0'):
-            packages = '{} {}'.format(packages, 'libmediainfo0')
+        libmediainfo = 'libmediainfo0'
+        if opensuse_known_packages(libmediainfo):
+            packages = '{} {}'.format(packages, libmediainfo)
+        else:
+            print("Could not locate package", libmediainfo)
 
         libunity_packages = opensuse_known_packages(
             'typelib-1_0-UnityExtras-7_0 typelib-1_0-Unity-7_0 typelib-1_0-Dbusmenu-0_4 '

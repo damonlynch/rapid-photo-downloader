@@ -368,14 +368,33 @@ def any_screen_scaled_gdk() -> bool:
 
     try:
         display = Gdk.Display.get_default()
-        if display:
+    except Exception:
+        import logging
+        logging.exception(
+            'An unexpected error occurred when querying the systems display parameters. Exception:'
+        )
+        return False
+
+    if display:
+        try:
             for n in range(display.get_n_monitors()):
                 monitor = display.get_monitor(n)
                 if monitor.get_scale_factor() > 1:
                     return True
-        return False
-    except Exception:
-        return False
+            return False
+
+        except AttributeError:
+            # get_n_monitors() was introduced in gtk 3.22
+            try:
+                screen = display.get_default_screen()
+                for monitor in range(screen.get_n_monitors()):
+                    if screen.get_monitor_scale_factor(monitor) > 1:
+                        return True
+            except Exception:
+                import logging
+                logging.exception('An unexpected error occurred when querying Gdk. Exception:')
+
+    return False
 
 
 def any_screen_scaled_qt() -> bool:
