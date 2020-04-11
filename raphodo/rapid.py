@@ -1085,7 +1085,6 @@ class RapidWindow(QMainWindow):
 
         self.splash.setProgress(70)
 
-
         # Setup the copyfiles process
         self.copyfilesThread = QThread()
         self.copyfilesmq = CopyFilesManager(logging_port=self.logging_port)
@@ -1097,6 +1096,7 @@ class RapidWindow(QMainWindow):
         self.copyfilesmq.tempDirs.connect(self.tempDirsReceivedFromCopyFiles)
         self.copyfilesmq.copyProblems.connect(self.copyfilesProblems)
         self.copyfilesmq.workerFinished.connect(self.copyfilesFinished)
+        self.copyfilesmq.cameraRemoved.connect(self.cameraRemovedWhileCopyingFiles)
 
         self.copyfilesmq.moveToThread(self.copyfilesThread)
 
@@ -4512,10 +4512,16 @@ Do you want to proceed with the download?
     @pyqtSlot(int)
     def cameraRemovedWhileThumbnailing(self, scan_id: int) -> None:
         """
+        Scenarios: a camera was physically removed, or file transfer was disabled on an MTP device.
 
-        :param scan_id:
-        :return:
+        If disabled, a problem is that the device has not yet been removed from the system.
+
+        But in any case, sometimes camera removal is not picked up by the system while it's being
+        accessed. So let's remove it ourselves.
+
+        :param scan_id: device that was removed / disabled
         """
+
         try:
             device = self.devices[scan_id]
         except KeyError:
@@ -4526,6 +4532,32 @@ Do you want to proceed with the download?
 
         logging.debug(
             "Camera %s was removed while thumbnails were being generated", device.display_name
+        )
+        self.removeDevice(scan_id=scan_id)
+
+    @pyqtSlot(int)
+    def cameraRemovedWhileCopyingFiles(self, scan_id: int) -> None:
+        """
+        Scenarios: a camera was physically removed, or file transfer was disabled on an MTP device.
+
+        If disabled, a problem is that the device has not yet been removed from the system.
+
+        But in any case, sometimes camera removal is not picked up by the system while it's being
+        accessed. So let's remove it ourselves.
+
+        :param scan_id: device that was removed / disabled
+        """
+
+        try:
+            device = self.devices[scan_id]
+        except KeyError:
+            logging.debug(
+                "Got copy files error from a camera that no longer exists (scan id %s)", scan_id
+            )
+            return
+
+        logging.debug(
+            "Camera %s was removed while filed were being copied from it", device.display_name
         )
         self.removeDevice(scan_id=scan_id)
 

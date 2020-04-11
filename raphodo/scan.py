@@ -547,7 +547,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             )
             uri = get_uri(path=path, camera_details=self.camera_details)
             self.problems.append(CameraDirectoryReadProblem(uri=uri, name=path, gp_code=e.code))
-            if e.code == gp.GP_ERROR_IO_USB_FIND:
+            if e.code in (gp.GP_ERROR_IO_USB_FIND, gp.GP_ERROR_BAD_PARAMETERS):
                 logging.error("%s removed while listing files during scan", self.display_name)
                 raise CameraError(CameraErrorCode.inaccessible)
 
@@ -673,7 +673,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             )
             uri = get_uri(path=path, camera_details=self.camera_details)
             self.problems.append(CameraDirectoryReadProblem(uri=uri, name=path, gp_code=e.code))
-            if e.code == gp.GP_ERROR_IO_USB_FIND:
+            if e.code in (gp.GP_ERROR_IO_USB_FIND, gp.GP_ERROR_BAD_PARAMETERS):
                 logging.error("%s removed while listing folders during scan", self.display_name)
                 raise CameraError(code=CameraErrorCode.inaccessible)
 
@@ -1066,7 +1066,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         FileWriteProblem(uri=uri, name=temp_name, exception=e.py_exception)
                     )
                 else:
-                    if e.gp_code == gp.GP_ERROR_IO_USB_FIND:
+                    if e.gp_code in (gp.GP_ERROR_IO_USB_FIND, gp.GP_ERROR_BAD_PARAMETERS):
                         raise CameraError(code=CameraErrorCode.inaccessible)
             else:
                 if file_type == FileType.video:
@@ -1165,7 +1165,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     full_file_name=os.path.join(path, name), camera_details=self.camera_details
                 )
                 self.problems.append(CameraFileReadProblem(uri=uri, name=name, gp_code=e.gp_code))
-                if e.gp_code == gp.GP_ERROR_IO_USB_FIND:
+                if e.gp_code in (gp.GP_ERROR_IO_USB_FIND, gp.GP_ERROR_BAD_PARAMETERS):
                     raise CameraError(code=CameraErrorCode.inaccessible)
 
             else:
@@ -1208,7 +1208,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.sample_exif_bytes = self.camera.get_exif_extract(path, name, offset)
                 except CameraProblemEx as e:
                     self.sample_exif_bytes = None
-                    if e.gp_code == gp.GP_ERROR_IO_USB_FIND:
+                    if e.gp_code in (gp.GP_ERROR_IO_USB_FIND, gp.GP_ERROR_BAD_PARAMETERS):
                         raise CameraError(code=CameraErrorCode.inaccessible)
 
                 if self.sample_exif_bytes is not None:

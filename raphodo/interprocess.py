@@ -1330,7 +1330,8 @@ class CopyFilesResults:
                  rpd_file: Optional[RPDFile]=None,
                  download_count: Optional[int]=None,
                  mdata_exceptions: Optional[Tuple]=None,
-                 problems: Optional[CopyingProblems]=None) -> None:
+                 problems: Optional[CopyingProblems]=None,
+                 camera_removed: Optional[bool]=None) -> None:
         """
 
         :param scan_id: scan id of the device the files are being
@@ -1365,6 +1366,7 @@ class CopyFilesResults:
         self.download_count = download_count
         self.mdata_exceptions = mdata_exceptions
         self.problems = problems
+        self.camera_removed = camera_removed
 
 
 class ThumbnailDaemonData:
@@ -1780,6 +1782,7 @@ class CopyFilesManager(PublishPullPipelineManager):
     tempDirs = pyqtSignal(int, str,str)
     bytesDownloaded = pyqtSignal(int, 'PyQt_PyObject', 'PyQt_PyObject')
     copyProblems = pyqtSignal(int, 'PyQt_PyObject')
+    cameraRemoved = pyqtSignal(int)
 
     def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port=logging_port, thread_name=ThreadNames.copy)
@@ -1806,6 +1809,8 @@ class CopyFilesManager(PublishPullPipelineManager):
 
         elif data.problems is not None:
             self.copyProblems.emit(data.scan_id, data.problems)
+        elif data.camera_removed is not None:
+            self.cameraRemoved.emit(data.scan_id)
 
         else:
             assert (data.photo_temp_dir is not None and
