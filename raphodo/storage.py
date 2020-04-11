@@ -861,7 +861,8 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
     for device in enumerator.execute():
         model = device.get_property('ID_MODEL')  # type: str
         if model is not None:
-            is_mtp = device.get_property('ID_MTP_DEVICE') == '1'
+            is_mtp = device.get_property('ID_MTP_DEVICE') == '1' or \
+                     device.get_property('ID_MEDIA_PLAYER') == '1'
             vendor = device.get_property('ID_VENDOR')  # type: str
             model = model.replace('_', ' ').strip()
             vendor = vendor.replace('_', ' ').strip()
@@ -991,7 +992,7 @@ class CameraHotplug(QObject):
         if action == 'add':
             if parent_path not in self.cameras:
                 model = device.get_property('ID_MODEL')
-                logging.info("Hotplug: new camera: %s", model)
+                logging.info("Hotplug: new camera: %s", model.replace('_', ' '))
                 self.cameras[path] = model
                 self.cameraAdded.emit()
             else:

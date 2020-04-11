@@ -1072,6 +1072,7 @@ class RapidWindow(QMainWindow):
         self.scanmq.scanProblems.connect(self.scanProblemsReceived)
         self.scanmq.workerFinished.connect(self.scanFinished)
         self.scanmq.fatalError.connect(self.scanFatalError)
+        self.scanmq.cameraRemovedDuringScan.connect(self.cameraRemovedDuringScan)
 
         self.scanmq.moveToThread(self.scanThread)
 
@@ -3422,8 +3423,10 @@ Do you want to proceed with the download?
             assert total_downloaded >= 0
             assert chunk_downloaded >= 0
         except AssertionError:
-            logging.critical("Unexpected negative values for total / chunk downloaded: %s %s ",
-                             total_downloaded, chunk_downloaded)
+            logging.critical(
+                "Unexpected negative values for total / chunk downloaded: %s %s ",
+                total_downloaded, chunk_downloaded
+            )
 
         self.download_tracker.set_total_bytes_copied(scan_id, total_downloaded)
         if len(self.devices.have_downloaded_from) > 1:
@@ -4485,6 +4488,28 @@ Do you want to proceed with the download?
         self.removeDevice(scan_id=scan_id, show_warning=False)
 
     @pyqtSlot(int)
+    def cameraRemovedDuringScan(self, scan_id: int) -> None:
+        """
+        Scenarios: a camera was physically removed, or file transfer was disabled on an MTP device.
+
+        If disabled, a problem is that the device has not yet been removed from the system.
+
+        But in any case, sometimes camera removal is not picked up by the system while it's being
+        accessed. So let's remove it ourselves.
+
+        :param scan_id: device that was removed / disabled
+        """
+
+        try:
+            device = self.devices[scan_id]
+        except KeyError:
+            logging.debug("Got scan error from device that no longer exists (scan_id %s)", scan_id)
+            return
+
+        logging.debug("Camera %s was removed during a scan", device.display_name)
+        self.removeDevice(scan_id=scan_id)
+
+    @pyqtSlot(int)
     def scanFinished(self, scan_id: int) -> None:
         """
         A single device has finished its scan. Other devices can be in any
@@ -4606,6 +4631,7 @@ Do you want to proceed with the download?
                 "Was tasked to generate Timeline because %s, but there is nothing to generate",
                 reason
             )
+
 
     @pyqtSlot(TemporalProximityGroups)
     def proximityGroupsGenerated(self, proximity_groups: TemporalProximityGroups) -> None:
@@ -4770,6 +4796,7 @@ Do you want to proceed with the download?
         libgphoto2
         """
 
+        logging.debug("Examining system for removed camera")
         sc = autodetect_cameras(self.gp_context)
         system_cameras = ((model, port) for model, port in sc if not
                           port.startswith('disk:'))
@@ -4778,11 +4805,14 @@ Do you want to proceed with the download?
         removed_cameras = set(known_cameras) - set(system_cameras)
         for model, port in removed_cameras:
             scan_id = self.devices.scan_id_from_camera_model_port(model, port)
-            device = self.devices[scan_id]
-            # Don't log a warning when the camera was removed while the user was being
-            # informed it was locked or inaccessible
-            show_warning = not device in self.prompting_for_user_action
-            self.removeDevice(scan_id=scan_id, show_warning=show_warning)
+            if scan_id is None:
+                logging.debug("The camera with scan id %s was already removed", scan_id)
+            else:
+                device = self.devices[scan_id]
+                # Don't log a warning when the camera was removed while the user was being
+                # informed it was locked or inaccessible
+                show_warning = not device in self.prompting_for_user_action
+                self.removeDevice(scan_id=scan_id, show_warning=show_warning)
 
         if removed_cameras:
             self.setDownloadCapabilities()

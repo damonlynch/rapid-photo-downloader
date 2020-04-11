@@ -1273,6 +1273,7 @@ class ScanResults:
                  sample_video: Optional[Video]=None,
                  problems: Optional[ScanProblems]=None,
                  fatal_error: Optional[bool]=None,
+                 camera_removed: Optional[bool]=None,
                  entire_video_required: Optional[bool]=None,
                  entire_photo_required: Optional[bool]=None) -> None:
         self.rpd_files = rpd_files
@@ -1287,6 +1288,7 @@ class ScanResults:
         self.sample_video = sample_video
         self.problems = problems
         self.fatal_error = fatal_error
+        self.camera_removed = camera_removed
         self.entire_video_required = entire_video_required
         self.entire_photo_required = entire_photo_required
 
@@ -1686,6 +1688,7 @@ class ScanManager(PublishPullPipelineManager):
     deviceDetails = pyqtSignal(int, 'PyQt_PyObject', 'PyQt_PyObject', str)
     scanProblems = pyqtSignal(int, 'PyQt_PyObject')
     fatalError = pyqtSignal(int)
+    cameraRemovedDuringScan = pyqtSignal(int)
 
     def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port=logging_port, thread_name=ThreadNames.scan)
@@ -1718,6 +1721,10 @@ class ScanManager(PublishPullPipelineManager):
                 )
             elif data.problems is not None:
                 self.scanProblems.emit(data.scan_id, data.problems)
+            elif data.camera_removed is not None:
+                self.cameraRemovedDuringScan.emit(
+                    data.scan_id
+                )
             else:
                 assert data.fatal_error
                 self.fatalError.emit(data.scan_id)

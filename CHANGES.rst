@@ -7,6 +7,8 @@ Changelog for Rapid Photo Downloader
  - Fixed bug where camera removal was not being detected on desktops not using
    GIO / GVFS, e.g. KDE.
 
+ - Better handle unexpected camera removal during scan.
+
 0.9.22a1 (2020-04-10)
 ---------------------
 
