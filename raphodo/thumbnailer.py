@@ -45,6 +45,7 @@ class ThumbnailManagerPara(PublishPullPipelineManager):
 
     message = pyqtSignal(RPDFile, QPixmap)
     cacheDirs = pyqtSignal(int, CacheDirs)
+    cameraRemoved = pyqtSignal(int)
 
     def __init__(self, logging_port: int, thread_name: str) -> None:
         super().__init__(logging_port=logging_port, thread_name=thread_name)
@@ -65,6 +66,9 @@ class ThumbnailManagerPara(PublishPullPipelineManager):
                     thumbnail = QPixmap.fromImage(thumbnail)
 
             self.message.emit(data.rpd_file, thumbnail)
+        elif data.camera_removed:
+            assert data.scan_id is not None
+            self.cameraRemoved.emit(data.scan_id)
         else:
             assert data.cache_dirs is not None
             self.cacheDirs.emit(data.scan_id, data.cache_dirs)
@@ -193,6 +197,10 @@ class Thumbnailer(QObject):
     @property
     def workerFinished(self) -> pyqtSignal:
         return self.thumbnail_manager.workerFinished
+
+    @property
+    def cameraRemoved(self) -> pyqtSignal:
+        return self.thumbnail_manager.cameraRemoved
 
     def setupThumbnailManager(self) -> None:
         logging.debug("Starting thumbnail model...")

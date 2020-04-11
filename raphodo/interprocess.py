@@ -1561,12 +1561,14 @@ class GenerateThumbnailsResults:
     def __init__(self, rpd_file: Optional[RPDFile]=None,
                  thumbnail_bytes: Optional[bytes]=None,
                  scan_id: Optional[int]=None,
-                 cache_dirs: Optional[CacheDirs]=None) -> None:
+                 cache_dirs: Optional[CacheDirs]=None,
+                 camera_removed: Optional[bool]=None,) -> None:
         self.rpd_file = rpd_file
         # If thumbnail_bytes is None, there is no thumbnail
         self.thumbnail_bytes = thumbnail_bytes
         self.scan_id = scan_id
         self.cache_dirs = cache_dirs
+        self.camera_removed = camera_removed
 
 
 class ThumbnailExtractorArgument:

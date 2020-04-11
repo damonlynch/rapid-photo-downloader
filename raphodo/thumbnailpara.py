@@ -533,6 +533,13 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     "Prematurely exiting thumbnail generation due to lack of access to camera %s",
                     arguments.camera
                 )
+                self.content = pickle.dumps(
+                    GenerateThumbnailsResults(
+                        scan_id=arguments.scan_id,
+                        camera_removed=True,
+                    ), pickle.HIGHEST_PROTOCOL
+                )
+                self.send_message_to_sink()
                 self.disconnect_logging()
                 self.send_finished_command()
                 sys.exit(0)

@@ -166,6 +166,7 @@ class ThumbnailListModel(QAbstractListModel):
         self.thumbnailer.thumbnailReceived.connect(self.thumbnailReceived)
         self.thumbnailer.cacheDirs.connect(self.cacheDirsReceived)
         self.thumbnailer.workerFinished.connect(self.thumbnailWorkerFinished)
+        self.thumbnailer.cameraRemoved.connect(self.rapidApp.cameraRemovedWhileThumbnailing)
         # Connect to the signal that is emitted when a thumbnailing operation is
         # terminated by us, not merely finished
         self.thumbnailer.workerStopped.connect(self.thumbnailWorkerStopped)

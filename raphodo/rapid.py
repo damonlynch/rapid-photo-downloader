@@ -4503,10 +4503,30 @@ Do you want to proceed with the download?
         try:
             device = self.devices[scan_id]
         except KeyError:
-            logging.debug("Got scan error from device that no longer exists (scan_id %s)", scan_id)
+            logging.debug("Got scan error from device that no longer exists (scan id %s)", scan_id)
             return
 
         logging.debug("Camera %s was removed during a scan", device.display_name)
+        self.removeDevice(scan_id=scan_id)
+
+    @pyqtSlot(int)
+    def cameraRemovedWhileThumbnailing(self, scan_id: int) -> None:
+        """
+
+        :param scan_id:
+        :return:
+        """
+        try:
+            device = self.devices[scan_id]
+        except KeyError:
+            logging.debug(
+                "Got thumbnailing error from a camera that no longer exists (scan id %s)", scan_id
+            )
+            return
+
+        logging.debug(
+            "Camera %s was removed while thumbnails were being generated", device.display_name
+        )
         self.removeDevice(scan_id=scan_id)
 
     @pyqtSlot(int)
