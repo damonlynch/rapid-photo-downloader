@@ -26,8 +26,8 @@ Release Notes for Rapid Photo Downloader 0.9.22
    Note: program performance with CR3 files is notably slower than other photo
    file formats. Other photo file formats are read using the high performance
    library Exiv2 to read metadata and extract thumbnails. Unfortunately Exiv2
-   does not yet support the CR3 format. A future version of Exiv2 0.28 will
-   support the CR3 format.
+   does not yet support the CR3 format. A future version of Exiv2 will support
+   the CR3 format.
 
  - On some systems, Rapid Photo Downloader cannot use gstreamer to generate
    video thumbnails for all common video files. Install the good and libav
