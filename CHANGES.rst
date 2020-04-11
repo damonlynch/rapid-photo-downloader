@@ -4,13 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.22 (2020-04-11)
 -------------------
 
- - Fixed bug where camera removal was not being detected on desktops not using
-   GIO / GVFS, e.g. KDE.
-
- - Automatically detect when a camera is added to the system controlled by
-   a desktop that uses Gnome's GIO and if it is not automatically mounted,
-   initiate a device scan. Previously the program assumed a camera would always
-   be mounted by Gnome's GIO. (GIO is used on many desktops, not just Gnome.)
+ - Fixed bugs where camera insertion and removal was not being detected in some
+   circumstances. In KDE, it was camera removal. In Gnome-like systems where
+   auto mounting of cameras is disabled or not functional, it was insertion.
 
  - More robustly handle a camera being unexpectedly removed during scanning,
    thumbnailing, and copying files.

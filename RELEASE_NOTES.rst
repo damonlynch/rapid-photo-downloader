@@ -17,7 +17,7 @@ Release Notes for Rapid Photo Downloader 0.9.22
    https://damonlynch.net/rapid/documentation/#miscellaneousnpreferences
 
  - Canon's latest RAW file format CR3 is supported on systems that have
-   ExifTool 10.87 or newer. Many Linux distributions ship an older version
+   ExifTool 10.87 or newer. Some Linux distributions ship an older version
    of ExifTool. If you need to, it is fortunately easy to install ExifTool
    yourself. See:
 
@@ -26,8 +26,8 @@ Release Notes for Rapid Photo Downloader 0.9.22
    Note: program performance with CR3 files is notably slower than other photo
    file formats. Other photo file formats are read using the high performance
    library Exiv2 to read metadata and extract thumbnails. Unfortunately Exiv2
-   does not yet support the CR3 format. Exiv2 0.28 is planned to support the CR3
-   format.
+   does not yet support the CR3 format. A future version of Exiv2 0.28 will
+   support the CR3 format.
 
  - On some systems, Rapid Photo Downloader cannot use gstreamer to generate
    video thumbnails for all common video files. Install the good and libav
