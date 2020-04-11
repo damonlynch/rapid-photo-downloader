@@ -56,7 +56,7 @@ import shlex
 import pwd
 import shutil
 from collections import namedtuple
-from typing import Optional, Tuple, List, Dict
+from typing import Optional, Tuple, List, Dict, Set
 from urllib.request import pathname2url, quote
 from tempfile import NamedTemporaryFile
 
@@ -172,7 +172,7 @@ def get_media_dir() -> str:
 
     if sys.platform.startswith('linux'):
         media_dir = '/media/{}'.format(get_user_name())
-        run_media_dir = '/run{}'.format(media_dir)
+        run_media_dir = '/run/media'
         distro = get_distro()
         if os.path.isdir(run_media_dir) and distro not in (
                 Distro.ubuntu, Distro.debian, Distro.neon, Distro.galliumos, Distro.peppermint,
@@ -1297,6 +1297,7 @@ if have_gio:
         partitionUnmounted = pyqtSignal(str)
         volumeAddedNoAutomount = pyqtSignal()
         cameraPossiblyRemoved = pyqtSignal()
+        cameraVolumeAdded = pyqtSignal(str)
 
         def __init__(self, validMounts: ValidMounts) -> None:
             super().__init__()
@@ -1307,7 +1308,10 @@ if have_gio:
             self.vm.connect('volume-removed', self.volumeRemoved)
             self.portSearch = re.compile(r'usb:([\d]+),([\d]+)')
             self.scsiPortSearch = re.compile(r'usbscsi:(.+)')
+            self.possibleCamera = re.compile(r'/usb/([\d]+)/([\d]+)')
             self.validMounts = validMounts
+            self.camera_volumes_added = dict()  # type: Dict[str, str]
+            self.camera_volumes_mounted = set()  # type: Set[str]
 
         def mountMightBeCamera(self, mount: Gio.Mount) -> bool:
             """
@@ -1328,19 +1332,24 @@ if have_gio:
                 p1 = p.group(1)
                 p2 = p.group(2)
                 device_path = '/dev/bus/usb/{}/{}'.format(p1, p2)
-                #pattern = re.compile(r'%\S\Susb%\S\S{}%\S\S{}%\S\S'.format(p1, p2))
+                return self.cameraMountPointByUnixDevice(device_path=device_path)
             else:
                 p = self.scsiPortSearch.match(port)
                 if p is None:
                     logging.error("Unknown camera mount method %s %s", model, port)
                 return None
 
+        def cameraMountPointByUnixDevice(self, device_path: str) -> Optional[Gio.Mount]:
+            """
+            :return: the mount point of the PTP / MTP camera, if it is mounted,
+             else None. If camera is not mounted with PTP / MTP, None is
+             returned.
+            """
+
             to_unmount = None
 
             for mount in self.vm.get_mounts():
                 if self.mountMightBeCamera(mount):
-                    # According to GTK docs, Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE is
-                    # deprecated, but what should replace it?
                     identifier = mount.get_volume().get_identifier(
                         Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE
                     )
@@ -1493,10 +1502,10 @@ if have_gio:
                     logging.warning('Unable to get mount root')
                 else:
                     path = root.get_path()
-                    logging.debug("GIO: Looking for camera at mount {}".format(path))
                     if path:
-                    # check last two levels of the path name, as it might be in a format like
-                    # /run/..../gvfs/gphoto2:host=Canon_Inc._Canon_Digital_Camera/store_00010001
+                        logging.debug("GIO: Looking for camera at mount {}".format(path))
+                        # check last two levels of the path name, as it might be in a format like
+                        # /run/..../gvfs/gphoto2:host=Canon_Inc._Canon_Digital_Camera/store_00010001
                         for i in (1, 2):
                             path, folder_name = os.path.split(path)
                             if folder_name:
@@ -1528,13 +1537,25 @@ if have_gio:
             return False
 
         def mountAdded(self, volumeMonitor, mount: Gio.Mount) -> None:
+            logging.debug("Examining mount %s", mount.get_name())
+            try:
+                identifier = mount.get_volume().get_identifier(
+                    Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE
+                )
+                if identifier in self.camera_volumes_added:
+                    logging.debug("%s is now mounted", self.camera_volumes_added[identifier])
+                    self.camera_volumes_mounted.add(identifier)
+                    self.cameraMounted.emit()
+                    return
+            except Exception:
+                pass
             if self.mountIsCamera(mount):
                 self.cameraMounted.emit()
             elif self.mountIsPartition(mount):
                 icon_names = self.getIconNames(mount)
-                self.partitionMounted.emit(mount.get_root().get_path(),
-                                           icon_names,
-                                           mount.can_eject())
+                self.partitionMounted.emit(
+                    mount.get_root().get_path(), icon_names, mount.can_eject()
+                )
 
         def mountRemoved(self, volumeMonitor, mount: Gio.Mount) -> None:
             if not self.mountIsCamera(mount):
@@ -1543,12 +1564,43 @@ if have_gio:
                     self.partitionUnmounted.emit(mount.get_root().get_path())
 
         def volumeAdded(self, volumeMonitor, volume: Gio.Volume) -> None:
-            logging.debug("GIO: Volume added %s. Automount: %s",
-                          volume.get_name(),
-                          volume.should_automount())
-            if not volume.should_automount():
-                # TODO is it possible to determine the device type?
-                self.volumeAddedNoAutomount.emit()
+            volume_name = volume.get_name()
+            logging.debug(
+                "GIO: Volume added %s. Automount: %s (might be incorrect)",
+                volume_name, volume.should_automount()
+            )
+
+            # Even if volume.should_automount(), the volume in fact may not be mounted
+            # automatically. Unbelievable.
+
+            device_path = volume.get_identifier(
+                Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE
+            )
+
+            camera_added = self.possibleCamera.search(device_path) is not None
+            if camera_added:
+                self.camera_volumes_added[device_path] = volume_name
+                logging.debug(
+                    "Assuming %s could be a camera at %s", volume_name, device_path
+                )
+                # Time is in milliseconds; 3000 is 3 seconds.
+                QTimer.singleShot(3000, lambda: self.cameraVolumeAddedCheckMount(device_path))
+
+            # if not volume.should_automount():
+            #     # TODO is it possible to determine the device type?
+            #     self.volumeAddedNoAutomount.emit()
+
+        def cameraVolumeAddedCheckMount(self, device_path) -> None:
+            if device_path not in self.camera_volumes_mounted:
+                logging.debug(
+                    "%s had not been automatically mounted. Will initiate camera scan.",
+                    self.camera_volumes_added[device_path]
+                )
+                self.cameraVolumeAdded.emit(device_path)
+            else:
+                logging.debug(
+                    "%s had been automatically mounted", self.camera_volumes_added[device_path]
+                )
 
         def volumeRemoved(self, volumeMonitor, volume: Gio.Volume) -> None:
             logging.debug("GIO: %s volume removed", volume.get_name())
@@ -1584,7 +1636,7 @@ if have_gio:
 
 
 def _get_info_size_value(info: Gio.FileInfo, attr: str) -> int:
-    if info.get_attribute_data(attr).type ==  Gio.FileAttributeType.UINT64:
+    if info.get_attribute_data(attr).type == Gio.FileAttributeType.UINT64:
         return info.get_attribute_uint64(attr)
     else:
         return info.get_attribute_uint32(attr)
@@ -1609,8 +1661,11 @@ def get_mount_size(mount: QStorageInfo) -> Tuple[int, int]:
 
     logging.debug("Using GIO to query file system attributes for %s...", path)
     p = Gio.File.new_for_path(os.path.abspath(path))
-    info = p.query_filesystem_info(','.join((Gio.FILE_ATTRIBUTE_FILESYSTEM_SIZE,
-                                             Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)))
+    info = p.query_filesystem_info(
+        ','.join(
+            (Gio.FILE_ATTRIBUTE_FILESYSTEM_SIZE, Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
+        )
+    )
     logging.debug("...query of file system attributes for %s completed", path)
     bytes_total = _get_info_size_value(info, Gio.FILE_ATTRIBUTE_FILESYSTEM_SIZE)
     bytes_free = _get_info_size_value(info, Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)

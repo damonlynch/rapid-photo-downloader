@@ -962,6 +962,7 @@ class RapidWindow(QMainWindow):
             self.gvolumeMonitor.partitionUnmounted.connect(self.partitionUmounted)
             self.gvolumeMonitor.volumeAddedNoAutomount.connect(self.noGVFSAutoMount)
             self.gvolumeMonitor.cameraPossiblyRemoved.connect(self.cameraRemoved)
+            self.gvolumeMonitor.cameraVolumeAdded.connect(self.cameraVolumeAdded)
 
         if version_check_disabled():
             logging.debug("Version check disabled")
@@ -4882,9 +4883,14 @@ Do you want to proceed with the download?
         logging.error("Implement noGVFSAutoMount()")
 
     @pyqtSlot()
-    def cameraMounted(self):
+    def cameraMounted(self) -> None:
         if have_gio:
             self.searchForCameras()
+
+    @pyqtSlot(str)
+    def cameraVolumeAdded(self, path):
+        assert self.gvfsControlsMounts
+        self.searchForCameras()
 
     def unmountCameraToEnableScan(self, model: str,
                                   port: str,
