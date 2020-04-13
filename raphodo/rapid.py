@@ -4811,14 +4811,12 @@ Do you want to proceed with the download?
         :rtype Tuple[str, bool]
         """
         if self.gvfsControlsMounts:
-            iconNames, canEject = self.gvolumeMonitor.getProps(
-                mount.rootPath())
+            iconNames, canEject = self.gvolumeMonitor.getProps(mount.rootPath())
         else:
             # get the system device e.g. /dev/sdc1
             systemDevice = bytes(mount.device()).decode()
-            iconNames, canEject = self.udisks2Monitor.get_device_props(
-                systemDevice)
-        return (iconNames, canEject)
+            iconNames, canEject = self.udisks2Monitor.get_device_props(systemDevice)
+        return iconNames, canEject
 
     def addToDeviceDisplay(self, device: Device, scan_id: int) -> None:
         self.mapModel(scan_id).addDevice(scan_id, device)
@@ -4851,8 +4849,7 @@ Do you want to proceed with the download?
 
         logging.debug("Examining system for removed camera")
         sc = autodetect_cameras(self.gp_context)
-        system_cameras = ((model, port) for model, port in sc if not
-                          port.startswith('disk:'))
+        system_cameras = ((model, port) for model, port in sc if not port.startswith('disk:'))
         kc = self.devices.cameras.items()
         known_cameras = ((model, port) for port, model in kc)
         removed_cameras = set(known_cameras) - set(system_cameras)

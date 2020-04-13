@@ -870,6 +870,22 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
     return None
 
 
+def udev_is_camera(devname: str) -> bool:
+    """
+    Query udev to see if device is a gphoto2 device (a camera or phone)
+    :param devname: udev DEVNAME e.g. '/dev/bus/usb/001/003'
+    :return: True if so, else False
+    """
+
+    client = GUdev.Client(subsystems=['usb', 'block'])
+    enumerator = GUdev.Enumerator.new(client)
+    enumerator.add_match_property('DEVNAME', devname)
+    for device in enumerator.execute():
+        if device.get_property('ID_GPHOTO2')  == '1':
+            return True
+    return False
+
+
 def fs_device_details(path: str) -> Tuple:
     """
     :return: device (volume) name, uri, root path and filesystem type
@@ -1313,12 +1329,23 @@ if have_gio:
             self.camera_volumes_added = dict()  # type: Dict[str, str]
             self.camera_volumes_mounted = set()  # type: Set[str]
 
-        def mountMightBeCamera(self, mount: Gio.Mount) -> bool:
+        @staticmethod
+        def mountMightBeCamera(mount: Gio.Mount) -> bool:
             """
             :param mount: the mount to check
             :return: True if the mount needs to be checked if it is a camera
             """
             return not mount.is_shadowed() and mount.get_volume() is not None
+
+        def unixDevicePathIsCamera(self, devname: str) -> bool:
+            """
+            Test if the device at unix device path devname is a camera
+            :param devname: Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE device path
+             e.g. '/dev/bus/usb/001/003'
+            :return: True if camera else False
+            """
+
+            return self.possibleCamera.search(devname) is not None and udev_is_camera(devname)
 
         def ptpCameraMountPoint(self, model: str, port: str) -> Optional[Gio.Mount]:
             """
@@ -1460,11 +1487,13 @@ if have_gio:
                     mpath = root.get_path()
                     if path == mpath:
                         logging.info("Attempting to unmount %s...", path)
-                        mount.unmount_with_operation(0, None, None, self.unmountVolumeCallback,
-                                                     path)
+                        mount.unmount_with_operation(
+                            0, None, None, self.unmountVolumeCallback, path
+                        )
                         break
 
-        def unmountVolumeCallback(self, mount: Gio.Mount,
+        @staticmethod
+        def unmountVolumeCallback(mount: Gio.Mount,
                                   result: Gio.AsyncResult,
                                   user_data: str) -> None:
 
@@ -1490,7 +1519,11 @@ if have_gio:
             """
             Determine if the mount refers to a camera by checking the
             path to see if gphoto2 or mtp is in the last folder in the
-            root path
+            root path.
+
+            Does not query udev, deliberately. This can be called when device
+            is being unmounted. Unclear if the device is still on the system
+            at this point, or how realible that is even if it is.
 
             :param mount: mount to check
             :return: True if mount refers to a camera, else False
@@ -1537,6 +1570,14 @@ if have_gio:
             return False
 
         def mountAdded(self, volumeMonitor, mount: Gio.Mount) -> None:
+            """
+            Determine if mount is valid partition or is a camera, or something
+            else.
+
+            :param volumeMonitor: not used
+            :param mount: the mount to examine
+            """
+
             logging.debug("Examining mount %s", mount.get_name())
             try:
                 identifier = mount.get_volume().get_identifier(
@@ -1549,7 +1590,10 @@ if have_gio:
                     return
             except Exception:
                 pass
+
             if self.mountIsCamera(mount):
+                # Can be called on startup if camera was already mounted in GIO before the program
+                # started. In that case, previous check would not have detected the camera.
                 self.cameraMounted.emit()
             elif self.mountIsPartition(mount):
                 icon_names = self.getIconNames(mount)
@@ -1577,18 +1621,13 @@ if have_gio:
                 Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE
             )
 
-            camera_added = self.possibleCamera.search(device_path) is not None
-            if camera_added:
+            if self.unixDevicePathIsCamera(device_path):
                 self.camera_volumes_added[device_path] = volume_name
                 logging.debug(
-                    "Assuming %s could be a camera at %s", volume_name, device_path
+                    "%s is a camera at %s", volume_name, device_path
                 )
                 # Time is in milliseconds; 3000 is 3 seconds.
                 QTimer.singleShot(3000, lambda: self.cameraVolumeAddedCheckMount(device_path))
-
-            # if not volume.should_automount():
-            #     # TODO is it possible to determine the device type?
-            #     self.volumeAddedNoAutomount.emit()
 
         def cameraVolumeAddedCheckMount(self, device_path) -> None:
             if device_path not in self.camera_volumes_mounted:
@@ -1608,7 +1647,14 @@ if have_gio:
                 logging.debug("GIO: %s might be a camera", volume.get_name())
                 self.cameraPossiblyRemoved.emit()
 
-        def getIconNames(self, mount: Gio.Mount) -> List[str]:
+        @staticmethod
+        def getIconNames(mount: Gio.Mount) -> List[str]:
+            """
+            Get icons for the mount from theme
+
+            :param mount:
+            :return:
+            """
             icon_names = []
             icon = mount.get_icon()
             if isinstance(icon, Gio.ThemedIcon):
