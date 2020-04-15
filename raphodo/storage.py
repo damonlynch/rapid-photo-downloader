@@ -881,7 +881,7 @@ def udev_is_camera(devname: str) -> bool:
     enumerator = GUdev.Enumerator.new(client)
     enumerator.add_match_property('DEVNAME', devname)
     for device in enumerator.execute():
-        if device.get_property('ID_GPHOTO2')  == '1':
+        if device.get_property('ID_GPHOTO2') == '1':
             return True
     return False
 

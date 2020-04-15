@@ -460,6 +460,7 @@ class RapidWindow(QMainWindow):
                  scaling_set: str,
                  scaling_action: ScalingAction,
                  scaling_detected: ScalingDetected,
+                 xsetting_running: bool,
                  photo_rename: Optional[bool]=None,
                  video_rename: Optional[bool]=None,
                  auto_detect: Optional[bool]=None,
@@ -508,7 +509,8 @@ class RapidWindow(QMainWindow):
         self.file_manager, self.file_manager_type = get_default_file_manager()
 
         for version in get_versions(
-                self.file_manager, self.file_manager_type, scaling_action, scaling_detected):
+                self.file_manager, self.file_manager_type, scaling_action,
+                scaling_detected, xsetting_running):
             logging.info('%s', version)
 
         if disable_version_check:
@@ -687,7 +689,7 @@ class RapidWindow(QMainWindow):
                 elif pv > rv:
                     logging.info(
                         "Version downgrade detected, from %s to %s",
-                        __about__.__version__, previous_version
+                        previous_version, __about__.__version__
                     )
                 if pv < pkgr.parse_version('0.9.7b1'):
                     # Remove any duplicate subfolder generation or file renaming custom presets
@@ -5927,7 +5929,8 @@ class QtSingleApplication(QApplication):
 def get_versions(file_manager: Optional[str],
                  file_manager_type: Optional[FileManagerType],
                  scaling_action: ScalingAction,
-                 scaling_detected: ScalingDetected) -> List[str]:
+                 scaling_detected: ScalingDetected,
+                 xsetting_running: bool) -> List[str]:
     if 'cython' in zmq.zmq_version_info.__module__:
         pyzmq_backend = 'cython'
     else:
@@ -5994,13 +5997,25 @@ def get_versions(file_manager: Optional[str],
             versions.append('libheif: {}'.format(v))
     for display in ('XDG_SESSION_TYPE', 'WAYLAND_DISPLAY'):
         session = os.getenv(display, '')
-        if session:
+        if session.find('wayland') >= 0:
+            wayland_platform = os.getenv('QT_QPA_PLATFORM', '')
+            if wayland_platform != 'wayland':
+                session = 'wayland desktop (but this application is probably running in XWayland)'
+                break
+            else:
+                session = 'wayland desktop (with wayland enabled for this application)'
+        elif session:
             break
     if session:
         versions.append('Session: {}'.format(session))
 
     versions.append('Desktop scaling: {}'.format(scaling_action.name.replace('_', ' ')))
-    versions.append('Desktop scaling detection: {}'.format(scaling_detected.name.replace('_', ' ')))
+    versions.append(
+        'Desktop scaling detection: {}{}'.format(
+            scaling_detected.name.replace('_', ' '),
+            '' if xsetting_running else ' (xsetting not running)'
+        )
+    )
 
     try:
         versions.append("Desktop: {} ({})".format(get_desktop_environment(), get_desktop().name))
@@ -6382,7 +6397,7 @@ def critical_startup_error(message: str) -> None:
 def main():
     scaling_action = ScalingAction.not_set
 
-    scaling_detected = any_screen_scaled()
+    scaling_detected, xsetting_running = any_screen_scaled()
 
     if scaling_detected == ScalingDetected.undetected:
         scaling_set = 'High DPI scaling disabled because no scaled screen was detected'
@@ -6456,7 +6471,10 @@ def main():
         file_manager, file_manager_type = get_default_file_manager()
         print(
             '\n'.join(
-                get_versions(file_manager, file_manager_type, scaling_action, scaling_detected)
+                get_versions(
+                    file_manager, file_manager_type, scaling_action, scaling_detected,
+                    xsetting_running
+                )
             )
         )
         sys.exit(0)
@@ -6464,8 +6482,7 @@ def main():
     if args.extensions:
         photos = list((ext.upper() for ext in fileformats.PHOTO_EXTENSIONS))
         videos = list((ext.upper() for ext in fileformats.VIDEO_EXTENSIONS))
-        extensions = ((photos, _("Photos")),
-                      (videos, _("Videos")))
+        extensions = ((photos, _("Photos")), (videos, _("Videos")))
         for exts, file_type in extensions:
             extensions = make_internationalized_list(exts)
             print('{}: {}'.format(file_type, extensions))
@@ -6718,6 +6735,7 @@ def main():
         scaling_set=scaling_set,
         scaling_action=scaling_action,
         scaling_detected=scaling_detected,
+        xsetting_running=xsetting_running,
     )
 
     app.setActivationWindow(rw)

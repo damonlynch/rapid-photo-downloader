@@ -1,6 +1,14 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.23a1 (2020-04-15)
+---------------------
+
+ - Fixed bug #1872338 segfault on startup after upgrade. When running under a
+   Gtk-based desktop, the application now queries xsettings to detect if monitor
+   scaling is enabled. In the previous release, Gtk was queried directly, which
+   caused segfaults (crashes) on some systems.
+
 0.9.22 (2020-04-11)
 -------------------
 

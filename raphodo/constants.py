@@ -784,9 +784,9 @@ class ScalingAction(Enum):
 
 
 class ScalingDetected(Enum):
-    qt = 1
-    gdk = 2
-    qt_and_gdk = 3
+    Qt = 1
+    Xsetting = 2
+    Qt_and_Xsetting = 3
     undetected = 4
 
 

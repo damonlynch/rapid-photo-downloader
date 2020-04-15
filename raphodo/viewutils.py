@@ -31,14 +31,10 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QIcon, QGuiApplication
 from PyQt5.QtCore import QSize, Qt, QT_VERSION_STR, QPoint
 
-import gi
-gi.require_version('Gdk', '3.0')
-from gi.repository import Gdk
-
 QT5_VERSION = parse_version(QT_VERSION_STR)
 
 from raphodo.constants import ScalingDetected
-
+import raphodo.xsettings as xsettings
 
 class RowTracker:
     r"""
@@ -357,44 +353,17 @@ def scaledIcon(path: str, size: Optional[QSize]=None) -> QIcon:
     return i
 
 
-def any_screen_scaled_gdk() -> bool:
+def screen_scaled_xsettings() -> bool:
     """
-    Detect if any of the screens o this system have scaling enabled.
+    Use xsettings to detect if screen scaling is on.
 
-    Uses GDK to do the querying.
+    No error checking.
 
-    :return: True if found, else False
+    :return: True if detected, False otherwise
     """
 
-    try:
-        display = Gdk.Display.get_default()
-    except Exception:
-        import logging
-        logging.exception(
-            'An unexpected error occurred when querying the systems display parameters. Exception:'
-        )
-        return False
-
-    if display:
-        try:
-            for n in range(display.get_n_monitors()):
-                monitor = display.get_monitor(n)
-                if monitor.get_scale_factor() > 1:
-                    return True
-            return False
-
-        except AttributeError:
-            # get_n_monitors() was introduced in gtk 3.22
-            try:
-                screen = display.get_default_screen()
-                for monitor in range(screen.get_n_monitors()):
-                    if screen.get_monitor_scale_factor(monitor) > 1:
-                        return True
-            except Exception:
-                import logging
-                logging.exception('An unexpected error occurred when querying Gdk. Exception:')
-
-    return False
+    x11 = xsettings.get_xsettings()
+    return x11.get(b'Gdk/WindowScalingFactor', 1) > 1
 
 
 def any_screen_scaled_qt() -> bool:
@@ -407,24 +376,33 @@ def any_screen_scaled_qt() -> bool:
     """
 
     app = QGuiApplication(sys.argv)
-    return app.devicePixelRatio() > 1.0
+    ratio = app.devicePixelRatio()
+    del app
+
+    return ratio > 1.0
 
 
-def any_screen_scaled() -> ScalingDetected:
+def any_screen_scaled() -> Tuple[ScalingDetected, bool]:
     """
     Detect if any of the screens on this system have scaling enabled.
 
-    Uses Qt and Gdk to do detection.
+    Uses Qt and xsettings to do detection.
 
     :return: True if found, else False
     """
 
     qt_detected_scaling = any_screen_scaled_qt()
-    gdk_detected_scaling = any_screen_scaled_gdk()
+    try:
+        xsettings_detected_scaling = screen_scaled_xsettings()
+        xsettings_running = True
+    except:
+        xsettings_detected_scaling = False
+        xsettings_running = False
+
     if qt_detected_scaling:
-        if gdk_detected_scaling:
-            return ScalingDetected.qt_and_gdk
-        return ScalingDetected.qt
-    if gdk_detected_scaling:
-        return ScalingDetected.gdk
-    return ScalingDetected.undetected
+        if xsettings_detected_scaling:
+            return ScalingDetected.Qt_and_Xsetting, xsettings_running
+        return ScalingDetected.Qt, xsettings_running
+    if xsettings_detected_scaling:
+        return ScalingDetected.Xsetting, xsettings_running
+    return ScalingDetected.undetected, xsettings_running
