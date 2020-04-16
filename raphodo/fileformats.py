@@ -74,7 +74,7 @@ def heif_capable() -> bool:
 
 RAW_EXTENSIONS = [
     '3fr', 'arw', 'dcr', 'cr2', 'crw',  'dng', 'fff', 'iiq', 'mos', 'mef', 'mrw', 'nef',
-    'nrw', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2', 'srw', 'x3f'
+    'nrw', 'orf', 'ori','pef', 'raf', 'raw', 'rw2', 'sr2', 'srw', 'x3f'
 ]
 
 HEIF_EXTENTIONS = ['heif', 'heic', 'hif']

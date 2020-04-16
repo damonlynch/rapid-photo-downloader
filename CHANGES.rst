@@ -1,6 +1,14 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.23 (2020-04-xx)
+-------------------
+
+ - Fixed bug #1873057: Add ORI to list of supported image formats.
+
+ - Fixed bug #1873233: RAW and JPG don't synchronize when using stored number.
+
+
 0.9.23a1 (2020-04-15)
 ---------------------
 

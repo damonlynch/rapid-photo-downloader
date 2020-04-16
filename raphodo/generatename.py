@@ -792,5 +792,5 @@ class Sequences:
             session_sequence_no=self._session_sequence_no + 1,
             sequence_letter=self._sequence_letter + 1,
             downloads_today=self._get_downloads_today(),
-            stored_sequence_no=self._stored_sequence_no
+            stored_sequence_no=self._stored_sequence_no + 1
         )

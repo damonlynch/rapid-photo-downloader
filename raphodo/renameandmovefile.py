@@ -90,14 +90,17 @@ class SyncRawJpeg:
                      sequence_number_used: gn.MatchedSequences) -> None:
 
         if not isinstance(date_time, datetime):
-            logging.debug("Rejecting %s for sync RAW jpeg matching because its"
-                          "metadata date time does not exist", name)
+            logging.debug(
+                "Rejecting %s for sync RAW jpeg matching because its metadata date time "
+                "does not exist", name
+            )
             return
 
         if name not in self.photos:
-            self.photos[name] = SyncRawJpegRecord(extension=[extension],
-                                                  date_time=date_time,
-                                                  sequence_number_used=sequence_number_used)
+            self.photos[name] = SyncRawJpegRecord(
+                extension=[extension], date_time=date_time,
+                sequence_number_used=sequence_number_used
+            )
         else:
             if extension not in self.photos[name].extension:
                 self.photos[name].extension.append(extension)
@@ -597,12 +600,14 @@ class RenameMoveFileWorker(DaemonProcess):
             identifier = '_%s' % self.duplicate_files[full_name]
             rpd_file.download_name = '{}{}{}'.format(name[0], identifier, name[1])
             rpd_file.download_full_file_name = os.path.join(
-                rpd_file.download_path, rpd_file.download_name)
+                rpd_file.download_path, rpd_file.download_name
+            )
 
             try:
                 if os.path.exists(rpd_file.download_full_file_name):
-                    raise OSError(errno.EEXIST, "File exists: %s" %
-                                  rpd_file.download_full_file_name)
+                    raise OSError(
+                        errno.EEXIST, "File exists: %s" % rpd_file.download_full_file_name
+                    )
                 os.rename(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
                 self.notify_file_already_exists(rpd_file, identifier)
                 return True
