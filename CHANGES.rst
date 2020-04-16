@@ -4,6 +4,8 @@ Changelog for Rapid Photo Downloader
 0.9.23 (2020-04-xx)
 -------------------
 
+ - Fixed bug #1872188: sqlite3.OperationalError when generating thumbnails.
+
  - Fixed bug #1873057: Add ORI to list of supported image formats.
 
  - Fixed bug #1873233: RAW and JPG don't synchronize when using stored number.

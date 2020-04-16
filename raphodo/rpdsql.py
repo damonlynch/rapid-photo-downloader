@@ -859,6 +859,7 @@ class CacheSQL:
             conn.commit()
             conn.close()
 
+    @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
     def have_thumbnail(self, uri: str, size: int, mtime: float) -> Optional[InCache]:
         """
         Returns download path and filename if a file with matching
@@ -871,13 +872,20 @@ class CacheSQL:
          present
         """
 
-        conn = sqlite3.connect(self.db)
-        c = conn.cursor()
-        c.execute(
-            """SELECT md5_name, mdatatime, orientation_unknown, failure FROM {tn} WHERE
-            uri=? AND size=? AND mtime=?""".format(tn=self.table_name), (uri, size, mtime)
-        )
-        row = c.fetchone()
+        conn = sqlite3.connect(self.db, timeout=sqlite3_timeout)
+
+        try:
+            c = conn.cursor()
+            c.execute(
+                """SELECT md5_name, mdatatime, orientation_unknown, failure FROM {tn} WHERE
+                uri=? AND size=? AND mtime=?""".format(tn=self.table_name), (uri, size, mtime)
+            )
+            row = c.fetchone()
+        except sqlite3.OperationalError as e:
+            logging.warning("Database error reading thumbnail for %s: %s. May retry.", uri, e)
+            conn.close()
+            raise sqlite3.OperationalError from e
+
         if row is not None:
             return InCache._make(row)
         else:
