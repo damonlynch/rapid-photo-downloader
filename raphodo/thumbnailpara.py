@@ -89,6 +89,11 @@ from raphodo.fileformats import use_exiftool_on_photo
 from raphodo.heif import have_heif_module
 
 
+def cache_dir_name(device_name: str) -> str:
+    """Generate a directory name for a temporary file cache"""
+    return 'rpd-cache-{}-'.format(device_name[:10].replace(' ', '_'))
+
+
 def split_list(alist: list, wanted_parts=2):
     """
     Split list into smaller parts
@@ -426,6 +431,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         task = ExtractionTask.undetermined
         file_to_work_on_is_temporary = False
 
+        if rpd_file.is_mtp_device and rpd_file.file_type == FileType.video:
+            entire_file_required = True
+
         if not entire_file_required:
             # For many photos videos, extract a small part of the file and use
             # that to get the metadata
@@ -560,10 +568,10 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 # the download process
                 self.photo_cache_dir = create_temp_dir(
                     folder=arguments.cache_dirs.photo_cache_dir,
-                    prefix='rpd-cache-{}-'.format(self.device_name[:10]))
+                    prefix=cache_dir_name(self.device_name))
                 self.video_cache_dir = create_temp_dir(
                     folder=arguments.cache_dirs.video_cache_dir,
-                    prefix='rpd-cache-{}-'.format(self.device_name[:10]))
+                    prefix=cache_dir_name(self.device_name))
                 cache_dirs = CacheDirs(self.photo_cache_dir, self.video_cache_dir)
                 self.content = pickle.dumps(
                     GenerateThumbnailsResults(
@@ -641,6 +649,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             if self.cache_full_size_file_from_camera(rpd_file):
                                 task = ExtractionTask.load_heif_and_exif_directly
                                 processing.add(ExtractionProcessing.resize)
+                                full_file_name_to_work_on = rpd_file.cache_full_file_name
                                 # For now, do not orient, as it seems pyheif or libheif does
                                 # that automatically.
                                 # processing.add(ExtractionProcessing.orient)

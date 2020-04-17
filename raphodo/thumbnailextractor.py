@@ -134,10 +134,11 @@ def get_video_frame(full_file_name: str,
     Source: https://gist.github.com/dplanella/5563018
 
     :param full_file_name: file and path of the video
-    :param offset:
+    :param offset: how many seconds into the video to read
     :param caps:
     :return: gstreamer buffer
     """
+
     logging.debug("Using gstreamer to generate thumbnail from %s", full_file_name)
     pipeline = Gst.parse_launch('playbin')
     pipeline.props.uri = 'file://{}'.format(pathname2url(os.path.abspath(full_file_name)))
@@ -147,17 +148,21 @@ def get_video_frame(full_file_name: str,
     # Wait for state change to finish.
     pipeline.get_state(Gst.CLOCK_TIME_NONE)
 
-    # Seek offset seconds into the video, if the video is long enough
-    # If video is shorter than offset, seek 0.25 seconds less than the duration,
-    # but always at least zero.
-    offset = max(
-        min(
-            pipeline.query_duration(Gst.Format.TIME)[1] - Gst.SECOND / 4, offset * Gst.SECOND
-        ), 0
-    )
+    # Seek offset .10 seconds into the video as a minimum
+    if not offset:
+        offset = 0.5 * Gst.SECOND
+
+    # Duration is unreliable because when we are dealing with camera videos,
+    # we're only downloading a snapshot, i.e. 2 seconds of a 1 minute video.
+    # But no matter what, don't want to exceed it.
+    duration = pipeline.query_duration(Gst.Format.TIME)[1]
+    offset = min(duration, offset)
 
     try:
-        assert pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, offset)
+        v = pipeline.seek_simple(
+            Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, offset
+        )
+        assert v
     except AssertionError:
         logging.warning(
             'seek_simple() failed for %s. Is the necessary gstreamer plugin installed for this '
@@ -634,7 +639,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 if not have_gst:
                     thumbnail = None
                 else:
-                    png = get_video_frame(data.full_file_name_to_work_on, 0.0)
+                    png = get_video_frame(data.full_file_name_to_work_on, 1.0)
                     if not png:
                         thumbnail = None
                         logging.warning(

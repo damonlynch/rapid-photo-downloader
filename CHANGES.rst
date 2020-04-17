@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.23 (2020-04-xx)
+0.9.23 (2020-04-16)
 -------------------
 
  - Fixed bug #1872188: sqlite3.OperationalError when generating thumbnails.
@@ -10,6 +10,18 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug #1873233: RAW and JPG don't synchronize when using stored number.
 
+ - Fixed bug where HEIF/HEIC thumbnails on a camera were not being generated
+   until they were downloaded.
+
+ - When generating video thumbnails for phones and tablets, the entire video
+   will now be downloaded and cached. Previously only a portion of the video was
+   downloaded, in the hope that this portion could generate the thumbnail, but
+   unfortunately it did not always render. This new behavior will slow down
+   thumbnail generation, but does ensure the thumbnail will be rendered. If you
+   object to this new behavior or know of a better approach, please share your
+   thoughts in the discussion forum:
+
+   https://discuss.pixls.us/c/software/rapid-photo-downloader
 
 0.9.23a1 (2020-04-15)
 ---------------------
@@ -41,7 +53,7 @@ Changelog for Rapid Photo Downloader
 
    For openSUSE:
 
-   - python3-gobject-gdk
+   - python3-gobject-Gdk
 
  - Fixed packaged detection in install.py script for openSUSE. Fixed bug when
    enabling RPM Fusion Free on Fedora.

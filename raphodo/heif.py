@@ -94,6 +94,21 @@ def load_heif(full_file_name: str, catch_pyheif_exceptions: bool=True, process_n
         if not catch_pyheif_exceptions:
             raise
         return None
+    except FileNotFoundError:
+        if not _error_logged:
+            if process_name:
+                process_id = "the %s" % process_name
+            else:
+                process_id = 'this'
+            logging.error(
+                "FileNotFoundError using pyheif to load HEIF file %s ."
+                "If encountered on another file, this error message will only be repeated once "
+                "for %s process.", full_file_name, process_id
+            )
+            _error_logged = True
+        if not catch_pyheif_exceptions:
+            raise
+        return None
 
     pillow_image = Image.frombytes(mode=image.mode, size=image.size, data=image.data)
     if pillow_image.mode not in ('RGB', 'RGBA', '1', 'L', 'P'):
