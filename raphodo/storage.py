@@ -127,6 +127,8 @@ def get_distro() -> Distro:
                         return Distro.deepin
                     if line.find('Zorin') > 0:
                         return Distro.zorin
+                    if line.find('Kylin') > 0:
+                        return Distro.kylin
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):
@@ -704,6 +706,8 @@ def open_in_file_manager(file_manager: str,
         arg = '--select '
     elif file_manager_type == FileManagerType.show_item:
         arg = '--show-item '
+    elif file_manager_type == FileManagerType.show_items:
+        arg = '--show-items '
     else:
         arg = ''
 

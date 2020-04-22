@@ -80,7 +80,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = '0.3.6'
+__version__ = '0.3.7'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -187,12 +187,13 @@ class Distro(Enum):
     centos7 = 15
     gentoo = 16
     deepin = 17
+    kylin = 18
     unknown = 20
 
 
 debian_like = (
     Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint, Distro.galliumos,
-    Distro.peppermint, Distro.elementary, Distro.deepin, Distro.zorin
+    Distro.peppermint, Distro.elementary, Distro.deepin, Distro.zorin, Distro.kylin
 )
 fedora_like = (Distro.fedora, Distro.centos)
 arch_like = (Distro.arch, Distro.manjaro, Distro.antergos)
@@ -233,6 +234,8 @@ def get_distro() -> Distro:
                         return Distro.neon
                     if line.find('Zorin') > 0:
                         return Distro.zorin
+                    if line.find('Kylin') > 0:
+                        return Distro.kylin
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):
@@ -1692,7 +1695,7 @@ def install_required_distro_packages(distro: Distro,
         missing_packages = []
         packages = 'gstreamer1.0-libav gstreamer1.0-plugins-good libimage-exiftool-perl '\
                    'python3-dev intltool libgphoto2-dev g++ exiv2 libraw-bin build-essential ' \
-                   'python3-wheel python3-setuptools gir1.2-gexiv2-0.10 ' \
+                   'python3-wheel python3-setuptools gir1.2-gexiv2-0.10 libxkbcommon-x11-0 ' \
                    'python3-gi gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 '\
                    'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 gir1.2-gdkpixbuf-2.0 zenity '
 

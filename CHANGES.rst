@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.24 (2020-xx-xx)
+-------------------
+
+ - Added support for Ubuntu Kylin.
+
 0.9.23 (2020-04-16)
 -------------------
 
