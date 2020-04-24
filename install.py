@@ -80,7 +80,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = '0.3.7'
+__version__ = '0.3.8'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -181,22 +181,37 @@ class Distro(Enum):
     manjaro = 9
     galliumos = 10
     peppermint = 11
-    antergos = 12
     elementary = 13
     centos = 14
     centos7 = 15
     gentoo = 16
     deepin = 17
     kylin = 18
+    popos = 19
     unknown = 20
+
+
+Distro_Pretty_Name = {
+    'popos': 'Pop!_OS',
+    'linuxmint': 'Linux Mint',
+    'opensuse': 'openSUSE',
+    'galliumos': 'GalliumOS',
+    'zorin': 'Zorin OS',
+    'neon': 'KDE neon',
+    'elementary': 'Elementary OS',
+    'centos': 'CentOS',
+    'centos7': 'CentOS',
+    'kylin': 'Ubuntu Kylin',
+}
 
 
 debian_like = (
     Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint, Distro.galliumos,
-    Distro.peppermint, Distro.elementary, Distro.deepin, Distro.zorin, Distro.kylin
+    Distro.peppermint, Distro.elementary, Distro.deepin, Distro.zorin, Distro.kylin,
+    Distro.popos
 )
 fedora_like = (Distro.fedora, Distro.centos)
-arch_like = (Distro.arch, Distro.manjaro, Distro.antergos)
+arch_like = (Distro.arch, Distro.manjaro)
 centos_family = (Distro.centos7, Distro.centos)
 
 
@@ -236,6 +251,8 @@ def get_distro() -> Distro:
                         return Distro.zorin
                     if line.find('Kylin') > 0:
                         return Distro.kylin
+                    if line.find('Pop!_OS') > 0:
+                        return Distro.popos
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):
@@ -3121,15 +3138,13 @@ def main():
         distro_version = unknown_version
 
     if not args.script_restarted:
+        name = Distro_Pretty_Name.get(distro.name, distro.name.capitalize())
         print(
-            _('Detected Linux distribution {} {}'.format(distro.name.capitalize(), distro_version))
+            _('Detected Linux distribution {} {}'.format(name, distro_version))
         )
 
     if distro == Distro.debian:
-        if distro_version == unknown_version:
-            if not is_debian_testing_or_unstable():
-                print('Warning: this version of Debian may not work with Rapid Photo Downloader.')
-        elif distro_version <= LooseVersion('8'):
+        if distro_version <= LooseVersion('8'):
             sys.stderr.write(
                 "Sorry, Debian Jessie is too old to be able to run this version of "
                 "Rapid Photo Downloader.\n"

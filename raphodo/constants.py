@@ -543,6 +543,7 @@ DefaultFileBrowserFallback = dict(
 )
 
 
+# Sync with value in install.py
 class Distro(Enum):
     debian = 1
     ubuntu = 2
@@ -555,12 +556,13 @@ class Distro(Enum):
     manjaro = 9
     galliumos = 10
     peppermint = 11
-    antergos = 12
     elementary = 13
     centos = 14
-    gentoo = 15
-    deepin = 16
-    kylin = 17
+    centos7 = 15
+    gentoo = 16
+    deepin = 17
+    kylin = 18
+    popos = 19
     unknown = 20
 
 

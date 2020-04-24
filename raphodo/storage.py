@@ -107,12 +107,16 @@ def get_distro_id(id_or_id_like: str) -> Distro:
         return Distro.unknown
 
 
+os_release = '/etc/os-release'
+
+
+# Sync get_distro() with code in install.py
+
 def get_distro() -> Distro:
     """
     Determine the Linux distribution using /etc/os-release
     """
 
-    os_release = '/etc/os-release'
     if os.path.isfile(os_release):
         with open(os_release, 'r') as f:
             for line in f:
@@ -125,10 +129,14 @@ def get_distro() -> Distro:
                         return Distro.opensuse
                     if line.find('Deepin') > 0:
                         return Distro.deepin
+                    if line.find('KDE neon') > 0:
+                        return Distro.neon
                     if line.find('Zorin') > 0:
                         return Distro.zorin
                     if line.find('Kylin') > 0:
                         return Distro.kylin
+                    if line.find('Pop!_OS') > 0:
+                        return Distro.popos
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):
@@ -178,12 +186,12 @@ def get_media_dir() -> str:
         distro = get_distro()
         if os.path.isdir(run_media_dir) and distro not in (
                 Distro.ubuntu, Distro.debian, Distro.neon, Distro.galliumos, Distro.peppermint,
-                Distro.elementary, Distro.zorin):
+                Distro.elementary, Distro.zorin, Distro.popos):
             if distro not in (Distro.fedora, Distro.manjaro, Distro.arch, Distro.opensuse,
-                              Distro.gentoo, Distro.antergos, Distro.centos):
+                              Distro.gentoo, Distro.centos, Distro.centos7):
                 logging.debug(
                     "Detected /run/media directory, but distro does not appear to be CentOS, "
-                    "Fedora, Arch, openSUSE, Gentoo, Korora, Manjaro, or Antergos"
+                    "Fedora, Arch, openSUSE, Gentoo, or Manjaro"
                 )
                 log_os_release()
             return run_media_dir
