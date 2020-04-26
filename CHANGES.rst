@@ -4,9 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.24 (2020-xx-xx)
 -------------------
 
- - Added support for Ubuntu Kylin.
+ - Added support for Ubuntu Kylin and Pop!_OS 20.04.
 
- - Added support for Pop!_OS 20.04.
+ - Updated Serbian translation.
 
 0.9.23 (2020-04-16)
 -------------------
