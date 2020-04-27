@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-04-27 13:01-0400\n"
+"POT-Creation-Date: 2020-04-27 13:38-0400\n"
 "PO-Revision-Date: 2020-03-09 16:41-0400\n"
 "Last-Translator: João Ornelas <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -497,20 +497,20 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr ""
 
-#: ../upgrade.py:9052
+#: ../upgrade.py:8981
 #, python-format
 msgid "Upgrading %s..."
 msgstr ""
 
-#: ../upgrade.py:9054
+#: ../upgrade.py:8983
 msgid "Press any key to continue..."
 msgstr ""
 
-#: ../upgrade.py:9067
+#: ../upgrade.py:8996
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr ""
 
-#: ../upgrade.py:9069
+#: ../upgrade.py:8998
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
@@ -1488,26 +1488,33 @@ msgid ""
 "configuration directory."
 msgstr ""
 
-#: ../raphodo/excepthook.py:166
+#: ../raphodo/excepthook.py:88
+#, python-brace-format
+msgid ""
+"Upgrading to the <a href=\"{website}\">latest version</a> will allow you to "
+"determine if the problem you encountered has already been fixed."
+msgstr ""
+
+#: ../raphodo/excepthook.py:171
 msgid "Problem in Rapid Photo Downloader"
 msgstr ""
 
-#: ../raphodo/excepthook.py:170
+#: ../raphodo/excepthook.py:175
 #, fuzzy
 msgid "A problem occurred in Rapid Photo Downloader"
 msgstr "Definições: Rapid Photo Downloader"
 
-#: ../raphodo/excepthook.py:173
+#: ../raphodo/excepthook.py:178
 msgid ""
 "If the same problem occurs again before the program exits, this is the only "
 "notification about it."
 msgstr ""
 
-#: ../raphodo/excepthook.py:194
+#: ../raphodo/excepthook.py:199
 msgid "A problem occurred in Rapid Photo Downloader\n"
 msgstr ""
 
-#: ../raphodo/excepthook.py:196
+#: ../raphodo/excepthook.py:201
 #, python-brace-format
 msgid ""
 "Please report the problem at {website}\n"

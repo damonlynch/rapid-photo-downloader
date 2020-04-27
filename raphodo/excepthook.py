@@ -84,6 +84,11 @@ tar_error_body = _(
     '<a href="{config_path}">here</a> to open the configuration directory.'
 )
 
+upgrade_message = _(
+    'Upgrading to the <a href="{website}">latest version</a> will allow you to determine if the '
+    "problem you encountered has already been fixed."
+)
+
 
 def save_bug_report_tar(config_file: str, full_log_file_path: str) -> None:
     """
