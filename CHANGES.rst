@@ -9,7 +9,7 @@ Changelog for Rapid Photo Downloader
  - Provide the option of automatically creating a tar file of program
    configuration file and log files when submitting a bug report.
 
- - Updated Serbian translation.
+ - Updated Chinese (Simplified) and Serbian translations.
 
 0.9.23 (2020-04-16)
 -------------------

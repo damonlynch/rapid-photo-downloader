@@ -26,7 +26,7 @@ import sys
 
 from PyQt5.QtWidgets import (
     QStyleOptionFrame, QStyle, QStylePainter, QWidget, QLabel, QListWidget, QProxyStyle,
-    QStyleOption, QDialogButtonBox
+    QStyleOption, QDialogButtonBox, QMessageBox
 )
 from PyQt5.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QIcon, QGuiApplication
 from PyQt5.QtCore import QSize, Qt, QT_VERSION_STR, QPoint
@@ -406,3 +406,26 @@ def any_screen_scaled() -> Tuple[ScalingDetected, bool]:
     if xsettings_detected_scaling:
         return ScalingDetected.Xsetting, xsettings_running
     return ScalingDetected.undetected, xsettings_running
+
+
+def standardMessageBox(message: str, rich_text: bool, title: Optional[str]=None) -> QMessageBox:
+    """
+    Create a standard messagebox to be displayed to the user
+
+    :param message: the text to display
+    :param rich_text: whether it text to display is in HTML format
+    :param title: optional title for message box, else defaults to
+     localized 'Rapid Photo Downloader'
+    :return: the message box
+    """
+
+    msgBox = QMessageBox()
+    icon = QIcon(':/rapid-photo-downloader.svg').pixmap(standardIconSize())
+    if title is None:
+        title = _("Rapid Photo Downloader")
+    if rich_text:
+        msgBox.setTextFormat(Qt.RichText)
+    msgBox.setIconPixmap(icon)
+    msgBox.setWindowTitle(title)
+    msgBox.setText(message)
+    return msgBox

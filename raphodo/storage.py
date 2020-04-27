@@ -57,7 +57,8 @@ import pwd
 import shutil
 from collections import namedtuple
 from typing import Optional, Tuple, List, Dict, Set
-from urllib.request import pathname2url, quote
+from urllib.request import pathname2url
+from urllib.parse import unquote_plus, quote, urlparse
 from tempfile import NamedTemporaryFile
 
 from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal, QFileSystemWatcher, pyqtSlot, QTimer)
@@ -710,14 +711,26 @@ def get_default_file_manager() -> Tuple[Optional[str], Optional[FileManagerType]
 def open_in_file_manager(file_manager: str,
                          file_manager_type: FileManagerType,
                          uri: str) -> None:
-    if file_manager_type == FileManagerType.select:
-        arg = '--select '
-    elif file_manager_type == FileManagerType.show_item:
-        arg = '--show-item '
-    elif file_manager_type == FileManagerType.show_items:
-        arg = '--show-items '
-    else:
-        arg = ''
+    """
+    Open a directory or file in the file manager.
+
+    If the item is a file, then try to select it in the file manager,
+    rather than opening it directly.
+
+    :param file_manager: the file manager to use
+    :param file_manager_type: file manager behavior
+    :param uri: the URI (path) to open. Assumes file:// or gphoto2:// schema
+    """
+
+    arg = ''
+    path = unquote_plus(urlparse(uri).path)
+    if not os.path.isdir(path):
+        if file_manager_type == FileManagerType.select:
+            arg = '--select '
+        elif file_manager_type == FileManagerType.show_item:
+            arg = '--show-item '
+        elif file_manager_type == FileManagerType.show_items:
+            arg = '--show-items '
 
     cmd = '{} {}{}'.format(file_manager, arg, uri)
     logging.debug("Launching: %s", cmd)

@@ -25,10 +25,7 @@ import logging
 import traceback
 import io
 import os
-from urllib.request import pathname2url
-from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox, QApplication
-from PyQt5.QtGui import QPixmap
 try:
     from easygui import codebox
     have_easygui = True
@@ -42,16 +39,101 @@ import raphodo.qrc_resources as qrc_resources
 from raphodo.iplogging import full_log_file_path
 from raphodo.storage import get_uri
 from raphodo.preferences import Preferences
+from raphodo.utilities import create_bugreport_tar, bug_report_full_tar_path
+from raphodo.viewutils import standardMessageBox
 
 message_box_displayed = False
 exceptions_notified = set()
+
+# Translators: do not translate the HTML tags such as  <a> or <br>, or the Python
+# string formatting tags such as website.
+please_report_problem_body = _(
+    'Please report the problem at <a href="{website}">{website}</a>.<br><br>'
+    'In your bug report describe what you expected to happen, and what you observed ' 
+    'happening.<br><br>'
+    "The bug report must also include the program settings and log files. To create a file with "
+    "this additional information, click Save."
+)
+
+tar_created_title = _('Additional Information Saved')
+
+# Translators: do not translate the HTML tags such as <pre>, <a>, or <br>, or the Python
+# string formatting tags tarfile and uri.
+tar_created_body = _(
+    'The additional bug report information was created in your home directory in '
+    'a tar file: <pre>{tarfile}</pre>'
+    'You need to attach this file to the bug report yourself. It will not be automatically '
+    'attached.<br><br>'
+    'Click <a href="{uri}">here</a> to see the file in your file manager.'
+)
+
+tar_error_title = _('Error Creating Additional Information')
+
+tar_error_header = _(
+    'The additional bug report information was not created. Please file a bug report anyway.'
+)
+
+# Translators: do not translate the HTML tags such as <i>, <a>, or <br>, or the Python
+# string formatting tags log_file, etc.
+tar_error_body = _(
+    "Include in your bug report the program's log files. The bug report must include "
+    "<i>{log_file}</i>, but attaching the other log files is often helpful.<br><br>" 
+    "If possible, please also include the program's configuration file "
+    "<i>{config_file}</i>.<br><br>" 
+    'Click <a href="{log_path}">here</a> to open the log directory, and ' 
+    '<a href="{config_path}">here</a> to open the configuration directory.'
+)
+
+
+def save_bug_report_tar(config_file: str, full_log_file_path: str) -> None:
+    """
+    Save a tar file in the user's home directory with logging files and config file.
+    Inform the user of the result using QMessageBox.
+
+    :param config_file: full path to the config file
+    :param full_log_file_path: full path to the directory with the log files
+    """
+
+    bug_report_full_tar = bug_report_full_tar_path()
+
+    logging.info("Creating bug report tar file %s", bug_report_full_tar)
+    log_path, log_file = os.path.split(full_log_file_path)
+    if create_bugreport_tar(
+            full_tar_name=bug_report_full_tar, log_path=log_path,
+            full_config_file=config_file):
+
+        body = tar_created_body.format(
+            tarfile=os.path.split(bug_report_full_tar)[1],
+            uri=get_uri(full_file_name=bug_report_full_tar)
+        )
+        messagebox = standardMessageBox(
+            message=body, rich_text=True, title=tar_created_title
+        )
+        messagebox.exec_()
+    else:
+        # There was some kind of problem generating the tar file, e.g. no free space
+        log_uri = get_uri(log_path)
+        config_path, config_file = os.path.split(config_file)
+        config_uri = get_uri(path=config_path)
+
+        body = tar_error_body.format(
+            log_path=log_uri, log_file=log_file,
+            config_path=config_uri, config_file=config_file
+        )
+        message = '<b>{header}</b><br><br>{body}'.format(
+            header=tar_error_header, body=body
+        )
+        messageBox = standardMessageBox(
+            message=message, rich_text=True, title=tar_error_title
+        )
+        messageBox.exec_()
 
 
 def excepthook(exception_type, exception_value, traceback_object) -> None:
     """
     Global function to catch unhandled exceptions.
 
-    Inspired by function of the same name in the Eric project.
+    Inspired by function of the same name in the Eric project, but subsequently heavily modified.
     """
 
     if traceback_object is not None:
@@ -79,42 +161,35 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
         message_box_displayed = True
         exceptions_notified.add(key)
 
-        log_path, log_file = os.path.split(full_log_file_path())
-        log_uri = get_uri(log_path)
-
         prefs = Preferences()
-
-        config_path, config_file = os.path.split(prefs.settings_path())
-        config_uri = get_uri(path=config_path)
 
         title = _("Problem in Rapid Photo Downloader")
 
         if QApplication.instance():
 
-            message = _(r"""<b>A problem occurred in Rapid Photo Downloader</b><br><br>
-            Please report the problem at <a href="{website}">{website}</a>.<br><br>
-            Include in your bug report the program's log files. The bug report must include 
-            <i>{log_file}</i>, but attaching the other log files is often helpful.<br><br> 
-            If possible, please also include the program's configuration file
-            <i>{config_file}</i>.<br><br> 
-            Click <a href="{log_path}">here</a> to open the log directory, and 
-            <a href="{config_path}">here</a> to open the configuration directory.<br><br>
-            If the same problem occurs again before the program exits, this is the only notification 
-            about it.
-            """).format(
-                website='https://bugs.launchpad.net/rapid', log_path=log_uri, log_file=log_file,
-                config_path=config_uri, config_file=config_file
+            header = _('A problem occurred in Rapid Photo Downloader')
+
+            only_notification = _(
+                "If the same problem occurs again before the program exits, this is the "
+                "only notification about it."
             )
 
-            icon = QPixmap(':/rapid-photo-downloader.svg')
+            body = please_report_problem_body.format(website='https://bugs.launchpad.net/rapid')
 
-            errorbox = QMessageBox()
-            errorbox.setTextFormat(Qt.RichText)
-            errorbox.setIconPixmap(icon)
-            errorbox.setWindowTitle(title)
-            errorbox.setText(message)
+            message = "<b>{}</b><br><br>{}<br><br>{}".format(
+                header, body, only_notification
+            )
+
+            errorbox = standardMessageBox(message=message, rich_text=True, title=title)
             errorbox.setDetailedText(traceback_info)
-            errorbox.exec_()
+            errorbox.setStandardButtons(QMessageBox.Save | QMessageBox.Cancel)
+            errorbox.setDefaultButton(QMessageBox.Save)
+            if errorbox.exec_() == QMessageBox.Save:
+                save_bug_report_tar(
+                    config_file=prefs.settings_path(),
+                    full_log_file_path=full_log_file_path()
+                )
+
         elif have_easygui:
             message = _('A problem occurred in Rapid Photo Downloader\n')
             prefix = _(

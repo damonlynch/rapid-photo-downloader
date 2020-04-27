@@ -130,8 +130,7 @@ from raphodo.utilities import (
     same_device, make_internationalized_list, thousands, addPushButtonLabelSpacer,
     make_html_path_non_breaking, prefs_list_from_gconftool2_string,
     pref_bool_from_gconftool2_string, extract_file_from_tar, format_size_for_user,
-    is_snap, version_check_disabled, installed_using_pip, create_bugreport_tar,
-    bug_report_full_tar_path
+    is_snap, version_check_disabled, installed_using_pip
 )
 from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
@@ -157,7 +156,7 @@ from raphodo.filebrowse import (
 from raphodo.toggleview import QToggleView
 import raphodo.__about__ as __about__
 import raphodo.iplogging as iplogging
-import raphodo.excepthook
+import raphodo.excepthook as excepthook
 from raphodo.panelview import QPanelView
 from raphodo.computerview import ComputerWidget
 from raphodo.folderspreview import DownloadDestination, FoldersPreview
@@ -181,7 +180,7 @@ from raphodo.problemnotification import (
 )
 from raphodo.viewutils import (
     standardIconSize, qt5_screen_scale_environment_variable, QT5_VERSION, validateWindowSizeLimit,
-    validateWindowPosition, scaledIcon, any_screen_scaled
+    validateWindowPosition, scaledIcon, any_screen_scaled, standardMessageBox
 )
 import raphodo.didyouknow as didyouknow
 from raphodo.thumbnailextractor import gst_version, libraw_version, rawkit_version
@@ -195,7 +194,7 @@ app = None  # type: 'QtSingleApplication'
 
 faulthandler.enable()
 logger = None
-sys.excepthook = raphodo.excepthook.excepthook
+sys.excepthook = excepthook.excepthook
 
 
 class FolderPreviewManager(QObject):
@@ -2653,66 +2652,20 @@ class RapidWindow(QMainWindow):
         :param title: optional title
         """
 
-        body = _(
-            'Please report the problem at <a href="{website}">{website}</a>.<br><br>'
-            'In your bug report describe what you expected to happen, and what you observed ' 
-            'happening.<br><br>'
-            "The bug report must also include the program settings and log files. "
-            "To create a file with this additional information, click Save."
-        ).format(website='https://bugs.launchpad.net/rapid')
+        body = excepthook.please_report_problem_body.format(
+            website='https://bugs.launchpad.net/rapid'
+        )
 
         message = '{header}<br><br>{body}'.format(header=header, body=body)
 
-        errorbox = self.standardMessageBox(message=message, rich_text=True, title=title)
+        errorbox = standardMessageBox(message=message, rich_text=True, title=title)
         errorbox.setStandardButtons(QMessageBox.Save | QMessageBox.Cancel)
         errorbox.setDefaultButton(QMessageBox.Save)
         if errorbox.exec_() == QMessageBox.Save:
-            bug_report_full_tar = bug_report_full_tar_path()
-
-            logging.info("Creating bug report tar file %s", bug_report_full_tar)
-            config_file = self.prefs.settings_path()
-            log_path, log_file = os.path.split(iplogging.full_log_file_path())
-            if create_bugreport_tar(
-                    full_tar_name=bug_report_full_tar, log_path=log_path,
-                    full_config_file=config_file):
-                # Translators please do not translate the HTML tags <pre> or <a>, or the Python
-                # string formatting tags tarfile and uri.
-                body = _(
-                    'The additional bug report information was created in your home directory in '
-                    'a tar file: <pre>{tarfile}</pre>'
-                    'You need to attach this to the bug report yourself. '
-                    'It will not be automatically attached.<br><br>'
-                    'Click <a href="{uri}">here</a> to see the file in your file manager.'
-                ).format(
-                    tarfile=os.path.split(bug_report_full_tar)[1],
-                    uri=get_uri(full_file_name=bug_report_full_tar)
-                )
-                title = _('Additional Information Saved')
-                messagebox = self.standardMessageBox(message=body, rich_text=True, title=title)
-                messagebox.exec_()
-            else:
-                log_uri = get_uri(log_path)
-                config_path, config_file = os.path.split(config_file)
-                config_uri = get_uri(path=config_path)
-                header = _(
-                    'The additional bug report information was not created'
-                )
-                body = _(
-                    "Include in your bug report the program's log files. The bug report must "
-                    "include <i>{log_file}</i>, but attaching the other log files is often "
-                    "helpful.<br><br>" 
-                    "If possible, please also include the program's configuration file "
-                    "<i>{config_file}</i>.<br><br>" 
-                    'Click <a href="{log_path}">here</a> to open the log directory, and ' 
-                    '<a href="{config_path}">here</a> to open the configuration directory.'
-                ).format(
-                    log_path=log_uri, log_file=log_file,
-                    config_path=config_uri, config_file=config_file
-                )
-                message = '<b>{header}</b><br><br>{body}'.format(header=header, body=body)
-                title = _('Error Creating Additional Information')
-                messageBox = self.standardMessageBox(message=message, rich_text=True, title=title)
-                messageBox.exec_()
+            excepthook.save_bug_report_tar(
+                config_file=self.prefs.settings_path(),
+                full_log_file_path=iplogging.full_log_file_path()
+            )
 
     def doReportProblemAction(self) -> None:
         header = _('Thank you for reporting a problem in Rapid Photo Downloader')
@@ -2728,30 +2681,6 @@ class RapidWindow(QMainWindow):
     def doAboutAction(self) -> None:
         about = AboutDialog(self)
         about.exec()
-
-    def standardMessageBox(self, message: str,
-                           rich_text: bool,
-                           title: Optional[str]=None) -> QMessageBox:
-        """
-        Create a standard messagebox to be displayed to the user
-
-        :param message: the text to display
-        :param rich_text: whether it text to display is in HTML format
-        :param title: optional title for message box, else defaults to 
-         localized 'Rapid Photo Downloader'
-        :return: the message box
-        """
-
-        msgBox = QMessageBox()
-        icon = QIcon(':/rapid-photo-downloader.svg').pixmap(standardIconSize())
-        if title is None:
-            title = _("Rapid Photo Downloader")
-        if rich_text:
-            msgBox.setTextFormat(Qt.RichText)
-        msgBox.setIconPixmap(icon)
-        msgBox.setWindowTitle(title)
-        msgBox.setText(message)
-        return msgBox
 
     @pyqtSlot(bool)
     def thisComputerToggleValueChanged(self, on: bool) -> None:
@@ -2842,7 +2771,7 @@ class RapidWindow(QMainWindow):
                 source_path=make_html_path_non_breaking(self.prefs.this_computer_path)
             )
 
-            msgbox = self.standardMessageBox(message=message, rich_text=True)
+            msgbox = standardMessageBox(message=message, rich_text=True)
             msgbox.setIcon(QMessageBox.Question)
             msgbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
             if msgbox.exec() == QMessageBox.No:
@@ -2903,7 +2832,7 @@ class RapidWindow(QMainWindow):
         problematic = self.downloadIsRunning()
         if problematic:
             message = _("You cannot change the download destination while downloading.")
-            msgbox = self.standardMessageBox(message=message, rich_text=False)
+            msgbox = standardMessageBox(message=message, rich_text=False)
             msgbox.setIcon(QMessageBox.Warning)
             msgbox.exec()
 
@@ -2917,7 +2846,7 @@ class RapidWindow(QMainWindow):
             ) % dict(
                 file_type=file_type.name, path=make_html_path_non_breaking(path)
             )
-            msgbox = self.standardMessageBox(message=message, rich_text=True)
+            msgbox = standardMessageBox(message=message, rich_text=True)
             msgbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
             msgbox.setIcon(QMessageBox.Question)
             problematic = msgbox.exec() == QMessageBox.No
@@ -4314,7 +4243,7 @@ Do you want to proceed with the download?
         # crash.
         # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b> etc.
         message = "<b>%(title)s</b><br><br>%(details)s" % dict(title=title, details=details)
-        msgBox = self.standardMessageBox(message=message, rich_text=True)
+        msgBox = standardMessageBox(message=message, rich_text=True)
         msgBox.exec()
 
     def deviceState(self, scan_id: int) -> DeviceState:
@@ -5008,7 +4937,7 @@ Do you want to proceed with the download?
 
                 # Show the main window if it's not yet visible
                 self.showMainWindow()
-                msgBox = self.standardMessageBox(message=message, rich_text=True)
+                msgBox = standardMessageBox(message=message, rich_text=True)
                 msgBox.setIconPixmap(camera.get_pixmap())
                 msgBox.exec()
         else:
@@ -5789,7 +5718,7 @@ Do you want to proceed with the download?
                 "Do you really want to download from here?<br><br>On some systems, scanning this "
                 "location can take a very long time."
             )
-            msgbox = self.standardMessageBox(message=message, rich_text=True)
+            msgbox = standardMessageBox(message=message, rich_text=True)
             msgbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
             return msgbox.exec() == QMessageBox.Yes
         return True

@@ -16,6 +16,13 @@
 # along with Rapid Photo Downloader. If not,
 # see <http://www.gnu.org/licenses/>.
 
+"""
+Handle when the user clicks on a URL in Qt and the URL scheme is file://
+
+The point is to open a file manager which selects the file in the URI, rather than opening
+the file directly.
+"""
+
 
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2020, Damon Lynch"
@@ -26,8 +33,7 @@ from raphodo.constants import FileManagerType
 
 
 class FileSystemUrlHandler(QObject):
-    def __init__(self, file_manager: str,
-                         file_manager_type: FileManagerType,) -> None:
+    def __init__(self, file_manager: str, file_manager_type: FileManagerType) -> None:
         super().__init__()
         self.file_manager = file_manager
         self.file_manager_type = file_manager_type
