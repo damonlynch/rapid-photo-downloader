@@ -78,7 +78,7 @@ from PyQt5.QtCore import (
 )
 from PyQt5.QtGui import (
     QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics, QFont, QPainter, QMoveEvent, QBrush,
-    QPen, QColor, QScreen
+    QPen, QColor, QScreen, QDesktopServices
 )
 from PyQt5.QtWidgets import (
     QAction, QApplication, QMainWindow, QMenu, QWidget, QDialogButtonBox,
@@ -130,7 +130,8 @@ from raphodo.utilities import (
     same_device, make_internationalized_list, thousands, addPushButtonLabelSpacer,
     make_html_path_non_breaking, prefs_list_from_gconftool2_string,
     pref_bool_from_gconftool2_string, extract_file_from_tar, format_size_for_user,
-    is_snap, version_check_disabled, installed_using_pip
+    is_snap, version_check_disabled, installed_using_pip, create_bugreport_tar,
+    bug_report_full_tar_path
 )
 from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
@@ -185,6 +186,7 @@ from raphodo.viewutils import (
 import raphodo.didyouknow as didyouknow
 from raphodo.thumbnailextractor import gst_version, libraw_version, rawkit_version
 from raphodo.heif import have_heif_module, pyheif_version, libheif_version
+from raphodo.filesystemurl import FileSystemUrlHandler
 
 
 # Avoid segfaults at exit:
@@ -507,6 +509,9 @@ class RapidWindow(QMainWindow):
         self.close_event_run = False
 
         self.file_manager, self.file_manager_type = get_default_file_manager()
+
+        self.fileSystemUrlHandler = FileSystemUrlHandler(self.file_manager, self.file_manager_type)
+        QDesktopServices.setUrlHandler("file", self.fileSystemUrlHandler, "openFileBrowser")
 
         for version in get_versions(
                 self.file_manager, self.file_manager_type, scaling_action,
@@ -2648,29 +2653,66 @@ class RapidWindow(QMainWindow):
         :param title: optional title
         """
 
-        log_path, log_file = os.path.split(iplogging.full_log_file_path())
-        log_uri = get_uri(log_path)
-        config_path, config_file = os.path.split(self.prefs.settings_path())
-        config_uri = get_uri(path=config_path)
-
         body = _(
-            r"""Please report the problem at <a href="{website}">{website}</a>.<br><br>
-            Include in your bug report the program's log files. The bug report must include 
-            <i>{log_file}</i>, but attaching the other log files is often helpful.<br><br> 
-            If possible, please also include the program's configuration file
-            <i>{config_file}</i>.<br><br> 
-            Click <a href="{log_path}">here</a> to open the log directory, and 
-            <a href="{config_path}">here</a> to open the configuration directory.
-            """
-        ).format(
-            website='https://bugs.launchpad.net/rapid', log_path=log_uri, log_file=log_file,
-            config_path=config_uri, config_file = config_file
-        )
+            'Please report the problem at <a href="{website}">{website}</a>.<br><br>'
+            'In your bug report describe what you expected to happen, and what you observed ' 
+            'happening.<br><br>'
+            "The bug report must also include the program settings and log files. "
+            "To create a file with this additional information, click Save."
+        ).format(website='https://bugs.launchpad.net/rapid')
 
         message = '{header}<br><br>{body}'.format(header=header, body=body)
 
         errorbox = self.standardMessageBox(message=message, rich_text=True, title=title)
-        errorbox.exec_()
+        errorbox.setStandardButtons(QMessageBox.Save | QMessageBox.Cancel)
+        errorbox.setDefaultButton(QMessageBox.Save)
+        if errorbox.exec_() == QMessageBox.Save:
+            bug_report_full_tar = bug_report_full_tar_path()
+
+            logging.info("Creating bug report tar file %s", bug_report_full_tar)
+            config_file = self.prefs.settings_path()
+            log_path, log_file = os.path.split(iplogging.full_log_file_path())
+            if create_bugreport_tar(
+                    full_tar_name=bug_report_full_tar, log_path=log_path,
+                    full_config_file=config_file):
+                # Translators please do not translate the HTML tags <pre> or <a>, or the Python
+                # string formatting tags tarfile and uri.
+                body = _(
+                    'The additional bug report information was created in your home directory in '
+                    'a tar file: <pre>{tarfile}</pre>'
+                    'You need to attach this to the bug report yourself. '
+                    'It will not be automatically attached.<br><br>'
+                    'Click <a href="{uri}">here</a> to see the file in your file manager.'
+                ).format(
+                    tarfile=os.path.split(bug_report_full_tar)[1],
+                    uri=get_uri(full_file_name=bug_report_full_tar)
+                )
+                title = _('Additional Information Saved')
+                messagebox = self.standardMessageBox(message=body, rich_text=True, title=title)
+                messagebox.exec_()
+            else:
+                log_uri = get_uri(log_path)
+                config_path, config_file = os.path.split(config_file)
+                config_uri = get_uri(path=config_path)
+                header = _(
+                    'The additional bug report information was not created'
+                )
+                body = _(
+                    "Include in your bug report the program's log files. The bug report must "
+                    "include <i>{log_file}</i>, but attaching the other log files is often "
+                    "helpful.<br><br>" 
+                    "If possible, please also include the program's configuration file "
+                    "<i>{config_file}</i>.<br><br>" 
+                    'Click <a href="{log_path}">here</a> to open the log directory, and ' 
+                    '<a href="{config_path}">here</a> to open the configuration directory.'
+                ).format(
+                    log_path=log_uri, log_file=log_file,
+                    config_path=config_uri, config_file=config_file
+                )
+                message = '<b>{header}</b><br><br>{body}'.format(header=header, body=body)
+                title = _('Error Creating Additional Information')
+                messageBox = self.standardMessageBox(message=message, rich_text=True, title=title)
+                messageBox.exec_()
 
     def doReportProblemAction(self) -> None:
         header = _('Thank you for reporting a problem in Rapid Photo Downloader')
@@ -5059,7 +5101,6 @@ Do you want to proceed with the download?
         :param on_startup: if True, the scan is occurring during
          the program's startup phase
         """
-
 
         scan_id = self.devices.add_device(device=device, on_startup=on_startup)
         logging.debug("Assigning scan id %s to %s", scan_id, device.name())

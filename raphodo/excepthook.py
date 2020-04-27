@@ -66,8 +66,9 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
     global message_box_displayed
 
     tb_file = io.StringIO()
-    traceback.print_exception(exception_type, exception_value, traceback_object,
-                              limit=None, file=tb_file)
+    traceback.print_exception(
+        exception_type, exception_value, traceback_object, limit=None, file=tb_file
+    )
     tb_file.seek(0)
     traceback_info = tb_file.read()
 
@@ -116,9 +117,10 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
             errorbox.exec_()
         elif have_easygui:
             message = _('A problem occurred in Rapid Photo Downloader\n')
-            prefix = _("""Please report the problem at {website}\n
-    Attach the log file to your bug report, found at {log_path}\n\n""").format(
-                website='https://bugs.launchpad.net/rapid', log_path=full_log_file_path())
+            prefix = _(
+                "Please report the problem at {website}\n"
+                "Attach the log file to your bug report, found at {log_path}\n\n"
+            ).format(website='https://bugs.launchpad.net/rapid', log_path=full_log_file_path())
             text = prefix + traceback_info
             codebox(msg=message, title=title, text=text)
         message_box_displayed = False

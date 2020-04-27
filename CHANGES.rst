@@ -6,6 +6,9 @@ Changelog for Rapid Photo Downloader
 
  - Added support for Ubuntu Kylin and Pop!_OS 20.04.
 
+ - Provide the option of automatically creating a tar file of program
+   configuration file and log files when submitting a bug report.
+
  - Updated Serbian translation.
 
 0.9.23 (2020-04-16)

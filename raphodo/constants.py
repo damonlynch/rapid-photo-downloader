@@ -515,7 +515,7 @@ class FileManagerType(Enum):
 
 
 FileManagerBehavior = dict(
-    nautilus=FileManagerType.regular,
+    nautilus=FileManagerType.select,
     dolphin=FileManagerType.select,
     caja=FileManagerType.dir_only_uri,
     thunar=FileManagerType.dir_only_uri,
