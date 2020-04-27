@@ -1908,8 +1908,8 @@ class RapidWindow(QMainWindow):
         centralWidget.setLayout(verticalLayout)
         self.standard_spacing = verticalLayout.spacing()
 
-        topBar = self.createTopBar()
-        verticalLayout.addLayout(topBar)
+        self.topBar = self.createTopBar()
+        verticalLayout.addLayout(self.topBar)
 
         centralLayout = QHBoxLayout()
         centralLayout.setContentsMargins(0, 0, 0, 0)
@@ -1941,7 +1941,8 @@ class RapidWindow(QMainWindow):
         topBar.setSpacing(int(QFontMetrics(QFont()).height() / 2))
 
         self.sourceButton = TopPushButton(
-            addPushButtonLabelSpacer(_('Select Source')), extra_top=self.standard_spacing
+            addPushButtonLabelSpacer(_('Select Source')),
+            parent=self, extra_top=self.standard_spacing
         )
         self.sourceButton.clicked.connect(self.sourceButtonClicked)
 
@@ -1954,7 +1955,7 @@ class RapidWindow(QMainWindow):
         hlayout.setSpacing(menu_margin)
         vlayout.addLayout(hlayout)
 
-        self.downloadButton = DownloadButton(self.downloadAct.text())
+        self.downloadButton = DownloadButton(self.downloadAct.text(), parent=self)
         self.downloadButton.addAction(self.downloadAct)
         self.downloadButton.setDefault(True)
         self.downloadButton.clicked.connect(self.downloadButtonClicked)

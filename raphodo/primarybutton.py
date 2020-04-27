@@ -21,18 +21,26 @@ __copyright__ = "Copyright 2016-2020, Damon Lynch"
 
 import math
 
-
-
-from PyQt5.QtCore import QSize
-from PyQt5.QtGui import (QFont, QIcon, QFontMetrics, QGuiApplication)
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import (
+    QFont, QIcon, QFontMetrics, QGuiApplication, QPainter, QPaintEvent,
+)
 from PyQt5.QtWidgets import (QPushButton, QSizePolicy)
 
 from raphodo.rotatedpushbutton import FlatButton
 
 
 class TopPushButton(QPushButton, FlatButton):
-    def __init__(self, text, extra_top: int=0, parent=None) -> None:
+    def __init__(self, text, parent, extra_top: int=0) -> None:
+        """
+
+        :param text: text to display in the button
+        :param extra_top: extra spacing at the top of the widget
+        :param parent: parent widget
+        """
+
         super().__init__(text, parent)
+        self.rapidApp = parent
         self.setCheckable(True)
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 
@@ -43,19 +51,55 @@ class TopPushButton(QPushButton, FlatButton):
         self.setFont(font)
 
         font_height = QFontMetrics(font).height()
-        padding_side = math.ceil(font_height / 3.5)
+        self.padding_side = math.ceil(font_height / 3.5)
         padding_bottom = math.ceil(font_height / 5.6)
         padding_top = padding_bottom + extra_top
 
+        self.non_elided_text = ''
+
         padding = 'padding-left: {padding_side}px; padding-right: {padding_side}px; padding-top: ' \
                   '{padding_top}px; padding-bottom: {padding_bottom}px;'.format(
-                    padding_top=padding_top, padding_side=padding_side,
-                    padding_bottom=padding_bottom)
+                    padding_top=padding_top, padding_side=self.padding_side,
+                    padding_bottom=padding_bottom
+        )
         self.setFlatStyle(self, darker_if_checked=False, padding=padding)
+
+    def text(self) -> str:
+        return self.non_elided_text
+
+    def setText(self, text: str) -> None:
+        self.non_elided_text = text
+        self.update()
 
     def setIcon(self, icon: QIcon) -> None:
         super().setIcon(icon)
         self.setIconSize(QSize(self.top_row_icon_size, self.top_row_icon_size))
+
+    def paintEvent(self, event: QPaintEvent):
+        """
+        Override default rendering to elide button text if it is bigger than half the window
+        size
+        """
+
+        painter = QPainter(self)
+        metrics = painter.fontMetrics()
+        right_element_widths = self.rapidApp.downloadButton.width() + self.rapidApp.menuButton.width()
+        window_width = self.rapidApp.width()
+        window_half  = window_width / 2
+        if right_element_widths > window_half:
+            maximum_width = window_width - right_element_widths
+        else:
+            maximum_width = window_half
+        maximum_width -= self.padding_side - self.top_row_icon_size
+
+        # account for situations where we might have negative values, i.e., display some
+        # text at least
+        maximum_width = max(30, maximum_width)
+
+        usable_width = round(0.9 * maximum_width)
+        elided_text = metrics.elidedText(self.non_elided_text, Qt.ElideMiddle, usable_width)
+        super().setText(elided_text)
+        super().paintEvent(event)
 
 
 class DownloadButton(QPushButton):
@@ -63,9 +107,10 @@ class DownloadButton(QPushButton):
     Button used to initiate downloads
     """
 
-    def __init__(self, text: str, parent=None) -> None:
+    def __init__(self, text: str, parent) -> None:
         super().__init__(text, parent)
 
+        self.rapidApp = parent
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 
         font_height = QFontMetrics(self.font()).tightBoundingRect(
@@ -122,3 +167,7 @@ class DownloadButton(QPushButton):
                 disabledBorderColor=disabledBorderColor.name()
             )
         )
+
+    def setText(self, text: str) -> None:
+        super().setText(text)
+        self.rapidApp.sourceButton.updateGeometry()

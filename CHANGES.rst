@@ -9,6 +9,9 @@ Changelog for Rapid Photo Downloader
  - Provide the option of automatically creating a tar file of program
    configuration file and log files when submitting a bug report.
 
+ - Fixed bug #1875268: Overly long download source name limitlessly expands
+   window width.
+
  - Updated Chinese (Simplified) and Serbian translations.
 
 0.9.23 (2020-04-16)
