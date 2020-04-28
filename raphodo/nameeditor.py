@@ -55,7 +55,9 @@ from raphodo.preferences import DownloadsTodayTracker, Preferences, match_pref_l
 import raphodo.exiftool as exiftool
 from raphodo.utilities import remove_last_char_from_list_str
 from raphodo.messagewidget import MessageWidget
-from raphodo.viewutils import translateButtons
+from raphodo.viewutils import (
+    translateDialogBoxButtons, standardMessageBox, translateMessageBoxButtons
+)
 import raphodo.qrc_resources
 
 
@@ -701,7 +703,7 @@ class CreatePreset(QDialog):
         buttonBox.addButton(QDialogButtonBox.Cancel)  # type: QPushButton
         self.saveButton = buttonBox.addButton(QDialogButtonBox.Save)  # type: QPushButton
         self.saveButton.setEnabled(False)
-        translateButtons(buttonBox)
+        translateDialogBoxButtons(buttonBox)
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
 
@@ -1053,7 +1055,7 @@ class PrefDialog(QDialog):
         self.helpButton = buttonBox.button(QDialogButtonBox.Help)  # type: QPushButton
         self.helpButton.clicked.connect(self.helpButtonClicked)
         self.helpButton.setToolTip(_('Get help online...'))
-        translateButtons(buttonBox)
+        translateDialogBoxButtons(buttonBox)
 
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
@@ -1416,12 +1418,9 @@ class PrefDialog(QDialog):
         """
 
         if self.preset.preset_edited or self.preset.new_preset:
-            msgBox = QMessageBox()
             title = _("Save Preset - Rapid Photo Downloader")
-            msgBox.setTextFormat(Qt.RichText)
-            msgBox.setIcon(QMessageBox.Question)
-            msgBox.setWindowTitle(title)
             if self.preset.new_preset:
+
                 message = _(
                     "<b>Do you want to save the changes in a new custom preset?</b><br><br>"
                     "Creating a custom preset is not required, but can help you keep "
@@ -1429,10 +1428,17 @@ class PrefDialog(QDialog):
                     "The changes to the preferences will still be applied regardless of "
                     "whether you create a new custom preset or not."
                 )
-                msgBox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+                msgBox = standardMessageBox(
+                    standardButtons=QMessageBox.Yes | QMessageBox.No,
+                    title=title, rich_text=True, message=message
+                )
                 updateButton = newButton = None
             else:
                 assert self.preset.preset_edited
+                msgBox = QMessageBox()
+                msgBox.setTextFormat(Qt.RichText)
+                msgBox.setIcon(QMessageBox.Question)
+                msgBox.setWindowTitle(title)
                 message = _(
                     "<b>Do you want to save the changes in a custom preset?</b><br><br>"
                     "If you like, you can create a new custom preset or update the "
@@ -1440,13 +1446,14 @@ class PrefDialog(QDialog):
                     "The changes to the preferences will still be applied regardless of "
                     "whether you save a custom preset or not."
                 )
+                msgBox.setText(message)
+                msgBox.addButton(QMessageBox.No)
+                translateMessageBoxButtons(msgBox)
                 updateButton = msgBox.addButton(
                     _('Update Custom Preset "%s"') % self.current_custom_name, QMessageBox.YesRole
                 )
                 newButton = msgBox.addButton(_('Save New Custom Preset'), QMessageBox.YesRole)
-                msgBox.addButton(QMessageBox.No)
 
-            msgBox.setText(message)
             choice = msgBox.exec()
             save_new = update = False
             if self.preset.new_preset:

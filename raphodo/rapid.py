@@ -37,6 +37,7 @@ import logging
 import shutil
 import datetime
 import locale
+
 try:
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, '')
@@ -74,7 +75,7 @@ import gphoto2 as gp
 from PyQt5 import QtCore
 from PyQt5.QtCore import (
     QThread, Qt, QStorageInfo, QSettings, QPoint, QSize, QTimer, QTextStream, QModelIndex,
-    pyqtSlot, QRect, pyqtSignal, QObject, QEvent
+    pyqtSlot, QRect, pyqtSignal, QObject, QEvent, QLocale, QTranslator, QLibraryInfo
 )
 from PyQt5.QtGui import (
     QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics, QFont, QPainter, QMoveEvent, QBrush,
@@ -130,7 +131,7 @@ from raphodo.utilities import (
     same_device, make_internationalized_list, thousands, addPushButtonLabelSpacer,
     make_html_path_non_breaking, prefs_list_from_gconftool2_string,
     pref_bool_from_gconftool2_string, extract_file_from_tar, format_size_for_user,
-    is_snap, version_check_disabled, installed_using_pip
+    is_snap, version_check_disabled, installed_using_pip, getQtSystemTranslation
 )
 from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
@@ -182,6 +183,7 @@ from raphodo.viewutils import (
     standardIconSize, qt5_screen_scale_environment_variable, QT5_VERSION, validateWindowSizeLimit,
     validateWindowPosition, scaledIcon, any_screen_scaled, standardMessageBox
 )
+from raphodo import viewutils
 import raphodo.didyouknow as didyouknow
 from raphodo.thumbnailextractor import gst_version, libraw_version, rawkit_version
 from raphodo.heif import have_heif_module, pyheif_version, libheif_version
@@ -2659,9 +2661,11 @@ class RapidWindow(QMainWindow):
 
         message = '{header}<br><br>{body}'.format(header=header, body=body)
 
-        errorbox = standardMessageBox(message=message, rich_text=True, title=title)
-        errorbox.setStandardButtons(QMessageBox.Save | QMessageBox.Cancel)
-        errorbox.setDefaultButton(QMessageBox.Save)
+        errorbox = standardMessageBox(
+            message=message, rich_text=True, title=title,
+            standardButtons=QMessageBox.Save | QMessageBox.Cancel,
+            defaultButton=QMessageBox.Save
+        )
         if errorbox.exec_() == QMessageBox.Save:
             excepthook.save_bug_report_tar(
                 config_file=self.prefs.settings_path(),
@@ -2772,9 +2776,9 @@ class RapidWindow(QMainWindow):
                 source_path=make_html_path_non_breaking(self.prefs.this_computer_path)
             )
 
-            msgbox = standardMessageBox(message=message, rich_text=True)
-            msgbox.setIcon(QMessageBox.Question)
-            msgbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+            msgbox = standardMessageBox(
+                message=message, rich_text=True, standardButtons=QMessageBox.Yes | QMessageBox.No,
+            )
             if msgbox.exec() == QMessageBox.No:
                 self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
                 return
@@ -2833,8 +2837,10 @@ class RapidWindow(QMainWindow):
         problematic = self.downloadIsRunning()
         if problematic:
             message = _("You cannot change the download destination while downloading.")
-            msgbox = standardMessageBox(message=message, rich_text=False)
-            msgbox.setIcon(QMessageBox.Warning)
+            msgbox = standardMessageBox(
+                message=message, rich_text=False, standardButtons=QMessageBox.Ok,
+                iconType=QMessageBox.Warning
+            )
             msgbox.exec()
 
         else:
@@ -2847,9 +2853,10 @@ class RapidWindow(QMainWindow):
             ) % dict(
                 file_type=file_type.name, path=make_html_path_non_breaking(path)
             )
-            msgbox = standardMessageBox(message=message, rich_text=True)
-            msgbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
-            msgbox.setIcon(QMessageBox.Question)
+            msgbox = standardMessageBox(
+                message=message, rich_text=True,
+                standardButtons=QMessageBox.Yes | QMessageBox.No,
+            )
             problematic = msgbox.exec() == QMessageBox.No
 
         if problematic:
@@ -4244,7 +4251,10 @@ Do you want to proceed with the download?
         # crash.
         # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b> etc.
         message = "<b>%(title)s</b><br><br>%(details)s" % dict(title=title, details=details)
-        msgBox = standardMessageBox(message=message, rich_text=True)
+        msgBox = standardMessageBox(
+            message=message, rich_text=True, standardButtons=QMessageBox.Ok,
+            iconType=QMessageBox.Warning
+        )
         msgBox.exec()
 
     def deviceState(self, scan_id: int) -> DeviceState:
@@ -4938,8 +4948,10 @@ Do you want to proceed with the download?
 
                 # Show the main window if it's not yet visible
                 self.showMainWindow()
-                msgBox = standardMessageBox(message=message, rich_text=True)
-                msgBox.setIconPixmap(camera.get_pixmap())
+                msgBox = standardMessageBox(
+                    message=message, rich_text=True, standardButtons=QMessageBox.Ok,
+                    iconPixmap=camera.get_pixmap()
+                )
                 msgBox.exec()
         else:
             # A download was initiated
@@ -5719,8 +5731,10 @@ Do you want to proceed with the download?
                 "Do you really want to download from here?<br><br>On some systems, scanning this "
                 "location can take a very long time."
             )
-            msgbox = standardMessageBox(message=message, rich_text=True)
-            msgbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+            msgbox = standardMessageBox(
+                message=message, rich_text=True,
+                standardButtons=QMessageBox.Yes | QMessageBox.No,
+            )
             return msgbox.exec() == QMessageBox.Yes
         return True
 
@@ -6470,7 +6484,7 @@ def main():
     logger = iplogging.setup_main_process_logging(logging_level=logging_level)
 
     logging.info("Rapid Photo Downloader is starting")
-    
+
     if args.photo_renaming:
         photo_rename = args.photo_renaming == 'on'
         if photo_rename:
@@ -6639,6 +6653,29 @@ def main():
     app.setOrganizationDomain("damonlynch.net")
     app.setApplicationName("Rapid Photo Downloader")
     app.setWindowIcon(QIcon(':/rapid-photo-downloader.svg'))
+
+    # Determine the system locale as reported by Qt. Use it to
+    # see if Qt has a base translation available, which allows
+    # automatic translation of QMessageBox buttons
+    try:
+        locale = QLocale.system()
+        if locale:
+            locale_name = locale.name()
+            if not locale_name:
+                logging.debug("Could not determine system locale using Qt")
+            elif locale_name.startswith('en'):
+                # Set module level variable indicating there is no need to translate
+                # the buttons because language is English
+                viewutils.Do_Message_And_Dialog_Box_Button_Translation = False
+            else:
+                qtTranslator = getQtSystemTranslation(locale_name)
+                if qtTranslator:
+                    app.installTranslator(qtTranslator)
+                    # Set module level variable indicating there is no need to translate
+                    # the buttons because Qt does the translation
+                    viewutils.Do_Message_And_Dialog_Box_Button_Translation = False
+    except Exception:
+        logging.error('Error determining locale via Qt')
 
     # darkFusion(app)
     # app.setStyle('Fusion')

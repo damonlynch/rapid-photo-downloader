@@ -38,7 +38,10 @@ from PyQt5.QtGui import (
 
 
 from raphodo.constants import (JobCodeSort, ThumbnailBackgroundName, )
-from raphodo.viewutils import QFramedWidget, QNarrowListWidget, standardIconSize, translateButtons
+from raphodo.viewutils import (
+    QFramedWidget, QNarrowListWidget, standardIconSize, translateDialogBoxButtons,
+    standardMessageBox
+)
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
 from raphodo.messagewidget import MessageWidget, MessageButton
@@ -134,7 +137,7 @@ class JobCodeDialog(QDialog):
         self.rememberCheckBox = QCheckBox(_("&Remember this choice"))
         self.rememberCheckBox.setChecked(parent.prefs.remember_job_code)
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
-        translateButtons(buttonBox)
+        translateDialogBoxButtons(buttonBox)
 
         grid = QGridLayout()
         grid.addWidget(iconLabel, 0, 0, 4, 1)
@@ -430,11 +433,10 @@ class JobCodeOptionsWidget(QFramedWidget):
     @pyqtSlot()
     def removeAllButtonClicked(self) -> None:
         message = _('Do you really want to remove all the Job Codes?')
-        msgBox = QMessageBox(parent=self)
-        msgBox.setWindowTitle(_('Remove all Job Codes'))
-        msgBox.setText(message)
-        msgBox.setIcon(QMessageBox.Question)
-        msgBox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+        msgBox = standardMessageBox(
+            parent=self, title=_('Remove all Job Codes'), message=message, rich_text=False,
+            standardButtons=QMessageBox.Yes | QMessageBox.No,
+        )
         if msgBox.exec() == QMessageBox.Yes:
             # Must clear the job codes before adjusting the qlistwidget,
             # or else the Remove All button will not be disabled.

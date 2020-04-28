@@ -112,7 +112,8 @@ def save_bug_report_tar(config_file: str, full_log_file_path: str) -> None:
             uri=get_uri(full_file_name=bug_report_full_tar)
         )
         messagebox = standardMessageBox(
-            message=body, rich_text=True, title=tar_created_title
+            message=body, rich_text=True, title=tar_created_title,
+            standardButtons=QMessageBox.Ok
         )
         messagebox.exec_()
     else:
@@ -129,7 +130,8 @@ def save_bug_report_tar(config_file: str, full_log_file_path: str) -> None:
             header=tar_error_header, body=body
         )
         messageBox = standardMessageBox(
-            message=message, rich_text=True, title=tar_error_title
+            message=message, rich_text=True, title=tar_error_title,
+            standardButtons=QMessageBox.Ok
         )
         messageBox.exec_()
 
@@ -185,10 +187,12 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
                 header, body, only_notification
             )
 
-            errorbox = standardMessageBox(message=message, rich_text=True, title=title)
+            errorbox = standardMessageBox(
+                message=message, rich_text=True, title=title,
+                standardButtons=QMessageBox.Save | QMessageBox.Cancel,
+                defaultButton=QMessageBox.Save
+            )
             errorbox.setDetailedText(traceback_info)
-            errorbox.setStandardButtons(QMessageBox.Save | QMessageBox.Cancel)
-            errorbox.setDefaultButton(QMessageBox.Save)
             if errorbox.exec_() == QMessageBox.Save:
                 save_bug_report_tar(
                     config_file=prefs.settings_path(),

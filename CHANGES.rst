@@ -12,6 +12,8 @@ Changelog for Rapid Photo Downloader
  - Fixed bug #1875268: Overly long download source name limitlessly expands
    window width.
 
+ - All message box buttons should now be able to be translated.
+
  - Updated Chinese (Simplified) and Serbian translations.
 
 0.9.23 (2020-04-16)

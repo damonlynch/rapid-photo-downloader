@@ -48,7 +48,7 @@ import pkg_resources
 
 import arrow
 import psutil
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, QLocale, QTranslator, QLibraryInfo
 
 import raphodo.__about__ as __about__
 from raphodo.constants import disable_version_check
@@ -1237,3 +1237,38 @@ def installed_using_pip(package='rapid-photo-downloader') -> bool:
             pip_install = True
 
     return pip_install
+
+
+def getQtSystemTranslation(locale_name: str) -> Optional[QTranslator]:
+    """
+    Attempt to install Qt base system translations (for QMessageBox and QDialogBox buttons)
+    :return: translator if loaded, else None
+    """
+
+    # These locales are found in the path QLibraryInfo.TranslationsPath
+    convert_locale = dict(
+        cs_CZ='cs',
+        da_DK='da',
+        de_DE='de',
+        es_ES='es',
+        fi_FI='fi',
+        fr_FR='fr',
+        it_IT='it',
+        ja_JP='ja',
+        hu_HU='hu',
+        pl_PL='pl',
+        ru_RU='ru',
+        sk_SK='sk',
+        uk_UA='uk',
+    )
+
+    qtTranslator = QTranslator()
+    location = QLibraryInfo.location(QLibraryInfo.TranslationsPath)
+    qm_file = "qtbase_{}.qm".format(convert_locale.get(locale_name, locale_name))
+    qm_file = os.path.join(location, qm_file)
+    if os.path.isfile(qm_file):
+        if qtTranslator.load(qm_file):
+            logging.debug("Installing Qt support for locale %s", locale_name)
+            return qtTranslator
+        else:
+            logging.debug("Could not load Qt locale file %s", qm_file)

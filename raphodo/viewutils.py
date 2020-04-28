@@ -36,6 +36,7 @@ QT5_VERSION = parse_version(QT_VERSION_STR)
 from raphodo.constants import ScalingDetected
 import raphodo.xsettings as xsettings
 
+
 class RowTracker:
     r"""
     Simple class to map model rows to ids and vice versa, used in
@@ -239,7 +240,15 @@ def standardIconSize() -> QSize:
     return QSize(size, size)
 
 
-def translateButtons(buttonBox: QDialogButtonBox) -> None:
+# If set to True, do translation of QMessageBox and QDialogButtonBox buttons
+# Set at program startup
+Do_Message_And_Dialog_Box_Button_Translation = True
+
+
+def translateDialogBoxButtons(buttonBox: QDialogButtonBox) -> None:
+    if not Do_Message_And_Dialog_Box_Button_Translation:
+        return
+
     buttons = (
         (QDialogButtonBox.Ok, _('&OK')),
         (QDialogButtonBox.Close, _('&Close') ),
@@ -254,6 +263,83 @@ def translateButtons(buttonBox: QDialogButtonBox) -> None:
         button = buttonBox.button(role)
         if button:
             button.setText(text)
+
+
+def translateMessageBoxButtons(messageBox: QMessageBox) -> None:
+    if not Do_Message_And_Dialog_Box_Button_Translation:
+        return
+
+    buttons = (
+        (QMessageBox.Ok, _('&OK')),
+        (QMessageBox.Close, _('&Close') ),
+        (QMessageBox.Cancel, _('&Cancel')),
+        (QMessageBox.Save, _('&Save')),
+        (QMessageBox.Yes, _('&Yes')),
+        (QMessageBox.No, _('&No')),
+    )
+    for role, text in buttons:
+        button = messageBox.button(role)
+        if button:
+            button.setText(text)
+
+
+def standardMessageBox(message: str,
+                       rich_text: bool,
+                       standardButtons: QMessageBox.StandardButton,
+                       defaultButton: Optional[QMessageBox.StandardButton]=None,
+                       parent=None,
+                       title: Optional[str]=None,
+                       icon: Optional[QIcon]=None,
+                       iconPixmap: Optional[QPixmap]=None,
+                       iconType: Optional[QMessageBox.Icon]=None) -> QMessageBox:
+    """
+    Create a QMessageBox to be displayed to the user.
+
+    :param message: the text to display
+    :param rich_text: whether it text to display is in HTML format
+    :param standardButtons: or'ed buttons or button to display (Qt style)
+    :param defaultButton: if specified, set this button to be the default
+    :param parent: parent widget,
+    :param title: optional title for message box, else defaults to
+     localized 'Rapid Photo Downloader'
+    :param iconType: type of QMessageBox.Icon to display. If standardButtons
+     are equal to QMessageBox.Yes | QMessageBox.No, then QMessageBox.Question
+     will be assigned to iconType
+    :param iconPixmap: icon to display, in QPixmap format. Used only if
+    iconType is None
+    :param icon: icon to display, in QIcon format. Used only if iconType is
+    None
+    :return: the message box
+    """
+
+    msgBox = QMessageBox(parent)
+    if title is None:
+        title = _("Rapid Photo Downloader")
+    if rich_text:
+        msgBox.setTextFormat(Qt.RichText)
+    msgBox.setWindowTitle(title)
+    msgBox.setText(message)
+
+    msgBox.setStandardButtons(standardButtons)
+    if defaultButton:
+        msgBox.setDefaultButton(defaultButton)
+    translateMessageBoxButtons(messageBox=msgBox)
+
+    if iconType is None:
+        if standardButtons == QMessageBox.Yes | QMessageBox.No:
+            iconType = QMessageBox.Question
+
+    if iconType:
+        msgBox.setIcon(iconType)
+    else:
+        if iconPixmap is None:
+            if icon:
+                iconPixmap = icon.pixmap(standardIconSize())
+            else:
+                iconPixmap = QIcon(':/rapid-photo-downloader.svg').pixmap(standardIconSize())
+        msgBox.setIconPixmap(iconPixmap)
+
+    return msgBox
 
 
 def qt5_screen_scale_environment_variable() -> str:
@@ -407,25 +493,3 @@ def any_screen_scaled() -> Tuple[ScalingDetected, bool]:
         return ScalingDetected.Xsetting, xsettings_running
     return ScalingDetected.undetected, xsettings_running
 
-
-def standardMessageBox(message: str, rich_text: bool, title: Optional[str]=None) -> QMessageBox:
-    """
-    Create a standard messagebox to be displayed to the user
-
-    :param message: the text to display
-    :param rich_text: whether it text to display is in HTML format
-    :param title: optional title for message box, else defaults to
-     localized 'Rapid Photo Downloader'
-    :return: the message box
-    """
-
-    msgBox = QMessageBox()
-    icon = QIcon(':/rapid-photo-downloader.svg').pixmap(standardIconSize())
-    if title is None:
-        title = _("Rapid Photo Downloader")
-    if rich_text:
-        msgBox.setTextFormat(Qt.RichText)
-    msgBox.setIconPixmap(icon)
-    msgBox.setWindowTitle(title)
-    msgBox.setText(message)
-    return msgBox

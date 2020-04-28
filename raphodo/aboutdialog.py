@@ -34,7 +34,7 @@ from PyQt5.QtWidgets import (
 
 import raphodo.qrc_resources
 import raphodo.__about__ as __about__
-from raphodo.viewutils import translateButtons
+from raphodo.viewutils import translateDialogBoxButtons
 
 
 class AboutDialog(QDialog):
@@ -237,7 +237,7 @@ class AboutDialog(QDialog):
 
         buttonBox = QDialogButtonBox()
         closeButton = buttonBox.addButton(QDialogButtonBox.Close)  # type: QPushButton
-        translateButtons(buttonBox)
+        translateDialogBoxButtons(buttonBox)
         self.creditsButton = buttonBox.addButton(
             _('Credits'), QDialogButtonBox.HelpRole
         )  # type: QPushButton

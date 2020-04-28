@@ -484,12 +484,15 @@ def latest_pypi_version(package_name: str):
     return versions[0].strip()
 
 
-def is_latest_pypi_package(package_name: str, show_message: bool=True) -> bool:
+def is_latest_pypi_package(package_name: str,
+                           show_message: bool=True,
+                           ignore_prerelease: bool=True) -> bool:
     """
     Determine if Python package is the most recently installable version
     :param package_name: package to check
     :param show_message: if True, show message to user indicating package will
      be upgraded
+    :param ignore_prerelease: if True, don't check against prerelease versions
     :return: True if is most recent, else False
     """
 
@@ -506,7 +509,15 @@ def is_latest_pypi_package(package_name: str, show_message: bool=True) -> bool:
         print("Failed to determine latest version of Python package {}".format(package_name))
         return False
 
-    latest = versions[0]
+    if not ignore_prerelease:
+        latest = versions[0]
+    else:
+        latest = next(
+            (v for v in versions if not pkg_resources.parse_version(v).is_prerelease), None
+        )
+
+    if not latest:
+        return True
 
     up_to_date = latest.strip() == current.strip()
 

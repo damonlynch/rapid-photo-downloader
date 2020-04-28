@@ -48,7 +48,7 @@ from raphodo.constants import (
 )
 from raphodo.utilities import (create_temp_dir, format_size_for_user, is_venv, installed_using_pip)
 from raphodo.interprocess import ThreadNames
-from raphodo.viewutils import translateButtons
+from raphodo.viewutils import translateDialogBoxButtons
 
 version_details = namedtuple('version_details', 'version release_date url md5 changelog_url')
 
@@ -320,11 +320,11 @@ class NewVersionCheckDialog(QDialog):
         self.messages.addWidget(self.failedToCheck)
 
         cancelBox = QDialogButtonBox(QDialogButtonBox.Cancel)
-        translateButtons(cancelBox)
+        translateDialogBoxButtons(cancelBox)
         cancelBox.rejected.connect(self.reject)
 
         self.downloadItBox = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.No)
-        translateButtons(self.downloadItBox)
+        translateDialogBoxButtons(self.downloadItBox)
         # Translators: this text appears in a button - the & sets the s key in combination with
         # the alt key to act as the keyboard shortcut
         self.dlItSkipButton = QPushButton(_('&Skip this release'))
@@ -335,11 +335,11 @@ class NewVersionCheckDialog(QDialog):
         self.downloadItBox.clicked.connect(self.downloadItClicked)
 
         closeBox = QDialogButtonBox(QDialogButtonBox.Close)
-        translateButtons(closeBox)
+        translateDialogBoxButtons(closeBox)
         closeBox.rejected.connect(self.reject)
 
         openDownloadPageBox = QDialogButtonBox(QDialogButtonBox.Close)
-        translateButtons(openDownloadPageBox)
+        translateDialogBoxButtons(openDownloadPageBox)
         # Translators: this text appears in a button - the & sets the s key in combination with
         # the alt key to act as the keyboard shortcut
         self.openDlPageSkipButton = QPushButton(_('&Skip this release'))
@@ -481,7 +481,7 @@ class DownloadNewVersionDialog(QDialog):
         self.progressBar.setValue(bytes_downloaded)
 
         buttonBox = QDialogButtonBox(QDialogButtonBox.Cancel)
-        translateButtons(buttonBox)
+        translateDialogBoxButtons(buttonBox)
         buttonBox.rejected.connect(self.reject)
 
         grid = QGridLayout()

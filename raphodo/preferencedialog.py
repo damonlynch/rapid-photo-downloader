@@ -43,7 +43,7 @@ from raphodo.preferences import Preferences
 from raphodo.constants import (
     KnownDeviceType, CompletedDownloads, TreatRawJpeg, MarkRawJpeg
 )
-from raphodo.viewutils import QNarrowListWidget, translateButtons
+from raphodo.viewutils import QNarrowListWidget, translateDialogBoxButtons, standardMessageBox
 from raphodo.utilities import available_cpu_count, format_size_for_user, thousands
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.constants import ConflictResolution
@@ -828,7 +828,7 @@ class PreferencesDialog(QDialog):
         buttons = QDialogButtonBox(
             QDialogButtonBox.RestoreDefaults | QDialogButtonBox.Close | QDialogButtonBox.Help
         )
-        translateButtons(buttons)
+        translateDialogBoxButtons(buttons)
         self.restoreButton = buttons.button(QDialogButtonBox.RestoreDefaults)  # type: QPushButton
         self.restoreButton.clicked.connect(self.restoreDefaultsClicked)
         self.helpButton = buttons.button(QDialogButtonBox.Help)  # type: QPushButton
@@ -1292,11 +1292,11 @@ class PreferencesDialog(QDialog):
             'Do you want to purge the thumbnail cache? The cache will be purged when the '
             'program is next started.'
         )
-        msgBox = QMessageBox(parent=self)
-        msgBox.setWindowTitle(_('Purge Thumbnail Cache'))
-        msgBox.setText(message)
-        msgBox.setIcon(QMessageBox.Question)
-        msgBox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+        msgBox = standardMessageBox(
+            parent=self, title=_('Purge Thumbnail Cache'), message=message,
+            standardButtons=QMessageBox.Yes | QMessageBox.No, rich_text=False
+        )
+
         if msgBox.exec_() == QMessageBox.Yes:
             self.prefs.purge_thumbnails = True
             self.prefs.optimize_thumbnail_db = False
@@ -1309,11 +1309,10 @@ class PreferencesDialog(QDialog):
             'Do you want to optimize the thumbnail cache? The cache will be optimized when '
             'the program is next started.'
         )
-        msgBox = QMessageBox(parent=self)
-        msgBox.setWindowTitle(_('Optimize Thumbnail Cache'))
-        msgBox.setText(message)
-        msgBox.setIcon(QMessageBox.Question)
-        msgBox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+        msgBox = standardMessageBox(
+            parent=self, title=_('Optimize Thumbnail Cache'), message=message,
+            standardButtons=QMessageBox.Yes|QMessageBox.No, rich_text=False
+        )
         if msgBox.exec_() == QMessageBox.Yes:
             self.prefs.purge_thumbnails = False
             self.prefs.optimize_thumbnail_db = True
@@ -1553,7 +1552,7 @@ class PreferenceAddDialog(QDialog):
         formLayout.addRow(label, self.valueEdit)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
-        translateButtons(buttons)
+        translateDialogBoxButtons(buttons)
         buttons.rejected.connect(self.reject)
         buttons.accepted.connect(self.accept)
 
@@ -1644,18 +1643,19 @@ class ExceptFileExtDialog(PreferenceAddDialog):
                     audio=self.exts(AUDIO_EXTENSIONS),
                     other=self.exts(['xmp'])
                 )
-                msgbox = QMessageBox(parent=self)
-                msgbox.setWindowTitle(title)
-                msgbox.setText(message)
-                msgbox.setDetailedText(details)
-                msgbox.setIcon(QMessageBox.Information)
-                msgbox.exec()
+                msgBox = standardMessageBox(
+                    parent=self, title=title, message=message, rich_text=True,
+                    standardButtons=QMessageBox.Ok, iconType=QMessageBox.Information
+                )
+                msgBox.setDetailedText(details)
+                msgBox.exec()
                 self.valueEdit.setText(value)
                 self.valueEdit.selectAll()
                 return
             else:
                 self.prefs.add_list_value(self.pref_value, value)
         QDialog.accept(self)
+
 
 class CacheSize(QObject):
     size = pyqtSignal('PyQt_PyObject')  # don't convert python int to C++ int

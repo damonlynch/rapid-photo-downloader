@@ -31,7 +31,7 @@ from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QCheckBox, QLabel, QGridL
 
 from raphodo.constants import RememberThisMessage, RememberThisButtons
 from raphodo.viewutils import standardIconSize,\
-    translateButtons
+    translateDialogBoxButtons
 
 class RememberThisDialog(QDialog):
 
@@ -83,7 +83,7 @@ class RememberThisDialog(QDialog):
         else:
             okayButton = buttonBox.addButton(QDialogButtonBox.Ok)
 
-        translateButtons(buttonBox)
+        translateDialogBoxButtons(buttonBox)
 
         grid = QGridLayout()
         grid.setSpacing(11)

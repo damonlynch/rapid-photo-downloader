@@ -49,7 +49,7 @@ import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import ErrorType
 from raphodo.rpdfile import RPDFile
 from raphodo.problemnotification import Problem, Problems
-from raphodo.viewutils import translateButtons
+from raphodo.viewutils import translateDialogBoxButtons
 from raphodo.storage import open_in_file_manager
 
 # ErrorLogMessage = namedtuple('ErrorLogMessage', 'title body name uri')
@@ -233,7 +233,7 @@ class ErrorReport(QDialog):
 
 
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
-        translateButtons(buttons)
+        translateDialogBoxButtons(buttons)
         self.clear = buttons.addButton(_('Clear'), QDialogButtonBox.ActionRole)  # type: QPushButton
         buttons.rejected.connect(self.reject)
         self.clear.clicked.connect(self.clearClicked)

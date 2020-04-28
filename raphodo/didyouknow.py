@@ -35,7 +35,7 @@ from PyQt5.QtWidgets import (
 
 import raphodo.qrc_resources as qrc_resources
 from raphodo.preferences import Preferences
-from raphodo.viewutils import translateButtons
+from raphodo.viewutils import translateDialogBoxButtons
 
 tips = (
     (
@@ -497,7 +497,7 @@ class DidYouKnowDialog(QDialog):
         self.previousButton = QPushButton(_('&Previous'))
 
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
-        translateButtons(buttons)
+        translateDialogBoxButtons(buttons)
         buttons.addButton(self.previousButton, QDialogButtonBox.ActionRole)
         buttons.addButton(self.nextButton, QDialogButtonBox.ActionRole)
         self.previousButton.clicked.connect(self.previousButtonClicked)
