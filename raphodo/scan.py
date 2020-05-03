@@ -1614,6 +1614,7 @@ def trace_lines(frame, event, arg):
     line_no = frame.f_lineno
     print('%s >>>>>>>>>>>>> At %s line %s' % (datetime.now().ctime(), func_name, line_no))
 
+
 def trace_calls(frame, event, arg):
     if event != 'call':
         return
@@ -1629,11 +1630,13 @@ def trace_calls(frame, event, arg):
         caller_filename = caller.f_code.co_filename
     else:
         caller_line_no = caller_filename = ''
-    print('% s Call to %s on line %s of %s from line %s of %s'  %
-        (datetime.now().ctime(), func_name, func_line_no, func_filename, caller_line_no,
-         caller_filename))
+    print(
+        '% s Call to %s on line %s of %s from line %s of %s' % (
+            datetime.now().ctime(), func_name, func_line_no, func_filename, caller_line_no,
+            caller_filename)
+    )
 
-    for f in ('distingish_non_camera_device_timestamp','determine_device_timestamp_tz'):
+    for f in ('distinguish_non_camera_device_timestamp','determine_device_timestamp_tz'):
         if func_name.find(f) >= 0:
             # Trace into this function
             return trace_lines

@@ -229,6 +229,10 @@ class Camera:
                     path='/', specific_folders=specific_folders
                 )
                 self.specific_folder_located = len(self.specific_folders) > 0
+                logging.debug(
+                    "Folders located on %s: %s", self.display_name,
+                    ', '.join(', '.join(map(str, sl)) for sl in self.specific_folders)
+                )
             except gp.GPhoto2Error as e:
                 logging.error(
                     "Unable to access camera %s: %s. Is it locked?",

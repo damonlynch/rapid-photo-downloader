@@ -568,10 +568,12 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 # the download process
                 self.photo_cache_dir = create_temp_dir(
                     folder=arguments.cache_dirs.photo_cache_dir,
-                    prefix=cache_dir_name(self.device_name))
+                    prefix=cache_dir_name(self.device_name)
+                )
                 self.video_cache_dir = create_temp_dir(
                     folder=arguments.cache_dirs.video_cache_dir,
-                    prefix=cache_dir_name(self.device_name))
+                    prefix=cache_dir_name(self.device_name)
+                )
                 cache_dirs = CacheDirs(self.photo_cache_dir, self.video_cache_dir)
                 self.content = pickle.dumps(
                     GenerateThumbnailsResults(

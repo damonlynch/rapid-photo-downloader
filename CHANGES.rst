@@ -297,8 +297,8 @@ Changelog for Rapid Photo Downloader
 0.9.15 (2019-07-09)
 -------------------
 
- - Updated Brazilian Portuguese, Czech, Dutch, French, Hungarian, Japanese,
-   Kabyle, Norwegian Nynorsk, Russian and Spanish translations.
+ - Updated Chinese (Simplified), Czech, Dutch, French, German, Serbian, Spanish
+   and Turkish translations.
 
 0.9.15b1 (2019-06-25)
 ---------------------
