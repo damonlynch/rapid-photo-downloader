@@ -55,7 +55,11 @@ class RescanCamera:
 
     def __init__(self, camera: Camera, prefs: Preferences) -> None:
         self.camera = camera
-        assert camera.camera_has_folders_to_scan()
+        if not camera.specific_folder_located:
+            logging.warning(
+                "No folders located on %s: there might be a bug the camera firmware or libgphoto2. "
+                "Continuing rescan regardless.", camera.display_name
+            )
         # Relocated RPD files
         self.rpd_files = []  # type: List[RPDFile]
         # Missing RPD files

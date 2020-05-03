@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.24 (2020-xx-xx)
+0.9.24 (2020-05-03)
 -------------------
 
  - Added support for Ubuntu Kylin and Pop!_OS 20.04.
@@ -12,9 +12,14 @@ Changelog for Rapid Photo Downloader
  - Fixed bug #1875268: Overly long download source name limitlessly expands
    window width.
 
- - All message box buttons should now be able to be translated. 
+ - Fixed bug #1876344: Unable to generate thumbnails or download from Fujifilm
+   X-H1.
 
- - Updated Chinese (Simplified), Hungarian, and Serbian translations.
+ - All message box buttons should now be able to be translated (or able to be
+   translated).
+
+ - Updated Chinese (Simplified), Czech, Dutch, French, German, Hungarian,
+   Serbian, Spanish and Turkish translations.
 
 0.9.23 (2020-04-16)
 -------------------
@@ -297,8 +302,8 @@ Changelog for Rapid Photo Downloader
 0.9.15 (2019-07-09)
 -------------------
 
- - Updated Chinese (Simplified), Czech, Dutch, French, German, Serbian, Spanish
-   and Turkish translations.
+ - Updated Brazilian Portuguese, Czech, Dutch, French, Hungarian, Japanese,
+   Kabyle, Norwegian Nynorsk, Russian and Spanish translations.
 
 0.9.15b1 (2019-06-25)
 ---------------------
