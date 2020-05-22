@@ -15,8 +15,7 @@ Changelog for Rapid Photo Downloader
  - Fixed bug #1876344: Unable to generate thumbnails or download from Fujifilm
    X-H1.
 
- - All message box buttons should now be able to be translated (or able to be
-   translated).
+ - All message box buttons should now be translated (or able to be translated).
 
  - Updated Chinese (Simplified), Czech, Dutch, French, German, Hungarian,
    Serbian, Spanish and Turkish translations.

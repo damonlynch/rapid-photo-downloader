@@ -34,6 +34,8 @@ import re
 import glob
 import os
 import argparse
+import tarfile
+import datetime
 
 
 def parser_options(formatter_class=argparse.HelpFormatter):
@@ -44,7 +46,7 @@ def parser_options(formatter_class=argparse.HelpFormatter):
     )
 
     parser.add_argument(
-        'path', help="path to log file directory"
+        'path', help="path to log file directory or tar file containg log files"
     )
 
     return parser
@@ -54,9 +56,31 @@ if __name__ == '__main__':
     parser = parser_options()
     args = parser.parse_args()
 
-    home = os.path.expanduser('~')
+    # home = os.path.expanduser('~')
 
     path = os.path.abspath(args.path)
+
+    if path.endswith('.tar'):
+        tarfile_path = path
+        tar = tarfile.open(path)
+        dt_re = re.search(r'(\d[\d\-]+)', os.path.split(path)[1])
+        if dt_re:
+            tar_datetime = dt_re.group(1)
+        else:
+            tar_datetime = datetime.datetime.now().strftime('%Y%m%d')
+
+        path = os.path.split(path)[0]
+        i = 0
+        while os.path.isdir(
+                os.path.join(path, '{}{}'.format(tar_datetime, '' if not i else '-{}'.format(i)))
+                ):
+            i += 1
+
+        tar_path = os.path.join(path, '{}{}'.format(tar_datetime, '' if not i else '-{}'.format(i)))
+        os.mkdir(tar_path)
+        tar.extractall(path=tar_path)
+        path = tar_path
+        os.remove(tarfile_path)
 
     standard_name = 'rapid-photo-downloader.log'
     standard_file = os.path.join(path, standard_name)

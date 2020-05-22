@@ -102,7 +102,6 @@ Rapid Photo Downloader requires:
     - GExiv2 0.10
     - Gst 1.0
     - Notify 0.7
-    - Gdk 3.0
  - `python-gphoto2`_ 1.4.0 or newer
  - pyzmq_
  - tornado_
