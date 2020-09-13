@@ -80,7 +80,13 @@ if __name__ == '__main__':
         os.mkdir(tar_path)
         tar.extractall(path=tar_path)
         path = tar_path
-        os.remove(tarfile_path)
+        try:
+            os.remove(tarfile_path)
+        except OSError as e:
+            if e.errno == 26:
+                print("Warning: could not remove tar file because it is being used")
+            else:
+                raise
 
     standard_name = 'rapid-photo-downloader.log'
     standard_file = os.path.join(path, standard_name)

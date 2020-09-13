@@ -1739,7 +1739,8 @@ def install_required_distro_packages(distro: Distro,
                    'python3-dev intltool libgphoto2-dev g++ exiv2 libraw-bin build-essential ' \
                    'python3-wheel python3-setuptools gir1.2-gexiv2-0.10 libxkbcommon-x11-0 ' \
                    'python3-gi gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 '\
-                   'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 gir1.2-gdkpixbuf-2.0 zenity '
+                   'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 gir1.2-gdkpixbuf-2.0 zenity ' \
+                   'libqt5x11extras5 '
 
         if install_pyqt5:
             packages = '{} python3-pyqt5 qt5-image-formats-plugins ' \
@@ -3165,7 +3166,12 @@ def main():
     if not args.script_restarted:
         name = Distro_Pretty_Name.get(distro.name, distro.name.capitalize())
         print(
-            _('Detected Linux distribution {} {}'.format(name, distro_version))
+            _(
+                'Detected Linux distribution {} {}'.format(
+                    name,
+                    distro_version if distro_version != unknown_version else ''
+                )
+            )
         )
 
     if distro == Distro.debian:
