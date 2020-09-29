@@ -241,10 +241,11 @@ class Device:
         self.can_eject = can_eject
         if not mount:
             mount = QStorageInfo(path)
-        self.storage_space.append(StorageSpace(
-                        bytes_free=mount.bytesAvailable(),
-                        bytes_total=mount.bytesTotal(),
-                        path=path))
+        self.storage_space.append(
+            StorageSpace(
+                bytes_free=mount.bytesAvailable(), bytes_total=mount.bytesTotal(), path=path
+            )
+        )
 
     def set_download_from_path(self, path: str) -> None:
         self.clear()
@@ -263,10 +264,11 @@ class Device:
         self.icon_name = ('{}'.format(QFileIconProvider().icon(
             QFileIconProvider.Folder).name()))
         mount = QStorageInfo(path)
-        self.storage_space.append(StorageSpace(
-                        bytes_free=mount.bytesAvailable(),
-                        bytes_total=mount.bytesTotal(),
-                        path=path))
+        self.storage_space.append(
+            StorageSpace(
+                bytes_free=mount.bytesAvailable(), bytes_total=mount.bytesTotal(), path=path
+            )
+        )
 
     def get_storage_space(self, index: int=0) -> StorageSpace:
         """
@@ -329,7 +331,6 @@ class Device:
     def delete_cache_dirs(self) -> None:
         self._delete_cache_dir(self.photo_cache_dir)
         self._delete_cache_dir(self.video_cache_dir)
-
 
 
 class DeviceCollection:

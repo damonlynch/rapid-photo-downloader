@@ -1240,11 +1240,16 @@ class UDisks2Monitor(QObject):
         """
 
         object_path = '/org/freedesktop/UDisks2/block_devices/{}'.format(
-            os.path.split(device_path)[1])
+            os.path.split(device_path)[1]
+        )
         obj = self.udisks.get_object(object_path)
-        icon_names = self.get_icon_names(obj)
-        can_eject = self.get_can_eject(obj)
-        return (icon_names, can_eject)
+        if obj is None:
+            icon_names = []
+            can_eject = False
+        else:
+            icon_names = self.get_icon_names(obj)
+            can_eject = self.get_can_eject(obj)
+        return icon_names, can_eject
 
     @pyqtSlot(str)
     def unmount_volume(self, mount_point: str) -> None:
