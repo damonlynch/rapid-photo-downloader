@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-04-28 16:38+0000\n"
+"POT-Creation-Date: 2020-09-29 18:19+0000\n"
 "PO-Revision-Date: 2020-03-12 06:18+0000\n"
 "Last-Translator: Belkacem Mohammed <belkacem77@gmail.com>\n"
 "Language-Team: Kabyle <kab@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2020-05-03 11:32+0000\n"
-"X-Generator: Launchpad (build fbdff7602bd10fb883bf7e2ddcc7fd5a16f60398)\n"
+"X-Launchpad-Export-Date: 2020-10-08 16:44+0000\n"
+"X-Generator: Launchpad (build 781851f4dc11c93bc506eb54e6a0d35c919a1ce6)\n"
 "Language: kab\n"
 
 #: ../install.py:76
@@ -41,12 +41,12 @@ msgid ""
 "enable support for the HEIC / HEIF image format."
 msgstr ""
 
-#: ../install.py:352 ../install.py:3302
+#: ../install.py:352 ../install.py:3301
 msgid "Installer not found:"
 msgstr "Ulac amsebdad:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:356 ../install.py:3306
+#: ../install.py:356 ../install.py:3305
 msgid "Installer not in tar.gz format:"
 msgstr "Ulac amsebdad s umasal tar.gz:"
 
@@ -77,7 +77,7 @@ msgid "The following command will be run:"
 msgstr ""
 
 #. Translators: do not translate the term sudo
-#: ../install.py:1032 ../install.py:2882 ../install.py:2887
+#: ../install.py:1032 ../install.py:2876 ../install.py:2881
 msgid "sudo may prompt you for the sudo password."
 msgstr ""
 
@@ -89,13 +89,13 @@ msgstr ""
 msgid "Answer is not yes, exiting."
 msgstr ""
 
-#: ../install.py:1049 ../install.py:1587 ../install.py:1639 ../install.py:2012
-#: ../install.py:2061
+#: ../install.py:1049 ../install.py:1587 ../install.py:1639 ../install.py:2006
+#: ../install.py:2055
 msgid "Command failed"
 msgstr ""
 
-#: ../install.py:1051 ../install.py:1588 ../install.py:1640 ../install.py:2013
-#: ../install.py:2062
+#: ../install.py:1051 ../install.py:1588 ../install.py:1640 ../install.py:2007
+#: ../install.py:2056
 msgid "Exiting"
 msgstr ""
 
@@ -144,78 +144,78 @@ msgstr ""
 msgid "Checking if previous version installed with pip..."
 msgstr ""
 
-#: ../install.py:1786 ../install.py:1816 ../install.py:1900
+#: ../install.py:1783 ../install.py:1813 ../install.py:1897
 msgid "The following package is unknown on your system: {}\n"
 msgstr ""
 
-#: ../install.py:1829 ../install.py:1950 ../install.py:2020 ../install.py:2069
+#: ../install.py:1826 ../install.py:1947 ../install.py:2014 ../install.py:2063
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
 
-#: ../install.py:1894 ../install.py:1909
+#: ../install.py:1891 ../install.py:1906
 msgid "Querying installed and available packages (this may take a while)"
 msgstr ""
 
-#: ../install.py:2004
+#: ../install.py:1998
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr ""
 
-#: ../install.py:2054
+#: ../install.py:2048
 msgid ""
 "Querying yum to see if any required packages are already installed (this may "
 "take a while)... "
 msgstr ""
 
-#: ../install.py:2102
+#: ../install.py:2096
 msgid "Query to confirm action at each step."
 msgstr ""
 
-#: ../install.py:2109
+#: ../install.py:2103
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
 msgstr ""
 
-#: ../install.py:2118
+#: ../install.py:2112
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
 
-#: ../install.py:2149
+#: ../install.py:2143
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
 "whichever installer is newer."
 msgstr ""
 
-#: ../install.py:2157
+#: ../install.py:2151
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
 msgstr ""
 
-#: ../install.py:2162
+#: ../install.py:2156
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
 
-#: ../install.py:2167
+#: ../install.py:2161
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr ""
 
-#: ../install.py:2174
+#: ../install.py:2168
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
 
-#: ../install.py:2180
+#: ../install.py:2174
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -225,32 +225,32 @@ msgid ""
 "not be uninstalled."
 msgstr ""
 
-#: ../install.py:2202
+#: ../install.py:2196
 msgid ""
 "Install in current Python virtual environment. Virtual environments created "
 "with the --system-site-packages option are not supported."
 msgstr ""
 
-#: ../install.py:2216
+#: ../install.py:2210
 msgid ""
 "Specific version of PyQt5 to install (default is the most recent version{})."
 msgstr ""
 
-#: ../install.py:2224
+#: ../install.py:2218
 msgid ""
 "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
 "Uninstalls any PyPi versions already installed."
 msgstr ""
 
-#: ../install.py:2261
+#: ../install.py:2255
 msgid "Failed to download versions file."
 msgstr "Amsebdad n umsider Rapid Photo."
 
-#: ../install.py:2265
+#: ../install.py:2259
 msgid "Got error code {} while accessing versions file"
 msgstr ""
 
-#: ../install.py:2373
+#: ../install.py:2367
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -258,190 +258,190 @@ msgid ""
 "Exiting.\n"
 msgstr ""
 
-#: ../install.py:2514
+#: ../install.py:2508
 msgid ""
 "Package {} failed to install but Rapid Photo Downloader installation will "
 "continue."
 msgstr ""
 
-#: ../install.py:2520
+#: ../install.py:2514
 msgid "Received error code"
 msgstr ""
 
-#: ../install.py:2522
+#: ../install.py:2516
 msgid "Failed to install application requirements: exiting."
 msgstr ""
 
-#: ../install.py:2524
+#: ../install.py:2518
 msgid "Failed to install application: exiting..."
 msgstr ""
 
-#: ../install.py:2774
+#: ../install.py:2768
 msgid "Installing application requirements..."
 msgstr ""
 
-#: ../install.py:2800
+#: ../install.py:2794
 msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
 msgstr ""
 
 #. KDE Neon has up to date Qt & PyQt5
 #. Translators: do not translate the terms PyQt5, PyPi or KDE Neon
-#: ../install.py:2814
+#: ../install.py:2808
 msgid "Not installing PyPI PyQt5 package into KDE Neon environment"
 msgstr ""
 
-#: ../install.py:2818
+#: ../install.py:2812
 msgid "Installing application..."
 msgstr ""
 
 #. Keep man pages in install location only
 #. Translators: do not translate {}/share/man/man1
-#: ../install.py:2875
+#: ../install.py:2869
 msgid "Man pages can be found in {}/share/man/man1"
 msgstr ""
 
-#: ../install.py:2879
+#: ../install.py:2873
 msgid "Do you want to install the application's man pages?"
 msgstr ""
 
-#: ../install.py:2880
+#: ../install.py:2874
 msgid "They will be installed into {}"
 msgstr ""
 
-#: ../install.py:2881 ../install.py:2886
+#: ../install.py:2875 ../install.py:2880
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr ""
 
-#: ../install.py:2883
+#: ../install.py:2877
 msgid "Do want to install the man pages?"
 msgstr ""
 
-#: ../install.py:2885
+#: ../install.py:2879
 msgid "Installing man pages into {}"
 msgstr ""
 
-#: ../install.py:2900
+#: ../install.py:2894
 msgid "Failed to create man page directory: exiting."
 msgstr ""
 
-#: ../install.py:2921
+#: ../install.py:2915
 msgid "Failed to copy man page."
 msgstr ""
 
-#: ../install.py:2936
+#: ../install.py:2930
 msgid ""
 "Rapid Photo Downloader can be started without activating the virtual "
 "environment by running {}/bin/rapid-photo-downloader"
 msgstr ""
 
-#: ../install.py:2948
+#: ../install.py:2942
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "command line or application launcher."
 msgstr ""
 
-#: ../install.py:2957
+#: ../install.py:2951
 #, python-brace-format
 msgid ""
 "You must add {path} to your computer's $PATH variable to run the program "
 "from the command line or application launcher."
 msgstr ""
 
-#: ../install.py:2975
+#: ../install.py:2969
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
 
-#: ../install.py:2989
+#: ../install.py:2983
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
 "Cannot continue. Exiting."
 msgstr ""
 
-#: ../install.py:3033
+#: ../install.py:3027
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
 msgstr ""
 
-#: ../install.py:3046
+#: ../install.py:3040
 msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
 msgstr ""
 
-#: ../install.py:3058
+#: ../install.py:3052
 msgid ""
 "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
 "on an Intel or AMD 64 bit platform."
 msgstr ""
 
 #. Translators: do not translate the term PyQt5
-#: ../install.py:3071
+#: ../install.py:3065
 msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
 msgstr ""
 
-#: ../install.py:3085
+#: ../install.py:3079
 msgid ""
 "Do you want to install Rapid Photo Downloader into the current virtual "
 "environment?"
 msgstr ""
 
-#: ../install.py:3097
+#: ../install.py:3091
 msgid ""
 "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
 "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
 msgstr ""
 
-#: ../install.py:3108
+#: ../install.py:3102
 msgid ""
 "To install Rapid Photo Downloader into a Python virtual environment, create "
 "and activate the virtual environment before starting this script."
 msgstr ""
 
-#: ../install.py:3116
+#: ../install.py:3110
 msgid "Using virtual environment for installation using pip."
 msgstr ""
 
-#: ../install.py:3121 ../install.py:3135
+#: ../install.py:3115 ../install.py:3129
 msgid "Do not include any other command line arguments when specifying"
 msgstr ""
 
-#: ../install.py:3155
+#: ../install.py:3149
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
 msgstr ""
 
-#: ../install.py:3162
+#: ../install.py:3156
 msgid "Restarting script using system python..."
 msgstr ""
 
-#: ../install.py:3175
+#: ../install.py:3170
 msgid "Detected Linux distribution {} {}"
 msgstr ""
 
-#: ../install.py:3197
+#: ../install.py:3196
 msgid "Exiting..."
 msgstr "Tufɣa..."
 
 #. Translators: do not translate the term python3-apt
-#: ../install.py:3221
+#: ../install.py:3220
 msgid "To continue, the package python3-apt must be installed."
 msgstr ""
 
-#: ../install.py:3255
+#: ../install.py:3254
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer:"
 msgstr ""
 
-#: ../install.py:3266
+#: ../install.py:3265
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
 msgstr ""
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:3296
+#: ../install.py:3295
 msgid "Installing python requests"
 msgstr ""
 
@@ -500,20 +500,20 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr ""
 
-#: ../upgrade.py:8981
+#: ../upgrade.py:9066
 #, python-format
 msgid "Upgrading %s..."
 msgstr ""
 
-#: ../upgrade.py:8983
+#: ../upgrade.py:9068
 msgid "Press any key to continue..."
 msgstr ""
 
-#: ../upgrade.py:8996
+#: ../upgrade.py:9081
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr ""
 
-#: ../upgrade.py:8998
+#: ../upgrade.py:9083
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
@@ -734,11 +734,11 @@ msgstr ""
 msgid "%s full"
 msgstr "%s n taččart"
 
-#: ../raphodo/devices.py:478
+#: ../raphodo/devices.py:479
 msgid "Cameras"
 msgstr "Takamiṛat"
 
-#: ../raphodo/devices.py:479 ../raphodo/devices.py:1022
+#: ../raphodo/devices.py:480 ../raphodo/devices.py:1023
 #: ../raphodo/preferencedialog.py:114 ../raphodo/preferencedialog.py:124
 #: ../raphodo/rapid.py:2119
 msgid "Devices"
@@ -747,7 +747,7 @@ msgstr "Ibenkan"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/devices.py:812
+#: ../raphodo/devices.py:813
 #, python-format
 msgid "Downloading from %(device_names)s"
 msgstr "Asider seg %(device_names)s"
@@ -756,12 +756,12 @@ msgstr "Asider seg %(device_names)s"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/devices.py:875
+#: ../raphodo/devices.py:876
 #, python-format
 msgid "%(no_devices)s %(device_type)s"
 msgstr "%(no_devices)s %(device_type)s"
 
-#: ../raphodo/devices.py:1007 ../raphodo/rapid.py:1946
+#: ../raphodo/devices.py:1008 ../raphodo/rapid.py:1946
 msgid "Select Source"
 msgstr "Fren aɣbalu"
 
@@ -777,7 +777,7 @@ msgstr "Fren aɣbalu"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/devices.py:1044 ../raphodo/devices.py:1061
+#: ../raphodo/devices.py:1045 ../raphodo/devices.py:1062
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr "%(device1)s + %(device2)s"
@@ -786,7 +786,7 @@ msgstr "%(device1)s + %(device2)s"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/devices.py:1075
+#: ../raphodo/devices.py:1076
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr "%(no_cameras)s n tkamiratin"
@@ -794,13 +794,13 @@ msgstr "%(no_cameras)s n tkamiratin"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/devices.py:1083
+#: ../raphodo/devices.py:1084
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr "%(no_devices)s n ibenkan"
 
 #. Translators: two folder names, separated by a plus sign
-#: ../raphodo/devices.py:1378
+#: ../raphodo/devices.py:1379
 #, python-format
 msgid "%s + %s"
 msgstr "%s + %s"
