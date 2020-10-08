@@ -68,13 +68,15 @@ class JobCodeDialog(QDialog):
             details = file_types.file_types_present_details(title_case=False)
             if sum(file_types.values()) == 1:
                 # Translators: the value substituted will be something like '1 photo'.
-                file_details = _('The Job Code will be applied to %s that does not yet have a Job '
-                                 'Code.') % details
+                file_details = _(
+                    'The Job Code will be applied to %s that does not yet have a Job Code.'
+                ) % details
             else:
                 # Translators: the value substituted will be something like '85 photos and 5
                 # videos'.
-                file_details = _('The Job Code will be applied to %s that do not yet have a Job '
-                                 'Code.') % details
+                file_details = _(
+                    'The Job Code will be applied to %s that do not yet have a Job Code.'
+                ) % details
 
             title = _('Apply Job Code to Download')
         else:
@@ -84,8 +86,9 @@ class JobCodeDialog(QDialog):
             if sum(file_types.values()) == 0:
                 file_types = thumbnailModel.getDisplayedCounter()
                 if sum(file_types.values()) == 0:
-                    file_details = _('The new Job Code will not be applied to any photos or '
-                                     'videos.')
+                    file_details = _(
+                        'The new Job Code will not be applied to any photos or videos.'
+                    )
                 else:
                     details = file_types.file_types_present_details(title_case=False)
                     # Translators: the value substituted will be something like '100 photos and 5
@@ -110,6 +113,7 @@ class JobCodeDialog(QDialog):
             exp = "[^/\\0]+"
         else:
             exp = '[^\\:\*\?"<>|\\0/]+'
+            
         self.jobCodeExp = QRegularExpression()
         self.jobCodeExp.setPattern(exp)
         self.jobCodeValidator = QRegularExpressionValidator(self.jobCodeExp, self.jobCodeComboBox)
@@ -183,16 +187,21 @@ class JobCodeOptionsWidget(QFramedWidget):
         layout.addLayout(jobCodeLayout)
         self.setLayout(layout)
 
-        self.messageWidget = MessageWidget(
-            (_('Select photos and videos to be able to apply a new or existing Job Code to them.'),
-             _('The new Job Code will be applied to all selected photos and/or videos.'),
-             _('Click the Apply button to apply the current Job Code to all selected '
-               'photos and/or videos. You can also simply double click the Job Code.'),
-             _('Removing a Job Code removes it only from the list of saved Job Codes, '
-               'not from any photos or videos that it may have been applied to.'),
-             _('If you want to use Job Codes, configure file renaming or destination subfolder '
-               'names to use them.'))
-        )
+        self.messageWidget = MessageWidget((
+            _('Select photos and videos to be able to apply a new or existing Job Code to them.'),
+            _('The new Job Code will be applied to all selected photos and/or videos.'),
+            _(
+                'Click the Apply button to apply the current Job Code to all selected '
+                'photos and/or videos. You can also simply double click the Job Code.'
+            ),
+            _(
+                'Removing a Job Code removes it only from the list of saved Job Codes, '
+                'not from any photos or videos that it may have been applied to.'
+            ),
+            _(
+                'If you want to use Job Codes, configure file renaming or destination subfolder '
+                'names to use them.')
+        ))
 
         self.setDefaultMessage()
 
@@ -233,18 +242,13 @@ class JobCodeOptionsWidget(QFramedWidget):
         self.removeAllButton.isInactive.connect(self.setDefaultMessage)
         self.removeAllButton.clicked.connect(self.removeAllButtonClicked)
 
-        # explanation_not_done = QLabel(_("<i>This part of the user interface will be "
-        #                                 "implemented in a forthcoming alpha release.</i>"))
-
         self.jobCodesWidget = QNarrowListWidget()
         self.jobCodesWidget.currentRowChanged.connect(self.rowChanged)
         self.jobCodesWidget.itemDoubleClicked.connect(self.rowDoubleClicked)
         self.jobCodesWidget.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.jobCodesWidget.setSizePolicy(QSizePolicy.MinimumExpanding,
-                                          QSizePolicy.MinimumExpanding)
-
-        # self.prefs.job_codes = ['Wedding', "Birthday", "Minneapolis", "Cricket", "Rugby",
-        #                         "Wellington"]
+        self.jobCodesWidget.setSizePolicy(
+            QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
+        )
 
         if self.prefs.list_not_empty('job_codes'):
             self._insertJobCodes(job_code=self.prefs.job_codes[0], clear=False)
