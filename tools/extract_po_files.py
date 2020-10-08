@@ -299,11 +299,11 @@ else:
         if len(updated_langs) > 1:
             updated_langs_english = ', '.join(updated_langs[:-1])
             updated_langs_english = updated_langs_english + ' and %s' % updated_langs[-1]
-            print('Updated {} translations.\n'.format(updated_langs_english))
+            print('Update {} translations\n'.format(updated_langs_english))
         else:
-            print('Updated {} translation.\n'.format(updated_langs[0]))
+            print('Update {} translation\n'.format(updated_langs[0]))
     else:
-        print("No updated languages")
+        print("No language updates")
 
     if unknown_langs:
         print("WARNING: unrecognized languages are", unknown_langs)
