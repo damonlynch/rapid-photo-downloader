@@ -113,7 +113,7 @@ class JobCodeDialog(QDialog):
             exp = "[^/\\0]+"
         else:
             exp = '[^\\:\*\?"<>|\\0/]+'
-            
+
         self.jobCodeExp = QRegularExpression()
         self.jobCodeExp.setPattern(exp)
         self.jobCodeValidator = QRegularExpressionValidator(self.jobCodeExp, self.jobCodeComboBox)
@@ -138,7 +138,7 @@ class JobCodeDialog(QDialog):
 
         jobCodeLabel = QLabel(_('&Job Code:'))
         jobCodeLabel.setBuddy(self.jobCodeComboBox)
-        self.rememberCheckBox = QCheckBox(_("&Remember this choice"))
+        self.rememberCheckBox = QCheckBox(_("&Remember this Job Code"))
         self.rememberCheckBox.setChecked(parent.prefs.remember_job_code)
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
         translateDialogBoxButtons(buttonBox)
