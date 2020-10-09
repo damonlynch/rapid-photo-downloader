@@ -784,6 +784,22 @@ class Preferences:
                 return True
         return False
 
+    def file_type_uses_job_code(self, file_type: FileType) -> bool:
+        """
+        Returns True if either the subfolder generation or file
+        renaming for the file type uses a Job Code.
+        """
+
+        if file_type == FileType.photo:
+            pref_lists = self.photo_rename, self.photo_subfolder
+        else:
+            pref_lists = self.video_rename, self.video_subfolder
+
+        for pref_list in pref_lists:
+            if self.pref_uses_job_code(pref_list):
+                return True
+        return False
+
     def most_recent_job_code(self, missing: Optional[str]=None) -> str:
         """
         Get the most recent Job Code used (which is assumed to be at the top).

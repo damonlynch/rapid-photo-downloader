@@ -37,7 +37,7 @@ from PyQt5.QtGui import (
 )
 
 
-from raphodo.constants import (JobCodeSort, ThumbnailBackgroundName, )
+from raphodo.constants import (JobCodeSort, ThumbnailBackgroundName)
 from raphodo.viewutils import (
     QFramedWidget, QNarrowListWidget, standardIconSize, translateDialogBoxButtons,
     standardMessageBox
@@ -51,16 +51,22 @@ from raphodo.chevroncombo import ChevronCombo
 class JobCodeDialog(QDialog):
     def __init__(self, parent, on_download: bool, job_codes: List[str]) -> None:
         """
+        Prompt user to enter a Job Code, either at the time a download starts,
+        or to zero or more selected files before the download begins.
 
         :param parent: rapidApp main window
         :param on_download: if True, dialog is being prompted for before a download starts.
         :param job_codes:
         """
+
         super().__init__(parent)
-        no_selection_made = None  # type: Optional[bool]
         self.rapidApp = parent  # type: 'RapidWindow'
-        self.prefs = self.rapidApp.prefs
+        self.prefs = self.rapidApp.prefs  # type: Preferences
         thumbnailModel = self.rapidApp.thumbnailModel
+
+        # Whether the user has opened this dialog before a download starts without having
+        # selected any files first
+        no_selection_made = None  # type: Optional[bool]
 
         if on_download:
             directive = _('Enter a new Job Code, or select a previous one')
@@ -79,8 +85,8 @@ class JobCodeDialog(QDialog):
                     'The Job Code will be applied to %s that do not yet have a Job Code.'
                 ) % details
 
-            hint = '<b>Hint:</b> To assign Job Codes before the download begins, select some ' \
-                   'files and apply a new or existing Job Code to them via the Job Code panel.'
+            hint = '<b>Hint:</b> To assign Job Codes before the download begins, select ' \
+                   'photos or videos and apply a new or existing Job Code to them via the Job Code panel.'
             file_details = '{}<br><br><i>{}</i>'.format(file_details, hint)
 
             title = _('Apply Job Code to Download')

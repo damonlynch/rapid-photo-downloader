@@ -30,6 +30,7 @@ import locale
 from typing import Optional, List, Tuple, Union, Any
 
 import gi
+
 gi.require_version('GLib', '2.0')
 from gi.repository import GLib
 
@@ -89,7 +90,6 @@ def get_rpdfile(name: str,
                 raw_exif_bytes: Optional[bytes],
                 exif_source: Optional[ExifSource],
                 problem: Optional[Problem]):
-
     if file_type == FileType.video:
         return Video(
             name=name,
@@ -144,27 +144,27 @@ def get_rpdfile(name: str,
 
 
 def file_types_by_number(no_photos: int, no_videos: int) -> str:
-        """
-        Generate a string show number of photos and videos
+    """
+    Generate a string show number of photos and videos
 
-        :param no_photos: number of photos
-        :param no_videos: number of videos
-        """
-        if (no_videos > 0) and (no_photos > 0):
-            v = _('photos and videos')
-        elif (no_videos == 0) and (no_photos == 0):
-            v = _('photos or videos')
-        elif no_videos > 0:
-            if no_videos > 1:
-                v = _('videos')
-            else:
-                v = _('video')
+    :param no_photos: number of photos
+    :param no_videos: number of videos
+    """
+    if (no_videos > 0) and (no_photos > 0):
+        v = _('photos and videos')
+    elif (no_videos == 0) and (no_photos == 0):
+        v = _('photos or videos')
+    elif no_videos > 0:
+        if no_videos > 1:
+            v = _('videos')
         else:
-            if no_photos > 1:
-                v = _('photos')
-            else:
-                v = _('photo')
-        return v
+            v = _('video')
+    else:
+        if no_photos > 1:
+            v = _('photos')
+        else:
+            v = _('photo')
+    return v
 
 
 def make_key(file_t: FileType, path: str) -> str:
@@ -173,11 +173,12 @@ def make_key(file_t: FileType, path: str) -> str:
 
 class FileSizeSum(UserDict):
     """ Sum size in bytes of photos and videos """
+
     def __missing__(self, key):
         self[key] = 0
         return self[key]
 
-    def sum(self, basedir: Optional[str]=None) -> int:
+    def sum(self, basedir: Optional[str] = None) -> int:
         if basedir is not None:
             return self[make_key(FileType.photo, basedir)] + self[make_key(FileType.video, basedir)]
         else:
@@ -259,8 +260,9 @@ class FileTypeCounter(Counter):
 
     def file_types_present_details(self, title_case=True, singular_natural=False) -> str:
         """
+        Displays details about how many files are selected or ready to be downloaded.
 
-        :param title_case:
+        :param title_case: whether the details should use title case or not.
         :param singular_natural: if True, instead of '1 photo', return 'A photo'. If True,
          title_case parameter is treated as always False.
         :return:
@@ -333,12 +335,12 @@ class RPDFile:
                  from_camera: bool,
                  never_read_mdatatime: bool,
                  device_display_name: str,
-                 device_uri:str,
-                 camera_details: Optional[CameraDetails]=None,
-                 camera_memory_card_identifiers: Optional[List[int]]=None,
-                 raw_exif_bytes: Optional[bytes]=None,
-                 exif_source: Optional[ExifSource]=None,
-                 problem: Optional[Problem]=None) -> None:
+                 device_uri: str,
+                 camera_details: Optional[CameraDetails] = None,
+                 camera_memory_card_identifiers: Optional[List[int]] = None,
+                 raw_exif_bytes: Optional[bytes] = None,
+                 exif_source: Optional[ExifSource] = None,
+                 problem: Optional[Problem] = None) -> None:
         """
 
         :param name: filename, including the extension, without its path
@@ -444,7 +446,7 @@ class RPDFile:
         self.device_timestamp_type = device_timestamp_type
 
         ###########
-        #self.ctime
+        # self.ctime
         ###########
         #
         # self.ctime is the photo or video's creation time. It's value depends
@@ -534,8 +536,8 @@ class RPDFile:
         self.download_subfolder = ''
         self.download_path = ''  # os.path.join(download_folder, download_subfolder)
         self.download_name = ''
-        self.download_full_file_name = '' # filename with path
-        self.download_full_base_name = '' # filename with path but no extension
+        self.download_full_file_name = ''  # filename with path
+        self.download_full_base_name = ''  # filename with path but no extension
         self.download_thm_full_name = ''  # name of THM (thumbnail) file with path
         self.download_xmp_full_name = ''  # name of XMP sidecar with path
         self.download_log_full_name = ''  # name of LOG associate file with path
@@ -546,8 +548,8 @@ class RPDFile:
         self.xmp_extension = ''
         self.log_extension = ''
 
-        self.metadata = None # type: Optional[Union[metadataphoto.MetaData, metadatavideo.MetaData, metadataexiftool.MetadataExiftool]]
-        self.metadata_failure = False # type: bool
+        self.metadata = None  # type: Optional[Union[metadataphoto.MetaData, metadatavideo.MetaData, metadataexiftool.MetadataExiftool]]
+        self.metadata_failure = False  # type: bool
 
         # User preference values used for name generation
         self.subfolder_pref_list = []  # type: List[str]
@@ -571,7 +573,7 @@ class RPDFile:
         return self._mtime
 
     @modification_time.setter
-    def modification_time(self, value: Union[float, int])  -> None:
+    def modification_time(self, value: Union[float, int]) -> None:
         """
         See notes on self.ctime above
         """
@@ -621,7 +623,7 @@ class RPDFile:
 
         return not datetime_roughly_equal(self._mdatatime, self._mtime)
 
-    def date_time(self, missing: Optional[Any]=None) -> datetime:
+    def date_time(self, missing: Optional[Any] = None) -> datetime:
         """
         Returns the date time as found in the file's metadata, and caches it
         for later use.
@@ -654,7 +656,7 @@ class RPDFile:
         self.mdatatime = self._datetime.timestamp()
         return self._datetime
 
-    def timestamp(self, missing: Optional[Any]=None) -> float:
+    def timestamp(self, missing: Optional[Any] = None) -> float:
         """
         Returns the time stamp as found in the file's metadata, and
         caches it for later use.
@@ -666,7 +668,6 @@ class RPDFile:
 
         :return: the metadata's date time value, else missing if not found or error
         """
-
 
         dt = self.date_time(missing=missing)
         if self._no_datetime_metadata:
@@ -753,7 +754,7 @@ class RPDFile:
         else:
             return self.name
 
-    def get_uri(self, desktop_environment: Optional[bool]=True) -> str:
+    def get_uri(self, desktop_environment: Optional[bool] = True) -> str:
         """
         Generate and return the URI for the file
 
@@ -770,7 +771,7 @@ class RPDFile:
             path = self.full_file_name
             camera_details = self.camera_details
         return get_uri(
-            full_file_name = path, camera_details=camera_details,
+            full_file_name=path, camera_details=camera_details,
             desktop_environment=desktop_environment
         )
 
@@ -814,17 +815,16 @@ class RPDFile:
 
 
 class Photo(RPDFile):
-
     title = _("photo")
     title_capitalized = _("Photo")
 
     def _assign_file_type(self):
         self.file_type = FileType.photo
 
-    def load_metadata(self, full_file_name: Optional[str]=None,
-                      raw_bytes: Optional[bytearray]=None,
-                      app1_segment: Optional[bytearray]=None,
-                      et_process: exiftool.ExifTool=None,
+    def load_metadata(self, full_file_name: Optional[str] = None,
+                      raw_bytes: Optional[bytearray] = None,
+                      app1_segment: Optional[bytearray] = None,
+                      et_process: exiftool.ExifTool = None,
                       force_exiftool: Optional[bool] = False) -> bool:
         """
         Use GExiv2 or ExifTool to read the photograph's metadata.
@@ -867,15 +867,14 @@ class Photo(RPDFile):
 
 
 class Video(RPDFile):
-
     title = _("video")
     title_capitalized = _("Video")
 
     def _assign_file_type(self):
         self.file_type = FileType.video
 
-    def load_metadata(self, full_file_name: Optional[str]=None,
-                 et_process: exiftool.ExifTool=None) -> bool:
+    def load_metadata(self, full_file_name: Optional[str] = None,
+                      et_process: exiftool.ExifTool = None) -> bool:
         """
         Use ExifTool to read the video's metadata
         :param full_file_name: full path of file from which file to read
