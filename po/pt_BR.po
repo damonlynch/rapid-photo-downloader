@@ -3,11 +3,12 @@
 # This file is distributed under the same license as the rapid package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
 #
+#: ../raphodo/jobcodepanel.py:104
 msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-10-08 15:51-0400\n"
+"POT-Creation-Date: 2020-10-09 18:10-0400\n"
 "PO-Revision-Date: 2020-04-28 05:43+0000\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -710,7 +711,7 @@ msgstr "áudio"
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
 #: ../raphodo/destinationdisplay.py:82 ../raphodo/devicedisplay.py:1128
-#: ../raphodo/rpdfile.py:288
+#: ../raphodo/rpdfile.py:290
 #, python-format
 msgid "%(no_photos)s Photos"
 msgstr "%(no_photos)s Fotos"
@@ -719,7 +720,7 @@ msgstr "%(no_photos)s Fotos"
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
 #: ../raphodo/destinationdisplay.py:89 ../raphodo/devicedisplay.py:1134
-#: ../raphodo/rpdfile.py:276
+#: ../raphodo/rpdfile.py:278
 #, python-format
 msgid "%(no_videos)s Videos"
 msgstr "%(no_videos)s Vídeos"
@@ -754,14 +755,14 @@ msgstr "%(size_free)s livre de %(size_total)s"
 
 #: ../raphodo/destinationdisplay.py:203 ../raphodo/devicedisplay.py:1032
 #: ../raphodo/rapid.py:2163 ../raphodo/rapid.py:2291 ../raphodo/rapid.py:6470
-#: ../raphodo/rpdfile.py:918
+#: ../raphodo/rpdfile.py:917
 msgid "Photos"
 msgstr "Fotos"
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:204 ../raphodo/devicedisplay.py:1033
 #: ../raphodo/rapid.py:2168 ../raphodo/rapid.py:2292 ../raphodo/rapid.py:6470
-#: ../raphodo/rpdfile.py:946 ../raphodo/storage.py:511
+#: ../raphodo/rpdfile.py:945 ../raphodo/storage.py:511
 msgid "Videos"
 msgstr "Vídeos"
 
@@ -1892,7 +1893,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ../raphodo/filebrowse.py:131 ../raphodo/thumbnaildisplay.py:1899
+#: ../raphodo/filebrowse.py:131 ../raphodo/thumbnaildisplay.py:1903
 msgid "Open in File Browser..."
 msgstr "Abrir no navegador de Arquivos..."
 
@@ -2387,7 +2388,7 @@ msgstr "Subpasta Data e Código de Trabalho"
 msgid "YYYYMM"
 msgstr "AAAAMM"
 
-#: ../raphodo/generatenameconfig.py:405 ../raphodo/jobcodepanel.py:210
+#: ../raphodo/generatenameconfig.py:405 ../raphodo/jobcodepanel.py:230
 #: ../raphodo/nameeditor.py:860 ../raphodo/rapid.py:1992
 #: ../raphodo/renamepanel.py:83 ../raphodo/renamepanel.py:246
 msgid "Job Code"
@@ -2449,65 +2450,62 @@ msgstr "Resolução"
 msgid "YYYYMMDD-HHMM-1-1920x1080"
 msgstr "AAAAMMDD-HHMM-1-1920x1080"
 
-#: ../raphodo/jobcodepanel.py:65
+#: ../raphodo/jobcodepanel.py:72
 msgid "Enter a new Job Code, or select a previous one"
 msgstr "Entre um novo Código de trabalho, ou selecione um anterior"
 
-#: ../raphodo/jobcodepanel.py:72
+#: ../raphodo/jobcodepanel.py:79
 #, python-format
 msgid "The Job Code will be applied to %s that does not yet have a Job Code."
 msgstr ""
 "O Código de Trabalho será aplicado para %s que ainda não tem um Código de "
 "Trabalho."
 
-#: ../raphodo/jobcodepanel.py:78
+#: ../raphodo/jobcodepanel.py:85
 #, python-format
 msgid "The Job Code will be applied to %s that do not yet have a Job Code."
 msgstr ""
 "O Código de Trabalho será aplicado a %s que não possuem ainda um Código de "
 "Trabalho."
 
-#: ../raphodo/jobcodepanel.py:81
+#: ../raphodo/jobcodepanel.py:92
 msgid "Apply Job Code to Download"
 msgstr "Aplicar Código de Trabalho para Download"
 
-#: ../raphodo/jobcodepanel.py:83
+#: ../raphodo/jobcodepanel.py:94
 msgid "Enter a new Job Code"
 msgstr "Entre um novo Código de Trabalho"
 
-#: ../raphodo/jobcodepanel.py:90
-msgid "The new Job Code will not be applied to any photos or videos."
+#: ../raphodo/jobcodepanel.py:100
+#, fuzzy
+msgid ""
+"<b>Hint:</b> Select photos or videos before entering a new Job Code to have "
+"the Job Code applied to them."
 msgstr ""
-"O novo Código de Trabalho não será aplicado para nenhuma foto ou vídeo."
+"Selecionar fotos e vídeos para poder aplicar neles um novo Código de "
+"Trabalho ou existente."
 
 #. Translators: the value substituted will be something like '100 photos and 5
 #. videos'.
-#: ../raphodo/jobcodepanel.py:96
-#, python-format
-msgid "The new Job Code will <b>not</b> be applied to %s."
-msgstr "O novo Código de Trabalho <b>não</b> será aplicado as %s."
-
-#. Translators: the value substituted will be something like '100 photos and 5
-#. videos'.
-#: ../raphodo/jobcodepanel.py:101
+#: ../raphodo/jobcodepanel.py:109
 #, python-format
 msgid "The new Job Code will be applied to %s."
 msgstr "O novo Código de Trabalho será aplicado as %s."
 
-#: ../raphodo/jobcodepanel.py:103
+#: ../raphodo/jobcodepanel.py:112
 msgid "New Job Code"
 msgstr "Novo Código de Trabalho"
 
-#: ../raphodo/jobcodepanel.py:139
+#: ../raphodo/jobcodepanel.py:148
 msgid "&Job Code:"
 msgstr "&Codigo Trabalho:"
 
-#: ../raphodo/jobcodepanel.py:141
+#: ../raphodo/jobcodepanel.py:152
 #, fuzzy
 msgid "&Remember this Job Code"
 msgstr "&Lembrar esta escolha"
 
-#: ../raphodo/jobcodepanel.py:191
+#: ../raphodo/jobcodepanel.py:211
 msgid ""
 "Select photos and videos to be able to apply a new or existing Job Code to "
 "them."
@@ -2515,12 +2513,12 @@ msgstr ""
 "Selecionar fotos e vídeos para poder aplicar neles um novo Código de "
 "Trabalho ou existente."
 
-#: ../raphodo/jobcodepanel.py:192
+#: ../raphodo/jobcodepanel.py:212
 msgid "The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 "O Código de Trabalho será aplicado a todas as fotos e/ou vídeos selecionadas."
 
-#: ../raphodo/jobcodepanel.py:194
+#: ../raphodo/jobcodepanel.py:214
 msgid ""
 "Click the Apply button to apply the current Job Code to all selected photos "
 "and/or videos. You can also simply double click the Job Code."
@@ -2529,7 +2527,7 @@ msgstr ""
 "as fotos e/ou vídeos. Você também pode simplesmente dar duplo clique no "
 "Código de Trabalho."
 
-#: ../raphodo/jobcodepanel.py:198
+#: ../raphodo/jobcodepanel.py:218
 msgid ""
 "Removing a Job Code removes it only from the list of saved Job Codes, not "
 "from any photos or videos that it may have been applied to."
@@ -2538,7 +2536,7 @@ msgstr ""
 "Trabalhos salvos, não de nenhuma foto ou vídeo em que ele pode ter sido "
 "aplicado."
 
-#: ../raphodo/jobcodepanel.py:202
+#: ../raphodo/jobcodepanel.py:222
 msgid ""
 "If you want to use Job Codes, configure file renaming or destination "
 "subfolder names to use them."
@@ -2546,56 +2544,56 @@ msgstr ""
 "Se você quer usar Códigos de Trabalho, configure também Renomear arquivos ou "
 "Destino para usá-los em conjunto."
 
-#: ../raphodo/jobcodepanel.py:209
+#: ../raphodo/jobcodepanel.py:229
 msgid "Last Used"
 msgstr "Último uso"
 
-#: ../raphodo/jobcodepanel.py:214
+#: ../raphodo/jobcodepanel.py:234
 msgid "Job Code Sort:"
 msgstr "Ordenar Código de Trabalho:"
 
-#: ../raphodo/jobcodepanel.py:217 ../raphodo/rapid.py:2273
+#: ../raphodo/jobcodepanel.py:237 ../raphodo/rapid.py:2273
 msgid "Ascending"
 msgstr "Ascendente"
 
-#: ../raphodo/jobcodepanel.py:218 ../raphodo/rapid.py:2274
+#: ../raphodo/jobcodepanel.py:238 ../raphodo/rapid.py:2274
 msgid "Descending"
 msgstr "Descendente"
 
-#: ../raphodo/jobcodepanel.py:228
+#: ../raphodo/jobcodepanel.py:248
 msgid "&New..."
 msgstr "&Novo..."
 
-#: ../raphodo/jobcodepanel.py:232
+#: ../raphodo/jobcodepanel.py:252
 msgid "&Apply"
 msgstr "&Aplicar"
 
-#: ../raphodo/jobcodepanel.py:236
+#: ../raphodo/jobcodepanel.py:256
 msgid "&Remove"
 msgstr "&Remover"
 
-#: ../raphodo/jobcodepanel.py:240 ../raphodo/preferencedialog.py:207
+#: ../raphodo/jobcodepanel.py:260 ../raphodo/preferencedialog.py:207
 #: ../raphodo/preferencedialog.py:236 ../raphodo/preferencedialog.py:567
 msgid "Remove All"
 msgstr "Remover Todos"
 
-#: ../raphodo/jobcodepanel.py:439
+#: ../raphodo/jobcodepanel.py:459
 msgid "Do you really want to remove all the Job Codes?"
 msgstr "Você realmente quer remover todos os Códigos de Trabalho?"
 
-#: ../raphodo/jobcodepanel.py:441
+#: ../raphodo/jobcodepanel.py:461
 msgid "Remove all Job Codes"
 msgstr "Remover todos os Códigos de Trabalho"
 
-#: ../raphodo/jobcodepanel.py:506
+#: ../raphodo/jobcodepanel.py:526
 msgid "Job Codes"
 msgstr "Códigos de Trabalho"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and
 #. <b>. These are used to format the text the users sees
 #: ../raphodo/messagewidget.py:65
-#, python-format
-msgid "<i><b>Hint:</b> %(message)s"
+#, fuzzy, python-format
+msgid "<i><b>Hint:</b> %(message)s</i>"
 msgstr "<i><b>Dica:</b> %(message)s"
 
 #. Translators: this text appears in menus and combo boxes. It displays the
@@ -4496,7 +4494,7 @@ msgstr ""
 msgid "photo"
 msgstr "foto"
 
-#: ../raphodo/rapid.py:3180 ../raphodo/rpdfile.py:161 ../raphodo/rpdfile.py:871
+#: ../raphodo/rapid.py:3180 ../raphodo/rpdfile.py:161 ../raphodo/rpdfile.py:870
 msgid "video"
 msgstr "vídeo"
 
@@ -5122,32 +5120,32 @@ msgstr "fotos ou vídeos"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/rpdfile.py:254
+#: ../raphodo/rpdfile.py:255
 #, python-format
 msgid "%(number)s %(filetypes)s"
 msgstr "%(number)s %(filetypes)s"
 
 #. translators: natural language expression signifying a single video
-#: ../raphodo/rpdfile.py:280
+#: ../raphodo/rpdfile.py:282
 msgid "a video"
 msgstr "um vídeo"
 
-#: ../raphodo/rpdfile.py:282
+#: ../raphodo/rpdfile.py:284
 msgid "1 Video"
 msgstr "1 vídeo"
 
 #. translators: natural language expression signifying a single photo
-#: ../raphodo/rpdfile.py:292
+#: ../raphodo/rpdfile.py:294
 msgid "a photo"
 msgstr "uma foto"
 
-#: ../raphodo/rpdfile.py:294
+#: ../raphodo/rpdfile.py:296
 msgid "1 Photo"
 msgstr "1 foto"
 
 #. Translators: %(variable)s represents Python code, not a plural of the term variable.
 #. You must keep the %(variable)s untranslated, or the program will crash.
-#: ../raphodo/rpdfile.py:800
+#: ../raphodo/rpdfile.py:801
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr "%(path)s na %(camera)s"
@@ -5156,7 +5154,7 @@ msgstr "%(path)s na %(camera)s"
 msgid "Photo"
 msgstr "Foto"
 
-#: ../raphodo/rpdfile.py:872
+#: ../raphodo/rpdfile.py:871
 msgid "Video"
 msgstr "Vídeo"
 
@@ -5169,12 +5167,12 @@ msgstr "Raiz do sistema de arquivos"
 msgid "Pictures"
 msgstr "Imagens"
 
-#: ../raphodo/thumbnaildisplay.py:474
+#: ../raphodo/thumbnaildisplay.py:475
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
 msgstr "Tirada em %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:484
+#: ../raphodo/thumbnaildisplay.py:485
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Modificada em %(date_time)s (%(human_readable)s)"
@@ -5182,49 +5180,49 @@ msgstr "Modificada em %(date_time)s (%(human_readable)s)"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/thumbnaildisplay.py:495 ../raphodo/thumbnaildisplay.py:545
+#: ../raphodo/thumbnaildisplay.py:496 ../raphodo/thumbnaildisplay.py:546
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:512
+#: ../raphodo/thumbnaildisplay.py:513
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Cartões de memória: %s"
 
-#: ../raphodo/thumbnaildisplay.py:516
+#: ../raphodo/thumbnaildisplay.py:517
 #, python-format
 msgid "Memory card: %s"
 msgstr "Cartão de memória: %s"
 
-#: ../raphodo/thumbnaildisplay.py:521
+#: ../raphodo/thumbnaildisplay.py:522
 msgid "Downloaded as:"
 msgstr "Baixado como:"
 
-#: ../raphodo/thumbnaildisplay.py:559
+#: ../raphodo/thumbnaildisplay.py:560
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Download anterior:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:568
+#: ../raphodo/thumbnaildisplay.py:569
 #, python-format
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
 msgstr ""
 "<br><br><i>Configurado manualmente como baixado anteriormente em %(date)s</i>"
 
-#: ../raphodo/thumbnaildisplay.py:1901
+#: ../raphodo/thumbnaildisplay.py:1905
 msgid "Copy Path"
 msgstr "Copiar caminho"
 
 #. Translators: 'File' here applies to a single file. The command allows users to instruct
 #. Rapid Photo Downloader that photos and videos have been previously downloaded by
 #. another application.
-#: ../raphodo/thumbnaildisplay.py:1906
+#: ../raphodo/thumbnaildisplay.py:1910
 msgid "Mark File as Downloaded"
 msgstr "Marcar arquivo como baixado"
 
 #. Translators: 'Files' here applies to two or more files
-#: ../raphodo/thumbnaildisplay.py:1909
+#: ../raphodo/thumbnaildisplay.py:1913
 msgid "Mark Files as Downloaded"
 msgstr "Marcar arquivos como baixados"
 
@@ -5451,6 +5449,13 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
+
+#~ msgid "The new Job Code will not be applied to any photos or videos."
+#~ msgstr ""
+#~ "O novo Código de Trabalho não será aplicado para nenhuma foto ou vídeo."
+
+#~ msgid "The new Job Code will <b>not</b> be applied to %s."
+#~ msgstr "O novo Código de Trabalho <b>não</b> será aplicado as %s."
 
 #~ msgid "Berlin"
 #~ msgstr "Berlim"

@@ -4,11 +4,12 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
 # csola48 <csola48@gmail.com>, 2017, 2019.
 # 
+#: ../raphodo/jobcodepanel.py:104
 msgid ""
 msgstr ""
 "Project-Id-Version: Rapid Photo Downloader 0.9.2\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-10-08 15:51-0400\n"
+"POT-Creation-Date: 2020-10-09 18:10-0400\n"
 "PO-Revision-Date: 2020-04-28 09:55+0200\n"
 "Last-Translator: csola48 <csola48@gmail.com>\n"
 "Language-Team: magyar\n"
@@ -738,7 +739,7 @@ msgstr "hang"
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
 #: ../raphodo/destinationdisplay.py:82 ../raphodo/devicedisplay.py:1128
-#: ../raphodo/rpdfile.py:288
+#: ../raphodo/rpdfile.py:290
 #, python-format
 msgid "%(no_photos)s Photos"
 msgstr "%(no_photos)s fényképek"
@@ -747,7 +748,7 @@ msgstr "%(no_photos)s fényképek"
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
 #: ../raphodo/destinationdisplay.py:89 ../raphodo/devicedisplay.py:1134
-#: ../raphodo/rpdfile.py:276
+#: ../raphodo/rpdfile.py:278
 #, python-format
 msgid "%(no_videos)s Videos"
 msgstr "%(no_videos)s videók"
@@ -782,14 +783,14 @@ msgstr "Szabad %(size_free)s  a(z)  %(size_total)s -ból"
 
 #: ../raphodo/destinationdisplay.py:203 ../raphodo/devicedisplay.py:1032
 #: ../raphodo/rapid.py:2163 ../raphodo/rapid.py:2291 ../raphodo/rapid.py:6470
-#: ../raphodo/rpdfile.py:918
+#: ../raphodo/rpdfile.py:917
 msgid "Photos"
 msgstr "Fényképek"
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:204 ../raphodo/devicedisplay.py:1033
 #: ../raphodo/rapid.py:2168 ../raphodo/rapid.py:2292 ../raphodo/rapid.py:6470
-#: ../raphodo/rpdfile.py:946 ../raphodo/storage.py:511
+#: ../raphodo/rpdfile.py:945 ../raphodo/storage.py:511
 msgid "Videos"
 msgstr "Videók"
 
@@ -1921,7 +1922,7 @@ msgstr ""
 "Csatolja a naplófájlt a hibajelentéshez, amelyet a következő helyen talál: "
 "{log_path}\n"
 
-#: ../raphodo/filebrowse.py:131 ../raphodo/thumbnaildisplay.py:1899
+#: ../raphodo/filebrowse.py:131 ../raphodo/thumbnaildisplay.py:1903
 msgid "Open in File Browser..."
 msgstr "Nyissa meg a fájlböngészőben ..."
 
@@ -2416,7 +2417,7 @@ msgstr "Dátum és munka-kód aldosszié"
 msgid "YYYYMM"
 msgstr "ÉÉÉÉHH"
 
-#: ../raphodo/generatenameconfig.py:405 ../raphodo/jobcodepanel.py:210
+#: ../raphodo/generatenameconfig.py:405 ../raphodo/jobcodepanel.py:230
 #: ../raphodo/nameeditor.py:860 ../raphodo/rapid.py:1992
 #: ../raphodo/renamepanel.py:83 ../raphodo/renamepanel.py:246
 msgid "Job Code"
@@ -2478,64 +2479,62 @@ msgstr "Felbontás"
 msgid "YYYYMMDD-HHMM-1-1920x1080"
 msgstr "ÉÉÉÉHHNN-ÓÓPP-1-1920x1080"
 
-#: ../raphodo/jobcodepanel.py:65
+#: ../raphodo/jobcodepanel.py:72
 msgid "Enter a new Job Code, or select a previous one"
 msgstr "Adjon meg új munka-kódot, vagy válasszon egyet a korábbiakból"
 
-#: ../raphodo/jobcodepanel.py:72
+#: ../raphodo/jobcodepanel.py:79
 #, python-format
 msgid "The Job Code will be applied to %s that does not yet have a Job Code."
 msgstr ""
 "A munka-kódot a(z) %s rendszerre alkalmazza, amely még nem rendelkezik munka-"
 "kóddal."
 
-#: ../raphodo/jobcodepanel.py:78
+#: ../raphodo/jobcodepanel.py:85
 #, python-format
 msgid "The Job Code will be applied to %s that do not yet have a Job Code."
 msgstr ""
 "A munka-kódot a(z) %s rendszerre alkalmazza, amely még nem rendelkezik munka-"
 "kóddal."
 
-#: ../raphodo/jobcodepanel.py:81
+#: ../raphodo/jobcodepanel.py:92
 msgid "Apply Job Code to Download"
 msgstr "Munka-kód alkalmazása a letöltéshez"
 
-#: ../raphodo/jobcodepanel.py:83
+#: ../raphodo/jobcodepanel.py:94
 msgid "Enter a new Job Code"
 msgstr "Adjon meg új munka-kódot"
 
-#: ../raphodo/jobcodepanel.py:90
-msgid "The new Job Code will not be applied to any photos or videos."
-msgstr "Az új munka-kód nem alkalmazható semmilyen fényképen vagy videón."
+#: ../raphodo/jobcodepanel.py:100
+#, fuzzy
+msgid ""
+"<b>Hint:</b> Select photos or videos before entering a new Job Code to have "
+"the Job Code applied to them."
+msgstr ""
+"Jelöljön ki fényképeket és videókat, hogy új vagy meglévő munka-kódot adjon "
+"hozzájuk."
 
 #. Translators: the value substituted will be something like '100 photos and 5
 #. videos'.
-#: ../raphodo/jobcodepanel.py:96
-#, python-format
-msgid "The new Job Code will <b>not</b> be applied to %s."
-msgstr "Az új munka-kódot <b> nem </b> kell alkalmazni a %s -ra."
-
-#. Translators: the value substituted will be something like '100 photos and 5
-#. videos'.
-#: ../raphodo/jobcodepanel.py:101
+#: ../raphodo/jobcodepanel.py:109
 #, python-format
 msgid "The new Job Code will be applied to %s."
 msgstr "Az új munkakódot a(z) %s fájlra kell alkalmazni."
 
-#: ../raphodo/jobcodepanel.py:103
+#: ../raphodo/jobcodepanel.py:112
 msgid "New Job Code"
 msgstr "Új munka-kód"
 
-#: ../raphodo/jobcodepanel.py:139
+#: ../raphodo/jobcodepanel.py:148
 msgid "&Job Code:"
 msgstr "&Munka-kód:"
 
-#: ../raphodo/jobcodepanel.py:141
+#: ../raphodo/jobcodepanel.py:152
 #, fuzzy
 msgid "&Remember this Job Code"
 msgstr "&Emlékezzen erre a választásra"
 
-#: ../raphodo/jobcodepanel.py:191
+#: ../raphodo/jobcodepanel.py:211
 msgid ""
 "Select photos and videos to be able to apply a new or existing Job Code to "
 "them."
@@ -2543,12 +2542,12 @@ msgstr ""
 "Jelöljön ki fényképeket és videókat, hogy új vagy meglévő munka-kódot adjon "
 "hozzájuk."
 
-#: ../raphodo/jobcodepanel.py:192
+#: ../raphodo/jobcodepanel.py:212
 msgid "The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 "Az új munka-kódot minden kiválasztott fényképre és/vagy videóra alkalmazzák."
 
-#: ../raphodo/jobcodepanel.py:194
+#: ../raphodo/jobcodepanel.py:214
 msgid ""
 "Click the Apply button to apply the current Job Code to all selected photos "
 "and/or videos. You can also simply double click the Job Code."
@@ -2557,7 +2556,7 @@ msgstr ""
 "kiválasztott fényképre és/vagy videóra alkalmazza. Egyszerűen duplán "
 "kattinthat a munka-kódra is."
 
-#: ../raphodo/jobcodepanel.py:198
+#: ../raphodo/jobcodepanel.py:218
 msgid ""
 "Removing a Job Code removes it only from the list of saved Job Codes, not "
 "from any photos or videos that it may have been applied to."
@@ -2565,7 +2564,7 @@ msgstr ""
 "A munka-kód eltávolítása csak az elmentett munkakódok listájából távolítja "
 "el azt és nem olyan fényképekből vagy videókból, amelyekre alkalmazva van."
 
-#: ../raphodo/jobcodepanel.py:202
+#: ../raphodo/jobcodepanel.py:222
 msgid ""
 "If you want to use Job Codes, configure file renaming or destination "
 "subfolder names to use them."
@@ -2573,56 +2572,56 @@ msgstr ""
 "Ha munka-kódokat kíván alkalmazni, konfigurálja a fájl átnevezését vagy a "
 "cél alkönyvtár nevét."
 
-#: ../raphodo/jobcodepanel.py:209
+#: ../raphodo/jobcodepanel.py:229
 msgid "Last Used"
 msgstr "Utoljára használt"
 
-#: ../raphodo/jobcodepanel.py:214
+#: ../raphodo/jobcodepanel.py:234
 msgid "Job Code Sort:"
 msgstr "Munka-kód rendezés:"
 
-#: ../raphodo/jobcodepanel.py:217 ../raphodo/rapid.py:2273
+#: ../raphodo/jobcodepanel.py:237 ../raphodo/rapid.py:2273
 msgid "Ascending"
 msgstr "Növekvő"
 
-#: ../raphodo/jobcodepanel.py:218 ../raphodo/rapid.py:2274
+#: ../raphodo/jobcodepanel.py:238 ../raphodo/rapid.py:2274
 msgid "Descending"
 msgstr "Csökkenő"
 
-#: ../raphodo/jobcodepanel.py:228
+#: ../raphodo/jobcodepanel.py:248
 msgid "&New..."
 msgstr "&Új..."
 
-#: ../raphodo/jobcodepanel.py:232
+#: ../raphodo/jobcodepanel.py:252
 msgid "&Apply"
 msgstr "&Alkalmaz"
 
-#: ../raphodo/jobcodepanel.py:236
+#: ../raphodo/jobcodepanel.py:256
 msgid "&Remove"
 msgstr "&Eltávolít"
 
-#: ../raphodo/jobcodepanel.py:240 ../raphodo/preferencedialog.py:207
+#: ../raphodo/jobcodepanel.py:260 ../raphodo/preferencedialog.py:207
 #: ../raphodo/preferencedialog.py:236 ../raphodo/preferencedialog.py:567
 msgid "Remove All"
 msgstr "Mindent eltávolít"
 
-#: ../raphodo/jobcodepanel.py:439
+#: ../raphodo/jobcodepanel.py:459
 msgid "Do you really want to remove all the Job Codes?"
 msgstr "Összes munka-kód eltávolítása?"
 
-#: ../raphodo/jobcodepanel.py:441
+#: ../raphodo/jobcodepanel.py:461
 msgid "Remove all Job Codes"
 msgstr "Összes munka-kód eltávolítása"
 
-#: ../raphodo/jobcodepanel.py:506
+#: ../raphodo/jobcodepanel.py:526
 msgid "Job Codes"
 msgstr "Munka-kód"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and
 #. <b>. These are used to format the text the users sees
 #: ../raphodo/messagewidget.py:65
-#, python-format
-msgid "<i><b>Hint:</b> %(message)s"
+#, fuzzy, python-format
+msgid "<i><b>Hint:</b> %(message)s</i>"
 msgstr "<i><b> Tipp: </b> %(message)s"
 
 #. Translators: this text appears in menus and combo boxes. It displays the
@@ -4547,7 +4546,7 @@ msgstr ""
 msgid "photo"
 msgstr "fénykép"
 
-#: ../raphodo/rapid.py:3180 ../raphodo/rpdfile.py:161 ../raphodo/rpdfile.py:871
+#: ../raphodo/rapid.py:3180 ../raphodo/rpdfile.py:161 ../raphodo/rpdfile.py:870
 msgid "video"
 msgstr "videó"
 
@@ -5195,32 +5194,32 @@ msgstr "fényképek vagy videók"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/rpdfile.py:254
+#: ../raphodo/rpdfile.py:255
 #, python-format
 msgid "%(number)s %(filetypes)s"
 msgstr "%(number)s %(filetypes)s"
 
 #. translators: natural language expression signifying a single video
-#: ../raphodo/rpdfile.py:280
+#: ../raphodo/rpdfile.py:282
 msgid "a video"
 msgstr "egy videó"
 
-#: ../raphodo/rpdfile.py:282
+#: ../raphodo/rpdfile.py:284
 msgid "1 Video"
 msgstr "1 videó"
 
 #. translators: natural language expression signifying a single photo
-#: ../raphodo/rpdfile.py:292
+#: ../raphodo/rpdfile.py:294
 msgid "a photo"
 msgstr "egy fénykép"
 
-#: ../raphodo/rpdfile.py:294
+#: ../raphodo/rpdfile.py:296
 msgid "1 Photo"
 msgstr "1 fénykép"
 
 #. Translators: %(variable)s represents Python code, not a plural of the term variable.
 #. You must keep the %(variable)s untranslated, or the program will crash.
-#: ../raphodo/rpdfile.py:800
+#: ../raphodo/rpdfile.py:801
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr "%(path)s %(camera)s"
@@ -5229,7 +5228,7 @@ msgstr "%(path)s %(camera)s"
 msgid "Photo"
 msgstr "Fénykép"
 
-#: ../raphodo/rpdfile.py:872
+#: ../raphodo/rpdfile.py:871
 msgid "Video"
 msgstr "Videó"
 
@@ -5242,12 +5241,12 @@ msgstr "A fájlrendszer gyökere"
 msgid "Pictures"
 msgstr "Képek"
 
-#: ../raphodo/thumbnaildisplay.py:474
+#: ../raphodo/thumbnaildisplay.py:475
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
 msgstr "Felvett %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:484
+#: ../raphodo/thumbnaildisplay.py:485
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Módosítás dátuma: %(date_time)s (%(human_readable)s)"
@@ -5255,48 +5254,48 @@ msgstr "Módosítás dátuma: %(date_time)s (%(human_readable)s)"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/thumbnaildisplay.py:495 ../raphodo/thumbnaildisplay.py:545
+#: ../raphodo/thumbnaildisplay.py:496 ../raphodo/thumbnaildisplay.py:546
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:512
+#: ../raphodo/thumbnaildisplay.py:513
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Memóriakártyák: %s"
 
-#: ../raphodo/thumbnaildisplay.py:516
+#: ../raphodo/thumbnaildisplay.py:517
 #, python-format
 msgid "Memory card: %s"
 msgstr "Memóriakártya: %s"
 
-#: ../raphodo/thumbnaildisplay.py:521
+#: ../raphodo/thumbnaildisplay.py:522
 msgid "Downloaded as:"
 msgstr "Letöltve, mint:"
 
-#: ../raphodo/thumbnaildisplay.py:559
+#: ../raphodo/thumbnaildisplay.py:560
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br> Előző letöltés: <br> %(filename)s <br> %(path)s %(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:568
+#: ../raphodo/thumbnaildisplay.py:569
 #, python-format
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
 msgstr "<br> <br> <i> Manuálisan beállítva a korábban letöltött %(date)s </i>"
 
-#: ../raphodo/thumbnaildisplay.py:1901
+#: ../raphodo/thumbnaildisplay.py:1905
 msgid "Copy Path"
 msgstr "Másolás elérési út"
 
 #. Translators: 'File' here applies to a single file. The command allows users to instruct
 #. Rapid Photo Downloader that photos and videos have been previously downloaded by
 #. another application.
-#: ../raphodo/thumbnaildisplay.py:1906
+#: ../raphodo/thumbnaildisplay.py:1910
 msgid "Mark File as Downloaded"
 msgstr "A fájl megjelölése letöltésre"
 
 #. Translators: 'Files' here applies to two or more files
-#: ../raphodo/thumbnaildisplay.py:1909
+#: ../raphodo/thumbnaildisplay.py:1913
 msgid "Mark Files as Downloaded"
 msgstr "A fájlok megjelölése letöltésre"
 
@@ -5522,6 +5521,12 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Fotók és videók letöltése a Rapid Photo Downloader alkalmazással"
+
+#~ msgid "The new Job Code will not be applied to any photos or videos."
+#~ msgstr "Az új munka-kód nem alkalmazható semmilyen fényképen vagy videón."
+
+#~ msgid "The new Job Code will <b>not</b> be applied to %s."
+#~ msgstr "Az új munka-kódot <b> nem </b> kell alkalmazni a %s -ra."
 
 #~ msgid "Select a folder to download photos to"
 #~ msgstr "Válasszon egy letöltési könyvtárat"

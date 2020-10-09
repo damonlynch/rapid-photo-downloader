@@ -2,11 +2,12 @@
 # Copyright © 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the rapid package.
 # Мирослав Николић <miroslavnikolic@rocketmail.com>, 2012—2020.
+#: ../raphodo/jobcodepanel.py:104
 msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-10-08 15:51-0400\n"
+"POT-Creation-Date: 2020-10-09 18:10-0400\n"
 "PO-Revision-Date: 2020-04-28 05:42+0000\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
@@ -722,7 +723,7 @@ msgstr "звук"
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
 #: ../raphodo/destinationdisplay.py:82 ../raphodo/devicedisplay.py:1128
-#: ../raphodo/rpdfile.py:288
+#: ../raphodo/rpdfile.py:290
 #, python-format
 msgid "%(no_photos)s Photos"
 msgstr "%(no_photos)s фотографије"
@@ -731,7 +732,7 @@ msgstr "%(no_photos)s фотографије"
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
 #: ../raphodo/destinationdisplay.py:89 ../raphodo/devicedisplay.py:1134
-#: ../raphodo/rpdfile.py:276
+#: ../raphodo/rpdfile.py:278
 #, python-format
 msgid "%(no_videos)s Videos"
 msgstr "%(no_videos)s снимка"
@@ -766,14 +767,14 @@ msgstr "%(size_free)s је слободно од %(size_total)s"
 
 #: ../raphodo/destinationdisplay.py:203 ../raphodo/devicedisplay.py:1032
 #: ../raphodo/rapid.py:2163 ../raphodo/rapid.py:2291 ../raphodo/rapid.py:6470
-#: ../raphodo/rpdfile.py:918
+#: ../raphodo/rpdfile.py:917
 msgid "Photos"
 msgstr "Фотографије"
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:204 ../raphodo/devicedisplay.py:1033
 #: ../raphodo/rapid.py:2168 ../raphodo/rapid.py:2292 ../raphodo/rapid.py:6470
-#: ../raphodo/rpdfile.py:946 ../raphodo/storage.py:511
+#: ../raphodo/rpdfile.py:945 ../raphodo/storage.py:511
 msgid "Videos"
 msgstr "Снимци"
 
@@ -1893,7 +1894,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ../raphodo/filebrowse.py:131 ../raphodo/thumbnaildisplay.py:1899
+#: ../raphodo/filebrowse.py:131 ../raphodo/thumbnaildisplay.py:1903
 msgid "Open in File Browser..."
 msgstr "Отвори у прегледачу датотека..."
 
@@ -2388,7 +2389,7 @@ msgstr "Подфасцикла датума и шифре посла"
 msgid "YYYYMM"
 msgstr "ММ.ГГГГ."
 
-#: ../raphodo/generatenameconfig.py:405 ../raphodo/jobcodepanel.py:210
+#: ../raphodo/generatenameconfig.py:405 ../raphodo/jobcodepanel.py:230
 #: ../raphodo/nameeditor.py:860 ../raphodo/rapid.py:1992
 #: ../raphodo/renamepanel.py:83 ../raphodo/renamepanel.py:246
 msgid "Job Code"
@@ -2450,61 +2451,58 @@ msgstr "Резолуција"
 msgid "YYYYMMDD-HHMM-1-1920x1080"
 msgstr "ДД.ММ.ГГГГ.—ЧЧ:ММ-1-1920x1080"
 
-#: ../raphodo/jobcodepanel.py:65
+#: ../raphodo/jobcodepanel.py:72
 msgid "Enter a new Job Code, or select a previous one"
 msgstr "Упишите нову шифру посла, или изаберите неку претходну"
 
-#: ../raphodo/jobcodepanel.py:72
+#: ../raphodo/jobcodepanel.py:79
 #, python-format
 msgid "The Job Code will be applied to %s that does not yet have a Job Code."
 msgstr "Шифра посла биће примењена на „%s“ које још нема шифру посла."
 
-#: ../raphodo/jobcodepanel.py:78
+#: ../raphodo/jobcodepanel.py:85
 #, python-format
 msgid "The Job Code will be applied to %s that do not yet have a Job Code."
 msgstr "Шифра посла биће примењена на „%s“ које још нема шифру посла."
 
-#: ../raphodo/jobcodepanel.py:81
+#: ../raphodo/jobcodepanel.py:92
 msgid "Apply Job Code to Download"
 msgstr "Примени шифру посла на преузимање"
 
-#: ../raphodo/jobcodepanel.py:83
+#: ../raphodo/jobcodepanel.py:94
 msgid "Enter a new Job Code"
 msgstr "Упишите нову шифру посла"
 
-#: ../raphodo/jobcodepanel.py:90
-msgid "The new Job Code will not be applied to any photos or videos."
+#: ../raphodo/jobcodepanel.py:100
+#, fuzzy
+msgid ""
+"<b>Hint:</b> Select photos or videos before entering a new Job Code to have "
+"the Job Code applied to them."
 msgstr ""
-"Нова шифра посла неће бити примењена ни на једну фотографију или снимак."
+"Изаберите фотографије и снимке да бисте били у могућности да примените нову "
+"или постојећу шифру посла на њих."
 
 #. Translators: the value substituted will be something like '100 photos and 5
 #. videos'.
-#: ../raphodo/jobcodepanel.py:96
-#, python-format
-msgid "The new Job Code will <b>not</b> be applied to %s."
-msgstr "Нова шифра посла <b>неће</b> бити примењена на „%s“."
-
-#. Translators: the value substituted will be something like '100 photos and 5
-#. videos'.
-#: ../raphodo/jobcodepanel.py:101
+#: ../raphodo/jobcodepanel.py:109
 #, python-format
 msgid "The new Job Code will be applied to %s."
 msgstr "Нова шифра посла биће примењена на „%s“."
 
-#: ../raphodo/jobcodepanel.py:103
+#: ../raphodo/jobcodepanel.py:112
 msgid "New Job Code"
 msgstr "Нова шифра посла"
 
-#: ../raphodo/jobcodepanel.py:139
+#: ../raphodo/jobcodepanel.py:148
 msgid "&Job Code:"
 msgstr "&Шифра посла:"
 
-#: ../raphodo/jobcodepanel.py:141
+#: ../raphodo/jobcodepanel.py:152
 #, fuzzy
 msgid "&Remember this Job Code"
 msgstr "&Запамти овај избор"
 
-#: ../raphodo/jobcodepanel.py:191
+#: ../raphodo/jobcodepanel.py:211
 msgid ""
 "Select photos and videos to be able to apply a new or existing Job Code to "
 "them."
@@ -2512,12 +2510,12 @@ msgstr ""
 "Изаберите фотографије и снимке да бисте били у могућности да примените нову "
 "или постојећу шифру посла на њих."
 
-#: ../raphodo/jobcodepanel.py:192
+#: ../raphodo/jobcodepanel.py:212
 msgid "The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 "Нова шифра посла биће примењена на све изабране фотографије и/или снимке."
 
-#: ../raphodo/jobcodepanel.py:194
+#: ../raphodo/jobcodepanel.py:214
 msgid ""
 "Click the Apply button to apply the current Job Code to all selected photos "
 "and/or videos. You can also simply double click the Job Code."
@@ -2526,7 +2524,7 @@ msgstr ""
 "фотографије и/или снимке. Такође можете једноставно два пута да кликнете на "
 "шифру посла."
 
-#: ../raphodo/jobcodepanel.py:198
+#: ../raphodo/jobcodepanel.py:218
 msgid ""
 "Removing a Job Code removes it only from the list of saved Job Codes, not "
 "from any photos or videos that it may have been applied to."
@@ -2534,7 +2532,7 @@ msgstr ""
 "Уклањање шифре посла је уклања само са списка сачуваних шифри послова, а не "
 "са неких фотографија или снимака на којима је можда била примењена."
 
-#: ../raphodo/jobcodepanel.py:202
+#: ../raphodo/jobcodepanel.py:222
 msgid ""
 "If you want to use Job Codes, configure file renaming or destination "
 "subfolder names to use them."
@@ -2542,56 +2540,56 @@ msgstr ""
 "Ако желите да користите шифре послова, подесите датотеку преименовањем или "
 "називе одредишних подфасцикли да их користе."
 
-#: ../raphodo/jobcodepanel.py:209
+#: ../raphodo/jobcodepanel.py:229
 msgid "Last Used"
 msgstr "Последње коришћено"
 
-#: ../raphodo/jobcodepanel.py:214
+#: ../raphodo/jobcodepanel.py:234
 msgid "Job Code Sort:"
 msgstr "Ређање шифре посла:"
 
-#: ../raphodo/jobcodepanel.py:217 ../raphodo/rapid.py:2273
+#: ../raphodo/jobcodepanel.py:237 ../raphodo/rapid.py:2273
 msgid "Ascending"
 msgstr "Растуће"
 
-#: ../raphodo/jobcodepanel.py:218 ../raphodo/rapid.py:2274
+#: ../raphodo/jobcodepanel.py:238 ../raphodo/rapid.py:2274
 msgid "Descending"
 msgstr "Опадајуће"
 
-#: ../raphodo/jobcodepanel.py:228
+#: ../raphodo/jobcodepanel.py:248
 msgid "&New..."
 msgstr "&Ново..."
 
-#: ../raphodo/jobcodepanel.py:232
+#: ../raphodo/jobcodepanel.py:252
 msgid "&Apply"
 msgstr "&Примени"
 
-#: ../raphodo/jobcodepanel.py:236
+#: ../raphodo/jobcodepanel.py:256
 msgid "&Remove"
 msgstr "&Уклони"
 
-#: ../raphodo/jobcodepanel.py:240 ../raphodo/preferencedialog.py:207
+#: ../raphodo/jobcodepanel.py:260 ../raphodo/preferencedialog.py:207
 #: ../raphodo/preferencedialog.py:236 ../raphodo/preferencedialog.py:567
 msgid "Remove All"
 msgstr "Уклони све"
 
-#: ../raphodo/jobcodepanel.py:439
+#: ../raphodo/jobcodepanel.py:459
 msgid "Do you really want to remove all the Job Codes?"
 msgstr "Да ли заиста желите да уклоните све шифре послова?"
 
-#: ../raphodo/jobcodepanel.py:441
+#: ../raphodo/jobcodepanel.py:461
 msgid "Remove all Job Codes"
 msgstr "Уклоните све шифре послова"
 
-#: ../raphodo/jobcodepanel.py:506
+#: ../raphodo/jobcodepanel.py:526
 msgid "Job Codes"
 msgstr "Шифре послова"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and
 #. <b>. These are used to format the text the users sees
 #: ../raphodo/messagewidget.py:65
-#, python-format
-msgid "<i><b>Hint:</b> %(message)s"
+#, fuzzy, python-format
+msgid "<i><b>Hint:</b> %(message)s</i>"
 msgstr "<i><b>Савет:</b> %(message)s"
 
 #. Translators: this text appears in menus and combo boxes. It displays the
@@ -4495,7 +4493,7 @@ msgstr ""
 msgid "photo"
 msgstr "фотографија"
 
-#: ../raphodo/rapid.py:3180 ../raphodo/rpdfile.py:161 ../raphodo/rpdfile.py:871
+#: ../raphodo/rapid.py:3180 ../raphodo/rpdfile.py:161 ../raphodo/rpdfile.py:870
 msgid "video"
 msgstr "снимак"
 
@@ -5138,32 +5136,32 @@ msgstr "фотографије или снимци"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/rpdfile.py:254
+#: ../raphodo/rpdfile.py:255
 #, python-format
 msgid "%(number)s %(filetypes)s"
 msgstr "%(number)s %(filetypes)s"
 
 #. translators: natural language expression signifying a single video
-#: ../raphodo/rpdfile.py:280
+#: ../raphodo/rpdfile.py:282
 msgid "a video"
 msgstr "снимак"
 
-#: ../raphodo/rpdfile.py:282
+#: ../raphodo/rpdfile.py:284
 msgid "1 Video"
 msgstr "1 снимак"
 
 #. translators: natural language expression signifying a single photo
-#: ../raphodo/rpdfile.py:292
+#: ../raphodo/rpdfile.py:294
 msgid "a photo"
 msgstr "фотографија"
 
-#: ../raphodo/rpdfile.py:294
+#: ../raphodo/rpdfile.py:296
 msgid "1 Photo"
 msgstr "1 фотографија"
 
 #. Translators: %(variable)s represents Python code, not a plural of the term variable.
 #. You must keep the %(variable)s untranslated, or the program will crash.
-#: ../raphodo/rpdfile.py:800
+#: ../raphodo/rpdfile.py:801
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr "„%(path)s“ на „%(camera)s“"
@@ -5172,7 +5170,7 @@ msgstr "„%(path)s“ на „%(camera)s“"
 msgid "Photo"
 msgstr "Фотографија"
 
-#: ../raphodo/rpdfile.py:872
+#: ../raphodo/rpdfile.py:871
 msgid "Video"
 msgstr "Снимак"
 
@@ -5185,12 +5183,12 @@ msgstr "Корен система датотека"
 msgid "Pictures"
 msgstr "Слике"
 
-#: ../raphodo/thumbnaildisplay.py:474
+#: ../raphodo/thumbnaildisplay.py:475
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
 msgstr "Снимљено %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:484
+#: ../raphodo/thumbnaildisplay.py:485
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Измењено %(date_time)s (%(human_readable)s)"
@@ -5198,48 +5196,48 @@ msgstr "Измењено %(date_time)s (%(human_readable)s)"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/thumbnaildisplay.py:495 ../raphodo/thumbnaildisplay.py:545
+#: ../raphodo/thumbnaildisplay.py:496 ../raphodo/thumbnaildisplay.py:546
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:512
+#: ../raphodo/thumbnaildisplay.py:513
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Меморијске картице: %s"
 
-#: ../raphodo/thumbnaildisplay.py:516
+#: ../raphodo/thumbnaildisplay.py:517
 #, python-format
 msgid "Memory card: %s"
 msgstr "Меморијска картица: %s"
 
-#: ../raphodo/thumbnaildisplay.py:521
+#: ../raphodo/thumbnaildisplay.py:522
 msgid "Downloaded as:"
 msgstr "Преузето као:"
 
-#: ../raphodo/thumbnaildisplay.py:559
+#: ../raphodo/thumbnaildisplay.py:560
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Претходно преузимање:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:568
+#: ../raphodo/thumbnaildisplay.py:569
 #, python-format
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
 msgstr "<br><br><i>Ручно подесите као претходно преузето %(date)s</i>"
 
-#: ../raphodo/thumbnaildisplay.py:1901
+#: ../raphodo/thumbnaildisplay.py:1905
 msgid "Copy Path"
 msgstr "Путања умножавања"
 
 #. Translators: 'File' here applies to a single file. The command allows users to instruct
 #. Rapid Photo Downloader that photos and videos have been previously downloaded by
 #. another application.
-#: ../raphodo/thumbnaildisplay.py:1906
+#: ../raphodo/thumbnaildisplay.py:1910
 msgid "Mark File as Downloaded"
 msgstr "Означи датотеку преузетом"
 
 #. Translators: 'Files' here applies to two or more files
-#: ../raphodo/thumbnaildisplay.py:1909
+#: ../raphodo/thumbnaildisplay.py:1913
 msgid "Mark Files as Downloaded"
 msgstr "Означи датотеке преузетим"
 
@@ -5464,6 +5462,13 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Преузмите фотографије и снимке са Брзим преносиоцем фотографија"
+
+#~ msgid "The new Job Code will not be applied to any photos or videos."
+#~ msgstr ""
+#~ "Нова шифра посла неће бити примењена ни на једну фотографију или снимак."
+
+#~ msgid "The new Job Code will <b>not</b> be applied to %s."
+#~ msgstr "Нова шифра посла <b>неће</b> бити примењена на „%s“."
 
 #~ msgid "Berlin"
 #~ msgstr "Берлин"
