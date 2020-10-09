@@ -57,6 +57,7 @@ class JobCodeDialog(QDialog):
         :param job_codes:
         """
         super().__init__(parent)
+        no_selection_made = None  # type: Optional[bool]
         self.rapidApp = parent  # type: 'RapidWindow'
         self.prefs = self.rapidApp.prefs
         thumbnailModel = self.rapidApp.thumbnailModel
@@ -78,31 +79,33 @@ class JobCodeDialog(QDialog):
                     'The Job Code will be applied to %s that do not yet have a Job Code.'
                 ) % details
 
+            hint = '<b>Hint:</b> To assign Job Codes before the download begins, select some ' \
+                   'files and apply a new or existing Job Code to them via the Job Code panel.'
+            file_details = '{}<br><br><i>{}</i>'.format(file_details, hint)
+
             title = _('Apply Job Code to Download')
         else:
             directive = _('Enter a new Job Code')
 
             file_types = thumbnailModel.getNoFilesSelected()
-            if sum(file_types.values()) == 0:
-                file_types = thumbnailModel.getDisplayedCounter()
-                if sum(file_types.values()) == 0:
-                    file_details = _(
-                        'The new Job Code will not be applied to any photos or videos.'
-                    )
-                else:
-                    details = file_types.file_types_present_details(title_case=False)
-                    # Translators: the value substituted will be something like '100 photos and 5
-                    #  videos'.
-                    file_details = _('The new Job Code will <b>not</b> be applied to %s.') % details
+            no_selection_made = sum(file_types.values()) == 0
+            if no_selection_made:
+                file_details = '<i>' + _(
+                    '<b>Hint:</b> Select photos or videos before entering a new Job Code to '
+                    'have the Job Code applied to them.'
+                ) + '</i>'
+
+                _('')
             else:
                 details = file_types.file_types_present_details(title_case=False)
                 # Translators: the value substituted will be something like '100 photos and 5
                 # videos'.
-                file_details = _('The new Job Code will be applied to %s.') % details
+                file_details = '<i>' + _('The new Job Code will be applied to %s.') % details \
+                               + '</i>'
 
             title = _('New Job Code')
 
-        instructionLabel = QLabel('<b>%s</b><br><br><i>%s</i><br>' % (directive, file_details))
+        instructionLabel = QLabel('<b>%s</b><br><br>%s<br>' % (directive, file_details))
         instructionLabel.setWordWrap(True)
 
         self.jobCodeComboBox = QComboBox()
@@ -138,8 +141,11 @@ class JobCodeDialog(QDialog):
 
         jobCodeLabel = QLabel(_('&Job Code:'))
         jobCodeLabel.setBuddy(self.jobCodeComboBox)
-        self.rememberCheckBox = QCheckBox(_("&Remember this Job Code"))
-        self.rememberCheckBox.setChecked(parent.prefs.remember_job_code)
+
+        if on_download or not no_selection_made:
+            self.rememberCheckBox = QCheckBox(_("&Remember this Job Code"))
+            self.rememberCheckBox.setChecked(parent.prefs.remember_job_code)
+
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
         translateDialogBoxButtons(buttonBox)
 
@@ -148,8 +154,13 @@ class JobCodeDialog(QDialog):
         grid.addWidget(instructionLabel, 0, 1, 1, 2)
         grid.addWidget(jobCodeLabel, 1, 1)
         grid.addWidget(self.jobCodeComboBox, 1, 2)
-        grid.addWidget(self.rememberCheckBox, 2, 1, 1, 2)
-        grid.addWidget(buttonBox, 3, 0, 1, 3)
+
+        if hasattr(self, 'rememberCheckBox'):
+            grid.addWidget(self.rememberCheckBox, 2, 1, 1, 2)
+            grid.addWidget(buttonBox, 3, 0, 1, 3)
+        else:
+            grid.addWidget(buttonBox, 2, 0, 1, 3)
+
         grid.setColumnStretch(2, 1)
         self.setLayout(grid)
         self.setWindowTitle(title)
@@ -160,8 +171,11 @@ class JobCodeDialog(QDialog):
     @pyqtSlot()
     def accept(self) -> None:
         self.job_code = self.jobCodeComboBox.currentText()
-        self.remember = self.rememberCheckBox.isChecked()
-        self.rapidApp.prefs.remember_job_code = self.remember
+        if hasattr(self, 'rememberCheckBox'):
+            self.remember = self.rememberCheckBox.isChecked()
+            self.rapidApp.prefs.remember_job_code = self.remember
+        else:
+            self.remember = True
         super().accept()
 
 

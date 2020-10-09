@@ -62,7 +62,7 @@ class MessageWidget(QStackedWidget):
             else:
                 # Translators: please do not modify or leave out html formatting tags like <i> and
                 # <b>. These are used to format the text the users sees
-                label = QLabel(_("<i><b>Hint:</b> %(message)s") % dict(message=message))
+                label = QLabel(_("<i><b>Hint:</b> %(message)s</i>") % dict(message=message))
             label.setWordWrap(True)
             label.setTextFormat(Qt.RichText)
             label.setAlignment(Qt.AlignTop|Qt.AlignLeft)
