@@ -2995,6 +2995,12 @@ def main():
     Then call main install logic.
     """
 
+    if LooseVersion(platform.python_version()) < LooseVersion('3.5.0'):
+        sys.stderr.write(
+            "Sorry the minimum required version of Python is 3.5.\n"
+        )
+        sys.exit(1)
+
     global pip_user
 
     parser = parser_options()

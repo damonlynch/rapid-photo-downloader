@@ -9,6 +9,8 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug #1891659: Exception when encountering invalid block device
 
+ - Bumped up minimum Python version supported to Python 3.5.
+
 0.9.24 (2020-05-03)
 -------------------
 
