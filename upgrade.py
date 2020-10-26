@@ -297,8 +297,7 @@ class RunInstallProcesses:
                             if results is not None:
                                 package = results.group(0)
                                 # Don't include packages that are already installed
-                                if ((package not in pip_list and package not in
-                                        ('typing', 'scandir')) or package in ('pymediainfo')):
+                                if package not in pip_list:
                                     requirements = '{}\n{}'.format(requirements, line)
                     if self.need_pyqt5(pip_list):
                         requirements = '{}\n{}\n'.format(requirements, self.pypi_pyqt5_version())
