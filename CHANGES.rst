@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.25 (2020-09-xx)
+0.9.25 (2020-11-xx)
 -------------------
 
  - Fixed bug #1889770: Fails to run - Could not load the Qt platform plugin
