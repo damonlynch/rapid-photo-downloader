@@ -80,7 +80,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = '0.3.8'
+__version__ = '0.3.9'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -470,18 +470,24 @@ def pypi_version_exists(package_name: str, version: str) -> bool:
     return True
 
 
-def latest_pypi_version(package_name: str):
+def latest_pypi_version(package_name: str, ignore_prerelease: bool):
     """
     Determine the latest version of a package available on PyPi.
 
     No error checking.
 
     :param package_name: package to search for
+    :param ignore_prerelease: if True, don't include pre-release versions
     :return: latest version as string
     """
 
     versions = pypi_versions(package_name)
-    return versions[0].strip()
+    if not ignore_prerelease:
+        return versions[0].strip()
+
+    return next(
+        (v for v in versions if not pkg_resources.parse_version(v).is_prerelease), ''
+    ).strip()
 
 
 def is_latest_pypi_package(package_name: str,
@@ -501,30 +507,22 @@ def is_latest_pypi_package(package_name: str,
         return False
 
     try:
-        versions = pypi_versions(package_name)
+        latest = latest_pypi_version(package_name, ignore_prerelease)
     except Exception:
-        versions = []
-    if not versions:
         # Something has gone wrong in the versions check
         print("Failed to determine latest version of Python package {}".format(package_name))
         return False
-
-    if not ignore_prerelease:
-        latest = versions[0]
-    else:
-        latest = next(
-            (v for v in versions if not pkg_resources.parse_version(v).is_prerelease), None
-        )
-
-    if not latest:
-        return True
 
     up_to_date = latest.strip() == current.strip()
 
     if not up_to_date and show_message:
 
         print()
-        print(_('{} will be upgraded from version {} to version {}').format(package_name, current, latest))
+        print(
+            _('{} will be upgraded from version {} to version {}').format(
+                package_name, current, latest
+            )
+        )
 
     return up_to_date
 
@@ -663,6 +661,7 @@ def user_pip() -> bool:
 def python_package_version(package: str) -> str:
     """
     Determine the version of an installed Python package
+
     :param package: package name
     :return: version number, if could be determined, else ''
     """
@@ -773,15 +772,31 @@ def update_pip_setuptools_wheel(interactive: bool):
     """
     Update pip, setuptools and wheel to the latest versions, if necessary.
 
+    For Python 3.5, freeze packages at arbitrary 2020-11-13 state,
+    because Python 3.5 is already EOL, i.e. pip 20.2.4, setuptools 50.3.2,
+    and wheel 0.35.
+    pip 20.3 is the last version compatible with Python 3.5.
+    setuptools and wheel cannot be too far off Python 3.5 incompatibility either.
+
     :param interactive: whether to prompt the user
     """
 
-    packages = [
-        package for package in ('pip', 'setuptools', 'wheel')
-        if not installed_using_pip(package) or not is_latest_pypi_package(
-            package, show_message=True
-        )
-    ]
+    python35 = sys.version_info < (3, 6)
+    if python35:
+        package_details = [
+            package for package in (('pip', '20.2.4'), ('setuptools', '50.3.2'), ('wheel', '0.35'))
+            if pkg_resources.parse_version(python_package_version(package[0])) <
+               pkg_resources.parse_version(package[1])
+        ]
+        packages = [p[0] for p in package_details]
+    else:
+        package_details = []
+        packages = [
+            package for package in ('pip', 'setuptools', 'wheel')
+            if not installed_using_pip(package) or not is_latest_pypi_package(
+                package, show_message=True
+            )
+        ]
 
     restart_required = False
     for package in packages:
@@ -797,8 +812,13 @@ def update_pip_setuptools_wheel(interactive: bool):
             ).format(', '.join(packages))
         )
 
+        if python35:
+            package_listing = ' '.join(['{}=={}'.format(p[0], p[1]) for p in package_details])
+        else:
+            package_listing = ' '.join(packages)
+
         command_line = make_pip_command(
-            'install {} --upgrade {}'.format(pip_user, ' '.join(packages)),
+            'install {} --upgrade {}'.format(pip_user, package_listing),
             split=False, disable_version_check=True
         )
         run_cmd(
@@ -813,6 +833,7 @@ def update_pip_setuptools_wheel(interactive: bool):
 def python3_version(distro: Distro) -> str:
     """
     Return package name appropriate to platform
+
     :param distro: linux distribution
     :return: package name appropriate to platform
     """
@@ -2995,7 +3016,7 @@ def main():
     Then call main install logic.
     """
 
-    if LooseVersion(platform.python_version()) < LooseVersion('3.5.0'):
+    if sys.version_info < (3, 5):
         sys.stderr.write(
             "Sorry the minimum required version of Python is 3.5.\n"
         )
