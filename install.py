@@ -1877,7 +1877,7 @@ def install_required_distro_packages(distro: Distro,
             packages = 'qt5-qtimageformats python3-qt5 qt5-qtsvg {}'.format(packages)
 
         if distro == Distro.fedora:
-            packages = '{} python3-devel python3-libunity'.format(packages)
+            packages = '{} python3-devel'.format(packages)
         else:
             packages = '{} python36-devel'.format(packages)
 
