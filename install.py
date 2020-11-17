@@ -3201,9 +3201,9 @@ def main():
             )
         )
 
-    if distro == Distro.fedora and unknown_version > distro_version <= LooseVersion('29'):
+    if distro == Distro.fedora and unknown_version > distro_version <= LooseVersion('30'):
         sys.stderr.write(
-            "Sorry, Fedora 29 or older is no longer supported by Rapid Photo Downloader.\n"
+            "Sorry, Fedora 30 or older is no longer supported by Rapid Photo Downloader.\n"
         )
         sys.exit(1)
     elif distro in arch_like:

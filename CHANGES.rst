@@ -9,7 +9,7 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug #1891659: Exception when encountering invalid block device
 
- - Bumped up minimum Python version supported to Python 3.5.
+ - Bump up minimum Python version supported to Python 3.5.
 
  - Don't install support library libunity on Fedora that provides emblems and
    progress bars on launchers on desktops like KDE, because libunity has a
@@ -17,6 +17,8 @@ Changelog for Rapid Photo Downloader
 
  - When installing on Debian using the install.py script, ignore any version
    number information (or lack thereof) in /etc/os-release.
+
+ - Fedora 31 is now the minimum supported version of Fedora.
 
 0.9.24 (2020-05-03)
 -------------------
