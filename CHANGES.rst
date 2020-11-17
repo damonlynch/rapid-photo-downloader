@@ -15,6 +15,9 @@ Changelog for Rapid Photo Downloader
    progress bars on launchers on desktops like KDE, because libunity has a
    bug on Fedora 33.
 
+ - When installing on Debian using the install.py script, ignore any version
+   number information (or lack thereof) in /etc/os-release.
+
 0.9.24 (2020-05-03)
 -------------------
 

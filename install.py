@@ -3201,16 +3201,7 @@ def main():
             )
         )
 
-    if distro == Distro.debian:
-        if distro_version <= LooseVersion('8'):
-            sys.stderr.write(
-                "Sorry, Debian Jessie is too old to be able to run this version of "
-                "Rapid Photo Downloader.\n"
-            )
-            clean_locale_tmpdir()
-            sys.exit(1)
-
-    elif distro == Distro.fedora and unknown_version > distro_version <= LooseVersion('29'):
+    if distro == Distro.fedora and unknown_version > distro_version <= LooseVersion('29'):
         sys.stderr.write(
             "Sorry, Fedora 29 or older is no longer supported by Rapid Photo Downloader.\n"
         )
