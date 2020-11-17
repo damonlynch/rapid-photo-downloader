@@ -13,7 +13,7 @@ Changelog for Rapid Photo Downloader
 
  - Don't install support library libunity on Fedora that provides emblems and
    progress bars on launchers on desktops like KDE, because libunity has a
-   problem on Fedora 33.
+   bug on Fedora 33.
 
 0.9.24 (2020-05-03)
 -------------------
