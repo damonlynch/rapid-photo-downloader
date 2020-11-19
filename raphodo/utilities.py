@@ -107,14 +107,17 @@ def available_cpu_count(physical_only=False) -> int:
     available = None
     if sys.platform.startswith('linux'):
         try:
-            m = re.search(r'(?m)^Cpus_allowed:\s*(.*)$',
-                          open('/proc/self/status').read())
+            status_file = open('/proc/self/status')
+            status = status_file.read()
+            status_file.close()
+        except IOError:
+            pass
+        else:
+            m = re.search(r'(?m)^Cpus_allowed:\s*(.*)$', status)
             if m:
                 available = bin(int(m.group(1).replace(',', ''), 16)).count('1')
                 if available > 0 and not physical_only:
                     return available
-        except IOError:
-            pass
 
     if physical_only:
         physical = psutil.cpu_count(logical=False)
