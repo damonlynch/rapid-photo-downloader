@@ -462,7 +462,7 @@ def xdg_photos_directory(home_on_failure: bool=True) -> Optional[str]:
     :return: the directory if it is specified, else the user's
     home directory or None
     """
-    return _get_xdg_special_dir(GLib.USER_DIRECTORY_PICTURES, home_on_failure)
+    return _get_xdg_special_dir(GLib.UserDirectory.DIRECTORY_PICTURES, home_on_failure)
 
 
 def xdg_videos_directory(home_on_failure: bool=True) -> str:
@@ -474,7 +474,7 @@ def xdg_videos_directory(home_on_failure: bool=True) -> str:
     :return: the directory if it is specified, else the user's
     home directory or None
     """
-    return _get_xdg_special_dir(GLib.USER_DIRECTORY_VIDEOS, home_on_failure)
+    return _get_xdg_special_dir(GLib.UserDirectory.DIRECTORY_VIDEOS, home_on_failure)
 
 def xdg_desktop_directory(home_on_failure: bool=True) -> str:
     """
@@ -493,7 +493,7 @@ def xdg_photos_identifier() -> str:
     :return: the subfolder name if it is specified, else the localized version of 'Pictures'
     """
 
-    path = _get_xdg_special_dir(GLib.USER_DIRECTORY_PICTURES, home_on_failure=False)
+    path = _get_xdg_special_dir(GLib.UserDirectory.DIRECTORY_PICTURES, home_on_failure=False)
     if path is None:
         # translators: the name of the Pictures folder
         return _('Pictures')
@@ -505,7 +505,7 @@ def xdg_videos_identifier() -> str:
     :return: the subfolder name if it is specified, else the localized version of 'Pictures'
     """
 
-    path = _get_xdg_special_dir(GLib.USER_DIRECTORY_VIDEOS, home_on_failure=False)
+    path = _get_xdg_special_dir(GLib.UserDirectory.DIRECTORY_VIDEOS, home_on_failure=False)
     if path is None:
         # translators: the name of the Videos folder
         return _('Videos')
