@@ -5929,7 +5929,7 @@ def get_versions(file_manager: Optional[str],
 
     try:
         pip_install = installed_using_pip()
-    except pkgr.DistributionNotFound:
+    except Exception:
         pip_install = False
 
     try:
