@@ -3211,6 +3211,14 @@ def main():
             )
         )
 
+    if distro == Distro.debian and LooseVersion('9') <= distro_version < LooseVersion('11'):
+        if args.PyQt5_version is None:
+            # PyQt 15.2 from pypi does not run on Debian 9 / 10 due to PyQt 15.2
+            # requiring libxcb-util.so.1, whichis not in these versions of Debian
+            if not args.script_restarted:
+                print("\nUsing system PyQt5\n")
+            use_system_pyqt5 = True
+
     if distro == Distro.fedora and unknown_version > distro_version <= LooseVersion('31'):
         sys.stderr.write(
             "Sorry, Fedora 31 or older is no longer supported by Rapid Photo Downloader.\n"
