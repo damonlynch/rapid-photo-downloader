@@ -5929,8 +5929,15 @@ def get_versions(file_manager: Optional[str],
 
     try:
         pip_install = installed_using_pip()
-    except Exception:
+    except pkgr.DistributionNotFound:
         pip_install = False
+
+    try:
+        pyqt_pip = installed_using_pip('PyQt5')
+    except Exception:
+        pyqt_pip = False
+
+    pyqt_pip_msg = '(installed using Pip)' if pyqt_pip else '(system package)'
 
     versions = [
         'Rapid Photo Downloader: {}'.format(__about__.__version__),
@@ -5941,7 +5948,7 @@ def get_versions(file_manager: Optional[str],
         'Python: {}'.format(platform.python_version()),
         'Python executable: {}'.format(sys.executable),
         'Qt: {}'.format(QtCore.QT_VERSION_STR),
-        'PyQt: {}'.format(QtCore.PYQT_VERSION_STR),
+        'PyQt: {} {}'.format(QtCore.PYQT_VERSION_STR, pyqt_pip_msg),
         'SIP: {}'.format(sip.SIP_VERSION_STR),
         'ZeroMQ: {}'.format(zmq.zmq_version()),
         'Python ZeroMQ: {} ({} backend)'.format(zmq.pyzmq_version(), pyzmq_backend),
