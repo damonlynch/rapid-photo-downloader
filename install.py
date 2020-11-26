@@ -876,6 +876,7 @@ def update_pip_setuptools_wheel(interactive: bool) -> None:
 
         package_details = [('pip', '19.3.1'), ('setuptools', '41.6.0'), ('wheel', '0.33.6')]
 
+        print()
         for package, version in package_details:
             if installed_using_pip(package):
                 if not is_recent_pypi_package(package):
