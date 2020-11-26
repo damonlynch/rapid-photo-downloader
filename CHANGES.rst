@@ -18,7 +18,13 @@ Changelog for Rapid Photo Downloader
  - When installing on Debian using the install.py script, ignore any version
    number information (or lack thereof) in /etc/os-release.
 
- - Fedora 31 is now the minimum supported version of Fedora.
+ - Fedora 32 is now the minimum supported version of Fedora.
+
+ - Don't install PyQt5 from PyPi when the Linux distribution's package is
+   relatively recent.
+
+ - Don't upgrade the Python tools pip, setuptools, and wheel when they are
+   relatively recent.
 
 0.9.24 (2020-05-03)
 -------------------
