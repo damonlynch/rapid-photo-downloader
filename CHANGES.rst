@@ -20,11 +20,17 @@ Changelog for Rapid Photo Downloader
 
  - Fedora 32 is now the minimum supported version of Fedora.
 
- - Don't install PyQt5 from PyPi when the Linux distribution's package is
-   relatively recent.
+ - When using the install.py script, don't install PyQt5 from PyPi when the
+   Linux distribution's package is relatively recent. Also: don't upgrade the
+   Python tools pip, setuptools, and wheel when they are relatively recent, and
+   don't install unsupported versions these same packages on Python 3.5.
 
- - Don't upgrade the Python tools pip, setuptools, and wheel when they are
-   relatively recent.
+ - Bump up minimum version of python-dateutil to allow recent versions of
+   arrow to function. When using the install.py script, don't install
+   unsupported versions of arrow on Python 3.5.
+
+ - When using the install.py script, don't install the unmaintained python
+   package rawkit on systems that do not contain libraw 0.16 or 0.17.
 
 0.9.24 (2020-05-03)
 -------------------

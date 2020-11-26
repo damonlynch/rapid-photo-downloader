@@ -57,6 +57,8 @@ import subprocess
 from urllib.request import pathname2url
 import inspect
 
+import dateutil
+
 import gi
 gi.require_version('Notify', '0.7')
 from gi.repository import Notify
@@ -5959,8 +5961,8 @@ def get_versions(file_manager: Optional[str],
         'GExiv2: {}'.format(gexiv2_version()),
         'Gstreamer: {}'.format(gst_version()),
         'PyGObject: {}'.format('.'.join(map(str, gi.version_info))),
-        'libraw: {}'.format(libraw_version()),
-        'rawkit: {}'.format(rawkit_version()),
+        'libraw: {}'.format(libraw_version() or 'not installed'),
+        'rawkit: {}'.format(rawkit_version() or 'not installed'),
         'psutil: {}'.format('.'.join(map(str, psutil.version_info)))
     ]
     v = exiv2_version()
@@ -5972,6 +5974,7 @@ def get_versions(file_manager: Optional[str],
         pass
     try:
         versions.append('Arrow: {}'.format(arrow.__version__))
+        versions.append('dateutil: {}'.format(dateutil.__version__))
     except AttributeError:
         pass
     try:
