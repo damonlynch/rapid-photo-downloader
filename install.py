@@ -86,6 +86,7 @@ __description__ = _("Download and install latest version of Rapid Photo Download
 i18n_domain = 'rapid-photo-downloader'
 locale_tmpdir = None
 
+minimum_preferred_pyqt5 = LooseVersion('5.14')
 
 try:
     import requests
@@ -230,6 +231,17 @@ installer_cmds = {
 manually_mark_cmds = {
     Distro.debian: ('apt-mark', 'manual'),
 }
+
+
+def make_distro_name_pretty(distro: Distro) -> str:
+    """
+    Return a name for the distro from its enum that looks attractive
+
+    :param distro: specific Linux distribution
+    :return: distro name in human readable form
+    """
+
+    return Distro_Pretty_Name.get(distro.name, distro.name.capitalize())
 
 
 def get_distro() -> Distro:
@@ -430,8 +442,55 @@ def pypi_pyqt5_capable() -> bool:
      else False.
     """
 
-    return platform.machine() == 'x86_64' and \
-        LooseVersion(platform.python_version()) >= LooseVersion('3.5.0')
+    return platform.machine() == 'x86_64'
+
+
+def should_use_system_pyqt5(distro: Distro, distro_family: Distro,
+                            distro_version: LooseVersion) -> bool:
+    """
+    Determine if PyQt5 should be installed from system archives rather than from PyPi
+
+    :param distro: specific Linux distribution
+    :param distro_family: the family of distros the specific distro is part of
+    :param distro_version: the distributions version, if it exists
+    :return: True if system PyQt5 should be used, else False
+    """
+
+    use_system_pyqt5 = False
+    version = None
+
+    print("Determining most appropriate PyQt5 package...")
+    if distro == Distro.debian and LooseVersion('9') <= distro_version < LooseVersion('11'):
+        # PyQt 15.2 from pypi does not run on Debian 9 / 10 due to PyQt 15.2
+        # requiring libxcb-util.so.1, whichis not in these versions of Debian
+        use_system_pyqt5 = True
+    elif distro_family == Distro.fedora or distro == Distro.neon:
+        # Fedora and Neon keep their PyQt5 up-to-date
+        use_system_pyqt5 = True
+    elif distro_family == Distro.debian:
+        # Determine system version of PyQt5 to see if it is new enough
+        # Assume at this point that python-apt is installed
+        if have_apt:
+            cache = apt.Cache()
+            versions = [LooseVersion(v.version) for v in cache['python3-pyqt5'].versions]
+            version = max(versions)
+            use_system_pyqt5 = version >= minimum_preferred_pyqt5
+    elif distro == Distro.opensuse:
+        version = opensuse_package_version('python-qt5')
+        if version is not None:
+            use_system_pyqt5 = LooseVersion(version) >= minimum_preferred_pyqt5
+
+    if use_system_pyqt5:
+        msg = "...will use PyQt5 packaged by {}.".format(make_distro_name_pretty(distro))
+    elif version is not None:
+        msg = "...the version of PyQt5 supplied by {} is too old ({}); will use PyPi version.".format(
+            make_distro_name_pretty(distro), version.vstring
+        )
+    else:
+        msg = "...will use PyPi version of PyQt5."
+
+    print("{}\n".format(msg))
+    return use_system_pyqt5
 
 
 def pypi_versions(package_name: str) -> List[str]:
@@ -1438,6 +1497,25 @@ def opensuse_package_installed(package: str) -> bool:
     """
 
     return not opensuse_missing_packages(package)
+
+
+def opensuse_package_version(package: str) -> Optional[str]:
+    """
+    Use zypper to query openSUSE package information
+    :param package: package to check
+    :return: package version available in openSUSE archive if it exists, else None
+    """
+
+    command_line = make_distro_packager_command(
+        distro_family=Distro.opensuse, packages=package, interactive=True, command='info',
+        sudo=False
+    )
+    args = shlex.split(command_line)
+    output = subprocess.check_output(args, universal_newlines=True)
+    m = re.search(r"^[Vv]ersion\s+:\s*(.+)$", output, re.MULTILINE)
+    if m is not None:
+        return m.group(1)
+    return None
 
 
 def centos_missing_packages(packages: str) -> List[str]:
@@ -2756,9 +2834,10 @@ def do_install(installer: str,
     else:
         installer_to_delete_on_error = ''
 
-    must_install_pypi_pyqt5 = pyqt5_version is not None or not use_system_pyqt5 and (
-                              (distro == Distro.neon and venv) or
-                              (distro != Distro.neon and (venv or pypi_pyqt5_capable())))
+    must_install_pypi_pyqt5 = pypi_pyqt5_capable() and (venv or pyqt5_version is not None)
+
+    if not use_system_pyqt5 and not must_install_pypi_pyqt5:
+        must_install_pypi_pyqt5 = not should_use_system_pyqt5(distro, distro_family, distro_version)
 
     if not venv:
         system_uninstall = uninstall_old_version(
@@ -3201,25 +3280,16 @@ def main():
         distro_version = unknown_version
 
     if not args.script_restarted:
-        name = Distro_Pretty_Name.get(distro.name, distro.name.capitalize())
         print(
             _(
                 'Detected Linux distribution {} {}'.format(
-                    name,
+                    make_distro_name_pretty(distro),
                     distro_version if distro_version != unknown_version else ''
                 )
             )
         )
 
-    if distro == Distro.debian and LooseVersion('9') <= distro_version < LooseVersion('11'):
-        if args.PyQt5_version is None:
-            # PyQt 15.2 from pypi does not run on Debian 9 / 10 due to PyQt 15.2
-            # requiring libxcb-util.so.1, whichis not in these versions of Debian
-            if not args.script_restarted:
-                print("\nUsing system PyQt5\n")
-            use_system_pyqt5 = True
-
-    if distro == Distro.fedora and unknown_version > distro_version <= LooseVersion('31'):
+    if distro == Distro.fedora and unknown_version < distro_version <= LooseVersion('31'):
         sys.stderr.write(
             "Sorry, Fedora 31 or older is no longer supported by Rapid Photo Downloader.\n"
         )
