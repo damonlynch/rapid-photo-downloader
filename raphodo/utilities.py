@@ -1229,17 +1229,19 @@ def installed_using_pip(package='rapid-photo-downloader') -> bool:
 
     Exceptions are not caught.
 
+    Unfortunately this is not always reliable with packages other than
+    Rapid Photo Downloader, e.g. PyQt5.
+
     :param package: package name to search for
     :return: True if installed via pip, else False
     """
 
-    pip_install = False
     pkg = pkg_resources.get_distribution(package)
     if pkg.has_metadata('INSTALLER'):
         if pkg.get_metadata('INSTALLER').strip() == 'pip':
-            pip_install = True
+            return True
 
-    return pip_install
+    return False
 
 
 def getQtSystemTranslation(locale_name: str) -> Optional[QTranslator]:
