@@ -582,7 +582,7 @@ def is_recent_pypi_package(package_name: str,
         up_to_date = pkg_resources.parse_version(minimum_version) <= \
                      pkg_resources.parse_version(current)
         if up_to_date and show_message:
-            print('{} is up to date'.format(package_name))
+            print('{} {} is up to date'.format(package_name, current))
 
     if not up_to_date:
         if have_requests:
@@ -599,7 +599,6 @@ def is_recent_pypi_package(package_name: str,
 
     if not up_to_date and show_message:
         if latest is not None:
-            print()
             print(
                 _('{} will be upgraded from version {} to version {}').format(
                     package_name, current, latest
