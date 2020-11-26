@@ -805,6 +805,34 @@ def install_pyheif_from_pip() -> int:
     return popen_capture_output(cmd)
 
 
+def handle_rawkit_installation(distro_family: Distro) -> None:
+    """
+    Install rawkit only if libraw 0.16 0.17 is installed on Debian.
+
+    Otherwise uninstall if installed using pip, as it does not work.
+
+    :return:
+    """
+
+    did_install = False
+    package = 'rawkit'
+
+    if distro_family == Distro.debian and have_apt:
+        cache = apt.Cache()
+        if 'libraw15' in cache and cache['libraw15'].installed:
+            print("Installing rawkit...")
+            cmd = make_pip_command(
+                'install {} -U --disable-pip-version-check {}'.format(pip_user, package)
+            )
+            popen_capture_output(cmd)
+            did_install = True
+
+    if not did_install:
+        if installed_using_pip(package):
+            print("Removing inoperative rawkit")
+            uninstall_pip_package(package=package, no_deps_only=True)
+
+
 def update_pyqt5_and_sip(version: Optional[str]) -> int:
     """
     Update PyQt5 and sip from pypi, if the system is capable
@@ -946,7 +974,7 @@ def pip_package(package: str, local_pip: bool, distro: Distro) -> str:
 
 def installed_using_pip(package: str) -> bool:
     """
-    Determine if python package was installed using pip.
+    Determine if python package was installed to user directory using pip.
 
     :param package: package name to search for
     :return: True if installed via pip, else False
@@ -1871,7 +1899,7 @@ def install_required_distro_packages(distro: Distro,
 
         missing_packages = []
         packages = 'gstreamer1.0-libav gstreamer1.0-plugins-good libimage-exiftool-perl '\
-                   'python3-dev intltool libgphoto2-dev g++ exiv2 libraw-bin build-essential ' \
+                   'python3-dev intltool libgphoto2-dev g++ exiv2 build-essential ' \
                    'python3-wheel python3-setuptools gir1.2-gexiv2-0.10 libxkbcommon-x11-0 ' \
                    'python3-gi gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 '\
                    'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 gir1.2-gdkpixbuf-2.0 zenity ' \
@@ -1924,7 +1952,8 @@ def install_required_distro_packages(distro: Distro,
 
         # libheif and friends exist only in Ubuntu 18.04 and above
         # at some point libmediainfo0 was renamed to libmediainfo0v5
-        optional_packages = ['libmediainfo0v5', 'libmediainfo0', 'gir1.2-unity-5.0'] + \
+        # install package of libraw <= 0.17, i.e. libraw15
+        optional_packages = ['libmediainfo0v5', 'libmediainfo0', 'gir1.2-unity-5.0', 'libraw15'] + \
                             debian_heif_packages
         if have_apt:
             for p in optional_packages:
@@ -1981,7 +2010,7 @@ def install_required_distro_packages(distro: Distro,
         missing_packages = []
 
         packages = 'gstreamer1-plugins-good ' \
-                   'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ ' \
+                   'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool gcc-c++ ' \
                    'rpm-build intltool libmediainfo python3-wheel zenity ' \
                    'libheif-devel libde265-devel x265-devel gstreamer1-libav'
 
@@ -2929,6 +2958,8 @@ def do_install(installer: str,
         )
     else:
         print(_('System support for generating HEIF / HEIC thumbnails is unavailable'))
+
+    handle_rawkit_installation(distro_family)
 
     if must_install_pypi_pyqt5:
         # Update PyQt5 and PyQt5_sip separately. Sometimes it's possible for PyQt5 and PyQt5_sip
