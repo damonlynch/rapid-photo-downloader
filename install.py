@@ -459,7 +459,7 @@ def should_use_system_pyqt5(distro: Distro, distro_family: Distro,
     use_system_pyqt5 = False
     version = None
 
-    print("Determining most appropriate PyQt5 package...")
+    print("\nDetermining most appropriate PyQt5 package...")
     if distro == Distro.debian and LooseVersion('9') <= distro_version < LooseVersion('11'):
         # PyQt 15.2 from pypi does not run on Debian 9 / 10 due to PyQt 15.2
         # requiring libxcb-util.so.1, whichis not in these versions of Debian
@@ -476,9 +476,10 @@ def should_use_system_pyqt5(distro: Distro, distro_family: Distro,
             version = max(versions)
             use_system_pyqt5 = version >= minimum_preferred_pyqt5
     elif distro == Distro.opensuse:
-        version = opensuse_package_version('python-qt5')
-        if version is not None:
-            use_system_pyqt5 = LooseVersion(version) >= minimum_preferred_pyqt5
+        v = opensuse_package_version('python3-qt5')
+        if v is not None:
+            version = LooseVersion(v)
+            use_system_pyqt5 = version >= minimum_preferred_pyqt5
 
     if use_system_pyqt5:
         msg = "...will use PyQt5 packaged by {}.".format(make_distro_name_pretty(distro))
