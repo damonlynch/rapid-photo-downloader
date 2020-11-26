@@ -549,39 +549,62 @@ def latest_pypi_version(package_name: str, ignore_prerelease: bool) -> str:
     ).strip()
 
 
-def is_latest_pypi_package(package_name: str,
+def is_recent_pypi_package(package_name: str,
                            show_message: bool = True,
-                           ignore_prerelease: bool = True) -> bool:
+                           ignore_prerelease: bool = True,
+                           minimum_version: str = None
+                           ) -> bool:
     """
-    Determine if Python package is the most recently installable version
+    Determine if Python package is recent.
+
+    If a minimum version is specified, checks to see if the installed version
+    is greater than or equal to the minimum version.
+
+    If no minimum version is specified, checks to see if the installed version
+    is the latest version available on PyPi.
+
     :param package_name: package to check
     :param show_message: if True, show message to user indicating package will
      be upgraded
     :param ignore_prerelease: if True, don't check against prerelease versions
-    :return: True if is most recent, else False
+    :param minimum_version: minimum package version that is sufficient
+    :return: True if is recent enough, else False
     """
 
     current = python_package_version(package_name)
     if not current:
         return False
 
-    try:
-        latest = latest_pypi_version(package_name, ignore_prerelease)
-    except Exception:
-        # Something has gone wrong in the versions check
-        print("Failed to determine latest version of Python package {}".format(package_name))
-        return False
+    up_to_date = False
+    latest = None
 
-    up_to_date = latest.strip() == current.strip()
+    if minimum_version:
+        up_to_date = pkg_resources.parse_version(minimum_version) <= \
+                     pkg_resources.parse_version(current)
+        if up_to_date and show_message:
+            print('{} is up to date'.format(package_name))
+
+    if not up_to_date:
+        if have_requests:
+            try:
+                latest = latest_pypi_version(package_name, ignore_prerelease)
+            except Exception:
+                # Something has gone wrong in the versions check
+                print(
+                    "Failed to determine latest version of Python package {}".format(package_name)
+                )
+                return False
+
+            up_to_date = latest.strip() == current.strip()
 
     if not up_to_date and show_message:
-
-        print()
-        print(
-            _('{} will be upgraded from version {} to version {}').format(
-                package_name, current, latest
+        if latest is not None:
+            print()
+            print(
+                _('{} will be upgraded from version {} to version {}').format(
+                    package_name, current, latest
+                )
             )
-        )
 
     return up_to_date
 
@@ -796,8 +819,8 @@ def update_pyqt5_and_sip(version: Optional[str]) -> int:
     assert pypi_pyqt5_capable()
 
     if not version:
-        pyqt_up_to_date = installed_using_pip('PyQt5') and is_latest_pypi_package('PyQt5')
-        sip_up_to_date = installed_using_pip('PyQt5_sip') and is_latest_pypi_package('PyQt5_sip')
+        pyqt_up_to_date = installed_using_pip('PyQt5') and is_recent_pypi_package('PyQt5')
+        sip_up_to_date = installed_using_pip('PyQt5_sip') and is_recent_pypi_package('PyQt5_sip')
         do_pypi_install = not pyqt_up_to_date or not sip_up_to_date
         cmd_line = 'install {} --disable-pip-version-check --upgrade PyQt5 PyQt5_sip'.format(
             pip_user
@@ -848,13 +871,18 @@ def update_pip_setuptools_wheel(interactive: bool) -> None:
         ]
         packages = [p[0] for p in package_details]
     else:
-        package_details = []
-        packages = [
-            package for package in ('pip', 'setuptools', 'wheel')
-            if not installed_using_pip(package) or not is_latest_pypi_package(
-                package, show_message=True
-            )
-        ]
+        packages = []
+        # Upgrade the packages if they are already installed using pip, or
+        # Upgrade the system packages only if they are old
+
+        package_details = [('pip', '19.3.1'), ('setuptools', '41.6.0'), ('wheel', '0.33.6')]
+
+        for package, version in package_details:
+            if installed_using_pip(package):
+                if not is_recent_pypi_package(package):
+                    packages.append(package)
+            elif not is_recent_pypi_package(package, minimum_version=version):
+                packages.append(package)
 
     restart_required = False
     for package in packages:
@@ -927,9 +955,7 @@ def installed_using_pip(package: str) -> bool:
     pip_install = False
     try:
         pkg = pkg_resources.get_distribution(package)
-        if pkg.has_metadata('INSTALLER'):
-            if pkg.get_metadata('INSTALLER').strip() == 'pip':
-                pip_install = True
+        pip_install = pkg.location.startswith(site.getuserbase())
     except pkg_resources.DistributionNotFound:
         pass
     except Exception as e:
@@ -3303,7 +3329,7 @@ def main():
         print(_("Exiting..."))
         clean_locale_tmpdir()
         sys.exit(0)
-    elif distro == Distro.peppermint and unknown_version > distro_version < LooseVersion('7'):
+    elif distro == Distro.peppermint and unknown_version < distro_version < LooseVersion('7'):
         sys.stderr.write(
             "Sorry, this version of Peppermint is to old to run this version of "
             "Rapid Photo Downloader.\n"
