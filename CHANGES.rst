@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.25 (2020-11-xx)
+0.9.25 (2020-12-xx)
 -------------------
 
  - Fixed bug #1889770: Fails to run - Could not load the Qt platform plugin
@@ -11,19 +11,20 @@ Changelog for Rapid Photo Downloader
 
  - Bump up minimum Python version supported to Python 3.5.
 
- - Don't install support library libunity on Fedora that provides emblems and
-   progress bars on launchers on desktops like KDE, because libunity has a
-   bug on Fedora 33.
+ - Don't install support library libunity on Fedora. Libunity has a serious
+   bug on Fedora 33. Libunity provides emblems and progress bars on launchers on
+   desktops like KDE.
+
+ - Fedora 32 is now the minimum supported version of Fedora.
 
  - When installing on Debian using the install.py script, ignore any version
    number information (or lack thereof) in /etc/os-release.
 
- - Fedora 32 is now the minimum supported version of Fedora.
-
  - When using the install.py script, don't install PyQt5 from PyPi when the
-   Linux distribution's package is relatively recent. Also: don't upgrade the
-   Python tools pip, setuptools, and wheel when they are relatively recent, and
-   don't install unsupported versions these same packages on Python 3.5.
+   Linux distribution's package is relatively recent. Also: don't default to
+   upgrading the system Python tools pip, setuptools, and wheel using pip when
+   they are relatively recent, and don't install unsupported versions these same
+   packages on Python 3.5.
 
  - Bump up minimum version of python-dateutil to allow recent versions of
    arrow to function. When using the install.py script, don't install
