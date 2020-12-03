@@ -4,6 +4,10 @@ Changelog for Rapid Photo Downloader
 0.9.25 (2020-12-xx)
 -------------------
 
+ - When a new Job Code is entered and no files are selected, the Job Code is
+   automatically saved. When entering a Job Code, "Remember this Choice" is now
+   labelled as "Remember this Job Code".
+
  - Fixed bug #1889770: Fails to run - Could not load the Qt platform plugin
    "xcb"
 
