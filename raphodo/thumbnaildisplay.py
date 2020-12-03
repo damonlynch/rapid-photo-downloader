@@ -437,7 +437,9 @@ class ThumbnailListModel(QAbstractListModel):
         elif role == Qt.ToolTipRole:
             devices = self.rapidApp.devices
             if len(devices) > 1:
-                device_name = devices[rpd_file.scan_id].display_name
+                # To account for situations where the device has been removed, use
+                # the display name from the device archive
+                device_name = devices.device_archive[rpd_file.scan_id].name
             else:
                 device_name = ''
             size = format_size_for_user(rpd_file.size)

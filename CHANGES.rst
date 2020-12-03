@@ -9,9 +9,12 @@ Changelog for Rapid Photo Downloader
    labelled as "Remember this Job Code".
 
  - Fixed bug #1889770: Fails to run - Could not load the Qt platform plugin
-   "xcb"
+   "xcb".
 
- - Fixed bug #1891659: Exception when encountering invalid block device
+ - Fixed bug #1906272: Exception while displaying tooltip for thumbnail of file
+   downloaded from a removed device.
+
+ - Fixed bug #1891659: Exception when encountering invalid block device.
 
  - Bump up minimum Python version supported to Python 3.5.
 
