@@ -984,7 +984,8 @@ def installed_using_pip(package: str) -> bool:
     pip_install = False
     try:
         pkg = pkg_resources.get_distribution(package)
-        pip_install = pkg.location.startswith(site.getuserbase())
+        location = pkg.location
+        pip_install = not location.startswith('/usr') or location.find('local') > 0
     except pkg_resources.DistributionNotFound:
         pass
     except Exception as e:
