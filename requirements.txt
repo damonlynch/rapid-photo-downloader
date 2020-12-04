@@ -2,7 +2,7 @@
 --index-url https://pypi.python.org/simple/
 
 psutil>=3.4.2
-gphoto2>=2.2.0
+gphoto2>=1.8.0
 pyzmq>=14.4.1,<=15.1.0; python_version < '3.6'
 pyzmq>=16.0.2; python_version >= '3.6'
 pyxdg>=0.25
@@ -11,7 +11,7 @@ arrow>=0.9.0; python_version >= '3.6'
 python-dateutil>=2.7
 PyPrind>=2.9.4
 colorlog>=2.6
-easygui<=0.97.4
+easygui>=0.98.1
 colour
 pymediainfo>=2.2.0
 sortedcontainers

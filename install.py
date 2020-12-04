@@ -469,7 +469,8 @@ def should_use_system_pyqt5(distro: Distro, distro_family: Distro,
         use_system_pyqt5 = True
     elif distro_family == Distro.debian:
         # Determine system version of PyQt5 to see if it is new enough
-        # Assume at this point that python-apt is installed
+        # Assume at this point that python-apt is installed (not necessarily the case
+        # in a venv)
         if have_apt:
             cache = apt.Cache()
             versions = [LooseVersion(v.version) for v in cache['python3-pyqt5'].versions]
@@ -1899,11 +1900,11 @@ def install_required_distro_packages(distro: Distro,
 
         missing_packages = []
         packages = 'gstreamer1.0-libav gstreamer1.0-plugins-good libimage-exiftool-perl '\
-                   'python3-dev intltool libgphoto2-dev g++ exiv2 build-essential ' \
+                   'python3-dev intltool g++ exiv2 build-essential ' \
                    'python3-wheel python3-setuptools gir1.2-gexiv2-0.10 libxkbcommon-x11-0 ' \
                    'python3-gi gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 '\
                    'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 gir1.2-gdkpixbuf-2.0 zenity ' \
-                   'libqt5x11extras5  libxcb-xinerama0 '
+                   'libqt5x11extras5 libxcb-xinerama0 '
 
         if install_pyqt5:
             packages = '{} python3-pyqt5 qt5-image-formats-plugins ' \
@@ -1925,7 +1926,8 @@ def install_required_distro_packages(distro: Distro,
             optional_python_packages = (
                 op for op in 'python3-easygui python3-sortedcontainers python3-tornado ' \
                              'python3-zmq python3-arrow python3-psutil python3-colorlog ' \
-                             'python3-babel'.split()
+                             'python3-babel python3-colour python3-pymediainfo ' \
+                             'python3-tenacity python3-easygui'.split()
                 if op in cache
             )
             if optional_python_packages:
@@ -1963,6 +1965,26 @@ def install_required_distro_packages(distro: Distro,
             extra_packages = ' '.join(debian_known_packages(' '.join(optional_packages)))
             if extra_packages:
                 packages = '{} {}'.format(packages, extra_packages)
+
+        # In Ubuntu 18.04 and newer, python3-gphoto2 is packaged as python3-gphoto2
+        # (In Ubuntu 16.04 and older, the python package name gphoto2 was unfortunately taken by
+        # python3-gphoto2cffi, which was to become an abandoned package).
+
+        use_system_python3_gphoto2 = False
+
+        # Determine the available version of python3-gphoto2:
+        if have_apt and not venv:
+            cache = apt.Cache()
+            if 'python3-gphoto2' in cache:
+                versions = [LooseVersion(v.version) for v in cache['python3-gphoto2'].versions]
+                version = max(versions)
+                # Ensure gphoto2 minimum version in requirements.txt is consistent with this value:
+                use_system_python3_gphoto2 = version >= LooseVersion('1.8.2')
+
+        if use_system_python3_gphoto2:
+            packages = '{} python3-gphoto2'.format(packages)
+        else:
+            packages = '{} libgphoto2-dev'.format(packages)
 
         for package in packages.split():
             if have_apt:
@@ -2010,7 +2032,7 @@ def install_required_distro_packages(distro: Distro,
         missing_packages = []
 
         packages = 'gstreamer1-plugins-good ' \
-                   'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool gcc-c++ ' \
+                   'zeromq-devel exiv2 perl-Image-ExifTool gcc-c++ ' \
                    'rpm-build intltool libmediainfo python3-wheel zenity ' \
                    'libheif-devel libde265-devel x265-devel gstreamer1-libav'
 
@@ -2029,10 +2051,14 @@ def install_required_distro_packages(distro: Distro,
                                    'python3-babel python3-pillow'
 
             if distro == Distro.fedora:
-                base_python_packages = '{} python3-gexiv2'.format(base_python_packages)
+                base_python_packages = '{} python3-gexiv2 python3-gphoto2 python3-arrow ' \
+                                       'python3-sortedcontainers python3-zmq python3-colour ' \
+                                       'python3-colorlog python3-pymediainfo ' \
+                                       'python3-tenacity'.format(base_python_packages)
             else:
                 base_python_packages = '{} gobject-introspection-devel ' \
-                                       'cairo-gobject-devel'.format(base_python_packages)
+                                       'cairo-gobject-devel ' \
+                                       'libgphoto2-devel'.format(base_python_packages)
 
             packages = '{} {}'.format(packages, base_python_packages)
 
@@ -2043,7 +2069,7 @@ def install_required_distro_packages(distro: Distro,
             build_source_packages = 'gcc zlib-devel bzip2 bzip2-devel readline-devel '\
                                     'sqlite sqlite-devel openssl-devel tk-devel git ' \
                                     'cairo-gobject-devel ' \
-                                    'gobject-introspection-devel zeromq'
+                                    'gobject-introspection-devel zeromq libgphoto2-devel'
 
             if distro == Distro.fedora:
                 build_source_packages = '{} python3-cairo-devel'.format(build_source_packages)
@@ -2120,7 +2146,7 @@ def install_required_distro_packages(distro: Distro,
     elif distro_family == Distro.opensuse:
 
         packages = 'zeromq-devel exiv2 exiftool python3-devel ' \
-                   'libgphoto2-devel libraw-devel gcc-c++ rpm-build intltool zenity '
+                   'libraw-devel gcc-c++ rpm-build intltool zenity '
 
         if install_pyqt5:
             packages = 'python3-qt5 libqt5-qtimageformats libQt5Svg5 {}'.format(packages)
@@ -2130,7 +2156,8 @@ def install_required_distro_packages(distro: Distro,
                                    'python3-psutil python3-tornado python3-Babel ' \
                                    'typelib-1_0-GExiv2-0_10 typelib-1_0-UDisks-2_0 ' \
                                    'typelib-1_0-Notify-0_7 ' \
-                                   'typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0 '
+                                   'typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0 ' \
+                                   'python3-gphoto2 python3-arrow'
 
             packages = '{} {}'.format(packages, base_python_packages)
 
@@ -2138,7 +2165,8 @@ def install_required_distro_packages(distro: Distro,
                 packages = 'python3-requests {}'.format(packages)
 
         else:
-            build_source_packages = 'gobject-introspection-devel python3-cairo-devel openssl zlib git'
+            build_source_packages = 'gobject-introspection-devel python3-cairo-devel ' \
+                                    'openssl zlib git libgphoto2-devel'
             packages = '{} {}'.format(packages, build_source_packages)
 
         libmediainfo = 'libmediainfo0'

@@ -1224,18 +1224,27 @@ def available_languages(display_locale_code: str='') -> List[Tuple[str, str]]:
     return langs
 
 
-def installed_using_pip(package='rapid-photo-downloader') -> bool:
+def installed_using_pip(package: str, suppress_errors: bool = True) -> bool:
     """
     Determine if python package was installed in local directory using pip.
+
+    Determination is not 100% robust in all circumstances.
 
     Exceptions are not caught.
 
     :param package: package name to search for
+    :param suppress_errors: if True, silently catch all exceptions and return False
     :return: True if installed via pip, else False
     """
 
-    pkg = pkg_resources.get_distribution(package)
-    return pkg.location.startswith(site.getuserbase())
+    try:
+        pkg = pkg_resources.get_distribution(package)
+        location = pkg.location
+        return not location.startswith('/usr') or location.find('local') > 0
+    except Exception:
+        if not suppress_errors:
+            raise
+        return False
 
 
 def getQtSystemTranslation(locale_name: str) -> Optional[QTranslator]:

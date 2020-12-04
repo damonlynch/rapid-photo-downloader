@@ -134,7 +134,9 @@ class NewVersion(QObject):
 
         if not self.installed_via_pip_check_made:
             try:
-                self.installed_via_pip = installed_using_pip()
+                self.installed_via_pip = installed_using_pip(
+                    'rapid-photo-downloader', suppress_errors=False
+                )
             except Exception:
                 logging.debug(
                     "Exception encountered when checking if pip was used to install "

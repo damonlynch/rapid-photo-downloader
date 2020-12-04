@@ -201,8 +201,7 @@ Rapid Photo Downloader can be installed into a virtual environment, allowing you
 to isolate the Python packages it needs from other programs on your system.
 
 Virtual environments created with the --system-site-packages option are not
-supported. Python 3.5 or newer is required, as is an Intel or AMD 64 bit
-platform.
+supported. An Intel or AMD 64 bit platform is required.
 
 To install Rapid Photo Downloader into a Python virtual environment, create the
 virtual environment (naming it whatever you like):

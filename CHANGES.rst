@@ -4,9 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.25 (2020-12-xx)
 -------------------
 
- - When a new Job Code is entered and no files are selected, the Job Code is
-   automatically saved. When entering a Job Code, "Remember this Choice" is now
-   labelled as "Remember this Job Code".
+ - When a new Job Code is entered before a download and no files are selected,
+   the Job Code is automatically saved. When entering a Job Code, "Remember this
+   Choice" is now labelled as "Remember this Job Code".
 
  - Fixed bug #1889770: Fails to run - Could not load the Qt platform plugin
    "xcb".
@@ -27,11 +27,13 @@ Changelog for Rapid Photo Downloader
  - When installing on Debian using the install.py script, ignore any version
    number information (or lack thereof) in /etc/os-release.
 
- - When using the install.py script, don't install PyQt5 from PyPi when the
-   Linux distribution's package is relatively recent. Also: don't default to
-   upgrading the system Python tools pip, setuptools, and wheel using pip when
-   they are relatively recent, and don't install unsupported versions these same
-   packages on Python 3.5.
+ - When using the install.py script, don't install PyQt5 and python3-gphoto2
+   from PyPi when the Linux distribution's package is relatively recent. Also:
+   don't default to installing the PyPi Python tools pip, setuptools, and wheel
+   using pip when the system packages are relatively recent, and don't install
+   unsupported versions these same packages on Python 3.5.
+
+ - Bump up minimum version of python package easygui to 0.98.1.
 
  - Bump up minimum version of python-dateutil to allow recent versions of
    arrow to function. When using the install.py script, don't install

@@ -5913,6 +5913,17 @@ class QtSingleApplication(QApplication):
             self.messageReceived.emit(msg)
 
 
+def python_package_source(package: str) -> str:
+    """
+    Return package installation source for Python package
+    :param package: package name
+    :return:
+    """
+
+    pip_install = '(installed using pip)'
+    system_package = '(system package)'
+    return pip_install if installed_using_pip(package) else system_package
+
 def get_versions(file_manager: Optional[str],
                  file_manager_type: Optional[FileManagerType],
                  scaling_action: ScalingAction,
@@ -5929,33 +5940,25 @@ def get_versions(file_manager: Optional[str],
     except Exception:
         total = used = 'unknown'
 
-    try:
-        pip_install = installed_using_pip()
-    except Exception:
-        pip_install = False
-
-    try:
-        pyqt_pip = installed_using_pip('PyQt5')
-    except Exception:
-        pyqt_pip = False
-
-    pyqt_pip_msg = '(installed using pip)' if pyqt_pip else '(system package)'
+    rpd_pip_install = installed_using_pip('rapid-photo-downloader')
 
     versions = [
         'Rapid Photo Downloader: {}'.format(__about__.__version__),
         'Platform: {}'.format(platform.platform()),
         'Memory: {} used of {}'.format(used, total),
         'Confinement: {}'.format('snap' if is_snap() else 'none'),
-        'Installed using pip: {}'.format('yes' if pip_install else 'no'),
+        'Installed using pip: {}'.format('yes' if rpd_pip_install else 'no'),
         'Python: {}'.format(platform.python_version()),
         'Python executable: {}'.format(sys.executable),
         'Qt: {}'.format(QtCore.QT_VERSION_STR),
-        'PyQt: {} {}'.format(QtCore.PYQT_VERSION_STR, pyqt_pip_msg),
+        'PyQt: {} {}'.format(QtCore.PYQT_VERSION_STR, python_package_source('PyQt5')),
         'SIP: {}'.format(sip.SIP_VERSION_STR),
         'ZeroMQ: {}'.format(zmq.zmq_version()),
         'Python ZeroMQ: {} ({} backend)'.format(zmq.pyzmq_version(), pyzmq_backend),
         'gPhoto2: {}'.format(gphoto2_version()),
-        'Python gPhoto2: {}'.format(python_gphoto2_version()),
+        'Python gPhoto2: {} {}'.format(
+            python_gphoto2_version(), python_package_source('gphoto2')
+        ),
         'ExifTool: {}'.format(EXIFTOOL_VERSION),
         'pymediainfo: {}'.format(pymedia_version_info()),
         'GExiv2: {}'.format(gexiv2_version()),
@@ -5973,7 +5976,7 @@ def get_versions(file_manager: Optional[str],
     except:
         pass
     try:
-        versions.append('Arrow: {}'.format(arrow.__version__))
+        versions.append('Arrow: {} {}'.format(arrow.__version__, python_package_source('arrow')))
         versions.append('dateutil: {}'.format(dateutil.__version__))
     except AttributeError:
         pass
@@ -5995,7 +5998,7 @@ def get_versions(file_manager: Optional[str],
         if session.find('wayland') >= 0:
             wayland_platform = os.getenv('QT_QPA_PLATFORM', '')
             if wayland_platform != 'wayland':
-                session = 'wayland desktop (but this application is probably running in XWayland)'
+                session = 'wayland desktop (but this application might be running in XWayland)'
                 break
             else:
                 session = 'wayland desktop (with wayland enabled for this application)'
