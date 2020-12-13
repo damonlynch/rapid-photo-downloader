@@ -37,7 +37,7 @@ Changelog for Rapid Photo Downloader
 
  - Bump up minimum version of python-dateutil to allow recent versions of
    arrow to function. When using the install.py script, don't install
-   unsupported versions of arrow on Python 3.5.
+   unsupported versions of arrow or pymediainfo on Python 3.5.
 
  - When using the install.py script, don't install the unmaintained python
    package rawkit on systems that do not contain libraw 0.16 or 0.17.

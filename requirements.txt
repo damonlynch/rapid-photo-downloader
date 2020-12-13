@@ -13,7 +13,8 @@ PyPrind>=2.9.4
 colorlog>=2.6
 easygui>=0.98.1
 colour
-pymediainfo>=2.2.0
+pymediainfo>=2.2.0,<=4.3.0; python_version < '3.6'
+pymediainfo>=2.2.0; python_version >= '3.6
 sortedcontainers
 requests
 tornado
