@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.25 (2020-12-xx)
+0.9.25 (2020-12-15)
 -------------------
 
  - When a new Job Code is entered before a download and no files are selected,
@@ -41,6 +41,9 @@ Changelog for Rapid Photo Downloader
 
  - When using the install.py script, don't install the unmaintained python
    package rawkit on systems that do not contain libraw 0.16 or 0.17.
+
+ - Update Danish, Dutch, French, German, Hungarian, Russian, Serbian, and
+   Spanish translations. Add partially translated Albanian translation.
 
 0.9.24 (2020-05-03)
 -------------------

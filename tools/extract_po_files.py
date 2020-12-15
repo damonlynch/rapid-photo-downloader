@@ -55,7 +55,7 @@ blacklist = ['gl', 'lt', 'fil', 'en_AU', 'en_GB', 'en_US', 'en_CA', 'eo', 'ku', 
 whitelist = [
     'ar', 'da', 'fr', 'it', 'fi', 'sk', 'ru', 'sr', 'es', 'pl', 'nl', 
     'sv', 'cs', 'hu', 'de', 'uk', 'zh_CN', 'pt_BR', 'tr', 'bg', 'ja', 'oc', 
-    'nn', 'nb', 'pt', 'hr', 'ro', 'id', 'kab', 'et', 'be', 'ca', 'el'
+    'nn', 'nb', 'pt', 'hr', 'ro', 'id', 'kab', 'et', 'be', 'ca', 'el', 'sq'
 ]
 
 class bcolors:
