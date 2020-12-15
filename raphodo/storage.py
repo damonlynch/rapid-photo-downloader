@@ -1650,8 +1650,9 @@ if have_gio:
             device_path = volume.get_identifier(
                 Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE
             )
-
-            if self.unixDevicePathIsCamera(device_path):
+            if device_path is None:
+                logging.error("Unable to determine device path of %s", volume_name)
+            elif self.unixDevicePathIsCamera(device_path):
                 self.camera_volumes_added[device_path] = volume_name
                 logging.debug(
                     "%s is a camera at %s", volume_name, device_path
