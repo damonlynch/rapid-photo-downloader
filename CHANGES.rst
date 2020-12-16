@@ -30,7 +30,8 @@ Changelog for Rapid Photo Downloader
 
  - Fedora 32 is now the minimum supported version of Fedora. Please note Fedora
    33 is not recommended for now, because of an issue with Python 3.9 and
-   Python threads seen when running Rapid Photo Downloader.
+   Python threads seen when running Rapid Photo Downloader in Fedora 33. In
+   contrast to Fedora 33, Ubuntu 21.04 with Python 3.9 works as expected.
 
  - When installing on Debian using the install.py script, ignore any version
    number information (or lack thereof) in /etc/os-release.
