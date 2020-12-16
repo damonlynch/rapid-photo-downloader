@@ -8,13 +8,19 @@ Changelog for Rapid Photo Downloader
    the Job Code is automatically saved. When entering a Job Code, "Remember this
    Choice" is now labelled as "Remember this Job Code".
 
- - Fixed bug #1889770: Fails to run - Could not load the Qt platform plugin
+ - Fix bug #1889770: Fails to run - Could not load the Qt platform plugin
    "xcb".
 
- - Fixed bug #1906272: Exception while displaying tooltip for thumbnail of file
+ - Fix bug #1906272: Exception while displaying tooltip for thumbnail of file
    downloaded from a removed device.
 
- - Fixed bug #1891659: Exception when encountering invalid block device.
+ - Fix bug #1891659: Exception when encountering invalid block device.
+
+ - Fix bug #1881255: Unhandled exception when system file manager entry is
+   malformed. The AppImages for RawTherapee and ART can have an unfortunate bug
+   in which they wrongly sets themselves to be the path to the desktop's
+   default file manger. Rapid Photo Downloader no longer crashes when trying to
+   work with that incorrect setting.
 
  - Bump up minimum Python version supported to Python 3.5.
 

@@ -439,7 +439,7 @@ def gvfs_controls_mounts() -> bool:
     desktop = get_desktop()
     if desktop in (Desktop.gnome, Desktop.unity, Desktop.cinnamon, Desktop.xfce,
                    Desktop.mate, Desktop.lxde, Desktop.ubuntugnome,
-                   Desktop.popgnome, Desktop.gnome, Desktop.lxqt):
+                   Desktop.popgnome, Desktop.gnome, Desktop.lxqt, Desktop.pantheon):
         return True
     elif desktop == Desktop.kde:
         return False
@@ -686,15 +686,26 @@ def get_default_file_manager() -> Tuple[Optional[str], Optional[FileManagerType]
 
             fm = desktop_entry.getExec()
 
-            # Unhelpful results
-            if fm.startswith('baobab') or fm.startswith('exo-open'):
-                logging.debug('%s returned as default file manager: will substitute', fm)
-                return _default_file_manager_for_desktop()
-
             # Strip away any extraneous arguments
             fm_cmd = fm.split()[0]
             # Strip away any path information
             fm_cmd = os.path.split(fm_cmd)[1]
+            # Strip away any quotes
+            fm_cmd = fm_cmd.replace('"', '')
+            fm_cmd = fm_cmd.replace("'", '')
+
+            # Unhelpful results
+            invalid_file_managers = ('baobab', 'exo-open', 'RawTherapee', 'ART')
+            for invalid_file_manger in invalid_file_managers:
+                if fm_cmd.startswith(invalid_file_manger):
+                    logging.warning('%s is an invalid file manager: will substitute', fm)
+                    return _default_file_manager_for_desktop()
+
+            # Nonexistent file managers
+            if shutil.which(fm_cmd) is None:
+                logging.warning('Default file manager %s does not exist: will substitute', fm)
+                return _default_file_manager_for_desktop()
+
             try:
                 file_manager_type = FileManagerBehavior[fm_cmd]
             except KeyError:
