@@ -503,7 +503,8 @@ class Desktop(Enum):
     deepin = 11
     zorin = 12
     ukui = 13
-    unknown = 14
+    pantheon = 14
+    unknown = 15
 
 
 class FileManagerType(Enum):
@@ -521,10 +522,11 @@ FileManagerBehavior = dict(
     thunar=FileManagerType.dir_only_uri,
     nemo=FileManagerType.regular,
     pcmanfm=FileManagerType.dir_only_uri,
-    peony=FileManagerType.show_items
+    peony=FileManagerType.show_items,
 )
 FileManagerBehavior['pcmanfm-qt'] = FileManagerType.dir_only_uri
 FileManagerBehavior['dde-file-manager'] = FileManagerType.show_item
+FileManagerBehavior['io.elementary.files'] = FileManagerType.regular
 
 
 DefaultFileBrowserFallback = dict(
@@ -540,6 +542,7 @@ DefaultFileBrowserFallback = dict(
     lxqt='pcmanfm-qt',
     deepin='dde-file-manager',
     kylin='peony',
+    pantheon='io.elementary.files',
 )
 
 
