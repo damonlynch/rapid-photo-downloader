@@ -551,9 +551,9 @@ def latest_pypi_version(package_name: str, ignore_prerelease: bool) -> str:
 
 
 def is_recent_pypi_package(package_name: str,
-                           show_message: bool = True,
-                           ignore_prerelease: bool = True,
-                           minimum_version: str = None
+                           show_message: Optional[bool] = True,
+                           ignore_prerelease: Optional[bool] = True,
+                           minimum_version: Optional[str] = None
                            ) -> bool:
     """
     Determine if Python package is recent.
