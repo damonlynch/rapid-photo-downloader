@@ -171,9 +171,8 @@ def installed_using_pip(package: str) -> bool:
     pip_install = False
     try:
         pkg = pkg_resources.get_distribution(package)
-        if pkg.has_metadata('INSTALLER'):
-            if pkg.get_metadata('INSTALLER').strip() == 'pip':
-                pip_install = True
+        location = pkg.location
+        pip_install = not location.startswith('/usr') or location.find('local') > 0
     except pkg_resources.DistributionNotFound:
         pass
     except Exception as e:
@@ -200,10 +199,43 @@ def pypi_versions(package_name: str):
     return sorted(list(data["releases"].keys()), key=pkg_resources.parse_version, reverse=True)
 
 
-def is_latest_pypi_package(package_name: str) -> bool:
+def latest_pypi_version(package_name: str, ignore_prerelease: bool) -> str:
     """
-    Determine if Python package is the most recently installable version
+    Determine the latest version of a package available on PyPi.
+
+    No error checking.
+
+    :param package_name: package to search for
+    :param ignore_prerelease: if True, don't include pre-release versions
+    :return: latest version as string
+    """
+
+    versions = pypi_versions(package_name)
+    if not ignore_prerelease:
+        return versions[0].strip()
+
+    return next(
+        (v for v in versions if not pkg_resources.parse_version(v).is_prerelease), ''
+    ).strip()
+
+
+def is_recent_pypi_package(package_name: str,
+                           minimum_version: str = None
+                           ) -> bool:
+    """
+    Determine if Python package is recent.
+
+    If a minimum version is specified, checks to see if the installed version
+    is greater than or equal to the minimum version.
+
+    If no minimum version is specified, checks to see if the installed version
+    is the latest version available on PyPi.
+
     :param package_name: package to check
+    :param show_message: if True, show message to user indicating package will
+     be upgraded
+    :param ignore_prerelease: if True, don't check against prerelease versions
+    :param minimum_version: minimum package version that is sufficient
     :return: True if is most recent, else False
     """
 
@@ -211,20 +243,24 @@ def is_latest_pypi_package(package_name: str) -> bool:
     if not current:
         return False
 
-    try:
-        versions = pypi_versions(package_name)
-    except Exception:
-        versions = []
-    if not versions:
-        # Something has gone wrong in the versions check
-        sys.stderr.write(
-            "Failed to determine latest version of Python package {}\n".format(package_name)
-        )
-        return False
+    up_to_date = False
+    latest = None
 
-    latest = versions[0]
+    if minimum_version:
+        up_to_date = pkg_resources.parse_version(minimum_version) <= \
+                     pkg_resources.parse_version(current)
 
-    up_to_date = latest.strip() == current.strip()
+    if not up_to_date:
+        try:
+            latest = latest_pypi_version(package_name, ignore_prerelease=True)
+        except Exception:
+            # Something has gone wrong in the versions check
+            sys.stderr.write(
+                "Failed to determine latest version of Python package {}\n".format(package_name)
+            )
+            return False
+
+        up_to_date = latest.strip() == current.strip()
 
     return up_to_date
 
@@ -318,7 +354,7 @@ class RunInstallProcesses:
         if requirements:
             self.send_message("Installing application requirements...\n")
             cmd = self.make_pip_command(
-                'install --user --upgrade -r {}'.format(
+                'install --user -r {}'.format(
                     temp_requirements_name
                 )
             )
@@ -327,10 +363,11 @@ class RunInstallProcesses:
                     for line in p.stdout:
                         self.send_message(line, truncate=True)
                     p.wait()
+                    stderr = p.stderr.read()
                     i = p.returncode
                 os.remove(temp_requirements_name)
                 if i != 0:
-                    self.failure("Failed to install application requirements: %i" % i)
+                    self.failure("Failed to install application requirements: %s" % stderr)
                     return
             except Exception as e:
                 self.send_message(str(e))
@@ -445,12 +482,35 @@ class RunInstallProcesses:
     def update_pip_setuptools_wheel(self):
         """
         Update pip, setuptools and wheel to the latest versions, if necessary.
+
+        For Python 3.5, freeze packages at arbitrary 2020-11-13 state,
+        because Python 3.5 is already EOL, i.e. pip 20.2.4, setuptools 50.3.2,
+        and wheel 0.35.
+        pip 20.3 is the last version compatible with Python 3.5.
+        setuptools and wheel cannot be too far off Python 3.5 incompatibility either.
         """
 
-        packages = [
-            package for package in ('pip', 'setuptools', 'wheel')
-            if not installed_using_pip(package) or not is_latest_pypi_package(package)
-        ]
+        python35 = sys.version_info < (3, 6)
+        if python35:
+            package_details = [
+                package for package in (('pip', '20.2.4'), ('setuptools', '50.3.2'), ('wheel', '0.35'))
+                if pkg_resources.parse_version(python_package_version(package[0])) <
+                   pkg_resources.parse_version(package[1])
+            ]
+            packages = [p[0] for p in package_details]
+        else:
+            packages = []
+            # Upgrade the packages if they are already installed using pip, or
+            # Upgrade the system packages only if they are old
+
+            package_details = [('pip', '19.3.1'), ('setuptools', '41.6.0'), ('wheel', '0.33.6')]
+
+            for package, version in package_details:
+                if installed_using_pip(package):
+                    if not is_recent_pypi_package(package):
+                        packages.append(package)
+                elif not is_recent_pypi_package(package, minimum_version=version):
+                    packages.append(package)
 
         if packages:
             self.send_message(
@@ -458,10 +518,13 @@ class RunInstallProcesses:
                 '{}'.format(', '.join(packages))
             )
 
+            if python35:
+                package_listing = ' '.join(['{}=={}'.format(p[0], p[1]) for p in package_details])
+            else:
+                package_listing = ' '.join(packages)
+
             cmd = self.make_pip_command(
-                'install --user --upgrade {}'.format(
-                    ' '.join(packages)
-                )
+                'install --user --upgrade {}'.format(package_listing)
             )
             try:
                 with Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
@@ -476,6 +539,8 @@ class RunInstallProcesses:
                 self.send_message(str(e))
                 self.failure("Failed to upgrade essential Python tools")
                 return
+        else:
+            self.send_message('The Python tools pip, setuptools, and wheel are up to date.\n')
 
 
 class RPDUpgrade(QObject):
@@ -698,7 +763,8 @@ class UpgradeDialog(QDialog):
     @pyqtSlot()
     def runNewVersion(self) -> None:
         cmd = shutil.which('rapid-photo-downloader')
-        subprocess.Popen(cmd)
+        if cmd is not None:
+            subprocess.Popen(cmd)
         super().accept()
 
 
