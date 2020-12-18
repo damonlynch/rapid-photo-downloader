@@ -1,6 +1,14 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.26 (2020-12-xx)
+-------------------
+
+ - Ensure in-program upgrade feature continues to function on systems with
+   Python 3.5.
+
+ - Update Brazilian Portuguese, Japanese and Turkish translations.
+
 0.9.25 (2020-12-15)
 -------------------
 
