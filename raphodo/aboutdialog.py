@@ -23,6 +23,7 @@ Display an About window
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016-2020, Damon Lynch"
 
+import re
 
 from PyQt5.QtCore import Qt, pyqtSlot, QSize
 from PyQt5.QtGui import QPixmap, QFont
@@ -83,7 +84,7 @@ class AboutDialog(QDialog):
 
         details = QLabel(msg)
 
-        style_sheet = """QLabel {
+        details_style_sheet = """QLabel {
         color: white;
         background-color: %(transparency)s;
         margin-left: 0px;
@@ -93,7 +94,7 @@ class AboutDialog(QDialog):
         padding-bottom: 6px;
         }""" % dict(left_margin=left_margin, transparency=transparency)
 
-        details.setStyleSheet(style_sheet)
+        details.setStyleSheet(details_style_sheet)
         details.setOpenExternalLinks(True)
         details.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         font = self.font()  # type: QFont
@@ -132,62 +133,9 @@ class AboutDialog(QDialog):
         Lightbulb icon courtesy %(artlink5)s.
         Unlink icon courtesy %(artlink6)s.
         Clock icon courtesy %(artlink7)s.
-
-        Translators:
-
-        Ilker Alp <ilkeryus@gmail.com>
-        Anton Alyab'ev <subeditor@dolgopa.org>
-        Lőrincz András <level.andrasnak@gmail.com>
-        Michel Ange <michelange@wanadoo.fr>
-        Tobias Bannert <tobannert@gmail.com>
-        Adolfo Jayme Barrientos <fitoschido@gmail.com>
-        Alain J. Baudrez <a.baudrez@gmail.com>
-        Mohammed Belkacem <belkacem77@gmail.com>
-        Kevin Brubeck Unhammer <unhammer@fsfe.org>
-        Pavel Borecki <pavel.borecki@gmail.com>
-        Bert <crinbert@yahoo.com>
-        Martin Dahl Moe
-        Marco de Freitas <marcodefreitas@gmail.com>
-        Martin Egger <martin.egger@gmx.net>
-        Tauno Erik <tauno.erik@gmail.com>
-        Sergiy Gavrylov <sergiovana@bigmir.net>
-        Emanuele Grande <caccolangrifata@gmail.com>
-        Torben Gundtofte-Bruun <torben@g-b.dk>
-        Мирослав Николић <miroslavnikolic@rocketmail.com>
-        Harald H <haarektrans@gmail.com>
-        Joachim Johansson <joachim.j@gmail.com>
-        Evgeny Kozlov <evgeny.kozlov.mailbox@gmail.com>
-        Toni Lähdekorpi <toni@lygon.net>
-        Jean-Marc Lartigue <m.balthazar@orange.fr>
-        Miroslav Matejaš <silverspace@ubuntu-hr.org>
-        Erik M
-        Frederik Müller <spheniscus@freenet.de>
-        Jose Luis Navarro <jlnavarro111@gmail.com>
-        Tomas Novak <kuvaly@seznam.cz>
-        Abel O'Rian <abel.orian@gmail.com>
-        Balazs Oveges <ovegesb@freemail.hu>
-        Daniel Paessler <daniel@paessler.org>
-        Miloš Popović <gpopac@gmail.com>
-        Michal Predotka <mpredotka@googlemail.com>
-        Ye Qing <allen19920930@gmail.com>
-        Luca Reverberi <thereve@gmail.com>
-        Mikko Ruohola <polarfox@polarfox.net>
-        Ahmed Shubbar <ahmed.shubbar@gmail.com>
-        Sergei Sedov <sedov@webmail.perm.ru>
-        Marco Solari <marcosolari@gmail.com>
-        Jose Luis Tirado <joseluis.tirado@gmail.com>
-        Ilya Tsimokhin <ilya@tsimokhin.com>
-        Ulf Urdén <ulf.urden@purplescout.com>
-        Julien Valroff <julien@kirya.net>
-        Dimitris Xenakis <dx@nkdx.gr>
-        Aron Xu <happyaron.xu@gmail.com>
-        Koji Yokota <yokota6@gmail.com>
-        Nicolás M. Zahlut <nzahlut@live.com>
-        梁其学 <yalongbay@gmail.com>
         """
 
-        for i, j in (('<', '&lt;'), ('>', '&gt;'), ('\n', '<br>\n')):
-            credits_text = credits_text.replace(i, j)
+        credits_text = credits_text.replace('\n', '<br>\n')
 
         credits_text = credits_text % dict(
             photolink="""<a href="https://500px.com/photo/246096445/afghan-men-pulling-heavy-load-
@@ -205,7 +153,7 @@ class AboutDialog(QDialog):
                      'white;">Pixel perfect</a>'
         )
 
-        style_sheet = """QLabel {
+        label_style_sheet = """QLabel {
         background-color: rgba(0, 0, 0, 0);
         color: white;
         padding-left: %(left_margin)dpx;
@@ -216,23 +164,150 @@ class AboutDialog(QDialog):
 
         creditsLabel = QLabel(credits_text)
         creditsLabel.setFont(font)
-        creditsLabel.setStyleSheet(style_sheet)
+        creditsLabel.setStyleSheet(label_style_sheet)
         creditsLabel.setOpenExternalLinks(True)
 
-        credits  = QScrollArea()
+        credits = QScrollArea()
         credits.setWidget(creditsLabel)
-        style_sheet = """QScrollArea {
+        scroll_area_style_sheet = """QScrollArea {
         background-color: %(transparency)s;
         border: 0px;
         }
         """ % dict(transparency=transparency)
-        credits.setStyleSheet(style_sheet)
+        credits.setStyleSheet(scroll_area_style_sheet)
+
+        # Translators view
+
+        translators_text = """
+        <b>Algerian</b>
+        Algent Albrahimi <algent@protonmail.com>
+
+        <b>Belarusian</b>
+        Ilya Tsimokhin <ilya@tsimokhin.com>
+
+        <b>Brazilian Portuguese</b>
+        Ney Walens de Mesquita <walens@gmail.com>
+        Rubens Stuginski Jr <rubens.stuginski@gmail.com>
+
+        <b>Catalan</b>
+        Adolfo Jayme Barrientos <fitoschido@gmail.com>
+
+        <b>Czech</b>
+        Pavel Borecki <pavel.borecki@gmail.com>
+
+        <b>Danish</b>
+        Torben Gundtofte-Bruun <torben@g-b.dk>
+
+        <b>Dutch</b>
+        Alain J. Baudrez <a.baudrez@gmail.com>
+
+        <b>Estonian</b>
+        Tauno Erik <tauno.erik@gmail.com>
+
+        <b>Finnish</b>
+        Mikko Ruohola <mikko@ruohola.org>
+
+        <b>French</b>
+        Jean-Marc Lartigue <m.balthazar@posteo.net>
+
+        <b>Greek</b>
+        Dimitris Xenakis <dx@nkdx.gr>
+
+        <b>Hungarian</b>
+        László <csola48@gmail.com>
+        András Lőrincz <level.andrasnak@gmail.com>
+
+        <b>Italian</b>
+        Matteo Carotta <matteo.carotta@gmail.com>
+        Milo Casagrande <milo.casagrande@gmail.com>
+
+        <b>Japanese</b>
+        Koji Yokota <yokota6@gmail.com>
+
+        <b>Kabyle</b>
+        Mohammed Belkacem <belkacem77@gmail.com>
+
+        <b>Norwegian Bokmal</b>
+        Harlad H <haarektrans@gmail.com>
+
+        <b>Norwegian Nynorsk</b>
+        Kevin Brubeck Unhammer <unhammer@fsfe.org>
+        Harlad H <haarektrans@gmail.com>
+
+        <b>Polish</b>
+        Michal Predotka <mpredotka@googlemail.com>
+
+        <b>Russian</b>
+        Evgeny Kozlov <evgeny.kozlov.mailbox@gmail.com>
+
+        <b>Serbian</b>
+        Мирослав Николић <miroslavnikolic@rocketmail.com>
+
+        <b>Slovak</b>
+        Robert Valik <robert@valik.sk>
+
+        <b>Spanish</b>
+        Adolfo Jayme Barrientos <fitoschido@gmail.com>
+        Jose Luis Tirado <joseluis.tirado@gmail.com>
+
+        <b>Swedish</b>
+        Joachim Johansson <joachim.j@gmail.com>
+
+        <b>Turkish</b>
+        Ilker Alp <ilkeryus@gmail.com>
+
+        <b>Previous translators</b>
+        Anton Alyab'ev <subeditor@dolgopa.org>
+        Michel Ange <michelange@wanadoo.fr>
+        Tobias Bannert <tobannert@gmail.com>
+        Bert <crinbert@yahoo.com>
+        Martin Dahl Moe
+        Marco de Freitas <marcodefreitas@gmail.com>
+        Martin Egger <martin.egger@gmx.net>
+        Sergiy Gavrylov <sergiovana@bigmir.net>
+        Emanuele Grande <caccolangrifata@gmail.com>
+        Toni Lähdekorpi <toni@lygon.net>
+        Miroslav Matejaš <silverspace@ubuntu-hr.org>
+        Erik M
+        Frederik Müller <spheniscus@freenet.de>
+        Jose Luis Navarro <jlnavarro111@gmail.com>
+        Tomas Novak <kuvaly@seznam.cz>
+        Abel O'Rian <abel.orian@gmail.com>
+        Balazs Oveges <ovegesb@freemail.hu>
+        Daniel Paessler <daniel@paessler.org>
+        Miloš Popović <gpopac@gmail.com>
+        Ye Qing <allen19920930@gmail.com>
+        Luca Reverberi <thereve@gmail.com>
+        Ahmed Shubbar <ahmed.shubbar@gmail.com>
+        Sergei Sedov <sedov@webmail.perm.ru>
+        Marco Solari <marcosolari@gmail.com>
+        Ulf Urdén <ulf.urden@purplescout.com>
+        Julien Valroff <julien@kirya.net>
+        Aron Xu <happyaron.xu@gmail.com>
+        Nicolás M. Zahlut <nzahlut@live.com>
+        梁其学 <yalongbay@gmail.com>
+        """
+
+        # Replace < and > in email addresses
+        translators_text = re.sub(
+            r'<(.+)@(.+)>', r'&lt;\1@\2&gt;', translators_text, flags=re.MULTILINE
+        )
+        translators_text = translators_text.replace('\n', '<br>\n')
+
+        translatorsLabel = QLabel(translators_text)
+        translatorsLabel.setFont(font)
+        translatorsLabel.setStyleSheet(label_style_sheet)
+
+        translators  = QScrollArea()
+        translators.setWidget(translatorsLabel)
+        translators.setStyleSheet(scroll_area_style_sheet)
 
         mainLayout = QVBoxLayout()
 
         self.stack = QStackedWidget()
         self.stack.addWidget(about)
         self.stack.addWidget(credits)
+        self.stack.addWidget(translators)
         self.stack.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         buttonBox = QDialogButtonBox()
@@ -243,6 +318,11 @@ class AboutDialog(QDialog):
         )  # type: QPushButton
         self.creditsButton.setDefault(False)
         self.creditsButton.setCheckable(True)
+        self.translatorsButton = buttonBox.addButton(
+            _('Translators'), QDialogButtonBox.ResetRole
+        )  # type: QPushButton
+        self.translatorsButton.setDefault(False)
+        self.translatorsButton.setCheckable(True)
         closeButton.setDefault(True)
 
         buttonLayout = QVBoxLayout()
@@ -254,11 +334,11 @@ class AboutDialog(QDialog):
         version = QLabel(__about__.__version__)
         version.setFixedHeight(white_box_height-title_bottom)
 
-        style_sheet = """QLabel {
+        version_style_sheet = """QLabel {
         padding-left: %(left_margin)dpx;
         }""" % dict(left_margin=left_margin)
 
-        version.setStyleSheet(style_sheet)
+        version.setStyleSheet(version_style_sheet)
 
         mainLayout.addSpacing(title_bottom)
         mainLayout.addWidget(version)
@@ -268,14 +348,28 @@ class AboutDialog(QDialog):
         self.setLayout(mainLayout)
 
         buttonBox.rejected.connect(self.reject)
-        buttonBox.helpRequested.connect(self.showCredits)
+        self.creditsButton.clicked.connect(self.creditsButtonClicked)
+        self.translatorsButton.clicked.connect(self.translatorsButtonClicked)
 
         closeButton.setFocus()
 
     @pyqtSlot()
-    def showCredits(self) -> None:
+    def creditsButtonClicked(self) -> None:
+        self.translatorsButton.setChecked(False)
+        self.showStackItem()
+
+    @pyqtSlot()
+    def translatorsButtonClicked(self) -> None:
+        self.creditsButton.setChecked(False)
+        self.showStackItem()
+
+    @pyqtSlot()
+    def showStackItem(self) -> None:
         if self.creditsButton.isChecked():
             self.stack.setCurrentIndex(1)
+        elif self.translatorsButton.isChecked():
+            self.stack.setCurrentIndex(2)
+            self.creditsButton.setChecked(False)
         else:
             self.stack.setCurrentIndex(0)
 

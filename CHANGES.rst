@@ -7,6 +7,9 @@ Changelog for Rapid Photo Downloader
  - Ensure in-program upgrade feature continues to function on systems with
    Python 3.5.
 
+ - Move translators credits into separate button in the About dialog window, and
+   associate recent translators with their language.
+
  - Update Brazilian Portuguese, Japanese and Turkish translations.
 
 0.9.25 (2020-12-15)
