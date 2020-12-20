@@ -229,6 +229,7 @@ class AboutDialog(QDialog):
 
         <b>Norwegian Bokmal</b>
         Harlad H <haarektrans@gmail.com>
+        Rudolf Maurer <rudolf.maurer@googlemail.com>
 
         <b>Norwegian Nynorsk</b>
         Kevin Brubeck Unhammer <unhammer@fsfe.org>
