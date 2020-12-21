@@ -10,8 +10,8 @@ Changelog for Rapid Photo Downloader
  - Move translators credits into separate button in the About dialog window, and
    associate recent translators with their language.
 
- - Update Brazilian Portuguese, Danish, Dutch, French, Japanese, Russian,
-   Spanish and Turkish translations
+ - Update Brazilian Portuguese, Danish, Dutch, French, Japanese, Norwegian
+   Bokmal, Russian, Spanish and Turkish translations
 
 0.9.25 (2020-12-15)
 -------------------
