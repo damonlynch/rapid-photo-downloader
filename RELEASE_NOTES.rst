@@ -1,4 +1,4 @@
-Release Notes for Rapid Photo Downloader 0.9.25
+Release Notes for Rapid Photo Downloader 0.9.26
 ===============================================
 
  - Version 0.9.19 introduced support for HEIF / HEIC files. The documentation
