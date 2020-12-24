@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.26 (2020-12-2x)
+0.9.26 (2020-12-24)
 -------------------
 
  - Fix bug #1909252: crash against undefined unity launcher entry. Thanks to
@@ -14,7 +14,7 @@ Changelog for Rapid Photo Downloader
    associate recent translators with their language.
 
  - Update Brazilian Portuguese, Danish, Dutch, French, Japanese, Norwegian
-   Bokmal, Russian, Spanish and Turkish translations. Thank you to new
+   Bokmal, Russian, Serbian, Spanish and Turkish translations. Thank you to new
    translator Rubens Stuginski Jr for the work done on the Brazilian Portuguese
    translation.
 
