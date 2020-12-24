@@ -66,8 +66,10 @@ from gi.repository import Notify
 try:
     gi.require_version('Unity', '7.0')
     from gi.repository import Unity
+    launcher = 'net.damonlynch.rapid_photo_downloader.desktop'
+    Unity.LauncherEntry.get_for_desktop_id(launcher)
     have_unity = True
-except (ImportError, ValueError):
+except (ImportError, ValueError, gi.repository.GLib.GError):
     have_unity = False
 
 import zmq

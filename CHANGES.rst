@@ -4,6 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.26 (2020-12-2x)
 -------------------
 
+ - Fix bug #1909252: crash against undefined unity launcher entry. Thanks to
+   Guy Delamarter for the patch.
+
  - Ensure in-program upgrade feature continues to function on systems with
    Python 3.5.
 
