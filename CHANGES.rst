@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.26 (2020-12-xx)
+0.9.26 (2020-12-2x)
 -------------------
 
  - Ensure in-program upgrade feature continues to function on systems with
@@ -11,7 +11,9 @@ Changelog for Rapid Photo Downloader
    associate recent translators with their language.
 
  - Update Brazilian Portuguese, Danish, Dutch, French, Japanese, Norwegian
-   Bokmal, Russian, Spanish and Turkish translations
+   Bokmal, Russian, Spanish and Turkish translations. Thank you to new
+   translator Rubens Stuginski Jr for the work done on the Brazilian Portuguese
+   translation.
 
 0.9.25 (2020-12-15)
 -------------------
