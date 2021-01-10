@@ -107,23 +107,25 @@ class Device:
         self.clear()
 
     def clear(self):
-        self.camera_model = None  # type: str
-        self.camera_port = None  # type: str
+        self.camera_model = None  # type: Optional[str]
+        self.camera_port = None  # type: Optional[str]
         # Assume an MTP device is likely a smart phone or tablet
         self.is_mtp_device = False
-        self.udev_name = None  # type: str
+        self.is_apple_mobile = False
+        self.udev_serial = None  # type: Optional[str]
+        self.udev_name = None  # type: Optional[str]
         self.storage_space = []  # type: List[StorageSpace]
         # Name of storage on a camera
         self.storage_descriptions = []  # type: List[str]
 
-        self.path = None  # type: str
-        self.display_name = None  # type: str
+        self.path = None  # type: Optional[str]
+        self.display_name = None  # type: Optional[str]
         self.have_optimal_display_name = False
-        self.device_type = None  # type: DeviceType
-        self.icon_name = None  # type: str
-        self.can_eject = None  # type: bool
-        self.photo_cache_dir = None  # type: str
-        self.video_cache_dir = None  # type: str
+        self.device_type = None  # type: Optional[DeviceType]
+        self.icon_name = None  # type: Optional[str]
+        self.can_eject = None  # type: Optional[bool]
+        self.photo_cache_dir = None  # type: Optional[str]
+        self.video_cache_dir = None  # type: Optional[str]
         self.file_size_sum = FileSizeSum()
         self.file_type_counter = FileTypeCounter()
         self.download_statuses = set()  # type: Set[DownloadStatus]
@@ -131,8 +133,8 @@ class Device:
         # If the entire video or photo is required to extract metadata
         # (which affects thumbnail generation too).
         # Set only if downloading from a camera / phone.
-        self.entire_video_required = None  # type: bool
-        self.entire_photo_required = None  # type: bool
+        self.entire_video_required = None  # type: Optional[bool]
+        self.entire_photo_required = None  # type: Optional[bool]
 
     def __repr__(self):
         if self.device_type == DeviceType.camera:
@@ -146,14 +148,15 @@ class Device:
         if self.device_type == DeviceType.camera:
             return '{} on port {}. Udev: {}; Display name: {} (optimal: {}); MTP: {}'.format(
                               self.camera_model, self.camera_port, self.udev_name,
-                              self.display_name, self.have_optimal_display_name, self.is_mtp_device)
+                              self.display_name, self.have_optimal_display_name, self.is_mtp_device
+            )
         elif self.device_type == DeviceType.volume:
             if self.path != self.display_name:
                 return "%s (%s)" % (self.path, self.display_name)
             else:
-                return "%s" % (self.path)
+                return "%s" % self.path
         else:
-            return "%s" % (self.path)
+            return "%s" % self.path
 
     def __eq__(self, other):
         for attr in ('device_type', 'camera_model', 'camera_port', 'path'):
@@ -167,7 +170,8 @@ class Device:
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def _get_valid_icon_name(self, possible_names):
+    @staticmethod
+    def _get_valid_icon_name(possible_names):
         if possible_names is not None:
             for icon_name in possible_names:
                 if QIcon.hasThemeIcon(icon_name):
@@ -214,9 +218,12 @@ class Device:
                 self.is_mtp_device = udev_attr.is_mtp_device
                 self.udev_name = udev_attr.model
                 self.display_name = udev_attr.model
+                self.is_apple_mobile = udev_attr.is_apple_mobile
+                self.udev_serial = udev_attr.serial
         else:
-            logging.error("Could not determine udev values for %s %s",
-                          self.camera_model, camera_port)
+            logging.error(
+                "Could not determine udev values for %s %s", self.camera_model, camera_port
+            )
 
     def update_camera_attributes(self, display_name: str,
                                  storage_space: List[StorageSpace],

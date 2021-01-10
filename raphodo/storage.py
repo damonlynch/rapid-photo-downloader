@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2008-2015 Canonical Ltd.
 # Copyright (C) 2013 Bernard Baeyens
 
@@ -43,7 +43,7 @@ regarding mount points and XDG related functionality.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2020, Damon Lynch. Copyright 2008-2015 Canonical Ltd. Copyright" \
+__copyright__ = "Copyright 2011-2021, Damon Lynch. Copyright 2008-2015 Canonical Ltd. Copyright" \
                 " 2013 Bernard Baeyens."
 
 import logging
@@ -75,7 +75,6 @@ gi.require_version('GLib', '2.0')
 from gi.repository import GUdev, UDisks, GLib
 
 
-
 from raphodo.constants import (
     Desktop, Distro, FileManagerType, DefaultFileBrowserFallback, FileManagerBehavior
 )
@@ -94,7 +93,7 @@ except ImportError:
 
 StorageSpace = namedtuple('StorageSpace', 'bytes_free, bytes_total, path')
 CameraDetails = namedtuple('CameraDetails', 'model, port, display_name, is_mtp, storage_desc')
-UdevAttr = namedtuple('UdevAttr', 'is_mtp_device, vendor, model')
+UdevAttr = namedtuple('UdevAttr', 'is_mtp_device, vendor, model, is_apple_mobile, serial')
 
 PROGRAM_DIRECTORY = 'rapid-photo-downloader'
 
@@ -902,7 +901,27 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
             vendor = device.get_property('ID_VENDOR')  # type: str
             model = model.replace('_', ' ').strip()
             vendor = vendor.replace('_', ' ').strip()
-            return UdevAttr(is_mtp, vendor, model)
+
+            is_apple_mobile = False
+            if device.has_sysfs_attr('configuration'):
+                config = device.get_sysfs_attr('configuration')
+                if config is not None:
+                    is_apple_mobile = config.lower().find('apple mobile') >= 0
+                    logging.debug("Detected Apple Mobile device via udev attributes at %s", devname)
+
+            if not is_apple_mobile and vendor.lower().find('apple') >= 0:
+                logging.warning(
+                    "Setting Apple device detected to True even though Apple Mobile UDEV "
+                    "configuration not set because vendor is %s", vendor
+                )
+                is_apple_mobile = True
+
+            if device.has_sysfs_attr('serial'):
+                serial = device.get_sysfs_attr('serial')
+            else:
+                serial = None
+
+            return UdevAttr(is_mtp, vendor, model, is_apple_mobile, serial)
     return None
 
 
@@ -1451,6 +1470,7 @@ if have_gio:
             """
             Unmount camera mounted on gvfs mount point, if it is
             mounted. If not mounted, ignore.
+
             :param model: model as returned by libgphoto2
             :param port: port as returned by libgphoto2, in format like
              usb:001,004
@@ -1556,7 +1576,17 @@ if have_gio:
                 logging.error('Exception occurred unmounting %s', path)
                 logging.exception('Traceback:')
 
-        def mountIsCamera(self, mount: Gio.Mount) -> bool:
+        @staticmethod
+        def mountIsAppleFileCondit(mount: Gio.Mount, path: str) -> bool:
+            if path:
+                logging.debug("GIO: Looking for Apple File Conduit (AFC) at mount {}".format(path))
+                path, folder_name = os.path.split(path)
+                if folder_name:
+                    if folder_name.startswith('afc:host='):
+                        return True
+            return False
+
+        def mountIsCamera(self, mount: Gio.Mount, path: Optional[str] = None) -> bool:
             """
             Determine if the mount refers to a camera by checking the
             path to see if gphoto2 or mtp is in the last folder in the
@@ -1567,47 +1597,52 @@ if have_gio:
             at this point, or how realible that is even if it is.
 
             :param mount: mount to check
+            :param path: optional mount path if already determined
             :return: True if mount refers to a camera, else False
             """
 
             if self.mountMightBeCamera(mount):
-                root = mount.get_root()
-                if root is None:
-                    logging.warning('Unable to get mount root')
-                else:
-                    path = root.get_path()
-                    if path:
-                        logging.debug("GIO: Looking for camera at mount {}".format(path))
-                        # check last two levels of the path name, as it might be in a format like
-                        # /run/..../gvfs/gphoto2:host=Canon_Inc._Canon_Digital_Camera/store_00010001
-                        for i in (1, 2):
-                            path, folder_name = os.path.split(path)
-                            if folder_name:
-                                for s in ('gphoto2:host=', 'mtp:host='):
-                                    if folder_name.startswith(s):
-                                        return True
+                if path is None:
+                    root = mount.get_root()
+                    if root is None:
+                        logging.warning('Unable to get mount root for %s', mount.get_name())
+                    else:
+                        path = root.get_path()
+                if path:
+                    logging.debug("GIO: Looking for camera at mount {}".format(path))
+                    # check last two levels of the path name, as it might be in a format like
+                    # /run/..../gvfs/gphoto2:host=Canon_Inc._Canon_Digital_Camera/store_00010001
+                    for i in (1, 2):
+                        path, folder_name = os.path.split(path)
+                        if folder_name:
+                            for s in ('gphoto2:host=', 'mtp:host='):
+                                if folder_name.startswith(s):
+                                    return True
             return False
 
-        def mountIsPartition(self, mount: Gio.Mount) -> bool:
+        def mountIsPartition(self, mount: Gio.Mount, path: Optional[str] = None) -> bool:
             """
             Determine if the mount point is that of a valid partition,
             i.e. is mounted in a valid location, which is under one of
             self.validMountDirs
             :param mount: the mount to examine
+            :param path: optional mount path if already determined
             :return: True if the mount is a valid partiion
             """
-            root = mount.get_root()
-            if root is None:
-                logging.warning('Unable to get mount root')
-            else:
-                path = root.get_path()
-                if path:
-                    logging.debug("GIO: Looking for valid partition at mount {}".format(path))
-                    if self.validMounts.pathIsValidMountPoint(path):
-                        logging.debug("GIO: partition found at {}".format(path))
-                        return True
-                if path is not None:
-                    logging.debug("GIO: partition is not valid mount: {}".format(path))
+
+            if path is None:
+                root = mount.get_root()
+                if root is None:
+                    logging.warning('Unable to get mount root for %s', mount.get_name())
+                else:
+                    path = root.get_path()
+            if path:
+                logging.debug("GIO: Looking for valid partition at mount {}".format(path))
+                if self.validMounts.pathIsValidMountPoint(path):
+                    logging.debug("GIO: partition found at {}".format(path))
+                    return True
+            if path is not None:
+                logging.debug("GIO: partition is not valid mount: {}".format(path))
             return False
 
         def mountAdded(self, volumeMonitor, mount: Gio.Mount) -> None:
@@ -1632,15 +1667,26 @@ if have_gio:
             except Exception:
                 pass
 
-            if self.mountIsCamera(mount):
-                # Can be called on startup if camera was already mounted in GIO before the program
-                # started. In that case, previous check would not have detected the camera.
-                self.cameraMounted.emit()
-            elif self.mountIsPartition(mount):
-                icon_names = self.getIconNames(mount)
-                self.partitionMounted.emit(
-                    mount.get_root().get_path(), icon_names, mount.can_eject()
-                )
+            try:
+                path = mount.get_root().get_path()
+            except Exception:
+                logging.warning('Unable to get mount path for %s', mount.get_name())
+            else:
+                if self.mountIsAppleFileCondit(mount, path):
+                    logging.debug("Apple File Conduit (AFC) mount detected at %s", path)
+                    logging.info("Attempting to unmount %s...", path)
+                    mount.unmount_with_operation(
+                        0, None, None, self.unmountVolumeCallback, path
+                    )
+                elif self.mountIsCamera(mount, path):
+                    # Can be called on startup if camera was already mounted in GIO before the program
+                    # started. In that case, previous check would not have detected the camera.
+                    self.cameraMounted.emit()
+                elif self.mountIsPartition(mount, path):
+                    icon_names = self.getIconNames(mount)
+                    self.partitionMounted.emit(
+                        mount.get_root().get_path(), icon_names, mount.can_eject()
+                    )
 
         def mountRemoved(self, volumeMonitor, mount: Gio.Mount) -> None:
             if not self.mountIsCamera(mount):
@@ -1656,13 +1702,13 @@ if have_gio:
             )
 
             # Even if volume.should_automount(), the volume in fact may not be mounted
-            # automatically. Unbelievable.
+            # automatically. It's a bug that has shown up at least once.
 
             device_path = volume.get_identifier(
                 Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE
             )
             if device_path is None:
-                logging.error("Unable to determine device path of %s", volume_name)
+                logging.debug("%s is not a Unix Device", volume_name)
             elif self.unixDevicePathIsCamera(device_path):
                 self.camera_volumes_added[device_path] = volume_name
                 logging.debug(

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -29,7 +29,7 @@ Project line length: 100 characters (i.e. word wrap at 99)
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2020, Damon Lynch"
+__copyright__ = "Copyright 2011-2021, Damon Lynch"
 
 import sys
 import logging
@@ -4879,7 +4879,8 @@ Do you want to proceed with the download?
 
     def unmountCameraToEnableScan(self, model: str,
                                   port: str,
-                                  on_startup: bool) -> bool:
+                                  on_startup: bool,
+                                  is_apple_mobile: bool) -> bool:
         """
         Possibly "unmount" a camera or phone controlled by GVFS so it can be scanned
 
@@ -4887,6 +4888,7 @@ Do you want to proceed with the download?
         :param port: port used by camera
         :param on_startup: if True, the unmount is occurring during
          the program's startup phase
+        :param is_apple_mobile: if True, the device is an Apple mobile device
         :return: True if unmount operation initiated, else False
         """
 
@@ -5020,7 +5022,8 @@ Do you want to proceed with the download?
                         # camera, check to see if it's mounted and if so,
                         # unmount it. Unmounting is asynchronous.
                         if not self.unmountCameraToEnableScan(
-                                model=model, port=port, on_startup=on_startup):
+                                model=model, port=port, on_startup=on_startup,
+                                is_apple_mobile= device.is_apple_mobile):
                             self.startCameraScan(model=model, port=port, on_startup=on_startup)
 
     def startCameraScan(self, model: str,

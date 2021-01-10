@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2012-2015 Jim Easterbrook <jim@jim-easterbrook.me.uk>
 
 # This file is part of Rapid Photo Downloader.
@@ -20,7 +20,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2020, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
+__copyright__ = "Copyright 2015-2021, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
 
 import logging
 import os
@@ -59,7 +59,7 @@ def gphoto2_python_logging():
 
 
 def autodetect_cameras(context: gp.Context,
-                       suppress_errors: bool=True) -> Union[gp.CameraList, List]:
+                       suppress_errors: bool = True) -> Union[gp.CameraList, List]:
     """
     Do camera auto detection for multiple versions of gphoto2-python
 
@@ -160,11 +160,11 @@ class Camera:
     """Access a camera via libgphoto2."""
 
     def __init__(self, model: str,
-                 port:str,
-                 get_folders: bool=True,
-                 raise_errors: bool=False,
-                 context: gp.Context=None,
-                 specific_folders: Optional[List[str]]=None) -> None:
+                 port: str,
+                 get_folders: bool = True,
+                 raise_errors: bool = False,
+                 context: gp.Context = None,
+                 specific_folders: Optional[List[str]] = None) -> None:
         """
         Initialize a camera via libgphoto2.
 
