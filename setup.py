@@ -273,6 +273,7 @@ setup(
         'PyGObject',
         'PyQt5',
         'babel',
+        'setuptools',
     ],
     extras_require={
         'color_ouput': ['colorlog',],
