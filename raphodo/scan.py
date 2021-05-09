@@ -1442,30 +1442,31 @@ class ScanWorker(WorkerInPublishPullPipeline):
             )
             self.device_timestamp_type = DeviceTimestampTZ.unknown
 
-        # Must not compare exact times, as there can be a few seconds difference between
-        # when a file was saved to the flash memory and when it was created in the
-        # camera's memory. Allow for two minutes, to be safe.
-        if datetime_roughly_equal(dt1=datetime.utcfromtimestamp(modification_time),
-                                  dt2=mdatatime):
-            logging.info(
-                "Device timezone setting for %s is UTC, as indicated by %s file",
-                self.display_name, determined_by
-            )
-            self.device_timestamp_type = DeviceTimestampTZ.is_utc
-        elif datetime_roughly_equal(dt1=datetime.fromtimestamp(modification_time),
-                                  dt2=mdatatime):
-            logging.info(
-                "Device timezone setting for %s is local time, as indicated by "
-                "%s file", self.display_name, determined_by
-            )
-            self.device_timestamp_type = DeviceTimestampTZ.is_local
         else:
-            logging.info(
-                "Device timezone setting for %s is unknown, because the file "
-                "modification time and file's time as recorded in metadata differ for "
-                "sample file %s", self.display_name, determined_by
-            )
-            self.device_timestamp_type = DeviceTimestampTZ.unknown
+            # Must not compare exact times, as there can be a few seconds difference between
+            # when a file was saved to the flash memory and when it was created in the
+            # camera's memory. Allow for two minutes, to be safe.
+            if datetime_roughly_equal(dt1=datetime.utcfromtimestamp(modification_time),
+                                      dt2=mdatatime):
+                logging.info(
+                    "Device timezone setting for %s is UTC, as indicated by %s file",
+                    self.display_name, determined_by
+                )
+                self.device_timestamp_type = DeviceTimestampTZ.is_utc
+            elif datetime_roughly_equal(dt1=datetime.fromtimestamp(modification_time),
+                                        dt2=mdatatime):
+                logging.info(
+                    "Device timezone setting for %s is local time, as indicated by "
+                    "%s file", self.display_name, determined_by
+                )
+                self.device_timestamp_type = DeviceTimestampTZ.is_local
+            else:
+                logging.info(
+                    "Device timezone setting for %s is unknown, because the file "
+                    "modification time and file's time as recorded in metadata differ for "
+                    "sample file %s", self.display_name, determined_by
+                )
+                self.device_timestamp_type = DeviceTimestampTZ.unknown
 
     def adjusted_mtime(self, mtime: float) -> float:
         """
