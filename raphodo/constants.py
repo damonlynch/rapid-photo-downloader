@@ -581,7 +581,7 @@ orientation_offset = dict(
     nrw=94,
     orf=132,
     pef=118,
-    raf=208,
+    raf=8000000,
     raw=742404,
     rw2=1004548,
     sr2=82,
@@ -676,7 +676,7 @@ all_tags_offset = dict(
     nrw=1848,
     orf=812242,
     pef=1042,
-    raf=13522,
+    raf=8000000,
     raw=890885,
     rw2=1205458,
     sr2=1080,
@@ -803,4 +803,3 @@ class ScalingDetected(Enum):
 # Use the character . to for download_name and path to indicate the user manually marked a
 # file as previously downloaded
 manually_marked_previously_downloaded = '.'
-
