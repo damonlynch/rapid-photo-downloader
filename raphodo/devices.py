@@ -26,7 +26,7 @@ context:
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2020, Damon Lynch"
+__copyright__ = "Copyright 2015-2021, Damon Lynch"
 
 import sys
 import shutil
@@ -50,7 +50,8 @@ from raphodo.constants import (
 from raphodo.rpdfile import FileTypeCounter, FileSizeSum, Photo, Video, RPDFile
 from raphodo.storage import (
     StorageSpace, udev_attributes, UdevAttr, get_path_display_name, validate_download_folder,
-    ValidatedFolder, CameraDetails, get_uri, fs_device_details
+    ValidatedFolder, CameraDetails, get_uri, fs_device_details, idevice_name,
+    idevice_serial_to_udid
 )
 from raphodo.camera import generate_devname, autodetect_cameras
 from raphodo.utilities import (
@@ -113,6 +114,7 @@ class Device:
         self.is_mtp_device = False
         self.is_apple_mobile = False
         self.udev_serial = None  # type: Optional[str]
+        self.idevice_udid = None # type: Optional[str]
         self.udev_name = None  # type: Optional[str]
         self.storage_space = []  # type: List[StorageSpace]
         # Name of storage on a camera
@@ -220,6 +222,14 @@ class Device:
                 self.display_name = udev_attr.model
                 self.is_apple_mobile = udev_attr.is_apple_mobile
                 self.udev_serial = udev_attr.serial
+
+            if self.is_apple_mobile:
+                self.idevice_udid = idevice_serial_to_udid(self.udev_serial)
+                if self.idevice_udid:
+                    name = idevice_name(self.idevice_udid)
+                    if name:
+                        logging.info('%s is now known as %s', self.display_name, name)
+                        self.display_name = name
         else:
             logging.error(
                 "Could not determine udev values for %s %s", self.camera_model, camera_port

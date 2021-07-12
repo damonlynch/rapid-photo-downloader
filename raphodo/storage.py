@@ -907,7 +907,6 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
                 config = device.get_sysfs_attr('configuration')
                 if config is not None:
                     is_apple_mobile = config.lower().find('apple mobile') >= 0
-                    logging.debug("Detected Apple Mobile device via udev attributes at %s", devname)
 
             if not is_apple_mobile and vendor.lower().find('apple') >= 0:
                 logging.warning(
@@ -918,8 +917,20 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
 
             if device.has_sysfs_attr('serial'):
                 serial = device.get_sysfs_attr('serial')
+                logging.debug("Device serial: %s", serial)
             else:
                 serial = None
+
+            if is_apple_mobile:
+                if serial:
+                    logging.info(
+                        "Detected Apple Mobile device at %s with serial %s", devname, serial
+                    )
+                else:
+                    logging.warning(
+                        "Detected Apple Mobile device at %s but could not determine serial number",
+                        devname
+                    )
 
             return UdevAttr(is_mtp, vendor, model, is_apple_mobile, serial)
     return None
@@ -939,6 +950,53 @@ def udev_is_camera(devname: str) -> bool:
         if device.get_property('ID_GPHOTO2') == '1':
             return True
     return False
+
+
+def idevice_serial_to_udid(serial: str) -> str:
+    """
+    Generate udid for imobiledevice utilities from serial number
+
+    :param serial: udev device serial number
+    :return: udid suitable for imobiledevice utilities
+    """
+
+    try:
+        assert len(serial) == 24
+    except:
+        logging.error("Could not generate Apple udid from device serial number %s", serial)
+        return ''
+
+    return '{}-{}'.format(serial[:8], serial[8:])
+
+
+def idevice_name(udid: str) -> str:
+    """
+    Determine name of idevice using its udid
+
+    :param udid: Apple device udid in format used by imobiledevice utilities
+    :return: output of idevicename
+    """
+
+    cmd = shutil.which('idevicename')
+    if not cmd:
+        logging.warning('Utility program idevicename could not be located')
+        return ''
+
+    cmd = [cmd, '-u', udid]
+
+    try:
+        return subprocess.run(
+            cmd, stdout=subprocess.PIPE, universal_newlines=True, check=True
+        ).stdout.strip()
+
+    except:
+        logging.warning('Error running idevicename utility program with command %s', cmd)
+        return ''
+
+
+def idevice_mount(udid: str):
+    logging.info("Mounting idevice")
+    return True
 
 
 def fs_device_details(path: str) -> Tuple:
