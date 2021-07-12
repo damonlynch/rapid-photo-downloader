@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -29,7 +29,7 @@ __summary__ = 'Downloads, renames and backs up photos and videos from cameras, p
 'memory cards and other devices'
 __uri__ = 'http://www.damonlynch.net/rapid'
 
-__version__ = '0.9.26'
+__version__ = '0.9.27a1'
 
 __author__ = 'Damon Lynch'
 __email__ = 'damonlynch@gmail.com'
