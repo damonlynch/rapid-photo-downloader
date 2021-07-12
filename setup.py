@@ -23,7 +23,7 @@
 # Contains portions Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, Canonical Ltd
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2009-2020, Damon Lynch. Copyright 2004-2012 Canonical Ltd. " \
+__copyright__ = "Copyright 2009-2021, Damon Lynch. Copyright 2004-2012 Canonical Ltd. " \
                 "Copyright 2014 Donald Stufft."
 
 import os
@@ -273,6 +273,7 @@ setup(
         'PyGObject',
         'PyQt5',
         'babel',
+        'setuptools',
     ],
     extras_require={
         'color_ouput': ['colorlog',],
