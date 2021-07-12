@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -715,16 +715,6 @@ def platform_c_maxint() -> int:
     :return: the maximum size of an int in C when compiled the same way Python was
     """
     return 2 ** (struct.Struct('i').size * 8 - 1) - 1
-
-
-def commonprefix(*paths) -> str:
-    """
-    Python 3.4 compatible.
-
-    Remove when Python 3.5 becomes the minimum.
-    """
-
-    return os.path.dirname(os.path.commonprefix(paths))
 
 
 def _recursive_identify_depth(*paths, depth) -> int:

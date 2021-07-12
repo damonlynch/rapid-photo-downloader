@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.27a1 (2021-xx-xx)
+---------------------
+
+ - Make Python 3.6 minimum Python version.
+
 0.9.26 (2020-12-24)
 -------------------
 

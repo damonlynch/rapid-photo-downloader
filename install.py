@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -79,7 +79,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = '0.3.9'
+__version__ = '0.3.10'
 __title__ = _('Rapid Photo Downloader installer')
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -708,11 +708,11 @@ def is_venv() -> bool:
 def valid_system_python() -> Optional[str]:
     """
     :return: full path of python executable if a python at /usr/bin/python3 or /usr/bin/python is
-    available that is version 3.4 or newer, else None if not found
+    available that is version 3.6 or newer, else None if not found
     """
 
     cmd = "import platform; v = platform.python_version_tuple(); "\
-          "print(int(v[0]) >= 3 and int( v[1]) >=4)"
+          "print(int(v[0]) >= 3 and int( v[1]) >=6)"
     for executable in ('/usr/bin/python3', '/usr/bin/python3.6', '/usr/bin/python'):
         try:
             args = shlex.split('{} -c "{}"'.format(executable, cmd))
@@ -881,37 +881,23 @@ def update_pip_setuptools_wheel(interactive: bool) -> None:
     """
     Update pip, setuptools and wheel to the latest versions, if necessary.
 
-    For Python 3.5, freeze packages at arbitrary 2020-11-13 state,
-    because Python 3.5 is already EOL, i.e. pip 20.2.4, setuptools 50.3.2,
-    and wheel 0.35.
-    pip 20.3 is the last version compatible with Python 3.5.
-    setuptools and wheel cannot be too far off Python 3.5 incompatibility either.
-
     :param interactive: whether to prompt the user
     """
 
-    python35 = sys.version_info < (3, 6)
-    if python35:
-        package_details = [
-            package for package in (('pip', '20.2.4'), ('setuptools', '50.3.2'), ('wheel', '0.35'))
-            if pkg_resources.parse_version(python_package_version(package[0])) <
-               pkg_resources.parse_version(package[1])
-        ]
-        packages = [p[0] for p in package_details]
-    else:
-        packages = []
-        # Upgrade the packages if they are already installed using pip, or
-        # Upgrade the system packages only if they are old
 
-        package_details = [('pip', '19.3.1'), ('setuptools', '41.6.0'), ('wheel', '0.33.6')]
+    packages = []
+    # Upgrade the packages if they are already installed using pip, or
+    # Upgrade the system packages only if they are old
 
-        print()
-        for package, version in package_details:
-            if installed_using_pip(package):
-                if not is_recent_pypi_package(package):
-                    packages.append(package)
-            elif not is_recent_pypi_package(package, minimum_version=version):
+    package_details = [('pip', '19.3.1'), ('setuptools', '41.6.0'), ('wheel', '0.33.6')]
+
+    print()
+    for package, version in package_details:
+        if installed_using_pip(package):
+            if not is_recent_pypi_package(package):
                 packages.append(package)
+        elif not is_recent_pypi_package(package, minimum_version=version):
+            packages.append(package)
 
     restart_required = False
     for package in packages:
@@ -927,10 +913,7 @@ def update_pip_setuptools_wheel(interactive: bool) -> None:
             ).format(', '.join(packages))
         )
 
-        if python35:
-            package_listing = ' '.join(['{}=={}'.format(p[0], p[1]) for p in package_details])
-        else:
-            package_listing = ' '.join(packages)
+        package_listing = ' '.join(packages)
 
         command_line = make_pip_command(
             'install {} --upgrade {}'.format(pip_user, package_listing),
@@ -3192,9 +3175,9 @@ def main():
     Then call main install logic.
     """
 
-    if sys.version_info < (3, 5):
+    if sys.version_info < (3, 6):
         sys.stderr.write(
-            "Sorry the minimum required version of Python is 3.5.\n"
+            "Sorry the minimum required version of Python is 3.6.\n"
         )
         sys.exit(1)
 

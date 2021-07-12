@@ -303,7 +303,7 @@ setup(
         )
     ],
     packages=['raphodo'],
-    python_requires='>=3.4.*, <4',
+    python_requires='>=3.6.*, <4',
     entry_points={
         'gui_scripts': ['rapid-photo-downloader=raphodo.rapid:main'],
         'console_scripts': ['analyze-pv-structure=raphodo.analyzephotos:main']
@@ -315,11 +315,10 @@ setup(
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Multimedia :: Graphics',
         'Topic :: Multimedia :: Video'
     ],

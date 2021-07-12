@@ -92,7 +92,7 @@ modules.
 
 Rapid Photo Downloader requires:
 
- - Python 3.5 or greater, and its development headers
+ - Python 3.6 or greater, and its development headers
  - PyQt_ 5.4 or greater
  - Qt_ 5.4 or greater
  - `Python gobject introspection`_ modules:
