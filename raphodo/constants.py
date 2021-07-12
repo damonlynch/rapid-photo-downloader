@@ -804,3 +804,9 @@ class ScalingDetected(Enum):
 # file as previously downloaded
 manually_marked_previously_downloaded = '.'
 
+filtered_file_browser_directories = {
+    '$RECYCLE.BIN',
+    'System Volume Information',
+    'msdownld.tmp'
+}
+

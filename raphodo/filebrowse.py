@@ -25,7 +25,7 @@ __copyright__ = "Copyright 2016-2020, Damon Lynch"
 
 import os
 import pathlib
-from typing import List, Set
+from typing import List, Set, Optional
 import logging
 import shlex
 import subprocess
@@ -41,7 +41,9 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QPainter, QFont
 
 import raphodo.qrc_resources as qrc_resources
-from raphodo.constants import minPanelWidth, minFileSystemViewHeight, Roles
+from raphodo.constants import (
+    minPanelWidth, minFileSystemViewHeight, Roles, filtered_file_browser_directories
+)
 from raphodo.storage import gvfs_gphoto2_path
 from raphodo.viewutils import scaledIcon, standard_font_size
 
@@ -131,7 +133,7 @@ class FileSystemView(QTreeView):
         self.openInFileBrowserAct = self.contextMenu.addAction(_('Open in File Browser...'))
         self.openInFileBrowserAct.triggered.connect(self.doOpenInFileBrowserAct)
         self.openInFileBrowserAct.setEnabled(self.rapidApp.file_manager is not None)
-        self.clickedIndex = None   # type: QModelIndex
+        self.clickedIndex = None   # type: Optional[QModelIndex]
 
     def hideColumns(self) -> None:
         """
@@ -199,12 +201,13 @@ class FileSystemView(QTreeView):
 
 class FileSystemFilter(QSortFilterProxyModel):
     """
-    Filter out the display of RPD's cache and temporary directories
+    Filter out the display of RPD's cache and temporary directories, in addition to
+    a set of standard directories that should not be displayed.
     """
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.filtered_dir_names = set()
+        self.filtered_dir_names = filtered_file_browser_directories
 
     def setTempDirs(self, dirs: List[str]) -> None:
         filters = [os.path.basename(path) for path in dirs]
