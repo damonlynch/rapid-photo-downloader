@@ -186,9 +186,10 @@ class DestinationDisplayTooltipState(Enum):
 
 
 class DeviceType(Enum):
-    camera = 1
-    volume = 2
-    path = 3
+    camera = 1       # camera accessed using PTP
+    camera_fuse = 2  # a camera-like device accessed using fuse, e.g. Apple iOS device
+    volume = 3       # a memory card or external drive, etc.
+    path = 4         # file system path
 
 
 class BackupDeviceType:
@@ -249,6 +250,12 @@ class ThumbnailSize(IntEnum):
 class ApplicationState(Enum):
     normal = 1
     exiting = 2
+
+
+class PostCameraUnmountAction(Enum):
+    scan = 1
+    download = 2
+    nothing = 3
 
 
 class Show(IntEnum):
@@ -340,6 +347,9 @@ class CameraErrorCode(Enum):
     locked = 2
     read = 3
     write = 4
+    pair = 5
+    mount = 6
+    devicename = 7
 
 
 class ViewRowType(Enum):

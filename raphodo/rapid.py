@@ -124,7 +124,7 @@ from raphodo.constants import (
     DisplayingFilesOfType, DownloadingFileTypes, RememberThisMessage, RightSideButton,
     CheckNewVersionDialogState, CheckNewVersionDialogResult, RememberThisButtons,
     BackupStatus, CompletedDownloads, disable_version_check, FileManagerType, ScalingAction,
-    ScalingDetected
+    ScalingDetected, PostCameraUnmountAction
 )
 from raphodo.thumbnaildisplay import (
     ThumbnailView, ThumbnailListModel, ThumbnailDelegate, DownloadStats, MarkedSummary
@@ -2031,12 +2031,14 @@ class RapidWindow(QMainWindow):
         self._mapModel = {
             DeviceType.path: self.thisComputerModel,
             DeviceType.camera: self.deviceModel,
-            DeviceType.volume: self.deviceModel
+            DeviceType.volume: self.deviceModel,
+            DeviceType.camera_fuse: self.deviceModel,
         }
         self._mapView = {
             DeviceType.path: self.thisComputerView,
             DeviceType.camera: self.deviceView,
-            DeviceType.volume: self.deviceView
+            DeviceType.volume: self.deviceView,
+            DeviceType.camera_fuse: self.deviceView,
         }
 
         # Be cautious: validate paths. The settings file can alwasy be edited by hand, and
@@ -3071,7 +3073,9 @@ Do you want to proceed with the download?
                 )
                 for model, port in camera_unmounts_called:
                     self.gvolumeMonitor.unmountCamera(
-                        model, port, download_starting=True, mount_point=mount_points[(model, port)]
+                        model, port,
+                        post_unmount_action=PostCameraUnmountAction.download,
+                        mount_point=mount_points[(model, port)]
                     )
 
         if not camera_unmounts_called and not stop_thumbnailing_cmd_issued:
@@ -4323,8 +4327,9 @@ Do you want to proceed with the download?
         )
         self.folder_preview_manager.add_rpd_files(rpd_files=rpd_files)
 
-    @pyqtSlot(int, CameraErrorCode)
-    def scanErrorReceived(self, scan_id: int, error_code: CameraErrorCode) -> None:
+    @pyqtSlot(int, CameraErrorCode, str)
+    def scanErrorReceived(self, scan_id: int, error_code: CameraErrorCode,
+                          error_message: str) -> None:
         """
         Notify the user their camera/phone is inaccessible.
 
@@ -4361,8 +4366,7 @@ Do you want to proceed with the download?
                 'enabling downloading from phones</a>. <br><br>'
                 'Alternatively, you can ignore the %(camera)s.'
             ) % {'camera': camera_model}
-        else:
-            assert error_code == CameraErrorCode.inaccessible
+        elif error_code == CameraErrorCode.inaccessible:
             title = _('Rapid Photo Downloader')
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
@@ -4382,7 +4386,15 @@ Do you want to proceed with the download?
                 '<a href="https://damonlynch.net/rapid/documentation/#downloadingfromphones">'
                 'enabling downloading from phones</a>. <br><br>'
                 'Alternatively, you can ignore the %(camera)s.'
-            ) % {'camera':camera_model}
+            ) % {'camera': camera_model}
+        elif error_code == CameraErrorCode.pair:
+            title = _('Rapid Photo Downloader')
+            message = '<b>' + _('Enable access to the iOS Device') + '</b><br><br>{}'.format(
+                error_message
+            )
+        else:
+            title = _('Rapid Photo Downloader')
+            message = "Unknown error"
 
         msgBox = QMessageBox(
             QMessageBox.Warning, title, message, QMessageBox.NoButton, self
@@ -4398,11 +4410,13 @@ Do you want to proceed with the download?
             self.removeDevice(scan_id=scan_id, show_warning=False)
         del self.prompting_for_user_action[device]
 
-    @pyqtSlot(int, 'PyQt_PyObject', 'PyQt_PyObject', str)
+    @pyqtSlot(int, 'PyQt_PyObject', 'PyQt_PyObject', str, str, bool)
     def scanDeviceDetailsReceived(self, scan_id: int,
                                   storage_space: List[StorageSpace],
                                   storage_descriptions: List[str],
-                                  optimal_display_name: str) -> None:
+                                  optimal_display_name: str,
+                                  mount_point: str,
+                                  is_apple_mobile: bool) -> None:
         """
         Update GUI display and rows DB with definitive camera display name
 
@@ -4412,6 +4426,8 @@ Do you want to proceed with the download?
         :param  storage_desctriptions: names of storage on a camera
         :param optimal_display_name: canonical name of the device, as
          reported by libgphoto2
+        :param mount_point: FUSE mount point, e.g. for iOS devices
+        :param is_apple_mobile: True if device is iOS device
         """
 
         if scan_id in self.devices:
@@ -4426,7 +4442,7 @@ Do you want to proceed with the download?
                     '%s has %s storage devices', optimal_display_name, len(storage_space)
                 )
 
-            if not storage_descriptions:
+            if not storage_descriptions and not is_apple_mobile:
                 logging.warning("No storage descriptors available for %s", optimal_display_name)
             else:
                 if len(storage_descriptions) == 1:
@@ -4437,7 +4453,8 @@ Do you want to proceed with the download?
 
             device.update_camera_attributes(
                 display_name=optimal_display_name, storage_space=storage_space,
-                storage_descriptions=storage_descriptions
+                storage_descriptions=storage_descriptions, mount_point=mount_point,
+                is_apple_mobile=is_apple_mobile
             )
             self.updateSourceButton()
             self.deviceModel.updateDeviceNameAndStorage(scan_id, device)
@@ -4779,6 +4796,8 @@ Do you want to proceed with the download?
         self.cleanAllTempDirs()
         logging.debug("Cleaning any device cache dirs and sample video")
         self.devices.delete_cache_dirs_and_sample_video()
+        logging.debug("Unmounting any devices mounted with FUSE")
+        self.devices.unmount_fuse_devices()
         tc = ThumbnailCacheSql(create_table_if_not_exists=False)
         logging.debug("Cleaning up Thumbnail cache")
         tc.cleanup_cache(days=self.prefs.keep_thumbnails_days)
@@ -4895,7 +4914,9 @@ Do you want to proceed with the download?
         if self.gvfsControlsMounts:
             self.devices.cameras_to_gvfs_unmount_for_scan[port] = model
             unmounted = self.gvolumeMonitor.unmountCamera(
-                model=model, port=port, on_startup=on_startup
+                model=model, port=port,
+                post_unmount_action=PostCameraUnmountAction.scan,
+                on_startup=on_startup
             )
             if unmounted:
                 logging.debug("Successfully unmounted %s", model)
@@ -4905,11 +4926,11 @@ Do you want to proceed with the download?
                 del self.devices.cameras_to_gvfs_unmount_for_scan[port]
         return False
 
-    @pyqtSlot(bool, str, str, bool, bool)
+    @pyqtSlot(bool, str, str, PostCameraUnmountAction, bool)
     def cameraUnmounted(self, result: bool,
                         model: str,
                         port: str,
-                        download_started: bool,
+                        post_camera_unmount_action: PostCameraUnmountAction,
                         on_startup: bool) -> None:
         """
         Handle the attempt to unmount a GVFS mounted camera.
@@ -4925,7 +4946,7 @@ Do you want to proceed with the download?
         :param on_startup: if the unmount happened on a device during program startup
         """
 
-        if not download_started:
+        if post_camera_unmount_action == PostCameraUnmountAction.scan:
             assert self.devices.cameras_to_gvfs_unmount_for_scan[port] == model
             del self.devices.cameras_to_gvfs_unmount_for_scan[port]
             if result:
@@ -4959,7 +4980,7 @@ Do you want to proceed with the download?
                     iconPixmap=camera.get_pixmap()
                 )
                 msgBox.exec()
-        else:
+        elif post_camera_unmount_action == PostCameraUnmountAction.download:
             # A download was initiated
 
             scan_id = self.devices.scan_id_from_camera_model_port(model, port)
@@ -4988,6 +5009,14 @@ Do you want to proceed with the download?
                 msgBox = QMessageBox(QMessageBox.Warning, title, message, QMessageBox.Ok)
                 msgBox.setIconPixmap(camera.get_pixmap())
                 msgBox.exec_()
+        else:
+            scan_id = self.devices.scan_id_from_camera_model_port(model, port)
+            if scan_id:
+                device = self.devices[scan_id]
+                name = device.display_name
+            else:
+                name = ''
+            logging.debug("Taking no additional action after unmounting %s", name)
 
     def searchForCameras(self, on_startup: bool=False) -> None:
         """
@@ -5006,7 +5035,37 @@ Do you want to proceed with the download?
                     assert self.devices.cameras_to_gvfs_unmount_for_scan[port] == model
                     logging.debug("Already unmounting %s", model)
                 elif self.devices.known_camera(model, port):
-                    logging.debug("Camera %s is known", model)
+                    if self.gvfsControlsMounts:
+                        mount_point = self.gvolumeMonitor.ptpCameraMountPoint(model, port)
+                        if mount_point is not None:
+                            scan_id = self.devices.scan_id_from_camera_model_port(model, port)
+                            if scan_id is None:
+                                logging.critical(
+                                    "Camera is recognized by model and port, but no scan_id exists"
+                                    "for it: %s %s", model, port
+                                )
+                                return
+                            device = self.devices[scan_id]
+                            if device.is_apple_mobile:
+                                logging.info(
+                                    "GIO has automatically mounted an iOS device '%s' that is "
+                                    "currently %s",
+                                    device.display_name,
+                                    self.devices.device_state[scan_id].name
+                                )
+                            else:
+                                logging.info(
+                                    "GIO has automatically mounted a camera '%s' that is "
+                                    "currently %s",
+                                    device.display_name,
+                                    self.devices.device_state[scan_id].name
+                                )
+                            logging.info("Will subsequently unmount '%s'", device.display_name)
+                            self.gvolumeMonitor.unmountCamera(
+                                model, port,
+                                post_unmount_action=PostCameraUnmountAction.nothing,
+                                mount_point=mount_point
+                            )
                 elif self.devices.user_marked_camera_as_ignored(model, port):
                     logging.debug("Ignoring camera marked as removed by user %s", model)
                 elif not port.startswith('disk:'):

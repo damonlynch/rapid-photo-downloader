@@ -37,7 +37,6 @@ from collections import namedtuple, Counter, defaultdict
 from typing import Tuple, List, Optional, Set, Dict, Union, DefaultDict
 
 
-
 from PyQt5.QtCore import QStorageInfo, QSize
 from PyQt5.QtWidgets import QFileIconProvider
 from PyQt5.QtGui import QIcon, QPixmap
@@ -50,8 +49,10 @@ from raphodo.constants import (
 from raphodo.rpdfile import FileTypeCounter, FileSizeSum, Photo, Video, RPDFile
 from raphodo.storage import (
     StorageSpace, udev_attributes, UdevAttr, get_path_display_name, validate_download_folder,
-    ValidatedFolder, CameraDetails, get_uri, fs_device_details, idevice_name,
-    idevice_serial_to_udid
+    ValidatedFolder, CameraDetails, get_uri, fs_device_details,
+)
+from raphodo.storageidevice import (
+    idevice_get_name, idevice_serial_to_udid, idevice_do_unmount
 )
 from raphodo.camera import generate_devname, autodetect_cameras
 from raphodo.utilities import (
@@ -61,7 +62,7 @@ import raphodo.exiftool as exiftool
 from raphodo.problemnotification import FsMetadataWriteProblem
 from raphodo.viewutils import scaledIcon
 
-display_devices = (DeviceType.volume, DeviceType.camera)
+display_devices = (DeviceType.volume, DeviceType.camera, DeviceType.camera_fuse)
 sample_file_complete = namedtuple('sample_file_complete', 'full_file_name, file_type')
 device_name_uri = namedtuple('device_name_uri', 'name uri')
 
@@ -113,6 +114,7 @@ class Device:
         # Assume an MTP device is likely a smart phone or tablet
         self.is_mtp_device = False
         self.is_apple_mobile = False
+        self.is_camera_fuse = False
         self.udev_serial = None  # type: Optional[str]
         self.idevice_udid = None # type: Optional[str]
         self.udev_name = None  # type: Optional[str]
@@ -141,6 +143,10 @@ class Device:
     def __repr__(self):
         if self.device_type == DeviceType.camera:
             return "%r:%r" % (self.camera_model, self.camera_port)
+        elif self.device_type == DeviceType.camera_fuse:
+            return "%r:%r:%r:%r" % (
+                self.camera_model, self.camera_port, self.display_name, self.path
+            )
         elif self.device_type == DeviceType.volume:
             return "%r:%r" % (self.display_name, self.path)
         else:
@@ -149,8 +155,12 @@ class Device:
     def __str__(self):
         if self.device_type == DeviceType.camera:
             return '{} on port {}. Udev: {}; Display name: {} (optimal: {}); MTP: {}'.format(
-                              self.camera_model, self.camera_port, self.udev_name,
-                              self.display_name, self.have_optimal_display_name, self.is_mtp_device
+                self.camera_model, self.camera_port, self.udev_name, self.display_name,
+                self.have_optimal_display_name, self.is_mtp_device
+            )
+        elif self.device_type == DeviceType.camera_fuse:
+            return '{} on port {}. Mount point: {}; Display name: {}'.format(
+                self.camera_model, self.camera_port, self.display_name, self.path
             )
         elif self.device_type == DeviceType.volume:
             if self.path != self.display_name:
@@ -224,11 +234,13 @@ class Device:
                 self.udev_serial = udev_attr.serial
 
             if self.is_apple_mobile:
+                self.is_camera_fuse = True
+                self.device_type = DeviceType.camera_fuse
                 self.idevice_udid = idevice_serial_to_udid(self.udev_serial)
                 if self.idevice_udid:
-                    name = idevice_name(self.idevice_udid)
+                    name = idevice_get_name(self.idevice_udid)
                     if name:
-                        logging.info('%s is now known as %s', self.display_name, name)
+                        logging.debug('%s is now known as %s', self.display_name, name)
                         self.display_name = name
         else:
             logging.error(
@@ -237,11 +249,17 @@ class Device:
 
     def update_camera_attributes(self, display_name: str,
                                  storage_space: List[StorageSpace],
-                                 storage_descriptions: List[str]) -> None:
+                                 storage_descriptions: List[str],
+                                 mount_point: str,
+                                 is_apple_mobile: bool) -> None:
+        assert is_apple_mobile == self.is_apple_mobile
         self.display_name = display_name
         self.have_optimal_display_name = True
         self.storage_space = storage_space
         self.storage_descriptions = storage_descriptions
+        # For cameras mounted using  FUSE:
+        if mount_point:
+            self.path = mount_point
 
     def set_download_from_volume(self, path: str, display_name: str,
                                  icon_names=None, can_eject=None,
@@ -304,7 +322,7 @@ class Device:
         user. If the device is a path, return the path name
         :return  str containg the name
         """
-        if self.device_type == DeviceType.camera:
+        if self.device_type in (DeviceType.camera, DeviceType.camera_fuse):
             return self.display_name
         elif self.device_type == DeviceType.volume:
             return self.display_name
@@ -320,7 +338,7 @@ class Device:
         elif self.device_type == DeviceType.path:
             return QIcon(':/icons/folder.svg')
         else:
-            assert self.device_type == DeviceType.camera
+            assert self.device_type in (DeviceType.camera, DeviceType.camera_fuse)
             if self.is_mtp_device:
                 if self.camera_model.lower().find('tablet') >= 0:
                     #TODO use tablet icon
@@ -348,6 +366,19 @@ class Device:
     def delete_cache_dirs(self) -> None:
         self._delete_cache_dir(self.photo_cache_dir)
         self._delete_cache_dir(self.video_cache_dir)
+
+    def unmount_fuse(self) -> None:
+        """
+        Unmount file system mounted using FUSE, e.g. iOS device
+        """
+
+        if self.path:
+            mount = QStorageInfo(self.path)
+            if mount.isReady():
+                idevice_do_unmount(
+                    udid=self.idevice_udid, display_name=self.display_name, mount_point=self.path
+                )
+                self.path = None
 
 
 class DeviceCollection:
@@ -490,7 +521,8 @@ class DeviceCollection:
         self._map_set = {
             DeviceType.path: self.this_computer,
             DeviceType.camera: self.volumes_and_cameras,
-            DeviceType.volume: self.volumes_and_cameras
+            DeviceType.volume: self.volumes_and_cameras,
+            DeviceType.camera_fuse: self.volumes_and_cameras
         }
         self._map_plural_types = {
             DeviceType.camera: _('Cameras'),
@@ -584,8 +616,9 @@ class DeviceCollection:
         return scan_id
 
     def set_device_state(self, scan_id: int, state: DeviceState) -> None:
-        logging.debug("Setting device state for %s to %s",
-                      self.devices[scan_id].display_name, state.name)
+        logging.debug(
+            "Setting device state for %s to %s", self.devices[scan_id].display_name, state.name
+        )
         self.device_state[scan_id] = state
         if state == DeviceState.scanning:
             self.scanning.add(scan_id)
@@ -695,8 +728,8 @@ class DeviceCollection:
         """
 
         for scan_id, device in self.devices.items():
-            if (device.device_type == DeviceType.camera and device.camera_model == model and
-                    device.camera_port == port):
+            if (device.device_type in (DeviceType.camera, DeviceType.camera_fuse)
+                    and device.camera_model == model and device.camera_port == port):
                 return scan_id
         return None
 
@@ -720,6 +753,16 @@ class DeviceCollection:
         for device in self.devices.values():
             device.delete_cache_dirs()
         self._delete_sample_photo_video(at_program_close=True)
+
+    def unmount_fuse_devices(self) -> None:
+        """
+        Unmount any devices whose file systems were mounted using FUSE
+        e.g. iOS devices
+        """
+
+        for device in self.devices.values():
+            if device.is_camera_fuse:
+                device.unmount_fuse()
 
     def _add_complete_sample_file(self, sample_photo_video: RPDFile) -> None:
         """
@@ -843,10 +886,12 @@ class DeviceCollection:
 
     def __delitem__(self, scan_id: int):
         d = self.devices[scan_id]  # type: Device
-        if d.device_type == DeviceType.camera:
+        if d.device_type in (DeviceType.camera, DeviceType.camera_fuse):
             del self.cameras[d.camera_port]
             if d.camera_port in self.cameras_to_gvfs_unmount_for_scan:
                 del self.cameras_to_gvfs_unmount_for_scan[d.camera_port]
+            if d.device_type == DeviceType.camera_fuse:
+                d.unmount_fuse()
 
         self.map_set(d).remove(scan_id)
         d.delete_cache_dirs()
@@ -1030,7 +1075,15 @@ class DeviceCollection:
         else:
             non_pc_devices = [device for device in self.devices.values()
                               if device.device_type != DeviceType.path]   # type: List[Device]
-            assert len(non_pc_devices) == len(self.volumes_and_cameras)
+            try:
+                assert len(non_pc_devices) == len(self.volumes_and_cameras)
+            except AssertionError:
+                logging.critical(
+                    "len(non_pc_devices): %s len(self.volumes_and_cameras): %s",
+                    len(non_pc_devices), len(self.volumes_and_cameras)
+                )
+                raise
+
             device_types = Counter(d.device_type for d in non_pc_devices)
             if len(device_types) == 1:
                 device_type = list(device_types)[0]

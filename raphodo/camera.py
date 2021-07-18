@@ -33,7 +33,7 @@ import gphoto2 as gp
 from raphodo.storage import StorageSpace
 from raphodo.constants import CameraErrorCode
 from raphodo.utilities import format_size_for_user
-
+from raphodo.cameraerror import CameraError, CameraProblemEx
 
 def python_gphoto2_version():
     return  gp.__version__
@@ -88,51 +88,6 @@ gphoto2_error_codes = {
 
 def gphoto2_named_error(code: int) -> str:
     return gphoto2_error_codes.get(code, 'Unknown gphoto2 error')
-
-
-class CameraError(Exception):
-    def __init__(self, code: CameraErrorCode) -> None:
-        self.code = code
-
-    def __repr__(self) -> str:
-        if self.code == CameraErrorCode.inaccessible:
-            return "inaccessible"
-        else:
-            return "locked"
-
-    def __str__(self) -> str:
-        if self.code == CameraErrorCode.inaccessible:
-            return "The camera is inaccessible"
-        else:
-            return "The camera is locked"
-
-
-class CameraProblemEx(CameraError):
-    def __init__(self, code: CameraErrorCode,
-                 gp_exception: Optional[gp.GPhoto2Error]=None,
-                 py_exception: Optional[Exception]=None) -> None:
-        super().__init__(code)
-        if gp_exception is not None:
-            self.gp_code = gp_exception.code
-        else:
-            self.gp_code = None
-        self.py_exception = py_exception
-
-    def __repr__(self) -> str:
-        if self.code == CameraErrorCode.read:
-            return "read error"
-        elif self.code == CameraErrorCode.write:
-            return 'write error'
-        else:
-            return repr(super())
-
-    def __str__(self) -> str:
-        if self.code == CameraErrorCode.read:
-            return "Could not read file from camera"
-        elif self.code == CameraErrorCode.write:
-            return 'Could not write file from camera'
-        else:
-            return str(super())
 
 
 def generate_devname(camera_port: str) -> Optional[str]:

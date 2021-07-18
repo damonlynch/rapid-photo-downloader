@@ -76,7 +76,8 @@ from gi.repository import GUdev, UDisks, GLib
 
 
 from raphodo.constants import (
-    Desktop, Distro, FileManagerType, DefaultFileBrowserFallback, FileManagerBehavior
+    Desktop, Distro, FileManagerType, DefaultFileBrowserFallback, FileManagerBehavior,
+    PostCameraUnmountAction
 )
 from raphodo.utilities import (
     process_running, log_os_release, remove_topmost_directory_from_path, find_mount_point
@@ -923,12 +924,14 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
 
             if is_apple_mobile:
                 if serial:
-                    logging.info(
-                        "Detected Apple Mobile device at %s with serial %s", devname, serial
+                    logging.debug(
+                        "Detected using udev Apple Mobile device at %s with serial %s",
+                        devname, serial
                     )
                 else:
                     logging.warning(
-                        "Detected Apple Mobile device at %s but could not determine serial number",
+                        "Detected using udev Apple Mobile device at %s but could not determine "
+                        "serial number",
                         devname
                     )
 
@@ -950,53 +953,6 @@ def udev_is_camera(devname: str) -> bool:
         if device.get_property('ID_GPHOTO2') == '1':
             return True
     return False
-
-
-def idevice_serial_to_udid(serial: str) -> str:
-    """
-    Generate udid for imobiledevice utilities from serial number
-
-    :param serial: udev device serial number
-    :return: udid suitable for imobiledevice utilities
-    """
-
-    try:
-        assert len(serial) == 24
-    except:
-        logging.error("Could not generate Apple udid from device serial number %s", serial)
-        return ''
-
-    return '{}-{}'.format(serial[:8], serial[8:])
-
-
-def idevice_name(udid: str) -> str:
-    """
-    Determine name of idevice using its udid
-
-    :param udid: Apple device udid in format used by imobiledevice utilities
-    :return: output of idevicename
-    """
-
-    cmd = shutil.which('idevicename')
-    if not cmd:
-        logging.warning('Utility program idevicename could not be located')
-        return ''
-
-    cmd = [cmd, '-u', udid]
-
-    try:
-        return subprocess.run(
-            cmd, stdout=subprocess.PIPE, universal_newlines=True, check=True
-        ).stdout.strip()
-
-    except:
-        logging.warning('Error running idevicename utility program with command %s', cmd)
-        return ''
-
-
-def idevice_mount(udid: str):
-    logging.info("Mounting idevice")
-    return True
 
 
 def fs_device_details(path: str) -> Tuple:
@@ -1425,7 +1381,7 @@ if have_gio:
         go unnoticed.
         """
 
-        cameraUnmounted = pyqtSignal(bool, str, str, bool, bool)
+        cameraUnmounted = pyqtSignal(bool, str, str, PostCameraUnmountAction, bool)
         cameraMounted = pyqtSignal()
         partitionMounted = pyqtSignal(str, list, bool)
         partitionUnmounted = pyqtSignal(str)
@@ -1444,6 +1400,7 @@ if have_gio:
             self.scsiPortSearch = re.compile(r'usbscsi:(.+)')
             self.possibleCamera = re.compile(r'/usb/([\d]+)/([\d]+)')
             self.validMounts = validMounts
+            # device_path: volume_name
             self.camera_volumes_added = dict()  # type: Dict[str, str]
             self.camera_volumes_mounted = set()  # type: Set[str]
 
@@ -1506,7 +1463,7 @@ if have_gio:
         @pyqtSlot(str, str, bool, bool, int)
         def reUnmountCamera(self, model: str,
                           port: str,
-                          download_starting: bool,
+                          post_unmount_action: PostCameraUnmountAction,
                           on_startup: bool,
                           attempt_no: int) -> None:
 
@@ -1515,13 +1472,15 @@ if have_gio:
                 attempt_no + 1, model, port
             )
             self.unmountCamera(
-                model=model, port=port, download_starting=download_starting, on_startup=on_startup,
+                model=model, port=port,
+                post_unmount_action=post_unmount_action,
+                on_startup=on_startup,
                 attempt_no=attempt_no
             )
 
         def unmountCamera(self, model: str,
                           port: str,
-                          download_starting: bool=False,
+                          post_unmount_action: PostCameraUnmountAction,
                           on_startup: bool=False,
                           mount_point: Optional[Gio.Mount]=None,
                           attempt_no: Optional[int]=0) -> bool:
@@ -1551,7 +1510,7 @@ if have_gio:
                 logging.debug("GIO: Attempting to unmount %s...", model)
                 to_unmount.unmount_with_operation(
                     0, None, None, self.unmountCameraCallback,
-                    (model, port, download_starting, on_startup, attempt_no)
+                    (model, port, post_unmount_action, on_startup, attempt_no)
                 )
                 return True
 
@@ -1559,7 +1518,8 @@ if have_gio:
 
         def unmountCameraCallback(self, mount: Gio.Mount,
                                   result: Gio.AsyncResult,
-                                  user_data: Tuple[str, str, bool, bool]) -> None:
+                                  user_data: Tuple[str, str, PostCameraUnmountAction, bool]
+                                  ) -> None:
             """
             Called by the asynchronous unmount operation.
             When complete, emits a signal indicating operation
@@ -1570,27 +1530,27 @@ if have_gio:
             unmounted, in the format of libgphoto2
             """
 
-            model, port, download_starting, on_startup, attempt_no = user_data
+            model, port, post_unmount_action, on_startup, attempt_no = user_data
             try:
                 if mount.unmount_with_operation_finish(result):
                     logging.debug("...successfully unmounted {}".format(model))
-                    self.cameraUnmounted.emit(True, model, port, download_starting, on_startup)
+                    self.cameraUnmounted.emit(True, model, port, post_unmount_action, on_startup)
                 else:
                     logging.debug("...failed to unmount {}".format(model))
-                    self.cameraUnmounted.emit(False, model, port, download_starting, on_startup)
+                    self.cameraUnmounted.emit(False, model, port, post_unmount_action, on_startup)
             except GLib.GError as e:
                 if e.code == 26 and attempt_no < 10:
                     attempt_no += 1
                     QTimer.singleShot(
                         750, lambda : self.reUnmountCamera(
-                            model, port, download_starting,
+                            model, port, post_unmount_action,
                             on_startup, attempt_no
                         )
                     )
                 else:
                     logging.error('Exception occurred unmounting {}'.format(model))
                     logging.exception('Traceback:')
-                    self.cameraUnmounted.emit(False, model, port, download_starting, on_startup)
+                    self.cameraUnmounted.emit(False, model, port, post_unmount_action, on_startup)
 
         def unmountVolume(self, path: str) -> None:
             """
@@ -1627,15 +1587,18 @@ if have_gio:
 
             try:
                 if mount.unmount_with_operation_finish(result):
-                    logging.info("...successfully unmounted %s", path)
+                    logging.info("...successfully unmounted volume %s", path)
                 else:
-                    logging.info("...failed to unmount %s", path)
+                    logging.info("...failed to unmount volume %s", path)
             except GLib.GError as e:
-                logging.error('Exception occurred unmounting %s', path)
-                logging.exception('Traceback:')
+                if e.code == 16:
+                    logging.debug("...backend currently unmounting volume %s", path)
+                else:
+                    logging.error('Exception occurred unmounting volume %s', path)
+                    logging.exception('Traceback:')
 
         @staticmethod
-        def mountIsAppleFileCondit(mount: Gio.Mount, path: str) -> bool:
+        def mountIsAppleFileConduit(mount: Gio.Mount, path: str) -> bool:
             if path:
                 logging.debug("GIO: Looking for Apple File Conduit (AFC) at mount {}".format(path))
                 path, folder_name = os.path.split(path)
@@ -1730,7 +1693,9 @@ if have_gio:
             except Exception:
                 logging.warning('Unable to get mount path for %s', mount.get_name())
             else:
-                if self.mountIsAppleFileCondit(mount, path):
+                if self.mountIsAppleFileConduit(mount, path):
+                    # An example of an AFC volume is the "Documents" mount for an iPhone, which
+                    # in contrast to the gphoto2 mount for the same device
                     logging.debug("Apple File Conduit (AFC) mount detected at %s", path)
                     logging.info("Attempting to unmount %s...", path)
                     mount.unmount_with_operation(
