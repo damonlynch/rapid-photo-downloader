@@ -1381,12 +1381,21 @@ if have_gio:
         go unnoticed.
         """
 
-        cameraUnmounted = pyqtSignal(bool, str, str, PostCameraUnmountAction, bool)
+        # result (unmount succeeded or not), camera model, port, post unmount action
+        cameraUnmounted = pyqtSignal(bool, str, str, PostCameraUnmountAction)
+
         cameraMounted = pyqtSignal()
+
+        # path, icon names, volume can eject
         partitionMounted = pyqtSignal(str, list, bool)
+
+        # path
         partitionUnmounted = pyqtSignal(str)
+
         volumeAddedNoAutomount = pyqtSignal()
         cameraPossiblyRemoved = pyqtSignal()
+
+        # device path
         cameraVolumeAdded = pyqtSignal(str)
 
         def __init__(self, validMounts: ValidMounts) -> None:
@@ -1464,7 +1473,6 @@ if have_gio:
         def reUnmountCamera(self, model: str,
                           port: str,
                           post_unmount_action: PostCameraUnmountAction,
-                          on_startup: bool,
                           attempt_no: int) -> None:
 
             logging.info(
@@ -1474,14 +1482,12 @@ if have_gio:
             self.unmountCamera(
                 model=model, port=port,
                 post_unmount_action=post_unmount_action,
-                on_startup=on_startup,
                 attempt_no=attempt_no
             )
 
         def unmountCamera(self, model: str,
                           port: str,
                           post_unmount_action: PostCameraUnmountAction,
-                          on_startup: bool=False,
                           mount_point: Optional[Gio.Mount]=None,
                           attempt_no: Optional[int]=0) -> bool:
             """
@@ -1493,8 +1499,6 @@ if have_gio:
              usb:001,004
             :param download_starting: if True, the unmount is occurring
              because a download has been initiated.
-            :param on_startup: if True, the unmount is occurring during
-             the program's startup phase
             :param mount_point: if not None, try umounting from this
              mount point without scanning for it first
             :return: True if an unmount operation has been initiated,
@@ -1510,7 +1514,7 @@ if have_gio:
                 logging.debug("GIO: Attempting to unmount %s...", model)
                 to_unmount.unmount_with_operation(
                     0, None, None, self.unmountCameraCallback,
-                    (model, port, post_unmount_action, on_startup, attempt_no)
+                    (model, port, post_unmount_action, attempt_no)
                 )
                 return True
 
@@ -1530,27 +1534,27 @@ if have_gio:
             unmounted, in the format of libgphoto2
             """
 
-            model, port, post_unmount_action, on_startup, attempt_no = user_data
+            model, port, post_unmount_action, attempt_no = user_data
             try:
                 if mount.unmount_with_operation_finish(result):
                     logging.debug("...successfully unmounted {}".format(model))
-                    self.cameraUnmounted.emit(True, model, port, post_unmount_action, on_startup)
+                    self.cameraUnmounted.emit(True, model, port, post_unmount_action)
                 else:
                     logging.debug("...failed to unmount {}".format(model))
-                    self.cameraUnmounted.emit(False, model, port, post_unmount_action, on_startup)
+                    self.cameraUnmounted.emit(False, model, port, post_unmount_action)
             except GLib.GError as e:
                 if e.code == 26 and attempt_no < 10:
                     attempt_no += 1
                     QTimer.singleShot(
                         1000, lambda : self.reUnmountCamera(
                             model, port, post_unmount_action,
-                            on_startup, attempt_no
+                            attempt_no
                         )
                     )
                 else:
                     logging.error('Exception occurred unmounting {}'.format(model))
                     logging.exception('Traceback:')
-                    self.cameraUnmounted.emit(False, model, port, post_unmount_action, on_startup)
+                    self.cameraUnmounted.emit(False, model, port, post_unmount_action)
 
         def unmountVolume(self, path: str) -> None:
             """

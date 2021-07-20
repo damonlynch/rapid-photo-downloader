@@ -1187,10 +1187,10 @@ class RapidWindow(QMainWindow):
         self.setupErrorLogWindow(settings=settings)
 
         self.setDownloadCapabilities()
-        self.searchForCameras(on_startup=True)
-        self.setupNonCameraDevices(on_startup=True)
+        self.searchForCameras()
+        self.setupNonCameraDevices()
         self.splash.setProgress(100)
-        self.setupManualPath(on_startup=True)
+        self.setupManualPath()
         self.updateSourceButton()
         self.displayMessageInStatusBar()
 
@@ -1269,6 +1269,16 @@ class RapidWindow(QMainWindow):
         self.ios_issue_message_queue = set()  # type: Set[str]
 
     def iOSIssueErrorMessage(self, display_name: Optional[str] = None) -> None:
+        """
+        If needed, warn the user about missing help applications to download from iOS devices.
+
+        Does not display error message while program is starting up. Instead will queue the device
+        name to display it when the program has finished starting (call this function again with
+        a device name to display queued items).
+
+        :param display_name: device name
+        """
+
         if self.on_startup and display_name:
             logging.debug(
                 "Queueing display of missing iOS helper application for display after program "
@@ -4944,9 +4954,7 @@ Do you want to proceed with the download?
         assert self.gvfsControlsMounts
         self.searchForCameras()
 
-    def unmountCameraToEnableScan(self, model: str,
-                                  port: str,
-                                  on_startup: bool) -> bool:
+    def unmountCameraToEnableScan(self, model: str, port: str) -> bool:
         """
         Possibly "unmount" a camera or phone controlled by GVFS so it can be scanned
 
@@ -4962,7 +4970,6 @@ Do you want to proceed with the download?
             unmounted = self.gvolumeMonitor.unmountCamera(
                 model=model, port=port,
                 post_unmount_action=PostCameraUnmountAction.scan,
-                on_startup=on_startup
             )
             if unmounted:
                 logging.debug("Successfully unmounted %s", model)
@@ -4972,12 +4979,11 @@ Do you want to proceed with the download?
                 del self.devices.cameras_to_gvfs_unmount_for_scan[port]
         return False
 
-    @pyqtSlot(bool, str, str, PostCameraUnmountAction, bool)
+    @pyqtSlot(bool, str, str, PostCameraUnmountAction)
     def cameraUnmounted(self, result: bool,
                         model: str,
                         port: str,
-                        post_camera_unmount_action: PostCameraUnmountAction,
-                        on_startup: bool) -> None:
+                        post_camera_unmount_action: PostCameraUnmountAction) -> None:
         """
         Handle the attempt to unmount a GVFS mounted camera.
 
@@ -4989,14 +4995,13 @@ Do you want to proceed with the download?
         :param port: camera port
         :param download_started: whether the unmount happened because a download
          was initiated
-        :param on_startup: if the unmount happened on a device during program startup
         """
 
         if post_camera_unmount_action == PostCameraUnmountAction.scan:
             assert self.devices.cameras_to_gvfs_unmount_for_scan[port] == model
             del self.devices.cameras_to_gvfs_unmount_for_scan[port]
             if result:
-                self.startCameraScan(model=model, port=port, on_startup=on_startup)
+                self.startCameraScan(model=model, port=port)
             else:
                 # Get the camera's short model name, instead of using the exceptionally
                 # long name that gphoto2 can sometimes use. Get the icon too.
@@ -5064,14 +5069,11 @@ Do you want to proceed with the download?
                 name = ''
             logging.debug("Taking no additional action after unmounting %s", name)
 
-    def searchForCameras(self, on_startup: bool=False) -> None:
+    def searchForCameras(self) -> None:
         """
         Detect using gphoto2 any cameras attached to the computer.
 
         Initiates unmount of cameras that are mounted by GIO/GVFS.
-
-        :param on_startup: if True, the search is occurring during
-         the program's startup phase
         """
 
         if self.prefs.device_autodetection:
@@ -5122,8 +5124,8 @@ Do you want to proceed with the download?
                     elif device.is_apple_mobile and not storageidevice.utilities_present:
                         logging.warning(
                             "Ignoring iOS device '%s' because required helper applications are not "
-                            "installed. On startup: %s",
-                            device.display_name, on_startup
+                            "installed.",
+                            device.display_name
                         )
                         self.iOSIssueErrorMessage(display_name=device.display_name)
                     else:
@@ -5134,37 +5136,30 @@ Do you want to proceed with the download?
                         # or any other system. Before attempting to scan the
                         # camera, check to see if it's mounted and if so,
                         # unmount it. Unmounting is asynchronous.
-                        if not self.unmountCameraToEnableScan(
-                                model=model, port=port, on_startup=on_startup):
-                            self.startCameraScan(model=model, port=port, on_startup=on_startup)
+                        if not self.unmountCameraToEnableScan(model=model, port=port):
+                            self.startCameraScan(model=model, port=port)
 
-    def startCameraScan(self, model: str,
-                        port: str,
-                        on_startup: bool=False) -> None:
+    def startCameraScan(self, model: str, port: str,) -> None:
         """
         Initiate the scan of an unmounted camera
 
         :param model: camera model
         :param port:  camera port
-        :param on_startup: if True, the scan is occurring during
-         the program's startup phase
         """
         device = self.devices.remove_camera_from_cache(model, port)
         if device is None:
             device = Device()
             device.set_download_from_camera(model, port)
-        self.startDeviceScan(device=device, on_startup=on_startup)
+        self.startDeviceScan(device=device)
 
-    def startDeviceScan(self, device: Device,  on_startup: bool=False) -> None:
+    def startDeviceScan(self, device: Device) -> None:
         """
         Initiate the scan of a device (camera, this computer path, or external device)
 
         :param device: device to scan
-        :param on_startup: if True, the scan is occurring during
-         the program's startup phase
         """
 
-        scan_id = self.devices.add_device(device=device, on_startup=on_startup)
+        scan_id = self.devices.add_device(device=device, on_startup=self.on_startup)
         logging.debug("Assigning scan id %s to %s", scan_id, device.name())
         self.thumbnailModel.addOrUpdateDevice(scan_id)
         self.addToDeviceDisplay(device, scan_id)
@@ -5180,7 +5175,7 @@ Do you want to proceed with the download?
         self.updateProgressBarState()
         self.displayMessageInStatusBar()
 
-        if not on_startup and self.thumbnailModel.anyCompletedDownloads():
+        if not self.on_startup and self.thumbnailModel.anyCompletedDownloads():
 
             if self.prefs.completed_downloads == int(CompletedDownloads.prompt):
                 logging.info("Querying whether to clear completed downloads")
@@ -5260,7 +5255,7 @@ Do you want to proceed with the download?
                 )
         return False
 
-    def prepareNonCameraDeviceScan(self, device: Device, on_startup: bool=False) -> None:
+    def prepareNonCameraDeviceScan(self, device: Device) -> None:
         """
         Initiates a device scan for volume.
 
@@ -5269,8 +5264,6 @@ Do you want to proceed with the download?
         from the device.
 
         :param device: device to scan
-        :param on_startup: if True, the search is occurring during
-         the program's startup phase
         """
 
         if not self.devices.known_device(device):
@@ -5292,14 +5285,14 @@ Do you want to proceed with the download?
                     if use.remember:
                         logging.debug("Whitelisting device %s", device.display_name)
                         self.prefs.add_list_value(key='volume_whitelist', value=device.display_name)
-                    self.startDeviceScan(device=device, on_startup=on_startup)
+                    self.startDeviceScan(device=device)
                 else:
                     logging.debug("Device %s rejected as a download device", device.display_name)
                     if use.remember and device.display_name not in self.prefs.volume_blacklist:
                         logging.debug("Blacklisting device %s", device.display_name)
                         self.prefs.add_list_value(key='volume_blacklist', value=device.display_name)
             else:
-                self.startDeviceScan(device=device, on_startup=on_startup)
+                self.startDeviceScan(device=device)
 
     @pyqtSlot(str, list, bool)
     def partitionMounted(self, path: str, iconNames: List[str], canEject: bool) -> None:
@@ -5341,7 +5334,7 @@ Do you want to proceed with the download?
                     device.set_download_from_volume(
                         path, mount.displayName(), iconNames, canEject, mount
                     )
-                    self.prepareNonCameraDeviceScan(device)
+                    self.prepareNonCameraDeviceScan(device=device)
 
     @pyqtSlot(str)
     def partitionUmounted(self, path: str) -> None:
@@ -5622,12 +5615,10 @@ Do you want to proceed with the download?
         self.setDownloadCapabilities()
         logging.info("...backup devices configuration is reset")
 
-    def setupNonCameraDevices(self, on_startup: bool=False, scanning_again: bool=False) -> None:
+    def setupNonCameraDevices(self, scanning_again: bool=False) -> None:
         """
         Setup devices from which to download and initiates their scan.
 
-        :param on_startup: if True, the search is occurring during
-         the program's startup phase
         :param scanning_again: if True, the search is occurring after a preference
          value change, where devices may have already been scanned.
         """
@@ -5660,14 +5651,12 @@ Do you want to proceed with the download?
             device.set_download_from_volume(
                 mount.rootPath(), mount.displayName(), icon_names, can_eject, mount
             )
-            self.prepareNonCameraDeviceScan(device=device, on_startup=on_startup)
+            self.prepareNonCameraDeviceScan(device=device)
 
-    def setupManualPath(self, on_startup: bool=False) -> None:
+    def setupManualPath(self) -> None:
         """
         Setup This Computer path from which to download and initiates scan.
 
-        :param on_startup: if True, the setup is occurring during
-         the program's startup phase
         """
 
         if not self.prefs.this_computer_source:
@@ -5691,7 +5680,7 @@ Do you want to proceed with the download?
                     logging.debug("Using This Computer path %s", path)
                     device = Device()
                     device.set_download_from_path(path)
-                    self.startDeviceScan(device=device, on_startup=on_startup)
+                    self.startDeviceScan(device=device)
                 else:
                     logging.error("This Computer download path is invalid: %s", path)
             else:
@@ -5699,9 +5688,12 @@ Do you want to proceed with the download?
 
     def addDeviceToBackupManager(self, path: str) -> None:
         device_id = self.backup_devices.device_id(path)
-        self.backup_controller.send_multipart(create_inproc_msg(b'START_WORKER',
-                                worker_id=device_id,
-                                data=BackupArguments(path, self.backup_devices.name(path))))
+        self.backup_controller.send_multipart(
+            create_inproc_msg(
+                b'START_WORKER', worker_id=device_id,
+                data=BackupArguments(path, self.backup_devices.name(path))
+            )
+        )
 
     def setupManualBackup(self) -> None:
         """
