@@ -1542,7 +1542,7 @@ if have_gio:
                 if e.code == 26 and attempt_no < 10:
                     attempt_no += 1
                     QTimer.singleShot(
-                        750, lambda : self.reUnmountCamera(
+                        1000, lambda : self.reUnmountCamera(
                             model, port, post_unmount_action,
                             on_startup, attempt_no
                         )
@@ -1592,7 +1592,11 @@ if have_gio:
                     logging.info("...failed to unmount volume %s", path)
             except GLib.GError as e:
                 if e.code == 16:
-                    logging.debug("...backend currently unmounting volume %s", path)
+                    logging.debug("...backend currently unmounting volume %s...", path)
+                elif e.code == 26:
+                    logging.debug("...did not yet unmount volume %s because it is busy...")
+                    # TODO investigate if should try again to unmount the volume, similar to
+                    # unmountCameraCallback()
                 else:
                     logging.error('Exception occurred unmounting volume %s', path)
                     logging.exception('Traceback:')

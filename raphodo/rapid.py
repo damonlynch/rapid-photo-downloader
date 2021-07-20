@@ -192,6 +192,7 @@ import raphodo.didyouknow as didyouknow
 from raphodo.thumbnailextractor import gst_version, libraw_version, rawkit_version
 from raphodo.heif import have_heif_module, pyheif_version, libheif_version
 from raphodo.filesystemurl import FileSystemUrlHandler
+import raphodo.storageidevice as storageidevice
 
 
 # Avoid segfaults at exit:
@@ -488,6 +489,10 @@ class RapidWindow(QMainWindow):
                  log_gphoto2: Optional[bool]=None) -> None:
 
         super().__init__()
+
+        # Indicate not to show any dialogs to the user until the program has finished starting
+        self.on_startup = True
+
         self.splash = splash
         if splash.isVisible():
             self.screen = splash.windowHandle().screen()  # type: QScreen
@@ -546,6 +551,8 @@ class RapidWindow(QMainWindow):
         self.prefs = Preferences()
         self.checkPrefsUpgrade()
         self.prefs.program_version = __about__.__version__
+
+        self.iOSInitErrorMessaging()
 
         if self.prefs.force_exiftool:
             logging.debug("ExifTool and not Exiv2 will be used to read photo metadata")
@@ -1228,6 +1235,9 @@ class RapidWindow(QMainWindow):
             if warning.remember:
                 self.prefs.warn_broken_or_missing_libraries = False
 
+        self.on_startup = False
+        self.iOSIssueErrorMessage()
+
         self.tip = didyouknow.DidYouKnowDialog(self.prefs, self)
         if self.prefs.did_you_know_on_startup:
             self.tip.activate()
@@ -1249,6 +1259,44 @@ class RapidWindow(QMainWindow):
                 self.resizeAndMoveMainWindow()
 
             self.errorLog.setVisible(self.errorLogAct.isChecked())
+
+    def iOSInitErrorMessaging(self) -> None:
+        """
+        Initialize display of error message to the user about missing iOS support applications
+        """
+
+        # Track device names
+        self.ios_issue_message_queue = set()  # type: Set[str]
+
+    def iOSIssueErrorMessage(self, display_name: Optional[str] = None) -> None:
+        if self.on_startup and display_name:
+            logging.debug(
+                "Queueing display of missing iOS helper application for display after program "
+                "startup"
+            )
+            display_name = "'{}'".format(display_name)
+            self.ios_issue_message_queue.add(display_name)
+        elif not self.on_startup and (self.ios_issue_message_queue or display_name is not None):
+
+            if display_name is not None:
+                devices = "'{}'".format(display_name)
+            else:
+                devices = make_internationalized_list(list(self.ios_issue_message_queue))
+
+            message = _(
+                '<b>Cannot download from iOS devices</b><br><br>'
+                'To download from %s, this program requires additional software be installed '
+                'that interacts with iOS devices.<br><br>'
+                '<a href="https://damonlynch.net/rapid/documentation/#ioshelper">Learn more</a> '
+                'about which software to install.'
+            ) % devices
+
+            msgbox = standardMessageBox(
+                message=message, rich_text=True, standardButtons=QMessageBox.Ok,
+                iconType=QMessageBox.Warning, parent=self
+            )
+            msgbox.exec()
+            self.ios_issue_message_queue = set()
 
     def mapModel(self, scan_id: int) -> DeviceModel:
         """
@@ -4898,8 +4946,7 @@ Do you want to proceed with the download?
 
     def unmountCameraToEnableScan(self, model: str,
                                   port: str,
-                                  on_startup: bool,
-                                  is_apple_mobile: bool) -> bool:
+                                  on_startup: bool) -> bool:
         """
         Possibly "unmount" a camera or phone controlled by GVFS so it can be scanned
 
@@ -4907,7 +4954,6 @@ Do you want to proceed with the download?
         :param port: port used by camera
         :param on_startup: if True, the unmount is occurring during
          the program's startup phase
-        :param is_apple_mobile: if True, the device is an Apple mobile device
         :return: True if unmount operation initiated, else False
         """
 
@@ -5073,16 +5119,23 @@ Do you want to proceed with the download?
                     device.set_download_from_camera(model, port)
                     if device.udev_name in self.prefs.camera_blacklist:
                         logging.debug("Ignoring blacklisted camera %s", model)
+                    elif device.is_apple_mobile and not storageidevice.utilities_present:
+                        logging.warning(
+                            "Ignoring iOS device '%s' because required helper applications are not "
+                            "installed. On startup: %s",
+                            device.display_name, on_startup
+                        )
+                        self.iOSIssueErrorMessage(display_name=device.display_name)
                     else:
                         logging.debug("Detected %s on port %s", model, port)
+                        self.devices.cache_camera(device)
                         # almost always, libgphoto2 cannot access a camera when
                         # it is mounted by another process, like Gnome's GVFS
                         # or any other system. Before attempting to scan the
                         # camera, check to see if it's mounted and if so,
                         # unmount it. Unmounting is asynchronous.
                         if not self.unmountCameraToEnableScan(
-                                model=model, port=port, on_startup=on_startup,
-                                is_apple_mobile= device.is_apple_mobile):
+                                model=model, port=port, on_startup=on_startup):
                             self.startCameraScan(model=model, port=port, on_startup=on_startup)
 
     def startCameraScan(self, model: str,
@@ -5096,9 +5149,10 @@ Do you want to proceed with the download?
         :param on_startup: if True, the scan is occurring during
          the program's startup phase
         """
-
-        device = Device()
-        device.set_download_from_camera(model, port)
+        device = self.devices.remove_camera_from_cache(model, port)
+        if device is None:
+            device = Device()
+            device.set_download_from_camera(model, port)
         self.startDeviceScan(device=device, on_startup=on_startup)
 
     def startDeviceScan(self, device: Device,  on_startup: bool=False) -> None:

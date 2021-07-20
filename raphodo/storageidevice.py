@@ -42,6 +42,9 @@ idevicepair_cmd = shutil.which('idevicepair')
 ifuse_cmd = shutil.which('ifuse')
 fusermount_cmd = shutil.which('fusermount')
 
+# True if all iOS related utility programs are present on the system
+utilities_present = not None in (idevicename_cmd, idevicepair_cmd, ifuse_cmd, fusermount_cmd)
+
 
 def idevice_serial_to_udid(serial: str) -> str:
     """

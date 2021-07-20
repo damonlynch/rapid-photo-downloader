@@ -18,7 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2020, Damon Lynch"
+__copyright__ = "Copyright 2007-2021, Damon Lynch"
 
 import contextlib
 import site
@@ -443,7 +443,7 @@ def make_internationalized_list(items: List[str]) -> str:
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
             # crash.
-            s =  '%(first_items)s, %(last_items)s'% dict(
+            s = '%(first_items)s, %(last_items)s'% dict(
                 first_items=s, last_items=item
             )
         # Translators: the end of a list of things
@@ -459,7 +459,7 @@ def make_internationalized_list(items: List[str]) -> str:
 
 def thousands(i: int) -> str:
     """
-    Add a thousands seperator (or its locale equivalent) to an
+    Add a thousands separator (or its locale equivalent) to an
     integer. Assumes the module level locale setting has already been
     set.
     :param i: the integer e.g. 1000

@@ -518,6 +518,9 @@ class DeviceCollection:
         self._sample_files_complete = []  # type: List[sample_file_complete]
         self.exiftool_process = exiftool_process
 
+        # Cache camera Devices when determining whether to scan it or not
+        self.camera_device_cache = {}  # type: Dict[Tuple[str, str], Device]
+
         self._map_set = {
             DeviceType.path: self.this_computer,
             DeviceType.camera: self.volumes_and_cameras,
@@ -528,6 +531,26 @@ class DeviceCollection:
             DeviceType.camera: _('Cameras'),
             DeviceType.volume: _('Devices')
         }
+
+    def cache_camera(self, device: Device) -> None:
+        """
+        When handling a camera to determine if it should be scanned or not,
+        cache preliminary device probing results here
+        :param device: the camera
+        """
+
+        assert device.device_type in (DeviceType.camera, DeviceType.camera_fuse)
+        self.camera_device_cache[(device.camera_model, device.camera_port)] = device
+
+    def remove_camera_from_cache(self, model: str, port) -> Optional[Device]:
+        """
+        Get camera from cache, if it's cached, and remove it from the cache
+
+        :param model: camera model as returned by gPhoto2
+        :param port: camera port
+        :return: camera device or None if it was not cached
+        """
+        return self.camera_device_cache.pop((model, port), None)
 
     def download_start_blocked(self) -> bool:
         """
