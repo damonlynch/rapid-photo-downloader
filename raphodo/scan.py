@@ -269,10 +269,16 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     # Wait for command to resume or halt processing
                     self.resume_work()
 
-            name = idevice_get_name(udid)
-            if name:
-                self.camera_display_name = name
-                self.display_name = self.camera_display_name
+            if self.device.have_canoncial_ios_name:
+                logging.info(
+                    "Already have iOS display name for %s. Not querying again.", self.display_name
+                )
+                self.camera_display_name = self.display_name
+            else:
+                name = idevice_get_name(udid)
+                if name:
+                    self.camera_display_name = name
+                    self.display_name = self.camera_display_name
 
             try:
                 mount_point = idevice_do_mount(udid, self.display_name)

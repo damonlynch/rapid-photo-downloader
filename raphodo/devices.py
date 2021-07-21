@@ -125,6 +125,8 @@ class Device:
         self.path = None  # type: Optional[str]
         self.display_name = None  # type: Optional[str]
         self.have_optimal_display_name = False
+        # iOS devices can report their device name when the device is already paired
+        self.have_canoncial_ios_name = False
         self.device_type = None  # type: Optional[DeviceType]
         self.icon_name = None  # type: Optional[str]
         self.can_eject = None  # type: Optional[bool]
@@ -242,6 +244,7 @@ class Device:
                     if name:
                         logging.debug('%s is now known as %s', self.display_name, name)
                         self.display_name = name
+                        self.have_canoncial_ios_name = True
         else:
             logging.error(
                 "Could not determine udev values for %s %s", self.camera_model, camera_port
@@ -296,8 +299,9 @@ class Device:
             self.display_name = path
         # the next value is almost certainly ("folder",), but I guess it's
         # better to generate it from code
-        self.icon_name = ('{}'.format(QFileIconProvider().icon(
-            QFileIconProvider.Folder).name()))
+        self.icon_name = (
+            '{}'.format(QFileIconProvider().icon(QFileIconProvider.Folder).name())
+        )
         mount = QStorageInfo(path)
         self.storage_space.append(
             StorageSpace(
@@ -320,7 +324,7 @@ class Device:
         """
         Get the name of the device, suitable to be displayed to the
         user. If the device is a path, return the path name
-        :return  str containg the name
+        :return  str containing the name
         """
         if self.device_type in (DeviceType.camera, DeviceType.camera_fuse):
             return self.display_name
