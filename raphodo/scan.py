@@ -218,7 +218,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.download_from_filesystem = device_type in (DeviceType.volume, DeviceType.path)
         self.camera_storage_descriptions = []
 
-        if self.download_from_camera:
+        if self.download_from_camera or self.download_from_camera_fuse:
             self.camera_model = scan_arguments.device.camera_model
             self.camera_port = scan_arguments.device.camera_port
             self.is_mtp_device = scan_arguments.device.is_mtp_device
@@ -226,14 +226,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.display_name = self.camera_display_name
             self.ignore_mdatatime_for_mtp_dng = self.is_mtp_device and \
                                                 self.prefs.ignore_mdatatime_for_mtp_dng
-        elif self.download_from_camera_fuse:
-            #TODO set defaults
-            self.display_name = scan_arguments.device.display_name
         else:
             assert self.download_from_filesystem
             self.camera_port = self.camera_model = self.is_mtp_device = None
             self.ignore_mdatatime_for_mtp_dng = False
             self.camera_display_name = None
+            self.display_name = scan_arguments.device.display_name
 
         self.files_scanned = 0
         self.camera = None
@@ -242,9 +240,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
         if self.download_from_filesystem:
             self.scan_file_system(scan_arguments)
         elif self.download_from_camera_fuse:
-            # Check for unmount of gphoto2 mount. It should already be unmounted, but might not be.
-
+            # If in future cameras generally can be downloaded using FUSE, remove this assertion:
             assert self.device.is_apple_mobile
+
             udid = self.device.idevice_udid
             logging.debug("Examining camera-as-fuse-device '%s'", self.display_name)
             while True:
@@ -270,7 +268,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.resume_work()
 
             if self.device.have_canoncial_ios_name:
-                logging.info(
+                logging.debug(
                     "Already have iOS display name for %s. Not querying again.", self.display_name
                 )
                 self.camera_display_name = self.display_name
@@ -294,10 +292,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 terminated = True
             else:
                 mount = QStorageInfo(mount_point)
+                scan_arguments.device.path = mount_point
                 storage_space = StorageSpace(
                     bytes_free=mount.bytesAvailable(), bytes_total=mount.bytesTotal(),
                     path=mount_point
                 )
+
+                # send mount point, device name, and storage information to main process
                 self.content = pickle.dumps(
                     ScanResults(
                         optimal_display_name=self.camera_display_name,
@@ -310,15 +311,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 )
                 self.send_message_to_sink()
 
-            # send mount point to main process
-
-            if terminated or True:
-
+            if terminated:
                 logging.info("Terminating scan of %s", self.display_name)
-                self.exit_exiftool()
-                self.disconnect_logging()
-                self.send_finished_command()
-                return
+            else:
+                self.scan_file_system(scan_arguments)
 
         else:
             # When a mobile phone is unlocked, it's as if the phone is ejected and reinserted.
@@ -361,7 +357,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     pickle.HIGHEST_PROTOCOL
                 )
                 self.send_message_to_sink()
-        elif self.download_from_camera:
+        elif self.download_from_camera or self.download_from_camera_fuse:
             self.content = pickle.dumps(
                 ScanResults(
                     scan_id=int(self.worker_id), camera_removed=True
@@ -414,17 +410,18 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
     def scan_file_system(self, scan_arguments: ScanArguments):
         """
-        Download from file system - either on This Computer, or an external volume like a
-        # memory card or USB Flash or external drive of some kind
+        Download from file system - either on This Computer, a FUSE device, or an external volume
+        like a memory card or USB Flash or external drive of some kind.
 
         :param scan_arguments: scan configuration
         """
 
+        assert scan_arguments.device.path is not None
         path = os.path.abspath(scan_arguments.device.path)
-        self.display_name = scan_arguments.device.display_name
 
         scanning_specific_path = self.prefs.scan_specific_folders and \
-                                 scan_arguments.device.device_type == DeviceType.volume
+                                 scan_arguments.device.device_type in \
+                                 (DeviceType.volume, DeviceType.camera_fuse)
         if scanning_specific_path:
             specific_folder_prefs = self.prefs.folders_to_scan
             paths = tuple(
@@ -439,6 +436,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         if scan_arguments.device.device_type == DeviceType.volume:
             device_type = 'device'
+        elif scan_arguments.device.device_type == DeviceType.camera_fuse:
+            device_type = 'iOS device'
         else:
             device_type = 'This Computer path'
         logging.info("Scanning {} {}".format(device_type, self.display_name))
