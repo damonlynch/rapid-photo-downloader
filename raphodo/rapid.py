@@ -1281,8 +1281,8 @@ class RapidWindow(QMainWindow):
 
         if self.on_startup and display_name:
             logging.debug(
-                "Queueing display of missing iOS helper application for display after program "
-                "startup"
+                "Queueing display of missing iOS helper application error message for display "
+                "after program startup"
             )
             display_name = "'{}'".format(display_name)
             self.ios_issue_message_queue.add(display_name)
@@ -2099,7 +2099,7 @@ class RapidWindow(QMainWindow):
             DeviceType.camera_fuse: self.deviceView,
         }
 
-        # Be cautious: validate paths. The settings file can alwasy be edited by hand, and
+        # Be cautious: validate paths. The settings file can always be edited by hand, and
         # the user can set it to whatever value they want using the command line options.
         logging.debug("Checking path validity")
         this_computer_sf = validate_source_folder(self.prefs.this_computer_path)
@@ -4369,7 +4369,7 @@ Do you want to proceed with the download?
             # sample required for editing download subfolder generation
             self.videoDestinationDisplay.sample_rpd_file = self.devices.sample_video
 
-        if device.device_type == DeviceType.camera:
+        if device.device_type == DeviceType.camera:  # irrelevant when using FUSE
             if entire_video_required is not None:
                 device.entire_video_required = entire_video_required
             if entire_photo_required is not None:
@@ -5468,7 +5468,7 @@ Do you want to proceed with the download?
         device = self.devices[scan_id]
         logging.debug("Rescanning %s", device.display_name)
         self.removeDevice(scan_id=scan_id)
-        if device.device_type == DeviceType.camera:
+        if device.device_type in (DeviceType.camera, DeviceType.camera_fuse):
             self.startCameraScan(device.camera_model, device.camera_port)
         else:
             if device.device_type == DeviceType.path:
@@ -5513,7 +5513,6 @@ Do you want to proceed with the download?
             self.setupNonCameraDevices(scanning_again=True)
             logging.debug("... finished searching for volumes to scan")
 
-
     def blacklistDevice(self, scan_id: int) -> None:
         """
         Query user if they really want to to permanently ignore a camera or
@@ -5523,7 +5522,7 @@ Do you want to proceed with the download?
         """
 
         device = self.devices[scan_id]
-        if device.device_type == DeviceType.camera:
+        if device.device_type in (DeviceType.camera, DeviceType.camera_fuse):
             text = _("<b>Do you want to ignore the %s whenever this program is run?</b>")
             text = text % device.display_name
             info_text = _(
@@ -5543,9 +5542,9 @@ Do you want to proceed with the download?
         msgbox.setInformativeText(info_text)
         msgbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
         if msgbox.exec() == QMessageBox.Yes:
-            if device.device_type == DeviceType.camera:
+            if device.device_type in (DeviceType.camera, DeviceType.camera_fuse):
                 self.prefs.add_list_value(key='camera_blacklist', value=device.udev_name)
-                logging.debug('Added %s to camera blacklist',device.udev_name)
+                logging.debug('Added %s to camera blacklist', device.udev_name)
             else:
                 self.prefs.add_list_value(key='volume_blacklist', value=device.display_name)
                 logging.debug('Added %s to volume blacklist', device.display_name)
