@@ -914,11 +914,16 @@ class ThumbnailListModel(QAbstractListModel):
                     self.tsql.any_files_of_type(scan_id, FileType.video)
                 # defer check to see if ExifTool is needed until later
                 need_photo_cache_dir = device.entire_photo_required
+                camera_model = device.camera_model
+                camera_port = device.camera_port
+            else:
+                camera_model = None
+                camera_port = None
 
             gen_args = (
                 scan_id, rpd_files, device.name(), self.rapidApp.prefs.proximity_seconds,
-                cache_dirs, need_photo_cache_dir, need_video_cache_dir, device.camera_model,
-                device.camera_port, device.entire_video_required, device.entire_photo_required
+                cache_dirs, need_photo_cache_dir, need_video_cache_dir, camera_model,
+                camera_port, device.entire_video_required, device.entire_photo_required
             )
             self.thumbnailer.generateThumbnails(*gen_args)
 

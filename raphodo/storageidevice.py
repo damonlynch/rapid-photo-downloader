@@ -28,6 +28,7 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2021, Damon Lynch."
 
 import logging
+import os
 import shutil
 from typing import Optional
 import subprocess
@@ -186,7 +187,7 @@ def idevice_do_mount(udid: str, display_name: str) -> str:
 
 def idevice_do_unmount(udid: str, display_name: str, mount_point: str):
     """
-    Unmount an iOS device that was mounted using FUSE
+    Unmount an iOS device that was mounted using FUSE, and remove the directory.
     :param udid: iOS device udid, used to perform operations on specific device
     :param display_name: display_name: iOS name for use in error messages
     :return: FUSE mount point
@@ -199,6 +200,15 @@ def idevice_do_unmount(udid: str, display_name: str, mount_point: str):
         argument=mount_point, camera_error_code=CameraErrorCode.mount,
         supply_udid_as_arg=False,
     )
+    try:
+        os.rmdir(mount_point)
+    except OSError as inst:
+        msg = "Failed to remove temporary directory %s: %s %s" % (
+                      mount_point,
+                      inst.errno,
+                      inst.strerror
+        )
+        logging.critical(msg)
 
 
 def idevice_generate_mount_point(udid: str) -> str:
@@ -208,6 +218,9 @@ def idevice_generate_mount_point(udid: str) -> str:
     :return: full path to the temp dir
     """
 
-    temp_dir = create_temp_dir(prefix='rpd-tmp-{}-'.format(udid))
+    # Make the temp directory have the iOS serial number so that when thumbnails are saved by
+    # path, the path will be the same each time the device is inserted
+
+    temp_dir = create_temp_dir(temp_dir_name='rpd-tmp-{}'.format(udid))
     logging.debug("Created temp mount point %s", temp_dir)
     return temp_dir

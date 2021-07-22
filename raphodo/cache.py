@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -47,7 +47,7 @@ http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2018, Damon Lynch"
+__copyright__ = "Copyright 2015-2021, Damon Lynch"
 
 import os
 import sys
@@ -71,6 +71,7 @@ from raphodo.rpdsql import CacheSQL
 
 GetThumbnail = namedtuple('GetThumbnail', 'disk_status, thumbnail, path')
 GetThumbnailPath = namedtuple('GetThumbnailPath', 'disk_status, path, mdatatime, orientation_unknown')
+
 
 class MD5Name:
     """Generate MD5 hashes for file names."""

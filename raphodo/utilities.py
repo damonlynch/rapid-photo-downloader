@@ -325,9 +325,10 @@ TempDirs = namedtuple('TempDirs', 'photo_temp_dir, video_temp_dir')
 CacheDirs = namedtuple('CacheDirs', 'photo_cache_dir, video_cache_dir')
 
 
-def create_temp_dir(folder: Optional[str]=None,
-                    prefix: Optional[str]=None,
-                    force_no_prefix: bool=False) -> str:
+def create_temp_dir(folder: Optional[str] = None,
+                    prefix: Optional[str] = None,
+                    force_no_prefix: bool = False,
+                    temp_dir_name: Optional[str] = None) -> str:
     """
     Creates a temporary director and logs errors
     :param folder: the folder in which the temporary directory should
@@ -337,20 +338,39 @@ def create_temp_dir(folder: Optional[str]=None,
      is True
     :param force_no_prefix: if True, a directory prefix will never
      be used
+    :param temp_dir_name: if specified, create the temporary directory
+     using this actual name. If it already exists, add a suffix.
     :return: full path of the temporary directory
     """
-    if prefix is None and not force_no_prefix:
-        prefix = "rpd-tmp-"
-    try:
-        temp_dir = tempfile.mkdtemp(prefix=prefix, dir=folder)
-    except OSError as inst:
-        msg = "Failed to create temporary directory in %s: %s %s" % (
-                      folder,
-                      inst.errno,
-                      inst.strerror
-        )
-        logging.critical(msg)
-        temp_dir = None
+
+    if temp_dir_name:
+        if folder is None:
+            folder = tempfile.gettempdir()
+        for i in range(10):
+            if i == 0:
+                path = os.path.join(folder, temp_dir_name)
+            else:
+                path = os.path.join(folder, '{}_{}'.format(temp_dir_name, i))
+            try:
+                os.mkdir(path=path, mode=0o700)
+            except FileExistsError:
+                logging.warning("Failed to create temporary directory %s", path)
+            else:
+                break
+        return path
+    else:
+        if prefix is None and not force_no_prefix:
+            prefix = "rpd-tmp-"
+        try:
+            temp_dir = tempfile.mkdtemp(prefix=prefix, dir=folder)
+        except OSError as inst:
+            msg = "Failed to create temporary directory in %s: %s %s" % (
+                          folder,
+                          inst.errno,
+                          inst.strerror
+            )
+            logging.critical(msg)
+            temp_dir = None
     return temp_dir
 
 
