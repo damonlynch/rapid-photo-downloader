@@ -222,5 +222,6 @@ def idevice_generate_mount_point(udid: str) -> str:
     # path, the path will be the same each time the device is inserted
 
     temp_dir = create_temp_dir(temp_dir_name='rpd-tmp-{}'.format(udid))
+    assert temp_dir is not None
     logging.debug("Created temp mount point %s", temp_dir)
     return temp_dir

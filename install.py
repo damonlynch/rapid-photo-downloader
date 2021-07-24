@@ -29,7 +29,7 @@
 
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2020, Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 import sys
 import os
@@ -1888,7 +1888,7 @@ def install_required_distro_packages(distro: Distro,
                    'python3-wheel python3-setuptools gir1.2-gexiv2-0.10 libxkbcommon-x11-0 ' \
                    'python3-gi gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 '\
                    'gir1.2-glib-2.0 gir1.2-gstreamer-1.0 gir1.2-gdkpixbuf-2.0 zenity ' \
-                   'libqt5x11extras5 libxcb-xinerama0 '
+                   'libqt5x11extras5 libxcb-xinerama0 libimobiledevice-utils fuse '
 
         if install_pyqt5:
             packages = '{} python3-pyqt5 qt5-image-formats-plugins ' \
