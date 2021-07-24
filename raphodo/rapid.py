@@ -1293,13 +1293,18 @@ class RapidWindow(QMainWindow):
             else:
                 devices = make_internationalized_list(list(self.ios_issue_message_queue))
 
+            missing_applications = make_internationalized_list(
+                storageidevice.ios_missing_programs()
+            )
+
             message = _(
                 '<b>Cannot download from iOS devices</b><br><br>'
                 'To download from %s, this program requires additional software be installed '
                 'that interacts with iOS devices.<br><br>'
+                'Missing applications: %s<br><br>'
                 '<a href="https://damonlynch.net/rapid/documentation/#ioshelper">Learn more</a> '
                 'about which software to install.'
-            ) % devices
+            ) % (devices, missing_applications)
 
             msgbox = standardMessageBox(
                 message=message, rich_text=True, standardButtons=QMessageBox.Ok,
@@ -5121,11 +5126,15 @@ Do you want to proceed with the download?
                     device.set_download_from_camera(model, port)
                     if device.udev_name in self.prefs.camera_blacklist:
                         logging.debug("Ignoring blacklisted camera %s", model)
-                    elif device.is_apple_mobile and not storageidevice.utilities_present:
+                    elif device.is_apple_mobile and not storageidevice.utilities_present():
                         logging.warning(
                             "Ignoring iOS device '%s' because required helper applications are not "
                             "installed.",
                             device.display_name
+                        )
+                        logging.warning(
+                            "Missing applications: %s",
+                            make_internationalized_list(storageidevice.ios_missing_programs())
                         )
                         self.iOSIssueErrorMessage(display_name=device.display_name)
                     else:

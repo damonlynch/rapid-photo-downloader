@@ -447,6 +447,7 @@ def make_internationalized_list(items: List[str]) -> str:
     :param items: the list of items to make a string out of
     :return: internationalized string
     """
+
     if len(items) == 1:
         return items[0]
     if len(items) == 2:

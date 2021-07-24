@@ -32,19 +32,34 @@ import os
 import shutil
 from typing import Optional
 import subprocess
+from typing import List, Tuple
 
 from raphodo.cameraerror import iOSDeviceError
 from raphodo.constants import CameraErrorCode
 from raphodo.utilities import create_temp_dir
 
-# Utilities for identifying, pairing, and mounting iOS devices
-idevicename_cmd = shutil.which('idevicename')
-idevicepair_cmd = shutil.which('idevicepair')
-ifuse_cmd = shutil.which('ifuse')
-fusermount_cmd = shutil.which('fusermount')
 
-# True if all iOS related utility programs are present on the system
-utilities_present = not None in (idevicename_cmd, idevicepair_cmd, ifuse_cmd, fusermount_cmd)
+# Utilities for identifying, pairing, and mounting iOS devices
+# Called every time on import into a new process, but not much we can do about that without
+# a bunch of extra optimization steps
+idevice_helper_apps = ('idevicename', 'idevicepair', 'ifuse', 'fusermount')
+ios_helper_cmds = [shutil.which(cmd) for cmd in idevice_helper_apps]
+idevicename_cmd, idevicepair_cmd, ifuse_cmd, fusermount_cmd = ios_helper_cmds
+
+
+def utilities_present() -> bool:
+    """
+    :return: True if all iOS helper utility applications are present on the system
+    """
+    return None not in ios_helper_cmds
+
+
+def ios_missing_programs() -> List[str]:
+    """
+    :return: a list of missing helper programs to allow iOS device access
+    """
+    l = [idevice_helper_apps[i] for i in range(len(ios_helper_cmds)) if ios_helper_cmds[i] is None]
+    return l
 
 
 def idevice_serial_to_udid(serial: str) -> str:
@@ -99,11 +114,14 @@ def idevice_run_command(command: str,
 
     try:
         result = subprocess.run(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True,
         )
     except subprocess.CalledProcessError as e:
         if warning_only:
-            logging.warning('Error running program for %s', display_name or udid)
+            logging.warning(
+                'Error running %s for %s. %s: %s',
+                command, display_name or udid, e.returncode, e.stdout.decode().strip(),
+            )
             return ''
         else:
             raise iOSDeviceError(
