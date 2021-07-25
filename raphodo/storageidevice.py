@@ -213,20 +213,27 @@ def idevice_do_unmount(udid: str, display_name: str, mount_point: str):
 
     logging.info("Unmounting iOS device '%s' from FUSE mount", display_name)
 
-    idevice_run_command(
-        udid=udid, command=fusermount_cmd, display_name=display_name,
-        argument=mount_point, camera_error_code=CameraErrorCode.mount,
-        supply_udid_as_arg=False,
-    )
     try:
-        os.rmdir(mount_point)
-    except OSError as inst:
-        msg = "Failed to remove temporary directory %s: %s %s" % (
-                      mount_point,
-                      inst.errno,
-                      inst.strerror
+        idevice_run_command(
+            udid=udid, command=fusermount_cmd, display_name=display_name,
+            argument=mount_point, camera_error_code=CameraErrorCode.mount,
+            supply_udid_as_arg=False,
         )
-        logging.critical(msg)
+    except iOSDeviceError as e:
+        logging.error(
+            "Error unmounting iOS device '%s'. %s: %s",
+            e.display_name, e.imobile_error, e.imobile_error_output
+        )
+    if os.path.isdir(mount_point):
+        try:
+            os.rmdir(mount_point)
+        except OSError as inst:
+            msg = "Failed to remove temporary directory %s: %s %s" % (
+                          mount_point,
+                          inst.errno,
+                          inst.strerror
+            )
+            logging.critical(msg)
 
 
 def idevice_generate_mount_point(udid: str) -> str:

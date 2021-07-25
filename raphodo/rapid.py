@@ -4926,7 +4926,9 @@ Do you want to proceed with the download?
         for model, port in removed_cameras:
             scan_id = self.devices.scan_id_from_camera_model_port(model, port)
             if scan_id is None:
-                logging.debug("The camera with scan id %s was already removed", scan_id)
+                logging.debug(
+                    "The camera with scan id %s was already removed, or was never added", scan_id
+                )
             else:
                 device = self.devices[scan_id]
                 # Don't log a warning when the camera was removed while the user was being

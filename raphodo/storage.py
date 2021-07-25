@@ -1072,19 +1072,29 @@ class CameraHotplug(QObject):
         parent_path = parent_device.get_sysfs_path()
         logging.debug("Device change: %s. Path: %s Parent path: %s", action, path, parent_path)
         if device.has_property('ID_VENDOR_FROM_DATABASE'):
-            logging.debug("Device vendor: %s", device.get_property('ID_VENDOR_FROM_DATABASE'))
+            vendor = device.get_property('ID_VENDOR_FROM_DATABASE')
+            logging.debug("Device vendor: %s", vendor)
+        else:
+            vendor = ''
 
         # 'bind' vs 'add' action: see https://lwn.net/Articles/837033/
 
         if action == 'bind':
             if parent_path not in self.cameras:
+                model = ''
+
                 if device.has_property('ID_MODEL'):
                     model = device.get_property('ID_MODEL')
-                    logging.info("Hotplug: new camera: %s", model.replace('_', ' '))
-                    self.cameras[path] = model
-                    self.cameraAdded.emit()
+                    model = model.replace('_', ' ')
+                    camera_path = path
                 else:
-                    logging.debug("Ignoring device because it has no model information")
+                    camera_path = parent_path
+
+                name = model or vendor or 'unknown camera'
+
+                logging.info("Hotplug: new camera: %s", name)
+                self.cameras[camera_path] = name
+                self.cameraAdded.emit()
             else:
                 logging.debug("Hotplug: already know about %s", self.cameras[parent_path])
 
@@ -1105,14 +1115,18 @@ class CameraHotplug(QObject):
             for p in (path, split_path):
                 if p in self.cameras:
                     name = self.cameras[p]
-                    logging.debug("Hotplug: removing %s on basis of path %s", name, p)
+                    logging.debug("Hotplug: removing '%s' on basis of path %s", name, p)
                     del self.cameras[p]
                     emit_remove = True
                     break
 
             if emit_remove:
-                logging.info("Hotplug: %s has been removed", name)
+                logging.info("Hotplug: '%s' has been removed", name)
                 self.cameraRemoved.emit()
+            else:
+                logging.debug(
+                    "Not responding to device removal: '%s'", vendor or device.get_sysfs_path()
+                )
 
 
 class UDisks2Monitor(QObject):

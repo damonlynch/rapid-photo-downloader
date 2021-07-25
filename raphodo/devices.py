@@ -373,16 +373,24 @@ class Device:
 
     def unmount_fuse(self) -> None:
         """
-        Unmount file system mounted using FUSE, e.g. iOS device
+        Unmount file system mounted using FUSE, e.g. iOS device.
+
+        Also handles cases where the device was removed while it was mounted, creating
+        an invalid mount.
         """
 
         if self.path:
             mount = QStorageInfo(self.path)
-            if mount.isReady():
-                idevice_do_unmount(
-                    udid=self.idevice_udid, display_name=self.display_name, mount_point=self.path
-                )
-                self.path = None
+            if not (mount.isReady() or mount.isValid()):
+                logging.debug("Removing invalid mount %s", self.path)
+
+            # Remove mounts regardless of whether they are valid or not
+            idevice_do_unmount(
+                udid=self.idevice_udid, display_name=self.display_name, mount_point=self.path
+            )
+            self.path = None
+        else:
+            logging.error("Path does not exist for '%s'", self.display_name)
 
 
 class DeviceCollection:
@@ -913,6 +921,7 @@ class DeviceCollection:
 
     def __delitem__(self, scan_id: int):
         d = self.devices[scan_id]  # type: Device
+        logging.debug("Deleting %s device from device collection", d.device_type.name)
         if d.device_type in (DeviceType.camera, DeviceType.camera_fuse):
             del self.cameras[d.camera_port]
             if d.camera_port in self.cameras_to_gvfs_unmount_for_scan:
