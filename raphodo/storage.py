@@ -1071,15 +1071,20 @@ class CameraHotplug(QObject):
         parent_device = device.get_parent()
         parent_path = parent_device.get_sysfs_path()
         logging.debug("Device change: %s. Path: %s Parent path: %s", action, path, parent_path)
+        if device.has_property('ID_VENDOR_FROM_DATABASE'):
+            logging.debug("Device vendor: %s", device.get_property('ID_VENDOR_FROM_DATABASE'))
 
-        # Ignore 'bind' action: seems to add nothing we need to know
+        # 'bind' vs 'add' action: see https://lwn.net/Articles/837033/
 
-        if action == 'add':
+        if action == 'bind':
             if parent_path not in self.cameras:
-                model = device.get_property('ID_MODEL')
-                logging.info("Hotplug: new camera: %s", model.replace('_', ' '))
-                self.cameras[path] = model
-                self.cameraAdded.emit()
+                if device.has_property('ID_MODEL'):
+                    model = device.get_property('ID_MODEL')
+                    logging.info("Hotplug: new camera: %s", model.replace('_', ' '))
+                    self.cameras[path] = model
+                    self.cameraAdded.emit()
+                else:
+                    logging.debug("Ignoring device because it has no model information")
             else:
                 logging.debug("Hotplug: already know about %s", self.cameras[parent_path])
 
