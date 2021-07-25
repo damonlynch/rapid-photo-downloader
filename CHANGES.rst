@@ -4,6 +4,11 @@ Changelog for Rapid Photo Downloader
 0.9.27a1 (2021-xx-xx)
 ---------------------
 
+ - iOS devices are now accessed using a software library written specifically to
+   communicate with iOS devices, libimobiledevice. Previously, gPhoto2 was used,
+   but gPhoto2 is unreliable with iOS because it appears Apple does not follow
+   the PTP standard.
+
  - Make Python 3.6 minimum Python version.
 
 0.9.26 (2020-12-24)
