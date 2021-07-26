@@ -6113,6 +6113,9 @@ def get_versions(file_manager: Optional[str],
         v = libheif_version()
         if v:
             versions.append('libheif: {}'.format(v))
+    versions.append(
+        "iOS support: {}".format('yes' if storageidevice.utilities_present() else 'no')
+    )
     for display in ('XDG_SESSION_TYPE', 'WAYLAND_DISPLAY'):
         session = os.getenv(display, '')
         if session.find('wayland') >= 0:
