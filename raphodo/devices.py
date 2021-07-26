@@ -343,7 +343,7 @@ class Device:
             return QIcon(':/icons/folder.svg')
         else:
             assert self.device_type in (DeviceType.camera, DeviceType.camera_fuse)
-            if self.is_mtp_device:
+            if self.is_mtp_device or self.is_apple_mobile:
                 if self.camera_model.lower().find('tablet') >= 0:
                     #TODO use tablet icon
                     pass
@@ -390,7 +390,7 @@ class Device:
             )
             self.path = None
         else:
-            logging.error("Path does not exist for '%s'", self.display_name)
+            logging.debug("Path does not exist for '%s': nothing to unmount", self.display_name)
 
 
 class DeviceCollection:
