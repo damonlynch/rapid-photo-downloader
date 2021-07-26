@@ -7,9 +7,29 @@ Changelog for Rapid Photo Downloader
  - iOS devices are now accessed using a software library written specifically to
    communicate with iOS devices, libimobiledevice. Previously, gPhoto2 was used,
    but gPhoto2 is unreliable with iOS because it appears Apple does not follow
-   the PTP standard.
+   the PTP standard. Please note that on some systems, it can take some minutes
+   for the iOS device to appear after it has been plugged in.
 
- - Make Python 3.6 minimum Python version.
+   Distribution package maintainers should modify
+   rapid-photo-downloader packages to include the following package
+   dependencies:
+
+   Debian / Ubuntu, Fedora:
+
+   - libimobiledevice-utils
+   - ifuse
+   - fuse
+
+   openSUSE:
+
+    - imobiledevice-tools
+    - ifuse
+    - fuse
+
+ - Python 3.6 is now the minimum Python version.
+
+ - Update install.py script to correctly enable Power Tools repository on
+   CentOS 8, and the Qt5 wayland package on Fedora and CentOS 8.
 
 0.9.26 (2020-12-24)
 -------------------
