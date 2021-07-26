@@ -1306,7 +1306,7 @@ def enable_rpmfusion_free(distro: Distro, version: LooseVersion, interactive: bo
                 cmds = (
                     'sudo dnf -y install --nogpgcheck https://download1.rpmfusion.org/free/el/'
                     'rpmfusion-free-release-8.noarch.rpm',
-                    'sudo dnf config-manager --enable PowerTools'
+                    'sudo dnf config-manager --set-enabled powertools'
                 )
             else:
                 assert distro == Distro.centos7
@@ -2014,7 +2014,12 @@ def install_required_distro_packages(distro: Distro,
         packages = 'gstreamer1-plugins-good ' \
                    'zeromq-devel exiv2 perl-Image-ExifTool gcc-c++ ' \
                    'rpm-build intltool libmediainfo python3-wheel zenity ' \
-                   'libheif-devel libde265-devel x265-devel gstreamer1-libav'
+                   'libheif-devel libde265-devel x265-devel gstreamer1-libav ' \
+                   'qt5-qtwayland '
+
+        # CentOS 8, like 7.5, does not include ifuse
+        if distro == Distro.fedora:
+            packages = 'ifuse fuse libimobiledevice-utils {}'.format(packages)
 
         if install_pyqt5:
             packages = 'qt5-qtimageformats python3-qt5 qt5-qtsvg {}'.format(packages)
@@ -2126,7 +2131,8 @@ def install_required_distro_packages(distro: Distro,
     elif distro_family == Distro.opensuse:
 
         packages = 'zeromq-devel exiv2 exiftool python3-devel ' \
-                   'libraw-devel gcc-c++ rpm-build intltool zenity '
+                   'libraw-devel gcc-c++ rpm-build intltool zenity ' \
+                   'ifuse fuse imobiledevice-tools '
 
         if install_pyqt5:
             packages = 'python3-qt5 libqt5-qtimageformats libQt5Svg5 {}'.format(packages)
