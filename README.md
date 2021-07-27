@@ -5,18 +5,16 @@ Rapid Photo Downloader is a Linux desktop application that imports photos and vi
 It is written by a [photographer](https://damonlynch.net) for professional and amateur photographers.
 
 ![Main window screenshot](.github/mainwindow.png)
- 
-
-
 
 ## Features
 
  - Rename photos and videos with meaningful filenames you specify.
+ - Download vast numbers of photos and videos with minimum fuss.
  - Back up photos and videos as they are downloaded.
  - Downloads from and backs up to multiple devices simultaneously.
  - Easy to configure and use.
- - Program preferences are configured without the need for complicated codes.
- - Common tasks can be automated, such as unmounting a memory card when the download is complete.
+ - Configure program preferences without the need for complicated codes.
+ - Automate common tasks, such as unmounting a memory card when the download is complete.
 
 [Read more about what it can do at the program website](https://damonlynch.net/rapid/features.html).
 
@@ -136,7 +134,7 @@ Rapid Photo Downloader can be installed into a virtual environment,
 allowing you to isolate the Python packages it needs from other programs
 on your system.
 
-Virtual environments created with the \--system-site-packages option are
+Virtual environments created with the `--system-site-packages` option are
 not supported. An Intel or AMD 64 bit platform is required.
 
 To install Rapid Photo Downloader into a Python virtual environment,
@@ -159,7 +157,7 @@ script to install Rapid Photo Downloader into the virtual environment:
   python install.py --virtual-env
 ```
 
-Once the program is installed, you can then deactivate the virtual
+Once installed, you can then deactivate the virtual
 environment with the deactivate command:
 
 ```bash
