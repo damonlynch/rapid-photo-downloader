@@ -63,6 +63,7 @@ from raphodo.problemnotification import FsMetadataWriteProblem
 from raphodo.viewutils import scaledIcon
 
 display_devices = (DeviceType.volume, DeviceType.camera, DeviceType.camera_fuse)
+camera_devices = (DeviceType.camera, DeviceType.camera_fuse)
 sample_file_complete = namedtuple('sample_file_complete', 'full_file_name, file_type')
 device_name_uri = namedtuple('device_name_uri', 'name uri')
 
@@ -326,7 +327,7 @@ class Device:
         user. If the device is a path, return the path name
         :return  str containing the name
         """
-        if self.device_type in (DeviceType.camera, DeviceType.camera_fuse):
+        if self.device_type in camera_devices:
             return self.display_name
         elif self.device_type == DeviceType.volume:
             return self.display_name
@@ -342,7 +343,7 @@ class Device:
         elif self.device_type == DeviceType.path:
             return QIcon(':/icons/folder.svg')
         else:
-            assert self.device_type in (DeviceType.camera, DeviceType.camera_fuse)
+            assert self.device_type in camera_devices
             if self.is_mtp_device or self.is_apple_mobile:
                 if self.camera_model.lower().find('tablet') >= 0:
                     #TODO use tablet icon
@@ -541,6 +542,7 @@ class DeviceCollection:
         }
         self._map_plural_types = {
             DeviceType.camera: _('Cameras'),
+            DeviceType.camera_fuse: _('Cameras'),
             DeviceType.volume: _('Devices')
         }
 
@@ -551,7 +553,7 @@ class DeviceCollection:
         :param device: the camera
         """
 
-        assert device.device_type in (DeviceType.camera, DeviceType.camera_fuse)
+        assert device.device_type in camera_devices
         self.camera_device_cache[(device.camera_model, device.camera_port)] = device
 
     def remove_camera_from_cache(self, model: str, port) -> Optional[Device]:
@@ -683,13 +685,18 @@ class DeviceCollection:
         """
 
         device = self.devices[scan_id]
-        if device.device_type == DeviceType.camera:
-            logging.debug("Marking camera %s on port %s as explicitly removed. Will ignore it "
-                          "until program exit.", device.camera_model, device.camera_port)
+        if device.device_type in camera_devices:
+            logging.debug(
+                "Marking camera %s on port %s as explicitly removed. Will ignore it until program "
+                "exit.",
+                device.camera_model, device.camera_port
+            )
             self.ignored_cameras[device.camera_port] = device.camera_model
         elif device.device_type == DeviceType.volume:
-            logging.debug("Marking volume %s as explicitly removed. Will ignore it "
-                          "until program exit.", device.path)
+            logging.debug(
+                "Marking volume %s as explicitly removed. Will ignore it until program exit.",
+                device.path
+            )
             self.ignored_volumes.append(device.path)
         else:
             logging.error("Device collection unexpectedly received path to ignore: ignoring")
@@ -763,7 +770,7 @@ class DeviceCollection:
         """
 
         for scan_id, device in self.devices.items():
-            if (device.device_type in (DeviceType.camera, DeviceType.camera_fuse)
+            if (device.device_type in camera_devices
                     and device.camera_model == model and device.camera_port == port):
                 return scan_id
         return None
@@ -922,7 +929,7 @@ class DeviceCollection:
     def __delitem__(self, scan_id: int):
         d = self.devices[scan_id]  # type: Device
         logging.debug("Deleting %s device from device collection", d.device_type.name)
-        if d.device_type in (DeviceType.camera, DeviceType.camera_fuse):
+        if d.device_type in camera_devices:
             del self.cameras[d.camera_port]
             if d.camera_port in self.cameras_to_gvfs_unmount_for_scan:
                 del self.cameras_to_gvfs_unmount_for_scan[d.camera_port]
@@ -1167,14 +1174,14 @@ class DeviceCollection:
                         # crash.
                         text = _('%(device1)s + %(device2)s') % {'device1': devices[0].display_name,
                                                                 'device2': devices[1].display_name}
-                        if device_type == DeviceType.camera and len(mtp_devices) != 2:
+                        if device_type in camera_devices and len(mtp_devices) != 2:
                             return text, QIcon(':/icons/camera.svg')
                         return text, devices[0].get_icon()
                     try:
                         text_number = number(len(self.volumes_and_cameras)).number.capitalize()
                     except KeyError:
                         text_number = len(self.volumes_and_cameras)
-                    if device_type == DeviceType.camera:
+                    if device_type in camera_devices:
                         # Translators: Number of cameras e.g. 3 Cameras
                         # Translators: %(variable)s represents Python code, not a plural of the term
                         # variable. You must keep the %(variable)s untranslated, or the program will
