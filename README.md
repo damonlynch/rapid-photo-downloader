@@ -1,8 +1,9 @@
 
 # Rapid Photo Downloader
 
-Rapid Photo Downloader is a Linux desktop application that imports photos and videos from cameras, phones, memory cards, and other devices at high speed.
-It is written by a [photographer](https://damonlynch.net) for professional and amateur photographers.
+Rapid Photo Downloader is a Linux desktop application that imports photos and videos from cameras,
+phones, memory cards, and other devices at high speed. It is written by a 
+[photographer](https://damonlynch.net) for professional and amateur photographers.
 
 ![Main window screenshot](.github/mainwindow.png)
 
@@ -23,6 +24,15 @@ It is written by a [photographer](https://damonlynch.net) for professional and a
 
 [Full documentation is available at the program website](https://damonlynch.net/rapid/documentation/).
 
+
+## Program Design
+
+Rapid Photo Downloader is coded in Python.
+To get the best performance using Python on modern multi-core computers, the program uses multiple 
+OS-level processes that communicate with each other using the messaging library 
+[0MQ](https://zeromq.org/).
+
+[Learn more about the program's architecture](https://damonlynch.net/rapid/design.html).
   
 ## Installation
 
@@ -30,6 +40,7 @@ Rapid Photo Downloader is packaged by all major Linux distributions.
 If you want the latest version, or prefer it run with all its features enabled 
 (like [heif](https://en.wikipedia.org/wiki/High_Efficiency_Image_File_Format) support), 
 you can run the `install.py` script:
+
 
 ### Ubuntu, openSUSE, Debian, Fedora, and CentOS 8
 
@@ -39,8 +50,10 @@ To install Rapid Photo Downloader, run as your regular user (i.e. without sudo):
   python3 install.py
 ```
 
-This script will install packages from your Linux distribution and from the [Python Package Index (PyPi)](https://pypi.org/).
-The program sudo may prompt for your administrator (root) password during the install process, if required.
+This script will install packages from your Linux distribution and from the 
+[Python Package Index (PyPi)](https://pypi.org/).
+The program sudo may prompt for your administrator (root) password during the install process, if 
+required.
 
 For a list of optional commands you can give the insaller, run:
 
@@ -60,6 +73,7 @@ Or to uninstall both the program and its Python package dependencies:
   python3 install.py --uninstall-including-pip-dependencies
 ```
 
+
 ### CentOS 7.5
 
 To install on CentOS 7.5, first install Python 3.6 from the IUS Community repository:
@@ -77,6 +91,7 @@ Then run the install.py script:
   python3.6 install.py
 ```
 
+
 ### Supported Linux Versions
 
  - Ubuntu 18.04 or newer
@@ -86,6 +101,7 @@ Then run the install.py script:
  - openSUSE Leap 15.3 or newer
  - CentOS 7.5 or 8
  - Any distribution meeting the software requirements below
+
 
 ### Software Requirements
 
@@ -122,9 +138,11 @@ Rapid Photo Downloader requires:
     - Notify 0.7
         
 Highly recommended, optional dependencies:
- - [colorlog](https://github.com/borntyping/python-colorlog): generates coloured program output when running Rapid Photo Downloader from the terminal.
- - [pyprind](https://github.com/rasbt/pyprind): shows a progress bar on the command line while running the program analyze_pv_structure.
- - [pyheif](https://github.com/david-poirier-csn/pyheif): open HEIF / HEIC files (requires Python 3.6 or above)
+ - [colorlog](https://github.com/borntyping/python-colorlog): generates coloured program output when
+   running Rapid Photo Downloader from the terminal.
+ - [pyprind](https://github.com/rasbt/pyprind): shows a progress bar on the command line while 
+   running the program analyze_pv_structure.
+ - [pyheif](https://github.com/david-poirier-csn/pyheif): open HEIF / HEIC files
  - [pillow](https://github.com/python-pillow/Pillow): work with HEIF / HEIC files
 
 
@@ -173,8 +191,6 @@ environment by running
 
 To uninstall from the virtual environment, simply delete the virtual
 environment\'s directory.
-
-
 
 
 ## License
