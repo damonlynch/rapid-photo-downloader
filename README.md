@@ -105,8 +105,6 @@ Then run the install.py script:
 
 ### Software Requirements
 
-Rapid Photo Downloader requires:
-
  - Python 3.6 or newer, and its development headers
  - [PyQt 5](https://riverbankcomputing.com/software/pyqt/intro)
  - [Qt 5](https://www.qt.io/)
@@ -138,6 +136,7 @@ Rapid Photo Downloader requires:
     - Notify 0.7
         
 Highly recommended, optional dependencies:
+
  - [colorlog](https://github.com/borntyping/python-colorlog): generates coloured program output when
    running Rapid Photo Downloader from the terminal.
  - [pyprind](https://github.com/rasbt/pyprind): shows a progress bar on the command line while 
