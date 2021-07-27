@@ -1302,7 +1302,7 @@ class RapidWindow(QMainWindow):
                 'To download from %s, this program requires additional software be installed '
                 'that interacts with iOS devices.<br><br>'
                 'Missing applications: %s<br><br>'
-                '<a href="https://damonlynch.net/rapid/documentation/#ioshelper">Learn more</a> '
+                '<a href="https://damonlynch.net/rapid/documentation/#iosdevicesupport">Learn more</a> '
                 'about which software to install.'
             ) % (devices, missing_applications)
 
