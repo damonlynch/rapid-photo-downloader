@@ -34,6 +34,16 @@ OS-level processes that communicate with each other using the messaging library
 
 [Learn more about the program's architecture](https://damonlynch.net/rapid/design.html).
   
+
+## Issue Reporting
+
+Report new issues on the
+[developer's GitHub repository](https://github.com/damonlynch/rapid-photo-downloader/issues).
+
+Historic issues are at the previous code repository,
+[Launchpad](https://bugs.launchpad.net/rapid). 
+
+
 ## Installation
 
 Rapid Photo Downloader is packaged by all major Linux distributions. 
