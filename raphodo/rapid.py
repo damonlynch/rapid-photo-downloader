@@ -1298,13 +1298,13 @@ class RapidWindow(QMainWindow):
             )
 
             message = _(
-                '<b>Cannot download from iOS devices</b><br><br>'
-                'To download from %s, this program requires additional software be installed '
-                'that interacts with iOS devices.<br><br>'
-                'Missing applications: %s<br><br>'
+                '<b>Cannot download from Apple devices</b><br><br>'
+                'To download from %(device)s, this program requires additional software be '
+                'installed that interacts with Apple devices.<br><br>'
+                'Missing applications: %(applications)s<br><br>'
                 '<a href="https://damonlynch.net/rapid/documentation/#iosdevicesupport">Learn more</a> '
                 'about which software to install.'
-            ) % (devices, missing_applications)
+            ) % dict(device=devices, applications=missing_applications)
 
             msgbox = standardMessageBox(
                 message=message, rich_text=True, standardButtons=QMessageBox.Ok,
