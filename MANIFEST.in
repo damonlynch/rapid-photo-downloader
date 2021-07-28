@@ -1,4 +1,3 @@
-include *.rst
 include *.md
 include *.in
 include requirements.txt
