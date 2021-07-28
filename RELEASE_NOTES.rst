@@ -1,5 +1,5 @@
-Release Notes for Rapid Photo Downloader 0.9.26
-===============================================
+Release Notes for Rapid Photo Downloader 0.9.27a1
+=================================================
 
  - Version 0.9.19 introduced support for HEIF / HEIC files. The documentation
    goes into details:
@@ -36,9 +36,5 @@ Release Notes for Rapid Photo Downloader 0.9.26
    On Fedora, the packages are gstreamer1-plugins-good and gstreamer1-libav.
    Fedora users can enable the rpmfusion.org free repository to be able to
    install gstreamer1-libav.
-
- - The Python library rawkit does not work with all recent versions of libraw.
-   Rawkit is unmaintained software that uses libraw to generate thumbnails
-   for RAW files from which a thumbnail cannot be extracted.
 
 
