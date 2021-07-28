@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-12-24 19:58+0000\n"
-"PO-Revision-Date: 2020-03-16 01:30+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"POT-Creation-Date: 2020-12-24 23:37+0000\n"
+"PO-Revision-Date: 2021-06-09 20:52+0000\n"
+"Last-Translator: Kamil Skaskiewicz <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2020-12-24 22:41+0000\n"
-"X-Generator: Launchpad (build 34b3ffd45c9543b7f7aa5aa313925241e9e7ca3f)\n"
+"X-Launchpad-Export-Date: 2021-07-28 00:01+0000\n"
+"X-Generator: Launchpad (build 20124175fa98fcb4b43973265a1561174418f4bd)\n"
 "Language: pl\n"
 
 #: ../install.py:75
@@ -40,6 +40,9 @@ msgid ""
 "enable generating thumbnails for a wider range of video formats, and (2) "
 "enable support for the HEIC / HEIF image format."
 msgstr ""
+"Repozytorium oprogramowania RPM Fusion Free zostało dodane do twojego "
+"systemu, aby (1) umożliwić generowanie miniatur dla szerszego zakresu "
+"formatów wideo oraz (2) włączyć obsługę formatu obrazu HEIC / HEIF."
 
 #: ../install.py:363 ../install.py:3494
 msgid "Installer not found:"
@@ -52,7 +55,7 @@ msgstr "Instalator nie jest w formacie tar.gz:"
 
 #: ../install.py:526
 msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
-msgstr ""
+msgstr "Określona wersja PyQt5 nie istnieje. Prawidłowe wersje to: {}."
 
 #: ../install.py:604
 msgid "{} will be upgraded from version {} to version {}"
@@ -64,6 +67,8 @@ msgid ""
 "These Python3 packages will be upgraded for your user (i.e. not system-"
 "wide): {}"
 msgstr ""
+"Te pakiety Python3 zostaną zaktualizowane dla Twojego użytkownika (tj. nie "
+"dla całego systemu): {}"
 
 #: ../install.py:1028
 #, python-brace-format
@@ -270,12 +275,16 @@ msgstr ""
 msgid ""
 "Specific version of PyQt5 to install (default is the most recent version{})."
 msgstr ""
+"Określona wersja PyQt5 do zainstalowania (domyślnie jest to najnowsza "
+"wersja{})."
 
 #: ../install.py:2409
 msgid ""
 "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
 "Uninstalls any PyPi versions already installed."
 msgstr ""
+"Zamiast używać PyQt5 z PyPi, użyj wersji swojej dystrybucji Linuksa. "
+"Odinstalowuje wszystkie już zainstalowane wersje PyPi."
 
 #: ../install.py:2446
 msgid "Failed to download versions file."
@@ -303,6 +312,8 @@ msgid ""
 "Package {} failed to install but Rapid Photo Downloader installation will "
 "continue."
 msgstr ""
+"Instalacja pakietu {} nie powiodła się, ale instalacja Rapid Photo "
+"Downloader będzie kontynuowana."
 
 #: ../install.py:2706
 msgid "Received error code"
@@ -322,13 +333,13 @@ msgstr "Instalowanie wymagań aplikacji ..."
 
 #: ../install.py:2989
 msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
-msgstr ""
+msgstr "Obsługa systemowa generowania miniatur HEIF / HEIC jest niedostępna"
 
 #. KDE Neon has up to date Qt & PyQt5
 #. Translators: do not translate the terms PyQt5, PyPi or KDE Neon
 #: ../install.py:3005
 msgid "Not installing PyPI PyQt5 package into KDE Neon environment"
-msgstr ""
+msgstr "Nie instaluję pakietu PyPI PyQt5 w środowisku KDE Neon"
 
 #: ../install.py:3009
 msgid "Installing application..."
@@ -391,6 +402,8 @@ msgid ""
 "You must add {path} to your computer's $PATH variable to run the program "
 "from the command line or application launcher."
 msgstr ""
+"Musisz dodać {path} do zmiennej $PATH komputera, aby uruchomić program z "
+"wiersza poleceń lub programu uruchamiającego aplikacje."
 
 #: ../install.py:3166
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
@@ -403,27 +416,34 @@ msgid ""
 "Downloader that was installed with pip.\n"
 "Cannot continue. Exiting."
 msgstr ""
+"Narzędzie python3 pip jest wymagane do odinstalowania wersji Rapid Photo "
+"Downloader, która została zainstalowana wraz z pip.\n"
+"Nie można kontynuować. Wyjście."
 
 #: ../install.py:3230
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
 msgstr ""
+"Nie uruchamiaj tego skryptu instalatora jako użytkownik sudo / root.\n"
+"Uruchom go za pomocą użytkownika, który uruchomi program.\n"
 
 #: ../install.py:3243
 msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
-msgstr ""
+msgstr "Określ tylko jedną z --PyQt5-version lub --use-system-PyQt5."
 
 #: ../install.py:3255
 msgid ""
 "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
 "on an Intel or AMD 64 bit platform."
 msgstr ""
+"Przepraszam, określenie konkretnej wersji PyQt5 wymaga Pythona 3.5 lub "
+"nowszego na 64-bitowej platformie Intel lub AMD."
 
 #. Translators: do not translate the term PyQt5
 #: ../install.py:3268
 msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
-msgstr ""
+msgstr "Proszę podać wersję PyQt5 w formacie X.X lub X.X.X"
 
 #: ../install.py:3282
 msgid ""
@@ -564,20 +584,20 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr "Aktualizacja nie powiodła się. Kliknij Zamknij, aby wyjść."
 
-#: ../upgrade.py:9269
+#: ../upgrade.py:9301
 #, python-format
 msgid "Upgrading %s..."
 msgstr "Aktualizacja %s..."
 
-#: ../upgrade.py:9271
+#: ../upgrade.py:9303
 msgid "Press any key to continue..."
 msgstr "Naciśnij dowolny klawisz by kontynuować…"
 
-#: ../upgrade.py:9284
+#: ../upgrade.py:9316
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr "Aktualizacja Rapid Photo Downloader nie powiodła się"
 
-#: ../upgrade.py:9286
+#: ../upgrade.py:9318
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
@@ -591,7 +611,7 @@ msgstr "Autorzy"
 
 #: ../raphodo/aboutdialog.py:323
 msgid "Translators"
-msgstr ""
+msgstr "Tłumacze"
 
 #: ../raphodo/backuppanel.py:241
 msgid "Backups are not configured"
@@ -707,7 +727,7 @@ msgstr "Opcje tworzenia kopii zapasowych"
 #. cameras generate -- it has a .THM file extension
 #: ../raphodo/copyfiles.py:544
 msgid "video THM"
-msgstr ""
+msgstr "wideo THM"
 
 #: ../raphodo/copyfiles.py:550
 msgid "audio"
@@ -733,7 +753,7 @@ msgstr "%(no_videos)s Filmy"
 
 #: ../raphodo/destinationdisplay.py:99
 msgid "Used"
-msgstr ""
+msgstr "Używane"
 
 #: ../raphodo/destinationdisplay.py:100
 msgid "Excess"
@@ -749,7 +769,7 @@ msgstr "Rozmiar urządzenia nieznany"
 #: ../raphodo/destinationdisplay.py:122
 #, python-format
 msgid "No space free on %(size_total)s device"
-msgstr ""
+msgstr "Brak miejsca na urządzeniu %(size_total)s"
 
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
@@ -757,7 +777,7 @@ msgstr ""
 #: ../raphodo/destinationdisplay.py:132
 #, python-format
 msgid "%(size_free)s free of %(size_total)s"
-msgstr ""
+msgstr "%(size_free)s wolne z %(size_total)s"
 
 #: ../raphodo/destinationdisplay.py:203 ../raphodo/devicedisplay.py:1032
 #: ../raphodo/rapid.py:2167 ../raphodo/rapid.py:2295 ../raphodo/rapid.py:6485
@@ -839,7 +859,7 @@ msgstr "Pobieranie z %(device_names)s"
 #: ../raphodo/devices.py:876
 #, python-format
 msgid "%(no_devices)s %(device_type)s"
-msgstr ""
+msgstr "%(no_devices)s %(device_type)s"
 
 #: ../raphodo/devices.py:1008 ../raphodo/rapid.py:1950
 msgid "Select Source"
@@ -860,7 +880,7 @@ msgstr "Wybór źródła"
 #: ../raphodo/devices.py:1045 ../raphodo/devices.py:1062
 #, python-format
 msgid "%(device1)s + %(device2)s"
-msgstr ""
+msgstr "%(device1)s + %(device2)s"
 
 #. Translators: Number of cameras e.g. 3 Cameras
 #. Translators: %(variable)s represents Python code, not a plural of the term
@@ -869,7 +889,7 @@ msgstr ""
 #: ../raphodo/devices.py:1076
 #, python-format
 msgid "%(no_cameras)s Cameras"
-msgstr ""
+msgstr "%(no_cameras)s Aparatów"
 
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
@@ -877,7 +897,7 @@ msgstr ""
 #: ../raphodo/devices.py:1084
 #, python-format
 msgid "%(no_devices)s Devices"
-msgstr ""
+msgstr "%(no_devices)s Urządzeń"
 
 #. Translators: two folder names, separated by a plus sign
 #: ../raphodo/devices.py:1379
@@ -897,6 +917,10 @@ msgid ""
 "default, and their thumbnails are dimmed so you can differentiate them from "
 "files that are yet to be downloaded."
 msgstr ""
+"Pliki, które zostały już pobrane, zostaną zapamiętane. Nadal możesz oznaczyć "
+"wcześniej pobrane pliki do ponownego pobrania, ale są one domyślnie "
+"odznaczone, a ich miniatury są przyciemnione, dzięki czemu możesz odróżnić "
+"je od plików, które dopiero zostaną pobrane."
 
 #: ../raphodo/didyouknow.py:58
 msgid ""
@@ -957,6 +981,17 @@ msgid ""
 "            search box in the lower left of the Error Report window.\n"
 "            "
 msgstr ""
+"\n"
+"            Okno Raport o błędach zawiera listę wszelkich problemów "
+"napotkanych przed, w trakcie lub po \n"
+"            pobraniu. Pomarańczowy trójkąt oznacza ostrzeżenie, czerwone "
+"kółko oznacza awarię, \n"
+"            a czarne kółko oznacza poważniejsze awarie. Możesz kliknąć "
+"hiperłącza, aby \n"
+"            otworzyć plik lub urządzenie w menedżerze plików. Możesz również "
+"przeszukiwać raporty za pomocą \n"
+"            pola wyszukiwania w lewym dolnym rogu okna Raport o błędach.\n"
+"            "
 
 #: ../raphodo/didyouknow.py:101
 msgid ""
@@ -1101,6 +1136,10 @@ msgid ""
 "automatically generated subfolders if need be. A common scheme is to create "
 "a year subfolder and then a series of year-month-day subfolders within it."
 msgstr ""
+"Automatycznie generowane podfoldery pobierania mogą w razie potrzeby "
+"zawierać dalsze automatycznie generowane podfoldery. Powszechnym schematem "
+"jest utworzenie w nim podfolderu zawierającego rok, a następnie serii "
+"podfolderów rok-miesiąc-dzień."
 
 #: ../raphodo/didyouknow.py:213
 msgid ""
@@ -4636,7 +4675,7 @@ msgstr ""
 #: ../raphodo/thumbnaildisplay.py:487
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
-msgstr ""
+msgstr "Zmodyfikowano %(date_time)s (%(human_readable)s)"
 
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
@@ -4644,35 +4683,36 @@ msgstr ""
 #: ../raphodo/thumbnaildisplay.py:498 ../raphodo/thumbnaildisplay.py:548
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
-msgstr ""
+msgstr "%(date_time)s (%(human_readable)s)"
 
 #: ../raphodo/thumbnaildisplay.py:515
 #, python-format
 msgid "Memory cards: %s"
-msgstr ""
+msgstr "Karty pamięci: %s"
 
 #: ../raphodo/thumbnaildisplay.py:519
 #, python-format
 msgid "Memory card: %s"
-msgstr ""
+msgstr "Karta pamięci: %s"
 
 #: ../raphodo/thumbnaildisplay.py:524
 msgid "Downloaded as:"
-msgstr ""
+msgstr "Pobrano jako:"
 
 #: ../raphodo/thumbnaildisplay.py:562
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr ""
+"<br><br>Poprzednie pobieranie:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
 #: ../raphodo/thumbnaildisplay.py:571
 #, python-format
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
-msgstr ""
+msgstr "<br><br><i>Ustaw ręcznie jako pobraną wcześniej w dniu %(date)s</i>"
 
 #: ../raphodo/thumbnaildisplay.py:1907
 msgid "Copy Path"
-msgstr ""
+msgstr "Kopiuj ścieżkę"
 
 #. Translators: 'File' here applies to a single file. The command allows users to instruct
 #. Rapid Photo Downloader that photos and videos have been previously downloaded by
@@ -4731,7 +4771,7 @@ msgstr "YB"
 #: ../raphodo/utilities.py:437
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
-msgstr ""
+msgstr "%(first_item)s i %(last_item)s"
 
 #: ../raphodo/utilities.py:521
 msgid "one"
@@ -4890,7 +4930,7 @@ msgstr "Okno główne"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:7
 msgid "Renaming"
-msgstr ""
+msgstr "Zmiana nazwy"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:2
 msgid "Photo Downloader"
@@ -4902,6 +4942,8 @@ msgid ""
 "photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
 ";card;"
 msgstr ""
+"zdjęcia;pobieranie;fotografia;importowanie;wideo;RAW;aparat;telefon;przetwarz"
+"anie;kopia zapasowa;pamięć;karta;"
 
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"

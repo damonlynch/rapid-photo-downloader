@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-12-24 19:58+0000\n"
+"POT-Creation-Date: 2020-12-24 23:37+0000\n"
 "PO-Revision-Date: 2020-12-24 20:28+0000\n"
 "Last-Translator: Rubens Stuginski Jr <Unknown>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2020-12-24 22:41+0000\n"
-"X-Generator: Launchpad (build 34b3ffd45c9543b7f7aa5aa313925241e9e7ca3f)\n"
+"X-Launchpad-Export-Date: 2021-07-28 00:01+0000\n"
+"X-Generator: Launchpad (build 20124175fa98fcb4b43973265a1561174418f4bd)\n"
 "Language: pt_BR\n"
 
 #: ../install.py:75
@@ -584,20 +584,20 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr "A atualização falhou. Clique Fechar para sair."
 
-#: ../upgrade.py:9269
+#: ../upgrade.py:9301
 #, python-format
 msgid "Upgrading %s..."
 msgstr "Atualizando %s..."
 
-#: ../upgrade.py:9271
+#: ../upgrade.py:9303
 msgid "Press any key to continue..."
 msgstr "Pressione qualquer tecla para continuar..."
 
-#: ../upgrade.py:9284
+#: ../upgrade.py:9316
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr "A atualização do Rapid Photo Downloader falhou"
 
-#: ../upgrade.py:9286
+#: ../upgrade.py:9318
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."

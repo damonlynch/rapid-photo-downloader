@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.27a1 (2021-xx-xx)
+0.9.27a1 (2021-07-27)
 ---------------------
 
  - iOS devices are now accessed using a software library written specifically to
@@ -30,6 +30,8 @@ Changelog for Rapid Photo Downloader
 
  - Update install.py script to correctly enable Power Tools repository on
    CentOS 8, and the Qt5 wayland package on Fedora and CentOS 8.
+
+ - Update Albanian and Polish translations.
 
 0.9.26 (2020-12-24)
 -------------------
