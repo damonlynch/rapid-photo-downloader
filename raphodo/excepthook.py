@@ -181,7 +181,9 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
                 "only notification about it."
             )
 
-            body = please_report_problem_body.format(website='https://bugs.launchpad.net/rapid')
+            body = please_report_problem_body.format(
+                website='https://bugs.rapidphotodownloader.com'
+            )
 
             message = "<b>{}</b><br><br>{}<br><br>{}".format(
                 header, body, only_notification
@@ -204,7 +206,9 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
             prefix = _(
                 "Please report the problem at {website}\n"
                 "Attach the log file to your bug report, found at {log_path}\n\n"
-            ).format(website='https://bugs.launchpad.net/rapid', log_path=full_log_file_path())
+            ).format(
+                website='https://bugs.rapidphotodownloader.com', log_path=full_log_file_path()
+            )
             text = prefix + traceback_info
             codebox(msg=message, title=title, text=text)
         message_box_displayed = False

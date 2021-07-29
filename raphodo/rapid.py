@@ -2725,7 +2725,7 @@ class RapidWindow(QMainWindow):
         """
 
         body = excepthook.please_report_problem_body.format(
-            website='https://bugs.launchpad.net/rapid'
+            website='https://bugs.rapidphotodownloader.com'
         )
 
         message = '{header}<br><br>{body}'.format(header=header, body=body)

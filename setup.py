@@ -325,8 +325,8 @@ setup(
     keywords='photo video download ingest import camera phone backup rename photography '
              'photographer transfer copy raw cr2 cr3 nef arw dng',
     project_urls={
-        'Bug Reports': 'https://bugs.launchpad.net/rapid',
-        'Source': 'https://code.launchpad.net/~dlynch3/rapid/zeromq_pyqt',
+        'Bug Reports': 'https://bugs.rapidphotodownloader.com',
+        'Source': 'https://github.com/damonlynch/rapid-photo-downloader',
     },
     cmdclass={
         'build_man_page': build_man_page,
