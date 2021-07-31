@@ -66,17 +66,19 @@ def idevice_serial_to_udid(serial: str) -> str:
     """
     Generate udid for imobiledevice utilities from serial number
 
+    There appear to be two (or more?) formats for iOS device serial numbers
+    as reported by udev.
+
     :param serial: udev device serial number
     :return: udid suitable for imobiledevice utilities
     """
 
-    try:
-        assert len(serial) == 24
-    except Exception:
-        logging.error("Could not generate Apple udid from device serial number %s", serial)
-        return ''
-
-    return '{}-{}'.format(serial[:8], serial[8:])
+    if len(serial) == 24:
+        return '{}-{}'.format(serial[:8], serial[8:])
+    else:
+        if len(serial) != 40:
+            logging.warning("Unexpected serial number length for iOS device: %s", serial)
+        return serial
 
 
 def idevice_run_command(command: str,

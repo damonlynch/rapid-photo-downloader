@@ -4,6 +4,8 @@ Changelog for Rapid Photo Downloader
 0.9.27a2 (2021-xx-xx)
 ---------------------
 
+ - Fix bug #30: iPhone7 serial number format not recognized.
+
  - Fix bug #1938341: Albanian translations not compiled.
 
 0.9.27a1 (2021-07-27)
