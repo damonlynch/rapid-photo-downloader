@@ -119,7 +119,8 @@ Then run the install.py script:
  - [PyQt 5](https://riverbankcomputing.com/software/pyqt/intro)
  - [Qt 5](https://www.qt.io/)
  - [Qt5 plugin for reading TIFF images](http://doc.qt.io/qt-5/qtimageformats-index.html)
- - Qt5 plugin for rendering SVG   
+ - Qt5 plugin for rendering SVG
+ - [setuptools](https://pypi.org/project/setuptools/)
  - [python-gphoto2 1.4.0](https://github.com/jim-easterbrook/python-gphoto2) or newer
  - [pyzmq](https://github.com/zeromq/pyzmq)
  - [tornado](http://www.tornadoweb.org/)
