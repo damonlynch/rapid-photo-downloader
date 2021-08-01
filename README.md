@@ -17,7 +17,7 @@ phones, memory cards, and other devices at high speed. It is written by a
  - Configure program preferences without the need for complicated codes.
  - Automate common tasks, such as unmounting a memory card when the download is complete.
 
-[Read more about what it can do at the program website](https://damonlynch.net/rapid/features.html).
+[Read more about its features at the program website](https://damonlynch.net/rapid/features.html).
 
   
 ## Documentation
