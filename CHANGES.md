@@ -10,6 +10,10 @@ Changelog for Rapid Photo Downloader
    
  - Fix bug #1924933: Exception when scanning device with problematic connection.
 
+ - Include Python package setuptools in README.md listing of required of runtime 
+   packages. It has been required for some time, but the README did not specify
+   it.
+
 0.9.27a2 (2021-07-31)
 ---------------------
 
