@@ -330,7 +330,7 @@ class Preferences:
         # pre 0.9.3a1 value: device_without_dcim_autodetection=False, is now replaced by
         # scan_specific_folders
         folders_to_scan=['DCIM', 'PRIVATE', 'MP_ROOT'],
-        ignored_paths=['.Trash', '.thumbnails', 'THMBNL', '__MACOSX'],
+        ignored_paths=['.Trash', '.thumbnails', 'THMBNL', '__MACOSX', 'Screenshots'],
         use_re_ignored_paths=False,
         volume_whitelist=[''],
         volume_blacklist=[''],
@@ -1041,8 +1041,15 @@ class Preferences:
             # them here.
             for value in ('THMBNL', '__MACOSX'):
                 # If the value is not already in the list, add it
+                logging.info("Adding folder '%s' to list of ignored paths" % value)
                 self.add_list_value(key=key, value=value)
 
+        v0927a3 = pkg_resources.parse_version('0.9.27a3')
+        if previous_version < v0927a3 and self.value_is_set(key, group):
+            # Versions prior to 0.9.27a3 did not include all the ignored paths
+            # included in that version
+            logging.info("Adding folder 'Screenshots' to list of ignored paths")
+            self.add_list_value(key=key, value='Screenshots')
 
     def validate_max_CPU_cores(self) -> None:
         logging.debug('Validating CPU core count for thumbnail generation...')

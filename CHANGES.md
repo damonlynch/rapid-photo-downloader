@@ -1,6 +1,13 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.27a3 (2021-08-xx)
+---------------------
+
+ - Added folder 'Screenshots' to list of ignored paths. Remove this folder from
+   the list of ignored paths in the program Preferences dialog if you do wish to
+   download from a path that contains this folder.
+
 0.9.27a2 (2021-07-31)
 ---------------------
 
