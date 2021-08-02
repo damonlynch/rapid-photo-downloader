@@ -904,9 +904,6 @@ class RapidWindow(QMainWindow):
             "Freedesktop.org thumbnails location: %s", get_fdo_cache_thumb_base_directory()
         )
 
-        logging.debug("Probing desktop environment")
-        desktop_env = get_desktop_environment()
-
         self.unity_progress = False
         self.desktop_launchers = []
 
@@ -6139,7 +6136,11 @@ def get_versions(file_manager: Optional[str],
     )
 
     try:
-        versions.append("Desktop: {} ({})".format(get_desktop_environment(), get_desktop().name))
+        versions.append(
+            "Desktop: {} ({})".format(
+                get_desktop_environment(), get_desktop(show_debug=True).name
+            )
+        )
     except Exception:
         pass
 

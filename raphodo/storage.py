@@ -389,9 +389,11 @@ def get_desktop_environment() -> Optional[str]:
     return os.getenv('XDG_CURRENT_DESKTOP')
 
 
-def get_desktop() -> Desktop:
+def get_desktop(show_debug: bool = False) -> Desktop:
     """
     Determine desktop environment
+    :param show_debug: if True, log debug message indicating problems determining
+     the desktop type
     :return: enum representing desktop environment,
     Desktop.unknown if unknown.
     """
@@ -400,6 +402,8 @@ def get_desktop() -> Desktop:
         env = get_desktop_environment().lower()
     except AttributeError:
         # Occurs when there is no value set
+        if show_debug:
+            logging.debug("No environment variable is set indicating the desktop environment")
         return Desktop.unknown
 
     if env == 'unity:unity7':
@@ -420,6 +424,8 @@ def get_desktop() -> Desktop:
     try:
         return Desktop[env]
     except KeyError:
+        if show_debug:
+            logging.debug("Unable to determine desktop environment from key value %s", env)
         return Desktop.unknown
 
 
