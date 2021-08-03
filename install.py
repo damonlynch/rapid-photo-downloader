@@ -2074,6 +2074,8 @@ def install_required_distro_packages(distro: Distro,
                 cleanup_on_exit(installer_to_delete_on_error=installer_to_delete_on_error)
                 sys.exit(1)
 
+        libunity_package = 'python3-libunity'
+
         if have_dnf:
 
             print(_("Querying installed and available packages (this may take a while)"))
@@ -2109,10 +2111,15 @@ def install_required_distro_packages(distro: Distro,
                             )
                             cleanup_on_exit(installer_to_delete_on_error=installer_to_delete_on_error)
                             sys.exit(1)
+
+                uninstall_libunity = libunity_package in installed
+
         else:
             for package in packages.split():
                 if not fedora_package_installed(package):
                     missing_packages.append(package)
+
+            uninstall_libunity = fedora_package_installed(libunity_package)
 
         if missing_packages:
             print(
@@ -2127,6 +2134,19 @@ def install_required_distro_packages(distro: Distro,
                 ),
                 interactive=interactive, installer_to_delete_on_error=installer_to_delete_on_error
             )
+
+        if uninstall_libunity:
+            print(
+                "{} will be uninstalled from this system because it is currently "
+                "broken in Fedora".format(libunity_package)
+            )
+            run_cmd(
+                make_distro_packager_command(
+                    distro_family, libunity_package, interactive, command='remove'
+                ),
+                interactive=interactive, installer_to_delete_on_error=installer_to_delete_on_error
+            )
+
 
     elif distro_family == Distro.opensuse:
 

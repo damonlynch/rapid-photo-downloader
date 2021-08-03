@@ -10,6 +10,11 @@ Changelog for Rapid Photo Downloader
    
  - Fix bug #1924933: Exception when scanning device with problematic connection.
 
+ - Fix bug #1909904: python3-libunity package dumps core on Fedora. The 
+   install.py script will now uninstall python3-libunity if it is found on the 
+   system, as using it causes a calling program like Rapid Photo Downloader to
+   crash.
+
  - Include Python package setuptools in README.md listing of required of runtime 
    packages. It has been required for some time, but the README did not specify
    it.
