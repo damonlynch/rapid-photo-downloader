@@ -191,7 +191,8 @@ class Distro(Enum):
     popos = 18
     debian_derivative = 19
     fedora_derivative = 20
-    unknown = 21
+    raspbian = 21
+    unknown = 22
 
 
 Distro_Pretty_Name = {
@@ -207,13 +208,14 @@ Distro_Pretty_Name = {
     'kylin': 'Ubuntu Kylin',
     'debian_derivative': 'Debian Derivative',
     'fedora_derivative': 'Fedora Derivative',
+    'raspbian': 'Raspberry Pi OS'
 }
 
 
 debian_like = (
     Distro.debian, Distro.ubuntu, Distro.neon, Distro.linuxmint, Distro.galliumos,
     Distro.peppermint, Distro.elementary, Distro.deepin, Distro.zorin, Distro.kylin,
-    Distro.popos, Distro.debian_derivative
+    Distro.popos, Distro.debian_derivative, Distro.raspbian
 )
 fedora_like = (Distro.fedora, Distro.centos, Distro.fedora_derivative)
 arch_like = (Distro.arch, Distro.manjaro)
@@ -269,6 +271,8 @@ def get_distro() -> Distro:
                         return Distro.kylin
                     if line.find('Pop!_OS') > 0:
                         return Distro.popos
+                    if line.find('Raspbian') > 0:
+                        return Distro.raspbian
                 if line.startswith('ID='):
                     return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):
@@ -1588,6 +1592,9 @@ def distro_has_heif_support(distro: Distro) -> bool:
     :param distro: Linux Distribution
     :return: whether the packages are already installed
     """
+
+    if distro == Distro.raspbian:
+        return False
 
     if distro in fedora_like or distro == Distro.centos7:
         return True

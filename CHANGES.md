@@ -18,6 +18,11 @@ Changelog for Rapid Photo Downloader
  - Include Python package setuptools in README.md listing of required of runtime 
    packages. It has been required for some time, but the README did not specify
    it.
+   
+ - The install.py script will no longer install pyheif on Raspberry Pi OS
+   because user feedback indicates pyheif fails to build on that OS. If pyheif
+   does in fact build on your install of Raspberry Pi OS, you can install it
+   using Python's pip.
 
 0.9.27a2 (2021-07-31)
 ---------------------
