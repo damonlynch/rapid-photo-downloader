@@ -362,8 +362,10 @@ class RenameMoveFileWorker(DaemonProcess):
         """
         
         if self.prefs.conflict_resolution == ConflictResolution.add_identifier:
-            logging.debug("Will add unique identifier to avoid duplicate filename for %s",
-                          rpd_file.full_file_name)
+            logging.debug(
+                "Will add unique identifier to avoid duplicate filename for %s",
+                rpd_file.full_file_name
+            )
             return True
         else:
             self.notify_file_already_exists(rpd_file)
@@ -775,7 +777,7 @@ class RenameMoveFileWorker(DaemonProcess):
             self.notify_download_failure_file_error(rpd_file, inst)
 
         if add_unique_identifier:
-            self.add_unique_identifier(rpd_file)
+            move_succeeded = self.add_unique_identifier(rpd_file)
 
         return move_succeeded
 

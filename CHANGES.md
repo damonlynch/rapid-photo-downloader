@@ -1,8 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.27a3 (2021-08-xx)
+0.9.27a3 (2021-09-xx)
 ---------------------
+
+ - Fixed bug #33: Files with unique identifier added via error handling are not 
+   marked as downloaded.
 
  - Added folder 'Screenshots' to list of ignored paths. Remove this folder from
    the list of ignored paths in the program Preferences dialog if you do wish to
