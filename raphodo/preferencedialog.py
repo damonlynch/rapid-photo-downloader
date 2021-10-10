@@ -1123,7 +1123,7 @@ class PreferencesDialog(QDialog):
             self.rapidApp.scan_all_again = True
 
     def _equalizeWidgetWidth(self, widget_list) -> None:
-        max_width = max(widget.width() for widget in widget_list)
+        max_width = round(max(widget.width() for widget in widget_list))
         for widget in widget_list:
             widget.setFixedWidth(max_width)
 

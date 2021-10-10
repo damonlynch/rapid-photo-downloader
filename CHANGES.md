@@ -1,31 +1,34 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.27a3 (2021-09-xx)
+0.9.27a3 (2021-10-10)
 ---------------------
 
- - Fixed bug #33: Files with unique identifier added via error handling are not 
-   marked as downloaded.
+- Fixed bug #1946407: Work around apparent float to int conversion when calling 
+  Qt from Python 3.10 on Fedora 35 beta. 
 
- - Added folder 'Screenshots' to list of ignored paths. Remove this folder from
-   the list of ignored paths in the program Preferences dialog if you do wish to
-   download from a path that contains this folder.
+- Fixed bug #33: Files with unique identifier added via error handling are not 
+  marked as downloaded.
+
+- Added folder 'Screenshots' to list of ignored paths. Remove this folder from
+  the list of ignored paths in the program Preferences dialog if you do wish to
+  download from a path that contains this folder.
    
- - Fix bug #1924933: Exception when scanning device with problematic connection.
+- Fix bug #1924933: Exception when scanning device with problematic connection.
 
- - Fix bug #1909904: python3-libunity package dumps core on Fedora. The 
-   install.py script will now uninstall python3-libunity if it is found on the 
-   system, as using it causes a calling program like Rapid Photo Downloader to
-   crash.
+- Fix bug #1909904: python3-libunity package dumps core on Fedora. The 
+  install.py script will now uninstall python3-libunity if it is found on the 
+  system, as using it causes a calling program like Rapid Photo Downloader to
+  crash.
 
- - Include Python package setuptools in README.md listing of required of runtime 
-   packages. It has been required for some time, but the README did not specify
-   it.
+- Include Python package setuptools in README.md listing of required of runtime 
+  packages. It has been required for some time, but the README did not specify
+  it.
    
- - The install.py script will no longer install pyheif on Raspberry Pi OS
-   because user feedback indicates pyheif fails to build on that OS. If pyheif
-   does in fact build on your install of Raspberry Pi OS, you can install it
-   using Python's pip.
+- The install.py script will no longer install pyheif on Raspberry Pi OS
+  because user feedback indicates pyheif fails to build on that OS. If pyheif
+  does in fact build on your install of Raspberry Pi OS, you can install it
+  using Python's pip.
 
 0.9.27a2 (2021-07-31)
 ---------------------

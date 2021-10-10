@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2020, Damon Lynch"
+__copyright__ = "Copyright 2015-2021, Damon Lynch"
 
 import pickle
 import os
@@ -2205,7 +2205,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             else:
                 checkboxStyleOption.state |= QStyle.State_Off
             checkboxStyleOption.state |= QStyle.State_Enabled
-            checkboxStyleOption.rect = self.getCheckBoxRect(option.rect)
+            checkboxStyleOption.rect = self.getCheckBoxRect(option.rect).toRect()
             QApplication.style().drawControl(QStyle.CE_CheckBox, checkboxStyleOption, painter)
         else:
             if download_status == DownloadStatus.download_pending:
@@ -2228,9 +2228,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
         painter.restore()
 
     def sizeHint(self, option: QStyleOptionViewItem, index:  QModelIndex) -> QSize:
-        return QSize(
+        return QSizeF(
             self.width + self.shadow_size, self.height + self.shadow_size
-        )
+        ).toSize()
 
     def oneOrMoreNotDownloaded(self) -> Tuple[int, Plural]:
         i = 0
@@ -2362,14 +2362,14 @@ class ThumbnailDelegate(QStyledItemDelegate):
             model.setData(index, newValue, Qt.CheckStateRole)
         thumbnailModel.updateDisplayPostDataChange()
 
-    def getLeftPoint(self, rect: QRect) -> QPoint:
-        return QPoint(
+    def getLeftPoint(self, rect: QRect) -> QPointF:
+        return QPointF(
             rect.x() + self.horizontal_margin,
             rect.y() + self.image_frame_bottom + self.footer_padding - 1
         )
 
-    def getCheckBoxRect(self, rect: QRect) -> QRect:
-        return QRect(self.getLeftPoint(rect), self.checkboxRect.toRect().size())
+    def getCheckBoxRect(self, rect: QRect) -> QRectF:
+        return QRectF(self.getLeftPoint(rect), QSizeF(self.checkboxRect.toRect().size()))
 
     def applyJobCode(self, job_code: str) -> None:
         thumbnailModel = self.rapidApp.thumbnailModel  # type: ThumbnailListModel

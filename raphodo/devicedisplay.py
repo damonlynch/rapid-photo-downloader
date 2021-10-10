@@ -120,7 +120,7 @@ class DeviceModel(QAbstractListModel):
 
         self._rotation_position = 0  # type: int
         self._timer = QTimer(self)
-        self._timer.setInterval(1000 / (number_spinner_lines * revolutions_per_second))
+        self._timer.setInterval(round(1000 / (number_spinner_lines * revolutions_per_second)))
         self._timer.timeout.connect(self.rotateSpinner)
         self._isSpinning = False
 
@@ -584,7 +584,7 @@ class DeviceDisplay:
 
         painter.setRenderHint(QPainter.Antialiasing, True)
 
-        deviceNameRect = QRect(x, y, width, self.device_name_strip_height)
+        deviceNameRect = QRectF(x, y, width, self.device_name_strip_height)
         painter.fillRect(deviceNameRect, self.device_name_highlight_color)
 
         icon_x = float(x + self.padding + self.icon_x_offset)
@@ -609,8 +609,8 @@ class DeviceDisplay:
                 painter.setPen(self.menuHighlightPen)
                 painter.drawRoundedRect(rect, 2.0, 2.0)
                 painter.setPen(pen)
-            button_x = rect.x() + self.menu_button_padding
-            button_y = rect.y() + self.menu_button_padding
+            button_x = round(rect.x()) + self.menu_button_padding
+            button_y = round(rect.y()) + self.menu_button_padding
             pixmap = self.menuButtonIcon.pixmap(QSize(size, size))
             painter.drawPixmap(button_x, button_y, pixmap)
 
@@ -748,7 +748,7 @@ class DeviceDisplay:
         if d.comp4_file_size_sum:
             # Gradient
             comp4_g2_x =  x
-            comp4_g2_rect = QRect(comp4_g2_x, details_y, gradient_width, self.details_height)
+            comp4_g2_rect = QRectF(comp4_g2_x, details_y, gradient_width, self.details_height)
             linearGradient = QLinearGradient(comp4_g2_x, details_y,
                                             comp4_g2_x, details_y + self.details_height)
             linearGradient.setColorAt(0.2, color4.lighter(self.shading_intensity))
@@ -762,7 +762,7 @@ class DeviceDisplay:
             comp4_no_width = self.small_font_metrics.boundingRect(d.comp4_text).width()
             comp4_size_width = self.small_font_metrics.boundingRect(d.comp4_size_text).width()
             comp4_width = max(comp4_no_width, comp4_size_width, self.sample1_width)
-            comp4_rect = QRect(comp4_x, details_y, comp4_width, self.details_height)
+            comp4_rect = QRectF(comp4_x, details_y, comp4_width, self.details_height)
 
             painter.setPen(standard_pen_color)
             painter.drawText(comp4_rect, Qt.AlignLeft|Qt.AlignTop, d.comp4_text)
@@ -777,7 +777,7 @@ class DeviceDisplay:
         if not skip_comp1:
 
             # Gradient
-            photos_g2_rect = QRect(photos_g2_x, details_y, gradient_width, self.details_height)
+            photos_g2_rect = QRectF(photos_g2_x, details_y, gradient_width, self.details_height)
             linearGradient = QLinearGradient(photos_g2_x, details_y,
                                             photos_g2_x, details_y + self.details_height)
             linearGradient.setColorAt(0.2, d.color1.lighter(self.shading_intensity))
@@ -791,7 +791,7 @@ class DeviceDisplay:
             photos_no_width = self.small_font_metrics.boundingRect(d.comp1_text).width()
             photos_size_width = self.small_font_metrics.boundingRect(d.comp1_size_text).width()
             photos_width = max(photos_no_width, photos_size_width, self.sample1_width)
-            photos_rect = QRect(photos_x, details_y, photos_width, self.details_height)
+            photos_rect = QRectF(photos_x, details_y, photos_width, self.details_height)
 
             painter.setPen(standard_pen_color)
             painter.drawText(photos_rect, Qt.AlignLeft|Qt.AlignTop, d.comp1_text)
@@ -806,7 +806,7 @@ class DeviceDisplay:
 
         if not skip_comp2:
             # Gradient
-            videos_g2_rect = QRect(videos_g2_x, details_y, gradient_width, self.details_height)
+            videos_g2_rect = QRectF(videos_g2_x, details_y, gradient_width, self.details_height)
             linearGradient.setColorAt(0.2, d.color2.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, d.color2.darker(self.shading_intensity))
             painter.fillRect(videos_g2_rect, QBrush(linearGradient))
@@ -818,7 +818,7 @@ class DeviceDisplay:
             videos_no_width = self.small_font_metrics.boundingRect(d.comp2_text).width()
             videos_size_width = self.small_font_metrics.boundingRect(d.comp2_size_text).width()
             videos_width = max(videos_no_width, videos_size_width, self.sample2_width)
-            videos_rect = QRect(videos_x, details_y, videos_width, self.details_height)
+            videos_rect = QRectF(videos_x, details_y, videos_width, self.details_height)
 
             painter.setPen(standard_pen_color)
             painter.drawText(videos_rect, Qt.AlignLeft|Qt.AlignTop, d.comp2_text)
@@ -834,7 +834,7 @@ class DeviceDisplay:
 
             # Gradient
 
-            other_g2_rect = QRect(other_g2_x, details_y, gradient_width, self.details_height)
+            other_g2_rect = QRectF(other_g2_x, details_y, gradient_width, self.details_height)
             linearGradient.setColorAt(0.2, d.color3.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, d.color3.darker(self.shading_intensity))
             painter.fillRect(other_g2_rect, QBrush(linearGradient))
@@ -846,7 +846,7 @@ class DeviceDisplay:
             other_no_width = self.small_font_metrics.boundingRect(d.comp3_text).width()
             other_size_width = self.small_font_metrics.boundingRect(d.comp3_size_text).width()
             other_width = max(other_no_width, other_size_width)
-            other_rect = QRect(other_x, details_y, other_width, self.details_height)
+            other_rect = QRectF(other_x, details_y, other_width, self.details_height)
 
             painter.setPen(standard_pen_color)
             painter.drawText(other_rect, Qt.AlignLeft|Qt.AlignTop, d.comp3_text)
@@ -954,7 +954,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
                 distance = self.lineCountDistanceFromPrimary(i, rotation)
                 color = self.currentLineColor(distance)
                 painter.setBrush(color)
-                rect = QRect(
+                rect = QRectF(
                     0, -self.spinner_line_width / 2,
                     self.spinner_line_length, self.spinner_line_width
                 )

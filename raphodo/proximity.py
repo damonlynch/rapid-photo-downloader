@@ -34,7 +34,7 @@ from arrow.arrow import Arrow
 
 from PyQt5.QtCore import (
     QAbstractTableModel, QModelIndex, Qt, QSize, QSizeF, QRect, QItemSelection, QItemSelectionModel,
-    QBuffer, QIODevice, pyqtSignal, pyqtSlot, QRectF, QPoint,
+    QBuffer, QIODevice, pyqtSignal, pyqtSlot, QRectF, QPoint, QPointF, QLineF
 )
 from PyQt5.QtWidgets import (
     QTableView, QStyledItemDelegate, QSlider, QLabel, QVBoxLayout, QStyleOptionViewItem, QStyle,
@@ -1346,7 +1346,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             painter.drawText(rect, Qt.AlignCenter, month)
 
             painter.setPen(barColor)
-            painter.drawLine(1, 0, 1, optionRectF.width())
+            painter.drawLine(QLineF(1.0, 0.0, 1.0, (optionRectF.width())))
 
             painter.restore()
 
@@ -1388,9 +1388,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
             if row in self.dv.c1_end_of_month:
                 painter.setPen(barColor)
-                painter.drawLine(
-                    0, optionRectF.height() - 1, optionRectF.width(), optionRectF.height() - 1
-                )
+                painter.drawLine(QLineF(0, optionRectF.height() - 1, optionRectF.width(), optionRectF.height() - 1))
 
             painter.restore()
 
@@ -1481,9 +1479,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 else:
                     painter.setPen(self.dv.tableColorDarker)
                 painter.translate(optionRectF.x(), optionRectF.y())
-                painter.drawLine(
-                    0, optionRectF.height() - 1, self.dv.col_widths[2], optionRectF.height() - 1
-                )
+                painter.drawLine(QLineF(0.0, optionRectF.height() - 1, self.dv.col_widths[2], optionRectF.height() - 1))
 
             painter.restore()
         else:
@@ -1739,7 +1735,7 @@ class TemporalValuePicker(QWidget):
             boundingRect = labelMetrics.boundingRect(self.displayString(m))  # type: QRect
             width = max(width, boundingRect.width())
 
-        self.display.setFixedWidth(width + 6)
+        self.display.setFixedWidth(round(width) + 6)
 
         self.slider.valueChanged.connect(self.updateDisplay)
         self.slider.sliderPressed.connect(self.sliderPressed)
@@ -1749,7 +1745,7 @@ class TemporalValuePicker(QWidget):
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(QFontMetricsF(font).height() / 6)
+        layout.setSpacing(round(QFontMetricsF(font).height() / 6))
         self.setLayout(layout)
         layout.addWidget(self.slider)
         layout.addWidget(self.display)
@@ -2072,9 +2068,9 @@ class TemporalProximity(QWidget):
         self.temporalProximityModel.endResetModel()
 
         for idx, height in enumerate(proximity_groups.display_values.row_heights):
-            self.temporalProximityView.setRowHeight(idx, height)
+            self.temporalProximityView.setRowHeight(idx, round(height))
         for idx, width in enumerate(proximity_groups.display_values.col_widths):
-            self.temporalProximityView.setColumnWidth(idx, width)
+            self.temporalProximityView.setColumnWidth(idx, round(width))
 
         # Set the minimum width for the timeline to match the content
         # Width of each column
@@ -2086,7 +2082,7 @@ class TemporalProximity(QWidget):
         scrollbar_width = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
         # Width of frame - without it, the tableview will still be too small
         frame_width = QSplitter().lineWidth() * 2
-        self.temporalProximityView.setMinimumWidth(min_width + scrollbar_width + frame_width)
+        self.temporalProximityView.setMinimumWidth(round(min_width) + scrollbar_width + frame_width)
 
         self.setState(TemporalProximityState.generated)
 
