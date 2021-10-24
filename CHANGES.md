@@ -1,16 +1,22 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.27a4 (2021-10-23)
+---------------------
+
+ - Fix bug #1946407: another fix for compatibility with Python 3.10 that 
+   0.9.27a3 did not include.
+
 0.9.27a3 (2021-10-10)
 ---------------------
 
-- Fixed bug #1946407: Work around apparent float to int conversion when calling 
+- Fix bug #1946407: Work around apparent float to int conversion when calling 
   Qt from Python 3.10 on Fedora 35 beta. 
 
-- Fixed bug #33: Files with unique identifier added via error handling are not 
+- Fix bug #33: Files with unique identifier added via error handling are not 
   marked as downloaded.
 
-- Added folder 'Screenshots' to list of ignored paths. Remove this folder from
+- Add folder 'Screenshots' to list of ignored paths. Remove this folder from
   the list of ignored paths in the program Preferences dialog if you do wish to
   download from a path that contains this folder.
    

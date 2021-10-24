@@ -2222,7 +2222,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 pixmap = None
             if pixmap is not None:
                 painter.drawPixmap(
-                    option.rect.x() + self.horizontal_margin, emblem_rect_y, pixmap
+                    QPointF(option.rect.x() + self.horizontal_margin, emblem_rect_y), pixmap
                 )
 
         painter.restore()
