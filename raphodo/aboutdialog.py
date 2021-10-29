@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Display an About window
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2020, Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 import re
 
@@ -73,7 +73,7 @@ class AboutDialog(QDialog):
 
         # Standard About view
 
-        msg = """Copyright &copy; 2007-2020 Damon Lynch.<br><br>
+        msg = """Copyright &copy; 2007-2021 Damon Lynch.<br><br>
         <a href="http://www.damonlynch.net/rapid" %(link_style)s>
         www.damonlynch.net/rapid</a><br><br>
         This program comes with absolutely no warranty.<br>
