@@ -205,9 +205,11 @@ class build_man_page(Command):
         pass
 
     def run(self):
+        if not os.path.isdir('build'):
+            os.mkdir('build')
         for pod_file in glob('doc/*.1.pod'):
             name = os.path.basename(pod_file)[:-6].upper()
-            build_path =  os.path.join('build', os.path.splitext(pod_file)[0])
+            build_path = os.path.join('build', os.path.splitext(pod_file)[0])
             if not os.path.isdir(os.path.join('build', 'doc')):
                 os.mkdir(os.path.join('build', 'doc'))
             self.spawn(
