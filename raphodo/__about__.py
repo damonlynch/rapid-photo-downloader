@@ -20,19 +20,27 @@
 # https://github.com/pypa/readme_renderer/blob/master/readme_renderer/__about__.py
 
 __all__ = [
-    '__title__', '__summary__', '__uri__', '__version__', '__author__',
-    '__email__', '__license__', '__copyright__',
+    "__title__",
+    "__summary__",
+    "__uri__",
+    "__version__",
+    "__author__",
+    "__email__",
+    "__license__",
+    "__copyright__",
 ]
 
-__title__ = 'rapid-photo-downloader'
-__summary__ = 'Downloads, renames and backs up photos and videos from cameras, phones, ' \
-'memory cards and other devices'
-__uri__ = 'http://www.damonlynch.net/rapid'
+__title__ = "rapid-photo-downloader"
+__summary__ = (
+    "Downloads, renames and backs up photos and videos from cameras, phones, "
+    "memory cards and other devices"
+)
+__uri__ = "https://damonlynch.net/rapid"
 
-__version__ = '0.9.27a4'
+__version__ = "0.9.27a4"
 
-__author__ = 'Damon Lynch'
-__email__ = 'damonlynch@gmail.com'
+__author__ = "Damon Lynch"
+__email__ = "damonlynch@gmail.com"
 
-__license__ = 'GPL 3+'
-__copyright__ = 'Copyright 2007-2021 {}'.format(__author__)
+__license__ = "GPL 3+"
+__copyright__ = "Copyright 2007-2021 {}".format(__author__)
