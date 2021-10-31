@@ -1,5 +1,7 @@
-Release Notes for Rapid Photo Downloader 0.9.27a3
+Release Notes for Rapid Photo Downloader 0.9.27b1
 =================================================
+
+ - Version 0.9.27b1 is the minimum version required to work with Python 3.10.
 
  - Version 0.9.19 introduced support for HEIF / HEIC files. The documentation
    goes into details:

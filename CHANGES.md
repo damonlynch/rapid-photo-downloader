@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.27a4 (2021-10-23)
+0.9.27b1 (2021-10-31)
 ---------------------
 
  - Use Python module [Show-in-File-Manager](https://github.com/damonlynch/showinfilemanager)
