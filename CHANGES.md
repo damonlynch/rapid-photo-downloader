@@ -16,8 +16,8 @@ Changelog for Rapid Photo Downloader
    is activated. Previously only the file being right-clicked on would be 
    opened.
 
- - Fix bug #1946407: another fix for compatibility with Python 3.10 that 
-   0.9.27a3 did not include.
+ - Fix bug [#1946407](https://bugs.launchpad.net/rapid/+bug/1946407): 
+   another compatibility fix for Python 3.10 that 0.9.27a3 did not full resolve.
 
  - Fix bug [#33](https://github.com/damonlynch/rapid-photo-downloader/issues/37)
    SystemError: PY_SSIZE_T_CLEAN macro must be defined for '#' formats on 
