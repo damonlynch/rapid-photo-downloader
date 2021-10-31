@@ -11,6 +11,11 @@ Changelog for Rapid Photo Downloader
  - New Python module requirement for Python versions earlier than 3.8:
    importlib_metadata.
 
+ - All selected files will now be opened in the file manager when right-
+   clicking on a photo or video in the main window and "Open in File Browser"
+   is activated. Previously only the file being right-clicked on would be 
+   opened.
+
  - Fix bug #1946407: another fix for compatibility with Python 3.10 that 
    0.9.27a3 did not include.
 

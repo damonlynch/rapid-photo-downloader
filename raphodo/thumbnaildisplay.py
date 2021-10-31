@@ -1991,11 +1991,13 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
     @pyqtSlot()
     def doOpenInFileManagerAct(self) -> None:
-        index = self.clickedIndex
-        if index:
-            uri = index.model().data(index, Roles.uri)
-            logging.debug("Launching file manager with path %s", uri)
-            show_in_file_manager(path_or_uri=uri, allow_conversion=False)
+        selectedIndexes = self.selectedIndexes()
+        if self.clickedIndex not in selectedIndexes:
+            selectedIndexes.append(self.clickedIndex)
+        uris = [index.model().data(index, Roles.uri) for index in selectedIndexes]
+        if uris:
+            logging.debug("Launching file manager with paths %s", ', '.join(uris))
+            show_in_file_manager(path_or_uri=uris, allow_conversion=False)
 
     @pyqtSlot()
     def doMarkFileDownloadedAct(self) -> None:
