@@ -122,6 +122,8 @@ Then run the install.py script:
  - Qt5 plugin for rendering SVG
  - [setuptools](https://pypi.org/project/setuptools/)
  - [python-gphoto2 1.4.0](https://github.com/jim-easterbrook/python-gphoto2) or newer
+ - [show-in-file-manager 1.1.1](https://github.com/damonlynch/showinfilemanager) or newer
+ - [importlib_metadata](https://github.com/python/importlib_metadata) on Python versions older than 3.8
  - [pyzmq](https://github.com/zeromq/pyzmq)
  - [tornado](http://www.tornadoweb.org/)
  - [psutil](https://github.com/giampaolo/psutil) 3.4.2 or newer
