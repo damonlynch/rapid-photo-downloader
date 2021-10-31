@@ -2314,7 +2314,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
                         active_camera = self.rapidApp.deviceState(scan_id) != DeviceState.idle
                     if not active_camera:
                         disable_kde = (
-                                index.data(Roles.mtp) and
+                                index.data(Roles.is_camera) and
                                 self.rapidApp.file_manager in kframework_file_managers
                         )
 

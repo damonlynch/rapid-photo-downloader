@@ -5,14 +5,20 @@ Changelog for Rapid Photo Downloader
 ---------------------
 
  - Use Python module [Show-in-File-Manager](https://github.com/damonlynch/showinfilemanager)
-   to display files in the file manager. Linux distribution packagers: this is
-   a required module.
+   to display files in the operating system's file manager. Linux distribution
+   packagers: this is a required module.
 
  - New Python module requirement for Python versions earlier than 3.8:
    importlib_metadata.
 
  - Fix bug #1946407: another fix for compatibility with Python 3.10 that 
    0.9.27a3 did not include.
+
+ - Fix bug where downloading from a camera that was already in use would fail
+   because generating an error message would cause an exception.
+
+ - Disable viewing files still on a camera in the operating system's file 
+   manager when on KDE.
 
 0.9.27a3 (2021-10-10)
 ---------------------
