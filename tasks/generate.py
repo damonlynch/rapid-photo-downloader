@@ -36,7 +36,7 @@ import base64
 po_dir = '../po'
 domain = 'rapid-photo-downloader'
 scripts = ('../install.py', '../upgrade.py')
-line_length=100
+line_length=88
 
 temp_dir = tempfile.mkdtemp()
 
