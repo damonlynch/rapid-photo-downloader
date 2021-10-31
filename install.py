@@ -86,6 +86,7 @@ __description__ = _("Download and install latest version of Rapid Photo Download
 i18n_domain = "rapid-photo-downloader"
 locale_tmpdir = None
 
+
 class Version:
     """Abstract base class for version numbering classes.  Just provides
     constructor (__init__) and reproducer (__repr__), because those
@@ -313,7 +314,10 @@ class LooseVersion(Version):
             return 1
 
 
-minimum_preferred_pyqt5 = LooseVersion("5.14")
+if sys.version_info < (3, 10):
+    minimum_preferred_pyqt5 = LooseVersion("5.14")
+else:
+    minimum_preferred_pyqt5 = LooseVersion("5.15.6")
 
 try:
     import requests
@@ -478,9 +482,6 @@ installer_cmds = {
 manually_mark_cmds = {
     Distro.debian: ("apt-mark", "manual"),
 }
-
-
-
 
 
 def make_distro_name_pretty(distro: Distro) -> str:
@@ -717,10 +718,26 @@ def should_use_system_pyqt5(
         "11"
     ):
         # PyQt 15.2 from pypi does not run on Debian 9 / 10 due to PyQt 15.2
-        # requiring libxcb-util.so.1, whichis not in these versions of Debian
+        # requiring libxcb-util.so.1, which is not in these versions of Debian
         use_system_pyqt5 = True
-    elif distro_family == Distro.fedora or distro == Distro.neon:
-        # Fedora and Neon keep their PyQt5 up-to-date
+    elif distro_family == Distro.fedora:
+        if have_dnf:
+            print(
+                "Querying Fedora package database to determine PyQt5 version..."
+                " (this may take a while)"
+            )
+            try:
+                fedora_pyqt5_version = LooseVersion(
+                    dnf_return_package_version("python3-qt5")
+                )
+            except Exception:
+                use_system_pyqt5 = False
+            else:
+                use_system_pyqt5 = fedora_pyqt5_version >= minimum_preferred_pyqt5
+        else:
+            use_system_pyqt5 = False
+    elif distro == Distro.neon:
+        # Neon keep their PyQt5 up-to-date
         use_system_pyqt5 = True
     elif distro_family == Distro.debian:
         # Determine system version of PyQt5 to see if it is new enough
@@ -1782,6 +1799,33 @@ def fedora_package_installed(package: str) -> bool:
         return False
 
 
+def dnf_return_package_version(package: str) -> str:
+    """
+    Use dnf Python module to get the version of a packager regardless of whether
+    it is installed or not.
+
+    Assumes dnf module is imported and the package name passed is unique.
+
+    No error checking.
+
+    :param package: exact package name in dnf
+    :return: version string
+    """
+
+    with dnf.Base() as base:
+        # Code from http://dnf.readthedocs.org/en/latest/use_cases.html
+
+        # Repositories serve as sources of information about packages.
+        base.read_all_repos()
+        # A sack is needed for querying.
+        base.fill_sack()
+
+        # A query matches all packages in sack
+        q = base.sack.query()
+        p = q.filter(name=package)[0]
+        return p.version
+
+
 def opensuse_package_search(packages: str) -> str:
     """
     Return which of the packages have not already been installed on openSUSE.
@@ -2008,8 +2052,9 @@ def uninstall_with_deps() -> None:
     uninstall_pip_package("rapid-photo-downloader", no_deps_only=False)
 
     packages = (
-        "psutil gphoto2 pyzmq pyxdg arrow python-dateutil rawkit PyPrind colorlog easygui "
-        "colour pymediainfo sortedcontainers requests tornado pyheif"
+        "psutil gphoto2 pyzmq pyxdg arrow python-dateutil rawkit PyPrind colorlog "
+        "easygui colour pymediainfo sortedcontainers requests tornado pyheif "
+        "show-in-file-manager"
     )
 
     if pypi_pyqt5_capable():

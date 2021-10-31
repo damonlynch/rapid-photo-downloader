@@ -9,7 +9,7 @@ Changelog for Rapid Photo Downloader
    packagers: this is a required module.
 
  - New Python module requirement for Python versions earlier than 3.8:
-   importlib_metadata.
+   [importlib_metadata](https://github.com/python/importlib_metadata).
 
  - All selected files will now be opened in the file manager when right-
    clicking on a photo or video in the main window and "Open in File Browser"
@@ -18,6 +18,11 @@ Changelog for Rapid Photo Downloader
 
  - Fix bug #1946407: another fix for compatibility with Python 3.10 that 
    0.9.27a3 did not include.
+
+ - Fix bug [#33](https://github.com/damonlynch/rapid-photo-downloader/issues/37)
+   SystemError: PY_SSIZE_T_CLEAN macro must be defined for '#' formats on 
+   Python 3.10. The solution is to install PyQt 5.15.6 or newer when using 
+   Python 3.10, which the install.py script now does.
 
  - Fix bug where downloading from a camera that was already in use would fail
    because generating an error message would cause an exception.

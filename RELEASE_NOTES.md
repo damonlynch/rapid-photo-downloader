@@ -1,10 +1,15 @@
 Release Notes for Rapid Photo Downloader 0.9.27b1
 =================================================
 
- - Version 0.9.27b1 is the minimum version required to work with Python 3.10.
+ - Rapid Photo Downloader 0.9.27b1 is the minimum version required to work with 
+   Python 3.10. Earlier versions will not run.
 
- - Version 0.9.19 introduced support for HEIF / HEIC files. The documentation
-   goes into details:
+ - PyQt5 5.15.6 is the minimum version required to work with Python 3.10. If 
+   an older version is installed, Rapid Photo Downloader will run, but 
+   thumbnails will not be generated.
+
+ - Rapid Photo Downloader 0.9.19 introduced support for HEIF / HEIC files. The 
+   documentation goes into details:
 
    https://damonlynch.net/rapid/documentation/#heifheic
 
