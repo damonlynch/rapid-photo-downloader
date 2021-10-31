@@ -53,17 +53,19 @@ from PyQt5.QtGui import (
     QFont, QKeyEvent
 )
 
+from showinfm import show_in_file_manager
+
 from raphodo.rpdfile import RPDFile, FileTypeCounter
 from raphodo.fileformats import ALL_USER_VISIBLE_EXTENSIONS, MUST_CACHE_VIDEOS
 from raphodo.interprocess import GenerateThumbnailsArguments, Device, GenerateThumbnailsResults
 from raphodo.constants import (
     DownloadStatus, Downloaded, FileType, DownloadingFileTypes, ThumbnailSize,
     ThumbnailCacheStatus, Roles, DeviceType, CustomColors, Show, Sort, ThumbnailBackgroundName,
-    Desktop, DeviceState, extensionColor, FadeSteps, FadeMilliseconds, PaleGray, DarkGray,
+    DeviceState, extensionColor, FadeSteps, FadeMilliseconds, PaleGray, DarkGray,
     DoubleDarkGray, Plural, manually_marked_previously_downloaded, thumbnail_margin
 )
 from raphodo.storage import (
-    get_program_cache_directory, get_desktop, validate_download_folder, open_in_file_manager
+    get_program_cache_directory, validate_download_folder, kframework_file_managers
 )
 from raphodo.utilities import (
     CacheDirs, make_internationalized_list, format_size_for_user, runs, arrow_locale
@@ -1992,11 +1994,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
         index = self.clickedIndex
         if index:
             uri = index.model().data(index, Roles.uri)
-            open_in_file_manager(
-                file_manager=self.rapidApp.file_manager,
-                file_manager_type=self.rapidApp.file_manager_type,
-                uri=uri
-            )
+            logging.debug("Launching file manager with path %s", uri)
+            show_in_file_manager(path_or_uri=uri, allow_conversion=False)
 
     @pyqtSlot()
     def doMarkFileDownloadedAct(self) -> None:
@@ -2305,13 +2304,19 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 # Finally, disable when we don't know what the default file manager is
 
                 active_camera = disable_kde = False
-                have_file_manager = self.rapidApp.file_manager is not None
+                have_file_manager = (
+                        self.rapidApp.file_manager is not None
+                        and self.rapidApp.file_manager != ""
+                )
                 if download_status not in Downloaded:
                     if index.data(Roles.is_camera):
                         scan_id = index.data(Roles.scan_id)
                         active_camera = self.rapidApp.deviceState(scan_id) != DeviceState.idle
                     if not active_camera:
-                        disable_kde = index.data(Roles.mtp) and get_desktop() == Desktop.kde
+                        disable_kde = (
+                                index.data(Roles.mtp) and
+                                self.rapidApp.file_manager in kframework_file_managers
+                        )
 
                 self.openInFileBrowserAct.setEnabled(
                     not (disable_kde or active_camera) and have_file_manager

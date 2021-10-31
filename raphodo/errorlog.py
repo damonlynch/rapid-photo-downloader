@@ -50,7 +50,7 @@ from raphodo.constants import ErrorType
 from raphodo.rpdfile import RPDFile
 from raphodo.problemnotification import Problem, Problems
 from raphodo.viewutils import translateDialogBoxButtons
-from raphodo.storage import open_in_file_manager
+from showinfm import show_in_file_manager
 
 # ErrorLogMessage = namedtuple('ErrorLogMessage', 'title body name uri')
 
@@ -404,17 +404,12 @@ class ErrorReport(QDialog):
 
     @pyqtSlot(QUrl)
     def anchorClicked(self, url: QUrl) -> None:
-        if self.rapidApp.file_manager:
-            # see documentation for self._saveUrls()
-            fake_uri = url.url()
-            index = int(fake_uri[fake_uri.find('///') + 3:])
-            uri = self.uris[index]
+        # see documentation for self._saveUrls()
+        fake_uri = url.url()
+        index = int(fake_uri[fake_uri.find('///') + 3:])
+        uri = self.uris[index]
 
-            open_in_file_manager(
-                file_manager=self.rapidApp.file_manager,
-                file_manager_type=self.rapidApp.file_manager_type,
-                uri=uri
-            )
+        show_in_file_manager(path_or_uri=uri)
 
     def _saveUrls(self, text: str) -> str:
         """

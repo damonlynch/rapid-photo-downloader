@@ -19,3 +19,5 @@ tenacity
 pillow>=5.1.0
 pyqt5
 Babel
+show-in-file-manager>=1.1.1
+importlib_metadata; python_version < '3.8'

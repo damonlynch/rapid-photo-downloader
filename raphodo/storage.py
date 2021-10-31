@@ -62,6 +62,7 @@ from urllib.parse import unquote_plus, quote, urlparse
 from tempfile import NamedTemporaryFile
 
 from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal, QFileSystemWatcher, pyqtSlot, QTimer)
+from showinfm import linux_desktop, LinuxDesktop, valid_file_manager
 from xdg.DesktopEntry import DesktopEntry
 from xdg import BaseDirectory
 import xdg
@@ -75,10 +76,7 @@ gi.require_version('GLib', '2.0')
 from gi.repository import GUdev, UDisks, GLib
 
 
-from raphodo.constants import (
-    Desktop, Distro, FileManagerType, DefaultFileBrowserFallback, FileManagerBehavior,
-    PostCameraUnmountAction
-)
+from raphodo.constants import Distro, PostCameraUnmountAction
 from raphodo.utilities import (
     process_running, log_os_release, remove_topmost_directory_from_path, find_mount_point
 )
@@ -389,67 +387,7 @@ def get_desktop_environment() -> Optional[str]:
     return os.getenv('XDG_CURRENT_DESKTOP')
 
 
-def get_desktop(show_debug: bool = False) -> Desktop:
-    """
-    Determine desktop environment
-    :param show_debug: if True, log debug message indicating problems determining
-     the desktop type
-    :return: enum representing desktop environment,
-    Desktop.unknown if unknown.
-    """
 
-    try:
-        env = get_desktop_environment().lower()
-    except AttributeError:
-        # Occurs when there is no value set
-        if show_debug:
-            logging.debug("No environment variable is set indicating the desktop environment")
-        return Desktop.unknown
-
-    if env == 'unity:unity7':
-        env = 'unity'
-    elif env == 'x-cinnamon':
-        env = 'cinnamon'
-    elif env == 'ubuntu:gnome':
-        env = 'ubuntugnome'
-    elif env == 'pop:gnome':
-        env = 'popgnome'
-    elif env == 'gnome-classic:gnome':
-        env = 'gnome'
-    elif env == 'budgie:gnome':
-        env = 'gnome'
-    elif env == 'zorin:gnome':
-        env = 'zorin'
-
-    try:
-        return Desktop[env]
-    except KeyError:
-        if show_debug:
-            logging.debug("Unable to determine desktop environment from key value %s", env)
-        return Desktop.unknown
-
-
-def gvfs_controls_mounts() -> bool:
-    """
-    Determine if GVFS controls mounts on this system.
-
-    By default, common desktop environments known to use it are assumed
-    to be using it or not. If not found in this list, then the list of
-    running processes is searched, looking for a match against 'gvfs-gphoto2',
-    which will match what is at the time of this code being developed called
-    'gvfs-gphoto2-volume-monitor', which is what we're most interested in.
-
-    :return: True if so, False otherwise
-    """
-
-    desktop = get_desktop()
-    if desktop in (Desktop.gnome, Desktop.unity, Desktop.cinnamon, Desktop.xfce,
-                   Desktop.mate, Desktop.lxde, Desktop.ubuntugnome,
-                   Desktop.popgnome, Desktop.gnome, Desktop.lxqt, Desktop.pantheon):
-        return True
-    elif desktop == Desktop.kde:
-        return False
-    return process_running('gvfs-gphoto2')
 
 
 def _get_xdg_special_dir(dir_type: gi.repository.GLib.UserDirectory,
@@ -605,163 +543,39 @@ def get_fdo_cache_thumb_base_directory() -> str:
     """
 
     # LXDE is a special case: handle it
-    if get_desktop() == Desktop.lxde:
+    if linux_desktop() == LinuxDesktop.lxde:
         return os.path.join(os.path.expanduser('~'), '.thumbnails')
 
     return os.path.join(BaseDirectory.xdg_cache_home, 'thumbnails')
 
 
-# Module level variables important for determining among other things the generation of URIs
-# Pretty ugly, but the alternative is passing values around between several processes
-_desktop = get_desktop()
+# Module level variables important for determining among other things the generation of
+# URIs
 _quoted_comma = quote(',')
-_default_file_manager_probed = False
-_default_file_manager = None
-_default_file_manager_type = None
+_valid_file_manager_probed = False
+_valid_file_manager = None  # type: Optional[str]
 
+gvfs_file_managers = (
+    'nautilus',
+    'caja',
+    'thunar',
+    'nemo',
+    'pcmanfm',
+    'peony',
+    "pcmanfm-qt",
+    "dde-file-manager",
+    "io.elementary.files",
+)
 
-def _default_file_manager_for_desktop() -> Tuple[Optional[str], Optional[FileManagerType]]:
-    """
-    If default file manager cannot be determined using system tools, guess
-    based on desktop environment.
-
-    Sets module level globals if found.
-
-    :return: file manager command (without path), and type; if not detected, (None, None)
-    """
-
-    global _default_file_manager
-    global _default_file_manager_type
-
-    try:
-        fm = ''
-        fm = DefaultFileBrowserFallback[_desktop.name]
-        assert shutil.which(fm)
-        t = FileManagerBehavior[fm]
-        _default_file_manager = fm
-        _default_file_manager_type = t
-        return fm, t
-    except KeyError:
-        logging.debug("Error determining default file manager")
-        return None, None
-    except AssertionError:
-        logging.debug("Default file manager %s cannot be found", fm)
-        return None, None
-
-
-def get_default_file_manager() -> Tuple[Optional[str], Optional[FileManagerType]]:
-    """
-    Attempt to determine the default file manager for the system
-    :param remove_args: if True, remove any arguments such as %U from
-     the returned command
-    :return: file manager command (without path), and type; if not detected, (None, None)
-    """
-
-    global _default_file_manager_probed
-    global _default_file_manager
-    global _default_file_manager_type
-
-    if _default_file_manager_probed:
-        return _default_file_manager, _default_file_manager_type
-
-    _default_file_manager_probed = True
-
-    assert sys.platform.startswith('linux')
-    cmd = shlex.split('xdg-mime query default inode/directory')
-    try:
-        desktop_file = subprocess.check_output(cmd, universal_newlines=True)  # type: str
-    except:
-        return _default_file_manager_for_desktop()
-
-    # Remove new line character from output
-    desktop_file = desktop_file[:-1]
-    if desktop_file.endswith(';'):
-        desktop_file = desktop_file[:-1]
-
-    for desktop_path in (os.path.join(d, 'applications') for d in BaseDirectory.xdg_data_dirs):
-        path = os.path.join(desktop_path, desktop_file)
-        if os.path.exists(path):
-            try:
-                desktop_entry = DesktopEntry(path)
-            except xdg.Exceptions.ParsingError:
-                return _default_file_manager_for_desktop()
-            try:
-                desktop_entry.parse(path)
-            except:
-                return _default_file_manager_for_desktop()
-
-            fm = desktop_entry.getExec()
-
-            # Strip away any extraneous arguments
-            fm_cmd = fm.split()[0]
-            # Strip away any path information
-            fm_cmd = os.path.split(fm_cmd)[1]
-            # Strip away any quotes
-            fm_cmd = fm_cmd.replace('"', '')
-            fm_cmd = fm_cmd.replace("'", '')
-
-            # Unhelpful results
-            invalid_file_managers = ('baobab', 'exo-open', 'RawTherapee', 'ART')
-            for invalid_file_manger in invalid_file_managers:
-                if fm_cmd.startswith(invalid_file_manger):
-                    logging.warning('%s is an invalid file manager: will substitute', fm)
-                    return _default_file_manager_for_desktop()
-
-            # Nonexistent file managers
-            if shutil.which(fm_cmd) is None:
-                logging.warning('Default file manager %s does not exist: will substitute', fm)
-                return _default_file_manager_for_desktop()
-
-            try:
-                file_manager_type = FileManagerBehavior[fm_cmd]
-            except KeyError:
-                file_manager_type = FileManagerType.regular
-
-            _default_file_manager = fm_cmd
-            _default_file_manager_type = file_manager_type
-            return _default_file_manager, file_manager_type
-
-    # Special case: no base dirs set, e.g. LXQt
-    return _default_file_manager_for_desktop()
-
-
-def open_in_file_manager(file_manager: str,
-                         file_manager_type: FileManagerType,
-                         uri: str) -> None:
-    """
-    Open a directory or file in the file manager.
-
-    If the item is a file, then try to select it in the file manager,
-    rather than opening it directly.
-
-    :param file_manager: the file manager to use
-    :param file_manager_type: file manager behavior
-    :param uri: the URI (path) to open. Assumes file:// or gphoto2:// schema
-    """
-
-    arg = ''
-    path = unquote_plus(urlparse(uri).path)
-    if not os.path.isdir(path):
-        if file_manager_type == FileManagerType.select:
-            arg = '--select '
-        elif file_manager_type == FileManagerType.show_item:
-            arg = '--show-item '
-        elif file_manager_type == FileManagerType.show_items:
-            arg = '--show-items '
-
-    cmd = '{} {}{}'.format(file_manager, arg, uri)
-    logging.debug("Launching: %s", cmd)
-    args = shlex.split(cmd)
-    subprocess.Popen(args)
+kframework_file_managers = ('dolphin', 'index', 'krusader')
 
 
 def get_uri(full_file_name: Optional[str]=None,
             path: Optional[str]=None,
-            camera_details: Optional[CameraDetails]=None,
-            desktop_environment: Optional[bool]=True) -> str:
+            camera_details: Optional[CameraDetails]=None) -> str:
     """
     Generate and return the URI for the file, which varies depending on
-    which device it is
+    which device the file is located
 
     :param full_file_name: full filename and path
     :param path: straight path when not passing a full_file_name
@@ -773,49 +587,45 @@ def get_uri(full_file_name: Optional[str]=None,
     :return: the URI
     """
 
-    if not _default_file_manager_probed:
-        get_default_file_manager()
+    global _valid_file_manager
+    global _valid_file_manager_probed
+    if not _valid_file_manager_probed:
+        _valid_file_manager = valid_file_manager()
+        _valid_file_manager_probed = True
 
     if camera_details is None:
         prefix = 'file://'
-        if desktop_environment:
-            if full_file_name and _default_file_manager_type == FileManagerType.dir_only_uri:
-                full_file_name = os.path.dirname(full_file_name)
     else:
-        if not desktop_environment:
-            if full_file_name or path:
-                prefix = 'gphoto2://'
+        prefix = ''
+        # Attempt to generate a URI accepted by desktop environments
+        if camera_details.is_mtp:
+            if full_file_name:
+                full_file_name = remove_topmost_directory_from_path(full_file_name)
+            elif path:
+                path = remove_topmost_directory_from_path(path)
+
+            if _valid_file_manager in gvfs_file_managers:
+                prefix = 'mtp://' + pathname2url(
+                    '[{}]/{}'.format(camera_details.port, camera_details.storage_desc)
+                )
+            elif _valid_file_manager in kframework_file_managers:
+                prefix = 'mtp:/' + pathname2url(
+                    '{}/{}'.format(camera_details.display_name, camera_details.storage_desc)
+                )
             else:
-                prefix = 'gphoto2://' + pathname2url('[{}]'.format(camera_details.port))
+                logging.error("Don't know how to generate MTP prefix for %s", _valid_file_manager)
         else:
-            prefix = ''
-            # Attempt to generate a URI accepted by desktop environments
-            if camera_details.is_mtp:
-                if full_file_name:
-                    full_file_name = remove_topmost_directory_from_path(full_file_name)
-                elif path:
-                    path = remove_topmost_directory_from_path(path)
-
-                if gvfs_controls_mounts() or _desktop == Desktop.lxqt:
-                    prefix = 'mtp://' + pathname2url(
-                        '[{}]/{}'.format(camera_details.port, camera_details.storage_desc)
-                    )
-                elif _desktop == Desktop.kde:
-                    prefix = 'mtp:/' + pathname2url(
-                        '{}/{}'.format(camera_details.display_name, camera_details.storage_desc)
-                    )
-                else:
-                    logging.error("Don't know how to generate MTP prefix for %s", _desktop.name)
+            if _valid_file_manager in kframework_file_managers:
+                prefix = f"camera:/{pathname2url(camera_details.display_name.replace('-', ' '))}@{camera_details.port}"
             else:
                 prefix = 'gphoto2://' + pathname2url('[{}]'.format(camera_details.port))
 
-            if _default_file_manager == 'pcmanfm-qt':
-                # pcmanfm-qt does not like the quoted form of the comma
-                prefix = prefix.replace(_quoted_comma, ',')
-                if full_file_name:
-                    # pcmanfm-qt does not like the the filename as part of the path
-                    full_file_name = os.path.dirname(full_file_name)
-
+        if _valid_file_manager == 'pcmanfm-qt':
+            # pcmanfm-qt does not like the quoted form of the comma
+            prefix = prefix.replace(_quoted_comma, ',')
+            if full_file_name:
+                # pcmanfm-qt does not like the the filename as part of the path
+                full_file_name = os.path.dirname(full_file_name)
 
     if full_file_name or path:
         uri = '{}{}'.format(prefix, pathname2url(full_file_name or path))

@@ -56,6 +56,10 @@ import shlex
 import subprocess
 from urllib.request import pathname2url
 import inspect
+try:
+    import importlib.metadata as importlib_metadata
+except ImportError:
+    import importlib_metadata
 
 import dateutil
 
@@ -99,11 +103,12 @@ from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 # already been imported. See:
 # http://pyqt.sourceforge.net/Docs/PyQt5/incompatibilities.html#importing-the-sip-module
 import sip
+from showinfm import valid_file_manager, linux_desktop, linux_desktop_humanize
 
 from raphodo.storage import (
     ValidMounts, CameraHotplug, UDisks2Monitor, GVolumeMonitor, have_gio,
-    has_one_or_more_folders, mountPaths, get_desktop_environment, get_desktop,
-    gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
+    has_one_or_more_folders, mountPaths, get_desktop_environment,
+    validate_download_folder,
     validate_source_folder, get_fdo_cache_thumb_base_directory, WatchDownloadDirs, get_media_dir,
     StorageSpace, gvfs_gphoto2_path, get_uri
 )
@@ -120,10 +125,10 @@ from raphodo.preferences import Preferences
 from raphodo.constants import (
     BackupLocationType, DeviceType, ErrorType, FileType, DownloadStatus, RenameAndMoveStatus,
     ApplicationState, CameraErrorCode, TemporalProximityState, ThumbnailBackgroundName,
-    Desktop, BackupFailureType, DeviceState, Sort, Show, DestinationDisplayType,
+    BackupFailureType, DeviceState, Sort, Show, DestinationDisplayType,
     DisplayingFilesOfType, DownloadingFileTypes, RememberThisMessage, RightSideButton,
     CheckNewVersionDialogState, CheckNewVersionDialogResult, RememberThisButtons,
-    BackupStatus, CompletedDownloads, disable_version_check, FileManagerType, ScalingAction,
+    BackupStatus, CompletedDownloads, disable_version_check, ScalingAction,
     ScalingDetected, PostCameraUnmountAction
 )
 from raphodo.thumbnaildisplay import (
@@ -135,7 +140,8 @@ from raphodo.utilities import (
     same_device, make_internationalized_list, thousands, addPushButtonLabelSpacer,
     make_html_path_non_breaking, prefs_list_from_gconftool2_string,
     pref_bool_from_gconftool2_string, extract_file_from_tar, format_size_for_user,
-    is_snap, version_check_disabled, installed_using_pip, getQtSystemTranslation
+    is_snap, version_check_disabled, installed_using_pip, getQtSystemTranslation,
+    process_running,
 )
 from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
@@ -518,13 +524,13 @@ class RapidWindow(QMainWindow):
 
         self.close_event_run = False
 
-        self.file_manager, self.file_manager_type = get_default_file_manager()
+        self.file_manager = valid_file_manager()
 
-        self.fileSystemUrlHandler = FileSystemUrlHandler(self.file_manager, self.file_manager_type)
+        self.fileSystemUrlHandler = FileSystemUrlHandler()
         QDesktopServices.setUrlHandler("file", self.fileSystemUrlHandler, "openFileBrowser")
 
         for version in get_versions(
-                self.file_manager, self.file_manager_type, scaling_action,
+                self.file_manager, scaling_action,
                 scaling_detected, xsetting_running):
             logging.info('%s', version)
 
@@ -937,7 +943,7 @@ class RapidWindow(QMainWindow):
         self.createLayoutAndButtons(centralWidget)
 
         logging.debug("Have GIO module: %s", have_gio)
-        self.gvfsControlsMounts = gvfs_controls_mounts() and have_gio
+        self.gvfsControlsMounts = process_running('gvfs-gphoto2') and have_gio
         if have_gio:
             logging.debug("GVFS (GIO) controls mounts: %s", self.gvfsControlsMounts)
 
@@ -6041,8 +6047,8 @@ def python_package_source(package: str) -> str:
     system_package = '(system package)'
     return pip_install if installed_using_pip(package) else system_package
 
+
 def get_versions(file_manager: Optional[str],
-                 file_manager_type: Optional[FileManagerType],
                  scaling_action: ScalingAction,
                  scaling_detected: ScalingDetected,
                  xsetting_running: bool) -> List[str]:
@@ -6083,7 +6089,8 @@ def get_versions(file_manager: Optional[str],
         'PyGObject: {}'.format('.'.join(map(str, gi.version_info))),
         'libraw: {}'.format(libraw_version() or 'not installed'),
         'rawkit: {}'.format(rawkit_version() or 'not installed'),
-        'psutil: {}'.format('.'.join(map(str, psutil.version_info)))
+        'psutil: {}'.format('.'.join(map(str, psutil.version_info))),
+        f'Show in File Manager: {importlib_metadata.version("show-in-file-manager")}'
     ]
     v = exiv2_version()
     if v:
@@ -6136,16 +6143,21 @@ def get_versions(file_manager: Optional[str],
     )
 
     try:
+        desktop = linux_desktop_humanize(linux_desktop())
+    except:
+        desktop = 'Unknown'
+
+    try:
         versions.append(
             "Desktop: {} ({})".format(
-                get_desktop_environment(), get_desktop(show_debug=True).name
+                get_desktop_environment(), desktop
             )
         )
     except Exception:
         pass
 
     if file_manager:
-        file_manager_details = "{} ({})".format(file_manager, file_manager_type.name)
+        file_manager_details = f"{file_manager}"
     else:
         file_manager_details = "Unknown"
 
@@ -6590,11 +6602,11 @@ def main():
 
     args = parser.parse_args()
     if args.detailed_version:
-        file_manager, file_manager_type = get_default_file_manager()
+        file_manager = valid_file_manager()
         print(
             '\n'.join(
                 get_versions(
-                    file_manager, file_manager_type, scaling_action, scaling_detected,
+                    file_manager, scaling_action, scaling_detected,
                     xsetting_running
                 )
             )

@@ -4,6 +4,13 @@ Changelog for Rapid Photo Downloader
 0.9.27a4 (2021-10-23)
 ---------------------
 
+ - Use Python module [Show-in-File-Manager](https://github.com/damonlynch/showinfilemanager)
+   to display files in the file manager. Linux distribution packagers: this is
+   a required module.
+
+ - New Python module requirement for Python versions earlier than 3.8:
+   importlib_metadata.
+
  - Fix bug #1946407: another fix for compatibility with Python 3.10 that 
    0.9.27a3 did not include.
 

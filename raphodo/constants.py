@@ -18,7 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2020, Damon Lynch"
+__copyright__ = "Copyright 2007-2021, Damon Lynch"
 
 from enum import (Enum, IntEnum)
 from PyQt5.QtCore import Qt
@@ -27,7 +27,7 @@ from PyQt5.QtGui import QFont, QFontMetrics, QColor
 PROGRAM_NAME = "Rapid Photo Downloader"
 logfile_name = 'rapid-photo-downloader.log'
 
-remote_versions_file = 'https://www.damonlynch.net/rapid/version.json'
+remote_versions_file = 'https://damonlynch.net/rapid/version.json'
 
 # If set to True, the ability to check for a new version will be removed
 # from the user interface and disabled in program logic.
@@ -497,63 +497,6 @@ def minGridColumnWidth() -> int:
 def standardProgressBarWidth() -> int:
     return int(QFontMetrics(QFont()).height() * 20)
 
-
-# Be sure to update gvfs_controls_mounts() if updating this
-class Desktop(Enum):
-    gnome = 1
-    unity = 2
-    cinnamon = 3
-    kde = 4
-    xfce = 5
-    mate = 6
-    lxde = 7
-    lxqt = 8
-    ubuntugnome = 9
-    popgnome = 10
-    deepin = 11
-    zorin = 12
-    ukui = 13
-    pantheon = 14
-    unknown = 15
-
-
-class FileManagerType(Enum):
-    regular = 1
-    select = 2
-    dir_only_uri = 3
-    show_item = 4
-    show_items = 5
-
-
-FileManagerBehavior = dict(
-    nautilus=FileManagerType.select,
-    dolphin=FileManagerType.select,
-    caja=FileManagerType.dir_only_uri,
-    thunar=FileManagerType.dir_only_uri,
-    nemo=FileManagerType.regular,
-    pcmanfm=FileManagerType.dir_only_uri,
-    peony=FileManagerType.show_items,
-)
-FileManagerBehavior['pcmanfm-qt'] = FileManagerType.dir_only_uri
-FileManagerBehavior['dde-file-manager'] = FileManagerType.show_item
-FileManagerBehavior['io.elementary.files'] = FileManagerType.regular
-
-
-DefaultFileBrowserFallback = dict(
-    gnome='nautilus',
-    ubuntugnome='nautilus',
-    popgnome='nautilus',
-    unity='nautilus',
-    kde='dolphin',
-    cinnamon='nemo',
-    mate='caja',
-    xfce='thunar',
-    lxde='pcmanfm',
-    lxqt='pcmanfm-qt',
-    deepin='dde-file-manager',
-    kylin='peony',
-    pantheon='io.elementary.files',
-)
 
 
 # Sync with value in install.py
