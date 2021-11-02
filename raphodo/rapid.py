@@ -103,7 +103,7 @@ from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 # already been imported. See:
 # http://pyqt.sourceforge.net/Docs/PyQt5/incompatibilities.html#importing-the-sip-module
 import sip
-from showinfm import valid_file_manager, linux_desktop, linux_desktop_humanize
+from showinfm import valid_file_manager, linux_desktop, linux_desktop_humanize, LinuxDesktop
 
 from raphodo.storage import (
     ValidMounts, CameraHotplug, UDisks2Monitor, GVolumeMonitor, have_gio,
@@ -948,6 +948,11 @@ class RapidWindow(QMainWindow):
             logging.debug("GVFS (GIO) controls mounts: %s", self.gvfsControlsMounts)
 
         if not self.gvfsControlsMounts:
+            self.use_udsisks = linux_desktop() != LinuxDesktop.wsl2
+        else:
+            self.use_udsisks = False
+
+        if self.use_udsisks:
             # Monitor when the user adds or removes a camera
             self.cameraHotplug = CameraHotplug()
             self.cameraHotplugThread = QThread()
@@ -4834,12 +4839,12 @@ Do you want to proceed with the download?
         if not self.backupThread.wait(1000):
             self.sendTerminateToThread(self.backup_controller)
 
-        if not self.gvfsControlsMounts:
+        if self.use_udsisks:
             self.udisks2MonitorThread.quit()
             self.udisks2MonitorThread.wait()
             self.cameraHotplugThread.quit()
             self.cameraHotplugThread.wait()
-        else:
+        elif self.gvfsControlsMounts:
             del self.gvolumeMonitor
 
         if not version_check_disabled():
