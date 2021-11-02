@@ -103,7 +103,9 @@ from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 # already been imported. See:
 # http://pyqt.sourceforge.net/Docs/PyQt5/incompatibilities.html#importing-the-sip-module
 import sip
-from showinfm import valid_file_manager, linux_desktop, linux_desktop_humanize, LinuxDesktop
+from showinfm import (
+    valid_file_manager, linux_desktop, linux_desktop_humanize, LinuxDesktop
+)
 
 from raphodo.storage import (
     ValidMounts, CameraHotplug, UDisks2Monitor, GVolumeMonitor, have_gio,
@@ -475,6 +477,8 @@ class RapidWindow(QMainWindow):
                  scaling_action: ScalingAction,
                  scaling_detected: ScalingDetected,
                  xsetting_running: bool,
+                 force_wayland: bool,
+                 platform_selected: Optional[str],
                  photo_rename: Optional[bool]=None,
                  video_rename: Optional[bool]=None,
                  auto_detect: Optional[bool]=None,
@@ -530,8 +534,9 @@ class RapidWindow(QMainWindow):
         QDesktopServices.setUrlHandler("file", self.fileSystemUrlHandler, "openFileBrowser")
 
         for version in get_versions(
-                self.file_manager, scaling_action,
-                scaling_detected, xsetting_running):
+                file_manager=self.file_manager, scaling_action=scaling_action,
+                scaling_detected=scaling_detected, xsetting_running=xsetting_running,
+                force_wayland=force_wayland, platform_selected=platform_selected):
             logging.info('%s', version)
 
         if disable_version_check:
@@ -6056,7 +6061,9 @@ def python_package_source(package: str) -> str:
 def get_versions(file_manager: Optional[str],
                  scaling_action: ScalingAction,
                  scaling_detected: ScalingDetected,
-                 xsetting_running: bool) -> List[str]:
+                 xsetting_running: bool,
+                 force_wayland: bool,
+                 platform_selected: Optional[str]) -> List[str]:
     if 'cython' in zmq.zmq_version_info.__module__:
         pyzmq_backend = 'cython'
     else:
@@ -6129,11 +6136,18 @@ def get_versions(file_manager: Optional[str],
         session = os.getenv(display, '')
         if session.find('wayland') >= 0:
             wayland_platform = os.getenv('QT_QPA_PLATFORM', '')
-            if wayland_platform != 'wayland':
-                session = 'wayland desktop (but this application might be running in XWayland)'
+            if (
+                    platform_selected == 'wayland' or
+                    (platform_selected != 'xcb' and wayland_platform == 'wayland') or
+                    force_wayland
+            ):
+                session = 'wayland desktop (with wayland enabled)'
+                break
+            elif platform_selected == 'xcb' or wayland_platform == 'xcb':
+                session = 'wayland desktop (with XWayland)'
                 break
             else:
-                session = 'wayland desktop (with wayland enabled for this application)'
+                session = 'wayland desktop (XWayland use undetermined)'
         elif session:
             break
     if session:
@@ -6376,6 +6390,12 @@ def parser_options(formatter_class=argparse.HelpFormatter):
 
     parser.add_argument('path', nargs='?')
 
+    if platform.system() == 'Linux':
+        parser.add_argument(
+            "-platform", type=str, choices=['wayland', 'xcb'],
+            help=_("Run this program in wayland or regular X11"),
+        )
+
     return parser
 
 
@@ -6534,6 +6554,35 @@ def critical_startup_error(message: str) -> None:
 
 
 def main():
+
+    # Must parse args before calling QApplication
+    # Calling QApplication.setAttribute below causes QApplication to parse sys.argv
+
+    parser = parser_options()
+    args = parser.parse_args()
+
+    force_wayland = linux_desktop() == LinuxDesktop.wsl2
+    platform_cmd_line_overruled = False
+    if force_wayland:
+        qt_app_args = []
+        # strip out any existing "-platform" argument, and its value
+        for arg in sys.argv:
+            if arg == '-platform':
+                pl = False
+                for index, value in enumerate(sys.argv):
+                    if value == '-platform':
+                        pl = True
+                    elif pl:
+                        pl = False
+                        if value == 'xcb':
+                            platform_cmd_line_overruled = True
+                    else:
+                        qt_app_args.append(value)
+
+        qt_app_args.extend(['-platform', 'wayland'])
+        # Modify sys.argv in place
+        sys.argv[:] = qt_app_args
+
     scaling_action = ScalingAction.not_set
 
     scaling_detected, xsetting_running = any_screen_scaled()
@@ -6603,16 +6652,15 @@ def main():
 
         sys.exit(1)
 
-    parser = parser_options()
-
-    args = parser.parse_args()
     if args.detailed_version:
         file_manager = valid_file_manager()
         print(
             '\n'.join(
-                get_versions(
-                    file_manager, scaling_action, scaling_detected,
-                    xsetting_running
+                get_versions(file_manager=file_manager, scaling_action=scaling_action,
+                             scaling_detected=scaling_detected,
+                             xsetting_running=xsetting_running,
+                             force_wayland=force_wayland,
+                             platform_selected=args.platform,
                 )
             )
         )
@@ -6638,6 +6686,11 @@ def main():
     logger = iplogging.setup_main_process_logging(logging_level=logging_level)
 
     logging.info("Rapid Photo Downloader is starting")
+    if force_wayland:
+        if platform_cmd_line_overruled:
+            logging.warning("Forcing use of wayland")
+        else:
+            logging.info("Forcing use of wayland")
 
     if args.photo_renaming:
         photo_rename = args.photo_renaming == 'on'
@@ -6898,6 +6951,8 @@ def main():
         scaling_action=scaling_action,
         scaling_detected=scaling_detected,
         xsetting_running=xsetting_running,
+        force_wayland=force_wayland,
+        platform_selected=args.platform,
     )
 
     app.setActivationWindow(rw)
