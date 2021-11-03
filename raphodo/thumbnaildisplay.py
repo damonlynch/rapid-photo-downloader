@@ -1996,7 +1996,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
             selectedIndexes.append(self.clickedIndex)
         uris = [index.model().data(index, Roles.uri) for index in selectedIndexes]
         if uris:
-            logging.debug("Launching file manager with paths %s", ', '.join(uris))
+            logging.debug(
+                "Launching %s with path %s",
+                self.rapidApp.file_manager,
+                ', '.join(uris)
+            )
             show_in_file_manager(path_or_uri=uris, allow_conversion=False)
 
     @pyqtSlot()
