@@ -319,7 +319,7 @@ class ValidMounts:
         """
 
         if not sys.platform.startswith("linux"):
-            raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform())
+            raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform)
         else:
             try:
                 media_dir = get_media_dir()
