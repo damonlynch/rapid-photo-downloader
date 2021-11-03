@@ -39,6 +39,7 @@ from PyQt5.QtWidgets import (
 )
 
 from PyQt5.QtGui import QPainter, QFont
+from showinfm import show_in_file_manager
 
 import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import (
@@ -193,10 +194,12 @@ class FileSystemView(QTreeView):
         index = self.clickedIndex
         if index:
             uri = self.fileSystemModel.filePath(index.model().mapToSource(index))
-            cmd = '{} "{}"'.format(self.rapidApp.file_manager, uri)
-            logging.debug("Launching: %s", cmd)
-            args = shlex.split(cmd)
-            subprocess.Popen(args)
+            logging.debug(
+                "Calling show_in_file_manager() with %s and %s",
+                self.rapidApp.file_manager,
+                uri
+            )
+            show_in_file_manager(path_or_uri=uri, open_not_select_directory=True)
 
 
 class FileSystemFilter(QSortFilterProxyModel):

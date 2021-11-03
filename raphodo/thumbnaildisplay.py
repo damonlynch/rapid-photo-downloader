@@ -1997,7 +1997,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         uris = [index.model().data(index, Roles.uri) for index in selectedIndexes]
         if uris:
             logging.debug(
-                "Launching %s with path %s",
+                "Calling show_in_file_manager() with %s and %s",
                 self.rapidApp.file_manager,
                 ', '.join(uris)
             )
