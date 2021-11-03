@@ -29,6 +29,7 @@ import datetime
 from typing import List, Tuple, Optional
 
 from PyQt5.QtCore import QSettings, QTime, Qt
+from showinfm import linux_desktop, LinuxDesktop
 
 
 from raphodo.storage import (
@@ -323,8 +324,8 @@ class Preferences:
     )
     device_defaults = dict(
         only_external_mounts=True,
-        device_autodetection=True,
-        this_computer_source = False,
+        device_autodetection=True if linux_desktop() != LinuxDesktop.wsl2 else False,
+        this_computer_source=True if linux_desktop() == LinuxDesktop.wsl2 else False,
         this_computer_path='',
         scan_specific_folders=True,
         # pre 0.9.3a1 value: device_without_dcim_autodetection=False, is now replaced by
