@@ -41,7 +41,6 @@ import struct
 import ctypes
 import signal
 import warnings
-import xdg
 import babel
 from glob import glob
 from pkg_resources import parse_version
@@ -947,12 +946,15 @@ def create_bugreport_tar(
 
     if not log_path:
         log_path = os.path.join(
-            xdg.BaseDirectory.xdg_cache_home, "rapid-photo-downloader", "log"
+            QStandardPaths.writableLocation(QStandardPaths.GenericCacheLocation),
+            "rapid-photo-downloader",
+            "log",
         )
 
     if not full_config_file:
         config_dir = os.path.join(
-            xdg.BaseDirectory.xdg_config_home, "Rapid Photo Downloader"
+            QStandardPaths.writableLocation(QStandardPaths.GenericConfigLocation),
+            "Rapid Photo Downloader",
         )
         config_file = "Rapid Photo Downloader.conf"
     else:
