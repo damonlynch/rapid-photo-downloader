@@ -6554,7 +6554,6 @@ def critical_startup_error(message: str) -> None:
 
 
 def main():
-
     # Must parse args before calling QApplication
     # Calling QApplication.setAttribute below causes QApplication to parse sys.argv
 
@@ -6566,18 +6565,16 @@ def main():
     if force_wayland:
         qt_app_args = []
         # strip out any existing "-platform" argument, and its value
+        pl = False
         for arg in sys.argv:
             if arg == '-platform':
+                pl = True
+            elif pl:
                 pl = False
-                for index, value in enumerate(sys.argv):
-                    if value == '-platform':
-                        pl = True
-                    elif pl:
-                        pl = False
-                        if value == 'xcb':
-                            platform_cmd_line_overruled = True
-                    else:
-                        qt_app_args.append(value)
+                if arg == 'xcb':
+                    platform_cmd_line_overruled = True
+            else:
+                qt_app_args.append(arg)
 
         qt_app_args.extend(['-platform', 'wayland'])
         # Modify sys.argv in place
