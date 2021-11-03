@@ -56,6 +56,7 @@ import time
 import subprocess
 import shlex
 import pwd
+from pathlib import Path
 import shutil
 from collections import namedtuple
 from typing import Optional, Tuple, List, Dict, Set
@@ -70,11 +71,9 @@ from PyQt5.QtCore import (
     QFileSystemWatcher,
     pyqtSlot,
     QTimer,
+    QStandardPaths,
 )
 from showinfm import linux_desktop, LinuxDesktop, valid_file_manager
-from xdg.DesktopEntry import DesktopEntry
-from xdg import BaseDirectory
-import xdg
 
 import gi
 
@@ -422,16 +421,29 @@ def get_desktop_environment() -> Optional[str]:
     return os.getenv("XDG_CURRENT_DESKTOP")
 
 
-def _get_xdg_special_dir(
-    dir_type: gi.repository.GLib.UserDirectory, home_on_failure: bool = True
+def _platform_special_dir(
+    dir_type: QStandardPaths, home_on_failure: bool = True
 ) -> Optional[str]:
-    path = GLib.get_user_special_dir(dir_type)
-    if path is None and home_on_failure:
-        return os.path.expanduser("~")
-    return path
+    """
+    Use Qt to query the platforms standard paths
+
+    :param dir_type: one of Qt's standard paths
+    :param home_on_failure: return the home directory if the special path cannot be located
+    :return: the directory, or None if it cannot be determined
+    """
+
+    path = QStandardPaths.writableLocation(dir_type)
+    if path:
+        return path
+    elif home_on_failure:
+        try:
+            return str(Path.home())
+        except RuntimeError:
+            logging.error("Unable to determine home directory")
+    return None
 
 
-def xdg_photos_directory(home_on_failure: bool = True) -> Optional[str]:
+def platform_photos_directory(home_on_failure: bool = True) -> Optional[str]:
     """
     Get localized version of /home/<USER>/Pictures
 
@@ -440,10 +452,10 @@ def xdg_photos_directory(home_on_failure: bool = True) -> Optional[str]:
     :return: the directory if it is specified, else the user's
     home directory or None
     """
-    return _get_xdg_special_dir(GLib.UserDirectory.DIRECTORY_PICTURES, home_on_failure)
+    return _platform_special_dir(QStandardPaths.PicturesLocation, home_on_failure)
 
 
-def xdg_videos_directory(home_on_failure: bool = True) -> str:
+def platform_videos_directory(home_on_failure: bool = True) -> str:
     """
     Get localized version of /home/<USER>/Videos
 
@@ -452,10 +464,10 @@ def xdg_videos_directory(home_on_failure: bool = True) -> str:
     :return: the directory if it is specified, else the user's
     home directory or None
     """
-    return _get_xdg_special_dir(GLib.UserDirectory.DIRECTORY_VIDEOS, home_on_failure)
+    return _platform_special_dir(QStandardPaths.MoviesLocation, home_on_failure)
 
 
-def xdg_desktop_directory(home_on_failure: bool = True) -> str:
+def platform_desktop_directory(home_on_failure: bool = True) -> str:
     """
     Get localized version of /home/<USER>/Desktop
 
@@ -464,33 +476,29 @@ def xdg_desktop_directory(home_on_failure: bool = True) -> str:
     :return: the directory if it is specified, else the user's
     home directory or None
     """
-    return _get_xdg_special_dir(GLib.UserDirectory.DIRECTORY_DESKTOP, home_on_failure)
+    return _platform_special_dir(QStandardPaths.DesktopLocation, home_on_failure)
 
 
-def xdg_photos_identifier() -> str:
+def platform_photos_identifier() -> str:
     """
     Get special subfoler indicated by the localized version of /home/<USER>/Pictures
     :return: the subfolder name if it is specified, else the localized version of 'Pictures'
     """
 
-    path = _get_xdg_special_dir(
-        GLib.UserDirectory.DIRECTORY_PICTURES, home_on_failure=False
-    )
+    path = _platform_special_dir(QStandardPaths.PicturesLocation, home_on_failure=False)
     if path is None:
         # translators: the name of the Pictures folder
         return _("Pictures")
     return os.path.basename(path)
 
 
-def xdg_videos_identifier() -> str:
+def platform_videos_identifier() -> str:
     """
     Get special subfoler indicated by the localized version of /home/<USER>/Pictures
     :return: the subfolder name if it is specified, else the localized version of 'Pictures'
     """
 
-    path = _get_xdg_special_dir(
-        GLib.UserDirectory.DIRECTORY_VIDEOS, home_on_failure=False
-    )
+    path = _platform_special_dir(QStandardPaths.MoviesLocation, home_on_failure=False)
     if path is None:
         # translators: the name of the Videos folder
         return _("Videos")
@@ -506,6 +514,7 @@ def make_program_directory(path: str) -> str:
     :param path: location where the subfolder should be
     :return: the full path of the new directory
     """
+
     program_dir = os.path.join(path, "rapid-photo-downloader")
     if not os.path.exists(program_dir):
         os.mkdir(program_dir)
@@ -519,15 +528,20 @@ def get_program_cache_directory(create_if_not_exist: bool = False) -> Optional[s
     """
     Get Rapid Photo Downloader cache directory.
 
-    Is assumed to be under $XDG_CACHE_HOME or if that doesn't exist,
-     ~/.cache.
     :param create_if_not_exist: creates directory if it does not exist.
     :return: the full path of the cache directory, or None on error
     """
+
+    # Must use GenericCacheLocation, never CacheLocation
+    cache_directory = _platform_special_dir(
+        QStandardPaths.GenericCacheLocation, home_on_failure=False
+    )
+    if cache_directory is None:
+        logging.error("The platform's cache directory could not be determined")
+        return None
     try:
-        cache_directory = BaseDirectory.xdg_cache_home
         if not create_if_not_exist:
-            return os.path.join(cache_directory, PROGRAM_DIRECTORY)
+            return str(Path(cache_directory) / PROGRAM_DIRECTORY)
         else:
             return make_program_directory(cache_directory)
     except OSError:
@@ -539,14 +553,18 @@ def get_program_logging_directory(create_if_not_exist: bool = False) -> Optional
     """
     Get directory in which to store program log files.
 
-    Log files are kept in the cache dirctory.
+    Log files are kept in the cache directory.
 
-    :param create_if_not_exist:
+    :param create_if_not_exist: create the directory if it does not exist
     :return: the full path of the logging directory, or None on error
     """
+
     cache_directory = get_program_cache_directory(
         create_if_not_exist=create_if_not_exist
     )
+    if cache_directory is None:
+        logging.error("Unable to create logging directory")
+        return None
     log_dir = os.path.join(cache_directory, "log")
     if os.path.isdir(log_dir):
         return log_dir
@@ -568,15 +586,15 @@ def get_program_data_directory(create_if_not_exist=False) -> Optional[str]:
     :param create_if_not_exist: creates directory if it does not exist.
     :return: the full path of the data directory, or None on error
     """
-    try:
-        data_directory = BaseDirectory.xdg_data_dirs[0]
-        if not create_if_not_exist:
-            return os.path.join(data_directory, PROGRAM_DIRECTORY)
-        else:
-            return make_program_directory(data_directory)
-    except OSError:
-        logging.error("An error occurred while creating the data directory")
+
+    data_directory = _platform_special_dir(QStandardPaths.GenericDataLocation, home_on_failure=False)
+    if data_directory is None:
+        logging.error("The program's data directory could not be determined")
         return None
+    if not create_if_not_exist:
+        return str(Path(data_directory) / PROGRAM_DIRECTORY)
+    else:
+        return make_program_directory(data_directory)
 
 
 def get_fdo_cache_thumb_base_directory() -> str:
@@ -587,9 +605,16 @@ def get_fdo_cache_thumb_base_directory() -> str:
 
     # LXDE is a special case: handle it
     if linux_desktop() == LinuxDesktop.lxde:
-        return os.path.join(os.path.expanduser("~"), ".thumbnails")
+        return str(Path.home() / ".thumbnails")
 
-    return os.path.join(BaseDirectory.xdg_cache_home, "thumbnails")
+    cache = _platform_special_dir(
+        QStandardPaths.GenericCacheLocation, home_on_failure=False
+    )
+    try:
+        return str(Path(cache) / "thumbnails")
+    except TypeError:
+        logging.error("Could not determine freedesktop.org thumbnail cache location")
+        raise "Could not determine freedesktop.org thumbnail cache location"
 
 
 # Module level variables important for determining among other things the generation of

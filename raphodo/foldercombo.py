@@ -35,7 +35,7 @@ import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import StandardFileLocations, FileType, max_remembered_destinations
 from raphodo.preferences import Preferences
 from raphodo.storage import (
-    xdg_desktop_directory, xdg_photos_directory, xdg_videos_directory, ValidMounts
+    platform_desktop_directory, platform_photos_directory, platform_videos_directory, ValidMounts
 )
 from raphodo.utilities import make_path_end_snippets_unique
 
@@ -81,7 +81,7 @@ class FolderCombo(QComboBox):
         home_label = os.path.basename(home_dir)
 
         # Desktop directory, if it exists
-        desktop_dir = xdg_desktop_directory(home_on_failure=False)
+        desktop_dir = platform_desktop_directory(home_on_failure=False)
         if desktop_dir is not None and os.path.isdir(desktop_dir):
             desktop_label = os.path.basename(desktop_dir)
         else:
@@ -102,11 +102,11 @@ class FolderCombo(QComboBox):
         if self.special_dirs is not None:
             for dir in self.special_dirs:
                 if dir == StandardFileLocations.pictures:
-                    pictures_dir = xdg_photos_directory(home_on_failure=False)
+                    pictures_dir = platform_photos_directory(home_on_failure=False)
                     if pictures_dir is not None and os.path.isdir(pictures_dir):
                         pictures_label = os.path.basename(pictures_dir)
                 elif dir == StandardFileLocations.videos:
-                    videos_dir = xdg_videos_directory(home_on_failure=False)
+                    videos_dir = platform_videos_directory(home_on_failure=False)
                     if videos_dir is not None and os.path.isdir(videos_dir):
                         videos_label = os.path.basename(videos_dir)
 
@@ -297,8 +297,3 @@ class FolderCombo(QComboBox):
             path = self.itemData(index)
             self.setPath(path)
             self.pathChosen.emit(path)
-
-
-
-
-

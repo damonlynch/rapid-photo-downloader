@@ -32,7 +32,7 @@ from PyQt5.QtCore import QSettings, QTime, Qt
 
 
 from raphodo.storage import (
-    xdg_photos_directory, xdg_videos_directory, xdg_photos_identifier, xdg_videos_identifier
+    platform_photos_directory, platform_videos_directory, platform_photos_identifier, platform_videos_identifier
 )
 from raphodo.generatenameconfig import *
 import raphodo.constants as constants
@@ -274,8 +274,8 @@ class Preferences:
 
     program_defaults = dict(program_version='')
     rename_defaults = dict(
-        photo_download_folder=xdg_photos_directory(),
-        video_download_folder=xdg_videos_directory(),
+        photo_download_folder=platform_photos_directory(),
+        video_download_folder=platform_videos_directory(),
         photo_subfolder=DEFAULT_SUBFOLDER_PREFS,
         video_subfolder=DEFAULT_VIDEO_SUBFOLDER_PREFS,
         photo_rename=DEFAULT_PHOTO_RENAME_PREFS,
@@ -339,8 +339,8 @@ class Preferences:
     backup_defaults = dict(
         backup_files=False,
         backup_device_autodetection=True,
-        photo_backup_identifier=xdg_photos_identifier(),
-        video_backup_identifier=xdg_videos_identifier(),
+        photo_backup_identifier=platform_photos_identifier(),
+        video_backup_identifier=platform_videos_identifier(),
         backup_photo_location=os.path.expanduser('~'),
         backup_video_location=os.path.expanduser('~'),
     )
