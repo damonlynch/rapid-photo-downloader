@@ -433,7 +433,7 @@ def wsl_env_variable(variable: str) -> str:
     return subprocess.run(
         shlex.split(f"wslvar {variable}"),
         universal_newlines=True,
-        capture_output=True,
+        stdout=subprocess.PIPE,
     ).stdout.strip()
 
 
@@ -443,8 +443,9 @@ def wsl_home() -> Path:
     Return user's Windows home directory within WSL
     """
 
-    win_path = shlex.quote(wsl_env_variable("USERPROFILE"))
-    return Path(translate_wsl_path(win_path, from_windows_to_wsl=True))
+    return Path(
+        translate_wsl_path(wsl_env_variable("USERPROFILE"), from_windows_to_wsl=True)
+    )
 
 
 @functools.lru_cache(maxsize=None)
@@ -462,7 +463,7 @@ def _wsl_reg_query_standard_folder(folder: str) -> str:
     query = fr"reg.exe query 'HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders\' /v '{folder}'"
     output = subprocess.run(
         shlex.split(query),
-        capture_output=True,
+        stdout=subprocess.PIPE,
         universal_newlines=True,
     ).stdout
     regex = rf"{folder}\s+REG_EXPAND_SZ\s+(.+)\n\n$"
