@@ -23,7 +23,7 @@ Primary logic for Rapid Photo Downloader.
 
 Qt related class method and variable names use CamelCase.
 Everything else should follow PEP 8.
-Project line length: 100 characters (i.e. word wrap at 99)
+Project line length: 88 characters (i.e. word wrap at 88)
 
 "Hamburger" Menu Icon by Daniel Bruce -- www.entypo.com
 """
@@ -44,10 +44,10 @@ try:
 except locale.Error:
     pass
 
-from collections import namedtuple, defaultdict
+from collections import defaultdict
 import platform
 import argparse
-from typing import Optional, Tuple, List, Sequence, Dict, Set, Any, DefaultDict
+from typing import Dict, Set, Any, DefaultDict
 import faulthandler
 import pkg_resources as pkgr
 import webbrowser
@@ -83,17 +83,15 @@ import gphoto2 as gp
 from PyQt5 import QtCore
 from PyQt5.QtCore import (
     QThread, Qt, QStorageInfo, QSettings, QPoint, QSize, QTimer, QTextStream, QModelIndex,
-    pyqtSlot, QRect, pyqtSignal, QObject, QEvent, QLocale, 
+    pyqtSlot, QRect, pyqtSignal, QLocale,
 )
 from PyQt5.QtGui import (
-    QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics, QFont, QPainter, QMoveEvent, QBrush,
+    QIcon, QPixmap, QFontMetrics, QFont, QPainter, QMoveEvent, QBrush,
     QPen, QColor, QScreen, QDesktopServices
 )
 from PyQt5.QtWidgets import (
-    QAction, QApplication, QMainWindow, QMenu, QWidget, QDialogButtonBox,
-    QProgressBar, QSplitter, QHBoxLayout, QVBoxLayout, QDialog, QLabel, QComboBox, QGridLayout,
-    QCheckBox, QSizePolicy, QMessageBox, QSplashScreen, QStackedWidget, QScrollArea,
-    QStyledItemDelegate, QPushButton, QDesktopWidget
+    QAction, QApplication, QMainWindow, QMenu, QWidget, QProgressBar, QSplitter, QHBoxLayout, QVBoxLayout,
+    QLabel, QCheckBox, QSizePolicy, QMessageBox, QSplashScreen, QStackedWidget
 )
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
@@ -107,12 +105,13 @@ from showinfm import (
     valid_file_manager, linux_desktop, linux_desktop_humanize, LinuxDesktop
 )
 
+from raphodo.folderpreviewmanager import FolderPreviewManager
 from raphodo.storage import (
     ValidMounts, CameraHotplug, UDisks2Monitor, GVolumeMonitor, have_gio,
     has_one_or_more_folders, mountPaths, get_desktop_environment,
     validate_download_folder,
     validate_source_folder, get_fdo_cache_thumb_base_directory, WatchDownloadDirs, get_media_dir,
-    StorageSpace, gvfs_gphoto2_path, get_uri
+    StorageSpace, gvfs_gphoto2_path
 )
 from raphodo.interprocess import (
     ScanArguments, CopyFilesArguments, RenameAndMoveFileData, BackupArguments,
@@ -125,7 +124,7 @@ from raphodo.devices import (
 )
 from raphodo.preferences import Preferences
 from raphodo.constants import (
-    BackupLocationType, DeviceType, ErrorType, FileType, DownloadStatus, RenameAndMoveStatus,
+    BackupLocationType, DeviceType, FileType, RenameAndMoveStatus,
     ApplicationState, CameraErrorCode, TemporalProximityState, ThumbnailBackgroundName,
     BackupFailureType, DeviceState, Sort, Show, DestinationDisplayType,
     DisplayingFilesOfType, DownloadingFileTypes, RememberThisMessage, RightSideButton,
@@ -161,7 +160,7 @@ from raphodo.camera import (
 )
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.generatenameconfig import *
-from raphodo.rotatedpushbutton import RotatedButton, FlatButton
+from raphodo.rotatedpushbutton import RotatedButton
 from raphodo.primarybutton import TopPushButton, DownloadButton
 from raphodo.filebrowse import (
     FileSystemView, FileSystemModel, FileSystemFilter, FileSystemDelegate
@@ -172,7 +171,6 @@ import raphodo.iplogging as iplogging
 import raphodo.excepthook as excepthook
 from raphodo.panelview import QPanelView
 from raphodo.computerview import ComputerWidget
-from raphodo.folderspreview import DownloadDestination, FoldersPreview
 from raphodo.destinationdisplay import DestinationDisplay
 from raphodo.aboutdialog import AboutDialog
 import raphodo.constants as constants
@@ -189,10 +187,10 @@ from raphodo.chevroncombo import ChevronCombo
 from raphodo.preferencedialog import PreferencesDialog
 from raphodo.errorlog import ErrorReport, SpeechBubble
 from raphodo.problemnotification import (
-    FsMetadataWriteProblem, Problem, Problems, CopyingProblems, RenamingProblems, BackingUpProblems
+    Problems, CopyingProblems, BackingUpProblems
 )
 from raphodo.viewutils import (
-    standardIconSize, qt5_screen_scale_environment_variable, QT5_VERSION, validateWindowSizeLimit,
+    qt5_screen_scale_environment_variable, validateWindowSizeLimit,
     validateWindowPosition, scaledIcon, any_screen_scaled, standardMessageBox
 )
 from raphodo import viewutils
@@ -210,249 +208,6 @@ app = None  # type: 'QtSingleApplication'
 faulthandler.enable()
 logger = None
 sys.excepthook = excepthook.excepthook
-
-
-class FolderPreviewManager(QObject):
-    """
-    Manages sending FoldersPreview() off to the offload process to
-    generate new provisional download subfolders, and removing provisional download subfolders
-    in the main process, using QFileSystemModel.
-
-    Queues operations if they need to be, or runs them immediately when it can.
-
-    Sadly we must delete provisional download folders only in the main process, using
-    QFileSystemModel. Otherwise the QFileSystemModel is liable to issue a large number of
-    messages like this:
-
-    QInotifyFileSystemWatcherEngine::addPaths: inotify_add_watch failed: No such file or directory
-
-    Yet we must generate and create folders in the offload process, because that
-    can be expensive for a large number of rpd_files.
-
-    New for PyQt 5.7: Inherits from QObject to allow for Qt signals and slots using PyQt slot
-    decorator.
-    """
-
-    def __init__(self, fsmodel: FileSystemModel,
-                 prefs: Preferences,
-                 photoDestinationFSView: FileSystemView,
-                 videoDestinationFSView: FileSystemView,
-                 devices: DeviceCollection,
-                 rapidApp: 'RapidWindow') -> None:
-        """
-
-        :param fsmodel: FileSystemModel powering the destination and this computer views
-        :param prefs: program preferences
-        :param photoDestinationFSView: photo destination view
-        :param videoDestinationFSView: video destination view
-        :param devices: the device collection
-        :param rapidApp: main application window
-        """
-
-        super().__init__()
-
-        self.rpd_files_queue = []  # type: List[RPDFile]
-        self.clean_for_scan_id_queue = []  # type: List[int]
-        self.change_destination_queued = False  # type: bool
-        self.subfolder_rebuild_queued = False  # type: bool
-
-        self.offloaded = False
-        self.process_destination = False
-        self.fsmodel = fsmodel
-        self.prefs = prefs
-        self.devices = devices
-        self.rapidApp = rapidApp
-
-        self.photoDestinationFSView = photoDestinationFSView
-        self.videoDestinationFSView = videoDestinationFSView
-
-        self.folders_preview = FoldersPreview()
-        # Set the initial download destination values, using the values
-        # in the program prefs:
-        self._change_destination()
-
-    def add_rpd_files(self, rpd_files: List[RPDFile]) -> None:
-        """
-        Generate new provisional download folders for the rpd_files, either
-        by sending them off for generation to the offload process, or if some
-        are already being generated, queueing the operation
-
-        :param rpd_files: the list of rpd files
-        """
-
-        if self.offloaded:
-            self.rpd_files_queue.extend(rpd_files)
-        else:
-            if self.rpd_files_queue:
-                rpd_files = rpd_files + self.rpd_files_queue
-                self.rpd_files_queue = []  # type: List[RPDFile]
-            self._generate_folders(rpd_files=rpd_files)
-
-    def _generate_folders(self, rpd_files: List[RPDFile]) -> None:
-        if not self.devices.scanning or self.rapidApp.downloadIsRunning():
-            logging.info("Generating provisional download folders for %s files", len(rpd_files))
-        data = OffloadData(
-            rpd_files=rpd_files, strip_characters=self.prefs.strip_characters,
-            folders_preview=self.folders_preview
-        )
-        self.offloaded = True
-        self.rapidApp.sendToOffload(data=data)
-
-    def change_destination(self) -> None:
-        if self.offloaded:
-            self.change_destination_queued = True
-        else:
-            self._change_destination()
-            self._update_model_and_views()
-
-    def change_subfolder_structure(self) -> None:
-        self.change_destination()
-        if self.offloaded:
-            assert self.change_destination_queued == True
-            self.subfolder_rebuild_queued = True
-        else:
-            self._change_subfolder_structure()
-
-    def _change_destination(self) -> None:
-            destination = DownloadDestination(
-                photo_download_folder=self.prefs.photo_download_folder,
-                video_download_folder=self.prefs.video_download_folder,
-                photo_subfolder=self.prefs.photo_subfolder,
-                video_subfolder=self.prefs.video_subfolder
-            )
-            self.folders_preview.process_destination(
-                destination=destination, fsmodel=self.fsmodel
-            )
-
-    def _change_subfolder_structure(self) -> None:
-        rpd_files = self.rapidApp.thumbnailModel.getAllDownloadableRPDFiles()
-        if rpd_files:
-            self.add_rpd_files(rpd_files=rpd_files)
-
-    @pyqtSlot(FoldersPreview)
-    def folders_generated(self, folders_preview: FoldersPreview) -> None:
-        """
-        Receive the folders_preview from the offload process, and
-        handle any tasks that may have been queued in the time it was
-        being processed in the offload process
-
-        :param folders_preview: the folders_preview as worked on by the
-         offload process
-        """
-
-        logging.debug("Provisional download folders received")
-        self.offloaded = False
-        self.folders_preview = folders_preview
-
-        dirty = self.folders_preview.dirty
-        self.folders_preview.dirty = False
-        if dirty:
-            logging.debug("Provisional download folders change detected")
-
-        if not self.rapidApp.downloadIsRunning():
-            for scan_id in self.clean_for_scan_id_queue:
-                dirty = True
-                self._remove_provisional_folders_for_device(scan_id=scan_id)
-
-            self.clean_for_scan_id_queue = []  # type: List[int]
-
-            if self.change_destination_queued:
-                self.change_destination_queued = False
-                dirty = True
-                logging.debug("Changing destination of provisional download folders")
-                self._change_destination()
-
-            if self.subfolder_rebuild_queued:
-                self.subfolder_rebuild_queued = False
-                logging.debug("Rebuilding provisional download folders")
-                self._change_subfolder_structure()
-        else:
-            logging.debug(
-                "Not removing or moving provisional download folders because a download is running"
-            )
-
-        if dirty:
-            self._update_model_and_views()
-
-        if self.rpd_files_queue:
-            logging.debug("Assigning queued provisional download folders to be generated")
-            self._generate_folders(rpd_files=self.rpd_files_queue)
-            self.rpd_files_queue = []  # type: List[RPDFile]
-
-        # self.folders_preview.dump()
-
-    def _update_model_and_views(self):
-        logging.debug("Updating file system model and views")
-        self.fsmodel.preview_subfolders = self.folders_preview.preview_subfolders()
-        self.fsmodel.download_subfolders = self.folders_preview.download_subfolders()
-        # Update the view
-        self.photoDestinationFSView.reset()
-        self.videoDestinationFSView.reset()
-        # Ensure the file system model caches are refreshed:
-        self.fsmodel.setRootPath(self.folders_preview.photo_download_folder)
-        self.fsmodel.setRootPath(self.folders_preview.video_download_folder)
-        self.fsmodel.setRootPath('/')
-        self.photoDestinationFSView.expandPreviewFolders(self.prefs.photo_download_folder)
-        self.videoDestinationFSView.expandPreviewFolders(self.prefs.video_download_folder)
-
-        # self.photoDestinationFSView.update()
-        # self.videoDestinationFSView.update()
-
-    def remove_folders_for_device(self, scan_id: int) -> None:
-        """
-        Remove provisional download folders unique to this scan_id
-        using the offload process.
-
-        :param scan_id: scan id of the device
-        """
-
-        if self.offloaded:
-            self.clean_for_scan_id_queue.append(scan_id)
-        else:
-            self._remove_provisional_folders_for_device(scan_id=scan_id)
-            self._update_model_and_views()
-
-    def queue_folder_removal_for_device(self, scan_id: int) -> None:
-        """
-        Queues provisional download files for removal after
-        all files have been downloaded for a device.
-
-        :param scan_id: scan id of the device
-        """
-
-        self.clean_for_scan_id_queue.append(scan_id)
-
-    def remove_folders_for_queued_devices(self) -> None:
-        """
-        Once all files have been downloaded (i.e. no more remain
-        to be downloaded) and there was a disparity between
-        modification times and creation times that was discovered during
-        the download, clean any provisional download folders now that the
-        download has finished.
-        """
-
-        for scan_id in self.clean_for_scan_id_queue:
-            self._remove_provisional_folders_for_device(scan_id=scan_id)
-        self.clean_for_scan_id_queue = []  # type: List[int]
-        self._update_model_and_views()
-
-    def _remove_provisional_folders_for_device(self, scan_id: int) -> None:
-        if scan_id in self.devices:
-            logging.info(
-                "Cleaning provisional download folders for %s", self.devices[scan_id].display_name
-            )
-        else:
-            logging.info("Cleaning provisional download folders for device %d", scan_id)
-        self.folders_preview.clean_generated_folders_for_scan_id(
-            scan_id=scan_id, fsmodel=self.fsmodel
-        )
-
-    def remove_preview_folders(self) -> None:
-        """
-        Called when application is exiting.
-        """
-
-        self.folders_preview.clean_all_generated_folders(fsmodel=self.fsmodel)
 
 
 class RapidWindow(QMainWindow):
