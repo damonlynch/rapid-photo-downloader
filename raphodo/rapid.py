@@ -110,8 +110,8 @@ from raphodo.storage import (
     ValidMounts, CameraHotplug, UDisks2Monitor, GVolumeMonitor, have_gio,
     has_one_or_more_folders, mountPaths, get_desktop_environment,
     validate_download_folder,
-    validate_source_folder, get_fdo_cache_thumb_base_directory, WatchDownloadDirs, get_media_dir,
-    StorageSpace, gvfs_gphoto2_path
+    validate_source_folder, get_fdo_cache_thumb_base_directory, WatchDownloadDirs,
+    get_media_dir, StorageSpace, gvfs_gphoto2_path, WslWindowsRemovableDriveMonitor,
 )
 from raphodo.interprocess import (
     ScanArguments, CopyFilesArguments, RenameAndMoveFileData, BackupArguments,
@@ -664,7 +664,8 @@ class RapidWindow(QMainWindow):
             self.gp_context = None
 
         logging.debug("Probing for valid mounts")
-        self.validMounts = ValidMounts(onlyExternalMounts=self.prefs.only_external_mounts)
+        self.validMounts = ValidMounts(
+            only_external_mounts=self.prefs.only_external_mounts)
 
         logging.debug(
             "Freedesktop.org thumbnails location: %s", get_fdo_cache_thumb_base_directory()
@@ -702,54 +703,7 @@ class RapidWindow(QMainWindow):
         self.createMenus()
         self.createLayoutAndButtons(centralWidget)
 
-        logging.debug("Have GIO module: %s", have_gio)
-        self.gvfsControlsMounts = process_running('gvfs-gphoto2') and have_gio
-        if have_gio:
-            logging.debug("GVFS (GIO) controls mounts: %s", self.gvfsControlsMounts)
-
-        if not self.gvfsControlsMounts:
-            self.use_udsisks = linux_desktop() != LinuxDesktop.wsl2
-        else:
-            self.use_udsisks = False
-
-        if self.use_udsisks:
-            # Monitor when the user adds or removes a camera
-            self.cameraHotplug = CameraHotplug()
-            self.cameraHotplugThread = QThread()
-            self.cameraHotplugThread.started.connect(self.cameraHotplug.startMonitor)
-            self.cameraHotplug.moveToThread(self.cameraHotplugThread)
-            self.cameraHotplug.cameraAdded.connect(self.cameraAdded)
-            self.cameraHotplug.cameraRemoved.connect(self.cameraRemoved)
-            # Start the monitor only on the thread it will be running on
-            logging.debug("Starting camera hotplug monitor...")
-            QTimer.singleShot(0, self.cameraHotplugThread.start)
-
-            # Monitor when the user adds or removes a partition
-            self.udisks2Monitor = UDisks2Monitor(self.validMounts)
-            self.udisks2MonitorThread = QThread()
-            self.udisks2MonitorThread.started.connect(self.udisks2Monitor.startMonitor)
-            self.udisks2Unmount.connect(self.udisks2Monitor.unmount_volume)
-            self.udisks2Monitor.moveToThread(self.udisks2MonitorThread)
-            self.udisks2Monitor.partitionMounted.connect(self.partitionMounted)
-            self.udisks2Monitor.partitionUnmounted.connect(self.partitionUmounted)
-            # Start the monitor only on the thread it will be running on
-            logging.debug("Starting UDisks2 monitor...")
-            QTimer.singleShot(0, self.udisks2MonitorThread.start)
-
-        if self.gvfsControlsMounts:
-            # Gio.VolumeMonitor must be in the main thread, according to
-            # Gnome documentation
-
-            logging.debug("Starting GVolumeMonitor...")
-            self.gvolumeMonitor = GVolumeMonitor(self.validMounts)
-            logging.debug("...GVolumeMonitor started")
-            self.gvolumeMonitor.cameraUnmounted.connect(self.cameraUnmounted)
-            self.gvolumeMonitor.cameraMounted.connect(self.cameraMounted)
-            self.gvolumeMonitor.partitionMounted.connect(self.partitionMounted)
-            self.gvolumeMonitor.partitionUnmounted.connect(self.partitionUmounted)
-            self.gvolumeMonitor.volumeAddedNoAutomount.connect(self.noGVFSAutoMount)
-            self.gvolumeMonitor.cameraPossiblyRemoved.connect(self.cameraRemoved)
-            self.gvolumeMonitor.cameraVolumeAdded.connect(self.cameraVolumeAdded)
+        self.startMountMonitor()
 
         if version_check_disabled():
             logging.debug("Version check disabled")
@@ -1027,6 +981,75 @@ class RapidWindow(QMainWindow):
                 self.resizeAndMoveMainWindow()
 
             self.errorLog.setVisible(self.errorLogAct.isChecked())
+
+    def startMountMonitor(self) -> None:
+        """
+        Initialize monitors to watch for volume / camera additions to system
+        :return:
+        """
+
+        if linux_desktop() == LinuxDesktop.wsl2:
+            self.wslDriveMonitor = WslWindowsRemovableDriveMonitor()
+            self.wslDriveMonitorThread = QThread()
+            self.wslDriveMonitorThread.started.connect(
+                self.wslDriveMonitor.startMonitor
+            )
+            self.wslDriveMonitor.moveToThread(self.wslDriveMonitorThread)
+            self.wslDriveMonitor.driveMounted.connect(self.wslWindowsDriveMounted)
+            self.wslDriveMonitor.driveUnmounted.connect(self.wslWindowsDriveUnmounted)
+            logging.debug("Starting WSL Windows Removable Drive Monitor")
+            QTimer.singleShot(0, self.wslDriveMonitorThread.start)
+            self.use_udsisks = self.gvfs_controls_mounts = False
+        else:
+            self.wslDriveMonitor = None
+
+            logging.debug("Have GIO module: %s", have_gio)
+            self.gvfs_controls_mounts = process_running('gvfs-gphoto2') and have_gio
+            if have_gio:
+                logging.debug("GVFS (GIO) controls mounts: %s", self.gvfs_controls_mounts)
+
+            self.use_udsisks = not self.gvfs_controls_mounts
+
+            if self.use_udsisks:
+                # Monitor when the user adds or removes a camera
+                self.cameraHotplug = CameraHotplug()
+                self.cameraHotplugThread = QThread()
+                self.cameraHotplugThread.started.connect(
+                    self.cameraHotplug.startMonitor)
+                self.cameraHotplug.moveToThread(self.cameraHotplugThread)
+                self.cameraHotplug.cameraAdded.connect(self.cameraAdded)
+                self.cameraHotplug.cameraRemoved.connect(self.cameraRemoved)
+                # Start the monitor only on the thread it will be running on
+                logging.debug("Starting camera hotplug monitor...")
+                QTimer.singleShot(0, self.cameraHotplugThread.start)
+
+                # Monitor when the user adds or removes a partition
+                self.udisks2Monitor = UDisks2Monitor(self.validMounts)
+                self.udisks2MonitorThread = QThread()
+                self.udisks2MonitorThread.started.connect(
+                    self.udisks2Monitor.startMonitor)
+                self.udisks2Unmount.connect(self.udisks2Monitor.unmount_volume)
+                self.udisks2Monitor.moveToThread(self.udisks2MonitorThread)
+                self.udisks2Monitor.partitionMounted.connect(self.partitionMounted)
+                self.udisks2Monitor.partitionUnmounted.connect(self.partitionUmounted)
+                # Start the monitor only on the thread it will be running on
+                logging.debug("Starting UDisks2 monitor...")
+                QTimer.singleShot(0, self.udisks2MonitorThread.start)
+
+            if self.gvfs_controls_mounts:
+                # Gio.VolumeMonitor must be in the main thread, according to
+                # Gnome documentation
+
+                logging.debug("Starting GVolumeMonitor...")
+                self.gvolumeMonitor = GVolumeMonitor(self.validMounts)
+                logging.debug("...GVolumeMonitor started")
+                self.gvolumeMonitor.cameraUnmounted.connect(self.cameraUnmounted)
+                self.gvolumeMonitor.cameraMounted.connect(self.cameraMounted)
+                self.gvolumeMonitor.partitionMounted.connect(self.partitionMounted)
+                self.gvolumeMonitor.partitionUnmounted.connect(self.partitionUmounted)
+                self.gvolumeMonitor.volumeAddedNoAutomount.connect(self.noGVFSAutoMount)
+                self.gvolumeMonitor.cameraPossiblyRemoved.connect(self.cameraRemoved)
+                self.gvolumeMonitor.cameraVolumeAdded.connect(self.cameraVolumeAdded)
 
     def iOSInitErrorMessaging(self) -> None:
         """
@@ -2462,7 +2485,8 @@ class RapidWindow(QMainWindow):
             logging.debug(
                 "Updating the list of valid mounts after preference change to only_external_mounts"
             )
-            self.validMounts = ValidMounts(onlyExternalMounts=self.prefs.only_external_mounts)
+            self.validMounts = ValidMounts(
+                only_external_mounts=self.prefs.only_external_mounts)
             self.searchForDevicesAgain()
 
         # Just to be extra safe, reset these values to their 'off' state:
@@ -2877,7 +2901,7 @@ Do you want to proceed with the download?
                 self.devices.cameras_to_stop_thumbnailing.add(scan_id)
                 stop_thumbnailing_cmd_issued = True
 
-        if self.gvfsControlsMounts:
+        if self.gvfs_controls_mounts:
             mount_points = {}
             # If a device was being thumbnailed, then it wasn't mounted by GVFS
             # Therefore filter out the cameras we've already requested their
@@ -3805,7 +3829,7 @@ Do you want to proceed with the download?
         device = self.devices[scan_id]  # type: Device
 
         if device.device_type == DeviceType.volume:
-            if self.gvfsControlsMounts:
+            if self.gvfs_controls_mounts:
                 self.gvolumeMonitor.unmountVolume(path=device.path)
             else:
                 self.udisks2Unmount.emit(device.path)
@@ -4529,6 +4553,7 @@ Do you want to proceed with the download?
 
     def closeEvent(self, event) -> None:
         logging.debug("Close event activated")
+        QTimer.singleShot(0, self.wslDriveMonitor.stopMonitor)
 
         if self.close_event_run:
             logging.debug("Close event already run: accepting close event")
@@ -4604,8 +4629,12 @@ Do you want to proceed with the download?
             self.udisks2MonitorThread.wait()
             self.cameraHotplugThread.quit()
             self.cameraHotplugThread.wait()
-        elif self.gvfsControlsMounts:
+        elif self.gvfs_controls_mounts:
             del self.gvolumeMonitor
+        elif self.wslDriveMonitor:
+            # QTimer.singleShot(0, self.wslDriveMonitor.stopMonitor)
+            self.wslDriveMonitorThread.quit()
+            self.wslDriveMonitorThread.wait()
 
         if not version_check_disabled():
             self.newVersionThread.quit()
@@ -4648,7 +4677,7 @@ Do you want to proceed with the download?
         :return: icon names and eject boolean
         :rtype Tuple[str, bool]
         """
-        if self.gvfsControlsMounts:
+        if self.gvfs_controls_mounts:
             iconNames, canEject = self.gvolumeMonitor.getProps(mount.rootPath())
         else:
             # get the system device e.g. /dev/sdc1
@@ -4726,7 +4755,7 @@ Do you want to proceed with the download?
 
     @pyqtSlot(str)
     def cameraVolumeAdded(self, path):
-        assert self.gvfsControlsMounts
+        assert self.gvfs_controls_mounts
         self.searchForCameras()
 
     def unmountCameraToEnableScan(self, model: str, port: str) -> bool:
@@ -4740,7 +4769,7 @@ Do you want to proceed with the download?
         :return: True if unmount operation initiated, else False
         """
 
-        if self.gvfsControlsMounts:
+        if self.gvfs_controls_mounts:
             self.devices.cameras_to_gvfs_unmount_for_scan[port] = model
             unmounted = self.gvolumeMonitor.unmountCamera(
                 model=model, port=port,
@@ -4858,7 +4887,7 @@ Do you want to proceed with the download?
                     assert self.devices.cameras_to_gvfs_unmount_for_scan[port] == model
                     logging.debug("Already unmounting %s", model)
                 elif self.devices.known_camera(model, port):
-                    if self.gvfsControlsMounts:
+                    if self.gvfs_controls_mounts:
                         mount_point = self.gvolumeMonitor.ptpCameraMountPoint(model, port)
                         if mount_point is not None:
                             scan_id = self.devices.scan_id_from_camera_model_port(model, port)
@@ -5072,8 +5101,18 @@ Do you want to proceed with the download?
                         self.prefs.add_list_value(key='volume_blacklist', value=device.display_name)
             else:
                 self.startDeviceScan(device=device)
+                
+    def wslWindowsDriveMounted(self, drive_letter: str, drive_label: str) -> None:
+        logging.info(
+            "Detected insertion of Windows drive %s: %s", drive_letter, drive_label
+        )
 
-    @pyqtSlot(str, list, bool)
+    def wslWindowsDriveUnmounted(self, drive_letter: str, drive_label: str) -> None:
+        logging.info(
+            "Detected removal of Windows drive %s: %s", drive_letter, drive_label
+        )
+
+    @pyqtSlot(str, 'PyQt_PyObject', bool)
     def partitionMounted(self, path: str, iconNames: List[str], canEject: bool) -> None:
         """
         Setup devices from which to download from and backup to, and
@@ -5085,7 +5124,9 @@ Do you want to proceed with the download?
         :param canEject: whether the partition can be ejected or not
         """
 
-        assert path in mountPaths()
+        if path not in mountPaths():
+            logging.info("Ignoring path %s because it is not a mount", path)
+            return
 
         if self.monitorPartitionChanges():
             mount = QStorageInfo(path)

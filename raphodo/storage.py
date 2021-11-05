@@ -60,7 +60,7 @@ import pwd
 from pathlib import Path, PureWindowsPath
 import shutil
 from collections import namedtuple
-from typing import Optional, Tuple, List, Dict, Set
+from typing import Optional, Tuple, List, Dict, Set, NamedTuple
 from urllib.request import pathname2url
 from urllib.parse import unquote_plus, quote, urlparse
 from tempfile import NamedTemporaryFile
@@ -73,6 +73,7 @@ from PyQt5.QtCore import (
     pyqtSlot,
     QTimer,
     QStandardPaths,
+    Qt,
 )
 from showinfm import linux_desktop, LinuxDesktop, valid_file_manager
 from showinfm.system.linux import translate_wsl_path
@@ -86,7 +87,7 @@ gi.require_version("GLib", "2.0")
 from gi.repository import GUdev, UDisks, GLib
 
 
-from raphodo.constants import Distro, PostCameraUnmountAction
+from raphodo.constants import Distro, PostCameraUnmountAction, WindowsDriveType
 from raphodo.utilities import (
     process_running,
     log_os_release,
@@ -198,35 +199,38 @@ def get_media_dir() -> str:
     """
 
     if sys.platform.startswith("linux"):
-        media_dir = "/media/{}".format(get_user_name())
-        run_media_dir = "/run/media"
-        distro = get_distro()
-        if os.path.isdir(run_media_dir) and distro not in (
-            Distro.ubuntu,
-            Distro.debian,
-            Distro.neon,
-            Distro.galliumos,
-            Distro.peppermint,
-            Distro.elementary,
-            Distro.zorin,
-            Distro.popos,
-        ):
-            if distro not in (
-                Distro.fedora,
-                Distro.manjaro,
-                Distro.arch,
-                Distro.opensuse,
-                Distro.gentoo,
-                Distro.centos,
-                Distro.centos7,
+        if linux_desktop() == LinuxDesktop.wsl2:
+            return "/mnt"
+        else:
+            media_dir = "/media/{}".format(get_user_name())
+            run_media_dir = "/run/media"
+            distro = get_distro()
+            if os.path.isdir(run_media_dir) and distro not in (
+                Distro.ubuntu,
+                Distro.debian,
+                Distro.neon,
+                Distro.galliumos,
+                Distro.peppermint,
+                Distro.elementary,
+                Distro.zorin,
+                Distro.popos,
             ):
-                logging.debug(
-                    "Detected /run/media directory, but distro does not appear to be CentOS, "
-                    "Fedora, Arch, openSUSE, Gentoo, or Manjaro"
-                )
-                log_os_release()
-            return run_media_dir
-        return media_dir
+                if distro not in (
+                    Distro.fedora,
+                    Distro.manjaro,
+                    Distro.arch,
+                    Distro.opensuse,
+                    Distro.gentoo,
+                    Distro.centos,
+                    Distro.centos7,
+                ):
+                    logging.debug(
+                        "Detected /run/media directory, but distro does not appear "
+                        "to be CentOS, Fedora, Arch, openSUSE, Gentoo, or Manjaro"
+                    )
+                    log_os_release()
+                return run_media_dir
+            return media_dir
     else:
         raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform)
 
@@ -259,13 +263,13 @@ class ValidMounts:
     under /media/<USER> or /run/media/<user>
     """
 
-    def __init__(self, onlyExternalMounts: bool):
+    def __init__(self, only_external_mounts: bool):
         """
-        :param onlyExternalMounts: if True, valid mounts must be under
-        /media/<USER> or /run/media/<user>
+        :param only_external_mounts: if True, valid mounts must be under
+        /media/<USER>, /run/media/<user>, or if WSL2 /mnt/
         """
         self.validMountFolders = None  # type: Tuple[str]
-        self.onlyExternalMounts = onlyExternalMounts
+        self.only_external_mounts = only_external_mounts
         self._setValidMountFolders()
         assert "/" not in self.validMountFolders
         if logging_level == logging.DEBUG:
@@ -328,7 +332,7 @@ class ValidMounts:
                 logging.critical("Unable to determine username of this process")
                 media_dir = ""
             logging.debug("Media dir is %s", media_dir)
-            if self.onlyExternalMounts:
+            if self.only_external_mounts:
                 self.validMountFolders = (media_dir,)
             else:
                 home_dir = os.path.expanduser("~")
@@ -446,6 +450,76 @@ def wsl_home() -> Path:
     return Path(
         translate_wsl_path(wsl_env_variable("USERPROFILE"), from_windows_to_wsl=True)
     )
+
+
+def wsl_drive_valid(drive_letter: str) -> bool:
+    """
+    Use the Windows command 'vol' to determine if the drive letter indicates a valid
+    drive
+
+    :param drive_letter: drive letter to check in Windows
+    :return: True if valid, False otherwise
+    """
+
+    try:
+        subprocess.check_call(
+            shlex.split(f"cmd.exe /c vol {drive_letter}:"),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
+class WindowsDrive(NamedTuple):
+    drive_letter: str
+    label: str
+    drive_type: WindowsDriveType
+
+
+def wsl_windows_drives(
+    drive_type_filter: Optional[Tuple[WindowsDriveType]] = None,
+) -> Set[WindowsDrive]:
+
+    # wmic is deprecated, but is much, much faster than calling powershell
+    output = subprocess.run(
+        shlex.split("wmic.exe logicaldisk get deviceid, volumename, drivetype"),
+        universal_newlines=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ).stdout.strip()
+    # Discard first line of output, which is a table header
+    drives = set()
+    for line in output.split("\n")[1:]:
+        if line:  # expect blank lines
+            components = line.split(maxsplit=2)
+
+            drive_type = int(components[1])
+            # 0 - Unknown
+            # 1 - No Root Directory
+            # 2 - Removable Disk
+            # 3 - Local Disk
+            # 4 - Network Drive
+            # 5 - Compact Disk
+            # 6 - RAM Disk
+
+            if 2 <= drive_type <= 4:
+                drive_type = WindowsDriveType(drive_type)
+                if drive_type_filter is None or drive_type in drive_type_filter:
+                    drive_letter = components[0][0]
+                    if len(components) == 3:
+                        label = components[2].strip()
+                    else:
+                        label = ""
+                    drives.add(
+                        WindowsDrive(
+                            drive_letter=drive_letter,
+                            label=label,
+                            drive_type=drive_type,
+                        )
+                    )
+    return drives
 
 
 @functools.lru_cache(maxsize=None)
@@ -963,7 +1037,10 @@ def fs_device_details(path: str) -> Tuple:
 class WatchDownloadDirs(QFileSystemWatcher):
     """
     Create a file system watch to monitor if there are changes to the
-    download directories
+    download directories.
+
+    Monitors the parent directory because we need to monitor it to detect if the
+    download directory has been removed.
     """
 
     def updateWatchPathsFromPrefs(self, prefs) -> None:
@@ -1128,10 +1205,102 @@ class CameraHotplug(QObject):
                 )
 
 
+class WslDriveMonitor(QObject):
+    """
+    Not currently used. Depends on an external drive being mounted by Windows in /mnt,
+    but that doesn't currently occur.
+    """
+
+    partitionMounted = pyqtSignal(str, "PyQt_PyObject", bool)
+    partitionUnmounted = pyqtSignal(str)
+
+    def __init__(self, parent):
+        super().__init__(parent=parent)
+        self.win_drives = Path("/mnt")
+        self.known_drives = {d.name for d in self.win_drives.iterdir() if d.is_dir()}
+
+        self.mountWatcher = QFileSystemWatcher()
+        self.mountWatcher.addPath(str(self.win_drives))
+        self.mountWatcher.directoryChanged.connect(self._driveChange)
+        logging.info(
+            "Monitoring %s for drive additions and removals",
+            ", ".join(self.mountWatcher.directories()),
+        )
+
+    def disconnectMonitor(self):
+        self.mountWatcher.removePath(str(self.win_drives))
+        logging.info(
+            "No longer monitoring %s for drive additions and removals",
+            str(self.win_drives),
+        )
+
+    @pyqtSlot(str)
+    def _driveChange(self, path: str) -> None:
+        logging.info("Directory changed %s", path)
+        current_drives = {d.name for d in self.win_drives.iterdir() if d.is_dir()}
+        new_drives = current_drives - self.known_drives
+        removed_drives = self.known_drives - current_drives
+        for d in new_drives:
+            icon_names = ["volume"]
+            can_eject = False
+            self.partitionMounted.emit(str(self.win_drives / d), icon_names, can_eject)
+        for d in removed_drives:
+            self.partitionUnmounted.emit(str(self.win_drives / d))
+        self.known_drives = current_drives
+
+
+class WslWindowsRemovableDriveMonitor(QObject):
+    """
+    Use wmic.exe to periodically probe for removable drives on Windows
+    """
+
+    driveMounted = pyqtSignal(str, str)
+    driveUnmounted = pyqtSignal(str, str)
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.probeWindowsDrives)
+        self.timer.setTimerType(Qt.CoarseTimer)
+        self.timer.setInterval(1500)
+        self.known_removable_drives = set()
+
+    @pyqtSlot()
+    def startMonitor(self) -> None:
+        logging.debug("Starting Wsl Removable Drive Monitor")
+        self.probeWindowsDrives()
+        self.timer.start()
+
+    @pyqtSlot()
+    def stopMonitor(self) -> None:
+        logging.debug("Stopping Wsl Removable Drive Monitor")
+        self.timer.stop()
+
+    @pyqtSlot()
+    def probeWindowsDrives(self) -> None:
+        timer_active = self.timer.isActive()
+        if timer_active:
+            self.timer.stop()
+        current_drives = wsl_windows_drives((WindowsDriveType.removable_disk,))
+        new_drives = current_drives - self.known_removable_drives
+        removed_drives = self.known_removable_drives - current_drives
+
+        for drive in new_drives:
+            if wsl_drive_valid(drive.drive_letter):
+                self.driveMounted.emit(drive.drive_letter, drive.label)
+
+        for drive in removed_drives:
+            self.driveUnmounted.emit(drive.drive_letter, drive.label)
+
+        self.known_removable_drives = current_drives
+        if timer_active:
+            self.timer.start()
+
+
 class UDisks2Monitor(QObject):
     # Most of this class is Copyright 2008-2015 Canonical
 
-    partitionMounted = pyqtSignal(str, list, bool)
+    partitionMounted = pyqtSignal(str, "PyQt_PyObject", bool)
     partitionUnmounted = pyqtSignal(str)
 
     loop_prefix = "/org/freedesktop/UDisks2/block_devices/loop"

@@ -456,7 +456,7 @@ class BackupOptionsWidget(QFramedWidget):
 
         self.autoBackupExampleBox.setLayout(autoBackupExampleBoxLayout)
 
-        valid_mounts = ValidMounts(onlyExternalMounts=True)
+        valid_mounts = ValidMounts(only_external_mounts=True)
 
         self.manualLocationExplanation = QLabel(
             _('If you disable automatic detection, choose the exact backup locations.')
@@ -787,4 +787,3 @@ class BackupPanel(QScrollArea):
 
     def setDownloadingTo(self, downloading_to: DefaultDict[int, Set[FileType]]) -> None:
         self.backupDevices.downloading_to = downloading_to
-

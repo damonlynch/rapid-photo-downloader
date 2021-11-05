@@ -162,6 +162,12 @@ BackupFailureType = DisplayingFilesOfType
 DownloadingFileTypes = DisplayingFilesOfType
 
 
+class WindowsDriveType(IntEnum):
+    removable_disk = 2
+    local_disk = 3
+    network_drive = 4
+
+
 class DestinationDisplayType(Enum):
     folder_only = 1
     usage_only = 2
@@ -762,4 +768,3 @@ filtered_file_browser_directories = {
     'System Volume Information',
     'msdownld.tmp'
 }
-
