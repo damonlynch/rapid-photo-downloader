@@ -1288,12 +1288,15 @@ def installed_using_pip(package: str, suppress_errors: bool = True) -> bool:
 
     Determination is not 100% robust in all circumstances.
 
-    Exceptions are not caught.
-
     :param package: package name to search for
     :param suppress_errors: if True, silently catch all exceptions and return False
     :return: True if installed via pip, else False
     """
+
+    # pkg_resources.get_distribution(package).get_metadata('INSTALLER') output seems
+    # to be unreliable
+    # newer way is importlib.metadata.distribution('pip').read_text('INSTALLER') but
+    # it has the same problem
 
     try:
         pkg = pkg_resources.get_distribution(package)
