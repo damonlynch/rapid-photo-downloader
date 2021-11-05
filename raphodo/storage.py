@@ -49,20 +49,16 @@ __copyright__ = (
 )
 
 import logging
-import functools
 import os
 import re
 import sys
 import time
-import subprocess
-import shlex
 import pwd
-from pathlib import Path, PureWindowsPath
-import shutil
+from pathlib import Path
 from collections import namedtuple
-from typing import Optional, Tuple, List, Dict, Set, NamedTuple
+from typing import Optional, Tuple, List, Dict, Set
 from urllib.request import pathname2url
-from urllib.parse import unquote_plus, quote, urlparse
+from urllib.parse import quote
 from tempfile import NamedTemporaryFile
 
 from PyQt5.QtCore import (
@@ -73,12 +69,12 @@ from PyQt5.QtCore import (
     pyqtSlot,
     QTimer,
     QStandardPaths,
-    Qt,
 )
 from showinfm import linux_desktop, LinuxDesktop, valid_file_manager
-from showinfm.system.linux import translate_wsl_path
 
 import gi
+
+from raphodo.wsl import wsl_home, wsl_pictures_folder, wsl_videos_folder
 
 gi.require_version("GUdev", "1.0")
 gi.require_version("UDisks", "2.0")
@@ -87,12 +83,10 @@ gi.require_version("GLib", "2.0")
 from gi.repository import GUdev, UDisks, GLib
 
 
-from raphodo.constants import Distro, PostCameraUnmountAction, WindowsDriveType
+from raphodo.constants import Distro, PostCameraUnmountAction
 from raphodo.utilities import (
-    process_running,
     log_os_release,
     remove_topmost_directory_from_path,
-    find_mount_point,
 )
 
 logging_level = logging.DEBUG
@@ -425,147 +419,6 @@ def get_desktop_environment() -> Optional[str]:
     """
 
     return os.getenv("XDG_CURRENT_DESKTOP")
-
-
-@functools.lru_cache(maxsize=None)
-def wsl_env_variable(variable: str) -> str:
-    """
-    Return Windows environment variable within WSL
-    """
-
-    assert variable
-    return subprocess.run(
-        shlex.split(f"wslvar {variable}"),
-        universal_newlines=True,
-        stdout=subprocess.PIPE,
-    ).stdout.strip()
-
-
-@functools.lru_cache(maxsize=None)
-def wsl_home() -> Path:
-    """
-    Return user's Windows home directory within WSL
-    """
-
-    return Path(
-        translate_wsl_path(wsl_env_variable("USERPROFILE"), from_windows_to_wsl=True)
-    )
-
-
-def wsl_drive_valid(drive_letter: str) -> bool:
-    """
-    Use the Windows command 'vol' to determine if the drive letter indicates a valid
-    drive
-
-    :param drive_letter: drive letter to check in Windows
-    :return: True if valid, False otherwise
-    """
-
-    try:
-        subprocess.check_call(
-            shlex.split(f"cmd.exe /c vol {drive_letter}:"),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        return True
-    except subprocess.CalledProcessError:
-        return False
-
-
-class WindowsDrive(NamedTuple):
-    drive_letter: str
-    label: str
-    drive_type: WindowsDriveType
-
-
-def wsl_windows_drives(
-    drive_type_filter: Optional[Tuple[WindowsDriveType]] = None,
-) -> Set[WindowsDrive]:
-
-    # wmic is deprecated, but is much, much faster than calling powershell
-    output = subprocess.run(
-        shlex.split("wmic.exe logicaldisk get deviceid, volumename, drivetype"),
-        universal_newlines=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    ).stdout.strip()
-    # Discard first line of output, which is a table header
-    drives = set()
-    for line in output.split("\n")[1:]:
-        if line:  # expect blank lines
-            components = line.split(maxsplit=2)
-
-            drive_type = int(components[1])
-            # 0 - Unknown
-            # 1 - No Root Directory
-            # 2 - Removable Disk
-            # 3 - Local Disk
-            # 4 - Network Drive
-            # 5 - Compact Disk
-            # 6 - RAM Disk
-
-            if 2 <= drive_type <= 4:
-                drive_type = WindowsDriveType(drive_type)
-                if drive_type_filter is None or drive_type in drive_type_filter:
-                    drive_letter = components[0][0]
-                    if len(components) == 3:
-                        label = components[2].strip()
-                    else:
-                        label = ""
-                    drives.add(
-                        WindowsDrive(
-                            drive_letter=drive_letter,
-                            label=label,
-                            drive_type=drive_type,
-                        )
-                    )
-    return drives
-
-
-@functools.lru_cache(maxsize=None)
-def _wsl_reg_query_standard_folder(folder: str) -> str:
-    """
-    Use reg query on Windows to query the user's Pictures and Videos folder.
-
-    No error checking.
-
-    :param folder: one of "My Pictures" or "My Video"
-    :return: registry value for the folder
-    """
-
-    assert folder in ("My Pictures", "My Video")
-    query = fr"reg.exe query 'HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders\' /v '{folder}'"
-    output = subprocess.run(
-        shlex.split(query),
-        stdout=subprocess.PIPE,
-        universal_newlines=True,
-    ).stdout
-    regex = rf"{folder}\s+REG_EXPAND_SZ\s+(.+)\n\n$"
-    return re.search(regex, output).group(1)
-
-
-@functools.lru_cache(maxsize=None)
-def wsl_pictures_folder() -> str:
-    """
-    Query the Windows registry for the location of the user's Pictures folder
-    :return: location as a Linux path
-    """
-
-    return translate_wsl_path(
-        _wsl_reg_query_standard_folder("My Pictures"), from_windows_to_wsl=True
-    )
-
-
-@functools.lru_cache(maxsize=None)
-def wsl_videos_folder() -> str:
-    """
-    Query the Windows registry for the location of the user's Videos folder
-    :return: location as a Linux path
-    """
-
-    return translate_wsl_path(
-        _wsl_reg_query_standard_folder("My Video"), from_windows_to_wsl=True
-    )
 
 
 def _platform_special_dir(
@@ -1203,98 +1056,6 @@ class CameraHotplug(QObject):
                     "Not responding to device removal: '%s'",
                     vendor or device.get_sysfs_path(),
                 )
-
-
-class WslDriveMonitor(QObject):
-    """
-    Not currently used. Depends on an external drive being mounted by Windows in /mnt,
-    but that doesn't currently occur.
-    """
-
-    partitionMounted = pyqtSignal(str, "PyQt_PyObject", bool)
-    partitionUnmounted = pyqtSignal(str)
-
-    def __init__(self, parent):
-        super().__init__(parent=parent)
-        self.win_drives = Path("/mnt")
-        self.known_drives = {d.name for d in self.win_drives.iterdir() if d.is_dir()}
-
-        self.mountWatcher = QFileSystemWatcher()
-        self.mountWatcher.addPath(str(self.win_drives))
-        self.mountWatcher.directoryChanged.connect(self._driveChange)
-        logging.info(
-            "Monitoring %s for drive additions and removals",
-            ", ".join(self.mountWatcher.directories()),
-        )
-
-    def disconnectMonitor(self):
-        self.mountWatcher.removePath(str(self.win_drives))
-        logging.info(
-            "No longer monitoring %s for drive additions and removals",
-            str(self.win_drives),
-        )
-
-    @pyqtSlot(str)
-    def _driveChange(self, path: str) -> None:
-        logging.info("Directory changed %s", path)
-        current_drives = {d.name for d in self.win_drives.iterdir() if d.is_dir()}
-        new_drives = current_drives - self.known_drives
-        removed_drives = self.known_drives - current_drives
-        for d in new_drives:
-            icon_names = ["volume"]
-            can_eject = False
-            self.partitionMounted.emit(str(self.win_drives / d), icon_names, can_eject)
-        for d in removed_drives:
-            self.partitionUnmounted.emit(str(self.win_drives / d))
-        self.known_drives = current_drives
-
-
-class WslWindowsRemovableDriveMonitor(QObject):
-    """
-    Use wmic.exe to periodically probe for removable drives on Windows
-    """
-
-    driveMounted = pyqtSignal(str, str)
-    driveUnmounted = pyqtSignal(str, str)
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.probeWindowsDrives)
-        self.timer.setTimerType(Qt.CoarseTimer)
-        self.timer.setInterval(1500)
-        self.known_removable_drives = set()
-
-    @pyqtSlot()
-    def startMonitor(self) -> None:
-        logging.debug("Starting Wsl Removable Drive Monitor")
-        self.probeWindowsDrives()
-        self.timer.start()
-
-    @pyqtSlot()
-    def stopMonitor(self) -> None:
-        logging.debug("Stopping Wsl Removable Drive Monitor")
-        self.timer.stop()
-
-    @pyqtSlot()
-    def probeWindowsDrives(self) -> None:
-        timer_active = self.timer.isActive()
-        if timer_active:
-            self.timer.stop()
-        current_drives = wsl_windows_drives((WindowsDriveType.removable_disk,))
-        new_drives = current_drives - self.known_removable_drives
-        removed_drives = self.known_removable_drives - current_drives
-
-        for drive in new_drives:
-            if wsl_drive_valid(drive.drive_letter):
-                self.driveMounted.emit(drive.drive_letter, drive.label)
-
-        for drive in removed_drives:
-            self.driveUnmounted.emit(drive.drive_letter, drive.label)
-
-        self.known_removable_drives = current_drives
-        if timer_active:
-            self.timer.start()
 
 
 class UDisks2Monitor(QObject):

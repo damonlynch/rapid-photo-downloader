@@ -111,8 +111,8 @@ from raphodo.storage import (
     has_one_or_more_folders, mountPaths, get_desktop_environment,
     validate_download_folder,
     validate_source_folder, get_fdo_cache_thumb_base_directory, WatchDownloadDirs,
-    get_media_dir, StorageSpace, gvfs_gphoto2_path, WslWindowsRemovableDriveMonitor,
-)
+    get_media_dir, StorageSpace, gvfs_gphoto2_path, )
+from raphodo.wsl import WslWindowsRemovableDriveMonitor
 from raphodo.interprocess import (
     ScanArguments, CopyFilesArguments, RenameAndMoveFileData, BackupArguments,
     BackupFileData, OffloadData, ProcessLoggingManager, ThumbnailDaemonData, ThreadNames,
@@ -5102,14 +5102,18 @@ Do you want to proceed with the download?
             else:
                 self.startDeviceScan(device=device)
                 
-    def wslWindowsDriveMounted(self, drive_letter: str, drive_label: str) -> None:
+    @pyqtSlot(str, str, str)
+    def wslWindowsDriveMounted(self, drive_letter: str, drive_label: str, mount_point: str) -> None:
         logging.info(
-            "Detected insertion of Windows drive %s: %s", drive_letter, drive_label
+            "Detected insertion of Windows drive %s: %s %s", drive_letter, drive_label, mount_point
         )
+        if self.on_startup:
+            pass
 
-    def wslWindowsDriveUnmounted(self, drive_letter: str, drive_label: str) -> None:
+    @pyqtSlot(str, str, str)
+    def wslWindowsDriveUnmounted(self, drive_letter: str, drive_label: str, mount_point: str) -> None:
         logging.info(
-            "Detected removal of Windows drive %s: %s", drive_letter, drive_label
+            "Detected removal of Windows drive %s: %s %s", drive_letter, drive_label, mount_point
         )
 
     @pyqtSlot(str, 'PyQt_PyObject', bool)
