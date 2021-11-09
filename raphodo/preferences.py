@@ -381,6 +381,11 @@ class Preferences:
     metadata_defaults = dict(
         force_exiftool=False,
     )
+    # New in 0.9.27b2:
+    wsl_defaults = dict(
+        wsl_automount_removable_drives=False,
+        wsl_automount_all_removable_drives=False,
+    )
 
     def __init__(self) -> None:
         # To avoid infinite recursions arising from the use of __setattr__,
@@ -396,12 +401,12 @@ class Preferences:
             self.backup_defaults, self.automation_defaults,
             self.performance_defaults, self.error_defaults,
             self.destinations, self.version_check, self.restart_directives,
-            self.metadata_defaults,
+            self.metadata_defaults, self.wsl_defaults,
         )
         group_names = (
             'Program', 'Rename', 'Timeline', 'Display', 'Device', 'Backup',
             'Automation', 'Performance', 'ErrorHandling', 'Destinations',
-            'VersionCheck', 'RestartDirectives', 'Metadata'
+            'VersionCheck', 'RestartDirectives', 'Metadata', 'WindowsSubsystemLinux',
         )
         assert len(dicts) == len(group_names)
 
