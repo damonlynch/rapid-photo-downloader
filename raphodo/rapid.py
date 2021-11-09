@@ -112,7 +112,7 @@ from raphodo.storage import (
     validate_download_folder,
     validate_source_folder, get_fdo_cache_thumb_base_directory, WatchDownloadDirs,
     get_media_dir, StorageSpace, gvfs_gphoto2_path, )
-from raphodo.wsl import WslWindowsRemovableDriveMonitor
+from raphodo.wsl import WslWindowsRemovableDriveMonitor, WslDrives, WindowsDriveMount
 from raphodo.interprocess import (
     ScanArguments, CopyFilesArguments, RenameAndMoveFileData, BackupArguments,
     BackupFileData, OffloadData, ProcessLoggingManager, ThumbnailDaemonData, ThreadNames,
@@ -284,6 +284,12 @@ class RapidWindow(QMainWindow):
         self.close_event_run = False
 
         self.file_manager = valid_file_manager()
+        if platform.system() == "Linux":
+            self.linux_desktop = linux_desktop()
+            if self.linux_desktop == LinuxDesktop.wsl2:
+                self.wslDrives = WslDrives(rapidApp=self)
+        else:
+            self.linux_desktop = None
 
         self.fileSystemUrlHandler = FileSystemUrlHandler()
         QDesktopServices.setUrlHandler("file", self.fileSystemUrlHandler, "openFileBrowser")
@@ -959,6 +965,7 @@ class RapidWindow(QMainWindow):
 
         self.on_startup = False
         self.iOSIssueErrorMessage()
+        self.wslDrives.mount_drives()
 
         self.tip = didyouknow.DidYouKnowDialog(self.prefs, self)
         if self.prefs.did_you_know_on_startup:
@@ -988,7 +995,7 @@ class RapidWindow(QMainWindow):
         :return:
         """
 
-        if linux_desktop() == LinuxDesktop.wsl2:
+        if self.linux_desktop == LinuxDesktop.wsl2:
             self.wslDriveMonitor = WslWindowsRemovableDriveMonitor()
             self.wslDriveMonitorThread = QThread()
             self.wslDriveMonitorThread.started.connect(
@@ -1714,9 +1721,15 @@ class RapidWindow(QMainWindow):
             _("&Preferences"), self, shortcut="Ctrl+P", triggered=self.doPreferencesAction
         )
 
-        self.quitAct = QAction(
-            _("&Quit"), self, shortcut="Ctrl+Q", triggered=self.close
-        )
+        if self.linux_desktop and self.linux_desktop == LinuxDesktop.wsl2:
+            self.quitAct = QAction(
+                _("&Quit"), self, triggered=self.close
+            )
+        else:
+            self.quitAct = QAction(
+                _("&Quit"), self, shortcut="Ctrl+Q", triggered=self.close
+            )
+
 
         self.errorLogAct = QAction(
             _("Error &Reports"), self, enabled=True, checkable=True, triggered=self.doErrorLogAction
@@ -5102,13 +5115,16 @@ Do you want to proceed with the download?
             else:
                 self.startDeviceScan(device=device)
                 
-    @pyqtSlot(str, str, str)
-    def wslWindowsDriveMounted(self, drive_letter: str, drive_label: str, mount_point: str) -> None:
-        logging.info(
-            "Detected insertion of Windows drive %s: %s %s", drive_letter, drive_label, mount_point
-        )
-        if self.on_startup:
-            pass
+    @pyqtSlot('PyQt_PyObject')
+    def wslWindowsDriveMounted(self, drives: List[WindowsDriveMount]) -> None:
+        for drive in drives:
+            logging.info(
+                "Detected Windows removable drive %s: %s %s",
+                drive.drive_letter, drive.label, drive.mount_point or '(not mounted)'
+            )
+            self.wslDrives.add_drive(drive)
+        if not self.on_startup:
+            self.wslDrives.mount_drives()
 
     @pyqtSlot(str, str, str)
     def wslWindowsDriveUnmounted(self, drive_letter: str, drive_label: str, mount_point: str) -> None:
