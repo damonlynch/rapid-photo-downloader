@@ -74,7 +74,7 @@ from showinfm import linux_desktop, LinuxDesktop, valid_file_manager
 
 import gi
 
-from raphodo.wsl import wsl_home, wsl_pictures_folder, wsl_videos_folder
+from raphodo.wslutils import wsl_home, wsl_pictures_folder, wsl_videos_folder
 
 gi.require_version("GUdev", "1.0")
 gi.require_version("UDisks", "2.0")
