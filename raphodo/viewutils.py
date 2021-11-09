@@ -561,13 +561,19 @@ class CheckBoxDelegate(QItemDelegate):
         painter.save()
 
         checked = index.data(Qt.CheckStateRole) == Qt.Checked
+        enabled = index.data(Qt.ItemIsEnabled)
 
         checkboxStyleOption = QStyleOptionButton()
         if checked:
             checkboxStyleOption.state |= QStyle.State_On
         else:
             checkboxStyleOption.state |= QStyle.State_Off
-        checkboxStyleOption.state |= QStyle.State_Enabled
+
+        if enabled:
+            checkboxStyleOption.state |= QStyle.State_Enabled
+        else:
+            checkboxStyleOption.state &= ~QStyle.State_Enabled
+
         checkboxStyleOption.rect = option.rect
         checkboxStyleOption.rect.setX(
             option.rect.x() + option.rect.width() / 2 - self.checkboxHalfWidth
