@@ -25,6 +25,7 @@ import site
 import locale
 import logging
 import os
+from pathlib import Path
 import random
 import re
 import string
@@ -1341,3 +1342,9 @@ def getQtSystemTranslation(locale_name: str) -> Optional[QTranslator]:
             return qtTranslator
         else:
             logging.debug("Could not load Qt locale file %s", qm_file)
+
+
+def existing_parent_for_new_dir(path: Path) -> Path:
+    for parent in path.parents:
+        if parent.is_dir():
+            return parent
