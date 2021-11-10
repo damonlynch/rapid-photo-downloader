@@ -544,7 +544,7 @@ class CheckBoxDelegate(QItemDelegate):
                 QStyle.SE_CheckBoxIndicator, QStyleOptionButton(), None
             )
         )
-        self.checkboxHalfWidth = checkboxRect.width() / 2
+        self.checkboxHalfWidth = int(checkboxRect.width() / 2)
 
     def createEditor(self, parent, option, index):
         """
@@ -571,12 +571,15 @@ class CheckBoxDelegate(QItemDelegate):
 
         if enabled:
             checkboxStyleOption.state |= QStyle.State_Enabled
+            checkboxStyleOption.state &= ~QStyle.State_ReadOnly
         else:
             checkboxStyleOption.state &= ~QStyle.State_Enabled
+            checkboxStyleOption.state |= QStyle.State_ReadOnly
+
 
         checkboxStyleOption.rect = option.rect
         checkboxStyleOption.rect.setX(
-            option.rect.x() + option.rect.width() / 2 - self.checkboxHalfWidth
+            option.rect.x() + round(option.rect.width() / 2) - self.checkboxHalfWidth
         )
 
         QApplication.style().drawControl(
