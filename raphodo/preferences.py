@@ -26,7 +26,7 @@ import re
 import os
 import pkg_resources
 import datetime
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, NamedTuple
 
 from PyQt5.QtCore import QSettings, QTime, Qt
 from showinfm import linux_desktop, LinuxDesktop
@@ -266,6 +266,13 @@ class DownloadsTodayTracker:
 
 def today():
     return datetime.date.today().strftime('%Y-%m-%d')
+
+
+class WSLWindowsDrivePrefs(NamedTuple):
+    drive_letter: str
+    label: str
+    auto_mount: bool
+    auto_unmount: bool
 
 
 class Preferences:
@@ -524,6 +531,42 @@ class Preferences:
         self.settings.endArray()
 
         self.settings.endGroup()
+
+    def get_wsl_drives(self) -> List[WSLWindowsDrivePrefs]:
+        drives = []
+        self.settings.beginGroup('WindowsSubsystemLinux')
+        setting = 'drives'
+        size = self.settings.beginReadArray(setting)
+        for i in range(size):
+            self.settings.setArrayIndex(i)
+            drive = self.settings.value('drive')
+            drives.append(
+                WSLWindowsDrivePrefs(
+                    drive_letter=drive[0],
+                    label=drive[1],
+                    auto_mount=True if drive[2] == "true" else False,
+                    auto_unmount=True if drive[3] == "true" else False
+                )
+            )
+        self.settings.endArray()
+        self.settings.endGroup()
+        return drives
+
+    def set_wsl_drives(self, drives: List[WSLWindowsDrivePrefs]):
+        self.settings.beginGroup('WindowsSubsystemLinux')
+        setting = 'drives'
+        self.settings.remove(setting)
+        self.settings.beginWriteArray(setting)
+        for i in range(len(drives)):
+            self.settings.setArrayIndex(i)
+            drive = drives[i]
+            self.settings.setValue(
+                'drive',
+                [drive.drive_letter, drive.label, drive.auto_mount, drive.auto_unmount]
+            )
+        self.settings.endArray()
+        self.settings.endGroup()
+
 
     def get_proximity(self) -> int:
         """
