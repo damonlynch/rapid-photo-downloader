@@ -566,7 +566,7 @@ class WslMountDriveDialog(QDialog):
         self.driveTable.setItem(row, self.autoMountCol, automountItem)
         self.driveTable.setItem(row, self.autoUnmountCol, autounmountItem)
 
-    def addMount(self, drive: WindowsDriveMount):
+    def addMount(self, drive: WindowsDriveMount) -> None:
         row = self.driveTable.rowCount()
         self.driveTable.insertRow(row)
         logging.debug(
@@ -579,6 +579,16 @@ class WslMountDriveDialog(QDialog):
         self.driveTable.sortItems(self.mountPointCol)
         # restore signal state
         self.driveTable.blockSignals(blocked)
+
+    def removeMount(self, drive: WindowsDriveMount) -> None:
+        for row in range(self.driveTable.rowCount()):
+            d = self.driveTable.item(row, 0).data(Qt.UserRole)
+            if d == drive:
+                logging.debug(
+                    "Removing drive %s: from Mount Windows Drive table", drive.drive_letter
+                )
+                self.driveTable.removeRow(row)
+                break
 
     def determineMountOps(
         self, do_mount: bool, drive_letter: str, mount_point: str
@@ -678,6 +688,11 @@ class WslDrives:
         if self.mountDrivesDialog:
             self.mountDrivesDialog.addMount(drive)
 
+    def remove_drive(self, drive: WindowsDriveMount) -> None:
+        self.drives.remove(drive)
+        if self.mountDrivesDialog:
+            self.mountDrivesDialog.removeMount(drive)
+
     def mount_drives(self):
         if self.have_unmounted_drive and self.mountDrivesDialog is None:
             self.mountDrivesDialog = WslMountDriveDialog(
@@ -691,14 +706,20 @@ class WslDrives:
 class WslWindowsRemovableDriveMonitor(QObject):
     """
     Use wmic.exe to periodically probe for removable drives on Windows
+
+    On Windows an actual removable drive, e.g. a USB drive, can be classified
+    as a "local drive". Strange but true. Thus need to probe for both local and
+    removable drives.
     """
 
     driveMounted = pyqtSignal("PyQt_PyObject")
-    driveUnmounted = pyqtSignal(str, str, str)
+    driveUnmounted = pyqtSignal("PyQt_PyObject")
 
     def __init__(self) -> None:
         super().__init__()
-        self.known_removable_drives = set()
+        self.known_drives = set()  # type: Set[WindowsDrive]
+        # dict key is drive letter
+        self.detected_drives = dict()  # type: Dict[str, WindowsDriveMount]
 
     @pyqtSlot()
     def startMonitor(self) -> None:
@@ -723,8 +744,8 @@ class WslWindowsRemovableDriveMonitor(QObject):
         current_drives = wsl_windows_drives(
             (WindowsDriveType.removable_disk, WindowsDriveType.local_disk)
         )
-        new_drives = current_drives - self.known_removable_drives
-        removed_drives = self.known_removable_drives - current_drives
+        new_drives = current_drives - self.known_drives
+        removed_drives = self.known_drives - current_drives
 
         drives = []
 
@@ -738,29 +759,26 @@ class WslWindowsRemovableDriveMonitor(QObject):
                     if drive.drive_type == WindowsDriveType.removable_disk
                     else _("Local Drive")
                 )
-                drives.append(
-                    WindowsDriveMount(
-                        drive_letter=drive.drive_letter,
-                        label=label,
-                        mount_point=mount_point,
-                        drive_type=drive.drive_type,
-                        system_mounted=drive.drive_type == WindowsDriveType.local_disk
-                        and mount_point != "",
-                    )
+                windows_drive_mount = WindowsDriveMount(
+                    drive_letter=drive.drive_letter,
+                    label=label,
+                    mount_point=mount_point,
+                    drive_type=drive.drive_type,
+                    system_mounted=drive.drive_type == WindowsDriveType.local_disk
+                    and mount_point != "",
                 )
+                drives.append(windows_drive_mount)
+                self.detected_drives[drive.drive_letter] = windows_drive_mount
 
         if drives:
             self.driveMounted.emit(drives)
 
         for drive in removed_drives:
-            mount_point = wsl_standard_mount_point(drive.drive_letter)
-            self.driveUnmounted.emit(
-                drive.drive_letter,
-                drive.label or _("Removable Drive"),
-                mount_point,
-            )
+            windows_drive_mount = self.detected_drives[drive.drive_letter]
+            self.driveUnmounted.emit(windows_drive_mount)
+            del self.detected_drives[drive.drive_letter]
 
-        self.known_removable_drives = current_drives
+        self.known_drives = current_drives
         if timer_active:
             self.timer.start()
 

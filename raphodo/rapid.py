@@ -5126,11 +5126,13 @@ Do you want to proceed with the download?
         if not self.on_startup:
             self.wslDrives.mount_drives()
 
-    @pyqtSlot(str, str, str)
-    def wslWindowsDriveUnmounted(self, drive_letter: str, drive_label: str, mount_point: str) -> None:
+    @pyqtSlot("PyQt_PyObject")
+    def wslWindowsDriveUnmounted(self, drive: WindowsDriveMount) -> None:
         logging.info(
-            "Detected removal of Windows drive %s: %s %s", drive_letter, drive_label, mount_point
+            "Detected removal of Windows drive %s: %s %s",
+            drive.drive_letter, drive.label, drive.mount_point
         )
+        self.wslDrives.remove_drive(drive)
 
     @pyqtSlot(str, 'PyQt_PyObject', bool)
     def partitionMounted(self, path: str, iconNames: List[str], canEject: bool) -> None:
