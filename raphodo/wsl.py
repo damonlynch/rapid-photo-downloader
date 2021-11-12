@@ -469,11 +469,6 @@ class WslMountDriveDialog(QDialog):
                     # restore signal state
                     self.driveTable.blockSignals(blocked)
 
-                    # if enabled:
-                    #     userMountedItem = self.driveTable.item(row, self.userMountCol)
-                    #     if userMountedItem.checkState() == Qt.Unchecked:
-                    #         item.setCheckState(Qt.Checked)
-
     def setItemState(self, enabled: bool, item: QTableWidgetItem) -> None:
         if enabled:
             item.setFlags(
@@ -577,8 +572,13 @@ class WslMountDriveDialog(QDialog):
         logging.debug(
             "Adding drive %s: to Mount Windows Drive table", drive.drive_letter
         )
+        # block signal being emitted when programmatically changing checkbox
+        # states
+        blocked = self.driveTable.blockSignals(True)
         self.addDriveAtRow(row, drive)
-        self.driveTable.sortItems(1)
+        self.driveTable.sortItems(self.mountPointCol)
+        # restore signal state
+        self.driveTable.blockSignals(blocked)
 
     def determineMountOps(
         self, do_mount: bool, drive_letter: str, mount_point: str
