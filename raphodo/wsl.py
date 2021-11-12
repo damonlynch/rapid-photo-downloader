@@ -37,6 +37,7 @@ from PyQt5.QtGui import QTextDocument
 from PyQt5.QtWidgets import (
     QDialog,
     QVBoxLayout,
+    QHBoxLayout,
     QGridLayout,
     QStyle,
     QTableWidget,
@@ -51,6 +52,7 @@ from PyQt5.QtWidgets import (
     QTextBrowser,
     QLabel,
     QSplitter,
+    QWidget,
 )
 
 from raphodo.constants import WindowsDriveType
@@ -206,11 +208,6 @@ class WslMountDriveDialog(QDialog):
         self.make_mount_op_hr = MountOpHumanReadable(user=self.user)
 
         self.setWindowTitle(_("Windows Drives"))
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-        margin = layout.contentsMargins().left() + 2
-        layout.setSpacing(margin)
-        layout.setContentsMargins(18, 18, 18, 18)
 
         self.autoMountCheckBox = QCheckBox(
             _("Enable automatic mounting of Windows drives")
@@ -236,6 +233,8 @@ class WslMountDriveDialog(QDialog):
             QStyle.PM_IndicatorWidth
         )
         autoMountLayout.setColumnMinimumWidth(0, checkbox_width)
+        autoMountLayout.setVerticalSpacing(8)
+        autoMountLayout.setContentsMargins(0, 0, 0, 8)
 
         self.driveTable = QTableWidget(len(drives), 6, self)
         self.driveTable.setHorizontalHeaderLabels(
@@ -301,11 +300,32 @@ class WslMountDriveDialog(QDialog):
         self.applyButton.clicked.connect(self.applyButtonClicked)
         self.applyButton.setText(_("&Apply Pending Operations"))
 
-        layout.addLayout(autoMountLayout)
-        layout.addWidget(self.driveTable)
-        layout.addWidget(self.pendingOpsLabel)
-        layout.addWidget(self.pendingOpsBox)
+        configWidget = QWidget()
+        opsWidget = QWidget()
+        splitter = QSplitter()
+        splitter.setOrientation(Qt.Vertical)
+        splitter.addWidget(configWidget)
+        splitter.addWidget(opsWidget)
+        splitter.setCollapsible(0, False)
+        splitter.setCollapsible(1, False)
+
+        configLayout = QVBoxLayout()
+        configLayout.addLayout(autoMountLayout)
+        configLayout.addWidget(self.driveTable)
+        configWidget.setLayout(configLayout)
+
+        opsLayout = QVBoxLayout()
+        opsLayout.addWidget(self.pendingOpsLabel)
+        opsLayout.addWidget(self.pendingOpsBox)
+        opsWidget.setLayout(opsLayout)
+
+        layout = QVBoxLayout()
+        margin = configLayout.contentsMargins().left() + 2
+        layout.setSpacing(margin)
+        layout.setContentsMargins(18, 18, 18, 18)
+        layout.addWidget(splitter)
         layout.addWidget(buttonBox)
+        self.setLayout(layout)
         self.setApplyButtonState()
 
     @pyqtSlot()
