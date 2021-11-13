@@ -9,8 +9,10 @@
     <file alias="icons/drive-harddisk.svg">../images/drive-harddisk-symbolic.svg</file>
     <file alias="icons/drive-removable-media.svg">../images/drive-removable-media-symbolic.svg</file>
     <file alias="icons/error.svg">../images/error.svg</file>
+    <file alias="icons/eye.svg">../images/eye.svg</file>
     <file alias="icons/folder-filled.svg">../images/folder-symbolic-filled.svg</file>
     <file alias="icons/folder.svg">../images/folder-symbolic.svg</file>
+    <file alias="icons/hidden.svg">../images/hidden.svg</file>
     <file alias="icons/home.svg">../images/user-home-symbolic.svg</file>
     <file alias="icons/link.svg">../images/link.svg</file>
     <file alias="icons/menu.svg">../images/menu.svg</file>
