@@ -179,7 +179,7 @@ def run_command_as_sudo_without_password(cmd: str, timeout=10) -> SudoCommandRes
         )
 
 
-def run_commands_as_sudo(cmds: List[str], timeout=10) -> List[SudoCommandResult, ...]:
+def run_commands_as_sudo(cmds: List[str], timeout=10) -> List[SudoCommandResult]:
     """
     Run a list of commands. If necessary, prompt for the sudo password using a dialog.
 

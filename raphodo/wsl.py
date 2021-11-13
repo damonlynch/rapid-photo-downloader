@@ -59,6 +59,7 @@ from raphodo.constants import WindowsDriveType
 from raphodo.preferences import Preferences, WSLWindowsDrivePrefs
 from raphodo.viewutils import translateDialogBoxButtons, CheckBoxDelegate
 from raphodo.utilities import existing_parent_for_new_dir
+from raphodo.sudocommand import run_commands_as_sudo
 
 
 class WindowsDrive(NamedTuple):
