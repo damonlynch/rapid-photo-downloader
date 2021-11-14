@@ -22,8 +22,7 @@ __copyright__ = "Copyright 2021, Damon Lynch."
 
 from collections import OrderedDict
 import enum
-from getpass import getuser
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import logging
 import os
 import re
@@ -58,7 +57,7 @@ from PyQt5.QtWidgets import (
 from raphodo.constants import WindowsDriveType
 from raphodo.preferences import Preferences, WSLWindowsDrivePrefs
 from raphodo.viewutils import translateDialogBoxButtons, CheckBoxDelegate
-from raphodo.utilities import existing_parent_for_new_dir
+from raphodo.utilities import existing_parent_for_new_dir, make_internationalized_list
 from raphodo.sudocommand import run_commands_as_sudo
 
 
@@ -79,29 +78,26 @@ class WindowsDriveMount(NamedTuple):
 class MountTask(enum.Enum):
     remove_existing_file = enum.auto()
     create_directory = enum.auto()
-    change_directory_permission = enum.auto()
-    change_directory_owner = enum.auto()
     mount_drive = enum.auto()
     unmount_drive = enum.auto()
 
 
 class MountOp(NamedTuple):
     task: MountTask
-    with_sudo: bool
     path: Path
     drive: str
+    cmd: str
+
+
+class MountPref(NamedTuple):
+    auto_mount: bool
+    auto_unmount: bool
 
 
 class MountOpHumanReadable:
     human_hr = {
         MountTask.remove_existing_file: _("Remove existing file <tt>%(path)s</tt>"),
         MountTask.create_directory: _("Create directory <tt>%(path)s</tt>"),
-        MountTask.change_directory_permission: _(
-            "Change directory permissions for <tt>%(path)s</tt>"
-        ),
-        MountTask.change_directory_owner: _(
-            "Change directory ownership of <tt>%(path)s</tt> to <tt>%(user)s</tt>"
-        ),
         MountTask.mount_drive: _(
             "Mount drive <tt>%(drive)s:</tt> at <tt>%(path)s</tt>"
         ),
@@ -110,18 +106,129 @@ class MountOpHumanReadable:
         ),
     }
 
-    def __init__(self, user: str) -> None:
-        self.user = user
-
     def mount_task_human_readable(self, op: MountOp) -> str:
         task_hr = self.human_hr[op.task]
-        if op.task == MountTask.change_directory_owner:
-            task_hr = task_hr % {"user": self.user, "path": op.path}
-        elif op.task in (MountTask.unmount_drive, MountTask.mount_drive):
+        if op.task in (MountTask.unmount_drive, MountTask.mount_drive):
             task_hr = task_hr % {"drive": op.drive, "path": op.path}
         else:
             task_hr = task_hr % {"path": op.path}
         return task_hr
+
+
+def make_mount_op_cmd(
+    task: MountTask,
+    drive_letter: str,
+    path: Path,
+    uid: Optional[int] = None,
+    gid: Optional[int] = None,
+) -> str:
+    if task == MountTask.mount_drive:
+        if has_fstab_entry(drive_letter=drive_letter, mount_point=str(path)):
+            return f"mount {path}"
+        else:
+            return rf"mount -t drvfs -o uid={uid},gid={gid},noatime {drive_letter.upper()}:\\ {path}"
+    elif task == MountTask.unmount_drive:
+        return f"unmount {path}"
+    elif task == MountTask.create_directory:
+        return f"mkdir {path}"
+    elif task == MountTask.remove_existing_file:
+        return f"rm {path}"
+    raise NotImplementedError
+
+
+def has_fstab_entry(drive_letter: str, mount_point: str) -> bool:
+    with open('/etc/fstab') as f:
+        fstab = f.read()
+    # strip any extraneous trailing slash
+    mount_point = str(PurePosixPath(mount_point))
+    regex = rf"^{drive_letter}:\\?\s+{mount_point}/?\s+drvfs"
+    m = re.search(regex, fstab, re.IGNORECASE | re.MULTILINE)
+    return m is not None
+
+
+def generate_mount_point(drive_letter: str) -> str:
+    mount_point = wsl_standard_mount_point(drive_letter)
+    suffix = ""
+    if os.path.ismount(mount_point):
+        i = 1
+        while os.path.ismount(f"{mount_point}{i}"):
+            i += 1
+        suffix = str(i)
+    return f"{mount_point}{suffix}"
+
+
+def determine_mount_ops(
+    do_mount: bool, drive_letter: str, mount_point: str, uid: int, gid: int
+) -> List[MountOp]:
+    tasks = []  # type: List[MountOp]
+    if do_mount:
+        if not mount_point:
+            mount_point = generate_mount_point(drive_letter)
+        mp = Path(mount_point)
+        if mp.is_mount():
+            return tasks
+        create_dir = False
+        if mp.exists():
+            if not mp.is_dir():
+                tasks.append(
+                    MountOp(
+                        task=MountTask.remove_existing_file,
+                        path=mp,
+                        drive=drive_letter,
+                        cmd=make_mount_op_cmd(
+                            task=MountTask.remove_existing_file,
+                            drive_letter=drive_letter,
+                            path=mp,
+                        ),
+                    )
+                )
+                create_dir = True
+        else:
+            create_dir = True
+        if create_dir:
+            tasks.append(
+                MountOp(
+                    task=MountTask.create_directory,
+                    path=mp,
+                    drive=drive_letter,
+                    cmd=make_mount_op_cmd(
+                        task=MountTask.create_directory,
+                        drive_letter=drive_letter,
+                        path=mp,
+                    ),
+                )
+            )
+        tasks.append(
+            MountOp(
+                task=MountTask.mount_drive,
+                path=mp,
+                drive=drive_letter,
+                cmd=make_mount_op_cmd(
+                    task=MountTask.mount_drive,
+                    drive_letter=drive_letter,
+                    path=mp,
+                    uid=uid,
+                    gid=gid,
+                ),
+            )
+        )
+    else:
+        mp = Path(mount_point)
+        if mp.is_mount():
+            tasks.append(
+                MountOp(
+                    task=MountTask.unmount_drive,
+                    path=mp,
+                    drive=drive_letter,
+                    cmd=make_mount_op_cmd(
+                        task=MountTask.unmount_drive,
+                        drive_letter=drive_letter,
+                        path=mp,
+                    ),
+                )
+            )
+
+    return tasks
 
 
 class WSLWindowsDrivePrefsInterface:
@@ -137,7 +244,7 @@ class WSLWindowsDrivePrefsInterface:
         # Currently do not check to verify this is not stale.
         self.drives = prefs.get_wsl_drives()
 
-    def drive_prefs(self, drive: WindowsDriveMount) -> Tuple[bool, bool]:
+    def drive_prefs(self, drive: WindowsDriveMount) -> MountPref:
         """
         Get auto mount and auto unmount prefs for this Windows drive.
 
@@ -147,8 +254,8 @@ class WSLWindowsDrivePrefsInterface:
 
         for d in self.drives:
             if d.drive_letter == drive.drive_letter and d.label == drive.label:
-                return d.auto_mount, d.auto_unmount
-        return False, False
+                return MountPref(auto_mount=d.auto_mount, auto_unmount=d.auto_unmount)
+        return MountPref(auto_mount=False, auto_unmount=False)
 
     def set_prefs(
         self, drive: WindowsDriveMount, auto_mount: bool, auto_unmount: bool
@@ -195,18 +302,20 @@ class WslMountDriveDialog(QDialog):
         self,
         drives: List[WindowsDriveMount],
         prefs: Preferences,
+        windrive_prefs: WSLWindowsDrivePrefsInterface,
         parent: "RapidWindow" = None,
     ) -> None:
         super().__init__(parent=parent)
 
         self.prefs = prefs
-        self.windrive_prefs = WSLWindowsDrivePrefsInterface(prefs=prefs)
+        self.windrive_prefs = windrive_prefs
 
         self.driveTable = None  # type: Optional[QTableWidget]
         #  OrderedDict[drive_letter: List[MountOp]]
         self.pending_ops = OrderedDict()
-        self.user = getuser()
-        self.make_mount_op_hr = MountOpHumanReadable(user=self.user)
+        self.uid = os.getuid()
+        self.gid = os.getgid()
+        self.make_mount_op_hr = MountOpHumanReadable()
 
         self.setWindowTitle(_("Windows Drives"))
 
@@ -344,11 +453,13 @@ class WslMountDriveDialog(QDialog):
         if column == self.userMountCol:
             drive = item.data(Qt.UserRole)  # type: WindowsDriveMount
             drive_letter = drive.drive_letter
-            mount_point = self.generateMountPoint(drive=drive)
-            tasks = self.determineMountOps(
+            mount_point = ""
+            tasks = determine_mount_ops(
                 do_mount=item.checkState() == Qt.Checked,
                 drive_letter=drive_letter,
                 mount_point=mount_point,
+                uid=self.uid,
+                gid=self.gid,
             )
             if tasks:
                 self.pending_ops[drive_letter] = tasks
@@ -486,16 +597,6 @@ class WslMountDriveDialog(QDialog):
                 & ~Qt.ItemIsSelectable
             )
 
-    def generateMountPoint(self, drive: WindowsDriveMount) -> str:
-        mount_point = wsl_standard_mount_point(drive.drive_letter)
-        suffix = ""
-        if os.path.ismount(mount_point):
-            i = 1
-            while os.path.ismount(f"{mount_point}{i}"):
-                i += 1
-            suffix = str(i)
-        return f"{mount_point}{suffix}"
-
     def addDriveAtRow(self, row: int, drive: WindowsDriveMount):
         auto_mount = self.autoMountCheckBox.isChecked()
         auto_mount_all = self.autoMountAllButton.isChecked()
@@ -510,7 +611,7 @@ class WslMountDriveDialog(QDialog):
         user_mounted = not system_mounted
 
         if not is_mounted:
-            mount_point = self.generateMountPoint(drive=drive)
+            mount_point = generate_mount_point(drive.drive_letter)
 
         # User Mounted Column
         userMountedItem = QTableWidgetItem()
@@ -586,93 +687,11 @@ class WslMountDriveDialog(QDialog):
             d = self.driveTable.item(row, 0).data(Qt.UserRole)
             if d == drive:
                 logging.debug(
-                    "Removing drive %s: from Mount Windows Drive table", drive.drive_letter
+                    "Removing drive %s: from Mount Windows Drive table",
+                    drive.drive_letter,
                 )
                 self.driveTable.removeRow(row)
                 break
-
-    def determineMountOps(
-        self, do_mount: bool, drive_letter: str, mount_point: str
-    ) -> List[MountOp]:
-        tasks = []  # type: List[MountOp]
-        if do_mount:
-            mp = Path(mount_point)
-            if mp.is_mount():
-                return tasks
-            claim_dir_ownership = False
-            change_dir_perms = False
-            create_dir = False
-            if mp.exists():
-                if not mp.is_dir():
-                    with_sudo = not os.access(mp, os.W_OK)
-                    tasks.append(
-                        MountOp(
-                            task=MountTask.remove_existing_file,
-                            with_sudo=with_sudo,
-                            path=mp,
-                            drive=drive_letter,
-                        )
-                    )
-                    create_dir = True
-                else:
-                    if mp.owner() != self.user or mp.group() != self.user:
-                        claim_dir_ownership = True
-                    elif not os.access(mp, os.W_OK):
-                        change_dir_perms = True
-            else:
-                create_dir = True
-            if create_dir:
-                parent_dir = existing_parent_for_new_dir(mp)
-                with_sudo = not os.access(parent_dir, os.W_OK)
-                tasks.append(
-                    MountOp(
-                        task=MountTask.create_directory,
-                        with_sudo=with_sudo,
-                        path=mp,
-                        drive=drive_letter,
-                    )
-                )
-                if parent_dir.owner() != self.user or parent_dir.group() != self.user:
-                    claim_dir_ownership = True
-            if claim_dir_ownership:
-                tasks.append(
-                    MountOp(
-                        task=MountTask.change_directory_owner,
-                        with_sudo=True,
-                        path=mp,
-                        drive=drive_letter,
-                    )
-                )
-            if change_dir_perms:
-                tasks.append(
-                    MountOp(
-                        task=MountTask.change_directory_permission,
-                        with_sudo=False,
-                        path=mp,
-                        drive=drive_letter,
-                    )
-                )
-            tasks.append(
-                MountOp(
-                    task=MountTask.mount_drive,
-                    with_sudo=True,
-                    path=mp,
-                    drive=drive_letter,
-                )
-            )
-        else:
-            mp = Path(mount_point)
-            if mp.is_mount():
-                tasks.append(
-                    MountOp(
-                        task=MountTask.unmount_drive,
-                        with_sudo=True,
-                        path=mp,
-                        drive=drive_letter,
-                    )
-                )
-
-        return tasks
 
 
 class WslDrives:
@@ -680,7 +699,11 @@ class WslDrives:
         self.drives = []  # type: List[WindowsDriveMount]
         self.have_unmounted_drive = False
         self.rapidApp = rapidApp
+        self.prefs = self.rapidApp.prefs
+        self.windrive_prefs = WSLWindowsDrivePrefsInterface(prefs=self.prefs)
         self.mountDrivesDialog = None  # type: Optional[WslMountDriveDialog]
+        self.uid = os.getuid()
+        self.gid = os.getgid()
 
     def add_drive(self, drive: WindowsDriveMount) -> None:
         self.drives.append(drive)
@@ -695,13 +718,60 @@ class WslDrives:
             self.mountDrivesDialog.removeMount(drive)
 
     def mount_drives(self):
-        if self.have_unmounted_drive and self.mountDrivesDialog is None:
-            self.mountDrivesDialog = WslMountDriveDialog(
-                parent=self.rapidApp,
-                drives=self.drives,
-                prefs=self.rapidApp.prefs,
+        if self.have_unmounted_drive:
+            unmounted_drives = (drive for drive in self.drives if not drive.mount_point)
+            drives_to_mount = []
+            show_dialog = False
+            for drive in unmounted_drives:
+                if self.prefs.wsl_automount_removable_drives:
+                    if self.prefs.wsl_automount_all_removable_drives:
+                        drives_to_mount.append(drive)
+                    else:
+                        if self.windrive_prefs.drive_prefs(drive).auto_mount:
+                            drives_to_mount.append(drive)
+                        else:
+                            show_dialog = True
+
+            if drives_to_mount:
+                self.do_mount_drives(drives=drives_to_mount)
+
+            if show_dialog and self.mountDrivesDialog is None and False:
+                self.mountDrivesDialog = WslMountDriveDialog(
+                    parent=self.rapidApp,
+                    drives=self.drives,
+                    prefs=self.rapidApp.prefs,
+                    windrive_prefs=self.windrive_prefs,
+                )
+                self.mountDrivesDialog.exec()
+
+    def do_mount_drives(self, drives: List[WindowsDriveMount]) -> None:
+        pending_ops = OrderedDict()
+        drive_info = [f"{drive.drive_letter}: ({drive.label})" for drive in drives]
+        info_list = make_internationalized_list(drive_info)
+        if len(drive_info) > 1:
+            title = _("Mount drives %s") % info_list
+        else:
+            title = _("Mount drive %s") % info_list
+        logging.info("Auto mounting %s", info_list)
+        for drive in drives:
+            tasks = determine_mount_ops(
+                do_mount=True,
+                drive_letter=drive.drive_letter,
+                mount_point="",
+                uid=self.uid,
+                gid=self.gid,
             )
-            self.mountDrivesDialog.exec()
+            if tasks:
+                pending_ops[drive.drive_letter] = tasks
+
+        icon = ":/icons/drive-removable-media.svg"
+        for mount_ops in pending_ops.values():
+            cmds = [op.cmd for op in mount_ops]
+            run_commands_as_sudo(
+                cmds=cmds, parent=self.rapidApp, title=title, icon=icon
+            )
+
+
 
 
 class WslWindowsRemovableDriveMonitor(QObject):
@@ -885,6 +955,7 @@ if __name__ == "__main__":
     app.setApplicationName("Rapid Photo Downloader")
 
     prefs = Preferences()
+    wdrive_prefs = WSLWindowsDrivePrefsInterface(prefs)
 
     all_drives = True
     if not all_drives:
@@ -900,22 +971,22 @@ if __name__ == "__main__":
 
     for wdrive in windows_drives:
         if wsl_drive_valid(wdrive.drive_letter):
-            mount_point = wsl_mount_point(wdrive.drive_letter)
-            if mount_point:
-                assert os.path.ismount(mount_point)
-                print(f"{wdrive.drive_letter}: is mounted at {mount_point}")
+            main_mount_point = wsl_mount_point(wdrive.drive_letter)
+            if main_mount_point:
+                assert os.path.ismount(main_mount_point)
+                print(f"{wdrive.drive_letter}: is mounted at {main_mount_point}")
             else:
                 print(f"{wdrive.drive_letter}: is not mounted")
             ddrives.append(
                 WindowsDriveMount(
                     drive_letter=wdrive.drive_letter,
                     label=wdrive.label or _("Removable Drive"),
-                    mount_point=mount_point,
+                    mount_point=main_mount_point,
                     drive_type=wdrive.drive_type,
                     system_mounted=wdrive.drive_type == WindowsDriveType.local_disk
-                    and mount_point != "",
+                    and main_mount_point != "",
                 )
             )
 
-    w = WslMountDriveDialog(drives=ddrives, prefs=prefs)
+    w = WslMountDriveDialog(drives=ddrives, prefs=prefs, windrive_prefs=wdrive_prefs)
     w.exec()

@@ -286,8 +286,6 @@ class RapidWindow(QMainWindow):
         self.file_manager = valid_file_manager()
         if platform.system() == "Linux":
             self.linux_desktop = linux_desktop()
-            if self.linux_desktop == LinuxDesktop.wsl2:
-                self.wslDrives = WslDrives(rapidApp=self)
         else:
             self.linux_desktop = None
 
@@ -323,6 +321,9 @@ class RapidWindow(QMainWindow):
         self.prefs = Preferences()
         self.checkPrefsUpgrade()
         self.prefs.program_version = __about__.__version__
+
+        if self.linux_desktop and self.linux_desktop == LinuxDesktop.wsl2:
+            self.wslDrives = WslDrives(rapidApp=self)
 
         self.iOSInitErrorMessaging()
 

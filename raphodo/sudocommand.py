@@ -21,15 +21,18 @@ __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2021, Damon Lynch."
 
 from getpass import getuser
+import logging
 import shlex
 import subprocess
 from enum import IntEnum
 from typing import List, NamedTuple, Optional
 
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QLabel
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QLabel, QHBoxLayout
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QIcon, QFontMetrics, QFont
 
 from raphodo.password import PasswordEdit
-from raphodo.viewutils import translateDialogBoxButtons
+from raphodo.viewutils import translateDialogBoxButtons, standardIconSize
 
 
 class SudoCommand(QDialog):
@@ -37,10 +40,33 @@ class SudoCommand(QDialog):
         self,
         msg: Optional[str] = None,
         hint: Optional[str] = None,
+        title: Optional[str] = None,
         password_incorrect: bool = False,
+        icon: Optional[str] = None,
         parent=None,
     ) -> None:
         super().__init__(parent=parent)
+
+        if title:
+            titleHLayout = QHBoxLayout()
+            if icon:
+                i = QIcon(icon)
+            else:
+                i = QIcon(":/rapid-photo-downloader.svg")
+            size = QFontMetrics(QFont()).height()
+            pixmap = i.pixmap(QSize(size, size))
+            titleIcon = QLabel()
+            titleIcon.setPixmap(pixmap)
+            titleLabel = QLabel(f"<b>{title}</b>")
+            if len(title) > 50:
+                titleLabel.setWordWrap(True)
+            titleLabel.setTextFormat(Qt.RichText)
+            titleHLayout.addWidget(titleIcon)
+            titleHLayout.addWidget(titleLabel)
+            titleHLayout.addStretch()
+            titleLayout = QVBoxLayout()
+            titleLayout.addLayout(titleHLayout)
+            titleLayout.addSpacing(8)
 
         if password_incorrect:
             wrongPasswordLabel = QLabel(_("Sorry, the password was incorrect."))
@@ -64,6 +90,8 @@ class SudoCommand(QDialog):
         layout.setSpacing(8)
         layout.setContentsMargins(8, 8, 8, 8)
 
+        if title:
+            layout.addLayout(titleLayout)
         if password_incorrect:
             layout.addWidget(wrongPasswordLabel)
         layout.addWidget(msgLabel)
@@ -100,7 +128,7 @@ class SudoCommandResult(NamedTuple):
 
 
 def run_command_as_sudo_with_password(
-    cmd: str, password: str, user: Optional[str]=None, timeout=10
+    cmd: str, password: str, user: Optional[str] = None, timeout=10
 ) -> SudoCommandResult:
     """
     Run a single command via sudo, allowing for sudo to prompt for the password
@@ -133,7 +161,7 @@ def run_command_as_sudo_with_password(
         output, errors = proc.communicate(input=password, timeout=timeout)
         sudo_output = f"[sudo] password for {user}: ".encode()
         if errors.startswith(sudo_output):
-            errors = errors[len(sudo_output):]
+            errors = errors[len(sudo_output) :]
     except subprocess.TimeoutExpired:
         proc.kill()
         output, errors = proc.communicate()
@@ -141,7 +169,9 @@ def run_command_as_sudo_with_password(
     if errors.find(b"Sorry, try again.") >= 0:
         raise SudoException(code=SudoExceptionCode.password_wrong)
     return SudoCommandResult(
-        return_code=proc.returncode, stdout=output.decode(), stderr=errors.decode()
+        return_code=proc.returncode,
+        stdout=output.decode().strip(),
+        stderr=errors.decode().strip(),
     )
 
 
@@ -175,11 +205,33 @@ def run_command_as_sudo_without_password(cmd: str, timeout=10) -> SudoCommandRes
         raise SudoException(code=SudoExceptionCode.password_required)
     else:
         return SudoCommandResult(
-            return_code=proc.returncode, stdout=output.decode(), stderr=errors.decode()
+            return_code=proc.returncode,
+            stdout=output.decode().strip(),
+            stderr=errors.decode().strip(),
         )
 
 
-def run_commands_as_sudo(cmds: List[str], timeout=10) -> List[SudoCommandResult]:
+def _log_result(cmd: str, result: SudoCommandResult) -> None:
+    if not (result.stdout or result.stderr) and result.return_code == 0:
+        logging.debug("0: %s", cmd)
+    else:
+        logging.debug("%s: %s", result.return_code, cmd)
+        if result.stdout and not result.stderr:
+            logging.debug("stdout: %s", result.stdout)
+        elif not result.stdout and result.stderr:
+            logging.debug("stderr: %s", result.stderr)
+        else:
+            logging.debug("stdout: %s; stderr: %s", result.stdout, result.stderr)
+
+
+def run_commands_as_sudo(
+    cmds: List[str],
+    parent,
+    msg: Optional[str] = None,
+    timeout=10,
+    title: Optional[str] = None,
+    icon: Optional[str] = None,
+) -> List[SudoCommandResult]:
     """
     Run a list of commands. If necessary, prompt for the sudo password using a dialog.
 
@@ -187,7 +239,9 @@ def run_commands_as_sudo(cmds: List[str], timeout=10) -> List[SudoCommandResult]
     commands.
 
     :param cmds: list of commands to run
+    :param msg: message to display in password prompt dialog
     :param timeout: timeout for subprocess.Popen call
+    :param title: title to display in password prompt
     :return: list of return codes, stdout and stderr
     """
 
@@ -195,18 +249,29 @@ def run_commands_as_sudo(cmds: List[str], timeout=10) -> List[SudoCommandResult]
     for cmd in cmds:
         result = None  # type: Optional[SudoCommandResult]
         try:
-            result = run_command_as_sudo_without_password(cmd)
+            result = run_command_as_sudo_without_password(cmd=cmd, timeout=timeout)
+            _log_result(cmd, result)
         except SudoException as e:
             assert e.code == SudoExceptionCode.password_required
             password_incorrect = False
             user = getuser()
             while True:
-                passwordPrompt = SudoCommand(password_incorrect=password_incorrect)
+                passwordPrompt = SudoCommand(
+                    msg=msg,
+                    password_incorrect=password_incorrect,
+                    parent=parent,
+                    title=title,
+                    icon=icon,
+                )
                 if passwordPrompt.exec():
                     try:
                         result = run_command_as_sudo_with_password(
-                            cmd=cmd, password=passwordPrompt.password(), user=user
+                            cmd=cmd,
+                            password=passwordPrompt.password(),
+                            user=user,
+                            timeout=timeout,
                         )
+                        _log_result(cmd, result)
                         break
                     except SudoException as e:
                         assert e.code == SudoExceptionCode.password_wrong
@@ -226,6 +291,6 @@ if __name__ == "__main__":
     app = QApplication([])
 
     cmds = ["ls /root", "echo OK"]
-    results = run_commands_as_sudo(cmds)
+    results = run_commands_as_sudo(cmds, parent=None)
     for result in results:
         print(result)
