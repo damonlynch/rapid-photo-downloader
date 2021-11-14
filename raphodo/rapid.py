@@ -324,6 +324,9 @@ class RapidWindow(QMainWindow):
 
         if self.linux_desktop and self.linux_desktop == LinuxDesktop.wsl2:
             self.wslDrives = WslDrives(rapidApp=self)
+            self.is_wsl2 = True
+        else:
+            self.is_wsl2 = False
 
         self.iOSInitErrorMessaging()
 
@@ -1722,7 +1725,7 @@ class RapidWindow(QMainWindow):
             _("&Preferences"), self, shortcut="Ctrl+P", triggered=self.doPreferencesAction
         )
 
-        if self.linux_desktop and self.linux_desktop == LinuxDesktop.wsl2:
+        if self.linux_desktop and self.is_wsl2:
             self.quitAct = QAction(
                 _("&Quit"), self, triggered=self.close
             )
@@ -1731,6 +1734,10 @@ class RapidWindow(QMainWindow):
                 _("&Quit"), self, shortcut="Ctrl+Q", triggered=self.close
             )
 
+        if self.is_wsl2:
+            self.wslMountsAct = QAction(
+                _("&WSL Mounts"), self, triggered=self.doShowWslMountsAction
+            )
 
         self.errorLogAct = QAction(
             _("Error &Reports"), self, enabled=True, checkable=True, triggered=self.doErrorLogAction
@@ -2448,6 +2455,8 @@ class RapidWindow(QMainWindow):
         self.menu = QMenu()
         self.menu.addAction(self.downloadAct)
         self.menu.addAction(self.preferencesAct)
+        if self.is_wsl2:
+            self.menu.addAction(self.wslMountsAct)
         self.menu.addSeparator()
         self.menu.addAction(self.errorLogAct)
         self.menu.addAction(self.clearDownloadsAct)
@@ -2479,6 +2488,9 @@ class RapidWindow(QMainWindow):
 
     def doRefreshAction(self) -> None:
         pass
+
+    def doShowWslMountsAction(self) -> None:
+        self.wslDrives.show_mount_drives_dialog()
 
     def doPreferencesAction(self) -> None:
         self.scan_all_again = self.scan_non_camera_devices_again = False

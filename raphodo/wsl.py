@@ -163,7 +163,7 @@ def determine_mount_ops(
     tasks = []  # type: List[MountOp]
     if do_mount:
         if not mount_point:
-            mount_point = generate_mount_point(drive_letter)
+            mount_point = wsl_standard_mount_point(drive_letter)
         mp = Path(mount_point)
         if mp.is_mount():
             return tasks
@@ -611,7 +611,7 @@ class WslMountDriveDialog(QDialog):
         user_mounted = not system_mounted
 
         if not is_mounted:
-            mount_point = generate_mount_point(drive.drive_letter)
+            mount_point = wsl_standard_mount_point(drive.drive_letter)
 
         # User Mounted Column
         userMountedItem = QTableWidgetItem()
@@ -736,13 +736,19 @@ class WslDrives:
                 self.do_mount_drives(drives=drives_to_mount)
 
             if show_dialog and self.mountDrivesDialog is None and False:
-                self.mountDrivesDialog = WslMountDriveDialog(
-                    parent=self.rapidApp,
-                    drives=self.drives,
-                    prefs=self.rapidApp.prefs,
-                    windrive_prefs=self.windrive_prefs,
-                )
-                self.mountDrivesDialog.exec()
+                self.show_mount_drives_dialog()
+
+    def show_mount_drives_dialog(self) -> None:
+        if self.mountDrivesDialog is None:
+            self.mountDrivesDialog = WslMountDriveDialog(
+                parent=self.rapidApp,
+                drives=self.drives,
+                prefs=self.rapidApp.prefs,
+                windrive_prefs=self.windrive_prefs,
+            )
+            self.mountDrivesDialog.exec()
+            self.show_mount_drives_dialog = None
+
 
     def do_mount_drives(self, drives: List[WindowsDriveMount]) -> None:
         pending_ops = OrderedDict()
