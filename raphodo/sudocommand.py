@@ -108,6 +108,7 @@ class SudoCommand(QDialog):
 class SudoExceptionCode(IntEnum):
     password_required = 1
     password_wrong = 2
+    command_cancelled = 3
 
 
 class SudoException(Exception):
@@ -117,8 +118,11 @@ class SudoException(Exception):
     def __repr__(self) -> str:
         if self.code == SudoExceptionCode.password_required:
             return "Password required"
-        else:
+        elif self.code == SudoExceptionCode.password_wrong:
             return "Password incorrect"
+        else:
+            assert self.code == SudoExceptionCode.command_cancelled
+            return "Command cancelled"
 
 
 class SudoCommandResult(NamedTuple):
@@ -247,7 +251,6 @@ def run_commands_as_sudo(
 
     results = []  # type: List[SudoCommandResult, ...]
     for cmd in cmds:
-        result = None  # type: Optional[SudoCommandResult]
         try:
             result = run_command_as_sudo_without_password(cmd=cmd, timeout=timeout)
             _log_result(cmd, result)
@@ -277,10 +280,11 @@ def run_commands_as_sudo(
                         assert e.code == SudoExceptionCode.password_wrong
                         password_incorrect = True
                 else:
-                    break
+                    logging.debug("Mount ops cancelled by user request")
+                    raise SudoException(code=SudoExceptionCode.command_cancelled)
 
         results.append(result)
-        if result is not None and result.return_code != 0:
+        if result.return_code != 0:
             return results
     return results
 

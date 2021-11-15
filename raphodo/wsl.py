@@ -36,7 +36,6 @@ from PyQt5.QtGui import QTextDocument
 from PyQt5.QtWidgets import (
     QDialog,
     QVBoxLayout,
-    QHBoxLayout,
     QGridLayout,
     QStyle,
     QTableWidget,
@@ -52,13 +51,18 @@ from PyQt5.QtWidgets import (
     QLabel,
     QSplitter,
     QWidget,
+    QMessageBox,
 )
 
 from raphodo.constants import WindowsDriveType
 from raphodo.preferences import Preferences, WSLWindowsDrivePrefs
-from raphodo.viewutils import translateDialogBoxButtons, CheckBoxDelegate
+from raphodo.viewutils import (
+    translateDialogBoxButtons,
+    CheckBoxDelegate,
+    standardMessageBox,
+)
 from raphodo.utilities import existing_parent_for_new_dir, make_internationalized_list
-from raphodo.sudocommand import run_commands_as_sudo
+from raphodo.sudocommand import run_commands_as_sudo, SudoException, SudoExceptionCode
 
 
 class WindowsDrive(NamedTuple):
@@ -137,7 +141,7 @@ def make_mount_op_cmd(
 
 
 def has_fstab_entry(drive_letter: str, mount_point: str) -> bool:
-    with open('/etc/fstab') as f:
+    with open("/etc/fstab") as f:
         fstab = f.read()
     # strip any extraneous trailing slash
     mount_point = str(PurePosixPath(mount_point))
@@ -161,9 +165,9 @@ def determine_mount_ops(
     do_mount: bool, drive_letter: str, mount_point: str, uid: int, gid: int
 ) -> List[MountOp]:
     tasks = []  # type: List[MountOp]
+    if not mount_point:
+        mount_point = wsl_standard_mount_point(drive_letter)
     if do_mount:
-        if not mount_point:
-            mount_point = wsl_standard_mount_point(drive_letter)
         mp = Path(mount_point)
         if mp.is_mount():
             return tasks
@@ -736,9 +740,22 @@ class WslDrives:
                 self.do_mount_drives(drives=drives_to_mount)
 
             if show_dialog and self.mountDrivesDialog is None and False:
-                self.show_mount_drives_dialog()
+                self.show_mount_drives_dialog(refresh_drive_state=False)
 
-    def show_mount_drives_dialog(self) -> None:
+    def _refresh_drive_state(self):
+        refreshed_drives = []  # type: List[WindowsDriveMount]
+        for drive in self.drives:
+            mount_point = wsl_mount_point(drive_letter=drive.drive_letter)
+            if mount_point != drive.mount_point:
+                refreshed_drives.append(drive._replace(mount_point=mount_point))
+            else:
+                refreshed_drives.append(drive)
+        self.drives = refreshed_drives
+
+    def show_mount_drives_dialog(self, refresh_drive_state: bool = True) -> None:
+        if refresh_drive_state:
+            self._refresh_drive_state()
+
         if self.mountDrivesDialog is None:
             self.mountDrivesDialog = WslMountDriveDialog(
                 parent=self.rapidApp,
@@ -747,12 +764,12 @@ class WslDrives:
                 windrive_prefs=self.windrive_prefs,
             )
             self.mountDrivesDialog.exec()
-            self.show_mount_drives_dialog = None
-
+            self.mountDrivesDialog = None
 
     def do_mount_drives(self, drives: List[WindowsDriveMount]) -> None:
         pending_ops = OrderedDict()
         drive_info = [f"{drive.drive_letter}: ({drive.label})" for drive in drives]
+        drive_letters_to_mount = [drive.drive_letter for drive in drives]
         info_list = make_internationalized_list(drive_info)
         if len(drive_info) > 1:
             title = _("Mount drives %s") % info_list
@@ -768,16 +785,64 @@ class WslDrives:
                 gid=self.gid,
             )
             if tasks:
-                pending_ops[drive.drive_letter] = tasks
+                pending_ops[drive] = tasks
 
         icon = ":/icons/drive-removable-media.svg"
-        for mount_ops in pending_ops.values():
+        failures = []
+        for drive, mount_ops in pending_ops.items():
             cmds = [op.cmd for op in mount_ops]
-            run_commands_as_sudo(
-                cmds=cmds, parent=self.rapidApp, title=title, icon=icon
+            try:
+                results = run_commands_as_sudo(
+                    cmds=cmds, parent=self.rapidApp, title=title, icon=icon
+                )
+            except SudoException as e:
+                assert e.code == SudoExceptionCode.command_cancelled
+                logging.debug(
+                    "Mounting %s: cancelled by user. "
+                    "Not auto mounting any remaining drives.",
+                    drive.drive_letter,
+                )
+                break
+            else:
+                return_code = results[-1].return_code
+                if return_code != 0:
+                    # a command failed
+                    logging.warning(
+                        "Failed to auto mount %s: (%s) : %s",
+                        drive.drive_letter.upper(),
+                        drive.label,
+                        results[-1].stderr,
+                    )
+                    failures.append((drive, results[-1].stderr))
+                else:
+                    logging.debug(
+                        "Successfully auto mounted %s: (%s)",
+                        drive.drive_letter.upper(),
+                        drive.label,
+                    )
+
+        self._refresh_drive_state()
+        if failures:
+            failure_info = [
+                f"{failure[0].drive_letter}: ({failure[0].label})" for failure in failures
+            ]
+            fail_list = make_internationalized_list(failure_info)
+            failure_messages = "; ".join([failure[1] for failure in failures])
+            if len(failures) > 1:
+                # Translators: this error message is displayed when more than one Windows drive fails to mount within Windows Subsystem for Linux
+                message = _("Sorry, an error occurred when mounting drives %s.") % fail_list
+            else:
+                # Translators: this error message is displayed when one Windows drive fails to mount within Windows Subsystem for Linux
+                message = _("Sorry, an error occurred when mounting drive %s.") % fail_list
+            message = f"{message}<br><pre>{failure_messages}.</pre>"
+            msgBox = standardMessageBox(
+                message=message,
+                standardButtons=QMessageBox.Ok,
+                parent=self.rapidApp,
+                rich_text=True,
+                iconType=QMessageBox.Warning
             )
-
-
+            msgBox.exec()
 
 
 class WslWindowsRemovableDriveMonitor(QObject):
@@ -875,8 +940,8 @@ def wsl_mount_point(drive_letter: str) -> str:
     with open("/proc/mounts") as m:
         mounts = m.read()
 
-    regex = fr"^drvfs (.+?) 9p .+?path={drive_letter.upper()}:\\?;"
-    mnt = re.search(regex, mounts, re.MULTILINE)
+    regex = fr"^drvfs (.+?) 9p .+?path={drive_letter}:\\?;"
+    mnt = re.search(regex, mounts, re.MULTILINE | re.IGNORECASE)
     if mnt is not None:
         return mnt.group(1)
     else:
