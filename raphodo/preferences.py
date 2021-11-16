@@ -18,7 +18,7 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-__author__ = 'Damon Lynch'
+__author__ = "Damon Lynch"
 __copyright__ = "Copyright 2011-2020, Damon Lynch"
 
 import logging
@@ -33,7 +33,10 @@ from showinfm import linux_desktop, LinuxDesktop
 
 
 from raphodo.storage import (
-    platform_photos_directory, platform_videos_directory, platform_photos_identifier, platform_videos_identifier
+    platform_photos_directory,
+    platform_videos_directory,
+    platform_photos_identifier,
+    platform_videos_identifier,
 )
 from raphodo.generatenameconfig import *
 import raphodo.constants as constants
@@ -115,12 +118,12 @@ class ScanPreferences:
         assert self.use_regular_expressions
 
         error_encountered = False
-        pattern = ''
+        pattern = ""
         for path in self.ignored_paths:
             # check path for validity
             try:
-                re.match(path, '')
-                pattern += '.*{}s$|'.format(path)
+                re.match(path, "")
+                pattern += ".*{}s$|".format(path)
             except re.error:
                 logging.error("Ignoring malformed regular expression: {}".format(path))
                 error_encountered = True
@@ -131,7 +134,7 @@ class ScanPreferences:
             try:
                 self.re_pattern = re.compile(pattern)
             except re.error:
-                logging.error('This regular expression is invalid: {}'.format(pattern))
+                logging.error("This regular expression is invalid: {}".format(pattern))
                 self.re_pattern = None
                 error_encountered = True
 
@@ -186,14 +189,15 @@ class DownloadsTodayTracker:
         hour, minute = self.get_day_start()
         try:
             adjusted_today = datetime.datetime.strptime(
-                "%s %s:%s" % (self.downloads_today[0], hour, minute),
-                "%Y-%m-%d %H:%M"
+                "%s %s:%s" % (self.downloads_today[0], hour, minute), "%Y-%m-%d %H:%M"
             )
         except:
             logging.critical(
                 "Failed to calculate date adjustment. Download today values "
                 "appear to be corrupted: %s %s:%s",
-                self.downloads_today[0], hour, minute
+                self.downloads_today[0],
+                hour,
+                minute,
             )
             adjusted_today = None
 
@@ -221,8 +225,9 @@ class DownloadsTodayTracker:
             return int(t1), int(t2)
         except ValueError:
             logging.error(
-                "'Start of day' preference value %s is corrupted. Resetting to midnight",
-                self.day_start
+                "'Start of day' preference value %s is corrupted. Resetting "
+                "to midnight",
+                self.day_start,
             )
             self.day_start = "0:0"
             return 0, 0
@@ -239,7 +244,7 @@ class DownloadsTodayTracker:
             self.reset_downloads_today(1)
             return True
 
-    def reset_downloads_today(self, value: int=0) -> None:
+    def reset_downloads_today(self, value: int = 0) -> None:
         now = datetime.datetime.today()
         hour, minute = self.get_day_start()
         t = datetime.time(hour, minute)
@@ -247,11 +252,11 @@ class DownloadsTodayTracker:
             date = today()
         else:
             d = datetime.datetime.today() + datetime.timedelta(days=1)
-            date = d.strftime(('%Y-%m-%d'))
+            date = d.strftime(("%Y-%m-%d"))
 
         self.set_downloads_today(date, value)
 
-    def set_downloads_today(self, date: str, value: int=0) -> None:
+    def set_downloads_today(self, date: str, value: int = 0) -> None:
         self.downloads_today = [date, str(value)]
 
     def set_day_start(self, hour: int, minute: int) -> None:
@@ -260,12 +265,14 @@ class DownloadsTodayTracker:
     def log_vals(self) -> None:
         logging.info(
             "Date %s Value %s Day start %s",
-            self.downloads_today[0], self.downloads_today[1], self.day_start
+            self.downloads_today[0],
+            self.downloads_today[1],
+            self.day_start,
         )
 
 
 def today():
-    return datetime.date.today().strftime('%Y-%m-%d')
+    return datetime.date.today().strftime("%Y-%m-%d")
 
 
 class WSLWindowsDrivePrefs(NamedTuple):
@@ -280,7 +287,7 @@ class Preferences:
     Program preferences, being a mix of user facing and non-user facing prefs.
     """
 
-    program_defaults = dict(program_version='')
+    program_defaults = dict(program_version="")
     rename_defaults = dict(
         photo_download_folder=platform_photos_directory(),
         video_download_folder=platform_videos_directory(),
@@ -292,11 +299,11 @@ class Preferences:
         photo_extension=LOWERCASE,
         video_extension=LOWERCASE,
         day_start="03:00",
-        downloads_today=[today(), '0'],
+        downloads_today=[today(), "0"],
         stored_sequence_no=0,
         strip_characters=True,
         synchronize_raw_jpg=False,
-        job_codes=[_('Wedding'), _('Birthday')],
+        job_codes=[_("Wedding"), _("Birthday")],
         remember_job_code=True,
         ignore_mdatatime_for_mtp_dng=True,
     )
@@ -311,7 +318,7 @@ class Preferences:
         warn_broken_or_missing_libraries=True,
         warn_fs_metadata_error=True,
         warn_unhandled_files=True,
-        ignore_unhandled_file_exts=['TMP', 'DAT'],
+        ignore_unhandled_file_exts=["TMP", "DAT"],
         job_code_sort_key=0,
         job_code_sort_order=0,
         did_you_know_on_startup=True,
@@ -327,30 +334,30 @@ class Preferences:
         auto_scroll=True,
         # If you change the language setting update it in __init__.py too, where it is
         # read directly without using this class.
-        language='',
+        language="",
     )
     device_defaults = dict(
         only_external_mounts=True,
         device_autodetection=True if linux_desktop() != LinuxDesktop.wsl2 else False,
         this_computer_source=True if linux_desktop() == LinuxDesktop.wsl2 else False,
-        this_computer_path='',
+        this_computer_path="",
         scan_specific_folders=True,
         # pre 0.9.3a1 value: device_without_dcim_autodetection=False, is now replaced by
         # scan_specific_folders
-        folders_to_scan=['DCIM', 'PRIVATE', 'MP_ROOT'],
-        ignored_paths=['.Trash', '.thumbnails', 'THMBNL', '__MACOSX', 'Screenshots'],
+        folders_to_scan=["DCIM", "PRIVATE", "MP_ROOT"],
+        ignored_paths=[".Trash", ".thumbnails", "THMBNL", "__MACOSX", "Screenshots"],
         use_re_ignored_paths=False,
-        volume_whitelist=[''],
-        volume_blacklist=[''],
-        camera_blacklist=[''],
+        volume_whitelist=[""],
+        volume_blacklist=[""],
+        camera_blacklist=[""],
     )
     backup_defaults = dict(
         backup_files=False,
         backup_device_autodetection=True,
         photo_backup_identifier=platform_photos_identifier(),
         video_backup_identifier=platform_videos_identifier(),
-        backup_photo_location=os.path.expanduser('~'),
-        backup_video_location=os.path.expanduser('~'),
+        backup_photo_location=os.path.expanduser("~"),
+        backup_video_location=os.path.expanduser("~"),
     )
     automation_defaults = dict(
         auto_download_at_startup=False,
@@ -359,32 +366,26 @@ class Preferences:
         auto_exit=False,
         auto_exit_force=False,
         move=False,
-        verify_file=False
+        verify_file=False,
     )
     performance_defaults = dict(
         generate_thumbnails=True,
         use_thumbnail_cache=True,
         save_fdo_thumbnails=True,
         max_cpu_cores=max(available_cpu_count(physical_only=True), 2),
-        keep_thumbnails_days=30
+        keep_thumbnails_days=30,
     )
     error_defaults = dict(
         conflict_resolution=int(constants.ConflictResolution.skip),
         backup_duplicate_overwrite=False,
     )
-    destinations = dict(
-        photo_backup_destinations=[''],
-        video_backup_destinations=['']
-    )
+    destinations = dict(photo_backup_destinations=[""], video_backup_destinations=[""])
     version_check = dict(
         check_for_new_versions=True,
         include_development_release=False,
-        ignore_versions=['']
+        ignore_versions=[""],
     )
-    restart_directives = dict(
-        purge_thumbnails=False,
-        optimize_thumbnail_db=False
-    )
+    restart_directives = dict(purge_thumbnails=False, optimize_thumbnail_db=False)
     metadata_defaults = dict(
         force_exiftool=False,
     )
@@ -397,23 +398,43 @@ class Preferences:
     def __init__(self) -> None:
         # To avoid infinite recursions arising from the use of __setattr__,
         # manually assign class values to the class dict
-        self.__dict__['settings'] = QSettings("Rapid Photo Downloader", "Rapid Photo Downloader")
-        self.__dict__['valid'] = True
+        self.__dict__["settings"] = QSettings(
+            "Rapid Photo Downloader", "Rapid Photo Downloader"
+        )
+        self.__dict__["valid"] = True
 
         # These next two values must be kept in sync
         dicts = (
-            self.program_defaults, self.rename_defaults,
-            self.timeline_defaults, self.display_defaults,
+            self.program_defaults,
+            self.rename_defaults,
+            self.timeline_defaults,
+            self.display_defaults,
             self.device_defaults,
-            self.backup_defaults, self.automation_defaults,
-            self.performance_defaults, self.error_defaults,
-            self.destinations, self.version_check, self.restart_directives,
-            self.metadata_defaults, self.wsl_defaults,
+            self.backup_defaults,
+            self.automation_defaults,
+            self.performance_defaults,
+            self.error_defaults,
+            self.destinations,
+            self.version_check,
+            self.restart_directives,
+            self.metadata_defaults,
+            self.wsl_defaults,
         )
         group_names = (
-            'Program', 'Rename', 'Timeline', 'Display', 'Device', 'Backup',
-            'Automation', 'Performance', 'ErrorHandling', 'Destinations',
-            'VersionCheck', 'RestartDirectives', 'Metadata', 'WindowsSubsystemLinux',
+            "Program",
+            "Rename",
+            "Timeline",
+            "Display",
+            "Device",
+            "Backup",
+            "Automation",
+            "Performance",
+            "ErrorHandling",
+            "Destinations",
+            "VersionCheck",
+            "RestartDirectives",
+            "Metadata",
+            "WindowsSubsystemLinux",
         )
         assert len(dicts) == len(group_names)
 
@@ -421,8 +442,8 @@ class Preferences:
         # special case of lists, which use the type of what they contain.
         # While we're at it also merge the dictionaries into one dictionary
         # of default values.
-        self.__dict__['types'] = {}
-        self.__dict__['defaults'] = {}
+        self.__dict__["types"] = {}
+        self.__dict__["defaults"] = {}
         for d in dicts:
             for key, value in d.items():
                 if isinstance(value, list):
@@ -432,13 +453,13 @@ class Preferences:
                 self.types[key] = t
                 self.defaults[key] = value
         # Create quick lookup table of the group each key is in
-        self.__dict__['groups'] = {}
+        self.__dict__["groups"] = {}
         for idx, d in enumerate(dicts):
             for key in d:
                 self.groups[key] = group_names[idx]
 
     def __getitem__(self, key):
-        group = self.groups.get(key, 'General')
+        group = self.groups.get(key, "General")
         self.settings.beginGroup(group)
         v = self.settings.value(key, self.defaults[key], self.types[key])
         self.settings.endGroup()
@@ -448,7 +469,7 @@ class Preferences:
         return self[key]
 
     def __setitem__(self, key, value):
-        group = self.groups.get(key, 'General')
+        group = self.groups.get(key, "General")
         self.settings.beginGroup(group)
         self.settings.setValue(key, value)
         self.settings.endGroup()
@@ -456,9 +477,9 @@ class Preferences:
     def __setattr__(self, key, value):
         self[key] = value
 
-    def value_is_set(self, key, group: Optional[str]=None) -> bool:
+    def value_is_set(self, key, group: Optional[str] = None) -> bool:
         if group is None:
-            group = 'General'
+            group = "General"
 
         group = self.groups.get(key, group)
         self.settings.beginGroup(group)
@@ -472,7 +493,9 @@ class Preferences:
     def restore(self, key: str) -> None:
         self[key] = self.defaults[key]
 
-    def get_preset(self, preset_type: PresetPrefType) -> Tuple[List[str], List[List[str]]]:
+    def get_preset(
+        self, preset_type: PresetPrefType
+    ) -> Tuple[List[str], List[List[str]]]:
         """
         Returns the custom presets for the particular type.
 
@@ -486,23 +509,26 @@ class Preferences:
         preset_pref_lists = []
         preset_names = []
 
-        self.settings.beginGroup('Presets')
+        self.settings.beginGroup("Presets")
 
         preset = preset_type.name
         size = self.settings.beginReadArray(preset)
         for i in range(size):
             self.settings.setArrayIndex(i)
-            preset_names.append(self.settings.value('name', type=str))
-            preset_pref_lists.append(self.settings.value('pref_list', type=str))
+            preset_names.append(self.settings.value("name", type=str))
+            preset_pref_lists.append(self.settings.value("pref_list", type=str))
         self.settings.endArray()
 
         self.settings.endGroup()
 
         return preset_names, preset_pref_lists
 
-    def set_preset(self, preset_type: PresetPrefType,
-                   preset_names: List[str],
-                   preset_pref_lists: List[List[str]]) -> None:
+    def set_preset(
+        self,
+        preset_type: PresetPrefType,
+        preset_names: List[str],
+        preset_pref_lists: List[List[str]],
+    ) -> None:
         """
         Saves a list of custom presets in the user's preferences.
 
@@ -514,7 +540,7 @@ class Preferences:
         :param preset_pref_lists: the list of pref lists
         """
 
-        self.settings.beginGroup('Presets')
+        self.settings.beginGroup("Presets")
 
         preset = preset_type.name
 
@@ -526,26 +552,26 @@ class Preferences:
         self.settings.beginWriteArray(preset)
         for i in range(len(preset_names)):
             self.settings.setArrayIndex(i)
-            self.settings.setValue('name', preset_names[i])
-            self.settings.setValue('pref_list', preset_pref_lists[i])
+            self.settings.setValue("name", preset_names[i])
+            self.settings.setValue("pref_list", preset_pref_lists[i])
         self.settings.endArray()
 
         self.settings.endGroup()
 
     def get_wsl_drives(self) -> List[WSLWindowsDrivePrefs]:
         drives = []
-        self.settings.beginGroup('WindowsSubsystemLinux')
-        setting = 'drives'
+        self.settings.beginGroup("WindowsSubsystemLinux")
+        setting = "drives"
         size = self.settings.beginReadArray(setting)
         for i in range(size):
             self.settings.setArrayIndex(i)
-            drive = self.settings.value('drive')
+            drive = self.settings.value("drive")
             drives.append(
                 WSLWindowsDrivePrefs(
                     drive_letter=drive[0],
                     label=drive[1],
                     auto_mount=True if drive[2] == "true" else False,
-                    auto_unmount=True if drive[3] == "true" else False
+                    auto_unmount=True if drive[3] == "true" else False,
                 )
             )
         self.settings.endArray()
@@ -553,50 +579,52 @@ class Preferences:
         return drives
 
     def set_wsl_drives(self, drives: List[WSLWindowsDrivePrefs]):
-        self.settings.beginGroup('WindowsSubsystemLinux')
-        setting = 'drives'
+        self.settings.beginGroup("WindowsSubsystemLinux")
+        setting = "drives"
         self.settings.remove(setting)
         self.settings.beginWriteArray(setting)
         for i in range(len(drives)):
             self.settings.setArrayIndex(i)
             drive = drives[i]
             self.settings.setValue(
-                'drive',
-                [drive.drive_letter, drive.label, drive.auto_mount, drive.auto_unmount]
+                "drive",
+                [drive.drive_letter, drive.label, drive.auto_mount, drive.auto_unmount],
             )
         self.settings.endArray()
         self.settings.endGroup()
-
 
     def get_proximity(self) -> int:
         """
         Validates preference value proxmity_seconds against standard list.
 
-        Given the user could enter any old value into the preferences, need to validate it.
-        The validation technique is to match whatever value is in the preferences with the
-        closest value we need, which is found in the list of int proximity_time_steps.
+        Given the user could enter any old value into the preferences, need to validate
+        it. The validation technique is to match whatever value is in the preferences
+        with the closest value we need, which is found in the list of int
+        proximity_time_steps.
 
         For the algorithm, see:
-        http://stackoverflow.com/questions/12141150/from-list-of-integers-get-number-closest-to-a
-        -given-value
+        http://stackoverflow.com/questions/12141150/from-list-of-integers-get-number-closest-to-a-given-value
         No need to use bisect list, as our list is tiny, and using min has the advantage
         of getting the closest value.
 
-        Note: we store the value in seconds, but use it in minutes, just in case a user one day
-        makes a compelling case to be able to specify a proximity value less than 1 minute.
+        Note: we store the value in seconds, but use it in minutes, just in case a user
+        one day makes a compelling case to be able to specify a proximity value less
+        than 1 minute.
 
         :return: closest valid value in minutes
         """
 
         minutes = self.proximity_seconds // 60
-        return min(constants.proximity_time_steps, key=lambda x:abs(x - minutes))
+        return min(constants.proximity_time_steps, key=lambda x: abs(x - minutes))
 
     def set_proximity(self, minutes: int) -> None:
         self.proximity_seconds = minutes * 60
 
-    def _pref_list_uses_component(self, pref_list, pref_component, offset: int=1) -> bool:
+    def _pref_list_uses_component(
+        self, pref_list, pref_component, offset: int = 1
+    ) -> bool:
         for i in range(0, len(pref_list), 3):
-            if pref_list[i+offset] == pref_component:
+            if pref_list[i + offset] == pref_component:
                 return True
         return False
 
@@ -626,16 +654,16 @@ class Preferences:
             if self._pref_list_uses_component(pref_list, SEQUENCE_LETTER):
                 return True
         return False
-    
+
     def photo_rename_pref_uses_downloads_today(self) -> bool:
         """
-        :return: True if the photo rename pref list contains a downloads today 
+        :return: True if the photo rename pref list contains a downloads today
         """
         return self._pref_list_uses_component(self.photo_rename, DOWNLOAD_SEQ_NUMBER)
 
     def video_rename_pref_uses_downloads_today(self) -> bool:
         """
-        :return: True if the video rename pref list contains a downloads today 
+        :return: True if the video rename pref list contains a downloads today
         """
         return self._pref_list_uses_component(self.video_rename, DOWNLOAD_SEQ_NUMBER)
 
@@ -664,13 +692,13 @@ class Preferences:
          prefs are invalid (else empty string)
         """
 
-        msg = ''
+        msg = ""
         valid = True
         tests = (
             (self.photo_rename, DICT_IMAGE_RENAME_L0),
             (self.video_rename, DICT_VIDEO_RENAME_L0),
             (self.photo_subfolder, DICT_SUBFOLDER_L0),
-            (self.video_subfolder, DICT_VIDEO_SUBFOLDER_L0)
+            (self.video_subfolder, DICT_VIDEO_SUBFOLDER_L0),
         )
 
         # test file renaming
@@ -701,9 +729,10 @@ class Preferences:
                         if L1s[i] == SEPARATOR and L1s[i + 1] == SEPARATOR:
                             raise PrefValueKeyComboError(
                                 _(
-                                    "Subfolder preferences should not contain two %s one after "
-                                    "the other"
-                                ) % os.sep
+                                    "Subfolder preferences should not contain two %s "
+                                    "one after the other"
+                                )
+                                % os.sep
                             )
 
             except PrefError as e:
@@ -728,14 +757,17 @@ class Preferences:
                 filtered_pref_lists.append(pref_list)
 
         if duplicates:
-            human_readable = preset_type.name[len('preset_'):].replace('_', ' ')
+            human_readable = preset_type.name[len("preset_") :].replace("_", " ")
             logging.warning(
-                'Removed %s duplicate(s) from %s presets: %s',
-                len(duplicates), human_readable, make_internationalized_list(duplicates)
+                "Removed %s duplicate(s) from %s presets: %s",
+                len(duplicates),
+                human_readable,
+                make_internationalized_list(duplicates),
             )
             self.set_preset(
-                preset_type=preset_type, preset_names=filtered_names,
-                preset_pref_lists=filtered_pref_lists
+                preset_type=preset_type,
+                preset_names=filtered_names,
+                preset_pref_lists=filtered_pref_lists,
             )
 
     def filter_duplicate_generation_prefs(self) -> None:
@@ -763,18 +795,18 @@ class Preferences:
         :return: string useful for printing the preferences
         """
 
-        v = ''
+        v = ""
         for i in range(0, len(pref_list), 3):
-            if (pref_list[i+1] or pref_list[i+2]):
-                c = ':'
+            if pref_list[i + 1] or pref_list[i + 2]:
+                c = ":"
             else:
-                c = ''
+                c = ""
             s = "%s%s " % (pref_list[i], c)
 
-            if pref_list[i+1]:
-                s = "%s%s" % (s, pref_list[i+1])
-            if pref_list[i+2]:
-                s = "%s (%s)" % (s, pref_list[i+2])
+            if pref_list[i + 1]:
+                s = "%s%s" % (s, pref_list[i + 1])
+            if pref_list[i + 2]:
+                s = "%s (%s)" % (s, pref_list[i + 2])
             v += s + "\n"
         return v
 
@@ -786,7 +818,12 @@ class Preferences:
         if file_name_only:
             return self.photo_rename, self.video_rename
         else:
-            return self.photo_rename, self.photo_subfolder, self.video_rename, self.video_subfolder
+            return (
+                self.photo_rename,
+                self.photo_subfolder,
+                self.video_rename,
+                self.video_subfolder,
+            )
 
     def get_day_start_qtime(self) -> QTime:
         """
@@ -801,8 +838,10 @@ class Preferences:
             return QTime(h, m)
         except (ValueError, AssertionError):
             logging.error(
-                "'Start of day' preference value %s is corrupted. Resetting to midnight.",
-                self.day_start)
+                "'Start of day' preference value %s is corrupted. Resetting to "
+                "midnight.",
+                self.day_start,
+            )
             self.day_start = "0:0"
             return QTime(0, 0)
 
@@ -820,14 +859,14 @@ class Preferences:
             return Qt.Unchecked
 
     def pref_uses_job_code(self, pref_list: List[str]) -> bool:
-        """ Returns True if the particular preference contains a job code"""
+        """Returns True if the particular preference contains a job code"""
         for i in range(0, len(pref_list), 3):
             if pref_list[i] == JOB_CODE:
                 return True
         return False
 
     def any_pref_uses_job_code(self) -> bool:
-        """ Returns True if any of the preferences contain a job code"""
+        """Returns True if any of the preferences contain a job code"""
         for pref_list in self.get_pref_lists(file_name_only=False):
             if self.pref_uses_job_code(pref_list):
                 return True
@@ -849,7 +888,7 @@ class Preferences:
                 return True
         return False
 
-    def most_recent_job_code(self, missing: Optional[str]=None) -> str:
+    def most_recent_job_code(self, missing: Optional[str] = None) -> str:
         """
         Get the most recent Job Code used (which is assumed to be at the top).
         :param missing: If there is no Job Code, and return this default value
@@ -858,11 +897,11 @@ class Preferences:
 
         if len(self.job_codes) > 0:
             value = self.job_codes[0]
-            return value or missing or ''
+            return value or missing or ""
         elif missing is not None:
             return missing
         else:
-            return ''
+            return ""
 
     def photo_subfolder_index(self, preset_pref_lists: List[List[str]]) -> int:
         """
@@ -941,17 +980,17 @@ class Preferences:
         :param max_list_size: if non-zero, the list's last value will be deleted
         """
 
-        if len(self[key]) == 1 and self[key][0] == '':
+        if len(self[key]) == 1 and self[key][0] == "":
             self[key] = [value]
         elif value not in self[key]:
             # Must assign the value like this, otherwise the preference value
             # will not be updated:
             if max_list_size:
-                self[key] = [value] + self[key][:max_list_size - 1]
+                self[key] = [value] + self[key][: max_list_size - 1]
             else:
                 self[key] = [value] + self[key]
 
-    def del_list_value(self, key:str, value) -> None:
+    def del_list_value(self, key: str, value) -> None:
         """
         Remove a value from the pref list indicated by key.
 
@@ -970,7 +1009,7 @@ class Preferences:
         self[key] = l
 
         if len(self[key]) == 0:
-            self[key] = ['']
+            self[key] = [""]
 
     def list_not_empty(self, key: str) -> bool:
         """
@@ -993,23 +1032,24 @@ class Preferences:
         """
         Upgrade the user's preferences if needed.
 
-        :param previous_version: previous version as returned by pkg_resources.parse_version
+        :param previous_version: previous version as returned by
+         pkg_resources.parse_version
         """
 
-        photo_video_rename_change = pkg_resources.parse_version('0.9.0a4')
+        photo_video_rename_change = pkg_resources.parse_version("0.9.0a4")
         if previous_version < photo_video_rename_change:
-            for key in ('photo_rename', 'video_rename'):
+            for key in ("photo_rename", "video_rename"):
                 pref_list, case = upgrade_pre090a4_rename_pref(self[key])
                 if pref_list != self[key]:
                     self[key] = pref_list
-                    logging.info("Upgraded %s preference value", key.replace('_', ' '))
+                    logging.info("Upgraded %s preference value", key.replace("_", " "))
                 if case is not None:
-                    if key == 'photo_rename':
+                    if key == "photo_rename":
                         self.photo_extension = case
                     else:
                         self.video_extension = case
 
-        v090a5 = pkg_resources.parse_version('0.9.0a5')
+        v090a5 = pkg_resources.parse_version("0.9.0a5")
         if previous_version < v090a5:
             # Versions prior to 0.9.0a5 incorrectly set the conflict resolution value
             # when importing preferences from 0.4.11 or earlier
@@ -1017,15 +1057,15 @@ class Preferences:
                 value = self.conflict_resolution
             except TypeError:
                 self.settings.endGroup()
-                default = self.defaults['conflict_resolution']
+                default = self.defaults["conflict_resolution"]
                 default_name = constants.ConflictResolution(default).name
                 logging.warning(
-                    'Resetting Conflict Resolution preference value to %s', default_name
+                    "Resetting Conflict Resolution preference value to %s", default_name
                 )
                 self.conflict_resolution = default
             # destinationButtonPressed is no longer used by 0.9.0a5
             self.settings.beginGroup("MainWindow")
-            key = 'destinationButtonPressed'
+            key = "destinationButtonPressed"
             try:
                 if self.settings.contains(key):
                     logging.debug("Removing preference value %s", key)
@@ -1034,20 +1074,22 @@ class Preferences:
                 logging.warning("Unknown error removing %s preference value", key)
             self.settings.endGroup()
 
-        v090b6 = pkg_resources.parse_version('0.9.0b6')
-        key = 'warn_broken_or_missing_libraries'
-        group = 'Display'
+        v090b6 = pkg_resources.parse_version("0.9.0b6")
+        key = "warn_broken_or_missing_libraries"
+        group = "Display"
         if previous_version < v090b6 and not self.value_is_set(key, group):
-            # Versions prior to 0.9.0b6 may have a preference value 'warn_no_libmediainfo'
-            # which is now renamed to 'broken_or_missing_libraries'
-            if self.value_is_set('warn_no_libmediainfo', group):
+            # Versions prior to 0.9.0b6 may have a preference value
+            # 'warn_no_libmediainfo' which is now renamed to
+            # 'broken_or_missing_libraries'
+            if self.value_is_set("warn_no_libmediainfo", group):
                 self.settings.beginGroup(group)
-                v = self.settings.value('warn_no_libmediainfo', True, type(True))
-                self.settings.remove('warn_no_libmediainfo')
+                v = self.settings.value("warn_no_libmediainfo", True, type(True))
+                self.settings.remove("warn_no_libmediainfo")
                 self.settings.endGroup()
                 logging.debug(
                     "Transferring preference value %s for warn_no_libmediainfo to "
-                    "warn_broken_or_missing_libraries", v
+                    "warn_broken_or_missing_libraries",
+                    v,
                 )
                 self.warn_broken_or_missing_libraries = v
             else:
@@ -1056,62 +1098,70 @@ class Preferences:
                     "warn_broken_or_missing_libraries because it doesn't exist"
                 )
 
-        v093a1 = pkg_resources.parse_version('0.9.3a1')
-        key = 'scan_specific_folders'
-        group = 'Device'
+        v093a1 = pkg_resources.parse_version("0.9.3a1")
+        key = "scan_specific_folders"
+        group = "Device"
         if previous_version < v093a1 and not self.value_is_set(key, group):
             # Versions prior to 0.9.3a1 used a preference value to indicate if
             # devices lacking a DCIM folder should be scanned. It is now renamed
             # to 'scan_specific_folders'
-            if self.value_is_set('device_without_dcim_autodetection'):
+            if self.value_is_set("device_without_dcim_autodetection"):
                 self.settings.beginGroup(group)
-                v = self.settings.value('device_without_dcim_autodetection', True, type(True))
-                self.settings.remove('device_without_dcim_autodetection')
+                v = self.settings.value(
+                    "device_without_dcim_autodetection", True, type(True)
+                )
+                self.settings.remove("device_without_dcim_autodetection")
                 self.settings.endGroup()
                 self.settings.endGroup()
                 logging.debug(
-                    "Transferring preference value %s for device_without_dcim_autodetection to "
-                    "scan_specific_folders as %s", v, not v
+                    "Transferring preference value %s for "
+                    "device_without_dcim_autodetection to scan_specific_folders as %s",
+                    v,
+                    not v,
                 )
                 self.scan_specific_folders = not v
             else:
                 logging.debug(
-                    "Not transferring preference value device_without_dcim_autodetection to "
-                    "scan_specific_folders because it doesn't exist"
+                    "Not transferring preference value "
+                    "device_without_dcim_autodetection to scan_specific_folders "
+                    "because it doesn't exist"
                 )
 
-        v0919b2 = pkg_resources.parse_version('0.9.19b2')
-        key = 'ignored_paths'
-        group = 'device_defaults'
+        v0919b2 = pkg_resources.parse_version("0.9.19b2")
+        key = "ignored_paths"
+        group = "device_defaults"
         if previous_version < v0919b2 and self.value_is_set(key, group):
             # Versions prior to 0.9.19b2 did not include all the ignored paths
             # introduced in 0.9.16 and 0.9.19b2. If the user already has some
             # values, these new defaults will not be added automatically. So add
             # them here.
-            for value in ('THMBNL', '__MACOSX'):
+            for value in ("THMBNL", "__MACOSX"):
                 # If the value is not already in the list, add it
                 logging.info("Adding folder '%s' to list of ignored paths" % value)
                 self.add_list_value(key=key, value=value)
 
-        v0927a3 = pkg_resources.parse_version('0.9.27a3')
+        v0927a3 = pkg_resources.parse_version("0.9.27a3")
         if previous_version < v0927a3 and self.value_is_set(key, group):
             # Versions prior to 0.9.27a3 did not include all the ignored paths
             # included in that version
             logging.info("Adding folder 'Screenshots' to list of ignored paths")
-            self.add_list_value(key=key, value='Screenshots')
+            self.add_list_value(key=key, value="Screenshots")
 
     def validate_max_CPU_cores(self) -> None:
-        logging.debug('Validating CPU core count for thumbnail generation...')
+        logging.debug("Validating CPU core count for thumbnail generation...")
         available = available_cpu_count(physical_only=True)
-        logging.debug('...%s physical cores detected', available)
+        logging.debug("...%s physical cores detected", available)
         if self.max_cpu_cores > available:
-            logging.info('Setting CPU Cores for thumbnail generation to %s', available)
+            logging.info("Setting CPU Cores for thumbnail generation to %s", available)
             self.max_cpu_cores = available
 
     def validate_ignore_unhandled_file_exts(self) -> None:
         # logging.debug('Validating list of file extension to not warn about...')
-        self.ignore_unhandled_file_exts = [ext.upper() for ext in self.ignore_unhandled_file_exts
-                                           if ext.lower() not in ALL_KNOWN_EXTENSIONS]
+        self.ignore_unhandled_file_exts = [
+            ext.upper()
+            for ext in self.ignore_unhandled_file_exts
+            if ext.lower() not in ALL_KNOWN_EXTENSIONS
+        ]
 
     def warn_about_unknown_file(self, ext: str) -> bool:
         if not self.warn_unhandled_files:
