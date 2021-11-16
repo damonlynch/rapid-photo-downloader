@@ -1182,6 +1182,7 @@ class WslDrives:
                 else:
                     logging.debug("User chose not mount %s", drives_list_hr)
             self.mountDrivesDialog = None
+            self._refresh_drive_state()
 
     def do_mount_drives(self, drives: List[WindowsDriveMount]) -> None:
         """
