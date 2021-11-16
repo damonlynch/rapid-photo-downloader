@@ -17,17 +17,17 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-__author__ = 'Damon Lynch'
+__author__ = "Damon Lynch"
 __copyright__ = "Copyright 2007-2021, Damon Lynch"
 
-from enum import (Enum, IntEnum)
+from enum import Enum, IntEnum
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QFontMetrics, QColor
 
 PROGRAM_NAME = "Rapid Photo Downloader"
-logfile_name = 'rapid-photo-downloader.log'
+logfile_name = "rapid-photo-downloader.log"
 
-remote_versions_file = 'https://damonlynch.net/rapid/version.json'
+remote_versions_file = "https://damonlynch.net/rapid/version.json"
 
 # If set to True, the ability to check for a new version will be removed
 # from the user interface and disabled in program logic.
@@ -101,20 +101,28 @@ class DownloadStatus(Enum):
     download_failed = 7
 
 
-Downloaded = (DownloadStatus.downloaded,
-              DownloadStatus.downloaded_with_warning,
-              DownloadStatus.backup_problem)
+Downloaded = (
+    DownloadStatus.downloaded,
+    DownloadStatus.downloaded_with_warning,
+    DownloadStatus.backup_problem,
+)
 
 
-DownloadWarning = {DownloadStatus.downloaded_with_warning, DownloadStatus.backup_problem}
-DownloadFailure = {DownloadStatus.download_and_backup_failed, DownloadStatus.download_failed}
+DownloadWarning = {
+    DownloadStatus.downloaded_with_warning,
+    DownloadStatus.backup_problem,
+}
+DownloadFailure = {
+    DownloadStatus.download_and_backup_failed,
+    DownloadStatus.download_failed,
+}
 
 
 download_status_error_severity = {
     DownloadStatus.downloaded_with_warning: ErrorType.warning,
     DownloadStatus.backup_problem: ErrorType.serious_error,
     DownloadStatus.download_and_backup_failed: ErrorType.serious_error,
-    DownloadStatus.download_failed: ErrorType.serious_error
+    DownloadStatus.download_failed: ErrorType.serious_error,
 }
 
 
@@ -192,10 +200,10 @@ class DestinationDisplayTooltipState(Enum):
 
 
 class DeviceType(Enum):
-    camera = 1       # camera accessed using PTP
+    camera = 1  # camera accessed using PTP
     camera_fuse = 2  # a camera-like device accessed using fuse, e.g. Apple iOS device
-    volume = 3       # a memory card or external drive, etc.
-    path = 4         # file system path
+    volume = 3  # a memory card or external drive, etc.
+    path = 4  # file system path
 
 
 class BackupDeviceType:
@@ -284,9 +292,9 @@ class JobCodeSort(IntEnum):
 
 
 Checked_Status = {
-    Qt.Checked: 'checked',
-    Qt.Unchecked: 'unchecked',
-    Qt.PartiallyChecked: 'partially checked'
+    Qt.Checked: "checked",
+    Qt.Unchecked: "unchecked",
+    Qt.PartiallyChecked: "partially checked",
 }
 
 
@@ -376,19 +384,19 @@ class NameGenerationType(Enum):
 
 
 class CustomColors(Enum):
-    color1 = '#7a9c38'  # green
-    color2 = '#cb493f'  # red
-    color3 = '#d17109'  # orange
-    color4 = '#4D8CDC'  # blue
-    color5 = '#5f6bfe'  # purple
-    color6 = '#6d7e90'  # greyish
-    color7 = '#ffff00'  # bright yellow
+    color1 = "#7a9c38"  # green
+    color2 = "#cb493f"  # red
+    color3 = "#d17109"  # orange
+    color4 = "#4D8CDC"  # blue
+    color5 = "#5f6bfe"  # purple
+    color6 = "#6d7e90"  # greyish
+    color7 = "#ffff00"  # bright yellow
 
 
-PaleGray = '#d7d6d5'
-DarkGray = '#35322f'
-MediumGray = '#5d5b59'
-DoubleDarkGray = '#1e1b18'
+PaleGray = "#d7d6d5"
+DarkGray = "#35322f"
+MediumGray = "#5d5b59"
+DoubleDarkGray = "#1e1b18"
 
 
 ExtensionColorDict = {
@@ -396,7 +404,7 @@ ExtensionColorDict = {
     FileExtension.video: CustomColors.color2,
     FileExtension.jpeg: CustomColors.color4,
     FileExtension.heif: CustomColors.color5,
-    FileExtension.other_photo: CustomColors.color5
+    FileExtension.other_photo: CustomColors.color5,
 }
 
 
@@ -409,7 +417,7 @@ def extensionColor(ext_type: FileExtension) -> QColor:
 
 FileTypeColorDict = {
     FileType.photo: CustomColors.color1,
-    FileType.video: CustomColors.color2
+    FileType.video: CustomColors.color2,
 }
 
 
@@ -452,7 +460,6 @@ class StandardFileLocations(Enum):
     pictures = 6
     videos = 7
     downloads = 8
-
 
 
 max_remembered_destinations = 10
@@ -504,7 +511,6 @@ def standardProgressBarWidth() -> int:
     return int(QFontMetrics(QFont()).height() * 20)
 
 
-
 # Sync with value in install.py
 class Distro(Enum):
     debian = 1
@@ -544,9 +550,9 @@ orientation_offset = dict(
     raw=742404,
     rw2=1004548,
     sr2=82,
-    srw=46
+    srw=46,
 )
-orientation_offset['3fr'] = 132
+orientation_offset["3fr"] = 132
 
 orientation_offset_exiftool = dict(
     arw=350,
@@ -566,9 +572,9 @@ orientation_offset_exiftool = dict(
     raw=548,
     rw2=709636,
     sr2=276,
-    srw=126
+    srw=126,
 )
-orientation_offset_exiftool['3fr'] = 376
+orientation_offset_exiftool["3fr"] = 376
 
 datetime_offset = dict(
     arw=1540,
@@ -593,8 +599,8 @@ datetime_offset = dict(
     avi=50000,
     mov=250000,
 )
-datetime_offset['3fr'] = 1540
-datetime_offset['3gp'] = 5000
+datetime_offset["3fr"] = 1540
+datetime_offset["3gp"] = 5000
 
 datetime_offset_exiftool = dict(
     arw=1540,
@@ -621,8 +627,8 @@ datetime_offset_exiftool = dict(
     avi=50000,
     mov=250000,
 )
-datetime_offset_exiftool['3fr'] = 1042
-datetime_offset_exiftool['3gp'] = 5000
+datetime_offset_exiftool["3fr"] = 1042
+datetime_offset_exiftool["3gp"] = 5000
 
 all_tags_offset = dict(
     arw=1848,
@@ -641,7 +647,7 @@ all_tags_offset = dict(
     sr2=1080,
     srw=614,
 )
-all_tags_offset['3fr'] = 1848
+all_tags_offset["3fr"] = 1848
 
 all_tags_offset_exiftool = dict(
     arw=1540,
@@ -666,9 +672,9 @@ all_tags_offset_exiftool = dict(
     mt2=1300000,
     m2ts=1300000,
     avi=50000,
-    mov=250000
+    mov=250000,
 )
-all_tags_offset_exiftool['3fr'] = 1042
+all_tags_offset_exiftool["3fr"] = 1042
 
 thumbnail_offset = dict(
     jpg=100000,
@@ -707,7 +713,6 @@ thumbnail_offset_exiftool = dict(
     mpeg=500000,
     tod=500000,
 )
-
 
 
 class RememberThisMessage(Enum):
@@ -761,10 +766,10 @@ class ScalingDetected(Enum):
 
 # Use the character . to for download_name and path to indicate the user manually marked a
 # file as previously downloaded
-manually_marked_previously_downloaded = '.'
+manually_marked_previously_downloaded = "."
 
 filtered_file_browser_directories = {
-    '$RECYCLE.BIN',
-    'System Volume Information',
-    'msdownld.tmp'
+    "$RECYCLE.BIN",
+    "System Volume Information",
+    "msdownld.tmp",
 }
