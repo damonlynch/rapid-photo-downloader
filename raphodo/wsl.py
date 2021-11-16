@@ -33,7 +33,7 @@ from typing import NamedTuple, Optional, Tuple, Set, List, Dict
 import webbrowser
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer, Qt
-from PyQt5.QtGui import QTextDocument
+from PyQt5.QtGui import QTextDocument, QCloseEvent
 from PyQt5.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -245,6 +245,18 @@ def determine_mount_ops(
     return tasks
 
 
+def make_hr_drive_list(drives: List[WindowsDriveMount]) -> str:
+    """
+    Make a human readable list of drives for use in dialog windows, etc.
+    :param drives: the list of drives
+    :return: internationalized string
+    """
+
+    drive_names = [f"{drive.drive_letter}: ({drive.label})" for drive in drives]
+    drive_names.sort()
+    return make_internationalized_list(drive_names)
+
+
 def do_mount_drives_op(
     drives: List[WindowsDriveMount], pending_ops: OrderedDict, parent, is_do_mount: bool
 ) -> bool:
@@ -268,19 +280,18 @@ def do_mount_drives_op(
         op_lower = "unmount"
         op_cap = "Unmount"
 
-    drive_info = [f"{drive.drive_letter}: ({drive.label})" for drive in drives]
-    info_list = make_internationalized_list(drive_info)
+    info_list = make_hr_drive_list(drives)
     if is_do_mount:
-        if len(drive_info) > 1:
+        if len(drives) > 1:
             title = _("Mount drives %s") % info_list
         else:
             title = _("Mount drive %s") % info_list
     else:
-        if len(drive_info) > 1:
+        if len(drives) > 1:
             title = _("Unmount drives %s") % info_list
         else:
             title = _("Unmount drive %s") % info_list
-    logging.info("%s drives %s", op_cap, info_list)
+    logging.info("%sing drives %s", op_cap, info_list)
 
     icon = ":/icons/drive-removable-media.svg"
     failures = []
@@ -323,10 +334,8 @@ def do_mount_drives_op(
                 )
 
     if failures:
-        failure_info = [
-            f"{failure[0].drive_letter}: ({failure[0].label})" for failure in failures
-        ]
-        fail_list = make_internationalized_list(failure_info)
+        failed_drives = [failure[0] for failure in failures]
+        fail_list = make_hr_drive_list(failed_drives)
         failure_messages = "; ".join([failure[1] for failure in failures])
         if len(failures) > 1:
             if is_do_mount:
@@ -458,6 +467,8 @@ class WslMountDriveDialog(QDialog):
         self.prefs = prefs
         self.windrive_prefs = windrive_prefs
         self.wsl_mount_root = wsl_mount_root
+
+        self.prompt_to_mount_drives = []  # type: List[WindowsDriveMount]
 
         self.driveTable = None  # type: Optional[QTableWidget]
 
@@ -707,6 +718,10 @@ class WslMountDriveDialog(QDialog):
                     self.driveTable.item(row, self.autoUnmountCol).checkState()
                     == Qt.Checked
                 )
+                if auto_mount:
+                    self.prompt_to_mount_drives.append(drive)
+                elif drive in self.prompt_to_mount_drives:
+                    self.prompt_to_mount_drives.remove(drive)
             self.windrive_prefs.set_prefs(drive, auto_mount, auto_unmount)
 
     def updatePendingOps(self) -> None:
@@ -977,6 +992,8 @@ class WslMountDriveDialog(QDialog):
                     drive.drive_letter,
                 )
                 self.driveTable.removeRow(row)
+                if drive in self.prompt_to_mount_drives:
+                    self.prompt_to_mount_drives.remove(drive)
                 break
 
 
@@ -1140,6 +1157,30 @@ class WslDrives:
                 wsl_mount_root=self.wsl_mount_root,
             )
             self.mountDrivesDialog.exec()
+            unmounted_drives = [
+                drive
+                for drive in self.mountDrivesDialog.prompt_to_mount_drives
+                if drive in self.drives and not wsl_mount_point(drive.drive_letter)
+            ]
+            if unmounted_drives:
+                drives_list_hr = make_hr_drive_list(unmounted_drives)
+                logging.debug("Prompting to ask whether to mount %s", drives_list_hr)
+                if len(unmounted_drives) == 1:
+                    # translators: this will appear in a small dialog asking the user if they want to mount a single drive
+                    message = _(
+                        "Do you want to mount drive %s?"
+                    ) % drives_list_hr
+                else:
+                    # translators: this will appear in a small dialog asking the user if they want to mount two or more drives
+                    message = _(
+                        "Do you want to mount drives %s?"
+                    ) % drives_list_hr
+                msgBox = standardMessageBox(message=message, rich_text=False, standardButtons= QMessageBox.Yes|QMessageBox.No, parent=self.rapidApp)
+                if msgBox.exec() == QMessageBox.Yes:
+                    logging.debug("Will mount drives %s", drives_list_hr)
+                    self.do_mount_drives(drives=unmounted_drives)
+                else:
+                    logging.debug("User chose not mount %s", drives_list_hr)
             self.mountDrivesDialog = None
 
     def do_mount_drives(self, drives: List[WindowsDriveMount]) -> None:
@@ -1402,6 +1443,9 @@ if __name__ == "__main__":
             )
 
     w = WslMountDriveDialog(
-        drives=ddrives, prefs=prefs, windrive_prefs=wdrive_prefs, wsl_mount_root="/mnt"
+        drives=ddrives,
+        prefs=prefs,
+        windrive_prefs=wdrive_prefs,
+        wsl_mount_root=Path("/mnt"),
     )
     w.exec()
