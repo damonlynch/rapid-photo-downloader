@@ -111,6 +111,12 @@ class MountOpHumanReadable:
     }
 
     def mount_task_human_readable(self, op: MountOp) -> str:
+        """
+        Create human readable versions of mount operations
+        :param op: operation to perform and its parameters
+        :return: operation in human readable form
+        """
+
         task_hr = self.human_hr[op.task]
         if op.task in (MountTask.unmount_drive, MountTask.mount_drive):
             task_hr = task_hr % {"drive": op.drive, "path": op.path}
@@ -126,21 +132,41 @@ def make_mount_op_cmd(
     uid: Optional[int] = None,
     gid: Optional[int] = None,
 ) -> str:
+    """
+    Create command to be via subprocess.Popen() call.
+
+    :param task: task to perform
+    :param drive_letter: windows drive letter
+    :param path: path of mount point, directory or file
+    :param uid: user's user id
+    :param gid: user's group id
+    :return:  the command to run
+    """
+
     if task == MountTask.mount_drive:
         if has_fstab_entry(drive_letter=drive_letter, mount_point=str(path)):
             return f"mount {path}"
         else:
             return rf"mount -t drvfs -o uid={uid},gid={gid},noatime {drive_letter.upper()}:\\ {path}"
     elif task == MountTask.unmount_drive:
-        return f"unmount {path}"
+        return f"umount {path}"
     elif task == MountTask.create_directory:
         return f"mkdir {path}"
     elif task == MountTask.remove_existing_file:
+        # TODO add code to move file to user's home directory first, or else just remove this altogether
         return f"rm {path}"
     raise NotImplementedError
 
 
 def has_fstab_entry(drive_letter: str, mount_point: str) -> bool:
+    """
+    Determine if the drive letter and mount point are in /etc/fstab
+
+    :param drive_letter: Windows drive letter
+    :param mount_point: mount point the drive should be mounted at
+    :return: True if located, else False
+    """
+
     with open("/etc/fstab") as f:
         fstab = f.read()
     # strip any extraneous trailing slash
@@ -151,6 +177,15 @@ def has_fstab_entry(drive_letter: str, mount_point: str) -> bool:
 
 
 def generate_mount_point(drive_letter: str) -> str:
+    """
+    Generate an unused mount point
+
+    (Not currently called)
+
+    :param drive_letter: Windows drive letter
+    :return: unique mount point
+    """
+
     mount_point = wsl_standard_mount_point(drive_letter)
     suffix = ""
     if os.path.ismount(mount_point):
@@ -164,6 +199,17 @@ def generate_mount_point(drive_letter: str) -> str:
 def determine_mount_ops(
     do_mount: bool, drive_letter: str, mount_point: str, uid: int, gid: int
 ) -> List[MountOp]:
+    """
+    Generator sequence of operations to mount or unmount a Windows drive
+
+    :param do_mount: Whether to mount or unmount
+    :param drive_letter: Windows drive letter
+    :param mount_point: Existing or desired mount point
+    :param uid: User's user ID
+    :param gid: User's group ID
+    :return: List of operations required to mount or unmount the windows drive
+    """
+
     tasks = []  # type: List[MountOp]
     if not mount_point:
         mount_point = wsl_standard_mount_point(drive_letter)
@@ -235,10 +281,136 @@ def determine_mount_ops(
     return tasks
 
 
+def do_mount_drives_op(
+    drives: List[WindowsDriveMount], pending_ops: OrderedDict, parent, is_do_mount: bool
+) -> bool:
+    """
+    Mount or unmount the Windows drives, prompting the user for the root password if
+    necessary.
+
+    If unmounting, and the user cancels the operation, an SudoException is raised.
+
+    :param drives: List of drives to mount or unmount
+    :param pending_ops: The operations required to mount unmount the drives
+    :param parent: Parent window to attach the password entry message box to
+    :param is_do_mount: True if mounting the drives, else False
+    :return: True if the operations all completed successfully, else False
+    """
+
+    if is_do_mount:
+        op_lower = "mount"
+        op_cap = "Mount"
+    else:
+        op_lower = "unmount"
+        op_cap = "Unmount"
+
+    drive_info = [f"{drive.drive_letter}: ({drive.label})" for drive in drives]
+    info_list = make_internationalized_list(drive_info)
+    if is_do_mount:
+        if len(drive_info) > 1:
+            title = _("Mount drives %s") % info_list
+        else:
+            title = _("Mount drive %s") % info_list
+    else:
+        if len(drive_info) > 1:
+            title = _("Unmount drives %s") % info_list
+        else:
+            title = _("Unmount drive %s") % info_list
+    logging.info("%s drives %s", op_cap, info_list)
+
+    icon = ":/icons/drive-removable-media.svg"
+    failures = []
+    all_drive_ops_completed_ok = True
+
+    for drive, mount_ops in pending_ops.items():
+        cmds = [op.cmd for op in mount_ops]
+        try:
+            results = run_commands_as_sudo(
+                cmds=cmds, parent=parent, title=title, icon=icon
+            )
+        except SudoException as e:
+            assert e.code == SudoExceptionCode.command_cancelled
+            logging.debug(
+                "%s %s (%s): cancelled by user. " "Not mounting any remaining drives.",
+                op_cap,
+                drive.drive_letter,
+                drive.label,
+            )
+            if not is_do_mount:
+                # raise the exception to be handled by the caller
+                raise
+            all_drive_ops_completed_ok = False
+            break
+        else:
+            return_code = results[-1].return_code
+            if return_code != 0:
+                # a command failed
+                logging.warning(
+                    "Failed to %s %s: (%s) : %s",
+                    op_lower,
+                    drive.drive_letter.upper(),
+                    drive.label,
+                    results[-1].stderr,
+                )
+                failures.append((drive, results[-1].stderr))
+            else:
+                logging.debug(
+                    "Successfully %sed %s: (%s)",
+                    op_lower,
+                    drive.drive_letter.upper(),
+                    drive.label,
+                )
+
+    if failures:
+        failure_info = [
+            f"{failure[0].drive_letter}: ({failure[0].label})" for failure in failures
+        ]
+        fail_list = make_internationalized_list(failure_info)
+        failure_messages = "; ".join([failure[1] for failure in failures])
+        if len(failures) > 1:
+            if is_do_mount:
+                # Translators: this error message is displayed when more than one Windows drive fails to mount within Windows Subsystem for Linux
+                message = (
+                    _("Sorry, an error occurred when mounting drives %s.") % fail_list
+                )
+            else:
+                # Translators: this error message is displayed when more than one Windows drive fails to unmount within Windows Subsystem for Linux
+                message = (
+                    _("Sorry, an error occurred when unmounting drives %s.") % fail_list
+                )
+        else:
+            if is_do_mount:
+                # Translators: this error message is displayed when one Windows drive fails to mount within Windows Subsystem for Linux
+                message = (
+                    _("Sorry, an error occurred when mounting drive %s.") % fail_list
+                )
+            else:
+                # Translators: this error message is displayed when one Windows drive fails to unmount within Windows Subsystem for Linux
+                message = (
+                    _("Sorry, an error occurred when unmounting drive %s.") % fail_list
+                )
+
+        message = f"{message}<br><pre>{failure_messages}.</pre>"
+        msgBox = standardMessageBox(
+            message=message,
+            standardButtons=QMessageBox.Ok,
+            parent=parent,
+            rich_text=True,
+            iconType=QMessageBox.Warning,
+        )
+        msgBox.exec()
+        all_drive_ops_completed_ok = False
+
+    return all_drive_ops_completed_ok
+
+
 class WSLWindowsDrivePrefsInterface:
     """
     An interface to the QSettings based method to store whether to auto mount or
     unmount Windows drives.
+
+    Abstraction layer so program preferences do not need to know about implementation
+    details in the UI.
     """
 
     def __init__(self, prefs: Preferences) -> None:
@@ -309,16 +481,29 @@ class WslMountDriveDialog(QDialog):
         windrive_prefs: WSLWindowsDrivePrefsInterface,
         parent: "RapidWindow" = None,
     ) -> None:
+        """
+        Open the dialogue window to show Windows drive mounts
+
+        :param drives: List of Windows drives detected on the system
+        :param prefs: main program preferences
+        :param windrive_prefs: Interface to the windows drives preferences
+        :param parent: RapidApp main window
+        """
+
         super().__init__(parent=parent)
 
         self.prefs = prefs
         self.windrive_prefs = windrive_prefs
 
         self.driveTable = None  # type: Optional[QTableWidget]
-        #  OrderedDict[drive_letter: List[MountOp]]
-        self.pending_ops = OrderedDict()
+
+        #  OrderedDict[drive: List[MountOp]]
+        self.pending_mount_ops = OrderedDict()
+        self.pending_unmount_ops = OrderedDict()
+
         self.uid = os.getuid()
         self.gid = os.getgid()
+
         self.make_mount_op_hr = MountOpHumanReadable()
 
         self.setWindowTitle(_("Windows Drives"))
@@ -448,27 +633,64 @@ class WslMountDriveDialog(QDialog):
 
     @pyqtSlot()
     def applyButtonClicked(self) -> None:
-        for drive, pending in self.pending_ops.items():
-            pass
+        """"
+        Initiate mount or unmount operations after the user clicked the apply button
+        """
+
+        if self.pending_mount_ops:
+            drives = list(self.pending_mount_ops.keys())
+            if do_mount_drives_op(
+                drives=drives,
+                pending_ops=self.pending_mount_ops,
+                parent=self,
+                is_do_mount=True,
+            ):
+                self.pending_mount_ops.clear()
+                self.updatePendingOps()
+                self.setApplyButtonState()
+            else:
+                logging.debug("not all drives mounted successfully")
+                # TODO not all drives mounted successfully, change drive checked status
+                pass
+        if self.pending_unmount_ops:
+            drives = list(self.pending_unmount_ops.keys())
+            try:
+                do_mount_drives_op(
+                    drives=drives,
+                    pending_ops=self.pending_unmount_ops,
+                    parent=self,
+                    is_do_mount=False,
+                )
+            except SudoException as e:
+                assert e.code == SudoExceptionCode.command_cancelled
+                # TODO change drive checked status
 
     @pyqtSlot(QTableWidgetItem)
     def driveTableItemChanged(self, item: QTableWidgetItem) -> None:
+        """
+        Respond to the user checking or unchecking a checkbox in the table of drives
+
+        :param item: the table item checked or unchecked
+        """
+
         column = item.column()
         if column == self.userMountCol:
             drive = item.data(Qt.UserRole)  # type: WindowsDriveMount
-            drive_letter = drive.drive_letter
-            mount_point = ""
+            do_mount = item.checkState() == Qt.Checked
             tasks = determine_mount_ops(
-                do_mount=item.checkState() == Qt.Checked,
-                drive_letter=drive_letter,
-                mount_point=mount_point,
+                do_mount=do_mount,
+                drive_letter=drive.drive_letter,
+                mount_point=drive.mount_point,
                 uid=self.uid,
                 gid=self.gid,
             )
             if tasks:
-                self.pending_ops[drive_letter] = tasks
+                if do_mount:
+                    self.pending_mount_ops[drive] = tasks
+                else:
+                    self.pending_unmount_ops[drive] = tasks
             else:
-                del self.pending_ops[drive_letter]
+                del self.pending_mount_ops[drive]
             self.updatePendingOps()
             self.setApplyButtonState()
         elif not self.prefs.wsl_automount_all_removable_drives and column in (
@@ -494,9 +716,16 @@ class WslMountDriveDialog(QDialog):
             self.windrive_prefs.set_prefs(drive, auto_mount, auto_unmount)
 
     def updatePendingOps(self) -> None:
+        """
+        Update the list of pending operations displayed to the user at the bottom of the
+        Windows Drive Mount window
+        """
         self.pendingOpsBox.clear()
         lines = []
-        for mount_ops in self.pending_ops.values():
+        for mount_ops in self.pending_mount_ops.values():
+            for op in mount_ops:
+                lines.append(self.make_mount_op_hr.mount_task_human_readable(op))
+        for mount_ops in self.pending_unmount_ops.values():
             for op in mount_ops:
                 lines.append(self.make_mount_op_hr.mount_task_human_readable(op))
 
@@ -504,17 +733,37 @@ class WslMountDriveDialog(QDialog):
         self.pendingOpsBox.setHtml(text)
 
     def setApplyButtonState(self) -> None:
-        enabled = len(self.pending_ops) > 0
+        """
+        Change the apply button state depending on whether there are any pending
+        mount or unmount operations
+        """
+
+        enabled = len(self.pending_mount_ops) > 0 or len(self.pending_unmount_ops) > 0
         self.applyButton.setEnabled(enabled)
 
     @pyqtSlot(int)
     def autoMountChanged(self, state: int) -> None:
+        """
+        Respond to the user checking or unchecking the automatically mount Windows
+        drives option, adjusting the preferences and setting other control states
+
+        :param state: Whether the new state is checked or unchecked
+        """
+
         auto_mount = state == Qt.Checked
         self.prefs.wsl_automount_removable_drives = auto_mount
         self.setAutoMountGroupState()
 
     @pyqtSlot(QAbstractButton, bool)
     def autoMountGroupToggled(self, button: QAbstractButton, checked: bool) -> None:
+        """
+        Respond to the user checking or unchecking one of the order auto mount radio
+        buttons
+
+        :param button: Radio button modified
+        :param checked: Whether the button was checked or unchecked
+        """
+
         self.prefs.wsl_automount_all_removable_drives = (
             self.autoMountAllButton.isChecked()
         )
@@ -522,10 +771,18 @@ class WslMountDriveDialog(QDialog):
         self.setAutoMountGroupState()
 
     def setAutoMountWidgetValues(self) -> None:
+        """
+        Set values for Auto mount and other controls based on program preferences
+        """
         self.autoMountCheckBox.setChecked(self.prefs.wsl_automount_removable_drives)
         self.setAutoMountGroupState()
 
     def setAutoMountGroupState(self):
+        """
+        Set control states of controls depending on program preferences, including
+        whether they are enabled or not
+        """
+
         if self.prefs.wsl_automount_removable_drives:
             self.autoMountAllButton.setEnabled(True)
             self.autoMountManualButton.setEnabled(True)
@@ -546,6 +803,11 @@ class WslMountDriveDialog(QDialog):
             self.setDriveAutoMountColStates()
 
     def setDriveAutoMountColStates(self) -> None:
+        """
+        For each Windows drive in the drive table, enable or disable checkboxes and set
+        their values
+        """
+
         if self.driveTable is not None:
             # Set table state here rather than in setAutoMountGroupState() because
             # it does not exist early in window init
@@ -586,6 +848,12 @@ class WslMountDriveDialog(QDialog):
                     self.driveTable.blockSignals(blocked)
 
     def setItemState(self, enabled: bool, item: QTableWidgetItem) -> None:
+        """
+        Enable or disable an individual check box in the Windows drive mount table
+        :param enabled: Whether the control should be enabled or disabled
+        :param item: The item to apply the state to
+        """
+
         if enabled:
             item.setFlags(
                 item.flags()
@@ -602,6 +870,13 @@ class WslMountDriveDialog(QDialog):
             )
 
     def addDriveAtRow(self, row: int, drive: WindowsDriveMount):
+        """
+        Add new windows mount drive to the drive table at the row indicated
+
+        :param row: row to add the drive to
+        :param drive: the drive to add
+        """
+
         auto_mount = self.autoMountCheckBox.isChecked()
         auto_mount_all = self.autoMountAllButton.isChecked()
 
@@ -673,6 +948,11 @@ class WslMountDriveDialog(QDialog):
         self.driveTable.setItem(row, self.autoUnmountCol, autounmountItem)
 
     def addMount(self, drive: WindowsDriveMount) -> None:
+        """
+        Add a new Windows drive mount to the table
+        :param drive: drive to add
+        """
+
         row = self.driveTable.rowCount()
         self.driveTable.insertRow(row)
         logging.debug(
@@ -687,6 +967,11 @@ class WslMountDriveDialog(QDialog):
         self.driveTable.blockSignals(blocked)
 
     def removeMount(self, drive: WindowsDriveMount) -> None:
+        """
+        Remove a Windows drive from the table
+        :param drive: Drive to remove
+        """
+
         for row in range(self.driveTable.rowCount()):
             d = self.driveTable.item(row, 0).data(Qt.UserRole)
             if d == drive:
@@ -699,7 +984,11 @@ class WslMountDriveDialog(QDialog):
 
 
 class WslDrives:
-    def __init__(self, rapidApp: "RapidWindow"):
+    """
+    Manages Windows drive mounts under the Window Subsystem for Linux
+    """
+
+    def __init__(self, rapidApp: "RapidWindow") -> None:
         self.drives = []  # type: List[WindowsDriveMount]
         self.have_unmounted_drive = False
         self.rapidApp = rapidApp
@@ -710,6 +999,12 @@ class WslDrives:
         self.gid = os.getgid()
 
     def add_drive(self, drive: WindowsDriveMount) -> None:
+        """
+        Add a new windows drive, which may be already mounted or not
+
+        :param drive: the drive to add
+        """
+
         self.drives.append(drive)
         if not drive.mount_point:
             self.have_unmounted_drive = True
@@ -717,11 +1012,22 @@ class WslDrives:
             self.mountDrivesDialog.addMount(drive)
 
     def remove_drive(self, drive: WindowsDriveMount) -> None:
+        """
+        Remove a windows drive
+
+        :param drive: the drive to remove
+        """
+
         self.drives.remove(drive)
         if self.mountDrivesDialog:
             self.mountDrivesDialog.removeMount(drive)
 
-    def mount_drives(self):
+    def mount_drives(self) -> None:
+        """
+        Mount all drives that should be automatically mounted, and prompt the user for
+        drives that are not automatically mounted
+        """
+
         if self.have_unmounted_drive:
             unmounted_drives = (drive for drive in self.drives if not drive.mount_point)
             drives_to_mount = []
@@ -739,10 +1045,58 @@ class WslDrives:
             if drives_to_mount:
                 self.do_mount_drives(drives=drives_to_mount)
 
+            # TODO handle opening drive mount dialog window after auto mount
             if show_dialog and self.mountDrivesDialog is None and False:
                 self.show_mount_drives_dialog(refresh_drive_state=False)
 
-    def _refresh_drive_state(self):
+        # TODO reset self.have_unmounted_drive
+
+    def unmount_drives(self) -> bool:
+        """
+        Unmount drives that should be automatically unmounted at program exit
+
+        :return: True if the user did not cancel the unmount operation when prompted to
+        enter a password
+        """
+
+        if self.prefs.wsl_automount_removable_drives:
+            auto_unmount_drives = []  # type: List[WindowsDriveMount]
+            for drive in self.drives:
+                if drive.mount_point and not drive.system_mounted:
+                    if (
+                        self.prefs.wsl_automount_all_removable_drives
+                        or self.windrive_prefs.drive_prefs(drive=drive).auto_unmount
+                    ):
+                        auto_unmount_drives.append(drive)
+            if auto_unmount_drives:
+                pending_ops = OrderedDict()
+                for drive in auto_unmount_drives:
+                    tasks = determine_mount_ops(
+                        do_mount=False,
+                        drive_letter=drive.drive_letter,
+                        mount_point=drive.mount_point,
+                        uid=self.uid,
+                        gid=self.gid,
+                    )
+                    if tasks:
+                        pending_ops[drive] = tasks
+                try:
+                    do_mount_drives_op(
+                        drives=auto_unmount_drives,
+                        pending_ops=pending_ops,
+                        parent=self.rapidApp,
+                        is_do_mount=False,
+                    )
+                except SudoException as e:
+                    assert e.code == SudoExceptionCode.command_cancelled
+                    return False
+        return True
+
+    def _refresh_drive_state(self) -> None:
+        """
+        Refresh the internally maintained list of drives and their mount status
+        """
+
         refreshed_drives = []  # type: List[WindowsDriveMount]
         for drive in self.drives:
             mount_point = wsl_mount_point(drive_letter=drive.drive_letter)
@@ -753,6 +1107,14 @@ class WslDrives:
         self.drives = refreshed_drives
 
     def show_mount_drives_dialog(self, refresh_drive_state: bool = True) -> None:
+        """
+        Show the Dialogue window with a list of Windows drive mounts and associated
+        options
+
+        :param refresh_drive_state: if True, fefresh the internally maintained list of
+         Windows drives and their states
+        :return:
+        """
         if refresh_drive_state:
             self._refresh_drive_state()
 
@@ -767,15 +1129,15 @@ class WslDrives:
             self.mountDrivesDialog = None
 
     def do_mount_drives(self, drives: List[WindowsDriveMount]) -> None:
+        """
+        Mount the list of drives that should be automatically mounted
+
+        :param drives: the drives to mount
+        """
+
+        logging.debug("Auto mounting %s drives", len(drives))
         pending_ops = OrderedDict()
-        drive_info = [f"{drive.drive_letter}: ({drive.label})" for drive in drives]
-        drive_letters_to_mount = [drive.drive_letter for drive in drives]
-        info_list = make_internationalized_list(drive_info)
-        if len(drive_info) > 1:
-            title = _("Mount drives %s") % info_list
-        else:
-            title = _("Mount drive %s") % info_list
-        logging.info("Auto mounting %s", info_list)
+
         for drive in drives:
             tasks = determine_mount_ops(
                 do_mount=True,
@@ -787,62 +1149,13 @@ class WslDrives:
             if tasks:
                 pending_ops[drive] = tasks
 
-        icon = ":/icons/drive-removable-media.svg"
-        failures = []
-        for drive, mount_ops in pending_ops.items():
-            cmds = [op.cmd for op in mount_ops]
-            try:
-                results = run_commands_as_sudo(
-                    cmds=cmds, parent=self.rapidApp, title=title, icon=icon
-                )
-            except SudoException as e:
-                assert e.code == SudoExceptionCode.command_cancelled
-                logging.debug(
-                    "Mounting %s: cancelled by user. "
-                    "Not auto mounting any remaining drives.",
-                    drive.drive_letter,
-                )
-                break
-            else:
-                return_code = results[-1].return_code
-                if return_code != 0:
-                    # a command failed
-                    logging.warning(
-                        "Failed to auto mount %s: (%s) : %s",
-                        drive.drive_letter.upper(),
-                        drive.label,
-                        results[-1].stderr,
-                    )
-                    failures.append((drive, results[-1].stderr))
-                else:
-                    logging.debug(
-                        "Successfully auto mounted %s: (%s)",
-                        drive.drive_letter.upper(),
-                        drive.label,
-                    )
-
+        do_mount_drives_op(
+            drives=drives,
+            pending_ops=pending_ops,
+            parent=self.rapidApp,
+            is_do_mount=True,
+        )
         self._refresh_drive_state()
-        if failures:
-            failure_info = [
-                f"{failure[0].drive_letter}: ({failure[0].label})" for failure in failures
-            ]
-            fail_list = make_internationalized_list(failure_info)
-            failure_messages = "; ".join([failure[1] for failure in failures])
-            if len(failures) > 1:
-                # Translators: this error message is displayed when more than one Windows drive fails to mount within Windows Subsystem for Linux
-                message = _("Sorry, an error occurred when mounting drives %s.") % fail_list
-            else:
-                # Translators: this error message is displayed when one Windows drive fails to mount within Windows Subsystem for Linux
-                message = _("Sorry, an error occurred when mounting drive %s.") % fail_list
-            message = f"{message}<br><pre>{failure_messages}.</pre>"
-            msgBox = standardMessageBox(
-                message=message,
-                standardButtons=QMessageBox.Ok,
-                parent=self.rapidApp,
-                rich_text=True,
-                iconType=QMessageBox.Warning
-            )
-            msgBox.exec()
 
 
 class WslWindowsRemovableDriveMonitor(QObject):
@@ -926,6 +1239,8 @@ class WslWindowsRemovableDriveMonitor(QObject):
 
 
 def wsl_standard_mount_point(drive_letter: str) -> str:
+    # TODO update to use wsl.conf [automount] root
+    # see https://docs.microsoft.com/en-us/windows/wsl/wsl-config
     return f"/mnt/{drive_letter.lower()}"
 
 
@@ -971,6 +1286,10 @@ def wsl_drive_valid(drive_letter: str) -> bool:
 def wsl_windows_drives(
     drive_type_filter: Optional[Tuple[WindowsDriveType, ...]] = None,
 ) -> Set[WindowsDrive]:
+    """
+    Get Windows to report its drives and their types
+    :param drive_type_filter: the type of drives to search for
+    """
 
     # wmic is deprecated, but is much, much faster than calling powershell
     output = subprocess.run(

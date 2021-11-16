@@ -4579,7 +4579,14 @@ Do you want to proceed with the download?
 
     def closeEvent(self, event) -> None:
         logging.debug("Close event activated")
-        QTimer.singleShot(0, self.wslDriveMonitor.stopMonitor)
+
+        if self.is_wsl2:
+            if not self.wslDrives.unmount_drives():
+                logging.debug("Ignoring close event because user cancelled unmount drives")
+                event.ignore()
+                return
+
+        # TODO test what happens when a download is running and is wsl2 with auto unmount
 
         if self.close_event_run:
             logging.debug("Close event already run: accepting close event")
@@ -4610,6 +4617,8 @@ Do you want to proceed with the download?
                 # Incidentally, it's the renameandmovefile process that
                 # updates the SQL database with the file downloads,
                 # so no need to update or close it in this main process
+
+        QTimer.singleShot(0, self.wslDriveMonitor.stopMonitor)
 
         if self.unity_progress:
             for launcher in self.desktop_launchers:
