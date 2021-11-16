@@ -987,7 +987,7 @@ class WslDrives:
 
     def __init__(self, rapidApp: "RapidWindow") -> None:
         self.drives = []  # type: List[WindowsDriveMount]
-        self.have_unmounted_drive = False
+        self.make_mount_drive_attempt = False
         self.rapidApp = rapidApp
         self.prefs = self.rapidApp.prefs
         self.windrive_prefs = WSLWindowsDrivePrefsInterface(prefs=self.prefs)
@@ -1020,7 +1020,7 @@ class WslDrives:
 
         self.drives.append(drive)
         if not drive.mount_point:
-            self.have_unmounted_drive = True
+            self.make_mount_drive_attempt = True
         if self.mountDrivesDialog:
             self.mountDrivesDialog.addMount(drive)
 
@@ -1041,7 +1041,7 @@ class WslDrives:
         drives that are not automatically mounted
         """
 
-        if self.have_unmounted_drive:
+        if self.make_mount_drive_attempt:
             unmounted_drives = (drive for drive in self.drives if not drive.mount_point)
             drives_to_mount = []
             show_dialog = False
@@ -1058,11 +1058,10 @@ class WslDrives:
             if drives_to_mount:
                 self.do_mount_drives(drives=drives_to_mount)
 
-            # TODO handle opening drive mount dialog window after auto mount
-            if show_dialog and self.mountDrivesDialog is None and False:
+            if show_dialog and self.mountDrivesDialog is None:
                 self.show_mount_drives_dialog(refresh_drive_state=False)
 
-        # TODO reset self.have_unmounted_drive
+        self.make_mount_drive_attempt = False
 
     def unmount_drives(self) -> bool:
         """
