@@ -81,7 +81,6 @@ class WindowsDriveMount(NamedTuple):
 
 
 class MountTask(enum.Enum):
-    remove_existing_file = enum.auto()
     create_directory = enum.auto()
     mount_drive = enum.auto()
     unmount_drive = enum.auto()
@@ -101,7 +100,6 @@ class MountPref(NamedTuple):
 
 class MountOpHumanReadable:
     human_hr = {
-        MountTask.remove_existing_file: _("Remove existing file <tt>%(path)s</tt>"),
         MountTask.create_directory: _("Create directory <tt>%(path)s</tt>"),
         MountTask.mount_drive: _(
             "Mount drive <tt>%(drive)s:</tt> at <tt>%(path)s</tt>"
@@ -153,9 +151,6 @@ def make_mount_op_cmd(
         return f"umount {path}"
     elif task == MountTask.create_directory:
         return f"mkdir {path}"
-    elif task == MountTask.remove_existing_file:
-        # TODO add code to move file to user's home directory first, or else just remove this altogether
-        return f"rm {path}"
     raise NotImplementedError
 
 
@@ -204,25 +199,7 @@ def determine_mount_ops(
         mp = Path(mount_point)
         if mp.is_mount():
             return tasks
-        create_dir = False
-        if mp.exists():
-            if not mp.is_dir():
-                tasks.append(
-                    MountOp(
-                        task=MountTask.remove_existing_file,
-                        path=mp,
-                        drive=drive_letter,
-                        cmd=make_mount_op_cmd(
-                            task=MountTask.remove_existing_file,
-                            drive_letter=drive_letter,
-                            path=mp,
-                        ),
-                    )
-                )
-                create_dir = True
-        else:
-            create_dir = True
-        if create_dir:
+        if not mp.is_dir():
             tasks.append(
                 MountOp(
                     task=MountTask.create_directory,
@@ -355,26 +332,25 @@ def do_mount_drives_op(
             if is_do_mount:
                 # Translators: this error message is displayed when more than one Windows drive fails to mount within Windows Subsystem for Linux
                 message = (
-                    _("Sorry, an error occurred when mounting drives %s.") % fail_list
+                    _("Sorry, an error occurred when mounting drives %s") % fail_list
                 )
             else:
                 # Translators: this error message is displayed when more than one Windows drive fails to unmount within Windows Subsystem for Linux
                 message = (
-                    _("Sorry, an error occurred when unmounting drives %s.") % fail_list
+                    _("Sorry, an error occurred when unmounting drives %s") % fail_list
                 )
         else:
             if is_do_mount:
                 # Translators: this error message is displayed when one Windows drive fails to mount within Windows Subsystem for Linux
                 message = (
-                    _("Sorry, an error occurred when mounting drive %s.") % fail_list
+                    _("Sorry, an error occurred when mounting drive %s") % fail_list
                 )
             else:
-                # Translators: this error message is displayed when one Windows drive fails to unmount within Windows Subsystem for Linux
+                # Translators: this error message is displayed when one Windows drive fails to unmount within Windows Subsystem for Linux.
                 message = (
-                    _("Sorry, an error occurred when unmounting drive %s.") % fail_list
+                    _("Sorry, an error occurred when unmounting drive %s") % fail_list
                 )
 
-        message = f"{message}<br><pre>{failure_messages}.</pre>"
         msgBox = standardMessageBox(
             message=message,
             standardButtons=QMessageBox.Ok,
@@ -382,6 +358,7 @@ def do_mount_drives_op(
             rich_text=True,
             iconType=QMessageBox.Warning,
         )
+        msgBox.setDetailedText(failure_messages)
         msgBox.exec()
         all_drive_ops_completed_ok = False
 
