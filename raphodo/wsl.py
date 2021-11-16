@@ -178,7 +178,12 @@ def has_fstab_entry(drive_letter: str, mount_point: str) -> bool:
 
 
 def determine_mount_ops(
-    do_mount: bool, drive_letter: str, mount_point: str, uid: int, gid: int, wsl_mount_root: Path
+    do_mount: bool,
+    drive_letter: str,
+    mount_point: str,
+    uid: int,
+    gid: int,
+    wsl_mount_root: Path,
 ) -> List[MountOp]:
     """
     Generator sequence of operations to mount or unmount a Windows drive
@@ -270,7 +275,7 @@ def do_mount_drives_op(
     Mount or unmount the Windows drives, prompting the user for the root password if
     necessary.
 
-    If unmounting, and the user cancels the operation, an SudoException is raised.
+    If the user cancels the operation, an SudoException is raised.
 
     :param drives: List of drives to mount or unmount
     :param pending_ops: The operations required to mount unmount the drives
@@ -318,11 +323,8 @@ def do_mount_drives_op(
                 drive.drive_letter,
                 drive.label,
             )
-            if not is_do_mount:
-                # raise the exception to be handled by the caller
-                raise
-            all_drive_ops_completed_ok = False
-            break
+            # raise the exception to be handled by the caller
+            raise
         else:
             return_code = results[-1].return_code
             if return_code != 0:
@@ -622,33 +624,62 @@ class WslMountDriveDialog(QDialog):
         Initiate mount or unmount operations after the user clicked the apply button
         """
 
+        logging.debug("Applying WSL mount ops")
+        validate = False
+        cancelled = False
         if self.pending_mount_ops:
             drives = list(self.pending_mount_ops.keys())
-            if do_mount_drives_op(
-                drives=drives,
-                pending_ops=self.pending_mount_ops,
-                parent=self,
-                is_do_mount=True,
-            ):
-                self.pending_mount_ops.clear()
-                self.updatePendingOps()
-                self.setApplyButtonState()
-            else:
-                logging.debug("not all drives mounted successfully")
-                # TODO not all drives mounted successfully, change drive checked status
-                pass
-        if self.pending_unmount_ops:
+            try:
+                if not do_mount_drives_op(
+                    drives=drives,
+                    pending_ops=self.pending_mount_ops,
+                    parent=self,
+                    is_do_mount=True,
+                ):
+                    logging.debug("Not all drives mounted successfully")
+                    validate = True
+            except SudoException as e:
+                assert e.code == SudoExceptionCode.command_cancelled
+                validate = True
+                cancelled = True
+
+        if self.pending_unmount_ops and not cancelled:
             drives = list(self.pending_unmount_ops.keys())
             try:
-                do_mount_drives_op(
+                if not do_mount_drives_op(
                     drives=drives,
                     pending_ops=self.pending_unmount_ops,
                     parent=self,
                     is_do_mount=False,
-                )
+                ):
+                    logging.debug("Not all drives unmounted successfully")
+                    validate = True
             except SudoException as e:
                 assert e.code == SudoExceptionCode.command_cancelled
-                # TODO change drive checked status
+                validate = True
+
+        if validate:
+            drives = list(self.pending_mount_ops.keys()) + list(
+                self.pending_unmount_ops.keys()
+            )
+            # block signal being emitted when programmatically changing checkbox
+            # states
+            blocked = self.driveTable.blockSignals(True)
+            for drive in drives:
+                mounted = wsl_mount_point(drive_letter=drive.drive_letter) != ""
+                for row in range(self.driveTable.rowCount()):
+                    item = self.driveTable.item(row, self.userMountCol)
+                    d = item.data(Qt.UserRole)  # type: WindowsDriveMount
+                    if d.drive_letter == drive.drive_letter:
+                        item.setCheckState(Qt.Checked if mounted else Qt.Unchecked)
+                        break
+            # restore signal state
+            self.driveTable.blockSignals(blocked)
+
+        self.pending_mount_ops.clear()
+        self.pending_unmount_ops.clear()
+        self.updatePendingOps()
+        self.setApplyButtonState()
 
     @pyqtSlot(QTableWidgetItem)
     def driveTableItemChanged(self, item: QTableWidgetItem) -> None:
@@ -668,7 +699,7 @@ class WslMountDriveDialog(QDialog):
                 mount_point=drive.mount_point,
                 uid=self.uid,
                 gid=self.gid,
-                wsl_mount_root=self.wsl_mount_root
+                wsl_mount_root=self.wsl_mount_root,
             )
             if tasks:
                 if do_mount:
@@ -833,7 +864,8 @@ class WslMountDriveDialog(QDialog):
                     # restore signal state
                     self.driveTable.blockSignals(blocked)
 
-    def setItemState(self, enabled: bool, item: QTableWidgetItem) -> None:
+    @staticmethod
+    def setItemState(enabled: bool, item: QTableWidgetItem) -> None:
         """
         Enable or disable an individual check box in the Windows drive mount table
         :param enabled: Whether the control should be enabled or disabled
@@ -876,7 +908,9 @@ class WslMountDriveDialog(QDialog):
         user_mounted = not system_mounted
 
         if not is_mounted:
-            mount_point = wsl_standard_mount_point(drive.drive_letter)
+            mount_point = wsl_standard_mount_point(
+                self.wsl_mount_root, drive.drive_letter
+            )
 
         # User Mounted Column
         userMountedItem = QTableWidgetItem()
@@ -1079,7 +1113,7 @@ class WslDrives:
                         mount_point=drive.mount_point,
                         uid=self.uid,
                         gid=self.gid,
-                        wsl_mount_root=self.wsl_mount_root
+                        wsl_mount_root=self.wsl_mount_root,
                     )
                     if tasks:
                         pending_ops[drive] = tasks
@@ -1149,17 +1183,20 @@ class WslDrives:
                 mount_point="",
                 uid=self.uid,
                 gid=self.gid,
-                wsl_mount_root=self.wsl_mount_root
+                wsl_mount_root=self.wsl_mount_root,
             )
             if tasks:
                 pending_ops[drive] = tasks
 
-        do_mount_drives_op(
-            drives=drives,
-            pending_ops=pending_ops,
-            parent=self.rapidApp,
-            is_do_mount=True,
-        )
+        try:
+            do_mount_drives_op(
+                drives=drives,
+                pending_ops=pending_ops,
+                parent=self.rapidApp,
+                is_do_mount=True,
+            )
+        except SudoException as e:
+            assert e.code == SudoExceptionCode.command_cancelled
         self._refresh_drive_state()
 
 
