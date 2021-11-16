@@ -5644,7 +5644,7 @@ Do you want to proceed with the download?
     def wslWindowsDriveMounted(self, drives: List[WindowsDriveMount]) -> None:
         for drive in drives:
             logging.info(
-                "Detected Windows removable drive %s: %s %s",
+                "Detected Windows drive %s: %s %s",
                 drive.drive_letter,
                 drive.label,
                 drive.mount_point or "(not mounted)",
