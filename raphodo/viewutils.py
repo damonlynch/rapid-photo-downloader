@@ -129,7 +129,7 @@ class RowTracker:
         """
         return self.id_to_row[id_value]
 
-    def insert_row(self, position: int, id_value) -> List:
+    def insert_row(self, position: int, id_value) -> None:
         """
         Inserts row into the model at the given position, assigning
         the id_id_value.
@@ -147,7 +147,7 @@ class RowTracker:
         self.row_to_id = dict(enumerate(ids))
         self.id_to_row = dict(((y, x) for x, y in list(enumerate(ids))))
 
-    def remove_rows(self, position, rows=1) -> List:
+    def remove_rows(self, position: int, rows=1) -> List[int]:
         """
         :param position: the position of the first row to remove
         :param rows: how many rows to remove
@@ -533,7 +533,8 @@ def any_screen_scaled() -> Tuple[ScalingDetected, bool]:
 
 class CheckBoxDelegate(QItemDelegate):
     """
-    A delegate that places a fully functioning QCheckBox cell of the column to which it's applied.
+    A delegate that places a fully functioning QCheckBox cell of the column to which
+    it's applied.
     """
 
     def __init__(self, parent):
@@ -575,7 +576,6 @@ class CheckBoxDelegate(QItemDelegate):
         else:
             checkboxStyleOption.state &= ~QStyle.State_Enabled
             checkboxStyleOption.state |= QStyle.State_ReadOnly
-
 
         checkboxStyleOption.rect = option.rect
         checkboxStyleOption.rect.setX(
