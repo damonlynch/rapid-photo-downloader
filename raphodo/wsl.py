@@ -21,6 +21,7 @@ __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2021, Damon Lynch."
 
 from collections import OrderedDict
+import configparser
 import enum
 from pathlib import Path, PurePosixPath
 import logging
@@ -176,28 +177,8 @@ def has_fstab_entry(drive_letter: str, mount_point: str) -> bool:
     return m is not None
 
 
-def generate_mount_point(drive_letter: str) -> str:
-    """
-    Generate an unused mount point
-
-    (Not currently called)
-
-    :param drive_letter: Windows drive letter
-    :return: unique mount point
-    """
-
-    mount_point = wsl_standard_mount_point(drive_letter)
-    suffix = ""
-    if os.path.ismount(mount_point):
-        i = 1
-        while os.path.ismount(f"{mount_point}{i}"):
-            i += 1
-        suffix = str(i)
-    return f"{mount_point}{suffix}"
-
-
 def determine_mount_ops(
-    do_mount: bool, drive_letter: str, mount_point: str, uid: int, gid: int
+    do_mount: bool, drive_letter: str, mount_point: str, uid: int, gid: int, wsl_mount_root: Path
 ) -> List[MountOp]:
     """
     Generator sequence of operations to mount or unmount a Windows drive
@@ -207,12 +188,13 @@ def determine_mount_ops(
     :param mount_point: Existing or desired mount point
     :param uid: User's user ID
     :param gid: User's group ID
+    :param wsl_mount_root: where WSL mounts drives, e.g. /mnt
     :return: List of operations required to mount or unmount the windows drive
     """
 
     tasks = []  # type: List[MountOp]
     if not mount_point:
-        mount_point = wsl_standard_mount_point(drive_letter)
+        mount_point = wsl_standard_mount_point(wsl_mount_root, drive_letter)
     if do_mount:
         mp = Path(mount_point)
         if mp.is_mount():
@@ -479,6 +461,7 @@ class WslMountDriveDialog(QDialog):
         drives: List[WindowsDriveMount],
         prefs: Preferences,
         windrive_prefs: WSLWindowsDrivePrefsInterface,
+        wsl_mount_root: Path,
         parent: "RapidWindow" = None,
     ) -> None:
         """
@@ -487,6 +470,7 @@ class WslMountDriveDialog(QDialog):
         :param drives: List of Windows drives detected on the system
         :param prefs: main program preferences
         :param windrive_prefs: Interface to the windows drives preferences
+        :param wsl_mount_root: where WSL mounts Windows drives
         :param parent: RapidApp main window
         """
 
@@ -494,6 +478,7 @@ class WslMountDriveDialog(QDialog):
 
         self.prefs = prefs
         self.windrive_prefs = windrive_prefs
+        self.wsl_mount_root = wsl_mount_root
 
         self.driveTable = None  # type: Optional[QTableWidget]
 
@@ -633,7 +618,7 @@ class WslMountDriveDialog(QDialog):
 
     @pyqtSlot()
     def applyButtonClicked(self) -> None:
-        """"
+        """ "
         Initiate mount or unmount operations after the user clicked the apply button
         """
 
@@ -683,6 +668,7 @@ class WslMountDriveDialog(QDialog):
                 mount_point=drive.mount_point,
                 uid=self.uid,
                 gid=self.gid,
+                wsl_mount_root=self.wsl_mount_root
             )
             if tasks:
                 if do_mount:
@@ -997,6 +983,22 @@ class WslDrives:
         self.mountDrivesDialog = None  # type: Optional[WslMountDriveDialog]
         self.uid = os.getuid()
         self.gid = os.getgid()
+        self.wsl_mount_root = Path(self._load_wsl_conf_mnt_location())
+
+    def _load_wsl_conf_mnt_location(self):
+        config = configparser.ConfigParser()
+        try:
+            config.read_file(open("/etc/wsl.conf"))
+        except Exception:
+            logging.debug("Could not load wsl.conf")
+        else:
+            if config.has_option("automount", "root"):
+                mount_dir = config.get("automount", "root")
+                if Path(mount_dir).is_dir():
+                    return mount_dir
+                else:
+                    logging.warning("WSL root mount point %s does not exist", mount_dir)
+        return "/mnt"
 
     def add_drive(self, drive: WindowsDriveMount) -> None:
         """
@@ -1077,6 +1079,7 @@ class WslDrives:
                         mount_point=drive.mount_point,
                         uid=self.uid,
                         gid=self.gid,
+                        wsl_mount_root=self.wsl_mount_root
                     )
                     if tasks:
                         pending_ops[drive] = tasks
@@ -1124,6 +1127,7 @@ class WslDrives:
                 drives=self.drives,
                 prefs=self.rapidApp.prefs,
                 windrive_prefs=self.windrive_prefs,
+                wsl_mount_root=self.wsl_mount_root,
             )
             self.mountDrivesDialog.exec()
             self.mountDrivesDialog = None
@@ -1145,6 +1149,7 @@ class WslDrives:
                 mount_point="",
                 uid=self.uid,
                 gid=self.gid,
+                wsl_mount_root=self.wsl_mount_root
             )
             if tasks:
                 pending_ops[drive] = tasks
@@ -1238,10 +1243,15 @@ class WslWindowsRemovableDriveMonitor(QObject):
             self.timer.start()
 
 
-def wsl_standard_mount_point(drive_letter: str) -> str:
-    # TODO update to use wsl.conf [automount] root
-    # see https://docs.microsoft.com/en-us/windows/wsl/wsl-config
-    return f"/mnt/{drive_letter.lower()}"
+def wsl_standard_mount_point(root: Path, drive_letter: str) -> str:
+    """
+    Return mount point for the driver letter
+    :param root: WSL mount point root
+    :param drive_letter: drive's driver letter
+    :return: the standard mount point
+    """
+
+    return str(root / drive_letter.lower())
 
 
 def wsl_mount_point(drive_letter: str) -> str:
@@ -1378,5 +1388,7 @@ if __name__ == "__main__":
                 )
             )
 
-    w = WslMountDriveDialog(drives=ddrives, prefs=prefs, windrive_prefs=wdrive_prefs)
+    w = WslMountDriveDialog(
+        drives=ddrives, prefs=prefs, windrive_prefs=wdrive_prefs, wsl_mount_root="/mnt"
+    )
     w.exec()
