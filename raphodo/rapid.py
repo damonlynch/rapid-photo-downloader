@@ -1736,7 +1736,7 @@ class RapidWindow(QMainWindow):
 
         if self.is_wsl2:
             self.wslMountsAct = QAction(
-                _("&WSL Mounts"), self, triggered=self.doShowWslMountsAction
+                _("Windows &Drives"), self, shortcut="Ctrl+D", triggered=self.doShowWslMountsAction
             )
 
         self.errorLogAct = QAction(
