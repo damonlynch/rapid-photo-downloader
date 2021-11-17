@@ -21,7 +21,6 @@ __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2021, Damon Lynch."
 
 from collections import OrderedDict
-import configparser
 import enum
 from pathlib import Path, PurePosixPath
 import logging
@@ -33,7 +32,7 @@ from typing import NamedTuple, Optional, Tuple, Set, List, Dict
 import webbrowser
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer, Qt
-from PyQt5.QtGui import QTextDocument, QCloseEvent
+from PyQt5.QtGui import QTextDocument
 from PyQt5.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -62,9 +61,9 @@ from raphodo.viewutils import (
     CheckBoxDelegate,
     standardMessageBox,
 )
-from raphodo.utilities import existing_parent_for_new_dir, make_internationalized_list
 from raphodo.sudocommand import run_commands_as_sudo, SudoException, SudoExceptionCode
-
+from raphodo.utilities import existing_parent_for_new_dir, make_internationalized_list
+from raphodo.wslutils import wsl_conf_mnt_location
 
 class WindowsDrive(NamedTuple):
     drive_letter: str
@@ -1011,22 +1010,7 @@ class WslDrives:
         self.mountDrivesDialog = None  # type: Optional[WslMountDriveDialog]
         self.uid = os.getuid()
         self.gid = os.getgid()
-        self.wsl_mount_root = Path(self._load_wsl_conf_mnt_location())
-
-    def _load_wsl_conf_mnt_location(self):
-        config = configparser.ConfigParser()
-        try:
-            config.read_file(open("/etc/wsl.conf"))
-        except Exception:
-            logging.debug("Could not load wsl.conf")
-        else:
-            if config.has_option("automount", "root"):
-                mount_dir = config.get("automount", "root")
-                if Path(mount_dir).is_dir():
-                    return mount_dir
-                else:
-                    logging.warning("WSL root mount point %s does not exist", mount_dir)
-        return "/mnt"
+        self.wsl_mount_root = Path(wsl_conf_mnt_location())
 
     def add_drive(self, drive: WindowsDriveMount) -> None:
         """

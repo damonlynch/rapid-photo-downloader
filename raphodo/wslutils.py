@@ -1,4 +1,6 @@
+import configparser
 import functools
+import logging
 import re
 import shlex
 import subprocess
@@ -76,3 +78,25 @@ def wsl_videos_folder() -> str:
     return translate_wsl_path(
         _wsl_reg_query_standard_folder("My Video"), from_windows_to_wsl=True
     )
+
+
+@functools.lru_cache(maxsize=None)
+def wsl_conf_mnt_location() -> str:
+    """
+    Determine location of WSL mount points using /etc/wsl.conf
+    :return: mount point if specified, else "/mnt"
+    """
+
+    config = configparser.ConfigParser()
+    try:
+        config.read_file(open("/etc/wsl.conf"))
+    except Exception:
+        logging.debug("Could not load wsl.conf")
+    else:
+        if config.has_option("automount", "root"):
+            mount_dir = config.get("automount", "root")
+            if Path(mount_dir).is_dir():
+                return mount_dir
+            else:
+                logging.warning("WSL root mount point %s does not exist", mount_dir)
+    return "/mnt"

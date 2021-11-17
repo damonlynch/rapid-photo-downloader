@@ -5716,6 +5716,7 @@ Do you want to proceed with the download?
 
         :param path: the path of the partition just unmounted
         """
+
         if not path:
             return
 
