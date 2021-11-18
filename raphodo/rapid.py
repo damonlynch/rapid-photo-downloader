@@ -821,11 +821,14 @@ class RapidWindow(QMainWindow):
         )
 
         # Setup notification system
-        try:
-            self.have_libnotify = Notify.init(_("Rapid Photo Downloader"))
-        except:
-            logging.error("Notification intialization problem")
+        if self.is_wsl2:
             self.have_libnotify = False
+        else:
+            try:
+                self.have_libnotify = Notify.init(_("Rapid Photo Downloader"))
+            except:
+                logging.error("Notification intialization problem")
+                self.have_libnotify = False
 
         logging.debug("Locale directory: %s", raphodo.localedir)
 
@@ -4252,7 +4255,9 @@ Do you want to proceed with the download?
         device = self.devices[scan_id]  # type: Device
 
         if device.device_type == DeviceType.volume:
-            if self.gvfs_controls_mounts:
+            if self.is_wsl2:
+                self.wslDrives.unmountDrives(at_exit=False, mount_point=device.path)
+            elif self.gvfs_controls_mounts:
                 self.gvolumeMonitor.unmountVolume(path=device.path)
             else:
                 self.udisks2Unmount.emit(device.path)
@@ -5038,7 +5043,7 @@ Do you want to proceed with the download?
         logging.debug("Close event activated")
 
         if self.is_wsl2:
-            if not self.wslDrives.unmountDrives():
+            if not self.wslDrives.unmountDrives(at_exit=True):
                 logging.debug(
                     "Ignoring close event because user cancelled unmount drives"
                 )

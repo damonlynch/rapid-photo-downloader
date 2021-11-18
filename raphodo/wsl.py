@@ -1225,46 +1225,56 @@ class WslDrives(QObject):
 
         self.make_mount_drive_attempt = False
 
-    def unmountDrives(self) -> bool:
+    def unmountDrives(self, at_exit: Optional[bool] = False, mount_point: Optional[str] = "") -> bool:
         """
-        Unmount drives that should be automatically unmounted at program exit
+        Unmount drives that should be automatically unmounted at program exit, or when
+        a device has been downloaded from.
 
+        :param at_exit: True if this is being called as the program is exiting, else
+        False
+        :param mount_point: if at exit is false, a mount point must be specified. If so,
+         only its mount will be unmounted.
         :return: True if the user did not cancel the unmount operation when prompted to
         enter a password
         """
 
-        if self.prefs.wsl_automount_removable_drives:
-            auto_unmount_drives = []  # type: List[WindowsDriveMount]
-            for drive in self.drives:
-                if drive.mount_point and not drive.system_mounted:
-                    if (
-                        self.prefs.wsl_automount_all_removable_drives
-                        or self.windrive_prefs.drive_prefs(drive=drive).auto_unmount
-                    ):
-                        auto_unmount_drives.append(drive)
-            if auto_unmount_drives:
-                pending_ops = OrderedDict()
-                for drive in auto_unmount_drives:
-                    tasks = determine_mount_ops(
-                        do_mount=False,
-                        drive_letter=drive.drive_letter,
-                        mount_point=drive.mount_point,
-                        uid=self.uid,
-                        gid=self.gid,
-                    )
-                    if tasks:
-                        pending_ops[drive] = tasks
-                result = do_mount_drives_op(
-                    drives=auto_unmount_drives,
-                    pending_ops=pending_ops,
-                    parent=self.rapidApp,
-                    is_do_mount=False,
+        auto_unmount_drives = []  # type: List[WindowsDriveMount]
+        if at_exit:
+            if self.prefs.wsl_automount_removable_drives:
+                for drive in self.drives:
+                    if drive.mount_point and not drive.system_mounted:
+                        if (
+                            self.prefs.wsl_automount_all_removable_drives
+                            or self.windrive_prefs.drive_prefs(drive=drive).auto_unmount
+                        ):
+                            auto_unmount_drives.append(drive)
+        else:
+            assert mount_point
+            auto_unmount_drives.append(self.mount_points[mount_point][0])
+
+        if auto_unmount_drives:
+            pending_ops = OrderedDict()
+            for drive in auto_unmount_drives:
+                tasks = determine_mount_ops(
+                    do_mount=False,
+                    drive_letter=drive.drive_letter,
+                    mount_point=drive.mount_point,
+                    uid=self.uid,
+                    gid=self.gid,
                 )
-                if result.cancelled:
-                    # Update internal drive state tracking, because we're not exiting
-                    self.updateDriveStatePostUnmount(unmounted=result.successes)
-                    self.logDrives()
-                    return False
+                if tasks:
+                    pending_ops[drive] = tasks
+            result = do_mount_drives_op(
+                drives=auto_unmount_drives,
+                pending_ops=pending_ops,
+                parent=self.rapidApp,
+                is_do_mount=False,
+            )
+            if result.cancelled or not at_exit:
+                # Update internal drive state tracking, because we're not exiting
+                self.updateDriveStatePostUnmount(unmounted=result.successes)
+                self.logDrives()
+                return False
         return True
 
     def validateDriveState(self) -> None:
