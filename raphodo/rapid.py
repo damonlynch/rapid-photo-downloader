@@ -162,7 +162,12 @@ from raphodo.storage import (
     StorageSpace,
     gvfs_gphoto2_path,
 )
-from raphodo.wsl import WslWindowsRemovableDriveMonitor, WslDrives, WindowsDriveMount
+from raphodo.wsl import (
+    WslWindowsRemovableDriveMonitor,
+    WslDrives,
+    WindowsDriveMount,
+    WindowsDriveType,
+)
 from raphodo.interprocess import (
     ScanArguments,
     CopyFilesArguments,
@@ -450,6 +455,8 @@ class RapidWindow(QMainWindow):
 
         if self.linux_desktop and self.linux_desktop == LinuxDesktop.wsl2:
             self.wslDrives = WslDrives(rapidApp=self)
+            self.wslDrives.driveMounted.connect(self.wslWindowsDriveMounted)
+            self.wslDrives.driveUnmounted.connect(self.wslWindowsDriveUnmounted)
             self.is_wsl2 = True
         else:
             self.is_wsl2 = False
@@ -1081,8 +1088,9 @@ class RapidWindow(QMainWindow):
         self.setupErrorLogWindow(settings=settings)
 
         self.setDownloadCapabilities()
-        self.searchForCameras()
-        self.setupNonCameraDevices()
+        if not self.is_wsl2:
+            self.searchForCameras()
+            self.setupNonCameraDevices()
         self.splash.setProgress(100)
         self.setupManualPath()
         self.updateSourceButton()
@@ -1133,7 +1141,8 @@ class RapidWindow(QMainWindow):
 
         self.on_startup = False
         self.iOSIssueErrorMessage()
-        self.wslDrives.mount_drives()
+        if self.is_wsl2:
+            self.wslDrives.mountDrives()
 
         self.tip = didyouknow.DidYouKnowDialog(self.prefs, self)
         if self.prefs.did_you_know_on_startup:
@@ -1163,16 +1172,18 @@ class RapidWindow(QMainWindow):
         :return:
         """
 
-        if self.linux_desktop == LinuxDesktop.wsl2:
+        if self.is_wsl2:
             self.wslDriveMonitor = WslWindowsRemovableDriveMonitor()
             self.wslDriveMonitorThread = QThread()
             self.wslDriveMonitorThread.started.connect(
                 self.wslDriveMonitor.startMonitor
             )
             self.wslDriveMonitor.moveToThread(self.wslDriveMonitorThread)
-            self.wslDriveMonitor.driveMounted.connect(self.wslWindowsDriveMounted)
-            self.wslDriveMonitor.driveUnmounted.connect(self.wslWindowsDriveUnmounted)
-            logging.debug("Starting WSL Windows Removable Drive Monitor")
+            self.wslDriveMonitor.driveMounted.connect(self.wslWindowsDriveAdded)
+            self.wslDriveMonitor.driveUnmounted.connect(self.wslWindowsDriveRemoved)
+            # Track whether a list of Windows drives has been returned yet
+            self.wsl_drives_probed = False
+            logging.debug("Starting WSL Windows Drive Monitor")
             QTimer.singleShot(0, self.wslDriveMonitorThread.start)
             self.use_udsisks = self.gvfs_controls_mounts = False
         else:
@@ -2772,7 +2783,7 @@ class RapidWindow(QMainWindow):
         pass
 
     def doShowWslMountsAction(self) -> None:
-        self.wslDrives.show_mount_drives_dialog()
+        self.wslDrives.showMountDrivesDialog()
 
     def doPreferencesAction(self) -> None:
         self.scan_all_again = self.scan_non_camera_devices_again = False
@@ -5027,7 +5038,7 @@ Do you want to proceed with the download?
         logging.debug("Close event activated")
 
         if self.is_wsl2:
-            if not self.wslDrives.unmount_drives():
+            if not self.wslDrives.unmountDrives():
                 logging.debug(
                     "Ignoring close event because user cancelled unmount drives"
                 )
@@ -5068,7 +5079,8 @@ Do you want to proceed with the download?
                 # updates the SQL database with the file downloads,
                 # so no need to update or close it in this main process
 
-        QTimer.singleShot(0, self.wslDriveMonitor.stopMonitor)
+        if self.is_wsl2:
+            QTimer.singleShot(0, self.wslDriveMonitor.stopMonitor)
 
         if self.unity_progress:
             for launcher in self.desktop_launchers:
@@ -5164,13 +5176,20 @@ Do you want to proceed with the download?
         :return: icon names and eject boolean
         :rtype Tuple[str, bool]
         """
-        if self.gvfs_controls_mounts:
-            iconNames, canEject = self.gvolumeMonitor.getProps(mount.rootPath())
+
+        if self.is_wsl2:
+            mount_point = mount.rootPath()
+            assert self.wslDrives.knownMountPoint(mount_point)
+            icon_names, can_eject = self.wslDrives.driveProperties(
+                mount_point=mount_point
+            )
+        elif self.gvfs_controls_mounts:
+            icon_names, can_eject = self.gvolumeMonitor.getProps(mount.rootPath())
         else:
             # get the system device e.g. /dev/sdc1
-            systemDevice = bytes(mount.device()).decode()
-            iconNames, canEject = self.udisks2Monitor.get_device_props(systemDevice)
-        return iconNames, canEject
+            system_device = bytes(mount.device()).decode()
+            icon_names, can_eject = self.udisks2Monitor.get_device_props(system_device)
+        return icon_names, can_eject
 
     def addToDeviceDisplay(self, device: Device, scan_id: int) -> None:
         self.mapModel(scan_id).addDevice(scan_id, device)
@@ -5641,7 +5660,8 @@ Do you want to proceed with the download?
                 self.startDeviceScan(device=device)
 
     @pyqtSlot("PyQt_PyObject")
-    def wslWindowsDriveMounted(self, drives: List[WindowsDriveMount]) -> None:
+    def wslWindowsDriveAdded(self, drives: List[WindowsDriveMount]) -> None:
+        self.wsl_drives_probed = True
         for drive in drives:
             logging.info(
                 "Detected Windows drive %s: %s %s",
@@ -5649,19 +5669,35 @@ Do you want to proceed with the download?
                 drive.label,
                 drive.mount_point or "(not mounted)",
             )
-            self.wslDrives.add_drive(drive)
+            self.wslDrives.addDrive(drive)
+        self.wslDrives.logDrives()
         if not self.on_startup:
-            self.wslDrives.mount_drives()
+            self.wslDrives.mountDrives()
 
     @pyqtSlot("PyQt_PyObject")
-    def wslWindowsDriveUnmounted(self, drive: WindowsDriveMount) -> None:
+    def wslWindowsDriveRemoved(self, drive: WindowsDriveMount) -> None:
         logging.info(
             "Detected removal of Windows drive %s: %s %s",
             drive.drive_letter,
             drive.label,
             drive.mount_point,
         )
-        self.wslDrives.remove_drive(drive)
+        self.wslDrives.removeDrive(drive)
+
+    @pyqtSlot("PyQt_PyObject")
+    def wslWindowsDriveMounted(self, drives: List[WindowsDriveMount]) -> None:
+        for drive in drives:
+            icon_names, can_eject = self.wslDrives.driveProperties(
+                mount_point=drive.mount_point
+            )
+            self.partitionMounted(
+                path=drive.mount_point, iconNames=icon_names, canEject=can_eject
+            )
+
+    @pyqtSlot("PyQt_PyObject")
+    def wslWindowsDriveUnmounted(self, drives: List[WindowsDriveMount]) -> None:
+        for drive in drives:
+            self.partitionUmounted(path=drive.mount_point)
 
     @pyqtSlot(str, "PyQt_PyObject", bool)
     def partitionMounted(self, path: str, iconNames: List[str], canEject: bool) -> None:
@@ -5704,8 +5740,12 @@ Do you want to proceed with the download?
 
                 elif self.shouldScanMount(mount):
                     device = Device()
+                    if self.is_wsl2 and self.wsl_drives_probed:
+                        display_name = self.wslDrives.displayName(mount.rootPath())
+                    else:
+                        display_name = mount.displayName()
                     device.set_download_from_volume(
-                        path, mount.displayName(), iconNames, canEject, mount
+                        path, display_name, iconNames, canEject, mount
                     )
                     self.prepareNonCameraDeviceScan(device=device)
 
@@ -6046,10 +6086,20 @@ Do you want to proceed with the download?
                     logging.debug("Will not scan %s", mount.displayName())
 
         for mount in mounts:
-            icon_names, can_eject = self.getIconsAndEjectableForMount(mount)
             device = Device()
+            if self.is_wsl2 and not self.wsl_drives_probed:
+                # Get place holder values for now
+                icon_names = []
+                can_eject = False
+                display_name = mount.displayName()
+            else:
+                icon_names, can_eject = self.getIconsAndEjectableForMount(mount)
+                if self.is_wsl2:
+                    display_name = self.wslDrives.displayName(mount.rootPath())
+                else:
+                    display_name = mount.displayName()
             device.set_download_from_volume(
-                mount.rootPath(), mount.displayName(), icon_names, can_eject, mount
+                mount.rootPath(), display_name, icon_names, can_eject, mount
             )
             self.prepareNonCameraDeviceScan(device=device)
 

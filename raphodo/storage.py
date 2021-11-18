@@ -1356,7 +1356,7 @@ if have_gio:
         cameraMounted = pyqtSignal()
 
         # path, icon names, volume can eject
-        partitionMounted = pyqtSignal(str, list, bool)
+        partitionMounted = pyqtSignal(str, "PyQt_PyObject", bool)
 
         # path
         partitionUnmounted = pyqtSignal(str)
