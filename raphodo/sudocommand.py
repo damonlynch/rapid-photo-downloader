@@ -290,11 +290,12 @@ def run_commands_as_sudo(
 
 
 if __name__ == "__main__":
+    # Test code
     from PyQt5.QtWidgets import QApplication
 
     app = QApplication([])
 
-    cmds = ["ls /root", "echo OK"]
+    cmds = ["echo OK"]
     results = run_commands_as_sudo(cmds, parent=None)
     for result in results:
         print(result)
