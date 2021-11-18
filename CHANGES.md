@@ -4,9 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.27b2 (2021-11-0x)
 ---------------------
 
- - Enable running under WSLg and WSL2 on Windows 11. Download locations default
-   to location of the `Pictures` and `Videos` folders on Windows, for example
-   `D:\Photos` or `C:\Users\User Name\Videos`.
+ - Enable running under WSLg and WSL2 on Windows 11.
+
+ - Update Dutch and Swedish translations.
 
 0.9.27b1 (2021-10-31)
 ---------------------
