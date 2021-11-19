@@ -33,8 +33,8 @@ import shutil
 import os
 import logging
 import itertools
-from collections import namedtuple, Counter, defaultdict
-from typing import Tuple, List, Optional, Set, Dict, Union, DefaultDict
+from collections import Counter, defaultdict
+from typing import Tuple, List, Optional, Set, Dict, DefaultDict, NamedTuple
 
 
 from PyQt5.QtCore import QStorageInfo, QSize
@@ -82,8 +82,16 @@ from raphodo.viewutils import scaledIcon
 
 display_devices = (DeviceType.volume, DeviceType.camera, DeviceType.camera_fuse)
 camera_devices = (DeviceType.camera, DeviceType.camera_fuse)
-sample_file_complete = namedtuple("sample_file_complete", "full_file_name, file_type")
-device_name_uri = namedtuple("device_name_uri", "name uri")
+
+
+class SampleFileComplete(NamedTuple):
+    full_file_name: str
+    file_type: FileType
+
+
+class DeviceNameUri(NamedTuple):
+    name: str
+    uri: str
 
 
 class Device:
@@ -530,7 +538,7 @@ class DeviceCollection:
         # Track device names and uris to be able to report this information
         # after a device has been removed
         # scan_id: name uri
-        self.device_archive = {}  # type: Dict[int, device_name_uri]
+        self.device_archive = {}  # type: Dict[int, DeviceNameUri]
 
         # Used to assign scan ids
         self.scan_counter = 0  # type: int
@@ -580,7 +588,7 @@ class DeviceCollection:
         # Sample exif bytes of photo on most recent device scanned
         self._sample_photo = None  # type: Optional[Photo]
         self._sample_video = None  # type: Optional[Video]
-        self._sample_files_complete = []  # type: List[sample_file_complete]
+        self._sample_files_complete = []  # type: List[SampleFileComplete]
         self.exiftool_process = exiftool_process
 
         # Cache camera Devices when determining whether to scan it or not
@@ -713,7 +721,7 @@ class DeviceCollection:
         else:
             self.this_computer.add(scan_id)
 
-        self.device_archive[scan_id] = device_name_uri(device.display_name, device.uri)
+        self.device_archive[scan_id] = DeviceNameUri(device.display_name, device.uri)
         return scan_id
 
     def set_device_state(self, scan_id: int, state: DeviceState) -> None:
@@ -787,8 +795,8 @@ class DeviceCollection:
 
     def user_marked_volume_as_ignored(self, path: str) -> bool:
         """
-        Check if volume's path is in list of devices to ignore because they were explicitly
-        removed by the user
+        Check if volume's path is in list of devices to ignore because they were
+        explicitly removed by the user
 
         :param: path: the device's path
         :return: return True if camera is in set of devices to ignore
@@ -897,7 +905,7 @@ class DeviceCollection:
             sample_photo_video.file_type.name,
         )
         self._sample_files_complete.append(
-            sample_file_complete(
+            SampleFileComplete(
                 sample_photo_video.temp_sample_full_file_name,
                 sample_photo_video.file_type,
             )
@@ -1080,8 +1088,8 @@ class DeviceCollection:
 
         if not os.path.isfile(full_file_name):
             # file no longer exists - it may have been downloaded or deleted
-            # attempt to find an appropriate file from the in memory sql database of displayed
-            # files
+            # attempt to find an appropriate file from the in memory sql database of
+            # displayed files
             scan_id = rpd_file.scan_id
             if not scan_id in self.devices:
                 logging.debug(
@@ -1264,12 +1272,12 @@ class DeviceCollection:
                     assert len(self.volumes_and_cameras) > 1
                     device_display_name = self._mixed_devices(device_type_text)
 
-                # Translators: this text shows the devices being downloaded from, and is shown at
-                # the top of the window. The plus sign is used instead of 'and' to leave as much
-                # room as possible for the device names.
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: this text shows the devices being downloaded from, and
+                # is shown at the top of the window. The plus sign is used instead of
+                # 'and' to leave as much room as possible for the device names.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 text = _("%(device1)s + %(device2)s") % {
                     "device1": device_display_name,
                     "device2": computer_display_name,
@@ -1283,12 +1291,13 @@ class DeviceCollection:
                 if len(device_types) == 1:
                     if len(self) == 2:
                         devices = non_pc_devices
-                        # Translators: this text shows the devices being downloaded from, and is
-                        # shown at the top of the window. The plus sign is used instead of 'and' to
-                        # leave as much room as possible for the device names.
-                        # Translators: %(variable)s represents Python code, not a plural of the term
-                        # variable. You must keep the %(variable)s untranslated, or the program will
-                        # crash.
+                        # Translators: this text shows the devices being downloaded
+                        # from, and is shown at the top of the window. The plus sign is
+                        # used instead of 'and' to leave as much room as possible for
+                        # the device names.
+                        # Translators: %(variable)s represents Python code, not a plural
+                        # of the term variable. You must keep the %(variable)s
+                        # untranslated, or the program will crash.
                         text = _("%(device1)s + %(device2)s") % {
                             "device1": devices[0].display_name,
                             "device2": devices[1].display_name,
@@ -1304,17 +1313,17 @@ class DeviceCollection:
                         text_number = len(self.volumes_and_cameras)
                     if device_type in camera_devices:
                         # Translators: Number of cameras e.g. 3 Cameras
-                        # Translators: %(variable)s represents Python code, not a plural of the term
-                        # variable. You must keep the %(variable)s untranslated, or the program will
-                        # crash.
+                        # Translators: %(variable)s represents Python code, not a plural
+                        # of the term variable. You must keep the %(variable)s
+                        # untranslated, or the program will crash.
                         text = _("%(no_cameras)s Cameras") % {"no_cameras": text_number}
                         if len(mtp_devices) == len(self.volumes_and_cameras):
                             return text, non_pc_devices[0].get_icon()
                         return text, QIcon(":/icons/camera.svg")
                     elif device_type == DeviceType.volume:
-                        # Translators: %(variable)s represents Python code, not a plural of the term
-                        # variable. You must keep the %(variable)s untranslated, or the program will
-                        # crash.
+                        # Translators: %(variable)s represents Python code, not a plural
+                        # of the term variable. You must keep the %(variable)s
+                        # untranslated, or the program will crash.
                         text = _("%(no_devices)s Devices") % dict(
                             no_devices=text_number
                         )
@@ -1325,13 +1334,17 @@ class DeviceCollection:
                     return device_display_name, icon
 
 
-# QStorageInfo, BackupLocationType
-BackupDevice = namedtuple("BackupDevice", "mount, backup_type")
+class BackupDevice(NamedTuple):
+    mount: QStorageInfo
+    backup_type: BackupLocationType
 
-# QStorageInfo, str, str, BackupLocationType
-BackupVolumeDetails = namedtuple(
-    "BackupVolumeDetails", "mount name path backup_type " "os_stat_device"
-)
+
+class BackupVolumeDetails(NamedTuple):
+    mount: QStorageInfo
+    name: str
+    path: str
+    backup_type: BackupLocationType
+    os_stat_device: int
 
 
 def nth(iterable, n, default=None):
