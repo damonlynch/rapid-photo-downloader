@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -20,22 +20,31 @@
 Display file system folders and allow the user to select one
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 import os
 import pathlib
 from typing import List, Set, Optional
 import logging
-import shlex
-import subprocess
 
 from PyQt5.QtCore import (
-    QDir, Qt, QModelIndex, QItemSelectionModel, QSortFilterProxyModel, QPoint, QSize
+    QDir,
+    Qt,
+    QModelIndex,
+    QItemSelectionModel,
+    QSortFilterProxyModel,
+    QPoint,
+    QSize,
 )
 from PyQt5.QtWidgets import (
-    QTreeView, QAbstractItemView, QFileSystemModel, QSizePolicy, QStyledItemDelegate,
-    QStyleOptionViewItem, QMenu
+    QTreeView,
+    QAbstractItemView,
+    QFileSystemModel,
+    QSizePolicy,
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
+    QMenu,
 )
 
 from PyQt5.QtGui import QPainter, QFont
@@ -43,7 +52,10 @@ from showinfm import show_in_file_manager
 
 import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import (
-    minPanelWidth, minFileSystemViewHeight, Roles, filtered_file_browser_directories
+    minPanelWidth,
+    minFileSystemViewHeight,
+    Roles,
+    filtered_file_browser_directories,
 )
 from raphodo.storage import gvfs_gphoto2_path
 from raphodo.viewutils import scaledIcon, standard_font_size
@@ -61,12 +73,12 @@ class FileSystemModel(QFileSystemModel):
         super().__init__(parent)
 
         # More filtering done in the FileSystemFilter
-        self.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot )
+        self.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
 
-        self.folder_icon = scaledIcon(':/icons/folder.svg')
-        self.download_folder_icon = scaledIcon(':/icons/folder-filled.svg')
+        self.folder_icon = scaledIcon(":/icons/folder.svg")
+        self.download_folder_icon = scaledIcon(":/icons/folder-filled.svg")
 
-        self.setRootPath('/')
+        self.setRootPath("/")
 
         # The next two values are set via FolderPreviewManager.update()
         # They concern provisional folders that will be used if the
@@ -85,13 +97,19 @@ class FileSystemModel(QFileSystemModel):
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
         if role == Qt.DecorationRole:
             path = index.data(QFileSystemModel.FilePathRole)  # type: str
-            if path in self.download_subfolders or path in self.subfolders_downloaded_into:
+            if (
+                path in self.download_subfolders
+                or path in self.subfolders_downloaded_into
+            ):
                 return self.download_folder_icon
             else:
                 return self.folder_icon
         if role == Roles.folder_preview:
             path = index.data(QFileSystemModel.FilePathRole)
-            return path in self.preview_subfolders and path not in self.subfolders_downloaded_into
+            return (
+                path in self.preview_subfolders
+                and path not in self.subfolders_downloaded_into
+            )
 
         return super().data(index, role)
 
@@ -131,10 +149,12 @@ class FileSystemView(QTreeView):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onCustomContextMenu)
         self.contextMenu = QMenu()
-        self.openInFileBrowserAct = self.contextMenu.addAction(_('Open in File Browser...'))
+        self.openInFileBrowserAct = self.contextMenu.addAction(
+            _("Open in File Browser...")
+        )
         self.openInFileBrowserAct.triggered.connect(self.doOpenInFileBrowserAct)
         self.openInFileBrowserAct.setEnabled(self.rapidApp.file_manager is not None)
-        self.clickedIndex = None   # type: Optional[QModelIndex]
+        self.clickedIndex = None  # type: Optional[QModelIndex]
 
     def hideColumns(self) -> None:
         """
@@ -143,7 +163,7 @@ class FileSystemView(QTreeView):
         for i in (1, 2, 3):
             self.hideColumn(i)
 
-    def goToPath(self, path: str, scrollTo: bool=True) -> None:
+    def goToPath(self, path: str, scrollTo: bool = True) -> None:
         """
         Select the path, expand its subfolders, and scroll to it
         :param path:
@@ -154,7 +174,9 @@ class FileSystemView(QTreeView):
         index = self.model().mapFromSource(self.fileSystemModel.index(path))
         self.setExpanded(index, True)
         selection = self.selectionModel()
-        selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
+        selection.select(
+            index, QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows
+        )
         if scrollTo:
             self.scrollTo(index, QAbstractItemView.PositionAtTop)
 
@@ -197,7 +219,7 @@ class FileSystemView(QTreeView):
             logging.debug(
                 "Calling show_in_file_manager() with %s and %s",
                 self.rapidApp.file_manager,
-                uri
+                uri,
             )
             show_in_file_manager(path_or_uri=uri, open_not_select_directory=True)
 
@@ -217,8 +239,12 @@ class FileSystemFilter(QSortFilterProxyModel):
         self.filtered_dir_names = self.filtered_dir_names | set(filters)
         self.invalidateFilter()
 
-    def filterAcceptsRow(self, sourceRow: int, sourceParent: QModelIndex=None) -> bool:
-        index = self.sourceModel().index(sourceRow, 0, sourceParent)  # type: QModelIndex
+    def filterAcceptsRow(
+        self, sourceRow: int, sourceParent: QModelIndex = None
+    ) -> bool:
+        index = self.sourceModel().index(
+            sourceRow, 0, sourceParent
+        )  # type: QModelIndex
         path = index.data(QFileSystemModel.FilePathRole)  # type: str
 
         if gvfs_gphoto2_path(path):
@@ -240,7 +266,9 @@ class FileSystemDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+    def paint(
+        self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
+    ) -> None:
         if index is None:
             return
 
