@@ -437,9 +437,7 @@ class BackupDeviceDelegate(QStyledItemDelegate):
 
 class BackupOptionsWidget(QFramedWidget):
     """
-    Display and allow editing of preference values for Downloads today
-    and Stored Sequence Number and associated options, as well as
-    the strip incompatible characters option.
+    Display backup options, such as automatic backup detection
     """
 
     def __init__(self, prefs: Preferences, parent, rapidApp) -> None:
