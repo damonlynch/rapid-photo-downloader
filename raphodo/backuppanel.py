@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,14 +21,14 @@ Display backup preferences
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017-2020, Damon Lynch"
+__copyright__ = "Copyright 2017-2021, Damon Lynch"
 
-from typing import Optional, Dict, Tuple, Union, Set, List, DefaultDict
+from typing import Optional, Dict, Tuple, Union, Set, List, DefaultDict, NamedTuple
 import logging
 import os
-from collections import namedtuple, defaultdict
+from collections import defaultdict
 
-from PyQt5.QtCore import (Qt, pyqtSlot, QAbstractListModel, QModelIndex, QSize)
+from PyQt5.QtCore import (Qt, pyqtSlot, QAbstractListModel, QModelIndex, QSize, QStorageInfo)
 from PyQt5.QtWidgets import (
     QWidget, QSizePolicy, QVBoxLayout, QLabel, QLineEdit, QCheckBox, QScrollArea, QFrame,
     QStyledItemDelegate, QStyleOptionViewItem, QStyle, QGroupBox, QHBoxLayout, QGridLayout
@@ -52,11 +52,20 @@ from raphodo.destinationdisplay import make_body_details, adjusted_download_size
 from raphodo.storage import get_mount_size
 
 
-BackupVolumeUse = namedtuple(
-    'BackupVolumeUse', 'bytes_total bytes_free backup_type marked photos_size_to_download '
-                       'videos_size_to_download'
-)
-BackupViewRow = namedtuple('BackupViewRow', 'mount display_name backup_type os_stat_device')
+class BackupVolumeUse(NamedTuple):
+    bytes_total: int
+    bytes_free: int
+    backup_type: BackupLocationType
+    marked: FileTypeCounter
+    photos_size_to_download: int
+    videos_size_to_download: int
+
+
+class BackupViewRow(NamedTuple):
+    mount: QStorageInfo
+    display_name: str
+    backup_type: BackupLocationType
+    os_stat_device: int
 
 
 class BackupDeviceModel(QAbstractListModel):
@@ -94,7 +103,7 @@ class BackupDeviceModel(QAbstractListModel):
         self.photos_size_to_download = self.videos_size_to_download = 0
 
         # os_stat_device: Set[FileType]
-        self._downloading_to = defaultdict(list)  # type: DefaultDict[int, Set[FileType]]
+        self._downloading_to = defaultdict(set)  # type: DefaultDict[int, Set[FileType]]
 
     @property
     def downloading_to(self):
