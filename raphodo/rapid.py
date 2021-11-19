@@ -1051,10 +1051,10 @@ class RapidWindow(QMainWindow):
 
         self.splash.setProgress(90)
 
+        self.download_tracker.set_no_backup_devices(0, 0)
         if self.prefs.backup_files:
-            self.setupBackupDevices()
-        else:
-            self.download_tracker.set_no_backup_devices(0, 0)
+            if not self.is_wsl2 or self.wsl_drives_probed:
+                self.setupBackupDevices()
 
         settings = QSettings()
         settings.beginGroup("MainWindow")
@@ -5666,6 +5666,7 @@ Do you want to proceed with the download?
 
     @pyqtSlot("PyQt_PyObject")
     def wslWindowsDriveAdded(self, drives: List[WindowsDriveMount]) -> None:
+        setup_backup_devices = not self.wsl_drives_probed and self.prefs.backup_files
         self.wsl_drives_probed = True
         for drive in drives:
             logging.info(
@@ -5676,6 +5677,8 @@ Do you want to proceed with the download?
             )
             self.wslDrives.addDrive(drive)
         self.wslDrives.logDrives()
+        if setup_backup_devices:
+            self.setupBackupDevices()
         if not self.on_startup:
             self.wslDrives.mountDrives()
 
