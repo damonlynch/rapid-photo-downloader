@@ -20,34 +20,57 @@
 Display backup preferences
 """
 
-__author__ = 'Damon Lynch'
+__author__ = "Damon Lynch"
 __copyright__ = "Copyright 2017-2021, Damon Lynch"
 
-from typing import Optional, Dict, Tuple, Union, Set, List, DefaultDict, NamedTuple
+from typing import Dict, Tuple, Set, List, DefaultDict, NamedTuple
 import logging
 import os
 from collections import defaultdict
 
-from PyQt5.QtCore import (Qt, pyqtSlot, QAbstractListModel, QModelIndex, QSize, QStorageInfo)
-from PyQt5.QtWidgets import (
-    QWidget, QSizePolicy, QVBoxLayout, QLabel, QLineEdit, QCheckBox, QScrollArea, QFrame,
-    QStyledItemDelegate, QStyleOptionViewItem, QStyle, QGroupBox, QHBoxLayout, QGridLayout
+from PyQt5.QtCore import (
+    Qt,
+    pyqtSlot,
+    QAbstractListModel,
+    QModelIndex,
+    QSize,
+    QStorageInfo,
 )
-from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QPalette, QIcon)
+from PyQt5.QtWidgets import (
+    QWidget,
+    QSizePolicy,
+    QVBoxLayout,
+    QLabel,
+    QLineEdit,
+    QCheckBox,
+    QScrollArea,
+    QFrame,
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
+    QStyle,
+    QGroupBox,
+    QHBoxLayout,
+    QGridLayout,
+)
+from PyQt5.QtGui import QPainter, QColor, QPalette, QIcon
 
 from raphodo.constants import (
-    StandardFileLocations, ThumbnailBackgroundName, FileType,  Roles, ViewRowType,
-    BackupLocationType
+    StandardFileLocations,
+    ThumbnailBackgroundName,
+    FileType,
+    Roles,
+    ViewRowType,
+    BackupLocationType,
 )
-from raphodo.viewutils import (QFramedWidget, RowTracker)
-from raphodo.rpdfile import FileTypeCounter, Photo, Video
+from raphodo.viewutils import QFramedWidget, RowTracker
+from raphodo.rpdfile import FileTypeCounter
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
 from raphodo.foldercombo import FolderCombo
 import raphodo.qrc_resources as qrc_resources
-from raphodo.storage import (ValidMounts, get_media_dir, StorageSpace, get_path_display_name)
-from raphodo.devices import (BackupDeviceCollection, BackupVolumeDetails)
-from raphodo.devicedisplay import (DeviceDisplay, BodyDetails, icon_size, DeviceView)
+from raphodo.storage import ValidMounts, get_media_dir
+from raphodo.devices import BackupDeviceCollection, BackupVolumeDetails
+from raphodo.devicedisplay import DeviceDisplay, icon_size, DeviceView
 from raphodo.destinationdisplay import make_body_details, adjusted_download_size
 from raphodo.storage import get_mount_size
 
@@ -85,8 +108,8 @@ class BackupDeviceModel(QAbstractListModel):
         self.raidApp = parent.rapidApp
         self.prefs = parent.prefs
         size = icon_size()
-        self.removableIcon = QIcon(':icons/drive-removable-media.svg').pixmap(size)
-        self.folderIcon = QIcon(':/icons/folder.svg').pixmap(size)
+        self.removableIcon = QIcon(":icons/drive-removable-media.svg").pixmap(size)
+        self.folderIcon = QIcon(":/icons/folder.svg").pixmap(size)
         self._initValues()
 
     def _initValues(self):
@@ -153,7 +176,10 @@ class BackupDeviceModel(QAbstractListModel):
         self.insertRows(position=row)
         logging.debug(
             "Adding %s to backup device display with root path %s at rows %s - %s",
-            display_name, mount.rootPath(), row, row + 1
+            display_name,
+            mount.rootPath(),
+            row,
+            row + 1,
         )
 
         for row_id in range(self.row_id_counter, self.row_id_counter + 2):
@@ -168,8 +194,10 @@ class BackupDeviceModel(QAbstractListModel):
         self.row_id_counter += 2
 
         self.backup_devices[path] = BackupViewRow(
-            mount=mount, display_name=display_name,
-            backup_type=backup_type, os_stat_device=os_stat_device
+            mount=mount,
+            display_name=display_name,
+            backup_type=backup_type,
+            os_stat_device=os_stat_device,
         )
 
     def removeBackupVolume(self, path: str) -> None:
@@ -190,10 +218,9 @@ class BackupDeviceModel(QAbstractListModel):
             del self.row_id_to_path[row_id]
         self.removeRows(row, 2)
 
-    def setDownloadAttributes(self, marked: FileTypeCounter,
-                              photos_size: int,
-                              videos_size: int,
-                              merge: bool) -> None:
+    def setDownloadAttributes(
+        self, marked: FileTypeCounter, photos_size: int, videos_size: int, merge: bool
+    ) -> None:
         """
         Set the attributes used to generate the visual display of the
         files marked to be downloaded
@@ -219,7 +246,9 @@ class BackupDeviceModel(QAbstractListModel):
         for row in range(1, len(self.rows), 2):
             self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
 
-    def _download_size_by_backup_type(self, backup_type: BackupLocationType) -> Tuple[int, int]:
+    def _download_size_by_backup_type(
+        self, backup_type: BackupLocationType
+    ) -> Tuple[int, int]:
         """
         Include photos or videos in download size only if those file types
         are being backed up to this backup device
@@ -247,11 +276,14 @@ class BackupDeviceModel(QAbstractListModel):
                 return ViewRowType.header
             elif role == Roles.device_details:
                 if not self.prefs.backup_files:
-                    return (_('Backups are not configured'), self.removableIcon)
+                    return _("Backups are not configured"), self.removableIcon
                 elif self.prefs.backup_device_autodetection:
-                    return (_('No backup devices detected'), self.removableIcon)
+                    return _("No backup devices detected"), self.removableIcon
                 else:
-                    return (_('Valid backup locations not yet specified'), self.folderIcon)
+                    return (
+                        _("Valid backup locations not yet specified"),
+                        self.folderIcon,
+                    )
 
         # at least one device  / location is being used
         if row >= len(self.rows) or row < 0:
@@ -280,14 +312,20 @@ class BackupDeviceModel(QAbstractListModel):
                     icon = self.folderIcon
                 return device.display_name, icon
             elif role == Roles.storage:
-                photos_size_to_download, videos_size_to_download = \
-                    self._download_size_by_backup_type(backup_type=device.backup_type)
+                (
+                    photos_size_to_download,
+                    videos_size_to_download,
+                ) = self._download_size_by_backup_type(backup_type=device.backup_type)
 
-                photos_size_to_download, videos_size_to_download = adjusted_download_size(
+                (
+                    photos_size_to_download,
+                    videos_size_to_download,
+                ) = adjusted_download_size(
                     photos_size_to_download=photos_size_to_download,
                     videos_size_to_download=videos_size_to_download,
                     os_stat_device=device.os_stat_device,
-                    downloading_to=self._downloading_to)
+                    downloading_to=self._downloading_to,
+                )
 
                 bytes_total, bytes_free = get_mount_size(mount=mount)
 
@@ -295,9 +333,9 @@ class BackupDeviceModel(QAbstractListModel):
                     bytes_total=bytes_total,
                     bytes_free=bytes_free,
                     backup_type=device.backup_type,
-                    marked = self.marked,
+                    marked=self.marked,
                     photos_size_to_download=photos_size_to_download,
-                    videos_size_to_download=videos_size_to_download
+                    videos_size_to_download=videos_size_to_download,
                 )
 
         return None
@@ -313,13 +351,15 @@ class BackupDeviceModel(QAbstractListModel):
         """
 
         for device in self.backup_devices.values():
-            photos_size_to_download, videos_size_to_download = \
-                self._download_size_by_backup_type(backup_type=device.backup_type)
+            (
+                photos_size_to_download,
+                videos_size_to_download,
+            ) = self._download_size_by_backup_type(backup_type=device.backup_type)
             photos_size_to_download, videos_size_to_download = adjusted_download_size(
                 photos_size_to_download=photos_size_to_download,
                 videos_size_to_download=videos_size_to_download,
                 os_stat_device=device.os_stat_device,
-                downloading_to=self._downloading_to
+                downloading_to=self._downloading_to,
             )
 
             bytes_total, bytes_free = get_mount_size(mount=device.mount)
@@ -341,7 +381,9 @@ class BackupDeviceDelegate(QStyledItemDelegate):
         self.rapidApp = rapidApp
         self.deviceDisplay = DeviceDisplay()
 
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+    def paint(
+        self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
+    ) -> None:
         painter.save()
 
         x = option.rect.x()
@@ -353,7 +395,12 @@ class BackupDeviceDelegate(QStyledItemDelegate):
             display_name, icon = index.data(Roles.device_details)
 
             self.deviceDisplay.paint_header(
-                painter=painter, x=x, y=y, width=width, icon=icon, display_name=display_name
+                painter=painter,
+                x=x,
+                y=y,
+                width=width,
+                icon=icon,
+                display_name=display_name,
             )
         else:
             assert view_type == ViewRowType.content
@@ -365,7 +412,7 @@ class BackupDeviceDelegate(QStyledItemDelegate):
                 files_to_display=data.backup_type,
                 marked=data.marked,
                 photos_size_to_download=data.photos_size_to_download,
-                videos_size_to_download=data.videos_size_to_download
+                videos_size_to_download=data.videos_size_to_download,
             )
 
             self.deviceDisplay.paint_body(
@@ -412,34 +459,34 @@ class BackupOptionsWidget(QFramedWidget):
 
         self.backupExplanation = QLabel(
             _(
-                'You can have your photos and videos backed up to '
-                'multiple locations as they are downloaded, e.g. '
-                'external hard drives.'
+                "You can have your photos and videos backed up to "
+                "multiple locations as they are downloaded, e.g. "
+                "external hard drives."
             )
         )
         self.backupExplanation.setWordWrap(True)
         self.backupExplanation.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Minimum)
 
-        self.backup = QCheckBox(_('Back up photos and videos when downloading'))
+        self.backup = QCheckBox(_("Back up photos and videos when downloading"))
         self.backup.setChecked(self.prefs.backup_files)
         self.backup.stateChanged.connect(self.backupChanged)
 
         checkbox_width = self.backup.style().pixelMetric(QStyle.PM_IndicatorWidth)
 
-        self.autoBackup = QCheckBox(_('Automatically detect backup devices'))
+        self.autoBackup = QCheckBox(_("Automatically detect backup devices"))
         self.autoBackup.setChecked(self.prefs.backup_device_autodetection)
         self.autoBackup.stateChanged.connect(self.autoBackupChanged)
 
         self.folderExplanation = QLabel(
             _(
-                'Specify the folder in which backups are stored on the '
-                'device.<br><br>'
-                '<i>Note: the presence of a folder with this name '
-                'is used to determine if the device is used for backups. '
-                'For each device you wish to use for backing up to, '
-                'create a folder in it with one of these folder names. '
-                'By adding both folders, the same device can be used '
-                'to back up both photos and videos.</i>'
+                "Specify the folder in which backups are stored on the "
+                "device.<br><br>"
+                "<i>Note: the presence of a folder with this name "
+                "is used to determine if the device is used for backups. "
+                "For each device you wish to use for backing up to, "
+                "create a folder in it with one of these folder names. "
+                "By adding both folders, the same device can be used "
+                "to back up both photos and videos.</i>"
             )
         )
         self.folderExplanation.setWordWrap(True)
@@ -447,17 +494,17 @@ class BackupOptionsWidget(QFramedWidget):
         # Unless this next call is made, for some reason the widget is too high! :-(
         self.folderExplanation.setContentsMargins(0, 0, 1, 0)
 
-        self.photoFolderNameLabel = QLabel(_('Photo folder name:'))
+        self.photoFolderNameLabel = QLabel(_("Photo folder name:"))
         self.photoFolderName = QLineEdit()
         self.photoFolderName.setText(self.prefs.photo_backup_identifier)
         self.photoFolderName.editingFinished.connect(self.photoFolderIdentifierChanged)
 
-        self.videoFolderNameLabel = QLabel(_('Video folder name:'))
+        self.videoFolderNameLabel = QLabel(_("Video folder name:"))
         self.videoFolderName = QLineEdit()
         self.videoFolderName.setText(self.prefs.video_backup_identifier)
         self.videoFolderName.editingFinished.connect(self.videoFolderIdentifierChanged)
 
-        self.autoBackupExampleBox = QGroupBox(_('Example:'))
+        self.autoBackupExampleBox = QGroupBox(_("Example:"))
         self.autoBackupExample = QLabel()
 
         autoBackupExampleBoxLayout = QHBoxLayout()
@@ -468,40 +515,44 @@ class BackupOptionsWidget(QFramedWidget):
         valid_mounts = ValidMounts(only_external_mounts=True)
 
         self.manualLocationExplanation = QLabel(
-            _('If you disable automatic detection, choose the exact backup locations.')
+            _("If you disable automatic detection, choose the exact backup locations.")
         )
         self.manualLocationExplanation.setWordWrap(True)
-        self.manualLocationExplanation.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Minimum)
+        self.manualLocationExplanation.setSizePolicy(
+            QSizePolicy.Ignored, QSizePolicy.Minimum
+        )
         # Translators: the word 'location' is optional in your translation. The left
-        # side of the folder chooser combo box will always line up with the left side of the
-        # the text entry boxes where the user can enter the photo folder name and the video
-        # folder name. See http://damonlynch.net/rapid/documentation/thumbnails/backup.png
-        self.photoLocationLabel = QLabel(_('Photo backup location:'))
+        # side of the folder chooser combo box will always line up with the left side of
+        # the the text entry boxes where the user can enter the photo folder name and
+        # the video folder name. See
+        # http://damonlynch.net/rapid/documentation/thumbnails/backup.png
+        self.photoLocationLabel = QLabel(_("Photo backup location:"))
         self.photoLocationLabel.setWordWrap(True)
         self.photoLocation = FolderCombo(
             self,
             prefs=self.prefs,
             file_type=FileType.photo,
-            file_chooser_title=_('Select Photo Backup Location'),
+            file_chooser_title=_("Select Photo Backup Location"),
             special_dirs=(StandardFileLocations.pictures,),
-            valid_mounts=valid_mounts
+            valid_mounts=valid_mounts,
         )
         self.photoLocation.setPath(self.prefs.backup_photo_location)
         self.photoLocation.pathChosen.connect(self.photoPathChosen)
 
         # Translators: the word 'location' is optional in your translation. The left
-        # side of the folder chooser combo box will always line up with the left side of the
-        # the text entry boxes where the user can enter the photo folder name and the video
-        # folder name. See http://damonlynch.net/rapid/documentation/thumbnails/backup.png
-        self.videoLocationLabel = QLabel(_('Video backup location:'))
+        # side of the folder chooser combo box will always line up with the left side of
+        # the the text entry boxes where the user can enter the photo folder name and
+        # the video folder name. See
+        # http://damonlynch.net/rapid/documentation/thumbnails/backup.png
+        self.videoLocationLabel = QLabel(_("Video backup location:"))
         self.videoLocationLabel.setWordWrap(True)
         self.videoLocation = FolderCombo(
             self,
             prefs=self.prefs,
             file_type=FileType.video,
-            file_chooser_title=_('Select Video Backup Location'),
-            special_dirs=(StandardFileLocations.videos, ),
-            valid_mounts=valid_mounts
+            file_chooser_title=_("Select Video Backup Location"),
+            special_dirs=(StandardFileLocations.videos,),
+            valid_mounts=valid_mounts,
         )
         self.videoLocation.setPath(self.prefs.backup_video_location)
         self.videoLocation.pathChosen.connect(self.videoPathChosen)
@@ -515,7 +566,9 @@ class BackupOptionsWidget(QFramedWidget):
         backupLayout.addWidget(self.videoFolderNameLabel, 5, 2, 1, 1)
         backupLayout.addWidget(self.videoFolderName, 5, 3, 1, 1)
         backupLayout.addWidget(self.autoBackupExampleBox, 6, 2, 1, 2)
-        backupLayout.addWidget(self.manualLocationExplanation, 7, 1, 1, 3, Qt.AlignBottom)
+        backupLayout.addWidget(
+            self.manualLocationExplanation, 7, 1, 1, 3, Qt.AlignBottom
+        )
         backupLayout.addWidget(self.photoLocationLabel, 8, 1, 1, 2)
         backupLayout.addWidget(self.photoLocation, 8, 3, 1, 1)
         backupLayout.addWidget(self.videoLocationLabel, 9, 1, 1, 2)
@@ -532,14 +585,21 @@ class BackupOptionsWidget(QFramedWidget):
         self.setBackupButtonHighlight()
 
         # Group controls to enable / disable sets of them
-        self._backup_controls_type = (self.autoBackup, )
+        self._backup_controls_type = (self.autoBackup,)
         self._backup_controls_auto = (
-            self.folderExplanation, self.photoFolderNameLabel, self.photoFolderName,
-            self.videoFolderNameLabel, self.videoFolderName, self.autoBackupExampleBox
+            self.folderExplanation,
+            self.photoFolderNameLabel,
+            self.photoFolderName,
+            self.videoFolderNameLabel,
+            self.videoFolderName,
+            self.autoBackupExampleBox,
         )
         self._backup_controls_manual = (
-            self.manualLocationExplanation, self.photoLocationLabel, self.photoLocation,
-            self.videoLocationLabel, self.videoLocation,
+            self.manualLocationExplanation,
+            self.photoLocationLabel,
+            self.photoLocation,
+            self.videoLocationLabel,
+            self.videoLocation,
         )
         self.updateExample()
         self.enableControlsByBackupType()
@@ -597,24 +657,28 @@ class BackupOptionsWidget(QFramedWidget):
         Update the example paths in the backup panel
         """
 
-        if self.autoBackup.isChecked() and hasattr(self.rapidApp, 'backup_devices') and len(
-                self.rapidApp.backup_devices):
+        if (
+            self.autoBackup.isChecked()
+            and hasattr(self.rapidApp, "backup_devices")
+            and len(self.rapidApp.backup_devices)
+        ):
             drives = self.rapidApp.backup_devices.sample_device_paths()
         else:
-            # Translators: this value is used as an example device when automatic backup device
-            # detection is enabled. You should translate this.
+            # Translators: this value is used as an example device when automatic backup
+            # device detection is enabled. You should translate this.
             drive1 = os.path.join(self.media_dir, _("drive1"))
-            # Translators: this value is used as an example device when automatic backup device
-            # detection is enabled. You should translate this.
+            # Translators: this value is used as an example device when automatic backup
+            # device detection is enabled. You should translate this.
             drive2 = os.path.join(self.media_dir, _("drive2"))
             drives = (
-                os.path.join(path, identifier) for path, identifier in (
+                os.path.join(path, identifier)
+                for path, identifier in (
                     (drive1, self.prefs.photo_backup_identifier),
                     (drive2, self.prefs.photo_backup_identifier),
-                    (drive2, self.prefs.video_backup_identifier)
+                    (drive2, self.prefs.video_backup_identifier),
                 )
             )
-        paths = '\n'.join(drives)
+        paths = "\n".join(drives)
         self.autoBackupExample.setText(paths)
 
     def setBackupButtonHighlight(self) -> None:
@@ -625,8 +689,10 @@ class BackupOptionsWidget(QFramedWidget):
         """
 
         self.rapidApp.backupButton.setHighlighted(
-            self.prefs.backup_files and not self.prefs.backup_device_autodetection and (
-                self.photoLocation.invalid_path or self.videoLocation.invalid_path))
+            self.prefs.backup_files
+            and not self.prefs.backup_device_autodetection
+            and (self.photoLocation.invalid_path or self.videoLocation.invalid_path)
+        )
 
     def enableControlsByBackupType(self) -> None:
         """
@@ -659,7 +725,7 @@ class BackupPanel(QScrollArea):
     downloading.
     """
 
-    def __init__(self,  parent) -> None:
+    def __init__(self, parent) -> None:
         super().__init__(parent)
 
         assert parent is not None
@@ -671,25 +737,29 @@ class BackupPanel(QScrollArea):
         self.setFrameShape(QFrame.NoFrame)
 
         self.backupStoragePanel = QPanelView(
-            label=_('Projected Backup Storage Use'),
+            label=_("Projected Backup Storage Use"),
             headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white)
+            headerFontColor=QColor(Qt.white),
         )
 
         self.backupOptionsPanel = QPanelView(
-            label=_('Backup Options'),
+            label=_("Backup Options"),
             headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white)
+            headerFontColor=QColor(Qt.white),
         )
 
         self.backupDevicesView = BackupDeviceView(rapidApp=self.rapidApp, parent=self)
         self.backupStoragePanel.addWidget(self.backupDevicesView)
         self.backupDevicesView.setModel(self.backupDevices)
-        self.backupDevicesView.setItemDelegate(BackupDeviceDelegate(rapidApp=self.rapidApp))
+        self.backupDevicesView.setItemDelegate(
+            BackupDeviceDelegate(rapidApp=self.rapidApp)
+        )
         self.backupDevicesView.setSizePolicy(
             QSizePolicy.MinimumExpanding, QSizePolicy.Fixed
         )
-        self.backupOptionsPanel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
+        self.backupOptionsPanel.setSizePolicy(
+            QSizePolicy.Preferred, QSizePolicy.MinimumExpanding
+        )
 
         self.backupOptions = BackupOptionsWidget(
             prefs=self.prefs, parent=self, rapidApp=self.rapidApp
@@ -747,7 +817,8 @@ class BackupPanel(QScrollArea):
         if self.prefs.backup_device_autodetection:
             for path in backup_devices:
                 self.backupDevices.addBackupVolume(
-                    mount_details=backup_devices.get_backup_volume_details(path=path))
+                    mount_details=backup_devices.get_backup_volume_details(path=path)
+                )
         else:
             # manually specified backup paths
             try:
@@ -760,14 +831,14 @@ class BackupPanel(QScrollArea):
                     self.backupDevices.addBackupVolume(mount_details=mounts[1])
             except Exception:
                 logging.exception(
-                    'An unexpected error occurred when adding backup destinations. Exception:'
+                    "An unexpected error occurred when adding backup destinations. "
+                    "Exception:"
                 )
         self.backupDevicesView.updateGeometry()
 
-    def setDownloadAttributes(self, marked: FileTypeCounter,
-                              photos_size: int,
-                              videos_size: int,
-                              merge: bool) -> None:
+    def setDownloadAttributes(
+        self, marked: FileTypeCounter, photos_size: int, videos_size: int, merge: bool
+    ) -> None:
         """
         Set the attributes used to generate the visual display of the
         files marked to be downloaded
