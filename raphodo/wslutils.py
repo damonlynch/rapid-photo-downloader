@@ -5,6 +5,7 @@ import re
 import shlex
 import subprocess
 from pathlib import Path
+from typing import Set
 
 from showinfm.system.linux import translate_wsl_path
 
@@ -100,3 +101,12 @@ def wsl_conf_mnt_location() -> str:
             else:
                 logging.warning("WSL root mount point %s does not exist", mount_dir)
     return "/mnt"
+
+
+def wsl_filter_directories() -> Set[str]:
+    """
+    :return: Set of full paths of WSL system directories to not show in file browser
+    """
+
+    mnt_location = Path(wsl_conf_mnt_location())
+    return {str(mnt_location / d) for d in ('wsl', 'wslg')}

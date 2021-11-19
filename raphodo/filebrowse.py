@@ -27,6 +27,7 @@ import os
 import pathlib
 from typing import List, Set, Optional
 import logging
+import re
 
 from PyQt5.QtCore import (
     QDir,
@@ -59,6 +60,7 @@ from raphodo.constants import (
 )
 from raphodo.storage import gvfs_gphoto2_path
 from raphodo.viewutils import scaledIcon, standard_font_size
+from raphodo.wslutils import wsl_filter_directories
 
 
 class FileSystemModel(QFileSystemModel):
@@ -207,6 +209,7 @@ class FileSystemView(QTreeView):
             self.expand(index)
 
     def onCustomContextMenu(self, point: QPoint) -> None:
+        # TODO add code to handle right-clicking to handle turning directory filtering on or ff
         index = self.indexAt(point)
         if index.isValid():
             self.clickedIndex = index
@@ -230,8 +233,15 @@ class FileSystemFilter(QSortFilterProxyModel):
     a set of standard directories that should not be displayed.
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: "RapidWindow" = None):
         super().__init__(parent)
+        self.is_wsl2 = parent.is_wsl2
+        if self.is_wsl2:
+            self.filter_paths = wsl_filter_directories()
+            # Filter out system created WSL working directories
+            self.regex = re.compile(r"/wsl[\w]")
+        else:
+            self.filter_paths = set()
         self.filtered_dir_names = filtered_file_browser_directories
 
     def setTempDirs(self, dirs: List[str]) -> None:
@@ -251,11 +261,16 @@ class FileSystemFilter(QSortFilterProxyModel):
             logging.debug("Rejecting browsing path %s", path)
             return False
 
-        if not self.filtered_dir_names:
+        if not self.filtered_dir_names and not self.is_wsl2:
             return True
 
         file_name = index.data(QFileSystemModel.FileNameRole)
-        return file_name not in self.filtered_dir_names
+        file_path = index.data(QFileSystemModel.FilePathRole)
+        return (
+            file_name not in self.filtered_dir_names
+            and file_path not in self.filter_paths
+            and self.regex.match(file_path) is None
+        )
 
 
 class FileSystemDelegate(QStyledItemDelegate):
