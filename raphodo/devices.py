@@ -1408,7 +1408,7 @@ class BackupDeviceCollection:
     0
     """
 
-    def __init__(self, rapidApp=None):
+    def __init__(self, rapidApp: 'RapidWindow' = None ):
         self.rapidApp = rapidApp
         self.devices = dict()  # type: Dict[str, BackupDevice]
         # Set[path]
@@ -1498,14 +1498,17 @@ class BackupDeviceCollection:
                 return path
         else:
             mount = self.devices[path].mount  # type:  QStorageInfo
-            if not shorten:
-                return mount.displayName()
+            if self.rapidApp.is_wsl2 and self.rapidApp.wsl_drives_probed:
+                return self.rapidApp.wslDrives.displayName(mount.rootPath())
             else:
-                name = mount.name()
-                if name:
-                    return name
+                if not shorten:
+                    return mount.displayName()
                 else:
-                    return get_path_display_name(mount.rootPath())[0]
+                    name = mount.name()
+                    if name:
+                        return name
+                    else:
+                        return get_path_display_name(mount.rootPath())[0]
 
     def backup_type(self, path) -> BackupLocationType:
         return self.devices[path].backup_type
