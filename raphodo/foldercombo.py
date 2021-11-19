@@ -20,22 +20,29 @@
 Combobox widget to easily choose file locations
 """
 
-__author__ = 'Damon Lynch'
+__author__ = "Damon Lynch"
 __copyright__ = "Copyright 2017-2020, Damon Lynch"
 
 from typing import Optional, Tuple, List
 import os
 import logging
 
-from PyQt5.QtCore import (pyqtSlot, pyqtSignal)
-from PyQt5.QtWidgets import (QComboBox, QFileDialog)
-from PyQt5.QtGui import (QIcon, )
+from PyQt5.QtCore import pyqtSlot, pyqtSignal
+from PyQt5.QtWidgets import QComboBox, QFileDialog
+from PyQt5.QtGui import QIcon
 
 import raphodo.qrc_resources as qrc_resources
-from raphodo.constants import StandardFileLocations, FileType, max_remembered_destinations
+from raphodo.constants import (
+    StandardFileLocations,
+    FileType,
+    max_remembered_destinations,
+)
 from raphodo.preferences import Preferences
 from raphodo.storage import (
-    platform_desktop_directory, platform_photos_directory, platform_videos_directory, ValidMounts
+    platform_desktop_directory,
+    platform_photos_directory,
+    platform_videos_directory,
+    ValidMounts,
 )
 from raphodo.utilities import make_path_end_snippets_unique
 
@@ -48,12 +55,15 @@ class FolderCombo(QComboBox):
     # Signal emitted whenever user chooses a path
     pathChosen = pyqtSignal(str)
 
-    def __init__(self, parent,
-                 prefs: Preferences,
-                 file_type: FileType,
-                 file_chooser_title: str,
-                 special_dirs: Optional[Tuple[StandardFileLocations]]=None,
-                 valid_mounts: ValidMounts=None) -> None:
+    def __init__(
+        self,
+        parent,
+        prefs: Preferences,
+        file_type: FileType,
+        file_chooser_title: str,
+        special_dirs: Optional[Tuple[StandardFileLocations]] = None,
+        valid_mounts: ValidMounts = None,
+    ) -> None:
         super().__init__(parent)
 
         self.prefs = prefs
@@ -77,7 +87,7 @@ class FolderCombo(QComboBox):
         self.destinations_start = -1
 
         # Home directory
-        home_dir = os.path.expanduser('~')
+        home_dir = os.path.expanduser("~")
         home_label = os.path.basename(home_dir)
 
         # Desktop directory, if it exists
@@ -110,27 +120,31 @@ class FolderCombo(QComboBox):
                     if videos_dir is not None and os.path.isdir(videos_dir):
                         videos_label = os.path.basename(videos_dir)
 
-        self.addItem(QIcon(':/icons/home.svg'), home_label, home_dir)
+        self.addItem(QIcon(":/icons/home.svg"), home_label, home_dir)
         idx = 1
         if desktop_label:
-            self.addItem(QIcon(':/icons/desktop.svg'), desktop_label, desktop_dir)
+            self.addItem(QIcon(":/icons/desktop.svg"), desktop_label, desktop_dir)
             idx += 1
-        self.addItem(QIcon(':/icons/drive-harddisk.svg'), _('File System'), '/')
+        self.addItem(QIcon(":/icons/drive-harddisk.svg"), _("File System"), "/")
         idx += 1
 
         if mounts:
             for name, path in mounts:
-                self.addItem(QIcon(':icons/drive-removable-media.svg'), name, path)
+                self.addItem(QIcon(":icons/drive-removable-media.svg"), name, path)
                 idx += 1
 
         if pictures_label is not None or videos_label is not None:
             self.insertSeparator(idx)
             idx += 1
             if pictures_label is not None:
-                self.addItem(QIcon(':/icons/pictures-folder.svg'), pictures_label, pictures_dir)
+                self.addItem(
+                    QIcon(":/icons/pictures-folder.svg"), pictures_label, pictures_dir
+                )
                 idx += 1
             if videos_label is not None:
-                self.addItem(QIcon(':/icons/videos-folder.svg'), videos_label, videos_dir)
+                self.addItem(
+                    QIcon(":/icons/videos-folder.svg"), videos_label, videos_dir
+                )
                 idx += 1
 
         # Remembered paths / destinations
@@ -142,7 +156,7 @@ class FolderCombo(QComboBox):
             valid_names = []
 
         if valid_names:
-            folder_icon = QIcon(':/icons/folder.svg')
+            folder_icon = QIcon(":/icons/folder.svg")
             self.insertSeparator(idx)
             idx += 1
             self.destinations_start = idx
@@ -152,7 +166,7 @@ class FolderCombo(QComboBox):
 
         self.insertSeparator(idx)
         idx += 1
-        self.addItem(_('Other...'))
+        self.addItem(_("Other..."))
         logging.debug("...%s combobox entries added", self.count())
 
     def showPopup(self) -> None:
@@ -189,8 +203,8 @@ class FolderCombo(QComboBox):
         standard_path = False
 
         if self.destinations_start == -1:
-            # Deduct two from the count, to allow for the "Other..." at the end, along with its
-            # separator
+            # Deduct two from the count, to allow for the "Other..." at the end,
+            # along with its separator
             default_end = self.count() - 2
         else:
             default_end = self.destinations_start
@@ -206,7 +220,8 @@ class FolderCombo(QComboBox):
                 standard_path = True
                 logging.info(
                     "%s path %s is a default value or path to an external volume",
-                    self.file_type.name, path
+                    self.file_type.name,
+                    path,
                 )
                 break
 
@@ -215,7 +230,8 @@ class FolderCombo(QComboBox):
                 logging.info(
                     "Removing %s from list of stored %s destinations because its now a "
                     "standard path",
-                    path, self.file_type.name
+                    path,
+                    self.file_type.name,
                 )
                 self.prefs.del_list_value(self._get_dest_pref_key(), path)
         else:
@@ -225,7 +241,9 @@ class FolderCombo(QComboBox):
             elif os.path.isdir(path):
                 # Add path to destinations in prefs, and regenerate the combobox entries
                 self.prefs.add_list_value(
-                    self._get_dest_pref_key(), path, max_list_size=max_remembered_destinations
+                    self._get_dest_pref_key(),
+                    path,
+                    max_list_size=max_remembered_destinations,
                 )
                 self.clear()
                 self._setup_entries()
@@ -237,8 +255,10 @@ class FolderCombo(QComboBox):
                 invalid = True
                 # Translators: indicate in combobox that a path does not exist
                 self.insertItem(
-                    0, QIcon(':/icons/error.svg'),
-                    _('%s (location does not exist)') % os.path.basename(path), path
+                    0,
+                    QIcon(":/icons/error.svg"),
+                    _("%s (location does not exist)") % os.path.basename(path),
+                    path,
                 )
                 self.setCurrentIndex(0)
                 if self.destinations_start != -1:
@@ -269,9 +289,9 @@ class FolderCombo(QComboBox):
 
     def _get_dest_pref_key(self) -> str:
         if self.file_type == FileType.photo:
-            return 'photo_backup_destinations'
+            return "photo_backup_destinations"
         else:
-            return 'video_backup_destinations'
+            return "video_backup_destinations"
 
     @pyqtSlot(int)
     def processPath(self, index: int) -> None:
@@ -282,9 +302,9 @@ class FolderCombo(QComboBox):
                 if os.path.isdir(self.chosen_path):
                     chosen_path = self.chosen_path
                 else:
-                    chosen_path = os.path.expanduser('~')
+                    chosen_path = os.path.expanduser("~")
             except AttributeError:
-                chosen_path = os.path.expanduser('~')
+                chosen_path = os.path.expanduser("~")
             path = QFileDialog.getExistingDirectory(
                 self, self.file_chooser_title, chosen_path, QFileDialog.ShowDirsOnly
             )
