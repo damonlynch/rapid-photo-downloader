@@ -23,7 +23,6 @@ Display download destination details
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2021, Damon Lynch"
 
-import os
 import math
 from typing import Optional, Dict, Tuple, Union, DefaultDict, Set
 import logging
@@ -239,7 +238,7 @@ class DestinationDisplay(QWidget):
         else:
             self.prefs = None
 
-        self.storage_space = None  # type: StorageSpace
+        self.storage_space = None  # type: Optional[StorageSpace]
 
         self.map_action = dict()  # type: Dict[int, QAction]
 
