@@ -1345,6 +1345,11 @@ def getQtSystemTranslation(locale_name: str) -> Optional[QTranslator]:
 
 
 def existing_parent_for_new_dir(path: Path) -> Path:
+    """
+    Locate the first parent folder that exists for a given path
+    :param path: path to look for first existing parent
+    :return: the first parent folder that exists for the  path
+    """
     for parent in path.parents:
         if parent.is_dir():
             return parent
