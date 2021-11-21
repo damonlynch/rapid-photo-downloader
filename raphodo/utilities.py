@@ -516,7 +516,7 @@ def thousands(i: int) -> str:
     try:
         return locale.format_string("%d", i, grouping=True)
     except TypeError:
-        return i
+        return str(i)
 
 
 # Source of class AdjacentKey, first_and_last and runs:
