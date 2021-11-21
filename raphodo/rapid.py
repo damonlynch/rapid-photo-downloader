@@ -460,6 +460,9 @@ class RapidWindow(QMainWindow):
             self.wslDrives.driveMounted.connect(self.wslWindowsDriveMounted)
             self.wslDrives.driveUnmounted.connect(self.wslWindowsDriveUnmounted)
             self.is_wsl2 = True
+            # Track whether a list of Windows drives has been returned yet
+            self.wsl_drives_probed = False
+            self.wsl_backup_drives_refresh_needed = False
         else:
             self.is_wsl2 = False
 
@@ -956,6 +959,7 @@ class RapidWindow(QMainWindow):
             prefs=self.prefs,
             photoDestinationFSView=self.photoDestinationFSView,
             videoDestinationFSView=self.videoDestinationFSView,
+            fileSystemFilter=self.fileSystemFilter,
             devices=self.devices,
             rapidApp=self,
         )
@@ -1186,8 +1190,6 @@ class RapidWindow(QMainWindow):
             self.wslDriveMonitor.moveToThread(self.wslDriveMonitorThread)
             self.wslDriveMonitor.driveMounted.connect(self.wslWindowsDriveAdded)
             self.wslDriveMonitor.driveUnmounted.connect(self.wslWindowsDriveRemoved)
-            # Track whether a list of Windows drives has been returned yet
-            self.wsl_drives_probed = False
             logging.debug("Starting WSL Windows Drive Monitor")
             QTimer.singleShot(0, self.wslDriveMonitorThread.start)
             self.use_udsisks = self.gvfs_controls_mounts = False
@@ -5702,7 +5704,7 @@ Do you want to proceed with the download?
 
     @pyqtSlot("PyQt_PyObject")
     def wslWindowsDriveAdded(self, drives: List[WindowsDriveMount]) -> None:
-        setup_backup_devices = not self.wsl_drives_probed and self.prefs.backup_files
+        wsl_drive_previously_probed = self.wsl_drives_probed
         self.wsl_drives_probed = True
         for drive in drives:
             logging.info(
@@ -5713,8 +5715,12 @@ Do you want to proceed with the download?
             )
             self.wslDrives.addDrive(drive)
         self.wslDrives.logDrives()
-        if setup_backup_devices:
-            self.setupBackupDevices()
+
+        if not wsl_drive_previously_probed:
+            if self.wsl_backup_drives_refresh_needed:
+                self.backupPanel.updateLocationCombos()
+            if self.prefs.backup_files:
+                self.setupBackupDevices()
         if not self.on_startup:
             self.wslDrives.mountDrives()
 
@@ -5784,7 +5790,7 @@ Do you want to proceed with the download?
 
                 elif self.shouldScanMount(mount):
                     device = Device()
-                    if self.is_wsl2 and self.wsl_drives_probed:
+                    if self.is_wsl2:
                         display_name = self.wslDrives.displayName(mount.rootPath())
                     else:
                         display_name = mount.displayName()
@@ -6135,7 +6141,7 @@ Do you want to proceed with the download?
                 # Get place holder values for now
                 icon_names = []
                 can_eject = False
-                display_name = mount.displayName()
+                display_name = self.wslDrives.displayName(mount.rootPath())
             else:
                 icon_names, can_eject = self.getIconsAndEjectableForMount(mount)
                 if self.is_wsl2:

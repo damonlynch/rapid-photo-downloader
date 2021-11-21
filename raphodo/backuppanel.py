@@ -440,7 +440,7 @@ class BackupOptionsWidget(QFramedWidget):
     Display backup options, such as automatic backup detection
     """
 
-    def __init__(self, prefs: Preferences, parent, rapidApp) -> None:
+    def __init__(self, prefs: Preferences, parent, rapidApp: "RapidWindow") -> None:
         super().__init__(parent)
 
         self.rapidApp = rapidApp
@@ -526,6 +526,10 @@ class BackupOptionsWidget(QFramedWidget):
         # http://damonlynch.net/rapid/documentation/thumbnails/backup.png
         self.photoLocationLabel = QLabel(_("Photo backup location:"))
         self.photoLocationLabel.setWordWrap(True)
+        if not self.rapidApp.wsl_drives_probed:
+            # flag that once Windows drives volume names are known, update these
+            # combo box values
+            self.rapidApp.wsl_backup_drives_refresh_needed = True
         self.photoLocation = FolderCombo(
             self,
             prefs=self.prefs,
@@ -784,7 +788,7 @@ class BackupPanel(QScrollArea):
 
     def updateLocationCombos(self) -> None:
         """
-        Update backup locatation comboboxes in case directory status has changed.
+        Update backup location comboboxes in case directory status has changed.
         """
 
         self.backupOptions.updateLocationCombos()

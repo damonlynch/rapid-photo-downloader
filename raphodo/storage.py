@@ -79,6 +79,7 @@ from raphodo.wslutils import (
     wsl_pictures_folder,
     wsl_videos_folder,
     wsl_conf_mnt_location,
+    wsl_filter_directories,
 )
 
 gi.require_version("GUdev", "1.0")
@@ -267,8 +268,9 @@ class ValidMounts:
         :param only_external_mounts: if True, valid mounts must be under
         /media/<USER>, /run/media/<user>, or if WSL2 /mnt/
         """
-        self.validMountFolders = None  # type: Tuple[str]
+        self.validMountFolders = None  # type: Optional[Tuple[str]]
         self.only_external_mounts = only_external_mounts
+        self.is_wsl2 = linux_desktop() == LinuxDesktop.wsl2
         self._setValidMountFolders()
         assert "/" not in self.validMountFolders
         if logging_level == logging.DEBUG:
@@ -281,8 +283,13 @@ class ValidMounts:
         :param mount: QStorageInfo to be tested
         :return:True if mount is a mount under a valid mount, else False
         """
+        root_path = mount.rootPath()
+        if self.is_wsl2:
+            for path in wsl_filter_directories():
+                if root_path.startswith(path):
+                    return False
         for m in self.validMountFolders:
-            if mount.rootPath().startswith(m):
+            if root_path.startswith(m):
                 return True
         return False
 

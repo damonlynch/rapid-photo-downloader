@@ -26,7 +26,7 @@ from typing import List
 from PyQt5.QtCore import QObject, pyqtSlot
 
 from raphodo.devices import DeviceCollection
-from raphodo.filebrowse import FileSystemModel, FileSystemView
+from raphodo.filebrowse import FileSystemModel, FileSystemView, FileSystemFilter
 from raphodo.folderspreview import FoldersPreview, DownloadDestination
 from raphodo.interprocess import OffloadData
 from raphodo.preferences import Preferences
@@ -61,6 +61,7 @@ class FolderPreviewManager(QObject):
         prefs: Preferences,
         photoDestinationFSView: FileSystemView,
         videoDestinationFSView: FileSystemView,
+        fileSystemFilter: FileSystemFilter,
         devices: DeviceCollection,
         rapidApp: "RapidWindow",
     ) -> None:
@@ -90,6 +91,7 @@ class FolderPreviewManager(QObject):
 
         self.photoDestinationFSView = photoDestinationFSView
         self.videoDestinationFSView = videoDestinationFSView
+        self.fileSystemFilter = fileSystemFilter
 
         self.folders_preview = FoldersPreview()
         # Set the initial download destination values, using the values
@@ -219,6 +221,10 @@ class FolderPreviewManager(QObject):
         # Update the view
         self.photoDestinationFSView.reset()
         self.videoDestinationFSView.reset()
+        # Set the root index so the views do not show the / folder
+        index = self.fileSystemFilter.mapFromSource(self.fsmodel.index("/"))
+        self.photoDestinationFSView.setRootIndex(index)
+        self.videoDestinationFSView.setRootIndex(index)
         # Ensure the file system model caches are refreshed:
         self.fsmodel.setRootPath(self.folders_preview.photo_download_folder)
         self.fsmodel.setRootPath(self.folders_preview.video_download_folder)
@@ -229,9 +235,6 @@ class FolderPreviewManager(QObject):
         self.videoDestinationFSView.expandPreviewFolders(
             self.prefs.video_download_folder
         )
-
-        # self.photoDestinationFSView.update()
-        # self.videoDestinationFSView.update()
 
     def remove_folders_for_device(self, scan_id: int) -> None:
         """

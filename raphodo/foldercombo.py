@@ -67,6 +67,10 @@ class FolderCombo(QComboBox):
         super().__init__(parent)
 
         self.prefs = prefs
+        self.rapidApp = parent.rapidApp
+        self.is_wsl2 = self.rapidApp.is_wsl2
+        if self.is_wsl2:
+            self.wslDrives = self.rapidApp.wslDrives
         self.file_chooser_title = file_chooser_title
         self.file_type = file_type
         self.valid_mounts = valid_mounts
@@ -99,13 +103,22 @@ class FolderCombo(QComboBox):
 
         # Any external mounts
         mounts = ()
-        if self.valid_mounts is not None:
-            mounts = tuple(
-                (
-                    (mount.name(), mount.rootPath())
-                    for mount in self.valid_mounts.mountedValidMountPoints()
+        if not self.is_wsl2:
+            if self.valid_mounts is not None:
+                mounts = tuple(
+                    (
+                        (mount.name(), mount.rootPath())
+                        for mount in self.valid_mounts.mountedValidMountPoints()
+                    )
                 )
-            )
+        else:
+            if self.valid_mounts is not None:
+                mounts = tuple(
+                    (
+                        (self.wslDrives.displayName(mount.rootPath()), mount.rootPath())
+                        for mount in self.valid_mounts.mountedValidMountPoints()
+                    )
+                )
 
         # Pictures and Videos directories, if required and if they exist
         pictures_dir = pictures_label = videos_dir = videos_label = None

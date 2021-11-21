@@ -20,6 +20,7 @@
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2021, Damon Lynch."
 
+import time
 from collections import OrderedDict, defaultdict
 import enum
 from pathlib import Path, PurePosixPath
@@ -1145,18 +1146,20 @@ class WslDrives(QObject):
 
     def displayName(self, mount_point: str) -> str:
         """
-        Volume name for the mount point
+        Volume name and drive letter for the mount point
+
+        If the volume name is currently unknown, return simply the drive letter
+        and a colon, e.g. C: or D:
 
         :param mount_point: mount point of the volume
-        :return: volume name as reported by Windows
+        :return: volume name and drive letter as reported by Windows
         """
 
-        try:
+        if mount_point in self.mount_points:
             drive = self.mount_points[mount_point][0]
-        except Exception:
-            logging.error("Mount point %s is an unknown WSL drive", mount_point)
-            return _("Local Drive")
-        return f"{drive.label} ({drive.drive_letter.upper()}:)"
+            return f"{drive.label} ({drive.drive_letter.upper()}:)"
+        else:
+            return f"{Path(mount_point).name.upper()}:"
 
     def driveProperties(self, mount_point: str) -> Tuple[List[str], bool]:
         assert mount_point != ""
