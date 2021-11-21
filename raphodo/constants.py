@@ -773,3 +773,10 @@ filtered_file_browser_directories = {
     "System Volume Information",
     "msdownld.tmp",
 }
+
+
+non_system_root_folders = [
+    '/home',
+    '/media',
+    '/mnt',
+]

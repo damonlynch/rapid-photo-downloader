@@ -36,7 +36,8 @@ from PyQt5.QtCore import (
     QItemSelectionModel,
     QSortFilterProxyModel,
     QPoint,
-    QSize,
+    pyqtSignal,
+    pyqtSlot,
 )
 from PyQt5.QtWidgets import (
     QTreeView,
@@ -46,6 +47,7 @@ from PyQt5.QtWidgets import (
     QStyledItemDelegate,
     QStyleOptionViewItem,
     QMenu,
+    QAction,
 )
 
 from PyQt5.QtGui import QPainter, QFont
@@ -57,8 +59,9 @@ from raphodo.constants import (
     minFileSystemViewHeight,
     Roles,
     filtered_file_browser_directories,
+    non_system_root_folders,
 )
-from raphodo.storage import gvfs_gphoto2_path
+from raphodo.storage import gvfs_gphoto2_path, get_media_dir
 from raphodo.viewutils import scaledIcon, standard_font_size
 from raphodo.wslutils import wsl_filter_directories
 
@@ -138,6 +141,10 @@ class FileSystemModel(QFileSystemModel):
 
 
 class FileSystemView(QTreeView):
+
+    showSystemFolders = pyqtSignal(bool)
+    filePathReset = pyqtSignal()
+
     def __init__(self, model: FileSystemModel, rapidApp, parent=None) -> None:
         super().__init__(parent)
         self.rapidApp = rapidApp
@@ -157,6 +164,23 @@ class FileSystemView(QTreeView):
         self.openInFileBrowserAct.triggered.connect(self.doOpenInFileBrowserAct)
         self.openInFileBrowserAct.setEnabled(self.rapidApp.file_manager is not None)
         self.clickedIndex = None  # type: Optional[QModelIndex]
+
+        self.resetSelectionAct = self.contextMenu.addAction(
+            _("Reset")
+        )
+        self.resetSelectionAct.triggered.connect(self.doResetSelectionAct)
+
+        self.show_system_folders = False
+        self.showSystemFoldersAct = QAction(
+            _("Show System Folders"),
+            self,
+            enabled=True,
+            checkable=True,
+            triggered=self.doShowSystemFoldersAct,
+        )
+        self.showSystemFoldersAct.setChecked(self.show_system_folders)
+        self.contextMenu.addAction(self.showSystemFoldersAct)
+
 
     def hideColumns(self) -> None:
         """
@@ -209,13 +233,16 @@ class FileSystemView(QTreeView):
             self.expand(index)
 
     def onCustomContextMenu(self, point: QPoint) -> None:
-        # TODO add code to handle right-clicking to handle turning directory filtering on or ff
         index = self.indexAt(point)
         if index.isValid():
             self.clickedIndex = index
-            self.contextMenu.exec(self.mapToGlobal(point))
+            self.openInFileBrowserAct.setEnabled(True)
+        else:
+            self.openInFileBrowserAct.setEnabled(False)
+        self.contextMenu.exec(self.mapToGlobal(point))
 
-    def doOpenInFileBrowserAct(self):
+    @pyqtSlot()
+    def doOpenInFileBrowserAct(self) -> None:
         index = self.clickedIndex
         if index:
             uri = self.fileSystemModel.filePath(index.model().mapToSource(index))
@@ -225,6 +252,16 @@ class FileSystemView(QTreeView):
                 uri,
             )
             show_in_file_manager(path_or_uri=uri, open_not_select_directory=True)
+
+    @pyqtSlot()
+    def doShowSystemFoldersAct(self) -> None:
+        self.show_system_folders = self.showSystemFoldersAct.isChecked()
+        self.showSystemFolders.emit(self.show_system_folders)
+
+    @pyqtSlot()
+    def doResetSelectionAct(self) -> None:
+        self.selectionModel().clear()
+        self.filePathReset.emit()
 
 
 class FileSystemFilter(QSortFilterProxyModel):
@@ -243,6 +280,10 @@ class FileSystemFilter(QSortFilterProxyModel):
         else:
             self.filter_paths = set()
         self.filtered_dir_names = filtered_file_browser_directories
+        self.non_system_root_folders = non_system_root_folders
+        if get_media_dir().startswith("/run"):
+            self.non_system_root_folders.append("/run")
+        self.show_system_folders = False
 
     def setTempDirs(self, dirs: List[str]) -> None:
         filters = [os.path.basename(path) for path in dirs]
@@ -257,6 +298,15 @@ class FileSystemFilter(QSortFilterProxyModel):
         )  # type: QModelIndex
         path = index.data(QFileSystemModel.FilePathRole)  # type: str
 
+        if not self.show_system_folders and path != "/":
+            path_ok = False
+            for folder in self.non_system_root_folders:
+                if path.startswith(folder):
+                    path_ok = True
+                    break
+            if not path_ok:
+                return False
+
         if gvfs_gphoto2_path(path):
             logging.debug("Rejecting browsing path %s", path)
             return False
@@ -265,12 +315,19 @@ class FileSystemFilter(QSortFilterProxyModel):
             return True
 
         file_name = index.data(QFileSystemModel.FileNameRole)
-        file_path = index.data(QFileSystemModel.FilePathRole)
-        return (
-            file_name not in self.filtered_dir_names
-            and file_path not in self.filter_paths
-            and self.regex.match(file_path) is None
+        do_filter = (
+            file_name not in self.filtered_dir_names and path not in self.filter_paths
         )
+
+        if self.is_wsl2:
+            do_filter = do_filter and self.regex.match(path) is None
+        return do_filter
+
+    @pyqtSlot(bool)
+    def setShowSystemFolders(self, enabled: bool) -> None:
+        self.show_system_folders = enabled
+        self.invalidateFilter()
+        # TODO go to correct location in tree
 
 
 class FileSystemDelegate(QStyledItemDelegate):

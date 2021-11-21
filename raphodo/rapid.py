@@ -161,6 +161,8 @@ from raphodo.storage import (
     get_media_dir,
     StorageSpace,
     gvfs_gphoto2_path,
+    platform_photos_directory,
+    platform_videos_directory,
 )
 from raphodo.wsl import (
     WslWindowsRemovableDriveMonitor,
@@ -2218,6 +2220,7 @@ class RapidWindow(QMainWindow):
 
         index = self.fileSystemFilter.mapFromSource(self.fileSystemModel.index("/"))
 
+        # This Computer (source)
         self.thisComputerFSView = FileSystemView(
             model=self.fileSystemModel, rapidApp=self
         )
@@ -2229,7 +2232,12 @@ class RapidWindow(QMainWindow):
             self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
         self.thisComputerFSView.activated.connect(self.thisComputerPathChosen)
         self.thisComputerFSView.clicked.connect(self.thisComputerPathChosen)
+        self.thisComputerFSView.showSystemFolders.connect(
+            self.fileSystemFilter.setShowSystemFolders
+        )
+        self.thisComputerFSView.filePathReset.connect(self.thisComputerFileBrowserReset)
 
+        # Photos (destination)
         self.photoDestinationFSView = FileSystemView(
             model=self.fileSystemModel, rapidApp=self
         )
@@ -2241,7 +2249,12 @@ class RapidWindow(QMainWindow):
             self.photoDestinationFSView.goToPath(self.prefs.photo_download_folder)
         self.photoDestinationFSView.activated.connect(self.photoDestinationPathChosen)
         self.photoDestinationFSView.clicked.connect(self.photoDestinationPathChosen)
+        self.photoDestinationFSView.showSystemFolders.connect(
+            self.fileSystemFilter.setShowSystemFolders
+        )
+        self.photoDestinationFSView.filePathReset.connect(self.photoDestinationReset)
 
+        # Videos (destination)
         self.videoDestinationFSView = FileSystemView(
             model=self.fileSystemModel, rapidApp=self
         )
@@ -2253,6 +2266,10 @@ class RapidWindow(QMainWindow):
             self.videoDestinationFSView.goToPath(self.prefs.video_download_folder)
         self.videoDestinationFSView.activated.connect(self.videoDestinationPathChosen)
         self.videoDestinationFSView.clicked.connect(self.videoDestinationPathChosen)
+        self.videoDestinationFSView.showSystemFolders.connect(
+            self.fileSystemFilter.setShowSystemFolders
+        )
+        self.videoDestinationFSView.filePathReset.connect(self.videoDestinationReset)
 
     def createDeviceThisComputerViews(self) -> None:
 
@@ -2893,6 +2910,13 @@ class RapidWindow(QMainWindow):
 
         self.adjustLeftPanelSliderHandles()
 
+    @pyqtSlot()
+    def thisComputerFileBrowserReset(self) -> None:
+        if len(self.devices.this_computer) > 0:
+            scan_id = list(self.devices.this_computer)[0]
+            self.removeDevice(scan_id=scan_id)
+        self.prefs.this_computer_path = ""
+
     @pyqtSlot(bool)
     def deviceToggleViewValueChange(self, on: bool) -> None:
         """
@@ -3000,6 +3024,9 @@ class RapidWindow(QMainWindow):
         """
 
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
+        self.photoDestinationSetPath(path=path)
+
+    def photoDestinationSetPath(self, path: str) -> None:
 
         if not self.checkChosenDownloadDestination(path, FileType.photo):
             return
@@ -3013,7 +3040,13 @@ class RapidWindow(QMainWindow):
                 self.setDownloadCapabilities()
         else:
             logging.error("Invalid photo download destination chosen: %s", path)
-            self.handleInvalidDownloadDestination(file_type=FileType.photo)
+            self.resetDownloadDestination(file_type=FileType.photo)
+
+    def photoDestinationReset(self) -> None:
+        self.photoDestinationSetPath(path=platform_photos_directory())
+
+    def videoDestinationReset(self) -> None:
+        self.videoDestinationSetPath(path=platform_videos_directory())
 
     def checkChosenDownloadDestination(self, path: str, file_type: FileType) -> bool:
         """
@@ -3061,12 +3094,12 @@ class RapidWindow(QMainWindow):
 
         return True
 
-    def handleInvalidDownloadDestination(
+    def resetDownloadDestination(
         self, file_type: FileType, do_update: bool = True
     ) -> None:
         """
         Handle cases where user clicked on an invalid download directory,
-        or the directory simply having disappeared
+        or the directory simply having disappeared, or the user resets the destination
 
         :param file_type: type of destination to work on
         :param do_update: if True, update watched folders, provisional
@@ -3097,6 +3130,9 @@ class RapidWindow(QMainWindow):
         """
 
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
+        self.videoDestinationSetPath(path=path)
+
+    def videoDestinationSetPath(self, path: str) -> None:
 
         if not self.checkChosenDownloadDestination(path, FileType.video):
             return
@@ -3110,7 +3146,7 @@ class RapidWindow(QMainWindow):
                 self.setDownloadCapabilities()
         else:
             logging.error("Invalid video download destination chosen: %s", path)
-            self.handleInvalidDownloadDestination(file_type=FileType.video)
+            self.resetDownloadDestination(file_type=FileType.video)
 
     @pyqtSlot()
     def downloadButtonClicked(self) -> None:
@@ -6270,9 +6306,7 @@ Do you want to proceed with the download?
                 "Photo download destination %s is now invalid",
                 self.prefs.photo_download_folder,
             )
-            self.handleInvalidDownloadDestination(
-                file_type=FileType.photo, do_update=False
-            )
+            self.resetDownloadDestination(file_type=FileType.photo, do_update=False)
 
         if (
             self.prefs.video_download_folder
@@ -6283,9 +6317,7 @@ Do you want to proceed with the download?
                 "Video download destination %s is now invalid",
                 self.prefs.video_download_folder,
             )
-            self.handleInvalidDownloadDestination(
-                file_type=FileType.video, do_update=False
-            )
+            self.resetDownloadDestination(file_type=FileType.video, do_update=False)
 
         if not valid:
             self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
