@@ -181,7 +181,6 @@ class FileSystemView(QTreeView):
         self.showSystemFoldersAct.setChecked(self.show_system_folders)
         self.contextMenu.addAction(self.showSystemFoldersAct)
 
-
     def hideColumns(self) -> None:
         """
         Call only after the model has been initialized
@@ -269,6 +268,7 @@ class FileSystemFilter(QSortFilterProxyModel):
     Filter out the display of RPD's cache and temporary directories, in addition to
     a set of standard directories that should not be displayed.
     """
+    filterInvalidated = pyqtSignal()
 
     def __init__(self, parent: "RapidWindow" = None):
         super().__init__(parent)
@@ -327,7 +327,7 @@ class FileSystemFilter(QSortFilterProxyModel):
     def setShowSystemFolders(self, enabled: bool) -> None:
         self.show_system_folders = enabled
         self.invalidateFilter()
-        # TODO go to correct location in tree
+        self.filterInvalidated.emit()
 
 
 class FileSystemDelegate(QStyledItemDelegate):

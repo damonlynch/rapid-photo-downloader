@@ -2219,6 +2219,9 @@ class RapidWindow(QMainWindow):
         self.fileSystemFilter = FileSystemFilter(self)
         self.fileSystemFilter.setSourceModel(self.fileSystemModel)
         self.fileSystemDelegate = FileSystemDelegate()
+        self.fileSystemFilter.filterInvalidated.connect(
+            self.fileSystemFilterInvalidated
+        )
 
         index = self.fileSystemFilter.mapFromSource(self.fileSystemModel.index("/"))
 
@@ -3046,9 +3049,21 @@ class RapidWindow(QMainWindow):
 
     def photoDestinationReset(self) -> None:
         self.photoDestinationSetPath(path=platform_photos_directory())
+        self.photoDestinationFSView.goToPath(self.prefs.photo_download_folder)
 
     def videoDestinationReset(self) -> None:
         self.videoDestinationSetPath(path=platform_videos_directory())
+        self.videoDestinationFSView.goToPath(self.prefs.video_download_folder)
+
+    @pyqtSlot()
+    def fileSystemFilterInvalidated(self) -> None:
+        self.photoDestinationFSView.selectionModel().clear()
+        self.photoDestinationFSView.goToPath(self.prefs.photo_download_folder)
+        self.videoDestinationFSView.selectionModel().clear()
+        self.videoDestinationFSView.goToPath(self.prefs.video_download_folder)
+        if self.prefs.this_computer_source:
+            self.thisComputerFSView.selectionModel().clear()
+            self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
 
     def checkChosenDownloadDestination(self, path: str, file_type: FileType) -> bool:
         """
