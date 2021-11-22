@@ -6397,6 +6397,7 @@ Do you want to proceed with the download?
                 message=message,
                 rich_text=True,
                 standardButtons=QMessageBox.Yes | QMessageBox.No,
+                parent=self,
             )
             return msgbox.exec() == QMessageBox.Yes
         return True
