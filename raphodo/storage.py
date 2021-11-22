@@ -48,6 +48,7 @@ __copyright__ = (
     " 2013 Bernard Baeyens."
 )
 
+import functools
 import logging
 import os
 import re
@@ -190,6 +191,7 @@ def get_path_display_name(path: str) -> Tuple[str, str]:
     return display_name, path
 
 
+@functools.lru_cache(maxsize=None)
 def get_media_dir() -> str:
     """
     Returns the media directory, i.e. where external mounts are mounted.

@@ -62,7 +62,7 @@ from raphodo.constants import (
     non_system_root_folders,
 )
 from raphodo.storage import gvfs_gphoto2_path, get_media_dir
-from raphodo.viewutils import scaledIcon, standard_font_size
+from raphodo.viewutils import scaledIcon
 from raphodo.wslutils import wsl_filter_directories
 
 
@@ -170,7 +170,6 @@ class FileSystemView(QTreeView):
         )
         self.resetSelectionAct.triggered.connect(self.doResetSelectionAct)
 
-        self.show_system_folders = False
         self.showSystemFoldersAct = QAction(
             _("Show System Folders"),
             self,
@@ -178,7 +177,7 @@ class FileSystemView(QTreeView):
             checkable=True,
             triggered=self.doShowSystemFoldersAct,
         )
-        self.showSystemFoldersAct.setChecked(self.show_system_folders)
+        self.showSystemFoldersAct.setChecked(rapidApp.prefs.show_system_folders)
         self.contextMenu.addAction(self.showSystemFoldersAct)
 
     def hideColumns(self) -> None:
@@ -254,8 +253,7 @@ class FileSystemView(QTreeView):
 
     @pyqtSlot()
     def doShowSystemFoldersAct(self) -> None:
-        self.show_system_folders = self.showSystemFoldersAct.isChecked()
-        self.showSystemFolders.emit(self.show_system_folders)
+        self.showSystemFolders.emit(self.showSystemFoldersAct.isChecked())
 
     @pyqtSlot()
     def doResetSelectionAct(self) -> None:
@@ -273,6 +271,7 @@ class FileSystemFilter(QSortFilterProxyModel):
     def __init__(self, parent: "RapidWindow" = None):
         super().__init__(parent)
         self.is_wsl2 = parent.is_wsl2
+        self.prefs = parent.prefs
         if self.is_wsl2:
             self.filter_paths = wsl_filter_directories()
             # Filter out system created WSL working directories
@@ -283,7 +282,6 @@ class FileSystemFilter(QSortFilterProxyModel):
         self.non_system_root_folders = non_system_root_folders
         if get_media_dir().startswith("/run"):
             self.non_system_root_folders.append("/run")
-        self.show_system_folders = False
 
     def setTempDirs(self, dirs: List[str]) -> None:
         filters = [os.path.basename(path) for path in dirs]
@@ -298,7 +296,7 @@ class FileSystemFilter(QSortFilterProxyModel):
         )  # type: QModelIndex
         path = index.data(QFileSystemModel.FilePathRole)  # type: str
 
-        if not self.show_system_folders and path != "/":
+        if not self.prefs.show_system_folders and path != "/":
             path_ok = False
             for folder in self.non_system_root_folders:
                 if path.startswith(folder):
@@ -325,7 +323,7 @@ class FileSystemFilter(QSortFilterProxyModel):
 
     @pyqtSlot(bool)
     def setShowSystemFolders(self, enabled: bool) -> None:
-        self.show_system_folders = enabled
+        self.prefs.show_system_folders = enabled
         self.invalidateFilter()
         self.filterInvalidated.emit()
 

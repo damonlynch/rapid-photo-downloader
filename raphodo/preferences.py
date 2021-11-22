@@ -21,11 +21,12 @@
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2011-2020, Damon Lynch"
 
-import logging
-import re
-import os
-import pkg_resources
 import datetime
+import logging
+import os
+from pathlib import Path
+import pkg_resources
+import re
 from typing import List, Tuple, Optional, NamedTuple
 
 from PyQt5.QtCore import QSettings, QTime, Qt
@@ -37,6 +38,7 @@ from raphodo.storage import (
     platform_videos_directory,
     platform_photos_identifier,
     platform_videos_identifier,
+    get_media_dir,
 )
 from raphodo.generatenameconfig import *
 import raphodo.constants as constants
@@ -335,6 +337,8 @@ class Preferences:
         # If you change the language setting update it in __init__.py too, where it is
         # read directly without using this class.
         language="",
+        # introduced in 0.9.27b2:
+        show_system_folders=False,
     )
     device_defaults = dict(
         only_external_mounts=True,
@@ -1129,7 +1133,7 @@ class Preferences:
 
         v0919b2 = pkg_resources.parse_version("0.9.19b2")
         key = "ignored_paths"
-        group = "device_defaults"
+        group = "Device"
         if previous_version < v0919b2 and self.value_is_set(key, group):
             # Versions prior to 0.9.19b2 did not include all the ignored paths
             # introduced in 0.9.16 and 0.9.19b2. If the user already has some
@@ -1146,6 +1150,38 @@ class Preferences:
             # included in that version
             logging.info("Adding folder 'Screenshots' to list of ignored paths")
             self.add_list_value(key=key, value="Screenshots")
+
+    def check_show_system_folders(self) -> None:
+        """
+        Determine if system folders should be shown because a download source
+        or destination is on a system path, i.e. not in /home, /media, /mnt, or
+        possibly /run
+
+        Adjusts show_system_folders setting to True if necessary.
+        """
+
+        if self.show_system_folders:
+            return
+
+        system_dir_located = False
+        non_system_root_folders = constants.non_system_root_folders
+        if get_media_dir().startswith("/run"):
+            non_system_root_folders.append("/run")
+        for path in (
+                self.photo_download_folder,
+                self.video_download_folder,
+                self.this_computer_path,
+        ):
+            parts = Path(path).resolve().parts
+            if len(parts) < 2 or f"/{parts[1]}" not in non_system_root_folders:
+                system_dir_located = True
+                break
+        if system_dir_located:
+            logging.debug(
+                "Setting show system folders to true because %s is a system path",
+                path,
+            )
+            self.show_system_folders = True
 
     def validate_max_CPU_cores(self) -> None:
         logging.debug("Validating CPU core count for thumbnail generation...")

@@ -63,7 +63,7 @@ from raphodo.viewutils import (
     standardMessageBox,
 )
 from raphodo.sudocommand import run_commands_as_sudo, SudoException, SudoExceptionCode
-from raphodo.utilities import existing_parent_for_new_dir, make_internationalized_list
+from raphodo.utilities import make_internationalized_list
 from raphodo.wslutils import wsl_conf_mnt_location
 
 

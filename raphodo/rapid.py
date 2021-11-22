@@ -537,6 +537,8 @@ class RapidWindow(QMainWindow):
             self.prefs.video_download_folder = video_download_folder
         logging.info("Video download location: %s", self.prefs.video_download_folder)
 
+        self.prefs.check_show_system_folders()
+
         if backup is not None:
             self.prefs.backup_files = backup
         else:
