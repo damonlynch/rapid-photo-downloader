@@ -1163,6 +1163,18 @@ class Preferences:
         if self.show_system_folders:
             return
 
+        if self.source_or_destination_is_system_folder():
+            logging.debug(
+                "Forcibly setting show system folders to true",
+            )
+            self.show_system_folders = True
+
+    def source_or_destination_is_system_folder(self) -> bool:
+        """
+        :return: True if the this computer, photo or video destination is
+        on a system folder
+        """
+
         system_dir_located = False
         non_system_root_folders = constants.non_system_root_folders
         if get_media_dir().startswith("/run"):
@@ -1176,12 +1188,8 @@ class Preferences:
             if len(parts) < 2 or f"/{parts[1]}" not in non_system_root_folders:
                 system_dir_located = True
                 break
-        if system_dir_located:
-            logging.debug(
-                "Setting show system folders to true because %s is a system path",
-                path,
-            )
-            self.show_system_folders = True
+        return system_dir_located
+
 
     def validate_max_CPU_cores(self) -> None:
         logging.debug("Validating CPU core count for thumbnail generation...")

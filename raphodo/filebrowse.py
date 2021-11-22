@@ -165,9 +165,7 @@ class FileSystemView(QTreeView):
         self.openInFileBrowserAct.setEnabled(self.rapidApp.file_manager is not None)
         self.clickedIndex = None  # type: Optional[QModelIndex]
 
-        self.resetSelectionAct = self.contextMenu.addAction(
-            _("Reset")
-        )
+        self.resetSelectionAct = self.contextMenu.addAction(_("Reset"))
         self.resetSelectionAct.triggered.connect(self.doResetSelectionAct)
 
         self.showSystemFoldersAct = QAction(
@@ -237,6 +235,9 @@ class FileSystemView(QTreeView):
             self.openInFileBrowserAct.setEnabled(True)
         else:
             self.openInFileBrowserAct.setEnabled(False)
+        self.showSystemFoldersAct.setEnabled(
+            not self.rapidApp.prefs.source_or_destination_is_system_folder()
+        )
         self.contextMenu.exec(self.mapToGlobal(point))
 
     @pyqtSlot()
@@ -266,6 +267,7 @@ class FileSystemFilter(QSortFilterProxyModel):
     Filter out the display of RPD's cache and temporary directories, in addition to
     a set of standard directories that should not be displayed.
     """
+
     filterInvalidated = pyqtSignal()
 
     def __init__(self, parent: "RapidWindow" = None):
