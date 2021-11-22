@@ -526,7 +526,7 @@ class BackupOptionsWidget(QFramedWidget):
         # http://damonlynch.net/rapid/documentation/thumbnails/backup.png
         self.photoLocationLabel = QLabel(_("Photo backup location:"))
         self.photoLocationLabel.setWordWrap(True)
-        if not self.rapidApp.wsl_drives_probed:
+        if self.rapidApp.is_wsl2 and not self.rapidApp.wsl_drives_probed:
             # flag that once Windows drives volume names are known, update these
             # combo box values
             self.rapidApp.wsl_backup_drives_refresh_needed = True
