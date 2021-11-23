@@ -31,28 +31,29 @@
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2021, Damon Lynch"
 
-import sys
-import os
-from enum import Enum
-import hashlib
-import tempfile
 import argparse
-import shlex
-import subprocess
-import platform
+from enum import Enum
+import filecmp
+import locale
+import os
+import hashlib
 import math
+import platform
+import random
+import re
+import shlex
+import shutil
+import site
+import string
+import stat
+import subprocess
+from subprocess import Popen, PIPE
+import sys
+import tarfile
+import tempfile
+import textwrap
 import threading
 import time
-from subprocess import Popen, PIPE
-import shutil
-import tarfile
-import re
-import random
-import string
-import site
-import stat
-import locale
-import textwrap
 from typing import Optional, List, Tuple, Union
 
 # Use the default locale as defined by the LANG variable
@@ -72,14 +73,14 @@ except ImportError:
     # Translators: do not translate the terms python3 or setuptools
     print(
         _(
-            "To continue, please first install the python3 package setuptools using your system's "
-            "package manager."
+            "To continue, please first install the python3 package setuptools using "
+            "your system's package manager."
         )
     )
     sys.exit(1)
 
 
-__version__ = "0.3.12"
+__version__ = "0.3.13"
 __title__ = _("Rapid Photo Downloader installer")
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -591,6 +592,16 @@ def get_distro_version(distro: Distro) -> LooseVersion:
                     )
                     return unknown_version
     return unknown_version
+
+
+def detect_wsl2() -> bool:
+    """
+    :return: True if in WSL2 environment
+    """
+
+    with open("/proc/version") as f:
+        p = f.read()
+    return bool(p.find("microsoft") > 0 and p.find("WSL2"))
 
 
 def is_debian_testing_or_unstable() -> bool:
@@ -2253,6 +2264,7 @@ def install_required_distro_packages(
     venv: bool,
     install_pyqt5: bool,
     installer_to_delete_on_error: str,
+    is_wsl2: bool,
 ) -> None:
     """
     Install packages supplied by the Linux distribution
@@ -2268,6 +2280,7 @@ def install_required_distro_packages(
     :param installer_to_delete_on_error: full path of installer tar file, in
      temporary directory. The temp directory will be completely removed
      if there is an error.
+    :param is_wsl2: if in WSL2 (Windows Subsystem for Linux v2) environment
     """
 
     if distro_family == Distro.debian:
@@ -2288,10 +2301,7 @@ def install_required_distro_packages(
         )
 
         if install_pyqt5:
-            packages = (
-                "{} python3-pyqt5 qt5-image-formats-plugins "
-                "libqt5svg5".format(packages)
-            )
+            packages = f"{packages} python3-pyqt5 qt5-image-formats-plugins libqt5svg5"
 
         set_manually_installed = []
 
@@ -2304,7 +2314,7 @@ def install_required_distro_packages(
 
             base_python_packages = "python3-requests"
 
-            packages = "{} {}".format(packages, base_python_packages)
+            packages = f"{packages} {base_python_packages}"
 
             optional_python_packages = (
                 op
@@ -2315,7 +2325,8 @@ def install_required_distro_packages(
                 if op in cache
             )
             if optional_python_packages:
-                packages = "{} {}".format(packages, " ".join(optional_python_packages))
+                op_packages = " ".join(optional_python_packages)
+                packages = f"{packages} {op_packages}"
 
         else:
 
@@ -2326,7 +2337,7 @@ def install_required_distro_packages(
                 "libcairo2-dev libzmq5"
             )
 
-            packages = "{} {}".format(packages, build_source_packages)
+            packages = f"{packages} {build_source_packages}"
             unknown_packages = debian_unknown_packages(packages)
             if unknown_packages:
                 for package in unknown_packages:
@@ -2356,26 +2367,29 @@ def install_required_distro_packages(
                 packages = "{} {}".format(packages, extra_packages)
 
         # In Ubuntu 18.04 and newer, python3-gphoto2 is packaged as python3-gphoto2
-        # (In Ubuntu 16.04 and older, the python package name gphoto2 was unfortunately taken by
-        # python3-gphoto2cffi, which was to become an abandoned package).
+        # (In Ubuntu 16.04 and older, the python package name gphoto2 was unfortunately
+        # taken by python3-gphoto2cffi, which was to become an abandoned package).
 
         use_system_python3_gphoto2 = False
 
-        # Determine the available version of python3-gphoto2:
-        if have_apt and not venv:
-            cache = apt.Cache()
-            if "python3-gphoto2" in cache:
-                versions = [
-                    LooseVersion(v.version) for v in cache["python3-gphoto2"].versions
-                ]
-                version = max(versions)
-                # Ensure gphoto2 minimum version in requirements.txt is consistent with this value:
-                use_system_python3_gphoto2 = version >= LooseVersion("1.8.2")
+        if not is_wsl2:
+            # Determine the available version of python3-gphoto2:
+            if have_apt and not venv:
+                cache = apt.Cache()
+                if "python3-gphoto2" in cache:
+                    versions = [
+                        LooseVersion(v.version)
+                        for v in cache["python3-gphoto2"].versions
+                    ]
+                    version = max(versions)
+                    # Ensure gphoto2 minimum version in requirements.txt is consistent
+                    # with this value:
+                    use_system_python3_gphoto2 = version >= LooseVersion("1.8.2")
 
-        if use_system_python3_gphoto2:
-            packages = "{} python3-gphoto2".format(packages)
-        else:
-            packages = "{} libgphoto2-dev".format(packages)
+            if use_system_python3_gphoto2:
+                packages = f"{packages} python3-gphoto2"
+            else:
+                packages = f"{packages} libgphoto2-dev"
 
         for package in packages.split():
             if have_apt:
@@ -2402,7 +2416,8 @@ def install_required_distro_packages(
         if missing_packages:
             print(
                 _(
-                    "To continue, some packages required to run the application will be installed."
+                    "To continue, some packages required to run the application will "
+                    "be installed."
                 )
                 + "\n"
             )
@@ -2459,17 +2474,19 @@ def install_required_distro_packages(
 
             if distro == Distro.fedora:
                 base_python_packages = (
-                    "{} python3-gexiv2 python3-gphoto2 python3-arrow "
+                    f"{base_python_packages} python3-gexiv2 python3-arrow "
                     "python3-sortedcontainers python3-zmq python3-colour "
-                    "python3-colorlog python3-pymediainfo "
-                    "python3-tenacity".format(base_python_packages)
+                    "python3-colorlog python3-pymediainfo python3-tenacity"
                 )
+                if not is_wsl2:
+                    base_python_packages = f"{base_python_packages} python3-gphoto2"
             else:
                 base_python_packages = (
-                    "{} gobject-introspection-devel "
+                    f"{base_python_packages} gobject-introspection-devel "
                     "cairo-gobject-devel "
-                    "libgphoto2-devel".format(base_python_packages)
                 )
+                if not is_wsl2:
+                    base_python_packages = f"{base_python_packages} libgphoto2-devel"
 
             packages = "{} {}".format(packages, base_python_packages)
 
@@ -2481,8 +2498,10 @@ def install_required_distro_packages(
                 "gcc zlib-devel bzip2 bzip2-devel readline-devel "
                 "sqlite sqlite-devel openssl-devel tk-devel git "
                 "cairo-gobject-devel "
-                "gobject-introspection-devel zeromq libgphoto2-devel"
+                "gobject-introspection-devel zeromq"
             )
+            if not is_wsl2:
+                build_source_packages = f"{build_source_packages} libgphoto2-devel"
 
             if distro == Distro.fedora:
                 build_source_packages = "{} python3-cairo-devel".format(
@@ -2541,9 +2560,8 @@ def install_required_distro_packages(
                             missing_packages.append(package)
                         else:
                             sys.stderr.write(
-                                "The following package is unavailable on your system: {}\n".format(
-                                    package
-                                )
+                                "The following package is unavailable on your "
+                                "system: {}\n".format(package)
                             )
                             cleanup_on_exit(
                                 installer_to_delete_on_error=installer_to_delete_on_error
@@ -2562,8 +2580,8 @@ def install_required_distro_packages(
         if missing_packages:
             print(
                 _(
-                    "To continue, some packages required to run the application will be "
-                    "installed."
+                    "To continue, some packages required to run the application "
+                    "will be installed."
                 )
                 + "\n"
             )
@@ -2577,8 +2595,8 @@ def install_required_distro_packages(
 
         if uninstall_libunity:
             print(
-                "{} will be uninstalled from this system because it is currently "
-                "broken in Fedora".format(libunity_package)
+                f"{libunity_package} will be uninstalled from this system because it "
+                "is currently broken in Fedora"
             )
             run_cmd(
                 make_distro_packager_command(
@@ -2597,9 +2615,7 @@ def install_required_distro_packages(
         )
 
         if install_pyqt5:
-            packages = "python3-qt5 libqt5-qtimageformats libQt5Svg5 {}".format(
-                packages
-            )
+            packages = f"python3-qt5 libqt5-qtimageformats libQt5Svg5 {packages}"
 
         if not venv:
             base_python_packages = (
@@ -2608,30 +2624,33 @@ def install_required_distro_packages(
                 "typelib-1_0-GExiv2-0_10 typelib-1_0-UDisks-2_0 "
                 "typelib-1_0-Notify-0_7 "
                 "typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0 "
-                "python3-gphoto2 python3-arrow"
+                "python3-arrow"
             )
+            if not is_wsl2:
+                base_python_packages = f"{base_python_packages} python3-gphoto2"
 
-            packages = "{} {}".format(packages, base_python_packages)
+            packages = f"{packages} {base_python_packages}"
 
             if not have_requests:
-                packages = "python3-requests {}".format(packages)
+                packages = f"python3-requests {packages}"
 
         else:
             build_source_packages = (
-                "gobject-introspection-devel python3-cairo-devel "
-                "openssl zlib git libgphoto2-devel"
+                "gobject-introspection-devel python3-cairo-devel " "openssl zlib git"
             )
-            packages = "{} {}".format(packages, build_source_packages)
+            if not is_wsl2:
+                build_source_packages = f"{build_source_packages} libgphoto2-devel"
+            packages = f"{packages} {build_source_packages}"
 
         libmediainfo = "libmediainfo0"
         if opensuse_known_packages(libmediainfo):
-            packages = "{} {}".format(packages, libmediainfo)
+            packages = f"{packages} {libmediainfo}"
         else:
             print("Could not locate package", libmediainfo)
 
         libunity_packages = opensuse_known_packages(
-            "typelib-1_0-UnityExtras-7_0 typelib-1_0-Unity-7_0 typelib-1_0-Dbusmenu-0_4 "
-            "typelib-1_0-Dee-1_0 "
+            "typelib-1_0-UnityExtras-7_0 typelib-1_0-Unity-7_0 "
+            "typelib-1_0-Dbusmenu-0_4 typelib-1_0-Dee-1_0 "
         )
         if libunity_packages:
             packages = "{} {}".format(packages, " ".join(libunity_packages))
@@ -2639,8 +2658,8 @@ def install_required_distro_packages(
         print(
             # Translators: do not translate the term zypper
             _(
-                "Querying zypper to see if any required packages are already installed (this may "
-                "take a while)... "
+                "Querying zypper to see if any required packages are already installed "
+                "(this may take a while)... "
             )
         )
         try:
@@ -2657,8 +2676,8 @@ def install_required_distro_packages(
             if missing_packages:
                 print(
                     _(
-                        "To continue, some packages required to run the application will be "
-                        "installed."
+                        "To continue, some packages required to run the application "
+                        "will be installed."
                     )
                     + "\n"
                 )
@@ -2679,11 +2698,14 @@ def install_required_distro_packages(
     elif distro_family == Distro.centos7:
 
         packages = (
-            "gstreamer1-plugins-good gobject-introspection libgphoto2-devel zeromq-devel "
-            "exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ rpm-build "
-            "gobject-introspection-devel cairo-gobject-devel python36u-devel libmediainfo "
-            "zenity gstreamer1-libav libheif-devel libde265-devel x265-devel"
+            "gstreamer1-plugins-good gobject-introspection "
+            "zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ rpm-build "
+            "gobject-introspection-devel cairo-gobject-devel python36u-devel "
+            "libmediainfo zenity gstreamer1-libav libheif-devel libde265-devel "
+            "x265-devel"
         )
+        if not is_wsl2:
+            packages = f"{packages} libgphoto2-devel"
 
         if venv:
             build_source_packages = (
@@ -2695,8 +2717,8 @@ def install_required_distro_packages(
         print(
             # Translators: do not translate the term yum
             _(
-                "Querying yum to see if any required packages are already installed (this may "
-                "take a while)... "
+                "Querying yum to see if any required packages are already installed "
+                "(this may take a while)... "
             )
         )
         try:
@@ -2710,8 +2732,8 @@ def install_required_distro_packages(
             if missing_packages:
                 print(
                     _(
-                        "To continue, some packages required to run the application will be "
-                        "installed."
+                        "To continue, some packages required to run the application "
+                        "will be installed."
                     )
                     + "\n"
                 )
@@ -2762,8 +2784,8 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
         dest="devel",
         default=False,
         help=_(
-            "When downloading the latest version, install the development version if it is "
-            "newer than the stable version."
+            "When downloading the latest version, install the development version if "
+            "it is newer than the stable version."
         ),
     )
 
@@ -2773,8 +2795,8 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
         nargs="?",
         # Translators: please don't translate the term tar.gz
         help=_(
-            "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
-            "the latest version is downloaded from the Internet."
+            "Optional tar.gz Rapid Photo Downloader installer archive. If not "
+            "specified, the latest version is downloaded from the Internet."
         ),
     )
 
@@ -2816,15 +2838,16 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
         dest="force_this_version",
         # Translators: please don't translate the term tar.gz or remove the {}
         help=_(
-            "Do not run the installer in the tar.gz Rapid Photo Downloader installer archive if "
-            "it is newer than this version ({}). The default is to run whichever installer is "
-            "newer."
+            "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
+            "archive if it is newer than this version ({}). The default is to run "
+            "whichever installer is newer."
         ).format(__version__),
     )
 
     # Translators: do not translate the term pip
     msg = _(
-        "Uninstall Rapid Photo Downloader that was installed with pip, keeping its dependencies."
+        "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
+        "dependencies."
     )
 
     # Translators: do not translate the term pip
@@ -2842,17 +2865,18 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
 
     if have_pip and pip_version >= StrictVersion("9.0.0"):
         note = _(
-            "Dependencies will only be removed if they are not required by other programs."
+            "Dependencies will only be removed if they are not required by other "
+            "programs."
         )
         note = "{} {}".format(note, pip_only)
 
     else:
         # Translators: please don't translate the terms pip 9.0 or the command starting with Python
         note = _(
-            "Note: this option will remove the dependencies regardless of whether they are "
-            "required by another program pip has installed. Upgrade to pip 9.0 or "
-            "above if you want to avoid this behavior. You can do so using the command "
-            "'python3 -m pip install pip -U --user'. "
+            "Note: this option will remove the dependencies regardless of whether they "
+            "are required by another program pip has installed. Upgrade to pip 9.0 "
+            "or above if you want to avoid this behavior. You can do so using the "
+            "command 'python3 -m pip install pip -U --user'. "
             "Also note that any version of Rapid Photo Downloader installed "
             "by your Linux distribution's package manager will not be uninstalled."
         )
@@ -2873,8 +2897,8 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
         dest="virtual_env",
         # Translators: do not translate the terms Python or --system-site-packages
         help=_(
-            "Install in current Python virtual environment. Virtual environments created with "
-            "the --system-site-packages option are not supported."
+            "Install in current Python virtual environment. Virtual environments "
+            "created with the --system-site-packages option are not supported."
         ),
     )
 
@@ -2889,7 +2913,8 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
         metavar="X.X.X",
         # Translators: do not translate the term PyQt5
         help=_(
-            "Specific version of PyQt5 to install (default is the most recent version{})."
+            "Specific version of PyQt5 to install (default is the most recent "
+            "version{})."
         ).format(v),
     )
 
@@ -3212,8 +3237,8 @@ def check_install_status(
     if i != 0:
         if warning_only:
             msg = _(
-                "Package {} failed to install but Rapid Photo Downloader installation will "
-                "continue.".format(package_name)
+                "Package {} failed to install but Rapid Photo Downloader installation "
+                "will continue.".format(package_name)
             )
             sys.stderr.write(msg + "\n")
         else:
@@ -3251,8 +3276,8 @@ def dir_accessible(path: str) -> bool:
 
 def probe_debian_dot_profile(home: str, subdir: str) -> Tuple[str, bool, bool]:
     """
-    Use Debian profile defaults to determine if subdir is already or
-    (more tricky) would be on the next reboot a valid path
+    Use Debian profile defaults to determine if subdir is already a valid path, or
+    (more tricky) would be on the next reboot
 
     :param home: user home directory
     :param subdir: subdirectory to test for
@@ -3318,8 +3343,8 @@ def distro_bin_dir(
         )
 
     if not bin_dir_to_use:
-        # Use ~/bin for everything else. Especially true for openSUSE, because that's the only
-        # choice.
+        # Use ~/bin for everything else. Especially true for openSUSE, because that's
+        # the only choice.
         home_bin = os.path.join(home, "bin")
         if dir_accessible(home_bin):
             bin_dir_to_use = "bin"
@@ -3407,6 +3432,7 @@ def do_install(
     venv: bool,
     pyqt5_version: Optional[str],
     use_system_pyqt5: bool,
+    is_wsl2: bool,
 ) -> None:
     """
     :param installer: the tar.gz installer archive (optional)
@@ -3425,6 +3451,7 @@ def do_install(
     :param venv: installing into a virtual environment
     :param pyqt5_version: install specific version of PyQt5 from PyPi.
     :param use_system_pyqt5: do not install PyQt5 from PyPi.
+    :param is_wsl2: if in WSL2 (Windows Subsystem for Linux v2) environment
     """
 
     installer_downloaded = False
@@ -3488,6 +3515,7 @@ def do_install(
         venv=venv,
         install_pyqt5=not must_install_pypi_pyqt5,
         installer_to_delete_on_error=installer_to_delete_on_error,
+        is_wsl2=is_wsl2,
     )
 
     with tarfile.open(installer) as tar:
@@ -3497,6 +3525,9 @@ def do_install(
             reqbytes = requirements.read()
             # Remove PyQt5 from requirements as we will be installing it manually below
             reqbytes = reqbytes.replace(b"pyqt5", b"")
+            if is_wsl2:
+                regex = b"gphoto2.*?$"
+                reqbytes = re.sub(regex, b"", reqbytes, re.MULTILINE)
 
             with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
                 temp_requirements.write(reqbytes)
@@ -3527,7 +3558,7 @@ def do_install(
         )
 
     print()
-    if sys.version_info >= (3, 6) and distro_has_heif_support(distro=distro):
+    if distro_has_heif_support(distro=distro):
         i = install_pyheif_from_pip()
         check_install_status(
             i=i,
@@ -3631,6 +3662,41 @@ def do_install(
                             symlink,
                         )
 
+    if is_wsl2:
+        desktop_file = "net.damonlynch.rapid_photo_downloader.desktop"
+        desktop_file_home_path = os.path.join(
+            os.path.expanduser("~"),
+            f".local/share/applications/{desktop_file}",
+        )
+        applications_dir = "/usr/share/applications"
+        desktop_file_app_path = os.path.join(applications_dir, desktop_file)
+        if not os.path.exists(desktop_file_app_path) or not filecmp.cmp(
+            desktop_file_home_path,
+            desktop_file_app_path,
+            shallow=False,
+        ):
+            if interactive:
+                answer = input(
+                    "\n" +
+                    _(
+                        "Do you want Rapid Photo Downloader to appear in the Windows "
+                        "menu?"
+                    )
+                    + "  [Y/n] "
+                )
+            else:
+                print(_("Enabling Rapid Photo Downloader in the Windows menu"))
+                answer = "y"
+            if get_yes_no(answer):
+                cmd = shutil.which("cp")
+                command_line = f"sudo {cmd} {desktop_file_home_path} {applications_dir}"
+                print(command_line)
+                args = shlex.split(command_line)
+                try:
+                    subprocess.check_call(args)
+                except subprocess.CalledProcessError:
+                    sys.stderr.write(_("Failed to copy application launcher.") + "\n")
+
     system_man_dir = "/usr/local/share/man/man1"
 
     manpages = ("rapid-photo-downloader.1", "analyze-pv-structure.1")
@@ -3664,7 +3730,7 @@ def do_install(
             install_man_page = True
             if not os.path.isdir(system_man_dir):
                 cmd = shutil.which("mkdir")
-                command_line = "sudo {} -p {}".format(cmd, system_man_dir)
+                command_line = f"sudo {cmd} -p {system_man_dir}"
                 print(command_line)
                 args = shlex.split(command_line)
                 try:
@@ -3681,9 +3747,8 @@ def do_install(
                     source = os.path.join(local_man_dir, manpage)
                     if not os.path.exists(source):
                         sys.stderr.write(
-                            "Man page {} cannot be copied because it does not exist\n".format(
-                                source
-                            )
+                            f"Man page {source} cannot be copied because it does "
+                            "not exist\n"
                         )
                         break
                     dest = os.path.join(system_man_dir, manpage)
@@ -3708,8 +3773,8 @@ def do_install(
         print()
         # Translators: don't translate {}/bin/rapid-photo-downloader
         msg = _(
-            "Rapid Photo Downloader can be started without activating the virtual environment by "
-            "running {}/bin/rapid-photo-downloader"
+            "Rapid Photo Downloader can be started without activating the virtual "
+            "environment by running {}/bin/rapid-photo-downloader"
         ).format(sys.prefix)
 
         print("{}{}{}".format(bcolors.BOLD, msg, bcolors.ENDC))
@@ -3939,8 +4004,8 @@ def main():
         if excecutable is None:
             sys.stderr.write(
                 _(
-                    "Sorry, this installer does not support a custom python installation.\n"
-                    "Exiting..."
+                    "Sorry, this installer does not support a custom python "
+                    "installation.\nExiting..."
                 )
                 + "\n"
             )
@@ -3957,13 +4022,20 @@ def main():
     else:
         distro_version = unknown_version
 
+    is_wsl2 = detect_wsl2()
+
+    if distro_version:
+        dv = distro_version
+    else:
+        dv = ""
+    if is_wsl2:
+        dv = f"{dv} (WSL2)"
+
     if not args.script_restarted:
         print(
-            _(
-                "Detected Linux distribution {} {}".format(
-                    make_distro_name_pretty(distro),
-                    distro_version if distro_version != unknown_version else "",
-                )
+            _("Detected Linux distribution {} {}").format(
+                make_distro_name_pretty(distro),
+                dv,
             )
         )
 
@@ -3971,13 +4043,14 @@ def main():
         "32"
     ):
         sys.stderr.write(
-            "Sorry, Fedora 32 or older is no longer supported by Rapid Photo Downloader.\n"
+            "Sorry, Fedora 32 or older is no longer supported by Rapid Photo "
+            "Downloader.\n"
         )
         sys.exit(1)
     elif distro in arch_like:
         print(
-            "Users of Arch Linux or its derivatives should use the Arch community package, "
-            "or the AUR package."
+            "Users of Arch Linux or its derivatives should use the Arch community "
+            "package, or the AUR package."
         )
         print(_("Exiting..."))
         clean_locale_tmpdir()
@@ -4047,8 +4120,8 @@ def main():
         ):
             sys.stderr.write(
                 _(
-                    "Install the following packages using your Linux distribution's standard "
-                    "package manager, and then rerun this installer:"
+                    "Install the following packages using your Linux distribution's "
+                    "standard package manager, and then rerun this installer:"
                 )
                 + "\n"
             )
@@ -4059,8 +4132,8 @@ def main():
         print(
             # Translators: do not translate the term Python 3
             _(
-                "To run this program, programs to assist Python 3 and its package management must "
-                "be installed."
+                "To run this program, programs to assist Python 3 and its package "
+                "management must be installed."
             )
             + "\n"
         )
@@ -4120,6 +4193,7 @@ def main():
         venv=venv,
         pyqt5_version=pyqt5_version,
         use_system_pyqt5=use_system_pyqt5,
+        is_wsl2=is_wsl2,
     )
 
 
