@@ -265,7 +265,6 @@ setup(
         'arrow',
         'python-dateutil',
         'colour',
-        'rawkit',
         'easygui',
         'pymediainfo',
         'sortedcontainers',
@@ -276,6 +275,7 @@ setup(
         'PyQt5',
         'babel',
         'setuptools',
+        'show-in-file-manager'
     ],
     extras_require={
         'color_ouput': ['colorlog',],
@@ -324,8 +324,8 @@ setup(
         'Topic :: Multimedia :: Graphics',
         'Topic :: Multimedia :: Video'
     ],
-    keywords='photo video download ingest import camera phone backup rename photography '
-             'photographer transfer copy raw cr2 cr3 nef arw dng',
+    keywords='photo video download ingest import camera phone backup rename '
+             'photography photographer transfer copy raw cr2 cr3 nef arw dng',
     project_urls={
         'Bug Reports': 'https://bugs.rapidphotodownloader.com',
         'Source': 'https://github.com/damonlynch/rapid-photo-downloader',
