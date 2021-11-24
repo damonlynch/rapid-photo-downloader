@@ -3864,6 +3864,7 @@ def do_install(
         print(
             "\n" + _("(If a segmentation fault occurs at exit, you can ignore it...)")
         )
+    print(_("Done."))
 
 
 def clean_locale_tmpdir():
