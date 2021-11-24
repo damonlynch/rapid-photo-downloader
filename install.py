@@ -3799,7 +3799,6 @@ def do_install(
 
     update_desktop_database = shutil.which("update-desktop-database")
     if update_desktop_database:
-        print("\nUpdating mimeinfo.cache")
         from PyQt5.QtCore import QStandardPaths
 
         xdg_data_home = QStandardPaths.writableLocation(
