@@ -26,9 +26,10 @@ import shlex
 import subprocess
 from enum import IntEnum
 from typing import List, NamedTuple, Optional
+import webbrowser
 
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QLabel, QHBoxLayout
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, pyqtSlot
 from PyQt5.QtGui import QIcon, QFontMetrics, QFont
 
 from raphodo.password import PasswordEdit
@@ -43,6 +44,7 @@ class SudoCommand(QDialog):
         title: Optional[str] = None,
         password_incorrect: bool = False,
         icon: Optional[str] = None,
+        help_url: Optional[str] = None,
         parent=None,
     ) -> None:
         super().__init__(parent=parent)
@@ -71,7 +73,14 @@ class SudoCommand(QDialog):
         if password_incorrect:
             wrongPasswordLabel = QLabel(_("Sorry, the password was incorrect."))
 
-        msgLabel = QLabel(msg or _("Enter the administrator (root) password:"))
+        msgLabel = QLabel(
+            msg
+            # Translators: here %s refers to the username (you must keep %s or the
+            # program will crash). This is what it looks like:
+            # https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
+            or _("To perform administrative tasks, enter the password for %s.")
+            % getuser()
+        )
         if len(msgLabel.text()) > 50:
             msgLabel.setWordWrap(True)
 
@@ -81,7 +90,13 @@ class SudoCommand(QDialog):
                 hintLabel.setWordWrap(True)
 
         self.passwordEdit = PasswordEdit()
+        self.passwordEdit.setMinimumWidth(220)
         buttonBox = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
+        if help_url:
+            self.help_url = help_url
+            self.helpButton = buttonBox.addButton(QDialogButtonBox.Help)
+            self.helpButton.clicked.connect(self.helpButtonClicked)
+
         translateDialogBoxButtons(buttonBox)
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
@@ -90,16 +105,24 @@ class SudoCommand(QDialog):
         layout.setSpacing(8)
         layout.setContentsMargins(8, 8, 8, 8)
 
+        passwordLayout = QHBoxLayout()
+        passwordLayout.addWidget(QLabel(_("Password:")))
+        passwordLayout.addWidget(self.passwordEdit)
+
         if title:
             layout.addLayout(titleLayout)
         if password_incorrect:
             layout.addWidget(wrongPasswordLabel)
         layout.addWidget(msgLabel)
-        layout.addWidget(self.passwordEdit)
+        layout.addLayout(passwordLayout)
         if hint:
             layout.addWidget(hintLabel)
         layout.addWidget(buttonBox)
         self.setLayout(layout)
+
+    @pyqtSlot()
+    def helpButtonClicked(self) -> None:
+        webbrowser.open_new_tab(self.help_url)
 
     def password(self) -> str:
         return self.passwordEdit.text()
@@ -235,6 +258,7 @@ def run_commands_as_sudo(
     timeout=10,
     title: Optional[str] = None,
     icon: Optional[str] = None,
+    help_url: Optional[str] = None,
 ) -> List[SudoCommandResult]:
     """
     Run a list of commands. If necessary, prompt for the sudo password using a dialog.
@@ -246,6 +270,10 @@ def run_commands_as_sudo(
     :param msg: message to display in password prompt dialog
     :param timeout: timeout for subprocess.Popen call
     :param title: title to display in password prompt
+    :param icon: icon to display if a dialog window is
+     needed to prompt for the password
+    :param help_url: if specified, a help button will be added to the dialog window,
+     and clicking it will open this URL
     :return: list of return codes, stdout and stderr
     """
 
@@ -265,6 +293,7 @@ def run_commands_as_sudo(
                     parent=parent,
                     title=title,
                     icon=icon,
+                    help_url=help_url,
                 )
                 if passwordPrompt.exec():
                     try:
@@ -296,6 +325,10 @@ if __name__ == "__main__":
     app = QApplication([])
 
     cmds = ["echo OK"]
-    results = run_commands_as_sudo(cmds, parent=None)
+    results = run_commands_as_sudo(
+        cmds,
+        parent=None,
+        help_url="https://damonlynch.net/rapid/documentation/#wslsudopassword",
+    )
     for result in results:
         print(result)

@@ -276,7 +276,7 @@ def do_mount_drives_op(
     drives: List[WindowsDriveMount], pending_ops: OrderedDict, parent, is_do_mount: bool
 ) -> DoMountOpResult:
     """
-    Mount or unmount the Windows drives, prompting the user for the root password if
+    Mount or unmount the Windows drives, prompting the user for the sudo password if
     necessary.
 
     :param drives: List of drives to mount or unmount
@@ -296,13 +296,28 @@ def do_mount_drives_op(
     info_list = make_hr_drive_list(drives)
     if is_do_mount:
         if len(drives) > 1:
+            # Translators: This is part of a title for a dialog box, and is in plural
+            # form, where two or more drives will be mounted. This screenshot shows only
+            # one drive, but you get the idea:
+            # https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
             title = _("Mount drives %s") % info_list
         else:
+            # Translators: This is part of a title for a dialog box, and is in singular
+            # form, where only one drive will be mounted. This screenshot illustrates:
+            # https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
             title = _("Mount drive %s") % info_list
     else:
         if len(drives) > 1:
+            # Translators: This is part of a title for a dialog box, and is in plural
+            # form, where two or more drives will be unmounted. This screenshot shows
+            # only one drive being mounted, but you get the idea:
+            # https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
             title = _("Unmount drives %s") % info_list
         else:
+            # Translators: This is part of a title for a dialog box, and is in singular
+            # form, where only one drive will be unmounted. This screenshot shows a
+            # drive being mounted, but you get the idea:
+            # https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
             title = _("Unmount drive %s") % info_list
     logging.info("%sing drives %s", op_cap, info_list)
 
@@ -318,7 +333,11 @@ def do_mount_drives_op(
         cmds = [op.cmd for op in mount_ops]
         try:
             results = run_commands_as_sudo(
-                cmds=cmds, parent=parent, title=title, icon=icon
+                cmds=cmds,
+                parent=parent,
+                title=title,
+                icon=icon,
+                help_url="https://damonlynch.net/rapid/documentation/#wslsudopassword",
             )
         except SudoException as e:
             assert e.code == SudoExceptionCode.command_cancelled
@@ -1228,7 +1247,9 @@ class WslDrives(QObject):
 
         self.make_mount_drive_attempt = False
 
-    def unmountDrives(self, at_exit: Optional[bool] = False, mount_point: Optional[str] = "") -> bool:
+    def unmountDrives(
+        self, at_exit: Optional[bool] = False, mount_point: Optional[str] = ""
+    ) -> bool:
         """
         Unmount drives that should be automatically unmounted at program exit, or when
         a device has been downloaded from.
