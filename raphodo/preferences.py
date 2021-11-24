@@ -342,8 +342,8 @@ class Preferences:
     )
     device_defaults = dict(
         only_external_mounts=True,
-        device_autodetection=True if linux_desktop() != LinuxDesktop.wsl2 else False,
-        this_computer_source=True if linux_desktop() == LinuxDesktop.wsl2 else False,
+        device_autodetection=True,
+        this_computer_source=False,
         this_computer_path="",
         scan_specific_folders=True,
         # pre 0.9.3a1 value: device_without_dcim_autodetection=False, is now replaced by
