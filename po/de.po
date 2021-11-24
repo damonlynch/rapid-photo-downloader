@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-11-24 08:52-0500\n"
+"POT-Creation-Date: 2021-11-24 17:24-0500\n"
 "PO-Revision-Date: 2021-11-18 19:02+0000\n"
 "Last-Translator: Stephan Woidowski <swoidowski@t-online.de>\n"
 "Language-Team: German <de@li.org>\n"
@@ -2794,7 +2794,7 @@ msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
 #: ../raphodo/nameeditor.py:1057 ../raphodo/preferencedialog.py:836
-#: ../raphodo/wsl.py:595
+#: ../raphodo/wsl.py:614
 msgid "Get help online..."
 msgstr "Im Netz Hilfe erhalten …"
 
@@ -5328,6 +5328,22 @@ msgstr "Dateisystem-Root"
 msgid "Pictures"
 msgstr "Bilder"
 
+#: ../raphodo/sudocommand.py:74
+msgid "Sorry, the password was incorrect."
+msgstr ""
+
+#. Translators: here %s refers to the username (you must keep %s or the
+#. program will crash). This is what it looks like:
+#. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
+#: ../raphodo/sudocommand.py:81
+#, python-format
+msgid "To perform administrative tasks, enter the password for %s."
+msgstr ""
+
+#: ../raphodo/sudocommand.py:109
+msgid "Password:"
+msgstr ""
+
 #: ../raphodo/thumbnaildisplay.py:479
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
@@ -5551,120 +5567,135 @@ msgstr ""
 msgid "Unmount drive <tt>%(drive)s:</tt> from <tt>%(path)s</tt>"
 msgstr ""
 
-#: ../raphodo/wsl.py:299
+#. Translators: This is part of a title for a dialog box, and is in plural
+#. form, where two or more drives will be mounted. This screenshot shows only
+#. one drive, but you get the idea:
+#. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
+#: ../raphodo/wsl.py:303
 #, python-format
 msgid "Mount drives %s"
 msgstr ""
 
-#: ../raphodo/wsl.py:301
+#. Translators: This is part of a title for a dialog box, and is in singular
+#. form, where only one drive will be mounted. This screenshot illustrates:
+#. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
+#: ../raphodo/wsl.py:308
 #, python-format
 msgid "Mount drive %s"
 msgstr ""
 
-#: ../raphodo/wsl.py:304
+#. Translators: This is part of a title for a dialog box, and is in plural
+#. form, where two or more drives will be unmounted. This screenshot shows
+#. only one drive being mounted, but you get the idea:
+#. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
+#: ../raphodo/wsl.py:315
 #, python-format
 msgid "Unmount drives %s"
 msgstr ""
 
-#: ../raphodo/wsl.py:306
+#. Translators: This is part of a title for a dialog box, and is in singular
+#. form, where only one drive will be unmounted. This screenshot shows a
+#. drive being mounted, but you get the idea:
+#. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
+#: ../raphodo/wsl.py:321
 #, python-format
 msgid "Unmount drive %s"
 msgstr ""
 
-#: ../raphodo/wsl.py:364
+#: ../raphodo/wsl.py:383
 #, fuzzy, python-format
 msgid "Sorry, an error occurred when mounting drives %s"
 msgstr ""
 "Verzeihung, ein unerwartetes Problem ist aufgetreten beim Durchsuchen von %s."
 
-#: ../raphodo/wsl.py:369
+#: ../raphodo/wsl.py:388
 #, fuzzy, python-format
 msgid "Sorry, an error occurred when unmounting drives %s"
 msgstr ""
 "Verzeihung, ein unerwartetes Problem ist aufgetreten beim Durchsuchen von %s."
 
-#: ../raphodo/wsl.py:375
+#: ../raphodo/wsl.py:394
 #, fuzzy, python-format
 msgid "Sorry, an error occurred when mounting drive %s"
 msgstr ""
 "Verzeihung, ein unerwartetes Problem ist aufgetreten beim Durchsuchen von %s."
 
-#: ../raphodo/wsl.py:380
+#: ../raphodo/wsl.py:399
 #, fuzzy, python-format
 msgid "Sorry, an error occurred when unmounting drive %s"
 msgstr ""
 "Verzeihung, ein unerwartetes Problem ist aufgetreten beim Durchsuchen von %s."
 
-#: ../raphodo/wsl.py:507
+#: ../raphodo/wsl.py:526
 msgid "Windows Drives"
 msgstr ""
 
-#: ../raphodo/wsl.py:510
+#: ../raphodo/wsl.py:529
 msgid "Enable automatic mounting of Windows drives"
 msgstr ""
 
-#: ../raphodo/wsl.py:513
+#: ../raphodo/wsl.py:532
 #, fuzzy
 msgid "Automatically mount all Windows drives"
 msgstr "JPEG-Dateien automatisch drehen"
 
-#: ../raphodo/wsl.py:516
+#: ../raphodo/wsl.py:535
 msgid "Only automatically mount Windows drives that are configured below"
 msgstr ""
 
-#: ../raphodo/wsl.py:539
+#: ../raphodo/wsl.py:558
 msgid "User Mounted"
 msgstr ""
 
-#: ../raphodo/wsl.py:540
+#: ../raphodo/wsl.py:559
 msgid "System Mounted"
 msgstr ""
 
-#: ../raphodo/wsl.py:541
+#: ../raphodo/wsl.py:560
 #, fuzzy
 msgid "Drive"
 msgstr "Laufwerk1"
 
-#: ../raphodo/wsl.py:542
+#: ../raphodo/wsl.py:561
 msgid "Mount Point"
 msgstr ""
 
-#: ../raphodo/wsl.py:543
+#: ../raphodo/wsl.py:562
 #, fuzzy
 msgid "Automatic Mount"
 msgstr "Automatisierung"
 
-#: ../raphodo/wsl.py:544
+#: ../raphodo/wsl.py:563
 msgid "Automatic Unmount at Exit"
 msgstr ""
 
-#: ../raphodo/wsl.py:576
+#: ../raphodo/wsl.py:595
 #, fuzzy
 msgid "Pending Operations:"
 msgstr "Umbenennungsoptionen"
 
-#: ../raphodo/wsl.py:598
+#: ../raphodo/wsl.py:617
 #, fuzzy
 msgid "&Apply Pending Operations"
 msgstr "Umbenennungsoptionen"
 
 #. translators: this will appear in a small dialog asking the user if they want to mount a single drive
-#: ../raphodo/wsl.py:1372
+#: ../raphodo/wsl.py:1393
 #, fuzzy, python-format
 msgid "Do you want to mount drive %s?"
 msgstr "Möchten Sie die neue Version herunterladen?"
 
 #. translators: this will appear in a small dialog asking the user if they want to mount two or more drives
-#: ../raphodo/wsl.py:1375
+#: ../raphodo/wsl.py:1396
 #, fuzzy, python-format
 msgid "Do you want to mount drives %s?"
 msgstr "Möchten Sie die neue Version herunterladen?"
 
-#: ../raphodo/wsl.py:1503 ../raphodo/wsl.py:1668
+#: ../raphodo/wsl.py:1524 ../raphodo/wsl.py:1689
 msgid "Removable Drive"
 msgstr ""
 
-#: ../raphodo/wsl.py:1505
+#: ../raphodo/wsl.py:1526
 msgid "Local Drive"
 msgstr ""
 
