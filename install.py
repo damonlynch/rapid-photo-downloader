@@ -54,7 +54,7 @@ import tempfile
 import textwrap
 import threading
 import time
-from typing import Optional, List, Tuple, Union
+from typing import Optional, List, Tuple, Union, NamedTuple
 
 # Use the default locale as defined by the LANG variable
 try:
@@ -2264,7 +2264,6 @@ def install_required_distro_packages(
     venv: bool,
     install_pyqt5: bool,
     installer_to_delete_on_error: str,
-    is_wsl2: bool,
 ) -> None:
     """
     Install packages supplied by the Linux distribution
@@ -2277,10 +2276,10 @@ def install_required_distro_packages(
     :param system_uninstall: if True, the system package Rapid Photo Downloader
      was uninstalled
     :param venv: installing into a virtual environment
+    :param install_pyqt5: install PyQt5 from the distro packages
     :param installer_to_delete_on_error: full path of installer tar file, in
      temporary directory. The temp directory will be completely removed
      if there is an error.
-    :param is_wsl2: if in WSL2 (Windows Subsystem for Linux v2) environment
     """
 
     if distro_family == Distro.debian:
@@ -2301,13 +2300,16 @@ def install_required_distro_packages(
         )
 
         if install_pyqt5:
-            packages = f"{packages} python3-pyqt5 qt5-image-formats-plugins libqt5svg5"
+            packages = (
+                f"{packages} python3-pyqt5 qt5-image-formats-plugins libqt5svg5 "
+                "qtwayland5"
+            )
 
         set_manually_installed = []
 
-        # For some strange reason, setuptools and wheel must be manually specified on Linux Mint
-        # It's odd because sometimes setuptools imports even without this package, and other times,
-        # it doesn't
+        # For some strange reason, setuptools and wheel must be manually specified
+        # on Linux Mint. It's odd because sometimes setuptools imports even without this
+        # package, and other times, it doesn't.
 
         if not venv:
             assert have_apt
@@ -2372,24 +2374,23 @@ def install_required_distro_packages(
 
         use_system_python3_gphoto2 = False
 
-        if not is_wsl2:
-            # Determine the available version of python3-gphoto2:
-            if have_apt and not venv:
-                cache = apt.Cache()
-                if "python3-gphoto2" in cache:
-                    versions = [
-                        LooseVersion(v.version)
-                        for v in cache["python3-gphoto2"].versions
-                    ]
-                    version = max(versions)
-                    # Ensure gphoto2 minimum version in requirements.txt is consistent
-                    # with this value:
-                    use_system_python3_gphoto2 = version >= LooseVersion("1.8.2")
+        # Determine the available version of python3-gphoto2:
+        if have_apt and not venv:
+            cache = apt.Cache()
+            if "python3-gphoto2" in cache:
+                versions = [
+                    LooseVersion(v.version)
+                    for v in cache["python3-gphoto2"].versions
+                ]
+                version = max(versions)
+                # Ensure gphoto2 minimum version in requirements.txt is consistent
+                # with this value:
+                use_system_python3_gphoto2 = version >= LooseVersion("1.8.2")
 
-            if use_system_python3_gphoto2:
-                packages = f"{packages} python3-gphoto2"
-            else:
-                packages = f"{packages} libgphoto2-dev"
+        if use_system_python3_gphoto2:
+            packages = f"{packages} python3-gphoto2"
+        else:
+            packages = f"{packages} libgphoto2-dev"
 
         for package in packages.split():
             if have_apt:
@@ -2449,7 +2450,6 @@ def install_required_distro_packages(
             "zeromq-devel exiv2 perl-Image-ExifTool gcc-c++ "
             "rpm-build intltool libmediainfo python3-wheel zenity "
             "libheif-devel libde265-devel x265-devel gstreamer1-libav "
-            "qt5-qtwayland "
         )
 
         # CentOS 8, like 7.5, does not include ifuse
@@ -2457,7 +2457,9 @@ def install_required_distro_packages(
             packages = "ifuse fuse libimobiledevice-utils {}".format(packages)
 
         if install_pyqt5:
-            packages = "qt5-qtimageformats python3-qt5 qt5-qtsvg {}".format(packages)
+            packages = (
+                f"{packages } qt5-qtimageformats python3-qt5 qt5-qtsvg qt5-qtwayland"
+            )
 
         if distro == Distro.fedora:
             packages = "{} python3-devel".format(packages)
@@ -2478,15 +2480,13 @@ def install_required_distro_packages(
                     "python3-sortedcontainers python3-zmq python3-colour "
                     "python3-colorlog python3-pymediainfo python3-tenacity"
                 )
-                if not is_wsl2:
-                    base_python_packages = f"{base_python_packages} python3-gphoto2"
+                base_python_packages = f"{base_python_packages} python3-gphoto2"
             else:
                 base_python_packages = (
                     f"{base_python_packages} gobject-introspection-devel "
                     "cairo-gobject-devel "
                 )
-                if not is_wsl2:
-                    base_python_packages = f"{base_python_packages} libgphoto2-devel"
+                base_python_packages = f"{base_python_packages} libgphoto2-devel"
 
             packages = "{} {}".format(packages, base_python_packages)
 
@@ -2500,8 +2500,7 @@ def install_required_distro_packages(
                 "cairo-gobject-devel "
                 "gobject-introspection-devel zeromq"
             )
-            if not is_wsl2:
-                build_source_packages = f"{build_source_packages} libgphoto2-devel"
+            build_source_packages = f"{build_source_packages} libgphoto2-devel"
 
             if distro == Distro.fedora:
                 build_source_packages = "{} python3-cairo-devel".format(
@@ -2615,7 +2614,10 @@ def install_required_distro_packages(
         )
 
         if install_pyqt5:
-            packages = f"python3-qt5 libqt5-qtimageformats libQt5Svg5 {packages}"
+            packages = (
+                f"{packages} python3-qt5 libqt5-qtimageformats libQt5Svg5 "
+                "libqt5-qtwayland"
+            )
 
         if not venv:
             base_python_packages = (
@@ -2626,8 +2628,7 @@ def install_required_distro_packages(
                 "typelib-1_0-Gst-1_0 typelib-1_0-GUdev-1_0 "
                 "python3-arrow"
             )
-            if not is_wsl2:
-                base_python_packages = f"{base_python_packages} python3-gphoto2"
+            base_python_packages = f"{base_python_packages} python3-gphoto2"
 
             packages = f"{packages} {base_python_packages}"
 
@@ -2638,8 +2639,7 @@ def install_required_distro_packages(
             build_source_packages = (
                 "gobject-introspection-devel python3-cairo-devel " "openssl zlib git"
             )
-            if not is_wsl2:
-                build_source_packages = f"{build_source_packages} libgphoto2-devel"
+            build_source_packages = f"{build_source_packages} libgphoto2-devel"
             packages = f"{packages} {build_source_packages}"
 
         libmediainfo = "libmediainfo0"
@@ -2704,8 +2704,7 @@ def install_required_distro_packages(
             "libmediainfo zenity gstreamer1-libav libheif-devel libde265-devel "
             "x265-devel"
         )
-        if not is_wsl2:
-            packages = f"{packages} libgphoto2-devel"
+        packages = f"{packages} libgphoto2-devel"
 
         if venv:
             build_source_packages = (
@@ -3274,7 +3273,14 @@ def dir_accessible(path: str) -> bool:
     return os.path.isdir(path) and os.access(path, os.W_OK)
 
 
-def probe_debian_dot_profile(home: str, subdir: str) -> Tuple[str, bool, bool]:
+class DebianDotProfile(NamedTuple):
+    bin_dir_to_use: str
+    created_dir: bool
+    dot_profile_has_local_bin: bool
+    user_must_reboot: bool
+
+
+def probe_debian_dot_profile(home: str, subdir: str) -> DebianDotProfile:
     """
     Use Debian profile defaults to determine if subdir is already a valid path, or
     (more tricky) would be on the next reboot
@@ -3286,7 +3292,7 @@ def probe_debian_dot_profile(home: str, subdir: str) -> Tuple[str, bool, bool]:
     bin_dir_to_use = ""
     created_dir = False
     user_must_reboot = False
-
+    dot_profile_has_local_bin = False
     full_path = os.path.join(home, subdir)
 
     re_search = r"^[^#]*?\$HOME{}{}".format(os.sep, subdir)
@@ -3298,23 +3304,36 @@ def probe_debian_dot_profile(home: str, subdir: str) -> Tuple[str, bool, bool]:
     ):
         with open(profile, "r") as dot_profile:
             content = dot_profile.read()
-            match = re.search(re_search, content, re.MULTILINE)
-            if match:
-                bin_dir_to_use = subdir
-                if not os.path.isdir(full_path):
-                    print("Creating directory", full_path)
-                    os.mkdir(full_path)
-                    created_dir = True
-                    user_must_reboot = True
-                elif full_path not in os.getenv("PATH"):
-                    user_must_reboot = True
+        match = re.search(re_search, content, re.MULTILINE)
+        if match:
+            dot_profile_has_local_bin = True
+            bin_dir_to_use = subdir
+            if not os.path.isdir(full_path):
+                print("Creating directory", full_path)
+                os.mkdir(full_path)
+                created_dir = True
+                user_must_reboot = True
+            elif full_path not in os.getenv("PATH"):
+                user_must_reboot = True
 
-    return bin_dir_to_use, created_dir, user_must_reboot
+    return DebianDotProfile(
+        bin_dir_to_use=bin_dir_to_use,
+        created_dir=created_dir,
+        dot_profile_has_local_bin=dot_profile_has_local_bin,
+        user_must_reboot=user_must_reboot,
+    )
 
 
-def distro_bin_dir(
-    distro_family: Distro, interactive: bool
-) -> Tuple[str, bool, bool, bool, bool]:
+class DistroBinDir(NamedTuple):
+    bin_dir_to_use: str
+    created_dir: bool
+    user_must_add_to_path: bool
+    dot_profile_has_local_bin: bool
+    user_must_reboot: bool
+    create_sym_link: bool
+
+
+def distro_bin_dir(distro_family: Distro, interactive: bool) -> DistroBinDir:
     """
     Determine the most appropriate bin directory for this distro and its environment.
 
@@ -3325,6 +3344,7 @@ def distro_bin_dir(
     created_dir = False
     user_must_add_to_path = False
     user_must_reboot = False
+    dot_profile_has_local_bin = False
     create_sym_link = False
 
     home = os.path.expanduser("~")
@@ -3338,9 +3358,11 @@ def distro_bin_dir(
         bin_dir_to_use = local_bin
 
     elif distro_family == Distro.debian:
-        bin_dir_to_use, created_dir, user_must_reboot = probe_debian_dot_profile(
-            home=home, subdir=local_bin
-        )
+        result = probe_debian_dot_profile(home=home, subdir=local_bin)
+        bin_dir_to_use = result.bin_dir_to_use
+        created_dir = result.created_dir
+        dot_profile_has_local_bin = result.dot_profile_has_local_bin
+        user_must_reboot = result.user_must_reboot
 
     if not bin_dir_to_use:
         # Use ~/bin for everything else. Especially true for openSUSE, because that's
@@ -3354,9 +3376,12 @@ def distro_bin_dir(
                 user_must_add_to_path = True
 
         elif distro_family == Distro.debian:
-            bin_dir_to_use, created_dir, user_must_reboot = probe_debian_dot_profile(
+            result = probe_debian_dot_profile(
                 home=home, subdir="bin"
             )
+            bin_dir_to_use = result.bin_dir_to_use
+            created_dir = result.created_dir
+            user_must_reboot = result.user_must_reboot
 
         if not bin_dir_to_use:
             if not os.path.isdir(home_bin):
@@ -3387,12 +3412,13 @@ def distro_bin_dir(
         if bin_dir_to_use:
             create_sym_link = True
 
-    return (
-        os.path.join(home, bin_dir_to_use),
-        created_dir,
-        user_must_add_to_path,
-        user_must_reboot,
-        create_sym_link,
+    return DistroBinDir(
+        bin_dir_to_use=os.path.join(home, bin_dir_to_use),
+        created_dir=created_dir,
+        user_must_add_to_path=user_must_add_to_path,
+        dot_profile_has_local_bin=dot_profile_has_local_bin,
+        user_must_reboot=user_must_reboot,
+        create_sym_link=create_sym_link,
     )
 
 
@@ -3515,7 +3541,6 @@ def do_install(
         venv=venv,
         install_pyqt5=not must_install_pypi_pyqt5,
         installer_to_delete_on_error=installer_to_delete_on_error,
-        is_wsl2=is_wsl2,
     )
 
     with tarfile.open(installer) as tar:
@@ -3525,9 +3550,10 @@ def do_install(
             reqbytes = requirements.read()
             # Remove PyQt5 from requirements as we will be installing it manually below
             reqbytes = reqbytes.replace(b"pyqt5", b"")
-            if is_wsl2:
+            if is_wsl2 and False:
+                # One day, perhaps, there will be no need to install gphoto2
                 regex = b"gphoto2.*?$"
-                reqbytes = re.sub(regex, b"", reqbytes, re.MULTILINE)
+                reqbytes = re.sub(regex, b"", reqbytes, flags=re.MULTILINE)
 
             with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
                 temp_requirements.write(reqbytes)
@@ -3610,14 +3636,13 @@ def do_install(
         user_must_add_to_path = user_must_reboot = True
         print("\nThe application was installed in {}".format(bin_dir))
     else:
-        result = distro_bin_dir(distro_family, interactive)
-        (
-            bin_dir,
-            created_dir,
-            user_must_add_to_path,
-            user_must_reboot,
-            create_sym_link,
-        ) = result
+        distro_bin_probe = distro_bin_dir(distro_family, interactive)
+
+        bin_dir = distro_bin_probe.bin_dir_to_use
+        user_must_add_to_path= distro_bin_probe.user_must_add_to_path
+        user_must_reboot = distro_bin_probe.user_must_reboot
+        create_sym_link = distro_bin_probe.create_sym_link
+
         if bin_dir and create_sym_link:
             install_path = os.path.join(site.getuserbase(), "bin")
 
@@ -3662,7 +3687,7 @@ def do_install(
                             symlink,
                         )
 
-    if is_wsl2:
+    if is_wsl2 and not venv:
         desktop_file = "net.damonlynch.rapid_photo_downloader.desktop"
         desktop_file_home_path = os.path.join(
             os.path.expanduser("~"),
@@ -3677,15 +3702,15 @@ def do_install(
         ):
             if interactive:
                 answer = input(
-                    "\n" +
-                    _(
+                    "\n"
+                    + _(
                         "Do you want Rapid Photo Downloader to appear in the Windows "
                         "menu?"
                     )
                     + "  [Y/n] "
                 )
             else:
-                print(_("Enabling Rapid Photo Downloader in the Windows menu"))
+                print("\n" + _("Adding Rapid Photo Downloader to the Windows menu"))
                 answer = "y"
             if get_yes_no(answer):
                 cmd = shutil.which("cp")
@@ -3777,17 +3802,24 @@ def do_install(
             "environment by running {}/bin/rapid-photo-downloader"
         ).format(sys.prefix)
 
-        print("{}{}{}".format(bcolors.BOLD, msg, bcolors.ENDC))
+        print(f"{bcolors.BOLD}{msg}{bcolors.ENDC}")
 
     if display_rpmfusion_message:
         print(rpmfusion_message)
 
     msg = ""
     if user_must_reboot:
-        msg = _(
-            "You may have to restart the computer to be able to run the "
-            "program from the command line or application launcher."
-        )
+        if not is_wsl2:
+            msg = _(
+                "You may have to restart the computer to be able to run the "
+                "program from the command line or application launcher."
+            )
+        else:
+            # WSL refers to the Windows Subsystem for Linux
+            msg = _(
+                "You may have to restart WSL to be able to run the program "
+                "from the command line."
+            )
     elif user_must_add_to_path or not bin_dir:
         if not bin_dir:
             path = os.path.join(site.getuserbase(), "bin")
@@ -3805,7 +3837,7 @@ def do_install(
             text = "\n".join(textwrap.wrap(msg, width=50))
             command_line = (
                 "{} --info --no-wrap "
-                '--title="Rapid Photo Downloader" '
+                '--title="Rapid Photo Downloader" --icon-name=rapid-photo-downloader '
                 '--text="{}"'.format(cmd, text)
             )
             args = shlex.split(command_line)
