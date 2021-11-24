@@ -6,6 +6,14 @@ Changelog for Rapid Photo Downloader
 
  - Enable running under WSLg and WSL2 on Windows 11.
 
+ - By default only non-system directories are shown in the directory
+   listings for Photo and Video destinations, as well as This Computer. Right-
+   click in the directory listings to enable showing all system directories.
+
+ - The install.py script now updates the mime info cache, meaning the program 
+   should now appear as an option to handle photographic media in file
+   managers when installed using this script.
+
  - Update Dutch and Swedish translations.
 
 0.9.27b1 (2021-10-31)
