@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-11-23 23:01-0500\n"
+"POT-Creation-Date: 2021-11-24 08:52-0500\n"
 "PO-Revision-Date: 2020-03-09 16:17-0400\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -2339,6 +2339,7 @@ msgid "{choice} ({variant})"
 msgstr ""
 
 #: ../raphodo/nameeditor.py:1057 ../raphodo/preferencedialog.py:836
+#: ../raphodo/wsl.py:595
 msgid "Get help online..."
 msgstr ""
 
@@ -4768,6 +4769,132 @@ msgstr "&Sí"
 msgid "&No"
 msgstr "&No"
 
+#: ../raphodo/wsl.py:104
+#, python-format
+msgid "Create directory <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:106
+#, python-format
+msgid "Mount drive <tt>%(drive)s:</tt> at <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:109
+#, python-format
+msgid "Unmount drive <tt>%(drive)s:</tt> from <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:299
+#, python-format
+msgid "Mount drives %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:301
+#, python-format
+msgid "Mount drive %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:304
+#, python-format
+msgid "Unmount drives %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:306
+#, python-format
+msgid "Unmount drive %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:364
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when mounting drives %s"
+msgstr "S’ha produït un error en fer la còpia de seguretat a %(volume)s."
+
+#: ../raphodo/wsl.py:369
+#, python-format
+msgid "Sorry, an error occurred when unmounting drives %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:375
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when mounting drive %s"
+msgstr "S’ha produït un error en fer la còpia de seguretat a %(volume)s."
+
+#: ../raphodo/wsl.py:380
+#, python-format
+msgid "Sorry, an error occurred when unmounting drive %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:507
+msgid "Windows Drives"
+msgstr ""
+
+#: ../raphodo/wsl.py:510
+msgid "Enable automatic mounting of Windows drives"
+msgstr ""
+
+#: ../raphodo/wsl.py:513
+#, fuzzy
+msgid "Automatically mount all Windows drives"
+msgstr "Gira automàticament les imatges JPEG"
+
+#: ../raphodo/wsl.py:516
+msgid "Only automatically mount Windows drives that are configured below"
+msgstr ""
+
+#: ../raphodo/wsl.py:539
+msgid "User Mounted"
+msgstr ""
+
+#: ../raphodo/wsl.py:540
+msgid "System Mounted"
+msgstr ""
+
+#: ../raphodo/wsl.py:541
+#, fuzzy
+msgid "Drive"
+msgstr "unitat1"
+
+#: ../raphodo/wsl.py:542
+msgid "Mount Point"
+msgstr ""
+
+#: ../raphodo/wsl.py:543
+msgid "Automatic Mount"
+msgstr ""
+
+#: ../raphodo/wsl.py:544
+msgid "Automatic Unmount at Exit"
+msgstr ""
+
+#: ../raphodo/wsl.py:576
+#, fuzzy
+msgid "Pending Operations:"
+msgstr "Opcions del dispositiu"
+
+#: ../raphodo/wsl.py:598
+msgid "&Apply Pending Operations"
+msgstr ""
+
+#. translators: this will appear in a small dialog asking the user if they want to mount a single drive
+#: ../raphodo/wsl.py:1372
+#, python-format
+msgid "Do you want to mount drive %s?"
+msgstr ""
+
+#. translators: this will appear in a small dialog asking the user if they want to mount two or more drives
+#: ../raphodo/wsl.py:1375
+#, python-format
+msgid "Do you want to mount drives %s?"
+msgstr ""
+
+#: ../raphodo/wsl.py:1503 ../raphodo/wsl.py:1668
+msgid "Removable Drive"
+msgstr ""
+
+#: ../raphodo/wsl.py:1505
+msgid "Local Drive"
+msgstr ""
+
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:2
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid ""
@@ -4924,9 +5051,6 @@ msgstr "Transferiu fotos i vídeos amb el Rapid Photo Downloader"
 
 #~ msgid "%(volumes)s and %(final_volume)s."
 #~ msgstr "%(volumes)s i %(final_volume)s."
-
-#~ msgid "An error occurred when backing up on %(volume)s."
-#~ msgstr "S’ha produït un error en fer la còpia de seguretat a %(volume)s."
 
 #~ msgid "%(volumes)s and %(volume)s."
 #~ msgstr "%(volumes)s i %(volume)s."
@@ -5113,9 +5237,6 @@ msgstr "Transferiu fotos i vídeos amb el Rapid Photo Downloader"
 #~ msgid "Verify files as they are downloaded"
 #~ msgstr "Verifica els fitxers a mesura que es baixen"
 
-#~ msgid "Automatically rotate JPEG images"
-#~ msgstr "Gira automàticament les imatges JPEG"
-
 #~ msgid ""
 #~ "When backing up, choose whether to overwrite a file on the backup device "
 #~ "that has the same name, or skip backing it up."
@@ -5207,9 +5328,6 @@ msgstr "Transferiu fotos i vídeos amb el Rapid Photo Downloader"
 
 #~ msgid "<i>Example:</i>"
 #~ msgstr "<i>Exemple:</i>"
-
-#~ msgid "Device Options"
-#~ msgstr "Opcions del dispositiu"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Còpia de seguretat</span>\t"

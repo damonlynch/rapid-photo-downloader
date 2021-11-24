@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-11-23 23:01-0500\n"
+"POT-Creation-Date: 2021-11-24 08:52-0500\n"
 "PO-Revision-Date: 2021-11-18 19:02+0000\n"
 "Last-Translator: Algent Albrahimi <algent@protonmail.com>\n"
 "Language-Team: Albanian <sq@li.org>\n"
@@ -2789,6 +2789,7 @@ msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
 #: ../raphodo/nameeditor.py:1057 ../raphodo/preferencedialog.py:836
+#: ../raphodo/wsl.py:595
 msgid "Get help online..."
 msgstr "Merrni ndihmë në internet..."
 
@@ -5551,6 +5552,134 @@ msgstr "&Po"
 #: ../raphodo/viewutils.py:290 ../raphodo/viewutils.py:308
 msgid "&No"
 msgstr "&Jo"
+
+#: ../raphodo/wsl.py:104
+#, python-format
+msgid "Create directory <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:106
+#, python-format
+msgid "Mount drive <tt>%(drive)s:</tt> at <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:109
+#, python-format
+msgid "Unmount drive <tt>%(drive)s:</tt> from <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:299
+#, python-format
+msgid "Mount drives %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:301
+#, python-format
+msgid "Mount drive %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:304
+#, python-format
+msgid "Unmount drives %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:306
+#, python-format
+msgid "Unmount drive %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:364
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when mounting drives %s"
+msgstr "Na vjen keq, një problem i papritur ndodhi gjatë skanimit të %s."
+
+#: ../raphodo/wsl.py:369
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when unmounting drives %s"
+msgstr "Na vjen keq, një problem i papritur ndodhi gjatë skanimit të %s."
+
+#: ../raphodo/wsl.py:375
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when mounting drive %s"
+msgstr "Na vjen keq, një problem i papritur ndodhi gjatë skanimit të %s."
+
+#: ../raphodo/wsl.py:380
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when unmounting drive %s"
+msgstr "Na vjen keq, një problem i papritur ndodhi gjatë skanimit të %s."
+
+#: ../raphodo/wsl.py:507
+msgid "Windows Drives"
+msgstr ""
+
+#: ../raphodo/wsl.py:510
+msgid "Enable automatic mounting of Windows drives"
+msgstr ""
+
+#: ../raphodo/wsl.py:513
+#, fuzzy
+msgid "Automatically mount all Windows drives"
+msgstr "Zbuloni automatikisht pajisjet e rezervimit"
+
+#: ../raphodo/wsl.py:516
+msgid "Only automatically mount Windows drives that are configured below"
+msgstr ""
+
+#: ../raphodo/wsl.py:539
+msgid "User Mounted"
+msgstr ""
+
+#: ../raphodo/wsl.py:540
+msgid "System Mounted"
+msgstr ""
+
+#: ../raphodo/wsl.py:541
+#, fuzzy
+msgid "Drive"
+msgstr "pajisja1"
+
+#: ../raphodo/wsl.py:542
+msgid "Mount Point"
+msgstr ""
+
+#: ../raphodo/wsl.py:543
+#, fuzzy
+msgid "Automatic Mount"
+msgstr "Automatizimi"
+
+#: ../raphodo/wsl.py:544
+msgid "Automatic Unmount at Exit"
+msgstr ""
+
+#: ../raphodo/wsl.py:576
+#, fuzzy
+msgid "Pending Operations:"
+msgstr "Mundësitë e Riemertimit"
+
+#: ../raphodo/wsl.py:598
+#, fuzzy
+msgid "&Apply Pending Operations"
+msgstr "Mundësitë e Riemertimit"
+
+#. translators: this will appear in a small dialog asking the user if they want to mount a single drive
+#: ../raphodo/wsl.py:1372
+#, fuzzy, python-format
+msgid "Do you want to mount drive %s?"
+msgstr "Dëshironi të shkarkoni versionin e ri?"
+
+#. translators: this will appear in a small dialog asking the user if they want to mount two or more drives
+#: ../raphodo/wsl.py:1375
+#, fuzzy, python-format
+msgid "Do you want to mount drives %s?"
+msgstr "Dëshironi të shkarkoni versionin e ri?"
+
+#: ../raphodo/wsl.py:1503 ../raphodo/wsl.py:1668
+msgid "Removable Drive"
+msgstr ""
+
+#: ../raphodo/wsl.py:1505
+msgid "Local Drive"
+msgstr ""
 
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:2
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:1

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-11-23 23:01-0500\n"
+"POT-Creation-Date: 2021-11-24 08:52-0500\n"
 "PO-Revision-Date: 2020-10-10 00:01+0000\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Norwegian Nynorsk <nn@li.org>\n"
@@ -2519,6 +2519,7 @@ msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
 #: ../raphodo/nameeditor.py:1057 ../raphodo/preferencedialog.py:836
+#: ../raphodo/wsl.py:595
 msgid "Get help online..."
 msgstr "Få hjelp på nettet …"
 
@@ -5038,6 +5039,134 @@ msgstr "&Ja"
 msgid "&No"
 msgstr "&Nei"
 
+#: ../raphodo/wsl.py:104
+#, python-format
+msgid "Create directory <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:106
+#, python-format
+msgid "Mount drive <tt>%(drive)s:</tt> at <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:109
+#, python-format
+msgid "Unmount drive <tt>%(drive)s:</tt> from <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:299
+#, python-format
+msgid "Mount drives %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:301
+#, python-format
+msgid "Mount drive %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:304
+#, python-format
+msgid "Unmount drives %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:306
+#, python-format
+msgid "Unmount drive %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:364
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when mounting drives %s"
+msgstr "Ein feil oppstod ved kopiering av %(filetype)s"
+
+#: ../raphodo/wsl.py:369
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when unmounting drives %s"
+msgstr "Ein feil oppstod ved kopiering av %(filetype)s"
+
+#: ../raphodo/wsl.py:375
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when mounting drive %s"
+msgstr "Ein feil oppstod ved kopiering av %(filetype)s"
+
+#: ../raphodo/wsl.py:380
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when unmounting drive %s"
+msgstr "Ein feil oppstod ved kopiering av %(filetype)s"
+
+#: ../raphodo/wsl.py:507
+msgid "Windows Drives"
+msgstr ""
+
+#: ../raphodo/wsl.py:510
+msgid "Enable automatic mounting of Windows drives"
+msgstr ""
+
+#: ../raphodo/wsl.py:513
+#, fuzzy
+msgid "Automatically mount all Windows drives"
+msgstr "Roter JPEG-bilete automatisk"
+
+#: ../raphodo/wsl.py:516
+msgid "Only automatically mount Windows drives that are configured below"
+msgstr ""
+
+#: ../raphodo/wsl.py:539
+msgid "User Mounted"
+msgstr ""
+
+#: ../raphodo/wsl.py:540
+msgid "System Mounted"
+msgstr ""
+
+#: ../raphodo/wsl.py:541
+#, fuzzy
+msgid "Drive"
+msgstr "lagringseining1"
+
+#: ../raphodo/wsl.py:542
+msgid "Mount Point"
+msgstr ""
+
+#: ../raphodo/wsl.py:543
+#, fuzzy
+msgid "Automatic Mount"
+msgstr "Automatisering"
+
+#: ../raphodo/wsl.py:544
+msgid "Automatic Unmount at Exit"
+msgstr ""
+
+#: ../raphodo/wsl.py:576
+#, fuzzy
+msgid "Pending Operations:"
+msgstr "Val for omdøyping"
+
+#: ../raphodo/wsl.py:598
+#, fuzzy
+msgid "&Apply Pending Operations"
+msgstr "Val for omdøyping"
+
+#. translators: this will appear in a small dialog asking the user if they want to mount a single drive
+#: ../raphodo/wsl.py:1372
+#, fuzzy, python-format
+msgid "Do you want to mount drive %s?"
+msgstr "Vil du lasta ned den nye utgåva?"
+
+#. translators: this will appear in a small dialog asking the user if they want to mount two or more drives
+#: ../raphodo/wsl.py:1375
+#, fuzzy, python-format
+msgid "Do you want to mount drives %s?"
+msgstr "Vil du lasta ned den nye utgåva?"
+
+#: ../raphodo/wsl.py:1503 ../raphodo/wsl.py:1668
+msgid "Removable Drive"
+msgstr ""
+
+#: ../raphodo/wsl.py:1505
+msgid "Local Drive"
+msgstr ""
+
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:2
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid ""
@@ -5690,10 +5819,6 @@ msgstr "Last ned bilete og videoar med Rapid Photo Downloader"
 #~ msgstr "%(filetype)s er allereie lasta ned"
 
 #, python-format
-#~ msgid "An error occurred when copying the %(filetype)s"
-#~ msgstr "Ein feil oppstod ved kopiering av %(filetype)s"
-
-#, python-format
 #~ msgid "%(filetype)s %(area)s could not be generated"
 #~ msgstr "Klarte ikkje å oppretta %(filetype)s %(area)s."
 
@@ -6001,9 +6126,6 @@ msgstr "Last ned bilete og videoar med Rapid Photo Downloader"
 
 #~ msgid "To"
 #~ msgstr "Til"
-
-#~ msgid "Automatically rotate JPEG images"
-#~ msgstr "Roter JPEG-bilete automatisk"
 
 #~ msgid ""
 #~ "Sorry, video downloading functionality disabled. To download videos, "

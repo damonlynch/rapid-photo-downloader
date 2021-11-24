@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-11-23 23:01-0500\n"
+"POT-Creation-Date: 2021-11-24 08:52-0500\n"
 "PO-Revision-Date: 2021-11-18 19:03+0000\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
@@ -2756,6 +2756,7 @@ msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
 #: ../raphodo/nameeditor.py:1057 ../raphodo/preferencedialog.py:836
+#: ../raphodo/wsl.py:595
 msgid "Get help online..."
 msgstr "Нађи помоћ на мрежи..."
 
@@ -5488,6 +5489,134 @@ msgstr "&Да"
 msgid "&No"
 msgstr "&Не"
 
+#: ../raphodo/wsl.py:104
+#, python-format
+msgid "Create directory <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:106
+#, python-format
+msgid "Mount drive <tt>%(drive)s:</tt> at <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:109
+#, python-format
+msgid "Unmount drive <tt>%(drive)s:</tt> from <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:299
+#, python-format
+msgid "Mount drives %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:301
+#, python-format
+msgid "Mount drive %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:304
+#, python-format
+msgid "Unmount drives %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:306
+#, python-format
+msgid "Unmount drive %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:364
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when mounting drives %s"
+msgstr "Извините, дошло је до неочекиваног проблема приликом прегледања „%s“."
+
+#: ../raphodo/wsl.py:369
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when unmounting drives %s"
+msgstr "Извините, дошло је до неочекиваног проблема приликом прегледања „%s“."
+
+#: ../raphodo/wsl.py:375
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when mounting drive %s"
+msgstr "Извините, дошло је до неочекиваног проблема приликом прегледања „%s“."
+
+#: ../raphodo/wsl.py:380
+#, fuzzy, python-format
+msgid "Sorry, an error occurred when unmounting drive %s"
+msgstr "Извините, дошло је до неочекиваног проблема приликом прегледања „%s“."
+
+#: ../raphodo/wsl.py:507
+msgid "Windows Drives"
+msgstr ""
+
+#: ../raphodo/wsl.py:510
+msgid "Enable automatic mounting of Windows drives"
+msgstr ""
+
+#: ../raphodo/wsl.py:513
+#, fuzzy
+msgid "Automatically mount all Windows drives"
+msgstr "Сам окрени слике"
+
+#: ../raphodo/wsl.py:516
+msgid "Only automatically mount Windows drives that are configured below"
+msgstr ""
+
+#: ../raphodo/wsl.py:539
+msgid "User Mounted"
+msgstr ""
+
+#: ../raphodo/wsl.py:540
+msgid "System Mounted"
+msgstr ""
+
+#: ../raphodo/wsl.py:541
+#, fuzzy
+msgid "Drive"
+msgstr "1. уређај"
+
+#: ../raphodo/wsl.py:542
+msgid "Mount Point"
+msgstr ""
+
+#: ../raphodo/wsl.py:543
+#, fuzzy
+msgid "Automatic Mount"
+msgstr "Аутоматизација"
+
+#: ../raphodo/wsl.py:544
+msgid "Automatic Unmount at Exit"
+msgstr ""
+
+#: ../raphodo/wsl.py:576
+#, fuzzy
+msgid "Pending Operations:"
+msgstr "Опције преименовања"
+
+#: ../raphodo/wsl.py:598
+#, fuzzy
+msgid "&Apply Pending Operations"
+msgstr "Опције преименовања"
+
+#. translators: this will appear in a small dialog asking the user if they want to mount a single drive
+#: ../raphodo/wsl.py:1372
+#, fuzzy, python-format
+msgid "Do you want to mount drive %s?"
+msgstr "Да ли желите да преузмете ново издање?"
+
+#. translators: this will appear in a small dialog asking the user if they want to mount two or more drives
+#: ../raphodo/wsl.py:1375
+#, fuzzy, python-format
+msgid "Do you want to mount drives %s?"
+msgstr "Да ли желите да преузмете ново издање?"
+
+#: ../raphodo/wsl.py:1503 ../raphodo/wsl.py:1668
+msgid "Removable Drive"
+msgstr ""
+
+#: ../raphodo/wsl.py:1505
+msgid "Local Drive"
+msgstr ""
+
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:2
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid ""
@@ -5876,9 +6005,6 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 
 #~ msgid "To"
 #~ msgstr "У"
-
-#~ msgid "Automatically rotate JPEG images"
-#~ msgstr "Сам окрени слике"
 
 #~ msgid "Copy"
 #~ msgstr "Умножи"
