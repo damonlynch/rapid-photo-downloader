@@ -782,17 +782,18 @@ def should_use_system_pyqt5(
     return use_system_pyqt5
 
 
-def pypi_versions(package_name: str) -> List[str]:
+def pypi_versions(package_name: str, timeout: int = 5) -> List[str]:
     """
     Determine list of versions available for a package on PyPi.
     No error checking.
 
     :param package_name: package to search for
+    :param timeout: timeout when querying PyPi
     :return: list of string versions
     """
 
     url = "https://pypi.python.org/pypi/{}/json".format(package_name)
-    data = requests.get(url).json()
+    data = requests.get(url, timeout=timeout).json()
     return sorted(
         list(data["releases"].keys()), key=pkg_resources.parse_version, reverse=True
     )
@@ -820,7 +821,9 @@ def pypi_version_exists(package_name: str, version: str) -> bool:
     return True
 
 
-def latest_pypi_version(package_name: str, ignore_prerelease: bool) -> str:
+def latest_pypi_version(
+    package_name: str, ignore_prerelease: bool, timeout: int = 5
+) -> str:
     """
     Determine the latest version of a package available on PyPi.
 
@@ -828,10 +831,11 @@ def latest_pypi_version(package_name: str, ignore_prerelease: bool) -> str:
 
     :param package_name: package to search for
     :param ignore_prerelease: if True, don't include pre-release versions
+    :param timeout: timeout when querying PyPi
     :return: latest version as string
     """
 
-    versions = pypi_versions(package_name)
+    versions = pypi_versions(package_name, timeout=timeout)
     if not ignore_prerelease:
         return versions[0].strip()
 
@@ -2379,8 +2383,7 @@ def install_required_distro_packages(
             cache = apt.Cache()
             if "python3-gphoto2" in cache:
                 versions = [
-                    LooseVersion(v.version)
-                    for v in cache["python3-gphoto2"].versions
+                    LooseVersion(v.version) for v in cache["python3-gphoto2"].versions
                 ]
                 version = max(versions)
                 # Ensure gphoto2 minimum version in requirements.txt is consistent
@@ -2902,7 +2905,9 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
     )
 
     try:
-        v = " {}".format(latest_pypi_version("PyQt5", ignore_prerelease=True))
+        v = " {}".format(
+            latest_pypi_version("PyQt5", ignore_prerelease=True, timeout=2)
+        )
     except Exception:
         v = ""
 
@@ -2945,7 +2950,7 @@ def verify_download(downloaded_tar: str, md5_url: str) -> bool:
     if not md5_url:
         return True
 
-    r = requests.get(md5_url)
+    r = requests.get(md5_url, timeout=10)
     assert r.status_code == 200
     remote_md5 = r.text.split()[0]
     with open(downloaded_tar, "rb") as tar:
@@ -2958,7 +2963,7 @@ def get_installer_url_md5(devel: bool) -> Tuple[str, str]:
     remote_versions_file = "https://www.damonlynch.net/rapid/version.json"
 
     try:
-        r = requests.get(remote_versions_file)
+        r = requests.get(remote_versions_file, timeout=10)
     except Exception:
         print(_("Failed to download versions file."), remote_versions_file)
     else:
@@ -3376,9 +3381,7 @@ def distro_bin_dir(distro_family: Distro, interactive: bool) -> DistroBinDir:
                 user_must_add_to_path = True
 
         elif distro_family == Distro.debian:
-            result = probe_debian_dot_profile(
-                home=home, subdir="bin"
-            )
+            result = probe_debian_dot_profile(home=home, subdir="bin")
             bin_dir_to_use = result.bin_dir_to_use
             created_dir = result.created_dir
             user_must_reboot = result.user_must_reboot
@@ -3437,11 +3440,12 @@ def man_pages_already_installed(
         for manpage in manpages:
             source = os.path.join(local_man_dir, manpage)
             dest = os.path.join(system_man_dir, manpage)
-            if os.path.isfile(dest) and os.path.isfile(source):
-                with open(dest) as dest_man:
-                    with open(source) as source_man:
-                        if dest_man.read() == source_man.read():
-                            match += 1
+            if (
+                os.path.isfile(dest)
+                and os.path.isfile(source)
+                and filecmp.cmp(dest, source, shallow=False)
+            ):
+                match += 1
     return match == len(manpages)
 
 
@@ -3639,7 +3643,7 @@ def do_install(
         distro_bin_probe = distro_bin_dir(distro_family, interactive)
 
         bin_dir = distro_bin_probe.bin_dir_to_use
-        user_must_add_to_path= distro_bin_probe.user_must_add_to_path
+        user_must_add_to_path = distro_bin_probe.user_must_add_to_path
         user_must_reboot = distro_bin_probe.user_must_reboot
         create_sym_link = distro_bin_probe.create_sym_link
 
@@ -3695,7 +3699,7 @@ def do_install(
         )
         applications_dir = "/usr/share/applications"
         desktop_file_app_path = os.path.join(applications_dir, desktop_file)
-        if not os.path.exists(desktop_file_app_path) or not filecmp.cmp(
+        if not os.path.isfile(desktop_file_app_path) or not filecmp.cmp(
             desktop_file_home_path,
             desktop_file_app_path,
             shallow=False,
@@ -3963,7 +3967,8 @@ def main():
     if is_venv() and not venv:
         answer = input(
             _(
-                "Do you want to install Rapid Photo Downloader into the current virtual environment?"
+                "Do you want to install Rapid Photo Downloader into the current "
+                "virtual environment?"
             )
             + "  [Y/n] "
         )
@@ -3976,8 +3981,9 @@ def main():
             sys.stderr.write(
                 # Translators: do not translate the term Python 3.5
                 _(
-                    "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
-                    "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
+                    "Sorry, installing Rapid Photo Downloader into a Python virtual "
+                    "environment requires Python 3.5 or newer on an Intel or AMD 64 "
+                    "bit platform."
                 )
                 + "\n"
             )
@@ -3988,8 +3994,9 @@ def main():
             sys.stderr.write(
                 # Translators: do not translate the term Python
                 _(
-                    "To install Rapid Photo Downloader into a Python virtual environment, create "
-                    "and activate the virtual environment before starting this script."
+                    "To install Rapid Photo Downloader into a Python virtual "
+                    "environment, create and activate the virtual environment before "
+                    "starting this script."
                 )
                 + "\n"
             )
