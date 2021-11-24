@@ -275,7 +275,8 @@ setup(
         'PyQt5',
         'babel',
         'setuptools',
-        'show-in-file-manager'
+        'show-in-file-manager',
+        'importlib_metadata;python_version<"3.8"'
     ],
     extras_require={
         'color_ouput': ['colorlog',],
