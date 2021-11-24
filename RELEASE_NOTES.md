@@ -1,8 +1,15 @@
-Release Notes for Rapid Photo Downloader 0.9.27b1
+Release Notes for Rapid Photo Downloader 0.9.27b2
 =================================================
 
- - Rapid Photo Downloader 0.9.27b1 is the minimum version required to work with 
-   Python 3.10. Earlier versions will not run.
+ - To run Rapid Photo Downloader under WSLg on Windows 11, using the 
+   [Windows Subsystem for Linux Preview](https://aka.ms/wslstorepage) is 
+   *strongly recommended*. Using the version of WSL that comes installed 
+   with Windows 11 can cause severe usability issues while running Rapid Photo
+   Downloader.
+
+ - Rapid Photo Downloader 0.9.27b2 is the minimum version required to work with 
+   Python 3.10. Earlier versions will not run properly, or more commonly will 
+   not run at all.
 
  - PyQt5 5.15.6 is the minimum version required to work with Python 3.10. If 
    an older version is installed, Rapid Photo Downloader will run, but 
@@ -43,5 +50,3 @@ Release Notes for Rapid Photo Downloader 0.9.27b1
    On Fedora, the packages are gstreamer1-plugins-good and gstreamer1-libav.
    Fedora users can enable the rpmfusion.org free repository to be able to
    install gstreamer1-libav.
-
-
