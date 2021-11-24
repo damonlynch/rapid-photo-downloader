@@ -3797,12 +3797,15 @@ def do_install(
 
     clean_locale_tmpdir()
 
-    update_desktop_database = shutil.which('update-desktop-database')
+    update_desktop_database = shutil.which("update-desktop-database")
     if update_desktop_database:
         print("\nUpdating mimeinfo.cache")
         from PyQt5.QtCore import QStandardPaths
-        xdg_data_home = QStandardPaths.writableLocation(QStandardPaths.GenericDataLocation)
-        app_dir = os.path.join(xdg_data_home, 'applications')
+
+        xdg_data_home = QStandardPaths.writableLocation(
+            QStandardPaths.GenericDataLocation
+        )
+        app_dir = os.path.join(xdg_data_home, "applications")
         cmd = f"{update_desktop_database} -q {app_dir}"
         command_line = shlex.split(cmd)
         subprocess.call(command_line)
