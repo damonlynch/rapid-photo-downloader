@@ -32,11 +32,13 @@ import subprocess
 from typing import NamedTuple, Optional, Tuple, Set, List, Dict, DefaultDict
 import webbrowser
 
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer, Qt
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer, Qt, QSize
 from PyQt5.QtGui import QTextDocument
 from PyQt5.QtWidgets import (
+    QSizePolicy,
     QDialog,
     QVBoxLayout,
+    QWidget,
     QGridLayout,
     QStyle,
     QTableWidget,
@@ -50,8 +52,6 @@ from PyQt5.QtWidgets import (
     QAbstractButton,
     QTextBrowser,
     QLabel,
-    QSplitter,
-    QWidget,
     QMessageBox,
 )
 
@@ -476,6 +476,25 @@ class WSLWindowsDrivePrefsInterface:
         self.prefs.set_wsl_drives(drives=self.drives)
 
 
+class PendingOpsBox(QTextBrowser):
+    def __init__(self, parent) -> None:
+        super().__init__(parent=parent)
+        self.setReadOnly(True)
+        self.setMinimumHeight(self.fontMetrics().height() * 4)
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
+        sheet = """
+        tt {
+            font-weight: bold;
+            color: gray;
+        }
+        """
+        document = self.document()  # type: QTextDocument
+        document.setDefaultStyleSheet(sheet)
+
+    def sizeHint(self) -> QSize:
+        return QSize(self.minimumWidth(), self.minimumHeight())
+
+
 class WslMountDriveDialog(QDialog):
     """
     Dialog window containing Windows drives and mounting options.
@@ -493,7 +512,7 @@ class WslMountDriveDialog(QDialog):
         parent: "RapidWindow" = None,
     ) -> None:
         """
-        Open the dialogue window to show Windows drive mounts
+        Open the dialog window to show Windows drive mounts
 
         :param drives: List of Windows drives detected on the system
         :param prefs: main program preferences
@@ -589,20 +608,11 @@ class WslMountDriveDialog(QDialog):
         self.setDriveAutoMountColStates()
         self.driveTable.resizeColumnsToContents()
         self.driveTable.sortItems(self.mountPointCol)
-
         self.driveTable.itemChanged.connect(self.driveTableItemChanged)
 
         self.pendingOpsLabel = QLabel(_("Pending Operations:"))
-        sheet = """
-        tt {
-            font-weight: bold;
-            color: gray;
-        }
-        """
-        self.pendingOpsBox = QTextBrowser()
-        self.pendingOpsBox.setReadOnly(True)
-        document = self.pendingOpsBox.document()  # type: QTextDocument
-        document.setDefaultStyleSheet(sheet)
+
+        self.pendingOpsBox = PendingOpsBox(self)
 
         buttonBox = QDialogButtonBox(
             QDialogButtonBox.Apply | QDialogButtonBox.Close | QDialogButtonBox.Help
@@ -616,30 +626,16 @@ class WslMountDriveDialog(QDialog):
         self.applyButton.clicked.connect(self.applyButtonClicked)
         self.applyButton.setText(_("&Apply Pending Operations"))
 
-        configWidget = QWidget()
-        opsWidget = QWidget()
-        splitter = QSplitter()
-        splitter.setOrientation(Qt.Vertical)
-        splitter.addWidget(configWidget)
-        splitter.addWidget(opsWidget)
-        splitter.setCollapsible(0, False)
-        splitter.setCollapsible(1, False)
-
-        configLayout = QVBoxLayout()
-        configLayout.addLayout(autoMountLayout)
-        configLayout.addWidget(self.driveTable)
-        configWidget.setLayout(configLayout)
-
-        opsLayout = QVBoxLayout()
-        opsLayout.addWidget(self.pendingOpsLabel)
-        opsLayout.addWidget(self.pendingOpsBox)
-        opsWidget.setLayout(opsLayout)
+        autoMount = QWidget()
+        autoMount.setLayout(autoMountLayout)
 
         layout = QVBoxLayout()
-        margin = configLayout.contentsMargins().left() + 2
-        layout.setSpacing(margin)
+        layout.setSpacing(18)
         layout.setContentsMargins(18, 18, 18, 18)
-        layout.addWidget(splitter)
+        layout.addWidget(autoMount)
+        layout.addWidget(self.driveTable)
+        layout.addWidget(self.pendingOpsLabel)
+        layout.addWidget(self.pendingOpsBox)
         layout.addWidget(buttonBox)
         self.setLayout(layout)
         self.setApplyButtonState()
@@ -1587,7 +1583,8 @@ def wsl_drive_valid(drive_letter: str) -> bool:
     :param drive_letter: drive letter to check in Windows
     :return: True if valid, False otherwise
     """
-
+    # Testing only:
+    # return drive_letter.lower() in ('c', 'd', 'f', 'g')
     try:
         subprocess.check_call(
             shlex.split(f"cmd.exe /c vol {drive_letter}:"),
