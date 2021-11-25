@@ -533,8 +533,8 @@ def any_screen_scaled() -> Tuple[ScalingDetected, bool]:
 
 class CheckBoxDelegate(QItemDelegate):
     """
-    A delegate that places a fully functioning QCheckBox cell of the column to which
-    it's applied.
+    A delegate that places a fully functioning centered QCheckBox cell in the column
+    to which it's applied.
     """
 
     def __init__(self, parent):
@@ -547,7 +547,7 @@ class CheckBoxDelegate(QItemDelegate):
         )
         self.checkboxHalfWidth = int(checkboxRect.width() / 2)
 
-    def createEditor(self, parent, option, index):
+    def createEditor(self, parent, option: QStyleOptionViewItem, indexindex: QModelIndex):
         """
         Important, otherwise an editor is created if the user clicks in this cell.
         """
@@ -562,7 +562,7 @@ class CheckBoxDelegate(QItemDelegate):
         painter.save()
 
         checked = index.data(Qt.CheckStateRole) == Qt.Checked
-        enabled = index.data(Qt.ItemIsEnabled)
+        enabled = int(index.flags() & Qt.ItemIsEditable) > 0
 
         checkboxStyleOption = QStyleOptionButton()
         if checked:
