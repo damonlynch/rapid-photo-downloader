@@ -40,8 +40,25 @@ from PyQt5.QtWidgets import (
     QApplication,
     QStyleOptionViewItem,
 )
-from PyQt5.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QIcon, QGuiApplication
-from PyQt5.QtCore import QSize, Qt, QT_VERSION_STR, QPoint, QEvent, QModelIndex, QRect
+from PyQt5.QtGui import (
+    QFontMetrics,
+    QFont,
+    QPainter,
+    QPixmap,
+    QIcon,
+    QGuiApplication,
+    QPalette,
+)
+from PyQt5.QtCore import (
+    QSize,
+    Qt,
+    QT_VERSION_STR,
+    QPoint,
+    QEvent,
+    QModelIndex,
+    QRect,
+    QAbstractItemModel,
+)
 
 QT5_VERSION = parse_version(QT_VERSION_STR)
 
@@ -547,15 +564,18 @@ class CheckBoxDelegate(QItemDelegate):
         )
         self.checkboxHalfWidth = int(checkboxRect.width() / 2)
 
-    def createEditor(self, parent, option: QStyleOptionViewItem, indexindex: QModelIndex):
+    def createEditor(
+        self, parent, option: QStyleOptionViewItem, indexindex: QModelIndex
+    ) -> Optional[QWidget]:
         """
         Important, otherwise an editor is created if the user clicks in this cell.
         """
+
         return None
 
     def paint(
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
-    ):
+    ) -> None:
         """
         Paint a checkbox without a label
         """
@@ -576,6 +596,8 @@ class CheckBoxDelegate(QItemDelegate):
         else:
             checkboxStyleOption.state &= ~QStyle.State_Enabled
             checkboxStyleOption.state |= QStyle.State_ReadOnly
+            color = checkboxStyleOption.palette.color(QPalette.Window).darker(130)
+            checkboxStyleOption.palette.setColor(QPalette.Text, color)
 
         checkboxStyleOption.rect = option.rect
         checkboxStyleOption.rect.setX(
@@ -587,7 +609,13 @@ class CheckBoxDelegate(QItemDelegate):
         )
         painter.restore()
 
-    def editorEvent(self, event, model, option, index):
+    def editorEvent(
+        self,
+        event: QEvent,
+        model: QAbstractItemModel,
+        option: QStyleOptionViewItem,
+        index: QModelIndex,
+    ) -> bool:
         if not int(index.flags() & Qt.ItemIsEditable) > 0:
             return False
 
@@ -604,9 +632,11 @@ class CheckBoxDelegate(QItemDelegate):
             return True
         return False
 
-    def setModelData(self, editor, model, index):
+    def setModelData(
+        self, editor: QWidget, model: QAbstractItemModel, index: QModelIndex
+    ) -> None:
         """
-        The user wanted to change the old state in the opposite.
+        The user wants the opposite state
         """
         model.setData(
             index,
