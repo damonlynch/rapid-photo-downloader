@@ -579,10 +579,14 @@ class CheckBoxDelegate(QItemDelegate):
         """
         Paint a checkbox without a label
         """
-        painter.save()
 
         checked = index.data(Qt.CheckStateRole) == Qt.Checked
         enabled = int(index.flags() & Qt.ItemIsEditable) > 0
+
+        if not checked and not enabled:
+            return
+
+        painter.save()
 
         checkboxStyleOption = QStyleOptionButton()
         if checked:
