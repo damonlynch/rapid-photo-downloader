@@ -33,7 +33,7 @@ from typing import NamedTuple, Optional, Tuple, Set, List, Dict, DefaultDict
 import webbrowser
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer, Qt, QSize
-from PyQt5.QtGui import QTextDocument
+from PyQt5.QtGui import QTextDocument, QShowEvent
 from PyQt5.QtWidgets import (
     QSizePolicy,
     QDialog,
@@ -609,9 +609,10 @@ class WslMountDriveDialog(QDialog):
         self.driveTable.resizeColumnsToContents()
         self.driveTable.sortItems(self.mountPointCol)
         self.driveTable.itemChanged.connect(self.driveTableItemChanged)
+        self.driveTable.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.driveTable.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.pendingOpsLabel = QLabel(_("Pending Operations:"))
-
         self.pendingOpsBox = PendingOpsBox(self)
 
         buttonBox = QDialogButtonBox(
@@ -626,12 +627,12 @@ class WslMountDriveDialog(QDialog):
         self.applyButton.clicked.connect(self.applyButtonClicked)
         self.applyButton.setText(_("&Apply Pending Operations"))
 
-        autoMount = QWidget()
-        autoMount.setLayout(autoMountLayout)
-
         layout = QVBoxLayout()
         layout.setSpacing(18)
         layout.setContentsMargins(18, 18, 18, 18)
+        # For autoMount column 0 size to be correctly set, first add it to a widget
+        autoMount = QWidget()
+        autoMount.setLayout(autoMountLayout)
         layout.addWidget(autoMount)
         layout.addWidget(self.driveTable)
         layout.addWidget(self.pendingOpsLabel)
@@ -639,6 +640,24 @@ class WslMountDriveDialog(QDialog):
         layout.addWidget(buttonBox)
         self.setLayout(layout)
         self.setApplyButtonState()
+
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        self.calculateScrollBarAppearance()
+
+    def calculateScrollBarAppearance(self):
+        """
+        If table has grown so big it needs scroll bars, add them
+        """
+
+        screen_size = self.screen().size()
+        height = screen_size.height()
+        width = screen_size.width()
+        if self.driveTable.height() > height * .66:
+            self.driveTable.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        if self.driveTable.width() > width * .85:
+            self.driveTable.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.adjustSize()
 
     @pyqtSlot()
     def helpButtonClicked(self) -> None:
@@ -1067,6 +1086,7 @@ class WslMountDriveDialog(QDialog):
         self.driveTable.sortItems(self.mountPointCol)
         # restore signal state
         self.driveTable.blockSignals(blocked)
+        self.calculateScrollBarAppearance()
 
     def removeMount(self, drive: WindowsDriveMount) -> None:
         """
