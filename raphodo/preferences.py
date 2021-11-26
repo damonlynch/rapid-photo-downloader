@@ -395,7 +395,7 @@ class Preferences:
     )
     # New in 0.9.27b2:
     wsl_defaults = dict(
-        wsl_automount_removable_drives=False,
+        wsl_automount_removable_drives=True,
         wsl_automount_all_removable_drives=False,
     )
 
