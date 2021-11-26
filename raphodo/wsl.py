@@ -789,15 +789,18 @@ class WslMountDriveDialog(QDialog):
                     root=self.wsl_mount_root, drive_letter=drive.drive_letter
                 )
             else:
-                assert drive.mount_point
                 mount_point = drive.mount_point
-            tasks = determine_mount_ops(
-                do_mount=do_mount,
-                drive_letter=drive.drive_letter,
-                mount_point=mount_point,
-                uid=self.uid,
-                gid=self.gid,
-            )
+            if mount_point:
+                tasks = determine_mount_ops(
+                    do_mount=do_mount,
+                    drive_letter=drive.drive_letter,
+                    mount_point=mount_point,
+                    uid=self.uid,
+                    gid=self.gid,
+                )
+            else:
+                # User has likely changed their mind about mounting a drive
+                tasks = []
             if tasks:
                 if do_mount:
                     self.pending_mount_ops[drive] = tasks
