@@ -250,7 +250,7 @@ def make_hr_drive_list(drives: List[WindowsDriveMount]) -> str:
     :return: internationalized string
     """
 
-    drive_names = [f"{drive.drive_letter}: ({drive.label})" for drive in drives]
+    drive_names = [f"{drive.label} ({drive.drive_letter}:)" for drive in drives]
     drive_names.sort()
     return make_internationalized_list(drive_names)
 
@@ -1604,7 +1604,7 @@ def wsl_drive_valid(drive_letter: str) -> bool:
     :return: True if valid, False otherwise
     """
     # Testing only:
-    # return drive_letter.lower() in ('c', 'd', 'f', 'g')
+    # return drive_letter.lower() in ('c', 'd', 'f', 'g', 'j')
     try:
         subprocess.check_call(
             shlex.split(f"cmd.exe /c vol {drive_letter}:"),
