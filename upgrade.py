@@ -804,7 +804,7 @@ def which_terminal() -> [Tuple[str, ShellType]]:
 # translation of this script's output if user's locale is not English (see the comment at the
 # top of this script):
 
-MO_FILES_ZIP=b"""
+MO_FILES_ZIP = b"""
 P)h>@6aWAK005YEUsC`80000000000000L7003-nV_|G%FHlPZ1QY-O0001(bzf5e00000000000000A0001NZ)0
 I>WiMfJFHlPZ1QY-O0001(bzf5e00000000000000A0001NZ)0I>WiMi7FHlPZ1QY-O0001(bzf5e00000000000
 000A0001NZ)0I>WiMi9FHlPZ1QY-O0001(bzf5e00000000000000A0001NZ)0I>WiMl4FHlPZ1QY-O0001(bzf5
@@ -11119,4 +11119,3 @@ if __name__ == '__main__':
 
     else:
         RunInstallProcesses(args.socket)
-
