@@ -529,6 +529,8 @@ class WslMountDriveDialog(QDialog):
         self.windrive_prefs = windrive_prefs
         self.wsl_mount_root = wsl_mount_root
 
+        # drives where the user should be prompted whether to mount these drives
+        # after the dialog is closed
         self.prompt_to_mount_drives = []  # type: List[WindowsDriveMount]
 
         self.driveTable = None  # type: Optional[QTableWidget]
@@ -940,16 +942,20 @@ class WslMountDriveDialog(QDialog):
             for row in range(self.driveTable.rowCount()):
                 self.setDriveAutoMountColStates(row=row)
 
-    def setDriveAutoMountColStates(self, row: int) -> None:
+    def setDriveAutoMountColStates(self, row: int) -> bool:
         """
         For a single row in the drive table, enable or disable checkboxes and set
         their values
         :param row: the row to act on
+        :return True if drive is not system mounted and it should be automatically
+         mounted, else False
         """
-        
+
         drive = self.driveTable.item(row, self.userMountCol).data(
             Qt.UserRole
         )  # type: WindowsDriveMount
+
+        auto_mount = False
 
         if not drive.system_mounted:
             if not self.prefs.wsl_automount_removable_drives:
@@ -977,6 +983,8 @@ class WslMountDriveDialog(QDialog):
                 )
             # restore signal state
             self.driveTable.blockSignals(blocked)
+
+        return auto_mount
 
     @staticmethod
     def setItemState(enabled: bool, item: QTableWidgetItem) -> None:
@@ -1084,6 +1092,7 @@ class WslMountDriveDialog(QDialog):
     def addMount(self, drive: WindowsDriveMount) -> None:
         """
         Add a new Windows drive mount to the table
+        This drive has been added when the dialog is already showing
         :param drive: drive to add
         """
 
@@ -1096,7 +1105,9 @@ class WslMountDriveDialog(QDialog):
         # states
         blocked = self.driveTable.blockSignals(True)
         self.addDriveAtRow(row, drive)
-        self.setDriveAutoMountColStates(row=row)
+        auto_mount = self.setDriveAutoMountColStates(row=row)
+        if auto_mount:
+            self.prompt_to_mount_drives.append(drive)
         self.driveTable.sortItems(self.mountPointCol)
         # restore signal state
         self.driveTable.blockSignals(blocked)
@@ -1253,8 +1264,12 @@ class WslDrives(QObject):
         drives that are not automatically mounted
         """
 
+        if self.mountDrivesDialog is not None:
+            # given the dialog is active, prompt to mount any unmounted auto
+            # mount drives when the user has closed the dialog
+            return
+
         if self.make_mount_drive_attempt:
-            # unmounted_drives = (drive for drive in self.drives if not drive.mount_point)
             unmounted_drives = self.mount_points[""]
 
             drives_to_mount = []
