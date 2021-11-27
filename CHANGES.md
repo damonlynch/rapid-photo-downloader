@@ -14,6 +14,10 @@ Changelog for Rapid Photo Downloader
    should now appear as an option to handle photographic media in file
    managers when installed using this script.
 
+ - Fix bug [#1946407](https://bugs.launchpad.net/rapid/+bug/1946407): 
+   another compatibility fix for Python 3.10 that 0.9.27b1 and 0.9.27a3 did not 
+   fully resolve.
+
  - Update Dutch and Swedish translations.
 
 0.9.27b1 (2021-10-31)
@@ -32,7 +36,8 @@ Changelog for Rapid Photo Downloader
    opened.
 
  - Fix bug [#1946407](https://bugs.launchpad.net/rapid/+bug/1946407): 
-   another compatibility fix for Python 3.10 that 0.9.27a3 did not full resolve.
+   another compatibility fix for Python 3.10 that 0.9.27a3 did not fully 
+   resolve.
 
  - Fix bug [#33](https://github.com/damonlynch/rapid-photo-downloader/issues/37)
    SystemError: PY_SSIZE_T_CLEAN macro must be defined for '#' formats on 

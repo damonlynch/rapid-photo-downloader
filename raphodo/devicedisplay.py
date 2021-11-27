@@ -49,6 +49,7 @@ from PyQt5.QtCore import (
     QSize,
     Qt,
     QPoint,
+    QPointF,
     QRect,
     QRectF,
     QEvent,
@@ -695,10 +696,10 @@ class DeviceDisplay:
                 painter.setPen(self.menuHighlightPen)
                 painter.drawRoundedRect(rect, 2.0, 2.0)
                 painter.setPen(pen)
-            button_x = round(rect.x()) + self.menu_button_padding
-            button_y = round(rect.y()) + self.menu_button_padding
+            button_x = rect.x() + self.menu_button_padding
+            button_y = rect.y() + self.menu_button_padding
             pixmap = self.menuButtonIcon.pixmap(QSize(size, size))
-            painter.drawPixmap(button_x, button_y, pixmap)
+            painter.drawPixmap(QPointF(button_x, button_y), pixmap)
 
     def menu_button_rect(self, x: int, y: int, width: int) -> QRectF:
         size = icon_size() + self.menu_button_padding * 2
@@ -1048,7 +1049,9 @@ class AdvancedDeviceDisplay(DeviceDisplay):
                 pixmap = self.downloadedWarningIcon.pixmap(size)
             else:
                 pixmap = self.downloadedIcon.pixmap(size)
-            painter.drawPixmap(x + self.padding, y + self.downloaded_icon_y, pixmap)
+            painter.drawPixmap(
+                QPointF(x + self.padding, y + self.downloaded_icon_y), pixmap
+            )
 
         elif device_state not in (DeviceState.scanning, DeviceState.downloading):
 
