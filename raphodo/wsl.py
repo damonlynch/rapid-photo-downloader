@@ -885,11 +885,12 @@ class WslMountDriveDialog(QDialog):
         :param checked: Whether the button was checked or unchecked
         """
 
-        self.prefs.wsl_automount_all_removable_drives = (
-            self.autoMountAllButton.isChecked()
-        )
+        automount_all = self.autoMountAllButton.isChecked()
+        self.prefs.wsl_automount_all_removable_drives = (automount_all)
         self.driveTable.setEnabled(not self.prefs.wsl_automount_all_removable_drives)
         self.setAutoMountGroupState()
+        if automount_all:
+            self.driveTable.selectionModel().clearSelection()
 
     def setAutoMountWidgetValues(self) -> None:
         """
