@@ -3,20 +3,21 @@
 # This file is distributed under the same license as the rapid package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 #
+#: ../raphodo/jobcodepanel.py:140
 msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-11-27 18:23+0000\n"
+"POT-Creation-Date: 2021-11-27 15:28-0500\n"
 "PO-Revision-Date: 2021-11-25 08:36+0000\n"
 "Last-Translator: Algent Albrahimi <algent@protonmail.com>\n"
 "Language-Team: Albanian <sq@li.org>\n"
+"Language: sq\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2021-11-27 20:12+0000\n"
 "X-Generator: Launchpad (build 78346d219e01c6c7b1bfd882aa0bbcbb42d4e568)\n"
-"Language: sq\n"
 
 #: ../install.py:76
 msgid ""
@@ -309,8 +310,8 @@ msgid ""
 "Exiting.\n"
 msgstr ""
 "Na vjen keq, nuk mund ta lokalizoj instaluesin. Ju lutemi kontrolloni "
-"lidhjen tuaj të Internetit dhe verifikoni nëse mund të arrini në "
-"https://www.damonlynch.net\n"
+"lidhjen tuaj të Internetit dhe verifikoni nëse mund të arrini në https://www."
+"damonlynch.net\n"
 "\n"
 "Duke dalë.\n"
 
@@ -616,20 +617,20 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr "Përditësimi dështoi. Klikoni Mbyll për të dalë."
 
-#: ../upgrade.py:11082
+#: ../upgrade.py:11100
 #, python-format
 msgid "Upgrading %s..."
 msgstr "Duke përditësuar %s..."
 
-#: ../upgrade.py:11084
+#: ../upgrade.py:11102
 msgid "Press any key to continue..."
 msgstr "Shtyp ndonjë buton për të vazhduar..."
 
-#: ../upgrade.py:11097
+#: ../upgrade.py:11115
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr "Përditësimi i Shkarkuesit të Shpejtë të Fotove dështoi"
 
-#: ../upgrade.py:11099
+#: ../upgrade.py:11117
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
@@ -674,8 +675,8 @@ msgstr "Zbuloni automatikisht pajisjet e rezervimit"
 
 #: ../raphodo/backuppanel.py:480
 msgid ""
-"Specify the folder in which backups are stored on the "
-"device.<br><br><i>Note: the presence of a folder with this name is used to "
+"Specify the folder in which backups are stored on the device."
+"<br><br><i>Note: the presence of a folder with this name is used to "
 "determine if the device is used for backups. For each device you wish to use "
 "for backing up to, create a folder in it with one of these folder names. By "
 "adding both folders, the same device can be used to back up both photos and "
@@ -702,8 +703,7 @@ msgid "Example:"
 msgstr "Shembull:"
 
 #: ../raphodo/backuppanel.py:516
-msgid ""
-"If you disable automatic detection, choose the exact backup locations."
+msgid "If you disable automatic detection, choose the exact backup locations."
 msgstr ""
 "Nëse çaktivizoni zbulimin automatik, zgjidhni saktë vendet e rezervimit."
 
@@ -772,7 +772,7 @@ msgstr "audio"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/destinationdisplay.py:96 ../raphodo/devicedisplay.py:1278
+#: ../raphodo/destinationdisplay.py:96 ../raphodo/devicedisplay.py:1281
 #: ../raphodo/rpdfile.py:290
 #, python-format
 msgid "%(no_photos)s Photos"
@@ -787,7 +787,7 @@ msgstr "%(no_photos)s Fotove"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/destinationdisplay.py:104 ../raphodo/devicedisplay.py:1284
+#: ../raphodo/destinationdisplay.py:104 ../raphodo/devicedisplay.py:1287
 #: ../raphodo/rpdfile.py:278
 #, python-format
 msgid "%(no_videos)s Videos"
@@ -801,7 +801,7 @@ msgstr "Përdorur"
 msgid "Excess"
 msgstr "Tejkalim"
 
-#: ../raphodo/destinationdisplay.py:125 ../raphodo/devicedisplay.py:1310
+#: ../raphodo/destinationdisplay.py:125 ../raphodo/devicedisplay.py:1313
 msgid "Device size unknown"
 msgstr "Madhësia e pajisjes nuk dihet"
 
@@ -821,14 +821,14 @@ msgstr "Nuk ka hapësirë të lirë në pajisjen %(size_total)s"
 msgid "%(size_free)s free of %(size_total)s"
 msgstr "%(size_free)s e lirë nga %(size_total)s"
 
-#: ../raphodo/destinationdisplay.py:222 ../raphodo/devicedisplay.py:1170
+#: ../raphodo/destinationdisplay.py:222 ../raphodo/devicedisplay.py:1173
 #: ../raphodo/rapid.py:2338 ../raphodo/rapid.py:2475 ../raphodo/rapid.py:7323
 #: ../raphodo/rpdfile.py:914
 msgid "Photos"
 msgstr "Fotot"
 
 #. translators: the name of the Videos folder
-#: ../raphodo/destinationdisplay.py:223 ../raphodo/devicedisplay.py:1171
+#: ../raphodo/destinationdisplay.py:223 ../raphodo/devicedisplay.py:1174
 #: ../raphodo/rapid.py:2343 ../raphodo/rapid.py:2476 ../raphodo/rapid.py:7323
 #: ../raphodo/rpdfile.py:942 ../raphodo/storage.py:537
 msgid "Videos"
@@ -850,28 +850,28 @@ msgstr "Konfiguroni krijimin e nën-dosjes së fotove"
 msgid "Configure video subfolder creation"
 msgstr "Konfiguroni krijimin e nën-dosjes së videove"
 
-#: ../raphodo/devicedisplay.py:1160
+#: ../raphodo/devicedisplay.py:1163
 msgid "Other"
 msgstr "Tjetër"
 
-#: ../raphodo/devicedisplay.py:1161
+#: ../raphodo/devicedisplay.py:1164
 msgid "Probing device..."
 msgstr "Duke hetuar pajisjen..."
 
-#: ../raphodo/devicedisplay.py:1179
+#: ../raphodo/devicedisplay.py:1182
 msgid "Temporarily ignore this device"
 msgstr "Injorojeni përkohësisht këtë pajisje"
 
-#: ../raphodo/devicedisplay.py:1183
+#: ../raphodo/devicedisplay.py:1186
 msgid "Permanently ignore this device"
 msgstr "Injorojeni përgjithmonë këtë pajisje"
 
-#: ../raphodo/devicedisplay.py:1186
+#: ../raphodo/devicedisplay.py:1189
 msgid "Rescan"
 msgstr "Skano përsëri"
 
 #. Translators: percentage full e.g. 75% full
-#: ../raphodo/devicedisplay.py:1307
+#: ../raphodo/devicedisplay.py:1310
 #, python-format
 msgid "%s full"
 msgstr "%s plot"
@@ -1135,10 +1135,10 @@ msgstr ""
 "<li><b>Koha e Modifikimit:</b> kur skedari u modifikua për herë të fundit, "
 "sipas metadatave të tij (ku \n"
 " në dispozicion) ose sipas sistemit të skedarëve (si rikthim).</li>\n"
-"<li><b>Gjendja e kontrolluar:</b> nëse skedari është shënuar për "
-"shkarkim.</li>\n"
-"<li><b>Emri i skedarit:</b> emri i plotë i skedarit, duke përfshirë "
-"shtesën.</li>\n"
+"<li><b>Gjendja e kontrolluar:</b> nëse skedari është shënuar për shkarkim.</"
+"li>\n"
+"<li><b>Emri i skedarit:</b> emri i plotë i skedarit, duke përfshirë shtesën."
+"</li>\n"
 "<li><b>Shtesa:</b> shtesa e emrit të skedarit. Mund ta përdorni për të "
 "grupuar jpeg dhe imazhe të papërpunuara, për \n"
 "shembull.</li>\n"
@@ -1175,12 +1175,12 @@ msgid ""
 "different types\n"
 "of directory:\n"
 "<ol>\n"
-"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, "
-"&quot;Photos&quot;, or\n"
+"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, &quot;"
+"Photos&quot;, or\n"
 "&quot;Videos&quot;. This directory should already exist on your computer. In "
 "the illustration \n"
-"below, the destination folders are &quot;Pictures&quot; and "
-"&quot;Videos&quot;. The\n"
+"below, the destination folders are &quot;Pictures&quot; and &quot;"
+"Videos&quot;. The\n"
 "name of the destination folder is displayed in the grey bar directly above "
 "the folder tree, \n"
 "with a folder icon to its left and a gear icon to its far right.</li>\n"
@@ -1197,12 +1197,12 @@ msgstr ""
 "dy lloje të ndryshme\n"
 "të direktorive:\n"
 "<ol>\n"
-"<li><b>Dosja e destinacionit</b>, p.sh. &quot;Figurat&quot;, "
-"&quot;Fotot&quot;, ose\n"
+"<li><b>Dosja e destinacionit</b>, p.sh. &quot;Figurat&quot;, &quot;"
+"Fotot&quot;, ose\n"
 "&quot;Videot&quot;. Kjo direktori duhet të jetë ekzistuese në kompjuterin "
 "tuaj. Në ilustrimin \n"
-"më poshtë, dosjet e destinacionit janë &quot;Figurat&quot; dhe "
-"&quot;Videot&quot;.\n"
+"më poshtë, dosjet e destinacionit janë &quot;Figurat&quot; dhe &quot;"
+"Videot&quot;.\n"
 "Emri i dosjes së destinacionit shfaqet në shiritin gri direkt mbi pemën e "
 "dosjes, \n"
 "me një ikonë dosje në të majtë të saj dhe një ikonë ingranazhi në të "
@@ -1427,9 +1427,9 @@ msgid ""
 msgstr ""
 "\n"
 "Lexoni më shumë për të gjitha mënyrat se si mund të gjeneroni emra të nën-"
-"dosjeve të shkarkimit dhe emra të skedarëve në <a  "
-"href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime\">dokumen"
-"tacioni në internet</a> \".\n"
+"dosjeve të shkarkimit dhe emra të skedarëve në <a  href=\"http://damonlynch."
+"net/rapid/documentation/#renamedateandtime\">dokumentacioni në internet</a> "
+"\".\n"
 "            "
 
 #: ../raphodo/didyouknow.py:300
@@ -1507,8 +1507,8 @@ msgid ""
 "names to your photos and \n"
 "videos:\n"
 "<ol>\n"
-"<li><b>Downloads today</b>: tracks downloads completed during that "
-"day.</li>\n"
+"<li><b>Downloads today</b>: tracks downloads completed during that day.</"
+"li>\n"
 "<li><b>Stored number</b>: similar to Downloads today, but it is remembered "
 "from the last time the  \n"
 "program was run.</li>\n"
@@ -1526,19 +1526,19 @@ msgstr ""
 "të caktoni emra unikë në fotot dhe\n"
 "videot tuaja:\n"
 "<ol>\n"
-"<li><b>Shkarkimet sot</b>: gjurmon shkarkimet e përfunduara gjatë asaj "
-"dite.</li>\n"
+"<li><b>Shkarkimet sot</b>: gjurmon shkarkimet e përfunduara gjatë asaj dite."
+"</li>\n"
 "<li><b>Numri i ruajtur</b>: i ngjashëm me Shkarkimet sot, por mbahet mend "
 "nga hera e fundit  \n"
 "që u ekzekutua programi.</li>\n"
 "<li><b>Numri i seancës</b>: rivendos sa herë që ekzekutohet programi. </li>\n"
-"<li><b>Shkronja e sekuencës</b>: si numri i seancës por përdor "
-"shkronja.</li>\n"
+"<li><b>Shkronja e sekuencës</b>: si numri i seancës por përdor shkronja.</"
+"li>\n"
 "</ol></p>\n"
 "<p>\n"
 "Lexoni më shumë rreth numrave të sekuencës në <a \n"
-"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers\">dokumenta"
-"cionin në internet</a>.</p>\n"
+"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers"
+"\">dokumentacionin në internet</a>.</p>\n"
 "            "
 
 #: ../raphodo/didyouknow.py:354
@@ -1552,8 +1552,8 @@ msgstr ""
 "\n"
 "Paneli <b>Rename</b> ju lejon të konfiguroni riemërtimin e skedarit. Për të "
 "riemërtuar skedarët tuaj, mund të zgjidhni\n"
-"nga mesi i paravendosjeve ekzistuese të riemërtimit ose përcaktoni tuajin.   "
-"           \n"
+"nga mesi i paravendosjeve ekzistuese të riemërtimit ose përcaktoni "
+"tuajin.              \n"
 "            "
 
 #: ../raphodo/didyouknow.py:361
@@ -1651,8 +1651,8 @@ msgid ""
 "memory cards, and other devices.</li>\n"
 "<li>A <b>temporary cache</b> of files downloaded from a camera, one for "
 "photos and another for \n"
-"videos. They are located in temporary subfolders in the download "
-"destination.</li>\n"
+"videos. They are located in temporary subfolders in the download destination."
+"</li>\n"
 "<li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo Downloader "
 "stores thumbnails of \n"
 "RAW and TIFF photos once they have been downloaded. File browsers like Gnome "
@@ -1896,12 +1896,11 @@ msgid ""
 "happening.<br><br>The bug report must also include the program settings and "
 "log files. To create a file with this additional information, click Save."
 msgstr ""
-"Ju lutemi raportoni problemin në <a "
-"href=\"{website}\">{website}</a>.<br><br>Në raportin tuaj të defektit "
-"përshkruani atë që prisnit të ndodhte dhe atë që keni vërejtur se po "
-"ndodh.<br>< br>Raporti i defektit duhet të përfshijë gjithashtu cilësimet e "
-"programit dhe skedarët e regjistrave. Për të krijuar një skedar me këtë "
-"informacion shtesë, klikoni Ruaj."
+"Ju lutemi raportoni problemin në <a href=\"{website}\">{website}</a>."
+"<br><br>Në raportin tuaj të defektit përshkruani atë që prisnit të ndodhte "
+"dhe atë që keni vërejtur se po ndodh.<br>< br>Raporti i defektit duhet të "
+"përfshijë gjithashtu cilësimet e programit dhe skedarët e regjistrave. Për "
+"të krijuar një skedar me këtë informacion shtesë, klikoni Ruaj."
 
 #: ../raphodo/excepthook.py:60
 msgid "Additional Information Saved"
@@ -1912,8 +1911,8 @@ msgstr "Informacioni Shtesë u Ruajt"
 msgid ""
 "The additional bug report information was created in your home directory in "
 "a tar file: <pre>{tarfile}</pre>You need to attach this file to the bug "
-"report yourself. It will not be automatically attached.<br><br>Click <a "
-"href=\"{uri}\">here</a> to see the file in your file manager."
+"report yourself. It will not be automatically attached.<br><br>Click <a href="
+"\"{uri}\">here</a> to see the file in your file manager."
 msgstr ""
 "Informacioni shtesë i raportit të gabimeve u krijua në direktorinë tuaj të "
 "shtëpisë në një skedar tar: <pre>{tarfile}</pre>Ju duhet ta bashkëngjitni "
@@ -1945,11 +1944,11 @@ msgid ""
 msgstr ""
 "Përfshini në raportin tuaj të defekteve, skedarët e regjistrave të "
 "programit. Raporti i defektit duhet të përmbajë <i>{log_file}</i>, por "
-"bashkëngjitja e skedarëve të tjerë të regjistrit është shpesh e "
-"dobishme.<br><br>Nëse është e mundur, ju lutemi gjithashtu përfshini "
-"skedarin e konfigurimit të programit <i>{config_file}</ i>.<br><br>Kliko <a "
-"href=\"{log_path}\">këtu</a>për të hapur direktorinë e regjistrave, dhe <a "
-"href=\"{config_path}\">këtu</a> për të hapur direktorinë e konfigurimit."
+"bashkëngjitja e skedarëve të tjerë të regjistrit është shpesh e dobishme."
+"<br><br>Nëse është e mundur, ju lutemi gjithashtu përfshini skedarin e "
+"konfigurimit të programit <i>{config_file}</ i>.<br><br>Kliko <a href="
+"\"{log_path}\">këtu</a>për të hapur direktorinë e regjistrave, dhe <a href="
+"\"{config_path}\">këtu</a> për të hapur direktorinë e konfigurimit."
 
 #: ../raphodo/excepthook.py:91
 #, python-brace-format
@@ -1992,7 +1991,7 @@ msgstr ""
 "në {log_path}\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:162 ../raphodo/thumbnaildisplay.py:1912
+#: ../raphodo/filebrowse.py:162 ../raphodo/thumbnaildisplay.py:2154
 msgid "Open in File Browser..."
 msgstr "Hap në Shfletuesin e Skedarëve..."
 
@@ -2614,8 +2613,7 @@ msgstr ""
 "ose ekzistues për to."
 
 #: ../raphodo/jobcodepanel.py:258
-msgid ""
-"The new Job Code will be applied to all selected photos and/or videos."
+msgid "The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 "Ky Kod Pune i ri do të zbatohet për të gjitha fotot dhe / ose videot e "
 "zgjedhura."
@@ -2797,7 +2795,7 @@ msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
 #: ../raphodo/nameeditor.py:1057 ../raphodo/preferencedialog.py:997
-#: ../raphodo/wsl.py:627
+#: ../raphodo/wsl.py:649
 msgid "Get help online..."
 msgstr "Merrni ndihmë në internet..."
 
@@ -2811,16 +2809,16 @@ msgstr "Ruaj Paravendosjen - Shkarkues i Shpejtë i Fotove"
 
 #: ../raphodo/nameeditor.py:1425
 msgid ""
-"<b>Do you want to save the changes in a new custom "
-"preset?</b><br><br>Creating a custom preset is not required, but can help "
-"you keep organized.<br><br>The changes to the preferences will still be "
-"applied regardless of whether you create a new custom preset or not."
+"<b>Do you want to save the changes in a new custom preset?</"
+"b><br><br>Creating a custom preset is not required, but can help you keep "
+"organized.<br><br>The changes to the preferences will still be applied "
+"regardless of whether you create a new custom preset or not."
 msgstr ""
-"<b>A doni të ruani ndryshimet në një paravendosje të re të "
-"personalizuar?</b><br><br>Krijimi i një paravendosjeje të personalizuar nuk "
-"kërkohet, por mund t'ju ndihmojë të jeni të organizuar.<br><br>Ndryshimet në "
-"preferencat do të zbatohen përsëri pavarësisht nëse krijoni një paravendosje "
-"të re të personalizuar apo jo."
+"<b>A doni të ruani ndryshimet në një paravendosje të re të personalizuar?</"
+"b><br><br>Krijimi i një paravendosjeje të personalizuar nuk kërkohet, por "
+"mund t'ju ndihmojë të jeni të organizuar.<br><br>Ndryshimet në preferencat "
+"do të zbatohen përsëri pavarësisht nëse krijoni një paravendosje të re të "
+"personalizuar apo jo."
 
 #: ../raphodo/nameeditor.py:1443
 msgid ""
@@ -2829,11 +2827,11 @@ msgid ""
 "preset.<br><br>The changes to the preferences will still be applied "
 "regardless of whether you save a custom preset or not."
 msgstr ""
-"<b>A doni të ruani ndryshimet në një paravendosje të "
-"personalizuar?</b><br><br>Nëse të pëlqen, mund të krijosh një paravendosje "
-"të re të personalizuar ose të përditësosh paravendosjen ekzistuese të "
-"personalizuar.<br><br>Ndryshimet në preferencat do të zbatohen përsëri, "
-"pavarësisht nëse ruani një paravendosje të personalizuar apo jo."
+"<b>A doni të ruani ndryshimet në një paravendosje të personalizuar?</"
+"b><br><br>Nëse të pëlqen, mund të krijosh një paravendosje të re të "
+"personalizuar ose të përditësosh paravendosjen ekzistuese të personalizuar."
+"<br><br>Ndryshimet në preferencat do të zbatohen përsëri, pavarësisht nëse "
+"ruani një paravendosje të personalizuar apo jo."
 
 #: ../raphodo/nameeditor.py:1455
 msgid "Save New Custom Preset"
@@ -2865,8 +2863,7 @@ msgstr "Dëshironi të shkarkoni versionin e ri?"
 #: ../raphodo/newversion.py:303
 #, python-format
 msgid "Changes in the new release can be viewed <a href=\"%s\">here</a>."
-msgstr ""
-"Ndryshimet në versionin e ri mund të shikohen <a href=\"%s\">këtu</a>."
+msgstr "Ndryshimet në versionin e ri mund të shikohen <a href=\"%s\">këtu</a>."
 
 #. Translators: this text appears in a button - the & sets the s key in combination with
 #. the alt key to act as the keyboard shortcut
@@ -3081,13 +3078,11 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:329
 msgid ""
-"Use python-style <a "
-"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\">regula"
-"r expressions</a>"
+"Use python-style <a href=\"http://damonlynch.net/rapid/documentation/"
+"#regularexpressions\">regular expressions</a>"
 msgstr ""
-"Përdorni  python-stil <a "
-"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\"në "
-"shprehjet e rregullta</a>"
+"Përdorni  python-stil <a href=\"http://damonlynch.net/rapid/documentation/"
+"#regularexpressions\"në shprehjet e rregullta</a>"
 
 #: ../raphodo/preferencedialog.py:338
 msgid ""
@@ -3138,8 +3133,7 @@ msgstr "Dil nga programi kur të përfundojë shkarkimi"
 
 #: ../raphodo/preferencedialog.py:417
 msgid "Exit program even if download had warnings or errors"
-msgstr ""
-"Dilni nga programi edhe nëse shkarkimi kishte paralajmërime ose gabime"
+msgstr "Dilni nga programi edhe nëse shkarkimi kishte paralajmërime ose gabime"
 
 #: ../raphodo/preferencedialog.py:447
 msgid "Thumbnail Generation"
@@ -3179,8 +3173,7 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:471
 msgid "Number of CPU cores used to generate thumbnails."
-msgstr ""
-"Numri i bërthamave të CPU-së të përdorura për të gjeneruar miniatura."
+msgstr "Numri i bërthamave të CPU-së të përdorura për të gjeneruar miniatura."
 
 #: ../raphodo/preferencedialog.py:472
 msgid "CPU cores:"
@@ -3312,8 +3305,7 @@ msgid "Backup destinations are missing"
 msgstr "Destinacionet e rezervimit mungojnë"
 
 #: ../raphodo/preferencedialog.py:651
-msgid ""
-"Warn before starting a download if it is not possible to back up files."
+msgid "Warn before starting a download if it is not possible to back up files."
 msgstr ""
 "Paralajmëro para se të fillojë një shkarkim nëse nuk është e mundur të bëhet "
 "kopje rezervë të skedarëve."
@@ -4298,16 +4290,14 @@ msgid ""
 "<b>Cannot download from Apple devices</b><br><br>To download from "
 "%(device)s, this program requires additional software be installed that "
 "interacts with Apple devices.<br><br>Missing applications: "
-"%(applications)s<br><br><a "
-"href=\"https://damonlynch.net/rapid/documentation/#iosdevicesupport\">Learn "
-"more</a> about which software to install."
+"%(applications)s<br><br><a href=\"https://damonlynch.net/rapid/documentation/"
+"#iosdevicesupport\">Learn more</a> about which software to install."
 msgstr ""
 "<b>Nuk mund të shkarkohet nga pajisjet Apple</b><br><br>Për të shkarkuar nga "
 "%(device)s, ky program kërkon të instalohet një program shtesë që "
 "bashkëvepron me pajisjet e Apple.<br><br>Aplikacionet që mungojnë: "
-"%(applications)s<br><br><a "
-"href=\"https://damonlynch.net/rapid/documentation/#iosdevicesupport\">Mësoni "
-"më shumë</a> se cilin softuer të instaloni."
+"%(applications)s<br><br><a href=\"https://damonlynch.net/rapid/documentation/"
+"#iosdevicesupport\">Mësoni më shumë</a> se cilin softuer të instaloni."
 
 #: ../raphodo/rapid.py:1683
 msgid "Download failed"
@@ -4538,8 +4528,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:3083
 msgid "You cannot change the download destination while downloading."
-msgstr ""
-"Ju nuk mund ta ndryshoni destinacionin e shkarkimit gjatë shkarkimit."
+msgstr "Ju nuk mund ta ndryshoni destinacionin e shkarkimit gjatë shkarkimit."
 
 #: ../raphodo/rapid.py:3097
 #, python-format
@@ -4759,53 +4748,48 @@ msgid ""
 "<b>All files on the %(camera)s are inaccessible</b>.<br><br>It may be locked "
 "or not configured for file transfers using USB. You can unlock it and try "
 "again.<br><br>On some models you also need to change the setting to allow "
-"the use of USB for <i>File Transfer</i>.<br><br>Learn more about <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">d"
-"ownloading from cameras</a> and <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">en"
-"abling downloading from phones</a>. <br><br>Alternatively, you can ignore "
-"the %(camera)s."
+"the use of USB for <i>File Transfer</i>.<br><br>Learn more about <a href="
+"\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras"
+"\">downloading from cameras</a> and <a href=\"https://damonlynch.net/rapid/"
+"documentation/#downloadingfromphones\">enabling downloading from phones</a>. "
+"<br><br>Alternatively, you can ignore the %(camera)s."
 msgstr ""
 "<b>Të gjitha skedarët në %(camera)s janë të paarritshëm</b>.<br><br>Mund të "
 "jetë i kyçur ose jo i konfiguruar për transferimin e skedarëve duke përdorur "
 "USB. Mund ta zhbllokoni dhe provoni përsëri.<br><br>Në disa modele "
 "gjithashtu duhet të ndryshoni cilësimin për të lejuar përdorimin e USB për "
-"<i>Transferimin e Skedarëve</i>.<br><br>Mësoni më shumë rreth <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">s"
-"hkarkimi nga kamerat</a> dhe <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\"> "
-"aktivizimi i shkarkimit nga telefonat</a>.<br><br>Përndryshe, ju mund të "
-"injoroni %(camera)s."
+"<i>Transferimin e Skedarëve</i>.<br><br>Mësoni më shumë rreth <a href="
+"\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras"
+"\">shkarkimi nga kamerat</a> dhe <a href=\"https://damonlynch.net/rapid/"
+"documentation/#downloadingfromphones\"> aktivizimi i shkarkimit nga "
+"telefonat</a>.<br><br>Përndryshe, ju mund të injoroni %(camera)s."
 
 #: ../raphodo/rapid.py:4735
 #, python-format
 msgid ""
-"<b>The %(camera)s appears to be in use by another "
-"application.</b><br><br>Rapid Photo Downloader cannnot access a phone or "
-"camera that is being used by another program like a file manager.<br><br>If "
-"the device is mounted in your file manager, you must first &quot;eject&quot; "
-"it from the other program while keeping the %(camera)s plugged in.<br><br>If "
-"that does not work, unplug the %(camera)s from the computer and plug it in "
-"again.<br><br>Learn more about <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">d"
-"ownloading from cameras</a> and <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">en"
-"abling downloading from phones</a>. <br><br>Alternatively, you can ignore "
-"the %(camera)s."
+"<b>The %(camera)s appears to be in use by another application.</"
+"b><br><br>Rapid Photo Downloader cannnot access a phone or camera that is "
+"being used by another program like a file manager.<br><br>If the device is "
+"mounted in your file manager, you must first &quot;eject&quot; it from the "
+"other program while keeping the %(camera)s plugged in.<br><br>If that does "
+"not work, unplug the %(camera)s from the computer and plug it in again."
+"<br><br>Learn more about <a href=\"https://damonlynch.net/rapid/"
+"documentation/#downloadingfromcameras\">downloading from cameras</a> and <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones"
+"\">enabling downloading from phones</a>. <br><br>Alternatively, you can "
+"ignore the %(camera)s."
 msgstr ""
-"<b>%(camera)s duket se po përdoret nga një aplikacion "
-"tjetër.</b><br><br>Shkarkuesi i Shpejtë i Fotove nuk mund të ketë qasje në "
-"një telefon ose aparat fotografik që po përdoret nga një program tjetër si "
-"një menaxher skedarësh.< br><br>Nëse pajisja është montuar në menaxherin "
-"tuaj të skedarëve, së pari duhet të &quot;nxirrni&quot; atë nga programi "
-"tjetër duke mbajtur të lidhur %(camera)s.<br><br>Nëse kjo nuk funksionon, "
-"shkëputni %(camera)s nga kompjuteri dhe futeni përsëri. <br><br>Mësoni më "
-"shumë rreth <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">s"
-"hkarkimit nga kamerat</a> dhe <a href = "
-"\"https://damonlynch.net/rapid/documentation/# shkarkim nga telefonat \"> "
-"aktivizimi i shkarkimit nga telefonat</a>. <br><br>Përndryshe, ju mund të "
-"injoroni %(camera)s."
+"<b>%(camera)s duket se po përdoret nga një aplikacion tjetër.</"
+"b><br><br>Shkarkuesi i Shpejtë i Fotove nuk mund të ketë qasje në një "
+"telefon ose aparat fotografik që po përdoret nga një program tjetër si një "
+"menaxher skedarësh.< br><br>Nëse pajisja është montuar në menaxherin tuaj të "
+"skedarëve, së pari duhet të &quot;nxirrni&quot; atë nga programi tjetër duke "
+"mbajtur të lidhur %(camera)s.<br><br>Nëse kjo nuk funksionon, shkëputni "
+"%(camera)s nga kompjuteri dhe futeni përsëri. <br><br>Mësoni më shumë rreth "
+"<a href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras"
+"\">shkarkimit nga kamerat</a> dhe <a href = \"https://damonlynch.net/rapid/"
+"documentation/# shkarkim nga telefonat \"> aktivizimi i shkarkimit nga "
+"telefonat</a>. <br><br>Përndryshe, ju mund të injoroni %(camera)s."
 
 #: ../raphodo/rapid.py:4755
 msgid "Enable access to the iOS Device"
@@ -4843,30 +4827,30 @@ msgstr "Dështoi skanimi i pajisjes"
 #: ../raphodo/rapid.py:5402
 #, python-format
 msgid ""
-"<b>The %(camera)s cannot be scanned because it cannot be "
-"unmounted.</b><br><br>You can close any other application (such as a file "
-"browser) that is using it and try again. If that does not work, unplug the "
-"%(camera)s from the computer and plug it in again."
+"<b>The %(camera)s cannot be scanned because it cannot be unmounted.</"
+"b><br><br>You can close any other application (such as a file browser) that "
+"is using it and try again. If that does not work, unplug the %(camera)s from "
+"the computer and plug it in again."
 msgstr ""
-"<b>%(camera)s nuk mund të skanohet sepse nuk mund të "
-"çmontohet.</b><br><br>Ju mund të mbyllni çdo aplikacion tjetër (të tillë si "
-"një shfletues skedari) që po e përdor atë dhe të provoni përsëri. Nëse kjo "
-"nuk funksionon, shkëputni %(camera)s nga kompjuteri dhe lidheni përsëri."
+"<b>%(camera)s nuk mund të skanohet sepse nuk mund të çmontohet.</"
+"b><br><br>Ju mund të mbyllni çdo aplikacion tjetër (të tillë si një "
+"shfletues skedari) që po e përdor atë dhe të provoni përsëri. Nëse kjo nuk "
+"funksionon, shkëputni %(camera)s nga kompjuteri dhe lidheni përsëri."
 
 #: ../raphodo/rapid.py:5437
 #, python-format
 msgid ""
-"<b>The download cannot start because the %(camera)s cannot be "
-"unmounted.</b><br><br>You can close any other application (such as a file "
-"browser) that is using it and try again. If that does not work, unplug the "
-"%(camera)s from the computer and plug it in again, and choose which files "
-"you want to download from it."
+"<b>The download cannot start because the %(camera)s cannot be unmounted.</"
+"b><br><br>You can close any other application (such as a file browser) that "
+"is using it and try again. If that does not work, unplug the %(camera)s from "
+"the computer and plug it in again, and choose which files you want to "
+"download from it."
 msgstr ""
-"<b>Shkarkimi nuk mund të fillojë sepse %(camera)s nuk mund të "
-"çmontohet.</b><br><br>Mund të mbyllni çdo aplikacion tjetër (të tillë si një "
-"shfletues skedari) që po e përdor atë dhe të provoni përsëri. Nëse kjo nuk "
-"funksionon, shkëputni %(camera)s nga kompjuteri dhe lidheni përsëri, dhe "
-"zgjidhni cilat skedarë dëshironi të shkarkoni prej tij."
+"<b>Shkarkimi nuk mund të fillojë sepse %(camera)s nuk mund të çmontohet.</"
+"b><br><br>Mund të mbyllni çdo aplikacion tjetër (të tillë si një shfletues "
+"skedari) që po e përdor atë dhe të provoni përsëri. Nëse kjo nuk funksionon, "
+"shkëputni %(camera)s nga kompjuteri dhe lidheni përsëri, dhe zgjidhni cilat "
+"skedarë dëshironi të shkarkoni prej tij."
 
 #: ../raphodo/rapid.py:5598
 msgid "Completed Downloads Present"
@@ -5022,8 +5006,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:6862
 msgid "Turn on or off the automatic detection of backup devices."
-msgstr ""
-"Aktivizoni ose çaktivizoni zbulimin automatik të pajisjeve rezervimit."
+msgstr "Aktivizoni ose çaktivizoni zbulimin automatik të pajisjeve rezervimit."
 
 #: ../raphodo/rapid.py:6867 ../raphodo/rapid.py:6879
 msgid "FOLDER"
@@ -5075,8 +5058,7 @@ msgid "Ignore photos with the following extensions: %s"
 msgstr "Injoroni fotot me shtesat e mëposhtme: %s"
 
 #: ../raphodo/rapid.py:6922
-msgid ""
-"Turn on or off starting downloads as soon as the program itself starts."
+msgid "Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 "Aktivizo ose çaktivizo fillimin e shkarkimeve sapo fillon vetë programi."
 
@@ -5132,8 +5114,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:6983
 msgid "Print information to the terminal about attached cameras and exit."
-msgstr ""
-"Shtyp informacionin në terminal për kamerat e bashkangjitura dhe dil."
+msgstr "Shtyp informacionin në terminal për kamerat e bashkangjitura dhe dil."
 
 #: ../raphodo/rapid.py:6993
 msgid "Run this program in wayland or regular X11"
@@ -5162,8 +5143,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:7175
 #, python-format
-msgid ""
-"Do you want to copy the stored sequence number, which has the value %d?"
+msgid "Do you want to copy the stored sequence number, which has the value %d?"
 msgstr ""
 "Dëshironi të kopjoni numrin e ruajtur të sekuencës, i cili ka vlerën %d?"
 
@@ -5390,12 +5370,12 @@ msgstr "Për të kryer detyra administrative, futni fjalëkalimin për %s."
 msgid "Password:"
 msgstr "Fjalëkalimi:"
 
-#: ../raphodo/thumbnaildisplay.py:479
+#: ../raphodo/thumbnaildisplay.py:577
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
 msgstr "Marrë në %(date_time)s (%(human_readable)s"
 
-#: ../raphodo/thumbnaildisplay.py:489
+#: ../raphodo/thumbnaildisplay.py:587
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Modifikuar më %(date_time)s (%(human_readable)s)"
@@ -5403,50 +5383,44 @@ msgstr "Modifikuar më %(date_time)s (%(human_readable)s)"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/thumbnaildisplay.py:500 ../raphodo/thumbnaildisplay.py:550
+#: ../raphodo/thumbnaildisplay.py:599 ../raphodo/thumbnaildisplay.py:661
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:517
+#: ../raphodo/thumbnaildisplay.py:617
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Kartat e memorjes: %s"
 
-#: ../raphodo/thumbnaildisplay.py:521
+#: ../raphodo/thumbnaildisplay.py:622
 #, python-format
 msgid "Memory card: %s"
 msgstr "Kartë memorje: %s"
 
-#: ../raphodo/thumbnaildisplay.py:526
+#: ../raphodo/thumbnaildisplay.py:629
 msgid "Downloaded as:"
 msgstr "Shkarkuar si:"
 
-#: ../raphodo/thumbnaildisplay.py:564
+#: ../raphodo/thumbnaildisplay.py:675
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
-msgstr ""
-"<br><br>Shkarkimi i mëparshëm:<br>%(filename)s<br>%(path)s<br>%(date)s"
+msgstr "<br><br>Shkarkimi i mëparshëm:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:573
+#: ../raphodo/thumbnaildisplay.py:684
 #, python-format
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
-msgstr ""
-"<br><br><i>Vendosni manualisht si të shkarkuar më parë në %(date)s</i>"
+msgstr "<br><br><i>Vendosni manualisht si të shkarkuar më parë në %(date)s</i>"
 
-#: ../raphodo/thumbnaildisplay.py:1914
+#: ../raphodo/thumbnaildisplay.py:2157
 msgid "Copy Path"
 msgstr "Kopjo Shtegun"
 
-#. Translators: 'File' here applies to a single file. The command allows users to instruct
-#. Rapid Photo Downloader that photos and videos have been previously downloaded by
-#. another application.
-#: ../raphodo/thumbnaildisplay.py:1919
+#: ../raphodo/thumbnaildisplay.py:2163
 msgid "Mark File as Downloaded"
 msgstr "Shënoje Skedarin si të Shkarkuar"
 
-#. Translators: 'Files' here applies to two or more files
-#: ../raphodo/thumbnaildisplay.py:1922
+#: ../raphodo/thumbnaildisplay.py:2168
 msgid "Mark Files as Downloaded"
 msgstr "Shënoji Skedarët si të Shkarkuar"
 
@@ -5599,17 +5573,19 @@ msgstr "&Po"
 msgid "&No"
 msgstr "&Jo"
 
-#: ../raphodo/wsl.py:104
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog-do-mount.png
+#. Please keep the html tags <tt> and </tt>
+#: ../raphodo/wsl.py:106
 #, python-format
 msgid "Create directory <tt>%(path)s</tt>"
 msgstr "Krijo direktorinë <tt>%(path)s</tt>"
 
-#: ../raphodo/wsl.py:106
+#: ../raphodo/wsl.py:110
 #, python-format
 msgid "Mount drive <tt>%(drive)s:</tt> at <tt>%(path)s</tt>"
 msgstr "Monto diskun <tt>%(drive)s:</tt> në <tt>%(path)s</tt>"
 
-#: ../raphodo/wsl.py:109
+#: ../raphodo/wsl.py:116
 #, python-format
 msgid "Unmount drive <tt>%(drive)s:</tt> from <tt>%(path)s</tt>"
 msgstr "Çmonto diskun <tt>%(drive)s:</tt> nga <tt>%(path)s</tt>"
@@ -5618,7 +5594,7 @@ msgstr "Çmonto diskun <tt>%(drive)s:</tt> nga <tt>%(path)s</tt>"
 #. form, where two or more drives will be mounted. This screenshot shows only
 #. one drive, but you get the idea:
 #. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
-#: ../raphodo/wsl.py:303
+#: ../raphodo/wsl.py:310
 #, python-format
 msgid "Mount drives %s"
 msgstr "Monto disqet %s"
@@ -5626,7 +5602,7 @@ msgstr "Monto disqet %s"
 #. Translators: This is part of a title for a dialog box, and is in singular
 #. form, where only one drive will be mounted. This screenshot illustrates:
 #. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
-#: ../raphodo/wsl.py:308
+#: ../raphodo/wsl.py:315
 #, python-format
 msgid "Mount drive %s"
 msgstr "Monto diskun %s"
@@ -5635,7 +5611,7 @@ msgstr "Monto diskun %s"
 #. form, where two or more drives will be unmounted. This screenshot shows
 #. only one drive being mounted, but you get the idea:
 #. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
-#: ../raphodo/wsl.py:315
+#: ../raphodo/wsl.py:322
 #, python-format
 msgid "Unmount drives %s"
 msgstr "Çmonto disqet %s"
@@ -5644,95 +5620,106 @@ msgstr "Çmonto disqet %s"
 #. form, where only one drive will be unmounted. This screenshot shows a
 #. drive being mounted, but you get the idea:
 #. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
-#: ../raphodo/wsl.py:321
+#: ../raphodo/wsl.py:328
 #, python-format
 msgid "Unmount drive %s"
 msgstr "Çmonto diskun %s"
 
-#: ../raphodo/wsl.py:383
+#: ../raphodo/wsl.py:391
 #, python-format
 msgid "Sorry, an error occurred when mounting drives %s"
 msgstr "Na vjen keq, ndodhi një gabim gjatë montimit të disqeve %s"
 
-#: ../raphodo/wsl.py:388
+#: ../raphodo/wsl.py:397
 #, python-format
 msgid "Sorry, an error occurred when unmounting drives %s"
 msgstr "Na vjen keq, ndodhi një gabim gjatë çmontimit të disqeve %s"
 
-#: ../raphodo/wsl.py:394
+#: ../raphodo/wsl.py:404
 #, python-format
 msgid "Sorry, an error occurred when mounting drive %s"
 msgstr "Na vjen keq, ndodhi një gabim gjatë montimit të diskut %s"
 
-#: ../raphodo/wsl.py:399
+#: ../raphodo/wsl.py:410
 #, python-format
 msgid "Sorry, an error occurred when unmounting drive %s"
 msgstr "Na vjen keq, ndodhi një gabim gjatë çmontimit të diskut %s"
 
-#: ../raphodo/wsl.py:547
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:559
 msgid "Windows Drives"
 msgstr "Disqet e Windows"
 
-#: ../raphodo/wsl.py:550
+#: ../raphodo/wsl.py:563
 msgid "Enable automatic mounting of Windows drives"
 msgstr "Aktivizo montimin automatik të disqeve të Windows"
 
-#: ../raphodo/wsl.py:553
+#: ../raphodo/wsl.py:567
 msgid "Automatically mount all Windows drives"
 msgstr "Montoni automatikisht të gjithë disqet e Windows"
 
-#: ../raphodo/wsl.py:556
+#: ../raphodo/wsl.py:571
 msgid "Only automatically mount Windows drives that are configured below"
 msgstr ""
 "Montoni automatikisht vetëm disqet Windows që janë konfiguruar më poshtë"
 
-#: ../raphodo/wsl.py:579
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:595
 msgid "User Mounted"
 msgstr "Montuar nga Përdoruesi"
 
-#: ../raphodo/wsl.py:580
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:597
 msgid "System Mounted"
 msgstr "Montuar nga Sistemi"
 
-#: ../raphodo/wsl.py:581
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:599
 msgid "Drive"
 msgstr "Disku"
 
-#: ../raphodo/wsl.py:582
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:601
 msgid "Mount Point"
 msgstr "Pika e Montimit"
 
-#: ../raphodo/wsl.py:583
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:603
 msgid "Automatic Mount"
 msgstr "Montimi Automatik"
 
-#: ../raphodo/wsl.py:584
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:605
 msgid "Automatic Unmount at Exit"
 msgstr "Çmontimin Automatik në Dalje"
 
-#: ../raphodo/wsl.py:617
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:639
 msgid "Pending Operations:"
 msgstr "Operacionet në Pritje:"
 
-#: ../raphodo/wsl.py:630
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:653
 msgid "&Apply Pending Operations"
 msgstr "&Apliko Operacionet në Pritje"
 
-#. translators: this will appear in a small dialog asking the user if they want to mount a single drive
-#: ../raphodo/wsl.py:1436
+#. Translators: this will appear in a small dialog asking the user
+#. if they want to mount a single drive
+#: ../raphodo/wsl.py:1460
 #, python-format
 msgid "Do you want to mount drive %s?"
 msgstr "Dëshironi të montoni diskun %s?"
 
-#. translators: this will appear in a small dialog asking the user if they want to mount two or more drives
-#: ../raphodo/wsl.py:1439
+#. translators: this will appear in a small dialog asking the user
+#. if they want to mount two or more drives
+#: ../raphodo/wsl.py:1464
 #, python-format
 msgid "Do you want to mount drives %s?"
 msgstr "Dëshironi të montoni disqet %s?"
 
 #. Translators: this is the name Windows uses for a removable drive,
 #. like a USB drive
-#: ../raphodo/wsl.py:1576
+#: ../raphodo/wsl.py:1601
 msgid "Removable Drive"
 msgstr "Disku i lëvizshëm"
 
@@ -5740,7 +5727,7 @@ msgstr "Disku i lëvizshëm"
 #. normally part of the computer, like an internal hard drive
 #. (although for some reason some USB drives are classified by
 #. Windows as local drives)
-#: ../raphodo/wsl.py:1582
+#: ../raphodo/wsl.py:1607
 msgid "Local Drive"
 msgstr "Disku Lokal"
 
@@ -5807,11 +5794,11 @@ msgstr "Shkarkues fotosh"
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:5
 msgid ""
-"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
-";card;"
+"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
+"memory;card;"
 msgstr ""
-"foto;shkarko;fotografi;importo;video;RAW;kamera;telefon;gëlltis;rezervo;memor"
-"je;kartë;"
+"foto;shkarko;fotografi;importo;video;RAW;kamera;telefon;gëlltis;rezervo;"
+"memorje;kartë;"
 
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
@@ -6072,5 +6059,5 @@ msgstr "Shkarkoni Foto dhe Video me Shkarkuesin e Shpejtë të Fotove"
 
 #~ msgid "display debugging information when run from the command line"
 #~ msgstr ""
-#~ "shfaq informacionin e kontrollit të gabimeve kur ekzekutohet nga rreshti i "
-#~ "komandës"
+#~ "shfaq informacionin e kontrollit të gabimeve kur ekzekutohet nga rreshti "
+#~ "i komandës"

@@ -3,20 +3,21 @@
 # This file is distributed under the same license as the rapid package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
 #
+#: ../raphodo/jobcodepanel.py:140
 msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-11-27 18:23+0000\n"
+"POT-Creation-Date: 2021-11-27 15:28-0500\n"
 "PO-Revision-Date: 2021-11-18 19:01+0000\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2021-11-27 20:12+0000\n"
 "X-Generator: Launchpad (build 78346d219e01c6c7b1bfd882aa0bbcbb42d4e568)\n"
-"Language: ru\n"
 
 #: ../install.py:76
 msgid ""
@@ -243,8 +244,7 @@ msgstr ""
 #: ../install.py:2870
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
-msgstr ""
-"Зависимости будут удалены только если они не нужны другим программам."
+msgstr "Зависимости будут удалены только если они не нужны другим программам."
 
 #: ../install.py:2878
 msgid ""
@@ -595,20 +595,20 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr "Обновление не удалось. Нажмите Выход для завершения."
 
-#: ../upgrade.py:11082
+#: ../upgrade.py:11100
 #, python-format
 msgid "Upgrading %s..."
 msgstr "Обновление %s..."
 
-#: ../upgrade.py:11084
+#: ../upgrade.py:11102
 msgid "Press any key to continue..."
 msgstr "Для продолжения нажмите любую клавишу..."
 
-#: ../upgrade.py:11097
+#: ../upgrade.py:11115
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr "Обновление Rapid Photo Downloader не удалось"
 
-#: ../upgrade.py:11099
+#: ../upgrade.py:11117
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
@@ -645,8 +645,7 @@ msgstr ""
 
 #: ../raphodo/backuppanel.py:468
 msgid "Back up photos and videos when downloading"
-msgstr ""
-"Создавать резервные копии фотографий и видеороликов во время загрузки"
+msgstr "Создавать резервные копии фотографий и видеороликов во время загрузки"
 
 #: ../raphodo/backuppanel.py:474
 msgid "Automatically detect backup devices"
@@ -654,18 +653,18 @@ msgstr "Автоматически определять носители для 
 
 #: ../raphodo/backuppanel.py:480
 msgid ""
-"Specify the folder in which backups are stored on the "
-"device.<br><br><i>Note: the presence of a folder with this name is used to "
+"Specify the folder in which backups are stored on the device."
+"<br><br><i>Note: the presence of a folder with this name is used to "
 "determine if the device is used for backups. For each device you wish to use "
 "for backing up to, create a folder in it with one of these folder names. By "
 "adding both folders, the same device can be used to back up both photos and "
 "videos.</i>"
 msgstr ""
-"Укажите папку на устройстве, где будут храниться резервные "
-"копии.<br><br><i>Замечание: наличие папки с таким именем будет использовано "
-"для определения, используется ли устройство для резервного копирования. "
-"Создайте папку с одним из этих имен на каждом устройстве, на котором вы "
-"хотите хранить резервные копии. При добавлении обеих папок устройство будет "
+"Укажите папку на устройстве, где будут храниться резервные копии."
+"<br><br><i>Замечание: наличие папки с таким именем будет использовано для "
+"определения, используется ли устройство для резервного копирования. Создайте "
+"папку с одним из этих имен на каждом устройстве, на котором вы хотите "
+"хранить резервные копии. При добавлении обеих папок устройство будет "
 "использоваться для резервного копирования как фото, так и видео.</i>"
 
 #: ../raphodo/backuppanel.py:495
@@ -682,8 +681,7 @@ msgid "Example:"
 msgstr "Пример:"
 
 #: ../raphodo/backuppanel.py:516
-msgid ""
-"If you disable automatic detection, choose the exact backup locations."
+msgid "If you disable automatic detection, choose the exact backup locations."
 msgstr ""
 "Если вы отключаете автоопределение, выберите точное место для хранения "
 "резервных копий."
@@ -753,7 +751,7 @@ msgstr "аудио"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/destinationdisplay.py:96 ../raphodo/devicedisplay.py:1278
+#: ../raphodo/destinationdisplay.py:96 ../raphodo/devicedisplay.py:1281
 #: ../raphodo/rpdfile.py:290
 #, python-format
 msgid "%(no_photos)s Photos"
@@ -768,7 +766,7 @@ msgstr "%(no_photos)s Фото"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/destinationdisplay.py:104 ../raphodo/devicedisplay.py:1284
+#: ../raphodo/destinationdisplay.py:104 ../raphodo/devicedisplay.py:1287
 #: ../raphodo/rpdfile.py:278
 #, python-format
 msgid "%(no_videos)s Videos"
@@ -782,7 +780,7 @@ msgstr "Занято"
 msgid "Excess"
 msgstr "Превышение"
 
-#: ../raphodo/destinationdisplay.py:125 ../raphodo/devicedisplay.py:1310
+#: ../raphodo/destinationdisplay.py:125 ../raphodo/devicedisplay.py:1313
 msgid "Device size unknown"
 msgstr "Объем устройства неизвестен"
 
@@ -802,14 +800,14 @@ msgstr "На устройстве %(size_total)s нет свободного м�
 msgid "%(size_free)s free of %(size_total)s"
 msgstr "%(size_free)s свободно из %(size_total)s"
 
-#: ../raphodo/destinationdisplay.py:222 ../raphodo/devicedisplay.py:1170
+#: ../raphodo/destinationdisplay.py:222 ../raphodo/devicedisplay.py:1173
 #: ../raphodo/rapid.py:2338 ../raphodo/rapid.py:2475 ../raphodo/rapid.py:7323
 #: ../raphodo/rpdfile.py:914
 msgid "Photos"
 msgstr "Фото"
 
 #. translators: the name of the Videos folder
-#: ../raphodo/destinationdisplay.py:223 ../raphodo/devicedisplay.py:1171
+#: ../raphodo/destinationdisplay.py:223 ../raphodo/devicedisplay.py:1174
 #: ../raphodo/rapid.py:2343 ../raphodo/rapid.py:2476 ../raphodo/rapid.py:7323
 #: ../raphodo/rpdfile.py:942 ../raphodo/storage.py:537
 msgid "Videos"
@@ -831,28 +829,28 @@ msgstr "Настройка создания подпапок для фото"
 msgid "Configure video subfolder creation"
 msgstr "Настройка создания подпапок для видео"
 
-#: ../raphodo/devicedisplay.py:1160
+#: ../raphodo/devicedisplay.py:1163
 msgid "Other"
 msgstr "Другие"
 
-#: ../raphodo/devicedisplay.py:1161
+#: ../raphodo/devicedisplay.py:1164
 msgid "Probing device..."
 msgstr "Проверка устройств..."
 
-#: ../raphodo/devicedisplay.py:1179
+#: ../raphodo/devicedisplay.py:1182
 msgid "Temporarily ignore this device"
 msgstr "Временно игнорировать это устройство"
 
-#: ../raphodo/devicedisplay.py:1183
+#: ../raphodo/devicedisplay.py:1186
 msgid "Permanently ignore this device"
 msgstr "Постоянно игнорировать это устройство"
 
-#: ../raphodo/devicedisplay.py:1186
+#: ../raphodo/devicedisplay.py:1189
 msgid "Rescan"
 msgstr "Обновить"
 
 #. Translators: percentage full e.g. 75% full
-#: ../raphodo/devicedisplay.py:1307
+#: ../raphodo/devicedisplay.py:1310
 #, python-format
 msgid "%s full"
 msgstr "Занято %s"
@@ -1146,12 +1144,12 @@ msgid ""
 "different types\n"
 "of directory:\n"
 "<ol>\n"
-"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, "
-"&quot;Photos&quot;, or\n"
+"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, &quot;"
+"Photos&quot;, or\n"
 "&quot;Videos&quot;. This directory should already exist on your computer. In "
 "the illustration \n"
-"below, the destination folders are &quot;Pictures&quot; and "
-"&quot;Videos&quot;. The\n"
+"below, the destination folders are &quot;Pictures&quot; and &quot;"
+"Videos&quot;. The\n"
 "name of the destination folder is displayed in the grey bar directly above "
 "the folder tree, \n"
 "with a folder icon to its left and a gear icon to its far right.</li>\n"
@@ -1164,12 +1162,12 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"Когда вы думаете о структуре папок загрузки, примите во внимание два разных "
-"\n"
+"Когда вы думаете о структуре папок загрузки, примите во внимание два "
+"разных \n"
 "типа папок:\n"
 "<ol>\n"
-"<li>The <b>место хранения</b>, т.е. &quot;Изображения&quot;, "
-"&quot;Фото&quot;, или\n"
+"<li>The <b>место хранения</b>, т.е. &quot;Изображения&quot;, &quot;"
+"Фото&quot;, или\n"
 "&quot;Видео&quot;. Эта папка уже должна существовать в вашем компьютере. На "
 "иллюстрации \n"
 "ниже, места хранения &quot;Pictures&quot; и &quot;Videos&quot;. Имя\n"
@@ -1393,9 +1391,8 @@ msgstr ""
 "\n"
 "Прочесть больше о всех способах создания имен файлов и подпапок загрузки вы "
 "можете в \n"
-"<a "
-"href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime\">докумен"
-"тации в сети</a>.\n"
+"<a href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime"
+"\">документации в сети</a>.\n"
 "            "
 
 #: ../raphodo/didyouknow.py:300
@@ -1473,8 +1470,8 @@ msgid ""
 "names to your photos and \n"
 "videos:\n"
 "<ol>\n"
-"<li><b>Downloads today</b>: tracks downloads completed during that "
-"day.</li>\n"
+"<li><b>Downloads today</b>: tracks downloads completed during that day.</"
+"li>\n"
 "<li><b>Stored number</b>: similar to Downloads today, but it is remembered "
 "from the last time the  \n"
 "program was run.</li>\n"
@@ -1497,16 +1494,15 @@ msgstr ""
 "<li><b>Сквозная нумерация</b>: похожа на Загружено сегодня, но ее значение "
 "сохраняется \n"
 "с прошлого запуска программы.</li>\n"
-"<li><b>Сеансовая нумерация</b>: сбрасывается при каждом запуске "
-"программы.</li>\n"
+"<li><b>Сеансовая нумерация</b>: сбрасывается при каждом запуске программы.</"
+"li>\n"
 "<li><b>Символьная нумерация</b>: как сеансовая нумерация, но использует "
 "буквы.</li>\n"
 "</ol></p>\n"
 "<p>\n"
 "Прочесть больше о нумерации вы можете в \n"
-"<a "
-"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers\">документа"
-"ции в сети</a>.</p>\n"
+"<a href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers"
+"\">документации в сети</a>.</p>\n"
 "            "
 
 #: ../raphodo/didyouknow.py:354
@@ -1618,8 +1614,8 @@ msgid ""
 "memory cards, and other devices.</li>\n"
 "<li>A <b>temporary cache</b> of files downloaded from a camera, one for "
 "photos and another for \n"
-"videos. They are located in temporary subfolders in the download "
-"destination.</li>\n"
+"videos. They are located in temporary subfolders in the download destination."
+"</li>\n"
 "<li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo Downloader "
 "stores thumbnails of \n"
 "RAW and TIFF photos once they have been downloaded. File browsers like Gnome "
@@ -1860,11 +1856,10 @@ msgid ""
 "happening.<br><br>The bug report must also include the program settings and "
 "log files. To create a file with this additional information, click Save."
 msgstr ""
-"Пожалуйста, сообщите о проблеме в <a "
-"href=\"{website}\">{website}</a>.<br><br>В вашем отчете об ошибке опишите "
-"что вы ожидали и что произошло.<br><br>Отчет об ошибке также должен "
-"содержать настройки программы и файлы журналов. Для создания файла с "
-"дополнительной информацией нажмите Сохранить."
+"Пожалуйста, сообщите о проблеме в <a href=\"{website}\">{website}</a>."
+"<br><br>В вашем отчете об ошибке опишите что вы ожидали и что произошло."
+"<br><br>Отчет об ошибке также должен содержать настройки программы и файлы "
+"журналов. Для создания файла с дополнительной информацией нажмите Сохранить."
 
 #: ../raphodo/excepthook.py:60
 msgid "Additional Information Saved"
@@ -1875,8 +1870,8 @@ msgstr "Дополнительная информация Сохранена"
 msgid ""
 "The additional bug report information was created in your home directory in "
 "a tar file: <pre>{tarfile}</pre>You need to attach this file to the bug "
-"report yourself. It will not be automatically attached.<br><br>Click <a "
-"href=\"{uri}\">here</a> to see the file in your file manager."
+"report yourself. It will not be automatically attached.<br><br>Click <a href="
+"\"{uri}\">here</a> to see the file in your file manager."
 msgstr ""
 "Дополнительная информация для отчета об ошибке создана в tar-файле в "
 "домашней папке: <pre>{tarfile}</pre>Вам необходимо собственноручно "
@@ -1909,9 +1904,9 @@ msgstr ""
 "Включите в ваш отчет об ошибке файлы журнала программы. Отчет об ошибке "
 "должен содержать <i>{log_file}</i>, но включение других файлов журналов "
 "часто бывает полезно.<br><br>Если возможно, пожалуйста также добавьте файл "
-"настроек программы <i>{config_file}</i>.<br><br>Нажмите <a "
-"href=\"{log_path}\">здесь</a> для открытия папки с журналами, и <a "
-"href=\"{config_path}\">здесь</a> для открытия папки настроек."
+"настроек программы <i>{config_file}</i>.<br><br>Нажмите <a href="
+"\"{log_path}\">здесь</a> для открытия папки с журналами, и <a href="
+"\"{config_path}\">здесь</a> для открытия папки настроек."
 
 #: ../raphodo/excepthook.py:91
 #, python-brace-format
@@ -1954,7 +1949,7 @@ msgstr ""
 "{log_path}\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:162 ../raphodo/thumbnaildisplay.py:1912
+#: ../raphodo/filebrowse.py:162 ../raphodo/thumbnaildisplay.py:2154
 msgid "Open in File Browser..."
 msgstr "Открыть в файл менеджере..."
 
@@ -2576,8 +2571,7 @@ msgstr ""
 "Метку."
 
 #: ../raphodo/jobcodepanel.py:258
-msgid ""
-"The new Job Code will be applied to all selected photos and/or videos."
+msgid "The new Job Code will be applied to all selected photos and/or videos."
 msgstr "Новая Метка будет применена ко всем выбранным фото и/или видео."
 
 #: ../raphodo/jobcodepanel.py:262
@@ -2754,7 +2748,7 @@ msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
 #: ../raphodo/nameeditor.py:1057 ../raphodo/preferencedialog.py:997
-#: ../raphodo/wsl.py:627
+#: ../raphodo/wsl.py:649
 msgid "Get help online..."
 msgstr "Помощь онлайн..."
 
@@ -2768,10 +2762,10 @@ msgstr "Сохранить предустановку - Rapid Photo Downloader"
 
 #: ../raphodo/nameeditor.py:1425
 msgid ""
-"<b>Do you want to save the changes in a new custom "
-"preset?</b><br><br>Creating a custom preset is not required, but can help "
-"you keep organized.<br><br>The changes to the preferences will still be "
-"applied regardless of whether you create a new custom preset or not."
+"<b>Do you want to save the changes in a new custom preset?</"
+"b><br><br>Creating a custom preset is not required, but can help you keep "
+"organized.<br><br>The changes to the preferences will still be applied "
+"regardless of whether you create a new custom preset or not."
 msgstr ""
 "<b>Вы хотите сохранить изменения в новой предустановке?</b><br><br>Создание "
 "своих предустановок не является обязательным, но может помочь вам навести "
@@ -2786,9 +2780,9 @@ msgid ""
 "regardless of whether you save a custom preset or not."
 msgstr ""
 "<b>Вы хотите сохранить изменения в предустановке?</b><br><br>Если хотите, вы "
-"можете создать новую предустановку или обновить "
-"существующую.<br><br>Изменения в настройках все равно будут применены, "
-"независимо от того, создадите ли вы свою предустановку или нет."
+"можете создать новую предустановку или обновить существующую."
+"<br><br>Изменения в настройках все равно будут применены, независимо от "
+"того, создадите ли вы свою предустановку или нет."
 
 #: ../raphodo/nameeditor.py:1455
 msgid "Save New Custom Preset"
@@ -3031,13 +3025,11 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:329
 msgid ""
-"Use python-style <a "
-"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\">regula"
-"r expressions</a>"
+"Use python-style <a href=\"http://damonlynch.net/rapid/documentation/"
+"#regularexpressions\">regular expressions</a>"
 msgstr ""
-"Использовать <a "
-"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\">регуля"
-"рные выражения</a> в стиле Python"
+"Использовать <a href=\"http://damonlynch.net/rapid/documentation/"
+"#regularexpressions\">регулярные выражения</a> в стиле Python"
 
 #: ../raphodo/preferencedialog.py:338
 msgid ""
@@ -3260,8 +3252,7 @@ msgid "Backup destinations are missing"
 msgstr "Места хранения резервных копий отсутствуют"
 
 #: ../raphodo/preferencedialog.py:651
-msgid ""
-"Warn before starting a download if it is not possible to back up files."
+msgid "Warn before starting a download if it is not possible to back up files."
 msgstr ""
 "Предупреждать перед началом загрузки, если создание резервных копий "
 "невозможно."
@@ -3830,8 +3821,7 @@ msgstr ""
 #: ../raphodo/problemnotification.py:278
 #, python-format
 msgid "The %(filetype)s %(source)s was not downloaded from %(device)s."
-msgstr ""
-"Файл %(filetype)s %(source)s не был загружен с устройства %(device)s."
+msgstr "Файл %(filetype)s %(source)s не был загружен с устройства %(device)s."
 
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
@@ -4236,9 +4226,8 @@ msgid ""
 "<b>Cannot download from Apple devices</b><br><br>To download from "
 "%(device)s, this program requires additional software be installed that "
 "interacts with Apple devices.<br><br>Missing applications: "
-"%(applications)s<br><br><a "
-"href=\"https://damonlynch.net/rapid/documentation/#iosdevicesupport\">Learn "
-"more</a> about which software to install."
+"%(applications)s<br><br><a href=\"https://damonlynch.net/rapid/documentation/"
+"#iosdevicesupport\">Learn more</a> about which software to install."
 msgstr ""
 
 #: ../raphodo/rapid.py:1683
@@ -4687,39 +4676,36 @@ msgid ""
 "<b>All files on the %(camera)s are inaccessible</b>.<br><br>It may be locked "
 "or not configured for file transfers using USB. You can unlock it and try "
 "again.<br><br>On some models you also need to change the setting to allow "
-"the use of USB for <i>File Transfer</i>.<br><br>Learn more about <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">d"
-"ownloading from cameras</a> and <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">en"
-"abling downloading from phones</a>. <br><br>Alternatively, you can ignore "
-"the %(camera)s."
+"the use of USB for <i>File Transfer</i>.<br><br>Learn more about <a href="
+"\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras"
+"\">downloading from cameras</a> and <a href=\"https://damonlynch.net/rapid/"
+"documentation/#downloadingfromphones\">enabling downloading from phones</a>. "
+"<br><br>Alternatively, you can ignore the %(camera)s."
 msgstr ""
 "<b>Все файлы %(camera)s недоступны</b>.<br><br>Устройство может быть "
 "заблокировано или не настроено для передачи данных через USB. Вы можете "
 "разблокировать его и попробовать снова.<br><br>На некоторых моделях также "
 "необходимо изменить настройки, позволяющие использовать USB для <i>Передачи "
-"данных</i>.<br><br>Больше о <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">з"
-"агрузке с камеры</a> и <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">вк"
-"лючении загрузки с телефона</a>. <br><br>Кроме того, вы можете игнорировать "
-"%(camera)s."
+"данных</i>.<br><br>Больше о <a href=\"https://damonlynch.net/rapid/"
+"documentation/#downloadingfromcameras\">загрузке с камеры</a> и <a href="
+"\"https://damonlynch.net/rapid/documentation/#downloadingfromphones"
+"\">включении загрузки с телефона</a>. <br><br>Кроме того, вы можете "
+"игнорировать %(camera)s."
 
 #: ../raphodo/rapid.py:4735
 #, python-format
 msgid ""
-"<b>The %(camera)s appears to be in use by another "
-"application.</b><br><br>Rapid Photo Downloader cannnot access a phone or "
-"camera that is being used by another program like a file manager.<br><br>If "
-"the device is mounted in your file manager, you must first &quot;eject&quot; "
-"it from the other program while keeping the %(camera)s plugged in.<br><br>If "
-"that does not work, unplug the %(camera)s from the computer and plug it in "
-"again.<br><br>Learn more about <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">d"
-"ownloading from cameras</a> and <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">en"
-"abling downloading from phones</a>. <br><br>Alternatively, you can ignore "
-"the %(camera)s."
+"<b>The %(camera)s appears to be in use by another application.</"
+"b><br><br>Rapid Photo Downloader cannnot access a phone or camera that is "
+"being used by another program like a file manager.<br><br>If the device is "
+"mounted in your file manager, you must first &quot;eject&quot; it from the "
+"other program while keeping the %(camera)s plugged in.<br><br>If that does "
+"not work, unplug the %(camera)s from the computer and plug it in again."
+"<br><br>Learn more about <a href=\"https://damonlynch.net/rapid/"
+"documentation/#downloadingfromcameras\">downloading from cameras</a> and <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones"
+"\">enabling downloading from phones</a>. <br><br>Alternatively, you can "
+"ignore the %(camera)s."
 msgstr ""
 "Copy text \t\r\n"
 "<b>%(camera)s занято другим приложением.</b><br><br>Rapid Photo Downloader "
@@ -4727,12 +4713,11 @@ msgstr ""
 "программой, такой как файл менеджер.<br><br>Если устройство смонтировано в "
 "файл менеджере, вы должны сперва &quot;отключить&quot; от другой программы, "
 "сохраняя %(camera)s включенным.<br><br>Если это не помогает, отсоедините "
-"%(camera)s от компьютера и подключите снова.<br><br>Больше о <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">з"
-"агрузке с камер</a> и <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">вк"
-"лючении загрузки с телефона</a>. <br><br>Кроме того, вы можете игнорировать "
-"%(camera)s."
+"%(camera)s от компьютера и подключите снова.<br><br>Больше о <a href="
+"\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras"
+"\">загрузке с камер</a> и <a href=\"https://damonlynch.net/rapid/"
+"documentation/#downloadingfromphones\">включении загрузки с телефона</a>. "
+"<br><br>Кроме того, вы можете игнорировать %(camera)s."
 
 #: ../raphodo/rapid.py:4755
 msgid "Enable access to the iOS Device"
@@ -4770,10 +4755,10 @@ msgstr "Сканирование устройств не удалось"
 #: ../raphodo/rapid.py:5402
 #, python-format
 msgid ""
-"<b>The %(camera)s cannot be scanned because it cannot be "
-"unmounted.</b><br><br>You can close any other application (such as a file "
-"browser) that is using it and try again. If that does not work, unplug the "
-"%(camera)s from the computer and plug it in again."
+"<b>The %(camera)s cannot be scanned because it cannot be unmounted.</"
+"b><br><br>You can close any other application (such as a file browser) that "
+"is using it and try again. If that does not work, unplug the %(camera)s from "
+"the computer and plug it in again."
 msgstr ""
 "<b>%(camera)s не может быть просканирована из-за того, что она не может быть "
 "отмонтирована.</b><br><br>Вы можете закрыть все приложения (такие как файл "
@@ -4783,11 +4768,11 @@ msgstr ""
 #: ../raphodo/rapid.py:5437
 #, python-format
 msgid ""
-"<b>The download cannot start because the %(camera)s cannot be "
-"unmounted.</b><br><br>You can close any other application (such as a file "
-"browser) that is using it and try again. If that does not work, unplug the "
-"%(camera)s from the computer and plug it in again, and choose which files "
-"you want to download from it."
+"<b>The download cannot start because the %(camera)s cannot be unmounted.</"
+"b><br><br>You can close any other application (such as a file browser) that "
+"is using it and try again. If that does not work, unplug the %(camera)s from "
+"the computer and plug it in again, and choose which files you want to "
+"download from it."
 msgstr ""
 "<b>Загрузка не может начаться из-за того, что %(camera)s не может быть "
 "отмонтирована.</b><br><br>Вы можете закрыть все приложения (такие как файл "
@@ -5002,8 +4987,7 @@ msgid "Ignore photos with the following extensions: %s"
 msgstr "Игнорировать фото со следующими расширениями: %s"
 
 #: ../raphodo/rapid.py:6922
-msgid ""
-"Turn on or off starting downloads as soon as the program itself starts."
+msgid "Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 "Включение или выключение запуска загрузки сразу после старта программы."
 
@@ -5024,8 +5008,7 @@ msgstr ""
 msgid ""
 "Delete all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and "
 "exit."
-msgstr ""
-"Удалить все миниатюры в кэше миниатюр Rapid Photo Downloader и выйти."
+msgstr "Удалить все миниатюры в кэше миниатюр Rapid Photo Downloader и выйти."
 
 #: ../raphodo/rapid.py:6953
 msgid "Forget which files have been previously downloaded, and exit."
@@ -5082,8 +5065,7 @@ msgstr "Импорт настроек от Rapid Photo Downloader %(version)s"
 
 #: ../raphodo/rapid.py:7175
 #, python-format
-msgid ""
-"Do you want to copy the stored sequence number, which has the value %d?"
+msgid "Do you want to copy the stored sequence number, which has the value %d?"
 msgstr ""
 "Вы хотите скопировать значение сквозной нумерации, которое содержит значение "
 "%d?"
@@ -5310,12 +5292,12 @@ msgstr ""
 msgid "Password:"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:479
+#: ../raphodo/thumbnaildisplay.py:577
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
 msgstr "Снято %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:489
+#: ../raphodo/thumbnaildisplay.py:587
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Изменено %(date_time)s (%(human_readable)s)"
@@ -5323,48 +5305,44 @@ msgstr "Изменено %(date_time)s (%(human_readable)s)"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/thumbnaildisplay.py:500 ../raphodo/thumbnaildisplay.py:550
+#: ../raphodo/thumbnaildisplay.py:599 ../raphodo/thumbnaildisplay.py:661
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:517
+#: ../raphodo/thumbnaildisplay.py:617
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Карты памяти: %s"
 
-#: ../raphodo/thumbnaildisplay.py:521
+#: ../raphodo/thumbnaildisplay.py:622
 #, python-format
 msgid "Memory card: %s"
 msgstr "Карта памяти: %s"
 
-#: ../raphodo/thumbnaildisplay.py:526
+#: ../raphodo/thumbnaildisplay.py:629
 msgid "Downloaded as:"
 msgstr "Загружено как:"
 
-#: ../raphodo/thumbnaildisplay.py:564
+#: ../raphodo/thumbnaildisplay.py:675
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Предыдущая загрузка:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:573
+#: ../raphodo/thumbnaildisplay.py:684
 #, python-format
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
 msgstr "<br><br><i>отметить как ранее загруженные %(date)s</i>"
 
-#: ../raphodo/thumbnaildisplay.py:1914
+#: ../raphodo/thumbnaildisplay.py:2157
 msgid "Copy Path"
 msgstr "Копировать путь"
 
-#. Translators: 'File' here applies to a single file. The command allows users to instruct
-#. Rapid Photo Downloader that photos and videos have been previously downloaded by
-#. another application.
-#: ../raphodo/thumbnaildisplay.py:1919
+#: ../raphodo/thumbnaildisplay.py:2163
 msgid "Mark File as Downloaded"
 msgstr "Отметить файл как загруженный"
 
-#. Translators: 'Files' here applies to two or more files
-#: ../raphodo/thumbnaildisplay.py:1922
+#: ../raphodo/thumbnaildisplay.py:2168
 msgid "Mark Files as Downloaded"
 msgstr "Отметить файлы как загруженные"
 
@@ -5517,17 +5495,19 @@ msgstr "Да"
 msgid "&No"
 msgstr "Нет"
 
-#: ../raphodo/wsl.py:104
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog-do-mount.png
+#. Please keep the html tags <tt> and </tt>
+#: ../raphodo/wsl.py:106
 #, python-format
 msgid "Create directory <tt>%(path)s</tt>"
 msgstr ""
 
-#: ../raphodo/wsl.py:106
+#: ../raphodo/wsl.py:110
 #, python-format
 msgid "Mount drive <tt>%(drive)s:</tt> at <tt>%(path)s</tt>"
 msgstr ""
 
-#: ../raphodo/wsl.py:109
+#: ../raphodo/wsl.py:116
 #, python-format
 msgid "Unmount drive <tt>%(drive)s:</tt> from <tt>%(path)s</tt>"
 msgstr ""
@@ -5536,7 +5516,7 @@ msgstr ""
 #. form, where two or more drives will be mounted. This screenshot shows only
 #. one drive, but you get the idea:
 #. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
-#: ../raphodo/wsl.py:303
+#: ../raphodo/wsl.py:310
 #, python-format
 msgid "Mount drives %s"
 msgstr ""
@@ -5544,7 +5524,7 @@ msgstr ""
 #. Translators: This is part of a title for a dialog box, and is in singular
 #. form, where only one drive will be mounted. This screenshot illustrates:
 #. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
-#: ../raphodo/wsl.py:308
+#: ../raphodo/wsl.py:315
 #, python-format
 msgid "Mount drive %s"
 msgstr ""
@@ -5553,7 +5533,7 @@ msgstr ""
 #. form, where two or more drives will be unmounted. This screenshot shows
 #. only one drive being mounted, but you get the idea:
 #. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
-#: ../raphodo/wsl.py:315
+#: ../raphodo/wsl.py:322
 #, python-format
 msgid "Unmount drives %s"
 msgstr ""
@@ -5562,94 +5542,105 @@ msgstr ""
 #. form, where only one drive will be unmounted. This screenshot shows a
 #. drive being mounted, but you get the idea:
 #. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
-#: ../raphodo/wsl.py:321
+#: ../raphodo/wsl.py:328
 #, python-format
 msgid "Unmount drive %s"
 msgstr ""
 
-#: ../raphodo/wsl.py:383
+#: ../raphodo/wsl.py:391
 #, python-format
 msgid "Sorry, an error occurred when mounting drives %s"
 msgstr ""
 
-#: ../raphodo/wsl.py:388
+#: ../raphodo/wsl.py:397
 #, python-format
 msgid "Sorry, an error occurred when unmounting drives %s"
 msgstr ""
 
-#: ../raphodo/wsl.py:394
+#: ../raphodo/wsl.py:404
 #, python-format
 msgid "Sorry, an error occurred when mounting drive %s"
 msgstr ""
 
-#: ../raphodo/wsl.py:399
+#: ../raphodo/wsl.py:410
 #, python-format
 msgid "Sorry, an error occurred when unmounting drive %s"
 msgstr ""
 
-#: ../raphodo/wsl.py:547
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:559
 msgid "Windows Drives"
 msgstr ""
 
-#: ../raphodo/wsl.py:550
+#: ../raphodo/wsl.py:563
 msgid "Enable automatic mounting of Windows drives"
 msgstr ""
 
-#: ../raphodo/wsl.py:553
+#: ../raphodo/wsl.py:567
 msgid "Automatically mount all Windows drives"
 msgstr ""
 
-#: ../raphodo/wsl.py:556
+#: ../raphodo/wsl.py:571
 msgid "Only automatically mount Windows drives that are configured below"
 msgstr ""
 
-#: ../raphodo/wsl.py:579
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:595
 msgid "User Mounted"
 msgstr ""
 
-#: ../raphodo/wsl.py:580
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:597
 msgid "System Mounted"
 msgstr ""
 
-#: ../raphodo/wsl.py:581
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:599
 msgid "Drive"
 msgstr ""
 
-#: ../raphodo/wsl.py:582
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:601
 msgid "Mount Point"
 msgstr ""
 
-#: ../raphodo/wsl.py:583
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:603
 msgid "Automatic Mount"
 msgstr ""
 
-#: ../raphodo/wsl.py:584
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:605
 msgid "Automatic Unmount at Exit"
 msgstr ""
 
-#: ../raphodo/wsl.py:617
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:639
 msgid "Pending Operations:"
 msgstr ""
 
-#: ../raphodo/wsl.py:630
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:653
 msgid "&Apply Pending Operations"
 msgstr ""
 
-#. translators: this will appear in a small dialog asking the user if they want to mount a single drive
-#: ../raphodo/wsl.py:1436
+#. Translators: this will appear in a small dialog asking the user
+#. if they want to mount a single drive
+#: ../raphodo/wsl.py:1460
 #, python-format
 msgid "Do you want to mount drive %s?"
 msgstr ""
 
-#. translators: this will appear in a small dialog asking the user if they want to mount two or more drives
-#: ../raphodo/wsl.py:1439
+#. translators: this will appear in a small dialog asking the user
+#. if they want to mount two or more drives
+#: ../raphodo/wsl.py:1464
 #, python-format
 msgid "Do you want to mount drives %s?"
 msgstr ""
 
 #. Translators: this is the name Windows uses for a removable drive,
 #. like a USB drive
-#: ../raphodo/wsl.py:1576
+#: ../raphodo/wsl.py:1601
 msgid "Removable Drive"
 msgstr ""
 
@@ -5657,7 +5648,7 @@ msgstr ""
 #. normally part of the computer, like an internal hard drive
 #. (although for some reason some USB drives are classified by
 #. Windows as local drives)
-#: ../raphodo/wsl.py:1582
+#: ../raphodo/wsl.py:1607
 msgid "Local Drive"
 msgstr ""
 
@@ -5723,8 +5714,8 @@ msgstr "Загрузчик фото"
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:5
 msgid ""
-"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
-";card;"
+"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
+"memory;card;"
 msgstr ""
 "фото;загрузка;фотография;импорт;видео;RAW;камера;телефон;ingest;резрвные "
 "копии;память;карта;"
@@ -6021,7 +6012,8 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 
 #~ msgid "list photo and video file extensions the program recognizes and exit"
 #~ msgstr ""
-#~ "вывести расширения фото- и видеофайлов, которые распознает программа, и выйти"
+#~ "вывести расширения фото- и видеофайлов, которые распознает программа, и "
+#~ "выйти"
 
 #~ msgid "All settings and preferences have been reset"
 #~ msgstr "Все установки и настройки были сброшены"
@@ -6078,9 +6070,11 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ "%(date)s\n"
 #~ "%(time)s"
 
-#~ msgid "Photos detected with the same filenames, but taken at different times"
+#~ msgid ""
+#~ "Photos detected with the same filenames, but taken at different times"
 #~ msgstr ""
-#~ "Обнаружены фотографии с одинаковыми названиями, но сделанные в разное время"
+#~ "Обнаружены фотографии с одинаковыми названиями, но сделанные в разное "
+#~ "время"
 
 #~ msgid "Videos:"
 #~ msgstr "Видео:"
@@ -6154,7 +6148,8 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ "<span weight=\"bold\" size=\"x-large\">Каталоги для загрузки видео</span>"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
-#~ msgstr "<span weight=\"bold\" size=\"x-large\">Переименование видео</span>\t"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"x-large\">Переименование видео</span>\t"
 
 #~ msgid "Video backup folder name:"
 #~ msgstr "Название каталога резервного копирования видео"
@@ -6198,8 +6193,9 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ msgstr "Выбрать всё с _метками"
 
 #~ msgid ""
-#~ "When a photo or video of the same name has already been downloaded, choose "
-#~ "whether to skip downloading the file, or to add a unique indentifier."
+#~ "When a photo or video of the same name has already been downloaded, "
+#~ "choose whether to skip downloading the file, or to add a unique "
+#~ "indentifier."
 #~ msgstr ""
 #~ "Если фотография или видеоролик с таким названием уже загружен, выберите, "
 #~ "пропустить загрузку или добавить уникальный идентификатор."
@@ -6208,14 +6204,15 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ "Specify the folder in which backups are stored on the device.  \n"
 #~ "\n"
 #~ "<i>Note: this will also be used to determine whether or not the device is "
-#~ "used for backups. For each device you wish to use for backing up to, create "
-#~ "a folder in it with one of these names.</i>"
+#~ "used for backups. For each device you wish to use for backing up to, "
+#~ "create a folder in it with one of these names.</i>"
 #~ msgstr ""
 #~ "Укажите каталог для размещения резервных копий на носителе.  \n"
 #~ "\n"
-#~ "<i>Примечение: эта настройка также определяет, используется ли носитель для "
-#~ "резервного копирования. На каждом носителе, который вы хотите использовать "
-#~ "для резервного копирования, создайте каталог с одним из этих имен.</i>"
+#~ "<i>Примечение: эта настройка также определяет, используется ли носитель "
+#~ "для резервного копирования. На каждом носителе, который вы хотите "
+#~ "использовать для резервного копирования, создайте каталог с одним из этих "
+#~ "имен.</i>"
 
 #~ msgid ""
 #~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
@@ -6300,8 +6297,8 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ "Photos detected with the same filenames, but taken at different times: "
 #~ "%(details)s"
 #~ msgstr ""
-#~ "Обнаружены фотографии с одинаковыми названиями, но сделанные в разное время: "
-#~ "%(details)s"
+#~ "Обнаружены фотографии с одинаковыми названиями, но сделанные в разное "
+#~ "время: %(details)s"
 
 #, python-format
 #~ msgid " It was backed up to %(volume)s"
@@ -6334,7 +6331,8 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ msgstr "Произошла ошибка при создании каталогов на %(volume)s: %(inst)s."
 
 #~ msgid ""
-#~ "Errors occurred when creating directories on the following backup devices: "
+#~ "Errors occurred when creating directories on the following backup "
+#~ "devices: "
 #~ msgstr "Произошла ошибка при создании каталогов на следующих устройствах: "
 
 #~ msgid "The following metadata is missing: "
@@ -6416,7 +6414,8 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 
 #, python-format
 #~ msgid "%(filetype)s already exists, but it was backed up"
-#~ msgstr "Хотя %(filetype)s уже существует, резервная копия все равно создана."
+#~ msgstr ""
+#~ "Хотя %(filetype)s уже существует, резервная копия все равно создана."
 
 #~ msgid "there were errors backing up"
 #~ msgstr "ошибки при создании резервной копии"
@@ -6466,7 +6465,8 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ msgstr "%(volume)s, "
 
 #, python-format
-#~ msgid "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
+#~ msgid ""
+#~ "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
 #~ msgstr "%(missing_metadata_elements)s, %(final_missing_metadata_element)s."
 
 #, python-format
@@ -6481,8 +6481,8 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 
 #, python-format
 #~ msgid ""
-#~ "The existing %(filetype)s was last modified on %(date)s at %(time)s. Unique "
-#~ "identifier '%(identifier)s' added."
+#~ "The existing %(filetype)s was last modified on %(date)s at %(time)s. "
+#~ "Unique identifier '%(identifier)s' added."
 #~ msgstr ""
 #~ "Файл %(filetype)s изменен %(date)s в %(time)s. Добавлен уникальный код "
 #~ "'%(identifier)s'."
@@ -6500,27 +6500,29 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ msgstr "В дополнение к %(previousproblem)s: %(newproblem)s"
 
 #~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the photos "
-#~ "and videos."
+#~ "If you disable automatic detection, choose the exact location of the "
+#~ "photos and videos."
 #~ msgstr ""
 #~ "Если вы отключаете автоопределение, выберите место для резервного "
 #~ "копирования фото и видео."
 
 #, python-format
-#~ msgid "An error occurred when copying the %(filetype)s, but it was backed up"
+#~ msgid ""
+#~ "An error occurred when copying the %(filetype)s, but it was backed up"
 #~ msgstr ""
-#~ "При копировании %(filetype)s возникла ошибка, но резервная копия все равно "
-#~ "создана."
+#~ "При копировании %(filetype)s возникла ошибка, но резервная копия все "
+#~ "равно создана."
 
 #~ msgid ""
 #~ "If you enable automatic detection of Portable Storage Devices, the entire "
 #~ "device will be scanned. On large devices, this could take some time.\n"
 #~ "\n"
-#~ "When this option is enabled, and a potential device is detected, you will be "
-#~ "prompted to determine if it should be scanned or not."
+#~ "When this option is enabled, and a potential device is detected, you will "
+#~ "be prompted to determine if it should be scanned or not."
 #~ msgstr ""
-#~ "Если вы включили автоопределение переносного накопителя, будет просканирован "
-#~ "весь накопитель. На устройствах большой емкости это может занять время\n"
+#~ "Если вы включили автоопределение переносного накопителя, будет "
+#~ "просканирован весь накопитель. На устройствах большой емкости это может "
+#~ "занять время\n"
 #~ "\n"
 #~ "Когда эта опция включена, и подходящее устройство обнаружено, программа "
 #~ "спросит вас, нужно ли его сканировать."
@@ -6535,24 +6537,24 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ "Devices are from where to download photos and videos, such as cameras, "
 #~ "memory cards or Portable Storage Devices.\n"
 #~ "\n"
-#~ "You can download from multiple devices simultaneously, or you can specify a "
-#~ "location on your hard drive.\n"
+#~ "You can download from multiple devices simultaneously, or you can specify "
+#~ "a location on your hard drive.\n"
 #~ "\n"
-#~ "<i>Downloading directly from cameras is currently an experimental feature. "
-#~ "If downloading directly from your camera works poorly or not at all, try "
-#~ "setting it to PTP mode. If that is not possible, a card reader must be "
-#~ "used.</i>"
+#~ "<i>Downloading directly from cameras is currently an experimental "
+#~ "feature. If downloading directly from your camera works poorly or not at "
+#~ "all, try setting it to PTP mode. If that is not possible, a card reader "
+#~ "must be used.</i>"
 #~ msgstr ""
-#~ "Устройства -  с них загружается фото и видео, например, камера, карта памяти "
-#~ "или переносной накопитель.\n"
+#~ "Устройства -  с них загружается фото и видео, например, камера, карта "
+#~ "памяти или переносной накопитель.\n"
 #~ "\n"
-#~ "Вы можете настроить загрузку с нескольких устройств одновременно или указать "
-#~ "место для загрузки на жестком диске\n"
+#~ "Вы можете настроить загрузку с нескольких устройств одновременно или "
+#~ "указать место для загрузки на жестком диске\n"
 #~ "\n"
-#~ "<i>Загрузки напрямую с камеры пока что являются пробной возможностью. Если "
-#~ "загрузка напрямую с камеры работает плохо или не работает вообще, "
-#~ "переключите ее в режим PTP. Если это невозможно, используйте устройство для "
-#~ "чтения карт памяти.</i>"
+#~ "<i>Загрузки напрямую с камеры пока что являются пробной возможностью. "
+#~ "Если загрузка напрямую с камеры работает плохо или не работает вообще, "
+#~ "переключите ее в режим PTP. Если это невозможно, используйте устройство "
+#~ "для чтения карт памяти.</i>"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Device Options</span>"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Настройки устройств</span>"
@@ -6616,11 +6618,12 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 
 #, python-format
 #~ msgid ""
-#~ "This regular expression is invalid, and will be removed unless you correct "
-#~ "it:\n"
+#~ "This regular expression is invalid, and will be removed unless you "
+#~ "correct it:\n"
 #~ " %s"
 #~ msgstr ""
-#~ "Регулярное выражение недопустимо и будет удалено, если вы не исправите его:\n"
+#~ "Регулярное выражение недопустимо и будет удалено, если вы не исправите "
+#~ "его:\n"
 #~ " %s"
 
 #, python-format
@@ -6628,14 +6631,14 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ msgstr "(%(file_type)s)"
 
 #~ msgid ""
-#~ "Remembered paths are those associated with devices that you have chosen to "
-#~ "always scan or ignore when automatic detection of Portable Storage Devices "
-#~ "is enabled."
+#~ "Remembered paths are those associated with devices that you have chosen "
+#~ "to always scan or ignore when automatic detection of Portable Storage "
+#~ "Devices is enabled."
 #~ msgstr ""
 #~ "Запоминаемыми адресами являются те, которые ассоциируются с устройствами "
 #~ "выбранными вами для выполнения их постоянного сканирования или "
-#~ "игнорирования, при задействованной возможности автоматического определения "
-#~ "Портативного устройства хранения."
+#~ "игнорирования, при задействованной возможности автоматического "
+#~ "определения Портативного устройства хранения."
 
 #, python-format
 #~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
@@ -6648,8 +6651,8 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 
 #~ msgid ""
 #~ "Specify the ending portion of any paths you want ignored when scanning "
-#~ "devices for photos or videos. Any path ending with the values below will not "
-#~ "be scanned."
+#~ "devices for photos or videos. Any path ending with the values below will "
+#~ "not be scanned."
 #~ msgstr ""
 #~ "Укажите окончание любого адреса, которое вы хотите игнорировать при "
 #~ "сканировании устройств, на наличие фотографий и видеозаписей. Все адреса "
@@ -6662,8 +6665,8 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ "Do you really want to download from here? On some systems, scanning this "
 #~ "location can take a very long time."
 #~ msgstr ""
-#~ "Вы точно хотите загрузить отсюда? На некоторых системах сканирование этого "
-#~ "местоположения может занять много времени."
+#~ "Вы точно хотите загрузить отсюда? На некоторых системах сканирование "
+#~ "этого местоположения может занять много времени."
 
 #, python-format
 #~ msgid "Downloading from %(location)s."
@@ -6682,9 +6685,9 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ msgstr "Автоопределение"
 
 #~ msgid ""
-#~ "Sorry, video downloading functionality disabled. To download videos, please "
-#~ "install either the <i>hachoir metadata</i> and <i>kaa metadata</i> packages "
-#~ "for python, or <i>exiftool</i>."
+#~ "Sorry, video downloading functionality disabled. To download videos, "
+#~ "please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> "
+#~ "packages for python, or <i>exiftool</i>."
 #~ msgstr ""
 #~ "Извините, но закачка видео отключена. Для того чтобы иметь возможность "
 #~ "загружать видео, пожалуйста, установите пакеты <i>hachoir metadata</i> и "
@@ -6697,8 +6700,8 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ msgstr "Автоматически поворачивать изображения JPEG"
 
 #~ msgid ""
-#~ "manually specify the PATH of the device from which to download, overwriting "
-#~ "existing program preferences"
+#~ "manually specify the PATH of the device from which to download, "
+#~ "overwriting existing program preferences"
 #~ msgstr ""
 #~ "самостоятельно укажите расположение (PATH) устройства, с которого будет "
 #~ "производиться загрузка, заменяя существующие настройки программы"
@@ -6720,8 +6723,8 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 #~ "from which to download, but do not do both."
 #~ msgstr ""
 #~ "Ошибка: укажите автоматическое определение устройства или самостоятельно "
-#~ "укажите расположение устройства, с которого будет производиться загрузка, но "
-#~ "не используйте сразу оба варианта."
+#~ "укажите расположение устройства, с которого будет производиться загрузка, "
+#~ "но не используйте сразу оба варианта."
 
 #, python-format
 #~ msgid "Backup %(file_type)s overwritten"
@@ -6774,8 +6777,8 @@ msgstr "Загружайте фото и видео с Rapid Photo Downloader"
 
 #, python-format
 #~ msgid ""
-#~ "File verification failed on %(volume)s. The backed up version is different "
-#~ "from the downloaded version."
+#~ "File verification failed on %(volume)s. The backed up version is "
+#~ "different from the downloaded version."
 #~ msgstr ""
 #~ "Ошибка проверки файла на  %(volume)s. Резервная копия отличается от "
 #~ "загруженной версии."
