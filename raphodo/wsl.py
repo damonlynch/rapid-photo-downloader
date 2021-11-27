@@ -101,10 +101,17 @@ class MountPref(NamedTuple):
 
 class MountOpHumanReadable:
     human_hr = {
+        # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog-do-mount.png
+        # Please keep the html tags <tt> and </tt>
         MountTask.create_directory: _("Create directory <tt>%(path)s</tt>"),
+        # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog-do-mount.png
+        # Please keep the html tags <tt> and </tt>
         MountTask.mount_drive: _(
             "Mount drive <tt>%(drive)s:</tt> at <tt>%(path)s</tt>"
         ),
+        # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog-do-mount.png
+        # This string is not shown in the screenshot, but you get the idea.
+        # Please keep the html tags <tt> and </tt>
         MountTask.unmount_drive: _(
             "Unmount drive <tt>%(drive)s:</tt> from <tt>%(path)s</tt>"
         ),
@@ -378,23 +385,27 @@ def do_mount_drives_op(
         failure_messages = "; ".join(failure_stderr)
         if len(failed_drives) > 1:
             if is_do_mount:
-                # Translators: this error message is displayed when more than one Windows drive fails to mount within Windows Subsystem for Linux
+                # Translators: this error message is displayed when more than one
+                # Windows drive fails to mount within Windows Subsystem for Linux
                 message = (
                     _("Sorry, an error occurred when mounting drives %s") % fail_list
                 )
             else:
-                # Translators: this error message is displayed when more than one Windows drive fails to unmount within Windows Subsystem for Linux
+                # Translators: this error message is displayed when more than one
+                # Windows drive fails to unmount within Windows Subsystem for Linux
                 message = (
                     _("Sorry, an error occurred when unmounting drives %s") % fail_list
                 )
         else:
             if is_do_mount:
-                # Translators: this error message is displayed when one Windows drive fails to mount within Windows Subsystem for Linux
+                # Translators: this error message is displayed when one Windows drive
+                # fails to mount within Windows Subsystem for Linux
                 message = (
                     _("Sorry, an error occurred when mounting drive %s") % fail_list
                 )
             else:
-                # Translators: this error message is displayed when one Windows drive fails to unmount within Windows Subsystem for Linux.
+                # Translators: this error message is displayed when one Windows drive
+                # fails to unmount within Windows Subsystem for Linux.
                 message = (
                     _("Sorry, an error occurred when unmounting drive %s") % fail_list
                 )
@@ -544,14 +555,18 @@ class WslMountDriveDialog(QDialog):
 
         self.make_mount_op_hr = MountOpHumanReadable()
 
+        # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
         self.setWindowTitle(_("Windows Drives"))
 
+        # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
         self.autoMountCheckBox = QCheckBox(
             _("Enable automatic mounting of Windows drives")
         )
+        # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
         self.autoMountAllButton = QRadioButton(
             _("Automatically mount all Windows drives")
         )
+        # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
         self.autoMountManualButton = QRadioButton(
             _("Only automatically mount Windows drives that are configured below")
         )
@@ -576,11 +591,17 @@ class WslMountDriveDialog(QDialog):
         self.driveTable = QTableWidget(len(drives), 6, self)
         self.driveTable.setHorizontalHeaderLabels(
             [
+                # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
                 _("User Mounted"),
+                # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
                 _("System Mounted"),
+                # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
                 _("Drive"),
+                # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
                 _("Mount Point"),
+                # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
                 _("Automatic Mount"),
+                # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
                 _("Automatic Unmount at Exit"),
             ]
         )
@@ -614,6 +635,7 @@ class WslMountDriveDialog(QDialog):
         self.driveTable.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.driveTable.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
+        # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
         self.pendingOpsLabel = QLabel(_("Pending Operations:"))
         self.pendingOpsBox = PendingOpsBox(self)
 
@@ -627,6 +649,7 @@ class WslMountDriveDialog(QDialog):
         self.helpButton.setToolTip(_("Get help online..."))
         self.applyButton = buttonBox.button(QDialogButtonBox.Apply)  # type: QPushButton
         self.applyButton.clicked.connect(self.applyButtonClicked)
+        # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
         self.applyButton.setText(_("&Apply Pending Operations"))
 
         layout = QVBoxLayout()
@@ -1432,10 +1455,12 @@ class WslDrives(QObject):
                 drives_list_hr = make_hr_drive_list(unmounted_drives)
                 logging.debug("Prompting to ask whether to mount %s", drives_list_hr)
                 if len(unmounted_drives) == 1:
-                    # translators: this will appear in a small dialog asking the user if they want to mount a single drive
+                    # Translators: this will appear in a small dialog asking the user
+                    # if they want to mount a single drive
                     message = _("Do you want to mount drive %s?") % drives_list_hr
                 else:
-                    # translators: this will appear in a small dialog asking the user if they want to mount two or more drives
+                    # translators: this will appear in a small dialog asking the user
+                    # if they want to mount two or more drives
                     message = _("Do you want to mount drives %s?") % drives_list_hr
                 msgBox = standardMessageBox(
                     message=message,
