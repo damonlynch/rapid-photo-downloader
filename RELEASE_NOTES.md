@@ -2,10 +2,12 @@ Release Notes for Rapid Photo Downloader 0.9.27b2
 =================================================
 
  - To run Rapid Photo Downloader under WSLg on Windows 11, using the 
-   [Windows Subsystem for Linux Preview](https://aka.ms/wslstorepage) is 
-   *strongly recommended*. Using the version of WSL that comes installed 
-   with Windows 11 can cause severe usability issues while running Rapid Photo
-   Downloader.
+   [Windows Subsystem for Linux Preview](https://aka.ms/wslstorepage) from 
+   the Microsoft Store is *strongly recommended*. Using the version of WSL that
+   comes installed with Windows 11 can cause severe usability issues while 
+   running programs like Rapid Photo Downloader. Read the documentation on Rapid
+   Photo Downloader and WSL on the
+   [program website](https://https://damonlynch.net/rapid/documentation/#wsl).
 
  - Rapid Photo Downloader 0.9.27b2 is the minimum version required to work with 
    Python 3.10. Earlier versions will not run properly, or more commonly will 
