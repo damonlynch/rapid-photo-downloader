@@ -4,9 +4,11 @@ Changelog for Rapid Photo Downloader
 0.9.27b2 (2021-11-0x)
 ---------------------
 
- - Enable running under WSLg and WSL2 on Windows 11.
+ - Enable running under WSLg and WSL2 on Windows 11. Not all features are 
+   supported. See the 
+   [program documentation](https://damonlynch.net/rapid/documentation/#wsl). 
 
- - By default only non-system directories are shown in the directory
+ - By default only non-system directories are now shown in the directory
    listings for Photo and Video destinations, as well as This Computer. Right-
    click in the directory listings to enable showing all system directories.
 
