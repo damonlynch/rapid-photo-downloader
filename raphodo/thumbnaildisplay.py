@@ -2240,9 +2240,13 @@ class ThumbnailDelegate(QStyledItemDelegate):
     @pyqtSlot()
     def doOpenInFileManagerAct(self) -> None:
         selectedIndexes = self.selectedIndexes()
-        if self.clickedIndex not in selectedIndexes:
-            selectedIndexes.append(self.clickedIndex)
-        uris = [index.model().data(index, Roles.uri) for index in selectedIndexes]
+        if selectedIndexes is not None:
+            if self.clickedIndex not in selectedIndexes:
+                selectedIndexes.append(self.clickedIndex)
+            uris = [index.model().data(index, Roles.uri) for index in selectedIndexes]
+        else:
+            index = self.clickedIndex
+            uris = [index.model().data(index, Roles.uri)]
         if uris:
             logging.debug(
                 "Calling show_in_file_manager() with %s and %s",
@@ -2432,7 +2436,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         color = extensionColor(ext_type=ext_type)
 
-        # Use an angular rect, because a rounded rect with anti-aliasing doesn't look too good
+        # Use an angular rect, because a rounded rect with anti-aliasing doesn't look
+        # too good
         painter.fillRect(emblemRect, color)
         painter.setPen(QColor(Qt.white))
         painter.drawText(emblemRect, Qt.AlignCenter, extension)
@@ -2554,7 +2559,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
             if event.button() == Qt.RightButton:
                 self.clickedIndex = index
 
-                # Determine if user can manually mark file or files as previously downloaded
+                # Determine if user can manually mark file or files as previously
+                # downloaded
                 noSelected, noDownloaded = self.oneOrMoreNotDownloaded()
                 if noDownloaded == Plural.two_form_single:
                     self.markFilesDownloadedAct.setVisible(False)
@@ -2578,14 +2584,14 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 globalPos = self.rapidApp.thumbnailView.viewport().mapToGlobal(
                     event.pos()
                 )
-                # libgphoto2 needs exclusive access to the camera, so there are times when "open
-                # in file browswer" should be disabled:
+                # libgphoto2 needs exclusive access to the camera, so there are times
+                # when "open in file browswer" should be disabled:
                 # First, for all desktops, when a camera, disable when thumbnailing or
                 # downloading.
                 # Second, disable opening MTP devices in KDE environment,
                 # as KDE won't release them until them the file browser is closed!
-                # However if the file is already downloaded, we don't care, as can get it from
-                # local source.
+                # However if the file is already downloaded, we don't care, as can
+                # get it from local source.
                 # Finally, disable when we don't know what the default file manager is
 
                 active_camera = disable_kde = False
@@ -2627,8 +2633,6 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         # Change the checkbox-state
         self.setModelData(None, model, index)
-        # print("Changed the checkbox-state")
-        # print("these are the selected items", [index.row() for index in self.rapidApp.thumbnailView.selectionModel().selectedIndexes()])
         return True
 
     def setModelData(
