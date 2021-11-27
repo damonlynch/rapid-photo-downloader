@@ -23,13 +23,13 @@ import pickle
 import os
 import sys
 import datetime
-from collections import (namedtuple, defaultdict, deque)
+from collections import (defaultdict, deque)
 from operator import attrgetter
 import subprocess
 import shlex
 import logging
 from timeit import timeit
-from typing import Optional, Dict, List, Set, Tuple, Sequence
+from typing import Optional, Dict, List, Set, Tuple, Sequence, NamedTuple, DefaultDict
 import locale
 import pkg_resources as pkgr
 
@@ -78,13 +78,6 @@ from raphodo.rpdsql import DownloadedSQL
 from raphodo.preferences import Preferences
 
 
-DownloadFiles = namedtuple(
-    'DownloadFiles', 'files, download_types, download_stats, camera_access_needed'
-)
-
-MarkedSummary = namedtuple('MarkedSummary', 'marked size_photos_marked size_videos_marked')
-
-
 class DownloadStats:
     def __init__(self):
         self.no_photos = 0
@@ -92,6 +85,19 @@ class DownloadStats:
         self.photos_size_in_bytes = 0
         self.videos_size_in_bytes = 0
         self.post_download_thumb_generation = 0
+
+
+class DownloadFiles(NamedTuple):
+    files: DefaultDict[int, List[RPDFile]]
+    download_types: DownloadingFileTypes
+    download_stats: DefaultDict[int, DownloadStats]
+    camera_access_needed: DefaultDict[int, bool]
+
+
+class MarkedSummary(NamedTuple):
+    marked: FileTypeCounter
+    size_photos_marked: int
+    size_videos_marked: int
 
 
 class AddBuffer:
@@ -1138,7 +1144,7 @@ class ThumbnailListModel(QAbstractListModel):
         else:
             exclude_scan_ids = None
 
-        files = defaultdict(list)
+        files = defaultdict(list)  # type: DefaultDict[int, List[RPDFile]]
         download_stats = defaultdict(DownloadStats)
         camera_access_needed = defaultdict(bool)
         download_photos = download_videos = False
