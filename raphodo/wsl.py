@@ -1563,8 +1563,8 @@ class WslWindowsRemovableDriveMonitor(QObject):
         self.timer.timeout.connect(self.probeWindowsDrives)
         self.timer.setTimerType(Qt.CoarseTimer)
         self.timer.setInterval(1500)
-        self.probeWindowsDrives()
-        self.timer.start()
+        if self.probeWindowsDrives():
+            self.timer.start()
 
     @pyqtSlot()
     def stopMonitor(self) -> None:
@@ -1572,13 +1572,19 @@ class WslWindowsRemovableDriveMonitor(QObject):
         self.timer.stop()
 
     @pyqtSlot()
-    def probeWindowsDrives(self) -> None:
+    def probeWindowsDrives(self) -> bool:
         timer_active = self.timer.isActive()
         if timer_active:
             self.timer.stop()
-        current_drives = wsl_windows_drives(
-            (WindowsDriveType.removable_disk, WindowsDriveType.local_disk)
-        )
+        try:
+            current_drives = wsl_windows_drives(
+                (WindowsDriveType.removable_disk, WindowsDriveType.local_disk)
+            )
+        except Exception:
+            if timer_active:
+                self.stopMonitor()
+            return False
+
         new_drives = current_drives - self.known_drives
         removed_drives = self.known_drives - current_drives
 
@@ -1635,6 +1641,7 @@ class WslWindowsRemovableDriveMonitor(QObject):
         self.known_drives = current_drives
         if timer_active:
             self.timer.start()
+        return True
 
 
 def wsl_standard_mount_point(root: Path, drive_letter: str) -> str:
@@ -1697,12 +1704,16 @@ def wsl_windows_drives(
     """
 
     # wmic is deprecated, but is much, much faster than calling powershell
-    output = subprocess.run(
-        shlex.split("wmic.exe logicaldisk get deviceid, volumename, drivetype"),
-        universal_newlines=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    ).stdout.strip()
+    try:
+        output = subprocess.run(
+            shlex.split("wmic.exe logicaldisk get deviceid, volumename, drivetype"),
+            universal_newlines=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        ).stdout.strip()
+    except Exception as e:
+        logging.error("Call to wmic.exe failed: %s", str(e))
+        raise "Call to wmic.exe failed"
     # Discard first line of output, which is a table header
     drives = set()
     for line in output.split("\n")[1:]:
