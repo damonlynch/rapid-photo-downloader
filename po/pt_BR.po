@@ -3,21 +3,20 @@
 # This file is distributed under the same license as the rapid package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
 #
-#: ../raphodo/jobcodepanel.py:140
 msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-11-24 17:24-0500\n"
+"POT-Creation-Date: 2021-11-27 18:23+0000\n"
 "PO-Revision-Date: 2021-11-18 19:02+0000\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
-"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2021-11-24 03:56+0000\n"
-"X-Generator: Launchpad (build 8374359a4078b88c107789f7620f3f25e1f1843c)\n"
+"X-Launchpad-Export-Date: 2021-11-27 20:12+0000\n"
+"X-Generator: Launchpad (build 78346d219e01c6c7b1bfd882aa0bbcbb42d4e568)\n"
+"Language: pt_BR\n"
 
 #: ../install.py:76
 msgid ""
@@ -56,7 +55,8 @@ msgstr "Instalador não está no formato tar.gz:"
 
 #: ../install.py:816
 msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
-msgstr "Esta versão específica do PyQt5 não existe. As versões válidas são: {}"
+msgstr ""
+"Esta versão específica do PyQt5 não existe. As versões válidas são: {}"
 
 #: ../install.py:902
 msgid "{} will be upgraded from version {} to version {}"
@@ -304,8 +304,8 @@ msgid ""
 "Exiting.\n"
 msgstr ""
 "Desculpe, não foi possível localizar o instalador. Favor verifique sua "
-"conexão de Internet e verifique se você pode acessar https://www.damonlynch."
-"net\n"
+"conexão de Internet e verifique se você pode acessar "
+"https://www.damonlynch.net\n"
 "\n"
 "Saindo.\n"
 
@@ -335,7 +335,8 @@ msgstr "Instalando os requerimentos da aplicação..."
 
 #: ../install.py:3601
 msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
-msgstr "Não há suporte neste sistema para geração de miniaturas de HEIF / HEIC"
+msgstr ""
+"Não há suporte neste sistema para geração de miniaturas de HEIF / HEIC"
 
 #: ../install.py:3620
 msgid "Not installing PyPI PyQt5 package into KDE Neon environment"
@@ -346,19 +347,16 @@ msgid "Installing application..."
 msgstr "Instalando a aplicação..."
 
 #: ../install.py:3711
-#, fuzzy
 msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
-msgstr "Deseja instalar o Rapid Photo Downloader no ambiente virtual atual?"
+msgstr ""
 
 #: ../install.py:3717
-#, fuzzy
 msgid "Adding Rapid Photo Downloader to the Windows menu"
-msgstr "Instalador do Rapid Photo Downloader"
+msgstr ""
 
 #: ../install.py:3727
-#, fuzzy
 msgid "Failed to copy application launcher."
-msgstr "Falha ao copiar os manuais man."
+msgstr ""
 
 #: ../install.py:3738
 msgid "Man pages can be found in {}/share/man/man1"
@@ -410,13 +408,10 @@ msgstr ""
 "pela linha de comando ou iniciador de aplicativos."
 
 #: ../install.py:3836
-#, fuzzy
 msgid ""
 "You may have to restart WSL to be able to run the program from the command "
 "line."
 msgstr ""
-"Você pode ter que reiniciar o computador para conseguir executar o programa "
-"pela linha de comando ou iniciador de aplicativos."
 
 #: ../install.py:3845
 #, python-brace-format
@@ -429,7 +424,8 @@ msgstr ""
 
 #: ../install.py:3864
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
-msgstr "(Se uma falha de segmentação ocorrer ao sair, você pode ignorá-la...)"
+msgstr ""
+"(Se uma falha de segmentação ocorrer ao sair, você pode ignorá-la...)"
 
 #: ../install.py:3866
 msgid "Done."
@@ -499,7 +495,8 @@ msgstr "Usando ambiente virtual para instalar usando pip."
 
 #: ../install.py:4025 ../install.py:4039
 msgid "Do not include any other command line arguments when specifying"
-msgstr "Não inclua qualquer argumento de linha de comando quando especificado"
+msgstr ""
+"Não inclua qualquer argumento de linha de comando quando especificado"
 
 #: ../install.py:4059
 msgid ""
@@ -550,7 +547,7 @@ msgstr "Instalando python requests"
 msgid "Upgrade Rapid Photo Downloader"
 msgstr "Atualizar Rapid Photo Downloader"
 
-#: ../upgrade.py:647 ../raphodo/viewutils.py:285 ../raphodo/viewutils.py:305
+#: ../upgrade.py:647 ../raphodo/viewutils.py:302 ../raphodo/viewutils.py:322
 msgid "&Cancel"
 msgstr "&Cancelar"
 
@@ -567,8 +564,8 @@ msgstr "Clique no botão Atualizar para atualizar para a versão %s."
 msgid "Click the Upgrade button to start the upgrade."
 msgstr "Clique no botão Atualizar para iniciar a atualização."
 
-#: ../upgrade.py:662 ../upgrade.py:668 ../raphodo/viewutils.py:284
-#: ../raphodo/viewutils.py:304
+#: ../upgrade.py:662 ../upgrade.py:668 ../raphodo/viewutils.py:301
+#: ../raphodo/viewutils.py:321
 msgid "&Close"
 msgstr "&Fechar"
 
@@ -663,19 +660,19 @@ msgstr "Detectar automaticamente dispositivos de backup"
 
 #: ../raphodo/backuppanel.py:480
 msgid ""
-"Specify the folder in which backups are stored on the device."
-"<br><br><i>Note: the presence of a folder with this name is used to "
+"Specify the folder in which backups are stored on the "
+"device.<br><br><i>Note: the presence of a folder with this name is used to "
 "determine if the device is used for backups. For each device you wish to use "
 "for backing up to, create a folder in it with one of these folder names. By "
 "adding both folders, the same device can be used to back up both photos and "
 "videos.</i>"
 msgstr ""
-"Especifique a pasta onde os backups serão salvos no dispositivo."
-"<br><br><i>Observação: a presença de uma pasta com este nome é usada para "
-"determinar se o dispositivo é usado para backups. Crie uma pasta com um "
-"destes nomes em cada dispositivo designado para salvar backups. Ao adicionar "
-"ambas as pastas, o dispositivo poderá ser utilizado para backups tanto de "
-"fotos como de vídeos.</i>"
+"Especifique a pasta onde os backups serão salvos no "
+"dispositivo.<br><br><i>Observação: a presença de uma pasta com este nome é "
+"usada para determinar se o dispositivo é usado para backups. Crie uma pasta "
+"com um destes nomes em cada dispositivo designado para salvar backups. Ao "
+"adicionar ambas as pastas, o dispositivo poderá ser utilizado para backups "
+"tanto de fotos como de vídeos.</i>"
 
 #: ../raphodo/backuppanel.py:495
 msgid "Photo folder name:"
@@ -691,7 +688,8 @@ msgid "Example:"
 msgstr "Exemplo:"
 
 #: ../raphodo/backuppanel.py:516
-msgid "If you disable automatic detection, choose the exact backup locations."
+msgid ""
+"If you disable automatic detection, choose the exact backup locations."
 msgstr ""
 "Se você desabilitar a detecção automática, selecione o caminho exato do "
 "local de backup."
@@ -755,7 +753,13 @@ msgstr "áudio"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/destinationdisplay.py:96 ../raphodo/devicedisplay.py:1128
+#. Translators: %(variable)s represents Python code, not a plural of the
+#. term variable. You must keep the %(variable)s untranslated, or the
+#. program will crash.
+#. Translators: %(variable)s represents Python code, not a plural of the term
+#. variable. You must keep the %(variable)s untranslated, or the program will
+#. crash.
+#: ../raphodo/destinationdisplay.py:96 ../raphodo/devicedisplay.py:1278
 #: ../raphodo/rpdfile.py:290
 #, python-format
 msgid "%(no_photos)s Photos"
@@ -764,7 +768,13 @@ msgstr "%(no_photos)s Fotos"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/destinationdisplay.py:104 ../raphodo/devicedisplay.py:1134
+#. Translators: %(variable)s represents Python code, not a plural of the
+#. term variable. You must keep the %(variable)s untranslated, or the
+#. program will crash.
+#. Translators: %(variable)s represents Python code, not a plural of the term
+#. variable. You must keep the %(variable)s untranslated, or the program will
+#. crash.
+#: ../raphodo/destinationdisplay.py:104 ../raphodo/devicedisplay.py:1284
 #: ../raphodo/rpdfile.py:278
 #, python-format
 msgid "%(no_videos)s Videos"
@@ -778,7 +788,7 @@ msgstr "Em uso"
 msgid "Excess"
 msgstr "Excesso"
 
-#: ../raphodo/destinationdisplay.py:125 ../raphodo/devicedisplay.py:1154
+#: ../raphodo/destinationdisplay.py:125 ../raphodo/devicedisplay.py:1310
 msgid "Device size unknown"
 msgstr "Tamanho desconhecido do dispositivo"
 
@@ -798,14 +808,14 @@ msgstr "Sem espaço livre no dispositivo %(size_total)s"
 msgid "%(size_free)s free of %(size_total)s"
 msgstr "%(size_free)s livre de %(size_total)s"
 
-#: ../raphodo/destinationdisplay.py:222 ../raphodo/devicedisplay.py:1032
+#: ../raphodo/destinationdisplay.py:222 ../raphodo/devicedisplay.py:1170
 #: ../raphodo/rapid.py:2338 ../raphodo/rapid.py:2475 ../raphodo/rapid.py:7323
 #: ../raphodo/rpdfile.py:914
 msgid "Photos"
 msgstr "Fotos"
 
 #. translators: the name of the Videos folder
-#: ../raphodo/destinationdisplay.py:223 ../raphodo/devicedisplay.py:1033
+#: ../raphodo/destinationdisplay.py:223 ../raphodo/devicedisplay.py:1171
 #: ../raphodo/rapid.py:2343 ../raphodo/rapid.py:2476 ../raphodo/rapid.py:7323
 #: ../raphodo/rpdfile.py:942 ../raphodo/storage.py:537
 msgid "Videos"
@@ -827,28 +837,28 @@ msgstr "Configure criação de sub pastas de fotos"
 msgid "Configure video subfolder creation"
 msgstr "Configure criação de sub pastas de vídeos"
 
-#: ../raphodo/devicedisplay.py:1022
+#: ../raphodo/devicedisplay.py:1160
 msgid "Other"
 msgstr "Outro"
 
-#: ../raphodo/devicedisplay.py:1023
+#: ../raphodo/devicedisplay.py:1161
 msgid "Probing device..."
 msgstr "Examinando dispositivo..."
 
-#: ../raphodo/devicedisplay.py:1040
+#: ../raphodo/devicedisplay.py:1179
 msgid "Temporarily ignore this device"
 msgstr "Ignore este dispositivo temporariamente"
 
-#: ../raphodo/devicedisplay.py:1042
+#: ../raphodo/devicedisplay.py:1183
 msgid "Permanently ignore this device"
 msgstr "Ignore este disposition permanentemente"
 
-#: ../raphodo/devicedisplay.py:1044
+#: ../raphodo/devicedisplay.py:1186
 msgid "Rescan"
 msgstr "Reexaminar"
 
 #. Translators: percentage full e.g. 75% full
-#: ../raphodo/devicedisplay.py:1151
+#: ../raphodo/devicedisplay.py:1307
 #, python-format
 msgid "%s full"
 msgstr "%s cheio"
@@ -858,7 +868,7 @@ msgid "Cameras"
 msgstr "Câmeras"
 
 #: ../raphodo/devices.py:606 ../raphodo/devices.py:1257
-#: ../raphodo/preferencedialog.py:114 ../raphodo/preferencedialog.py:124
+#: ../raphodo/preferencedialog.py:153 ../raphodo/preferencedialog.py:174
 #: ../raphodo/rapid.py:2289
 msgid "Devices"
 msgstr "Dispositivos"
@@ -1065,9 +1075,10 @@ msgid ""
 "the left side of the main window will be highlighted."
 msgstr ""
 "Para visualizar as fotos e vídeos num período de tempo particular, use o "
-"mouse (opcionalmente em combinação com as teclas <tt>Shift</tt> or <tt>Ctrl</"
-"tt>) para selecionar os períodos de tempo. Quando um período é selecionado, "
-"o botão da Timeline no lado esquerdo da janela principal será destacada."
+"mouse (opcionalmente em combinação com as teclas <tt>Shift</tt> or "
+"<tt>Ctrl</tt>) para selecionar os períodos de tempo. Quando um período é "
+"selecionado, o botão da Timeline no lado esquerdo da janela principal será "
+"destacada."
 
 #: ../raphodo/didyouknow.py:133
 msgid ""
@@ -1111,8 +1122,8 @@ msgstr ""
 "<ol>\n"
 "<li><b>Hora da Modificação:</b> última modificação do arquivo, de acordo com "
 "seu its metadados (quando \n"
-" disponível) ou de acordo com o sistema de arquivos (como contingência).</"
-"li>\n"
+" disponível) ou de acordo com o sistema de arquivos (como "
+"contingência).</li>\n"
 "<li><b>Verificado estado:</b> se o arquivo está marcado para download.</li>\n"
 "<li><b>Nome do arquivo:</b> o nome completo, incluindo a extensão.</li>\n"
 "<li><b>Extensão:</b> a extensão do arquivo. Você pode usá-lo para agrupar "
@@ -1150,12 +1161,12 @@ msgid ""
 "different types\n"
 "of directory:\n"
 "<ol>\n"
-"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, &quot;"
-"Photos&quot;, or\n"
+"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, "
+"&quot;Photos&quot;, or\n"
 "&quot;Videos&quot;. This directory should already exist on your computer. In "
 "the illustration \n"
-"below, the destination folders are &quot;Pictures&quot; and &quot;"
-"Videos&quot;. The\n"
+"below, the destination folders are &quot;Pictures&quot; and "
+"&quot;Videos&quot;. The\n"
 "name of the destination folder is displayed in the grey bar directly above "
 "the folder tree, \n"
 "with a folder icon to its left and a gear icon to its far right.</li>\n"
@@ -1172,8 +1183,8 @@ msgstr ""
 "tipos diferentes\n"
 "de diretórios:\n"
 "<ol>\n"
-"<li>A <b>pasta de destino</b>, exemplo &quot;Pictures&quot;, &quot;"
-"Fotos&quot;, ou\n"
+"<li>A <b>pasta de destino</b>, exemplo &quot;Pictures&quot;, "
+"&quot;Fotos&quot;, ou\n"
 "&quot;Vídeos&quot;. Estes diretórios já devem existir em seu computador. Na "
 "ilustraçao \n"
 "abaixo, as pastas de destino são &quot;Pictures&quot; e &quot;Vídeos&quot;. "
@@ -1205,8 +1216,8 @@ msgstr ""
 "\n"
 "Você pode baixar fotos e vídeos para a mesma pasta de destino, ou "
 "especificar uma pasta \n"
-"diferente para cada. O mesmo se aplica as subpastas de download para fotos "
-"e \n"
+"diferente para cada. O mesmo se aplica as subpastas de download para fotos e "
+"\n"
 "vídeos&mdash;download fotos e vídeos para as mesmas subpastas, ou use um "
 "diferente esquema para cada \n"
 "tipo.            \n"
@@ -1401,8 +1412,9 @@ msgid ""
 msgstr ""
 "\n"
 "Leia mais sobre todas as formas que você pode gerar nomes para subpastas de "
-"download e nomes de arquivos em <a href=\"http://damonlynch.net/rapid/"
-"documentation/#renamedateandtime\">Documentação online</a>.\n"
+"download e nomes de arquivos em <a "
+"href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime\">Documen"
+"tação online</a>.\n"
 "            "
 
 #: ../raphodo/didyouknow.py:300
@@ -1482,8 +1494,8 @@ msgid ""
 "names to your photos and \n"
 "videos:\n"
 "<ol>\n"
-"<li><b>Downloads today</b>: tracks downloads completed during that day.</"
-"li>\n"
+"<li><b>Downloads today</b>: tracks downloads completed during that "
+"day.</li>\n"
 "<li><b>Stored number</b>: similar to Downloads today, but it is remembered "
 "from the last time the  \n"
 "program was run.</li>\n"
@@ -1501,20 +1513,20 @@ msgstr ""
 "atribuir nomes únicos a suas fotos e \n"
 "vídeos:\n"
 "<ol>\n"
-"<li><b>Baixados hoje</b>: mostra os downloads completados durante esse dia.</"
-"li>\n"
+"<li><b>Baixados hoje</b>: mostra os downloads completados durante esse "
+"dia.</li>\n"
 "<li><b>Números armazenados</b>: similar a Baixados hoje, mas ele mostra "
 "desde a última vez que o  \n"
 "programa executou.</li>\n"
-"<li><b>Número da sessão</b>: redefinido cada vez que o programa é executado."
-"</li>\n"
+"<li><b>Número da sessão</b>: redefinido cada vez que o programa é "
+"executado.</li>\n"
 "<li><b>Letras de Sequência</b>: parecido com número da sessão, porém usa "
 "letras.</li>\n"
 "</ol></p>\n"
 "<p>\n"
 "Leia mais sobre números de sequência em <a \n"
-"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers"
-"\">Documentação online</a>.</p>\n"
+"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers\">Documenta"
+"ção online</a>.</p>\n"
 "            "
 
 #: ../raphodo/didyouknow.py:354
@@ -1528,8 +1540,8 @@ msgstr ""
 "\n"
 "O painel <b>Renomear</b> te permite configurar a renomeação de arquivos. "
 "Para renomear seus arquivos, você pode escolher \n"
-"entre os ajustes pré-existentes ou definir o seu próprio "
-"ajuste.              \n"
+"entre os ajustes pré-existentes ou definir o seu próprio ajuste.             "
+" \n"
 "            "
 
 #: ../raphodo/didyouknow.py:361
@@ -1607,8 +1619,8 @@ msgstr ""
 "comando, incluindo downloads \n"
 "de fontes, destinos, e backups. Adicionalmente, os ajustes podem ser "
 "redefinidos para os seus \n"
-"estados padrão, os caches e arquivos lembrados podem ser "
-"limpos.            \n"
+"estados padrão, os caches e arquivos lembrados podem ser limpos.            "
+"\n"
 "            "
 
 #: ../raphodo/didyouknow.py:394
@@ -1626,8 +1638,8 @@ msgid ""
 "memory cards, and other devices.</li>\n"
 "<li>A <b>temporary cache</b> of files downloaded from a camera, one for "
 "photos and another for \n"
-"videos. They are located in temporary subfolders in the download destination."
-"</li>\n"
+"videos. They are located in temporary subfolders in the download "
+"destination.</li>\n"
 "<li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo Downloader "
 "stores thumbnails of \n"
 "RAW and TIFF photos once they have been downloaded. File browsers like Gnome "
@@ -1655,12 +1667,12 @@ msgstr ""
 "Downloader armazena miniaturas das \n"
 "fotos em RAW e TIFF uma vez que sejam baixadas. Navegadores de arquivos como "
 "Gnome Files usam este cache \n"
-"também, o que significa que eles também exibirão miniaturas desses "
-"arquivos. \n"
+"também, o que significa que eles também exibirão miniaturas desses arquivos. "
+"\n"
 "</li>\n"
 "</ol>\n"
-"Leia mais sobre esses caches e seus efeitos na performance do download na "
-"<a \n"
+"Leia mais sobre esses caches e seus efeitos na performance do download na <a "
+"\n"
 "href=\"http://damonlynch.net/rapid/documentation/#caches\">Documentação "
 "online</a>.\n"
 "            "
@@ -1886,8 +1898,8 @@ msgstr "Informações adicionais salvas"
 msgid ""
 "The additional bug report information was created in your home directory in "
 "a tar file: <pre>{tarfile}</pre>You need to attach this file to the bug "
-"report yourself. It will not be automatically attached.<br><br>Click <a href="
-"\"{uri}\">here</a> to see the file in your file manager."
+"report yourself. It will not be automatically attached.<br><br>Click <a "
+"href=\"{uri}\">here</a> to see the file in your file manager."
 msgstr ""
 "As informações adicionais do relatório de erro foram criadas em seu "
 "diretório pessoal em um arquivo tar:<pre>{tarfile}</pre> Você mesmo precisa "
@@ -1920,9 +1932,9 @@ msgstr ""
 "Inclua em seu relatório de erro os arquivos de log do programa. O relatório "
 "de erro deve incluir <i>{log_file}</i>, mas anexar outros arquivos de log "
 "geralmente ajuda muitol.<br><br>Se possível, inclua também o arquivo de "
-"configuração do programa <i>{config_file}</ i>.<br><br>Clique <a href="
-"\"{log_path}\">aqui</a> para abrir o diretório de registro e <a href="
-"\"{config_path}\">aqui</a> para abrir o diretório de configuração."
+"configuração do programa <i>{config_file}</ i>.<br><br>Clique <a "
+"href=\"{log_path}\">aqui</a> para abrir o diretório de registro e <a "
+"href=\"{config_path}\">aqui</a> para abrir o diretório de configuração."
 
 #: ../raphodo/excepthook.py:91
 #, python-brace-format
@@ -1971,14 +1983,12 @@ msgstr "Abrir no navegador de Arquivos..."
 
 #. type: Optional[QModelIndex]
 #: ../raphodo/filebrowse.py:168
-#, fuzzy
 msgid "Reset"
-msgstr "Predefinição:"
+msgstr ""
 
 #: ../raphodo/filebrowse.py:172
-#, fuzzy
 msgid "Show System Folders"
-msgstr "Pastas de Fotos"
+msgstr ""
 
 #: ../raphodo/foldercombo.py:141
 msgid "File System"
@@ -2005,7 +2015,7 @@ msgstr "Texto"
 msgid "Filename"
 msgstr "Nome do arquivo"
 
-#: ../raphodo/generatenameconfig.py:195 ../raphodo/preferencedialog.py:761
+#: ../raphodo/generatenameconfig.py:195 ../raphodo/preferencedialog.py:909
 msgid "Metadata"
 msgstr "Metadados"
 
@@ -2593,7 +2603,8 @@ msgstr ""
 "Trabalho ou existente."
 
 #: ../raphodo/jobcodepanel.py:258
-msgid "The new Job Code will be applied to all selected photos and/or videos."
+msgid ""
+"The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 "O Código de Trabalho será aplicado a todas as fotos e/ou vídeos selecionadas."
 
@@ -2651,8 +2662,8 @@ msgstr "&Aplicar"
 msgid "&Remove"
 msgstr "&Remover"
 
-#: ../raphodo/jobcodepanel.py:312 ../raphodo/preferencedialog.py:207
-#: ../raphodo/preferencedialog.py:236 ../raphodo/preferencedialog.py:567
+#: ../raphodo/jobcodepanel.py:312 ../raphodo/preferencedialog.py:280
+#: ../raphodo/preferencedialog.py:316 ../raphodo/preferencedialog.py:696
 msgid "Remove All"
 msgstr "Remover Todos"
 
@@ -2771,8 +2782,8 @@ msgstr "Predefinição:"
 msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
-#: ../raphodo/nameeditor.py:1057 ../raphodo/preferencedialog.py:836
-#: ../raphodo/wsl.py:614
+#: ../raphodo/nameeditor.py:1057 ../raphodo/preferencedialog.py:997
+#: ../raphodo/wsl.py:627
 msgid "Get help online..."
 msgstr "Obter ajuda online..."
 
@@ -2786,15 +2797,16 @@ msgstr "Salvar predefinição - Rapid Photo Downloader"
 
 #: ../raphodo/nameeditor.py:1425
 msgid ""
-"<b>Do you want to save the changes in a new custom preset?</"
-"b><br><br>Creating a custom preset is not required, but can help you keep "
-"organized.<br><br>The changes to the preferences will still be applied "
-"regardless of whether you create a new custom preset or not."
+"<b>Do you want to save the changes in a new custom "
+"preset?</b><br><br>Creating a custom preset is not required, but can help "
+"you keep organized.<br><br>The changes to the preferences will still be "
+"applied regardless of whether you create a new custom preset or not."
 msgstr ""
-"<b>Você quer salvar as mudanças em um novo ajuste customizado?</"
-"b><br><br>Criar um novo ajuste customizado não é requerido, mas pode te "
-"ajudar a manter a organização.<br><br>As mudanças nas preferências ainda "
-"serão aplicadas independente se você criar um novo ajuste customizado ou não."
+"<b>Você quer salvar as mudanças em um novo ajuste "
+"customizado?</b><br><br>Criar um novo ajuste customizado não é requerido, "
+"mas pode te ajudar a manter a organização.<br><br>As mudanças nas "
+"preferências ainda serão aplicadas independente se você criar um novo ajuste "
+"customizado ou não."
 
 #: ../raphodo/nameeditor.py:1443
 msgid ""
@@ -2867,48 +2879,48 @@ msgstr "%(downloaded)s de %(total)s"
 msgid "Downloading..."
 msgstr "Baixando..."
 
-#: ../raphodo/preferencedialog.py:92
+#: ../raphodo/preferencedialog.py:131
 msgid "Preferences"
 msgstr "Preferências"
 
-#: ../raphodo/preferencedialog.py:114 ../raphodo/preferencedialog.py:124
+#: ../raphodo/preferencedialog.py:154 ../raphodo/preferencedialog.py:175
 msgid "Language"
 msgstr "Idioma"
 
-#: ../raphodo/preferencedialog.py:114 ../raphodo/preferencedialog.py:124
+#: ../raphodo/preferencedialog.py:155 ../raphodo/preferencedialog.py:176
 msgid "Automation"
 msgstr "Automatização"
 
-#: ../raphodo/preferencedialog.py:114 ../raphodo/preferencedialog.py:124
+#: ../raphodo/preferencedialog.py:156 ../raphodo/preferencedialog.py:177
 msgid "Thumbnails"
 msgstr "Miniaturas"
 
-#: ../raphodo/preferencedialog.py:114 ../raphodo/preferencedialog.py:124
-#: ../raphodo/preferencedialog.py:464
+#: ../raphodo/preferencedialog.py:157 ../raphodo/preferencedialog.py:178
+#: ../raphodo/preferencedialog.py:564
 msgid "Error Handling"
 msgstr "Tratamento de Erros"
 
-#: ../raphodo/preferencedialog.py:115 ../raphodo/preferencedialog.py:125
+#: ../raphodo/preferencedialog.py:158 ../raphodo/preferencedialog.py:179
 msgid "Warnings"
 msgstr "Avisos"
 
-#: ../raphodo/preferencedialog.py:115
+#: ../raphodo/preferencedialog.py:159
 msgid "Consolidation"
 msgstr "Consolidação"
 
-#: ../raphodo/preferencedialog.py:115 ../raphodo/preferencedialog.py:125
+#: ../raphodo/preferencedialog.py:160 ../raphodo/preferencedialog.py:180
 msgid "Miscellaneous"
 msgstr "Diversos"
 
-#: ../raphodo/preferencedialog.py:154
+#: ../raphodo/preferencedialog.py:213
 msgid "Device Scanning"
 msgstr "Pesquisando Dispositivo"
 
-#: ../raphodo/preferencedialog.py:155
+#: ../raphodo/preferencedialog.py:214
 msgid "Scan only external devices"
 msgstr "Somente pesquisar em dispositivos externos"
 
-#: ../raphodo/preferencedialog.py:157
+#: ../raphodo/preferencedialog.py:217
 msgid ""
 "Scan for photos and videos only on devices that are external to the "
 "computer,\n"
@@ -2917,11 +2929,11 @@ msgstr ""
 "Procurar fotos and vídeos somente em dispositivos externos ao computador,\n"
 "incluindo câmeras, memory cards, discos rígidos externos, e pendrives."
 
-#: ../raphodo/preferencedialog.py:160
+#: ../raphodo/preferencedialog.py:223
 msgid "Scan only specific folders on devices"
 msgstr "Procurar somente em pastas específicas no dispositivo"
 
-#: ../raphodo/preferencedialog.py:162
+#: ../raphodo/preferencedialog.py:225
 msgid ""
 "Scan for photos and videos only in the folders specified below (except "
 "paths\n"
@@ -2935,11 +2947,11 @@ msgstr ""
 "\n"
 "Mudar esse ajuste fará que todos os dispositivos sejam escaneados novamente."
 
-#: ../raphodo/preferencedialog.py:168
+#: ../raphodo/preferencedialog.py:232
 msgid "Folders to scan:"
 msgstr "Pastas para procurar:"
 
-#: ../raphodo/preferencedialog.py:171
+#: ../raphodo/preferencedialog.py:236
 msgid ""
 "Folders at the base level of device file systems that will be scanned\n"
 "for photos and videos."
@@ -2947,11 +2959,11 @@ msgstr ""
 "Pastas na raiz do sistema de arquivos do dispositivo que serão pesquisados\n"
 "por fotos e vídeos."
 
-#: ../raphodo/preferencedialog.py:174 ../raphodo/preferencedialog.py:226
+#: ../raphodo/preferencedialog.py:241 ../raphodo/preferencedialog.py:302
 msgid "Add..."
 msgstr "Adicionar..."
 
-#: ../raphodo/preferencedialog.py:176
+#: ../raphodo/preferencedialog.py:244
 msgid ""
 "Add a folder to the list of folders to scan for photos and videos.\n"
 "\n"
@@ -2962,12 +2974,12 @@ msgstr ""
 "Mudar este ajuste fará com que todos os dispositivos sejam escaneados "
 "novamente."
 
-#: ../raphodo/preferencedialog.py:179 ../raphodo/preferencedialog.py:205
-#: ../raphodo/preferencedialog.py:231 ../raphodo/preferencedialog.py:565
+#: ../raphodo/preferencedialog.py:248 ../raphodo/preferencedialog.py:278
+#: ../raphodo/preferencedialog.py:309 ../raphodo/preferencedialog.py:694
 msgid "Remove"
 msgstr "Remover"
 
-#: ../raphodo/preferencedialog.py:181
+#: ../raphodo/preferencedialog.py:251
 msgid ""
 "Remove a folder from the list of folders to scan for photos and videos.\n"
 "\n"
@@ -2978,16 +2990,16 @@ msgstr ""
 "Mudar este ajustes fará com que todos os dispositivos sejam escaneados "
 "novamente."
 
-#: ../raphodo/preferencedialog.py:198
+#: ../raphodo/preferencedialog.py:270
 msgid "Devices that have been set to automatically ignore or download from."
 msgstr ""
 "Dispositivos que foram configurados para ignorar ou baixar automaticamente."
 
-#: ../raphodo/preferencedialog.py:199
+#: ../raphodo/preferencedialog.py:271
 msgid "Remembered Devices"
 msgstr "Dispositivos lembrados"
 
-#: ../raphodo/preferencedialog.py:203
+#: ../raphodo/preferencedialog.py:275
 msgid ""
 "Remove a device from the list of devices to automatically ignore or download "
 "from."
@@ -2995,7 +3007,7 @@ msgstr ""
 "Remova um dispositivo da lista de dispositivos que são automaticamente "
 "ignorados ou descarregdos."
 
-#: ../raphodo/preferencedialog.py:209
+#: ../raphodo/preferencedialog.py:282
 msgid ""
 "Clear the list of devices from which to automatically ignore or download "
 "from.\n"
@@ -3007,18 +3019,18 @@ msgstr ""
 "\n"
 "Nota: Mudanças terão efeito na próxima busca por dispositivos."
 
-#: ../raphodo/preferencedialog.py:222
+#: ../raphodo/preferencedialog.py:296
 msgid "Ignored Paths"
 msgstr "Caminhos Ignorados"
 
-#: ../raphodo/preferencedialog.py:223
+#: ../raphodo/preferencedialog.py:298
 msgid ""
 "The end part of a path that should never be scanned for photos or videos."
 msgstr ""
 "A parte final de um caminho que nunca deve ser pesquisada por fotos ou "
 "vídeos."
 
-#: ../raphodo/preferencedialog.py:228
+#: ../raphodo/preferencedialog.py:305
 msgid ""
 "Add a path to the list of paths to ignore.\n"
 "\n"
@@ -3029,7 +3041,7 @@ msgstr ""
 "Mudar este ajuste fará com que todos os dispositivos sejam escaneados "
 "novamente."
 
-#: ../raphodo/preferencedialog.py:233
+#: ../raphodo/preferencedialog.py:312
 msgid ""
 "Remove a path from the list of paths to ignore.\n"
 "\n"
@@ -3040,7 +3052,7 @@ msgstr ""
 "Mudar este ajuste fará com que todos os dispositivos sejam escaneados "
 "novamente."
 
-#: ../raphodo/preferencedialog.py:238
+#: ../raphodo/preferencedialog.py:319
 msgid ""
 "Clear the list of paths to ignore.\n"
 "\n"
@@ -3051,15 +3063,17 @@ msgstr ""
 "Mudar este ajuste fará com que todos os dispositivos sejam escaneados "
 "novamente."
 
-#: ../raphodo/preferencedialog.py:246
+#: ../raphodo/preferencedialog.py:329
 msgid ""
-"Use python-style <a href=\"http://damonlynch.net/rapid/documentation/"
-"#regularexpressions\">regular expressions</a>"
+"Use python-style <a "
+"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\">regula"
+"r expressions</a>"
 msgstr ""
-"Usar estilo-python <a href=\"http://damonlynch.net/rapid/documentation/"
-"#regularexpressions\">expressões regulares</a>"
+"Usar estilo-python <a "
+"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\">expres"
+"sões regulares</a>"
 
-#: ../raphodo/preferencedialog.py:250
+#: ../raphodo/preferencedialog.py:338
 msgid ""
 "Use regular expressions in the list of ignored paths.\n"
 "\n"
@@ -3070,63 +3084,64 @@ msgstr ""
 "Mudar este ajuste fará com que todos os dispositivos sejam escaneados "
 "novamente."
 
-#: ../raphodo/preferencedialog.py:291
+#: ../raphodo/preferencedialog.py:380
 msgid "Language: "
 msgstr "Idioma: "
 
 #. Translators: the * acts as an asterisk to denote a reference to an annotation
 #. such as '* Takes effect upon program restart'
-#: ../raphodo/preferencedialog.py:304 ../raphodo/preferencedialog.py:391
-#: ../raphodo/preferencedialog.py:437
+#: ../raphodo/preferencedialog.py:393 ../raphodo/preferencedialog.py:487
+#: ../raphodo/preferencedialog.py:535
 msgid "*"
 msgstr "*"
 
-#. Translators: the * acts as an asterisk to denote a reference to this annotation
-#: ../raphodo/preferencedialog.py:311 ../raphodo/preferencedialog.py:457
+#. Translators: the * acts as an asterisk to denote a reference to this
+#. annotation
+#: ../raphodo/preferencedialog.py:401 ../raphodo/preferencedialog.py:557
 msgid "* Takes effect upon program restart"
 msgstr "*Terá efeito após reiniciar o programa"
 
-#: ../raphodo/preferencedialog.py:319
+#: ../raphodo/preferencedialog.py:409
 msgid "Program Automation"
 msgstr "Automação de programa"
 
-#: ../raphodo/preferencedialog.py:320
+#: ../raphodo/preferencedialog.py:410
 msgid "Start downloading at program startup"
 msgstr "Iniciar download ao iniciar o programa"
 
-#: ../raphodo/preferencedialog.py:321
+#: ../raphodo/preferencedialog.py:412
 msgid "Start downloading upon device insertion"
 msgstr "Iniciar o download após conectar o dispositivo"
 
-#: ../raphodo/preferencedialog.py:322
+#: ../raphodo/preferencedialog.py:414
 msgid "Unmount (eject) device upon download completion"
 msgstr "Desmontar (ejetar) o dispositivo após o término do download"
 
-#: ../raphodo/preferencedialog.py:323
+#: ../raphodo/preferencedialog.py:415
 msgid "Exit program when download completes"
 msgstr "Sair do programa quando o download terminar"
 
-#: ../raphodo/preferencedialog.py:324
+#: ../raphodo/preferencedialog.py:417
 msgid "Exit program even if download had warnings or errors"
 msgstr "Sair do programa mesmo se o download teve avisos ou erros"
 
-#: ../raphodo/preferencedialog.py:351
+#: ../raphodo/preferencedialog.py:447
 msgid "Thumbnail Generation"
 msgstr "Gerador de Miniaturas"
 
-#: ../raphodo/preferencedialog.py:352
+#: ../raphodo/preferencedialog.py:448
 msgid "Generate thumbnails"
 msgstr "Gerar miniatura"
 
-#: ../raphodo/preferencedialog.py:354
+#: ../raphodo/preferencedialog.py:450
 msgid "Generate thumbnails to show in the main program window"
 msgstr "Gerar miniaturas para mostrar na janela principal do programa"
 
-#: ../raphodo/preferencedialog.py:356
+#: ../raphodo/preferencedialog.py:452
 msgid "Cache thumbnails"
 msgstr "Armazenar miniaturas"
 
-#: ../raphodo/preferencedialog.py:359
+#: ../raphodo/preferencedialog.py:455
 msgid ""
 "Save thumbnails shown in the main program window in a thumbnail cache unique "
 "to Rapid Photo Downloader"
@@ -3134,11 +3149,11 @@ msgstr ""
 "Salvar miniaturas exibidas na janela principal em um cache de miniaturas "
 "exclusivo do Rapid Photo Downloader"
 
-#: ../raphodo/preferencedialog.py:363
+#: ../raphodo/preferencedialog.py:459
 msgid "Generate system thumbnails"
 msgstr "Gerar sistema de miniaturas"
 
-#: ../raphodo/preferencedialog.py:366
+#: ../raphodo/preferencedialog.py:462
 msgid ""
 "While downloading, save thumbnails that can be used by desktop file managers "
 "and other programs"
@@ -3146,67 +3161,67 @@ msgstr ""
 "Durante o download, salvar as miniaturas que podem ser usadas pelo "
 "gerenciador de arquivos e outros programas"
 
-#: ../raphodo/preferencedialog.py:375
+#: ../raphodo/preferencedialog.py:471
 msgid "Number of CPU cores used to generate thumbnails."
 msgstr "Número de núcleos do CPU usados para gerar miniaturas."
 
-#: ../raphodo/preferencedialog.py:376
+#: ../raphodo/preferencedialog.py:472
 msgid "CPU cores:"
 msgstr "Núcleos do CPU:"
 
-#: ../raphodo/preferencedialog.py:414
+#: ../raphodo/preferencedialog.py:510
 msgid "Thumbnail Cache"
 msgstr "Cache de Miniaturas"
 
-#: ../raphodo/preferencedialog.py:416
+#: ../raphodo/preferencedialog.py:512
 msgid "Calculating..."
 msgstr "Calculando..."
 
-#: ../raphodo/preferencedialog.py:422
+#: ../raphodo/preferencedialog.py:518
 msgid "days"
 msgstr "dias"
 
-#: ../raphodo/preferencedialog.py:423
+#: ../raphodo/preferencedialog.py:519
 msgid "forever"
 msgstr "para sempre"
 
-#: ../raphodo/preferencedialog.py:428
+#: ../raphodo/preferencedialog.py:526
 msgid "Cache size:"
 msgstr "Tamanho do cache:"
 
-#: ../raphodo/preferencedialog.py:430
+#: ../raphodo/preferencedialog.py:528
 msgid "Number of thumbnails:"
 msgstr "Número de miniaturas:"
 
-#: ../raphodo/preferencedialog.py:432
+#: ../raphodo/preferencedialog.py:530
 msgid "Database size:"
 msgstr "Tamanho do banco de dados:"
 
-#: ../raphodo/preferencedialog.py:434
+#: ../raphodo/preferencedialog.py:532
 msgid "Cache unaccessed thumbnails for:"
 msgstr "Armazenar miniaturas não acessadas para:"
 
-#: ../raphodo/preferencedialog.py:442
+#: ../raphodo/preferencedialog.py:541
 msgid "Purge Cache..."
 msgstr "Limpar o Cache..."
 
-#: ../raphodo/preferencedialog.py:444
+#: ../raphodo/preferencedialog.py:544
 msgid "Optimize Cache..."
 msgstr "Otimizar o Cache..."
 
-#: ../raphodo/preferencedialog.py:467
+#: ../raphodo/preferencedialog.py:567
 msgid "Skip download"
 msgstr "Pular o download"
 
-#: ../raphodo/preferencedialog.py:468
+#: ../raphodo/preferencedialog.py:569
 msgid "Don't download the file, and issue an error message"
 msgstr "Não baixar o arquivo e enviar uma mensagem de erro"
 
-#: ../raphodo/preferencedialog.py:469
+#: ../raphodo/preferencedialog.py:571
 msgid "Add unique identifier"
 msgstr "Adicionar identificador único"
 
-#: ../raphodo/preferencedialog.py:472
+#: ../raphodo/preferencedialog.py:574
 msgid ""
 "Add an identifier like _1 or _2 to the end of the filename, immediately "
 "before the file's extension"
@@ -3214,23 +3229,23 @@ msgstr ""
 "Adicionar um identificador como _1 ou _2 no fim do nome, imediatamente antes "
 "da extensão do arquivo"
 
-#: ../raphodo/preferencedialog.py:480
+#: ../raphodo/preferencedialog.py:582
 msgid "Overwrite"
 msgstr "Sobrescrever"
 
-#: ../raphodo/preferencedialog.py:481
+#: ../raphodo/preferencedialog.py:583
 msgid "Overwrite the previously backed up file"
 msgstr "Sobrescrever o arquivo de backup anterior"
 
-#: ../raphodo/preferencedialog.py:482
+#: ../raphodo/preferencedialog.py:584
 msgid "Skip"
 msgstr "Pular"
 
-#: ../raphodo/preferencedialog.py:484
+#: ../raphodo/preferencedialog.py:586
 msgid "Don't overwrite the backup file, and issue an error message"
 msgstr "Não sobrescrever o arquivo de backup e enviar uma mensagem de erro"
 
-#: ../raphodo/preferencedialog.py:491
+#: ../raphodo/preferencedialog.py:593
 msgid ""
 "When a photo or video of the same name has already been downloaded, choose "
 "whether to skip downloading the file, or to add a unique identifier:"
@@ -3238,7 +3253,7 @@ msgstr ""
 "Quando uma foto ou vídeo ter o mesmo nome de um já baixado, escolha pular o "
 "download do arquivo ou adicionar um identificador único:"
 
-#: ../raphodo/preferencedialog.py:500
+#: ../raphodo/preferencedialog.py:605
 msgid ""
 "Using sequence numbers to automatically generate unique filenames is "
 "strongly recommended. Configure file renaming in the Rename panel in the "
@@ -3248,7 +3263,7 @@ msgstr ""
 "únicos é altamente recomendado. Configure a renomeação de arquivos no painel "
 "Renomear na janela principal."
 
-#: ../raphodo/preferencedialog.py:509
+#: ../raphodo/preferencedialog.py:616
 msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up:"
@@ -3256,38 +3271,39 @@ msgstr ""
 "Durante o backup, escolha se quer sobrescrever os arquivos com o mesmo nome "
 "no dispositivo de destino ou pular o backup deles:"
 
-#: ../raphodo/preferencedialog.py:530
+#: ../raphodo/preferencedialog.py:637
 msgid "Program Warnings"
 msgstr "Avisos do Programa"
 
-#: ../raphodo/preferencedialog.py:531
+#: ../raphodo/preferencedialog.py:638
 msgid "Show a warning when:"
 msgstr "Mostrar avisos quando:"
 
-#: ../raphodo/preferencedialog.py:534
+#: ../raphodo/preferencedialog.py:642
 msgid "Downloading files currently not displayed"
 msgstr "Baixando arquivos atualmente não exibidos"
 
-#: ../raphodo/preferencedialog.py:535
+#: ../raphodo/preferencedialog.py:645
 msgid ""
 "Warn when about to download files that are not displayed in the main window."
 msgstr ""
 "Avisar sobre baixar arquivos que não foram exibidos na janela principal."
 
-#: ../raphodo/preferencedialog.py:537
+#: ../raphodo/preferencedialog.py:649
 msgid "Backup destinations are missing"
 msgstr "Destinos de backup faltando"
 
-#: ../raphodo/preferencedialog.py:538
-msgid "Warn before starting a download if it is not possible to back up files."
+#: ../raphodo/preferencedialog.py:651
+msgid ""
+"Warn before starting a download if it is not possible to back up files."
 msgstr ""
 "Avisar antes de iniciar o download se não for possível salvar os arquivos."
 
-#: ../raphodo/preferencedialog.py:540
+#: ../raphodo/preferencedialog.py:655
 msgid "Program libraries are missing or broken"
 msgstr "Bibliotecas do programa estão faltando ou quebradas"
 
-#: ../raphodo/preferencedialog.py:541
+#: ../raphodo/preferencedialog.py:658
 msgid ""
 "Warn if a software library used by Rapid Photo Downloader is missing or not "
 "functioning."
@@ -3295,11 +3311,11 @@ msgstr ""
 "Avisar se uma biblioteca usada pelo Rapid Photo Downloader está faltando ou "
 "não está funcionando."
 
-#: ../raphodo/preferencedialog.py:544
+#: ../raphodo/preferencedialog.py:662
 msgid "Filesystem metadata cannot be set"
 msgstr "Metadados do Sistema de arquivos não pode ser configurado"
 
-#: ../raphodo/preferencedialog.py:545
+#: ../raphodo/preferencedialog.py:664
 msgid ""
 "Warn if there is an error setting a file's filesystem metadata, such as its "
 "modification time."
@@ -3307,11 +3323,11 @@ msgstr ""
 "Avisar se há um erro ao configurar os metadados do sistema de arquivos de um "
 "arquivo, como o tempo de modificação."
 
-#: ../raphodo/preferencedialog.py:548
+#: ../raphodo/preferencedialog.py:668
 msgid "Encountering unhandled files"
 msgstr "Encontrando arquivos não tratados"
 
-#: ../raphodo/preferencedialog.py:549
+#: ../raphodo/preferencedialog.py:670
 msgid ""
 "Warn after scanning a device or this computer if there are unrecognized "
 "files that will not be included in the download."
@@ -3319,11 +3335,11 @@ msgstr ""
 "Avisar após pesquisar um dispositivo ou este computador se há arquivos não "
 "reconhecidos que não serão incluídos no download."
 
-#: ../raphodo/preferencedialog.py:553
+#: ../raphodo/preferencedialog.py:675
 msgid "Do not warn about unhandled files with extensions:"
 msgstr "Não avisar sobre arquivos não tratados com extensões:"
 
-#: ../raphodo/preferencedialog.py:558
+#: ../raphodo/preferencedialog.py:680
 msgid ""
 "File extensions are case insensitive and do not need to include the leading "
 "dot."
@@ -3331,18 +3347,18 @@ msgstr ""
 "As extensões de arquivo são insensíveis às maiúsculas e minúsculas e não "
 "precisam incluir o ponto inicial."
 
-#: ../raphodo/preferencedialog.py:561
+#: ../raphodo/preferencedialog.py:684
 msgid "Add"
 msgstr "Adicionar"
 
-#: ../raphodo/preferencedialog.py:562
+#: ../raphodo/preferencedialog.py:686
 msgid ""
 "Add a file extension to the list of unhandled file types to not warn about."
 msgstr ""
 "Adicionar uma extensão de arquivo na lista de tipos de arquivos não tratados "
 "para não ser avisado."
 
-#: ../raphodo/preferencedialog.py:564
+#: ../raphodo/preferencedialog.py:691
 msgid ""
 "Remove a file extension from the list of unhandled file types to not warn "
 "about."
@@ -3350,22 +3366,22 @@ msgstr ""
 "Remover uma extensão de arquivo na lista de tipos de arquivos não tratados "
 "para não ser avisado."
 
-#: ../raphodo/preferencedialog.py:568
+#: ../raphodo/preferencedialog.py:698
 msgid ""
 "Clear the list of file extensions of unhandled file types to not warn about."
 msgstr ""
 "Limpar uma extensão de arquivo na lista de tipos de arquivos não tratados "
 "para não ser avisado."
 
-#: ../raphodo/preferencedialog.py:604
+#: ../raphodo/preferencedialog.py:736
 msgid "Photo and Video Consolidation"
 msgstr "Consolidação de Foto e Vídeo"
 
-#: ../raphodo/preferencedialog.py:607
+#: ../raphodo/preferencedialog.py:739
 msgid "Consolidate files across devices and downloads"
 msgstr "Consolidar arquivos em dispositivos e downloads"
 
-#: ../raphodo/preferencedialog.py:610
+#: ../raphodo/preferencedialog.py:742
 msgid ""
 "Analyze the results of device scans looking for duplicate files and matching "
 "RAW and JPEG pairs,\n"
@@ -3375,19 +3391,19 @@ msgstr ""
 "pares de arquivos RAW e JPEG,\n"
 "comparando-os em multiplos dispositivos e sessões de download."
 
-#: ../raphodo/preferencedialog.py:616
+#: ../raphodo/preferencedialog.py:748
 msgid "Treat matching RAW and JPEG files as:"
 msgstr "Tratar combinando arquivos RAW e JPEG como:"
 
-#: ../raphodo/preferencedialog.py:617
+#: ../raphodo/preferencedialog.py:749
 msgid "One photo"
 msgstr "Uma foto"
 
-#: ../raphodo/preferencedialog.py:618
+#: ../raphodo/preferencedialog.py:750
 msgid "Two photos"
 msgstr "Duas fotos"
 
-#: ../raphodo/preferencedialog.py:620
+#: ../raphodo/preferencedialog.py:752
 msgid ""
 "Display matching pairs of RAW and JPEG photos as one photo, and if marked, "
 "download both."
@@ -3395,7 +3411,7 @@ msgstr ""
 "Mostrar pares de fotos RAW e JPEG combinados como uma foto, e se marcado, "
 "baixar ambas."
 
-#: ../raphodo/preferencedialog.py:625
+#: ../raphodo/preferencedialog.py:757
 msgid ""
 "Display matching pairs of RAW and JPEG photos as two different photos. You "
 "can still synchronize their sequence numbers."
@@ -3403,23 +3419,23 @@ msgstr ""
 "Mostrar pares de fotos RAW e JPEG como duas fotos diferentes. Você pode "
 "ainda sincronizar a sequência de números delas."
 
-#: ../raphodo/preferencedialog.py:634
+#: ../raphodo/preferencedialog.py:766
 msgid "With matching RAW and JPEG photos:"
 msgstr "Com fotos RAW e JPEG combinadas:"
 
-#: ../raphodo/preferencedialog.py:636
+#: ../raphodo/preferencedialog.py:768
 msgid "Do not mark JPEG for download"
 msgstr "Não marcar JPEG para download"
 
-#: ../raphodo/preferencedialog.py:637
+#: ../raphodo/preferencedialog.py:769
 msgid "Do not mark RAW for download"
 msgstr "Não marcar RAW para download"
 
-#: ../raphodo/preferencedialog.py:638
+#: ../raphodo/preferencedialog.py:770
 msgid "Mark both for download"
 msgstr "Marcar ambas para download"
 
-#: ../raphodo/preferencedialog.py:645
+#: ../raphodo/preferencedialog.py:777
 msgid ""
 "When matching RAW and JPEG photos are found, do not automatically mark the "
 "JPEG for\n"
@@ -3429,7 +3445,7 @@ msgstr ""
 "automaticamente a JPEG para\n"
 "download. Você mesmo pode ainda marcá-la para download."
 
-#: ../raphodo/preferencedialog.py:650
+#: ../raphodo/preferencedialog.py:783
 msgid ""
 "When matching RAW and JPEG photos are found, do not automatically mark the "
 "RAW for\n"
@@ -3439,7 +3455,7 @@ msgstr ""
 "automaticamente a RAW para\n"
 "download. Você mesmo pode ainda marcá-la para download."
 
-#: ../raphodo/preferencedialog.py:655
+#: ../raphodo/preferencedialog.py:789
 msgid ""
 "When matching RAW and JPEG photos are found, automatically mark both for "
 "download."
@@ -3447,7 +3463,7 @@ msgstr ""
 "Quando fotos RAW e JPEG combinadas são encontradas, marcar automaticamente "
 "ambas para download."
 
-#: ../raphodo/preferencedialog.py:661
+#: ../raphodo/preferencedialog.py:795
 msgid ""
 "If you disable file consolidation, choose what to do when a download device "
 "is inserted while completed downloads are displayed:"
@@ -3456,26 +3472,26 @@ msgstr ""
 "dispositivo de download é inserido enquanto os downloads concluídos são "
 "exibidos:"
 
-#: ../raphodo/preferencedialog.py:667
+#: ../raphodo/preferencedialog.py:801
 msgid ""
 "When a download device is inserted while completed downloads are displayed:"
 msgstr ""
 "Quando um dispositivo de download é inserido enquanto os downloads "
 "concluídos são exibidos:"
 
-#: ../raphodo/preferencedialog.py:678
+#: ../raphodo/preferencedialog.py:817
 msgid "Clear completed downloads"
 msgstr "Limpar os downloads concluídos"
 
-#: ../raphodo/preferencedialog.py:679
+#: ../raphodo/preferencedialog.py:819
 msgid "Keep displaying completed downloads"
 msgstr "Continue mostrando os downloads concluídos"
 
-#: ../raphodo/preferencedialog.py:680
+#: ../raphodo/preferencedialog.py:821
 msgid "Prompt for what to do"
 msgstr "Perguntar o que fazer"
 
-#: ../raphodo/preferencedialog.py:685
+#: ../raphodo/preferencedialog.py:826
 msgid ""
 "Automatically clear the display of completed downloads whenever a new "
 "download device is inserted."
@@ -3483,7 +3499,7 @@ msgstr ""
 "Limpe automaticamente a exibição de downloads concluídos sempre que um novo "
 "dispositivo de download for inserido."
 
-#: ../raphodo/preferencedialog.py:690
+#: ../raphodo/preferencedialog.py:831
 msgid ""
 "Keep displaying completed downloads whenever a new download device is "
 "inserted."
@@ -3491,7 +3507,7 @@ msgstr ""
 "Continue mostrando os downloads concluídos sempre que um novo dispositivo de "
 "download for inserido."
 
-#: ../raphodo/preferencedialog.py:694
+#: ../raphodo/preferencedialog.py:836
 msgid ""
 "Prompt whether to keep displaying completed downloads or clear them whenever "
 "a new download device is inserted."
@@ -3499,24 +3515,24 @@ msgstr ""
 "Perguntar se continua mostrando os downloads concluídos ou limpá-los sempre "
 "que um novo dispositivo de download é inserido."
 
-#: ../raphodo/preferencedialog.py:739
+#: ../raphodo/preferencedialog.py:883
 msgid "Version Check"
 msgstr "Verificar Versão"
 
-#: ../raphodo/preferencedialog.py:740
+#: ../raphodo/preferencedialog.py:884
 msgid "Check for new version at startup"
 msgstr "Procurar por nova atualização ao iniciar"
 
-#: ../raphodo/preferencedialog.py:742
+#: ../raphodo/preferencedialog.py:887
 msgid "Check for a new version of the program each time the program starts."
 msgstr ""
 "Procurar por uma nova versão do programa cada vez que o programa iniciar."
 
-#: ../raphodo/preferencedialog.py:744
+#: ../raphodo/preferencedialog.py:891
 msgid "Include development releases"
 msgstr "Incluir versões em desenvolvimento"
 
-#: ../raphodo/preferencedialog.py:746
+#: ../raphodo/preferencedialog.py:893
 msgid ""
 "Include alpha, beta and other development releases when checking for a new "
 "version of the program.\n"
@@ -3530,11 +3546,11 @@ msgstr ""
 "Se você atualmente está rodando uma versão em desenvolvimento, essa pesquisa "
 "sempre ocorrerá."
 
-#: ../raphodo/preferencedialog.py:762
+#: ../raphodo/preferencedialog.py:911
 msgid "Ignore DNG date/time metadata on MTP devices"
 msgstr "Ignorar metadados data/hora DNG em dispositivos MTP"
 
-#: ../raphodo/preferencedialog.py:764
+#: ../raphodo/preferencedialog.py:914
 msgid ""
 "Ignore date/time metadata in DNG files located on MTP devices, and use the "
 "file's modification time instead.\n"
@@ -3548,11 +3564,11 @@ msgstr ""
 "Útil para dispositivos como alguns celulares e tablets que criam metadados "
 "DNG incorretamente."
 
-#: ../raphodo/preferencedialog.py:770
+#: ../raphodo/preferencedialog.py:921
 msgid "Read photo metadata using only ExifTool"
 msgstr "Leia metadados de fotos usando apenas ExifTool"
 
-#: ../raphodo/preferencedialog.py:772
+#: ../raphodo/preferencedialog.py:923
 msgid ""
 "Use ExifTool instead of Exiv2 to read photo metadata and extract "
 "thumbnails.\n"
@@ -3577,29 +3593,26 @@ msgstr ""
 "metadados de um pequeno número de arquivos, como arquivos DNG produzidos \n"
 "pelas câmeras Leica M8."
 
-#: ../raphodo/preferencedialog.py:792
+#: ../raphodo/preferencedialog.py:949
 msgid "Completed Downloads"
 msgstr "Downloads completados"
 
 #. Translators: this is an option when the user chooses the language to use for
 #. Rapid Photo Downloader and it allows them to reset it back to whatever their
 #. system language settings are. The < and > are not HTML codes. They are there
-#. simply to set this choice apart from all the other choices in the drop down list.
-#. You can keep the < > if you like, or replace them with whatever you typically use
-#. in your language.
-#: ../raphodo/preferencedialog.py:889
+#. simply to set this choice apart from all the other choices in the drop down
+#. list. You can keep the < > if you like, or replace them with whatever you
+#. typically use in your language.
+#: ../raphodo/preferencedialog.py:1054
 msgid "<System Language>"
 msgstr "<Idioma do Sistema>"
 
-#. Translators: substituted value is a description for the set of preferences
-#. shown in the preference dialog window, e.g. Devices, Automation, etc.
-#. This string is shown in a tooltip for the "Restore Defaults" button
-#: ../raphodo/preferencedialog.py:1142
+#: ../raphodo/preferencedialog.py:1327
 #, python-format
 msgid "Restores default %s preference values"
 msgstr "Restaura os valores de preferência padrão para %s"
 
-#: ../raphodo/preferencedialog.py:1292
+#: ../raphodo/preferencedialog.py:1477
 msgid ""
 "Do you want to purge the thumbnail cache? The cache will be purged when the "
 "program is next started."
@@ -3607,11 +3620,11 @@ msgstr ""
 "VocÊ quer limpar o cache de miniaturas? O cache será limpo quando o programa "
 "for reiniciado."
 
-#: ../raphodo/preferencedialog.py:1296
+#: ../raphodo/preferencedialog.py:1482
 msgid "Purge Thumbnail Cache"
 msgstr "Limpar Cache de Miniaturas"
 
-#: ../raphodo/preferencedialog.py:1309
+#: ../raphodo/preferencedialog.py:1497
 msgid ""
 "Do you want to optimize the thumbnail cache? The cache will be optimized "
 "when the program is next started."
@@ -3619,51 +3632,51 @@ msgstr ""
 "Você quer otimizar o cache de miniaturas? O cache será otimizado quando o "
 "programa reiniciar."
 
-#: ../raphodo/preferencedialog.py:1313
+#: ../raphodo/preferencedialog.py:1502
 msgid "Optimize Thumbnail Cache"
 msgstr "Otimizar Cache de Miniaturas"
 
-#: ../raphodo/preferencedialog.py:1577
+#: ../raphodo/preferencedialog.py:1801
 msgid "Enter a Folder to Scan"
 msgstr "Entre uma pasta para pesquisar"
 
-#: ../raphodo/preferencedialog.py:1578
+#: ../raphodo/preferencedialog.py:1803
 msgid "Specify a folder that will be scanned for photos and videos"
 msgstr "Especificar uma pasta que será pesquisada por fotos e vídeos"
 
-#: ../raphodo/preferencedialog.py:1579
+#: ../raphodo/preferencedialog.py:1805
 msgid "Folder:"
 msgstr "Pasta:"
 
-#: ../raphodo/preferencedialog.py:1593
+#: ../raphodo/preferencedialog.py:1819
 msgid "Enter a Path to Ignore"
 msgstr "Entre um Caminho a ser Ignorado"
 
-#: ../raphodo/preferencedialog.py:1594
+#: ../raphodo/preferencedialog.py:1821
 msgid "Specify a path that will never be scanned for photos or videos"
 msgstr "Especifique um caminho onde fotos e vídeos não devem ser procurados"
 
-#: ../raphodo/preferencedialog.py:1595
+#: ../raphodo/preferencedialog.py:1823
 msgid "Path:"
 msgstr "Caminho:"
 
-#: ../raphodo/preferencedialog.py:1609
+#: ../raphodo/preferencedialog.py:1837
 msgid "Enter a File Extension"
 msgstr "Entre uma Extensão de Arquivo"
 
-#: ../raphodo/preferencedialog.py:1610
+#: ../raphodo/preferencedialog.py:1838
 msgid "Specify a file extension (without the leading dot)"
 msgstr "Especificar uma extensão de arquivo (sem o ponto)"
 
-#: ../raphodo/preferencedialog.py:1611 ../raphodo/renamepanel.py:124
+#: ../raphodo/preferencedialog.py:1839 ../raphodo/renamepanel.py:124
 msgid "Extension:"
 msgstr "Extensão:"
 
-#: ../raphodo/preferencedialog.py:1626
+#: ../raphodo/preferencedialog.py:1854
 msgid "Invalid File Extension"
 msgstr "Extensão de arquivo inválida"
 
-#: ../raphodo/preferencedialog.py:1630
+#: ../raphodo/preferencedialog.py:1859
 #, python-format
 msgid ""
 "The file extension <b>%s</b> is recognized by Rapid Photo Downloader, so it "
@@ -3672,7 +3685,7 @@ msgstr ""
 "A extensão de arquivo <b>%s</b> é reconhecida pelo Rapid Photo Downloader, "
 "portanto não faz sentido avisar sua presença."
 
-#: ../raphodo/preferencedialog.py:1637
+#: ../raphodo/preferencedialog.py:1868
 #, python-format
 msgid ""
 "Recognized file types:\n"
@@ -4221,7 +4234,7 @@ msgstr ""
 #: ../raphodo/rapid.py:4710 ../raphodo/rapid.py:4729 ../raphodo/rapid.py:4752
 #: ../raphodo/rapid.py:4759 ../raphodo/rapid.py:5430 ../raphodo/rapid.py:6037
 #: ../raphodo/rapid.py:7187 ../raphodo/rememberthisdialog.py:97
-#: ../raphodo/viewutils.py:349
+#: ../raphodo/viewutils.py:366
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:1
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:3
 msgid "Rapid Photo Downloader"
@@ -4258,8 +4271,9 @@ msgid ""
 "<b>Cannot download from Apple devices</b><br><br>To download from "
 "%(device)s, this program requires additional software be installed that "
 "interacts with Apple devices.<br><br>Missing applications: "
-"%(applications)s<br><br><a href=\"https://damonlynch.net/rapid/documentation/"
-"#iosdevicesupport\">Learn more</a> about which software to install."
+"%(applications)s<br><br><a "
+"href=\"https://damonlynch.net/rapid/documentation/#iosdevicesupport\">Learn "
+"more</a> about which software to install."
 msgstr ""
 
 #: ../raphodo/rapid.py:1683
@@ -4269,7 +4283,8 @@ msgstr "O download falhou"
 #: ../raphodo/rapid.py:1686
 msgid ""
 "Sorry, the download of the new version of Rapid Photo Downloader failed."
-msgstr "Desculpe, o download da nova versão do Rapid Photo Downloader falhou."
+msgstr ""
+"Desculpe, o download da nova versão do Rapid Photo Downloader falhou."
 
 #: ../raphodo/rapid.py:1695
 msgid ""
@@ -4514,8 +4529,8 @@ msgstr ""
 "Um download sempre inclui todos os arquivos que estão marcados para "
 "download,\n"
 "incluindo aqueles que não sendo mostrados porque a Timeline\n"
-"está sendo usada ou porque somente novos arquivos estão sendo mostrados."
-"<br><br>\n"
+"está sendo usada ou porque somente novos arquivos estão sendo "
+"mostrados.<br><br>\n"
 "Você quer continuar com o download?\n"
 "                        "
 
@@ -4586,8 +4601,8 @@ msgid ""
 "<b>The %(filetype)s backup destination does not exist or cannot be written "
 "to.</b><br><br>Do you still want to start the download?"
 msgstr ""
-"<b>O destino de backup %(filetype)s não existe ou não pôde ser acessado.</"
-"b><br><br>Você ainda quer iniciar o download?"
+"<b>O destino de backup %(filetype)s não existe ou não pôde ser "
+"acessado.</b><br><br>Você ainda quer iniciar o download?"
 
 #: ../raphodo/rapid.py:3430 ../raphodo/rpdfile.py:166 ../raphodo/rpdfile.py:815
 msgid "photo"
@@ -4708,48 +4723,52 @@ msgid ""
 "<b>All files on the %(camera)s are inaccessible</b>.<br><br>It may be locked "
 "or not configured for file transfers using USB. You can unlock it and try "
 "again.<br><br>On some models you also need to change the setting to allow "
-"the use of USB for <i>File Transfer</i>.<br><br>Learn more about <a href="
-"\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras"
-"\">downloading from cameras</a> and <a href=\"https://damonlynch.net/rapid/"
-"documentation/#downloadingfromphones\">enabling downloading from phones</a>. "
-"<br><br>Alternatively, you can ignore the %(camera)s."
+"the use of USB for <i>File Transfer</i>.<br><br>Learn more about <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">d"
+"ownloading from cameras</a> and <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">en"
+"abling downloading from phones</a>. <br><br>Alternatively, you can ignore "
+"the %(camera)s."
 msgstr ""
 "<b>Todos os arquivos nas %(camera)s estão inacessíveis</b>.<br><br>Ela pode "
 "estar bloqueada ou não configurada para transferência de arquivos usando "
 "USB. Você pode desbloqueá-la e tentar novamente.<br><br>Em alguns modelos, "
 "você também precisa alterar a configuração para permitir o uso de USB para "
-"<i>Transferência de arquivos</i>.<br><br>Saiba mais sobre <a href=\"https://"
-"damonlynch.net/rapid/documentation/#downloadingfromcameras\">download de "
-"câmeras</a> e <a href=\"https://damonlynch.net/rapid/documentation/"
-"#downloadingfromphones\">habilitando o download de telefones</a>."
-"<br><br>Alternativamente, você pode ignorar asa %(camera)s."
+"<i>Transferência de arquivos</i>.<br><br>Saiba mais sobre <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">d"
+"ownload de câmeras</a> e <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">ha"
+"bilitando o download de telefones</a>.<br><br>Alternativamente, você pode "
+"ignorar asa %(camera)s."
 
 #: ../raphodo/rapid.py:4735
 #, python-format
 msgid ""
-"<b>The %(camera)s appears to be in use by another application.</"
-"b><br><br>Rapid Photo Downloader cannnot access a phone or camera that is "
-"being used by another program like a file manager.<br><br>If the device is "
-"mounted in your file manager, you must first &quot;eject&quot; it from the "
-"other program while keeping the %(camera)s plugged in.<br><br>If that does "
-"not work, unplug the %(camera)s from the computer and plug it in again."
-"<br><br>Learn more about <a href=\"https://damonlynch.net/rapid/"
-"documentation/#downloadingfromcameras\">downloading from cameras</a> and <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones"
-"\">enabling downloading from phones</a>. <br><br>Alternatively, you can "
-"ignore the %(camera)s."
+"<b>The %(camera)s appears to be in use by another "
+"application.</b><br><br>Rapid Photo Downloader cannnot access a phone or "
+"camera that is being used by another program like a file manager.<br><br>If "
+"the device is mounted in your file manager, you must first &quot;eject&quot; "
+"it from the other program while keeping the %(camera)s plugged in.<br><br>If "
+"that does not work, unplug the %(camera)s from the computer and plug it in "
+"again.<br><br>Learn more about <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">d"
+"ownloading from cameras</a> and <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">en"
+"abling downloading from phones</a>. <br><br>Alternatively, you can ignore "
+"the %(camera)s."
 msgstr ""
-"<b>As %(camera)s parecem estar sendo usadas por outro aplicativo.</"
-"b><br><br>O Rapid Photo Downloader não pode acessar um telefone ou câmera "
-"que está sendo usado por outro aplicativo, como um gerenciador de arquivos.< "
-"br><br>Se o dispositivo estiver montado em seu gerenciador de arquivos, você "
-"deve primeiro &quot;ejetá-lo&quot; desse aplicativo enquanto mantém as "
-"%(camera)s conectadas.<br><br>Se isso não funcionar, desconecte as "
+"<b>As %(camera)s parecem estar sendo usadas por outro "
+"aplicativo.</b><br><br>O Rapid Photo Downloader não pode acessar um telefone "
+"ou câmera que está sendo usado por outro aplicativo, como um gerenciador de "
+"arquivos.< br><br>Se o dispositivo estiver montado em seu gerenciador de "
+"arquivos, você deve primeiro &quot;ejetá-lo&quot; desse aplicativo enquanto "
+"mantém as %(camera)s conectadas.<br><br>Se isso não funcionar, desconecte as "
 "%(camera)s do computador e reconecte-a novamente.<br><br>Saiba mais sobre <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras"
-"\">baixar de câmeras</a> e <a href = \"https://damonlynch.net/rapid/"
-"documentation/# downloadfromphones \">permitindo baixar de telefones</a>."
-"<br><br>Alternativamente, você pode ignorar  as %(camera)s."
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">b"
+"aixar de câmeras</a> e <a href = "
+"\"https://damonlynch.net/rapid/documentation/# downloadfromphones "
+"\">permitindo baixar de telefones</a>.<br><br>Alternativamente, você pode "
+"ignorar  as %(camera)s."
 
 #: ../raphodo/rapid.py:4755
 msgid "Enable access to the iOS Device"
@@ -4770,7 +4789,8 @@ msgstr "Desculpe, um erro inesperado ocorreu enquanto pesquisava %s."
 
 #: ../raphodo/rapid.py:4862
 msgid "Unfortunately you cannot download from this device."
-msgstr "Infelizmente você não pode baixar arquivos a partir deste dispositivo."
+msgstr ""
+"Infelizmente você não pode baixar arquivos a partir deste dispositivo."
 
 #: ../raphodo/rapid.py:4866
 msgid ""
@@ -4787,10 +4807,10 @@ msgstr "Pesquisa ao dispositivo falhou"
 #: ../raphodo/rapid.py:5402
 #, python-format
 msgid ""
-"<b>The %(camera)s cannot be scanned because it cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again."
+"<b>The %(camera)s cannot be scanned because it cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again."
 msgstr ""
 "<b>O dispositivo %(camera)s não pode ser pesquisado porque ele não pode ser "
 "desmontado.</b><br><br>Você pode fechar qualquer outra aplicação (como um "
@@ -4801,11 +4821,11 @@ msgstr ""
 #: ../raphodo/rapid.py:5437
 #, python-format
 msgid ""
-"<b>The download cannot start because the %(camera)s cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again, and choose which files you want to "
-"download from it."
+"<b>The download cannot start because the %(camera)s cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again, and choose which files "
+"you want to download from it."
 msgstr ""
 "<b>O download não pode iniciar porque o dispositivo %(camera)s não pode ser "
 "desmontado.</b><br><br>Você pode fechar qualquer outra aplicação (como um "
@@ -4848,7 +4868,8 @@ msgstr "Você quer baixar fotos e vídeos do dispositivo <i>%(device)s</i>?"
 #: ../raphodo/rapid.py:6020
 #, python-format
 msgid "<b>Do you want to ignore the %s whenever this program is run?</b>"
-msgstr "<b>Você quer ignorar o %s sempre que este programa for executado?</b>"
+msgstr ""
+"<b>Você quer ignorar o %s sempre que este programa for executado?</b>"
 
 #: ../raphodo/rapid.py:6024
 msgid ""
@@ -4960,7 +4981,8 @@ msgstr "O CAMINHO onde os vídeos serão baixados."
 
 #: ../raphodo/rapid.py:6856
 msgid "Turn on or off the backing up of photos and videos while downloading."
-msgstr "Habilite ou desabilite o backup de fotos e vídeos durante o download."
+msgstr ""
+"Habilite ou desabilite o backup de fotos e vídeos durante o download."
 
 #: ../raphodo/rapid.py:6862
 msgid "Turn on or off the automatic detection of backup devices."
@@ -5019,7 +5041,8 @@ msgid "Ignore photos with the following extensions: %s"
 msgstr "Ignorar fotos com as seguintes extensões: %s"
 
 #: ../raphodo/rapid.py:6922
-msgid "Turn on or off starting downloads as soon as the program itself starts."
+msgid ""
+"Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 "Habilitar ou desabilitar iniciar download assim que o programa iniciar."
 
@@ -5101,8 +5124,10 @@ msgstr "Importando as preferências do Rapid Photo Downloader %(version)s"
 
 #: ../raphodo/rapid.py:7175
 #, python-format
-msgid "Do you want to copy the stored sequence number, which has the value %d?"
-msgstr "Você quer copiar o número de sequência armazenado, que tem o valor %d?"
+msgid ""
+"Do you want to copy the stored sequence number, which has the value %d?"
+msgstr ""
+"Você quer copiar o número de sequência armazenado, que tem o valor %d?"
 
 #: ../raphodo/rapid.py:7190
 msgid "Program aborting."
@@ -5509,27 +5534,27 @@ msgstr "dezenove"
 msgid "twenty"
 msgstr "vinte"
 
-#: ../raphodo/viewutils.py:283 ../raphodo/viewutils.py:303
+#: ../raphodo/viewutils.py:300 ../raphodo/viewutils.py:320
 msgid "&OK"
 msgstr "&OK"
 
-#: ../raphodo/viewutils.py:286 ../raphodo/viewutils.py:306
+#: ../raphodo/viewutils.py:303 ../raphodo/viewutils.py:323
 msgid "&Save"
 msgstr "&Salvar"
 
-#: ../raphodo/viewutils.py:287
+#: ../raphodo/viewutils.py:304
 msgid "&Help"
 msgstr "&Ajuda"
 
-#: ../raphodo/viewutils.py:288
+#: ../raphodo/viewutils.py:305
 msgid "Restore Defaults"
 msgstr "Restaurar Padrão"
 
-#: ../raphodo/viewutils.py:289 ../raphodo/viewutils.py:307
+#: ../raphodo/viewutils.py:306 ../raphodo/viewutils.py:324
 msgid "&Yes"
 msgstr "&Sim"
 
-#: ../raphodo/viewutils.py:290 ../raphodo/viewutils.py:308
+#: ../raphodo/viewutils.py:307 ../raphodo/viewutils.py:325
 msgid "&No"
 msgstr "&Não"
 
@@ -5584,95 +5609,96 @@ msgid "Unmount drive %s"
 msgstr ""
 
 #: ../raphodo/wsl.py:383
-#, fuzzy, python-format
+#, python-format
 msgid "Sorry, an error occurred when mounting drives %s"
-msgstr "Desculpe, um erro inesperado ocorreu enquanto pesquisava %s."
+msgstr ""
 
 #: ../raphodo/wsl.py:388
-#, fuzzy, python-format
+#, python-format
 msgid "Sorry, an error occurred when unmounting drives %s"
-msgstr "Desculpe, um erro inesperado ocorreu enquanto pesquisava %s."
+msgstr ""
 
 #: ../raphodo/wsl.py:394
-#, fuzzy, python-format
+#, python-format
 msgid "Sorry, an error occurred when mounting drive %s"
-msgstr "Desculpe, um erro inesperado ocorreu enquanto pesquisava %s."
+msgstr ""
 
 #: ../raphodo/wsl.py:399
-#, fuzzy, python-format
+#, python-format
 msgid "Sorry, an error occurred when unmounting drive %s"
-msgstr "Desculpe, um erro inesperado ocorreu enquanto pesquisava %s."
+msgstr ""
 
-#: ../raphodo/wsl.py:526
+#: ../raphodo/wsl.py:547
 msgid "Windows Drives"
 msgstr ""
 
-#: ../raphodo/wsl.py:529
+#: ../raphodo/wsl.py:550
 msgid "Enable automatic mounting of Windows drives"
 msgstr ""
 
-#: ../raphodo/wsl.py:532
-#, fuzzy
+#: ../raphodo/wsl.py:553
 msgid "Automatically mount all Windows drives"
-msgstr "Rotacionar imagens JPEG automaticamente"
+msgstr ""
 
-#: ../raphodo/wsl.py:535
+#: ../raphodo/wsl.py:556
 msgid "Only automatically mount Windows drives that are configured below"
 msgstr ""
 
-#: ../raphodo/wsl.py:558
+#: ../raphodo/wsl.py:579
 msgid "User Mounted"
 msgstr ""
 
-#: ../raphodo/wsl.py:559
+#: ../raphodo/wsl.py:580
 msgid "System Mounted"
 msgstr ""
 
-#: ../raphodo/wsl.py:560
-#, fuzzy
+#: ../raphodo/wsl.py:581
 msgid "Drive"
-msgstr "disco1"
+msgstr ""
 
-#: ../raphodo/wsl.py:561
+#: ../raphodo/wsl.py:582
 msgid "Mount Point"
 msgstr ""
 
-#: ../raphodo/wsl.py:562
-#, fuzzy
+#: ../raphodo/wsl.py:583
 msgid "Automatic Mount"
-msgstr "Automatização"
+msgstr ""
 
-#: ../raphodo/wsl.py:563
+#: ../raphodo/wsl.py:584
 msgid "Automatic Unmount at Exit"
 msgstr ""
 
-#: ../raphodo/wsl.py:595
-#, fuzzy
-msgid "Pending Operations:"
-msgstr "Opções de renomeação"
-
 #: ../raphodo/wsl.py:617
-#, fuzzy
+msgid "Pending Operations:"
+msgstr ""
+
+#: ../raphodo/wsl.py:630
 msgid "&Apply Pending Operations"
-msgstr "Opções de renomeação"
+msgstr ""
 
 #. translators: this will appear in a small dialog asking the user if they want to mount a single drive
-#: ../raphodo/wsl.py:1393
-#, fuzzy, python-format
+#: ../raphodo/wsl.py:1436
+#, python-format
 msgid "Do you want to mount drive %s?"
-msgstr "Você quer baixar a nova versão?"
+msgstr ""
 
 #. translators: this will appear in a small dialog asking the user if they want to mount two or more drives
-#: ../raphodo/wsl.py:1396
-#, fuzzy, python-format
+#: ../raphodo/wsl.py:1439
+#, python-format
 msgid "Do you want to mount drives %s?"
-msgstr "Você quer baixar a nova versão?"
+msgstr ""
 
-#: ../raphodo/wsl.py:1524 ../raphodo/wsl.py:1689
+#. Translators: this is the name Windows uses for a removable drive,
+#. like a USB drive
+#: ../raphodo/wsl.py:1576
 msgid "Removable Drive"
 msgstr ""
 
-#: ../raphodo/wsl.py:1526
+#. Translators: this is the name Windows uses for a drive that is
+#. normally part of the computer, like an internal hard drive
+#. (although for some reason some USB drives are classified by
+#. Windows as local drives)
+#: ../raphodo/wsl.py:1582
 msgid "Local Drive"
 msgstr ""
 
@@ -5739,8 +5765,8 @@ msgstr "Photo Downloader"
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:5
 msgid ""
-"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
-"memory;card;"
+"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
+";card;"
 msgstr ""
 "foto;download;fotografia;importart;vídeo;RAW;câmera;smartphone;ingest;backup;"
 "memória;cartão;"
@@ -5837,9 +5863,8 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ msgstr "Registro de _Erros"
 
 #~ msgid ""
-#~ "When a photo or video of the same name has already been downloaded, "
-#~ "choose whether to skip downloading the file, or to add a unique "
-#~ "indentifier."
+#~ "When a photo or video of the same name has already been downloaded, choose "
+#~ "whether to skip downloading the file, or to add a unique indentifier."
 #~ msgstr ""
 #~ "Escolha como o programa deverá proceder caso ao copiar uma fotografia ou "
 #~ "vídeo haja um arquivo de mesmo nome."
@@ -5854,8 +5879,8 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ "When backing up, choose whether to overwrite a file on the backup device "
 #~ "that has the same name, or skip backing it up."
 #~ msgstr ""
-#~ "Escolha como o programa deverá proceder caso ao fazer uma cópia de "
-#~ "segurança haja um arquivo de mesmo nome."
+#~ "Escolha como o programa deverá proceder caso ao fazer uma cópia de segurança "
+#~ "haja um arquivo de mesmo nome."
 
 #~ msgid "Unmount (\"eject\") device upon download completion"
 #~ msgstr ""
@@ -5935,8 +5960,7 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ msgid "Backing up error"
 #~ msgstr "Erro ao criar cópias de segurança"
 
-#~ msgid ""
-#~ "Photos detected with the same filenames, but taken at different times"
+#~ msgid "Photos detected with the same filenames, but taken at different times"
 #~ msgstr ""
 #~ "Foram detectadas fotografias de mesmo nome, mas de horários diferentes"
 
@@ -5980,9 +6004,8 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ "Specify whether photo, video and folder names should have any characters "
 #~ "removed that are not allowed by other operating systems."
 #~ msgstr ""
-#~ "Escolha se um caractere do nome de uma foto, vídeo ou diretório deverá "
-#~ "ser omitido, caso o mesmo não seja suportado por outros sistemas "
-#~ "operacionais."
+#~ "Escolha se um caractere do nome de uma foto, vídeo ou diretório deverá ser "
+#~ "omitido, caso o mesmo não seja suportado por outros sistemas operacionais."
 
 #, python-format
 #~ msgid "Backing up to %(path)s"
@@ -6091,8 +6114,8 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ "subfolders. Please use other subfolder naming options.</i>"
 #~ msgstr ""
 #~ "<i><b>Aviso:</b> As meta-Informações disponíveis são insuficientes para "
-#~ "gerar nomes de subdiretórios. Por favor, use de outras opções de nomeação."
-#~ "</i>"
+#~ "gerar nomes de subdiretórios. Por favor, use de outras opções de "
+#~ "nomeação.</i>"
 
 #, python-format
 #~ msgid "%(filetype)s already exists"
@@ -6194,8 +6217,8 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 
 #, python-format
 #~ msgid ""
-#~ "The existing %(filetype)s was last modified on %(date)s at %(time)s. "
-#~ "Unique identifier '%(identifier)s' added."
+#~ "The existing %(filetype)s was last modified on %(date)s at %(time)s. Unique "
+#~ "identifier '%(identifier)s' added."
 #~ msgstr ""
 #~ "O atual%(filetype)s foi modificada pela última vez em%(date)s em%(time)s. "
 #~ "Identificador exclusivo '%(identifier)s'' acrescentou."
@@ -6262,8 +6285,7 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ msgstr "%(volume)s (%(inst)s), "
 
 #~ msgid "Errors occurred when backing up on the following backup devices: "
-#~ msgstr ""
-#~ "Ocorreram erros ao fazer backup em dispositivos de backup a seguir: "
+#~ msgstr "Ocorreram erros ao fazer backup em dispositivos de backup a seguir: "
 
 #~ msgid "Backups already exist in these locations: "
 #~ msgstr "Os backups já existem nestes locais: "
@@ -6294,8 +6316,7 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ msgstr "Os metadados seguinte estão em falta: "
 
 #, python-format
-#~ msgid ""
-#~ "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
+#~ msgid "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
 #~ msgstr "%(missing_metadata_elements)s e %(final_missing_metadata_element)s."
 
 #, python-format
@@ -6315,8 +6336,7 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ msgstr "Ocorreu um erro ao criar diretórios em %(volume)s: %(inst)s."
 
 #~ msgid ""
-#~ "Errors occurred when creating directories on the following backup "
-#~ "devices: "
+#~ "Errors occurred when creating directories on the following backup devices: "
 #~ msgstr ""
 #~ "Ocorreram erros ao criar diretórios nos dispositivos de backup a seguir: "
 
@@ -6329,8 +6349,7 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ msgstr "Problemas na geração de %s"
 
 #, python-format
-#~ msgid ""
-#~ "An error occurred when copying the %(filetype)s, but it was backed up"
+#~ msgid "An error occurred when copying the %(filetype)s, but it was backed up"
 #~ msgstr "Ocorreu um erro ao copiar %(filetype)s, mas foi feito backup"
 
 #, python-format
@@ -6493,9 +6512,8 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ "Choose the download folder. Subfolders for the downloaded videos will be "
 #~ "automatically created in this folder using the structure specified below."
 #~ msgstr ""
-#~ "Escolher pasta de download. Subpastas para os vídeos baixados serão "
-#~ "criados automaticamente nesta pasta usando a estrutura a seguir "
-#~ "especificados."
+#~ "Escolher pasta de download. Subpastas para os vídeos baixados serão criados "
+#~ "automaticamente nesta pasta usando a estrutura a seguir especificados."
 
 #~ msgid "Download folder:"
 #~ msgstr "Pasta de Downloads:"
@@ -6509,6 +6527,9 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ msgid "Generate thumbnails (slower)"
 #~ msgstr "Gerar miniaturas (mais lento)"
 
+#~ msgid "Photo Folders"
+#~ msgstr "Pastas de Fotos"
+
 #~ msgid "Photo backup folder name:"
 #~ msgstr "Nome da Pasta de Backup de Fotos"
 
@@ -6516,15 +6537,14 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ "Specify the folder in which backups are stored on the device.  \n"
 #~ "\n"
 #~ "<i>Note: this will also be used to determine whether or not the device is "
-#~ "used for backups. For each device you wish to use for backing up to, "
-#~ "create a folder in it with one of these names.</i>"
+#~ "used for backups. For each device you wish to use for backing up to, create "
+#~ "a folder in it with one of these names.</i>"
 #~ msgstr ""
-#~ "Especifique a pasta no qual os backups serão armazenados no "
-#~ "dispositivo.  \n"
+#~ "Especifique a pasta no qual os backups serão armazenados no dispositivo.  \n"
 #~ "\n"
 #~ "<i>Nota: isso também será utilizado para determinar se o dispositivo é ou "
-#~ "não utilizado para backups. Para cada dispositivo que deseja usar para "
-#~ "fazer backup, criar uma pasta com um desses nomes.</i>"
+#~ "não utilizado para backups. Para cada dispositivo que deseja usar para fazer "
+#~ "backup, criar uma pasta com um desses nomes.</i>"
 
 #~ msgid "Rename Options"
 #~ msgstr "Renomear Opções"
@@ -6539,8 +6559,8 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
 #~ "sequence number should be reset."
 #~ msgstr ""
-#~ "Especifique o tempo em formato de 24 horas em que a sequência numérica "
-#~ "de  <i> Downloads de Hoje </i> devem reiniciar."
+#~ "Especifique o tempo em formato de 24 horas em que a sequência numérica de  "
+#~ "<i> Downloads de Hoje </i> devem reiniciar."
 
 #~ msgid "R_emove All"
 #~ msgstr "R_emover Tudo"
@@ -6555,23 +6575,23 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ "Devices are from where to download photos and videos, such as cameras, "
 #~ "memory cards or Portable Storage Devices.\n"
 #~ "\n"
-#~ "You can download from multiple devices simultaneously, or you can specify "
-#~ "a location on your hard drive.\n"
+#~ "You can download from multiple devices simultaneously, or you can specify a "
+#~ "location on your hard drive.\n"
 #~ "\n"
-#~ "<i>Downloading directly from cameras is currently an experimental "
-#~ "feature. If downloading directly from your camera works poorly or not at "
-#~ "all, try setting it to PTP mode. If that is not possible, a card reader "
-#~ "must be used.</i>"
+#~ "<i>Downloading directly from cameras is currently an experimental feature. "
+#~ "If downloading directly from your camera works poorly or not at all, try "
+#~ "setting it to PTP mode. If that is not possible, a card reader must be "
+#~ "used.</i>"
 #~ msgstr ""
 #~ "Dispositivos são de onde as fotos e vídeos são baixados, como câmeras, "
 #~ "cartões de memória ou dispositivos de armazenamento portátil.\n"
 #~ "\n"
-#~ "Você pode baixar de vários dispositivos simultaneamente, ou pode "
-#~ "especificar um local em seu disco rígido.\n"
+#~ "Você pode baixar de vários dispositivos simultaneamente, ou pode especificar "
+#~ "um local em seu disco rígido.\n"
 #~ "\n"
-#~ "<i>Baixar diretamente de câmeras é atualmente um recurso experimental. "
-#~ "Caso ele não funcione corretamente, tente ativar o modo PTP. Caso isso "
-#~ "não seja possível, um leitor de cartões deve ser utilizado.</i>"
+#~ "<i>Baixar diretamente de câmeras é atualmente um recurso experimental. Caso "
+#~ "ele não funcione corretamente, tente ativar o modo PTP. Caso isso não seja "
+#~ "possível, um leitor de cartões deve ser utilizado.</i>"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Device Options</span>"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Opções do dispositivo</span>"
@@ -6596,8 +6616,8 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ "Do you really want to download from here? On some systems, scanning this "
 #~ "location can take a very long time."
 #~ msgstr ""
-#~ "Você realmente deseja realizar o download deste local? Em alguns "
-#~ "sistemas, varrer este local pode leavar muito tempo."
+#~ "Você realmente deseja realizar o download deste local? Em alguns sistemas, "
+#~ "varrer este local pode leavar muito tempo."
 
 #, python-format
 #~ msgid "Backing up photos to %(path)s and videos to %(path2)s"
@@ -6640,8 +6660,8 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 
 #, python-format
 #~ msgid ""
-#~ "This regular expression is invalid, and will be removed unless you "
-#~ "correct it:\n"
+#~ "This regular expression is invalid, and will be removed unless you correct "
+#~ "it:\n"
 #~ " %s"
 #~ msgstr ""
 #~ "Esta expressão regular é inválida e será removida a não ser que seja "
@@ -6649,27 +6669,27 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 #~ "%s"
 
 #~ msgid ""
-#~ "Sorry, video downloading functionality disabled. To download videos, "
-#~ "please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> "
-#~ "packages for python, or <i>exiftool</i>."
+#~ "Sorry, video downloading functionality disabled. To download videos, please "
+#~ "install either the <i>hachoir metadata</i> and <i>kaa metadata</i> packages "
+#~ "for python, or <i>exiftool</i>."
 #~ msgstr ""
 #~ "Desculpe, a funcionalidade de download de vídeo foi desabilitada. Para "
 #~ "executar o download de vídeos, por favor instale os pacotes <i>hachoir "
 #~ "metadata</i> e <i>kaa metadata</i> do python, ou <i>exiftool</i>."
 
 #~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the "
-#~ "photos and videos."
+#~ "If you disable automatic detection, choose the exact location of the photos "
+#~ "and videos."
 #~ msgstr ""
-#~ "Se você desabilitar a detecção automática, escolha o local exato das "
-#~ "fotos e vídeos."
+#~ "Se você desabilitar a detecção automática, escolha o local exato das fotos e "
+#~ "vídeos."
 
 #~ msgid ""
 #~ "If you enable automatic detection of Portable Storage Devices, the entire "
 #~ "device will be scanned. On large devices, this could take some time.\n"
 #~ "\n"
-#~ "When this option is enabled, and a potential device is detected, you will "
-#~ "be prompted to determine if it should be scanned or not."
+#~ "When this option is enabled, and a potential device is detected, you will be "
+#~ "prompted to determine if it should be scanned or not."
 #~ msgstr ""
 #~ "Se vovê habilitar a detecção de Dispositivos de Armazenamento Portateis, "
 #~ "todo o dispositivo será varrido. Em dispositivos muito grandes, isso pode "
@@ -6697,6 +6717,9 @@ msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
 
 #~ msgid "Use _python-style regular expressions"
 #~ msgstr "Usar expressões regulares no estilo _python"
+
+#~ msgid "Automatically rotate JPEG images"
+#~ msgstr "Rotacionar imagens JPEG automaticamente"
 
 #~ msgid "An unknown error occurred"
 #~ msgstr "Ocorreu um erro desconhecido"

@@ -23,7 +23,7 @@ Changelog for Rapid Photo Downloader
  - Don't crash when showing photo or video in file manager after right-clicking
    on thumbnail and no file is selected. 
 
- - Update Dutch and Swedish translations.
+ - Update Albanian, Dutch and Swedish translations.
 
 0.9.27b1 (2021-10-31)
 ---------------------
