@@ -605,7 +605,7 @@ class WslMountDriveDialog(QDialog):
             self.addDriveAtRow(row, drive)
             row += 1
 
-        self.setDriveAutoMountColStates()
+        self.setAllDriveAutoMountColStates()
         self.driveTable.resizeColumnsToContents()
         self.driveTable.sortItems(self.mountPointCol)
         self.driveTable.itemChanged.connect(self.driveTableItemChanged)
@@ -630,7 +630,7 @@ class WslMountDriveDialog(QDialog):
         layout = QVBoxLayout()
         layout.setSpacing(18)
         layout.setContentsMargins(18, 18, 18, 18)
-        # For autoMount column 0 size to be correctly set, first add it to a widget
+        # For autoMount column 0 size to be correctly set, first add it to a widget:
         autoMount = QWidget()
         autoMount.setLayout(autoMountLayout)
         layout.addWidget(autoMount)
@@ -915,16 +915,16 @@ class WslMountDriveDialog(QDialog):
             self.autoMountManualButton.setChecked(
                 not self.prefs.wsl_automount_all_removable_drives
             )
-            self.setDriveAutoMountColStates()
+            self.setAllDriveAutoMountColStates()
         else:
             self.autoMountAllButton.setEnabled(False)
             self.autoMountManualButton.setEnabled(False)
             self.autoMountGroup.setExclusive(False)
             self.autoMountAllButton.setChecked(False)
             self.autoMountManualButton.setChecked(False)
-            self.setDriveAutoMountColStates()
+            self.setAllDriveAutoMountColStates()
 
-    def setDriveAutoMountColStates(self) -> None:
+    def setAllDriveAutoMountColStates(self) -> None:
         """
         For each Windows drive in the drive table, enable or disable checkboxes and set
         their values
@@ -938,36 +938,45 @@ class WslMountDriveDialog(QDialog):
             )
 
             for row in range(self.driveTable.rowCount()):
-                drive = self.driveTable.item(row, self.userMountCol).data(
-                    Qt.UserRole
-                )  # type: WindowsDriveMount
+                self.setDriveAutoMountColStates(row=row)
 
-                if not drive.system_mounted:
-                    if not self.prefs.wsl_automount_removable_drives:
-                        auto_mount = auto_unmount = False
-                    elif self.prefs.wsl_automount_all_removable_drives:
-                        auto_mount = auto_unmount = True
-                    else:
-                        auto_mount, auto_unmount = self.windrive_prefs.drive_prefs(
-                            drive=drive
-                        )
-                    autoMountItem = self.driveTable.item(row, self.autoMountCol)
-                    autoUnmountItem = self.driveTable.item(row, self.autoUnmountCol)
+    def setDriveAutoMountColStates(self, row: int) -> None:
+        """
+        For a single row in the drive table, enable or disable checkboxes and set
+        their values
+        :param row: the row to act on
+        """
+        
+        drive = self.driveTable.item(row, self.userMountCol).data(
+            Qt.UserRole
+        )  # type: WindowsDriveMount
 
-                    # block signal being emitted when programmatically changing checkbox
-                    # states
-                    blocked = self.driveTable.blockSignals(True)
-                    for item, value in (
-                        (autoMountItem, auto_mount),
-                        (autoUnmountItem, auto_unmount),
-                    ):
-                        item.setCheckState(Qt.Checked if value else Qt.Unchecked)
-                        self.setItemState(
-                            enabled=self.prefs.wsl_automount_removable_drives,
-                            item=item,
-                        )
-                    # restore signal state
-                    self.driveTable.blockSignals(blocked)
+        if not drive.system_mounted:
+            if not self.prefs.wsl_automount_removable_drives:
+                auto_mount = auto_unmount = False
+            elif self.prefs.wsl_automount_all_removable_drives:
+                auto_mount = auto_unmount = True
+            else:
+                auto_mount, auto_unmount = self.windrive_prefs.drive_prefs(
+                    drive=drive
+                )
+            autoMountItem = self.driveTable.item(row, self.autoMountCol)
+            autoUnmountItem = self.driveTable.item(row, self.autoUnmountCol)
+
+            # block signal being emitted when programmatically changing checkbox
+            # states
+            blocked = self.driveTable.blockSignals(True)
+            for item, value in (
+                (autoMountItem, auto_mount),
+                (autoUnmountItem, auto_unmount),
+            ):
+                item.setCheckState(Qt.Checked if value else Qt.Unchecked)
+                self.setItemState(
+                    enabled=self.prefs.wsl_automount_removable_drives,
+                    item=item,
+                )
+            # restore signal state
+            self.driveTable.blockSignals(blocked)
 
     @staticmethod
     def setItemState(enabled: bool, item: QTableWidgetItem) -> None:
@@ -1087,6 +1096,7 @@ class WslMountDriveDialog(QDialog):
         # states
         blocked = self.driveTable.blockSignals(True)
         self.addDriveAtRow(row, drive)
+        self.setDriveAutoMountColStates(row=row)
         self.driveTable.sortItems(self.mountPointCol)
         # restore signal state
         self.driveTable.blockSignals(blocked)
