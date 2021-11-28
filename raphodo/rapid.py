@@ -5740,6 +5740,7 @@ Do you want to proceed with the download?
                 self.setupBackupDevices()
         if not self.on_startup:
             self.wslDrives.mountDrives()
+        self.setupNonCameraDevices()
 
     @pyqtSlot("PyQt_PyObject")
     def wslWindowsDriveRemoved(self, drive: WindowsDriveMount) -> None:
