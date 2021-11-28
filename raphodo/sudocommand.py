@@ -25,10 +25,11 @@ import logging
 import shlex
 import subprocess
 from enum import IntEnum
+import textwrap
 from typing import List, NamedTuple, Optional
 import webbrowser
 
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QLabel, QHBoxLayout
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QLabel, QHBoxLayout, QSizePolicy, QWidget
 from PyQt5.QtCore import Qt, QSize, pyqtSlot
 from PyQt5.QtGui import QIcon, QFontMetrics, QFont
 
@@ -49,6 +50,8 @@ class SudoCommand(QDialog):
     ) -> None:
         super().__init__(parent=parent)
 
+        word_wrap_width = 50
+
         if title:
             titleHLayout = QHBoxLayout()
             if icon:
@@ -59,13 +62,22 @@ class SudoCommand(QDialog):
             pixmap = i.pixmap(QSize(size, size))
             titleIcon = QLabel()
             titleIcon.setPixmap(pixmap)
+            titleIcon.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            if len(title) > word_wrap_width:
+                # DO NOT set wordwrap on the richtext QLabel, or else the Qt layout
+                # management is truly screwed!!
+                # from the Qt documentation:
+                # "The use of rich text in a label widget can introduce some problems to
+                # the layout of its parent widget. Problems occur due to the way rich
+                # text is handled by Qt's layout managers when the label is word
+                # wrapped"
+                title = "<br>".join(textwrap.wrap(title, width=word_wrap_width))
             titleLabel = QLabel(f"<b>{title}</b>")
-            if len(title) > 50:
-                titleLabel.setWordWrap(True)
             titleLabel.setTextFormat(Qt.RichText)
-            titleHLayout.addWidget(titleIcon)
-            titleHLayout.addWidget(titleLabel)
-            titleHLayout.addStretch()
+            titleLabel.setAlignment(Qt.AlignTop)
+            titleLabel.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+            titleHLayout.addWidget(titleIcon, alignment=Qt.AlignTop)
+            titleHLayout.addWidget(titleLabel, alignment=Qt.AlignTop)
             titleLayout = QVBoxLayout()
             titleLayout.addLayout(titleHLayout)
             titleLayout.addSpacing(8)
@@ -83,14 +95,17 @@ class SudoCommand(QDialog):
         )
         if len(msgLabel.text()) > 50:
             msgLabel.setWordWrap(True)
+            msgLabel.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 
         if hint:
             hintLabel = QLabel(hint)
             if len(hint) > 50:
                 hintLabel.setWordWrap(True)
+                hintLabel.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 
         self.passwordEdit = PasswordEdit()
         self.passwordEdit.setMinimumWidth(220)
+        self.passwordEdit.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         buttonBox = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
         if help_url:
             self.help_url = help_url
@@ -100,6 +115,7 @@ class SudoCommand(QDialog):
         translateDialogBoxButtons(buttonBox)
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
+        buttonBox.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 
         layout = QVBoxLayout()
         layout.setSpacing(8)
@@ -325,10 +341,18 @@ if __name__ == "__main__":
     app = QApplication([])
 
     cmds = ["echo OK"]
+
+    title = "Unmount drives EOS_DIGITAL (G:) and EOS_DIGITAL (J:)"
+    title = "Unmount drives EOS_DIGITAL (G:)"
+    icon = ":/icons/drive-removable-media.svg"
+
     results = run_commands_as_sudo(
-        cmds,
+        cmds=cmds,
         parent=None,
+        title=title,
+        icon=icon,
         help_url="https://damonlynch.net/rapid/documentation/#wslsudopassword",
     )
+
     for result in results:
         print(result)
