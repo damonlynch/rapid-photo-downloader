@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.27b2 (2021-11-0x)
+0.9.27b2 (2021-11-28)
 ---------------------
 
  - Enable running under WSLg and WSL2 on Windows 11. Not all features are 
