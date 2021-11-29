@@ -317,7 +317,7 @@ from raphodo.viewutils import (
 )
 from raphodo import viewutils
 import raphodo.didyouknow as didyouknow
-from raphodo.thumbnailextractor import gst_version, libraw_version, rawkit_version
+from raphodo.thumbnailextractor import gst_version
 from raphodo.heif import have_heif_module, pyheif_version, libheif_version
 from raphodo.filesystemurl import FileSystemUrlHandler
 import raphodo.storageidevice as storageidevice
@@ -6645,8 +6645,6 @@ def get_versions(
         "GExiv2: {}".format(gexiv2_version()),
         "Gstreamer: {}".format(gst_version()),
         "PyGObject: {}".format(".".join(map(str, gi.version_info))),
-        "libraw: {}".format(libraw_version() or "not installed"),
-        "rawkit: {}".format(rawkit_version() or "not installed"),
         "psutil: {}".format(".".join(map(str, psutil.version_info))),
         f'Show in File Manager: {importlib_metadata.version("show-in-file-manager")}',
     ]

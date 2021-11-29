@@ -61,12 +61,6 @@ from PyQt5.QtCore import QSize
 import psutil
 import gphoto2 as gp
 
-try:
-    import rawkit
-
-    have_rawkit = True
-except ImportError:
-    have_rawkit = False
 
 from raphodo.rpdfile import RPDFile
 from raphodo.interprocess import (
@@ -712,13 +706,11 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             # Many (all?) jpegs from phones don't include jpeg previews,
                             # so need to render from the entire jpeg itself. Slow!
 
-                            # If rawkit is not installed, then extract merely a part of
-                            # phone's raw format, and try to extract the jpeg preview
-                            # from it (which probably doesn't exist!). This is fast.
-                            # If have rawkit, download and render an image from the
-                            # RAW
+                            # For raw, extract merely a part of phone's raw format, and
+                            # try to extract the jpeg preview from it (which probably
+                            # doesn't exist!). This is fast.
 
-                            if not rpd_file.is_jpeg() and not have_rawkit:
+                            if not rpd_file.is_jpeg():
                                 bytes_to_read = thumbnail_offset.get(rpd_file.extension)
                                 if bytes_to_read:
                                     exif_buffer = self.camera.get_exif_extract(

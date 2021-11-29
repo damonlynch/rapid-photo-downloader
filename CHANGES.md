@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.27 (2021-12-xx)
+-------------------
+
+ - Purge calls to unmaintained Python package rawkit.
+
 0.9.27b2 (2021-11-28)
 ---------------------
 

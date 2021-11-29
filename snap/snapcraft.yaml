@@ -82,7 +82,6 @@ parts:
       - python3-tornado
       - python3-xdg
       - python3-dateutil
-      - python3-rawkit
       - python3-pyprind
       - python3-colorlog
       - python3-easygui
@@ -117,6 +116,3 @@ parts:
       - libde265-dev
       - libx265-dev
       - libraw-dev
-
-
-

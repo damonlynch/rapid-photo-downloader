@@ -1112,32 +1112,18 @@ def install_pyheif_from_pip() -> int:
     return popen_capture_output(cmd)
 
 
-def handle_rawkit_installation(distro_family: Distro) -> None:
+def remove_rawkit() -> None:
     """
-    Install rawkit only if libraw 0.16 0.17 is installed on Debian.
-
-    Otherwise uninstall if installed using pip, as it does not work.
+    Uninstall rawkit if installed using pip, as it does not work.
 
     :return:
     """
 
-    did_install = False
     package = "rawkit"
 
-    if distro_family == Distro.debian and have_apt:
-        cache = apt.Cache()
-        if "libraw15" in cache and cache["libraw15"].installed:
-            print("Installing rawkit...")
-            cmd = make_pip_command(
-                "install {} -U --disable-pip-version-check {}".format(pip_user, package)
-            )
-            popen_capture_output(cmd)
-            did_install = True
-
-    if not did_install:
-        if installed_using_pip(package):
-            print("Removing inoperative rawkit")
-            uninstall_pip_package(package=package, no_deps_only=True)
+    if installed_using_pip(package):
+        print("Removing inoperative rawkit")
+        uninstall_pip_package(package=package, no_deps_only=True)
 
 
 def update_pyqt5_and_sip(version: Optional[str]) -> int:
@@ -3600,7 +3586,7 @@ def do_install(
     else:
         print(_("System support for generating HEIF / HEIC thumbnails is unavailable"))
 
-    handle_rawkit_installation(distro_family)
+    remove_rawkit()
 
     if must_install_pypi_pyqt5:
         # Update PyQt5 and PyQt5_sip separately. Sometimes it's possible for
