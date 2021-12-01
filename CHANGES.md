@@ -6,6 +6,10 @@ Changelog for Rapid Photo Downloader
 
  - Purge calls to unmaintained Python package rawkit.
 
+ - Fix bug to always display the correct value for showing system directories 
+   when right-clicking on Photo and Video destinations, as well as This 
+   Computer.
+
 0.9.27b2 (2021-11-28)
 ---------------------
 

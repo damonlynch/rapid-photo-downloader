@@ -175,7 +175,6 @@ class FileSystemView(QTreeView):
             checkable=True,
             triggered=self.doShowSystemFoldersAct,
         )
-        self.showSystemFoldersAct.setChecked(rapidApp.prefs.show_system_folders)
         self.contextMenu.addAction(self.showSystemFoldersAct)
 
     def hideColumns(self) -> None:
@@ -230,6 +229,7 @@ class FileSystemView(QTreeView):
 
     def onCustomContextMenu(self, point: QPoint) -> None:
         index = self.indexAt(point)
+        self.showSystemFoldersAct.setChecked(self.rapidApp.prefs.show_system_folders)
         if index.isValid():
             self.clickedIndex = index
             self.openInFileBrowserAct.setEnabled(True)

@@ -1164,7 +1164,7 @@ class Preferences:
             return
 
         if self.source_or_destination_is_system_folder():
-            logging.debug(
+            logging.info(
                 "Forcibly setting show system folders to true",
             )
             self.show_system_folders = True
@@ -1179,17 +1179,19 @@ class Preferences:
         non_system_root_folders = constants.non_system_root_folders
         if get_media_dir().startswith("/run"):
             non_system_root_folders.append("/run")
-        for path in (
-                self.photo_download_folder,
-                self.video_download_folder,
-                self.this_computer_path,
+        for path, name in (
+            (self.photo_download_folder, "Photo download folder"),
+            (self.video_download_folder, "Video download folder"),
+            (self.this_computer_path, "This computer path")
         ):
             parts = Path(path).resolve().parts
-            if len(parts) < 2 or f"/{parts[1]}" not in non_system_root_folders:
+            if path and (
+                len(parts) < 2 or f"/{parts[1]}" not in non_system_root_folders
+            ):
+                logging.debug("'%s' %s is a system directory", name, path)
                 system_dir_located = True
                 break
         return system_dir_located
-
 
     def validate_max_CPU_cores(self) -> None:
         logging.debug("Validating CPU core count for thumbnail generation...")
