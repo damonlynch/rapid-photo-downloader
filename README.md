@@ -110,7 +110,7 @@ Then run the install.py script:
  - Ubuntu 18.04 or newer
  - LinuxMint 19 or newer
  - Debian 9, unstable or testing
- - Fedora 33 or newer
+ - Fedora 34 or newer
  - openSUSE Leap 15.3 or newer
  - CentOS 7.5 or 8
  - Any distribution meeting the software requirements below

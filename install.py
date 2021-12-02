@@ -80,7 +80,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = "0.3.13"
+__version__ = "0.3.14"
 __title__ = _("Rapid Photo Downloader installer")
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -4078,10 +4078,10 @@ def main():
         )
 
     if distro == Distro.fedora and unknown_version < distro_version <= LooseVersion(
-        "32"
+        "33"
     ):
         sys.stderr.write(
-            "Sorry, Fedora 32 or older is no longer supported by Rapid Photo "
+            "Sorry, Fedora 33 or older is no longer supported by Rapid Photo "
             "Downloader.\n"
         )
         sys.exit(1)
