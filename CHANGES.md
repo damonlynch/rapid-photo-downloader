@@ -10,6 +10,8 @@ Changelog for Rapid Photo Downloader
    when right-clicking on Photo and Video destinations, as well as This 
    Computer.
 
+ - Update Czech, Dutch, French, Hungarian, Russian and Spanish translations.
+
 0.9.27b2 (2021-11-28)
 ---------------------
 

@@ -3,21 +3,20 @@
 # This file is distributed under the same license as the rapid package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 #
-#: ../raphodo/jobcodepanel.py:140
 msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-11-27 15:28-0500\n"
+"POT-Creation-Date: 2021-12-03 04:44+0000\n"
 "PO-Revision-Date: 2021-11-25 08:36+0000\n"
 "Last-Translator: Algent Albrahimi <algent@protonmail.com>\n"
 "Language-Team: Albanian <sq@li.org>\n"
-"Language: sq\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2021-11-27 20:12+0000\n"
-"X-Generator: Launchpad (build 78346d219e01c6c7b1bfd882aa0bbcbb42d4e568)\n"
+"X-Launchpad-Export-Date: 2021-12-03 15:52+0000\n"
+"X-Generator: Launchpad (build cf73d44692888e78296213584c304ab04e7416a3)\n"
+"Language: sq\n"
 
 #: ../install.py:76
 msgid ""
@@ -47,12 +46,12 @@ msgstr ""
 "mundësuar krijimin e miniaturave për një gamë më të gjerë të formateve të "
 "videos, dhe (2) mundësimin e mbështetjes për formatin e imazhit HEIC / HEIF."
 
-#: ../install.py:627 ../install.py:4228
+#: ../install.py:627 ../install.py:4214
 msgid "Installer not found:"
 msgstr "Instaluesi nuk u gjet:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:631 ../install.py:4232
+#: ../install.py:631 ../install.py:4218
 msgid "Installer not in tar.gz format:"
 msgstr "Instalues jo në formatin tar.gz:"
 
@@ -66,7 +65,7 @@ msgid "{} will be upgraded from version {} to version {}"
 msgstr "{} do të përditësohet nga versioni {} në versionin {}"
 
 #. Translators: "not system-wide" in this context means "not for the entire system"
-#: ../install.py:1223
+#: ../install.py:1209
 msgid ""
 "These Python3 packages will be upgraded for your user (i.e. not system-"
 "wide): {}"
@@ -74,7 +73,7 @@ msgstr ""
 "Këto paketa Python3 do të përditësohen për përdoruesin tuaj (d.m.th. jo në "
 "të gjithë sistemin): {}"
 
-#: ../install.py:1325
+#: ../install.py:1311
 #, python-brace-format
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
@@ -83,60 +82,60 @@ msgstr ""
 "Pronësi e pasaktë e dosjes u zbulua. Ndryshimi i pronësisë dhe rivendosja e "
 "lejeve për {file_system_path}."
 
-#: ../install.py:1468
+#: ../install.py:1454
 msgid "The following command will be run:"
 msgstr "Do të ekzekutohet komanda e mëposhtme:"
 
 #. Translators: do not translate the term sudo
-#: ../install.py:1472 ../install.py:3748 ../install.py:3755
+#: ../install.py:1458 ../install.py:3734 ../install.py:3741
 msgid "sudo may prompt you for the sudo password."
 msgstr "sudo mund t'ju kërkojë fjalëkalimin e sudo."
 
-#: ../install.py:1476
+#: ../install.py:1462
 msgid "Would you like to run the command now?"
 msgstr "Dëshironi të ekzekutoni komandën tani?"
 
-#: ../install.py:1478
+#: ../install.py:1464
 msgid "Answer is not yes, exiting."
 msgstr "Përgjigja nuk është po, duke dalë."
 
-#: ../install.py:1489 ../install.py:2132 ../install.py:2191 ../install.py:2672
-#: ../install.py:2729
+#: ../install.py:1475 ../install.py:2118 ../install.py:2177 ../install.py:2658
+#: ../install.py:2715
 msgid "Command failed"
 msgstr "Komanda dështoi"
 
-#: ../install.py:1491 ../install.py:2133 ../install.py:2192 ../install.py:2673
-#: ../install.py:2730
+#: ../install.py:1477 ../install.py:2119 ../install.py:2178 ../install.py:2659
+#: ../install.py:2716
 msgid "Exiting"
 msgstr "Duke dalë"
 
-#: ../install.py:1519
+#: ../install.py:1505
 msgid "The Universe repository must be enabled."
 msgstr "Depoja Universe duhet të aktivizohet."
 
 #. Translators: do not translate the term IUS Community
-#: ../install.py:1559
+#: ../install.py:1545
 msgid "The IUS Community repository must be enabled."
 msgstr "Depoja  IUS Community duhet të aktivizohet."
 
 #. Translators: do not translate the term EPEL
-#: ../install.py:1589
+#: ../install.py:1575
 msgid "The EPEL repository must be enabled."
 msgstr "Depoja EPEL duhet të aktivizohet."
 
 #. Translators: do not translate the term RPM Fusion Free
-#: ../install.py:1628
+#: ../install.py:1614
 msgid "The RPM Fusion Free repository must be enabled."
 msgstr "Depoja RPM Fusion Free duhet të aktivizohet."
 
-#: ../install.py:1673
+#: ../install.py:1659
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader?"
 msgstr ""
 "Dëshiron të çinstalosh versionin e mëparshëm të Shkarkuestit të Shpejtë të "
 "Fotove?"
 
-#: ../install.py:2110 ../install.py:2140 ../install.py:2172
+#: ../install.py:2096 ../install.py:2126 ../install.py:2158
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
@@ -145,11 +144,11 @@ msgstr ""
 "version i vjetër i Shkarkuresit të Shpejtë të Fotove (kjo mund të zgjasë "
 "pak)..."
 
-#: ../install.py:2125
+#: ../install.py:2111
 msgid "Uninstalling system package"
 msgstr "Duke çinstaluar paketën e sistemit"
 
-#: ../install.py:2151
+#: ../install.py:2137
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again."
@@ -158,29 +157,29 @@ msgstr ""
 "tuaj të Internetit dhe provoni përsëri."
 
 #. Translators: do not translate the term pip
-#: ../install.py:2197
+#: ../install.py:2183
 msgid "Checking if previous version installed with pip..."
 msgstr ""
 "Duke kontrolluar nëse versioni i mëparshëm është instaluar me anë të pip ..."
 
-#: ../install.py:2352 ../install.py:2409 ../install.py:2524
+#: ../install.py:2338 ../install.py:2395 ../install.py:2510
 msgid "The following package is unknown on your system: {}\n"
 msgstr "Paketa e mëposhtme është e panjohur në sistemin tuaj: {}\n"
 
-#: ../install.py:2423 ../install.py:2585 ../install.py:2682 ../install.py:2737
+#: ../install.py:2409 ../install.py:2571 ../install.py:2668 ../install.py:2723
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
 "Për të vazhduar, disa paketa të kërkuara për të ekzekutuar aplikacionin do "
 "të instalohen."
 
-#: ../install.py:2516 ../install.py:2537
+#: ../install.py:2502 ../install.py:2523
 msgid "Querying installed and available packages (this may take a while)"
 msgstr ""
 "Duke kërkuar paketat e instaluara dhe të disponueshme (kjo mund të zgjasë "
 "pak)"
 
-#: ../install.py:2664
+#: ../install.py:2650
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
@@ -188,7 +187,7 @@ msgstr ""
 "Duke kërkuar zypper për të parë nëse ndonjë prej paketave të kërkuara janë "
 "instaluar tashmë (kjo mund të zgjasë pak)... "
 
-#: ../install.py:2722
+#: ../install.py:2708
 msgid ""
 "Querying yum to see if any required packages are already installed (this may "
 "take a while)... "
@@ -196,11 +195,11 @@ msgstr ""
 "Duke kërkuar yum për të parë nëse ndonjë prej paketave të kërkuara janë "
 "instaluar tashmë (kjo mund të zgjasë pak)... "
 
-#: ../install.py:2779
+#: ../install.py:2765
 msgid "Query to confirm action at each step."
 msgstr "Kërkoni për të konfirmuar veprimin në çdo hap."
 
-#: ../install.py:2789
+#: ../install.py:2775
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
@@ -208,7 +207,7 @@ msgstr ""
 "Kur shkarkoni versionin e fundit, instaloni versionin e zhvillimit nëse "
 "është më i ri se versioni i qëndrueshëm."
 
-#: ../install.py:2800
+#: ../install.py:2786
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
@@ -216,7 +215,7 @@ msgstr ""
 "Arkiv instalues opsional në tar.gz për Shkarkuesin e Shpejtë të Fotove. Nëse "
 "nuk specifikohet, versioni i fundit shkarkohet nga interneti."
 
-#: ../install.py:2843
+#: ../install.py:2829
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
@@ -226,7 +225,7 @@ msgstr ""
 "të Shpejtë të Fotove nëse është më i ri se ky version ({}). Parazgjedhja "
 "është të ekzekutohet cilado instalues është më i ri."
 
-#: ../install.py:2851
+#: ../install.py:2837
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
@@ -234,7 +233,7 @@ msgstr ""
 "Çinstaloni Shkarkuesin e Shpejtë të Fotove që ishte instaluar me pip, duke "
 "mbajtur varësitë e tij."
 
-#: ../install.py:2857
+#: ../install.py:2843
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
@@ -242,7 +241,7 @@ msgstr ""
 "Çinstaloni varësitë e instaluara nga pip gjatë instalimit të Shkarkuesit të "
 "Shpejtë të Fotove dhe vetë Shkarkuesin e Shpejtë të Fotove, pastaj dilni."
 
-#: ../install.py:2862
+#: ../install.py:2848
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
@@ -250,12 +249,12 @@ msgstr ""
 "Shënim: kjo nuk do të çinstalojë asnjë version të Shkarkuesit të Shpejtë të "
 "Fotove të instaluar nga menaxheri i paketave të sistemit tuaj Linux."
 
-#: ../install.py:2870
+#: ../install.py:2856
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr "Varësitë do të hiqen vetëm nëse nuk kërkohen nga programet e tjera."
 
-#: ../install.py:2878
+#: ../install.py:2864
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -271,7 +270,7 @@ msgstr ""
 "version i Shkarkuesit të Shpejtë të Fotove i instaluar nga menaxheri i "
 "paketave të sistemit tuaj Linux nuk do të çinstalohet."
 
-#: ../install.py:2902
+#: ../install.py:2888
 msgid ""
 "Install in current Python virtual environment. Virtual environments created "
 "with the --system-site-packages option are not supported."
@@ -279,14 +278,14 @@ msgstr ""
 "Instaloni në mjedisin aktual virtual Python. Ambientet virtuale të krijuara "
 "me opsionin --system-site-packages nuk mbështeten."
 
-#: ../install.py:2920
+#: ../install.py:2906
 msgid ""
 "Specific version of PyQt5 to install (default is the most recent version{})."
 msgstr ""
 "Version specifik i PyQt5 për tu instaluar (I parazgjedhur është versioni më "
 "i fundit {})."
 
-#: ../install.py:2931
+#: ../install.py:2917
 msgid ""
 "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
 "Uninstalls any PyPi versions already installed."
@@ -294,15 +293,15 @@ msgstr ""
 "Në vend që të përdorni PyQt5 nga PyPi, përdorni versionin nga sistemi juaj "
 "Linux. Çinstalon çdo version PyPi të instaluar tashmë."
 
-#: ../install.py:2968
+#: ../install.py:2954
 msgid "Failed to download versions file."
 msgstr "Shkarkimi i skedarit të versioneve dështoi."
 
-#: ../install.py:2973
+#: ../install.py:2959
 msgid "Got error code {} while accessing versions file"
 msgstr "Mori kodin e gabimit {} gjatë qasjes në skedarin e versioneve"
 
-#: ../install.py:3090
+#: ../install.py:3076
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -310,12 +309,12 @@ msgid ""
 "Exiting.\n"
 msgstr ""
 "Na vjen keq, nuk mund ta lokalizoj instaluesin. Ju lutemi kontrolloni "
-"lidhjen tuaj të Internetit dhe verifikoni nëse mund të arrini në https://www."
-"damonlynch.net\n"
+"lidhjen tuaj të Internetit dhe verifikoni nëse mund të arrini në "
+"https://www.damonlynch.net\n"
 "\n"
 "Duke dalë.\n"
 
-#: ../install.py:3244
+#: ../install.py:3230
 msgid ""
 "Package {} failed to install but Rapid Photo Downloader installation will "
 "continue."
@@ -323,82 +322,82 @@ msgstr ""
 "Paketa {} dështoi të instalohej, por instalimi i Shkarkuesit të Shpejtë të "
 "Fotove do të vazhdojë."
 
-#: ../install.py:3250
+#: ../install.py:3236
 msgid "Received error code"
 msgstr "U mor kod gabimi"
 
-#: ../install.py:3252
+#: ../install.py:3238
 msgid "Failed to install application requirements: exiting."
 msgstr "Dështoi instalimi i kërkesave të aplikacionit: duke dalë."
 
-#: ../install.py:3254
+#: ../install.py:3240
 msgid "Failed to install application: exiting..."
 msgstr "Dështoi instalimi i aplikacionit: duke dalë."
 
-#: ../install.py:3566
+#: ../install.py:3552
 msgid "Installing application requirements..."
 msgstr "Duke instaluar kërkesat e aplikacionit..."
 
-#: ../install.py:3601
+#: ../install.py:3587
 msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
 msgstr ""
 "Mbështetja e sistemit për gjenerimin e fotografive HEIF / HEIC nuk është në "
 "dispozicion"
 
-#: ../install.py:3620
+#: ../install.py:3606
 msgid "Not installing PyPI PyQt5 package into KDE Neon environment"
 msgstr "Mos instalimi i paketës PyPI PyQt5 në mjedisin KDE Neon"
 
-#: ../install.py:3625
+#: ../install.py:3611
 msgid "Installing application..."
 msgstr "Duke instaluar aplikacionin..."
 
-#: ../install.py:3711
+#: ../install.py:3697
 msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
 msgstr ""
 "Dëshironi që Shkarkuesi i Shpejtë i Fotove të shfaqet në menunë e Windows?"
 
-#: ../install.py:3717
+#: ../install.py:3703
 msgid "Adding Rapid Photo Downloader to the Windows menu"
 msgstr "Duke shtuar Shkarkuesin e Shpejtë të Fotove në menynë e Windows"
 
-#: ../install.py:3727
+#: ../install.py:3713
 msgid "Failed to copy application launcher."
 msgstr "Kopjimi i lëshuesit të aplikacionit dështoi."
 
-#: ../install.py:3738
+#: ../install.py:3724
 msgid "Man pages can be found in {}/share/man/man1"
 msgstr "Faqet e manualit mund të gjenden në {}/share/man/man1"
 
-#: ../install.py:3743
+#: ../install.py:3729
 msgid "Do you want to install the application's man pages?"
 msgstr "Dëshironi të instaloni faqet e manualit të aplikacionit?"
 
-#: ../install.py:3744
+#: ../install.py:3730
 msgid "They will be installed into {}"
 msgstr "Ato do të instalohen në {}"
 
-#: ../install.py:3746 ../install.py:3753
+#: ../install.py:3732 ../install.py:3739
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr "Nëse çinstaloni aplikacionin, hiqni vetë këto manuale."
 
-#: ../install.py:3749
+#: ../install.py:3735
 msgid "Do want to install the man pages?"
 msgstr "Dëshironi të instaloni faqet e manualit?"
 
-#: ../install.py:3751
+#: ../install.py:3737
 msgid "Installing man pages into {}"
 msgstr "Duke instaluar faqet e manualit në {}"
 
-#: ../install.py:3769
+#: ../install.py:3755
 msgid "Failed to create man page directory: exiting."
 msgstr "Dështoi në krijimin e drejtorisë të faqeve të manualit: duke dalë."
 
-#: ../install.py:3790
+#: ../install.py:3776
 msgid "Failed to copy man page."
 msgstr "Kopjimi i faqeve man dështoi."
 
-#: ../install.py:3817
+#: ../install.py:3803
 msgid ""
 "Rapid Photo Downloader can be started without activating the virtual "
 "environment by running {}/bin/rapid-photo-downloader"
@@ -406,7 +405,7 @@ msgstr ""
 "Shkarkuesi i Shpejtë i Fotove mund të fillohet pa aktivizuar mjedisin "
 "virtual duke ekzekutuar {}/ bin/rapid-photo-downloader"
 
-#: ../install.py:3830
+#: ../install.py:3816
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "command line or application launcher."
@@ -414,7 +413,7 @@ msgstr ""
 "Ju mund të duhet të rindizni kompjuterin për të qenë në gjendje të "
 "ekzekutoni programin nga rreshti i komandës ose lëshuesi i aplikacionit."
 
-#: ../install.py:3836
+#: ../install.py:3822
 msgid ""
 "You may have to restart WSL to be able to run the program from the command "
 "line."
@@ -422,7 +421,7 @@ msgstr ""
 "Ju mund të duhet të rinisni WSL për të qenë në gjendje të ekzekutoni "
 "programin nga linja e komandës."
 
-#: ../install.py:3845
+#: ../install.py:3831
 #, python-brace-format
 msgid ""
 "You must add {path} to your computer's $PATH variable to run the program "
@@ -431,16 +430,16 @@ msgstr ""
 "Ju duhet të shtoni {path} në variablin $PATH të kompjuterit tuaj për të "
 "ekzekutuar programin nga rreshti i komandave ose lëshuesi i aplikacionit."
 
-#: ../install.py:3864
+#: ../install.py:3850
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
 "(Nëse gjatë daljes ndodh një defekt i segmentimit, mund ta injoroni atë ...)"
 
-#: ../install.py:3866
+#: ../install.py:3852
 msgid "Done."
 msgstr "U krye."
 
-#: ../install.py:3880
+#: ../install.py:3866
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
@@ -450,7 +449,7 @@ msgstr ""
 "Shkarkuresit të Shpejtë të Fotove që ishte instaluar me pip. \n"
 "Nuk mund të vazhdojë. Duke dalë."
 
-#: ../install.py:3929
+#: ../install.py:3915
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
@@ -459,11 +458,11 @@ msgstr ""
 "Ekzekutojeni atë duke përdorur përdoruesin që do të ekzekutojë programin.\n"
 
 #. Translators: do not translate the terms --PyQt5-version or --use-system-PyQt5
-#: ../install.py:3941
+#: ../install.py:3927
 msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
 msgstr "Specifikoni vetëm një nga --PyQt5-version ose --use-system-PyQt5."
 
-#: ../install.py:3953
+#: ../install.py:3939
 msgid ""
 "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
 "on an Intel or AMD 64 bit platform."
@@ -472,11 +471,11 @@ msgstr ""
 "ose më të ri në një platformë Intel ose AMD 64 bit."
 
 #. Translators: do not translate the term PyQt5
-#: ../install.py:3967
+#: ../install.py:3953
 msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
 msgstr "Ju lutem specifikoni një version PyQt5 në formatin X.X ose X.X.X"
 
-#: ../install.py:3983
+#: ../install.py:3969
 msgid ""
 "Do you want to install Rapid Photo Downloader into the current virtual "
 "environment?"
@@ -484,7 +483,7 @@ msgstr ""
 "Dëshironi të instaloni Shkarkuesin e Shpejtë të Fotove në mjedisin aktual "
 "virtual?"
 
-#: ../install.py:3997
+#: ../install.py:3983
 msgid ""
 "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
 "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
@@ -493,7 +492,7 @@ msgstr ""
 "virtual Python kërkon Python 3.5 ose më të ri në një platformë Intel ose AMD "
 "64 bit."
 
-#: ../install.py:4010
+#: ../install.py:3996
 msgid ""
 "To install Rapid Photo Downloader into a Python virtual environment, create "
 "and activate the virtual environment before starting this script."
@@ -502,15 +501,15 @@ msgstr ""
 "Python, krijoni dhe aktivizoni mjedisin virtual para se të filloni këtë "
 "skript."
 
-#: ../install.py:4020
+#: ../install.py:4006
 msgid "Using virtual environment for installation using pip."
 msgstr "Përdorimi i mjedisit virtual për instalim duke përdorur pip."
 
-#: ../install.py:4025 ../install.py:4039
+#: ../install.py:4011 ../install.py:4025
 msgid "Do not include any other command line arguments when specifying"
 msgstr "Mos përfshini asnjë argument tjetër të komandës kur specifikoni"
 
-#: ../install.py:4059
+#: ../install.py:4045
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
@@ -519,23 +518,23 @@ msgstr ""
 "python.\n"
 "Duke dalë..."
 
-#: ../install.py:4067
+#: ../install.py:4053
 msgid "Restarting script using system python..."
 msgstr "Po rinis skriptin duke përdorur python të sistemit..."
 
-#: ../install.py:4088
+#: ../install.py:4074
 msgid "Detected Linux distribution {} {}"
 msgstr "Zbulohet sistemi Linux {} {}"
 
-#: ../install.py:4107
+#: ../install.py:4093
 msgid "Exiting..."
 msgstr "Duke dalë..."
 
-#: ../install.py:4135
+#: ../install.py:4121
 msgid "To continue, the package python3-apt must be installed."
 msgstr "Për të vazhduar, duhet të instalohet paketa python3-apt."
 
-#: ../install.py:4175
+#: ../install.py:4161
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer:"
@@ -543,7 +542,7 @@ msgstr ""
 "Instaloni paketat e mëposhtme duke përdorur menaxherin standard të paketave "
 "të sistemit tuaj Linux, dhe më pas rishfaqni këtë instalues:"
 
-#: ../install.py:4187
+#: ../install.py:4173
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
@@ -552,7 +551,7 @@ msgstr ""
 "Python 3 dhe menaxherin e tij të paketave."
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:4222
+#: ../install.py:4208
 msgid "Installing python requests"
 msgstr "Duke instaluar python requests"
 
@@ -675,8 +674,8 @@ msgstr "Zbuloni automatikisht pajisjet e rezervimit"
 
 #: ../raphodo/backuppanel.py:480
 msgid ""
-"Specify the folder in which backups are stored on the device."
-"<br><br><i>Note: the presence of a folder with this name is used to "
+"Specify the folder in which backups are stored on the "
+"device.<br><br><i>Note: the presence of a folder with this name is used to "
 "determine if the device is used for backups. For each device you wish to use "
 "for backing up to, create a folder in it with one of these folder names. By "
 "adding both folders, the same device can be used to back up both photos and "
@@ -703,7 +702,8 @@ msgid "Example:"
 msgstr "Shembull:"
 
 #: ../raphodo/backuppanel.py:516
-msgid "If you disable automatic detection, choose the exact backup locations."
+msgid ""
+"If you disable automatic detection, choose the exact backup locations."
 msgstr ""
 "Nëse çaktivizoni zbulimin automatik, zgjidhni saktë vendet e rezervimit."
 
@@ -822,14 +822,14 @@ msgid "%(size_free)s free of %(size_total)s"
 msgstr "%(size_free)s e lirë nga %(size_total)s"
 
 #: ../raphodo/destinationdisplay.py:222 ../raphodo/devicedisplay.py:1173
-#: ../raphodo/rapid.py:2338 ../raphodo/rapid.py:2475 ../raphodo/rapid.py:7323
+#: ../raphodo/rapid.py:2338 ../raphodo/rapid.py:2475 ../raphodo/rapid.py:7322
 #: ../raphodo/rpdfile.py:914
 msgid "Photos"
 msgstr "Fotot"
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:223 ../raphodo/devicedisplay.py:1174
-#: ../raphodo/rapid.py:2343 ../raphodo/rapid.py:2476 ../raphodo/rapid.py:7323
+#: ../raphodo/rapid.py:2343 ../raphodo/rapid.py:2476 ../raphodo/rapid.py:7322
 #: ../raphodo/rpdfile.py:942 ../raphodo/storage.py:537
 msgid "Videos"
 msgstr "Videot"
@@ -1135,10 +1135,10 @@ msgstr ""
 "<li><b>Koha e Modifikimit:</b> kur skedari u modifikua për herë të fundit, "
 "sipas metadatave të tij (ku \n"
 " në dispozicion) ose sipas sistemit të skedarëve (si rikthim).</li>\n"
-"<li><b>Gjendja e kontrolluar:</b> nëse skedari është shënuar për shkarkim.</"
-"li>\n"
-"<li><b>Emri i skedarit:</b> emri i plotë i skedarit, duke përfshirë shtesën."
-"</li>\n"
+"<li><b>Gjendja e kontrolluar:</b> nëse skedari është shënuar për "
+"shkarkim.</li>\n"
+"<li><b>Emri i skedarit:</b> emri i plotë i skedarit, duke përfshirë "
+"shtesën.</li>\n"
 "<li><b>Shtesa:</b> shtesa e emrit të skedarit. Mund ta përdorni për të "
 "grupuar jpeg dhe imazhe të papërpunuara, për \n"
 "shembull.</li>\n"
@@ -1175,12 +1175,12 @@ msgid ""
 "different types\n"
 "of directory:\n"
 "<ol>\n"
-"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, &quot;"
-"Photos&quot;, or\n"
+"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, "
+"&quot;Photos&quot;, or\n"
 "&quot;Videos&quot;. This directory should already exist on your computer. In "
 "the illustration \n"
-"below, the destination folders are &quot;Pictures&quot; and &quot;"
-"Videos&quot;. The\n"
+"below, the destination folders are &quot;Pictures&quot; and "
+"&quot;Videos&quot;. The\n"
 "name of the destination folder is displayed in the grey bar directly above "
 "the folder tree, \n"
 "with a folder icon to its left and a gear icon to its far right.</li>\n"
@@ -1197,12 +1197,12 @@ msgstr ""
 "dy lloje të ndryshme\n"
 "të direktorive:\n"
 "<ol>\n"
-"<li><b>Dosja e destinacionit</b>, p.sh. &quot;Figurat&quot;, &quot;"
-"Fotot&quot;, ose\n"
+"<li><b>Dosja e destinacionit</b>, p.sh. &quot;Figurat&quot;, "
+"&quot;Fotot&quot;, ose\n"
 "&quot;Videot&quot;. Kjo direktori duhet të jetë ekzistuese në kompjuterin "
 "tuaj. Në ilustrimin \n"
-"më poshtë, dosjet e destinacionit janë &quot;Figurat&quot; dhe &quot;"
-"Videot&quot;.\n"
+"më poshtë, dosjet e destinacionit janë &quot;Figurat&quot; dhe "
+"&quot;Videot&quot;.\n"
 "Emri i dosjes së destinacionit shfaqet në shiritin gri direkt mbi pemën e "
 "dosjes, \n"
 "me një ikonë dosje në të majtë të saj dhe një ikonë ingranazhi në të "
@@ -1427,9 +1427,9 @@ msgid ""
 msgstr ""
 "\n"
 "Lexoni më shumë për të gjitha mënyrat se si mund të gjeneroni emra të nën-"
-"dosjeve të shkarkimit dhe emra të skedarëve në <a  href=\"http://damonlynch."
-"net/rapid/documentation/#renamedateandtime\">dokumentacioni në internet</a> "
-"\".\n"
+"dosjeve të shkarkimit dhe emra të skedarëve në <a  "
+"href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime\">dokumen"
+"tacioni në internet</a> \".\n"
 "            "
 
 #: ../raphodo/didyouknow.py:300
@@ -1507,8 +1507,8 @@ msgid ""
 "names to your photos and \n"
 "videos:\n"
 "<ol>\n"
-"<li><b>Downloads today</b>: tracks downloads completed during that day.</"
-"li>\n"
+"<li><b>Downloads today</b>: tracks downloads completed during that "
+"day.</li>\n"
 "<li><b>Stored number</b>: similar to Downloads today, but it is remembered "
 "from the last time the  \n"
 "program was run.</li>\n"
@@ -1526,19 +1526,19 @@ msgstr ""
 "të caktoni emra unikë në fotot dhe\n"
 "videot tuaja:\n"
 "<ol>\n"
-"<li><b>Shkarkimet sot</b>: gjurmon shkarkimet e përfunduara gjatë asaj dite."
-"</li>\n"
+"<li><b>Shkarkimet sot</b>: gjurmon shkarkimet e përfunduara gjatë asaj "
+"dite.</li>\n"
 "<li><b>Numri i ruajtur</b>: i ngjashëm me Shkarkimet sot, por mbahet mend "
 "nga hera e fundit  \n"
 "që u ekzekutua programi.</li>\n"
 "<li><b>Numri i seancës</b>: rivendos sa herë që ekzekutohet programi. </li>\n"
-"<li><b>Shkronja e sekuencës</b>: si numri i seancës por përdor shkronja.</"
-"li>\n"
+"<li><b>Shkronja e sekuencës</b>: si numri i seancës por përdor "
+"shkronja.</li>\n"
 "</ol></p>\n"
 "<p>\n"
 "Lexoni më shumë rreth numrave të sekuencës në <a \n"
-"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers"
-"\">dokumentacionin në internet</a>.</p>\n"
+"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers\">dokumenta"
+"cionin në internet</a>.</p>\n"
 "            "
 
 #: ../raphodo/didyouknow.py:354
@@ -1552,8 +1552,8 @@ msgstr ""
 "\n"
 "Paneli <b>Rename</b> ju lejon të konfiguroni riemërtimin e skedarit. Për të "
 "riemërtuar skedarët tuaj, mund të zgjidhni\n"
-"nga mesi i paravendosjeve ekzistuese të riemërtimit ose përcaktoni "
-"tuajin.              \n"
+"nga mesi i paravendosjeve ekzistuese të riemërtimit ose përcaktoni tuajin.   "
+"           \n"
 "            "
 
 #: ../raphodo/didyouknow.py:361
@@ -1651,8 +1651,8 @@ msgid ""
 "memory cards, and other devices.</li>\n"
 "<li>A <b>temporary cache</b> of files downloaded from a camera, one for "
 "photos and another for \n"
-"videos. They are located in temporary subfolders in the download destination."
-"</li>\n"
+"videos. They are located in temporary subfolders in the download "
+"destination.</li>\n"
 "<li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo Downloader "
 "stores thumbnails of \n"
 "RAW and TIFF photos once they have been downloaded. File browsers like Gnome "
@@ -1896,11 +1896,12 @@ msgid ""
 "happening.<br><br>The bug report must also include the program settings and "
 "log files. To create a file with this additional information, click Save."
 msgstr ""
-"Ju lutemi raportoni problemin në <a href=\"{website}\">{website}</a>."
-"<br><br>Në raportin tuaj të defektit përshkruani atë që prisnit të ndodhte "
-"dhe atë që keni vërejtur se po ndodh.<br>< br>Raporti i defektit duhet të "
-"përfshijë gjithashtu cilësimet e programit dhe skedarët e regjistrave. Për "
-"të krijuar një skedar me këtë informacion shtesë, klikoni Ruaj."
+"Ju lutemi raportoni problemin në <a "
+"href=\"{website}\">{website}</a>.<br><br>Në raportin tuaj të defektit "
+"përshkruani atë që prisnit të ndodhte dhe atë që keni vërejtur se po "
+"ndodh.<br>< br>Raporti i defektit duhet të përfshijë gjithashtu cilësimet e "
+"programit dhe skedarët e regjistrave. Për të krijuar një skedar me këtë "
+"informacion shtesë, klikoni Ruaj."
 
 #: ../raphodo/excepthook.py:60
 msgid "Additional Information Saved"
@@ -1911,8 +1912,8 @@ msgstr "Informacioni Shtesë u Ruajt"
 msgid ""
 "The additional bug report information was created in your home directory in "
 "a tar file: <pre>{tarfile}</pre>You need to attach this file to the bug "
-"report yourself. It will not be automatically attached.<br><br>Click <a href="
-"\"{uri}\">here</a> to see the file in your file manager."
+"report yourself. It will not be automatically attached.<br><br>Click <a "
+"href=\"{uri}\">here</a> to see the file in your file manager."
 msgstr ""
 "Informacioni shtesë i raportit të gabimeve u krijua në direktorinë tuaj të "
 "shtëpisë në një skedar tar: <pre>{tarfile}</pre>Ju duhet ta bashkëngjitni "
@@ -1944,11 +1945,11 @@ msgid ""
 msgstr ""
 "Përfshini në raportin tuaj të defekteve, skedarët e regjistrave të "
 "programit. Raporti i defektit duhet të përmbajë <i>{log_file}</i>, por "
-"bashkëngjitja e skedarëve të tjerë të regjistrit është shpesh e dobishme."
-"<br><br>Nëse është e mundur, ju lutemi gjithashtu përfshini skedarin e "
-"konfigurimit të programit <i>{config_file}</ i>.<br><br>Kliko <a href="
-"\"{log_path}\">këtu</a>për të hapur direktorinë e regjistrave, dhe <a href="
-"\"{config_path}\">këtu</a> për të hapur direktorinë e konfigurimit."
+"bashkëngjitja e skedarëve të tjerë të regjistrit është shpesh e "
+"dobishme.<br><br>Nëse është e mundur, ju lutemi gjithashtu përfshini "
+"skedarin e konfigurimit të programit <i>{config_file}</ i>.<br><br>Kliko <a "
+"href=\"{log_path}\">këtu</a>për të hapur direktorinë e regjistrave, dhe <a "
+"href=\"{config_path}\">këtu</a> për të hapur direktorinë e konfigurimit."
 
 #: ../raphodo/excepthook.py:91
 #, python-brace-format
@@ -2613,7 +2614,8 @@ msgstr ""
 "ose ekzistues për to."
 
 #: ../raphodo/jobcodepanel.py:258
-msgid "The new Job Code will be applied to all selected photos and/or videos."
+msgid ""
+"The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 "Ky Kod Pune i ri do të zbatohet për të gjitha fotot dhe / ose videot e "
 "zgjedhura."
@@ -2809,16 +2811,16 @@ msgstr "Ruaj Paravendosjen - Shkarkues i Shpejtë i Fotove"
 
 #: ../raphodo/nameeditor.py:1425
 msgid ""
-"<b>Do you want to save the changes in a new custom preset?</"
-"b><br><br>Creating a custom preset is not required, but can help you keep "
-"organized.<br><br>The changes to the preferences will still be applied "
-"regardless of whether you create a new custom preset or not."
+"<b>Do you want to save the changes in a new custom "
+"preset?</b><br><br>Creating a custom preset is not required, but can help "
+"you keep organized.<br><br>The changes to the preferences will still be "
+"applied regardless of whether you create a new custom preset or not."
 msgstr ""
-"<b>A doni të ruani ndryshimet në një paravendosje të re të personalizuar?</"
-"b><br><br>Krijimi i një paravendosjeje të personalizuar nuk kërkohet, por "
-"mund t'ju ndihmojë të jeni të organizuar.<br><br>Ndryshimet në preferencat "
-"do të zbatohen përsëri pavarësisht nëse krijoni një paravendosje të re të "
-"personalizuar apo jo."
+"<b>A doni të ruani ndryshimet në një paravendosje të re të "
+"personalizuar?</b><br><br>Krijimi i një paravendosjeje të personalizuar nuk "
+"kërkohet, por mund t'ju ndihmojë të jeni të organizuar.<br><br>Ndryshimet në "
+"preferencat do të zbatohen përsëri pavarësisht nëse krijoni një paravendosje "
+"të re të personalizuar apo jo."
 
 #: ../raphodo/nameeditor.py:1443
 msgid ""
@@ -2827,11 +2829,11 @@ msgid ""
 "preset.<br><br>The changes to the preferences will still be applied "
 "regardless of whether you save a custom preset or not."
 msgstr ""
-"<b>A doni të ruani ndryshimet në një paravendosje të personalizuar?</"
-"b><br><br>Nëse të pëlqen, mund të krijosh një paravendosje të re të "
-"personalizuar ose të përditësosh paravendosjen ekzistuese të personalizuar."
-"<br><br>Ndryshimet në preferencat do të zbatohen përsëri, pavarësisht nëse "
-"ruani një paravendosje të personalizuar apo jo."
+"<b>A doni të ruani ndryshimet në një paravendosje të "
+"personalizuar?</b><br><br>Nëse të pëlqen, mund të krijosh një paravendosje "
+"të re të personalizuar ose të përditësosh paravendosjen ekzistuese të "
+"personalizuar.<br><br>Ndryshimet në preferencat do të zbatohen përsëri, "
+"pavarësisht nëse ruani një paravendosje të personalizuar apo jo."
 
 #: ../raphodo/nameeditor.py:1455
 msgid "Save New Custom Preset"
@@ -2863,7 +2865,8 @@ msgstr "Dëshironi të shkarkoni versionin e ri?"
 #: ../raphodo/newversion.py:303
 #, python-format
 msgid "Changes in the new release can be viewed <a href=\"%s\">here</a>."
-msgstr "Ndryshimet në versionin e ri mund të shikohen <a href=\"%s\">këtu</a>."
+msgstr ""
+"Ndryshimet në versionin e ri mund të shikohen <a href=\"%s\">këtu</a>."
 
 #. Translators: this text appears in a button - the & sets the s key in combination with
 #. the alt key to act as the keyboard shortcut
@@ -3078,11 +3081,13 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:329
 msgid ""
-"Use python-style <a href=\"http://damonlynch.net/rapid/documentation/"
-"#regularexpressions\">regular expressions</a>"
+"Use python-style <a "
+"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\">regula"
+"r expressions</a>"
 msgstr ""
-"Përdorni  python-stil <a href=\"http://damonlynch.net/rapid/documentation/"
-"#regularexpressions\"në shprehjet e rregullta</a>"
+"Përdorni  python-stil <a "
+"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\"në "
+"shprehjet e rregullta</a>"
 
 #: ../raphodo/preferencedialog.py:338
 msgid ""
@@ -3133,7 +3138,8 @@ msgstr "Dil nga programi kur të përfundojë shkarkimi"
 
 #: ../raphodo/preferencedialog.py:417
 msgid "Exit program even if download had warnings or errors"
-msgstr "Dilni nga programi edhe nëse shkarkimi kishte paralajmërime ose gabime"
+msgstr ""
+"Dilni nga programi edhe nëse shkarkimi kishte paralajmërime ose gabime"
 
 #: ../raphodo/preferencedialog.py:447
 msgid "Thumbnail Generation"
@@ -3173,7 +3179,8 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:471
 msgid "Number of CPU cores used to generate thumbnails."
-msgstr "Numri i bërthamave të CPU-së të përdorura për të gjeneruar miniatura."
+msgstr ""
+"Numri i bërthamave të CPU-së të përdorura për të gjeneruar miniatura."
 
 #: ../raphodo/preferencedialog.py:472
 msgid "CPU cores:"
@@ -3305,7 +3312,8 @@ msgid "Backup destinations are missing"
 msgstr "Destinacionet e rezervimit mungojnë"
 
 #: ../raphodo/preferencedialog.py:651
-msgid "Warn before starting a download if it is not possible to back up files."
+msgid ""
+"Warn before starting a download if it is not possible to back up files."
 msgstr ""
 "Paralajmëro para se të fillojë një shkarkim nëse nuk është e mundur të bëhet "
 "kopje rezervë të skedarëve."
@@ -4247,8 +4255,8 @@ msgstr ""
 
 #: ../raphodo/rapid.py:451 ../raphodo/rapid.py:835 ../raphodo/rapid.py:4491
 #: ../raphodo/rapid.py:4710 ../raphodo/rapid.py:4729 ../raphodo/rapid.py:4752
-#: ../raphodo/rapid.py:4759 ../raphodo/rapid.py:5430 ../raphodo/rapid.py:6037
-#: ../raphodo/rapid.py:7187 ../raphodo/rememberthisdialog.py:97
+#: ../raphodo/rapid.py:4759 ../raphodo/rapid.py:5430 ../raphodo/rapid.py:6038
+#: ../raphodo/rapid.py:7186 ../raphodo/rememberthisdialog.py:97
 #: ../raphodo/viewutils.py:366
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:1
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:3
@@ -4290,14 +4298,16 @@ msgid ""
 "<b>Cannot download from Apple devices</b><br><br>To download from "
 "%(device)s, this program requires additional software be installed that "
 "interacts with Apple devices.<br><br>Missing applications: "
-"%(applications)s<br><br><a href=\"https://damonlynch.net/rapid/documentation/"
-"#iosdevicesupport\">Learn more</a> about which software to install."
+"%(applications)s<br><br><a "
+"href=\"https://damonlynch.net/rapid/documentation/#iosdevicesupport\">Learn "
+"more</a> about which software to install."
 msgstr ""
 "<b>Nuk mund të shkarkohet nga pajisjet Apple</b><br><br>Për të shkarkuar nga "
 "%(device)s, ky program kërkon të instalohet një program shtesë që "
 "bashkëvepron me pajisjet e Apple.<br><br>Aplikacionet që mungojnë: "
-"%(applications)s<br><br><a href=\"https://damonlynch.net/rapid/documentation/"
-"#iosdevicesupport\">Mësoni më shumë</a> se cilin softuer të instaloni."
+"%(applications)s<br><br><a "
+"href=\"https://damonlynch.net/rapid/documentation/#iosdevicesupport\">Mësoni "
+"më shumë</a> se cilin softuer të instaloni."
 
 #: ../raphodo/rapid.py:1683
 msgid "Download failed"
@@ -4528,7 +4538,8 @@ msgstr ""
 
 #: ../raphodo/rapid.py:3083
 msgid "You cannot change the download destination while downloading."
-msgstr "Ju nuk mund ta ndryshoni destinacionin e shkarkimit gjatë shkarkimit."
+msgstr ""
+"Ju nuk mund ta ndryshoni destinacionin e shkarkimit gjatë shkarkimit."
 
 #: ../raphodo/rapid.py:3097
 #, python-format
@@ -4748,48 +4759,53 @@ msgid ""
 "<b>All files on the %(camera)s are inaccessible</b>.<br><br>It may be locked "
 "or not configured for file transfers using USB. You can unlock it and try "
 "again.<br><br>On some models you also need to change the setting to allow "
-"the use of USB for <i>File Transfer</i>.<br><br>Learn more about <a href="
-"\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras"
-"\">downloading from cameras</a> and <a href=\"https://damonlynch.net/rapid/"
-"documentation/#downloadingfromphones\">enabling downloading from phones</a>. "
-"<br><br>Alternatively, you can ignore the %(camera)s."
+"the use of USB for <i>File Transfer</i>.<br><br>Learn more about <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">d"
+"ownloading from cameras</a> and <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">en"
+"abling downloading from phones</a>. <br><br>Alternatively, you can ignore "
+"the %(camera)s."
 msgstr ""
 "<b>Të gjitha skedarët në %(camera)s janë të paarritshëm</b>.<br><br>Mund të "
 "jetë i kyçur ose jo i konfiguruar për transferimin e skedarëve duke përdorur "
 "USB. Mund ta zhbllokoni dhe provoni përsëri.<br><br>Në disa modele "
 "gjithashtu duhet të ndryshoni cilësimin për të lejuar përdorimin e USB për "
-"<i>Transferimin e Skedarëve</i>.<br><br>Mësoni më shumë rreth <a href="
-"\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras"
-"\">shkarkimi nga kamerat</a> dhe <a href=\"https://damonlynch.net/rapid/"
-"documentation/#downloadingfromphones\"> aktivizimi i shkarkimit nga "
-"telefonat</a>.<br><br>Përndryshe, ju mund të injoroni %(camera)s."
+"<i>Transferimin e Skedarëve</i>.<br><br>Mësoni më shumë rreth <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">s"
+"hkarkimi nga kamerat</a> dhe <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\"> "
+"aktivizimi i shkarkimit nga telefonat</a>.<br><br>Përndryshe, ju mund të "
+"injoroni %(camera)s."
 
 #: ../raphodo/rapid.py:4735
 #, python-format
 msgid ""
-"<b>The %(camera)s appears to be in use by another application.</"
-"b><br><br>Rapid Photo Downloader cannnot access a phone or camera that is "
-"being used by another program like a file manager.<br><br>If the device is "
-"mounted in your file manager, you must first &quot;eject&quot; it from the "
-"other program while keeping the %(camera)s plugged in.<br><br>If that does "
-"not work, unplug the %(camera)s from the computer and plug it in again."
-"<br><br>Learn more about <a href=\"https://damonlynch.net/rapid/"
-"documentation/#downloadingfromcameras\">downloading from cameras</a> and <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones"
-"\">enabling downloading from phones</a>. <br><br>Alternatively, you can "
-"ignore the %(camera)s."
+"<b>The %(camera)s appears to be in use by another "
+"application.</b><br><br>Rapid Photo Downloader cannnot access a phone or "
+"camera that is being used by another program like a file manager.<br><br>If "
+"the device is mounted in your file manager, you must first &quot;eject&quot; "
+"it from the other program while keeping the %(camera)s plugged in.<br><br>If "
+"that does not work, unplug the %(camera)s from the computer and plug it in "
+"again.<br><br>Learn more about <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">d"
+"ownloading from cameras</a> and <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">en"
+"abling downloading from phones</a>. <br><br>Alternatively, you can ignore "
+"the %(camera)s."
 msgstr ""
-"<b>%(camera)s duket se po përdoret nga një aplikacion tjetër.</"
-"b><br><br>Shkarkuesi i Shpejtë i Fotove nuk mund të ketë qasje në një "
-"telefon ose aparat fotografik që po përdoret nga një program tjetër si një "
-"menaxher skedarësh.< br><br>Nëse pajisja është montuar në menaxherin tuaj të "
-"skedarëve, së pari duhet të &quot;nxirrni&quot; atë nga programi tjetër duke "
-"mbajtur të lidhur %(camera)s.<br><br>Nëse kjo nuk funksionon, shkëputni "
-"%(camera)s nga kompjuteri dhe futeni përsëri. <br><br>Mësoni më shumë rreth "
-"<a href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras"
-"\">shkarkimit nga kamerat</a> dhe <a href = \"https://damonlynch.net/rapid/"
-"documentation/# shkarkim nga telefonat \"> aktivizimi i shkarkimit nga "
-"telefonat</a>. <br><br>Përndryshe, ju mund të injoroni %(camera)s."
+"<b>%(camera)s duket se po përdoret nga një aplikacion "
+"tjetër.</b><br><br>Shkarkuesi i Shpejtë i Fotove nuk mund të ketë qasje në "
+"një telefon ose aparat fotografik që po përdoret nga një program tjetër si "
+"një menaxher skedarësh.< br><br>Nëse pajisja është montuar në menaxherin "
+"tuaj të skedarëve, së pari duhet të &quot;nxirrni&quot; atë nga programi "
+"tjetër duke mbajtur të lidhur %(camera)s.<br><br>Nëse kjo nuk funksionon, "
+"shkëputni %(camera)s nga kompjuteri dhe futeni përsëri. <br><br>Mësoni më "
+"shumë rreth <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">s"
+"hkarkimit nga kamerat</a> dhe <a href = "
+"\"https://damonlynch.net/rapid/documentation/# shkarkim nga telefonat \"> "
+"aktivizimi i shkarkimit nga telefonat</a>. <br><br>Përndryshe, ju mund të "
+"injoroni %(camera)s."
 
 #: ../raphodo/rapid.py:4755
 msgid "Enable access to the iOS Device"
@@ -4827,30 +4843,30 @@ msgstr "Dështoi skanimi i pajisjes"
 #: ../raphodo/rapid.py:5402
 #, python-format
 msgid ""
-"<b>The %(camera)s cannot be scanned because it cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again."
+"<b>The %(camera)s cannot be scanned because it cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again."
 msgstr ""
-"<b>%(camera)s nuk mund të skanohet sepse nuk mund të çmontohet.</"
-"b><br><br>Ju mund të mbyllni çdo aplikacion tjetër (të tillë si një "
-"shfletues skedari) që po e përdor atë dhe të provoni përsëri. Nëse kjo nuk "
-"funksionon, shkëputni %(camera)s nga kompjuteri dhe lidheni përsëri."
+"<b>%(camera)s nuk mund të skanohet sepse nuk mund të "
+"çmontohet.</b><br><br>Ju mund të mbyllni çdo aplikacion tjetër (të tillë si "
+"një shfletues skedari) që po e përdor atë dhe të provoni përsëri. Nëse kjo "
+"nuk funksionon, shkëputni %(camera)s nga kompjuteri dhe lidheni përsëri."
 
 #: ../raphodo/rapid.py:5437
 #, python-format
 msgid ""
-"<b>The download cannot start because the %(camera)s cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again, and choose which files you want to "
-"download from it."
+"<b>The download cannot start because the %(camera)s cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again, and choose which files "
+"you want to download from it."
 msgstr ""
-"<b>Shkarkimi nuk mund të fillojë sepse %(camera)s nuk mund të çmontohet.</"
-"b><br><br>Mund të mbyllni çdo aplikacion tjetër (të tillë si një shfletues "
-"skedari) që po e përdor atë dhe të provoni përsëri. Nëse kjo nuk funksionon, "
-"shkëputni %(camera)s nga kompjuteri dhe lidheni përsëri, dhe zgjidhni cilat "
-"skedarë dëshironi të shkarkoni prej tij."
+"<b>Shkarkimi nuk mund të fillojë sepse %(camera)s nuk mund të "
+"çmontohet.</b><br><br>Mund të mbyllni çdo aplikacion tjetër (të tillë si një "
+"shfletues skedari) që po e përdor atë dhe të provoni përsëri. Nëse kjo nuk "
+"funksionon, shkëputni %(camera)s nga kompjuteri dhe lidheni përsëri, dhe "
+"zgjidhni cilat skedarë dëshironi të shkarkoni prej tij."
 
 #: ../raphodo/rapid.py:5598
 msgid "Completed Downloads Present"
@@ -4884,35 +4900,35 @@ msgid ""
 "Do you want to download photos and videos from the device <i>%(device)s</i>?"
 msgstr "Dëshironi të shkarkoni foto dhe video nga pajisja <i>%(device)s</i>?"
 
-#: ../raphodo/rapid.py:6020
+#: ../raphodo/rapid.py:6021
 #, python-format
 msgid "<b>Do you want to ignore the %s whenever this program is run?</b>"
 msgstr "<b>Dëshironi të injoroni %s sa herë që ekzekutohet ky program?</b>"
 
-#: ../raphodo/rapid.py:6024
+#: ../raphodo/rapid.py:6025
 msgid ""
 "All cameras, phones and tablets with the same model name will be ignored."
 msgstr ""
 "Të gjitha kamerat, telefonat dhe tabletët me të njëjtin emër modeli do të "
 "injorohen."
 
-#: ../raphodo/rapid.py:6030
+#: ../raphodo/rapid.py:6031
 #, python-format
 msgid ""
 "<b>Do you want to ignore the device %s whenever this program is run?</b>"
 msgstr ""
 "<b>Dëshiron të injoroni pajisjen %s sa herë që ekzekutohet ky program?</b>"
 
-#: ../raphodo/rapid.py:6034
+#: ../raphodo/rapid.py:6035
 msgid "Any device with the same name will be ignored."
 msgstr "Çdo pajisje me të njëjtin emër do të injorohet."
 
-#: ../raphodo/rapid.py:6388
+#: ../raphodo/rapid.py:6389
 #, python-format
 msgid "Downloading from %(location)s on This Computer."
 msgstr "Duke shkarkuar nga%(location)s në Këtë Kompjuter."
 
-#: ../raphodo/rapid.py:6392
+#: ../raphodo/rapid.py:6393
 msgid ""
 "Do you really want to download from here?<br><br>On some systems, scanning "
 "this location can take a very long time."
@@ -4920,17 +4936,17 @@ msgstr ""
 "Dëshironi vërtet të shkarkoni nga këtu?<br><br>Në disa sisteme, skanimi i "
 "këtij vendndodhje mund të zgjasë shumë."
 
-#: ../raphodo/rapid.py:6448
+#: ../raphodo/rapid.py:6449
 #, python-format
 msgid "Generating thumbnails for %s"
 msgstr "Duke gjeneruar miniaturat për %s"
 
-#: ../raphodo/rapid.py:6455
+#: ../raphodo/rapid.py:6456
 #, python-format
 msgid "Scanning %s"
 msgstr "Duke skanuar %s"
 
-#: ../raphodo/rapid.py:6469
+#: ../raphodo/rapid.py:6470
 #, python-format
 msgid ""
 "%(number)s of %(available files)s checked for download (%(hidden)s hidden)"
@@ -4938,81 +4954,82 @@ msgstr ""
 "%(number)s nga %(available files)s të kontrolluar për shkarkim (%(hidden)s "
 "hidden)"
 
-#: ../raphodo/rapid.py:6481
+#: ../raphodo/rapid.py:6482
 #, python-format
 msgid "%(number)s of %(available files)s checked for download"
 msgstr "%(number)s nga %(available files)s janë kontrolluar për shkarkim"
 
-#: ../raphodo/rapid.py:6780
+#: ../raphodo/rapid.py:6779
 msgid "Show version numbers of program and its libraries and exit."
 msgstr "Shfaq numrat e versionit të programit dhe libraritë tij dhe dil."
 
-#: ../raphodo/rapid.py:6787
+#: ../raphodo/rapid.py:6786
 msgid "Display program information when run from the command line."
 msgstr ""
 "Shfaq informacionin e programit kur ekzekutohet nga komanda në terminal."
 
-#: ../raphodo/rapid.py:6793
+#: ../raphodo/rapid.py:6792
 msgid "Display debugging information when run from the command line."
 msgstr ""
 "Shfaq informacionin e kontrollit të gabimeve kur ekzekutohet nga komanda në "
 "terminal."
 
-#: ../raphodo/rapid.py:6800
+#: ../raphodo/rapid.py:6799
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr ""
 "Rendit shtesat e skedarëve për foto dhe video që programi njeh dhe dil."
 
-#: ../raphodo/rapid.py:6806
+#: ../raphodo/rapid.py:6805
 msgid "Turn on or off the the renaming of photos."
 msgstr "Aktivizoni ose çaktivizoni riemërtimin e fotove."
 
-#: ../raphodo/rapid.py:6812
+#: ../raphodo/rapid.py:6811
 msgid "Turn on or off the the renaming of videos."
 msgstr "Aktivizoni ose çaktivizoni riemërtimin e videove."
 
-#: ../raphodo/rapid.py:6820
+#: ../raphodo/rapid.py:6819
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
 msgstr ""
 "Aktivizoni ose çaktivizoni zbulimin automatik të pajisjeve nga të cilat mund "
 "të shkarkoni."
 
-#: ../raphodo/rapid.py:6828
+#: ../raphodo/rapid.py:6827
 msgid "Turn on or off downloading from this computer."
 msgstr "Aktivizoni ose çaktivizoni shkarkimin nga ky kompjuter."
 
-#: ../raphodo/rapid.py:6833 ../raphodo/rapid.py:6840 ../raphodo/rapid.py:6847
-#: ../raphodo/rapid.py:6891 ../raphodo/rapid.py:6901
+#: ../raphodo/rapid.py:6832 ../raphodo/rapid.py:6839 ../raphodo/rapid.py:6846
+#: ../raphodo/rapid.py:6890 ../raphodo/rapid.py:6900
 msgid "PATH"
 msgstr "SHTEG"
 
-#: ../raphodo/rapid.py:6835
+#: ../raphodo/rapid.py:6834
 msgid "The PATH on this computer from which to download."
 msgstr "SHTEGU në këtë kompjuter nga e cila mund të shkarkohet."
 
-#: ../raphodo/rapid.py:6842
+#: ../raphodo/rapid.py:6841
 msgid "The PATH where photos will be downloaded to."
 msgstr "SHTEGU, në të cilën do të shkarkohen fotot."
 
-#: ../raphodo/rapid.py:6849
+#: ../raphodo/rapid.py:6848
 msgid "The PATH where videos will be downloaded to."
 msgstr "SHTEGU, në të cilën do të shkarkohen videot."
 
-#: ../raphodo/rapid.py:6856
+#: ../raphodo/rapid.py:6855
 msgid "Turn on or off the backing up of photos and videos while downloading."
 msgstr ""
 "Aktivizoni ose çaktivizoni rezervimin e fotove dhe videove gjatë shkarkimit."
 
-#: ../raphodo/rapid.py:6862
+#: ../raphodo/rapid.py:6861
 msgid "Turn on or off the automatic detection of backup devices."
-msgstr "Aktivizoni ose çaktivizoni zbulimin automatik të pajisjeve rezervimit."
+msgstr ""
+"Aktivizoni ose çaktivizoni zbulimin automatik të pajisjeve rezervimit."
 
-#: ../raphodo/rapid.py:6867 ../raphodo/rapid.py:6879
+#: ../raphodo/rapid.py:6866 ../raphodo/rapid.py:6878
 msgid "FOLDER"
 msgstr "DOSJE"
 
-#: ../raphodo/rapid.py:6870
+#: ../raphodo/rapid.py:6869
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
@@ -5024,7 +5041,7 @@ msgstr ""
 "nëse pajisja përdoret ose jo për rezervime. Për secilën pajisje që dëshironi "
 "të përdorni për të rezervuar fotot, krijoni një dosje në të me këtë emër."
 
-#: ../raphodo/rapid.py:6882
+#: ../raphodo/rapid.py:6881
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
@@ -5036,7 +5053,7 @@ msgstr ""
 "nëse pajisja përdoret ose jo për rezervime. Për secilën pajisje që dëshironi "
 "të përdorni për të rezervuar videot, krijoni një dosje në të me këtë emër."
 
-#: ../raphodo/rapid.py:6894
+#: ../raphodo/rapid.py:6893
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
@@ -5044,7 +5061,7 @@ msgstr ""
 "SHTEGU ku do të rezervohen fotot kur çaktivizohet zbulimi automatik i "
 "pajisjeve të rezervimit."
 
-#: ../raphodo/rapid.py:6904
+#: ../raphodo/rapid.py:6903
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
@@ -5052,22 +5069,23 @@ msgstr ""
 "SHTEGU ku do të rezervohen videot kur çaktivizohet zbulimi automatik i "
 "pajisjeve të rezervimit."
 
-#: ../raphodo/rapid.py:6912
+#: ../raphodo/rapid.py:6911
 #, python-format
 msgid "Ignore photos with the following extensions: %s"
 msgstr "Injoroni fotot me shtesat e mëposhtme: %s"
 
-#: ../raphodo/rapid.py:6922
-msgid "Turn on or off starting downloads as soon as the program itself starts."
+#: ../raphodo/rapid.py:6921
+msgid ""
+"Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 "Aktivizo ose çaktivizo fillimin e shkarkimeve sapo fillon vetë programi."
 
-#: ../raphodo/rapid.py:6929
+#: ../raphodo/rapid.py:6928
 msgid "Turn on or off starting downloads as soon as a device is inserted."
 msgstr ""
 "Aktivizo ose çaktivizo fillimin e shkarkimeve sapo të lidhet një pajisje."
 
-#: ../raphodo/rapid.py:6936
+#: ../raphodo/rapid.py:6935
 msgid ""
 "Turn on or off use of the Rapid Photo Downloader Thumbnail Cache. Turning it "
 "off does not delete existing cache contents."
@@ -5076,7 +5094,7 @@ msgstr ""
 "Shkarkuesit të Shpejtë të Fotove. Çaktivizimi i tij nuk fshin përmbajtjet "
 "ekzistuese të memorjes cache."
 
-#: ../raphodo/rapid.py:6945
+#: ../raphodo/rapid.py:6944
 msgid ""
 "Delete all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and "
 "exit."
@@ -5084,11 +5102,11 @@ msgstr ""
 "Fshi të gjitha miniaturat në Memorjen Cache të Miniaturave të Shkarkuesit të "
 "Shpejtë të Fotove dhe dil."
 
-#: ../raphodo/rapid.py:6953
+#: ../raphodo/rapid.py:6952
 msgid "Forget which files have been previously downloaded, and exit."
 msgstr "Harro se cilat skedarë janë shkarkuar më parë dhe dil."
 
-#: ../raphodo/rapid.py:6960
+#: ../raphodo/rapid.py:6959
 msgid ""
 "Import preferences from an old program version and exit. Requires the "
 "command line program gconftool-2."
@@ -5096,7 +5114,7 @@ msgstr ""
 "Importo preferencat nga një version i vjetër i programit dhe dil. Kërkon "
 "programin e rreshtit komandës gconftool-2."
 
-#: ../raphodo/rapid.py:6969
+#: ../raphodo/rapid.py:6968
 msgid ""
 "Reset all program settings to their default values, delete all thumbnails in "
 "the Thumbnail cache, forget which files have been previously downloaded, and "
@@ -5106,21 +5124,22 @@ msgstr ""
 "fshi të gjitha miniaturat në memorjen cache të Miniaturave, harro cilat "
 "skedarë janë shkarkuar më parë dhe dil."
 
-#: ../raphodo/rapid.py:6977
+#: ../raphodo/rapid.py:6976
 msgid "Include gphoto2 debugging information in log files."
 msgstr ""
 "Përfshi informacionin e kontrollit te gabimeve të gphoto2 në skedarët e "
 "regjistrave."
 
-#: ../raphodo/rapid.py:6983
+#: ../raphodo/rapid.py:6982
 msgid "Print information to the terminal about attached cameras and exit."
-msgstr "Shtyp informacionin në terminal për kamerat e bashkangjitura dhe dil."
+msgstr ""
+"Shtyp informacionin në terminal për kamerat e bashkangjitura dhe dil."
 
-#: ../raphodo/rapid.py:6993
+#: ../raphodo/rapid.py:6992
 msgid "Run this program in wayland or regular X11"
 msgstr "Ekzekutoni këtë program në wayland ose në X11 e zakonshëm"
 
-#: ../raphodo/rapid.py:7086
+#: ../raphodo/rapid.py:7085
 msgid ""
 "To import preferences from the old version of Rapid Photo Downloader, you "
 "must install the program gconftool-2."
@@ -5128,40 +5147,41 @@ msgstr ""
 "Për të importuar preferenca nga versioni i vjetër i Shkarkuesit të Shpejtë "
 "të Fotove, duhet të instaloni programin gconftool-2."
 
-#: ../raphodo/rapid.py:7097
+#: ../raphodo/rapid.py:7096
 msgid "No prior program preferences detected: exiting."
 msgstr "Asnjë preferencë mëparshme e programit nuk është zbuluar: duke dalë."
 
 #. Translators: %(variable)s represents Python code, not a plural of the
 #. term variable. You must keep the %(variable)s untranslated, or the
 #. program will crash.
-#: ../raphodo/rapid.py:7104
+#: ../raphodo/rapid.py:7103
 #, python-format
 msgid "Importing preferences from Rapid Photo Downloader %(version)s"
 msgstr ""
 "Duke importuar preferencat nga Shkarkuesi i Shpejtë i Fotove %(version)s"
 
-#: ../raphodo/rapid.py:7175
+#: ../raphodo/rapid.py:7174
 #, python-format
-msgid "Do you want to copy the stored sequence number, which has the value %d?"
+msgid ""
+"Do you want to copy the stored sequence number, which has the value %d?"
 msgstr ""
 "Dëshironi të kopjoni numrin e ruajtur të sekuencës, i cili ka vlerën %d?"
 
-#: ../raphodo/rapid.py:7190
+#: ../raphodo/rapid.py:7189
 msgid "Program aborting."
 msgstr "Programi po aborton."
 
-#: ../raphodo/rapid.py:7277
+#: ../raphodo/rapid.py:7276
 msgid "Never run this program as the sudo / root user."
 msgstr "Asnjëherë mos e ekzekutoni këtë program si përdorues sudo / root."
 
-#: ../raphodo/rapid.py:7282
+#: ../raphodo/rapid.py:7281
 msgid "You must install ExifTool to run Rapid Photo Downloader."
 msgstr ""
 "Duhet të instaloni ExifTool për të ekzekutuar Shkarkuesin e Shpejtë të "
 "Fotove."
 
-#: ../raphodo/rapid.py:7297
+#: ../raphodo/rapid.py:7296
 msgid ""
 "Rapid Photo Downloader is installed in multiple locations.\n"
 "\n"
@@ -5171,7 +5191,7 @@ msgstr ""
 "\n"
 "Çinstaloni të gjitha kopjet përveç versionit që dëshironi të ekzekutoni."
 
-#: ../raphodo/rapid.py:7367
+#: ../raphodo/rapid.py:7366
 msgid ""
 "When specifying a path on the command line, do not also specify an\n"
 "option for device auto detection or a path on \"This Computer\"."
@@ -5180,15 +5200,15 @@ msgstr ""
 "një\n"
 "mundësi për zbulimin automatik të pajisjes ose një shteg në \"Ky Kompjuter\"."
 
-#: ../raphodo/rapid.py:7573
+#: ../raphodo/rapid.py:7572
 msgid "All settings and caches have been reset."
 msgstr "Të gjitha cilësimet dhe memorjet cache janë rivendosur."
 
-#: ../raphodo/rapid.py:7581
+#: ../raphodo/rapid.py:7580
 msgid "Thumbnail Cache has been reset."
 msgstr "Memorja Cache e Miniaturave është rivendosur."
 
-#: ../raphodo/rapid.py:7587
+#: ../raphodo/rapid.py:7586
 msgid "Remembered files have been forgotten."
 msgstr "Dosjet e ruajtura në kujtesë janë harruar."
 
@@ -5354,19 +5374,19 @@ msgstr "Rrënja e sistemit të skedarit"
 msgid "Pictures"
 msgstr "Figurat"
 
-#: ../raphodo/sudocommand.py:74
+#: ../raphodo/sudocommand.py:86
 msgid "Sorry, the password was incorrect."
 msgstr "Na vjen keq, fjalëkalimi ishte i pasaktë."
 
 #. Translators: here %s refers to the username (you must keep %s or the
 #. program will crash). This is what it looks like:
 #. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
-#: ../raphodo/sudocommand.py:81
+#: ../raphodo/sudocommand.py:93
 #, python-format
 msgid "To perform administrative tasks, enter the password for %s."
 msgstr "Për të kryer detyra administrative, futni fjalëkalimin për %s."
 
-#: ../raphodo/sudocommand.py:109
+#: ../raphodo/sudocommand.py:125
 msgid "Password:"
 msgstr "Fjalëkalimi:"
 
@@ -5405,12 +5425,14 @@ msgstr "Shkarkuar si:"
 #: ../raphodo/thumbnaildisplay.py:675
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
-msgstr "<br><br>Shkarkimi i mëparshëm:<br>%(filename)s<br>%(path)s<br>%(date)s"
+msgstr ""
+"<br><br>Shkarkimi i mëparshëm:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
 #: ../raphodo/thumbnaildisplay.py:684
 #, python-format
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
-msgstr "<br><br><i>Vendosni manualisht si të shkarkuar më parë në %(date)s</i>"
+msgstr ""
+"<br><br><i>Vendosni manualisht si të shkarkuar më parë në %(date)s</i>"
 
 #: ../raphodo/thumbnaildisplay.py:2157
 msgid "Copy Path"
@@ -5719,7 +5741,7 @@ msgstr "Dëshironi të montoni disqet %s?"
 
 #. Translators: this is the name Windows uses for a removable drive,
 #. like a USB drive
-#: ../raphodo/wsl.py:1601
+#: ../raphodo/wsl.py:1607
 msgid "Removable Drive"
 msgstr "Disku i lëvizshëm"
 
@@ -5727,7 +5749,7 @@ msgstr "Disku i lëvizshëm"
 #. normally part of the computer, like an internal hard drive
 #. (although for some reason some USB drives are classified by
 #. Windows as local drives)
-#: ../raphodo/wsl.py:1607
+#: ../raphodo/wsl.py:1613
 msgid "Local Drive"
 msgstr "Disku Lokal"
 
@@ -5794,11 +5816,11 @@ msgstr "Shkarkues fotosh"
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:5
 msgid ""
-"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
-"memory;card;"
+"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
+";card;"
 msgstr ""
-"foto;shkarko;fotografi;importo;video;RAW;kamera;telefon;gëlltis;rezervo;"
-"memorje;kartë;"
+"foto;shkarko;fotografi;importo;video;RAW;kamera;telefon;gëlltis;rezervo;memor"
+"je;kartë;"
 
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
@@ -6059,5 +6081,5 @@ msgstr "Shkarkoni Foto dhe Video me Shkarkuesin e Shpejtë të Fotove"
 
 #~ msgid "display debugging information when run from the command line"
 #~ msgstr ""
-#~ "shfaq informacionin e kontrollit të gabimeve kur ekzekutohet nga rreshti "
-#~ "i komandës"
+#~ "shfaq informacionin e kontrollit të gabimeve kur ekzekutohet nga rreshti i "
+#~ "komandës"

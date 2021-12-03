@@ -3,21 +3,20 @@
 # This file is distributed under the same license as the rapid package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
 #
-#: ../raphodo/jobcodepanel.py:140
 msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-11-27 15:28-0500\n"
-"PO-Revision-Date: 2021-11-18 19:02+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"POT-Creation-Date: 2021-12-03 04:44+0000\n"
+"PO-Revision-Date: 2021-12-02 23:16+0000\n"
+"Last-Translator: Pavel Borecki <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
-"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2021-11-27 20:12+0000\n"
-"X-Generator: Launchpad (build 78346d219e01c6c7b1bfd882aa0bbcbb42d4e568)\n"
+"X-Launchpad-Export-Date: 2021-12-03 15:52+0000\n"
+"X-Generator: Launchpad (build cf73d44692888e78296213584c304ab04e7416a3)\n"
+"Language: cs\n"
 
 #: ../install.py:76
 msgid ""
@@ -46,12 +45,12 @@ msgstr ""
 "bylo možné (1) vytvářet náhledy pro větší množství videoformátů, a (2) "
 "pracovat s obrázky ve formátu HEIC / HEIF."
 
-#: ../install.py:627 ../install.py:4228
+#: ../install.py:627 ../install.py:4214
 msgid "Installer not found:"
 msgstr "Instalátor nenalezen:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:631 ../install.py:4232
+#: ../install.py:631 ../install.py:4218
 msgid "Installer not in tar.gz format:"
 msgstr "Instalátor není ve formátu tar.gz:"
 
@@ -64,7 +63,7 @@ msgid "{} will be upgraded from version {} to version {}"
 msgstr "{} bude aktualizováno z verze {} na verzi {}"
 
 #. Translators: "not system-wide" in this context means "not for the entire system"
-#: ../install.py:1223
+#: ../install.py:1209
 msgid ""
 "These Python3 packages will be upgraded for your user (i.e. not system-"
 "wide): {}"
@@ -72,7 +71,7 @@ msgstr ""
 "Budou nainstalovány novější verze těchto balíčky Python3 a to jen pro tento "
 "uživatelský účet (tj. ne pro celý systém): {}"
 
-#: ../install.py:1325
+#: ../install.py:1311
 #, python-brace-format
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
@@ -81,59 +80,59 @@ msgstr ""
 "Zjištěno nesprávné vlastnictví složky. Vlastnictví bude změněno a přístupová "
 "práva resetována pro {file_system_path}."
 
-#: ../install.py:1468
+#: ../install.py:1454
 msgid "The following command will be run:"
 msgstr "Bude spuštěn následující příkaz:"
 
 #. Translators: do not translate the term sudo
-#: ../install.py:1472 ../install.py:3748 ../install.py:3755
+#: ../install.py:1458 ../install.py:3734 ../install.py:3741
 msgid "sudo may prompt you for the sudo password."
 msgstr ""
 "sudo vás může vyzvat k zadání hesla k účtu, oprávněného k jeho použití."
 
-#: ../install.py:1476
+#: ../install.py:1462
 msgid "Would you like to run the command now?"
 msgstr "Chcete spustit příkaz nyní?"
 
-#: ../install.py:1478
+#: ../install.py:1464
 msgid "Answer is not yes, exiting."
 msgstr "Odpověď není ano – ukončuje se."
 
-#: ../install.py:1489 ../install.py:2132 ../install.py:2191 ../install.py:2672
-#: ../install.py:2729
+#: ../install.py:1475 ../install.py:2118 ../install.py:2177 ../install.py:2658
+#: ../install.py:2715
 msgid "Command failed"
 msgstr "Vykonávání příkazu se nezdařilo"
 
-#: ../install.py:1491 ../install.py:2133 ../install.py:2192 ../install.py:2673
-#: ../install.py:2730
+#: ../install.py:1477 ../install.py:2119 ../install.py:2178 ../install.py:2659
+#: ../install.py:2716
 msgid "Exiting"
 msgstr "Ukončování"
 
-#: ../install.py:1519
+#: ../install.py:1505
 msgid "The Universe repository must be enabled."
 msgstr "Je třeba zapnout používání repozitáře Universe."
 
 #. Translators: do not translate the term IUS Community
-#: ../install.py:1559
+#: ../install.py:1545
 msgid "The IUS Community repository must be enabled."
 msgstr "Je třeba přidat si komunitní repozitář IUS."
 
 #. Translators: do not translate the term EPEL
-#: ../install.py:1589
+#: ../install.py:1575
 msgid "The EPEL repository must be enabled."
 msgstr "Je třeba, aby byl povolen repozitář EPEL."
 
 #. Translators: do not translate the term RPM Fusion Free
-#: ../install.py:1628
+#: ../install.py:1614
 msgid "The RPM Fusion Free repository must be enabled."
 msgstr "Je třeba, aby byl povolen repozitář RPM Fusion Free."
 
-#: ../install.py:1673
+#: ../install.py:1659
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader?"
 msgstr "Chcete odinstalovat předchozí verzi Rapid Photo Downloader?"
 
-#: ../install.py:2110 ../install.py:2140 ../install.py:2172
+#: ../install.py:2096 ../install.py:2126 ../install.py:2158
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
@@ -141,11 +140,11 @@ msgstr ""
 "Dotazování systému správy balíčků zda je nainstalovaná starší verze Rapid "
 "Photo Downloader (může to chvíli trvat)…"
 
-#: ../install.py:2125
+#: ../install.py:2111
 msgid "Uninstalling system package"
 msgstr "Odinstalovává se balíček, poskytovaný systémem"
 
-#: ../install.py:2151
+#: ../install.py:2137
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again."
@@ -154,26 +153,27 @@ msgstr ""
 "a zkuste to znovu."
 
 #. Translators: do not translate the term pip
-#: ../install.py:2197
+#: ../install.py:2183
 msgid "Checking if previous version installed with pip..."
-msgstr "Zjišťování zda předchozí verze byla nainstalovaná pomocí nástroje pip…"
+msgstr ""
+"Zjišťování zda předchozí verze byla nainstalovaná pomocí nástroje pip…"
 
-#: ../install.py:2352 ../install.py:2409 ../install.py:2524
+#: ../install.py:2338 ../install.py:2395 ../install.py:2510
 msgid "The following package is unknown on your system: {}\n"
 msgstr "Následující balíček je systému neznámý: {}\n"
 
-#: ../install.py:2423 ../install.py:2585 ../install.py:2682 ../install.py:2737
+#: ../install.py:2409 ../install.py:2571 ../install.py:2668 ../install.py:2723
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
 "Aby bylo možné pokračovat, budou nainstalovány balíčky potřebné pro provoz "
 "aplikace."
 
-#: ../install.py:2516 ../install.py:2537
+#: ../install.py:2502 ../install.py:2523
 msgid "Querying installed and available packages (this may take a while)"
 msgstr "Zjišťování nainstalovaných a dostupných balíčků (může chvíli trvat)"
 
-#: ../install.py:2664
+#: ../install.py:2650
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
@@ -181,7 +181,7 @@ msgstr ""
 "Dotazování správce balíčků zypper zda a případně které potřebné balíčky už "
 "jsou nainstalované (může chvíli trvat)… "
 
-#: ../install.py:2722
+#: ../install.py:2708
 msgid ""
 "Querying yum to see if any required packages are already installed (this may "
 "take a while)... "
@@ -189,11 +189,11 @@ msgstr ""
 "Dotazování správce balíčků yum zda jsou nainstalované všechny potřebné "
 "balíčky (může chvíli trvat)… "
 
-#: ../install.py:2779
+#: ../install.py:2765
 msgid "Query to confirm action at each step."
 msgstr "Dotázat se na potvrzení při každém z kroků."
 
-#: ../install.py:2789
+#: ../install.py:2775
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
@@ -201,7 +201,7 @@ msgstr ""
 "Při stahování nejnovější verze, nainstalovat vývojovou verzi pokud je "
 "novější, než ta stabilní."
 
-#: ../install.py:2800
+#: ../install.py:2786
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
@@ -209,7 +209,7 @@ msgstr ""
 "Volitelný tar.gz archiv instalátoru Rapid Photo Downloader. Pokud není "
 "zadán, bude z Internetu stažena nejnovější verze."
 
-#: ../install.py:2843
+#: ../install.py:2829
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
@@ -219,7 +219,7 @@ msgstr ""
 "pokud je novější než tato verze ({}). Výchozím chováním je spustit kterýkoli "
 "novější instalátor."
 
-#: ../install.py:2851
+#: ../install.py:2837
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
@@ -227,7 +227,7 @@ msgstr ""
 "Odinstalovat Rapid Photo Downloader který byl nainstalován pomocí pip s tím, "
 "že zůstanou zachované ostatní součásti, na kterých aplikace závisela."
 
-#: ../install.py:2857
+#: ../install.py:2843
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
@@ -235,7 +235,7 @@ msgstr ""
 "Odinstalovat ostatní součásti, na kterých aplikace závisela (nainstalované "
 "pomocí pip), následně aplikaci samotnou a pak skončit."
 
-#: ../install.py:2862
+#: ../install.py:2848
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
@@ -243,14 +243,14 @@ msgstr ""
 "Pozn.: toto nikdy neodebere instalaci Rapid Photo Downloader nainstalovanou "
 "prostřednictvím správy balíčků vámi používané Linuxové distribuce."
 
-#: ../install.py:2870
+#: ../install.py:2856
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
 "Součásti, na kterých aplikace závisela budou odebrány pouze tehdy, pokud "
 "nejsou potřebné pro žádné další programy."
 
-#: ../install.py:2878
+#: ../install.py:2864
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -267,7 +267,7 @@ msgstr ""
 "nainstalovanou prostřednictvím správy balíčků vámi používané Linuxové "
 "distribuce."
 
-#: ../install.py:2902
+#: ../install.py:2888
 msgid ""
 "Install in current Python virtual environment. Virtual environments created "
 "with the --system-site-packages option are not supported."
@@ -275,12 +275,12 @@ msgstr ""
 "Nainstalovat do stávajícího Python virtuálního prostředí. Prostředí, "
 "vytvořená s použitím volby --system-site-packages nejsou podporována."
 
-#: ../install.py:2920
+#: ../install.py:2906
 msgid ""
 "Specific version of PyQt5 to install (default is the most recent version{})."
 msgstr "Konkrétní verze PyQt5 k instalaci(výchozí je nejnovější version{})."
 
-#: ../install.py:2931
+#: ../install.py:2917
 msgid ""
 "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
 "Uninstalls any PyPi versions already installed."
@@ -288,15 +288,15 @@ msgstr ""
 "Namísto použití PyQt5 z PyPi, použít verzi z vámi využívané linuxové "
 "distribuce. Odinstaluje jakékoli PyPi verze, které už jsou nainstalované."
 
-#: ../install.py:2968
+#: ../install.py:2954
 msgid "Failed to download versions file."
 msgstr "Nepodařilo se stáhnout soubor s verzemi."
 
-#: ../install.py:2973
+#: ../install.py:2959
 msgid "Got error code {} while accessing versions file"
 msgstr "Při přístupu k souboru s verzemi obdržen chybový kód {}"
 
-#: ../install.py:3090
+#: ../install.py:3076
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -308,7 +308,7 @@ msgstr ""
 "\n"
 "Ukončuje se.\n"
 
-#: ../install.py:3244
+#: ../install.py:3230
 msgid ""
 "Package {} failed to install but Rapid Photo Downloader installation will "
 "continue."
@@ -316,84 +316,84 @@ msgstr ""
 "Balíček {} se sice nepodařilo nainstalovat, ale instalace Rapid Photo "
 "Downloader bude pokračovat i tak."
 
-#: ../install.py:3250
+#: ../install.py:3236
 msgid "Received error code"
 msgstr "Obdržen chybový kód"
 
-#: ../install.py:3252
+#: ../install.py:3238
 msgid "Failed to install application requirements: exiting."
 msgstr ""
 "Nepodařilo se nainstalovat ostatní součásti, které aplikace potřebuje: "
 "ukončuje se."
 
-#: ../install.py:3254
+#: ../install.py:3240
 msgid "Failed to install application: exiting..."
 msgstr "Aplikaci se nepodařilo nainstalovat: ukončování…"
 
-#: ../install.py:3566
+#: ../install.py:3552
 msgid "Installing application requirements..."
 msgstr "Instalace ostatních součástí potřebných pro aplikaci…"
 
-#: ../install.py:3601
+#: ../install.py:3587
 msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
 msgstr ""
 "Podpora pro vytváření náhledů z formátu HEIF / HEIC není v systému k "
 "dispozici"
 
-#: ../install.py:3620
+#: ../install.py:3606
 msgid "Not installing PyPI PyQt5 package into KDE Neon environment"
 msgstr ""
 "Prostředí KDE Neon -> neinstalují se balíčky PyPI PyQt5 (už jsou v systému)"
 
-#: ../install.py:3625
+#: ../install.py:3611
 msgid "Installing application..."
 msgstr "Instalace aplikace…"
 
-#: ../install.py:3711
+#: ../install.py:3697
 msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
-msgstr ""
+msgstr "Chcete aby se Rapid Photo Downloader objevoval v nabídce ve Windows?"
 
-#: ../install.py:3717
+#: ../install.py:3703
 msgid "Adding Rapid Photo Downloader to the Windows menu"
-msgstr ""
+msgstr "Přidávání Rapid Photo Downloader do nabídky ve Windows"
 
-#: ../install.py:3727
+#: ../install.py:3713
 msgid "Failed to copy application launcher."
-msgstr ""
+msgstr "Nepodařilo se zkopírovat spouštěč aplikace."
 
-#: ../install.py:3738
+#: ../install.py:3724
 msgid "Man pages can be found in {}/share/man/man1"
 msgstr "Manuálové stránky jsou k dispozici v {}/share/man/man1"
 
-#: ../install.py:3743
+#: ../install.py:3729
 msgid "Do you want to install the application's man pages?"
 msgstr "Přejete si nainstalovat manuálové stránky aplikace?"
 
-#: ../install.py:3744
+#: ../install.py:3730
 msgid "They will be installed into {}"
 msgstr "Budou nainstalovány do {}"
 
-#: ../install.py:3746 ../install.py:3753
+#: ../install.py:3732 ../install.py:3739
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr "Pokud aplikaci odinstalujete, tyto manuálové stránky potom odeberte."
 
-#: ../install.py:3749
+#: ../install.py:3735
 msgid "Do want to install the man pages?"
 msgstr "Chcete nainstalovat manuálové stránky?"
 
-#: ../install.py:3751
+#: ../install.py:3737
 msgid "Installing man pages into {}"
 msgstr "Instalace manuálových stránek do {}"
 
-#: ../install.py:3769
+#: ../install.py:3755
 msgid "Failed to create man page directory: exiting."
 msgstr "Nepodařilo se vytvořit složku pro manuálovou stránku: ukončuje se."
 
-#: ../install.py:3790
+#: ../install.py:3776
 msgid "Failed to copy man page."
 msgstr "Nepodařilo se zkopírovat manuálovou stránku."
 
-#: ../install.py:3817
+#: ../install.py:3803
 msgid ""
 "Rapid Photo Downloader can be started without activating the virtual "
 "environment by running {}/bin/rapid-photo-downloader"
@@ -401,7 +401,7 @@ msgstr ""
 "Rapid Photo Downloader je možné spustit bez aktivace virtuálního prostředí "
 "spuštěním {}/bin/rapid-photo-downloader"
 
-#: ../install.py:3830
+#: ../install.py:3816
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "command line or application launcher."
@@ -409,13 +409,15 @@ msgstr ""
 "Aby bylo možné aplikaci spustit (z příkazového řádku nebo kliknutím na "
 "zástupce), může být třeba restartovat počítač."
 
-#: ../install.py:3836
+#: ../install.py:3822
 msgid ""
 "You may have to restart WSL to be able to run the program from the command "
 "line."
 msgstr ""
+"Abyste mohly program spouštět z příkazového řádku, může být nutné "
+"restartovat WSL."
 
-#: ../install.py:3845
+#: ../install.py:3831
 #, python-brace-format
 msgid ""
 "You must add {path} to your computer's $PATH variable to run the program "
@@ -424,17 +426,17 @@ msgstr ""
 "Pro spouštění programu (z příkazového řádku či spouštěče) je třeba přidat si "
 "{path} do proměnné $PATH."
 
-#: ../install.py:3864
+#: ../install.py:3850
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
 "(Pokud při ukončování dojde k Porušení ochrany paměti (segmentation fault), "
 "nemusíte tomu věnovat pozornost…)"
 
-#: ../install.py:3866
+#: ../install.py:3852
 msgid "Done."
-msgstr ""
+msgstr "Hotovo."
 
-#: ../install.py:3880
+#: ../install.py:3866
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
@@ -445,7 +447,7 @@ msgstr ""
 "aby tento nástroj byl přítomen. Protože tomu tak není, nelze pokračovat a "
 "ukončuje se."
 
-#: ../install.py:3929
+#: ../install.py:3915
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
@@ -454,12 +456,12 @@ msgstr ""
 "Spusťte ho jako uživatel který bude aplikaci používat.\n"
 
 #. Translators: do not translate the terms --PyQt5-version or --use-system-PyQt5
-#: ../install.py:3941
+#: ../install.py:3927
 msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
 msgstr ""
 "Zadejte jen jedno z --PyQt5-version nebo --use-system-PyQt5 – ne obojí naráz."
 
-#: ../install.py:3953
+#: ../install.py:3939
 msgid ""
 "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
 "on an Intel or AMD 64 bit platform."
@@ -468,11 +470,11 @@ msgstr ""
 "PyQt5 vyžaduje Python 3.5 a novější."
 
 #. Translators: do not translate the term PyQt5
-#: ../install.py:3967
+#: ../install.py:3953
 msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
 msgstr "Zadejte verzi PyQt5 v podobě X.X nebo X.X.X"
 
-#: ../install.py:3983
+#: ../install.py:3969
 msgid ""
 "Do you want to install Rapid Photo Downloader into the current virtual "
 "environment?"
@@ -480,7 +482,7 @@ msgstr ""
 "Chcete Rapid Photo Downloader nainstalovat do stávajícího virtuálního "
 "prostředí?"
 
-#: ../install.py:3997
+#: ../install.py:3983
 msgid ""
 "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
 "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
@@ -489,7 +491,7 @@ msgstr ""
 "prostředí vyžaduje Python verze 3.5 a novější a 64 bit Intel nebo AMD "
 "platformu."
 
-#: ../install.py:4010
+#: ../install.py:3996
 msgid ""
 "To install Rapid Photo Downloader into a Python virtual environment, create "
 "and activate the virtual environment before starting this script."
@@ -497,16 +499,16 @@ msgstr ""
 "Pro instalaci Rapid Photo Downloader do Python virtuálního prostředí, "
 "vytvořte a aktivujte takové, než tento skript spustíte."
 
-#: ../install.py:4020
+#: ../install.py:4006
 msgid "Using virtual environment for installation using pip."
 msgstr "Použitím virtuálnímo prostředí pro instalaci pomocí pip."
 
-#: ../install.py:4025 ../install.py:4039
+#: ../install.py:4011 ../install.py:4025
 msgid "Do not include any other command line arguments when specifying"
 msgstr ""
 "Pokud použijete tento, nezadávejte už žádné další argumenty příkazového řádku"
 
-#: ../install.py:4059
+#: ../install.py:4045
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
@@ -514,25 +516,25 @@ msgstr ""
 "Je nám líto, ale tento instalátor nepodporuje vlastní instalace python.\n"
 "Ukončuje se…"
 
-#: ../install.py:4067
+#: ../install.py:4053
 msgid "Restarting script using system python..."
 msgstr "Restartování skriptu pomocí systémové instance interpreteru python…"
 
-#: ../install.py:4088
+#: ../install.py:4074
 msgid "Detected Linux distribution {} {}"
 msgstr "Zjištěná linuxová distribuce {} {}"
 
-#: ../install.py:4107
+#: ../install.py:4093
 msgid "Exiting..."
 msgstr "Ukončování..."
 
-#: ../install.py:4135
+#: ../install.py:4121
 msgid "To continue, the package python3-apt must be installed."
 msgstr ""
 "Aby bylo možné pokračovat, je třeba, aby byl nainstalovaný balíček python3-"
 "apt."
 
-#: ../install.py:4175
+#: ../install.py:4161
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer:"
@@ -540,7 +542,7 @@ msgstr ""
 "Prostřednictvím správy balíčků vámi používané Linuxové distribuce "
 "nainstalujte následující balíčky a spusťte tento instalátor znovu:"
 
-#: ../install.py:4187
+#: ../install.py:4173
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
@@ -549,7 +551,7 @@ msgstr ""
 "asistují Python 3 a jeho správa balíčků."
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:4222
+#: ../install.py:4208
 msgid "Installing python requests"
 msgstr "Instalace python requests"
 
@@ -572,7 +574,8 @@ msgstr "Kliknutím na „Přejít na novější verzi“ přejdete na verzi %s."
 
 #: ../upgrade.py:659
 msgid "Click the Upgrade button to start the upgrade."
-msgstr "Přechod na novější verzi zahájíte kliknutím na stejnojmenné tlačítko."
+msgstr ""
+"Přechod na novější verzi zahájíte kliknutím na stejnojmenné tlačítko."
 
 #: ../upgrade.py:662 ../upgrade.py:668 ../raphodo/viewutils.py:301
 #: ../raphodo/viewutils.py:321
@@ -640,7 +643,7 @@ msgstr "Poděkování"
 
 #: ../raphodo/aboutdialog.py:323
 msgid "Translators"
-msgstr ""
+msgstr "Překladatelé"
 
 #: ../raphodo/backuppanel.py:279
 msgid "Backups are not configured"
@@ -672,8 +675,8 @@ msgstr "Automaticky zjišťovat zálohovací zařízení"
 
 #: ../raphodo/backuppanel.py:480
 msgid ""
-"Specify the folder in which backups are stored on the device."
-"<br><br><i>Note: the presence of a folder with this name is used to "
+"Specify the folder in which backups are stored on the "
+"device.<br><br><i>Note: the presence of a folder with this name is used to "
 "determine if the device is used for backups. For each device you wish to use "
 "for backing up to, create a folder in it with one of these folder names. By "
 "adding both folders, the same device can be used to back up both photos and "
@@ -699,7 +702,8 @@ msgid "Example:"
 msgstr "Příklad:"
 
 #: ../raphodo/backuppanel.py:516
-msgid "If you disable automatic detection, choose the exact backup locations."
+msgid ""
+"If you disable automatic detection, choose the exact backup locations."
 msgstr "Pokud vypnete automatické zjišťování, vyberte přesné umístění záloh."
 
 #. Translators: the word 'location' is optional in your translation. The left
@@ -817,14 +821,14 @@ msgid "%(size_free)s free of %(size_total)s"
 msgstr "%(size_free)s volných z %(size_total)s"
 
 #: ../raphodo/destinationdisplay.py:222 ../raphodo/devicedisplay.py:1173
-#: ../raphodo/rapid.py:2338 ../raphodo/rapid.py:2475 ../raphodo/rapid.py:7323
+#: ../raphodo/rapid.py:2338 ../raphodo/rapid.py:2475 ../raphodo/rapid.py:7322
 #: ../raphodo/rpdfile.py:914
 msgid "Photos"
 msgstr "Fotografie"
 
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:223 ../raphodo/devicedisplay.py:1174
-#: ../raphodo/rapid.py:2343 ../raphodo/rapid.py:2476 ../raphodo/rapid.py:7323
+#: ../raphodo/rapid.py:2343 ../raphodo/rapid.py:2476 ../raphodo/rapid.py:7322
 #: ../raphodo/rpdfile.py:942 ../raphodo/storage.py:537
 msgid "Videos"
 msgstr "Videa"
@@ -1123,8 +1127,8 @@ msgstr ""
 "<ol>\n"
 "<li><b>Okamžik úpravy:</b> kdy byl soubor naposledy upraven na základě údajů "
 "z jeho vnitřních metadat (pokud \n"
-" jsou k dispozici) nebo podle údajů souborového systému (náhradní řešení).</"
-"li>\n"
+" jsou k dispozici) nebo podle údajů souborového systému (náhradní "
+"řešení).</li>\n"
 "<li><b>Zaškrtnuto:</b> zda jsou soubory označené ke stahování.</li>\n"
 "<li><b>Název souboru:</b> úplný název souboru (včetně přípony).</li>\n"
 "<li><b>Přípona:</b> přípona souborů. Je možné použít například pro seskupení "
@@ -1151,8 +1155,8 @@ msgid ""
 "<b>Destination</b>, <b>Rename</b>, or <b>Job Code</b>."
 msgstr ""
 "Umístění do kterého stahovat soubory a jejich pojmenování určíte v "
-"příslušném panelu na pravé straně okna aplikace: <b>Cíl</b>, <b>Přejmenovat</"
-"b> nebo <b>Štítek</b>."
+"příslušném panelu na pravé straně okna aplikace: <b>Cíl</b>, "
+"<b>Přejmenovat</b> nebo <b>Štítek</b>."
 
 #: ../raphodo/didyouknow.py:177
 msgid ""
@@ -1161,12 +1165,12 @@ msgid ""
 "different types\n"
 "of directory:\n"
 "<ol>\n"
-"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, &quot;"
-"Photos&quot;, or\n"
+"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, "
+"&quot;Photos&quot;, or\n"
 "&quot;Videos&quot;. This directory should already exist on your computer. In "
 "the illustration \n"
-"below, the destination folders are &quot;Pictures&quot; and &quot;"
-"Videos&quot;. The\n"
+"below, the destination folders are &quot;Pictures&quot; and "
+"&quot;Videos&quot;. The\n"
 "name of the destination folder is displayed in the grey bar directly above "
 "the folder tree, \n"
 "with a folder icon to its left and a gear icon to its far right.</li>\n"
@@ -1310,8 +1314,8 @@ msgstr ""
 "Pro automatické vytváření podsložek v průběhu stahování je možné použít "
 "jednu z přednastavených \n"
 "sad, přítomných už v aplikaci Rapid Photo Downloader, nebo vytvořit svou \n"
-"vlastní. Kliknutím na ikonu ozubeného kola rozbalíte příslušnou "
-"nabídku:            \n"
+"vlastní. Kliknutím na ikonu ozubeného kola rozbalíte příslušnou nabídku:     "
+"       \n"
 "            "
 
 #: ../raphodo/didyouknow.py:254
@@ -1377,8 +1381,8 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"Ačkoli je k dispozici mnoho předpřipravených šablon pojmenování dle data/"
-"času, je možné, že \n"
+"Ačkoli je k dispozici mnoho předpřipravených šablon pojmenování dle "
+"data/času, je možné, že \n"
 "budete potřebovat něco jiného. Není problém vytvořit svojí vlastní. Je možné "
 "kombinovat datum/čas \n"
 "a vytvářet tak nová spojení. Například když chcete formát data, který "
@@ -1400,8 +1404,8 @@ msgstr ""
 "\n"
 "Více o všech možných způsobech vytváření názvů podsložek a souborů se "
 "dočtete v <a \n"
-"href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime"
-"\">dokumentaci na webu projektu</a>.\n"
+"href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime\">dokumen"
+"taci na webu projektu</a>.\n"
 "            "
 
 #: ../raphodo/didyouknow.py:300
@@ -1477,8 +1481,8 @@ msgid ""
 "names to your photos and \n"
 "videos:\n"
 "<ol>\n"
-"<li><b>Downloads today</b>: tracks downloads completed during that day.</"
-"li>\n"
+"<li><b>Downloads today</b>: tracks downloads completed during that "
+"day.</li>\n"
 "<li><b>Stored number</b>: similar to Downloads today, but it is remembered "
 "from the last time the  \n"
 "program was run.</li>\n"
@@ -1506,8 +1510,8 @@ msgstr ""
 "</ol></p>\n"
 "<p>\n"
 "Více o pořadových číslech se dočtete v <a \n"
-"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers"
-"\">dokumentaci na webu projektu</a>.</p>\n"
+"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers\">dokumenta"
+"ci na webu projektu</a>.</p>\n"
 "            "
 
 #: ../raphodo/didyouknow.py:354
@@ -1614,8 +1618,8 @@ msgid ""
 "memory cards, and other devices.</li>\n"
 "<li>A <b>temporary cache</b> of files downloaded from a camera, one for "
 "photos and another for \n"
-"videos. They are located in temporary subfolders in the download destination."
-"</li>\n"
+"videos. They are located in temporary subfolders in the download "
+"destination.</li>\n"
 "<li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo Downloader "
 "stores thumbnails of \n"
 "RAW and TIFF photos once they have been downloaded. File browsers like Gnome "
@@ -1873,13 +1877,13 @@ msgstr "Dodatečné informace uloženy"
 msgid ""
 "The additional bug report information was created in your home directory in "
 "a tar file: <pre>{tarfile}</pre>You need to attach this file to the bug "
-"report yourself. It will not be automatically attached.<br><br>Click <a href="
-"\"{uri}\">here</a> to see the file in your file manager."
+"report yourself. It will not be automatically attached.<br><br>Click <a "
+"href=\"{uri}\">here</a> to see the file in your file manager."
 msgstr ""
 "Dodatečné informace k hlášení chyby byly uloženy do vaší domovské složky v "
 "podobě tar souboru: <pre>{tarfile}</pre>Tento soubor prosím přiložte k "
-"hlášení chyby (nestane se tak automaticky)<br><br>Kliknutím <a href="
-"\"{uri}\">sem</a> soubor zobrazíte ve správci souborů."
+"hlášení chyby (nestane se tak automaticky)<br><br>Kliknutím <a "
+"href=\"{uri}\">sem</a> soubor zobrazíte ve správci souborů."
 
 #: ../raphodo/excepthook.py:72
 msgid "Error Creating Additional Information"
@@ -1906,10 +1910,10 @@ msgstr ""
 "K hlášení chyby přiložte soubory se záznamem událostí v aplikaci (log). Je "
 "třeba, aby hlášení obsahovalo <i>{log_file}</i>, ale přiložení i dalších "
 "souborů se záznamem souvisejících událostí je často nápomocné.<br><br>Pokud "
-"je to možné, také přiložte soubor s nastaveními aplikace <i>{config_file}</"
-"i>.<br><br>Kliknutím <a href=\"{log_path}\">sem</a> otevřete složku se "
-"záznamy událostí a <a href=\"{config_path}\">sem</a> pro otevření složky s "
-"nastaveními."
+"je to možné, také přiložte soubor s nastaveními aplikace "
+"<i>{config_file}</i>.<br><br>Kliknutím <a href=\"{log_path}\">sem</a> "
+"otevřete složku se záznamy událostí a <a href=\"{config_path}\">sem</a> pro "
+"otevření složky s nastaveními."
 
 #: ../raphodo/excepthook.py:91
 #, python-brace-format
@@ -1959,11 +1963,11 @@ msgstr "Otevřít ve správci souborů…"
 #. type: Optional[QModelIndex]
 #: ../raphodo/filebrowse.py:168
 msgid "Reset"
-msgstr ""
+msgstr "Vrátit na výchozí"
 
 #: ../raphodo/filebrowse.py:172
 msgid "Show System Folders"
-msgstr ""
+msgstr "Zobrazit systémové složky"
 
 #: ../raphodo/foldercombo.py:141
 msgid "File System"
@@ -2545,6 +2549,8 @@ msgid ""
 "<b>Hint:</b> Select photos or videos before entering a new Job Code to have "
 "the Job Code applied to them."
 msgstr ""
+"<b>Rada:</b> Dříve než zadáte nový kód zakázky, vyberte fotky a videa a "
+"tento nový kód na ně bude uplatněn."
 
 #: ../raphodo/jobcodepanel.py:147
 #, python-format
@@ -2561,7 +2567,7 @@ msgstr "Štítek:"
 
 #: ../raphodo/jobcodepanel.py:193
 msgid "&Remember this Job Code"
-msgstr ""
+msgstr "&Zapamatovat si tento kód zakázky"
 
 #: ../raphodo/jobcodepanel.py:254
 msgid ""
@@ -2571,7 +2577,8 @@ msgstr ""
 "Vyberte fotografie a videa na které použít nový nebo existující štítek."
 
 #: ../raphodo/jobcodepanel.py:258
-msgid "The new Job Code will be applied to all selected photos and/or videos."
+msgid ""
+"The new Job Code will be applied to all selected photos and/or videos."
 msgstr "Nový štítek bude použit na všechny označené fotografie a/nebo videa."
 
 #: ../raphodo/jobcodepanel.py:262
@@ -2579,8 +2586,8 @@ msgid ""
 "Click the Apply button to apply the current Job Code to all selected photos "
 "and/or videos. You can also simply double click the Job Code."
 msgstr ""
-"Kliknutím na Použít aplikujete stávající štítek na všechny označené fotky a/"
-"nebo videa. Ještě jednodušeji pak dvojklikem na štítek."
+"Kliknutím na Použít aplikujete stávající štítek na všechny označené fotky "
+"a/nebo videa. Ještě jednodušeji pak dvojklikem na štítek."
 
 #: ../raphodo/jobcodepanel.py:267
 msgid ""
@@ -2648,7 +2655,7 @@ msgstr "Štítky"
 #: ../raphodo/messagewidget.py:65
 #, python-format
 msgid "<i><b>Hint:</b> %(message)s</i>"
-msgstr ""
+msgstr "<i><b>Rada:</b> %(message)s</i>"
 
 #. Translators: this text appears in menus and combo boxes. It displays the
 #. description of an item, and its elements.
@@ -2761,10 +2768,10 @@ msgstr "Uložit přednastavenou sadu – Rapid Photo Downloader"
 
 #: ../raphodo/nameeditor.py:1425
 msgid ""
-"<b>Do you want to save the changes in a new custom preset?</"
-"b><br><br>Creating a custom preset is not required, but can help you keep "
-"organized.<br><br>The changes to the preferences will still be applied "
-"regardless of whether you create a new custom preset or not."
+"<b>Do you want to save the changes in a new custom "
+"preset?</b><br><br>Creating a custom preset is not required, but can help "
+"you keep organized.<br><br>The changes to the preferences will still be "
+"applied regardless of whether you create a new custom preset or not."
 msgstr ""
 "<b>Uložit změny ve vlastní přednastavené sadě?</b><br><br>Vytváření sady "
 "není vyžadováno, ale napomáhá v udržení pořádku.<br><br>Změny předvoleb "
@@ -2778,8 +2785,9 @@ msgid ""
 "regardless of whether you save a custom preset or not."
 msgstr ""
 "<b>Uložit změny ve vlastní přednastavené sadě?</b><br><br>Pokud chcete, "
-"můžete vytvořit novou vlastní sadu nebo aktualizovat tu stávající."
-"<br><br>Změny předvoleb budou nyní použity ať už sadu uložíte nebo ne."
+"můžete vytvořit novou vlastní sadu nebo aktualizovat tu "
+"stávající.<br><br>Změny předvoleb budou nyní použity ať už sadu uložíte nebo "
+"ne."
 
 #: ../raphodo/nameeditor.py:1455
 msgid "Save New Custom Preset"
@@ -3025,12 +3033,13 @@ msgstr ""
 
 #: ../raphodo/preferencedialog.py:329
 msgid ""
-"Use python-style <a href=\"http://damonlynch.net/rapid/documentation/"
-"#regularexpressions\">regular expressions</a>"
+"Use python-style <a "
+"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\">regula"
+"r expressions</a>"
 msgstr ""
-"Používat <a href=\"http://damonlynch.net/rapid/documentation/"
-"#regularexpressions\">regulární výrazy</a> ve stylu programovacího jazyka "
-"Python"
+"Používat <a "
+"href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\">regulá"
+"rní výrazy</a> ve stylu programovacího jazyka Python"
 
 #: ../raphodo/preferencedialog.py:338
 msgid ""
@@ -3255,8 +3264,10 @@ msgid "Backup destinations are missing"
 msgstr "Chybí zálohovací umístění"
 
 #: ../raphodo/preferencedialog.py:651
-msgid "Warn before starting a download if it is not possible to back up files."
-msgstr "Varovat před zahájením stahování pokud soubory není možné zazálohovat."
+msgid ""
+"Warn before starting a download if it is not possible to back up files."
+msgstr ""
+"Varovat před zahájením stahování pokud soubory není možné zazálohovat."
 
 #: ../raphodo/preferencedialog.py:655
 msgid "Program libraries are missing or broken"
@@ -4184,8 +4195,8 @@ msgstr "Vyp/zapnout synchronizaci posouvání Časové osy a náhledů (CTRL+T)"
 
 #: ../raphodo/rapid.py:451 ../raphodo/rapid.py:835 ../raphodo/rapid.py:4491
 #: ../raphodo/rapid.py:4710 ../raphodo/rapid.py:4729 ../raphodo/rapid.py:4752
-#: ../raphodo/rapid.py:4759 ../raphodo/rapid.py:5430 ../raphodo/rapid.py:6037
-#: ../raphodo/rapid.py:7187 ../raphodo/rememberthisdialog.py:97
+#: ../raphodo/rapid.py:4759 ../raphodo/rapid.py:5430 ../raphodo/rapid.py:6038
+#: ../raphodo/rapid.py:7186 ../raphodo/rememberthisdialog.py:97
 #: ../raphodo/viewutils.py:366
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:1
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:3
@@ -4213,6 +4224,9 @@ msgid ""
 "Downloader uses libmediainfo to get the date and time a video was shot. The "
 "program will run without it, but installing it is recommended."
 msgstr ""
+"<b>Zdá se, že chybí knihovna libmediainfo</b><br><br> Rapid Photo Downloader "
+"ji používá pro získávání data a času, kdy bylo video natočeno. Program bude "
+"fungovat i bez této knihovny, ale její instalace je doporučovaná."
 
 #: ../raphodo/rapid.py:1146
 msgid "Problem with libmediainfo"
@@ -4224,9 +4238,16 @@ msgid ""
 "<b>Cannot download from Apple devices</b><br><br>To download from "
 "%(device)s, this program requires additional software be installed that "
 "interacts with Apple devices.<br><br>Missing applications: "
-"%(applications)s<br><br><a href=\"https://damonlynch.net/rapid/documentation/"
-"#iosdevicesupport\">Learn more</a> about which software to install."
+"%(applications)s<br><br><a "
+"href=\"https://damonlynch.net/rapid/documentation/#iosdevicesupport\">Learn "
+"more</a> about which software to install."
 msgstr ""
+"<b>Nedaří se stahovat z Apple zařízení</b><br><br>Aby bylo možné stahovat z "
+"%(device)s, tento program vyžaduje, aby byl nainstalován další software pro "
+"interakci s Apple zařízeními.<br><br>Chybějící aplikace: "
+"%(applications)s<br><br><a "
+"href=\"https://damonlynch.net/rapid/documentation/#iosdevicesupport\">Zjistět"
+"e více</a> o tom, jaký software nainstalovat."
 
 #: ../raphodo/rapid.py:1683
 msgid "Download failed"
@@ -4300,7 +4321,7 @@ msgstr "Ukončit"
 
 #: ../raphodo/rapid.py:1985
 msgid "Windows &Drives"
-msgstr ""
+msgstr "&Disky Windows"
 
 #: ../raphodo/rapid.py:1992
 msgid "Error &Reports"
@@ -4542,8 +4563,8 @@ msgid ""
 "<b>The photo and video backup destinations do not exist or cannot be written "
 "to.</b><br><br>Do you still want to start the download?"
 msgstr ""
-"<b>Cíl zálohování fotografií a videí neexistuje nebo do něj nelze zapisovat."
-"</b><br><br>Přesto zahájit stahování?"
+"<b>Cíl zálohování fotografií a videí neexistuje nebo do něj nelze "
+"zapisovat.</b><br><br>Přesto zahájit stahování?"
 
 #: ../raphodo/rapid.py:3427 ../raphodo/rapid.py:3443
 #, python-format
@@ -4551,8 +4572,8 @@ msgid ""
 "<b>The %(filetype)s backup destination does not exist or cannot be written "
 "to.</b><br><br>Do you still want to start the download?"
 msgstr ""
-"<b>Cíl zálohování %(filetype)s neexistuje nebo do něj nelze zapisovat.</"
-"b><br><br>Přesto zahájit stahování?"
+"<b>Cíl zálohování %(filetype)s neexistuje nebo do něj nelze "
+"zapisovat.</b><br><br>Přesto zahájit stahování?"
 
 #: ../raphodo/rapid.py:3430 ../raphodo/rpdfile.py:166 ../raphodo/rpdfile.py:815
 msgid "photo"
@@ -4673,35 +4694,39 @@ msgid ""
 "<b>All files on the %(camera)s are inaccessible</b>.<br><br>It may be locked "
 "or not configured for file transfers using USB. You can unlock it and try "
 "again.<br><br>On some models you also need to change the setting to allow "
-"the use of USB for <i>File Transfer</i>.<br><br>Learn more about <a href="
-"\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras"
-"\">downloading from cameras</a> and <a href=\"https://damonlynch.net/rapid/"
-"documentation/#downloadingfromphones\">enabling downloading from phones</a>. "
-"<br><br>Alternatively, you can ignore the %(camera)s."
+"the use of USB for <i>File Transfer</i>.<br><br>Learn more about <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">d"
+"ownloading from cameras</a> and <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">en"
+"abling downloading from phones</a>. <br><br>Alternatively, you can ignore "
+"the %(camera)s."
 msgstr ""
 "<b>Žádný ze souborů v %(camera)s není přístupný</b>.<br><br>Může být "
 "uzamčené nebo nenastavené pro přenosy souborů přes USB. Můžete odemknout a "
 "zkusit to znovu.<br><br>Na některých modelech je také třeba změnit nastavení "
 "tak, aby umožnily použít USB pro <i>Přenos souborů</i>.<br><br>Přečtete si "
-"více o <a href=\"https://damonlynch.net/rapid/documentation/"
-"#downloadingfromcameras\">stahování z fotoaparátů</a> a <a href=\"https://"
-"damonlynch.net/rapid/documentation/#downloadingfromphones\">zapínání "
-"stahování z telefonů</a>. <br><br>Případně můžete %(camera)s ignorovat."
+"více o <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">s"
+"tahování z fotoaparátů</a> a <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">za"
+"pínání stahování z telefonů</a>. <br><br>Případně můžete %(camera)s "
+"ignorovat."
 
 #: ../raphodo/rapid.py:4735
 #, python-format
 msgid ""
-"<b>The %(camera)s appears to be in use by another application.</"
-"b><br><br>Rapid Photo Downloader cannnot access a phone or camera that is "
-"being used by another program like a file manager.<br><br>If the device is "
-"mounted in your file manager, you must first &quot;eject&quot; it from the "
-"other program while keeping the %(camera)s plugged in.<br><br>If that does "
-"not work, unplug the %(camera)s from the computer and plug it in again."
-"<br><br>Learn more about <a href=\"https://damonlynch.net/rapid/"
-"documentation/#downloadingfromcameras\">downloading from cameras</a> and <a "
-"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones"
-"\">enabling downloading from phones</a>. <br><br>Alternatively, you can "
-"ignore the %(camera)s."
+"<b>The %(camera)s appears to be in use by another "
+"application.</b><br><br>Rapid Photo Downloader cannnot access a phone or "
+"camera that is being used by another program like a file manager.<br><br>If "
+"the device is mounted in your file manager, you must first &quot;eject&quot; "
+"it from the other program while keeping the %(camera)s plugged in.<br><br>If "
+"that does not work, unplug the %(camera)s from the computer and plug it in "
+"again.<br><br>Learn more about <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">d"
+"ownloading from cameras</a> and <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">en"
+"abling downloading from phones</a>. <br><br>Alternatively, you can ignore "
+"the %(camera)s."
 msgstr ""
 "<b>Zdá se, že %(camera)s je používáno jinou aplikací.</b><br><br>Rapid Photo "
 "Downloader nemůže přistupovat k telefonu či kameře, která je používána jiným "
@@ -4709,14 +4734,16 @@ msgstr ""
 "připojeno (mount) ve vámi používaném správci souborů, je třeba ho nejdříve "
 "„vysunout“ ale %(camera)s přitom ponechat fyzicky připojené.<br><br>Pokud to "
 "nezafunguje, odpojte %(camera)s od počítače a připojte zpět.<br><br>Přečtete "
-"si více o <a href=\"https://damonlynch.net/rapid/documentation/"
-"#downloadingfromcameras\">stahování z fotoaparátů</a> a <a href=\"https://"
-"damonlynch.net/rapid/documentation/#downloadingfromphones\">zapínání "
-"stahování z telefonů</a>. <br><br>Případně můžete %(camera)s ignorovat."
+"si více o <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">s"
+"tahování z fotoaparátů</a> a <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">za"
+"pínání stahování z telefonů</a>. <br><br>Případně můžete %(camera)s "
+"ignorovat."
 
 #: ../raphodo/rapid.py:4755
 msgid "Enable access to the iOS Device"
-msgstr ""
+msgstr "Zapnout přístup na iOS zařízení"
 
 #: ../raphodo/rapid.py:4766
 msgid "&Try Again"
@@ -4729,7 +4756,8 @@ msgstr "&Ignorovat toto zařízení"
 #: ../raphodo/rapid.py:4859
 #, python-format
 msgid "Sorry, an unexpected problem occurred while scanning %s."
-msgstr "Omlouváme se, ale při prohledávání %s došlo k neočekávanému problému."
+msgstr ""
+"Omlouváme se, ale při prohledávání %s došlo k neočekávanému problému."
 
 #: ../raphodo/rapid.py:4862
 msgid "Unfortunately you cannot download from this device."
@@ -4750,10 +4778,10 @@ msgstr "Prohledání zařízení se nezdařilo"
 #: ../raphodo/rapid.py:5402
 #, python-format
 msgid ""
-"<b>The %(camera)s cannot be scanned because it cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again."
+"<b>The %(camera)s cannot be scanned because it cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again."
 msgstr ""
 "<b>%(camera)s není možné prohledat, protože se nedaří získat výhradní "
 "přístup k němu.</b><br><br>Můžete ukončit všechny ostatní aplikace (jako "
@@ -4763,11 +4791,11 @@ msgstr ""
 #: ../raphodo/rapid.py:5437
 #, python-format
 msgid ""
-"<b>The download cannot start because the %(camera)s cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again, and choose which files you want to "
-"download from it."
+"<b>The download cannot start because the %(camera)s cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again, and choose which files "
+"you want to download from it."
 msgstr ""
 "<b>Stahování nemůže začít, protože k %(camera)s se nedaří získat výhradní "
 "přístup.</b><br><br>Můžete ukončit všechny ostatní aplikace (jako například "
@@ -4807,34 +4835,35 @@ msgid ""
 "Do you want to download photos and videos from the device <i>%(device)s</i>?"
 msgstr "Stáhnout fotografie a videa ze zařízení <i>%(device)s</i>?"
 
-#: ../raphodo/rapid.py:6020
+#: ../raphodo/rapid.py:6021
 #, python-format
 msgid "<b>Do you want to ignore the %s whenever this program is run?</b>"
 msgstr "<b>Ignorovat %s pokaždé, když je tato aplikace spuštěná?</b>"
 
-#: ../raphodo/rapid.py:6024
+#: ../raphodo/rapid.py:6025
 msgid ""
 "All cameras, phones and tablets with the same model name will be ignored."
 msgstr ""
 "Veškeré fotoaparáty, telefony a tablety se stejným názvem modelu budou "
 "ignorovány."
 
-#: ../raphodo/rapid.py:6030
+#: ../raphodo/rapid.py:6031
 #, python-format
 msgid ""
 "<b>Do you want to ignore the device %s whenever this program is run?</b>"
-msgstr "<b>Ignorovat zařízení %s pokaždé, když je tato aplikace spuštěná?</b>"
+msgstr ""
+"<b>Ignorovat zařízení %s pokaždé, když je tato aplikace spuštěná?</b>"
 
-#: ../raphodo/rapid.py:6034
+#: ../raphodo/rapid.py:6035
 msgid "Any device with the same name will be ignored."
 msgstr "Všechna zařízení s takovým názvem budou ignorována."
 
-#: ../raphodo/rapid.py:6388
+#: ../raphodo/rapid.py:6389
 #, python-format
 msgid "Downloading from %(location)s on This Computer."
 msgstr "Stahování z %(location)s na tomto počítači."
 
-#: ../raphodo/rapid.py:6392
+#: ../raphodo/rapid.py:6393
 msgid ""
 "Do you really want to download from here?<br><br>On some systems, scanning "
 "this location can take a very long time."
@@ -4842,97 +4871,97 @@ msgstr ""
 "Opravdu chcete stáhnout odsud?<br><br>Na některých systémech totiž "
 "prohledávání tohoto umístění může trvat opravdu dlouho."
 
-#: ../raphodo/rapid.py:6448
+#: ../raphodo/rapid.py:6449
 #, python-format
 msgid "Generating thumbnails for %s"
 msgstr "Vytváření náhledových obrázků pro %s"
 
-#: ../raphodo/rapid.py:6455
+#: ../raphodo/rapid.py:6456
 #, python-format
 msgid "Scanning %s"
 msgstr "Prohledávání %s"
 
-#: ../raphodo/rapid.py:6469
+#: ../raphodo/rapid.py:6470
 #, python-format
 msgid ""
 "%(number)s of %(available files)s checked for download (%(hidden)s hidden)"
 msgstr ""
 "%(number)s z %(available files)s označeno ke stažení (%(hidden)s skryto)"
 
-#: ../raphodo/rapid.py:6481
+#: ../raphodo/rapid.py:6482
 #, python-format
 msgid "%(number)s of %(available files)s checked for download"
 msgstr "%(number)s z %(available files)s označeno ke stažení"
 
-#: ../raphodo/rapid.py:6780
+#: ../raphodo/rapid.py:6779
 msgid "Show version numbers of program and its libraries and exit."
 msgstr "Zobrazit číslo verze a jeho knihoven a skončit."
 
-#: ../raphodo/rapid.py:6787
+#: ../raphodo/rapid.py:6786
 msgid "Display program information when run from the command line."
 msgstr ""
 "Při spuštění aplikace z příkazového řádku v něm vypisovat informace z "
 "aplikace."
 
-#: ../raphodo/rapid.py:6793
+#: ../raphodo/rapid.py:6792
 msgid "Display debugging information when run from the command line."
 msgstr ""
 "Při spuštění aplikace z příkazového řádku v něm vypisovat ladicí informace."
 
-#: ../raphodo/rapid.py:6800
+#: ../raphodo/rapid.py:6799
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr ""
 "Zobrazit přípony souborů s fotografiemi a videi které aplikace rozpoznává a "
 "skončit."
 
-#: ../raphodo/rapid.py:6806
+#: ../raphodo/rapid.py:6805
 msgid "Turn on or off the the renaming of photos."
 msgstr "Zapnout nebo vypnout přejmenovávání fotografií."
 
-#: ../raphodo/rapid.py:6812
+#: ../raphodo/rapid.py:6811
 msgid "Turn on or off the the renaming of videos."
 msgstr "Zapnout nebo vypnout přejmenovávání videí."
 
-#: ../raphodo/rapid.py:6820
+#: ../raphodo/rapid.py:6819
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
 msgstr ""
 "Zapnout nebo vypnout automatické zjišťování zařízení ze kterých stahovat."
 
-#: ../raphodo/rapid.py:6828
+#: ../raphodo/rapid.py:6827
 msgid "Turn on or off downloading from this computer."
 msgstr "Zapnout nebo vypnout stahování z tohoto počítače."
 
-#: ../raphodo/rapid.py:6833 ../raphodo/rapid.py:6840 ../raphodo/rapid.py:6847
-#: ../raphodo/rapid.py:6891 ../raphodo/rapid.py:6901
+#: ../raphodo/rapid.py:6832 ../raphodo/rapid.py:6839 ../raphodo/rapid.py:6846
+#: ../raphodo/rapid.py:6890 ../raphodo/rapid.py:6900
 msgid "PATH"
 msgstr "POPIS UMÍSTĚNÍ"
 
-#: ../raphodo/rapid.py:6835
+#: ../raphodo/rapid.py:6834
 msgid "The PATH on this computer from which to download."
 msgstr "POPIS UMÍSTĚNÍ na tomto počítači ze kterého stahovat."
 
-#: ../raphodo/rapid.py:6842
+#: ../raphodo/rapid.py:6841
 msgid "The PATH where photos will be downloaded to."
 msgstr "POPIS UMÍSTĚNÍ do kterého budou stahovány fotografie."
 
-#: ../raphodo/rapid.py:6849
+#: ../raphodo/rapid.py:6848
 msgid "The PATH where videos will be downloaded to."
 msgstr "POPIS UMÍSTĚNÍ do kterého budou stahována videa."
 
-#: ../raphodo/rapid.py:6856
+#: ../raphodo/rapid.py:6855
 msgid "Turn on or off the backing up of photos and videos while downloading."
 msgstr "Zapnout nebo vypnout zálohování fotografií a videí během stahování."
 
-#: ../raphodo/rapid.py:6862
+#: ../raphodo/rapid.py:6861
 msgid "Turn on or off the automatic detection of backup devices."
 msgstr "Zapnout nebo vypnout automatické zjišťování zálohovacích zařízení."
 
-#: ../raphodo/rapid.py:6867 ../raphodo/rapid.py:6879
+#: ../raphodo/rapid.py:6866 ../raphodo/rapid.py:6878
 msgid "FOLDER"
 msgstr "SLOŽKA"
 
-#: ../raphodo/rapid.py:6870
+#: ../raphodo/rapid.py:6869
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
@@ -4945,7 +4974,7 @@ msgstr ""
 "si přejete používat pro zálohování fotografií, vytvořte složku s tímto "
 "názvem."
 
-#: ../raphodo/rapid.py:6882
+#: ../raphodo/rapid.py:6881
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
@@ -4957,7 +4986,7 @@ msgstr ""
 "zda zařízení slouží pro zálohování. Proto na každém zařízení, které si "
 "přejete používat pro zálohování videí, vytvořte složku s tímto názvem."
 
-#: ../raphodo/rapid.py:6894
+#: ../raphodo/rapid.py:6893
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
@@ -4965,7 +4994,7 @@ msgstr ""
 "POPIS UMÍSTĚNÍ do kterého budou zálohovány fotografie v případě vypnutí "
 "automatického zjišťování zálohovacích zařízení."
 
-#: ../raphodo/rapid.py:6904
+#: ../raphodo/rapid.py:6903
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
@@ -4973,24 +5002,25 @@ msgstr ""
 "POPIS UMÍSTĚNÍ do kterého budou zálohována videa v případě vypnutí "
 "automatického zjišťování zálohovacích zařízení."
 
-#: ../raphodo/rapid.py:6912
+#: ../raphodo/rapid.py:6911
 #, python-format
 msgid "Ignore photos with the following extensions: %s"
 msgstr "Nevšímat si fotografií s následujícími příponami: %s"
 
-#: ../raphodo/rapid.py:6922
-msgid "Turn on or off starting downloads as soon as the program itself starts."
+#: ../raphodo/rapid.py:6921
+msgid ""
+"Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 "Zapnout nebo vypnout automatiku zahájení stahování spouštěnou startem této "
 "aplikace."
 
-#: ../raphodo/rapid.py:6929
+#: ../raphodo/rapid.py:6928
 msgid "Turn on or off starting downloads as soon as a device is inserted."
 msgstr ""
 "Zapnout nebo vypnout automatiku zahájení stahování spouštěnou připojením "
 "zařízení."
 
-#: ../raphodo/rapid.py:6936
+#: ../raphodo/rapid.py:6935
 msgid ""
 "Turn on or off use of the Rapid Photo Downloader Thumbnail Cache. Turning it "
 "off does not delete existing cache contents."
@@ -4998,7 +5028,7 @@ msgstr ""
 "Zapnout nebo vypnout používání mezipaměti náhledových obrázků aplikace Rapid "
 "Photo Downloader. Vypnutí nesmaže už existující obsah mezipaměti."
 
-#: ../raphodo/rapid.py:6945
+#: ../raphodo/rapid.py:6944
 msgid ""
 "Delete all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and "
 "exit."
@@ -5006,11 +5036,11 @@ msgstr ""
 "Vymazat veškeré náhledové obrázky z mezipaměti aplikace Rapid Photo "
 "Downloader a skončit."
 
-#: ../raphodo/rapid.py:6953
+#: ../raphodo/rapid.py:6952
 msgid "Forget which files have been previously downloaded, and exit."
 msgstr "Zapomenout které soubory byly dříve staženy a skončit."
 
-#: ../raphodo/rapid.py:6960
+#: ../raphodo/rapid.py:6959
 msgid ""
 "Import preferences from an old program version and exit. Requires the "
 "command line program gconftool-2."
@@ -5018,7 +5048,7 @@ msgstr ""
 "Importovat předvolby ze starší verze aplikace a skončit. Vyžaduje přítomnost "
 "nástroje gconftool-2."
 
-#: ../raphodo/rapid.py:6969
+#: ../raphodo/rapid.py:6968
 msgid ""
 "Reset all program settings to their default values, delete all thumbnails in "
 "the Thumbnail cache, forget which files have been previously downloaded, and "
@@ -5028,20 +5058,20 @@ msgstr ""
 "veškeré náhledové obrázky, zapomenout které soubory byly dříve staženy a "
 "skončit."
 
-#: ../raphodo/rapid.py:6977
+#: ../raphodo/rapid.py:6976
 msgid "Include gphoto2 debugging information in log files."
 msgstr ""
 "Do souborů se záznamy událostí zahrnout i ladící informace knihovny gphoto2."
 
-#: ../raphodo/rapid.py:6983
+#: ../raphodo/rapid.py:6982
 msgid "Print information to the terminal about attached cameras and exit."
 msgstr "Vypsat na terminál informace o připojených fotoaparátech a skončit."
 
-#: ../raphodo/rapid.py:6993
+#: ../raphodo/rapid.py:6992
 msgid "Run this program in wayland or regular X11"
-msgstr ""
+msgstr "Spustit tento program pod wayland nebo běžném X11"
 
-#: ../raphodo/rapid.py:7086
+#: ../raphodo/rapid.py:7085
 msgid ""
 "To import preferences from the old version of Rapid Photo Downloader, you "
 "must install the program gconftool-2."
@@ -5049,38 +5079,39 @@ msgstr ""
 "Pro import předvoleb ze starší verze aplikace Rapid Photo Downloader je "
 "třeba nainstalovat nástroj gconftool-2."
 
-#: ../raphodo/rapid.py:7097
+#: ../raphodo/rapid.py:7096
 msgid "No prior program preferences detected: exiting."
 msgstr "Nebyly zjištěny žádné předchozí předvolby aplikace: ukončování."
 
 #. Translators: %(variable)s represents Python code, not a plural of the
 #. term variable. You must keep the %(variable)s untranslated, or the
 #. program will crash.
-#: ../raphodo/rapid.py:7104
+#: ../raphodo/rapid.py:7103
 #, python-format
 msgid "Importing preferences from Rapid Photo Downloader %(version)s"
 msgstr "Import předvoleb z Rapid Photo Downloader %(version)s"
 
-#: ../raphodo/rapid.py:7175
+#: ../raphodo/rapid.py:7174
 #, python-format
-msgid "Do you want to copy the stored sequence number, which has the value %d?"
+msgid ""
+"Do you want to copy the stored sequence number, which has the value %d?"
 msgstr "Zkopírovat uložené pořadové číslo, které má hodnotu %d?"
 
-#: ../raphodo/rapid.py:7190
+#: ../raphodo/rapid.py:7189
 msgid "Program aborting."
 msgstr "Ukončování aplikace."
 
-#: ../raphodo/rapid.py:7277
+#: ../raphodo/rapid.py:7276
 msgid "Never run this program as the sudo / root user."
 msgstr "Nikdy tuto aplikaci nespouštějte s právy správy systému (sudo/root)."
 
-#: ../raphodo/rapid.py:7282
+#: ../raphodo/rapid.py:7281
 msgid "You must install ExifTool to run Rapid Photo Downloader."
 msgstr ""
 "Pro provoz aplikace Rapid Photo Downloader je třeba nainstalovat nástroj "
 "ExifTool."
 
-#: ../raphodo/rapid.py:7297
+#: ../raphodo/rapid.py:7296
 msgid ""
 "Rapid Photo Downloader is installed in multiple locations.\n"
 "\n"
@@ -5091,7 +5122,7 @@ msgstr ""
 "\n"
 "Ponechte pouze tu instalaci, kterou chcete používat a ostatní odinstalujte."
 
-#: ../raphodo/rapid.py:7367
+#: ../raphodo/rapid.py:7366
 msgid ""
 "When specifying a path on the command line, do not also specify an\n"
 "option for device auto detection or a path on \"This Computer\"."
@@ -5100,15 +5131,15 @@ msgstr ""
 "předvolbu pro automatické zjišťování zařízení nebo popis umístění na „Tento "
 "počítač“."
 
-#: ../raphodo/rapid.py:7573
+#: ../raphodo/rapid.py:7572
 msgid "All settings and caches have been reset."
 msgstr "Veškerá nastavení a mezipaměti byly resetovány."
 
-#: ../raphodo/rapid.py:7581
+#: ../raphodo/rapid.py:7580
 msgid "Thumbnail Cache has been reset."
 msgstr "Mezipaměť náhledových obrázků byla resetována."
 
-#: ../raphodo/rapid.py:7587
+#: ../raphodo/rapid.py:7586
 msgid "Remembered files have been forgotten."
 msgstr "Zapamatované soubory byly zapomenuty."
 
@@ -5277,21 +5308,21 @@ msgstr "Kořen souborového systému"
 msgid "Pictures"
 msgstr "Fotografie"
 
-#: ../raphodo/sudocommand.py:74
+#: ../raphodo/sudocommand.py:86
 msgid "Sorry, the password was incorrect."
-msgstr ""
+msgstr "Je nám líto, heslo nebylo správné."
 
 #. Translators: here %s refers to the username (you must keep %s or the
 #. program will crash). This is what it looks like:
 #. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
-#: ../raphodo/sudocommand.py:81
+#: ../raphodo/sudocommand.py:93
 #, python-format
 msgid "To perform administrative tasks, enter the password for %s."
-msgstr ""
+msgstr "Aby bylo možné provést úlohu správy, zadejte heslo pro %s."
 
-#: ../raphodo/sudocommand.py:109
+#: ../raphodo/sudocommand.py:125
 msgid "Password:"
-msgstr ""
+msgstr "Heslo:"
 
 #: ../raphodo/thumbnaildisplay.py:577
 #, python-format
@@ -5501,17 +5532,17 @@ msgstr "&Ne"
 #: ../raphodo/wsl.py:106
 #, python-format
 msgid "Create directory <tt>%(path)s</tt>"
-msgstr ""
+msgstr "Vytvořit složku <tt>%(path)s</tt>"
 
 #: ../raphodo/wsl.py:110
 #, python-format
 msgid "Mount drive <tt>%(drive)s:</tt> at <tt>%(path)s</tt>"
-msgstr ""
+msgstr "Připojit jednotku <tt>%(drive)s:</tt> do <tt>%(path)s</tt>"
 
 #: ../raphodo/wsl.py:116
 #, python-format
 msgid "Unmount drive <tt>%(drive)s:</tt> from <tt>%(path)s</tt>"
-msgstr ""
+msgstr "Odpojit jednotku <tt>%(drive)s:</tt> z <tt>%(path)s</tt>"
 
 #. Translators: This is part of a title for a dialog box, and is in plural
 #. form, where two or more drives will be mounted. This screenshot shows only
@@ -5520,7 +5551,7 @@ msgstr ""
 #: ../raphodo/wsl.py:310
 #, python-format
 msgid "Mount drives %s"
-msgstr ""
+msgstr "Připojit jednotky %s"
 
 #. Translators: This is part of a title for a dialog box, and is in singular
 #. form, where only one drive will be mounted. This screenshot illustrates:
@@ -5528,7 +5559,7 @@ msgstr ""
 #: ../raphodo/wsl.py:315
 #, python-format
 msgid "Mount drive %s"
-msgstr ""
+msgstr "Připojit jednotku %s"
 
 #. Translators: This is part of a title for a dialog box, and is in plural
 #. form, where two or more drives will be unmounted. This screenshot shows
@@ -5537,7 +5568,7 @@ msgstr ""
 #: ../raphodo/wsl.py:322
 #, python-format
 msgid "Unmount drives %s"
-msgstr ""
+msgstr "Odpojit jednotky %s"
 
 #. Translators: This is part of a title for a dialog box, and is in singular
 #. form, where only one drive will be unmounted. This screenshot shows a
@@ -5546,112 +5577,112 @@ msgstr ""
 #: ../raphodo/wsl.py:328
 #, python-format
 msgid "Unmount drive %s"
-msgstr ""
+msgstr "Odpojit jednotku %s"
 
 #: ../raphodo/wsl.py:391
 #, python-format
 msgid "Sorry, an error occurred when mounting drives %s"
-msgstr ""
+msgstr "Je nám líto, při připojování jednotek %s došlo k chybě"
 
 #: ../raphodo/wsl.py:397
 #, python-format
 msgid "Sorry, an error occurred when unmounting drives %s"
-msgstr ""
+msgstr "Je nám líto, při odpojování jednotek %s došlo k chybě"
 
 #: ../raphodo/wsl.py:404
 #, python-format
 msgid "Sorry, an error occurred when mounting drive %s"
-msgstr ""
+msgstr "Je nám líto, při připojování jednotky %s došlo k chybě"
 
 #: ../raphodo/wsl.py:410
 #, python-format
 msgid "Sorry, an error occurred when unmounting drive %s"
-msgstr ""
+msgstr "Je nám líto, při odpojování jednotky %s došlo k chybě"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:559
 msgid "Windows Drives"
-msgstr ""
+msgstr "Jednotky ve Windows"
 
 #: ../raphodo/wsl.py:563
 msgid "Enable automatic mounting of Windows drives"
-msgstr ""
+msgstr "Zapnout automatické připojování jednotek z Windows"
 
 #: ../raphodo/wsl.py:567
 msgid "Automatically mount all Windows drives"
-msgstr ""
+msgstr "Automaticky připojit veškeré jednotky z Windows"
 
 #: ../raphodo/wsl.py:571
 msgid "Only automatically mount Windows drives that are configured below"
-msgstr ""
+msgstr "Jednotky z Windows připojovat automaticky pouze ty nastavené níže"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:595
 msgid "User Mounted"
-msgstr ""
+msgstr "Uživatelsky připojované"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:597
 msgid "System Mounted"
-msgstr ""
+msgstr "Připojované systémem"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:599
 msgid "Drive"
-msgstr ""
+msgstr "Jednotka"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:601
 msgid "Mount Point"
-msgstr ""
+msgstr "Přípojný bod"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:603
 msgid "Automatic Mount"
-msgstr ""
+msgstr "Automatické připojení"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:605
 msgid "Automatic Unmount at Exit"
-msgstr ""
+msgstr "Automatické odpojení při ukončování"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:639
 msgid "Pending Operations:"
-msgstr ""
+msgstr "Čekající operace:"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:653
 msgid "&Apply Pending Operations"
-msgstr ""
+msgstr "Upl&atnit čekající operace"
 
 #. Translators: this will appear in a small dialog asking the user
 #. if they want to mount a single drive
 #: ../raphodo/wsl.py:1460
 #, python-format
 msgid "Do you want to mount drive %s?"
-msgstr ""
+msgstr "Chcete připojit jednotku do %s?"
 
 #. translators: this will appear in a small dialog asking the user
 #. if they want to mount two or more drives
 #: ../raphodo/wsl.py:1464
 #, python-format
 msgid "Do you want to mount drives %s?"
-msgstr ""
+msgstr "Chcete připojit jednotky %s?"
 
 #. Translators: this is the name Windows uses for a removable drive,
 #. like a USB drive
-#: ../raphodo/wsl.py:1601
+#: ../raphodo/wsl.py:1607
 msgid "Removable Drive"
-msgstr ""
+msgstr "Výjimatelná jednotka"
 
 #. Translators: this is the name Windows uses for a drive that is
 #. normally part of the computer, like an internal hard drive
 #. (although for some reason some USB drives are classified by
 #. Windows as local drives)
-#: ../raphodo/wsl.py:1607
+#: ../raphodo/wsl.py:1613
 msgid "Local Drive"
-msgstr ""
+msgstr "Disk v počítači"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:2
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
@@ -5716,11 +5747,11 @@ msgstr "Nástroj pro stahování fotografií"
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:5
 msgid ""
-"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
-"memory;card;"
+"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
+";card;"
 msgstr ""
-"fotografie;stahování;fotografování;import;video;RAW;fotoaparát;telefon;"
-"záloha;paměť;karta;"
+"fotografie;stahování;fotografování;import;video;RAW;fotoaparát;telefon;záloha"
+";paměť;karta;"
 
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
@@ -5859,8 +5890,7 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ msgid ""
 #~ "display program information on the command line as the program runs "
 #~ "(default: %default)"
-#~ msgstr ""
-#~ "zobrazit informace o programu na příkazové řádce (default: %default)"
+#~ msgstr "zobrazit informace o programu na příkazové řádce (default: %default)"
 
 #~ msgid " hh:mm"
 #~ msgstr " hh:mm"
@@ -5972,8 +6002,8 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ "Specify the time in 24 hour format at which the <i>Downloads today</i> "
 #~ "sequence number should be reset."
 #~ msgstr ""
-#~ "Specifikujte čas ve 24 hodinovém formátu aby mohlo být resetováno "
-#~ "sekvenční číslo v <i>Dnešní stahování</i>."
+#~ "Specifikujte čas ve 24 hodinovém formátu aby mohlo být resetováno sekvenční "
+#~ "číslo v <i>Dnešní stahování</i>."
 
 #~ msgid "Device Detected"
 #~ msgstr "Zařízení detekováno"
@@ -6060,8 +6090,7 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ "<span weight=\"bold\" size=\"x-large\">Složky stahování fotografií</span>"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Složky stahování videa</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Složky stahování videa</span>"
 
 #~ msgid "Automatically detect devices"
 #~ msgstr "Automaticky detekovat zařízení"
@@ -6216,8 +6245,8 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ "subfolders. Please use other subfolder naming options.</i>"
 #~ msgstr ""
 #~ "<i><b>Varování:</b> Není k dispozici dostatečný počet metadat, aby bylo "
-#~ "možné vytvořit složky. Použijte prosím pro vytvoření jména  jiné možnosti."
-#~ "</i>"
+#~ "možné vytvořit složky. Použijte prosím pro vytvoření jména  jiné "
+#~ "možnosti.</i>"
 
 #, python-format
 #~ msgid ""
@@ -6240,8 +6269,8 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 
 #, python-format
 #~ msgid ""
-#~ "The existing %(filetype)s was last modified on %(date)s at %(time)s. "
-#~ "Unique identifier '%(identifier)s' added."
+#~ "The existing %(filetype)s was last modified on %(date)s at %(time)s. Unique "
+#~ "identifier '%(identifier)s' added."
 #~ msgstr ""
 #~ "Existující %(filetype)s byl naposledy změněn  %(date)s v %(time)s. Byl "
 #~ "přidán jedinečný identifikátor  '%(identifier)s'."
@@ -6339,8 +6368,7 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ msgstr "Došlo k chybě při vytváření adresářů na %(volume)s: %(inst)s."
 
 #~ msgid ""
-#~ "Errors occurred when creating directories on the following backup "
-#~ "devices: "
+#~ "Errors occurred when creating directories on the following backup devices: "
 #~ msgstr "Došlo k chybě při vytváření adresářů na následujících zařízeních: "
 
 #, python-format
@@ -6352,8 +6380,7 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ msgstr "Problémy při vytváření %s"
 
 #, python-format
-#~ msgid ""
-#~ "An error occurred when copying the %(filetype)s, but it was backed up"
+#~ msgid "An error occurred when copying the %(filetype)s, but it was backed up"
 #~ msgstr "Při kopírování %(filetype)s došlo k chybě, ale záloha proběhla"
 
 #, python-format
@@ -6367,8 +6394,7 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ msgstr "Problémy při vytváření názvů pro složky a soubory"
 
 #, python-format
-#~ msgid ""
-#~ "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
+#~ msgid "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
 #~ msgstr "%(missing_metadata_elements)s a %(final_missing_metadata_element)s."
 
 #, python-format
@@ -6404,8 +6430,7 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ msgid "Photo has already been downloaded"
 #~ msgstr "Fotka už byla stažena"
 
-#~ msgid ""
-#~ "Photos detected with the same filenames, but taken at different times"
+#~ msgid "Photos detected with the same filenames, but taken at different times"
 #~ msgstr "Byly nalezeny fotky se stejným jménem, ale různým datem vzniku"
 
 #~ msgid "Next File"
@@ -6449,8 +6474,8 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ "Specify whether photo, video and folder names should have any characters "
 #~ "removed that are not allowed by other operating systems."
 #~ msgstr ""
-#~ "Určete znaky, které se mohou objevit v názvech souborů, ale mohly by "
-#~ "později působit problémy"
+#~ "Určete znaky, které se mohou objevit v názvech souborů, ale mohly by později "
+#~ "působit problémy"
 
 #~ msgid "Video backup folder name:"
 #~ msgstr "Název složky pro zálohu videí"
@@ -6462,12 +6487,11 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ msgstr "Po stažení souborů odpojit zařízení"
 
 #~ msgid ""
-#~ "When a photo or video of the same name has already been downloaded, "
-#~ "choose whether to skip downloading the file, or to add a unique "
-#~ "indentifier."
+#~ "When a photo or video of the same name has already been downloaded, choose "
+#~ "whether to skip downloading the file, or to add a unique indentifier."
 #~ msgstr ""
-#~ "Pokud má fotka nebo video stejný název jako již existující soubor, "
-#~ "vyberte, zda se má stahování přeskočit, nebo přejmenovat."
+#~ "Pokud má fotka nebo video stejný název jako již existující soubor, vyberte, "
+#~ "zda se má stahování přeskočit, nebo přejmenovat."
 
 #~ msgid "Import your photos and videos efficiently and reliably"
 #~ msgstr "Importovat fotky a videa spolehlivě"
@@ -6493,13 +6517,13 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ "Specify the folder in which backups are stored on the device.  \n"
 #~ "\n"
 #~ "<i>Note: this will also be used to determine whether or not the device is "
-#~ "used for backups. For each device you wish to use for backing up to, "
-#~ "create a folder in it with one of these names.</i>"
+#~ "used for backups. For each device you wish to use for backing up to, create "
+#~ "a folder in it with one of these names.</i>"
 #~ msgstr ""
 #~ "Vyberte složku, ve které jsou na zařízení uloženy zálohy.  \n"
-#~ "<i>Poznámka: Podle toho se také pozná, zda je zařízení použito pro "
-#~ "zálohy. Na každém zařízení, které chcete pro zálohy použít, vytvořte "
-#~ "složku s některým jménem. </i>"
+#~ "<i>Poznámka: Podle toho se také pozná, zda je zařízení použito pro zálohy. "
+#~ "Na každém zařízení, které chcete pro zálohy použít, vytvořte složku s "
+#~ "některým jménem. </i>"
 
 #, python-format
 #~ msgid "%(device)s did not unmount"
@@ -6604,8 +6628,8 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ "Error: specify device auto-detection or manually specify a device's path "
 #~ "from which to download, but do not do both."
 #~ msgstr ""
-#~ "Chyba: vyberte autodetekci přístroje nebo ručně nastavte cestu ze které "
-#~ "se má stahovat, ale ne obojí."
+#~ "Chyba: vyberte autodetekci přístroje nebo ručně nastavte cestu ze které se "
+#~ "má stahovat, ale ne obojí."
 
 #, python-format
 #~ msgid ""
@@ -6621,8 +6645,8 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ "Do you really want to download from here? On some systems, scanning this "
 #~ "location can take a very long time."
 #~ msgstr ""
-#~ "Opravdu chcete stahovat odtud? Na některých systémech může sken této "
-#~ "lokace trvat velmi dlouho."
+#~ "Opravdu chcete stahovat odtud? Na některých systémech může sken této lokace "
+#~ "trvat velmi dlouho."
 
 #, python-format
 #~ msgid "Backup %(file_type)s overwritten"
@@ -6644,8 +6668,8 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ "momentálnímu nastavení programu"
 
 #~ msgid ""
-#~ "manually specify the PATH of the device from which to download, "
-#~ "overwriting existing program preferences"
+#~ "manually specify the PATH of the device from which to download, overwriting "
+#~ "existing program preferences"
 #~ msgstr ""
 #~ "ručně vybrat cestu k přístroji ze kterého se má stahovat, nadřazené "
 #~ "momentálnímu nastavení programu"
@@ -6653,30 +6677,29 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #, python-format
 #~ msgid "No backup device contains a valid folder for backing up %(filetype)s"
 #~ msgstr ""
-#~ "Žádný záložní přístroj neobsahuje platý adresář pro zálohování "
-#~ "%(filetype)s"
+#~ "Žádný záložní přístroj neobsahuje platý adresář pro zálohování %(filetype)s"
 
 #~ msgid ""
 #~ "Specify the ending portion of any paths you want ignored when scanning "
-#~ "devices for photos or videos. Any path ending with the values below will "
-#~ "not be scanned."
+#~ "devices for photos or videos. Any path ending with the values below will not "
+#~ "be scanned."
 #~ msgstr ""
 #~ "Upřesněte koncovou část jakékoliv cesty kterou chcete ignorovat při "
-#~ "prohledávání přístrojů pro fotografie a videa. Jakákoliv cesta končící "
-#~ "níže vypsanými hodnotami nebude prohledána."
+#~ "prohledávání přístrojů pro fotografie a videa. Jakákoliv cesta končící níže "
+#~ "vypsanými hodnotami nebude prohledána."
 
 #~ msgid ""
-#~ "Sorry, video downloading functionality disabled. To download videos, "
-#~ "please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> "
-#~ "packages for python, or <i>exiftool</i>."
+#~ "Sorry, video downloading functionality disabled. To download videos, please "
+#~ "install either the <i>hachoir metadata</i> and <i>kaa metadata</i> packages "
+#~ "for python, or <i>exiftool</i>."
 #~ msgstr ""
 #~ "Omlouváme se, možnost stahování videa je vypnuta. Pro stahování videí "
 #~ "nainstalujte prosím buď <i>hachoir metadata</i> a <i>kaa metadata</i> "
 #~ "balíčky pro python, nebo <i>exiftool</i>."
 
 #~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the "
-#~ "photos and videos."
+#~ "If you disable automatic detection, choose the exact location of the photos "
+#~ "and videos."
 #~ msgstr ""
 #~ "Pokud vypnete automatickou detekci, vyberte přesné umístění fotografií a "
 #~ "videí."
@@ -6685,8 +6708,8 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ "If you enable automatic detection of Portable Storage Devices, the entire "
 #~ "device will be scanned. On large devices, this could take some time.\n"
 #~ "\n"
-#~ "When this option is enabled, and a potential device is detected, you will "
-#~ "be prompted to determine if it should be scanned or not."
+#~ "When this option is enabled, and a potential device is detected, you will be "
+#~ "prompted to determine if it should be scanned or not."
 #~ msgstr ""
 #~ "Pokud povolíte automatickou detekci přenosných pamětoých médií, bude "
 #~ "skenován celý přístroj. Tot může na velkých přístrojích trvat déle.\n"
@@ -6698,28 +6721,28 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 #~ "Devices are from where to download photos and videos, such as cameras, "
 #~ "memory cards or Portable Storage Devices.\n"
 #~ "\n"
-#~ "You can download from multiple devices simultaneously, or you can specify "
-#~ "a location on your hard drive.\n"
+#~ "You can download from multiple devices simultaneously, or you can specify a "
+#~ "location on your hard drive.\n"
 #~ "\n"
-#~ "<i>Downloading directly from cameras is currently an experimental "
-#~ "feature. If downloading directly from your camera works poorly or not at "
-#~ "all, try setting it to PTP mode. If that is not possible, a card reader "
-#~ "must be used.</i>"
+#~ "<i>Downloading directly from cameras is currently an experimental feature. "
+#~ "If downloading directly from your camera works poorly or not at all, try "
+#~ "setting it to PTP mode. If that is not possible, a card reader must be "
+#~ "used.</i>"
 #~ msgstr ""
 #~ "Přístroje nastavují odkud má probíhat stahování fotek a videí, jaké jsou "
 #~ "fotoaparáty, pamětové karty nebo přenosné datove zdroje.\n"
 #~ "\n"
-#~ "Můžete stahovat z několika přístrojů naráz, nebo můžete vybrat cestu na "
-#~ "svůj disk.\n"
+#~ "Můžete stahovat z několika přístrojů naráz, nebo můžete vybrat cestu na svůj "
+#~ "disk.\n"
 #~ "\n"
-#~ "<i>Přímé stahování z fotoaparátů je momentálně pouze experimentální. "
-#~ "Pokud stahování přímo z fotoaparátu funguje špatně nebo vůbec, zkuste "
-#~ "nastavit PTP mód. Pokud toto není možné, je třeba použít čtečku karet.</i>"
+#~ "<i>Přímé stahování z fotoaparátů je momentálně pouze experimentální. Pokud "
+#~ "stahování přímo z fotoaparátu funguje špatně nebo vůbec, zkuste nastavit PTP "
+#~ "mód. Pokud toto není možné, je třeba použít čtečku karet.</i>"
 
 #~ msgid ""
-#~ "Remembered paths are those associated with devices that you have chosen "
-#~ "to always scan or ignore when automatic detection of Portable Storage "
-#~ "Devices is enabled."
+#~ "Remembered paths are those associated with devices that you have chosen to "
+#~ "always scan or ignore when automatic detection of Portable Storage Devices "
+#~ "is enabled."
 #~ msgstr ""
 #~ "Uložené cesty jsou ty, které jsou přiřazeny přístrojům které jste vybrali "
 #~ "vždy prohledávat nebo ignorovat, pokud je zapnuta automatická detekce "
@@ -6733,8 +6756,8 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 
 #, python-format
 #~ msgid ""
-#~ "This regular expression is invalid, and will be removed unless you "
-#~ "correct it:\n"
+#~ "This regular expression is invalid, and will be removed unless you correct "
+#~ "it:\n"
 #~ " %s"
 #~ msgstr ""
 #~ "Tento regulární výraz je neplatný a bude odstraněn pokud ho neopravíte:\n"
@@ -6760,8 +6783,8 @@ msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
 
 #, python-format
 #~ msgid ""
-#~ "File verification failed on %(volume)s. The backed up version is "
-#~ "different from the downloaded version."
+#~ "File verification failed on %(volume)s. The backed up version is different "
+#~ "from the downloaded version."
 #~ msgstr ""
 #~ "Ověření souboru selhalo na %(volume)s. Zálohovaná verze je jiná než ta "
 #~ "stažená."
