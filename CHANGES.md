@@ -14,6 +14,10 @@ Changelog for Rapid Photo Downloader
 
  - Correct Albanian language attribution in About dialog box.
 
+ - Read in much larger chunk of RAF files on cameras to read metadata. This 
+   slows performance, but is necessary on newer RAF files, which have larger 
+   embedded JPEGs that are placed before the metadata in the file. 
+
 0.9.27b2 (2021-11-28)
 ---------------------
 
