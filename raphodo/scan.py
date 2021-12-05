@@ -1549,7 +1549,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 )
                 self.device_timestamp_type = DeviceTimestampTZ.is_utc
             elif datetime_roughly_equal(dt1=datetime.fromtimestamp(modification_time),
-                                      dt2=mdatatime):
+                                        dt2=mdatatime):
                 logging.info(
                     "Device timezone setting for %s is local time, as indicated by "
                     "%s file", self.display_name, determined_by
