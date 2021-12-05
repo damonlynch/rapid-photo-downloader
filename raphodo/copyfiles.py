@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2020, Damon Lynch"
+__copyright__ = "Copyright 2011-2021, Damon Lynch"
 
 import os
 import sys
@@ -377,7 +377,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 self.problems.append(
                     CameraInitializationProblem(gp_code=e.gp_code)
                 )
-                logging.error("Could not initialize camera %s", self.display_name)
+                logging.error("Could not initialize camera %s %s", args.device.camera_model, args.device.camera_port)
                 self.terminate_camera_removed()
             else:
                 rescan = RescanCamera(camera=self.camera, prefs=prefs)

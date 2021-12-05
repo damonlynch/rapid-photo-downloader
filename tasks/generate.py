@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2017-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -23,7 +23,7 @@ Create a data blob of locale mo files and insert it into install.py and upgrade.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017-2018, Damon Lynch"
+__copyright__ = "Copyright 2017-2021, Damon Lynch"
 
 
 from glob import glob
@@ -36,7 +36,7 @@ import base64
 po_dir = '../po'
 domain = 'rapid-photo-downloader'
 scripts = ('../install.py', '../upgrade.py')
-line_length=100
+line_length=88
 
 temp_dir = tempfile.mkdtemp()
 
@@ -72,7 +72,7 @@ for script in scripts:
         code = script_py.read()
 
     # locate the binary blob contents
-    mo_files_start = 'MO_FILES_ZIP=b"""'
+    mo_files_start = 'MO_FILES_ZIP = b"""'
     mo_files_end = '"""'
 
     start = code.find(mo_files_start) + len(mo_files_start)

@@ -770,10 +770,7 @@ class RPDFile:
         else:
             path = self.full_file_name
             camera_details = self.camera_details
-        return get_uri(
-            full_file_name=path, camera_details=camera_details,
-            desktop_environment=desktop_environment
-        )
+        return get_uri(full_file_name=path, camera_details=camera_details)
 
     def get_souce_href(self) -> str:
         return make_href(

@@ -1,4 +1,4 @@
-include *.rst
+include *.md
 include *.in
 include requirements.txt
 include po/LINGUAS

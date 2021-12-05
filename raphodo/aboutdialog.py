@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Display an About window
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2020, Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 import re
 
@@ -73,9 +73,9 @@ class AboutDialog(QDialog):
 
         # Standard About view
 
-        msg = """Copyright &copy; 2007-2020 Damon Lynch.<br><br>
-        <a href="http://www.damonlynch.net/rapid" %(link_style)s>
-        www.damonlynch.net/rapid</a><br><br>
+        msg = """Copyright &copy; 2007-2021 Damon Lynch.<br><br>
+        <a href="https://damonlynch.net/rapid" %(link_style)s>
+        damonlynch.net/rapid</a><br><br>
         This program comes with absolutely no warranty.<br>
         See the <a href="http://www.gnu.org/copyleft/gpl.html" %(link_style)s>GNU General
         Public License,
@@ -118,7 +118,7 @@ class AboutDialog(QDialog):
         # Credits view
 
         credits_text = """
-        Copyright © 2007-2020 Damon Lynch.
+        Copyright © 2007-2021 Damon Lynch.
         Portions copyright © 2008-2015 Canonical Ltd.
         Portions copyright © 2013 Bernard Baeyens.
         Portions copyright © 2012-2015 Jim Easterbrook.
@@ -179,7 +179,7 @@ class AboutDialog(QDialog):
         # Translators view
 
         translators_text = """
-        <b>Algerian</b>
+        <b>Albanian</b>
         Algent Albrahimi <algent@protonmail.com>
 
         <b>Belarusian</b>

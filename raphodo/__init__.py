@@ -27,10 +27,10 @@ from typing import Optional
 import os
 import gettext
 import locale
-from xdg import BaseDirectory
+from pathlib import Path
 import builtins
 
-from PyQt5.QtCore import QSettings
+from PyQt5.QtCore import QSettings, QStandardPaths
 
 
 def sample_translation() -> str:
@@ -62,7 +62,10 @@ def locale_directory() -> Optional[str]:
     locale_mtime = 0.0
     locale_dir = None
 
-    for path in (BaseDirectory.xdg_data_home, '/usr/share'):
+    data_home = QStandardPaths.writableLocation(QStandardPaths.GenericDataLocation)
+    assert Path(data_home).is_dir()
+
+    for path in (data_home, '/usr/share'):
         locale_path = os.path.join(path, 'locale')
         sample_path = os.path.join(locale_path, sample_lang_path)
         if os.path.isfile(sample_path) and os.access(sample_path, os.R_OK):
@@ -112,4 +115,3 @@ if not lang_installed:
     # Building on what lang.install() does above - but in this case, pretend we are
     # translating files
     builtins.__dict__['_'] = no_translation_performed
-

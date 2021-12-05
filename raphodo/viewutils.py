@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -16,8 +16,8 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2015-2021, Damon Lynch"
 
 from typing import List, Dict, Tuple, Optional
 from collections import namedtuple
@@ -25,11 +25,40 @@ from pkg_resources import parse_version
 import sys
 
 from PyQt5.QtWidgets import (
-    QStyleOptionFrame, QStyle, QStylePainter, QWidget, QLabel, QListWidget, QProxyStyle,
-    QStyleOption, QDialogButtonBox, QMessageBox
+    QStyleOptionFrame,
+    QStyle,
+    QStylePainter,
+    QWidget,
+    QLabel,
+    QListWidget,
+    QProxyStyle,
+    QStyleOption,
+    QDialogButtonBox,
+    QMessageBox,
+    QItemDelegate,
+    QStyleOptionButton,
+    QApplication,
+    QStyleOptionViewItem,
 )
-from PyQt5.QtGui import QFontMetrics, QFont, QPainter, QPixmap, QIcon, QGuiApplication
-from PyQt5.QtCore import QSize, Qt, QT_VERSION_STR, QPoint
+from PyQt5.QtGui import (
+    QFontMetrics,
+    QFont,
+    QPainter,
+    QPixmap,
+    QIcon,
+    QGuiApplication,
+    QPalette,
+)
+from PyQt5.QtCore import (
+    QSize,
+    Qt,
+    QT_VERSION_STR,
+    QPoint,
+    QEvent,
+    QModelIndex,
+    QRect,
+    QAbstractItemModel,
+)
 
 QT5_VERSION = parse_version(QT_VERSION_STR)
 
@@ -81,6 +110,7 @@ class RowTracker:
     >>> r[1]
     100
     """
+
     def __init__(self) -> None:
         self.row_to_id = {}  # type: Dict[int, int]
         self.id_to_row = {}  # type: Dict[int, int]
@@ -104,10 +134,10 @@ class RowTracker:
         del self.id_to_row[id_value]
 
     def __repr__(self) -> str:
-        return '%r %r' % (self.row_to_id, self.id_to_row)
+        return "%r %r" % (self.row_to_id, self.id_to_row)
 
     def __str__(self) -> str:
-        return 'Row to id: %r\nId to row: %r' % (self.row_to_id, self.id_to_row)
+        return "Row to id: %r\nId to row: %r" % (self.row_to_id, self.id_to_row)
 
     def row(self, id_value) -> int:
         """
@@ -116,7 +146,7 @@ class RowTracker:
         """
         return self.id_to_row[id_value]
 
-    def insert_row(self, position: int, id_value) -> List:
+    def insert_row(self, position: int, id_value) -> None:
         """
         Inserts row into the model at the given position, assigning
         the id_id_value.
@@ -126,30 +156,38 @@ class RowTracker:
         """
 
         ids = [id_value for row, id_value in self.row_to_id.items() if row < position]
-        ids_to_move = [id_value for row, id_value in self.row_to_id.items() if row >= position]
+        ids_to_move = [
+            id_value for row, id_value in self.row_to_id.items() if row >= position
+        ]
         ids.append(id_value)
         ids.extend(ids_to_move)
         self.row_to_id = dict(enumerate(ids))
-        self.id_to_row =  dict(((y, x) for x, y in list(enumerate(ids))))
+        self.id_to_row = dict(((y, x) for x, y in list(enumerate(ids))))
 
-    def remove_rows(self, position, rows=1) -> List:
+    def remove_rows(self, position: int, rows=1) -> List[int]:
         """
         :param position: the position of the first row to remove
         :param rows: how many rows to remove
         :return: the ids of those rows which were removed
         """
         final_pos = position + rows - 1
-        ids_to_keep = [id_value for row, id_value in self.row_to_id.items() if
-                       row < position or row > final_pos]
-        ids_to_remove = [idValue for row, idValue in self.row_to_id.items() if
-                         row >= position and row <= final_pos]
+        ids_to_keep = [
+            id_value
+            for row, id_value in self.row_to_id.items()
+            if row < position or row > final_pos
+        ]
+        ids_to_remove = [
+            idValue
+            for row, idValue in self.row_to_id.items()
+            if row >= position and row <= final_pos
+        ]
         self.row_to_id = dict(enumerate(ids_to_keep))
-        self.id_to_row =  dict(((y, x) for x, y in list(enumerate(ids_to_keep))))
+        self.id_to_row = dict(((y, x) for x, y in list(enumerate(ids_to_keep))))
         return ids_to_remove
 
 
 ThumbnailDataForProximity = namedtuple(
-    'ThumbnailDataForProximity', 'uid, ctime, file_type, previously_downloaded'
+    "ThumbnailDataForProximity", "uid, ctime, file_type, previously_downloaded"
 )
 
 
@@ -188,9 +226,13 @@ class ProxyStyleNoFocusRectangle(QProxyStyle):
     Remove the focus rectangle from a widget
     """
 
-    def drawPrimitive(self, element: QStyle.PrimitiveElement,
-                      option: QStyleOption, painter: QPainter,
-                      widget: QWidget) -> None:
+    def drawPrimitive(
+        self,
+        element: QStyle.PrimitiveElement,
+        option: QStyleOption,
+        painter: QPainter,
+        widget: QWidget,
+    ) -> None:
 
         if QStyle.PE_FrameFocusRect == element:
             pass
@@ -205,10 +247,13 @@ class QNarrowListWidget(QListWidget):
     See http://stackoverflow.com/questions/6337589/qlistwidget-adjust-size-to-content
     """
 
-    def __init__(self, minimum_rows: int=0,
-                 minimum_width: int=0,
-                 no_focus_recentangle: bool=False,
-                 parent=None) -> None:
+    def __init__(
+        self,
+        minimum_rows: int = 0,
+        minimum_width: int = 0,
+        no_focus_recentangle: bool = False,
+        parent=None,
+    ) -> None:
         super().__init__(parent=parent)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self._minimum_rows = minimum_rows
@@ -231,7 +276,9 @@ class QNarrowListWidget(QListWidget):
             s.setHeight(self.count() * self.sizeHintForRow(0) + self.frameWidth() * 2)
         else:
             s.setHeight(super().sizeHint().height())
-        s.setWidth(max(self.sizeHintForColumn(0) + self.frameWidth() * 2, self._minimum_width))
+        s.setWidth(
+            max(self.sizeHintForColumn(0) + self.frameWidth() * 2, self._minimum_width)
+        )
         return s
 
 
@@ -250,14 +297,14 @@ def translateDialogBoxButtons(buttonBox: QDialogButtonBox) -> None:
         return
 
     buttons = (
-        (QDialogButtonBox.Ok, _('&OK')),
-        (QDialogButtonBox.Close, _('&Close') ),
-        (QDialogButtonBox.Cancel, _('&Cancel')),
-        (QDialogButtonBox.Save, _('&Save')),
-        (QDialogButtonBox.Help, _('&Help')),
-        (QDialogButtonBox.RestoreDefaults, _('Restore Defaults')),
-        (QDialogButtonBox.Yes, _('&Yes')),
-        (QDialogButtonBox.No, _('&No')),
+        (QDialogButtonBox.Ok, _("&OK")),
+        (QDialogButtonBox.Close, _("&Close")),
+        (QDialogButtonBox.Cancel, _("&Cancel")),
+        (QDialogButtonBox.Save, _("&Save")),
+        (QDialogButtonBox.Help, _("&Help")),
+        (QDialogButtonBox.RestoreDefaults, _("Restore Defaults")),
+        (QDialogButtonBox.Yes, _("&Yes")),
+        (QDialogButtonBox.No, _("&No")),
     )
     for role, text in buttons:
         button = buttonBox.button(role)
@@ -270,12 +317,12 @@ def translateMessageBoxButtons(messageBox: QMessageBox) -> None:
         return
 
     buttons = (
-        (QMessageBox.Ok, _('&OK')),
-        (QMessageBox.Close, _('&Close') ),
-        (QMessageBox.Cancel, _('&Cancel')),
-        (QMessageBox.Save, _('&Save')),
-        (QMessageBox.Yes, _('&Yes')),
-        (QMessageBox.No, _('&No')),
+        (QMessageBox.Ok, _("&OK")),
+        (QMessageBox.Close, _("&Close")),
+        (QMessageBox.Cancel, _("&Cancel")),
+        (QMessageBox.Save, _("&Save")),
+        (QMessageBox.Yes, _("&Yes")),
+        (QMessageBox.No, _("&No")),
     )
     for role, text in buttons:
         button = messageBox.button(role)
@@ -283,15 +330,17 @@ def translateMessageBoxButtons(messageBox: QMessageBox) -> None:
             button.setText(text)
 
 
-def standardMessageBox(message: str,
-                       rich_text: bool,
-                       standardButtons: QMessageBox.StandardButton,
-                       defaultButton: Optional[QMessageBox.StandardButton]=None,
-                       parent=None,
-                       title: Optional[str]=None,
-                       icon: Optional[QIcon]=None,
-                       iconPixmap: Optional[QPixmap]=None,
-                       iconType: Optional[QMessageBox.Icon]=None) -> QMessageBox:
+def standardMessageBox(
+    message: str,
+    rich_text: bool,
+    standardButtons: QMessageBox.StandardButton,
+    defaultButton: Optional[QMessageBox.StandardButton] = None,
+    parent=None,
+    title: Optional[str] = None,
+    icon: Optional[QIcon] = None,
+    iconPixmap: Optional[QPixmap] = None,
+    iconType: Optional[QMessageBox.Icon] = None,
+) -> QMessageBox:
     """
     Create a QMessageBox to be displayed to the user.
 
@@ -336,7 +385,9 @@ def standardMessageBox(message: str,
             if icon:
                 iconPixmap = icon.pixmap(standardIconSize())
             else:
-                iconPixmap = QIcon(':/rapid-photo-downloader.svg').pixmap(standardIconSize())
+                iconPixmap = QIcon(":/rapid-photo-downloader.svg").pixmap(
+                    standardIconSize()
+                )
         msgBox.setIconPixmap(iconPixmap)
 
     return msgBox
@@ -352,14 +403,14 @@ def qt5_screen_scale_environment_variable() -> str:
     :return: correct variable
     """
 
-    if QT5_VERSION < parse_version('5.14.0'):
-        return 'QT_AUTO_SCREEN_SCALE_FACTOR'
+    if QT5_VERSION < parse_version("5.14.0"):
+        return "QT_AUTO_SCREEN_SCALE_FACTOR"
     else:
-        return 'QT_ENABLE_HIGHDPI_SCALING'
+        return "QT_ENABLE_HIGHDPI_SCALING"
 
 
 def validateWindowSizeLimit(available: QSize, desired: QSize) -> Tuple[bool, QSize]:
-    """"
+    """ "
     Validate the window size to ensure it fits within the available screen size.
 
     Important if scaling makes the saved values invalid.
@@ -376,11 +427,14 @@ def validateWindowSizeLimit(available: QSize, desired: QSize) -> Tuple[bool, QSi
         return True, desired
     else:
         return False, QSize(
-            min(desired.width(), available.width()), min(desired.height(), available.height())
+            min(desired.width(), available.width()),
+            min(desired.height(), available.height()),
         )
 
 
-def validateWindowPosition(pos: QPoint, available: QSize, size: QSize) -> Tuple[bool, QPoint]:
+def validateWindowPosition(
+    pos: QPoint, available: QSize, size: QSize
+) -> Tuple[bool, QPoint]:
     """
     Validate the window position to ensure it will be displayed in the screen.
 
@@ -411,7 +465,7 @@ def scaledPixmap(path: str, scale: float) -> QPixmap:
     return pixmap
 
 
-def standard_font_size(shrink_on_odd: bool=True) -> int:
+def standard_font_size(shrink_on_odd: bool = True) -> int:
     h = QFontMetrics(QFont()).height()
     if h % 2 == 1:
         if shrink_on_odd:
@@ -421,7 +475,7 @@ def standard_font_size(shrink_on_odd: bool=True) -> int:
     return h
 
 
-def scaledIcon(path: str, size: Optional[QSize]=None) -> QIcon:
+def scaledIcon(path: str, size: Optional[QSize] = None) -> QIcon:
     """
     Create a QIcon that scales well
     Uses .addFile()
@@ -449,7 +503,7 @@ def screen_scaled_xsettings() -> bool:
     """
 
     x11 = xsettings.get_xsettings()
-    return x11.get(b'Gdk/WindowScalingFactor', 1) > 1
+    return x11.get(b"Gdk/WindowScalingFactor", 1) > 1
 
 
 def any_screen_scaled_qt() -> bool:
@@ -493,3 +547,105 @@ def any_screen_scaled() -> Tuple[ScalingDetected, bool]:
         return ScalingDetected.Xsetting, xsettings_running
     return ScalingDetected.undetected, xsettings_running
 
+
+class CheckBoxDelegate(QItemDelegate):
+    """
+    A delegate that places a fully functioning centered QCheckBox cell in the column
+    to which it's applied.
+    """
+
+    def __init__(self, parent):
+        QItemDelegate.__init__(self, parent)
+
+        checkboxRect = QRect(
+            QApplication.style().subElementRect(
+                QStyle.SE_CheckBoxIndicator, QStyleOptionButton(), None
+            )
+        )
+        self.checkboxHalfWidth = int(checkboxRect.width() / 2)
+
+    def createEditor(
+        self, parent, option: QStyleOptionViewItem, indexindex: QModelIndex
+    ) -> Optional[QWidget]:
+        """
+        Important, otherwise an editor is created if the user clicks in this cell.
+        """
+
+        return None
+
+    def paint(
+        self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
+    ) -> None:
+        """
+        Paint a checkbox without a label
+        """
+
+        checked = index.data(Qt.CheckStateRole) == Qt.Checked
+        enabled = int(index.flags() & Qt.ItemIsEditable) > 0
+
+        if not checked and not enabled:
+            return
+
+        painter.save()
+
+        checkboxStyleOption = QStyleOptionButton()
+        if checked:
+            checkboxStyleOption.state |= QStyle.State_On
+        else:
+            checkboxStyleOption.state |= QStyle.State_Off
+
+        if enabled:
+            checkboxStyleOption.state |= QStyle.State_Enabled
+            checkboxStyleOption.state &= ~QStyle.State_ReadOnly
+        else:
+            checkboxStyleOption.state &= ~QStyle.State_Enabled
+            checkboxStyleOption.state |= QStyle.State_ReadOnly
+            color = checkboxStyleOption.palette.color(QPalette.Window).darker(130)
+            checkboxStyleOption.palette.setColor(QPalette.Text, color)
+
+        checkboxStyleOption.rect = option.rect
+        checkboxStyleOption.rect.setX(
+            option.rect.x() + round(option.rect.width() / 2) - self.checkboxHalfWidth
+        )
+
+        QApplication.style().drawControl(
+            QStyle.CE_CheckBox, checkboxStyleOption, painter
+        )
+        painter.restore()
+
+    def editorEvent(
+        self,
+        event: QEvent,
+        model: QAbstractItemModel,
+        option: QStyleOptionViewItem,
+        index: QModelIndex,
+    ) -> bool:
+        if not int(index.flags() & Qt.ItemIsEditable) > 0:
+            return False
+
+        if (
+            event.type() == QEvent.MouseButtonRelease
+            and event.button() == Qt.LeftButton
+        ):
+            self.setModelData(None, model, index)
+            return True
+        elif event.type() == QEvent.KeyPress:
+            if event.key() != Qt.Key_Space and event.key() != Qt.Key_Select:
+                return False
+            self.setModelData(None, model, index)
+            return True
+        return False
+
+    def setModelData(
+        self, editor: QWidget, model: QAbstractItemModel, index: QModelIndex
+    ) -> None:
+        """
+        The user wants the opposite state
+        """
+        model.setData(
+            index,
+            Qt.Unchecked
+            if (index.data(Qt.CheckStateRole)) == Qt.Checked
+            else Qt.Checked,
+            Qt.CheckStateRole,
+        )

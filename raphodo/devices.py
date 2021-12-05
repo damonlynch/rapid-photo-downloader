@@ -25,17 +25,16 @@ context:
 2. In code, a Device is one of a camera, volume, or path
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2015-2021, Damon Lynch"
 
 import sys
 import shutil
 import os
 import logging
 import itertools
-from collections import namedtuple, Counter, defaultdict
-from typing import Tuple, List, Optional, Set, Dict, Union, DefaultDict
-
+from collections import Counter, defaultdict
+from typing import Tuple, List, Optional, Set, Dict, DefaultDict, NamedTuple
 
 
 from PyQt5.QtCore import QStorageInfo, QSize
@@ -44,25 +43,55 @@ from PyQt5.QtGui import QIcon, QPixmap
 
 import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import (
-    DeviceType, BackupLocationType, FileType, DeviceState, DownloadStatus, ExifSource,
-    DownloadingFileTypes, BackupFailureType
+    DeviceType,
+    BackupLocationType,
+    FileType,
+    DeviceState,
+    DownloadStatus,
+    ExifSource,
+    DownloadingFileTypes,
+    BackupFailureType,
 )
 from raphodo.rpdfile import FileTypeCounter, FileSizeSum, Photo, Video, RPDFile
 from raphodo.storage import (
-    StorageSpace, udev_attributes, UdevAttr, get_path_display_name, validate_download_folder,
-    ValidatedFolder, CameraDetails, get_uri, fs_device_details
+    StorageSpace,
+    udev_attributes,
+    UdevAttr,
+    get_path_display_name,
+    validate_download_folder,
+    ValidatedFolder,
+    CameraDetails,
+    get_uri,
+    fs_device_details,
+)
+from raphodo.storageidevice import (
+    idevice_get_name,
+    idevice_serial_to_udid,
+    idevice_do_unmount,
 )
 from raphodo.camera import generate_devname, autodetect_cameras
 from raphodo.utilities import (
-    number, make_internationalized_list, stdchannel_redirected, same_device
+    number,
+    make_internationalized_list,
+    stdchannel_redirected,
+    same_device,
 )
 import raphodo.exiftool as exiftool
 from raphodo.problemnotification import FsMetadataWriteProblem
 from raphodo.viewutils import scaledIcon
 
-display_devices = (DeviceType.volume, DeviceType.camera)
-sample_file_complete = namedtuple('sample_file_complete', 'full_file_name, file_type')
-device_name_uri = namedtuple('device_name_uri', 'name uri')
+display_devices = (DeviceType.volume, DeviceType.camera, DeviceType.camera_fuse)
+camera_devices = (DeviceType.camera, DeviceType.camera_fuse)
+
+
+class SampleFileComplete(NamedTuple):
+    full_file_name: str
+    file_type: FileType
+
+
+class DeviceNameUri(NamedTuple):
+    name: str
+    uri: str
 
 
 class Device:
@@ -103,40 +132,54 @@ class Device:
     >>> c != d
     True
     """
+
     def __init__(self):
         self.clear()
 
     def clear(self):
-        self.camera_model = None  # type: str
-        self.camera_port = None  # type: str
+        self.camera_model = None  # type: Optional[str]
+        self.camera_port = None  # type: Optional[str]
         # Assume an MTP device is likely a smart phone or tablet
         self.is_mtp_device = False
-        self.udev_name = None  # type: str
+        self.is_apple_mobile = False
+        self.is_camera_fuse = False
+        self.udev_serial = None  # type: Optional[str]
+        self.idevice_udid = None  # type: Optional[str]
+        self.udev_name = None  # type: Optional[str]
         self.storage_space = []  # type: List[StorageSpace]
         # Name of storage on a camera
         self.storage_descriptions = []  # type: List[str]
 
-        self.path = None  # type: str
-        self.display_name = None  # type: str
+        self.path = None  # type: Optional[str]
+        self.display_name = None  # type: Optional[str]
         self.have_optimal_display_name = False
-        self.device_type = None  # type: DeviceType
-        self.icon_name = None  # type: str
-        self.can_eject = None  # type: bool
-        self.photo_cache_dir = None  # type: str
-        self.video_cache_dir = None  # type: str
+        # iOS devices can report their device name when the device is already paired
+        self.have_canoncial_ios_name = False
+        self.device_type = None  # type: Optional[DeviceType]
+        self.icon_name = None  # type: Optional[str]
+        self.can_eject = None  # type: Optional[bool]
+        self.photo_cache_dir = None  # type: Optional[str]
+        self.video_cache_dir = None  # type: Optional[str]
         self.file_size_sum = FileSizeSum()
         self.file_type_counter = FileTypeCounter()
         self.download_statuses = set()  # type: Set[DownloadStatus]
-        self._uri = ''
+        self._uri = ""
         # If the entire video or photo is required to extract metadata
         # (which affects thumbnail generation too).
         # Set only if downloading from a camera / phone.
-        self.entire_video_required = None  # type: bool
-        self.entire_photo_required = None  # type: bool
+        self.entire_video_required = None  # type: Optional[bool]
+        self.entire_photo_required = None  # type: Optional[bool]
 
     def __repr__(self):
         if self.device_type == DeviceType.camera:
             return "%r:%r" % (self.camera_model, self.camera_port)
+        elif self.device_type == DeviceType.camera_fuse:
+            return "%r:%r:%r:%r" % (
+                self.camera_model,
+                self.camera_port,
+                self.display_name,
+                self.path,
+            )
         elif self.device_type == DeviceType.volume:
             return "%r:%r" % (self.display_name, self.path)
         else:
@@ -144,19 +187,28 @@ class Device:
 
     def __str__(self):
         if self.device_type == DeviceType.camera:
-            return '{} on port {}. Udev: {}; Display name: {} (optimal: {}); MTP: {}'.format(
-                              self.camera_model, self.camera_port, self.udev_name,
-                              self.display_name, self.have_optimal_display_name, self.is_mtp_device)
+            return "{} on port {}. Udev: {}; Display name: {} (optimal: {}); MTP: {}".format(
+                self.camera_model,
+                self.camera_port,
+                self.udev_name,
+                self.display_name,
+                self.have_optimal_display_name,
+                self.is_mtp_device,
+            )
+        elif self.device_type == DeviceType.camera_fuse:
+            return "{} on port {}. Mount point: {}; Display name: {}".format(
+                self.camera_model, self.camera_port, self.display_name, self.path
+            )
         elif self.device_type == DeviceType.volume:
             if self.path != self.display_name:
                 return "%s (%s)" % (self.path, self.display_name)
             else:
-                return "%s" % (self.path)
+                return "%s" % self.path
         else:
-            return "%s" % (self.path)
+            return "%s" % self.path
 
     def __eq__(self, other):
-        for attr in ('device_type', 'camera_model', 'camera_port', 'path'):
+        for attr in ("device_type", "camera_model", "camera_port", "path"):
             if getattr(self, attr) != getattr(other, attr):
                 return False
         return True
@@ -167,7 +219,8 @@ class Device:
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def _get_valid_icon_name(self, possible_names):
+    @staticmethod
+    def _get_valid_icon_name(possible_names):
         if possible_names is not None:
             for icon_name in possible_names:
                 if QIcon.hasThemeIcon(icon_name):
@@ -183,10 +236,13 @@ class Device:
             if self.storage_descriptions:
                 storage_desc = self.storage_descriptions[0]
             else:
-                storage_desc = ''
+                storage_desc = ""
             camera_details = CameraDetails(
-                model=self.camera_model, port=self.camera_port, display_name=self.display_name,
-                is_mtp=self.is_mtp_device, storage_desc=storage_desc
+                model=self.camera_model,
+                port=self.camera_port,
+                display_name=self.display_name,
+                is_mtp=self.is_mtp_device,
+                storage_desc=storage_desc,
             )
             self._uri = get_uri(camera_details=camera_details)
         else:
@@ -202,7 +258,7 @@ class Device:
         # Try to override this value below
         self.display_name = camera_model
         self.camera_port = camera_port
-        self.icon_name = self._get_valid_icon_name(('camera-photo', 'camera'))
+        self.icon_name = self._get_valid_icon_name(("camera-photo", "camera"))
 
         # Assign default udev name if cannot determine from udev itself
         self.udev_name = camera_model
@@ -214,21 +270,51 @@ class Device:
                 self.is_mtp_device = udev_attr.is_mtp_device
                 self.udev_name = udev_attr.model
                 self.display_name = udev_attr.model
-        else:
-            logging.error("Could not determine udev values for %s %s",
-                          self.camera_model, camera_port)
+                self.is_apple_mobile = udev_attr.is_apple_mobile
+                self.udev_serial = udev_attr.serial
 
-    def update_camera_attributes(self, display_name: str,
-                                 storage_space: List[StorageSpace],
-                                 storage_descriptions: List[str]) -> None:
+            if self.is_apple_mobile:
+                self.is_camera_fuse = True
+                self.device_type = DeviceType.camera_fuse
+                self.idevice_udid = idevice_serial_to_udid(self.udev_serial)
+                if self.idevice_udid:
+                    name = idevice_get_name(self.idevice_udid)
+                    if name:
+                        logging.debug("%s is now known as %s", self.display_name, name)
+                        self.display_name = name
+                        self.have_canoncial_ios_name = True
+        else:
+            logging.error(
+                "Could not determine udev values for %s %s",
+                self.camera_model,
+                camera_port,
+            )
+
+    def update_camera_attributes(
+        self,
+        display_name: str,
+        storage_space: List[StorageSpace],
+        storage_descriptions: List[str],
+        mount_point: str,
+        is_apple_mobile: bool,
+    ) -> None:
+        assert is_apple_mobile == self.is_apple_mobile
         self.display_name = display_name
         self.have_optimal_display_name = True
         self.storage_space = storage_space
         self.storage_descriptions = storage_descriptions
+        # For cameras mounted using  FUSE:
+        if mount_point:
+            self.path = mount_point
 
-    def set_download_from_volume(self, path: str, display_name: str,
-                                 icon_names=None, can_eject=None,
-                                 mount: QStorageInfo=None) -> None:
+    def set_download_from_volume(
+        self,
+        path: str,
+        display_name: str,
+        icon_names=None,
+        can_eject=None,
+        mount: QStorageInfo = None,
+    ) -> None:
         self.clear()
         self.device_type = DeviceType.volume
         self.path = path
@@ -243,7 +329,9 @@ class Device:
             mount = QStorageInfo(path)
         self.storage_space.append(
             StorageSpace(
-                bytes_free=mount.bytesAvailable(), bytes_total=mount.bytesTotal(), path=path
+                bytes_free=mount.bytesAvailable(),
+                bytes_total=mount.bytesTotal(),
+                path=path,
             )
         )
 
@@ -261,16 +349,19 @@ class Device:
             self.display_name = path
         # the next value is almost certainly ("folder",), but I guess it's
         # better to generate it from code
-        self.icon_name = ('{}'.format(QFileIconProvider().icon(
-            QFileIconProvider.Folder).name()))
+        self.icon_name = "{}".format(
+            QFileIconProvider().icon(QFileIconProvider.Folder).name()
+        )
         mount = QStorageInfo(path)
         self.storage_space.append(
             StorageSpace(
-                bytes_free=mount.bytesAvailable(), bytes_total=mount.bytesTotal(), path=path
+                bytes_free=mount.bytesAvailable(),
+                bytes_total=mount.bytesTotal(),
+                path=path,
             )
         )
 
-    def get_storage_space(self, index: int=0) -> StorageSpace:
+    def get_storage_space(self, index: int = 0) -> StorageSpace:
         """
         Convenience function to retrieve information about bytes
         free and bytes total (capacity of the media). Almost all
@@ -285,9 +376,9 @@ class Device:
         """
         Get the name of the device, suitable to be displayed to the
         user. If the device is a path, return the path name
-        :return  str containg the name
+        :return  str containing the name
         """
-        if self.device_type == DeviceType.camera:
+        if self.device_type in camera_devices:
             return self.display_name
         elif self.device_type == DeviceType.volume:
             return self.display_name
@@ -299,20 +390,21 @@ class Device:
 
         # TODO consider scaledIcon() here
         if self.device_type == DeviceType.volume:
-            return QIcon(':/icons/drive-removable-media.svg')
+            return QIcon(":/icons/drive-removable-media.svg")
         elif self.device_type == DeviceType.path:
-            return QIcon(':/icons/folder.svg')
+            return QIcon(":/icons/folder.svg")
         else:
-            assert self.device_type == DeviceType.camera
-            if self.is_mtp_device:
-                if self.camera_model.lower().find('tablet') >= 0:
-                    #TODO use tablet icon
+            assert self.device_type in camera_devices
+            if self.is_mtp_device or self.is_apple_mobile:
+                if self.camera_model.lower().find("tablet") >= 0:
+                    # TODO use tablet icon
                     pass
-                return QIcon(':/icons/smartphone.svg')
-            return QIcon(':/icons/camera.svg')
+                return QIcon(":/icons/smartphone.svg")
+            return QIcon(":/icons/camera.svg")
 
-    def get_pixmap(self, size: QSize=QSize(30, 30),
-                   device_pixel_ratio: Optional[float]=None) -> QPixmap:
+    def get_pixmap(
+        self, size: QSize = QSize(30, 30), device_pixel_ratio: Optional[float] = None
+    ) -> QPixmap:
         icon = self.get_icon()
         pixmap = icon.pixmap(size)
         if device_pixel_ratio is not None:
@@ -322,15 +414,42 @@ class Device:
     def _delete_cache_dir(self, cache_dir) -> None:
         if cache_dir:
             if os.path.isdir(cache_dir):
-                assert cache_dir != os.path.expanduser('~')
+                assert cache_dir != os.path.expanduser("~")
                 try:
                     shutil.rmtree(cache_dir, ignore_errors=True)
                 except:
-                    logging.error("Unknown error deleting cache directory %s", cache_dir)
+                    logging.error(
+                        "Unknown error deleting cache directory %s", cache_dir
+                    )
 
     def delete_cache_dirs(self) -> None:
         self._delete_cache_dir(self.photo_cache_dir)
         self._delete_cache_dir(self.video_cache_dir)
+
+    def unmount_fuse(self) -> None:
+        """
+        Unmount file system mounted using FUSE, e.g. iOS device.
+
+        Also handles cases where the device was removed while it was mounted, creating
+        an invalid mount.
+        """
+
+        if self.path:
+            mount = QStorageInfo(self.path)
+            if not (mount.isReady() or mount.isValid()):
+                logging.debug("Removing invalid mount %s", self.path)
+
+            # Remove mounts regardless of whether they are valid or not
+            idevice_do_unmount(
+                udid=self.idevice_udid,
+                display_name=self.display_name,
+                mount_point=self.path,
+            )
+            self.path = None
+        else:
+            logging.debug(
+                "Path does not exist for '%s': nothing to unmount", self.display_name
+            )
 
 
 class DeviceCollection:
@@ -405,8 +524,10 @@ class DeviceCollection:
     >>> dc.delete_device(e)
     False
     """
-    def __init__(self, exiftool_process: Optional[exiftool.ExifTool]=None,
-                 rapidApp=None) -> None:
+
+    def __init__(
+        self, exiftool_process: Optional[exiftool.ExifTool] = None, rapidApp=None
+    ) -> None:
 
         self.rapidApp = rapidApp
 
@@ -417,7 +538,7 @@ class DeviceCollection:
         # Track device names and uris to be able to report this information
         # after a device has been removed
         # scan_id: name uri
-        self.device_archive = {}  # type: Dict[int, device_name_uri]
+        self.device_archive = {}  # type: Dict[int, DeviceNameUri]
 
         # Used to assign scan ids
         self.scan_counter = 0  # type: int
@@ -467,18 +588,43 @@ class DeviceCollection:
         # Sample exif bytes of photo on most recent device scanned
         self._sample_photo = None  # type: Optional[Photo]
         self._sample_video = None  # type: Optional[Video]
-        self._sample_files_complete = []  # type: List[sample_file_complete]
+        self._sample_files_complete = []  # type: List[SampleFileComplete]
         self.exiftool_process = exiftool_process
+
+        # Cache camera Devices when determining whether to scan it or not
+        self.camera_device_cache = {}  # type: Dict[Tuple[str, str], Device]
 
         self._map_set = {
             DeviceType.path: self.this_computer,
             DeviceType.camera: self.volumes_and_cameras,
-            DeviceType.volume: self.volumes_and_cameras
+            DeviceType.volume: self.volumes_and_cameras,
+            DeviceType.camera_fuse: self.volumes_and_cameras,
         }
         self._map_plural_types = {
-            DeviceType.camera: _('Cameras'),
-            DeviceType.volume: _('Devices')
+            DeviceType.camera: _("Cameras"),
+            DeviceType.camera_fuse: _("Cameras"),
+            DeviceType.volume: _("Devices"),
         }
+
+    def cache_camera(self, device: Device) -> None:
+        """
+        When handling a camera to determine if it should be scanned or not,
+        cache preliminary device probing results here
+        :param device: the camera
+        """
+
+        assert device.device_type in camera_devices
+        self.camera_device_cache[(device.camera_model, device.camera_port)] = device
+
+    def remove_camera_from_cache(self, model: str, port) -> Optional[Device]:
+        """
+        Get camera from cache, if it's cached, and remove it from the cache
+
+        :param model: camera model as returned by gPhoto2
+        :param port: camera port
+        :return: camera device or None if it was not cached
+        """
+        return self.camera_device_cache.pop((model, port), None)
 
     def download_start_blocked(self) -> bool:
         """
@@ -488,58 +634,70 @@ class DeviceCollection:
         """
 
         if len(self.cameras_to_gvfs_unmount_for_download) > 0 and len(
-                self.cameras_to_stop_thumbnailing):
+            self.cameras_to_stop_thumbnailing
+        ):
             logging.debug(
                 "Download is blocked because %s camera(s) are being unmounted from GVFS "
                 "and %s camera(s) are having their thumbnailing terminated",
                 len(self.cameras_to_gvfs_unmount_for_download),
-                len(self.cameras_to_stop_thumbnailing)
+                len(self.cameras_to_stop_thumbnailing),
             )
         elif len(self.cameras_to_gvfs_unmount_for_download) > 0:
             logging.debug(
                 "Download is blocked because %s camera(s) are being unmounted from GVFS",
-                len(self.cameras_to_gvfs_unmount_for_download)
+                len(self.cameras_to_gvfs_unmount_for_download),
             )
         elif len(self.cameras_to_stop_thumbnailing) > 0:
             logging.debug(
                 "Download is blocked because %s camera(s) are having their thumbnailing "
-                "terminated", len(self.cameras_to_stop_thumbnailing)
+                "terminated",
+                len(self.cameras_to_stop_thumbnailing),
             )
 
-        return len(self.cameras_to_gvfs_unmount_for_download) > 0 or len(
-                    self.cameras_to_stop_thumbnailing) > 0
+        return (
+            len(self.cameras_to_gvfs_unmount_for_download) > 0
+            or len(self.cameras_to_stop_thumbnailing) > 0
+        )
 
     def logState(self) -> None:
         logging.debug("-- Device Collection --")
         logging.debug(
-            '%s devices: %s volumes/cameras (%s cameras), %s this computer',
-            len(self.devices), len(self.volumes_and_cameras), len(self.cameras),
-            len(self.this_computer)
+            "%s devices: %s volumes/cameras (%s cameras), %s this computer",
+            len(self.devices),
+            len(self.volumes_and_cameras),
+            len(self.cameras),
+            len(self.this_computer),
         )
-        logging.debug("Device states: %s", ', '.join(
-            '%s: %s' % (self[scan_id].display_name, self.device_state[scan_id].name)
-            for scan_id in self.device_state))
+        logging.debug(
+            "Device states: %s",
+            ", ".join(
+                "%s: %s" % (self[scan_id].display_name, self.device_state[scan_id].name)
+                for scan_id in self.device_state
+            ),
+        )
         if len(self.scanning):
-            scanning = ('%s' % ', '.join(self[scan_id].display_name for scan_id in self.scanning))
+            scanning = "%s" % ", ".join(
+                self[scan_id].display_name for scan_id in self.scanning
+            )
             logging.debug("Scanning: %s", scanning)
         else:
             logging.debug("No devices scanning")
         if len(self.downloading):
-            downloading = (
-                    '%s' % ', '.join(self[scan_id].display_name for scan_id in self.downloading)
+            downloading = "%s" % ", ".join(
+                self[scan_id].display_name for scan_id in self.downloading
             )
             logging.debug("Downloading: %s", downloading)
         else:
             logging.debug("No devices downloading")
         if len(self.thumbnailing):
-            thumbnailing = (
-                    '%s' % ', '.join(self[scan_id].display_name for scan_id in self.thumbnailing)
+            thumbnailing = "%s" % ", ".join(
+                self[scan_id].display_name for scan_id in self.thumbnailing
             )
             logging.debug("Thumbnailing: %s", thumbnailing)
         else:
             logging.debug("No devices thumbnailing")
 
-    def add_device(self, device: Device, on_startup: bool=False) -> int:
+    def add_device(self, device: Device, on_startup: bool = False) -> int:
         """
         Add a new device to the device collection
         :param device: device to add
@@ -563,12 +721,15 @@ class DeviceCollection:
         else:
             self.this_computer.add(scan_id)
 
-        self.device_archive[scan_id] = device_name_uri(device.display_name, device.uri)
+        self.device_archive[scan_id] = DeviceNameUri(device.display_name, device.uri)
         return scan_id
 
     def set_device_state(self, scan_id: int, state: DeviceState) -> None:
-        logging.debug("Setting device state for %s to %s",
-                      self.devices[scan_id].display_name, state.name)
+        logging.debug(
+            "Setting device state for %s to %s",
+            self.devices[scan_id].display_name,
+            state.name,
+        )
         self.device_state[scan_id] = state
         if state == DeviceState.scanning:
             self.scanning.add(scan_id)
@@ -598,16 +759,25 @@ class DeviceCollection:
         """
 
         device = self.devices[scan_id]
-        if device.device_type == DeviceType.camera:
-            logging.debug("Marking camera %s on port %s as explicitly removed. Will ignore it "
-                          "until program exit.", device.camera_model, device.camera_port)
+        if device.device_type in camera_devices:
+            logging.debug(
+                "Marking camera %s on port %s as explicitly removed. Will ignore it "
+                "until program exit.",
+                device.camera_model,
+                device.camera_port,
+            )
             self.ignored_cameras[device.camera_port] = device.camera_model
         elif device.device_type == DeviceType.volume:
-            logging.debug("Marking volume %s as explicitly removed. Will ignore it "
-                          "until program exit.", device.path)
+            logging.debug(
+                "Marking volume %s as explicitly removed. Will ignore it until program "
+                "exit.",
+                device.path,
+            )
             self.ignored_volumes.append(device.path)
         else:
-            logging.error("Device collection unexpectedly received path to ignore: ignoring")
+            logging.error(
+                "Device collection unexpectedly received path to ignore: ignoring"
+            )
 
     def user_marked_camera_as_ignored(self, model: str, port: str) -> bool:
         """
@@ -625,8 +795,8 @@ class DeviceCollection:
 
     def user_marked_volume_as_ignored(self, path: str) -> bool:
         """
-        Check if volume's path is in list of devices to ignore because they were explicitly
-        removed by the user
+        Check if volume's path is in list of devices to ignore because they were
+        explicitly removed by the user
 
         :param: path: the device's path
         :return: return True if camera is in set of devices to ignore
@@ -646,7 +816,7 @@ class DeviceCollection:
             return True
         return False
 
-    def known_path(self, path: str, device_type: Optional[DeviceType]=None) -> bool:
+    def known_path(self, path: str, device_type: Optional[DeviceType] = None) -> bool:
         """
         Check if the path is already in the list of devices
         :param path: path to check
@@ -662,7 +832,9 @@ class DeviceCollection:
     def known_device(self, device: Device) -> bool:
         return device in list(self.devices.values())
 
-    def scan_id_from_path(self, path: str, device_type: Optional[DeviceType]=None) -> Optional[int]:
+    def scan_id_from_path(
+        self, path: str, device_type: Optional[DeviceType] = None
+    ) -> Optional[int]:
         for scan_id, device in self.devices.items():
             if device.path == path:
                 if device_type is None or device.device_type == device_type:
@@ -678,8 +850,11 @@ class DeviceCollection:
         """
 
         for scan_id, device in self.devices.items():
-            if (device.device_type == DeviceType.camera and device.camera_model == model and
-                    device.camera_port == port):
+            if (
+                device.device_type in camera_devices
+                and device.camera_model == model
+                and device.camera_port == port
+            ):
                 return scan_id
         return None
 
@@ -704,6 +879,16 @@ class DeviceCollection:
             device.delete_cache_dirs()
         self._delete_sample_photo_video(at_program_close=True)
 
+    def unmount_fuse_devices(self) -> None:
+        """
+        Unmount any devices whose file systems were mounted using FUSE
+        e.g. iOS devices
+        """
+
+        for device in self.devices.values():
+            if device.is_camera_fuse:
+                device.unmount_fuse()
+
     def _add_complete_sample_file(self, sample_photo_video: RPDFile) -> None:
         """
         Don't delete this fully downloaded file, as it might be downloaded by the user,
@@ -716,12 +901,13 @@ class DeviceCollection:
         logging.debug(
             "Adding %s to list of complete sample %s files to potentially delete "
             "at program exit",
-            sample_photo_video.temp_sample_full_file_name, sample_photo_video.file_type.name
+            sample_photo_video.temp_sample_full_file_name,
+            sample_photo_video.file_type.name,
         )
         self._sample_files_complete.append(
-            sample_file_complete(
+            SampleFileComplete(
                 sample_photo_video.temp_sample_full_file_name,
-                sample_photo_video.file_type
+                sample_photo_video.file_type,
             )
         )
 
@@ -732,13 +918,15 @@ class DeviceCollection:
         :param sample_type: "photo" or "video"
         """
 
-        if (sample_photo_video is not None and
-                sample_photo_video.temp_sample_full_file_name is not None and
-                sample_photo_video.from_camera):
+        if (
+            sample_photo_video is not None
+            and sample_photo_video.temp_sample_full_file_name is not None
+            and sample_photo_video.from_camera
+        ):
             try:
                 sample_type = sample_photo_video.file_type.name
             except Exception:
-                sample_type = 'unknown'
+                sample_type = "unknown"
             try:
                 assert sample_photo_video.temp_sample_full_file_name
             except Exception:
@@ -748,7 +936,7 @@ class DeviceCollection:
                     logging.info(
                         "Removing temporary sample %s %s",
                         sample_type,
-                        sample_photo_video.temp_sample_full_file_name
+                        sample_photo_video.temp_sample_full_file_name,
                     )
                     try:
                         os.remove(sample_photo_video.temp_sample_full_file_name)
@@ -756,11 +944,12 @@ class DeviceCollection:
                         logging.exception(
                             "Error removing temporary sample %s file %s",
                             sample_type,
-                            sample_photo_video.temp_sample_full_file_name
+                            sample_photo_video.temp_sample_full_file_name,
                         )
 
-    def _delete_sample_photo_video(self, at_program_close: bool,
-                                   file_type: Optional[FileType]=None) -> None:
+    def _delete_sample_photo_video(
+        self, at_program_close: bool, file_type: Optional[FileType] = None
+    ) -> None:
         """
         Delete sample photo or video that is used for metadata extraction
         to provide example for file renaming.
@@ -771,9 +960,9 @@ class DeviceCollection:
         """
 
         if file_type == FileType.photo:
-            samples = self._sample_photo,
+            samples = (self._sample_photo,)
         elif file_type == FileType.video:
-            samples = self._sample_video,
+            samples = (self._sample_video,)
         else:
             samples = self._sample_photo, self._sample_video
 
@@ -782,20 +971,23 @@ class DeviceCollection:
 
         if at_program_close and self._sample_files_complete:
             remaining_files = (
-                photo_video for photo_video in self._sample_files_complete
+                photo_video
+                for photo_video in self._sample_files_complete
                 if os.path.isfile(photo_video.full_file_name)
             )
             for photo_video in remaining_files:
                 logging.info(
                     "Removing temporary sample %s %s",
-                    photo_video.file_type.name, photo_video.full_file_name
+                    photo_video.file_type.name,
+                    photo_video.full_file_name,
                 )
                 try:
                     os.remove(photo_video.full_file_name)
                 except Exception:
                     logging.exception(
                         "Error removing temporary sample %s file %s",
-                        photo_video.file_type.name, photo_video
+                        photo_video.file_type.name,
+                        photo_video,
                     )
 
     def map_set(self, device: Device) -> Set:
@@ -806,12 +998,15 @@ class DeviceCollection:
         :return: string showing which devices are being downloaded from
         """
 
-        display_names = [self.devices[scan_id].display_name for scan_id in self.downloading]
+        display_names = [
+            self.devices[scan_id].display_name for scan_id in self.downloading
+        ]
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
-        return _('Downloading from %(device_names)s') % dict(
-            device_names=make_internationalized_list(display_names))
+        return _("Downloading from %(device_names)s") % dict(
+            device_names=make_internationalized_list(display_names)
+        )
 
     def reset_and_return_have_downloaded_from(self) -> str:
         """
@@ -826,10 +1021,13 @@ class DeviceCollection:
 
     def __delitem__(self, scan_id: int):
         d = self.devices[scan_id]  # type: Device
-        if d.device_type == DeviceType.camera:
+        logging.debug("Deleting %s device from device collection", d.device_type.name)
+        if d.device_type in camera_devices:
             del self.cameras[d.camera_port]
             if d.camera_port in self.cameras_to_gvfs_unmount_for_scan:
                 del self.cameras_to_gvfs_unmount_for_scan[d.camera_port]
+            if d.device_type == DeviceType.camera_fuse:
+                d.unmount_fuse()
 
         self.map_set(d).remove(scan_id)
         d.delete_cache_dirs()
@@ -873,8 +1071,9 @@ class DeviceCollection:
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
-        return _('%(no_devices)s %(device_type)s') % dict(
-            no_devices=text_number, device_type=device_type_text)
+        return _("%(no_devices)s %(device_type)s") % dict(
+            no_devices=text_number, device_type=device_type_text
+        )
 
     def _update_sample_file(self, file_type: FileType) -> None:
 
@@ -889,27 +1088,32 @@ class DeviceCollection:
 
         if not os.path.isfile(full_file_name):
             # file no longer exists - it may have been downloaded or deleted
-            # attempt to find an appropriate file from the in memory sql database of displayed
-            # files
+            # attempt to find an appropriate file from the in memory sql database of
+            # displayed files
             scan_id = rpd_file.scan_id
             if not scan_id in self.devices:
-                logging.debug('Failed to set a new sample because the device no longer exists')
+                logging.debug(
+                    "Failed to set a new sample because the device no longer " "exists"
+                )
                 return
             rpd_file = self.rapidApp.thumbnailModel.getSampleFile(
-                scan_id=scan_id, device_type=self[scan_id].device_type, file_type=file_type
+                scan_id=scan_id,
+                device_type=self[scan_id].device_type,
+                file_type=file_type,
             )
             if rpd_file is None:
                 logging.debug(
-                    'Failed to set new sample %s because suitable sample does not exist',
-                    file_type.name
+                    "Failed to set new sample %s because suitable sample does not "
+                    "exist",
+                    file_type.name,
                 )
             else:
                 sample_full_file_name = rpd_file.get_current_full_file_name()
                 if file_type == FileType.photo:
-                    logging.debug('Updated sample photo with %s', sample_full_file_name)
+                    logging.debug("Updated sample photo with %s", sample_full_file_name)
                     self.sample_photo = rpd_file
                 else:
-                    logging.debug('Updated sample video with %s', sample_full_file_name)
+                    logging.debug("Updated sample video with %s", sample_full_file_name)
                     self.sample_video = rpd_file
 
     @property
@@ -930,7 +1134,10 @@ class DeviceCollection:
         if self._sample_photo.exif_source == ExifSource.actual_file:
             self._update_sample_file(file_type=FileType.photo)
 
-        if self._sample_photo.metadata is None and not self._sample_photo.metadata_failure:
+        if (
+            self._sample_photo.metadata is None
+            and not self._sample_photo.metadata_failure
+        ):
             with stdchannel_redirected(sys.stderr, os.devnull):
                 if self._sample_photo.exif_source == ExifSource.raw_bytes:
                     self._sample_photo.load_metadata(
@@ -942,7 +1149,9 @@ class DeviceCollection:
                     )
                 else:
                     assert self._sample_photo.exif_source == ExifSource.actual_file
-                    full_file_name = self._sample_photo.get_current_sample_full_file_name()
+                    full_file_name = (
+                        self._sample_photo.get_current_sample_full_file_name()
+                    )
                     self._sample_photo.load_metadata(
                         full_file_name=full_file_name, et_process=self.exiftool_process
                     )
@@ -954,9 +1163,11 @@ class DeviceCollection:
             if self._sample_photo.temp_sample_is_complete_file:
                 self._add_complete_sample_file(self._sample_photo)
             elif self._sample_photo.temp_sample_full_file_name:
-                self._delete_sample_photo_video(file_type=FileType.photo, at_program_close=False)
+                self._delete_sample_photo_video(
+                    file_type=FileType.photo, at_program_close=False
+                )
         self._sample_photo = photo
-        
+
     @property
     def sample_video(self) -> Optional[Video]:
         """
@@ -969,31 +1180,42 @@ class DeviceCollection:
 
         self._update_sample_file(file_type=FileType.video)
 
-        if self._sample_video.metadata is None and not self._sample_video.metadata_failure:
+        if (
+            self._sample_video.metadata is None
+            and not self._sample_video.metadata_failure
+        ):
 
             try:
                 assert self._sample_video.temp_sample_full_file_name or os.path.isfile(
-                    self._sample_video.full_file_name)
+                    self._sample_video.full_file_name
+                )
 
                 full_file_name = self._sample_video.get_current_sample_full_file_name()
 
                 self._sample_video.load_metadata(
-                    full_file_name=full_file_name,
-                    et_process=self.exiftool_process)
+                    full_file_name=full_file_name, et_process=self.exiftool_process
+                )
                 if self._sample_video.metadata_failure:
                     logging.error("Failed to load sample video metadata")
             except AssertionError:
                 logging.error("Expected sample file name in sample video")
             except:
-                logging.error("Exception while attempting to load sample video metadata")
+                logging.error(
+                    "Exception while attempting to load sample video metadata"
+                )
         return self._sample_video
 
     @sample_video.setter
     def sample_video(self, video: Video) -> None:
-        if self._sample_video is not None and self._sample_video.temp_sample_is_complete_file:
+        if (
+            self._sample_video is not None
+            and self._sample_video.temp_sample_is_complete_file
+        ):
             self._add_complete_sample_file(self._sample_video)
         else:
-            self._delete_sample_photo_video(file_type=FileType.video, at_program_close=False)
+            self._delete_sample_photo_video(
+                file_type=FileType.video, at_program_close=False
+            )
         self._sample_video = video
 
     def get_main_window_display_name_and_icon(self) -> Tuple[str, QIcon]:
@@ -1005,30 +1227,44 @@ class DeviceCollection:
         """
 
         if not len(self):
-            return _('Select Source'), QIcon(':/icons/computer.svg')
+            return _("Select Source"), QIcon(":/icons/computer.svg")
         elif len(self) == 1:
             # includes case where path is the only device
             device = list(self.devices.values())[0]
             return device.display_name, device.get_icon()
         else:
-            non_pc_devices = [device for device in self.devices.values()
-                              if device.device_type != DeviceType.path]   # type: List[Device]
-            assert len(non_pc_devices) == len(self.volumes_and_cameras)
+            non_pc_devices = [
+                device
+                for device in self.devices.values()
+                if device.device_type != DeviceType.path
+            ]  # type: List[Device]
+            try:
+                assert len(non_pc_devices) == len(self.volumes_and_cameras)
+            except AssertionError:
+                logging.critical(
+                    "len(non_pc_devices): %s len(self.volumes_and_cameras): %s",
+                    len(non_pc_devices),
+                    len(self.volumes_and_cameras),
+                )
+                raise
+
             device_types = Counter(d.device_type for d in non_pc_devices)
             if len(device_types) == 1:
                 device_type = list(device_types)[0]
                 device_type_text = self._map_plural_types[device_type]
             else:
                 device_type = None
-                device_type_text = _('Devices')
+                device_type_text = _("Devices")
 
             if len(self.this_computer) == 1:
                 assert len(self.this_computer) < 2
                 assert len(self.this_computer) > 0
 
-                icon = QIcon(':/icons/computer.svg')
+                icon = QIcon(":/icons/computer.svg")
                 devices = list(self.volumes_and_cameras)
-                computer_display_name=self.devices[list(self.this_computer)[0]].display_name
+                computer_display_name = self.devices[
+                    list(self.this_computer)[0]
+                ].display_name
 
                 if len(self.volumes_and_cameras) == 1:
                     device_display_name = self.devices[devices[0]].display_name
@@ -1036,14 +1272,16 @@ class DeviceCollection:
                     assert len(self.volumes_and_cameras) > 1
                     device_display_name = self._mixed_devices(device_type_text)
 
-                # Translators: this text shows the devices being downloaded from, and is shown at
-                # the top of the window. The plus sign is used instead of 'and' to leave as much
-                # room as possible for the device names.
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
-                text = _('%(device1)s + %(device2)s') % {'device1': device_display_name,
-                                                                'device2': computer_display_name}
+                # Translators: this text shows the devices being downloaded from, and
+                # is shown at the top of the window. The plus sign is used instead of
+                # 'and' to leave as much room as possible for the device names.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
+                text = _("%(device1)s + %(device2)s") % {
+                    "device1": device_display_name,
+                    "device2": computer_display_name,
+                }
                 return text, icon
             else:
                 assert len(self.this_computer) == 0
@@ -1053,48 +1291,60 @@ class DeviceCollection:
                 if len(device_types) == 1:
                     if len(self) == 2:
                         devices = non_pc_devices
-                        # Translators: this text shows the devices being downloaded from, and is
-                        # shown at the top of the window. The plus sign is used instead of 'and' to
-                        # leave as much room as possible for the device names.
-                        # Translators: %(variable)s represents Python code, not a plural of the term
-                        # variable. You must keep the %(variable)s untranslated, or the program will
-                        # crash.
-                        text = _('%(device1)s + %(device2)s') % {'device1': devices[0].display_name,
-                                                                'device2': devices[1].display_name}
-                        if device_type == DeviceType.camera and len(mtp_devices) != 2:
-                            return text, QIcon(':/icons/camera.svg')
+                        # Translators: this text shows the devices being downloaded
+                        # from, and is shown at the top of the window. The plus sign is
+                        # used instead of 'and' to leave as much room as possible for
+                        # the device names.
+                        # Translators: %(variable)s represents Python code, not a plural
+                        # of the term variable. You must keep the %(variable)s
+                        # untranslated, or the program will crash.
+                        text = _("%(device1)s + %(device2)s") % {
+                            "device1": devices[0].display_name,
+                            "device2": devices[1].display_name,
+                        }
+                        if device_type in camera_devices and len(mtp_devices) != 2:
+                            return text, QIcon(":/icons/camera.svg")
                         return text, devices[0].get_icon()
                     try:
-                        text_number = number(len(self.volumes_and_cameras)).number.capitalize()
+                        text_number = number(
+                            len(self.volumes_and_cameras)
+                        ).number.capitalize()
                     except KeyError:
                         text_number = len(self.volumes_and_cameras)
-                    if device_type == DeviceType.camera:
+                    if device_type in camera_devices:
                         # Translators: Number of cameras e.g. 3 Cameras
-                        # Translators: %(variable)s represents Python code, not a plural of the term
-                        # variable. You must keep the %(variable)s untranslated, or the program will
-                        # crash.
-                        text = _('%(no_cameras)s Cameras') % {'no_cameras': text_number}
+                        # Translators: %(variable)s represents Python code, not a plural
+                        # of the term variable. You must keep the %(variable)s
+                        # untranslated, or the program will crash.
+                        text = _("%(no_cameras)s Cameras") % {"no_cameras": text_number}
                         if len(mtp_devices) == len(self.volumes_and_cameras):
                             return text, non_pc_devices[0].get_icon()
-                        return text, QIcon(':/icons/camera.svg')
+                        return text, QIcon(":/icons/camera.svg")
                     elif device_type == DeviceType.volume:
-                        # Translators: %(variable)s represents Python code, not a plural of the term
-                        # variable. You must keep the %(variable)s untranslated, or the program will
-                        # crash.
-                        text = _('%(no_devices)s Devices') % dict(no_devices=text_number)
-                        return text, QIcon(':/icons/drive-removable-media.svg')
+                        # Translators: %(variable)s represents Python code, not a plural
+                        # of the term variable. You must keep the %(variable)s
+                        # untranslated, or the program will crash.
+                        text = _("%(no_devices)s Devices") % dict(
+                            no_devices=text_number
+                        )
+                        return text, QIcon(":/icons/drive-removable-media.svg")
                 else:
                     device_display_name = self._mixed_devices(device_type_text)
-                    icon = QIcon(':/icons/computer.svg')
+                    icon = QIcon(":/icons/computer.svg")
                     return device_display_name, icon
 
 
-# QStorageInfo, BackupLocationType
-BackupDevice = namedtuple('BackupDevice', 'mount, backup_type')
+class BackupDevice(NamedTuple):
+    mount: QStorageInfo
+    backup_type: BackupLocationType
 
-# QStorageInfo, str, str, BackupLocationType
-BackupVolumeDetails = namedtuple('BackupVolumeDetails', 'mount name path backup_type '
-                                                        'os_stat_device')
+
+class BackupVolumeDetails(NamedTuple):
+    mount: QStorageInfo
+    name: str
+    path: str
+    backup_type: BackupLocationType
+    os_stat_device: int
 
 
 def nth(iterable, n, default=None):
@@ -1170,7 +1420,8 @@ class BackupDeviceCollection:
     >>> len(b.video_backup_devices)
     0
     """
-    def __init__(self, rapidApp=None):
+
+    def __init__(self, rapidApp: 'RapidWindow' = None ):
         self.rapidApp = rapidApp
         self.devices = dict()  # type: Dict[str, BackupDevice]
         # Set[path]
@@ -1185,31 +1436,44 @@ class BackupDeviceCollection:
             del self[path]
         self.devices[path] = device
         backup_type = device.backup_type
-        if backup_type in [BackupLocationType.photos,
-                           BackupLocationType.photos_and_videos]:
+        if backup_type in [
+            BackupLocationType.photos,
+            BackupLocationType.photos_and_videos,
+        ]:
             self.photo_backup_devices.add(path)
-        if backup_type in [BackupLocationType.videos,
-                           BackupLocationType.photos_and_videos]:
+        if backup_type in [
+            BackupLocationType.videos,
+            BackupLocationType.photos_and_videos,
+        ]:
             self.video_backup_devices.add(path)
         self._device_ids[path] = self._device_id
         self._device_id += 1
 
-
     def __delitem__(self, path):
         backup_type = self.devices[path].backup_type
-        if backup_type in (BackupLocationType.photos, BackupLocationType.photos_and_videos):
+        if backup_type in (
+            BackupLocationType.photos,
+            BackupLocationType.photos_and_videos,
+        ):
             self.photo_backup_devices.remove(path)
-        if backup_type in (BackupLocationType.videos, BackupLocationType.photos_and_videos):
+        if backup_type in (
+            BackupLocationType.videos,
+            BackupLocationType.photos_and_videos,
+        ):
             self.video_backup_devices.remove(path)
         del self.devices[path]
         del self._device_ids[path]
 
     def __repr__(self):
-        s = '{'
+        s = "{"
         for key, value in self.devices.items():
-            s += r'%r:%r %r %s, ' % (key, value.mount, value.backup_type,
-                                     self._device_ids[key])
-        s = s[:-2] + '}'
+            s += r"%r:%r %r %s, " % (
+                key,
+                value.mount,
+                value.backup_type,
+                self._device_ids[key],
+            )
+        s = s[:-2] + "}"
         return s
 
     def __contains__(self, key):
@@ -1232,7 +1496,7 @@ class BackupDeviceCollection:
             return self._device_ids[path]
         return None
 
-    def name(self, path: str, shorten: bool=False) -> str:
+    def name(self, path: str, shorten: bool = False) -> str:
         """
         :param path:
         :param shorten: if True, and backup type is not an
@@ -1247,14 +1511,17 @@ class BackupDeviceCollection:
                 return path
         else:
             mount = self.devices[path].mount  # type:  QStorageInfo
-            if not shorten:
-                return mount.displayName()
+            if self.rapidApp.is_wsl2 and self.rapidApp.wsl_drives_probed:
+                return self.rapidApp.wslDrives.displayName(mount.rootPath())
             else:
-                name = mount.name()
-                if name:
-                    return name
+                if not shorten:
+                    return mount.displayName()
                 else:
-                    return get_path_display_name(mount.rootPath())[0]
+                    name = mount.name()
+                    if name:
+                        return name
+                    else:
+                        return get_path_display_name(mount.rootPath())[0]
 
     def backup_type(self, path) -> BackupLocationType:
         return self.devices[path].backup_type
@@ -1266,12 +1533,13 @@ class BackupDeviceCollection:
         :return: True if more than one backup device is being used for
         the file type
         """
-        return ((file_type == FileType.photo and len(self.photo_backup_devices) > 1) or
-                (file_type == FileType.video and len(self.video_backup_devices) > 1))
+        return (file_type == FileType.photo and len(self.photo_backup_devices) > 1) or (
+            file_type == FileType.video and len(self.video_backup_devices) > 1
+        )
 
-    def get_download_backup_device_overlap(self,
-               photo_download_folder: str,
-               video_download_folder: str) -> DefaultDict[int, Set[FileType]]:
+    def get_download_backup_device_overlap(
+        self, photo_download_folder: str, video_download_folder: str
+    ) -> DefaultDict[int, Set[FileType]]:
         """
         Determine if the photo/video download locations and the backup locations
         are going to the same partitions.
@@ -1296,7 +1564,7 @@ class BackupDeviceCollection:
         if photo_device != video_device:
             download_dests = (photo_device, video_device)
         else:
-            download_dests = (photo_device, )
+            download_dests = (photo_device,)
 
         for path in self.devices:
             try:
@@ -1306,13 +1574,17 @@ class BackupDeviceCollection:
             if backup_device != 0:
                 d = self.devices[path]
                 backup_type = d.backup_type
-                for download_device  in download_dests:
+                for download_device in download_dests:
                     if backup_device == download_device:
-                        if backup_type in (BackupLocationType.photos,
-                                           BackupLocationType.photos_and_videos):
+                        if backup_type in (
+                            BackupLocationType.photos,
+                            BackupLocationType.photos_and_videos,
+                        ):
                             downloading_to[backup_device].add(FileType.photo)
-                        if backup_type in (BackupLocationType.videos,
-                                           BackupLocationType.photos_and_videos):
+                        if backup_type in (
+                            BackupLocationType.videos,
+                            BackupLocationType.photos_and_videos,
+                        ):
                             downloading_to[backup_device].add(FileType.video)
         return downloading_to
 
@@ -1367,7 +1639,9 @@ class BackupDeviceCollection:
             name = self.name(path, shorten=True)
             mount = QStorageInfo(path)
             os_stat_device = os.stat(path).st_dev
-            return (BackupVolumeDetails(mount, name, path, backup_type, os_stat_device), )
+            return (
+                BackupVolumeDetails(mount, name, path, backup_type, os_stat_device),
+            )
         else:
             photo_name = self.name(photo_path, shorten=True)
             video_name = self.name(video_path, shorten=True)
@@ -1376,20 +1650,36 @@ class BackupDeviceCollection:
 
             if same_device(photo_path, video_path):
                 # Translators: two folder names, separated by a plus sign
-                names = _('%s + %s') % (photo_name, video_name)
-                paths = '%s\n%s' % (photo_path, video_path)
-                return (BackupVolumeDetails(photo_mount, names, paths,
-                                            BackupLocationType.photos_and_videos,
-                                            photo_os_stat_device),)
+                names = _("%s + %s") % (photo_name, video_name)
+                paths = "%s\n%s" % (photo_path, video_path)
+                return (
+                    BackupVolumeDetails(
+                        photo_mount,
+                        names,
+                        paths,
+                        BackupLocationType.photos_and_videos,
+                        photo_os_stat_device,
+                    ),
+                )
             else:
                 video_mount = QStorageInfo(video_path)
                 video_os_stat_device = os.stat(video_path).st_dev
-                return (BackupVolumeDetails(photo_mount, photo_name, photo_path,
-                                            BackupLocationType.photos,
-                                            photo_os_stat_device),
-                        BackupVolumeDetails(video_mount, video_name, video_path,
-                                            BackupLocationType.videos,
-                                            video_os_stat_device))
+                return (
+                    BackupVolumeDetails(
+                        photo_mount,
+                        photo_name,
+                        photo_path,
+                        BackupLocationType.photos,
+                        photo_os_stat_device,
+                    ),
+                    BackupVolumeDetails(
+                        video_mount,
+                        video_name,
+                        video_path,
+                        BackupLocationType.videos,
+                        video_os_stat_device,
+                    ),
+                )
 
     def get_backup_volume_details(self, path: str) -> BackupVolumeDetails:
         """
@@ -1421,9 +1711,13 @@ class BackupDeviceCollection:
         elif file_type == FileType.video:
             return len(self.video_backup_devices) > 0
         else:
-            logging.critical("Unrecognized file type when determining if backup is possible")
+            logging.critical(
+                "Unrecognized file type when determining if backup is possible"
+            )
 
-    def _add_identifier(self, path: Optional[str], file_type: FileType) -> Optional[str]:
+    def _add_identifier(
+        self, path: Optional[str], file_type: FileType
+    ) -> Optional[str]:
         if path is None:
             return None
         if file_type == FileType.photo:
@@ -1455,40 +1749,62 @@ class BackupDeviceCollection:
 
         photo0 = nth(iter(photo_only), 0)
         video0 = nth(iter(video_only), 0)
-        both0, both1 = tuple(itertools.chain(itertools.islice(both_types, 2),
-                                                           itertools.repeat(None, 2)))[:2]
+        both0, both1 = tuple(
+            itertools.chain(itertools.islice(both_types, 2), itertools.repeat(None, 2))
+        )[:2]
 
         # Add the identifier specified in the user's prefs
-        photo0id, photo1id, photo2id = (self._add_identifier(path, FileType.photo)
-                                        for path in (photo0, both0, both1))
-        video0id, video1id, video2id = (self._add_identifier(path, FileType.video)
-                                        for path in (video0, both0, both1))
+        photo0id, photo1id, photo2id = (
+            self._add_identifier(path, FileType.photo)
+            for path in (photo0, both0, both1)
+        )
+        video0id, video1id, video2id = (
+            self._add_identifier(path, FileType.video)
+            for path in (video0, both0, both1)
+        )
 
-        paths = [path for path in (photo0id, video0id, photo1id, video1id, photo2id, video2id)
-                 if path is not None][:3]
+        paths = [
+            path
+            for path in (photo0id, video0id, photo1id, video1id, photo2id, video2id)
+            if path is not None
+        ][:3]
 
         if len(paths) < 3:
 
-            unused_photo = self.photo_backup_devices - {path for path in (photo0, both0, both1)
-                                                        if path is not None}
-            unused_video =  self.video_backup_devices - {path for path in (video0, both0, both1)
-                                                         if path is not None}
-            photo1, photo2 = tuple(itertools.chain(itertools.islice(unused_photo, 2),
-                                                               itertools.repeat(None, 2)))[:2]
-            video1, video2 =  tuple(itertools.chain(itertools.islice(unused_video, 2),
-                                                               itertools.repeat(None, 2)))[:2]
-            photo3id, photo4id = (self._add_identifier(path, FileType.photo)
-                                        for path in (photo1, photo2))
-            video3id, video4id = (self._add_identifier(path, FileType.video)
-                                        for path in (video1, video2))
+            unused_photo = self.photo_backup_devices - {
+                path for path in (photo0, both0, both1) if path is not None
+            }
+            unused_video = self.video_backup_devices - {
+                path for path in (video0, both0, both1) if path is not None
+            }
+            photo1, photo2 = tuple(
+                itertools.chain(
+                    itertools.islice(unused_photo, 2), itertools.repeat(None, 2)
+                )
+            )[:2]
+            video1, video2 = tuple(
+                itertools.chain(
+                    itertools.islice(unused_video, 2), itertools.repeat(None, 2)
+                )
+            )[:2]
+            photo3id, photo4id = (
+                self._add_identifier(path, FileType.photo) for path in (photo1, photo2)
+            )
+            video3id, video4id = (
+                self._add_identifier(path, FileType.video) for path in (video1, video2)
+            )
 
-            paths += [path for path in (photo3id, video3id, photo4id, video4id)
-                      if path is not None][:3 - len(paths)]
+            paths += [
+                path
+                for path in (photo3id, video3id, photo4id, video4id)
+                if path is not None
+            ][: 3 - len(paths)]
 
         return sorted(paths)
 
-    def backup_destinations_missing(self,
-                                downloading: DownloadingFileTypes) -> Optional[BackupFailureType]:
+    def backup_destinations_missing(
+        self, downloading: DownloadingFileTypes
+    ) -> Optional[BackupFailureType]:
         """
         Checks if there are backup destinations matching the files
         going to be downloaded
@@ -1497,23 +1813,35 @@ class BackupDeviceCollection:
         """
         prefs = self.rapidApp.prefs
         if prefs.backup_files:
-            photos = downloading in (DownloadingFileTypes.photos,
-                                     DownloadingFileTypes.photos_and_videos)
-            videos = downloading in (DownloadingFileTypes.videos,
-                                     DownloadingFileTypes.photos_and_videos)
+            photos = downloading in (
+                DownloadingFileTypes.photos,
+                DownloadingFileTypes.photos_and_videos,
+            )
+            videos = downloading in (
+                DownloadingFileTypes.videos,
+                DownloadingFileTypes.photos_and_videos,
+            )
 
             if prefs.backup_device_autodetection:
-                photo_backup_problem = photos and not self.backup_possible(FileType.photo)
-                video_backup_problem = videos and not self.backup_possible(FileType.video)
+                photo_backup_problem = photos and not self.backup_possible(
+                    FileType.photo
+                )
+                video_backup_problem = videos and not self.backup_possible(
+                    FileType.video
+                )
             else:
-                photo_backup_problem = photos and not validate_download_folder(
-                    path=prefs.backup_photo_location,
-                    write_on_waccesss_failure=True
-                ).valid
-                video_backup_problem = videos and not validate_download_folder(
-                    path=prefs.backup_video_location,
-                    write_on_waccesss_failure=True
-                ).valid
+                photo_backup_problem = (
+                    photos
+                    and not validate_download_folder(
+                        path=prefs.backup_photo_location, write_on_waccesss_failure=True
+                    ).valid
+                )
+                video_backup_problem = (
+                    videos
+                    and not validate_download_folder(
+                        path=prefs.backup_video_location, write_on_waccesss_failure=True
+                    ).valid
+                )
 
             if photo_backup_problem:
                 if video_backup_problem:
@@ -1543,9 +1871,9 @@ class FSMetadataErrors:
         # scan_id / device_id: Set[device]
         self.worker_id_devices = defaultdict(set)  # type: DefaultDict[int, Set[int]]
 
-    def add_problem(self, worker_id: int,
-                    path: str,
-                    mdata_exceptions: Tuple[Exception]) -> None:
+    def add_problem(
+        self, worker_id: int, path: str, mdata_exceptions: Tuple[Exception]
+    ) -> None:
 
         dev = os.stat(path).st_dev
 

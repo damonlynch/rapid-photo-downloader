@@ -7,18 +7,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2020-12-24 19:58+0000\n"
-"PO-Revision-Date: 2020-12-20 11:43+0000\n"
-"Last-Translator: Aydin Ilker Alp <Unknown>\n"
+"POT-Creation-Date: 2021-12-03 16:34+0000\n"
+"PO-Revision-Date: 2021-11-18 19:02+0000\n"
+"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2020-12-24 22:41+0000\n"
-"X-Generator: Launchpad (build 34b3ffd45c9543b7f7aa5aa313925241e9e7ca3f)\n"
+"X-Launchpad-Export-Date: 2021-12-05 12:08+0000\n"
+"X-Generator: Launchpad (build cf73d44692888e78296213584c304ab04e7416a3)\n"
 "Language: tr\n"
 
-#: ../install.py:75
+#: ../install.py:76
 msgid ""
 "To continue, please first install the python3 package setuptools using your "
 "system's package manager."
@@ -26,15 +26,15 @@ msgstr ""
 "Devam etmek için, lütfen önce sisteminizin paket yöneticisini kullanarak "
 "python3 paket kurulum araçlarını kurun."
 
-#: ../install.py:83
+#: ../install.py:84
 msgid "Rapid Photo Downloader installer"
 msgstr "Rapid Photo Downloader kurucusu"
 
-#: ../install.py:84
+#: ../install.py:85
 msgid "Download and install latest version of Rapid Photo Downloader."
 msgstr "Rapid Photo Downloader'ın son sürümünü indirin ve kurun."
 
-#: ../install.py:161
+#: ../install.py:401
 msgid ""
 "The software repository RPM Fusion Free was added to your system to (1) "
 "enable generating thumbnails for a wider range of video formats, and (2) "
@@ -44,25 +44,25 @@ msgstr ""
 "için küçük resimler oluşturmak ve (2) HEIC / HEIF görüntü formatı desteğini "
 "etkinleştirmek için sisteminize eklendi."
 
-#: ../install.py:363 ../install.py:3494
+#: ../install.py:627 ../install.py:4214
 msgid "Installer not found:"
 msgstr "Program kurucu bulunamadı:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:367 ../install.py:3498
+#: ../install.py:631 ../install.py:4218
 msgid "Installer not in tar.gz format:"
 msgstr "Kurucu tar.gz biçiminde değil:"
 
-#: ../install.py:526
+#: ../install.py:816
 msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
 msgstr "Belirtilen PyQt5 sürümü mevcut değil. Geçerli sürümler: {}."
 
-#: ../install.py:604
+#: ../install.py:902
 msgid "{} will be upgraded from version {} to version {}"
 msgstr "{}, {} sürümünden {} sürümüne yükseltilecek"
 
 #. Translators: "not system-wide" in this context means "not for the entire system"
-#: ../install.py:926
+#: ../install.py:1209
 msgid ""
 "These Python3 packages will be upgraded for your user (i.e. not system-"
 "wide): {}"
@@ -70,7 +70,7 @@ msgstr ""
 "Bu Python3 paketleri kullanıcılarınız için yükseltilecek (yani sistem "
 "çapında değil): {}"
 
-#: ../install.py:1028
+#: ../install.py:1311
 #, python-brace-format
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
@@ -79,58 +79,58 @@ msgstr ""
 "Yanlış klasör sahipliği algılandı. {file_system_path} için sahiplik "
 "değiştiriliyor ve izinler sıfırlanıyor."
 
-#: ../install.py:1168
+#: ../install.py:1454
 msgid "The following command will be run:"
 msgstr "Aşağıdaki komut çalıştırılacak:"
 
 #. Translators: do not translate the term sudo
-#: ../install.py:1172 ../install.py:3073 ../install.py:3078
+#: ../install.py:1458 ../install.py:3734 ../install.py:3741
 msgid "sudo may prompt you for the sudo password."
 msgstr "Sizden sudo şifresi istenebilir."
 
-#: ../install.py:1176
+#: ../install.py:1462
 msgid "Would you like to run the command now?"
 msgstr "Komutu şimdi çalıştırmak ister misin?"
 
-#: ../install.py:1178
+#: ../install.py:1464
 msgid "Answer is not yes, exiting."
 msgstr "Cevap evet değil, çıkılıyor."
 
-#: ../install.py:1189 ../install.py:1752 ../install.py:1804 ../install.py:2197
-#: ../install.py:2246
+#: ../install.py:1475 ../install.py:2118 ../install.py:2177 ../install.py:2658
+#: ../install.py:2715
 msgid "Command failed"
 msgstr "Komut başarısız oldu"
 
-#: ../install.py:1191 ../install.py:1753 ../install.py:1805 ../install.py:2198
-#: ../install.py:2247
+#: ../install.py:1477 ../install.py:2119 ../install.py:2178 ../install.py:2659
+#: ../install.py:2716
 msgid "Exiting"
 msgstr "Çıkılıyor"
 
-#: ../install.py:1212
+#: ../install.py:1505
 msgid "The Universe repository must be enabled."
 msgstr "Evren deposu etkinleştirilmelidir."
 
 #. Translators: do not translate the term IUS Community
-#: ../install.py:1249
+#: ../install.py:1545
 msgid "The IUS Community repository must be enabled."
 msgstr "IUS Topluluğu deposu etkinleştirilmelidir."
 
 #. Translators: do not translate the term EPEL
-#: ../install.py:1277
+#: ../install.py:1575
 msgid "The EPEL repository must be enabled."
 msgstr "EPEL deposu etkinleştirilmiş olmalıdır."
 
 #. Translators: do not translate the term RPM Fusion Free
-#: ../install.py:1314
+#: ../install.py:1614
 msgid "The RPM Fusion Free repository must be enabled."
 msgstr "RPM Fusion Free deposu etkinleştirilmiş olmalıdır."
 
-#: ../install.py:1358
+#: ../install.py:1659
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader?"
 msgstr "Rapid Photo Downloader'ın önceki sürümünü kaldırmak ister misiniz?"
 
-#: ../install.py:1732 ../install.py:1759 ../install.py:1788
+#: ../install.py:2096 ../install.py:2126 ../install.py:2158
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
@@ -138,11 +138,11 @@ msgstr ""
 "Rapid Photo Downloader'ın daha eski bir sürümünün kurulu olup olmadığını "
 "görmek için paket sistemi sorgulanıyor (bu biraz zaman alabilir) ..."
 
-#: ../install.py:1747
+#: ../install.py:2111
 msgid "Uninstalling system package"
 msgstr "Sistem paketi kaldırılıyor"
 
-#: ../install.py:1770
+#: ../install.py:2137
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again."
@@ -151,27 +151,27 @@ msgstr ""
 "tekrar deneyin."
 
 #. Translators: do not translate the term pip
-#: ../install.py:1810
+#: ../install.py:2183
 msgid "Checking if previous version installed with pip..."
 msgstr "Önceki sürümün pip ile kurulu olup olmadığı kontrol ediliyor..."
 
-#: ../install.py:1949 ../install.py:2000 ../install.py:2086
+#: ../install.py:2338 ../install.py:2395 ../install.py:2510
 msgid "The following package is unknown on your system: {}\n"
 msgstr "Bu paket sisteminizde bilinmiyor: {}\n"
 
-#: ../install.py:2013 ../install.py:2136 ../install.py:2205 ../install.py:2254
+#: ../install.py:2409 ../install.py:2571 ../install.py:2668 ../install.py:2723
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
 "Devam etmek için, uygulamayı çalıştırmak üzere gereken bazı paketler "
 "kurulacak."
 
-#: ../install.py:2080 ../install.py:2095
+#: ../install.py:2502 ../install.py:2523
 msgid "Querying installed and available packages (this may take a while)"
 msgstr ""
 "Kurulu ve kullanılabilir paketler sorgulanıyor (bu biraz zaman alabilir)"
 
-#: ../install.py:2189
+#: ../install.py:2650
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
@@ -179,7 +179,7 @@ msgstr ""
 "Gerekli paketlerin kurulu olup olmadığını görmek için zypper sorgulanıyor "
 "(bu işlem biraz zaman alabilir)... "
 
-#: ../install.py:2239
+#: ../install.py:2708
 msgid ""
 "Querying yum to see if any required packages are already installed (this may "
 "take a while)... "
@@ -187,11 +187,11 @@ msgstr ""
 "Gerekli paketlerin kurulu olup olmadığını görmek için yum sorgulanıyor (bu "
 "biraz zaman alabilir)... "
 
-#: ../install.py:2287
+#: ../install.py:2765
 msgid "Query to confirm action at each step."
 msgstr "Her adımda eylemi onaylamak için sorgula."
 
-#: ../install.py:2294
+#: ../install.py:2775
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
@@ -199,7 +199,7 @@ msgstr ""
 "En son sürümü indirirken, kararlı sürümden daha yeniyse geliştirme sürümünü "
 "kur."
 
-#: ../install.py:2303
+#: ../install.py:2786
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
@@ -207,7 +207,7 @@ msgstr ""
 "İsteğe bağlı tar.gz Rapid Photo Downloader kurucu arşivi. Belirtilmezse, en "
 "son sürüm internetten indirilir."
 
-#: ../install.py:2334
+#: ../install.py:2829
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
@@ -217,7 +217,7 @@ msgstr ""
 "program kurucuyu çalıştırmayın. Varsayılan olarak, daha yeni kurucu "
 "çalıştırılır."
 
-#: ../install.py:2342
+#: ../install.py:2837
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
@@ -225,7 +225,7 @@ msgstr ""
 "Bağımlılıklarını koruyarak, pip ile kurulan Rapid Photo Downloader "
 "uygulamasını kaldır."
 
-#: ../install.py:2347
+#: ../install.py:2843
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
@@ -233,7 +233,7 @@ msgstr ""
 "Rapid Photo Downloader'ın kurulumu sırasında pip tarafından kurulan "
 "bağımlılıkları ve Rapid Photo Downloader'ın kendisini kaldır, sonra çık."
 
-#: ../install.py:2352
+#: ../install.py:2848
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
@@ -241,14 +241,14 @@ msgstr ""
 "Not: Bu, Linux dağıtımınızın paket yöneticisi tarafından kurulan hiçbir "
 "Rapid Photo Downloader sürümünü kaldırmaz."
 
-#: ../install.py:2359
+#: ../install.py:2856
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
 "Bağımlılıklar sadece diğer programlar için gerekli olmadığı takdirde "
 "kaldırılacaktır."
 
-#: ../install.py:2365
+#: ../install.py:2864
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -264,7 +264,7 @@ msgstr ""
 "dağıtımınızın paket yöneticisi tarafından kurulan Rapid Photo Downloader "
 "sürümünün kaldırılmayacağını unutmayın."
 
-#: ../install.py:2387
+#: ../install.py:2888
 msgid ""
 "Install in current Python virtual environment. Virtual environments created "
 "with the --system-site-packages option are not supported."
@@ -272,12 +272,12 @@ msgstr ""
 "Geçerli Python sanal ortamında kur. --system-site-packages seçeneğiyle "
 "oluşturulan sanal ortamlar desteklenmez."
 
-#: ../install.py:2401
+#: ../install.py:2906
 msgid ""
 "Specific version of PyQt5 to install (default is the most recent version{})."
 msgstr "Kurulacak PyQt5'in belirli sürümü (varsayılan en son sürümdür {})."
 
-#: ../install.py:2409
+#: ../install.py:2917
 msgid ""
 "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
 "Uninstalls any PyPi versions already installed."
@@ -285,15 +285,15 @@ msgstr ""
 "PyPi'den PyQt5 kullanmak yerine Linux dağıtımınızın sürümünü kullanın. "
 "Önceden yüklü olan tüm PyPi sürümlerini kaldırır."
 
-#: ../install.py:2446
+#: ../install.py:2954
 msgid "Failed to download versions file."
 msgstr "Sürüm dosyası indirilemedi."
 
-#: ../install.py:2450
+#: ../install.py:2959
 msgid "Got error code {} while accessing versions file"
 msgstr "Sürüm dosyasına erişirken {} hata kodu alındı"
 
-#: ../install.py:2559
+#: ../install.py:3076
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -305,79 +305,87 @@ msgstr ""
 "\n"
 "Çıkılıyor.\n"
 
-#: ../install.py:2700
+#: ../install.py:3230
 msgid ""
 "Package {} failed to install but Rapid Photo Downloader installation will "
 "continue."
 msgstr ""
 "{} paketi yüklenemedi, ancak Rapid Photo Downloader yüklemesi devam edecek."
 
-#: ../install.py:2706
+#: ../install.py:3236
 msgid "Received error code"
 msgstr "Hata kodu alındı"
 
-#: ../install.py:2708
+#: ../install.py:3238
 msgid "Failed to install application requirements: exiting."
 msgstr "Uygulama gereksinimleri kurulamadı: çıkılıyor."
 
-#: ../install.py:2710
+#: ../install.py:3240
 msgid "Failed to install application: exiting..."
 msgstr "Uygulama kurulamadı: çıkılıyor..."
 
-#: ../install.py:2963
+#: ../install.py:3552
 msgid "Installing application requirements..."
 msgstr "Uygulama gereksinimleri kuruluyor..."
 
-#: ../install.py:2989
+#: ../install.py:3587
 msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
 msgstr ""
 "HEIF / HEIC küçük resimleri oluşturmak için sistem desteği mevcut değil"
 
-#. KDE Neon has up to date Qt & PyQt5
-#. Translators: do not translate the terms PyQt5, PyPi or KDE Neon
-#: ../install.py:3005
+#: ../install.py:3606
 msgid "Not installing PyPI PyQt5 package into KDE Neon environment"
 msgstr "PyPI PyQt5 paketi KDE Neon ortamına kurulmuyor"
 
-#: ../install.py:3009
+#: ../install.py:3611
 msgid "Installing application..."
 msgstr "Uygulama kuruluyor..."
 
-#. Keep man pages in install location only
-#. Translators: do not translate {}/share/man/man1
-#: ../install.py:3066
+#: ../install.py:3697
+msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
+msgstr ""
+
+#: ../install.py:3703
+msgid "Adding Rapid Photo Downloader to the Windows menu"
+msgstr ""
+
+#: ../install.py:3713
+msgid "Failed to copy application launcher."
+msgstr ""
+
+#: ../install.py:3724
 msgid "Man pages can be found in {}/share/man/man1"
 msgstr "Manuel sayfaları {}/share/man/man1 içinde bulunabilir"
 
-#: ../install.py:3070
+#: ../install.py:3729
 msgid "Do you want to install the application's man pages?"
 msgstr "Uygulamanın manuel sayfalarını kurmak ister misiniz?"
 
-#: ../install.py:3071
+#: ../install.py:3730
 msgid "They will be installed into {}"
 msgstr "{} içine kurulacaklar"
 
-#: ../install.py:3072 ../install.py:3077
+#: ../install.py:3732 ../install.py:3739
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr "Uygulamayı kaldırırsanız, bu manuel sayfalarını kendiniz silin."
 
-#: ../install.py:3074
+#: ../install.py:3735
 msgid "Do want to install the man pages?"
 msgstr "Manuel sayfalarını kurmak ister misiniz?"
 
-#: ../install.py:3076
+#: ../install.py:3737
 msgid "Installing man pages into {}"
 msgstr "Manuel sayfaları {} içine kuruluyor"
 
-#: ../install.py:3091
+#: ../install.py:3755
 msgid "Failed to create man page directory: exiting."
 msgstr "Manuel sayfa dizini oluşturulamadı: çıkılıyor."
 
-#: ../install.py:3112
+#: ../install.py:3776
 msgid "Failed to copy man page."
 msgstr "Manuel sayfası kopyalanamadı."
 
-#: ../install.py:3127
+#: ../install.py:3803
 msgid ""
 "Rapid Photo Downloader can be started without activating the virtual "
 "environment by running {}/bin/rapid-photo-downloader"
@@ -385,7 +393,7 @@ msgstr ""
 "Rapid Photo Downloader, {}/bin/rapid-photo-downloader komutu çalıştırarak "
 "sanal ortamı etkinleştirmeden başlatılabilir."
 
-#: ../install.py:3139
+#: ../install.py:3816
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "command line or application launcher."
@@ -393,7 +401,13 @@ msgstr ""
 "Programı komut satırından veya uygulama başlatıcısından çalıştırabilmek için "
 "bilgisayarı yeniden başlatmanız gerekebilir."
 
-#: ../install.py:3148
+#: ../install.py:3822
+msgid ""
+"You may have to restart WSL to be able to run the program from the command "
+"line."
+msgstr ""
+
+#: ../install.py:3831
 #, python-brace-format
 msgid ""
 "You must add {path} to your computer's $PATH variable to run the program "
@@ -402,12 +416,16 @@ msgstr ""
 "Programı komut satırından veya uygulama başlatıcıdan çalıştırmak için "
 "bilgisayarınızın $PATH değişkenine {path} eklemeniz gerekir."
 
-#: ../install.py:3166
+#: ../install.py:3850
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
 "(Çıkışta bir segmentasyon hatası meydana gelirse, onu yok sayabilirsiniz...)"
 
-#: ../install.py:3180
+#: ../install.py:3852
+msgid "Done."
+msgstr ""
+
+#: ../install.py:3866
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
@@ -417,7 +435,7 @@ msgstr ""
 "kaldırmak için gereklidir.\n"
 "Devam edilemez. Çıkılıyor."
 
-#: ../install.py:3230
+#: ../install.py:3915
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
@@ -425,13 +443,14 @@ msgstr ""
 "Bu kurucu komut dosyasını sudo / root kullanıcısı olarak çalıştırmayın.\n"
 "Programı çalıştıracak kullanıcı olarak çalıştırın.\n"
 
-#: ../install.py:3243
+#. Translators: do not translate the terms --PyQt5-version or --use-system-PyQt5
+#: ../install.py:3927
 msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
 msgstr ""
 "--PyQt5-sürümü veya --sistem-PyQt5'ini-kullan seçeneklerinden yalnızca "
 "birini belirtin."
 
-#: ../install.py:3255
+#: ../install.py:3939
 msgid ""
 "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
 "on an Intel or AMD 64 bit platform."
@@ -440,17 +459,17 @@ msgstr ""
 "platformunda Python 3.5 veya daha yenisi gerekir."
 
 #. Translators: do not translate the term PyQt5
-#: ../install.py:3268
+#: ../install.py:3953
 msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
 msgstr "Lütfen X.X veya X.X.X formatında bir PyQt5 sürümü belirtin"
 
-#: ../install.py:3282
+#: ../install.py:3969
 msgid ""
 "Do you want to install Rapid Photo Downloader into the current virtual "
 "environment?"
 msgstr "Rapid Photo Downloader'ı mevcut sanal ortama kurmak ister misiniz?"
 
-#: ../install.py:3294
+#: ../install.py:3983
 msgid ""
 "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
 "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
@@ -459,7 +478,7 @@ msgstr ""
 "Intel veya AMD 64 bit platformunda Python 3.5 veya daha yeni bir sürüm "
 "gerekir."
 
-#: ../install.py:3305
+#: ../install.py:3996
 msgid ""
 "To install Rapid Photo Downloader into a Python virtual environment, create "
 "and activate the virtual environment before starting this script."
@@ -467,39 +486,38 @@ msgstr ""
 "Rapid Photo Downloader'ı bir Python sanal ortamına kurmak için, bu betiğe "
 "başlamadan önce sanal ortamı oluşturun ve etkinleştirin."
 
-#: ../install.py:3313
+#: ../install.py:4006
 msgid "Using virtual environment for installation using pip."
 msgstr "Pip kullanarak kurulum için sanal ortam kullanımı."
 
-#: ../install.py:3318 ../install.py:3332
+#: ../install.py:4011 ../install.py:4025
 msgid "Do not include any other command line arguments when specifying"
 msgstr "Belirtirken başka bir komut satırı argümanı eklemeyin"
 
-#: ../install.py:3352
+#: ../install.py:4045
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
 msgstr ""
 "Maalesef, bu kurucu özel bir python kurulumunu desteklemiyor. Çıkılıyor..."
 
-#: ../install.py:3359
+#: ../install.py:4053
 msgid "Restarting script using system python..."
 msgstr "Komut dosyası python kullanarak yeniden başlatılıyor..."
 
-#: ../install.py:3372
+#: ../install.py:4074
 msgid "Detected Linux distribution {} {}"
 msgstr "{} {} Linux dağıtımı tespit edildi"
 
-#: ../install.py:3389
+#: ../install.py:4093
 msgid "Exiting..."
 msgstr "Çıkılıyor..."
 
-#. Translators: do not translate the term python3-apt
-#: ../install.py:3413
+#: ../install.py:4121
 msgid "To continue, the package python3-apt must be installed."
 msgstr "Devam etmek için python3-apt paketinin kurulu olması gerekir."
 
-#: ../install.py:3447
+#: ../install.py:4161
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer:"
@@ -507,7 +525,7 @@ msgstr ""
 "Linux dağıtımınızın standart paket yöneticisini kullanarak aşağıdaki "
 "paketleri kurun ve ardından bu kurucuyu yeniden çalıştırın:"
 
-#: ../install.py:3458
+#: ../install.py:4173
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
@@ -516,7 +534,7 @@ msgstr ""
 "programlar kurulmalıdır."
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:3488
+#: ../install.py:4208
 msgid "Installing python requests"
 msgstr "Python istekleri kuruluyor"
 
@@ -524,7 +542,7 @@ msgstr "Python istekleri kuruluyor"
 msgid "Upgrade Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader sürümünü yükselt"
 
-#: ../upgrade.py:647 ../raphodo/viewutils.py:255 ../raphodo/viewutils.py:275
+#: ../upgrade.py:647 ../raphodo/viewutils.py:302 ../raphodo/viewutils.py:322
 msgid "&Cancel"
 msgstr "&İptal"
 
@@ -541,8 +559,8 @@ msgstr "%s sürümüne yükseltmek için Yükselt düğmesine tıklayın."
 msgid "Click the Upgrade button to start the upgrade."
 msgstr "Sürüm yükseltmeye başlamak için Yükselt düğmesine tıklayın."
 
-#: ../upgrade.py:662 ../upgrade.py:668 ../raphodo/viewutils.py:254
-#: ../raphodo/viewutils.py:274
+#: ../upgrade.py:662 ../upgrade.py:668 ../raphodo/viewutils.py:301
+#: ../raphodo/viewutils.py:321
 msgid "&Close"
 msgstr "&Kapat"
 
@@ -579,20 +597,20 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr "Sürüm yükseltme başarısız oldu. Çıkmak için Kapat'ı tıklayın."
 
-#: ../upgrade.py:9269
+#: ../upgrade.py:11100
 #, python-format
 msgid "Upgrading %s..."
 msgstr "%s sürümüne yükseltiiyor..."
 
-#: ../upgrade.py:9271
+#: ../upgrade.py:11102
 msgid "Press any key to continue..."
 msgstr "Devam etmek için herhangi bir tuşa basın..."
 
-#: ../upgrade.py:9284
+#: ../upgrade.py:11115
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr "Rapid Photo Downloader sürüm yükseltmesi başarısız"
 
-#: ../upgrade.py:9286
+#: ../upgrade.py:11117
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
@@ -606,19 +624,19 @@ msgstr "Emeği Geçenler"
 msgid "Translators"
 msgstr "Çevirmenler"
 
-#: ../raphodo/backuppanel.py:241
+#: ../raphodo/backuppanel.py:279
 msgid "Backups are not configured"
 msgstr "Yedeklemeler yapılandırılmadı"
 
-#: ../raphodo/backuppanel.py:243
+#: ../raphodo/backuppanel.py:281
 msgid "No backup devices detected"
 msgstr "Yedekleme cihazı bulunamadı"
 
-#: ../raphodo/backuppanel.py:245
+#: ../raphodo/backuppanel.py:284
 msgid "Valid backup locations not yet specified"
 msgstr "Geçerli yedekleme konumları henüz belirtilmedi"
 
-#: ../raphodo/backuppanel.py:406
+#: ../raphodo/backuppanel.py:460
 msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
@@ -626,15 +644,15 @@ msgstr ""
 "Fotoğraflarınızın ve videolarınızın, indirildikçe birden fazla yere "
 "yedeklenmesini sağlayabilirsiniz, örn. harici sabit sürücüler."
 
-#: ../raphodo/backuppanel.py:414
+#: ../raphodo/backuppanel.py:468
 msgid "Back up photos and videos when downloading"
 msgstr "İndirirken fotoğrafları ve videoları yedekle"
 
-#: ../raphodo/backuppanel.py:420
+#: ../raphodo/backuppanel.py:474
 msgid "Automatically detect backup devices"
 msgstr "Yedekleme cihazlarını otomatik olarak algıla"
 
-#: ../raphodo/backuppanel.py:426
+#: ../raphodo/backuppanel.py:480
 msgid ""
 "Specify the folder in which backups are stored on the "
 "device.<br><br><i>Note: the presence of a folder with this name is used to "
@@ -650,66 +668,68 @@ msgstr ""
 "klasörü de ekleyerek, aynı cihaz hem fotoğrafları hem de videoları "
 "yedeklemek için kullanılabilir.</i>"
 
-#: ../raphodo/backuppanel.py:441
+#: ../raphodo/backuppanel.py:495
 msgid "Photo folder name:"
 msgstr "Fotoğraf klasörü adı:"
 
-#: ../raphodo/backuppanel.py:446
+#: ../raphodo/backuppanel.py:500
 msgid "Video folder name:"
 msgstr "Video klasörü adı:"
 
-#: ../raphodo/backuppanel.py:451 ../raphodo/nameeditor.py:929
+#: ../raphodo/backuppanel.py:505 ../raphodo/nameeditor.py:929
 #: ../raphodo/renamepanel.py:125
 msgid "Example:"
 msgstr "Örnek:"
 
-#: ../raphodo/backuppanel.py:462
+#: ../raphodo/backuppanel.py:516
 msgid ""
 "If you disable automatic detection, choose the exact backup locations."
 msgstr ""
 "Otomatik algılamayı devre dışı bırakırsanız, tam yedekleme konumlarını seçin."
 
 #. Translators: the word 'location' is optional in your translation. The left
-#. side of the folder chooser combo box will always line up with the left side of the
-#. the text entry boxes where the user can enter the photo folder name and the video
-#. folder name. See http://damonlynch.net/rapid/documentation/thumbnails/backup.png
-#: ../raphodo/backuppanel.py:470
+#. side of the folder chooser combo box will always line up with the left side of
+#. the the text entry boxes where the user can enter the photo folder name and
+#. the video folder name. See
+#. http://damonlynch.net/rapid/documentation/thumbnails/backup.png
+#: ../raphodo/backuppanel.py:527
 msgid "Photo backup location:"
 msgstr "Fotoğraf yedekleme konumu:"
 
-#: ../raphodo/backuppanel.py:476
+#: ../raphodo/backuppanel.py:537
 msgid "Select Photo Backup Location"
 msgstr "Fotoğraf Yedekleme Konumunu Seçin"
 
 #. Translators: the word 'location' is optional in your translation. The left
-#. side of the folder chooser combo box will always line up with the left side of the
-#. the text entry boxes where the user can enter the photo folder name and the video
-#. folder name. See http://damonlynch.net/rapid/documentation/thumbnails/backup.png
-#: ../raphodo/backuppanel.py:487
+#. side of the folder chooser combo box will always line up with the left side of
+#. the the text entry boxes where the user can enter the photo folder name and
+#. the video folder name. See
+#. http://damonlynch.net/rapid/documentation/thumbnails/backup.png
+#: ../raphodo/backuppanel.py:549
 msgid "Video backup location:"
 msgstr "Video yedekleme konumu:"
 
-#: ../raphodo/backuppanel.py:493
+#: ../raphodo/backuppanel.py:555
 msgid "Select Video Backup Location"
 msgstr "Video Yedekleme Konumunu Seçin"
 
-#. Translators: this value is used as an example device when automatic backup device
-#. detection is enabled. You should translate this.
-#: ../raphodo/backuppanel.py:597
+#. Translators: this value is used as an example device when automatic backup
+#. device detection is enabled. You should translate this.
+#: ../raphodo/backuppanel.py:671
 msgid "drive1"
 msgstr "sürücü1"
 
-#. Translators: this value is used as an example device when automatic backup device
-#. detection is enabled. You should translate this.
-#: ../raphodo/backuppanel.py:600
+#. Translators: this value is used as an example device when automatic backup
+#. device detection is enabled. You should translate this.
+#: ../raphodo/backuppanel.py:674
 msgid "drive2"
 msgstr "sürücü2"
 
-#: ../raphodo/backuppanel.py:665
+#: ../raphodo/backuppanel.py:742
 msgid "Projected Backup Storage Use"
 msgstr "Öngörülen Yedek Depolama Kullanımı"
 
-#: ../raphodo/backuppanel.py:671
+#: ../raphodo/backuppanel.py:748
 msgid "Backup Options"
 msgstr "Yedekleme Seçenekleri"
 
@@ -726,7 +746,13 @@ msgstr "ses"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/destinationdisplay.py:82 ../raphodo/devicedisplay.py:1128
+#. Translators: %(variable)s represents Python code, not a plural of the
+#. term variable. You must keep the %(variable)s untranslated, or the
+#. program will crash.
+#. Translators: %(variable)s represents Python code, not a plural of the term
+#. variable. You must keep the %(variable)s untranslated, or the program will
+#. crash.
+#: ../raphodo/destinationdisplay.py:96 ../raphodo/devicedisplay.py:1281
 #: ../raphodo/rpdfile.py:290
 #, python-format
 msgid "%(no_photos)s Photos"
@@ -735,28 +761,34 @@ msgstr "%(no_photos)s adet Fotoğraf"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/destinationdisplay.py:89 ../raphodo/devicedisplay.py:1134
+#. Translators: %(variable)s represents Python code, not a plural of the
+#. term variable. You must keep the %(variable)s untranslated, or the
+#. program will crash.
+#. Translators: %(variable)s represents Python code, not a plural of the term
+#. variable. You must keep the %(variable)s untranslated, or the program will
+#. crash.
+#: ../raphodo/destinationdisplay.py:104 ../raphodo/devicedisplay.py:1287
 #: ../raphodo/rpdfile.py:278
 #, python-format
 msgid "%(no_videos)s Videos"
 msgstr "%(no_videos)s  adet Video"
 
-#: ../raphodo/destinationdisplay.py:99
+#: ../raphodo/destinationdisplay.py:115
 msgid "Used"
 msgstr "Kullanımda"
 
-#: ../raphodo/destinationdisplay.py:100
+#: ../raphodo/destinationdisplay.py:116
 msgid "Excess"
 msgstr "Aşırı"
 
-#: ../raphodo/destinationdisplay.py:109 ../raphodo/devicedisplay.py:1154
+#: ../raphodo/destinationdisplay.py:125 ../raphodo/devicedisplay.py:1313
 msgid "Device size unknown"
 msgstr "Cihazın boyutu bilinmiyor"
 
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/destinationdisplay.py:122
+#: ../raphodo/destinationdisplay.py:138
 #, python-format
 msgid "No space free on %(size_total)s device"
 msgstr "%(size_total)s cihazında boş alan yok"
@@ -764,80 +796,80 @@ msgstr "%(size_total)s cihazında boş alan yok"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/destinationdisplay.py:132
+#: ../raphodo/destinationdisplay.py:148
 #, python-format
 msgid "%(size_free)s free of %(size_total)s"
 msgstr "%(size_free)s / %(size_total)s boş"
 
-#: ../raphodo/destinationdisplay.py:203 ../raphodo/devicedisplay.py:1032
-#: ../raphodo/rapid.py:2167 ../raphodo/rapid.py:2295 ../raphodo/rapid.py:6485
-#: ../raphodo/rpdfile.py:917
+#: ../raphodo/destinationdisplay.py:222 ../raphodo/devicedisplay.py:1173
+#: ../raphodo/rapid.py:2338 ../raphodo/rapid.py:2475 ../raphodo/rapid.py:7322
+#: ../raphodo/rpdfile.py:914
 msgid "Photos"
 msgstr "Fotoğraflar"
 
 #. translators: the name of the Videos folder
-#: ../raphodo/destinationdisplay.py:204 ../raphodo/devicedisplay.py:1033
-#: ../raphodo/rapid.py:2172 ../raphodo/rapid.py:2296 ../raphodo/rapid.py:6485
-#: ../raphodo/rpdfile.py:945 ../raphodo/storage.py:511
+#: ../raphodo/destinationdisplay.py:223 ../raphodo/devicedisplay.py:1174
+#: ../raphodo/rapid.py:2343 ../raphodo/rapid.py:2476 ../raphodo/rapid.py:7322
+#: ../raphodo/rpdfile.py:942 ../raphodo/storage.py:537
 msgid "Videos"
 msgstr "Videolar"
 
-#: ../raphodo/destinationdisplay.py:205
+#: ../raphodo/destinationdisplay.py:224
 msgid "Projected storage use after download"
 msgstr "İndirme işleminden sonra öngörülen depolama kullanımı"
 
-#: ../raphodo/destinationdisplay.py:342 ../raphodo/nameeditor.py:536
+#: ../raphodo/destinationdisplay.py:350 ../raphodo/nameeditor.py:536
 msgid "Custom..."
 msgstr "Özel..."
 
-#: ../raphodo/destinationdisplay.py:710
+#: ../raphodo/destinationdisplay.py:751
 msgid "Configure photo subfolder creation"
 msgstr "Fotoğraf alt klasörü oluşturmak için yapılandır"
 
-#: ../raphodo/destinationdisplay.py:712
+#: ../raphodo/destinationdisplay.py:753
 msgid "Configure video subfolder creation"
 msgstr "Video alt klasörü oluşturmak için yapılandır"
 
-#: ../raphodo/devicedisplay.py:1022
+#: ../raphodo/devicedisplay.py:1163
 msgid "Other"
 msgstr "Diğer"
 
-#: ../raphodo/devicedisplay.py:1023
+#: ../raphodo/devicedisplay.py:1164
 msgid "Probing device..."
 msgstr "Cihaz yoklanıyor..."
 
-#: ../raphodo/devicedisplay.py:1040
+#: ../raphodo/devicedisplay.py:1182
 msgid "Temporarily ignore this device"
 msgstr "Bu cihazı geçici olarak görmezden gel"
 
-#: ../raphodo/devicedisplay.py:1042
+#: ../raphodo/devicedisplay.py:1186
 msgid "Permanently ignore this device"
 msgstr "Bu cihazı kalıcı olarak görmezden gel"
 
-#: ../raphodo/devicedisplay.py:1044
+#: ../raphodo/devicedisplay.py:1189
 msgid "Rescan"
 msgstr "Yeniden tara"
 
 #. Translators: percentage full e.g. 75% full
-#: ../raphodo/devicedisplay.py:1151
+#: ../raphodo/devicedisplay.py:1310
 #, python-format
 msgid "%s full"
 msgstr "%s dolu"
 
-#: ../raphodo/devices.py:479
+#: ../raphodo/devices.py:604 ../raphodo/devices.py:605
 msgid "Cameras"
 msgstr "Kameralar"
 
-#: ../raphodo/devices.py:480 ../raphodo/devices.py:1023
-#: ../raphodo/preferencedialog.py:114 ../raphodo/preferencedialog.py:124
-#: ../raphodo/rapid.py:2123
+#: ../raphodo/devices.py:606 ../raphodo/devices.py:1257
+#: ../raphodo/preferencedialog.py:153 ../raphodo/preferencedialog.py:174
+#: ../raphodo/rapid.py:2289
 msgid "Devices"
 msgstr "Cihazlar"
 
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/devices.py:813
+#: ../raphodo/devices.py:1007
 #, python-format
 msgid "Downloading from %(device_names)s"
 msgstr "%(device_names)s adlı cihazdan indiriliyor"
@@ -846,51 +878,52 @@ msgstr "%(device_names)s adlı cihazdan indiriliyor"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/devices.py:876
+#: ../raphodo/devices.py:1074
 #, python-format
 msgid "%(no_devices)s %(device_type)s"
 msgstr "%(no_devices)s %(device_type)s"
 
-#: ../raphodo/devices.py:1008 ../raphodo/rapid.py:1950
+#: ../raphodo/devices.py:1230 ../raphodo/rapid.py:2078
 msgid "Select Source"
 msgstr "Kaynağı Seç"
 
-#. Translators: this text shows the devices being downloaded from, and is shown at
-#. the top of the window. The plus sign is used instead of 'and' to leave as much
-#. room as possible for the device names.
-#. Translators: %(variable)s represents Python code, not a plural of the term
-#. variable. You must keep the %(variable)s untranslated, or the program will
-#. crash.
-#. Translators: this text shows the devices being downloaded from, and is
-#. shown at the top of the window. The plus sign is used instead of 'and' to
-#. leave as much room as possible for the device names.
-#. Translators: %(variable)s represents Python code, not a plural of the term
-#. variable. You must keep the %(variable)s untranslated, or the program will
-#. crash.
-#: ../raphodo/devices.py:1045 ../raphodo/devices.py:1062
+#. Translators: this text shows the devices being downloaded from, and
+#. is shown at the top of the window. The plus sign is used instead of
+#. 'and' to leave as much room as possible for the device names.
+#. Translators: %(variable)s represents Python code, not a plural of the
+#. term variable. You must keep the %(variable)s untranslated, or the
+#. program will crash.
+#. Translators: this text shows the devices being downloaded
+#. from, and is shown at the top of the window. The plus sign is
+#. used instead of 'and' to leave as much room as possible for
+#. the device names.
+#. Translators: %(variable)s represents Python code, not a plural
+#. of the term variable. You must keep the %(variable)s
+#. untranslated, or the program will crash.
+#: ../raphodo/devices.py:1281 ../raphodo/devices.py:1301
 #, python-format
 msgid "%(device1)s + %(device2)s"
 msgstr "%(device1)s + %(device2)s"
 
 #. Translators: Number of cameras e.g. 3 Cameras
-#. Translators: %(variable)s represents Python code, not a plural of the term
-#. variable. You must keep the %(variable)s untranslated, or the program will
-#. crash.
-#: ../raphodo/devices.py:1076
+#. Translators: %(variable)s represents Python code, not a plural
+#. of the term variable. You must keep the %(variable)s
+#. untranslated, or the program will crash.
+#: ../raphodo/devices.py:1319
 #, python-format
 msgid "%(no_cameras)s Cameras"
 msgstr "%(no_cameras)s tane Kamera"
 
-#. Translators: %(variable)s represents Python code, not a plural of the term
-#. variable. You must keep the %(variable)s untranslated, or the program will
-#. crash.
-#: ../raphodo/devices.py:1084
+#. Translators: %(variable)s represents Python code, not a plural
+#. of the term variable. You must keep the %(variable)s
+#. untranslated, or the program will crash.
+#: ../raphodo/devices.py:1327
 #, python-format
 msgid "%(no_devices)s Devices"
 msgstr "%(no_devices)s tane Cihaz"
 
 #. Translators: two folder names, separated by a plus sign
-#: ../raphodo/devices.py:1379
+#: ../raphodo/devices.py:1653
 #, python-format
 msgid "%s + %s"
 msgstr "%s + %s"
@@ -1814,11 +1847,11 @@ msgstr "Temizle"
 msgid "Phrase not found"
 msgstr "İfade bulunamadı"
 
-#: ../raphodo/errorlog.py:497
+#: ../raphodo/errorlog.py:492
 msgid "Search pending..."
 msgstr "Arama beklemede..."
 
-#: ../raphodo/errorlog.py:546
+#: ../raphodo/errorlog.py:541
 msgid ""
 "The number of new entries added to the Error Report since it was last open. "
 "Click to open the Error Report."
@@ -1826,7 +1859,7 @@ msgstr ""
 "En son açıldığından bu yana Hata Raporuna eklenen yeni girişlerin sayısı. "
 "Hata Raporunu açmak için tıklayın."
 
-#: ../raphodo/excepthook.py:51
+#: ../raphodo/excepthook.py:53
 #, python-brace-format
 msgid ""
 "Please report the problem at <a href=\"{website}\">{website}</a>.<br><br>In "
@@ -1840,11 +1873,11 @@ msgstr ""
 "raporu, program ayarlarını ve günlük dosyalarını da içermelidir. Bu ek "
 "bilgileri içeren bir dosya oluşturmak için Kaydet'i tıklayın."
 
-#: ../raphodo/excepthook.py:58
+#: ../raphodo/excepthook.py:60
 msgid "Additional Information Saved"
 msgstr "Kaydedilen Ek Bilgiler"
 
-#: ../raphodo/excepthook.py:63
+#: ../raphodo/excepthook.py:65
 #, python-brace-format
 msgid ""
 "The additional bug report information was created in your home directory in "
@@ -1857,11 +1890,11 @@ msgstr ""
 "Otomatik olarak eklenmez.<br><br>Dosyayı dosya yöneticinizde görmek için <a "
 "href=\"{uri}\">buraya</a> tıklayın."
 
-#: ../raphodo/excepthook.py:70
+#: ../raphodo/excepthook.py:72
 msgid "Error Creating Additional Information"
 msgstr "Ek Bilgi Oluşturma Hatası"
 
-#: ../raphodo/excepthook.py:73
+#: ../raphodo/excepthook.py:75
 msgid ""
 "The additional bug report information was not created. Please file a bug "
 "report anyway."
@@ -1869,7 +1902,7 @@ msgstr ""
 "Ek hata raporu bilgileri oluşturulmadı. Lütfen yine de bir hata raporu "
 "gönderin."
 
-#: ../raphodo/excepthook.py:79
+#: ../raphodo/excepthook.py:82
 #, python-brace-format
 msgid ""
 "Include in your bug report the program's log files. The bug report must "
@@ -1886,7 +1919,7 @@ msgstr ""
 "dizinini açmak için <a href=\"{log_path}\">buraya</a>  ve yapılandırma "
 "dizinini açmak için <a href=\"{config_path}\">buraya</a> tıklayın."
 
-#: ../raphodo/excepthook.py:88
+#: ../raphodo/excepthook.py:91
 #, python-brace-format
 msgid ""
 "Upgrading to the <a href=\"{website}\">latest version</a> will allow you to "
@@ -1895,15 +1928,15 @@ msgstr ""
 "<a href=\"{website}\">Son sürüme</a> yükseltme yapmak, karşılaştığınız "
 "sorunun zaten çözülüp çözülmediğini belirlemenizi sağlayacaktır."
 
-#: ../raphodo/excepthook.py:173
+#: ../raphodo/excepthook.py:185
 msgid "Problem in Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader'da Sorun"
 
-#: ../raphodo/excepthook.py:177
+#: ../raphodo/excepthook.py:189
 msgid "A problem occurred in Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader'da bir sorun oluştu"
 
-#: ../raphodo/excepthook.py:180
+#: ../raphodo/excepthook.py:192
 msgid ""
 "If the same problem occurs again before the program exits, this is the only "
 "notification about it."
@@ -1911,11 +1944,11 @@ msgstr ""
 "Programdan çıkmadan önce aynı sorun tekrar ortaya çıkarsa, bu konuda yeni "
 "bildirim olmayacaktır."
 
-#: ../raphodo/excepthook.py:203
+#: ../raphodo/excepthook.py:219
 msgid "A problem occurred in Rapid Photo Downloader\n"
 msgstr "Rapid Photo Downloader'da bir sorun oldu\n"
 
-#: ../raphodo/excepthook.py:205
+#: ../raphodo/excepthook.py:221
 #, python-brace-format
 msgid ""
 "Please report the problem at {website}\n"
@@ -1926,19 +1959,28 @@ msgstr ""
 "Günlük dosyasını {log_path} adresinde bulunan hata raporunuza ekleyin\n"
 "\n"
 
-#: ../raphodo/filebrowse.py:131 ../raphodo/thumbnaildisplay.py:1905
+#: ../raphodo/filebrowse.py:162 ../raphodo/thumbnaildisplay.py:2154
 msgid "Open in File Browser..."
 msgstr "Dosya Tarayıcıda Aç ..."
 
-#: ../raphodo/foldercombo.py:118
+#. type: Optional[QModelIndex]
+#: ../raphodo/filebrowse.py:168
+msgid "Reset"
+msgstr ""
+
+#: ../raphodo/filebrowse.py:172
+msgid "Show System Folders"
+msgstr ""
+
+#: ../raphodo/foldercombo.py:141
 msgid "File System"
 msgstr "Dosya Sistemi"
 
-#: ../raphodo/foldercombo.py:155
+#: ../raphodo/foldercombo.py:182
 msgid "Other..."
 msgstr "Diğer..."
 
-#: ../raphodo/foldercombo.py:241
+#: ../raphodo/foldercombo.py:273
 #, python-format
 msgid "%s (location does not exist)"
 msgstr "%s (konum mevcut değil)"
@@ -1951,11 +1993,11 @@ msgstr "Tarih saat"
 msgid "Text"
 msgstr "Metin"
 
-#: ../raphodo/generatenameconfig.py:194 ../raphodo/rapid.py:2269
+#: ../raphodo/generatenameconfig.py:194 ../raphodo/rapid.py:2442
 msgid "Filename"
 msgstr "Dosya adı"
 
-#: ../raphodo/generatenameconfig.py:195 ../raphodo/preferencedialog.py:761
+#: ../raphodo/generatenameconfig.py:195 ../raphodo/preferencedialog.py:909
 msgid "Metadata"
 msgstr "Üst veri"
 
@@ -1999,7 +2041,7 @@ msgstr "İsim"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: ../raphodo/generatenameconfig.py:212 ../raphodo/rapid.py:2270
+#: ../raphodo/generatenameconfig.py:212 ../raphodo/rapid.py:2443
 msgid "Extension"
 msgstr "Eklenti"
 
@@ -2421,8 +2463,8 @@ msgstr "Tarih ve İş Kodu Alt Klasörü"
 msgid "YYYYMM"
 msgstr "YYYYAA"
 
-#: ../raphodo/generatenameconfig.py:405 ../raphodo/jobcodepanel.py:230
-#: ../raphodo/nameeditor.py:860 ../raphodo/rapid.py:1996
+#: ../raphodo/generatenameconfig.py:405 ../raphodo/jobcodepanel.py:282
+#: ../raphodo/nameeditor.py:860 ../raphodo/rapid.py:2129
 #: ../raphodo/renamepanel.py:83 ../raphodo/renamepanel.py:246
 msgid "Job Code"
 msgstr "İş Kodu"
@@ -2483,31 +2525,31 @@ msgstr "Çözünürlük"
 msgid "YYYYMMDD-HHMM-1-1920x1080"
 msgstr "YYYYAAGG-SaSaDD-1-1920x1080"
 
-#: ../raphodo/jobcodepanel.py:72
+#: ../raphodo/jobcodepanel.py:93
 msgid "Enter a new Job Code, or select a previous one"
 msgstr "Yeni bir İş Kodu girin veya öncekilerden birini seçin"
 
-#: ../raphodo/jobcodepanel.py:79
+#: ../raphodo/jobcodepanel.py:101
 #, python-format
 msgid "The Job Code will be applied to %s that does not yet have a Job Code."
 msgstr ""
 "İş Kodu, henüz bir İş Koduna sahip olmayan %s öğesine uygulanacaktır."
 
-#: ../raphodo/jobcodepanel.py:85
+#: ../raphodo/jobcodepanel.py:111
 #, python-format
 msgid "The Job Code will be applied to %s that do not yet have a Job Code."
 msgstr ""
 "İş Kodu, henüz bir İş Koduna sahip olmayan %s öğesine uygulanacaktır."
 
-#: ../raphodo/jobcodepanel.py:92
+#: ../raphodo/jobcodepanel.py:124
 msgid "Apply Job Code to Download"
 msgstr "İş Kodunu İndirilene Uygula"
 
-#: ../raphodo/jobcodepanel.py:94
+#: ../raphodo/jobcodepanel.py:126
 msgid "Enter a new Job Code"
 msgstr "Yeni Bir İş Kodu girin"
 
-#: ../raphodo/jobcodepanel.py:100
+#: ../raphodo/jobcodepanel.py:134
 msgid ""
 "<b>Hint:</b> Select photos or videos before entering a new Job Code to have "
 "the Job Code applied to them."
@@ -2515,39 +2557,37 @@ msgstr ""
 "<b>İpucu:</b> İş Kodunun uygulanmasını sağlamak için, yeni bir İş Kodu "
 "girmeden önce fotoğrafları veya videoları seçin."
 
-#. Translators: the value substituted will be something like '100 photos and 5
-#. videos'.
-#: ../raphodo/jobcodepanel.py:109
+#: ../raphodo/jobcodepanel.py:147
 #, python-format
 msgid "The new Job Code will be applied to %s."
 msgstr "Yeni İş Kodu %s öğesine uygulanacak."
 
-#: ../raphodo/jobcodepanel.py:112
+#: ../raphodo/jobcodepanel.py:151
 msgid "New Job Code"
 msgstr "Yeni İş Kodu"
 
-#: ../raphodo/jobcodepanel.py:148
+#: ../raphodo/jobcodepanel.py:189
 msgid "&Job Code:"
 msgstr "&İş Kodu:"
 
-#: ../raphodo/jobcodepanel.py:152
+#: ../raphodo/jobcodepanel.py:193
 msgid "&Remember this Job Code"
 msgstr "&Bu İş Kodunu hatırla"
 
-#: ../raphodo/jobcodepanel.py:211
+#: ../raphodo/jobcodepanel.py:254
 msgid ""
 "Select photos and videos to be able to apply a new or existing Job Code to "
 "them."
 msgstr ""
 "Yeni veya mevcut bir İş Kodu uygulayabilmek için fotoğraf ve videoları seçin."
 
-#: ../raphodo/jobcodepanel.py:212
+#: ../raphodo/jobcodepanel.py:258
 msgid ""
 "The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 "Yeni İş Kodu, seçilen tüm fotoğraflara ve/veya videolara uygulanacaktır."
 
-#: ../raphodo/jobcodepanel.py:214
+#: ../raphodo/jobcodepanel.py:262
 msgid ""
 "Click the Apply button to apply the current Job Code to all selected photos "
 "and/or videos. You can also simply double click the Job Code."
@@ -2555,7 +2595,7 @@ msgstr ""
 "Geçerli İş Kodunu seçilen tüm fotoğraflara ve/veya videolara uygulamak için "
 "Uygula düğmesini tıklayın. Ayrıca basitçe İş Kodunu çift tıklayabilirsiniz."
 
-#: ../raphodo/jobcodepanel.py:218
+#: ../raphodo/jobcodepanel.py:267
 msgid ""
 "Removing a Job Code removes it only from the list of saved Job Codes, not "
 "from any photos or videos that it may have been applied to."
@@ -2563,7 +2603,7 @@ msgstr ""
 "Bir İş Kodunu kaldırmak, uygulanmış olduğu herhangi bir fotoğraf veya "
 "videodan değil, yalnızca kaydedilen İş Kodları listesinden kaldırır."
 
-#: ../raphodo/jobcodepanel.py:222
+#: ../raphodo/jobcodepanel.py:272
 msgid ""
 "If you want to use Job Codes, configure file renaming or destination "
 "subfolder names to use them."
@@ -2571,48 +2611,48 @@ msgstr ""
 "İş Kodlarını kullanmak istiyorsanız, dosya yeniden adlandırma veya hedef alt "
 "klasör adlarını yapılandırın."
 
-#: ../raphodo/jobcodepanel.py:229
+#: ../raphodo/jobcodepanel.py:281
 msgid "Last Used"
 msgstr "Son Kullanılan"
 
-#: ../raphodo/jobcodepanel.py:234
+#: ../raphodo/jobcodepanel.py:286
 msgid "Job Code Sort:"
 msgstr "İş Kodu Sıralama:"
 
-#: ../raphodo/jobcodepanel.py:237 ../raphodo/rapid.py:2277
+#: ../raphodo/jobcodepanel.py:289 ../raphodo/rapid.py:2450
 msgid "Ascending"
 msgstr "Artan"
 
-#: ../raphodo/jobcodepanel.py:238 ../raphodo/rapid.py:2278
+#: ../raphodo/jobcodepanel.py:290 ../raphodo/rapid.py:2451
 msgid "Descending"
 msgstr "Azalan"
 
-#: ../raphodo/jobcodepanel.py:248
+#: ../raphodo/jobcodepanel.py:300
 msgid "&New..."
 msgstr "&Yeni..."
 
-#: ../raphodo/jobcodepanel.py:252
+#: ../raphodo/jobcodepanel.py:304
 msgid "&Apply"
 msgstr "&Uygula"
 
-#: ../raphodo/jobcodepanel.py:256
+#: ../raphodo/jobcodepanel.py:308
 msgid "&Remove"
 msgstr "&Kaldır"
 
-#: ../raphodo/jobcodepanel.py:260 ../raphodo/preferencedialog.py:207
-#: ../raphodo/preferencedialog.py:236 ../raphodo/preferencedialog.py:567
+#: ../raphodo/jobcodepanel.py:312 ../raphodo/preferencedialog.py:280
+#: ../raphodo/preferencedialog.py:316 ../raphodo/preferencedialog.py:696
 msgid "Remove All"
 msgstr "Tümünü Kaldır"
 
-#: ../raphodo/jobcodepanel.py:459
+#: ../raphodo/jobcodepanel.py:515
 msgid "Do you really want to remove all the Job Codes?"
 msgstr "Tüm İş Kodlarını gerçekten kaldırmak istiyor musunuz?"
 
-#: ../raphodo/jobcodepanel.py:461
+#: ../raphodo/jobcodepanel.py:518
 msgid "Remove all Job Codes"
 msgstr "Tüm İş Kodlarını kaldır"
 
-#: ../raphodo/jobcodepanel.py:526
+#: ../raphodo/jobcodepanel.py:585
 msgid "Job Codes"
 msgstr "İş Kodları"
 
@@ -2721,7 +2761,8 @@ msgstr "Hazır Ayar:"
 msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
-#: ../raphodo/nameeditor.py:1057 ../raphodo/preferencedialog.py:836
+#: ../raphodo/nameeditor.py:1057 ../raphodo/preferencedialog.py:997
+#: ../raphodo/wsl.py:649
 msgid "Get help online..."
 msgstr "Çevrimiçi yardım alın..."
 
@@ -2819,48 +2860,48 @@ msgstr "%(downloaded)s / %(total)s"
 msgid "Downloading..."
 msgstr "Indiriliyor..."
 
-#: ../raphodo/preferencedialog.py:92
+#: ../raphodo/preferencedialog.py:131
 msgid "Preferences"
 msgstr "Tercihler"
 
-#: ../raphodo/preferencedialog.py:114 ../raphodo/preferencedialog.py:124
+#: ../raphodo/preferencedialog.py:154 ../raphodo/preferencedialog.py:175
 msgid "Language"
 msgstr "Dil"
 
-#: ../raphodo/preferencedialog.py:114 ../raphodo/preferencedialog.py:124
+#: ../raphodo/preferencedialog.py:155 ../raphodo/preferencedialog.py:176
 msgid "Automation"
 msgstr "Otomasyon"
 
-#: ../raphodo/preferencedialog.py:114 ../raphodo/preferencedialog.py:124
+#: ../raphodo/preferencedialog.py:156 ../raphodo/preferencedialog.py:177
 msgid "Thumbnails"
 msgstr "Küçük resimler"
 
-#: ../raphodo/preferencedialog.py:114 ../raphodo/preferencedialog.py:124
-#: ../raphodo/preferencedialog.py:464
+#: ../raphodo/preferencedialog.py:157 ../raphodo/preferencedialog.py:178
+#: ../raphodo/preferencedialog.py:564
 msgid "Error Handling"
 msgstr "Hata Yönetimi"
 
-#: ../raphodo/preferencedialog.py:115 ../raphodo/preferencedialog.py:125
+#: ../raphodo/preferencedialog.py:158 ../raphodo/preferencedialog.py:179
 msgid "Warnings"
 msgstr "Uyarılar"
 
-#: ../raphodo/preferencedialog.py:115
+#: ../raphodo/preferencedialog.py:159
 msgid "Consolidation"
 msgstr "Birleştirme"
 
-#: ../raphodo/preferencedialog.py:115 ../raphodo/preferencedialog.py:125
+#: ../raphodo/preferencedialog.py:160 ../raphodo/preferencedialog.py:180
 msgid "Miscellaneous"
 msgstr "Çeşitli"
 
-#: ../raphodo/preferencedialog.py:154
+#: ../raphodo/preferencedialog.py:213
 msgid "Device Scanning"
 msgstr "Cihaz Tarama"
 
-#: ../raphodo/preferencedialog.py:155
+#: ../raphodo/preferencedialog.py:214
 msgid "Scan only external devices"
 msgstr "Sadece harici cihazları tara"
 
-#: ../raphodo/preferencedialog.py:157
+#: ../raphodo/preferencedialog.py:217
 msgid ""
 "Scan for photos and videos only on devices that are external to the "
 "computer,\n"
@@ -2870,11 +2911,11 @@ msgstr ""
 "sürücüler dahil olmak üzere yalnızca bilgisayarın dışındaki aygıtlarda "
 "tarayın."
 
-#: ../raphodo/preferencedialog.py:160
+#: ../raphodo/preferencedialog.py:223
 msgid "Scan only specific folders on devices"
 msgstr "Aygıtlardaki yalnızca belirli klasörleri tara"
 
-#: ../raphodo/preferencedialog.py:162
+#: ../raphodo/preferencedialog.py:225
 msgid ""
 "Scan for photos and videos only in the folders specified below (except "
 "paths\n"
@@ -2887,11 +2928,11 @@ msgstr ""
 "\n"
 "Bu ayarın değiştirilmesi tüm cihazların tekrar taranmasına neden olur."
 
-#: ../raphodo/preferencedialog.py:168
+#: ../raphodo/preferencedialog.py:232
 msgid "Folders to scan:"
 msgstr "Taranacak klasörler:"
 
-#: ../raphodo/preferencedialog.py:171
+#: ../raphodo/preferencedialog.py:236
 msgid ""
 "Folders at the base level of device file systems that will be scanned\n"
 "for photos and videos."
@@ -2899,11 +2940,11 @@ msgstr ""
 "Fotoğraflar ve videolar için taranacak olan cihaz dosya sistemlerinin \n"
 "temel düzeyindeki klasörler."
 
-#: ../raphodo/preferencedialog.py:174 ../raphodo/preferencedialog.py:226
+#: ../raphodo/preferencedialog.py:241 ../raphodo/preferencedialog.py:302
 msgid "Add..."
 msgstr "Ekle..."
 
-#: ../raphodo/preferencedialog.py:176
+#: ../raphodo/preferencedialog.py:244
 msgid ""
 "Add a folder to the list of folders to scan for photos and videos.\n"
 "\n"
@@ -2914,12 +2955,12 @@ msgstr ""
 "\n"
 "Bu ayarın değiştirilmesi tüm cihazların tekrar taranmasına neden olur."
 
-#: ../raphodo/preferencedialog.py:179 ../raphodo/preferencedialog.py:205
-#: ../raphodo/preferencedialog.py:231 ../raphodo/preferencedialog.py:565
+#: ../raphodo/preferencedialog.py:248 ../raphodo/preferencedialog.py:278
+#: ../raphodo/preferencedialog.py:309 ../raphodo/preferencedialog.py:694
 msgid "Remove"
 msgstr "Kaldır"
 
-#: ../raphodo/preferencedialog.py:181
+#: ../raphodo/preferencedialog.py:251
 msgid ""
 "Remove a folder from the list of folders to scan for photos and videos.\n"
 "\n"
@@ -2930,15 +2971,15 @@ msgstr ""
 "\n"
 "Bu ayarın değiştirilmesi tüm cihazların tekrar taranmasına neden olur."
 
-#: ../raphodo/preferencedialog.py:198
+#: ../raphodo/preferencedialog.py:270
 msgid "Devices that have been set to automatically ignore or download from."
 msgstr "Otomatik olarak yok saymak veya indirmek için ayarlanmış cihazlar."
 
-#: ../raphodo/preferencedialog.py:199
+#: ../raphodo/preferencedialog.py:271
 msgid "Remembered Devices"
 msgstr "Hatırlanan Cihazlar"
 
-#: ../raphodo/preferencedialog.py:203
+#: ../raphodo/preferencedialog.py:275
 msgid ""
 "Remove a device from the list of devices to automatically ignore or download "
 "from."
@@ -2946,7 +2987,7 @@ msgstr ""
 "Bir cihazı otomatik olarak yok sayılacak veya indirilecek cihazlar "
 "listesinden kaldırın."
 
-#: ../raphodo/preferencedialog.py:209
+#: ../raphodo/preferencedialog.py:282
 msgid ""
 "Clear the list of devices from which to automatically ignore or download "
 "from.\n"
@@ -2958,17 +2999,17 @@ msgstr ""
 "\n"
 "Not: Değişiklikler bilgisayar cihazlar için yeniden tarandığında etkili olur."
 
-#: ../raphodo/preferencedialog.py:222
+#: ../raphodo/preferencedialog.py:296
 msgid "Ignored Paths"
 msgstr "Yok Sayılan Yollar"
 
-#: ../raphodo/preferencedialog.py:223
+#: ../raphodo/preferencedialog.py:298
 msgid ""
 "The end part of a path that should never be scanned for photos or videos."
 msgstr ""
 "Fotoğraf veya videolar için asla taranmaması gereken yolun son kısmı."
 
-#: ../raphodo/preferencedialog.py:228
+#: ../raphodo/preferencedialog.py:305
 msgid ""
 "Add a path to the list of paths to ignore.\n"
 "\n"
@@ -2978,7 +3019,7 @@ msgstr ""
 "\n"
 "Bu ayarın değiştirilmesi tüm cihazların tekrar taranmasına neden olur."
 
-#: ../raphodo/preferencedialog.py:233
+#: ../raphodo/preferencedialog.py:312
 msgid ""
 "Remove a path from the list of paths to ignore.\n"
 "\n"
@@ -2988,7 +3029,7 @@ msgstr ""
 "\n"
 "Bu ayarın değiştirilmesi tüm cihazların tekrar taranmasına neden olur."
 
-#: ../raphodo/preferencedialog.py:238
+#: ../raphodo/preferencedialog.py:319
 msgid ""
 "Clear the list of paths to ignore.\n"
 "\n"
@@ -2997,7 +3038,7 @@ msgstr ""
 "Yok sayılacak yolların listesini temizleyin. Bu ayarın değiştirilmesi tüm "
 "cihazların tekrar taranmasına neden olur."
 
-#: ../raphodo/preferencedialog.py:246
+#: ../raphodo/preferencedialog.py:329
 msgid ""
 "Use python-style <a "
 "href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\">regula"
@@ -3007,7 +3048,7 @@ msgstr ""
 "href=\"http://damonlynch.net/rapid/documentation/#regularexpressions\"> "
 "normal ifadeler </a> kullanın"
 
-#: ../raphodo/preferencedialog.py:250
+#: ../raphodo/preferencedialog.py:338
 msgid ""
 "Use regular expressions in the list of ignored paths.\n"
 "\n"
@@ -3017,63 +3058,64 @@ msgstr ""
 "\n"
 "Bu ayarın değiştirilmesi tüm cihazların tekrar taranmasına neden olur."
 
-#: ../raphodo/preferencedialog.py:291
+#: ../raphodo/preferencedialog.py:380
 msgid "Language: "
 msgstr "Dil: "
 
 #. Translators: the * acts as an asterisk to denote a reference to an annotation
 #. such as '* Takes effect upon program restart'
-#: ../raphodo/preferencedialog.py:304 ../raphodo/preferencedialog.py:391
-#: ../raphodo/preferencedialog.py:437
+#: ../raphodo/preferencedialog.py:393 ../raphodo/preferencedialog.py:487
+#: ../raphodo/preferencedialog.py:535
 msgid "*"
 msgstr "*"
 
-#. Translators: the * acts as an asterisk to denote a reference to this annotation
-#: ../raphodo/preferencedialog.py:311 ../raphodo/preferencedialog.py:457
+#. Translators: the * acts as an asterisk to denote a reference to this
+#. annotation
+#: ../raphodo/preferencedialog.py:401 ../raphodo/preferencedialog.py:557
 msgid "* Takes effect upon program restart"
 msgstr "* Programın yeniden başlatılmasıyla etkili olur"
 
-#: ../raphodo/preferencedialog.py:319
+#: ../raphodo/preferencedialog.py:409
 msgid "Program Automation"
 msgstr "Program Otomasyonu"
 
-#: ../raphodo/preferencedialog.py:320
+#: ../raphodo/preferencedialog.py:410
 msgid "Start downloading at program startup"
 msgstr "Program başlangıcında indirmeye başla"
 
-#: ../raphodo/preferencedialog.py:321
+#: ../raphodo/preferencedialog.py:412
 msgid "Start downloading upon device insertion"
 msgstr "Cihaz bağlandıktan sonra indirmeye başla"
 
-#: ../raphodo/preferencedialog.py:322
+#: ../raphodo/preferencedialog.py:414
 msgid "Unmount (eject) device upon download completion"
 msgstr "İndirme işlemi tamamlandığında cihazın bağlantısını kes (çıkar)"
 
-#: ../raphodo/preferencedialog.py:323
+#: ../raphodo/preferencedialog.py:415
 msgid "Exit program when download completes"
 msgstr "İndirme işlemi tamamlandığında programdan çık"
 
-#: ../raphodo/preferencedialog.py:324
+#: ../raphodo/preferencedialog.py:417
 msgid "Exit program even if download had warnings or errors"
 msgstr "İndirme uyarıları veya hataları olsa bile programdan çık"
 
-#: ../raphodo/preferencedialog.py:351
+#: ../raphodo/preferencedialog.py:447
 msgid "Thumbnail Generation"
 msgstr "Küçük Resim Oluşturma"
 
-#: ../raphodo/preferencedialog.py:352
+#: ../raphodo/preferencedialog.py:448
 msgid "Generate thumbnails"
 msgstr "Küçük resimler oluştur"
 
-#: ../raphodo/preferencedialog.py:354
+#: ../raphodo/preferencedialog.py:450
 msgid "Generate thumbnails to show in the main program window"
 msgstr "Ana program penceresinde gösterilecek küçük resimler oluştur"
 
-#: ../raphodo/preferencedialog.py:356
+#: ../raphodo/preferencedialog.py:452
 msgid "Cache thumbnails"
 msgstr "Küçük resimleri önbellekte tut"
 
-#: ../raphodo/preferencedialog.py:359
+#: ../raphodo/preferencedialog.py:455
 msgid ""
 "Save thumbnails shown in the main program window in a thumbnail cache unique "
 "to Rapid Photo Downloader"
@@ -3081,11 +3123,11 @@ msgstr ""
 "Ana program penceresinde gösterilen küçük resimleri Rapid Photo Downloader'a "
 "özgü bir küçük resim önbelleğinde kaydet"
 
-#: ../raphodo/preferencedialog.py:363
+#: ../raphodo/preferencedialog.py:459
 msgid "Generate system thumbnails"
 msgstr "Sistem küçük resimlerini oluştur"
 
-#: ../raphodo/preferencedialog.py:366
+#: ../raphodo/preferencedialog.py:462
 msgid ""
 "While downloading, save thumbnails that can be used by desktop file managers "
 "and other programs"
@@ -3093,67 +3135,67 @@ msgstr ""
 "İndirirken, masaüstü dosya yöneticileri ve diğer programlar tarafından "
 "kullanılabilecek küçük resimleri kaydet"
 
-#: ../raphodo/preferencedialog.py:375
+#: ../raphodo/preferencedialog.py:471
 msgid "Number of CPU cores used to generate thumbnails."
 msgstr "Küçük resimler oluşturmak için kullanılan CPU çekirdeği sayısı."
 
-#: ../raphodo/preferencedialog.py:376
+#: ../raphodo/preferencedialog.py:472
 msgid "CPU cores:"
 msgstr "CPU çekirdekleri:"
 
-#: ../raphodo/preferencedialog.py:414
+#: ../raphodo/preferencedialog.py:510
 msgid "Thumbnail Cache"
 msgstr "Küçük Resim Önbelleği"
 
-#: ../raphodo/preferencedialog.py:416
+#: ../raphodo/preferencedialog.py:512
 msgid "Calculating..."
 msgstr "Hesaplanıyor..."
 
-#: ../raphodo/preferencedialog.py:422
+#: ../raphodo/preferencedialog.py:518
 msgid "days"
 msgstr "günler"
 
-#: ../raphodo/preferencedialog.py:423
+#: ../raphodo/preferencedialog.py:519
 msgid "forever"
 msgstr "sonsuza dek"
 
-#: ../raphodo/preferencedialog.py:428
+#: ../raphodo/preferencedialog.py:526
 msgid "Cache size:"
 msgstr "Önbellek boyutu:"
 
-#: ../raphodo/preferencedialog.py:430
+#: ../raphodo/preferencedialog.py:528
 msgid "Number of thumbnails:"
 msgstr "Küçük resim sayısı:"
 
-#: ../raphodo/preferencedialog.py:432
+#: ../raphodo/preferencedialog.py:530
 msgid "Database size:"
 msgstr "Veritabanı boyutu:"
 
-#: ../raphodo/preferencedialog.py:434
+#: ../raphodo/preferencedialog.py:532
 msgid "Cache unaccessed thumbnails for:"
 msgstr "Erişimsiz küçük resimleri önbellekte sakla:"
 
-#: ../raphodo/preferencedialog.py:442
+#: ../raphodo/preferencedialog.py:541
 msgid "Purge Cache..."
 msgstr "Önbelleği Temizle..."
 
-#: ../raphodo/preferencedialog.py:444
+#: ../raphodo/preferencedialog.py:544
 msgid "Optimize Cache..."
 msgstr "Önbelleği En İyi Hale Getir..."
 
-#: ../raphodo/preferencedialog.py:467
+#: ../raphodo/preferencedialog.py:567
 msgid "Skip download"
 msgstr "İndirmeyi Atla"
 
-#: ../raphodo/preferencedialog.py:468
+#: ../raphodo/preferencedialog.py:569
 msgid "Don't download the file, and issue an error message"
 msgstr "Dosyayı indirme ve bir hata mesajı yayınla"
 
-#: ../raphodo/preferencedialog.py:469
+#: ../raphodo/preferencedialog.py:571
 msgid "Add unique identifier"
 msgstr "Benzersiz tanımlayıcı ekle"
 
-#: ../raphodo/preferencedialog.py:472
+#: ../raphodo/preferencedialog.py:574
 msgid ""
 "Add an identifier like _1 or _2 to the end of the filename, immediately "
 "before the file's extension"
@@ -3161,23 +3203,23 @@ msgstr ""
 "Dosyanın uzantısından hemen önce dosya adının sonuna _1 veya _2 gibi bir "
 "tanımlayıcı ekleyin"
 
-#: ../raphodo/preferencedialog.py:480
+#: ../raphodo/preferencedialog.py:582
 msgid "Overwrite"
 msgstr "Üzerine Yaz"
 
-#: ../raphodo/preferencedialog.py:481
+#: ../raphodo/preferencedialog.py:583
 msgid "Overwrite the previously backed up file"
 msgstr "Önceden yedeklenmiş dosyanın üzerine yaz"
 
-#: ../raphodo/preferencedialog.py:482
+#: ../raphodo/preferencedialog.py:584
 msgid "Skip"
 msgstr "Atla"
 
-#: ../raphodo/preferencedialog.py:484
+#: ../raphodo/preferencedialog.py:586
 msgid "Don't overwrite the backup file, and issue an error message"
 msgstr "Yedekleme dosyasının üzerine yazma ve bir hata mesajı ver"
 
-#: ../raphodo/preferencedialog.py:491
+#: ../raphodo/preferencedialog.py:593
 msgid ""
 "When a photo or video of the same name has already been downloaded, choose "
 "whether to skip downloading the file, or to add a unique identifier:"
@@ -3185,7 +3227,7 @@ msgstr ""
 "Aynı adda bir fotoğraf veya video zaten indirilmişse, dosyayı indirmeyi "
 "atlamayı veya benzersiz bir tanımlayıcı eklemeyi seçin:"
 
-#: ../raphodo/preferencedialog.py:500
+#: ../raphodo/preferencedialog.py:605
 msgid ""
 "Using sequence numbers to automatically generate unique filenames is "
 "strongly recommended. Configure file renaming in the Rename panel in the "
@@ -3195,7 +3237,7 @@ msgstr ""
 "kullanılması şiddetle tavsiye edilir. Ana pencerede Yeniden Adlandır "
 "panelinde dosya yeniden adlandırmayı ayarlayın."
 
-#: ../raphodo/preferencedialog.py:509
+#: ../raphodo/preferencedialog.py:616
 msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up:"
@@ -3203,37 +3245,37 @@ msgstr ""
 "Yedeklerken, yedekleme cihazında aynı adı taşıyan bir dosyanın üzerine "
 "yazmayı veya yedeklemeyi atlamayı seçin:"
 
-#: ../raphodo/preferencedialog.py:530
+#: ../raphodo/preferencedialog.py:637
 msgid "Program Warnings"
 msgstr "Program Uyarıları"
 
-#: ../raphodo/preferencedialog.py:531
+#: ../raphodo/preferencedialog.py:638
 msgid "Show a warning when:"
 msgstr "Şu durumda bir uyarı göster:"
 
-#: ../raphodo/preferencedialog.py:534
+#: ../raphodo/preferencedialog.py:642
 msgid "Downloading files currently not displayed"
 msgstr "Şu anda görüntülenmeyen dosyalar indiriliyor"
 
-#: ../raphodo/preferencedialog.py:535
+#: ../raphodo/preferencedialog.py:645
 msgid ""
 "Warn when about to download files that are not displayed in the main window."
 msgstr "Ana pencerede gösterilmeyen dosyaları indirmek üzereyken uyar."
 
-#: ../raphodo/preferencedialog.py:537
+#: ../raphodo/preferencedialog.py:649
 msgid "Backup destinations are missing"
 msgstr "Yedekleme hedefleri eksik"
 
-#: ../raphodo/preferencedialog.py:538
+#: ../raphodo/preferencedialog.py:651
 msgid ""
 "Warn before starting a download if it is not possible to back up files."
 msgstr "Dosyaları yedeklemek mümkün değilse, indirmeye başlamadan önce uyar."
 
-#: ../raphodo/preferencedialog.py:540
+#: ../raphodo/preferencedialog.py:655
 msgid "Program libraries are missing or broken"
 msgstr "Program kütüphaneleri eksik veya bozuk"
 
-#: ../raphodo/preferencedialog.py:541
+#: ../raphodo/preferencedialog.py:658
 msgid ""
 "Warn if a software library used by Rapid Photo Downloader is missing or not "
 "functioning."
@@ -3241,11 +3283,11 @@ msgstr ""
 "Rapid Photo Downloader tarafından kullanılan bir yazılım kütüphanesi eksikse "
 "veya çalışmıyorsa uyar."
 
-#: ../raphodo/preferencedialog.py:544
+#: ../raphodo/preferencedialog.py:662
 msgid "Filesystem metadata cannot be set"
 msgstr "Dosya sistemi meta verileri ayarlanamıyor"
 
-#: ../raphodo/preferencedialog.py:545
+#: ../raphodo/preferencedialog.py:664
 msgid ""
 "Warn if there is an error setting a file's filesystem metadata, such as its "
 "modification time."
@@ -3253,11 +3295,11 @@ msgstr ""
 "Bir dosyanın dosya sistemi meta verilerini ayarlarken, değiştirme zamanı "
 "gibi  bir hata olursa uyar."
 
-#: ../raphodo/preferencedialog.py:548
+#: ../raphodo/preferencedialog.py:668
 msgid "Encountering unhandled files"
 msgstr "İşlenmeyen dosyalarla karşılaşma"
 
-#: ../raphodo/preferencedialog.py:549
+#: ../raphodo/preferencedialog.py:670
 msgid ""
 "Warn after scanning a device or this computer if there are unrecognized "
 "files that will not be included in the download."
@@ -3265,11 +3307,11 @@ msgstr ""
 "Bir cihazı veya bu bilgisayarı taradıktan sonra, indirmeye dahil edilmeyecek "
 "tanınmayan dosyalar varsa uyar."
 
-#: ../raphodo/preferencedialog.py:553
+#: ../raphodo/preferencedialog.py:675
 msgid "Do not warn about unhandled files with extensions:"
 msgstr "Şu uzantıya sahip işlenmeyen dosyalar hakkında uyarı yapma:"
 
-#: ../raphodo/preferencedialog.py:558
+#: ../raphodo/preferencedialog.py:680
 msgid ""
 "File extensions are case insensitive and do not need to include the leading "
 "dot."
@@ -3277,18 +3319,18 @@ msgstr ""
 "Dosya uzantıları büyük / küçük harf duyarsızdır ve baştaki noktayı içermesi "
 "gerekmez."
 
-#: ../raphodo/preferencedialog.py:561
+#: ../raphodo/preferencedialog.py:684
 msgid "Add"
 msgstr "Ekle"
 
-#: ../raphodo/preferencedialog.py:562
+#: ../raphodo/preferencedialog.py:686
 msgid ""
 "Add a file extension to the list of unhandled file types to not warn about."
 msgstr ""
 "Hakkında uyarı olmayan işlenmemiş dosya türleri listesine bir dosya uzantısı "
 "ekleyin."
 
-#: ../raphodo/preferencedialog.py:564
+#: ../raphodo/preferencedialog.py:691
 msgid ""
 "Remove a file extension from the list of unhandled file types to not warn "
 "about."
@@ -3296,22 +3338,22 @@ msgstr ""
 "Hakkında uyarı olmayan işlenmemiş dosya türleri listesinden bir dosya "
 "uzantısını kaldırın."
 
-#: ../raphodo/preferencedialog.py:568
+#: ../raphodo/preferencedialog.py:698
 msgid ""
 "Clear the list of file extensions of unhandled file types to not warn about."
 msgstr ""
 "Hakkında uyarı olmayan işlenmemiş dosya türlerinin dosya uzantı listesini "
 "temizleyin."
 
-#: ../raphodo/preferencedialog.py:604
+#: ../raphodo/preferencedialog.py:736
 msgid "Photo and Video Consolidation"
 msgstr "Fotoğraf ve Video Bir Araya Getirme"
 
-#: ../raphodo/preferencedialog.py:607
+#: ../raphodo/preferencedialog.py:739
 msgid "Consolidate files across devices and downloads"
 msgstr "Dosyaları cihazlar ve indirmeler arasında bir araya getirin"
 
-#: ../raphodo/preferencedialog.py:610
+#: ../raphodo/preferencedialog.py:742
 msgid ""
 "Analyze the results of device scans looking for duplicate files and matching "
 "RAW and JPEG pairs,\n"
@@ -3322,19 +3364,19 @@ msgstr ""
 "eşleşen RAW ve JPEG çiftlerini arayarak cihaz taramalarının sonuçlarını "
 "analiz edin."
 
-#: ../raphodo/preferencedialog.py:616
+#: ../raphodo/preferencedialog.py:748
 msgid "Treat matching RAW and JPEG files as:"
 msgstr "Eşleşen RAW ve JPEG dosyalarını şu şekilde ele al:"
 
-#: ../raphodo/preferencedialog.py:617
+#: ../raphodo/preferencedialog.py:749
 msgid "One photo"
 msgstr "Bir fotoğraf"
 
-#: ../raphodo/preferencedialog.py:618
+#: ../raphodo/preferencedialog.py:750
 msgid "Two photos"
 msgstr "İki fotoğraf"
 
-#: ../raphodo/preferencedialog.py:620
+#: ../raphodo/preferencedialog.py:752
 msgid ""
 "Display matching pairs of RAW and JPEG photos as one photo, and if marked, "
 "download both."
@@ -3342,7 +3384,7 @@ msgstr ""
 "Eşleşen RAW ve JPEG fotoğraf çiftlerini bir fotoğraf olarak görüntüle ve "
 "işaretliyse ikisini de indir."
 
-#: ../raphodo/preferencedialog.py:625
+#: ../raphodo/preferencedialog.py:757
 msgid ""
 "Display matching pairs of RAW and JPEG photos as two different photos. You "
 "can still synchronize their sequence numbers."
@@ -3350,23 +3392,23 @@ msgstr ""
 "Eşleşen RAW ve JPEG fotoğraf çiftlerini iki farklı fotoğraf olarak "
 "görüntüle. Sıra numaralarını hala senkronize edebilirsiniz."
 
-#: ../raphodo/preferencedialog.py:634
+#: ../raphodo/preferencedialog.py:766
 msgid "With matching RAW and JPEG photos:"
 msgstr "Eşleşen RAW ve JPEG fotoğraflarla:"
 
-#: ../raphodo/preferencedialog.py:636
+#: ../raphodo/preferencedialog.py:768
 msgid "Do not mark JPEG for download"
 msgstr "JPEG dosyalarını indirmek için işaretleme"
 
-#: ../raphodo/preferencedialog.py:637
+#: ../raphodo/preferencedialog.py:769
 msgid "Do not mark RAW for download"
 msgstr "RAW dosyalarını indirmek için işaretleme"
 
-#: ../raphodo/preferencedialog.py:638
+#: ../raphodo/preferencedialog.py:770
 msgid "Mark both for download"
 msgstr "İkisini de indirmek için işaretle"
 
-#: ../raphodo/preferencedialog.py:645
+#: ../raphodo/preferencedialog.py:777
 msgid ""
 "When matching RAW and JPEG photos are found, do not automatically mark the "
 "JPEG for\n"
@@ -3376,7 +3418,7 @@ msgstr ""
 "olarak \n"
 "işaretleme. Kendiniz indirmek için hala işaretleyebilirsiniz."
 
-#: ../raphodo/preferencedialog.py:650
+#: ../raphodo/preferencedialog.py:783
 msgid ""
 "When matching RAW and JPEG photos are found, do not automatically mark the "
 "RAW for\n"
@@ -3386,7 +3428,7 @@ msgstr ""
 "olarak \n"
 "işaretleme. Kendiniz indirmek için hala işaretleyebilirsiniz."
 
-#: ../raphodo/preferencedialog.py:655
+#: ../raphodo/preferencedialog.py:789
 msgid ""
 "When matching RAW and JPEG photos are found, automatically mark both for "
 "download."
@@ -3394,7 +3436,7 @@ msgstr ""
 "Eşleşen RAW ve JPEG fotoğraflar bulunduğunda, indirmek için ikisini de "
 "otomatik olarak işaretle."
 
-#: ../raphodo/preferencedialog.py:661
+#: ../raphodo/preferencedialog.py:795
 msgid ""
 "If you disable file consolidation, choose what to do when a download device "
 "is inserted while completed downloads are displayed:"
@@ -3402,24 +3444,24 @@ msgstr ""
 "Dosya birleştirmeyi devre dışı bırakırsanız, tamamlanan indirme işlemleri "
 "görüntülenirken bir indirme cihazı takılı olduğunda ne yapılacağını seçin:"
 
-#: ../raphodo/preferencedialog.py:667
+#: ../raphodo/preferencedialog.py:801
 msgid ""
 "When a download device is inserted while completed downloads are displayed:"
 msgstr "Tamamlanan indirmeler gösterilirken bir indirme cihazı takıldığında:"
 
-#: ../raphodo/preferencedialog.py:678
+#: ../raphodo/preferencedialog.py:817
 msgid "Clear completed downloads"
 msgstr "Tamamlanan indirmeleri temizle"
 
-#: ../raphodo/preferencedialog.py:679
+#: ../raphodo/preferencedialog.py:819
 msgid "Keep displaying completed downloads"
 msgstr "Tamamlanan indirmeleri görüntülemeye devam et"
 
-#: ../raphodo/preferencedialog.py:680
+#: ../raphodo/preferencedialog.py:821
 msgid "Prompt for what to do"
 msgstr "Ne yapılacağını sor"
 
-#: ../raphodo/preferencedialog.py:685
+#: ../raphodo/preferencedialog.py:826
 msgid ""
 "Automatically clear the display of completed downloads whenever a new "
 "download device is inserted."
@@ -3427,7 +3469,7 @@ msgstr ""
 "Yeni bir indirme cihazı takıldığında, tamamlanmış indirme ekranını otomatik "
 "olarak temizle."
 
-#: ../raphodo/preferencedialog.py:690
+#: ../raphodo/preferencedialog.py:831
 msgid ""
 "Keep displaying completed downloads whenever a new download device is "
 "inserted."
@@ -3435,7 +3477,7 @@ msgstr ""
 "Yeni bir indirme cihazı takıldığında tamamlanmış indirme işlemlerini "
 "görüntülemeye devam et."
 
-#: ../raphodo/preferencedialog.py:694
+#: ../raphodo/preferencedialog.py:836
 msgid ""
 "Prompt whether to keep displaying completed downloads or clear them whenever "
 "a new download device is inserted."
@@ -3443,23 +3485,23 @@ msgstr ""
 "Tamamlanan indirmeleri görüntülemeye devam edip etmeyeceğini veya yeni bir "
 "indirme cihazı takıldığında bunları temizleyip temizlemeyeceğini sor."
 
-#: ../raphodo/preferencedialog.py:739
+#: ../raphodo/preferencedialog.py:883
 msgid "Version Check"
 msgstr "Sürüm Denetleme"
 
-#: ../raphodo/preferencedialog.py:740
+#: ../raphodo/preferencedialog.py:884
 msgid "Check for new version at startup"
 msgstr "Başlangıçta güncellemeleri denetle"
 
-#: ../raphodo/preferencedialog.py:742
+#: ../raphodo/preferencedialog.py:887
 msgid "Check for a new version of the program each time the program starts."
 msgstr "Program her başlatıldığında programın yeni sürümünü denetle."
 
-#: ../raphodo/preferencedialog.py:744
+#: ../raphodo/preferencedialog.py:891
 msgid "Include development releases"
 msgstr "Geliştirme sürümlerini dahil et"
 
-#: ../raphodo/preferencedialog.py:746
+#: ../raphodo/preferencedialog.py:893
 msgid ""
 "Include alpha, beta and other development releases when checking for a new "
 "version of the program.\n"
@@ -3473,11 +3515,11 @@ msgstr ""
 "Halen bir geliştirme sürümü çalıştırıyorsanız denetleme daima "
 "gerçekleşecektir."
 
-#: ../raphodo/preferencedialog.py:762
+#: ../raphodo/preferencedialog.py:911
 msgid "Ignore DNG date/time metadata on MTP devices"
 msgstr "MTP cihazlarında DNG tarih/saat meta verilerini yoksay"
 
-#: ../raphodo/preferencedialog.py:764
+#: ../raphodo/preferencedialog.py:914
 msgid ""
 "Ignore date/time metadata in DNG files located on MTP devices, and use the "
 "file's modification time instead.\n"
@@ -3491,11 +3533,11 @@ msgstr ""
 "Yanlış DNG meta verileri oluşturan bazı telefonlar ve tabletler gibi "
 "cihazlar için kullanışlıdır."
 
-#: ../raphodo/preferencedialog.py:770
+#: ../raphodo/preferencedialog.py:921
 msgid "Read photo metadata using only ExifTool"
 msgstr "Fotoğraf meta verilerini yalnızca ExifTool'u kullanarak oku"
 
-#: ../raphodo/preferencedialog.py:772
+#: ../raphodo/preferencedialog.py:923
 msgid ""
 "Use ExifTool instead of Exiv2 to read photo metadata and extract "
 "thumbnails.\n"
@@ -3522,29 +3564,26 @@ msgstr ""
 "üretilen DNG dosyaları gibi az sayıda dosyadan meta veriler çıkarırken "
 "çöküyor."
 
-#: ../raphodo/preferencedialog.py:792
+#: ../raphodo/preferencedialog.py:949
 msgid "Completed Downloads"
 msgstr "Tamamlanan İndirmeler"
 
 #. Translators: this is an option when the user chooses the language to use for
 #. Rapid Photo Downloader and it allows them to reset it back to whatever their
 #. system language settings are. The < and > are not HTML codes. They are there
-#. simply to set this choice apart from all the other choices in the drop down list.
-#. You can keep the < > if you like, or replace them with whatever you typically use
-#. in your language.
-#: ../raphodo/preferencedialog.py:889
+#. simply to set this choice apart from all the other choices in the drop down
+#. list. You can keep the < > if you like, or replace them with whatever you
+#. typically use in your language.
+#: ../raphodo/preferencedialog.py:1054
 msgid "<System Language>"
 msgstr "<Sistem Dili>"
 
-#. Translators: substituted value is a description for the set of preferences
-#. shown in the preference dialog window, e.g. Devices, Automation, etc.
-#. This string is shown in a tooltip for the "Restore Defaults" button
-#: ../raphodo/preferencedialog.py:1142
+#: ../raphodo/preferencedialog.py:1327
 #, python-format
 msgid "Restores default %s preference values"
 msgstr "Varsayılan %s tercih değerlerini geri yükler"
 
-#: ../raphodo/preferencedialog.py:1292
+#: ../raphodo/preferencedialog.py:1477
 msgid ""
 "Do you want to purge the thumbnail cache? The cache will be purged when the "
 "program is next started."
@@ -3552,11 +3591,11 @@ msgstr ""
 "Küçük resim önbelleğini temizlemek istiyor musunuz? Programın sonraki "
 "başlatılmasında önbellek temizlenir."
 
-#: ../raphodo/preferencedialog.py:1296
+#: ../raphodo/preferencedialog.py:1482
 msgid "Purge Thumbnail Cache"
 msgstr "Küçük Resim Önbelleğini Temizle"
 
-#: ../raphodo/preferencedialog.py:1309
+#: ../raphodo/preferencedialog.py:1497
 msgid ""
 "Do you want to optimize the thumbnail cache? The cache will be optimized "
 "when the program is next started."
@@ -3564,51 +3603,51 @@ msgstr ""
 "Küçük resim önbelleğini en uygun hale getirmek ister misiniz? Programın "
 "sonraki başlatılmasında önbellek en uygun hale getirilir."
 
-#: ../raphodo/preferencedialog.py:1313
+#: ../raphodo/preferencedialog.py:1502
 msgid "Optimize Thumbnail Cache"
 msgstr "Küçük resim önbelleğini en uygun hale getir"
 
-#: ../raphodo/preferencedialog.py:1577
+#: ../raphodo/preferencedialog.py:1801
 msgid "Enter a Folder to Scan"
 msgstr "Taranacak Bir Klasör Girin"
 
-#: ../raphodo/preferencedialog.py:1578
+#: ../raphodo/preferencedialog.py:1803
 msgid "Specify a folder that will be scanned for photos and videos"
 msgstr "Fotoğraflar ve videolar için taranacak bir klasör belirtin"
 
-#: ../raphodo/preferencedialog.py:1579
+#: ../raphodo/preferencedialog.py:1805
 msgid "Folder:"
 msgstr "Dizin:"
 
-#: ../raphodo/preferencedialog.py:1593
+#: ../raphodo/preferencedialog.py:1819
 msgid "Enter a Path to Ignore"
 msgstr "Yok sayılacak Bir Yol Girin"
 
-#: ../raphodo/preferencedialog.py:1594
+#: ../raphodo/preferencedialog.py:1821
 msgid "Specify a path that will never be scanned for photos or videos"
 msgstr "Fotoğraflar veya videolar için asla taranmayacak bir yol belirtin"
 
-#: ../raphodo/preferencedialog.py:1595
+#: ../raphodo/preferencedialog.py:1823
 msgid "Path:"
 msgstr "Yol:"
 
-#: ../raphodo/preferencedialog.py:1609
+#: ../raphodo/preferencedialog.py:1837
 msgid "Enter a File Extension"
 msgstr "Bir Dosya Uzantısı Girin"
 
-#: ../raphodo/preferencedialog.py:1610
+#: ../raphodo/preferencedialog.py:1838
 msgid "Specify a file extension (without the leading dot)"
 msgstr "Bir dosya uzantısı belirtin (başlangıçtaki nokta olmadan)"
 
-#: ../raphodo/preferencedialog.py:1611 ../raphodo/renamepanel.py:124
+#: ../raphodo/preferencedialog.py:1839 ../raphodo/renamepanel.py:124
 msgid "Extension:"
 msgstr "Uzantı:"
 
-#: ../raphodo/preferencedialog.py:1626
+#: ../raphodo/preferencedialog.py:1854
 msgid "Invalid File Extension"
 msgstr "Geçersiz Dosya Uzantısı"
 
-#: ../raphodo/preferencedialog.py:1630
+#: ../raphodo/preferencedialog.py:1859
 #, python-format
 msgid ""
 "The file extension <b>%s</b> is recognized by Rapid Photo Downloader, so it "
@@ -3617,7 +3656,7 @@ msgstr ""
 "<b>%s</b> dosya uzantısı Rapid Photo Downloader tarafından tanınıyor, bu "
 "nedenle varlığı konusunda uyarmak anlamlı değil."
 
-#: ../raphodo/preferencedialog.py:1637
+#: ../raphodo/preferencedialog.py:1868
 #, python-format
 msgid ""
 "Recognized file types:\n"
@@ -3648,25 +3687,25 @@ msgstr ""
 "Diğer:\n"
 "%(other)s"
 
-#: ../raphodo/preferences.py:291
+#: ../raphodo/preferences.py:308
 msgid "Wedding"
 msgstr "Düğün"
 
-#: ../raphodo/preferences.py:291
+#: ../raphodo/preferences.py:308
 msgid "Birthday"
 msgstr "Doğum Günü"
 
-#: ../raphodo/preferences.py:644
+#: ../raphodo/preferences.py:725
 #, python-format
 msgid "Subfolder preferences should not start with a %s"
 msgstr "Alt klasör tercihleri %s ile başlamamalı"
 
-#: ../raphodo/preferences.py:648
+#: ../raphodo/preferences.py:729
 #, python-format
 msgid "Subfolder preferences should not end with a %s"
 msgstr "Alt klasör tercihleri %s ile bitmemeli"
 
-#: ../raphodo/preferences.py:655
+#: ../raphodo/preferences.py:736
 #, python-format
 msgid "Subfolder preferences should not contain two %s one after the other"
 msgstr "Alt klasör tercihleri art arda iki %s içermemelidir"
@@ -4080,7 +4119,7 @@ msgstr "%(month)s  %(year)s"
 msgid "%(month)s %(year)s"
 msgstr "%(month)s %(year)s"
 
-#: ../raphodo/proximity.py:1722
+#: ../raphodo/proximity.py:1718
 msgid ""
 "The time elapsed between consecutive photos and videos that is used to build "
 "the Timeline"
@@ -4092,26 +4131,26 @@ msgstr ""
 #. Replace the very last character (after the d) with the correct
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
-#: ../raphodo/proximity.py:1779
+#: ../raphodo/proximity.py:1775
 #, python-format
 msgid "%(minutes)dm"
 msgstr "%(minutes)dd"
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
-#: ../raphodo/proximity.py:1783
+#: ../raphodo/proximity.py:1779
 msgid "1.5h"
 msgstr "1.5saat"
 
 #. Translators: e.g. "5h", which is short for 5 hours.
 #. Replace the very last character (after the d) with the correct localized value,
 #. keeping everything else. In other words, change only the h character.
-#: ../raphodo/proximity.py:1788
+#: ../raphodo/proximity.py:1784
 #, python-format
 msgid "%(hours)dh"
 msgstr "%(hours)dsaat"
 
-#: ../raphodo/proximity.py:1839
+#: ../raphodo/proximity.py:1835
 msgid ""
 "The Timeline groups photos and videos based on how much time elapsed between "
 "consecutive shots. Use it to identify photos and videos taken at different "
@@ -4122,7 +4161,7 @@ msgstr ""
 "farklı dönemlerde çekilmiş fotoğrafları ve videoları tanımlamak için "
 "kullanın."
 
-#: ../raphodo/proximity.py:1844
+#: ../raphodo/proximity.py:1840
 msgid ""
 "Use the slider (below) to adjust the time elapsed between consecutive shots "
 "that is used to build the Timeline."
@@ -4130,15 +4169,15 @@ msgstr ""
 "Zaman Çizelgesi oluşturmada kullanılan ardışık çekimler arasında geçen "
 "süreyi ayarlamak için kaydırıcıyı (altta) kullanın."
 
-#: ../raphodo/proximity.py:1847
+#: ../raphodo/proximity.py:1843
 msgid "Timeline build pending..."
 msgstr "Zaman Çizelgesi oluşturulmayı bekliyor..."
 
-#: ../raphodo/proximity.py:1848
+#: ../raphodo/proximity.py:1844
 msgid "Timeline is building..."
 msgstr "Zaman Çizelgesi inşa ediyor ..."
 
-#: ../raphodo/proximity.py:1850
+#: ../raphodo/proximity.py:1846
 msgid ""
 "The Timeline needs to be rebuilt because the file modification time does not "
 "match the time a shot was taken for one or more shots.<br><br>The Timeline "
@@ -4159,22 +4198,23 @@ msgstr ""
 "oluşturulurken veya indirilirken meta veriler okunduğunda çekimin yapıldığı "
 "zaman onaylanır."
 
-#: ../raphodo/proximity.py:1931
+#: ../raphodo/proximity.py:1927
 msgid "Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)"
 msgstr ""
 "Zaman Çizelgesini eşzamanlı yapma ve küçük resim kaydırma arasında geçiş yap "
 "(Ctrl-T)"
 
-#: ../raphodo/rapid.py:543 ../raphodo/rapid.py:878 ../raphodo/rapid.py:4152
-#: ../raphodo/rapid.py:4346 ../raphodo/rapid.py:4366 ../raphodo/rapid.py:4972
-#: ../raphodo/rapid.py:5430 ../raphodo/rapid.py:6388
-#: ../raphodo/rememberthisdialog.py:97 ../raphodo/viewutils.py:317
+#: ../raphodo/rapid.py:451 ../raphodo/rapid.py:835 ../raphodo/rapid.py:4491
+#: ../raphodo/rapid.py:4710 ../raphodo/rapid.py:4729 ../raphodo/rapid.py:4752
+#: ../raphodo/rapid.py:4759 ../raphodo/rapid.py:5430 ../raphodo/rapid.py:6038
+#: ../raphodo/rapid.py:7186 ../raphodo/rememberthisdialog.py:97
+#: ../raphodo/viewutils.py:366
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:1
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:3
 msgid "Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
 
-#: ../raphodo/rapid.py:1194
+#: ../raphodo/rapid.py:1114
 msgid ""
 "<b>ExifTool has a problem</b><br><br> Rapid Photo Downloader uses ExifTool "
 "to get metadata from videos and photos. The program will run without it, but "
@@ -4184,36 +4224,44 @@ msgstr ""
 "ve fotoğraflardan meta veri almak için ExifTool'u kullanıyor. Program onsuz "
 "çalışır, ancak kurulumu <b>şiddetle</b> önerilir."
 
-#: ../raphodo/rapid.py:1204
+#: ../raphodo/rapid.py:1125
 msgid "Problem with ExifTool"
 msgstr "ExifTool sorunu"
 
-#: ../raphodo/rapid.py:1213
+#: ../raphodo/rapid.py:1134
 msgid ""
 "<b>The library libmediainfo appears to be missing</b><br><br> Rapid Photo "
 "Downloader uses libmediainfo to get the date and time a video was shot. The "
-"program will run  without it, but installing it is recommended."
+"program will run without it, but installing it is recommended."
 msgstr ""
-"<b>libmediainfo kütüphanesi eksik görünüyor</b><br><br>Rapid Photo "
-"Downloader bir videonun çekildiği tarih ve saati almak için libmediainfo "
-"kullanıyor. Program onsuz çalışacaktır, ancak kurulması önerilir."
 
-#: ../raphodo/rapid.py:1224
+#: ../raphodo/rapid.py:1146
 msgid "Problem with libmediainfo"
 msgstr "libmediainfo sorunu"
 
-#: ../raphodo/rapid.py:1589
+#: ../raphodo/rapid.py:1295
+#, python-format
+msgid ""
+"<b>Cannot download from Apple devices</b><br><br>To download from "
+"%(device)s, this program requires additional software be installed that "
+"interacts with Apple devices.<br><br>Missing applications: "
+"%(applications)s<br><br><a "
+"href=\"https://damonlynch.net/rapid/documentation/#iosdevicesupport\">Learn "
+"more</a> about which software to install."
+msgstr ""
+
+#: ../raphodo/rapid.py:1683
 msgid "Download failed"
 msgstr "İndirme başarısız"
 
-#: ../raphodo/rapid.py:1591
+#: ../raphodo/rapid.py:1686
 msgid ""
 "Sorry, the download of the new version of Rapid Photo Downloader failed."
 msgstr ""
 "Maalesef, Rapid Photo Downloader'ın yeni sürümünün indirilmesi başarısız "
 "oldu."
 
-#: ../raphodo/rapid.py:1598
+#: ../raphodo/rapid.py:1695
 msgid ""
 "The new version was successfully downloaded. Do you want to close Rapid "
 "Photo Downloader and install it now?"
@@ -4221,19 +4269,19 @@ msgstr ""
 "Yeni sürüm başarıyla indirildi. Rapid Photo Downloader'ı kapatıp şimdi "
 "kurmak istiyor musunuz?"
 
-#: ../raphodo/rapid.py:1602
+#: ../raphodo/rapid.py:1699
 msgid "Update Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader'ı Güncelle"
 
-#: ../raphodo/rapid.py:1606
+#: ../raphodo/rapid.py:1703
 msgid "Install"
 msgstr "Kur"
 
-#: ../raphodo/rapid.py:1624
+#: ../raphodo/rapid.py:1721
 msgid "New version saved"
 msgstr "Yeni sürüm kaydedildi"
 
-#: ../raphodo/rapid.py:1626
+#: ../raphodo/rapid.py:1723
 #, python-format
 msgid ""
 "The tar file and installer script are saved at:\n"
@@ -4244,11 +4292,11 @@ msgstr ""
 "\n"
 "%s"
 
-#: ../raphodo/rapid.py:1643
+#: ../raphodo/rapid.py:1741
 msgid "Upgrade failed"
 msgstr "Yükseltme başarısız"
 
-#: ../raphodo/rapid.py:1646
+#: ../raphodo/rapid.py:1744
 msgid ""
 "Sorry, upgrading Rapid Photo Downloader failed because there was an error "
 "opening the installer."
@@ -4256,76 +4304,79 @@ msgstr ""
 "Maalesef Rapid Photo Downloader'ı yükseltme başarısız oldu, çünkü kurucuyu "
 "açarken bir hata oluştu."
 
-#: ../raphodo/rapid.py:1852 ../raphodo/rapid.py:2572
+#: ../raphodo/rapid.py:1962 ../raphodo/rapid.py:2769
 msgid "Download"
 msgstr "İndir"
 
-#: ../raphodo/rapid.py:1856
+#: ../raphodo/rapid.py:1966
 msgid "&Refresh..."
 msgstr "%Yenile..."
 
-#: ../raphodo/rapid.py:1860
+#: ../raphodo/rapid.py:1970
 msgid "&Preferences"
 msgstr "&Tercihler"
 
-#: ../raphodo/rapid.py:1864
+#: ../raphodo/rapid.py:1977 ../raphodo/rapid.py:1980
 msgid "&Quit"
 msgstr "&Çık"
 
-#: ../raphodo/rapid.py:1868
+#: ../raphodo/rapid.py:1985
+msgid "Windows &Drives"
+msgstr ""
+
+#: ../raphodo/rapid.py:1992
 msgid "Error &Reports"
 msgstr "Hata &Raporlar"
 
-#: ../raphodo/rapid.py:1872
+#: ../raphodo/rapid.py:2000
 msgid "Clear Completed Downloads"
 msgstr "Tamamlanan İndirmeleri Temizle"
 
-#: ../raphodo/rapid.py:1876
+#: ../raphodo/rapid.py:2004
 msgid "Get Help Online..."
 msgstr "Çevrimiçi Yardım Alın..."
 
-#: ../raphodo/rapid.py:1880
+#: ../raphodo/rapid.py:2008
 msgid "&Tip of the Day..."
 msgstr "%Günün İpucu..."
 
-#: ../raphodo/rapid.py:1884
+#: ../raphodo/rapid.py:2012
 msgid "Report a Problem..."
 msgstr "Sorun Bildirin..."
 
-#: ../raphodo/rapid.py:1888
+#: ../raphodo/rapid.py:2016
 msgid "Make a Donation..."
 msgstr "Bağış Yapın..."
 
-#: ../raphodo/rapid.py:1892
+#: ../raphodo/rapid.py:2020
 msgid "Translate this Application..."
 msgstr "Bu Uygulamayı Tercüme Edin..."
 
-#: ../raphodo/rapid.py:1896
+#: ../raphodo/rapid.py:2025
 msgid "&About..."
 msgstr "&Hakkında..."
 
-#: ../raphodo/rapid.py:1900
+#: ../raphodo/rapid.py:2028
 msgid "Check for Updates..."
 msgstr "Güncellemeleri denetle..."
 
-#: ../raphodo/rapid.py:1984
+#: ../raphodo/rapid.py:2115
 msgid "Timeline"
 msgstr "Zaman Çizelgesi"
 
-#: ../raphodo/rapid.py:1994
+#: ../raphodo/rapid.py:2126
 msgid "Destination"
 msgstr "Hedef"
 
-#: ../raphodo/rapid.py:1995
+#: ../raphodo/rapid.py:2128
 msgid "Rename"
 msgstr "Yeniden Adlandır"
 
-#: ../raphodo/rapid.py:1997
+#: ../raphodo/rapid.py:2130
 msgid "Back Up"
 msgstr "Yedekle"
 
-#. Devices Header and View
-#: ../raphodo/rapid.py:2121
+#: ../raphodo/rapid.py:2285
 msgid ""
 "Turn on or off the use of devices attached to this computer as download "
 "sources"
@@ -4333,88 +4384,87 @@ msgstr ""
 "Bu bilgisayara bağlı cihazların indirme kaynağı olarak kullanımını açın veya "
 "kapatın"
 
-#. This Computer Header and View
-#: ../raphodo/rapid.py:2138
+#: ../raphodo/rapid.py:2305
 msgid ""
 "Turn on or off the use of a folder on this computer as a download source"
 msgstr ""
 "İndirme kaynağı olarak bu bilgisayardaki bir klasörün kullanımını açın veya "
 "kapatın"
 
-#: ../raphodo/rapid.py:2140
+#: ../raphodo/rapid.py:2308
 msgid "This Computer"
 msgstr "Bu Bilgisayar"
 
-#: ../raphodo/rapid.py:2153
+#: ../raphodo/rapid.py:2323
 msgid "Select a source folder"
 msgstr "Bir kaynak klasör seç"
 
-#: ../raphodo/rapid.py:2182
+#: ../raphodo/rapid.py:2353
 msgid "Projected Storage Use"
 msgstr "Öngörülen Depolama Kullanımı"
 
-#: ../raphodo/rapid.py:2200 ../raphodo/rapid.py:2212
+#: ../raphodo/rapid.py:2373 ../raphodo/rapid.py:2385
 msgid "Select a destination folder"
 msgstr "Hedef klasörü seçin"
 
-#: ../raphodo/rapid.py:2261
+#: ../raphodo/rapid.py:2434
 msgid "All"
 msgstr "Tümü"
 
-#: ../raphodo/rapid.py:2262
+#: ../raphodo/rapid.py:2435
 msgid "New"
 msgstr "Yeni"
 
-#: ../raphodo/rapid.py:2264
+#: ../raphodo/rapid.py:2437
 msgid "Show:"
 msgstr "Göster:"
 
-#: ../raphodo/rapid.py:2267
+#: ../raphodo/rapid.py:2440
 msgid "Modification Time"
 msgstr "Değiştirilme Zamanı"
 
-#: ../raphodo/rapid.py:2268
+#: ../raphodo/rapid.py:2441
 msgid "Checked State"
 msgstr "Denetlenmiş Durum"
 
-#: ../raphodo/rapid.py:2271
+#: ../raphodo/rapid.py:2444
 msgid "File Type"
 msgstr "Dosya Türü"
 
-#: ../raphodo/rapid.py:2272
+#: ../raphodo/rapid.py:2445
 msgid "Device"
 msgstr "Cihaz"
 
-#: ../raphodo/rapid.py:2274
+#: ../raphodo/rapid.py:2447
 msgid "Sort:"
 msgstr "Sırala:"
 
-#: ../raphodo/rapid.py:2285
+#: ../raphodo/rapid.py:2463
 msgid "Select All:"
 msgstr "Tümünü Seç:"
 
-#. Translators: %(variable)s represents Python code, not a plural of the term
-#. variable. You must keep the %(variable)s untranslated, or the program will
-#. crash.
-#: ../raphodo/rapid.py:2552
+#. Translators: %(variable)s represents Python code, not a plural of the
+#. term variable. You must keep the %(variable)s untranslated, or the
+#. program will crash.
+#: ../raphodo/rapid.py:2749
 #, python-format
 msgid "Download %(files)s"
 msgstr "%(files)s dosyasını indir"
 
-#: ../raphodo/rapid.py:2568
+#: ../raphodo/rapid.py:2765
 msgid "Resume Download"
 msgstr "İndirmeye Devam Et"
 
-#: ../raphodo/rapid.py:2570
+#: ../raphodo/rapid.py:2767
 msgid "Pause"
 msgstr "Duraklat"
 
-#: ../raphodo/rapid.py:2680
+#: ../raphodo/rapid.py:2886
 msgid "Thank you for reporting a problem in Rapid Photo Downloader"
 msgstr ""
 "Rapid Photo Downloader’daki bir sorunu bildirdiğiniz için teşekkür ederiz"
 
-#: ../raphodo/rapid.py:2773
+#: ../raphodo/rapid.py:2989
 #, python-format
 msgid ""
 "<b>Changing This Computer source path</b><br><br>Do you really want to "
@@ -4427,11 +4477,11 @@ msgstr ""
 "%(source_path)s kaynağından indiriyorsunuz.<br><br>Yolu değiştirirseniz, Bu "
 "Bilgisayardan yapılan geçerli indirme iptal edilir."
 
-#: ../raphodo/rapid.py:2843
+#: ../raphodo/rapid.py:3083
 msgid "You cannot change the download destination while downloading."
 msgstr "İndirme hedefini indirme sürerken değiştiremezsiniz."
 
-#: ../raphodo/rapid.py:2855
+#: ../raphodo/rapid.py:3097
 #, python-format
 msgid ""
 "<b>Confirm Download Destination</b><br><br>Are you sure you want to set the "
@@ -4440,7 +4490,7 @@ msgstr ""
 "<b>İndirme Hedefini Onayla</b><br><br>%(file_type)s indirme hedefini "
 "%(path)s olarak ayarlamak istediğinize emin misiniz?"
 
-#: ../raphodo/rapid.py:2937
+#: ../raphodo/rapid.py:3185
 msgid ""
 "\n"
 "<b>Downloading all files</b><br><br>\n"
@@ -4459,7 +4509,7 @@ msgstr ""
 "İndirmeye devam etmek istiyor musunuz?\n"
 "                        "
 
-#: ../raphodo/rapid.py:3092
+#: ../raphodo/rapid.py:3349
 #, python-format
 msgid ""
 "These download folders are invalid:\n"
@@ -4470,7 +4520,7 @@ msgstr ""
 "%(folder1)s\n"
 "%(folder2)s"
 
-#: ../raphodo/rapid.py:3095
+#: ../raphodo/rapid.py:3352
 #, python-format
 msgid ""
 "This download folder is invalid:\n"
@@ -4479,15 +4529,15 @@ msgstr ""
 "Bu indirme klasörü geçersiz:\n"
 "%s"
 
-#: ../raphodo/rapid.py:3098
+#: ../raphodo/rapid.py:3355
 msgid "Download Failure"
 msgstr "İndirme Başarısız"
 
-#: ../raphodo/rapid.py:3099
+#: ../raphodo/rapid.py:3356
 msgid "The download cannot proceed."
 msgstr "İndirme devam edemiyor."
 
-#: ../raphodo/rapid.py:3117
+#: ../raphodo/rapid.py:3374
 msgid ""
 "Photos and videos will not be backed up because there is nowhere to back "
 "them up. Do you still want to start the download?"
@@ -4495,7 +4545,7 @@ msgstr ""
 "Fotoğraflar ve videolar yedeklenmeyecek çünkü onları yedekleyecek hiçbir yer "
 "yok. Hala indirmeye başlamak istiyor musunuz?"
 
-#: ../raphodo/rapid.py:3127 ../raphodo/rapid.py:3140
+#: ../raphodo/rapid.py:3385 ../raphodo/rapid.py:3399
 #, python-format
 msgid ""
 "No backup device exists for backing up %(filetype)s. Do you still want to "
@@ -4504,15 +4554,15 @@ msgstr ""
 "%(filetype)s yedeğini almak için hiçbir yedekleme aygıtı yok. Hala indirmeye "
 "başlamak istiyor musunuz?"
 
-#: ../raphodo/rapid.py:3129 ../raphodo/rpdfile.py:164
+#: ../raphodo/rapid.py:3387 ../raphodo/rpdfile.py:164
 msgid "photos"
 msgstr "fotoğraflar"
 
-#: ../raphodo/rapid.py:3142 ../raphodo/rpdfile.py:159
+#: ../raphodo/rapid.py:3401 ../raphodo/rpdfile.py:159
 msgid "videos"
 msgstr "videolar"
 
-#: ../raphodo/rapid.py:3152
+#: ../raphodo/rapid.py:3411
 msgid ""
 "<b>The photo and video backup destinations do not exist or cannot be written "
 "to.</b><br><br>Do you still want to start the download?"
@@ -4520,7 +4570,7 @@ msgstr ""
 "<b>Fotoğraf ve video yedekleme hedefleri mevcut değil veya hedeflere "
 "yazılamıyor.</b><br><br>Hala indirmeye başlamak istiyor musunuz?"
 
-#: ../raphodo/rapid.py:3167 ../raphodo/rapid.py:3182
+#: ../raphodo/rapid.py:3427 ../raphodo/rapid.py:3443
 #, python-format
 msgid ""
 "<b>The %(filetype)s backup destination does not exist or cannot be written "
@@ -4529,43 +4579,55 @@ msgstr ""
 "<b>%(filetype)s için yedekleme hedefi yok ya da hedefe "
 "yazılamıyor.</b><br><br>Hala indirmeye başlamak istiyor musunuz?"
 
-#: ../raphodo/rapid.py:3169 ../raphodo/rpdfile.py:166 ../raphodo/rpdfile.py:818
+#: ../raphodo/rapid.py:3430 ../raphodo/rpdfile.py:166 ../raphodo/rpdfile.py:815
 msgid "photo"
 msgstr "fotoğraf"
 
-#: ../raphodo/rapid.py:3184 ../raphodo/rpdfile.py:161 ../raphodo/rpdfile.py:870
+#: ../raphodo/rapid.py:3446 ../raphodo/rpdfile.py:161 ../raphodo/rpdfile.py:867
 msgid "video"
 msgstr "video"
 
-#: ../raphodo/rapid.py:3192
+#: ../raphodo/rapid.py:3454
 msgid "Backup problem"
 msgstr "Yedekleme sorunu"
 
-#: ../raphodo/rapid.py:3941
+#: ../raphodo/rapid.py:4281
 #, python-format
 msgid "%(downloading_from)s — %(time_left)s left (%(speed)s)"
 msgstr "%(downloading_from)s — %(time_left)s kaldı (%(speed)s)"
 
-#: ../raphodo/rapid.py:4016
+#. Translators: e.g. 23 photos downloaded
+#. Translators: %(variable)s represents Python code, not a plural of the term
+#. variable. You must keep the %(variable)s untranslated, or the program will
+#. crash.
+#: ../raphodo/rapid.py:4361
 #, python-format
 msgid "%(noFiles)s %(filetypes)s downloaded"
 msgstr "%(noFiles)s %(filetypes)s indirildi"
 
-#: ../raphodo/rapid.py:4027
+#. Translators: e.g. 2 videos failed to download
+#. Translators: %(variable)s represents Python code, not a plural of the term
+#. variable. You must keep the %(variable)s untranslated, or the program will
+#. crash.
+#: ../raphodo/rapid.py:4371
 #, python-format
 msgid "%(noFiles)s %(filetypes)s failed to download"
 msgstr "%(noFiles)s %(filetypes)s indirme başarısız oldu"
 
-#: ../raphodo/rapid.py:4033 ../raphodo/rapid.py:4145
+#: ../raphodo/rapid.py:4377 ../raphodo/rapid.py:4484
 msgid "warnings"
 msgstr "uyarılar"
 
-#: ../raphodo/rapid.py:4064
+#: ../raphodo/rapid.py:4412
 msgid "All downloads complete"
 msgstr "Bütün indirmeler tamamlandı"
 
-#: ../raphodo/rapid.py:4075 ../raphodo/rapid.py:4092 ../raphodo/rapid.py:4109
-#: ../raphodo/rapid.py:4126 ../raphodo/rapid.py:4142
+#. Translators: e.g. 23 photos downloaded
+#. Translators: %(variable)s represents Python code, not a plural of the term
+#. variable. You must keep the %(variable)s untranslated, or the program will
+#. crash.
+#: ../raphodo/rapid.py:4422 ../raphodo/rapid.py:4437 ../raphodo/rapid.py:4453
+#: ../raphodo/rapid.py:4468 ../raphodo/rapid.py:4483
 #, python-format
 msgid "%(number)s %(numberdownloaded)s"
 msgstr "%(number)s %(numberdownloaded)s"
@@ -4573,7 +4635,7 @@ msgstr "%(number)s %(numberdownloaded)s"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/rapid.py:4081 ../raphodo/rapid.py:4115
+#: ../raphodo/rapid.py:4427 ../raphodo/rapid.py:4458
 #, python-format
 msgid "%(filetype)s downloaded"
 msgstr "%(filetype)s indirildi"
@@ -4581,35 +4643,35 @@ msgstr "%(filetype)s indirildi"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/rapid.py:4098 ../raphodo/rapid.py:4132
+#: ../raphodo/rapid.py:4442 ../raphodo/rapid.py:4473
 #, python-format
 msgid "%(filetype)s failed to download"
 msgstr "%(filetype)s indirme başarısız oldu"
 
-#: ../raphodo/rapid.py:4168
+#: ../raphodo/rapid.py:4509
 msgid "1 failure"
 msgstr "1 başarısızlık"
 
-#: ../raphodo/rapid.py:4170
+#: ../raphodo/rapid.py:4511
 #, python-format
 msgid "%d failures"
 msgstr "%d başarısızlık"
 
-#: ../raphodo/rapid.py:4175
+#: ../raphodo/rapid.py:4516
 msgid "1 warning"
 msgstr "1 uyarı"
 
-#: ../raphodo/rapid.py:4177
+#: ../raphodo/rapid.py:4518
 #, python-format
 msgid "%d warnings"
 msgstr "%d uyarı"
 
-#: ../raphodo/rapid.py:4202
+#: ../raphodo/rapid.py:4543
 #, python-format
 msgid "Downloaded %(no_files_and_types)s from %(devices)s"
 msgstr "%(devices)s konumundan %(no_files_and_types)s indirildi"
 
-#: ../raphodo/rapid.py:4209
+#: ../raphodo/rapid.py:4550
 #, python-format
 msgid "Downloaded %(no_files_and_types)s from %(devices)s — %(failures)s"
 msgstr ""
@@ -4618,20 +4680,20 @@ msgstr ""
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/rapid.py:4216
+#: ../raphodo/rapid.py:4559
 #, python-format
 msgid "No files downloaded — %(failures)s"
 msgstr "Hiç dosya indirilmedi — %(failures)s"
 
-#: ../raphodo/rapid.py:4218
+#: ../raphodo/rapid.py:4561
 msgid "No files downloaded"
 msgstr "Hiç dosya indirilmedi"
 
-#: ../raphodo/rapid.py:4252
+#: ../raphodo/rapid.py:4601
 msgid "Program preferences are invalid"
 msgstr "Program tercihleri geçersiz"
 
-#: ../raphodo/rapid.py:4352
+#: ../raphodo/rapid.py:4716
 #, python-format
 msgid ""
 "<b>All files on the %(camera)s are inaccessible</b>.<br><br>It may be locked "
@@ -4655,7 +4717,7 @@ msgstr ""
 "lefonlardan indirmeyi sağlama</a>. <br><br>Başka bir seçenek olarak, "
 "%(camera)s öğesini yok sayabilirsiniz."
 
-#: ../raphodo/rapid.py:4372
+#: ../raphodo/rapid.py:4735
 #, python-format
 msgid ""
 "<b>The %(camera)s appears to be in use by another "
@@ -4684,24 +4746,28 @@ msgstr ""
 "lefonlardan indirmeyi sağlama</a>. <br><br>Başka bir seçenek olarak, "
 "%(camera)s öğesini yok sayabilirsiniz."
 
-#: ../raphodo/rapid.py:4391
+#: ../raphodo/rapid.py:4755
+msgid "Enable access to the iOS Device"
+msgstr ""
+
+#: ../raphodo/rapid.py:4766
 msgid "&Try Again"
 msgstr "&Tekrar Dene"
 
-#: ../raphodo/rapid.py:4392
+#: ../raphodo/rapid.py:4767
 msgid "&Ignore This Device"
 msgstr "& Bu Cihazı Yok Say"
 
-#: ../raphodo/rapid.py:4464
+#: ../raphodo/rapid.py:4859
 #, python-format
 msgid "Sorry, an unexpected problem occurred while scanning %s."
 msgstr "Maalesef, %s taranırken beklenmeyen bir sorun oluştu."
 
-#: ../raphodo/rapid.py:4465
+#: ../raphodo/rapid.py:4862
 msgid "Unfortunately you cannot download from this device."
 msgstr "Ne yazık ki bu cihazdan indiremezsiniz."
 
-#: ../raphodo/rapid.py:4469
+#: ../raphodo/rapid.py:4866
 msgid ""
 "A possible workaround for the problem might be downloading from the camera's "
 "memory card using a card reader."
@@ -4709,11 +4775,11 @@ msgstr ""
 "Sorun için olası bir geçici çözüm, kameranın hafıza kartından kart okuyucu "
 "kullanarak indirme olabilir."
 
-#: ../raphodo/rapid.py:4474
+#: ../raphodo/rapid.py:4871
 msgid "Device scan failed"
 msgstr "Cihaz taraması başarısız oldu"
 
-#: ../raphodo/rapid.py:4947
+#: ../raphodo/rapid.py:5402
 #, python-format
 msgid ""
 "<b>The %(camera)s cannot be scanned because it cannot be "
@@ -4726,7 +4792,7 @@ msgstr ""
 "kapatabilir ve yeniden deneyebilirsiniz. Bu işe yaramazsa, %(camera)s "
 "cihazını bilgisayardan ayırın ve tekrar takın."
 
-#: ../raphodo/rapid.py:4979
+#: ../raphodo/rapid.py:5437
 #, python-format
 msgid ""
 "<b>The download cannot start because the %(camera)s cannot be "
@@ -4741,69 +4807,69 @@ msgstr ""
 "yaramazsa, %(camera)s cihazını bilgisayardan ayırın ve tekrar takın, ve "
 "hangi dosyaları ondan indirmek istediğinizi seçin."
 
-#: ../raphodo/rapid.py:5076
+#: ../raphodo/rapid.py:5598
 msgid "Completed Downloads Present"
 msgstr "Tamamlanan İndirmeler Mevcut"
 
-#: ../raphodo/rapid.py:5078
+#: ../raphodo/rapid.py:5600
 #, python-format
 msgid "%s whose download have completed are displayed."
 msgstr "%s için indirme işlemi tamamlandı ve görüntülendi."
 
-#: ../raphodo/rapid.py:5080
+#: ../raphodo/rapid.py:5602
 msgid "Do you want to clear the completed downloads?"
 msgstr "Tamamlanan indirmeleri temizlemek istiyor musunuz?"
 
-#: ../raphodo/rapid.py:5082
+#: ../raphodo/rapid.py:5604
 msgid "Completed Download Present"
 msgstr "Tamamlanmış İndirme Mevcut"
 
-#: ../raphodo/rapid.py:5084
+#: ../raphodo/rapid.py:5605
 #, python-format
 msgid "%s whose download has completed is displayed."
 msgstr "%s için indirme tamamlandı ve gösterildi."
 
-#: ../raphodo/rapid.py:5086
+#: ../raphodo/rapid.py:5606
 msgid "Do you want to clear the completed download?"
 msgstr "Tamamlanan indirmeyi temizlemek istiyor musunuz?"
 
-#: ../raphodo/rapid.py:5167
+#: ../raphodo/rapid.py:5690
 #, python-format
 msgid ""
 "Do you want to download photos and videos from the device <i>%(device)s</i>?"
 msgstr ""
 "<i>%(device)s</i> cihazından fotoğraf ve video indirmek istiyor musunuz?"
 
-#: ../raphodo/rapid.py:5418
+#: ../raphodo/rapid.py:6021
 #, python-format
 msgid "<b>Do you want to ignore the %s whenever this program is run?</b>"
 msgstr ""
 "<b>Bu program her çalıştırıldığında %s yok sayılsın ister misiniz?</b>"
 
-#: ../raphodo/rapid.py:5421
+#: ../raphodo/rapid.py:6025
 msgid ""
 "All cameras, phones and tablets with the same model name will be ignored."
 msgstr ""
 "Aynı model adına sahip tüm kameralar, telefonlar ve tabletler dikkate "
 "alınmayacaktır."
 
-#: ../raphodo/rapid.py:5425
+#: ../raphodo/rapid.py:6031
 #, python-format
 msgid ""
 "<b>Do you want to ignore the device %s whenever this program is run?</b>"
 msgstr ""
 "<b>Bu program her çalıştırıldığında %s cihazı yok sayılsın ister misiniz?</b>"
 
-#: ../raphodo/rapid.py:5427
+#: ../raphodo/rapid.py:6035
 msgid "Any device with the same name will be ignored."
 msgstr "Aynı ada sahip herhangi bir cihaz göz ardı edilecek."
 
-#: ../raphodo/rapid.py:5732
+#: ../raphodo/rapid.py:6389
 #, python-format
 msgid "Downloading from %(location)s on This Computer."
 msgstr "Bu Bilgisayardaki %(location)s konumundan indiriliyor."
 
-#: ../raphodo/rapid.py:5735
+#: ../raphodo/rapid.py:6393
 msgid ""
 "Do you really want to download from here?<br><br>On some systems, scanning "
 "this location can take a very long time."
@@ -4811,17 +4877,17 @@ msgstr ""
 "Buradan gerçekten indirmek istiyor musunuz?<br><br>Bazı sistemlerde bu "
 "konumu taramak çok uzun sürebilir."
 
-#: ../raphodo/rapid.py:5782
+#: ../raphodo/rapid.py:6449
 #, python-format
 msgid "Generating thumbnails for %s"
 msgstr "%s için küçük resimler oluşturuluyor"
 
-#: ../raphodo/rapid.py:5785
+#: ../raphodo/rapid.py:6456
 #, python-format
 msgid "Scanning %s"
 msgstr "%s Taranıyor"
 
-#: ../raphodo/rapid.py:5799
+#: ../raphodo/rapid.py:6470
 #, python-format
 msgid ""
 "%(number)s of %(available files)s checked for download (%(hidden)s hidden)"
@@ -4829,77 +4895,77 @@ msgstr ""
 "%(available files)s dosyadan %(number)s adedi  indirme için işaretlendi "
 "(%(hidden)s gizli dosya)"
 
-#: ../raphodo/rapid.py:5810
+#: ../raphodo/rapid.py:6482
 #, python-format
 msgid "%(number)s of %(available files)s checked for download"
 msgstr ""
 "%(available files)s dosyadan %(number)s adedi  indirme için işaretlendi"
 
-#: ../raphodo/rapid.py:6101
+#: ../raphodo/rapid.py:6779
 msgid "Show version numbers of program and its libraries and exit."
 msgstr "Programın ve kütüphanelerinin sürüm numaralarını göster ve çık."
 
-#: ../raphodo/rapid.py:6105
+#: ../raphodo/rapid.py:6786
 msgid "Display program information when run from the command line."
 msgstr "Komut satırından çalıştırıldığında program bilgilerini görüntüle."
 
-#: ../raphodo/rapid.py:6109
+#: ../raphodo/rapid.py:6792
 msgid "Display debugging information when run from the command line."
 msgstr ""
 "Komut satırından çalıştırıldığında hata ayıklama bilgilerini görüntüle."
 
-#: ../raphodo/rapid.py:6113
+#: ../raphodo/rapid.py:6799
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr ""
 "Programın tanıdığı fotoğraf ve video dosya uzantılarını listele ve çık."
 
-#: ../raphodo/rapid.py:6117
+#: ../raphodo/rapid.py:6805
 msgid "Turn on or off the the renaming of photos."
 msgstr "Fotoğrafların yeniden adlandırılmasını aç veya kapat."
 
-#: ../raphodo/rapid.py:6121
+#: ../raphodo/rapid.py:6811
 msgid "Turn on or off the the renaming of videos."
 msgstr "Videoların yeniden adlandırılmasını açın veya kapatın."
 
-#: ../raphodo/rapid.py:6125
+#: ../raphodo/rapid.py:6819
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
 msgstr "İndirme yapılacak cihazların otomatik algılanmasını aç veya kapat."
 
-#: ../raphodo/rapid.py:6129
+#: ../raphodo/rapid.py:6827
 msgid "Turn on or off downloading from this computer."
 msgstr "Bu bilgisayardan indirmeyi aç veya kapat."
 
-#: ../raphodo/rapid.py:6132 ../raphodo/rapid.py:6136 ../raphodo/rapid.py:6140
-#: ../raphodo/rapid.py:6170 ../raphodo/rapid.py:6177
+#: ../raphodo/rapid.py:6832 ../raphodo/rapid.py:6839 ../raphodo/rapid.py:6846
+#: ../raphodo/rapid.py:6890 ../raphodo/rapid.py:6900
 msgid "PATH"
 msgstr "YOL"
 
-#: ../raphodo/rapid.py:6133
+#: ../raphodo/rapid.py:6834
 msgid "The PATH on this computer from which to download."
 msgstr "Bu bilgisayarda indirilecek YOL."
 
-#: ../raphodo/rapid.py:6137
+#: ../raphodo/rapid.py:6841
 msgid "The PATH where photos will be downloaded to."
 msgstr "Fotoğrafların indirileceği YOL."
 
-#: ../raphodo/rapid.py:6141
+#: ../raphodo/rapid.py:6848
 msgid "The PATH where videos will be downloaded to."
 msgstr "Videoların indirileceği YOL."
 
-#: ../raphodo/rapid.py:6145
+#: ../raphodo/rapid.py:6855
 msgid "Turn on or off the backing up of photos and videos while downloading."
 msgstr "İndirirken fotoğrafların ve videoların yedeklenmesini aç veya kapat."
 
-#: ../raphodo/rapid.py:6149
+#: ../raphodo/rapid.py:6861
 msgid "Turn on or off the automatic detection of backup devices."
 msgstr "Yedekleme cihazlarının otomatik algılanmasını aç veya kapat."
 
-#: ../raphodo/rapid.py:6152 ../raphodo/rapid.py:6161
+#: ../raphodo/rapid.py:6866 ../raphodo/rapid.py:6878
 msgid "FOLDER"
 msgstr "KLASÖR"
 
-#: ../raphodo/rapid.py:6154
+#: ../raphodo/rapid.py:6869
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
@@ -4911,7 +4977,7 @@ msgstr ""
 "tanımlamak için klasör adının kullanıldığı KLASÖR. Fotoğraflarını yedeklemek "
 "için kullanmak istediğiniz her cihaz için bu adda bir klasör oluşturun."
 
-#: ../raphodo/rapid.py:6163
+#: ../raphodo/rapid.py:6881
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
@@ -4923,7 +4989,7 @@ msgstr ""
 "klasör adının kullanıldığı KLASÖR. Videolarını yedeklemek için kullanmak "
 "istediğiniz her cihaz için bu adda bir klasör oluşturun."
 
-#: ../raphodo/rapid.py:6172
+#: ../raphodo/rapid.py:6893
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
@@ -4931,7 +4997,7 @@ msgstr ""
 "Yedekleme cihazlarının otomatik algılanması kapatıldığında fotoğrafların "
 "yedekleneceği YOL."
 
-#: ../raphodo/rapid.py:6179
+#: ../raphodo/rapid.py:6903
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
@@ -4939,22 +5005,22 @@ msgstr ""
 "Yedekleme cihazlarının otomatik algılanması kapatıldığında videoların "
 "yedekleneceği YOL."
 
-#: ../raphodo/rapid.py:6185
+#: ../raphodo/rapid.py:6911
 #, python-format
 msgid "Ignore photos with the following extensions: %s"
 msgstr "Şu uzantılara sahip fotoğrafları yoksay: %s"
 
-#: ../raphodo/rapid.py:6191
+#: ../raphodo/rapid.py:6921
 msgid ""
 "Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 "Programın kendisi başlar başlamaz indirmeleri başlatmayı aç veya kapat."
 
-#: ../raphodo/rapid.py:6196
+#: ../raphodo/rapid.py:6928
 msgid "Turn on or off starting downloads as soon as a device is inserted."
 msgstr "Bir cihaz takılır takılmaz indirmeleri başlatmayı aç veya kapat."
 
-#: ../raphodo/rapid.py:6202
+#: ../raphodo/rapid.py:6935
 msgid ""
 "Turn on or off use of the Rapid Photo Downloader Thumbnail Cache. Turning it "
 "off does not delete existing cache contents."
@@ -4962,7 +5028,7 @@ msgstr ""
 "Rapid Photo Downloader Küçük Resim Önbelleğinin kullanımını aç veya kapat. "
 "Kapatılması varolan önbellek içeriğini silmez."
 
-#: ../raphodo/rapid.py:6208
+#: ../raphodo/rapid.py:6944
 msgid ""
 "Delete all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and "
 "exit."
@@ -4970,11 +5036,11 @@ msgstr ""
 "Rapid Photo Downloader Küçük Resim Önbelleğindeki tüm küçük resimleri sil ve "
 "çık."
 
-#: ../raphodo/rapid.py:6212
+#: ../raphodo/rapid.py:6952
 msgid "Forget which files have been previously downloaded, and exit."
 msgstr "Hangi dosyaların daha önce indirildiğini unut ve çık."
 
-#: ../raphodo/rapid.py:6217
+#: ../raphodo/rapid.py:6959
 msgid ""
 "Import preferences from an old program version and exit. Requires the "
 "command line program gconftool-2."
@@ -4982,7 +5048,7 @@ msgstr ""
 "Tercihleri eski bir program sürümünden içe aktar ve çık. gconftool-2 komut "
 "satırı programını gerektirir."
 
-#: ../raphodo/rapid.py:6224
+#: ../raphodo/rapid.py:6968
 msgid ""
 "Reset all program settings to their default values, delete all thumbnails in "
 "the Thumbnail cache, forget which files have been previously downloaded, and "
@@ -4992,15 +5058,19 @@ msgstr ""
 "önbelleğindeki tüm küçük resimleri sil, hangi dosyaların daha önce "
 "indirildiğini unut ve çık."
 
-#: ../raphodo/rapid.py:6230
+#: ../raphodo/rapid.py:6976
 msgid "Include gphoto2 debugging information in log files."
 msgstr "gphoto2 hata ayıklama bilgilerini günlük dosyalarına ekle."
 
-#: ../raphodo/rapid.py:6235
+#: ../raphodo/rapid.py:6982
 msgid "Print information to the terminal about attached cameras and exit."
 msgstr "Bağlı kameralar hakkında terminale bilgi yazdır ve çık."
 
-#: ../raphodo/rapid.py:6296
+#: ../raphodo/rapid.py:6992
+msgid "Run this program in wayland or regular X11"
+msgstr ""
+
+#: ../raphodo/rapid.py:7085
 msgid ""
 "To import preferences from the old version of Rapid Photo Downloader, you "
 "must install the program gconftool-2."
@@ -5008,35 +5078,38 @@ msgstr ""
 "Tercihleri Rapid Photo Downloader'ın eski sürümünden içe aktarmak için "
 "gconftool-2 programını yüklemeniz gerekir."
 
-#: ../raphodo/rapid.py:6305
+#: ../raphodo/rapid.py:7096
 msgid "No prior program preferences detected: exiting."
 msgstr "Önceye ait program tercihleri tespit edilmedi: çıkılıyor."
 
-#: ../raphodo/rapid.py:6313
+#. Translators: %(variable)s represents Python code, not a plural of the
+#. term variable. You must keep the %(variable)s untranslated, or the
+#. program will crash.
+#: ../raphodo/rapid.py:7103
 #, python-format
 msgid "Importing preferences from Rapid Photo Downloader %(version)s"
 msgstr ""
 "Tercihler Rapid Photo Downloader %(version)s sürümünden içe aktarılıyor"
 
-#: ../raphodo/rapid.py:6380
+#: ../raphodo/rapid.py:7174
 #, python-format
 msgid ""
 "Do you want to copy the stored sequence number, which has the value %d?"
 msgstr "%d değerine sahip kayıtlı sıra numarasını kopyalamak ister misiniz?"
 
-#: ../raphodo/rapid.py:6391
+#: ../raphodo/rapid.py:7189
 msgid "Program aborting."
 msgstr "Program iptal ediliyor."
 
-#: ../raphodo/rapid.py:6444
+#: ../raphodo/rapid.py:7276
 msgid "Never run this program as the sudo / root user."
 msgstr "Bu programı asla sudo / root kullanıcısı olarak çalıştırmayın."
 
-#: ../raphodo/rapid.py:6448
+#: ../raphodo/rapid.py:7281
 msgid "You must install ExifTool to run Rapid Photo Downloader."
 msgstr "Rapid Photo Downloader'ı çalıştırmak için ExifTool'u kurmalısınız."
 
-#: ../raphodo/rapid.py:6460
+#: ../raphodo/rapid.py:7296
 msgid ""
 "Rapid Photo Downloader is installed in multiple locations.\n"
 "\n"
@@ -5046,7 +5119,7 @@ msgstr ""
 "\n"
 "Çalıştırmak istediğiniz sürüm dışındaki tüm kopyaları kaldırın."
 
-#: ../raphodo/rapid.py:6524
+#: ../raphodo/rapid.py:7366
 msgid ""
 "When specifying a path on the command line, do not also specify an\n"
 "option for device auto detection or a path on \"This Computer\"."
@@ -5054,15 +5127,15 @@ msgstr ""
 "Komut satırında bir yol belirlerken, cihazın otomatik algılanması için\n"
 "bir seçenek veya \"Bu Bilgisayar\" üzerinde bir yol belirtmeyin."
 
-#: ../raphodo/rapid.py:6707
+#: ../raphodo/rapid.py:7572
 msgid "All settings and caches have been reset."
 msgstr "Tüm ayarlar ve önbellekler sıfırlandı."
 
-#: ../raphodo/rapid.py:6715
+#: ../raphodo/rapid.py:7580
 msgid "Thumbnail Cache has been reset."
 msgstr "Küçük Resim Önbelleği sıfırlandı."
 
-#: ../raphodo/rapid.py:6721
+#: ../raphodo/rapid.py:7586
 msgid "Remembered files have been forgotten."
 msgstr "Hatırlanan dosyalar unutuldu."
 
@@ -5082,15 +5155,15 @@ msgstr "&Beni bu konuda tekrar uyarma"
 msgid "&Don't warn me again about missing or broken program libraries"
 msgstr "&Eksik veya bozuk program kütüphaneleri hakkında beni tekrar uyarma"
 
-#: ../raphodo/renameandmovefile.py:570
+#: ../raphodo/renameandmovefile.py:572
 msgid "subfolder and filename"
 msgstr "alt klasör ve dosya adı"
 
-#: ../raphodo/renameandmovefile.py:572
+#: ../raphodo/renameandmovefile.py:574
 msgid "filename"
 msgstr "dosya adı"
 
-#: ../raphodo/renameandmovefile.py:574
+#: ../raphodo/renameandmovefile.py:576
 msgid "subfolder"
 msgstr "alt klasör"
 
@@ -5204,34 +5277,50 @@ msgstr "1 Fotoğraf"
 
 #. Translators: %(variable)s represents Python code, not a plural of the term variable.
 #. You must keep the %(variable)s untranslated, or the program will crash.
-#: ../raphodo/rpdfile.py:801
+#: ../raphodo/rpdfile.py:798
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr "%(path)s on %(camera)s"
 
-#: ../raphodo/rpdfile.py:819
+#: ../raphodo/rpdfile.py:816
 msgid "Photo"
 msgstr "Fotoğraf"
 
-#: ../raphodo/rpdfile.py:871
+#: ../raphodo/rpdfile.py:868
 msgid "Video"
 msgstr "Video"
 
-#: ../raphodo/storage.py:170
+#: ../raphodo/storage.py:188
 msgid "File system root"
 msgstr "Dosya sistemi kökü"
 
 #. translators: the name of the Pictures folder
-#: ../raphodo/storage.py:499
+#: ../raphodo/storage.py:524
 msgid "Pictures"
 msgstr "Resimler"
 
-#: ../raphodo/thumbnaildisplay.py:477
+#: ../raphodo/sudocommand.py:86
+msgid "Sorry, the password was incorrect."
+msgstr ""
+
+#. Translators: here %s refers to the username (you must keep %s or the
+#. program will crash). This is what it looks like:
+#. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
+#: ../raphodo/sudocommand.py:93
+#, python-format
+msgid "To perform administrative tasks, enter the password for %s."
+msgstr ""
+
+#: ../raphodo/sudocommand.py:125
+msgid "Password:"
+msgstr ""
+
+#: ../raphodo/thumbnaildisplay.py:577
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
 msgstr "Alındı:  %(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:487
+#: ../raphodo/thumbnaildisplay.py:587
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr "Değiştirildi: %(date_time)s (%(human_readable)s)"
@@ -5239,87 +5328,81 @@ msgstr "Değiştirildi: %(date_time)s (%(human_readable)s)"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/thumbnaildisplay.py:498 ../raphodo/thumbnaildisplay.py:548
+#: ../raphodo/thumbnaildisplay.py:599 ../raphodo/thumbnaildisplay.py:661
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr "%(date_time)s (%(human_readable)s)"
 
-#: ../raphodo/thumbnaildisplay.py:515
+#: ../raphodo/thumbnaildisplay.py:617
 #, python-format
 msgid "Memory cards: %s"
 msgstr "Bellek kartları: %s"
 
-#: ../raphodo/thumbnaildisplay.py:519
+#: ../raphodo/thumbnaildisplay.py:622
 #, python-format
 msgid "Memory card: %s"
 msgstr "Bellek kartı: %s"
 
-#: ../raphodo/thumbnaildisplay.py:524
+#: ../raphodo/thumbnaildisplay.py:629
 msgid "Downloaded as:"
 msgstr "Şu olarak indirildi:"
 
-#: ../raphodo/thumbnaildisplay.py:562
+#: ../raphodo/thumbnaildisplay.py:675
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr "<br><br>Önceki indirme:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
-#: ../raphodo/thumbnaildisplay.py:571
+#: ../raphodo/thumbnaildisplay.py:684
 #, python-format
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
 msgstr ""
 "<br><br><i>%(date)s tarihinde önceden indirilmiş gibi elle ayarla</i>"
 
-#: ../raphodo/thumbnaildisplay.py:1907
+#: ../raphodo/thumbnaildisplay.py:2157
 msgid "Copy Path"
 msgstr "Yolu Kopyala"
 
-#. Translators: 'File' here applies to a single file. The command allows users to instruct
-#. Rapid Photo Downloader that photos and videos have been previously downloaded by
-#. another application.
-#: ../raphodo/thumbnaildisplay.py:1912
+#: ../raphodo/thumbnaildisplay.py:2163
 msgid "Mark File as Downloaded"
 msgstr "Dosyayı İndirildi Olarak İşaretle"
 
-#. Translators: 'Files' here applies to two or more files
-#: ../raphodo/thumbnaildisplay.py:1915
+#: ../raphodo/thumbnaildisplay.py:2168
 msgid "Mark Files as Downloaded"
 msgstr "Dosyaları İndirildi Olarak İşaretle"
 
-#. Translators: these values are file size suffixes like B representing bytes, KB representing
-#. kilobytes, etc.
-#: ../raphodo/utilities.py:207
+#: ../raphodo/utilities.py:215
 msgid "B"
 msgstr "B"
 
-#: ../raphodo/utilities.py:207
+#: ../raphodo/utilities.py:216
 msgid "KB"
 msgstr "KB"
 
-#: ../raphodo/utilities.py:207
+#: ../raphodo/utilities.py:217
 msgid "MB"
 msgstr "MB"
 
-#: ../raphodo/utilities.py:207
+#: ../raphodo/utilities.py:218
 msgid "GB"
 msgstr "GB"
 
-#: ../raphodo/utilities.py:207
+#: ../raphodo/utilities.py:219
 msgid "TB"
 msgstr "TB"
 
-#: ../raphodo/utilities.py:207
+#: ../raphodo/utilities.py:220
 msgid "PB"
 msgstr "PB"
 
-#: ../raphodo/utilities.py:207
+#: ../raphodo/utilities.py:221
 msgid "EB"
 msgstr "EB"
 
-#: ../raphodo/utilities.py:207
+#: ../raphodo/utilities.py:222
 msgid "ZB"
 msgstr "ZB"
 
-#: ../raphodo/utilities.py:207
+#: ../raphodo/utilities.py:223
 msgid "YB"
 msgstr "YB"
 
@@ -5327,114 +5410,271 @@ msgstr "YB"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/utilities.py:437
+#: ../raphodo/utilities.py:486
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
 msgstr "%(first_item)s ve %(last_item)s"
 
-#: ../raphodo/utilities.py:521
+#: ../raphodo/utilities.py:570
 msgid "one"
 msgstr "bir"
 
-#: ../raphodo/utilities.py:522
+#: ../raphodo/utilities.py:571
 msgid "two"
 msgstr "iki"
 
-#: ../raphodo/utilities.py:523
+#: ../raphodo/utilities.py:572
 msgid "three"
 msgstr "üç"
 
-#: ../raphodo/utilities.py:524
+#: ../raphodo/utilities.py:573
 msgid "four"
 msgstr "dört"
 
-#: ../raphodo/utilities.py:525
+#: ../raphodo/utilities.py:574
 msgid "five"
 msgstr "beş"
 
-#: ../raphodo/utilities.py:526
+#: ../raphodo/utilities.py:575
 msgid "six"
 msgstr "altı"
 
-#: ../raphodo/utilities.py:527
+#: ../raphodo/utilities.py:576
 msgid "seven"
 msgstr "yedi"
 
-#: ../raphodo/utilities.py:528
+#: ../raphodo/utilities.py:577
 msgid "eight"
 msgstr "sekiz"
 
-#: ../raphodo/utilities.py:529
+#: ../raphodo/utilities.py:578
 msgid "nine"
 msgstr "dokuz"
 
-#: ../raphodo/utilities.py:530
+#: ../raphodo/utilities.py:579
 msgid "ten"
 msgstr "on"
 
-#: ../raphodo/utilities.py:531
+#: ../raphodo/utilities.py:580
 msgid "eleven"
 msgstr "on bir"
 
-#: ../raphodo/utilities.py:532
+#: ../raphodo/utilities.py:581
 msgid "twelve"
 msgstr "on iki"
 
-#: ../raphodo/utilities.py:533
+#: ../raphodo/utilities.py:582
 msgid "thirteen"
 msgstr "on üç"
 
-#: ../raphodo/utilities.py:534
+#: ../raphodo/utilities.py:583
 msgid "fourteen"
 msgstr "on dört"
 
-#: ../raphodo/utilities.py:535
+#: ../raphodo/utilities.py:584
 msgid "fifteen"
 msgstr "on beş"
 
-#: ../raphodo/utilities.py:536
+#: ../raphodo/utilities.py:585
 msgid "sixteen"
 msgstr "on altı"
 
-#: ../raphodo/utilities.py:537
+#: ../raphodo/utilities.py:586
 msgid "seventeen"
 msgstr "on yedi"
 
-#: ../raphodo/utilities.py:538
+#: ../raphodo/utilities.py:587
 msgid "eighteen"
 msgstr "on sekiz"
 
-#: ../raphodo/utilities.py:539
+#: ../raphodo/utilities.py:588
 msgid "ninenteen"
 msgstr "on dokuz"
 
-#: ../raphodo/utilities.py:540
+#: ../raphodo/utilities.py:589
 msgid "twenty"
 msgstr "yirmi"
 
-#: ../raphodo/viewutils.py:253 ../raphodo/viewutils.py:273
+#: ../raphodo/viewutils.py:300 ../raphodo/viewutils.py:320
 msgid "&OK"
 msgstr "&Tamam"
 
-#: ../raphodo/viewutils.py:256 ../raphodo/viewutils.py:276
+#: ../raphodo/viewutils.py:303 ../raphodo/viewutils.py:323
 msgid "&Save"
 msgstr "&Kaydet"
 
-#: ../raphodo/viewutils.py:257
+#: ../raphodo/viewutils.py:304
 msgid "&Help"
 msgstr "&Yardım"
 
-#: ../raphodo/viewutils.py:258
+#: ../raphodo/viewutils.py:305
 msgid "Restore Defaults"
 msgstr "Öntanımlıları Geri Yükle"
 
-#: ../raphodo/viewutils.py:259 ../raphodo/viewutils.py:277
+#: ../raphodo/viewutils.py:306 ../raphodo/viewutils.py:324
 msgid "&Yes"
 msgstr "&Evet"
 
-#: ../raphodo/viewutils.py:260 ../raphodo/viewutils.py:278
+#: ../raphodo/viewutils.py:307 ../raphodo/viewutils.py:325
 msgid "&No"
 msgstr "&Hayır"
+
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog-do-mount.png
+#. Please keep the html tags <tt> and </tt>
+#: ../raphodo/wsl.py:106
+#, python-format
+msgid "Create directory <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:110
+#, python-format
+msgid "Mount drive <tt>%(drive)s:</tt> at <tt>%(path)s</tt>"
+msgstr ""
+
+#: ../raphodo/wsl.py:116
+#, python-format
+msgid "Unmount drive <tt>%(drive)s:</tt> from <tt>%(path)s</tt>"
+msgstr ""
+
+#. Translators: This is part of a title for a dialog box, and is in plural
+#. form, where two or more drives will be mounted. This screenshot shows only
+#. one drive, but you get the idea:
+#. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
+#: ../raphodo/wsl.py:310
+#, python-format
+msgid "Mount drives %s"
+msgstr ""
+
+#. Translators: This is part of a title for a dialog box, and is in singular
+#. form, where only one drive will be mounted. This screenshot illustrates:
+#. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
+#: ../raphodo/wsl.py:315
+#, python-format
+msgid "Mount drive %s"
+msgstr ""
+
+#. Translators: This is part of a title for a dialog box, and is in plural
+#. form, where two or more drives will be unmounted. This screenshot shows
+#. only one drive being mounted, but you get the idea:
+#. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
+#: ../raphodo/wsl.py:322
+#, python-format
+msgid "Unmount drives %s"
+msgstr ""
+
+#. Translators: This is part of a title for a dialog box, and is in singular
+#. form, where only one drive will be unmounted. This screenshot shows a
+#. drive being mounted, but you get the idea:
+#. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
+#: ../raphodo/wsl.py:328
+#, python-format
+msgid "Unmount drive %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:391
+#, python-format
+msgid "Sorry, an error occurred when mounting drives %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:397
+#, python-format
+msgid "Sorry, an error occurred when unmounting drives %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:404
+#, python-format
+msgid "Sorry, an error occurred when mounting drive %s"
+msgstr ""
+
+#: ../raphodo/wsl.py:410
+#, python-format
+msgid "Sorry, an error occurred when unmounting drive %s"
+msgstr ""
+
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:559
+msgid "Windows Drives"
+msgstr ""
+
+#: ../raphodo/wsl.py:563
+msgid "Enable automatic mounting of Windows drives"
+msgstr ""
+
+#: ../raphodo/wsl.py:567
+msgid "Automatically mount all Windows drives"
+msgstr ""
+
+#: ../raphodo/wsl.py:571
+msgid "Only automatically mount Windows drives that are configured below"
+msgstr ""
+
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:595
+msgid "User Mounted"
+msgstr ""
+
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:597
+msgid "System Mounted"
+msgstr ""
+
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:599
+msgid "Drive"
+msgstr ""
+
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:601
+msgid "Mount Point"
+msgstr ""
+
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:603
+msgid "Automatic Mount"
+msgstr ""
+
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:605
+msgid "Automatic Unmount at Exit"
+msgstr ""
+
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:639
+msgid "Pending Operations:"
+msgstr ""
+
+#. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+#: ../raphodo/wsl.py:653
+msgid "&Apply Pending Operations"
+msgstr ""
+
+#. Translators: this will appear in a small dialog asking the user
+#. if they want to mount a single drive
+#: ../raphodo/wsl.py:1460
+#, python-format
+msgid "Do you want to mount drive %s?"
+msgstr ""
+
+#. translators: this will appear in a small dialog asking the user
+#. if they want to mount two or more drives
+#: ../raphodo/wsl.py:1464
+#, python-format
+msgid "Do you want to mount drives %s?"
+msgstr ""
+
+#. Translators: this is the name Windows uses for a removable drive,
+#. like a USB drive
+#: ../raphodo/wsl.py:1607
+msgid "Removable Drive"
+msgstr ""
+
+#. Translators: this is the name Windows uses for a drive that is
+#. normally part of the computer, like an internal hard drive
+#. (although for some reason some USB drives are classified by
+#. Windows as local drives)
+#: ../raphodo/wsl.py:1613
+msgid "Local Drive"
+msgstr ""
 
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:2
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:1

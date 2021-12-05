@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -43,7 +43,7 @@ A sample photo or video for (1) can be used for (2)
 
 """
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2020, Damon Lynch"
+__copyright__ = "Copyright 2011-2021, Damon Lynch"
 
 import os
 import sys
@@ -60,12 +60,9 @@ try:
 except locale.Error:
     pass
 
-if sys.version_info < (3,5):
-    import scandir
-    walk = scandir.walk
-else:
-    walk = os.walk
 from typing import List, Dict, Union, Optional, Iterator, Tuple, DefaultDict
+
+from PyQt5.QtCore import QStorageInfo
 
 import gphoto2 as gp
 
@@ -77,8 +74,9 @@ from raphodo.interprocess import (
     WorkerInPublishPullPipeline, ScanResults, ScanArguments
 )
 from raphodo.camera import (
-    Camera, CameraError, CameraProblemEx, gphoto2_python_logging, gphoto2_named_error
+    Camera, gphoto2_python_logging, gphoto2_named_error
 )
+from raphodo.cameraerror import CameraError, CameraProblemEx, iOSDeviceError
 import raphodo.rpdfile as rpdfile
 from raphodo.constants import (
     DeviceType, FileType, DeviceTimestampTZ, CameraErrorCode, FileExtension,
@@ -99,7 +97,13 @@ from raphodo.problemnotification import (
     CameraFileReadProblem, FileMetadataLoadProblem, FileWriteProblem, FsMetadataReadProblem,
     FileZeroLengthProblem
 )
-from raphodo.storage import get_uri, CameraDetails, gvfs_gphoto2_path
+from raphodo.storage import (
+    get_uri, CameraDetails, gvfs_gphoto2_path, StorageSpace
+)
+from raphodo.storageidevice import (
+    idevice_do_mount, idevice_validate_pairing, idevice_in_pairing_list, idevice_pair,
+    idevice_get_name
+)
 import raphodo.fileformats as fileformats
 
 
@@ -208,9 +212,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         self.device = scan_arguments.device
 
-        self.download_from_camera = scan_arguments.device.device_type == DeviceType.camera
+        device_type = scan_arguments.device.device_type
+        self.download_from_camera = device_type == DeviceType.camera
+        self.download_from_camera_fuse = device_type == DeviceType.camera_fuse
+        self.download_from_filesystem = device_type in (DeviceType.volume, DeviceType.path)
         self.camera_storage_descriptions = []
-        if self.download_from_camera:
+
+        if self.download_from_camera or self.download_from_camera_fuse:
             self.camera_model = scan_arguments.device.camera_model
             self.camera_port = scan_arguments.device.camera_port
             self.is_mtp_device = scan_arguments.device.is_mtp_device
@@ -219,17 +227,99 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.ignore_mdatatime_for_mtp_dng = self.is_mtp_device and \
                                                 self.prefs.ignore_mdatatime_for_mtp_dng
         else:
+            assert self.download_from_filesystem
             self.camera_port = self.camera_model = self.is_mtp_device = None
             self.ignore_mdatatime_for_mtp_dng = False
             self.camera_display_name = None
+            self.display_name = scan_arguments.device.display_name
 
         self.files_scanned = 0
         self.camera = None
         terminated = False
 
-        if not self.download_from_camera:
+        if self.download_from_filesystem:
             self.scan_file_system(scan_arguments)
+        elif self.download_from_camera_fuse:
+            # In future, if cameras generally can be downloaded using FUSE, remove this assertion:
+            assert self.device.is_apple_mobile
+
+            udid = self.device.idevice_udid
+            logging.debug("Examining camera-as-fuse-device '%s'", self.display_name)
+            while True:
+                try:
+                    if idevice_in_pairing_list(udid, self.display_name):
+                        idevice_validate_pairing(udid, self.display_name)
+                        break
+                    else:
+                        idevice_pair(udid, self.display_name)
+                        idevice_validate_pairing(udid, self.display_name)
+                        break
+
+                except iOSDeviceError as e:
+                    self.content = pickle.dumps(
+                        ScanResults(
+                            error_code=e.code, error_message=str(e),
+                            scan_id=int(self.worker_id)
+                        ),
+                        pickle.HIGHEST_PROTOCOL
+                    )
+                    self.send_message_to_sink()
+                    # Wait for command to resume or halt processing
+                    self.resume_work()
+
+            if self.device.have_canoncial_ios_name:
+                logging.debug(
+                    "Already have iOS display name for %s. Not querying again.", self.display_name
+                )
+                self.camera_display_name = self.display_name
+            else:
+                name = idevice_get_name(udid)
+                if name:
+                    self.camera_display_name = name
+                    self.display_name = self.camera_display_name
+
+            try:
+                mount_point = idevice_do_mount(udid, self.display_name)
+            except iOSDeviceError as e:
+                self.content = pickle.dumps(
+                    ScanResults(
+                        error_code=e.code, error_message=str(e),
+                        scan_id=int(self.worker_id)
+                    ),
+                    pickle.HIGHEST_PROTOCOL
+                )
+                self.send_message_to_sink()
+                terminated = True
+            else:
+                mount = QStorageInfo(mount_point)
+                scan_arguments.device.path = mount_point
+                storage_space = StorageSpace(
+                    bytes_free=mount.bytesAvailable(), bytes_total=mount.bytesTotal(),
+                    path=mount_point
+                )
+
+                # send mount point, device name, and storage information to main process
+                self.content = pickle.dumps(
+                    ScanResults(
+                        optimal_display_name=self.camera_display_name,
+                        scan_id=int(self.worker_id),
+                        is_apple_mobile=self.device.is_apple_mobile,
+                        mount_point=mount_point,
+                        storage_space=[storage_space, ],
+                    ),
+                    pickle.HIGHEST_PROTOCOL
+                )
+                self.send_message_to_sink()
+
+            if terminated:
+                logging.info("Terminating scan of %s", self.display_name)
+            else:
+                self.scan_file_system(scan_arguments)
+
         else:
+            # When a mobile phone is unlocked, it's as if the phone is ejected and reinserted.
+            # That means this process will be called again as if it were a device inserted a 2nd
+            # time, only this time it will be unlocked.
             try:
                 self.scan_camera(scan_arguments)
                 # Sanity check: ensure file contents are still accessible
@@ -267,7 +357,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     pickle.HIGHEST_PROTOCOL
                 )
                 self.send_message_to_sink()
-        elif self.download_from_camera:
+        elif self.download_from_camera or self.download_from_camera_fuse:
             self.content = pickle.dumps(
                 ScanResults(
                     scan_id=int(self.worker_id), camera_removed=True
@@ -304,7 +394,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         :param path_to_walk: the path to scan
         """
 
-        for dir_name, dir_list, file_list in walk(path_to_walk):
+        for dir_name, dir_list, file_list in os.walk(path_to_walk):
             if len(dir_list) > 0:
                 # Do not scan gvfs gphoto2 mount
                 dir_list[:] = (d for d in dir_list if not gvfs_gphoto2_path(dir_name + d))
@@ -320,17 +410,18 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
     def scan_file_system(self, scan_arguments: ScanArguments):
         """
-        Download from file system - either on This Computer, or an external volume like a
-        # memory card or USB Flash or external drive of some kind
+        Download from file system - either on This Computer, a FUSE device, or an external volume
+        like a memory card or USB Flash or external drive of some kind.
 
         :param scan_arguments: scan configuration
         """
 
+        assert scan_arguments.device.path is not None
         path = os.path.abspath(scan_arguments.device.path)
-        self.display_name = scan_arguments.device.display_name
 
         scanning_specific_path = self.prefs.scan_specific_folders and \
-                                 scan_arguments.device.device_type == DeviceType.volume
+                                 scan_arguments.device.device_type in \
+                                 (DeviceType.volume, DeviceType.camera_fuse)
         if scanning_specific_path:
             specific_folder_prefs = self.prefs.folders_to_scan
             paths = tuple(
@@ -345,6 +436,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         if scan_arguments.device.device_type == DeviceType.volume:
             device_type = 'device'
+        elif scan_arguments.device.device_type == DeviceType.camera_fuse:
+            device_type = 'iOS device'
         else:
             device_type = 'This Computer path'
         logging.info("Scanning {} {}".format(device_type, self.display_name))
@@ -1440,6 +1533,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
             logging.debug(
                 "Could not determine Device timezone setting for %s", self.display_name
             )
+            self.device_timestamp_type = DeviceTimestampTZ.unknown
+            logging.debug("Could not determine timezone setting for %s", self.display_name)
             self.device_timestamp_type = DeviceTimestampTZ.unknown
 
         else:

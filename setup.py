@@ -23,7 +23,7 @@
 # Contains portions Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, Canonical Ltd
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2009-2020, Damon Lynch. Copyright 2004-2012 Canonical Ltd. " \
+__copyright__ = "Copyright 2009-2021, Damon Lynch. Copyright 2004-2012 Canonical Ltd. " \
                 "Copyright 2014 Donald Stufft."
 
 import os
@@ -205,9 +205,11 @@ class build_man_page(Command):
         pass
 
     def run(self):
+        if not os.path.isdir('build'):
+            os.mkdir('build')
         for pod_file in glob('doc/*.1.pod'):
             name = os.path.basename(pod_file)[:-6].upper()
-            build_path =  os.path.join('build', os.path.splitext(pod_file)[0])
+            build_path = os.path.join('build', os.path.splitext(pod_file)[0])
             if not os.path.isdir(os.path.join('build', 'doc')):
                 os.mkdir(os.path.join('build', 'doc'))
             self.spawn(
@@ -238,7 +240,7 @@ class raphodo_sdist(sdist):
         sdist.run(self)
 
 
-with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
@@ -263,7 +265,6 @@ setup(
         'arrow',
         'python-dateutil',
         'colour',
-        'rawkit',
         'easygui',
         'pymediainfo',
         'sortedcontainers',
@@ -274,6 +275,8 @@ setup(
         'PyQt5',
         'babel',
         'setuptools',
+        'show-in-file-manager',
+        'importlib_metadata;python_version<"3.8"'
     ],
     extras_require={
         'color_ouput': ['colorlog',],
@@ -303,7 +306,7 @@ setup(
         )
     ],
     packages=['raphodo'],
-    python_requires='>=3.4.*, <4',
+    python_requires='>=3.6.*, <4',
     entry_points={
         'gui_scripts': ['rapid-photo-downloader=raphodo.rapid:main'],
         'console_scripts': ['analyze-pv-structure=raphodo.analyzephotos:main']
@@ -315,19 +318,18 @@ setup(
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Multimedia :: Graphics',
         'Topic :: Multimedia :: Video'
     ],
-    keywords='photo video download ingest import camera phone backup rename photography '
-             'photographer transfer copy raw cr2 cr3 nef arw dng',
+    keywords='photo video download ingest import camera phone backup rename '
+             'photography photographer transfer copy raw cr2 cr3 nef arw dng',
     project_urls={
-        'Bug Reports': 'https://bugs.launchpad.net/rapid',
-        'Source': 'https://code.launchpad.net/~dlynch3/rapid/zeromq_pyqt',
+        'Bug Reports': 'https://bugs.rapidphotodownloader.com',
+        'Source': 'https://github.com/damonlynch/rapid-photo-downloader',
     },
     cmdclass={
         'build_man_page': build_man_page,

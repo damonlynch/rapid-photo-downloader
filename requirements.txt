@@ -3,18 +3,15 @@
 
 psutil>=3.4.2
 gphoto2>=1.8.0
-pyzmq>=14.4.1,<=15.1.0; python_version < '3.6'
-pyzmq>=16.0.2; python_version >= '3.6'
+pyzmq>=16.0.2
 pyxdg>=0.25
-arrow>=0.9.0, <1.0; python_version < '3.6'
-arrow>=0.9.0; python_version >= '3.6'
+arrow>=0.9.0
 python-dateutil>=2.7
 PyPrind>=2.9.4
 colorlog>=2.6
 easygui>=0.98.1
 colour
-pymediainfo>=2.2.0,<=4.3.0; python_version < '3.6'
-pymediainfo>=2.2.0; python_version >= '3.6'
+pymediainfo>=2.2.0
 sortedcontainers
 requests
 tornado
@@ -22,3 +19,5 @@ tenacity
 pillow>=5.1.0
 pyqt5
 Babel
+show-in-file-manager>=1.1.1
+importlib_metadata; python_version < '3.8'

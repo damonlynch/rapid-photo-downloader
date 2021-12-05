@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2012-2015 Jim Easterbrook <jim@jim-easterbrook.me.uk>
 
 # This file is part of Rapid Photo Downloader.
@@ -20,7 +20,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2020, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
+__copyright__ = "Copyright 2015-2021, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
 
 import logging
 import os
@@ -33,7 +33,7 @@ import gphoto2 as gp
 from raphodo.storage import StorageSpace
 from raphodo.constants import CameraErrorCode
 from raphodo.utilities import format_size_for_user
-
+from raphodo.cameraerror import CameraError, CameraProblemEx
 
 def python_gphoto2_version():
     return  gp.__version__
@@ -59,7 +59,7 @@ def gphoto2_python_logging():
 
 
 def autodetect_cameras(context: gp.Context,
-                       suppress_errors: bool=True) -> Union[gp.CameraList, List]:
+                       suppress_errors: bool = True) -> Union[gp.CameraList, List]:
     """
     Do camera auto detection for multiple versions of gphoto2-python
 
@@ -90,51 +90,6 @@ def gphoto2_named_error(code: int) -> str:
     return gphoto2_error_codes.get(code, 'Unknown gphoto2 error')
 
 
-class CameraError(Exception):
-    def __init__(self, code: CameraErrorCode) -> None:
-        self.code = code
-
-    def __repr__(self) -> str:
-        if self.code == CameraErrorCode.inaccessible:
-            return "inaccessible"
-        else:
-            return "locked"
-
-    def __str__(self) -> str:
-        if self.code == CameraErrorCode.inaccessible:
-            return "The camera is inaccessible"
-        else:
-            return "The camera is locked"
-
-
-class CameraProblemEx(CameraError):
-    def __init__(self, code: CameraErrorCode,
-                 gp_exception: Optional[gp.GPhoto2Error]=None,
-                 py_exception: Optional[Exception]=None) -> None:
-        super().__init__(code)
-        if gp_exception is not None:
-            self.gp_code = gp_exception.code
-        else:
-            self.gp_code = None
-        self.py_exception = py_exception
-
-    def __repr__(self) -> str:
-        if self.code == CameraErrorCode.read:
-            return "read error"
-        elif self.code == CameraErrorCode.write:
-            return 'write error'
-        else:
-            return repr(super())
-
-    def __str__(self) -> str:
-        if self.code == CameraErrorCode.read:
-            return "Could not read file from camera"
-        elif self.code == CameraErrorCode.write:
-            return 'Could not write file from camera'
-        else:
-            return str(super())
-
-
 def generate_devname(camera_port: str) -> Optional[str]:
     """
      Generate udev DEVNAME.
@@ -160,11 +115,11 @@ class Camera:
     """Access a camera via libgphoto2."""
 
     def __init__(self, model: str,
-                 port:str,
-                 get_folders: bool=True,
-                 raise_errors: bool=False,
-                 context: gp.Context=None,
-                 specific_folders: Optional[List[str]]=None) -> None:
+                 port: str,
+                 get_folders: bool = True,
+                 raise_errors: bool = False,
+                 context: gp.Context = None,
+                 specific_folders: Optional[List[str]] = None) -> None:
         """
         Initialize a camera via libgphoto2.
 

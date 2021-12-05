@@ -16,8 +16,13 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
+"""
+Handle interprocess communication using 0MQ
+"""
+
+
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2020, Damon Lynch"
+__copyright__ = "Copyright 2015-2021, Damon Lynch"
 
 import argparse
 import sys
@@ -1261,29 +1266,38 @@ class ScanResults:
     Receive results from the scan process
     """
 
-    def __init__(self, rpd_files: Optional[List[RPDFile]]=None,
-                 file_type_counter: Optional[FileTypeCounter]=None,
-                 file_size_sum: Optional[FileSizeSum]=None,
-                 error_code: Optional[CameraErrorCode]=None,
-                 scan_id: Optional[int]=None,
-                 optimal_display_name: Optional[str]=None,
-                 storage_space: Optional[List[StorageSpace]]=None,
-                 storage_descriptions: Optional[List[str]]=None,
-                 sample_photo: Optional[Photo]=None,
-                 sample_video: Optional[Video]=None,
-                 problems: Optional[ScanProblems]=None,
-                 fatal_error: Optional[bool]=None,
-                 camera_removed: Optional[bool]=None,
-                 entire_video_required: Optional[bool]=None,
-                 entire_photo_required: Optional[bool]=None) -> None:
+    def __init__(self, rpd_files: Optional[List[RPDFile]] = None,
+                 file_type_counter: Optional[FileTypeCounter] = None,
+                 file_size_sum: Optional[FileSizeSum] = None,
+                 error_code: Optional[CameraErrorCode] = None,
+                 error_message: Optional[str] = None,
+                 scan_id: Optional[int] = None,
+                 optimal_display_name: Optional[str] = None,
+                 storage_space: Optional[List[StorageSpace]] = None,
+                 storage_descriptions: Optional[List[str]] = None,
+                 mount_point: Optional[str] = None,
+                 is_apple_mobile: Optional[bool] = False,
+                 sample_photo: Optional[Photo] = None,
+                 sample_video: Optional[Video] = None,
+                 problems: Optional[ScanProblems] = None,
+                 fatal_error: Optional[bool] = None,
+                 camera_removed: Optional[bool] = None,
+                 entire_video_required: Optional[bool] = None,
+                 entire_photo_required: Optional[bool] = None) -> None:
         self.rpd_files = rpd_files
         self.file_type_counter = file_type_counter
         self.file_size_sum = file_size_sum
         self.error_code = error_code
+        if error_code and error_message is None:
+            self.error_message = ''
+        else:
+            self.error_message = error_message
         self.scan_id = scan_id
         self.optimal_display_name = optimal_display_name
         self.storage_space = storage_space
         self.storage_descriptions = storage_descriptions
+        self.mount_point = mount_point
+        self.is_apple_mobile = is_apple_mobile
         self.sample_photo = sample_photo
         self.sample_video = sample_video
         self.problems = problems
@@ -1688,8 +1702,8 @@ class ScanManager(PublishPullPipelineManager):
     scannedFiles = pyqtSignal(
         'PyQt_PyObject', 'PyQt_PyObject', FileTypeCounter, 'PyQt_PyObject', bool, bool
     )
-    deviceError = pyqtSignal(int, CameraErrorCode)
-    deviceDetails = pyqtSignal(int, 'PyQt_PyObject', 'PyQt_PyObject', str)
+    deviceError = pyqtSignal(int, CameraErrorCode, str)
+    deviceDetails = pyqtSignal(int, 'PyQt_PyObject', 'PyQt_PyObject', str, str, bool)
     scanProblems = pyqtSignal(int, 'PyQt_PyObject')
     fatalError = pyqtSignal(int)
     cameraRemovedDuringScan = pyqtSignal(int)
@@ -1705,7 +1719,7 @@ class ScanManager(PublishPullPipelineManager):
             assert data.file_type_counter
             assert data.file_size_sum
             assert data.entire_video_required is not None
-            assert  data.entire_photo_required is not None
+            assert data.entire_photo_required is not None
             self.scannedFiles.emit(
                 data.rpd_files,
                 (data.sample_photo, data.sample_video),
@@ -1717,11 +1731,13 @@ class ScanManager(PublishPullPipelineManager):
         else:
             assert data.scan_id is not None
             if data.error_code is not None:
-                self.deviceError.emit(data.scan_id, data.error_code)
-            elif data.optimal_display_name is not None:
+                assert data.error_message is not None
+                self.deviceError.emit(data.scan_id, data.error_code, data.error_message)
+            elif data.optimal_display_name is not None or data.mount_point is not None:
+                # Some values might have value None, so give them default value in case
                 self.deviceDetails.emit(
-                    data.scan_id, data.storage_space, data.storage_descriptions,
-                    data.optimal_display_name
+                    data.scan_id, data.storage_space or [], data.storage_descriptions or [],
+                    data.optimal_display_name, data.mount_point or '', data.is_apple_mobile or False
                 )
             elif data.problems is not None:
                 self.scanProblems.emit(data.scan_id, data.problems)

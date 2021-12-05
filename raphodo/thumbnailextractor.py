@@ -37,13 +37,7 @@ from gi.repository import Gst
 
 from PyQt5.QtGui import QImage, QTransform
 from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
-try:
-    import rawkit
-    import rawkit.options
-    import rawkit.raw
-    have_rawkit = True
-except ImportError:
-    have_rawkit = False
+
 
 from raphodo.interprocess import (
     LoadBalancerWorker, ThumbnailExtractorArgument, GenerateThumbnailsResults
@@ -77,53 +71,6 @@ def gst_version() -> str:
             return Gst.version_string().replace('GStreamer ', '')
         except Exception:
             pass
-    return ''
-
-
-def libraw_version(suppress_errors: bool=True) -> str:
-    """
-    Return version number of libraw, using rawkit
-
-    :param suppress_errors:
-    :return: version number if available, else ''
-    """
-
-    if not have_rawkit:
-        return ''
-
-    import libraw.bindings
-    try:
-        return libraw.bindings.LibRaw().version
-    except ImportError as e:
-        if not suppress_errors:
-            raise
-        v = str(e)
-        if v.startswith('Unsupported'):
-            import re
-            v = ''.join(re.findall(r'\d+\.?', str(e)))
-            return v[:-1] if v.endswith('.') else v
-        return v
-    except Exception:
-        if not suppress_errors:
-            raise
-        return ''
-
-
-if not have_rawkit:
-    have_functioning_rawkit = False
-else:
-    try:
-        have_functioning_rawkit = bool(libraw_version(suppress_errors=False))
-    except Exception:
-        have_functioning_rawkit = False
-
-
-def rawkit_version() -> str:
-    if have_rawkit:
-        if have_functioning_rawkit:
-            return rawkit.VERSION
-        else:
-            return '{} (not functional)'.format(rawkit.VERSION)
     return ''
 
 
@@ -347,56 +294,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
         if thumbnail is not None:
             return photo_details
-        elif rpd_file.is_raw() and have_functioning_rawkit:
-            try:
-                with rawkit.raw.Raw(filename=full_file_name) as raw:
-                    raw.options.white_balance = rawkit.options.WhiteBalance(camera=True, auto=False)
-                    if rpd_file.cache_full_file_name and not rpd_file.download_full_file_name:
-                        temp_file = '{}.tiff'.format(os.path.splitext(full_file_name)[0])
-                        cache_dir = os.path.dirname(rpd_file.cache_full_file_name)
-                        if os.path.isdir(cache_dir):
-                            temp_file = os.path.join(cache_dir, temp_file)
-                            temp_dir = None
-                        else:
-                            temp_dir = tempfile.mkdtemp(prefix="rpd-tmp-")
-                            temp_file = os.path.join(temp_dir, temp_file)
-                    else:
-                        temp_dir = tempfile.mkdtemp(prefix="rpd-tmp-")
-                        name = os.path.basename(full_file_name)
-                        temp_file = '{}.tiff'.format(os.path.splitext(name)[0])
-                        temp_file = os.path.join(temp_dir, temp_file)
-                    try:
-                        logging.debug("Saving temporary rawkit render to %s", temp_file)
-                        raw.save(filename=temp_file)
-                    except Exception:
-                        logging.exception(
-                            "Rendering %s failed. Exception:", rpd_file.full_file_name
-                        )
-                    else:
-                        thumbnail = QImage(temp_file)
-                        os.remove(temp_file)
-                        if thumbnail.isNull():
-                            logging.debug("Qt failed to load rendered %s", rpd_file.full_file_name)
-                            thumbnail = None
-                        else:
-                            logging.debug("Rendered %s using libraw", rpd_file.full_file_name)
-                            processing.add(ExtractionProcessing.resize)
 
-                            # libraw already correctly oriented the thumbnail
-                            processing.remove(ExtractionProcessing.orient)
-                            orientation = '1'
-                if temp_dir:
-                    os.rmdir(temp_dir)
-            except ImportError as e:
-                logging.warning(
-                    'Cannot use rawkit to render thumbnail for %s', rpd_file.full_file_name
-                )
-            except Exception as e:
-                logging.exception(
-                    "Rendering thumbnail for %s not supported. Exception:", rpd_file.full_file_name
-                )
-
-        if thumbnail is None and rpd_file.is_loadable():
+        if rpd_file.is_loadable():
             thumbnail = QImage(full_file_name)
             processing.add(ExtractionProcessing.resize)
             if not rpd_file.from_camera:

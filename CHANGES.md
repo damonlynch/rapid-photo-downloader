@@ -1,6 +1,148 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.27 (2021-12-xx)
+-------------------
+
+ - Purge calls to unmaintained Python package rawkit.
+
+ - Fix bug to always display the correct value for showing system directories 
+   when right-clicking on Photo and Video destinations, as well as This 
+   Computer.
+
+ - Update Czech, Dutch, French, Hungarian, Russian and Spanish translations.
+
+ - Correct Albanian language attribution in About dialog box.
+
+ - Read in much larger chunk of RAF files on cameras to read metadata. This 
+   slows performance, but is necessary on newer RAF files, which have larger 
+   embedded JPEGs that are placed before the metadata in the file. 
+
+0.9.27b2 (2021-11-28)
+---------------------
+
+ - Enable running under WSLg and WSL2 on Windows 11. Not all features are 
+   supported. See the 
+   [program documentation](https://damonlynch.net/rapid/documentation/#wsl). 
+
+ - By default only non-system directories are now shown in the directory
+   listings for Photo and Video destinations, as well as This Computer. Right-
+   click in the directory listings to enable showing all system directories.
+
+ - The install.py script now updates the mime info cache, meaning the program 
+   should now appear as an option to handle photographic media in file
+   managers when installed using this script.
+
+ - Fix bug [#1946407](https://bugs.launchpad.net/rapid/+bug/1946407): 
+   another compatibility fix for Python 3.10 that 0.9.27b1 and 0.9.27a3 did not 
+   fully resolve.
+
+ - Don't crash when showing photo or video in file manager after right-clicking
+   on thumbnail and no file is selected. 
+
+ - Update Albanian, Dutch and Swedish translations.
+
+0.9.27b1 (2021-10-31)
+---------------------
+
+ - Use Python module [Show-in-File-Manager](https://github.com/damonlynch/showinfilemanager)
+   to display files in the operating system's file manager. Linux distribution
+   packagers: this is a required module.
+
+ - New Python module requirement for Python versions earlier than 3.8:
+   [importlib_metadata](https://github.com/python/importlib_metadata).
+
+ - All selected files will now be opened in the file manager when right-
+   clicking on a photo or video in the main window and "Open in File Browser"
+   is activated. Previously only the file being right-clicked on would be 
+   opened.
+
+ - Fix bug [#1946407](https://bugs.launchpad.net/rapid/+bug/1946407): 
+   another compatibility fix for Python 3.10 that 0.9.27a3 did not fully 
+   resolve.
+
+ - Fix bug [#33](https://github.com/damonlynch/rapid-photo-downloader/issues/37)
+   SystemError: PY_SSIZE_T_CLEAN macro must be defined for '#' formats on 
+   Python 3.10. The solution is to install PyQt 5.15.6 or newer when using 
+   Python 3.10, which the install.py script now does.
+
+ - Fix bug where downloading from a camera that was already in use would fail
+   because generating an error message would cause an exception.
+
+ - Disable viewing files still on a camera in the operating system's file 
+   manager when on KDE.
+
+0.9.27a3 (2021-10-10)
+---------------------
+
+- Fix bug #1946407: Work around apparent float to int conversion when calling 
+  Qt from Python 3.10 on Fedora 35 beta. 
+
+- Fix bug #33: Files with unique identifier added via error handling are not 
+  marked as downloaded.
+
+- Add folder 'Screenshots' to list of ignored paths. Remove this folder from
+  the list of ignored paths in the program Preferences dialog if you do wish to
+  download from a path that contains this folder.
+   
+- Fix bug #1924933: Exception when scanning device with problematic connection.
+
+- Fix bug #1909904: python3-libunity package dumps core on Fedora. The 
+  install.py script will now uninstall python3-libunity if it is found on the 
+  system, as using it causes a calling program like Rapid Photo Downloader to
+  crash.
+
+- Include Python package setuptools in README.md listing of required of runtime 
+  packages. It has been required for some time, but the README did not specify
+  it.
+   
+- The install.py script will no longer install pyheif on Raspberry Pi OS
+  because user feedback indicates pyheif fails to build on that OS. If pyheif
+  does in fact build on your install of Raspberry Pi OS, you can install it
+  using Python's pip.
+
+0.9.27a2 (2021-07-31)
+---------------------
+
+ - Fix bug #30: iPhone7 serial number format not recognized.
+
+ - Fix bug #1938341: Albanian translations not compiled.
+
+ - Change bug report destination URL from https://bugs.launchpad.net/rapid to
+   https://bugs.rapidphotodownloader.com.
+
+0.9.27a1 (2021-07-27)
+---------------------
+
+ - iOS devices are now accessed using a software library written specifically to
+   communicate with iOS devices, libimobiledevice. Previously, gPhoto2 was used,
+   but gPhoto2 is unreliable with iOS because it appears Apple does not follow
+   the PTP standard. Please note that on some systems, it can take some minutes
+   for the iOS device to appear after it has been plugged in.
+
+   Distribution package maintainers should modify
+   rapid-photo-downloader packages to include the following package
+   dependencies:
+
+   Debian / Ubuntu, Fedora:
+
+   - libimobiledevice-utils
+   - ifuse
+   - fuse
+
+   openSUSE:
+
+    - imobiledevice-tools
+    - ifuse
+    - fuse
+
+ - Python 3.6 is now the minimum Python version.
+
+ - Update install.py script to correctly enable Power Tools repository on
+   CentOS 8, and the Qt5 wayland package on Fedora and CentOS 8.
+
+ - Update Albanian and Polish translations.
+
 0.9.26 (2020-12-24)
 -------------------
 

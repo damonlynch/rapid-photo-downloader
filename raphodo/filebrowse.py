@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -20,30 +20,50 @@
 Display file system folders and allow the user to select one
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 import os
 import pathlib
-from typing import List, Set
+from typing import List, Set, Optional
 import logging
-import shlex
-import subprocess
+import re
 
 from PyQt5.QtCore import (
-    QDir, Qt, QModelIndex, QItemSelectionModel, QSortFilterProxyModel, QPoint, QSize
+    QDir,
+    Qt,
+    QModelIndex,
+    QItemSelectionModel,
+    QSortFilterProxyModel,
+    QPoint,
+    pyqtSignal,
+    pyqtSlot,
 )
 from PyQt5.QtWidgets import (
-    QTreeView, QAbstractItemView, QFileSystemModel, QSizePolicy, QStyledItemDelegate,
-    QStyleOptionViewItem, QMenu
+    QTreeView,
+    QAbstractItemView,
+    QFileSystemModel,
+    QSizePolicy,
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
+    QMenu,
+    QAction,
 )
 
 from PyQt5.QtGui import QPainter, QFont
+from showinfm import show_in_file_manager
 
 import raphodo.qrc_resources as qrc_resources
-from raphodo.constants import minPanelWidth, minFileSystemViewHeight, Roles
-from raphodo.storage import gvfs_gphoto2_path
-from raphodo.viewutils import scaledIcon, standard_font_size
+from raphodo.constants import (
+    minPanelWidth,
+    minFileSystemViewHeight,
+    Roles,
+    filtered_file_browser_directories,
+    non_system_root_folders,
+)
+from raphodo.storage import gvfs_gphoto2_path, get_media_dir
+from raphodo.viewutils import scaledIcon
+from raphodo.wslutils import wsl_filter_directories
 
 
 class FileSystemModel(QFileSystemModel):
@@ -58,12 +78,12 @@ class FileSystemModel(QFileSystemModel):
         super().__init__(parent)
 
         # More filtering done in the FileSystemFilter
-        self.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot )
+        self.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
 
-        self.folder_icon = scaledIcon(':/icons/folder.svg')
-        self.download_folder_icon = scaledIcon(':/icons/folder-filled.svg')
+        self.folder_icon = scaledIcon(":/icons/folder.svg")
+        self.download_folder_icon = scaledIcon(":/icons/folder-filled.svg")
 
-        self.setRootPath('/')
+        self.setRootPath("/")
 
         # The next two values are set via FolderPreviewManager.update()
         # They concern provisional folders that will be used if the
@@ -82,13 +102,19 @@ class FileSystemModel(QFileSystemModel):
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
         if role == Qt.DecorationRole:
             path = index.data(QFileSystemModel.FilePathRole)  # type: str
-            if path in self.download_subfolders or path in self.subfolders_downloaded_into:
+            if (
+                path in self.download_subfolders
+                or path in self.subfolders_downloaded_into
+            ):
                 return self.download_folder_icon
             else:
                 return self.folder_icon
         if role == Roles.folder_preview:
             path = index.data(QFileSystemModel.FilePathRole)
-            return path in self.preview_subfolders and path not in self.subfolders_downloaded_into
+            return (
+                path in self.preview_subfolders
+                and path not in self.subfolders_downloaded_into
+            )
 
         return super().data(index, role)
 
@@ -115,6 +141,10 @@ class FileSystemModel(QFileSystemModel):
 
 
 class FileSystemView(QTreeView):
+
+    showSystemFolders = pyqtSignal(bool)
+    filePathReset = pyqtSignal()
+
     def __init__(self, model: FileSystemModel, rapidApp, parent=None) -> None:
         super().__init__(parent)
         self.rapidApp = rapidApp
@@ -128,10 +158,24 @@ class FileSystemView(QTreeView):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onCustomContextMenu)
         self.contextMenu = QMenu()
-        self.openInFileBrowserAct = self.contextMenu.addAction(_('Open in File Browser...'))
+        self.openInFileBrowserAct = self.contextMenu.addAction(
+            _("Open in File Browser...")
+        )
         self.openInFileBrowserAct.triggered.connect(self.doOpenInFileBrowserAct)
         self.openInFileBrowserAct.setEnabled(self.rapidApp.file_manager is not None)
-        self.clickedIndex = None   # type: QModelIndex
+        self.clickedIndex = None  # type: Optional[QModelIndex]
+
+        self.resetSelectionAct = self.contextMenu.addAction(_("Reset"))
+        self.resetSelectionAct.triggered.connect(self.doResetSelectionAct)
+
+        self.showSystemFoldersAct = QAction(
+            _("Show System Folders"),
+            self,
+            enabled=True,
+            checkable=True,
+            triggered=self.doShowSystemFoldersAct,
+        )
+        self.contextMenu.addAction(self.showSystemFoldersAct)
 
     def hideColumns(self) -> None:
         """
@@ -140,7 +184,7 @@ class FileSystemView(QTreeView):
         for i in (1, 2, 3):
             self.hideColumn(i)
 
-    def goToPath(self, path: str, scrollTo: bool=True) -> None:
+    def goToPath(self, path: str, scrollTo: bool = True) -> None:
         """
         Select the path, expand its subfolders, and scroll to it
         :param path:
@@ -151,7 +195,9 @@ class FileSystemView(QTreeView):
         index = self.model().mapFromSource(self.fileSystemModel.index(path))
         self.setExpanded(index, True)
         selection = self.selectionModel()
-        selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
+        selection.select(
+            index, QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows
+        )
         if scrollTo:
             self.scrollTo(index, QAbstractItemView.PositionAtTop)
 
@@ -183,47 +229,105 @@ class FileSystemView(QTreeView):
 
     def onCustomContextMenu(self, point: QPoint) -> None:
         index = self.indexAt(point)
+        self.showSystemFoldersAct.setChecked(self.rapidApp.prefs.show_system_folders)
         if index.isValid():
             self.clickedIndex = index
-            self.contextMenu.exec(self.mapToGlobal(point))
+            self.openInFileBrowserAct.setEnabled(True)
+        else:
+            self.openInFileBrowserAct.setEnabled(False)
+        self.showSystemFoldersAct.setEnabled(
+            not self.rapidApp.prefs.source_or_destination_is_system_folder()
+        )
+        self.contextMenu.exec(self.mapToGlobal(point))
 
-    def doOpenInFileBrowserAct(self):
+    @pyqtSlot()
+    def doOpenInFileBrowserAct(self) -> None:
         index = self.clickedIndex
         if index:
             uri = self.fileSystemModel.filePath(index.model().mapToSource(index))
-            cmd = '{} "{}"'.format(self.rapidApp.file_manager, uri)
-            logging.debug("Launching: %s", cmd)
-            args = shlex.split(cmd)
-            subprocess.Popen(args)
+            logging.debug(
+                "Calling show_in_file_manager() with %s and %s",
+                self.rapidApp.file_manager,
+                uri,
+            )
+            show_in_file_manager(path_or_uri=uri, open_not_select_directory=True)
+
+    @pyqtSlot()
+    def doShowSystemFoldersAct(self) -> None:
+        self.showSystemFolders.emit(self.showSystemFoldersAct.isChecked())
+
+    @pyqtSlot()
+    def doResetSelectionAct(self) -> None:
+        self.selectionModel().clear()
+        self.filePathReset.emit()
 
 
 class FileSystemFilter(QSortFilterProxyModel):
     """
-    Filter out the display of RPD's cache and temporary directories
+    Filter out the display of RPD's cache and temporary directories, in addition to
+    a set of standard directories that should not be displayed.
     """
 
-    def __init__(self, parent=None):
+    filterInvalidated = pyqtSignal()
+
+    def __init__(self, parent: "RapidWindow" = None):
         super().__init__(parent)
-        self.filtered_dir_names = set()
+        self.is_wsl2 = parent.is_wsl2
+        self.prefs = parent.prefs
+        if self.is_wsl2:
+            self.filter_paths = wsl_filter_directories()
+            # Filter out system created WSL working directories
+            self.regex = re.compile(r"/wsl[\w]")
+        else:
+            self.filter_paths = set()
+        self.filtered_dir_names = filtered_file_browser_directories
+        self.non_system_root_folders = non_system_root_folders
+        if get_media_dir().startswith("/run"):
+            self.non_system_root_folders.append("/run")
 
     def setTempDirs(self, dirs: List[str]) -> None:
         filters = [os.path.basename(path) for path in dirs]
         self.filtered_dir_names = self.filtered_dir_names | set(filters)
         self.invalidateFilter()
 
-    def filterAcceptsRow(self, sourceRow: int, sourceParent: QModelIndex=None) -> bool:
-        index = self.sourceModel().index(sourceRow, 0, sourceParent)  # type: QModelIndex
+    def filterAcceptsRow(
+        self, sourceRow: int, sourceParent: QModelIndex = None
+    ) -> bool:
+        index = self.sourceModel().index(
+            sourceRow, 0, sourceParent
+        )  # type: QModelIndex
         path = index.data(QFileSystemModel.FilePathRole)  # type: str
+
+        if not self.prefs.show_system_folders and path != "/":
+            path_ok = False
+            for folder in self.non_system_root_folders:
+                if path.startswith(folder):
+                    path_ok = True
+                    break
+            if not path_ok:
+                return False
 
         if gvfs_gphoto2_path(path):
             logging.debug("Rejecting browsing path %s", path)
             return False
 
-        if not self.filtered_dir_names:
+        if not self.filtered_dir_names and not self.is_wsl2:
             return True
 
         file_name = index.data(QFileSystemModel.FileNameRole)
-        return file_name not in self.filtered_dir_names
+        do_filter = (
+            file_name not in self.filtered_dir_names and path not in self.filter_paths
+        )
+
+        if self.is_wsl2:
+            do_filter = do_filter and self.regex.match(path) is None
+        return do_filter
+
+    @pyqtSlot(bool)
+    def setShowSystemFolders(self, enabled: bool) -> None:
+        self.prefs.show_system_folders = enabled
+        self.invalidateFilter()
+        self.filterInvalidated.emit()
 
 
 class FileSystemDelegate(QStyledItemDelegate):
@@ -234,7 +338,9 @@ class FileSystemDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+    def paint(
+        self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
+    ) -> None:
         if index is None:
             return
 

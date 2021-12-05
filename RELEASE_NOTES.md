@@ -1,8 +1,24 @@
-Release Notes for Rapid Photo Downloader 0.9.26
-===============================================
+Release Notes for Rapid Photo Downloader 0.9.27b2
+=================================================
 
- - Version 0.9.19 introduced support for HEIF / HEIC files. The documentation
-   goes into details:
+ - To run Rapid Photo Downloader under WSLg on Windows 11, using the 
+   [Windows Subsystem for Linux Preview](https://aka.ms/wslstorepage) from 
+   the Microsoft Store is *strongly recommended*. Using the version of WSL that
+   comes installed with Windows 11 can cause severe usability issues while 
+   running programs like Rapid Photo Downloader. Read the documentation on Rapid
+   Photo Downloader and WSL on the
+   [program website](https://https://damonlynch.net/rapid/documentation/#wsl).
+
+ - Rapid Photo Downloader 0.9.27b2 is the minimum version required to work with 
+   Python 3.10. Earlier versions will not run properly, or more commonly will 
+   not run at all.
+
+ - PyQt5 5.15.6 is the minimum version required to work with Python 3.10. If 
+   an older version is installed, Rapid Photo Downloader will run, but 
+   thumbnails will not be generated.
+
+ - Rapid Photo Downloader 0.9.19 introduced support for HEIF / HEIC files. The 
+   documentation goes into details:
 
    https://damonlynch.net/rapid/documentation/#heifheic
 
@@ -36,9 +52,3 @@ Release Notes for Rapid Photo Downloader 0.9.26
    On Fedora, the packages are gstreamer1-plugins-good and gstreamer1-libav.
    Fedora users can enable the rpmfusion.org free repository to be able to
    install gstreamer1-libav.
-
- - The Python library rawkit does not work with all recent versions of libraw.
-   Rawkit is unmaintained software that uses libraw to generate thumbnails
-   for RAW files from which a thumbnail cannot be extracted.
-
-

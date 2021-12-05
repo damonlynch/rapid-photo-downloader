@@ -35,7 +35,7 @@ Copyright notice from QtWaitingSpinner source:
         Ported to Python3 2015 by Luca Weiss
 """
 
-__author__ = 'Damon Lynch'
+__author__ = "Damon Lynch"
 __copyright__ = "Copyright 2015-2020, Damon Lynch"
 
 import math
@@ -45,23 +45,63 @@ import logging
 from pprint import pprint
 
 from PyQt5.QtCore import (
-    QModelIndex, QSize, Qt, QPoint, QRect, QRectF, QEvent, QAbstractItemModel, QAbstractListModel,
-    pyqtSlot, QTimer
+    QModelIndex,
+    QSize,
+    Qt,
+    QPoint,
+    QPointF,
+    QRect,
+    QRectF,
+    QEvent,
+    QAbstractItemModel,
+    QAbstractListModel,
+    pyqtSlot,
+    QTimer,
 )
 from PyQt5.QtWidgets import (
-    QStyledItemDelegate, QStyleOptionViewItem, QApplication, QStyle, QListView, QStyleOptionButton,
-    QAbstractItemView, QMenu, QWidget, QStyleOptionToolButton
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
+    QApplication,
+    QStyle,
+    QListView,
+    QStyleOptionButton,
+    QAbstractItemView,
+    QMenu,
+    QWidget,
+    QStyleOptionToolButton,
 )
 from PyQt5.QtGui import (
-    QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette, QPixmap, QPaintEvent,
-    QGuiApplication, QPen, QIcon
+    QPainter,
+    QFontMetrics,
+    QFont,
+    QColor,
+    QLinearGradient,
+    QBrush,
+    QPalette,
+    QPixmap,
+    QPaintEvent,
+    QGuiApplication,
+    QPen,
+    QIcon,
 )
 
 from raphodo.viewutils import RowTracker
 from raphodo.constants import (
-    DeviceState, FileType, CustomColors, DeviceType, Roles, EmptyViewHeight, ViewRowType,
-    minPanelWidth, Checked_Status, DeviceDisplayPadding, DeviceShadingIntensity,
-    DisplayingFilesOfType, DownloadStatus, DownloadWarning, DownloadFailure
+    DeviceState,
+    FileType,
+    CustomColors,
+    DeviceType,
+    Roles,
+    EmptyViewHeight,
+    ViewRowType,
+    minPanelWidth,
+    Checked_Status,
+    DeviceDisplayPadding,
+    DeviceShadingIntensity,
+    DisplayingFilesOfType,
+    DownloadStatus,
+    DownloadWarning,
+    DownloadFailure,
 )
 from raphodo.devices import Device, display_devices
 from raphodo.utilities import thousands, format_size_for_user
@@ -102,13 +142,13 @@ class DeviceModel(QAbstractListModel):
         # scan_id: DeviceState
         self.spinner_state = {}  # type: Dict[int, DeviceState]
         # scan_id: bool
-        self.checked = defaultdict(lambda: True) # type: Dict[int, bool]
+        self.checked = defaultdict(lambda: True)  # type: Dict[int, bool]
         self.icons = {}  # type: Dict[int, QPixmap]
         self.rows = RowTracker()  # type: RowTracker
         self.row_id_counter = 0  # type: int
         self.row_id_to_scan_id = dict()  # type: Dict[int, int]
         self.scan_id_to_row_ids = defaultdict(list)  # type: Dict[int, List[int]]
-        self.storage= dict()  # type: Dict[int, StorageSpace]
+        self.storage = dict()  # type: Dict[int, StorageSpace]
         self.headers = set()  # type: Set[int]
 
         self.icon_size = icon_size()
@@ -120,7 +160,9 @@ class DeviceModel(QAbstractListModel):
 
         self._rotation_position = 0  # type: int
         self._timer = QTimer(self)
-        self._timer.setInterval(1000 / (number_spinner_lines * revolutions_per_second))
+        self._timer.setInterval(
+            round(1000 / (number_spinner_lines * revolutions_per_second))
+        )
         self._timer.timeout.connect(self.rotateSpinner)
         self._isSpinning = False
 
@@ -160,7 +202,10 @@ class DeviceModel(QAbstractListModel):
         self.insertRows(row, no_rows)
         logging.debug(
             "Adding %s to %s display with scan id %s at row %s",
-            device.name(), self.device_display_type, scan_id, row
+            device.name(),
+            self.device_display_type,
+            scan_id,
+            row,
         )
         for row_id in range(self.row_id_counter, self.row_id_counter + no_rows):
             self.row_id_to_scan_id[row_id] = scan_id
@@ -194,7 +239,9 @@ class DeviceModel(QAbstractListModel):
             row_id = row_ids[1]
             row = self.rows.row(row_id)
             logging.debug(
-                "Adding row %s for additional storage device for %s", row, device.display_name
+                "Adding row %s for additional storage device for %s",
+                row,
+                device.display_name,
             )
 
             for i in range(len(device.storage_space) - 1):
@@ -211,7 +258,8 @@ class DeviceModel(QAbstractListModel):
 
         row = self.rows.row(row_ids[0])
         self.dataChanged.emit(
-            self.index(row, 0), self.index(row + len(self.devices[scan_id].storage_space), 0)
+            self.index(row, 0),
+            self.index(row + len(self.devices[scan_id].storage_space), 0),
         )
 
     def getHeaderRowId(self, scan_id: int) -> int:
@@ -224,7 +272,9 @@ class DeviceModel(QAbstractListModel):
         row = self.rows.row(header_row_id)
         logging.debug(
             "Removing %s rows from %s display, starting at row %s",
-            len(row_ids), self.device_display_type, row
+            len(row_ids),
+            self.device_display_type,
+            row,
         )
         self.rows.remove_rows(row, len(row_ids))
         del self.devices[scan_id]
@@ -247,7 +297,8 @@ class DeviceModel(QAbstractListModel):
         row = self.rows.row(row_id)
         # TODO perhaps optimize which storage space is updated
         self.dataChanged.emit(
-            self.index(row + 1, 0), self.index(row + len(self.devices[scan_id].storage_space), 0)
+            self.index(row + 1, 0),
+            self.index(row + len(self.devices[scan_id].storage_space), 0),
         )
 
     def setSpinnerState(self, scan_id: int, state: DeviceState) -> None:
@@ -255,7 +306,10 @@ class DeviceModel(QAbstractListModel):
         row = self.rows.row(row_id)
 
         current_state = self.spinner_state[scan_id]
-        current_state_active = current_state in (DeviceState.scanning, DeviceState.downloading)
+        current_state_active = current_state in (
+            DeviceState.scanning,
+            DeviceState.downloading,
+        )
 
         if current_state_active and state in (DeviceState.idle, DeviceState.finished):
             self.row_ids_active.remove(row_id)
@@ -295,13 +349,18 @@ class DeviceModel(QAbstractListModel):
         elif role == Roles.scan_id:
             return scan_id
         else:
-            device = self.devices[scan_id] # type: Device
+            device = self.devices[scan_id]  # type: Device
             if role == Qt.ToolTipRole:
                 if device.device_type in (DeviceType.path, DeviceType.volume):
                     return device.path
             elif role == Roles.device_details:
-                return (device.display_name, self.icons[scan_id], self.spinner_state[scan_id],
-                        self._rotation_position, self.percent_complete[scan_id])
+                return (
+                    device.display_name,
+                    self.icons[scan_id],
+                    self.spinner_state[scan_id],
+                    self._rotation_position,
+                    self.percent_complete[scan_id],
+                )
             elif role == Roles.storage:
                 return device, self.storage[row_id]
             elif role == Roles.device_type:
@@ -332,41 +391,54 @@ class DeviceModel(QAbstractListModel):
     def logState(self) -> None:
         if len(self.devices):
             logging.debug("-- Device Model for %s --", self.device_display_type)
-            logging.debug("Known devices: %s", ', '.join(self.devices[device].display_name
-                 for device in self.devices))
+            logging.debug(
+                "Known devices: %s",
+                ", ".join(self.devices[device].display_name for device in self.devices),
+            )
             for row in self.rows.row_to_id:
                 row_id = self.rows.row_to_id[row]
                 scan_id = self.row_id_to_scan_id[row_id]
                 device = self.devices[scan_id]
-                logging.debug('Row %s: %s', row, device.display_name)
+                logging.debug("Row %s: %s", row, device.display_name)
             logging.debug(
-                "Spinner states: %s", ', '.join(
-                    "%s: %s" % (
-                        self.devices[scan_id].display_name, self.spinner_state[scan_id].name
+                "Spinner states: %s",
+                ", ".join(
+                    "%s: %s"
+                    % (
+                        self.devices[scan_id].display_name,
+                        self.spinner_state[scan_id].name,
                     )
                     for scan_id in self.spinner_state
-                )
+                ),
             )
             logging.debug(
-                ', '.join(
-                    '%s: %s' % (
-                        self.devices[scan_id].display_name, Checked_Status[self.checked[scan_id]]
+                ", ".join(
+                    "%s: %s"
+                    % (
+                        self.devices[scan_id].display_name,
+                        Checked_Status[self.checked[scan_id]],
                     )
                     for scan_id in self.checked
                 )
             )
 
-    def setCheckedValue(self, checked: Qt.CheckState,
-                        scan_id: int,
-                        row: Optional[int]=None,
-                        log_state_change: Optional[bool]=True) -> None:
-        logging.debug("Setting %s checkbox to %s", self.devices[scan_id].display_name,
-                      Checked_Status[checked])
+    def setCheckedValue(
+        self,
+        checked: Qt.CheckState,
+        scan_id: int,
+        row: Optional[int] = None,
+        log_state_change: Optional[bool] = True,
+    ) -> None:
+        logging.debug(
+            "Setting %s checkbox to %s",
+            self.devices[scan_id].display_name,
+            Checked_Status[checked],
+        )
         if row is None:
             row_id = self.scan_id_to_row_ids[scan_id][0]
             row = self.rows.row(row_id)
         self.checked[scan_id] = checked
-        self.dataChanged.emit(self.index(row, 0),self.index(row, 0))
+        self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
 
         if log_state_change:
             self.logState()
@@ -383,8 +455,8 @@ class DeviceModel(QAbstractListModel):
 
         if self._timer.isActive():
             self._timer.stop()
-            self._rotation_position = 0    
-    
+            self._rotation_position = 0
+
     @pyqtSlot()
     def rotateSpinner(self):
         self._rotation_position += 1
@@ -392,7 +464,7 @@ class DeviceModel(QAbstractListModel):
             self._rotation_position = 0
         for row_id in self.row_ids_active:
             row = self.rows.row(row_id)
-            self.dataChanged.emit(self.index(row, 0),self.index(row, 0))
+            self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
 
 
 class DeviceView(QListView):
@@ -434,17 +506,20 @@ class DeviceView(QListView):
             self.rapidApp.thumbnailModel.highlightDeviceThumbs(scan_id=scan_id)
 
 
-BodyDetails = namedtuple('BodyDetails', 'bytes_total_text, bytes_total, '
-                                        'percent_used_text, '
-                                        'bytes_free_of_total, '
-                                        'comp1_file_size_sum, comp2_file_size_sum, '
-                                        'comp3_file_size_sum, comp4_file_size_sum, '
-                                        'comp1_text, comp2_text, comp3_text, '
-                                        'comp4_text, '
-                                        'comp1_size_text, comp2_size_text, '
-                                        'comp3_size_text, comp4_size_text, '
-                                        'color1, color2, color3,'
-                                        'displaying_files_of_type')
+BodyDetails = namedtuple(
+    "BodyDetails",
+    "bytes_total_text, bytes_total, "
+    "percent_used_text, "
+    "bytes_free_of_total, "
+    "comp1_file_size_sum, comp2_file_size_sum, "
+    "comp3_file_size_sum, comp4_file_size_sum, "
+    "comp1_text, comp2_text, comp3_text, "
+    "comp4_text, "
+    "comp1_size_text, comp2_size_text, "
+    "comp3_size_text, comp4_size_text, "
+    "color1, color2, color3,"
+    "displaying_files_of_type",
+)
 
 
 def standard_height():
@@ -452,11 +527,11 @@ def standard_height():
 
 
 def device_name_height():
-    return  standard_height() + DeviceDisplayPadding * 3
+    return standard_height() + DeviceDisplayPadding * 3
 
 
 def device_header_row_height():
-    return device_name_height() +  DeviceDisplayPadding
+    return device_name_height() + DeviceDisplayPadding
 
 
 def device_name_highlight_color():
@@ -512,7 +587,7 @@ class DeviceDisplay:
     padding = DeviceDisplayPadding
     shading_intensity = DeviceShadingIntensity
 
-    def __init__(self, menuButtonIcon: Optional[QIcon]=None) -> None:
+    def __init__(self, menuButtonIcon: Optional[QIcon] = None) -> None:
         self.menuButtonIcon = menuButtonIcon
 
         self.sample1_width = self.sample2_width = 40
@@ -539,7 +614,7 @@ class DeviceDisplay:
 
         self.device_name_highlight_color = device_name_highlight_color()
 
-        self.storage_border = QColor('#bcbcbc')
+        self.storage_border = QColor("#bcbcbc")
 
         # Height of the colored box that includes the device's
         # spinner/checkbox, icon & name
@@ -556,25 +631,37 @@ class DeviceDisplay:
         # text above gradient, gradient, and text below
 
         # Base height is when there is no storage space to display
-        self.base_height = (self.padding * 2 + self.standard_height)
+        self.base_height = self.padding * 2 + self.standard_height
 
         # Storage height is when there is storage space to display
         self.storage_height = (
-                self.standard_height + self.padding + self.g_height + self.vertical_padding +
-                self.details_height + self.padding * 2
+            self.standard_height
+            + self.padding
+            + self.g_height
+            + self.vertical_padding
+            + self.details_height
+            + self.padding * 2
         )
-        
-        self.emptySpaceColor = QColor('#f2f2f2')
-        self.subtlePenColor = QColor('#6d6d6d')
+
+        self.emptySpaceColor = QColor("#f2f2f2")
+        self.subtlePenColor = QColor("#6d6d6d")
 
         self.menu_button_padding = 3
-        self.menuHighlightPen =  QPen(QBrush(self.subtlePenColor), 0.5)
+        self.menuHighlightPen = QPen(QBrush(self.subtlePenColor), 0.5)
 
     def v_align_header_pixmap(self, y: int, pixmap_height: int) -> float:
         return y + (self.device_name_strip_height / 2 - pixmap_height / 2)
 
-    def paint_header(self, painter: QPainter, x: int, y: int, width: int,
-                     display_name: str, icon: QPixmap, highlight_menu: bool=False) -> None:
+    def paint_header(
+        self,
+        painter: QPainter,
+        x: int,
+        y: int,
+        width: int,
+        display_name: str,
+        icon: QPixmap,
+        highlight_menu: bool = False,
+    ) -> None:
         """
         Render the header portion, which contains the device / folder name, icon, and
         for download sources, a spinner or checkbox.
@@ -584,7 +671,7 @@ class DeviceDisplay:
 
         painter.setRenderHint(QPainter.Antialiasing, True)
 
-        deviceNameRect = QRect(x, y, width, self.device_name_strip_height)
+        deviceNameRect = QRectF(x, y, width, self.device_name_strip_height)
         painter.fillRect(deviceNameRect, self.device_name_highlight_color)
 
         icon_x = float(x + self.padding + self.icon_x_offset)
@@ -612,7 +699,7 @@ class DeviceDisplay:
             button_x = rect.x() + self.menu_button_padding
             button_y = rect.y() + self.menu_button_padding
             pixmap = self.menuButtonIcon.pixmap(QSize(size, size))
-            painter.drawPixmap(button_x, button_y, pixmap)
+            painter.drawPixmap(QPointF(button_x, button_y), pixmap)
 
     def menu_button_rect(self, x: int, y: int, width: int) -> QRectF:
         size = icon_size() + self.menu_button_padding * 2
@@ -620,10 +707,9 @@ class DeviceDisplay:
         button_y = y + self.device_name_strip_height / 2 - size / 2
         return QRectF(button_x, button_y, size, size)
 
-    def paint_body(self, painter: QPainter,
-                   x: int, y: int,
-                   width: int,
-                   details: BodyDetails) -> None:
+    def paint_body(
+        self, painter: QPainter, x: int, y: int, width: int, details: BodyDetails
+    ) -> None:
         """
         Render the usage portion, which contains basic storage space information,
         a colored bar with a gradient that visually represents allocation of the
@@ -648,10 +734,11 @@ class DeviceDisplay:
 
         text_rect = QRect(device_size_x, y - self.padding, width, self.standard_height)
 
-
         if self.rendering_destination:
             # bytes free of total size e..g 123 MB free of 2 TB
-            painter.drawText(text_rect, Qt.AlignLeft | Qt.AlignBottom, d.bytes_free_of_total)
+            painter.drawText(
+                text_rect, Qt.AlignLeft | Qt.AlignBottom, d.bytes_free_of_total
+            )
 
             # Render the used space in the gradient bar before rendering the space
             # that will be taken by photos and videos
@@ -663,9 +750,13 @@ class DeviceDisplay:
             color3 = d.color2
         else:
             # Device size e.g. 32 GB
-            painter.drawText(text_rect, Qt.AlignLeft | Qt.AlignBottom, d.bytes_total_text)
+            painter.drawText(
+                text_rect, Qt.AlignLeft | Qt.AlignBottom, d.bytes_total_text
+            )
             # Percent used e.g. 79%
-            painter.drawText(text_rect, Qt.AlignRight | Qt.AlignBottom, d.percent_used_text)
+            painter.drawText(
+                text_rect, Qt.AlignRight | Qt.AlignBottom, d.percent_used_text
+            )
 
             # Don't change the order
             comp1_file_size_sum = d.comp1_file_size_sum
@@ -682,8 +773,10 @@ class DeviceDisplay:
         photos_g_x = device_size_x
         g_y = device_size_y + self.padding
         if d.bytes_total:
-            photos_g_width = (comp1_file_size_sum / d.bytes_total * width)
-            linearGradient = QLinearGradient(photos_g_x, g_y, photos_g_x, g_y + self.g_height)
+            photos_g_width = comp1_file_size_sum / d.bytes_total * width
+            linearGradient = QLinearGradient(
+                photos_g_x, g_y, photos_g_x, g_y + self.g_height
+            )
 
         rect = QRectF(photos_g_x, g_y, width, self.g_height)
         # Apply subtle shade to empty space
@@ -699,7 +792,7 @@ class DeviceDisplay:
 
         videos_g_x = photos_g_x + photos_g_width
         if comp2_file_size_sum and d.bytes_total:
-            videos_g_width = (comp2_file_size_sum / d.bytes_total * width)
+            videos_g_width = comp2_file_size_sum / d.bytes_total * width
             videos_g_rect = QRectF(videos_g_x, g_y, videos_g_width, self.g_height)
             linearGradient.setColorAt(0.2, color2.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, color2.darker(self.shading_intensity))
@@ -716,7 +809,6 @@ class DeviceDisplay:
             painter.fillRect(other_g_rect, QBrush(linearGradient))
         else:
             other_g_width = 0
-        
 
         if d.comp4_file_size_sum and d.bytes_total:
             # Excess usage, only for download destinations
@@ -740,17 +832,20 @@ class DeviceDisplay:
         details_y = bottom + self.vertical_padding
 
         painter.setFont(self.small_font)
-        
+
         # Component 4 details
         # (excess usage, only displayed if the storage space is not sufficient)
         # =====================================================================
-        
+
         if d.comp4_file_size_sum:
             # Gradient
-            comp4_g2_x =  x
-            comp4_g2_rect = QRect(comp4_g2_x, details_y, gradient_width, self.details_height)
-            linearGradient = QLinearGradient(comp4_g2_x, details_y,
-                                            comp4_g2_x, details_y + self.details_height)
+            comp4_g2_x = x
+            comp4_g2_rect = QRectF(
+                comp4_g2_x, details_y, gradient_width, self.details_height
+            )
+            linearGradient = QLinearGradient(
+                comp4_g2_x, details_y, comp4_g2_x, details_y + self.details_height
+            )
             linearGradient.setColorAt(0.2, color4.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, color4.darker(self.shading_intensity))
             painter.fillRect(comp4_g2_rect, QBrush(linearGradient))
@@ -760,26 +855,33 @@ class DeviceDisplay:
             # Text
             comp4_x = comp4_g2_x + gradient_width + spacer
             comp4_no_width = self.small_font_metrics.boundingRect(d.comp4_text).width()
-            comp4_size_width = self.small_font_metrics.boundingRect(d.comp4_size_text).width()
+            comp4_size_width = self.small_font_metrics.boundingRect(
+                d.comp4_size_text
+            ).width()
             comp4_width = max(comp4_no_width, comp4_size_width, self.sample1_width)
-            comp4_rect = QRect(comp4_x, details_y, comp4_width, self.details_height)
+            comp4_rect = QRectF(comp4_x, details_y, comp4_width, self.details_height)
 
             painter.setPen(standard_pen_color)
-            painter.drawText(comp4_rect, Qt.AlignLeft|Qt.AlignTop, d.comp4_text)
-            painter.drawText(comp4_rect, Qt.AlignLeft|Qt.AlignBottom, d.comp4_size_text)
+            painter.drawText(comp4_rect, Qt.AlignLeft | Qt.AlignTop, d.comp4_text)
+            painter.drawText(
+                comp4_rect, Qt.AlignLeft | Qt.AlignBottom, d.comp4_size_text
+            )
             photos_g2_x = comp4_rect.right() + 10
         else:
-            photos_g2_x =  x
+            photos_g2_x = x
 
         # Component 1 details
         # ===================
-        
+
         if not skip_comp1:
 
             # Gradient
-            photos_g2_rect = QRect(photos_g2_x, details_y, gradient_width, self.details_height)
-            linearGradient = QLinearGradient(photos_g2_x, details_y,
-                                            photos_g2_x, details_y + self.details_height)
+            photos_g2_rect = QRectF(
+                photos_g2_x, details_y, gradient_width, self.details_height
+            )
+            linearGradient = QLinearGradient(
+                photos_g2_x, details_y, photos_g2_x, details_y + self.details_height
+            )
             linearGradient.setColorAt(0.2, d.color1.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, d.color1.darker(self.shading_intensity))
             painter.fillRect(photos_g2_rect, QBrush(linearGradient))
@@ -789,13 +891,17 @@ class DeviceDisplay:
             # Text
             photos_x = photos_g2_x + gradient_width + spacer
             photos_no_width = self.small_font_metrics.boundingRect(d.comp1_text).width()
-            photos_size_width = self.small_font_metrics.boundingRect(d.comp1_size_text).width()
+            photos_size_width = self.small_font_metrics.boundingRect(
+                d.comp1_size_text
+            ).width()
             photos_width = max(photos_no_width, photos_size_width, self.sample1_width)
-            photos_rect = QRect(photos_x, details_y, photos_width, self.details_height)
+            photos_rect = QRectF(photos_x, details_y, photos_width, self.details_height)
 
             painter.setPen(standard_pen_color)
-            painter.drawText(photos_rect, Qt.AlignLeft|Qt.AlignTop, d.comp1_text)
-            painter.drawText(photos_rect, Qt.AlignLeft|Qt.AlignBottom, d.comp1_size_text)
+            painter.drawText(photos_rect, Qt.AlignLeft | Qt.AlignTop, d.comp1_text)
+            painter.drawText(
+                photos_rect, Qt.AlignLeft | Qt.AlignBottom, d.comp1_size_text
+            )
             videos_g2_x = photos_rect.right() + 10
 
         else:
@@ -806,23 +912,29 @@ class DeviceDisplay:
 
         if not skip_comp2:
             # Gradient
-            videos_g2_rect = QRect(videos_g2_x, details_y, gradient_width, self.details_height)
+            videos_g2_rect = QRectF(
+                videos_g2_x, details_y, gradient_width, self.details_height
+            )
             linearGradient.setColorAt(0.2, d.color2.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, d.color2.darker(self.shading_intensity))
             painter.fillRect(videos_g2_rect, QBrush(linearGradient))
             painter.setPen(self.storage_border)
             painter.drawRect(videos_g2_rect)
 
-            #Text
+            # Text
             videos_x = videos_g2_x + gradient_width + spacer
             videos_no_width = self.small_font_metrics.boundingRect(d.comp2_text).width()
-            videos_size_width = self.small_font_metrics.boundingRect(d.comp2_size_text).width()
+            videos_size_width = self.small_font_metrics.boundingRect(
+                d.comp2_size_text
+            ).width()
             videos_width = max(videos_no_width, videos_size_width, self.sample2_width)
-            videos_rect = QRect(videos_x, details_y, videos_width, self.details_height)
+            videos_rect = QRectF(videos_x, details_y, videos_width, self.details_height)
 
             painter.setPen(standard_pen_color)
-            painter.drawText(videos_rect, Qt.AlignLeft|Qt.AlignTop, d.comp2_text)
-            painter.drawText(videos_rect, Qt.AlignLeft|Qt.AlignBottom, d.comp2_size_text)
+            painter.drawText(videos_rect, Qt.AlignLeft | Qt.AlignTop, d.comp2_text)
+            painter.drawText(
+                videos_rect, Qt.AlignLeft | Qt.AlignBottom, d.comp2_size_text
+            )
 
             other_g2_x = videos_rect.right() + 10
         else:
@@ -834,23 +946,29 @@ class DeviceDisplay:
 
             # Gradient
 
-            other_g2_rect = QRect(other_g2_x, details_y, gradient_width, self.details_height)
+            other_g2_rect = QRectF(
+                other_g2_x, details_y, gradient_width, self.details_height
+            )
             linearGradient.setColorAt(0.2, d.color3.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, d.color3.darker(self.shading_intensity))
             painter.fillRect(other_g2_rect, QBrush(linearGradient))
             painter.setPen(self.storage_border)
             painter.drawRect(other_g2_rect)
 
-            #Text
+            # Text
             other_x = other_g2_x + gradient_width + spacer
             other_no_width = self.small_font_metrics.boundingRect(d.comp3_text).width()
-            other_size_width = self.small_font_metrics.boundingRect(d.comp3_size_text).width()
+            other_size_width = self.small_font_metrics.boundingRect(
+                d.comp3_size_text
+            ).width()
             other_width = max(other_no_width, other_size_width)
-            other_rect = QRect(other_x, details_y, other_width, self.details_height)
+            other_rect = QRectF(other_x, details_y, other_width, self.details_height)
 
             painter.setPen(standard_pen_color)
-            painter.drawText(other_rect, Qt.AlignLeft|Qt.AlignTop, d.comp3_text)
-            painter.drawText(other_rect, Qt.AlignLeft|Qt.AlignBottom, d.comp3_size_text)
+            painter.drawText(other_rect, Qt.AlignLeft | Qt.AlignTop, d.comp3_text)
+            painter.drawText(
+                other_rect, Qt.AlignLeft | Qt.AlignBottom, d.comp3_size_text
+            )
 
 
 class AdvancedDeviceDisplay(DeviceDisplay):
@@ -868,9 +986,12 @@ class AdvancedDeviceDisplay(DeviceDisplay):
 
         self.checkboxStyleOption = QStyleOptionButton()
         self.checkboxRect = QApplication.style().subElementRect(
-            QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None)  # type: QRect
+            QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None
+        )  # type: QRect
         self.checkbox_right = self.checkboxRect.right()
-        self.checkbox_y_offset = (self.device_name_strip_height - self.checkboxRect.height()) // 2
+        self.checkbox_y_offset = (
+            self.device_name_strip_height - self.checkboxRect.height()
+        ) // 2
 
         # Spinner values
         self.spinner_color = QColor(Qt.black)
@@ -884,24 +1005,33 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         self.icon_x_offset = self.icon_size + self.header_horizontal_padding
 
         self.downloaded_icon_size = 16
-        self.downloadedIcon = scaledIcon(':/thumbnail/downloaded.svg')
-        self.downloadedWarningIcon = scaledIcon(':/thumbnail/downloaded-with-warning.svg')
-        self.downloadedErrorIcon = scaledIcon(':/thumbnail/downloaded-with-error.svg')
-        self.downloaded_icon_y = self.v_align_header_pixmap(0, self.downloaded_icon_size)
+        self.downloadedIcon = scaledIcon(":/thumbnail/downloaded.svg")
+        self.downloadedWarningIcon = scaledIcon(
+            ":/thumbnail/downloaded-with-warning.svg"
+        )
+        self.downloadedErrorIcon = scaledIcon(":/thumbnail/downloaded-with-error.svg")
+        self.downloaded_icon_y = self.v_align_header_pixmap(
+            0, self.downloaded_icon_size
+        )
 
         palette = QGuiApplication.instance().palette()
         color = palette.highlight().color()
         self.progressBarPen = QPen(QBrush(color), 2.0)
 
-    def paint_header(self, painter: QPainter,
-                     x: int, y: int, width: int,
-                     display_name: str,
-                     icon: QPixmap,
-                     device_state: DeviceState,
-                     rotation: int,
-                     checked: bool,
-                     download_statuses: Set[DownloadStatus],
-                     percent_complete: float) -> None:
+    def paint_header(
+        self,
+        painter: QPainter,
+        x: int,
+        y: int,
+        width: int,
+        display_name: str,
+        icon: QPixmap,
+        device_state: DeviceState,
+        rotation: int,
+        checked: bool,
+        download_statuses: Set[DownloadStatus],
+        percent_complete: float,
+    ) -> None:
 
         standard_pen_color = painter.pen().color()
 
@@ -919,7 +1049,9 @@ class AdvancedDeviceDisplay(DeviceDisplay):
                 pixmap = self.downloadedWarningIcon.pixmap(size)
             else:
                 pixmap = self.downloadedIcon.pixmap(size)
-            painter.drawPixmap(x + self.padding, y + self.downloaded_icon_y, pixmap)
+            painter.drawPixmap(
+                QPointF(x + self.padding, y + self.downloaded_icon_y), pixmap
+            )
 
         elif device_state not in (DeviceState.scanning, DeviceState.downloading):
 
@@ -934,7 +1066,9 @@ class AdvancedDeviceDisplay(DeviceDisplay):
 
             checkboxStyleOption.rect = self.getCheckBoxRect(x, y)
 
-            QApplication.style().drawControl(QStyle.CE_CheckBox, checkboxStyleOption, painter)
+            QApplication.style().drawControl(
+                QStyle.CE_CheckBox, checkboxStyleOption, painter
+            )
 
         else:
             x = x + self.padding
@@ -946,7 +1080,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
                 painter.save()
                 painter.translate(
                     x + self.spinner_inner_radius + self.spinner_line_length,
-                    y + 1 + self.spinner_inner_radius + self.spinner_line_length
+                    y + 1 + self.spinner_inner_radius + self.spinner_line_length,
                 )
                 rotateAngle = float(360 * i) / float(number_spinner_lines)
                 painter.rotate(rotateAngle)
@@ -954,12 +1088,17 @@ class AdvancedDeviceDisplay(DeviceDisplay):
                 distance = self.lineCountDistanceFromPrimary(i, rotation)
                 color = self.currentLineColor(distance)
                 painter.setBrush(color)
-                rect = QRect(
-                    0, -self.spinner_line_width / 2,
-                    self.spinner_line_length, self.spinner_line_width
+                rect = QRectF(
+                    0,
+                    -self.spinner_line_width / 2,
+                    self.spinner_line_length,
+                    self.spinner_line_width,
                 )
                 painter.drawRoundedRect(
-                    rect, self.spinner_roundness, self.spinner_roundness, Qt.RelativeSize
+                    rect,
+                    self.spinner_roundness,
+                    self.spinner_roundness,
+                    Qt.RelativeSize,
                 )
                 painter.restore()
 
@@ -973,7 +1112,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
             painter.setPen(Qt.SolidLine)
             painter.setPen(standard_pen_color)
 
-    def paint_alternate(self, painter: QPainter,  x: int, y: int, text: str) -> None:
+    def paint_alternate(self, painter: QPainter, x: int, y: int, text: str) -> None:
 
         standard_pen_color = painter.pen().color()
 
@@ -995,7 +1134,9 @@ class AdvancedDeviceDisplay(DeviceDisplay):
             return color
         minAlphaF = self.spinner_min_trail_opacity / 100.0
         distanceThreshold = int(
-            math.ceil((number_spinner_lines - 1) * self.spinner_trail_fade_percent / 100.0)
+            math.ceil(
+                (number_spinner_lines - 1) * self.spinner_trail_fade_percent / 100.0
+            )
         )
         if countDistance > distanceThreshold:
             color.setAlphaF(minAlphaF)
@@ -1018,9 +1159,9 @@ class AdvancedDeviceDisplay(DeviceDisplay):
 class DeviceDelegate(QStyledItemDelegate):
 
     padding = DeviceDisplayPadding
-    
-    other = _('Other')
-    probing_text = _('Probing device...')
+
+    other = _("Other")
+    probing_text = _("Probing device...")
 
     shading_intensity = DeviceShadingIntensity
 
@@ -1029,19 +1170,23 @@ class DeviceDelegate(QStyledItemDelegate):
         self.rapidApp = rapidApp
 
         sample_number = thousands(999)
-        sample_no_photos = '{} {}'.format(sample_number, _('Photos'))
-        sample_no_videos = '{} {}'.format(sample_number, _('Videos'))
+        sample_no_photos = "{} {}".format(sample_number, _("Photos"))
+        sample_no_videos = "{} {}".format(sample_number, _("Videos"))
 
         self.deviceDisplay = AdvancedDeviceDisplay(
             comp1_sample=sample_no_photos, comp2_sample=sample_no_videos
         )
 
         self.contextMenu = QMenu()
-        self.ignoreDeviceAct = self.contextMenu.addAction(_('Temporarily ignore this device'))
+        self.ignoreDeviceAct = self.contextMenu.addAction(
+            _("Temporarily ignore this device")
+        )
         self.ignoreDeviceAct.triggered.connect(self.ignoreDevice)
-        self.blacklistDeviceAct = self.contextMenu.addAction(_('Permanently ignore this device'))
+        self.blacklistDeviceAct = self.contextMenu.addAction(
+            _("Permanently ignore this device")
+        )
         self.blacklistDeviceAct.triggered.connect(self.blacklistDevice)
-        self.rescanDeviceAct = self.contextMenu.addAction(_('Rescan'))
+        self.rescanDeviceAct = self.contextMenu.addAction(_("Rescan"))
         self.rescanDeviceAct.triggered.connect(self.rescanDevice)
         # store the index in which the user right clicked
         self.clickedIndex = None  # type: QModelIndex
@@ -1051,7 +1196,9 @@ class DeviceDelegate(QStyledItemDelegate):
         index = self.clickedIndex
         if index:
             scan_id = index.data(Roles.scan_id)  # type: int
-            self.rapidApp.removeDevice(scan_id=scan_id, ignore_in_this_program_instantiation=True)
+            self.rapidApp.removeDevice(
+                scan_id=scan_id, ignore_in_this_program_instantiation=True
+            )
             self.clickedIndex = None  # type: QModelIndex
 
     @pyqtSlot()
@@ -1070,7 +1217,9 @@ class DeviceDelegate(QStyledItemDelegate):
             self.rapidApp.rescanDevice(scan_id=scan_id)
             self.clickedIndex = None  # type: QModelIndex
 
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+    def paint(
+        self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
+    ) -> None:
         painter.save()
 
         x = option.rect.x()
@@ -1083,7 +1232,9 @@ class DeviceDelegate(QStyledItemDelegate):
                 Roles.device_details
             )
             if device_state == DeviceState.finished:
-                download_statuses = index.data(Roles.download_statuses)  # type: Set[DownloadStatus]
+                download_statuses = index.data(
+                    Roles.download_statuses
+                )  # type: Set[DownloadStatus]
             else:
                 download_statuses = set()
 
@@ -1103,13 +1254,15 @@ class DeviceDelegate(QStyledItemDelegate):
                 display_name=display_name,
                 checked=checked,
                 download_statuses=download_statuses,
-                percent_complete=percent_complete
+                percent_complete=percent_complete,
             )
 
         else:
             assert view_type == ViewRowType.content
 
-            device, storage_space = index.data(Roles.storage)  # type: Device, StorageSpace
+            device, storage_space = index.data(
+                Roles.storage
+            )  # type: Device, StorageSpace
 
             if storage_space is not None:
 
@@ -1122,62 +1275,68 @@ class DeviceDelegate(QStyledItemDelegate):
                     video_key = FileType.video
                     sum_key = None
 
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
-                photos = _('%(no_photos)s Photos') % {
-                    'no_photos': thousands(device.file_type_counter[photo_key])
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
+                photos = _("%(no_photos)s Photos") % {
+                    "no_photos": thousands(device.file_type_counter[photo_key])
                 }
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
-                videos = _('%(no_videos)s Videos') % {
-                    'no_videos': thousands(device.file_type_counter[video_key])
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
+                videos = _("%(no_videos)s Videos") % {
+                    "no_videos": thousands(device.file_type_counter[video_key])
                 }
                 photos_size = format_size_for_user(device.file_size_sum[photo_key])
                 videos_size = format_size_for_user(device.file_size_sum[video_key])
 
-                # Some devices do not report how many bytes total they have, e.g. some SMB shares
+                # Some devices do not report how many bytes total they have, e.g. some
+                # SMB shares
                 if storage_space.bytes_total:
-                    other_bytes = storage_space.bytes_total - device.file_size_sum.sum(sum_key) - \
-                                  storage_space.bytes_free
+                    other_bytes = (
+                        storage_space.bytes_total
+                        - device.file_size_sum.sum(sum_key)
+                        - storage_space.bytes_free
+                    )
                     other_size = format_size_for_user(other_bytes)
                     bytes_total_text = format_size_for_user(
                         storage_space.bytes_total, no_decimals=0
                     )
-                    bytes_used = storage_space.bytes_total-storage_space.bytes_free
-                    percent_used = '{0:.0%}'.format(bytes_used / storage_space.bytes_total)
+                    bytes_used = storage_space.bytes_total - storage_space.bytes_free
+                    percent_used = "{0:.0%}".format(
+                        bytes_used / storage_space.bytes_total
+                    )
                     # Translators: percentage full e.g. 75% full
-                    percent_used = _('%s full') % percent_used
+                    percent_used = _("%s full") % percent_used
                     bytes_total = storage_space.bytes_total
                 else:
-                    percent_used = _('Device size unknown')
+                    percent_used = _("Device size unknown")
                     bytes_total = device.file_size_sum.sum(sum_key)
                     other_bytes = 0
                     bytes_total_text = format_size_for_user(bytes_total, no_decimals=0)
-                    other_size = '0'
+                    other_size = "0"
 
                 details = BodyDetails(
                     bytes_total_text=bytes_total_text,
                     bytes_total=bytes_total,
                     percent_used_text=percent_used,
-                    bytes_free_of_total='',
+                    bytes_free_of_total="",
                     comp1_file_size_sum=device.file_size_sum[photo_key],
                     comp2_file_size_sum=device.file_size_sum[video_key],
                     comp3_file_size_sum=other_bytes,
                     comp4_file_size_sum=0,
-                    comp1_text = photos,
-                    comp2_text = videos,
-                    comp3_text = self.other,
-                    comp4_text = '',
+                    comp1_text=photos,
+                    comp2_text=videos,
+                    comp3_text=self.other,
+                    comp4_text="",
                     comp1_size_text=photos_size,
                     comp2_size_text=videos_size,
                     comp3_size_text=other_size,
-                    comp4_size_text='',
+                    comp4_size_text="",
                     color1=QColor(CustomColors.color1.value),
                     color2=QColor(CustomColors.color2.value),
                     color3=QColor(CustomColors.color3.value),
-                    displaying_files_of_type=DisplayingFilesOfType.photos_and_videos
+                    displaying_files_of_type=DisplayingFilesOfType.photos_and_videos,
                 )
                 self.deviceDisplay.paint_body(
                     painter=painter, x=x, y=y, width=width, details=details
@@ -1185,11 +1344,12 @@ class DeviceDelegate(QStyledItemDelegate):
 
             else:
                 assert len(device.storage_space) == 0
-                # Storage space not available, which for cameras means libgphoto2 is currently
-                # still trying to access the device
+                # Storage space not available, which for cameras means libgphoto2 is
+                # currently still trying to access the device
                 if device.device_type == DeviceType.camera:
-                    self.deviceDisplay.paint_alternate(painter=painter, x=x, y=y,
-                                                       text=self.probing_text)
+                    self.deviceDisplay.paint_alternate(
+                        painter=painter, x=x, y=y, text=self.probing_text
+                    )
 
         painter.restore()
 
@@ -1206,20 +1366,26 @@ class DeviceDelegate(QStyledItemDelegate):
                 height = self.deviceDisplay.storage_height
         return QSize(self.deviceDisplay.view_width, height)
 
-    def editorEvent(self, event: QEvent,
-                    model: QAbstractItemModel,
-                    option: QStyleOptionViewItem,
-                    index: QModelIndex) -> bool:
+    def editorEvent(
+        self,
+        event: QEvent,
+        model: QAbstractItemModel,
+        option: QStyleOptionViewItem,
+        index: QModelIndex,
+    ) -> bool:
         """
         Change the data in the model and the state of the checkbox
         if the user presses the left mousebutton or presses
         Key_Space or Key_Select and this cell is editable. Otherwise do nothing.
         """
 
-        if (event.type() == QEvent.MouseButtonRelease or event.type() ==
-            QEvent.MouseButtonDblClick):
+        if (
+            event.type() == QEvent.MouseButtonRelease
+            or event.type() == QEvent.MouseButtonDblClick
+        ):
             if event.button() == Qt.RightButton:
-                # Disable ignore and blacklist menus if the device is a This Computer path
+                # Disable ignore and blacklist menus if the device is a This Computer
+                # path
 
                 self.clickedIndex = index
 
@@ -1227,18 +1393,24 @@ class DeviceDelegate(QStyledItemDelegate):
                 device_type = index.data(Roles.device_type)
                 downloading = self.rapidApp.devices.downloading
 
-                self.ignoreDeviceAct.setEnabled(device_type != DeviceType.path and
-                                                scan_id not in downloading)
-                self.blacklistDeviceAct.setEnabled(device_type != DeviceType.path and
-                                                   scan_id not in downloading)
+                self.ignoreDeviceAct.setEnabled(
+                    device_type != DeviceType.path and scan_id not in downloading
+                )
+                self.blacklistDeviceAct.setEnabled(
+                    device_type != DeviceType.path and scan_id not in downloading
+                )
                 self.rescanDeviceAct.setEnabled(scan_id not in downloading)
 
                 view = self.rapidApp.mapView(scan_id)
                 globalPos = view.viewport().mapToGlobal(event.pos())
                 self.contextMenu.popup(globalPos)
                 return False
-            if event.button() != Qt.LeftButton or not self.deviceDisplay.getCheckBoxRect(
-                    option.rect.x(), option.rect.y()).contains(event.pos()):
+            if (
+                event.button() != Qt.LeftButton
+                or not self.deviceDisplay.getCheckBoxRect(
+                    option.rect.x(), option.rect.y()
+                ).contains(event.pos())
+            ):
                 return False
             if event.type() == QEvent.MouseButtonDblClick:
                 return True
@@ -1252,8 +1424,8 @@ class DeviceDelegate(QStyledItemDelegate):
         self.setModelData(None, model, index)
         return True
 
-    def setModelData (self, editor: QWidget,
-                      model: QAbstractItemModel,
-                      index: QModelIndex) -> None:
+    def setModelData(
+        self, editor: QWidget, model: QAbstractItemModel, index: QModelIndex
+    ) -> None:
         newValue = not (index.model().data(index, Qt.CheckStateRole))
         model.setData(index, newValue, Qt.CheckStateRole)
