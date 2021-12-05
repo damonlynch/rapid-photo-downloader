@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-12-03 04:44+0000\n"
-"PO-Revision-Date: 2021-11-30 13:21+0000\n"
-"Last-Translator: 我是 Steppenwolf <jado.92.mty@gmail.com>\n"
+"POT-Creation-Date: 2021-12-03 16:34+0000\n"
+"PO-Revision-Date: 2021-12-05 09:05+0000\n"
+"Last-Translator: Jose Luis Tirado <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2021-12-03 15:52+0000\n"
+"X-Launchpad-Export-Date: 2021-12-05 12:08+0000\n"
 "X-Generator: Launchpad (build cf73d44692888e78296213584c304ab04e7416a3)\n"
 "Language: es\n"
 
@@ -349,11 +349,11 @@ msgstr "Instalando la aplicación..."
 
 #: ../install.py:3697
 msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
-msgstr ""
+msgstr "¿Desea que Rapid Photo Downloader aparezca en el menú de Window?"
 
 #: ../install.py:3703
 msgid "Adding Rapid Photo Downloader to the Windows menu"
-msgstr ""
+msgstr "Añadiendo Rapid Photo Downloader al menú de Windows"
 
 #: ../install.py:3713
 msgid "Failed to copy application launcher."
@@ -1998,7 +1998,7 @@ msgstr "Abrir en el Explorador de archivos..."
 #. type: Optional[QModelIndex]
 #: ../raphodo/filebrowse.py:168
 msgid "Reset"
-msgstr ""
+msgstr "Restaurar"
 
 #: ../raphodo/filebrowse.py:172
 msgid "Show System Folders"
@@ -4309,6 +4309,12 @@ msgid ""
 "href=\"https://damonlynch.net/rapid/documentation/#iosdevicesupport\">Learn "
 "more</a> about which software to install."
 msgstr ""
+"<b>No se puede descargar de dispositivos Apple</b><br><br>Para descargar de "
+"%(device)s, este programa necesita de la instalación de software adicional "
+"que interactúe con dispositivos Apple.<br><br>Aplicaciones que faltan: "
+"%(applications)s<br><br><a "
+"href=\"https://damonlynch.net/rapid/documentation/#iosdevicesupport\">Más "
+"información</a> sobre qué software instalar."
 
 #: ../raphodo/rapid.py:1683
 msgid "Download failed"
@@ -4382,7 +4388,7 @@ msgstr "&Salir"
 
 #: ../raphodo/rapid.py:1985
 msgid "Windows &Drives"
-msgstr ""
+msgstr "Unidades de Windows"
 
 #: ../raphodo/rapid.py:1992
 msgid "Error &Reports"
@@ -4806,7 +4812,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:4755
 msgid "Enable access to the iOS Device"
-msgstr ""
+msgstr "Activar el acceso al dispositivo iOS"
 
 #: ../raphodo/rapid.py:4766
 msgid "&Try Again"
@@ -5139,7 +5145,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:6992
 msgid "Run this program in wayland or regular X11"
-msgstr ""
+msgstr "Ejecutar este programa en Wayland o en X11 normal"
 
 #: ../raphodo/rapid.py:7085
 msgid ""
@@ -5372,7 +5378,7 @@ msgstr "Imágenes"
 
 #: ../raphodo/sudocommand.py:86
 msgid "Sorry, the password was incorrect."
-msgstr ""
+msgstr "Lo siento, la contraseña era incorrecta."
 
 #. Translators: here %s refers to the username (you must keep %s or the
 #. program will crash). This is what it looks like:
@@ -5380,11 +5386,11 @@ msgstr ""
 #: ../raphodo/sudocommand.py:93
 #, python-format
 msgid "To perform administrative tasks, enter the password for %s."
-msgstr ""
+msgstr "Para ejecutar tareas administrativas, introduzca la password de %s."
 
 #: ../raphodo/sudocommand.py:125
 msgid "Password:"
-msgstr ""
+msgstr "Contraseña:"
 
 #: ../raphodo/thumbnaildisplay.py:577
 #, python-format
@@ -5596,17 +5602,17 @@ msgstr "&No"
 #: ../raphodo/wsl.py:106
 #, python-format
 msgid "Create directory <tt>%(path)s</tt>"
-msgstr ""
+msgstr "Crear directorio <tt>%(path)s</tt>"
 
 #: ../raphodo/wsl.py:110
 #, python-format
 msgid "Mount drive <tt>%(drive)s:</tt> at <tt>%(path)s</tt>"
-msgstr ""
+msgstr "Montar unidad <tt>%(drive)s:</tt> en <tt>%(path)s</tt>"
 
 #: ../raphodo/wsl.py:116
 #, python-format
 msgid "Unmount drive <tt>%(drive)s:</tt> from <tt>%(path)s</tt>"
-msgstr ""
+msgstr "Desmontar unidad <tt>%(drive)s:</tt> de <tt>%(path)s</tt>"
 
 #. Translators: This is part of a title for a dialog box, and is in plural
 #. form, where two or more drives will be mounted. This screenshot shows only
@@ -5615,7 +5621,7 @@ msgstr ""
 #: ../raphodo/wsl.py:310
 #, python-format
 msgid "Mount drives %s"
-msgstr ""
+msgstr "Montar unidades %s"
 
 #. Translators: This is part of a title for a dialog box, and is in singular
 #. form, where only one drive will be mounted. This screenshot illustrates:
@@ -5623,7 +5629,7 @@ msgstr ""
 #: ../raphodo/wsl.py:315
 #, python-format
 msgid "Mount drive %s"
-msgstr ""
+msgstr "Montar unidad %s"
 
 #. Translators: This is part of a title for a dialog box, and is in plural
 #. form, where two or more drives will be unmounted. This screenshot shows
@@ -5632,7 +5638,7 @@ msgstr ""
 #: ../raphodo/wsl.py:322
 #, python-format
 msgid "Unmount drives %s"
-msgstr ""
+msgstr "Desmontar unidades %s"
 
 #. Translators: This is part of a title for a dialog box, and is in singular
 #. form, where only one drive will be unmounted. This screenshot shows a
@@ -5641,104 +5647,106 @@ msgstr ""
 #: ../raphodo/wsl.py:328
 #, python-format
 msgid "Unmount drive %s"
-msgstr ""
+msgstr "Desmontar unidad %s"
 
 #: ../raphodo/wsl.py:391
 #, python-format
 msgid "Sorry, an error occurred when mounting drives %s"
-msgstr ""
+msgstr "Lo siento, se ha producido un error al montar las unidades %s"
 
 #: ../raphodo/wsl.py:397
 #, python-format
 msgid "Sorry, an error occurred when unmounting drives %s"
-msgstr ""
+msgstr "Lo siento, se ha producido un error al desmontar las unidades %s"
 
 #: ../raphodo/wsl.py:404
 #, python-format
 msgid "Sorry, an error occurred when mounting drive %s"
-msgstr ""
+msgstr "Lo siento, se ha producido un error al montar la unidad %s"
 
 #: ../raphodo/wsl.py:410
 #, python-format
 msgid "Sorry, an error occurred when unmounting drive %s"
-msgstr ""
+msgstr "Lo siento, se ha producido un error al desmontar la unidad %s"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:559
 msgid "Windows Drives"
-msgstr ""
+msgstr "Unidades de Windows"
 
 #: ../raphodo/wsl.py:563
 msgid "Enable automatic mounting of Windows drives"
-msgstr ""
+msgstr "Activar montado automático de unidades de Windows"
 
 #: ../raphodo/wsl.py:567
 msgid "Automatically mount all Windows drives"
-msgstr ""
+msgstr "Montar automáticamente todas las unidades de Windows"
 
 #: ../raphodo/wsl.py:571
 msgid "Only automatically mount Windows drives that are configured below"
 msgstr ""
+"Solo montar automáticamente las unidades de Windows que están configuradas "
+"más abajo"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:595
 msgid "User Mounted"
-msgstr ""
+msgstr "Montado por usuario"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:597
 msgid "System Mounted"
-msgstr ""
+msgstr "Montado por sistema"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:599
 msgid "Drive"
-msgstr ""
+msgstr "Unidad"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:601
 msgid "Mount Point"
-msgstr ""
+msgstr "Punto de montaje"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:603
 msgid "Automatic Mount"
-msgstr ""
+msgstr "Montaje automático"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:605
 msgid "Automatic Unmount at Exit"
-msgstr ""
+msgstr "Desmontaje automático al salir"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:639
 msgid "Pending Operations:"
-msgstr ""
+msgstr "Operaciones pendientes:"
 
 #. Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
 #: ../raphodo/wsl.py:653
 msgid "&Apply Pending Operations"
-msgstr ""
+msgstr "&Aplicar operaciones pendientes"
 
 #. Translators: this will appear in a small dialog asking the user
 #. if they want to mount a single drive
 #: ../raphodo/wsl.py:1460
 #, python-format
 msgid "Do you want to mount drive %s?"
-msgstr ""
+msgstr "¿Quiere montar la unidad %s?"
 
 #. translators: this will appear in a small dialog asking the user
 #. if they want to mount two or more drives
 #: ../raphodo/wsl.py:1464
 #, python-format
 msgid "Do you want to mount drives %s?"
-msgstr ""
+msgstr "¿Quiere montar las unidades %s?"
 
 #. Translators: this is the name Windows uses for a removable drive,
 #. like a USB drive
 #: ../raphodo/wsl.py:1607
 msgid "Removable Drive"
-msgstr ""
+msgstr "Unidad extraíble"
 
 #. Translators: this is the name Windows uses for a drive that is
 #. normally part of the computer, like an internal hard drive
@@ -5746,7 +5754,7 @@ msgstr ""
 #. Windows as local drives)
 #: ../raphodo/wsl.py:1613
 msgid "Local Drive"
-msgstr ""
+msgstr "Unidad local"
 
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:2
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
