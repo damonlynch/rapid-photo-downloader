@@ -179,7 +179,7 @@ class AboutDialog(QDialog):
         # Translators view
 
         translators_text = """
-        <b>Algerian</b>
+        <b>Albanian</b>
         Algent Albrahimi <algent@protonmail.com>
 
         <b>Belarusian</b>
