@@ -12,6 +12,8 @@ Changelog for Rapid Photo Downloader
 
  - Update Czech, Dutch, French, Hungarian, Russian and Spanish translations.
 
+ - Correct Albanian language attribution in About dialog box.
+
 0.9.27b2 (2021-11-28)
 ---------------------
 
