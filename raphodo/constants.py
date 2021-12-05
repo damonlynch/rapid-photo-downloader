@@ -764,8 +764,8 @@ class ScalingDetected(Enum):
     undetected = 4
 
 
-# Use the character . to for download_name and path to indicate the user manually marked a
-# file as previously downloaded
+# Use the character . to for download_name and path to indicate the user manually
+# marked a file as previously downloaded
 manually_marked_previously_downloaded = "."
 
 filtered_file_browser_directories = {
@@ -776,8 +776,7 @@ filtered_file_browser_directories = {
 
 
 non_system_root_folders = [
-    '/home',
-    '/media',
-    '/mnt',
+    "/home",
+    "/media",
+    "/mnt",
 ]
-
