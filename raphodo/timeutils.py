@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,8 +18,8 @@
 
 # A few utility functions relating to time conversion and internationalization
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2015-2021, Damon Lynch"
 
 import locale
 from datetime import datetime
@@ -39,16 +39,16 @@ def twelve_hour_clock() -> bool:
 
 
 replacement_fmts = [
-    ('.%S', ''),
-    (':%S', ''),
-    (',%S', ''),
-    (':%OS', ''),
-    ('ཀསར་ཆ%S', ''),
-    (' %S초', ''),
-    ('%S秒', ''),
-    ('%r', '%I:%M'),
-    ('%t', '%H:%M'),
-    ('%T', '%H:%M')
+    (".%S", ""),
+    (":%S", ""),
+    (",%S", ""),
+    (":%OS", ""),
+    ("ཀསར་ཆ%S", ""),
+    (" %S초", ""),
+    ("%S秒", ""),
+    ("%r", "%I:%M"),
+    ("%t", "%H:%M"),
+    ("%T", "%H:%M"),
 ]
 
 dt_am = datetime(2015, 11, 3, 1)
@@ -72,8 +72,8 @@ def locale_time(t: datetime) -> str:
 
     t_fmt = locale.nl_langinfo(locale.T_FMT_AMPM) or locale.nl_langinfo(locale.T_FMT)
 
-    if t_fmt in ('%r', '%t', '%T'):
-        s = t.strftime('%X').strip()
+    if t_fmt in ("%r", "%t", "%T"):
+        s = t.strftime("%X").strip()
         return re.sub(r"(\d\d):(\d\d):\d\d", r"\1:\2", s)
 
     for fmt in replacement_fmts:
@@ -87,19 +87,19 @@ def locale_time(t: datetime) -> str:
 def strip_zero(t: str, strip_zero) -> str:
     if not strip_zero:
         return t.strip()
-    return t.lstrip('0').strip()
+    return t.lstrip("0").strip()
 
 
 def strip_am(t: str) -> str:
     if not locale.nl_langinfo(locale.T_FMT_AMPM):
         return t.strip()
-    return t.replace(dt_am.strftime('%p'), '').strip()
+    return t.replace(dt_am.strftime("%p"), "").strip()
 
 
 def strip_pm(t: str) -> str:
     if not locale.nl_langinfo(locale.T_FMT_AMPM):
         return t.strip()
-    return t.replace(dt_pm.strftime('%p'), '').strip()
+    return t.replace(dt_pm.strftime("%p"), "").strip()
 
 
 def make_long_date_format(arrowtime: Arrow) -> str:
@@ -107,12 +107,12 @@ def make_long_date_format(arrowtime: Arrow) -> str:
     # Translators: %(variable)s represents Python code, not a plural of the term
     # variable. You must keep the %(variable)s untranslated, or the program will
     # crash.
-    long_format = _('%(month)s %(numeric_day)s') % {
-        'month': arrowtime.datetime.strftime('%b'),
-        'numeric_day': arrowtime.format('D')
+    long_format = _("%(month)s %(numeric_day)s") % {
+        "month": arrowtime.datetime.strftime("%b"),
+        "numeric_day": arrowtime.format("D"),
     }
     # Translators: for example Nov 15 2015
     # Translators: %(variable)s represents Python code, not a plural of the term
     # variable. You must keep the %(variable)s untranslated, or the program will
     # crash.
-    return _('%(date)s %(year)s') % dict(date=long_format, year=arrowtime.year)
+    return _("%(date)s %(year)s") % dict(date=long_format, year=arrowtime.year)

@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -29,14 +29,15 @@ http://stackoverflow.com/questions/14780517/toggle-switch-in-qt
 http://thesmithfam.org/blog/2010/03/10/fancy-qslider-stylesheet/
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 from typing import Optional
 
 from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtGui import QPalette, QColor, QFont,QFontMetrics
+from PyQt5.QtGui import QPalette, QColor, QFont, QFontMetrics
 from PyQt5.QtWidgets import QSlider, QApplication
+
 
 class QToggleSwitch(QSlider):
     """
@@ -44,7 +45,8 @@ class QToggleSwitch(QSlider):
 
     Connect to signal valueChanged to react to user setting the switch.
     """
-    def __init__(self, background: Optional[QColor]=None, parent=None) -> None:
+
+    def __init__(self, background: Optional[QColor] = None, parent=None) -> None:
         super().__init__(Qt.Horizontal, parent)
 
         self.base_height = QFontMetrics(QFont()).height() // 2 * 2
@@ -67,22 +69,26 @@ class QToggleSwitch(QSlider):
 
     def stylesheet(self, background: Optional[QColor]) -> str:
         shading_intensity = 104
-        windowColor = (QPalette().color(QPalette().Window))  # type: QColor
+        windowColor = QPalette().color(QPalette().Window)  # type: QColor
 
         if background is None:
             backgroundName = windowColor.name()
         else:
             backgroundName = QColor(background).name()
 
-        handleLightName = (QPalette().color(QPalette().Light)).name() # type: QColor
+        handleLightName = (QPalette().color(QPalette().Light)).name()  # type: QColor
         handleDarkName = (QPalette().color(QPalette().Dark)).name()  # type: QColor
-        handleHoverLightName = (QPalette().color(QPalette().Light)).lighter(shading_intensity).name()
-        handleHoverDarkName = (QPalette().color(QPalette().Dark)).darker(shading_intensity).name()
+        handleHoverLightName = (
+            (QPalette().color(QPalette().Light)).lighter(shading_intensity).name()
+        )
+        handleHoverDarkName = (
+            (QPalette().color(QPalette().Dark)).darker(shading_intensity).name()
+        )
 
         insetDarkName = windowColor.darker(108).name()
         insetLightName = windowColor.darker(102).name()
 
-        highlightColor = (QPalette().color(QPalette().Highlight))  # type: QColor
+        highlightColor = QPalette().color(QPalette().Highlight)  # type: QColor
         highlightLightName = highlightColor.lighter(110).name()
         highlightDarkName = highlightColor.darker(130).name()
 
@@ -138,18 +144,20 @@ class QToggleSwitch(QSlider):
             border: 1px solid #aaa;
             border-radius: %(radius)spx;
             }
-        """ % dict(buttonWidth=self.handleWidth,
-                   handleLightName=handleLightName,
-                   handleDarkName=handleDarkName,
-                   handleHoverLightName=handleHoverLightName,
-                   handleHoverDarkName=handleHoverDarkName,
-                   backgroundName=backgroundName,
-                   highlightDarkName=highlightDarkName,
-                   highlightLightName=highlightLightName,
-                   height=self.base_height,
-                   insetDarkName=insetDarkName,
-                   insetLightName=insetLightName,
-                   radius=self.radius)
+        """ % dict(
+            buttonWidth=self.handleWidth,
+            handleLightName=handleLightName,
+            handleDarkName=handleDarkName,
+            handleHoverLightName=handleHoverLightName,
+            handleHoverDarkName=handleHoverDarkName,
+            backgroundName=backgroundName,
+            highlightDarkName=highlightDarkName,
+            highlightLightName=highlightLightName,
+            height=self.base_height,
+            insetDarkName=insetDarkName,
+            insetLightName=insetLightName,
+            radius=self.radius,
+        )
 
     @pyqtSlot(int)
     def onActionTriggered(self, action: int) -> None:
@@ -169,7 +177,7 @@ class QToggleSwitch(QSlider):
     def on(self) -> bool:
         return self.value() == self.sliderRange
 
-    def setOn(self, on: bool=True) -> None:
+    def setOn(self, on: bool = True) -> None:
         if on:
             self.setValue(self.sliderRange)
         else:
@@ -178,6 +186,7 @@ class QToggleSwitch(QSlider):
 
 if __name__ == "__main__":
     import sys
+
     app = QApplication(sys.argv)
     b = QToggleSwitch()
     b.show()

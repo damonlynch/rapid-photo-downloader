@@ -24,7 +24,7 @@ There is a Python binding to libimobiledevice, but at the time of writing it is
 undocumented and very difficult to use.
 """
 
-__author__ = 'Damon Lynch'
+__author__ = "Damon Lynch"
 __copyright__ = "Copyright 2021, Damon Lynch."
 
 import logging
@@ -40,9 +40,9 @@ from raphodo.utilities import create_temp_dir
 
 
 # Utilities for identifying, pairing, and mounting iOS devices
-# Called every time on import into a new process, but not much we can do about that without
-# a bunch of extra optimization steps
-idevice_helper_apps = ('idevicename', 'idevicepair', 'ifuse', 'fusermount')
+# Called every time on import into a new process, but not much we can do about that
+# without a bunch of extra optimization steps
+idevice_helper_apps = ("idevicename", "idevicepair", "ifuse", "fusermount")
 ios_helper_cmds = [shutil.which(cmd) for cmd in idevice_helper_apps]
 idevicename_cmd, idevicepair_cmd, ifuse_cmd, fusermount_cmd = ios_helper_cmds
 
@@ -58,7 +58,11 @@ def ios_missing_programs() -> List[str]:
     """
     :return: a list of missing helper programs to allow iOS device access
     """
-    l = [idevice_helper_apps[i] for i in range(len(ios_helper_cmds)) if ios_helper_cmds[i] is None]
+    l = [
+        idevice_helper_apps[i]
+        for i in range(len(ios_helper_cmds))
+        if ios_helper_cmds[i] is None
+    ]
     return l
 
 
@@ -74,21 +78,25 @@ def idevice_serial_to_udid(serial: str) -> str:
     """
 
     if len(serial) == 24:
-        return '{}-{}'.format(serial[:8], serial[8:])
+        return "{}-{}".format(serial[:8], serial[8:])
     else:
         if len(serial) != 40:
-            logging.warning("Unexpected serial number length for iOS device: %s", serial)
+            logging.warning(
+                "Unexpected serial number length for iOS device: %s", serial
+            )
         return serial
 
 
-def idevice_run_command(command: str,
-                        udid: str,
-                        argument_before_option: Optional[str] = '',
-                        argument: Optional[str] = '',
-                        display_name: Optional[str] = '',
-                        warning_only: Optional[bool] = False,
-                        supply_udid_as_arg: Optional[bool] = True,
-                        camera_error_code: Optional[CameraErrorCode] = CameraErrorCode.pair) -> str:
+def idevice_run_command(
+    command: str,
+    udid: str,
+    argument_before_option: Optional[str] = "",
+    argument: Optional[str] = "",
+    display_name: Optional[str] = "",
+    warning_only: Optional[bool] = False,
+    supply_udid_as_arg: Optional[bool] = True,
+    camera_error_code: Optional[CameraErrorCode] = CameraErrorCode.pair,
+) -> str:
     """
     Run a command and raise an error if it fails
 
@@ -105,26 +113,34 @@ def idevice_run_command(command: str,
 
     cmd = [command]
     if command == fusermount_cmd:
-        cmd.append('-u')  # Note: nothing to to with udid. Simply instructs fusermount to unmount.
+        cmd.append(
+            "-u"
+        )  # Note: nothing to to with udid. Simply instructs fusermount to unmount.
     if argument_before_option:
         cmd.append(argument_before_option)
     if supply_udid_as_arg:
-        cmd.append('-u')
+        cmd.append("-u")
         cmd.append(udid)
     if argument:
         cmd.append(argument)
 
     try:
         result = subprocess.run(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True,
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=True,
         )
     except subprocess.CalledProcessError as e:
         if warning_only:
             logging.warning(
-                'Error running %s for %s. %s: %s',
-                command, display_name or udid, e.returncode, e.stdout.decode().strip(),
+                "Error running %s for %s. %s: %s",
+                command,
+                display_name or udid,
+                e.returncode,
+                e.stdout.decode().strip(),
             )
-            return ''
+            return ""
         else:
             raise iOSDeviceError(
                 camera_error_code, e.returncode, e.output.decode(), udid, display_name
@@ -141,8 +157,10 @@ def idevice_get_name(udid: str) -> str:
     """
 
     return idevice_run_command(
-        udid=udid, command=idevicename_cmd, warning_only=True,
-        camera_error_code=CameraErrorCode.devicename
+        udid=udid,
+        command=idevicename_cmd,
+        warning_only=True,
+        camera_error_code=CameraErrorCode.devicename,
     ).strip()
 
 
@@ -155,7 +173,7 @@ def idevice_run_idevicepair_command(udid: str, display_name: str, argument: str)
     :return: command's stdout / stderr
     """
 
-    assert argument in ('validate', 'list', 'pair')
+    assert argument in ("validate", "list", "pair")
     return idevice_run_command(
         udid=udid, display_name=display_name, command=idevicepair_cmd, argument=argument
     )
@@ -164,8 +182,12 @@ def idevice_run_idevicepair_command(udid: str, display_name: str, argument: str)
 def idevice_in_pairing_list(udid: str, display_name: str) -> bool:
     """Check if iOS device is in list of paired devices"""
 
-    logging.debug("Checking if '%s' is already in iOS device pairing list", display_name)
-    result = idevice_run_idevicepair_command(udid=udid, display_name=display_name, argument='list')
+    logging.debug(
+        "Checking if '%s' is already in iOS device pairing list", display_name
+    )
+    result = idevice_run_idevicepair_command(
+        udid=udid, display_name=display_name, argument="list"
+    )
     return udid in result
 
 
@@ -175,14 +197,18 @@ def idevice_validate_pairing(udid: str, display_name: str):
     Raises error on failure.
     """
 
-    idevice_run_idevicepair_command(udid=udid, display_name=display_name, argument='validate')
+    idevice_run_idevicepair_command(
+        udid=udid, display_name=display_name, argument="validate"
+    )
     logging.info("Successfully validated pairing of '%s'", display_name)
 
 
 def idevice_pair(udid: str, display_name: str):
     """Pair iOS device"""
 
-    idevice_run_idevicepair_command(udid=udid, display_name=display_name, argument='pair')
+    idevice_run_idevicepair_command(
+        udid=udid, display_name=display_name, argument="pair"
+    )
     logging.debug("Successfully paired '%s'", display_name)
 
 
@@ -199,8 +225,11 @@ def idevice_do_mount(udid: str, display_name: str) -> str:
     mount_point = idevice_generate_mount_point(udid=udid)
 
     idevice_run_command(
-        udid=udid, command=ifuse_cmd, display_name=display_name,
-        argument_before_option=mount_point, camera_error_code=CameraErrorCode.mount
+        udid=udid,
+        command=ifuse_cmd,
+        display_name=display_name,
+        argument_before_option=mount_point,
+        camera_error_code=CameraErrorCode.mount,
     )
     return mount_point
 
@@ -217,23 +246,28 @@ def idevice_do_unmount(udid: str, display_name: str, mount_point: str):
 
     try:
         idevice_run_command(
-            udid=udid, command=fusermount_cmd, display_name=display_name,
-            argument=mount_point, camera_error_code=CameraErrorCode.mount,
+            udid=udid,
+            command=fusermount_cmd,
+            display_name=display_name,
+            argument=mount_point,
+            camera_error_code=CameraErrorCode.mount,
             supply_udid_as_arg=False,
         )
     except iOSDeviceError as e:
         logging.error(
             "Error unmounting iOS device '%s'. %s: %s",
-            e.display_name, e.imobile_error, e.imobile_error_output
+            e.display_name,
+            e.imobile_error,
+            e.imobile_error_output,
         )
     if os.path.isdir(mount_point):
         try:
             os.rmdir(mount_point)
         except OSError as inst:
             msg = "Failed to remove temporary directory %s: %s %s" % (
-                          mount_point,
-                          inst.errno,
-                          inst.strerror
+                mount_point,
+                inst.errno,
+                inst.strerror,
             )
             logging.critical(msg)
 
@@ -245,10 +279,10 @@ def idevice_generate_mount_point(udid: str) -> str:
     :return: full path to the temp dir
     """
 
-    # Make the temp directory have the iOS serial number so that when thumbnails are saved by
-    # path, the path will be the same each time the device is inserted
+    # Make the temp directory have the iOS serial number so that when thumbnails are
+    # saved by path, the path will be the same each time the device is inserted
 
-    temp_dir = create_temp_dir(temp_dir_name='rpd-tmp-{}'.format(udid))
+    temp_dir = create_temp_dir(temp_dir_name="rpd-tmp-{}".format(udid))
     assert temp_dir is not None
     logging.debug("Created temp mount point %s", temp_dir)
     return temp_dir

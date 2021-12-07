@@ -18,7 +18,7 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-__author__ = 'Damon Lynch'
+__author__ = "Damon Lynch"
 __copyright__ = "Copyright 2011-2021, Damon Lynch"
 
 import os
@@ -35,26 +35,32 @@ from itertools import chain
 from collections import defaultdict
 from typing import Dict, Optional, Tuple
 import locale
+
 try:
     # Use the default locale as defined by the LANG variable
-    locale.setlocale(locale.LC_ALL, '')
+    locale.setlocale(locale.LC_ALL, "")
 except locale.Error:
     pass
 
 import gphoto2 as gp
 
-from raphodo.camera import (
-    Camera, CameraProblemEx, gphoto2_python_logging
-)
+from raphodo.camera import Camera, CameraProblemEx, gphoto2_python_logging
 from raphodo.interprocess import (
-    WorkerInPublishPullPipeline, CopyFilesArguments, CopyFilesResults
+    WorkerInPublishPullPipeline,
+    CopyFilesArguments,
+    CopyFilesResults,
 )
-from raphodo.constants import (FileType, DownloadStatus, CameraErrorCode)
-from raphodo.utilities import (GenerateRandomFileName, create_temp_dirs, same_device)
+from raphodo.constants import FileType, DownloadStatus, CameraErrorCode
+from raphodo.utilities import GenerateRandomFileName, create_temp_dirs, same_device
 from raphodo.rpdfile import RPDFile
 from raphodo.problemnotification import (
-    CopyingProblems, CameraFileReadProblem, FileWriteProblem, FileMoveProblem, FileDeleteProblem,
-    FileCopyProblem, CameraInitializationProblem
+    CopyingProblems,
+    CameraFileReadProblem,
+    FileWriteProblem,
+    FileMoveProblem,
+    FileDeleteProblem,
+    FileCopyProblem,
+    CameraInitializationProblem,
 )
 from raphodo.storage import get_uri
 from raphodo.preferences import Preferences
@@ -89,11 +95,11 @@ def copy_file_metadata(src: str, dst: str) -> Optional[Tuple]:
     except (OSError, PermissionError, FileNotFoundError) as inst:
         errors.append(inst)
 
-    if hasattr(os, 'chflags') and hasattr(st, 'st_flags'):
+    if hasattr(os, "chflags") and hasattr(st, "st_flags"):
         try:
             os.chflags(dst, st.st_flags)
         except OSError as why:
-            for err in 'EOPNOTSUPP', 'ENOTSUP':
+            for err in "EOPNOTSUPP", "ENOTSUP":
                 if hasattr(errno, err) and why.errno == getattr(errno, err):
                     break
             else:
@@ -119,13 +125,14 @@ def copy_camera_file_metadata(mtime: float, dst: str) -> Optional[Tuple]:
     try:
         os.utime(dst, (mtime, mtime))
     except (OSError, PermissionError, FileNotFoundError) as inst:
-        return inst,  # note the comma: return a Tuple
+        return (inst,)  # note the comma: return a Tuple
 
 
 class FileCopy:
     """
     Used by classes CopyFilesWorker and BackupFilesWorker
     """
+
     def __init__(self):
         self.io_buffer = 1024 * 1024
         self.batch_size_bytes = 5 * 1024 * 1024
@@ -143,11 +150,13 @@ class FileCopy:
     def init_copy_progress(self) -> None:
         self.bytes_downloaded = 0
 
-    def copy_from_filesystem(self, source: str, destination: str, rpd_file: RPDFile) -> bool:
+    def copy_from_filesystem(
+        self, source: str, destination: str, rpd_file: RPDFile
+    ) -> bool:
         src_chunks = []
         try:
-            self.dest = io.open(destination, 'wb', self.io_buffer)
-            self.src = io.open(source, 'rb', self.io_buffer)
+            self.dest = io.open(destination, "wb", self.io_buffer)
+            self.src = io.open(source, "rb", self.io_buffer)
             total = rpd_file.size
             amount_downloaded = 0
 
@@ -168,18 +177,20 @@ class FileCopy:
             self.src.close()
 
             if self.verify_file:
-                src_bytes = b''.join(src_chunks)
+                src_bytes = b"".join(src_chunks)
                 rpd_file.md5 = hashlib.md5(src_bytes).hexdigest()
 
             return True
         except (OSError, FileNotFoundError, PermissionError) as e:
             self.problems.append(
                 FileCopyProblem(
-                    name=os.path.basename(source), uri=get_uri(full_file_name=source), exception=e
+                    name=os.path.basename(source),
+                    uri=get_uri(full_file_name=source),
+                    exception=e,
                 )
             )
             try:
-                msg = '%s: %s' % (e.errno, e.strerror)
+                msg = "%s: %s" % (e.errno, e.strerror)
             except AttributeError:
                 msg = str(e)
             logging.error("%s. Failed to copy %s to %s", msg, source, destination)
@@ -187,30 +198,33 @@ class FileCopy:
         except Exception as e:
             self.problems.append(
                 FileCopyProblem(
-                    name=os.path.basename(source), uri=get_uri(full_file_name=source), exception=e
+                    name=os.path.basename(source),
+                    uri=get_uri(full_file_name=source),
+                    exception=e,
                 )
             )
             try:
-                msg = '%s: %s' % (e.errno, e.strerror)
+                msg = "%s: %s" % (e.errno, e.strerror)
             except AttributeError:
                 msg = str(e)
-            logging.error("Unexpected error: %s. Failed to copy %s to %s", msg, source, destination)
+            logging.error(
+                "Unexpected error: %s. Failed to copy %s to %s",
+                msg,
+                source,
+                destination,
+            )
             return False
 
 
 class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
-
     def __init__(self):
-        super().__init__('CopyFiles')
+        super().__init__("CopyFiles")
 
     def terminate_camera_removed(self) -> None:
         self.cleanup_pre_stop()
         self.content = pickle.dumps(
-            CopyFilesResults(
-                scan_id=self.scan_id,
-                camera_removed=True
-            ),
-            pickle.HIGHEST_PROTOCOL
+            CopyFilesResults(scan_id=self.scan_id, camera_removed=True),
+            pickle.HIGHEST_PROTOCOL,
         )
         self.send_message_to_sink()
         self.disconnect_logging()
@@ -234,10 +248,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         """
 
         self.content = pickle.dumps(
-            CopyFilesResults(
-                scan_id=self.scan_id, problems=self.problems
-            ),
-            pickle.HIGHEST_PROTOCOL
+            CopyFilesResults(scan_id=self.scan_id, problems=self.problems),
+            pickle.HIGHEST_PROTOCOL,
         )
         self.send_message_to_sink()
 
@@ -257,8 +269,10 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 CopyFilesResults(
                     scan_id=self.scan_id,
                     total_downloaded=self.total_downloaded + amount_downloaded,
-                    chunk_downloaded=chunk_downloaded),
-               pickle.HIGHEST_PROTOCOL)
+                    chunk_downloaded=chunk_downloaded,
+                ),
+                pickle.HIGHEST_PROTOCOL,
+            )
             self.send_message_to_sink()
 
             # if amount_downloaded == total:
@@ -274,7 +288,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 dest_full_filename=rpd_file.temp_full_file_name,
                 progress_callback=self.update_progress,
                 check_for_command=self.check_for_controller_directive,
-                return_file_bytes=self.verify_file
+                return_file_bytes=self.verify_file,
             )
         except CameraProblemEx as e:
             name = rpd_file.name
@@ -282,10 +296,14 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             if e.gp_code in (gp.GP_ERROR_IO_USB_FIND, gp.GP_ERROR_BAD_PARAMETERS):
                 self.terminate_camera_removed()
             elif e.code == CameraErrorCode.read:
-                self.problems.append(CameraFileReadProblem(name=name, uri=uri, gp_code=e.gp_code))
+                self.problems.append(
+                    CameraFileReadProblem(name=name, uri=uri, gp_code=e.gp_code)
+                )
             else:
                 assert e.code == CameraErrorCode.write
-                self.problems.append(FileWriteProblem(name=name, uri=uri, exception=e.py_exception))
+                self.problems.append(
+                    FileWriteProblem(name=name, uri=uri, exception=e.py_exception)
+                )
             return False
 
         if self.verify_file:
@@ -293,12 +311,17 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
         return True
 
-    def copy_associate_file(self, rpd_file: RPDFile, temp_name: str,
-                            dest_dir: str, associate_file_fullname: str,
-                            file_type: str) -> Optional[str]:
+    def copy_associate_file(
+        self,
+        rpd_file: RPDFile,
+        temp_name: str,
+        dest_dir: str,
+        associate_file_fullname: str,
+        file_type: str,
+    ) -> Optional[str]:
 
         ext = os.path.splitext(associate_file_fullname)[1]
-        temp_ext = '{}{}'.format(temp_name, ext)
+        temp_ext = "{}{}".format(temp_name, ext)
         temp_full_name = os.path.join(dest_dir, temp_ext)
         if rpd_file.from_camera:
             dir_name, file_name = os.path.split(associate_file_fullname)
@@ -306,26 +329,35 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 self.camera.save_file(dir_name, file_name, temp_full_name)
             except CameraProblemEx as e:
                 uri = get_uri(
-                    full_file_name=associate_file_fullname, camera_details=rpd_file.camera_details
+                    full_file_name=associate_file_fullname,
+                    camera_details=rpd_file.camera_details,
                 )
                 if e.gp_code in (gp.GP_ERROR_IO_USB_FIND, gp.GP_ERROR_BAD_PARAMETERS):
                     self.terminate_camera_removed()
                 elif e.code == CameraErrorCode.read:
                     self.problems.append(
-                        CameraFileReadProblem(name=file_name, uri=uri, gp_code=e.gp_code)
+                        CameraFileReadProblem(
+                            name=file_name, uri=uri, gp_code=e.gp_code
+                        )
                     )
                 else:
                     assert e.code == CameraErrorCode.write
-                    self.problems.append(FileWriteProblem(
-                        name=file_name, uri=uri, exception=e.py_exception
-                    ))
-                logging.error("Failed to download %s file: %s", file_type, associate_file_fullname)
+                    self.problems.append(
+                        FileWriteProblem(
+                            name=file_name, uri=uri, exception=e.py_exception
+                        )
+                    )
+                logging.error(
+                    "Failed to download %s file: %s", file_type, associate_file_fullname
+                )
                 return None
         else:
             try:
                 shutil.copyfile(associate_file_fullname, temp_full_name)
             except (OSError, FileNotFoundError, PermissionError) as e:
-                logging.error("Failed to download %s file: %s", file_type, associate_file_fullname)
+                logging.error(
+                    "Failed to download %s file: %s", file_type, associate_file_fullname
+                )
                 logging.error("%s: %s", e.errno, e.strerror)
                 name = os.path.basename(associate_file_fullname)
                 uri = get_uri(full_file_name=associate_file_fullname)
@@ -337,7 +369,9 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         # Ignore any errors copying file system metadata -- assume they would
         # have been raised when copying the primary file's filesystem metadata
         if rpd_file.from_camera:
-            copy_camera_file_metadata(mtime=rpd_file.modification_time, dst=temp_full_name)
+            copy_camera_file_metadata(
+                mtime=rpd_file.modification_time, dst=temp_full_name
+            )
         else:
             copy_file_metadata(associate_file_fullname, temp_full_name)
         return temp_full_name
@@ -354,14 +388,16 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
         self.camera = None
 
-        # To workaround a bug in iOS and possibly other devices, check if need to rescan the files
-        # on the device
+        # To workaround a bug in iOS and possibly other devices, check if need to
+        # rescan the files on the device
         rescan_check = [
-            rpd_file for rpd_file in args.files
+            rpd_file
+            for rpd_file in args.files
             if rpd_file.from_camera and not rpd_file.cache_full_file_name
-         ]
+        ]
         no_rescan = [
-            rpd_file for rpd_file in args.files
+            rpd_file
+            for rpd_file in args.files
             if not rpd_file.from_camera or rpd_file.cache_full_file_name
         ]
 
@@ -370,14 +406,18 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             # Initialize camera
             try:
                 self.camera = Camera(
-                    args.device.camera_model, args.device.camera_port,
-                    raise_errors=True, specific_folders=prefs.folders_to_scan
+                    args.device.camera_model,
+                    args.device.camera_port,
+                    raise_errors=True,
+                    specific_folders=prefs.folders_to_scan,
                 )
             except CameraProblemEx as e:
-                self.problems.append(
-                    CameraInitializationProblem(gp_code=e.gp_code)
+                self.problems.append(CameraInitializationProblem(gp_code=e.gp_code))
+                logging.error(
+                    "Could not initialize camera %s %s",
+                    args.device.camera_model,
+                    args.device.camera_port,
                 )
-                logging.error("Could not initialize camera %s %s", args.device.camera_model, args.device.camera_port)
                 self.terminate_camera_removed()
             else:
                 rescan = RescanCamera(camera=self.camera, prefs=prefs)
@@ -386,7 +426,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 if rescan.missing_rpd_files:
                     logging.error(
                         "%s files could not be relocated on %s",
-                        len(rescan.missing_rpd_files), self.camera.display_name
+                        len(rescan.missing_rpd_files),
+                        self.camera.display_name,
                     )
                     rescan_check = list(chain(rescan_check, rescan.missing_rpd_files))
 
@@ -394,26 +435,29 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
         random_filename = GenerateRandomFileName()
 
-        rpd_cache_same_device = defaultdict(lambda: None)  # type: Dict[FileType, Optional[bool]]
+        rpd_cache_same_device = defaultdict(
+            lambda: None
+        )  # type: Dict[FileType, Optional[bool]]
 
         photo_temp_dir, video_temp_dir = create_temp_dirs(
-            args.photo_download_folder, args.video_download_folder)
+            args.photo_download_folder, args.video_download_folder
+        )
 
         # Notify main process of temp directory names
         self.content = pickle.dumps(
             CopyFilesResults(
                 scan_id=args.scan_id,
-                photo_temp_dir=photo_temp_dir or '',
-                video_temp_dir=video_temp_dir or ''
+                photo_temp_dir=photo_temp_dir or "",
+                video_temp_dir=video_temp_dir or "",
             ),
-            pickle.HIGHEST_PROTOCOL
+            pickle.HIGHEST_PROTOCOL,
         )
         self.send_message_to_sink()
 
         # Sort the files to be copied by modification time
         # Important to do this with respect to sequence numbers, or else
         # they'll be downloaded in what looks like a random order
-        rpd_files = sorted(rpd_files, key=attrgetter('modification_time'))
+        rpd_files = sorted(rpd_files, key=attrgetter("modification_time"))
 
         self.display_name = args.device.display_name
 
@@ -435,15 +479,18 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
             self.init_copy_progress()
 
-            if rpd_file.cache_full_file_name and os.path.isfile(rpd_file.cache_full_file_name):
+            if rpd_file.cache_full_file_name and os.path.isfile(
+                rpd_file.cache_full_file_name
+            ):
                 # Scenario 3
                 temp_file_name = os.path.basename(rpd_file.cache_full_file_name)
                 temp_name = os.path.splitext(temp_file_name)[0]
-                temp_full_file_name = os.path.join(dest_dir,temp_file_name)
+                temp_full_file_name = os.path.join(dest_dir, temp_file_name)
 
                 if rpd_cache_same_device[rpd_file.file_type] is None:
                     rpd_cache_same_device[rpd_file.file_type] = same_device(
-                        rpd_file.cache_full_file_name, dest_dir)
+                        rpd_file.cache_full_file_name, dest_dir
+                    )
 
                 if rpd_cache_same_device[rpd_file.file_type]:
                     try:
@@ -451,17 +498,23 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                         copy_succeeded = True
                     except (OSError, PermissionError, FileNotFoundError) as inst:
                         copy_succeeded = False
-                        logging.error("Could not move cached file %s to temporary file %s. Error "
-                                      "code: %s", rpd_file.cache_full_file_name,
-                                      temp_full_file_name, inst.errno)
+                        logging.error(
+                            "Could not move cached file %s to temporary file %s. Error "
+                            "code: %s",
+                            rpd_file.cache_full_file_name,
+                            temp_full_file_name,
+                            inst.errno,
+                        )
                         self.problems.append(
                             FileMoveProblem(
-                                name=rpd_file.name, uri=rpd_file.get_uri(), exception=inst
+                                name=rpd_file.name,
+                                uri=rpd_file.get_uri(),
+                                exception=inst,
                             )
                         )
                     if self.verify_file:
                         rpd_file.md5 = hashlib.md5(
-                            open(temp_full_file_name, 'rb').read()
+                            open(temp_full_file_name, "rb").read()
                         ).hexdigest()
                     self.update_progress(rpd_file.size, rpd_file.size)
                 else:
@@ -471,17 +524,24 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     # stage and saved, e.g. a sample video.
                     source = rpd_file.cache_full_file_name
                     destination = temp_full_file_name
-                    copy_succeeded = self.copy_from_filesystem(source, destination, rpd_file)
+                    copy_succeeded = self.copy_from_filesystem(
+                        source, destination, rpd_file
+                    )
                     try:
                         os.remove(source)
                     except (OSError, PermissionError, FileNotFoundError) as e:
                         logging.error(
-                            "Error removing RPD Cache file %s while copying %s. Error code: %s",
-                            source, rpd_file.full_file_name, e.errno
+                            "Error removing RPD Cache file %s while copying %s. "
+                            "Error code: %s",
+                            source,
+                            rpd_file.full_file_name,
+                            e.errno,
                         )
                         self.problems.append(
                             FileDeleteProblem(
-                                name=os.path.basename(source), uri=get_uri(source), exception=e
+                                name=os.path.basename(source),
+                                uri=get_uri(source),
+                                exception=e,
                             )
                         )
 
@@ -492,7 +552,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 # different directories, and here we are copying the files into
                 # a single directory
                 temp_name = random_filename.name()
-                temp_name_ext = '{}.{}'.format(temp_name, rpd_file.extension)
+                temp_name_ext = "{}.{}".format(temp_name, rpd_file.extension)
                 temp_full_file_name = os.path.join(dest_dir, temp_name_ext)
 
             rpd_file.temp_full_file_name = temp_full_file_name
@@ -504,10 +564,9 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                         copy_succeeded = False
                         logging.error(
                             "Could not copy %s from the %s",
-                            rpd_file.full_file_name, self.display_name
+                            rpd_file.full_file_name,
+                            self.display_name,
                         )
-                        # self.problems.append(CameraFileReadProblem(name=rpd_file.name,
-                        #                                            uri=rpd_file.get_uri()))
                         self.update_progress(rpd_file.size, rpd_file.size)
                     else:
                         copy_succeeded = self.copy_from_camera(rpd_file)
@@ -515,7 +574,9 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     # Scenario 1
                     source = rpd_file.full_file_name
                     destination = rpd_file.temp_full_file_name
-                    copy_succeeded = self.copy_from_filesystem(source, destination, rpd_file)
+                    copy_succeeded = self.copy_from_filesystem(
+                        source, destination, rpd_file
+                    )
 
             # increment this amount regardless of whether the copy actually
             # succeeded or not. It's necessary to keep the user informed.
@@ -541,25 +602,41 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     rpd_file.temp_thm_full_name = self.copy_associate_file(
                         # translators: refers to the video thumbnail file that some
                         # cameras generate -- it has a .THM file extension
-                        rpd_file, temp_name, dest_dir, rpd_file.thm_full_name, _('video THM')
+                        rpd_file,
+                        temp_name,
+                        dest_dir,
+                        rpd_file.thm_full_name,
+                        _("video THM"),
                     )
 
                 # copy audio file if there is one
                 if rpd_file.audio_file_full_name:
                     rpd_file.temp_audio_full_name = self.copy_associate_file(
-                        rpd_file, temp_name, dest_dir, rpd_file.audio_file_full_name, _('audio')
+                        rpd_file,
+                        temp_name,
+                        dest_dir,
+                        rpd_file.audio_file_full_name,
+                        _("audio"),
                     )
 
                 # copy XMP file if there is one
                 if rpd_file.xmp_file_full_name:
                     rpd_file.temp_xmp_full_name = self.copy_associate_file(
-                        rpd_file, temp_name, dest_dir, rpd_file.xmp_file_full_name, 'XMP'
+                        rpd_file,
+                        temp_name,
+                        dest_dir,
+                        rpd_file.xmp_file_full_name,
+                        "XMP",
                     )
 
                 # copy Magic Lantern LOG file if there is one
                 if rpd_file.log_file_full_name:
                     rpd_file.temp_log_full_name = self.copy_associate_file(
-                        rpd_file, temp_name, dest_dir, rpd_file.log_file_full_name, 'LOG'
+                        rpd_file,
+                        temp_name,
+                        dest_dir,
+                        rpd_file.log_file_full_name,
+                        "LOG",
                     )
 
             download_count = idx + 1
@@ -569,15 +646,18 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     copy_succeeded=copy_succeeded,
                     rpd_file=rpd_file,
                     download_count=download_count,
-                    mdata_exceptions=mdata_exceptions
+                    mdata_exceptions=mdata_exceptions,
                 ),
-                pickle.HIGHEST_PROTOCOL
+                pickle.HIGHEST_PROTOCOL,
             )
             self.send_message_to_sink()
 
         if len(self.problems):
-            logging.debug('Encountered %s problems while copying from %s', len(self.problems),
-                          self.display_name)
+            logging.debug(
+                "Encountered %s problems while copying from %s",
+                len(self.problems),
+                self.display_name,
+            )
         self.send_problems()
 
         if self.camera is not None:
@@ -589,4 +669,3 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
 if __name__ == "__main__":
     copy = CopyFilesWorker()
-

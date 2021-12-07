@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,8 +21,8 @@ Yes/No dialog that displays a statement along with a "Remember this choice"
 or "Don't ask me about this again" checkbox.
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 from typing import Optional, Union
 from PyQt5.QtCore import pyqtSlot
@@ -30,8 +30,8 @@ from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QCheckBox, QLabel, QGridLayout
 
 from raphodo.constants import RememberThisMessage, RememberThisButtons
-from raphodo.viewutils import standardIconSize,\
-    translateDialogBoxButtons
+from raphodo.viewutils import standardIconSize, translateDialogBoxButtons
+
 
 class RememberThisDialog(QDialog):
 
@@ -42,12 +42,15 @@ class RememberThisDialog(QDialog):
     Includes a prompt whether to remember the choice.
     """
 
-    def __init__(self, message: str,
-                 icon: Union[QPixmap, str],
-                 remember: RememberThisMessage,
-                 parent,
-                 buttons: RememberThisButtons=RememberThisButtons.yes_no,
-                 title: Optional[str]=None) -> None:
+    def __init__(
+        self,
+        message: str,
+        icon: Union[QPixmap, str],
+        remember: RememberThisMessage,
+        parent,
+        buttons: RememberThisButtons = RememberThisButtons.yes_no,
+        title: Optional[str] = None,
+    ) -> None:
 
         super().__init__(parent)
 
@@ -63,14 +66,19 @@ class RememberThisDialog(QDialog):
             iconLabel.setPixmap(icon)
 
         if remember == RememberThisMessage.remember_choice:
-            question =  _("&Remember this choice")
+            question = _("&Remember this choice")
         elif remember == RememberThisMessage.do_not_ask_again:
             question = _("&Don't ask me about this again")
         elif remember == RememberThisMessage.do_not_warn_again:
             question = _("&Don't warn me about this again")
         else:
-            assert remember == RememberThisMessage.do_not_warn_again_about_missing_libraries
-            question = _("&Don't warn me again about missing or broken program libraries")
+            assert (
+                remember
+                == RememberThisMessage.do_not_warn_again_about_missing_libraries
+            )
+            question = _(
+                "&Don't warn me again about missing or broken program libraries"
+            )
 
         self.rememberCheckBox = QCheckBox(question)
 
@@ -94,7 +102,7 @@ class RememberThisDialog(QDialog):
         grid.addWidget(buttonBox, 2, 0, 1, 2)
         self.setLayout(grid)
         if title is None or not title:
-            self.setWindowTitle(_('Rapid Photo Downloader'))
+            self.setWindowTitle(_("Rapid Photo Downloader"))
         else:
             self.setWindowTitle(title)
 

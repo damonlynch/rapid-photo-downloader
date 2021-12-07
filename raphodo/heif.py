@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2020-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,17 +17,19 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2020-2021, Damon Lynch"
 
 import logging
 from typing import Optional
 import ctypes, ctypes.util
 
 from PyQt5.QtGui import QImage
+
 try:
     import pyheif
     from PIL import ImageQt, Image
+
     have_heif_module = True
 except ImportError:
     have_heif_module = False
@@ -44,7 +46,7 @@ def pyheif_version() -> str:
     try:
         return pyheif.__version__
     except AttributeError:
-        return python_package_version('pyheif')
+        return python_package_version("pyheif")
 
 
 def libheif_version() -> str:
@@ -58,17 +60,19 @@ def libheif_version() -> str:
         try:
             library_name = ctypes.util.find_library("heif")
             h = ctypes.cdll.LoadLibrary(library_name)
-            return '{}.{}.{}'.format(
+            return "{}.{}.{}".format(
                 h.heif_get_version_number_major(),
                 h.heif_get_version_number_minor(),
-                h.heif_get_version_number_maintenance()
+                h.heif_get_version_number_maintenance(),
             )
         except Exception:
             logging.debug("Error determining libheif version")
-            return ''
+            return ""
 
 
-def load_heif(full_file_name: str, catch_pyheif_exceptions: bool=True, process_name: str=''):
+def load_heif(
+    full_file_name: str, catch_pyheif_exceptions: bool = True, process_name: str = ""
+):
     """
     Load HEIF file and convert it to a QImage using Pillow
     :param full_file_name: image to load
@@ -84,11 +88,13 @@ def load_heif(full_file_name: str, catch_pyheif_exceptions: bool=True, process_n
             if process_name:
                 process_id = "the %s" % process_name
             else:
-                process_id = 'this'
+                process_id = "this"
             logging.error(
                 "Error using pyheif to load HEIF file %s. "
-                "If encountered on another file, this error message will only be repeated once "
-                "for %s process.", full_file_name, process_id
+                "If encountered on another file, this error message will only be "
+                "repeated once for %s process.",
+                full_file_name,
+                process_id,
             )
             _error_logged = True
         if not catch_pyheif_exceptions:
@@ -99,11 +105,13 @@ def load_heif(full_file_name: str, catch_pyheif_exceptions: bool=True, process_n
             if process_name:
                 process_id = "the %s" % process_name
             else:
-                process_id = 'this'
+                process_id = "this"
             logging.error(
                 "FileNotFoundError using pyheif to load HEIF file %s ."
-                "If encountered on another file, this error message will only be repeated once "
-                "for %s process.", full_file_name, process_id
+                "If encountered on another file, this error message will only be "
+                "repeated once for %s process.",
+                full_file_name,
+                process_id,
             )
             _error_logged = True
         if not catch_pyheif_exceptions:
@@ -111,8 +119,8 @@ def load_heif(full_file_name: str, catch_pyheif_exceptions: bool=True, process_n
         return None
 
     pillow_image = Image.frombytes(mode=image.mode, size=image.size, data=image.data)
-    if pillow_image.mode not in ('RGB', 'RGBA', '1', 'L', 'P'):
-        pillow_image = pillow_image.convert('RGBA')
+    if pillow_image.mode not in ("RGB", "RGBA", "1", "L", "P"):
+        pillow_image = pillow_image.convert("RGBA")
 
     imageqt = ImageQt.ImageQt(pillow_image)
     if imageqt is not None and not imageqt.isNull():
@@ -120,11 +128,12 @@ def load_heif(full_file_name: str, catch_pyheif_exceptions: bool=True, process_n
     return None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # test stub
     import sys
-    if (len(sys.argv) != 2):
-        print('Usage: ' + sys.argv[0] + ' path/to/heif')
+
+    if len(sys.argv) != 2:
+        print("Usage: " + sys.argv[0] + " path/to/heif")
     else:
         file = sys.argv[1]
 
@@ -134,7 +143,7 @@ if __name__ == '__main__':
 
         app = QApplication(sys.argv)
         image = None
-        if os.path.splitext(file)[1][1:] in ('jpg', 'png'):
+        if os.path.splitext(file)[1][1:] in ("jpg", "png"):
             image = QPixmap(file)
         elif have_heif_module:
             imageqt = load_heif(file, catch_pyheif_exceptions=False)

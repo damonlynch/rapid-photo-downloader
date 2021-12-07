@@ -19,10 +19,10 @@
 # see <http://www.gnu.org/licenses/>.
 
 # Special key in each dictionary which specifies the order of elements.
-# It is very important to have a consistent and rational order when displaying 
+# It is very important to have a consistent and rational order when displaying
 # these prefs to the user, and dictionaries are unsorted.
 
-__author__ = 'Damon Lynch'
+__author__ = "Damon Lynch"
 __copyright__ = "Copyright 2007-2020, Damon Lynch"
 
 import os
@@ -32,79 +32,79 @@ from typing import List, Optional, Tuple
 
 # PLEASE NOTE: these values are duplicated in a dummy class whose function
 # is to have them put into the translation template. If you change the values below
-# then you MUST change the value in class i18TranslateMeThanks as well!! 
+# then you MUST change the value in class i18TranslateMeThanks as well!!
 
 # *** Level 0, i.e. first column of values presented to user
-DATE_TIME = 'Date time'
-TEXT = 'Text'
-FILENAME = 'Filename'
-METADATA = 'Metadata'
-SEQUENCES = 'Sequences'
-JOB_CODE = 'Job code'
+DATE_TIME = "Date time"
+TEXT = "Text"
+FILENAME = "Filename"
+METADATA = "Metadata"
+SEQUENCES = "Sequences"
+JOB_CODE = "Job code"
 
 SEPARATOR = os.sep
 
 # *** Level 1, i.e. second column of values presented to user
 
 # Date time
-IMAGE_DATE = 'Image date'
-TODAY = 'Today'
-YESTERDAY = 'Yesterday'
-VIDEO_DATE = 'Video date'
-DOWNLOAD_TIME = 'Download time'
+IMAGE_DATE = "Image date"
+TODAY = "Today"
+YESTERDAY = "Yesterday"
+VIDEO_DATE = "Video date"
+DOWNLOAD_TIME = "Download time"
 
-# File name 
-NAME = 'Name'
-IMAGE_NUMBER = 'Image number'
-VIDEO_NUMBER = 'Video number'
+# File name
+NAME = "Name"
+IMAGE_NUMBER = "Image number"
+VIDEO_NUMBER = "Video number"
 
 # pre 0.9.0a4 File name values: NAME_EXTENSION, EXTENSION
-NAME_EXTENSION = 'Name + extension'
+NAME_EXTENSION = "Name + extension"
 
 # however extension is used for subfolder generation in all versions
-EXTENSION = 'Extension'
+EXTENSION = "Extension"
 
 
 # Metadata
-APERTURE = 'Aperture'
-ISO = 'ISO'
-EXPOSURE_TIME = 'Exposure time'
-FOCAL_LENGTH = 'Focal length'
-CAMERA_MAKE = 'Camera make'
-CAMERA_MODEL = 'Camera model'
-SHORT_CAMERA_MODEL = 'Short camera model'
-SHORT_CAMERA_MODEL_HYPHEN = 'Hyphenated short camera model'
-SERIAL_NUMBER = 'Serial number'
-SHUTTER_COUNT = 'Shutter count'
+APERTURE = "Aperture"
+ISO = "ISO"
+EXPOSURE_TIME = "Exposure time"
+FOCAL_LENGTH = "Focal length"
+CAMERA_MAKE = "Camera make"
+CAMERA_MODEL = "Camera model"
+SHORT_CAMERA_MODEL = "Short camera model"
+SHORT_CAMERA_MODEL_HYPHEN = "Hyphenated short camera model"
+SERIAL_NUMBER = "Serial number"
+SHUTTER_COUNT = "Shutter count"
 # Currently the only file number is Exif.CanonFi.FileNumber,
 # which is in the format xxx-yyyy, where xxx is the folder and yyyy the image
-FILE_NUMBER = 'File number'
-OWNER_NAME = 'Owner name'
-COPYRIGHT = 'Copyright'
-ARTIST = 'Artist'
+FILE_NUMBER = "File number"
+OWNER_NAME = "Owner name"
+COPYRIGHT = "Copyright"
+ARTIST = "Artist"
 
 # Video metadata
-CODEC = 'Codec'
-WIDTH = 'Width'
-HEIGHT = 'Height'
-FPS = 'Frames Per Second'
-LENGTH = 'Length'
+CODEC = "Codec"
+WIDTH = "Width"
+HEIGHT = "Height"
+FPS = "Frames Per Second"
+LENGTH = "Length"
 
 # Image sequences
-DOWNLOAD_SEQ_NUMBER = 'Downloads today'
-SESSION_SEQ_NUMBER = 'Session number'
-SUBFOLDER_SEQ_NUMBER = 'Subfolder number'
-STORED_SEQ_NUMBER = 'Stored number'
-SEQUENCE_LETTER = 'Sequence letter'
+DOWNLOAD_SEQ_NUMBER = "Downloads today"
+SESSION_SEQ_NUMBER = "Session number"
+SUBFOLDER_SEQ_NUMBER = "Subfolder number"
+STORED_SEQ_NUMBER = "Stored number"
+SEQUENCE_LETTER = "Sequence letter"
 
 # *** Level 2, i.e. third and final column of values presented to user
 
 # Image number
-IMAGE_NUMBER_ALL = 'All digits'
-IMAGE_NUMBER_1 = 'Last digit'
-IMAGE_NUMBER_2 = 'Last 2 digits'
-IMAGE_NUMBER_3 = 'Last 3 digits'
-IMAGE_NUMBER_4 = 'Last 4 digits'
+IMAGE_NUMBER_ALL = "All digits"
+IMAGE_NUMBER_1 = "Last digit"
+IMAGE_NUMBER_2 = "Last 2 digits"
+IMAGE_NUMBER_3 = "Last 3 digits"
+IMAGE_NUMBER_4 = "Last 4 digits"
 
 # Case
 ORIGINAL_CASE = "Original Case"
@@ -128,54 +128,68 @@ FILE_NUMBER_ALL = "Folder and file"
 
 # Level 2
 
-# Date 
+# Date
 
-SUBSECONDS = 'Subseconds'
+SUBSECONDS = "Subseconds"
 
 # NOTE 1: if changing LIST_DATE_TIME_L2, you MUST update the default
 # subfolder preference immediately below
 # NOTE 2: if changing LIST_DATE_TIME_L2, you MUST also update
 # DATE_TIME_CONVERT below
 # NOTE 3: if changing LIST_DATE_TIME_L2, you MUST also update
-# PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV 
+# PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV
 LIST_DATE_TIME_L2 = [
-    'YYYYMMDD',  # 0
-    'YYYY-MM-DD',
-    'YYYY_MM_DD',  # 2
-    'YYMMDD',
-    'YY-MM-DD',  # 4
-    'YY_MM_DD',
-    'MMDDYYYY',  # 6
-    'MMDDYY',
-    'MMDD',  # 8
-    'DDMMYYYY',
-    'DDMMYY',  # 10
-    'YYYY',
-    'YY',  # 12
-    'MM',
-    'DD',  # 14
-    'Month (full)',
-    'Month (abbreviated)',  # 16
-    'Weekday (full)',
-    'Weekday (abbreviated)', # 18
-    'HHMMSS',
-    'HHMM',  # 20
-    'HH-MM-SS',
-    'HH-MM',  # 22
-    'HH',
-    'MM (minutes)',  # 24
-    'SS'
+    "YYYYMMDD",  # 0
+    "YYYY-MM-DD",
+    "YYYY_MM_DD",  # 2
+    "YYMMDD",
+    "YY-MM-DD",  # 4
+    "YY_MM_DD",
+    "MMDDYYYY",  # 6
+    "MMDDYY",
+    "MMDD",  # 8
+    "DDMMYYYY",
+    "DDMMYY",  # 10
+    "YYYY",
+    "YY",  # 12
+    "MM",
+    "DD",  # 14
+    "Month (full)",
+    "Month (abbreviated)",  # 16
+    "Weekday (full)",
+    "Weekday (abbreviated)",  # 18
+    "HHMMSS",
+    "HHMM",  # 20
+    "HH-MM-SS",
+    "HH-MM",  # 22
+    "HH",
+    "MM (minutes)",  # 24
+    "SS",
 ]
 
 LIST_IMAGE_DATE_TIME_L2 = LIST_DATE_TIME_L2 + [SUBSECONDS]
 
 DEFAULT_SUBFOLDER_PREFS = [
-    DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11], '/', '', '', DATE_TIME, IMAGE_DATE,
-    LIST_DATE_TIME_L2[0]
+    DATE_TIME,
+    IMAGE_DATE,
+    LIST_DATE_TIME_L2[11],
+    "/",
+    "",
+    "",
+    DATE_TIME,
+    IMAGE_DATE,
+    LIST_DATE_TIME_L2[0],
 ]
 DEFAULT_VIDEO_SUBFOLDER_PREFS = [
-    DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11], '/', '', '', DATE_TIME,
-    VIDEO_DATE, LIST_DATE_TIME_L2[0]
+    DATE_TIME,
+    VIDEO_DATE,
+    LIST_DATE_TIME_L2[11],
+    "/",
+    "",
+    "",
+    DATE_TIME,
+    VIDEO_DATE,
+    LIST_DATE_TIME_L2[0],
 ]
 
 DEFAULT_PHOTO_RENAME_PREFS = [FILENAME, NAME, ORIGINAL_CASE]
@@ -183,121 +197,121 @@ DEFAULT_VIDEO_RENAME_PREFS = [FILENAME, NAME, ORIGINAL_CASE]
 
 
 class i18TranslateMeThanks:
-    """ this class is never used in actual running code
+    """this class is never used in actual running code
     Its purpose is to have these values inserted into the program's i18n template file
-    
+
     """
 
     def __init__(self):
-        _('Date time')
-        _('Text')
-        _('Filename')
-        _('Metadata')
-        _('Sequences')
+        _("Date time")
+        _("Text")
+        _("Filename")
+        _("Metadata")
+        _("Sequences")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#jobcode
-        _('Job code')
-        _('Image date')
-        _('Video date')
-        _('Today')
-        _('Yesterday')
-        # Translators: Download time is the time and date that the download started (when the
-        # user clicked the Download button)
-        _('Download time')
+        _("Job code")
+        _("Image date")
+        _("Video date")
+        _("Today")
+        _("Yesterday")
+        # Translators: Download time is the time and date that the download started
+        # (when the user clicked the Download button)
+        _("Download time")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-        _('Name')
+        _("Name")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-        _('Extension')
+        _("Extension")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-        _('Image number')
-        _('Video number')
+        _("Image number")
+        _("Video number")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-        _('Aperture')
+        _("Aperture")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-        _('ISO')
+        _("ISO")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-        _('Exposure time')
+        _("Exposure time")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-        _('Focal length')
+        _("Focal length")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-        _('Camera make')
+        _("Camera make")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-        _('Camera model')
+        _("Camera model")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-        _('Short camera model')
+        _("Short camera model")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-        _('Hyphenated short camera model')
+        _("Hyphenated short camera model")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-        _('Serial number')
+        _("Serial number")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-        _('Shutter count')
+        _("Shutter count")
         # File number currently refers to the Exif value Exif.Canon.FileNumber
-        _('File number')
+        _("File number")
         # Only the folder component of the Exif.Canon.FileNumber value
-        _('Folder only')
+        _("Folder only")
         # The folder and file component of the Exif.Canon.FileNumber value
-        _('Folder and file')
+        _("Folder and file")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-        _('Owner name')
-        _('Codec')
-        _('Width')
-        _('Height')
-        _('Length')
-        _('Frames Per Second')
-        _('Artist')
-        _('Copyright')
+        _("Owner name")
+        _("Codec")
+        _("Width")
+        _("Height")
+        _("Length")
+        _("Frames Per Second")
+        _("Artist")
+        _("Copyright")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-        _('Downloads today')
+        _("Downloads today")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-        _('Session number')
+        _("Session number")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-        _('Subfolder number')
+        _("Subfolder number")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-        _('Stored number')
+        _("Stored number")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#sequenceletters
-        _('Sequence letter')
+        _("Sequence letter")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-        _('All digits')
+        _("All digits")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-        _('Last digit')
+        _("Last digit")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-        _('Last 2 digits')
+        _("Last 2 digits")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-        _('Last 3 digits')
+        _("Last 3 digits")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-        _('Last 4 digits')
-        # Translators: please not the capitalization of this text, and keep it the same if your
-        # language features capitalization
+        _("Last 4 digits")
+        # Translators: please not the capitalization of this text, and keep it the same
+        # if your language features capitalization
         _("Original Case")
-        # Translators: please not the capitalization of this text, and keep it the same if your
-        # language features capitalization
+        # Translators: please not the capitalization of this text, and keep it the same
+        # if your language features capitalization
         _("UPPERCASE")
-        # Translators: please not the capitalization of this text, and keep it the same if your
-        # language features capitalization
+        # Translators: please not the capitalization of this text, and keep it the same
+        # if your language features capitalization
         _("lowercase")
         _("One digit")
         _("Two digits")
@@ -308,146 +322,194 @@ class i18TranslateMeThanks:
         _("Seven digits")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('Subseconds')
+        _("Subseconds")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('YYYYMMDD')
+        _("YYYYMMDD")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('YYYY-MM-DD')
+        _("YYYY-MM-DD")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('YYYY_MM_DD')
+        _("YYYY_MM_DD")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('YYMMDD')
+        _("YYMMDD")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('YY-MM-DD')
+        _("YY-MM-DD")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('YY_MM_DD')
+        _("YY_MM_DD")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('MMDDYYYY')
+        _("MMDDYYYY")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('MMDDYY')
+        _("MMDDYY")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('MMDD')
+        _("MMDD")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('DDMMYYYY')
+        _("DDMMYYYY")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('DDMMYY')
+        _("DDMMYY")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('YYYY')
+        _("YYYY")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('YY')
+        _("YY")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('MM')
+        _("MM")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('DD')
+        _("DD")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('Month (full)'),
+        _("Month (full)"),
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('Month (abbreviated)'),
+        _("Month (abbreviated)"),
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('Weekday (full)')
+        _("Weekday (full)")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('Weekday (abbreviated)')
+        _("Weekday (abbreviated)")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('HHMMSS')
+        _("HHMMSS")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('HHMM')
+        _("HHMM")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('HH-MM-SS')
+        _("HH-MM-SS")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('HH-MM')
+        _("HH-MM")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('HH')
+        _("HH")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('MM (minutes)')
+        _("MM (minutes)")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('SS')
+        _("SS")
 
     # Convenience values for python datetime conversion using values in
 
 
 # Default subfolder options that appear in drop-down menu in Destination views
-# Any change to PHOTO_SUBFOLDER_MENU_DEFAULTS must also be reflected in 
+# Any change to PHOTO_SUBFOLDER_MENU_DEFAULTS must also be reflected in
 # PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV
 
 # The following values will be displayed in the menu after an os.sep.join() operation
 
 PHOTO_SUBFOLDER_MENU_DEFAULTS = (
-    (_('Date'), _('YYYY'), _('YYYYMMDD')),
-    (_('Date (hyphens)'), _('YYYY'), _('YYYY-MM-DD')),
-    (_('Date (underscores)'), _('YYYY'), _('YYYY_MM_DD')),
-    (_('Date and Job Code'), _('YYYY'), _('YYYYMM_Job Code')),
-    (_('Date and Job Code Subfolder'), _('YYYY'), _('YYYYMM'), _('Job Code'))
+    (_("Date"), _("YYYY"), _("YYYYMMDD")),
+    (_("Date (hyphens)"), _("YYYY"), _("YYYY-MM-DD")),
+    (_("Date (underscores)"), _("YYYY"), _("YYYY_MM_DD")),
+    (_("Date and Job Code"), _("YYYY"), _("YYYYMM_Job Code")),
+    (_("Date and Job Code Subfolder"), _("YYYY"), _("YYYYMM"), _("Job Code")),
 )
 
-# Any change to PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV must also be reflected in 
+# Any change to PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV must also be reflected in
 # PHOTO_SUBFOLDER_MENU_DEFAULTS
 
 PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV = (
     # 0
-    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
-     '/', '', '', 
-     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]
+    [
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[11],
+        "/",
+        "",
+        "",
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[0],
     ],
     # 1
-    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
-     '/', '', '',
-     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[1]
+    [
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[11],
+        "/",
+        "",
+        "",
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[1],
     ],
     # 2
-    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
-     '/', '', '',
-     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[2]
+    [
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[11],
+        "/",
+        "",
+        "",
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[2],
     ],
     # 3
-    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
-     '/', '', '',
-     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
-     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[13],
-     TEXT, '_', '',
-     JOB_CODE, '', ''],
+    [
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[11],
+        "/",
+        "",
+        "",
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[11],
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[13],
+        TEXT,
+        "_",
+        "",
+        JOB_CODE,
+        "",
+        "",
+    ],
     # 4
-    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
-     '/', '', '',
-     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
-     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[13],
-     '/', '', '',
-     JOB_CODE, '', '',
-     ],
+    [
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[11],
+        "/",
+        "",
+        "",
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[11],
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[13],
+        "/",
+        "",
+        "",
+        JOB_CODE,
+        "",
+        "",
+    ],
 )
 
 PHOTO_RENAME_MENU_DEFAULTS = (
-    (_('Original Filename'), 'IMG_1234'),
-    (_('Date-Time and Downloads today'), _('YYYYMMDD-HHMM-1')),
-    (_('Date and Downloads today'), _('YYYYMMDD-1')),
-    (_('Date-Time and Image number'), _('YYYYMMDD-1234')),
-    (_('Date-Time and Job Code'), _('YYYYMMDD-HHMM-Job Code-1')),
-    (_('Date and Job Code'), _('YYYYMMDD-Job Code-1'))
+    (_("Original Filename"), "IMG_1234"),
+    (_("Date-Time and Downloads today"), _("YYYYMMDD-HHMM-1")),
+    (_("Date and Downloads today"), _("YYYYMMDD-1")),
+    (_("Date-Time and Image number"), _("YYYYMMDD-1234")),
+    (_("Date-Time and Job Code"), _("YYYYMMDD-HHMM-Job Code-1")),
+    (_("Date and Job Code"), _("YYYYMMDD-Job Code-1")),
 )
 
 PHOTO_RENAME_MENU_DEFAULTS_CONV = (
@@ -455,44 +517,94 @@ PHOTO_RENAME_MENU_DEFAULTS_CONV = (
     [FILENAME, NAME, ORIGINAL_CASE],
     # 1 Date-Time and Downloads today
     [
-        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
-        TEXT, '-', '',
-        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[20],
-        TEXT, '-', '',
-        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[0],
+        TEXT,
+        "-",
+        "",
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[20],
+        TEXT,
+        "-",
+        "",
+        SEQUENCES,
+        DOWNLOAD_SEQ_NUMBER,
+        SEQUENCE_NUMBER_1,
     ],
     # 2 Date and Downloads today
     [
-        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
-        TEXT, '-', '',
-        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[0],
+        TEXT,
+        "-",
+        "",
+        SEQUENCES,
+        DOWNLOAD_SEQ_NUMBER,
+        SEQUENCE_NUMBER_1,
     ],
     # 3 Date-Time and Image number
     [
-        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
-        TEXT, '-', '',
-        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[20],
-        TEXT, '-', '',
-        FILENAME, IMAGE_NUMBER, IMAGE_NUMBER_ALL
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[0],
+        TEXT,
+        "-",
+        "",
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[20],
+        TEXT,
+        "-",
+        "",
+        FILENAME,
+        IMAGE_NUMBER,
+        IMAGE_NUMBER_ALL,
     ],
     # 4 Date-Time and Job Code
     [
-        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
-        TEXT, '-', '',
-        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[20],
-        TEXT, '-', '',
-        JOB_CODE, '', '',
-        TEXT, '-', '',
-        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[0],
+        TEXT,
+        "-",
+        "",
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[20],
+        TEXT,
+        "-",
+        "",
+        JOB_CODE,
+        "",
+        "",
+        TEXT,
+        "-",
+        "",
+        SEQUENCES,
+        DOWNLOAD_SEQ_NUMBER,
+        SEQUENCE_NUMBER_1,
     ],
     # 5 Date and Job Code
     [
-        DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
-        TEXT, '-', '',
-        JOB_CODE, '', '',
-        TEXT, '-', '',
-        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
-    ]
+        DATE_TIME,
+        IMAGE_DATE,
+        LIST_DATE_TIME_L2[0],
+        TEXT,
+        "-",
+        "",
+        JOB_CODE,
+        "",
+        "",
+        TEXT,
+        "-",
+        "",
+        SEQUENCES,
+        DOWNLOAD_SEQ_NUMBER,
+        SEQUENCE_NUMBER_1,
+    ],
 )
 
 # See notes above regarding keeping values in sync
@@ -500,50 +612,92 @@ VIDEO_SUBFOLDER_MENU_DEFAULTS = PHOTO_SUBFOLDER_MENU_DEFAULTS
 VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV = (
     # 0
     [
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-        SEPARATOR, '', '',
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]
-     ],
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[11],
+        SEPARATOR,
+        "",
+        "",
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[0],
+    ],
     # 1
     [
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-        SEPARATOR, '', '',
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[1]
-     ],
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[11],
+        SEPARATOR,
+        "",
+        "",
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[1],
+    ],
     # 2
     [
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-        SEPARATOR, '', '',
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[2]
-     ],
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[11],
+        SEPARATOR,
+        "",
+        "",
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[2],
+    ],
     # 3
     [
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-        SEPARATOR, '', '',
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[13],
-        TEXT, '_', '',
-        JOB_CODE, '', ''
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[11],
+        SEPARATOR,
+        "",
+        "",
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[11],
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[13],
+        TEXT,
+        "_",
+        "",
+        JOB_CODE,
+        "",
+        "",
     ],
     # 4
     [
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-        SEPARATOR, '', '',
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[13],
-        SEPARATOR, '', '',
-        JOB_CODE, '', '',
-     ],
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[11],
+        SEPARATOR,
+        "",
+        "",
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[11],
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[13],
+        SEPARATOR,
+        "",
+        "",
+        JOB_CODE,
+        "",
+        "",
+    ],
 )
 
 VIDEO_RENAME_MENU_DEFAULTS = (
-    (_('Original Filename'), 'MVI_1234'),
-    (_('Date-Time and Downloads today'), _('YYYYMMDD-HHMM-1')),
-    (_('Date and Downloads today'), _('YYYYMMDD-1')),
-    (_('Date-Time and Video number'), _('YYYYMMDD_1234')),
-    (_('Date-Time and Job Code'), _('YYYYMMDD-HHMM-Job Code-1')),
-    (_('Date and Job Code'), _('YYYYMMDD-Job Code-1')),
-    (_('Resolution'), _('YYYYMMDD-HHMM-1-1920x1080'))
+    (_("Original Filename"), "MVI_1234"),
+    (_("Date-Time and Downloads today"), _("YYYYMMDD-HHMM-1")),
+    (_("Date and Downloads today"), _("YYYYMMDD-1")),
+    (_("Date-Time and Video number"), _("YYYYMMDD_1234")),
+    (_("Date-Time and Job Code"), _("YYYYMMDD-HHMM-Job Code-1")),
+    (_("Date and Job Code"), _("YYYYMMDD-Job Code-1")),
+    (_("Resolution"), _("YYYYMMDD-HHMM-1-1920x1080")),
 )
 
 VIDEO_RENAME_MENU_DEFAULTS_CONV = (
@@ -551,98 +705,167 @@ VIDEO_RENAME_MENU_DEFAULTS_CONV = (
     [FILENAME, NAME, ORIGINAL_CASE],
     # 1 Date-Time and Downloads today
     [
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
-        TEXT, '-', '',
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[20],
-        TEXT, '-', '',
-        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[0],
+        TEXT,
+        "-",
+        "",
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[20],
+        TEXT,
+        "-",
+        "",
+        SEQUENCES,
+        DOWNLOAD_SEQ_NUMBER,
+        SEQUENCE_NUMBER_1,
     ],
     # 2 Date and Downloads today
     [
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
-        TEXT, '-', '',
-        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[0],
+        TEXT,
+        "-",
+        "",
+        SEQUENCES,
+        DOWNLOAD_SEQ_NUMBER,
+        SEQUENCE_NUMBER_1,
     ],
     # 3 Date-Time and Image number
     [
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
-        TEXT, '-', '',
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[20],
-        TEXT, '-', '',
-        FILENAME, VIDEO_NUMBER, IMAGE_NUMBER_ALL
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[0],
+        TEXT,
+        "-",
+        "",
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[20],
+        TEXT,
+        "-",
+        "",
+        FILENAME,
+        VIDEO_NUMBER,
+        IMAGE_NUMBER_ALL,
     ],
     # 4 Date-Time and Job Code
     [
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
-        TEXT, '-', '',
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[20],
-        TEXT, '-', '',
-        JOB_CODE, '', '',
-        TEXT, '-', '',
-        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[0],
+        TEXT,
+        "-",
+        "",
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[20],
+        TEXT,
+        "-",
+        "",
+        JOB_CODE,
+        "",
+        "",
+        TEXT,
+        "-",
+        "",
+        SEQUENCES,
+        DOWNLOAD_SEQ_NUMBER,
+        SEQUENCE_NUMBER_1,
     ],
     # 5 Date and Job Code
     [
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
-        TEXT, '-', '',
-        JOB_CODE, '', '',
-        TEXT, '-', '',
-        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[0],
+        TEXT,
+        "-",
+        "",
+        JOB_CODE,
+        "",
+        "",
+        TEXT,
+        "-",
+        "",
+        SEQUENCES,
+        DOWNLOAD_SEQ_NUMBER,
+        SEQUENCE_NUMBER_1,
     ],
     # 6 Resolution
     [
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
-        TEXT, '-', '',
-        DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[20],
-        TEXT, '-', '',
-        SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1,
-        TEXT, '-', '',
-        METADATA, WIDTH, '',
-        TEXT, 'x', '',
-        METADATA, HEIGHT, ''
-    ]
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[0],
+        TEXT,
+        "-",
+        "",
+        DATE_TIME,
+        VIDEO_DATE,
+        LIST_DATE_TIME_L2[20],
+        TEXT,
+        "-",
+        "",
+        SEQUENCES,
+        DOWNLOAD_SEQ_NUMBER,
+        SEQUENCE_NUMBER_1,
+        TEXT,
+        "-",
+        "",
+        METADATA,
+        WIDTH,
+        "",
+        TEXT,
+        "x",
+        "",
+        METADATA,
+        HEIGHT,
+        "",
+    ],
 )
 
 # See notes above regarding keeping values in sync
 DATE_TIME_CONVERT = [
-    '%Y%m%d',  # 0
-    '%Y-%m-%d',
-    '%Y_%m_%d',  # 2
-    '%y%m%d',
-    '%y-%m-%d',   # 4
-    '%y_%m_%d',
-    '%m%d%Y',  # 6
-    '%m%d%y',
-    '%m%d',  # 8
-    '%d%m%Y',
-    '%d%m%y', # 10
-    '%Y',
-    '%y',  # 12
-    '%m',
-    '%d',  # 14
-    '%B',
-    '%b',  # 16
-    '%A',
-    '%a',     # 18
-    '%H%M%S',
-    '%H%M',  # 20
-    '%H-%M-%S',
-    '%H-%M',  # 22
-    '%H',
-    '%M',  # 24
-    '%S'
+    "%Y%m%d",  # 0
+    "%Y-%m-%d",
+    "%Y_%m_%d",  # 2
+    "%y%m%d",
+    "%y-%m-%d",  # 4
+    "%y_%m_%d",
+    "%m%d%Y",  # 6
+    "%m%d%y",
+    "%m%d",  # 8
+    "%d%m%Y",
+    "%d%m%y",  # 10
+    "%Y",
+    "%y",  # 12
+    "%m",
+    "%d",  # 14
+    "%B",
+    "%b",  # 16
+    "%A",
+    "%a",  # 18
+    "%H%M%S",
+    "%H%M",  # 20
+    "%H-%M-%S",
+    "%H-%M",  # 22
+    "%H",
+    "%M",  # 24
+    "%S",
 ]
 
 LIST_IMAGE_NUMBER_L2 = [
-    IMAGE_NUMBER_ALL, IMAGE_NUMBER_1, IMAGE_NUMBER_2, IMAGE_NUMBER_3, IMAGE_NUMBER_4
+    IMAGE_NUMBER_ALL,
+    IMAGE_NUMBER_1,
+    IMAGE_NUMBER_2,
+    IMAGE_NUMBER_3,
+    IMAGE_NUMBER_4,
 ]
 
 LIST_CASE_L2 = [ORIGINAL_CASE, UPPERCASE, LOWERCASE]
 
-LIST_SEQUENCE_LETTER_L2 = [
-    UPPERCASE,
-    LOWERCASE
-]
+LIST_SEQUENCE_LETTER_L2 = [UPPERCASE, LOWERCASE]
 
 LIST_SEQUENCE_NUMBERS_L2 = [
     SEQUENCE_NUMBER_1,
@@ -660,10 +883,7 @@ LIST_SHUTTER_COUNT_L2 = [
     SEQUENCE_NUMBER_5,
     SEQUENCE_NUMBER_6,
 ]
-FILE_NUMBER_L2 = [
-    FILE_NUMBER_FOLDER,
-    FILE_NUMBER_ALL
-]
+FILE_NUMBER_L2 = [FILE_NUMBER_FOLDER, FILE_NUMBER_ALL]
 
 # Level 1
 
@@ -693,7 +913,7 @@ DICT_FILENAME_L1 = OrderedDict(
 )
 
 # pre 0.9.0a4 values for DICT_FILENAME_L1:
-#(NAME_EXTENSION, LIST_CASE_L2),
+# (NAME_EXTENSION, LIST_CASE_L2),
 # (EXTENSION, LIST_CASE_L2),
 
 DICT_VIDEO_FILENAME_L1 = OrderedDict(
@@ -798,38 +1018,88 @@ DICT_VIDEO_SUBFOLDER_L0 = OrderedDict(
 )
 
 # preference elements that require metadata
-# note there is no need to specify lower level elements if a higher level 
+# note there is no need to specify lower level elements if a higher level
 # element is necessary for them to be present to begin with
 METADATA_ELEMENTS = [METADATA, IMAGE_DATE]
 
-# preference elements that are sequence numbers or letters             
+# preference elements that are sequence numbers or letters
 SEQUENCE_ELEMENTS = [
     DOWNLOAD_SEQ_NUMBER,
     SESSION_SEQ_NUMBER,
     SUBFOLDER_SEQ_NUMBER,
     STORED_SEQ_NUMBER,
-    SEQUENCE_LETTER
+    SEQUENCE_LETTER,
 ]
 
 # preference elements that do not require metadata and are not fixed
-# as above, there is no need to specify lower level elements if a higher level 
+# as above, there is no need to specify lower level elements if a higher level
 # element is necessary for them to be present to begin with
 DYNAMIC_NON_METADATA_ELEMENTS = [TODAY, YESTERDAY, FILENAME] + SEQUENCE_ELEMENTS
 
 PHOTO_RENAME_COMPLEX = [
-    'Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM',
-    'Text', '-', '', 'Sequences', 'Downloads today', 'One digit', 'Text', '-iso', '', 'Metadata',
-    'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata',
-    'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', ''
+    "Date time",
+    "Image date",
+    "YYYYMMDD",
+    "Text",
+    "-",
+    "",
+    "Date time",
+    "Image date",
+    "HHMM",
+    "Text",
+    "-",
+    "",
+    "Sequences",
+    "Downloads today",
+    "One digit",
+    "Text",
+    "-iso",
+    "",
+    "Metadata",
+    "ISO",
+    "",
+    "Text",
+    "-f",
+    "",
+    "Metadata",
+    "Aperture",
+    "",
+    "Text",
+    "-",
+    "",
+    "Metadata",
+    "Focal length",
+    "",
+    "Text",
+    "mm-",
+    "",
+    "Metadata",
+    "Exposure time",
+    "",
 ]
 PHOTO_RENAME_SIMPLE = [
-    'Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM',
-    'Text', '-', '', 'Sequences', 'Downloads today', 'One digit'
+    "Date time",
+    "Image date",
+    "YYYYMMDD",
+    "Text",
+    "-",
+    "",
+    "Date time",
+    "Image date",
+    "HHMM",
+    "Text",
+    "-",
+    "",
+    "Sequences",
+    "Downloads today",
+    "One digit",
 ]
 
-VIDEO_RENAME_SIMPLE = [x if x != 'Image date' else 'Video date' for x in PHOTO_RENAME_SIMPLE]
+VIDEO_RENAME_SIMPLE = [
+    x if x != "Image date" else "Video date" for x in PHOTO_RENAME_SIMPLE
+]
 
-JOB_CODE_RENAME_TEST = ['Job code', '', '', 'Sequences', 'Downloads today', 'One digit']
+JOB_CODE_RENAME_TEST = ["Job code", "", "", "Sequences", "Downloads today", "One digit"]
 
 
 def upgrade_pre090a4_rename_pref(pref_list: List[str]) -> Tuple[List[str], str]:
@@ -873,7 +1143,7 @@ def upgrade_pre090a4_rename_pref(pref_list: List[str]) -> Tuple[List[str], str]:
     new_pref_list = []
     for idx in range(0, len(pref_list), 3):
         l1 = pref_list[idx + 1]
-        if  l1 != EXTENSION:
+        if l1 != EXTENSION:
             if l1 == NAME_EXTENSION:
                 l1 = NAME
             new_pref_list.extend([pref_list[idx], l1, pref_list[idx + 2]])
@@ -881,17 +1151,17 @@ def upgrade_pre090a4_rename_pref(pref_list: List[str]) -> Tuple[List[str], str]:
 
 
 class PrefError(Exception):
-    """ base class """
+    """base class"""
 
     def __init__(self):
         super().__init__()
-        self.msg = ''
+        self.msg = ""
 
     def unpackList(self, l: List[str]):
         """
         Make the preferences presentable to the user
         """
-        return ', '.join("'{}'".format(i) for i in l)
+        return ", ".join("'{}'".format(i) for i in l)
 
     def __str__(self):
         return self.msg
@@ -903,20 +1173,24 @@ class PrefKeyError(PrefError):
         value = error[0]
         expectedValues = self.unpackList(error[1])
         self.msg = "Preference key '%(key)s' is invalid.\nExpected one of %(value)s" % {
-            'key': value, 'value': expectedValues}
+            "key": value,
+            "value": expectedValues,
+        }
 
 
 class PrefValueInvalidError(PrefKeyError):
     def __init__(self, error):
         super().__init__(error)
         value = error[0]
-        self.msg = "Preference value '%(value)s' is invalid" % {'value': value}
+        self.msg = "Preference value '%(value)s' is invalid" % {"value": value}
 
 
 class PrefLengthError(PrefError):
     def __init__(self, error):
         super().__init__()
-        self.msg = "These preferences are not well formed:" + "\n %s" % self.unpackList(error)
+        self.msg = "These preferences are not well formed:" + "\n %s" % self.unpackList(
+            error
+        )
 
 
 class PrefValueKeyComboError(PrefError):
@@ -941,7 +1215,7 @@ def check_pref_valid(pref_defn, prefs, modulo=3) -> bool:
         raise PrefLengthError(prefs)
     else:
         for i in range(0, len(prefs), modulo):
-            _check_pref_valid(pref_defn, prefs[i:i + modulo])
+            _check_pref_valid(pref_defn, prefs[i : i + modulo])
 
     return True
 
@@ -980,9 +1254,9 @@ def _check_pref_valid(pref_defn, prefs):
         raise PrefKeyError((key, list(pref_defn.keys())))
 
 
-def filter_subfolder_prefs(pref_list: List[str],
-                           pref_colors: Optional[List[str]]=None) \
-        -> Tuple[bool, List[str], Optional[List[str]]]:
+def filter_subfolder_prefs(
+    pref_list: List[str], pref_colors: Optional[List[str]] = None
+) -> Tuple[bool, List[str], Optional[List[str]]]:
     """
     Filters out extraneous preference choices.
 
@@ -1019,9 +1293,9 @@ def filter_subfolder_prefs(pref_list: List[str],
                     prefs_changed = True
                     # note we are messing with the contents of the pref list,
                     # must exit loop and try again
-                    pref_list = pref_list[:i] + pref_list[i + 3:]
+                    pref_list = pref_list[:i] + pref_list[i + 3 :]
                     if pref_colors is not None:
-                        pref_colors = pref_colors[:i//3] + pref_colors[i//3 + 1:]
+                        pref_colors = pref_colors[: i // 3] + pref_colors[i // 3 + 1 :]
                     break
 
     return (prefs_changed, pref_list, pref_colors)

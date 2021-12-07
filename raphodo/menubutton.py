@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -16,11 +16,11 @@
 # along with Rapid Photo Downloader. If not,
 # see <http://www.gnu.org/licenses/>.
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (QMenu, QToolButton)
+from PyQt5.QtWidgets import QMenu, QToolButton
 
 from raphodo.viewutils import scaledIcon
 
@@ -36,7 +36,8 @@ class MenuButton(QToolButton):
         self.setPopupMode(QToolButton.InstantPopup)
 
         self.setIcon(scaledIcon(icon, self.iconSize()))
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
         QToolButton {border: none;}
         QToolButton::menu-indicator { image: none; }
         QToolButton::hover {
@@ -47,5 +48,6 @@ class MenuButton(QToolButton):
             border: 1px solid palette(shadow);
             border-radius: 3px;
         }
-        """)
+        """
+        )
         self.setMenu(menu)

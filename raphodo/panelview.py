@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -24,15 +24,21 @@ Portions modeled on Canonical's QExpander, which is an 'Expander widget
 similar to the GtkExpander', Copyright 2012 Canonical Ltd
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 from typing import Optional
 
-from PyQt5.QtCore import (Qt, QSize)
-from PyQt5.QtGui import (QColor, QFontMetrics, QFont)
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QColor, QFontMetrics, QFont
 from PyQt5.QtWidgets import (
-    QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget, QScrollArea, QFrame
+    QHBoxLayout,
+    QLabel,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
+    QScrollArea,
+    QFrame,
 )
 
 from raphodo.constants import minPanelWidth
@@ -43,10 +49,13 @@ class QPanelView(QWidget):
     A header bar with a child widget.
     """
 
-    def __init__(self, label: str,
-                 headerColor: Optional[QColor]=None,
-                 headerFontColor: Optional[QColor]=None,
-                 parent: QWidget=None) -> None:
+    def __init__(
+        self,
+        label: str,
+        headerColor: Optional[QColor] = None,
+        headerFontColor: Optional[QColor] = None,
+        parent: QWidget = None,
+    ) -> None:
 
         super().__init__(parent)
 
@@ -61,7 +70,7 @@ class QPanelView(QWidget):
 
         self.label = QLabel(label.upper())
         if headerFontColor is not None:
-            headerFontStyle =  "QLabel {color: %s;}" % headerFontColor.name()
+            headerFontStyle = "QLabel {color: %s;}" % headerFontColor.name()
             self.label.setStyleSheet(headerFontStyle)
 
         self.header.setLayout(self.headerLayout)

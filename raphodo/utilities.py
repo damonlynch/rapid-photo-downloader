@@ -56,8 +56,8 @@ from raphodo.constants import disable_version_check
 from raphodo import localedir, i18n_domain
 
 
-# Arrow 0.9.0 separated the replace and shift functions into separate calls, deprecating using
-# replace() to do the work of the new shift()
+# Arrow 0.9.0 separated the replace and shift functions into separate calls,
+# deprecating using replace() to do the work of the new shift()
 # Arrow 0.14.5 removed the deprecated shift functionality from the replace()
 try:
     arrow_version = parse_version(arrow.__version__)

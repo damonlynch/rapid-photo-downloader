@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -23,8 +23,8 @@ Log all messages to file log
 Log messages at user specified level to console
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 import logging
 from logging.handlers import QueueHandler, RotatingFileHandler
@@ -35,6 +35,7 @@ from typing import Optional
 
 try:
     import colorlog
+
     use_colorlog = True
 except ImportError:
     use_colorlog = False
@@ -42,23 +43,25 @@ except ImportError:
 from raphodo.constants import logfile_name
 from raphodo.storage import get_program_logging_directory
 
-logging_format = '%(levelname)s: %(message)s'
-colored_logging_format = '%(log_color)s%(levelname)-8s%(reset)s %(message)s'
-log_colors ={
-        'DEBUG':    'cyan',
-        'INFO':     'green',
-        'WARNING':  'yellow',
-        'ERROR':    'red',
-        'CRITICAL': 'red,bg_white',
-    }
+logging_format = "%(levelname)s: %(message)s"
+colored_logging_format = "%(log_color)s%(levelname)-8s%(reset)s %(message)s"
+log_colors = {
+    "DEBUG": "cyan",
+    "INFO": "green",
+    "WARNING": "yellow",
+    "ERROR": "red",
+    "CRITICAL": "red,bg_white",
+}
 
-logging_date_format = '%Y-%m-%d %H:%M:%S'
-file_logging_format = '%(asctime)s %(levelname)s %(filename)s %(lineno)d: %(message)s'
+logging_date_format = "%Y-%m-%d %H:%M:%S"
+file_logging_format = "%(asctime)s %(levelname)s %(filename)s %(lineno)d: %(message)s"
+
 
 class ZeroMQSocketHandler(QueueHandler):
     def enqueue(self, record):
         data = pickle.dumps(record.__dict__)
         self.queue.send(data)
+
 
 class RotatingGzipFileHandler(RotatingFileHandler):
     def rotation_filename(self, name):
@@ -78,7 +81,7 @@ def full_log_file_path():
     else:
         # Problem: for some reason cannot create log file in standard location,
         # so create it in the home directory
-        log_file = os.path.join(os.path.expanduser('~'), logfile_name)
+        log_file = os.path.join(os.path.expanduser("~"), logfile_name)
     return log_file
 
 
@@ -96,12 +99,14 @@ def setup_main_process_logging(logging_level: int) -> logging.Logger:
     max_bytes = 1024 * 1024  # 1 MB
     filehandler = RotatingGzipFileHandler(log_file, maxBytes=max_bytes, backupCount=10)
     filehandler.setLevel(logging.DEBUG)
-    filehandler.setFormatter(logging.Formatter(file_logging_format, logging_date_format))
+    filehandler.setFormatter(
+        logging.Formatter(file_logging_format, logging_date_format)
+    )
     logger.addHandler(filehandler)
     logger.setLevel(logging.DEBUG)
 
     consolehandler = logging.StreamHandler()
-    consolehandler.set_name('console')
+    consolehandler.set_name("console")
     if not use_colorlog:
         consolehandler.setFormatter(logging.Formatter(logging_format))
     else:
@@ -111,6 +116,3 @@ def setup_main_process_logging(logging_level: int) -> logging.Logger:
     consolehandler.setLevel(logging_level)
     logger.addHandler(consolehandler)
     return logger
-
-
-

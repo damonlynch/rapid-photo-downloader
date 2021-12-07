@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -16,10 +16,10 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2015-2021, Damon Lynch"
 
-from collections import (namedtuple, defaultdict, deque, Counter)
+from collections import namedtuple, defaultdict, deque, Counter
 from operator import attrgetter
 import locale
 from datetime import datetime
@@ -33,44 +33,99 @@ import arrow.arrow
 from arrow.arrow import Arrow
 
 from PyQt5.QtCore import (
-    QAbstractTableModel, QModelIndex, Qt, QSize, QSizeF, QRect, QItemSelection, QItemSelectionModel,
-    QBuffer, QIODevice, pyqtSignal, pyqtSlot, QRectF, QPoint, QPointF, QLineF
+    QAbstractTableModel,
+    QModelIndex,
+    Qt,
+    QSize,
+    QSizeF,
+    QRect,
+    QItemSelection,
+    QItemSelectionModel,
+    QBuffer,
+    QIODevice,
+    pyqtSignal,
+    pyqtSlot,
+    QRectF,
+    QPoint,
+    QPointF,
+    QLineF,
 )
 from PyQt5.QtWidgets import (
-    QTableView, QStyledItemDelegate, QSlider, QLabel, QVBoxLayout, QStyleOptionViewItem, QStyle,
-    QAbstractItemView, QWidget, QHBoxLayout, QSizePolicy, QSplitter, QScrollArea, QStackedWidget,
-    QToolButton, QAction
+    QTableView,
+    QStyledItemDelegate,
+    QSlider,
+    QLabel,
+    QVBoxLayout,
+    QStyleOptionViewItem,
+    QStyle,
+    QAbstractItemView,
+    QWidget,
+    QHBoxLayout,
+    QSizePolicy,
+    QSplitter,
+    QScrollArea,
+    QStackedWidget,
+    QToolButton,
+    QAction,
 )
 from PyQt5.QtGui import (
-    QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap, QPalette, QMouseEvent, QIcon,
-    QFontMetricsF
+    QPainter,
+    QFontMetrics,
+    QFont,
+    QColor,
+    QGuiApplication,
+    QPixmap,
+    QPalette,
+    QMouseEvent,
+    QIcon,
+    QFontMetricsF,
 )
 
 from raphodo.constants import (
-    FileType, Align, proximity_time_steps, TemporalProximityState, fileTypeColor, CustomColors,
-    DarkGray, MediumGray, DoubleDarkGray
+    FileType,
+    Align,
+    proximity_time_steps,
+    TemporalProximityState,
+    fileTypeColor,
+    CustomColors,
+    DarkGray,
+    MediumGray,
+    DoubleDarkGray,
 )
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
 from raphodo.viewutils import (
-    ThumbnailDataForProximity, QFramedWidget, QFramedLabel, scaledIcon
+    ThumbnailDataForProximity,
+    QFramedWidget,
+    QFramedLabel,
+    scaledIcon,
 )
-from raphodo.timeutils import locale_time, strip_zero, make_long_date_format, strip_am, strip_pm
+from raphodo.timeutils import (
+    locale_time,
+    strip_zero,
+    make_long_date_format,
+    strip_am,
+    strip_pm,
+)
 from raphodo.utilities import runs
 from raphodo.constants import Roles
 
 ProximityRow = namedtuple(
-    'ProximityRow', 'year, month, weekday, day, proximity, new_file, tooltip_date_col0, '
-                    'tooltip_date_col1, tooltip_date_col2'
+    "ProximityRow",
+    "year, month, weekday, day, proximity, new_file, tooltip_date_col0, "
+    "tooltip_date_col1, tooltip_date_col2",
 )
 
-UidTime = namedtuple('UidTime', 'ctime, arrowtime, uid, previously_downloaded')
+UidTime = namedtuple("UidTime", "ctime, arrowtime, uid, previously_downloaded")
 
 
-def humanize_time_span(start: Arrow, end: Arrow,
-                       strip_leading_zero_from_time: bool=True,
-                       insert_cr_on_long_line: bool=False,
-                       long_format: bool=False) -> str:
+def humanize_time_span(
+    start: Arrow,
+    end: Arrow,
+    strip_leading_zero_from_time: bool = True,
+    insert_cr_on_long_line: bool = False,
+    long_format: bool = False,
+) -> str:
     r"""
     Make times and time spans human readable.
 
@@ -82,7 +137,7 @@ def humanize_time_span(start: Arrow, end: Arrow,
     :param strip_leading_zero_from_time: strip all leading zeros
     :param insert_cr_on_long_line: insert a carriage return on long
      lines
-    :param long_format: if True, return result in long format  
+    :param long_format: if True, return result in long format
     :return: tuple of time span to be read by humans, in short and long format
 
     >>> locale.setlocale(locale.LC_ALL, ('en_US', 'utf-8'))
@@ -181,7 +236,7 @@ def humanize_time_span(start: Arrow, end: Arrow,
 
     strip = strip_leading_zero_from_time
 
-    if start.floor('minute') == end.floor('minute'):
+    if start.floor("minute") == end.floor("minute"):
         short_format = strip_zero(locale_time(start.datetime), strip)
         if not long_format:
             return short_format
@@ -190,28 +245,26 @@ def humanize_time_span(start: Arrow, end: Arrow,
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
             # crash.
-            return _('%(date)s, %(time)s') % dict(
-                date=make_long_date_format(start),
-                time=short_format
+            return _("%(date)s, %(time)s") % dict(
+                date=make_long_date_format(start), time=short_format
             )
 
-    if start.floor('day') == end.floor('day'):
+    if start.floor("day") == end.floor("day"):
         # both dates are on the same day
         start_time = strip_zero(locale_time(start.datetime), strip)
         end_time = strip_zero(locale_time(end.datetime), strip)
 
-        if (start.hour < 12 and end.hour < 12):
+        if start.hour < 12 and end.hour < 12:
             # both dates are in the same morning
             start_time = strip_am(start_time)
-        elif (start.hour >= 12 and end.hour >= 12):
+        elif start.hour >= 12 and end.hour >= 12:
             start_time = strip_pm(start_time)
 
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
-        time_span = _('%(starttime)s - %(endtime)s') % dict(
-            starttime=start_time,
-            endtime=end_time
+        time_span = _("%(starttime)s - %(endtime)s") % dict(
+            starttime=start_time, endtime=end_time
         )
         if not long_format:
             # Translators: for example 9:00 AM - 3:55 PM
@@ -221,9 +274,8 @@ def humanize_time_span(start: Arrow, end: Arrow,
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
             # crash.
-            return _('%(date)s, %(time)s') % dict(
-                date=make_long_date_format(start),
-                time=time_span
+            return _("%(date)s, %(time)s") % dict(
+                date=make_long_date_format(start), time=time_span
             )
 
     # The start and end dates are on a different day
@@ -232,40 +284,38 @@ def humanize_time_span(start: Arrow, end: Arrow,
     # Translators: %(variable)s represents Python code, not a plural of the term
     # variable. You must keep the %(variable)s untranslated, or the program will
     # crash.
-    start_date = _('%(month)s %(numeric_day)s') % dict(
-        month=start.datetime.strftime('%b'),
-        numeric_day=start.format('D')
+    start_date = _("%(month)s %(numeric_day)s") % dict(
+        month=start.datetime.strftime("%b"), numeric_day=start.format("D")
     )
     # Translators: %(variable)s represents Python code, not a plural of the term
     # variable. You must keep the %(variable)s untranslated, or the program will
     # crash.
-    end_date = _('%(month)s %(numeric_day)s') % dict(
-        month=end.datetime.strftime('%b'),
-        numeric_day=end.format('D')
+    end_date = _("%(month)s %(numeric_day)s") % dict(
+        month=end.datetime.strftime("%b"), numeric_day=end.format("D")
     )
 
-    if start.floor('year') != end.floor('year') or long_format:
+    if start.floor("year") != end.floor("year") or long_format:
         # Translators: for example Nov 3 2015
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
-        start_date = _('%(date)s %(year)s') % dict(date=start_date, year=start.year)
+        start_date = _("%(date)s %(year)s") % dict(date=start_date, year=start.year)
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
-        end_date = _('%(date)s %(year)s') % dict(date=end_date, year=end.year)
+        end_date = _("%(date)s %(year)s") % dict(date=end_date, year=end.year)
 
     # Translators: for example, Nov 3, 12:15 PM
     # Translators: %(variable)s represents Python code, not a plural of the term
     # variable. You must keep the %(variable)s untranslated, or the program will
     # crash.
-    start_datetime = _('%(date)s, %(time)s') % dict(
+    start_datetime = _("%(date)s, %(time)s") % dict(
         date=start_date, time=strip_zero(locale_time(start.datetime), strip)
     )
     # Translators: %(variable)s represents Python code, not a plural of the term
     # variable. You must keep the %(variable)s untranslated, or the program will
     # crash.
-    end_datetime = _('%(date)s, %(time)s') % dict(
+    end_datetime = _("%(date)s, %(time)s") % dict(
         date=end_date, time=strip_zero(locale_time(end.datetime), strip)
     )
 
@@ -274,7 +324,7 @@ def humanize_time_span(start: Arrow, end: Arrow,
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
-        return _('%(earlier_time)s - %(later_time)s') % dict(
+        return _("%(earlier_time)s - %(later_time)s") % dict(
             earlier_time=start_datetime, later_time=end_datetime
         )
     else:
@@ -285,11 +335,12 @@ def humanize_time_span(start: Arrow, end: Arrow,
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
-        return _('%(earlier_time)s -\n%(later_time)s') % dict(
+        return _("%(earlier_time)s -\n%(later_time)s") % dict(
             earlier_time=start_datetime, later_time=end_datetime
         )
 
-FontKerning = namedtuple('FontKerning', 'font, kerning')
+
+FontKerning = namedtuple("FontKerning", "font, kerning")
 
 
 def monthFont() -> FontKerning:
@@ -360,7 +411,7 @@ class ProximityDisplayValues:
 
         self.calculate_max_col1_size()
         self.day_proportion = self.max_day_height / self.max_col1_text_height
-        self.weekday_proportion = self.max_weekday_height / self.max_col1_text_height        
+        self.weekday_proportion = self.max_weekday_height / self.max_col1_text_height
 
         # Column 2 - proximity value e.g. 1:00 - 1:45 PM
         self.col2_new_file_dot = False
@@ -394,8 +445,9 @@ class ProximityDisplayValues:
         self.dayFont = dayFont()
         self.invalidRowFont = invalidRowFont()
         self.invalidRowFontMetrics = QFontMetricsF(self.invalidRowFont)
-        self.invalidRowHeightMin = self.invalidRowFontMetrics.height() + \
-                                   self.proximityMetrics.height()
+        self.invalidRowHeightMin = (
+            self.invalidRowFontMetrics.height() + self.proximityMetrics.height()
+        )
 
     def prepare_for_pickle(self) -> None:
         self.proximityFont = self.proximityMetrics = None
@@ -417,7 +469,7 @@ class ProximityDisplayValues:
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
             # crash.
-            return _('%(month)s  %(year)s') % dict(month=month.upper(), year=year)
+            return _("%(month)s  %(year)s") % dict(month=month.upper(), year=year)
         else:
             return month.upper()
 
@@ -428,7 +480,9 @@ class ProximityDisplayValues:
         size = self.get_month_size(month)
         # Height and width are reversed because of the rotation
         size.transpose()
-        return QSizeF(size.width() + self.col0_padding, size.height() + self.col0_padding)
+        return QSizeF(
+            size.width() + self.col0_padding, size.height() + self.col0_padding
+        )
 
     def calculate_max_col1_size(self) -> None:
         """
@@ -452,8 +506,10 @@ class ProximityDisplayValues:
         weekday_height = 0
         weekdayMetrics = QFontMetricsF(weekdayFont())
         for i in range(1, 7):
-            dt = datetime(2015, 11, i)  # Year and month are totally irrelevant, only want day
-            weekday = dt.strftime('%a').upper()
+            dt = datetime(
+                2015, 11, i
+            )  # Year and month are totally irrelevant, only want day
+            weekday = dt.strftime("%a").upper()
             rect = weekdayMetrics.boundingRect(str(weekday))
             weekday_width = max(weekday_width, rect.width())
             weekday_height = max(weekday_height, rect.height())
@@ -466,21 +522,21 @@ class ProximityDisplayValues:
         self.col1_height = self.max_col1_text_height
 
     def get_proximity_size(self, text: str) -> QSizeF:
-        text = text.split('\n')
+        text = text.split("\n")
         width = height = 0
         for t in text:
             boundingRect = self.proximityMetrics.boundingRect(t)  # type: QRectF
             width = max(width, boundingRect.width())
             height += boundingRect.height()
         size = QSizeF(
-            width  + self.col2_text_left_margin + self.col2_right_margin,
-            height + self.col2_v_padding
+            width + self.col2_text_left_margin + self.col2_right_margin,
+            height + self.col2_v_padding,
         )
         return size
 
-    def calculate_row_sizes(self, rows: List[ProximityRow],
-                            spans: List[Tuple[int, int, int]],
-                            depth: int) -> None:
+    def calculate_row_sizes(
+        self, rows: List[ProximityRow], spans: List[Tuple[int, int, int]], depth: int
+    ) -> None:
         """
         Calculate row height and column widths. The latter is trivial,
         the former far more complex.
@@ -529,7 +585,9 @@ class ProximityDisplayValues:
                 skip_c2_end_of_day = False
                 if c2_span:
                     final_day_in_c2_span = row + c1_span - 2 + c2_span
-                    c1_span_in_c2_span_final_day = spans_dict.get((final_day_in_c2_span, 1))
+                    c1_span_in_c2_span_final_day = spans_dict.get(
+                        (final_day_in_c2_span, 1)
+                    )
                     skip_c2_end_of_day = c1_span_in_c2_span_final_day is not None
 
                 if not skip_c2_end_of_day:
@@ -557,7 +615,9 @@ class ProximityDisplayValues:
                 c2 = c1_children[-1]  # type: QSizeF
                 c2.setHeight(c2.height() + self.col1_v_padding_bot + extra)
 
-                c1_children_height += self.col1_v_padding_top + self.col1_v_padding_bot + extra * 2
+                c1_children_height += (
+                    self.col1_v_padding_top + self.col1_v_padding_bot + extra * 2
+                )
                 c0_children_height += c1_children_height
 
             extra = max(c0_height - c0_children_height, 0) / 2
@@ -602,12 +662,14 @@ class MetaUid:
     """
 
     def __init__(self):
-        self._uids = tuple({} for i in (0, 1 ,2))  # type: Tuple[Dict[int, List[bytes, ...]]]
+        self._uids = tuple(
+            {} for i in (0, 1, 2)
+        )  # type: Tuple[Dict[int, List[bytes, ...]]]
         self._no_uids = tuple({} for i in (0, 1, 2))  # type: Tuple[Dict[int, int]]
         self._col2_row_index = dict()  # type: Dict[bytes, int]
 
     def __repr__(self):
-        return 'MetaUid(%r %r)' % (self._no_uids, self._uids)
+        return "MetaUid(%r %r)" % (self._no_uids, self._uids)
 
     def __setitem__(self, key: Tuple[int, int], uids: List[bytes]) -> None:
         row, col = key
@@ -663,15 +725,17 @@ class MetaUid:
         no_col0, no_col1, no_col2 = self._no_uids
 
         for i in range(no_rows):
-            msg0 = ''
-            msg1 = ''
+            msg0 = ""
+            msg1 = ""
             if i not in col2 and i not in col1:
-                    msg0 = '_uids'
+                msg0 = "_uids"
             if i not in no_col2 and i not in col1:
-                msg1 = '_no_uids'
+                msg1 = "_no_uids"
             if msg0 or msg1:
-                msg = ' and '.join((msg0, msg1))
-                logging.error("%s: row %s is missing in %s", self.__class__.__name__, i, msg)
+                msg = " and ".join((msg0, msg1))
+                logging.error(
+                    "%s: row %s is missing in %s", self.__class__.__name__, i, msg
+                )
                 valid.append(i)
 
         return tuple(valid)
@@ -689,8 +753,9 @@ class TemporalProximityGroups:
     """
 
     # @profile
-    def __init__(self, thumbnail_rows: List[ThumbnailDataForProximity],
-                 temporal_span: int = 3600):
+    def __init__(
+        self, thumbnail_rows: List[ThumbnailDataForProximity], temporal_span: int = 3600
+    ):
         self.rows = []  # type: List[ProximityRow]
 
         self.invalid_rows = tuple()  # type: Tuple[int]
@@ -707,32 +772,41 @@ class TemporalProximityGroups:
         # group_no: no days spanned
         day_spans_by_proximity = dict()  # type: Dict[int, int]
         # group_no: (
-        uids_by_day_in_proximity_group = dict()  # type: Dict[int, Tuple[Tuple[int, int, int], List[bytes]]]
+        uids_by_day_in_proximity_group = (
+            dict()
+        )  # type: Dict[int, Tuple[Tuple[int, int, int], List[bytes]]]
 
         # uid: (year, month, day)
         year_month_day = dict()  # type: Dict[bytes, Tuple[int, int, int]]
 
         # group_no: List[uid]
         uids_by_proximity = defaultdict(list)  # type: Dict[int, List[bytes, ...]]
-        # Determine if proximity group contains any files have not been previously downloaded
+        # Determine if proximity group contains any files have not been previously
+        # downloaded
         new_files_by_proximity = defaultdict(set)  # type: Dict[int, Set[bool]]
 
         # Text that will appear in column 2 -- they proximity groups
         text_by_proximity = deque()
 
         # (year, month, day): [uid, uid, ...]
-        self.day_groups = defaultdict(list)  # type: DefaultDict[Tuple[int, int, int], List[bytes]]
+        self.day_groups = defaultdict(
+            list
+        )  # type: DefaultDict[Tuple[int, int, int], List[bytes]]
         # (year, month): [uid, uid, ...]
-        self.month_groups = defaultdict(list)  # type: DefaultDict[Tuple[int, int], List[bytes]]
+        self.month_groups = defaultdict(
+            list
+        )  # type: DefaultDict[Tuple[int, int], List[bytes]]
         # year: [uid, uid, ...]
         self.year_groups = defaultdict(list)  # type: DefaultDict[int, List[bytes]]
 
-        # How many columns the Timeline will display - don't display year when the only dates
-        # are from this year, for instance.
+        # How many columns the Timeline will display - don't display year when the only
+        # dates are from this year, for instance.
         self._depth = None  # type: Optional[int]
-        # Compared to right now, does the Timeline contain an entry from the previous year?
+        # Compared to right now, does the Timeline contain an entry from the previous
+        # year?
         self._previous_year = False
-        # Compared to right now, does the Timeline contain an entry from the previous month?
+        # Compared to right now, does the Timeline contain an entry from the previous
+        # month?
         self._previous_month = False
 
         # Tuple of (column, row, row_span):
@@ -745,7 +819,7 @@ class TemporalProximityGroups:
         # Timeline row: id
         self.proximity_view_cell_id_col2 = {}  # type: Dict[int, int]
         # col1, col2, uid
-        self.col1_col2_uid = []   # type: List[Tuple[int, int, bytes]]
+        self.col1_col2_uid = []  # type: List[Tuple[int, int, bytes]]
 
         if len(thumbnail_rows) == 0:
             return
@@ -755,19 +829,22 @@ class TemporalProximityGroups:
 
         self.display_values = ProximityDisplayValues()
 
-        thumbnail_rows.sort(key=attrgetter('ctime'))
+        thumbnail_rows.sort(key=attrgetter("ctime"))
 
         # Generate an arrow date time for every timestamp we have
         uid_times = [
             UidTime(
-                tr.ctime, arrow.get(tr.ctime).to('local'), tr.uid, tr.previously_downloaded
+                tr.ctime,
+                arrow.get(tr.ctime).to("local"),
+                tr.uid,
+                tr.previously_downloaded,
             )
             for tr in thumbnail_rows
         ]
 
         self.thumbnail_types = tuple(row.file_type for row in thumbnail_rows)
 
-        now = arrow.now().to('local')
+        now = arrow.now().to("local")
         current_year = now.year
         current_month = now.month
 
@@ -831,7 +908,7 @@ class TemporalProximityGroups:
             # Calculate the number of calendar days spanned by this proximity group
             # e.g. 2015-12-1 12:00 - 2015-12-2 15:00 = 2 days
             if len(group) > 1:
-                span = len(list(Arrow.span_range('day', start, end)))
+                span = len(list(Arrow.span_range("day", start, end)))
                 day_spans_by_proximity[group_no] = span
                 if span > 1:
                     # break the proximity group members into calendar days
@@ -853,11 +930,12 @@ class TemporalProximityGroups:
         # column 1.
 
         timeline_row = -1  # index into each row in the Timeline
-        thumbnail_index = 0 # index into the
+        thumbnail_index = 0  # index into the
         self.prev_row_month = (0, 0)
         self.prev_row_day = (0, 0, 0)
 
-        # Iterating through the groups in order is critical. Cannot use dict.items() here.
+        # Iterating through the groups in order is critical. Cannot use dict.items()
+        # here.
         for group_no in range(len(day_spans_by_proximity)):
 
             span = day_spans_by_proximity[group_no]
@@ -877,7 +955,7 @@ class TemporalProximityGroups:
                     atime=atime,
                     col2_text=col2_text,
                     new_file=new_file,
-                    y_m_d= y_m_d,
+                    y_m_d=y_m_d,
                     timeline_row=timeline_row,
                     thumbnail_index=thumbnail_index,
                     tooltip_col2_text=tooltip_col2_text,
@@ -895,9 +973,9 @@ class TemporalProximityGroups:
 
             thumbnail_index += len(uids_by_day_in_proximity_group[group_no][0])
 
-            # For any proximity groups that span more than one Timeline row because they span
-            # more than one calender day, add the day to the Timeline, with blank values
-            # for the proximity group (column 2).
+            # For any proximity groups that span more than one Timeline row because
+            # they span more than one calender day, add the day to the Timeline, with
+            # blank values for the proximity group (column 2).
             i = 0
             for y_m_d, day in uids_by_day_in_proximity_group[group_no][1:]:
                 i += 1
@@ -909,12 +987,12 @@ class TemporalProximityGroups:
                 self.rows.append(
                     self.make_row(
                         atime=atime,
-                        col2_text='',
+                        col2_text="",
                         new_file=new_file,
                         y_m_d=y_m_d,
                         timeline_row=timeline_row,
                         thumbnail_index=1,
-                        tooltip_col2_text=''
+                        tooltip_col2_text="",
                     )
                 )
                 # self.dump_row(group_no)
@@ -930,12 +1008,16 @@ class TemporalProximityGroups:
                     if row_count > 1:
                         self.spans.append((column, start_row, row_count))
                     start_row = timeline_row_index
-                self.row_span_for_column_starts_at_row[(timeline_row_index, column)] = start_row
+                self.row_span_for_column_starts_at_row[
+                    (timeline_row_index, column)
+                ] = start_row
 
             if start_row != len(self.rows) - 1:
                 self.spans.append((column, start_row, len(self.rows) - start_row))
                 for timeline_row_index in range(start_row, len(self.rows)):
-                    self.row_span_for_column_starts_at_row[(timeline_row_index, column)] = start_row
+                    self.row_span_for_column_starts_at_row[
+                        (timeline_row_index, column)
+                    ] = start_row
 
         assert len(self.row_span_for_column_starts_at_row) == len(self.rows) * 3
 
@@ -949,7 +1031,9 @@ class TemporalProximityGroups:
 
         uid_rows_c1 = {}
         for proximity_view_cell_id, timeline_row_index in enumerate(self.uids.uids(1)):
-            self.proximity_view_cell_id_col1[timeline_row_index] = proximity_view_cell_id
+            self.proximity_view_cell_id_col1[
+                timeline_row_index
+            ] = proximity_view_cell_id
             uids = self.uids.uids(1)[timeline_row_index]
             for uid in uids:
                 uid_rows_c1[uid] = proximity_view_cell_id
@@ -957,7 +1041,9 @@ class TemporalProximityGroups:
         uid_rows_c2 = {}
 
         for proximity_view_cell_id, timeline_row_index in enumerate(self.uids.uids(2)):
-            self.proximity_view_cell_id_col2[timeline_row_index] = proximity_view_cell_id
+            self.proximity_view_cell_id_col2[
+                timeline_row_index
+            ] = proximity_view_cell_id
             uids = self.uids.uids(2)[timeline_row_index]
             for uid in uids:
                 uid_rows_c2[uid] = proximity_view_cell_id
@@ -965,7 +1051,8 @@ class TemporalProximityGroups:
         assert len(uid_rows_c2) == len(uid_rows_c1) == len(thumbnail_rows)
 
         self.col1_col2_uid = [
-            (uid_rows_c1[row.uid], uid_rows_c2[row.uid], row.uid) for row in thumbnail_rows
+            (uid_rows_c1[row.uid], uid_rows_c2[row.uid], row.uid)
+            for row in thumbnail_rows
         ]
 
         # Assign depth before wiping values used to determine it
@@ -985,78 +1072,87 @@ class TemporalProximityGroups:
 
         self.invalid_rows = self.validate()
         if len(self.invalid_rows):
-            logging.error('Timeline validation failed')
+            logging.error("Timeline validation failed")
         else:
-            logging.info('Timeline validation passed')
+            logging.info("Timeline validation passed")
 
     def make_file_types_in_cell_text(self, slice_start: int, slice_end: int) -> str:
         c = FileTypeCounter(self.thumbnail_types[slice_start:slice_end])
         return c.summarize_file_count()[0]
 
-    def make_row(self, atime: Arrow,
-                 col2_text: str,
-                 new_file: bool,
-                 y_m_d: Tuple[int, int, int],
-                 timeline_row: int,
-                 thumbnail_index: int,
-                 tooltip_col2_text: str) -> ProximityRow:
+    def make_row(
+        self,
+        atime: Arrow,
+        col2_text: str,
+        new_file: bool,
+        y_m_d: Tuple[int, int, int],
+        timeline_row: int,
+        thumbnail_index: int,
+        tooltip_col2_text: str,
+    ) -> ProximityRow:
 
         atime_month = y_m_d[:2]
         if atime_month != self.prev_row_month:
             self.prev_row_month = atime_month
-            month = atime.datetime.strftime('%B')
+            month = atime.datetime.strftime("%B")
             year = atime.year
             uids = self.month_groups[atime_month]
             slice_end = thumbnail_index + len(uids)
-            self.file_types_in_cell[(timeline_row, 0)] = self.make_file_types_in_cell_text(
+            self.file_types_in_cell[
+                (timeline_row, 0)
+            ] = self.make_file_types_in_cell_text(
                 slice_start=thumbnail_index, slice_end=slice_end
             )
             self.uids[(timeline_row, 0)] = uids
         else:
-            month = year = ''
+            month = year = ""
 
         if y_m_d != self.prev_row_day:
             self.prev_row_day = y_m_d
-            numeric_day = atime.format('D')
-            weekday = atime.datetime.strftime('%a')
+            numeric_day = atime.format("D")
+            weekday = atime.datetime.strftime("%a")
 
             self.uids[(timeline_row, 1)] = self.day_groups[y_m_d]
         else:
-            weekday = numeric_day = ''
+            weekday = numeric_day = ""
 
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
-        month_day = _('%(month)s %(numeric_day)s') % dict(
-            month=atime.datetime.strftime('%b'),
-            numeric_day=atime.format('D')
+        month_day = _("%(month)s %(numeric_day)s") % dict(
+            month=atime.datetime.strftime("%b"), numeric_day=atime.format("D")
         )
         # Translators: for example Nov 2 2015
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
-        tooltip_col1 = _('%(date)s %(year)s') % dict(date= month_day, year=atime.year)
+        tooltip_col1 = _("%(date)s %(year)s") % dict(date=month_day, year=atime.year)
         # Translators: for example Nov 2015
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
-        tooltip_col0 = _('%(month)s %(year)s') % dict(
-            month=atime.datetime.strftime('%b'),
-            year=atime.year
+        tooltip_col0 = _("%(month)s %(year)s") % dict(
+            month=atime.datetime.strftime("%b"), year=atime.year
         )
 
         return ProximityRow(
-            year=year, month=month, weekday=weekday, day=numeric_day, proximity=col2_text,
-            new_file=new_file, tooltip_date_col0=tooltip_col0, tooltip_date_col1=tooltip_col1,
-            tooltip_date_col2=tooltip_col2_text
+            year=year,
+            month=month,
+            weekday=weekday,
+            day=numeric_day,
+            proximity=col2_text,
+            new_file=new_file,
+            tooltip_date_col0=tooltip_col0,
+            tooltip_date_col1=tooltip_col1,
+            tooltip_date_col2=tooltip_col2_text,
         )
 
     def __len__(self) -> int:
         return len(self.rows)
 
-    def dump_row(self, group_no, extra='') -> None:
+    def dump_row(self, group_no, extra="") -> None:
         row = self.rows[-1]
-        print(group_no, extra, row.day, row.proximity.replace('\n', ' '))
+        print(group_no, extra, row.day, row.proximity.replace("\n", " "))
 
     def __getitem__(self, row_number) -> ProximityRow:
         return self.rows[row_number]
@@ -1080,7 +1176,7 @@ class TemporalProximityGroups:
         return self._depth
 
     def __repr__(self) -> str:
-        return 'TemporalProximityGroups with {} rows and depth of {}'.format(
+        return "TemporalProximityGroups with {} rows and depth of {}".format(
             len(self.rows), self.depth()
         )
 
@@ -1121,7 +1217,9 @@ def base64_thumbnail(pixmap: QPixmap, size: QSize) -> str:
 class TemporalProximityModel(QAbstractTableModel):
     tooltip_image_size = QSize(90, 90)  # FIXME high DPI?
 
-    def __init__(self, rapidApp, groups: TemporalProximityGroups=None, parent=None) -> None:
+    def __init__(
+        self, rapidApp, groups: TemporalProximityGroups = None, parent=None
+    ) -> None:
         super().__init__(parent)
         self.rapidApp = rapidApp
         self.groups = groups
@@ -1130,10 +1228,12 @@ class TemporalProximityModel(QAbstractTableModel):
         logger = logging.getLogger()
         for handler in logger.handlers:
             # name set in iplogging.setup_main_process_logging()
-            if handler.name == 'console':
+            if handler.name == "console":
                 self.show_debug = handler.level <= logging.DEBUG
 
-        self.force_show_debug = False  # set to True to always display debug info in Timeline
+        self.force_show_debug = (
+            False  # set to True to always display debug info in Timeline
+        )
 
     def columnCount(self, parent=QModelIndex()) -> int:
         return 3
@@ -1159,14 +1259,22 @@ class TemporalProximityModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             invalid_row = self.show_debug and row in self.groups.invalid_rows
-            invalid_rows = self.show_debug and len(self.groups.invalid_rows) > 0 or \
-                self.force_show_debug
+            invalid_rows = (
+                self.show_debug
+                and len(self.groups.invalid_rows) > 0
+                or self.force_show_debug
+            )
             if column == 0:
                 return proximity_row.year, proximity_row.month
             elif column == 1:
                 return proximity_row.weekday, proximity_row.day
             else:
-                return proximity_row.proximity, proximity_row.new_file, invalid_row, invalid_rows
+                return (
+                    proximity_row.proximity,
+                    proximity_row.new_file,
+                    invalid_row,
+                    invalid_rows,
+                )
 
         elif role == Roles.uids:
             prow = self.groups.row_span_for_column_starts_at_row[(row, 2)]
@@ -1182,16 +1290,20 @@ class TemporalProximityModel(QAbstractTableModel):
                     uids = self.groups.uids.uids(1)[row]
                     length = self.groups.uids.no_uids((row, 1))
                     date = proximity_row.tooltip_date_col1
-                    file_types= self.rapidApp.thumbnailModel.getTypeCountForProximityCell(
-                        col1id=self.groups.proximity_view_cell_id_col1[row]
+                    file_types = (
+                        self.rapidApp.thumbnailModel.getTypeCountForProximityCell(
+                            col1id=self.groups.proximity_view_cell_id_col1[row]
+                        )
                     )
                 elif column == 2:
                     prow = self.groups.row_span_for_column_starts_at_row[(row, 2)]
                     uids = self.groups.uids.uids(2)[prow]
                     length = self.groups.uids.no_uids((prow, 2))
                     date = proximity_row.tooltip_date_col2
-                    file_types = self.rapidApp.thumbnailModel.getTypeCountForProximityCell(
-                        col2id=self.groups.proximity_view_cell_id_col2[prow]
+                    file_types = (
+                        self.rapidApp.thumbnailModel.getTypeCountForProximityCell(
+                            col2id=self.groups.proximity_view_cell_id_col2[prow]
+                        )
                     )
                 else:
                     assert column == 0
@@ -1201,7 +1313,7 @@ class TemporalProximityModel(QAbstractTableModel):
                     file_types = self.groups.file_types_in_cell[row, column]
 
             except KeyError as e:
-                logging.exception('Error in Timeline generation')
+                logging.exception("Error in Timeline generation")
                 self.debugDumpState()
                 return None
 
@@ -1211,44 +1323,48 @@ class TemporalProximityModel(QAbstractTableModel):
             html_image1 = '<img src="data:image/png;base64,{}">'.format(image)
 
             if length == 1:
-                center = html_image2 = ''
+                center = html_image2 = ""
             else:
                 pixmap = thumbnails[uids[-1]]  # type: QPixmap
                 image = base64_thumbnail(pixmap, self.tooltip_image_size)
                 if length == 2:
-                    center = '&nbsp;'
+                    center = "&nbsp;"
                 else:
-                    center = '&nbsp;&hellip;&nbsp;'
+                    center = "&nbsp;&hellip;&nbsp;"
                 html_image2 = '<img src="data:image/png;base64,{}">'.format(image)
 
-            tooltip = '{}<br>{} {} {}<br>{}'.format(
+            tooltip = "{}<br>{} {} {}<br>{}".format(
                 date, html_image1, center, html_image2, file_types
             )
             return tooltip
 
-    def debugDumpState(self, selected_rows_col1: List[int]=None,
-                       selected_rows_col2: List[int]=None) -> None:
+    def debugDumpState(
+        self, selected_rows_col1: List[int] = None, selected_rows_col2: List[int] = None
+    ) -> None:
 
         thumbnailModel = self.rapidApp.thumbnailModel
-        logging.debug('%r', self.groups)
+        logging.debug("%r", self.groups)
 
         # Print rows and values to the debugging output
         if len(self.groups) < 20:
             for row, prow in enumerate(self.groups.rows):
-                logging.debug('Row %s', row)
-                logging.debug('{} | {} | {}'.format(prow.year, prow.month, prow.day))
+                logging.debug("Row %s", row)
+                logging.debug("{} | {} | {}".format(prow.year, prow.month, prow.day))
                 for col in (0, 1, 2):
                     if row in self.groups.uids._uids[col]:
                         uids = self.groups.uids._uids[col][row]
-                        files = ', '.join((thumbnailModel.rpd_files[uid].name for uid in uids))
-                        logging.debug('Col {}: {}'.format(col, files))
+                        files = ", ".join(
+                            (thumbnailModel.rpd_files[uid].name for uid in uids)
+                        )
+                        logging.debug("Col {}: {}".format(col, files))
 
     def updatePreviouslyDownloaded(self, uids: List[bytes]) -> None:
         """
         Examine Timeline data to see if any Timeline rows should have their column 2
         formatting updated to reflect that there are no new files to be downloaded in
         that particular row
-        :param uids: list of uids that have been manually marked as previously downloaded
+        :param uids: list of uids that have been manually marked as previously
+        downloaded
         """
 
         processed_rows = set()  # type: Set[int]
@@ -1259,13 +1375,17 @@ class TemporalProximityModel(QAbstractTableModel):
                 processed_rows.add(row)
                 row_uids = self.groups.row_uids(row)
                 logging.debug(
-                    'Examining row %s to see if any have not been previously downloaded', row
+                    "Examining row %s to see if any have not been previously "
+                    "downloaded",
+                    row,
                 )
-                if not self.rapidApp.thumbnailModel.anyFileNotPreviouslyDownloaded(uids=row_uids):
+                if not self.rapidApp.thumbnailModel.anyFileNotPreviouslyDownloaded(
+                    uids=row_uids
+                ):
                     proximity_row = self.groups[row]  # type: ProximityRow
                     self.groups[row] = proximity_row._replace(new_file=False)
                     rows_to_update.append(row)
-                    logging.debug('Row %s will be updated to show it has no new files')
+                    logging.debug("Row %s will be updated to show it has no new files")
 
         if rows_to_update:
             for first, last in runs(rows_to_update):
@@ -1304,7 +1424,9 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
         self.dv = None  # type: ProximityDisplayValues
 
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+    def paint(
+        self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
+    ) -> None:
         row = index.row()
         column = index.column()
         optionRectF = QRectF(option.rect)
@@ -1388,7 +1510,14 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
             if row in self.dv.c1_end_of_month:
                 painter.setPen(barColor)
-                painter.drawLine(QLineF(0, optionRectF.height() - 1, optionRectF.width(), optionRectF.height() - 1))
+                painter.drawLine(
+                    QLineF(
+                        0,
+                        optionRectF.height() - 1,
+                        optionRectF.width(),
+                        optionRectF.height() - 1,
+                    )
+                )
 
             painter.restore()
 
@@ -1428,16 +1557,21 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                     optionRectF.x(),
                     optionRectF.y(),
                     self.dv.col2_new_file_dot_size,
-                    self.dv.col2_new_file_dot_size
+                    self.dv.col2_new_file_dot_size,
                 )
                 if align is None:
-                    height = optionRectF.height() / 2 - self.dv.col2_new_file_dot_radius - \
-                             self.dv.col2_font_descent_adjust
+                    height = (
+                        optionRectF.height() / 2
+                        - self.dv.col2_new_file_dot_radius
+                        - self.dv.col2_font_descent_adjust
+                    )
                     rect.translate(self.dv.col2_new_file_dot_left_margin, height)
                 elif align == Align.bottom:
                     height = (
-                        optionRectF.height() - self.dv.col2_font_height_half -
-                        self.dv.col2_font_descent_adjust - self.dv.col2_new_file_dot_size
+                        optionRectF.height()
+                        - self.dv.col2_font_height_half
+                        - self.dv.col2_font_descent_adjust
+                        - self.dv.col2_new_file_dot_size
                     )
                     rect.translate(self.dv.col2_new_file_dot_left_margin, height)
                 else:
@@ -1456,11 +1590,18 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 invalidRightRect = QRectF(optionRectF)
                 invalidRightRect.translate(-2, 1)
                 painter.setFont(self.dv.invalidRowFont)
-                painter.drawText(invalidRightRect, Qt.AlignRight | Qt.AlignTop, str(row))
-                if align != Align.top and self.dv.invalidRowHeightMin < option.rect.height():
+                painter.drawText(
+                    invalidRightRect, Qt.AlignRight | Qt.AlignTop, str(row)
+                )
+                if (
+                    align != Align.top
+                    and self.dv.invalidRowHeightMin < option.rect.height()
+                ):
                     invalidLeftRect = QRectF(option.rect)
                     invalidLeftRect.translate(1, 1)
-                    painter.drawText(invalidLeftRect, Qt.AlignLeft | Qt.AlignTop, 'Debug mode')
+                    painter.drawText(
+                        invalidLeftRect, Qt.AlignLeft | Qt.AlignTop, "Debug mode"
+                    )
 
             painter.setFont(self.dv.proximityFont)
 
@@ -1479,7 +1620,14 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 else:
                     painter.setPen(self.dv.tableColorDarker)
                 painter.translate(optionRectF.x(), optionRectF.y())
-                painter.drawLine(QLineF(0.0, optionRectF.height() - 1, self.dv.col_widths[2], optionRectF.height() - 1))
+                painter.drawLine(
+                    QLineF(
+                        0.0,
+                        optionRectF.height() - 1,
+                        self.dv.col_widths[2],
+                        optionRectF.height() - 1,
+                    )
+                )
 
             painter.restore()
         else:
@@ -1490,7 +1638,7 @@ class TemporalProximityView(QTableView):
 
     proximitySelectionHasChanged = pyqtSignal()
 
-    def __init__(self, temporalProximityWidget: 'TemporalProximity', rapidApp) -> None:
+    def __init__(self, temporalProximityWidget: "TemporalProximity", rapidApp) -> None:
         super().__init__()
         self.rapidApp = rapidApp
         self.temporalProximityWidget = temporalProximityWidget
@@ -1504,8 +1652,9 @@ class TemporalProximityView(QTableView):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setShowGrid(False)
 
-    def _updateSelectionRowChildColumn2(self, row: int, parent_column: int,
-                                        model: TemporalProximityModel) -> None:
+    def _updateSelectionRowChildColumn2(
+        self, row: int, parent_column: int, model: TemporalProximityModel
+    ) -> None:
         """
         Select cells in column 2, based on selections in column 0 or 1.
 
@@ -1532,10 +1681,16 @@ class TemporalProximityView(QTableView):
                 do_selection = True
 
             if do_selection:
-                self.selectionModel().select(model.index(start_row, 2), QItemSelectionModel.Select)
-                model.dataChanged.emit(model.index(start_row, 2), model.index(start_row, 2))
+                self.selectionModel().select(
+                    model.index(start_row, 2), QItemSelectionModel.Select
+                )
+                model.dataChanged.emit(
+                    model.index(start_row, 2), model.index(start_row, 2)
+                )
 
-    def _updateSelectionRowChildColumn1(self, row: int, model: TemporalProximityModel) -> None:
+    def _updateSelectionRowChildColumn1(
+        self, row: int, model: TemporalProximityModel
+    ) -> None:
         """
         Select cells in column 1, based on selections in column 0.
 
@@ -1544,16 +1699,17 @@ class TemporalProximityView(QTableView):
         """
 
         for r in range(row, row + self.rowSpan(row, 0)):
-            self.selectionModel().select(
-                model.index(r, 1), QItemSelectionModel.Select
-            )
+            self.selectionModel().select(model.index(r, 1), QItemSelectionModel.Select)
         model.dataChanged.emit(model.index(row, 1), model.index(r, 1))
 
-    def _updateSelectionRowParent(self, row: int,
-                                  parent_column: int,
-                                  start_column: int,
-                                  examined: set,
-                                  model: TemporalProximityModel) -> None:
+    def _updateSelectionRowParent(
+        self,
+        row: int,
+        parent_column: int,
+        start_column: int,
+        examined: set,
+        model: TemporalProximityModel,
+    ) -> None:
         """
         Select cells in column 0 or 1, based on selections in column 2.
 
@@ -1616,7 +1772,9 @@ class TemporalProximityView(QTableView):
             if column == 2:
                 for r in range(row, row + self.rowSpan(row, 2)):
                     for parent_column in (1, 0):
-                        self._updateSelectionRowParent(r, parent_column, 2, examined, model)
+                        self._updateSelectionRowParent(
+                            r, parent_column, 2, examined, model
+                        )
 
         self.selectionModel().blockSignals(False)
 
@@ -1654,13 +1812,16 @@ class TemporalProximityView(QTableView):
                 # Is any selected column to the left of clicked column?
                 if column < clicked_column:
                     # Is the row outside the span of the clicked row?
-                    if (row < clicked_row or
-                            row + self.rowSpan(row, column) > clicked_row + row_span):
+                    if (
+                        row < clicked_row
+                        or row + self.rowSpan(row, column) > clicked_row + row_span
+                    ):
                         do_selection_confirmed = True
                         break
                 # Is this the only selected row in the column selected?
-                if ((row < clicked_row or row >= clicked_row + row_span) and column ==
-                        clicked_column):
+                if (
+                    row < clicked_row or row >= clicked_row + row_span
+                ) and column == clicked_column:
                     do_selection_confirmed = True
                     break
 
@@ -1691,8 +1852,8 @@ class TemporalProximityView(QTableView):
                 # It's now possible to scroll the Timeline and there will be
                 # no matching thumbnails to which to scroll to in the display,
                 # because they are not being displayed. Hence this check:
-                 if not index in self.selectedIndexes():
-                     return
+                if not index in self.selectedIndexes():
+                    return
             thumbnailView = self.rapidApp.thumbnailView
             thumbnailView.setScrollTogether(False)
             model = self.model()
@@ -1707,7 +1868,7 @@ class TemporalValuePicker(QWidget):
     """
 
     # Emits number of minutes
-    valueChanged =  pyqtSignal(int)
+    valueChanged = pyqtSignal(int)
 
     def __init__(self, minutes: int, parent=None) -> None:
         super().__init__(parent)
@@ -1715,8 +1876,8 @@ class TemporalValuePicker(QWidget):
         self.slider.setTickPosition(QSlider.TicksBelow)
         self.slider.setToolTip(
             _(
-                "The time elapsed between consecutive photos and videos that is used to build the "
-                "Timeline"
+                "The time elapsed between consecutive photos and videos that is used "
+                "to build the Timeline"
             )
         )
         self.slider.setMaximum(len(proximity_time_steps) - 1)
@@ -1732,7 +1893,9 @@ class TemporalValuePicker(QWidget):
         width = 0
         labelMetrics = QFontMetricsF(QFont())
         for m in range(len(proximity_time_steps)):
-            boundingRect = labelMetrics.boundingRect(self.displayString(m))  # type: QRect
+            boundingRect = labelMetrics.boundingRect(
+                self.displayString(m)
+            )  # type: QRect
             width = max(width, boundingRect.width())
 
         self.display.setFixedWidth(round(width) + 6)
@@ -1776,12 +1939,13 @@ class TemporalValuePicker(QWidget):
         elif minutes == 90:
             # Translators: i.e. "1.5h", which is short for 1.5 hours.
             # Replace the entire string with the correct localized value
-            return _('1.5h')
+            return _("1.5h")
         else:
             # Translators: e.g. "5h", which is short for 5 hours.
-            # Replace the very last character (after the d) with the correct localized value,
-            # keeping everything else. In other words, change only the h character.
-            return _('%(hours)dh') % dict(hours=minutes // 60)
+            # Replace the very last character (after the d) with the correct localized
+            # value, keeping everything else. In other words, change only the h
+            # character.
+            return _("%(hours)dh") % dict(hours=minutes // 60)
 
 
 class TemporalProximity(QWidget):
@@ -1793,9 +1957,7 @@ class TemporalProximity(QWidget):
 
     proximitySelectionHasChanged = pyqtSignal()
 
-    def __init__(self, rapidApp,
-                 prefs: Preferences,
-                 parent=None) -> None:
+    def __init__(self, rapidApp, prefs: Preferences, parent=None) -> None:
         """
         :param rapidApp: main application window
         :type rapidApp: RapidWindow
@@ -1829,35 +1991,38 @@ class TemporalProximity(QWidget):
         )
 
         self.temporalValuePicker = TemporalValuePicker(self.prefs.get_proximity())
-        self.temporalValuePicker.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        self.temporalValuePicker.setSizePolicy(
+            QSizePolicy.Preferred, QSizePolicy.Minimum
+        )
 
         description = _(
-            'The Timeline groups photos and videos based on how much time elapsed '
-            'between consecutive shots. Use it to identify photos and videos taken at '
-            'different periods in a single day or over consecutive days.'
+            "The Timeline groups photos and videos based on how much time elapsed "
+            "between consecutive shots. Use it to identify photos and videos taken at "
+            "different periods in a single day or over consecutive days."
         )
         adjust = _(
-            'Use the slider (below) to adjust the time elapsed between consecutive shots '
-            'that is used to build the Timeline.'
+            "Use the slider (below) to adjust the time elapsed between consecutive "
+            "shots that is used to build the Timeline."
         )
         generation_pending = _("Timeline build pending...")
         generating = _("Timeline is building...")
         ctime_vs_mtime = _(
             "The Timeline needs to be rebuilt because the file "
-            "modification time does not match the time a shot was taken for one or more shots"
-            ".<br><br>The Timeline shows when shots were taken. The time a shot was taken is "
-            "found in a photo or video's metadata. "
-            "Reading the metadata is time consuming, so Rapid Photo Downloader avoids reading the "
-            "metadata while scanning files. Instead it uses the time the file was last modified "
-            "as a proxy for when the shot was taken. The time a shot was taken is confirmed when "
-            "generating thumbnails or downloading, which is when the metadata is read."
+            "modification time does not match the time a shot was taken for one or "
+            "more shots.<br><br>The Timeline shows when shots were taken. The time a "
+            "shot was taken is found in a photo or video's metadata. "
+            "Reading the metadata is time consuming, so Rapid Photo Downloader avoids "
+            "reading the metadata while scanning files. Instead it uses the time the "
+            "file was last modified as a proxy for when the shot was taken. The time "
+            "a shot was taken is confirmed when generating thumbnails or "
+            "downloading, which is when the metadata is read."
         )
 
-        description = '<i>{}</i>'.format(description)
-        generation_pending = '<i>{}</i>'.format(generation_pending)
-        generating = '<i>{}</i>'.format(generating)
-        adjust = '<i>{}</i>'.format(adjust)
-        ctime_vs_mtime = '<i>{}</i>'.format(ctime_vs_mtime)
+        description = "<i>{}</i>".format(description)
+        generation_pending = "<i>{}</i>".format(generation_pending)
+        generating = "<i>{}</i>".format(generating)
+        adjust = "<i>{}</i>".format(adjust)
+        ctime_vs_mtime = "<i>{}</i>".format(ctime_vs_mtime)
 
         palette = QPalette()
         palette.setColor(QPalette.Window, palette.color(palette.Base))
@@ -1874,21 +2039,32 @@ class TemporalProximity(QWidget):
         self.explanation = QWidget()
         layout = QVBoxLayout()
         border_width = QSplitter().lineWidth()
-        layout.setContentsMargins(border_width, border_width, border_width, border_width)
+        layout.setContentsMargins(
+            border_width, border_width, border_width, border_width
+        )
         layout.setSpacing(0)
         self.explanation.setLayout(layout)
         layout.addWidget(self.description)
         layout.addWidget(self.adjust)
 
-        for label in (self.description, self.generationPending, self.generating, self.adjust,
-                      self.ctime_vs_mtime):
+        for label in (
+            self.description,
+            self.generationPending,
+            self.generating,
+            self.adjust,
+            self.ctime_vs_mtime,
+        ):
             label.setMargin(margin)
             label.setWordWrap(True)
             label.setAutoFillBackground(True)
             label.setPalette(palette)
 
-        for label in (self.description, self.generationPending, self.generating,
-                      self.ctime_vs_mtime):
+        for label in (
+            self.description,
+            self.generationPending,
+            self.generating,
+            self.ctime_vs_mtime,
+        ):
             label.setAlignment(Qt.AlignTop)
             label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
         self.adjust.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
@@ -1899,8 +2075,12 @@ class TemporalProximity(QWidget):
 
         self.stackedWidget = QStackedWidget()
 
-        for label in (self.explanation, self.generationPending, self.generating,
-                      self.ctime_vs_mtime):
+        for label in (
+            self.explanation,
+            self.generationPending,
+            self.generating,
+            self.ctime_vs_mtime,
+        ):
             scrollArea = QScrollArea()
             scrollArea.setWidgetResizable(True)
             scrollArea.setWidget(label)
@@ -1915,21 +2095,20 @@ class TemporalProximity(QWidget):
             TemporalProximityState.regenerate: 2,
             TemporalProximityState.ctime_rebuild: 3,
             TemporalProximityState.ctime_rebuild_proceed: 3,
-            TemporalProximityState.generated: 4
+            TemporalProximityState.generated: 4,
         }
 
         self.autoScrollButton = QToolButton(self)
-        icon = scaledIcon(':/icons/link.svg', self.autoScrollButton.iconSize())
+        icon = scaledIcon(":/icons/link.svg", self.autoScrollButton.iconSize())
         self.autoScrollButton.setIcon(icon)
         self.autoScrollButton.setAutoRaise(True)
         self.autoScrollButton.setCheckable(True)
         self.autoScrollButton.setToolTip(
-            _('Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)')
+            _("Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)")
         )
         self.autoScrollButton.setChecked(not self.prefs.auto_scroll)
         self.autoScrollAct = QAction(
-            '', self, shortcut="Ctrl+T",
-            triggered=self.autoScrollActed, icon=icon
+            "", self, shortcut="Ctrl+T", triggered=self.autoScrollActed, icon=icon
         )
         self.autoScrollButton.addAction(self.autoScrollAct)
         style = "QToolButton {padding: 2px;} QToolButton::menu-indicator {image: none;}"
@@ -1953,7 +2132,9 @@ class TemporalProximity(QWidget):
         self.suppress_auto_scroll_after_timeline_select = False
 
     @pyqtSlot(QItemSelection, QItemSelection)
-    def proximitySelectionChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
+    def proximitySelectionChanged(
+        self, current: QItemSelection, previous: QItemSelection
+    ) -> None:
         """
         Respond to user selections in Temporal Proximity Table.
 
@@ -1968,20 +2149,30 @@ class TemporalProximity(QWidget):
         groups = self.temporalProximityModel.groups
 
         selected_rows_col2 = [
-            i.row() for i in self.temporalProximityView.selectedIndexes() if i.column() == 2
+            i.row()
+            for i in self.temporalProximityView.selectedIndexes()
+            if i.column() == 2
         ]
         selected_rows_col1 = [
-            i.row() for i in self.temporalProximityView.selectedIndexes()
-            if i.column() == 1 and groups.row_span_for_column_starts_at_row[(i.row(), 2)]
-               not in selected_rows_col2
+            i.row()
+            for i in self.temporalProximityView.selectedIndexes()
+            if i.column() == 1
+            and groups.row_span_for_column_starts_at_row[(i.row(), 2)]
+            not in selected_rows_col2
         ]
 
         try:
-            selected_col1 = [groups.proximity_view_cell_id_col1[row] for row in selected_rows_col1]
-            selected_col2 = [groups.proximity_view_cell_id_col2[row] for row in selected_rows_col2]
+            selected_col1 = [
+                groups.proximity_view_cell_id_col1[row] for row in selected_rows_col1
+            ]
+            selected_col2 = [
+                groups.proximity_view_cell_id_col2[row] for row in selected_rows_col2
+            ]
         except KeyError as e:
-            logging.exception('Error in Timeline generation')
-            self.temporalProximityModel.debugDumpState(selected_rows_col1, selected_rows_col2)
+            logging.exception("Error in Timeline generation")
+            self.temporalProximityModel.debugDumpState(
+                selected_rows_col1, selected_rows_col2
+            )
             return
 
         # Filter display of thumbnails, or reset the filter if lists are empty
@@ -1995,7 +2186,7 @@ class TemporalProximity(QWidget):
         self.suppress_auto_scroll_after_timeline_select = True
 
     def clearThumbnailDisplayFilter(self):
-        self.thumbnailModel.setProximityGroupFilter([],[])
+        self.thumbnailModel.setProximityGroupFilter([], [])
         self.rapidApp.proximityButton.setHighlighted(False)
 
     def setState(self, state: TemporalProximityState) -> None:
@@ -2014,18 +2205,25 @@ class TemporalProximity(QWidget):
                 return
             else:
                 logging.error(
-                    "Unexpected request to set Timeline state to %s because current state is %s",
-                    state.name, self.state.name
+                    "Unexpected request to set Timeline state to %s because current "
+                    "state is %s",
+                    state.name,
+                    self.state.name,
                 )
-        elif self.state == TemporalProximityState.ctime_rebuild and state != \
-                TemporalProximityState.empty:
+        elif (
+            self.state == TemporalProximityState.ctime_rebuild
+            and state != TemporalProximityState.empty
+        ):
             logging.debug(
-                "Ignoring request to set timeline state to %s because current state is ctime "
-                "rebuild", state.name
+                "Ignoring request to set timeline state to %s because current state "
+                "is ctime rebuild",
+                state.name,
             )
             return
 
-        logging.debug("Updating Timeline state from %s to %s", self.state.name, state.name)
+        logging.debug(
+            "Updating Timeline state from %s to %s", self.state.name, state.name
+        )
 
         self.stackedWidget.setCurrentIndex(self.stack_index_for_state[state])
         self.clearThumbnailDisplayFilter()
@@ -2057,8 +2255,9 @@ class TemporalProximity(QWidget):
             self.temporalProximityView.showColumn(0)
 
         self.temporalProximityView.clearSpans()
-        self.temporalProximityDelegate.row_span_for_column_starts_at_row = \
+        self.temporalProximityDelegate.row_span_for_column_starts_at_row = (
             proximity_groups.row_span_for_column_starts_at_row
+        )
         self.temporalProximityDelegate.dv = proximity_groups.display_values
         self.temporalProximityDelegate.dv.assign_fonts()
 
@@ -2082,7 +2281,9 @@ class TemporalProximity(QWidget):
         scrollbar_width = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
         # Width of frame - without it, the tableview will still be too small
         frame_width = QSplitter().lineWidth() * 2
-        self.temporalProximityView.setMinimumWidth(round(min_width) + scrollbar_width + frame_width)
+        self.temporalProximityView.setMinimumWidth(
+            round(min_width) + scrollbar_width + frame_width
+        )
 
         self.setState(TemporalProximityState.generated)
 
@@ -2102,7 +2303,8 @@ class TemporalProximity(QWidget):
         if self.state == TemporalProximityState.generated:
             self.setState(TemporalProximityState.generating)
             self.rapidApp.generateTemporalProximityTableData(
-                reason="the duration between consecutive shots has changed")
+                reason="the duration between consecutive shots has changed"
+            )
         elif self.state == TemporalProximityState.generating:
             self.state = TemporalProximityState.regenerate
 
@@ -2113,8 +2315,9 @@ class TemporalProximity(QWidget):
         """
 
         logging.debug(
-            "Updating Timeline to reflect %s files manually set as previously downloaded",
-            len(uids)
+            "Updating Timeline to reflect %s files manually set as previously "
+            "downloaded",
+            len(uids),
         )
         if self.state != TemporalProximityState.generated:
             self.uids_manually_set_previously_downloaded.extend(uids)

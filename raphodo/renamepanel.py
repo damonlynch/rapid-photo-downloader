@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -20,22 +20,36 @@
 Display file renaming preferences, including sequence numbers
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 from typing import Optional, Dict, Tuple, Union
 import logging
 
 from PyQt5.QtCore import Qt, pyqtSlot, QTime
 from PyQt5.QtWidgets import (
-    QWidget, QSizePolicy, QComboBox, QFormLayout, QVBoxLayout, QLabel, QSpinBox, QTimeEdit,
-    QCheckBox, QGroupBox, QScrollArea, QFrame
+    QWidget,
+    QSizePolicy,
+    QComboBox,
+    QFormLayout,
+    QVBoxLayout,
+    QLabel,
+    QSpinBox,
+    QTimeEdit,
+    QCheckBox,
+    QGroupBox,
+    QScrollArea,
+    QFrame,
 )
-from PyQt5.QtGui import (QColor, QPalette)
+from PyQt5.QtGui import QColor, QPalette
 
 
 from raphodo.constants import (
-    PresetPrefType, NameGenerationType, ThumbnailBackgroundName, PresetClass, FileType
+    PresetPrefType,
+    NameGenerationType,
+    ThumbnailBackgroundName,
+    PresetClass,
+    FileType,
 )
 from raphodo.utilities import platform_c_maxint
 from raphodo.rpdfile import Photo, Video
@@ -54,10 +68,13 @@ class RenameWidget(QFramedWidget):
     an example file name
     """
 
-    def __init__(self, preset_type: PresetPrefType,
-                 prefs: Preferences,
-                 exiftool_process: exiftool.ExifTool,
-                 parent) -> None:
+    def __init__(
+        self,
+        preset_type: PresetPrefType,
+        prefs: Preferences,
+        exiftool_process: exiftool.ExifTool,
+        parent,
+    ) -> None:
         super().__init__(parent)
         self.setBackgroundRole(QPalette.Base)
         self.setAutoFillBackground(True)
@@ -80,8 +97,9 @@ class RenameWidget(QFramedWidget):
             self.generation_type = NameGenerationType.video_name
 
         self.sample_rpd_file = make_sample_rpd_file(
-            sample_job_code=self.prefs.most_recent_job_code(missing=_('Job Code')),
-            prefs=self.prefs, generation_type=self.generation_type
+            sample_job_code=self.prefs.most_recent_job_code(missing=_("Job Code")),
+            prefs=self.prefs,
+            generation_type=self.generation_type,
         )
 
         layout = QFormLayout()
@@ -90,8 +108,11 @@ class RenameWidget(QFramedWidget):
         self.getCustomPresets()
 
         self.renameCombo = PresetComboBox(
-            prefs=self.prefs, preset_names=self.preset_names, preset_type=preset_type,
-            parent=self, edit_mode=False
+            prefs=self.prefs,
+            preset_names=self.preset_names,
+            preset_type=preset_type,
+            parent=self,
+            edit_mode=False,
         )
         self.setRenameComboIndex()
         self.renameCombo.activated.connect(self.renameComboItemActivated)
@@ -102,17 +123,19 @@ class RenameWidget(QFramedWidget):
         self.extensionCombo.addItem(_(UPPERCASE), UPPERCASE)
         self.extensionCombo.addItem(_(LOWERCASE), LOWERCASE)
         if preset_type == PresetPrefType.preset_photo_rename:
-            pref_value =  self.prefs.photo_extension
+            pref_value = self.prefs.photo_extension
         else:
             pref_value = self.prefs.video_extension
         try:
             index = [ORIGINAL_CASE, UPPERCASE, LOWERCASE].index(pref_value)
         except ValueError:
             if preset_type == PresetPrefType.preset_photo_rename:
-                t = 'Photo'
+                t = "Photo"
             else:
-                t = 'Video'
-            logging.error('%s extension case value is invalid. Resetting to lower case.', t)
+                t = "Video"
+            logging.error(
+                "%s extension case value is invalid. Resetting to lower case.", t
+            )
             index = 2
         self.extensionCombo.setCurrentIndex(index)
         self.extensionCombo.currentIndexChanged.connect(self.extensionChanged)
@@ -120,9 +143,9 @@ class RenameWidget(QFramedWidget):
         self.example = QLabel()
         self.updateExampleFilename()
 
-        layout.addRow(_('Preset:'), self.renameCombo)
-        layout.addRow(_('Extension:'), self.extensionCombo)
-        layout.addRow(_('Example:'), self.example)
+        layout.addRow(_("Preset:"), self.renameCombo)
+        layout.addRow(_("Extension:"), self.extensionCombo)
+        layout.addRow(_("Example:"), self.example)
 
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
 
@@ -142,8 +165,9 @@ class RenameWidget(QFramedWidget):
             # Set to appropriate combobox idex, allowing for possible separator
             cb_index = self.renameCombo.getComboBoxIndex(index)
         logging.debug(
-            "Setting %s combobox chosen value to %s", self.file_type.name,
-            self.renameCombo.itemText(cb_index)
+            "Setting %s combobox chosen value to %s",
+            self.file_type.name,
+            self.renameCombo.itemText(cb_index),
         )
         self.renameCombo.setCurrentIndex(cb_index)
 
@@ -167,12 +191,15 @@ class RenameWidget(QFramedWidget):
 
         user_pref_list = None
 
-        preset_class =  self.renameCombo.currentData()
+        preset_class = self.renameCombo.currentData()
         if preset_class == PresetClass.start_editor:
 
             prefDialog = PrefDialog(
-                self.pref_defn, self.pref_list(), self.generation_type, self.prefs,
-                self.sample_rpd_file
+                self.pref_defn,
+                self.pref_list(),
+                self.generation_type,
+                self.prefs,
+                self.sample_rpd_file,
             )
 
             if prefDialog.exec():
@@ -187,7 +214,10 @@ class RenameWidget(QFramedWidget):
             self.setUserPrefList(user_pref_list=user_pref_list)
             self.setRenameComboIndex()
         else:
-            assert preset_class == PresetClass.custom or preset_class == PresetClass.builtin
+            assert (
+                preset_class == PresetClass.custom
+                or preset_class == PresetClass.builtin
+            )
             index = self.renameCombo.getPresetIndex(self.renameCombo.currentIndex())
             user_pref_list = self.combined_pref_lists[index]
             self.setUserPrefList(user_pref_list=user_pref_list)
@@ -200,7 +230,8 @@ class RenameWidget(QFramedWidget):
         """
 
         self.preset_names, self.preset_pref_lists = self.prefs.get_preset(
-            preset_type=self.preset_type)
+            preset_type=self.preset_type
+        )
         self.combined_pref_lists = self.pref_conv + tuple(self.preset_pref_lists)
 
     def setUserPrefList(self, user_pref_list: List[str]) -> None:
@@ -216,8 +247,11 @@ class RenameWidget(QFramedWidget):
             else:
                 self.prefs.video_rename = user_pref_list
 
-    def updateExampleFilename(self, downloads_today: Optional[List[str]]=None,
-                              stored_sequence_no: Optional[int]=None) -> None:
+    def updateExampleFilename(
+        self,
+        downloads_today: Optional[List[str]] = None,
+        stored_sequence_no: Optional[int] = None,
+    ) -> None:
         """
         Update filename shown to user that serves as an example of the
         renaming rule in practice on sample data.
@@ -227,7 +261,9 @@ class RenameWidget(QFramedWidget):
         """
 
         if downloads_today:
-            self.sample_rpd_file.sequences.downloads_today_tracker.downloads_today = downloads_today
+            self.sample_rpd_file.sequences.downloads_today_tracker.downloads_today = (
+                downloads_today
+            )
         if stored_sequence_no is not None:
             self.sample_rpd_file.sequences.stored_sequence_no = stored_sequence_no
 
@@ -243,9 +279,9 @@ class RenameWidget(QFramedWidget):
     def updateSampleFile(self, sample_rpd_file: Union[Photo, Video]) -> None:
         self.sample_rpd_file = make_sample_rpd_file(
             sample_rpd_file=sample_rpd_file,
-            sample_job_code=self.prefs.most_recent_job_code(missing=_('Job Code')),
+            sample_job_code=self.prefs.most_recent_job_code(missing=_("Job Code")),
             prefs=self.prefs,
-            generation_type=self.generation_type
+            generation_type=self.generation_type,
         )
         self.updateExampleFilename()
 
@@ -273,10 +309,13 @@ class RenameOptionsWidget(QFramedWidget):
     the strip incompatible characters option.
     """
 
-    def __init__(self, prefs: Preferences,
-                 photoRenameWidget: RenameWidget,
-                 videoRenameWidget: RenameWidget,
-                 parent) -> None:
+    def __init__(
+        self,
+        prefs: Preferences,
+        photoRenameWidget: RenameWidget,
+        videoRenameWidget: RenameWidget,
+        parent,
+    ) -> None:
         super().__init__(parent)
 
         self.prefs = prefs
@@ -293,8 +332,8 @@ class RenameOptionsWidget(QFramedWidget):
         # QSpinBox cannot display values greater than this value
         self.c_maxint = platform_c_maxint()
 
-        tip = _('A counter for how many downloads occur on each day')
-        self.downloadsTodayLabel = QLabel(_('Downloads today:'))
+        tip = _("A counter for how many downloads occur on each day")
+        self.downloadsTodayLabel = QLabel(_("Downloads today:"))
         self.downloadsToday = QSpinBox()
         self.downloadsToday.setMinimum(0)
         # QSpinBox defaults to a maximum of 99
@@ -306,8 +345,8 @@ class RenameOptionsWidget(QFramedWidget):
         # updates the value and then once a download is complete, the
         # downloads today value here is overwritten.
         self.downloads_today_tracker = DownloadsTodayTracker(
-            day_start=self.prefs.day_start,
-            downloads_today=self.prefs.downloads_today)
+            day_start=self.prefs.day_start, downloads_today=self.prefs.downloads_today
+        )
 
         downloads_today = self.downloads_today_tracker.get_or_reset_downloads_today()
         if self.prefs.downloads_today != self.downloads_today_tracker.downloads_today:
@@ -316,8 +355,8 @@ class RenameOptionsWidget(QFramedWidget):
         self.downloadsToday.setValue(downloads_today)
         self.downloadsToday.valueChanged.connect(self.downloadsTodayChanged)
 
-        tip = _('A counter that is remembered each time the program is run ')
-        self.storedNumberLabel = QLabel(_('Stored number:'))
+        tip = _("A counter that is remembered each time the program is run ")
+        self.storedNumberLabel = QLabel(_("Stored number:"))
         self.storedNumberLabel.setToolTip(tip)
         self.storedNumber = QSpinBox()
         self.storedNumberLabel.setBuddy(self.storedNumber)
@@ -328,8 +367,10 @@ class RenameOptionsWidget(QFramedWidget):
         self.storedNumber.setValue(self.stored_sequence_no)
         self.storedNumber.valueChanged.connect(self.storedNumberChanged)
 
-        tip = _('The time at which the <i>Downloads today</i> sequence number should be reset')
-        self.dayStartLabel = QLabel(_('Day start:'))
+        tip = _(
+            "The time at which the <i>Downloads today</i> sequence number should be reset"
+        )
+        self.dayStartLabel = QLabel(_("Day start:"))
         self.dayStartLabel.setToolTip(tip)
 
         self.dayStart = QTimeEdit()
@@ -339,16 +380,16 @@ class RenameOptionsWidget(QFramedWidget):
         # 24 hour format, if wanted in a future release:
         # self.dayStart.setDisplayFormat('HH:mm:ss')
 
-        self.sync = QCheckBox(_('Synchronize RAW + JPEG'))
+        self.sync = QCheckBox(_("Synchronize RAW + JPEG"))
         self.sync.setChecked(self.prefs.synchronize_raw_jpg)
         self.sync.stateChanged.connect(self.syncChanged)
         tip = _(
-            'Synchronize sequence numbers for matching RAW and JPEG pairs.\n\n'
-            'See the online documentation for more details.'
+            "Synchronize sequence numbers for matching RAW and JPEG pairs.\n\n"
+            "See the online documentation for more details."
         )
         self.sync.setToolTip(tip)
 
-        self.sequences = QGroupBox(_('Sequence Numbers'))
+        self.sequences = QGroupBox(_("Sequence Numbers"))
 
         sequencesLayout = QFormLayout()
 
@@ -359,16 +400,16 @@ class RenameOptionsWidget(QFramedWidget):
 
         self.sequences.setLayout(sequencesLayout)
 
-        self.stripCharacters  = QCheckBox(_('Strip incompatible characters'))
+        self.stripCharacters = QCheckBox(_("Strip incompatible characters"))
         self.stripCharacters.setChecked(self.prefs.strip_characters)
         self.stripCharacters.stateChanged.connect(self.stripCharactersChanged)
         self.stripCharacters.setToolTip(
             _(
-                'Whether photo, video and folder names should have any characters removed that '
-                'are not allowed by other operating systems'
+                "Whether photo, video and folder names should have any characters "
+                "removed that are not allowed by other operating systems"
             )
         )
-        self.compatibility =  QGroupBox(_('Compatibility'))
+        self.compatibility = QGroupBox(_("Compatibility"))
         self.compatibility.setLayout(compatibilityLayout)
         compatibilityLayout.addWidget(self.stripCharacters)
 
@@ -399,7 +440,7 @@ class RenameOptionsWidget(QFramedWidget):
     def timeChanged(self, time: QTime) -> None:
         hour = time.hour()
         minute = time.minute()
-        self.prefs.day_start = '{}:{}'.format(hour, minute)
+        self.prefs.day_start = "{}:{}".format(hour, minute)
         logging.debug("Setting day start to %s", self.prefs.day_start)
         self.downloads_today_tracker.set_day_start(hour=hour, minute=minute)
 
@@ -441,7 +482,7 @@ class RenamePanel(QScrollArea):
     renaming options.
     """
 
-    def __init__(self,  parent) -> None:
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         if parent is not None:
             self.rapidApp = parent
@@ -452,31 +493,40 @@ class RenamePanel(QScrollArea):
         self.setFrameShape(QFrame.NoFrame)
 
         self.photoRenamePanel = QPanelView(
-            label=_('Photo Renaming'), headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white)
+            label=_("Photo Renaming"),
+            headerColor=QColor(ThumbnailBackgroundName),
+            headerFontColor=QColor(Qt.white),
         )
         self.videoRenamePanel = QPanelView(
-            label=_('Video Renaming'), headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white)
+            label=_("Video Renaming"),
+            headerColor=QColor(ThumbnailBackgroundName),
+            headerFontColor=QColor(Qt.white),
         )
         self.renameOptionsPanel = QPanelView(
-            label=_('Renaming Options'), headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white)
+            label=_("Renaming Options"),
+            headerColor=QColor(ThumbnailBackgroundName),
+            headerFontColor=QColor(Qt.white),
         )
         self.photoRenameWidget = RenameWidget(
-            preset_type=PresetPrefType.preset_photo_rename, prefs=self.prefs, parent=self,
-            exiftool_process=self.rapidApp.exiftool_process
+            preset_type=PresetPrefType.preset_photo_rename,
+            prefs=self.prefs,
+            parent=self,
+            exiftool_process=self.rapidApp.exiftool_process,
         )
         self.photoRenamePanel.addWidget(self.photoRenameWidget)
         self.videoRenameWidget = RenameWidget(
-            preset_type=PresetPrefType.preset_video_rename, prefs=self.prefs, parent=self,
-            exiftool_process=self.rapidApp.exiftool_process
+            preset_type=PresetPrefType.preset_video_rename,
+            prefs=self.prefs,
+            parent=self,
+            exiftool_process=self.rapidApp.exiftool_process,
         )
         self.videoRenamePanel.addWidget(self.videoRenameWidget)
 
         self.renameOptions = RenameOptionsWidget(
-            prefs=self.prefs, parent=self, photoRenameWidget=self.photoRenameWidget,
-            videoRenameWidget=self.videoRenameWidget
+            prefs=self.prefs,
+            parent=self,
+            photoRenameWidget=self.photoRenameWidget,
+            videoRenameWidget=self.videoRenameWidget,
         )
         self.renameOptionsPanel.addWidget(self.renameOptions)
 
@@ -491,7 +541,9 @@ class RenamePanel(QScrollArea):
         self.setWidgetResizable(True)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
 
-    def updateSequences(self, downloads_today: List[str], stored_sequence_no: int) -> None:
+    def updateSequences(
+        self, downloads_today: List[str], stored_sequence_no: int
+    ) -> None:
         """
         Update the value displayed in the display to reflect any values changed after
         the completion of a download.
@@ -509,6 +561,3 @@ class RenamePanel(QScrollArea):
 
     def setSampleVideo(self, sample_video: Video) -> None:
         self.videoRenameWidget.updateSampleFile(sample_rpd_file=sample_video)
-
-
-

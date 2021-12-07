@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -16,20 +16,25 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2017, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2015-2021, Damon Lynch"
 
 import pickle
 from typing import Optional
 import logging
 
 import zmq
-from PyQt5.QtCore import (QThread, QTimer, pyqtSignal, pyqtBoundSignal, pyqtSlot, QObject)
-from PyQt5.QtGui import (QPixmap, QImage)
+from PyQt5.QtCore import QThread, QTimer, pyqtSignal, pyqtBoundSignal, pyqtSlot, QObject
+from PyQt5.QtGui import QPixmap, QImage
 
-from raphodo.interprocess import (LoadBalancerManager, PublishPullPipelineManager,
-                                  GenerateThumbnailsArguments, GenerateThumbnailsResults,
-                                  ThreadNames, create_inproc_msg)
+from raphodo.interprocess import (
+    LoadBalancerManager,
+    PublishPullPipelineManager,
+    GenerateThumbnailsArguments,
+    GenerateThumbnailsResults,
+    ThreadNames,
+    create_inproc_msg,
+)
 from raphodo.rpdfile import RPDFile
 from raphodo.utilities import CacheDirs
 
@@ -49,12 +54,12 @@ class ThumbnailManagerPara(PublishPullPipelineManager):
 
     def __init__(self, logging_port: int, thread_name: str) -> None:
         super().__init__(logging_port=logging_port, thread_name=thread_name)
-        self._process_name = 'Thumbnail Manager'
-        self._process_to_run = 'thumbnailpara.py'
+        self._process_name = "Thumbnail Manager"
+        self._process_to_run = "thumbnailpara.py"
         self._worker_id = 0
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content) # type: GenerateThumbnailsResults
+        data = pickle.loads(self.content)  # type: GenerateThumbnailsResults
         if data.rpd_file is not None:
             if data.thumbnail_bytes is None:
                 thumbnail = QPixmap()
@@ -75,13 +80,14 @@ class ThumbnailManagerPara(PublishPullPipelineManager):
 
 
 class ThumbnailLoadBalancerManager(LoadBalancerManager):
-    def __init__(self, context: zmq.Context,
-                 no_workers: int,
-                 sink_port: int,
-                 logging_port: int) -> None:
-        super().__init__(context, no_workers, sink_port, logging_port, ThreadNames.load_balancer)
-        self._process_name = 'Thumbnail Load Balancer Manager'
-        self._process_to_run = 'thumbloadbalancer.py'
+    def __init__(
+        self, context: zmq.Context, no_workers: int, sink_port: int, logging_port: int
+    ) -> None:
+        super().__init__(
+            context, no_workers, sink_port, logging_port, ThreadNames.load_balancer
+        )
+        self._process_name = "Thumbnail Load Balancer Manager"
+        self._process_to_run = "thumbloadbalancer.py"
 
 
 class Thumbnailer(QObject):
@@ -96,10 +102,9 @@ class Thumbnailer(QObject):
     frontend_port = pyqtSignal(int)
     # See also the four other signals below
 
-    def __init__(self, parent,
-                 no_workers: int,
-                 logging_port: int,
-                 log_gphoto2: bool) -> None:
+    def __init__(
+        self, parent, no_workers: int, logging_port: int, log_gphoto2: bool
+    ) -> None:
         """
         :param parent: Qt parent window
         :param no_workers: how many thumbnail extractor processes to
@@ -122,17 +127,20 @@ class Thumbnailer(QObject):
 
         self.setupThumbnailManager()
 
-    def generateThumbnails(self, scan_id: int,
-                           rpd_files: list,
-                           name: str,
-                           proximity_seconds: int,
-                           cache_dirs: CacheDirs,
-                           need_photo_cache_dir: bool,
-                           need_video_cache_dir: bool,
-                           camera_model: Optional[str]==None,
-                           camera_port: Optional[str]=None,
-                           entire_video_required: Optional[bool]=None,
-                           entire_photo_required: Optional[bool] = None) -> None:
+    def generateThumbnails(
+        self,
+        scan_id: int,
+        rpd_files: list,
+        name: str,
+        proximity_seconds: int,
+        cache_dirs: CacheDirs,
+        need_photo_cache_dir: bool,
+        need_video_cache_dir: bool,
+        camera_model: Optional[str] == None,
+        camera_port: Optional[str] = None,
+        entire_video_required: Optional[bool] = None,
+        entire_photo_required: Optional[bool] = None,
+    ) -> None:
         """
         Initiates thumbnail generation.
 
@@ -157,10 +165,10 @@ class Thumbnailer(QObject):
          to extract the thumbnail
         :param entire_photo_required: if the entire photo is required
          to extract the thumbnail
-         """
+        """
         self.thumbnailer_controller.send_multipart(
             create_inproc_msg(
-                b'START_WORKER',
+                b"START_WORKER",
                 worker_id=scan_id,
                 data=GenerateThumbnailsArguments(
                     scan_id=scan_id,
@@ -175,8 +183,8 @@ class Thumbnailer(QObject):
                     camera=camera_model,
                     port=camera_port,
                     entire_video_required=entire_video_required,
-                    entire_photo_required=entire_photo_required
-                )
+                    entire_photo_required=entire_photo_required,
+                ),
             )
         )
 
@@ -230,10 +238,15 @@ class Thumbnailer(QObject):
         logging.debug("Starting thumbnail load balancer...")
         self.load_balancer_thread = QThread()
         self.load_balancer = ThumbnailLoadBalancerManager(
-            self.context, self.no_workers, self.thumbnail_manager_sink_port, self.logging_port
+            self.context,
+            self.no_workers,
+            self.thumbnail_manager_sink_port,
+            self.logging_port,
         )
         self.load_balancer.moveToThread(self.load_balancer_thread)
-        self.load_balancer_thread.started.connect(self.load_balancer.start_load_balancer)
+        self.load_balancer_thread.started.connect(
+            self.load_balancer.start_load_balancer
+        )
 
         self.load_balancer.load_balancer_started.connect(self.loadBalancerFrontendPort)
         QTimer.singleShot(0, self.load_balancer_thread.start)
@@ -246,19 +259,18 @@ class Thumbnailer(QObject):
 
     def stop(self) -> None:
 
-        self.thumbnailer_controller.send_multipart(create_inproc_msg(b'STOP'))
-        self.load_balancer_controller.send_multipart(create_inproc_msg(b'STOP'))
+        self.thumbnailer_controller.send_multipart(create_inproc_msg(b"STOP"))
+        self.load_balancer_controller.send_multipart(create_inproc_msg(b"STOP"))
         self.thumbnail_manager_thread.quit()
         if not self.thumbnail_manager_thread.wait(1000):
-            self.thumbnailer_controller.send_multipart(create_inproc_msg(b'TERMINATE'))
+            self.thumbnailer_controller.send_multipart(create_inproc_msg(b"TERMINATE"))
         self.load_balancer_thread.quit()
         if not self.load_balancer_thread.wait(1000):
-            self.load_balancer_controller.send_multipart(create_inproc_msg(b'TERMINATE'))
+            self.load_balancer_controller.send_multipart(
+                create_inproc_msg(b"TERMINATE")
+            )
 
     def stop_worker(self, scan_id: int) -> None:
         self.thumbnailer_controller.send_multipart(
-            create_inproc_msg(b'STOP_WORKER', worker_id=scan_id)
+            create_inproc_msg(b"STOP_WORKER", worker_id=scan_id)
         )
-
-
-

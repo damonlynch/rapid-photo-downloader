@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -20,8 +20,8 @@
 Combo box with a chevron selector
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2011-2021, Damon Lynch"
 
 from PyQt5.QtWidgets import QStyledItemDelegate, QComboBox, QLabel, QSizePolicy
 from PyQt5.QtGui import QFontMetrics, QFont
@@ -35,7 +35,7 @@ class ChevronCombo(QComboBox):
     Combo box with a chevron selector
     """
 
-    def __init__(self, in_panel: bool=False, parent=None) -> None:
+    def __init__(self, in_panel: bool = False, parent=None) -> None:
         """
         :param in_panel: if True, widget color set to background color,
          else set to window color
@@ -44,9 +44,9 @@ class ChevronCombo(QComboBox):
         super().__init__(parent)
 
         if in_panel:
-            color = 'background'
+            color = "background"
         else:
-            color = 'window'
+            color = "window"
 
         style = """
         QComboBox {
@@ -86,11 +86,15 @@ class ChevronCombo(QComboBox):
         QComboBox QAbstractItemView::item {
             padding: 3px;
         }
-        """ % dict(width=int(QFontMetrics(QFont()).height() * (2 / 3)), color=color)
+        """ % dict(
+            width=int(QFontMetrics(QFont()).height() * (2 / 3)), color=color
+        )
 
         self.label_style = """
         QLabel {border-color: palette(%(color)s); border-width: 1px; border-style: solid;}
-        """ % dict(color=color)
+        """ % dict(
+            color=color
+        )
 
         self.setStyleSheet(style)
 

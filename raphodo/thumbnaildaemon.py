@@ -28,8 +28,8 @@ See cache.py for definitions of various caches used by Rapid Photo Downloader.
 Runs as a single instance daemon process, i.e. for the lifetime of the program.
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2015-2021, Damon Lynch"
 
 import logging
 import pickle
@@ -37,20 +37,29 @@ import sys
 import os
 from typing import Set, Dict
 import locale
+
 try:
     # Use the default locale as defined by the LANG variable
-    locale.setlocale(locale.LC_ALL, '')
+    locale.setlocale(locale.LC_ALL, "")
 except locale.Error:
     pass
 
 import zmq
 
 from raphodo.constants import (
-    FileType, ThumbnailSize, ThumbnailCacheStatus, ThumbnailCacheDiskStatus, ExtractionTask,
-    ExtractionProcessing, ThumbnailCacheOrigin
+    FileType,
+    ThumbnailSize,
+    ThumbnailCacheStatus,
+    ThumbnailCacheDiskStatus,
+    ExtractionTask,
+    ExtractionProcessing,
+    ThumbnailCacheOrigin,
 )
 from raphodo.interprocess import (
-    ThumbnailDaemonData, GenerateThumbnailsResults, DaemonProcess, ThumbnailExtractorArgument
+    ThumbnailDaemonData,
+    GenerateThumbnailsResults,
+    DaemonProcess,
+    ThumbnailExtractorArgument,
 )
 from raphodo.rpdfile import RPDFile
 from raphodo.thumbnailpara import GetThumbnailFromCache, preprocess_thumbnail_from_disk
@@ -65,7 +74,7 @@ class DameonThumbnailWorker(DaemonProcess):
     """
 
     def __init__(self):
-        super().__init__('Thumbnail Daemon')
+        super().__init__("Thumbnail Daemon")
 
     def run(self):
         """
@@ -85,7 +94,7 @@ class DameonThumbnailWorker(DaemonProcess):
 
         self.check_for_command(directive, content)
 
-        data = pickle.loads(content) # type: ThumbnailDaemonData
+        data = pickle.loads(content)  # type: ThumbnailDaemonData
         assert data.frontend_port is not None
         self.frontend.connect("tcp://localhost:{}".format(data.frontend_port))
 
@@ -98,12 +107,11 @@ class DameonThumbnailWorker(DaemonProcess):
 
             self.check_for_command(directive, content)
 
-            data = pickle.loads(content) # type: ThumbnailDaemonData
+            data = pickle.loads(content)  # type: ThumbnailDaemonData
             rpd_file = data.rpd_file
             if data.backup_full_file_names is not None:
-                # File has been backed up, and an extractor has already generated a FDO thumbnail
-                # for it.
-                # Copy and modify the existing FDO thumbnail
+                # File has been backed up, and an extractor has already generated a FDO
+                # thumbnail for it. Copy and modify the existing FDO thumbnail
 
                 # MD5 name of the existing FDO thumbnail
                 md5_name = data.fdo_name
@@ -116,46 +124,53 @@ class DameonThumbnailWorker(DaemonProcess):
                     try:
                         mtime = os.path.getmtime(backup_full_file_name)
                     except OSError:
-                        logging.debug("Backup file does not exist: %s", backup_full_file_name)
+                        logging.debug(
+                            "Backup file does not exist: %s", backup_full_file_name
+                        )
                     else:
                         logging.debug(
                             "Copying and modifying existing FDO 128 thumbnail for %s",
-                            backup_full_file_name
+                            backup_full_file_name,
                         )
                         fdo_cache_normal.modify_existing_thumbnail_and_save_copy(
                             existing_cache_thumbnail=md5_name,
                             full_file_name=backup_full_file_name,
                             size=rpd_file.size,
                             modification_time=mtime,
-                            error_on_missing_thumbnail=True
+                            error_on_missing_thumbnail=True,
                         )
 
                         logging.debug(
                             "Copying and modifying existing FDO 256 thumbnail for %s",
-                            backup_full_file_name
+                            backup_full_file_name,
                         )
                         fdo_cache_large.modify_existing_thumbnail_and_save_copy(
                             existing_cache_thumbnail=md5_name,
                             full_file_name=backup_full_file_name,
                             size=rpd_file.size,
                             modification_time=mtime,
-                            error_on_missing_thumbnail=False
+                            error_on_missing_thumbnail=False,
                         )
             else:
                 # file has just been downloaded and renamed
                 rpd_file.modified_via_daemon_process = True
                 try:
 
-                    # Check the download source to see if it's in the caches, not the file
-                    # we've just downloaded
+                    # Check the download source to see if it's in the caches, not the
+                    # file we've just downloaded
 
-                    use_thumbnail_cache = (data.use_thumbnail_cache and not
-                        (data.write_fdo_thumbnail and rpd_file.should_write_fdo()))
-                    cache_search = thumbnail_caches.get_from_cache(
-                        rpd_file=rpd_file,
-                        use_thumbnail_cache=use_thumbnail_cache
+                    use_thumbnail_cache = data.use_thumbnail_cache and not (
+                        data.write_fdo_thumbnail and rpd_file.should_write_fdo()
                     )
-                    task, thumbnail_bytes, full_file_name_to_work_on, origin = cache_search
+                    cache_search = thumbnail_caches.get_from_cache(
+                        rpd_file=rpd_file, use_thumbnail_cache=use_thumbnail_cache
+                    )
+                    (
+                        task,
+                        thumbnail_bytes,
+                        full_file_name_to_work_on,
+                        origin,
+                    ) = cache_search
                     processing = set()  # type: Set[ExtractionProcessing]
 
                     if task == ExtractionTask.undetermined:
@@ -166,15 +181,20 @@ class DameonThumbnailWorker(DaemonProcess):
                         )
                         if task != ExtractionTask.bypass:
                             if rpd_file.thm_full_name is not None:
-                                full_file_name_to_work_on = rpd_file.download_thm_full_name
+                                full_file_name_to_work_on = (
+                                    rpd_file.download_thm_full_name
+                                )
                             else:
-                                full_file_name_to_work_on = rpd_file.download_full_file_name
+                                full_file_name_to_work_on = (
+                                    rpd_file.download_full_file_name
+                                )
 
                     if task == ExtractionTask.bypass:
                         self.content = pickle.dumps(
                             GenerateThumbnailsResults(
-                                rpd_file=rpd_file, thumbnail_bytes=thumbnail_bytes),
-                                pickle.HIGHEST_PROTOCOL
+                                rpd_file=rpd_file, thumbnail_bytes=thumbnail_bytes
+                            ),
+                            pickle.HIGHEST_PROTOCOL,
                         )
                         self.send_message_to_sink()
 
@@ -188,7 +208,7 @@ class DameonThumbnailWorker(DaemonProcess):
                                 task=task,
                                 processing=processing,
                                 full_file_name_to_work_on=full_file_name_to_work_on,
-                                secondary_full_file_name='',
+                                secondary_full_file_name="",
                                 exif_buffer=None,
                                 thumbnail_bytes=thumbnail_bytes,
                                 use_thumbnail_cache=data.use_thumbnail_cache,
@@ -197,16 +217,18 @@ class DameonThumbnailWorker(DaemonProcess):
                                 send_thumb_to_main=True,
                                 force_exiftool=data.force_exiftool,
                             ),
-                            pickle.HIGHEST_PROTOCOL
+                            pickle.HIGHEST_PROTOCOL,
                         )
-                        self.frontend.send_multipart([b'data', self.content])
+                        self.frontend.send_multipart([b"data", self.content])
                 except SystemExit as e:
                     sys.exit(e)
                 except:
-                    logging.error("Exception working on file %s", rpd_file.full_file_name)
+                    logging.error(
+                        "Exception working on file %s", rpd_file.full_file_name
+                    )
                     logging.exception("Traceback:")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     generate_thumbnails = DameonThumbnailWorker()
     generate_thumbnails.run()

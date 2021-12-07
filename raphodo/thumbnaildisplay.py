@@ -286,7 +286,8 @@ class ThumbnailListModel(QAbstractListModel):
         # scan_id
         self.ctimes_differ = []  # type: List[int]
 
-        # Highlight thumbnails when from particular device when there is more than one device
+        # Highlight thumbnails when from particular device when there is more than one
+        # device.
         # Thumbnails to highlight by uid
         self.currently_highlighting_scan_id = None  # type: Optional[int]
         self._resetHighlightingValues()
@@ -548,7 +549,8 @@ class ThumbnailListModel(QAbstractListModel):
             except Exception:
                 mtime_h = mtime.humanize()
                 logging.debug(
-                    "Failed to humanize modification time %s with locale %s, reverting to English",
+                    "Failed to humanize modification time %s with locale %s, reverting "
+                    "to English",
                     mtime_h,
                     self.arrow_locale_for_humanize,
                 )
@@ -556,23 +558,24 @@ class ThumbnailListModel(QAbstractListModel):
             if rpd_file.ctime_mtime_differ():
                 ctime = arrow.get(rpd_file.ctime)
 
-                # Sadly, arrow raises an exception if it's locale is not translated when using
-                # humanize. So attempt conversion using user's locale, and if that fails, use
-                # English.
+                # Sadly, arrow raises an exception if it's locale is not translated
+                # when using humanize. So attempt conversion using user's locale, and if
+                # that fails, use English.
 
                 try:
                     ctime_h = ctime.humanize(locale=self.arrow_locale_for_humanize)
                 except Exception:
                     ctime_h = ctime.humanize()
                     logging.debug(
-                        "Failed to humanize taken on time %s with locale %s, reverting to English",
+                        "Failed to humanize taken on time %s with locale %s, reverting "
+                        "to English",
                         ctime_h,
                         self.arrow_locale_for_humanize,
                     )
 
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 humanized_ctime = _(
                     "Taken on %(date_time)s (%(human_readable)s)"
                 ) % dict(
@@ -580,9 +583,9 @@ class ThumbnailListModel(QAbstractListModel):
                     human_readable=ctime_h,
                 )
 
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 humanized_mtime = _(
                     "Modified on %(date_time)s (%(human_readable)s)"
                 ) % dict(
@@ -593,9 +596,9 @@ class ThumbnailListModel(QAbstractListModel):
                     humanized_ctime, humanized_mtime
                 )
             else:
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 humanized_file_time = _("%(date_time)s (%(human_readable)s)") % dict(
                     date_time=mtime.to("local").naive.strftime("%c"),
                     human_readable=mtime_h,
@@ -627,11 +630,11 @@ class ThumbnailListModel(QAbstractListModel):
             if rpd_file.status in Downloaded:
                 path = rpd_file.download_path + os.sep
                 downloaded_as = _("Downloaded as:")
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
-                # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b>
-                # etc.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
+                # Translators: please do not change HTML codes like <br>, <i>, </i>,
+                # or <b>, </b> etc.
                 msg += (
                     "<br><br><i>%(downloaded_as)s</i><br>%(filename)s<br>%(path)s"
                     % dict(
@@ -651,13 +654,14 @@ class ThumbnailListModel(QAbstractListModel):
                 except Exception:
                     prev_dt_h = prev_datetime.humanize()
                     logging.debug(
-                        "Failed to humanize taken on time %s with locale %s, reverting to English",
+                        "Failed to humanize taken on time %s with locale %s, reverting "
+                        "to English",
                         prev_dt_h,
                         self.arrow_locale_for_humanize,
                     )
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 prev_date = _("%(date_time)s (%(human_readable)s)") % dict(
                     date_time=prev_datetime.naive.strftime("%c"),
                     human_readable=prev_dt_h,
@@ -666,20 +670,20 @@ class ThumbnailListModel(QAbstractListModel):
                 if rpd_file.prev_full_name != manually_marked_previously_downloaded:
                     path, prev_file_name = os.path.split(rpd_file.prev_full_name)
                     path += os.sep
-                    # Translators: %(variable)s represents Python code, not a plural of the term
-                    # variable. You must keep the %(variable)s untranslated, or the program will
-                    # crash.
-                    # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>,
-                    # </b> etc.
+                    # Translators: %(variable)s represents Python code, not a plural of
+                    # the term variable. You must keep the %(variable)s untranslated, or
+                    # the program will crash.
+                    # Translators: please do not change HTML codes like <br>, <i>, </i>,
+                    # or <b>, </b> etc.
                     msg += _(
                         "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
                     ) % dict(date=prev_date, filename=prev_file_name, path=path)
                 else:
-                    # Translators: %(variable)s represents Python code, not a plural of the term
-                    # variable. You must keep the %(variable)s untranslated, or the program will
-                    # crash.
-                    # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>,
-                    # </b> etc.
+                    # Translators: %(variable)s represents Python code, not a plural of
+                    # the term variable. You must keep the %(variable)s untranslated, or
+                    # the program will crash.
+                    # Translators: please do not change HTML codes like <br>, <i>, </i>,
+                    # or <b>, </b> etc.
                     msg += _(
                         "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
                     ) % dict(date=prev_date)
@@ -1668,8 +1672,8 @@ class ThumbnailListModel(QAbstractListModel):
             else:
                 # try find a *downloaded* file from another camera
 
-                # could determine which devices to exclude in SQL but it's a little simpler
-                # here
+                # could determine which devices to exclude in SQL but it's a little
+                # simpler here
                 devices = self.rapidApp.devices
                 exclude_scan_ids = [
                     s_id
@@ -1771,8 +1775,8 @@ class ThumbnailListModel(QAbstractListModel):
         if terminate:
             self.thumbnailer.stop_worker(scan_id)
             # TODO update this check once checking for thumnbnailing code is more robust
-            # note that check == 1 because it is assumed the scan id has not been deleted
-            # from the device collection
+            # note that check == 1 because it is assumed the scan id has not been
+            # deleted from the device collection
             if len(self.rapidApp.devices.thumbnailing) == 1:
                 self.resetThumbnailTracking()
             else:
@@ -1890,8 +1894,8 @@ class ThumbnailListModel(QAbstractListModel):
 
     def getNoFilesJobCodeNeeded(self) -> FileTypeCounter:
         """
-        :return: the number of marked files that need a job code assigned to them, and the
-         file types they will be applied to.
+        :return: the number of marked files that need a job code assigned to them, and
+         the file types they will be applied to.
         """
 
         no_photos = no_videos = 0
@@ -2156,9 +2160,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.openInFileBrowserAct.triggered.connect(self.doOpenInFileManagerAct)
         self.copyPathAct = self.contextMenu.addAction(_("Copy Path"))
         self.copyPathAct.triggered.connect(self.doCopyPathAction)
-        # Translators: 'File' here applies to a single file. The command allows users to instruct
-        # Rapid Photo Downloader that photos and videos have been previously downloaded by
-        # another application.
+        # Translators: 'File' here applies to a single file. The command allows users to
+        # instruct Rapid Photo Downloader that photos and videos have been previously
+        # downloaded by another application.
         self.markFileDownloadedAct = self.contextMenu.addAction(
             _("Mark File as Downloaded")
         )

@@ -20,7 +20,7 @@
 Class to handle exceptions related to camera access via gPhoto2 and libimobiledevice
 """
 
-__author__ = 'Damon Lynch'
+__author__ = "Damon Lynch"
 __copyright__ = "Copyright 2015-2021, Damon Lynch."
 
 from typing import Optional
@@ -47,9 +47,12 @@ class CameraError(Exception):
 class CameraProblemEx(CameraError):
     """Handle gPhoto2 errors"""
 
-    def __init__(self, code: CameraErrorCode,
-                 gp_exception: Optional[gp.GPhoto2Error]=None,
-                 py_exception: Optional[Exception]=None) -> None:
+    def __init__(
+        self,
+        code: CameraErrorCode,
+        gp_exception: Optional[gp.GPhoto2Error] = None,
+        py_exception: Optional[Exception] = None,
+    ) -> None:
         super().__init__(code)
         if gp_exception is not None:
             self.gp_code = gp_exception.code
@@ -61,7 +64,7 @@ class CameraProblemEx(CameraError):
         if self.code == CameraErrorCode.read:
             return "read error"
         elif self.code == CameraErrorCode.write:
-            return 'write error'
+            return "write error"
         else:
             return repr(super())
 
@@ -69,7 +72,7 @@ class CameraProblemEx(CameraError):
         if self.code == CameraErrorCode.read:
             return "Could not read file from camera"
         elif self.code == CameraErrorCode.write:
-            return 'Could not write file from camera'
+            return "Could not write file from camera"
         else:
             return str(super())
 
@@ -77,9 +80,14 @@ class CameraProblemEx(CameraError):
 class iOSDeviceError(CameraError):
     """Handle iOS Device errors"""
 
-    def __init__(self, code: CameraErrorCode, imobile_error: int, imobile_error_output: str,
-                 udid: str, display_name: str
-                 ) -> None:
+    def __init__(
+        self,
+        code: CameraErrorCode,
+        imobile_error: int,
+        imobile_error_output: str,
+        udid: str,
+        display_name: str,
+    ) -> None:
         super().__init__(code)
         self.imobile_error = imobile_error
         self.imobile_error_output = imobile_error_output
@@ -88,9 +96,15 @@ class iOSDeviceError(CameraError):
 
     def __str__(self) -> str:
 
-        if self.code in (CameraErrorCode.pair, CameraErrorCode.mount, CameraErrorCode.devicename):
-            message = self.imobile_error_output.replace(self.udid, "'{}'".format(self.display_name))
-            if message.startswith('ERROR: '):
+        if self.code in (
+            CameraErrorCode.pair,
+            CameraErrorCode.mount,
+            CameraErrorCode.devicename,
+        ):
+            message = self.imobile_error_output.replace(
+                self.udid, "'{}'".format(self.display_name)
+            )
+            if message.startswith("ERROR: "):
                 message = message[7:]
             return message
         else:

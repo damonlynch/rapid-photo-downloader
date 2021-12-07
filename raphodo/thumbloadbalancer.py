@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -20,8 +20,8 @@
 
 """Starts load balancer used for thumbnail extraction and caching"""
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2015-2021, Damon Lynch"
 
 from raphodo.interprocess import LoadBalancerWorkerManager, LoadBalancer
 
@@ -30,21 +30,22 @@ class ThumbnailLoadBalancerWorkerManager(LoadBalancerWorkerManager):
     """
     Manages thumbnail extractors
     """
-    def __init__(self, no_workers: int,
-                 backend_port: int,
-                 sink_port: int,
-                 logging_port: int) -> None:
+
+    def __init__(
+        self, no_workers: int, backend_port: int, sink_port: int, logging_port: int
+    ) -> None:
         super().__init__(no_workers, backend_port, sink_port, logging_port)
-        self._process_name = 'Thumbnail Load Balancer Manager'
-        self._process_to_run = 'thumbnailextractor.py'
+        self._process_name = "Thumbnail Load Balancer Manager"
+        self._process_to_run = "thumbnailextractor.py"
 
 
 class ThumbnailLoadBalancer(LoadBalancer):
     """
     Manages the thumbnail load balancer
     """
+
     def __init__(self) -> None:
-        super().__init__('Thumbnail', ThumbnailLoadBalancerWorkerManager)
+        super().__init__("Thumbnail", ThumbnailLoadBalancerWorkerManager)
 
 
 if __name__ == "__main__":

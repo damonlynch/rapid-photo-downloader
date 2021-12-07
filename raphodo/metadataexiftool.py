@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -23,8 +23,8 @@
 Read photo and video metadata using ExifTool daemon process.
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2007-2021, Damon Lynch"
 
 import datetime
 import re
@@ -41,22 +41,25 @@ import raphodo.fileformats as fileformats
 
 # Turned into an OrderedDict below
 _index_preview = {
-            0: 'PreviewImage',
-            1: 'OtherImage',
-            2: 'JpgFromRaw',
-            3: 'PreviewTIFF',
-            4: 'ThumbnailTIFF'
+    0: "PreviewImage",
+    1: "OtherImage",
+    2: "JpgFromRaw",
+    3: "PreviewTIFF",
+    4: "ThumbnailTIFF",
 }
 
 
-class MetadataExiftool():
+class MetadataExiftool:
     """
     Read photo and video metadata using exiftool daemon process.
     """
 
-    def __init__(self, full_file_name: str,
-                 et_process: exiftool.ExifTool,
-                 file_type: Optional[FileType]=None) -> None:
+    def __init__(
+        self,
+        full_file_name: str,
+        et_process: exiftool.ExifTool,
+        file_type: Optional[FileType] = None,
+    ) -> None:
         """
         Get photo and video metadata using Exiftool
 
@@ -84,48 +87,56 @@ class MetadataExiftool():
 
         # All the names of the preview images we know about (there may be more, perhaps)
         # Synchronize with preview_smallest and preview256 dicts below
-        self.index_preview = OrderedDict(sorted(_index_preview.items(), key=lambda t: t[0]))
+        self.index_preview = OrderedDict(
+            sorted(_index_preview.items(), key=lambda t: t[0])
+        )
 
         # If extension is not in dict preview_smallest, that means the file
         # format always contains a "ThumbnailImage"
         self.preview_smallest = dict(
-            crw=(2, ),
+            crw=(2,),
             dng=(4, 3, 0),
-            fff=(3, ),
-            iiq=(4, ),
-            mrw=(0, ),
+            fff=(3,),
+            iiq=(4,),
+            mrw=(0,),
             nef=(4, 3),
-            raw=(2, ),
+            raw=(2,),
         )
-        self.preview_smallest['3fr'] = 3, 4
+        self.preview_smallest["3fr"] = 3, 4
 
         # Format might have a thumbnail, but might not
-        self.may_have_thumbnail = ('crw', 'mrw', 'orf', 'raw', 'x3f')
+        self.may_have_thumbnail = ("crw", "mrw", "orf", "raw", "x3f")
 
-        # Preview images that are at least 256 pixels big, according to self.index_preview
+        # Preview images that are at least 256 pixels big, according to
+        # self.index_preview
         self.preview256 = dict(
-            arw=(0, ),
-            cr2=(0, ),
-            cr3=(0, ),
-            crw=(2, ),
+            arw=(0,),
+            cr2=(0,),
+            cr3=(0,),
+            crw=(2,),
             dng=(0, 3),
-            fff=(3, ),
-            iiq=(4, ),
-            mrw=(0, ),
-            nef=(0, 4, 2, 3),  # along with DNG quite possibly the most inconsistent format
+            fff=(3,),
+            iiq=(4,),
+            mrw=(0,),
+            nef=(
+                0,
+                4,
+                2,
+                3,
+            ),  # along with DNG quite possibly the most inconsistent format
             nrw=(0, 1),
-            orf=(0, ),
-            pef=(0, ),
-            raf=(0, ),
-            raw=(2, ),
-            rw2=(2, ),
-            sr2=(0, ),
-            srw=(0, ),
+            orf=(0,),
+            pef=(0,),
+            raf=(0,),
+            raw=(2,),
+            rw2=(2,),
+            sr2=(0,),
+            srw=(0,),
             x3f=(0, 2),
         )
-        self.preview256['3fr'] = 3, 4
+        self.preview256["3fr"] = 3, 4
 
-        self.ignore_tiff_preview_256 = ('cr2', )
+        self.ignore_tiff_preview_256 = ("cr2",)
 
     def _get(self, key, missing):
         if key in ("VideoStreamType", "FileNumber", "ExposureTime"):
@@ -133,8 +144,9 @@ class MetadataExiftool():
             # i.e. no -n tag
             if not self.metadata_string_format:
                 try:
-                    self.metadata_string_format = \
+                    self.metadata_string_format = (
                         self.et_process.execute_json_no_formatting(self.full_file_name)
+                    )
                 except ValueError:
                     return missing
             try:
@@ -150,8 +162,9 @@ class MetadataExiftool():
 
         return self.metadata.get(key, missing)
 
-    def date_time(self, missing: Optional[str]='',
-                            ignore_file_modify_date: bool = False) -> Union[datetime.datetime, Any]:
+    def date_time(
+        self, missing: Optional[str] = "", ignore_file_modify_date: bool = False
+    ) -> Union[datetime.datetime, Any]:
         """
         Tries to get value from key "DateTimeOriginal"
         If that fails, tries "CreateDate", and then finally
@@ -163,36 +176,44 @@ class MetadataExiftool():
         recorded, else missing
         """
 
-        d = self._get('DateTimeOriginal', None)
+        d = self._get("DateTimeOriginal", None)
         if d is None:
-            d = self._get('CreateDate', None)
+            d = self._get("CreateDate", None)
         if d is None and not ignore_file_modify_date:
-            d = self._get('FileModifyDate', None)
+            d = self._get("FileModifyDate", None)
         if d is not None:
             d = d.strip()
             try:
                 dt, fs = flexible_date_time_parser(d)
                 logging.debug(
-                    "Extracted %s time %s using ExifTool", self.file_type.name, dt.strftime(fs)
+                    "Extracted %s time %s using ExifTool",
+                    self.file_type.name,
+                    dt.strftime(fs),
                 )
 
             except AssertionError:
                 logging.warning(
                     "Error extracting date time metadata '%s' for %s %s",
-                    d, self.file_type.name, self.full_file_name
+                    d,
+                    self.file_type.name,
+                    self.full_file_name,
                 )
                 return missing
 
             except (ValueError, OverflowError):
                 logging.warning(
                     "Error parsing date time metadata '%s' for %s %s",
-                    d, self.file_type.name, self.full_file_name
+                    d,
+                    self.file_type.name,
+                    self.full_file_name,
                 )
                 return missing
             except Exception:
                 logging.error(
                     "Unknown error parsing date time metadata '%s' for %s %s",
-                    d, self.file_type.name, self.full_file_name
+                    d,
+                    self.file_type.name,
+                    self.full_file_name,
                 )
                 return missing
 
@@ -200,7 +221,7 @@ class MetadataExiftool():
         else:
             return missing
 
-    def timestamp(self, missing='') -> Union[float, Any]:
+    def timestamp(self, missing="") -> Union[float, Any]:
         """
         Photo and Video
         :return: a float value representing the time stamp, if it exists
@@ -217,7 +238,7 @@ class MetadataExiftool():
             ts = missing
         return ts
 
-    def file_number(self, missing='') -> Union[str, Any]:
+    def file_number(self, missing="") -> Union[str, Any]:
         """
         Photo and video
         :return: a string value representing the File number, if it exists
@@ -229,23 +250,24 @@ class MetadataExiftool():
         else:
             return missing
 
-    def width(self, missing='') -> Union[str, Any]:
-        v = self._get('ImageWidth', None)
+    def width(self, missing="") -> Union[str, Any]:
+        v = self._get("ImageWidth", None)
         if v is not None:
             return str(v)
         else:
             return missing
 
-    def height(self, missing='') -> Union[str, Any]:
-        v = self._get('ImageHeight', None)
+    def height(self, missing="") -> Union[str, Any]:
+        v = self._get("ImageHeight", None)
         if v is not None:
             return str(v)
         else:
             return missing
 
-    def length(self, missing='') -> Union[str, Any]:
+    def length(self, missing="") -> Union[str, Any]:
         """
-        return the duration (length) of the video, rounded to the nearest second, in string format
+        return the duration (length) of the video, rounded to the nearest second, in
+        string format
         """
         v = self._get("Duration", None)
         if v is not None:
@@ -258,7 +280,7 @@ class MetadataExiftool():
         else:
             return missing
 
-    def frames_per_second(self, missing='') -> Union[str, Any]:
+    def frames_per_second(self, missing="") -> Union[str, Any]:
         v = self._get("FrameRate", None)
         if v is None:
             v = self._get("VideoFrameRate", None)
@@ -266,12 +288,12 @@ class MetadataExiftool():
         if v is None:
             return missing
         try:
-            v = '%.0f' % v
+            v = "%.0f" % v
         except:
             return missing
         return v
 
-    def codec(self, missing='') -> Union[str, Any]:
+    def codec(self, missing="") -> Union[str, Any]:
         v = self._get("VideoStreamType", None)
         if v is None:
             v = self._get("VideoCodec", None)
@@ -279,7 +301,7 @@ class MetadataExiftool():
             return v
         return missing
 
-    def fourcc(self, missing='') -> Union[str, Any]:
+    def fourcc(self, missing="") -> Union[str, Any]:
         return self._get("CompressorID", missing)
 
     def rotation(self, missing=0) -> Union[int, Any]:
@@ -288,14 +310,14 @@ class MetadataExiftool():
             return v
         return missing
 
-    def aperture(self, missing='') -> Union[str, Any]:
+    def aperture(self, missing="") -> Union[str, Any]:
         """
         Returns in string format the floating point value of the image's
         aperture.
 
         Returns missing if the metadata value is not present.
         """
-        v = self._get('FNumber', None)
+        v = self._get("FNumber", None)
         try:
             v = float(v)
         except (ValueError, TypeError):  # TypeError catches None
@@ -305,17 +327,16 @@ class MetadataExiftool():
             return "{:.1f}".format(v)
         return missing
 
-    def iso(self, missing='') -> Union[str, Any]:
+    def iso(self, missing="") -> Union[str, Any]:
         """
         Returns in string format the integer value of the image's ISO.
 
         Returns missing if the metadata value is not present.
         """
-        v = self._get('ISO', None)
+        v = self._get("ISO", None)
         if v:
             return str(v)
         return missing
-
 
     def _exposure_time_rational(self, missing=None) -> Tuple[Any, Any]:
         """
@@ -325,7 +346,7 @@ class MetadataExiftool():
           or '2.5', 1 (for 2.5 secs)
         """
 
-        v = self._get('ExposureTime', None)
+        v = self._get("ExposureTime", None)
         if v is None:
             return missing, missing
         v = str(v)
@@ -335,13 +356,13 @@ class MetadataExiftool():
         # '2.5' floating point
 
         # fractional format
-        if v.find('/') > 0:
-            return tuple(v.split('/')[:2])
+        if v.find("/") > 0:
+            return tuple(v.split("/")[:2])
 
         # already in floating point format
         return v, 1
 
-    def exposure_time(self, alternativeFormat=False, missing='') -> Union[str, Any]:
+    def exposure_time(self, alternativeFormat=False, missing="") -> Union[str, Any]:
         """
         Returns in string format the exposure time of the image.
 
@@ -370,11 +391,11 @@ class MetadataExiftool():
 
         if e0 is not None and e1 is not None:
 
-            if str(e0).find('.') > 0:
+            if str(e0).find(".") > 0:
                 try:
                     assert e1 == 1
                 except AssertionError as e:
-                    logging.exception('{}: {}, {}'.format(self.full_file_name, e0, e1))
+                    logging.exception("{}: {}, {}".format(self.full_file_name, e0, e1))
                     raise AssertionError from e
                 e0 = float(e0)
             else:
@@ -382,7 +403,7 @@ class MetadataExiftool():
                     e0 = int(e0)
                     e1 = int(e1)
                 except ValueError as e:
-                    logging.exception('{}: {}, {}'.format(self.full_file_name, e0, e1))
+                    logging.exception("{}: {}, {}".format(self.full_file_name, e0, e1))
                     raise ValueError from e
 
             if e1 > e0:
@@ -404,25 +425,25 @@ class MetadataExiftool():
         else:
             return missing
 
-    def focal_length(self, missing='') -> Union[str, Any]:
-        v = self._get('FocalLength', None)
+    def focal_length(self, missing="") -> Union[str, Any]:
+        v = self._get("FocalLength", None)
         if v is not None:
             return str(v)
         return missing
 
-    def camera_make(self, missing='') -> Union[str, Any]:
-        v = self._get('Make', None)
+    def camera_make(self, missing="") -> Union[str, Any]:
+        v = self._get("Make", None)
         if v is not None:
             return str(v)
         return missing
 
-    def camera_model(self, missing='') -> Union[str, Any]:
-        v = self._get('Model', None)
+    def camera_model(self, missing="") -> Union[str, Any]:
+        v = self._get("Model", None)
         if v is not None:
             return str(v)
         return missing
 
-    def short_camera_model(self, includeCharacters='', missing=''):
+    def short_camera_model(self, includeCharacters="", missing=""):
         """
         Returns in shorterned string format the camera model used to record
         the image.
@@ -479,63 +500,65 @@ class MetadataExiftool():
         Note: assume exif values are in ENGLISH, regardless of current platform
         """
         m = self.camera_model()
-        m = m.replace(' Mark ', 'Mk')
+        m = m.replace(" Mark ", "Mk")
         if m:
-            s = r"(?:[^a-zA-Z0-9%s]?)(?P<model>[a-zA-Z0-9%s]*\d+[" \
-                r"a-zA-Z0-9%s]*)" \
-                % (includeCharacters, includeCharacters, includeCharacters)
+            s = r"(?:[^a-zA-Z0-9%s]?)(?P<model>[a-zA-Z0-9%s]*\d+[" r"a-zA-Z0-9%s]*)" % (
+                includeCharacters,
+                includeCharacters,
+                includeCharacters,
+            )
             r = re.search(s, m)
             if r:
                 return r.group("model")
             else:
-                head, space, model = m.strip().rpartition(' ')
+                head, space, model = m.strip().rpartition(" ")
                 return model
         else:
             return missing
 
-    def camera_serial(self, missing='') -> Union[str, Any]:
-        v = self._get('SerialNumber', None)
+    def camera_serial(self, missing="") -> Union[str, Any]:
+        v = self._get("SerialNumber", None)
         if v is not None:
             return str(v)
         return missing
 
-    def shutter_count(self, missing='') -> Union[str, Any]:
-        v = self._get('ShutterCount', None)
+    def shutter_count(self, missing="") -> Union[str, Any]:
+        v = self._get("ShutterCount", None)
         if v is None:
-            v = self._get('ImageNumber', None)
+            v = self._get("ImageNumber", None)
 
         if v is not None:
             return str(v)
         return missing
 
-    def owner_name(self, missing='') -> Union[str, Any]:
+    def owner_name(self, missing="") -> Union[str, Any]:
 
         # distinct from CopyrightOwnerName
-        v = self._get('OwnerName', None)
+        v = self._get("OwnerName", None)
         if v is not None:
             return str(v)
         return missing
 
-    def copyright(self, missing='') -> Union[str, Any]:
-        v = self._get('Copyright', None)
+    def copyright(self, missing="") -> Union[str, Any]:
+        v = self._get("Copyright", None)
         if v is not None:
             return str(v)
         return missing
 
-    def artist(self, missing=''):
-        v = self._get('Artist', None)
+    def artist(self, missing=""):
+        v = self._get("Artist", None)
         if v is not None:
             return str(v)
         return missing
 
-    def sub_seconds(self, missing='00') -> Union[str, Any]:
-        v = self._get('SubSecTime', None)
+    def sub_seconds(self, missing="00") -> Union[str, Any]:
+        v = self._get("SubSecTime", None)
         if v is not None:
             return str(v)
         return missing
 
-    def orientation(self, missing='') -> Union[str, Any]:
-        v = self._get('Orientation', None)
+    def orientation(self, missing="") -> Union[str, Any]:
+        v = self._get("Orientation", None)
         if v is not None:
             return str(v)
         return missing
@@ -551,7 +574,9 @@ class MetadataExiftool():
 
         return self._get_binary("ThumbnailImage")
 
-    def get_indexed_preview(self, preview_number: int=0, force: bool=False) -> Optional[bytes]:
+    def get_indexed_preview(
+        self, preview_number: int = 0, force: bool = False
+    ) -> Optional[bytes]:
         """
         Extract preview image from the metadata
         If initial preview number does not work, tries others
@@ -570,8 +595,10 @@ class MetadataExiftool():
             return None
 
         logging.debug(
-            "Attempt to extract %s using ExifTool from %s failed. Trying flexible approach.",
-            key, self.full_file_name
+            "Attempt to extract %s using ExifTool from %s failed. Trying flexible "
+            "approach.",
+            key,
+            self.full_file_name,
         )
 
         assert not force
@@ -580,7 +607,9 @@ class MetadataExiftool():
         )
 
         valid_untried_indexes = [
-            index for index in untried_indexes if self.index_preview[index] in self.metadata
+            index
+            for index in untried_indexes
+            if self.index_preview[index] in self.metadata
         ]
         if valid_untried_indexes:
             for index in valid_untried_indexes:
@@ -593,10 +622,13 @@ class MetadataExiftool():
                 logging.debug("...attempt failed on %s", self.full_file_name)
         else:
             logging.debug(
-                "No other preview image indexes remain to be tried on %s", self.full_file_name
+                "No other preview image indexes remain to be tried on %s",
+                self.full_file_name,
             )
 
-        logging.warning("ExifTool could not extract a preview image from %s", self.full_file_name)
+        logging.warning(
+            "ExifTool could not extract a preview image from %s", self.full_file_name
+        )
         return None
 
     def get_small_thumbnail_or_first_indexed_preview(self) -> Optional[bytes]:
@@ -625,8 +657,8 @@ class MetadataExiftool():
 
     def get_preview_256(self) -> Optional[bytes]:
         """
-        :return: if possible, return a preview image that is preferably larger than 256 pixels,
-         else the smallest preview if it exists
+        :return: if possible, return a preview image that is preferably larger than 256
+        pixels, else the smallest preview if it exists
         """
 
         # look for the smallest preview
@@ -655,12 +687,14 @@ class MetadataExiftool():
         return [v for v in self.index_preview.values() if v in self.metadata]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
 
     with exiftool.ExifTool() as et_process:
-        if (len(sys.argv) != 2):
-            print('Usage: ' + sys.argv[0] + ' path/to/video_or_photo/containing/metadata')
+        if len(sys.argv) != 2:
+            print(
+                "Usage: " + sys.argv[0] + " path/to/video_or_photo/containing/metadata"
+            )
         else:
             file = sys.argv[1]
 
@@ -671,38 +705,35 @@ if __name__ == '__main__':
                 sys.exit(1)
             m = MetadataExiftool(file, et_process, file_type)
             print(m.date_time())
-            print("f" + m.aperture('missing '))
-            print("ISO " + m.iso('missing '))
-            print(m.exposure_time(missing='missing ') + " sec")
-            print(m.exposure_time(alternativeFormat=True, missing='missing '))
-            print(m.focal_length('missing ') + "mm")
+            print("f" + m.aperture("missing "))
+            print("ISO " + m.iso("missing "))
+            print(m.exposure_time(missing="missing ") + " sec")
+            print(m.exposure_time(alternativeFormat=True, missing="missing "))
+            print(m.focal_length("missing ") + "mm")
             print(m.camera_make())
             print(m.camera_model())
-            print('Serial number:', m.camera_serial(missing='missing'))
-            print('Shutter count:', m.shutter_count())
-            print('Owner name:', m.owner_name())
-            print('Copyright:', m.copyright())
-            print('Artist', m.artist())
-            print('Subseconds:', m.sub_seconds())
-            print('Orientation:', m.orientation())
-            print('Preview names (excluding Thumbnail): ', m.preview_names())
+            print("Serial number:", m.camera_serial(missing="missing"))
+            print("Shutter count:", m.shutter_count())
+            print("Owner name:", m.owner_name())
+            print("Copyright:", m.copyright())
+            print("Artist", m.artist())
+            print("Subseconds:", m.sub_seconds())
+            print("Orientation:", m.orientation())
+            print("Preview names (excluding Thumbnail): ", m.preview_names())
             preview = m.get_small_thumbnail_or_first_indexed_preview()
 
             thumb = m.get_small_thumbnail()
             if thumb:
-                print('Thumbnail size: {} bytes'.format(len(thumb)))
+                print("Thumbnail size: {} bytes".format(len(thumb)))
             else:
-                print('No thumbnail detected')
+                print("No thumbnail detected")
 
-            previews = et_process.execute(file.encode(), b'-preview:all')
+            previews = et_process.execute(file.encode(), b"-preview:all")
             print("ExifTool raw output:")
             if previews:
                 print(previews.decode())
             else:
-                print('No previews detected')
-
-
-
+                print("No previews detected")
 
             # print("%sx%s" % (m.width(), m.height()))
             # print("Length:", m.length())

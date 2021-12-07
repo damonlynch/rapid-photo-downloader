@@ -18,7 +18,7 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-    
+
 """
 Analyze the location of exif data in a variety of RAW and jpeg files.
 
@@ -33,14 +33,15 @@ Two goals:
     the exif orientation and the exif date time.
 """
 
-__author__ = 'Damon Lynch'
+__author__ = "Damon Lynch"
 __copyright__ = "Copyright 2015-2018, Damon Lynch"
 
 import sys
 import os
 
-if sys.version_info < (3,5):
+if sys.version_info < (3, 5):
     import scandir
+
     walk = scandir.walk
 else:
     walk = os.walk
@@ -57,11 +58,15 @@ import datetime
 from typing import List, Tuple
 
 import gi
-gi.require_version('GExiv2', '0.10')
+
+gi.require_version("GExiv2", "0.10")
 from gi.repository import GExiv2
 
 from raphodo.photoattributes import (
-    PhotoAttributes, vmtouch_output, PreviewSource, ExifToolPhotoAttributes
+    PhotoAttributes,
+    vmtouch_output,
+    PreviewSource,
+    ExifToolPhotoAttributes,
 )
 from raphodo.utilities import stdchannel_redirected, show_errors, confirm
 from raphodo.rpdsql import FileFormatSQL
@@ -70,12 +75,16 @@ from raphodo.videoattributes import VideoAttributes
 from raphodo.utilities import format_size_for_user
 import raphodo.metadataphoto as mp
 from raphodo.fileformats import (
-    RAW_EXTENSIONS, JPEG_TYPE_EXTENSIONS, VIDEO_EXTENSIONS,
-    extract_extension, use_exiftool_on_photo
+    RAW_EXTENSIONS,
+    JPEG_TYPE_EXTENSIONS,
+    VIDEO_EXTENSIONS,
+    extract_extension,
+    use_exiftool_on_photo,
 )
 
 try:
     import pyprind
+
     have_progressbar = True
 except ImportError:
     have_progressbar = False
@@ -86,48 +95,46 @@ JPEG_EXTENSIONS = JPEG_TYPE_EXTENSIONS
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + JPEG_EXTENSIONS
 
 
-
 class progress_bar_scanning(threading.Thread):
     # Adapted from http://thelivingpearl.com/2012/12/31/
     # creating-progress-bars-with-python/
     def run(self):
-            print('Scanning....  ', end='', flush=True)
-            i = 0
-            while stop != True:
-                    if (i%4) == 0:
-                        sys.stdout.write('\b/')
-                    elif (i%4) == 1:
-                        sys.stdout.write('\b-')
-                    elif (i%4) == 2:
-                        sys.stdout.write('\b\\')
-                    elif (i%4) == 3:
-                        sys.stdout.write('\b|')
+        print("Scanning....  ", end="", flush=True)
+        i = 0
+        while stop != True:
+            if (i % 4) == 0:
+                sys.stdout.write("\b/")
+            elif (i % 4) == 1:
+                sys.stdout.write("\b-")
+            elif (i % 4) == 2:
+                sys.stdout.write("\b\\")
+            elif (i % 4) == 3:
+                sys.stdout.write("\b|")
 
-                    sys.stdout.flush()
-                    time.sleep(0.2)
-                    i+=1
+            sys.stdout.flush()
+            time.sleep(0.2)
+            i += 1
 
-            if kill == True:
-                print('\b\b\b\b ABORT!', flush=True)
-            else:
-                print('\b\b done!', flush=True)
+        if kill == True:
+            print("\b\b\b\b ABORT!", flush=True)
+        else:
+            print("\b\b done!", flush=True)
 
 
-def scan(folder: str,
-         disk_cach_cleared: bool,
-         scan_types: List[str],
-         errors: bool,
-         outfile: str,
-         keep_file_names: bool,
-         analyze_previews: bool) -> Tuple[
-            List[PhotoAttributes], List[VideoAttributes]]:
+def scan(
+    folder: str,
+    disk_cach_cleared: bool,
+    scan_types: List[str],
+    errors: bool,
+    outfile: str,
+    keep_file_names: bool,
+    analyze_previews: bool,
+) -> Tuple[List[PhotoAttributes], List[VideoAttributes]]:
 
     global stop
     global kill
 
-    problematic_files = (
-        'RAW_LEICA_M8.DNG'
-    )
+    problematic_files = "RAW_LEICA_M8.DNG"
 
     stop = kill = False
 
@@ -165,8 +172,9 @@ def scan(folder: str,
         print()
         if len(not_tested) > 20:
             for line in textwrap.wrap(
-                    "WARNING: {:,} files will not be analyzed because they are already in the "
-                    "kernel disk cache.".format(len(not_tested)), width=80
+                "WARNING: {:,} files will not be analyzed because they are already in the "
+                "kernel disk cache.".format(len(not_tested)),
+                width=80,
             ):
                 print(line)
         else:
@@ -178,12 +186,13 @@ def scan(folder: str,
                 print(name)
         print()
         for line in textwrap.wrap(
-                "Run this script as super user and use command line option -c or --clear to safely "
-                "clear the disk cache.", width=80
+            "Run this script as super user and use command line option -c or --clear to safely "
+            "clear the disk cache.",
+            width=80,
         ):
             print(line)
 
-        if confirm(prompt='\nDo you want to exit?', resp=True):
+        if confirm(prompt="\nDo you want to exit?", resp=True):
             sys.exit(0)
 
     photos = []
@@ -192,7 +201,9 @@ def scan(folder: str,
     if test_files:
         print("\nAnalyzing {:,} files:".format(len(test_files)))
         if have_progressbar and not errors:
-            bar = pyprind.ProgBar(iterations=len(test_files), stream=1, track_time=False, width=80)
+            bar = pyprind.ProgBar(
+                iterations=len(test_files), stream=1, track_time=False, width=80
+            )
     else:
         print("\nNothing to analyze")
 
@@ -215,7 +226,9 @@ def scan(folder: str,
                     videos.append(va)
                 else:
                     # TODO think about how to handle HEIF files!
-                    if use_exiftool_on_photo(ext.lower(), preview_extraction_irrelevant=False):
+                    if use_exiftool_on_photo(
+                        ext.lower(), preview_extraction_irrelevant=False
+                    ):
                         pa = ExifToolPhotoAttributes(
                             full_file_name, ext, exiftool_process, analyze_previews
                         )
@@ -224,7 +237,8 @@ def scan(folder: str,
                     else:
                         try:
                             metadata = mp.MetaData(
-                                full_file_name=full_file_name, et_process=exiftool_process
+                                full_file_name=full_file_name,
+                                et_process=exiftool_process,
                             )
                         except:
                             metadata_fail.append(full_file_name)
@@ -251,20 +265,22 @@ def scan(folder: str,
             for va in videos:
                 va.file_name = None
 
-        with open(outfile, 'wb') as save_to:
+        with open(outfile, "wb") as save_to:
             pickle.dump((photos, videos), save_to, pickle.HIGHEST_PROTOCOL)
 
     return photos, videos
 
 
-def analyze_photos(photos: List[PhotoAttributes],
-                   verbose: bool,
-                   analyze_previews: bool) -> None:
+def analyze_photos(
+    photos: List[PhotoAttributes], verbose: bool, analyze_previews: bool
+) -> None:
 
     if analyze_previews:
         previews_by_extension = defaultdict(list)
         for pa in photos:  # type: PhotoAttributes
-            previews_by_extension[pa.ext].append((pa.preview_size_and_types, pa.has_exif_thumbnail))
+            previews_by_extension[pa.ext].append(
+                (pa.preview_size_and_types, pa.has_exif_thumbnail)
+            )
         exts = list(previews_by_extension.keys())
         exts.sort()
         print("\nImage previews:")
@@ -277,16 +293,18 @@ def analyze_photos(photos: List[PhotoAttributes],
                 print(pa)
         return
 
-    size_by_extension= defaultdict(list)
+    size_by_extension = defaultdict(list)
     orientation_read = defaultdict(list)
     datetime_read = defaultdict(list)
     variety_read = defaultdict(list)
     thumbnail_read = defaultdict(list)
 
-    for pa in photos: # type: PhotoAttributes
+    for pa in photos:  # type: PhotoAttributes
         size_by_extension[pa.ext].append(pa.bytes_cached_post_thumb)
         if pa.minimum_exif_read_size_in_bytes_orientation is not None:
-            orientation_read[pa.ext].append(pa.minimum_exif_read_size_in_bytes_orientation)
+            orientation_read[pa.ext].append(
+                pa.minimum_exif_read_size_in_bytes_orientation
+            )
         if pa.minimum_exif_read_size_in_bytes_datetime is not None:
             datetime_read[pa.ext].append(pa.minimum_exif_read_size_in_bytes_datetime)
         if pa.minimum_metadata_read_size_in_bytes_all is not None:
@@ -300,7 +318,6 @@ def analyze_photos(photos: List[PhotoAttributes],
     for ext in exts:
         print(ext, Counter(size_by_extension[ext]).most_common())
 
-
     exts = list(thumbnail_read.keys())
     exts.sort()
     print("\nThumbnail or preview read:")
@@ -308,7 +325,12 @@ def analyze_photos(photos: List[PhotoAttributes],
         print(ext, Counter(thumbnail_read[ext]).most_common())
         m = max(thumbnail_read[ext])
         max_bytes = round(int(m) * 1.2)
-        print(ext, 'max ({}) + 20%: {} {}'.format(m, max_bytes, format_size_for_user(max_bytes)))
+        print(
+            ext,
+            "max ({}) + 20%: {} {}".format(
+                m, max_bytes, format_size_for_user(max_bytes)
+            ),
+        )
 
     exts = list(orientation_read.keys())
     exts.sort()
@@ -328,7 +350,7 @@ def analyze_photos(photos: List[PhotoAttributes],
     for ext in exts:
         print(ext, Counter(variety_read[ext]).most_common())
         m = max(variety_read[ext])
-        print(ext, 'max + 20%:', round(int(m) * 1.2))
+        print(ext, "max + 20%:", round(int(m) * 1.2))
 
     print()
     if verbose:
@@ -336,18 +358,19 @@ def analyze_photos(photos: List[PhotoAttributes],
             print(pa)
 
     file_formats = FileFormatSQL()
-    for pa in photos: # type: PhotoAttributes
+    for pa in photos:  # type: PhotoAttributes
         file_formats.add_format(pa)
 
+
 def analyze_videos(videos: List[VideoAttributes], verbose: bool) -> None:
-    size_by_extension= defaultdict(list)
+    size_by_extension = defaultdict(list)
     datetime_read = defaultdict(list)
     thumbnail_extract = defaultdict(list)
     variety_read = defaultdict(list)
     variety_read_raw = defaultdict(list)
 
     for va in videos:
-        print ('%s' % va)
+        print("%s" % va)
         size_by_extension[va.ext].append(va.bytes_cached)
         total = format_size_for_user(va.file_size)
         if va.minimum_read_size_in_bytes_datetime is not None:
@@ -387,66 +410,95 @@ def analyze_videos(videos: List[VideoAttributes], verbose: bool) -> None:
     for ext in exts:
         print(ext, Counter(variety_read[ext]).most_common())
         m = max(variety_read_raw[ext])
-        print(ext, 'max + 20% (bytes):', round(int(m) * 1.2))
+        print(ext, "max + 20% (bytes):", round(int(m) * 1.2))
 
     print()
     if verbose:
         for va in videos:
             print(va)
 
+
 def main():
     parser = argparse.ArgumentParser(
-        description='Analyze the location of metadata in a variety of RAW, jpeg and video files.'
+        description="Analyze the location of metadata in a variety of RAW, jpeg and video files."
     )
     parser.add_argument(
-        'source', action='store',
+        "source",
+        action="store",
         help="Folder in which to recursively scan for photos and videos, or a previously saved "
-             "outfile."
+        "outfile.",
     )
-    parser.add_argument('outfile',  nargs='?', help="Optional file in which to save the analysis")
     parser.add_argument(
-        '--clear', '-c', action='store_true',
+        "outfile", nargs="?", help="Optional file in which to save the analysis"
+    )
+    parser.add_argument(
+        "--clear",
+        "-c",
+        action="store_true",
         help="To work, this program requires that the scanned photos and videos not be in the "
-             "Linux kernel's disk cache. This command instructs the kernel to sync and then drop "
-             "clean caches, as well as reclaimable slab objects like dentries and inodes. This is "
-             "a non-destructive operation and will not free any dirty objects. See "
-             "https://www.kernel.org/doc/Documentation/sysctl/vm.txt"
+        "Linux kernel's disk cache. This command instructs the kernel to sync and then drop "
+        "clean caches, as well as reclaimable slab objects like dentries and inodes. This is "
+        "a non-destructive operation and will not free any dirty objects. See "
+        "https://www.kernel.org/doc/Documentation/sysctl/vm.txt",
     )
     parser.add_argument(
-        '--verbose', '-v', dest='verbose', action='store_true', help="Show more detailed output"
+        "--verbose",
+        "-v",
+        dest="verbose",
+        action="store_true",
+        help="Show more detailed output",
     )
     parser.add_argument(
-        '--load', '-l', dest='load', action='store_true',
-        help="Don't scan. Instead use previously generated outfile as input."
+        "--load",
+        "-l",
+        dest="load",
+        action="store_true",
+        help="Don't scan. Instead use previously generated outfile as input.",
     )
     parser.add_argument(
-        '--keep-names', '-k', dest='keep', action='store_true',
+        "--keep-names",
+        "-k",
+        dest="keep",
+        action="store_true",
         help="If saving the analysis to file, don't first remove the file names and paths from the "
-             "analysis. Don't specify this option if you want to keep this information private "
-             "when sharing the analysis with others."
+        "analysis. Don't specify this option if you want to keep this information private "
+        "when sharing the analysis with others.",
     )
     parser.add_argument(
-        '--no-dng', '-d', dest='dng', action='store_true', help="Don't scan DNG files"
+        "--no-dng", "-d", dest="dng", action="store_true", help="Don't scan DNG files"
     )
-    parser.add_argument('--video', action='store_true', help="Scan videos")
+    parser.add_argument("--video", action="store_true", help="Scan videos")
     parser.add_argument(
-        '--only-video', dest='only_video', action='store_true', help='Scan only videos'
-    )
-    parser.add_argument(
-        '--include-jpeg', '-j', dest='jpeg', action='store_true', help="Scan jpeg images"
+        "--only-video", dest="only_video", action="store_true", help="Scan only videos"
     )
     parser.add_argument(
-        '--only-jpeg', '-J', dest='onlyjpeg', action='store_true', help="Scan only jpeg images"
+        "--include-jpeg",
+        "-j",
+        dest="jpeg",
+        action="store_true",
+        help="Scan jpeg images",
     )
     parser.add_argument(
-        '--show-errors', '-e', dest='errors', action='store_true',
+        "--only-jpeg",
+        "-J",
+        dest="onlyjpeg",
+        action="store_true",
+        help="Scan only jpeg images",
+    )
+    parser.add_argument(
+        "--show-errors",
+        "-e",
+        dest="errors",
+        action="store_true",
         help="Don't show progress bar while scanning, and instead show all errors output by exiv2 "
-             "(useful if exiv2 crashes, which takes down this script too)"
+        "(useful if exiv2 crashes, which takes down this script too)",
     )
     parser.add_argument(
-        '--analyze-previews', dest='analyze_previews', action='store_true',
+        "--analyze-previews",
+        dest="analyze_previews",
+        action="store_true",
         help="Analyze the previews sizes found in photos, do nothing else, and exit. "
-             "Output is set to verbose."
+        "Output is set to verbose.",
     )
 
     args = parser.parse_args()
@@ -460,10 +512,10 @@ def main():
             "https://github.com/rasbt/pyprind"
         )
 
-    if not shutil.which('vmtouch') and not args.analyze_previews:
+    if not shutil.which("vmtouch") and not args.analyze_previews:
         print(
-            'To run this program, you need to install vmtouch. Get it at '
-            'http://hoytech.com/vmtouch/'
+            "To run this program, you need to install vmtouch. Get it at "
+            "http://hoytech.com/vmtouch/"
         )
         sys.exit(1)
 
@@ -472,15 +524,15 @@ def main():
         sys.exit(1)
 
     if args.load:
-        with open(args.source, 'rb') as infile:
+        with open(args.source, "rb") as infile:
             photos, videos = pickle.load(infile)
         analyze_photos(photos, args.verbose)
         analyze_videos(videos, args.verbose)
     else:
         if args.clear:
-            subprocess.check_call('sync')
-            sh_cmd = shutil.which('sh')
-            command_line = 'sudo {} -c {}'.format(
+            subprocess.check_call("sync")
+            sh_cmd = shutil.which("sh")
+            command_line = "sudo {} -c {}".format(
                 sh_cmd, shlex.quote("echo 3 > /proc/sys/vm/drop_caches")
             )
             cmd = shlex.split(command_line)
@@ -499,8 +551,8 @@ def main():
         else:
 
             if args.dng:
-                RAW_EXTENSIONS.remove('dng')
-                PHOTO_EXTENSIONS.remove('dng')
+                RAW_EXTENSIONS.remove("dng")
+                PHOTO_EXTENSIONS.remove("dng")
 
             if args.jpeg:
                 scan_types = PHOTO_EXTENSIONS
@@ -513,8 +565,13 @@ def main():
                 scan_types.extend(VIDEO_EXTENSIONS)
 
         photos, videos = scan(
-            args.source, args.clear, scan_types, args.errors, args.outfile, args.keep,
-            args.analyze_previews
+            args.source,
+            args.clear,
+            scan_types,
+            args.errors,
+            args.outfile,
+            args.keep,
+            args.analyze_previews,
         )
         if photos:
             print("\nPhotos\n======")
@@ -523,7 +580,6 @@ def main():
             print("\nVideos\n======")
             analyze_videos(videos, args.verbose)
 
+
 if __name__ == "__main__":
     main()
-
-

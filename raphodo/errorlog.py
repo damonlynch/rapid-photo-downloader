@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,8 +22,8 @@
 Error log window for Rapid Photo Downloader
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2017-2021, Damon Lynch"
 
 import logging
 import shlex
@@ -36,12 +36,33 @@ import re
 from html import escape
 
 from PyQt5.QtWidgets import (
-    QTextEdit, QDialog, QDialogButtonBox, QLineEdit, QVBoxLayout, QHBoxLayout, QApplication,
-    QPushButton, QLabel, QTextBrowser, QStyle
+    QTextEdit,
+    QDialog,
+    QDialogButtonBox,
+    QLineEdit,
+    QVBoxLayout,
+    QHBoxLayout,
+    QApplication,
+    QPushButton,
+    QLabel,
+    QTextBrowser,
+    QStyle,
 )
 from PyQt5.QtGui import (
-    QPalette, QIcon, QFontMetrics, QFont, QColor, QKeyEvent, QKeySequence, QTextDocument,
-    QTextCursor, QPaintEvent, QPainter, QPen, QMouseEvent, QShowEvent
+    QPalette,
+    QIcon,
+    QFontMetrics,
+    QFont,
+    QColor,
+    QKeyEvent,
+    QKeySequence,
+    QTextDocument,
+    QTextCursor,
+    QPaintEvent,
+    QPainter,
+    QPen,
+    QMouseEvent,
+    QShowEvent,
 )
 from PyQt5.QtCore import Qt, pyqtSlot, QSize, QUrl, QTimer, QRect, pyqtSignal, QEvent
 
@@ -60,11 +81,10 @@ class QFindLineEdit(QLineEdit):
     LineEdit to be used for search, as in Firefox in page search.
     """
 
-
-    def __init__(self, find_text='', parent=None) -> None:
+    def __init__(self, find_text="", parent=None) -> None:
         super().__init__(parent=parent)
         if not find_text:
-            self.find_text = _('Find')
+            self.find_text = _("Find")
         else:
             self.find_text = find_text
 
@@ -89,7 +109,7 @@ class QFindLineEdit(QLineEdit):
         elif self.empty:
             self.empty = False
             self.setPalette(QPalette())
-            self.setText(text[:-len(self.find_text)])
+            self.setText(text[: -len(self.find_text)])
 
     @pyqtSlot(int, int)
     def onCursorPositionChanged(self, old: int, new: int) -> None:
@@ -100,7 +120,7 @@ class QFindLineEdit(QLineEdit):
 
     def getText(self) -> str:
         if self.empty:
-            return ''
+            return ""
         else:
             return self.text()
 
@@ -123,7 +143,7 @@ class ErrorReport(QDialog):
         super().__init__(parent=parent)
 
         self.uris = []
-        self.get_href = re.compile('<a href="?\'?([^"\'>]*)')
+        self.get_href = re.compile("<a href=\"?'?([^\"'>]*)")
 
         self.setModal(False)
         self.setSizeGripEnabled(True)
@@ -134,7 +154,7 @@ class ErrorReport(QDialog):
         self.rapidApp = rapidApp
 
         layout = QVBoxLayout()
-        self.setWindowTitle(_('Error Reports - Rapid Photo Downloader'))
+        self.setWindowTitle(_("Error Reports - Rapid Photo Downloader"))
 
         self.log = QTextBrowser()
         self.log.setReadOnly(True)
@@ -150,13 +170,15 @@ class ErrorReport(QDialog):
         document.setDefaultStyleSheet(sheet)
         # document.setIndentWidth(QFontMetrics(QFont()).boundingRect('200').width())
 
-        self.highlightColor = QColor('#cb1dfa')
+        self.highlightColor = QColor("#cb1dfa")
         self.textHighlightColor = QColor(Qt.white)
 
         self.noFindPalette = QPalette()
         self.noFindPalette.setColor(QPalette.WindowText, QPalette().color(QPalette.Mid))
         self.foundPalette = QPalette()
-        self.foundPalette.setColor(QPalette.WindowText, QPalette().color(QPalette.WindowText))
+        self.foundPalette.setColor(
+            QPalette.WindowText, QPalette().color(QPalette.WindowText)
+        )
 
         self.find_cursors = []
         self.current_find_index = -1
@@ -169,7 +191,7 @@ class ErrorReport(QDialog):
         self.log.setFont(self.defaultFont)
         self.log.textChanged.connect(self.textChanged)
 
-        message = _('Find in reports')
+        message = _("Find in reports")
         self.find = QFindLineEdit(find_text=message)
         self.find.textEdited.connect(self.onFindChanged)
         style = self.find.style()  # type: QStyle
@@ -177,28 +199,30 @@ class ErrorReport(QDialog):
         button_margin = style.pixelMetric(QStyle.PM_ButtonMargin)
         spacing = (frame_width + button_margin) * 2 + 8
 
-        self.find.setMinimumWidth(QFontMetrics(QFont()).boundingRect(message).width() + spacing)
+        self.find.setMinimumWidth(
+            QFontMetrics(QFont()).boundingRect(message).width() + spacing
+        )
 
         font_height = QFontMetrics(self.font()).height()
         size = QSize(font_height, font_height)
 
         self.up = QPushButton()
-        self.up.setIcon(QIcon(':/icons/up.svg'))
+        self.up.setIcon(QIcon(":/icons/up.svg"))
         self.up.setIconSize(size)
         self.up.clicked.connect(self.upClicked)
-        self.up.setToolTip(_('Find the previous occurrence of the phrase'))
+        self.up.setToolTip(_("Find the previous occurrence of the phrase"))
         self.down = QPushButton()
-        self.down.setIcon(QIcon(':/icons/down.svg'))
+        self.down.setIcon(QIcon(":/icons/down.svg"))
         self.down.setIconSize(size)
         self.down.clicked.connect(self.downClicked)
-        self.down.setToolTip(_('Find the next occurrence of the phrase'))
+        self.down.setToolTip(_("Find the next occurrence of the phrase"))
 
-        self.highlightAll = QPushButton(_('&Highlight All'))
-        self.highlightAll.setToolTip(_('Highlight all occurrences of the phrase'))
-        self.matchCase = QPushButton(_('&Match Case'))
-        self.matchCase.setToolTip(_('Search with case sensitivity'))
-        self.wholeWords = QPushButton(_('&Whole Words'))
-        self.wholeWords.setToolTip(_('Search whole words only'))
+        self.highlightAll = QPushButton(_("&Highlight All"))
+        self.highlightAll.setToolTip(_("Highlight all occurrences of the phrase"))
+        self.matchCase = QPushButton(_("&Match Case"))
+        self.matchCase.setToolTip(_("Search with case sensitivity"))
+        self.wholeWords = QPushButton(_("&Whole Words"))
+        self.wholeWords.setToolTip(_("Search whole words only"))
         for widget in (self.highlightAll, self.matchCase, self.wholeWords):
             widget.setCheckable(True)
             widget.setFlat(True)
@@ -208,13 +232,15 @@ class ErrorReport(QDialog):
 
         self.findResults = QLabel()
         self.findResults.setMinimumWidth(
-            QFontMetrics(QFont()).boundingRect(_('%s of %s matches') % (1000, 1000)).width()
+            QFontMetrics(QFont())
+            .boundingRect(_("%s of %s matches") % (1000, 1000))
+            .width()
             + spacing
         )
         # Translators: match number of total matches in a search, e.g. 1 of 10 matches
-        _('%(matchnumber)s of %(total)s matches')
+        _("%(matchnumber)s of %(total)s matches")
 
-        #TODO implement this once translations done
+        # TODO implement this once translations done
 
         findLayout = QHBoxLayout()
         findLayout.setSpacing(0)
@@ -231,10 +257,11 @@ class ErrorReport(QDialog):
         findLayout.addSpacing(spacing)
         findLayout.addWidget(self.findResults)
 
-
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
         translateDialogBoxButtons(buttons)
-        self.clear = buttons.addButton(_('Clear'), QDialogButtonBox.ActionRole)  # type: QPushButton
+        self.clear = buttons.addButton(
+            _("Clear"), QDialogButtonBox.ActionRole
+        )  # type: QPushButton
         buttons.rejected.connect(self.reject)
         self.clear.clicked.connect(self.clearClicked)
         self.clear.setEnabled(False)
@@ -246,19 +273,19 @@ class ErrorReport(QDialog):
 
         self.setLayout(layout)
 
-        self.onFindChanged('')
+        self.onFindChanged("")
 
         self.icon_lookup = {
-            ErrorType.warning: ':/report/warning.svg',
-            ErrorType.serious_error: ':/report/error.svg',
-            ErrorType.critical_error: ':/report/critical.svg'
+            ErrorType.warning: ":/report/warning.svg",
+            ErrorType.serious_error: ":/report/error.svg",
+            ErrorType.critical_error: ":/report/critical.svg",
         }
 
     @pyqtSlot()
     def textChanged(self) -> None:
         self.clear.setEnabled(bool(self.log.document().characterCount()))
 
-    def _makeFind(self, back: bool=False) -> int:
+    def _makeFind(self, back: bool = False) -> int:
         flags = QTextDocument.FindFlags()
         if self.matchCase.isChecked():
             flags |= QTextDocument.FindCaseSensitively
@@ -296,7 +323,7 @@ class ErrorReport(QDialog):
 
         if self.find.empty or not text:
             self._clearSearch()
-            self.findResults.setText('')
+            self.findResults.setText("")
             return
 
         initial_position = cursor.selectionStart()  # type: int
@@ -334,7 +361,7 @@ class ErrorReport(QDialog):
             cursor.setPosition(initial_position)
             self.log.setTextCursor(cursor)
             if not self.find.empty:
-                self.findResults.setText(_('Phrase not found'))
+                self.findResults.setText(_("Phrase not found"))
                 self.findResults.setPalette(self.noFindPalette)
 
         else:
@@ -347,7 +374,9 @@ class ErrorReport(QDialog):
             cursor = self.find_cursors[index]
             self.current_find_index = index
             self.log.setTextCursor(cursor)
-            self.findResults.setText(_('%s of %s matches') % (index + 1, len(self.find_cursors)))
+            self.findResults.setText(
+                _("%s of %s matches") % (index + 1, len(self.find_cursors))
+            )
             self.findResults.setPalette(self.foundPalette)
 
     @pyqtSlot(bool)
@@ -406,7 +435,7 @@ class ErrorReport(QDialog):
     def anchorClicked(self, url: QUrl) -> None:
         # see documentation for self._saveUrls()
         fake_uri = url.url()
-        index = int(fake_uri[fake_uri.find('///') + 3:])
+        index = int(fake_uri[fake_uri.find("///") + 3 :])
         uri = self.uris[index]
 
         show_in_file_manager(path_or_uri=uri)
@@ -421,7 +450,7 @@ class ErrorReport(QDialog):
         """
 
         anchor_start = '<a href="'
-        anchor_end = '</a>'
+        anchor_end = "</a>"
 
         start = text.find(anchor_start)
         if start < 0:
@@ -429,15 +458,15 @@ class ErrorReport(QDialog):
         new_text = text[:start]
         while start >= 0:
             href_end = text.find('">', start + 9)
-            href = text[start + 9:href_end]
+            href = text[start + 9 : href_end]
             end = text.find(anchor_end, href_end + 2)
             next_start = text.find(anchor_start, end + 4)
             if next_start >= end + 4:
-                extra_text = text[end + 4:next_start]
+                extra_text = text[end + 4 : next_start]
             else:
-                extra_text = text[end + 4:]
+                extra_text = text[end + 4 :]
             new_text = '{}<a href="file:///{}">{}</a>{}'.format(
-                new_text, len(self.uris), text[href_end + 2:end], extra_text
+                new_text, len(self.uris), text[href_end + 2 : end], extra_text
             )
             self.uris.append(href)
             start = next_start
@@ -452,10 +481,10 @@ class ErrorReport(QDialog):
         line = self._saveUrls(problem.body)
 
         if len(problem.details) == 1:
-            line = '{}<br><i>{}</i>'.format(line, self._saveUrls(problem.details[0]))
+            line = "{}<br><i>{}</i>".format(line, self._saveUrls(problem.details[0]))
         elif len(problem.details) > 1:
             for detail in problem.details:
-                line = '{}<br><i>{}</i>'.format(line, self._saveUrls(detail))
+                line = "{}<br><i>{}</i>".format(line, self._saveUrls(detail))
 
         return line
 
@@ -465,17 +494,19 @@ class ErrorReport(QDialog):
         """
 
         title = self._saveUrls(problems.title)
-        html = '<h1>{}</h1><p></p>'.format(title)
-        html = '{}<table>'.format(html)
+        html = "<h1>{}</h1><p></p>".format(title)
+        html = "{}<table>".format(html)
         for problem in problems:
             line = self._getBody(problem=problem)
             icon = self.icon_lookup[problem.severity]
             icon = '<img src="{}" height=16 width=16>'.format(icon)
-            html = '{}<tr><td width=32 align=center>{}</td><td style="padding-bottom: 6px;">' \
-                   '{}</td></tr>'.format(html, icon, line)
-        html = '{}</table>'.format(html)
+            html = (
+                '{}<tr><td width=32 align=center>{}</td><td style="padding-bottom: 6px;">'
+                "{}</td></tr>".format(html, icon, line)
+            )
+        html = "{}</table>".format(html)
 
-        html = '{}<p></p><p></p>'.format(html)
+        html = "{}<p></p><p></p>".format(html)
         self.log.append(html)
 
     def addProblems(self, problems: Problems) -> None:
@@ -489,7 +520,7 @@ class ErrorReport(QDialog):
 
         if not self.find.empty and not self.search_pending:
             self.search_pending = True
-            self.findResults.setText(_('Search pending...'))
+            self.findResults.setText(_("Search pending..."))
             self.findResults.setPalette(self.noFindPalette)
             QTimer.singleShot(1000, self._doFind)
 
@@ -529,17 +560,19 @@ class SpeechBubble(QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.rapidApp = parent
-        self.image = QIcon(':/speech-bubble.svg')
+        self.image = QIcon(":/speech-bubble.svg")
         self._count = 0
         self.fillColor = QPalette().color(QPalette.Window)
         self.counterFont = QFont()
         self.counterFont.setPointSize(QFont().pointSize() - 1)
-        self.custom_height = max(math.ceil(QFontMetrics(self.counterFont).height() * 1.7), 24)
+        self.custom_height = max(
+            math.ceil(QFontMetrics(self.counterFont).height() * 1.7), 24
+        )
         self.counterPen = QPen(QColor(Qt.white))
         self.setStyleSheet("QLabel {border: 0px;}")
         self.click_tooltip = _(
-            'The number of new entries added to the Error Report since it was '
-            'last open. Click to open the Error Report.'
+            "The number of new entries added to the Error Report since it was "
+            "last open. Click to open the Error Report."
         )
 
     @property
@@ -553,12 +586,12 @@ class SpeechBubble(QLabel):
             self.setToolTip(self.click_tooltip)
         self.update()
 
-    def incrementCounter(self, increment: int=1) -> None:
+    def incrementCounter(self, increment: int = 1) -> None:
         self._count += increment
         self.setToolTip(self.click_tooltip)
         self.update()
 
-    def paintEvent(self, event: QPaintEvent ):
+    def paintEvent(self, event: QPaintEvent):
 
         painter = QPainter()
         painter.begin(self)
@@ -573,7 +606,7 @@ class SpeechBubble(QLabel):
             painter.setFont(self.counterFont)
             painter.setPen(self.counterPen)
             if self._count > 9:
-                value = '9+'
+                value = "9+"
             else:
                 value = str(self._count)
             painter.drawText(rect, Qt.AlignCenter, value)
@@ -589,10 +622,10 @@ class SpeechBubble(QLabel):
     @pyqtSlot()
     def reset(self) -> None:
         self.count = 0
-        self.setToolTip('')
+        self.setToolTip("")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # Application development test code:
 

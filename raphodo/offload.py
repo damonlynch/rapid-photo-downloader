@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,21 +19,27 @@
 # see <http://www.gnu.org/licenses/>.
 
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2015-2021, Damon Lynch"
 
 import pickle
 import sys
 import logging
 import locale
+
 try:
     # Use the default locale as defined by the LANG variable
-    locale.setlocale(locale.LC_ALL, '')
+    locale.setlocale(locale.LC_ALL, "")
 except locale.Error:
     pass
 
 from PyQt5.QtGui import QGuiApplication
-from raphodo.interprocess import (DaemonProcess, OffloadData, OffloadResults, DownloadDestination)
+from raphodo.interprocess import (
+    DaemonProcess,
+    OffloadData,
+    OffloadResults,
+    DownloadDestination,
+)
 from raphodo.proximity import TemporalProximityGroups
 from raphodo.viewutils import ThumbnailDataForProximity
 from raphodo.folderspreview import FoldersPreview
@@ -41,7 +47,7 @@ from raphodo.folderspreview import FoldersPreview
 
 class OffloadWorker(DaemonProcess):
     def __init__(self) -> None:
-        super().__init__('Offload')
+        super().__init__("Offload")
 
     def run(self) -> None:
         try:
@@ -50,14 +56,14 @@ class OffloadWorker(DaemonProcess):
 
                 self.check_for_command(directive, content)
 
-                data = pickle.loads(content) # type: OffloadData
+                data = pickle.loads(content)  # type: OffloadData
                 if data.thumbnail_rows:
                     groups = TemporalProximityGroups(
-                        thumbnail_rows=data.thumbnail_rows, temporal_span=data.proximity_seconds
+                        thumbnail_rows=data.thumbnail_rows,
+                        temporal_span=data.proximity_seconds,
                     )
                     self.content = pickle.dumps(
-                        OffloadResults(proximity_groups=groups),
-                        pickle.HIGHEST_PROTOCOL
+                        OffloadResults(proximity_groups=groups), pickle.HIGHEST_PROTOCOL
                     )
                     self.send_message_to_sink()
                 else:
@@ -68,17 +74,20 @@ class OffloadWorker(DaemonProcess):
                     )
                     self.content = pickle.dumps(
                         OffloadResults(folders_preview=data.folders_preview),
-                        pickle.HIGHEST_PROTOCOL
+                        pickle.HIGHEST_PROTOCOL,
                     )
                     self.send_message_to_sink()
 
         except Exception:
-            logging.error("An unhandled exception occurred while processing offloaded tasks")
+            logging.error(
+                "An unhandled exception occurred while processing offloaded tasks"
+            )
             logging.exception("Traceback:")
         except SystemExit as e:
             sys.exit(e)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Must initialize QGuiApplication to use QFont() and QFontMetrics
     app = QGuiApplication(sys.argv)
 

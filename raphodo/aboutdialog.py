@@ -20,7 +20,7 @@
 Display an About window
 """
 
-__author__ = 'Damon Lynch'
+__author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 import re
@@ -29,8 +29,16 @@ from PyQt5.QtCore import Qt, pyqtSlot, QSize
 from PyQt5.QtGui import QPixmap, QFont
 
 from PyQt5.QtWidgets import (
-    QDialog, QLabel, QVBoxLayout, QDialogButtonBox, QSizePolicy, QHBoxLayout, QStackedWidget,
-    QWidget, QScrollArea, QPushButton
+    QDialog,
+    QLabel,
+    QVBoxLayout,
+    QDialogButtonBox,
+    QSizePolicy,
+    QHBoxLayout,
+    QStackedWidget,
+    QWidget,
+    QScrollArea,
+    QPushButton,
 )
 
 import raphodo.qrc_resources
@@ -48,9 +56,11 @@ class AboutDialog(QDialog):
 
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
 
-        self.setObjectName('AboutDialog')
-        self.setStyleSheet('QDialog#AboutDialog {background-image: url(:/splashscreen.png);}')
-        pixmap = QPixmap(':/splashscreen.png')
+        self.setObjectName("AboutDialog")
+        self.setStyleSheet(
+            "QDialog#AboutDialog {background-image: url(:/splashscreen.png);}"
+        )
+        pixmap = QPixmap(":/splashscreen.png")
         try:
             ratio = pixmap.devicePixelRatioF()
         except AttributeError:
@@ -77,10 +87,11 @@ class AboutDialog(QDialog):
         <a href="https://damonlynch.net/rapid" %(link_style)s>
         damonlynch.net/rapid</a><br><br>
         This program comes with absolutely no warranty.<br>
-        See the <a href="http://www.gnu.org/copyleft/gpl.html" %(link_style)s>GNU General
-        Public License,
-        version 3 or later</a> for details.
-        """ % dict(link_style='style="color: white;"')
+        See the <a href="http://www.gnu.org/copyleft/gpl.html" %(link_style)s>GNU 
+        General Public License, version 3 or later</a> for details.
+        """ % dict(
+            link_style='style="color: white;"'
+        )
 
         details = QLabel(msg)
 
@@ -92,7 +103,9 @@ class AboutDialog(QDialog):
         padding-top: 6px;
         padding-right: 6px;
         padding-bottom: 6px;
-        }""" % dict(left_margin=left_margin, transparency=transparency)
+        }""" % dict(
+            left_margin=left_margin, transparency=transparency
+        )
 
         details.setStyleSheet(details_style_sheet)
         details.setOpenExternalLinks(True)
@@ -135,7 +148,7 @@ class AboutDialog(QDialog):
         Clock icon courtesy %(artlink7)s.
         """
 
-        credits_text = credits_text.replace('\n', '<br>\n')
+        credits_text = credits_text.replace("\n", "<br>\n")
 
         credits_text = credits_text % dict(
             photolink="""<a href="https://500px.com/photo/246096445/afghan-men-pulling-heavy-load-
@@ -144,13 +157,13 @@ class AboutDialog(QDialog):
             artlink2="""<a href="https://www.iconfinder.com/bluewolfski" style="color: white;">The
                  Pictographers</a>""",
             artlink3='<a href="https://www.iconfinder.com/Enesdal" style="color: white;">Enes'
-                     ' Dal</a>',
+            " Dal</a>",
             artlink4='<a href="http://www.iconsolid.com/" style="color: white;">Icons Solid</a>',
             artlink5='<a href="https://sellfy.com/designcoon" style="color: white;">Icon Coon</a>',
             artlink6='<a href="https://www.iconfinder.com/icons/1608708/unlink_icon" style="color: '
-                     'white;">Dave Gandy</a>',
+            'white;">Dave Gandy</a>',
             artlink7='<a href="https://www.flaticon.com/authors/pixel-perfect" style="color: '
-                     'white;">Pixel perfect</a>'
+            'white;">Pixel perfect</a>',
         )
 
         label_style_sheet = """QLabel {
@@ -160,7 +173,9 @@ class AboutDialog(QDialog):
         padding-top: 6px;
         padding-right: 6px;
         padding-bottom: 6px;
-        }""" % dict(left_margin=left_margin)
+        }""" % dict(
+            left_margin=left_margin
+        )
 
         creditsLabel = QLabel(credits_text)
         creditsLabel.setFont(font)
@@ -173,7 +188,9 @@ class AboutDialog(QDialog):
         background-color: %(transparency)s;
         border: 0px;
         }
-        """ % dict(transparency=transparency)
+        """ % dict(
+            transparency=transparency
+        )
         credits.setStyleSheet(scroll_area_style_sheet)
 
         # Translators view
@@ -291,15 +308,15 @@ class AboutDialog(QDialog):
 
         # Replace < and > in email addresses
         translators_text = re.sub(
-            r'<(.+)@(.+)>', r'&lt;\1@\2&gt;', translators_text, flags=re.MULTILINE
+            r"<(.+)@(.+)>", r"&lt;\1@\2&gt;", translators_text, flags=re.MULTILINE
         )
-        translators_text = translators_text.replace('\n', '<br>\n')
+        translators_text = translators_text.replace("\n", "<br>\n")
 
         translatorsLabel = QLabel(translators_text)
         translatorsLabel.setFont(font)
         translatorsLabel.setStyleSheet(label_style_sheet)
 
-        translators  = QScrollArea()
+        translators = QScrollArea()
         translators.setWidget(translatorsLabel)
         translators.setStyleSheet(scroll_area_style_sheet)
 
@@ -315,12 +332,12 @@ class AboutDialog(QDialog):
         closeButton = buttonBox.addButton(QDialogButtonBox.Close)  # type: QPushButton
         translateDialogBoxButtons(buttonBox)
         self.creditsButton = buttonBox.addButton(
-            _('Credits'), QDialogButtonBox.HelpRole
+            _("Credits"), QDialogButtonBox.HelpRole
         )  # type: QPushButton
         self.creditsButton.setDefault(False)
         self.creditsButton.setCheckable(True)
         self.translatorsButton = buttonBox.addButton(
-            _('Translators'), QDialogButtonBox.ResetRole
+            _("Translators"), QDialogButtonBox.ResetRole
         )  # type: QPushButton
         self.translatorsButton.setDefault(False)
         self.translatorsButton.setCheckable(True)
@@ -328,16 +345,20 @@ class AboutDialog(QDialog):
 
         buttonLayout = QVBoxLayout()
         buttonLayout.addWidget(buttonBox)
-        buttonLayout.setContentsMargins(left_margin, left_margin, left_margin, left_margin)
+        buttonLayout.setContentsMargins(
+            left_margin, left_margin, left_margin, left_margin
+        )
 
         mainLayout.setContentsMargins(0, 0, 0, 0)
 
         version = QLabel(__about__.__version__)
-        version.setFixedHeight(white_box_height-title_bottom)
+        version.setFixedHeight(white_box_height - title_bottom)
 
         version_style_sheet = """QLabel {
         padding-left: %(left_margin)dpx;
-        }""" % dict(left_margin=left_margin)
+        }""" % dict(
+            left_margin=left_margin
+        )
 
         version.setStyleSheet(version_style_sheet)
 
@@ -373,5 +394,3 @@ class AboutDialog(QDialog):
             self.creditsButton.setChecked(False)
         else:
             self.stack.setCurrentIndex(0)
-
-

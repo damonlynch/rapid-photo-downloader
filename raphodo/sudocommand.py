@@ -29,12 +29,19 @@ import textwrap
 from typing import List, NamedTuple, Optional
 import webbrowser
 
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QLabel, QHBoxLayout, QSizePolicy, QWidget
+from PyQt5.QtWidgets import (
+    QDialog,
+    QVBoxLayout,
+    QDialogButtonBox,
+    QLabel,
+    QHBoxLayout,
+    QSizePolicy,
+)
 from PyQt5.QtCore import Qt, QSize, pyqtSlot
 from PyQt5.QtGui import QIcon, QFontMetrics, QFont
 
 from raphodo.password import PasswordEdit
-from raphodo.viewutils import translateDialogBoxButtons, standardIconSize
+from raphodo.viewutils import translateDialogBoxButtons
 
 
 class SudoCommand(QDialog):
@@ -95,17 +102,23 @@ class SudoCommand(QDialog):
         )
         if len(msgLabel.text()) > 50:
             msgLabel.setWordWrap(True)
-            msgLabel.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+            msgLabel.setSizePolicy(
+                QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
+            )
 
         if hint:
             hintLabel = QLabel(hint)
             if len(hint) > 50:
                 hintLabel.setWordWrap(True)
-                hintLabel.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+                hintLabel.setSizePolicy(
+                    QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
+                )
 
         self.passwordEdit = PasswordEdit()
         self.passwordEdit.setMinimumWidth(220)
-        self.passwordEdit.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        self.passwordEdit.setSizePolicy(
+            QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
+        )
         buttonBox = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
         if help_url:
             self.help_url = help_url
@@ -115,7 +128,9 @@ class SudoCommand(QDialog):
         translateDialogBoxButtons(buttonBox)
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
-        buttonBox.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        buttonBox.setSizePolicy(
+            QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
+        )
 
         layout = QVBoxLayout()
         layout.setSpacing(8)

@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -16,8 +16,8 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2011-2021, Damon Lynch"
 
 
 import logging
@@ -34,16 +34,16 @@ def exiftool_capabilities() -> Tuple[bool, bool]:
     Determine if ExifTool can be used to read cr3 and heif/heic files
     """
 
-    v = 'unknown'
+    v = "unknown"
     try:
         if programversions.EXIFTOOL_VERSION is not None:
             v = parse_version(programversions.EXIFTOOL_VERSION)
-            cr3 = v >= parse_version('10.87')
-            heif = v >= parse_version('10.63')
+            cr3 = v >= parse_version("10.87")
+            heif = v >= parse_version("10.63")
             return cr3, heif
         return False, False
     except:
-        logging.error('Unable to compare ExifTool version number: %s', v)
+        logging.error("Unable to compare ExifTool version number: %s", v)
         return False, False
 
 
@@ -68,32 +68,53 @@ def cr3_capable() -> bool:
     """
     return _exiftool_cr3 or _exiv2_cr3
 
+
 def heif_capable() -> bool:
     return _exiftool_heif
 
 
 RAW_EXTENSIONS = [
-    '3fr', 'arw', 'dcr', 'cr2', 'crw',  'dng', 'fff', 'iiq', 'mos', 'mef', 'mrw', 'nef',
-    'nrw', 'orf', 'ori','pef', 'raf', 'raw', 'rw2', 'sr2', 'srw', 'x3f'
+    "3fr",
+    "arw",
+    "dcr",
+    "cr2",
+    "crw",
+    "dng",
+    "fff",
+    "iiq",
+    "mos",
+    "mef",
+    "mrw",
+    "nef",
+    "nrw",
+    "orf",
+    "ori",
+    "pef",
+    "raf",
+    "raw",
+    "rw2",
+    "sr2",
+    "srw",
+    "x3f",
 ]
 
-HEIF_EXTENTIONS = ['heif', 'heic', 'hif']
+HEIF_EXTENTIONS = ["heif", "heic", "hif"]
 
 if cr3_capable():
-    RAW_EXTENSIONS.append('cr3')
+    RAW_EXTENSIONS.append("cr3")
 
 RAW_EXTENSIONS.sort()
 
-EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS = ['mos', 'mrw', 'x3f']
+EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS = ["mos", "mrw", "x3f"]
 
 if not _exiv2_cr3 and _exiftool_cr3:
-    EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS.append('cr3')
+    EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS.append("cr3")
 
-JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
+JPEG_EXTENSIONS = ["jpg", "jpe", "jpeg"]
 
-JPEG_TYPE_EXTENSIONS = ['jpg', 'jpe', 'jpeg', 'mpo']
+JPEG_TYPE_EXTENSIONS = ["jpg", "jpe", "jpeg", "mpo"]
 
-OTHER_PHOTO_EXTENSIONS = ['tif', 'tiff', 'mpo']
+OTHER_PHOTO_EXTENSIONS = ["tif", "tiff", "mpo"]
 
 if heif_capable():
     OTHER_PHOTO_EXTENSIONS.extend(HEIF_EXTENTIONS)
@@ -106,21 +127,35 @@ PHOTO_EXTENSIONS_WITHOUT_OTHER = RAW_EXTENSIONS + JPEG_EXTENSIONS
 
 PHOTO_EXTENSIONS_SCAN = PHOTO_EXTENSIONS
 
-AUDIO_EXTENSIONS = ['wav', 'mp3']
+AUDIO_EXTENSIONS = ["wav", "mp3"]
 
 VIDEO_EXTENSIONS = [
-    '3gp', 'avi', 'm2t', 'm2ts', 'mov', 'mp4', 'mpeg','mpg', 'mod', 'tod', 'mts'
+    "3gp",
+    "avi",
+    "m2t",
+    "m2ts",
+    "mov",
+    "mp4",
+    "mpeg",
+    "mpg",
+    "mod",
+    "tod",
+    "mts",
 ]
 
 VIDEO_EXTENSIONS.sort()
 
-VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
+VIDEO_THUMBNAIL_EXTENSIONS = ["thm"]
 
-ALL_USER_VISIBLE_EXTENSIONS = PHOTO_EXTENSIONS + VIDEO_EXTENSIONS + ['xmp', 'log']
+ALL_USER_VISIBLE_EXTENSIONS = PHOTO_EXTENSIONS + VIDEO_EXTENSIONS + ["xmp", "log"]
 
-ALL_KNOWN_EXTENSIONS = ALL_USER_VISIBLE_EXTENSIONS + AUDIO_EXTENSIONS + VIDEO_THUMBNAIL_EXTENSIONS
+ALL_KNOWN_EXTENSIONS = (
+    ALL_USER_VISIBLE_EXTENSIONS + AUDIO_EXTENSIONS + VIDEO_THUMBNAIL_EXTENSIONS
+)
 
-MUST_CACHE_VIDEOS = [video for video in VIDEO_EXTENSIONS if thumbnail_offset.get(video) is None]
+MUST_CACHE_VIDEOS = [
+    video for video in VIDEO_EXTENSIONS if thumbnail_offset.get(video) is None
+]
 
 
 def use_exiftool_on_photo(extension: str, preview_extraction_irrelevant: bool) -> bool:
@@ -134,8 +169,8 @@ def use_exiftool_on_photo(extension: str, preview_extraction_irrelevant: bool) -
     """
 
     if extension in HEIF_EXTENTIONS:
-        # Until ExifTool supports thumbnail extraction from HEIF files, we need to load HEIF / HEIC
-        # files directly
+        # Until ExifTool supports thumbnail extraction from HEIF files, we need to
+        # load HEIF / HEIC files directly
         return preview_extraction_irrelevant
 
     return extension in EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS
@@ -159,7 +194,6 @@ def extract_extension(file_name) -> Optional[str]:
     <BLANKLINE>
     """
     return os.path.splitext(file_name)[1][1:].lower()
-
 
 
 def file_type(file_extension: str) -> Optional[FileType]:
@@ -188,15 +222,16 @@ def file_type(file_extension: str) -> Optional[FileType]:
     return None
 
 
-def file_type_from_splitext(file_extension: Optional[str]=None,
-                            file_name: Optional[str]=None) -> Optional[FileType]:
+def file_type_from_splitext(
+    file_extension: Optional[str] = None, file_name: Optional[str] = None
+) -> Optional[FileType]:
     r"""
     Check file extension to determine if photo or video.
 
     Specify file_extension or file_name.
 
-    :param file_extension: file extension as output by os.path.splitext()[1], i.e. with leading
-     period and unknown case
+    :param file_extension: file extension as output by os.path.splitext()[1], i.e. with
+     leading period and unknown case
     :param file_name: if not specifying the extension, the file's name
     :return: file type (photo/video), or None if it's neither.
 

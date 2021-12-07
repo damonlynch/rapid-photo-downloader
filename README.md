@@ -1,5 +1,6 @@
-
 # Rapid Photo Downloader
+
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Rapid Photo Downloader is a Linux desktop application that imports photos 
 and videos from cameras, phones, memory cards, and other devices at high 

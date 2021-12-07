@@ -20,15 +20,15 @@
 Display messages to the user in stacked widget
 """
 
-__author__ = 'Damon Lynch'
+__author__ = "Damon Lynch"
 __copyright__ = "Copyright 2017-2021, Damon Lynch"
 
 from typing import Tuple
 
 
-from PyQt5.QtCore import (Qt, pyqtSlot, pyqtSignal)
-from PyQt5.QtWidgets import (QSizePolicy, QStackedWidget, QPushButton, QLabel)
-from PyQt5.QtGui import (QMouseEvent, QFocusEvent)
+from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
+from PyQt5.QtWidgets import QSizePolicy, QStackedWidget, QPushButton, QLabel
+from PyQt5.QtGui import QMouseEvent, QFocusEvent
 
 
 class MessageWidget(QStackedWidget):
@@ -45,27 +45,30 @@ class MessageWidget(QStackedWidget):
     (with closing tags too, naturally).
     """
 
-    def __init__(self, messages: Tuple[str,...], parent=None) -> None:
+    def __init__(self, messages: Tuple[str, ...], parent=None) -> None:
         super().__init__(parent)
 
-        # For some obscure reason, must set the label types for all labels in the stacked
-        # widget to have the same properties, or else the stacked layout size goes bonkers.
-        # Must make the empty label contain *something*, too, so make it contain a space.
-        blank = QLabel(' ')
+        # For some obscure reason, must set the label types for all labels in the
+        # stacked widget to have the same properties, or else the stacked layout size
+        # goes bonkers. Must make the empty label contain *something*, too, so make it
+        # contain a space.
+        blank = QLabel(" ")
         blank.setWordWrap(True)
         blank.setTextFormat(Qt.RichText)
         self.addWidget(blank)
 
         for message in messages:
-            if message.startswith('<i>') or message.startswith('<b>'):
+            if message.startswith("<i>") or message.startswith("<b>"):
                 label = QLabel(message)
             else:
-                # Translators: please do not modify or leave out html formatting tags like <i> and
-                # <b>. These are used to format the text the users sees
-                label = QLabel(_("<i><b>Hint:</b> %(message)s</i>") % dict(message=message))
+                # Translators: please do not modify or leave out html formatting tags
+                # like <i> and <b>. These are used to format the text the users sees
+                label = QLabel(
+                    _("<i><b>Hint:</b> %(message)s</i>") % dict(message=message)
+                )
             label.setWordWrap(True)
             label.setTextFormat(Qt.RichText)
-            label.setAlignment(Qt.AlignTop|Qt.AlignLeft)
+            label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
             self.addWidget(label)
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
@@ -101,8 +104,3 @@ class MessageButton(QPushButton):
     def focusOutEvent(self, event: QFocusEvent) -> None:
         self.isInactive.emit()
         super().focusOutEvent(event)
-
-
-
-
-

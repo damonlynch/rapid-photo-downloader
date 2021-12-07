@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -16,22 +16,27 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 import math
 
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import (
-    QFont, QIcon, QFontMetrics, QGuiApplication, QPainter, QPaintEvent,
+    QFont,
+    QIcon,
+    QFontMetrics,
+    QGuiApplication,
+    QPainter,
+    QPaintEvent,
 )
-from PyQt5.QtWidgets import (QPushButton, QSizePolicy)
+from PyQt5.QtWidgets import QPushButton, QSizePolicy
 
 from raphodo.rotatedpushbutton import FlatButton
 
 
 class TopPushButton(QPushButton, FlatButton):
-    def __init__(self, text, parent, extra_top: int=0) -> None:
+    def __init__(self, text, parent, extra_top: int = 0) -> None:
         """
 
         :param text: text to display in the button
@@ -55,12 +60,15 @@ class TopPushButton(QPushButton, FlatButton):
         padding_bottom = math.ceil(font_height / 5.6)
         padding_top = padding_bottom + extra_top
 
-        self.non_elided_text = ''
+        self.non_elided_text = ""
 
-        padding = 'padding-left: {padding_side}px; padding-right: {padding_side}px; padding-top: ' \
-                  '{padding_top}px; padding-bottom: {padding_bottom}px;'.format(
-                    padding_top=padding_top, padding_side=self.padding_side,
-                    padding_bottom=padding_bottom
+        padding = (
+            "padding-left: {padding_side}px; padding-right: {padding_side}px; "
+            "padding-top: {padding_top}px; padding-bottom: {padding_bottom}px;".format(
+                padding_top=padding_top,
+                padding_side=self.padding_side,
+                padding_bottom=padding_bottom,
+            )
         )
         self.setFlatStyle(self, darker_if_checked=False, padding=padding)
 
@@ -77,15 +85,17 @@ class TopPushButton(QPushButton, FlatButton):
 
     def paintEvent(self, event: QPaintEvent):
         """
-        Override default rendering to elide button text if it is bigger than half the window
-        size
+        Override default rendering to elide button text if it is bigger than half the
+        window size
         """
 
         painter = QPainter(self)
         metrics = painter.fontMetrics()
-        right_element_widths = self.rapidApp.downloadButton.width() + self.rapidApp.menuButton.width()
+        right_element_widths = (
+            self.rapidApp.downloadButton.width() + self.rapidApp.menuButton.width()
+        )
         window_width = self.rapidApp.width()
-        window_half  = window_width / 2
+        window_half = window_width / 2
         if right_element_widths > window_half:
             maximum_width = window_width - right_element_widths
         else:
@@ -97,7 +107,9 @@ class TopPushButton(QPushButton, FlatButton):
         maximum_width = max(30, maximum_width)
 
         usable_width = round(0.9 * maximum_width)
-        elided_text = metrics.elidedText(self.non_elided_text, Qt.ElideMiddle, usable_width)
+        elided_text = metrics.elidedText(
+            self.non_elided_text, Qt.ElideMiddle, usable_width
+        )
         super().setText(elided_text)
         super().paintEvent(event)
 
@@ -113,8 +125,11 @@ class DownloadButton(QPushButton):
         self.rapidApp = parent
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 
-        font_height = QFontMetrics(self.font()).tightBoundingRect(
-            _('Download 8 Photos and 10 Videos')).height()
+        font_height = (
+            QFontMetrics(self.font())
+            .tightBoundingRect(_("Download 8 Photos and 10 Videos"))
+            .height()
+        )
         padding = math.ceil(font_height * 1.7)
         height = font_height // 2 * 6
         radius = height // 2
@@ -133,7 +148,8 @@ class DownloadButton(QPushButton):
         # outline:none is used to remove the rectangle that appears on a
         # button when the button has focus
         # http://stackoverflow.com/questions/17280056/qt-css-decoration-on-focus
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             QPushButton {
             background-color: %(color)s;
             outline: none;
@@ -153,7 +169,8 @@ class DownloadButton(QPushButton):
             color: %(disabledTextColor)s;
             border: 1px solid %(disabledBorderColor)s;
             }
-            """ % dict(
+            """
+            % dict(
                 color=primaryColor.name(),
                 padding=padding,
                 borderColor=borderColor.name(),
@@ -164,7 +181,7 @@ class DownloadButton(QPushButton):
                 textcolor=primaryTextColor.name(),
                 disabledColor=disabledColor.name(),
                 disabledTextColor=disabledTextColor.name(),
-                disabledBorderColor=disabledBorderColor.name()
+                disabledBorderColor=disabledBorderColor.name(),
             )
         )
 

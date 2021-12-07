@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,8 +21,8 @@ Widgets and program logic to check for new program versions and
 to download them.
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2017-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2017-2021, Damon Lynch"
 
 import logging
 from collections import namedtuple
@@ -36,21 +36,37 @@ from typing import Optional
 import requests
 
 import arrow
-from PyQt5.QtCore import (QObject, pyqtSignal, pyqtSlot, Qt)
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtWidgets import (
-    QDialog, QLabel, QStackedWidget, QDialogButtonBox, QGridLayout, QPushButton, QProgressBar
+    QDialog,
+    QLabel,
+    QStackedWidget,
+    QDialogButtonBox,
+    QGridLayout,
+    QPushButton,
+    QProgressBar,
 )
 import zmq
 
 from raphodo.constants import (
-    remote_versions_file, CheckNewVersionDialogState, CheckNewVersionDialogResult,
-    standardProgressBarWidth
+    remote_versions_file,
+    CheckNewVersionDialogState,
+    CheckNewVersionDialogResult,
+    standardProgressBarWidth,
 )
-from raphodo.utilities import (create_temp_dir, format_size_for_user, is_venv, installed_using_pip)
+from raphodo.utilities import (
+    create_temp_dir,
+    format_size_for_user,
+    is_venv,
+    installed_using_pip,
+)
 from raphodo.interprocess import ThreadNames
 from raphodo.viewutils import translateDialogBoxButtons
 
-version_details = namedtuple('version_details', 'version release_date url md5 changelog_url')
+version_details = namedtuple(
+    "version_details", "version release_date url md5 changelog_url"
+)
+
 
 class NewVersion(QObject):
     """
@@ -59,11 +75,12 @@ class NewVersion(QObject):
     Runs in its own thread.
     """
 
-    checkMade = pyqtSignal(bool, version_details, version_details, str, bool, bool, bool)
-    # See http://pyqt.sourceforge.net/Docs/PyQt5/signals_slots.html#the-pyqt-pyobject-
-    # signal-argument-type
-    bytesDownloaded = pyqtSignal('PyQt_PyObject')  # don't convert python int to C++ int
-    downloadSize = pyqtSignal('PyQt_PyObject')  # don't convert python int to C++ int
+    checkMade = pyqtSignal(
+        bool, version_details, version_details, str, bool, bool, bool
+    )
+    # See http://pyqt.sourceforge.net/Docs/PyQt5/signals_slots.html#the-pyqt-pyobject-signal-argument-type
+    bytesDownloaded = pyqtSignal("PyQt_PyObject")  # don't convert python int to C++ int
+    downloadSize = pyqtSignal("PyQt_PyObject")  # don't convert python int to C++ int
     # if not empty, file downloaded okay and saved to this temp directory
     # if empty, file failed to download and verify
     fileDownloaded = pyqtSignal(str, bool)
@@ -85,14 +102,14 @@ class NewVersion(QObject):
     def start(self) -> None:
         context = zmq.Context.instance()
         self.thread_controller = context.socket(zmq.PAIR)
-        self.thread_controller.connect('inproc://{}'.format(ThreadNames.new_version))
+        self.thread_controller.connect("inproc://{}".format(ThreadNames.new_version))
 
     @pyqtSlot()
     def check(self) -> None:
         success = False
-        dev_version = version_details('', '', '', '', '')
-        stable_version = version_details('', '', '', '', '')
-        download_page = ''
+        dev_version = version_details("", "", "", "", "")
+        stable_version = version_details("", "", "", "", "")
+        download_page = ""
         no_upgrade = True
         try:
             r = requests.get(remote_versions_file)
@@ -102,7 +119,9 @@ class NewVersion(QObject):
             status_code = r.status_code
             success = status_code == 200
             if not success:
-                logging.debug("Got error code %d while accessing versions file", status_code)
+                logging.debug(
+                    "Got error code %d while accessing versions file", status_code
+                )
                 self.status_code = r.status_code
             else:
                 try:
@@ -112,30 +131,30 @@ class NewVersion(QObject):
                     success = False
                     self.status_code = r.status_code
                 else:
-                    stable = self.version['stable']
-                    dev = self.version['dev']
+                    stable = self.version["stable"]
+                    dev = self.version["dev"]
                     # Dates in format 2019-08-10T08:01:00+00:00
                     dev_version = version_details(
-                        version=pkg_resources.parse_version(dev['version']),
-                        release_date=arrow.get(dev['date']).to('local'),
-                        url=dev['url'],
-                        md5=dev['md5'],
-                        changelog_url=dev['changelog']
+                        version=pkg_resources.parse_version(dev["version"]),
+                        release_date=arrow.get(dev["date"]).to("local"),
+                        url=dev["url"],
+                        md5=dev["md5"],
+                        changelog_url=dev["changelog"],
                     )
                     stable_version = version_details(
-                        version=pkg_resources.parse_version(stable['version']),
-                        release_date=arrow.get(stable['date']).to('local'),
-                        url=stable['url'],
-                        md5 =stable['md5'],
-                        changelog_url=stable['changelog']
+                        version=pkg_resources.parse_version(stable["version"]),
+                        release_date=arrow.get(stable["date"]).to("local"),
+                        url=stable["url"],
+                        md5=stable["md5"],
+                        changelog_url=stable["changelog"],
                     )
-                    download_page = self.version['download_page']
-                    no_upgrade = self.version['no_upgrade']
+                    download_page = self.version["download_page"]
+                    no_upgrade = self.version["no_upgrade"]
 
         if not self.installed_via_pip_check_made:
             try:
                 self.installed_via_pip = installed_using_pip(
-                    'rapid-photo-downloader', suppress_errors=False
+                    "rapid-photo-downloader", suppress_errors=False
                 )
             except Exception:
                 logging.debug(
@@ -149,8 +168,13 @@ class NewVersion(QObject):
             self.is_venv_check_made = True
 
         self.checkMade.emit(
-            success, stable_version, dev_version, download_page, no_upgrade, self.installed_via_pip,
-            self.is_venv
+            success,
+            stable_version,
+            dev_version,
+            download_page,
+            no_upgrade,
+            self.installed_via_pip,
+            self.is_venv,
         )
 
     def verifyDownload(self, downloaded_tar: str, md5_url: str) -> bool:
@@ -170,7 +194,7 @@ class NewVersion(QObject):
         r = requests.get(md5_url)
         assert r.status_code == 200
         self.remote_md5 = r.text.split()[0]
-        with open(downloaded_tar, 'rb') as tar:
+        with open(downloaded_tar, "rb") as tar:
             m = hashlib.md5()
             m.update(tar.read())
         return m.hexdigest() == self.remote_md5
@@ -187,18 +211,21 @@ class NewVersion(QObject):
         :param downloaded_tar: file to verify
         """
         try:
-            with open(downloaded_tar, 'rb') as tar:
+            with open(downloaded_tar, "rb") as tar:
                 m = hashlib.md5()
                 m.update(tar.read())
             self.reverified.emit(m.hexdigest() == self.remote_md5, downloaded_tar)
         except (FileNotFoundError, OSError):
-            logging.exception("Could not open tarfile %s for hash reverification", downloaded_tar)
-            self.reverified.emit(False, '')
+            logging.exception(
+                "Could not open tarfile %s for hash reverification", downloaded_tar
+            )
+            self.reverified.emit(False, "")
         except Exception:
             logging.exception(
-                "Unknown exception when doing hash reverification of tarfile %s", downloaded_tar
+                "Unknown exception when doing hash reverification of tarfile %s",
+                downloaded_tar,
             )
-            self.reverified.emit(False, '')
+            self.reverified.emit(False, "")
 
     def checkForCmd(self) -> Optional[bytes]:
         try:
@@ -206,7 +233,9 @@ class NewVersion(QObject):
         except zmq.Again:
             return None
 
-    def handleDownloadNotCompleted(self, temp_dir: str, cancelled: bool=False) -> None:
+    def handleDownloadNotCompleted(
+        self, temp_dir: str, cancelled: bool = False
+    ) -> None:
         """
         Cleanup download file and signal we're done
         :param temp_dir: the directory into which the file was downloaded
@@ -215,7 +244,7 @@ class NewVersion(QObject):
 
         # Delete the temporary directory and any file in it
         shutil.rmtree(temp_dir, ignore_errors=True)
-        self.fileDownloaded.emit('', cancelled)
+        self.fileDownloaded.emit("", cancelled)
 
     @pyqtSlot(str, str)
     def download(self, tarball_url: str, md5_url: str):
@@ -239,22 +268,24 @@ class NewVersion(QObject):
             try:
                 r = requests.get(tarball_url, stream=True)
                 assert r.status_code == 200
-                local_file = os.path.join(temp_dir, tarball_url.split('/')[-1])
+                local_file = os.path.join(temp_dir, tarball_url.split("/")[-1])
                 chunk_size = 1024
                 bytes_downloaded = 0
-                total_size = int(r.headers['content-length'])
+                total_size = int(r.headers["content-length"])
                 self.downloadSize.emit(total_size)
                 terminated = False
-                with open(local_file, 'wb') as f:
+                with open(local_file, "wb") as f:
                     for chunk in r.iter_content(chunk_size=chunk_size):
                         cmd = self.checkForCmd()
                         if cmd is None:
-                            if chunk: # filter out keep-alive new chunks
+                            if chunk:  # filter out keep-alive new chunks
                                 f.write(chunk)
                                 bytes_downloaded += chunk_size
-                                self.bytesDownloaded.emit(min(total_size, bytes_downloaded))
+                                self.bytesDownloaded.emit(
+                                    min(total_size, bytes_downloaded)
+                                )
                         else:
-                            assert cmd == b'STOP'
+                            assert cmd == b"STOP"
                             terminated = True
                             break
                 if terminated:
@@ -279,13 +310,13 @@ class NewVersionCheckDialog(QDialog):
     or the results of such a check. The idea is to not create a temporary dialog to show
     it is checking and then another to show the results.
 
-    As such, it has different states.  Each state is associated with different buttons and
-    a different message.
+    As such, it has different states.  Each state is associated with different buttons
+    and a different message.
     """
 
     def __init__(self, parent) -> None:
         super().__init__(parent)
-        self.rapidApp = parent # type: 'RapidWindow'
+        self.rapidApp = parent  # type: 'RapidWindow'
 
         self.setModal(True)
         self.setSizeGripEnabled(False)
@@ -293,22 +324,24 @@ class NewVersionCheckDialog(QDialog):
         self.dialog_detailed_result = None
         self.current_state = CheckNewVersionDialogState.check
 
-        self.checkingLabel = QLabel(_('Checking for new version...'))
-        self.noNewVersion = QLabel(_('You are running the latest version.'))
-        self.failedToCheck = QLabel(_('Failed to contact the update server.'))
+        self.checkingLabel = QLabel(_("Checking for new version..."))
+        self.noNewVersion = QLabel(_("You are running the latest version."))
+        self.failedToCheck = QLabel(_("Failed to contact the update server."))
         self.url = "http://www.damonlynch.net/rapid/download.html"
-        self.new_version_message = _('A new version of Rapid Photo Downloader (%s) is available.')
-        self.new_version_message = '<b>{}</b>'.format(self.new_version_message)
-        self.download_it = _('Do you want to download the new version?') + '<br>'
-        self.changelog_msg = _('Changes in the new release can be viewed <a href="%s">here</a>.')
+        self.new_version_message = _(
+            "A new version of Rapid Photo Downloader (%s) is available."
+        )
+        self.new_version_message = "<b>{}</b>".format(self.new_version_message)
+        self.download_it = _("Do you want to download the new version?") + "<br>"
+        self.changelog_msg = _(
+            'Changes in the new release can be viewed <a href="%s">here</a>.'
+        )
 
         for label in (self.checkingLabel, self.noNewVersion, self.failedToCheck):
-            label.setAlignment(Qt.AlignLeft|Qt.AlignTop)
+            label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         self.newVersion = QLabel(
-            self._makeDownloadMsg(
-                '1.2.3a10', offer_download=True, changelog_url=''
-            )
+            self._makeDownloadMsg("1.2.3a10", offer_download=True, changelog_url="")
         )
         self.newVersion.setOpenExternalLinks(True)
 
@@ -325,15 +358,21 @@ class NewVersionCheckDialog(QDialog):
         translateDialogBoxButtons(cancelBox)
         cancelBox.rejected.connect(self.reject)
 
-        self.downloadItBox = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.No)
+        self.downloadItBox = QDialogButtonBox(
+            QDialogButtonBox.Yes | QDialogButtonBox.No
+        )
         translateDialogBoxButtons(self.downloadItBox)
-        # Translators: this text appears in a button - the & sets the s key in combination with
-        # the alt key to act as the keyboard shortcut
-        self.dlItSkipButton = QPushButton(_('&Skip this release'))
+        # Translators: this text appears in a button - the & sets the s key in
+        # combination with the alt key to act as the keyboard shortcut
+        self.dlItSkipButton = QPushButton(_("&Skip this release"))
         self.dlItSkipButton.setDefault(False)
         self.downloadItBox.addButton(self.dlItSkipButton, QDialogButtonBox.RejectRole)
-        self.dlItYesButton = self.downloadItBox.button(QDialogButtonBox.Yes)  # type: QPushButton
-        self.dlItNoButton = self.downloadItBox.button(QDialogButtonBox.No)  # type: QPushButton
+        self.dlItYesButton = self.downloadItBox.button(
+            QDialogButtonBox.Yes
+        )  # type: QPushButton
+        self.dlItNoButton = self.downloadItBox.button(
+            QDialogButtonBox.No
+        )  # type: QPushButton
         self.downloadItBox.clicked.connect(self.downloadItClicked)
 
         closeBox = QDialogButtonBox(QDialogButtonBox.Close)
@@ -342,15 +381,19 @@ class NewVersionCheckDialog(QDialog):
 
         openDownloadPageBox = QDialogButtonBox(QDialogButtonBox.Close)
         translateDialogBoxButtons(openDownloadPageBox)
-        # Translators: this text appears in a button - the & sets the s key in combination with
-        # the alt key to act as the keyboard shortcut
-        self.openDlPageSkipButton = QPushButton(_('&Skip this release'))
-        # Translators: this text appears in a button - the & sets the o key in combination with
-        # the alt key to act as the keyboard shortcut
-        self.openDlPageButton = QPushButton(_('&Open Download Page'))
+        # Translators: this text appears in a button - the & sets the s key in
+        # combination with the alt key to act as the keyboard shortcut
+        self.openDlPageSkipButton = QPushButton(_("&Skip this release"))
+        # Translators: this text appears in a button - the & sets the o key in
+        # combination with the alt key to act as the keyboard shortcut
+        self.openDlPageButton = QPushButton(_("&Open Download Page"))
         self.openDlPageButton.setDefault(True)
-        openDownloadPageBox.addButton(self.openDlPageSkipButton, QDialogButtonBox.RejectRole)
-        openDownloadPageBox.addButton(self.openDlPageButton, QDialogButtonBox.ActionRole)
+        openDownloadPageBox.addButton(
+            self.openDlPageSkipButton, QDialogButtonBox.RejectRole
+        )
+        openDownloadPageBox.addButton(
+            self.openDlPageButton, QDialogButtonBox.ActionRole
+        )
         self.openDlCloseButton = openDownloadPageBox.button(QDialogButtonBox.Close)
         openDownloadPageBox.clicked.connect(self.openWebsiteClicked)
 
@@ -367,23 +410,26 @@ class NewVersionCheckDialog(QDialog):
         grid.addWidget(self.messages, 0, 0, 1, 2, Qt.AlignTop)
         grid.addWidget(self.buttons, 1, 0, 1, 2)
         self.setLayout(grid)
-        self.setWindowTitle(_('Rapid Photo Downloader updates'))
+        self.setWindowTitle(_("Rapid Photo Downloader updates"))
 
-    def _makeDownloadMsg(self, new_version_number: str,
-                         offer_download: bool,
-                         changelog_url: str) -> str:
+    def _makeDownloadMsg(
+        self, new_version_number: str, offer_download: bool, changelog_url: str
+    ) -> str:
         s1 = self.new_version_message % new_version_number
         s2 = self.changelog_msg % changelog_url
-        s = '{}<br><br>{}'.format(s1, s2)
+        s = "{}<br><br>{}".format(s1, s2)
         if offer_download:
-            return '<br><br>'.join((s, self.download_it))
+            return "<br><br>".join((s, self.download_it))
         else:
             return s
 
-    def displayUserMessage(self, new_state: CheckNewVersionDialogState,
-                           version: Optional[str]=None,
-                           download_page: Optional[str]=None,
-                           changelog_url: Optional[str]=None) -> None:
+    def displayUserMessage(
+        self,
+        new_state: CheckNewVersionDialogState,
+        version: Optional[str] = None,
+        download_page: Optional[str] = None,
+        changelog_url: Optional[str] = None,
+    ) -> None:
 
         self.current_state = new_state
 
@@ -397,8 +443,10 @@ class NewVersionCheckDialog(QDialog):
             self.messages.setCurrentIndex(1)
             self.buttons.setCurrentIndex(1)
         else:
-            assert new_state in (CheckNewVersionDialogState.open_website,
-                                 CheckNewVersionDialogState.prompt_for_download)
+            assert new_state in (
+                CheckNewVersionDialogState.open_website,
+                CheckNewVersionDialogState.prompt_for_download,
+            )
             assert version is not None
             assert changelog_url is not None
             self.new_version_number = version
@@ -412,7 +460,9 @@ class NewVersionCheckDialog(QDialog):
             self.messages.setCurrentIndex(2)
             if offer_download:
                 self.buttons.setCurrentIndex(2)
-                yesButton = self.downloadItBox.button(QDialogButtonBox.Yes)  # type: QPushButton
+                yesButton = self.downloadItBox.button(
+                    QDialogButtonBox.Yes
+                )  # type: QPushButton
                 yesButton.setDefault(True)
 
             else:
@@ -458,23 +508,33 @@ class NewVersionCheckDialog(QDialog):
 
 
 class DownloadNewVersionDialog(QDialog):
-    def __init__(self, parent=None, bytes_downloaded: int=0, download_size: int=0) -> None:
+    def __init__(
+        self, parent=None, bytes_downloaded: int = 0, download_size: int = 0
+    ) -> None:
         super().__init__(parent)
-        self.rapidApp = parent # type: 'RapidWindow'
+        self.rapidApp = parent  # type: 'RapidWindow'
 
         self.setModal(True)
         self.setSizeGripEnabled(False)
 
-        self.download_size_display = format_size_for_user(download_size, zero_string='0 KB')
-        bytes_downloaded_display = format_size_for_user(bytes_downloaded, zero_string='0 KB')
+        self.download_size_display = format_size_for_user(
+            download_size, zero_string="0 KB"
+        )
+        bytes_downloaded_display = format_size_for_user(
+            bytes_downloaded, zero_string="0 KB"
+        )
 
-        # Translators: shows how much of a file has been downloaded e.g  123 KB of 1.3 MB
+        # Translators: shows how much of a file has been downloaded e.g  123 KB of
+        # 1.3 MB
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
-        self.text = _('%(downloaded)s of %(total)s')
+        self.text = _("%(downloaded)s of %(total)s")
         self.message = QLabel(
-            self.text % dict(downloaded=bytes_downloaded_display, total=self.download_size_display)
+            self.text
+            % dict(
+                downloaded=bytes_downloaded_display, total=self.download_size_display
+            )
         )
 
         self.progressBar = QProgressBar()
@@ -491,15 +551,22 @@ class DownloadNewVersionDialog(QDialog):
         grid.addWidget(self.progressBar, 1, 0, 1, 2)
         grid.addWidget(buttonBox, 2, 0, 1, 2)
         self.setLayout(grid)
-        self.setWindowTitle(_('Downloading...'))
+        self.setWindowTitle(_("Downloading..."))
 
     def updateProgress(self, bytes_downloaded: int) -> None:
-        bytes_downloaded_display = format_size_for_user(bytes_downloaded, zero_string='0 KB')
+        bytes_downloaded_display = format_size_for_user(
+            bytes_downloaded, zero_string="0 KB"
+        )
         self.message.setText(
-            self.text % dict(downloaded=bytes_downloaded_display, total=self.download_size_display)
+            self.text
+            % dict(
+                downloaded=bytes_downloaded_display, total=self.download_size_display
+            )
         )
         self.progressBar.setValue(bytes_downloaded)
 
     def setDownloadSize(self, download_size: int) -> None:
-        self.download_size_display = format_size_for_user(download_size, zero_string='0 KB')
+        self.download_size_display = format_size_for_user(
+            download_size, zero_string="0 KB"
+        )
         self.progressBar.setMaximum(download_size)

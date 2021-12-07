@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -26,8 +26,8 @@ for photos / videos seemingly at random each time the device is initialized for 
 which is what a gphoto2 process does.
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2011-2021, Damon Lynch"
 
 from typing import List, DefaultDict, Optional
 import logging
@@ -57,8 +57,9 @@ class RescanCamera:
         self.camera = camera
         if not camera.specific_folder_located:
             logging.warning(
-                "No folders located on %s: there might be a bug the camera firmware or libgphoto2. "
-                "Continuing rescan regardless.", camera.display_name
+                "No folders located on %s: there might be a bug the camera firmware "
+                "or libgphoto2. Continuing rescan regardless.",
+                camera.display_name,
             )
         # Relocated RPD files
         self.rpd_files = []  # type: List[RPDFile]
@@ -86,7 +87,8 @@ class RescanCamera:
         except CameraProblemEx as e:
             logging.debug(
                 "Failed to read extract of sample file %s: rescanning %s",
-                rpd_file.name, self.camera.display_name
+                rpd_file.name,
+                self.camera.display_name,
             )
         else:
             # Apparently no problems accessing the first file, so let's assume the rest are
@@ -96,7 +98,9 @@ class RescanCamera:
             return
 
         # filename: RPDFile
-        self.prev_scanned_files = defaultdict(list)  # type: DefaultDict[str, List[RPDFile]]
+        self.prev_scanned_files = defaultdict(
+            list
+        )  # type: DefaultDict[str, List[RPDFile]]
         self.scan_preferences = ScanPreferences(self.prefs.ignored_paths)
 
         for rpd_file in rpd_files:
@@ -111,8 +115,8 @@ class RescanCamera:
 
     def relocate_files_on_camera(self, path: str) -> None:
         """
-        Recursively scan path looking for the folders in which previously located files are
-        now stored.
+        Recursively scan path looking for the folders in which previously located files
+        are now stored.
 
         :param path: path to check in
         """
@@ -120,7 +124,9 @@ class RescanCamera:
         files_in_folder = []
 
         try:
-            files_in_folder = self.camera.camera.folder_list_files(path, self.camera.context)
+            files_in_folder = self.camera.camera.folder_list_files(
+                path, self.camera.context
+            )
         except gp.GPhoto2Error as e:
             logging.error("Unable to scan files on camera: error %s", e.code)
 
@@ -135,15 +141,21 @@ class RescanCamera:
                         modification_time, size = 0, 0
                         if prev_rpd_file.modification_time:
                             try:
-                                modification_time, size = self.camera.get_file_info(path, name)
+                                modification_time, size = self.camera.get_file_info(
+                                    path, name
+                                )
                             except gp.GPhoto2Error as e:
                                 logging.error(
-                                    "Unable to access modification_time or size from %s on %s. "
-                                    "Error code: %s",
-                                    os.path.join(path, name), self.camera.display_name, e.code
+                                    "Unable to access modification_time or size from "
+                                    "%s on %s. Error code: %s",
+                                    os.path.join(path, name),
+                                    self.camera.display_name,
+                                    e.code,
                                 )
-                        if modification_time == prev_rpd_file.modification_time and size == \
-                                prev_rpd_file.size:
+                        if (
+                            modification_time == prev_rpd_file.modification_time
+                            and size == prev_rpd_file.size
+                        ):
                             rpd_file = prev_rpd_file
                             prev_rpd_files.remove(prev_rpd_file)
                             break
@@ -158,13 +170,16 @@ class RescanCamera:
         # Recurse over subfolders in which we should
         folders = []
         try:
-            for name, value in self.camera.camera.folder_list_folders(path, self.camera.context):
+            for name, value in self.camera.camera.folder_list_folders(
+                path, self.camera.context
+            ):
                 if self.scan_preferences.scan_this_path(os.path.join(path, name)):
                     folders.append(name)
         except gp.GPhoto2Error as e:
             logging.error(
                 "Unable to scan files on %s. Error code: %s",
-                self.camera.display_name, e.code
+                self.camera.display_name,
+                e.code,
             )
 
         for name in folders:

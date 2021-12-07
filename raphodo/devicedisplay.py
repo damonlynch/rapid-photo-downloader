@@ -380,8 +380,9 @@ class DeviceModel(QAbstractListModel):
         scan_id = self.row_id_to_scan_id[row_id]
 
         if role == Qt.CheckStateRole:
-            # In theory, update checkbox immediately, as selecting a very large number of thumbnails
-            # can take time. However the code is probably wrong, as it doesn't work:
+            # In theory, update checkbox immediately, as selecting a very large number
+            # of thumbnails can take time. However the code is probably wrong, as it
+            # doesn't work:
             # self.setCheckedValue(checked=value, scan_id=scan_id, row=row, log_state_change=False)
             # QApplication.instance().processEvents()
             self.rapidApp.thumbnailModel.checkAll(value, scan_id=scan_id)

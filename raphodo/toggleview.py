@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -24,8 +24,8 @@ Portions modeled on Canonical's QExpander, which is an 'Expander widget
 similar to the GtkExpander', Copyright 2012 Canonical Ltd
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2018, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 from typing import Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QSize
@@ -53,16 +53,23 @@ class QToggleView(QPanelView):
 
     valueChanged = pyqtSignal(bool)
 
-    def __init__(self, label: str,
-                 display_alternate: bool,
-                 toggleToolTip: Optional[str],
-                 headerColor: Optional[QColor]=None,
-                 headerFontColor: Optional[QColor]=None,
-                 on: bool=True,
-                 parent: QWidget=None) -> None:
+    def __init__(
+        self,
+        label: str,
+        display_alternate: bool,
+        toggleToolTip: Optional[str],
+        headerColor: Optional[QColor] = None,
+        headerFontColor: Optional[QColor] = None,
+        on: bool = True,
+        parent: QWidget = None,
+    ) -> None:
 
-        super().__init__(label=label, headerColor=headerColor, headerFontColor=headerFontColor,
-                         parent=parent)
+        super().__init__(
+            label=label,
+            headerColor=headerColor,
+            headerFontColor=headerFontColor,
+            parent=parent,
+        )
         # Override base class definition:
         self.headerLayout.setContentsMargins(5, 0, 5, 0)
 
@@ -72,7 +79,6 @@ class QToggleView(QPanelView):
             layout.addWidget(self.alternateWidget)
         else:
             self.alternateWidget = None
-
 
         self.toggleSwitch = QToggleSwitch(background=headerColor, parent=self)
         self.toggleSwitch.valueChanged.connect(self.toggled)
@@ -115,8 +121,3 @@ class QToggleView(QPanelView):
             return self.header.height()
         else:
             return super().minimumSize().height()
-
-
-
-
-

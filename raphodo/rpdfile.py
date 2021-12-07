@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -16,8 +16,8 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2011-2021, Damon Lynch"
 
 import os
 import time
@@ -31,25 +31,38 @@ from typing import Optional, List, Tuple, Union, Any
 
 import gi
 
-gi.require_version('GLib', '2.0')
+gi.require_version("GLib", "2.0")
 from gi.repository import GLib
 
 import raphodo.exiftool as exiftool
 from raphodo.constants import (
-    DownloadStatus, FileType, FileExtension, FileSortPriority, ThumbnailCacheStatus, Downloaded,
-    DeviceTimestampTZ, ThumbnailCacheDiskStatus, ExifSource,
+    DownloadStatus,
+    FileType,
+    FileExtension,
+    FileSortPriority,
+    ThumbnailCacheStatus,
+    Downloaded,
+    DeviceTimestampTZ,
+    ThumbnailCacheDiskStatus,
+    ExifSource,
 )
 
 from raphodo.storage import get_uri, CameraDetails
 import raphodo.metadataphoto as metadataphoto
 import raphodo.metadatavideo as metadatavideo
 import raphodo.metadataexiftool as metadataexiftool
-from raphodo.utilities import thousands, make_internationalized_list, datetime_roughly_equal
+from raphodo.utilities import (
+    thousands,
+    make_internationalized_list,
+    datetime_roughly_equal,
+)
 from raphodo.problemnotification import Problem, make_href
 import raphodo.fileformats as fileformats
 
 
-def get_sort_priority(extension: FileExtension, file_type: FileType) -> FileSortPriority:
+def get_sort_priority(
+    extension: FileExtension, file_type: FileType
+) -> FileSortPriority:
     """
     Classifies the extension by sort priority.
 
@@ -66,30 +79,32 @@ def get_sort_priority(extension: FileExtension, file_type: FileType) -> FileSort
         return FileSortPriority.high
 
 
-def get_rpdfile(name: str,
-                path: str,
-                size: int,
-                prev_full_name: Optional[str],
-                prev_datetime: Optional[datetime],
-                device_timestamp_type: DeviceTimestampTZ,
-                mtime: float,
-                mdatatime: float,
-                thumbnail_cache_status: ThumbnailCacheDiskStatus,
-                thm_full_name: Optional[str],
-                audio_file_full_name: Optional[str],
-                xmp_file_full_name: Optional[str],
-                log_file_full_name: Optional[str],
-                scan_id: bytes,
-                file_type: FileType,
-                from_camera: bool,
-                camera_details: Optional[CameraDetails],
-                camera_memory_card_identifiers: Optional[List[int]],
-                never_read_mdatatime: bool,
-                device_display_name: str,
-                device_uri: str,
-                raw_exif_bytes: Optional[bytes],
-                exif_source: Optional[ExifSource],
-                problem: Optional[Problem]):
+def get_rpdfile(
+    name: str,
+    path: str,
+    size: int,
+    prev_full_name: Optional[str],
+    prev_datetime: Optional[datetime],
+    device_timestamp_type: DeviceTimestampTZ,
+    mtime: float,
+    mdatatime: float,
+    thumbnail_cache_status: ThumbnailCacheDiskStatus,
+    thm_full_name: Optional[str],
+    audio_file_full_name: Optional[str],
+    xmp_file_full_name: Optional[str],
+    log_file_full_name: Optional[str],
+    scan_id: bytes,
+    file_type: FileType,
+    from_camera: bool,
+    camera_details: Optional[CameraDetails],
+    camera_memory_card_identifiers: Optional[List[int]],
+    never_read_mdatatime: bool,
+    device_display_name: str,
+    device_uri: str,
+    raw_exif_bytes: Optional[bytes],
+    exif_source: Optional[ExifSource],
+    problem: Optional[Problem],
+):
     if file_type == FileType.video:
         return Video(
             name=name,
@@ -113,7 +128,7 @@ def get_rpdfile(name: str,
             device_display_name=device_display_name,
             device_uri=device_uri,
             raw_exif_bytes=raw_exif_bytes,
-            problem=problem
+            problem=problem,
         )
     else:
         return Photo(
@@ -139,7 +154,7 @@ def get_rpdfile(name: str,
             device_uri=device_uri,
             raw_exif_bytes=raw_exif_bytes,
             exif_source=exif_source,
-            problem=problem
+            problem=problem,
         )
 
 
@@ -151,28 +166,28 @@ def file_types_by_number(no_photos: int, no_videos: int) -> str:
     :param no_videos: number of videos
     """
     if (no_videos > 0) and (no_photos > 0):
-        v = _('photos and videos')
+        v = _("photos and videos")
     elif (no_videos == 0) and (no_photos == 0):
-        v = _('photos or videos')
+        v = _("photos or videos")
     elif no_videos > 0:
         if no_videos > 1:
-            v = _('videos')
+            v = _("videos")
         else:
-            v = _('video')
+            v = _("video")
     else:
         if no_photos > 1:
-            v = _('photos')
+            v = _("photos")
         else:
-            v = _('photo')
+            v = _("photo")
     return v
 
 
 def make_key(file_t: FileType, path: str) -> str:
-    return '{}:{}'.format(path, file_t.value)
+    return "{}:{}".format(path, file_t.value)
 
 
 class FileSizeSum(UserDict):
-    """ Sum size in bytes of photos and videos """
+    """Sum size in bytes of photos and videos"""
 
     def __missing__(self, key):
         self[key] = 0
@@ -180,7 +195,10 @@ class FileSizeSum(UserDict):
 
     def sum(self, basedir: Optional[str] = None) -> int:
         if basedir is not None:
-            return self[make_key(FileType.photo, basedir)] + self[make_key(FileType.video, basedir)]
+            return (
+                self[make_key(FileType.photo, basedir)]
+                + self[make_key(FileType.video, basedir)]
+            )
         else:
             return self[FileType.photo] + self[FileType.video]
 
@@ -254,11 +272,13 @@ class FileTypeCounter(Counter):
         # crash.
         file_count_summary = _("%(number)s %(filetypes)s") % dict(
             number=thousands(self[FileType.photo] + self[FileType.video]),
-            filetypes=file_types_present
+            filetypes=file_types_present,
         )
         return file_count_summary, file_types_present
 
-    def file_types_present_details(self, title_case=True, singular_natural=False) -> str:
+    def file_types_present_details(
+        self, title_case=True, singular_natural=False
+    ) -> str:
         """
         Displays details about how many files are selected or ready to be downloaded.
 
@@ -275,30 +295,30 @@ class FileTypeCounter(Counter):
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
             # crash.
-            videos = _('%(no_videos)s Videos') % dict(no_videos=thousands(v))
+            videos = _("%(no_videos)s Videos") % dict(no_videos=thousands(v))
         elif v == 1:
             if singular_natural:
                 # translators: natural language expression signifying a single video
-                videos = _('a video')
+                videos = _("a video")
             else:
-                videos = _('1 Video')
+                videos = _("1 Video")
 
         if p > 1:
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
             # crash.
-            photos = _('%(no_photos)s Photos') % dict(no_photos=thousands(p))
+            photos = _("%(no_photos)s Photos") % dict(no_photos=thousands(p))
         elif p == 1:
             if singular_natural:
                 # translators: natural language expression signifying a single photo
-                photos = _('a photo')
+                photos = _("a photo")
             else:
-                photos = _('1 Photo')
+                photos = _("1 Photo")
 
         if (p > 0) and (v > 0):
             s = make_internationalized_list([photos, videos])
         elif (p == 0) and (v == 0):
-            return ''
+            return ""
         elif v > 0:
             s = videos
         else:
@@ -315,32 +335,35 @@ class RPDFile:
     Base class for photo or video file, with metadata
     """
 
-    title = ''
-    title_capitalized = ''
+    title = ""
+    title_capitalized = ""
 
-    def __init__(self, name: str,
-                 path: str,
-                 size: int,
-                 prev_full_name: Optional[str],
-                 prev_datetime: Optional[datetime],
-                 device_timestamp_type: DeviceTimestampTZ,
-                 mtime: float,
-                 mdatatime: float,
-                 thumbnail_cache_status: ThumbnailCacheDiskStatus,
-                 thm_full_name: Optional[str],
-                 audio_file_full_name: Optional[str],
-                 xmp_file_full_name: Optional[str],
-                 log_file_full_name: Optional[str],
-                 scan_id: bytes,
-                 from_camera: bool,
-                 never_read_mdatatime: bool,
-                 device_display_name: str,
-                 device_uri: str,
-                 camera_details: Optional[CameraDetails] = None,
-                 camera_memory_card_identifiers: Optional[List[int]] = None,
-                 raw_exif_bytes: Optional[bytes] = None,
-                 exif_source: Optional[ExifSource] = None,
-                 problem: Optional[Problem] = None) -> None:
+    def __init__(
+        self,
+        name: str,
+        path: str,
+        size: int,
+        prev_full_name: Optional[str],
+        prev_datetime: Optional[datetime],
+        device_timestamp_type: DeviceTimestampTZ,
+        mtime: float,
+        mdatatime: float,
+        thumbnail_cache_status: ThumbnailCacheDiskStatus,
+        thm_full_name: Optional[str],
+        audio_file_full_name: Optional[str],
+        xmp_file_full_name: Optional[str],
+        log_file_full_name: Optional[str],
+        scan_id: bytes,
+        from_camera: bool,
+        never_read_mdatatime: bool,
+        device_display_name: str,
+        device_uri: str,
+        camera_details: Optional[CameraDetails] = None,
+        camera_memory_card_identifiers: Optional[List[int]] = None,
+        raw_exif_bytes: Optional[bytes] = None,
+        exif_source: Optional[ExifSource] = None,
+        problem: Optional[Problem] = None,
+    ) -> None:
         """
 
         :param name: filename, including the extension, without its path
@@ -370,7 +393,7 @@ class RPDFile:
         :param never_read_mdatatime: whether to ignore the metadata
          date time when determining a photo or video's creation time,
          and rely only on the file modification time
-        :param device_display_name: display name of the device the file was found on 
+        :param device_display_name: display name of the device the file was found on
         :param device_uri: the uri of the device the file was found on
         :param camera_details: details about the camera, such as model name,
          port, etc.
@@ -441,7 +464,7 @@ class RPDFile:
 
         self.never_read_mdatatime = never_read_mdatatime
         if never_read_mdatatime:
-            assert self.extension == 'dng'
+            assert self.extension == "dng"
 
         self.device_timestamp_type = device_timestamp_type
 
@@ -507,9 +530,11 @@ class RPDFile:
 
         # freedesktop.org cache thumbnails
         # http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
-        self.thumbnail_status = ThumbnailCacheStatus.not_ready  # type: ThumbnailCacheStatus
-        self.fdo_thumbnail_128_name = ''
-        self.fdo_thumbnail_256_name = ''
+        self.thumbnail_status = (
+            ThumbnailCacheStatus.not_ready
+        )  # type: ThumbnailCacheStatus
+        self.fdo_thumbnail_128_name = ""
+        self.fdo_thumbnail_256_name = ""
         # PNG data > 128x128 <= 256x256
         self.fdo_thumbnail_256 = None  # type: Optional[bytes]
 
@@ -518,43 +543,47 @@ class RPDFile:
 
         # generated values
 
-        self.cache_full_file_name = ''
+        self.cache_full_file_name = ""
         # temporary file used only for video metadata extraction:
         self.temp_sample_full_file_name = None  # type: Optional[str]
         # if True, the file is a complete copy of the original
         self.temp_sample_is_complete_file = False
-        self.temp_full_file_name = ''
-        self.temp_thm_full_name = ''
-        self.temp_audio_full_name = ''
-        self.temp_xmp_full_name = ''
-        self.temp_log_full_name = ''
-        self.temp_cache_full_file_chunk = ''
+        self.temp_full_file_name = ""
+        self.temp_thm_full_name = ""
+        self.temp_audio_full_name = ""
+        self.temp_xmp_full_name = ""
+        self.temp_log_full_name = ""
+        self.temp_cache_full_file_chunk = ""
 
         self.download_start_time = None
 
-        self.download_folder = ''
-        self.download_subfolder = ''
-        self.download_path = ''  # os.path.join(download_folder, download_subfolder)
-        self.download_name = ''
-        self.download_full_file_name = ''  # filename with path
-        self.download_full_base_name = ''  # filename with path but no extension
-        self.download_thm_full_name = ''  # name of THM (thumbnail) file with path
-        self.download_xmp_full_name = ''  # name of XMP sidecar with path
-        self.download_log_full_name = ''  # name of LOG associate file with path
-        self.download_audio_full_name = ''  # name of the WAV or MP3 audio file with path
+        self.download_folder = ""
+        self.download_subfolder = ""
+        self.download_path = ""  # os.path.join(download_folder, download_subfolder)
+        self.download_name = ""
+        self.download_full_file_name = ""  # filename with path
+        self.download_full_base_name = ""  # filename with path but no extension
+        self.download_thm_full_name = ""  # name of THM (thumbnail) file with path
+        self.download_xmp_full_name = ""  # name of XMP sidecar with path
+        self.download_log_full_name = ""  # name of LOG associate file with path
+        self.download_audio_full_name = (
+            ""  # name of the WAV or MP3 audio file with path
+        )
 
-        self.thm_extension = ''
-        self.audio_extension = ''
-        self.xmp_extension = ''
-        self.log_extension = ''
+        self.thm_extension = ""
+        self.audio_extension = ""
+        self.xmp_extension = ""
+        self.log_extension = ""
 
-        self.metadata = None  # type: Optional[Union[metadataphoto.MetaData, metadatavideo.MetaData, metadataexiftool.MetadataExiftool]]
+        self.metadata = (
+            None
+        )  # type: Optional[Union[metadataphoto.MetaData, metadatavideo.MetaData, metadataexiftool.MetadataExiftool]]
         self.metadata_failure = False  # type: bool
 
         # User preference values used for name generation
         self.subfolder_pref_list = []  # type: List[str]
         self.name_pref_list = []  # type: List[str]
-        self.generate_extension_case = ''  # type: str
+        self.generate_extension_case = ""  # type: str
 
         self.modified_via_daemon_process = False
 
@@ -565,8 +594,9 @@ class RPDFile:
         """
         :return: True if a FDO thumbnail should be written for this file
         """
-        return (self.thumbnail_status != ThumbnailCacheStatus.generation_failed and
-                (self.is_raw() or self.is_tiff()))
+        return self.thumbnail_status != ThumbnailCacheStatus.generation_failed and (
+            self.is_raw() or self.is_tiff()
+        )
 
     @property
     def modification_time(self) -> float:
@@ -586,7 +616,7 @@ class RPDFile:
             self._mtime = value
         self._raw_mtime = value
 
-        if not hasattr(self, '_mdatatime'):
+        if not hasattr(self, "_mdatatime"):
             self.ctime = self._mtime
 
     @property
@@ -605,7 +635,9 @@ class RPDFile:
 
         # Only set the creation time if there is a value to set
         if value:
-            self.mdatatime_caused_ctime_change = not datetime_roughly_equal(self.ctime, value)
+            self.mdatatime_caused_ctime_change = not datetime_roughly_equal(
+                self.ctime, value
+            )
             self.ctime = value
             if not self._datetime:
                 self._datetime = datetime.fromtimestamp(value)
@@ -680,19 +712,19 @@ class RPDFile:
         Uses guess from mimetypes module
         :return:True if the image is a jpeg image
         """
-        return self.mime_type == 'image/jpeg'
+        return self.mime_type == "image/jpeg"
 
     def is_jpeg_type(self) -> bool:
         """
         :return:True if the image is a jpeg or MPO image
         """
-        return self.mime_type == 'image/jpeg' or self.extension == 'mpo'
+        return self.mime_type == "image/jpeg" or self.extension == "mpo"
 
     def is_loadable(self) -> bool:
         """
         :return: True if the image can be loaded directly using Qt
         """
-        return self.mime_type in ['image/jpeg', 'image/tiff']
+        return self.mime_type in ["image/jpeg", "image/tiff"]
 
     def is_raw(self) -> bool:
         """
@@ -713,7 +745,7 @@ class RPDFile:
         """
         :return: True if the file is a tiff file
         """
-        return self.mime_type == 'image/tiff'
+        return self.mime_type == "image/tiff"
 
     def has_audio(self) -> bool:
         """
@@ -777,7 +809,7 @@ class RPDFile:
             name=self.name,
             uri=get_uri(
                 full_file_name=self.full_file_name, camera_details=self.camera_details
-            )
+            ),
         )
 
     def get_current_href(self) -> str:
@@ -795,7 +827,7 @@ class RPDFile:
         if self.from_camera:
             # Translators: %(variable)s represents Python code, not a plural of the term variable.
             # You must keep the %(variable)s untranslated, or the program will crash.
-            return _('%(path)s on %(camera)s') % dict(
+            return _("%(path)s on %(camera)s") % dict(
                 path=self.full_file_name, camera=self.camera_display_name
             )
         else:
@@ -806,8 +838,11 @@ class RPDFile:
 
     def __repr__(self):
         return "{}\t{}\t{}".format(
-            self.name, datetime.fromtimestamp(self.modification_time).strftime('%Y-%m-%d %H:%M:%S'),
-            self.get_current_sample_full_file_name()
+            self.name,
+            datetime.fromtimestamp(self.modification_time).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
+            self.get_current_sample_full_file_name(),
         )
 
 
@@ -818,11 +853,14 @@ class Photo(RPDFile):
     def _assign_file_type(self):
         self.file_type = FileType.photo
 
-    def load_metadata(self, full_file_name: Optional[str] = None,
-                      raw_bytes: Optional[bytearray] = None,
-                      app1_segment: Optional[bytearray] = None,
-                      et_process: exiftool.ExifTool = None,
-                      force_exiftool: Optional[bool] = False) -> bool:
+    def load_metadata(
+        self,
+        full_file_name: Optional[str] = None,
+        raw_bytes: Optional[bytearray] = None,
+        app1_segment: Optional[bytearray] = None,
+        et_process: exiftool.ExifTool = None,
+        force_exiftool: Optional[bool] = False,
+    ) -> bool:
         """
         Use GExiv2 or ExifTool to read the photograph's metadata.
 
@@ -839,20 +877,27 @@ class Photo(RPDFile):
         """
 
         if force_exiftool or fileformats.use_exiftool_on_photo(
-                self.extension, preview_extraction_irrelevant=True):
+            self.extension, preview_extraction_irrelevant=True
+        ):
 
             self.metadata = metadataexiftool.MetadataExiftool(
-                full_file_name=full_file_name, et_process=et_process, file_type=self.file_type
+                full_file_name=full_file_name,
+                et_process=et_process,
+                file_type=self.file_type,
             )
             return True
         else:
             try:
                 self.metadata = metadataphoto.MetaData(
-                    full_file_name=full_file_name, raw_bytes=raw_bytes,
-                    app1_segment=app1_segment, et_process=et_process,
+                    full_file_name=full_file_name,
+                    raw_bytes=raw_bytes,
+                    app1_segment=app1_segment,
+                    et_process=et_process,
                 )
             except GLib.GError as e:
-                logging.warning("Could not read metadata from %s. %s", self.full_file_name, e)
+                logging.warning(
+                    "Could not read metadata from %s. %s", self.full_file_name, e
+                )
                 self.metadata_failure = True
                 return False
             except:
@@ -870,8 +915,9 @@ class Video(RPDFile):
     def _assign_file_type(self):
         self.file_type = FileType.video
 
-    def load_metadata(self, full_file_name: Optional[str] = None,
-                      et_process: exiftool.ExifTool = None) -> bool:
+    def load_metadata(
+        self, full_file_name: Optional[str] = None, et_process: exiftool.ExifTool = None
+    ) -> bool:
         """
         Use ExifTool to read the video's metadata
         :param full_file_name: full path of file from which file to read
@@ -892,11 +938,11 @@ class Video(RPDFile):
 
 
 class SamplePhoto(Photo):
-    def __init__(self, sample_name='IMG_1234.CR2', sequences=None):
+    def __init__(self, sample_name="IMG_1234.CR2", sequences=None):
         mtime = time.time()
         super().__init__(
             name=sample_name,
-            path='/media/EOS_DIGITAL/DCIM/100EOS5D',
+            path="/media/EOS_DIGITAL/DCIM/100EOS5D",
             size=23516764,
             prev_full_name=None,
             prev_datetime=None,
@@ -908,11 +954,11 @@ class SamplePhoto(Photo):
             audio_file_full_name=None,
             xmp_file_full_name=None,
             log_file_full_name=None,
-            scan_id=b'0',
+            scan_id=b"0",
             from_camera=False,
             never_read_mdatatime=False,
-            device_display_name=_('Photos'),
-            device_uri='file:///media/EOS_DIGITAL/'
+            device_display_name=_("Photos"),
+            device_uri="file:///media/EOS_DIGITAL/",
         )
         self.sequences = sequences
         self.metadata = metadataphoto.DummyMetaData()
@@ -920,11 +966,11 @@ class SamplePhoto(Photo):
 
 
 class SampleVideo(Video):
-    def __init__(self, sample_name='MVI_1234.MOV', sequences=None):
+    def __init__(self, sample_name="MVI_1234.MOV", sequences=None):
         mtime = time.time()
         super().__init__(
             name=sample_name,
-            path='/media/EOS_DIGITAL/DCIM/100EOS5D',
+            path="/media/EOS_DIGITAL/DCIM/100EOS5D",
             size=823513764,
             prev_full_name=None,
             prev_datetime=None,
@@ -936,11 +982,11 @@ class SampleVideo(Video):
             audio_file_full_name=None,
             xmp_file_full_name=None,
             log_file_full_name=None,
-            scan_id=b'0',
+            scan_id=b"0",
             from_camera=False,
             never_read_mdatatime=False,
-            device_display_name=_('Videos'),
-            device_uri='file:///media/EOS_DIGITAL/'
+            device_display_name=_("Videos"),
+            device_uri="file:///media/EOS_DIGITAL/",
         )
         self.sequences = sequences
         self.metadata = metadatavideo.DummyMetaData(sample_name, None)

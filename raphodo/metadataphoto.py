@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,15 +19,16 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2018, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2007-2021, Damon Lynch"
 
 import datetime
 from typing import Optional, Union, Any, Tuple
 import logging
 
 import gi
-gi.require_version('GExiv2', '0.10')
+
+gi.require_version("GExiv2", "0.10")
 from gi.repository import GExiv2
 from PyQt5.QtCore import QSize
 
@@ -38,28 +39,29 @@ from raphodo.constants import FileType
 
 
 VENDOR_SERIAL_CODES = (
-    'Exif.Photo.BodySerialNumber',
-    'Exif.Canon.SerialNumber',
-    'Exif.Nikon3.SerialNumber',
-    'Exif.OlympusEq.SerialNumber',
-    'Exif.Olympus.SerialNumber',
-    'Exif.Olympus.SerialNumber2',
-    'Exif.Panasonic.SerialNumber',
-    'Exif.Fujifilm.SerialNumber',
-    'Exif.Image.CameraSerialNumber',
+    "Exif.Photo.BodySerialNumber",
+    "Exif.Canon.SerialNumber",
+    "Exif.Nikon3.SerialNumber",
+    "Exif.OlympusEq.SerialNumber",
+    "Exif.Olympus.SerialNumber",
+    "Exif.Olympus.SerialNumber2",
+    "Exif.Panasonic.SerialNumber",
+    "Exif.Fujifilm.SerialNumber",
+    "Exif.Image.CameraSerialNumber",
 )
 
 VENDOR_SHUTTER_COUNT = (
-    'Exif.Nikon3.ShutterCount',
-    'Exif.Canon.FileNumber',
-    'Exif.Canon.ImageNumber',
+    "Exif.Nikon3.ShutterCount",
+    "Exif.Canon.FileNumber",
+    "Exif.Canon.ImageNumber",
 )
 
 
-def photo_date_time(metadata: GExiv2.Metadata,
-                    full_file_name: Optional[str] = None,
-                    file_type: Optional[FileType] = None,
-                    ) -> Union[datetime.datetime, Any]:
+def photo_date_time(
+    metadata: GExiv2.Metadata,
+    full_file_name: Optional[str] = None,
+    file_type: Optional[FileType] = None,
+) -> Union[datetime.datetime, Any]:
     """
     Returns in python datetime format the date and time the image was
     recorded.
@@ -75,14 +77,19 @@ def photo_date_time(metadata: GExiv2.Metadata,
     # GExiv2.Metadata used to provide get_date_time(), but as of version
     # 0.10.09 it appears to have been removed!
 
-    # In any case, get_date_time() seems to have tried only one key, Exif.Photo.DateTimeOriginal
+    # In any case, get_date_time() seems to have tried only one key,
+    # Exif.Photo.DateTimeOriginal
     # Try other keys too, and with a more flexible datetime parser.
-    # For example some or maybe all Android 6.0 DNG files use Exif.Image.DateTimeOriginal
+    # For example some or maybe all Android 6.0 DNG files use
+    # Exif.Image.DateTimeOriginal
 
     do_log = full_file_name is not None and file_type is not None
 
-    for tag in ('Exif.Photo.DateTimeOriginal', 'Exif.Image.DateTimeOriginal',
-                'Exif.Image.DateTime'):
+    for tag in (
+        "Exif.Photo.DateTimeOriginal",
+        "Exif.Image.DateTimeOriginal",
+        "Exif.Image.DateTime",
+    ):
         try:
             dt_string = metadata.get_tag_string(tag)
         except Exception:
@@ -93,55 +100,68 @@ def photo_date_time(metadata: GExiv2.Metadata,
 
             # ignore all zero values, e.g. '0000:00:00 00:00:00'
             try:
-                digits = int(''.join(c for c in dt_string if c.isdigit()))
+                digits = int("".join(c for c in dt_string if c.isdigit()))
             except ValueError:
                 if do_log:
                     logging.warning(
-                        'Unexpected malformed date time metadata value %s for photo %s',
-                        dt_string, full_file_name
+                        "Unexpected malformed date time metadata value %s for photo %s",
+                        dt_string,
+                        full_file_name,
                     )
             else:
                 if not digits:
                     if do_log:
                         logging.debug(
-                            'Ignoring date time metadata value %s for photo %s',
-                            dt_string, full_file_name
+                            "Ignoring date time metadata value %s for photo %s",
+                            dt_string,
+                            full_file_name,
                         )
                 else:
                     try:
-                        return datetime.datetime.strptime(dt_string, "%Y:%m:%d %H:%M:%S")
+                        return datetime.datetime.strptime(
+                            dt_string, "%Y:%m:%d %H:%M:%S"
+                        )
                     except (ValueError, OverflowError):
                         if do_log:
                             logging.debug(
-                                'Error parsing date time metadata %s for photo %s; attempting '
-                                'flexible approach',
-                                dt_string, full_file_name
+                                "Error parsing date time metadata %s for photo %s; "
+                                "attempting flexible approach",
+                                dt_string,
+                                full_file_name,
                             )
                         try:
                             dtr, fs = flexible_date_time_parser(dt_string.strip())
                             if do_log:
                                 logging.debug(
                                     "Extracted photo time %s using flexible approach",
-                                    dtr.strftime(fs)
+                                    dtr.strftime(fs),
                                 )
                             return dtr
                         except AssertionError:
                             if do_log:
                                 logging.warning(
-                                    "Error extracting date time metadata '%s' for %s %s",
-                                    dt_string, file_type, full_file_name
+                                    "Error extracting date time metadata '%s' for "
+                                    "%s %s",
+                                    dt_string,
+                                    file_type,
+                                    full_file_name,
                                 )
                         except (ValueError, OverflowError):
                             if do_log:
                                 logging.warning(
                                     "Error parsing date time metadata '%s' for %s %s",
-                                    dt_string, file_type, full_file_name
+                                    dt_string,
+                                    file_type,
+                                    full_file_name,
                                 )
                         except Exception:
                             if do_log:
                                 logging.error(
-                                    "Unknown error parsing date time metadata '%s' for %s %s",
-                                    dt_string, file_type, full_file_name
+                                    "Unknown error parsing date time metadata '%s' "
+                                    "for %s %s",
+                                    dt_string,
+                                    file_type,
+                                    full_file_name,
                                 )
     return None
 
@@ -151,10 +171,13 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
     Provide abstracted access to photo metadata
     """
 
-    def __init__(self, et_process: exiftool.ExifTool,
-                 full_file_name: Optional[str]=None,
-                 raw_bytes: Optional[bytearray]=None,
-                 app1_segment: Optional[bytearray]=None)  -> None:
+    def __init__(
+        self,
+        et_process: exiftool.ExifTool,
+        full_file_name: Optional[str] = None,
+        raw_bytes: Optional[bytearray] = None,
+        app1_segment: Optional[bytearray] = None,
+    ) -> None:
         """
         Use GExiv2 to read the photograph's metadata.
 
@@ -199,7 +222,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         if x is not None and y is not None:
             return float(x) / float(y)
 
-    def aperture(self, missing='') -> Union[str, Any]:
+    def aperture(self, missing="") -> Union[str, Any]:
         """
         Returns in string format the floating point value of the image's
         aperture.
@@ -214,7 +237,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         else:
             return "{:.1f}".format(a)
 
-    def iso(self, missing='') -> Union[str, Any]:
+    def iso(self, missing="") -> Union[str, Any]:
         """
         Returns in string format the integer value of the image's ISO.
 
@@ -233,8 +256,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
     def _exposure_time_rational(self) -> Tuple[Any, Any]:
         return self._get_rational_components("Exif.Photo.ExposureTime")
 
-
-    def focal_length(self, missing=''):
+    def focal_length(self, missing=""):
         """
         Returns in string format the focal length of the lens used to record
         the image.
@@ -248,7 +270,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         else:
             return missing
 
-    def camera_make(self, missing=''):
+    def camera_make(self, missing=""):
         """
         Returns in string format the camera make (manufacturer) used to
         record the image.
@@ -261,7 +283,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         except (KeyError, AttributeError):
             return missing
 
-    def camera_model(self, missing=''):
+    def camera_model(self, missing=""):
         """
         Returns in string format the camera model used to record the image.
 
@@ -273,7 +295,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         except (KeyError, AttributeError):
             return missing
 
-    def _fetch_vendor(self, vendor_codes, missing=''):
+    def _fetch_vendor(self, vendor_codes, missing=""):
         for key in vendor_codes:
             try:
                 return self.get_tag_string(key).strip()
@@ -281,10 +303,10 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
                 pass
         return missing
 
-    def camera_serial(self, missing=''):
+    def camera_serial(self, missing=""):
         return self._fetch_vendor(VENDOR_SERIAL_CODES, missing)
 
-    def shutter_count(self, missing=''):
+    def shutter_count(self, missing=""):
         shutter = self._fetch_vendor(VENDOR_SHUTTER_COUNT, missing)
         if shutter != missing:
             return shutter
@@ -292,17 +314,17 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         if self.full_file_name is None:
             return missing
 
-        if self.camera_make().lower() == 'sony':
+        if self.camera_make().lower() == "sony":
             try:
-                ic = self.et_process.get_tags(['ImageCount'], self.full_file_name)
+                ic = self.et_process.get_tags(["ImageCount"], self.full_file_name)
             except (ValueError, TypeError):
                 return missing
             if ic:
-                return ic.get('ImageCount', missing)
+                return ic.get("ImageCount", missing)
 
         return missing
 
-    def file_number(self, missing=''):
+    def file_number(self, missing=""):
         """
         Returns Exif.CanonFi.FileNumber, not to be confused with
         Exif.Canon.FileNumber.
@@ -313,30 +335,33 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         See:
         https://bugs.launchpad.net/rapid/+bug/754531
         """
-        if 'Exif.CanonFi.FileNumber' in self and self.full_file_name is not None:
+        if "Exif.CanonFi.FileNumber" in self and self.full_file_name is not None:
             assert self.et_process is not None
             return super().file_number(missing)
 
-    def owner_name(self, missing=''):
+    def owner_name(self, missing=""):
         try:
-            return self.get_tag_string('Exif.Canon.OwnerName').strip()
+            return self.get_tag_string("Exif.Canon.OwnerName").strip()
         except (KeyError, AttributeError):
             return missing
 
-    def copyright(self, missing=''):
+    def copyright(self, missing=""):
         try:
-            return self.get_tag_string('Exif.Image.Copyright').strip()
+            return self.get_tag_string("Exif.Image.Copyright").strip()
         except (KeyError, AttributeError):
             return missing
 
-    def artist(self, missing=''):
+    def artist(self, missing=""):
         try:
-            return self.get_tag_string('Exif.Image.Artist').strip()
+            return self.get_tag_string("Exif.Image.Artist").strip()
         except (KeyError, AttributeError):
             return missing
 
-    def date_time(self, missing: Optional[str]='',
-                  ignore_file_modify_date: Optional[bool]=False) -> Union[datetime.datetime, Any]:
+    def date_time(
+        self,
+        missing: Optional[str] = "",
+        ignore_file_modify_date: Optional[bool] = False,
+    ) -> Union[datetime.datetime, Any]:
         """
         Returns in python datetime format the date and time the image was
         recorded.
@@ -358,7 +383,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         else:
             return dt
 
-    def sub_seconds(self, missing='00') -> Union[str, Any]:
+    def sub_seconds(self, missing="00") -> Union[str, Any]:
         """
         Returns the subsecond the image was taken, as recorded by the
         camera
@@ -369,14 +394,14 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         except (KeyError, AttributeError):
             return missing
 
-    def orientation(self, missing='') -> Union[str, Any]:
+    def orientation(self, missing="") -> Union[str, Any]:
         """
         Returns the orientation of the image, as recorded by the camera
         Return type int
         """
 
         try:
-            return self.get_tag_string('Exif.Image.Orientation')
+            return self.get_tag_string("Exif.Image.Orientation")
         except (KeyError, AttributeError):
             return missing
 
@@ -425,8 +450,8 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
 
     def get_preview_256(self) -> Optional[bytes]:
         """
-        :return: if possible, return a preview image that is preferrably larger than 256 pixels,
-         else the smallest preview if it exists
+        :return: if possible, return a preview image that is preferrably larger than
+         256 pixels, else the smallest preview if it exists
         """
 
         previews = self.get_preview_properties()
@@ -435,8 +460,10 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
 
         for preview in previews:
             if image_large_enough_fdo(QSize(preview.get_width(), preview.get_height())):
-                if not (self.ext in self.ignore_tiff_preview_256 and
-                            preview.get_mime_type() == 'image/tiff'):
+                if not (
+                    self.ext in self.ignore_tiff_preview_256
+                    and preview.get_mime_type() == "image/tiff"
+                ):
                     break
 
         # At this point we have a preview that may or may not be bigger than 160x120.
@@ -460,57 +487,57 @@ class DummyMetaData(MetaData):
     def readMetadata(self):
         pass
 
-    def aperture(self, missing=''):
+    def aperture(self, missing=""):
         return "2.0"
 
-    def iso(self, missing=''):
+    def iso(self, missing=""):
         return "100"
 
-    def exposure_time(self, alternativeFormat=False, missing=''):
+    def exposure_time(self, alternativeFormat=False, missing=""):
         if alternativeFormat:
             return "4000"
         else:
             return "1/4000"
 
-    def focal_length(self, missing=''):
+    def focal_length(self, missing=""):
         return "135"
 
-    def camera_make(self, missing=''):
+    def camera_make(self, missing=""):
         return "Canon"
 
-    def camera_model(self, missing=''):
+    def camera_model(self, missing=""):
         return "Canon EOS 5D"
 
-    def short_camera_model(self, includeCharacters='', missing=''):
+    def short_camera_model(self, includeCharacters="", missing=""):
         return "5D"
 
-    def camera_serial(self, missing=''):
-        return '730402168'
+    def camera_serial(self, missing=""):
+        return "730402168"
 
-    def shutter_count(self, missing=''):
-        return '387'
+    def shutter_count(self, missing=""):
+        return "387"
 
-    def owner_name(self, missing=''):
-        return 'Photographer Name'
+    def owner_name(self, missing=""):
+        return "Photographer Name"
 
-    def date_time(self, missing='', ignore_file_modify_date=False):
+    def date_time(self, missing="", ignore_file_modify_date=False):
         return datetime.datetime.now()
 
-    def subSeconds(self, missing='00'):
-        return '57'
+    def subSeconds(self, missing="00"):
+        return "57"
 
-    def orientation(self, missing=''):
+    def orientation(self, missing=""):
         return 1
 
-    def file_number(self, missing=''):
-        return '428'
+    def file_number(self, missing=""):
+        return "428"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
 
-    if (len(sys.argv) != 2):
-        print('Usage: ' + sys.argv[0] + ' path/to/photo/containing/metadata')
+    if len(sys.argv) != 2:
+        print("Usage: " + sys.argv[0] + " path/to/photo/containing/metadata")
         m = DummyMetaData()
         et_process = None
     else:
@@ -518,20 +545,20 @@ if __name__ == '__main__':
         et_process.start()
         m = MetaData(full_file_name=sys.argv[1], et_process=et_process)
 
-    print("f" + m.aperture('missing '))
-    print("ISO " + m.iso('missing '))
-    print(m.exposure_time(missing='missing ') + " sec")
-    print(m.exposure_time(alternativeFormat=True, missing='missing '))
-    print(m.focal_length('missing ') + "mm")
+    print("f" + m.aperture("missing "))
+    print("ISO " + m.iso("missing "))
+    print(m.exposure_time(missing="missing ") + " sec")
+    print(m.exposure_time(alternativeFormat=True, missing="missing "))
+    print(m.focal_length("missing ") + "mm")
     print(m.camera_make())
     print(m.camera_model())
     print(m.short_camera_model())
     print(m.short_camera_model(includeCharacters="\-"))
     print(m.date_time())
     print(m.orientation())
-    print('Serial number:', m.camera_serial(missing='missing'))
-    print('Shutter count:', m.shutter_count())
-    print('Subseconds:', m.sub_seconds(), type(m.sub_seconds()))
+    print("Serial number:", m.camera_serial(missing="missing"))
+    print("Shutter count:", m.shutter_count())
+    print("Subseconds:", m.sub_seconds(), type(m.sub_seconds()))
     print("File number:", m.file_number())
     preview = m.get_small_thumbnail_or_first_indexed_preview()
     if m is not None:

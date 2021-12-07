@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2016-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,8 +21,8 @@
 Dialog for editing download subfolder structure and file renaming
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 from typing import Dict, Optional, List, Union, Tuple, Sequence
 import webbrowser
@@ -31,24 +31,53 @@ import copy
 import logging
 
 
-
 from PyQt5.QtWidgets import (
-    QTextEdit, QApplication, QComboBox, QPushButton, QLabel, QDialog, QDialogButtonBox,
-    QVBoxLayout, QFormLayout, QGridLayout, QGroupBox, QScrollArea, QWidget, QFrame, QStyle,
-    QSizePolicy, QLineEdit, QMessageBox
+    QTextEdit,
+    QApplication,
+    QComboBox,
+    QPushButton,
+    QLabel,
+    QDialog,
+    QDialogButtonBox,
+    QVBoxLayout,
+    QFormLayout,
+    QGridLayout,
+    QGroupBox,
+    QScrollArea,
+    QWidget,
+    QFrame,
+    QStyle,
+    QSizePolicy,
+    QLineEdit,
+    QMessageBox,
 )
 from PyQt5.QtGui import (
-    QTextCharFormat, QFont, QTextCursor, QMouseEvent, QSyntaxHighlighter, QTextDocument, QBrush,
-    QColor, QFontMetrics, QKeyEvent, QResizeEvent, QStandardItem, QWheelEvent
+    QTextCharFormat,
+    QFont,
+    QTextCursor,
+    QMouseEvent,
+    QSyntaxHighlighter,
+    QTextDocument,
+    QBrush,
+    QColor,
+    QFontMetrics,
+    QKeyEvent,
+    QResizeEvent,
+    QStandardItem,
+    QWheelEvent,
 )
-from PyQt5.QtCore import (Qt, pyqtSlot, QSignalMapper, QSize, pyqtSignal)
+from PyQt5.QtCore import Qt, pyqtSlot, QSignalMapper, QSize, pyqtSignal
 
 from sortedcontainers import SortedList
 
 from raphodo.generatenameconfig import *
 import raphodo.generatename as gn
 from raphodo.constants import (
-    CustomColors, PrefPosition, NameGenerationType, PresetPrefType, PresetClass
+    CustomColors,
+    PrefPosition,
+    NameGenerationType,
+    PresetPrefType,
+    PresetClass,
 )
 from raphodo.rpdfile import SamplePhoto, SampleVideo, RPDFile, Photo, Video, FileType
 from raphodo.preferences import DownloadsTodayTracker, Preferences, match_pref_list
@@ -56,7 +85,9 @@ import raphodo.exiftool as exiftool
 from raphodo.utilities import remove_last_char_from_list_str
 from raphodo.messagewidget import MessageWidget
 from raphodo.viewutils import (
-    translateDialogBoxButtons, standardMessageBox, translateMessageBoxButtons
+    translateDialogBoxButtons,
+    standardMessageBox,
+    translateMessageBoxButtons,
 )
 import raphodo.qrc_resources
 
@@ -83,19 +114,23 @@ class PrefEditor(QTextEdit):
         self.heightMax = 65000
         # Start out with about 4 lines in height:
         self.setMinimumHeight(QFontMetrics(self.font()).lineSpacing() * 5)
-        self.document().documentLayout().documentSizeChanged.connect(self.wrapHeightToContents)
+        self.document().documentLayout().documentSizeChanged.connect(
+            self.wrapHeightToContents
+        )
 
     def wrapHeightToContents(self) -> None:
         """
         Adjust the text area size to show contents without vertical scrollbar
 
         Derived from:
-        http://stackoverflow.com/questions/11851020/a-qwidget-like-qtextedit-that-wraps-its-height-
-        automatically-to-its-contents/11858803#11858803
+        http://stackoverflow.com/questions/11851020/a-qwidget-like-qtextedit-that-wraps-its-height-automatically-to-its-contents/11858803#11858803
         """
 
         docHeight = self.document().size().height() + 5
-        if self.heightMin <= docHeight <= self.heightMax and docHeight > self.minimumHeight():
+        if (
+            self.heightMin <= docHeight <= self.heightMax
+            and docHeight > self.minimumHeight()
+        ):
             self.setMinimumHeight(docHeight)
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
@@ -136,8 +171,16 @@ class PrefEditor(QTextEdit):
         if cursor.hasSelection() and key in (Qt.Key_Left, Qt.Key_Right):
             # Pass the key press on and let the selection deselect
             pass
-        elif key in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Home, Qt.Key_End, Qt.Key_PageUp,
-                   Qt.Key_PageDown, Qt.Key_Up, Qt.Key_Down):
+        elif key in (
+            Qt.Key_Left,
+            Qt.Key_Right,
+            Qt.Key_Home,
+            Qt.Key_End,
+            Qt.Key_PageUp,
+            Qt.Key_PageDown,
+            Qt.Key_Up,
+            Qt.Key_Down,
+        ):
             # Navigation key was pressed
 
             # Was ctrl key pressed too?
@@ -214,7 +257,7 @@ class PrefEditor(QTextEdit):
         left_start = left_end = -1
         pref_position = PrefPosition.not_here
         b = self.highlighter.boundaries
-        if not(len(b)):
+        if not (len(b)):
             return (pref_position, start, end, left_start, left_end)
 
         index = b.bisect_left((position, 0))
@@ -233,11 +276,11 @@ class PrefEditor(QTextEdit):
                 left_start, left_end = b[-1]
                 pref_position = PrefPosition.on_left
         else:
-            left = b[index -1]
+            left = b[index - 1]
             right = b[index]
 
             at = right[0] == position
-            to_left = left[1] == position -1
+            to_left = left[1] == position - 1
             if at and to_left:
                 pref_position = PrefPosition.on_left_and_at
                 start, end = right
@@ -259,22 +302,22 @@ class PrefEditor(QTextEdit):
         values = []
         for i in range(0, len(pref_list), 3):
             try:
-                value = '<{}>'.format(self.pref_mapper[(p[i], p[i+1], p[i+2])])
+                value = "<{}>".format(self.pref_mapper[(p[i], p[i + 1], p[i + 2])])
             except KeyError:
                 if p[i] == SEPARATOR:
                     value = SEPARATOR
                 else:
                     assert p[i] == TEXT
-                    value = p[i+1]
+                    value = p[i + 1]
             values.append(value)
 
         self.document().clear()
         cursor = self.textCursor()  # type: QTextCursor
-        cursor.insertText(''.join(values))
+        cursor.insertText("".join(values))
 
     def insertPrefValue(self, pref_value: str) -> None:
         cursor = self.textCursor()  # type: QTextCursor
-        cursor.insertText('<{}>'.format(pref_value))
+        cursor.insertText("<{}>".format(pref_value))
 
     def _setHighlighter(self) -> None:
         self.highlighter = PrefHighlighter(
@@ -285,8 +328,9 @@ class PrefEditor(QTextEdit):
         # generate the preference list
         self.highlighter.blockHighlighted.connect(self.generatePrefList)
 
-    def setPrefMapper(self, pref_mapper: Dict[Tuple[str, str, str], str],
-                      pref_color: Dict[str, str]) -> None:
+    def setPrefMapper(
+        self, pref_mapper: Dict[Tuple[str, str, str], str], pref_color: Dict[str, str]
+    ) -> None:
         self.pref_mapper = pref_mapper
         self.string_to_pref_mapper = {value: key for key, value in pref_mapper.items()}
 
@@ -298,14 +342,14 @@ class PrefEditor(QTextEdit):
             text_fragments = text_fragment.split(os.sep)
             for index, text_fragment in enumerate(text_fragments):
                 if text_fragment:
-                    self.user_pref_list.extend([TEXT, text_fragment, ''])
-                    self.user_pref_colors.append('')
+                    self.user_pref_list.extend([TEXT, text_fragment, ""])
+                    self.user_pref_colors.append("")
                 if index < len(text_fragments) - 1:
-                    self.user_pref_list.extend([SEPARATOR, '', ''])
-                    self.user_pref_colors.append('')
+                    self.user_pref_list.extend([SEPARATOR, "", ""])
+                    self.user_pref_colors.append("")
         else:
-            self.user_pref_list.extend([TEXT, text_fragment, ''])
-            self.user_pref_colors.append('')
+            self.user_pref_list.extend([TEXT, text_fragment, ""])
+            self.user_pref_colors.append("")
 
     def _addColor(self, pref_defn: str) -> None:
         self.user_pref_colors.append(self.pref_color[pref_defn])
@@ -325,27 +369,27 @@ class PrefEditor(QTextEdit):
 
         # Handle any text at the very beginning
         if b and b[0][0] > 0:
-            text_fragment = text[:b[0][0]]
+            text_fragment = text[: b[0][0]]
             self._parseTextFragment(text_fragment)
 
         if len(b) > 1:
             for index, item in enumerate(b[1:]):
                 start, end = b[index]
                 # Add + 1 to start to remove the opening <
-                pl.extend(self.string_to_pref_mapper[text[start + 1: end]])
+                pl.extend(self.string_to_pref_mapper[text[start + 1 : end]])
                 # Add + 1 to start to include the closing >
-                self._addColor(text[start: end + 1])
+                self._addColor(text[start : end + 1])
 
-                text_fragment = text[b[index][1] + 1:item[0]]
+                text_fragment = text[b[index][1] + 1 : item[0]]
                 self._parseTextFragment(text_fragment)
 
         # Handle the final pref value
         if b:
             start, end = b[-1]
             # Add + 1 to start to remove the opening <
-            pl.extend(self.string_to_pref_mapper[text[start + 1: end]])
+            pl.extend(self.string_to_pref_mapper[text[start + 1 : end]])
             # Add + 1 to start to include the closing >
-            self._addColor(text[start: end + 1])
+            self._addColor(text[start : end + 1])
             final = end + 1
         else:
             final = 0
@@ -367,16 +411,19 @@ class PrefHighlighter(QSyntaxHighlighter):
 
     blockHighlighted = pyqtSignal()
 
-    def __init__(self, pref_defn_strings: List[str],
-                 pref_color: Dict[str, str],
-                 document: QTextDocument) -> None:
+    def __init__(
+        self,
+        pref_defn_strings: List[str],
+        pref_color: Dict[str, str],
+        document: QTextDocument,
+    ) -> None:
         super().__init__(document)
 
         # Where detected preference values start and end:
         # [(start, end), (start, end), ...]
         self.boundaries = SortedList()
 
-        pref_defns = ('<{}>'.format(pref) for pref in pref_defn_strings)
+        pref_defns = ("<{}>".format(pref) for pref in pref_defn_strings)
         self.highlightingRules = []
         for pref in pref_defns:
             format = QTextCharFormat()
@@ -396,7 +443,8 @@ class PrefHighlighter(QSyntaxHighlighter):
         while True:
             start = text.find(pref_defn, start)
             if start == -1:
-                return  # do not use raise StopIteration as it is Python 3.7 incompatible
+                # do not use raise StopIteration as it is Python 3.7 incompatible
+                return
             yield start
             start += len(pref_defn)
 
@@ -449,7 +497,9 @@ def make_rename_menu_entry(prefs: Tuple[str]) -> str:
     # Translators: %(variable)s represents Python code, not a plural of the term
     # variable. You must keep the %(variable)s untranslated, or the program will
     # crash.
-    return _("%(description)s - %(elements)s") % dict(description=desc, elements=elements)
+    return _("%(description)s - %(elements)s") % dict(
+        description=desc, elements=elements
+    )
 
 
 class PresetComboBox(QComboBox):
@@ -461,11 +511,14 @@ class PresetComboBox(QComboBox):
     also in the rename files panel.
     """
 
-    def __init__(self, prefs: Preferences,
-                 preset_names: List[str],
-                 preset_type: PresetPrefType,
-                 edit_mode: bool,
-                 parent=None) -> None:
+    def __init__(
+        self,
+        prefs: Preferences,
+        preset_names: List[str],
+        preset_type: PresetPrefType,
+        edit_mode: bool,
+        parent=None,
+    ) -> None:
         """
         :param prefs: program preferences
         :param preset_names: list of custom preset names
@@ -529,11 +582,11 @@ class PresetComboBox(QComboBox):
         self.insertSeparator(idx)
 
         if self.edit_mode:
-            self.addItem(_('Save New Custom Preset...'), PresetClass.new_preset)
-            self.addItem(_('Remove All Custom Presets...'), PresetClass.remove_all)
+            self.addItem(_("Save New Custom Preset..."), PresetClass.new_preset)
+            self.addItem(_("Remove All Custom Presets..."), PresetClass.remove_all)
             self.setRemoveAllCustomEnabled(bool(len(preset_names)))
         else:
-            self.addItem(_('Custom...'), PresetClass.start_editor)
+            self.addItem(_("Custom..."), PresetClass.start_editor)
 
     def resetEntries(self, preset_names: List[str]) -> None:
         assert not self.edit_mode
@@ -567,7 +620,7 @@ class PresetComboBox(QComboBox):
         elif self.preset_edited:
             self.resetPresetList()
         end = start + no_presets
-        for row in range(end, start -1, -1):
+        for row in range(end, start - 1, -1):
             self.removeItem(row)
         self.preset_separator = False
 
@@ -576,7 +629,7 @@ class PresetComboBox(QComboBox):
         assert not self.preset_edited
         if self.new_preset:
             return
-        item_text = _('(New Custom Preset)')
+        item_text = _("(New Custom Preset)")
         self.new_preset = True
         self.insertItem(0, item_text, PresetClass.edited)
         self.insertSeparator(1)
@@ -593,7 +646,7 @@ class PresetComboBox(QComboBox):
         assert self.edit_mode
         assert not self.new_preset
         assert not self.preset_edited
-        item_text = _('%s (edited)') % text
+        item_text = _("%s (edited)") % text
         self.insertItem(0, item_text, PresetClass.edited)
         self.insertSeparator(1)
         self.addItem(_('Update Custom Preset "%s"') % text, PresetClass.update_preset)
@@ -697,11 +750,13 @@ class CreatePreset(QDialog):
         self.name.setMinimumWidth(metrics.width(title))
         self.name.textEdited.connect(self.nameEdited)
         flayout = QFormLayout()
-        flayout.addRow(_('Preset Name:'), self.name)
+        flayout.addRow(_("Preset Name:"), self.name)
 
         buttonBox = QDialogButtonBox()
         buttonBox.addButton(QDialogButtonBox.Cancel)  # type: QPushButton
-        self.saveButton = buttonBox.addButton(QDialogButtonBox.Save)  # type: QPushButton
+        self.saveButton = buttonBox.addButton(
+            QDialogButtonBox.Save
+        )  # type: QPushButton
         self.saveButton.setEnabled(False)
         translateDialogBoxButtons(buttonBox)
         buttonBox.rejected.connect(self.reject)
@@ -728,11 +783,12 @@ class CreatePreset(QDialog):
         return self.name.text()
 
 
-def make_sample_rpd_file(sample_job_code: str,
-                         prefs: Preferences,
-                         generation_type: NameGenerationType,
-                         sample_rpd_file: Optional[Union[Photo, Video]]=None) -> Union[
-                                                                                 Photo, Video]:
+def make_sample_rpd_file(
+    sample_job_code: str,
+    prefs: Preferences,
+    generation_type: NameGenerationType,
+    sample_rpd_file: Optional[Union[Photo, Video]] = None,
+) -> Union[Photo, Video]:
     """
     Create a sample_rpd_file used for displaying to the user an example of their
     file renaming preference in action on a sample file.
@@ -746,21 +802,24 @@ def make_sample_rpd_file(sample_job_code: str,
     """
 
     downloads_today_tracker = DownloadsTodayTracker(
-        day_start=prefs.day_start,
-        downloads_today=prefs.downloads_today
+        day_start=prefs.day_start, downloads_today=prefs.downloads_today
     )
     sequences = gn.Sequences(downloads_today_tracker, prefs.stored_sequence_no)
     if sample_rpd_file is not None:
         if sample_rpd_file.metadata is None:
-            logging.error('Sample file %s is missing its metadata', sample_rpd_file.full_file_name)
+            logging.error(
+                "Sample file %s is missing its metadata", sample_rpd_file.full_file_name
+            )
             sample_rpd_file = None
         else:
             sample_rpd_file.sequences = sequences
             sample_rpd_file.download_start_time = datetime.datetime.now()
 
-    if sample_rpd_file is  None:
-        if generation_type in (NameGenerationType.photo_name,
-                               NameGenerationType.photo_subfolder):
+    if sample_rpd_file is None:
+        if generation_type in (
+            NameGenerationType.photo_name,
+            NameGenerationType.photo_subfolder,
+        ):
             sample_rpd_file = SamplePhoto(sequences=sequences)
         else:
             sample_rpd_file = SampleVideo(sequences=sequences)
@@ -789,13 +848,16 @@ class PrefDialog(QDialog):
     Dialog window to allow editing of file renaming and subfolder generation
     """
 
-    def __init__(self, pref_defn: OrderedDict,
-                 user_pref_list: List[str],
-                 generation_type: NameGenerationType,
-                 prefs: Preferences,
-                 sample_rpd_file: Optional[Union[Photo, Video]]=None,
-                 max_entries=0,
-                 parent=None) -> None:
+    def __init__(
+        self,
+        pref_defn: OrderedDict,
+        user_pref_list: List[str],
+        generation_type: NameGenerationType,
+        prefs: Preferences,
+        sample_rpd_file: Optional[Union[Photo, Video]] = None,
+        max_entries=0,
+        parent=None,
+    ) -> None:
         """
         Set up dialog to display all its controls based on the preference
         definition being used.
@@ -821,29 +883,35 @@ class PrefDialog(QDialog):
 
         self.generation_type = generation_type
         if generation_type == NameGenerationType.photo_subfolder:
-            self.setWindowTitle(_('Photo Subfolder Generation Editor'))
+            self.setWindowTitle(_("Photo Subfolder Generation Editor"))
             self.preset_type = PresetPrefType.preset_photo_subfolder
             self.builtin_pref_lists = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV
-            self.builtin_pref_names = [make_subfolder_menu_entry(pref)
-                                       for pref in PHOTO_SUBFOLDER_MENU_DEFAULTS]
+            self.builtin_pref_names = [
+                make_subfolder_menu_entry(pref)
+                for pref in PHOTO_SUBFOLDER_MENU_DEFAULTS
+            ]
         elif generation_type == NameGenerationType.video_subfolder:
-            self.setWindowTitle(_('Video Subfolder Generation Editor'))
+            self.setWindowTitle(_("Video Subfolder Generation Editor"))
             self.preset_type = PresetPrefType.preset_video_subfolder
             self.builtin_pref_lists = VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV
-            self.builtin_pref_names = [make_subfolder_menu_entry(pref)
-                                       for pref in VIDEO_SUBFOLDER_MENU_DEFAULTS]
+            self.builtin_pref_names = [
+                make_subfolder_menu_entry(pref)
+                for pref in VIDEO_SUBFOLDER_MENU_DEFAULTS
+            ]
         elif generation_type == NameGenerationType.photo_name:
-            self.setWindowTitle(_('Photo Renaming Editor'))
+            self.setWindowTitle(_("Photo Renaming Editor"))
             self.preset_type = PresetPrefType.preset_photo_rename
             self.builtin_pref_lists = PHOTO_RENAME_MENU_DEFAULTS_CONV
-            self.builtin_pref_names = [make_rename_menu_entry(pref)
-                                       for pref in PHOTO_RENAME_MENU_DEFAULTS]
+            self.builtin_pref_names = [
+                make_rename_menu_entry(pref) for pref in PHOTO_RENAME_MENU_DEFAULTS
+            ]
         else:
-            self.setWindowTitle(_('Video Renaming Editor'))
+            self.setWindowTitle(_("Video Renaming Editor"))
             self.preset_type = PresetPrefType.preset_video_rename
             self.builtin_pref_lists = VIDEO_RENAME_MENU_DEFAULTS_CONV
-            self.builtin_pref_names = [make_rename_menu_entry(pref)
-                                       for pref in VIDEO_RENAME_MENU_DEFAULTS]
+            self.builtin_pref_names = [
+                make_rename_menu_entry(pref) for pref in VIDEO_RENAME_MENU_DEFAULTS
+            ]
 
         self.prefs = prefs
         self.max_entries = max_entries
@@ -857,9 +925,9 @@ class PrefDialog(QDialog):
 
         self.sample_rpd_file = make_sample_rpd_file(
             sample_rpd_file=sample_rpd_file,
-            sample_job_code=self.prefs.most_recent_job_code(missing=_('Job Code')),
+            sample_job_code=self.prefs.most_recent_job_code(missing=_("Job Code")),
             prefs=self.prefs,
-            generation_type=generation_type
+            generation_type=generation_type,
         )
 
         # Setup widgets and helper values
@@ -867,41 +935,44 @@ class PrefDialog(QDialog):
         # Translators: please do not modify or leave out html formatting tags like <i> and
         # <b>. These are used to format the text the users sees
         warning_msg = _(
-            '<b><font color="red">Warning:</font></b> <i>There is insufficient data to fully '
-            'generate the name. Please use other renaming options.</i>'
+            '<b><font color="red">Warning:</font></b> <i>There is insufficient data to '
+            'fully generate the name. Please use other renaming options.</i>'
         )
 
         self.is_subfolder = generation_type in (
-            NameGenerationType.photo_subfolder, NameGenerationType.video_subfolder
+            NameGenerationType.photo_subfolder,
+            NameGenerationType.video_subfolder,
         )
 
         if self.is_subfolder:
-            # Translators: please do not modify, change the order of or leave out html formatting
-            # tags like <i> and <b>. These are used to format the text the users sees.
-            # In this case, the </i> really is supposed to come before the <i>.
+            # Translators: please do not modify, change the order of or leave out html
+            # formatting tags like <i> and <b>. These are used to format the text the
+            # users sees. In this case, the </i> really is supposed to come before the
+            # <i>.
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
             # crash.
             subfolder_msg = _(
                 "The character</i> %(separator)s <i>creates a new subfolder level."
             ) % dict(separator=os.sep)
-            # Translators: please do not modify, change the order of or leave out html formatting
-            # tags like <i> and <b>. These are used to format the text the users sees
-            # In this case, the </i> really is supposed to come before the <i>.
+            # Translators: please do not modify, change the order of or leave out html
+            # formatting tags like <i> and <b>. These are used to format the text the
+            # users sees In this case, the </i> really is supposed to come before the
+            # <i>.
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
             # crash.
             subfolder_first_char_msg = _(
-                "There is no need start or end with the folder separator </i> %(separator)s<i>, "
-                "because it is added automatically."
+                "There is no need start or end with the folder separator </i> "
+                "%(separator)s<i>, because it is added automatically."
             ) % dict(separator=os.sep)
             messages = (warning_msg, subfolder_msg, subfolder_first_char_msg)
         else:
-            # Translators: please do not modify or leave out html formatting tags like <i> and
-            # <b>. These are used to format the text the users sees
+            # Translators: please do not modify or leave out html formatting tags like
+            # <i> and <b>. These are used to format the text the users sees
             unique_msg = _(
-                '<b><font color="red">Warning:</font></b> <i>Unique filenames may not be '
-                'generated. Make filenames unique by using Sequence values.</i>'
+                '<b><font color="red">Warning:</font></b> <i>Unique filenames may not '
+                'be generated. Make filenames unique by using Sequence values.</i>'
             )
             messages = (warning_msg, unique_msg)
 
@@ -919,14 +990,16 @@ class PrefDialog(QDialog):
 
         # Combobox with built-in and user defined presets
         self.preset = PresetComboBox(
-            prefs=prefs, preset_names=self.preset_names, preset_type=self.preset_type,
-            edit_mode=True
+            prefs=prefs,
+            preset_names=self.preset_names,
+            preset_type=self.preset_type,
+            edit_mode=True,
         )
         self.preset.activated.connect(self.presetComboItemActivated)
 
         glayout = QGridLayout()
-        presetLabel = QLabel(_('Preset:'))
-        exampleLabel = QLabel(_('Example:'))
+        presetLabel = QLabel(_("Preset:"))
+        exampleLabel = QLabel(_("Example:"))
 
         glayout.addWidget(presetLabel, 0, 0)
         glayout.addWidget(self.preset, 0, 1)
@@ -984,12 +1057,12 @@ class PrefDialog(QDialog):
             gb.setLayout(gLayout)
             if level1 is None:
                 assert title == JOB_CODE
-                widget1 = QLabel(' ' + title_i18n)
+                widget1 = QLabel(" " + title_i18n)
                 widget2 = self.makeInsertButton()
                 self.widget_mapper[title] = widget1
                 self.mapper.setMapping(widget2, title)
-                self.pref_mapper[(title, '', '')] = title_i18n
-                self.pref_color['<{}>'.format(title_i18n)] = color
+                self.pref_mapper[(title, "", "")] = title_i18n
+                self.pref_color["<{}>".format(title_i18n)] = color
                 gLayout.addWidget(self.makeColorCodeLabel(color), 0, 0)
                 gLayout.addWidget(widget1, 0, 1)
                 gLayout.addWidget(widget2, 0, 2)
@@ -1001,19 +1074,20 @@ class PrefDialog(QDialog):
                     level2 = level1[element]
                     if level2 is None:
                         elements.append(element_i18n)
-                        data.append([METADATA, element, ''])
-                        self.pref_mapper[(METADATA, element, '')] = element_i18n
-                        self.pref_color['<{}>'.format(element_i18n)] = color
+                        data.append([METADATA, element, ""])
+                        self.pref_mapper[(METADATA, element, "")] = element_i18n
+                        self.pref_color["<{}>".format(element_i18n)] = color
                     else:
                         for e in level2:
                             e_i18n = _(e)
                             # Translators: appears in a combobox, e.g. Image Date (YYYY)
-                            item = _('{choice} ({variant})').format(choice=element_i18n,
-                                                                    variant=e_i18n)
+                            item = _("{choice} ({variant})").format(
+                                choice=element_i18n, variant=e_i18n
+                            )
                             elements.append(item)
                             data.append([METADATA, element, e])
                             self.pref_mapper[(METADATA, element, e)] = item
-                            self.pref_color['<{}>'.format(item)] = color
+                            self.pref_color["<{}>".format(item)] = color
                 widget1 = EditorCombobox()
                 for element, data_item in zip(elements, data):
                     widget1.addItem(element, data_item)
@@ -1029,15 +1103,20 @@ class PrefDialog(QDialog):
                 for row, level1 in enumerate(pref_defn[title]):
                     widget1 = EditorCombobox()
                     level1_i18n = _(level1)
-                    items = (_('{choice} ({variant})').format(
-                             choice=level1_i18n, variant=_(element))
-                             for element in pref_defn[title][level1])
-                    data = ([title, level1, element] for element in pref_defn[title][level1])
+                    items = (
+                        _("{choice} ({variant})").format(
+                            choice=level1_i18n, variant=_(element)
+                        )
+                        for element in pref_defn[title][level1]
+                    )
+                    data = (
+                        [title, level1, element] for element in pref_defn[title][level1]
+                    )
                     for item, data_item in zip(items, data):
                         widget1.addItem(item, data_item)
                         self.pref_mapper[tuple(data_item)] = item
-                        self.pref_color['<{}>'.format(item)] = color
-                    widget2 =  self.makeInsertButton()
+                        self.pref_color["<{}>".format(item)] = color
+                    widget2 = self.makeInsertButton()
                     widget1.currentTextChanged.connect(self.mapper.map)
 
                     self.mapper.setMapping(widget2, level1)
@@ -1054,7 +1133,7 @@ class PrefDialog(QDialog):
         )
         self.helpButton = buttonBox.button(QDialogButtonBox.Help)  # type: QPushButton
         self.helpButton.clicked.connect(self.helpButtonClicked)
-        self.helpButton.setToolTip(_('Get help online...'))
+        self.helpButton.setToolTip(_("Get help online..."))
         translateDialogBoxButtons(buttonBox)
 
         buttonBox.rejected.connect(self.reject)
@@ -1069,14 +1148,19 @@ class PrefDialog(QDialog):
         self.setWidgetSizes()
 
     def helpButtonClicked(self) -> None:
-        if self.generation_type in (NameGenerationType.photo_name, NameGenerationType.video_name):
-            location = '#rename'
+        if self.generation_type in (
+            NameGenerationType.photo_name,
+            NameGenerationType.video_name,
+        ):
+            location = "#rename"
         else:
-            location = '#subfoldergeneration'
-        webbrowser.open_new_tab("http://www.damonlynch.net/rapid/documentation/{}".format(location))
+            location = "#subfoldergeneration"
+        webbrowser.open_new_tab(
+            "http://www.damonlynch.net/rapid/documentation/{}".format(location)
+        )
 
     def makeInsertButton(self) -> QPushButton:
-        w = QPushButton(_('Insert'))
+        w = QPushButton(_("Insert"))
         w.clicked.connect(self.mapper.map)
         w.setSizePolicy(self.pushButtonSizePolicy)
         return w
@@ -1123,8 +1207,8 @@ class PrefDialog(QDialog):
         :return: the square in form of a label
         """
 
-        colorLabel = QLabel(' ')
-        colorLabel.setStyleSheet('QLabel {background-color: %s;}' % color)
+        colorLabel = QLabel(" ")
+        colorLabel.setStyleSheet("QLabel {background-color: %s;}" % color)
         size = QFontMetrics(QFont()).height()
         colorLabel.setFixedSize(QSize(size, size))
         return colorLabel
@@ -1144,13 +1228,16 @@ class PrefDialog(QDialog):
                 try:
                     user_pref_list.index(SEPARATOR)
                 except ValueError:
-                    # Inform the user that a subfolder separator (os.sep) is used to create
-                    # subfolder levels
+                    # Inform the user that a subfolder separator (os.sep) is used to
+                    # create subfolder levels
                     self.messageWidget.setCurrentIndex(2)
                 else:
-                    if user_pref_list[0] == SEPARATOR or user_pref_list[-3] == SEPARATOR:
-                        # inform the user that there is no need to start or finish with a
-                        # subfolder separator (os.sep)
+                    if (
+                        user_pref_list[0] == SEPARATOR
+                        or user_pref_list[-3] == SEPARATOR
+                    ):
+                        # inform the user that there is no need to start or finish
+                        # with a subfolder separator (os.sep)
                         self.messageWidget.setCurrentIndex(3)
             else:
                 # Inform the user that a subfolder separator (os.sep) is used to create
@@ -1158,7 +1245,8 @@ class PrefDialog(QDialog):
                 self.messageWidget.setCurrentIndex(2)
 
             changed, user_pref_list, self.user_pref_colors = filter_subfolder_prefs(
-                user_pref_list, self.user_pref_colors)
+                user_pref_list, self.user_pref_colors
+            )
         else:
             try:
                 user_pref_list.index(SEQUENCES)
@@ -1176,7 +1264,9 @@ class PrefDialog(QDialog):
             assert self.generation_type == NameGenerationType.video_subfolder
             self.name_generator = gn.VideoSubfolder(user_pref_list)
 
-        self.name_parts = self.name_generator.generate_name(self.sample_rpd_file, parts=True)
+        self.name_parts = self.name_generator.generate_name(
+            self.sample_rpd_file, parts=True
+        )
         self.showExample()
         self.updateComboBoxCurrentIndex()
 
@@ -1214,30 +1304,36 @@ class PrefDialog(QDialog):
 
         parts = copy.copy(self.name_parts)
         metrics = QFontMetrics(self.example.font())
-        width = self.example.width() - metrics.width('…')
+        width = self.example.width() - metrics.width("…")
 
         # Cannot elide rich text using Qt code. Thus, elide the plain text.
-        plain_text_name = ''.join(parts)
+        plain_text_name = "".join(parts)
 
         if self.is_subfolder:
-            plain_text_name = self.name_generator.filter_subfolder_characters(plain_text_name)
+            plain_text_name = self.name_generator.filter_subfolder_characters(
+                plain_text_name
+            )
         elided_text = metrics.elidedText(plain_text_name, Qt.ElideRight, width)
         elided = False
 
         while plain_text_name != elided_text:
             elided = True
             parts = remove_last_char_from_list_str(parts)
-            plain_text_name = ''.join(parts)
+            plain_text_name = "".join(parts)
             if self.is_subfolder:
-                plain_text_name = self.name_generator.filter_subfolder_characters(plain_text_name)
+                plain_text_name = self.name_generator.filter_subfolder_characters(
+                    plain_text_name
+                )
             elided_text = metrics.elidedText(plain_text_name, Qt.ElideRight, width)
 
-        colored_parts = ['<span style="color: {};">{}</span>'.format(color, part) if color else part
-                         for part, color in zip(parts, user_pref_colors)]
+        colored_parts = [
+            '<span style="color: {};">{}</span>'.format(color, part) if color else part
+            for part, color in zip(parts, user_pref_colors)
+        ]
 
-        name = ''.join(colored_parts)
+        name = "".join(colored_parts)
         if elided:
-            name = '{}&hellip;'.format(name)
+            name = "{}&hellip;".format(name)
 
         if self.is_subfolder:
             name = self.name_generator.filter_subfolder_characters(name)
@@ -1268,7 +1364,7 @@ class PrefDialog(QDialog):
         :param index: index of the item activated
         """
 
-        preset_class =  self.preset.currentData()
+        preset_class = self.preset.currentData()
         if preset_class == PresetClass.new_preset:
             createPreset = CreatePreset(existing_custom_names=self.preset_names)
             if createPreset.exec():
@@ -1318,8 +1414,9 @@ class PrefDialog(QDialog):
         else:
             self._updateCombinedPrefs()
             self.prefs.set_preset(
-                preset_type=self.preset_type, preset_names=self.preset_names,
-                preset_pref_lists=self.preset_pref_lists
+                preset_type=self.preset_type,
+                preset_names=self.preset_names,
+                preset_pref_lists=self.preset_pref_lists,
             )
 
     def movePresetToFront(self, index: int) -> None:
@@ -1343,8 +1440,9 @@ class PrefDialog(QDialog):
         self.preset_pref_lists.insert(0, pref_list)
         self._updateCombinedPrefs()
         self.prefs.set_preset(
-            preset_type=self.preset_type, preset_names=self.preset_names,
-            preset_pref_lists=self.preset_pref_lists
+            preset_type=self.preset_type,
+            preset_names=self.preset_names,
+            preset_pref_lists=self.preset_pref_lists,
         )
 
     def saveNewPreset(self, preset_name: str) -> None:
@@ -1364,8 +1462,9 @@ class PrefDialog(QDialog):
         self.preset_pref_lists.insert(0, user_pref_list)
         self._updateCombinedPrefs()
         self.prefs.set_preset(
-            preset_type=self.preset_type, preset_names=self.preset_names,
-            preset_pref_lists=self.preset_pref_lists
+            preset_type=self.preset_type,
+            preset_names=self.preset_names,
+            preset_pref_lists=self.preset_pref_lists,
         )
 
     def clearCustomPresets(self) -> None:
@@ -1381,18 +1480,22 @@ class PrefDialog(QDialog):
         self.current_custom_name = None
         self._updateCombinedPrefs()
         self.prefs.set_preset(
-            preset_type=self.preset_type, preset_names=self.preset_names,
-            preset_pref_lists=self.preset_pref_lists
+            preset_type=self.preset_type,
+            preset_names=self.preset_names,
+            preset_pref_lists=self.preset_pref_lists,
         )
 
     def updateCachedPrefLists(self) -> None:
         self.preset_names, self.preset_pref_lists = self.prefs.get_preset(
-            preset_type=self.preset_type)
+            preset_type=self.preset_type
+        )
         self._updateCombinedPrefs()
 
     def _updateCombinedPrefs(self):
         self.combined_pref_names = self.builtin_pref_names + self.preset_names
-        self.combined_pref_lists = self.builtin_pref_lists + tuple(self.preset_pref_lists)
+        self.combined_pref_lists = self.builtin_pref_lists + tuple(
+            self.preset_pref_lists
+        )
 
     def getPresetMatch(self) -> Tuple[int, int]:
         """
@@ -1401,7 +1504,8 @@ class PrefDialog(QDialog):
         """
 
         index = match_pref_list(
-            pref_lists=self.combined_pref_lists, user_pref_list=self.editor.user_pref_list
+            pref_lists=self.combined_pref_lists,
+            user_pref_list=self.editor.user_pref_list,
         )
         if index >= 0:
             combobox_name = self.combined_pref_names[index]
@@ -1422,15 +1526,18 @@ class PrefDialog(QDialog):
             if self.preset.new_preset:
 
                 message = _(
-                    "<b>Do you want to save the changes in a new custom preset?</b><br><br>"
+                    "<b>Do you want to save the changes in a new custom preset?</b>"
+                    "<br><br>"
                     "Creating a custom preset is not required, but can help you keep "
                     "organized.<br><br>"
-                    "The changes to the preferences will still be applied regardless of "
-                    "whether you create a new custom preset or not."
+                    "The changes to the preferences will still be applied regardless "
+                    "of whether you create a new custom preset or not."
                 )
                 msgBox = standardMessageBox(
                     standardButtons=QMessageBox.Yes | QMessageBox.No,
-                    title=title, rich_text=True, message=message
+                    title=title,
+                    rich_text=True,
+                    message=message,
                 )
                 updateButton = newButton = None
             else:
@@ -1443,16 +1550,19 @@ class PrefDialog(QDialog):
                     "<b>Do you want to save the changes in a custom preset?</b><br><br>"
                     "If you like, you can create a new custom preset or update the "
                     "existing custom preset.<br><br>"
-                    "The changes to the preferences will still be applied regardless of "
-                    "whether you save a custom preset or not."
+                    "The changes to the preferences will still be applied regardless "
+                    "of whether you save a custom preset or not."
                 )
                 msgBox.setText(message)
                 msgBox.addButton(QMessageBox.No)
                 translateMessageBoxButtons(msgBox)
                 updateButton = msgBox.addButton(
-                    _('Update Custom Preset "%s"') % self.current_custom_name, QMessageBox.YesRole
+                    _('Update Custom Preset "%s"') % self.current_custom_name,
+                    QMessageBox.YesRole,
                 )
-                newButton = msgBox.addButton(_('Save New Custom Preset'), QMessageBox.YesRole)
+                newButton = msgBox.addButton(
+                    _("Save New Custom Preset"), QMessageBox.YesRole
+                )
 
             choice = msgBox.exec()
             save_new = update = False
@@ -1485,7 +1595,7 @@ class PrefDialog(QDialog):
         super().accept()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # Application development test code:
 
@@ -1502,8 +1612,11 @@ if __name__ == '__main__':
     # prefDialog = PrefDialog(DICT_VIDEO_RENAME_L0, VIDEO_RENAME_MENU_DEFAULTS_CONV[1],
     #                         NameGenerationType.video_name, prefs)
     prefDialog = PrefDialog(
-        DICT_SUBFOLDER_L0, PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
-        NameGenerationType.photo_subfolder, prefs, max_entries=10
+        DICT_SUBFOLDER_L0,
+        PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
+        NameGenerationType.photo_subfolder,
+        prefs,
+        max_entries=10,
     )
     # prefDialog = PrefDialog(
     #     DICT_VIDEO_SUBFOLDER_L0, VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
@@ -1511,4 +1624,3 @@ if __name__ == '__main__':
     # )
     prefDialog.show()
     app.exec_()
-

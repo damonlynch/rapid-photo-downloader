@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,8 +19,8 @@
 # see <http://www.gnu.org/licenses/>.
 ### USA
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2007-2021, Damon Lynch"
 
 import re
 from datetime import datetime, timedelta
@@ -29,18 +29,21 @@ from collections import namedtuple
 import logging
 from typing import Sequence, Optional, List, Union
 import locale
+
 try:
     # Use the default locale as defined by the LANG variable
-    locale.setlocale(locale.LC_ALL, '')
+    locale.setlocale(locale.LC_ALL, "")
 except locale.Error:
     pass
 
 
-
 from raphodo.preferences import DownloadsTodayTracker
 from raphodo.problemnotification import (
-    RenamingProblems, FilenameNotFullyGeneratedProblem, make_href,
-    FolderNotFullyGeneratedProblemProblem, Problem
+    RenamingProblems,
+    FilenameNotFullyGeneratedProblem,
+    make_href,
+    FolderNotFullyGeneratedProblemProblem,
+    Problem,
 )
 from raphodo.rpdfile import RPDFile, Photo, Video
 from raphodo.storage import get_uri
@@ -50,7 +53,8 @@ from raphodo.generatenameconfig import *
 
 
 MatchedSequences = namedtuple(
-    'MatchedSequences', 'session_sequence_no, sequence_letter, downloads_today, stored_sequence_no'
+    "MatchedSequences",
+    "session_sequence_no, sequence_letter, downloads_today, stored_sequence_no",
 )
 
 
@@ -61,10 +65,9 @@ def convert_date_for_strftime(datetime_user_choice):
         raise PrefValueInvalidError(datetime_user_choice)
 
 
-class abstract_attribute():
+class abstract_attribute:
     """
-    http://stackoverflow.com/questions/32536176/how-to-define-lazy-variable-in-python-which-will-
-    raise-notimplementederror-for-a/32536493
+    http://stackoverflow.com/questions/32536176/how-to-define-lazy-variable-in-python-which-will-raise-notimplementederror-for-a/32536493
     """
 
     def __get__(self, obj, type):
@@ -84,16 +87,19 @@ class abstract_attribute():
                     this_obj = obj if obj else type
 
                     raise NotImplementedError(
-                         "%r does not have the attribute %r "
-                         "(abstract from class %r)" %
-                             (this_obj, name, cls.__name__))
+                        "%r does not have the attribute %r "
+                        "(abstract from class %r)" % (this_obj, name, cls.__name__)
+                    )
 
         # we did not find a match, should be rare, but prepare for it
         raise NotImplementedError(
-            "%s does not set the abstract attribute <unknown>", type.__name__)
+            "%s does not set the abstract attribute <unknown>", type.__name__
+        )
 
 
-GenerationErrors = Union[FilenameNotFullyGeneratedProblem, FolderNotFullyGeneratedProblemProblem]
+GenerationErrors = Union[
+    FilenameNotFullyGeneratedProblem, FolderNotFullyGeneratedProblemProblem
+]
 
 
 class NameGeneration:
@@ -102,9 +108,9 @@ class NameGeneration:
     of videos, as well as subfolder names for both file types
     """
 
-    def __init__(self,
-                 pref_list: List[str],
-                 problems: Optional[RenamingProblems]=None) -> None:
+    def __init__(
+        self, pref_list: List[str], problems: Optional[RenamingProblems] = None
+    ) -> None:
         self.pref_list = pref_list
         self.no_metadata = False
 
@@ -115,9 +121,9 @@ class NameGeneration:
         self.add_extension = abstract_attribute()
         self.L1_date_check = abstract_attribute()
 
-        self.L0 = ''
-        self.L1 = ''
-        self.L2 = ''
+        self.L0 = ""
+        self.L1 = ""
+        self.L2 = ""
 
     def _get_values_from_pref_list(self):
         for i in range(0, len(self.pref_list), 3):
@@ -135,11 +141,11 @@ class NameGeneration:
                 if self.L2 == SUBSECONDS:
                     d = datetime.fromtimestamp(self.rpd_file.modification_time)
                     if not d.microsecond:
-                        d = '00'
+                        d = "00"
                     try:
                         d = str(round(int(str(d.microsecond)[:3]) / 10))
                     except:
-                        d = '00'
+                        d = "00"
                     return d
                 d = datetime.fromtimestamp(self.rpd_file.ctime)
             else:
@@ -147,7 +153,7 @@ class NameGeneration:
                     d = self.rpd_file.metadata.sub_seconds(missing=None)
                     if d is None:
                         self.problem.missing_metadata.append(_(self.L2))
-                        return ''
+                        return ""
                     else:
                         return d
                 else:
@@ -169,7 +175,8 @@ class NameGeneration:
                 return d.strftime(convert_date_for_strftime(self.L2))
             except Exception as e:
                 logging.warning(
-                    "Problem converting date/time value for file %s", self.rpd_file.full_file_name
+                    "Problem converting date/time value for file %s",
+                    self.rpd_file.full_file_name,
                 )
                 self.problem.bad_converstion_date_time = True
                 self.problem.bad_conversion_exception = e
@@ -180,24 +187,26 @@ class NameGeneration:
                 d = datetime.fromtimestamp(self.rpd_file.modification_time)
             except Exception:
                 logging.error(
-                    "Both file modification time and metadata date & time are invalid for file %s",
-                    self.rpd_file.full_file_name
+                    "Both file modification time and metadata date & time are invalid "
+                    "for file %s",
+                    self.rpd_file.full_file_name,
                 )
                 self.problem.invalid_date_time = True
-                return ''
+                return ""
         else:
             self.problem.missing_metadata.append(_(self.L1))
-            return ''
+            return ""
 
         try:
             return d.strftime(convert_date_for_strftime(self.L2))
         except:
             logging.error(
-                "Both file modification time and metadata date & time are invalid for file %s",
-                self.rpd_file.full_file_name
+                "Both file modification time and metadata date & time are invalid for "
+                "file %s",
+                self.rpd_file.full_file_name,
             )
             self.problem.invalid_date_time = True
-            return ''
+            return ""
 
     def _get_associated_file_extension(self, associate_file):
         """
@@ -274,7 +283,7 @@ class NameGeneration:
             n = re.search("(?P<image_number>[0-9]+$)", name)
             if not n:
                 self.problem.missing_image_no = True
-                return ''
+                return ""
             else:
                 image_number = n.group("image_number")
 
@@ -287,7 +296,7 @@ class NameGeneration:
                 elif self.L2 == IMAGE_NUMBER_3:
                     filename = image_number[-3:]
                 else:
-                    assert  self.L2 == IMAGE_NUMBER_4
+                    assert self.L2 == IMAGE_NUMBER_4
                     filename = image_number[-4:]
         else:
             raise TypeError("Incorrect filename option")
@@ -329,7 +338,7 @@ class NameGeneration:
             if v:
                 v = int(v)
                 padding = LIST_SHUTTER_COUNT_L2.index(self.L2) + 3
-                formatter = '%0' + str(padding) + "i"
+                formatter = "%0" + str(padding) + "i"
                 v = formatter % v
         elif self.L1 == FILE_NUMBER:
             v = self.rpd_file.metadata.file_number()
@@ -343,8 +352,15 @@ class NameGeneration:
             v = self.rpd_file.metadata.copyright()
         else:
             raise TypeError("Invalid metadata option specified")
-        if self.L1 in (CAMERA_MAKE, CAMERA_MODEL, SHORT_CAMERA_MODEL, SHORT_CAMERA_MODEL_HYPHEN,
-                        OWNER_NAME, ARTIST, COPYRIGHT):
+        if self.L1 in (
+            CAMERA_MAKE,
+            CAMERA_MODEL,
+            SHORT_CAMERA_MODEL,
+            SHORT_CAMERA_MODEL_HYPHEN,
+            OWNER_NAME,
+            ARTIST,
+            COPYRIGHT,
+        ):
             if self.L2 == UPPERCASE:
                 v = v.upper()
             elif self.L2 == LOWERCASE:
@@ -363,7 +379,7 @@ class NameGeneration:
 
     def _format_sequence_no(self, value, amountToPad):
         padding = LIST_SEQUENCE_NUMBERS_L2.index(amountToPad) + 1
-        formatter = '%0' + str(padding) + "i"
+        formatter = "%0" + str(padding) + "i"
         return formatter % value
 
     def _get_downloads_today(self):
@@ -382,9 +398,7 @@ class NameGeneration:
         )
 
     def _get_sequence_letter(self):
-        return self._calculate_letter_sequence(
-            self.rpd_file.sequences.sequence_letter
-        )
+        return self._calculate_letter_sequence(self.rpd_file.sequences.sequence_letter)
 
     def _get_sequences_component(self):
         if self.L1 == DOWNLOAD_SEQ_NUMBER:
@@ -415,7 +429,7 @@ class NameGeneration:
         except Exception as e:
             self.problem.component_problem = _(self.L0)
             self.problem.component_exception = e
-            return ''
+            return ""
 
     def filter_strip_characters(self, name: str) -> str:
         """
@@ -425,29 +439,31 @@ class NameGeneration:
         """
 
         # remove any null characters - they are bad news in file names
-        name = name.replace('\x00', '')
+        name = name.replace("\x00", "")
 
-        # the user could potentially copy and paste a block of text with a carriage / line return
-        name = name.replace('\n', '')
+        # the user could potentially copy and paste a block of text with a carriage /
+        # line return
+        name = name.replace("\n", "")
 
         if self.rpd_file.strip_characters:
             for c in r'\:*?"<>|':
-                name = name.replace(c, '')
+                name = name.replace(c, "")
 
         if self.strip_forward_slash:
-            name = name.replace('/', '')
+            name = name.replace("/", "")
         return name
 
     def _destination(self, rpd_file: RPDFile, name: str) -> str:
         # implement in subclass
-        return ''
+        return ""
 
     def _filter_name(self, name: str, parts: bool) -> str:
         # implement in subclass if need be
         return name
 
-    def generate_name(self, rpd_file: RPDFile,
-                      parts: Optional[bool]=False) -> Union[str, List[str]]:
+    def generate_name(
+        self, rpd_file: RPDFile, parts: Optional[bool] = False
+    ) -> Union[str, List[str]]:
         """
         Generate subfolder name(s), and photo/video filenames
 
@@ -461,7 +477,7 @@ class NameGeneration:
         if parts:
             name = []
         else:
-            name = ''
+            name = ""
 
         for self.L0, self.L1, self.L2 in self._get_values_from_pref_list():
             v = self._get_component()
@@ -503,7 +519,9 @@ class NameGeneration:
             rpd_file.name_generation_problem = True
 
             if self.problems is not None:
-                self.problem.destination = self._destination(rpd_file=rpd_file, name=name)
+                self.problem.destination = self._destination(
+                    rpd_file=rpd_file, name=name
+                )
                 self.problem.file_type = rpd_file.title
                 self.problem.source = rpd_file.get_souce_href()
                 self.problems.append(self.problem)
@@ -515,8 +533,10 @@ class PhotoName(NameGeneration):
     """
     Generate filenames for photos
     """
-    def __init__(self, pref_list: List[str],
-                 problems: Optional[RenamingProblems]=None) -> None:
+
+    def __init__(
+        self, pref_list: List[str], problems: Optional[RenamingProblems] = None
+    ) -> None:
         super().__init__(pref_list, problems)
 
         self.problem = FilenameNotFullyGeneratedProblem()
@@ -533,7 +553,7 @@ class PhotoName(NameGeneration):
                     full_file_name=os.path.join(
                         rpd_file.download_folder, rpd_file.download_subfolder, name
                     )
-                )
+                ),
             )
         else:
             return name
@@ -543,8 +563,10 @@ class VideoName(PhotoName):
     """
     Generate filenames for videos
     """
-    def __init__(self, pref_list: List[str],
-                 problems: Optional[RenamingProblems]=None) -> None:
+
+    def __init__(
+        self, pref_list: List[str], problems: Optional[RenamingProblems] = None
+    ) -> None:
 
         super().__init__(pref_list, problems)
 
@@ -564,9 +586,12 @@ class PhotoSubfolder(NameGeneration):
     Generate subfolder names for photo files
     """
 
-    def __init__(self, pref_list: List[str],
-                 problems: Optional[RenamingProblems]=None,
-                 no_metadata: Optional[bool]=False) -> None:
+    def __init__(
+        self,
+        pref_list: List[str],
+        problems: Optional[RenamingProblems] = None,
+        no_metadata: Optional[bool] = False,
+    ) -> None:
         """
         :param pref_list: subfolder generation preferences list
         :param no_metadata: if True, halt as soon as the need for metadata
@@ -584,7 +609,7 @@ class PhotoSubfolder(NameGeneration):
 
         self.problem = FolderNotFullyGeneratedProblemProblem()
 
-        self.strip_extraneous_white_space = re.compile(r'\s*%s\s*' % os.sep)
+        self.strip_extraneous_white_space = re.compile(r"\s*%s\s*" % os.sep)
         self.strip_forward_slash = False
         self.add_extension = False
         self.L1_date_check = IMAGE_DATE  # used in _get_date_component()
@@ -596,9 +621,8 @@ class PhotoSubfolder(NameGeneration):
 
     def _destination(self, rpd_file: RPDFile, name: str) -> str:
         return make_href(
-                    name=name,
-                    uri = get_uri(path=os.path.join(rpd_file.download_folder, name))
-                )
+            name=name, uri=get_uri(path=os.path.join(rpd_file.download_folder, name))
+        )
 
     def filter_subfolder_characters(self, subfolders: str) -> str:
         """
@@ -635,9 +659,12 @@ class VideoSubfolder(PhotoSubfolder):
     Generate subfolder names for video files
     """
 
-    def __init__(self, pref_list: List[str],
-                 problems: Optional[RenamingProblems] = None,
-                 no_metadata: bool=False) -> None:
+    def __init__(
+        self,
+        pref_list: List[str],
+        problems: Optional[RenamingProblems] = None,
+        no_metadata: bool = False,
+    ) -> None:
         """
         :param pref_list: subfolder generation preferences list
         :param no_metadata: if True, halt as soon as the need for metadata
@@ -645,7 +672,6 @@ class VideoSubfolder(PhotoSubfolder):
         """
         super().__init__(pref_list, problems, no_metadata)
         self.L1_date_check = VIDEO_DATE  # used in _get_date_component()
-
 
     def _get_metadata_component(self):
         """
@@ -694,7 +720,7 @@ def truncate_before_unwanted_subfolder_component(pref_list: List[str]) -> List[s
             truncate = idx
 
     if truncate >= 0:
-        return pref_list[:truncate * 3]
+        return pref_list[: truncate * 3]
     return []
 
 
@@ -733,8 +759,9 @@ class Sequences:
     Stores sequence numbers and letters used in generating file names.
     """
 
-    def __init__(self, downloads_today_tracker: DownloadsTodayTracker,
-                 stored_sequence_no: int) -> None:
+    def __init__(
+        self, downloads_today_tracker: DownloadsTodayTracker, stored_sequence_no: int
+    ) -> None:
         self._session_sequence_no = 0
         self._sequence_letter = -1
         self.downloads_today_tracker = downloads_today_tracker
@@ -792,5 +819,5 @@ class Sequences:
             session_sequence_no=self._session_sequence_no + 1,
             sequence_letter=self._sequence_letter + 1,
             downloads_today=self._get_downloads_today(),
-            stored_sequence_no=self._stored_sequence_no + 1
+            stored_sequence_no=self._stored_sequence_no + 1,
         )

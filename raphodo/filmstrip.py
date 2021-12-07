@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -23,8 +23,8 @@ Overlays a filmstrip onto QImage, keeping the image's dimensions the
 same
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2016, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2011-2021, Damon Lynch"
 
 from PyQt5.QtGui import QImage, QPainter
 
@@ -66,7 +66,8 @@ xpm_data = [
     "    ^$/(_~% ",
     "     :<[[[  ",
     "            ",
-    "            "]
+    "            ",
+]
 
 
 def add_filmstrip(thumbnail: QImage) -> QImage:
@@ -93,20 +94,20 @@ def add_filmstrip(thumbnail: QImage) -> QImage:
     # add filmstrips to left and right
     for i in range(thumbnail.height() // filmstrip_height):
         painter.drawImage(0, i * filmstrip_height, filmstrip)
-        painter.drawImage(thumbnail_right_col,
-                          i * filmstrip_height, filmstrip_right)
+        painter.drawImage(thumbnail_right_col, i * filmstrip_height, filmstrip_right)
 
-    #now do the remainder, at the bottom
+    # now do the remainder, at the bottom
     remaining_height = thumbnail.height() % filmstrip_height
     if remaining_height:
-        painter.drawImage(0, thumbnail.height() - remaining_height,
-                          filmstrip.copy(0, 0, filmstrip_width,
-                                         remaining_height))
-        painter.drawImage(thumbnail_right_col,
-                          thumbnail.height() - remaining_height,
-                          filmstrip_right.copy(0, 0, filmstrip_width,
-                                               remaining_height))
+        painter.drawImage(
+            0,
+            thumbnail.height() - remaining_height,
+            filmstrip.copy(0, 0, filmstrip_width, remaining_height),
+        )
+        painter.drawImage(
+            thumbnail_right_col,
+            thumbnail.height() - remaining_height,
+            filmstrip_right.copy(0, 0, filmstrip_width, remaining_height),
+        )
 
     return thumbnail
-
-

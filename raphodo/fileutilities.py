@@ -22,23 +22,16 @@
 Utility code to aid main code development -- not called from main code
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2015-2021, Damon Lynch"
 
-import sys
 import os
-if sys.version_info < (3,5):
-    import scandir
-    walk = scandir.walk
-else:
-    walk = os.walk
-import datetime
+import sys
 import time
 
 import raphodo.metadataphoto as metadataphoto
 import raphodo.metadatavideo as metadatavideo
 from raphodo.constants import FileType
-import raphodo.rpdfile as rpdfile
 import raphodo.exiftool as exiftool
 import raphodo.fileformats as fileformats
 
@@ -56,7 +49,7 @@ def set_file_modified_time_from_metadata(path: str):
     """
 
     with exiftool.ExifTool() as exiftool_process:
-        for dir_name, subdirs, file_list in walk(path):
+        for dir_name, subdirs, file_list in os.walk(path):
             for file_name in file_list:
                 file_type = fileformats.file_type_from_splitext(file_name=file_name)
                 if file_type is not None:
@@ -83,18 +76,20 @@ def set_file_modified_time_from_metadata(path: str):
                             access_time = statinfo.st_atime
                             print(
                                 "Setting modification time for %s to %s"
-                                  %(file_name, dt.strftime('%c'))
+                                % (file_name, dt.strftime("%c"))
                             )
                             try:
                                 os.utime(file, times=(access_time, ts))
                                 print(
                                     "Set modification time for %s to %s"
-                                     %(file_name, dt.strftime('%c'))
+                                    % (file_name, dt.strftime("%c"))
                                 )
                             except:
                                 print(
-                                    "Setting file modificaiton time failed for %s" % file_name
+                                    "Setting file modificaiton time failed for %s"
+                                    % file_name
                                 )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     set_file_modified_time_from_metadata(sys.argv[1])
