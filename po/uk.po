@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-11-27 15:28-0500\n"
+"POT-Creation-Date: 2021-12-06 21:25-0500\n"
 "PO-Revision-Date: 2020-03-09 17:01-0400\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
@@ -41,12 +41,12 @@ msgid ""
 "enable support for the HEIC / HEIF image format."
 msgstr ""
 
-#: ../install.py:627 ../install.py:4228
+#: ../install.py:627 ../install.py:4214
 msgid "Installer not found:"
 msgstr ""
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:631 ../install.py:4232
+#: ../install.py:631 ../install.py:4218
 msgid "Installer not in tar.gz format:"
 msgstr ""
 
@@ -59,163 +59,163 @@ msgid "{} will be upgraded from version {} to version {}"
 msgstr ""
 
 #. Translators: "not system-wide" in this context means "not for the entire system"
-#: ../install.py:1223
+#: ../install.py:1209
 msgid ""
 "These Python3 packages will be upgraded for your user (i.e. not system-"
 "wide): {}"
 msgstr ""
 
-#: ../install.py:1325
+#: ../install.py:1311
 #, python-brace-format
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
 "permissions for {file_system_path}."
 msgstr ""
 
-#: ../install.py:1468
+#: ../install.py:1454
 msgid "The following command will be run:"
 msgstr ""
 
 #. Translators: do not translate the term sudo
-#: ../install.py:1472 ../install.py:3748 ../install.py:3755
+#: ../install.py:1458 ../install.py:3734 ../install.py:3741
 msgid "sudo may prompt you for the sudo password."
 msgstr ""
 
-#: ../install.py:1476
+#: ../install.py:1462
 msgid "Would you like to run the command now?"
 msgstr ""
 
-#: ../install.py:1478
+#: ../install.py:1464
 msgid "Answer is not yes, exiting."
 msgstr ""
 
-#: ../install.py:1489 ../install.py:2132 ../install.py:2191 ../install.py:2672
-#: ../install.py:2729
+#: ../install.py:1475 ../install.py:2118 ../install.py:2177 ../install.py:2658
+#: ../install.py:2715
 msgid "Command failed"
 msgstr ""
 
-#: ../install.py:1491 ../install.py:2133 ../install.py:2192 ../install.py:2673
-#: ../install.py:2730
+#: ../install.py:1477 ../install.py:2119 ../install.py:2178 ../install.py:2659
+#: ../install.py:2716
 msgid "Exiting"
 msgstr ""
 
-#: ../install.py:1519
+#: ../install.py:1505
 msgid "The Universe repository must be enabled."
 msgstr ""
 
 #. Translators: do not translate the term IUS Community
-#: ../install.py:1559
+#: ../install.py:1545
 msgid "The IUS Community repository must be enabled."
 msgstr ""
 
 #. Translators: do not translate the term EPEL
-#: ../install.py:1589
+#: ../install.py:1575
 msgid "The EPEL repository must be enabled."
 msgstr ""
 
 #. Translators: do not translate the term RPM Fusion Free
-#: ../install.py:1628
+#: ../install.py:1614
 msgid "The RPM Fusion Free repository must be enabled."
 msgstr ""
 
-#: ../install.py:1673
+#: ../install.py:1659
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader?"
 msgstr ""
 
-#: ../install.py:2110 ../install.py:2140 ../install.py:2172
+#: ../install.py:2096 ../install.py:2126 ../install.py:2158
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
 msgstr ""
 
-#: ../install.py:2125
+#: ../install.py:2111
 msgid "Uninstalling system package"
 msgstr ""
 
-#: ../install.py:2151
+#: ../install.py:2137
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again."
 msgstr ""
 
 #. Translators: do not translate the term pip
-#: ../install.py:2197
+#: ../install.py:2183
 msgid "Checking if previous version installed with pip..."
 msgstr ""
 
-#: ../install.py:2352 ../install.py:2409 ../install.py:2524
+#: ../install.py:2338 ../install.py:2395 ../install.py:2510
 msgid "The following package is unknown on your system: {}\n"
 msgstr ""
 
-#: ../install.py:2423 ../install.py:2585 ../install.py:2682 ../install.py:2737
+#: ../install.py:2409 ../install.py:2571 ../install.py:2668 ../install.py:2723
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
 
-#: ../install.py:2516 ../install.py:2537
+#: ../install.py:2502 ../install.py:2523
 msgid "Querying installed and available packages (this may take a while)"
 msgstr ""
 
-#: ../install.py:2664
+#: ../install.py:2650
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr ""
 
-#: ../install.py:2722
+#: ../install.py:2708
 msgid ""
 "Querying yum to see if any required packages are already installed (this may "
 "take a while)... "
 msgstr ""
 
-#: ../install.py:2779
+#: ../install.py:2765
 msgid "Query to confirm action at each step."
 msgstr ""
 
-#: ../install.py:2789
+#: ../install.py:2775
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
 msgstr ""
 
-#: ../install.py:2800
+#: ../install.py:2786
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
 
-#: ../install.py:2843
+#: ../install.py:2829
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
 "whichever installer is newer."
 msgstr ""
 
-#: ../install.py:2851
+#: ../install.py:2837
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
 msgstr ""
 
-#: ../install.py:2857
+#: ../install.py:2843
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
 
-#: ../install.py:2862
+#: ../install.py:2848
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr ""
 
-#: ../install.py:2870
+#: ../install.py:2856
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
 
-#: ../install.py:2878
+#: ../install.py:2864
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -225,32 +225,32 @@ msgid ""
 "not be uninstalled."
 msgstr ""
 
-#: ../install.py:2902
+#: ../install.py:2888
 msgid ""
 "Install in current Python virtual environment. Virtual environments created "
 "with the --system-site-packages option are not supported."
 msgstr ""
 
-#: ../install.py:2920
+#: ../install.py:2906
 msgid ""
 "Specific version of PyQt5 to install (default is the most recent version{})."
 msgstr ""
 
-#: ../install.py:2931
+#: ../install.py:2917
 msgid ""
 "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
 "Uninstalls any PyPi versions already installed."
 msgstr ""
 
-#: ../install.py:2968
+#: ../install.py:2954
 msgid "Failed to download versions file."
 msgstr "Не вдалося створити каталог для завантаження."
 
-#: ../install.py:2973
+#: ../install.py:2959
 msgid "Got error code {} while accessing versions file"
 msgstr ""
 
-#: ../install.py:3090
+#: ../install.py:3076
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -258,209 +258,209 @@ msgid ""
 "Exiting.\n"
 msgstr ""
 
-#: ../install.py:3244
+#: ../install.py:3230
 msgid ""
 "Package {} failed to install but Rapid Photo Downloader installation will "
 "continue."
 msgstr ""
 
-#: ../install.py:3250
+#: ../install.py:3236
 msgid "Received error code"
 msgstr ""
 
-#: ../install.py:3252
+#: ../install.py:3238
 msgid "Failed to install application requirements: exiting."
 msgstr ""
 
-#: ../install.py:3254
+#: ../install.py:3240
 msgid "Failed to install application: exiting..."
 msgstr ""
 
-#: ../install.py:3566
+#: ../install.py:3552
 msgid "Installing application requirements..."
 msgstr ""
 
-#: ../install.py:3601
+#: ../install.py:3587
 msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
 msgstr ""
 
-#: ../install.py:3620
+#: ../install.py:3606
 msgid "Not installing PyPI PyQt5 package into KDE Neon environment"
 msgstr ""
 
-#: ../install.py:3625
+#: ../install.py:3611
 msgid "Installing application..."
 msgstr ""
 
-#: ../install.py:3711
+#: ../install.py:3697
 msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
 msgstr ""
 
-#: ../install.py:3717
+#: ../install.py:3703
 #, fuzzy
 msgid "Adding Rapid Photo Downloader to the Windows menu"
 msgstr "Rapid Photo Downloader"
 
-#: ../install.py:3727
+#: ../install.py:3713
 msgid "Failed to copy application launcher."
 msgstr ""
 
-#: ../install.py:3738
+#: ../install.py:3724
 msgid "Man pages can be found in {}/share/man/man1"
 msgstr ""
 
-#: ../install.py:3743
+#: ../install.py:3729
 msgid "Do you want to install the application's man pages?"
 msgstr ""
 
-#: ../install.py:3744
+#: ../install.py:3730
 msgid "They will be installed into {}"
 msgstr ""
 
-#: ../install.py:3746 ../install.py:3753
+#: ../install.py:3732 ../install.py:3739
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr ""
 
-#: ../install.py:3749
+#: ../install.py:3735
 msgid "Do want to install the man pages?"
 msgstr ""
 
-#: ../install.py:3751
+#: ../install.py:3737
 msgid "Installing man pages into {}"
 msgstr ""
 
-#: ../install.py:3769
+#: ../install.py:3755
 msgid "Failed to create man page directory: exiting."
 msgstr ""
 
-#: ../install.py:3790
+#: ../install.py:3776
 msgid "Failed to copy man page."
 msgstr ""
 
-#: ../install.py:3817
+#: ../install.py:3803
 msgid ""
 "Rapid Photo Downloader can be started without activating the virtual "
 "environment by running {}/bin/rapid-photo-downloader"
 msgstr ""
 
-#: ../install.py:3830
+#: ../install.py:3816
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "command line or application launcher."
 msgstr ""
 
-#: ../install.py:3836
+#: ../install.py:3822
 msgid ""
 "You may have to restart WSL to be able to run the program from the command "
 "line."
 msgstr ""
 
-#: ../install.py:3845
+#: ../install.py:3831
 #, python-brace-format
 msgid ""
 "You must add {path} to your computer's $PATH variable to run the program "
 "from the command line or application launcher."
 msgstr ""
 
-#: ../install.py:3864
+#: ../install.py:3850
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
 
-#: ../install.py:3866
+#: ../install.py:3852
 msgid "Done."
 msgstr ""
 
-#: ../install.py:3880
+#: ../install.py:3866
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
 "Cannot continue. Exiting."
 msgstr ""
 
-#: ../install.py:3929
+#: ../install.py:3915
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
 msgstr ""
 
 #. Translators: do not translate the terms --PyQt5-version or --use-system-PyQt5
-#: ../install.py:3941
+#: ../install.py:3927
 msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
 msgstr ""
 
-#: ../install.py:3953
+#: ../install.py:3939
 msgid ""
 "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
 "on an Intel or AMD 64 bit platform."
 msgstr ""
 
 #. Translators: do not translate the term PyQt5
-#: ../install.py:3967
+#: ../install.py:3953
 msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
 msgstr ""
 
-#: ../install.py:3983
+#: ../install.py:3969
 msgid ""
 "Do you want to install Rapid Photo Downloader into the current virtual "
 "environment?"
 msgstr ""
 
-#: ../install.py:3997
+#: ../install.py:3983
 msgid ""
 "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
 "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
 msgstr ""
 
-#: ../install.py:4010
+#: ../install.py:3996
 msgid ""
 "To install Rapid Photo Downloader into a Python virtual environment, create "
 "and activate the virtual environment before starting this script."
 msgstr ""
 
-#: ../install.py:4020
+#: ../install.py:4006
 msgid "Using virtual environment for installation using pip."
 msgstr ""
 
-#: ../install.py:4025 ../install.py:4039
+#: ../install.py:4011 ../install.py:4025
 msgid "Do not include any other command line arguments when specifying"
 msgstr ""
 
-#: ../install.py:4059
+#: ../install.py:4045
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
 msgstr ""
 
-#: ../install.py:4067
+#: ../install.py:4053
 msgid "Restarting script using system python..."
 msgstr ""
 
-#: ../install.py:4088
+#: ../install.py:4074
 msgid "Detected Linux distribution {} {}"
 msgstr ""
 
-#: ../install.py:4107
+#: ../install.py:4093
 msgid "Exiting..."
 msgstr ""
 
-#: ../install.py:4135
+#: ../install.py:4121
 msgid "To continue, the package python3-apt must be installed."
 msgstr ""
 
-#: ../install.py:4175
+#: ../install.py:4161
 msgid ""
 "Install the following packages using your Linux distribution's standard "
 "package manager, and then rerun this installer:"
 msgstr ""
 
-#: ../install.py:4187
+#: ../install.py:4173
 msgid ""
 "To run this program, programs to assist Python 3 and its package management "
 "must be installed."
 msgstr ""
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:4222
+#: ../install.py:4208
 msgid "Installing python requests"
 msgstr ""
 
@@ -519,30 +519,30 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr ""
 
-#: ../upgrade.py:11100
+#: ../upgrade.py:11224
 #, python-format
 msgid "Upgrading %s..."
 msgstr ""
 
-#: ../upgrade.py:11102
+#: ../upgrade.py:11226
 msgid "Press any key to continue..."
 msgstr ""
 
-#: ../upgrade.py:11115
+#: ../upgrade.py:11239
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr ""
 
-#: ../upgrade.py:11117
+#: ../upgrade.py:11241
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
 msgstr ""
 
-#: ../raphodo/aboutdialog.py:318
+#: ../raphodo/aboutdialog.py:335
 msgid "Credits"
 msgstr "Подяки"
 
-#: ../raphodo/aboutdialog.py:323
+#: ../raphodo/aboutdialog.py:340
 msgid "Translators"
 msgstr ""
 
@@ -599,8 +599,8 @@ msgstr "Назва папки для фотографій:"
 msgid "Video folder name:"
 msgstr "Назва папки для відео:"
 
-#: ../raphodo/backuppanel.py:505 ../raphodo/nameeditor.py:929
-#: ../raphodo/renamepanel.py:125
+#: ../raphodo/backuppanel.py:505 ../raphodo/nameeditor.py:1002
+#: ../raphodo/renamepanel.py:148
 msgid "Example:"
 msgstr "Приклад:"
 
@@ -655,13 +655,11 @@ msgstr ""
 msgid "Backup Options"
 msgstr ""
 
-#. translators: refers to the video thumbnail file that some
-#. cameras generate -- it has a .THM file extension
-#: ../raphodo/copyfiles.py:544
+#: ../raphodo/copyfiles.py:609
 msgid "video THM"
 msgstr ""
 
-#: ../raphodo/copyfiles.py:550
+#: ../raphodo/copyfiles.py:619
 msgid "audio"
 msgstr ""
 
@@ -674,8 +672,8 @@ msgstr ""
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/destinationdisplay.py:96 ../raphodo/devicedisplay.py:1281
-#: ../raphodo/rpdfile.py:290
+#: ../raphodo/destinationdisplay.py:96 ../raphodo/devicedisplay.py:1282
+#: ../raphodo/rpdfile.py:310
 #, python-format
 msgid "%(no_photos)s Photos"
 msgstr ""
@@ -689,8 +687,8 @@ msgstr ""
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/destinationdisplay.py:104 ../raphodo/devicedisplay.py:1287
-#: ../raphodo/rpdfile.py:278
+#: ../raphodo/destinationdisplay.py:104 ../raphodo/devicedisplay.py:1288
+#: ../raphodo/rpdfile.py:298
 #, python-format
 msgid "%(no_videos)s Videos"
 msgstr ""
@@ -703,7 +701,7 @@ msgstr ""
 msgid "Excess"
 msgstr ""
 
-#: ../raphodo/destinationdisplay.py:125 ../raphodo/devicedisplay.py:1313
+#: ../raphodo/destinationdisplay.py:125 ../raphodo/devicedisplay.py:1314
 msgid "Device size unknown"
 msgstr ""
 
@@ -723,16 +721,16 @@ msgstr ""
 msgid "%(size_free)s free of %(size_total)s"
 msgstr ""
 
-#: ../raphodo/destinationdisplay.py:222 ../raphodo/devicedisplay.py:1173
-#: ../raphodo/rapid.py:2338 ../raphodo/rapid.py:2475 ../raphodo/rapid.py:7323
-#: ../raphodo/rpdfile.py:914
+#: ../raphodo/destinationdisplay.py:222 ../raphodo/devicedisplay.py:1174
+#: ../raphodo/rapid.py:2338 ../raphodo/rapid.py:2475 ../raphodo/rapid.py:7322
+#: ../raphodo/rpdfile.py:960
 msgid "Photos"
 msgstr ""
 
 #. translators: the name of the Videos folder
-#: ../raphodo/destinationdisplay.py:223 ../raphodo/devicedisplay.py:1174
-#: ../raphodo/rapid.py:2343 ../raphodo/rapid.py:2476 ../raphodo/rapid.py:7323
-#: ../raphodo/rpdfile.py:942 ../raphodo/storage.py:537
+#: ../raphodo/destinationdisplay.py:223 ../raphodo/devicedisplay.py:1175
+#: ../raphodo/rapid.py:2343 ../raphodo/rapid.py:2476 ../raphodo/rapid.py:7322
+#: ../raphodo/rpdfile.py:988 ../raphodo/storage.py:537
 msgid "Videos"
 msgstr ""
 
@@ -740,7 +738,7 @@ msgstr ""
 msgid "Projected storage use after download"
 msgstr ""
 
-#: ../raphodo/destinationdisplay.py:350 ../raphodo/nameeditor.py:536
+#: ../raphodo/destinationdisplay.py:350 ../raphodo/nameeditor.py:589
 msgid "Custom..."
 msgstr "Змінити ..."
 
@@ -752,28 +750,28 @@ msgstr "Налаштувати створення підтеки для фото
 msgid "Configure video subfolder creation"
 msgstr "Налаштувати створення підтеки для відео"
 
-#: ../raphodo/devicedisplay.py:1163
+#: ../raphodo/devicedisplay.py:1164
 msgid "Other"
 msgstr "Інше"
 
-#: ../raphodo/devicedisplay.py:1164
+#: ../raphodo/devicedisplay.py:1165
 msgid "Probing device..."
 msgstr "Зондувальний пристрій..."
 
-#: ../raphodo/devicedisplay.py:1182
+#: ../raphodo/devicedisplay.py:1183
 msgid "Temporarily ignore this device"
 msgstr "Тимчасово нехтувати цей пристрій"
 
-#: ../raphodo/devicedisplay.py:1186
+#: ../raphodo/devicedisplay.py:1187
 msgid "Permanently ignore this device"
 msgstr "Постійно нехтувати цей пристрій"
 
-#: ../raphodo/devicedisplay.py:1189
+#: ../raphodo/devicedisplay.py:1190
 msgid "Rescan"
 msgstr "Пересканувати"
 
 #. Translators: percentage full e.g. 75% full
-#: ../raphodo/devicedisplay.py:1310
+#: ../raphodo/devicedisplay.py:1311
 #, python-format
 msgid "%s full"
 msgstr ""
@@ -850,13 +848,13 @@ msgstr "%(no_devices)s пристрій(ої,оїв)"
 msgid "%s + %s"
 msgstr "%s + %s"
 
-#: ../raphodo/didyouknow.py:43
+#: ../raphodo/didyouknow.py:55
 msgid "Click on a file's checkbox to mark or unmark it for download."
 msgstr ""
 "Клацніть прапорець файлу, щоб вибрати або скасувати його вибір для "
 "звантаження."
 
-#: ../raphodo/didyouknow.py:49
+#: ../raphodo/didyouknow.py:60
 msgid ""
 "Files that have already been downloaded are remembered. You can still mark "
 "previously downloaded files to download again, but they are unchecked by "
@@ -868,79 +866,81 @@ msgstr ""
 "мініатюри затінюються, щоб їх було легше відрізнити від тих, що ще мають "
 "звантажуватись."
 
-#: ../raphodo/didyouknow.py:58
+#: ../raphodo/didyouknow.py:69
 msgid ""
 "If more than one file is selected, they'll all take the mark of the file "
 "whose checkbox was clicked, regardless of whether they previously had a "
 "checkmark or not."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:66
+#: ../raphodo/didyouknow.py:77
 msgid ""
 "Click on a device's checkbox to quickly mark or unmark all its files for "
 "downloading."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:73
+#: ../raphodo/didyouknow.py:84
 msgid ""
 "After a download finishes, an icon replaces the thumbnail's checkbox. The "
 "icon's color indicates whether the download was successful (green), had file "
 "renaming problems (yellow/orange), or failed (red)."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:81
+#: ../raphodo/didyouknow.py:92
 msgid ""
 "\n"
 "            In case of any problems, a red icon will appear at the bottom of "
 "the window\n"
 "            indicating how many error reports there are. Clicking on it "
-"opens the Error Report \n"
-"            window.\n"
+"opens the Error \n"
+"            Report window.\n"
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:89
+#: ../raphodo/didyouknow.py:100
 msgid ""
 "\n"
 "            The Error Report window lists any problems encountered before, "
-"during or after the \n"
-"            download. An orange triangle represents a warning, a red circle "
-"indicates a failure, \n"
-"            and a black circle indicates more serious failures. You can "
-"click on the hyperlinks to \n"
-"            open its file or device in a file manager. You can also search "
-"the reports using the \n"
-"            search box in the lower left of the Error Report window.\n"
+"during or \n"
+"            after the download. An orange triangle represents a warning, a "
+"red circle \n"
+"            indicates a failure, and a black circle indicates more serious "
+"failures. \n"
+"            You can click on the hyperlinks to open its file or device in a "
+"file \n"
+"            manager. You can also search the reports using the search box in "
+"the lower\n"
+"            left of the Error Report window.\n"
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:101
+#: ../raphodo/didyouknow.py:113
 msgid ""
 "You can simultaneously download from multiple cameras, smartphones, memory "
 "cards, and hard drives&mdash;as many devices as your computer can handle at "
 "one time."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:108
+#: ../raphodo/didyouknow.py:121
 msgid ""
 "The <b>Timeline</b> groups photos and videos based on how much time elapsed "
 "between consecutive shots. Use it to identify photos and videos taken at "
 "different periods in a single day or over consecutive days."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:115
+#: ../raphodo/didyouknow.py:128
 msgid ""
 "\n"
 "<p>In the illustration above, the first row of the Timeline is black because "
-"all the files on \n"
-"that date had been previously downloaded.</p>\n"
+"all the \n"
+"files on that date had been previously downloaded.</p>\n"
 "<p>The Timeline's slider adjusts the time elapsed between consecutive shots "
-"that is used to build \n"
-"the Timeline:</p>\n"
+"that is \n"
+"used to build the Timeline:</p>\n"
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:126
+#: ../raphodo/didyouknow.py:139
 msgid ""
 "To view photos and videos for a particular time range, use the mouse "
 "(optionally in combination with the <tt>Shift</tt> or <tt>Ctrl</tt> keys) to "
@@ -948,53 +948,55 @@ msgid ""
 "the left side of the main window will be highlighted."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:133
+#: ../raphodo/didyouknow.py:146
 msgid ""
 "A download always includes all files that are checked for download, "
 "including those that are not currently displayed because the Timeline is "
 "being used."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:140
+#: ../raphodo/didyouknow.py:153
 msgid ""
 "You can hide or display the download sources by clicking on the name of the "
 "device you're downloading from at the top left of the program window."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:147
+#: ../raphodo/didyouknow.py:160
 msgid ""
 "\n"
 "          Thumbnails can be sorted using a variety of criteria:\n"
 "<ol>\n"
 "<li><b>Modification Time:</b> when the file was last modified, according to "
-"its metadata (where \n"
-" available) or according to the filesystem (as a fallback).</li>\n"
+"its \n"
+"metadata (where available) or according to the filesystem (as a fallback).</"
+"li>\n"
 "<li><b>Checked State:</b> whether the file is marked for download.</li>\n"
 "<li><b>Filename:</b> the full filename, including extension.</li>\n"
 "<li><b>Extension:</b> the filename's extension. You can use this to group "
-"jpeg and raw images, for \n"
-"instance.</li>\n"
+"jpeg and \n"
+"raw images, for instance.</li>\n"
 "<li><b>File Type:</b> photo or video.</li>\n"
 "<li><b>Device:</b> name of the device the photos and videos are being "
-"downloaded from.</li>\n"
+"downloaded \n"
+"from.</li>\n"
 "</ol> "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:164
+#: ../raphodo/didyouknow.py:178
 msgid ""
 "One of Rapid Photo Downloader's most useful features is its ability to "
 "automatically generate download subfolders and rename files as it downloads, "
 "using a scheme of your choosing."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:170
+#: ../raphodo/didyouknow.py:184
 msgid ""
 "To specify where you want your files downloaded and how you want them named, "
 "open the appropriate panel on the right-side of the application window: "
 "<b>Destination</b>, <b>Rename</b>, or <b>Job Code</b>."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:177
+#: ../raphodo/didyouknow.py:191
 msgid ""
 "\n"
 "When thinking about your download directory structure, keep in mind two "
@@ -1004,185 +1006,194 @@ msgid ""
 "<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, &quot;"
 "Photos&quot;, or\n"
 "&quot;Videos&quot;. This directory should already exist on your computer. In "
-"the illustration \n"
-"below, the destination folders are &quot;Pictures&quot; and &quot;"
-"Videos&quot;. The\n"
-"name of the destination folder is displayed in the grey bar directly above "
-"the folder tree, \n"
-"with a folder icon to its left and a gear icon to its far right.</li>\n"
+"the \n"
+"illustration below, the destination folders are &quot;Pictures&quot; and \n"
+"&quot;Videos&quot;. The name of the destination folder is displayed in the "
+"grey bar \n"
+"directly above the folder tree, with a folder icon to its left and a gear "
+"icon to \n"
+"its far right.</li>\n"
 "<li>The <b>download subfolders</b>, which are directories that will be "
-"automatically generated \n"
-"by Rapid Photo Downloader. They need not already exist on your computer, but "
-"it's okay if they do.\n"
-"They will be generated under the destination folder.</li>\n"
+"automatically \n"
+"generated by Rapid Photo Downloader. They need not already exist on your "
+"computer, but \n"
+"it's okay if they do. They will be generated under the destination folder.</"
+"li>\n"
 "</ol>\n"
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:194
+#: ../raphodo/didyouknow.py:209
 msgid ""
 "\n"
 "You can download photos and videos to the same destination folder, or "
-"specify a different \n"
-"destination folder for each. The same applies to the download subfolders for "
-"photos and \n"
-"videos&mdash;download photos and videos to the same subfolders, or use a "
-"different scheme for each \n"
-"type.            \n"
+"specify a \n"
+"different destination folder for each. The same applies to the download "
+"subfolders for \n"
+"photos and videos&mdash;download photos and videos to the same subfolders, "
+"or use a \n"
+"different scheme for each type.            \n"
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:204
+#: ../raphodo/didyouknow.py:219
 msgid ""
 "Automatically generated download subfolders can contain further "
 "automatically generated subfolders if need be. A common scheme is to create "
 "a year subfolder and then a series of year-month-day subfolders within it."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:213
+#: ../raphodo/didyouknow.py:228
 msgid ""
 "\n"
 "Whenever possible, the program previews the download subfolders of photos "
-"and videos to download:\n"
+"and videos to \n"
+"download:\n"
 "<ol>\n"
 "<li>The destination folder tree shows the download subfolders already on "
-"your computer (those in \n"
-"    a regular, non-italicized font), and the subfolders that will be created "
-"during the download \n"
-"    (those whose names are italicized).</li>\n"
+"your computer \n"
+"(those in a regular, non-italicized font), and the subfolders that will be "
+"created \n"
+"during the download (those whose names are italicized).</li>\n"
 "<li>The folder tree also shows into which subfolders the files will be "
-"downloaded (those colored \n"
-"    black).</li>\n"
+"downloaded  \n"
+"(those colored black).</li>\n"
 "</ol>\n"
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:228
+#: ../raphodo/didyouknow.py:244
 msgid ""
 "\n"
 "Download subfolder names are typically generated using some or all of the "
-"following elements:\n"
+"following \n"
+"elements:\n"
 "<ol>\n"
 "<li><b>File metadata</b>, very often including the date the photo or video "
-"was created, but might \n"
-"also \n"
-"include the camera model name, camera serial number, or file extension e.g. "
-"JPG or CR2.</li>\n"
+"was created, \n"
+"but might also include the camera model name, camera serial number, or file "
+"extension \n"
+"e.g. JPG or CR2.</li>\n"
 "<li>A <b>Job Code</b>, which is free text you specify at the time the "
-"download occurs, such as the\n"
-"name of an event or location.</li>\n"
+"download occurs, \n"
+"such as the name of an event or location.</li>\n"
 "<li><b>Text</b> which you want to appear every time, such as a hyphen or a "
 "space.</li>\n"
 "</ol>\n"
 "Naming subfolders with the year, followed by the month and finally the day "
-"in numeric format makes \n"
-"it easy to keep them sorted in a file manager, which is why it's the default "
-"option:\n"
-"            "
-msgstr ""
-
-#: ../raphodo/didyouknow.py:246
-msgid ""
-"\n"
-"To automatically create download subfolders as you download, \n"
-"you can use one of Rapid Photo Downloader's built-in presets, or create a "
-"custom preset. Click on \n"
-"the gear icon to bring up a drop-down menu:            \n"
-"            "
-msgstr ""
-
-#: ../raphodo/didyouknow.py:254
-msgid ""
-"\n"
-"Using the drop-down menu, select a built-in preset or click on <b>Custom</b> "
-"to configure your own \n"
-"scheme. You create your own schemes using the Photo or Video Subfolder "
-"Generation Editor:             \n"
+"in numeric \n"
+"format makes it easy to keep them sorted in a file manager, which is why "
+"it's the \n"
+"default option:\n"
 "            "
 msgstr ""
 
 #: ../raphodo/didyouknow.py:264
+msgid ""
+"\n"
+"To automatically create download subfolders as you download, \n"
+"you can use one of Rapid Photo Downloader's built-in presets, or create a "
+"custom \n"
+"preset. Click on the gear icon to bring up a drop-down menu:            \n"
+"            "
+msgstr ""
+
+#: ../raphodo/didyouknow.py:272
+msgid ""
+"\n"
+"Using the drop-down menu, select a built-in preset or click on <b>Custom</b> "
+"to \n"
+"configure your own scheme. You create your own schemes using the Photo or "
+"Video \n"
+"Subfolder Generation Editor:             \n"
+"            "
+msgstr ""
+
+#: ../raphodo/didyouknow.py:282
 msgid ""
 "It's easy to download raw images into one folder, and jpeg images into "
 "another. Simply use the <b>Filename Extension</b> as part of your download "
 "subfolder generation scheme:"
 msgstr ""
 
-#: ../raphodo/didyouknow.py:269
+#: ../raphodo/didyouknow.py:288
 msgid ""
 "This illustration shows a saved custom preset named &quot;My custom "
 "preset&quot;."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:273
+#: ../raphodo/didyouknow.py:294
 msgid ""
 "\n"
 "You do not have to create nested download subfolders. This illustration "
 "shows \n"
 "the generation of download subfolders that contain only the date the photos "
-"were taken and a \n"
-"Job Code:\n"
+"were taken \n"
+"and a Job Code:\n"
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:283
+#: ../raphodo/didyouknow.py:304
 msgid ""
 "\n"
 "Although there are many built-in date/time naming options, you may find that "
 "you \n"
 "need something different. It's no problem to create your own. You can "
-"combine date/time choices to\n"
-"generate new combinations. Supposing you wanted a date format that combines "
-"year (YYYY), a hyphen, \n"
-"and month (MM) to form YYYY-MM. You can create it like this (note the red "
-"circle around the hyphen):\n"
+"combine date/time \n"
+"choices to generate new combinations. Supposing you wanted a date format "
+"that combines \n"
+"year (YYYY), a hyphen, and month (MM) to form YYYY-MM. You can create it "
+"like this \n"
+"(note the red circle around the hyphen):\n"
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:292
+#: ../raphodo/didyouknow.py:314
 msgid ""
 "\n"
 "Read more about all the ways you can generate download subfolder names and "
-"file names in the <a \n"
-"href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime\">online "
+"file names \n"
+"in the \n"
+"<a href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime"
+"\">online \n"
 "documentation</a>.\n"
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:300
+#: ../raphodo/didyouknow.py:324
 msgid ""
 "\n"
 "<b>Job Codes</b> let you easily enter text that describes sets of photos and "
-"videos. You can \n"
-"use them in subfolder and file names. In this illustration, some files have "
-"had the Job Code\n"
-"&quot;Street&quot; applied to them, and the selected files are about to get "
-"the Job Code \n"
-"&quot;Green Bazaar&quot;: \n"
+"videos. \n"
+"You can use them in subfolder and file names. In this illustration, some "
+"files have had \n"
+"the Job Code &quot;Street&quot; applied to them, and the selected files are "
+"about to \n"
+"get the Job Code &quot;Green Bazaar&quot;: \n"
 msgstr ""
 
-#: ../raphodo/didyouknow.py:309
+#: ../raphodo/didyouknow.py:333
 msgid ""
 "\n"
 "You can apply new or existing Job Codes before you start a download. If "
 "there are any \n"
 "files in the download that have not yet had a Job Code applied to them, "
-"you'll be prompted to enter \n"
-"a Job Code for them before the download begins.\n"
+"you'll be \n"
+"prompted to enter a Job Code for them before the download begins.\n"
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:318
+#: ../raphodo/didyouknow.py:341
 msgid "Look for hints to guide you when working with Job Codes:"
 msgstr ""
 
-#: ../raphodo/didyouknow.py:322
+#: ../raphodo/didyouknow.py:344
 msgid ""
 "Hints will vary depending on the context, such as when the mouse is hovering "
 "over a button."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:328
+#: ../raphodo/didyouknow.py:350
 msgid ""
 "\n"
 "When you give your photos and videos unique filenames, you'll never be "
@@ -1193,49 +1204,50 @@ msgid ""
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:336
+#: ../raphodo/didyouknow.py:358
 msgid ""
 "\n"
 "<p>Four types of sequence values are available to help you assign unique "
-"names to your photos and \n"
-"videos:\n"
+"names to your \n"
+"photos and videos:\n"
 "<ol>\n"
 "<li><b>Downloads today</b>: tracks downloads completed during that day.</"
 "li>\n"
 "<li><b>Stored number</b>: similar to Downloads today, but it is remembered "
-"from the last time the  \n"
-"program was run.</li>\n"
+"from the \n"
+"last time the program was run.</li>\n"
 "<li><b>Session number</b>: reset each time the program is run.</li>\n"
 "<li><b>Sequence letter</b>: like session numbers, but uses letters.</li>\n"
 "</ol></p>\n"
 "<p>\n"
 "Read more about sequence numbers in the <a \n"
-"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers\">online "
+"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers\">online \n"
 "documentation</a>.</p>\n"
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:354
+#: ../raphodo/didyouknow.py:377
 msgid ""
 "\n"
 "The <b>Rename</b> panel allows you to configure file renaming. To rename "
-"your files, you can choose\n"
-"from among existing renaming presets or define your own.              \n"
+"your files, \n"
+"you can choose from among existing renaming presets or define your "
+"own.              \n"
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:361
+#: ../raphodo/didyouknow.py:384
 msgid ""
 "\n"
 "<p>The <b>Synchronize RAW + JPEG</b> option is useful if you use the RAW + "
-"JPEG feature on your \n"
-"camera and you use sequence numbers in your photo renaming. Enabling this "
-"option \n"
+"JPEG feature \n"
+"on your camera and you use sequence numbers in your photo renaming. Enabling "
+"this option \n"
 "will cause the program to detect matching pairs of RAW and JPEG photos, and "
-"when they are detected,\n"
-"the same sequence numbers will be applied to both photo names. Furthermore, "
-"sequences will be \n"
-"updated as if the photos were one.</p>\n"
+"when they \n"
+"are detected, the same sequence numbers will be applied to both photo names. "
+"F\n"
+"urthermore, sequences will be updated as if the photos were one.</p>\n"
 "<p>\n"
 "Read more about file renaming in the <a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#rename\">online "
@@ -1243,55 +1255,61 @@ msgid ""
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:375
+#: ../raphodo/didyouknow.py:398
+#, fuzzy
 msgid ""
 "\n"
 "You can have your photos and videos backed up to multiple locations as they "
-"are downloaded, such as \n"
-"external hard drives or network shares. Backup devices can be automatically "
-"detected, or exact \n"
-"backup locations specified.\n"
+"are \n"
+"downloaded, such as external hard drives or network shares. Backup devices "
+"can be \n"
+"automatically detected, or exact backup locations specified.\n"
 "            "
 msgstr ""
+"Ви можете створювати резервні копії фото та відео в кількох місцях прямо під "
+"час завантаження, наприклад, на зовнішніх жорстких дисках."
 
-#: ../raphodo/didyouknow.py:383
+#: ../raphodo/didyouknow.py:406
 msgid ""
 "In this example, the drive <b>photobackup</b> does not contain a folder "
 "named <tt>Videos</tt>, so videos will not be backed up to it."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:389
+#: ../raphodo/didyouknow.py:412
 msgid ""
 "\n"
 "Several of the program's preferences can be set from the command line, "
-"including download \n"
-"sources, destinations, and backups. Additionally, settings can be reset to "
-"their \n"
-"default state, and caches and remembered files cleared.            \n"
+"including \n"
+"download sources, destinations, and backups. Additionally, settings can be "
+"reset to \n"
+"their default state, and caches and remembered files cleared.            \n"
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:394
+#: ../raphodo/didyouknow.py:418
 msgid "You can also import program preferences from the older 0.4 version."
 msgstr ""
 
-#: ../raphodo/didyouknow.py:399
+#: ../raphodo/didyouknow.py:423
 msgid ""
 "\n"
 "Rapid Photo Downloader deals with three types of cache:\n"
 "<ol>\n"
 "<li>A <b>thumbnail cache</b> whose sole purpose is to store thumbnails of "
-"files from your cameras, \n"
-"memory cards, and other devices.</li>\n"
+"files from \n"
+"your cameras, memory cards, and other devices.</li>\n"
 "<li>A <b>temporary cache</b> of files downloaded from a camera, one for "
-"photos and another for \n"
-"videos. They are located in temporary subfolders in the download destination."
-"</li>\n"
+"photos and \n"
+"another for videos. They are located in temporary subfolders in the "
+"download \n"
+"destination.</li>\n"
 "<li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo Downloader "
-"stores thumbnails of \n"
-"RAW and TIFF photos once they have been downloaded. File browsers like Gnome "
-"Files use this cache \n"
-"as well, meaning they too will display thumbnails for those files. \n"
+"stores \n"
+"thumbnails of RAW and TIFF photos once they have been downloaded. File "
+"browsers like \n"
+"Gnome Files use this cache as well, meaning they too will display thumbnails "
+"for those \n"
+"files. \n"
 "</li>\n"
 "</ol>\n"
 "Read more about these caches and their effect on download performance in the "
@@ -1301,197 +1319,197 @@ msgid ""
 "            "
 msgstr ""
 
-#: ../raphodo/didyouknow.py:457
+#: ../raphodo/didyouknow.py:482
 msgid "Tip of the Day"
 msgstr ""
 
-#: ../raphodo/didyouknow.py:465
+#: ../raphodo/didyouknow.py:490
 msgid "Did you know...?"
 msgstr ""
 
-#: ../raphodo/didyouknow.py:492
+#: ../raphodo/didyouknow.py:521
 msgid "Show tips on startup"
 msgstr ""
 
-#: ../raphodo/didyouknow.py:496
+#: ../raphodo/didyouknow.py:525
 msgid "&Next"
 msgstr ""
 
-#: ../raphodo/didyouknow.py:497
+#: ../raphodo/didyouknow.py:526
 msgid "&Previous"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:401
+#: ../raphodo/downloadtracker.py:454
 msgid "MB/sec"
 msgstr ""
 
 #. Be friendly in the last few seconds
-#: ../raphodo/downloadtracker.py:531
+#: ../raphodo/downloadtracker.py:584
 msgid "A few seconds"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:587
+#: ../raphodo/downloadtracker.py:643
 msgid "1 second"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:589
+#: ../raphodo/downloadtracker.py:645
 #, python-format
 msgid "%d seconds"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:594
+#: ../raphodo/downloadtracker.py:650
 msgid "1 minute"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:596
+#: ../raphodo/downloadtracker.py:652
 #, python-format
 msgid "%d minutes"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:601 ../raphodo/downloadtracker.py:783
+#: ../raphodo/downloadtracker.py:657 ../raphodo/downloadtracker.py:839
 msgid "1 hour"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:603
+#: ../raphodo/downloadtracker.py:659
 #, python-format
 msgid "%d hours"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:608 ../raphodo/downloadtracker.py:812
-#: ../raphodo/downloadtracker.py:820
+#: ../raphodo/downloadtracker.py:664 ../raphodo/downloadtracker.py:869
+#: ../raphodo/downloadtracker.py:877
 msgid "1 day"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:610
+#: ../raphodo/downloadtracker.py:666
 #, python-format
 msgid "%d days"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:789
+#: ../raphodo/downloadtracker.py:845
 msgid "1 minute, 1 second"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:791
+#: ../raphodo/downloadtracker.py:847
 #, python-format
 msgid "1 minute, %d seconds"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:794
+#: ../raphodo/downloadtracker.py:850
 #, python-format
 msgid "%d minutes, 1 second"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:796
+#: ../raphodo/downloadtracker.py:852
 #, python-format
 msgid "%(minutes)d minutes, %(seconds)d seconds"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:827
+#: ../raphodo/downloadtracker.py:884
 msgid "1 hour, 1 minute"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:829
+#: ../raphodo/downloadtracker.py:886
 #, python-format
 msgid "1 hour, %d minutes"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:832
+#: ../raphodo/downloadtracker.py:889
 #, python-format
 msgid "%d hours, 1 minute"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:834
+#: ../raphodo/downloadtracker.py:891
 #, python-format
 msgid "%(hours)d hours, %(minutes)d minutes"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:860
+#: ../raphodo/downloadtracker.py:918
 msgid "1 day, 1 hour"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:862
+#: ../raphodo/downloadtracker.py:920
 #, python-format
 msgid "1 day, %d hours"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:865
+#: ../raphodo/downloadtracker.py:923
 #, python-format
 msgid "%d days, 1 hour"
 msgstr ""
 
-#: ../raphodo/downloadtracker.py:867
+#: ../raphodo/downloadtracker.py:925
 #, python-format
 msgid "%(days)d days, %(hours)d hours"
 msgstr ""
 
-#: ../raphodo/errorlog.py:67
+#: ../raphodo/errorlog.py:87
 msgid "Find"
 msgstr ""
 
-#: ../raphodo/errorlog.py:137
+#: ../raphodo/errorlog.py:157
 msgid "Error Reports - Rapid Photo Downloader"
 msgstr ""
 
-#: ../raphodo/errorlog.py:172
+#: ../raphodo/errorlog.py:194
 msgid "Find in reports"
 msgstr ""
 
-#: ../raphodo/errorlog.py:189
+#: ../raphodo/errorlog.py:213
 msgid "Find the previous occurrence of the phrase"
 msgstr ""
 
-#: ../raphodo/errorlog.py:194
+#: ../raphodo/errorlog.py:218
 msgid "Find the next occurrence of the phrase"
 msgstr ""
 
-#: ../raphodo/errorlog.py:196
+#: ../raphodo/errorlog.py:220
 msgid "&Highlight All"
 msgstr ""
 
-#: ../raphodo/errorlog.py:197
+#: ../raphodo/errorlog.py:221
 msgid "Highlight all occurrences of the phrase"
 msgstr ""
 
-#: ../raphodo/errorlog.py:198
+#: ../raphodo/errorlog.py:222
 msgid "&Match Case"
 msgstr ""
 
-#: ../raphodo/errorlog.py:199
+#: ../raphodo/errorlog.py:223
 msgid "Search with case sensitivity"
 msgstr ""
 
-#: ../raphodo/errorlog.py:200
+#: ../raphodo/errorlog.py:224
 msgid "&Whole Words"
 msgstr ""
 
-#: ../raphodo/errorlog.py:201
+#: ../raphodo/errorlog.py:225
 msgid "Search whole words only"
 msgstr ""
 
-#: ../raphodo/errorlog.py:211 ../raphodo/errorlog.py:350
+#: ../raphodo/errorlog.py:236 ../raphodo/errorlog.py:378
 #, python-format
 msgid "%s of %s matches"
 msgstr ""
 
 #. Translators: match number of total matches in a search, e.g. 1 of 10 matches
-#: ../raphodo/errorlog.py:215
+#: ../raphodo/errorlog.py:241
 #, fuzzy, python-format
 msgid "%(matchnumber)s of %(total)s matches"
 msgstr "%(number)s з %(total)s %(filetypes)s"
 
-#: ../raphodo/errorlog.py:237
+#: ../raphodo/errorlog.py:263
 msgid "Clear"
 msgstr ""
 
-#: ../raphodo/errorlog.py:337
+#: ../raphodo/errorlog.py:364
 msgid "Phrase not found"
 msgstr ""
 
-#: ../raphodo/errorlog.py:492
+#: ../raphodo/errorlog.py:523
 msgid "Search pending..."
 msgstr ""
 
-#: ../raphodo/errorlog.py:541
+#: ../raphodo/errorlog.py:574
 msgid ""
 "The number of new entries added to the Error Report since it was last open. "
 "Click to open the Error Report."
@@ -1574,7 +1592,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ../raphodo/filebrowse.py:162 ../raphodo/thumbnaildisplay.py:2154
+#: ../raphodo/filebrowse.py:162 ../raphodo/thumbnaildisplay.py:2158
 msgid "Open in File Browser..."
 msgstr ""
 
@@ -1601,543 +1619,543 @@ msgstr ""
 msgid "%s (location does not exist)"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:192
+#: ../raphodo/generatenameconfig.py:206
 msgid "Date time"
 msgstr "Дата і час"
 
-#: ../raphodo/generatenameconfig.py:193
+#: ../raphodo/generatenameconfig.py:207
 msgid "Text"
 msgstr "Текст"
 
-#: ../raphodo/generatenameconfig.py:194 ../raphodo/rapid.py:2442
+#: ../raphodo/generatenameconfig.py:208 ../raphodo/rapid.py:2442
 msgid "Filename"
 msgstr "Назва файлу"
 
-#: ../raphodo/generatenameconfig.py:195 ../raphodo/preferencedialog.py:909
+#: ../raphodo/generatenameconfig.py:209 ../raphodo/preferencedialog.py:909
 msgid "Metadata"
 msgstr "Метадані"
 
-#: ../raphodo/generatenameconfig.py:196
+#: ../raphodo/generatenameconfig.py:210
 msgid "Sequences"
 msgstr "Послідовності"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: ../raphodo/generatenameconfig.py:199
+#: ../raphodo/generatenameconfig.py:213
 msgid "Job code"
 msgstr "Мітка"
 
-#: ../raphodo/generatenameconfig.py:200
+#: ../raphodo/generatenameconfig.py:214
 msgid "Image date"
 msgstr "Дата фото"
 
-#: ../raphodo/generatenameconfig.py:201
+#: ../raphodo/generatenameconfig.py:215
 msgid "Video date"
 msgstr "Дата відео"
 
-#: ../raphodo/generatenameconfig.py:202
+#: ../raphodo/generatenameconfig.py:216
 msgid "Today"
 msgstr "Сьогодні"
 
-#: ../raphodo/generatenameconfig.py:203
+#: ../raphodo/generatenameconfig.py:217
 msgid "Yesterday"
 msgstr "Вчора"
 
-#. Translators: Download time is the time and date that the download started (when the
-#. user clicked the Download button)
-#: ../raphodo/generatenameconfig.py:206
+#. Translators: Download time is the time and date that the download started
+#. (when the user clicked the Download button)
+#: ../raphodo/generatenameconfig.py:220
 msgid "Download time"
 msgstr "Час та дата завантаження"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: ../raphodo/generatenameconfig.py:209
+#: ../raphodo/generatenameconfig.py:223
 msgid "Name"
 msgstr "Назва"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: ../raphodo/generatenameconfig.py:212 ../raphodo/rapid.py:2443
+#: ../raphodo/generatenameconfig.py:226 ../raphodo/rapid.py:2443
 msgid "Extension"
 msgstr "Розширення"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: ../raphodo/generatenameconfig.py:215
+#: ../raphodo/generatenameconfig.py:229
 msgid "Image number"
 msgstr "Номер фото"
 
-#: ../raphodo/generatenameconfig.py:216
+#: ../raphodo/generatenameconfig.py:230
 msgid "Video number"
 msgstr "Номер відео"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: ../raphodo/generatenameconfig.py:219
+#: ../raphodo/generatenameconfig.py:233
 msgid "Aperture"
 msgstr "Діафрагма"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: ../raphodo/generatenameconfig.py:222
+#: ../raphodo/generatenameconfig.py:236
 msgid "ISO"
 msgstr "ISO"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: ../raphodo/generatenameconfig.py:225
+#: ../raphodo/generatenameconfig.py:239
 msgid "Exposure time"
 msgstr "Час експозиції"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: ../raphodo/generatenameconfig.py:228
+#: ../raphodo/generatenameconfig.py:242
 msgid "Focal length"
 msgstr "Фокусна відстань"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: ../raphodo/generatenameconfig.py:231
+#: ../raphodo/generatenameconfig.py:245
 msgid "Camera make"
 msgstr "Виробник камери"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: ../raphodo/generatenameconfig.py:234
+#: ../raphodo/generatenameconfig.py:248
 msgid "Camera model"
 msgstr "Модель камери"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: ../raphodo/generatenameconfig.py:237
+#: ../raphodo/generatenameconfig.py:251
 msgid "Short camera model"
 msgstr "Скорочена назва камери"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: ../raphodo/generatenameconfig.py:240
+#: ../raphodo/generatenameconfig.py:254
 msgid "Hyphenated short camera model"
 msgstr "Написана через дефіс коротка назва моделі"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: ../raphodo/generatenameconfig.py:243
+#: ../raphodo/generatenameconfig.py:257
 msgid "Serial number"
 msgstr "Серійний номер"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: ../raphodo/generatenameconfig.py:246
+#: ../raphodo/generatenameconfig.py:260
 msgid "Shutter count"
 msgstr "Кількість затворів"
 
 #. File number currently refers to the Exif value Exif.Canon.FileNumber
-#: ../raphodo/generatenameconfig.py:248
+#: ../raphodo/generatenameconfig.py:262
 msgid "File number"
 msgstr "Номер файлу"
 
 #. Only the folder component of the Exif.Canon.FileNumber value
-#: ../raphodo/generatenameconfig.py:250
+#: ../raphodo/generatenameconfig.py:264
 msgid "Folder only"
 msgstr "Лише тека"
 
 #. The folder and file component of the Exif.Canon.FileNumber value
-#: ../raphodo/generatenameconfig.py:252
+#: ../raphodo/generatenameconfig.py:266
 msgid "Folder and file"
 msgstr "Тека та файл"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: ../raphodo/generatenameconfig.py:255
+#: ../raphodo/generatenameconfig.py:269
 msgid "Owner name"
 msgstr "Ім’я власника"
 
-#: ../raphodo/generatenameconfig.py:256
+#: ../raphodo/generatenameconfig.py:270
 msgid "Codec"
 msgstr "Кодек"
 
-#: ../raphodo/generatenameconfig.py:257
+#: ../raphodo/generatenameconfig.py:271
 msgid "Width"
 msgstr "Ширина"
 
-#: ../raphodo/generatenameconfig.py:258
+#: ../raphodo/generatenameconfig.py:272
 msgid "Height"
 msgstr "Висота"
 
-#: ../raphodo/generatenameconfig.py:259
+#: ../raphodo/generatenameconfig.py:273
 msgid "Length"
 msgstr "Тривалість"
 
-#: ../raphodo/generatenameconfig.py:260
+#: ../raphodo/generatenameconfig.py:274
 msgid "Frames Per Second"
 msgstr "Кадрів за секунду"
 
-#: ../raphodo/generatenameconfig.py:261
+#: ../raphodo/generatenameconfig.py:275
 msgid "Artist"
 msgstr "Виконавець"
 
-#: ../raphodo/generatenameconfig.py:262
+#: ../raphodo/generatenameconfig.py:276
 msgid "Copyright"
 msgstr "Авторське право"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: ../raphodo/generatenameconfig.py:265
+#: ../raphodo/generatenameconfig.py:279
 msgid "Downloads today"
 msgstr "Завантажень сьогодні"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: ../raphodo/generatenameconfig.py:268
+#: ../raphodo/generatenameconfig.py:282
 msgid "Session number"
 msgstr "Номер сеансу"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: ../raphodo/generatenameconfig.py:271
+#: ../raphodo/generatenameconfig.py:285
 msgid "Subfolder number"
 msgstr "Номер підтеки"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: ../raphodo/generatenameconfig.py:274
+#: ../raphodo/generatenameconfig.py:288
 msgid "Stored number"
 msgstr "Номер збереження"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#sequenceletters
-#: ../raphodo/generatenameconfig.py:277
+#: ../raphodo/generatenameconfig.py:291
 msgid "Sequence letter"
 msgstr "Послідовність знаків"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: ../raphodo/generatenameconfig.py:280
+#: ../raphodo/generatenameconfig.py:294
 msgid "All digits"
 msgstr "Всі цифри"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: ../raphodo/generatenameconfig.py:283
+#: ../raphodo/generatenameconfig.py:297
 msgid "Last digit"
 msgstr "Остання цифра"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: ../raphodo/generatenameconfig.py:286
+#: ../raphodo/generatenameconfig.py:300
 msgid "Last 2 digits"
 msgstr "Останні 2 цифри"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: ../raphodo/generatenameconfig.py:289
+#: ../raphodo/generatenameconfig.py:303
 msgid "Last 3 digits"
 msgstr "Останні 3 цифри"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: ../raphodo/generatenameconfig.py:292
+#: ../raphodo/generatenameconfig.py:306
 msgid "Last 4 digits"
 msgstr "Останні 4 цифри"
 
-#. Translators: please not the capitalization of this text, and keep it the same if your
-#. language features capitalization
-#: ../raphodo/generatenameconfig.py:295
+#. Translators: please not the capitalization of this text, and keep it the same
+#. if your language features capitalization
+#: ../raphodo/generatenameconfig.py:309
 msgid "Original Case"
 msgstr "Початковий регістр"
 
-#. Translators: please not the capitalization of this text, and keep it the same if your
-#. language features capitalization
-#: ../raphodo/generatenameconfig.py:298
+#. Translators: please not the capitalization of this text, and keep it the same
+#. if your language features capitalization
+#: ../raphodo/generatenameconfig.py:312
 msgid "UPPERCASE"
 msgstr "ВЕРХНІЙ РЕГІСТР"
 
-#. Translators: please not the capitalization of this text, and keep it the same if your
-#. language features capitalization
-#: ../raphodo/generatenameconfig.py:301
+#. Translators: please not the capitalization of this text, and keep it the same
+#. if your language features capitalization
+#: ../raphodo/generatenameconfig.py:315
 msgid "lowercase"
 msgstr "нижній регістр"
 
-#: ../raphodo/generatenameconfig.py:302
+#: ../raphodo/generatenameconfig.py:316
 msgid "One digit"
 msgstr "Одна цифра"
 
-#: ../raphodo/generatenameconfig.py:303
+#: ../raphodo/generatenameconfig.py:317
 msgid "Two digits"
 msgstr "Дві цифри"
 
-#: ../raphodo/generatenameconfig.py:304
+#: ../raphodo/generatenameconfig.py:318
 msgid "Three digits"
 msgstr "Три цифри"
 
-#: ../raphodo/generatenameconfig.py:305
+#: ../raphodo/generatenameconfig.py:319
 msgid "Four digits"
 msgstr "Чотири цифри"
 
-#: ../raphodo/generatenameconfig.py:306
+#: ../raphodo/generatenameconfig.py:320
 msgid "Five digits"
 msgstr "П’ять цифр"
 
-#: ../raphodo/generatenameconfig.py:307
+#: ../raphodo/generatenameconfig.py:321
 msgid "Six digits"
 msgstr "Шість цифр"
 
-#: ../raphodo/generatenameconfig.py:308
+#: ../raphodo/generatenameconfig.py:322
 msgid "Seven digits"
 msgstr "Сім цифр"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:311
+#: ../raphodo/generatenameconfig.py:325
 msgid "Subseconds"
 msgstr "Підсекунди"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:314 ../raphodo/generatenameconfig.py:401
+#: ../raphodo/generatenameconfig.py:328 ../raphodo/generatenameconfig.py:415
 msgid "YYYYMMDD"
 msgstr "РРРРММДД"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:317 ../raphodo/generatenameconfig.py:402
+#: ../raphodo/generatenameconfig.py:331 ../raphodo/generatenameconfig.py:416
 msgid "YYYY-MM-DD"
 msgstr "РРРР-ММ-ДД"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:320 ../raphodo/generatenameconfig.py:403
+#: ../raphodo/generatenameconfig.py:334 ../raphodo/generatenameconfig.py:417
 msgid "YYYY_MM_DD"
 msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:323
+#: ../raphodo/generatenameconfig.py:337
 msgid "YYMMDD"
 msgstr "РРММДД"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:326
+#: ../raphodo/generatenameconfig.py:340
 msgid "YY-MM-DD"
 msgstr "РР-ММ-ДД"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:329
+#: ../raphodo/generatenameconfig.py:343
 msgid "YY_MM_DD"
 msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:332
+#: ../raphodo/generatenameconfig.py:346
 msgid "MMDDYYYY"
 msgstr "ММДДРРРР"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:335
+#: ../raphodo/generatenameconfig.py:349
 msgid "MMDDYY"
 msgstr "ММДДРР"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:338
+#: ../raphodo/generatenameconfig.py:352
 msgid "MMDD"
 msgstr "ММДД"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:341
+#: ../raphodo/generatenameconfig.py:355
 msgid "DDMMYYYY"
 msgstr "ДДММГГГГ"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:344
+#: ../raphodo/generatenameconfig.py:358
 msgid "DDMMYY"
 msgstr "ДДММРР"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:347 ../raphodo/generatenameconfig.py:401
-#: ../raphodo/generatenameconfig.py:402 ../raphodo/generatenameconfig.py:403
-#: ../raphodo/generatenameconfig.py:404 ../raphodo/generatenameconfig.py:405
+#: ../raphodo/generatenameconfig.py:361 ../raphodo/generatenameconfig.py:415
+#: ../raphodo/generatenameconfig.py:416 ../raphodo/generatenameconfig.py:417
+#: ../raphodo/generatenameconfig.py:418 ../raphodo/generatenameconfig.py:419
 msgid "YYYY"
 msgstr "РРРР"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:350
+#: ../raphodo/generatenameconfig.py:364
 msgid "YY"
 msgstr "РР"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:353
+#: ../raphodo/generatenameconfig.py:367
 msgid "MM"
 msgstr "ММ"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:356
+#: ../raphodo/generatenameconfig.py:370
 msgid "DD"
 msgstr "ДД"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:359
+#: ../raphodo/generatenameconfig.py:373
 msgid "Month (full)"
 msgstr "Місяць (повністю)"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:362
+#: ../raphodo/generatenameconfig.py:376
 msgid "Month (abbreviated)"
 msgstr "Місяць (коротко)"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:365
+#: ../raphodo/generatenameconfig.py:379
 msgid "Weekday (full)"
 msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:368
+#: ../raphodo/generatenameconfig.py:382
 msgid "Weekday (abbreviated)"
 msgstr ""
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:371
+#: ../raphodo/generatenameconfig.py:385
 msgid "HHMMSS"
 msgstr "ГГХХСС"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:374
+#: ../raphodo/generatenameconfig.py:388
 msgid "HHMM"
 msgstr "ГГХХ"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:377
+#: ../raphodo/generatenameconfig.py:391
 msgid "HH-MM-SS"
 msgstr "ГГ-ХХ-СС"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:380
+#: ../raphodo/generatenameconfig.py:394
 msgid "HH-MM"
 msgstr "ГГ-ХХ"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:383
+#: ../raphodo/generatenameconfig.py:397
 msgid "HH"
 msgstr "ГГ"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:386
+#: ../raphodo/generatenameconfig.py:400
 msgid "MM (minutes)"
 msgstr "ХХ (хвилин)"
 
 #. Translators: for an explanation of what this means,
 #. see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: ../raphodo/generatenameconfig.py:389
+#: ../raphodo/generatenameconfig.py:403
 msgid "SS"
 msgstr "СС"
 
-#: ../raphodo/generatenameconfig.py:401
+#: ../raphodo/generatenameconfig.py:415
 msgid "Date"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:402
+#: ../raphodo/generatenameconfig.py:416
 msgid "Date (hyphens)"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:403
+#: ../raphodo/generatenameconfig.py:417
 msgid "Date (underscores)"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:404 ../raphodo/generatenameconfig.py:450
-#: ../raphodo/generatenameconfig.py:545
+#: ../raphodo/generatenameconfig.py:418 ../raphodo/generatenameconfig.py:512
+#: ../raphodo/generatenameconfig.py:699
 msgid "Date and Job Code"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:404
+#: ../raphodo/generatenameconfig.py:418
 msgid "YYYYMM_Job Code"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:405
+#: ../raphodo/generatenameconfig.py:419
 msgid "Date and Job Code Subfolder"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:405
+#: ../raphodo/generatenameconfig.py:419
 msgid "YYYYMM"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:405 ../raphodo/jobcodepanel.py:282
-#: ../raphodo/nameeditor.py:860 ../raphodo/rapid.py:2129
-#: ../raphodo/renamepanel.py:83 ../raphodo/renamepanel.py:246
+#: ../raphodo/generatenameconfig.py:419 ../raphodo/jobcodepanel.py:282
+#: ../raphodo/nameeditor.py:928 ../raphodo/rapid.py:2129
+#: ../raphodo/renamepanel.py:100 ../raphodo/renamepanel.py:282
 msgid "Job Code"
 msgstr "Мітка"
 
-#: ../raphodo/generatenameconfig.py:445 ../raphodo/generatenameconfig.py:540
+#: ../raphodo/generatenameconfig.py:507 ../raphodo/generatenameconfig.py:694
 msgid "Original Filename"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:446 ../raphodo/generatenameconfig.py:541
+#: ../raphodo/generatenameconfig.py:508 ../raphodo/generatenameconfig.py:695
 msgid "Date-Time and Downloads today"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:446 ../raphodo/generatenameconfig.py:541
+#: ../raphodo/generatenameconfig.py:508 ../raphodo/generatenameconfig.py:695
 msgid "YYYYMMDD-HHMM-1"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:447 ../raphodo/generatenameconfig.py:542
+#: ../raphodo/generatenameconfig.py:509 ../raphodo/generatenameconfig.py:696
 msgid "Date and Downloads today"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:447 ../raphodo/generatenameconfig.py:542
+#: ../raphodo/generatenameconfig.py:509 ../raphodo/generatenameconfig.py:696
 msgid "YYYYMMDD-1"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:448
+#: ../raphodo/generatenameconfig.py:510
 msgid "Date-Time and Image number"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:448
+#: ../raphodo/generatenameconfig.py:510
 msgid "YYYYMMDD-1234"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:449 ../raphodo/generatenameconfig.py:544
+#: ../raphodo/generatenameconfig.py:511 ../raphodo/generatenameconfig.py:698
 msgid "Date-Time and Job Code"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:449 ../raphodo/generatenameconfig.py:544
+#: ../raphodo/generatenameconfig.py:511 ../raphodo/generatenameconfig.py:698
 msgid "YYYYMMDD-HHMM-Job Code-1"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:450 ../raphodo/generatenameconfig.py:545
+#: ../raphodo/generatenameconfig.py:512 ../raphodo/generatenameconfig.py:699
 msgid "YYYYMMDD-Job Code-1"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:543
+#: ../raphodo/generatenameconfig.py:697
 msgid "Date-Time and Video number"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:543
+#: ../raphodo/generatenameconfig.py:697
 msgid "YYYYMMDD_1234"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:546
+#: ../raphodo/generatenameconfig.py:700
 msgid "Resolution"
 msgstr ""
 
-#: ../raphodo/generatenameconfig.py:546
+#: ../raphodo/generatenameconfig.py:700
 msgid "YYYYMMDD-HHMM-1-1920x1080"
 msgstr ""
 
@@ -2260,9 +2278,7 @@ msgstr ""
 msgid "Job Codes"
 msgstr "Мітки"
 
-#. Translators: please do not modify or leave out html formatting tags like <i> and
-#. <b>. These are used to format the text the users sees
-#: ../raphodo/messagewidget.py:65
+#: ../raphodo/messagewidget.py:67
 #, python-format
 msgid "<i><b>Hint:</b> %(message)s</i>"
 msgstr ""
@@ -2272,105 +2288,105 @@ msgstr ""
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/nameeditor.py:432 ../raphodo/nameeditor.py:452
+#: ../raphodo/nameeditor.py:480 ../raphodo/nameeditor.py:500
 #, python-format
 msgid "%(description)s - %(elements)s"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:532
+#: ../raphodo/nameeditor.py:585
 msgid "Save New Custom Preset..."
 msgstr ""
 
-#: ../raphodo/nameeditor.py:533
+#: ../raphodo/nameeditor.py:586
 msgid "Remove All Custom Presets..."
 msgstr ""
 
-#: ../raphodo/nameeditor.py:579
+#: ../raphodo/nameeditor.py:632
 msgid "(New Custom Preset)"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:596
+#: ../raphodo/nameeditor.py:649
 #, python-format
 msgid "%s (edited)"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:599 ../raphodo/nameeditor.py:1453
+#: ../raphodo/nameeditor.py:652 ../raphodo/nameeditor.py:1560
 #, python-format
 msgid "Update Custom Preset \"%s\""
 msgstr ""
 
-#: ../raphodo/nameeditor.py:692
+#: ../raphodo/nameeditor.py:745
 msgid "Save New Custom Preset - Rapid Photo Downloader"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:700
+#: ../raphodo/nameeditor.py:753
 msgid "Preset Name:"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:824
+#: ../raphodo/nameeditor.py:886
 msgid "Photo Subfolder Generation Editor"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:830
+#: ../raphodo/nameeditor.py:894
 msgid "Video Subfolder Generation Editor"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:836
+#: ../raphodo/nameeditor.py:902
 msgid "Photo Renaming Editor"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:842
+#: ../raphodo/nameeditor.py:909
 msgid "Video Renaming Editor"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:870
+#: ../raphodo/nameeditor.py:938
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>There is insufficient data to "
 "fully generate the name. Please use other renaming options.</i>"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:886
+#: ../raphodo/nameeditor.py:956
 #, python-format
 msgid "The character</i> %(separator)s <i>creates a new subfolder level."
 msgstr ""
 
-#: ../raphodo/nameeditor.py:895
+#: ../raphodo/nameeditor.py:966
 #, python-format
 msgid ""
 "There is no need start or end with the folder separator </i> "
 "%(separator)s<i>, because it is added automatically."
 msgstr ""
 
-#: ../raphodo/nameeditor.py:903
+#: ../raphodo/nameeditor.py:974
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>Unique filenames may not be "
 "generated. Make filenames unique by using Sequence values.</i>"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:928 ../raphodo/renamepanel.py:123
+#: ../raphodo/nameeditor.py:1001 ../raphodo/renamepanel.py:146
 msgid "Preset:"
 msgstr ""
 
 #. Translators: appears in a combobox, e.g. Image Date (YYYY)
-#: ../raphodo/nameeditor.py:1011 ../raphodo/nameeditor.py:1032
+#: ../raphodo/nameeditor.py:1084 ../raphodo/nameeditor.py:1107
 #, python-brace-format
 msgid "{choice} ({variant})"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:1057 ../raphodo/preferencedialog.py:997
+#: ../raphodo/nameeditor.py:1136 ../raphodo/preferencedialog.py:997
 #: ../raphodo/wsl.py:649
 msgid "Get help online..."
 msgstr ""
 
-#: ../raphodo/nameeditor.py:1079
+#: ../raphodo/nameeditor.py:1163
 msgid "Insert"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:1421
+#: ../raphodo/nameeditor.py:1525
 msgid "Save Preset - Rapid Photo Downloader"
 msgstr ""
 
-#: ../raphodo/nameeditor.py:1425
+#: ../raphodo/nameeditor.py:1529
 msgid ""
 "<b>Do you want to save the changes in a new custom preset?</"
 "b><br><br>Creating a custom preset is not required, but can help you keep "
@@ -2378,7 +2394,7 @@ msgid ""
 "regardless of whether you create a new custom preset or not."
 msgstr ""
 
-#: ../raphodo/nameeditor.py:1443
+#: ../raphodo/nameeditor.py:1550
 msgid ""
 "<b>Do you want to save the changes in a custom preset?</b><br><br>If you "
 "like, you can create a new custom preset or update the existing custom "
@@ -2386,62 +2402,63 @@ msgid ""
 "regardless of whether you save a custom preset or not."
 msgstr ""
 
-#: ../raphodo/nameeditor.py:1455
+#: ../raphodo/nameeditor.py:1564
 msgid "Save New Custom Preset"
 msgstr ""
 
-#: ../raphodo/newversion.py:296
+#: ../raphodo/newversion.py:327
 msgid "Checking for new version..."
 msgstr ""
 
-#: ../raphodo/newversion.py:297
+#: ../raphodo/newversion.py:328
 msgid "You are running the latest version."
 msgstr ""
 
-#: ../raphodo/newversion.py:298
+#: ../raphodo/newversion.py:329
 msgid "Failed to contact the update server."
 msgstr ""
 
-#: ../raphodo/newversion.py:300
+#: ../raphodo/newversion.py:332
 #, python-format
 msgid "A new version of Rapid Photo Downloader (%s) is available."
 msgstr ""
 
-#: ../raphodo/newversion.py:302
+#: ../raphodo/newversion.py:335
 msgid "Do you want to download the new version?"
 msgstr ""
 
-#: ../raphodo/newversion.py:303
+#: ../raphodo/newversion.py:337
 #, python-format
 msgid "Changes in the new release can be viewed <a href=\"%s\">here</a>."
 msgstr ""
 
-#. Translators: this text appears in a button - the & sets the s key in combination with
-#. the alt key to act as the keyboard shortcut
-#: ../raphodo/newversion.py:332 ../raphodo/newversion.py:347
+#. Translators: this text appears in a button - the & sets the s key in
+#. combination with the alt key to act as the keyboard shortcut
+#: ../raphodo/newversion.py:367 ../raphodo/newversion.py:386
 msgid "&Skip this release"
 msgstr ""
 
-#. Translators: this text appears in a button - the & sets the o key in combination with
-#. the alt key to act as the keyboard shortcut
-#: ../raphodo/newversion.py:350
+#. Translators: this text appears in a button - the & sets the o key in
+#. combination with the alt key to act as the keyboard shortcut
+#: ../raphodo/newversion.py:389
 msgid "&Open Download Page"
 msgstr ""
 
-#: ../raphodo/newversion.py:370
+#: ../raphodo/newversion.py:413
 msgid "Rapid Photo Downloader updates"
 msgstr ""
 
-#. Translators: shows how much of a file has been downloaded e.g  123 KB of 1.3 MB
+#. Translators: shows how much of a file has been downloaded e.g  123 KB of
+#. 1.3 MB
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/newversion.py:475
+#: ../raphodo/newversion.py:532
 #, python-format
 msgid "%(downloaded)s of %(total)s"
 msgstr ""
 
-#: ../raphodo/newversion.py:494
+#: ../raphodo/newversion.py:554
 msgid "Downloading..."
 msgstr ""
 
@@ -3110,7 +3127,7 @@ msgstr ""
 msgid "Specify a file extension (without the leading dot)"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:1839 ../raphodo/renamepanel.py:124
+#: ../raphodo/preferencedialog.py:1839 ../raphodo/renamepanel.py:147
 msgid "Extension:"
 msgstr ""
 
@@ -3166,91 +3183,91 @@ msgstr "Параметри підтеки не повинні завершува
 msgid "Subfolder preferences should not contain two %s one after the other"
 msgstr "Параметри підтеки не повинні містити два %s одне за одним"
 
-#: ../raphodo/primarybutton.py:117
+#: ../raphodo/primarybutton.py:130
 msgid "Download 8 Photos and 10 Videos"
 msgstr ""
 
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/problemnotification.py:89 ../raphodo/problemnotification.py:230
+#: ../raphodo/problemnotification.py:96 ../raphodo/problemnotification.py:251
 #, python-format
 msgid "Error: %(errno)s %(strerror)s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:94
+#: ../raphodo/problemnotification.py:100
 #, python-format
 msgid "Error: %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:122
+#: ../raphodo/problemnotification.py:129
 #, python-format
 msgid "GPhoto2 Error: %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:132
+#: ../raphodo/problemnotification.py:141
 msgid ""
 "Unable to initialize the camera, probably because another program is using "
 "it. No files were copied from it."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:144
+#: ../raphodo/problemnotification.py:154
 #, python-format
 msgid "Unable to read directory %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:150
+#: ../raphodo/problemnotification.py:161
 #, python-format
 msgid "Unable to access modification time or size from %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:156
+#: ../raphodo/problemnotification.py:168
 #, python-format
 msgid "Unable to read file %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:162
+#: ../raphodo/problemnotification.py:174
 #, python-format
 msgid "Unable to write file %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:168
+#: ../raphodo/problemnotification.py:180
 #, python-format
 msgid "Unable to move file %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:174
+#: ../raphodo/problemnotification.py:186
 #, python-format
 msgid "Unable to remove file %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:180
+#: ../raphodo/problemnotification.py:192
 #, python-format
 msgid "Unable to copy file %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:186
+#: ../raphodo/problemnotification.py:198
 #, python-format
 msgid "Zero length file %s will not be downloaded"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:192
+#: ../raphodo/problemnotification.py:205
 #, python-format
 msgid "Could not determine filesystem modification time for %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:198
+#: ../raphodo/problemnotification.py:213
 #, python-format
 msgid "Unable to load metadata from %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:209
+#: ../raphodo/problemnotification.py:224
 #, python-format
 msgid ""
 "Unable to load metadata from %(name)s. The %(filetype)s was not downloaded."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:219
+#: ../raphodo/problemnotification.py:236
 #, python-format
 msgid ""
 "An error occurred setting a file's filesystem metadata on the filesystem %s. "
@@ -3258,7 +3275,7 @@ msgid ""
 "again."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:238
+#: ../raphodo/problemnotification.py:261
 #, python-format
 msgid "Encountered unhandled file %s. It will not be downloaded."
 msgstr ""
@@ -3266,82 +3283,82 @@ msgstr ""
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/problemnotification.py:248
+#: ../raphodo/problemnotification.py:273
 #, python-format
 msgid "%(filetype)s %(destination)s already exists."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:263 ../raphodo/problemnotification.py:299
+#: ../raphodo/problemnotification.py:285 ../raphodo/problemnotification.py:320
 #, python-format
 msgid ""
 "The existing %(filetype)s %(destination)s was last modified on %(date)s at "
 "%(time)s."
 msgstr ""
 
-#. Translators: %(variable)s represents Python code, not a plural of the term
-#. variable. You must keep the %(variable)s untranslated, or the program will
-#. crash.
-#: ../raphodo/problemnotification.py:278
+#. Translators: %(variable)s represents Python code, not a plural of the
+#. term variable. You must keep the %(variable)s untranslated, or the
+#. program will crash.
+#: ../raphodo/problemnotification.py:301
 #, python-format
 msgid "The %(filetype)s %(source)s was not downloaded from %(device)s."
 msgstr ""
 
-#. Translators: %(variable)s represents Python code, not a plural of the term
-#. variable. You must keep the %(variable)s untranslated, or the program will
-#. crash.
-#: ../raphodo/problemnotification.py:314
+#. Translators: %(variable)s represents Python code, not a plural of the
+#. term variable. You must keep the %(variable)s untranslated, or the
+#. program will crash.
+#: ../raphodo/problemnotification.py:336
 #, python-format
 msgid "The %(filetype)s %(source)s was downloaded from %(device)s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:323
+#: ../raphodo/problemnotification.py:343
 #, python-format
 msgid "The unique identifier '%s' was added to the filename."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:343
+#: ../raphodo/problemnotification.py:363
 #, python-format
 msgid ""
 "The existing backup %(filetype)s %(destination)s was last modified on "
 "%(date)s at %(time)s."
 msgstr ""
 
-#. Translators: %(variable)s represents Python code, not a plural of the term
-#. variable. You must keep the %(variable)s untranslated, or the program will
-#. crash.
-#: ../raphodo/problemnotification.py:358
+#. Translators: %(variable)s represents Python code, not a plural of the
+#. term variable. You must keep the %(variable)s untranslated, or the
+#. program will crash.
+#: ../raphodo/problemnotification.py:379
 #, python-format
 msgid "The %(filetype)s %(source)s was not backed up from %(device)s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:379
+#: ../raphodo/problemnotification.py:398
 #, python-format
 msgid ""
 "The previous backup %(filetype)s %(destination)s was last modified on "
 "%(date)s at %(time)s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:395
+#: ../raphodo/problemnotification.py:415
 #, python-format
 msgid ""
 "The %(filetype)s %(source)s from %(device)s was backed up, overwriting the "
 "previous backup %(filetype)s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:419
+#: ../raphodo/problemnotification.py:438
 #, python-format
 msgid ""
 "When synchronizing RAW + JPEG sequence values, a duplicate %(filetype)s "
 "%(file)s was encountered, and was not downloaded."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:430
+#: ../raphodo/problemnotification.py:449
 msgid ""
 "When synchronizing RAW + JPEG sequence values, photos were detected with the "
 "same filenames, but taken at different times:"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:443
+#: ../raphodo/problemnotification.py:462
 #, python-format
 msgid ""
 "%(image1)s was taken on %(image1_date)s at %(image1_time)s, and %(image2)s "
@@ -3350,104 +3367,101 @@ msgstr ""
 "%(image1)s було створено %(image1_date)s у %(image1_time)s та %(image2)s "
 "створено %(image2_date)s у %(image2_time)s."
 
-#: ../raphodo/problemnotification.py:461
+#: ../raphodo/problemnotification.py:480
 #, python-format
 msgid "Unable to finalize the filename for %s"
 msgstr ""
 
-#. Translators: %(variable)s represents Python code, not a plural of the term
-#. variable. You must keep the %(variable)s untranslated, or the program will
-#. crash.
-#: ../raphodo/problemnotification.py:499
+#: ../raphodo/problemnotification.py:526
 #, python-format
 msgid ""
 "The filename %(destination)s was not fully generated for %(filetype)s "
 "%(source)s."
 msgstr ""
 
-#. Translators: %(variable)s represents Python code, not a plural of the term
-#. variable. You must keep the %(variable)s untranslated, or the program will
-#. crash.
-#: ../raphodo/problemnotification.py:511
+#. Translators: %(variable)s represents Python code, not a plural of
+#. the term variable. You must keep the %(variable)s untranslated, or
+#. the program will crash.
+#: ../raphodo/problemnotification.py:542
 #, python-format
 msgid "The %(type)s metadata is missing."
 msgstr "У метаданих пропущено %(type)s."
 
-#: ../raphodo/problemnotification.py:517
+#: ../raphodo/problemnotification.py:548
 #, python-format
 msgid "The following metadata is missing: %s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:523
+#: ../raphodo/problemnotification.py:554
 #, python-format
 msgid "Date/time conversion failed: %s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:529
+#: ../raphodo/problemnotification.py:562
 msgid ""
 "Could not extract valid date/time metadata or determine the file "
 "modification time."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:535
+#: ../raphodo/problemnotification.py:569
 msgid "Filename does not have an extension."
 msgstr "В імені файлу відсутнє розширення."
 
-#: ../raphodo/problemnotification.py:538
+#: ../raphodo/problemnotification.py:572
 msgid "Filename does not have a number component."
 msgstr "В імені файлу відсутній числовий компонент."
 
-#: ../raphodo/problemnotification.py:542
+#: ../raphodo/problemnotification.py:576
 #, python-format
 msgid "Error generating component %(component)s. Error: %(error)s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:559
+#: ../raphodo/problemnotification.py:591
 #, python-format
 msgid ""
 "The download subfolders %(folder)s were only partially generated for "
 "%(filetype)s %(source)s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:573
+#: ../raphodo/problemnotification.py:605
 #, python-format
 msgid ""
 "There is no data with which to generate the %(subfolder_file)s for "
 "%(filename)s. The %(filetype)s was not downloaded."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:591
+#: ../raphodo/problemnotification.py:623
 #, python-format
 msgid ""
 "Unable to create the %(filetype)s %(destination)s in %(folder)s. The "
 "download file was %(source)s in %(device)s. It was not downloaded."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:607
+#: ../raphodo/problemnotification.py:638
 #, python-format
 msgid "Unable to create the download subfolder %s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:619
+#: ../raphodo/problemnotification.py:648
 #, python-format
 msgid "Unable to create the backup subfolder %s."
 msgstr ""
 
-#: ../raphodo/problemnotification.py:670
+#: ../raphodo/problemnotification.py:704
 #, python-format
 msgid "Problems scanning %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:677
+#: ../raphodo/problemnotification.py:710
 #, python-format
 msgid "Problems copying from %s"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:684
+#: ../raphodo/problemnotification.py:717
 msgid "Problems while finalizing filenames and generating subfolders"
 msgstr ""
 
-#: ../raphodo/problemnotification.py:691
+#: ../raphodo/problemnotification.py:724
 #, python-format
 msgid "Problems backing up to %s"
 msgstr ""
@@ -3460,8 +3474,8 @@ msgstr ""
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/proximity.py:193 ../raphodo/proximity.py:224
-#: ../raphodo/proximity.py:262 ../raphodo/proximity.py:268
+#: ../raphodo/proximity.py:248 ../raphodo/proximity.py:277
+#: ../raphodo/proximity.py:312 ../raphodo/proximity.py:318
 #, python-format
 msgid "%(date)s, %(time)s"
 msgstr ""
@@ -3469,7 +3483,7 @@ msgstr ""
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/proximity.py:212
+#: ../raphodo/proximity.py:266
 #, python-format
 msgid "%(starttime)s - %(endtime)s"
 msgstr ""
@@ -3479,8 +3493,8 @@ msgstr ""
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/proximity.py:235 ../raphodo/proximity.py:242
-#: ../raphodo/proximity.py:1030 ../raphodo/timeutils.py:110
+#: ../raphodo/proximity.py:287 ../raphodo/proximity.py:293
+#: ../raphodo/proximity.py:1122 ../raphodo/timeutils.py:110
 #, python-format
 msgid "%(month)s %(numeric_day)s"
 msgstr ""
@@ -3497,8 +3511,8 @@ msgstr ""
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/proximity.py:252 ../raphodo/proximity.py:256
-#: ../raphodo/proximity.py:1038 ../raphodo/timeutils.py:118
+#: ../raphodo/proximity.py:302 ../raphodo/proximity.py:306
+#: ../raphodo/proximity.py:1129 ../raphodo/timeutils.py:118
 #, python-format
 msgid "%(date)s %(year)s"
 msgstr ""
@@ -3507,7 +3521,7 @@ msgstr ""
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/proximity.py:277
+#: ../raphodo/proximity.py:327
 #, python-format
 msgid "%(earlier_time)s - %(later_time)s"
 msgstr ""
@@ -3519,7 +3533,7 @@ msgstr ""
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/proximity.py:288
+#: ../raphodo/proximity.py:338
 #, python-format
 msgid ""
 "%(earlier_time)s -\n"
@@ -3529,7 +3543,7 @@ msgstr ""
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/proximity.py:420
+#: ../raphodo/proximity.py:472
 #, python-format
 msgid "%(month)s  %(year)s"
 msgstr ""
@@ -3538,12 +3552,12 @@ msgstr ""
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/proximity.py:1043
+#: ../raphodo/proximity.py:1134
 #, python-format
 msgid "%(month)s %(year)s"
 msgstr ""
 
-#: ../raphodo/proximity.py:1718
+#: ../raphodo/proximity.py:1879
 msgid ""
 "The time elapsed between consecutive photos and videos that is used to build "
 "the Timeline"
@@ -3553,47 +3567,48 @@ msgstr ""
 #. Replace the very last character (after the d) with the correct
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
-#: ../raphodo/proximity.py:1775
+#: ../raphodo/proximity.py:1938
 #, python-format
 msgid "%(minutes)dm"
 msgstr ""
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
-#: ../raphodo/proximity.py:1779
+#: ../raphodo/proximity.py:1942
 msgid "1.5h"
 msgstr ""
 
 #. Translators: e.g. "5h", which is short for 5 hours.
-#. Replace the very last character (after the d) with the correct localized value,
-#. keeping everything else. In other words, change only the h character.
-#: ../raphodo/proximity.py:1784
+#. Replace the very last character (after the d) with the correct localized
+#. value, keeping everything else. In other words, change only the h
+#. character.
+#: ../raphodo/proximity.py:1948
 #, python-format
 msgid "%(hours)dh"
 msgstr ""
 
-#: ../raphodo/proximity.py:1835
+#: ../raphodo/proximity.py:1999
 msgid ""
 "The Timeline groups photos and videos based on how much time elapsed between "
 "consecutive shots. Use it to identify photos and videos taken at different "
 "periods in a single day or over consecutive days."
 msgstr ""
 
-#: ../raphodo/proximity.py:1840
+#: ../raphodo/proximity.py:2004
 msgid ""
 "Use the slider (below) to adjust the time elapsed between consecutive shots "
 "that is used to build the Timeline."
 msgstr ""
 
-#: ../raphodo/proximity.py:1843
+#: ../raphodo/proximity.py:2007
 msgid "Timeline build pending..."
 msgstr ""
 
-#: ../raphodo/proximity.py:1844
+#: ../raphodo/proximity.py:2008
 msgid "Timeline is building..."
 msgstr ""
 
-#: ../raphodo/proximity.py:1846
+#: ../raphodo/proximity.py:2010
 msgid ""
 "The Timeline needs to be rebuilt because the file modification time does not "
 "match the time a shot was taken for one or more shots.<br><br>The Timeline "
@@ -3605,14 +3620,14 @@ msgid ""
 "downloading, which is when the metadata is read."
 msgstr ""
 
-#: ../raphodo/proximity.py:1927
+#: ../raphodo/proximity.py:2107
 msgid "Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)"
 msgstr ""
 
 #: ../raphodo/rapid.py:451 ../raphodo/rapid.py:835 ../raphodo/rapid.py:4491
 #: ../raphodo/rapid.py:4710 ../raphodo/rapid.py:4729 ../raphodo/rapid.py:4752
-#: ../raphodo/rapid.py:4759 ../raphodo/rapid.py:5430 ../raphodo/rapid.py:6037
-#: ../raphodo/rapid.py:7187 ../raphodo/rememberthisdialog.py:97
+#: ../raphodo/rapid.py:4759 ../raphodo/rapid.py:5430 ../raphodo/rapid.py:6038
+#: ../raphodo/rapid.py:7186 ../raphodo/rememberthisdialog.py:105
 #: ../raphodo/viewutils.py:366
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:1
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:3
@@ -3923,11 +3938,11 @@ msgid ""
 "start the download?"
 msgstr ""
 
-#: ../raphodo/rapid.py:3387 ../raphodo/rpdfile.py:164
+#: ../raphodo/rapid.py:3387 ../raphodo/rpdfile.py:179
 msgid "photos"
 msgstr "фото"
 
-#: ../raphodo/rapid.py:3401 ../raphodo/rpdfile.py:159
+#: ../raphodo/rapid.py:3401 ../raphodo/rpdfile.py:174
 msgid "videos"
 msgstr "відео"
 
@@ -3944,11 +3959,11 @@ msgid ""
 "to.</b><br><br>Do you still want to start the download?"
 msgstr ""
 
-#: ../raphodo/rapid.py:3430 ../raphodo/rpdfile.py:166 ../raphodo/rpdfile.py:815
+#: ../raphodo/rapid.py:3430 ../raphodo/rpdfile.py:181 ../raphodo/rpdfile.py:850
 msgid "photo"
 msgstr "фото"
 
-#: ../raphodo/rapid.py:3446 ../raphodo/rpdfile.py:161 ../raphodo/rpdfile.py:867
+#: ../raphodo/rapid.py:3446 ../raphodo/rpdfile.py:176 ../raphodo/rpdfile.py:912
 msgid "video"
 msgstr "відео"
 
@@ -4168,121 +4183,121 @@ msgid ""
 "Do you want to download photos and videos from the device <i>%(device)s</i>?"
 msgstr ""
 
-#: ../raphodo/rapid.py:6020
+#: ../raphodo/rapid.py:6021
 #, python-format
 msgid "<b>Do you want to ignore the %s whenever this program is run?</b>"
 msgstr ""
 
-#: ../raphodo/rapid.py:6024
+#: ../raphodo/rapid.py:6025
 msgid ""
 "All cameras, phones and tablets with the same model name will be ignored."
 msgstr ""
 
-#: ../raphodo/rapid.py:6030
+#: ../raphodo/rapid.py:6031
 #, python-format
 msgid ""
 "<b>Do you want to ignore the device %s whenever this program is run?</b>"
 msgstr ""
 
-#: ../raphodo/rapid.py:6034
+#: ../raphodo/rapid.py:6035
 msgid "Any device with the same name will be ignored."
 msgstr ""
 
-#: ../raphodo/rapid.py:6388
+#: ../raphodo/rapid.py:6389
 #, python-format
 msgid "Downloading from %(location)s on This Computer."
 msgstr ""
 
-#: ../raphodo/rapid.py:6392
+#: ../raphodo/rapid.py:6393
 msgid ""
 "Do you really want to download from here?<br><br>On some systems, scanning "
 "this location can take a very long time."
 msgstr ""
 
-#: ../raphodo/rapid.py:6448
+#: ../raphodo/rapid.py:6449
 #, python-format
 msgid "Generating thumbnails for %s"
 msgstr ""
 
-#: ../raphodo/rapid.py:6455
+#: ../raphodo/rapid.py:6456
 #, python-format
 msgid "Scanning %s"
 msgstr ""
 
-#: ../raphodo/rapid.py:6469
+#: ../raphodo/rapid.py:6470
 #, python-format
 msgid ""
 "%(number)s of %(available files)s checked for download (%(hidden)s hidden)"
 msgstr ""
 
-#: ../raphodo/rapid.py:6481
+#: ../raphodo/rapid.py:6482
 #, python-format
 msgid "%(number)s of %(available files)s checked for download"
 msgstr ""
 
-#: ../raphodo/rapid.py:6780
+#: ../raphodo/rapid.py:6779
 msgid "Show version numbers of program and its libraries and exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:6787
+#: ../raphodo/rapid.py:6786
 msgid "Display program information when run from the command line."
 msgstr ""
 
-#: ../raphodo/rapid.py:6793
+#: ../raphodo/rapid.py:6792
 msgid "Display debugging information when run from the command line."
 msgstr ""
 
-#: ../raphodo/rapid.py:6800
+#: ../raphodo/rapid.py:6799
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:6806
+#: ../raphodo/rapid.py:6805
 msgid "Turn on or off the the renaming of photos."
 msgstr ""
 
-#: ../raphodo/rapid.py:6812
+#: ../raphodo/rapid.py:6811
 msgid "Turn on or off the the renaming of videos."
 msgstr ""
 
-#: ../raphodo/rapid.py:6820
+#: ../raphodo/rapid.py:6819
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
 msgstr ""
 
-#: ../raphodo/rapid.py:6828
+#: ../raphodo/rapid.py:6827
 msgid "Turn on or off downloading from this computer."
 msgstr ""
 
-#: ../raphodo/rapid.py:6833 ../raphodo/rapid.py:6840 ../raphodo/rapid.py:6847
-#: ../raphodo/rapid.py:6891 ../raphodo/rapid.py:6901
+#: ../raphodo/rapid.py:6832 ../raphodo/rapid.py:6839 ../raphodo/rapid.py:6846
+#: ../raphodo/rapid.py:6890 ../raphodo/rapid.py:6900
 msgid "PATH"
 msgstr ""
 
-#: ../raphodo/rapid.py:6835
+#: ../raphodo/rapid.py:6834
 msgid "The PATH on this computer from which to download."
 msgstr ""
 
-#: ../raphodo/rapid.py:6842
+#: ../raphodo/rapid.py:6841
 msgid "The PATH where photos will be downloaded to."
 msgstr ""
 
-#: ../raphodo/rapid.py:6849
+#: ../raphodo/rapid.py:6848
 msgid "The PATH where videos will be downloaded to."
 msgstr ""
 
-#: ../raphodo/rapid.py:6856
+#: ../raphodo/rapid.py:6855
 msgid "Turn on or off the backing up of photos and videos while downloading."
 msgstr ""
 
-#: ../raphodo/rapid.py:6862
+#: ../raphodo/rapid.py:6861
 msgid "Turn on or off the automatic detection of backup devices."
 msgstr ""
 
-#: ../raphodo/rapid.py:6867 ../raphodo/rapid.py:6879
+#: ../raphodo/rapid.py:6866 ../raphodo/rapid.py:6878
 msgid "FOLDER"
 msgstr ""
 
-#: ../raphodo/rapid.py:6870
+#: ../raphodo/rapid.py:6869
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
@@ -4290,7 +4305,7 @@ msgid ""
 "photos up to, create a folder on it with this name."
 msgstr ""
 
-#: ../raphodo/rapid.py:6882
+#: ../raphodo/rapid.py:6881
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
@@ -4298,274 +4313,274 @@ msgid ""
 "up videos to, create a folder on it with this name."
 msgstr ""
 
-#: ../raphodo/rapid.py:6894
+#: ../raphodo/rapid.py:6893
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
 msgstr ""
 
-#: ../raphodo/rapid.py:6904
+#: ../raphodo/rapid.py:6903
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
 msgstr ""
 
-#: ../raphodo/rapid.py:6912
+#: ../raphodo/rapid.py:6911
 #, python-format
 msgid "Ignore photos with the following extensions: %s"
 msgstr ""
 
-#: ../raphodo/rapid.py:6922
+#: ../raphodo/rapid.py:6921
 msgid "Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 
-#: ../raphodo/rapid.py:6929
+#: ../raphodo/rapid.py:6928
 msgid "Turn on or off starting downloads as soon as a device is inserted."
 msgstr ""
 
-#: ../raphodo/rapid.py:6936
+#: ../raphodo/rapid.py:6935
 msgid ""
 "Turn on or off use of the Rapid Photo Downloader Thumbnail Cache. Turning it "
 "off does not delete existing cache contents."
 msgstr ""
 
-#: ../raphodo/rapid.py:6945
+#: ../raphodo/rapid.py:6944
 msgid ""
 "Delete all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and "
 "exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:6953
+#: ../raphodo/rapid.py:6952
 msgid "Forget which files have been previously downloaded, and exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:6960
+#: ../raphodo/rapid.py:6959
 msgid ""
 "Import preferences from an old program version and exit. Requires the "
 "command line program gconftool-2."
 msgstr ""
 
-#: ../raphodo/rapid.py:6969
+#: ../raphodo/rapid.py:6968
 msgid ""
 "Reset all program settings to their default values, delete all thumbnails in "
 "the Thumbnail cache, forget which files have been previously downloaded, and "
 "exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:6977
+#: ../raphodo/rapid.py:6976
 msgid "Include gphoto2 debugging information in log files."
 msgstr ""
 
-#: ../raphodo/rapid.py:6983
+#: ../raphodo/rapid.py:6982
 msgid "Print information to the terminal about attached cameras and exit."
 msgstr ""
 
-#: ../raphodo/rapid.py:6993
+#: ../raphodo/rapid.py:6992
 msgid "Run this program in wayland or regular X11"
 msgstr ""
 
-#: ../raphodo/rapid.py:7086
+#: ../raphodo/rapid.py:7085
 msgid ""
 "To import preferences from the old version of Rapid Photo Downloader, you "
 "must install the program gconftool-2."
 msgstr ""
 
-#: ../raphodo/rapid.py:7097
+#: ../raphodo/rapid.py:7096
 msgid "No prior program preferences detected: exiting."
 msgstr ""
 
 #. Translators: %(variable)s represents Python code, not a plural of the
 #. term variable. You must keep the %(variable)s untranslated, or the
 #. program will crash.
-#: ../raphodo/rapid.py:7104
+#: ../raphodo/rapid.py:7103
 #, python-format
 msgid "Importing preferences from Rapid Photo Downloader %(version)s"
 msgstr ""
 
-#: ../raphodo/rapid.py:7175
+#: ../raphodo/rapid.py:7174
 #, python-format
 msgid "Do you want to copy the stored sequence number, which has the value %d?"
 msgstr ""
 
-#: ../raphodo/rapid.py:7190
+#: ../raphodo/rapid.py:7189
 msgid "Program aborting."
 msgstr ""
 
-#: ../raphodo/rapid.py:7277
+#: ../raphodo/rapid.py:7276
 msgid "Never run this program as the sudo / root user."
 msgstr ""
 
-#: ../raphodo/rapid.py:7282
+#: ../raphodo/rapid.py:7281
 msgid "You must install ExifTool to run Rapid Photo Downloader."
 msgstr ""
 
-#: ../raphodo/rapid.py:7297
+#: ../raphodo/rapid.py:7296
 msgid ""
 "Rapid Photo Downloader is installed in multiple locations.\n"
 "\n"
 "Uninstall all copies except the version you want to run."
 msgstr ""
 
-#: ../raphodo/rapid.py:7367
+#: ../raphodo/rapid.py:7366
 msgid ""
 "When specifying a path on the command line, do not also specify an\n"
 "option for device auto detection or a path on \"This Computer\"."
 msgstr ""
 
-#: ../raphodo/rapid.py:7573
+#: ../raphodo/rapid.py:7572
 msgid "All settings and caches have been reset."
 msgstr "Всі параметри та налаштування скинуті."
 
-#: ../raphodo/rapid.py:7581
+#: ../raphodo/rapid.py:7580
 msgid "Thumbnail Cache has been reset."
 msgstr "Всі параметри та налаштування скинуті."
 
-#: ../raphodo/rapid.py:7587
+#: ../raphodo/rapid.py:7586
 msgid "Remembered files have been forgotten."
 msgstr ""
 
-#: ../raphodo/rememberthisdialog.py:66
+#: ../raphodo/rememberthisdialog.py:69
 msgid "&Remember this choice"
 msgstr ""
 
-#: ../raphodo/rememberthisdialog.py:68
+#: ../raphodo/rememberthisdialog.py:71
 msgid "&Don't ask me about this again"
 msgstr ""
 
-#: ../raphodo/rememberthisdialog.py:70
+#: ../raphodo/rememberthisdialog.py:73
 msgid "&Don't warn me about this again"
 msgstr ""
 
-#: ../raphodo/rememberthisdialog.py:73
+#: ../raphodo/rememberthisdialog.py:80
 msgid "&Don't warn me again about missing or broken program libraries"
 msgstr ""
 
-#: ../raphodo/renameandmovefile.py:572
+#: ../raphodo/renameandmovefile.py:626
 msgid "subfolder and filename"
 msgstr "підтека та назва файлу"
 
-#: ../raphodo/renameandmovefile.py:574
+#: ../raphodo/renameandmovefile.py:628
 msgid "filename"
 msgstr "назва файлу"
 
-#: ../raphodo/renameandmovefile.py:576
+#: ../raphodo/renameandmovefile.py:630
 msgid "subfolder"
 msgstr "підтека"
 
-#: ../raphodo/renamepanel.py:296
+#: ../raphodo/renamepanel.py:335
 msgid "A counter for how many downloads occur on each day"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:297
+#: ../raphodo/renamepanel.py:336
 msgid "Downloads today:"
 msgstr "Завантажень сьогодні:"
 
-#: ../raphodo/renamepanel.py:319
+#: ../raphodo/renamepanel.py:358
 msgid "A counter that is remembered each time the program is run "
 msgstr ""
 
-#: ../raphodo/renamepanel.py:320
+#: ../raphodo/renamepanel.py:359
 msgid "Stored number:"
 msgstr "Номер зберігання:"
 
-#: ../raphodo/renamepanel.py:331
+#: ../raphodo/renamepanel.py:371
 msgid ""
 "The time at which the <i>Downloads today</i> sequence number should be reset"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:332
+#: ../raphodo/renamepanel.py:373
 msgid "Day start:"
 msgstr "Початок дня:"
 
 #. 24 hour format, if wanted in a future release:
 #. self.dayStart.setDisplayFormat('HH:mm:ss')
-#: ../raphodo/renamepanel.py:342
+#: ../raphodo/renamepanel.py:383
 msgid "Synchronize RAW + JPEG"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:346
+#: ../raphodo/renamepanel.py:387
 msgid ""
 "Synchronize sequence numbers for matching RAW and JPEG pairs.\n"
 "\n"
 "See the online documentation for more details."
 msgstr ""
 
-#: ../raphodo/renamepanel.py:351
+#: ../raphodo/renamepanel.py:392
 msgid "Sequence Numbers"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:362
+#: ../raphodo/renamepanel.py:403
 msgid "Strip incompatible characters"
 msgstr "Вилучати несумісні символи"
 
-#: ../raphodo/renamepanel.py:367
+#: ../raphodo/renamepanel.py:408
 msgid ""
 "Whether photo, video and folder names should have any characters removed "
 "that are not allowed by other operating systems"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:371
+#: ../raphodo/renamepanel.py:412
 msgid "Compatibility"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:455
+#: ../raphodo/renamepanel.py:496
 msgid "Photo Renaming"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:459
+#: ../raphodo/renamepanel.py:501
 msgid "Video Renaming"
 msgstr ""
 
-#: ../raphodo/renamepanel.py:463
+#: ../raphodo/renamepanel.py:506
 msgid "Renaming Options"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:154
+#: ../raphodo/rpdfile.py:169
 msgid "photos and videos"
 msgstr "фото та відео"
 
-#: ../raphodo/rpdfile.py:156
+#: ../raphodo/rpdfile.py:171
 msgid "photos or videos"
 msgstr "фото або відео"
 
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/rpdfile.py:255
+#: ../raphodo/rpdfile.py:273
 #, python-format
 msgid "%(number)s %(filetypes)s"
 msgstr "%(number)s %(filetypes)s"
 
 #. translators: natural language expression signifying a single video
-#: ../raphodo/rpdfile.py:282
+#: ../raphodo/rpdfile.py:302
 msgid "a video"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:284
+#: ../raphodo/rpdfile.py:304
 msgid "1 Video"
 msgstr ""
 
 #. translators: natural language expression signifying a single photo
-#: ../raphodo/rpdfile.py:294
+#: ../raphodo/rpdfile.py:314
 msgid "a photo"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:296
+#: ../raphodo/rpdfile.py:316
 msgid "1 Photo"
 msgstr ""
 
 #. Translators: %(variable)s represents Python code, not a plural of the term variable.
 #. You must keep the %(variable)s untranslated, or the program will crash.
-#: ../raphodo/rpdfile.py:798
+#: ../raphodo/rpdfile.py:830
 #, python-format
 msgid "%(path)s on %(camera)s"
 msgstr ""
 
-#: ../raphodo/rpdfile.py:816
+#: ../raphodo/rpdfile.py:851
 msgid "Photo"
 msgstr "Фото"
 
-#: ../raphodo/rpdfile.py:868
+#: ../raphodo/rpdfile.py:913
 msgid "Video"
 msgstr "Відео"
 
@@ -4578,73 +4593,73 @@ msgstr ""
 msgid "Pictures"
 msgstr ""
 
-#: ../raphodo/sudocommand.py:74
+#: ../raphodo/sudocommand.py:93
 msgid "Sorry, the password was incorrect."
 msgstr ""
 
 #. Translators: here %s refers to the username (you must keep %s or the
 #. program will crash). This is what it looks like:
 #. https://damonlynch.net/rapid/documentation/fullsize/wsl/password-prompt-hidden.png
-#: ../raphodo/sudocommand.py:81
+#: ../raphodo/sudocommand.py:100
 #, python-format
 msgid "To perform administrative tasks, enter the password for %s."
 msgstr ""
 
-#: ../raphodo/sudocommand.py:109
+#: ../raphodo/sudocommand.py:140
 msgid "Password:"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:577
+#: ../raphodo/thumbnaildisplay.py:580
 #, python-format
 msgid "Taken on %(date_time)s (%(human_readable)s)"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:587
+#: ../raphodo/thumbnaildisplay.py:590
 #, python-format
 msgid "Modified on %(date_time)s (%(human_readable)s)"
 msgstr ""
 
-#. Translators: %(variable)s represents Python code, not a plural of the term
-#. variable. You must keep the %(variable)s untranslated, or the program will
-#. crash.
-#: ../raphodo/thumbnaildisplay.py:599 ../raphodo/thumbnaildisplay.py:661
+#. Translators: %(variable)s represents Python code, not a plural of the
+#. term variable. You must keep the %(variable)s untranslated, or the
+#. program will crash.
+#: ../raphodo/thumbnaildisplay.py:602 ../raphodo/thumbnaildisplay.py:665
 #, python-format
 msgid "%(date_time)s (%(human_readable)s)"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:617
+#: ../raphodo/thumbnaildisplay.py:620
 #, python-format
 msgid "Memory cards: %s"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:622
+#: ../raphodo/thumbnaildisplay.py:625
 #, python-format
 msgid "Memory card: %s"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:629
+#: ../raphodo/thumbnaildisplay.py:632
 msgid "Downloaded as:"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:675
+#: ../raphodo/thumbnaildisplay.py:679
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:684
+#: ../raphodo/thumbnaildisplay.py:688
 #, python-format
 msgid "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:2157
+#: ../raphodo/thumbnaildisplay.py:2161
 msgid "Copy Path"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:2163
+#: ../raphodo/thumbnaildisplay.py:2167
 msgid "Mark File as Downloaded"
 msgstr ""
 
-#: ../raphodo/thumbnaildisplay.py:2168
+#: ../raphodo/thumbnaildisplay.py:2172
 msgid "Mark Files as Downloaded"
 msgstr ""
 
@@ -4946,7 +4961,7 @@ msgstr ""
 
 #. Translators: this is the name Windows uses for a removable drive,
 #. like a USB drive
-#: ../raphodo/wsl.py:1601
+#: ../raphodo/wsl.py:1607
 msgid "Removable Drive"
 msgstr ""
 
@@ -4954,7 +4969,7 @@ msgstr ""
 #. normally part of the computer, like an internal hard drive
 #. (although for some reason some USB drives are classified by
 #. Windows as local drives)
-#: ../raphodo/wsl.py:1607
+#: ../raphodo/wsl.py:1613
 msgid "Local Drive"
 msgstr ""
 
