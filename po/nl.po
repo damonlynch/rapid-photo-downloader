@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-12-06 22:29-0500\n"
-"PO-Revision-Date: 2021-12-02 20:24+0000\n"
+"POT-Creation-Date: 2021-12-06 23:29-0500\n"
+"PO-Revision-Date: 2021-12-06 23:11-0500\n"
 "Last-Translator: A.J. Baudrez <a.baudrez@gmail.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2021-12-05 12:08+0000\n"
-"X-Generator: Launchpad (build cf73d44692888e78296213584c304ab04e7416a3)\n"
+"X-Generator: Poedit 3.0\n"
 
 #: ../install.py:76
 msgid ""
@@ -355,7 +355,7 @@ msgstr "Rapid Photo Downloader toevoegen aan het Windows menu"
 
 #: ../install.py:3713
 msgid "Failed to copy application launcher."
-msgstr "Kon programma starter niet kopiëren"
+msgstr "Kon programma starter niet kopiëren."
 
 #: ../install.py:3724
 msgid "Man pages can be found in {}/share/man/man1"
@@ -413,7 +413,7 @@ msgid ""
 "line."
 msgstr ""
 "Je moet mogelijks WSL herstarten om het programma vanaf de commando promp "
-"regel te starten"
+"regel te starten."
 
 #: ../install.py:3831
 #, python-brace-format
@@ -987,7 +987,6 @@ msgstr ""
 "hernoemingsproblemen te doen had (geel/oranje), of mislukte (rood)"
 
 #: ../raphodo/didyouknow.py:92
-#, fuzzy
 msgid ""
 "\n"
 "In case of any problems, a red icon will appear at the bottom of the window "
@@ -996,15 +995,12 @@ msgid ""
 "window."
 msgstr ""
 "\n"
-"            Bij problemen zal een rood icoontje verschijnen onderaan het "
-"venster\n"
-"            dat zal aangeven hoeveel fouten er zijn. Klikken op het "
-"icoontje, opent de Fout Rapportage. \n"
-"            venster.\n"
-"            "
+"Bij problemen zal een rood icoontje verschijnen onderaan het venster\n"
+"dat zal aangeven hoeveel fouten er zijn. Klikken op het icoontje, opent de "
+"Fout Rapportage. \n"
+"venster."
 
 #: ../raphodo/didyouknow.py:98
-#, fuzzy
 msgid ""
 "\n"
 "The Error Report window lists any problems encountered before, during or "
@@ -1018,16 +1014,14 @@ msgid ""
 "search box in the lower left of the Error Report window."
 msgstr ""
 "\n"
-"            Het fout rapportage venster vertoont elk probleem voorafgaand, "
-"gedurende of na de  \n"
-"            download. Een oranje driehoek betekent een verwittiging, een "
-"rode cirkel een falen, \n"
-"            en een zwarte cirkel ergere fouten.Je kan op de hyperlinks "
-"klikken om \n"
-"            het bestand of apparaat te openen in een bestandsbeheerder Je "
-"kan ook de rapporten doorzoeken \n"
-"            via het zoekveld links onder in het Fout Rapportage Venster.\n"
-"            "
+"Het fout rapportage venster vertoont elk probleem voorafgaand, gedurende of "
+"na de  \n"
+"download. Een oranje driehoek betekent een verwittiging, een rode cirkel een "
+"falen, \n"
+"en een zwarte cirkel ergere fouten.Je kan op de hyperlinks klikken om \n"
+"het bestand of apparaat te openen in een bestandsbeheerder Je kan ook de "
+"rapporten doorzoeken \n"
+"via het zoekveld links onder in het Fout Rapportage Venster."
 
 #: ../raphodo/didyouknow.py:109
 msgid ""
@@ -1051,7 +1045,6 @@ msgstr ""
 "opeenvolgende dagen."
 
 #: ../raphodo/didyouknow.py:124
-#, fuzzy
 msgid ""
 "\n"
 "<p>In the illustration above, the first row of the Timeline is black because "
@@ -1063,12 +1056,11 @@ msgid ""
 msgstr ""
 "\n"
 "<p>In de afbeelding hierboven is de eeste rij van de Tijdslijn zwart omdat "
-"alle bestanden op  \n"
+"alle bestanden op \n"
 "die dag reeds gedownload waren.</p>\n"
-"<p>De Tijdslijn schuiver past de verlopen tijd  tussen opeenvolgende shots "
-"voor het maken van de  \n"
-"de Tijdslijn aan:</p>\n"
-"            "
+"<p>De Tijdslijn schuiver past de verlopen tijd tussen opeenvolgende shots "
+"voor het maken van de \n"
+"de Tijdslijn aan:</p>"
 
 #: ../raphodo/didyouknow.py:134
 msgid ""
@@ -1101,7 +1093,6 @@ msgstr ""
 "waarvan je downloadt, linksboven in het programma venster."
 
 #: ../raphodo/didyouknow.py:155
-#, fuzzy
 msgid ""
 "\n"
 "Thumbnails can be sorted using a variety of criteria:\n"
@@ -1122,7 +1113,7 @@ msgid ""
 "</ol>"
 msgstr ""
 "\n"
-"          Miniaturen kunnen geordend worden volgen volgende criteria:\n"
+"Miniaturen kunnen geordend worden volgen volgende criteria:\n"
 "<ol>\n"
 "<li><b>Wijzigingstijd:</b> wanneer het bestand het laats gewijzigd werd "
 "volgens de metagegevens (indien \n"
@@ -1132,12 +1123,12 @@ msgstr ""
 "<li><b>Bestandsnaam:</b> de volledige bestandsnaam, inclusief de extensie.</"
 "li>\n"
 "<li><b>Extensie:</b> de extensie van het bestand. Gebruik dit om jpeg en RAW "
-"afbeeldingen te groeperen  \n"
+"afbeeldingen te groeperen \n"
 "bijvoorbeeld.</li>\n"
 "<li><b>Bestandstype:</b> foto of video.</li>\n"
 "<li><b>Apparaat:</b> naam van het apparaat waarvan de foto's en video's "
 "gedownload worden..</li>\n"
-"</ol> "
+"</ol>"
 
 #: ../raphodo/didyouknow.py:173
 msgid ""
@@ -1160,7 +1151,6 @@ msgstr ""
 "van het scherm: <b>Bestemming</b>, <b>Hernoemen</b> of <b>Job Code</b>."
 
 #: ../raphodo/didyouknow.py:186
-#, fuzzy
 msgid ""
 "\n"
 "When thinking about your download directory structure, keep in mind two "
@@ -1204,11 +1194,9 @@ msgstr ""
 "door Rapid Photo Downloader. Ze moetenniet noodzakelijkreeds bestaan opje "
 "computer,maar het kan geen kwaad.\n"
 "Ze zullen aangemaakt worden onder de bestemmingsfolder.</li>\n"
-"</ol>\n"
-"            "
+"</ol>"
 
 #: ../raphodo/didyouknow.py:203
-#, fuzzy
 msgid ""
 "\n"
 "You can download photos and videos to the same destination folder, or "
@@ -1226,8 +1214,7 @@ msgstr ""
 "&mdash;download foto's \n"
 "en video's naar dezelfde sub-folders of gebruik een verschillende folder "
 "voor ieder \n"
-"type.            \n"
-"            "
+"type."
 
 #: ../raphodo/didyouknow.py:212
 msgid ""
@@ -1240,7 +1227,6 @@ msgstr ""
 "jaar sub-folder en een reeks van maand-dag sub-folder daaronder te hebben."
 
 #: ../raphodo/didyouknow.py:221
-#, fuzzy
 msgid ""
 "\n"
 "Whenever possible, the program previews the download subfolders of photos "
@@ -1262,18 +1248,16 @@ msgstr ""
 "downloaden foto's en video's  vooraf scannen:\n"
 "<ol>\n"
 "<li>De bestemmingsfolder structuur toont de reeds aanwezige download sub-"
-"folders op je computer (deze in  \n"
-"    een normaal, niet-italic font), en de sub-folders die aangemaakt zullen "
+"folders op je computer (deze in \n"
+"een normaal, niet-italic font), en de sub-folders die aangemaakt zullen "
 "worden tijdens de download \n"
-"    (deze met de namen in italics).</li>\n"
+"(deze met de namen in italics).</li>\n"
 "<li>De folderstructuur toont tevens in welke subfolders de bestanden "
-"gedownload zullen worden(deze in zwart  \n"
-"    gekleurd).</li>\n"
-"</ol>\n"
-"            "
+"gedownload zullen worden(deze in zwart \n"
+"gekleurd).</li>\n"
+"</ol>"
 
 #: ../raphodo/didyouknow.py:236
-#, fuzzy
 msgid ""
 "\n"
 "Download subfolder names are typically generated using some or all of the "
@@ -1315,11 +1299,9 @@ msgstr ""
 "Sub-folders benoemen met het jaar, gevolgd door de maand en tenslotte de dag "
 "in numeriek formaat maakt  \n"
 "het makkelijk om alles gesorteerd te houden in je bestandsbeheerder. Daarom "
-"is het de standaard optie:\n"
-"            "
+"is het de standaard optie:"
 
 #: ../raphodo/didyouknow.py:255
-#, fuzzy
 msgid ""
 "\n"
 "To automatically create download subfolders as you download, \n"
@@ -1332,11 +1314,9 @@ msgstr ""
 "kan je gebruik maken van één van de reeds voorziene instellingen van Rapid "
 "Photo Downloader of een eigen \n"
 "instelling aanmaken. Klik op het raderwieltje icoon om het drop-down menu te "
-"openen:            \n"
-"            "
+"openen:"
 
 #: ../raphodo/didyouknow.py:262
-#, fuzzy
 msgid ""
 "\n"
 "Using the drop-down menu, select a built-in preset or click on <b>Custom</b> "
@@ -1349,8 +1329,7 @@ msgstr ""
 "Via het drop-down menu kan je een reeds voorziene instellingen gebruiken of "
 "klik op <b>Aangepast</b> om je eigen \n"
 "schema aan te maken. Je kan je eigen schema aanmaken via de Foto of Video "
-"Subfolder Generation Editor:             \n"
-"            "
+"Subfolder Generation Editor:"
 
 #: ../raphodo/didyouknow.py:271
 msgid ""
@@ -1371,7 +1350,6 @@ msgstr ""
 "custom preset&quot;."
 
 #: ../raphodo/didyouknow.py:283
-#, fuzzy
 msgid ""
 "\n"
 "You do not have to create nested download subfolders. This illustration "
@@ -1384,11 +1362,9 @@ msgstr ""
 "Je moet geen geneste download sub-folders aanmaken. De afbeelding toont \n"
 "de aanmaak van de download sub-folder die enkel de datum van de fotoshoot en "
 "een \n"
-"Job Code bevat:\n"
-"            "
+"Job Code bevat:"
 
 #: ../raphodo/didyouknow.py:292
-#, fuzzy
 msgid ""
 "\n"
 "Although there are many built-in date/time naming options, you may find that "
@@ -1409,11 +1385,9 @@ msgstr ""
 "nieuwe combinaties aan te maken. Stel dat je een datum formaat wil aanmaken "
 "die het jaar (YYYY), een streepje, \n"
 "en de maand (MM) in volgend formaat YYYY-MM. Dat kan je doen als volgt "
-"(noteer de rode cirkel rond het streepje):\n"
-"            "
+"(noteer de rode cirkel rond het streepje):"
 
 #: ../raphodo/didyouknow.py:301
-#, fuzzy
 msgid ""
 "\n"
 "Read more about all the ways you can generate download subfolder names and "
@@ -1427,11 +1401,9 @@ msgstr ""
 "Lees meer over alle mogelijkheden om download sub-folders en bestandsnamen "
 "aan te maken in de <a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime\">online "
-"documentatie</a>.\n"
-"            "
+"documentatie</a>."
 
 #: ../raphodo/didyouknow.py:310
-#, fuzzy
 msgid ""
 "\n"
 "<b>Job Codes</b> let you easily enter text that describes sets of photos and "
@@ -1449,10 +1421,9 @@ msgstr ""
 "bestanden, hebben bepaalde bestanden de Job Code\n"
 "&quot;Street&quot;gekregen en de geselecteerde bestanden staan op het punt "
 "de Job Code \n"
-"&quot;Green Bazaar&quot; te krijgen: \n"
+"&quot;Green Bazaar&quot; te krijgen:"
 
 #: ../raphodo/didyouknow.py:318
-#, fuzzy
 msgid ""
 "\n"
 "You can apply new or existing Job Codes before you start a download. If "
@@ -1466,8 +1437,7 @@ msgstr ""
 "starten. Als er \n"
 "bestanden in de download zijn die nog geen Job Code toegewezen hebben, zal "
 "je gevraagd worden \n"
-"om een Job Code voor hen toe te voegen, alvorens de download begint.\n"
-"            "
+"om een Job Code voor hen toe te voegen, alvorens de download begint."
 
 #: ../raphodo/didyouknow.py:325
 msgid "Look for hints to guide you when working with Job Codes:"
@@ -1482,7 +1452,6 @@ msgstr ""
 "een knop beweegt."
 
 #: ../raphodo/didyouknow.py:334
-#, fuzzy
 msgid ""
 "\n"
 "When you give your photos and videos unique filenames, you'll never be "
@@ -1493,14 +1462,12 @@ msgid ""
 msgstr ""
 "\n"
 "Wanneer je foto's en video's unieke bestandsnamen geeft, zal het heel "
-"duidelijk zijn  \n"
-"met welk bestand je te doen hebt. Het gebruik  van  <b>volgnummers </b> om "
+"duidelijk zijn \n"
+"met welk bestand je te doen hebt. Het gebruik van <b>volgnummers </b> om "
 "bestanden\n"
-"uniek te maken wordt ten stelligste aangeraden\n"
-"            "
+"uniek te maken wordt ten stelligste aangeraden"
 
 #: ../raphodo/didyouknow.py:341
-#, fuzzy
 msgid ""
 "\n"
 "<p>Four types of sequence values are available to help you assign unique "
@@ -1536,11 +1503,9 @@ msgstr ""
 "<p>\n"
 "Lees meer over volgnummers in de <a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers\">online "
-"documentatie</a>.</p>\n"
-"            "
+"documentatie</a>.</p>"
 
 #: ../raphodo/didyouknow.py:359
-#, fuzzy
 msgid ""
 "\n"
 "The <b>Rename</b> panel allows you to configure file renaming. To rename "
@@ -1550,12 +1515,9 @@ msgstr ""
 "\n"
 "Het <b>Hernoem</b> paneel laat je toe de bestandshernoeming in te stellen. "
 "Om bestanden te hernoemen \n"
-"kan je kiezen tussen bestaande instellingen of je eigen instelling "
-"aanmaken.              \n"
-"            "
+"kan je kiezen tussen bestaande instellingen of je eigen instelling aanmaken."
 
 #: ../raphodo/didyouknow.py:365
-#, fuzzy
 msgid ""
 "\n"
 "<p>The <b>Synchronize RAW + JPEG</b> option is useful if you use the RAW + "
@@ -1583,13 +1545,11 @@ msgstr ""
 "volgordes \n"
 "bijgewerkt worden als was het één foto.</p>\n"
 "<p>\n"
-"Lees meer over bestanden hernoemen in de  <a \n"
+"Lees meer over bestanden hernoemen in de <a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#rename\">online "
 "documentation</a>.</p>\n"
-"            "
 
 #: ../raphodo/didyouknow.py:379
-#, fuzzy
 msgid ""
 "\n"
 "You can have your photos and videos backed up to multiple locations as they "
@@ -1603,8 +1563,7 @@ msgstr ""
 "download zoals\n"
 "externe harde schijven of netwerk shares. Back-up apparaten kunnen "
 "automatisch gedetecteerd worden of je kan\n"
-"je eigen back-up locaties meegeven.\n"
-"            "
+"je eigen back-up locaties meegeven."
 
 #: ../raphodo/didyouknow.py:386
 msgid ""
@@ -1616,7 +1575,6 @@ msgstr ""
 "worden."
 
 #: ../raphodo/didyouknow.py:392
-#, fuzzy
 msgid ""
 "\n"
 "Several of the program's preferences can be set from the command line, "
@@ -1630,15 +1588,13 @@ msgstr ""
 "ingesteld, waaronder download  \n"
 "bronnen, bestemming en back-ups. Tevens kunnen instellingen herzet worden "
 "naar hun \n"
-"standaard waardes en caches en bijgehouden bestanden gewist.            \n"
-"            "
+"standaard waardes en caches en bijgehouden bestanden gewist."
 
 #: ../raphodo/didyouknow.py:397
 msgid "You can also import program preferences from the older 0.4 version."
 msgstr "Ja kan ook programma voorkeuren van de oudere versie 0.4 importeren."
 
 #: ../raphodo/didyouknow.py:402
-#, fuzzy
 msgid ""
 "\n"
 "Rapid Photo Downloader deals with three types of cache:\n"
@@ -1686,8 +1642,7 @@ msgstr ""
 "Lees meer over deze caches en hun effect op de download performantie in de "
 "<a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#caches\">online "
-"documentatie</a>.\n"
-"            "
+"documentatie</a>."
 
 #: ../raphodo/didyouknow.py:460
 msgid "Tip of the Day"
@@ -4540,6 +4495,7 @@ msgstr ""
 "van %(file_type)s downloads op%(path)s wil zetten?"
 
 #: ../raphodo/rapid.py:3185
+#, fuzzy
 msgid ""
 "\n"
 "<b>Downloading all files</b><br><br>\n"
@@ -4555,7 +4511,6 @@ msgstr ""
 "inclusief deze die momenteel niet vertoond worden omdat de Tijdslijn\n"
 "gebruik wordt of omdat enkel de nieuwe bestanden vertoond worden.<br><br>\n"
 "Wens je verder te gaan met de download?\n"
-"                        "
 
 #: ../raphodo/rapid.py:3349
 #, python-format
@@ -5351,7 +5306,7 @@ msgstr "Afbeeldingen"
 
 #: ../raphodo/sudocommand.py:93
 msgid "Sorry, the password was incorrect."
-msgstr "Sorry, fout wachtwoord"
+msgstr "Sorry, fout wachtwoord."
 
 #. Translators: here %s refers to the username (you must keep %s or the
 #. program will crash). This is what it looks like:

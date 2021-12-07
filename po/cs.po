@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-12-06 22:29-0500\n"
-"PO-Revision-Date: 2021-12-02 23:16+0000\n"
+"POT-Creation-Date: 2021-12-06 23:29-0500\n"
+"PO-Revision-Date: 2021-12-06 22:56-0500\n"
 "Last-Translator: Pavel Borecki <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "Language: cs\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2021-12-05 12:08+0000\n"
-"X-Generator: Launchpad (build cf73d44692888e78296213584c304ab04e7416a3)\n"
+"X-Generator: Poedit 3.0\n"
 
 #: ../install.py:76
 msgid ""
@@ -989,7 +989,6 @@ msgstr ""
 "přejmenováním (žlutá/oranžová) nebo se vůbec nezdařilo (červená)."
 
 #: ../raphodo/didyouknow.py:92
-#, fuzzy
 msgid ""
 "\n"
 "In case of any problems, a red icon will appear at the bottom of the window "
@@ -998,14 +997,11 @@ msgid ""
 "window."
 msgstr ""
 "\n"
-"            V případě jakýchkoli problémů se v dolní části okna objeví "
-"červená ikona\n"
-"            s označením kolik chybových hlášení se vyskytlo. Kliknutí na ní "
-"otevře okno s hlášeními chyb.\n"
-"            "
+"V případě jakýchkoli problémů se v dolní části okna objeví červená ikona\n"
+"s označením kolik chybových hlášení se vyskytlo. Kliknutí na ní otevře okno "
+"s hlášeními chyb."
 
 #: ../raphodo/didyouknow.py:98
-#, fuzzy
 msgid ""
 "\n"
 "The Error Report window lists any problems encountered before, during or "
@@ -1019,16 +1015,15 @@ msgid ""
 "search box in the lower left of the Error Report window."
 msgstr ""
 "\n"
-"            Okno s chybovými hlášeními vypisuje jakékoli problémy které se "
-"vyskytly před, v průběhu nebo po \n"
-"            stahování. Oranžový trojúhelník přestavuje varování, červený "
-"kruh značí nezdar, \n"
-"            a černý kruh značí závažnější nezdar. Je možné kliknou na "
-"hypertextový odkaz a otevřít \n"
-"            tak jeho soubor nebo zařízení ve správci souborů. V hlášeních je "
-"možné také vyhledávat pomocí \n"
-"            příslušné kolonky vlevo dole okna s chybovými hlášeními.\n"
-"            "
+"Okno s chybovými hlášeními vypisuje jakékoli problémy které se vyskytly "
+"před, v průběhu nebo po \n"
+"stahování. Oranžový trojúhelník přestavuje varování, červený kruh značí "
+"nezdar, \n"
+"a černý kruh značí závažnější nezdar. Je možné kliknou na hypertextový odkaz "
+"a otevřít \n"
+"tak jeho soubor nebo zařízení ve správci souborů. V hlášeních je možné také "
+"vyhledávat pomocí \n"
+"příslušné kolonky vlevo dole okna s chybovými hlášeními."
 
 #: ../raphodo/didyouknow.py:109
 msgid ""
@@ -1051,7 +1046,6 @@ msgstr ""
 "videí pořízených v různých obdobích jednoho či vícero po sobě jdoucích dnů."
 
 #: ../raphodo/didyouknow.py:124
-#, fuzzy
 msgid ""
 "\n"
 "<p>In the illustration above, the first row of the Timeline is black because "
@@ -1067,8 +1061,7 @@ msgstr ""
 "k tomuto datu už byly stažené dříve.</p>\n"
 "<p>Posuvník časové osy upravuje dobu uplynulou mezi po sobě jdoucími snímky "
 "která slouží \n"
-"pro vytváření časové osy:</p>\n"
-"            "
+"pro vytváření časové osy:</p>"
 
 #: ../raphodo/didyouknow.py:134
 msgid ""
@@ -1100,7 +1093,6 @@ msgstr ""
 "zařízení ze kterého stahujete (vlevo nahoře v okně aplikace)."
 
 #: ../raphodo/didyouknow.py:155
-#, fuzzy
 msgid ""
 "\n"
 "Thumbnails can be sorted using a variety of criteria:\n"
@@ -1134,7 +1126,7 @@ msgstr ""
 "<li><b>Typ souboru:</b> fotografie nebo video.</li>\n"
 "<li><b>Zařízení:</b> název zařízení ze kterého jsou fotografie a videa "
 "stahovány.</li>\n"
-"</ol> "
+"</ol>"
 
 #: ../raphodo/didyouknow.py:173
 msgid ""
@@ -1157,7 +1149,6 @@ msgstr ""
 "b> nebo <b>Štítek</b>."
 
 #: ../raphodo/didyouknow.py:186
-#, fuzzy
 msgid ""
 "\n"
 "When thinking about your download directory structure, keep in mind two "
@@ -1198,11 +1189,9 @@ msgstr ""
 "Rapid Photo Downloader. Nemusí ještě na počítači existovat, ale je v "
 "pořádku, pokud už ano.\n"
 "Budou vytvářeny pod cílovou složkou.</li>\n"
-"</ol>\n"
-"            "
+"</ol>"
 
 #: ../raphodo/didyouknow.py:203
-#, fuzzy
 msgid ""
 "\n"
 "You can download photos and videos to the same destination folder, or "
@@ -1217,8 +1206,7 @@ msgstr ""
 "Fotografie a videa je možné stáhnout do stejné cílové složky nebo určit pro "
 "každé zvlášť. \n"
 "To stejné platí pro podsložky pro stahování – opět do stejných nebo pro "
-"každé jiné schéma.            \n"
-"            "
+"každé jiné schéma."
 
 #: ../raphodo/didyouknow.py:212
 msgid ""
@@ -1231,7 +1219,6 @@ msgstr ""
 "rokem a v ní následně sérii podsložek rok-mesic-den."
 
 #: ../raphodo/didyouknow.py:221
-#, fuzzy
 msgid ""
 "\n"
 "Whenever possible, the program previews the download subfolders of photos "
@@ -1254,15 +1241,13 @@ msgstr ""
 "<ol>\n"
 "<li>Strom cílové složky zobrazuje podsložky, které už na počítači existují "
 "(s názvy v běžným, \n"
-"    neskloněným písmem) a dále ty, které teprve budou v průběhu stahování "
+"neskloněným písmem) a dále ty, které teprve budou v průběhu stahování "
 "vytvořeny (s názvy skloněným písmem).</li>\n"
 "<li>Strom složek také zobrazuje do kterých podsložek budou soubory stahovány "
 "(do těch začerněných).</li>\n"
-"</ol>\n"
-"            "
+"</ol>"
 
 #: ../raphodo/didyouknow.py:236
-#, fuzzy
 msgid ""
 "\n"
 "Download subfolder names are typically generated using some or all of the "
@@ -1301,11 +1286,9 @@ msgstr ""
 "</ol>\n"
 "Nazývání podsložek rokem, následovaným měsícem (v číselném vyjádření) a "
 "nakonec dnem \n"
-"usnadňuje řazení ve správci souborů a proto je to výchozí předvolba:\n"
-"            "
+"usnadňuje řazení ve správci souborů a proto je to výchozí předvolba:"
 
 #: ../raphodo/didyouknow.py:255
-#, fuzzy
 msgid ""
 "\n"
 "To automatically create download subfolders as you download, \n"
@@ -1317,12 +1300,9 @@ msgstr ""
 "Pro automatické vytváření podsložek v průběhu stahování je možné použít "
 "jednu z přednastavených \n"
 "sad, přítomných už v aplikaci Rapid Photo Downloader, nebo vytvořit svou \n"
-"vlastní. Kliknutím na ikonu ozubeného kola rozbalíte příslušnou "
-"nabídku:            \n"
-"            "
+"vlastní. Kliknutím na ikonu ozubeného kola rozbalíte příslušnou nabídku:"
 
 #: ../raphodo/didyouknow.py:262
-#, fuzzy
 msgid ""
 "\n"
 "Using the drop-down menu, select a built-in preset or click on <b>Custom</b> "
@@ -1333,10 +1313,9 @@ msgid ""
 msgstr ""
 "\n"
 "Z rozbalovací nabídky vyberte vestavěnou přednastavenou sadu nebo klikněte "
-"na <b>Vlastní</b> a nastavte  \n"
+"na <b>Vlastní</b> a nastavte \n"
 "si své vlastní schema. To vytvoříte pomocí editoru vytváření podsložek pro "
-"fotografie nebo videa:             \n"
-"            "
+"fotografie nebo videa:"
 
 #: ../raphodo/didyouknow.py:271
 msgid ""
@@ -1356,7 +1335,6 @@ msgstr ""
 "přednastavená sada“."
 
 #: ../raphodo/didyouknow.py:283
-#, fuzzy
 msgid ""
 "\n"
 "You do not have to create nested download subfolders. This illustration "
@@ -1367,12 +1345,10 @@ msgid ""
 msgstr ""
 "\n"
 "Vnořené složky pro stahované nemusíte vytvářet. Tato ukázka zobrazuje "
-"vytváření podsložek  \n"
-"které obsahují pouze datum kdy byly fotografie pořízeny a štítek:\n"
-"            "
+"vytváření podsložek \n"
+"které obsahují pouze datum kdy byly fotografie pořízeny a štítek:"
 
 #: ../raphodo/didyouknow.py:292
-#, fuzzy
 msgid ""
 "\n"
 "Although there are many built-in date/time naming options, you may find that "
@@ -1394,11 +1370,9 @@ msgstr ""
 "kombinuje rok (RRRR), spojovník \n"
 "a měsíc (MM) do podoby RRRR-MM, je možné toho dosáhnout takto (povšimněte si "
 "červeného kroužku \n"
-"kolem spojovníku):\n"
-"            "
+"kolem spojovníku):"
 
 #: ../raphodo/didyouknow.py:301
-#, fuzzy
 msgid ""
 "\n"
 "Read more about all the ways you can generate download subfolder names and "
@@ -1412,11 +1386,9 @@ msgstr ""
 "Více o všech možných způsobech vytváření názvů podsložek a souborů se "
 "dočtete v <a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime"
-"\">dokumentaci na webu projektu</a>.\n"
-"            "
+"\">dokumentaci na webu projektu</a>."
 
 #: ../raphodo/didyouknow.py:310
-#, fuzzy
 msgid ""
 "\n"
 "<b>Job Codes</b> let you easily enter text that describes sets of photos and "
@@ -1432,10 +1404,9 @@ msgstr ""
 "videí. Můžete je \n"
 "pak používat v názvech podsložek a souborů. V této ukázce mají některé "
 "soubory štítek „Ulice“ \n"
-"a označené soubory dostanou štítek „Ovocny_trh“: \n"
+"a označené soubory dostanou štítek „Ovocny_trh“:"
 
 #: ../raphodo/didyouknow.py:318
-#, fuzzy
 msgid ""
 "\n"
 "You can apply new or existing Job Codes before you start a download. If "
@@ -1449,8 +1420,7 @@ msgstr ""
 "stahování obsahuje \n"
 "nějaké soubory, které ještě nejsou opatřené štítkem, budete před zahájením "
 "stahování vyzváni \n"
-"k jeho zadání.\n"
-"            "
+"k jeho zadání."
 
 #: ../raphodo/didyouknow.py:325
 msgid "Look for hints to guide you when working with Job Codes:"
@@ -1465,7 +1435,6 @@ msgstr ""
 "ocitne nad tlačítkem."
 
 #: ../raphodo/didyouknow.py:334
-#, fuzzy
 msgid ""
 "\n"
 "When you give your photos and videos unique filenames, you'll never be "
@@ -1479,11 +1448,9 @@ msgstr ""
 "nikdy se vám \n"
 "nebude plést který soubor je který. Použití <b>pořadových čísel</b> pro "
 "zajištění toho, \n"
-"že jsou názvy souborů neopakující je velmi doporučeno!\n"
-"            "
+"že jsou názvy souborů neopakující je velmi doporučeno!"
 
 #: ../raphodo/didyouknow.py:341
-#, fuzzy
 msgid ""
 "\n"
 "<p>Four types of sequence values are available to help you assign unique "
@@ -1519,11 +1486,9 @@ msgstr ""
 "<p>\n"
 "Více o pořadových číslech se dočtete v <a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers"
-"\">dokumentaci na webu projektu</a>.</p>\n"
-"            "
+"\">dokumentaci na webu projektu</a>.</p>"
 
 #: ../raphodo/didyouknow.py:359
-#, fuzzy
 msgid ""
 "\n"
 "The <b>Rename</b> panel allows you to configure file renaming. To rename "
@@ -1533,11 +1498,9 @@ msgstr ""
 "\n"
 "Panel <b>Přejmenovat</b> umožňuje nastavit přejmenovávání souborů. Je možné "
 "volit z existujících sad \n"
-"nastavení nebo určit svá vlastní.              \n"
-"            "
+"nastavení nebo určit svá vlastní."
 
 #: ../raphodo/didyouknow.py:365
-#, fuzzy
 msgid ""
 "\n"
 "<p>The <b>Synchronize RAW + JPEG</b> option is useful if you use the RAW + "
@@ -1566,10 +1529,8 @@ msgstr ""
 "Více o přejmenovávání souborů se dočtete v <a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#rename\">dokumentaci na "
 "webu projektu</a>.</p>\n"
-"            "
 
 #: ../raphodo/didyouknow.py:379
-#, fuzzy
 msgid ""
 "\n"
 "You can have your photos and videos backed up to multiple locations as they "
@@ -1583,8 +1544,7 @@ msgstr ""
 "vícero umístění, jako třeba \n"
 "na externí pevné disky nebo síťová sdílení. Zálohovací zařízení mohou být "
 "zjišťována automaticky nebo  \n"
-"je možné zadat přesné umístění záloh.\n"
-"            "
+"je možné zadat přesné umístění záloh."
 
 #: ../raphodo/didyouknow.py:386
 msgid ""
@@ -1595,7 +1555,6 @@ msgstr ""
 "<tt>Videa</tt>, takže videa na něj nebudou zálohována."
 
 #: ../raphodo/didyouknow.py:392
-#, fuzzy
 msgid ""
 "\n"
 "Several of the program's preferences can be set from the command line, "
@@ -1609,15 +1568,13 @@ msgstr ""
 "včetně určení zdrojů \n"
 "stahování, cílů a záloh. Dále je odtud možné resetovat nastavení na jejich "
 "výchozí hodnoty \n"
-"a vyčistit mezipaměti a zapamatované soubory.            \n"
-"            "
+"a vyčistit mezipaměti a zapamatované soubory."
 
 #: ../raphodo/didyouknow.py:397
 msgid "You can also import program preferences from the older 0.4 version."
 msgstr "Je také možné importovat předvolby ze starší verze 0.4."
 
 #: ../raphodo/didyouknow.py:402
-#, fuzzy
 msgid ""
 "\n"
 "Rapid Photo Downloader deals with three types of cache:\n"
@@ -1662,8 +1619,7 @@ msgstr ""
 "</ol>\n"
 "Více o těchto mezipamětech a jejich vlivu na výkon se dočtete v <a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#caches\">dokumentaci na "
-"webu projektu</a>.\n"
-"            "
+"webu projektu</a>."
 
 #: ../raphodo/didyouknow.py:460
 msgid "Tip of the Day"
@@ -4490,6 +4446,7 @@ msgstr ""
 "%(file_type)s na %(path)s?"
 
 #: ../raphodo/rapid.py:3185
+#, fuzzy
 msgid ""
 "\n"
 "<b>Downloading all files</b><br><br>\n"
@@ -4505,7 +4462,6 @@ msgstr ""
 "včetně těch, které nyní nejsou zobrazené protože je používána časová osa\n"
 "nebo protože jsou zobrazeny pouze nové soubory.<br><br>\n"
 "Chcete pokračovat ve stahování?\n"
-"                        "
 
 #: ../raphodo/rapid.py:3349
 #, python-format

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-12-06 22:29-0500\n"
-"PO-Revision-Date: 2021-11-18 19:03+0000\n"
+"POT-Creation-Date: 2021-12-06 23:29-0500\n"
+"PO-Revision-Date: 2021-12-06 23:18-0500\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
 "Language: sr\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2021-12-05 12:08+0000\n"
-"X-Generator: Launchpad (build cf73d44692888e78296213584c304ab04e7416a3)\n"
+"X-Generator: Poedit 3.0\n"
 
 #: ../install.py:76
 msgid ""
@@ -972,7 +972,6 @@ msgstr ""
 "проблема преименовања (жута/наранџаста) или није успело (црвена)."
 
 #: ../raphodo/didyouknow.py:92
-#, fuzzy
 msgid ""
 "\n"
 "In case of any problems, a red icon will appear at the bottom of the window "
@@ -981,15 +980,13 @@ msgid ""
 "window."
 msgstr ""
 "\n"
-"            У случају било каквих проблема, црвена иконица ће се појавити "
-"при дну прозора\n"
-"            показујући колико има извештаја о грешкама. Кликом на њу "
-"отвориће се прозор за извештавање \n"
-"            о грешкама.\n"
-"            "
+"У случају било каквих проблема, црвена иконица ће се појавити при дну "
+"прозора\n"
+"показујући колико има извештаја о грешкама. Кликом на њу отвориће се прозор "
+"за извештавање \n"
+"о грешкама."
 
 #: ../raphodo/didyouknow.py:98
-#, fuzzy
 msgid ""
 "\n"
 "The Error Report window lists any problems encountered before, during or "
@@ -1003,17 +1000,13 @@ msgid ""
 "search box in the lower left of the Error Report window."
 msgstr ""
 "\n"
-"            Прозор извештаја о грешкама исписује све проблеме пре, за време "
-"или након \n"
-"            преузимања. Наранџасти троугао представља упозорење, црвени круг "
-"означава неуспех, \n"
-"            и црни круг означава озбиљније неуспехе. Можете кликнути на "
-"хипервезе да \n"
-"            отворите њихову датотеку или уређај у управнику датотека. Можете "
-"такође тражити извештаје користећи \n"
-"            поље за претрагу у доњем левом делу прозора извештаја о "
-"грешкама.\n"
-"            "
+"Прозор извештаја о грешкама исписује све проблеме пре, за време или након \n"
+"преузимања. Наранџасти троугао представља упозорење, црвени круг означава "
+"неуспех, \n"
+"и црни круг означава озбиљније неуспехе. Можете кликнути на хипервезе да \n"
+"отворите њихову датотеку или уређај у управнику датотека. Можете такође "
+"тражити извештаје користећи \n"
+"поље за претрагу у доњем левом делу прозора извештаја о грешкама."
 
 #: ../raphodo/didyouknow.py:109
 msgid ""
@@ -1037,7 +1030,6 @@ msgstr ""
 "току узастопних дана."
 
 #: ../raphodo/didyouknow.py:124
-#, fuzzy
 msgid ""
 "\n"
 "<p>In the illustration above, the first row of the Timeline is black because "
@@ -1053,8 +1045,7 @@ msgstr ""
 "тог датума претходно преузете.</p>\n"
 "<p>Клизач временске линије подешава време протекло између узастопних снимака "
 "коришћено за изградњу \n"
-"временске линије:</p>\n"
-"            "
+"временске линије:</p>"
 
 #: ../raphodo/didyouknow.py:134
 msgid ""
@@ -1087,7 +1078,6 @@ msgstr ""
 "кога преузимате у горњем левом углу прозора програма."
 
 #: ../raphodo/didyouknow.py:155
-#, fuzzy
 msgid ""
 "\n"
 "Thumbnails can be sorted using a variety of criteria:\n"
@@ -1108,7 +1098,7 @@ msgid ""
 "</ol>"
 msgstr ""
 "\n"
-"          Минијатуре се могу поређати по разним критеријумима:\n"
+"Минијатуре се могу поређати по разним критеријумима:\n"
 "<ol>\n"
 "<li><b>Време измене:</b> када је датотека последњи пут измењена, у складу са "
 "њеним мета подацима (када су \n"
@@ -1122,7 +1112,7 @@ msgstr ""
 "<li><b>Врста датотеке:</b> фотографија или снимак.</li>\n"
 "<li><b>Уређај:</b> назив уређаја са кога су преузете фотографије и снимци.</"
 "li>\n"
-"</ol> "
+"</ol>"
 
 #: ../raphodo/didyouknow.py:173
 msgid ""
@@ -1145,7 +1135,6 @@ msgstr ""
 "<b>Одредиште</b>, <b>Преименуј</b>, или <b>Шифра посла</b>."
 
 #: ../raphodo/didyouknow.py:186
-#, fuzzy
 msgid ""
 "\n"
 "When thinking about your download directory structure, keep in mind two "
@@ -1188,11 +1177,9 @@ msgstr ""
 "сам да напеави. Не морају већ постојати на вашем рачунару, али је сасвим у "
 "реду ако их имате.\n"
 "Биће створене у одредишној фасцикли.</li>\n"
-"</ol>\n"
-"            "
+"</ol>"
 
 #: ../raphodo/didyouknow.py:203
-#, fuzzy
 msgid ""
 "\n"
 "You can download photos and videos to the same destination folder, or "
@@ -1210,8 +1197,7 @@ msgstr ""
 "фотографије и \n"
 "снимке&mdash;преузмите фотографије и снимке у исте одредишне подфасцикле, "
 "или користите другачију шему за сваку \n"
-"врсту.            \n"
-"            "
+"врсту."
 
 #: ../raphodo/didyouknow.py:212
 msgid ""
@@ -1224,7 +1210,6 @@ msgstr ""
 "подфасцикла године, а затим низ подфасцикли година-месеци-дана унутар ње."
 
 #: ../raphodo/didyouknow.py:221
-#, fuzzy
 msgid ""
 "\n"
 "Whenever possible, the program previews the download subfolders of photos "
@@ -1247,17 +1232,15 @@ msgstr ""
 "<ol>\n"
 "<li>Стабло одредишне фасцикле показује подфасцикле преузимања које су већ на "
 "рачунару (исписане \n"
-"    обичним, неискошеним фонтом), и подфасцикле које ће бити направљене за "
-"време преузимања \n"
-"    (са искошеним називима).</li>\n"
+"обичним, неискошеним фонтом), и подфасцикле које ће бити направљене за време "
+"преузимања \n"
+"(са искошеним називима).</li>\n"
 "<li>Стабло фасцикли такође показује у којим подфасциклама ће датотеке бити "
 "преузете (обојене у \n"
-"    црно).</li>\n"
-"</ol>\n"
-"            "
+"црно).</li>\n"
+"</ol>"
 
 #: ../raphodo/didyouknow.py:236
-#, fuzzy
 msgid ""
 "\n"
 "Download subfolder names are typically generated using some or all of the "
@@ -1299,11 +1282,9 @@ msgstr ""
 "Именовање подфасцикли годином, месецом и на крају даном у бројевном облику "
 "чини лаким \n"
 "њихово ређање у прегледнику датотека, што би било његова подразумевана "
-"опција:\n"
-"            "
+"опција:"
 
 #: ../raphodo/didyouknow.py:255
-#, fuzzy
 msgid ""
 "\n"
 "To automatically create download subfolders as you download, \n"
@@ -1315,11 +1296,9 @@ msgstr ""
 "Да аутоматски створите подфасцикле као што преузимате, \n"
 "можете користити једну од уграђених подешености Брзог преносиоца "
 "фотографија, или да створите произвољну подешеност. Кликните на \n"
-"иконицу зупчаника да прикажете падајући изборник:            \n"
-"            "
+"иконицу зупчаника да прикажете падајући изборник:"
 
 #: ../raphodo/didyouknow.py:262
-#, fuzzy
 msgid ""
 "\n"
 "Using the drop-down menu, select a built-in preset or click on <b>Custom</b> "
@@ -1332,8 +1311,7 @@ msgstr ""
 "Користећи падајући изборник, изаберите уграђену подешеност или кликните на "
 "<b>Произвољно</b> да подесите своју \n"
 "шему. Створите своју шему користећи уређивач творца подфасцикли фотографија "
-"или снимка:             \n"
-"            "
+"или снимка: "
 
 #: ../raphodo/didyouknow.py:271
 msgid ""
@@ -1354,7 +1332,6 @@ msgstr ""
 "произвољна подешеност“."
 
 #: ../raphodo/didyouknow.py:283
-#, fuzzy
 msgid ""
 "\n"
 "You do not have to create nested download subfolders. This illustration "
@@ -1368,11 +1345,9 @@ msgstr ""
 "показује \n"
 "стварање подфасцикли преузимања које садрже само датум снимања фотографија "
 "и \n"
-"шифру посла:\n"
-"            "
+"шифру посла:"
 
 #: ../raphodo/didyouknow.py:292
-#, fuzzy
 msgid ""
 "\n"
 "Although there are many built-in date/time naming options, you may find that "
@@ -1393,11 +1368,9 @@ msgstr ""
 "створите нове комбинације. Претпоставимо да сте хтели формат датума који "
 "комбинује годину (ГГГГ), цртицу, \n"
 "и месец (ММ) да даје ММ.ГГГГ.. Можете га направити овако (обратите пажњу на "
-"црвени круг око цртице):\n"
-"            "
+"црвени круг око цртице):"
 
 #: ../raphodo/didyouknow.py:301
-#, fuzzy
 msgid ""
 "\n"
 "Read more about all the ways you can generate download subfolder names and "
@@ -1411,11 +1384,9 @@ msgstr ""
 "Прочитајте више о свим начинима на које можете створити назив подфасцикле "
 "преузимања и називе датотека у <a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime"
-"\">документацији на мрежи</a>.\n"
-"            "
+"\">документацији на мрежи</a>."
 
 #: ../raphodo/didyouknow.py:310
-#, fuzzy
 msgid ""
 "\n"
 "<b>Job Codes</b> let you easily enter text that describes sets of photos and "
@@ -1432,10 +1403,9 @@ msgstr ""
 "их користити у називима подфасцикли и датотека. У овој илустрацији, неке "
 "датотеке имају примењену\n"
 "шифру посла „Улица“, а изабране датотеке ће добити шифру посла \n"
-"„Зелена пијаца“: \n"
+"„Зелена пијаца“:"
 
 #: ../raphodo/didyouknow.py:318
-#, fuzzy
 msgid ""
 "\n"
 "You can apply new or existing Job Codes before you start a download. If "
@@ -1449,8 +1419,7 @@ msgstr ""
 "преузимањем. Ако постоје неке \n"
 "датотеке у преузимању које још немају примењену шифру посла, биће вам "
 "затражено да унесете \n"
-"шифру посла пре него што преузимање почне.\n"
-"            "
+"шифру посла пре него што преузимање почне."
 
 #: ../raphodo/didyouknow.py:325
 msgid "Look for hints to guide you when working with Job Codes:"
@@ -1465,7 +1434,6 @@ msgstr ""
 "дугмета."
 
 #: ../raphodo/didyouknow.py:334
-#, fuzzy
 msgid ""
 "\n"
 "When you give your photos and videos unique filenames, you'll never be "
@@ -1479,11 +1447,9 @@ msgstr ""
 "никада се нећете збунити \n"
 "о томе које је чија датотека. Коришћење <b>бојеве низа</b> за јединствено "
 "означавање назива датотека се \n"
-"препоручује!\n"
-"            "
+"препоручује!"
 
 #: ../raphodo/didyouknow.py:341
-#, fuzzy
 msgid ""
 "\n"
 "<p>Four types of sequence values are available to help you assign unique "
@@ -1520,11 +1486,9 @@ msgstr ""
 "<p>\n"
 "Прочитајте више о бројевима низа у <a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers"
-"\">документацији на мрежи</a>.</p>\n"
-"            "
+"\">документацији на мрежи</a>.</p>"
 
 #: ../raphodo/didyouknow.py:359
-#, fuzzy
 msgid ""
 "\n"
 "The <b>Rename</b> panel allows you to configure file renaming. To rename "
@@ -1534,12 +1498,9 @@ msgstr ""
 "\n"
 "Панел <b>Преименуј</b> вам омогућава да подесите преименовање датотека. Да "
 "преименујте ваше датотеке, можете изабрати\n"
-"из већ постојећих подешености преименовања или да одредите неку "
-"вашу.              \n"
-"            "
+"из већ постојећих подешености преименовања или да одредите неку вашу."
 
 #: ../raphodo/didyouknow.py:365
-#, fuzzy
 msgid ""
 "\n"
 "<p>The <b>Synchronize RAW + JPEG</b> option is useful if you use the RAW + "
@@ -1570,10 +1531,8 @@ msgstr ""
 "Прочитајте више о преименовању датотека у <a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#rename\">документацији на "
 "мрежи</a>.</p>\n"
-"            "
 
 #: ../raphodo/didyouknow.py:379
-#, fuzzy
 msgid ""
 "\n"
 "You can have your photos and videos backed up to multiple locations as they "
@@ -1587,8 +1546,7 @@ msgstr ""
 "њиховог преузимања, као што су \n"
 "спољни чврсти дискови или места на мрежи. Уређаји резерве се могу аутоматски "
 "открити, или тачна \n"
-"наведена места резерве.\n"
-"            "
+"наведена места резерве."
 
 #: ../raphodo/didyouknow.py:386
 msgid ""
@@ -1599,7 +1557,6 @@ msgstr ""
 "<tt>Снимци</tt>, тако да на њему неће бити прављене резерве снимака."
 
 #: ../raphodo/didyouknow.py:392
-#, fuzzy
 msgid ""
 "\n"
 "Several of the program's preferences can be set from the command line, "
@@ -1613,15 +1570,13 @@ msgstr ""
 "изворе \n"
 "преузимања, одредишта и резерве. Осим тога, подешавања се могу вратити на "
 "њихова \n"
-"подразумевана стања, а остава и запамћене датотеке очишћене.            \n"
-"            "
+"подразумевана стања, а остава и запамћене датотеке очишћене."
 
 #: ../raphodo/didyouknow.py:397
 msgid "You can also import program preferences from the older 0.4 version."
 msgstr "Можете такође да увезете поставке програма из старијег издања 0.4."
 
 #: ../raphodo/didyouknow.py:402
-#, fuzzy
 msgid ""
 "\n"
 "Rapid Photo Downloader deals with three types of cache:\n"
@@ -1668,8 +1623,7 @@ msgstr ""
 "Прочитајте више о овим оставама и њиховом дејству на учинковитост преузимања "
 "у <a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#caches\">документацији на "
-"мрежи</a>.\n"
-"            "
+"мрежи</a>."
 
 #: ../raphodo/didyouknow.py:460
 msgid "Tip of the Day"
@@ -4489,6 +4443,7 @@ msgstr ""
 "одредиште преузимања „%(file_type)s“ у „%(path)s“?"
 
 #: ../raphodo/rapid.py:3185
+#, fuzzy
 msgid ""
 "\n"
 "<b>Downloading all files</b><br><br>\n"
@@ -4504,7 +4459,6 @@ msgstr ""
 "укључујући оне које тренутно нису приказане зато што се користи временска\n"
 "линија или зато што су приказане нове датотеке.<br><br>\n"
 "Да ли желите да наставите са преузимањем?\n"
-"                        "
 
 #: ../raphodo/rapid.py:3349
 #, python-format

@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-12-06 22:29-0500\n"
-"PO-Revision-Date: 2021-11-18 19:01+0000\n"
+"POT-Creation-Date: 2021-12-06 23:29-0500\n"
+"PO-Revision-Date: 2021-12-06 23:29-0500\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "Language: ja\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2021-12-05 12:08+0000\n"
-"X-Generator: Launchpad (build cf73d44692888e78296213584c304ab04e7416a3)\n"
+"X-Generator: Poedit 3.0\n"
 
 #: ../install.py:76
 msgid ""
@@ -980,7 +980,6 @@ msgstr ""
 "か（黄色／橙色），失敗したのか（赤色）を示します．"
 
 #: ../raphodo/didyouknow.py:92
-#, fuzzy
 msgid ""
 "\n"
 "In case of any problems, a red icon will appear at the bottom of the window "
@@ -989,13 +988,11 @@ msgid ""
 "window."
 msgstr ""
 "\n"
-"            問題が生じた場合には，エラーレポートの数を表示した\n"
-"            赤いアイコンがウィンドウ下部に表示されます．それを\n"
-"            クリックするとエラーレポートウィンドウが開きます．\n"
-"            "
+"問題が生じた場合には，エラーレポートの数を表示した\n"
+"赤いアイコンがウィンドウ下部に表示されます．それを\n"
+"クリックするとエラーレポートウィンドウが開きます．"
 
 #: ../raphodo/didyouknow.py:98
-#, fuzzy
 msgid ""
 "\n"
 "The Error Report window lists any problems encountered before, during or "
@@ -1009,16 +1006,12 @@ msgid ""
 "search box in the lower left of the Error Report window."
 msgstr ""
 "\n"
-"            エラーレポートウィンドウには，ダウンロード中および前後に生じた問"
-"題の全てが\n"
-"            表示されます．橙色の三角形は警告を赤丸はエラーを，黒丸はさらに深"
-"刻なエラー\n"
-"            を示します．ハイパーリンクをクリックすると，当該ファイルかファイ"
-"ルマネージャー\n"
-"            中にデバイスが開きます．また，エラーレポートウィンドウの左下にあ"
-"る検索ボッ\n"
-"            クスで，レポートに対して検索をかけることもできます．\n"
-"            "
+"エラーレポートウィンドウには，ダウンロード中および前後に生じた問題の全てが\n"
+"表示されます．橙色の三角形は警告を赤丸はエラーを，黒丸はさらに深刻なエラー\n"
+"を示します．ハイパーリンクをクリックすると，当該ファイルかファイルマネー"
+"ジャー\n"
+"中にデバイスが開きます．また，エラーレポートウィンドウの左下にある検索ボッ\n"
+"クスで，レポートに対して検索をかけることもできます．"
 
 #: ../raphodo/didyouknow.py:109
 msgid ""
@@ -1040,7 +1033,6 @@ msgstr ""
 "しくは数日内の別の時間帯に撮られた写真や動画を認識するのにお使いください．"
 
 #: ../raphodo/didyouknow.py:124
-#, fuzzy
 msgid ""
 "\n"
 "<p>In the illustration above, the first row of the Timeline is black because "
@@ -1054,8 +1046,7 @@ msgstr ""
 "<p>上のイラストで，時間軸の最初の行は，その日のファイルが全て以前に\n"
 "ダウンロードされてしまっているので，黒くなっています．</p>\n"
 "<p>時間軸のスライダは，時間軸の構築に使う各撮影間の経過時間を調節\n"
-"するのに使われます．</p>\n"
-"            "
+"するのに使われます．</p>"
 
 #: ../raphodo/didyouknow.py:134
 msgid ""
@@ -1087,7 +1078,6 @@ msgstr ""
 "で，ダウンロードソースを表示したり消したりすることができます．"
 
 #: ../raphodo/didyouknow.py:155
-#, fuzzy
 msgid ""
 "\n"
 "Thumbnails can be sorted using a variety of criteria:\n"
@@ -1108,7 +1098,7 @@ msgid ""
 "</ol>"
 msgstr ""
 "\n"
-"          サムネールは様々な方法で整序することができます：\n"
+"サムネールは様々な方法で整序することができます：\n"
 "<ol>\n"
 "<li><b>修正日時：</b>最後にファイルが修正されたとき．（可能ならば）メタデータ"
 "を使用し，（そうでない時は）ファイルシステムのデータを使用します．</li>\n"
@@ -1118,7 +1108,7 @@ msgstr ""
 "<li><b>拡張子：</b>ファイル名の拡張子．たとえば，JPEG画像とRAW画像をグループ"
 "化するのに使うことができます．</li>\n"
 "<li><b>ファイル型：</b>写真であるか動画であるか．</li>\n"
-"<li><b>デバイス：</b>写真や動画のダウンロード元であるデバイス名．</li> "
+"<li><b>デバイス：</b>写真や動画のダウンロード元であるデバイス名．</li>"
 
 #: ../raphodo/didyouknow.py:173
 msgid ""
@@ -1141,7 +1131,6 @@ msgstr ""
 "ジョブコード</b>のうち，適切なパネルを開いてください．"
 
 #: ../raphodo/didyouknow.py:186
-#, fuzzy
 msgid ""
 "\n"
 "When thinking about your download directory structure, keep in mind two "
@@ -1178,11 +1167,9 @@ msgstr ""
 "<li><b>ダウンロード サブフォルダ</b>（高速写真ダウンローダが自動で\n"
 "生成するディレクトリ）このフォルダは，コンピュータ上にはあっても\n"
 "なくても構いません．受入先フォルダの下に自動で作成されます．</li>\n"
-"</ol>\n"
-"            "
+"</ol>"
 
 #: ../raphodo/didyouknow.py:203
-#, fuzzy
 msgid ""
 "\n"
 "You can download photos and videos to the same destination folder, or "
@@ -1200,8 +1187,7 @@ msgstr ""
 "真と動画を\n"
 "同じサブフォルダにダウンロードをすることもできますが，各型に別々のスキームを"
 "使用するこ\n"
-"ともできます．            \n"
-"            "
+"ともできます．"
 
 #: ../raphodo/didyouknow.py:212
 msgid ""
@@ -1215,7 +1201,6 @@ msgstr ""
 "す．"
 
 #: ../raphodo/didyouknow.py:221
-#, fuzzy
 msgid ""
 "\n"
 "Whenever possible, the program previews the download subfolders of photos "
@@ -1237,15 +1222,13 @@ msgstr ""
 "ウンロード サブフォルダをプレビューします：\n"
 "<ol>\n"
 "<li>受入先フォルダツリーには，すでにコンピュータ上にあるダウンロード\n"
-"    サブフォルダ（斜字体でない通常フォント）とダウンロード中に作成される\n"
-"    ダウンフォルダ（斜字体）が表示されます．</li>\n"
+"サブフォルダ（斜字体でない通常フォント）とダウンロード中に作成される\n"
+"ダウンフォルダ（斜字体）が表示されます．</li>\n"
 "<li>フォルダツリーには，ファイルがダウンロードされるサブフォルダも\n"
-"    表示されます（黒色）．</li>\n"
-"</ol>\n"
-"            "
+"表示されます（黒色）．</li>\n"
+"</ol>"
 
 #: ../raphodo/didyouknow.py:236
-#, fuzzy
 msgid ""
 "\n"
 "Download subfolder names are typically generated using some or all of the "
@@ -1282,11 +1265,9 @@ msgstr ""
 "<li><b>テキスト</b>：ハイフンや空白など，常時表示される要素．</li>\n"
 "</ol>\n"
 "年月日の数字でサブフォルダを命名すると，簡単にファイルマネジャ中で整序された"
-"状態にできますので，これが既定オプションになっています：\n"
-"            "
+"状態にできますので，これが既定オプションになっています："
 
 #: ../raphodo/didyouknow.py:255
-#, fuzzy
 msgid ""
 "\n"
 "To automatically create download subfolders as you download, \n"
@@ -1298,12 +1279,9 @@ msgstr ""
 "ダウンロードと同時にダウンロード サブフォルダを自動生成するには，\n"
 "高速写真ダウンローダの組込スキームを使用するか，設定スキームを作成することが"
 "できます．\n"
-"歯車アイコンをクリックして，ドロップダウンメニューを開いてくださ"
-"い：            \n"
-"            "
+"歯車アイコンをクリックして，ドロップダウンメニューを開いてください："
 
 #: ../raphodo/didyouknow.py:262
-#, fuzzy
 msgid ""
 "\n"
 "Using the drop-down menu, select a built-in preset or click on <b>Custom</b> "
@@ -1316,8 +1294,7 @@ msgstr ""
 "ドロップダウンメニューから組込スキームを選択するか，<b>設定</b>をクリックして"
 "自分のスキームを設定してください．\n"
 "写真・動画サブフォルダ生成エディタを使用して，自分のスキームを作ることができ"
-"ます：             \n"
-"            "
+"ます："
 
 #: ../raphodo/didyouknow.py:271
 msgid ""
@@ -1337,7 +1314,6 @@ msgstr ""
 "す．"
 
 #: ../raphodo/didyouknow.py:283
-#, fuzzy
 msgid ""
 "\n"
 "You do not have to create nested download subfolders. This illustration "
@@ -1350,11 +1326,9 @@ msgstr ""
 "入れ子状にダウンロード サブフォルダを作成する必要はありません．このイラスト"
 "は，\n"
 "写真が撮られた日付とジョブコードのみを含むダウンロード サブフォルダの生成を\n"
-"表しています：\n"
-"            "
+"表しています："
 
 #: ../raphodo/didyouknow.py:292
-#, fuzzy
 msgid ""
 "\n"
 "Although there are many built-in date/time naming options, you may find that "
@@ -1375,11 +1349,9 @@ msgstr ""
 "暦年(YYYY)とハイフン，月(MM)を組み合わせてYYYY-MMという日付フォーマットが欲し"
 "いものとしましょう．\n"
 "下記のようにして作ることができます（ハイフンの周りの赤丸に注目してくださ"
-"い）：\n"
-"            "
+"い）："
 
 #: ../raphodo/didyouknow.py:301
-#, fuzzy
 msgid ""
 "\n"
 "Read more about all the ways you can generate download subfolder names and "
@@ -1392,11 +1364,9 @@ msgstr ""
 "\n"
 "ダウンロード サブフォルダ名とファイル名を生成する全方法については，<a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime\">オンラ"
-"イン説明書</a>をご覧ください．\n"
-"            "
+"イン説明書</a>をご覧ください．"
 
 #: ../raphodo/didyouknow.py:310
-#, fuzzy
 msgid ""
 "\n"
 "<b>Job Codes</b> let you easily enter text that describes sets of photos and "
@@ -1414,10 +1384,9 @@ msgstr ""
 "は，ファイルの\n"
 "いくつかは「Street」というジョブコードをすでに持っており，選択したファイルに"
 "「Green Bazaar」\n"
-"というジョブコードを与えようとしているところです． \n"
+"というジョブコードを与えようとしているところです．"
 
 #: ../raphodo/didyouknow.py:318
-#, fuzzy
 msgid ""
 "\n"
 "You can apply new or existing Job Codes before you start a download. If "
@@ -1431,8 +1400,7 @@ msgstr ""
 "す．\n"
 "ダウンロード中に，まだジョブコードを適用していないファイルがあった場合に"
 "は，\n"
-"ダウンロード開始前に，それらのジョブコードを入力するように促されます．\n"
-"            "
+"ダウンロード開始前に，それらのジョブコードを入力するように促されます．"
 
 #: ../raphodo/didyouknow.py:325
 msgid "Look for hints to guide you when working with Job Codes:"
@@ -1445,7 +1413,6 @@ msgid ""
 msgstr "ヒントは，マウスがボタン上にあるときなど，その文脈によって変わります．"
 
 #: ../raphodo/didyouknow.py:334
-#, fuzzy
 msgid ""
 "\n"
 "When you give your photos and videos unique filenames, you'll never be "
@@ -1459,11 +1426,9 @@ msgstr ""
 "る\n"
 "ことはありません．ファイル名が重複しないようにするために<b>連番</b>を用いる"
 "こ\n"
-"とが，高く推奨されます．\n"
-"            "
+"とが，高く推奨されます．"
 
 #: ../raphodo/didyouknow.py:341
-#, fuzzy
 msgid ""
 "\n"
 "<p>Four types of sequence values are available to help you assign unique "
@@ -1496,11 +1461,9 @@ msgstr ""
 "<p>\n"
 "連番について詳しくは，<a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers\">オンライ"
-"ン説明書</a>をご覧ください．</p>\n"
-"            "
+"ン説明書</a>をご覧ください．</p>"
 
 #: ../raphodo/didyouknow.py:359
-#, fuzzy
 msgid ""
 "\n"
 "The <b>Rename</b> panel allows you to configure file renaming. To rename "
@@ -1511,11 +1474,9 @@ msgstr ""
 "<b>名称変更</b>パネルでは，ファイルの名称変更を設定することができます．ファイ"
 "ルの名称変更を行うには，\n"
 "既存の名称変更スキームの中から選択するか，自作のものを選択することができま"
-"す．              \n"
-"            "
+"す．"
 
 #: ../raphodo/didyouknow.py:365
-#, fuzzy
 msgid ""
 "\n"
 "<p>The <b>Synchronize RAW + JPEG</b> option is useful if you use the RAW + "
@@ -1544,10 +1505,8 @@ msgstr ""
 "ファイルの命名についての詳細は，<a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#rename\">オンライン説明書</"
 "a>をご覧ください．</p>\n"
-"            "
 
 #: ../raphodo/didyouknow.py:379
-#, fuzzy
 msgid ""
 "\n"
 "You can have your photos and videos backed up to multiple locations as they "
@@ -1561,8 +1520,7 @@ msgstr ""
 "等，複数の場所に\n"
 "バックアップをすることができます．バックアップデバイスは自動検出させることも"
 "できますが，\n"
-"バックアップ場所を細かく指定することもできます．\n"
-"            "
+"バックアップ場所を細かく指定することもできます．"
 
 #: ../raphodo/didyouknow.py:386
 msgid ""
@@ -1573,7 +1531,6 @@ msgstr ""
 "ないので，動画はバックアップされません．"
 
 #: ../raphodo/didyouknow.py:392
-#, fuzzy
 msgid ""
 "\n"
 "Several of the program's preferences can be set from the command line, "
@@ -1587,15 +1544,13 @@ msgstr ""
 "ンドラインから\n"
 "設定することができます．さらに，設定は既定値にリセットすることができ，キャッ"
 "シュや記憶され\n"
-"ているファイルを消去することもできます．            \n"
-"            "
+"ているファイルを消去することもできます．"
 
 #: ../raphodo/didyouknow.py:397
 msgid "You can also import program preferences from the older 0.4 version."
 msgstr "古い0.4版からもプログラム設定を読み込むことができます．"
 
 #: ../raphodo/didyouknow.py:402
-#, fuzzy
 msgid ""
 "\n"
 "Rapid Photo Downloader deals with three types of cache:\n"
@@ -1640,8 +1595,7 @@ msgstr ""
 "</ol>\n"
 "これらのキャッシュとそのダウンロード パフォーマンスについての詳細は，<a \n"
 "href=\"http://damonlynch.net/rapid/documentation/#caches\">オンライン説明書</"
-"a>をご覧ください．\n"
-"            "
+"a>をご覧ください．"
 
 #: ../raphodo/didyouknow.py:460
 msgid "Tip of the Day"
@@ -4409,6 +4363,7 @@ msgstr ""
 "設定してよろしいですか？"
 
 #: ../raphodo/rapid.py:3185
+#, fuzzy
 msgid ""
 "\n"
 "<b>Downloading all files</b><br><br>\n"
@@ -4424,7 +4379,6 @@ msgstr ""
 "まれます．これには，時間軸が使用されていたり新規ファイルのみが表\n"
 "示対象となっているため，現在表示されていないファイルも含まれます．<br><br>\n"
 "ダウンロードを開始しますか？\n"
-"                        "
 
 #: ../raphodo/rapid.py:3349
 #, python-format
