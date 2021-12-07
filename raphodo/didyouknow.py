@@ -227,8 +227,7 @@ download:
 during the download (those whose names are italicized).</li>
 <li>The folder tree also shows into which subfolders the files will be downloaded  
 (those colored black).</li>
-</ol>
-            """
+</ol>"""
         ),
         ":/tips/downloadsubfolders.png",
     ),
@@ -247,8 +246,7 @@ such as the name of an event or location.</li>
 </ol>
 Naming subfolders with the year, followed by the month and finally the day in numeric 
 format makes it easy to keep them sorted in a file manager, which is why it's the 
-default option:
-            """
+default option:"""
         ),
         ":/tips/downloadsubfolders.png",
     ),
