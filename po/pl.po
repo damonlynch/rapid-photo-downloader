@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-12-06 23:29-0500\n"
-"PO-Revision-Date: 2021-06-09 20:52+0000\n"
+"POT-Creation-Date: 2021-12-06 23:41-0500\n"
+"PO-Revision-Date: 2021-12-06 23:35-0500\n"
 "Last-Translator: Kamil Skaskiewicz <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "Language: pl\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2021-12-05 12:08+0000\n"
-"X-Generator: Launchpad (build cf73d44692888e78296213584c304ab04e7416a3)\n"
+"X-Generator: Poedit 3.0\n"
 
 #: ../install.py:76
 msgid ""
@@ -979,7 +979,6 @@ msgstr ""
 "zmianą nazwy pliku (żółty / pomarańczowy), czy nie powiodło się (czerwony)."
 
 #: ../raphodo/didyouknow.py:92
-#, fuzzy
 msgid ""
 "\n"
 "In case of any problems, a red icon will appear at the bottom of the window "
@@ -988,14 +987,12 @@ msgid ""
 "window."
 msgstr ""
 "\n"
-"            W przypadku problemów na dole okna pojawi się czerwona ikona\n"
-"            wskazując, ile jest raportów o błędach. Kliknięcie go powoduje "
-"otwarcie okna raportu  \n"
-"            o błędzie.\n"
-"            "
+"W przypadku problemów na dole okna pojawi się czerwona ikona\n"
+"wskazując, ile jest raportów o błędach. Kliknięcie go powoduje otwarcie okna "
+"raportu  \n"
+"o błędzie."
 
 #: ../raphodo/didyouknow.py:98
-#, fuzzy
 msgid ""
 "\n"
 "The Error Report window lists any problems encountered before, during or "
@@ -1009,16 +1006,14 @@ msgid ""
 "search box in the lower left of the Error Report window."
 msgstr ""
 "\n"
-"            Okno Raport o błędach zawiera listę wszelkich problemów "
-"napotkanych przed, w trakcie lub po \n"
-"            pobraniu. Pomarańczowy trójkąt oznacza ostrzeżenie, czerwone "
-"kółko oznacza awarię, \n"
-"            a czarne kółko oznacza poważniejsze awarie. Możesz kliknąć "
-"hiperłącza, aby \n"
-"            otworzyć plik lub urządzenie w menedżerze plików. Możesz również "
+"Okno Raport o błędach zawiera listę wszelkich problemów napotkanych przed, w "
+"trakcie lub po \n"
+"pobraniu. Pomarańczowy trójkąt oznacza ostrzeżenie, czerwone kółko oznacza "
+"awarię, \n"
+"a czarne kółko oznacza poważniejsze awarie. Możesz kliknąć hiperłącza, aby \n"
+"otworzyć plik lub urządzenie w menedżerze plików. Możesz również "
 "przeszukiwać raporty za pomocą \n"
-"            pola wyszukiwania w lewym dolnym rogu okna Raport o błędach.\n"
-"            "
+"pola wyszukiwania w lewym dolnym rogu okna Raport o błędach."
 
 #: ../raphodo/didyouknow.py:109
 msgid ""
@@ -1372,7 +1367,6 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/didyouknow.py:379
-#, fuzzy
 msgid ""
 "\n"
 "You can have your photos and videos backed up to multiple locations as they "
@@ -1381,6 +1375,7 @@ msgid ""
 "can be \n"
 "automatically detected, or exact backup locations specified."
 msgstr ""
+"\n"
 "Możliwe jest utworzenie wielu kopii zapasowych dla pobieranych zdjęć i "
 "filmów, np. na zewnętrznych dyskach twardych."
 
@@ -4016,6 +4011,7 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:3185
+#, fuzzy
 msgid ""
 "\n"
 "<b>Downloading all files</b><br><br>\n"
@@ -4025,6 +4021,8 @@ msgid ""
 "Do you want to proceed with the download?\n"
 "                        "
 msgstr ""
+"Pobieranie zawsze obejmuje wszystkie pliki sprawdzone do pobrania, w tym te, "
+"które nie są aktualnie wyświetlane, ponieważ używana jest Oś czasu."
 
 #: ../raphodo/rapid.py:3349
 #, python-format

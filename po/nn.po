@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-12-06 23:29-0500\n"
-"PO-Revision-Date: 2020-10-10 00:01+0000\n"
+"POT-Creation-Date: 2021-12-06 23:41-0500\n"
+"PO-Revision-Date: 2021-12-06 23:40-0500\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Norwegian Nynorsk <nn@li.org>\n"
 "Language: nn\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2021-12-05 12:08+0000\n"
-"X-Generator: Launchpad (build cf73d44692888e78296213584c304ab04e7416a3)\n"
+"X-Generator: Poedit 3.0\n"
 
 #: ../install.py:76
 msgid ""
@@ -948,7 +948,6 @@ msgstr ""
 "fullstendig (raud)."
 
 #: ../raphodo/didyouknow.py:92
-#, fuzzy
 msgid ""
 "\n"
 "In case of any problems, a red icon will appear at the bottom of the window "
@@ -957,15 +956,12 @@ msgid ""
 "window."
 msgstr ""
 "\n"
-"            Viss eit problem oppstår, vil eit raudt ikon visast nedst på "
-"vindauget og\n"
-"            indikera kor mange feilrapportar det er. Klikk på ikonet for å "
-"opna vindauget\n"
-"            med Feilrapportar.\n"
-"            "
+"Viss eit problem oppstår, vil eit raudt ikon visast nedst på vindauget og\n"
+"indikera kor mange feilrapportar det er. Klikk på ikonet for å opna "
+"vindauget\n"
+"med Feilrapportar."
 
 #: ../raphodo/didyouknow.py:98
-#, fuzzy
 msgid ""
 "\n"
 "The Error Report window lists any problems encountered before, during or "
@@ -979,16 +975,15 @@ msgid ""
 "search box in the lower left of the Error Report window."
 msgstr ""
 "\n"
-"            Feilrapportvindauget viser problem funne før, under eller etter "
-"nedlasting. Ein oransje\n"
-"            trekant representerer ei åtvaring, ein raud sirkel indikerer ein "
-"feil, og ein svart\n"
-"            sirkel indikerer meir alvorlege feil. Du kan klikka på lenkjene "
-"for å opna fila eller\n"
-"            eininga i filhandsamaren. Du kan òg søkja i rapportane med "
-"søkjeboksen nede til venstre\n"
-"            i Feilrapportvindauget.\n"
-"            "
+"Feilrapportvindauget viser problem funne før, under eller etter nedlasting. "
+"Ein oransje\n"
+"trekant representerer ei åtvaring, ein raud sirkel indikerer ein feil, og "
+"ein svart\n"
+"sirkel indikerer meir alvorlege feil. Du kan klikka på lenkjene for å opna "
+"fila eller\n"
+"eininga i filhandsamaren. Du kan òg søkja i rapportane med søkjeboksen nede "
+"til venstre\n"
+"i Feilrapportvindauget."
 
 #: ../raphodo/didyouknow.py:109
 msgid ""
@@ -1010,7 +1005,6 @@ msgstr ""
 "periodar på same dag eller etterfølgande dagar."
 
 #: ../raphodo/didyouknow.py:124
-#, fuzzy
 msgid ""
 "\n"
 "<p>In the illustration above, the first row of the Timeline is black because "
@@ -1026,8 +1020,7 @@ msgstr ""
 "denne datoen har blitt lasta ned tidlegare.</p>\n"
 "<p>Glidebrytaren på tidslinja justerer tidsrommet mellom bileta brukt for å "
 "laga \n"
-"tidslinja:</p>\n"
-"            "
+"tidslinja:</p>"
 
 #: ../raphodo/didyouknow.py:134
 msgid ""
@@ -1059,7 +1052,6 @@ msgstr ""
 "eininga du lastar ned frå øvst til venstre i programvindauget."
 
 #: ../raphodo/didyouknow.py:155
-#, fuzzy
 msgid ""
 "\n"
 "Thumbnails can be sorted using a variety of criteria:\n"
@@ -1080,7 +1072,7 @@ msgid ""
 "</ol>"
 msgstr ""
 "\n"
-"          Småbilete kan sorterast på ei rekke kriterie:\n"
+"Småbilete kan sorterast på ei rekke kriterie:\n"
 "<ol>\n"
 "<li><b>Endringstidspunkt:</b> når fila sist var endra, i følgje metadata "
 "(viss \n"
@@ -1092,7 +1084,7 @@ msgstr ""
 "<li><b>Filtype:</b> bilete eller video.</li>\n"
 "<li><b>Eining:</b> namn på eininga du lastar ned bilete eller video frå.</"
 "li>\n"
-"</ol> "
+"</ol>"
 
 #: ../raphodo/didyouknow.py:173
 msgid ""
@@ -1179,7 +1171,6 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/didyouknow.py:236
-#, fuzzy
 msgid ""
 "\n"
 "Download subfolder names are typically generated using some or all of the "
@@ -1220,11 +1211,9 @@ msgstr ""
 "</ol>\n"
 "Ved å namngje undermapper med år, følgt av månad og dag i numerisk format er "
 "det \n"
-"enkelt å sortera dei i ein filhandsamar, derfor er dette standardvalet:\n"
-"            "
+"enkelt å sortera dei i ein filhandsamar, derfor er dette standardvalet:"
 
 #: ../raphodo/didyouknow.py:255
-#, fuzzy
 msgid ""
 "\n"
 "To automatically create download subfolders as you download, \n"
@@ -1236,8 +1225,7 @@ msgstr ""
 "For å laga nedlastingsundermapper automatisk når du lastar ned, \n"
 "kan du bruka eit av dei innebygde forvala i Rapid Photo Downloader, eller "
 "laga eit tilpassa forval. \n"
-"Klikk på tannhjulet for å få fram ein nedtrekksmeny:            \n"
-"            "
+"Klikk på tannhjulet for å få fram ein nedtrekksmeny:"
 
 #: ../raphodo/didyouknow.py:262
 msgid ""
@@ -1367,7 +1355,6 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/didyouknow.py:359
-#, fuzzy
 msgid ""
 "\n"
 "The <b>Rename</b> panel allows you to configure file renaming. To rename "
@@ -1377,9 +1364,7 @@ msgstr ""
 "\n"
 "Panelet <b>Endra namn</b> lèt deg konfigurera endring av filnamn. For å gje "
 "nytt namn til filene dine, kan du velja \n"
-"blant eksisterande forval for endring av namn eller laga ditt eige "
-"forval.              \n"
-"            "
+"blant eksisterande forval for endring av namn eller laga ditt eige forval."
 
 #: ../raphodo/didyouknow.py:365
 msgid ""
@@ -1400,7 +1385,6 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/didyouknow.py:379
-#, fuzzy
 msgid ""
 "\n"
 "You can have your photos and videos backed up to multiple locations as they "
@@ -1409,6 +1393,7 @@ msgid ""
 "can be \n"
 "automatically detected, or exact backup locations specified."
 msgstr ""
+"\n"
 "Du kan ta tryggleikskopi av bilete og videoar til fleire stader når du "
 "lastar ned, t.d. til eksterne harddisker."
 
@@ -4116,6 +4101,7 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/rapid.py:3185
+#, fuzzy
 msgid ""
 "\n"
 "<b>Downloading all files</b><br><br>\n"
@@ -4125,6 +4111,8 @@ msgid ""
 "Do you want to proceed with the download?\n"
 "                        "
 msgstr ""
+"Ei nedlasting inneheld alle filene merka for nedlasting, inkludert dei som "
+"ikkje er synlege no fordi Tidslinja er i bruk."
 
 #: ../raphodo/rapid.py:3349
 #, python-format
