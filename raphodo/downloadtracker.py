@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -16,8 +16,8 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2011-2021, Damon Lynch"
 
 from collections import defaultdict
 import time
@@ -40,6 +40,7 @@ class DownloadTracker:
     """
     Track file downloads - their size, number, and any problems
     """
+
     # TODO: refactor this class to make it more pythonic
     # contemplate using settrs
 
@@ -62,7 +63,9 @@ class DownloadTracker:
         self.no_files_in_download_by_scan_id = dict()  # type: Dict[int, int]
         self.no_photos_in_download_by_scan_id = dict()  # type: Dict[int, int]
         self.no_videos_in_download_by_scan_id = dict()  # type: Dict[int, int]
-        self.no_post_download_thumb_generation_by_scan_id = dict()  # type: Dict[int, int]
+        self.no_post_download_thumb_generation_by_scan_id = (
+            dict()
+        )  # type: Dict[int, int]
 
         # 'Download count' tracks the index of the file being downloaded
         # into the list of files that need to be downloaded -- much like
@@ -84,14 +87,19 @@ class DownloadTracker:
         self.total_warnings = 0  # type: int
         self.total_bytes_to_download = 0  # type: int
         self.total_bytes_to_backup = 0  # type: int
-        self.backups_performed_by_uid = defaultdict(int)  # type: Dict[bytes, List[int,...]]
-        self.backups_performed_by_scan_id = defaultdict(int)  # type: Dict[int, List[int,...]]
+        self.backups_performed_by_uid = defaultdict(
+            int
+        )  # type: Dict[bytes, List[int,...]]
+        self.backups_performed_by_scan_id = defaultdict(
+            int
+        )  # type: Dict[int, List[int,...]]
         self.no_backups_to_perform_by_scan_id = dict()  # type: Dict[int, int]
         self.auto_delete = defaultdict(list)
         self._devices_removed_mid_download = set()  # type: Set[int]
 
-    def set_no_backup_devices(self, no_photo_backup_devices: int,
-                              no_video_backup_devices: int) -> None:
+    def set_no_backup_devices(
+        self, no_photo_backup_devices: int, no_video_backup_devices: int
+    ) -> None:
         self.no_photo_backup_devices = no_photo_backup_devices
         self.no_video_backup_devices = no_video_backup_devices
 
@@ -100,16 +108,20 @@ class DownloadTracker:
         self.no_files_in_download_by_scan_id[scan_id] = no_files
         self.no_photos_in_download_by_scan_id[scan_id] = stats.no_photos
         self.no_videos_in_download_by_scan_id[scan_id] = stats.no_videos
-        self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] = \
+        self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] = (
             stats.photos_size_in_bytes * self.no_photo_backup_devices
-        self.size_of_video_backup_in_bytes_by_scan_id[scan_id] = \
+        )
+        self.size_of_video_backup_in_bytes_by_scan_id[scan_id] = (
             stats.videos_size_in_bytes * self.no_video_backup_devices
-        self.no_backups_to_perform_by_scan_id[scan_id] = \
-            stats.no_photos * self.no_photo_backup_devices + \
-            stats.no_videos * self.no_video_backup_devices
+        )
+        self.no_backups_to_perform_by_scan_id[scan_id] = (
+            stats.no_photos * self.no_photo_backup_devices
+            + stats.no_videos * self.no_video_backup_devices
+        )
         total_bytes = stats.photos_size_in_bytes + stats.videos_size_in_bytes
-        self.no_post_download_thumb_generation_by_scan_id[scan_id] =  \
-            stats.post_download_thumb_generation
+        self.no_post_download_thumb_generation_by_scan_id[
+            scan_id
+        ] = stats.post_download_thumb_generation
 
         # rename_chunk is used to account for the time it takes to rename a
         # file, and potentially to generate thumbnails after it has renamed.
@@ -117,15 +129,24 @@ class DownloadTracker:
         # downloading from a a high speed source.
         # Determine the value by calculating how many files need a thumbnail
         # generated after they've been downloaded and renamed.
-        chunk_weight = (stats.post_download_thumb_generation * 60 + (
-            no_files - stats.post_download_thumb_generation) * 5) / no_files
-        self.rename_chunk[scan_id] = int((total_bytes / no_files) * (chunk_weight / 100))
-        self.size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes + \
-                    self.rename_chunk[scan_id] * no_files
+        chunk_weight = (
+            stats.post_download_thumb_generation * 60
+            + (no_files - stats.post_download_thumb_generation) * 5
+        ) / no_files
+        self.rename_chunk[scan_id] = int(
+            (total_bytes / no_files) * (chunk_weight / 100)
+        )
+        self.size_of_download_in_bytes_by_scan_id[scan_id] = (
+            total_bytes + self.rename_chunk[scan_id] * no_files
+        )
         self.raw_size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes
-        self.total_bytes_to_download += self.size_of_download_in_bytes_by_scan_id[scan_id]
-        self.total_bytes_to_backup += self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] + \
-                                      self.size_of_video_backup_in_bytes_by_scan_id[scan_id]
+        self.total_bytes_to_download += self.size_of_download_in_bytes_by_scan_id[
+            scan_id
+        ]
+        self.total_bytes_to_backup += (
+            self.size_of_photo_backup_in_bytes_by_scan_id[scan_id]
+            + self.size_of_video_backup_in_bytes_by_scan_id[scan_id]
+        )
         self.files_downloaded[scan_id] = 0
         self.photos_downloaded[scan_id] = 0
         self.videos_downloaded[scan_id] = 0
@@ -156,7 +177,7 @@ class DownloadTracker:
     def add_to_auto_delete(self, rpd_file: RPDFile) -> None:
         self.auto_delete[rpd_file.scan_id].append(rpd_file.full_file_name)
 
-    def get_files_to_auto_delete(self, scan_id: int) -> int:
+    def get_files_to_auto_delete(self, scan_id: int) -> List[int]:
         return self.auto_delete[scan_id]
 
     def clear_auto_delete(self, scan_id: int) -> None:
@@ -195,14 +216,18 @@ class DownloadTracker:
 
         if uid in self.backups_performed_by_uid:
             if file_type == FileType.photo:
-                return self.backups_performed_by_uid[uid] == self.no_photo_backup_devices
+                return (
+                    self.backups_performed_by_uid[uid] == self.no_photo_backup_devices
+                )
             else:
-                return self.backups_performed_by_uid[uid] == self.no_video_backup_devices
+                return (
+                    self.backups_performed_by_uid[uid] == self.no_video_backup_devices
+                )
         else:
             logging.critical("Unexpected uid in self.backups_performed_by_uid")
             return True
 
-    def all_files_backed_up(self, scan_id: Optional[int]=None) -> bool:
+    def all_files_backed_up(self, scan_id: Optional[int] = None) -> bool:
         """
         Determine if all backups have finished in the download
         :param scan_id: scan id of the download. If None, then all
@@ -212,26 +237,33 @@ class DownloadTracker:
 
         if scan_id is None:
             for scan_id in self.no_backups_to_perform_by_scan_id:
-                if (self.no_backups_to_perform_by_scan_id[scan_id] !=
-                        self.backups_performed_by_scan_id[scan_id] and
-                        scan_id not in self._devices_removed_mid_download):
+                if (
+                    self.no_backups_to_perform_by_scan_id[scan_id]
+                    != self.backups_performed_by_scan_id[scan_id]
+                    and scan_id not in self._devices_removed_mid_download
+                ):
                     return False
             return True
         else:
-            return (self.no_backups_to_perform_by_scan_id[scan_id] ==
-                    self.backups_performed_by_scan_id[scan_id] or
-                    scan_id in self._devices_removed_mid_download)
+            return (
+                self.no_backups_to_perform_by_scan_id[scan_id]
+                == self.backups_performed_by_scan_id[scan_id]
+                or scan_id in self._devices_removed_mid_download
+            )
 
-    def file_downloaded_increment(self, scan_id: int,
-                                  file_type: FileType,
-                                  status: DownloadStatus) -> None:
+    def file_downloaded_increment(
+        self, scan_id: int, file_type: FileType, status: DownloadStatus
+    ) -> None:
 
         if scan_id in self._devices_removed_mid_download:
             return
 
         self.files_downloaded[scan_id] += 1
 
-        if status in (DownloadStatus.download_failed, DownloadStatus.download_and_backup_failed):
+        if status in (
+            DownloadStatus.download_failed,
+            DownloadStatus.download_and_backup_failed,
+        ):
             if file_type == FileType.photo:
                 self.photo_failures[scan_id] += 1
                 self.total_photo_failures += 1
@@ -246,7 +278,10 @@ class DownloadTracker:
                 self.videos_downloaded[scan_id] += 1
                 self.total_videos_downloaded += 1
 
-            if status in (DownloadStatus.downloaded_with_warning, DownloadStatus.backup_problem):
+            if status in (
+                DownloadStatus.downloaded_with_warning,
+                DownloadStatus.backup_problem,
+            ):
                 self.warnings[scan_id] += 1
                 self.total_warnings += 1
 
@@ -258,30 +293,39 @@ class DownloadTracker:
         :param scan_id: scan id of the device that has been removed
         """
 
-        logging.debug("Adjusting download tracking to account for removed device %s",
-                      display_name)
+        logging.debug(
+            "Adjusting download tracking to account for removed device %s", display_name
+        )
 
         self._devices_removed_mid_download.add(scan_id)
 
-        photos_downloaded = self.photo_failures[scan_id] + self.photos_downloaded[scan_id]
+        photos_downloaded = (
+            self.photo_failures[scan_id] + self.photos_downloaded[scan_id]
+        )
         failures = self.no_photos_in_download_by_scan_id[scan_id] - photos_downloaded
         self.photo_failures[scan_id] += failures
         self.total_photo_failures += failures
 
-        videos_downloaded = self.video_failures[scan_id] + self.videos_downloaded[scan_id]
+        videos_downloaded = (
+            self.video_failures[scan_id] + self.videos_downloaded[scan_id]
+        )
         failures = self.no_videos_in_download_by_scan_id[scan_id] - videos_downloaded
         self.video_failures[scan_id] += failures
         self.total_video_failures += failures
 
-        self.download_count_by_scan_id[scan_id] = self.no_files_in_download_by_scan_id[scan_id]
+        self.download_count_by_scan_id[scan_id] = self.no_files_in_download_by_scan_id[
+            scan_id
+        ]
         self.files_downloaded[scan_id] = self.no_files_in_download_by_scan_id[scan_id]
 
-        self.total_bytes_copied_by_scan_id[scan_id] = \
-            self.size_of_download_in_bytes_by_scan_id[scan_id]
+        self.total_bytes_copied_by_scan_id[
+            scan_id
+        ] = self.size_of_download_in_bytes_by_scan_id[scan_id]
 
-        self.total_bytes_backed_up_by_scan_id[scan_id] = \
-            self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] + \
-            self.size_of_video_backup_in_bytes_by_scan_id[scan_id]
+        self.total_bytes_backed_up_by_scan_id[scan_id] = (
+            self.size_of_photo_backup_in_bytes_by_scan_id[scan_id]
+            + self.size_of_video_backup_in_bytes_by_scan_id[scan_id]
+        )
 
     def get_percent_complete(self, scan_id: int) -> float:
         """
@@ -293,16 +337,19 @@ class DownloadTracker:
 
         # when calculating the percentage, there are three components:
         # copy (download), rename ('rename_chunk'), and backup
-        percent_complete = (((
-                  self.total_bytes_copied_by_scan_id[scan_id]
-                + self.rename_chunk[scan_id] * self.files_downloaded[scan_id])
-                + self.total_bytes_backed_up_by_scan_id[scan_id])
-                / (self.size_of_download_in_bytes_by_scan_id[scan_id] +
-                   self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] +
-                   self.size_of_video_backup_in_bytes_by_scan_id[scan_id]
-                   ))
+        percent_complete = (
+            (
+                self.total_bytes_copied_by_scan_id[scan_id]
+                + self.rename_chunk[scan_id] * self.files_downloaded[scan_id]
+            )
+            + self.total_bytes_backed_up_by_scan_id[scan_id]
+        ) / (
+            self.size_of_download_in_bytes_by_scan_id[scan_id]
+            + self.size_of_photo_backup_in_bytes_by_scan_id[scan_id]
+            + self.size_of_video_backup_in_bytes_by_scan_id[scan_id]
+        )
 
-        return  percent_complete
+        return percent_complete
 
     def get_overall_percent_complete(self) -> float:
         """
@@ -311,21 +358,28 @@ class DownloadTracker:
         :return: a value between 0.0 and 1.0
         """
 
-        total = sum(self.total_bytes_copied_by_scan_id[scan_id] +
-                    self.rename_chunk[scan_id] * self.files_downloaded[scan_id] +
-                    self.total_bytes_backed_up_by_scan_id[scan_id]
-                    for scan_id in self.total_bytes_copied_by_scan_id)
+        total = sum(
+            self.total_bytes_copied_by_scan_id[scan_id]
+            + self.rename_chunk[scan_id] * self.files_downloaded[scan_id]
+            + self.total_bytes_backed_up_by_scan_id[scan_id]
+            for scan_id in self.total_bytes_copied_by_scan_id
+        )
 
         p = total / (self.total_bytes_to_download + self.total_bytes_to_backup)
         # round the number down, e.g. 0.997 becomes 0.99
         return math.floor(p * 100) / 100
 
     def all_post_download_thumbs_generated_for_scan(self, scan_id: int) -> bool:
-        return self.no_post_download_thumb_generation_by_scan_id[scan_id] == \
-               self.post_download_thumb_generation[scan_id]
+        return (
+            self.no_post_download_thumb_generation_by_scan_id[scan_id]
+            == self.post_download_thumb_generation[scan_id]
+        )
 
     def all_files_downloaded_by_scan_id(self, scan_id: int) -> bool:
-        return self.files_downloaded[scan_id] == self.no_files_in_download_by_scan_id[scan_id]
+        return (
+            self.files_downloaded[scan_id]
+            == self.no_files_in_download_by_scan_id[scan_id]
+        )
 
     def set_total_bytes_copied(self, scan_id: int, total_bytes: int) -> None:
         if scan_id in self._devices_removed_mid_download:
@@ -342,9 +396,6 @@ class DownloadTracker:
 
     def set_download_count_for_file(self, uid: bytes, download_count: int) -> None:
         self.download_count_for_file_by_uid[uid] = download_count
-
-    def get_download_count_for_file(self, uid: bytes) -> None:
-        return self.download_count_for_file_by_uid[uid]
 
     def set_download_count(self, scan_id: int, download_count: int) -> None:
         if scan_id in self._devices_removed_mid_download:
@@ -363,9 +414,11 @@ class DownloadTracker:
          else return False
         """
 
-        return (self.total_warnings == 0 and
-                self.total_photo_failures == 0 and
-                self.total_video_failures == 0)
+        return (
+            self.total_warnings == 0
+            and self.total_photo_failures == 0
+            and self.total_video_failures == 0
+        )
 
     def purge(self, scan_id):
         del self.no_files_in_download_by_scan_id[scan_id]
@@ -445,7 +498,7 @@ class TimeForDownload:
     def __init__(self, size: int) -> None:
         self.time_remaining = Infinity  # type: float
 
-        self.total_downloaded_so_far = 0   # type: int
+        self.total_downloaded_so_far = 0  # type: int
         self.total_download_size = size  # type: int
         self.size_mark = 0  # type: int
         self.smoothed_speed = None  # type: Optional[float]
@@ -457,9 +510,9 @@ class TimeForDownload:
 class TimeRemaining:
     """
     Calculate how much time is remaining to finish a download
-    
+
     Runs in tandem with TimeCheck, above.
-    
+
     The smoothed speed for each device is independent of the smoothed
     speed for the download as a whole.
     """
@@ -495,7 +548,7 @@ class TimeRemaining:
                 t.smoothed_speed = speed
             else:
                 # smooth speed across ten readings
-                t.smoothed_speed = t.smoothed_speed * .9 + speed * .1
+                t.smoothed_speed = t.smoothed_speed * 0.9 + speed * 0.1
 
             amt_to_download = t.total_download_size - t.total_downloaded_so_far
 
@@ -525,13 +578,15 @@ class TimeRemaining:
         if math.isinf(time_remaining):
             return None
 
-        time_remaining =  round(time_remaining)  # type: int
+        time_remaining = round(time_remaining)  # type: int
         if time_remaining < 4:
             # Be friendly in the last few seconds
-            return _('A few seconds')
+            return _("A few seconds")
         else:
             # Format the string using the one or two largest units
-            return formatTime(time_remaining, limit_precision=not detailed_time_remaining)
+            return formatTime(
+                time_remaining, limit_precision=not detailed_time_remaining
+            )
 
     def set_time_mark(self, scan_id):
         if scan_id in self.times:
@@ -544,7 +599,7 @@ class TimeRemaining:
         del self.times[scan_id]
 
 
-def get_time_left(aSeconds: float, aLastSec: Optional[float]=None) -> float:
+def get_time_left(aSeconds: float, aLastSec: Optional[float] = None) -> float:
     """
     Generate a "time left" string given an estimate on the time left and the
     last time. The extra time is used to give a better estimate on the time to
@@ -563,7 +618,7 @@ def get_time_left(aSeconds: float, aLastSec: Optional[float]=None) -> float:
         aLastSec = Infinity
 
     if aSeconds < 0:
-      return aLastSec
+        return aLastSec
 
     # Apply smoothing only if the new time isn't a huge change -- e.g., if the
     # new time is more than half the previous time; this is useful for
@@ -582,32 +637,33 @@ def get_time_left(aSeconds: float, aLastSec: Optional[float]=None) -> float:
 
     return aSeconds
 
+
 def _seconds(seconds: int) -> str:
     if seconds == 1:
-        return _('1 second')
+        return _("1 second")
     else:
-        return _('%d seconds') % seconds
+        return _("%d seconds") % seconds
 
 
 def _minutes(minutes: int) -> str:
     if minutes == 1:
-        return _('1 minute')
+        return _("1 minute")
     else:
-        return _('%d minutes') % minutes
+        return _("%d minutes") % minutes
 
 
 def _hours(hours: int) -> str:
     if hours == 1:
-        return _('1 hour')
+        return _("1 hour")
     else:
-        return _('%d hours') % hours
+        return _("%d hours") % hours
 
 
 def _days(days: int) -> str:
     if days == 1:
-        return _('1 day')
+        return _("1 day")
     else:
-        return _('%d days') % days
+        return _("%d days") % days
 
 
 def formatTime(seconds: int, limit_precision=False) -> str:
@@ -780,21 +836,22 @@ def formatTime(seconds: int, limit_precision=False) -> str:
             if seconds >= 30:
                 minutes += 1
                 if minutes == 60:
-                    return _('1 hour')
+                    return _("1 hour")
             seconds = 0
 
         if seconds:
             if minutes == 1:
                 if seconds == 1:
-                    return _('1 minute, 1 second')
+                    return _("1 minute, 1 second")
                 else:
-                    return _('1 minute, %d seconds') % seconds
+                    return _("1 minute, %d seconds") % seconds
             else:
                 if seconds == 1:
-                    return _('%d minutes, 1 second') % minutes
+                    return _("%d minutes, 1 second") % minutes
                 else:
-                    return _('%(minutes)d minutes, %(seconds)d seconds') % dict(
-                        minutes=minutes, seconds=seconds)
+                    return _("%(minutes)d minutes, %(seconds)d seconds") % dict(
+                        minutes=minutes, seconds=seconds
+                    )
         else:
             return _minutes(minutes)
 
@@ -809,7 +866,7 @@ def formatTime(seconds: int, limit_precision=False) -> str:
             if minutes >= 30:
                 hours += 1
                 if hours == 24:
-                    return _('1 day')
+                    return _("1 day")
             minutes = 0
         # round up the minutes if needed
         elif seconds >= 30:
@@ -817,22 +874,23 @@ def formatTime(seconds: int, limit_precision=False) -> str:
                 minutes = 0
                 hours += 1
                 if hours == 24:
-                    return _('1 day')
+                    return _("1 day")
             else:
                 minutes += 1
 
         if minutes:
             if hours == 1:
                 if minutes == 1:
-                    return _('1 hour, 1 minute')
+                    return _("1 hour, 1 minute")
                 else:
-                    return _('1 hour, %d minutes') % minutes
+                    return _("1 hour, %d minutes") % minutes
             else:
                 if minutes == 1:
-                    return _('%d hours, 1 minute') % hours
+                    return _("%d hours, 1 minute") % hours
                 else:
-                    return _('%(hours)d hours, %(minutes)d minutes') % dict(hours=hours,
-                                                                               minutes=minutes)
+                    return _("%(hours)d hours, %(minutes)d minutes") % dict(
+                        hours=hours, minutes=minutes
+                    )
         else:
             return _hours(hours)
     else:
@@ -857,13 +915,15 @@ def formatTime(seconds: int, limit_precision=False) -> str:
         if hours:
             if days == 1:
                 if hours == 1:
-                    return _('1 day, 1 hour')
+                    return _("1 day, 1 hour")
                 else:
-                    return _('1 day, %d hours') % hours
+                    return _("1 day, %d hours") % hours
             else:
                 if hours == 1:
-                    return _('%d days, 1 hour') % days
+                    return _("%d days, 1 hour") % days
                 else:
-                    return _('%(days)d days, %(hours)d hours') % dict(days=days, hours=hours)
+                    return _("%(days)d days, %(hours)d hours") % dict(
+                        days=days, hours=hours
+                    )
         else:
             return _days(days)
