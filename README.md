@@ -52,10 +52,7 @@ Historic issues are at the previous code repository,
 Rapid Photo Downloader is packaged by all major Linux distributions. 
 If you want the latest version, or prefer it run with all its features enabled 
 (like [heif](https://en.wikipedia.org/wiki/High_Efficiency_Image_File_Format)
-support), you can run the `install.py` script:
-
-
-### Ubuntu, openSUSE, Debian, Fedora, and CentOS 8
+support), you can run the `install.py` script.
 
 To install Rapid Photo Downloader, run as your regular user (i.e. without sudo):
 
@@ -87,33 +84,15 @@ Or to uninstall both the program and its Python package dependencies:
 ```
 
 
-### CentOS 7.5
-
-To install on CentOS 7.5, first install Python 3.6 from the IUS Community 
-repository: 
-
-```bash
-  sudo yum -y install yum-utils
-
-  sudo yum -y install https://centos7.iuscommunity.org/ius-release.rpm
-
-  sudo yum -y install python36u python36u-setuptools
-```
-
-Then run the install.py script:
-```bash
-  python3.6 install.py
-```
-
-
 ### Supported Linux Versions
 
  - Ubuntu 18.04 or newer
  - LinuxMint 19 or newer
- - Debian 9, unstable or testing
+ - Debian 9 or newer, unstable or testing
  - Fedora 34 or newer
  - openSUSE Leap 15.3 or newer
  - CentOS 7.5 or 8
+ - CentOS Stream 8 (but not CentOS Stream 9)
  - Any distribution meeting the software requirements below
 
 
