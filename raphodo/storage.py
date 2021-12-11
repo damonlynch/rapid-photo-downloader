@@ -57,6 +57,7 @@ import time
 import pwd
 from pathlib import Path
 from collections import namedtuple
+import shutil
 from typing import Optional, Tuple, List, Dict, Set
 from urllib.request import pathname2url
 from urllib.parse import quote
@@ -116,51 +117,107 @@ UdevAttr = namedtuple(
 PROGRAM_DIRECTORY = "rapid-photo-downloader"
 
 
-def get_distro_id(id_or_id_like: str) -> Distro:
-    if id_or_id_like[0] in ('"', "'"):
-        id_or_id_like = id_or_id_like[1:-1]
-    try:
-        return Distro[id_or_id_like.strip()]
-    except KeyError:
-        return Distro.unknown
+def guess_distro() -> Distro:
+    """
+    Guess distro support by checking package manager support
+    :return:
+    """
+
+    if shutil.which("apt") or shutil.which("apt-get"):
+        return Distro.debian_derivative
+    if shutil.which("dnf"):
+        return Distro.fedora_derivative
+    return Distro.unknown
 
 
-os_release = "/etc/os-release"
+def parse_os_release() -> Dict[str, str]:
+    """
+    Sync with code in install.py
+    """
+
+    d = {}
+    if os.path.isfile("/etc/os-release"):
+        with open("/etc/os-release", "r") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    k, v = line.split("=", maxsplit=1)
+                    v = v.strip("'\"")
+                    d[k] = v
+    return d
 
 
-# Sync get_distro() with code in install.py
-
+# Keep up to date with parse_distro_details() with code in install.py
 
 def get_distro() -> Distro:
     """
     Determine the Linux distribution using /etc/os-release
+    :param os_release: parsed /etc/os-release file
     """
 
-    if os.path.isfile(os_release):
-        with open(os_release, "r") as f:
-            for line in f:
-                if line.startswith("NAME="):
-                    if line.find("elementary") > 0:
-                        return Distro.elementary
-                    if line.find("CentOS Linux") > 0:
-                        return Distro.centos
-                    if line.find("openSUSE") > 0:
-                        return Distro.opensuse
-                    if line.find("Deepin") > 0:
-                        return Distro.deepin
-                    if line.find("KDE neon") > 0:
-                        return Distro.neon
-                    if line.find("Zorin") > 0:
-                        return Distro.zorin
-                    if line.find("Kylin") > 0:
-                        return Distro.kylin
-                    if line.find("Pop!_OS") > 0:
-                        return Distro.popos
-                if line.startswith("ID="):
-                    return get_distro_id(line[3:])
-                if line.startswith("ID_LIKE="):
-                    return get_distro_id(line[8:])
-    return Distro.unknown
+    os_release = parse_os_release()
+    name = os_release.get("NAME")
+
+    distro = None
+
+    if name:
+        if "Ubuntu" in name:
+            distro = Distro.ubuntu
+        if "Fedora" in name:
+            distro = Distro.fedora
+        if "CentOS Linux" in name:
+            version_id = os_release.get("VERSION_ID")
+            if version_id == "7":
+                distro = Distro.centos7
+            else:
+                distro = Distro.centos8
+        if "CentOS Stream" in name:
+            version_id = os_release.get("VERSION_ID")
+            if version_id == "8":
+                distro = Distro.centos_stream8
+            else:
+                distro = Distro.centos_stream9
+        if "Linux Mint" in name:
+            distro = Distro.linuxmint
+        if "elementary" in name:
+            distro = Distro.elementary
+        if "openSUSE" in name:
+            distro = Distro.opensuse
+        if "Deepin" in name:
+            distro = Distro.deepin
+        if "KDE neon" in name:
+            distro = Distro.neon
+        if "Zorin" in name:
+            distro = Distro.zorin
+        if "Kylin" in name:
+            distro = Distro.kylin
+        if "Pop!_OS" in name:
+            distro = Distro.popos
+        if "Raspbian" in name:
+            distro = Distro.raspbian
+        if "Debian" in name:
+            distro = Distro.debian
+        if "Manjaro" in name:
+            distro = Distro.manjaro
+        if "Gentoo" in name:
+            distro = Distro.gentoo
+
+    if distro is None:
+        idlike = os_release.get("ID_LIKE")
+        if idlike:
+            if "arch" in idlike:
+                distro = Distro.arch
+            if "ubuntu" in idlike:
+                distro = Distro.ubuntu_derivative
+            if "debian" in idlike:
+                distro = Distro.debian_derivative
+            if "fedora" in idlike:
+                distro = Distro.fedora_derivative
+
+    if distro is None:
+        distro = guess_distro()
+
+    return distro
 
 
 def get_user_name() -> str:
@@ -223,7 +280,9 @@ def get_media_dir() -> str:
                     Distro.arch,
                     Distro.opensuse,
                     Distro.gentoo,
-                    Distro.centos,
+                    Distro.centos8,
+                    Distro.centos_stream8,
+                    Distro.centos_stream9,
                     Distro.centos7,
                 ):
                     logging.debug(
