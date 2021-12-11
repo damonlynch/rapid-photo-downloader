@@ -407,7 +407,7 @@ debian_heif_packages = ["libheif-dev", "libde265-dev", "libx265-dev"]
 
 display_rpmfusion_message = False
 
-
+# Sync with value in raphodo/constants.py
 class Distro(Enum):
     debian = auto()
     ubuntu = auto()
@@ -1824,6 +1824,9 @@ def dnf_return_package_version(package: str) -> str:
 
     with dnf.Base() as base:
         # Code from http://dnf.readthedocs.org/en/latest/use_cases.html
+        # Next two lines suggested by Neal Gompa (Conan-Kudo)
+        base.conf.read()
+        base.conf.substitutions.update_from_etc("/")
 
         # Repositories serve as sources of information about packages.
         base.read_all_repos()
@@ -2138,6 +2141,10 @@ def uninstall_old_version(
             )
         )
         with dnf.Base() as base:
+            # Next two lines suggested by Neal Gompa (Conan-Kudo)
+            base.conf.read()
+            base.conf.substitutions.update_from_etc("/")
+
             base.read_all_repos()
             try:
                 base.fill_sack()
@@ -2535,7 +2542,9 @@ def install_required_distro_packages(
 
             with dnf.Base() as base:
                 # Code from http://dnf.readthedocs.org/en/latest/use_cases.html
-
+                # Next two lines suggested by Neal Gompa (Conan-Kudo)
+                base.conf.read()
+                base.conf.substitutions.update_from_etc("/")
                 # Repositories serve as sources of information about packages.
                 base.read_all_repos()
                 # A sack is needed for querying.
