@@ -91,7 +91,7 @@ Or to uninstall both the program and its Python package dependencies:
  - Debian 9 or newer, unstable or testing
  - Fedora 34 or newer
  - openSUSE Leap 15.3 or newer
- - CentOS 7.5 or 8
+ - CentOS 7 or 8
  - CentOS Stream 8 (but not CentOS Stream 9)
  - Any distribution meeting the software requirements below
 
