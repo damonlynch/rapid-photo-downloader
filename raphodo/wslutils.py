@@ -54,7 +54,13 @@ def _wsl_reg_query_standard_folder(folder: str) -> str:
         universal_newlines=True,
     ).stdout
     regex = rf"{folder}\s+REG_EXPAND_SZ\s+(.+)\n\n$"
-    return re.search(regex, output).group(1)
+    p = re.search(regex, output).group(1)
+    if "%USERPROFILE%" in p:
+        # e.g. %USERPROFILE%\Videos
+        # substitute the user profile
+        p = str(wsl_home() / p.replace("%USERPROFILE%\\", ""))
+
+    return p
 
 
 @functools.lru_cache(maxsize=None)
