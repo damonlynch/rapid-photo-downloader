@@ -32,7 +32,7 @@ __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2021, Damon Lynch"
 
 import argparse
-from enum import Enum
+from enum import Enum, auto
 import filecmp
 import locale
 import os
@@ -54,7 +54,7 @@ import tempfile
 import textwrap
 import threading
 import time
-from typing import Optional, List, Tuple, Union, NamedTuple
+from typing import Optional, List, Tuple, Union, NamedTuple, Dict
 
 # Use the default locale as defined by the LANG variable
 try:
@@ -80,7 +80,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = "0.3.14"
+__version__ = "0.3.15"
 __title__ = _("Rapid Photo Downloader installer")
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -374,8 +374,6 @@ except ImportError:
     have_gi = False
 
 
-os_release = "/etc/os-release"
-
 unknown_version = LooseVersion("0.0")
 
 # global variable used for constructing pip command
@@ -398,9 +396,9 @@ class bcolors:
 rpmfusion_message = "{}\n{}{}".format(
     bcolors.BOLD,
     _(
-        "The software repository RPM Fusion Free was added to your system to (1) enable generating "
-        "thumbnails for a wider range of video formats, and (2) enable support for the "
-        "HEIC / HEIF image format."
+        "The software repository RPM Fusion Free was added to your system to "
+        "(1) enable generating thumbnails for a wider range of video formats, and "
+        "(2) enable support for the HEIC / HEIF image format."
     ),
     bcolors.ENDC,
 )
@@ -411,46 +409,47 @@ display_rpmfusion_message = False
 
 
 class Distro(Enum):
-    debian = 1
-    ubuntu = 2
-    fedora = 3
-    neon = 4
-    linuxmint = 5
-    zorin = 6
-    arch = 7
-    opensuse = 8
-    manjaro = 9
-    galliumos = 10
-    peppermint = 11
-    elementary = 12
-    centos = 13
-    centos7 = 14
-    gentoo = 15
-    deepin = 16
-    kylin = 17
-    popos = 18
-    debian_derivative = 19
-    fedora_derivative = 20
-    raspbian = 21
-    unknown = 22
+    debian = auto()
+    ubuntu = auto()
+    fedora = auto()
+    neon = auto()
+    linuxmint = auto()
+    zorin = auto()
+    arch = auto()
+    opensuse = auto()
+    manjaro = auto()
+    galliumos = auto()
+    peppermint = auto()
+    elementary = auto()
+    centos_stream9 = auto()
+    centos_stream8 = auto()
+    centos8 = auto()
+    centos7 = auto()
+    gentoo = auto()
+    deepin = auto()
+    kylin = auto()
+    popos = auto()
+    debian_derivative = auto()
+    ubuntu_derivative = auto()
+    fedora_derivative = auto()
+    raspbian = auto()
+    unknown = auto()
 
 
-Distro_Pretty_Name = {
-    "popos": "Pop!_OS",
-    "linuxmint": "Linux Mint",
-    "opensuse": "openSUSE",
-    "galliumos": "GalliumOS",
-    "zorin": "Zorin OS",
-    "neon": "KDE neon",
-    "elementary": "Elementary OS",
-    "centos": "CentOS",
-    "centos7": "CentOS",
-    "kylin": "Ubuntu Kylin",
-    "debian_derivative": "Debian Derivative",
-    "fedora_derivative": "Fedora Derivative",
-    "raspbian": "Raspberry Pi OS",
-}
-
+MinimumVersions = dict(
+    debian="9",
+    ubuntu="18.04",
+    fedora="34",
+    neon="18.04",
+    linuxmint="19",
+    zorin="15",
+    opensuse="15.3",
+    peppermint="9",
+    elementary="5",
+    deepin="20",
+    kylin="18.04",
+    popos="18.04",
+)
 
 debian_like = (
     Distro.debian,
@@ -465,11 +464,21 @@ debian_like = (
     Distro.kylin,
     Distro.popos,
     Distro.debian_derivative,
+    Distro.ubuntu_derivative,
     Distro.raspbian,
 )
-fedora_like = (Distro.fedora, Distro.centos, Distro.fedora_derivative)
+
+
+centos_family = (
+    Distro.centos7,
+    Distro.centos8,
+    Distro.centos_stream8,
+    Distro.centos_stream9,
+)
+centos_family_active = (Distro.centos8, Distro.centos_stream8, Distro.centos_stream9)
+fedora_like = (Distro.fedora, Distro.fedora_derivative) + centos_family
+fedora_like_active = (Distro.fedora, Distro.fedora_derivative) + centos_family_active
 arch_like = (Distro.arch, Distro.manjaro)
-centos_family = (Distro.centos7, Distro.centos)
 
 
 installer_cmds = {
@@ -477,7 +486,6 @@ installer_cmds = {
     Distro.debian: "apt-get",
     Distro.opensuse: "zypper",
     Distro.centos7: "yum",
-    Distro.centos: "dnf",
 }
 
 manually_mark_cmds = {
@@ -485,49 +493,106 @@ manually_mark_cmds = {
 }
 
 
-def make_distro_name_pretty(distro: Distro) -> str:
-    """
-    Return a name for the distro from its enum that looks attractive
-
-    :param distro: specific Linux distribution
-    :return: distro name in human readable form
-    """
-
-    return Distro_Pretty_Name.get(distro.name, distro.name.capitalize())
+class DistroDetails(NamedTuple):
+    distro: Distro
+    version: LooseVersion
+    pretty_name: str
 
 
-def get_distro() -> Distro:
+def parse_os_release() -> Dict[str, str]:
+    d = {}
+    if os.path.isfile("/etc/os-release"):
+        with open("/etc/os-release", "r") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    k, v = line.split("=", maxsplit=1)
+                    v = v.strip("'\"")
+                    d[k] = v
+    return d
+
+
+def parse_distro_details(os_release: Dict[str, str]) -> DistroDetails:
     """
     Determine the Linux distribution using /etc/os-release
+    :param os_release: parsed /etc/os-release file
     """
 
-    if os.path.isfile(os_release):
-        with open(os_release, "r") as f:
-            for line in f:
-                if line.startswith("NAME="):
-                    if line.find("elementary") > 0:
-                        return Distro.elementary
-                    if line.find("CentOS Linux") > 0:
-                        return Distro.centos
-                    if line.find("openSUSE") > 0:
-                        return Distro.opensuse
-                    if line.find("Deepin") > 0:
-                        return Distro.deepin
-                    if line.find("KDE neon") > 0:
-                        return Distro.neon
-                    if line.find("Zorin") > 0:
-                        return Distro.zorin
-                    if line.find("Kylin") > 0:
-                        return Distro.kylin
-                    if line.find("Pop!_OS") > 0:
-                        return Distro.popos
-                    if line.find("Raspbian") > 0:
-                        return Distro.raspbian
-                if line.startswith("ID="):
-                    return get_distro_id(line[3:])
-                if line.startswith("ID_LIKE="):
-                    return get_distro_id(line[8:])
-    return Distro.unknown
+    name = os_release.get("NAME")
+
+    # Rolling releases do not have versions
+    version_id = os_release.get("VERSION_ID")
+    if version_id and any([char.isdigit() for char in version_id]):
+        version = LooseVersion(version_id)
+    else:
+        version = unknown_version
+
+    distro = None
+
+    if name:
+        if "Ubuntu" in name:
+            distro = Distro.ubuntu
+        if "Fedora" in name:
+            distro = Distro.fedora
+        if "CentOS Linux" in name:
+            if LooseVersion("7") <= version < LooseVersion("8"):
+                distro = Distro.centos7
+            else:
+                distro = Distro.centos8
+        if "CentOS Stream" in name:
+            if LooseVersion("8") <= version < LooseVersion("9"):
+                distro = Distro.centos_stream8
+            else:
+                distro = Distro.centos_stream9
+        if "Linux Mint" in name:
+            distro = Distro.linuxmint
+        if "elementary" in name:
+            distro = Distro.elementary
+        if "openSUSE" in name:
+            distro = Distro.opensuse
+        if "Deepin" in name:
+            distro = Distro.deepin
+        if "KDE neon" in name:
+            distro = Distro.neon
+        if "Zorin" in name:
+            distro = Distro.zorin
+        if "Kylin" in name:
+            distro = Distro.kylin
+        if "Pop!_OS" in name:
+            distro = Distro.popos
+        if "Raspbian" in name:
+            distro = Distro.raspbian
+        if "Debian" in name:
+            distro = Distro.debian
+        if "Manjaro" in name:
+            distro = Distro.manjaro
+        if "Gentoo" in name:
+            distro = Distro.gentoo
+
+    if distro is None:
+        idlike = os_release.get("ID_LIKE")
+        if idlike:
+            if "arch" in idlike:
+                distro = Distro.arch
+            if "ubuntu" in idlike:
+                distro = Distro.ubuntu_derivative
+            if "debian" in idlike:
+                distro = Distro.debian_derivative
+            if "fedora" in idlike:
+                distro = Distro.fedora_derivative
+
+    if distro is None:
+        distro = guess_distro()
+
+    pretty_name = os_release.get("PRETTY_NAME")
+    pretty_name = pretty_name if pretty_name else distro.name.capitalize()
+
+    if not (
+        any([char.isdigit() for char in pretty_name]) or version == unknown_version
+    ):
+        pretty_name = f"{pretty_name} {version}"
+
+    return DistroDetails(distro=distro, version=version, pretty_name=pretty_name)
 
 
 def guess_distro() -> Distro:
@@ -543,57 +608,6 @@ def guess_distro() -> Distro:
     return Distro.unknown
 
 
-def get_distro_id(id_or_id_like: str) -> Distro:
-    """
-    Determine the Linux distribution using an ID or ID_LIKE line from
-    /etc/os-release
-    :param id_or_id_like: the line from /etc/os-release
-    """
-
-    if id_or_id_like[0] in ('"', "'"):
-        id_or_id_like = id_or_id_like[1:-1]
-    try:
-        return Distro[id_or_id_like.strip()]
-    except KeyError:
-        return Distro.unknown
-
-
-def get_distro_version(distro: Distro) -> LooseVersion:
-    """
-    Get the numeric version of the Linux distribution, if it exists
-    :param distro: the already determine Linux distribution
-    :return version in LooseVersion format, if found, else unknown_version
-    """
-
-    remove_quotemark = False
-    if distro == Distro.fedora:
-        version_string = "REDHAT_BUGZILLA_PRODUCT_VERSION="
-    elif distro in debian_like or distro == Distro.opensuse or distro == Distro.centos:
-        version_string = 'VERSION_ID="'
-        remove_quotemark = True
-    else:
-        return unknown_version
-
-    with open(os_release, "r") as f:
-        for line in f:
-            if line.startswith(version_string):
-                v = "0.0"
-                try:
-                    if remove_quotemark:
-                        v = line[len(version_string) : -2]
-                    else:
-                        v = line[len(version_string) :]
-                    return LooseVersion(v)
-                except Exception:
-                    sys.stderr.write(
-                        "Unexpected format while parsing {} version {}\n".format(
-                            distro.name.capitalize(), v
-                        )
-                    )
-                    return unknown_version
-    return unknown_version
-
-
 def detect_wsl2() -> bool:
     """
     :return: True if in WSL2 environment
@@ -602,18 +616,6 @@ def detect_wsl2() -> bool:
     with open("/proc/version") as f:
         p = f.read()
     return bool(p.find("microsoft") > 0 and p.find("WSL2"))
-
-
-def is_debian_testing_or_unstable() -> bool:
-    """
-    :return: True if Debian distribution is testing or unstable, else False.
-    """
-
-    with open(os_release, "r") as f:
-        for line in f:
-            if line.startswith("PRETTY_NAME"):
-                return "buster" in line or "sid" in line
-    return False
 
 
 def validate_installer(installer: str) -> None:
@@ -659,15 +661,13 @@ def pip_packages_required(distro: Distro) -> Tuple[List[str], bool]:
         packages.append("{}-pip".format(python3_version(distro)))
         local_pip = False
 
-    if distro != Distro.centos7:
+    try:
+        import setuptools
+    except ImportError:
+        packages.append(pip_package("setuptools", local_pip, distro))
 
-        try:
-            import setuptools
-        except ImportError:
-            packages.append(pip_package("setuptools", local_pip, distro))
-
-        if need_wheel:
-            packages.append(pip_package("wheel", local_pip, distro))
+    if need_wheel:
+        packages.append(pip_package("wheel", local_pip, distro))
 
     return packages, local_pip
 
@@ -710,14 +710,14 @@ def pypi_pyqt5_capable() -> bool:
 
 
 def should_use_system_pyqt5(
-    distro: Distro, distro_family: Distro, distro_version: LooseVersion
+    distro_details: DistroDetails,
+    distro_family: Distro,
 ) -> bool:
     """
     Determine if PyQt5 should be installed from system archives rather than from PyPi
 
-    :param distro: specific Linux distribution
+    :param distro_details: distro, version, pretty name of Linux distribution
     :param distro_family: the family of distros the specific distro is part of
-    :param distro_version: the distributions version, if it exists
     :return: True if system PyQt5 should be used, else False
     """
 
@@ -725,9 +725,9 @@ def should_use_system_pyqt5(
     version = None
 
     print("\nDetermining most appropriate PyQt5 package...")
-    if distro == Distro.debian and LooseVersion("9") <= distro_version < LooseVersion(
-        "11"
-    ):
+    if distro_details.distro == Distro.debian and LooseVersion(
+        "9"
+    ) <= distro_details.version < LooseVersion("11"):
         # PyQt 15.2 from pypi does not run on Debian 9 / 10 due to PyQt 15.2
         # requiring libxcb-util.so.1, which is not in these versions of Debian
         use_system_pyqt5 = True
@@ -747,7 +747,7 @@ def should_use_system_pyqt5(
                 use_system_pyqt5 = fedora_pyqt5_version >= minimum_preferred_pyqt5
         else:
             use_system_pyqt5 = False
-    elif distro == Distro.neon:
+    elif distro_details.distro == Distro.neon:
         # Neon keep their PyQt5 up-to-date
         use_system_pyqt5 = True
     elif distro_family == Distro.debian:
@@ -761,19 +761,18 @@ def should_use_system_pyqt5(
             ]
             version = max(versions)
             use_system_pyqt5 = version >= minimum_preferred_pyqt5
-    elif distro == Distro.opensuse:
+    elif distro_details.distro == Distro.opensuse:
         v = opensuse_package_version("python3-qt5")
         if v is not None:
             version = LooseVersion(v)
             use_system_pyqt5 = version >= minimum_preferred_pyqt5
 
     if use_system_pyqt5:
-        msg = "...will use PyQt5 packaged by {}.".format(
-            make_distro_name_pretty(distro)
-        )
+        msg = "...will use PyQt5 packaged by {}.".format(distro_details.pretty_name)
     elif version is not None:
-        msg = "...the version of PyQt5 supplied by {} is too old ({}); will use PyPi version.".format(
-            make_distro_name_pretty(distro), version.vstring
+        msg = (
+            "...the version of PyQt5 supplied by {} is too old ({}); will use PyPi "
+            "version.".format(distro_details.pretty_name, version.vstring)
         )
     else:
         msg = "...will use PyPi version of PyQt5."
@@ -1225,16 +1224,14 @@ def update_pip_setuptools_wheel(interactive: bool) -> None:
 
 def python3_version(distro: Distro) -> str:
     """
-    Return package name appropriate to platform
+    Return package name appropriate to platform.
+    Useful when distros name the python executable differently
 
     :param distro: linux distribution
     :return: package name appropriate to platform
     """
 
-    if distro == Distro.centos7:
-        return "python36u"
-    else:
-        return "python3"
+    return "python3"
 
 
 def pip_package(package: str, local_pip: bool, distro: Distro) -> str:
@@ -1526,6 +1523,7 @@ def fedora_centos_repolist(distro: Distro) -> str:
     if distro == Distro.centos7:
         repos = subprocess.check_output(["yum", "repolist"], universal_newlines=True)
     else:
+        assert distro in fedora_like_active
         repos = subprocess.check_output(["dnf", "repolist"], universal_newlines=True)
     return repos
 
@@ -1556,9 +1554,7 @@ def enable_centos7_ius(interactive: bool) -> None:
         pass
 
 
-def enable_centos_epel(
-    distro: Distro, version: LooseVersion, interactive: bool
-) -> None:
+def enable_centos_epel(distro_details: DistroDetails, interactive: bool) -> None:
     """
     Enable the EPEL repository on CentOS 7 & 8
 
@@ -1568,67 +1564,80 @@ def enable_centos_epel(
      the command
     """
 
-    repos = fedora_centos_repolist(distro=distro)
+    repos = fedora_centos_repolist(distro=distro_details.distro)
 
     if repos.find("epel") < 0:
         # Translators: do not translate the term EPEL
         print(_("The EPEL repository must be enabled."))
 
-        if distro == Distro.centos7:
+        if distro_details.distro == Distro.centos_stream9:
             cmds = (
-                "sudo yum -y install https://dl.fedoraproject.org/pub/epel/"
-                "epel-release-latest-7.noarch.rpm",
+                "sudo dnf config-manager --set-enabled crb",
+                "sudo dnf -y install "
+                "https://dl.fedoraproject.org/pub/epel/epel-release-latest-9."
+                "noarch.rpm "
+                "https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9."
+                "noarch.rpm",
             )
-        else:
-            assert version <= LooseVersion("9")
+        elif distro_details.distro == Distro.centos_stream8:
             cmds = (
-                "sudo dnf -y install --nogpgcheck https://dl.fedoraproject.org/pub/epel/"
-                "epel-release-latest-8.noarch.rpm",
+                "sudo dnf config-manager --set-enabled powertools",
+                "sudo dnf -y install epel-release epel-next-release",
+            )
+        elif distro_details.distro == Distro.centos7:
+            cmds = ("sudo yum -y install epel-release",)
+        else:
+            assert distro_details.distro == Distro.centos8
+            cmds = (
+                "sudo dnf config-manager --set-enabled powertools",
+                "sudo dnf -y install epel-release",
             )
         for cmd in cmds:
             run_cmd(command_line=cmd, restart=False, interactive=interactive)
 
 
-def enable_rpmfusion_free(
-    distro: Distro, version: LooseVersion, interactive: bool
-) -> None:
+def enable_rpmfusion_free(distro_details: DistroDetails, interactive: bool) -> None:
     """
-    Add RPM Fusion free repository for Fedora >= 30, and CentOS 7 or 8
+    Add RPM Fusion free repository for Fedora and CentOS
 
     See https://rpmfusion.org/Configuration
 
     :param distro: Linux distribution
-    :param version: distro version
     :param interactive: if True, the user should be prompted to confirm
      the command
     """
 
+    if distro_details.distro == Distro.centos_stream9:
+        return
+
     global display_rpmfusion_message
 
-    v = str(version).strip()
+    v = str(distro_details.version).strip()
 
     try:
-        repos = fedora_centos_repolist(distro=distro)
+        repos = fedora_centos_repolist(distro=distro_details.distro)
         if repos.find("rpmfusion-free") < 0:
             # Translators: do not translate the term RPM Fusion Free
             print(_("The RPM Fusion Free repository must be enabled."))
 
-            if distro == Distro.fedora:
+            if distro_details.distro == Distro.fedora:
                 cmds = (
-                    "sudo dnf -y install https://download1.rpmfusion.org/free/fedora/rpmfusion-"
-                    "free-release-{}.noarch.rpm".format(v),
+                    "sudo dnf -y install https://mirrors.rpmfusion.org/free/fedora/"
+                    "rpmfusion-free-release-{}.noarch.rpm".format(v),
                 )
-            elif distro == Distro.centos:
-                assert version <= LooseVersion("9")
+            elif distro_details.distro in (Distro.centos8, Distro.centos_stream8):
+                # ignore capitalization instructions for CentOS 8 at
+                # https://rpmfusion.org/Configuration
                 cmds = (
-                    "sudo dnf -y install --nogpgcheck https://download1.rpmfusion.org/free/el/"
-                    "rpmfusion-free-release-8.noarch.rpm",
-                    "sudo dnf config-manager --set-enabled powertools",
+                    "sudo dnf -y install --nogpgcheck https://mirrors.rpmfusion.org/"
+                    "free/el/rpmfusion-free-release-8.noarch.rpm",
+                    "sudo dnf config-manager --enable powertools",
                 )
             else:
-                assert distro == Distro.centos7
+                assert distro_details.distro == Distro.centos7
                 cmds = (
-                    "sudo yum -y localinstall --nogpgcheck https://download1.rpmfusion.org/free/el/"
+                    "sudo yum -y localinstall --nogpgcheck "
+                    "https://mirrors.rpmfusion.org/free/el/"
                     "rpmfusion-free-release-7.noarch.rpm",
                 )
 
@@ -1824,7 +1833,8 @@ def dnf_return_package_version(package: str) -> str:
         # A query matches all packages in sack
         q = base.sack.query()
         p = q.filter(name=package)[0]
-        return p.version
+
+    return p.version
 
 
 def opensuse_package_search(packages: str) -> str:
@@ -2123,8 +2133,8 @@ def uninstall_old_version(
     elif distro_family == Distro.fedora:
         print(
             _(
-                "Querying package system to see if an older version of Rapid Photo Downloader is "
-                "installed (this may take a while)..."
+                "Querying package system to see if an older version of Rapid Photo "
+                "Downloader is installed (this may take a while)..."
             )
         )
         with dnf.Base() as base:
@@ -2134,10 +2144,11 @@ def uninstall_old_version(
             except dnf.exceptions.RepoError as e:
                 print(
                     _(
-                        "Unable to query package system. Please check your Internet connection and "
-                        "try again."
+                        "Unable to query package system. Please check your Internet "
+                        "connection and try again."
                     )
                 )
+                print(e)
                 sys.exit(1)
 
             q = base.sack.query()
@@ -2248,7 +2259,6 @@ def check_packages_on_other_systems(installer_to_delete_on_error: str) -> None:
 def install_required_distro_packages(
     distro: Distro,
     distro_family: Distro,
-    version: LooseVersion,
     interactive: bool,
     system_uninstall: bool,
     venv: bool,
@@ -2260,7 +2270,6 @@ def install_required_distro_packages(
     :param distro: the specific Linux distribution
     :param distro_family: the family of distros the Linux distribution belongs
      to
-    :param version: the Linux distribution's version
     :param interactive: if True, the user should be prompted to confirm
      the commands
     :param system_uninstall: if True, the system package Rapid Photo Downloader
@@ -2430,7 +2439,7 @@ def install_required_distro_packages(
                 installer_to_delete_on_error=installer_to_delete_on_error,
             )
 
-    elif distro_family == Distro.fedora:  # Includes CentOS 8
+    elif distro_family == Distro.fedora:  # Includes CentOS / CentOS Stream >= 8
 
         missing_packages = []
 
@@ -2441,7 +2450,7 @@ def install_required_distro_packages(
             "libheif-devel libde265-devel x265-devel gstreamer1-libav "
         )
 
-        # CentOS 8, like 7.5, does not include ifuse
+        # CentOS does not include ifuse
         if distro == Distro.fedora:
             packages = "ifuse fuse libimobiledevice-utils {}".format(packages)
 
@@ -2450,9 +2459,10 @@ def install_required_distro_packages(
                 f"{packages } qt5-qtimageformats python3-qt5 qt5-qtsvg qt5-qtwayland"
             )
 
-        if distro == Distro.fedora:
+        if distro in (Distro.fedora, Distro.centos_stream9):
             packages = "{} python3-devel".format(packages)
         else:
+            assert distro in (Distro.centos8, Distro.centos_stream8)
             packages = "{} python36-devel".format(packages)
 
         if not venv:
@@ -2689,9 +2699,9 @@ def install_required_distro_packages(
         packages = (
             "gstreamer1-plugins-good gobject-introspection "
             "zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ rpm-build "
-            "gobject-introspection-devel cairo-gobject-devel python36u-devel "
+            "gobject-introspection-devel cairo-gobject-devel python3-devel "
             "libmediainfo zenity gstreamer1-libav libheif-devel libde265-devel "
-            "x265-devel"
+            "x265-devel python3-wheel python36-gobject"
         )
         packages = f"{packages} libgphoto2-devel"
 
@@ -3437,9 +3447,8 @@ def man_pages_already_installed(
 
 def do_install(
     installer: str,
-    distro: Distro,
+    distro_details: DistroDetails,
     distro_family: Distro,
-    distro_version: LooseVersion,
     interactive: bool,
     devel: bool,
     delete_install_script: bool,
@@ -3452,9 +3461,8 @@ def do_install(
 ) -> None:
     """
     :param installer: the tar.gz installer archive (optional)
-    :param distro: specific Linux distribution
+    :param distro_details: distro, version, pretty name of Linux distribution
     :param distro_family: the family of distros the specific distro is part of
-    :param distro_version: the distributions version, if it exists
     :param interactive: whether to prompt to confirm commands
     :param devel: download and install latest development version
     :param delete_install_script: hidden command line option to delete the
@@ -3498,7 +3506,7 @@ def do_install(
 
     if not use_system_pyqt5 and not must_install_pypi_pyqt5:
         must_install_pypi_pyqt5 = not should_use_system_pyqt5(
-            distro, distro_family, distro_version
+            distro_details, distro_family
         )
 
     if not venv:
@@ -3523,9 +3531,8 @@ def do_install(
         local_man_dir = None
 
     install_required_distro_packages(
-        distro=distro,
+        distro=distro_details.distro,
         distro_family=distro_family,
-        version=distro_version,
         interactive=interactive,
         system_uninstall=system_uninstall,
         venv=venv,
@@ -3565,7 +3572,7 @@ def do_install(
         is_requirements=True,
     )
 
-    if distro in centos_family or venv:
+    if venv:
         i = install_pygobject_from_pip()
         check_install_status(
             i=i,
@@ -3574,7 +3581,7 @@ def do_install(
         )
 
     print()
-    if distro_has_heif_support(distro=distro):
+    if distro_has_heif_support(distro=distro_details.distro):
         i = install_pyheif_from_pip()
         check_install_status(
             i=i,
@@ -3598,13 +3605,6 @@ def do_install(
             is_requirements=True,
         )
     else:
-        if distro == Distro.neon:
-            # KDE Neon has up to date Qt & PyQt5
-
-            # Translators: do not translate the terms PyQt5, PyPi or KDE Neon
-            print(
-                "\n" + _("Not installing PyPI PyQt5 package into KDE Neon environment")
-            )
         uninstall_pip_package("PyQt5", no_deps_only=False)
         uninstall_pip_package("PyQt5_sip", no_deps_only=False)
 
@@ -3785,11 +3785,23 @@ def do_install(
 
     update_desktop_database = shutil.which("update-desktop-database")
     if update_desktop_database:
-        from PyQt5.QtCore import QStandardPaths
+        try:
+            from PyQt5.QtCore import QStandardPaths
 
-        xdg_data_home = QStandardPaths.writableLocation(
-            QStandardPaths.GenericDataLocation
-        )
+            xdg_data_home = QStandardPaths.writableLocation(
+                QStandardPaths.GenericDataLocation
+            )
+        except ImportError:
+            try:
+                import xdg.BaseDirectory
+
+                xdg_data_home = xdg.BaseDirectory.xdg_data_home
+            except ImportError:
+                d = os.getenv("XDG_DATA_HOME")
+                xdg_data_home = (
+                    d if d else os.path.join(os.path.expanduser("~"), ".local/share")
+                )
+
         app_dir = os.path.join(xdg_data_home, "applications")
         cmd = f"{update_desktop_database} -q {app_dir}"
         command_line = shlex.split(cmd)
@@ -3869,6 +3881,13 @@ def pip_needed_to_uninstall():
         + "\n"
     )
     sys.exit(1)
+
+
+def distro_too_old(distro_details: DistroDetails) -> bool:
+    minimum = MinimumVersions.get(distro_details.distro.name)
+    if minimum:
+        return unknown_version < distro_details.version < minimum
+    return False
 
 
 def main():
@@ -4032,12 +4051,11 @@ def main():
         cleanup_on_exit(installer_to_delete_on_error="")
         sys.exit(0)
 
-    distro = get_distro()
+    os_release = parse_os_release()
 
-    if distro == Distro.unknown:
-        distro = guess_distro()
+    distro_details = parse_distro_details(os_release)
 
-    if custom_python() and not venv and distro != Distro.gentoo:
+    if custom_python() and not venv and distro_details.distro != Distro.gentoo:
         excecutable = valid_system_python()
         if excecutable is None:
             sys.stderr.write(
@@ -4055,37 +4073,27 @@ def main():
 
     local_folder_permissions(interactive=args.interactive)
 
-    if distro != Distro.unknown:
-        distro_version = get_distro_version(distro)
-    else:
-        distro_version = unknown_version
-
     is_wsl2 = detect_wsl2()
-
-    if distro_version:
-        dv = distro_version
-    else:
-        dv = ""
     if is_wsl2:
-        dv = f"{dv} (WSL2)"
+        wsl2 = "(WSL2)"
+    else:
+        wsl2 = ""
 
     if not args.script_restarted:
         print(
             _("Detected Linux distribution {} {}").format(
-                make_distro_name_pretty(distro),
-                dv,
+                distro_details.pretty_name, wsl2
             )
         )
 
-    if distro == Distro.fedora and unknown_version < distro_version <= LooseVersion(
-        "33"
-    ):
+    if distro_too_old(distro_details):
         sys.stderr.write(
-            "Sorry, Fedora 33 or older is no longer supported by Rapid Photo "
+            "Sorry, this Linux Distribution is too old to be supported by Rapid Photo "
             "Downloader.\n"
         )
+        clean_locale_tmpdir()
         sys.exit(1)
-    elif distro in arch_like:
+    elif distro_details.distro in arch_like:
         print(
             "Users of Arch Linux or its derivatives should use the Arch community "
             "package, or the AUR package."
@@ -4093,25 +4101,13 @@ def main():
         print(_("Exiting..."))
         clean_locale_tmpdir()
         sys.exit(0)
-    elif (
-        distro == Distro.peppermint
-        and unknown_version < distro_version < LooseVersion("7")
-    ):
-        sys.stderr.write(
-            "Sorry, this version of Peppermint is to old to run this version of "
-            "Rapid Photo Downloader.\n"
-        )
-        clean_locale_tmpdir()
-        sys.exit(1)
-    elif distro == Distro.centos and distro_version < LooseVersion("8"):
-        distro = Distro.centos7
 
-    distro_family = distro
+    distro_family = distro_details.distro
 
-    if distro in debian_like:
+    if distro_details.distro in debian_like:
         distro_family = Distro.debian
 
-        if distro in (Distro.ubuntu, Distro.peppermint):
+        if distro_details.distro in (Distro.ubuntu, Distro.peppermint):
             enable_universe(args.interactive)
 
         if not have_apt:
@@ -4124,27 +4120,25 @@ def main():
                     distro_family, "python3-apt", args.interactive
                 )
                 run_cmd(command_line, restart=True, interactive=args.interactive)
-    elif distro == Distro.centos7:
-        enable_centos_epel(
-            distro=distro, version=distro_version, interactive=args.interactive
-        )
+    elif distro_details.distro == Distro.centos7:
+        enable_centos_epel(distro_details=distro_details, interactive=args.interactive)
         enable_centos7_ius(args.interactive)
         enable_rpmfusion_free(
-            distro=distro, version=distro_version, interactive=args.interactive
+            distro_details=distro_details, interactive=args.interactive
         )
-    elif distro in fedora_like:
-        # Includes CentOS >= 8
+    elif distro_details.distro in fedora_like:
+        # Includes all varieties of CentOS >= 8
         distro_family = Distro.fedora
 
-        if distro == Distro.centos:
+        if distro_details.distro in centos_family:
             enable_centos_epel(
-                distro=distro, version=distro_version, interactive=args.interactive
+                distro_details=distro_details, interactive=args.interactive
             )
         enable_rpmfusion_free(
-            distro=distro, version=distro_version, interactive=args.interactive
+            distro_details=distro_details, interactive=args.interactive
         )
 
-    packages, local_pip = pip_packages_required(distro)
+    packages, local_pip = pip_packages_required(distro_details.distro)
 
     if packages:
         packages = " ".join(packages)
@@ -4153,7 +4147,6 @@ def main():
             Distro.fedora,
             Distro.debian,
             Distro.opensuse,
-            Distro.centos,
             Distro.centos7,
         ):
             sys.stderr.write(
@@ -4182,11 +4175,7 @@ def main():
             )
             run_cmd(command_line, restart=True, interactive=args.interactive)
 
-        # Special case: CentOS IUS does not have python3 wheel package
-        if distro in centos_family:
-            packages = "wheel"
-
-        if local_pip or distro in centos_family:
+        if local_pip:
             command_line = make_pip_command(
                 "install {} {}".format(pip_user, packages), split=False
             )
@@ -4220,9 +4209,8 @@ def main():
 
     do_install(
         installer=installer,
-        distro=distro,
+        distro_details=distro_details,
         distro_family=distro_family,
-        distro_version=distro_version,
         interactive=args.interactive,
         devel=args.devel,
         delete_install_script=args.delete_install_script,
