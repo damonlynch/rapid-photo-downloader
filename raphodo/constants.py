@@ -20,7 +20,7 @@
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2007-2021, Damon Lynch"
 
-from enum import Enum, IntEnum
+from enum import Enum, IntEnum, auto
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QFontMetrics, QColor
 
@@ -513,25 +513,32 @@ def standardProgressBarWidth() -> int:
 
 # Sync with value in install.py
 class Distro(Enum):
-    debian = 1
-    ubuntu = 2
-    fedora = 3
-    neon = 4
-    linuxmint = 5
-    zorin = 6
-    arch = 7
-    opensuse = 8
-    manjaro = 9
-    galliumos = 10
-    peppermint = 11
-    elementary = 13
-    centos = 14
-    centos7 = 15
-    gentoo = 16
-    deepin = 17
-    kylin = 18
-    popos = 19
-    unknown = 20
+    debian = auto()
+    ubuntu = auto()
+    fedora = auto()
+    neon = auto()
+    linuxmint = auto()
+    zorin = auto()
+    arch = auto()
+    opensuse = auto()
+    manjaro = auto()
+    galliumos = auto()
+    peppermint = auto()
+    elementary = auto()
+    centos_stream9 = auto()
+    centos_stream8 = auto()
+    centos8 = auto()
+    centos7 = auto()
+    gentoo = auto()
+    deepin = auto()
+    kylin = auto()
+    popos = auto()
+    debian_derivative = auto()
+    ubuntu_derivative = auto()
+    fedora_derivative = auto()
+    raspbian = auto()
+    unknown = auto()
+
 
 
 orientation_offset = dict(
