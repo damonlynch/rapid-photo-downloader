@@ -17,7 +17,8 @@ Changelog for Rapid Photo Downloader
    Neal Gompa for identifying the cause of a problem when querying dnf under 
    CentOS Stream 8 and providing the fix for it.
   
- - Update Czech, Dutch, French, Hungarian, Russian and Spanish translations.
+ - Update Czech, Dutch, French, Hungarian, Polish, Russian and Spanish 
+   translations.
 
  - Correct Albanian language attribution in About dialog box.
 
