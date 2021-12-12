@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.27 (2021-12-xx)
+0.9.27 (2021-12-12)
 -------------------
 
  - Purge calls to unmaintained Python package rawkit.
@@ -10,6 +10,13 @@ Changelog for Rapid Photo Downloader
    when right-clicking on Photo and Video destinations, as well as This 
    Computer.
 
+ - When running under WSL 2, account for default value %USERPROFILE% when 
+   probing registry to determine Photos and Videos user folder locations.
+ 
+ - Add support for CentOS Stream 8 and CentOS 8 to install.py script. Thanks to 
+   Neal Gompa for identifying the cause of a problem when querying dnf under 
+   CentOS Stream 8 and providing the fix for it.
+  
  - Update Czech, Dutch, French, Hungarian, Russian and Spanish translations.
 
  - Correct Albanian language attribution in About dialog box.
