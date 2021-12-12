@@ -1809,6 +1809,24 @@ def fedora_package_installed(package: str) -> bool:
         return False
 
 
+def dnf_prepare_base(base: 'dnf.base.Base') -> None:
+    """
+    Prepare dnf base for querying. Includes extra steps for running on
+    CentOS Stream
+    :param base: the dnf base
+    """
+
+    # Code from http://dnf.readthedocs.org/en/latest/use_cases.html
+    # Next two lines suggested by Neal Gompa (Conan-Kudo)
+    base.conf.read()
+    base.conf.substitutions.update_from_etc("/")
+
+    # Repositories serve as sources of information about packages.
+    base.read_all_repos()
+    # A sack is needed for querying.
+    base.fill_sack()
+
+
 def dnf_return_package_version(package: str) -> str:
     """
     Use dnf Python module to get the version of a packager regardless of whether
@@ -1823,15 +1841,7 @@ def dnf_return_package_version(package: str) -> str:
     """
 
     with dnf.Base() as base:
-        # Code from http://dnf.readthedocs.org/en/latest/use_cases.html
-        # Next two lines suggested by Neal Gompa (Conan-Kudo)
-        base.conf.read()
-        base.conf.substitutions.update_from_etc("/")
-
-        # Repositories serve as sources of information about packages.
-        base.read_all_repos()
-        # A sack is needed for querying.
-        base.fill_sack()
+        dnf_prepare_base(base)
 
         # A query matches all packages in sack
         q = base.sack.query()
@@ -2141,13 +2151,8 @@ def uninstall_old_version(
             )
         )
         with dnf.Base() as base:
-            # Next two lines suggested by Neal Gompa (Conan-Kudo)
-            base.conf.read()
-            base.conf.substitutions.update_from_etc("/")
-
-            base.read_all_repos()
             try:
-                base.fill_sack()
+                dnf_prepare_base(base)
             except dnf.exceptions.RepoError as e:
                 print(
                     _(
@@ -2541,14 +2546,7 @@ def install_required_distro_packages(
             )
 
             with dnf.Base() as base:
-                # Code from http://dnf.readthedocs.org/en/latest/use_cases.html
-                # Next two lines suggested by Neal Gompa (Conan-Kudo)
-                base.conf.read()
-                base.conf.substitutions.update_from_etc("/")
-                # Repositories serve as sources of information about packages.
-                base.read_all_repos()
-                # A sack is needed for querying.
-                base.fill_sack()
+                dnf_prepare_base(base)
 
                 # A query matches all packages in sack
                 q = base.sack.query()
