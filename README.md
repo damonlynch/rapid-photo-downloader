@@ -123,6 +123,9 @@ Or to uninstall both the program and its Python package dependencies:
  - [Tenacity](https://github.com/jd/tenacity)
  - [intltool](https://freedesktop.org/wiki/Software/intltool/)
  - [Babel](http://babel.pocoo.org/en/latest/)
+ - [fuse](https://www.kernel.org/doc/html/latest/filesystems/fuse.html)
+ - [imobiledevice-tools](https://libimobiledevice.org/)
+ - [ifuse](https://libimobiledevice.org/)
  - [Python gobject introspection modules](https://wiki.gnome.org/action/show/Projects/PyGObject):
     - GUdev 1.0
     - UDisks 2.0
