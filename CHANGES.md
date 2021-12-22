@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.28a1 (2022-xx-xx)
+---------------------
+
+ - Update Turkish translation
+
 0.9.27 (2021-12-12)
 -------------------
 

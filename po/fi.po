@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2021-12-07 05:21+0000\n"
+"POT-Creation-Date: 2021-12-12 17:01+0000\n"
 "PO-Revision-Date: 2020-03-16 01:32+0000\n"
 "Last-Translator: Mikko Ruohola <polarfox@polarfox.net>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2021-12-12 01:36+0000\n"
-"X-Generator: Launchpad (build 8f6fee684a73b76558cd76956bac729ae9beb70b)\n"
+"X-Launchpad-Export-Date: 2021-12-22 15:08+0000\n"
+"X-Generator: Launchpad (build adb364d6a74a28e7b95d51cd30446ec16160de6c)\n"
 "Language: fi\n"
 
 #: ../install.py:76
@@ -32,147 +32,147 @@ msgstr "Nopea kuvien lataus asentaja"
 msgid "Download and install latest version of Rapid Photo Downloader."
 msgstr "Lataa ja asenna viimeisin versio Nopeasta kuvien lataajasta."
 
-#: ../install.py:401
+#: ../install.py:399
 msgid ""
 "The software repository RPM Fusion Free was added to your system to (1) "
 "enable generating thumbnails for a wider range of video formats, and (2) "
 "enable support for the HEIC / HEIF image format."
 msgstr ""
 
-#: ../install.py:627 ../install.py:4214
+#: ../install.py:629 ../install.py:4210
 msgid "Installer not found:"
 msgstr "Asentajaa ei löytynyt:"
 
 #. Translators: do not translate the term tar.gz
-#: ../install.py:631 ../install.py:4218
+#: ../install.py:633 ../install.py:4214
 msgid "Installer not in tar.gz format:"
 msgstr ""
 
-#: ../install.py:816
+#: ../install.py:815
 msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
 msgstr ""
 
-#: ../install.py:902
+#: ../install.py:901
 msgid "{} will be upgraded from version {} to version {}"
 msgstr ""
 
 #. Translators: "not system-wide" in this context means "not for the entire system"
-#: ../install.py:1209
+#: ../install.py:1208
 msgid ""
 "These Python3 packages will be upgraded for your user (i.e. not system-"
 "wide): {}"
 msgstr ""
 
-#: ../install.py:1311
+#: ../install.py:1308
 #, python-brace-format
 msgid ""
 "Incorrect folder ownership detected. Changing ownership of and resetting "
 "permissions for {file_system_path}."
 msgstr ""
 
-#: ../install.py:1454
+#: ../install.py:1451
 msgid "The following command will be run:"
 msgstr "Seuraavan komennon suorittaminen:"
 
 #. Translators: do not translate the term sudo
-#: ../install.py:1458 ../install.py:3734 ../install.py:3741
+#: ../install.py:1455 ../install.py:3741 ../install.py:3748
 msgid "sudo may prompt you for the sudo password."
 msgstr ""
 
-#: ../install.py:1462
+#: ../install.py:1459
 msgid "Would you like to run the command now?"
 msgstr "Haluatko suorittaa komennon nyt?"
 
-#: ../install.py:1464
+#: ../install.py:1461
 msgid "Answer is not yes, exiting."
 msgstr "Vastaus ei ole kyllä, poistutaan."
 
-#: ../install.py:1475 ../install.py:2118 ../install.py:2177 ../install.py:2658
-#: ../install.py:2715
+#: ../install.py:1472 ../install.py:2141 ../install.py:2200 ../install.py:2675
+#: ../install.py:2732
 msgid "Command failed"
 msgstr "Komento epäonnistui"
 
-#: ../install.py:1477 ../install.py:2119 ../install.py:2178 ../install.py:2659
-#: ../install.py:2716
+#: ../install.py:1474 ../install.py:2142 ../install.py:2201 ../install.py:2676
+#: ../install.py:2733
 msgid "Exiting"
 msgstr "Poistutaan"
 
-#: ../install.py:1505
+#: ../install.py:1502
 msgid "The Universe repository must be enabled."
 msgstr ""
 
 #. Translators: do not translate the term IUS Community
-#: ../install.py:1545
+#: ../install.py:1543
 msgid "The IUS Community repository must be enabled."
 msgstr ""
 
 #. Translators: do not translate the term EPEL
-#: ../install.py:1575
+#: ../install.py:1571
 msgid "The EPEL repository must be enabled."
 msgstr ""
 
 #. Translators: do not translate the term RPM Fusion Free
-#: ../install.py:1614
+#: ../install.py:1621
 msgid "The RPM Fusion Free repository must be enabled."
 msgstr ""
 
-#: ../install.py:1659
+#: ../install.py:1668
 msgid ""
 "Do you want to to uninstall the previous version of Rapid Photo Downloader?"
 msgstr "Haluatko poistaa vanhemman version Nopeasta kuvien latajasta?"
 
-#: ../install.py:2096 ../install.py:2126 ../install.py:2158
+#: ../install.py:2119 ../install.py:2149 ../install.py:2181
 msgid ""
 "Querying package system to see if an older version of Rapid Photo Downloader "
 "is installed (this may take a while)..."
 msgstr ""
 
-#: ../install.py:2111
+#: ../install.py:2134
 msgid "Uninstalling system package"
 msgstr "Poistetaan järjestelmäpakettia"
 
-#: ../install.py:2137
+#: ../install.py:2159
 msgid ""
 "Unable to query package system. Please check your Internet connection and "
 "try again."
 msgstr ""
 
 #. Translators: do not translate the term pip
-#: ../install.py:2183
+#: ../install.py:2206
 msgid "Checking if previous version installed with pip..."
 msgstr "Tarkistetaan onko aikaisempaa versiota asennettu pip:llä..."
 
-#: ../install.py:2338 ../install.py:2395 ../install.py:2510
+#: ../install.py:2359 ../install.py:2416 ../install.py:2532
 msgid "The following package is unknown on your system: {}\n"
 msgstr "Seuraavaa pakettia ei tunnistettu koneeltasi:  {}\n"
 
-#: ../install.py:2409 ../install.py:2571 ../install.py:2668 ../install.py:2723
+#: ../install.py:2430 ../install.py:2588 ../install.py:2685 ../install.py:2740
 msgid ""
 "To continue, some packages required to run the application will be installed."
 msgstr ""
 "Jatkaaksesi, muutamia paketteja on suoritettava ohjelman asennuksessa."
 
-#: ../install.py:2502 ../install.py:2523
+#: ../install.py:2524 ../install.py:2545
 msgid "Querying installed and available packages (this may take a while)"
 msgstr ""
 
-#: ../install.py:2650
+#: ../install.py:2667
 msgid ""
 "Querying zypper to see if any required packages are already installed (this "
 "may take a while)... "
 msgstr ""
 
-#: ../install.py:2708
+#: ../install.py:2725
 msgid ""
 "Querying yum to see if any required packages are already installed (this may "
 "take a while)... "
 msgstr ""
 
-#: ../install.py:2765
+#: ../install.py:2782
 msgid "Query to confirm action at each step."
 msgstr "Kysy vahvistaakseen jokainen vaihe."
 
-#: ../install.py:2775
+#: ../install.py:2792
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
@@ -180,20 +180,20 @@ msgstr ""
 "Ladatessasi uusinta versiota, asenna kehitysversio, jos se on vakaata "
 "versiota uudempi."
 
-#: ../install.py:2786
+#: ../install.py:2803
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
 
-#: ../install.py:2829
+#: ../install.py:2846
 msgid ""
 "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
 "archive if it is newer than this version ({}). The default is to run "
 "whichever installer is newer."
 msgstr ""
 
-#: ../install.py:2837
+#: ../install.py:2854
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
@@ -201,24 +201,24 @@ msgstr ""
 "Poista Nopea kuvien lataaja, joka on asennettu PIP:llä, säilytä sen "
 "riippuvuudet."
 
-#: ../install.py:2843
+#: ../install.py:2860
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
 
-#: ../install.py:2848
+#: ../install.py:2865
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr ""
 
-#: ../install.py:2856
+#: ../install.py:2873
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr "Riippuvuudet poistetaan, jos niitä ei vaadita ohjelmaan."
 
-#: ../install.py:2864
+#: ../install.py:2881
 msgid ""
 "Note: this option will remove the dependencies regardless of whether they "
 "are required by another program pip has installed. Upgrade to pip 9.0 or "
@@ -228,32 +228,32 @@ msgid ""
 "not be uninstalled."
 msgstr ""
 
-#: ../install.py:2888
+#: ../install.py:2905
 msgid ""
 "Install in current Python virtual environment. Virtual environments created "
 "with the --system-site-packages option are not supported."
 msgstr ""
 
-#: ../install.py:2906
+#: ../install.py:2923
 msgid ""
 "Specific version of PyQt5 to install (default is the most recent version{})."
 msgstr ""
 
-#: ../install.py:2917
+#: ../install.py:2934
 msgid ""
 "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
 "Uninstalls any PyPi versions already installed."
 msgstr ""
 
-#: ../install.py:2954
+#: ../install.py:2971
 msgid "Failed to download versions file."
 msgstr "Epäonnistui lataamaan tiedoston versiota."
 
-#: ../install.py:2959
+#: ../install.py:2976
 msgid "Got error code {} while accessing versions file"
 msgstr "Ilmeni virhekoodi {} hakiessa versiotiedostoa"
 
-#: ../install.py:3076
+#: ../install.py:3093
 msgid ""
 "Sorry, could not locate installer. Please check your Internet connection and "
 "verify if you can reach https://www.damonlynch.net\n"
@@ -265,85 +265,81 @@ msgstr ""
 "\n"
 "Poistutaan\n"
 
-#: ../install.py:3230
+#: ../install.py:3247
 msgid ""
 "Package {} failed to install but Rapid Photo Downloader installation will "
 "continue."
 msgstr ""
 
-#: ../install.py:3236
+#: ../install.py:3253
 msgid "Received error code"
 msgstr "Vastaanotettu virhekoodi"
 
-#: ../install.py:3238
+#: ../install.py:3255
 msgid "Failed to install application requirements: exiting."
 msgstr "Epäonnistui asentamaan ohjelman riippuvuudet: poistutaan."
 
-#: ../install.py:3240
+#: ../install.py:3257
 msgid "Failed to install application: exiting..."
 msgstr "Epäonnistui asentamaan ohjelmaa: poistutaan.."
 
-#: ../install.py:3552
+#: ../install.py:3566
 msgid "Installing application requirements..."
 msgstr "Asennetaan ohjelman riippuvuudet.."
 
-#: ../install.py:3587
+#: ../install.py:3601
 msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
 msgstr ""
 
-#: ../install.py:3606
-msgid "Not installing PyPI PyQt5 package into KDE Neon environment"
-msgstr ""
-
-#: ../install.py:3611
+#: ../install.py:3618
 msgid "Installing application..."
 msgstr "Asennetaan ohjelmaa.."
 
-#: ../install.py:3697
+#: ../install.py:3704
 msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
 msgstr ""
 
-#: ../install.py:3703
+#: ../install.py:3710
 msgid "Adding Rapid Photo Downloader to the Windows menu"
 msgstr ""
 
-#: ../install.py:3713
+#: ../install.py:3720
 msgid "Failed to copy application launcher."
 msgstr ""
 
-#: ../install.py:3724
+#: ../install.py:3731
 msgid "Man pages can be found in {}/share/man/man1"
 msgstr "Ohjesivut löytyy {}/share/man/man1"
 
-#: ../install.py:3729
+#: ../install.py:3736
 msgid "Do you want to install the application's man pages?"
 msgstr "Haluatko asentaa ohjelman käyttöohjesivut?"
 
-#: ../install.py:3730
+#: ../install.py:3737
 msgid "They will be installed into {}"
 msgstr "Ne asennetaan kohteeseen:  {}"
 
-#: ../install.py:3732 ../install.py:3739
+#: ../install.py:3739 ../install.py:3746
 msgid "If you uninstall the application, remove these manpages yourself."
 msgstr "Jos poistat ohjelman, poista nämä käyttöohjesivut itse."
 
-#: ../install.py:3735
+#: ../install.py:3742
 msgid "Do want to install the man pages?"
 msgstr "Haluatko asentaa käyttöohjesivut?"
 
-#: ../install.py:3737
+#: ../install.py:3744
 msgid "Installing man pages into {}"
 msgstr "Asennetaan käyttöohjesivuja {}"
 
-#: ../install.py:3755
+#: ../install.py:3762
 msgid "Failed to create man page directory: exiting."
 msgstr "Epäonnistui luomaan käyttöohjesivujen kansiota: poistutaan."
 
-#: ../install.py:3776
+#: ../install.py:3783
 msgid "Failed to copy man page."
 msgstr "Epäonnistui kopioimaan käyttöohjesivuja."
 
-#: ../install.py:3803
+#: ../install.py:3822
 msgid ""
 "Rapid Photo Downloader can be started without activating the virtual "
 "environment by running {}/bin/rapid-photo-downloader"
@@ -351,7 +347,7 @@ msgstr ""
 "Nopea kuvien lataaja voidaan käynnistää ilman virtuaaliympäristön "
 "aktivointia suorittamalla {}/bin/rapid-photo-downloader"
 
-#: ../install.py:3816
+#: ../install.py:3835
 msgid ""
 "You may have to restart the computer to be able to run the program from the "
 "command line or application launcher."
@@ -359,64 +355,64 @@ msgstr ""
 "Käynnistä tietokone uudelleen mahdollistaaksesi ohjelman käytätmisen "
 "komentorivilta tai ohjelman pikakuvakkeesta."
 
-#: ../install.py:3822
+#: ../install.py:3841
 msgid ""
 "You may have to restart WSL to be able to run the program from the command "
 "line."
 msgstr ""
 
-#: ../install.py:3831
+#: ../install.py:3850
 #, python-brace-format
 msgid ""
 "You must add {path} to your computer's $PATH variable to run the program "
 "from the command line or application launcher."
 msgstr ""
 
-#: ../install.py:3850
+#: ../install.py:3869
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
 msgstr ""
 
-#: ../install.py:3852
+#: ../install.py:3871
 msgid "Done."
 msgstr ""
 
-#: ../install.py:3866
+#: ../install.py:3885
 msgid ""
 "The python3 tool pip is required to uninstall a version of Rapid Photo "
 "Downloader that was installed with pip.\n"
 "Cannot continue. Exiting."
 msgstr ""
 
-#: ../install.py:3915
+#: ../install.py:3941
 msgid ""
 "Do not run this installer script as sudo / root user.\n"
 "Run it using the user who will run the program.\n"
 msgstr ""
 
 #. Translators: do not translate the terms --PyQt5-version or --use-system-PyQt5
-#: ../install.py:3927
+#: ../install.py:3953
 msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
 msgstr ""
 
-#: ../install.py:3939
+#: ../install.py:3965
 msgid ""
 "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
 "on an Intel or AMD 64 bit platform."
 msgstr ""
 
 #. Translators: do not translate the term PyQt5
-#: ../install.py:3953
+#: ../install.py:3979
 msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
 msgstr ""
 
-#: ../install.py:3969
+#: ../install.py:3995
 msgid ""
 "Do you want to install Rapid Photo Downloader into the current virtual "
 "environment?"
 msgstr ""
 "Haluatko asentaa Nopean kuvien lataajan nykyiseen virtuaaliympäristöön?"
 
-#: ../install.py:3983
+#: ../install.py:4009
 msgid ""
 "Sorry, installing Rapid Photo Downloader into a Python virtual environment "
 "requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
@@ -425,7 +421,7 @@ msgstr ""
 "vaatii Python 3.5 tai uudemman version Intelin tai AMD 64 bittisellä "
 "alustalla."
 
-#: ../install.py:3996
+#: ../install.py:4022
 msgid ""
 "To install Rapid Photo Downloader into a Python virtual environment, create "
 "and activate the virtual environment before starting this script."
@@ -433,15 +429,15 @@ msgstr ""
 "Asentaaksesi Nopean kuvien lataajan python virtuaaliympäristöön, luo ja "
 "aktivoi virtuaaliympärsistö ennen tämän komennon suorittamista."
 
-#: ../install.py:4006
+#: ../install.py:4032
 msgid "Using virtual environment for installation using pip."
 msgstr ""
 
-#: ../install.py:4011 ../install.py:4025
+#: ../install.py:4037 ../install.py:4051
 msgid "Do not include any other command line arguments when specifying"
 msgstr ""
 
-#: ../install.py:4045
+#: ../install.py:4070
 msgid ""
 "Sorry, this installer does not support a custom python installation.\n"
 "Exiting..."
@@ -449,19 +445,19 @@ msgstr ""
 "Pahoittelut, asentaja ei tue mukautettuja python asennuksia.\n"
 "Suljetaan.."
 
-#: ../install.py:4053
+#: ../install.py:4078
 msgid "Restarting script using system python..."
 msgstr "Uudelleenkäynnistetään ohjelmistoa käyttämällä python järjestelmää.."
 
-#: ../install.py:4074
+#: ../install.py:4091
 msgid "Detected Linux distribution {} {}"
 msgstr ""
 
-#: ../install.py:4093
+#: ../install.py:4108
 msgid "Exiting..."
 msgstr "Poistutaan..."
 
-#: ../install.py:4121
+#: ../install.py:4124
 msgid "To continue, the package python3-apt must be installed."
 msgstr ""
 
@@ -478,7 +474,7 @@ msgid ""
 msgstr ""
 
 #. Translators: do not translate the term python or requests
-#: ../install.py:4208
+#: ../install.py:4204
 msgid "Installing python requests"
 msgstr "Asennetaan python pyynnöt"
 
@@ -540,20 +536,20 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr "Päivitys epäonnistui. Klikkaa sulje poistuaksesi."
 
-#: ../upgrade.py:11224
+#: ../upgrade.py:11204
 #, python-format
 msgid "Upgrading %s..."
 msgstr "Päivitetään %s..."
 
-#: ../upgrade.py:11226
+#: ../upgrade.py:11206
 msgid "Press any key to continue..."
 msgstr ""
 
-#: ../upgrade.py:11239
+#: ../upgrade.py:11219
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr ""
 
-#: ../upgrade.py:11241
+#: ../upgrade.py:11221
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
@@ -744,7 +740,7 @@ msgstr ""
 #. translators: the name of the Videos folder
 #: ../raphodo/destinationdisplay.py:223 ../raphodo/devicedisplay.py:1175
 #: ../raphodo/rapid.py:2343 ../raphodo/rapid.py:2476 ../raphodo/rapid.py:7322
-#: ../raphodo/rpdfile.py:988 ../raphodo/storage.py:537
+#: ../raphodo/rpdfile.py:988 ../raphodo/storage.py:596
 msgid "Videos"
 msgstr ""
 
@@ -4562,12 +4558,12 @@ msgstr "Kuva"
 msgid "Video"
 msgstr "Video"
 
-#: ../raphodo/storage.py:188
+#: ../raphodo/storage.py:245
 msgid "File system root"
 msgstr ""
 
 #. translators: the name of the Pictures folder
-#: ../raphodo/storage.py:524
+#: ../raphodo/storage.py:583
 msgid "Pictures"
 msgstr ""
 
