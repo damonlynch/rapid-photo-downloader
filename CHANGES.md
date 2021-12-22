@@ -4,6 +4,10 @@ Changelog for Rapid Photo Downloader
 0.9.28a1 (2022-xx-xx)
 ---------------------
 
+ - Fix bug [#44](https://github.com/damonlynch/rapid-photo-downloader/issues/44): 
+   Exception at startup when XDG_CURRENT_DESKTOP is not set or set to unexpected
+   value.
+ 
  - Update Turkish translation
 
 0.9.27 (2021-12-12)

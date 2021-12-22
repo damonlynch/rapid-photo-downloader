@@ -116,6 +116,11 @@ UdevAttr = namedtuple(
 
 PROGRAM_DIRECTORY = "rapid-photo-downloader"
 
+try:
+    _linux_desktop = linux_desktop()
+except Exception:
+    _linux_desktop = LinuxDesktop.unknown
+
 
 def guess_distro() -> Distro:
     """
@@ -258,40 +263,40 @@ def get_media_dir() -> str:
     """
 
     if sys.platform.startswith("linux"):
-        if linux_desktop() == LinuxDesktop.wsl2:
+        if _linux_desktop == LinuxDesktop.wsl2:
             return wsl_conf_mnt_location()
-        else:
-            media_dir = "/media/{}".format(get_user_name())
-            run_media_dir = "/run/media"
-            distro = get_distro()
-            if os.path.isdir(run_media_dir) and distro not in (
-                Distro.ubuntu,
-                Distro.debian,
-                Distro.neon,
-                Distro.galliumos,
-                Distro.peppermint,
-                Distro.elementary,
-                Distro.zorin,
-                Distro.popos,
+
+        media_dir = "/media/{}".format(get_user_name())
+        run_media_dir = "/run/media"
+        distro = get_distro()
+        if os.path.isdir(run_media_dir) and distro not in (
+            Distro.ubuntu,
+            Distro.debian,
+            Distro.neon,
+            Distro.galliumos,
+            Distro.peppermint,
+            Distro.elementary,
+            Distro.zorin,
+            Distro.popos,
+        ):
+            if distro not in (
+                Distro.fedora,
+                Distro.manjaro,
+                Distro.arch,
+                Distro.opensuse,
+                Distro.gentoo,
+                Distro.centos8,
+                Distro.centos_stream8,
+                Distro.centos_stream9,
+                Distro.centos7,
             ):
-                if distro not in (
-                    Distro.fedora,
-                    Distro.manjaro,
-                    Distro.arch,
-                    Distro.opensuse,
-                    Distro.gentoo,
-                    Distro.centos8,
-                    Distro.centos_stream8,
-                    Distro.centos_stream9,
-                    Distro.centos7,
-                ):
-                    logging.debug(
-                        "Detected /run/media directory, but distro does not appear "
-                        "to be CentOS, Fedora, Arch, openSUSE, Gentoo, or Manjaro"
-                    )
-                    log_os_release()
-                return run_media_dir
-            return media_dir
+                logging.debug(
+                    "Detected /run/media directory, but distro does not appear "
+                    "to be CentOS, Fedora, Arch, openSUSE, Gentoo, or Manjaro"
+                )
+                log_os_release()
+            return run_media_dir
+        return media_dir
     else:
         raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform)
 
@@ -331,7 +336,7 @@ class ValidMounts:
         """
         self.validMountFolders = None  # type: Optional[Tuple[str]]
         self.only_external_mounts = only_external_mounts
-        self.is_wsl2 = linux_desktop() == LinuxDesktop.wsl2
+        self.is_wsl2 = _linux_desktop == LinuxDesktop.wsl2
         self._setValidMountFolders()
         assert "/" not in self.validMountFolders
         if logging_level == logging.DEBUG:
@@ -527,7 +532,7 @@ def platform_photos_directory(home_on_failure: bool = True) -> Optional[str]:
     home directory or None
     """
 
-    if linux_desktop() == LinuxDesktop.wsl2:
+    if _linux_desktop == LinuxDesktop.wsl2:
         try:
             return wsl_pictures_folder()
         except Exception as e:
@@ -548,7 +553,7 @@ def platform_videos_directory(home_on_failure: bool = True) -> str:
     home directory or None
     """
 
-    if linux_desktop() == LinuxDesktop.wsl2:
+    if _linux_desktop == LinuxDesktop.wsl2:
         try:
             return wsl_videos_folder()
         except Exception as e:
@@ -698,7 +703,7 @@ def get_fdo_cache_thumb_base_directory() -> str:
     """
 
     # LXDE is a special case: handle it
-    if linux_desktop() == LinuxDesktop.lxde:
+    if _linux_desktop == LinuxDesktop.lxde:
         return str(Path.home() / ".thumbnails")
 
     cache = _platform_special_dir(

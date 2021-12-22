@@ -249,6 +249,7 @@ from raphodo.utilities import (
     installed_using_pip,
     getQtSystemTranslation,
     process_running,
+    log_os_release,
 )
 from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
@@ -411,7 +412,12 @@ class RapidWindow(QMainWindow):
 
         self.file_manager = valid_file_manager()
         if platform.system() == "Linux":
-            self.linux_desktop = linux_desktop()
+            try:
+                self.linux_desktop = linux_desktop()
+            except Exception as e:
+                logging.debug("Error detecting Linux Desktop environment: %s", str(e))
+                self.linux_desktop = LinuxDesktop.unknown
+                log_os_release()
         else:
             self.linux_desktop = None
 
@@ -7199,7 +7205,10 @@ def main():
     parser = parser_options()
     args = parser.parse_args()
 
-    force_wayland = linux_desktop() == LinuxDesktop.wsl2
+    try:
+        force_wayland = linux_desktop() == LinuxDesktop.wsl2
+    except Exception:
+        force_wayland = False
     platform_cmd_line_overruled = False
     if force_wayland:
         qt_app_args = []
