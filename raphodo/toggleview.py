@@ -48,7 +48,7 @@ class BlankWidget(QFramedWidget):
 
 class QToggleView(QPanelView):
     """
-    A header bar with tooggle switch over a widget that is switched on/off.
+    A header bar with toggle switch over a widget that is switched on/off.
     """
 
     valueChanged = pyqtSignal(bool)
