@@ -35,7 +35,7 @@ __copyright__ = "Copyright 2016-2021, Damon Lynch"
 from typing import Optional
 
 from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtGui import QPalette, QColor, QFont, QFontMetrics, QMouseEvent
+from PyQt5.QtGui import QPalette, QColor, QFont, QFontMetrics
 from PyQt5.QtWidgets import QSlider, QApplication, QAbstractSlider
 
 
