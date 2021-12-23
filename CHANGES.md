@@ -7,7 +7,10 @@ Changelog for Rapid Photo Downloader
  - Fix bug [#44](https://github.com/damonlynch/rapid-photo-downloader/issues/44): 
    Exception at startup when XDG_CURRENT_DESKTOP is not set or set to unexpected
    value.
- 
+
+ - Fix bug [#45](https://github.com/damonlynch/rapid-photo-downloader/issues/45):
+   Make toggle switch behave consistently with other UI toolkits.
+
  - Update Turkish translation
 
 0.9.27 (2021-12-12)

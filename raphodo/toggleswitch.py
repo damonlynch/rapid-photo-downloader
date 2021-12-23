@@ -35,8 +35,8 @@ __copyright__ = "Copyright 2016-2021, Damon Lynch"
 from typing import Optional
 
 from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtGui import QPalette, QColor, QFont, QFontMetrics
-from PyQt5.QtWidgets import QSlider, QApplication
+from PyQt5.QtGui import QPalette, QColor, QFont, QFontMetrics, QMouseEvent
+from PyQt5.QtWidgets import QSlider, QApplication, QAbstractSlider
 
 
 class QToggleSwitch(QSlider):
@@ -46,10 +46,20 @@ class QToggleSwitch(QSlider):
     Connect to signal valueChanged to react to user setting the switch.
     """
 
-    def __init__(self, background: Optional[QColor] = None, parent=None) -> None:
+    def __init__(
+        self, background: Optional[QColor] = None, parent=None, size: int = 2
+    ) -> None:
+        """
+        Toggle switch that can be dragged or clicked to change value
+
+        :param background: background color
+        :param parent: parent widget
+        :param size: size of widget as multiplier, where base widget height is half
+         that of font height
+        """
         super().__init__(Qt.Horizontal, parent)
 
-        self.base_height = QFontMetrics(QFont()).height() // 2 * 2
+        self.base_height = QFontMetrics(QFont()).height() // 2 * size
         self.radius = self.base_height // 2
 
         width = self.base_height * 2
@@ -61,6 +71,9 @@ class QToggleSwitch(QSlider):
 
         self.setMaximumWidth(self.widgetWidth)
         self.setFixedHeight(self.base_height + 6)
+
+        # Track if button was dragged in the control
+        self.dragged = False
 
         self.setStyleSheet(self.stylesheet(background))
 
@@ -161,7 +174,9 @@ class QToggleSwitch(QSlider):
 
     @pyqtSlot(int)
     def onActionTriggered(self, action: int) -> None:
-        if action != 7:
+        if action == QAbstractSlider.SliderMove:
+            self.dragged = True
+        else:
             if action % 2:
                 self.setValue(self.sliderRange)
             else:
@@ -169,10 +184,18 @@ class QToggleSwitch(QSlider):
 
     @pyqtSlot()
     def onSliderRelease(self) -> None:
-        if self.sliderPosition() >= self.sliderMidPoint:
-            self.setValue(self.sliderRange)
+        if self.dragged:
+            if self.sliderPosition() >= self.sliderMidPoint:
+                self.setValue(self.sliderRange)
+            else:
+                self.setValue(0)
+            self.dragged = False
         else:
-            self.setValue(0)
+            # Account for user pressing the button itself
+            if self.value() == self.sliderRange:
+                self.setValue(0)
+            else:
+                self.setValue(self.sliderRange)
 
     def on(self) -> bool:
         return self.value() == self.sliderRange
@@ -188,6 +211,6 @@ if __name__ == "__main__":
     import sys
 
     app = QApplication(sys.argv)
-    b = QToggleSwitch()
+    b = QToggleSwitch(size=10)
     b.show()
     sys.exit(app.exec_())
