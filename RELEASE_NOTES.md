@@ -1,4 +1,4 @@
-Release Notes for Rapid Photo Downloader 0.9.27
+Release Notes for Rapid Photo Downloader 0.9.28
 ===============================================
 
  - To run Rapid Photo Downloader under WSLg on Windows 11, using the 
