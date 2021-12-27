@@ -154,6 +154,7 @@ def parse_os_release() -> Dict[str, str]:
 
 # Keep up to date with parse_distro_details() with code in install.py
 
+
 def get_distro() -> Distro:
     """
     Determine the Linux distribution using /etc/os-release
@@ -1809,13 +1810,23 @@ if have_gio:
             device_path = volume.get_identifier(Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE)
             if device_path is None:
                 logging.debug("%s is not a Unix Device", volume_name)
-            elif self.unixDevicePathIsCamera(device_path):
-                self.camera_volumes_added[device_path] = volume_name
-                logging.debug("%s is a camera at %s", volume_name, device_path)
-                # Time is in milliseconds; 3000 is 3 seconds.
-                QTimer.singleShot(
-                    3000, lambda: self.cameraVolumeAddedCheckMount(device_path)
-                )
+            else:
+                try:
+                    is_camera = self.unixDevicePathIsCamera(device_path)
+                except TypeError:
+                    logging.debug(
+                        "Unexpected device path for %s. Type %s",
+                        volume_name,
+                        type(device_path),
+                    )
+                else:
+                    if is_camera:
+                        self.camera_volumes_added[device_path] = volume_name
+                        logging.debug("%s is a camera at %s", volume_name, device_path)
+                        # Time is in milliseconds; 3000 is 3 seconds.
+                        QTimer.singleShot(
+                            3000, lambda: self.cameraVolumeAddedCheckMount(device_path)
+                        )
 
         def cameraVolumeAddedCheckMount(self, device_path) -> None:
             if device_path not in self.camera_volumes_mounted:

@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.28a1 (2022-xx-xx)
+0.9.28 (2021-12-27)
 ---------------------
 
  - Fix bug [#44](https://github.com/damonlynch/rapid-photo-downloader/issues/44): 
@@ -11,7 +11,10 @@ Changelog for Rapid Photo Downloader
  - Fix bug [#45](https://github.com/damonlynch/rapid-photo-downloader/issues/45):
    Make toggle switch behave consistently with other UI toolkits.
 
- - Update Turkish translation
+ - Fix bug [#1955755](https://bugs.launchpad.net/rapid/+bug/1955755): 
+   Exception occurred when probing device with malformed device path. 
+
+ - Update Turkish translation.
 
 0.9.27 (2021-12-12)
 -------------------
