@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Dialog window to show and manipulate selected user preferences
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2020, Damon Lynch"
+__copyright__ = "Copyright 2017-2022, Damon Lynch"
 
 import webbrowser
 from typing import List
@@ -154,6 +154,7 @@ class PreferencesDialog(QDialog):
                 _("Language"),
                 _("Automation"),
                 _("Thumbnails"),
+                _("Time Zones"),
                 _("Error Handling"),
                 _("Warnings"),
                 _("Consolidation"),
@@ -164,6 +165,7 @@ class PreferencesDialog(QDialog):
                 ":/prefs/language.svg",
                 ":/prefs/automation.svg",
                 ":/prefs/thumbnails.svg",
+                ":/prefs/timezone.svg",
                 ":/prefs/error-handling.svg",
                 ":/prefs/warnings.svg",
                 ":/prefs/consolidation.svg",
@@ -175,6 +177,7 @@ class PreferencesDialog(QDialog):
                 _("Language"),
                 _("Automation"),
                 _("Thumbnails"),
+                _("Time Zones"),
                 _("Error Handling"),
                 _("Warnings"),
                 _("Miscellaneous"),
@@ -184,6 +187,7 @@ class PreferencesDialog(QDialog):
                 ":/prefs/language.svg",
                 ":/prefs/automation.svg",
                 ":/prefs/thumbnails.svg",
+                ":/prefs/timezone.svg",
                 ":/prefs/error-handling.svg",
                 ":/prefs/warnings.svg",
                 ":/prefs/miscellaneous.svg",
@@ -560,6 +564,52 @@ class PreferencesDialog(QDialog):
         performanceLayout.setSpacing(18)
 
         self.performance.setLayout(performanceLayout)
+
+        self.timeZone = QWidget()
+
+        self.timeZoneBox = QGroupBox(_("Time Zones"))
+        self.ignoreTimeZone = QCheckBox(
+            _("Ignore time zone and daylight savings changes")
+        )
+        self.timeZoneOffsetResolution = QComboBox()
+        self.timeZoneOffsetResolution.setEditable(False)
+        self.timeZoneOffsetResolution.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.timeZoneOffsetResolution.setSizePolicy(
+            QSizePolicy.Minimum, QSizePolicy.Minimum
+        )
+        self.timeZoneOffsetResolution.addItems(("60", "30", "15"))
+        self.timeZoneOffsetLabel = QLabel(_("Offset resolution (minutes):"))
+        self.timeZoneOffset = QWidget()
+        timeZoneOffsetLayout = QHBoxLayout()
+        timeZoneOffsetLayout.addWidget(self.timeZoneOffsetResolution)
+        timeZoneOffsetLayout.addStretch()
+        timeZoneOffsetLayout.setContentsMargins(0, 0, 0, 0)
+        self.timeZoneOffset.setLayout(timeZoneOffsetLayout)
+
+        timeZoneExplanation = QLabel(
+            _("When detecting if a file has been previously downloaded:")
+        )
+
+        timeZoneBoxLayout = QGridLayout()
+        timeZoneBoxLayout.addWidget(timeZoneExplanation, 0, 0, 1, 3)
+        timeZoneBoxLayout.addWidget(self.ignoreTimeZone, 1, 0, 1, 3)
+        timeZoneBoxLayout.addWidget(self.timeZoneOffsetLabel, 2, 1, 1, 1)
+        timeZoneBoxLayout.addWidget(self.timeZoneOffset, 2, 2, 1, 1)
+        timeZoneBoxLayout.setColumnMinimumWidth(0, checkbox_width)
+        self.timeZoneBox.setLayout(timeZoneBoxLayout)
+
+        timeZoneLayout = QVBoxLayout()
+        timeZoneLayout.addWidget(self.timeZoneBox)
+        timeZoneLayout.addStretch()
+        timeZoneLayout.setContentsMargins(0, 0, 0, 0)
+
+        self.timeZone.setLayout(timeZoneLayout)
+
+        self.setTimeZoneValues()
+        self.ignoreTimeZone.stateChanged.connect(self.ignoreTimeZoneChanged)
+        self.timeZoneOffsetResolution.currentIndexChanged.connect(
+            self.timeZoneOffsetResolutionChanged
+        )
 
         self.errorBox = QGroupBox(_("Error Handling"))
 
@@ -971,6 +1021,7 @@ class PreferencesDialog(QDialog):
         self.panels.addWidget(self.language)
         self.panels.addWidget(self.automation)
         self.panels.addWidget(self.performance)
+        self.panels.addWidget(self.timeZone)
         self.panels.addWidget(self.errorWidget)
         self.panels.addWidget(self.warnings)
         if consolidation_implemented:
@@ -1134,6 +1185,15 @@ class PreferencesDialog(QDialog):
     @pyqtSlot("PyQt_PyObject")
     def setCacheSize(self, size: int) -> None:
         self.thumbnailCacheSize.setText(format_size_for_user(size))
+
+    def setTimeZoneValues(self) -> None:
+        ignore = self.prefs.ignore_time_zone_changes
+        self.ignoreTimeZone.setChecked(ignore)
+        self.timeZoneOffsetResolution.setCurrentText(
+            str(self.prefs.time_zone_offset_resolution)
+        )
+        self.timeZoneOffset.setEnabled(ignore)
+        self.timeZoneOffsetLabel.setEnabled(ignore)
 
     def setErrorHandingValues(self) -> None:
         if self.prefs.conflict_resolution == int(ConflictResolution.skip):
@@ -1510,6 +1570,17 @@ class PreferencesDialog(QDialog):
         else:
             self.prefs.optimize_thumbnail_db = False
 
+    @pyqtSlot(int)
+    def ignoreTimeZoneChanged(self, state: int) -> None:
+        ignore = state == Qt.Checked
+        self.prefs.ignore_time_zone_changes = ignore
+        self.timeZoneOffset.setEnabled(ignore)
+        self.timeZoneOffsetLabel.setEnabled(ignore)
+
+    @pyqtSlot(int)
+    def timeZoneOffsetResolutionChanged(self, index: int) -> None:
+        self.prefs.time_zone_offset_resolution = int(self.timeZoneOffsetResolution.currentText())
+
     @pyqtSlot(QAbstractButton)
     def downloadErrorGroupClicked(self, button: QRadioButton) -> None:
         if self.downloadErrorGroup.checkedButton() == self.skipDownload:
@@ -1666,10 +1737,14 @@ class PreferencesDialog(QDialog):
             self.setPerfomanceEnabled()
             self.thumbnailCacheDaysKeep.setValue(self.prefs.keep_thumbnails_days)
         elif row == 4:
+            for value in ("ignore_time_zone_changes", "time_zone_offset_resolution"):
+                self.prefs.restore(value)
+                self.setTimeZoneValues()
+        elif row == 5:
             for value in ("conflict_resolution", "backup_duplicate_overwrite"):
                 self.prefs.restore(value)
             self.setErrorHandingValues()
-        elif row == 5:
+        elif row == 6:
             for value in (
                 "warn_downloading_all",
                 "warn_backup_problem",
@@ -1680,7 +1755,7 @@ class PreferencesDialog(QDialog):
             ):
                 self.prefs.restore(value)
             self.setWarningValues()
-        elif row == 6 and consolidation_implemented:
+        elif row == 7 and consolidation_implemented:
             for value in (
                 "completed_downloads",
                 "consolidate_identical",
@@ -1690,8 +1765,8 @@ class PreferencesDialog(QDialog):
             ):
                 self.prefs.restore(value)
             self.setConsolidatedValues()
-        elif (row == 7 and consolidation_implemented) or (
-            row == 6 and not consolidation_implemented
+        elif (row == 8 and consolidation_implemented) or (
+            row == 7 and not consolidation_implemented
         ):
             if not version_check_disabled():
                 self.prefs.restore("check_for_new_versions")
@@ -1721,15 +1796,17 @@ class PreferencesDialog(QDialog):
         elif row == 3:
             location = "#thumbnailpreferences"
         elif row == 4:
-            location = "#errorhandlingpreferences"
+            location = "#timezonehandling"
         elif row == 5:
-            location = "#warningpreferences"
+            location = "#errorhandlingpreferences"
         elif row == 6:
+            location = "#warningpreferences"
+        elif row == 7:
             if consolidation_implemented:
                 location = "#consolidationpreferences"
             else:
                 location = "#miscellaneousnpreferences"
-        elif row == 7:
+        elif row == 8:
             location = "#miscellaneousnpreferences"
         else:
             location = ""

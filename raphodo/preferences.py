@@ -392,6 +392,8 @@ class Preferences:
     restart_directives = dict(purge_thumbnails=False, optimize_thumbnail_db=False)
     metadata_defaults = dict(
         force_exiftool=False,
+        ignore_time_zone_changes=True,  # new in 0.9.29a1
+        time_zone_offset_resolution=60,  # new in 0.9.29a1
     )
     # New in 0.9.27b2:
     wsl_defaults = dict(
