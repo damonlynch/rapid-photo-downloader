@@ -29,6 +29,7 @@
     <file alias="prefs/miscellaneous.svg">../images/preferences/miscellaneous.svg</file>
     <file alias="prefs/thumbnails.svg">../images/preferences/thumbnails.svg</file>
     <file alias="prefs/warnings.svg">../images/preferences/warnings.svg</file>
+    <file alias="prefs/timezone.svg">../images/preferences/timezone.svg</file>
     <file alias="rapid-photo-downloader.svg">../images/rapid-photo-downloader.svg</file>
     <file alias="report/critical.svg">../images/report-critical.svg</file>
     <file alias="report/error.svg">../images/report-error.svg</file>
