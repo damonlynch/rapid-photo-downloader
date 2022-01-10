@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rapid Photo Downloader 0.9.2\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2022-01-10 07:03-0500\n"
+"POT-Creation-Date: 2022-01-10 15:55-0500\n"
 "PO-Revision-Date: 2021-12-07 00:17-0500\n"
 "Last-Translator: csola48 <csola48@gmail.com>\n"
 "Language-Team: magyar\n"
@@ -1965,7 +1965,7 @@ msgstr "Szöveg"
 msgid "Filename"
 msgstr "Fájlnév"
 
-#: ../raphodo/generatenameconfig.py:209 ../raphodo/preferencedialog.py:959
+#: ../raphodo/generatenameconfig.py:209 ../raphodo/preferencedialog.py:963
 msgid "Metadata"
 msgstr "Metaadat"
 
@@ -2611,7 +2611,7 @@ msgid "&Remove"
 msgstr "&Eltávolít"
 
 #: ../raphodo/jobcodepanel.py:312 ../raphodo/preferencedialog.py:284
-#: ../raphodo/preferencedialog.py:320 ../raphodo/preferencedialog.py:746
+#: ../raphodo/preferencedialog.py:320 ../raphodo/preferencedialog.py:750
 msgid "Remove All"
 msgstr "Mindent eltávolít"
 
@@ -2730,7 +2730,7 @@ msgstr "Előbeállítás:"
 msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
-#: ../raphodo/nameeditor.py:1136 ../raphodo/preferencedialog.py:1048
+#: ../raphodo/nameeditor.py:1136 ../raphodo/preferencedialog.py:1052
 #: ../raphodo/wsl.py:649
 msgid "Get help online..."
 msgstr "Online segítség kérése ..."
@@ -2844,14 +2844,15 @@ msgstr "Automatizálás"
 msgid "Thumbnails"
 msgstr "Bélyegképek"
 
+#. Translators: see explanation at https://damonlynch.net/rapid/documentation/#timezonehandling
 #: ../raphodo/preferencedialog.py:157 ../raphodo/preferencedialog.py:180
-#: ../raphodo/preferencedialog.py:570
+#: ../raphodo/preferencedialog.py:571
 #, fuzzy
 msgid "Time Zones"
 msgstr "Idővonal"
 
 #: ../raphodo/preferencedialog.py:158 ../raphodo/preferencedialog.py:181
-#: ../raphodo/preferencedialog.py:614
+#: ../raphodo/preferencedialog.py:618
 msgid "Error Handling"
 msgstr "Hibakezelés"
 
@@ -2930,7 +2931,7 @@ msgstr ""
 "Ennek a beállításnak a megváltoztatásával minden eszköz ismét beolvasható."
 
 #: ../raphodo/preferencedialog.py:252 ../raphodo/preferencedialog.py:282
-#: ../raphodo/preferencedialog.py:313 ../raphodo/preferencedialog.py:744
+#: ../raphodo/preferencedialog.py:313 ../raphodo/preferencedialog.py:748
 msgid "Remove"
 msgstr "Eltávolít"
 
@@ -3166,32 +3167,33 @@ msgstr "Gyorsítótár tisztítása..."
 msgid "Optimize Cache..."
 msgstr "Gyorsítás optimalizálása..."
 
-#: ../raphodo/preferencedialog.py:572
+#: ../raphodo/preferencedialog.py:574
 msgid "Ignore time zone and daylight savings changes"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:581
+#. Translators: for an explanation of what an offset resolution is, see https://damonlynch.net/rapid/documentation/#timezoneoffsetresolution
+#: ../raphodo/preferencedialog.py:584
 msgid "Offset resolution (minutes):"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:590
+#: ../raphodo/preferencedialog.py:594
 #, fuzzy
 msgid "When detecting if a file has been previously downloaded:"
 msgstr "Felejtse el, hogy mely fájlokat töltötte le és lépjen ki."
 
-#: ../raphodo/preferencedialog.py:617
+#: ../raphodo/preferencedialog.py:621
 msgid "Skip download"
 msgstr "A letöltés kihagyása"
 
-#: ../raphodo/preferencedialog.py:619
+#: ../raphodo/preferencedialog.py:623
 msgid "Don't download the file, and issue an error message"
 msgstr "Ne töltse le a fájlt és adjon ki hibaüzenetet"
 
-#: ../raphodo/preferencedialog.py:621
+#: ../raphodo/preferencedialog.py:625
 msgid "Add unique identifier"
 msgstr "Egyedi azonosító megadása"
 
-#: ../raphodo/preferencedialog.py:624
+#: ../raphodo/preferencedialog.py:628
 msgid ""
 "Add an identifier like _1 or _2 to the end of the filename, immediately "
 "before the file's extension"
@@ -3199,23 +3201,23 @@ msgstr ""
 "Adjon hozzá egy _1 vagy _2 azonosítót a fájlnév végéhez közvetlenül a fájl "
 "kiterjesztése előtt"
 
-#: ../raphodo/preferencedialog.py:632
+#: ../raphodo/preferencedialog.py:636
 msgid "Overwrite"
 msgstr "Felülírás"
 
-#: ../raphodo/preferencedialog.py:633
+#: ../raphodo/preferencedialog.py:637
 msgid "Overwrite the previously backed up file"
 msgstr "Felülírja az előzőleg mentett fájlt"
 
-#: ../raphodo/preferencedialog.py:634
+#: ../raphodo/preferencedialog.py:638
 msgid "Skip"
 msgstr "Kihagyás"
 
-#: ../raphodo/preferencedialog.py:636
+#: ../raphodo/preferencedialog.py:640
 msgid "Don't overwrite the backup file, and issue an error message"
 msgstr "Ne írja felül a biztonsági másolatot és adjon ki hibaüzenetet"
 
-#: ../raphodo/preferencedialog.py:643
+#: ../raphodo/preferencedialog.py:647
 msgid ""
 "When a photo or video of the same name has already been downloaded, choose "
 "whether to skip downloading the file, or to add a unique identifier:"
@@ -3223,7 +3225,7 @@ msgstr ""
 "Ha ugyanazt a fényképet vagy videót már le is töltötte, válassza ki, hogy "
 "kihagyja-e a fájl letöltését vagy egyedi azonosítót ad:"
 
-#: ../raphodo/preferencedialog.py:655
+#: ../raphodo/preferencedialog.py:659
 msgid ""
 "Using sequence numbers to automatically generate unique filenames is "
 "strongly recommended. Configure file renaming in the Rename panel in the "
@@ -3233,7 +3235,7 @@ msgstr ""
 "létrehoznak egyedi fájlneveket. Állítsa át a fájl átnevezését a főablak "
 "Átnevezés panelen."
 
-#: ../raphodo/preferencedialog.py:666
+#: ../raphodo/preferencedialog.py:670
 msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up:"
@@ -3242,40 +3244,40 @@ msgstr ""
 "egy azonos nevet tartalmazó fájlt, vagy hagyja felül írni a biztonsági "
 "másolatot:"
 
-#: ../raphodo/preferencedialog.py:687
+#: ../raphodo/preferencedialog.py:691
 msgid "Program Warnings"
 msgstr "Program figyelmeztetések"
 
-#: ../raphodo/preferencedialog.py:688
+#: ../raphodo/preferencedialog.py:692
 msgid "Show a warning when:"
 msgstr "Figyelmeztetés megjelenítése, ha:"
 
-#: ../raphodo/preferencedialog.py:692
+#: ../raphodo/preferencedialog.py:696
 msgid "Downloading files currently not displayed"
 msgstr "A jelenleg nem megjelenített fájlok letöltése"
 
-#: ../raphodo/preferencedialog.py:695
+#: ../raphodo/preferencedialog.py:699
 msgid ""
 "Warn when about to download files that are not displayed in the main window."
 msgstr ""
 "Figyelmeztetés, amikor olyan fájlokat tölt le, amelyek nem jelennek meg a "
 "főablakban."
 
-#: ../raphodo/preferencedialog.py:699
+#: ../raphodo/preferencedialog.py:703
 msgid "Backup destinations are missing"
 msgstr "A mentési célok hiányoznak"
 
-#: ../raphodo/preferencedialog.py:701
+#: ../raphodo/preferencedialog.py:705
 msgid "Warn before starting a download if it is not possible to back up files."
 msgstr ""
 "Figyelmeztetés a letöltés megkezdése előtt, ha a fájlok biztonsági mentése "
 "nem lehetséges."
 
-#: ../raphodo/preferencedialog.py:705
+#: ../raphodo/preferencedialog.py:709
 msgid "Program libraries are missing or broken"
 msgstr "A programkönyvtárak hiányoznak vagy hibásak"
 
-#: ../raphodo/preferencedialog.py:708
+#: ../raphodo/preferencedialog.py:712
 msgid ""
 "Warn if a software library used by Rapid Photo Downloader is missing or not "
 "functioning."
@@ -3283,11 +3285,11 @@ msgstr ""
 "Figyelmeztetés, ha a Rapid Photo Downloader által használt szoftverkönyvtár "
 "hiányzik vagy nem működik."
 
-#: ../raphodo/preferencedialog.py:712
+#: ../raphodo/preferencedialog.py:716
 msgid "Filesystem metadata cannot be set"
 msgstr "A fájlrendszer metaadatait nem lehet beállítani"
 
-#: ../raphodo/preferencedialog.py:714
+#: ../raphodo/preferencedialog.py:718
 msgid ""
 "Warn if there is an error setting a file's filesystem metadata, such as its "
 "modification time."
@@ -3295,11 +3297,11 @@ msgstr ""
 "Figyelmeztetés, ha hiba van a fájl fájlrendszer metaadataiban, például a "
 "módosítási idő beállításának."
 
-#: ../raphodo/preferencedialog.py:718
+#: ../raphodo/preferencedialog.py:722
 msgid "Encountering unhandled files"
 msgstr "Nem kezelt fájlok találkozása"
 
-#: ../raphodo/preferencedialog.py:720
+#: ../raphodo/preferencedialog.py:724
 msgid ""
 "Warn after scanning a device or this computer if there are unrecognized "
 "files that will not be included in the download."
@@ -3307,11 +3309,11 @@ msgstr ""
 "Figyelmeztetés az eszköz vagy a számítógép lekeresése után, ha vannak "
 "ismeretlen fájlok, amelyek nem szerepelnek a letöltésben."
 
-#: ../raphodo/preferencedialog.py:725
+#: ../raphodo/preferencedialog.py:729
 msgid "Do not warn about unhandled files with extensions:"
 msgstr "Ne figyelmeztesse a nem kezelt fájlokat kiterjesztéssel:"
 
-#: ../raphodo/preferencedialog.py:730
+#: ../raphodo/preferencedialog.py:734
 msgid ""
 "File extensions are case insensitive and do not need to include the leading "
 "dot."
@@ -3319,18 +3321,18 @@ msgstr ""
 "A fájlkiterjesztések kis-és nagybetűket nem tartalmaznak és nem kell "
 "tartalmazniuk a vezető pontot."
 
-#: ../raphodo/preferencedialog.py:734
+#: ../raphodo/preferencedialog.py:738
 msgid "Add"
 msgstr "Hozzáad"
 
-#: ../raphodo/preferencedialog.py:736
+#: ../raphodo/preferencedialog.py:740
 msgid ""
 "Add a file extension to the list of unhandled file types to not warn about."
 msgstr ""
 "Adjon hozzá egy fájlkiterjesztést a nem kezelt fájltípusok listájához, hogy "
 "ne figyelmeztessen."
 
-#: ../raphodo/preferencedialog.py:741
+#: ../raphodo/preferencedialog.py:745
 msgid ""
 "Remove a file extension from the list of unhandled file types to not warn "
 "about."
@@ -3338,22 +3340,22 @@ msgstr ""
 "Távolítson el egy fájlkiterjesztést a nem kezelt fájltípusok listájáról, "
 "hogy ne figyelmeztessen."
 
-#: ../raphodo/preferencedialog.py:748
+#: ../raphodo/preferencedialog.py:752
 msgid ""
 "Clear the list of file extensions of unhandled file types to not warn about."
 msgstr ""
 "Törölje a nem kezelt fájltípusok fájlkiterjesztéseinek listáját, hogy ne "
 "figyelmeztessen."
 
-#: ../raphodo/preferencedialog.py:786
+#: ../raphodo/preferencedialog.py:790
 msgid "Photo and Video Consolidation"
 msgstr "Fénykép és videó megerősítés"
 
-#: ../raphodo/preferencedialog.py:789
+#: ../raphodo/preferencedialog.py:793
 msgid "Consolidate files across devices and downloads"
 msgstr "Erősítse meg a fájlokat eszközökön és letöltéseken"
 
-#: ../raphodo/preferencedialog.py:792
+#: ../raphodo/preferencedialog.py:796
 msgid ""
 "Analyze the results of device scans looking for duplicate files and matching "
 "RAW and JPEG pairs,\n"
@@ -3363,19 +3365,19 @@ msgstr ""
 "és JPEG-párokat keresnek,\n"
 "összehasonlítva azokat több eszközön és a letöltési munkamenetek között."
 
-#: ../raphodo/preferencedialog.py:798
+#: ../raphodo/preferencedialog.py:802
 msgid "Treat matching RAW and JPEG files as:"
 msgstr "Az illeszkedő RAW és JPEG fájlok kezelése:"
 
-#: ../raphodo/preferencedialog.py:799
+#: ../raphodo/preferencedialog.py:803
 msgid "One photo"
 msgstr "Egy fénykép"
 
-#: ../raphodo/preferencedialog.py:800
+#: ../raphodo/preferencedialog.py:804
 msgid "Two photos"
 msgstr "Két fénykép"
 
-#: ../raphodo/preferencedialog.py:802
+#: ../raphodo/preferencedialog.py:806
 msgid ""
 "Display matching pairs of RAW and JPEG photos as one photo, and if marked, "
 "download both."
@@ -3383,7 +3385,7 @@ msgstr ""
 "A RAW- és JPEG-képek illesztése páronként egy fotót jelenítsen meg, és ha "
 "jelölve van, töltse le mindkettőt."
 
-#: ../raphodo/preferencedialog.py:807
+#: ../raphodo/preferencedialog.py:811
 msgid ""
 "Display matching pairs of RAW and JPEG photos as two different photos. You "
 "can still synchronize their sequence numbers."
@@ -3391,23 +3393,23 @@ msgstr ""
 "A RAW- és JPEG-képek egyező párjainak megjelenítése két különböző "
 "fényképként. Később még mindig szinkronizálhatja a sorszámukat."
 
-#: ../raphodo/preferencedialog.py:816
+#: ../raphodo/preferencedialog.py:820
 msgid "With matching RAW and JPEG photos:"
 msgstr "Megfelelő RAW és JPEG képekkel:"
 
-#: ../raphodo/preferencedialog.py:818
+#: ../raphodo/preferencedialog.py:822
 msgid "Do not mark JPEG for download"
 msgstr "Ne jelölje meg a JPEG letöltést"
 
-#: ../raphodo/preferencedialog.py:819
+#: ../raphodo/preferencedialog.py:823
 msgid "Do not mark RAW for download"
 msgstr "Ne jelölje meg a RAW letöltést"
 
-#: ../raphodo/preferencedialog.py:820
+#: ../raphodo/preferencedialog.py:824
 msgid "Mark both for download"
 msgstr "Jelölje meg mind a letöltéshez"
 
-#: ../raphodo/preferencedialog.py:827
+#: ../raphodo/preferencedialog.py:831
 msgid ""
 "When matching RAW and JPEG photos are found, do not automatically mark the "
 "JPEG for\n"
@@ -3417,7 +3419,7 @@ msgstr ""
 "et\n"
 "letöltéshez. Még mindig megjelölheti letöltéshez."
 
-#: ../raphodo/preferencedialog.py:833
+#: ../raphodo/preferencedialog.py:837
 msgid ""
 "When matching RAW and JPEG photos are found, do not automatically mark the "
 "RAW for\n"
@@ -3427,14 +3429,14 @@ msgstr ""
 "értéket\n"
 "letöltéshez. Még mindig megjelölheti letöltéshez."
 
-#: ../raphodo/preferencedialog.py:839
+#: ../raphodo/preferencedialog.py:843
 msgid ""
 "When matching RAW and JPEG photos are found, automatically mark both for "
 "download."
 msgstr ""
 "Amikor RAW és JPEG képeket talál, akkor a letöltés automatikusan jelzi."
 
-#: ../raphodo/preferencedialog.py:845
+#: ../raphodo/preferencedialog.py:849
 msgid ""
 "If you disable file consolidation, choose what to do when a download device "
 "is inserted while completed downloads are displayed:"
@@ -3442,26 +3444,26 @@ msgstr ""
 "Ha letiltja a fájlok összevonását, válassza ki, hogy mit kell tennie, amikor "
 "a letöltési eszköz megjeleníti letöltött fájlokat:"
 
-#: ../raphodo/preferencedialog.py:851
+#: ../raphodo/preferencedialog.py:855
 msgid ""
 "When a download device is inserted while completed downloads are displayed:"
 msgstr ""
 "Ha a letöltési eszköz be van helyezve és a teljes letöltést mutatja a "
 "képernyő:"
 
-#: ../raphodo/preferencedialog.py:867
+#: ../raphodo/preferencedialog.py:871
 msgid "Clear completed downloads"
 msgstr "A befejezett letöltések törlése"
 
-#: ../raphodo/preferencedialog.py:869
+#: ../raphodo/preferencedialog.py:873
 msgid "Keep displaying completed downloads"
 msgstr "Folytassa a befejezett letöltések megjelenítését"
 
-#: ../raphodo/preferencedialog.py:871
+#: ../raphodo/preferencedialog.py:875
 msgid "Prompt for what to do"
 msgstr "Kérje, mit tegyen"
 
-#: ../raphodo/preferencedialog.py:876
+#: ../raphodo/preferencedialog.py:880
 msgid ""
 "Automatically clear the display of completed downloads whenever a new "
 "download device is inserted."
@@ -3469,7 +3471,7 @@ msgstr ""
 "Automatikusan törölje a befejezett letöltések megjelenítését, amikor egy új "
 "letöltőeszköz be van helyezve."
 
-#: ../raphodo/preferencedialog.py:881
+#: ../raphodo/preferencedialog.py:885
 msgid ""
 "Keep displaying completed downloads whenever a new download device is "
 "inserted."
@@ -3477,7 +3479,7 @@ msgstr ""
 "Tartsa meg a befejezett letöltések megjelenítését, amikor egy új "
 "letöltőeszköz be van helyezve."
 
-#: ../raphodo/preferencedialog.py:886
+#: ../raphodo/preferencedialog.py:890
 msgid ""
 "Prompt whether to keep displaying completed downloads or clear them whenever "
 "a new download device is inserted."
@@ -3485,23 +3487,23 @@ msgstr ""
 "Kérdezze meg, hogy folytassa-e a befejezett letöltések megjelenítését vagy "
 "törölje azokat, amikor új letöltési eszközt helyez be."
 
-#: ../raphodo/preferencedialog.py:933
+#: ../raphodo/preferencedialog.py:937
 msgid "Version Check"
 msgstr "Verzióellenőrzés"
 
-#: ../raphodo/preferencedialog.py:934
+#: ../raphodo/preferencedialog.py:938
 msgid "Check for new version at startup"
 msgstr "Ellenőrizze az új verziót indításkor"
 
-#: ../raphodo/preferencedialog.py:937
+#: ../raphodo/preferencedialog.py:941
 msgid "Check for a new version of the program each time the program starts."
 msgstr "A program minden egyes indításakor ellenőrizze a program új verzióját."
 
-#: ../raphodo/preferencedialog.py:941
+#: ../raphodo/preferencedialog.py:945
 msgid "Include development releases"
 msgstr "Fejlesztési kiadásokat is tartalmaz"
 
-#: ../raphodo/preferencedialog.py:943
+#: ../raphodo/preferencedialog.py:947
 msgid ""
 "Include alpha, beta and other development releases when checking for a new "
 "version of the program.\n"
@@ -3514,12 +3516,12 @@ msgstr ""
 "\n"
 "Ha jelenleg fejlesztési verziót futtat, az ellenőrzés mindig megtörténik."
 
-#: ../raphodo/preferencedialog.py:961
+#: ../raphodo/preferencedialog.py:965
 msgid "Ignore DNG date/time metadata on MTP devices"
 msgstr ""
 "A DNG dátum/idő metaadatainak figyelmen kívül hagyása az MTP-eszközökön"
 
-#: ../raphodo/preferencedialog.py:964
+#: ../raphodo/preferencedialog.py:968
 msgid ""
 "Ignore date/time metadata in DNG files located on MTP devices, and use the "
 "file's modification time instead.\n"
@@ -3532,11 +3534,11 @@ msgstr ""
 "Hasznos olyan eszközökhöz, mint például olyan telefonok és táblagépek, "
 "amelyek helytelen DNG metaadatokat hoznak létre."
 
-#: ../raphodo/preferencedialog.py:971
+#: ../raphodo/preferencedialog.py:975
 msgid "Read photo metadata using only ExifTool"
 msgstr "Olvassa el a fotó metaadatait csak az ExifTool segítségével"
 
-#: ../raphodo/preferencedialog.py:973
+#: ../raphodo/preferencedialog.py:977
 msgid ""
 "Use ExifTool instead of Exiv2 to read photo metadata and extract "
 "thumbnails.\n"
@@ -3564,7 +3566,7 @@ msgstr ""
 "fájlokból\n"
 "kamerák."
 
-#: ../raphodo/preferencedialog.py:999
+#: ../raphodo/preferencedialog.py:1003
 msgid "Completed Downloads"
 msgstr "Befejezett letöltések"
 
@@ -3574,16 +3576,16 @@ msgstr "Befejezett letöltések"
 #. simply to set this choice apart from all the other choices in the drop down
 #. list. You can keep the < > if you like, or replace them with whatever you
 #. typically use in your language.
-#: ../raphodo/preferencedialog.py:1105
+#: ../raphodo/preferencedialog.py:1109
 msgid "<System Language>"
 msgstr "<Rendszer nyelve>"
 
-#: ../raphodo/preferencedialog.py:1387
+#: ../raphodo/preferencedialog.py:1391
 #, python-format
 msgid "Restores default %s preference values"
 msgstr "Visszaállítja az alapértelmezett %s preferenciaértékeket"
 
-#: ../raphodo/preferencedialog.py:1537
+#: ../raphodo/preferencedialog.py:1541
 msgid ""
 "Do you want to purge the thumbnail cache? The cache will be purged when the "
 "program is next started."
@@ -3591,11 +3593,11 @@ msgstr ""
 "Tisztítja a bélyegkép gyorsítótárat? A gyorsítótár megszűnik, amikor a "
 "programot elindítja."
 
-#: ../raphodo/preferencedialog.py:1542
+#: ../raphodo/preferencedialog.py:1546
 msgid "Purge Thumbnail Cache"
 msgstr "Törölje a bélyegkép gyorsító fájlt"
 
-#: ../raphodo/preferencedialog.py:1557
+#: ../raphodo/preferencedialog.py:1561
 msgid ""
 "Do you want to optimize the thumbnail cache? The cache will be optimized "
 "when the program is next started."
@@ -3603,54 +3605,54 @@ msgstr ""
 "Szeretné optimalizálni a bélyegkép gyorsítótárat? A gyorsítótár "
 "optimalizálásra kerül, amikor a következő programot elindítjuk."
 
-#: ../raphodo/preferencedialog.py:1562
+#: ../raphodo/preferencedialog.py:1566
 msgid "Optimize Thumbnail Cache"
 msgstr "A bélyegkép gyorsítótár optimalizálása"
 
-#: ../raphodo/preferencedialog.py:1878
+#: ../raphodo/preferencedialog.py:1882
 msgid "Enter a Folder to Scan"
 msgstr "Mappa megadása kereséshez"
 
-#: ../raphodo/preferencedialog.py:1880
+#: ../raphodo/preferencedialog.py:1884
 msgid "Specify a folder that will be scanned for photos and videos"
 msgstr ""
 "Adjon meg egy mappát, amelyet be kell olvasni a fotók és a videók számára"
 
-#: ../raphodo/preferencedialog.py:1882
+#: ../raphodo/preferencedialog.py:1886
 msgid "Folder:"
 msgstr "Mappa:"
 
-#: ../raphodo/preferencedialog.py:1896
+#: ../raphodo/preferencedialog.py:1900
 msgid "Enter a Path to Ignore"
 msgstr "Adja meg a mellőzni kívánt elérési útvonalat"
 
-#: ../raphodo/preferencedialog.py:1898
+#: ../raphodo/preferencedialog.py:1902
 msgid "Specify a path that will never be scanned for photos or videos"
 msgstr ""
 "Kérlek add meg azt a könyvtárt ahol soha ne keressek fényképeket vagy "
 "videókat"
 
-#: ../raphodo/preferencedialog.py:1900
+#: ../raphodo/preferencedialog.py:1904
 msgid "Path:"
 msgstr "Útvonal:"
 
-#: ../raphodo/preferencedialog.py:1914
+#: ../raphodo/preferencedialog.py:1918
 msgid "Enter a File Extension"
 msgstr "Adja meg a fájl kiterjesztését"
 
-#: ../raphodo/preferencedialog.py:1915
+#: ../raphodo/preferencedialog.py:1919
 msgid "Specify a file extension (without the leading dot)"
 msgstr "Adjon meg egy fájlkiterjesztést (a vezető pont nélkül)"
 
-#: ../raphodo/preferencedialog.py:1916 ../raphodo/renamepanel.py:147
+#: ../raphodo/preferencedialog.py:1920 ../raphodo/renamepanel.py:147
 msgid "Extension:"
 msgstr "Kiterjesztés:"
 
-#: ../raphodo/preferencedialog.py:1931
+#: ../raphodo/preferencedialog.py:1935
 msgid "Invalid File Extension"
 msgstr "Érvénytelen fájlkiterjesztés"
 
-#: ../raphodo/preferencedialog.py:1936
+#: ../raphodo/preferencedialog.py:1940
 #, python-format
 msgid ""
 "The file extension <b>%s</b> is recognized by Rapid Photo Downloader, so it "
@@ -3659,7 +3661,7 @@ msgstr ""
 "A <b> %s </b> fájlkiterjesztést a Rapid Photo Downloader felismeri, ezért "
 "nincs értelme figyelmeztetni a jelenlétét."
 
-#: ../raphodo/preferencedialog.py:1945
+#: ../raphodo/preferencedialog.py:1949
 #, python-format
 msgid ""
 "Recognized file types:\n"

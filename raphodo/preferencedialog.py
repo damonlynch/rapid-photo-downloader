@@ -567,7 +567,9 @@ class PreferencesDialog(QDialog):
 
         self.timeZone = QWidget()
 
+        # Translators: see explanation at https://damonlynch.net/rapid/documentation/#timezonehandling
         self.timeZoneBox = QGroupBox(_("Time Zones"))
+        # Translators: see explanation at https://damonlynch.net/rapid/documentation/#timezonehandling
         self.ignoreTimeZone = QCheckBox(
             _("Ignore time zone and daylight savings changes")
         )
@@ -578,6 +580,7 @@ class PreferencesDialog(QDialog):
             QSizePolicy.Minimum, QSizePolicy.Minimum
         )
         self.timeZoneOffsetResolution.addItems(("60", "30", "15"))
+        # Translators: for an explanation of what an offset resolution is, see https://damonlynch.net/rapid/documentation/#timezoneoffsetresolution
         self.timeZoneOffsetLabel = QLabel(_("Offset resolution (minutes):"))
         self.timeZoneOffset = QWidget()
         timeZoneOffsetLayout = QHBoxLayout()
@@ -586,6 +589,7 @@ class PreferencesDialog(QDialog):
         timeZoneOffsetLayout.setContentsMargins(0, 0, 0, 0)
         self.timeZoneOffset.setLayout(timeZoneOffsetLayout)
 
+        # Translators: see explanation at https://damonlynch.net/rapid/documentation/#timezonehandling
         timeZoneExplanation = QLabel(
             _("When detecting if a file has been previously downloaded:")
         )
