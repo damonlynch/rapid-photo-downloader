@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2022-01-10 15:55-0500\n"
+"POT-Creation-Date: 2022-01-13 12:49-0500\n"
 "PO-Revision-Date: 2021-12-07 05:51+0000\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Norwegian Nynorsk <nn@li.org>\n"
@@ -1753,7 +1753,7 @@ msgstr "Tekst"
 msgid "Filename"
 msgstr "Filnamn"
 
-#: ../raphodo/generatenameconfig.py:209 ../raphodo/preferencedialog.py:963
+#: ../raphodo/generatenameconfig.py:209 ../raphodo/preferencedialog.py:970
 msgid "Metadata"
 msgstr "Metadata"
 
@@ -2386,7 +2386,7 @@ msgid "&Remove"
 msgstr "&Fjern"
 
 #: ../raphodo/jobcodepanel.py:312 ../raphodo/preferencedialog.py:284
-#: ../raphodo/preferencedialog.py:320 ../raphodo/preferencedialog.py:750
+#: ../raphodo/preferencedialog.py:320 ../raphodo/preferencedialog.py:757
 msgid "Remove All"
 msgstr "Fjern alle"
 
@@ -2502,7 +2502,7 @@ msgstr "Forval:"
 msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
-#: ../raphodo/nameeditor.py:1136 ../raphodo/preferencedialog.py:1052
+#: ../raphodo/nameeditor.py:1136 ../raphodo/preferencedialog.py:1059
 #: ../raphodo/wsl.py:649
 msgid "Get help online..."
 msgstr "Få hjelp på nettet …"
@@ -2623,7 +2623,7 @@ msgid "Time Zones"
 msgstr "Tidslinje"
 
 #: ../raphodo/preferencedialog.py:158 ../raphodo/preferencedialog.py:181
-#: ../raphodo/preferencedialog.py:618
+#: ../raphodo/preferencedialog.py:625
 msgid "Error Handling"
 msgstr "Feilhandtering"
 
@@ -2693,7 +2693,7 @@ msgid ""
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:252 ../raphodo/preferencedialog.py:282
-#: ../raphodo/preferencedialog.py:313 ../raphodo/preferencedialog.py:748
+#: ../raphodo/preferencedialog.py:313 ../raphodo/preferencedialog.py:755
 msgid "Remove"
 msgstr "Fjern"
 
@@ -2913,45 +2913,51 @@ msgstr ""
 msgid "Offset resolution (minutes):"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:594
+#: ../raphodo/preferencedialog.py:587
+msgid ""
+"The multiple used when calculating the offset from the time the photo or "
+"video was originally taken"
+msgstr ""
+
+#: ../raphodo/preferencedialog.py:601
 msgid "When detecting if a file has been previously downloaded:"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:621
+#: ../raphodo/preferencedialog.py:628
 msgid "Skip download"
 msgstr "Hopp over nedlasting"
 
-#: ../raphodo/preferencedialog.py:623
+#: ../raphodo/preferencedialog.py:630
 msgid "Don't download the file, and issue an error message"
 msgstr "Ikkje last ned fila, og gje ei feilmelding"
 
-#: ../raphodo/preferencedialog.py:625
+#: ../raphodo/preferencedialog.py:632
 msgid "Add unique identifier"
 msgstr "Legg til unik identifikator"
 
-#: ../raphodo/preferencedialog.py:628
+#: ../raphodo/preferencedialog.py:635
 msgid ""
 "Add an identifier like _1 or _2 to the end of the filename, immediately "
 "before the file's extension"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:636
+#: ../raphodo/preferencedialog.py:643
 msgid "Overwrite"
 msgstr "Overskriv"
 
-#: ../raphodo/preferencedialog.py:637
+#: ../raphodo/preferencedialog.py:644
 msgid "Overwrite the previously backed up file"
 msgstr "Overskriv den tidlegare tryggleikskopierte fila"
 
-#: ../raphodo/preferencedialog.py:638
+#: ../raphodo/preferencedialog.py:645
 msgid "Skip"
 msgstr "Hopp over"
 
-#: ../raphodo/preferencedialog.py:640
+#: ../raphodo/preferencedialog.py:647
 msgid "Don't overwrite the backup file, and issue an error message"
 msgstr "Ikkje overskriv den tryggleikskopierte fila, og gje ei feilmelding"
 
-#: ../raphodo/preferencedialog.py:647
+#: ../raphodo/preferencedialog.py:654
 msgid ""
 "When a photo or video of the same name has already been downloaded, choose "
 "whether to skip downloading the file, or to add a unique identifier:"
@@ -2960,14 +2966,14 @@ msgstr ""
 "identifikator når eit bilete eller ein video med same namn allereie er lasta "
 "ned:"
 
-#: ../raphodo/preferencedialog.py:659
+#: ../raphodo/preferencedialog.py:666
 msgid ""
 "Using sequence numbers to automatically generate unique filenames is "
 "strongly recommended. Configure file renaming in the Rename panel in the "
 "main window."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:670
+#: ../raphodo/preferencedialog.py:677
 msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up:"
@@ -2975,39 +2981,39 @@ msgstr ""
 "Vel om du skal overskriva ei fil på tryggleikskopieininga som har same namn "
 "når du tryggleikskopierer, eller hoppa over tryggleikskopiering:"
 
-#: ../raphodo/preferencedialog.py:691
+#: ../raphodo/preferencedialog.py:698
 msgid "Program Warnings"
 msgstr "Programåtvaringar"
 
-#: ../raphodo/preferencedialog.py:692
+#: ../raphodo/preferencedialog.py:699
 msgid "Show a warning when:"
 msgstr "Vis ei åtvaring når:"
 
-#: ../raphodo/preferencedialog.py:696
+#: ../raphodo/preferencedialog.py:703
 msgid "Downloading files currently not displayed"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:699
+#: ../raphodo/preferencedialog.py:706
 msgid ""
 "Warn when about to download files that are not displayed in the main window."
 msgstr ""
 "Åtvar når du skal til å lasta ned filer som ikkje vert vist i hovudvindauget."
 
-#: ../raphodo/preferencedialog.py:703
+#: ../raphodo/preferencedialog.py:710
 msgid "Backup destinations are missing"
 msgstr "Manglar tryggleikskopieringsmål"
 
-#: ../raphodo/preferencedialog.py:705
+#: ../raphodo/preferencedialog.py:712
 msgid "Warn before starting a download if it is not possible to back up files."
 msgstr ""
 "Åtvar før du startar ei nedlasting viss det ikkje er mogleg å "
 "tryggleikskopiera filer."
 
-#: ../raphodo/preferencedialog.py:709
+#: ../raphodo/preferencedialog.py:716
 msgid "Program libraries are missing or broken"
 msgstr "Programbibliotek manglar eller er skadd"
 
-#: ../raphodo/preferencedialog.py:712
+#: ../raphodo/preferencedialog.py:719
 msgid ""
 "Warn if a software library used by Rapid Photo Downloader is missing or not "
 "functioning."
@@ -3015,11 +3021,11 @@ msgstr ""
 "Åtvar om eit programvarebibliotek som vert brukt av Rapid Photo Downloader "
 "manglar eller ikkje fungerer."
 
-#: ../raphodo/preferencedialog.py:716
+#: ../raphodo/preferencedialog.py:723
 msgid "Filesystem metadata cannot be set"
 msgstr "Klarte ikkje endra filsystem-metadata"
 
-#: ../raphodo/preferencedialog.py:718
+#: ../raphodo/preferencedialog.py:725
 msgid ""
 "Warn if there is an error setting a file's filesystem metadata, such as its "
 "modification time."
@@ -3027,11 +3033,11 @@ msgstr ""
 "Åtvar om det oppstår ein feil når me endrar metadata for ei fil, slik som "
 "endringstidspunktet til fila."
 
-#: ../raphodo/preferencedialog.py:722
+#: ../raphodo/preferencedialog.py:729
 msgid "Encountering unhandled files"
 msgstr "Fann filer som me ikkje handterer"
 
-#: ../raphodo/preferencedialog.py:724
+#: ../raphodo/preferencedialog.py:731
 msgid ""
 "Warn after scanning a device or this computer if there are unrecognized "
 "files that will not be included in the download."
@@ -3039,27 +3045,27 @@ msgstr ""
 "Åtvar etter skanning av ei eining eller denne datamaskina om det finst "
 "ukjende filer som ikkje vil inkluderast under nedlastinga."
 
-#: ../raphodo/preferencedialog.py:729
+#: ../raphodo/preferencedialog.py:736
 msgid "Do not warn about unhandled files with extensions:"
 msgstr "Ikkje åtvar om ubehandla filar av filtypene:"
 
-#: ../raphodo/preferencedialog.py:734
+#: ../raphodo/preferencedialog.py:741
 msgid ""
 "File extensions are case insensitive and do not need to include the leading "
 "dot."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:738
+#: ../raphodo/preferencedialog.py:745
 msgid "Add"
 msgstr "Legg til"
 
-#: ../raphodo/preferencedialog.py:740
+#: ../raphodo/preferencedialog.py:747
 msgid ""
 "Add a file extension to the list of unhandled file types to not warn about."
 msgstr ""
 "Legg til filtyper i lista over ubehandla filtyper det ikkje skal åtvarast om."
 
-#: ../raphodo/preferencedialog.py:745
+#: ../raphodo/preferencedialog.py:752
 msgid ""
 "Remove a file extension from the list of unhandled file types to not warn "
 "about."
@@ -3067,144 +3073,144 @@ msgstr ""
 "Fjern ei filtype frå lista over ubehandla filtyper det ikkje skal åtvarast "
 "om."
 
-#: ../raphodo/preferencedialog.py:752
+#: ../raphodo/preferencedialog.py:759
 msgid ""
 "Clear the list of file extensions of unhandled file types to not warn about."
 msgstr "Tøm heile lista over ubehandla filtyper det ikkje skal åtvarast om."
 
-#: ../raphodo/preferencedialog.py:790
+#: ../raphodo/preferencedialog.py:797
 msgid "Photo and Video Consolidation"
 msgstr "Bilet- og videokonsolidering"
 
-#: ../raphodo/preferencedialog.py:793
+#: ../raphodo/preferencedialog.py:800
 msgid "Consolidate files across devices and downloads"
 msgstr "Konsolider filer på tvers av einingar og nedlastingar"
 
-#: ../raphodo/preferencedialog.py:796
+#: ../raphodo/preferencedialog.py:803
 msgid ""
 "Analyze the results of device scans looking for duplicate files and matching "
 "RAW and JPEG pairs,\n"
 "comparing them across multiple devices and download sessions."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:802
+#: ../raphodo/preferencedialog.py:809
 msgid "Treat matching RAW and JPEG files as:"
 msgstr "Sjå på samsvarande RAW- og JPEG-filer som:"
 
-#: ../raphodo/preferencedialog.py:803
+#: ../raphodo/preferencedialog.py:810
 msgid "One photo"
 msgstr "Eitt bilete"
 
-#: ../raphodo/preferencedialog.py:804
+#: ../raphodo/preferencedialog.py:811
 msgid "Two photos"
 msgstr "To bilete"
 
-#: ../raphodo/preferencedialog.py:806
+#: ../raphodo/preferencedialog.py:813
 msgid ""
 "Display matching pairs of RAW and JPEG photos as one photo, and if marked, "
 "download both."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:811
+#: ../raphodo/preferencedialog.py:818
 msgid ""
 "Display matching pairs of RAW and JPEG photos as two different photos. You "
 "can still synchronize their sequence numbers."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:820
+#: ../raphodo/preferencedialog.py:827
 msgid "With matching RAW and JPEG photos:"
 msgstr "Med samsvarande RAW og JPEG bilete:"
 
-#: ../raphodo/preferencedialog.py:822
+#: ../raphodo/preferencedialog.py:829
 msgid "Do not mark JPEG for download"
 msgstr "Ikkje merk JPEG for nedlasting"
 
-#: ../raphodo/preferencedialog.py:823
+#: ../raphodo/preferencedialog.py:830
 msgid "Do not mark RAW for download"
 msgstr "Ikkje merk RAW for nedlasting"
 
-#: ../raphodo/preferencedialog.py:824
+#: ../raphodo/preferencedialog.py:831
 msgid "Mark both for download"
 msgstr "Merk begge for nedlasting"
 
-#: ../raphodo/preferencedialog.py:831
+#: ../raphodo/preferencedialog.py:838
 msgid ""
 "When matching RAW and JPEG photos are found, do not automatically mark the "
 "JPEG for\n"
 "download. You can still mark it for download yourself."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:837
+#: ../raphodo/preferencedialog.py:844
 msgid ""
 "When matching RAW and JPEG photos are found, do not automatically mark the "
 "RAW for\n"
 "download. You can still mark it for download yourself."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:843
+#: ../raphodo/preferencedialog.py:850
 msgid ""
 "When matching RAW and JPEG photos are found, automatically mark both for "
 "download."
 msgstr "Merk begge for nedlasting når me finn samsvarande RAW- og JPEG-bilete."
 
-#: ../raphodo/preferencedialog.py:849
+#: ../raphodo/preferencedialog.py:856
 msgid ""
 "If you disable file consolidation, choose what to do when a download device "
 "is inserted while completed downloads are displayed:"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:855
+#: ../raphodo/preferencedialog.py:862
 msgid ""
 "When a download device is inserted while completed downloads are displayed:"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:871
+#: ../raphodo/preferencedialog.py:878
 msgid "Clear completed downloads"
 msgstr "Tøm ferdige nedlastingar"
 
-#: ../raphodo/preferencedialog.py:873
+#: ../raphodo/preferencedialog.py:880
 msgid "Keep displaying completed downloads"
 msgstr "Fortset og vis ferdige nedlastingar"
 
-#: ../raphodo/preferencedialog.py:875
+#: ../raphodo/preferencedialog.py:882
 msgid "Prompt for what to do"
 msgstr "Spør om kva me skal gjera"
 
-#: ../raphodo/preferencedialog.py:880
+#: ../raphodo/preferencedialog.py:887
 msgid ""
 "Automatically clear the display of completed downloads whenever a new "
 "download device is inserted."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:885
+#: ../raphodo/preferencedialog.py:892
 msgid ""
 "Keep displaying completed downloads whenever a new download device is "
 "inserted."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:890
+#: ../raphodo/preferencedialog.py:897
 msgid ""
 "Prompt whether to keep displaying completed downloads or clear them whenever "
 "a new download device is inserted."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:937
+#: ../raphodo/preferencedialog.py:944
 msgid "Version Check"
 msgstr "Kontroller utgåve"
 
-#: ../raphodo/preferencedialog.py:938
+#: ../raphodo/preferencedialog.py:945
 msgid "Check for new version at startup"
 msgstr "Sjå etter ny utgåve ved oppstart"
 
-#: ../raphodo/preferencedialog.py:941
+#: ../raphodo/preferencedialog.py:948
 msgid "Check for a new version of the program each time the program starts."
 msgstr "Sjå etter ei ny utgåve av programmet kvar gong programmet startar."
 
-#: ../raphodo/preferencedialog.py:945
+#: ../raphodo/preferencedialog.py:952
 msgid "Include development releases"
 msgstr "Inkluder utviklingsutgåver"
 
-#: ../raphodo/preferencedialog.py:947
+#: ../raphodo/preferencedialog.py:954
 msgid ""
 "Include alpha, beta and other development releases when checking for a new "
 "version of the program.\n"
@@ -3217,11 +3223,11 @@ msgstr ""
 "\n"
 "Viss du for tida køyrer ei utviklingsutgåve, vil dette alltid finnast."
 
-#: ../raphodo/preferencedialog.py:965
+#: ../raphodo/preferencedialog.py:972
 msgid "Ignore DNG date/time metadata on MTP devices"
 msgstr "Ignorer DNG dato/tid-metadata på MTP einingar"
 
-#: ../raphodo/preferencedialog.py:968
+#: ../raphodo/preferencedialog.py:975
 msgid ""
 "Ignore date/time metadata in DNG files located on MTP devices, and use the "
 "file's modification time instead.\n"
@@ -3235,11 +3241,11 @@ msgstr ""
 "Nyttig for einingar som opprettar feil DNG-metadata, slik som nokre "
 "telefonar og nettbrett."
 
-#: ../raphodo/preferencedialog.py:975
+#: ../raphodo/preferencedialog.py:982
 msgid "Read photo metadata using only ExifTool"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:977
+#: ../raphodo/preferencedialog.py:984
 msgid ""
 "Use ExifTool instead of Exiv2 to read photo metadata and extract "
 "thumbnails.\n"
@@ -3255,7 +3261,7 @@ msgid ""
 "cameras."
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:1003
+#: ../raphodo/preferencedialog.py:1010
 msgid "Completed Downloads"
 msgstr "Fullførte nedlastingar"
 
@@ -3265,16 +3271,16 @@ msgstr "Fullførte nedlastingar"
 #. simply to set this choice apart from all the other choices in the drop down
 #. list. You can keep the < > if you like, or replace them with whatever you
 #. typically use in your language.
-#: ../raphodo/preferencedialog.py:1109
+#: ../raphodo/preferencedialog.py:1116
 msgid "<System Language>"
 msgstr ""
 
-#: ../raphodo/preferencedialog.py:1391
+#: ../raphodo/preferencedialog.py:1398
 #, python-format
 msgid "Restores default %s preference values"
 msgstr "Går tilbake til standardinnstillingane for %s"
 
-#: ../raphodo/preferencedialog.py:1541
+#: ../raphodo/preferencedialog.py:1548
 msgid ""
 "Do you want to purge the thumbnail cache? The cache will be purged when the "
 "program is next started."
@@ -3282,11 +3288,11 @@ msgstr ""
 "Vil du reinsa mellomlageret? Mellomlageret vert reinsa neste gong programmet "
 "startar."
 
-#: ../raphodo/preferencedialog.py:1546
+#: ../raphodo/preferencedialog.py:1553
 msgid "Purge Thumbnail Cache"
 msgstr "Reins mellomlager for miniatyrbilete"
 
-#: ../raphodo/preferencedialog.py:1561
+#: ../raphodo/preferencedialog.py:1568
 msgid ""
 "Do you want to optimize the thumbnail cache? The cache will be optimized "
 "when the program is next started."
@@ -3294,52 +3300,52 @@ msgstr ""
 "Vil du optimalisera mellomlageret? Mellomlageret vil optimaliserast neste "
 "gong programmet startar."
 
-#: ../raphodo/preferencedialog.py:1566
+#: ../raphodo/preferencedialog.py:1573
 msgid "Optimize Thumbnail Cache"
 msgstr "Optimaliser mellomlager for miniatyrbilete"
 
-#: ../raphodo/preferencedialog.py:1882
+#: ../raphodo/preferencedialog.py:1891
 msgid "Enter a Folder to Scan"
 msgstr "Vel ei mappe å skanna"
 
-#: ../raphodo/preferencedialog.py:1884
+#: ../raphodo/preferencedialog.py:1893
 msgid "Specify a folder that will be scanned for photos and videos"
 msgstr "Vel ei mappe som skal skannast for bilete og videoar"
 
-#: ../raphodo/preferencedialog.py:1886
+#: ../raphodo/preferencedialog.py:1895
 msgid "Folder:"
 msgstr "Mappe:"
 
-#: ../raphodo/preferencedialog.py:1900
+#: ../raphodo/preferencedialog.py:1909
 msgid "Enter a Path to Ignore"
 msgstr "Oppgi ein søkjesti å oversjå"
 
-#: ../raphodo/preferencedialog.py:1902
+#: ../raphodo/preferencedialog.py:1911
 msgid "Specify a path that will never be scanned for photos or videos"
 msgstr ""
 "Oppgi ein sti som du vil aldri skal gjennomsøkjast etter bilete eller videoar"
 
-#: ../raphodo/preferencedialog.py:1904
+#: ../raphodo/preferencedialog.py:1913
 msgid "Path:"
 msgstr "Sti:"
 
-#: ../raphodo/preferencedialog.py:1918
+#: ../raphodo/preferencedialog.py:1927
 msgid "Enter a File Extension"
 msgstr "Vel ein filtype"
 
-#: ../raphodo/preferencedialog.py:1919
+#: ../raphodo/preferencedialog.py:1928
 msgid "Specify a file extension (without the leading dot)"
 msgstr "Skriv ei filtype (utan punktum føre)"
 
-#: ../raphodo/preferencedialog.py:1920 ../raphodo/renamepanel.py:147
+#: ../raphodo/preferencedialog.py:1929 ../raphodo/renamepanel.py:147
 msgid "Extension:"
 msgstr "Filtype:"
 
-#: ../raphodo/preferencedialog.py:1935
+#: ../raphodo/preferencedialog.py:1944
 msgid "Invalid File Extension"
 msgstr "Ugyldig filtype"
 
-#: ../raphodo/preferencedialog.py:1940
+#: ../raphodo/preferencedialog.py:1949
 #, python-format
 msgid ""
 "The file extension <b>%s</b> is recognized by Rapid Photo Downloader, so it "
@@ -3348,7 +3354,7 @@ msgstr ""
 "Filtypen <b>%s</b> vert kjent att av Rapid Photo Downloader, så det gjev "
 "ikkje meining å åtvara om at slike filer finst."
 
-#: ../raphodo/preferencedialog.py:1949
+#: ../raphodo/preferencedialog.py:1958
 #, python-format
 msgid ""
 "Recognized file types:\n"
