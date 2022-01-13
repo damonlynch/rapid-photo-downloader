@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,13 +19,13 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
+__copyright__ = "Copyright 2015-2022, Damon Lynch"
 
 import sqlite3
 import os
 import datetime
 from collections import namedtuple
-from typing import Optional, List, Tuple, Any, Sequence
+from typing import Optional, List, Tuple, Any, Sequence, NamedTuple, Dict
 import logging
 
 from PyQt5.QtCore import Qt
@@ -37,7 +37,11 @@ from raphodo.photoattributes import PhotoAttributes
 from raphodo.constants import FileType, Sort, Show
 from raphodo.utilities import runs
 
-FileDownloaded = namedtuple("FileDownloaded", "download_name, download_datetime")
+
+class FileDownloaded(NamedTuple):
+    download_name: str
+    download_datetime: datetime.datetime
+
 
 InCache = namedtuple("InCache", "md5_name, mdatatime, orientation_unknown, failure")
 
@@ -726,6 +730,29 @@ class DownloadedSQL:
         self.table_name = "downloaded"
         self.update_table()
 
+        # Generate values to calculate shifts in time zones /
+        self.time_zone_offsets = {}  # type: Dict[int, Tuple[int]]
+        for time_zone_offset_resolution in (60, 30, 15):  # minutes
+            positive = range(
+                time_zone_offset_resolution * 60,  # seconds
+                24 * 60 * 60 + 1,  # seconds
+                time_zone_offset_resolution * 60,  # seconds
+            )
+
+            negative = range(
+                time_zone_offset_resolution * 60 * -1,  # seconds
+                (24 * 60 * 60 + 1) * -1,  # seconds
+                time_zone_offset_resolution * 60 * -1,  # seconds
+            )
+
+            self.time_zone_offsets[time_zone_offset_resolution] = tuple(
+                val for pair in zip(positive, negative) for val in pair
+            )
+
+        self.found_offset = 0  # in seconds. Set to actual offset when one is found.
+        # h:mm. Set to actual offset when one is found. Can be negative.
+        self.found_offset_hr = ""
+
     def update_table(self, reset: bool = False) -> None:
         """
         Create or update the database table
@@ -813,7 +840,11 @@ class DownloadedSQL:
             conn.close()
 
     def file_downloaded(
-        self, name: str, size: int, modification_time: float
+        self,
+        name: str,
+        size: int,
+        modification_time: float,
+        time_zone_offset_resolution: Optional[int] = None,
     ) -> Optional[FileDownloaded]:
         """
         Returns download path and filename if a file with matching
@@ -827,8 +858,8 @@ class DownloadedSQL:
         conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
         c = conn.cursor()
         c.execute(
-            """SELECT download_name, download_datetime as [timestamp] FROM {tn} WHERE
-            file_name=? AND size=? AND mtime=?""".format(
+            """SELECT download_name, download_datetime as [timestamp] FROM {tn} 
+            WHERE file_name=? AND size=? AND mtime=?""".format(
                 tn=self.table_name
             ),
             (name, size, modification_time),
@@ -836,8 +867,51 @@ class DownloadedSQL:
         row = c.fetchone()
         if row is not None:
             return FileDownloaded._make(row)
-        else:
+
+        if time_zone_offset_resolution is None:
             return None
+
+        if self.found_offset:
+            c.execute(
+                """SELECT download_name, download_datetime as [timestamp] FROM {tn} 
+                WHERE file_name=? AND size=? AND mtime=?""".format(
+                    tn=self.table_name
+                ),
+                (name, size, modification_time - self.found_offset),
+            )
+            row = c.fetchone()
+            if row is not None:
+                logging.debug("Reused time zone offset %s", self.found_offset_hr)
+                return FileDownloaded._make(row)
+            else:
+                logging.info(
+                    "Using time zone offset unsuccessful %s", self.found_offset_hr
+                )
+
+        # Determine if there is a file with the same time and date within +- 24 hours
+        # i.e. 3600 seconds * 24 = 86400
+        # For why 24 hours, see this map:
+        # https://en.wikipedia.org/wiki/Time_zone#/media/File:World_Time_Zones_Map.png
+        c.execute(
+            """SELECT download_name, download_datetime as [timestamp], mtime FROM {tn} 
+            WHERE file_name=? AND size=? AND mtime<=? AND mtime >=?""".format(
+                tn=self.table_name
+            ),
+            (name, size, modification_time + 86400, modification_time - 86400),
+        )
+        row = c.fetchone()
+        if row is not None:
+            # we now have a time within 24 hours in either direction of the mtime
+            mtime = row[2]  # type: float
+            for offset in self.time_zone_offsets[time_zone_offset_resolution]:
+                if mtime + offset == modification_time:
+                    self.found_offset = offset
+                    m, s = divmod(offset, 60)
+                    h, m = divmod(m, 60)
+                    self.found_offset_hr = f"{h:d}:{m:02d}"
+                    logging.info("Time zone offset is %s", self.found_offset_hr)
+                    return FileDownloaded(download_name=name, download_datetime=row[1])
+        return None
 
 
 class CacheSQL:

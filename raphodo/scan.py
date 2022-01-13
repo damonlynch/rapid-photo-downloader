@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -43,7 +43,7 @@ A sample photo or video for (1) can be used for (2)
 
 """
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
+__copyright__ = "Copyright 2011-2022, Damon Lynch"
 
 import os
 import sys
@@ -168,6 +168,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         self.prefs = Preferences()
         self.scan_preferences = ScanPreferences(self.prefs.ignored_paths)
+        if self.prefs.ignore_time_zone_changes:
+            self.time_zone_offset_resolution = self.prefs.time_zone_offset_resolution
+        else:
+            self.time_zone_offset_resolution = None
 
         self.problems = ScanProblems()
 
@@ -1035,7 +1039,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 adjusted_mtime = self.adjusted_mtime(modification_time)
 
                 downloaded = self.downloaded.file_downloaded(
-                    name=self.file_name, size=size, modification_time=adjusted_mtime
+                    name=self.file_name, size=size, modification_time=adjusted_mtime,
+                    time_zone_offset_resolution=self.time_zone_offset_resolution
                 )
 
                 thumbnail_cache_status = ThumbnailCacheDiskStatus.unknown
