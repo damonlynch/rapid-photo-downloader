@@ -67,10 +67,6 @@ If you want the latest version, or prefer it run with all its features enabled
 support), you can run the `install.py` script, which downloads and installs the
 latest version. 
 
-The install script is reliable but not perfectly so, due 
-the constantly changing nature of both Linux distributions and the program's
-software dependencies. If you encounter a problem, please file an issue.   
-
 To use the script to install Rapid Photo Downloader, run as your regular user 
 (i.e. without sudo):
 
