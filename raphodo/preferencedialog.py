@@ -582,6 +582,13 @@ class PreferencesDialog(QDialog):
         self.timeZoneOffsetResolution.addItems(("60", "30", "15"))
         # Translators: for an explanation of what an offset resolution is, see https://damonlynch.net/rapid/documentation/#timezoneoffsetresolution
         self.timeZoneOffsetLabel = QLabel(_("Offset resolution (minutes):"))
+        # Translators: for an explanation of what an offset resolution is, see https://damonlynch.net/rapid/documentation/#timezoneoffsetresolution
+        tooltip = _(
+            "The multiple used when calculating the offset from the time the photo or "
+            "video was originally taken"
+        )
+        self.timeZoneOffsetLabel.setToolTip(tooltip)
+        self.timeZoneOffsetResolution.setToolTip(tooltip)
         self.timeZoneOffset = QWidget()
         timeZoneOffsetLayout = QHBoxLayout()
         timeZoneOffsetLayout.addWidget(self.timeZoneOffsetResolution)
@@ -1583,7 +1590,9 @@ class PreferencesDialog(QDialog):
 
     @pyqtSlot(int)
     def timeZoneOffsetResolutionChanged(self, index: int) -> None:
-        self.prefs.time_zone_offset_resolution = int(self.timeZoneOffsetResolution.currentText())
+        self.prefs.time_zone_offset_resolution = int(
+            self.timeZoneOffsetResolution.currentText()
+        )
 
     @pyqtSlot(QAbstractButton)
     def downloadErrorGroupClicked(self, button: QRadioButton) -> None:
