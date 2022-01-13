@@ -47,14 +47,32 @@ Historic issues are at the previous code repository,
 [Launchpad](https://bugs.launchpad.net/rapid). 
 
 
+## Releases
+
+All project releases are hosted on the 
+[project's Launchpad repository](https://launchpad.net/rapid/+download).
+
+
+## Support
+
+Get support at the [Pixls.us discussion forum](https://discuss.pixls.us/).
+
+
 ## Installation
 
-Rapid Photo Downloader is packaged by all major Linux distributions. 
+Rapid Photo Downloader is packaged by all major Linux distributions.
+
 If you want the latest version, or prefer it run with all its features enabled 
 (like [heif](https://en.wikipedia.org/wiki/High_Efficiency_Image_File_Format)
-support), you can run the `install.py` script.
+support), you can run the `install.py` script, which downloads and installs the
+latest version. 
 
-To install Rapid Photo Downloader, run as your regular user (i.e. without sudo):
+The install script is reliable but not perfectly so, due 
+the constantly changing nature of both Linux distributions and the program's
+software dependencies. If you encounter a problem, please file an issue.   
+
+To use the script to install Rapid Photo Downloader, run as your regular user 
+(i.e. without sudo):
 
 ```bash
   python3 install.py
