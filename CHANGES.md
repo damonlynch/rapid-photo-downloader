@@ -1,6 +1,14 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.29a1 (2022-01-xx)
+---------------------
+
+ - Fix bug [#43](https://github.com/damonlynch/rapid-photo-downloader/issues/43):
+   Add preference to handle time zone and daylight savings changes. See the 
+   [program documentation](https://github.com/damonlynch/rapid-photo-downloader/issues/43)
+   for details about what this change is and why it is needed. 
+
 0.9.28 (2021-12-27)
 ---------------------
 
