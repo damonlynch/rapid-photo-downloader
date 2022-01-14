@@ -9,6 +9,9 @@ Changelog for Rapid Photo Downloader
    [program documentation](https://github.com/damonlynch/rapid-photo-downloader/issues/43)
    for details about what this change is and why it is needed.
 
+ - Fix bug [#47](https://github.com/damonlynch/rapid-photo-downloader/issues/47):
+   Thumbnail generation overwrites Job Code applied to files without thumbnails. 
+
  - Update Albanian translation.
 
 0.9.28 (2021-12-27)

@@ -940,6 +940,8 @@ class ThumbnailListModel(QAbstractListModel):
         ):
             # Only update the rpd_file if the file has not already been downloaded
             # TODO consider merging this no matter what the status
+            if self.rpd_files[uid].job_code is not None:
+                rpd_file.job_code = self.rpd_files[uid].job_code
             self.rpd_files[uid] = rpd_file
 
         if not thumbnail.isNull():
