@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2010-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2010-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -26,8 +26,8 @@ Launchpad translations tarball, which is expected to be in the home directory.
 Not included in program tarball distributed to end users.
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2010-2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2010-2022, Damon Lynch"
 
 
 import tarfile
@@ -47,64 +47,110 @@ from launchpadlib.launchpad import Launchpad
 
 arrow_version = parse_version(arrow.__version__)
 # Suppress parsing warnings for 0.14.3 <= Arrow version < 0.15
-if arrow_version >= parse_version('0.14.3') and arrow_version < parse_version('0.15.0'):
+if arrow_version >= parse_version("0.14.3") and arrow_version < parse_version("0.15.0"):
     from arrow.factory import ArrowParseWarning
+
     warnings.simplefilter("ignore", ArrowParseWarning)
 
-blacklist = ['gl', 'lt', 'fil', 'en_AU', 'en_GB', 'en_US', 'en_CA', 'eo', 'ku', 'fa']
+blacklist = [
+    "gl",
+    "lt",
+    "fil",
+    "en_AU",
+    "en_GB",
+    "en_US",
+    "en_CA",
+    "eo",
+    "ku",
+    "fa",
+    "gd",
+    "cy",
+]
 whitelist = [
-    'ar', 'da', 'fr', 'it', 'fi', 'sk', 'ru', 'sr', 'es', 'pl', 'nl', 
-    'sv', 'cs', 'hu', 'de', 'uk', 'zh_CN', 'pt_BR', 'tr', 'bg', 'ja', 'oc', 
-    'nn', 'nb', 'pt', 'hr', 'ro', 'id', 'kab', 'et', 'be', 'ca', 'el', 'sq'
+    "ar",
+    "da",
+    "fr",
+    "it",
+    "fi",
+    "sk",
+    "ru",
+    "sr",
+    "es",
+    "pl",
+    "nl",
+    "sv",
+    "cs",
+    "hu",
+    "de",
+    "uk",
+    "zh_CN",
+    "pt_BR",
+    "tr",
+    "bg",
+    "ja",
+    "oc",
+    "nn",
+    "nb",
+    "pt",
+    "hr",
+    "ro",
+    "id",
+    "kab",
+    "et",
+    "be",
+    "ca",
+    "el",
+    "sq",
 ]
 
+
 class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+    HEADER = "\033[95m"
+    OKBLUE = "\033[94m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
 
 
-details = namedtuple('details', 'release_date url bare_url')
+details = namedtuple("details", "release_date url bare_url")
 
-home = os.path.expanduser('~')
+home = os.path.expanduser("~")
 cachedir = os.path.join(home, ".launchpadlib/cache/")
-releases_cache = os.path.join(cachedir, 'releases_cache')
+releases_cache = os.path.join(cachedir, "releases_cache")
 
 
 def parser_options(formatter_class=argparse.HelpFormatter):
     parser = argparse.ArgumentParser(
-        prog="Extract po files", description="Update translations from launchpad",
-        formatter_class=formatter_class
+        prog="Extract po files",
+        description="Update translations from launchpad",
+        formatter_class=formatter_class,
     )
 
     parser.add_argument(
-        '-d', '--dry-run', action='store_true',
-        help="Simulate translation update."
+        "-d", "--dry-run", action="store_true", help="Simulate translation update."
     )
 
     return parser
 
 
 def get_lang(pofile_name):
-    return os.path.basename(pofile_name)[len('rapid-photo-downloader-'):-3]
+    return os.path.basename(pofile_name)[len("rapid-photo-downloader-") : -3]
 
 
 def get_latest_release_date():
     if os.path.exists(releases_cache):
-        with open(releases_cache, 'rb') as f:
+        with open(releases_cache, "rb") as f:
             cache = pickle.load(f)
     else:
         cache = dict()
 
     print("Logging in to launchpad to get latest release details...")
-    launchpad = Launchpad.login_anonymously('latest-version', 'production', cachedir)
+    launchpad = Launchpad.login_anonymously("latest-version", "production", cachedir)
     print("Accessing project...")
-    p = launchpad.projects['rapid']
+    p = launchpad.projects["rapid"]
     print("Finding releases...")
     r = p.releases
 
@@ -117,26 +163,28 @@ def get_latest_release_date():
             for t in l.files:
                 # print(t.lp_attributes)
                 # print(t.lp_entries)
-                if str(t).find('tar.gz') >= 0:
+                if str(t).find("tar.gz") >= 0:
 
                     t_name = str(t)
                     # t: e.g. https://api.edge.launchpad.net/beta/rapid/0.1.0/0.0.8beta2/+file/rapid-photo-downloader-0.0.8~b2.tar.gz
                     # want: <a href="http://launchpad.net/rapid/0.1.0/0.0.8beta2/+download/rapid-photo-downloader-0.0.8~b2.tar.gz">
 
-                    i = t_name.find('rapid')
-                    j = t_name.find('+file')
+                    i = t_name.find("rapid")
+                    j = t_name.find("+file")
 
-                    package = t_name[j + 6:]
-                    parsed_version = package[:package.find('tar') - 1]
+                    package = t_name[j + 6 :]
+                    parsed_version = package[: package.find("tar") - 1]
 
                     first_digit = re.search("\d", parsed_version)
                     if first_digit.start():
-                        version_raw = parsed_version[first_digit.start():]
-                        version_number = version_raw.replace('~', '')
+                        version_raw = parsed_version[first_digit.start() :]
+                        version_number = version_raw.replace("~", "")
                         version = parse_version(version_number)
-                        bare_link = 'https://launchpad.net/' + t_name[i:j] + "+download/"
+                        bare_link = (
+                            "https://launchpad.net/" + t_name[i:j] + "+download/"
+                        )
                         link = bare_link + package
-                        print('Processing version', version)
+                        print("Processing version", version)
 
                         detail = details(release_date, link, bare_link)
                         if version.is_prerelease:
@@ -144,7 +192,12 @@ def get_latest_release_date():
                         else:
                             stable_releases[version] = detail
 
-                        cache[str(l)] = (str(version), str(release_date), link, bare_link)
+                        cache[str(l)] = (
+                            str(version),
+                            str(release_date),
+                            link,
+                            bare_link,
+                        )
                         break
         else:
             version_number, release_date, link, bare_link = cache[str(l)]
@@ -164,9 +217,12 @@ def get_latest_release_date():
 
     dev_version, detail = dev_releases.peekitem()
     if dev_version > stable_version:
-        message = "Development version is latest release. Use development " \
-                  "instead of stable release date? [y/N]" or 'n'
-        use_devel = input(message).lower()[0] == 'y'
+        message = (
+            "Development version is latest release. Use development "
+            "instead of stable release date? [y/N]"
+            or "n"
+        )
+        use_devel = input(message).lower()[0] == "y"
 
     else:
         use_devel = False
@@ -186,7 +242,7 @@ def get_latest_release_date():
     if dev_version > stable_version:
         print("latest dev release is", dev_version_hr, "released", dev_date_hr)
 
-    with open(releases_cache, 'wb') as f:
+    with open(releases_cache, "wb") as f:
         pickle.dump(cache, f, pickle.HIGHEST_PROTOCOL)
 
     return latest_release_date
@@ -200,22 +256,24 @@ os.makedirs(cachedir, exist_ok=True)
 
 latest_release_date = get_latest_release_date()
 
-lang_english_re = re.compile('(.+)<.+>')
+lang_english_re = re.compile("(.+)<.+>")
 
-po_destination_dir = os.path.abspath(os.path.join(os.path.realpath(__file__), '../../po'))
+po_destination_dir = os.path.abspath(
+    os.path.join(os.path.realpath(__file__), "../../po")
+)
 print("\nInstalling po files into", po_destination_dir)
 
-po_backup_dir = '{}/backup.po'.format(home)
+po_backup_dir = "{}/backup.po".format(home)
 if not os.path.isdir(po_backup_dir):
     os.mkdir(po_backup_dir)
 
-date_format = '%Y-%m-%d %H:%M'
+date_format = "%Y-%m-%d %H:%M"
 
-translations_tar = os.path.join(home, 'launchpad-export.tar.gz')
-backup_tar = os.path.join(po_backup_dir, 'launchpad-export.tar.gz')
+translations_tar = os.path.join(home, "launchpad-export.tar.gz")
+backup_tar = os.path.join(po_backup_dir, "launchpad-export.tar.gz")
 
 tempdir = tempfile.mkdtemp(dir=home)
-source_po_dir = os.path.join(tempdir, 'po')
+source_po_dir = os.path.join(tempdir, "po")
 
 tar = tarfile.open(translations_tar)
 tar.extractall(path=tempdir)
@@ -227,7 +285,7 @@ updated_langs = []
 unknown_langs = []
 known_langs = []
 
-for pofile in glob.iglob(os.path.join(source_po_dir, '*.po')):
+for pofile in glob.iglob(os.path.join(source_po_dir, "*.po")):
     lang = get_lang(pofile)
     if (lang not in blacklist) and (lang not in whitelist):
         unknown_langs.append(lang)
@@ -245,63 +303,67 @@ else:
     for pofile in known_langs:
         lang = get_lang(pofile)
         po = polib.pofile(pofile)
-        date = po.metadata['PO-Revision-Date']
-        last_modified_by = po.metadata['Last-Translator']
-        last_modified_by_lp = last_modified_by.find('Launchpad Translations Administrators') >= 0
-        match = lang_english_re.search(po.metadata['Language-Team'])
+        date = po.metadata["PO-Revision-Date"]
+        last_modified_by = po.metadata["Last-Translator"]
+        last_modified_by_lp = (
+            last_modified_by.find("Launchpad Translations Administrators") >= 0
+        )
+        match = lang_english_re.search(po.metadata["Language-Team"])
         if match:
             lang_english = match.group(1).strip()
-            if lang_english == 'Français':
-                lang_english = 'French'
-            elif lang_english == 'српски':
-                lang_english = 'Serbian'
-            elif lang_english == 'magyar':
-                lang_english = 'Hungarian'
-            dest_pofile = '{}.po'.format(os.path.join(po_destination_dir, lang))
+            if lang_english == "Français":
+                lang_english = "French"
+            elif lang_english == "српски":
+                lang_english = "Serbian"
+            elif lang_english == "magyar":
+                lang_english = "Hungarian"
+            dest_pofile = "{}.po".format(os.path.join(po_destination_dir, lang))
             if not os.path.exists(dest_pofile):
-                print('Added ', lang_english)
+                print("Added ", lang_english)
                 os.rename(pofile, dest_pofile)
             else:
                 dest_po = polib.pofile(dest_pofile)
-                dest_date = dest_po.metadata['PO-Revision-Date']
+                dest_date = dest_po.metadata["PO-Revision-Date"]
                 date_p = arrow.get(date)
                 dest_date_p = arrow.get(dest_date)
                 if not last_modified_by_lp:
                     if date_p > latest_release_date:
                         # This po file contains real changes since the last release
-                        print('{}{:21}: modified {}{}'.format(
-                            bcolors.OKGREEN, lang_english, date_p.humanize(), bcolors.ENDC
-                        )
+                        print(
+                            "{}{:21}: modified {}{}".format(
+                                bcolors.OKGREEN,
+                                lang_english,
+                                date_p.humanize(),
+                                bcolors.ENDC,
+                            )
                         )
                         updated_langs.append(lang_english)
                     else:
                         print(
-                            '{:21}: updating local copy from launchpad'.format(
+                            "{:21}: updating local copy from launchpad".format(
                                 lang_english
                             )
                         )
                     if not dry_run:
-                        backupfile = os.path.join(po_backup_dir, '%s.po' % lang)
+                        backupfile = os.path.join(po_backup_dir, "%s.po" % lang)
                         if os.path.exists(backupfile):
                             os.unlink(backupfile)
                         os.rename(dest_pofile, backupfile)
                         os.rename(pofile, dest_pofile)
                 else:
-                    print(
-                        '{:21}: no change'.format(
-                            lang_english
-                        )
-                    )
+                    print("{:21}: no change".format(lang_english))
 
     print()
     if updated_langs:
         updated_langs.sort()
         if len(updated_langs) > 1:
-            updated_langs_english = ', '.join(updated_langs[:-1])
-            updated_langs_english = updated_langs_english + ' and %s' % updated_langs[-1]
-            print('Update {} translations\n'.format(updated_langs_english))
+            updated_langs_english = ", ".join(updated_langs[:-1])
+            updated_langs_english = (
+                updated_langs_english + " and %s" % updated_langs[-1]
+            )
+            print("Update {} translations\n".format(updated_langs_english))
         else:
-            print('Update {} translation\n'.format(updated_langs[0]))
+            print("Update {} translation\n".format(updated_langs[0]))
     else:
         print("No language updates")
 
