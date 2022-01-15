@@ -1,5 +1,5 @@
 # This file is part of ReText
-# Copyright: 2015 Dmitry Shachnev
+# Copyright: 2015-2017 Dmitry Shachnev
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 # This is implementation of XSettings specification, described at
 # <http://standards.freedesktop.org/xsettings-spec/xsettings-spec-0.5.html>
 
-# Reformatted in 2021 by Damon Lynch, using black
+# Reformatted in 2022 by Damon Lynch, using black
 
 import ctypes
 import ctypes.util
@@ -106,6 +106,7 @@ def get_raw_xsettings(display=0):
     xcb.xcb_get_property.argtypes = [
         ctypes.c_void_p,
         ctypes.c_uint8,
+        ctypes.c_uint32,
         ctypes.c_uint32,
         ctypes.c_uint32,
         ctypes.c_uint32,

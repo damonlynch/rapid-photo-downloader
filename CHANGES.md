@@ -12,6 +12,9 @@ Changelog for Rapid Photo Downloader
  - Fix bug [#47](https://github.com/damonlynch/rapid-photo-downloader/issues/47):
    Thumbnail generation overwrites Job Code applied to files without thumbnails. 
 
+ - Fix bug to properly size thumbnails and hamburger menu on high DPI screens 
+   with recent releases of Gnome and other desktops that use xsettings.
+
  - Update Albanian translation.
 
 0.9.28 (2021-12-27)
