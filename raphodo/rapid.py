@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -29,7 +29,7 @@ Project line length: 88 characters (i.e. word wrap at 88)
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
+__copyright__ = "Copyright 2011-2022, Damon Lynch"
 
 import sys
 import logging
@@ -293,6 +293,7 @@ from raphodo.destinationdisplay import DestinationDisplay
 from raphodo.aboutdialog import AboutDialog
 import raphodo.constants as constants
 from raphodo.menubutton import MenuButton
+from raphodo.destinationpanel import DestinationPanel
 from raphodo.renamepanel import RenamePanel
 from raphodo.jobcodepanel import JobCodePanel
 from raphodo.backuppanel import BackupPanel
@@ -358,6 +359,7 @@ class RapidWindow(QMainWindow):
         scaling_detected: ScalingDetected,
         xsetting_running: bool,
         force_wayland: bool,
+        display_height: int,
         platform_selected: Optional[str],
         photo_rename: Optional[bool] = None,
         video_rename: Optional[bool] = None,
@@ -1472,9 +1474,7 @@ class RapidWindow(QMainWindow):
         settings.setValue("rightButtonPressed", self.rightSideButtonPressed())
         settings.setValue("proximityButtonPressed", self.proximityButton.isChecked())
         settings.setValue("leftPanelSplitterSizes", self.leftPanelSplitter.saveState())
-        settings.setValue(
-            "rightPanelSplitterSizes", self.rightPanelSplitter.saveState()
-        )
+        settings.setValue("rightPanelSplitterSizes", self.destinationPanel.saveState())
         settings.endGroup()
 
         settings.beginGroup("ErrorLog")
@@ -1846,8 +1846,16 @@ class RapidWindow(QMainWindow):
                     self.rightPanels.setCurrentIndex(buttonPressed.value)
                 else:
                     self.rightSideButtonMapper[button].setChecked(False)
+            self.rightSidePanelWidgetHeights()
         else:
             self.rightPanels.setVisible(False)
+
+    def rightSidePanelWidgetHeights(self) -> None:
+        heights = ", ".join(
+            str(self.rightPanels.widget(i).height())
+            for i in range(self.rightPanels.count())
+        )
+        logging.debug("Right side panel widget heights: %s", heights)
 
     def rightSideButtonPressed(self) -> int:
         """
@@ -2057,13 +2065,13 @@ class RapidWindow(QMainWindow):
         self.leftBar = self.createLeftBar()
         self.rightBar = self.createRightBar()
 
-        self.createCenterPanels()
+        self.createLeftCenterRightPanels()
         self.createDeviceThisComputerViews()
-        self.createDestinationViews()
+        self.createDestinationPanel()
         self.createRenamePanels()
         self.createJobCodePanel()
         self.createBackupPanel()
-        self.configureCenterPanels(settings)
+        self.configureLeftCenterRightPanels(settings)
         self.createBottomControls()
 
         centralLayout.addLayout(self.leftBar)
@@ -2333,71 +2341,12 @@ class RapidWindow(QMainWindow):
 
         self.thisComputerToggleView.addWidget(self.thisComputer)
 
-    def createDestinationViews(self) -> None:
+    def createDestinationPanel(self) -> None:
         """
-        Create the widgets that let the user choose where to download photos and videos
-        to, and that show them how much storage space there is available for their
-        files.
+        Create the photo and video destination panel
         """
 
-        self.photoDestination = QPanelView(
-            label=_("Photos"),
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
-        )
-        self.videoDestination = QPanelView(
-            label=_("Videos"),
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
-        )
-
-        # Display storage space when photos and videos are being downloaded to the same
-        # partition
-
-        self.combinedDestinationDisplay = DestinationDisplay(parent=self)
-        self.combinedDestinationDisplayContainer = QPanelView(
-            _("Projected Storage Use"),
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
-        )
-        self.combinedDestinationDisplayContainer.addWidget(
-            self.combinedDestinationDisplay
-        )
-
-        # Display storage space when photos and videos are being downloaded to different
-        # partitions.
-        # Also display the file system folder chooser for both destinations.
-
-        self.photoDestinationDisplay = DestinationDisplay(
-            menu=True, file_type=FileType.photo, parent=self
-        )
-        self.photoDestinationDisplay.setDestination(self.prefs.photo_download_folder)
-        self.photoDestinationWidget = ComputerWidget(
-            objectName="photoDestination",
-            view=self.photoDestinationDisplay,
-            fileSystemView=self.photoDestinationFSView,
-            select_text=_("Select a destination folder"),
-        )
-        self.photoDestination.addWidget(self.photoDestinationWidget)
-
-        self.videoDestinationDisplay = DestinationDisplay(
-            menu=True, file_type=FileType.video, parent=self
-        )
-        self.videoDestinationDisplay.setDestination(self.prefs.video_download_folder)
-        self.videoDestinationWidget = ComputerWidget(
-            objectName="videoDestination",
-            view=self.videoDestinationDisplay,
-            fileSystemView=self.videoDestinationFSView,
-            select_text=_("Select a destination folder"),
-        )
-        self.videoDestination.addWidget(self.videoDestinationWidget)
-
-        self.photoDestinationContainer = QWidget()
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.photoDestinationContainer.setLayout(layout)
-        layout.addWidget(self.combinedDestinationDisplayContainer)
-        layout.addWidget(self.photoDestination)
+        self.destinationPanel = DestinationPanel(parent=self)
 
     def createRenamePanels(self) -> None:
         """
@@ -2508,22 +2457,18 @@ class RapidWindow(QMainWindow):
         layout.addWidget(self.selectAllPhotosCheckbox)
         layout.addWidget(self.selectAllVideosCheckbox)
 
-    def createCenterPanels(self) -> None:
+    def createLeftCenterRightPanels(self) -> None:
         self.centerSplitter = QSplitter()
         self.centerSplitter.setOrientation(Qt.Horizontal)
         self.leftPanelSplitter = QSplitter()
         self.leftPanelSplitter.setOrientation(Qt.Vertical)
-        self.rightPanelSplitter = QSplitter()
-        self.rightPanelSplitter.setOrientation(Qt.Vertical)
         self.rightPanels = QStackedWidget()
+        self.rightPanels.setObjectName("rightPanels")
 
-    def configureCenterPanels(self, settings: QSettings) -> None:
+    def configureLeftCenterRightPanels(self, settings: QSettings) -> None:
         self.leftPanelSplitter.addWidget(self.deviceToggleView)
         self.leftPanelSplitter.addWidget(self.thisComputerToggleView)
         self.leftPanelSplitter.addWidget(self.temporalProximity)
-
-        self.rightPanelSplitter.addWidget(self.photoDestinationContainer)
-        self.rightPanelSplitter.addWidget(self.videoDestination)
 
         self.leftPanelSplitter.setCollapsible(0, False)
         self.leftPanelSplitter.setCollapsible(1, False)
@@ -2532,7 +2477,7 @@ class RapidWindow(QMainWindow):
         self.leftPanelSplitter.setStretchFactor(1, 1)
         self.leftPanelSplitter.setStretchFactor(2, 1)
 
-        self.rightPanels.addWidget(self.rightPanelSplitter)
+        self.rightPanels.addWidget(self.destinationPanel)
         self.rightPanels.addWidget(self.renamePanel)
         self.rightPanels.addWidget(self.jobCodePanel)
         self.rightPanels.addWidget(self.backupPanel)
@@ -2546,9 +2491,6 @@ class RapidWindow(QMainWindow):
         self.centerSplitter.setCollapsible(0, False)
         self.centerSplitter.setCollapsible(1, False)
         self.centerSplitter.setCollapsible(2, False)
-
-        self.rightPanelSplitter.setCollapsible(0, False)
-        self.rightPanelSplitter.setCollapsible(1, False)
 
         splitterSetting = settings.value("centerSplitterSizes")
         if splitterSetting is not None:
@@ -2564,9 +2506,9 @@ class RapidWindow(QMainWindow):
 
         splitterSetting = settings.value("rightPanelSplitterSizes")
         if splitterSetting is not None:
-            self.rightPanelSplitter.restoreState(splitterSetting)
+            self.destinationPanel.restoreState(splitterSetting)
         else:
-            self.rightPanelSplitter.setSizes([200, 200])
+            self.destinationPanel.setSizes([200, 200])
 
     def setDownloadCapabilities(self) -> bool:
         """
@@ -2603,16 +2545,12 @@ class RapidWindow(QMainWindow):
         downloading_to: Optional[DefaultDict[int, Set[FileType]]] = None,
     ) -> bool:
         """
-        Updates the the header bar and storage space view for the
+        Updates the header bar and storage space view for the
         photo and video download destinations.
 
         :return True if destinations required for the download exist,
          and there is sufficient space on them, else False.
         """
-
-        size_photos_marked = marked_summary.size_photos_marked
-        size_videos_marked = marked_summary.size_videos_marked
-        marked = marked_summary.marked
 
         if self.unity_progress:
             available = self.thumbnailModel.getNoFilesMarkedForDownload()
@@ -2622,8 +2560,6 @@ class RapidWindow(QMainWindow):
                     launcher.set_property("count_visible", True)
                 else:
                     launcher.set_property("count_visible", False)
-
-        destinations_good = True
 
         # Assume that invalid destination folders have already been reset to ''
         if self.prefs.photo_download_folder and self.prefs.video_download_folder:
@@ -2635,76 +2571,12 @@ class RapidWindow(QMainWindow):
 
         merge = self.downloadIsRunning()
 
-        if same_dev:
-            files_to_display = DisplayingFilesOfType.photos_and_videos
-            self.combinedDestinationDisplay.downloading_to = downloading_to
-            self.combinedDestinationDisplay.setDestination(
-                self.prefs.photo_download_folder
-            )
-            self.combinedDestinationDisplay.setDownloadAttributes(
-                marked=marked,
-                photos_size=size_photos_marked,
-                videos_size=size_videos_marked,
-                files_to_display=files_to_display,
-                display_type=DestinationDisplayType.usage_only,
-                merge=merge,
-            )
-            display_type = DestinationDisplayType.folder_only
-            self.combinedDestinationDisplayContainer.setVisible(True)
-            destinations_good = (
-                self.combinedDestinationDisplay.sufficientSpaceAvailable()
-            )
-        else:
-            files_to_display = DisplayingFilesOfType.photos
-            display_type = DestinationDisplayType.folders_and_usage
-            self.combinedDestinationDisplayContainer.setVisible(False)
-
-        if self.prefs.photo_download_folder:
-            self.photoDestinationDisplay.downloading_to = downloading_to
-            self.photoDestinationDisplay.setDownloadAttributes(
-                marked=marked,
-                photos_size=size_photos_marked,
-                videos_size=0,
-                files_to_display=files_to_display,
-                display_type=display_type,
-                merge=merge,
-            )
-            self.photoDestinationWidget.setViewVisible(True)
-            if display_type == DestinationDisplayType.folders_and_usage:
-                destinations_good = (
-                    self.photoDestinationDisplay.sufficientSpaceAvailable()
-                )
-        else:
-            # Photo download folder was invalid or simply not yet set
-            self.photoDestinationWidget.setViewVisible(False)
-            if size_photos_marked:
-                destinations_good = False
-
-        if not same_dev:
-            files_to_display = DisplayingFilesOfType.videos
-        if self.prefs.video_download_folder:
-            self.videoDestinationDisplay.downloading_to = downloading_to
-            self.videoDestinationDisplay.setDownloadAttributes(
-                marked=marked,
-                photos_size=0,
-                videos_size=size_videos_marked,
-                files_to_display=files_to_display,
-                display_type=display_type,
-                merge=merge,
-            )
-            self.videoDestinationWidget.setViewVisible(True)
-            if display_type == DestinationDisplayType.folders_and_usage:
-                destinations_good = (
-                    self.videoDestinationDisplay.sufficientSpaceAvailable()
-                    and destinations_good
-                )
-        else:
-            # Video download folder was invalid or simply not yet set
-            self.videoDestinationWidget.setViewVisible(False)
-            if size_videos_marked:
-                destinations_good = False
-
-        return destinations_good
+        return self.destinationPanel.updateDestinationPanelViews(
+            same_dev=same_dev,
+            merge=merge,
+            marked_summary=marked_summary,
+            downloading_to=downloading_to,
+        )
 
     @pyqtSlot()
     def updateThumbnailModelAfterProximityChange(self) -> None:
@@ -3049,7 +2921,7 @@ class RapidWindow(QMainWindow):
                 self.prefs.photo_download_folder = path
                 self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
                 self.folder_preview_manager.change_destination()
-                self.photoDestinationDisplay.setDestination(path=path)
+                self.destinationPanel.photoDestinationDisplay.setDestination(path=path)
                 self.setDownloadCapabilities()
         else:
             logging.error("Invalid photo download destination chosen: %s", path)
@@ -3167,7 +3039,7 @@ class RapidWindow(QMainWindow):
                 self.prefs.video_download_folder = path
                 self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
                 self.folder_preview_manager.change_destination()
-                self.videoDestinationDisplay.setDestination(path=path)
+                self.destinationPanel.videoDestinationDisplay.setDestination(path=path)
                 self.setDownloadCapabilities()
         else:
             logging.error("Invalid video download destination chosen: %s", path)
@@ -3254,6 +3126,7 @@ Do you want to proceed with the download?
         :return True if a file is currently being downloaded, renamed
         or backed up, else False
         """
+
         if not self.devices.downloading:
             if self.prefs.backup_files:
                 return not self.download_tracker.all_files_backed_up()
@@ -3269,6 +3142,7 @@ Do you want to proceed with the download?
         :param scan_id: if specified, only files matching it will be
         downloaded
         """
+
         logging.debug("Start Download phase 1 has started")
 
         if self.prefs.backup_files:
@@ -4661,7 +4535,9 @@ Do you want to proceed with the download?
             self.devices.sample_photo = sample_photo  # type: Photo
             self.renamePanel.setSamplePhoto(self.devices.sample_photo)
             # sample required for editing download subfolder generation
-            self.photoDestinationDisplay.sample_rpd_file = self.devices.sample_photo
+            self.destinationPanel.photoDestinationDisplay.sample_rpd_file = (
+                self.devices.sample_photo
+            )
 
         if sample_video is not None:
             logging.info(
@@ -4671,7 +4547,9 @@ Do you want to proceed with the download?
             self.devices.sample_video = sample_video  # type: Video
             self.renamePanel.setSampleVideo(self.devices.sample_video)
             # sample required for editing download subfolder generation
-            self.videoDestinationDisplay.sample_rpd_file = self.devices.sample_video
+            self.destinationPanel.videoDestinationDisplay.sample_rpd_file = (
+                self.devices.sample_video
+            )
 
         if device.device_type == DeviceType.camera:  # irrelevant when using FUSE
             if entire_video_required is not None:
@@ -7566,9 +7444,6 @@ def main():
     except Exception:
         logging.error("Error determining locale via Qt")
 
-    # darkFusion(app)
-    # app.setStyle('Fusion')
-
     # Resetting preferences must occur after QApplication is instantiated
     if args.reset:
         prefs = Preferences()
@@ -7608,8 +7483,13 @@ def main():
 
     splash = SplashScreen(pixmap, Qt.WindowStaysOnTopHint)
     splash.show()
-    app.processEvents()
+    try:
+        display_height = splash.screen().availableGeometry().height()
+    except Exception:
+        display_height = 0
+        logging.warning("Unable to determine display height")
 
+    app.processEvents()
     rw = RapidWindow(
         photo_rename=photo_rename,
         video_rename=video_rename,
@@ -7637,6 +7517,7 @@ def main():
         xsetting_running=xsetting_running,
         force_wayland=force_wayland,
         platform_selected=args.platform,
+        display_height=display_height,
     )
 
     app.setActivationWindow(rw)
