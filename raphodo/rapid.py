@@ -822,6 +822,7 @@ class RapidWindow(QMainWindow):
         )
 
         centralWidget = QWidget()
+        centralWidget.setObjectName("mainWindowCentralWidget")
         self.setCentralWidget(centralWidget)
 
         self.temporalProximity = TemporalProximity(rapidApp=self, prefs=self.prefs)
@@ -1474,7 +1475,7 @@ class RapidWindow(QMainWindow):
         settings.setValue("rightButtonPressed", self.rightSideButtonPressed())
         settings.setValue("proximityButtonPressed", self.proximityButton.isChecked())
         settings.setValue("leftPanelSplitterSizes", self.leftPanelSplitter.saveState())
-        settings.setValue("rightPanelSplitterSizes", self.destinationPanel.saveState())
+        settings.setValue("rightPanelSplitterSizes", self.destinationPanel.splitter.saveState())
         settings.endGroup()
 
         settings.beginGroup("ErrorLog")
@@ -2306,6 +2307,7 @@ class RapidWindow(QMainWindow):
             headerColor=QColor(ThumbnailBackgroundName),
             headerFontColor=QColor(Qt.white),
             on=self.prefs.device_autodetection,
+            object_name="deviceToggleView"
         )
         self.deviceToggleView.addWidget(self.deviceView)
         self.deviceToggleView.valueChanged.connect(self.deviceToggleViewValueChange)
@@ -2325,6 +2327,7 @@ class RapidWindow(QMainWindow):
             headerColor=QColor(ThumbnailBackgroundName),
             headerFontColor=QColor(Qt.white),
             on=bool(self.prefs.this_computer_source),
+            object_name="thisComputerToggleView"
         )
         self.thisComputerToggleView.valueChanged.connect(
             self.thisComputerToggleValueChanged
@@ -2459,9 +2462,11 @@ class RapidWindow(QMainWindow):
 
     def createLeftCenterRightPanels(self) -> None:
         self.centerSplitter = QSplitter()
+        self.centerSplitter.setObjectName("mainWindowHorizontalSplitter")
         self.centerSplitter.setOrientation(Qt.Horizontal)
         self.leftPanelSplitter = QSplitter()
         self.leftPanelSplitter.setOrientation(Qt.Vertical)
+        self.leftPanelSplitter.setObjectName("leftPanelSplitter")
         self.rightPanels = QStackedWidget()
         self.rightPanels.setObjectName("rightPanels")
 
@@ -2506,9 +2511,9 @@ class RapidWindow(QMainWindow):
 
         splitterSetting = settings.value("rightPanelSplitterSizes")
         if splitterSetting is not None:
-            self.destinationPanel.restoreState(splitterSetting)
+            self.destinationPanel.splitter.restoreState(splitterSetting)
         else:
-            self.destinationPanel.setSizes([200, 200])
+            self.destinationPanel.splitter.setSizes([200, 200])
 
     def setDownloadCapabilities(self) -> bool:
         """

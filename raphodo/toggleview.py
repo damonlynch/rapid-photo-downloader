@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -25,7 +25,7 @@ similar to the GtkExpander', Copyright 2012 Canonical Ltd
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2021, Damon Lynch"
+__copyright__ = "Copyright 2016-2022, Damon Lynch"
 
 from typing import Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QSize
@@ -57,6 +57,7 @@ class QToggleView(QPanelView):
         self,
         label: str,
         display_alternate: bool,
+        object_name: str,
         toggleToolTip: Optional[str],
         headerColor: Optional[QColor] = None,
         headerFontColor: Optional[QColor] = None,
@@ -72,6 +73,7 @@ class QToggleView(QPanelView):
         )
         # Override base class definition:
         self.headerLayout.setContentsMargins(5, 0, 5, 0)
+        self.setObjectName(object_name)
 
         if display_alternate:
             self.alternateWidget = BlankWidget()

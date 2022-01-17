@@ -27,7 +27,7 @@ __copyright__ = "Copyright 2017-2022, Damon Lynch"
 from typing import DefaultDict, Optional, Set
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout, QScrollArea
 
 from raphodo.computerview import ComputerWidget
 from raphodo.constants import ThumbnailBackgroundName
@@ -41,7 +41,7 @@ from raphodo.rpdfile import FileType
 from raphodo.thumbnaildisplay import MarkedSummary
 
 
-class DestinationPanel(QSplitter):
+class DestinationPanel(QScrollArea):
     def __init__(self, parent) -> None:
         super().__init__(parent)
         if parent is not None:
@@ -50,15 +50,21 @@ class DestinationPanel(QSplitter):
         else:
             self.prefs = None
 
-        self.setObjectName("destinationPanelSplitter")
-        self.setOrientation(Qt.Vertical)
+        self.setObjectName("destinationPanelScrollArea")
+
+        self.splitter = QSplitter(parent=self)
+
+        self.splitter.setObjectName("destinationPanelSplitter")
+        self.splitter.setOrientation(Qt.Vertical)
 
         self.createDestinationViews()
-        self.addWidget(self.photoDestinationContainer)
-        self.addWidget(self.videoDestination)
+        self.splitter.addWidget(self.photoDestinationContainer)
+        self.splitter.addWidget(self.videoDestination)
 
-        self.setCollapsible(0, False)
-        self.setCollapsible(1, False)
+        self.splitter.setCollapsible(0, False)
+        self.splitter.setCollapsible(1, False)
+        self.setWidget(self.splitter)
+        self.setWidgetResizable(True)
 
     def createDestinationViews(self) -> None:
         """
@@ -120,6 +126,7 @@ class DestinationPanel(QSplitter):
         self.videoDestination.addWidget(self.videoDestinationWidget)
 
         self.photoDestinationContainer = QWidget()
+        self.photoDestinationContainer.setObjectName("photoDestinationContainer")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.photoDestinationContainer.setLayout(layout)
