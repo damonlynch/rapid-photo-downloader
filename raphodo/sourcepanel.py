@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 """
-Display photo and video sources -- Devices and This Computer
+Display photo and video sources -- Devices and This Computer, as well as the Timeline
 """
 
 __author__ = "Damon Lynch"
@@ -30,6 +30,9 @@ from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout, QScrollArea, QSizeP
 
 
 class SourcePanel(QScrollArea):
+    """
+    Display Devices and This Computer sources, as well as the timeline
+    """
     def __init__(self, parent) -> None:
         super().__init__(parent)
         assert parent is not None
@@ -53,8 +56,13 @@ class SourcePanel(QScrollArea):
         self.sourcePanelWidget.setLayout(self.sourcePanelWidgetLayout)
 
     def addSourceViews(self) -> None:
+        """
+        Add source widgets and timeline
+        """
 
-        self.rapidApp.deviceToggleView.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        self.rapidApp.deviceToggleView.setSizePolicy(
+            QSizePolicy.MinimumExpanding, QSizePolicy.Fixed
+        )
         self.sourcePanelWidgetLayout.addWidget(self.rapidApp.deviceToggleView)
 
         self.splitter.addWidget(self.rapidApp.thisComputerToggleView)

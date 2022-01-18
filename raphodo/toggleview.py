@@ -31,7 +31,7 @@ import logging
 from typing import Optional, Union
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QSize
 from PyQt5.QtGui import QColor, QPalette
-from PyQt5.QtWidgets import QVBoxLayout, QWidget, VHBoxLayout
+from PyQt5.QtWidgets import QWidget, QLayout
 
 from raphodo.toggleswitch import QToggleSwitch
 from raphodo.panelview import QPanelView
@@ -78,7 +78,7 @@ class QToggleView(QPanelView):
 
         if display_alternate:
             self.alternateWidget = BlankWidget()
-            layout = self.layout()  # type: Union[QVBoxLayout, VHBoxLayout]
+            layout = self.layout()  # type: QLayout
             layout.addWidget(self.alternateWidget)
         else:
             self.alternateWidget = None
