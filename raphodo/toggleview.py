@@ -27,10 +27,11 @@ similar to the GtkExpander', Copyright 2012 Canonical Ltd
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2022, Damon Lynch"
 
-from typing import Optional
+import logging
+from typing import Optional, Union
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QSize
 from PyQt5.QtGui import QColor, QPalette
-from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QVBoxLayout, QWidget, VHBoxLayout
 
 from raphodo.toggleswitch import QToggleSwitch
 from raphodo.panelview import QPanelView
@@ -77,7 +78,7 @@ class QToggleView(QPanelView):
 
         if display_alternate:
             self.alternateWidget = BlankWidget()
-            layout = self.layout()  # type: QVBoxLayout
+            layout = self.layout()  # type: Union[QVBoxLayout, VHBoxLayout]
             layout.addWidget(self.alternateWidget)
         else:
             self.alternateWidget = None
@@ -122,4 +123,10 @@ class QToggleView(QPanelView):
         if not self.toggleSwitch.on():
             return self.header.height()
         else:
+            # critically important to call updateGeometry(), as minimum height is
+            # recalculated *after* sizeHint has been called by the Qt layout manager
+            self.updateGeometry()
             return super().minimumSize().height()
+
+    def sizeHint(self) -> QSize:
+        return self.minimumSize()

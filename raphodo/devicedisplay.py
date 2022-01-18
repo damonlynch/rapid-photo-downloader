@@ -477,7 +477,7 @@ class DeviceView(QListView):
         self.view_width = minPanelWidth()
         # Assume view is always going to be placed into a splitter
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.setMouseTracking(True)
         self.entered.connect(self.rowEntered)

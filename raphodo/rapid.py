@@ -210,8 +210,6 @@ from raphodo.constants import (
     DeviceState,
     Sort,
     Show,
-    DestinationDisplayType,
-    DisplayingFilesOfType,
     DownloadingFileTypes,
     RememberThisMessage,
     RightSideButton,
@@ -287,13 +285,12 @@ from raphodo.toggleview import QToggleView
 import raphodo.__about__ as __about__
 import raphodo.iplogging as iplogging
 import raphodo.excepthook as excepthook
-from raphodo.panelview import QPanelView
 from raphodo.computerview import ComputerWidget
-from raphodo.destinationdisplay import DestinationDisplay
 from raphodo.aboutdialog import AboutDialog
 import raphodo.constants as constants
 from raphodo.menubutton import MenuButton
 from raphodo.destinationpanel import DestinationPanel
+from raphodo.sourcepanel import SourcePanel
 from raphodo.renamepanel import RenamePanel
 from raphodo.jobcodepanel import JobCodePanel
 from raphodo.backuppanel import BackupPanel
@@ -1474,7 +1471,7 @@ class RapidWindow(QMainWindow):
         settings.setValue("sourceButtonPressed", self.sourceButton.isChecked())
         settings.setValue("rightButtonPressed", self.rightSideButtonPressed())
         settings.setValue("proximityButtonPressed", self.proximityButton.isChecked())
-        settings.setValue("leftPanelSplitterSizes", self.leftPanelSplitter.saveState())
+        settings.setValue("leftPanelSplitterSizes", self.sourcePanel.splitter.saveState())
         settings.setValue("rightPanelSplitterSizes", self.destinationPanel.splitter.saveState())
         settings.endGroup()
 
@@ -1825,7 +1822,7 @@ class RapidWindow(QMainWindow):
         self.sourceButton.setIcon(icon)
 
     def setLeftPanelVisibility(self) -> None:
-        self.leftPanelSplitter.setVisible(
+        self.sourcePanel.setVisible(
             self.sourceButton.isChecked() or self.proximityButton.isChecked()
         )
 
@@ -1929,7 +1926,7 @@ class RapidWindow(QMainWindow):
                 this_computer_height = this_computer_height // 2
         else:
             proximity_height = 0
-        self.leftPanelSplitter.setSizes(
+        self.sourcePanel.splitter.setSizes(
             [preferred_devices_height, this_computer_height, proximity_height]
         )
 
@@ -2067,7 +2064,9 @@ class RapidWindow(QMainWindow):
         self.rightBar = self.createRightBar()
 
         self.createLeftCenterRightPanels()
+        self.createSourcePanel()
         self.createDeviceThisComputerViews()
+        self.sourcePanel.addSourceViews()
         self.createDestinationPanel()
         self.createRenamePanels()
         self.createJobCodePanel()
@@ -2351,6 +2350,13 @@ class RapidWindow(QMainWindow):
 
         self.destinationPanel = DestinationPanel(parent=self)
 
+    def createSourcePanel(self) -> None:
+        """
+        Create the source (Devices and This Computer) panel
+        """
+
+        self.sourcePanel = SourcePanel(parent=self)
+
     def createRenamePanels(self) -> None:
         """
         Create the file renaming panel
@@ -2464,30 +2470,16 @@ class RapidWindow(QMainWindow):
         self.centerSplitter = QSplitter()
         self.centerSplitter.setObjectName("mainWindowHorizontalSplitter")
         self.centerSplitter.setOrientation(Qt.Horizontal)
-        self.leftPanelSplitter = QSplitter()
-        self.leftPanelSplitter.setOrientation(Qt.Vertical)
-        self.leftPanelSplitter.setObjectName("leftPanelSplitter")
         self.rightPanels = QStackedWidget()
         self.rightPanels.setObjectName("rightPanels")
 
     def configureLeftCenterRightPanels(self, settings: QSettings) -> None:
-        self.leftPanelSplitter.addWidget(self.deviceToggleView)
-        self.leftPanelSplitter.addWidget(self.thisComputerToggleView)
-        self.leftPanelSplitter.addWidget(self.temporalProximity)
-
-        self.leftPanelSplitter.setCollapsible(0, False)
-        self.leftPanelSplitter.setCollapsible(1, False)
-        self.leftPanelSplitter.setCollapsible(2, False)
-        self.leftPanelSplitter.setStretchFactor(0, 0)
-        self.leftPanelSplitter.setStretchFactor(1, 1)
-        self.leftPanelSplitter.setStretchFactor(2, 1)
-
         self.rightPanels.addWidget(self.destinationPanel)
         self.rightPanels.addWidget(self.renamePanel)
         self.rightPanels.addWidget(self.jobCodePanel)
         self.rightPanels.addWidget(self.backupPanel)
 
-        self.centerSplitter.addWidget(self.leftPanelSplitter)
+        self.centerSplitter.addWidget(self.sourcePanel)
         self.centerSplitter.addWidget(self.thumbnailView)
         self.centerSplitter.addWidget(self.rightPanels)
         self.centerSplitter.setStretchFactor(0, 0)
@@ -2505,9 +2497,9 @@ class RapidWindow(QMainWindow):
 
         splitterSetting = settings.value("leftPanelSplitterSizes")
         if splitterSetting is not None:
-            self.leftPanelSplitter.restoreState(splitterSetting)
+            self.sourcePanel.splitter.restoreState(splitterSetting)
         else:
-            self.leftPanelSplitter.setSizes([200, 200, 400])
+            self.sourcePanel.splitter.setSizes([200, 200, 400])
 
         splitterSetting = settings.value("rightPanelSplitterSizes")
         if splitterSetting is not None:
