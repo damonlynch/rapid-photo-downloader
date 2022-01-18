@@ -39,6 +39,8 @@ from PyQt5.QtWidgets import (
     QStyleOptionButton,
     QApplication,
     QStyleOptionViewItem,
+    QScrollArea,
+    QFrame,
 )
 from PyQt5.QtGui import (
     QFontMetrics,
@@ -48,6 +50,7 @@ from PyQt5.QtGui import (
     QIcon,
     QGuiApplication,
     QPalette,
+    QResizeEvent,
 )
 from PyQt5.QtCore import (
     QSize,
@@ -219,6 +222,26 @@ class QFramedLabel(QLabel):
         option.initFrom(self)
         painter.drawPrimitive(QStyle.PE_Frame, option)
         super().paintEvent(*opts)
+
+
+class QScrollAreaOptionalFrame(QScrollArea):
+    """
+    Draw a frame around the scroll area only if one of its scrollbars are active
+    """
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent=parent)
+        self.stockFrameShape = self.frameShape()
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        if (
+            self.horizontalScrollBar().isVisible()
+            or self.verticalScrollBar().isVisible()
+        ):
+            self.setFrameShape(self.stockFrameShape)
+        else:
+            self.setFrameShape(QFrame.NoFrame)
+        super().resizeEvent(event)
 
 
 class ProxyStyleNoFocusRectangle(QProxyStyle):

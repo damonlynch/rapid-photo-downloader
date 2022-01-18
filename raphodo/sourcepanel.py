@@ -26,10 +26,12 @@ __copyright__ = "Copyright 2017-2022, Damon Lynch"
 import logging
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout, QScrollArea, QSizePolicy
+from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout, QSizePolicy
+
+from raphodo.viewutils import QScrollAreaOptionalFrame
 
 
-class SourcePanel(QScrollArea):
+class SourcePanel(QScrollAreaOptionalFrame):
     """
     Display Devices and This Computer sources, as well as the timeline
     """

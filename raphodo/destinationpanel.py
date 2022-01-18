@@ -39,9 +39,10 @@ from raphodo.destinationdisplay import (
 from raphodo.panelview import QPanelView
 from raphodo.rpdfile import FileType
 from raphodo.thumbnaildisplay import MarkedSummary
+from raphodo.viewutils import QScrollAreaOptionalFrame
 
 
-class DestinationPanel(QScrollArea):
+class DestinationPanel(QScrollAreaOptionalFrame):
     def __init__(self, parent) -> None:
         super().__init__(parent)
         assert parent is not None
