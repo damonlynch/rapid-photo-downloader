@@ -44,11 +44,9 @@ from raphodo.thumbnaildisplay import MarkedSummary
 class DestinationPanel(QScrollArea):
     def __init__(self, parent) -> None:
         super().__init__(parent)
-        if parent is not None:
-            self.rapidApp = parent
-            self.prefs = self.rapidApp.prefs
-        else:
-            self.prefs = None
+        assert parent is not None
+        self.rapidApp = parent
+        self.prefs = self.rapidApp.prefs
 
         self.setObjectName("destinationPanelScrollArea")
 
