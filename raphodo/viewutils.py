@@ -62,6 +62,7 @@ from PyQt5.QtCore import (
     QModelIndex,
     QRect,
     QAbstractItemModel,
+    pyqtSlot,
 )
 
 QT5_VERSION = parse_version(QT_VERSION_STR)
@@ -257,12 +258,15 @@ class QListViewOptionalFrame(QListView):
     def setContainingScrollArea(self, scrollArea: QScrollAreaOptionalFrame) -> None:
         self.containingScrollArea = scrollArea
 
-    def resizeEvent(self, event: QResizeEvent) -> None:
+    def setFrameVisibility(self) -> None:
         if self.containingScrollArea is not None:
             if not self.containingScrollArea.hasFrame():
                 self.setFrameShape(self.stockFrameShape)
             else:
                 self.setFrameShape(QFrame.NoFrame)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        self.setFrameVisibility()
         super().resizeEvent(event)
 
 

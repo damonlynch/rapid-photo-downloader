@@ -2493,6 +2493,7 @@ class RapidWindow(QMainWindow):
         self.centerSplitter.setCollapsible(2, False)
 
         self.deviceView.setContainingScrollArea(self.sourcePanel)
+        self.centerSplitter.splitterMoved.connect(self.centerSplitterMoved)
         # self.thisComputerView.setContainingScrollArea(self.sourcePanel)
 
         splitterSetting = settings.value("centerSplitterSizes")
@@ -2512,6 +2513,11 @@ class RapidWindow(QMainWindow):
             self.destinationPanel.splitter.restoreState(splitterSetting)
         else:
             self.destinationPanel.splitter.setSizes([200, 200])
+
+    @pyqtSlot(int, int)
+    def centerSplitterMoved(self, pos: int, index: int) -> None:
+        if index == 1:
+            self.deviceView.setFrameVisibility()
 
     def setDownloadCapabilities(self) -> bool:
         """
