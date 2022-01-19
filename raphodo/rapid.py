@@ -2169,6 +2169,7 @@ class RapidWindow(QMainWindow):
 
         # This computer is any local path
         self.thisComputerView = DeviceView(rapidApp=self)
+        self.thisComputerView.setObjectName("thisComputerView")
         self.thisComputerModel = DeviceModel(self, "This Computer")
         self.thisComputerView.setModel(self.thisComputerModel)
         self.thisComputerView.setItemDelegate(DeviceDelegate(self))
@@ -2244,6 +2245,7 @@ class RapidWindow(QMainWindow):
         self.thisComputerFSView = FileSystemView(
             model=self.fileSystemModel, rapidApp=self
         )
+        self.thisComputerFSView.setObjectName("thisComputerFSView")
         self.thisComputerFSView.setModel(self.fileSystemFilter)
         self.thisComputerFSView.setItemDelegate(self.fileSystemDelegate)
         self.thisComputerFSView.hideColumns()
@@ -2261,6 +2263,7 @@ class RapidWindow(QMainWindow):
         self.photoDestinationFSView = FileSystemView(
             model=self.fileSystemModel, rapidApp=self
         )
+        self.photoDestinationFSView.setObjectName("photoDestinationFSView")
         self.photoDestinationFSView.setModel(self.fileSystemFilter)
         self.photoDestinationFSView.setItemDelegate(self.fileSystemDelegate)
         self.photoDestinationFSView.hideColumns()
@@ -2278,6 +2281,7 @@ class RapidWindow(QMainWindow):
         self.videoDestinationFSView = FileSystemView(
             model=self.fileSystemModel, rapidApp=self
         )
+        self.videoDestinationFSView.setObjectName("videoDestinationFSView")
         self.videoDestinationFSView.setModel(self.fileSystemFilter)
         self.videoDestinationFSView.setItemDelegate(self.fileSystemDelegate)
         self.videoDestinationFSView.hideColumns()
@@ -2332,7 +2336,7 @@ class RapidWindow(QMainWindow):
         )
 
         self.thisComputer = ComputerWidget(
-            objectName="thisComputer",
+            objectName="thisComputerWidget",
             view=self.thisComputerView,
             fileSystemView=self.thisComputerFSView,
             select_text=_("Select a source folder"),
