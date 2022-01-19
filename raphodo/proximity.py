@@ -97,8 +97,9 @@ from raphodo.preferences import Preferences
 from raphodo.viewutils import (
     ThumbnailDataForProximity,
     QFramedWidget,
-    QFramedLabel,
     scaledIcon,
+    QTableViewOptionalFrame,
+    QWidgetTopBottomFrame,
 )
 from raphodo.timeutils import (
     locale_time,
@@ -1634,7 +1635,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             super().paint(painter, option, index)
 
 
-class TemporalProximityView(QTableView):
+class TemporalProximityView(QTableViewOptionalFrame):
 
     proximitySelectionHasChanged = pyqtSignal()
 
@@ -2086,7 +2087,9 @@ class TemporalProximity(QWidget):
             scrollArea.setWidget(label)
             self.stackedWidget.addWidget(scrollArea)
 
-        self.stackedWidget.addWidget(self.temporalProximityView)
+        self.topBottomFrame = QWidgetTopBottomFrame(self.temporalProximityView)
+
+        self.stackedWidget.addWidget(self.topBottomFrame)
 
         self.stack_index_for_state = {
             TemporalProximityState.empty: 0,

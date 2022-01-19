@@ -28,13 +28,14 @@ import logging
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout, QSizePolicy
 
-from raphodo.viewutils import QScrollAreaOptionalFrame
+from raphodo.viewutils import QScrollAreaOptionalFrame, QWidgetBottomFrame
 
 
 class SourcePanel(QScrollAreaOptionalFrame):
     """
     Display Devices and This Computer sources, as well as the timeline
     """
+
     def __init__(self, parent) -> None:
         super().__init__(parent)
         assert parent is not None
@@ -65,9 +66,20 @@ class SourcePanel(QScrollAreaOptionalFrame):
         self.rapidApp.deviceToggleView.setSizePolicy(
             QSizePolicy.MinimumExpanding, QSizePolicy.Fixed
         )
-        self.sourcePanelWidgetLayout.addWidget(self.rapidApp.deviceToggleView)
+        self.deviceBottomFrame = QWidgetBottomFrame(self.rapidApp.deviceToggleView)
+        self.thisComputerBottomFrame = QWidgetBottomFrame(
+            self.rapidApp.thisComputerToggleView
+        )
+        self.addBottomFrameChildren(
+            [
+                self.deviceBottomFrame,
+                self.thisComputerBottomFrame,
+                self.rapidApp.temporalProximity.topBottomFrame,
+            ]
+        )
 
-        self.splitter.addWidget(self.rapidApp.thisComputerToggleView)
+        self.sourcePanelWidgetLayout.addWidget(self.deviceBottomFrame)
+        self.splitter.addWidget(self.thisComputerBottomFrame)
         self.splitter.addWidget(self.rapidApp.temporalProximity)
         self.sourcePanelWidgetLayout.addWidget(self.splitter)
 

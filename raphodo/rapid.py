@@ -1471,8 +1471,12 @@ class RapidWindow(QMainWindow):
         settings.setValue("sourceButtonPressed", self.sourceButton.isChecked())
         settings.setValue("rightButtonPressed", self.rightSideButtonPressed())
         settings.setValue("proximityButtonPressed", self.proximityButton.isChecked())
-        settings.setValue("leftPanelSplitterSizes", self.sourcePanel.splitter.saveState())
-        settings.setValue("rightPanelSplitterSizes", self.destinationPanel.splitter.saveState())
+        settings.setValue(
+            "leftPanelSplitterSizes", self.sourcePanel.splitter.saveState()
+        )
+        settings.setValue(
+            "rightPanelSplitterSizes", self.destinationPanel.splitter.saveState()
+        )
         settings.endGroup()
 
         settings.beginGroup("ErrorLog")
@@ -2309,7 +2313,7 @@ class RapidWindow(QMainWindow):
             headerColor=QColor(ThumbnailBackgroundName),
             headerFontColor=QColor(Qt.white),
             on=self.prefs.device_autodetection,
-            object_name="deviceToggleView"
+            object_name="deviceToggleView",
         )
         self.deviceToggleView.addWidget(self.deviceView)
         self.deviceToggleView.valueChanged.connect(self.deviceToggleViewValueChange)
@@ -2329,7 +2333,7 @@ class RapidWindow(QMainWindow):
             headerColor=QColor(ThumbnailBackgroundName),
             headerFontColor=QColor(Qt.white),
             on=bool(self.prefs.this_computer_source),
-            object_name="thisComputerToggleView"
+            object_name="thisComputerToggleView",
         )
         self.thisComputerToggleView.valueChanged.connect(
             self.thisComputerToggleValueChanged
@@ -2493,8 +2497,11 @@ class RapidWindow(QMainWindow):
         self.centerSplitter.setCollapsible(2, False)
 
         self.deviceView.setContainingScrollArea(self.sourcePanel)
+        self.thisComputer.setContainingScrollArea(self.sourcePanel)
+        self.temporalProximity.temporalProximityView.setContainingScrollArea(
+            self.sourcePanel
+        )
         self.centerSplitter.splitterMoved.connect(self.centerSplitterMoved)
-        # self.thisComputerView.setContainingScrollArea(self.sourcePanel)
 
         splitterSetting = settings.value("centerSplitterSizes")
         if splitterSetting is not None:
@@ -7429,6 +7436,7 @@ def main():
     app.setOrganizationDomain("damonlynch.net")
     app.setApplicationName("Rapid Photo Downloader")
     app.setWindowIcon(QIcon(":/rapid-photo-downloader.svg"))
+    app.setStyle("Fusion")
 
     # Determine the system locale as reported by Qt. Use it to
     # see if Qt has a base translation available, which allows

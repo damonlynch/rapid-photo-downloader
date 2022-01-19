@@ -29,7 +29,6 @@ from PyQt5.QtWidgets import (
     QStyle,
     QStylePainter,
     QWidget,
-    QLabel,
     QListWidget,
     QProxyStyle,
     QStyleOption,
@@ -42,6 +41,8 @@ from PyQt5.QtWidgets import (
     QScrollArea,
     QFrame,
     QListView,
+    QVBoxLayout,
+    QTableView,
 )
 from PyQt5.QtGui import (
     QFontMetrics,
@@ -196,36 +197,6 @@ ThumbnailDataForProximity = namedtuple(
 )
 
 
-class QFramedWidget(QWidget):
-    """
-    Draw a Frame around the widget in the style of the application.
-
-    Use this instead of using a stylesheet to draw a widget's border.
-    """
-
-    def paintEvent(self, *opts):
-        painter = QStylePainter(self)
-        option = QStyleOptionFrame()
-        option.initFrom(self)
-        painter.drawPrimitive(QStyle.PE_Frame, option)
-        super().paintEvent(*opts)
-
-
-class QFramedLabel(QLabel):
-    """
-    Draw a Frame around the label in the style of the application.
-
-    Use this instead of using a stylesheet to draw a label's border.
-    """
-
-    def paintEvent(self, *opts):
-        painter = QStylePainter(self)
-        option = QStyleOptionFrame()
-        option.initFrom(self)
-        painter.drawPrimitive(QStyle.PE_Frame, option)
-        super().paintEvent(*opts)
-
-
 class QScrollAreaOptionalFrame(QScrollArea):
     """
     Draw a frame around the scroll area only if one of its scrollbars are active
@@ -233,6 +204,7 @@ class QScrollAreaOptionalFrame(QScrollArea):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
+        self.bottomFrameChildren = []  # type: List[QWidget]
         self.stockFrameShape = self.frameShape()
 
     def hasFrame(self) -> bool:
@@ -242,11 +214,44 @@ class QScrollAreaOptionalFrame(QScrollArea):
         )
 
     def resizeEvent(self, event: QResizeEvent) -> None:
-        if self.hasFrame():
+        has_frame = self.hasFrame()
+        if has_frame:
             self.setFrameShape(self.stockFrameShape)
         else:
             self.setFrameShape(QFrame.NoFrame)
+
+        for widget in self.bottomFrameChildren:
+            widget.setFrameVisible(has_frame)
         super().resizeEvent(event)
+
+    def addBottomFrameChildren(self, widgets: List[QWidget]) -> None:
+        self.bottomFrameChildren = widgets
+
+
+class QFramedWidget(QWidget):
+    """
+    Draw a Frame around the widget in the style of the application.
+
+    Use this instead of using a stylesheet to draw a widget's border.
+    """
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent=parent)
+        self.containingScrollArea = None  # type: Optional[QScrollAreaOptionalFrame]
+
+    def setContainingScrollArea(self, scrollArea: QScrollAreaOptionalFrame) -> None:
+        self.containingScrollArea = scrollArea
+
+    def paintEvent(self, *opts):
+        if (
+            self.containingScrollArea is None
+            or not self.containingScrollArea.hasFrame()
+        ):
+            painter = QStylePainter(self)
+            option = QStyleOptionFrame()
+            option.initFrom(self)
+            painter.drawPrimitive(QStyle.PE_Frame, option)
+        super().paintEvent(*opts)
 
 
 class QListViewOptionalFrame(QListView):
@@ -268,6 +273,69 @@ class QListViewOptionalFrame(QListView):
     def resizeEvent(self, event: QResizeEvent) -> None:
         self.setFrameVisibility()
         super().resizeEvent(event)
+
+
+class QTableViewOptionalFrame(QTableView):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent=parent)
+        self.stockFrameShape = self.frameShape()
+        self.containingScrollArea = None  # type: Optional[QScrollAreaOptionalFrame]
+
+    def setContainingScrollArea(self, scrollArea: QScrollAreaOptionalFrame) -> None:
+        self.containingScrollArea = scrollArea
+
+    def setFrameVisibility(self) -> None:
+        if self.containingScrollArea is not None:
+            if not self.containingScrollArea.hasFrame():
+                self.setFrameShape(self.stockFrameShape)
+            else:
+                self.setFrameShape(QFrame.NoFrame)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        self.setFrameVisibility()
+        super().resizeEvent(event)
+
+
+class QMidHlineFrame(QFrame):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent=parent)
+        self.setFixedHeight(1)
+        self.setFrameShape(QFrame.HLine)
+        self.setFrameShadow(QFrame.Plain)
+        palette = self.palette()
+        palette.setColor(QPalette.WindowText, QPalette().color(QPalette.Mid))
+        self.setPalette(palette)
+
+
+class QWidgetBottomFrame(QWidget):
+    """
+    When widget needs to hide or show HLine depending on whether the scroll area
+    has a bottomFrame
+    """
+
+    def __init__(self, widget: QWidget, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent=parent)
+        self.bottomFrame = QMidHlineFrame()
+        layout = QVBoxLayout()
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+        layout.addWidget(widget)
+        layout.addWidget(self.bottomFrame)
+
+    def setFrameVisible(self, visible: bool) -> None:
+        self.bottomFrame.setVisible(visible)
+
+
+class QWidgetTopBottomFrame(QWidgetBottomFrame):
+    def __init__(self, widget: QWidget, parent: Optional[QWidget] = None) -> None:
+        super().__init__(widget=widget, parent=parent)
+        self.topFrame = QMidHlineFrame()
+        self.layout().insertWidget(0, self.topFrame)
+
+    def setFrameVisible(self, visible: bool) -> None:
+        self.bottomFrame.setVisible(visible)
+        self.topFrame.setVisible(visible)
 
 
 class ProxyStyleNoFocusRectangle(QProxyStyle):
