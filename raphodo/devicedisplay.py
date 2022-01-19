@@ -69,6 +69,7 @@ from PyQt5.QtWidgets import (
     QMenu,
     QWidget,
     QStyleOptionToolButton,
+    QFrame,
 )
 from PyQt5.QtGui import (
     QPainter,
@@ -85,7 +86,7 @@ from PyQt5.QtGui import (
     QIcon,
 )
 
-from raphodo.viewutils import RowTracker
+from raphodo.viewutils import RowTracker, QListViewOptionalFrame
 from raphodo.constants import (
     DeviceState,
     FileType,
@@ -468,7 +469,7 @@ class DeviceModel(QAbstractListModel):
             self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
 
 
-class DeviceView(QListView):
+class DeviceView(QListViewOptionalFrame):
     def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent)
         self.rapidApp = rapidApp

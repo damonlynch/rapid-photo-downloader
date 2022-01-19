@@ -1844,7 +1844,6 @@ class RapidWindow(QMainWindow):
                     self.rightPanels.setCurrentIndex(buttonPressed.value)
                 else:
                     self.rightSideButtonMapper[button].setChecked(False)
-            self.rightSidePanelWidgetHeights()
         else:
             self.rightPanels.setVisible(False)
 
@@ -2488,6 +2487,9 @@ class RapidWindow(QMainWindow):
         self.centerSplitter.setCollapsible(0, False)
         self.centerSplitter.setCollapsible(1, False)
         self.centerSplitter.setCollapsible(2, False)
+
+        self.deviceView.setContainingScrollArea(self.sourcePanel)
+        # self.thisComputerView.setContainingScrollArea(self.sourcePanel)
 
         splitterSetting = settings.value("centerSplitterSizes")
         if splitterSetting is not None:

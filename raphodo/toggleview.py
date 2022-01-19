@@ -28,7 +28,7 @@ __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2022, Damon Lynch"
 
 import logging
-from typing import Optional, Union
+from typing import Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QSize
 from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtWidgets import QWidget, QLayout

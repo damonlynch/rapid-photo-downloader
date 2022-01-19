@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
+__copyright__ = "Copyright 2015-2022, Damon Lynch"
 
 from typing import List, Dict, Tuple, Optional
 from collections import namedtuple
@@ -41,6 +41,7 @@ from PyQt5.QtWidgets import (
     QStyleOptionViewItem,
     QScrollArea,
     QFrame,
+    QListView,
 )
 from PyQt5.QtGui import (
     QFontMetrics,
@@ -233,14 +234,35 @@ class QScrollAreaOptionalFrame(QScrollArea):
         super().__init__(parent=parent)
         self.stockFrameShape = self.frameShape()
 
-    def resizeEvent(self, event: QResizeEvent) -> None:
-        if (
+    def hasFrame(self) -> bool:
+        return (
             self.horizontalScrollBar().isVisible()
             or self.verticalScrollBar().isVisible()
-        ):
+        )
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        if self.hasFrame():
             self.setFrameShape(self.stockFrameShape)
         else:
             self.setFrameShape(QFrame.NoFrame)
+        super().resizeEvent(event)
+
+
+class QListViewOptionalFrame(QListView):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent=parent)
+        self.stockFrameShape = self.frameShape()
+        self.containingScrollArea = None  # type: Optional[QScrollAreaOptionalFrame]
+
+    def setContainingScrollArea(self, scrollArea: QScrollAreaOptionalFrame) -> None:
+        self.containingScrollArea = scrollArea
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        if self.containingScrollArea is not None:
+            if not self.containingScrollArea.hasFrame():
+                self.setFrameShape(self.stockFrameShape)
+            else:
+                self.setFrameShape(QFrame.NoFrame)
         super().resizeEvent(event)
 
 
