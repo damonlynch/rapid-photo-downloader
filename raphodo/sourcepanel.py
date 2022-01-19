@@ -74,8 +74,8 @@ class SourcePanel(QScrollAreaOptionalFrame):
             [
                 self.deviceBottomFrame,
                 self.thisComputerBottomFrame,
-                self.rapidApp.temporalProximity.topBottomFrame,
             ]
+            + self.rapidApp.temporalProximity.topBottomFrames()
         )
 
         self.sourcePanelWidgetLayout.addWidget(self.deviceBottomFrame)

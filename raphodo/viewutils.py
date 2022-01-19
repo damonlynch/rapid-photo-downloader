@@ -53,6 +53,7 @@ from PyQt5.QtGui import (
     QGuiApplication,
     QPalette,
     QResizeEvent,
+    QPaintEvent,
 )
 from PyQt5.QtCore import (
     QSize,
@@ -254,6 +255,36 @@ class QFramedWidget(QWidget):
         super().paintEvent(*opts)
 
 
+class QScrollAreaInContainerScrollAreaOptionalFrame(QScrollArea):
+    """
+    Draw a frame around the scroll area only if the scroll area it is in does not
+    have a frame
+    """
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent=parent)
+        self.stockFrameShape = self.frameShape()
+        self.containingScrollArea = None  # type: Optional[QScrollAreaOptionalFrame]
+
+    def setContainingScrollArea(self, scrollArea: QScrollAreaOptionalFrame) -> None:
+        self.containingScrollArea = scrollArea
+
+    def setFrameVisibility(self) -> None:
+        if self.containingScrollArea is not None:
+            if not self.containingScrollArea.hasFrame():
+                self.setFrameShape(self.stockFrameShape)
+            else:
+                self.setFrameShape(QFrame.NoFrame)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        self.setFrameVisibility()
+        super().resizeEvent(event)
+
+    def paintEvent(self, event: QPaintEvent) -> None:
+        self.setFrameVisibility()
+        super().paintEvent(event)
+
+
 class QListViewOptionalFrame(QListView):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
@@ -309,8 +340,8 @@ class QMidHlineFrame(QFrame):
 
 class QWidgetBottomFrame(QWidget):
     """
-    When widget needs to hide or show HLine depending on whether the scroll area
-    has a bottomFrame
+    When widget needs to hide or show an HLine below it depending on whether the
+    scroll area has a frame
     """
 
     def __init__(self, widget: QWidget, parent: Optional[QWidget] = None) -> None:
@@ -320,6 +351,7 @@ class QWidgetBottomFrame(QWidget):
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
+        self.widget = widget
         layout.addWidget(widget)
         layout.addWidget(self.bottomFrame)
 
@@ -328,6 +360,11 @@ class QWidgetBottomFrame(QWidget):
 
 
 class QWidgetTopBottomFrame(QWidgetBottomFrame):
+    """
+    When widget needs to hide or show an HLine above and below it depending on whether
+    the scroll area has a frame
+    """
+
     def __init__(self, widget: QWidget, parent: Optional[QWidget] = None) -> None:
         super().__init__(widget=widget, parent=parent)
         self.topFrame = QMidHlineFrame()

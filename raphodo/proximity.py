@@ -96,10 +96,11 @@ from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
 from raphodo.viewutils import (
     ThumbnailDataForProximity,
-    QFramedWidget,
     scaledIcon,
     QTableViewOptionalFrame,
     QWidgetTopBottomFrame,
+    QScrollAreaInContainerScrollAreaOptionalFrame,
+    QScrollAreaOptionalFrame,
 )
 from raphodo.timeutils import (
     locale_time,
@@ -2082,14 +2083,14 @@ class TemporalProximity(QWidget):
             self.generating,
             self.ctime_vs_mtime,
         ):
-            scrollArea = QScrollArea()
+            scrollArea = QScrollAreaInContainerScrollAreaOptionalFrame()
             scrollArea.setWidgetResizable(True)
             scrollArea.setWidget(label)
-            self.stackedWidget.addWidget(scrollArea)
+            self.stackedWidget.addWidget(QWidgetTopBottomFrame(scrollArea))
 
-        self.topBottomFrame = QWidgetTopBottomFrame(self.temporalProximityView)
+        self.topBottomFrameTemporalProximity = QWidgetTopBottomFrame(self.temporalProximityView)
 
-        self.stackedWidget.addWidget(self.topBottomFrame)
+        self.stackedWidget.addWidget(self.topBottomFrameTemporalProximity)
 
         self.stack_index_for_state = {
             TemporalProximityState.empty: 0,
@@ -2133,6 +2134,20 @@ class TemporalProximity(QWidget):
             self.setTimelineThumbnailAutoScroll(self.prefs.auto_scroll)
 
         self.suppress_auto_scroll_after_timeline_select = False
+
+    def _framedScrollArea(self):
+        for index in range(self.stackedWidget.count()):
+            widget = self.stackedWidget.widget(index)
+            if isinstance(widget, QWidgetTopBottomFrame):
+                yield widget
+
+    def setContainingScrollArea(self, scrollArea: QScrollAreaOptionalFrame) -> None:
+        self.temporalProximityView.setContainingScrollArea(scrollArea)
+        for widget in self._framedScrollArea():
+            widget.widget.setContainingScrollArea(scrollArea)
+
+    def topBottomFrames(self) -> List[QWidgetTopBottomFrame]:
+        return [self.topBottomFrameTemporalProximity] + list(self._framedScrollArea())
 
     @pyqtSlot(QItemSelection, QItemSelection)
     def proximitySelectionChanged(

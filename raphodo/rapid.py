@@ -2498,9 +2498,8 @@ class RapidWindow(QMainWindow):
 
         self.deviceView.setContainingScrollArea(self.sourcePanel)
         self.thisComputer.setContainingScrollArea(self.sourcePanel)
-        self.temporalProximity.temporalProximityView.setContainingScrollArea(
-            self.sourcePanel
-        )
+        self.temporalProximity.setContainingScrollArea(self.sourcePanel)
+
         self.centerSplitter.splitterMoved.connect(self.centerSplitterMoved)
 
         splitterSetting = settings.value("centerSplitterSizes")
