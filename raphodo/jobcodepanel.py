@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,9 +21,9 @@ Display, edit and apply Job Codes.
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2021, Damon Lynch"
+__copyright__ = "Copyright 2017-2022, Damon Lynch"
 
-from typing import Optional, Dict, Tuple, Union, List
+from typing import Optional, List
 import logging
 
 from PyQt5.QtCore import Qt, pyqtSlot, QRegularExpression
@@ -33,7 +33,6 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QVBoxLayout,
     QLabel,
-    QScrollArea,
     QFrame,
     QGridLayout,
     QAbstractItemView,
@@ -54,13 +53,15 @@ from PyQt5.QtGui import (
 )
 
 
-from raphodo.constants import JobCodeSort, ThumbnailBackgroundName
+from raphodo.constants import JobCodeSort, ThumbnailBackgroundName, HLineLocation
 from raphodo.viewutils import (
     QFramedWidget,
     QNarrowListWidget,
     standardIconSize,
     translateDialogBoxButtons,
     standardMessageBox,
+    QScrollAreaOptionalFrame,
+    QWidgetHLineFrame,
 )
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
@@ -566,7 +567,7 @@ class JobCodeOptionsWidget(QFramedWidget):
         return False
 
 
-class JobCodePanel(QScrollArea):
+class JobCodePanel(QScrollAreaOptionalFrame):
     """
     JobCode preferences widget
     """
@@ -579,18 +580,24 @@ class JobCodePanel(QScrollArea):
         else:
             self.prefs = None
 
-        self.setFrameShape(QFrame.NoFrame)
-
         self.jobCodePanel = QPanelView(
             label=_("Job Codes"),
             headerColor=QColor(ThumbnailBackgroundName),
             headerFontColor=QColor(Qt.white),
         )
-
+        self.jobCodePanel.setObjectName("jobCodePanel")
         self.jobCodeOptions = JobCodeOptionsWidget(
             prefs=self.prefs, rapidApp=self.rapidApp, parent=self
         )
-        self.jobCodePanel.addWidget(self.jobCodeOptions)
+        self.jobCodeOptions.setObjectName("jobCodeOptions")
+
+        # Create container to display horizontal lines when Scroll Area frame is
+        # visible
+        self.jobCodeOptionsTop = QWidgetHLineFrame(self.jobCodeOptions, HLineLocation.top)
+        self.jobCodePanel.addWidget(self.jobCodeOptionsTop)
+
+        self.jobCodeOptions.setContainingScrollArea(self)
+        self.addTopBottomFrameChildren([self.jobCodeOptionsTop])
 
         widget = QWidget()
         layout = QVBoxLayout()

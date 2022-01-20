@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Display backup preferences
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2021, Damon Lynch"
+__copyright__ = "Copyright 2017-2022, Damon Lynch"
 
 from typing import Dict, Tuple, Set, List, DefaultDict, NamedTuple
 import logging
@@ -43,7 +43,6 @@ from PyQt5.QtWidgets import (
     QLabel,
     QLineEdit,
     QCheckBox,
-    QScrollArea,
     QFrame,
     QStyledItemDelegate,
     QStyleOptionViewItem,
@@ -51,6 +50,7 @@ from PyQt5.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QGridLayout,
+    QSplitter,
 )
 from PyQt5.QtGui import QPainter, QColor, QPalette, QIcon
 
@@ -61,8 +61,14 @@ from raphodo.constants import (
     Roles,
     ViewRowType,
     BackupLocationType,
+    HLineLocation,
 )
-from raphodo.viewutils import QFramedWidget, RowTracker
+from raphodo.viewutils import (
+    QFramedWidget,
+    RowTracker,
+    QScrollAreaOptionalFrame,
+    QWidgetHLineFrame,
+)
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
@@ -721,7 +727,7 @@ class BackupOptionsWidget(QFramedWidget):
             combo.refreshFolderList()
 
 
-class BackupPanel(QScrollArea):
+class BackupPanel(QScrollAreaOptionalFrame):
     """
     Backup preferences widget, for photos and video backups while
     downloading.
@@ -736,22 +742,22 @@ class BackupPanel(QScrollArea):
 
         self.backupDevices = BackupDeviceModel(parent=self)
 
-        self.setFrameShape(QFrame.NoFrame)
-
         self.backupStoragePanel = QPanelView(
             label=_("Projected Backup Storage Use"),
             headerColor=QColor(ThumbnailBackgroundName),
             headerFontColor=QColor(Qt.white),
         )
+        self.backupStoragePanel.setObjectName("backupStoragePanel")
 
         self.backupOptionsPanel = QPanelView(
             label=_("Backup Options"),
             headerColor=QColor(ThumbnailBackgroundName),
             headerFontColor=QColor(Qt.white),
         )
+        self.backupOptionsPanel.setObjectName("backupOptionsPanel")
 
         self.backupDevicesView = BackupDeviceView(rapidApp=self.rapidApp, parent=self)
-        self.backupStoragePanel.addWidget(self.backupDevicesView)
+        self.backupDevicesView.setObjectName("backupDevicesView")
         self.backupDevicesView.setModel(self.backupDevices)
         self.backupDevicesView.setItemDelegate(
             BackupDeviceDelegate(rapidApp=self.rapidApp)
@@ -766,11 +772,30 @@ class BackupPanel(QScrollArea):
         self.backupOptions = BackupOptionsWidget(
             prefs=self.prefs, parent=self, rapidApp=self.rapidApp
         )
-        self.backupOptionsPanel.addWidget(self.backupOptions)
+
+        # Create containers to display horizontal lines when Scroll Area frame is
+        # visible
+        self.backupOptionsTop = QWidgetHLineFrame(
+            self.backupOptions, location=HLineLocation.top
+        )
+        self.backupStorageViewTopBottom = QWidgetHLineFrame(
+            self.backupDevicesView, location=HLineLocation.top_bottom
+        )
+
+        self.backupOptionsPanel.addWidget(self.backupOptionsTop)
+        self.backupStoragePanel.addWidget(self.backupStorageViewTopBottom)
+
+        # Link contained widgets to their containing scroll area
+        self.backupOptions.setContainingScrollArea(self)
+        self.backupDevicesView.setContainingScrollArea(self)
+        self.addTopBottomFrameChildren(
+            [self.backupOptionsTop, self.backupStorageViewTopBottom]
+        )
 
         widget = QWidget()
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(QSplitter().handleWidth())
         widget.setLayout(layout)
         layout.addWidget(self.backupStoragePanel)
         layout.addWidget(self.backupOptionsPanel)

@@ -67,12 +67,19 @@ class SourcePanel(QScrollAreaOptionalFrame):
         self.rapidApp.deviceToggleView.setSizePolicy(
             QSizePolicy.MinimumExpanding, QSizePolicy.Fixed
         )
+
+        # Create containers to display horizontal lines when Scroll Area frame is
+        # visible
+
         self.deviceBottomFrame = QWidgetHLineFrame(
             self.rapidApp.deviceToggleView, location=HLineLocation.bottom
         )
         self.thisComputerBottomFrame = QWidgetHLineFrame(
             self.rapidApp.thisComputerToggleView, location=HLineLocation.bottom
         )
+
+        # Link contained widgets to their containing scroll area
+
         self.addTopBottomFrameChildren(
             [
                 self.deviceBottomFrame,

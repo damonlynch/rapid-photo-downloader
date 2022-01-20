@@ -120,10 +120,6 @@ class DestinationPanel(QScrollAreaOptionalFrame):
             fileSystemView=self.rapidApp.photoDestinationFSView,
             select_text=_("Select a destination folder"),
         )
-        self.photoDestinationTopBottom = QWidgetHLineFrame(
-            self.photoDestinationWidget, location=HLineLocation.top_bottom
-        )
-        self.photoDestination.addWidget(self.photoDestinationTopBottom)
 
         self.videoDestinationDisplay = DestinationDisplay(
             menu=True, file_type=FileType.video, parent=self, rapidApp=self.rapidApp
@@ -136,19 +132,30 @@ class DestinationPanel(QScrollAreaOptionalFrame):
             fileSystemView=self.rapidApp.videoDestinationFSView,
             select_text=_("Select a destination folder"),
         )
+
+        # Create containers to display horizontal lines when Scroll Area frame is
+        # visible
+        self.photoDestinationTopBottom = QWidgetHLineFrame(
+            self.photoDestinationWidget, location=HLineLocation.top_bottom
+        )
         self.videoDestinationTop = QWidgetHLineFrame(
             self.videoDestinationWidget, location=HLineLocation.top
         )
+
+        self.photoDestination.addWidget(self.photoDestinationTopBottom)
         self.videoDestination.addWidget(self.videoDestinationTop)
 
-        self.photoDestinationContainer = QWidget()
-        self.photoDestinationContainer.setObjectName("photoDestinationContainer")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(self.splitter.handleWidth())
-        self.photoDestinationContainer.setLayout(layout)
         layout.addWidget(self.combinedDestinationDisplayContainer)
         layout.addWidget(self.photoDestination)
+
+        self.photoDestinationContainer = QWidget()
+        self.photoDestinationContainer.setObjectName("photoDestinationContainer")
+        self.photoDestinationContainer.setLayout(layout)
+
+        # Link contained widgets to their containing scroll area
 
         self.photoDestinationWidget.setContainingScrollArea(self)
         self.videoDestinationWidget.setContainingScrollArea(self)
