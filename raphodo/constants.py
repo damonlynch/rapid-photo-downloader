@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2021, Damon Lynch"
+__copyright__ = "Copyright 2007-2022, Damon Lynch"
 
 from enum import Enum, IntEnum, auto
 from PyQt5.QtCore import Qt
@@ -540,7 +540,6 @@ class Distro(Enum):
     unknown = auto()
 
 
-
 orientation_offset = dict(
     arw=106,
     cr2=126,
@@ -769,6 +768,12 @@ class ScalingDetected(Enum):
     Xsetting = 2
     Qt_and_Xsetting = 3
     undetected = 4
+
+
+class HLineLocation(IntEnum):
+    top = 1
+    bottom = 2
+    top_bottom = 3
 
 
 # Use the character . to for download_name and path to indicate the user manually

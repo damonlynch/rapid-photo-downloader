@@ -69,7 +69,7 @@ from PyQt5.QtCore import (
 
 QT5_VERSION = parse_version(QT_VERSION_STR)
 
-from raphodo.constants import ScalingDetected
+from raphodo.constants import ScalingDetected, HLineLocation
 import raphodo.xsettings as xsettings
 
 
@@ -205,7 +205,7 @@ class QScrollAreaOptionalFrame(QScrollArea):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
-        self.bottomFrameChildren = []  # type: List[QWidget]
+        self.topBottomFrameChildren = []  # type: List[QWidget]
         self.stockFrameShape = self.frameShape()
 
     def hasFrame(self) -> bool:
@@ -221,12 +221,12 @@ class QScrollAreaOptionalFrame(QScrollArea):
         else:
             self.setFrameShape(QFrame.NoFrame)
 
-        for widget in self.bottomFrameChildren:
+        for widget in self.topBottomFrameChildren:
             widget.setFrameVisible(has_frame)
         super().resizeEvent(event)
 
-    def addBottomFrameChildren(self, widgets: List[QWidget]) -> None:
-        self.bottomFrameChildren = widgets
+    def addTopBottomFrameChildren(self, widgets: List[QWidget]) -> None:
+        self.topBottomFrameChildren = widgets
 
 
 class QFramedWidget(QWidget):
@@ -338,41 +338,38 @@ class QMidHlineFrame(QFrame):
         self.setPalette(palette)
 
 
-class QWidgetBottomFrame(QWidget):
+class QWidgetHLineFrame(QWidget):
     """
     When widget needs to hide or show an HLine below it depending on whether the
     scroll area has a frame
     """
 
-    def __init__(self, widget: QWidget, parent: Optional[QWidget] = None) -> None:
+    def __init__(
+        self, widget: QWidget, location: HLineLocation, parent: Optional[QWidget] = None
+    ) -> None:
         super().__init__(parent=parent)
-        self.bottomFrame = QMidHlineFrame()
         layout = QVBoxLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         self.widget = widget
+        if location in (HLineLocation.top, HLineLocation.top_bottom):
+            frame = QMidHlineFrame()
+            layout.addWidget(frame)
+            self.frames = [frame]
+        else:
+            self.frames = []  # type: List[QMidHlineFrame]
+
         layout.addWidget(widget)
-        layout.addWidget(self.bottomFrame)
+
+        if location in (HLineLocation.bottom, HLineLocation.top_bottom):
+            frame = QMidHlineFrame()
+            layout.addWidget(frame)
+            self.frames.append(frame)
 
     def setFrameVisible(self, visible: bool) -> None:
-        self.bottomFrame.setVisible(visible)
-
-
-class QWidgetTopBottomFrame(QWidgetBottomFrame):
-    """
-    When widget needs to hide or show an HLine above and below it depending on whether
-    the scroll area has a frame
-    """
-
-    def __init__(self, widget: QWidget, parent: Optional[QWidget] = None) -> None:
-        super().__init__(widget=widget, parent=parent)
-        self.topFrame = QMidHlineFrame()
-        self.layout().insertWidget(0, self.topFrame)
-
-    def setFrameVisible(self, visible: bool) -> None:
-        self.bottomFrame.setVisible(visible)
-        self.topFrame.setVisible(visible)
+        for frame in self.frames:
+            frame.setVisible(visible)
 
 
 class ProxyStyleNoFocusRectangle(QProxyStyle):

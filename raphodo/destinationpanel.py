@@ -27,10 +27,10 @@ __copyright__ = "Copyright 2017-2022, Damon Lynch"
 from typing import DefaultDict, Optional, Set
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout, QScrollArea
+from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout
 
 from raphodo.computerview import ComputerWidget
-from raphodo.constants import ThumbnailBackgroundName
+from raphodo.constants import ThumbnailBackgroundName, HLineLocation
 from raphodo.destinationdisplay import (
     DestinationDisplay,
     DisplayingFilesOfType,
@@ -39,7 +39,7 @@ from raphodo.destinationdisplay import (
 from raphodo.panelview import QPanelView
 from raphodo.rpdfile import FileType
 from raphodo.thumbnaildisplay import MarkedSummary
-from raphodo.viewutils import QScrollAreaOptionalFrame, QWidgetBottomFrame
+from raphodo.viewutils import QScrollAreaOptionalFrame, QWidgetHLineFrame
 
 
 class DestinationPanel(QScrollAreaOptionalFrame):
@@ -120,7 +120,10 @@ class DestinationPanel(QScrollAreaOptionalFrame):
             fileSystemView=self.rapidApp.photoDestinationFSView,
             select_text=_("Select a destination folder"),
         )
-        self.photoDestination.addWidget(self.photoDestinationWidget)
+        self.photoDestinationTopBottom = QWidgetHLineFrame(
+            self.photoDestinationWidget, location=HLineLocation.top_bottom
+        )
+        self.photoDestination.addWidget(self.photoDestinationTopBottom)
 
         self.videoDestinationDisplay = DestinationDisplay(
             menu=True, file_type=FileType.video, parent=self, rapidApp=self.rapidApp
@@ -133,7 +136,10 @@ class DestinationPanel(QScrollAreaOptionalFrame):
             fileSystemView=self.rapidApp.videoDestinationFSView,
             select_text=_("Select a destination folder"),
         )
-        self.videoDestination.addWidget(self.videoDestinationWidget)
+        self.videoDestinationTop = QWidgetHLineFrame(
+            self.videoDestinationWidget, location=HLineLocation.top
+        )
+        self.videoDestination.addWidget(self.videoDestinationTop)
 
         self.photoDestinationContainer = QWidget()
         self.photoDestinationContainer.setObjectName("photoDestinationContainer")
@@ -144,7 +150,15 @@ class DestinationPanel(QScrollAreaOptionalFrame):
         layout.addWidget(self.combinedDestinationDisplayContainer)
         layout.addWidget(self.photoDestination)
 
-        self.addBottomFrameChildren([self.combinedDestinationDisplay])
+        self.photoDestinationWidget.setContainingScrollArea(self)
+        self.videoDestinationWidget.setContainingScrollArea(self)
+        self.addTopBottomFrameChildren(
+            [
+                self.combinedDestinationDisplay,
+                self.photoDestinationTopBottom,
+                self.videoDestinationTop,
+            ]
+        )
 
     def updateDestinationPanelViews(
         self,

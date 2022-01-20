@@ -28,7 +28,8 @@ import logging
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout, QSizePolicy
 
-from raphodo.viewutils import QScrollAreaOptionalFrame, QWidgetBottomFrame
+from raphodo.constants import HLineLocation
+from raphodo.viewutils import QScrollAreaOptionalFrame, QWidgetHLineFrame
 
 
 class SourcePanel(QScrollAreaOptionalFrame):
@@ -66,11 +67,13 @@ class SourcePanel(QScrollAreaOptionalFrame):
         self.rapidApp.deviceToggleView.setSizePolicy(
             QSizePolicy.MinimumExpanding, QSizePolicy.Fixed
         )
-        self.deviceBottomFrame = QWidgetBottomFrame(self.rapidApp.deviceToggleView)
-        self.thisComputerBottomFrame = QWidgetBottomFrame(
-            self.rapidApp.thisComputerToggleView
+        self.deviceBottomFrame = QWidgetHLineFrame(
+            self.rapidApp.deviceToggleView, location=HLineLocation.bottom
         )
-        self.addBottomFrameChildren(
+        self.thisComputerBottomFrame = QWidgetHLineFrame(
+            self.rapidApp.thisComputerToggleView, location=HLineLocation.bottom
+        )
+        self.addTopBottomFrameChildren(
             [
                 self.deviceBottomFrame,
                 self.thisComputerBottomFrame,

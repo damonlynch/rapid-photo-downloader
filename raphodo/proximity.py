@@ -91,6 +91,7 @@ from raphodo.constants import (
     DarkGray,
     MediumGray,
     DoubleDarkGray,
+    HLineLocation,
 )
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
@@ -98,7 +99,7 @@ from raphodo.viewutils import (
     ThumbnailDataForProximity,
     scaledIcon,
     QTableViewOptionalFrame,
-    QWidgetTopBottomFrame,
+    QWidgetHLineFrame,
     QScrollAreaInContainerScrollAreaOptionalFrame,
     QScrollAreaOptionalFrame,
 )
@@ -2086,9 +2087,13 @@ class TemporalProximity(QWidget):
             scrollArea = QScrollAreaInContainerScrollAreaOptionalFrame()
             scrollArea.setWidgetResizable(True)
             scrollArea.setWidget(label)
-            self.stackedWidget.addWidget(QWidgetTopBottomFrame(scrollArea))
+            self.stackedWidget.addWidget(
+                QWidgetHLineFrame(scrollArea, location=HLineLocation.top_bottom)
+            )
 
-        self.topBottomFrameTemporalProximity = QWidgetTopBottomFrame(self.temporalProximityView)
+        self.topBottomFrameTemporalProximity = QWidgetHLineFrame(
+            self.temporalProximityView, location=HLineLocation.top_bottom
+        )
 
         self.stackedWidget.addWidget(self.topBottomFrameTemporalProximity)
 
@@ -2138,7 +2143,7 @@ class TemporalProximity(QWidget):
     def _framedScrollArea(self):
         for index in range(self.stackedWidget.count()):
             widget = self.stackedWidget.widget(index)
-            if isinstance(widget, QWidgetTopBottomFrame):
+            if isinstance(widget, QWidgetHLineFrame):
                 yield widget
 
     def setContainingScrollArea(self, scrollArea: QScrollAreaOptionalFrame) -> None:
@@ -2146,7 +2151,7 @@ class TemporalProximity(QWidget):
         for widget in self._framedScrollArea():
             widget.widget.setContainingScrollArea(scrollArea)
 
-    def topBottomFrames(self) -> List[QWidgetTopBottomFrame]:
+    def topBottomFrames(self) -> List[QWidgetHLineFrame]:
         return [self.topBottomFrameTemporalProximity] + list(self._framedScrollArea())
 
     @pyqtSlot(QItemSelection, QItemSelection)
