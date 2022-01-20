@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,10 +21,10 @@ Display download destination details
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2021, Damon Lynch"
+__copyright__ = "Copyright 2016-2022, Damon Lynch"
 
 import math
-from typing import Optional, Dict, Tuple, Union, DefaultDict, Set
+from typing import Dict, Union, DefaultDict, Set
 import logging
 from collections import defaultdict
 
@@ -40,7 +40,16 @@ from PyQt5.QtWidgets import (
     QMenu,
     QActionGroup,
 )
-from PyQt5.QtGui import QColor, QPixmap, QIcon, QPaintEvent, QPalette, QMouseEvent
+from PyQt5.QtGui import (
+    QColor,
+    QPixmap,
+    QIcon,
+    QPaintEvent,
+    QPalette,
+    QMouseEvent,
+    QPen,
+    QBrush,
+)
 
 
 from raphodo.devicedisplay import DeviceDisplay, BodyDetails, icon_size
@@ -224,7 +233,11 @@ class DestinationDisplay(QWidget):
     projected_space_msg = _("Projected storage use after download")
 
     def __init__(
-        self, menu: bool = False, file_type: FileType = None, parent=None
+        self,
+        menu: bool = False,
+        file_type: FileType = None,
+        parent: QWidget = None,
+        rapidApp=None,
     ) -> None:
         """
         :param menu: whether to render a drop down menu
@@ -232,8 +245,8 @@ class DestinationDisplay(QWidget):
         """
 
         super().__init__(parent)
-        self.rapidApp = parent
-        if parent is not None:
+        self.rapidApp = rapidApp
+        if rapidApp is not None:
             self.prefs = self.rapidApp.prefs
         else:
             self.prefs = None
@@ -275,9 +288,12 @@ class DestinationDisplay(QWidget):
         self.sample_rpd_file = None  # type: Optional[Union[Photo, Video]]
 
         self.os_stat_device = 0  # type: int
-        self._downloading_to = defaultdict(
-            set
-        )  # type: DefaultDict[int, Set[FileType]]
+        self._downloading_to = defaultdict(set)  # type: DefaultDict[int, Set[FileType]]
+
+        self.borderPen = QPen(
+            QBrush(QPalette().color(QPalette.Mid)), QSplitter().lineWidth()
+        )
+        self.frame_visible = False  # container already has a frame
 
     @property
     def downloading_to(self) -> DefaultDict[int, Set[FileType]]:
@@ -513,6 +529,9 @@ class DestinationDisplay(QWidget):
                 self.prefs.video_subfolder = user_pref_list
             self.rapidApp.folder_preview_manager.change_subfolder_structure()
 
+    def setFrameVisible(self, visible: bool) -> None:
+        self.frame_visible = visible
+
     def setDestination(self, path: str) -> None:
         """
         Set the downloaded destination path
@@ -623,10 +642,17 @@ class DestinationDisplay(QWidget):
             self.display_type == DestinationDisplayType.usage_only
             and QSplitter().lineWidth()
         ):
-            # Draw a frame if that's what the style requires
-            option = QStyleOptionFrame()
-            option.initFrom(self)
-            painter.drawPrimitive(QStyle.PE_Frame, option)
+            if not self.frame_visible:
+                # Draw a frame if that's what the style requires
+                option = QStyleOptionFrame()
+                option.initFrom(self)
+                painter.drawPrimitive(QStyle.PE_Frame, option)
+            else:
+                pen = painter.pen()
+                painter.setPen(self.borderPen)
+                painter.drawLine(rect.topLeft(), rect.topRight())
+                painter.drawLine(rect.bottomLeft(), rect.bottomRight())
+                painter.setPen(pen)
 
             w = QSplitter().lineWidth()
             rect.adjust(w, w, -w, -w)

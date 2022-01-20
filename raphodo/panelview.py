@@ -31,15 +31,7 @@ from typing import Optional
 
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QColor, QFontMetrics, QFont
-from PyQt5.QtWidgets import (
-    QHBoxLayout,
-    QLabel,
-    QSizePolicy,
-    QVBoxLayout,
-    QWidget,
-    QScrollArea,
-    QFrame,
-)
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from raphodo.constants import minPanelWidth
 
@@ -130,18 +122,3 @@ class QPanelView(QWidget):
             width = self.content.minimumWidth()
             height = self.content.minimumHeight()
         return QSize(width, self.header.height() + height)
-
-
-class QComputerScrollArea(QScrollArea):
-    """
-    Places a QPanelView into a Scroll Area
-    """
-
-    def __init__(self, panelView: QPanelView, parent=None):
-        super().__init__(parent)
-        self.setFrameShape(QFrame.NoFrame)
-        self.setWidgetResizable(True)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.panelView = panelView
-        self.setWidget(panelView)
-        self.setMinimumSize(panelView.minimumSize())

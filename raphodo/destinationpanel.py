@@ -39,7 +39,7 @@ from raphodo.destinationdisplay import (
 from raphodo.panelview import QPanelView
 from raphodo.rpdfile import FileType
 from raphodo.thumbnaildisplay import MarkedSummary
-from raphodo.viewutils import QScrollAreaOptionalFrame
+from raphodo.viewutils import QScrollAreaOptionalFrame, QWidgetBottomFrame
 
 
 class DestinationPanel(QScrollAreaOptionalFrame):
@@ -77,23 +77,32 @@ class DestinationPanel(QScrollAreaOptionalFrame):
             headerColor=QColor(ThumbnailBackgroundName),
             headerFontColor=QColor(Qt.white),
         )
+        self.photoDestination.setObjectName("photoDestinationPanelView")
         self.videoDestination = QPanelView(
             label=_("Videos"),
             headerColor=QColor(ThumbnailBackgroundName),
             headerFontColor=QColor(Qt.white),
         )
+        self.videoDestination.setObjectName("videoDestinationPanelView")
 
         # Display storage space when photos and videos are being downloaded to the same
-        # partition
+        # partition. That is, "combined" means not combined widgets, but combined
+        # display of destination download stats the user sees
 
-        self.combinedDestinationDisplay = DestinationDisplay(parent=self)
+        self.combinedDestinationDisplay = DestinationDisplay(
+            parent=self, rapidApp=self.rapidApp
+        )
         self.combinedDestinationDisplayContainer = QPanelView(
             _("Projected Storage Use"),
             headerColor=QColor(ThumbnailBackgroundName),
             headerFontColor=QColor(Qt.white),
         )
+        self.combinedDestinationDisplay.setObjectName("combinedDestinationDisplay")
         self.combinedDestinationDisplayContainer.addWidget(
             self.combinedDestinationDisplay
+        )
+        self.combinedDestinationDisplayContainer.setObjectName(
+            "combinedDestinationDisplayContainer"
         )
 
         # Display storage space when photos and videos are being downloaded to different
@@ -101,9 +110,10 @@ class DestinationPanel(QScrollAreaOptionalFrame):
         # Also display the file system folder chooser for both destinations.
 
         self.photoDestinationDisplay = DestinationDisplay(
-            menu=True, file_type=FileType.photo, parent=self
+            menu=True, file_type=FileType.photo, parent=self, rapidApp=self.rapidApp
         )
         self.photoDestinationDisplay.setDestination(self.prefs.photo_download_folder)
+        self.photoDestinationDisplay.setObjectName("photoDestinationDisplay")
         self.photoDestinationWidget = ComputerWidget(
             objectName="photoDestination",
             view=self.photoDestinationDisplay,
@@ -113,8 +123,9 @@ class DestinationPanel(QScrollAreaOptionalFrame):
         self.photoDestination.addWidget(self.photoDestinationWidget)
 
         self.videoDestinationDisplay = DestinationDisplay(
-            menu=True, file_type=FileType.video, parent=self
+            menu=True, file_type=FileType.video, parent=self, rapidApp=self.rapidApp
         )
+        self.videoDestinationDisplay.setObjectName("videoDestinationDisplay")
         self.videoDestinationDisplay.setDestination(self.prefs.video_download_folder)
         self.videoDestinationWidget = ComputerWidget(
             objectName="videoDestination",
@@ -128,9 +139,12 @@ class DestinationPanel(QScrollAreaOptionalFrame):
         self.photoDestinationContainer.setObjectName("photoDestinationContainer")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(self.splitter.handleWidth())
         self.photoDestinationContainer.setLayout(layout)
         layout.addWidget(self.combinedDestinationDisplayContainer)
         layout.addWidget(self.photoDestination)
+
+        self.addBottomFrameChildren([self.combinedDestinationDisplay])
 
     def updateDestinationPanelViews(
         self,
