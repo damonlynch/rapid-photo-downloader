@@ -396,7 +396,7 @@ class QWidgetHLineFrameOverride(QWidgetHLineFrame):
     """
     Like QWidgetHLineFrame but allows override when another widget is visible
     """
-    
+
     def __init__(
         self,
         widget: QWidget,

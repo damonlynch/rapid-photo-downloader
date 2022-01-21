@@ -1899,40 +1899,35 @@ class RapidWindow(QMainWindow):
         self.temporalProximity.setVisible(self.proximityButton.isChecked())
         self.setLeftPanelVisibility()
         self.sourcePanel.setChildrenTopBottomFrameVisibility()
-        self.adjustLeftPanelSliderHandles()
+        self.adjustLeftPanelSplitterHandle()
 
-    def adjustLeftPanelSliderHandles(self):
+    def adjustLeftPanelSplitterHandle(self):
         """
-        Move left panel splitter handles in response to devices / this computer
-        changes.
+        Move left panel splitter handle in response to devices / this computer /
+        timeline changes.
         """
 
-        preferred_devices_height = self.deviceToggleView.minimumHeight()
+        # Give the deviceToggleView all the room it needs
+        self.deviceToggleView.updateGeometry()
+
         min_this_computer_height = self.thisComputerToggleView.minimumHeight()
 
         if self.thisComputerToggleView.on():
             this_computer_height = max(
-                min_this_computer_height,
-                self.centerSplitter.height() - preferred_devices_height,
+                min_this_computer_height, self.centerSplitter.height()
             )
         else:
             this_computer_height = min_this_computer_height
 
         if self.proximityButton.isChecked():
             if not self.thisComputerToggleView.on():
-                proximity_height = (
-                    self.centerSplitter.height()
-                    - this_computer_height
-                    - preferred_devices_height
-                )
+                proximity_height = self.centerSplitter.height() - this_computer_height
             else:
                 proximity_height = this_computer_height // 2
                 this_computer_height = this_computer_height // 2
         else:
             proximity_height = 0
-        self.sourcePanel.splitter.setSizes(
-            [preferred_devices_height, this_computer_height, proximity_height]
-        )
+        self.sourcePanel.splitter.setSizes([this_computer_height, proximity_height])
 
     @pyqtSlot(int)
     def showComboChanged(self, index: int) -> None:
@@ -2811,7 +2806,7 @@ class RapidWindow(QMainWindow):
             self.prefs.this_computer_path = ""
             self.thisComputerFSView.clearSelection()
 
-        self.adjustLeftPanelSliderHandles()
+        self.adjustLeftPanelSplitterHandle()
 
     @pyqtSlot()
     def thisComputerFileBrowserReset(self) -> None:
@@ -2843,7 +2838,7 @@ class RapidWindow(QMainWindow):
             # This is a real hack -- but I don't know a better way to let the
             # slider redraw itself
             QTimer.singleShot(100, self.devicesViewToggledOn)
-        self.adjustLeftPanelSliderHandles()
+        self.adjustLeftPanelSplitterHandle()
 
     def proximityStatePostDeviceRemoval(self) -> TemporalProximityState:
         """
@@ -4735,7 +4730,7 @@ Do you want to proceed with the download?
             self.updateSourceButton()
             self.deviceModel.updateDeviceNameAndStorage(scan_id, device)
             self.thumbnailModel.addOrUpdateDevice(scan_id=scan_id)
-            self.adjustLeftPanelSliderHandles()
+            self.adjustLeftPanelSplitterHandle()
         else:
             logging.debug(
                 "Ignoring optimal display name %s and other details because that "
@@ -5155,7 +5150,7 @@ Do you want to proceed with the download?
 
     def addToDeviceDisplay(self, device: Device, scan_id: int) -> None:
         self.mapModel(scan_id).addDevice(scan_id, device)
-        self.adjustLeftPanelSliderHandles()
+        self.adjustLeftPanelSplitterHandle()
         # Resize the "This Computer" view after a device has been added
         # If not done, the widget geometry will not be updated to reflect
         # the new view.
@@ -5825,7 +5820,7 @@ Do you want to proceed with the download?
             self.folder_preview_manager.remove_folders_for_device(scan_id=scan_id)
 
             del self.devices[scan_id]
-            self.adjustLeftPanelSliderHandles()
+            self.adjustLeftPanelSplitterHandle()
 
             if device.device_type == DeviceType.path:
                 self.thisComputer.setViewVisible(False)
