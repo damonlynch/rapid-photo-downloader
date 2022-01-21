@@ -9,7 +9,18 @@ professional and amateur photographers.
 
 ![Main window screenshot](.github/mainwindow.png)
 
-## Features
+## User Survey 
+
+If you have any experience with Rapid Photo Downloader at all, including if 
+you no longer use it, please join hundreds of others by taking this survey: 
+
+[Survey of past, current, and potential users](https://survey.rapidphotodownloader.com/)
+
+The responses are already making a real difference to the program’s future 
+development. The program collects no analytics whatsoever, so a survey like 
+this is truly helpful. Thank you in advance.
+
+## Program Features
 
  - Rename photos and videos with meaningful filenames you specify.
  - Download vast numbers of photos and videos with minimum fuss.
