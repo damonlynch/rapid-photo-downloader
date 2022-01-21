@@ -1898,6 +1898,7 @@ class RapidWindow(QMainWindow):
     def proximityButtonClicked(self) -> None:
         self.temporalProximity.setVisible(self.proximityButton.isChecked())
         self.setLeftPanelVisibility()
+        self.sourcePanel.setChildrenTopBottomFrameVisibility()
         self.adjustLeftPanelSliderHandles()
 
     def adjustLeftPanelSliderHandles(self):

@@ -67,7 +67,7 @@ from PyQt5.QtWidgets import (
     QMenu,
     QWidget,
     QAbstractItemView,
-QFrame,
+    QFrame,
 )
 from PyQt5.QtGui import (
     QPixmap,
@@ -81,7 +81,7 @@ from PyQt5.QtGui import (
     QMouseEvent,
     QFont,
     QKeyEvent,
-QPalette,
+    QPalette,
 )
 
 from showinfm import show_in_file_manager

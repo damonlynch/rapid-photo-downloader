@@ -269,7 +269,6 @@ class FileSystemView(QTreeView):
         self.parent().setFrameVisible(self.verticalScrollBar().isVisible())
 
 
-
 class FileSystemFilter(QSortFilterProxyModel):
     """
     Filter out the display of RPD's cache and temporary directories, in addition to

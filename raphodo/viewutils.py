@@ -224,10 +224,12 @@ class QScrollAreaOptionalFrame(QScrollArea):
             self.setFrameShape(self.stockFrameShape)
         else:
             self.setFrameShape(QFrame.NoFrame)
-
-        for widget in self.topBottomFrameChildren:
-            widget.setFrameVisible(has_frame)
+        self.setChildrenTopBottomFrameVisibility()
         super().resizeEvent(event)
+
+    def setChildrenTopBottomFrameVisibility(self) -> None:
+        for widget in self.topBottomFrameChildren:
+            widget.setFrameVisible(self.frameShape() == self.stockFrameShape)
 
     def event(self, event: QEvent) -> bool:
         result = super().event(event)
@@ -359,7 +361,7 @@ class QMidHlineFrame(QFrame):
 class QWidgetHLineFrame(QWidget):
     """
     When widget needs to hide or show an HLine below it depending on whether the
-    scroll area has a frame
+    scroll area it is contained by has a frame
     """
 
     def __init__(
@@ -388,6 +390,27 @@ class QWidgetHLineFrame(QWidget):
     def setFrameVisible(self, visible: bool) -> None:
         for frame in self.frames:
             frame.setVisible(visible)
+
+
+class QWidgetHLineFrameOverride(QWidgetHLineFrame):
+    """
+    Like QWidgetHLineFrame but allows override when another widget is visible
+    """
+    
+    def __init__(
+        self,
+        widget: QWidget,
+        location: HLineLocation,
+        overrideWidget: QWidget = None,
+        parent: Optional[QWidget] = None,
+    ) -> None:
+        super().__init__(widget, location, parent)
+        self.overrideWidget = overrideWidget  # type: Optional[QWidget]
+
+    def setFrameVisible(self, visible: bool) -> None:
+        if self.overrideWidget is not None and not self.overrideWidget.isVisible():
+            visible = False
+        super().setFrameVisible(visible)
 
 
 class QScrollBarHLineFrame(QWidget):

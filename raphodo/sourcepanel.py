@@ -29,7 +29,11 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout, QSizePolicy
 
 from raphodo.constants import HLineLocation
-from raphodo.viewutils import QScrollAreaOptionalFrame, QWidgetHLineFrame
+from raphodo.viewutils import (
+    QScrollAreaOptionalFrame,
+    QWidgetHLineFrame,
+    QWidgetHLineFrameOverride,
+)
 
 
 class SourcePanel(QScrollAreaOptionalFrame):
@@ -74,8 +78,10 @@ class SourcePanel(QScrollAreaOptionalFrame):
         self.deviceBottomFrame = QWidgetHLineFrame(
             self.rapidApp.deviceToggleView, location=HLineLocation.bottom
         )
-        self.thisComputerBottomFrame = QWidgetHLineFrame(
-            self.rapidApp.thisComputerToggleView, location=HLineLocation.bottom
+        self.thisComputerBottomFrame = QWidgetHLineFrameOverride(
+            self.rapidApp.thisComputerToggleView,
+            location=HLineLocation.bottom,
+            overrideWidget=self.rapidApp.temporalProximity,
         )
 
         # Link contained widgets to their containing scroll area
