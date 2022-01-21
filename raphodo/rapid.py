@@ -2800,6 +2800,8 @@ class RapidWindow(QMainWindow):
 
         if on:
             self.thisComputer.setViewVisible(bool(self.prefs.this_computer_path))
+            if not self.prefs.this_computer_path:
+                self.thisComputerFSView.setParentFrameVisible()
         self.prefs.this_computer_source = on
         if not on:
             if len(self.devices.this_computer) > 0:
@@ -3021,10 +3023,10 @@ class RapidWindow(QMainWindow):
 
         if file_type == FileType.photo:
             self.prefs.photo_download_folder = ""
-            self.photoDestinationWidget.setViewVisible(False)
+            self.destinationPanel.photoDestinationWidget.setViewVisible(False)
         else:
             self.prefs.video_download_folder = ""
-            self.videoDestinationWidget.setViewVisible(False)
+            self.destinationPanel.videoDestinationWidget.setViewVisible(False)
 
         if do_update:
             self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)

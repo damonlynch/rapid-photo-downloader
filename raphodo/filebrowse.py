@@ -262,8 +262,12 @@ class FileSystemView(QTreeView):
         self.filePathReset.emit()
 
     def resizeEvent(self, event: QResizeEvent) -> None:
-        self.parent().setFrameVisible(self.verticalScrollBar().isVisible())
+        self.setParentFrameVisible()
         super().resizeEvent(event)
+
+    def setParentFrameVisible(self) -> None:
+        self.parent().setFrameVisible(self.verticalScrollBar().isVisible())
+
 
 
 class FileSystemFilter(QSortFilterProxyModel):
