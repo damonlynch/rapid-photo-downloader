@@ -67,6 +67,7 @@ from PyQt5.QtWidgets import (
     QMenu,
     QWidget,
     QAbstractItemView,
+QFrame,
 )
 from PyQt5.QtGui import (
     QPixmap,
@@ -80,6 +81,7 @@ from PyQt5.QtGui import (
     QMouseEvent,
     QFont,
     QKeyEvent,
+QPalette,
 )
 
 from showinfm import show_in_file_manager
@@ -1919,18 +1921,20 @@ class ThumbnailListModel(QAbstractListModel):
 
 class ThumbnailView(QListView):
     def __init__(self, parent: QWidget) -> None:
-        style = (
-            """QAbstractScrollArea { background-color: %s;}""" % ThumbnailBackgroundName
-        )
         super().__init__(parent)
         self.rapidApp = parent
+        self.setObjectName("thumbnailView")
         self.setViewMode(QListView.IconMode)
         self.setResizeMode(QListView.Adjust)
-        self.setStyleSheet(style)
         self.setUniformItemSizes(True)
         self.setSpacing(8)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
-
+        self.setFrameShadow(QFrame.Plain)
+        palette = self.palette()
+        color = QColor()
+        color.setNamedColor(ThumbnailBackgroundName)
+        palette.setColor(QPalette.Base, color)
+        self.setPalette(palette)
         self.possiblyPreserveSelectionPostClick = False
 
     def setScrollTogether(self, on: bool) -> None:
