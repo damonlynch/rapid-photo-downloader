@@ -476,7 +476,8 @@ class DeviceView(QListViewOptionalFrame):
         # Disallow the user from being able to select the table cells
         self.setSelectionMode(QAbstractItemView.NoSelection)
         self.view_width = minPanelWidth()
-        # Assume view is always going to be placed into a splitter
+        # Assume view is always going to be placed into a container that can be scrolled
+        # or a splitter
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 

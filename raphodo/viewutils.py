@@ -43,7 +43,10 @@ from PyQt5.QtWidgets import (
     QFrame,
     QListView,
     QVBoxLayout,
+    QHBoxLayout,
     QTableView,
+    QScrollBar,
+    QStackedWidget,
 )
 from PyQt5.QtGui import (
     QFontMetrics,
@@ -55,7 +58,6 @@ from PyQt5.QtGui import (
     QPalette,
     QResizeEvent,
     QPaintEvent,
-    QShowEvent,
 )
 from PyQt5.QtCore import (
     QSize,
@@ -340,13 +342,17 @@ class QTableViewOptionalFrame(QTableView):
 
 
 class QMidHlineFrame(QFrame):
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(
+        self,
+        color: QPalette.ColorGroup = QPalette.Mid,
+        parent: Optional[QWidget] = None,
+    ) -> None:
         super().__init__(parent=parent)
-        self.setFixedHeight(1)
+        self.setFixedHeight(self.style().pixelMetric(QStyle.PM_DefaultFrameWidth))
         self.setFrameShape(QFrame.HLine)
         self.setFrameShadow(QFrame.Plain)
         palette = self.palette()
-        palette.setColor(QPalette.WindowText, QPalette().color(QPalette.Mid))
+        palette.setColor(QPalette.WindowText, palette.color(color))
         self.setPalette(palette)
 
 
@@ -382,6 +388,43 @@ class QWidgetHLineFrame(QWidget):
     def setFrameVisible(self, visible: bool) -> None:
         for frame in self.frames:
             frame.setVisible(visible)
+
+
+class QScrollBarHLineFrame(QWidget):
+    """
+    Display a horizontal line above a scroll bar that is not tightly up against the
+    widget above it, giving the illusion its frame is complete
+    """
+
+    def __init__(self, widget: QWidget, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent=parent)
+        self.widget = widget
+
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
+        self.setLayout(layout)
+        self.frame = QMidHlineFrame()
+        self.invisibleFrame = QMidHlineFrame(color=QPalette.Base)
+        for frame in (self.frame, self.invisibleFrame):
+            frame.setFixedWidth(self.style().pixelMetric(QStyle.PM_ScrollBarExtent))
+
+        self.stack = QStackedWidget()
+        self.stack.addWidget(self.frame)
+        self.stack.addWidget(self.invisibleFrame)
+        self.stack.setFixedHeight(1)
+
+        layout.addWidget(self.stack, alignment=Qt.AlignRight)
+        layout.addWidget(widget)
+
+        self.setAutoFillBackground(True)
+        palette = self.palette()
+        palette.setColor(self.backgroundRole(), palette.color(palette.Base))
+        self.setPalette(palette)
+
+    def setFrameVisible(self, visible: bool) -> None:
+        self.stack.setCurrentIndex(0 if visible else 1)
 
 
 class ProxyStyleNoFocusRectangle(QProxyStyle):

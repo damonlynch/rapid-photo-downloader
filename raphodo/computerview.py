@@ -34,7 +34,7 @@ from raphodo.devicedisplay import (
 from raphodo.filebrowse import FileSystemView
 from raphodo.destinationdisplay import DestinationDisplay
 from raphodo.constants import minFileSystemViewHeight
-from raphodo.viewutils import QFramedWidget
+from raphodo.viewutils import QFramedWidget, QScrollBarHLineFrame
 
 
 class ComputerWidget(QFramedWidget):
@@ -69,6 +69,7 @@ class ComputerWidget(QFramedWidget):
         self.view = view
         self.view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
         self.fileSystemView = fileSystemView
+        self.fileSystemHLine = QScrollBarHLineFrame(widget=self.fileSystemView)
         self.emulatedHeader = EmulatedHeaderRow(select_text)
         self.emulatedHeader.setSizePolicy(
             QSizePolicy.MinimumExpanding, QSizePolicy.Maximum
@@ -77,9 +78,9 @@ class ComputerWidget(QFramedWidget):
         layout.addWidget(self.emulatedHeader)
         layout.addWidget(self.view)
         layout.addStretch()
-        layout.addWidget(self.fileSystemView, 5)
+        layout.addWidget(self.fileSystemHLine, 5)
         self.view.setStyleSheet("QListView {border: none;}")
-        self.fileSystemView.setStyleSheet("FileSystemView {border: none;}")
+        self.fileSystemView.setFrameShape(QFrame.NoFrame)
 
     def setViewVisible(self, visible: bool) -> None:
         self.view.setVisible(visible)

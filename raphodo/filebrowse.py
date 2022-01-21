@@ -50,7 +50,7 @@ from PyQt5.QtWidgets import (
     QAction,
 )
 
-from PyQt5.QtGui import QPainter, QFont
+from PyQt5.QtGui import QPainter, QFont, QResizeEvent
 from showinfm import show_in_file_manager
 
 import raphodo.qrc_resources as qrc_resources
@@ -260,6 +260,10 @@ class FileSystemView(QTreeView):
     def doResetSelectionAct(self) -> None:
         self.selectionModel().clear()
         self.filePathReset.emit()
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        self.parent().setFrameVisible(self.verticalScrollBar().isVisible())
+        super().resizeEvent(event)
 
 
 class FileSystemFilter(QSortFilterProxyModel):
