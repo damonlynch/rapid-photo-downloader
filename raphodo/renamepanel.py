@@ -484,11 +484,9 @@ class RenamePanel(QScrollAreaOptionalFrame):
 
     def __init__(self, parent) -> None:
         super().__init__(parent)
-        if parent is not None:
-            self.rapidApp = parent
-            self.prefs = self.rapidApp.prefs
-        else:
-            self.prefs = None
+        self.rapidApp = parent
+        self.prefs = self.rapidApp.prefs
+        self.setObjectName("renamePanelScrollArea")
 
         self.photoRenamePanel = QPanelView(
             label=_("Photo Renaming"),

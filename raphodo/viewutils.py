@@ -19,6 +19,7 @@
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2015-2022, Damon Lynch"
 
+import logging
 from typing import List, Dict, Tuple, Optional
 from collections import namedtuple
 from pkg_resources import parse_version
@@ -54,6 +55,7 @@ from PyQt5.QtGui import (
     QPalette,
     QResizeEvent,
     QPaintEvent,
+    QShowEvent,
 )
 from PyQt5.QtCore import (
     QSize,
@@ -224,6 +226,16 @@ class QScrollAreaOptionalFrame(QScrollArea):
         for widget in self.topBottomFrameChildren:
             widget.setFrameVisible(has_frame)
         super().resizeEvent(event)
+
+    def event(self, event: QEvent) -> bool:
+        result = super().event(event)
+        if event.type() == QEvent.LayoutRequest:
+            if self.hasFrame() and self.frameShape() != self.stockFrameShape:
+                logging.debug(
+                    "%s has scroll bars but frame is not being rendered",
+                    self.objectName(),
+                )
+        return result
 
     def addTopBottomFrameChildren(self, widgets: List[QWidget]) -> None:
         self.topBottomFrameChildren = widgets

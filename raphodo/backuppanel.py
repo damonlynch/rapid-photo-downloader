@@ -739,6 +739,7 @@ class BackupPanel(QScrollAreaOptionalFrame):
         assert parent is not None
         self.rapidApp = parent
         self.prefs = self.rapidApp.prefs  # type: Preferences
+        self.setObjectName("backupPanelScrollArea")
 
         self.backupDevices = BackupDeviceModel(parent=self)
 
@@ -785,13 +786,6 @@ class BackupPanel(QScrollAreaOptionalFrame):
         self.backupOptionsPanel.addWidget(self.backupOptionsTop)
         self.backupStoragePanel.addWidget(self.backupStorageViewTopBottom)
 
-        # Link contained widgets to their containing scroll area
-        self.backupOptions.setContainingScrollArea(self)
-        self.backupDevicesView.setContainingScrollArea(self)
-        self.addTopBottomFrameChildren(
-            [self.backupOptionsTop, self.backupStorageViewTopBottom]
-        )
-
         widget = QWidget()
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -803,6 +797,13 @@ class BackupPanel(QScrollAreaOptionalFrame):
         self.setWidget(widget)
         self.setWidgetResizable(True)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+
+        # Link contained widgets to their containing scroll area
+        self.backupOptions.setContainingScrollArea(self)
+        self.backupDevicesView.setContainingScrollArea(self)
+        self.addTopBottomFrameChildren(
+            [self.backupOptionsTop, self.backupStorageViewTopBottom]
+        )
 
     def updateExample(self) -> None:
         """
