@@ -63,6 +63,16 @@ class SourcePanel(QScrollAreaOptionalFrame):
         self.sourcePanelWidgetLayout.setSpacing(self.splitter.handleWidth())
         self.sourcePanelWidget.setLayout(self.sourcePanelWidgetLayout)
 
+        self.temporalProximityInSplitter = True
+
+    def showTemporalProximityOnly(self) -> bool:
+        return not (
+            self.rapidApp.sourceButton.isChecked()
+            # on startup, the button state has not yet been set, so read the setting
+            # directly
+            or self.rapidApp.sourceButtonSetting()
+        )
+
     def addSourceViews(self) -> None:
         """
         Add source widgets and timeline
@@ -96,10 +106,34 @@ class SourcePanel(QScrollAreaOptionalFrame):
 
         self.sourcePanelWidgetLayout.addWidget(self.deviceBottomFrame)
         self.splitter.addWidget(self.thisComputerBottomFrame)
+        self.splitter.setCollapsible(0, False)
+
+        if self.showTemporalProximityOnly():
+            self.placeTemporalProximityInSourcePanel()
+        else:
+            self.placeTemporalProximityInSplitter()
+
+    def placeTemporalProximityInSplitter(self) -> None:
         self.splitter.addWidget(self.rapidApp.temporalProximity)
         self.sourcePanelWidgetLayout.addWidget(self.splitter)
-
-        self.splitter.setCollapsible(0, False)
         self.splitter.setCollapsible(1, False)
         self.splitter.setStretchFactor(0, 1)
         self.splitter.setStretchFactor(1, 1)
+        self.temporalProximityInSplitter = True
+
+    def placeTemporalProximityInSourcePanel(self) -> None:
+        self.sourcePanelWidgetLayout.addWidget(self.rapidApp.temporalProximity)
+        self.temporalProximityInSplitter = False
+
+    def exchangeTemporalProximityContainer(self) -> None:
+        if self.temporalProximityInSplitter:
+            self.placeTemporalProximityInSourcePanel()
+        else:
+            self.placeTemporalProximityInSplitter()
+
+    def setDeviceToggleViewVisible(self, visible: bool) -> None:
+        self.deviceBottomFrame.setVisible(visible)
+        self.splitter.setVisible(visible)
+
+    def setThisComputerToggleViewVisible(self, visible: bool) -> None:
+        self.thisComputerBottomFrame.setVisible(visible)

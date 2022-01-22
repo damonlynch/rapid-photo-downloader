@@ -1485,6 +1485,14 @@ class RapidWindow(QMainWindow):
         settings.setValue("visible", self.errorLog.isVisible())
         settings.endGroup()
 
+    @staticmethod
+    def sourceButtonSetting() -> bool:
+        settings = QSettings()
+        settings.beginGroup("MainWindow")
+        on = settings.value("sourceButtonPressed", True, bool)
+        settings.endGroup()
+        return on
+
     def moveEvent(self, event: QMoveEvent) -> None:
         """
         Handle quirks in window positioning.
@@ -1873,8 +1881,10 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def sourceButtonClicked(self) -> None:
-        self.deviceToggleView.setVisible(self.sourceButton.isChecked())
-        self.thisComputerToggleView.setVisible(self.sourceButton.isChecked())
+        if not self.on_startup:
+            self.sourcePanel.exchangeTemporalProximityContainer()
+        self.sourcePanel.setDeviceToggleViewVisible(self.sourceButton.isChecked())
+        self.sourcePanel.setThisComputerToggleViewVisible(self.sourceButton.isChecked())
         self.setLeftPanelVisibility()
 
     @pyqtSlot()
