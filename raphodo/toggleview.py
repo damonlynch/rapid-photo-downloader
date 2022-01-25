@@ -35,7 +35,7 @@ from PyQt5.QtWidgets import QWidget, QLayout
 
 from raphodo.toggleswitch import QToggleSwitch
 from raphodo.panelview import QPanelView
-from raphodo.viewutils import QFramedWidget, QScrollAreaOptionalFrame
+from raphodo.viewutils import QFramedWidget
 
 
 class BlankWidget(QFramedWidget):
@@ -60,7 +60,6 @@ class QToggleView(QPanelView):
         display_alternate: bool,
         object_name: str,
         toggleToolTip: Optional[str],
-        parentScrollArea: Optional[QScrollAreaOptionalFrame] = None,
         headerColor: Optional[QColor] = None,
         headerFontColor: Optional[QColor] = None,
         on: bool = True,
@@ -69,7 +68,6 @@ class QToggleView(QPanelView):
 
         super().__init__(
             label=label,
-            parentScrollArea=parentScrollArea,
             headerColor=headerColor,
             headerFontColor=headerFontColor,
             parent=parent,

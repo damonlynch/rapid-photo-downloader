@@ -33,8 +33,7 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QColor, QFontMetrics, QFont, QPalette
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
-from raphodo.constants import minPanelWidth, HeaderBackgroundName, HLineLocation
-from raphodo.viewutils import QWidgetHLineFrame, QScrollAreaOptionalFrame
+from raphodo.constants import minPanelWidth, HeaderBackgroundName
 
 
 class QPanelView(QWidget):
@@ -46,7 +45,6 @@ class QPanelView(QWidget):
     def __init__(
         self,
         label: str,
-        parentScrollArea: Optional[QScrollAreaOptionalFrame] = None,
         headerColor: Optional[QColor] = None,
         headerFontColor: Optional[QColor] = None,
         parent: QWidget = None,
@@ -78,22 +76,12 @@ class QPanelView(QWidget):
 
         self.headerWidget = None
 
-        self.headerTopLeftRight = QWidgetHLineFrame(
-            widget=self.header, location=HLineLocation.top_left_right
-        )
-
         self.content = None
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         self.setLayout(layout)
-        layout.addWidget(self.headerTopLeftRight)
-
-        if parentScrollArea:
-            parentScrollArea.addFrameChild(self)
-
-    def setParentScrollArea(self, parentScrollArea: QScrollAreaOptionalFrame) -> None:
-        parentScrollArea.addFrameChild(self)
+        layout.addWidget(self.header)
 
     def addWidget(self, widget: QWidget) -> None:
         """
@@ -139,6 +127,3 @@ class QPanelView(QWidget):
             width = self.content.minimumWidth()
             height = self.content.minimumHeight()
         return QSize(width, self.header.height() + height)
-
-    def setFrameVisible(self, visible: bool) -> None:
-        self.headerTopLeftRight.setFrameVisible(not visible)

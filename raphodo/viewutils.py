@@ -205,8 +205,14 @@ ThumbnailDataForProximity = namedtuple(
 
 
 class FramedScrollBar(QScrollBar):
+    """
+    QScrollBar for use with Fusion widgets which expect to be framed
+    e.g. QScrollArea, but are not, typically because their children already
+    have a frame.
+    """
+
     def __init__(self, orientation, parent: QWidget = None) -> None:
-        super().__init__(orientation, parent)
+        super().__init__(orientation=orientation, parent=parent)
         self.frame_width = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
         if sys.platform == "win32":
             self.midPen = QPen(self.palette().mid().color().lighter(120))
@@ -214,6 +220,10 @@ class FramedScrollBar(QScrollBar):
             self.midPen = QPen(self.palette().mid().color())
 
     def sizeHint(self) -> QSize:
+        """
+        Increase the size of the scrollbar to account for the width of the frames
+        """
+
         size = super().sizeHint()
         if self.orientation() == Qt.Vertical:
             return QSize(
@@ -225,6 +235,10 @@ class FramedScrollBar(QScrollBar):
             )
 
     def paintEvent(self, event: QPaintEvent) -> None:
+        """
+        Render the scrollbars using Qt's draw control, and render the frame elements
+        dependent on whether the partner horizontal / vertical scrollbar is also visible
+        """
 
         painter = QStylePainter(self)
         if self.orientation() == Qt.Vertical:
@@ -239,6 +253,7 @@ class FramedScrollBar(QScrollBar):
         option.pageStep = self.pageStep()
         option.singleStep = self.singleStep()
         option.sliderPosition = self.sliderPosition()
+        option.orientation = self.orientation()
         if self.orientation() == Qt.Horizontal:
             option.state |= QStyle.State_Horizontal
 
@@ -250,7 +265,6 @@ class FramedScrollBar(QScrollBar):
 
         option.rect = rect
         option.palette = self.palette()
-        option.orientation = self.orientation()
         option.subControls = (
             QStyle.SC_ScrollBarAddLine
             | QStyle.SC_ScrollBarSubLine
@@ -263,6 +277,7 @@ class FramedScrollBar(QScrollBar):
         painter.fillRect(option.rect, self.palette().window().color().darker(102))
         self.style().drawComplexControl(QStyle.CC_ScrollBar, option, painter)
 
+        # Highlight the handle (slider) on mouse over, otherwise render it as normal
         option.subControls = QStyle.SC_ScrollBarSlider
         if option.state & QStyle.State_MouseOver == QStyle.State_MouseOver:
             palette = self.palette()
@@ -270,6 +285,7 @@ class FramedScrollBar(QScrollBar):
             option.palette = palette
         self.style().drawComplexControl(QStyle.CC_ScrollBar, option, painter)
 
+        # Render the borders
         painter.resetTransform()
         painter.setPen(self.midPen)
         if self.orientation() == Qt.Vertical:
@@ -284,50 +300,18 @@ class FramedScrollBar(QScrollBar):
                 painter.drawLine(self.rect().bottomRight(), self.rect().topRight())
 
 
-class QScrollAreaOptionalFrame(QScrollArea):
+class QScrollAreaNoFrame(QScrollArea):
     """
-    Draw a frame around the scroll area only if one of its scrollbars are active
+    Scroll Area with no frame and scrollbars that frame themselves
     """
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
-        self.frameChildren = []  # type: List[QWidget]
-        self.stockFrameShape = self.frameShape()
-
-    def hasFrame(self) -> bool:
-        return (
-            self.horizontalScrollBar().isVisible()
-            or self.verticalScrollBar().isVisible()
-        )
-
-    def resizeEvent(self, event: QResizeEvent) -> None:
-        has_frame = self.hasFrame()
-        if has_frame:
-            self.setFrameShape(self.stockFrameShape)
-        else:
-            self.setFrameShape(QFrame.NoFrame)
-        self.setChildrenTopBottomFrameVisibility()
-        super().resizeEvent(event)
-
-    def setChildrenTopBottomFrameVisibility(self) -> None:
-        for widget in self.frameChildren:
-            widget.setFrameVisible(self.frameShape() == self.stockFrameShape)
-
-    def event(self, event: QEvent) -> bool:
-        result = super().event(event)
-        if event.type() == QEvent.LayoutRequest:
-            if self.hasFrame() and self.frameShape() != self.stockFrameShape:
-                logging.debug(
-                    "%s has scroll bars but frame is not being rendered",
-                    self.objectName(),
-                )
-        return result
-
-    def addFrameChildren(self, widgets: List[QWidget]) -> None:
-        self.frameChildren.extend(widgets)
-
-    def addFrameChild(self, widget: QWidget) -> None:
-        self.frameChildren.append(widget)
+        self.setFrameShape(QFrame.NoFrame)
+        sbv = FramedScrollBar(orientation=Qt.Vertical)
+        sbh = FramedScrollBar(orientation=Qt.Horizontal)
+        self.setVerticalScrollBar(sbv)
+        self.setHorizontalScrollBar(sbh)
 
 
 class QFramedWidget(QWidget):
@@ -339,93 +323,13 @@ class QFramedWidget(QWidget):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
-        self.containingScrollArea = None  # type: Optional[QScrollAreaOptionalFrame]
-
-    def setContainingScrollArea(self, scrollArea: QScrollAreaOptionalFrame) -> None:
-        self.containingScrollArea = scrollArea
 
     def paintEvent(self, *opts):
-        if (
-            self.containingScrollArea is None
-            or not self.containingScrollArea.hasFrame()
-        ):
-            painter = QStylePainter(self)
-            option = QStyleOptionFrame()
-            option.initFrom(self)
-            painter.drawPrimitive(QStyle.PE_Frame, option)
+        painter = QStylePainter(self)
+        option = QStyleOptionFrame()
+        option.initFrom(self)
+        painter.drawPrimitive(QStyle.PE_Frame, option)
         super().paintEvent(*opts)
-
-
-class QScrollAreaInContainerScrollAreaOptionalFrame(QScrollArea):
-    """
-    Draw a frame around the scroll area only if the scroll area it is in does not
-    have a frame
-    """
-
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent=parent)
-        self.stockFrameShape = self.frameShape()
-        self.containingScrollArea = None  # type: Optional[QScrollAreaOptionalFrame]
-
-    def setContainingScrollArea(self, scrollArea: QScrollAreaOptionalFrame) -> None:
-        self.containingScrollArea = scrollArea
-
-    def setFrameVisibility(self) -> None:
-        if self.containingScrollArea is not None:
-            if not self.containingScrollArea.hasFrame():
-                self.setFrameShape(self.stockFrameShape)
-            else:
-                self.setFrameShape(QFrame.NoFrame)
-
-    def resizeEvent(self, event: QResizeEvent) -> None:
-        self.setFrameVisibility()
-        super().resizeEvent(event)
-
-    def paintEvent(self, event: QPaintEvent) -> None:
-        self.setFrameVisibility()
-        super().paintEvent(event)
-
-
-class QListViewOptionalFrame(QListView):
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent=parent)
-        self.stockFrameShape = self.frameShape()
-        self.containingScrollArea = None  # type: Optional[QScrollAreaOptionalFrame]
-
-    def setContainingScrollArea(self, scrollArea: QScrollAreaOptionalFrame) -> None:
-        self.containingScrollArea = scrollArea
-
-    def setFrameVisibility(self) -> None:
-        if self.containingScrollArea is not None:
-            if not self.containingScrollArea.hasFrame():
-                self.setFrameShape(self.stockFrameShape)
-            else:
-                self.setFrameShape(QFrame.NoFrame)
-
-    def resizeEvent(self, event: QResizeEvent) -> None:
-        self.setFrameVisibility()
-        super().resizeEvent(event)
-
-
-class QTableViewOptionalFrame(QTableView):
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent=parent)
-        self.stockFrameShape = self.frameShape()
-        self.containingScrollArea = None  # type: Optional[QScrollAreaOptionalFrame]
-
-    def setContainingScrollArea(self, scrollArea: QScrollAreaOptionalFrame) -> None:
-        self.containingScrollArea = scrollArea
-
-    def setFrameVisibility(self) -> None:
-        if self.containingScrollArea is not None:
-            if not self.containingScrollArea.hasFrame():
-                self.setFrameShape(self.stockFrameShape)
-            else:
-                self.setFrameShape(QFrame.NoFrame)
-
-    def resizeEvent(self, event: QResizeEvent) -> None:
-        self.setFrameVisibility()
-        super().resizeEvent(event)
 
 
 class QMidHlineFrame(QFrame):
@@ -445,78 +349,6 @@ class QMidHlineFrame(QFrame):
         palette = self.palette()
         palette.setColor(QPalette.WindowText, palette.color(color))
         self.setPalette(palette)
-
-
-class QWidgetHLineFrame(QWidget):
-    """
-    When widget needs to hide or show an HLine below it depending on whether the
-    scroll area it is contained by has a frame
-    """
-
-    def __init__(
-        self, widget: QWidget, location: HLineLocation, parent: Optional[QWidget] = None
-    ) -> None:
-        super().__init__(parent=parent)
-        layout = QVBoxLayout()
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(layout)
-        self.widget = widget
-        self.location = location
-        if location in (
-            HLineLocation.top,
-            HLineLocation.top_bottom,
-            HLineLocation.top_left_right,
-        ):
-            frame = QMidHlineFrame()
-            layout.addWidget(frame)
-            self.frames = [frame]
-        else:
-            self.frames = []  # type: List[QMidHlineFrame]
-
-        if location == HLineLocation.top_left_right:
-            hlayout = QHBoxLayout()
-            hlayout.setSpacing(0)
-            hlayout.setContentsMargins(0, 0, 0, 0)
-            lframe = QMidHlineFrame(shape=QFrame.VLine)
-            rframe = QMidHlineFrame(shape=QFrame.VLine)
-            hlayout.addWidget(lframe)
-            hlayout.addWidget(widget)
-            hlayout.addWidget(rframe)
-            self.frames.extend([lframe, rframe])
-            layout.addLayout(hlayout)
-        else:
-            layout.addWidget(widget)
-
-        if location in (HLineLocation.bottom, HLineLocation.top_bottom):
-            frame = QMidHlineFrame()
-            layout.addWidget(frame)
-            self.frames.append(frame)
-
-    def setFrameVisible(self, visible: bool) -> None:
-        for frame in self.frames:
-            frame.setVisible(visible)
-
-
-class QWidgetHLineFrameOverride(QWidgetHLineFrame):
-    """
-    Like QWidgetHLineFrame but allows override when another widget is visible
-    """
-
-    def __init__(
-        self,
-        widget: QWidget,
-        location: HLineLocation,
-        overrideWidget: QWidget = None,
-        parent: Optional[QWidget] = None,
-    ) -> None:
-        super().__init__(widget=widget, location=location, parent=parent)
-        self.overrideWidget = overrideWidget  # type: Optional[QWidget]
-
-    def setFrameVisible(self, visible: bool) -> None:
-        if self.overrideWidget is not None and not self.overrideWidget.isVisible():
-            visible = False
-        super().setFrameVisible(visible)
 
 
 class QScrollBarHLineFrame(QWidget):

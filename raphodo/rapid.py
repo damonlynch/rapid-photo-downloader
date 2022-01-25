@@ -1908,7 +1908,6 @@ class RapidWindow(QMainWindow):
     def proximityButtonClicked(self) -> None:
         self.temporalProximity.setVisible(self.proximityButton.isChecked())
         self.setLeftPanelVisibility()
-        self.sourcePanel.setChildrenTopBottomFrameVisibility()
         self.adjustLeftPanelSplitterHandle()
 
     def adjustLeftPanelSplitterHandle(self):
@@ -2502,12 +2501,6 @@ class RapidWindow(QMainWindow):
         self.centerSplitter.setCollapsible(1, False)
         self.centerSplitter.setCollapsible(2, False)
 
-        self.deviceView.setContainingScrollArea(self.sourcePanel)
-        self.thisComputer.setContainingScrollArea(self.sourcePanel)
-        self.temporalProximity.setContainingScrollArea(self.sourcePanel)
-
-        self.centerSplitter.splitterMoved.connect(self.centerSplitterMoved)
-
         splitterSetting = settings.value("centerSplitterSizes")
         if splitterSetting is not None:
             self.centerSplitter.restoreState(splitterSetting)
@@ -2525,11 +2518,6 @@ class RapidWindow(QMainWindow):
             self.destinationPanel.splitter.restoreState(splitterSetting)
         else:
             self.destinationPanel.splitter.setSizes([200, 200])
-
-    @pyqtSlot(int, int)
-    def centerSplitterMoved(self, pos: int, index: int) -> None:
-        if index == 1:
-            self.deviceView.setFrameVisibility()
 
     def setDownloadCapabilities(self) -> bool:
         """

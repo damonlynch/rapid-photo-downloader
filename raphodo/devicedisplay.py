@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
 # Copyright (c) 2012-2014 Alexander Turkin
 
 # This file is part of Rapid Photo Downloader.
@@ -36,7 +36,7 @@ Copyright notice from QtWaitingSpinner source:
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2020, Damon Lynch"
+__copyright__ = "Copyright 2015-2022, Damon Lynch"
 
 import math
 from collections import namedtuple, defaultdict
@@ -68,8 +68,6 @@ from PyQt5.QtWidgets import (
     QAbstractItemView,
     QMenu,
     QWidget,
-    QStyleOptionToolButton,
-    QFrame,
 )
 from PyQt5.QtGui import (
     QPainter,
@@ -86,7 +84,7 @@ from PyQt5.QtGui import (
     QIcon,
 )
 
-from raphodo.viewutils import RowTracker, QListViewOptionalFrame
+from raphodo.viewutils import RowTracker
 from raphodo.constants import (
     DeviceState,
     FileType,
@@ -104,7 +102,7 @@ from raphodo.constants import (
     DownloadWarning,
     DownloadFailure,
 )
-from raphodo.devices import Device, display_devices
+from raphodo.devices import Device
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.storage import StorageSpace
 from raphodo.rpdfile import make_key
@@ -469,7 +467,7 @@ class DeviceModel(QAbstractListModel):
             self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
 
 
-class DeviceView(QListViewOptionalFrame):
+class DeviceView(QListView):
     def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent)
         self.rapidApp = rapidApp

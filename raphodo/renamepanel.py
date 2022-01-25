@@ -40,13 +40,12 @@ from PyQt5.QtWidgets import (
     QGroupBox,
     QSplitter,
 )
-from PyQt5.QtGui import QColor, QPalette
+from PyQt5.QtGui import QPalette
 
 
 from raphodo.constants import (
     PresetPrefType,
     NameGenerationType,
-    ThumbnailBackgroundName,
     PresetClass,
     FileType,
     HLineLocation,
@@ -57,7 +56,7 @@ from raphodo.nameeditor import PrefDialog, make_sample_rpd_file, PresetComboBox
 import raphodo.exiftool as exiftool
 import raphodo.generatename as gn
 from raphodo.generatenameconfig import *
-from raphodo.viewutils import QFramedWidget, QScrollAreaOptionalFrame, QWidgetHLineFrame
+from raphodo.viewutils import QFramedWidget, QScrollAreaNoFrame
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences, DownloadsTodayTracker
 
@@ -476,7 +475,7 @@ class RenameOptionsWidget(QFramedWidget):
         self.prefs.strip_characters = strip
 
 
-class RenamePanel(QScrollAreaOptionalFrame):
+class RenamePanel(QScrollAreaNoFrame):
     """
     Renaming preferences widget, for photos, videos, and general
     renaming options.
@@ -490,17 +489,14 @@ class RenamePanel(QScrollAreaOptionalFrame):
 
         self.photoRenamePanel = QPanelView(
             label=_("Photo Renaming"),
-            parentScrollArea=self
         )
         self.photoRenamePanel.setObjectName("photoRenamePanelView")
         self.videoRenamePanel = QPanelView(
             label=_("Video Renaming"),
-            parentScrollArea=self
         )
         self.videoRenamePanel.setObjectName("videoRenamePanelView")
         self.renameOptionsPanel = QPanelView(
             label=_("Renaming Options"),
-            parentScrollArea=self
         )
         self.renameOptionsPanel.setObjectName("renameOptionsPanelView")
         self.photoRenameWidget = RenameWidget(
@@ -525,21 +521,9 @@ class RenamePanel(QScrollAreaOptionalFrame):
         )
         self.renameOptions.setObjectName("renameOptionsWidget")
 
-        # Create containers to display horizontal lines when Scroll Area frame is
-        # visible
-        self.photoRenameTopBottom = QWidgetHLineFrame(
-            widget=self.photoRenameWidget, location=HLineLocation.top_bottom
-        )
-        self.videoRenameTopBottom = QWidgetHLineFrame(
-            widget=self.videoRenameWidget, location=HLineLocation.top_bottom
-        )
-        self.renameOptionsTop = QWidgetHLineFrame(
-            widget=self.renameOptions, location=HLineLocation.top
-        )
-
-        self.photoRenamePanel.addWidget(self.photoRenameTopBottom)
-        self.videoRenamePanel.addWidget(self.videoRenameTopBottom)
-        self.renameOptionsPanel.addWidget(self.renameOptionsTop)
+        self.photoRenamePanel.addWidget(self.photoRenameWidget)
+        self.videoRenamePanel.addWidget(self.videoRenameWidget)
+        self.renameOptionsPanel.addWidget(self.renameOptions)
 
         widget = QWidget()
         layout = QVBoxLayout()
@@ -549,19 +533,6 @@ class RenamePanel(QScrollAreaOptionalFrame):
         layout.addWidget(self.photoRenamePanel)
         layout.addWidget(self.videoRenamePanel)
         layout.addWidget(self.renameOptionsPanel)
-
-        # Link contained widgets to their containing scroll area
-
-        self.photoRenameWidget.setContainingScrollArea(self)
-        self.videoRenameWidget.setContainingScrollArea(self)
-        self.renameOptions.setContainingScrollArea(self)
-        self.addFrameChildren(
-            [
-                self.photoRenameTopBottom,
-                self.videoRenameTopBottom,
-                self.renameOptionsTop,
-            ]
-        )
 
         self.setWidget(widget)
         self.setWidgetResizable(True)

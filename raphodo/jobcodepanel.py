@@ -44,24 +44,21 @@ from PyQt5.QtWidgets import (
     QComboBox,
 )
 from PyQt5.QtGui import (
-    QColor,
     QPalette,
     QFont,
     QRegularExpressionValidator,
     QIcon,
-    QShowEvent,
 )
 
 
-from raphodo.constants import JobCodeSort, ThumbnailBackgroundName, HLineLocation
+from raphodo.constants import JobCodeSort
 from raphodo.viewutils import (
     QFramedWidget,
     QNarrowListWidget,
     standardIconSize,
     translateDialogBoxButtons,
     standardMessageBox,
-    QScrollAreaOptionalFrame,
-    QWidgetHLineFrame,
+    QScrollAreaNoFrame,
 )
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
@@ -567,7 +564,7 @@ class JobCodeOptionsWidget(QFramedWidget):
         return False
 
 
-class JobCodePanel(QScrollAreaOptionalFrame):
+class JobCodePanel(QScrollAreaNoFrame):
     """
     JobCode preferences widget
     """
@@ -580,7 +577,6 @@ class JobCodePanel(QScrollAreaOptionalFrame):
 
         self.jobCodePanel = QPanelView(
             label=_("Job Codes"),
-            parentScrollArea=self
         )
         self.jobCodePanel.setObjectName("jobCodePanel")
         self.jobCodeOptions = JobCodeOptionsWidget(
@@ -588,13 +584,7 @@ class JobCodePanel(QScrollAreaOptionalFrame):
         )
         self.jobCodeOptions.setObjectName("jobCodeOptions")
 
-        # Create container to display horizontal lines when Scroll Area frame is
-        # visible
-        self.jobCodeOptionsTop = QWidgetHLineFrame(widget=self.jobCodeOptions, location=HLineLocation.top)
-        self.jobCodePanel.addWidget(self.jobCodeOptionsTop)
-
-        self.jobCodeOptions.setContainingScrollArea(self)
-        self.addFrameChildren([self.jobCodeOptionsTop])
+        self.jobCodePanel.addWidget(self.jobCodeOptions)
 
         widget = QWidget()
         layout = QVBoxLayout()

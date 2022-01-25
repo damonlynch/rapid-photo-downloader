@@ -28,15 +28,10 @@ import logging
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout, QSizePolicy
 
-from raphodo.constants import HLineLocation
-from raphodo.viewutils import (
-    QScrollAreaOptionalFrame,
-    QWidgetHLineFrame,
-    QWidgetHLineFrameOverride,
-)
+from raphodo.viewutils import QScrollAreaNoFrame
 
 
-class SourcePanel(QScrollAreaOptionalFrame):
+class SourcePanel(QScrollAreaNoFrame):
     """
     Display Devices and This Computer sources, as well as the timeline
     """
@@ -82,32 +77,9 @@ class SourcePanel(QScrollAreaOptionalFrame):
             QSizePolicy.MinimumExpanding, QSizePolicy.Fixed
         )
 
-        # Create containers to display horizontal lines when Scroll Area frame is
-        # visible
+        self.sourcePanelWidgetLayout.addWidget(self.rapidApp.deviceToggleView)
+        self.splitter.addWidget(self.rapidApp.thisComputerToggleView)
 
-        self.deviceBottomFrame = QWidgetHLineFrame(
-            widget=self.rapidApp.deviceToggleView, location=HLineLocation.bottom
-        )
-        self.thisComputerBottomFrame = QWidgetHLineFrameOverride(
-            self.rapidApp.thisComputerToggleView,
-            location=HLineLocation.bottom,
-            overrideWidget=self.rapidApp.temporalProximity,
-        )
-
-        # Link contained widgets to their containing scroll area
-
-        self.addFrameChildren(
-            [
-                self.deviceBottomFrame,
-                self.thisComputerBottomFrame,
-            ]
-            + self.rapidApp.temporalProximity.topBottomFrames()
-        )
-        self.rapidApp.deviceToggleView.setParentScrollArea(self)
-        self.rapidApp.thisComputerToggleView.setParentScrollArea(self)
-
-        self.sourcePanelWidgetLayout.addWidget(self.deviceBottomFrame)
-        self.splitter.addWidget(self.thisComputerBottomFrame)
         self.splitter.setCollapsible(0, False)
 
         if self.showTemporalProximityOnly():
@@ -134,8 +106,8 @@ class SourcePanel(QScrollAreaOptionalFrame):
             self.placeTemporalProximityInSplitter()
 
     def setDeviceToggleViewVisible(self, visible: bool) -> None:
-        self.deviceBottomFrame.setVisible(visible)
+        self.rapidApp.deviceToggleView.setVisible(visible)
         self.splitter.setVisible(visible)
 
     def setThisComputerToggleViewVisible(self, visible: bool) -> None:
-        self.thisComputerBottomFrame.setVisible(visible)
+        self.rapidApp.thisComputerToggleView.setVisible(visible)

@@ -56,7 +56,6 @@ from PyQt5.QtGui import QPainter, QColor, QPalette, QIcon
 
 from raphodo.constants import (
     StandardFileLocations,
-    ThumbnailBackgroundName,
     FileType,
     Roles,
     ViewRowType,
@@ -66,8 +65,7 @@ from raphodo.constants import (
 from raphodo.viewutils import (
     QFramedWidget,
     RowTracker,
-    QScrollAreaOptionalFrame,
-    QWidgetHLineFrame,
+    QScrollAreaNoFrame,
 )
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.panelview import QPanelView
@@ -727,7 +725,7 @@ class BackupOptionsWidget(QFramedWidget):
             combo.refreshFolderList()
 
 
-class BackupPanel(QScrollAreaOptionalFrame):
+class BackupPanel(QScrollAreaNoFrame):
     """
     Backup preferences widget, for photos and video backups while
     downloading.
@@ -745,13 +743,11 @@ class BackupPanel(QScrollAreaOptionalFrame):
 
         self.backupStoragePanel = QPanelView(
             label=_("Projected Backup Storage Use"),
-            parentScrollArea=self
         )
         self.backupStoragePanel.setObjectName("backupStoragePanel")
 
         self.backupOptionsPanel = QPanelView(
             label=_("Backup Options"),
-            parentScrollArea=self
         )
         self.backupOptionsPanel.setObjectName("backupOptionsPanel")
 
@@ -772,17 +768,8 @@ class BackupPanel(QScrollAreaOptionalFrame):
             prefs=self.prefs, parent=self, rapidApp=self.rapidApp
         )
 
-        # Create containers to display horizontal lines when Scroll Area frame is
-        # visible
-        self.backupOptionsTop = QWidgetHLineFrame(
-            widget=self.backupOptions, location=HLineLocation.top
-        )
-        self.backupStorageViewTopBottom = QWidgetHLineFrame(
-            widget=self.backupDevicesView, location=HLineLocation.top_bottom
-        )
-
-        self.backupOptionsPanel.addWidget(self.backupOptionsTop)
-        self.backupStoragePanel.addWidget(self.backupStorageViewTopBottom)
+        self.backupOptionsPanel.addWidget(self.backupOptions)
+        self.backupStoragePanel.addWidget(self.backupDevicesView)
 
         widget = QWidget()
         layout = QVBoxLayout()
@@ -795,13 +782,6 @@ class BackupPanel(QScrollAreaOptionalFrame):
         self.setWidget(widget)
         self.setWidgetResizable(True)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
-
-        # Link contained widgets to their containing scroll area
-        self.backupOptions.setContainingScrollArea(self)
-        self.backupDevicesView.setContainingScrollArea(self)
-        self.addFrameChildren(
-            [self.backupOptionsTop, self.backupStorageViewTopBottom]
-        )
 
     def updateExample(self) -> None:
         """

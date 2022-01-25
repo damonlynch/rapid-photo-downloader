@@ -26,11 +26,9 @@ __copyright__ = "Copyright 2017-2022, Damon Lynch"
 
 from typing import DefaultDict, Optional, Set
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout
 
 from raphodo.computerview import ComputerWidget
-from raphodo.constants import ThumbnailBackgroundName, HLineLocation
 from raphodo.destinationdisplay import (
     DestinationDisplay,
     DisplayingFilesOfType,
@@ -39,10 +37,10 @@ from raphodo.destinationdisplay import (
 from raphodo.panelview import QPanelView
 from raphodo.rpdfile import FileType
 from raphodo.thumbnaildisplay import MarkedSummary
-from raphodo.viewutils import QScrollAreaOptionalFrame, QWidgetHLineFrame
+from raphodo.viewutils import QScrollAreaNoFrame
 
 
-class DestinationPanel(QScrollAreaOptionalFrame):
+class DestinationPanel(QScrollAreaNoFrame):
     def __init__(self, parent) -> None:
         super().__init__(parent)
         assert parent is not None
@@ -74,12 +72,10 @@ class DestinationPanel(QScrollAreaOptionalFrame):
 
         self.photoDestination = QPanelView(
             label=_("Photos"),
-            parentScrollArea=self
         )
         self.photoDestination.setObjectName("photoDestinationPanelView")
         self.videoDestination = QPanelView(
             label=_("Videos"),
-            parentScrollArea=self
         )
         self.videoDestination.setObjectName("videoDestinationPanelView")
 
@@ -92,7 +88,6 @@ class DestinationPanel(QScrollAreaOptionalFrame):
         )
         self.combinedDestinationDisplayContainer = QPanelView(
             _("Projected Storage Use"),
-            parentScrollArea=self
         )
         self.combinedDestinationDisplay.setObjectName("combinedDestinationDisplay")
         self.combinedDestinationDisplayContainer.addWidget(
@@ -130,17 +125,8 @@ class DestinationPanel(QScrollAreaOptionalFrame):
             select_text=_("Select a destination folder"),
         )
 
-        # Create containers to display horizontal lines when Scroll Area frame is
-        # visible
-        self.photoDestinationTopBottom = QWidgetHLineFrame(
-            widget=self.photoDestinationWidget, location=HLineLocation.top_bottom
-        )
-        self.videoDestinationTop = QWidgetHLineFrame(
-            widget=self.videoDestinationWidget, location=HLineLocation.top
-        )
-
-        self.photoDestination.addWidget(self.photoDestinationTopBottom)
-        self.videoDestination.addWidget(self.videoDestinationTop)
+        self.photoDestination.addWidget(self.photoDestinationWidget)
+        self.videoDestination.addWidget(self.videoDestinationWidget)
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -151,18 +137,6 @@ class DestinationPanel(QScrollAreaOptionalFrame):
         self.photoDestinationContainer = QWidget()
         self.photoDestinationContainer.setObjectName("photoDestinationContainer")
         self.photoDestinationContainer.setLayout(layout)
-
-        # Link contained widgets to their containing scroll area
-
-        self.photoDestinationWidget.setContainingScrollArea(self)
-        self.videoDestinationWidget.setContainingScrollArea(self)
-        self.addFrameChildren(
-            [
-                self.combinedDestinationDisplay,
-                self.photoDestinationTopBottom,
-                self.videoDestinationTop,
-            ]
-        )
 
     def updateDestinationPanelViews(
         self,
