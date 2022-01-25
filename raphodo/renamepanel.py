@@ -490,20 +490,17 @@ class RenamePanel(QScrollAreaOptionalFrame):
 
         self.photoRenamePanel = QPanelView(
             label=_("Photo Renaming"),
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
+            parentScrollArea=self
         )
         self.photoRenamePanel.setObjectName("photoRenamePanelView")
         self.videoRenamePanel = QPanelView(
             label=_("Video Renaming"),
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
+            parentScrollArea=self
         )
         self.videoRenamePanel.setObjectName("videoRenamePanelView")
         self.renameOptionsPanel = QPanelView(
             label=_("Renaming Options"),
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
+            parentScrollArea=self
         )
         self.renameOptionsPanel.setObjectName("renameOptionsPanelView")
         self.photoRenameWidget = RenameWidget(
@@ -531,13 +528,13 @@ class RenamePanel(QScrollAreaOptionalFrame):
         # Create containers to display horizontal lines when Scroll Area frame is
         # visible
         self.photoRenameTopBottom = QWidgetHLineFrame(
-            self.photoRenameWidget, location=HLineLocation.top_bottom
+            widget=self.photoRenameWidget, location=HLineLocation.top_bottom
         )
         self.videoRenameTopBottom = QWidgetHLineFrame(
-            self.videoRenameWidget, location=HLineLocation.top_bottom
+            widget=self.videoRenameWidget, location=HLineLocation.top_bottom
         )
         self.renameOptionsTop = QWidgetHLineFrame(
-            self.renameOptions, location=HLineLocation.top
+            widget=self.renameOptions, location=HLineLocation.top
         )
 
         self.photoRenamePanel.addWidget(self.photoRenameTopBottom)
@@ -558,7 +555,7 @@ class RenamePanel(QScrollAreaOptionalFrame):
         self.photoRenameWidget.setContainingScrollArea(self)
         self.videoRenameWidget.setContainingScrollArea(self)
         self.renameOptions.setContainingScrollArea(self)
-        self.addTopBottomFrameChildren(
+        self.addFrameChildren(
             [
                 self.photoRenameTopBottom,
                 self.videoRenameTopBottom,

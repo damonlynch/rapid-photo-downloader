@@ -74,14 +74,12 @@ class DestinationPanel(QScrollAreaOptionalFrame):
 
         self.photoDestination = QPanelView(
             label=_("Photos"),
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
+            parentScrollArea=self
         )
         self.photoDestination.setObjectName("photoDestinationPanelView")
         self.videoDestination = QPanelView(
             label=_("Videos"),
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
+            parentScrollArea=self
         )
         self.videoDestination.setObjectName("videoDestinationPanelView")
 
@@ -94,8 +92,7 @@ class DestinationPanel(QScrollAreaOptionalFrame):
         )
         self.combinedDestinationDisplayContainer = QPanelView(
             _("Projected Storage Use"),
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
+            parentScrollArea=self
         )
         self.combinedDestinationDisplay.setObjectName("combinedDestinationDisplay")
         self.combinedDestinationDisplayContainer.addWidget(
@@ -136,10 +133,10 @@ class DestinationPanel(QScrollAreaOptionalFrame):
         # Create containers to display horizontal lines when Scroll Area frame is
         # visible
         self.photoDestinationTopBottom = QWidgetHLineFrame(
-            self.photoDestinationWidget, location=HLineLocation.top_bottom
+            widget=self.photoDestinationWidget, location=HLineLocation.top_bottom
         )
         self.videoDestinationTop = QWidgetHLineFrame(
-            self.videoDestinationWidget, location=HLineLocation.top
+            widget=self.videoDestinationWidget, location=HLineLocation.top
         )
 
         self.photoDestination.addWidget(self.photoDestinationTopBottom)
@@ -159,7 +156,7 @@ class DestinationPanel(QScrollAreaOptionalFrame):
 
         self.photoDestinationWidget.setContainingScrollArea(self)
         self.videoDestinationWidget.setContainingScrollArea(self)
-        self.addTopBottomFrameChildren(
+        self.addFrameChildren(
             [
                 self.combinedDestinationDisplay,
                 self.photoDestinationTopBottom,

@@ -2088,11 +2088,11 @@ class TemporalProximity(QWidget):
             scrollArea.setWidgetResizable(True)
             scrollArea.setWidget(label)
             self.stackedWidget.addWidget(
-                QWidgetHLineFrame(scrollArea, location=HLineLocation.top_bottom)
+                QWidgetHLineFrame(widget=scrollArea, location=HLineLocation.top_bottom)
             )
 
         self.topBottomFrameTemporalProximity = QWidgetHLineFrame(
-            self.temporalProximityView, location=HLineLocation.top_bottom
+            widget=self.temporalProximityView, location=HLineLocation.top_bottom
         )
 
         self.stackedWidget.addWidget(self.topBottomFrameTemporalProximity)

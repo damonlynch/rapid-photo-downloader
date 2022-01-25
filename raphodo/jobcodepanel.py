@@ -580,8 +580,7 @@ class JobCodePanel(QScrollAreaOptionalFrame):
 
         self.jobCodePanel = QPanelView(
             label=_("Job Codes"),
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
+            parentScrollArea=self
         )
         self.jobCodePanel.setObjectName("jobCodePanel")
         self.jobCodeOptions = JobCodeOptionsWidget(
@@ -591,11 +590,11 @@ class JobCodePanel(QScrollAreaOptionalFrame):
 
         # Create container to display horizontal lines when Scroll Area frame is
         # visible
-        self.jobCodeOptionsTop = QWidgetHLineFrame(self.jobCodeOptions, HLineLocation.top)
+        self.jobCodeOptionsTop = QWidgetHLineFrame(widget=self.jobCodeOptions, location=HLineLocation.top)
         self.jobCodePanel.addWidget(self.jobCodeOptionsTop)
 
         self.jobCodeOptions.setContainingScrollArea(self)
-        self.addTopBottomFrameChildren([self.jobCodeOptionsTop])
+        self.addFrameChildren([self.jobCodeOptionsTop])
 
         widget = QWidget()
         layout = QVBoxLayout()

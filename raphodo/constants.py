@@ -465,6 +465,7 @@ class StandardFileLocations(Enum):
 max_remembered_destinations = 10
 
 ThumbnailBackgroundName = MediumGray
+HeaderBackgroundName = ThumbnailBackgroundName
 EmptyViewHeight = 20
 
 DeviceDisplayPadding = 6
@@ -772,8 +773,9 @@ class ScalingDetected(Enum):
 
 class HLineLocation(IntEnum):
     top = 1
-    bottom = 2
-    top_bottom = 3
+    top_left_right = 2
+    bottom = 3
+    top_bottom = 4
 
 
 # Use the character . to for download_name and path to indicate the user manually

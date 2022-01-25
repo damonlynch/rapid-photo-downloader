@@ -745,15 +745,13 @@ class BackupPanel(QScrollAreaOptionalFrame):
 
         self.backupStoragePanel = QPanelView(
             label=_("Projected Backup Storage Use"),
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
+            parentScrollArea=self
         )
         self.backupStoragePanel.setObjectName("backupStoragePanel")
 
         self.backupOptionsPanel = QPanelView(
             label=_("Backup Options"),
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
+            parentScrollArea=self
         )
         self.backupOptionsPanel.setObjectName("backupOptionsPanel")
 
@@ -777,10 +775,10 @@ class BackupPanel(QScrollAreaOptionalFrame):
         # Create containers to display horizontal lines when Scroll Area frame is
         # visible
         self.backupOptionsTop = QWidgetHLineFrame(
-            self.backupOptions, location=HLineLocation.top
+            widget=self.backupOptions, location=HLineLocation.top
         )
         self.backupStorageViewTopBottom = QWidgetHLineFrame(
-            self.backupDevicesView, location=HLineLocation.top_bottom
+            widget=self.backupDevicesView, location=HLineLocation.top_bottom
         )
 
         self.backupOptionsPanel.addWidget(self.backupOptionsTop)
@@ -801,7 +799,7 @@ class BackupPanel(QScrollAreaOptionalFrame):
         # Link contained widgets to their containing scroll area
         self.backupOptions.setContainingScrollArea(self)
         self.backupDevicesView.setContainingScrollArea(self)
-        self.addTopBottomFrameChildren(
+        self.addFrameChildren(
             [self.backupOptionsTop, self.backupStorageViewTopBottom]
         )
 

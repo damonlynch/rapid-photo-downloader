@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -25,18 +25,20 @@ similar to the GtkExpander', Copyright 2012 Canonical Ltd
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2021, Damon Lynch"
+__copyright__ = "Copyright 2016-2022, Damon Lynch"
 
 from typing import Optional
 
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QColor, QFontMetrics, QFont
+from PyQt5.QtGui import QColor, QFontMetrics, QFont, QPalette
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
-from raphodo.constants import minPanelWidth
+from raphodo.constants import minPanelWidth, HeaderBackgroundName, HLineLocation
+from raphodo.viewutils import QWidgetHLineFrame, QScrollAreaOptionalFrame
 
 
 class QPanelView(QWidget):
+
     """
     A header bar with a child widget.
     """
@@ -44,26 +46,31 @@ class QPanelView(QWidget):
     def __init__(
         self,
         label: str,
+        parentScrollArea: Optional[QScrollAreaOptionalFrame] = None,
         headerColor: Optional[QColor] = None,
         headerFontColor: Optional[QColor] = None,
         parent: QWidget = None,
     ) -> None:
-
-        super().__init__(parent)
-
+        super().__init__(parent=parent)
         self.header = QWidget(self)
-        if headerColor is not None:
-            headerStyle = """QWidget { background-color: %s; }""" % headerColor.name()
-            self.header.setStyleSheet(headerStyle)
+
+        if headerColor is None:
+            headerColor = QColor(HeaderBackgroundName)
+        palette = self.header.palette()
+        palette.setColor(QPalette.Window, headerColor)
+        self.header.setAutoFillBackground(True)
+        self.header.setPalette(palette)
         self.header.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
 
         self.headerLayout = QHBoxLayout()
         self.headerLayout.setContentsMargins(5, 2, 5, 2)
 
         self.label = QLabel(label.upper())
-        if headerFontColor is not None:
-            headerFontStyle = "QLabel {color: %s;}" % headerFontColor.name()
-            self.label.setStyleSheet(headerFontStyle)
+        if headerFontColor is None:
+            headerFontColor = QColor(Qt.white)
+        palette = self.label.palette()
+        palette.setColor(QPalette.WindowText, headerFontColor)
+        self.label.setPalette(palette)
 
         self.header.setLayout(self.headerLayout)
         self.headerLayout.addWidget(self.label)
@@ -71,12 +78,22 @@ class QPanelView(QWidget):
 
         self.headerWidget = None
 
+        self.headerTopLeftRight = QWidgetHLineFrame(
+            widget=self.header, location=HLineLocation.top_left_right
+        )
+
         self.content = None
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         self.setLayout(layout)
-        layout.addWidget(self.header)
+        layout.addWidget(self.headerTopLeftRight)
+
+        if parentScrollArea:
+            parentScrollArea.addFrameChild(self)
+
+    def setParentScrollArea(self, parentScrollArea: QScrollAreaOptionalFrame) -> None:
+        parentScrollArea.addFrameChild(self)
 
     def addWidget(self, widget: QWidget) -> None:
         """
@@ -94,7 +111,7 @@ class QPanelView(QWidget):
 
     def addHeaderWidget(self, widget: QWidget) -> None:
         """
-        Add a widget to the the header bar, on the right side.
+        Add a widget to the header bar, on the right side.
 
         Any previous widget will be removed.
 
@@ -122,3 +139,6 @@ class QPanelView(QWidget):
             width = self.content.minimumWidth()
             height = self.content.minimumHeight()
         return QSize(width, self.header.height() + height)
+
+    def setFrameVisible(self, visible: bool) -> None:
+        self.headerTopLeftRight.setFrameVisible(not visible)

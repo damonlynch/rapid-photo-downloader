@@ -86,7 +86,7 @@ class SourcePanel(QScrollAreaOptionalFrame):
         # visible
 
         self.deviceBottomFrame = QWidgetHLineFrame(
-            self.rapidApp.deviceToggleView, location=HLineLocation.bottom
+            widget=self.rapidApp.deviceToggleView, location=HLineLocation.bottom
         )
         self.thisComputerBottomFrame = QWidgetHLineFrameOverride(
             self.rapidApp.thisComputerToggleView,
@@ -96,13 +96,15 @@ class SourcePanel(QScrollAreaOptionalFrame):
 
         # Link contained widgets to their containing scroll area
 
-        self.addTopBottomFrameChildren(
+        self.addFrameChildren(
             [
                 self.deviceBottomFrame,
                 self.thisComputerBottomFrame,
             ]
             + self.rapidApp.temporalProximity.topBottomFrames()
         )
+        self.rapidApp.deviceToggleView.setParentScrollArea(self)
+        self.rapidApp.thisComputerToggleView.setParentScrollArea(self)
 
         self.sourcePanelWidgetLayout.addWidget(self.deviceBottomFrame)
         self.splitter.addWidget(self.thisComputerBottomFrame)

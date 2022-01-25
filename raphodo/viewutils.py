@@ -47,6 +47,7 @@ from PyQt5.QtWidgets import (
     QTableView,
     QScrollBar,
     QStackedWidget,
+    QStyleOptionSlider,
 )
 from PyQt5.QtGui import (
     QFontMetrics,
@@ -58,6 +59,7 @@ from PyQt5.QtGui import (
     QPalette,
     QResizeEvent,
     QPaintEvent,
+    QPen,
 )
 from PyQt5.QtCore import (
     QSize,
@@ -202,6 +204,86 @@ ThumbnailDataForProximity = namedtuple(
 )
 
 
+class FramedScrollBar(QScrollBar):
+    def __init__(self, orientation, parent: QWidget = None) -> None:
+        super().__init__(orientation, parent)
+        self.frame_width = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        if sys.platform == "win32":
+            self.midPen = QPen(self.palette().mid().color().lighter(120))
+        else:
+            self.midPen = QPen(self.palette().mid().color())
+
+    def sizeHint(self) -> QSize:
+        size = super().sizeHint()
+        if self.orientation() == Qt.Vertical:
+            return QSize(
+                size.width() + self.frame_width, size.height() + self.frame_width * 2
+            )
+        else:
+            return QSize(
+                size.width() + self.frame_width * 2, size.height() + self.frame_width
+            )
+
+    def paintEvent(self, event: QPaintEvent) -> None:
+
+        painter = QStylePainter(self)
+        if self.orientation() == Qt.Vertical:
+            painter.translate(0.0, self.frame_width)
+        else:
+            painter.translate(self.frame_width, 0.0)
+
+        option = QStyleOptionSlider()
+        option.initFrom(self)
+        option.maximum = self.maximum()
+        option.minimum = self.minimum()
+        option.pageStep = self.pageStep()
+        option.singleStep = self.singleStep()
+        option.sliderPosition = self.sliderPosition()
+        if self.orientation() == Qt.Horizontal:
+            option.state |= QStyle.State_Horizontal
+
+        rect = QRect(self.rect())
+        if self.orientation() == Qt.Vertical:
+            rect.adjust(self.frame_width, self.frame_width * 2, 0, 0)
+        else:
+            rect.adjust(self.frame_width * 2, self.frame_width, 0, 0)
+
+        option.rect = rect
+        option.palette = self.palette()
+        option.orientation = self.orientation()
+        option.subControls = (
+            QStyle.SC_ScrollBarAddLine
+            | QStyle.SC_ScrollBarSubLine
+            | QStyle.SC_ScrollBarAddPage
+            | QStyle.SC_ScrollBarSubPage
+            | QStyle.SC_ScrollBarFirst
+            | QStyle.SC_ScrollBarLast
+        )
+
+        painter.fillRect(option.rect, self.palette().window().color().darker(102))
+        self.style().drawComplexControl(QStyle.CC_ScrollBar, option, painter)
+
+        option.subControls = QStyle.SC_ScrollBarSlider
+        if option.state & QStyle.State_MouseOver == QStyle.State_MouseOver:
+            palette = self.palette()
+            palette.setColor(QPalette.Button, self.palette().base().color())
+            option.palette = palette
+        self.style().drawComplexControl(QStyle.CC_ScrollBar, option, painter)
+
+        painter.resetTransform()
+        painter.setPen(self.midPen)
+        if self.orientation() == Qt.Vertical:
+            painter.drawLine(self.rect().topLeft(), self.rect().topRight())
+            painter.drawLine(self.rect().topRight(), self.rect().bottomRight())
+            if not self.parent().parent().horizontalScrollBar().isVisible():
+                painter.drawLine(self.rect().bottomLeft(), self.rect().bottomRight())
+        else:
+            painter.drawLine(self.rect().topLeft(), self.rect().bottomLeft())
+            painter.drawLine(self.rect().bottomLeft(), self.rect().bottomRight())
+            if not self.parent().parent().verticalScrollBar().isVisible():
+                painter.drawLine(self.rect().bottomRight(), self.rect().topRight())
+
+
 class QScrollAreaOptionalFrame(QScrollArea):
     """
     Draw a frame around the scroll area only if one of its scrollbars are active
@@ -209,7 +291,7 @@ class QScrollAreaOptionalFrame(QScrollArea):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
-        self.topBottomFrameChildren = []  # type: List[QWidget]
+        self.frameChildren = []  # type: List[QWidget]
         self.stockFrameShape = self.frameShape()
 
     def hasFrame(self) -> bool:
@@ -228,7 +310,7 @@ class QScrollAreaOptionalFrame(QScrollArea):
         super().resizeEvent(event)
 
     def setChildrenTopBottomFrameVisibility(self) -> None:
-        for widget in self.topBottomFrameChildren:
+        for widget in self.frameChildren:
             widget.setFrameVisible(self.frameShape() == self.stockFrameShape)
 
     def event(self, event: QEvent) -> bool:
@@ -241,8 +323,11 @@ class QScrollAreaOptionalFrame(QScrollArea):
                 )
         return result
 
-    def addTopBottomFrameChildren(self, widgets: List[QWidget]) -> None:
-        self.topBottomFrameChildren = widgets
+    def addFrameChildren(self, widgets: List[QWidget]) -> None:
+        self.frameChildren.extend(widgets)
+
+    def addFrameChild(self, widget: QWidget) -> None:
+        self.frameChildren.append(widget)
 
 
 class QFramedWidget(QWidget):
@@ -347,11 +432,15 @@ class QMidHlineFrame(QFrame):
     def __init__(
         self,
         color: QPalette.ColorGroup = QPalette.Mid,
+        shape: QFrame.Shape = QFrame.HLine,
         parent: Optional[QWidget] = None,
     ) -> None:
         super().__init__(parent=parent)
-        self.setFixedHeight(self.style().pixelMetric(QStyle.PM_DefaultFrameWidth))
-        self.setFrameShape(QFrame.HLine)
+        if shape == QFrame.HLine:
+            self.setFixedHeight(self.style().pixelMetric(QStyle.PM_DefaultFrameWidth))
+        else:
+            self.setFixedWidth(self.style().pixelMetric(QStyle.PM_DefaultFrameWidth))
+        self.setFrameShape(shape)
         self.setFrameShadow(QFrame.Plain)
         palette = self.palette()
         palette.setColor(QPalette.WindowText, palette.color(color))
@@ -373,14 +462,31 @@ class QWidgetHLineFrame(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         self.widget = widget
-        if location in (HLineLocation.top, HLineLocation.top_bottom):
+        self.location = location
+        if location in (
+            HLineLocation.top,
+            HLineLocation.top_bottom,
+            HLineLocation.top_left_right,
+        ):
             frame = QMidHlineFrame()
             layout.addWidget(frame)
             self.frames = [frame]
         else:
             self.frames = []  # type: List[QMidHlineFrame]
 
-        layout.addWidget(widget)
+        if location == HLineLocation.top_left_right:
+            hlayout = QHBoxLayout()
+            hlayout.setSpacing(0)
+            hlayout.setContentsMargins(0, 0, 0, 0)
+            lframe = QMidHlineFrame(shape=QFrame.VLine)
+            rframe = QMidHlineFrame(shape=QFrame.VLine)
+            hlayout.addWidget(lframe)
+            hlayout.addWidget(widget)
+            hlayout.addWidget(rframe)
+            self.frames.extend([lframe, rframe])
+            layout.addLayout(hlayout)
+        else:
+            layout.addWidget(widget)
 
         if location in (HLineLocation.bottom, HLineLocation.top_bottom):
             frame = QMidHlineFrame()
@@ -404,7 +510,7 @@ class QWidgetHLineFrameOverride(QWidgetHLineFrame):
         overrideWidget: QWidget = None,
         parent: Optional[QWidget] = None,
     ) -> None:
-        super().__init__(widget, location, parent)
+        super().__init__(widget=widget, location=location, parent=parent)
         self.overrideWidget = overrideWidget  # type: Optional[QWidget]
 
     def setFrameVisible(self, visible: bool) -> None:
