@@ -281,7 +281,11 @@ class FramedScrollBar(QScrollBar):
         option.subControls = QStyle.SC_ScrollBarSlider
         if option.state & QStyle.State_MouseOver == QStyle.State_MouseOver:
             palette = self.palette()
-            palette.setColor(QPalette.Button, self.palette().base().color())
+            if sys.platform == "win32":
+                color = self.palette().base().color()
+            else:
+                color = self.palette().button().color().lighter(102)
+            palette.setColor(QPalette.Button, color)
             option.palette = palette
         self.style().drawComplexControl(QStyle.CC_ScrollBar, option, painter)
 
