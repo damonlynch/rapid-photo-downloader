@@ -1963,6 +1963,7 @@ class TemporalProximity(QWidget):
         """
 
         super().__init__(parent)
+        self.setObjectName("temporalProximity")
 
         self.rapidApp = rapidApp
         self.thumbnailModel = rapidApp.thumbnailModel
@@ -1985,11 +1986,6 @@ class TemporalProximity(QWidget):
 
         self.temporalProximityView.setSizePolicy(
             QSizePolicy.Preferred, QSizePolicy.Expanding
-        )
-
-        self.temporalValuePicker = TemporalValuePicker(self.prefs.get_proximity())
-        self.temporalValuePicker.setSizePolicy(
-            QSizePolicy.Preferred, QSizePolicy.Minimum
         )
 
         description = _(
@@ -2081,7 +2077,7 @@ class TemporalProximity(QWidget):
             scrollArea = QScrollArea()
             scrollArea.setWidgetResizable(True)
             scrollArea.setWidget(label)
-            self.stackedWidget.addWidget(scrollArea )
+            self.stackedWidget.addWidget(scrollArea)
 
         self.stackedWidget.addWidget(self.temporalProximityView)
 
@@ -2095,36 +2091,8 @@ class TemporalProximity(QWidget):
             TemporalProximityState.generated: 4,
         }
 
-        self.autoScrollButton = QToolButton(self)
-        icon = scaledIcon(":/icons/link.svg", self.autoScrollButton.iconSize())
-        self.autoScrollButton.setIcon(icon)
-        self.autoScrollButton.setAutoRaise(True)
-        self.autoScrollButton.setCheckable(True)
-        self.autoScrollButton.setToolTip(
-            _("Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)")
-        )
-        self.autoScrollButton.setChecked(not self.prefs.auto_scroll)
-        self.autoScrollAct = QAction(
-            "", self, shortcut="Ctrl+T", triggered=self.autoScrollActed, icon=icon
-        )
-        self.autoScrollButton.addAction(self.autoScrollAct)
-        style = "QToolButton {padding: 2px;} QToolButton::menu-indicator {image: none;}"
-        self.autoScrollButton.setStyleSheet(style)
-        self.autoScrollButton.clicked.connect(self.autoScrollClicked)
-
-        pickerLayout = QHBoxLayout()
-        pickerLayout.setSpacing(0)
-        pickerLayout.addWidget(self.temporalValuePicker)
-        pickerLayout.addWidget(self.autoScrollButton)
-
         layout.addWidget(self.stackedWidget)
-        layout.addLayout(pickerLayout)
-
         self.stackedWidget.setCurrentIndex(0)
-
-        self.temporalValuePicker.valueChanged.connect(self.temporalValueChanged)
-        if self.prefs.auto_scroll:
-            self.setTimelineThumbnailAutoScroll(self.prefs.auto_scroll)
 
         self.suppress_auto_scroll_after_timeline_select = False
 
@@ -2294,17 +2262,6 @@ class TemporalProximity(QWidget):
 
         return True
 
-    @pyqtSlot(int)
-    def temporalValueChanged(self, minutes: int) -> None:
-        self.prefs.set_proximity(minutes=minutes)
-        if self.state == TemporalProximityState.generated:
-            self.setState(TemporalProximityState.generating)
-            self.rapidApp.generateTemporalProximityTableData(
-                reason="the duration between consecutive shots has changed"
-            )
-        elif self.state == TemporalProximityState.generating:
-            self.state = TemporalProximityState.regenerate
-
     def previouslyDownloadedManuallySet(self, uids: List[bytes]) -> None:
         """
         Possibly update the formatting of the Timeline to reflect the user
@@ -2338,15 +2295,6 @@ class TemporalProximity(QWidget):
                 index = model.index(row, 2)
                 view.scrollTo(index, QAbstractItemView.PositionAtTop)
 
-    def setTimelineThumbnailAutoScroll(self, on: bool) -> None:
-        """
-        Turn on or off synchronized scrolling between thumbnails and Timeline
-        :param on: whether to turn on or off
-        """
-
-        self.setScrollTogether(on)
-        self.rapidApp.thumbnailView.setScrollTogether(on)
-
     def setScrollTogether(self, on: bool) -> None:
         """
         Turn on or off the linking of scrolling the Timeline with the Thumbnail display
@@ -2359,6 +2307,63 @@ class TemporalProximity(QWidget):
         else:
             view.verticalScrollBar().valueChanged.disconnect(view.scrollThumbnails)
 
+
+class TemporalProximityControls(QWidget):
+    """
+    Slider and button to control the Timeline
+    """
+    def __init__(self, rapidApp) -> None:
+        super().__init__()
+        self.rapidApp = rapidApp
+        self.prefs = rapidApp.prefs
+        self.temporalProximity = rapidApp.temporalProximity
+        self.setObjectName("temporalProximityControls")
+
+        self.temporalValuePicker = TemporalValuePicker(self.prefs.get_proximity())
+        self.temporalValuePicker.setSizePolicy(
+            QSizePolicy.Preferred, QSizePolicy.Minimum
+        )
+
+        self.autoScrollButton = QToolButton(self)
+        icon = scaledIcon(":/icons/link.svg", self.autoScrollButton.iconSize())
+        self.autoScrollButton.setIcon(icon)
+        self.autoScrollButton.setAutoRaise(True)
+        self.autoScrollButton.setCheckable(True)
+        self.autoScrollButton.setToolTip(
+            _("Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)")
+        )
+        self.autoScrollButton.setChecked(not self.prefs.auto_scroll)
+        self.autoScrollAct = QAction(
+            "", self, shortcut="Ctrl+T", triggered=self.autoScrollActed, icon=icon
+        )
+        self.autoScrollButton.addAction(self.autoScrollAct)
+        style = "QToolButton {padding: 2px;} QToolButton::menu-indicator {image: none;}"
+        self.autoScrollButton.setStyleSheet(style)
+
+        self.temporalValuePicker.valueChanged.connect(self.temporalValueChanged)
+        self.autoScrollButton.clicked.connect(self.autoScrollClicked)
+
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 6, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(self.temporalValuePicker)
+        layout.addWidget(self.autoScrollButton)
+        self.setLayout(layout)
+
+        if self.prefs.auto_scroll:
+            self.setTimelineThumbnailAutoScroll(self.prefs.auto_scroll)
+
+    @pyqtSlot(int)
+    def temporalValueChanged(self, minutes: int) -> None:
+        self.prefs.set_proximity(minutes=minutes)
+        if self.temporalProximity.state == TemporalProximityState.generated:
+            self.temporalProximity.setState(TemporalProximityState.generating)
+            self.rapidApp.generateTemporalProximityTableData(
+                reason="the duration between consecutive shots has changed"
+            )
+        elif self.temporalProximity.state == TemporalProximityState.generating:
+            self.temporalProximity.state = TemporalProximityState.regenerate
+
     @pyqtSlot(bool)
     def autoScrollClicked(self, checked: bool) -> None:
         self.prefs.auto_scroll = not checked
@@ -2367,3 +2372,12 @@ class TemporalProximity(QWidget):
     @pyqtSlot(bool)
     def autoScrollActed(self, on: bool) -> None:
         self.autoScrollButton.animateClick()
+
+    def setTimelineThumbnailAutoScroll(self, on: bool) -> None:
+        """
+        Turn on or off synchronized scrolling between thumbnails and Timeline
+        :param on: whether to turn on or off
+        """
+
+        self.temporalProximity.setScrollTogether(on)
+        self.rapidApp.thumbnailView.setScrollTogether(on)

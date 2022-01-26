@@ -29,6 +29,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout, QSizePolicy
 
 from raphodo.viewutils import QScrollAreaNoFrame
+from proximity import TemporalProximityControls
 
 
 class SourcePanel(QScrollAreaNoFrame):
@@ -36,10 +37,10 @@ class SourcePanel(QScrollAreaNoFrame):
     Display Devices and This Computer sources, as well as the timeline
     """
 
-    def __init__(self, parent) -> None:
-        super().__init__(parent)
-        assert parent is not None
-        self.rapidApp = parent
+    def __init__(self, rapidApp) -> None:
+        super().__init__()
+        assert rapidApp is not None
+        self.rapidApp = rapidApp
         self.prefs = self.rapidApp.prefs
 
         self.setObjectName("sourcePanelScrollArea")
@@ -111,3 +112,14 @@ class SourcePanel(QScrollAreaNoFrame):
 
     def setThisComputerToggleViewVisible(self, visible: bool) -> None:
         self.rapidApp.thisComputerToggleView.setVisible(visible)
+
+
+class LeftPanelContainer(QWidget):
+    def __init__(self, sourcePanel: SourcePanel, temporalProximityControls: TemporalProximityControls) -> None:
+        super().__init__()
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(sourcePanel)
+        layout.addWidget(temporalProximityControls)
+        self.setLayout(layout)

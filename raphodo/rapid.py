@@ -231,7 +231,11 @@ from raphodo.thumbnaildisplay import (
     MarkedSummary,
 )
 from raphodo.devicedisplay import DeviceModel, DeviceView, DeviceDelegate
-from raphodo.proximity import TemporalProximityGroups, TemporalProximity
+from raphodo.proximity import (
+    TemporalProximityGroups,
+    TemporalProximity,
+    TemporalProximityControls,
+)
 from raphodo.utilities import (
     same_device,
     make_internationalized_list,
@@ -290,7 +294,7 @@ from raphodo.aboutdialog import AboutDialog
 import raphodo.constants as constants
 from raphodo.menubutton import MenuButton
 from raphodo.destinationpanel import DestinationPanel
-from raphodo.sourcepanel import SourcePanel
+from raphodo.sourcepanel import SourcePanel, LeftPanelContainer
 from raphodo.renamepanel import RenamePanel
 from raphodo.jobcodepanel import JobCodePanel
 from raphodo.backuppanel import BackupPanel
@@ -1834,7 +1838,7 @@ class RapidWindow(QMainWindow):
         self.sourceButton.setIcon(icon)
 
     def setLeftPanelVisibility(self) -> None:
-        self.sourcePanel.setVisible(
+        self.leftPanelContainer.setVisible(
             self.sourceButton.isChecked() or self.proximityButton.isChecked()
         )
 
@@ -1906,7 +1910,9 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def proximityButtonClicked(self) -> None:
-        self.temporalProximity.setVisible(self.proximityButton.isChecked())
+        checked = self.proximityButton.isChecked()
+        self.temporalProximity.setVisible(checked)
+        self.temporalProximityControls.setVisible(checked)
         self.setLeftPanelVisibility()
         self.adjustLeftPanelSplitterHandle()
 
@@ -2364,10 +2370,16 @@ class RapidWindow(QMainWindow):
 
     def createSourcePanel(self) -> None:
         """
-        Create the source (Devices and This Computer) panel
+        Create the source (Devices and This Computer) panel, as well as the Timeline
+        controls
         """
 
-        self.sourcePanel = SourcePanel(parent=self)
+        self.sourcePanel = SourcePanel(rapidApp=self)
+        self.temporalProximityControls = TemporalProximityControls(rapidApp=self)
+        self.leftPanelContainer = LeftPanelContainer(
+            sourcePanel=self.sourcePanel,
+            temporalProximityControls=self.temporalProximityControls,
+        )
 
     def createRenamePanels(self) -> None:
         """
@@ -2491,7 +2503,7 @@ class RapidWindow(QMainWindow):
         self.rightPanels.addWidget(self.jobCodePanel)
         self.rightPanels.addWidget(self.backupPanel)
 
-        self.centerSplitter.addWidget(self.sourcePanel)
+        self.centerSplitter.addWidget(self.leftPanelContainer)
         self.centerSplitter.addWidget(self.thumbnailView)
         self.centerSplitter.addWidget(self.rightPanels)
         self.centerSplitter.setStretchFactor(0, 0)
