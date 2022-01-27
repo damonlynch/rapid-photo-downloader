@@ -56,12 +56,12 @@ from raphodo.nameeditor import PrefDialog, make_sample_rpd_file, PresetComboBox
 import raphodo.exiftool as exiftool
 import raphodo.generatename as gn
 from raphodo.generatenameconfig import *
-from raphodo.viewutils import QFramedWidget, QScrollAreaNoFrame
+from raphodo.viewutils import FlexiFrame, ScrollAreaNoFrame
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences, DownloadsTodayTracker
 
 
-class RenameWidget(QFramedWidget):
+class RenameWidget(FlexiFrame):
     """
     Display combo boxes for file renaming and file extension case handling, and
     an example file name
@@ -74,7 +74,7 @@ class RenameWidget(QFramedWidget):
         exiftool_process: exiftool.ExifTool,
         parent,
     ) -> None:
-        super().__init__(parent)
+        super().__init__(parent=parent)
         self.setBackgroundRole(QPalette.Base)
         self.setAutoFillBackground(True)
         self.exiftool_process = exiftool_process
@@ -102,7 +102,7 @@ class RenameWidget(QFramedWidget):
         )
 
         layout = QFormLayout()
-        self.setLayout(layout)
+        self.layout().addLayout(layout)
 
         self.getCustomPresets()
 
@@ -301,7 +301,7 @@ class RenameWidget(QFramedWidget):
         self.updateExampleFilename()
 
 
-class RenameOptionsWidget(QFramedWidget):
+class RenameOptionsWidget(FlexiFrame):
     """
     Display and allow editing of preference values for Downloads today
     and Stored Sequence Number and associated options, as well as
@@ -315,7 +315,7 @@ class RenameOptionsWidget(QFramedWidget):
         videoRenameWidget: RenameWidget,
         parent,
     ) -> None:
-        super().__init__(parent)
+        super().__init__(parent=parent)
 
         self.prefs = prefs
         self.photoRenameWidget = photoRenameWidget
@@ -325,8 +325,7 @@ class RenameOptionsWidget(QFramedWidget):
         self.setAutoFillBackground(True)
 
         compatibilityLayout = QVBoxLayout()
-        layout = QVBoxLayout()
-        self.setLayout(layout)
+        layout = self.layout()
 
         # QSpinBox cannot display values greater than this value
         self.c_maxint = platform_c_maxint()
@@ -475,7 +474,7 @@ class RenameOptionsWidget(QFramedWidget):
         self.prefs.strip_characters = strip
 
 
-class RenamePanel(QScrollAreaNoFrame):
+class RenamePanel(ScrollAreaNoFrame):
     """
     Renaming preferences widget, for photos, videos, and general
     renaming options.
@@ -524,6 +523,17 @@ class RenamePanel(QScrollAreaNoFrame):
         self.photoRenamePanel.addWidget(self.photoRenameWidget)
         self.videoRenamePanel.addWidget(self.videoRenameWidget)
         self.renameOptionsPanel.addWidget(self.renameOptions)
+
+        for widget in (
+            self.photoRenameWidget,
+            self.videoRenameWidget,
+            self.renameOptions,
+        ):
+            self.verticalScrollBarVisible.connect(widget.containerVerticalScrollBar)
+
+        self.horizontalScrollBarVisible.connect(
+            self.renameOptions.containerHorizontalScrollBar
+        )
 
         widget = QWidget()
         layout = QVBoxLayout()

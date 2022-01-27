@@ -42,7 +42,6 @@ import math
 from collections import namedtuple, defaultdict
 from typing import Optional, Dict, List, Set
 import logging
-from pprint import pprint
 
 from PyQt5.QtCore import (
     QModelIndex,
@@ -63,7 +62,6 @@ from PyQt5.QtWidgets import (
     QStyleOptionViewItem,
     QApplication,
     QStyle,
-    QListView,
     QStyleOptionButton,
     QAbstractItemView,
     QMenu,
@@ -84,7 +82,13 @@ from PyQt5.QtGui import (
     QIcon,
 )
 
-from raphodo.viewutils import RowTracker
+from raphodo.viewutils import (
+    RowTracker,
+    ListViewFlexiFrame,
+    device_name_highlight_color,
+    standard_font_size,
+    scaledIcon,
+)
 from raphodo.constants import (
     DeviceState,
     FileType,
@@ -106,8 +110,6 @@ from raphodo.devices import Device
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.storage import StorageSpace
 from raphodo.rpdfile import make_key
-from raphodo.menubutton import MenuButton
-from raphodo.viewutils import standard_font_size, scaledIcon
 
 
 def icon_size() -> int:
@@ -467,9 +469,14 @@ class DeviceModel(QAbstractListModel):
             self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
 
 
-class DeviceView(QListView):
-    def __init__(self, rapidApp, parent=None) -> None:
-        super().__init__(parent)
+class DeviceView(ListViewFlexiFrame):
+    def __init__(
+        self,
+        rapidApp,
+        frame_enabled: Optional[bool] = True,
+        parent: Optional[QWidget] = None,
+    ) -> None:
+        super().__init__(frame_enabled=frame_enabled, parent=parent)
         self.rapidApp = rapidApp
         # Disallow the user from being able to select the table cells
         self.setSelectionMode(QAbstractItemView.NoSelection)
@@ -531,15 +538,8 @@ def device_name_height():
     return standard_height() + DeviceDisplayPadding * 3
 
 
-def device_header_row_height():
+def device_header_row_height() -> int:
     return device_name_height() + DeviceDisplayPadding
-
-
-def device_name_highlight_color():
-    palette = QPalette()
-
-    alternate_color = palette.alternateBase().color()
-    return QColor(alternate_color).darker(105)
 
 
 class EmulatedHeaderRow(QWidget):

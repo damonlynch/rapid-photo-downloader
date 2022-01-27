@@ -63,9 +63,9 @@ from raphodo.constants import (
     HLineLocation,
 )
 from raphodo.viewutils import (
-    QFramedWidget,
+    FlexiFrame,
     RowTracker,
-    QScrollAreaNoFrame,
+    ScrollAreaNoFrame,
 )
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.panelview import QPanelView
@@ -439,13 +439,13 @@ class BackupDeviceDelegate(QStyledItemDelegate):
         return QSize(self.deviceDisplay.view_width, height)
 
 
-class BackupOptionsWidget(QFramedWidget):
+class BackupOptionsWidget(FlexiFrame):
     """
     Display backup options, such as automatic backup detection
     """
 
     def __init__(self, prefs: Preferences, parent, rapidApp: "RapidWindow") -> None:
-        super().__init__(parent)
+        super().__init__(parent=parent)
 
         self.rapidApp = rapidApp
         self.prefs = prefs
@@ -455,7 +455,7 @@ class BackupOptionsWidget(QFramedWidget):
         self.setAutoFillBackground(True)
 
         backupLayout = QGridLayout()
-        layout = QVBoxLayout()
+        layout = self.layout()
         layout.addLayout(backupLayout)
         self.setLayout(layout)
 
@@ -719,13 +719,13 @@ class BackupOptionsWidget(QFramedWidget):
 
     def updateLocationCombos(self) -> None:
         """
-        Update backup locatation comboboxes in case directory status has changed.
+        Update backup location comboboxes in case directory status has changed.
         """
         for combo in self.photoLocation, self.videoLocation:
             combo.refreshFolderList()
 
 
-class BackupPanel(QScrollAreaNoFrame):
+class BackupPanel(ScrollAreaNoFrame):
     """
     Backup preferences widget, for photos and video backups while
     downloading.
@@ -771,6 +771,15 @@ class BackupPanel(QScrollAreaNoFrame):
         self.backupOptionsPanel.addWidget(self.backupOptions)
         self.backupStoragePanel.addWidget(self.backupDevicesView)
 
+        self.verticalScrollBarVisible.connect(
+            self.backupDevicesView.containerVerticalScrollBar
+        )
+        self.verticalScrollBarVisible.connect(
+            self.backupOptions.containerVerticalScrollBar
+        )
+        self.horizontalScrollBarVisible.connect(
+            self.backupOptions.containerHorizontalScrollBar
+        )
         widget = QWidget()
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)

@@ -383,6 +383,7 @@ class RapidWindow(QMainWindow):
     ) -> None:
 
         super().__init__()
+        self.setObjectName("rapidMainWindow")
 
         # Indicate not to show any dialogs to the user until the program has finished
         # starting
@@ -1911,6 +1912,7 @@ class RapidWindow(QMainWindow):
     @pyqtSlot()
     def proximityButtonClicked(self) -> None:
         checked = self.proximityButton.isChecked()
+        self.sourcePanel.setThisComputerBottomFrame(checked)
         self.temporalProximity.setVisible(checked)
         self.temporalProximityControls.setVisible(checked)
         self.setLeftPanelVisibility()
@@ -2183,7 +2185,7 @@ class RapidWindow(QMainWindow):
         self.deviceView.setItemDelegate(DeviceDelegate(rapidApp=self))
 
         # This computer is any local path
-        self.thisComputerView = DeviceView(rapidApp=self)
+        self.thisComputerView = DeviceView(rapidApp=self, frame_enabled=False)
         self.thisComputerView.setObjectName("thisComputerView")
         self.thisComputerModel = DeviceModel(self, "This Computer")
         self.thisComputerView.setModel(self.thisComputerModel)
@@ -2380,6 +2382,7 @@ class RapidWindow(QMainWindow):
             sourcePanel=self.sourcePanel,
             temporalProximityControls=self.temporalProximityControls,
         )
+        self.leftPanelContainer.setObjectName("leftPanelContainer")
 
     def createRenamePanels(self) -> None:
         """
@@ -2806,8 +2809,6 @@ class RapidWindow(QMainWindow):
 
         if on:
             self.thisComputer.setViewVisible(bool(self.prefs.this_computer_path))
-            if not self.prefs.this_computer_path:
-                self.thisComputerFSView.setParentFrameVisible()
         self.prefs.this_computer_source = on
         if not on:
             if len(self.devices.this_computer) > 0:

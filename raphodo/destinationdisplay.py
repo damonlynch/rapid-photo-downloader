@@ -39,6 +39,7 @@ from PyQt5.QtWidgets import (
     QAction,
     QMenu,
     QActionGroup,
+    QApplication,
 )
 from PyQt5.QtGui import (
     QColor,
@@ -52,6 +53,7 @@ from PyQt5.QtGui import (
 )
 
 
+from raphodo.viewutils import paletteMidPen
 from raphodo.devicedisplay import DeviceDisplay, BodyDetails, icon_size
 from raphodo.storage import StorageSpace, get_path_display_name, get_mount_size
 from raphodo.constants import (
@@ -290,10 +292,9 @@ class DestinationDisplay(QWidget):
         self.os_stat_device = 0  # type: int
         self._downloading_to = defaultdict(set)  # type: DefaultDict[int, Set[FileType]]
 
-        self.borderPen = QPen(
-            QBrush(QPalette().color(QPalette.Mid)), QSplitter().lineWidth()
-        )
-        self.frame_visible = False  # container already has a frame
+        self.midPen = paletteMidPen()
+        self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        self.container_vertical_scrollbar_visible = None
 
     @property
     def downloading_to(self) -> DefaultDict[int, Set[FileType]]:
@@ -529,9 +530,6 @@ class DestinationDisplay(QWidget):
                 self.prefs.video_subfolder = user_pref_list
             self.rapidApp.folder_preview_manager.change_subfolder_structure()
 
-    def setFrameVisible(self, visible: bool) -> None:
-        self.frame_visible = visible
-
     def setDestination(self, path: str) -> None:
         """
         Set the downloaded destination path
@@ -624,6 +622,10 @@ class DestinationDisplay(QWidget):
             < self.storage_space.bytes_free
         )
 
+    @pyqtSlot(bool)
+    def containerVerticalScrollBar(self, visible: bool) -> None:
+        self.container_vertical_scrollbar_visible = visible
+
     def paintEvent(self, event: QPaintEvent) -> None:
         """
         Render the custom widget
@@ -637,28 +639,29 @@ class DestinationDisplay(QWidget):
         width = self.width()
 
         rect = self.rect()  # type: QRect
+        palette = QPalette()
+        backgroundColor = palette.base().color()
 
         if (
             self.display_type == DestinationDisplayType.usage_only
             and QSplitter().lineWidth()
         ):
-            if not self.frame_visible:
-                # Draw a frame if that's what the style requires
-                option = QStyleOptionFrame()
-                option.initFrom(self)
-                painter.drawPrimitive(QStyle.PE_Frame, option)
-            else:
-                pen = painter.pen()
-                painter.setPen(self.borderPen)
-                painter.drawLine(rect.topLeft(), rect.topRight())
-                painter.drawLine(rect.bottomLeft(), rect.bottomRight())
-                painter.setPen(pen)
+            pen = painter.pen()
+            painter.setPen(backgroundColor)
+            painter.drawLine(rect.topLeft(), rect.topRight())
+            painter.setPen(self.midPen)
+            painter.drawLine(rect.bottomLeft(), rect.bottomRight())
+            painter.drawLine(rect.topLeft(), rect.bottomLeft())
+            if (
+                    self.container_vertical_scrollbar_visible is None
+                    or not self.container_vertical_scrollbar_visible
+            ):
+                painter.drawLine(rect.topRight(), rect.bottomRight())
+            painter.setPen(pen)
 
             w = QSplitter().lineWidth()
             rect.adjust(w, w, -w, -w)
 
-        palette = QPalette()
-        backgroundColor = palette.base().color()
         painter.fillRect(rect, backgroundColor)
 
         if self.storage_space is None:

@@ -27,7 +27,7 @@ import logging
 from itertools import groupby
 import pickle
 from pprint import pprint
-from typing import Dict, List, Tuple, Set, Optional, DefaultDict
+from typing import Dict, List, Tuple, Set, Optional, DefaultDict, Generator
 
 import arrow.arrow
 from arrow.arrow import Arrow
@@ -67,6 +67,7 @@ from PyQt5.QtWidgets import (
     QStackedWidget,
     QToolButton,
     QAction,
+    QFrame,
 )
 from PyQt5.QtGui import (
     QPainter,
@@ -96,6 +97,8 @@ from raphodo.preferences import Preferences
 from raphodo.viewutils import (
     ThumbnailDataForProximity,
     scaledIcon,
+    TightFlexiFrame,
+    FlexiScrollArea,
 )
 from raphodo.timeutils import (
     locale_time,
@@ -1648,6 +1651,7 @@ class TemporalProximityView(QTableView):
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setShowGrid(False)
+        self.setFrameShape(QFrame.NoFrame)
 
     def _updateSelectionRowChildColumn2(
         self, row: int, parent_column: int, model: TemporalProximityModel
@@ -1857,6 +1861,16 @@ class TemporalProximityView(QTableView):
             uids = model.data(index, Roles.uids)
             thumbnailView.scrollToUids(uids=uids)
             thumbnailView.setScrollTogether(True)
+
+
+class TemporalProximityViewFramed(TightFlexiFrame):
+    def __init__(
+        self,
+        temporalProximityView: TemporalProximityView,
+        parent: Optional[QWidget] = None,
+    ) -> None:
+        super().__init__(render_top_edge=True, parent=parent)
+        self.layout().addWidget(temporalProximityView)
 
 
 class TemporalValuePicker(QWidget):
@@ -2074,12 +2088,15 @@ class TemporalProximity(QWidget):
             self.generating,
             self.ctime_vs_mtime,
         ):
-            scrollArea = QScrollArea()
-            scrollArea.setWidgetResizable(True)
-            scrollArea.setWidget(label)
-            self.stackedWidget.addWidget(scrollArea)
+            scrollAreaContainer = FlexiScrollArea()
+            scrollAreaContainer.scrollArea.setWidgetResizable(True)
+            scrollAreaContainer.scrollArea.setWidget(label)
+            self.stackedWidget.addWidget(scrollAreaContainer)
 
-        self.stackedWidget.addWidget(self.temporalProximityView)
+        self.temporalProximityViewFrame = TemporalProximityViewFramed(
+            self.temporalProximityView
+        )
+        self.stackedWidget.addWidget(self.temporalProximityViewFrame)
 
         self.stack_index_for_state = {
             TemporalProximityState.empty: 0,
@@ -2095,6 +2112,9 @@ class TemporalProximity(QWidget):
         self.stackedWidget.setCurrentIndex(0)
 
         self.suppress_auto_scroll_after_timeline_select = False
+
+    def flexiFrameWidgets(self) -> Generator[QWidget, None, None]:
+        return (self.stackedWidget.widget(i) for i in range(self.stackedWidget.count()))
 
     @pyqtSlot(QItemSelection, QItemSelection)
     def proximitySelectionChanged(
@@ -2312,6 +2332,7 @@ class TemporalProximityControls(QWidget):
     """
     Slider and button to control the Timeline
     """
+
     def __init__(self, rapidApp) -> None:
         super().__init__()
         self.rapidApp = rapidApp

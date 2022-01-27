@@ -62,7 +62,7 @@ from raphodo.constants import (
     non_system_root_folders,
 )
 from raphodo.storage import gvfs_gphoto2_path, get_media_dir
-from raphodo.viewutils import scaledIcon
+from raphodo.viewutils import scaledIcon, TopFramedVerticalScrollBar
 from raphodo.wslutils import wsl_filter_directories
 
 
@@ -177,6 +177,8 @@ class FileSystemView(QTreeView):
         )
         self.contextMenu.addAction(self.showSystemFoldersAct)
 
+        self.setVerticalScrollBar(TopFramedVerticalScrollBar())
+
     def hideColumns(self) -> None:
         """
         Call only after the model has been initialized
@@ -260,13 +262,6 @@ class FileSystemView(QTreeView):
     def doResetSelectionAct(self) -> None:
         self.selectionModel().clear()
         self.filePathReset.emit()
-
-    def resizeEvent(self, event: QResizeEvent) -> None:
-        self.setParentFrameVisible()
-        super().resizeEvent(event)
-
-    def setParentFrameVisible(self) -> None:
-        self.parent().setFrameVisible(self.verticalScrollBar().isVisible())
 
 
 class FileSystemFilter(QSortFilterProxyModel):

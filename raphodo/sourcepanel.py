@@ -24,15 +24,16 @@ __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2017-2022, Damon Lynch"
 
 import logging
+from typing import Optional
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout, QSizePolicy
 
-from raphodo.viewutils import QScrollAreaNoFrame
-from proximity import TemporalProximityControls
+from raphodo.viewutils import ScrollAreaNoFrame
+from raphodo.proximity import TemporalProximityControls
 
 
-class SourcePanel(QScrollAreaNoFrame):
+class SourcePanel(ScrollAreaNoFrame):
     """
     Display Devices and This Computer sources, as well as the timeline
     """
@@ -61,6 +62,8 @@ class SourcePanel(QScrollAreaNoFrame):
 
         self.temporalProximityInSplitter = True
 
+        self.thisComputerBottomFrameConnection = None
+
     def showTemporalProximityOnly(self) -> bool:
         return not (
             self.rapidApp.sourceButton.isChecked()
@@ -88,6 +91,17 @@ class SourcePanel(QScrollAreaNoFrame):
         else:
             self.placeTemporalProximityInSplitter()
 
+        for widget in (
+            self.rapidApp.deviceView,
+            self.rapidApp.thisComputer,
+            self.rapidApp.deviceToggleView.alternateWidget,
+        ):
+            self.verticalScrollBarVisible.connect(widget.containerVerticalScrollBar)
+
+        for widget in self.rapidApp.temporalProximity.flexiFrameWidgets():
+            self.verticalScrollBarVisible.connect(widget.containerVerticalScrollBar)
+            self.horizontalScrollBarVisible.connect(widget.containerHorizontalScrollBar)
+
     def placeTemporalProximityInSplitter(self) -> None:
         self.splitter.addWidget(self.rapidApp.temporalProximity)
         self.sourcePanelWidgetLayout.addWidget(self.splitter)
@@ -113,9 +127,45 @@ class SourcePanel(QScrollAreaNoFrame):
     def setThisComputerToggleViewVisible(self, visible: bool) -> None:
         self.rapidApp.thisComputerToggleView.setVisible(visible)
 
+    def setThisComputerBottomFrame(self, temporalProximityVisible: bool) -> None:
+        """
+        Connect or disconnect reaction of This Computer widget to the Scroll Area
+        horizontal scroll bar becoming visible or not.
+
+        Idea is to not rect when the Timeline is visible, and react when it is hidden,
+        which is when the This Computer widget is the bottommost widget.
+        :param temporalProximityVisible: whether the timeline is visible
+        """
+
+        if temporalProximityVisible:
+            if self.thisComputerBottomFrameConnection:
+                self.horizontalScrollBarVisible.disconnect(
+                    self.thisComputerBottomFrameConnection
+                )
+                self.thisComputerBottomFrameConnection = None
+            # Always show the bottom edge frame, regardless of what the scroll area
+            # scrollbar is doing
+            self.rapidApp.thisComputer.containerHorizontalScrollBar(False)
+        elif (
+            not temporalProximityVisible
+            and self.thisComputerBottomFrameConnection is None
+        ):
+            self.thisComputerBottomFrameConnection = (
+                self.horizontalScrollBarVisible.connect(
+                    self.rapidApp.thisComputer.containerHorizontalScrollBar
+                )
+            )
+            self.rapidApp.thisComputer.containerHorizontalScrollBar(
+                self.horizontalScrollBar().isVisible()
+            )
+
 
 class LeftPanelContainer(QWidget):
-    def __init__(self, sourcePanel: SourcePanel, temporalProximityControls: TemporalProximityControls) -> None:
+    def __init__(
+        self,
+        sourcePanel: SourcePanel,
+        temporalProximityControls: TemporalProximityControls,
+    ) -> None:
         super().__init__()
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)

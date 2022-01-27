@@ -35,12 +35,12 @@ from PyQt5.QtWidgets import QWidget, QLayout
 
 from raphodo.toggleswitch import QToggleSwitch
 from raphodo.panelview import QPanelView
-from raphodo.viewutils import QFramedWidget
+from raphodo.viewutils import FlexiFrame
 
 
-class BlankWidget(QFramedWidget):
+class BlankWidget(FlexiFrame):
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__(parent=parent)
         palette = QPalette()
         palette.setColor(QPalette.Window, palette.color(palette.Base))
         self.setAutoFillBackground(True)

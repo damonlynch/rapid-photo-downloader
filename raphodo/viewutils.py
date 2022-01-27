@@ -57,7 +57,7 @@ from PyQt5.QtGui import (
     QIcon,
     QGuiApplication,
     QPalette,
-    QResizeEvent,
+    QColor,
     QPaintEvent,
     QPen,
 )
@@ -71,6 +71,7 @@ from PyQt5.QtCore import (
     QRect,
     QAbstractItemModel,
     pyqtSlot,
+    pyqtSignal,
 )
 
 QT5_VERSION = parse_version(QT_VERSION_STR)
@@ -204,6 +205,13 @@ ThumbnailDataForProximity = namedtuple(
 )
 
 
+def paletteMidPen() -> QPen:
+    if sys.platform == "win32":
+        return QPen(QApplication.palette().mid().color().lighter(120))
+    else:
+        return QPen(QApplication.palette().mid().color())
+
+
 class FramedScrollBar(QScrollBar):
     """
     QScrollBar for use with Fusion widgets which expect to be framed
@@ -211,13 +219,22 @@ class FramedScrollBar(QScrollBar):
     have a frame.
     """
 
+    scrollBarVisible = pyqtSignal(bool)
+
     def __init__(self, orientation, parent: QWidget = None) -> None:
         super().__init__(orientation=orientation, parent=parent)
         self.frame_width = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
-        if sys.platform == "win32":
-            self.midPen = QPen(self.palette().mid().color().lighter(120))
-        else:
-            self.midPen = QPen(self.palette().mid().color())
+        self.midPen = paletteMidPen()
+
+        self.rangeChanged.connect(self.scrollBarChange)
+        self.visible_state = None
+
+    @pyqtSlot(int, int)
+    def scrollBarChange(self, min: int, max: int) -> None:
+        visible = max != 0
+        if visible != self.visible_state:
+            self.visible_state = visible
+            self.scrollBarVisible.emit(visible)
 
     def sizeHint(self) -> QSize:
         """
@@ -257,11 +274,7 @@ class FramedScrollBar(QScrollBar):
         if self.orientation() == Qt.Horizontal:
             option.state |= QStyle.State_Horizontal
 
-        rect = QRect(self.rect())
-        if self.orientation() == Qt.Vertical:
-            rect.adjust(self.frame_width, self.frame_width * 2, 0, 0)
-        else:
-            rect.adjust(self.frame_width * 2, self.frame_width, 0, 0)
+        rect = self.renderRect()
 
         option.rect = rect
         option.palette = self.palette()
@@ -274,7 +287,9 @@ class FramedScrollBar(QScrollBar):
             | QStyle.SC_ScrollBarLast
         )
 
-        painter.fillRect(option.rect, self.palette().window().color().darker(102))
+        painter.fillRect(
+            option.rect, QApplication.palette().window().color().darker(102)
+        )
         self.style().drawComplexControl(QStyle.CC_ScrollBar, option, painter)
 
         # Highlight the handle (slider) on mouse over, otherwise render it as normal
@@ -292,22 +307,62 @@ class FramedScrollBar(QScrollBar):
         # Render the borders
         painter.resetTransform()
         painter.setPen(self.midPen)
+        self.renderEdges(painter)
+
+    def renderRect(self) -> QRect:
+        rect = QRect(self.rect())
         if self.orientation() == Qt.Vertical:
-            painter.drawLine(self.rect().topLeft(), self.rect().topRight())
-            painter.drawLine(self.rect().topRight(), self.rect().bottomRight())
-            if not self.parent().parent().horizontalScrollBar().isVisible():
-                painter.drawLine(self.rect().bottomLeft(), self.rect().bottomRight())
+            rect.adjust(self.frame_width, self.frame_width * 2, 0, 0)
         else:
-            painter.drawLine(self.rect().topLeft(), self.rect().bottomLeft())
-            painter.drawLine(self.rect().bottomLeft(), self.rect().bottomRight())
+            rect.adjust(self.frame_width * 2, self.frame_width, 0, 0)
+        return rect
+
+    def renderEdges(self, painter: QStylePainter) -> None:
+        rect = self.rect()
+        if self.orientation() == Qt.Vertical:
+            painter.drawLine(rect.topLeft(), rect.topRight())
+            painter.drawLine(rect.topRight(), rect.bottomRight())
+            painter.drawLine(rect.topLeft(), rect.bottomLeft())
+            if not self.parent().parent().horizontalScrollBar().isVisible():
+                painter.drawLine(rect.bottomLeft(), rect.bottomRight())
+        else:
+            painter.drawLine(rect.topLeft(), rect.bottomLeft())
+            painter.drawLine(rect.bottomLeft(), rect.bottomRight())
+            painter.drawLine(rect.topLeft(), rect.topRight())
             if not self.parent().parent().verticalScrollBar().isVisible():
-                painter.drawLine(self.rect().bottomRight(), self.rect().topRight())
+                painter.drawLine(rect.bottomRight(), rect.topRight())
 
 
-class QScrollAreaNoFrame(QScrollArea):
+class TopFramedVerticalScrollBar(FramedScrollBar):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(orientation=Qt.Vertical, parent=parent)
+
+    def sizeHint(self) -> QSize:
+        """
+        Increase the size of the scrollbar to account for the extra height
+        """
+
+        size = super().sizeHint()
+        return QSize(size.width(), size.height() + self.frame_width)
+
+    def renderRect(self) -> QRect:
+        rect = QRect(self.rect())
+        rect.adjust(0, self.frame_width, 0, 0)
+        return rect
+
+    def renderEdges(self, painter: QStylePainter) -> None:
+        rect = self.rect()
+        painter.drawLine(rect.topLeft(), rect.topRight())
+        painter.drawLine(rect.topLeft(), rect.bottomLeft())
+
+
+class ScrollAreaNoFrame(QScrollArea):
     """
     Scroll Area with no frame and scrollbars that frame themselves
     """
+
+    horizontalScrollBarVisible = pyqtSignal(bool)
+    verticalScrollBarVisible = pyqtSignal(bool)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
@@ -316,80 +371,128 @@ class QScrollAreaNoFrame(QScrollArea):
         sbh = FramedScrollBar(orientation=Qt.Horizontal)
         self.setVerticalScrollBar(sbv)
         self.setHorizontalScrollBar(sbh)
+        sbv.scrollBarVisible.connect(self.verticalScrollBarVisible)
+        sbh.scrollBarVisible.connect(self.horizontalScrollBarVisible)
 
 
-class QFramedWidget(QWidget):
-    """
-    Draw a Frame around the widget in the style of the application.
+class FlexiFrameObject:
+    def __init__(self, **kwds):
+        super().__init__(**kwds)
+        self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        self.container_vertical_scrollbar_visible = None
+        self.container_horizontal_scrollbar_visible = None
+        self.midPen = paletteMidPen()
+        self.quirk_mode = False
+        self.quirkPen = QPen(device_name_highlight_color())
 
-    Use this instead of using a stylesheet to draw a widget's border.
-    """
+    def paintBorders(self, painter: QPainter, rect: QRect) -> None:
+        if self.quirk_mode:
+            painter.setPen(self.quirkPen)
+            painter.drawLine(rect.topLeft(), rect.topRight())
+        painter.setPen(self.midPen)
+        painter.drawLine(rect.topLeft(), rect.bottomLeft())
+        if (
+            self.container_horizontal_scrollbar_visible is None
+            or not self.container_horizontal_scrollbar_visible
+        ):
+            painter.drawLine(rect.bottomLeft(), rect.bottomRight())
+        if (
+            self.container_vertical_scrollbar_visible is None
+            or not self.container_vertical_scrollbar_visible
+        ):
+            painter.drawLine(rect.topRight(), rect.bottomRight())
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent=parent)
 
-    def paintEvent(self, *opts):
-        painter = QStylePainter(self)
-        option = QStyleOptionFrame()
-        option.initFrom(self)
-        painter.drawPrimitive(QStyle.PE_Frame, option)
-        super().paintEvent(*opts)
-
-
-class QMidHlineFrame(QFrame):
+class FlexiFrame(QWidget, FlexiFrameObject):
     def __init__(
-        self,
-        color: QPalette.ColorGroup = QPalette.Mid,
-        shape: QFrame.Shape = QFrame.HLine,
-        parent: Optional[QWidget] = None,
+        self, render_top_edge: bool = False, parent: Optional[QWidget] = None
     ) -> None:
         super().__init__(parent=parent)
-        if shape == QFrame.HLine:
-            self.setFixedHeight(self.style().pixelMetric(QStyle.PM_DefaultFrameWidth))
-        else:
-            self.setFixedWidth(self.style().pixelMetric(QStyle.PM_DefaultFrameWidth))
-        self.setFrameShape(shape)
-        self.setFrameShadow(QFrame.Plain)
-        palette = self.palette()
-        palette.setColor(QPalette.WindowText, palette.color(color))
-        self.setPalette(palette)
-
-
-class QScrollBarHLineFrame(QWidget):
-    """
-    Display a horizontal line above a scroll bar that is not tightly up against the
-    widget above it, giving the illusion its frame is complete
-    """
-
-    def __init__(self, widget: QWidget, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent=parent)
-        self.widget = widget
-
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-
-        self.setLayout(layout)
-        self.frame = QMidHlineFrame()
-        self.invisibleFrame = QMidHlineFrame(color=QPalette.Base)
-        for frame in (self.frame, self.invisibleFrame):
-            frame.setFixedWidth(self.style().pixelMetric(QStyle.PM_ScrollBarExtent))
-
-        self.stack = QStackedWidget()
-        self.stack.addWidget(self.frame)
-        self.stack.addWidget(self.invisibleFrame)
-        self.stack.setFixedHeight(1)
-
-        layout.addWidget(self.stack, alignment=Qt.AlignRight)
-        layout.addWidget(widget)
-
+        self.render_top_edge = render_top_edge
         self.setAutoFillBackground(True)
         palette = self.palette()
         palette.setColor(self.backgroundRole(), palette.color(palette.Base))
         self.setPalette(palette)
+        layout = QVBoxLayout()
+        self.setLayout(layout)
 
-    def setFrameVisible(self, visible: bool) -> None:
-        self.stack.setCurrentIndex(0 if visible else 1)
+    @pyqtSlot(bool)
+    def containerVerticalScrollBar(self, visible: bool) -> None:
+        self.container_vertical_scrollbar_visible = visible
+
+    @pyqtSlot(bool)
+    def containerHorizontalScrollBar(self, visible: bool) -> None:
+        self.container_horizontal_scrollbar_visible = visible
+
+    def paintEvent(self, event: QPaintEvent) -> None:
+        super().paintEvent(event)
+        rect = self.rect()
+        painter = QPainter(self)
+        self.paintBorders(painter=painter, rect=rect)
+        if self.render_top_edge:
+            painter.drawLine(rect.topLeft(), rect.topRight())
+
+
+class TightFlexiFrame(FlexiFrame):
+    def __init__(
+        self, render_top_edge: bool = False, parent: Optional[QWidget] = None
+    ) -> None:
+        super().__init__(render_top_edge=render_top_edge, parent=parent)
+        top_margin = self.frame_width if render_top_edge else 0
+        self.layout().setContentsMargins(
+            self.frame_width, top_margin, self.frame_width, self.frame_width
+        )
+        if not render_top_edge:
+            self.quirk_mode = True
+
+    @pyqtSlot(bool)
+    def containerVerticalScrollBar(self, visible: bool) -> None:
+        width = 0 if visible else self.frame_width
+        margins = self.layout().contentsMargins()
+        margins.setRight(width)
+        self.layout().setContentsMargins(margins)
+        self.container_vertical_scrollbar_visible = visible
+
+    @pyqtSlot(bool)
+    def containerHorizontalScrollBar(self, visible: bool) -> None:
+        height = 0 if visible else self.frame_width
+        margins = self.layout().contentsMargins()
+        margins.setBottom(height)
+        self.layout().setContentsMargins(margins)
+        self.container_horizontal_scrollbar_visible = visible
+
+
+class FlexiScrollArea(TightFlexiFrame):
+    def __init__(
+        self, parent: Optional[QWidget] = None
+    ) -> None:
+        super().__init__(render_top_edge=True, parent=parent)
+        self.scrollArea = QScrollArea()
+        self.scrollArea.setFrameShape(QFrame.NoFrame)
+        self.layout().addWidget(self.scrollArea)
+
+
+class ListViewFlexiFrame(QListView, FlexiFrameObject):
+    def __init__(
+        self, frame_enabled: Optional[bool] = True, parent: Optional[QWidget] = None
+    ) -> None:
+        super().__init__(parent)
+        self.setFrameShape(QFrame.NoFrame)
+        self.frame_enabled = frame_enabled
+
+    @pyqtSlot(bool)
+    def containerVerticalScrollBar(self, visible: bool) -> None:
+        self.container_vertical_scrollbar_visible = visible
+
+    @pyqtSlot(bool)
+    def containerHorizontalScrollBar(self, visible: bool) -> None:
+        self.container_horizontal_scrollbar_visible = visible
+
+    def paintEvent(self, event: QPaintEvent) -> None:
+        super().paintEvent(event)
+        if self.frame_enabled:
+            painter = QPainter(self.viewport())
+            self.paintBorders(painter=painter, rect=self.viewport().rect())
 
 
 class ProxyStyleNoFocusRectangle(QProxyStyle):
@@ -820,3 +923,9 @@ class CheckBoxDelegate(QItemDelegate):
             else Qt.Checked,
             Qt.CheckStateRole,
         )
+
+
+def device_name_highlight_color() -> QColor:
+    palette = QApplication.palette()
+    alternate_color = palette.alternateBase().color()
+    return QColor(alternate_color).darker(105)

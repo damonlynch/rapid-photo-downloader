@@ -53,12 +53,12 @@ from PyQt5.QtGui import (
 
 from raphodo.constants import JobCodeSort
 from raphodo.viewutils import (
-    QFramedWidget,
+    FlexiFrame,
     QNarrowListWidget,
     standardIconSize,
     translateDialogBoxButtons,
     standardMessageBox,
-    QScrollAreaNoFrame,
+    ScrollAreaNoFrame,
 )
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
@@ -224,13 +224,13 @@ class JobCodeDialog(QDialog):
         super().accept()
 
 
-class JobCodeOptionsWidget(QFramedWidget):
+class JobCodeOptionsWidget(FlexiFrame):
     """
     Display and allow editing of Job Codes.
     """
 
     def __init__(self, prefs: Preferences, rapidApp, parent) -> None:
-        super().__init__(parent)
+        super().__init__(parent=parent)
 
         self.rapidApp = rapidApp
         self.prefs = prefs
@@ -242,7 +242,7 @@ class JobCodeOptionsWidget(QFramedWidget):
         self.prompting_for_job_code = False
 
         jobCodeLayout = QGridLayout()
-        layout = QVBoxLayout()
+        layout = self.layout()
         layout.addLayout(jobCodeLayout)
         self.setLayout(layout)
 
@@ -564,7 +564,7 @@ class JobCodeOptionsWidget(QFramedWidget):
         return False
 
 
-class JobCodePanel(QScrollAreaNoFrame):
+class JobCodePanel(ScrollAreaNoFrame):
     """
     JobCode preferences widget
     """
@@ -585,6 +585,12 @@ class JobCodePanel(QScrollAreaNoFrame):
         self.jobCodeOptions.setObjectName("jobCodeOptions")
 
         self.jobCodePanel.addWidget(self.jobCodeOptions)
+        self.verticalScrollBarVisible.connect(
+            self.jobCodeOptions.containerVerticalScrollBar
+        )
+        self.horizontalScrollBarVisible.connect(
+            self.jobCodeOptions.containerHorizontalScrollBar
+        )
 
         widget = QWidget()
         layout = QVBoxLayout()

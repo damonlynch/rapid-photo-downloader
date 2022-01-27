@@ -37,10 +37,10 @@ from raphodo.destinationdisplay import (
 from raphodo.panelview import QPanelView
 from raphodo.rpdfile import FileType
 from raphodo.thumbnaildisplay import MarkedSummary
-from raphodo.viewutils import QScrollAreaNoFrame
+from raphodo.viewutils import ScrollAreaNoFrame
 
 
-class DestinationPanel(QScrollAreaNoFrame):
+class DestinationPanel(ScrollAreaNoFrame):
     def __init__(self, parent) -> None:
         super().__init__(parent)
         assert parent is not None
@@ -127,6 +127,12 @@ class DestinationPanel(QScrollAreaNoFrame):
 
         self.photoDestination.addWidget(self.photoDestinationWidget)
         self.videoDestination.addWidget(self.videoDestinationWidget)
+
+        for widget in (self.photoDestinationWidget, self.videoDestinationWidget, self.combinedDestinationDisplay):
+            self.verticalScrollBarVisible.connect(widget.containerVerticalScrollBar)
+        self.horizontalScrollBarVisible.connect(
+            self.videoDestinationWidget.containerHorizontalScrollBar
+        )
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)

@@ -34,10 +34,10 @@ from raphodo.devicedisplay import (
 from raphodo.filebrowse import FileSystemView
 from raphodo.destinationdisplay import DestinationDisplay
 from raphodo.constants import minFileSystemViewHeight
-from raphodo.viewutils import QFramedWidget, QScrollBarHLineFrame
+from raphodo.viewutils import TightFlexiFrame, device_name_highlight_color
 
 
-class ComputerWidget(QFramedWidget):
+class ComputerWidget(TightFlexiFrame):
     """
     Combines a device view or destination display, and a file system view, into one
     widget.
@@ -55,10 +55,9 @@ class ComputerWidget(QFramedWidget):
         select_text: str,
         parent: QWidget = None,
     ) -> None:
-
-        super().__init__(parent)
+        super().__init__(parent=parent)
         self.setObjectName(objectName)
-        layout = QVBoxLayout()
+        layout = self.layout()
         border_width = QSplitter().lineWidth()
         layout.setContentsMargins(
             border_width, border_width, border_width, border_width
@@ -69,7 +68,6 @@ class ComputerWidget(QFramedWidget):
         self.view = view
         self.view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
         self.fileSystemView = fileSystemView
-        self.fileSystemHLine = QScrollBarHLineFrame(widget=self.fileSystemView)
         self.emulatedHeader = EmulatedHeaderRow(select_text)
         self.emulatedHeader.setSizePolicy(
             QSizePolicy.MinimumExpanding, QSizePolicy.Maximum
@@ -78,7 +76,9 @@ class ComputerWidget(QFramedWidget):
         layout.addWidget(self.emulatedHeader)
         layout.addWidget(self.view)
         layout.addStretch()
-        layout.addWidget(self.fileSystemHLine, 5)
+        # the value 5 ensures there is a standard gap between the device view and the
+        # file system view
+        layout.addWidget(self.fileSystemView, 5)
         self.view.setStyleSheet("QListView {border: none;}")
         self.fileSystemView.setFrameShape(QFrame.NoFrame)
 
