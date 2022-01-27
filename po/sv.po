@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2022-01-13 12:49-0500\n"
-"PO-Revision-Date: 2021-11-03 11:04+0000\n"
+"PO-Revision-Date: 2022-01-27 20:40+0000\n"
 "Last-Translator: Joachim Johansson <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2022-01-14 19:56+0000\n"
-"X-Generator: Launchpad (build 0072e2709f85567cc6c8d33e98acde9fcc09f491)\n"
+"X-Launchpad-Export-Date: 2022-01-27 23:16+0000\n"
+"X-Generator: Launchpad (build 350910d62fbd6b4e36ef1ce314e5d23c26881ce6)\n"
 "Language: sv\n"
 
 #: ../install.py:76
@@ -191,19 +191,23 @@ msgstr ""
 
 #: ../install.py:2782
 msgid "Query to confirm action at each step."
-msgstr ""
+msgstr "Bekräfta varje steg"
 
 #: ../install.py:2792
 msgid ""
 "When downloading the latest version, install the development version if it "
 "is newer than the stable version."
 msgstr ""
+"När du laddar ner den senaste versionen, välj utvecklarversionen om den är "
+"nyare än den senaste stabila versionen."
 
 #: ../install.py:2803
 msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
+"Valfritt tar.gz-installationsarkiv för Rapid Photo Downloader. Om inte annat "
+"anges laddas den senaste versionen ner från internet."
 
 #: ../install.py:2846
 msgid ""
@@ -211,29 +215,39 @@ msgid ""
 "archive if it is newer than this version ({}). The default is to run "
 "whichever installer is newer."
 msgstr ""
+"Använd inte installeraren i tar.gz-installationsarkivet för Rapid Photo "
+"Downloader om den är nyare än version ({}). Grundinställningen är att köra "
+"den som är nyast."
 
 #: ../install.py:2854
 msgid ""
 "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
 "dependencies."
 msgstr ""
+"Avinstallera Rapid Photo Downloader som tidigare installerats med pip, men "
+"behåll beroendefiler."
 
 #: ../install.py:2860
 msgid ""
 "Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
 "installation, and Rapid Photo Downloader itself, then exit."
 msgstr ""
+"Avinstallera beroendefiler som tidigare installerats med pip, och Rapid "
+"Photo Downloader. Avsluta sedan."
 
 #: ../install.py:2865
 msgid ""
 "Note: this will not uninstall any version of Rapid Photo Downloader "
 "installed by your Linux distribution's package manager."
 msgstr ""
+"Observera: Detta kommer inte att avinstallera Rapid Photo Downloader som "
+"installerats med din pakethanterare."
 
 #: ../install.py:2873
 msgid ""
 "Dependencies will only be removed if they are not required by other programs."
 msgstr ""
+"Beroendefiler kommer bara att tas bort om de inte används av andra program."
 
 #: ../install.py:2881
 msgid ""
@@ -244,6 +258,11 @@ msgid ""
 "Photo Downloader installed by your Linux distribution's package manager will "
 "not be uninstalled."
 msgstr ""
+"Obeservera: Det här kommer att ta bort filberoenden oavsett om de behövs av "
+"andra program som installerats med pip. Uppgradera till pip 9.0 eller senare "
+"om du vill undvika detta. Använd kommandot 'python3 -m pip install pip -U --"
+"user'.  Observera dessutom att detta kommer inte att avinstallera Rapid "
+"Photo Downloader som installerats med din pakethanterare."
 
 #: ../install.py:2905
 msgid ""
@@ -277,6 +296,10 @@ msgid ""
 "\n"
 "Exiting.\n"
 msgstr ""
+"Tyvärr hittades inte installeraren. Kontrollera din internetuppkoppling och "
+"se till att du når https://www.damonlynch.net\n"
+"\n"
+"Avslutar.\n"
 
 #: ../install.py:3247
 msgid ""
@@ -394,7 +417,7 @@ msgstr ""
 
 #: ../install.py:3871
 msgid "Done."
-msgstr ""
+msgstr "Klart."
 
 #: ../install.py:3885
 msgid ""
@@ -477,7 +500,7 @@ msgstr ""
 
 #: ../install.py:4108
 msgid "Exiting..."
-msgstr ""
+msgstr "Avslutar..."
 
 #: ../install.py:4124
 msgid "To continue, the package python3-apt must be installed."
@@ -498,45 +521,45 @@ msgstr ""
 #. Translators: do not translate the term python or requests
 #: ../install.py:4204
 msgid "Installing python requests"
-msgstr ""
+msgstr "Installerar python requests"
 
 #: ../upgrade.py:84
 msgid "Upgrade Rapid Photo Downloader"
-msgstr ""
+msgstr "Uppgradera Rapid Photo Downloader"
 
 #: ../upgrade.py:647 ../raphodo/viewutils.py:302 ../raphodo/viewutils.py:322
 msgid "&Cancel"
-msgstr ""
+msgstr "&Avbryt"
 
 #: ../upgrade.py:651
 msgid "&Upgrade"
-msgstr ""
+msgstr "&Uppgradera"
 
 #: ../upgrade.py:656
 #, python-format
 msgid "Click the Upgrade button to upgrade to version %s."
-msgstr ""
+msgstr "Klicka på Uppgradera för att uppgradera till version %s."
 
 #: ../upgrade.py:659
 msgid "Click the Upgrade button to start the upgrade."
-msgstr ""
+msgstr "Klicka på Uppgradera för att starta uppgraderingen"
 
 #: ../upgrade.py:662 ../upgrade.py:668 ../raphodo/viewutils.py:301
 #: ../raphodo/viewutils.py:321
 msgid "&Close"
-msgstr ""
+msgstr "&Stäng"
 
 #: ../upgrade.py:663
 msgid "&Run"
-msgstr ""
+msgstr "&Kör"
 
 #: ../upgrade.py:693
 msgid "Close Rapid Photo Downloader before running this upgrade."
-msgstr ""
+msgstr "Stäng Rapid Photo Downloader innan du uppgraderar."
 
 #: ../upgrade.py:696
 msgid "Upgrade running..."
-msgstr ""
+msgstr "Kör uppgraderingen.."
 
 #: ../upgrade.py:732
 #, python-format
@@ -544,29 +567,33 @@ msgid ""
 "Successfully upgraded to %s. Click Close to exit, or Run to start the "
 "program."
 msgstr ""
+"Lyckad uppgradering till %s. Klicka Stäng för att avsluta eller Kör för att "
+"starta programmet."
 
 #: ../upgrade.py:737
 msgid ""
 "Upgrade finished successfully. Click Close to exit, or Run to start the "
 "program."
 msgstr ""
+"Uppgraderingen lyckades. Klicka Stäng för att avsluta eller Kör för att "
+"starta programmet."
 
 #: ../upgrade.py:741
 msgid "Upgrade failed. Click Close to exit."
-msgstr ""
+msgstr "Uppgradering misslyckades. Klicka Stäng för att avsluta."
 
 #: ../upgrade.py:11215
 #, python-format
 msgid "Upgrading %s..."
-msgstr ""
+msgstr "Uppgraderar %s..."
 
 #: ../upgrade.py:11217
 msgid "Press any key to continue..."
-msgstr ""
+msgstr "Tryck på valfri tangent för att fortsätta..."
 
 #: ../upgrade.py:11230
 msgid "Rapid Photo Downloader upgrade failed"
-msgstr ""
+msgstr "Uppgraderingen av Rapid Photo Downloader misslyckades"
 
 #: ../upgrade.py:11232
 #, python-format
@@ -576,11 +603,11 @@ msgstr ""
 
 #: ../raphodo/aboutdialog.py:335
 msgid "Credits"
-msgstr ""
+msgstr "Tack till"
 
 #: ../raphodo/aboutdialog.py:340
 msgid "Translators"
-msgstr ""
+msgstr "Översättare"
 
 #: ../raphodo/backuppanel.py:279
 msgid "Backups are not configured"
@@ -775,11 +802,11 @@ msgstr "Anpassad..."
 
 #: ../raphodo/destinationdisplay.py:751
 msgid "Configure photo subfolder creation"
-msgstr ""
+msgstr "Ställ in skapandet av undermappar för bilder"
 
 #: ../raphodo/destinationdisplay.py:753
 msgid "Configure video subfolder creation"
-msgstr ""
+msgstr "Ställ in skapandet av undermappar för filmer"
 
 #: ../raphodo/devicedisplay.py:1164
 msgid "Other"
@@ -877,7 +904,7 @@ msgstr "%(no_devices)s enheter"
 #: ../raphodo/devices.py:1653
 #, python-format
 msgid "%s + %s"
-msgstr ""
+msgstr "%s + %s"
 
 #: ../raphodo/didyouknow.py:55
 msgid "Click on a file's checkbox to mark or unmark it for download."
