@@ -2321,7 +2321,7 @@ class RapidWindow(QMainWindow):
         )
         self.deviceToggleView = QToggleView(
             label=_("Devices"),
-            display_alternate=True,
+            display_alternate=False,
             toggleToolTip=tip,
             headerColor=QColor(ThumbnailBackgroundName),
             headerFontColor=QColor(Qt.white),
@@ -2846,7 +2846,7 @@ class RapidWindow(QMainWindow):
                     "devices were removed as a download source"
                 )
         else:
-            # This is a real hack -- but I don't know a better way to let the
+            # FIXME This is a real hack -- but I don't know a better way to let the
             # slider redraw itself
             QTimer.singleShot(100, self.devicesViewToggledOn)
         self.adjustLeftPanelSplitterHandle()

@@ -495,6 +495,15 @@ class ListViewFlexiFrame(QListView, FlexiFrameObject):
             self.paintBorders(painter=painter, rect=self.viewport().rect())
 
 
+class BlankWidget(FlexiFrame):
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        palette = QPalette()
+        palette.setColor(QPalette.Window, palette.color(palette.Base))
+        self.setAutoFillBackground(True)
+        self.setPalette(palette)
+
+
 class ProxyStyleNoFocusRectangle(QProxyStyle):
     """
     Remove the focus rectangle from a widget

@@ -31,20 +31,11 @@ import logging
 from typing import Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QSize
 from PyQt5.QtGui import QColor, QPalette
-from PyQt5.QtWidgets import QWidget, QLayout
+from PyQt5.QtWidgets import QWidget, QLayout, QSizePolicy
 
 from raphodo.toggleswitch import QToggleSwitch
 from raphodo.panelview import QPanelView
-from raphodo.viewutils import FlexiFrame
-
-
-class BlankWidget(FlexiFrame):
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        palette = QPalette()
-        palette.setColor(QPalette.Window, palette.color(palette.Base))
-        self.setAutoFillBackground(True)
-        self.setPalette(palette)
+from raphodo.viewutils import BlankWidget
 
 
 class QToggleView(QPanelView):
