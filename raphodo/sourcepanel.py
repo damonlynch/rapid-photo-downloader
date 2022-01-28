@@ -78,12 +78,18 @@ class SourcePanel(ScrollAreaNoFrame):
         Add source widgets and timeline
         """
 
-        self.rapidApp.deviceToggleView.setSizePolicy(
+        self.deviceToggleView = self.rapidApp.deviceToggleView
+        self.deviceView = self.rapidApp.deviceView
+        self.thisComputerToggleView = self.rapidApp.thisComputerToggleView
+        self.thisComputer = self.rapidApp.thisComputer
+        self.temporalProximity = self.rapidApp.temporalProximity
+
+        self.deviceToggleView.setSizePolicy(
             QSizePolicy.MinimumExpanding, QSizePolicy.Fixed
         )
 
-        self.sourcePanelWidgetLayout.addWidget(self.rapidApp.deviceToggleView, 0)
-        self.splitter.addWidget(self.rapidApp.thisComputerToggleView)
+        self.sourcePanelWidgetLayout.addWidget(self.deviceToggleView, 0)
+        self.splitter.addWidget(self.thisComputerToggleView)
 
         self.splitter.setCollapsible(0, False)
 
@@ -93,18 +99,18 @@ class SourcePanel(ScrollAreaNoFrame):
             self.placeTemporalProximityInSplitter()
 
         for widget in (
-            self.rapidApp.deviceView,
-            self.rapidApp.thisComputer,
-            self.rapidApp.thisComputerToggleView.alternateWidget,
+            self.deviceView,
+            self.thisComputer,
+            self.thisComputerToggleView.alternateWidget,
         ):
             self.verticalScrollBarVisible.connect(widget.containerVerticalScrollBar)
 
-        for widget in self.rapidApp.temporalProximity.flexiFrameWidgets():
+        for widget in self.temporalProximity.flexiFrameWidgets():
             self.verticalScrollBarVisible.connect(widget.containerVerticalScrollBar)
             self.horizontalScrollBarVisible.connect(widget.containerHorizontalScrollBar)
 
     def placeTemporalProximityInSplitter(self) -> None:
-        self.splitter.addWidget(self.rapidApp.temporalProximity)
+        self.splitter.addWidget(self.temporalProximity)
         self.sourcePanelWidgetLayout.addWidget(self.splitter)
         self.splitter.setCollapsible(1, False)
         self.splitter.setStretchFactor(0, 1)
@@ -112,7 +118,7 @@ class SourcePanel(ScrollAreaNoFrame):
         self.temporalProximityInSplitter = True
 
     def placeTemporalProximityInSourcePanel(self) -> None:
-        self.sourcePanelWidgetLayout.addWidget(self.rapidApp.temporalProximity)
+        self.sourcePanelWidgetLayout.addWidget(self.temporalProximity)
         self.temporalProximityInSplitter = False
 
     def exchangeTemporalProximityContainer(self) -> None:
@@ -122,11 +128,11 @@ class SourcePanel(ScrollAreaNoFrame):
             self.placeTemporalProximityInSplitter()
 
     def setDeviceToggleViewVisible(self, visible: bool) -> None:
-        self.rapidApp.deviceToggleView.setVisible(visible)
+        self.deviceToggleView.setVisible(visible)
         self.splitter.setVisible(visible)
 
     def setThisComputerToggleViewVisible(self, visible: bool) -> None:
-        self.rapidApp.thisComputerToggleView.setVisible(visible)
+        self.thisComputerToggleView.setVisible(visible)
 
     def setThisComputerBottomFrame(self, temporalProximityVisible: bool) -> None:
         """
@@ -151,29 +157,35 @@ class SourcePanel(ScrollAreaNoFrame):
                 self.thisComputerAltBottomFrameConnection = None
             # Always show the bottom edge frame, regardless of what the scroll area
             # scrollbar is doing
-            self.rapidApp.thisComputer.containerHorizontalScrollBar(False)
-            self.rapidApp.thisComputerToggleView.alternateWidget.containerHorizontalScrollBar(
+            self.thisComputer.containerHorizontalScrollBar(False)
+            self.thisComputerToggleView.alternateWidget.containerHorizontalScrollBar(
                 False
             )
         else:
             if self.thisComputerBottomFrameConnection is None:
                 self.thisComputerBottomFrameConnection = (
                     self.horizontalScrollBarVisible.connect(
-                        self.rapidApp.thisComputer.containerHorizontalScrollBar
+                        self.thisComputer.containerHorizontalScrollBar
                     )
                 )
             if self.thisComputerAltBottomFrameConnection is None:
                 self.thisComputerAltBottomFrameConnection = (
                     self.horizontalScrollBarVisible.connect(
-                        self.rapidApp.thisComputerToggleView.alternateWidget.containerHorizontalScrollBar
+                        self.thisComputerToggleView.alternateWidget.containerHorizontalScrollBar
                     )
                 )
-            self.rapidApp.thisComputer.containerHorizontalScrollBar(
+            self.thisComputer.containerHorizontalScrollBar(
                 self.horizontalScrollBar().isVisible()
             )
-            self.rapidApp.thisComputerToggleView.alternateWidget.containerHorizontalScrollBar(
+            self.thisComputerToggleView.alternateWidget.containerHorizontalScrollBar(
                 self.horizontalScrollBar().isVisible()
             )
+
+    def setTemporalProximityVisible(self, visible: bool) -> None:
+        self.setThisComputerBottomFrame(visible)
+        self.temporalProximity.setVisible(visible)
+        if not self.thisComputerToggleView.on():
+            self.thisComputerToggleView.alternateWidget.setVisible(not visible)
 
 
 class LeftPanelContainer(QWidget):

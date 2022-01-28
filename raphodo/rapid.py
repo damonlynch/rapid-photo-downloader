@@ -1912,8 +1912,7 @@ class RapidWindow(QMainWindow):
     @pyqtSlot()
     def proximityButtonClicked(self) -> None:
         checked = self.proximityButton.isChecked()
-        self.sourcePanel.setThisComputerBottomFrame(checked)
-        self.temporalProximity.setVisible(checked)
+        self.sourcePanel.setTemporalProximityVisible(checked)
         self.temporalProximityControls.setVisible(checked)
         self.setLeftPanelVisibility()
         self.adjustLeftPanelSplitterHandle()
