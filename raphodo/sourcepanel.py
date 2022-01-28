@@ -169,10 +169,8 @@ class SourcePanel(ScrollAreaNoFrame):
                     )
                 )
             if self.thisComputerAltBottomFrameConnection is None:
-                self.thisComputerAltBottomFrameConnection = (
-                    self.horizontalScrollBarVisible.connect(
-                        self.thisComputerToggleView.alternateWidget.containerHorizontalScrollBar
-                    )
+                self.thisComputerAltBottomFrameConnection = self.horizontalScrollBarVisible.connect(
+                    self.thisComputerToggleView.alternateWidget.containerHorizontalScrollBar
                 )
             self.thisComputer.containerHorizontalScrollBar(
                 self.horizontalScrollBar().isVisible()
@@ -184,8 +182,13 @@ class SourcePanel(ScrollAreaNoFrame):
     def setTemporalProximityVisible(self, visible: bool) -> None:
         self.setThisComputerBottomFrame(visible)
         self.temporalProximity.setVisible(visible)
+        self.setThisComputerAltWidgetVisible(visible)
+
+    def setThisComputerAltWidgetVisible(self, temporalProximityVisible: bool) -> None:
         if not self.thisComputerToggleView.on():
-            self.thisComputerToggleView.alternateWidget.setVisible(not visible)
+            self.thisComputerToggleView.alternateWidget.setVisible(
+                not temporalProximityVisible
+            )
 
 
 class LeftPanelContainer(QWidget):

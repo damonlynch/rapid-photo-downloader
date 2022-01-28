@@ -2816,6 +2816,10 @@ class RapidWindow(QMainWindow):
             self.prefs.this_computer_path = ""
             self.thisComputerFSView.clearSelection()
 
+        if not self.on_startup:
+            self.sourcePanel.setThisComputerAltWidgetVisible(
+                self.temporalProximity.isVisible()
+            )
         self.adjustLeftPanelSplitterHandle()
 
     @pyqtSlot()
