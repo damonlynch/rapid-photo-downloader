@@ -69,7 +69,19 @@ class SourcePanel(ScrollAreaNoFrame):
         :return: True if only widget to be displayed is the Timeline, else False
         """
 
-        return self.rapidApp.sourceButton.isChecked()
+        return self.rapidApp.sourceButton.isChecked() or (
+            self.rapidApp.on_startup and self.rapidApp.sourceButtonSetting()
+        )
+
+    def temporalProximityIsChecked(self) -> bool:
+        """
+        Determine if the Timeline is or is going to be visible. Works during startup.
+        :return: True if the Timeline is or will be visible, else False
+        """
+
+        return self.rapidApp.proximityButton.isChecked() or (
+            self.rapidApp.on_startup and self.rapidApp.proximityButtonSetting()
+        )
 
     def needSplitter(self) -> bool:
         """
@@ -83,14 +95,6 @@ class SourcePanel(ScrollAreaNoFrame):
             and self.thisComputerToggleView.on()
             and self.sourcesIsChecked()
         )
-
-    def temporalProximityIsChecked(self) -> bool:
-        """
-        Determine if the Timeline is or is going to be visible. Works during startup.
-        :return: True if the Timeline is or will be visible, else False
-        """
-
-        return self.rapidApp.proximityButton.isChecked()
 
     def addSourceViews(self) -> None:
         """

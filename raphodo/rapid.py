@@ -1490,6 +1490,22 @@ class RapidWindow(QMainWindow):
         settings.setValue("visible", self.errorLog.isVisible())
         settings.endGroup()
 
+    @staticmethod
+    def sourceButtonSetting() -> bool:
+        settings = QSettings()
+        settings.beginGroup("MainWindow")
+        on = settings.value("sourceButtonPressed", True, bool)
+        settings.endGroup()
+        return on
+
+    @staticmethod
+    def proximityButtonSetting() -> bool:
+        settings = QSettings()
+        settings.beginGroup("MainWindow")
+        on = settings.value("proximityButtonPressed", True, bool)
+        settings.endGroup()
+        return on
+
     def moveEvent(self, event: QMoveEvent) -> None:
         """
         Handle quirks in window positioning.
@@ -1906,35 +1922,6 @@ class RapidWindow(QMainWindow):
         self.sourcePanel.setTemporalProximityVisible(checked)
         self.temporalProximityControls.setVisible(checked)
         self.setLeftPanelVisibility()
-        self.adjustLeftPanelSplitterHandle()
-
-    def adjustLeftPanelSplitterHandle(self):
-        """
-        Move left panel splitter handle in response to devices / this computer /
-        timeline changes.
-        """
-
-        # Give the deviceToggleView all the room it needs
-        self.deviceToggleView.updateGeometry()
-
-        min_this_computer_height = self.thisComputerToggleView.minimumHeight()
-
-        if self.thisComputerToggleView.on():
-            this_computer_height = max(
-                min_this_computer_height, self.centerSplitter.height()
-            )
-        else:
-            this_computer_height = min_this_computer_height
-
-        if self.proximityButton.isChecked():
-            if not self.thisComputerToggleView.on():
-                proximity_height = self.centerSplitter.height() - this_computer_height
-            else:
-                proximity_height = this_computer_height // 2
-                this_computer_height = this_computer_height // 2
-        else:
-            proximity_height = 0
-        self.sourcePanel.splitter.setSizes([this_computer_height, proximity_height])
 
     @pyqtSlot(int)
     def showComboChanged(self, index: int) -> None:
@@ -2514,9 +2501,8 @@ class RapidWindow(QMainWindow):
 
         splitterSetting = settings.value("leftPanelSplitterSizes")
         if splitterSetting is not None:
-            self.sourcePanel.splitter.restoreState(splitterSetting)
-        else:
-            self.sourcePanel.splitter.setSizes([200, 200, 400])
+            if not self.sourcePanel.splitter.restoreState(splitterSetting):
+                logging.debug("Restoring source splitter size failed")
 
         splitterSetting = settings.value("rightPanelSplitterSizes")
         if splitterSetting is not None:
@@ -2809,7 +2795,6 @@ class RapidWindow(QMainWindow):
 
         if not self.on_startup:
             self.sourcePanel.setThisComputerState()
-        self.adjustLeftPanelSplitterHandle()
 
     @pyqtSlot()
     def thisComputerFileBrowserReset(self) -> None:
@@ -2839,7 +2824,6 @@ class RapidWindow(QMainWindow):
                 )
         else:
             self.devicesViewToggledOn()
-        self.adjustLeftPanelSplitterHandle()
 
     def proximityStatePostDeviceRemoval(self) -> TemporalProximityState:
         """
@@ -4731,7 +4715,7 @@ Do you want to proceed with the download?
             self.updateSourceButton()
             self.deviceModel.updateDeviceNameAndStorage(scan_id, device)
             self.thumbnailModel.addOrUpdateDevice(scan_id=scan_id)
-            self.adjustLeftPanelSplitterHandle()
+            self.updateDeviceWidgetGeometry(device_type=device.device_type)
         else:
             logging.debug(
                 "Ignoring optimal display name %s and other details because that "
@@ -5151,11 +5135,12 @@ Do you want to proceed with the download?
 
     def addToDeviceDisplay(self, device: Device, scan_id: int) -> None:
         self.mapModel(scan_id).addDevice(scan_id, device)
-        self.adjustLeftPanelSplitterHandle()
-        # Resize the "This Computer" view after a device has been added
-        # If not done, the widget geometry will not be updated to reflect
-        # the new view.
-        if device.device_type == DeviceType.path:
+        self.updateDeviceWidgetGeometry(device_type=device.device_type)
+
+    def updateDeviceWidgetGeometry(self, device_type: DeviceType):
+        if device_type != DeviceType.path:
+            self.deviceToggleView.updateGeometry()
+        if device_type == DeviceType.path:
             self.thisComputerView.updateGeometry()
 
     @pyqtSlot()
@@ -5821,7 +5806,7 @@ Do you want to proceed with the download?
             self.folder_preview_manager.remove_folders_for_device(scan_id=scan_id)
 
             del self.devices[scan_id]
-            self.adjustLeftPanelSplitterHandle()
+            self.updateDeviceWidgetGeometry(device_type=device.device_type)
 
             if device.device_type == DeviceType.path:
                 self.thisComputer.setViewVisible(False)
