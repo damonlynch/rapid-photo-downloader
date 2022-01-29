@@ -1476,9 +1476,7 @@ class RapidWindow(QMainWindow):
         settings.setValue("sourceButtonPressed", self.sourceButton.isChecked())
         settings.setValue("rightButtonPressed", self.rightSideButtonPressed())
         settings.setValue("proximityButtonPressed", self.proximityButton.isChecked())
-        settings.setValue(
-            "leftPanelSplitterSizes", self.sourcePanel.splitter.saveState()
-        )
+        # left panel splitter sizes are saved / read on use
         settings.setValue(
             "rightPanelSplitterSizes", self.destinationPanel.splitter.saveState()
         )
@@ -2499,10 +2497,7 @@ class RapidWindow(QMainWindow):
         else:
             self.centerSplitter.setSizes([200, 400, 200])
 
-        splitterSetting = settings.value("leftPanelSplitterSizes")
-        if splitterSetting is not None:
-            if not self.sourcePanel.splitter.restoreState(splitterSetting):
-                logging.debug("Restoring source splitter size failed")
+        # left panel splitter sizes are saved / read on use
 
         splitterSetting = settings.value("rightPanelSplitterSizes")
         if splitterSetting is not None:

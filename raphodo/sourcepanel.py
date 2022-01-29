@@ -26,7 +26,7 @@ __copyright__ = "Copyright 2017-2022, Damon Lynch"
 import logging
 from typing import Optional
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSettings
 from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout, QSizePolicy
 
 from raphodo.viewutils import ScrollAreaNoFrame
@@ -43,6 +43,9 @@ class SourcePanel(ScrollAreaNoFrame):
         assert rapidApp is not None
         self.rapidApp = rapidApp
         self.prefs = self.rapidApp.prefs
+
+        self.settings = QSettings()
+        self.settings.beginGroup("MainWindow")
 
         self.setObjectName("sourcePanelScrollArea")
 
@@ -145,6 +148,11 @@ class SourcePanel(ScrollAreaNoFrame):
 
         layout = self.sourcePanelWidget.layout()  # type: QVBoxLayout
         if not self.needSplitter():
+            if self.splitter.isVisible():
+                self.settings.setValue(
+                    "leftPanelSplitterSizes", self.splitter.saveState()
+                )
+                self.settings.sync()
             layout.addWidget(self.thisComputerToggleView)
             layout.addWidget(self.temporalProximity)
             layout.addWidget(self.splitter)
@@ -157,6 +165,14 @@ class SourcePanel(ScrollAreaNoFrame):
                 self.splitter.setStretchFactor(index, 1)
                 self.splitter.setCollapsible(index, False)
             self.splitter.setVisible(True)
+
+            splitterSetting = self.settings.value("leftPanelSplitterSizes")
+            if splitterSetting is not None:
+                if not self.splitter.restoreState(splitterSetting):
+                    logging.debug(
+                        "Did not restore left splitter sizing because it is no "
+                        "longer valid"
+                    )
 
         self.setThisComputerToggleViewSizePolicy()
 
