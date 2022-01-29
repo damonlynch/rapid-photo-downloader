@@ -13,6 +13,10 @@ Changelog for Rapid Photo Downloader
    Thumbnail generation overwrites Job Code applied to files before thumbnails
    are generated. 
 
+ - Fix bug [#55](https://github.com/damonlynch/rapid-photo-downloader/issues/55)
+   Updated sequence numbers not used when changed in user interface between file
+   downloads.
+
  - Fix bug to properly size thumbnails and hamburger menu on high DPI screens 
    with recent releases of Gnome and other desktops that use xsettings.
 

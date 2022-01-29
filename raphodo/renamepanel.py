@@ -431,7 +431,7 @@ class RenameOptionsWidget(FlexiFrame):
 
     @stored_sequence_no.setter
     def stored_sequence_no(self, value: int) -> None:
-        logging.debug("Setting stored sequence no to %d", value)
+        logging.info("Setting stored sequence no to %d", value)
         self.prefs.stored_sequence_no = value - 1
 
     @pyqtSlot(QTime)

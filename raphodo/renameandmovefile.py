@@ -949,6 +949,10 @@ class RenameMoveFileWorker(DaemonProcess):
 
         # Synchronize QSettings instance in preferences class
         self.prefs.sync()
+        if self.prefs.any_pref_uses_stored_sequence_no():
+            logging.info(
+                "Stored number at download start: %s", self.prefs.stored_sequence_no + 1
+            )
 
         # Track downloads today, using a class whose purpose is to
         # take the value in the user prefs, increment, and then
@@ -1035,9 +1039,15 @@ class RenameMoveFileWorker(DaemonProcess):
                             self.send_message_to_sink()
 
                         # Ask main application process to update prefs with stored
-                        # sequence number and downloads today values. Cannot do it
-                        # here because to save QSettings, QApplication should be
-                        # used.
+                        # sequence number and downloads today values. But first sync
+                        # the prefs here, to write out the dirty values so they are not
+                        # saved when a sync is done at download start, overwriting
+                        # the values that may have been changed in the main process
+                        logging.debug(
+                            "Rename and move process syncing preferences to the file "
+                            "system"
+                        )
+                        self.prefs.sync()
                         self.content = pickle.dumps(
                             RenameAndMoveFileResults(
                                 stored_sequence_no=self.sequences.stored_sequence_no,

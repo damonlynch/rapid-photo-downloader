@@ -496,6 +496,9 @@ class Preferences:
     def sync(self):
         self.settings.sync()
 
+    def status(self) -> QSettings.Status:
+        return self.settings.status()
+
     def restore(self, key: str) -> None:
         self[key] = self.defaults[key]
 
