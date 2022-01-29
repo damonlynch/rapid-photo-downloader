@@ -55,23 +55,42 @@ class SourcePanel(ScrollAreaNoFrame):
         self.setWidget(self.sourcePanelWidget)
         self.setWidgetResizable(True)
 
-        self.sourcePanelWidgetLayout = QVBoxLayout()
-        self.sourcePanelWidgetLayout.setContentsMargins(0, 0, 0, 0)
-        self.sourcePanelWidgetLayout.setSpacing(self.splitter.handleWidth())
-        self.sourcePanelWidget.setLayout(self.sourcePanelWidgetLayout)
-
-        self.temporalProximityInSplitter = True
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(self.splitter.handleWidth())
+        self.sourcePanelWidget.setLayout(layout)
 
         self.thisComputerBottomFrameConnection = None
         self.thisComputerAltBottomFrameConnection = None
 
-    def showTemporalProximityOnly(self) -> bool:
-        return not (
-            self.rapidApp.sourceButton.isChecked()
-            # on startup, the button state has not yet been set, so read the setting
-            # directly
-            or self.rapidApp.sourceButtonSetting()
+    def sourcesIsChecked(self) -> bool:
+        """
+        Determine if download sources are to be visible.
+        :return: True if only widget to be displayed is the Timeline, else False
+        """
+
+        return self.rapidApp.sourceButton.isChecked()
+
+    def needSplitter(self) -> bool:
+        """
+        A splitter is used if the Timeline should be showed, and This Computer is
+        toggled on and is to be shown.
+
+        :return: True if splitter should be used, else False
+        """
+        return (
+            self.temporalProximityIsChecked()
+            and self.thisComputerToggleView.on()
+            and self.sourcesIsChecked()
         )
+
+    def temporalProximityIsChecked(self) -> bool:
+        """
+        Determine if the Timeline is or is going to be visible. Works during startup.
+        :return: True if the Timeline is or will be visible, else False
+        """
+
+        return self.rapidApp.proximityButton.isChecked()
 
     def addSourceViews(self) -> None:
         """
@@ -87,16 +106,12 @@ class SourcePanel(ScrollAreaNoFrame):
         self.deviceToggleView.setSizePolicy(
             QSizePolicy.MinimumExpanding, QSizePolicy.Fixed
         )
+        self.temporalProximity.setSizePolicy(
+            QSizePolicy.Preferred, QSizePolicy.MinimumExpanding
+        )
 
-        self.sourcePanelWidgetLayout.addWidget(self.deviceToggleView, 0)
-        self.splitter.addWidget(self.thisComputerToggleView)
-
-        self.splitter.setCollapsible(0, False)
-
-        if self.showTemporalProximityOnly():
-            self.placeTemporalProximityInSourcePanel()
-        else:
-            self.placeTemporalProximityInSplitter()
+        layout = self.sourcePanelWidget.layout()  # type: QVBoxLayout
+        layout.addWidget(self.deviceToggleView, 0)
 
         for widget in (
             self.deviceView,
@@ -109,37 +124,70 @@ class SourcePanel(ScrollAreaNoFrame):
             self.verticalScrollBarVisible.connect(widget.containerVerticalScrollBar)
             self.horizontalScrollBarVisible.connect(widget.containerHorizontalScrollBar)
 
-    def placeTemporalProximityInSplitter(self) -> None:
-        self.splitter.addWidget(self.temporalProximity)
-        self.sourcePanelWidgetLayout.addWidget(self.splitter)
-        self.splitter.setCollapsible(1, False)
-        self.splitter.setStretchFactor(0, 1)
-        self.splitter.setStretchFactor(1, 1)
-        self.temporalProximityInSplitter = True
+    def placeWidgets(self) -> None:
+        """
+        Place This Computer and Timeline widgets in the correct container
+        """
 
-    def placeTemporalProximityInSourcePanel(self) -> None:
-        self.sourcePanelWidgetLayout.addWidget(self.temporalProximity)
-        self.temporalProximityInSplitter = False
+        # Scenarios:
+        # TL = Timeline (temporal proximity)
+        # D = Device Toggle View
+        # TC = This Computer Toggle View
+        # TL only: TL in panel, D & TC hidden, splitter hidden
+        # Sources showing only: D & TC in panel, TL hidden, splitter hidden
+        # All showing: D in panel, and:
+        #   if TC on, TC and TL in splitter, splitter showing
+        #   if TC off, TC and TL in panel, splitter hidden
 
-    def exchangeTemporalProximityContainer(self) -> None:
-        if self.temporalProximityInSplitter:
-            self.placeTemporalProximityInSourcePanel()
+        layout = self.sourcePanelWidget.layout()  # type: QVBoxLayout
+        if not self.needSplitter():
+            layout.addWidget(self.thisComputerToggleView)
+            layout.addWidget(self.temporalProximity)
+            layout.addWidget(self.splitter)
+            self.splitter.setVisible(False)
         else:
-            self.placeTemporalProximityInSplitter()
+            layout.addWidget(self.splitter)
+            self.splitter.addWidget(self.thisComputerToggleView)
+            self.splitter.addWidget(self.temporalProximity)
+            for index in range(self.splitter.count()):
+                self.splitter.setStretchFactor(index, 1)
+                self.splitter.setCollapsible(index, False)
+            self.splitter.setVisible(True)
 
-    def setDeviceToggleViewVisible(self, visible: bool) -> None:
+        self.setThisComputerToggleViewSizePolicy()
+
+    def setThisComputerToggleViewSizePolicy(self) -> None:
+
+        if self.thisComputerToggleView.on():
+            if self.temporalProximityIsChecked():
+                self.thisComputerToggleView.setSizePolicy(
+                    QSizePolicy.Preferred, QSizePolicy.Preferred
+                )
+            else:
+                self.thisComputerToggleView.setSizePolicy(
+                    QSizePolicy.Preferred, QSizePolicy.MinimumExpanding
+                )
+        else:
+            if self.temporalProximityIsChecked():
+                self.thisComputerToggleView.setSizePolicy(
+                    QSizePolicy.Preferred, QSizePolicy.Fixed
+                )
+            else:
+                self.thisComputerToggleView.setSizePolicy(
+                    QSizePolicy.Preferred, QSizePolicy.MinimumExpanding
+                )
+
+    def setSourcesVisible(self, visible: bool) -> None:
         self.deviceToggleView.setVisible(visible)
-        self.splitter.setVisible(visible)
-
-    def setThisComputerToggleViewVisible(self, visible: bool) -> None:
         self.thisComputerToggleView.setVisible(visible)
+        self.splitter.setVisible(self.needSplitter())
 
     def setThisComputerBottomFrame(self, temporalProximityVisible: bool) -> None:
         """
         Connect or disconnect reaction of This Computer widget to the Scroll Area
         horizontal scroll bar becoming visible or not.
 
-        Idea is to not rect when the Timeline is visible, and react when it is hidden,
+        Idea is to not react when the Timeline is visible, and react when it is hidden,
         which is when the This Computer widget is the bottommost widget.
         :param temporalProximityVisible: whether the timeline is visible
         """
@@ -180,6 +228,7 @@ class SourcePanel(ScrollAreaNoFrame):
             )
 
     def setTemporalProximityVisible(self, visible: bool) -> None:
+        self.placeWidgets()
         self.setThisComputerBottomFrame(visible)
         self.temporalProximity.setVisible(visible)
         self.setThisComputerAltWidgetVisible(visible)
@@ -189,6 +238,11 @@ class SourcePanel(ScrollAreaNoFrame):
             self.thisComputerToggleView.alternateWidget.setVisible(
                 not temporalProximityVisible
             )
+
+    def setThisComputerState(self) -> None:
+        self.placeWidgets()
+        self.setThisComputerAltWidgetVisible(self.temporalProximityIsChecked())
+        self.setThisComputerToggleViewSizePolicy()
 
 
 class LeftPanelContainer(QWidget):

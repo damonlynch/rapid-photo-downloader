@@ -1490,14 +1490,6 @@ class RapidWindow(QMainWindow):
         settings.setValue("visible", self.errorLog.isVisible())
         settings.endGroup()
 
-    @staticmethod
-    def sourceButtonSetting() -> bool:
-        settings = QSettings()
-        settings.beginGroup("MainWindow")
-        on = settings.value("sourceButtonPressed", True, bool)
-        settings.endGroup()
-        return on
-
     def moveEvent(self, event: QMoveEvent) -> None:
         """
         Handle quirks in window positioning.
@@ -1887,9 +1879,8 @@ class RapidWindow(QMainWindow):
     @pyqtSlot()
     def sourceButtonClicked(self) -> None:
         if not self.on_startup:
-            self.sourcePanel.exchangeTemporalProximityContainer()
-        self.sourcePanel.setDeviceToggleViewVisible(self.sourceButton.isChecked())
-        self.sourcePanel.setThisComputerToggleViewVisible(self.sourceButton.isChecked())
+            self.sourcePanel.placeWidgets()
+        self.sourcePanel.setSourcesVisible(self.sourceButton.isChecked())
         self.setLeftPanelVisibility()
 
     @pyqtSlot()
@@ -2817,9 +2808,7 @@ class RapidWindow(QMainWindow):
             self.thisComputerFSView.clearSelection()
 
         if not self.on_startup:
-            self.sourcePanel.setThisComputerAltWidgetVisible(
-                self.temporalProximity.isVisible()
-            )
+            self.sourcePanel.setThisComputerState()
         self.adjustLeftPanelSplitterHandle()
 
     @pyqtSlot()
@@ -2849,9 +2838,7 @@ class RapidWindow(QMainWindow):
                     "devices were removed as a download source"
                 )
         else:
-            # FIXME This is a real hack -- but I don't know a better way to let the
-            # slider redraw itself
-            QTimer.singleShot(100, self.devicesViewToggledOn)
+            self.devicesViewToggledOn()
         self.adjustLeftPanelSplitterHandle()
 
     def proximityStatePostDeviceRemoval(self) -> TemporalProximityState:
