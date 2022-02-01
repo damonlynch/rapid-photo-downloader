@@ -46,7 +46,8 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QTableView,
     QScrollBar,
-    QStackedWidget,
+    QSplitter,
+    QSplitterHandle,
     QStyleOptionSlider,
 )
 from PyQt5.QtGui import (
@@ -60,6 +61,7 @@ from PyQt5.QtGui import (
     QColor,
     QPaintEvent,
     QPen,
+QMouseEvent,
 )
 from PyQt5.QtCore import (
     QSize,
@@ -210,6 +212,34 @@ def paletteMidPen() -> QPen:
         return QPen(QApplication.palette().mid().color().lighter(120))
     else:
         return QPen(QApplication.palette().mid().color())
+
+
+class SourceSplitterHandle(QSplitterHandle):
+    """
+    Splitter handle for Download Source Splitter
+    """
+
+    mousePress = pyqtSignal()
+    mouseReleased = pyqtSignal()
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        super().mousePressEvent(event)
+        self.mousePress.emit()
+
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        super().mouseReleaseEvent(event)
+        self.mouseReleased.emit()
+
+
+class SourceSplitter(QSplitter):
+    """
+    Download Source Splitter
+
+    Emits a signal when handle mouse pressed, and another when released
+    """
+
+    def createHandle(self) -> QSplitterHandle:
+        return SourceSplitterHandle(Qt.Vertical, self)
 
 
 class FramedScrollBar(QScrollBar):

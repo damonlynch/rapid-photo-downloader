@@ -2155,6 +2155,7 @@ class RapidWindow(QMainWindow):
 
     def createPathViews(self) -> None:
         self.deviceView = DeviceView(rapidApp=self)
+        self.deviceView.setObjectName("deviceView")
         self.deviceModel = DeviceModel(self, "Devices")
         self.deviceView.setModel(self.deviceModel)
         self.deviceView.setItemDelegate(DeviceDelegate(rapidApp=self))
@@ -4970,6 +4971,8 @@ Do you want to proceed with the download?
     ) -> None:
         if self.temporalProximity.setGroups(proximity_groups=proximity_groups):
             self.thumbnailModel.assignProximityGroups(proximity_groups.col1_col2_uid)
+        self.temporalProximity.setProximityHeight()
+        self.sourcePanel.setSplitterSize()
 
     def closeEvent(self, event) -> None:
         logging.debug("Close event activated")

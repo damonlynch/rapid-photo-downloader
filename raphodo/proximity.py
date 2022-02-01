@@ -68,6 +68,7 @@ from PyQt5.QtWidgets import (
     QToolButton,
     QAction,
     QFrame,
+    QApplication,
 )
 from PyQt5.QtGui import (
     QPainter,
@@ -1650,8 +1651,12 @@ class TemporalProximityView(QTableView):
         self.setWordWrap(True)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setShowGrid(False)
         self.setFrameShape(QFrame.NoFrame)
+
+    def contentHeight(self) -> int:
+        return self.verticalHeader().length()
 
     def _updateSelectionRowChildColumn2(
         self, row: int, parent_column: int, model: TemporalProximityModel
@@ -2113,6 +2118,8 @@ class TemporalProximity(QWidget):
 
         self.suppress_auto_scroll_after_timeline_select = False
 
+        # self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+
     def flexiFrameWidgets(self) -> Generator[QWidget, None, None]:
         return (self.stackedWidget.widget(i) for i in range(self.stackedWidget.count()))
 
@@ -2326,6 +2333,15 @@ class TemporalProximity(QWidget):
             view.verticalScrollBar().valueChanged.connect(view.scrollThumbnails)
         else:
             view.verticalScrollBar().valueChanged.disconnect(view.scrollThumbnails)
+
+    def setProximityHeight(self) -> None:
+        """
+        Set the height of the Timeline view to be the exact height of its contents
+        """
+
+        self.temporalProximityView.setMinimumHeight(
+            self.temporalProximityView.contentHeight()
+        )
 
 
 class TemporalProximityControls(QWidget):

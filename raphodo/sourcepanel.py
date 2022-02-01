@@ -26,10 +26,10 @@ __copyright__ = "Copyright 2017-2022, Damon Lynch"
 import logging
 from typing import Optional
 
-from PyQt5.QtCore import Qt, QSettings
-from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout, QSizePolicy
+from PyQt5.QtCore import Qt, QSettings, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QSizePolicy, QApplication, QStyle
 
-from raphodo.viewutils import ScrollAreaNoFrame
+from raphodo.viewutils import ScrollAreaNoFrame, SourceSplitter
 from raphodo.proximity import TemporalProximityControls
 
 
@@ -52,7 +52,7 @@ class SourcePanel(ScrollAreaNoFrame):
         self.sourcePanelWidget = QWidget(parent=self)
         self.sourcePanelWidget.setObjectName("sourcePanelWidget")
 
-        self.splitter = QSplitter(parent=self.sourcePanelWidget)
+        self.splitter = SourceSplitter(parent=self.sourcePanelWidget)
         self.splitter.setObjectName("sourcePanelSplitter")
         self.splitter.setOrientation(Qt.Vertical)
         self.setWidget(self.sourcePanelWidget)
@@ -65,6 +65,8 @@ class SourcePanel(ScrollAreaNoFrame):
 
         self.thisComputerBottomFrameConnection = None
         self.thisComputerAltBottomFrameConnection = None
+
+        self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
 
     def sourcesIsChecked(self) -> bool:
         """
@@ -162,8 +164,10 @@ class SourcePanel(ScrollAreaNoFrame):
             self.splitter.addWidget(self.thisComputerToggleView)
             self.splitter.addWidget(self.temporalProximity)
             for index in range(self.splitter.count()):
-                self.splitter.setStretchFactor(index, 1)
                 self.splitter.setCollapsible(index, False)
+            self.handle = self.splitter.handle(1)
+            self.handle.mousePress.connect(self.splitterHandleMousePress)
+            self.handle.mouseReleased.connect(self.splitterHandleMouseRelease)
             self.splitter.setVisible(True)
 
             splitterSetting = self.settings.value("leftPanelSplitterSizes")
@@ -263,6 +267,32 @@ class SourcePanel(ScrollAreaNoFrame):
         self.placeWidgets()
         self.setThisComputerAltWidgetVisible(self.temporalProximityIsChecked())
         self.setThisComputerToggleViewSizePolicy()
+
+    @pyqtSlot()
+    def splitterHandleMousePress(self) -> None:
+        y = self.handle.pos().y()
+        self.temporalProximity.temporalProximityView.setMinimumHeight(20)
+        self.handle.moveSplitter(y)
+
+    @pyqtSlot()
+    def splitterHandleMouseRelease(self) -> None:
+        y = self.handle.pos().y()
+        self.temporalProximity.setProximityHeight()
+        self.setSplitterSize()
+        self.handle.moveSplitter(y)
+
+    def setSplitterSize(self) -> None:
+        if self.needSplitter():
+            bottom_frame = (
+                0 if self.horizontalScrollBar().isVisible() else self.frame_width
+            )
+            self.splitter.setFixedHeight(
+                self.temporalProximity.temporalProximityView.contentHeight()
+                + self.splitter.sizes()[0]  # handle position
+                + self.splitter.handleWidth()
+                + self.frame_width
+                + bottom_frame
+            )
 
 
 class LeftPanelContainer(QWidget):
