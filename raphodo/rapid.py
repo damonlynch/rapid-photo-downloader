@@ -45,6 +45,7 @@ except locale.Error:
     pass
 
 from collections import defaultdict
+import functools
 import platform
 import argparse
 from typing import Dict, Set, Any, DefaultDict
@@ -122,6 +123,7 @@ from PyQt5.QtWidgets import (
     QSplitter,
     QHBoxLayout,
     QVBoxLayout,
+    QGridLayout,
     QLabel,
     QCheckBox,
     QSizePolicy,
@@ -317,6 +319,7 @@ from raphodo.viewutils import (
     scaledIcon,
     any_screen_scaled,
     standardMessageBox,
+    MainWindowSplitter,
 )
 from raphodo import viewutils
 import raphodo.didyouknow as didyouknow
@@ -2051,8 +2054,8 @@ class RapidWindow(QMainWindow):
         centralLayout = QHBoxLayout()
         centralLayout.setContentsMargins(0, 0, 0, 0)
 
-        self.leftBar = self.createLeftBar()
-        self.rightBar = self.createRightBar()
+        self.createLeftBar()
+        self.createRightBar()
 
         self.createLeftCenterRightPanels()
         self.createSourcePanel()
@@ -2113,20 +2116,17 @@ class RapidWindow(QMainWindow):
         hlayout.addWidget(self.menuButton)
         return topBar
 
-    def createLeftBar(self) -> QVBoxLayout:
+    def createLeftBar(self) -> None:
         leftBar = QVBoxLayout()
         leftBar.setContentsMargins(0, 0, 0, 0)
 
         self.proximityButton = RotatedButton(_("Timeline"), RotatedButton.leftSide)
         self.proximityButton.clicked.connect(self.proximityButtonClicked)
-        leftBar.addWidget(self.proximityButton)
-        leftBar.addStretch()
-        return leftBar
+        leftBar.addWidget(self.proximityButton, 1)
+        leftBar.addStretch(100)
+        self.leftBar = leftBar
 
-    def createRightBar(self) -> QVBoxLayout:
-        rightBar = QVBoxLayout()
-        rightBar.setContentsMargins(0, 0, 0, 0)
-
+    def createRightButtons(self) -> None:
         self.destinationButton = RotatedButton(
             _("Destination"), RotatedButton.rightSide
         )
@@ -2146,12 +2146,70 @@ class RapidWindow(QMainWindow):
             RightSideButton.backup: self.backupButton,
         }
 
-        rightBar.addWidget(self.destinationButton)
-        rightBar.addWidget(self.renameButton)
-        rightBar.addWidget(self.jobcodeButton)
-        rightBar.addWidget(self.backupButton)
-        rightBar.addStretch()
-        return rightBar
+    def createRightBar(self) -> None:
+        self.rightBar = QVBoxLayout()
+        self.rightBar.setContentsMargins(0, 0, 0, 0)
+        self.compressedRightBar = QGridLayout()
+        self.compressedRightBar.setContentsMargins(0, 0, 0, 0)
+        self.rightBar.addLayout(self.compressedRightBar)
+        self.rightBar.addStretch(100)
+        self.createRightButtons()
+        self.placeRightButtons(0)
+
+    @functools.lru_cache(maxsize=None)
+    def rightBarRequiredHeight(self) -> List[int]:
+        spacing = self.rightBar.spacing()
+        buttons = (
+            self.destinationButton,
+            self.renameButton,
+            self.jobcodeButton,
+            self.backupButton,
+        )
+        button_heights = [b.height() + spacing for b in buttons]
+        heights = [sum(button_heights)]
+        heights.append(sum(button_heights[:3]))
+        heights.append(max(sum(button_heights[:2]), sum(button_heights[2:4])))
+        heights.append(max(button_heights))
+        return heights
+
+    @pyqtSlot(int)
+    def rightBarResized(self, height: int) -> None:
+        heights = self.rightBarRequiredHeight()
+        index = 0
+        while height < heights[index] and index < len(heights) - 1:
+            index += 1
+
+        if index != self.right_bar_index:
+            self.placeRightButtons(index)
+
+    def placeRightButtons(self, index: int) -> None:
+        """
+        Place right side buttons into layout depending on the height
+        of the layout they're going into
+        """
+
+        self.right_bar_index = index
+        if index == 0:
+            self.rightBar.insertWidget(0, self.backupButton)
+            self.rightBar.insertWidget(0, self.jobcodeButton)
+            self.rightBar.insertWidget(0, self.renameButton)
+            self.rightBar.insertWidget(0, self.destinationButton)
+        elif index == 1:
+            self.compressedRightBar.addWidget(self.destinationButton, 0, 0)
+            self.compressedRightBar.addWidget(self.renameButton, 1, 0)
+            self.compressedRightBar.addWidget(self.jobcodeButton, 2, 0)
+            self.compressedRightBar.addWidget(self.backupButton, 0, 1)
+        elif index == 2:
+            self.compressedRightBar.addWidget(self.destinationButton, 0, 0)
+            self.compressedRightBar.addWidget(self.renameButton, 1, 0)
+            self.compressedRightBar.addWidget(self.jobcodeButton, 0, 1)
+            self.compressedRightBar.addWidget(self.backupButton, 1, 1)
+        else:
+            assert index == 3
+            self.compressedRightBar.addWidget(self.destinationButton, 0, 0)
+            self.compressedRightBar.addWidget(self.renameButton, 0, 1)
+            self.compressedRightBar.addWidget(self.jobcodeButton, 0, 2)
+            self.compressedRightBar.addWidget(self.backupButton, 0, 3)
 
     def createPathViews(self) -> None:
         self.deviceView = DeviceView(rapidApp=self)
@@ -2470,9 +2528,8 @@ class RapidWindow(QMainWindow):
         layout.addWidget(self.selectAllVideosCheckbox)
 
     def createLeftCenterRightPanels(self) -> None:
-        self.centerSplitter = QSplitter()
-        self.centerSplitter.setObjectName("mainWindowHorizontalSplitter")
-        self.centerSplitter.setOrientation(Qt.Horizontal)
+        self.centerSplitter = MainWindowSplitter()
+        self.centerSplitter.heightChanged.connect(self.rightBarResized)
         self.rightPanels = QStackedWidget()
         self.rightPanels.setObjectName("rightPanels")
 

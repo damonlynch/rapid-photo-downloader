@@ -60,7 +60,6 @@ from raphodo.constants import (
     Roles,
     ViewRowType,
     BackupLocationType,
-    HLineLocation,
 )
 from raphodo.viewutils import (
     FlexiFrame,

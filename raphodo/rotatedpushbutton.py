@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,12 +17,18 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
+__copyright__ = "Copyright 2015-2022, Damon Lynch"
 
 from enum import IntEnum
 
 from PyQt5.QtGui import QColor, QPalette
-from PyQt5.QtWidgets import QPushButton, QStylePainter, QStyle, QStyleOptionButton
+from PyQt5.QtWidgets import (
+    QPushButton,
+    QStylePainter,
+    QStyle,
+    QStyleOptionButton,
+    QSizePolicy,
+)
 
 
 class VerticalRotation(IntEnum):
@@ -131,6 +137,7 @@ class RotatedButton(QPushButton, FlatButton):
             else:
                 self.setFlatStyle(self)
         self.setCheckable(checkable)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
 
     def paintEvent(self, event):
         painter = QStylePainter(self)

@@ -26,7 +26,6 @@ from pkg_resources import parse_version
 import sys
 
 from PyQt5.QtWidgets import (
-    QStyleOptionFrame,
     QStyle,
     QStylePainter,
     QWidget,
@@ -43,8 +42,6 @@ from PyQt5.QtWidgets import (
     QFrame,
     QListView,
     QVBoxLayout,
-    QHBoxLayout,
-    QTableView,
     QScrollBar,
     QSplitter,
     QSplitterHandle,
@@ -61,7 +58,8 @@ from PyQt5.QtGui import (
     QColor,
     QPaintEvent,
     QPen,
-QMouseEvent,
+    QMouseEvent,
+    QResizeEvent,
 )
 from PyQt5.QtCore import (
     QSize,
@@ -78,7 +76,7 @@ from PyQt5.QtCore import (
 
 QT5_VERSION = parse_version(QT_VERSION_STR)
 
-from raphodo.constants import ScalingDetected, HLineLocation
+from raphodo.constants import ScalingDetected
 import raphodo.xsettings as xsettings
 
 
@@ -212,6 +210,24 @@ def paletteMidPen() -> QPen:
         return QPen(QApplication.palette().mid().color().lighter(120))
     else:
         return QPen(QApplication.palette().mid().color())
+
+
+class MainWindowSplitter(QSplitter):
+
+    heightChanged = pyqtSignal(int)
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent=parent)
+        self.previous_height = 0
+        self.setObjectName("mainWindowHorizontalSplitter")
+        self.setOrientation(Qt.Horizontal)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+        height = self.height()
+        if height != self.previous_height:
+            self.heightChanged.emit(height)
+            self.previous_height = height
 
 
 class SourceSplitterHandle(QSplitterHandle):
@@ -493,9 +509,7 @@ class TightFlexiFrame(FlexiFrame):
 
 
 class FlexiScrollArea(TightFlexiFrame):
-    def __init__(
-        self, parent: Optional[QWidget] = None
-    ) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(render_top_edge=True, parent=parent)
         self.scrollArea = QScrollArea()
         self.scrollArea.setFrameShape(QFrame.NoFrame)

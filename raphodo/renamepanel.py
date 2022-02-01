@@ -43,13 +43,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QPalette
 
 
-from raphodo.constants import (
-    PresetPrefType,
-    NameGenerationType,
-    PresetClass,
-    FileType,
-    HLineLocation,
-)
+from raphodo.constants import PresetPrefType, NameGenerationType, PresetClass, FileType
 from raphodo.utilities import platform_c_maxint
 from raphodo.rpdfile import Photo, Video
 from raphodo.nameeditor import PrefDialog, make_sample_rpd_file, PresetComboBox

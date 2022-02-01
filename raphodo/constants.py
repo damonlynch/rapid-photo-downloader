@@ -771,13 +771,6 @@ class ScalingDetected(Enum):
     undetected = 4
 
 
-class HLineLocation(IntEnum):
-    top = 1
-    top_left_right = 2
-    bottom = 3
-    top_bottom = 4
-
-
 # Use the character . to for download_name and path to indicate the user manually
 # marked a file as previously downloaded
 manually_marked_previously_downloaded = "."
