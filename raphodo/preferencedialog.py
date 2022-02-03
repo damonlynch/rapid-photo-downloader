@@ -412,6 +412,9 @@ class PreferencesDialog(QDialog):
 
         self.automationBox = QGroupBox(_("Program Automation"))
         self.autoMount = QCheckBox(_("Mount devices not already automatically mounted"))
+        # Translators: This next sentence is used in a tool tip. Feel free to place the
+        # carriage return where you think it makes sense so that the tool tip does not
+        # stretch too far horizontally across the screen.
         tooltip = _(
             "Mount devices like memory cards when the desktop does\n"
             "not automatically mount them"
