@@ -1123,6 +1123,9 @@ class RapidWindow(QMainWindow):
 
         self.showMainWindow()
 
+        if self.mountMonitorTimer is not None:
+            self.mountMonitorTimer.start()
+
         if not EXIFTOOL_VERSION and self.prefs.warn_broken_or_missing_libraries:
             message = _(
                 "<b>ExifTool has a problem</b><br><br> "
@@ -1197,6 +1200,9 @@ class RapidWindow(QMainWindow):
         :return:
         """
 
+        self.mountMonitorTimer = None  # type: Optional[QTimer]
+        self.valid_mount_count = 0
+
         if self.is_wsl2:
             self.wslDriveMonitor = WslWindowsRemovableDriveMonitor()
             self.wslDriveMonitorThread = QThread()
@@ -1249,6 +1255,9 @@ class RapidWindow(QMainWindow):
                 logging.debug("Starting UDisks2 monitor...")
                 QTimer.singleShot(0, self.udisks2MonitorThread.start)
 
+                if not self.prefs.auto_mount:
+                    self.startMountMonitorTimer()
+
             if self.gvfs_controls_mounts:
                 # Gio.VolumeMonitor must be in the main thread, according to
                 # Gnome documentation
@@ -1263,6 +1272,13 @@ class RapidWindow(QMainWindow):
                 self.gvolumeMonitor.volumeAddedNoAutomount.connect(self.noGVFSAutoMount)
                 self.gvolumeMonitor.cameraPossiblyRemoved.connect(self.cameraRemoved)
                 self.gvolumeMonitor.cameraVolumeAdded.connect(self.cameraVolumeAdded)
+
+    def startMountMonitorTimer(self) -> None:
+        logging.debug("Starting monitor of valid mount count")
+        self.mountMonitorTimer = QTimer(self)
+        self.mountMonitorTimer.timeout.connect(self.manuallyMonitorNewMounts)
+        self.mountMonitorTimer.setTimerType(Qt.CoarseTimer)
+        self.mountMonitorTimer.setInterval(2000)
 
     def iOSInitErrorMessaging(self) -> None:
         """
@@ -2747,6 +2763,9 @@ class RapidWindow(QMainWindow):
         self.scan_all_again = self.scan_non_camera_devices_again = False
         self.search_for_devices_again = False
 
+        self.start_monitoring_mount_count = False
+        self.stop_monitoring_mount_count = False
+
         dialog = PreferencesDialog(prefs=self.prefs, parent=self)
         dialog.exec()
         self.prefs.sync()
@@ -2766,6 +2785,22 @@ class RapidWindow(QMainWindow):
                 only_external_mounts=self.prefs.only_external_mounts
             )
             self.searchForDevicesAgain()
+
+        if self.start_monitoring_mount_count:
+            if self.mountMonitorTimer is None:
+                self.startMountMonitorTimer()
+            else:
+                self.mountMonitorTimer.start()
+
+        if (
+            self.stop_monitoring_mount_count
+            and self.mountMonitorTimer is not None
+            and self.mountMonitorTimer.isActive()
+        ):
+            self.mountMonitorTimer.stop()
+
+        self.start_monitoring_mount_count = False
+        self.stop_monitoring_mount_count = False
 
         # Just to be extra safe, reset these values to their 'off' state:
         self.scan_all_again = self.scan_non_camera_devices_again = False
@@ -5079,6 +5114,9 @@ Do you want to proceed with the download?
         if self.is_wsl2:
             QTimer.singleShot(0, self.wslDriveMonitor.stopMonitor)
 
+        if self.mountMonitorTimer is not None and self.mountMonitorTimer.isActive():
+            self.mountMonitorTimer.stop()
+
         if self.unity_progress:
             for launcher in self.desktop_launchers:
                 launcher.set_property("count", 0)
@@ -5760,7 +5798,6 @@ Do you want to proceed with the download?
                 elif not mount.isReady():
                     logging.warning("Mount %s is not ready", mount.name())
 
-
     @pyqtSlot(str)
     def partitionUmounted(self, path: str) -> None:
         """
@@ -6065,6 +6102,25 @@ Do you want to proceed with the download?
         self.setDownloadCapabilities()
         logging.info("...backup devices configuration is reset")
 
+    @pyqtSlot()
+    def manuallyMonitorNewMounts(self) -> None:
+        """
+        Determine if the number of valid mounts differs from our stored count.
+
+        Initiate scans for devices if they do differ.
+        """
+        if not self.prefs.device_autodetection:
+            return
+
+        valid_mount_count = len(self.validMounts.mountedValidMountPoints())
+        if valid_mount_count != self.valid_mount_count:
+            logging.debug(
+                "Mount count differs: conducting scan for cameras and non camera "
+                "devices"
+            )
+            self.setupNonCameraDevices(scanning_again=True)
+            self.searchForCameras()
+
     def setupNonCameraDevices(self, scanning_again: bool = False) -> None:
         """
         Setup devices from which to download and initiates their scan.
@@ -6077,7 +6133,9 @@ Do you want to proceed with the download?
             return
 
         mounts = []  # type: List[QStorageInfo]
-        for mount in self.validMounts.mountedValidMountPoints():
+        validMounts = self.validMounts.mountedValidMountPoints()
+        self.valid_mount_count = len(validMounts)
+        for mount in validMounts:
             if self.partitionValid(mount):
                 path = mount.rootPath()
 

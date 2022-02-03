@@ -1504,7 +1504,15 @@ class PreferencesDialog(QDialog):
 
     @pyqtSlot(int)
     def autoMountChanged(self, state: int) -> None:
-        self.prefs.auto_mount = state == Qt.Checked
+        on = state == Qt.Checked
+        self.prefs.auto_mount = on
+        if self.rapidApp.use_udsisks:
+            if not on:
+                self.rapidApp.start_monitoring_mount_count = True
+                self.rapidApp.stop_monitoring_mount_count = False
+            else:
+                self.rapidApp.stop_monitoring_mount_count = True
+                self.rapidApp.start_monitoring_mount_count = False
 
     @pyqtSlot(int)
     def autoDownloadStartupChanged(self, state: int) -> None:
