@@ -1236,7 +1236,7 @@ class RapidWindow(QMainWindow):
                 QTimer.singleShot(0, self.cameraHotplugThread.start)
 
                 # Monitor when the user adds or removes a partition
-                self.udisks2Monitor = UDisks2Monitor(self.validMounts)
+                self.udisks2Monitor = UDisks2Monitor(self.validMounts, self.prefs)
                 self.udisks2MonitorThread = QThread()
                 self.udisks2MonitorThread.started.connect(
                     self.udisks2Monitor.startMonitor
@@ -1254,7 +1254,7 @@ class RapidWindow(QMainWindow):
                 # Gnome documentation
 
                 logging.debug("Starting GVolumeMonitor...")
-                self.gvolumeMonitor = GVolumeMonitor(self.validMounts)
+                self.gvolumeMonitor = GVolumeMonitor(self.validMounts, self.prefs)
                 logging.debug("...GVolumeMonitor started")
                 self.gvolumeMonitor.cameraUnmounted.connect(self.cameraUnmounted)
                 self.gvolumeMonitor.cameraMounted.connect(self.cameraMounted)
@@ -5754,6 +5754,12 @@ Do you want to proceed with the download?
                         path, display_name, iconNames, canEject, mount
                     )
                     self.prepareNonCameraDeviceScan(device=device)
+            else:
+                if not mount.isValid():
+                    logging.warning("Mount %s is invalid", mount.name())
+                elif not mount.isReady():
+                    logging.warning("Mount %s is not ready", mount.name())
+
 
     @pyqtSlot(str)
     def partitionUmounted(self, path: str) -> None:

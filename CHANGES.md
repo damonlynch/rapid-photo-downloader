@@ -17,6 +17,12 @@ Changelog for Rapid Photo Downloader
    Updated sequence numbers not used when changed in user interface between file
    downloads.
 
+ - Add preference option to automatically mount devices not already 
+   automatically mounted. This new option is on by default. It is helpful when 
+   the desktop does not automatically mount devices like memory cards itself.
+   A desktop can choose to not automatically mount devices, or it can 
+   sometimes fail to mount devices even when it was supposed to. 
+
  - Fix bug to properly size thumbnails and hamburger menu on high DPI screens 
    with recent releases of Gnome and other desktops that use xsettings.
 

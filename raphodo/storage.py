@@ -1150,8 +1150,9 @@ class UDisks2Monitor(QObject):
         "/org/freedesktop/UDisks2/block_devices/zram",
     )
 
-    def __init__(self, validMounts: ValidMounts) -> None:
+    def __init__(self, validMounts: ValidMounts, prefs) -> None:
         super().__init__()
+        self.prefs = prefs
         self.validMounts = validMounts
 
     @pyqtSlot()
@@ -1222,6 +1223,12 @@ class UDisks2Monitor(QObject):
             else:
                 ejectable = False
             mount_point = ""
+            if not self.prefs.auto_mount:
+                logging.debug(
+                    "Not mounting device because auto mount preference is off: %s",
+                    path,
+                )
+                return
             mount_points = fs.get_cached_property("MountPoints").get_bytestring_array()
             if len(mount_points) == 0:
                 try:
@@ -1441,8 +1448,9 @@ if have_gio:
         # device path
         cameraVolumeAdded = pyqtSignal(str)
 
-        def __init__(self, validMounts: ValidMounts) -> None:
+        def __init__(self, validMounts: ValidMounts, prefs) -> None:
             super().__init__()
+            self.prefs = prefs
             self.vm = Gio.VolumeMonitor.get()
             self.vm.connect("mount-added", self.mountAdded)
             self.vm.connect("volume-added", self.volumeAdded)
@@ -1455,6 +1463,8 @@ if have_gio:
             # device_path: volume_name
             self.camera_volumes_added = dict()  # type: Dict[str, str]
             self.camera_volumes_mounted = set()  # type: Set[str]
+
+            self.manually_mounted_volumes = set()  # type: Set[Gio.Volume]
 
         @staticmethod
         def mountMightBeCamera(mount: Gio.Mount) -> bool:
@@ -1678,6 +1688,21 @@ if have_gio:
                         return True
             return False
 
+        def mountVolume(self, volume: Gio.Volume) -> None:
+            logging.debug("Attempting to mount %s", volume.get_name())
+            self.manually_mounted_volumes.add(volume)
+            volume.mount(0, None, None, self.mountVolumeCallback, volume)
+
+        def mountVolumeCallback(
+            self, source_object, result: Gio.AsyncResult, volume: Gio.Volume
+        ) -> None:
+            self.manually_mounted_volumes.remove(volume)
+            if volume.mount_finish(result):
+                logging.debug("%s was successfully manually mounted", volume.get_name())
+                self.mountAdded(self.vm, volume.get_mount())
+            else:
+                logging.debug("%s failed to mount", volume.get_name())
+
         def mountIsCamera(self, mount: Gio.Mount, path: Optional[str] = None) -> bool:
             """
             Determine if the mount refers to a camera by checking the
@@ -1752,6 +1777,13 @@ if have_gio:
             :param mount: the mount to examine
             """
 
+            if mount.get_volume() in self.manually_mounted_volumes:
+                logging.debug(
+                    "Waiting for manual mount of %s to complete",
+                    mount.get_volume().get_name(),
+                )
+                return
+
             logging.debug("Examining mount %s", mount.get_name())
             try:
                 identifier = mount.get_volume().get_identifier(
@@ -1798,14 +1830,29 @@ if have_gio:
 
         def volumeAdded(self, volumeMonitor, volume: Gio.Volume) -> None:
             volume_name = volume.get_name()
+            should_automount = volume.should_automount()
             logging.debug(
-                "GIO: Volume added %s. Automount: %s (might be incorrect)",
+                "GIO: Volume added %s. Automount: %s",
                 volume_name,
-                volume.should_automount(),
+                should_automount,
             )
 
+            if not should_automount:
+                logging.debug(
+                    "%s has probably been removed: do not automount", volume_name
+                )
+                return
+
+            if not self.prefs.auto_mount:
+                logging.debug(
+                    "Not checking mount status for %s because auto mount preference "
+                    "is off",
+                    volume_name,
+                )
+                return
+
             # Even if volume.should_automount(), the volume in fact may not be mounted
-            # automatically. It's a bug that has shown up at least once.
+            # automatically. It's a bug that has shown up at least twice!
 
             device_path = volume.get_identifier(Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE)
             if device_path is None:
@@ -1827,6 +1874,17 @@ if have_gio:
                         QTimer.singleShot(
                             3000, lambda: self.cameraVolumeAddedCheckMount(device_path)
                         )
+                    else:
+                        uuid = volume.get_uuid()
+                        logging.debug(
+                            "%s is a device at %s with UUID %s",
+                            volume_name,
+                            device_path,
+                            uuid,
+                        )
+                        QTimer.singleShot(
+                            3000, lambda: self.deviceVolumeAddedCheckMount(volume)
+                        )
 
         def cameraVolumeAddedCheckMount(self, device_path) -> None:
             if device_path not in self.camera_volumes_mounted:
@@ -1840,6 +1898,23 @@ if have_gio:
                     "%s had been automatically mounted",
                     self.camera_volumes_added[device_path],
                 )
+
+        def deviceVolumeAddedCheckMount(self, volume: Gio.Volume) -> None:
+            mount = volume.get_mount()
+            if mount is not None:
+                # Double check that it's in the list of mounts
+                mounted = mount in self.vm.get_mounts()
+            else:
+                mounted = False
+
+            if not mounted:
+                logging.debug(
+                    "%s has not been automatically mounted. Will initiate mount.",
+                    volume.get_name(),
+                )
+                self.mountVolume(volume)
+            else:
+                logging.debug("%s was automatically mounted", volume.get_name())
 
         def volumeRemoved(self, volumeMonitor, volume: Gio.Volume) -> None:
             logging.debug("GIO: %s volume removed", volume.get_name())

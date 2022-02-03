@@ -411,6 +411,12 @@ class PreferencesDialog(QDialog):
         self.automation = QWidget()
 
         self.automationBox = QGroupBox(_("Program Automation"))
+        self.autoMount = QCheckBox(_("Mount devices not already automatically mounted"))
+        tooltip = _(
+            "Mount devices like memory cards when the desktop does\n"
+            "not automatically mount them"
+        )
+        self.autoMount.setToolTip(tooltip)
         self.autoDownloadStartup = QCheckBox(_("Start downloading at program startup"))
         self.autoDownloadInsertion = QCheckBox(
             _("Start downloading upon device insertion")
@@ -421,6 +427,7 @@ class PreferencesDialog(QDialog):
             _("Exit program even if download had warnings or errors")
         )
         self.setAutomationWidgetValues()
+        self.autoMount.stateChanged.connect(self.autoMountChanged)
         self.autoDownloadStartup.stateChanged.connect(self.autoDownloadStartupChanged)
         self.autoDownloadInsertion.stateChanged.connect(
             self.autoDownloadInsertionChanged
@@ -430,11 +437,12 @@ class PreferencesDialog(QDialog):
         self.autoExitError.stateChanged.connect(self.autoExitErrorChanged)
 
         automationBoxLayout = QGridLayout()
-        automationBoxLayout.addWidget(self.autoDownloadStartup, 0, 0, 1, 2)
-        automationBoxLayout.addWidget(self.autoDownloadInsertion, 1, 0, 1, 2)
-        automationBoxLayout.addWidget(self.autoEject, 2, 0, 1, 2)
-        automationBoxLayout.addWidget(self.autoExit, 3, 0, 1, 2)
-        automationBoxLayout.addWidget(self.autoExitError, 4, 1, 1, 1)
+        automationBoxLayout.addWidget(self.autoMount, 0, 0, 1, 2)
+        automationBoxLayout.addWidget(self.autoDownloadStartup, 1, 0, 1, 2)
+        automationBoxLayout.addWidget(self.autoDownloadInsertion, 2, 0, 1, 2)
+        automationBoxLayout.addWidget(self.autoEject, 3, 0, 1, 2)
+        automationBoxLayout.addWidget(self.autoExit, 4, 0, 1, 2)
+        automationBoxLayout.addWidget(self.autoExitError, 5, 1, 1, 1)
         checkbox_width = self.autoExit.style().pixelMetric(QStyle.PM_IndicatorWidth)
         automationBoxLayout.setColumnMinimumWidth(0, checkbox_width)
         self.automationBox.setLayout(automationBoxLayout)
@@ -1149,6 +1157,7 @@ class PreferencesDialog(QDialog):
         self.ignoredPathsRe.setChecked(self.prefs.use_re_ignored_paths)
 
     def setAutomationWidgetValues(self) -> None:
+        self.autoMount.setChecked(self.prefs.auto_mount)
         self.autoDownloadStartup.setChecked(self.prefs.auto_download_at_startup)
         self.autoDownloadInsertion.setChecked(
             self.prefs.auto_download_upon_device_insertion
@@ -1492,6 +1501,10 @@ class PreferencesDialog(QDialog):
         elif index > 0:
             self.prefs.language = self.languages.currentData()
             logging.info("Setting user interface language to %s", self.prefs.language)
+
+    @pyqtSlot(int)
+    def autoMountChanged(self, state: int) -> None:
+        self.prefs.auto_mount = state == Qt.Checked
 
     @pyqtSlot(int)
     def autoDownloadStartupChanged(self, state: int) -> None:

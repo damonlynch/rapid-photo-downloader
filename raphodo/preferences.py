@@ -371,6 +371,7 @@ class Preferences:
         auto_exit_force=False,
         move=False,
         verify_file=False,
+        auto_mount=True,  # new in 0.9.29a1
     )
     performance_defaults = dict(
         generate_thumbnails=True,
