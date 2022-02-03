@@ -750,7 +750,7 @@ class TemporalProximityGroups:
 
     Col 0: the year and month
     Col 1: the day of the month
-    C0l 3: the proximity groups
+    Col 2: the proximity groups
     """
 
     # @profile
