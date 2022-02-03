@@ -26,7 +26,8 @@ Changelog for Rapid Photo Downloader
  - Fix bug to properly size thumbnails and hamburger menu on high DPI screens 
    with recent releases of Gnome and other desktops that use xsettings.
 
- - Update Albanian, Dutch, Hungarian, Russian, Spanish and Swedish translations.
+ - Update Albanian, Catalan, Dutch, Hungarian, Italian, Japanese, Russian, 
+   Spanish and Swedish translations.
 
 0.9.28 (2021-12-27)
 ---------------------
