@@ -1761,6 +1761,7 @@ class PreferencesDialog(QDialog):
             self.languages.setCurrentIndex(0)
         elif row == 2:
             for value in (
+                "auto_mount",
                 "auto_download_at_startup",
                 "auto_download_upon_device_insertion",
                 "auto_unmount",
