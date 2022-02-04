@@ -3,11 +3,12 @@
 # This file is distributed under the same license as the rapid package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
 #
+#: ../raphodo/jobcodepanel.py:138
 msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2022-02-04 11:40-0500\n"
+"POT-Creation-Date: 2022-02-04 13:33-0500\n"
 "PO-Revision-Date: 2022-02-04 12:00-0500\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
@@ -2995,7 +2996,7 @@ msgstr ""
 "Změna tohoto nastavení vyvolá opětovné prohledání všech zařízení."
 
 #. Translators: you must include {link} exactly as it is below.
-#. Do not translate the term link. There is no need for <a> or </a>.
+#. Do not translate the term link. Be sure to include the <a> and </a> as well.
 #: ../raphodo/preferencedialog.py:335
 #, python-brace-format
 msgid "Use python-style <a {link}>regular expressions</a>"

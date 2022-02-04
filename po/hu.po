@@ -4,11 +4,12 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
 # csola48 <csola48@gmail.com>, 2017, 2019.
 #
+#: ../raphodo/jobcodepanel.py:138
 msgid ""
 msgstr ""
 "Project-Id-Version: Rapid Photo Downloader 0.9.2\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2022-02-04 11:40-0500\n"
+"POT-Creation-Date: 2022-02-04 13:33-0500\n"
 "PO-Revision-Date: 2022-02-04 13:25-0500\n"
 "Last-Translator: csola48 <csola48@gmail.com>\n"
 "Language-Team: magyar\n"
@@ -3021,7 +3022,7 @@ msgstr ""
 "kerül."
 
 #. Translators: you must include {link} exactly as it is below.
-#. Do not translate the term link. There is no need for <a> or </a>.
+#. Do not translate the term link. Be sure to include the <a> and </a> as well.
 #: ../raphodo/preferencedialog.py:335
 #, python-brace-format
 msgid "Use python-style <a {link}>regular expressions</a>"
