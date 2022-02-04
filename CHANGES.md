@@ -21,10 +21,10 @@ Changelog for Rapid Photo Downloader
    automatically mounted. This new option is on by default. The program already
    did this on KDE, but it could not be turned off. It can now be turned off. 
    Regardless of the Linux desktop used, leaving it on is helpful for when the
-   desktop does not automatically mount devices like memory cards itself.
-   A desktop like KDE can choose to not automatically mount devices, for 
-   instance. On the other hand, a desktop like that in Ubuntu 21.10 can 
-   sometimes fail to mount devices even when it was supposed to.
+   operating system does not automatically mount devices like memory cards 
+   itself. A desktop like KDE can choose to not automatically mount devices, for 
+   instance. Meanwhile, a desktop like that in Ubuntu 21.10 can sometimes fail
+   to mount devices even when it was supposed to.
 
  - Fix bug to properly size thumbnails and hamburger menu on high DPI screens 
    with recent releases of Gnome and other desktops that use xsettings.
