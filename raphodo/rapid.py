@@ -6130,7 +6130,6 @@ Do you want to proceed with the download?
                 "devices"
             )
             self.manuallyProbeForNewMount()
-            self.searchForCameras()  # TODO needed??
         elif valid_mount_count < self.valid_mount_count:
             logging.warning("Mount count differs: device has been removed")
             self.valid_mount_count -= 1
