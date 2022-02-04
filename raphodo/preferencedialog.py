@@ -77,6 +77,7 @@ from raphodo.viewutils import (
     QNarrowListWidget,
     translateDialogBoxButtons,
     standardMessageBox,
+    StyledLinkLabel,
 )
 from raphodo.utilities import available_cpu_count, format_size_for_user, thousands
 from raphodo.cache import ThumbnailCacheSql
@@ -329,12 +330,11 @@ class PreferencesDialog(QDialog):
         self.removeAllPath.clicked.connect(self.removeAllPathClicked)
         self.ignoredPathsRe = QCheckBox()
         self.ignorePathsReLabel = ClickableLabel(
-            _(
-                "Use python-style "
-                "<a "
+            # Translators: you must include {link} exactly as it is below.
+            # Do not translate the term link. Be sure to include the <a> and </a> as well.
+            _("Use python-style <a {link}>regular expressions</a>").format(
+                link='style="text-decoration:none; font-weight: bold; color: palette(highlight);"'
                 'href="http://damonlynch.net/rapid/documentation/#regularexpressions"'
-                ">regular "
-                "expressions</a>"
             )
         )
         self.ignorePathsReLabel.setToolTip(
@@ -620,10 +620,19 @@ class PreferencesDialog(QDialog):
         timeZoneBoxLayout.setColumnMinimumWidth(0, checkbox_width)
         self.timeZoneBox.setLayout(timeZoneBoxLayout)
 
+        timeZoneHelpLink = StyledLinkLabel()
+        timeZoneHelpLink.setLink(
+            url="https://damonlynch.net/rapid/documentation#timezonehandling",
+            text=_("Learn more about Time Zone handling"),
+        )
+        timeZoneHelpLink.setWordWrap(True)
+
         timeZoneLayout = QVBoxLayout()
         timeZoneLayout.addWidget(self.timeZoneBox)
+        timeZoneLayout.addWidget(timeZoneHelpLink)
         timeZoneLayout.addStretch()
         timeZoneLayout.setContentsMargins(0, 0, 0, 0)
+        timeZoneLayout.setSpacing(18)
 
         self.timeZone.setLayout(timeZoneLayout)
 

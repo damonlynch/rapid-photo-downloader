@@ -46,6 +46,7 @@ from PyQt5.QtWidgets import (
     QSplitter,
     QSplitterHandle,
     QStyleOptionSlider,
+    QLabel,
 )
 from PyQt5.QtGui import (
     QFontMetrics,
@@ -546,6 +547,23 @@ class BlankWidget(FlexiFrame):
         palette.setColor(QPalette.Window, palette.color(palette.Base))
         self.setAutoFillBackground(True)
         self.setPalette(palette)
+
+
+class StyledLinkLabel(QLabel):
+    """
+    Setting a link style this way works. It does not work with regular style sheets.
+    """
+    def setLink(self, url: str, text: str) -> None:
+        super().setText(
+            f"""
+            <a 
+            style="text-decoration:none; font-weight: bold; color: palette(highlight);"
+            href="{url}"
+            >
+            {text}
+            </a>
+            """
+        )
 
 
 class ProxyStyleNoFocusRectangle(QProxyStyle):
