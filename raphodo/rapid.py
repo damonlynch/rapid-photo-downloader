@@ -99,6 +99,7 @@ from PyQt5.QtCore import (
     QRect,
     pyqtSignal,
     QLocale,
+    QByteArray,
 )
 from PyQt5.QtGui import (
     QIcon,
@@ -1279,6 +1280,9 @@ class RapidWindow(QMainWindow):
         self.mountMonitorTimer.timeout.connect(self.manuallyMonitorNewMounts)
         self.mountMonitorTimer.setTimerType(Qt.CoarseTimer)
         self.mountMonitorTimer.setInterval(2000)
+
+    def mountMonitorActive(self) -> bool:
+        return self.mountMonitorTimer is not None and self.mountMonitorTimer.isActive()
 
     def iOSInitErrorMessaging(self) -> None:
         """
@@ -2786,25 +2790,22 @@ class RapidWindow(QMainWindow):
             )
             self.searchForDevicesAgain()
 
+        # Just to be extra safe, reset these values to their 'off' state:
+        self.scan_all_again = self.scan_non_camera_devices_again = False
+        self.search_for_devices_again = False
+
         if self.start_monitoring_mount_count:
             if self.mountMonitorTimer is None:
                 self.startMountMonitorTimer()
             else:
                 self.mountMonitorTimer.start()
+            self.valid_mount_count = 0
 
-        if (
-            self.stop_monitoring_mount_count
-            and self.mountMonitorTimer is not None
-            and self.mountMonitorTimer.isActive()
-        ):
+        if self.stop_monitoring_mount_count and self.mountMonitorActive():
             self.mountMonitorTimer.stop()
 
         self.start_monitoring_mount_count = False
         self.stop_monitoring_mount_count = False
-
-        # Just to be extra safe, reset these values to their 'off' state:
-        self.scan_all_again = self.scan_non_camera_devices_again = False
-        self.search_for_devices_again = False
 
     def doErrorLogAction(self) -> None:
         self.errorLog.setVisible(self.errorLogAct.isChecked())
@@ -5114,7 +5115,7 @@ Do you want to proceed with the download?
         if self.is_wsl2:
             QTimer.singleShot(0, self.wslDriveMonitor.stopMonitor)
 
-        if self.mountMonitorTimer is not None and self.mountMonitorTimer.isActive():
+        if self.mountMonitorActive():
             self.mountMonitorTimer.stop()
 
         if self.unity_progress:
@@ -5222,7 +5223,7 @@ Do you want to proceed with the download?
             icon_names, can_eject = self.gvolumeMonitor.getProps(mount.rootPath())
         else:
             # get the system device e.g. /dev/sdc1
-            system_device = bytes(mount.device()).decode()
+            system_device = mount.device().data().decode()
             icon_names, can_eject = self.udisks2Monitor.get_device_props(system_device)
         return icon_names, can_eject
 
@@ -5809,6 +5810,7 @@ Do you want to proceed with the download?
         if not path:
             return
 
+        device_removed = False
         if self.devices.known_path(path, DeviceType.volume):
             # four scenarios -
             # the mount is being scanned
@@ -5817,6 +5819,7 @@ Do you want to proceed with the download?
             # files have finished downloading from mount
             scan_id = self.devices.scan_id_from_path(path, DeviceType.volume)
             self.removeDevice(scan_id=scan_id)
+            device_removed = True
 
         elif path in self.backup_devices:
             self.removeBackupDevice(path)
@@ -5828,8 +5831,15 @@ Do you want to proceed with the download?
             )
             if self.prefs.backup_device_autodetection:
                 self.backupPanel.updateExample()
+            device_removed = True
 
-        self.setDownloadCapabilities()
+        if device_removed:
+            if self.mountMonitorActive():
+                if self.valid_mount_count <= 0:
+                    logging.warning("Unexpected valid mount count")
+                else:
+                    self.valid_mount_count -= 1
+            self.setDownloadCapabilities()
 
     def removeDevice(
         self,
@@ -6109,17 +6119,58 @@ Do you want to proceed with the download?
 
         Initiate scans for devices if they do differ.
         """
-        if not self.prefs.device_autodetection:
+
+        if not self.monitorPartitionChanges():
             return
 
         valid_mount_count = len(self.validMounts.mountedValidMountPoints())
-        if valid_mount_count != self.valid_mount_count:
+        if valid_mount_count > self.valid_mount_count:
             logging.debug(
-                "Mount count differs: conducting scan for cameras and non camera "
+                "Mount count differs: conducting probe for new cameras and non camera "
                 "devices"
             )
-            self.setupNonCameraDevices(scanning_again=True)
-            self.searchForCameras()
+            self.manuallyProbeForNewMount()
+            self.searchForCameras()  # TODO needed??
+        elif valid_mount_count < self.valid_mount_count:
+            logging.warning("Mount count differs: device has been removed")
+            self.valid_mount_count -= 1
+
+    def manuallyProbeForNewMount(self):
+        validMounts = self.validMounts.mountedValidMountPoints()
+        self.valid_mount_count = len(validMounts)
+
+        for mount in validMounts:
+            if self.partitionValid(mount):
+                path = mount.rootPath()
+                if self.isBackupPath(path):
+                    known_path = path in self.backup_devices
+                    mount_type = "backup"
+                else:
+                    known_path = self.devices.known_path(
+                        path=path, device_type=DeviceType.volume
+                    )
+                    mount_type = "download"
+                if known_path:
+                    logging.debug(
+                        "Manual probe indicates %s is already in use as a %s device",
+                        mount.displayName(), mount_type
+                    )
+                    continue
+                logging.info(
+                    "Manual probe indicates %s is not yet used as a device",
+                    mount.displayName(),
+                )
+                device = mount.device()  # type: QByteArray
+                device_path = device.data().decode()
+                self.udisks2Monitor.add_device(
+                    device_path=device_path, mount_point=path
+                )
+                icon_names, can_eject = self.udisks2Monitor.get_device_props(
+                    device_path
+                )
+                self.partitionMounted(
+                    path=path, iconNames=icon_names, canEject=can_eject
+                )
 
     def setupNonCameraDevices(self, scanning_again: bool = False) -> None:
         """
@@ -6135,6 +6186,7 @@ Do you want to proceed with the download?
         mounts = []  # type: List[QStorageInfo]
         validMounts = self.validMounts.mountedValidMountPoints()
         self.valid_mount_count = len(validMounts)
+
         for mount in validMounts:
             if self.partitionValid(mount):
                 path = mount.rootPath()

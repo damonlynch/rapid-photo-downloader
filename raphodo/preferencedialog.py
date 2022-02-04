@@ -412,12 +412,12 @@ class PreferencesDialog(QDialog):
 
         self.automationBox = QGroupBox(_("Program Automation"))
         self.autoMount = QCheckBox(_("Mount devices not already automatically mounted"))
-        # Translators: This next sentence is used in a tool tip. Feel free to place the
-        # carriage return where you think it makes sense so that the tool tip does not
-        # stretch too far horizontally across the screen.
         tooltip = _(
-            "Mount devices like memory cards when the desktop does\n"
-            "not automatically mount them"
+            # Translators: This next sentence is used in a tool tip. Feel free to place the
+            # carriage return where you think it makes sense so that the tool tip does not
+            # stretch too far horizontally across the screen.
+            "Mount devices like memory cards or external drives when\n"
+            "the operating system does not automatically mount them"
         )
         self.autoMount.setToolTip(tooltip)
         self.autoDownloadStartup = QCheckBox(_("Start downloading at program startup"))

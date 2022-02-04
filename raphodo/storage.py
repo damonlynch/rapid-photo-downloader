@@ -1229,6 +1229,7 @@ class UDisks2Monitor(QObject):
                     path,
                 )
                 return
+
             mount_points = fs.get_cached_property("MountPoints").get_bytestring_array()
             if len(mount_points) == 0:
                 try:
@@ -1306,6 +1307,11 @@ class UDisks2Monitor(QObject):
             mount_point = self.known_mounts[path]
             del self.known_mounts[path]
             self.partitionUnmounted.emit(mount_point)
+        else:
+            logging.debug(
+                "Taking no action on device removal because of unrecognized path: %s",
+                path,
+            )
 
     def get_can_eject(self, obj: UDisks.Object) -> bool:
         block = obj.get_block()
@@ -1313,6 +1319,16 @@ class UDisks2Monitor(QObject):
         if drive is not None:
             return drive.get_property("ejectable")
         return False
+
+    @staticmethod
+    def _object_path(device_path: str) -> str:
+        """
+        Determine object path used by UDisks2 for device path
+
+        :param device_path: system path of the device to check,
+        e.g. /dev/sdc1
+        """
+        return f"/org/freedesktop/UDisks2/block_devices/{os.path.split(device_path)[1]}"
 
     def get_device_props(self, device_path: str) -> Tuple[List[str], bool]:
         """
@@ -1323,9 +1339,7 @@ class UDisks2Monitor(QObject):
         :return: icon names and eject boolean
         """
 
-        object_path = "/org/freedesktop/UDisks2/block_devices/{}".format(
-            os.path.split(device_path)[1]
-        )
+        object_path = self._object_path(device_path)
         obj = self.udisks.get_object(object_path)
         if obj is None:
             icon_names = []
@@ -1334,6 +1348,10 @@ class UDisks2Monitor(QObject):
             icon_names = self.get_icon_names(obj)
             can_eject = self.get_can_eject(obj)
         return icon_names, can_eject
+
+    def add_device(self, device_path: str, mount_point: str) -> None:
+        object_path = self._object_path(device_path)
+        self.known_mounts[object_path] = mount_point
 
     @pyqtSlot(str)
     def unmount_volume(self, mount_point: str) -> None:
