@@ -23,8 +23,8 @@ Changelog for Rapid Photo Downloader
    Regardless of the Linux desktop used, leaving it on is helpful for when the
    operating system does not automatically mount devices like memory cards 
    itself. A desktop like KDE can choose to not automatically mount devices, for 
-   instance. Meanwhile, a desktop like that in Ubuntu 21.10 can sometimes fail
-   to mount devices even when it was supposed to.
+   instance. Meanwhile, sometimes Linux desktop code contains bugs that results
+   in devices failing to mount even when they were supposed to.
 
  - Fix bug to properly size thumbnails and hamburger menu on high DPI screens 
    with recent releases of Gnome and other desktops that use xsettings.
