@@ -3097,8 +3097,8 @@ msgid ""
 "Mount devices like memory cards or external drives when\n"
 "the operating system does not automatically mount them"
 msgstr ""
-"Montoni pajisje si kartat e kujtesës kur desktopi\n"
-"nuk i monton ato automatikisht"
+"Montoni pajisje si kartat e kujtesës ose disqet e jashtme kur\n"
+"sistemi operativ nuk i monton automatikisht ato"
 
 #: ../raphodo/preferencedialog.py:423
 msgid "Start downloading at program startup"
