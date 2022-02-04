@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2022-02-04 13:33-0500\n"
+"POT-Creation-Date: 2022-02-04 13:48-0500\n"
 "PO-Revision-Date: 2020-03-09 16:42-0400\n"
 "Last-Translator: Launchpad Translations Administrators <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
@@ -2738,7 +2738,7 @@ msgid "When detecting if a file has been previously downloaded:"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:626
-msgid "Learn more about Time Zone handling"
+msgid "Learn more about time zone handling"
 msgstr ""
 
 #: ../raphodo/preferencedialog.py:648

@@ -623,7 +623,7 @@ class PreferencesDialog(QDialog):
         timeZoneHelpLink = StyledLinkLabel()
         timeZoneHelpLink.setLink(
             url="https://damonlynch.net/rapid/documentation#timezonehandling",
-            text=_("Learn more about Time Zone handling"),
+            text=_("Learn more about time zone handling"),
         )
         timeZoneHelpLink.setWordWrap(True)
 
