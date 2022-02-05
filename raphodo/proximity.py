@@ -1651,6 +1651,7 @@ class TemporalProximityView(QTableView):
         self.setWordWrap(True)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # Vertical scrollbar the user sees belongs to the left panel scroll area
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setShowGrid(False)
         self.setFrameShape(QFrame.NoFrame)
@@ -1852,20 +1853,26 @@ class TemporalProximityView(QTableView):
 
     @pyqtSlot(int)
     def scrollThumbnails(self, value) -> None:
-        index = self.indexAt(QPoint(200, 0))  # type: QModelIndex
-        if index.isValid():
-            if self.selectedIndexes():
-                # It's now possible to scroll the Timeline and there will be
-                # no matching thumbnails to which to scroll to in the display,
-                # because they are not being displayed. Hence this check:
-                if not index in self.selectedIndexes():
-                    return
-            thumbnailView = self.rapidApp.thumbnailView
-            thumbnailView.setScrollTogether(False)
-            model = self.model()
-            uids = model.data(index, Roles.uids)
-            thumbnailView.scrollToUids(uids=uids)
-            thumbnailView.setScrollTogether(True)
+        x = 200
+        # consider change y value so it's not so sensitive to initial scroll down
+        point = self.mapTo(self.rapidApp.sourcePanel, QPoint(x, 0))
+        # a negative value for y means the top of the timeline is above the visible area
+        if point.y() <= 0:
+            y = abs(point.y())
+            index = self.indexAt(QPoint(x, y))  # type: QModelIndex
+            if index.isValid():
+                if self.selectedIndexes():
+                    # It's now possible to scroll the Timeline and there will be
+                    # no matching thumbnails to which to scroll to in the display,
+                    # because they are not being displayed. Hence this check:
+                    if not index in self.selectedIndexes():
+                        return
+                thumbnailView = self.rapidApp.thumbnailView
+                thumbnailView.setScrollTogether(False)
+                model = self.model()
+                uids = model.data(index, Roles.uids)
+                thumbnailView.scrollToUids(uids=uids)
+                thumbnailView.setScrollTogether(True)
 
 
 class TemporalProximityViewFramed(TightFlexiFrame):
@@ -2118,8 +2125,6 @@ class TemporalProximity(QWidget):
 
         self.suppress_auto_scroll_after_timeline_select = False
 
-        # self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
-
     def flexiFrameWidgets(self) -> Generator[QWidget, None, None]:
         return (self.stackedWidget.widget(i) for i in range(self.stackedWidget.count()))
 
@@ -2311,16 +2316,39 @@ class TemporalProximity(QWidget):
 
         :param uid: uid to scroll to
         """
+        if not self.isVisible():
+            return
+
+        verticalScrollBar = self.rapidApp.sourcePanel.verticalScrollBar()
+        if not verticalScrollBar.isVisible():
+            return
 
         if self.state == TemporalProximityState.generated:
             if self.suppress_auto_scroll_after_timeline_select:
                 self.suppress_auto_scroll_after_timeline_select = False
             else:
+                sourcePanel = self.rapidApp.sourcePanel
+                point = self.mapTo(sourcePanel, self.rect().topLeft())
+                if point.y() > 0:
+                    return
+
                 view = self.temporalProximityView
                 model = self.temporalProximityModel
                 row = model.groups.uid_to_row(uid=uid)
-                index = model.index(row, 2)
-                view.scrollTo(index, QAbstractItemView.PositionAtTop)
+
+                # Get the position of the row in the table
+                y = view.rowViewportPosition(row)
+
+                # Calculate the position of the top left of the timeline to
+                # the source panel. Calculations depend on what widget is the
+                # timeline's parent.
+                delta = self.geometry().topLeft().y()
+                if self.parent() != sourcePanel.sourcePanelWidget:
+                    delta += self.parent().geometry().topLeft().y()
+
+                height = verticalScrollBar.maximum()
+                value = round(((y + delta) / height) * height)
+                verticalScrollBar.setValue(value)
 
     def setScrollTogether(self, on: bool) -> None:
         """
@@ -2329,10 +2357,11 @@ class TemporalProximity(QWidget):
         """
 
         view = self.temporalProximityView
+        panel = self.rapidApp.sourcePanel
         if on:
-            view.verticalScrollBar().valueChanged.connect(view.scrollThumbnails)
+            panel.verticalScrollBar().valueChanged.connect(view.scrollThumbnails)
         else:
-            view.verticalScrollBar().valueChanged.disconnect(view.scrollThumbnails)
+            panel.verticalScrollBar().valueChanged.disconnect(view.scrollThumbnails)
 
     def setProximityHeight(self) -> None:
         """

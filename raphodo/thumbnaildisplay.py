@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
+__copyright__ = "Copyright 2015-2022, Damon Lynch"
 
 import pickle
 import os
@@ -82,6 +82,7 @@ from PyQt5.QtGui import (
     QFont,
     QKeyEvent,
     QPalette,
+    QResizeEvent,
 )
 
 from showinfm import show_in_file_manager
@@ -1937,6 +1938,10 @@ class ThumbnailView(QListView):
         self.setPalette(palette)
         self.possiblyPreserveSelectionPostClick = False
 
+        # Track how many columns the user sees
+        # QListView IconMode indexes are always set to column 0
+        self.user_visible_columns = 0
+
     def setScrollTogether(self, on: bool) -> None:
         """
         Turn on or off the linking of scrolling the Timeline with the Thumbnail display.
@@ -2029,30 +2034,41 @@ class ThumbnailView(QListView):
 
     @pyqtSlot(int)
     def scrollTimeline(self, value) -> None:
-        index = self.indexAt(self.topLeft())  # type: QModelIndex
+        # index of top left item
+        index = self.indexAt(
+            QPoint(self.spacing(), self.spacing())
+        )  # type: QModelIndex
+
         if index.isValid():
-            self._scrollTemporalProximity(index=index)
+            # Determine index of item in user visible row with the earliest time
+            row = index.row()
+            indicies = [
+                index.sibling(row + i, 0) for i in range(self.user_visible_columns)
+            ]
+
+            # Filter out invalid indicies
+            indicies = [idx for idx in indicies if idx.isValid()]
+
+            # Get the index with the earliest time
+            # Inspiration: https://stackoverflow.com/a/11825864
+            data = [idx.data() for idx in indicies]
+            index_min = min(range(len(data)), key=data.__getitem__)
+
+            # print(datetime.datetime.fromtimestamp(data[index_min]))
+            self._scrollTemporalProximity(index=indicies[index_min])
 
     def topLeft(self) -> QPoint:
         return QPoint(thumbnail_margin, thumbnail_margin)
 
-    def visibleRows(self):
+    def resizeEvent(self, event: QResizeEvent) -> None:
         """
-        Yield rows visible in viewport. Not currently used or properly tested.
+        Resize, then calculate and store how many columns the user sees
         """
 
-        rect = self.viewport().contentsRect()
-        width = self.itemDelegate().width
-        last_row = rect.bottomRight().x() // width * width
-        topLeft = rect.topLeft() + QPoint(10, 10)
-        top = self.indexAt(topLeft)
-        if top.isValid():
-            bottom = self.indexAt(QPoint(last_row, rect.bottomRight().y()))
-            if not bottom.isValid():
-                # take a guess with an arbitrary figure
-                bottom = self.index(top.row() + 15)
-            for row in range(top.row(), bottom.row() + 1):
-                yield row
+        super().resizeEvent(event)
+        item_width = self.itemDelegate().fixedSizeHint.width() + self.spacing()
+        view_width = self.viewport().contentsRect().width() - self.spacing() - 1
+        self.user_visible_columns = view_width // item_width
 
     def scrollToUids(self, uids: List[bytes]) -> None:
         """
@@ -2240,6 +2256,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
         cg = Color(self.paleGray.name())
         self.colorGradient = [QColor(c.hex) for c in cg.range_to(ch, FadeSteps)]
 
+        # Size is always fixed, so calculate it here
+        self.fixedSizeHint = QSizeF(
+            self.width + self.shadow_size, self.height + self.shadow_size
+        ).toSize()
+
     @pyqtSlot()
     def doCopyPathAction(self) -> None:
         index = self.clickedIndex
@@ -2282,6 +2303,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
     ) -> None:
         if index is None:
+            return
+
+        if not index.isValid():
             return
 
         # Save state of painter, restore on function exit
@@ -2520,9 +2544,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         painter.restore()
 
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
-        return QSizeF(
-            self.width + self.shadow_size, self.height + self.shadow_size
-        ).toSize()
+        return self.fixedSizeHint
 
     def oneOrMoreNotDownloaded(self) -> Tuple[int, Plural]:
         i = 0
