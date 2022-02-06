@@ -651,10 +651,10 @@ class MetaUid:
     >>> m[(0 , 0)] = [b'0', b'1', b'2']
     >>> print(m)
     MetaUid(({0: 3}, {}, {}) ({0: [b'0', b'1', b'2']}, {}, {}))
-    >>> m[[0, 0]]
+    >>> m[(0, 0)]
     [b'0', b'1', b'2']
     >>> m.trim()
-    >>> m[[0, 0]]
+    >>> m[(0, 0)]
     [b'0', b'2']
     >>> m.no_uids((0, 0))
     3
@@ -2334,7 +2334,13 @@ class TemporalProximity(QWidget):
 
                 view = self.temporalProximityView
                 model = self.temporalProximityModel
+
+                # Get the column 2 row (specific time) this file is in
                 row = model.groups.uid_to_row(uid=uid)
+
+                # Get the column 1 row (specific day) this row is in
+                groups = self.temporalProximityModel.groups
+                row = groups.row_span_for_column_starts_at_row[row, 1]
 
                 # Get the position of the row in the table
                 y = view.rowViewportPosition(row)
