@@ -393,6 +393,9 @@ class CustomColors(Enum):
     color7 = "#ffff00"  # bright yellow
 
 
+ButtonHoverIntensity = 110
+
+
 PaleGray = "#d7d6d5"
 DarkGray = "#35322f"
 MediumGray = "#5d5b59"
