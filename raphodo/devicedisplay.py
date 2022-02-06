@@ -645,10 +645,9 @@ class DeviceDisplay:
         )
 
         self.emptySpaceColor = QColor("#f2f2f2")
-        self.subtlePenColor = QColor("#6d6d6d")
 
         self.menu_button_padding = 3
-        self.menuHighlightPen = QPen(QBrush(self.subtlePenColor), 0.5)
+        self.menuHighlightColor = self.device_name_highlight_color.darker(115)
 
     def v_align_header_pixmap(self, y: int, pixmap_height: int) -> float:
         return y + (self.device_name_strip_height / 2 - pixmap_height / 2)
@@ -693,10 +692,7 @@ class DeviceDisplay:
             size = icon_size()
             rect = self.menu_button_rect(x, y, width)
             if highlight_menu:
-                pen = painter.pen()
-                painter.setPen(self.menuHighlightPen)
-                painter.drawRoundedRect(rect, 2.0, 2.0)
-                painter.setPen(pen)
+                painter.fillRect(rect, self.menuHighlightColor)
             button_x = rect.x() + self.menu_button_padding
             button_y = rect.y() + self.menu_button_padding
             pixmap = self.menuButtonIcon.pixmap(QSize(size, size))
