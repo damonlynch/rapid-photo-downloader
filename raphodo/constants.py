@@ -417,7 +417,7 @@ def extensionColor(ext_type: FileExtension) -> QColor:
 
 FileTypeColorDict = {
     FileType.photo: CustomColors.color1,
-    FileType.video: CustomColors.color2,
+    FileType.video: CustomColors.color1,  # was color2
 }
 
 

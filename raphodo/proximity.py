@@ -47,7 +47,6 @@ from PyQt5.QtCore import (
     pyqtSlot,
     QRectF,
     QPoint,
-    QPointF,
     QLineF,
 )
 from PyQt5.QtWidgets import (
@@ -63,16 +62,13 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QSizePolicy,
     QSplitter,
-    QScrollArea,
     QStackedWidget,
-    QToolButton,
+    QPushButton,
     QAction,
     QFrame,
-    QApplication,
 )
 from PyQt5.QtGui import (
     QPainter,
-    QFontMetrics,
     QFont,
     QColor,
     QGuiApplication,
@@ -97,9 +93,9 @@ from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
 from raphodo.viewutils import (
     ThumbnailDataForProximity,
-    scaledIcon,
     TightFlexiFrame,
     FlexiScrollArea,
+    coloredPixmap,
 )
 from raphodo.timeutils import (
     locale_time,
@@ -110,6 +106,7 @@ from raphodo.timeutils import (
 )
 from raphodo.utilities import runs
 from raphodo.constants import Roles
+from raphodo.rotatedpushbutton import FlatButton
 
 ProximityRow = namedtuple(
     "ProximityRow",
@@ -1423,7 +1420,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
         self.newFileColor = QColor(CustomColors.color7.value)
 
-        self.dv = None  # type: ProximityDisplayValues
+        self.dv = None  # type: Optional[ProximityDisplayValues]
 
     def paint(
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
@@ -2373,6 +2370,47 @@ class TemporalProximity(QWidget):
         )
 
 
+class SyncIcon(QIcon):
+    def __init__(self, path: str) -> None:
+        super().__init__()
+        on = coloredPixmap(path=path, color=CustomColors.color1.value)
+        off = coloredPixmap(path=path, color="black")
+        disabled = coloredPixmap(path=path, color=CustomColors.color2.value)
+        self.addPixmap(on, QIcon.Normal, QIcon.On)
+        self.addPixmap(off, QIcon.Normal, QIcon.Off)
+        self.addPixmap(disabled, QIcon.Disabled, QIcon.On)
+
+
+class SyncButton(QPushButton):
+    def __init__(self, icon: SyncIcon, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent=parent)
+
+        self.setIcon(icon)
+        self.setFlat(True)
+        self.setCheckable(True)
+        self.setToolTip(
+            _("Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)")
+        )
+        color = QPalette().color(QPalette.Background)
+        hover_color = color.darker(110).name(QColor.HexRgb)
+
+        style = """
+        QPushButton {
+            padding: 2px;
+            border: none;
+        } 
+        QPushButton::hover {
+            background-color: %s
+        }
+        """ % (hover_color)
+        self.setStyleSheet(style)
+
+"""
+        QPushButton:checked { background-color: %s; border: none; }
+        QPushButton:hover{ background-color: %s; border-style: inset; }
+        """
+
+
 class TemporalProximityControls(QWidget):
     """
     Slider and button to control the Timeline
@@ -2390,21 +2428,13 @@ class TemporalProximityControls(QWidget):
             QSizePolicy.Preferred, QSizePolicy.Minimum
         )
 
-        self.autoScrollButton = QToolButton(self)
-        icon = scaledIcon(":/icons/link.svg", self.autoScrollButton.iconSize())
-        self.autoScrollButton.setIcon(icon)
-        self.autoScrollButton.setAutoRaise(True)
-        self.autoScrollButton.setCheckable(True)
-        self.autoScrollButton.setToolTip(
-            _("Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)")
-        )
-        self.autoScrollButton.setChecked(not self.prefs.auto_scroll)
+        icon = SyncIcon(path=":/icons/sync.svg")
+        self.autoScrollButton = SyncButton(icon=icon, parent=self)
+        self.autoScrollButton.setChecked(self.prefs.auto_scroll)
         self.autoScrollAct = QAction(
             "", self, shortcut="Ctrl+T", triggered=self.autoScrollActed, icon=icon
         )
         self.autoScrollButton.addAction(self.autoScrollAct)
-        style = "QToolButton {padding: 2px;} QToolButton::menu-indicator {image: none;}"
-        self.autoScrollButton.setStyleSheet(style)
 
         self.temporalValuePicker.valueChanged.connect(self.temporalValueChanged)
         self.autoScrollButton.clicked.connect(self.autoScrollClicked)
@@ -2432,8 +2462,8 @@ class TemporalProximityControls(QWidget):
 
     @pyqtSlot(bool)
     def autoScrollClicked(self, checked: bool) -> None:
-        self.prefs.auto_scroll = not checked
-        self.setTimelineThumbnailAutoScroll(not checked)
+        self.prefs.auto_scroll = checked
+        self.setTimelineThumbnailAutoScroll(checked)
 
     @pyqtSlot(bool)
     def autoScrollActed(self, on: bool) -> None:

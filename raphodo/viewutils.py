@@ -838,6 +838,15 @@ def scaledIcon(path: str, size: Optional[QSize] = None) -> QIcon:
     return i
 
 
+def coloredPixmap(path: str, color: str) -> QPixmap:
+    pixmap = QPixmap(path)
+    painter = QPainter(pixmap)
+    painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+    painter.fillRect(pixmap.rect(), QColor(color))
+    painter.end()
+    return pixmap
+
+
 def screen_scaled_xsettings() -> bool:
     """
     Use xsettings to detect if screen scaling is on.
