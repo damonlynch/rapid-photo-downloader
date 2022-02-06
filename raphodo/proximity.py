@@ -2336,11 +2336,12 @@ class TemporalProximity(QWidget):
                 model = self.temporalProximityModel
 
                 # Get the column 2 row (specific time) this file is in
-                row = model.groups.uid_to_row(uid=uid)
+                col2_row = model.groups.uid_to_row(uid=uid)
+                # col2_uids = model.groups.row_uids(col2_row)
 
                 # Get the column 1 row (specific day) this row is in
                 groups = self.temporalProximityModel.groups
-                row = groups.row_span_for_column_starts_at_row[row, 1]
+                row = groups.row_span_for_column_starts_at_row[col2_row, 1]
 
                 # Get the position of the row in the table
                 y = view.rowViewportPosition(row)
@@ -2355,6 +2356,9 @@ class TemporalProximity(QWidget):
                 height = verticalScrollBar.maximum()
                 value = round(((y + delta) / height) * height)
                 verticalScrollBar.setValue(value)
+                # self.rapidApp.thumbnailModel.highlightTemporalProximityThumbs(
+                #     row=col2_row, uids=col2_uids
+                # )
 
     def setScrollTogether(self, on: bool) -> None:
         """

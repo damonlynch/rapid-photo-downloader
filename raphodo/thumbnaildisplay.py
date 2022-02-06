@@ -293,10 +293,11 @@ class ThumbnailListModel(QAbstractListModel):
         # device.
         # Thumbnails to highlight by uid
         self.currently_highlighting_scan_id = None  # type: Optional[int]
+        self.currently_highlighting_tp_row = None  # type: Optional[int]
         self._resetHighlightingValues()
         self.highlightingTimeline = QTimeLine(FadeMilliseconds // 2)
         self.highlightingTimeline.setCurveShape(QTimeLine.SineCurve)
-        self.highlightingTimeline.frameChanged.connect(self.doHighlightDeviceThumbs)
+        self.highlightingTimeline.frameChanged.connect(self.doHighlightThumbs)
         self.highlightingTimeline.finished.connect(self.highlightPhaseFinished)
         self.highlighting_timeline_max = FadeSteps
         self.highlighting_timeline_mint = 0
@@ -489,10 +490,17 @@ class ThumbnailListModel(QAbstractListModel):
             # This is never displayed, but is (was?) used for filtering!
             return rpd_file.modification_time
         elif role == Roles.highlight:
-            if rpd_file.scan_id == self.currently_highlighting_scan_id:
-                return self.highlight_value
-            else:
-                return 0
+            if self.currently_highlighting_scan_id is not None:
+                if rpd_file.scan_id == self.currently_highlighting_scan_id:
+                    return self.highlight_value
+                else:
+                    return 0
+            elif self.currently_highlighting_tp_row is not None:
+                if uid in self.current_highlight_uids:
+                    return self.highlight_value
+                else:
+                    return 0
+            return 0
         elif role == Qt.DecorationRole:
             return self.thumbnails[uid]
         elif role == Qt.CheckStateRole:
@@ -1555,14 +1563,19 @@ class ThumbnailListModel(QAbstractListModel):
         Generates a string displaying how many photos and videos are
         in the proximity table cell
         """
+        uids = self.getTemporalProximityUids(col1id=col1id, col2id=col2id)
+        file_types = (self.rpd_files[uid].file_type for uid in uids)
+        return FileTypeCounter(file_types).summarize_file_count()[0]
+
+    def getTemporalProximityUids(
+        self, col1id: Optional[int] = None, col2id: Optional[int] = None
+    ) -> List[bytes]:
         assert not (col1id is None and col2id is None)
         if col2id is not None:
             col2id = [col2id]
         else:
             col1id = [col1id]
-        uids = self.tsql.get_uids(proximity_col1=col1id, proximity_col2=col2id)
-        file_types = (self.rpd_files[uid].file_type for uid in uids)
-        return FileTypeCounter(file_types).summarize_file_count()[0]
+        return self.tsql.get_uids(proximity_col1=col1id, proximity_col2=col2id)
 
     def getDisplayedUids(
         self,
@@ -1741,29 +1754,57 @@ class ThumbnailListModel(QAbstractListModel):
             highlighting = [
                 self.uid_to_row[uid] for uid in self.getDisplayedUids(scan_id=scan_id)
             ]
-            highlighting.sort()
-            self.highlighting_rows = list(runs(highlighting))
+            self._generateHighlightingRows(rows=highlighting)
             self.most_recent_highlighted_device = scan_id
         self.highlightingTimeline.setDirection(QTimeLine.Forward)
         self.highlightingTimeline.start()
 
+    def highlightTemporalProximityThumbs(self, row: int, uids: List[bytes]) -> None:
+        if (
+            row == self.currently_highlighting_tp_row
+        ):
+            return
+
+        self.resetHighlighting()
+
+        self.currently_highlighting_tp_row = row
+        if row != self.most_recent_highlighted_row:
+            highlighting = [self.uid_to_row[uid] for uid in uids]
+            self._generateHighlightingRows(rows=highlighting)
+            self.most_recent_highlighted_row = row
+            self.current_highlight_uids = uids
+        self.highlightingTimeline.setDirection(QTimeLine.Forward)
+        self.highlightingTimeline.start()
+
+    def _generateHighlightingRows(self, rows: List[int]) -> None:
+        rows.sort()
+        self.highlighting_rows = list(runs(rows))
+
     def resetHighlighting(self) -> None:
-        if self.currently_highlighting_scan_id is not None:
+        if (
+            self.currently_highlighting_scan_id is not None
+            or self.currently_highlighting_tp_row is not None
+        ):
             self.highlightingTimeline.stop()
-            self.doHighlightDeviceThumbs(value=0)
+            self.doHighlightThumbs(value=0)
+            self.current_highlight_uids = []
 
     @pyqtSlot(int)
-    def doHighlightDeviceThumbs(self, value: int) -> None:
+    def doHighlightThumbs(self, value: int) -> None:
         self.highlight_value = value
+        # print(self.highlighting_rows)
         for first, last in self.highlighting_rows:
             self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
 
     @pyqtSlot()
     def highlightPhaseFinished(self):
         self.currently_highlighting_scan_id = None
+        self.currently_highlighting_tp_row = None
 
     def _resetHighlightingValues(self):
         self.most_recent_highlighted_device = None  # type: Optional[int]
+        self.most_recent_highlighted_row = None  # type: Optional[int]
+        self.current_highlight_uids = []  # type: list[bytes]
         self.highlighting_rows = []  # type: List[int]
 
     def terminateThumbnailGeneration(self, scan_id: int) -> bool:
