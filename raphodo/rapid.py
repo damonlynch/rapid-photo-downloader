@@ -2437,6 +2437,9 @@ class RapidWindow(QMainWindow):
             temporalProximityControls=self.temporalProximityControls,
         )
         self.leftPanelContainer.setObjectName("leftPanelContainer")
+        self.temporalProximity.temporarilyDisableAutoScroll.connect(
+            self.temporalProximityControls.temporarilyDisableAutoScroll
+        )
 
     def createRenamePanels(self) -> None:
         """

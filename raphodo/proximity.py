@@ -48,6 +48,7 @@ from PyQt5.QtCore import (
     QRectF,
     QPoint,
     QLineF,
+    QTimer,
 )
 from PyQt5.QtWidgets import (
     QTableView,
@@ -1976,6 +1977,7 @@ class TemporalProximity(QWidget):
     """
 
     proximitySelectionHasChanged = pyqtSignal()
+    temporarilyDisableAutoScroll = pyqtSignal(bool)
 
     def __init__(self, rapidApp, prefs: Preferences, parent=None) -> None:
         """
@@ -2327,6 +2329,7 @@ class TemporalProximity(QWidget):
                 sourcePanel = self.rapidApp.sourcePanel
                 point = self.mapTo(sourcePanel, self.rect().topLeft())
                 if point.y() > 0:
+                    self.temporarilyDisableAutoScroll.emit(True)
                     return
 
                 view = self.temporalProximityView
@@ -2423,6 +2426,12 @@ class TemporalProximityControls(QWidget):
         self.temporalProximity = rapidApp.temporalProximity
         self.setObjectName("temporalProximityControls")
 
+        self.disableAutoScrollTimer = QTimer()
+        self.disableAutoScrollTimer.setInterval(1500)
+        self.disableAutoScrollTimer.timeout.connect(
+            lambda: self.temporarilyDisableAutoScroll(False)
+        )
+
         self.temporalValuePicker = TemporalValuePicker(self.prefs.get_proximity())
         self.temporalValuePicker.setSizePolicy(
             QSizePolicy.Preferred, QSizePolicy.Minimum
@@ -2468,6 +2477,18 @@ class TemporalProximityControls(QWidget):
     @pyqtSlot(bool)
     def autoScrollActed(self, on: bool) -> None:
         self.autoScrollButton.animateClick()
+
+    @pyqtSlot(bool)
+    def temporarilyDisableAutoScroll(self, disable: bool) -> None:
+        if not self.autoScrollButton.isChecked():
+            return
+        if disable:
+            if self.autoScrollButton.isEnabled():
+                self.autoScrollButton.setEnabled(False)
+                self.disableAutoScrollTimer.start()
+        else:
+            self.autoScrollButton.setEnabled(True)
+            self.disableAutoScrollTimer.stop()
 
     def setTimelineThumbnailAutoScroll(self, on: bool) -> None:
         """
