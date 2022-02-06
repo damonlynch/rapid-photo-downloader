@@ -1760,6 +1760,11 @@ class ThumbnailListModel(QAbstractListModel):
         self.highlightingTimeline.start()
 
     def highlightTemporalProximityThumbs(self, row: int, uids: List[bytes]) -> None:
+        """
+        Currently unused. Highlights thumbnails from the selected column 2
+        timeline row.
+        """
+
         if (
             row == self.currently_highlighting_tp_row
         ):

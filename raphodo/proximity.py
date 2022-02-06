@@ -1969,6 +1969,29 @@ class TemporalValuePicker(QWidget):
             return _("%(hours)dh") % dict(hours=minutes // 60)
 
 
+class ResizableStackedWidget(QStackedWidget):
+    """
+    Default of QStackedWidget is not to resize itself to the currently displayed
+    widget. That's a problem when dealing with a widget as potentially tall as the
+    Timeline.
+    """
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent=parent)
+        self.currentChanged.connect(self.onCurrentChanged)
+
+    @pyqtSlot(int)
+    def onCurrentChanged(self, index: int) -> None:
+        for i in range(self.count()):
+            if i == index:
+                policy = QSizePolicy.Expanding
+            else:
+                policy = QSizePolicy.Ignored
+            widget = self.widget(i)
+            widget.setSizePolicy(policy, policy)
+        self.adjustSize()
+
+
 class TemporalProximity(QWidget):
     """
     Displays Timeline and tracks its state.
@@ -2091,7 +2114,7 @@ class TemporalProximity(QWidget):
         self.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.stackedWidget = QStackedWidget()
+        self.stackedWidget = ResizableStackedWidget()
 
         for label in (
             self.explanation,
@@ -2356,6 +2379,9 @@ class TemporalProximity(QWidget):
                 height = verticalScrollBar.maximum()
                 value = round(((y + delta) / height) * height)
                 verticalScrollBar.setValue(value)
+
+                # This next code (as yet unused) highlights the thumbnails in the
+                # row
                 # self.rapidApp.thumbnailModel.highlightTemporalProximityThumbs(
                 #     row=col2_row, uids=col2_uids
                 # )
