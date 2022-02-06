@@ -14,7 +14,7 @@
     <file alias="icons/folder.svg">../images/folder-symbolic.svg</file>
     <file alias="icons/hidden.svg">../images/hidden.svg</file>
     <file alias="icons/home.svg">../images/user-home-symbolic.svg</file>
-    <file alias="icons/link.svg">../images/link.svg</file>
+    <file alias="icons/sync.svg">../images/sync.svg</file>
     <file alias="icons/menu.svg">../images/menu.svg</file>
     <file alias="icons/pictures-folder.svg">../images/folder-pictures-symbolic.svg</file>
     <file alias="icons/settings.svg">../images/settings-symbolic.svg</file>
