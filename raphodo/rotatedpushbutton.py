@@ -31,6 +31,9 @@ from PyQt5.QtWidgets import (
 )
 
 
+from raphodo.constants import ButtonHoverIntensity
+
+
 class VerticalRotation(IntEnum):
     left_side = 270
     right_side = 90
@@ -61,7 +64,7 @@ class FlatButton:
         else:
             checked_color = default_color
 
-        hover_color = color.darker(110).name(QColor.HexRgb)
+        hover_color = color.darker(ButtonHoverIntensity).name(QColor.HexRgb)
 
         if not padding:
             padding = self._padding

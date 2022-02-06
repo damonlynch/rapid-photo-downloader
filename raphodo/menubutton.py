@@ -19,9 +19,11 @@
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2022, Damon Lynch"
 
+from PyQt5.QtGui import QGuiApplication, QPalette, QColor
 from PyQt5.QtWidgets import QMenu, QToolButton
 
 from raphodo.viewutils import scaledIcon
+from raphodo.constants import ButtonHoverIntensity
 
 
 class MenuButton(QToolButton):
@@ -34,19 +36,19 @@ class MenuButton(QToolButton):
 
         self.setPopupMode(QToolButton.InstantPopup)
 
+        color = QGuiApplication.palette().color(QPalette.Background)
+        hover_color = color.darker(ButtonHoverIntensity).name(QColor.HexRgb)
+
         self.setIcon(scaledIcon(icon, self.iconSize()))
         self.setStyleSheet(
             """
-        QToolButton {border: none;}
-        QToolButton::menu-indicator { image: none; }
-        QToolButton::hover {
-            border: 1px solid palette(shadow);
-            border-radius: 3px;
-        }
-        QToolButton::pressed {
-            border: 1px solid palette(shadow);
-            border-radius: 3px;
-        }
-        """
+            QToolButton {border: none;}
+            QToolButton::menu-indicator { image: none; }
+            QToolButton::hover {
+                background-color: %s;
+                outline: none;
+            }
+            """
+            % hover_color
         )
         self.setMenu(menu)
