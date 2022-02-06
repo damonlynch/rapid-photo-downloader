@@ -294,13 +294,13 @@ class ThumbnailListModel(QAbstractListModel):
         # Thumbnails to highlight by uid
         self.currently_highlighting_scan_id = None  # type: Optional[int]
         self._resetHighlightingValues()
-        self.highlighting_timeline = QTimeLine(FadeMilliseconds // 2)
-        self.highlighting_timeline.setCurveShape(QTimeLine.SineCurve)
-        self.highlighting_timeline.frameChanged.connect(self.doHighlightDeviceThumbs)
-        self.highlighting_timeline.finished.connect(self.highlightPhaseFinished)
+        self.highlightingTimeline = QTimeLine(FadeMilliseconds // 2)
+        self.highlightingTimeline.setCurveShape(QTimeLine.SineCurve)
+        self.highlightingTimeline.frameChanged.connect(self.doHighlightDeviceThumbs)
+        self.highlightingTimeline.finished.connect(self.highlightPhaseFinished)
         self.highlighting_timeline_max = FadeSteps
         self.highlighting_timeline_mint = 0
-        self.highlighting_timeline.setFrameRange(
+        self.highlightingTimeline.setFrameRange(
             self.highlighting_timeline_mint, self.highlighting_timeline_max
         )
         self.highlight_value = 0
@@ -1744,12 +1744,12 @@ class ThumbnailListModel(QAbstractListModel):
             highlighting.sort()
             self.highlighting_rows = list(runs(highlighting))
             self.most_recent_highlighted_device = scan_id
-        self.highlighting_timeline.setDirection(QTimeLine.Forward)
-        self.highlighting_timeline.start()
+        self.highlightingTimeline.setDirection(QTimeLine.Forward)
+        self.highlightingTimeline.start()
 
     def resetHighlighting(self) -> None:
         if self.currently_highlighting_scan_id is not None:
-            self.highlighting_timeline.stop()
+            self.highlightingTimeline.stop()
             self.doHighlightDeviceThumbs(value=0)
 
     @pyqtSlot(int)
