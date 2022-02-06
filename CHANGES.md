@@ -1,8 +1,18 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.29a1 (2022-01-xx)
----------------------
+0.9.29 (2022-02-xx)
+-------------------
+
+ - Fix bug [#53](https://github.com/damonlynch/rapid-photo-downloader/issues/53):
+   Adapt to small screens. Rapid Photo Downloader can now be resized to fit to 
+   tiny screens. Part of the fix involves changes in the ways the download 
+   sources (Devices and This Computer) and the Timeline are placed in the left-
+   side of the user interface.  When a scroll bar is necessary to fit in all 
+   these interface elements, in a change from the previous version, a single 
+   scroll bar will now extend from the Devices to the Timeline.This means that
+   when you scroll down to view the entirety of the Timeline, the download
+   sources will scroll up out of sight. 
 
  - Fix bug [#43](https://github.com/damonlynch/rapid-photo-downloader/issues/43):
    Add preference to handle time zone and daylight savings changes. See the 
@@ -30,7 +40,7 @@ Changelog for Rapid Photo Downloader
    with recent releases of Gnome and other desktops that use xsettings.
 
  - Update Albanian, Catalan, Dutch, Hungarian, Italian, Japanese, Russian, 
-   Spanish and Swedish translations.
+   Spanish, Swedish and Turkish translations.
 
 0.9.28 (2021-12-27)
 ---------------------
