@@ -14,6 +14,10 @@ Changelog for Rapid Photo Downloader
    when you scroll down to view the entirety of the Timeline, the download
    sources will scroll up out of sight. 
 
+ - Fix [#56](https://github.com/damonlynch/rapid-photo-downloader/issues/56):
+   Compress bug report tars using gzip, facilitating upload to GitHub issues.
+   GitHub does not accept .tar files. It does accept .tar.gz files.
+
  - Fix bug [#43](https://github.com/damonlynch/rapid-photo-downloader/issues/43):
    Add preference to handle time zone and daylight savings changes. See the 
    [program documentation](https://github.com/damonlynch/rapid-photo-downloader/issues/43)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2020-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -24,7 +24,7 @@ Extract Rapid Photo Downloader log files
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2020, Damon Lynch"
+__copyright__ = "Copyright 2020-2022, Damon Lynch"
 __title__ = __file__
 __description__ = 'Extract and give nice names to Rapid Photo Downloader log files'
 
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     path = os.path.abspath(args.path)
 
-    if path.endswith('.tar'):
+    if path.endswith('.tar') or path.endswith('.tar.gz'):
         tarfile_path = path
         tar = tarfile.open(path)
         dt_re = re.search(r'(\d[\d\-]+)', os.path.split(path)[1])
@@ -98,6 +98,8 @@ if __name__ == '__main__':
             sys.exit(1)
         print("{} -> {}".format(standard_name, zero_name))
         os.rename(standard_file, zero_file)
+    elif os.path.isfile(zero_file):
+        print(f"{zero_name} -> {zero_name}")
 
     log_files = glob.glob(os.path.join(path, '*.log'))
     log_gzips = glob.glob(os.path.join(path, '*.log.*.gz'))
@@ -128,7 +130,3 @@ if __name__ == '__main__':
                     with open(new_log, 'wb') as w:
                         w.write(file_content)
                 os.remove(log_gzip)
-
-
-
-

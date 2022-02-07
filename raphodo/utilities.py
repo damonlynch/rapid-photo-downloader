@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2021, Damon Lynch"
+__copyright__ = "Copyright 2007-2022, Damon Lynch"
 
 import contextlib
 import site
@@ -907,7 +907,7 @@ def extract_file_from_tar(full_tar_path, member_filename) -> bool:
 
 def bug_report_full_tar_path() -> str:
     """
-    Generate a full path for uncompressed bug report tar file.
+    Generate a full path for a compressed bug report tar file.
     The filename will not already exist.
 
     :return: File name including path
@@ -918,11 +918,11 @@ def bug_report_full_tar_path() -> str:
 
     i = 0
     while os.path.isfile(
-        "{}{}.tar".format(component, "" if not i else "-{}".format(i))
+        "{}{}.tar.gz".format(component, "" if not i else "-{}".format(i))
     ):
         i += 1
 
-    return "{}{}.tar".format(component, "" if not i else "-{}".format(i))
+    return "{}{}.tar.gz".format(component, "" if not i else "-{}".format(i))
 
 
 def create_bugreport_tar(
@@ -965,10 +965,15 @@ def create_bugreport_tar(
     created = False
 
     try:
-        with tarfile.open(full_tar_name, "x") as t:
+        with tarfile.open(full_tar_name, "x:gz") as t:
             os.chdir(log_path)
             for l in glob("*"):
-                t.add(l)
+                t.add(
+                    l,
+                    "rapid-photo-downloader.0.log"
+                    if l == "rapid-photo-downloader.log"
+                    else l,
+                )
             os.chdir(config_dir)
             t.add(config_file)
     except FileNotFoundError as e:
