@@ -8,11 +8,10 @@ Changelog for Rapid Photo Downloader
    Adapt to small screens. Rapid Photo Downloader can now be resized to fit to 
    tiny screens. Part of the fix involves changes in the ways the download 
    sources (Devices and This Computer) and the Timeline are placed in the left-
-   side of the user interface.  When a scroll bar is necessary to fit in all 
-   these interface elements, in a change from the previous version, a single 
-   scroll bar will now extend from the Devices to the Timeline.This means that
-   when you scroll down to view the entirety of the Timeline, the download
-   sources will scroll up out of sight. 
+   side of the user interface. When a scroll bar is necessary to fit in these 
+   interface elements a single scroll bar will now extend from the Devices to 
+   the Timeline. This now means that when you scroll down to view the entirety
+   of the Timeline, the download sources may scroll up out of sight. 
 
  - Fix [#56](https://github.com/damonlynch/rapid-photo-downloader/issues/56):
    Compress bug report tars using gzip, facilitating upload to GitHub issues.
