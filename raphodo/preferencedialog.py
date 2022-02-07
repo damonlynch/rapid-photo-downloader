@@ -333,7 +333,7 @@ class PreferencesDialog(QDialog):
             # Translators: you must include {link} exactly as it is below.
             # Do not translate the term link. Be sure to include the <a> and </a> as well.
             _("Use python-style <a {link}>regular expressions</a>").format(
-                link='style="text-decoration:none; font-weight: bold; color: palette(highlight);"'
+                link='style="text-decoration:none; color: palette(highlight);"'
                 'href="http://damonlynch.net/rapid/documentation/#regularexpressions"'
             )
         )
@@ -626,6 +626,7 @@ class PreferencesDialog(QDialog):
             text=_("Learn more about time zone handling"),
         )
         timeZoneHelpLink.setWordWrap(True)
+        timeZoneHelpLink.setOpenExternalLinks(True)
 
         timeZoneLayout = QVBoxLayout()
         timeZoneLayout.addWidget(self.timeZoneBox)

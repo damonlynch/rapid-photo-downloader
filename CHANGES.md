@@ -11,7 +11,10 @@ Changelog for Rapid Photo Downloader
    side of the user interface. When a scroll bar is necessary to fit in these 
    interface elements a single scroll bar will now extend from the Devices to 
    the Timeline. This now means that when you scroll down to view the entirety
-   of the Timeline, the download sources may scroll up out of sight. 
+   of the Timeline, the download sources may scroll up out of sight.
+
+ - The button to synchronize scrolling between the Timeline and thumbnails 
+   is a double arrow and changes color to reflect its state.
 
  - Fix [#56](https://github.com/damonlynch/rapid-photo-downloader/issues/56):
    Compress bug report tars using gzip, facilitating upload to GitHub issues.

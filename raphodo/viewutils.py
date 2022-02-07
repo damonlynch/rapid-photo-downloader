@@ -557,7 +557,7 @@ class StyledLinkLabel(QLabel):
         super().setText(
             f"""
             <a 
-            style="text-decoration:none; font-weight: bold; color: palette(highlight);"
+            style="text-decoration:none; font-weight: bold; color: palette(highlight);" 
             href="{url}"
             >
             {text}
