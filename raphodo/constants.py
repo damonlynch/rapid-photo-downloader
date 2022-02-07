@@ -411,6 +411,12 @@ ExtensionColorDict = {
 }
 
 
+class SyncButtonState(IntEnum):
+    active = 1
+    inactive = 2
+    regular = 3
+
+
 def extensionColor(ext_type: FileExtension) -> QColor:
     try:
         return QColor(ExtensionColorDict[ext_type].value)

@@ -1919,6 +1919,7 @@ class RapidWindow(QMainWindow):
             self.sourcePanel.placeWidgets()
         self.sourcePanel.setSourcesVisible(self.sourceButton.isChecked())
         self.setLeftPanelVisibility()
+        self.temporalProximityControls.setAutoScrollState()
 
     @pyqtSlot()
     def destinationButtonClicked(self) -> None:
@@ -2432,14 +2433,17 @@ class RapidWindow(QMainWindow):
 
         self.sourcePanel = SourcePanel(rapidApp=self)
         self.temporalProximityControls = TemporalProximityControls(rapidApp=self)
+        self.sourcePanel.verticalScrollBarVisible.connect(
+            self.temporalProximityControls.sourceScrollBarVisible
+        )
         self.leftPanelContainer = LeftPanelContainer(
             sourcePanel=self.sourcePanel,
             temporalProximityControls=self.temporalProximityControls,
         )
         self.leftPanelContainer.setObjectName("leftPanelContainer")
-        self.temporalProximity.temporarilyDisableAutoScroll.connect(
-            self.temporalProximityControls.temporarilyDisableAutoScroll
-        )
+        # self.temporalProximity.temporarilyDisableAutoScroll.connect(
+        #     self.temporalProximityControls.temporarilyDisableAutoScroll
+        # )
 
     def createRenamePanels(self) -> None:
         """
@@ -6155,7 +6159,8 @@ Do you want to proceed with the download?
                 if known_path:
                     logging.debug(
                         "Manual probe indicates %s is already in use as a %s device",
-                        mount.displayName(), mount_type
+                        mount.displayName(),
+                        mount_type,
                     )
                     continue
                 logging.info(

@@ -48,7 +48,6 @@ from PyQt5.QtCore import (
     QRectF,
     QPoint,
     QLineF,
-    QTimer,
 )
 from PyQt5.QtWidgets import (
     QTableView,
@@ -67,6 +66,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QAction,
     QFrame,
+    QApplication,
 )
 from PyQt5.QtGui import (
     QPainter,
@@ -78,6 +78,7 @@ from PyQt5.QtGui import (
     QMouseEvent,
     QIcon,
     QFontMetricsF,
+    QShowEvent,
 )
 
 from raphodo.constants import (
@@ -106,8 +107,7 @@ from raphodo.timeutils import (
     strip_pm,
 )
 from raphodo.utilities import runs
-from raphodo.constants import Roles
-from raphodo.rotatedpushbutton import FlatButton
+from raphodo.constants import Roles, SyncButtonState
 
 ProximityRow = namedtuple(
     "ProximityRow",
@@ -1653,6 +1653,7 @@ class TemporalProximityView(QTableView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setShowGrid(False)
         self.setFrameShape(QFrame.NoFrame)
+        self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
 
     def contentHeight(self) -> int:
         return self.verticalHeader().length()
@@ -1849,11 +1850,18 @@ class TemporalProximityView(QTableView):
         self.proximitySelectionHasChanged.emit()
         super().mouseReleaseEvent(event)
 
+    def _temporalProximityPosition(self, x: int) -> QPoint:
+        return self.mapTo(self.rapidApp.sourcePanel, QPoint(x, 0))
+
+    def canSyncScroll(self) -> bool:
+        point = self._temporalProximityPosition(0)
+        return point.y() <= self.frame_width
+
     @pyqtSlot(int)
     def scrollThumbnails(self, value) -> None:
+        self.rapidApp.temporalProximityControls.setAutoScrollState()
         x = 200
-        # consider change y value so it's not so sensitive to initial scroll down
-        point = self.mapTo(self.rapidApp.sourcePanel, QPoint(x, 0))
+        point = self._temporalProximityPosition(x)
         # a negative value for y means the top of the timeline is above the visible area
         if point.y() <= 0:
             y = abs(point.y())
@@ -2000,7 +2008,6 @@ class TemporalProximity(QWidget):
     """
 
     proximitySelectionHasChanged = pyqtSignal()
-    temporarilyDisableAutoScroll = pyqtSignal(bool)
 
     def __init__(self, rapidApp, prefs: Preferences, parent=None) -> None:
         """
@@ -2247,6 +2254,7 @@ class TemporalProximity(QWidget):
         self.stackedWidget.setCurrentIndex(self.stack_index_for_state[state])
         self.clearThumbnailDisplayFilter()
         self.state = state
+        self.rapidApp.temporalProximityControls.setAutoScrollState()
 
     def setGroups(self, proximity_groups: TemporalProximityGroups) -> bool:
         """
@@ -2350,11 +2358,15 @@ class TemporalProximity(QWidget):
                 self.suppress_auto_scroll_after_timeline_select = False
             else:
                 sourcePanel = self.rapidApp.sourcePanel
+                # controls = self.rapidApp.temporalProximityControls
+
                 point = self.mapTo(sourcePanel, self.rect().topLeft())
                 if point.y() > 0:
-                    self.temporarilyDisableAutoScroll.emit(True)
+                    # controls.setAutoScrollEnabled(False)
+                    # self.temporarilyDisableAutoScroll.emit(True)
                     return
 
+                # controls.setAutoScrollEnabled(True)
                 view = self.temporalProximityView
                 model = self.temporalProximityModel
 
@@ -2410,28 +2422,50 @@ class TemporalProximity(QWidget):
 
 
 class SyncIcon(QIcon):
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, state: SyncButtonState) -> None:
         super().__init__()
-        on = coloredPixmap(path=path, color=CustomColors.color1.value)
-        off = coloredPixmap(path=path, color="black")
-        disabled = coloredPixmap(path=path, color=CustomColors.color2.value)
+
+        if state == SyncButtonState.active:
+            on = coloredPixmap(path=path, color=CustomColors.color1.value)
+        elif state == SyncButtonState.inactive:
+            on = coloredPixmap(path=path, color=CustomColors.color2.value)
+        else:
+            on = coloredPixmap(path=path, color="black")
+
+        color = QGuiApplication.palette().color(QPalette.Dark)
+        off = coloredPixmap(path=path, color=color)
+
         self.addPixmap(on, QIcon.Normal, QIcon.On)
         self.addPixmap(off, QIcon.Normal, QIcon.Off)
-        self.addPixmap(disabled, QIcon.Disabled, QIcon.On)
 
 
 class SyncButton(QPushButton):
-    def __init__(self, icon: SyncIcon, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
 
-        self.setIcon(icon)
+        self.activeIcon = SyncIcon(
+            path=":/icons/sync.svg", state=SyncButtonState.active
+        )
+        self.inactiveIcon = SyncIcon(
+            path=":/icons/sync.svg", state=SyncButtonState.inactive
+        )
+        self.regularIcon = SyncIcon(
+            path=":/icons/sync.svg", state=SyncButtonState.regular
+        )
+        self.icon_state = SyncButtonState.regular
+        self.setIcon(self.regularIcon)
+        self.state_mapper = {
+            SyncButtonState.active: self.activeIcon,
+            SyncButtonState.inactive: self.inactiveIcon,
+            SyncButtonState.regular: self.regularIcon,
+        }
         self.setFlat(True)
         self.setCheckable(True)
         self.setToolTip(
             _("Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)")
         )
         color = QPalette().color(QPalette.Background)
-        hover_color = color.darker(110).name(QColor.HexRgb)
+        hoverColor = color.darker(110).name(QColor.HexRgb)
 
         style = """
         QPushButton {
@@ -2441,13 +2475,17 @@ class SyncButton(QPushButton):
         QPushButton::hover {
             background-color: %s
         }
-        """ % (hover_color)
+        """ % (
+            hoverColor
+        )
         self.setStyleSheet(style)
 
-"""
-        QPushButton:checked { background-color: %s; border: none; }
-        QPushButton:hover{ background-color: %s; border-style: inset; }
-        """
+    def setState(self, state: SyncButtonState) -> None:
+        self.setIcon(self.state_mapper[state])
+        self.icon_state = state
+
+    def iconIsActive(self) -> bool:
+        return self.icon_active
 
 
 class TemporalProximityControls(QWidget):
@@ -2460,25 +2498,18 @@ class TemporalProximityControls(QWidget):
         self.rapidApp = rapidApp
         self.prefs = rapidApp.prefs
         self.temporalProximity = rapidApp.temporalProximity
+        self.temporalProximityView = rapidApp.temporalProximity.temporalProximityView
+        self.source_scroll_bar_visible = False
         self.setObjectName("temporalProximityControls")
-
-        self.disableAutoScrollTimer = QTimer()
-        self.disableAutoScrollTimer.setInterval(1500)
-        self.disableAutoScrollTimer.timeout.connect(
-            lambda: self.temporarilyDisableAutoScroll(False)
-        )
 
         self.temporalValuePicker = TemporalValuePicker(self.prefs.get_proximity())
         self.temporalValuePicker.setSizePolicy(
             QSizePolicy.Preferred, QSizePolicy.Minimum
         )
 
-        icon = SyncIcon(path=":/icons/sync.svg")
-        self.autoScrollButton = SyncButton(icon=icon, parent=self)
+        self.autoScrollButton = SyncButton(parent=self)
         self.autoScrollButton.setChecked(self.prefs.auto_scroll)
-        self.autoScrollAct = QAction(
-            "", self, shortcut="Ctrl+T", triggered=self.autoScrollActed, icon=icon
-        )
+        self.autoScrollAct = QAction("", self, shortcut="Ctrl+T")
         self.autoScrollButton.addAction(self.autoScrollAct)
 
         self.temporalValuePicker.valueChanged.connect(self.temporalValueChanged)
@@ -2506,25 +2537,29 @@ class TemporalProximityControls(QWidget):
             self.temporalProximity.state = TemporalProximityState.regenerate
 
     @pyqtSlot(bool)
+    def sourceScrollBarVisible(self, visible: bool) -> None:
+        self.source_scroll_bar_visible = visible
+        self.setAutoScrollState()
+
+    def setAutoScrollState(self) -> None:
+        state = SyncButtonState.regular
+        if self.source_scroll_bar_visible:
+            generated = self.temporalProximity.state == TemporalProximityState.generated
+            if generated:
+                if (
+                    not self.rapidApp.sourceButton.isChecked()
+                    or self.temporalProximityView.canSyncScroll()
+                ):
+                    state = SyncButtonState.active
+                else:
+                    state = SyncButtonState.inactive
+        self.autoScrollButton.setState(state)
+
+    @pyqtSlot(bool)
     def autoScrollClicked(self, checked: bool) -> None:
         self.prefs.auto_scroll = checked
+        self.setAutoScrollState()
         self.setTimelineThumbnailAutoScroll(checked)
-
-    @pyqtSlot(bool)
-    def autoScrollActed(self, on: bool) -> None:
-        self.autoScrollButton.animateClick()
-
-    @pyqtSlot(bool)
-    def temporarilyDisableAutoScroll(self, disable: bool) -> None:
-        if not self.autoScrollButton.isChecked():
-            return
-        if disable:
-            if self.autoScrollButton.isEnabled():
-                self.autoScrollButton.setEnabled(False)
-                self.disableAutoScrollTimer.start()
-        else:
-            self.autoScrollButton.setEnabled(True)
-            self.disableAutoScrollTimer.stop()
 
     def setTimelineThumbnailAutoScroll(self, on: bool) -> None:
         """
@@ -2534,3 +2569,7 @@ class TemporalProximityControls(QWidget):
 
         self.temporalProximity.setScrollTogether(on)
         self.rapidApp.thumbnailView.setScrollTogether(on)
+
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        self.setAutoScrollState()
