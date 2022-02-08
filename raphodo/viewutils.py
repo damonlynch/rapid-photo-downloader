@@ -259,6 +259,28 @@ class SourceSplitter(QSplitter):
         return SourceSplitterHandle(Qt.Vertical, self)
 
 
+class ScrollBarEmitsVisible(QScrollBar):
+    """
+    Emits a signal when it appears or disappears. Shares same code
+    with FramedScrollBar, which is unavoidable due to rules around
+    PyQt multiple inheritance.
+    """
+
+    scrollBarVisible = pyqtSignal(bool)
+
+    def __init__(self, orientation, parent: Optional[QWidget] = None) -> None:
+        super().__init__(orientation=orientation, parent=parent)
+        self.rangeChanged.connect(self.scrollBarChange)
+        self.visible_state = None
+
+    @pyqtSlot(int, int)
+    def scrollBarChange(self, min: int, max: int) -> None:
+        visible = max != 0
+        if visible != self.visible_state:
+            self.visible_state = visible
+            self.scrollBarVisible.emit(visible)
+
+
 class FramedScrollBar(QScrollBar):
     """
     QScrollBar for use with Fusion widgets which expect to be framed
@@ -268,7 +290,7 @@ class FramedScrollBar(QScrollBar):
 
     scrollBarVisible = pyqtSignal(bool)
 
-    def __init__(self, orientation, parent: QWidget = None) -> None:
+    def __init__(self, orientation, parent: Optional[QWidget] = None) -> None:
         super().__init__(orientation=orientation, parent=parent)
         self.frame_width = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
         self.midPen = paletteMidPen()

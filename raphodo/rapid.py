@@ -2436,6 +2436,9 @@ class RapidWindow(QMainWindow):
         self.sourcePanel.verticalScrollBarVisible.connect(
             self.temporalProximityControls.sourceScrollBarVisible
         )
+        self.thumbnailView.verticalScrollBarVisible.connect(
+            self.temporalProximityControls.thumbnailScrollBarVisible
+        )
         self.leftPanelContainer = LeftPanelContainer(
             sourcePanel=self.sourcePanel,
             temporalProximityControls=self.temporalProximityControls,

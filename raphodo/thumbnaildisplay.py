@@ -132,7 +132,7 @@ from raphodo.utilities import (
 )
 from raphodo.thumbnailer import Thumbnailer
 from raphodo.rpdsql import ThumbnailRowsSQL, ThumbnailRow
-from raphodo.viewutils import ThumbnailDataForProximity, scaledIcon
+from raphodo.viewutils import ThumbnailDataForProximity, scaledIcon, ScrollBarEmitsVisible
 from raphodo.proximity import TemporalProximityState
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.preferences import Preferences
@@ -1967,6 +1967,12 @@ class ThumbnailListModel(QAbstractListModel):
 
 
 class ThumbnailView(QListView):
+    """
+    Thumbnail view. QListView in icon mode.
+    """
+
+    verticalScrollBarVisible = pyqtSignal(bool)
+
     def __init__(self, parent: QWidget) -> None:
         super().__init__(parent)
         self.rapidApp = parent
@@ -1983,6 +1989,10 @@ class ThumbnailView(QListView):
         palette.setColor(QPalette.Base, color)
         self.setPalette(palette)
         self.possiblyPreserveSelectionPostClick = False
+
+        sbv = ScrollBarEmitsVisible(orientation=Qt.Vertical)
+        self.setVerticalScrollBar(sbv)
+        sbv.scrollBarVisible.connect(self.verticalScrollBarVisible)
 
         # Track how many columns the user sees
         # QListView IconMode indexes are always set to column 0

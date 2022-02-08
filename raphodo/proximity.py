@@ -2500,6 +2500,7 @@ class TemporalProximityControls(QWidget):
         self.temporalProximity = rapidApp.temporalProximity
         self.temporalProximityView = rapidApp.temporalProximity.temporalProximityView
         self.source_scroll_bar_visible = False
+        self.thumb_scroll_bar_visible = False
         self.setObjectName("temporalProximityControls")
 
         self.temporalValuePicker = TemporalValuePicker(self.prefs.get_proximity())
@@ -2541,9 +2542,14 @@ class TemporalProximityControls(QWidget):
         self.source_scroll_bar_visible = visible
         self.setAutoScrollState()
 
+    @pyqtSlot(bool)
+    def thumbnailScrollBarVisible(self, visible: bool) -> None:
+        self.thumb_scroll_bar_visible = visible
+        self.setAutoScrollState()
+
     def setAutoScrollState(self) -> None:
         state = SyncButtonState.regular
-        if self.source_scroll_bar_visible:
+        if self.source_scroll_bar_visible and self.thumb_scroll_bar_visible:
             generated = self.temporalProximity.state == TemporalProximityState.generated
             if generated:
                 if (
