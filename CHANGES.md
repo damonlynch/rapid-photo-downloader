@@ -14,8 +14,9 @@ Changelog for Rapid Photo Downloader
    of the Timeline, the download sources may scroll up out of sight.
 
  - The button to synchronize scrolling between the Timeline and thumbnails 
-   is a double arrow and changes color to reflect its state.
-
+   is a double arrow and changes color to reflect its state. The button's 
+   behavior is described in the [documentation](https://damonlynch.net/rapid/documentation/#timelineselecting).
+ 
  - Fix [#56](https://github.com/damonlynch/rapid-photo-downloader/issues/56):
    Compress bug report tars using gzip, facilitating upload to GitHub issues.
    GitHub does not accept .tar files. It does accept .tar.gz files.
