@@ -337,8 +337,10 @@ class Preferences:
         # If you change the language setting update it in __init__.py too, where it is
         # read directly without using this class.
         language="",
-        # introduced in 0.9.27b2:
-        show_system_folders=False,
+        show_system_folders=False,  # Introduced in 0.9.27b2
+        survey_countdown=10,  # Introduced in 0.9.29
+        survey_taken=False,  # Introduced in 0.9.29
+        never_prompt_for_survey=False,  # Introduced in 0.9.29
     )
     device_defaults = dict(
         only_external_mounts=True,

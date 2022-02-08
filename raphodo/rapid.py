@@ -415,6 +415,7 @@ class RapidWindow(QMainWindow):
         self.ignore_other_photo_types = ignore_other_photo_types
         self.application_state = ApplicationState.normal
         self.prompting_for_user_action = {}  # type: Dict[Device, QMessageBox]
+        self.prefs_dialog_active = False
 
         self.close_event_run = False
 
@@ -1184,6 +1185,17 @@ class RapidWindow(QMainWindow):
 
         logging.debug("Completed stage 9 initializing main window")
 
+        force_survey = os.getenv("RPDSURVEY")
+        if force_survey or not (
+            self.prefs.never_prompt_for_survey or self.prefs.survey_taken
+        ):
+            if self.prefs.survey_countdown > 0:
+                self.prefs.survey_countdown -= 1
+
+            if self.prefs.survey_countdown == 0 or force_survey:
+                delay = 500 if force_survey else 10000
+                QTimer.singleShot(delay, self.promptForSurvey)
+
     def showMainWindow(self) -> None:
         if not self.isVisible():
             self.splash.finish(self)
@@ -1813,6 +1825,80 @@ class RapidWindow(QMainWindow):
     def newVersionDownloadCancelled(self) -> None:
         logging.info("Download of new program version cancelled")
         self.new_version_controller.send(b"STOP")
+
+    def newVersionCheckVisible(self) -> bool:
+        return not disable_version_check and self.newVersionCheckDialog.isVisible()
+
+    @pyqtSlot()
+    def promptForSurvey(self) -> None:
+        # TODO clean up dialog show check
+        if not (
+            self.newVersionCheckVisible()
+            or self.prefs_dialog_active
+            or self.prompting_for_user_action
+        ):
+            # Translators: please keep the <p> and </p> tags
+            message = _(
+                """
+<p>Rapid Photo Downloader is made for you. You can help improve it by participating in a
+web survey.</p>
+<p>Because this program does not collect analytics, the survey makes a real 
+difference to the program's future.</p>"""
+            )
+            if raphodo.lang is not None:
+                if not any(
+                    isinstance(l, str) and l.startswith("en") for l in raphodo.lang
+                ):
+                    english = _("The survey is in English.")
+                    message = f"{message}<p>{english}</p>"
+
+            logging.debug("Prompting about survey")
+            messagebox = standardMessageBox(
+                message=message,
+                rich_text=True,
+                standardButtons=QMessageBox.Ok,
+            )
+            messagebox.removeButton(messagebox.button(QMessageBox.Ok))
+            messagebox.setInformativeText(_("Do you want to take the survey?"))
+
+            # Use custom buttons, thereby avoiding button icons
+            later = messagebox.addButton(_("Ask me later"), QMessageBox.RejectRole)
+            yes = messagebox.addButton(_("Yes"), QMessageBox.AcceptRole)
+            alreadyDid = messagebox.addButton(
+                # Translators: "I already took it" means "I already took the survey"
+                _("I already took it"), QMessageBox.NoRole
+            )
+            never = messagebox.addButton(
+                # Translators: "Never ask me about any survey" refers to now and in the future
+                _("Never ask me about any survey"), QMessageBox.DestructiveRole
+            )
+            messagebox.setDefaultButton(yes)
+            messagebox.exec()
+            response = messagebox.clickedButton()
+            if response == yes:
+                logging.debug("Opening web browser to take survey")
+                webbrowser.open_new_tab("https://survey.rapidphotodownloader.com/")
+                if not not os.getenv("RPDSURVEY"):
+                    self.prefs.survey_taken = True
+            elif response == alreadyDid:
+                logging.debug("Survey was already taken")
+                if not not os.getenv("RPDSURVEY"):
+                    self.prefs.survey_taken = False
+            elif response == later:
+                logging.debug("Will ask about the survey later")
+                self.prefs.survey_countdown = 10
+            elif response == never:
+                logging.info("Will never ask again about any survey")
+                if not not os.getenv("RPDSURVEY"):
+                    self.prefs.never_prompt_for_survey = True
+
+        else:
+            pass
+            # print(
+            #     f"Cannot prompt for survey: version check {self.newVersionCheckVisible()} "
+            #     f"prefs {self.prefs_dialog_active} "
+            #     f"user action {self.prompting_for_user_action}"
+            # )
 
     def updateProgressBarState(self, thumbnail_generated: bool = None) -> None:
         """
@@ -2781,7 +2867,9 @@ class RapidWindow(QMainWindow):
         self.stop_monitoring_mount_count = False
 
         dialog = PreferencesDialog(prefs=self.prefs, parent=self)
+        self.prefs_dialog_active = True
         dialog.exec()
+        self.prefs_dialog_active = False
         self.prefs.sync()
 
         if self.scan_all_again or self.scan_non_camera_devices_again:
