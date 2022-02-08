@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,10 +22,10 @@ or "Don't ask me about this again" checkbox.
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2021, Damon Lynch"
+__copyright__ = "Copyright 2016-2022, Damon Lynch"
 
 from typing import Optional, Union
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QCheckBox, QLabel, QGridLayout
 
@@ -40,6 +40,8 @@ class RememberThisDialog(QDialog):
     do something or not.
 
     Includes a prompt whether to remember the choice.
+
+    See also standardMessageBox in viewutils.py
     """
 
     def __init__(
@@ -50,6 +52,7 @@ class RememberThisDialog(QDialog):
         parent,
         buttons: RememberThisButtons = RememberThisButtons.yes_no,
         title: Optional[str] = None,
+        message_contains_link: Optional[bool] = False
     ) -> None:
 
         super().__init__(parent)
@@ -58,6 +61,10 @@ class RememberThisDialog(QDialog):
 
         messageLabel = QLabel(message)
         messageLabel.setWordWrap(True)
+
+        if message_contains_link:
+            messageLabel.setOpenExternalLinks(True)
+            messageLabel.setTextFormat(Qt.RichText)
 
         iconLabel = QLabel()
         if isinstance(icon, str):
