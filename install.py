@@ -2307,7 +2307,7 @@ def install_required_distro_packages(
             "python3-wheel python3-setuptools gir1.2-gexiv2-0.10 libxkbcommon-x11-0 "
             "python3-gi gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 "
             "gir1.2-glib-2.0 gir1.2-gstreamer-1.0 gir1.2-gdkpixbuf-2.0 zenity "
-            "libqt5x11extras5 libxcb-xinerama0 libimobiledevice-utils fuse ifuse "
+            "libqt5x11extras5 libxcb-xinerama0 libimobiledevice-utils ifuse "
         )
 
         if install_pyqt5:
@@ -2464,7 +2464,7 @@ def install_required_distro_packages(
 
         # CentOS does not include ifuse
         if distro == Distro.fedora:
-            packages = "ifuse fuse libimobiledevice-utils {}".format(packages)
+            packages = "ifuse libimobiledevice-utils {}".format(packages)
 
         if install_pyqt5:
             packages = (
@@ -2616,7 +2616,7 @@ def install_required_distro_packages(
         packages = (
             "zeromq-devel exiv2 exiftool python3-devel "
             "libraw-devel gcc-c++ rpm-build intltool zenity "
-            "ifuse fuse imobiledevice-tools "
+            "ifuse imobiledevice-tools "
         )
 
         if install_pyqt5:

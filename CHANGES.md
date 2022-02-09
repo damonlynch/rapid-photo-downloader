@@ -45,6 +45,11 @@ Changelog for Rapid Photo Downloader
 
  - Fix bug to properly size thumbnails and hamburger menu on high DPI screens 
    with recent releases of Gnome and other desktops that use xsettings.
+ 
+ - Remove dependency on fuse in install.py script due to emerging introduction 
+   of the fuse3 package. In almost all circumstances, the ifuse package should 
+   correctly specify the correct version of fuse to depend on, making the 
+   explicit declaration of fuse as a dependency in the install.py script wrong. 
 
  - Update Albanian, Catalan, Dutch, Hungarian, Italian, Japanese, Russian, 
    Spanish, Swedish and Turkish translations.
