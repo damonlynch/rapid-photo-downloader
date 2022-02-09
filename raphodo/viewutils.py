@@ -73,7 +73,9 @@ from PyQt5.QtCore import (
     QRect,
     QAbstractItemModel,
     pyqtSlot,
-    pyqtSignal, QBuffer, QIODevice,
+    pyqtSignal,
+    QBuffer,
+    QIODevice,
 )
 
 QT5_VERSION = parse_version(QT_VERSION_STR)
@@ -870,7 +872,10 @@ def scaledIcon(path: str, size: Optional[QSize] = None) -> QIcon:
 
 
 def coloredPixmap(
-   color: Union[str, QColor],  path: Optional[str]=None, pixmap: Optional[QPixmap]=None, size: Optional[QSize] = None
+    color: Union[str, QColor],
+    path: Optional[str] = None,
+    pixmap: Optional[QPixmap] = None,
+    size: Optional[QSize] = None,
 ) -> QPixmap:
     if isinstance(color, str):
         color = QColor(color)
@@ -889,11 +894,17 @@ def coloredPixmap(
     return pixmap
 
 
-def darkModePixmap(path: str, size: Optional[QSize] = None) -> QPixmap:
+def darkModePixmap(
+    path: Optional[str] = None,
+    pixmap: Optional[QPixmap] = None,
+    size: Optional[QSize] = None,
+) -> QPixmap:
     if is_dark_mode():
         color = QApplication.palette().windowText().color()
-        return coloredPixmap(path=path, color=color)
+        return coloredPixmap(path=path, pixmap=pixmap, color=color)
     else:
+        if pixmap:
+            return pixmap
         if size:
             return QIcon(path).pixmap(size)
         else:

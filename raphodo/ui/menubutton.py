@@ -43,7 +43,7 @@ class MenuButton(QToolButton):
         height = round(DownloadButtonHeight()[0] * (2/3))  # 11/15
         size = QSize(height, height)
 
-        self.setIcon(QIcon(darkModePixmap(icon, size=size)))
+        self.setIcon(QIcon(darkModePixmap(path=icon, size=size)))
         self.setStyleSheet(
             """
             QToolButton {border: none;}

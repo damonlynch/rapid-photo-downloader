@@ -96,7 +96,7 @@ class ChevronCombo(QComboBox):
             color=color
         )
 
-        self.setStyleSheet(style)
+        # self.setStyleSheet(style)
 
         # Delegate overrides default delegate for the Combobox, which is
         # pretty ugly whenever a style sheet color is applied.
