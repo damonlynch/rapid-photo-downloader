@@ -23,11 +23,12 @@ Combo box with a chevron selector
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2011-2021, Damon Lynch"
 
-from PyQt5.QtWidgets import QStyledItemDelegate, QComboBox, QLabel, QSizePolicy
-from PyQt5.QtGui import QFontMetrics, QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QComboBox, QLabel, QSizePolicy
+from PyQt5.QtGui import QFontMetrics, QFont, QPainter, QColor
+from PyQt5.QtCore import Qt, QSize, QPoint, QPointF
 
 import raphodo.qrc_resources as qrc_resources
+from raphodo.viewutils import darkModePixmap
 
 
 class ChevronCombo(QComboBox):
@@ -40,77 +41,43 @@ class ChevronCombo(QComboBox):
         :param in_panel: if True, widget color set to background color,
          else set to window color
         """
-
         super().__init__(parent)
+        # if in_panel:
+        #     color = "background"
+        # else:
+        #     color = "window"
+        # self.label_style = """
+        # QLabel {border-color: palette(%(color)s); border-width: 1px; border-style: solid;}
+        # """ % dict(
+        #     color=color
+        # )
 
-        if in_panel:
-            color = "background"
-        else:
-            color = "window"
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        width = int(QFontMetrics(QFont()).height() * (2 / 3))
+        size = QSize(width, width)
+        pixmap = darkModePixmap(path=":/icons/chevron-down.svg", size=size)
+        x = self.rect().width() - width - 5
+        y = self.rect().center().y() - width / 2
+        p = QPointF(x, y)
+        painter.drawPixmap(p, pixmap)
 
-        style = """
-        QComboBox {
-            border: 0px;
-            padding: 1px 3px 1px 3px;
-            background-color: palette(%(color)s);
-            selection-background-color: palette(highlight);
-            color: palette(window-text);
-        }
+        painter.setPen(self.palette().windowText().color())
+        # painter.drawText(self.rect().bottomLeft(), self.currentText())
+        # print(self.currentText())
+        # painter.drawRect(self.rect())
+        # print(QFontMetrics(self.font()).height())
 
-        QComboBox:on { /* shift the text when the popup opens */
-            padding-top: 3px;
-            padding-left: 4px;
-        }
-
-        QComboBox::drop-down {
-             subcontrol-origin: padding;
-             subcontrol-position: top right;
-             width: %(width)dpx;
-             border: 0px;
-         }
-
-        QComboBox::down-arrow {
-            image: url(:/icons/chevron-down.svg);
-            width: %(width)dpx;
-        }
-
-        QComboBox QAbstractItemView {
-            outline: none;
-            border: 1px solid palette(shadow);
-            background-color: palette(%(color)s);
-            selection-background-color: palette(highlight);
-            selection-color: palette(highlighted-text);
-            color: palette(window-text)
-        }
-
-        QComboBox QAbstractItemView::item {
-            padding: 3px;
-        }
-        """ % dict(
-            width=int(QFontMetrics(QFont()).height() * (2 / 3)), color=color
+        painter.drawText(
+            self.rect(), Qt.AlignVCenter | Qt.AlignLeft, self.currentText()
         )
-
-        self.label_style = """
-        QLabel {border-color: palette(%(color)s); border-width: 1px; border-style: solid;}
-        """ % dict(
-            color=color
-        )
-
-        # self.setStyleSheet(style)
-
-        # Delegate overrides default delegate for the Combobox, which is
-        # pretty ugly whenever a style sheet color is applied.
-        # See http://stackoverflow.com/questions/13308341/qcombobox-abstractitemviewitem?rq=1
-        self.setItemDelegate(QStyledItemDelegate())
-
-        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
 
     def makeLabel(self, text: str) -> QLabel:
         label = QLabel(text)
         # Add an invisible border to make the label vertically align with the comboboxes
         # Otherwise it's off by 1px
         # TODO perhaps come up with a better way to solve this alignment problem
-        label.setStyleSheet(self.label_style)
+        # label.setStyleSheet(self.label_style)
         label.setAlignment(Qt.AlignBottom)
         label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
         return label
