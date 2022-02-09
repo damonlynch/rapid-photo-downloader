@@ -15,7 +15,7 @@ Changelog for Rapid Photo Downloader
    scroll up out of sight.
 
  - The button to synchronize scrolling between the Timeline and thumbnails 
-   is a double arrow and changes color to reflect its state. The button's 
+   is a double arrow. It changes color to reflect its state. The button's 
    behavior is described in the [documentation](https://damonlynch.net/rapid/documentation/#timelineselecting).
  
  - Various small improvements have been made to the user interface to make its

@@ -205,6 +205,16 @@ class SourcePanel(ScrollAreaNoFrame):
         self.deviceToggleView.setVisible(visible)
         self.thisComputerToggleView.setVisible(visible)
         self.splitter.setVisible(self.needSplitter())
+        if visible:
+            # scroll up to make Devices and This Computer, if necessary
+            if self.verticalScrollBar().isVisible():
+                auto_scroll =  self.prefs.auto_scroll
+                if auto_scroll:
+                    self.rapidApp.temporalProximityControls.setTimelineThumbnailAutoScroll(on=False)
+                self.verticalScrollBar().setValue(self.verticalScrollBar().minimum())
+                if auto_scroll:
+                    self.rapidApp.temporalProximityControls.setTimelineThumbnailAutoScroll(on=True)
+
 
     def setThisComputerBottomFrame(self, temporalProximityVisible: bool) -> None:
         """
