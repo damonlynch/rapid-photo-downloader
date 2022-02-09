@@ -9,14 +9,21 @@ Changelog for Rapid Photo Downloader
    tiny screens. Part of the fix involves changes in the ways the download 
    sources (Devices and This Computer) and the Timeline are placed in the left-
    side of the user interface. When a scroll bar is necessary to fit in these 
-   interface elements a single scroll bar will now extend from the Devices to 
+   interface elements, a single scroll bar will now extend from the Devices to 
    the Timeline. This now means that when you scroll down to view the entirety
-   of the Timeline, the download sources may scroll up out of sight.
+   of the Timeline, if the Timeline is big enough the download sources will 
+   scroll up out of sight.
 
  - The button to synchronize scrolling between the Timeline and thumbnails 
    is a double arrow and changes color to reflect its state. The button's 
    behavior is described in the [documentation](https://damonlynch.net/rapid/documentation/#timelineselecting).
  
+ - Various small improvements have been made to the user interface to make its
+   look clean and consistent. Some Linux distribution Qt 5 themes can make the 
+   program's user interface look worse because of differing assumptions about 
+   design elements like frames, so the use of the default Qt 5 Fusion theme 
+   is now enforced.
+
  - Fix [#56](https://github.com/damonlynch/rapid-photo-downloader/issues/56):
    Compress bug report tars using gzip, facilitating upload to GitHub issues.
    GitHub does not accept .tar files. It does accept .tar.gz files.
