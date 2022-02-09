@@ -19,8 +19,9 @@
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2015-2022, Damon Lynch"
 
+import functools
 import logging
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Union
 from collections import namedtuple
 from pkg_resources import parse_version
 import sys
@@ -575,6 +576,7 @@ class StyledLinkLabel(QLabel):
     """
     Setting a link style this way works. It does not work with regular style sheets.
     """
+
     def setLink(self, url: str, text: str) -> None:
         super().setText(
             f"""
@@ -605,6 +607,13 @@ class ProxyStyleNoFocusRectangle(QProxyStyle):
             pass
         else:
             super().drawPrimitive(element, option, painter, widget)
+
+
+@functools.lru_cache(maxsize=None)
+def is_dark_mode() -> bool:
+    text_hsv_value = QApplication.palette().color(QPalette.WindowText).value()
+    bg_hsv_value = QApplication.palette().color(QPalette.Background).value()
+    return text_hsv_value > bg_hsv_value
 
 
 class QNarrowListWidget(QListWidget):
@@ -860,13 +869,54 @@ def scaledIcon(path: str, size: Optional[QSize] = None) -> QIcon:
     return i
 
 
-def coloredPixmap(path: str, color: str) -> QPixmap:
-    pixmap = QPixmap(path)
+def coloredPixmap(
+   color: Union[str, QColor],  path: Optional[str]=None, pixmap: Optional[QPixmap]=None, size: Optional[QSize] = None
+) -> QPixmap:
+    if isinstance(color, str):
+        color = QColor(color)
+    if path is not None:
+        if size:
+            pixmap = QIcon(path).pixmap(size)
+        else:
+            pixmap = QPixmap(path)
+    else:
+        assert pixmap is not None
+
     painter = QPainter(pixmap)
     painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
-    painter.fillRect(pixmap.rect(), QColor(color))
+    painter.fillRect(pixmap.rect(), color)
     painter.end()
     return pixmap
+
+
+def darkModePixmap(path: str, size: Optional[QSize] = None) -> QPixmap:
+    if is_dark_mode():
+        color = QApplication.palette().windowText().color()
+        return coloredPixmap(path=path, color=color)
+    else:
+        if size:
+            return QIcon(path).pixmap(size)
+        else:
+            return QPixmap(path)
+
+
+def darkModeIcon(icon: QIcon, size: Optional[QSize] = None) -> QIcon:
+    if is_dark_mode():
+        color = QApplication.palette().windowText().color()
+        pixmap = icon.pixmap(size)
+        pixmap = coloredPixmap(pixmap=pixmap, color=color)
+        icon = QIcon()
+        icon.addPixmap(pixmap)
+        return icon
+    else:
+        return icon
+
+
+def menuHoverColor() -> QColor:
+    if is_dark_mode():
+        return QGuiApplication.palette().color(QPalette.Highlight).darker(250)
+    else:
+        return QGuiApplication.palette().color(QPalette.Background).darker(110)
 
 
 def screen_scaled_xsettings() -> bool:

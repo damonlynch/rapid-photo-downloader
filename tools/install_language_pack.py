@@ -54,7 +54,8 @@ hunspell_convert = dict(
     ja='',
     pt='pt-pt',
     zh_CN='',
-    et=''
+    et='',
+    sq=''
 )
 
 lang_pack_convert = dict(

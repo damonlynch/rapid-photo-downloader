@@ -121,7 +121,6 @@ from PyQt5.QtWidgets import (
     QMenu,
     QWidget,
     QProgressBar,
-    QSplitter,
     QHBoxLayout,
     QVBoxLayout,
     QGridLayout,
@@ -171,7 +170,6 @@ from raphodo.wsl import (
     WslWindowsRemovableDriveMonitor,
     WslDrives,
     WindowsDriveMount,
-    WindowsDriveType,
 )
 from raphodo.interprocess import (
     ScanArguments,
@@ -280,8 +278,8 @@ from raphodo.camera import (
 )
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.generatenameconfig import *
-from raphodo.rotatedpushbutton import RotatedButton
-from raphodo.primarybutton import TopPushButton, DownloadButton
+from raphodo.ui.rotatedpushbutton import RotatedButton
+from raphodo.ui.primarybutton import TopPushButton, DownloadButton
 from raphodo.filebrowse import (
     FileSystemView,
     FileSystemModel,
@@ -295,7 +293,7 @@ import raphodo.excepthook as excepthook
 from raphodo.computerview import ComputerWidget
 from raphodo.aboutdialog import AboutDialog
 import raphodo.constants as constants
-from raphodo.menubutton import MenuButton
+from raphodo.ui.menubutton import MenuButton
 from raphodo.destinationpanel import DestinationPanel
 from raphodo.sourcepanel import SourcePanel, LeftPanelContainer
 from raphodo.renamepanel import RenamePanel

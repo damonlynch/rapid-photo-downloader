@@ -21,7 +21,7 @@ raphodo/nameeditor.py
 raphodo/newversion.py
 raphodo/preferencedialog.py
 raphodo/preferences.py
-raphodo/primarybutton.py
+raphodo/ui/primarybutton.py
 raphodo/problemnotification.py
 raphodo/proximity.py
 raphodo/rapid.py

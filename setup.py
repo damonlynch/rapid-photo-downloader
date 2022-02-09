@@ -305,7 +305,7 @@ setup(
             ]
         )
     ],
-    packages=['raphodo'],
+    packages=['raphodo', 'raphodo.ui'],
     python_requires='>=3.6.*, <4',
     entry_points={
         'gui_scripts': ['rapid-photo-downloader=raphodo.rapid:main'],
