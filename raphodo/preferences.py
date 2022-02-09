@@ -339,7 +339,7 @@ class Preferences:
         language="",
         show_system_folders=False,  # Introduced in 0.9.27b2
         survey_countdown=10,  # Introduced in 0.9.29
-        survey_taken=False,  # Introduced in 0.9.29
+        survey_taken=0,  # Year. Introduced in 0.9.29
         never_prompt_for_survey=False,  # Introduced in 0.9.29
     )
     device_defaults = dict(

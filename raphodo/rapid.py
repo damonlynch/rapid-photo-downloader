@@ -1174,18 +1174,19 @@ class RapidWindow(QMainWindow):
         if self.is_wsl2:
             self.wslDrives.mountDrives()
 
-        self.tip = didyouknow.DidYouKnowDialog(self.prefs, self)
-        if self.prefs.did_you_know_on_startup:
-            self.tip.activate()
-
         if not prefs_valid:
             self.notifyPrefsAreInvalid(details=msg)
         else:
+            self.tip = didyouknow.DidYouKnowDialog(self.prefs, self)
+            if self.prefs.did_you_know_on_startup:
+                self.tip.activate()
+
             self.checkForNewVersionRequest.emit()
 
-        logging.debug("Completed stage 9 initializing main window")
-
+        # Setup survey prompt context
+        self.prompt_for_survey_post_download = False
         force_survey = os.getenv("RPDSURVEY")
+
         if force_survey or not (
             self.prefs.never_prompt_for_survey or self.prefs.survey_taken
         ):
@@ -1195,6 +1196,8 @@ class RapidWindow(QMainWindow):
             if self.prefs.survey_countdown == 0 or force_survey:
                 delay = 500 if force_survey else 10000
                 QTimer.singleShot(delay, self.promptForSurvey)
+
+        logging.debug("Completed stage 9 initializing main window")
 
     def showMainWindow(self) -> None:
         if not self.isVisible():
@@ -1829,14 +1832,24 @@ class RapidWindow(QMainWindow):
     def newVersionCheckVisible(self) -> bool:
         return not disable_version_check and self.newVersionCheckDialog.isVisible()
 
-    @pyqtSlot()
-    def promptForSurvey(self) -> None:
-        # TODO clean up dialog show check
-        if not (
+    def anyMainWindowDialogVisible(self) -> bool:
+        """
+        :return: True if any dialog window is currently being displayed from the main
+        window
+        """
+        return (
             self.newVersionCheckVisible()
             or self.prefs_dialog_active
             or self.prompting_for_user_action
-        ):
+            or self.tip.isVisible()
+        )
+
+    @pyqtSlot()
+    def promptForSurvey(self) -> None:
+        if not self.anyMainWindowDialogVisible():
+            if self.downloadIsRunning():
+                self.prompt_for_survey_post_download = True
+                return
             # Translators: please keep the <p> and </p> tags
             message = _(
                 """
@@ -1857,6 +1870,7 @@ difference to the program's future.</p>"""
                 message=message,
                 rich_text=True,
                 standardButtons=QMessageBox.Ok,
+                parent=self,
             )
             messagebox.removeButton(messagebox.button(QMessageBox.Ok))
             messagebox.setInformativeText(_("Do you want to take the survey?"))
@@ -1878,27 +1892,29 @@ difference to the program's future.</p>"""
             if response == yes:
                 logging.debug("Opening web browser to take survey")
                 webbrowser.open_new_tab("https://survey.rapidphotodownloader.com/")
-                if not not os.getenv("RPDSURVEY"):
-                    self.prefs.survey_taken = True
+                if not os.getenv("RPDSURVEY"):
+                    self.prefs.survey_taken = datetime.datetime.now().year
             elif response == alreadyDid:
                 logging.debug("Survey was already taken")
-                if not not os.getenv("RPDSURVEY"):
-                    self.prefs.survey_taken = False
+                if not os.getenv("RPDSURVEY"):
+                    self.prefs.survey_taken = datetime.datetime.now().year
             elif response == later:
                 logging.debug("Will ask about the survey later")
                 self.prefs.survey_countdown = 10
             elif response == never:
                 logging.info("Will never ask again about any survey")
-                if not not os.getenv("RPDSURVEY"):
+                if not os.getenv("RPDSURVEY"):
                     self.prefs.never_prompt_for_survey = True
 
         else:
-            pass
-            # print(
-            #     f"Cannot prompt for survey: version check {self.newVersionCheckVisible()} "
-            #     f"prefs {self.prefs_dialog_active} "
-            #     f"user action {self.prompting_for_user_action}"
-            # )
+            # A dialog window was open.
+            if os.getenv("RPDSURVEY"):
+                delay = 10000
+            else:
+                # Try again in 3 minutes:
+                delay = 3 * 60 * 1000
+            logging.debug("Delaying survey prompt by %s seconds", delay / 1000)
+            QTimer.singleShot(delay, self.promptForSurvey)
 
     def updateProgressBarState(self, thumbnail_generated: bool = None) -> None:
         """
@@ -4295,6 +4311,10 @@ Do you want to proceed with the download?
 
             self.download_start_datetime = None
             self.download_start_time = None
+
+            if self.prompt_for_survey_post_download:
+                self.prompt_for_survey_post_download = False
+                self.promptForSurvey()
 
     @pyqtSlot("PyQt_PyObject")
     def addErrorLogMessage(self, problems: Problems) -> None:
