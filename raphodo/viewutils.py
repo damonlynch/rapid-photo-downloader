@@ -73,7 +73,7 @@ from PyQt5.QtCore import (
     QRect,
     QAbstractItemModel,
     pyqtSlot,
-    pyqtSignal,
+    pyqtSignal, QBuffer, QIODevice,
 )
 
 QT5_VERSION = parse_version(QT_VERSION_STR)
@@ -1081,3 +1081,22 @@ def device_name_highlight_color() -> QColor:
     palette = QApplication.palette()
     alternate_color = palette.alternateBase().color()
     return QColor(alternate_color).darker(105)
+
+
+def base64_thumbnail(pixmap: QPixmap, size: QSize) -> str:
+    """
+    Convert image into format useful for HTML data URIs.
+
+    See https://css-tricks.com/data-uris/
+
+    :param pixmap: image to convert
+    :param size: size to scale to
+    :return: data in base 64 format
+    """
+
+    pixmap = pixmap.scaled(size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    buffer = QBuffer()
+    buffer.open(QIODevice.WriteOnly)
+    # Quality 100 means uncompressed, which is faster.
+    pixmap.save(buffer, "PNG", quality=100)
+    return bytes(buffer.data().toBase64()).decode()

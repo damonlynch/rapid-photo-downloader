@@ -25,8 +25,6 @@ import locale
 from datetime import datetime
 import logging
 from itertools import groupby
-import pickle
-from pprint import pprint
 from typing import Dict, List, Tuple, Set, Optional, DefaultDict, Generator
 
 import arrow.arrow
@@ -41,8 +39,6 @@ from PyQt5.QtCore import (
     QRect,
     QItemSelection,
     QItemSelectionModel,
-    QBuffer,
-    QIODevice,
     pyqtSignal,
     pyqtSlot,
     QRectF,
@@ -98,6 +94,7 @@ from raphodo.viewutils import (
     TightFlexiFrame,
     FlexiScrollArea,
     coloredPixmap,
+    base64_thumbnail,
 )
 from raphodo.timeutils import (
     locale_time,
@@ -1192,25 +1189,6 @@ class TemporalProximityGroups:
 
     def row_uids(self, row: int) -> List[bytes]:
         return self.uids[row, 2]
-
-
-def base64_thumbnail(pixmap: QPixmap, size: QSize) -> str:
-    """
-    Convert image into format useful for HTML data URIs.
-
-    See https://css-tricks.com/data-uris/
-
-    :param pixmap: image to convert
-    :param size: size to scale to
-    :return: data in base 64 format
-    """
-
-    pixmap = pixmap.scaled(size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-    buffer = QBuffer()
-    buffer.open(QIODevice.WriteOnly)
-    # Quality 100 means uncompressed, which is faster.
-    pixmap.save(buffer, "PNG", quality=100)
-    return bytes(buffer.data().toBase64()).decode()
 
 
 class TemporalProximityModel(QAbstractTableModel):
