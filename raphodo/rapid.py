@@ -2478,8 +2478,6 @@ difference to the program's future.</p>"""
             label=_("Devices"),
             display_alternate=False,
             toggleToolTip=tip,
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
             on=self.prefs.device_autodetection,
             object_name="deviceToggleView",
         )
@@ -2498,8 +2496,6 @@ difference to the program's future.</p>"""
             label=_("This Computer"),
             display_alternate=True,
             toggleToolTip=tip,
-            headerColor=QColor(ThumbnailBackgroundName),
-            headerFontColor=QColor(Qt.white),
             on=bool(self.prefs.this_computer_source),
             object_name="thisComputerToggleView",
         )

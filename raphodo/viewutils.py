@@ -1101,8 +1101,11 @@ class CheckBoxDelegate(QItemDelegate):
 
 def device_name_highlight_color() -> QColor:
     palette = QApplication.palette()
-    alternate_color = palette.alternateBase().color()
-    return QColor(alternate_color).darker(105)
+    if is_dark_mode():
+        return QColor("#393939")
+    else:
+        alternate_color = palette.alternateBase().color()
+        return QColor(alternate_color).darker(105)
 
 
 def base64_thumbnail(pixmap: QPixmap, size: QSize) -> str:

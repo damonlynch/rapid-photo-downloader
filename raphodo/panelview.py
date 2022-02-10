@@ -33,7 +33,12 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QColor, QFontMetrics, QFont, QPalette
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
-from raphodo.constants import minPanelWidth, HeaderBackgroundName
+from raphodo.constants import (
+    minPanelWidth,
+    HeaderBackgroundName,
+    DarkModeHeaderBackgroundName,
+)
+from raphodo.viewutils import is_dark_mode
 
 
 class QPanelView(QWidget):
@@ -53,7 +58,10 @@ class QPanelView(QWidget):
         self.header = QWidget(self)
 
         if headerColor is None:
-            headerColor = QColor(HeaderBackgroundName)
+            if is_dark_mode():
+                headerColor = QColor(DarkModeHeaderBackgroundName)
+            else:
+                headerColor = QColor(HeaderBackgroundName)
         palette = self.header.palette()
         palette.setColor(QPalette.Window, headerColor)
         self.header.setAutoFillBackground(True)

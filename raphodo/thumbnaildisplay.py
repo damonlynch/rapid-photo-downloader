@@ -117,6 +117,7 @@ from raphodo.constants import (
     Plural,
     manually_marked_previously_downloaded,
     thumbnail_margin,
+    DarkModeThumbnailBackgroundName,
 )
 from raphodo.storage import (
     get_program_cache_directory,
@@ -132,7 +133,12 @@ from raphodo.utilities import (
 )
 from raphodo.thumbnailer import Thumbnailer
 from raphodo.rpdsql import ThumbnailRowsSQL, ThumbnailRow
-from raphodo.viewutils import ThumbnailDataForProximity, scaledIcon, ScrollBarEmitsVisible
+from raphodo.viewutils import (
+    ThumbnailDataForProximity,
+    scaledIcon,
+    ScrollBarEmitsVisible,
+    is_dark_mode,
+)
 from raphodo.proximity import TemporalProximityState
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.preferences import Preferences
@@ -1765,9 +1771,7 @@ class ThumbnailListModel(QAbstractListModel):
         timeline row.
         """
 
-        if (
-            row == self.currently_highlighting_tp_row
-        ):
+        if row == self.currently_highlighting_tp_row:
             return
 
         self.resetHighlighting()
@@ -1985,7 +1989,10 @@ class ThumbnailView(QListView):
         self.setFrameShadow(QFrame.Plain)
         palette = self.palette()
         color = QColor()
-        color.setNamedColor(ThumbnailBackgroundName)
+        if is_dark_mode():
+            color.setNamedColor(DarkModeThumbnailBackgroundName)
+        else:
+            color.setNamedColor(ThumbnailBackgroundName)
         palette.setColor(QPalette.Base, color)
         self.setPalette(palette)
         self.possiblyPreserveSelectionPostClick = False

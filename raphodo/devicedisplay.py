@@ -88,7 +88,8 @@ from raphodo.viewutils import (
     device_name_highlight_color,
     standard_font_size,
     scaledIcon,
-darkModePixmap,
+    darkModePixmap,
+    is_dark_mode,
 )
 from raphodo.constants import (
     DeviceState,
@@ -648,7 +649,10 @@ class DeviceDisplay:
         self.emptySpaceColor = QColor("#f2f2f2")
 
         self.menu_button_padding = 3
-        self.menuHighlightColor = self.device_name_highlight_color.darker(115)
+        if is_dark_mode():
+            self.menuHighlightColor = QPalette().color(QPalette.Highlight)
+        else:
+            self.menuHighlightColor = self.device_name_highlight_color.darker(115)
 
     def v_align_header_pixmap(self, y: int, pixmap_height: int) -> float:
         return y + (self.device_name_strip_height / 2 - pixmap_height / 2)

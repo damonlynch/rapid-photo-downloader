@@ -401,6 +401,8 @@ DarkGray = "#35322f"
 MediumGray = "#5d5b59"
 DoubleDarkGray = "#1e1b18"
 
+DarkModeMediumGray = "#2b2b2b"
+
 
 ExtensionColorDict = {
     FileExtension.raw: CustomColors.color1,
@@ -474,7 +476,9 @@ class StandardFileLocations(Enum):
 max_remembered_destinations = 10
 
 ThumbnailBackgroundName = MediumGray
+DarkModeThumbnailBackgroundName = DarkModeMediumGray
 HeaderBackgroundName = ThumbnailBackgroundName
+DarkModeHeaderBackgroundName = DarkModeThumbnailBackgroundName
 EmptyViewHeight = 20
 
 DeviceDisplayPadding = 6
