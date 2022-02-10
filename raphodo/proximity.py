@@ -95,6 +95,8 @@ from raphodo.viewutils import (
     FlexiScrollArea,
     coloredPixmap,
     base64_thumbnail,
+    darkModePixmap,
+    is_dark_mode,
 )
 from raphodo.timeutils import (
     locale_time,
@@ -2408,9 +2410,12 @@ class SyncIcon(QIcon):
         elif state == SyncButtonState.inactive:
             on = coloredPixmap(path=path, color=CustomColors.color2.value)
         else:
-            on = coloredPixmap(path=path, color="black")
+            on = darkModePixmap(path=path, size=(QSize(100, 100)))
 
-        color = QGuiApplication.palette().color(QPalette.Dark)
+        if is_dark_mode():
+            color = QGuiApplication.palette().color(QPalette.Light)
+        else:
+            color = QGuiApplication.palette().color(QPalette.Dark)
         off = coloredPixmap(path=path, color=color)
 
         self.addPixmap(on, QIcon.Normal, QIcon.On)

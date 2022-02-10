@@ -79,7 +79,6 @@ from raphodo.viewutils import (
     standardMessageBox,
     StyledLinkLabel,
 )
-from raphodo.utilities import available_cpu_count, format_size_for_user, thousands
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.constants import ConflictResolution
 from raphodo.utilities import (
@@ -87,7 +86,11 @@ from raphodo.utilities import (
     make_internationalized_list,
     version_check_disabled,
     available_languages,
+    available_cpu_count,
+    format_size_for_user,
+    thousands,
 )
+from raphodo.viewutils import darkModePixmap
 from raphodo.fileformats import (
     PHOTO_EXTENSIONS,
     AUDIO_EXTENSIONS,
@@ -201,6 +204,7 @@ class PreferencesDialog(QDialog):
             selected = QPixmap(pixmap.size())
             selected.fill(selectedColour)
             selected.setMask(pixmap.createMaskFromColor(Qt.transparent))
+            pixmap = darkModePixmap(pixmap=pixmap)
             icon.addPixmap(pixmap, QIcon.Normal)
             icon.addPixmap(selected, QIcon.Selected)
 

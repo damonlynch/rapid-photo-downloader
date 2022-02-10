@@ -911,16 +911,27 @@ def darkModePixmap(
             return QPixmap(path)
 
 
-def darkModeIcon(icon: QIcon, size: Optional[QSize] = None) -> QIcon:
+def darkModeIcon(
+    icon: Optional[QIcon] = None,
+    path: Optional[str] = None,
+    size: Optional[QSize] = None,
+) -> QIcon:
     if is_dark_mode():
         color = QApplication.palette().windowText().color()
-        pixmap = icon.pixmap(size)
-        pixmap = coloredPixmap(pixmap=pixmap, color=color)
+        if icon:
+            pixmap = icon.pixmap(size)
+            pixmap = coloredPixmap(pixmap=pixmap, color=color)
+        else:
+            assert str
+            pixmap = darkModePixmap(path=path, size=size)
         icon = QIcon()
         icon.addPixmap(pixmap)
         return icon
     else:
-        return icon
+        if icon:
+            return icon
+        else:
+            return QIcon(path)
 
 
 def menuHoverColor() -> QColor:

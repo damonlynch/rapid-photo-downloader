@@ -38,6 +38,7 @@ from PyQt5.QtCore import (
     QPoint,
     pyqtSignal,
     pyqtSlot,
+    QSize,
 )
 from PyQt5.QtWidgets import (
     QTreeView,
@@ -62,7 +63,12 @@ from raphodo.constants import (
     non_system_root_folders,
 )
 from raphodo.storage import gvfs_gphoto2_path, get_media_dir
-from raphodo.viewutils import scaledIcon, TopFramedVerticalScrollBar
+from raphodo.viewutils import (
+    scaledIcon,
+    TopFramedVerticalScrollBar,
+    standard_font_size,
+    darkModeIcon,
+)
 from raphodo.wslutils import wsl_filter_directories
 
 
@@ -80,8 +86,13 @@ class FileSystemModel(QFileSystemModel):
         # More filtering done in the FileSystemFilter
         self.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
 
-        self.folder_icon = scaledIcon(":/icons/folder.svg")
-        self.download_folder_icon = scaledIcon(":/icons/folder-filled.svg")
+        s = standard_font_size()
+        size = QSize(s, s)
+
+        self.folder_icon = darkModeIcon(path=":/icons/folder.svg", size=size)
+        self.download_folder_icon = darkModeIcon(
+            path=":/icons/folder-filled.svg", size=size
+        )
 
         self.setRootPath("/")
 

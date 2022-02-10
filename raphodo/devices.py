@@ -78,7 +78,7 @@ from raphodo.utilities import (
 )
 import raphodo.exiftool as exiftool
 from raphodo.problemnotification import FsMetadataWriteProblem
-from raphodo.viewutils import scaledIcon
+from raphodo.viewutils import darkModeIcon
 
 display_devices = (DeviceType.volume, DeviceType.camera, DeviceType.camera_fuse)
 camera_devices = (DeviceType.camera, DeviceType.camera_fuse)
@@ -1421,7 +1421,7 @@ class BackupDeviceCollection:
     0
     """
 
-    def __init__(self, rapidApp: 'RapidWindow' = None ):
+    def __init__(self, rapidApp: "RapidWindow" = None):
         self.rapidApp = rapidApp
         self.devices = dict()  # type: Dict[str, BackupDevice]
         # Set[path]

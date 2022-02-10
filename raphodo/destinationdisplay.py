@@ -53,7 +53,7 @@ from PyQt5.QtGui import (
 )
 
 
-from raphodo.viewutils import paletteMidPen
+from raphodo.viewutils import paletteMidPen, darkModePixmap
 from raphodo.devicedisplay import DeviceDisplay, BodyDetails, icon_size
 from raphodo.storage import StorageSpace, get_path_display_name, get_mount_size
 from raphodo.constants import (
@@ -258,7 +258,8 @@ class DestinationDisplay(QWidget):
         self.map_action = dict()  # type: Dict[int, QAction]
 
         if menu:
-            menuIcon = QIcon(":/icons/settings.svg")
+            pixmap = darkModePixmap(path=":/icons/settings.svg", size=QSize(16, 16))
+            menuIcon = QIcon(pixmap)
             self.file_type = file_type
             self.createActionsAndMenu()
             self.mouse_pos = DestinationDisplayMousePos.normal
@@ -274,6 +275,7 @@ class DestinationDisplay(QWidget):
         self.icon = QIcon(":/icons/folder.svg").pixmap(
             QSize(size, size)
         )  # type: QPixmap
+        self.icon = darkModePixmap(self.icon)
         self.display_name = ""
         self.photos_size_to_download = self.videos_size_to_download = 0
         self.files_to_display = None  # type: Optional[DisplayingFilesOfType]
@@ -653,8 +655,8 @@ class DestinationDisplay(QWidget):
             painter.drawLine(rect.bottomLeft(), rect.bottomRight())
             painter.drawLine(rect.topLeft(), rect.bottomLeft())
             if (
-                    self.container_vertical_scrollbar_visible is None
-                    or not self.container_vertical_scrollbar_visible
+                self.container_vertical_scrollbar_visible is None
+                or not self.container_vertical_scrollbar_visible
             ):
                 painter.drawLine(rect.topRight(), rect.bottomRight())
             painter.setPen(pen)

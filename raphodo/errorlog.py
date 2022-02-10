@@ -70,7 +70,7 @@ import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import ErrorType
 from raphodo.rpdfile import RPDFile
 from raphodo.problemnotification import Problem, Problems
-from raphodo.viewutils import translateDialogBoxButtons
+from raphodo.viewutils import translateDialogBoxButtons, darkModeIcon
 from showinfm import show_in_file_manager
 
 # ErrorLogMessage = namedtuple('ErrorLogMessage', 'title body name uri')
@@ -207,12 +207,12 @@ class ErrorReport(QDialog):
         size = QSize(font_height, font_height)
 
         self.up = QPushButton()
-        self.up.setIcon(QIcon(":/icons/up.svg"))
+        self.up.setIcon(darkModeIcon(path=":/icons/up.svg", size=QSize(100, 100)))
         self.up.setIconSize(size)
         self.up.clicked.connect(self.upClicked)
         self.up.setToolTip(_("Find the previous occurrence of the phrase"))
         self.down = QPushButton()
-        self.down.setIcon(QIcon(":/icons/down.svg"))
+        self.down.setIcon(darkModeIcon(path=":/icons/down.svg", size=QSize(100, 100)))
         self.down.setIconSize(size)
         self.down.clicked.connect(self.downClicked)
         self.down.setToolTip(_("Find the next occurrence of the phrase"))

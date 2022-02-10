@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,11 +21,11 @@ Combo box with a chevron selector
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
+__copyright__ = "Copyright 2011-2022, Damon Lynch"
 
 from PyQt5.QtWidgets import QComboBox, QLabel, QSizePolicy
-from PyQt5.QtGui import QFontMetrics, QFont, QPainter, QColor
-from PyQt5.QtCore import Qt, QSize, QPoint, QPointF
+from PyQt5.QtGui import QFontMetrics, QFont, QPainter
+from PyQt5.QtCore import Qt, QSize, QPointF
 
 import raphodo.qrc_resources as qrc_resources
 from raphodo.viewutils import darkModePixmap
@@ -45,25 +45,26 @@ class ChevronCombo(QComboBox):
 
     def paintEvent(self, event):
         painter = QPainter(self)
+
+        # Draw chevron (down arrow)
         width = int(QFontMetrics(QFont()).height() * (2 / 3))
         size = QSize(width, width)
         pixmap = darkModePixmap(path=":/icons/chevron-down.svg", size=size)
-        x = self.rect().width() - width - 5
+        x = self.rect().width() - width - 6
         y = self.rect().center().y() - width / 2
         p = QPointF(x, y)
         painter.drawPixmap(p, pixmap)
 
+        # Draw text
         painter.setPen(self.palette().windowText().color())
-        # painter.drawText(self.rect().bottomLeft(), self.currentText())
-        # print(self.currentText())
-        # painter.drawRect(self.rect())
-        # print(QFontMetrics(self.font()).height())
-
         painter.drawText(
             self.rect(), Qt.AlignVCenter | Qt.AlignLeft, self.currentText()
         )
 
     def makeLabel(self, text: str) -> QLabel:
+        """
+        Render a label to attach to this widget
+        """
         label = QLabel(text)
         label.setAlignment(Qt.AlignBottom)
         label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
