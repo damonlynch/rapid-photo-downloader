@@ -35,7 +35,8 @@ from PyQt5.QtWidgets import QWidget, QLayout, QSizePolicy
 
 from raphodo.toggleswitch import QToggleSwitch
 from raphodo.panelview import QPanelView
-from raphodo.viewutils import BlankWidget
+from raphodo.viewutils import BlankWidget, is_dark_mode
+from raphodo.constants import HeaderBackgroundName, DarkModeHeaderBackgroundName
 
 
 class QToggleView(QPanelView):
@@ -56,7 +57,11 @@ class QToggleView(QPanelView):
         on: bool = True,
         parent: QWidget = None,
     ) -> None:
-
+        if headerColor is None:
+            if is_dark_mode():
+                headerColor = QColor(DarkModeHeaderBackgroundName)
+            else:
+                headerColor = QColor(HeaderBackgroundName)
         super().__init__(
             label=label,
             headerColor=headerColor,
