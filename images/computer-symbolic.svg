@@ -1,69 +1,24 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   viewBox="0 0 96 96.000001"
-   version="1.1"
-   id="svg4874"
-   height="96"
-   width="96">
-  <defs
-     id="defs4876" />
-  <metadata
-     id="metadata4879">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     transform="translate(67.857146,-78.50504)"
-     id="layer1">
-    <g
-       style="display:inline"
-       id="g4845"
-       transform="matrix(0,-1,-1,0,373.50506,516.50504)">
-      <g
-         id="g4778"
-         transform="matrix(-0.9996045,0,0,1,575.94296,-611.00001)">
-        <g
-           style="display:inline"
-           id="g4780"
-           transform="matrix(-1,0,0,1,575.99999,611)">
-          <rect
-             transform="scale(-1,1)"
-             y="345.36221"
-             x="-438.00244"
-             height="96"
-             width="96.037987"
-             id="rect4782"
-             style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:none;stroke:none;stroke-width:4;marker:none;enable-background:accumulate" />
-          <path
-             style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#333333;stroke-width:4.00079155;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
-             d="m 381.97988,355.36261 c -10.00396,0 -9.8873,3.91306 -10.00396,14 l 0,47.99961 c 0.11666,10.08694 0,14 10.00396,14 l 36.01466,0 c 10.00396,0 9.8873,-3.91306 10.00396,-14 l 0,-47.99961 c -0.11666,-10.08694 0,-14 -10.00396,-14 z"
-             id="path4297" />
-          <rect
-             transform="matrix(0,-1,-1,0,0,0)"
-             y="-371.97635"
-             x="-401.36221"
-             height="6.0023842"
-             width="15.999997"
-             id="rect4188"
-             style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#333333;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:8.0015831;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" />
-          <path
-             id="path4190"
-             d="m 349.96763,433.36222 4.00158,0 8.00317,-12 0,-56 -8.00316,-12 -4.00159,0 z"
-             style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#333333;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:8.0015831;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" />
-        </g>
-      </g>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="96" height="96" version="1.1" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(67.857 -78.505)">
+  <g transform="matrix(0 -1 -1 0 373.51 516.51)">
+   <g transform="matrix(-.9996 0 0 1 575.94 -611)">
+    <g transform="matrix(-1 0 0 1 576 611)">
+     <rect transform="scale(-1,1)" x="-438" y="345.36" width="96.038" height="96" color="#000000" fill="none"/>
+     <path d="m381.98 355.36c-10.004 0-9.8873 3.9131-10.004 14v48c0.11666 10.087 0 14 10.004 14h36.015c10.004 0 9.8873-3.9131 10.004-14v-48c-0.11666-10.087 0-14-10.004-14z" color="#000000" fill="none" stroke="#000" stroke-width="4.0008"/>
+     <rect transform="matrix(0,-1,-1,0,0,0)" x="-401.36" y="-371.98" width="16" height="6.0024" color="#000000"/>
+     <path d="m349.97 433.36h4.0016l8.0032-12v-56l-8.0032-12h-4.0016z" color="#000000"/>
     </g>
+   </g>
   </g>
+ </g>
 </svg>

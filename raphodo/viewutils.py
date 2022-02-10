@@ -925,7 +925,7 @@ def darkModeIcon(icon: QIcon, size: Optional[QSize] = None) -> QIcon:
 
 def menuHoverColor() -> QColor:
     if is_dark_mode():
-        return QGuiApplication.palette().color(QPalette.Highlight).darker(250)
+        return QGuiApplication.palette().color(QPalette.Highlight)
     else:
         return QGuiApplication.palette().color(QPalette.Background).darker(110)
 

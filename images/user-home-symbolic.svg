@@ -1,21 +1,2 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xml:space="preserve"
-   width="32px"
-   viewBox="0 0 32 32"
-   version="1.1"
-   id="Layer_1"
-   height="32px"
-   enable-background="new 0 0 32 32"><metadata
-     id="metadata9"><rdf:RDF><cc:Work
-         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title /></cc:Work></rdf:RDF></metadata><defs
-     id="defs7" /><path
-     style="fill:#333333"
-     id="path3"
-     d="M29.707,15.793l-13-13c-0.391-0.391-1.023-0.391-1.414,0l-13,13c-0.391,0.391-0.391,1.023,0,1.414s1.023,0.391,1.414,0  L16,4.914l8.014,8.014C24.013,12.953,24,12.975,24,13v15H8V18c0-0.553-0.448-1-1-1s-1,0.447-1,1v11c0,0.553,0.448,1,1,1h18  c0.553,0,1-0.447,1-1V14.914l2.293,2.293C28.488,17.402,28.744,17.5,29,17.5s0.512-0.098,0.707-0.293  C30.098,16.816,30.098,16.184,29.707,15.793z" /></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" enable-background="new 0 0 32 32" version="1.1" viewBox="0 0 32 32" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><metadata><rdf:RDF><cc:Work rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/></cc:Work></rdf:RDF></metadata><path d="m29.707 15.793-13-13c-0.391-0.391-1.023-0.391-1.414 0l-13 13c-0.391 0.391-0.391 1.023 0 1.414s1.023 0.391 1.414 0l12.293-12.293 8.014 8.014c-1e-3 0.025-0.014 0.047-0.014 0.072v15h-16v-10c0-0.553-0.448-1-1-1s-1 0.447-1 1v11c0 0.553 0.448 1 1 1h18c0.553 0 1-0.447 1-1v-14.086l2.293 2.293c0.195 0.195 0.451 0.293 0.707 0.293s0.512-0.098 0.707-0.293c0.391-0.391 0.391-1.023 0-1.414z"/></svg>

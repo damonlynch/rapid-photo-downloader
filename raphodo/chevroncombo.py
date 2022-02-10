@@ -42,15 +42,6 @@ class ChevronCombo(QComboBox):
          else set to window color
         """
         super().__init__(parent)
-        # if in_panel:
-        #     color = "background"
-        # else:
-        #     color = "window"
-        # self.label_style = """
-        # QLabel {border-color: palette(%(color)s); border-width: 1px; border-style: solid;}
-        # """ % dict(
-        #     color=color
-        # )
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -74,10 +65,6 @@ class ChevronCombo(QComboBox):
 
     def makeLabel(self, text: str) -> QLabel:
         label = QLabel(text)
-        # Add an invisible border to make the label vertically align with the comboboxes
-        # Otherwise it's off by 1px
-        # TODO perhaps come up with a better way to solve this alignment problem
-        # label.setStyleSheet(self.label_style)
         label.setAlignment(Qt.AlignBottom)
         label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
         return label
