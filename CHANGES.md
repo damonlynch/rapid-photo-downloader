@@ -18,11 +18,13 @@ Changelog for Rapid Photo Downloader
    is a double arrow. It changes color to reflect its state. The button's 
    behavior is described in the [documentation](https://damonlynch.net/rapid/documentation/#timelineselecting).
  
- - Various small improvements have been made to the user interface to make its
-   look clean and consistent. Some Linux distribution Qt 5 themes can make the 
-   program's user interface look worse because of differing assumptions about 
-   design elements like frames, so the use of the default Qt 5 Fusion theme 
-   is now enforced.
+ - Various small improvements make the user interface look cleaner and more 
+   consistent. Some Linux distribution Qt 5 themes can make the program's 
+   user interface look worse because of differing assumptions about design 
+   elements like frames, so the use of the Qt 5 Fusion theme is now enforced.
+
+ - Fix bug where various user interface elements would effectively be invisible 
+   when the system theme is dark, also known as  "dark mode".
 
  - Fix [#56](https://github.com/damonlynch/rapid-photo-downloader/issues/56):
    Compress bug report tars using gzip, facilitating upload to GitHub issues.
