@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2020, Damon Lynch"
+__copyright__ = "Copyright 2011-2022, Damon Lynch"
 
 import datetime
 import logging
@@ -284,6 +284,9 @@ class WSLWindowsDrivePrefs(NamedTuple):
     auto_unmount: bool
 
 
+is_devel_env = os.getenv("RPD_DEVEL_DEFAULTS") is not None
+
+
 class Preferences:
     """
     Program preferences, being a mix of user facing and non-user facing prefs.
@@ -323,7 +326,7 @@ class Preferences:
         ignore_unhandled_file_exts=["TMP", "DAT"],
         job_code_sort_key=0,
         job_code_sort_order=0,
-        did_you_know_on_startup=True,
+        did_you_know_on_startup=False if is_devel_env else True,
         did_you_know_index=0,
         # see constants.CompletedDownloads:
         completed_downloads=3,
@@ -339,7 +342,7 @@ class Preferences:
         language="",
         show_system_folders=False,  # Introduced in 0.9.27b2
         survey_countdown=10,  # Introduced in 0.9.29
-        survey_taken=0,  # Year. Introduced in 0.9.29
+        survey_taken=2022 if is_devel_env else 0,  # Year. Introduced in 0.9.29
         never_prompt_for_survey=False,  # Introduced in 0.9.29
     )
     device_defaults = dict(

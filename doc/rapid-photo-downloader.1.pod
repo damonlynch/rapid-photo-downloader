@@ -225,7 +225,10 @@ Print information to the terminal about attached cameras and exit.
 =head1 ENVIRONMENT
 
 If the environment variable RPD_SCAN_DEBUG is set to any value, the program's scan
-operation will output volumous debug information to stdout.
+operation will output voluminous debug information to stdout.
+
+If the environment variable RPD_DEVEL_DEFAULTS is set to any value, the program's default
+preferences will be set to those of a development environment.
 
 
 =head1 SEE ALSO
@@ -249,4 +252,3 @@ On Debian GNU/Linux systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL'.
 
 =cut
-
