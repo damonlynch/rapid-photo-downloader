@@ -80,7 +80,7 @@ from PyQt5.QtCore import (
 
 QT5_VERSION = parse_version(QT_VERSION_STR)
 
-from raphodo.constants import ScalingDetected
+from raphodo.constants import ScalingDetected, HeaderBackgroundName
 import raphodo.xsettings as xsettings
 
 
@@ -898,10 +898,14 @@ def darkModePixmap(
     path: Optional[str] = None,
     pixmap: Optional[QPixmap] = None,
     size: Optional[QSize] = None,
+    soften_regular_mode_color: Optional[bool] = False,
 ) -> QPixmap:
     if is_dark_mode():
         color = QApplication.palette().windowText().color()
-        return coloredPixmap(path=path, pixmap=pixmap, color=color)
+        return coloredPixmap(path=path, pixmap=pixmap, color=color, size=size)
+    elif soften_regular_mode_color:
+        color = QColor(HeaderBackgroundName)
+        return coloredPixmap(path=path, pixmap=pixmap, color=color, size=size)
     else:
         if pixmap:
             return pixmap
@@ -915,9 +919,13 @@ def darkModeIcon(
     icon: Optional[QIcon] = None,
     path: Optional[str] = None,
     size: Optional[QSize] = None,
+    soften_regular_mode_color: Optional[bool] = False,
 ) -> QIcon:
-    if is_dark_mode():
-        color = QApplication.palette().windowText().color()
+    if is_dark_mode() or soften_regular_mode_color:
+        if is_dark_mode():
+            color = QApplication.palette().windowText().color()
+        else:
+            color = QColor(HeaderBackgroundName)
         if icon:
             pixmap = icon.pixmap(size)
             pixmap = coloredPixmap(pixmap=pixmap, color=color)

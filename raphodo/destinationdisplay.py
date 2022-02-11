@@ -258,7 +258,11 @@ class DestinationDisplay(QWidget):
         self.map_action = dict()  # type: Dict[int, QAction]
 
         if menu:
-            pixmap = darkModePixmap(path=":/icons/settings.svg", size=QSize(16, 16))
+            pixmap = darkModePixmap(
+                path=":/icons/settings.svg",
+                size=QSize(100, 100),
+                soften_regular_mode_color=True,
+            )
             menuIcon = QIcon(pixmap)
             self.file_type = file_type
             self.createActionsAndMenu()

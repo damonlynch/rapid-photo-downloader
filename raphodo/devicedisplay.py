@@ -682,7 +682,7 @@ class DeviceDisplay:
         icon_x = float(x + self.padding + self.icon_x_offset)
         icon_y = self.v_align_header_pixmap(y, self.icon_size)
 
-        icon = darkModePixmap(pixmap=icon)
+        icon = darkModePixmap(pixmap=icon, soften_regular_mode_color=True)
 
         # Cannot use icon size for the target, because icons can be scaled to
         # high resolution

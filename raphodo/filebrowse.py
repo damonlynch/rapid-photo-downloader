@@ -89,9 +89,11 @@ class FileSystemModel(QFileSystemModel):
         s = standard_font_size()
         size = QSize(s, s)
 
-        self.folder_icon = darkModeIcon(path=":/icons/folder.svg", size=size)
+        self.folder_icon = darkModeIcon(
+            path=":/icons/folder.svg", size=size, soften_regular_mode_color=True
+        )
         self.download_folder_icon = darkModeIcon(
-            path=":/icons/folder-filled.svg", size=size
+            path=":/icons/folder-filled.svg", size=size, soften_regular_mode_color=True
         )
 
         self.setRootPath("/")
