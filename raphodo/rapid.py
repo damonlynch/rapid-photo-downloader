@@ -7148,6 +7148,15 @@ def parser_options(formatter_class=argparse.HelpFormatter):
         help=_("Print information to the terminal about attached cameras and exit."),
     )
 
+    parser.add_argument(
+        "--force-system-theme",
+        action="store_true",
+        default=False,
+        help=_(
+            "Use the system Qt theme instead of the built-in theme"
+        )
+    )
+
     parser.add_argument("path", nargs="?")
 
     if platform.system() == "Linux":
@@ -7702,7 +7711,8 @@ def main():
     app.setOrganizationDomain("damonlynch.net")
     app.setApplicationName("Rapid Photo Downloader")
     app.setWindowIcon(QIcon(":/rapid-photo-downloader.svg"))
-    app.setStyle("Fusion")
+    if not args.force_system_theme:
+        app.setStyle("Fusion")
 
     # Determine the system locale as reported by Qt. Use it to
     # see if Qt has a base translation available, which allows
