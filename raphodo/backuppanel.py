@@ -427,14 +427,14 @@ class BackupDeviceDelegate(QStyledItemDelegate):
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
         if view_type == ViewRowType.header:
-            height = self.deviceDisplay.device_name_height
+            height = self.deviceDisplay.dc.device_name_height
         else:
             storage_space = index.data(Roles.storage)
 
             if storage_space is None:
-                height = self.deviceDisplay.base_height
+                height = self.deviceDisplay.dc.base_height
             else:
-                height = self.deviceDisplay.storage_height
+                height = self.deviceDisplay.dc.storage_height
         return QSize(self.deviceDisplay.view_width, height)
 
 

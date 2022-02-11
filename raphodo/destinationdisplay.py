@@ -687,12 +687,12 @@ class DestinationDisplay(QWidget):
                 icon=self.icon,
                 highlight_menu=highlight_menu,
             )
-            y = y + self.deviceDisplay.device_name_height
+            y = y + self.deviceDisplay.dc.device_name_height
 
         if self.display_type != DestinationDisplayType.folder_only:
             # Render the projected storage space
             if self.display_type == DestinationDisplayType.usage_only:
-                y += self.deviceDisplay.padding
+                y += self.deviceDisplay.dc.padding
 
             photos_size_to_download, videos_size_to_download = adjusted_download_size(
                 photos_size_to_download=self.photos_size_to_download,
@@ -718,14 +718,14 @@ class DestinationDisplay(QWidget):
 
     def sizeHint(self) -> QSize:
         if self.display_type == DestinationDisplayType.usage_only:
-            height = self.deviceDisplay.padding
+            height = self.deviceDisplay.dc.padding
         else:
             height = 0
 
         if self.display_type != DestinationDisplayType.usage_only:
-            height += self.deviceDisplay.device_name_height
+            height += self.deviceDisplay.dc.device_name_height
         if self.display_type != DestinationDisplayType.folder_only:
-            height += self.deviceDisplay.storage_height
+            height += self.deviceDisplay.dc.storage_height
         return QSize(self.deviceDisplay.view_width, height)
 
     def minimumSize(self) -> QSize:
@@ -762,7 +762,7 @@ class DestinationDisplay(QWidget):
             # to when hovering above the destination folder
 
             headerRect = QRect(
-                0, 0, self.width(), self.deviceDisplay.device_name_height
+                0, 0, self.width(), self.deviceDisplay.dc.device_name_height
             )
             if not headerRect.contains(event.pos()):
                 if (

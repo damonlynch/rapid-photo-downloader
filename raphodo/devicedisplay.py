@@ -482,7 +482,8 @@ class DeviceView(ListViewFlexiFrame):
         self.rapidApp = rapidApp
         # Disallow the user from being able to select the table cells
         self.setSelectionMode(QAbstractItemView.NoSelection)
-        self.view_width = minPanelWidth()
+        # TODO make this dynamic
+        self.view_width = DeviceComponent().sample_width()
         # Assume view is always going to be placed into a container that can be scrolled
         # or a splitter
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -578,6 +579,84 @@ class EmulatedHeaderRow(QWidget):
         painter.end()
 
 
+class DeviceComponent:
+    """
+    Calculate Device, Destination and Backup Display component sizes
+    """
+
+    def __init__(self):
+        self.padding = DeviceDisplayPadding
+        self.header_horizontal_padding = 8
+        self.vertical_padding = 10
+        self.menu_button_padding = 3
+        self.inter_device_padding = 10
+        self.spacer = 3
+
+        standardFont = QFont()
+        self.standard_height = QFontMetrics(standardFont).height()
+
+        # Base height is when there is no storage space to display
+        self.base_height = self.padding * 2 + self.standard_height
+
+        self.icon_size = icon_size()
+        self.icon_x_offset = 0
+
+        # A small font used for all the text seen in the body
+        self.deviceFont = QFont()
+        self.deviceFont.setPointSize(standardFont.pointSize() - 2)
+        self.deviceFontMetrics = QFontMetrics(self.deviceFont)
+
+        # Storage Use Horizontal Bar
+        self.storage_use_bar_height = self.standard_height
+
+        # Storage Details, broken down by photo, video, and other files
+        sample_number = thousands(999)
+        sample_no_photos = "{} {}".format(sample_number, _("Photos"))
+        sample_no_videos = "{} {}".format(sample_number, _("Videos"))
+        self.sample_photos_width = self.deviceFontMetrics.boundingRect(
+            sample_no_photos
+        ).width()
+        self.sample_videos_width = self.deviceFontMetrics.boundingRect(
+            sample_no_videos
+        ).width()
+        sample_comp3 = format_size_for_user(261780000)  # 261.78 MB
+        self.sample_comp3_width = self.deviceFontMetrics.boundingRect(
+            sample_comp3
+        ).width()
+
+        # Height of the details about the storage e.g. number of photos
+        # videos, etc.
+        self.details_height = self.deviceFontMetrics.height() * 2 + 2
+        self.details_vertical_bar_width = 10
+
+        # Storage height is when there is storage space to display
+        self.storage_height = (
+            self.standard_height
+            + self.padding
+            + self.storage_use_bar_height
+            + self.vertical_padding
+            + self.details_height
+            + self.padding * 2
+        )
+
+        # Height of the colored box that includes a device's icon & name,
+        # and when a source device, the spinner/checkbox
+        self.device_name_strip_height = device_name_height()
+        self.device_name_height = device_header_row_height()
+
+    def sample_width(self) -> int:
+        width = (
+            self.sample_photos_width
+            + self.sample_videos_width
+            + self.sample_comp3_width
+            + self.details_vertical_bar_width * 3
+            + self.spacer * 2
+            + (self.inter_device_padding * 2)
+            + self.padding * 2
+        )
+        return width
+
+
 class DeviceDisplay:
     """
     Graphically render the storage space, and photos and videos that
@@ -587,75 +666,28 @@ class DeviceDisplay:
     custom widget.
     """
 
-    padding = DeviceDisplayPadding
     shading_intensity = DeviceShadingIntensity
 
     def __init__(self, menuButtonIcon: Optional[QIcon] = None) -> None:
         self.menuButtonIcon = menuButtonIcon
 
-        self.sample1_width = self.sample2_width = 40
         self.rendering_destination = True
 
-        self.standard_font = QFont()  # type: QFont
-        self.standard_metrics = QFontMetrics(self.standard_font)
-        self.standard_height = standard_height()
+        self.dc = DeviceComponent()
 
-        self.icon_size = icon_size()
+        self.view_width = self.dc.sample_width()
 
-        self.small_font = QFont(self.standard_font)
-        self.small_font.setPointSize(self.standard_font.pointSize() - 2)
-        self.small_font_metrics = QFontMetrics(self.small_font)
-        self.small_height = self.small_font_metrics.height()
-
-        # Height of the graqient bar that visually shows storage use
-        self.g_height = self.standard_height
-
-        # Height of the details about the storage e.g. number of photos
-        # videos, etc.
-        self.details_height = self.small_font_metrics.height() * 2 + 2
-        self.view_width = minPanelWidth()
-
-        self.device_name_highlight_color = device_name_highlight_color()
-
-        self.storage_border = QColor("#bcbcbc")
-
-        # Height of the colored box that includes the device's
-        # spinner/checkbox, icon & name
-        self.device_name_strip_height = device_name_height()
-        self.device_name_height = device_header_row_height()
-
-        self.icon_y_offset = (self.device_name_strip_height - self.icon_size) / 2
-
-        self.header_horizontal_padding = 8
-        self.icon_x_offset = 0
-        self.vertical_padding = 10
-
-        # Calculate height of storage details:
-        # text above gradient, gradient, and text below
-
-        # Base height is when there is no storage space to display
-        self.base_height = self.padding * 2 + self.standard_height
-
-        # Storage height is when there is storage space to display
-        self.storage_height = (
-            self.standard_height
-            + self.padding
-            + self.g_height
-            + self.vertical_padding
-            + self.details_height
-            + self.padding * 2
-        )
-
-        self.emptySpaceColor = QColor("#f2f2f2")
-
-        self.menu_button_padding = 3
+        self.deviceNameHighlightColor = device_name_highlight_color()
+        self.storageBorderColor = QColor("#bcbcbc")
         if is_dark_mode():
             self.menuHighlightColor = QPalette().color(QPalette.Highlight)
         else:
-            self.menuHighlightColor = self.device_name_highlight_color.darker(115)
+            self.menuHighlightColor = self.deviceNameHighlightColor.darker(115)
+
+        self.emptySpaceColor = QColor("#f2f2f2")
 
     def v_align_header_pixmap(self, y: int, pixmap_height: int) -> float:
-        return y + (self.device_name_strip_height / 2 - pixmap_height / 2)
+        return y + (self.dc.device_name_strip_height / 2 - pixmap_height / 2)
 
     def paint_header(
         self,
@@ -676,22 +708,22 @@ class DeviceDisplay:
 
         painter.setRenderHint(QPainter.Antialiasing, True)
 
-        deviceNameRect = QRectF(x, y, width, self.device_name_strip_height)
-        painter.fillRect(deviceNameRect, self.device_name_highlight_color)
+        deviceNameRect = QRectF(x, y, width, self.dc.device_name_strip_height)
+        painter.fillRect(deviceNameRect, self.deviceNameHighlightColor)
 
-        icon_x = float(x + self.padding + self.icon_x_offset)
-        icon_y = self.v_align_header_pixmap(y, self.icon_size)
+        icon_x = float(x + self.dc.padding + self.dc.icon_x_offset)
+        icon_y = self.v_align_header_pixmap(y, self.dc.icon_size)
 
         icon = darkModePixmap(pixmap=icon, soften_regular_mode_color=True)
 
         # Cannot use icon size for the target, because icons can be scaled to
         # high resolution
-        target = QRectF(icon_x, icon_y, self.icon_size, self.icon_size)
+        target = QRectF(icon_x, icon_y, self.dc.icon_size, self.dc.icon_size)
         source = QRectF(0, 0, icon.width(), icon.height())
 
         painter.drawPixmap(target, icon, source)
 
-        text_x = target.right() + self.header_horizontal_padding
+        text_x = target.right() + self.dc.header_horizontal_padding
         deviceNameRect.setLeft(text_x)
         painter.drawText(deviceNameRect, Qt.AlignLeft | Qt.AlignVCenter, display_name)
 
@@ -700,15 +732,15 @@ class DeviceDisplay:
             rect = self.menu_button_rect(x, y, width)
             if highlight_menu:
                 painter.fillRect(rect, self.menuHighlightColor)
-            button_x = rect.x() + self.menu_button_padding
-            button_y = rect.y() + self.menu_button_padding
+            button_x = rect.x() + self.dc.menu_button_padding
+            button_y = rect.y() + self.dc.menu_button_padding
             pixmap = self.menuButtonIcon.pixmap(QSize(size, size))
             painter.drawPixmap(QPointF(button_x, button_y), pixmap)
 
     def menu_button_rect(self, x: int, y: int, width: int) -> QRectF:
-        size = icon_size() + self.menu_button_padding * 2
-        button_x = x + width - size - self.padding
-        button_y = y + self.device_name_strip_height / 2 - size / 2
+        size = icon_size() + self.dc.menu_button_padding * 2
+        button_x = x + width - size - self.dc.padding
+        button_y = y + self.dc.device_name_strip_height / 2 - size / 2
         return QRectF(button_x, button_y, size, size)
 
     def paint_body(
@@ -722,24 +754,26 @@ class DeviceDisplay:
         For download destinations, also displays excess usage.
         """
 
-        x = x + self.padding
-        y = y + self.padding
-        width = width - self.padding * 2
+        x = x + self.dc.padding
+        y = y + self.dc.padding
+        width = width - self.dc.padding * 2
         d = details
 
         painter.setRenderHint(QPainter.Antialiasing, False)
 
-        painter.setFont(self.small_font)
+        painter.setFont(self.dc.deviceFont)
 
         standard_pen_color = painter.pen().color()
 
         device_size_x = x
-        device_size_y = y + self.standard_height - self.padding
+        device_size_y = y + self.dc.standard_height - self.dc.padding
 
-        text_rect = QRect(device_size_x, y - self.padding, width, self.standard_height)
+        text_rect = QRect(
+            device_size_x, y - self.dc.padding, width, self.dc.standard_height
+        )
 
         if self.rendering_destination:
-            # bytes free of total size e..g 123 MB free of 2 TB
+            # bytes free of total size e.g. 123 MB free of 2 TB
             painter.drawText(
                 text_rect, Qt.AlignLeft | Qt.AlignBottom, d.bytes_free_of_total
             )
@@ -775,67 +809,77 @@ class DeviceDisplay:
         skip_comp3 = d.comp3_size_text == 0
 
         photos_g_x = device_size_x
-        g_y = device_size_y + self.padding
+        g_y = device_size_y + self.dc.padding
         if d.bytes_total:
             photos_g_width = comp1_file_size_sum / d.bytes_total * width
             linearGradient = QLinearGradient(
-                photos_g_x, g_y, photos_g_x, g_y + self.g_height
+                photos_g_x, g_y, photos_g_x, g_y + self.dc.storage_use_bar_height
             )
 
-        rect = QRectF(photos_g_x, g_y, width, self.g_height)
+        rect = QRectF(photos_g_x, g_y, width, self.dc.storage_use_bar_height)
         # Apply subtle shade to empty space
         painter.fillRect(rect, self.emptySpaceColor)
 
+        # Storage Use Horizontal Bar
+        # Shows space used by Photos, Videos, Other, and (sometimes) Excess
+        # ==========================================================================
+
+        # Devices may not have photos or videos
+        # Fill in storage bar with size of photos
         if comp1_file_size_sum and d.bytes_total:
-            photos_g_rect = QRectF(photos_g_x, g_y, photos_g_width, self.g_height)
+            photos_g_rect = QRectF(
+                photos_g_x, g_y, photos_g_width, self.dc.storage_use_bar_height
+            )
             linearGradient.setColorAt(0.2, color1.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, color1.darker(self.shading_intensity))
             painter.fillRect(photos_g_rect, QBrush(linearGradient))
         else:
             photos_g_width = 0
 
+        # Fill in storage bar with size of videos
         videos_g_x = photos_g_x + photos_g_width
         if comp2_file_size_sum and d.bytes_total:
             videos_g_width = comp2_file_size_sum / d.bytes_total * width
-            videos_g_rect = QRectF(videos_g_x, g_y, videos_g_width, self.g_height)
+            videos_g_rect = QRectF(
+                videos_g_x, g_y, videos_g_width, self.dc.storage_use_bar_height
+            )
             linearGradient.setColorAt(0.2, color2.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, color2.darker(self.shading_intensity))
             painter.fillRect(videos_g_rect, QBrush(linearGradient))
         else:
             videos_g_width = 0
 
+        # Fill in storage bar with size of other files
         if comp3_file_size_sum and d.bytes_total:
             other_g_width = comp3_file_size_sum / d.bytes_total * width
             other_g_x = videos_g_x + videos_g_width
-            other_g_rect = QRectF(other_g_x, g_y, other_g_width, self.g_height)
+            other_g_rect = QRectF(
+                other_g_x, g_y, other_g_width, self.dc.storage_use_bar_height
+            )
             linearGradient.setColorAt(0.2, color3.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, color3.darker(self.shading_intensity))
             painter.fillRect(other_g_rect, QBrush(linearGradient))
-        else:
-            other_g_width = 0
 
         if d.comp4_file_size_sum and d.bytes_total:
             # Excess usage, only for download destinations
             color4 = QColor(CustomColors.color6.value)
             comp4_g_width = d.comp4_file_size_sum / d.bytes_total * width
             comp4_g_x = x + width - comp4_g_width
-            comp4_g_rect = QRectF(comp4_g_x, g_y, comp4_g_width, self.g_height)
+            comp4_g_rect = QRectF(
+                comp4_g_x, g_y, comp4_g_width, self.dc.storage_use_bar_height
+            )
             linearGradient.setColorAt(0.2, color4.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, color4.darker(self.shading_intensity))
             painter.fillRect(comp4_g_rect, QBrush(linearGradient))
 
         # Rectangle around spatial representation of sizes
-        painter.setPen(self.storage_border)
+        painter.setPen(self.storageBorderColor)
         painter.drawRect(rect)
         bottom = rect.bottom()
 
-        # Details text indicating number and size of components 1 & 2
-        gradient_width = 10
+        details_y = bottom + self.dc.vertical_padding
 
-        spacer = 3
-        details_y = bottom + self.vertical_padding
-
-        painter.setFont(self.small_font)
+        painter.setFont(self.dc.deviceFont)
 
         # Component 4 details
         # (excess usage, only displayed if the storage space is not sufficient)
@@ -845,25 +889,34 @@ class DeviceDisplay:
             # Gradient
             comp4_g2_x = x
             comp4_g2_rect = QRectF(
-                comp4_g2_x, details_y, gradient_width, self.details_height
+                comp4_g2_x,
+                details_y,
+                self.dc.details_vertical_bar_width,
+                self.dc.details_height,
             )
             linearGradient = QLinearGradient(
-                comp4_g2_x, details_y, comp4_g2_x, details_y + self.details_height
+                comp4_g2_x, details_y, comp4_g2_x, details_y + self.dc.details_height
             )
             linearGradient.setColorAt(0.2, color4.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, color4.darker(self.shading_intensity))
             painter.fillRect(comp4_g2_rect, QBrush(linearGradient))
-            painter.setPen(self.storage_border)
+            painter.setPen(self.storageBorderColor)
             painter.drawRect(comp4_g2_rect)
 
             # Text
-            comp4_x = comp4_g2_x + gradient_width + spacer
-            comp4_no_width = self.small_font_metrics.boundingRect(d.comp4_text).width()
-            comp4_size_width = self.small_font_metrics.boundingRect(
+            comp4_x = comp4_g2_x + self.dc.details_vertical_bar_width + self.dc.spacer
+            comp4_no_width = self.dc.deviceFontMetrics.boundingRect(
+                d.comp4_text
+            ).width()
+            comp4_size_width = self.dc.deviceFontMetrics.boundingRect(
                 d.comp4_size_text
             ).width()
-            comp4_width = max(comp4_no_width, comp4_size_width, self.sample1_width)
-            comp4_rect = QRectF(comp4_x, details_y, comp4_width, self.details_height)
+            comp4_width = max(
+                comp4_no_width,
+                comp4_size_width,
+                self.dc.sample_photos_width,
+            )
+            comp4_rect = QRectF(comp4_x, details_y, comp4_width, self.dc.details_height)
 
             painter.setPen(standard_pen_color)
             painter.drawText(comp4_rect, Qt.AlignLeft | Qt.AlignTop, d.comp4_text)
@@ -881,32 +934,43 @@ class DeviceDisplay:
 
             # Gradient
             photos_g2_rect = QRectF(
-                photos_g2_x, details_y, gradient_width, self.details_height
+                photos_g2_x,
+                details_y,
+                self.dc.details_vertical_bar_width,
+                self.dc.details_height,
             )
             linearGradient = QLinearGradient(
-                photos_g2_x, details_y, photos_g2_x, details_y + self.details_height
+                photos_g2_x, details_y, photos_g2_x, details_y + self.dc.details_height
             )
             linearGradient.setColorAt(0.2, d.color1.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, d.color1.darker(self.shading_intensity))
             painter.fillRect(photos_g2_rect, QBrush(linearGradient))
-            painter.setPen(self.storage_border)
+            painter.setPen(self.storageBorderColor)
             painter.drawRect(photos_g2_rect)
 
             # Text
-            photos_x = photos_g2_x + gradient_width + spacer
-            photos_no_width = self.small_font_metrics.boundingRect(d.comp1_text).width()
-            photos_size_width = self.small_font_metrics.boundingRect(
+            photos_x = photos_g2_x + self.dc.details_vertical_bar_width + self.dc.spacer
+            photos_no_width = self.dc.deviceFontMetrics.boundingRect(
+                d.comp1_text
+            ).width()
+            photos_size_width = self.dc.deviceFontMetrics.boundingRect(
                 d.comp1_size_text
             ).width()
-            photos_width = max(photos_no_width, photos_size_width, self.sample1_width)
-            photos_rect = QRectF(photos_x, details_y, photos_width, self.details_height)
+            photos_width = max(
+                photos_no_width,
+                photos_size_width,
+                self.dc.sample_photos_width,
+            )
+            photos_rect = QRectF(
+                photos_x, details_y, photos_width, self.dc.details_height
+            )
 
             painter.setPen(standard_pen_color)
             painter.drawText(photos_rect, Qt.AlignLeft | Qt.AlignTop, d.comp1_text)
             painter.drawText(
                 photos_rect, Qt.AlignLeft | Qt.AlignBottom, d.comp1_size_text
             )
-            videos_g2_x = photos_rect.right() + 10
+            videos_g2_x = photos_rect.right() + self.dc.inter_device_padding
 
         else:
             videos_g2_x = photos_g2_x
@@ -917,22 +981,33 @@ class DeviceDisplay:
         if not skip_comp2:
             # Gradient
             videos_g2_rect = QRectF(
-                videos_g2_x, details_y, gradient_width, self.details_height
+                videos_g2_x,
+                details_y,
+                self.dc.details_vertical_bar_width,
+                self.dc.details_height,
             )
             linearGradient.setColorAt(0.2, d.color2.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, d.color2.darker(self.shading_intensity))
             painter.fillRect(videos_g2_rect, QBrush(linearGradient))
-            painter.setPen(self.storage_border)
+            painter.setPen(self.storageBorderColor)
             painter.drawRect(videos_g2_rect)
 
             # Text
-            videos_x = videos_g2_x + gradient_width + spacer
-            videos_no_width = self.small_font_metrics.boundingRect(d.comp2_text).width()
-            videos_size_width = self.small_font_metrics.boundingRect(
+            videos_x = videos_g2_x + self.dc.details_vertical_bar_width + self.dc.spacer
+            videos_no_width = self.dc.deviceFontMetrics.boundingRect(
+                d.comp2_text
+            ).width()
+            videos_size_width = self.dc.deviceFontMetrics.boundingRect(
                 d.comp2_size_text
             ).width()
-            videos_width = max(videos_no_width, videos_size_width, self.sample2_width)
-            videos_rect = QRectF(videos_x, details_y, videos_width, self.details_height)
+            videos_width = max(
+                videos_no_width,
+                videos_size_width,
+                self.dc.sample_videos_width,
+            )
+            videos_rect = QRectF(
+                videos_x, details_y, videos_width, self.dc.details_height
+            )
 
             painter.setPen(standard_pen_color)
             painter.drawText(videos_rect, Qt.AlignLeft | Qt.AlignTop, d.comp2_text)
@@ -951,22 +1026,27 @@ class DeviceDisplay:
             # Gradient
 
             other_g2_rect = QRectF(
-                other_g2_x, details_y, gradient_width, self.details_height
+                other_g2_x,
+                details_y,
+                self.dc.details_vertical_bar_width,
+                self.dc.details_height,
             )
             linearGradient.setColorAt(0.2, d.color3.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, d.color3.darker(self.shading_intensity))
             painter.fillRect(other_g2_rect, QBrush(linearGradient))
-            painter.setPen(self.storage_border)
+            painter.setPen(self.storageBorderColor)
             painter.drawRect(other_g2_rect)
 
             # Text
-            other_x = other_g2_x + gradient_width + spacer
-            other_no_width = self.small_font_metrics.boundingRect(d.comp3_text).width()
-            other_size_width = self.small_font_metrics.boundingRect(
+            other_x = other_g2_x + self.dc.details_vertical_bar_width + self.dc.spacer
+            other_no_width = self.dc.deviceFontMetrics.boundingRect(
+                d.comp3_text
+            ).width()
+            other_size_width = self.dc.deviceFontMetrics.boundingRect(
                 d.comp3_size_text
             ).width()
             other_width = max(other_no_width, other_size_width)
-            other_rect = QRectF(other_x, details_y, other_width, self.details_height)
+            other_rect = QRectF(other_x, details_y, other_width, self.dc.details_height)
 
             painter.setPen(standard_pen_color)
             painter.drawText(other_rect, Qt.AlignLeft | Qt.AlignTop, d.comp3_text)
@@ -980,11 +1060,8 @@ class AdvancedDeviceDisplay(DeviceDisplay):
     Subclass to handle header for download devices/ This Computer
     """
 
-    def __init__(self, comp1_sample: str, comp2_sample: str):
+    def __init__(self):
         super().__init__()
-
-        self.sample1_width = self.small_font_metrics.boundingRect(comp1_sample).width()
-        self.sample2_width = self.small_font_metrics.boundingRect(comp2_sample).width()
 
         self.rendering_destination = False
 
@@ -994,7 +1071,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         )  # type: QRect
         self.checkbox_right = self.checkboxRect.right()
         self.checkbox_y_offset = (
-            self.device_name_strip_height - self.checkboxRect.height()
+            self.dc.device_name_strip_height - self.checkboxRect.height()
         ) // 2
 
         # Spinner values
@@ -1002,11 +1079,11 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         self.spinner_roundness = 100.0
         self.spinner_min_trail_opacity = 0.0
         self.spinner_trail_fade_percent = 60.0
-        self.spinner_line_length = max(self.icon_size // 4, 4)
+        self.spinner_line_length = max(self.dc.icon_size // 4, 4)
         self.spinner_line_width = self.spinner_line_length // 2
-        self.spinner_inner_radius = self.icon_size // 2 - self.spinner_line_length
+        self.spinner_inner_radius = self.dc.icon_size // 2 - self.spinner_line_length
 
-        self.icon_x_offset = self.icon_size + self.header_horizontal_padding
+        self.dc.icon_x_offset = self.dc.icon_size + self.dc.header_horizontal_padding
 
         self.downloaded_icon_size = 16
         self.downloadedIcon = scaledIcon(":/thumbnail/downloaded.svg")
@@ -1054,7 +1131,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
             else:
                 pixmap = self.downloadedIcon.pixmap(size)
             painter.drawPixmap(
-                QPointF(x + self.padding, y + self.downloaded_icon_y), pixmap
+                QPointF(x + self.dc.padding, y + self.downloaded_icon_y), pixmap
             )
 
         elif device_state not in (DeviceState.scanning, DeviceState.downloading):
@@ -1075,8 +1152,8 @@ class AdvancedDeviceDisplay(DeviceDisplay):
             )
 
         else:
-            x = x + self.padding
-            y = y + self.padding
+            x = x + self.dc.padding
+            y = y + self.dc.padding
             # Draw spinning widget
             # TODO use floating point
             painter.setPen(Qt.NoPen)
@@ -1108,8 +1185,8 @@ class AdvancedDeviceDisplay(DeviceDisplay):
 
             if percent_complete:
                 painter.setPen(self.progressBarPen)
-                x1 = x - self.padding
-                y = y - self.padding + self.device_name_strip_height - 1
+                x1 = x - self.dc.padding
+                y = y - self.dc.padding + self.dc.device_name_strip_height - 1
                 x2 = x1 + percent_complete * width
                 painter.drawLine(x1, y, x2, y)
 
@@ -1121,9 +1198,9 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         standard_pen_color = painter.pen().color()
 
         painter.setPen(standard_pen_color)
-        painter.setFont(self.small_font)
-        probing_y = y + self.small_font_metrics.height()
-        probing_x = x + self.padding
+        painter.setFont(self.dc.deviceFont)
+        probing_y = y + self.dc.deviceFontMetrics.height()
+        probing_x = x + self.dc.padding
         painter.drawText(probing_x, probing_y, text)
 
     def lineCountDistanceFromPrimary(self, current, primary):
@@ -1154,7 +1231,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         return color
 
     def getLeftPoint(self, x: int, y: int) -> QPoint:
-        return QPoint(x + self.padding, y + self.checkbox_y_offset)
+        return QPoint(x + self.dc.padding, y + self.checkbox_y_offset)
 
     def getCheckBoxRect(self, x: int, y: int) -> QRect:
         return QRect(self.getLeftPoint(x, y), self.checkboxRect.size())
@@ -1164,7 +1241,6 @@ class DeviceDelegate(QStyledItemDelegate):
 
     padding = DeviceDisplayPadding
 
-    other = _("Other")
     probing_text = _("Probing device...")
 
     shading_intensity = DeviceShadingIntensity
@@ -1173,13 +1249,7 @@ class DeviceDelegate(QStyledItemDelegate):
         super().__init__(parent)
         self.rapidApp = rapidApp
 
-        sample_number = thousands(999)
-        sample_no_photos = "{} {}".format(sample_number, _("Photos"))
-        sample_no_videos = "{} {}".format(sample_number, _("Videos"))
-
-        self.deviceDisplay = AdvancedDeviceDisplay(
-            comp1_sample=sample_no_photos, comp2_sample=sample_no_videos
-        )
+        self.deviceDisplay = AdvancedDeviceDisplay()
 
         self.contextMenu = QMenu()
         self.ignoreDeviceAct = self.contextMenu.addAction(
@@ -1331,7 +1401,7 @@ class DeviceDelegate(QStyledItemDelegate):
                     comp4_file_size_sum=0,
                     comp1_text=photos,
                     comp2_text=videos,
-                    comp3_text=self.other,
+                    comp3_text=_("Other"),
                     comp4_text="",
                     comp1_size_text=photos_size,
                     comp2_size_text=videos_size,
@@ -1360,14 +1430,14 @@ class DeviceDelegate(QStyledItemDelegate):
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
         if view_type == ViewRowType.header:
-            height = self.deviceDisplay.device_name_height
+            height = self.deviceDisplay.dc.device_name_height
         else:
             device, storage_space = index.data(Roles.storage)
 
             if storage_space is None:
-                height = self.deviceDisplay.base_height
+                height = self.deviceDisplay.dc.base_height
             else:
-                height = self.deviceDisplay.storage_height
+                height = self.deviceDisplay.dc.storage_height
         return QSize(self.deviceDisplay.view_width, height)
 
     def editorEvent(
