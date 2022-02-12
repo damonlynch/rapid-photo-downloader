@@ -2104,75 +2104,59 @@ difference to the program's future.</p>"""
         self.errorLogAct.setChecked(self.errorLog.isVisible())
 
     def createActions(self) -> None:
-        self.downloadAct = QAction(
-            _("Download"), self, shortcut="Ctrl+Return", triggered=self.doDownloadAction
-        )
+        self.downloadAct = QAction(_("Download"), self)
+        self.downloadAct.setShortcut("Ctrl+Return")
+        self.downloadAct.triggered.connect(self.doDownloadAction)
 
-        self.refreshAct = QAction(
-            _("&Refresh..."), self, shortcut="Ctrl+R", triggered=self.doRefreshAction
-        )
+        self.refreshAct = QAction(_("&Refresh..."), self)
+        self.refreshAct.setShortcut("Ctrl+R")
+        self.refreshAct.triggered.connect(self.doRefreshAction)
 
-        self.preferencesAct = QAction(
-            _("&Preferences"),
-            self,
-            shortcut="Ctrl+P",
-            triggered=self.doPreferencesAction,
-        )
+        self.preferencesAct = QAction(_("&Preferences"), self)
+        self.preferencesAct.setShortcut("Ctrl+P")
+        self.preferencesAct.triggered.connect(self.doPreferencesAction)
 
-        if self.linux_desktop and self.is_wsl2:
-            self.quitAct = QAction(_("&Quit"), self, triggered=self.close)
-        else:
-            self.quitAct = QAction(
-                _("&Quit"), self, shortcut="Ctrl+Q", triggered=self.close
-            )
+        self.quitAct = QAction(_("&Quit"), self)
+        if not (self.linux_desktop and self.is_wsl2):
+            self.quitAct.setShortcut("Ctrl+Q")
+        self.quitAct.triggered.connect(self.close)
 
         if self.is_wsl2:
-            self.wslMountsAct = QAction(
-                _("Windows &Drives"),
-                self,
-                shortcut="Ctrl+D",
-                triggered=self.doShowWslMountsAction,
-            )
+            self.wslMountsAct = QAction(_("Windows &Drives"), self)
+            self.wslMountsAct.setShortcut("Ctrl+D")
+            self.wslMountsAct.triggered.connect(self.doShowWslMountsAction)
 
-        self.errorLogAct = QAction(
-            _("Error &Reports"),
-            self,
-            enabled=True,
-            checkable=True,
-            triggered=self.doErrorLogAction,
+        self.errorLogAct = QAction(_("Error &Reports"), self)
+        self.errorLogAct.setEnabled(True),
+        self.errorLogAct.setCheckable(True)
+        self.errorLogAct.triggered.connect(self.doErrorLogAction)
+
+        self.clearDownloadsAct = QAction(_("Clear Completed Downloads"), self)
+        self.clearDownloadsAct.triggered.connect(self.doClearDownloadsAction)
+
+        self.helpAct = QAction(_("Get Help Online..."), self)
+        self.helpAct.setShortcut("F1")
+        self.helpAct.triggered.connect(self.doHelpAction)
+
+        self.didYouKnowAct = QAction(_("&Tip of the Day..."), self)
+        self.didYouKnowAct.triggered.connect(self.doDidYouKnowAction)
+
+        self.reportProblemAct = QAction(_("Report a Problem..."), self)
+        self.reportProblemAct.triggered.connect(self.doReportProblemAction)
+
+        self.makeDonationAct = QAction(_("Make a Donation..."), self)
+        self.makeDonationAct.triggered.connect(self.doMakeDonationAction)
+
+        self.translateApplicationAct = QAction(_("Translate this Application..."), self)
+        self.translateApplicationAct.triggered.connect(
+            self.doTranslateApplicationAction
         )
 
-        self.clearDownloadsAct = QAction(
-            _("Clear Completed Downloads"), self, triggered=self.doClearDownloadsAction
-        )
+        self.aboutAct = QAction(_("&About..."), self)
+        self.aboutAct.triggered.connect(self.doAboutAction)
 
-        self.helpAct = QAction(
-            _("Get Help Online..."), self, shortcut="F1", triggered=self.doHelpAction
-        )
-
-        self.didYouKnowAct = QAction(
-            _("&Tip of the Day..."), self, triggered=self.doDidYouKnowAction
-        )
-
-        self.reportProblemAct = QAction(
-            _("Report a Problem..."), self, triggered=self.doReportProblemAction
-        )
-
-        self.makeDonationAct = QAction(
-            _("Make a Donation..."), self, triggered=self.doMakeDonationAction
-        )
-
-        self.translateApplicationAct = QAction(
-            _("Translate this Application..."),
-            self,
-            triggered=self.doTranslateApplicationAction,
-        )
-
-        self.aboutAct = QAction(_("&About..."), self, triggered=self.doAboutAction)
-
-        self.newVersionAct = QAction(
-            _("Check for Updates..."), self, triggered=self.doCheckForNewVersion
-        )
+        self.newVersionAct = QAction(_("Check for Updates..."), self)
+        self.newVersionAct.triggered.connect(self.doCheckForNewVersion)
 
     def createLayoutAndButtons(self, centralWidget) -> None:
         """
@@ -2723,7 +2707,13 @@ difference to the program's future.</p>"""
             self.style().pixelMetric(QStyle.PM_ScrollBarExtent) + frame_width
         )
         spacing = self.layout().spacing()
-        panel_width = self.deviceView.itemDelegate().deviceDisplay.dc.sample_width()
+        deviceComponent = (
+            self.deviceView.itemDelegate().deviceDisplay.dc
+        )  # type: DeviceComponent
+        # Minimum width will be updated as a scan occurs
+        panel_width = max(
+            deviceComponent.sample_width(), deviceComponent.minimum_width()
+        )
         left_panel = right_panel = panel_width + scroll_bar_width + frame_width
 
         # Could do the calculation in this for loop without the loop, but this
