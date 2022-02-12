@@ -44,6 +44,9 @@ from PyQt5.QtCore import (
     QRectF,
     QPoint,
     QLineF,
+    QEvent,
+    QObject,
+    QCoreApplication,
 )
 from PyQt5.QtWidgets import (
     QTableView,
@@ -2402,7 +2405,9 @@ class TemporalProximity(QWidget):
 
 
 class SyncIcon(QIcon):
-    def __init__(self, path: str, state: SyncButtonState, scaling: float) -> None:
+    def __init__(
+        self, path: str, state: SyncButtonState, scaling: float, on_hover: bool
+    ) -> None:
         super().__init__()
 
         size = round(16 * scaling)
@@ -2415,10 +2420,16 @@ class SyncIcon(QIcon):
         else:
             on = darkModePixmap(path=path, size=size)
 
-        if is_dark_mode():
-            color = QGuiApplication.palette().color(QPalette.Light)
+        if on_hover:
+            if is_dark_mode():
+                color = QGuiApplication.palette().color(QPalette.HighlightedText)
+            else:
+                color = QGuiApplication.palette().color(QPalette.Base)
         else:
-            color = QGuiApplication.palette().color(QPalette.Dark)
+            if is_dark_mode():
+                color = QGuiApplication.palette().color(QPalette.Light)
+            else:
+                color = QGuiApplication.palette().color(QPalette.Dark)
         off = coloredPixmap(path=path, color=color, size=size)
 
         self.addPixmap(on, QIcon.Normal, QIcon.On)
@@ -2435,13 +2446,28 @@ class SyncButton(QPushButton):
             scaling = float(self.devicePixelRatio())
 
         self.activeIcon = SyncIcon(
-            path=":/icons/sync.svg", state=SyncButtonState.active, scaling=scaling
+            path=":/icons/sync.svg",
+            state=SyncButtonState.active,
+            scaling=scaling,
+            on_hover=False,
         )
         self.inactiveIcon = SyncIcon(
-            path=":/icons/sync.svg", state=SyncButtonState.inactive, scaling=scaling
+            path=":/icons/sync.svg",
+            state=SyncButtonState.inactive,
+            scaling=scaling,
+            on_hover=False,
         )
         self.regularIcon = SyncIcon(
-            path=":/icons/sync.svg", state=SyncButtonState.regular, scaling=scaling
+            path=":/icons/sync.svg",
+            state=SyncButtonState.regular,
+            scaling=scaling,
+            on_hover=False,
+        )
+        self.regularIconHover = SyncIcon(
+            path=":/icons/sync.svg",
+            state=SyncButtonState.regular,
+            scaling=scaling,
+            on_hover=True,
         )
         self.icon_state = SyncButtonState.regular
         self.setIcon(self.regularIcon)
@@ -2461,7 +2487,6 @@ class SyncButton(QPushButton):
             color = QPalette().color(QPalette.Background)
             hoverColor = color.darker(110).name(QColor.HexRgb)
 
-        #TODO change light icon color on hover
         style = """
             QPushButton {
                 padding: 2px;
@@ -2474,10 +2499,25 @@ class SyncButton(QPushButton):
             hoverColor
         )
         self.setStyleSheet(style)
+        self.installEventFilter(self)
 
     def setState(self, state: SyncButtonState) -> None:
         self.setIcon(self.state_mapper[state])
         self.icon_state = state
+
+    def eventFilter(self, source: QObject, event: QEvent) -> bool:
+        """
+        When the button is off (unchecked), change the color on hover
+        """
+
+        if not self.isChecked():
+            if event.type() == QEvent.Enter:
+                self.setIcon(self.regularIconHover)
+                return True
+            elif event.type() == QEvent.Leave:
+                self.setIcon(self.state_mapper[self.icon_state])
+                return True
+        return super().eventFilter(source, event)
 
 
 class TemporalProximityControls(QWidget):
@@ -2502,8 +2542,11 @@ class TemporalProximityControls(QWidget):
 
         self.autoScrollButton = SyncButton(parent=self)
         self.autoScrollButton.setChecked(self.prefs.auto_scroll)
-        self.autoScrollAct = QAction("", self, shortcut="Ctrl+T")
+        self.autoScrollAct = QAction(parent=self.autoScrollButton)
+        self.autoScrollAct.setShortcut("Ctrl+T")
         self.autoScrollButton.addAction(self.autoScrollAct)
+        self.autoScrollAct.triggered.connect(self.autoScrollActed)
+        self.autoScrollButtonShortcutTriggered = False
 
         self.temporalValuePicker.valueChanged.connect(self.temporalValueChanged)
         self.autoScrollButton.clicked.connect(self.autoScrollClicked)
@@ -2558,6 +2601,16 @@ class TemporalProximityControls(QWidget):
         self.prefs.auto_scroll = checked
         self.setAutoScrollState()
         self.setTimelineThumbnailAutoScroll(checked)
+        if not (checked or self.autoScrollButtonShortcutTriggered):
+            # The mouse is hovering over the button
+            # Change the icon color while hovered
+            QCoreApplication.postEvent(self.autoScrollButton, QEvent(QEvent.Enter))
+        self.autoScrollButtonShortcutTriggered = False
+
+    @pyqtSlot(bool)
+    def autoScrollActed(self, on: bool) -> None:
+        self.autoScrollButtonShortcutTriggered = True
+        self.autoScrollButton.animateClick()
 
     def setTimelineThumbnailAutoScroll(self, on: bool) -> None:
         """
