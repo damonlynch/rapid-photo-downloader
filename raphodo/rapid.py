@@ -666,6 +666,19 @@ class RapidWindow(QMainWindow):
                     # Remove any duplicate subfolder generation or file renaming custom
                     # presets
                     self.prefs.filter_duplicate_generation_prefs()
+                if pv < pkgr.parse_version("0.9.29a1"):
+                    # clear window and panel size, so they can be regenerated
+                    logging.debug(
+                        "Resetting window size, and left and central splitter sizes"
+                    )
+                    settings = QSettings()
+                    settings.beginGroup("MainWindow")
+                    if settings.contains("centerSplitterSizes"):
+                        settings.remove("centerSplitterSizes")
+                    if settings.contains("windowSize"):
+                        settings.remove("windowSize")
+                    if settings.contains("leftPanelSplitterSizes"):
+                        settings.remove("leftPanelSplitterSizes")
 
     def startThreadControlSockets(self) -> None:
         """
@@ -2697,6 +2710,10 @@ difference to the program's future.</p>"""
             self.destinationPanel.splitter.setSizes([200, 200])
 
     def setDefaultWindowSize(self) -> None:
+        """
+        Set window size so that the left and right panels show without a horizontal
+        scroll bar, and show up to 3 columns of thumbnails
+        """
 
         available = self.screen.availableGeometry()  # type: QRect
         available_width = available.width()
@@ -2727,13 +2744,21 @@ difference to the program's future.</p>"""
                 + spacing
                 + self.rightBar.geometry().width()
             )
-            # allow for X11 window frame... which could be anything really
+            # Allow for a possible X11 window frame... which could be anything really
             if preferred_width < available_width - 4:
                 break
 
         self.centerSplitter.setSizes([left_panel, thumbnails_width, right_panel])
 
         preferred_height = min(int(preferred_width / 1.5), available.height() - 4)
+        logging.info(
+            "Setting new window size of %sx%s with splitter sizes of %s, %s, and %s",
+            preferred_width,
+            preferred_height,
+            left_panel,
+            thumbnails_width,
+            right_panel,
+        )
         self.resize(QSize(preferred_width, preferred_height))
 
     def showEvent(self, event: QShowEvent) -> None:
