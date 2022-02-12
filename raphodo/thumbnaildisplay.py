@@ -2123,6 +2123,16 @@ class ThumbnailView(QListView):
     def topLeft(self) -> QPoint:
         return QPoint(thumbnail_margin, thumbnail_margin)
 
+    def thumbnail_width(self) -> int:
+        return self.itemDelegate().fixedSizeHint.width()
+
+    def width_required(self, no_thumbails: int) -> int:
+        return (
+            no_thumbails * (self.thumbnail_width() + self.spacing())
+            + self.spacing()
+            + self.frameWidth() * 2
+        )
+
     def resizeEvent(self, event: QResizeEvent) -> None:
         """
         Resize, then calculate and store how many columns the user sees

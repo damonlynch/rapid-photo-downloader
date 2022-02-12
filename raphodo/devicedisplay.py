@@ -585,6 +585,10 @@ class DeviceComponent:
     """
 
     def __init__(self):
+        style = QApplication.style()
+        self.frame_width = style.pixelMetric(QStyle.PM_DefaultFrameWidth)
+        self.scrollbar_width = style.pixelMetric(QStyle.PM_ScrollBarExtent)
+
         self.padding = DeviceDisplayPadding
         self.header_horizontal_padding = 8
         self.vertical_padding = 10
@@ -653,6 +657,8 @@ class DeviceComponent:
             + self.spacer * 2
             + (self.inter_device_padding * 2)
             + self.padding * 2
+            + self.frame_width * 3
+            + self.scrollbar_width
         )
         return width
 

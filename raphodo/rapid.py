@@ -113,6 +113,7 @@ from PyQt5.QtGui import (
     QColor,
     QScreen,
     QDesktopServices,
+    QShowEvent,
 )
 from PyQt5.QtWidgets import (
     QAction,
@@ -130,6 +131,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QSplashScreen,
     QStackedWidget,
+    QStyle,
 )
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
@@ -231,7 +233,12 @@ from raphodo.thumbnaildisplay import (
     DownloadStats,
     MarkedSummary,
 )
-from raphodo.devicedisplay import DeviceModel, DeviceView, DeviceDelegate
+from raphodo.devicedisplay import (
+    DeviceModel,
+    DeviceView,
+    DeviceDelegate,
+    DeviceComponent,
+)
 from raphodo.proximity import (
     TemporalProximityGroups,
     TemporalProximity,
@@ -335,6 +342,8 @@ app = None  # type: 'QtSingleApplication'
 faulthandler.enable()
 logger = None
 sys.excepthook = excepthook.excepthook
+
+is_devel_env = os.getenv("RPD_DEVEL_DEFAULTS") is not None
 
 
 class RapidWindow(QMainWindow):
@@ -1419,21 +1428,12 @@ class RapidWindow(QMainWindow):
         available = self.screen.availableGeometry()  # type: QRect
         display = self.screen.size()  # type: QSize
 
-        default_width = max(960, available.width() // 2)
-        default_width = min(default_width, available.width())
-        default_x = display.width() - default_width
-        default_height = int(available.height() * 0.85)
-        default_y = display.height() - default_height
-
         logging.debug(
-            "Available screen geometry: %sx%s on %sx%s display. Default window size: "
-            "%sx%s.",
+            "Available screen geometry: %sx%s on %sx%s display.",
             available.width(),
             available.height(),
             display.width(),
             display.height(),
-            default_width,
-            default_height,
         )
 
         settings = QSettings()
@@ -1454,30 +1454,34 @@ class RapidWindow(QMainWindow):
         # Even if window is maximized, must restore saved window size and position for
         # when the user unmaximizes the window
 
-        pos = settings.value("windowPosition", QPoint(default_x, default_y))
-        size = settings.value("windowSize", QSize(default_width, default_height))
+        pos = settings.value("windowPosition")  # , QPoint(default_x, default_y)
+        size = settings.value("windowSize")  # , QSize(default_width, default_height)
         settings.endGroup()
-
-        was_valid, validatedSize = validateWindowSizeLimit(available.size(), size)
-        if not was_valid:
+        if not (pos or size) or is_devel_env:
+            logging.info("Window position and size not found in program settings")
+            self.do_generate_default_window_size = True
+        else:
+            self.do_generate_default_window_size = False
+            was_valid, validatedSize = validateWindowSizeLimit(available.size(), size)
+            if not was_valid:
+                logging.debug(
+                    "Windows size %sx%s was invalid. Value was reset to %sx%s.",
+                    size.width(),
+                    size.height(),
+                    validatedSize.width(),
+                    validatedSize.height(),
+                )
             logging.debug(
-                "Windows size %sx%s was invalid. Value was reset to %sx%s.",
-                size.width(),
-                size.height(),
-                validatedSize.width(),
-                validatedSize.height(),
+                "Window size: %sx%s", validatedSize.width(), validatedSize.height()
             )
-        logging.debug(
-            "Window size: %sx%s", validatedSize.width(), validatedSize.height()
-        )
-        was_valid, validatedPos = validateWindowPosition(
-            pos, available.size(), validatedSize
-        )
-        if not was_valid:
-            logging.debug("Window position %s,%s was invalid", pos.x(), pos.y())
+            was_valid, validatedPos = validateWindowPosition(
+                pos, available.size(), validatedSize
+            )
+            if not was_valid:
+                logging.debug("Window position %s,%s was invalid", pos.x(), pos.y())
 
-        self.resize(validatedSize)
-        self.move(validatedPos)
+            self.resize(validatedSize)
+            self.move(validatedPos)
 
         if maximized:
             logging.debug("Setting window to maximized state")
@@ -1878,11 +1882,13 @@ difference to the program's future.</p>"""
             yes = messagebox.addButton(_("Yes"), QMessageBox.AcceptRole)
             alreadyDid = messagebox.addButton(
                 # Translators: "I already took it" means "I already took the survey"
-                _("I already took it"), QMessageBox.NoRole
+                _("I already took it"),
+                QMessageBox.NoRole,
             )
             never = messagebox.addButton(
                 # Translators: "Never ask me about any survey" refers to now and in the future
-                _("Never ask me about any survey"), QMessageBox.DestructiveRole
+                _("Never ask me about any survey"),
+                QMessageBox.DestructiveRole,
             )
             messagebox.setDefaultButton(yes)
             messagebox.exec()
@@ -2676,10 +2682,11 @@ difference to the program's future.</p>"""
         self.centerSplitter.setCollapsible(2, False)
 
         splitterSetting = settings.value("centerSplitterSizes")
-        if splitterSetting is not None:
+        if splitterSetting is not None and not is_devel_env:
+            self.do_generate_center_splitter_size = False
             self.centerSplitter.restoreState(splitterSetting)
         else:
-            self.centerSplitter.setSizes([200, 400, 200])
+            self.do_generate_center_splitter_size = True
 
         # left panel splitter sizes are saved / read on use
 
@@ -2688,6 +2695,55 @@ difference to the program's future.</p>"""
             self.destinationPanel.splitter.restoreState(splitterSetting)
         else:
             self.destinationPanel.splitter.setSizes([200, 200])
+
+    def setDefaultWindowSize(self) -> None:
+
+        available = self.screen.availableGeometry()  # type: QRect
+        available_width = available.width()
+
+        frame_width = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        scroll_bar_width = (
+            self.style().pixelMetric(QStyle.PM_ScrollBarExtent) + frame_width
+        )
+        spacing = self.layout().spacing()
+        panel_width = self.deviceView.itemDelegate().deviceDisplay.dc.sample_width()
+        left_panel = right_panel = panel_width + scroll_bar_width + frame_width
+
+        # Could do the calculation in this for loop without the loop, but this
+        # code has the advantage of being a lot easier to understand / maintain
+        for no_thumbnails in range(3, 0, -1):
+            thumbnails_width = self.thumbnailView.width_required(
+                no_thumbails=no_thumbnails
+            )
+            preferred_width = (
+                self.leftBar.geometry().width()
+                + spacing
+                + left_panel
+                + spacing
+                + thumbnails_width
+                + scroll_bar_width
+                + spacing
+                + right_panel
+                + spacing
+                + self.rightBar.geometry().width()
+            )
+            # allow for X11 window frame... which could be anything really
+            if preferred_width < available_width - 4:
+                break
+
+        self.centerSplitter.setSizes([left_panel, thumbnails_width, right_panel])
+
+        preferred_height = min(int(preferred_width / 1.5), available.height() - 4)
+        self.resize(QSize(preferred_width, preferred_height))
+
+    def showEvent(self, event: QShowEvent) -> None:
+        if self.on_startup:
+            if (
+                self.do_generate_default_window_size
+                or self.do_generate_center_splitter_size
+            ):
+                self.setDefaultWindowSize()
+        super().showEvent(event)
 
     def setDownloadCapabilities(self) -> bool:
         """
@@ -7152,9 +7208,7 @@ def parser_options(formatter_class=argparse.HelpFormatter):
         "--force-system-theme",
         action="store_true",
         default=False,
-        help=_(
-            "Use the system Qt theme instead of the built-in theme"
-        )
+        help=_("Use the system Qt theme instead of the built-in theme"),
     )
 
     parser.add_argument("path", nargs="?")
