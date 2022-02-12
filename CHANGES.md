@@ -31,7 +31,11 @@ Changelog for Rapid Photo Downloader
    dark mode will likely work in the program only if the PyQT5 system package is
    being used. 
 
- - Fix [#56](https://github.com/damonlynch/rapid-photo-downloader/issues/56):
+ - Fix bug [#64](https://github.com/damonlynch/rapid-photo-downloader/issues/64):
+   Warning dialog fails to appear when iOS device utility applications are 
+   missing, causing a crash when an iOS device is inserted.
+
+ - Fix bug [#56](https://github.com/damonlynch/rapid-photo-downloader/issues/56):
    Compress bug report tars using gzip, facilitating upload to GitHub issues.
    GitHub does not accept .tar files. It does accept .tar.gz files.
 

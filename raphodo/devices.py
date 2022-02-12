@@ -68,6 +68,7 @@ from raphodo.storageidevice import (
     idevice_get_name,
     idevice_serial_to_udid,
     idevice_do_unmount,
+utilities_present,
 )
 from raphodo.camera import generate_devname, autodetect_cameras
 from raphodo.utilities import (
@@ -277,6 +278,8 @@ class Device:
                 self.is_camera_fuse = True
                 self.device_type = DeviceType.camera_fuse
                 self.idevice_udid = idevice_serial_to_udid(self.udev_serial)
+                if not utilities_present():
+                    return
                 if self.idevice_udid:
                     name = idevice_get_name(self.idevice_udid)
                     if name:

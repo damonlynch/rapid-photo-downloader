@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -25,7 +25,7 @@ undocumented and very difficult to use.
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2021, Damon Lynch."
+__copyright__ = "Copyright 2022, Damon Lynch."
 
 import logging
 import os

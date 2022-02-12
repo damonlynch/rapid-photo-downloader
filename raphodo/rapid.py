@@ -5631,6 +5631,7 @@ Do you want to proceed with the download?
         Initiates unmount of cameras that are mounted by GIO/GVFS.
         """
 
+        logging.debug("Searching for cameras")
         if self.prefs.device_autodetection:
             cameras = autodetect_cameras(self.gp_context)
             for model, port in cameras:
@@ -6375,6 +6376,8 @@ Do you want to proceed with the download?
 
         if not self.prefs.device_autodetection:
             return
+
+        logging.debug("Setting up non-camera devices")
 
         mounts = []  # type: List[QStorageInfo]
         validMounts = self.validMounts.mountedValidMountPoints()

@@ -905,8 +905,8 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
 
             if not is_apple_mobile and vendor.lower().find("apple") >= 0:
                 logging.warning(
-                    "Setting Apple device detected to True even though Apple Mobile UDEV "
-                    "configuration not set because vendor is %s",
+                    "Setting Apple device detected to True even though Apple Mobile "
+                    "UDEV configuration not set because vendor is %s",
                     vendor,
                 )
                 is_apple_mobile = True
@@ -926,8 +926,8 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
                     )
                 else:
                     logging.warning(
-                        "Detected using udev Apple Mobile device at %s but could not determine "
-                        "serial number",
+                        "Detected using udev Apple Mobile device at %s but could not "
+                        "determine serial number",
                         devname,
                     )
 
