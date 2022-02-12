@@ -31,6 +31,7 @@ from collections import defaultdict
 from PyQt5.QtCore import (
     Qt,
     pyqtSlot,
+    pyqtSignal,
     QAbstractListModel,
     QModelIndex,
     QSize,
@@ -376,13 +377,17 @@ class BackupDeviceView(DeviceView):
         super().__init__(rapidApp, parent)
         self.setMouseTracking(False)
         self.entered.disconnect()
+        #TODO sizeHint() ?
 
 
 class BackupDeviceDelegate(QStyledItemDelegate):
+    widthChanged = pyqtSignal(int)
+
     def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent)
         self.rapidApp = rapidApp
-        self.deviceDisplay = DeviceDisplay()
+        self.deviceDisplay = DeviceDisplay(parent=self)
+        self.deviceDisplay.widthChanged.connect(self.widthChanged)
 
     def paint(
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
@@ -435,7 +440,7 @@ class BackupDeviceDelegate(QStyledItemDelegate):
                 height = self.deviceDisplay.dc.base_height
             else:
                 height = self.deviceDisplay.dc.storage_height
-        return QSize(self.deviceDisplay.view_width, height)
+        return QSize(self.deviceDisplay.width(), height)
 
 
 class BackupOptionsWidget(FlexiFrame):

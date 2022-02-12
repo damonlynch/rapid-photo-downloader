@@ -2341,6 +2341,9 @@ difference to the program's future.</p>"""
         self.deviceModel = DeviceModel(self, "Devices")
         self.deviceView.setModel(self.deviceModel)
         self.deviceView.setItemDelegate(DeviceDelegate(rapidApp=self))
+        self.deviceView.itemDelegate().widthChanged.connect(
+            self.deviceView.widthChanged
+        )
 
         # This computer is any local path
         self.thisComputerView = DeviceView(rapidApp=self, frame_enabled=False)
@@ -2348,6 +2351,9 @@ difference to the program's future.</p>"""
         self.thisComputerModel = DeviceModel(self, "This Computer")
         self.thisComputerView.setModel(self.thisComputerModel)
         self.thisComputerView.setItemDelegate(DeviceDelegate(self))
+        self.thisComputerView.itemDelegate().widthChanged.connect(
+            self.thisComputerView.widthChanged
+        )
 
         # Map different device types onto their appropriate view and model
         self._mapModel = {
@@ -2714,7 +2720,10 @@ difference to the program's future.</p>"""
         panel_width = max(
             deviceComponent.sample_width(), deviceComponent.minimum_width()
         )
-        left_panel = right_panel = panel_width + scroll_bar_width + frame_width
+        panel_width += scroll_bar_width + frame_width * 3
+        left_panel = right_panel = panel_width
+
+        wiggle_room = scroll_bar_width
 
         # Could do the calculation in this for loop without the loop, but this
         # code has the advantage of being a lot easier to understand / maintain
@@ -2733,12 +2742,13 @@ difference to the program's future.</p>"""
                 + right_panel
                 + spacing
                 + self.rightBar.geometry().width()
+                + wiggle_room
             )
             # Allow for a possible X11 window frame... which could be anything really
             if preferred_width < available_width - 4:
                 break
 
-        self.centerSplitter.setSizes([left_panel, thumbnails_width, right_panel])
+        self.centerSplitter.setSizes([left_panel, thumbnails_width + wiggle_room, right_panel])
 
         preferred_height = min(int(preferred_width / 1.5), available.height() - 4)
         logging.info(

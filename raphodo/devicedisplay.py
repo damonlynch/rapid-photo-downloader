@@ -55,7 +55,9 @@ from PyQt5.QtCore import (
     QAbstractItemModel,
     QAbstractListModel,
     pyqtSlot,
+    pyqtSignal,
     QTimer,
+    QObject,
 )
 from PyQt5.QtWidgets import (
     QStyledItemDelegate,
@@ -492,6 +494,10 @@ class DeviceView(ListViewFlexiFrame):
         self.setMouseTracking(True)
         self.entered.connect(self.rowEntered)
 
+    @pyqtSlot(int)
+    def widthChanged(self, width: int) -> None:
+        self.updateGeometry()
+
     def sizeHint(self):
         height = self.minimumHeight()
         return QSize(self.view_width, height)
@@ -579,12 +585,15 @@ class EmulatedHeaderRow(QWidget):
         painter.end()
 
 
-class DeviceComponent:
+class DeviceComponent(QObject):
     """
     Calculate Device, Destination and Backup Display component sizes
     """
 
-    def __init__(self):
+    widthChanged = pyqtSignal(int)
+
+    def __init__(self, parent: Optional[QObject] = None) -> None:
+        super().__init__(parent=parent)
         style = QApplication.style()
         self.frame_width = style.pixelMetric(QStyle.PM_DefaultFrameWidth)
         self.scrollbar_width = style.pixelMetric(QStyle.PM_ScrollBarExtent)
@@ -648,6 +657,9 @@ class DeviceComponent:
         self.device_name_strip_height = device_name_height()
         self.device_name_height = device_header_row_height()
 
+        # Track the width of the details components in real time
+        self._live_width = 0
+
     def sample_width(self) -> int:
         width = (
             self.sample_photos_width
@@ -655,15 +667,31 @@ class DeviceComponent:
             + self.sample_comp3_width
             + self.details_vertical_bar_width * 3
             + self.spacer * 2
-            + (self.inter_device_padding * 2)
+            + self.inter_device_padding * 2
             + self.padding * 2
-            + self.frame_width * 3
-            + self.scrollbar_width
         )
         return width
 
+    def minimum_width(self) -> int:
+        if self.live_width:
+            width = self.live_width + self.padding * 2
+            return width
+        else:
+            return self.sample_width()
 
-class DeviceDisplay:
+    @property
+    def live_width(self) -> int:
+        return self._live_width
+
+    @live_width.setter
+    def live_width(self, width: int):
+        if width != self._live_width:
+            self._live_width = width
+            # print(f"self.minimum_width() {self.minimum_width()} width {width}")
+            self.widthChanged.emit(self.minimum_width())
+
+
+class DeviceDisplay(QObject):
     """
     Graphically render the storage space, and photos and videos that
     are currently in it or will be downloaded into it.
@@ -673,13 +701,16 @@ class DeviceDisplay:
     """
 
     shading_intensity = DeviceShadingIntensity
+    widthChanged = pyqtSignal(int)
 
-    def __init__(self, menuButtonIcon: Optional[QIcon] = None) -> None:
+    def __init__(self, parent: QObject, menuButtonIcon: Optional[QIcon] = None) -> None:
+        super().__init__(parent)
         self.menuButtonIcon = menuButtonIcon
 
         self.rendering_destination = True
 
         self.dc = DeviceComponent()
+        self.dc.widthChanged.connect(self._widthChanged)
 
         self.view_width = self.dc.sample_width()
 
@@ -691,6 +722,14 @@ class DeviceDisplay:
             self.menuHighlightColor = self.deviceNameHighlightColor.darker(115)
 
         self.emptySpaceColor = QColor("#f2f2f2")
+
+    @pyqtSlot(int)
+    def _widthChanged(self, width) -> None:
+        self.view_width = width
+        self.widthChanged.emit(width)
+
+    def width(self) -> int:
+        return self.view_width
 
     def v_align_header_pixmap(self, y: int, pixmap_height: int) -> float:
         return y + (self.dc.device_name_strip_height / 2 - pixmap_height / 2)
@@ -827,7 +866,7 @@ class DeviceDisplay:
         painter.fillRect(rect, self.emptySpaceColor)
 
         # Storage Use Horizontal Bar
-        # Shows space used by Photos, Videos, Other, and (sometimes) Excess
+        # Shows space used by Photos, Videos, Other, and (sometimes) Excess.
         # ==========================================================================
 
         # Devices may not have photos or videos
@@ -888,7 +927,8 @@ class DeviceDisplay:
         painter.setFont(self.dc.deviceFont)
 
         # Component 4 details
-        # (excess usage, only displayed if the storage space is not sufficient)
+        # If excess is shown, it is shown first, before anything else.
+        # Excess usage, only displayed if the storage space is not sufficient.
         # =====================================================================
 
         if d.comp4_file_size_sum:
@@ -1021,7 +1061,7 @@ class DeviceDisplay:
                 videos_rect, Qt.AlignLeft | Qt.AlignBottom, d.comp2_size_text
             )
 
-            other_g2_x = videos_rect.right() + 10
+            other_g2_x = videos_rect.right() + self.dc.inter_device_padding
         else:
             other_g2_x = videos_g2_x
 
@@ -1060,14 +1100,20 @@ class DeviceDisplay:
                 other_rect, Qt.AlignLeft | Qt.AlignBottom, d.comp3_size_text
             )
 
+            final_g2_x = other_rect.right()
+        else:
+            final_g2_x = other_g2_x
+
+        self.dc.live_width = round(final_g2_x)
+
 
 class AdvancedDeviceDisplay(DeviceDisplay):
     """
     Subclass to handle header for download devices/ This Computer
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent: QObject):
+        super().__init__(parent=parent)
 
         self.rendering_destination = False
 
@@ -1251,11 +1297,14 @@ class DeviceDelegate(QStyledItemDelegate):
 
     shading_intensity = DeviceShadingIntensity
 
+    widthChanged = pyqtSignal(int)
+
     def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent)
         self.rapidApp = rapidApp
 
-        self.deviceDisplay = AdvancedDeviceDisplay()
+        self.deviceDisplay = AdvancedDeviceDisplay(parent=self)
+        self.deviceDisplay.widthChanged.connect(self.widthChanged)
 
         self.contextMenu = QMenu()
         self.ignoreDeviceAct = self.contextMenu.addAction(

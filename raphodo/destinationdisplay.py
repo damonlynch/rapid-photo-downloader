@@ -274,7 +274,8 @@ class DestinationDisplay(QWidget):
             self.mouse_pos = None
             self.tooltip_display_state = None
 
-        self.deviceDisplay = DeviceDisplay(menuButtonIcon=menuIcon)
+        self.deviceDisplay = DeviceDisplay(parent=self, menuButtonIcon=menuIcon)
+        self.deviceDisplay.widthChanged.connect(self.widthChanged)
         size = icon_size()
         self.icon = QIcon(":/icons/folder.svg").pixmap(
             QSize(size, size)
@@ -716,6 +717,10 @@ class DestinationDisplay(QWidget):
 
         painter.end()
 
+    @pyqtSlot(int)
+    def widthChanged(self, width: int) -> None:
+        self.updateGeometry()
+
     def sizeHint(self) -> QSize:
         if self.display_type == DestinationDisplayType.usage_only:
             height = self.deviceDisplay.dc.padding
@@ -726,7 +731,8 @@ class DestinationDisplay(QWidget):
             height += self.deviceDisplay.dc.device_name_height
         if self.display_type != DestinationDisplayType.folder_only:
             height += self.deviceDisplay.dc.storage_height
-        return QSize(self.deviceDisplay.view_width, height)
+
+        return QSize(self.deviceDisplay.width(), height)
 
     def minimumSize(self) -> QSize:
         return self.sizeHint()

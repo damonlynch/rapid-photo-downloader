@@ -497,7 +497,7 @@ def minPanelWidth() -> int:
     """
     Minimum width of panels on left and right side of main window.
 
-    Derived from standard font size.
+    Derived from standard font size. Typically around 250 pixels or so.
 
     :return: size in pixels
     """
