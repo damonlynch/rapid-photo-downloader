@@ -39,8 +39,13 @@ class MenuButton(QToolButton):
 
         hover_color = menuHoverColor().name(QColor.HexRgb)
 
+        try:
+            scaling = self.devicePixelRatioF()
+        except AttributeError:
+            scaling = self.devicePixelRatio()
+
         # Derive icon size from download button size
-        height = round(DownloadButtonHeight()[0] * (2/3))  # 11/15
+        height = round(DownloadButtonHeight()[0] * (2/3) * scaling)
         size = QSize(height, height)
 
         self.setIcon(QIcon(darkModePixmap(path=icon, size=size)))

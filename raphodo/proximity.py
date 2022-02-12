@@ -2402,21 +2402,24 @@ class TemporalProximity(QWidget):
 
 
 class SyncIcon(QIcon):
-    def __init__(self, path: str, state: SyncButtonState) -> None:
+    def __init__(self, path: str, state: SyncButtonState, scaling: float) -> None:
         super().__init__()
 
+        size = round(16 * scaling)
+        size = QSize(size, size)
+
         if state == SyncButtonState.active:
-            on = coloredPixmap(path=path, color=CustomColors.color1.value)
+            on = coloredPixmap(path=path, color=CustomColors.color1.value, size=size)
         elif state == SyncButtonState.inactive:
-            on = coloredPixmap(path=path, color=CustomColors.color2.value)
+            on = coloredPixmap(path=path, color=CustomColors.color2.value, size=size)
         else:
-            on = darkModePixmap(path=path, size=(QSize(100, 100)))
+            on = darkModePixmap(path=path, size=size)
 
         if is_dark_mode():
             color = QGuiApplication.palette().color(QPalette.Light)
         else:
             color = QGuiApplication.palette().color(QPalette.Dark)
-        off = coloredPixmap(path=path, color=color)
+        off = coloredPixmap(path=path, color=color, size=size)
 
         self.addPixmap(on, QIcon.Normal, QIcon.On)
         self.addPixmap(off, QIcon.Normal, QIcon.Off)
@@ -2426,14 +2429,19 @@ class SyncButton(QPushButton):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
 
+        try:
+            scaling = self.devicePixelRatioF()
+        except AttributeError:
+            scaling = float(self.devicePixelRatio())
+
         self.activeIcon = SyncIcon(
-            path=":/icons/sync.svg", state=SyncButtonState.active
+            path=":/icons/sync.svg", state=SyncButtonState.active, scaling=scaling
         )
         self.inactiveIcon = SyncIcon(
-            path=":/icons/sync.svg", state=SyncButtonState.inactive
+            path=":/icons/sync.svg", state=SyncButtonState.inactive, scaling=scaling
         )
         self.regularIcon = SyncIcon(
-            path=":/icons/sync.svg", state=SyncButtonState.regular
+            path=":/icons/sync.svg", state=SyncButtonState.regular, scaling=scaling
         )
         self.icon_state = SyncButtonState.regular
         self.setIcon(self.regularIcon)
@@ -2447,18 +2455,22 @@ class SyncButton(QPushButton):
         self.setToolTip(
             _("Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)")
         )
-        color = QPalette().color(QPalette.Background)
-        hoverColor = color.darker(110).name(QColor.HexRgb)
+        if is_dark_mode():
+            hoverColor = QPalette().color(QPalette.Highlight).name(QColor.HexRgb)
+        else:
+            color = QPalette().color(QPalette.Background)
+            hoverColor = color.darker(110).name(QColor.HexRgb)
 
+        #TODO change light icon color on hover
         style = """
-        QPushButton {
-            padding: 2px;
-            border: none;
-        } 
-        QPushButton::hover {
-            background-color: %s
-        }
-        """ % (
+            QPushButton {
+                padding: 2px;
+                border: none;
+            } 
+            QPushButton::hover {
+                background-color: %s;
+            }
+            """ % (
             hoverColor
         )
         self.setStyleSheet(style)
@@ -2466,9 +2478,6 @@ class SyncButton(QPushButton):
     def setState(self, state: SyncButtonState) -> None:
         self.setIcon(self.state_mapper[state])
         self.icon_state = state
-
-    def iconIsActive(self) -> bool:
-        return self.icon_active
 
 
 class TemporalProximityControls(QWidget):
