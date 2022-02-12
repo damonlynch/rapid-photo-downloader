@@ -68,7 +68,7 @@ from raphodo.storageidevice import (
     idevice_get_name,
     idevice_serial_to_udid,
     idevice_do_unmount,
-utilities_present,
+    utilities_present,
 )
 from raphodo.camera import generate_devname, autodetect_cameras
 from raphodo.utilities import (
