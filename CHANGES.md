@@ -24,12 +24,13 @@ Changelog for Rapid Photo Downloader
  - Enforce the use of the Qt 5 Fusion theme. Some Linux distribution Qt 5 
    themes can make the program's user interface look bad because of differing
    assumptions about design elements like scroll bars and frames. If you want 
-   to use your system's theme, use the command line option --force-system-theme
+   to use your system's theme, use the command line option
+   `--force-system-theme`.
 
  - Fix bug where various user interface elements would effectively be invisible 
    when the system theme is dark, also known as  "dark mode". Please note 
-   dark mode will likely work in the program only if the PyQT5 system package is
-   being used. 
+   dark mode will likely work in the program only if the PyQt5 package 
+   provided by your Linux distribution is being used. 
 
  - Fix bug [#64](https://github.com/damonlynch/rapid-photo-downloader/issues/64):
    Warning dialog fails to appear when iOS device utility applications are 
