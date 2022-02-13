@@ -2341,12 +2341,9 @@ class TemporalProximity(QWidget):
                 self.suppress_auto_scroll_after_timeline_select = False
             else:
                 sourcePanel = self.rapidApp.sourcePanel
-                # controls = self.rapidApp.temporalProximityControls
 
                 point = self.mapTo(sourcePanel, self.rect().topLeft())
                 if point.y() > 0:
-                    # controls.setAutoScrollEnabled(False)
-                    # self.temporarilyDisableAutoScroll.emit(True)
                     return
 
                 # controls.setAutoScrollEnabled(True)
@@ -2365,7 +2362,7 @@ class TemporalProximity(QWidget):
                 y = view.rowViewportPosition(row)
 
                 # Calculate the position of the top left of the timeline to
-                # the source panel. Calculations depend on what widget is the
+                # the source panel. Calculations depend on which widget is the
                 # timeline's parent.
                 delta = self.geometry().topLeft().y()
                 if self.parent() != sourcePanel.sourcePanelWidget:
@@ -2405,6 +2402,10 @@ class TemporalProximity(QWidget):
 
 
 class SyncIcon(QIcon):
+    """
+    Double arrow icon that changes color depending on state
+    """
+    
     def __init__(
         self, path: str, state: SyncButtonState, scaling: float, on_hover: bool
     ) -> None:

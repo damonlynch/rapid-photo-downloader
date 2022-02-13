@@ -2549,9 +2549,6 @@ difference to the program's future.</p>"""
             temporalProximityControls=self.temporalProximityControls,
         )
         self.leftPanelContainer.setObjectName("leftPanelContainer")
-        # self.temporalProximity.temporarilyDisableAutoScroll.connect(
-        #     self.temporalProximityControls.temporarilyDisableAutoScroll
-        # )
 
     def createRenamePanels(self) -> None:
         """
@@ -2677,9 +2674,9 @@ difference to the program's future.</p>"""
         self.centerSplitter.addWidget(self.leftPanelContainer)
         self.centerSplitter.addWidget(self.thumbnailView)
         self.centerSplitter.addWidget(self.rightPanels)
-        self.centerSplitter.setStretchFactor(0, 0)
-        self.centerSplitter.setStretchFactor(1, 2)
-        self.centerSplitter.setStretchFactor(2, 0)
+        self.centerSplitter.setStretchFactor(0, 1)
+        self.centerSplitter.setStretchFactor(1, 1)
+        self.centerSplitter.setStretchFactor(2, 1)
         self.centerSplitter.setCollapsible(0, False)
         self.centerSplitter.setCollapsible(1, False)
         self.centerSplitter.setCollapsible(2, False)
