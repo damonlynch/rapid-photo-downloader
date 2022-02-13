@@ -2674,9 +2674,8 @@ difference to the program's future.</p>"""
         self.centerSplitter.addWidget(self.leftPanelContainer)
         self.centerSplitter.addWidget(self.thumbnailView)
         self.centerSplitter.addWidget(self.rightPanels)
-        self.centerSplitter.setCollapsible(0, False)
-        self.centerSplitter.setCollapsible(1, False)
-        self.centerSplitter.setCollapsible(2, False)
+        for i in range(3):
+            self.centerSplitter.setCollapsible(i, False)
 
         splitterSetting = settings.value("centerSplitterSizes")
         if splitterSetting is not None and not is_devel_env:
