@@ -147,13 +147,13 @@ class DeviceModel(QAbstractListModel):
         # scan_id: DeviceState
         self.spinner_state = {}  # type: Dict[int, DeviceState]
         # scan_id: bool
-        self.checked = defaultdict(lambda: True)  # type: Dict[int, bool]
+        self.checked = defaultdict(lambda: Qt.Checked)  # type: Dict[int, Qt.CheckState]
         self.icons = {}  # type: Dict[int, QPixmap]
         self.rows = RowTracker()  # type: RowTracker
         self.row_id_counter = 0  # type: int
         self.row_id_to_scan_id = dict()  # type: Dict[int, int]
         self.scan_id_to_row_ids = defaultdict(list)  # type: Dict[int, List[int]]
-        self.storage = dict()  # type: Dict[int, StorageSpace]
+        self.storage = dict()  # type: Dict[int, Optional[StorageSpace]]
         self.headers = set()  # type: Set[int]
 
         self.icon_size = icon_size()
@@ -1317,7 +1317,7 @@ class DeviceDelegate(QStyledItemDelegate):
         self.rescanDeviceAct = self.contextMenu.addAction(_("Rescan"))
         self.rescanDeviceAct.triggered.connect(self.rescanDevice)
         # store the index in which the user right clicked
-        self.clickedIndex = None  # type: QModelIndex
+        self.clickedIndex = None  # type: Optional[QModelIndex]
 
     @pyqtSlot()
     def ignoreDevice(self) -> None:
@@ -1327,7 +1327,7 @@ class DeviceDelegate(QStyledItemDelegate):
             self.rapidApp.removeDevice(
                 scan_id=scan_id, ignore_in_this_program_instantiation=True
             )
-            self.clickedIndex = None  # type: QModelIndex
+            self.clickedIndex = None
 
     @pyqtSlot()
     def blacklistDevice(self) -> None:
@@ -1335,7 +1335,7 @@ class DeviceDelegate(QStyledItemDelegate):
         if index:
             scan_id = index.data(Roles.scan_id)  # type: int
             self.rapidApp.blacklistDevice(scan_id=scan_id)
-            self.clickedIndex = None  # type: QModelIndex
+            self.clickedIndex = None
 
     @pyqtSlot()
     def rescanDevice(self) -> None:
@@ -1343,7 +1343,7 @@ class DeviceDelegate(QStyledItemDelegate):
         if index:
             scan_id = index.data(Roles.scan_id)  # type: int
             self.rapidApp.rescanDevice(scan_id=scan_id)
-            self.clickedIndex = None  # type: QModelIndex
+            self.clickedIndex = None
 
     def paint(
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
@@ -1553,7 +1553,7 @@ class DeviceDelegate(QStyledItemDelegate):
         return True
 
     def setModelData(
-        self, editor: QWidget, model: QAbstractItemModel, index: QModelIndex
+        self, editor: Optional[QWidget], model: QAbstractItemModel, index: QModelIndex
     ) -> None:
         newValue = not (index.model().data(index, Qt.CheckStateRole))
         model.setData(index, newValue, Qt.CheckStateRole)
