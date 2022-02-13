@@ -323,56 +323,41 @@ class DestinationDisplay(QWidget):
         else:
             defaults = gnc.VIDEO_SUBFOLDER_MENU_DEFAULTS
 
-        self.subfolder0Act = QAction(
-            make_subfolder_menu_entry(defaults[0]),
-            self,
-            checkable=True,
-            triggered=self.doSubfolder0,
-        )
-        self.subfolder1Act = QAction(
-            make_subfolder_menu_entry(defaults[1]),
-            self,
-            checkable=True,
-            triggered=self.doSubfolder1,
-        )
-        self.subfolder2Act = QAction(
-            make_subfolder_menu_entry(defaults[2]),
-            self,
-            checkable=True,
-            triggered=self.doSubfolder2,
-        )
-        self.subfolder3Act = QAction(
-            make_subfolder_menu_entry(defaults[3]),
-            self,
-            checkable=True,
-            triggered=self.doSubfolder3,
-        )
-        self.subfolder4Act = QAction(
-            make_subfolder_menu_entry(defaults[4]),
-            self,
-            checkable=True,
-            triggered=self.doSubfolder4,
-        )
-        self.subfolder5Act = QAction(
-            "Preset 0", self, checkable=True, triggered=self.doSubfolder5
-        )
-        self.subfolder6Act = QAction(
-            "Preset 1", self, checkable=True, triggered=self.doSubfolder6
-        )
-        self.subfolder7Act = QAction(
-            "Preset 2", self, checkable=True, triggered=self.doSubfolder7
-        )
-        self.subfolder8Act = QAction(
-            "Preset 3", self, checkable=True, triggered=self.doSubfolder8
-        )
-        self.subfolder9Act = QAction(
-            "Preset 4", self, checkable=True, triggered=self.doSubfolder9
-        )
+        self.subfolder0Act = QAction(make_subfolder_menu_entry(defaults[0]), self)
+        self.subfolder0Act.setCheckable(True)
+        self.subfolder0Act.triggered.connect(self.doSubfolder0)
+        self.subfolder1Act = QAction(make_subfolder_menu_entry(defaults[1]), self)
+        self.subfolder1Act.setCheckable(True)
+        self.subfolder1Act.triggered.connect(self.doSubfolder1)
+        self.subfolder2Act = QAction(make_subfolder_menu_entry(defaults[2]), self)
+        self.subfolder2Act.setCheckable(True)
+        self.subfolder2Act.triggered.connect(self.doSubfolder2)
+        self.subfolder3Act = QAction(make_subfolder_menu_entry(defaults[3]), self)
+        self.subfolder3Act.setCheckable(True)
+        self.subfolder3Act.triggered.connect(self.doSubfolder3)
+        self.subfolder4Act = QAction(make_subfolder_menu_entry(defaults[4]), self)
+        self.subfolder4Act.setCheckable(True)
+        self.subfolder4Act.triggered.connect(self.doSubfolder4)
+        self.subfolder5Act = QAction("Preset 0", self)
+        self.subfolder5Act.setCheckable(True)
+        self.subfolder5Act.triggered.connect(self.doSubfolder5)
+        self.subfolder6Act = QAction("Preset 1", self)
+        self.subfolder6Act.setCheckable(True)
+        self.subfolder6Act.triggered.connect(self.doSubfolder6)
+        self.subfolder7Act = QAction("Preset 2", self)
+        self.subfolder7Act.setCheckable(True)
+        self.subfolder7Act.triggered.connect(self.doSubfolder7)
+        self.subfolder8Act = QAction("Preset 3", self)
+        self.subfolder8Act.setCheckable(True)
+        self.subfolder8Act.triggered.connect(self.doSubfolder8)
+        self.subfolder9Act = QAction("Preset 4", self)
+        self.subfolder9Act.setCheckable(True)
+        self.subfolder9Act.triggered.connect(self.doSubfolder9)
         # Translators: Custom refers to the user choosing a non-default value that
         # they customize themselves
-        self.subfolderCustomAct = QAction(
-            _("Custom..."), self, checkable=True, triggered=self.doSubfolderCustom
-        )
+        self.subfolderCustomAct = QAction(_("Custom..."), self)
+        self.subfolderCustomAct.setCheckable(True)
+        self.subfolderCustomAct.triggered.connect(self.doSubfolderCustom)
 
         self.subfolderGroup = QActionGroup(self)
 
