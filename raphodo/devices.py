@@ -1338,7 +1338,7 @@ class DeviceCollection:
 
 
 class BackupDevice(NamedTuple):
-    mount: QStorageInfo
+    mount: Optional[QStorageInfo]
     backup_type: BackupLocationType
 
 

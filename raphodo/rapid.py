@@ -337,7 +337,7 @@ import raphodo.storageidevice as storageidevice
 
 # Avoid segfaults at exit:
 # http://pyqt.sourceforge.net/Docs/PyQt5/gotchas.html#crashes-on-exit
-app = None  # type: 'QtSingleApplication'
+app = None  # type: Optional['QtSingleApplication']
 
 faulthandler.enable()
 logger = None
@@ -3388,7 +3388,7 @@ Do you want to proceed with the download?
         self.immediatelyDisplayDownloadRunningInStatusBar()
         for scan_id in self.devices.queued_to_download:
             self.startDownload(scan_id=scan_id)
-        self.devices.queued_to_download = set()  # type: Set[int]
+        self.devices.queued_to_download = set()
 
     def downloadIsRunning(self) -> bool:
         """
@@ -6745,7 +6745,7 @@ class QtSingleApplication(QApplication):
     def __init__(self, programId: str, *argv) -> None:
         super().__init__(*argv)
         self._id = programId
-        self._activationWindow = None  # type: RapidWindow
+        self._activationWindow = None  # type: Optional[RapidWindow]
         self._activateOnMessage = False  # type: bool
 
         # Is there another instance running?
@@ -6753,9 +6753,9 @@ class QtSingleApplication(QApplication):
         self._outSocket.connectToServer(self._id)
         self._isRunning = self._outSocket.waitForConnected()  # type: bool
 
-        self._outStream = None  # type: QTextStream
+        self._outStream = None  # type: Optional[QTextStream]
         self._inSocket = None
-        self._inStream = None  # type: QTextStream
+        self._inStream = None  # type: Optional[QTextStream]
         self._server = None
 
         if self._isRunning:

@@ -484,7 +484,6 @@ class DeviceView(ListViewFlexiFrame):
         self.rapidApp = rapidApp
         # Disallow the user from being able to select the table cells
         self.setSelectionMode(QAbstractItemView.NoSelection)
-        # TODO make this dynamic
         self.view_width = DeviceComponent().sample_width()
         # Assume view is always going to be placed into a container that can be scrolled
         # or a splitter
