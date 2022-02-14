@@ -24,13 +24,14 @@ __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2017-2022, Damon Lynch"
 
 import logging
-from typing import Optional
 
+from PyQt5.Qt import QWIDGETSIZE_MAX
 from PyQt5.QtCore import Qt, QSettings, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QSizePolicy, QApplication, QStyle
 
 from raphodo.viewutils import ScrollAreaNoFrame, SourceSplitter
 from raphodo.proximity import TemporalProximityControls
+from raphodo.constants import TemporalProximityState
 
 
 class SourcePanel(ScrollAreaNoFrame):
@@ -299,13 +300,19 @@ class SourcePanel(ScrollAreaNoFrame):
             bottom_frame = (
                 0 if self.horizontalScrollBar().isVisible() else self.frame_width
             )
-            self.splitter.setFixedHeight(
-                self.temporalProximity.temporalProximityView.contentHeight()
-                + self.splitter.sizes()[0]  # handle position
-                + self.splitter.handleWidth()
-                + self.frame_width
-                + bottom_frame
-            )
+
+            if self.temporalProximity.state == TemporalProximityState.generated:
+                self.splitter.setFixedHeight(
+                    self.temporalProximity.temporalProximityView.contentHeight()
+                    + self.splitter.sizes()[0]  # handle position
+                    + self.splitter.handleWidth()
+                    + self.frame_width
+                    + bottom_frame
+                )
+            else:
+                # Reset the fixed size so that it is no longer fixed
+                # This is super important
+                self.splitter.setFixedHeight(QWIDGETSIZE_MAX)
 
 
 class LeftPanelContainer(QWidget):

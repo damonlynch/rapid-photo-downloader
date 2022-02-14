@@ -1975,11 +1975,12 @@ class ResizableStackedWidget(QStackedWidget):
     def onCurrentChanged(self, index: int) -> None:
         for i in range(self.count()):
             if i == index:
-                policy = QSizePolicy.Expanding
+                verticalPolicy = QSizePolicy.MinimumExpanding
             else:
-                policy = QSizePolicy.Ignored
+                verticalPolicy = QSizePolicy.Ignored
             widget = self.widget(i)
-            widget.setSizePolicy(policy, policy)
+            widget.setSizePolicy(widget.sizePolicy().horizontalPolicy(), verticalPolicy)
+            widget.adjustSize()
         self.adjustSize()
 
 
@@ -2238,6 +2239,8 @@ class TemporalProximity(QWidget):
         self.clearThumbnailDisplayFilter()
         self.state = state
         self.rapidApp.temporalProximityControls.setAutoScrollState()
+        if state != TemporalProximityState.generated:
+            self.rapidApp.sourcePanel.setSplitterSize()
 
     def setGroups(self, proximity_groups: TemporalProximityGroups) -> bool:
         """
