@@ -2371,6 +2371,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         )  # type: Tuple[QModelIndex]
         thumbnailModel = self.rapidApp.thumbnailModel  # type: ThumbnailListModel
         thumbnailModel.setDataRange(not_downloaded, True, Roles.previously_downloaded)
+        self.rapidApp.setDownloadCapabilities()
 
     def paint(
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex

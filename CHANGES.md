@@ -7,16 +7,16 @@ Changelog for Rapid Photo Downloader
  - Fix bug [#53](https://github.com/damonlynch/rapid-photo-downloader/issues/53):
    Adapt to small screens. Rapid Photo Downloader can now be resized to fit to 
    tiny screens. Part of the fix involves changes in the ways the download 
-   sources (Devices and This Computer) and the Timeline are placed in the left-
-   side of the user interface. When a scroll bar is necessary to fit in these 
-   interface elements, a single scroll bar will now extend from the Devices to 
-   the Timeline. This now means that when you scroll down to view the entirety
-   of the Timeline, if the Timeline is big enough the download sources will 
-   scroll up out of sight.
+   sources (Devices and This Computer) and the Timeline are placed in the 
+   left-side of the user interface. When a scroll bar is necessary to fit in 
+   these interface elements, a single scroll bar will now extend from the 
+   Devices to the Timeline. Now, when you scroll down to view the entirety of 
+   the Timeline, if the Timeline is big enough the download sources will scroll 
+   up out of sight.
 
- - The button to synchronize scrolling between the Timeline and thumbnails 
-   is a double arrow. It changes color to reflect its state. The button's 
-   behavior is described in the [documentation](https://damonlynch.net/rapid/documentation/#timelineselecting).
+ - Change the button to synchronize scrolling between the Timeline and 
+   thumbnails to a double arrow. It now changes color to reflect its state. The 
+   button's behavior is described in the [documentation](https://damonlynch.net/rapid/documentation/#timelineselecting).
  
  - Make the user interface look cleaner and more consistent, especially 
    regarding scrollbars and frames. 
@@ -70,6 +70,9 @@ Changelog for Rapid Photo Downloader
    correctly specify the correct version of fuse to depend on, making the 
    explicit declaration of fuse as a dependency in the install.py script wrong. 
 
+ - Fix bug to correctly display the number of files available for download after
+   some files have been manually marked as already downloaded. 
+ 
  - Update Albanian, Catalan, Dutch, Hungarian, Italian, Japanese, Russian, 
    Spanish, Swedish and Turkish translations.
 
