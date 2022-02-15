@@ -76,6 +76,8 @@ Changelog for Rapid Photo Downloader
  - Update Albanian, Catalan, Dutch, Hungarian, Italian, Japanese, Russian, 
    Spanish, Swedish and Turkish translations.
 
+ - CentOS 7.5 is no longer supported.
+
 0.9.28 (2021-12-27)
 ---------------------
 

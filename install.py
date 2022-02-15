@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -29,7 +29,7 @@
 
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2021, Damon Lynch"
+__copyright__ = "Copyright 2016-2022, Damon Lynch"
 
 import argparse
 from enum import Enum, auto
@@ -80,7 +80,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = "0.3.15"
+__version__ = "0.3.16"
 __title__ = _("Rapid Photo Downloader installer")
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -470,7 +470,6 @@ debian_like = (
 
 
 centos_family = (
-    Distro.centos7,
     Distro.centos8,
     Distro.centos_stream8,
     Distro.centos_stream9,
@@ -485,7 +484,6 @@ installer_cmds = {
     Distro.fedora: "dnf",
     Distro.debian: "apt-get",
     Distro.opensuse: "zypper",
-    Distro.centos7: "yum",
 }
 
 manually_mark_cmds = {
@@ -670,7 +668,6 @@ def pip_packages_required(distro: Distro) -> Tuple[List[str], bool]:
         packages.append(pip_package("wheel", local_pip, distro))
 
     return packages, local_pip
-
 
 def extract_mo_files() -> Optional[str]:
     """
@@ -1520,43 +1517,14 @@ def fedora_centos_repolist(distro: Distro) -> str:
     :return: repository list as string of lines
     """
 
-    if distro == Distro.centos7:
-        repos = subprocess.check_output(["yum", "repolist"], universal_newlines=True)
-    else:
-        assert distro in fedora_like_active
-        repos = subprocess.check_output(["dnf", "repolist"], universal_newlines=True)
+    assert distro in fedora_like_active
+    repos = subprocess.check_output(["dnf", "repolist"], universal_newlines=True)
     return repos
-
-
-def enable_centos7_ius(interactive: bool) -> None:
-    """
-    Enable the IUS repository on CentOS
-
-    :param interactive: if True, the user should be prompted to confirm
-     the command
-    """
-
-    try:
-        repos = fedora_centos_repolist(distro=Distro.centos7)
-        if "ius/" not in repos:
-            # Translators: do not translate the term IUS Community
-            print(_("The IUS Community repository must be enabled.") + "\n")
-
-            cmds = (
-                "sudo yum -y install yum-utils",
-                "sudo yum -y install https://centos7.iuscommunity.org/ius-release.rpm",
-            )
-
-            for cmd in cmds:
-                run_cmd(command_line=cmd, restart=False, interactive=interactive)
-
-    except Exception:
-        pass
 
 
 def enable_centos_epel(distro_details: DistroDetails, interactive: bool) -> None:
     """
-    Enable the EPEL repository on CentOS 7 & 8
+    Enable the EPEL repository on CentOS 8+
 
     :param distro: detected Linux distribution
     :param version: distro version
@@ -1584,8 +1552,6 @@ def enable_centos_epel(distro_details: DistroDetails, interactive: bool) -> None
                 "sudo dnf config-manager --set-enabled powertools",
                 "sudo dnf -y install epel-release epel-next-release",
             )
-        elif distro_details.distro == Distro.centos7:
-            cmds = ("sudo yum -y install epel-release",)
         else:
             assert distro_details.distro == Distro.centos8
             cmds = (
@@ -1625,20 +1591,14 @@ def enable_rpmfusion_free(distro_details: DistroDetails, interactive: bool) -> N
                     "sudo dnf -y install https://mirrors.rpmfusion.org/free/fedora/"
                     "rpmfusion-free-release-{}.noarch.rpm".format(v),
                 )
-            elif distro_details.distro in (Distro.centos8, Distro.centos_stream8):
+            else:
+                assert distro_details.distro in (Distro.centos8, Distro.centos_stream8)
                 # ignore capitalization instructions for CentOS 8 at
                 # https://rpmfusion.org/Configuration
                 cmds = (
                     "sudo dnf -y install --nogpgcheck https://mirrors.rpmfusion.org/"
                     "free/el/rpmfusion-free-release-8.noarch.rpm",
                     "sudo dnf config-manager --enable powertools",
-                )
-            else:
-                assert distro_details.distro == Distro.centos7
-                cmds = (
-                    "sudo yum -y localinstall --nogpgcheck "
-                    "https://mirrors.rpmfusion.org/free/el/"
-                    "rpmfusion-free-release-7.noarch.rpm",
                 )
 
             for cmd in cmds:
@@ -1947,33 +1907,6 @@ def opensuse_package_version(package: str) -> Optional[str]:
     return None
 
 
-def centos_missing_packages(packages: str) -> List[str]:
-    """
-    Return which of the packages have not already been installed on CentOS 7.
-
-    Does not catch exceptions.
-
-    :param packages: the packages to to check, in a string separated by white space
-    :return: list of packages
-    """
-
-    command_line = make_distro_packager_command(
-        distro_family=Distro.centos7,
-        packages=packages,
-        interactive=True,
-        command="list installed",
-        sudo=False,
-    )
-    args = shlex.split(command_line)
-    output = subprocess.check_output(args, universal_newlines=True)
-
-    return [
-        package
-        for package in packages.split()
-        if re.search(r"^{}\.".format(re.escape(package)), output, re.MULTILINE) is None
-    ]
-
-
 def distro_has_heif_support(distro: Distro) -> bool:
     """
     Determine if this distro has HEIF / HEIC image library support installed
@@ -1985,7 +1918,7 @@ def distro_has_heif_support(distro: Distro) -> bool:
     if distro == Distro.raspbian:
         return False
 
-    if distro in fedora_like or distro == Distro.centos7:
+    if distro in fedora_like:
         return True
     if distro in debian_like:
         if have_apt:
@@ -2698,54 +2631,6 @@ def install_required_distro_packages(
             if venv:
                 run_cmd(
                     "sudo zypper install -y --type pattern devel_basis",
-                    interactive=interactive,
-                    installer_to_delete_on_error=installer_to_delete_on_error,
-                )
-    elif distro_family == Distro.centos7:
-
-        packages = (
-            "gstreamer1-plugins-good gobject-introspection "
-            "zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ rpm-build "
-            "gobject-introspection-devel cairo-gobject-devel python3-devel "
-            "libmediainfo zenity gstreamer1-libav libheif-devel libde265-devel "
-            "x265-devel python3-wheel python36-gobject"
-        )
-        packages = f"{packages} libgphoto2-devel"
-
-        if venv:
-            build_source_packages = (
-                "gcc zlib-devel bzip2 bzip2-devel readline-devel "
-                "sqlite sqlite-devel openssl-devel tk-devel git "
-            )
-            packages = "{} {}".format(packages, build_source_packages)
-
-        print(
-            # Translators: do not translate the term yum
-            _(
-                "Querying yum to see if any required packages are already installed "
-                "(this may take a while)... "
-            )
-        )
-        try:
-            missing_packages = centos_missing_packages(packages)
-        except subprocess.CalledProcessError as e:
-            sys.stderr.write(_("Command failed") + "\n")
-            sys.stderr.write(_("Exiting") + "\n")
-            cleanup_on_exit(installer_to_delete_on_error=installer_to_delete_on_error)
-            sys.exit(1)
-        else:
-            if missing_packages:
-                print(
-                    _(
-                        "To continue, some packages required to run the application "
-                        "will be installed."
-                    )
-                    + "\n"
-                )
-                run_cmd(
-                    make_distro_packager_command(
-                        distro_family, " ".join(missing_packages), interactive
-                    ),
                     interactive=interactive,
                     installer_to_delete_on_error=installer_to_delete_on_error,
                 )
@@ -4108,6 +3993,13 @@ def main():
         print(_("Exiting..."))
         clean_locale_tmpdir()
         sys.exit(0)
+    elif distro_details.distro == Distro.centos7:
+        print(
+            f"Sorry {distro_details.pretty_name} is no longer supported"
+        )
+        print(_("Exiting..."))
+        clean_locale_tmpdir()
+        sys.exit(0)
 
     distro_family = distro_details.distro
 
@@ -4127,12 +4019,6 @@ def main():
                     distro_family, "python3-apt", args.interactive
                 )
                 run_cmd(command_line, restart=True, interactive=args.interactive)
-    elif distro_details.distro == Distro.centos7:
-        enable_centos_epel(distro_details=distro_details, interactive=args.interactive)
-        enable_centos7_ius(args.interactive)
-        enable_rpmfusion_free(
-            distro_details=distro_details, interactive=args.interactive
-        )
     elif distro_details.distro in fedora_like:
         # Includes all varieties of CentOS >= 8
         distro_family = Distro.fedora
@@ -4154,7 +4040,6 @@ def main():
             Distro.fedora,
             Distro.debian,
             Distro.opensuse,
-            Distro.centos7,
         ):
             sys.stderr.write(
                 _(
