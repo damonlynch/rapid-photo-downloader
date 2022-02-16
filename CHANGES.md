@@ -30,7 +30,17 @@ Changelog for Rapid Photo Downloader
  - Fix bug where various user interface elements would effectively be invisible 
    when the system theme is dark, also known as  "dark mode". Please note 
    dark mode will likely work in the program only if the PyQt5 package 
-   provided by your Linux distribution is being used. 
+   provided by your Linux distribution is being used.
+
+ - Fix bugs [#61](https://github.com/damonlynch/rapid-photo-downloader/issues/61), 
+   [#58](https://github.com/damonlynch/rapid-photo-downloader/issues/58), and
+   [#1958892](https://bugs.launchpad.net/rapid/+bug/1958892):
+   setuptools >= 60.0 failing. Setuptools >= 60.0 currently  fails on many if 
+   not all Linux distributions. The install.py script now uninstalls versions of 
+   pip, setuptools and wheel that were installed with pip if the versions 
+   provided by the Linux distribution are new enough. If the versions provided
+   are too old to be fully functional, pip and wheel are updated, and setuptools
+   is upgraded to a version < 60.0.  
 
  - Fix bug [#64](https://github.com/damonlynch/rapid-photo-downloader/issues/64):
    Warning dialog fails to appear when iOS device utility applications are 

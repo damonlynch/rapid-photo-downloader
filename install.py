@@ -88,6 +88,13 @@ i18n_domain = "rapid-photo-downloader"
 locale_tmpdir = None
 
 
+minimum_packaging_tool_versions = dict(
+    pip="19.3.1",
+    setuptools="41.6.0",
+    wheel="0.33.6",
+)
+
+
 class Version:
     """Abstract base class for version numbering classes.  Just provides
     constructor (__init__) and reproducer (__repr__), because those
@@ -497,6 +504,14 @@ class DistroDetails(NamedTuple):
     pretty_name: str
 
 
+def run_command_c_lang(cmd: str) -> str:
+    """Run a command with no translated output, and return the output"""
+    return subprocess.check_output(
+        shlex.split(cmd),
+        env={"LANG": "C", "LANGUAGE": "C"},
+    ).decode()
+
+
 def parse_os_release() -> Dict[str, str]:
     d = {}
     if os.path.isfile("/etc/os-release"):
@@ -644,6 +659,119 @@ def cleanup_on_exit(installer_to_delete_on_error: str) -> None:
     clean_locale_tmpdir()
 
 
+def user_installed_packaging_tools() -> List[str]:
+    return [
+        package
+        for package in "pip setuptools wheel".split()
+        if installed_using_pip(package)
+    ]
+
+
+def system_python_packaging_tools_required(distro: Distro, venv: bool) -> List[str]:
+    packages = []
+
+    if not have_pip:
+        packages.append(f"{python3_version(distro)}-pip")
+    try:
+        import setuptools
+    except ImportError:
+        # system setuptools works in a venv
+        packages.append(f"{python3_version(distro)}-setuptools")
+    except AssertionError:
+        print(
+            f"Uninstalling setuptools {python_package_version('setuptools')} because "
+            f"this version is incompatible with this system"
+        )
+        uninstall_pip_package(package="setuptools", no_deps_only=False)
+        restart_script()
+
+    if need_wheel and not venv:
+        packages.append(f"{python3_version(distro)}-wheel")
+
+    return packages
+
+
+def packaging_tools_out_of_date() -> List[str]:
+    packages = []
+    for tool, min_version in minimum_packaging_tool_versions.items():
+        current_version = python_package_version(tool)
+        if not current_version:
+            sys.stderr.write(
+                f"Something went wrong determining the version of {tool}.\nExiting.\n"
+            )
+            sys.exit(1)
+        else:
+            cv = pkg_resources.parse_version(current_version)
+            mv = pkg_resources.parse_version(min_version)
+            if cv < mv:
+                packages.append(tool)
+    return packages
+
+
+def remove_unneeded_user_installed_tools(
+    tools: List[str], distro: DistroDetails, distro_family: Distro
+) -> None:
+    """
+    Remove pip, setuptools or wheel if they are installed via pip and the system
+    packages suffice
+
+    :param tools: tools to check
+    :param distro_family: the linux distribution used
+    """
+
+    if distro_family == Distro.fedora:
+        if not have_dnf:
+            sys.stderr.write(
+                "To continue, please install python3-dnf using your system's package "
+                "manager.\n"
+            )
+            sys.stderr.write(_("Exiting...") + "\n")
+            clean_locale_tmpdir()
+            sys.exit(1)
+        print(
+            "Querying Fedora package database to determine Python tool versions..."
+            " (this may take a while)"
+        )
+
+    restart_required = False
+    for tool in tools:
+        min_version = LooseVersion(minimum_packaging_tool_versions[tool])
+        system_version = ""
+        package = f"python3-{tool}"
+        try:
+            if distro_family == Distro.debian:
+                system_version = apt_return_package_version(package)
+            elif distro_family == Distro.fedora:
+                system_version = dnf_return_package_version(package)
+            else:
+                assert distro_family == Distro.opensuse
+                system_version = opensuse_package_version(package)
+        except Exception as e:
+            print(e)
+        if not system_version:
+            sys.stderr.write(
+                "Sorry, something went wrong determining the status of existing "
+                "packages.\n"
+                "Please try running this script again later.\n"
+            )
+            sys.stderr.write(_("Exiting...") + "\n")
+            clean_locale_tmpdir()
+            sys.exit(1)
+
+        sys_version = LooseVersion(system_version)
+        if sys_version >= min_version:
+            print(
+                f"Removing pip installed version of {tool} "
+                f"{python_package_version(tool)}, because the version packaged by "
+                f"{distro.pretty_name} is sufficient..."
+            )
+            uninstall_pip_package(package=tool, no_deps_only=False)
+            if tool != "pip":
+                restart_required = True
+    if restart_required:
+        restart_script(restart_args="--do-not-upgrade-pip")
+
+
 def pip_packages_required(distro: Distro) -> Tuple[List[str], bool]:
     """
     Determine which packages are required to ensure all of pip, setuptools
@@ -668,6 +796,7 @@ def pip_packages_required(distro: Distro) -> Tuple[List[str], bool]:
         packages.append(pip_package("wheel", local_pip, distro))
 
     return packages, local_pip
+
 
 def extract_mo_files() -> Optional[str]:
     """
@@ -780,6 +909,37 @@ def should_use_system_pyqt5(
 
 def pypi_versions(package_name: str, timeout: int = 5) -> List[str]:
     """
+    Get an unsorted list of versions available for a PyPi package
+    :param package_name: name of package to get from PyPi
+    :param timeout: timeout: timeout for https request
+    :return: unsorted list of version strings
+    """
+
+    url = "https://pypi.python.org/pypi/{}/json".format(package_name)
+    data = requests.get(url, timeout=timeout).json()
+    return list(data["releases"].keys())
+
+
+def max_pypi_version(package_name: str, version_ceiling: str, timeout: int = 5) -> str:
+    """
+    Get package version that is less than the ceiling
+    :param package_name: name of package to get from PyPi
+    :param version_ceiling: the value the version should be less than
+    :param timeout: timeout for https request
+    :return: max version as str
+    """
+
+    versions = pypi_versions(package_name=package_name, timeout=timeout)
+    pkg_versions = [pkg_resources.parse_version(version) for version in versions]
+    pkg_versions = sorted(pkg_versions, reverse=True)
+    key = pkg_resources.parse_version(version_ceiling)
+    for v in pkg_versions:
+        if v < key:
+            return str(v)
+
+
+def pypi_versions_hr(package_name: str, timeout: int = 5) -> List[str]:
+    """
     Determine list of versions available for a package on PyPi.
     No error checking.
 
@@ -788,10 +948,10 @@ def pypi_versions(package_name: str, timeout: int = 5) -> List[str]:
     :return: list of string versions
     """
 
-    url = "https://pypi.python.org/pypi/{}/json".format(package_name)
-    data = requests.get(url, timeout=timeout).json()
     return sorted(
-        list(data["releases"].keys()), key=pkg_resources.parse_version, reverse=True
+        pypi_versions(package_name=package_name, timeout=timeout),
+        key=pkg_resources.parse_version,
+        reverse=True,
     )
 
 
@@ -804,7 +964,7 @@ def pypi_version_exists(package_name: str, version: str) -> bool:
     :param version:
     :return:
     """
-    l = pypi_versions(package_name)
+    l = pypi_versions_hr(package_name)
     if not version in l:
         sys.stderr.write(
             # Translators: do not translate the term PyQt5
@@ -831,7 +991,7 @@ def latest_pypi_version(
     :return: latest version as string
     """
 
-    versions = pypi_versions(package_name, timeout=timeout)
+    versions = pypi_versions_hr(package_name, timeout=timeout)
     if not ignore_prerelease:
         return versions[0].strip()
 
@@ -863,8 +1023,8 @@ def is_recent_pypi_package(
     :return: True if is recent enough, else False
     """
 
-    current = python_package_version(package_name)
-    if not current:
+    current_version = python_package_version(package_name)
+    if not current_version:
         return False
 
     up_to_date = False
@@ -873,9 +1033,9 @@ def is_recent_pypi_package(
     if minimum_version:
         up_to_date = pkg_resources.parse_version(
             minimum_version
-        ) <= pkg_resources.parse_version(current)
+        ) <= pkg_resources.parse_version(current_version)
         if up_to_date and show_message:
-            print("{} {} is up to date".format(package_name, current))
+            print("{} {} is up to date".format(package_name, current_version))
 
     if not up_to_date:
         if have_requests:
@@ -890,13 +1050,13 @@ def is_recent_pypi_package(
                 )
                 return False
 
-            up_to_date = latest.strip() == current.strip()
+            up_to_date = latest.strip() == current_version.strip()
 
     if not up_to_date and show_message:
         if latest is not None:
             print(
                 _("{} will be upgraded from version {} to version {}").format(
-                    package_name, current, latest
+                    package_name, current_version, latest
                 )
             )
 
@@ -1171,26 +1331,12 @@ def update_pyqt5_and_sip(version: Optional[str]) -> int:
     return 0
 
 
-def update_pip_setuptools_wheel(interactive: bool) -> None:
+def update_pip_setuptools_wheel(interactive: bool, packages: List[str]) -> None:
     """
     Update pip, setuptools and wheel to the latest versions, if necessary.
 
     :param interactive: whether to prompt the user
     """
-
-    packages = []
-    # Upgrade the packages if they are already installed using pip, or
-    # Upgrade the system packages only if they are old
-
-    package_details = [("pip", "19.3.1"), ("setuptools", "41.6.0"), ("wheel", "0.33.6")]
-
-    print()
-    for package, version in package_details:
-        if installed_using_pip(package):
-            if not is_recent_pypi_package(package):
-                packages.append(package)
-        elif not is_recent_pypi_package(package, minimum_version=version):
-            packages.append(package)
 
     restart_required = False
     for package in packages:
@@ -1198,25 +1344,34 @@ def update_pip_setuptools_wheel(interactive: bool) -> None:
             restart_required = True
             break
 
-    if packages:
-        print(
-            _(
-                # Translators: "not system-wide" in this context means "not for the entire system"
-                "These Python3 packages will be upgraded for your user (i.e. not system-wide): {}"
-            ).format(", ".join(packages))
+    print(
+        _(
+            # Translators: "not system-wide" in this context means "not for the entire system"
+            "These Python3 packages will be upgraded for your user (i.e. not system-wide): {}"
+        ).format(", ".join(packages))
+    )
+
+    package_listing = " ".join(packages)
+    if "setuptools" in package_listing:
+        if sys.version_info < (3, 7):
+            version = "59.6"
+        else:
+            version = "59.8"
+        package_listing = package_listing.replace(
+            "setuptools", f"setuptools=={version}"
         )
 
-        package_listing = " ".join(packages)
+    command_line = make_pip_command(
+        "install {} --upgrade {}".format(pip_user, package_listing),
+        split=False,
+        disable_version_check=True,
+    )
+    run_cmd(command_line, interactive=interactive)
 
-        command_line = make_pip_command(
-            "install {} --upgrade {}".format(pip_user, package_listing),
-            split=False,
-            disable_version_check=True,
+    if restart_required:
+        restart_script(
+            restart_args="--do-not-upgrade-pip --do-not-check-user-python-packaging-tools"
         )
-        run_cmd(command_line, interactive=interactive)
-
-        if restart_required:
-            restart_script(restart_args="--do-not-upgrade-pip")
 
 
 def python3_version(distro: Distro) -> str:
@@ -1257,7 +1412,7 @@ def installed_using_pip(package: str) -> bool:
     try:
         pkg = pkg_resources.get_distribution(package)
         location = pkg.location
-        pip_install = not location.startswith("/usr") or location.find("local") > 0
+        pip_install = not location.startswith("/usr") or location.find(".local") > 0
     except pkg_resources.DistributionNotFound:
         pass
     except Exception as e:
@@ -1406,7 +1561,7 @@ def restart_script(restart_with: str = None, restart_args: str = "") -> None:
     if locale_tmpdir:
         append_locale_cmdline_option(new_args=args)
     if restart_args:
-        args.append(restart_args)
+        args.extend(restart_args.split())
     args.append("--script-restarted")
 
     if restart_with is None:
@@ -1769,7 +1924,7 @@ def fedora_package_installed(package: str) -> bool:
         return False
 
 
-def dnf_prepare_base(base: 'dnf.base.Base') -> None:
+def dnf_prepare_base(base: "dnf.base.Base") -> None:
     """
     Prepare dnf base for querying. Includes extra steps for running on
     CentOS Stream
@@ -1808,6 +1963,29 @@ def dnf_return_package_version(package: str) -> str:
         p = q.filter(name=package)[0]
 
     return p.version
+
+
+def apt_return_package_version(package: str) -> str:
+    """
+    Find package version of package (installed or not) using Debian's apt.
+
+    No error checking
+
+    :param package: package to get the version of
+    :return: version in str format
+    """
+
+    if have_apt:
+        cache = apt.Cache()
+        versions = [LooseVersion(v.version) for v in cache[package].versions]
+        version = max(versions)
+        return str(version)
+    else:
+        cmd = f"apt info {package}"
+        regex = r"^Version: (.+)$"
+        output = run_command_c_lang(cmd=cmd)
+        v = re.search(regex, output, re.MULTILINE)
+        return v.group(1)
 
 
 def opensuse_package_search(packages: str) -> str:
@@ -2701,6 +2879,13 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
         "--delete-tar-and-containing-dir",
         action="store_true",
         dest="delete_tar_and_dir",
+        help=argparse.SUPPRESS,
+    )
+
+    parser.add_argument(
+        "--do-not-check-user-python-packaging-tools",
+        action="store_true",
+        dest="no_check_packaging_tools",
         help=argparse.SUPPRESS,
     )
 
@@ -3994,9 +4179,7 @@ def main():
         clean_locale_tmpdir()
         sys.exit(0)
     elif distro_details.distro == Distro.centos7:
-        print(
-            f"Sorry {distro_details.pretty_name} is no longer supported"
-        )
+        print(f"Sorry {distro_details.pretty_name} is no longer supported")
         print(_("Exiting..."))
         clean_locale_tmpdir()
         sys.exit(0)
@@ -4031,7 +4214,9 @@ def main():
             distro_details=distro_details, interactive=args.interactive
         )
 
-    packages, local_pip = pip_packages_required(distro_details.distro)
+    packages = system_python_packaging_tools_required(
+        distro=distro_details.distro, venv=venv
+    )
 
     if packages:
         packages = " ".join(packages)
@@ -4061,25 +4246,45 @@ def main():
             + "\n"
         )
 
-        if not local_pip:
-            command_line = make_distro_packager_command(
-                distro_family, packages, args.interactive
+        command_line = make_distro_packager_command(
+            distro_family, packages, args.interactive
+        )
+        run_cmd(command_line, restart=True, interactive=args.interactive)
+
+    if venv and need_wheel:
+        print(
+            _(
+                # Translators: "not system-wide" in this context means "not for the entire system"
+                "These Python3 packages will be upgraded for your user (i.e. not system-wide): {}"
+            ).format("wheel")
+        )
+        command_line = make_pip_command(
+            f"install {pip_user} wheel", split=False
+        )
+        run_cmd(command_line, restart=True, interactive=args.interactive)
+
+    # Can now assume that pip, setuptools and wheel have been installed
+
+    if not (args.no_check_packaging_tools or venv):
+        tools = user_installed_packaging_tools()
+        if tools:
+            remove_unneeded_user_installed_tools(
+                tools=tools, distro_family=distro_family, distro=distro_details
             )
-            run_cmd(command_line, restart=True, interactive=args.interactive)
 
-        if local_pip:
-            command_line = make_pip_command(
-                "install {} {}".format(pip_user, packages), split=False
+    dated_python_packaging_tools = packaging_tools_out_of_date()
+
+    if dated_python_packaging_tools:
+        if args.do_not_upgrade_pip:
+            sys.stderr.write(
+                "The Python packaging tool pip must be upgraded to continue.\n"
+                "Exiting\n"
             )
-            run_cmd(command_line, restart=True, interactive=args.interactive)
-
-    # Can now assume that both pip, setuptools and wheel have been installed
-
-    if not args.do_not_upgrade_pip:
-        # Check if upgrade pip, setuptools and wheel to latest version
-        # A recent version of pip is required for some packages e.g. PyQt5
-
-        update_pip_setuptools_wheel(interactive=args.interactive)
+            sys.exit(1)
+        else:
+            update_pip_setuptools_wheel(
+                interactive=args.interactive, packages=dated_python_packaging_tools
+            )
 
     installer = args.tarfile
 
