@@ -3522,6 +3522,18 @@ def man_pages_already_installed(
     return match == len(manpages)
 
 
+def icon_present() -> bool:
+    try:
+        import gi
+        gi.require_version('Gtk', '3.0')
+        from gi.repository import Gtk
+        icon_name = "rapid-photo-downloader"
+        icon_theme = Gtk.IconTheme.get_default()
+        icon = icon_theme.lookup_icon(icon_name, 48, 0)
+        return not not icon
+    except:
+        return False
+
 def do_install(
     installer: str,
     distro_details: DistroDetails,
@@ -3700,7 +3712,8 @@ def do_install(
 
     if venv:
         bin_dir = os.path.join(sys.prefix, "bin")
-        user_must_add_to_path = user_must_reboot = True
+        user_must_add_to_path = True
+        user_must_reboot = False
         print("\nThe application was installed in {}".format(bin_dir))
     else:
         distro_bin_probe = distro_bin_dir(distro_family, interactive)
@@ -3925,11 +3938,14 @@ def do_install(
         if cmd is None:
             print(bcolors.BOLD + "\n" + msg + bcolors.ENDC)
         else:
+            icon_name = "info"
+            if not venv and icon_present():
+                icon_name = "rapid-photo-downloader"
             text = "\n".join(textwrap.wrap(msg, width=50))
             command_line = (
-                "{} --info --no-wrap "
-                '--title="Rapid Photo Downloader" --icon-name=rapid-photo-downloader '
-                '--text="{}"'.format(cmd, text)
+                f"{cmd} --info --no-wrap "
+                f'--title="Rapid Photo Downloader" --icon-name={icon_name} '
+                f'--text="{text}"'
             )
             args = shlex.split(command_line)
             subprocess.call(args=args)
