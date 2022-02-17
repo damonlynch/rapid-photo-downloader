@@ -3929,22 +3929,28 @@ def do_install(
             path = os.path.join(site.getuserbase(), "bin")
         else:
             path = bin_dir
-        msg = _(
-            "You must add {path} to your computer's $PATH variable to run the "
-            "program from the command line or application launcher."
-        ).format(path=path)
+        if venv:
+            msg = _(
+                "You must add {path} to your computer's $PATH variable to run the "
+                "program from the command line."
+            ).format(path=path)
+        else:
+            msg = _(
+                "You must add {path} to your computer's $PATH variable to run the "
+                "program from the command line or application launcher."
+            ).format(path=path)
     if msg:
         cmd = shutil.which("zenity")
         if cmd is None:
             print(bcolors.BOLD + "\n" + msg + bcolors.ENDC)
         else:
-            icon_name = "info"
+            icon_name = ""
             if not venv and icon_present():
-                icon_name = "rapid-photo-downloader"
+                icon_name = "--icon-name=rapid-photo-downloader"
             text = "\n".join(textwrap.wrap(msg, width=50))
             command_line = (
                 f"{cmd} --info --no-wrap "
-                f'--title="Rapid Photo Downloader" --icon-name={icon_name} '
+                f'--title="Rapid Photo Downloader" {icon_name} '
                 f'--text="{text}"'
             )
             args = shlex.split(command_line)
