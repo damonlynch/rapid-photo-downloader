@@ -114,6 +114,7 @@ from PyQt5.QtGui import (
     QScreen,
     QDesktopServices,
     QShowEvent,
+    QCloseEvent,
 )
 from PyQt5.QtWidgets import (
     QAction,
@@ -2674,6 +2675,9 @@ difference to the program's future.</p>"""
         self.centerSplitter.addWidget(self.leftPanelContainer)
         self.centerSplitter.addWidget(self.thumbnailView)
         self.centerSplitter.addWidget(self.rightPanels)
+        self.centerSplitter.setStretchFactor(0, 0)
+        self.centerSplitter.setStretchFactor(1, 1)
+        self.centerSplitter.setStretchFactor(2, 0)
         for i in range(3):
             self.centerSplitter.setCollapsible(i, False)
 
@@ -5253,7 +5257,7 @@ Do you want to proceed with the download?
         self.temporalProximity.setProximityHeight()
         self.sourcePanel.setSplitterSize()
 
-    def closeEvent(self, event) -> None:
+    def closeEvent(self, event: QCloseEvent) -> None:
         logging.debug("Close event activated")
 
         if self.is_wsl2:
