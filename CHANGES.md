@@ -74,6 +74,10 @@ Changelog for Rapid Photo Downloader
 
  - Fix bug to properly size thumbnails and hamburger menu on high DPI screens 
    with recent releases of Gnome and other desktops that use xsettings.
+
+ - Correctly check latest available PyQt5 package version on Fedora and CentOS.
+
+ - Drop support for CentOS 7.5.
  
  - Remove dependency on fuse in install.py script due to emerging introduction 
    of the fuse3 package. In almost all circumstances, the ifuse package should 
@@ -85,8 +89,6 @@ Changelog for Rapid Photo Downloader
  
  - Update Albanian, Catalan, Dutch, Hungarian, Italian, Japanese, Russian, 
    Spanish, Swedish and Turkish translations.
-
- - CentOS 7.5 is no longer supported.
 
 0.9.28 (2021-12-27)
 ---------------------
