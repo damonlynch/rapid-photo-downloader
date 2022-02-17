@@ -868,8 +868,15 @@ def should_use_system_pyqt5(
                     dnf_return_package_version("python3-qt5")
                 )
             except Exception:
+                sys.stderr.write(
+                    "Encountered error determining PyQt5 package version\n"
+                )
                 use_system_pyqt5 = False
             else:
+                print(
+                    f"System PyQt5: {str(fedora_pyqt5_version)}; "
+                    f"version needed: {str(minimum_preferred_pyqt5)}"
+                )
                 use_system_pyqt5 = fedora_pyqt5_version >= minimum_preferred_pyqt5
         else:
             use_system_pyqt5 = False
@@ -1960,7 +1967,7 @@ def dnf_return_package_version(package: str) -> str:
 
         # A query matches all packages in sack
         q = base.sack.query()
-        p = q.filter(name=package)[0]
+        p = q.filter(name=package, latest=1)[0]
 
     return p.version
 
@@ -3525,14 +3532,17 @@ def man_pages_already_installed(
 def icon_present() -> bool:
     try:
         import gi
-        gi.require_version('Gtk', '3.0')
+
+        gi.require_version("Gtk", "3.0")
         from gi.repository import Gtk
+
         icon_name = "rapid-photo-downloader"
         icon_theme = Gtk.IconTheme.get_default()
         icon = icon_theme.lookup_icon(icon_name, 48, 0)
         return not not icon
     except:
         return False
+
 
 def do_install(
     installer: str,
@@ -4280,9 +4290,7 @@ def main():
                 "These Python3 packages will be upgraded for your user (i.e. not system-wide): {}"
             ).format("wheel")
         )
-        command_line = make_pip_command(
-            f"install {pip_user} wheel", split=False
-        )
+        command_line = make_pip_command(f"install {pip_user} wheel", split=False)
         run_cmd(command_line, restart=True, interactive=args.interactive)
 
     # Can now assume that pip, setuptools and wheel have been installed
