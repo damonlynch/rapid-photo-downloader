@@ -2745,7 +2745,9 @@ difference to the program's future.</p>"""
             if preferred_width < available_width - 4:
                 break
 
-        self.centerSplitter.setSizes([left_panel, thumbnails_width + wiggle_room, right_panel])
+        self.centerSplitter.setSizes(
+            [left_panel, thumbnails_width + wiggle_room, right_panel]
+        )
 
         preferred_height = min(int(preferred_width / 1.5), available.height() - 4)
         logging.info(
@@ -7593,6 +7595,11 @@ def main():
     logger = iplogging.setup_main_process_logging(logging_level=logging_level)
 
     logging.info("Rapid Photo Downloader is starting")
+    if is_devel_env:
+        logging.info(
+            "Development environment settings activated because RPD_DEVEL_DEFAULTS "
+            "is set"
+        )
     if force_wayland:
         if platform_cmd_line_overruled:
             logging.warning("Forcing use of wayland")
