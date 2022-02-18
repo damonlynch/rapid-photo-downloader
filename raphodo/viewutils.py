@@ -62,6 +62,7 @@ from PyQt5.QtGui import (
     QPen,
     QMouseEvent,
     QResizeEvent,
+    QShowEvent,
 )
 from PyQt5.QtCore import (
     QSize,
@@ -304,9 +305,15 @@ class FramedScrollBar(QScrollBar):
     @pyqtSlot(int, int)
     def scrollBarChange(self, min: int, max: int) -> None:
         visible = max != 0
-        if visible != self.visible_state:
+        if not visible and visible != self.visible_state:
             self.visible_state = visible
             self.scrollBarVisible.emit(visible)
+
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        if not self.visible_state:
+            self.visible_state = True
+            self.scrollBarVisible.emit(True)
 
     def sizeHint(self) -> QSize:
         """
