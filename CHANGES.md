@@ -35,12 +35,12 @@ Changelog for Rapid Photo Downloader
  - Fix bugs [#61](https://github.com/damonlynch/rapid-photo-downloader/issues/61), 
    [#58](https://github.com/damonlynch/rapid-photo-downloader/issues/58), and
    [#1958892](https://bugs.launchpad.net/rapid/+bug/1958892):
-   setuptools >= 60.0 failing. Setuptools >= 60.0 currently  fails on many if 
-   not all Linux distributions. The install.py script now uninstalls versions of 
-   pip, setuptools and wheel that were installed with pip if the versions 
-   provided by the Linux distribution are new enough. If the versions provided
-   are too old to be fully functional, pip and wheel are updated, and setuptools
-   is upgraded to a version < 60.0.  
+   setuptools >= 60.0 failing. Some versions of setuptools >= 60.0 can fail on 
+   many if not all Linux distributions. The install.py script now uninstalls 
+   versions of pip, setuptools and wheel that were installed with pip if the
+   versions provided by the Linux distribution are new enough. If the versions 
+   provided are too old to be fully functional, pip and wheel are updated, 
+   and setuptools is upgraded to a version < 60.0.  
 
  - Fix bug [#64](https://github.com/damonlynch/rapid-photo-downloader/issues/64):
    Warning dialog fails to appear when iOS device utility applications are 
