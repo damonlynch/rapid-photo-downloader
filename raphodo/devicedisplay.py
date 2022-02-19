@@ -622,7 +622,7 @@ class DeviceComponent(QObject):
         self.storage_use_bar_height = self.standard_height
 
         # Storage Details, broken down by photo, video, and other files
-        sample_number = thousands(999)
+        sample_number = thousands(9999)
         sample_no_photos = "{} {}".format(sample_number, _("Photos"))
         sample_no_videos = "{} {}".format(sample_number, _("Videos"))
         self.sample_photos_width = self.deviceFontMetrics.boundingRect(
