@@ -17,6 +17,9 @@ Changelog for Rapid Photo Downloader
  - Change the button to synchronize scrolling between the Timeline and 
    thumbnails to a double arrow. It now changes color to reflect its state. The 
    button's behavior is described in the [documentation](https://damonlynch.net/rapid/documentation/#timelineselecting).
+
+ - Make the Timeline remember its position when the time elapsed between 
+   consecutive shots is changed using the slider.  
  
  - Make the user interface look cleaner and more consistent, especially 
    regarding scrollbars and frames. 

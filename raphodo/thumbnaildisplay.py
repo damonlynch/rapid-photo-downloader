@@ -2095,8 +2095,7 @@ class ThumbnailView(QListView):
                     self.possiblyPreserveSelectionPostClick = True
             super().mousePressEvent(event)
 
-    @pyqtSlot(int)
-    def scrollTimeline(self, value) -> None:
+    def topRowIndex(self) -> Optional[QModelIndex]:
         # index of top left item
         index = self.indexAt(
             QPoint(self.spacing(), self.spacing())
@@ -2116,9 +2115,22 @@ class ThumbnailView(QListView):
             # Inspiration: https://stackoverflow.com/a/11825864
             data = [idx.data() for idx in indicies]
             index_min = min(range(len(data)), key=data.__getitem__)
+            return indicies[index_min]
+        return None
 
-            # print(datetime.datetime.fromtimestamp(data[index_min]))
-            self._scrollTemporalProximity(index=indicies[index_min])
+    def topRowUid(self) -> Optional[bytes]:
+        index = self.topRowIndex()
+        if index:
+            row = index.row()
+            uid = self.model().rows[row][0]
+            return uid
+        return None
+
+    @pyqtSlot(int)
+    def scrollTimeline(self, value) -> None:
+        index = self.topRowIndex()
+        if index:
+            self._scrollTemporalProximity(index=index)
 
     def topLeft(self) -> QPoint:
         return QPoint(thumbnail_margin, thumbnail_margin)

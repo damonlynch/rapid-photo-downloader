@@ -1840,28 +1840,34 @@ class TemporalProximityView(QTableView):
         point = self._temporalProximityPosition(0)
         return point.y() <= self.frame_width
 
-    @pyqtSlot(int)
-    def scrollThumbnails(self, value) -> None:
-        self.rapidApp.temporalProximityControls.setAutoScrollState()
+    def getFirstVisibleRowUids(self) -> Optional[List[bytes]]:
         x = 200
         point = self._temporalProximityPosition(x)
         # a negative value for y means the top of the timeline is above the visible area
-        if point.y() <= 0:
-            y = abs(point.y())
-            index = self.indexAt(QPoint(x, y))  # type: QModelIndex
-            if index.isValid():
-                if self.selectedIndexes():
-                    # It's now possible to scroll the Timeline and there will be
-                    # no matching thumbnails to which to scroll to in the display,
-                    # because they are not being displayed. Hence this check:
-                    if not index in self.selectedIndexes():
-                        return
-                thumbnailView = self.rapidApp.thumbnailView
-                thumbnailView.setScrollTogether(False)
-                model = self.model()
-                uids = model.data(index, Roles.uids)
-                thumbnailView.scrollToUids(uids=uids)
-                thumbnailView.setScrollTogether(True)
+        if point.y() > 0:
+            return None
+        y = abs(point.y())
+        # the y + 1 ensures the correct row is chosen when the row is exactly aligned
+        # with the top of the viewport:
+        index = self.indexAt(QPoint(x, y + 1))  # type: QModelIndex
+        if index.isValid():
+            if self.selectedIndexes():
+                # It's now possible to scroll the Timeline and there will be
+                # no matching thumbnails to which to scroll to in the display,
+                # because they are not being displayed. Hence this check:
+                if not index in self.selectedIndexes():
+                    return None
+            return self.model().data(index, Roles.uids)
+
+    @pyqtSlot(int)
+    def scrollThumbnails(self, value) -> None:
+        self.rapidApp.temporalProximityControls.setAutoScrollState()
+        uids = self.getFirstVisibleRowUids()
+        if uids is not None:
+            thumbnailView = self.rapidApp.thumbnailView
+            thumbnailView.setScrollTogether(False)
+            thumbnailView.scrollToUids(uids=uids)
+            thumbnailView.setScrollTogether(True)
 
 
 class TemporalProximityViewFramed(TightFlexiFrame):
@@ -2013,6 +2019,10 @@ class TemporalProximity(QWidget):
         self.state = TemporalProximityState.empty
 
         self.uids_manually_set_previously_downloaded = []  # type: List[bytes]
+
+        # Track which uid to make visible in the Timeline when it has been
+        # regenerated due to a value change using the slider
+        self.uid_to_scroll_to_post_value_change = None  # type: Optional[bytes]
 
         self.temporalProximityView = TemporalProximityView(self, rapidApp=rapidApp)
         self.temporalProximityModel = TemporalProximityModel(rapidApp=rapidApp)
@@ -2242,6 +2252,14 @@ class TemporalProximity(QWidget):
         if state != TemporalProximityState.generated:
             self.rapidApp.sourcePanel.setSplitterSize()
 
+    @pyqtSlot(bool)
+    def postValueChangeScroll(self, visible: bool) -> None:
+        if visible and self.uid_to_scroll_to_post_value_change is not None:
+            self.scrollToUid(
+                uid=self.uid_to_scroll_to_post_value_change, on_value_change=True
+            )
+            self.uid_to_scroll_to_post_value_change = None
+
     def setGroups(self, proximity_groups: TemporalProximityGroups) -> bool:
         """
         Display the Timeline using data from the generated proximity_groups
@@ -2300,8 +2318,8 @@ class TemporalProximity(QWidget):
 
         self.setState(TemporalProximityState.generated)
 
-        # Has the user manually set any files as previously downloaded while the Timeline was
-        # generating?
+        # Has the user manually set any files as previously downloaded while the
+        # Timeline was generating?
         if self.uids_manually_set_previously_downloaded:
             self.temporalProximityModel.updatePreviouslyDownloaded(
                 uids=self.uids_manually_set_previously_downloaded
@@ -2326,7 +2344,12 @@ class TemporalProximity(QWidget):
         else:
             self.temporalProximityModel.updatePreviouslyDownloaded(uids=uids)
 
-    def scrollToUid(self, uid: bytes) -> None:
+    def setThumbnailToScrollTo(self) -> None:
+        uids = self.temporalProximityView.getFirstVisibleRowUids()
+        if uids:
+            self.uid_to_scroll_to_post_value_change = uids[0]
+
+    def scrollToUid(self, uid: bytes, on_value_change: Optional[bool] = False) -> None:
         """
         Scroll to this uid in the Timeline.
 
@@ -2346,7 +2369,7 @@ class TemporalProximity(QWidget):
                 sourcePanel = self.rapidApp.sourcePanel
 
                 point = self.mapTo(sourcePanel, self.rect().topLeft())
-                if point.y() > 0:
+                if point.y() > 0 and not on_value_change:
                     return
 
                 # controls.setAutoScrollEnabled(True)
@@ -2355,11 +2378,12 @@ class TemporalProximity(QWidget):
 
                 # Get the column 2 row (specific time) this file is in
                 col2_row = model.groups.uid_to_row(uid=uid)
-                # col2_uids = model.groups.row_uids(col2_row)
-
-                # Get the column 1 row (specific day) this row is in
-                groups = self.temporalProximityModel.groups
-                row = groups.row_span_for_column_starts_at_row[col2_row, 1]
+                if on_value_change:
+                    row = col2_row
+                else:
+                    # Get the column 1 row (specific day) this row is in
+                    groups = self.temporalProximityModel.groups
+                    row = groups.row_span_for_column_starts_at_row[col2_row, 1]
 
                 # Get the position of the row in the table
                 y = view.rowViewportPosition(row)
@@ -2374,12 +2398,6 @@ class TemporalProximity(QWidget):
                 height = verticalScrollBar.maximum()
                 value = round(((y + delta) / height) * height)
                 verticalScrollBar.setValue(value)
-
-                # This next code (as yet unused) highlights the thumbnails in the
-                # row
-                # self.rapidApp.thumbnailModel.highlightTemporalProximityThumbs(
-                #     row=col2_row, uids=col2_uids
-                # )
 
     def setScrollTogether(self, on: bool) -> None:
         """
@@ -2408,7 +2426,7 @@ class SyncIcon(QIcon):
     """
     Double arrow icon that changes color depending on state
     """
-    
+
     def __init__(
         self, path: str, state: SyncButtonState, scaling: float, on_hover: bool
     ) -> None:
@@ -2569,6 +2587,8 @@ class TemporalProximityControls(QWidget):
     def temporalValueChanged(self, minutes: int) -> None:
         self.prefs.set_proximity(minutes=minutes)
         if self.temporalProximity.state == TemporalProximityState.generated:
+            if self.autoScrollButton.icon_state == SyncButtonState.active:
+                self.temporalProximity.setThumbnailToScrollTo()
             self.temporalProximity.setState(TemporalProximityState.generating)
             self.rapidApp.generateTemporalProximityTableData(
                 reason="the duration between consecutive shots has changed"

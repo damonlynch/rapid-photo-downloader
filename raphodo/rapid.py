@@ -2539,8 +2539,14 @@ difference to the program's future.</p>"""
 
         self.sourcePanel = SourcePanel(rapidApp=self)
         self.temporalProximityControls = TemporalProximityControls(rapidApp=self)
+        # Adjust Timeline auto scroll sync button state:
         self.sourcePanel.verticalScrollBarVisible.connect(
             self.temporalProximityControls.sourceScrollBarVisible
+        )
+        # After a Timeline is regenerated after a value change, scrolling to the
+        # same part of the Timeline can be important:
+        self.sourcePanel.verticalScrollBarVisible.connect(
+            self.temporalProximity.postValueChangeScroll
         )
         self.thumbnailView.verticalScrollBarVisible.connect(
             self.temporalProximityControls.thumbnailScrollBarVisible
