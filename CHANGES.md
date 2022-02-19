@@ -10,9 +10,9 @@ Changelog for Rapid Photo Downloader
    sources (Devices and This Computer) and the Timeline are placed in the 
    left-side of the user interface. When a scroll bar is necessary to fit in 
    these interface elements, a single scroll bar will now extend from the 
-   Devices to the Timeline. Now, when you scroll down to view the entirety of 
-   the Timeline, if the Timeline is big enough the download sources will scroll 
-   up out of sight.
+   Devices to the Timeline. When you scroll down to view the entirety of the 
+   Timeline, if the Timeline is big enough the download sources will scroll up 
+   out of sight.
 
  - Change the button to synchronize scrolling between the Timeline and 
    thumbnails to a double arrow. It now changes color to reflect its state. The 
