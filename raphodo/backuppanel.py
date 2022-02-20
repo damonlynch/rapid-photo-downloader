@@ -791,7 +791,6 @@ class BackupPanel(ScrollAreaNoFrame):
         widget.setLayout(layout)
         layout.addWidget(self.backupStoragePanel)
         layout.addWidget(self.backupOptionsPanel)
-        # layout.addStretch()
         self.setWidget(widget)
         self.setWidgetResizable(True)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
