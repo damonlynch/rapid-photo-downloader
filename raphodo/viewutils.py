@@ -541,14 +541,6 @@ class TightFlexiFrame(FlexiFrame):
         self.container_horizontal_scrollbar_visible = visible
 
 
-class FlexiScrollArea(TightFlexiFrame):
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(render_top_edge=True, parent=parent)
-        self.scrollArea = QScrollArea()
-        self.scrollArea.setFrameShape(QFrame.NoFrame)
-        self.layout().addWidget(self.scrollArea)
-
-
 class ListViewFlexiFrame(QListView, FlexiFrameObject):
     def __init__(
         self, frame_enabled: Optional[bool] = True, parent: Optional[QWidget] = None

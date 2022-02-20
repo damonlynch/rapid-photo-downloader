@@ -30,6 +30,7 @@ from typing import Dict, List, Tuple, Set, Optional, DefaultDict, Generator
 import arrow.arrow
 from arrow.arrow import Arrow
 
+from PyQt5.Qt import QWIDGETSIZE_MAX
 from PyQt5.QtCore import (
     QAbstractTableModel,
     QModelIndex,
@@ -95,7 +96,6 @@ from raphodo.preferences import Preferences
 from raphodo.viewutils import (
     ThumbnailDataForProximity,
     TightFlexiFrame,
-    FlexiScrollArea,
     coloredPixmap,
     base64_thumbnail,
     darkModePixmap,
@@ -1177,9 +1177,7 @@ class TemporalProximityGroups:
         return self._depth
 
     def __repr__(self) -> str:
-        return "TemporalProximityGroups with {} rows and depth of {}".format(
-            len(self.rows), self.depth()
-        )
+        return f"TemporalProximityGroups with {len(self.rows)} rows and depth of {self.depth()}"
 
     def validate(self, thumbnailModel=None) -> Tuple[int]:
         """
@@ -1302,7 +1300,7 @@ class TemporalProximityModel(QAbstractTableModel):
             pixmap = thumbnails[uids[0]]  # type: QPixmap
 
             image = base64_thumbnail(pixmap, self.tooltip_image_size)
-            html_image1 = '<img src="data:image/png;base64,{}">'.format(image)
+            html_image1 = f'<img src="data:image/png;base64,{image}">'
 
             if length == 1:
                 center = html_image2 = ""
@@ -1313,11 +1311,9 @@ class TemporalProximityModel(QAbstractTableModel):
                     center = "&nbsp;"
                 else:
                     center = "&nbsp;&hellip;&nbsp;"
-                html_image2 = '<img src="data:image/png;base64,{}">'.format(image)
+                html_image2 = f'<img src="data:image/png;base64,{image}">'
 
-            tooltip = "{}<br>{} {} {}<br>{}".format(
-                date, html_image1, center, html_image2, file_types
-            )
+            tooltip = f"{date}<br>{html_image1} {center} {html_image2}<br>{file_types}"
             return tooltip
 
     def debugDumpState(
@@ -1331,14 +1327,14 @@ class TemporalProximityModel(QAbstractTableModel):
         if len(self.groups) < 20:
             for row, prow in enumerate(self.groups.rows):
                 logging.debug("Row %s", row)
-                logging.debug("{} | {} | {}".format(prow.year, prow.month, prow.day))
+                logging.debug(f"{prow.year} | {prow.month} | {prow.day}")
                 for col in (0, 1, 2):
                     if row in self.groups.uids._uids[col]:
                         uids = self.groups.uids._uids[col][row]
                         files = ", ".join(
                             (thumbnailModel.rpd_files[uid].name for uid in uids)
                         )
-                        logging.debug("Col {}: {}".format(col, files))
+                        logging.debug(f"Col {col}: {files}")
 
     def updatePreviouslyDownloaded(self, uids: List[bytes]) -> None:
         """
@@ -1989,6 +1985,70 @@ class ResizableStackedWidget(QStackedWidget):
             widget.adjustSize()
         self.adjustSize()
 
+    def minimumSizeHint(self) -> QSize:
+        return self.sizeHint()
+
+    def sizeHint(self) -> QSize:
+        return self.currentWidget().sizeHint()
+
+
+class TemporalProximityExplanation(QWidget):
+    """
+    Widget to that contains an explanation of the Timeline, with the explanation broken
+    up into two parts:
+
+    1. What the Timeline is
+    2. How it can be adjusted
+
+    The first part is aligned with the top of the widget, and the second part with the
+    bottom.
+    """
+
+    def __init__(
+        self, description: QLabel, adjust: QLabel, parent: Optional[QWidget] = None
+    ) -> None:
+        super().__init__(parent=parent)
+        self.explanation = QWidget()
+        layout = QVBoxLayout()
+        border_width = QSplitter().lineWidth()
+        self.border_width = border_width
+        layout.setContentsMargins(
+            border_width, border_width, border_width, border_width
+        )
+        layout.setSpacing(0)
+        self.explanation.setLayout(layout)
+        layout.addWidget(description)
+        layout.addWidget(adjust)
+        self.setLayout(layout)
+        self.descriptionWidget = description
+        self.adjustWidget = adjust
+        self.is_fixed = False
+
+    def sizeHint(self) -> QSize:
+        return self.minimumSizeHint()
+
+    def setChildPositions(self, fixed: bool) -> None:
+        """
+        Fixing the current position of the child widgets in place is useful
+        when dragging the stacked widget handle
+
+        :param fixed: True if should be fixed, False if should be unfixed
+        """
+
+        if fixed and not self.is_fixed:
+            y = self.adjustWidget.pos().y() - 1
+            self.descriptionWidget.setFixedHeight(y)
+            self.layout().addStretch(10)
+            self.is_fixed = True
+        elif not fixed and self.is_fixed:
+            self.descriptionWidget.setMaximumHeight(QWIDGETSIZE_MAX)
+            self.descriptionWidget.setMinimumHeight(0)
+            self.descriptionWidget.adjustSize()
+            # Remove stretch
+            self.layout().takeAt(2)
+            self.is_fixed = False
+        self.adjustSize()
+
 
 class TemporalProximity(QWidget):
     """
@@ -2060,17 +2120,14 @@ class TemporalProximity(QWidget):
             "downloading, which is when the metadata is read."
         )
 
-        description = "<i>{}</i>".format(description)
-        generation_pending = "<i>{}</i>".format(generation_pending)
-        generating = "<i>{}</i>".format(generating)
-        adjust = "<i>{}</i>".format(adjust)
-        ctime_vs_mtime = "<i>{}</i>".format(ctime_vs_mtime)
+        description = f"<i>{description}</i>"
+        generation_pending = f"<i>{generation_pending}</i>"
+        generating = f"<i>{generating}</i>"
+        adjust = f"<i>{adjust}</i>"
+        ctime_vs_mtime = f"<i>{ctime_vs_mtime}</i>"
 
         palette = QPalette()
         palette.setColor(QPalette.Window, palette.color(palette.Base))
-
-        # TODO assign this value from somewhere else - rapidApp.standard_spacing not yet defined
-        margin = 6
 
         self.description = QLabel(description)
         self.adjust = QLabel(adjust)
@@ -2078,17 +2135,7 @@ class TemporalProximity(QWidget):
         self.generationPending = QLabel(generation_pending)
         self.ctime_vs_mtime = QLabel(ctime_vs_mtime)
 
-        self.explanation = QWidget()
-        layout = QVBoxLayout()
-        border_width = QSplitter().lineWidth()
-        layout.setContentsMargins(
-            border_width, border_width, border_width, border_width
-        )
-        layout.setSpacing(0)
-        self.explanation.setLayout(layout)
-        layout.addWidget(self.description)
-        layout.addWidget(self.adjust)
-
+        margin = 6
         for label in (
             self.description,
             self.generationPending,
@@ -2100,6 +2147,7 @@ class TemporalProximity(QWidget):
             label.setWordWrap(True)
             label.setAutoFillBackground(True)
             label.setPalette(palette)
+            # Fixed width is set using device sample width
 
         for label in (
             self.description,
@@ -2108,7 +2156,7 @@ class TemporalProximity(QWidget):
             self.ctime_vs_mtime,
         ):
             label.setAlignment(Qt.AlignTop)
-            label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
+            label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
         self.adjust.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
 
         layout = QVBoxLayout()
@@ -2117,21 +2165,9 @@ class TemporalProximity(QWidget):
 
         self.stackedWidget = ResizableStackedWidget()
 
-        for label in (
-            self.explanation,
-            self.generationPending,
-            self.generating,
-            self.ctime_vs_mtime,
-        ):
-            scrollAreaContainer = FlexiScrollArea()
-            scrollAreaContainer.scrollArea.setWidgetResizable(True)
-            scrollAreaContainer.scrollArea.setWidget(label)
-            self.stackedWidget.addWidget(scrollAreaContainer)
-
         self.temporalProximityViewFrame = TemporalProximityViewFramed(
             self.temporalProximityView
         )
-        self.stackedWidget.addWidget(self.temporalProximityViewFrame)
 
         self.stack_index_for_state = {
             TemporalProximityState.empty: 0,
@@ -2142,14 +2178,42 @@ class TemporalProximity(QWidget):
             TemporalProximityState.ctime_rebuild_proceed: 3,
             TemporalProximityState.generated: 4,
         }
-
-        layout.addWidget(self.stackedWidget)
-        self.stackedWidget.setCurrentIndex(0)
-
         self.suppress_auto_scroll_after_timeline_select = False
 
     def flexiFrameWidgets(self) -> Generator[QWidget, None, None]:
         return (self.stackedWidget.widget(i) for i in range(self.stackedWidget.count()))
+
+    def setupExplanations(self, width: int) -> None:
+
+        for label in (
+            self.description,
+            self.generationPending,
+            self.generating,
+            self.adjust,
+            self.ctime_vs_mtime,
+        ):
+            label.setFixedWidth(width)
+
+        self.explanation = TemporalProximityExplanation(
+            description=self.description, adjust=self.adjust
+        )
+
+        for label in (
+            self.explanation,
+            self.generationPending,
+            self.generating,
+            self.ctime_vs_mtime,
+        ):
+            container = TightFlexiFrame(render_top_edge=True)
+            container.layout().addWidget(label)
+            self.stackedWidget.addWidget(container)
+
+        self.stackedWidget.addWidget(self.temporalProximityViewFrame)
+        self.layout().addWidget(self.stackedWidget)
+        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setSizePolicy(
+            QSizePolicy.Preferred, QSizePolicy.MinimumExpanding
+        )
 
     @pyqtSlot(QItemSelection, QItemSelection)
     def proximitySelectionChanged(

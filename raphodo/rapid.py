@@ -918,6 +918,9 @@ class RapidWindow(QMainWindow):
                 )
 
         self.createPathViews()
+        self.temporalProximity.setupExplanations(
+            width=self.deviceView.sizeHint().width()
+        )
 
         self.createActions()
         logging.debug("Laying out main window")

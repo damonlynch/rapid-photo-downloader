@@ -25,8 +25,7 @@ __copyright__ = "Copyright 2017-2022, Damon Lynch"
 
 import logging
 
-from PyQt5.Qt import QWIDGETSIZE_MAX
-from PyQt5.QtCore import Qt, QSettings, pyqtSlot
+from PyQt5.QtCore import Qt, QSettings, pyqtSlot, QPoint
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QSizePolicy, QApplication, QStyle
 
 from raphodo.viewutils import ScrollAreaNoFrame, SourceSplitter
@@ -285,13 +284,24 @@ class SourcePanel(ScrollAreaNoFrame):
     @pyqtSlot()
     def splitterHandleMousePress(self) -> None:
         y = self.handle.pos().y()
-        self.temporalProximity.temporalProximityView.setMinimumHeight(20)
+        if self.temporalProximity.state == TemporalProximityState.generated:
+            self.temporalProximity.temporalProximityView.setMinimumHeight(20)
+        else:
+            stackedWidget = self.temporalProximity.stackedWidget
+            if self.temporalProximity.state == TemporalProximityState.empty:
+                self.temporalProximity.explanation.setChildPositions(fixed=True)
+            height = max(self.splitter.height(), self.height())
+            self.splitter.setFixedHeight(height + stackedWidget.minimumSizeHint().height())
         self.handle.moveSplitter(y)
 
     @pyqtSlot()
     def splitterHandleMouseRelease(self) -> None:
         y = self.handle.pos().y()
-        self.temporalProximity.setProximityHeight()
+        if self.temporalProximity.state == TemporalProximityState.generated:
+            self.temporalProximity.setProximityHeight()
+        else:
+            self.temporalProximity.explanation.setChildPositions(fixed=False)
+            self.temporalProximity.stackedWidget.onCurrentChanged(self.temporalProximity.state)
         self.setSplitterSize()
         self.handle.moveSplitter(y)
 
@@ -303,16 +313,25 @@ class SourcePanel(ScrollAreaNoFrame):
 
             if self.temporalProximity.state == TemporalProximityState.generated:
                 self.splitter.setFixedHeight(
-                    self.temporalProximity.temporalProximityView.contentHeight()
                     + self.splitter.sizes()[0]  # handle position
                     + self.splitter.handleWidth()
                     + self.frame_width
+                    + self.temporalProximity.temporalProximityView.contentHeight()
                     + bottom_frame
                 )
             else:
-                # Reset the fixed size so that it is no longer fixed
-                # This is super important
-                self.splitter.setFixedHeight(QWIDGETSIZE_MAX)
+                stackedWidget = self.temporalProximity.stackedWidget
+                devices_y = abs(self.deviceToggleView.mapTo(self, QPoint(0, 0)).y())
+                devices_height = self.splitter.mapTo(self, QPoint(0, 0)).y() + devices_y
+                # handle position + handle width:
+                y = self.splitter.sizes()[0] + self.splitter.handleWidth()
+                min_height = stackedWidget.minimumSizeHint().height()
+                if self.height() - devices_height > y + min_height:
+                    height = self.height() - y - devices_height
+                else:
+                    height = min_height
+
+                self.splitter.setFixedHeight(y + height)
 
 
 class LeftPanelContainer(QWidget):
