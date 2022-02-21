@@ -1242,7 +1242,7 @@ Changelog for Rapid Photo Downloader
    date/time metadata when downloading from MTP devices.
 
  - Changed the count that appears above the program's icon when running on the
-   Unity desktop to show how many files are checked for download, instead of
+   Unity desktop to show how many files are marked for download, instead of
    how many new files are available for download.
 
  - Fixed a bug where device scan would indicate a device was empty when the
@@ -1478,7 +1478,7 @@ Changelog for Rapid Photo Downloader
 --------------------
 
  - Selecting items in the Timeline or showing only new files can result in
-   situations where there are files that have been checked for download that are
+   situations where there are files that have been marked for download that are
    not currently being displayed. In such a situation, when a download is 
    started, a dialog will be displayed to warn that *all* checked files will be 
    downloaded, not merely those currently displayed.
@@ -1528,7 +1528,7 @@ Changelog for Rapid Photo Downloader
 
    - Files that have already been downloaded are remembered. You can still
      select previously downloaded files to download again, but they are
-     unchecked by default, and their thumbnails are dimmed so you can 
+     unmarked by default, and their thumbnails are dimmed so you can 
      differentiate them from files that are yet to be downloaded.
 
    - The thumbnails for previously downloaded files can be hidden.

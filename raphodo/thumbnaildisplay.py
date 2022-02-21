@@ -1906,7 +1906,7 @@ class ThumbnailListModel(QAbstractListModel):
 
     def anyCheckedFilesFiltered(self) -> bool:
         """
-        :return: True if any files checked for download are currently
+        :return: True if any files marked for download are currently
          not displayed because they are filtered
         """
 
@@ -1941,7 +1941,7 @@ class ThumbnailListModel(QAbstractListModel):
 
     def jobCodeNeeded(self) -> bool:
         """
-        :return: True if any files checked for download do not have job codes
+        :return: True if any files marked for download do not have job codes
          assigned to them
         """
 

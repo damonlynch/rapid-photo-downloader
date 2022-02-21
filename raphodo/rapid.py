@@ -3346,11 +3346,10 @@ difference to the program's future.</p>"""
                     message = _(
                         """
 <b>Downloading all files</b><br><br>
-A download always includes all files that are checked for download,
+A download always includes all files that are marked for download,
 including those that are not currently displayed because the Timeline
 is being used or because only new files are being shown.<br><br>
-Do you want to proceed with the download?
-                        """
+Do you want to proceed with the download?"""
                     )
 
                     warning = RememberThisDialog(
@@ -6679,7 +6678,7 @@ Do you want to proceed with the download?
         Notifies user if scanning or thumbnailing.
 
         If neither scanning or thumbnailing, displays:
-        1. files checked for download
+        1. files marked for download
         2. total number files available
         3. how many not shown (user chose to show only new files)
         """
@@ -6725,7 +6724,7 @@ Do you want to proceed with the download?
                     # the term variable. You must keep the %(variable)s untranslated, or
                     # the program will crash.
                     files_checked = _(
-                        "%(number)s of %(available files)s checked for download "
+                        "%(number)s of %(available files)s marked for download "
                         "(%(hidden)s hidden)"
                     ) % {
                         "number": thousands(files_to_download),
@@ -6737,7 +6736,7 @@ Do you want to proceed with the download?
                     # the term variable. You must keep the %(variable)s untranslated, or
                     # the program will crash.
                     files_checked = _(
-                        "%(number)s of %(available files)s checked for download"
+                        "%(number)s of %(available files)s marked for download"
                     ) % {
                         "number": thousands(files_to_download),
                         "available files": files_avilable_sum,

@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Show 'Did you know?' dialog at start up
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2020, Damon Lynch"
+__copyright__ = "Copyright 2017-2022, Damon Lynch"
 
 
 from PyQt5.QtCore import pyqtSlot, QSize, Qt, QSettings, QUrl
@@ -59,7 +59,7 @@ tips = (
         _(
             "Files that have already been downloaded are remembered. You can still "
             "mark previously downloaded files to download again, but they are "
-            "unchecked by default, and their thumbnails are dimmed so you can "
+            "unmarked by default, and their thumbnails are dimmed so you can "
             "differentiate them from files that are yet to be downloaded."
         ),
         ":/tips/previouslydownloaded.png",
@@ -138,7 +138,7 @@ used to build the Timeline:</p>"""
         ),
         ":/tips/timelineselect.png",
         _(
-            "A download always includes all files that are checked for download, "
+            "A download always includes all files that are marked for download, "
             "including those that are not currently displayed because the Timeline "
             "is being used."
         ),
