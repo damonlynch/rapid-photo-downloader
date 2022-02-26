@@ -34,7 +34,7 @@ import gi
 gi.require_version("GLib", "2.0")
 from gi.repository import GLib
 
-import raphodo.exiftool as exiftool
+import raphodo.metadata.exiftool as exiftool
 from raphodo.constants import (
     DownloadStatus,
     FileType,
@@ -48,9 +48,9 @@ from raphodo.constants import (
 )
 
 from raphodo.storage import get_uri, CameraDetails
-import raphodo.metadataphoto as metadataphoto
-import raphodo.metadatavideo as metadatavideo
-import raphodo.metadataexiftool as metadataexiftool
+import raphodo.metadata.metadataphoto as metadataphoto
+import raphodo.metadata.metadatavideo as metadatavideo
+import raphodo.metadata.metadataexiftool as metadataexiftool
 from raphodo.utilities import (
     thousands,
     make_internationalized_list,

@@ -29,8 +29,8 @@ import arrow.arrow
 from arrow.arrow import Arrow
 
 from raphodo.programversions import EXIFTOOL_VERSION
-import raphodo.exiftool as exiftool
-import raphodo.metadataexiftool as metadataexiftool
+import raphodo.metadata.exiftool as exiftool
+import raphodo.metadata.metadataexiftool as metadataexiftool
 from raphodo.utilities import datetime_roughly_equal, arrow_shift_support
 from raphodo.constants import FileType
 

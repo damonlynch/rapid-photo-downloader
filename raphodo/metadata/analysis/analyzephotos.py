@@ -54,26 +54,23 @@ import shlex
 from collections import defaultdict, Counter
 import time
 import threading
-import datetime
 from typing import List, Tuple
 
 import gi
 
 gi.require_version("GExiv2", "0.10")
-from gi.repository import GExiv2
 
-from raphodo.photoattributes import (
+from raphodo.metadata.analysis.photoattributes import (
     PhotoAttributes,
     vmtouch_output,
-    PreviewSource,
     ExifToolPhotoAttributes,
 )
 from raphodo.utilities import stdchannel_redirected, show_errors, confirm
 from raphodo.rpdsql import FileFormatSQL
-from raphodo.exiftool import ExifTool
-from raphodo.videoattributes import VideoAttributes
+from raphodo.metadata.exiftool import ExifTool
+from raphodo.metadata.analysis.videoattributes import VideoAttributes
 from raphodo.utilities import format_size_for_user
-import raphodo.metadataphoto as mp
+import raphodo.metadata.metadataphoto as mp
 from raphodo.fileformats import (
     RAW_EXTENSIONS,
     JPEG_TYPE_EXTENSIONS,

@@ -32,8 +32,8 @@ gi.require_version("GExiv2", "0.10")
 from gi.repository import GExiv2
 from PyQt5.QtCore import QSize
 
-import raphodo.exiftool as exiftool
-import raphodo.metadataexiftool as metadataexiftool
+import raphodo.metadata.exiftool as exiftool
+import raphodo.metadata.metadataexiftool as metadataexiftool
 from raphodo.utilities import flexible_date_time_parser, image_large_enough_fdo
 from raphodo.constants import FileType
 

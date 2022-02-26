@@ -69,7 +69,6 @@ import gphoto2 as gp
 
 # Instances of classes ScanArguments and ScanPreferences are passed via pickle
 # Thus do not remove these two imports
-from raphodo.interprocess import ScanArguments
 from raphodo.preferences import ScanPreferences, Preferences
 from raphodo.interprocess import WorkerInPublishPullPipeline, ScanResults, ScanArguments
 from raphodo.camera import Camera, gphoto2_python_logging, gphoto2_named_error
@@ -86,19 +85,18 @@ from raphodo.constants import (
     ExifSource,
     all_tags_offset_exiftool,
 )
-from raphodo.rpdsql import DownloadedSQL, FileDownloaded
+from raphodo.rpdsql import DownloadedSQL
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.utilities import (
     stdchannel_redirected,
     datetime_roughly_equal,
     GenerateRandomFileName,
     format_size_for_user,
-    is_snap,
 )
-from raphodo.exiftool import ExifTool
-import raphodo.metadatavideo as metadatavideo
-import raphodo.metadataphoto as metadataphoto
-import raphodo.metadataexiftool as metadataexiftool
+from raphodo.metadata.exiftool import ExifTool
+import raphodo.metadata.metadatavideo as metadatavideo
+import raphodo.metadata.metadataphoto as metadataphoto
+import raphodo.metadata.metadataexiftool as metadataexiftool
 from raphodo.problemnotification import (
     ScanProblems,
     UnhandledFileProblem,

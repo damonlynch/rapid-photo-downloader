@@ -32,7 +32,7 @@ import logging
 from typing import Optional, Union, Any, Tuple, List
 from collections import OrderedDict
 
-import raphodo.exiftool as exiftool
+import raphodo.metadata.exiftool as exiftool
 from raphodo.utilities import flexible_date_time_parser
 from raphodo.constants import FileType
 import raphodo.programversions as programversions

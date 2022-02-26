@@ -209,7 +209,6 @@ from raphodo.constants import (
     ApplicationState,
     CameraErrorCode,
     TemporalProximityState,
-    ThumbnailBackgroundName,
     BackupFailureType,
     DeviceState,
     Sort,
@@ -276,7 +275,7 @@ import raphodo.fileformats as fileformats
 import raphodo.downloadtracker as downloadtracker
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.programversions import gexiv2_version, exiv2_version, EXIFTOOL_VERSION
-from raphodo.metadatavideo import pymedia_version_info, libmediainfo_missing
+from raphodo.metadata.metadatavideo import pymedia_version_info, libmediainfo_missing
 from raphodo.camera import (
     gphoto2_version,
     python_gphoto2_version,
@@ -308,7 +307,7 @@ from raphodo.renamepanel import RenamePanel
 from raphodo.jobcodepanel import JobCodePanel
 from raphodo.backuppanel import BackupPanel
 import raphodo
-import raphodo.exiftool as exiftool
+import raphodo.metadata.exiftool as exiftool
 from raphodo.newversion import (
     NewVersion,
     NewVersionCheckDialog,

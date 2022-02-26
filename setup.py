@@ -18,13 +18,13 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-# Copyright 2009-2020 Damon Lynch
+# Copyright 2009-2022 Damon Lynch
 # Contains portions Copyright 2014 Donald Stufft
 # Contains portions Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, Canonical Ltd
 
 __author__ = "Damon Lynch"
 __copyright__ = (
-    "Copyright 2009-2021, Damon Lynch. Copyright 2004-2012 Canonical Ltd. "
+    "Copyright 2009-2022, Damon Lynch. Copyright 2004-2012 Canonical Ltd. "
     "Copyright 2014 Donald Stufft."
 )
 
@@ -307,7 +307,7 @@ setup(
     data_files=[
         (
             "share/man/man1",
-            ["build/doc/rapid-photo-downloader.1", "build/doc/analyze-pv-structure.1"],
+            ["build/doc/rapid-photo-downloader.1"],
         ),
         (
             "share/applications",
@@ -322,11 +322,10 @@ setup(
             ["build/share/metainfo/net.damonlynch.rapid_photo_downloader.metainfo.xml"],
         ),
     ],
-    packages=["raphodo", "raphodo.ui"],
+    packages=["raphodo", "raphodo.ui", "raphodo.metadata", "raphodo.metadata.analysis"],
     python_requires=">=3.6.*, <4",
     entry_points={
         "gui_scripts": ["rapid-photo-downloader=raphodo.rapid:main"],
-        "console_scripts": ["analyze-pv-structure=raphodo.analyzephotos:main"],
     },
     classifiers=[
         "Development Status :: 5 - Production/Stable",

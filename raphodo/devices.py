@@ -41,7 +41,6 @@ from PyQt5.QtCore import QStorageInfo, QSize
 from PyQt5.QtWidgets import QFileIconProvider
 from PyQt5.QtGui import QIcon, QPixmap
 
-import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import (
     DeviceType,
     BackupLocationType,
@@ -56,10 +55,8 @@ from raphodo.rpdfile import FileTypeCounter, FileSizeSum, Photo, Video, RPDFile
 from raphodo.storage import (
     StorageSpace,
     udev_attributes,
-    UdevAttr,
     get_path_display_name,
     validate_download_folder,
-    ValidatedFolder,
     CameraDetails,
     get_uri,
     fs_device_details,
@@ -77,9 +74,8 @@ from raphodo.utilities import (
     stdchannel_redirected,
     same_device,
 )
-import raphodo.exiftool as exiftool
+import raphodo.metadata.exiftool as exiftool
 from raphodo.problemnotification import FsMetadataWriteProblem
-from raphodo.viewutils import darkModeIcon
 
 display_devices = (DeviceType.volume, DeviceType.camera, DeviceType.camera_fuse)
 camera_devices = (DeviceType.camera, DeviceType.camera_fuse)

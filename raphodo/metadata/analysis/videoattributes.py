@@ -28,13 +28,12 @@ __copyright__ = "Copyright 2016-2021, Damon Lynch"
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 import os
 import datetime
-from typing import Dict, Union
-import raphodo.exiftool as exiftool
-from raphodo.metadatavideo import MetaData
+import raphodo.metadata.exiftool as exiftool
+from raphodo.metadata.metadatavideo import MetaData
 from raphodo.utilities import format_size_for_user, datetime_roughly_equal
 from raphodo.thumbnailextractor import get_video_frame
 from raphodo.constants import FileType
-from raphodo.photoattributes import ExifToolMixin, vmtouch_output
+from raphodo.metadata.analysis.photoattributes import ExifToolMixin, vmtouch_output
 
 
 class VideoAttributes(ExifToolMixin):

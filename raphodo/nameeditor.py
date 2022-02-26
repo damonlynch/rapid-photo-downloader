@@ -24,7 +24,7 @@ Dialog for editing download subfolder structure and file renaming
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2021, Damon Lynch"
 
-from typing import Dict, Optional, List, Union, Tuple, Sequence
+from typing import Dict, Union, Sequence
 import webbrowser
 import datetime
 import copy
@@ -79,9 +79,8 @@ from raphodo.constants import (
     PresetPrefType,
     PresetClass,
 )
-from raphodo.rpdfile import SamplePhoto, SampleVideo, RPDFile, Photo, Video, FileType
+from raphodo.rpdfile import SamplePhoto, SampleVideo, Photo, Video, FileType
 from raphodo.preferences import DownloadsTodayTracker, Preferences, match_pref_list
-import raphodo.exiftool as exiftool
 from raphodo.utilities import remove_last_char_from_list_str
 from raphodo.messagewidget import MessageWidget
 from raphodo.viewutils import (
@@ -89,7 +88,6 @@ from raphodo.viewutils import (
     standardMessageBox,
     translateMessageBoxButtons,
 )
-import raphodo.qrc_resources
 
 
 class PrefEditor(QTextEdit):

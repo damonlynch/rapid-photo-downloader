@@ -33,7 +33,7 @@ from tenacity import retry, stop_after_attempt
 
 from raphodo.storage import get_program_data_directory, get_program_cache_directory
 from raphodo.utilities import divide_list_on_length
-from raphodo.photoattributes import PhotoAttributes
+from raphodo.metadata.analysis.photoattributes import PhotoAttributes
 from raphodo.constants import FileType, Sort, Show
 from raphodo.utilities import runs
 

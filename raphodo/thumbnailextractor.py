@@ -27,8 +27,6 @@ from urllib.request import pathname2url
 import pickle
 import os
 from collections import namedtuple
-import tempfile
-from datetime import datetime
 from typing import Optional, Set, Union, Tuple
 
 import gi
@@ -58,7 +56,7 @@ from raphodo.constants import FileType
 from raphodo.utilities import stdchannel_redirected, show_errors, image_large_enough_fdo
 from raphodo.filmstrip import add_filmstrip
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge, FdoCacheNormal
-import raphodo.exiftool as exiftool
+import raphodo.metadata.exiftool as exiftool
 from raphodo.heif import have_heif_module, load_heif
 
 

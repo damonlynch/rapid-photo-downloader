@@ -23,7 +23,7 @@ Display file renaming preferences, including sequence numbers
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2022, Damon Lynch"
 
-from typing import Optional, Dict, Tuple, Union
+from typing import Union
 import logging
 
 from PyQt5.QtCore import Qt, pyqtSlot, QTime
@@ -47,7 +47,7 @@ from raphodo.constants import PresetPrefType, NameGenerationType, PresetClass, F
 from raphodo.utilities import platform_c_maxint
 from raphodo.rpdfile import Photo, Video
 from raphodo.nameeditor import PrefDialog, make_sample_rpd_file, PresetComboBox
-import raphodo.exiftool as exiftool
+import raphodo.metadata.exiftool as exiftool
 import raphodo.generatename as gn
 from raphodo.generatenameconfig import *
 from raphodo.viewutils import FlexiFrame, ScrollAreaNoFrame

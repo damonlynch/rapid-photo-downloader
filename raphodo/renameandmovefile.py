@@ -46,7 +46,7 @@ except locale.Error:
     pass
 
 
-import raphodo.exiftool as exiftool
+import raphodo.metadata.exiftool as exiftool
 import raphodo.generatename as gn
 from raphodo.preferences import DownloadsTodayTracker, Preferences
 from raphodo.constants import (
