@@ -286,8 +286,6 @@ setup(
         "pymediainfo",
         "sortedcontainers",
         "tornado",
-        'scandir;python_version<"3.5"',
-        'typing;python_version<"3.5"',
         "PyGObject",
         "PyQt5",
         "babel",
