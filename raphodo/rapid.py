@@ -293,7 +293,7 @@ from raphodo.filebrowse import (
     FileSystemFilter,
     FileSystemDelegate,
 )
-from raphodo.toggleview import QToggleView
+from raphodo.ui.toggleview import QToggleView
 import raphodo.__about__ as __about__
 import raphodo.iplogging as iplogging
 import raphodo.excepthook as excepthook

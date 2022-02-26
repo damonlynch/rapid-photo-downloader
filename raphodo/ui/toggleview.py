@@ -27,13 +27,12 @@ similar to the GtkExpander', Copyright 2012 Canonical Ltd
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2022, Damon Lynch"
 
-import logging
 from typing import Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QSize
-from PyQt5.QtGui import QColor, QPalette
-from PyQt5.QtWidgets import QWidget, QLayout, QSizePolicy
+from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QWidget, QLayout
 
-from raphodo.toggleswitch import QToggleSwitch
+from raphodo.ui.toggleswitch import QToggleSwitch
 from raphodo.panelview import QPanelView
 from raphodo.viewutils import BlankWidget, is_dark_mode
 from raphodo.constants import HeaderBackgroundName, DarkModeHeaderBackgroundName
