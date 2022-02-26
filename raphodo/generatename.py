@@ -46,7 +46,7 @@ from raphodo.problemnotification import (
     Problem,
 )
 from raphodo.rpdfile import RPDFile, Photo, Video
-from raphodo.storage import get_uri
+from raphodo.storage.storage import get_uri
 from raphodo.utilities import letters
 
 from raphodo.generatenameconfig import *

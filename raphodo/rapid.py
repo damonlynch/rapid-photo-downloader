@@ -150,7 +150,7 @@ from showinfm import (
 )
 
 from raphodo.folderpreviewmanager import FolderPreviewManager
-from raphodo.storage import (
+from raphodo.storage.storage import (
     ValidMounts,
     CameraHotplug,
     UDisks2Monitor,
@@ -332,7 +332,7 @@ import raphodo.didyouknow as didyouknow
 from raphodo.thumbnailextractor import gst_version
 from raphodo.heif import have_heif_module, pyheif_version, libheif_version
 from raphodo.filesystemurl import FileSystemUrlHandler
-import raphodo.storageidevice as storageidevice
+import raphodo.storage.storageidevice as storageidevice
 
 
 # Avoid segfaults at exit:

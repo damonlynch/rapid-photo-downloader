@@ -320,7 +320,13 @@ setup(
             ["build/share/metainfo/net.damonlynch.rapid_photo_downloader.metainfo.xml"],
         ),
     ],
-    packages=["raphodo", "raphodo.ui", "raphodo.metadata", "raphodo.metadata.analysis"],
+    packages=[
+        "raphodo",
+        "raphodo.ui",
+        "raphodo.storage",
+        "raphodo.metadata",
+        "raphodo.metadata.analysis",
+    ],
     python_requires=">=3.6.*, <4",
     entry_points={
         "gui_scripts": ["rapid-photo-downloader=raphodo.rapid:main"],

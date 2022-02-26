@@ -29,7 +29,7 @@ raphodo/rememberthisdialog.py
 raphodo/renameandmovefile.py
 raphodo/renamepanel.py
 raphodo/rpdfile.py
-raphodo/storage.py
+raphodo/storage/storage.py
 raphodo/sudocommand.py
 raphodo/timeutils.py
 raphodo/thumbnaildaemon.py

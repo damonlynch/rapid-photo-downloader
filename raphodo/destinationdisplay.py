@@ -55,7 +55,7 @@ from PyQt5.QtGui import (
 
 from raphodo.viewutils import paletteMidPen, darkModePixmap
 from raphodo.devicedisplay import DeviceDisplay, BodyDetails, icon_size
-from raphodo.storage import StorageSpace, get_path_display_name, get_mount_size
+from raphodo.storage.storage import StorageSpace, get_path_display_name, get_mount_size
 from raphodo.constants import (
     CustomColors,
     DestinationDisplayType,

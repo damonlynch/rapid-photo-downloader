@@ -41,7 +41,7 @@ except ImportError:
     use_colorlog = False
 
 from raphodo.constants import logfile_name
-from raphodo.storage import get_program_logging_directory
+from raphodo.storage.storage import get_program_logging_directory
 
 logging_format = "%(levelname)s: %(message)s"
 colored_logging_format = "%(log_color)s%(levelname)-8s%(reset)s %(message)s"

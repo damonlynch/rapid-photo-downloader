@@ -108,8 +108,8 @@ from raphodo.problemnotification import (
     FsMetadataReadProblem,
     FileZeroLengthProblem,
 )
-from raphodo.storage import get_uri, CameraDetails, gvfs_gphoto2_path, StorageSpace
-from raphodo.storageidevice import (
+from raphodo.storage.storage import get_uri, CameraDetails, gvfs_gphoto2_path, StorageSpace
+from raphodo.storage.storageidevice import (
     idevice_do_mount,
     idevice_validate_pairing,
     idevice_in_pairing_list,

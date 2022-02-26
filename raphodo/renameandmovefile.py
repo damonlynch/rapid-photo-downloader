@@ -80,7 +80,7 @@ from raphodo.problemnotification import (
     FileMetadataLoadProblem,
     NoDataToNameProblem,
 )
-from raphodo.storage import get_uri
+from raphodo.storage.storage import get_uri
 
 
 class SyncRawJpegStatus(Enum):

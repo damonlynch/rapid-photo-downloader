@@ -72,11 +72,10 @@ from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
 from raphodo.foldercombo import FolderCombo
 import raphodo.qrc_resources as qrc_resources
-from raphodo.storage import ValidMounts, get_media_dir
 from raphodo.devices import BackupDeviceCollection, BackupVolumeDetails
 from raphodo.devicedisplay import DeviceDisplay, icon_size, DeviceView
 from raphodo.destinationdisplay import make_body_details, adjusted_download_size
-from raphodo.storage import get_mount_size
+from raphodo.storage.storage import get_mount_size, ValidMounts, get_media_dir
 
 
 class BackupVolumeUse(NamedTuple):

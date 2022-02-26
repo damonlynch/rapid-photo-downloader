@@ -47,7 +47,7 @@ from raphodo.constants import (
     ExifSource,
 )
 
-from raphodo.storage import get_uri, CameraDetails
+from raphodo.storage.storage import get_uri, CameraDetails
 import raphodo.metadata.metadataphoto as metadataphoto
 import raphodo.metadata.metadatavideo as metadatavideo
 import raphodo.metadata.metadataexiftool as metadataexiftool

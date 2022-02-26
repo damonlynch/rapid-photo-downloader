@@ -38,7 +38,7 @@ from raphodo.constants import (
     max_remembered_destinations,
 )
 from raphodo.preferences import Preferences
-from raphodo.storage import (
+from raphodo.storage.storage import (
     platform_desktop_directory,
     platform_photos_directory,
     platform_videos_directory,

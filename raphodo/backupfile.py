@@ -59,7 +59,7 @@ from raphodo.problemnotification import (
     BackupAlreadyExistsProblem,
     FileWriteProblem,
 )
-from raphodo.storage import get_uri
+from raphodo.storage.storage import get_uri
 
 
 class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):

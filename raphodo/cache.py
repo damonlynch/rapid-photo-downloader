@@ -63,7 +63,7 @@ import sqlite3
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QImage
 
-from raphodo.storage import (
+from raphodo.storage.storage import (
     get_program_cache_directory,
     get_fdo_cache_thumb_base_directory,
 )

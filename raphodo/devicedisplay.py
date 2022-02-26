@@ -112,7 +112,7 @@ from raphodo.constants import (
 )
 from raphodo.devices import Device
 from raphodo.utilities import thousands, format_size_for_user
-from raphodo.storage import StorageSpace
+from raphodo.storage.storage import StorageSpace
 from raphodo.rpdfile import make_key
 
 

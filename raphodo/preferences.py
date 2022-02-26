@@ -33,7 +33,7 @@ from PyQt5.QtCore import QSettings, QTime, Qt
 from showinfm import linux_desktop, LinuxDesktop
 
 
-from raphodo.storage import (
+from raphodo.storage.storage import (
     platform_photos_directory,
     platform_videos_directory,
     platform_photos_identifier,

@@ -62,7 +62,7 @@ from raphodo.problemnotification import (
     FileCopyProblem,
     CameraInitializationProblem,
 )
-from raphodo.storage import get_uri
+from raphodo.storage.storage import get_uri
 from raphodo.preferences import Preferences
 from raphodo.rescan import RescanCamera
 

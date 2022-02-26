@@ -29,7 +29,7 @@ import re
 from typing import Optional, List, Tuple, Union
 
 import gphoto2 as gp
-from raphodo.storage import StorageSpace
+from raphodo.storage.storage import StorageSpace
 from raphodo.constants import CameraErrorCode
 from raphodo.utilities import format_size_for_user
 from raphodo.cameraerror import CameraError, CameraProblemEx

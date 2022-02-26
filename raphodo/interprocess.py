@@ -66,7 +66,7 @@ from raphodo.constants import (
     BackupStatus,
 )
 from raphodo.proximity import TemporalProximityGroups
-from raphodo.storage import StorageSpace
+from raphodo.storage.storage import StorageSpace
 from raphodo.iplogging import ZeroMQSocketHandler
 from raphodo.viewutils import ThumbnailDataForProximity
 from raphodo.folderspreview import DownloadDestination, FoldersPreview

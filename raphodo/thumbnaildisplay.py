@@ -119,7 +119,7 @@ from raphodo.constants import (
     thumbnail_margin,
     DarkModeThumbnailBackgroundName,
 )
-from raphodo.storage import (
+from raphodo.storage.storage import (
     get_program_cache_directory,
     validate_download_folder,
     kframework_file_managers,

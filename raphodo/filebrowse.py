@@ -62,7 +62,7 @@ from raphodo.constants import (
     filtered_file_browser_directories,
     non_system_root_folders,
 )
-from raphodo.storage import gvfs_gphoto2_path, get_media_dir
+from raphodo.storage.storage import gvfs_gphoto2_path, get_media_dir
 from raphodo.viewutils import (
     scaledIcon,
     TopFramedVerticalScrollBar,

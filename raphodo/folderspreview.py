@@ -45,7 +45,7 @@ from PyQt5.QtWidgets import QFileSystemModel
 from raphodo.rpdfile import RPDFile
 from raphodo.constants import FileType
 import raphodo.generatename as gn
-from raphodo.storage import validate_download_folder
+from raphodo.storage.storage import validate_download_folder
 from raphodo.filebrowse import FileSystemModel
 
 

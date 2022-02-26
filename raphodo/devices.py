@@ -52,7 +52,7 @@ from raphodo.constants import (
     BackupFailureType,
 )
 from raphodo.rpdfile import FileTypeCounter, FileSizeSum, Photo, Video, RPDFile
-from raphodo.storage import (
+from raphodo.storage.storage import (
     StorageSpace,
     udev_attributes,
     get_path_display_name,
@@ -61,7 +61,7 @@ from raphodo.storage import (
     get_uri,
     fs_device_details,
 )
-from raphodo.storageidevice import (
+from raphodo.storage.storageidevice import (
     idevice_get_name,
     idevice_serial_to_udid,
     idevice_do_unmount,
