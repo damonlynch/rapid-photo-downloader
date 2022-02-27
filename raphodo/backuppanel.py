@@ -44,7 +44,6 @@ from PyQt5.QtWidgets import (
     QLabel,
     QLineEdit,
     QCheckBox,
-    QFrame,
     QStyledItemDelegate,
     QStyleOptionViewItem,
     QStyle,
@@ -53,7 +52,7 @@ from PyQt5.QtWidgets import (
     QGridLayout,
     QSplitter,
 )
-from PyQt5.QtGui import QPainter, QColor, QPalette, QIcon
+from PyQt5.QtGui import QPainter, QPalette, QIcon
 
 from raphodo.constants import (
     StandardFileLocations,
@@ -62,7 +61,7 @@ from raphodo.constants import (
     ViewRowType,
     BackupLocationType,
 )
-from raphodo.viewutils import (
+from raphodo.ui.viewutils import (
     FlexiFrame,
     RowTracker,
     ScrollAreaNoFrame,
@@ -71,7 +70,6 @@ from raphodo.rpdfile import FileTypeCounter
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
 from raphodo.foldercombo import FolderCombo
-import raphodo.qrc_resources as qrc_resources
 from raphodo.devices import BackupDeviceCollection, BackupVolumeDetails
 from raphodo.devicedisplay import DeviceDisplay, icon_size, DeviceView
 from raphodo.destinationdisplay import make_body_details, adjusted_download_size

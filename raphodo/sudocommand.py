@@ -41,7 +41,7 @@ from PyQt5.QtCore import Qt, QSize, pyqtSlot
 from PyQt5.QtGui import QIcon, QFontMetrics, QFont
 
 from raphodo.password import PasswordEdit
-from raphodo.viewutils import translateDialogBoxButtons
+from raphodo.ui.viewutils import translateDialogBoxButtons
 
 
 class SudoCommand(QDialog):

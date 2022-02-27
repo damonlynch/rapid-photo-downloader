@@ -73,7 +73,7 @@ from raphodo.constants import (
     TreatRawJpeg,
     MarkRawJpeg,
 )
-from raphodo.viewutils import (
+from raphodo.ui.viewutils import (
     QNarrowListWidget,
     translateDialogBoxButtons,
     standardMessageBox,
@@ -90,7 +90,7 @@ from raphodo.utilities import (
     format_size_for_user,
     thousands,
 )
-from raphodo.viewutils import darkModePixmap
+from raphodo.ui.viewutils import darkModePixmap
 from raphodo.fileformats import (
     PHOTO_EXTENSIONS,
     AUDIO_EXTENSIONS,
@@ -98,7 +98,6 @@ from raphodo.fileformats import (
     VIDEO_THUMBNAIL_EXTENSIONS,
     ALL_KNOWN_EXTENSIONS,
 )
-import raphodo.qrc_resources as qrc_resources
 
 
 class ClickableLabel(QLabel):

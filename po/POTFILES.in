@@ -35,7 +35,7 @@ raphodo/timeutils.py
 raphodo/thumbnaildaemon.py
 raphodo/thumbnaildisplay.py
 raphodo/utilities.py
-raphodo/viewutils.py
+raphodo/ui/viewutils.py
 raphodo/wsl.py
 data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in
 data/net.damonlynch.rapid_photo_downloader.desktop.in

@@ -19,20 +19,11 @@
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2015-2022, Damon Lynch"
 
-import pickle
 import os
-import sys
 import datetime
 from collections import defaultdict, deque
-from operator import attrgetter
-import subprocess
-import shlex
 import logging
-from timeit import timeit
 from typing import Optional, Dict, List, Set, Tuple, Sequence, NamedTuple, DefaultDict
-import locale
-import pkg_resources as pkgr
-
 
 import arrow.arrow
 from dateutil.tz import tzlocal
@@ -55,7 +46,6 @@ from PyQt5.QtCore import (
     QItemSelection,
     QTimeLine,
     QPointF,
-    QT_VERSION_STR,
 )
 from PyQt5.QtWidgets import (
     QListView,
@@ -71,7 +61,6 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import (
     QPixmap,
-    QImage,
     QPainter,
     QColor,
     QBrush,
@@ -80,7 +69,6 @@ from PyQt5.QtGui import (
     QPen,
     QMouseEvent,
     QFont,
-    QKeyEvent,
     QPalette,
     QResizeEvent,
 )
@@ -88,11 +76,9 @@ from PyQt5.QtGui import (
 from showinfm import show_in_file_manager
 
 from raphodo.rpdfile import RPDFile, FileTypeCounter
-from raphodo.fileformats import ALL_USER_VISIBLE_EXTENSIONS, MUST_CACHE_VIDEOS
+from raphodo.fileformats import ALL_USER_VISIBLE_EXTENSIONS
 from raphodo.interprocess import (
-    GenerateThumbnailsArguments,
     Device,
-    GenerateThumbnailsResults,
 )
 from raphodo.constants import (
     DownloadStatus,
@@ -133,7 +119,7 @@ from raphodo.utilities import (
 )
 from raphodo.thumbnailer import Thumbnailer
 from raphodo.rpdsql import ThumbnailRowsSQL, ThumbnailRow
-from raphodo.viewutils import (
+from raphodo.ui.viewutils import (
     ThumbnailDataForProximity,
     scaledIcon,
     ScrollBarEmitsVisible,

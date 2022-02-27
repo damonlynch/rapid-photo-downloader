@@ -51,10 +51,9 @@ from PyQt5.QtWidgets import (
     QAction,
 )
 
-from PyQt5.QtGui import QPainter, QFont, QResizeEvent
+from PyQt5.QtGui import QPainter, QFont
 from showinfm import show_in_file_manager
 
-import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import (
     minPanelWidth,
     minFileSystemViewHeight,
@@ -63,8 +62,7 @@ from raphodo.constants import (
     non_system_root_folders,
 )
 from raphodo.storage.storage import gvfs_gphoto2_path, get_media_dir
-from raphodo.viewutils import (
-    scaledIcon,
+from raphodo.ui.viewutils import (
     TopFramedVerticalScrollBar,
     standard_font_size,
     darkModeIcon,

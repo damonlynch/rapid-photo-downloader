@@ -37,7 +37,7 @@ from raphodo.destinationdisplay import (
 from raphodo.panelview import QPanelView
 from raphodo.rpdfile import FileType
 from raphodo.thumbnaildisplay import MarkedSummary
-from raphodo.viewutils import ScrollAreaNoFrame
+from raphodo.ui.viewutils import ScrollAreaNoFrame
 
 
 class DestinationPanel(ScrollAreaNoFrame):

@@ -54,7 +54,7 @@ from raphodo.constants import (
 from raphodo.rpdfile import RPDFile, Video, Photo
 from raphodo.constants import FileType
 from raphodo.utilities import stdchannel_redirected, show_errors, image_large_enough_fdo
-from raphodo.filmstrip import add_filmstrip
+from raphodo.ui.filmstrip import add_filmstrip
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge, FdoCacheNormal
 import raphodo.metadata.exiftool as exiftool
 from raphodo.heif import have_heif_module, load_heif

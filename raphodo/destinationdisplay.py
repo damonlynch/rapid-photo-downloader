@@ -30,7 +30,6 @@ from collections import defaultdict
 
 from PyQt5.QtCore import QSize, Qt, QStorageInfo, QRect, pyqtSlot, QPoint
 from PyQt5.QtWidgets import (
-    QStyleOptionFrame,
     QStyle,
     QStylePainter,
     QWidget,
@@ -48,12 +47,10 @@ from PyQt5.QtGui import (
     QPaintEvent,
     QPalette,
     QMouseEvent,
-    QPen,
-    QBrush,
 )
 
 
-from raphodo.viewutils import paletteMidPen, darkModePixmap
+from raphodo.ui.viewutils import paletteMidPen, darkModePixmap
 from raphodo.devicedisplay import DeviceDisplay, BodyDetails, icon_size
 from raphodo.storage.storage import StorageSpace, get_path_display_name, get_mount_size
 from raphodo.constants import (

@@ -84,7 +84,7 @@ from PyQt5.QtGui import (
     QIcon,
 )
 
-from raphodo.viewutils import (
+from raphodo.ui.viewutils import (
     RowTracker,
     ListViewFlexiFrame,
     device_name_highlight_color,
@@ -101,7 +101,6 @@ from raphodo.constants import (
     Roles,
     EmptyViewHeight,
     ViewRowType,
-    minPanelWidth,
     Checked_Status,
     DeviceDisplayPadding,
     DeviceShadingIntensity,

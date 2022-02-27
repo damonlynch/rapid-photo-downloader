@@ -34,7 +34,7 @@ from raphodo.devicedisplay import (
 from raphodo.filebrowse import FileSystemView
 from raphodo.destinationdisplay import DestinationDisplay
 from raphodo.constants import minFileSystemViewHeight
-from raphodo.viewutils import TightFlexiFrame, device_name_highlight_color
+from raphodo.ui.viewutils import TightFlexiFrame
 
 
 class ComputerWidget(TightFlexiFrame):

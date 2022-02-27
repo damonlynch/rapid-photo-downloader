@@ -261,7 +261,7 @@ from raphodo.utilities import (
     process_running,
     log_os_release,
 )
-from raphodo.rememberthisdialog import RememberThisDialog
+from raphodo.ui.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
 from raphodo.rpdfile import (
     RPDFile,
@@ -298,7 +298,7 @@ import raphodo.__about__ as __about__
 import raphodo.iplogging as iplogging
 import raphodo.excepthook as excepthook
 from raphodo.computerview import ComputerWidget
-from raphodo.aboutdialog import AboutDialog
+from raphodo.ui.aboutdialog import AboutDialog
 import raphodo.constants as constants
 from raphodo.ui.menubutton import MenuButton
 from raphodo.destinationpanel import DestinationPanel
@@ -314,11 +314,11 @@ from raphodo.newversion import (
     version_details,
     DownloadNewVersionDialog,
 )
-from raphodo.chevroncombo import ChevronCombo
+from raphodo.ui.chevroncombo import ChevronCombo
 from raphodo.preferencedialog import PreferencesDialog
 from raphodo.errorlog import ErrorReport, SpeechBubble
 from raphodo.problemnotification import Problems, CopyingProblems, BackingUpProblems
-from raphodo.viewutils import (
+from raphodo.ui.viewutils import (
     qt5_screen_scale_environment_variable,
     validateWindowSizeLimit,
     validateWindowPosition,
@@ -327,7 +327,7 @@ from raphodo.viewutils import (
     standardMessageBox,
     MainWindowSplitter,
 )
-from raphodo import viewutils
+from raphodo.ui import viewutils
 import raphodo.didyouknow as didyouknow
 from raphodo.thumbnailextractor import gst_version
 from raphodo.heif import have_heif_module, pyheif_version, libheif_version

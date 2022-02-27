@@ -33,7 +33,6 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QVBoxLayout,
     QLabel,
-    QFrame,
     QGridLayout,
     QAbstractItemView,
     QListWidgetItem,
@@ -52,7 +51,7 @@ from PyQt5.QtGui import (
 
 
 from raphodo.constants import JobCodeSort
-from raphodo.viewutils import (
+from raphodo.ui.viewutils import (
     FlexiFrame,
     QNarrowListWidget,
     standardIconSize,
@@ -62,8 +61,8 @@ from raphodo.viewutils import (
 )
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
-from raphodo.messagewidget import MessageWidget, MessageButton
-from raphodo.chevroncombo import ChevronCombo
+from raphodo.ui.messagewidget import MessageWidget, MessageButton
+from raphodo.ui.chevroncombo import ChevronCombo
 
 
 class JobCodeDialog(QDialog):

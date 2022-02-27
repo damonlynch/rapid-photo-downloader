@@ -93,7 +93,7 @@ from raphodo.constants import (
 )
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
-from raphodo.viewutils import (
+from raphodo.ui.viewutils import (
     ThumbnailDataForProximity,
     TightFlexiFrame,
     coloredPixmap,

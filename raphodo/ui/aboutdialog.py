@@ -41,9 +41,8 @@ from PyQt5.QtWidgets import (
     QPushButton,
 )
 
-import raphodo.qrc_resources
 import raphodo.__about__ as __about__
-from raphodo.viewutils import translateDialogBoxButtons
+from raphodo.ui.viewutils import translateDialogBoxButtons
 
 
 class AboutDialog(QDialog):

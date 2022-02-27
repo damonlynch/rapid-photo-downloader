@@ -24,7 +24,7 @@ __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2017-2022, Damon Lynch"
 
 
-from PyQt5.QtCore import pyqtSlot, QSize, Qt, QSettings, QUrl
+from PyQt5.QtCore import pyqtSlot, QSize, Qt, QSettings
 from PyQt5.QtGui import (
     QPixmap,
     QIcon,
@@ -46,9 +46,8 @@ from PyQt5.QtWidgets import (
     QTextBrowser,
 )
 
-import raphodo.qrc_resources as qrc_resources
 from raphodo.preferences import Preferences
-from raphodo.viewutils import translateDialogBoxButtons
+from raphodo.ui.viewutils import translateDialogBoxButtons
 
 tips = (
     (

@@ -34,7 +34,7 @@ from PyQt5.QtWidgets import QWidget, QLayout
 
 from raphodo.ui.toggleswitch import QToggleSwitch
 from raphodo.panelview import QPanelView
-from raphodo.viewutils import BlankWidget, is_dark_mode
+from raphodo.ui.viewutils import BlankWidget, is_dark_mode
 from raphodo.constants import HeaderBackgroundName, DarkModeHeaderBackgroundName
 
 

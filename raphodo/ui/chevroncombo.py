@@ -27,8 +27,7 @@ from PyQt5.QtWidgets import QComboBox, QLabel, QSizePolicy
 from PyQt5.QtGui import QFontMetrics, QFont, QPainter
 from PyQt5.QtCore import Qt, QSize, QPointF
 
-import raphodo.qrc_resources as qrc_resources
-from raphodo.viewutils import darkModePixmap
+from raphodo.ui.viewutils import darkModePixmap
 
 
 class ChevronCombo(QComboBox):

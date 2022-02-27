@@ -38,7 +38,7 @@ from raphodo.constants import (
     HeaderBackgroundName,
     DarkModeHeaderBackgroundName,
 )
-from raphodo.viewutils import is_dark_mode
+from raphodo.ui.viewutils import is_dark_mode
 
 
 class QPanelView(QWidget):

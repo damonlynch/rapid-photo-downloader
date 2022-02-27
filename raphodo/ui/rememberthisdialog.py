@@ -30,7 +30,7 @@ from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QCheckBox, QLabel, QGridLayout
 
 from raphodo.constants import RememberThisMessage, RememberThisButtons
-from raphodo.viewutils import standardIconSize, translateDialogBoxButtons
+from raphodo.ui.viewutils import standardIconSize, translateDialogBoxButtons
 
 
 class RememberThisDialog(QDialog):

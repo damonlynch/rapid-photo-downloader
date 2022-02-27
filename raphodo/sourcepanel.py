@@ -28,7 +28,7 @@ import logging
 from PyQt5.QtCore import Qt, QSettings, pyqtSlot, QPoint
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QSizePolicy, QApplication, QStyle
 
-from raphodo.viewutils import ScrollAreaNoFrame, SourceSplitter
+from raphodo.ui.viewutils import ScrollAreaNoFrame, SourceSplitter
 from raphodo.proximity import TemporalProximityControls
 from raphodo.constants import TemporalProximityState
 

@@ -31,7 +31,7 @@ import pickle
 import os
 import shlex
 import time
-from collections import deque, namedtuple
+from collections import deque
 from typing import Optional, Set, List, Dict, Sequence, Any, Tuple, Union
 
 
@@ -61,15 +61,13 @@ from raphodo.constants import (
     ExtractionTask,
     ExtractionProcessing,
     CameraErrorCode,
-    FileType,
-    FileExtension,
     BackupStatus,
 )
 from raphodo.proximity import TemporalProximityGroups
 from raphodo.storage.storage import StorageSpace
 from raphodo.iplogging import ZeroMQSocketHandler
-from raphodo.viewutils import ThumbnailDataForProximity
-from raphodo.folderspreview import DownloadDestination, FoldersPreview
+from raphodo.ui.viewutils import ThumbnailDataForProximity
+from raphodo.folderspreview import FoldersPreview
 from raphodo.problemnotification import (
     ScanProblems,
     CopyingProblems,

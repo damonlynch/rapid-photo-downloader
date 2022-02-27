@@ -31,7 +31,7 @@ from PyQt5.QtWidgets import (
 )
 
 
-from raphodo.viewutils import is_dark_mode, menuHoverColor
+from raphodo.ui.viewutils import is_dark_mode, menuHoverColor
 
 
 class VerticalRotation(IntEnum):

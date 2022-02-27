@@ -38,11 +38,8 @@ from raphodo.interprocess import (
     DaemonProcess,
     OffloadData,
     OffloadResults,
-    DownloadDestination,
 )
 from raphodo.proximity import TemporalProximityGroups
-from raphodo.viewutils import ThumbnailDataForProximity
-from raphodo.folderspreview import FoldersPreview
 
 
 class OffloadWorker(DaemonProcess):

@@ -29,7 +29,6 @@ from collections import namedtuple
 import pkg_resources
 import hashlib
 import os
-import traceback
 import shutil
 from typing import Optional
 
@@ -61,7 +60,7 @@ from raphodo.utilities import (
     installed_using_pip,
 )
 from raphodo.interprocess import ThreadNames
-from raphodo.viewutils import translateDialogBoxButtons
+from raphodo.ui.viewutils import translateDialogBoxButtons
 
 version_details = namedtuple(
     "version_details", "version release_date url md5 changelog_url"

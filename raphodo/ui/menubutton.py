@@ -20,10 +20,10 @@ __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2022, Damon Lynch"
 
 from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QGuiApplication, QPalette, QColor, QIcon
+from PyQt5.QtGui import QColor, QIcon
 from PyQt5.QtWidgets import QMenu, QToolButton
 
-from raphodo.viewutils import darkModePixmap, menuHoverColor
+from raphodo.ui.viewutils import darkModePixmap, menuHoverColor
 from raphodo.ui.primarybutton import DownloadButtonHeight
 
 

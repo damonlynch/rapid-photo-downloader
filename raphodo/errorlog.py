@@ -25,15 +25,10 @@ Error log window for Rapid Photo Downloader
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2017-2021, Damon Lynch"
 
-import logging
-import shlex
-import subprocess
 import math
-from collections import deque, namedtuple
-from typing import Optional
+from collections import deque
 
 import re
-from html import escape
 
 from PyQt5.QtWidgets import (
     QTextEdit,
@@ -66,11 +61,9 @@ from PyQt5.QtGui import (
 )
 from PyQt5.QtCore import Qt, pyqtSlot, QSize, QUrl, QTimer, QRect, pyqtSignal, QEvent
 
-import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import ErrorType
-from raphodo.rpdfile import RPDFile
 from raphodo.problemnotification import Problem, Problems
-from raphodo.viewutils import translateDialogBoxButtons, darkModeIcon
+from raphodo.ui.viewutils import translateDialogBoxButtons, darkModeIcon
 from showinfm import show_in_file_manager
 
 # ErrorLogMessage = namedtuple('ErrorLogMessage', 'title body name uri')

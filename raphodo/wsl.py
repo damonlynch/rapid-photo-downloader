@@ -20,7 +20,6 @@
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2021, Damon Lynch."
 
-import time
 from collections import OrderedDict, defaultdict
 import enum
 from pathlib import Path, PurePosixPath
@@ -57,7 +56,7 @@ from PyQt5.QtWidgets import (
 
 from raphodo.constants import WindowsDriveType
 from raphodo.preferences import Preferences, WSLWindowsDrivePrefs
-from raphodo.viewutils import (
+from raphodo.ui.viewutils import (
     translateDialogBoxButtons,
     CheckBoxDelegate,
     standardMessageBox,

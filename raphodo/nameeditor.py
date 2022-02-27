@@ -82,8 +82,8 @@ from raphodo.constants import (
 from raphodo.rpdfile import SamplePhoto, SampleVideo, Photo, Video, FileType
 from raphodo.preferences import DownloadsTodayTracker, Preferences, match_pref_list
 from raphodo.utilities import remove_last_char_from_list_str
-from raphodo.messagewidget import MessageWidget
-from raphodo.viewutils import (
+from raphodo.ui.messagewidget import MessageWidget
+from raphodo.ui.viewutils import (
     translateDialogBoxButtons,
     standardMessageBox,
     translateMessageBoxButtons,

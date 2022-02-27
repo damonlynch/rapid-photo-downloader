@@ -50,7 +50,7 @@ from raphodo.nameeditor import PrefDialog, make_sample_rpd_file, PresetComboBox
 import raphodo.metadata.exiftool as exiftool
 import raphodo.generatename as gn
 from raphodo.generatenameconfig import *
-from raphodo.viewutils import FlexiFrame, ScrollAreaNoFrame
+from raphodo.ui.viewutils import FlexiFrame, ScrollAreaNoFrame
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences, DownloadsTodayTracker
 
