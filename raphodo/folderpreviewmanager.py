@@ -26,7 +26,7 @@ from typing import List
 from PyQt5.QtCore import QObject, pyqtSlot
 
 from raphodo.devices import DeviceCollection
-from raphodo.filebrowse import FileSystemModel, FileSystemView, FileSystemFilter
+from raphodo.ui.filebrowse import FileSystemModel, FileSystemView, FileSystemFilter
 from raphodo.folderspreview import FoldersPreview, DownloadDestination
 from raphodo.interprocess import OffloadData
 from raphodo.prefs.preferences import Preferences

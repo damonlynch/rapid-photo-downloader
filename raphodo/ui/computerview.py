@@ -26,13 +26,13 @@ __copyright__ = "Copyright 2016-2022, Damon Lynch"
 from typing import Union
 from PyQt5.QtWidgets import QWidget, QSplitter, QSizePolicy, QFrame
 
-from raphodo.devicedisplay import (
+from raphodo.ui.devicedisplay import (
     DeviceView,
     EmulatedHeaderRow,
     device_header_row_height,
 )
-from raphodo.filebrowse import FileSystemView
-from raphodo.destinationdisplay import DestinationDisplay
+from raphodo.ui.filebrowse import FileSystemView
+from raphodo.ui.destinationdisplay import DestinationDisplay
 from raphodo.constants import minFileSystemViewHeight
 from raphodo.ui.viewutils import TightFlexiFrame
 

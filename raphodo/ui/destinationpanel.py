@@ -28,13 +28,13 @@ from typing import DefaultDict, Optional, Set
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout
 
-from raphodo.computerview import ComputerWidget
-from raphodo.destinationdisplay import (
+from raphodo.ui.computerview import ComputerWidget
+from raphodo.ui.destinationdisplay import (
     DestinationDisplay,
     DisplayingFilesOfType,
     DestinationDisplayType,
 )
-from raphodo.panelview import QPanelView
+from raphodo.ui.panelview import QPanelView
 from raphodo.rpdfile import FileType
 from raphodo.thumbnaildisplay import MarkedSummary
 from raphodo.ui.viewutils import ScrollAreaNoFrame

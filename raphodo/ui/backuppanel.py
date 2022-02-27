@@ -67,12 +67,12 @@ from raphodo.ui.viewutils import (
     ScrollAreaNoFrame,
 )
 from raphodo.rpdfile import FileTypeCounter
-from raphodo.panelview import QPanelView
+from raphodo.ui.panelview import QPanelView
 from raphodo.prefs.preferences import Preferences
 from raphodo.foldercombo import FolderCombo
 from raphodo.devices import BackupDeviceCollection, BackupVolumeDetails
-from raphodo.devicedisplay import DeviceDisplay, icon_size, DeviceView
-from raphodo.destinationdisplay import make_body_details, adjusted_download_size
+from raphodo.ui.devicedisplay import DeviceDisplay, icon_size, DeviceView
+from raphodo.ui.destinationdisplay import make_body_details, adjusted_download_size
 from raphodo.storage.storage import get_mount_size, ValidMounts, get_media_dir
 
 

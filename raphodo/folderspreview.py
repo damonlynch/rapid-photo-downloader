@@ -37,7 +37,7 @@ __copyright__ = "Copyright 2016-2021, Damon Lynch"
 import os
 from collections import namedtuple, defaultdict
 import logging
-from typing import Tuple, Set, Sequence, Dict, Optional, List
+from typing import Tuple, Set, Sequence, Dict, Optional
 from pprint import pprint
 
 from PyQt5.QtWidgets import QFileSystemModel
@@ -46,8 +46,6 @@ from raphodo.rpdfile import RPDFile
 from raphodo.constants import FileType
 import raphodo.generatename as gn
 from raphodo.storage.storage import validate_download_folder
-from raphodo.filebrowse import FileSystemModel
-
 
 DownloadDestination = namedtuple(
     "DownloadDestination",

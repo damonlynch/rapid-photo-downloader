@@ -51,7 +51,7 @@ from PyQt5.QtGui import (
 
 
 from raphodo.ui.viewutils import paletteMidPen, darkModePixmap
-from raphodo.devicedisplay import DeviceDisplay, BodyDetails, icon_size
+from raphodo.ui.devicedisplay import DeviceDisplay, BodyDetails, icon_size
 from raphodo.storage.storage import StorageSpace, get_path_display_name, get_mount_size
 from raphodo.constants import (
     CustomColors,
@@ -65,7 +65,7 @@ from raphodo.constants import (
 )
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.rpdfile import FileTypeCounter, Photo, Video
-from raphodo.nameeditor import PrefDialog, make_subfolder_menu_entry
+from raphodo.ui.nameeditor import PrefDialog, make_subfolder_menu_entry
 import raphodo.generatenameconfig as gnc
 from raphodo.generatenameconfig import *
 

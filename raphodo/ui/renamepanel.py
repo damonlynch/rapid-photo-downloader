@@ -46,12 +46,12 @@ from PyQt5.QtGui import QPalette
 from raphodo.constants import PresetPrefType, NameGenerationType, PresetClass, FileType
 from raphodo.utilities import platform_c_maxint
 from raphodo.rpdfile import Photo, Video
-from raphodo.nameeditor import PrefDialog, make_sample_rpd_file, PresetComboBox
+from raphodo.ui.nameeditor import PrefDialog, make_sample_rpd_file, PresetComboBox
 import raphodo.metadata.exiftool as exiftool
 import raphodo.generatename as gn
 from raphodo.generatenameconfig import *
 from raphodo.ui.viewutils import FlexiFrame, ScrollAreaNoFrame
-from raphodo.panelview import QPanelView
+from raphodo.ui.panelview import QPanelView
 from raphodo.prefs.preferences import Preferences, DownloadsTodayTracker
 
 

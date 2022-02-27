@@ -233,7 +233,7 @@ from raphodo.thumbnaildisplay import (
     DownloadStats,
     MarkedSummary,
 )
-from raphodo.devicedisplay import (
+from raphodo.ui.devicedisplay import (
     DeviceModel,
     DeviceView,
     DeviceDelegate,
@@ -287,7 +287,7 @@ from raphodo.rpdsql import DownloadedSQL
 from raphodo.generatenameconfig import *
 from raphodo.ui.rotatedpushbutton import RotatedButton
 from raphodo.ui.primarybutton import TopPushButton, DownloadButton
-from raphodo.filebrowse import (
+from raphodo.ui.filebrowse import (
     FileSystemView,
     FileSystemModel,
     FileSystemFilter,
@@ -297,15 +297,15 @@ from raphodo.ui.toggleview import QToggleView
 import raphodo.__about__ as __about__
 import raphodo.iplogging as iplogging
 import raphodo.excepthook as excepthook
-from raphodo.computerview import ComputerWidget
+from raphodo.ui.computerview import ComputerWidget
 from raphodo.ui.aboutdialog import AboutDialog
 import raphodo.constants as constants
 from raphodo.ui.menubutton import MenuButton
-from raphodo.destinationpanel import DestinationPanel
-from raphodo.sourcepanel import SourcePanel, LeftPanelContainer
-from raphodo.renamepanel import RenamePanel
+from raphodo.ui.destinationpanel import DestinationPanel
+from raphodo.ui.sourcepanel import SourcePanel, LeftPanelContainer
+from raphodo.ui.renamepanel import RenamePanel
 from raphodo.jobcodepanel import JobCodePanel
-from raphodo.backuppanel import BackupPanel
+from raphodo.ui.backuppanel import BackupPanel
 import raphodo
 import raphodo.metadata.exiftool as exiftool
 from raphodo.newversion import (
@@ -328,7 +328,7 @@ from raphodo.ui.viewutils import (
     MainWindowSplitter,
 )
 from raphodo.ui import viewutils
-import raphodo.didyouknow as didyouknow
+import raphodo.ui.didyouknow as didyouknow
 from raphodo.thumbnailextractor import gst_version
 from raphodo.heif import have_heif_module, pyheif_version, libheif_version
 from raphodo.filesystemurl import FileSystemUrlHandler
