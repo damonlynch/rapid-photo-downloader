@@ -1473,8 +1473,8 @@ class RapidWindow(QMainWindow):
         pos = settings.value("windowPosition")  # , QPoint(default_x, default_y)
         size = settings.value("windowSize")  # , QSize(default_width, default_height)
         settings.endGroup()
-        if not (pos or size) or is_devel_env:
-            logging.info("Window position and size not found in program settings")
+        if not (pos and size) or is_devel_env:
+            logging.info("Window position or size not found in program settings")
             self.do_generate_default_window_size = True
         else:
             self.do_generate_default_window_size = False

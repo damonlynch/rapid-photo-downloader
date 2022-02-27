@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.30 (2022-02-2x)
+-------------------
+
+ - Fix bug [#67](https://github.com/damonlynch/rapid-photo-downloader/issues/67):
+   Crash when determining user interface size. 
+
 0.9.29 (2022-02-20)
 -------------------
 

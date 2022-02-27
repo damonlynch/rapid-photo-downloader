@@ -787,7 +787,7 @@ def qt5_screen_scale_environment_variable() -> str:
 
 
 def validateWindowSizeLimit(available: QSize, desired: QSize) -> Tuple[bool, QSize]:
-    """ "
+    """
     Validate the window size to ensure it fits within the available screen size.
 
     Important if scaling makes the saved values invalid.
