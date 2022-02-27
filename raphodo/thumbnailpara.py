@@ -60,8 +60,6 @@ import zmq
 from PyQt5.QtGui import QImage
 from PyQt5.QtCore import QSize
 import psutil
-import gphoto2 as gp
-
 
 from raphodo.rpdfile import RPDFile
 from raphodo.interprocess import (
@@ -87,7 +85,7 @@ from raphodo.constants import (
 from raphodo.camera import Camera, CameraProblemEx, gphoto2_python_logging
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge
 from raphodo.utilities import GenerateRandomFileName, create_temp_dir, CacheDirs
-from raphodo.preferences import Preferences
+from raphodo.prefs.preferences import Preferences
 from raphodo.rescan import RescanCamera
 from raphodo.fileformats import use_exiftool_on_photo
 from raphodo.heif import have_heif_module

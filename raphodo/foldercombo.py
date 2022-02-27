@@ -31,13 +31,12 @@ from PyQt5.QtCore import pyqtSlot, pyqtSignal
 from PyQt5.QtWidgets import QComboBox, QFileDialog
 from PyQt5.QtGui import QIcon
 
-import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import (
     StandardFileLocations,
     FileType,
     max_remembered_destinations,
 )
-from raphodo.preferences import Preferences
+from raphodo.prefs.preferences import Preferences
 from raphodo.storage.storage import (
     platform_desktop_directory,
     platform_photos_directory,

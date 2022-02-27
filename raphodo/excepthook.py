@@ -37,7 +37,7 @@ except:
 
 from raphodo.iplogging import full_log_file_path
 from raphodo.storage.storage import get_uri
-from raphodo.preferences import Preferences
+from raphodo.prefs.preferences import Preferences
 from raphodo.utilities import create_bugreport_tar, bug_report_full_tar_path
 from raphodo.ui.viewutils import standardMessageBox
 

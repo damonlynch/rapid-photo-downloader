@@ -52,7 +52,7 @@ import raphodo.generatename as gn
 from raphodo.generatenameconfig import *
 from raphodo.ui.viewutils import FlexiFrame, ScrollAreaNoFrame
 from raphodo.panelview import QPanelView
-from raphodo.preferences import Preferences, DownloadsTodayTracker
+from raphodo.prefs.preferences import Preferences, DownloadsTodayTracker
 
 
 class RenameWidget(FlexiFrame):

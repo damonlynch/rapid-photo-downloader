@@ -60,7 +60,7 @@ from raphodo.ui.viewutils import (
     ScrollAreaNoFrame,
 )
 from raphodo.panelview import QPanelView
-from raphodo.preferences import Preferences
+from raphodo.prefs.preferences import Preferences
 from raphodo.ui.messagewidget import MessageWidget, MessageButton
 from raphodo.ui.chevroncombo import ChevronCombo
 

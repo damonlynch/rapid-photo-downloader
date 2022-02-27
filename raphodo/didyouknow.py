@@ -46,7 +46,7 @@ from PyQt5.QtWidgets import (
     QTextBrowser,
 )
 
-from raphodo.preferences import Preferences
+from raphodo.prefs.preferences import Preferences
 from raphodo.ui.viewutils import translateDialogBoxButtons
 
 tips = (

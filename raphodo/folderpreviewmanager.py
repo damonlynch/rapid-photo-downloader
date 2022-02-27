@@ -29,7 +29,7 @@ from raphodo.devices import DeviceCollection
 from raphodo.filebrowse import FileSystemModel, FileSystemView, FileSystemFilter
 from raphodo.folderspreview import FoldersPreview, DownloadDestination
 from raphodo.interprocess import OffloadData
-from raphodo.preferences import Preferences
+from raphodo.prefs.preferences import Preferences
 from raphodo.rpdfile import RPDFile
 
 

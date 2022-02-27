@@ -48,7 +48,7 @@ except locale.Error:
 
 import raphodo.metadata.exiftool as exiftool
 import raphodo.generatename as gn
-from raphodo.preferences import DownloadsTodayTracker, Preferences
+from raphodo.prefs.preferences import DownloadsTodayTracker, Preferences
 from raphodo.constants import (
     ConflictResolution,
     FileType,

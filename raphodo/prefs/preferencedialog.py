@@ -66,7 +66,7 @@ from PyQt5.QtGui import (
     QPalette,
 )
 
-from raphodo.preferences import Preferences
+from raphodo.prefs.preferences import Preferences
 from raphodo.constants import (
     KnownDeviceType,
     CompletedDownloads,

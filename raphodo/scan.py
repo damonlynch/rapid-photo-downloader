@@ -69,7 +69,7 @@ import gphoto2 as gp
 
 # Instances of classes ScanArguments and ScanPreferences are passed via pickle
 # Thus do not remove these two imports
-from raphodo.preferences import ScanPreferences, Preferences
+from raphodo.prefs.preferences import ScanPreferences, Preferences
 from raphodo.interprocess import WorkerInPublishPullPipeline, ScanResults, ScanArguments
 from raphodo.camera import Camera, gphoto2_python_logging, gphoto2_named_error
 from raphodo.cameraerror import CameraError, CameraProblemEx, iOSDeviceError

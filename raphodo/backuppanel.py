@@ -68,7 +68,7 @@ from raphodo.ui.viewutils import (
 )
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.panelview import QPanelView
-from raphodo.preferences import Preferences
+from raphodo.prefs.preferences import Preferences
 from raphodo.foldercombo import FolderCombo
 from raphodo.devices import BackupDeviceCollection, BackupVolumeDetails
 from raphodo.devicedisplay import DeviceDisplay, icon_size, DeviceView

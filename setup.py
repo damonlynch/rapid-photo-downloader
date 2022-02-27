@@ -326,6 +326,7 @@ setup(
         "raphodo.storage",
         "raphodo.metadata",
         "raphodo.metadata.analysis",
+        "raphodo.prefs",
     ],
     python_requires=">=3.6.*, <4",
     entry_points={

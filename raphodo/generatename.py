@@ -24,10 +24,9 @@ __copyright__ = "Copyright 2007-2021, Damon Lynch"
 
 import re
 from datetime import datetime, timedelta
-import string
 from collections import namedtuple
 import logging
-from typing import Sequence, Optional, List, Union
+from typing import Union
 import locale
 
 try:
@@ -37,15 +36,14 @@ except locale.Error:
     pass
 
 
-from raphodo.preferences import DownloadsTodayTracker
+from raphodo.prefs.preferences import DownloadsTodayTracker
 from raphodo.problemnotification import (
     RenamingProblems,
     FilenameNotFullyGeneratedProblem,
     make_href,
     FolderNotFullyGeneratedProblemProblem,
-    Problem,
 )
-from raphodo.rpdfile import RPDFile, Photo, Video
+from raphodo.rpdfile import RPDFile
 from raphodo.storage.storage import get_uri
 from raphodo.utilities import letters
 

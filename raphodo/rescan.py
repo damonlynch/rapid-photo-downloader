@@ -39,7 +39,7 @@ import gphoto2 as gp
 
 from raphodo.rpdfile import RPDFile
 from raphodo.camera import Camera, CameraProblemEx
-from raphodo.preferences import ScanPreferences, Preferences
+from raphodo.prefs.preferences import ScanPreferences, Preferences
 
 
 class RescanCamera:

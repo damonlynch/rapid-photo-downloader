@@ -200,7 +200,7 @@ from raphodo.devices import (
     BackupDeviceCollection,
     FSMetadataErrors,
 )
-from raphodo.preferences import Preferences
+from raphodo.prefs.preferences import Preferences
 from raphodo.constants import (
     BackupLocationType,
     DeviceType,
@@ -315,7 +315,7 @@ from raphodo.newversion import (
     DownloadNewVersionDialog,
 )
 from raphodo.ui.chevroncombo import ChevronCombo
-from raphodo.preferencedialog import PreferencesDialog
+from raphodo.prefs.preferencedialog import PreferencesDialog
 from raphodo.errorlog import ErrorReport, SpeechBubble
 from raphodo.problemnotification import Problems, CopyingProblems, BackingUpProblems
 from raphodo.ui.viewutils import (

@@ -127,7 +127,7 @@ from raphodo.ui.viewutils import (
 )
 from raphodo.proximity import TemporalProximityState
 from raphodo.rpdsql import DownloadedSQL
-from raphodo.preferences import Preferences
+from raphodo.prefs.preferences import Preferences
 
 
 class DownloadStats:

@@ -55,7 +55,7 @@ from PyQt5.QtWidgets import (
 )
 
 from raphodo.constants import WindowsDriveType
-from raphodo.preferences import Preferences, WSLWindowsDrivePrefs
+from raphodo.prefs.preferences import Preferences, WSLWindowsDrivePrefs
 from raphodo.ui.viewutils import (
     translateDialogBoxButtons,
     CheckBoxDelegate,
@@ -1751,7 +1751,7 @@ if __name__ == "__main__":
 
     from PyQt5.QtWidgets import QApplication
 
-    from raphodo.preferences import Preferences
+    from raphodo.prefs.preferences import Preferences
 
     app = QApplication([])
 
