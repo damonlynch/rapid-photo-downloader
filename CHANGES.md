@@ -11,6 +11,8 @@ Changelog for Rapid Photo Downloader
  - Fix bug [#67](https://github.com/damonlynch/rapid-photo-downloader/issues/67):
    Crash when determining user interface size. 
 
+ - Update Albanian and Hungarian translations.
+
 0.9.29 (2022-02-20)
 -------------------
 
