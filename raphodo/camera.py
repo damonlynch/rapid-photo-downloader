@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2012-2015 Jim Easterbrook <jim@jim-easterbrook.me.uk>
 
 # This file is part of Rapid Photo Downloader.
@@ -20,7 +20,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
+__copyright__ = "Copyright 2015-2022, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
 
 import logging
 import os
@@ -29,7 +29,7 @@ import re
 from typing import Optional, List, Tuple, Union
 
 import gphoto2 as gp
-from raphodo.storage.storage import StorageSpace
+from raphodo.storage.storage import StorageSpace, udev_attributes
 from raphodo.constants import CameraErrorCode
 from raphodo.utilities import format_size_for_user
 from raphodo.cameraerror import CameraError, CameraProblemEx
@@ -112,6 +112,16 @@ def generate_devname(camera_port: str) -> Optional[str]:
     return None
 
 
+def camera_is_mtp_device(camera_port: str) -> bool:
+    devname = generate_devname(camera_port)
+    if devname is not None:
+        udev_attr = udev_attributes(devname)
+        if udev_attr is not None:
+            return udev_attr.is_mtp_device
+    logging.error("Could not determine udev values for camera at port %s", camera_port)
+    return False
+
+
 class Camera:
 
     """Access a camera via libgphoto2."""
@@ -120,6 +130,7 @@ class Camera:
         self,
         model: str,
         port: str,
+        is_mtp_device: bool,
         get_folders: bool = True,
         raise_errors: bool = False,
         context: gp.Context = None,
@@ -143,6 +154,7 @@ class Camera:
 
         self.model = model
         self.port = port
+        self.is_mtp_device = is_mtp_device
         # class method _concise_model_name discusses why a display name is
         # needed
         self.display_name = model
@@ -227,14 +239,25 @@ class Camera:
         """
         return self.camera_initialized and self.specific_folder_located
 
+    @staticmethod
+    def _locate_specific_subfolders(subfolders, subpath, specific_folders):
+        return [
+            os.path.join(subpath, folder)
+            for folder in specific_folders
+            if folder in subfolders
+        ]
+
     def _locate_specific_folders(
         self, path: str, specific_folders: Optional[List[str]]
     ) -> List[Optional[List[str]]]:
         """
         Scan camera looking for folders such as DCIM,  PRIVATE, and MP_ROOT.
 
-        Looks in either the root of the path passed, or in one of the root
-        folders subfolders (it does not scan subfolders of those subfolders).
+        For MTP devices, looks in either the root of the path passed, or in one of the
+        root folders subfolders (it does not scan subfolders of those subfolders)
+
+        For PTP devices, also look into subfolders of the subfolders, e.g. not just
+        /store_00020001/DCIM , but also /store_10000001/SLOT 1/DCIM
 
         Returns all instances of the specific folders, which is helpful for
         cameras that have more than one storage (memory card / internal memory)
@@ -256,7 +279,6 @@ class Camera:
             found_folders = [[path + folder] for folder in folders]
         else:
             found_folders = []
-
             # look for the folders one level down from the root folder
             # it is at this level that specific folders like DCIM will be found
             for subfolder in folders:
@@ -264,13 +286,28 @@ class Camera:
                 subfolders = dict(
                     self.camera.folder_list_folders(subpath, self.context)
                 )
-                ff = [
-                    os.path.join(subpath, folder)
-                    for folder in specific_folders
-                    if folder in subfolders
-                ]
+                ff = self._locate_specific_subfolders(
+                    subfolders=subfolders,
+                    subpath=subpath,
+                    specific_folders=specific_folders,
+                )
                 if ff:
                     found_folders.append(ff)
+                else:
+                    for nested_subfolder in subfolders:
+                        nested_subpath = os.path.join(subpath, nested_subfolder)
+                        nested_subfolders = dict(
+                            self.camera.folder_list_folders(
+                                nested_subpath, self.context
+                            )
+                        )
+                        ff = self._locate_specific_subfolders(
+                            subfolders=nested_subfolders,
+                            subpath=nested_subpath,
+                            specific_folders=specific_folders,
+                        )
+                        if ff:
+                            found_folders.append(ff)
 
         self._dual_slots_active = len(found_folders) > 1
 
@@ -894,16 +931,23 @@ def dump_camera_details() -> None:
     context = gp.Context()
     cameras = autodetect_cameras(context)
     for model, port in cameras:
-        c = Camera(model=model, port=port, context=context)
+        is_mtp_device = camera_is_mtp_device(camera_port=port)
+        c = Camera(
+            model=model,
+            port=port,
+            is_mtp_device=is_mtp_device,
+            context=context,
+        )
         if not c.camera_initialized:
             logging.error("Camera %s could not be initialized", model)
         else:
             print()
             print(c.display_name)
             print("=" * len(c.display_name))
+            print(f"\nMTP: {is_mtp_device}")
             print()
             if not c.specific_folder_located:
-                print("Speicifc folder was not located")
+                print("Specific folder was not located")
             else:
                 print(
                     "Specific folders:",

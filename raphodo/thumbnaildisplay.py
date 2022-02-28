@@ -1072,9 +1072,11 @@ class ThumbnailListModel(QAbstractListModel):
                 need_photo_cache_dir = device.entire_photo_required
                 camera_model = device.camera_model
                 camera_port = device.camera_port
+                is_mtp_device = device.is_mtp_device
             else:
                 camera_model = None
                 camera_port = None
+                is_mtp_device = None
 
             gen_args = (
                 scan_id,
@@ -1086,6 +1088,7 @@ class ThumbnailListModel(QAbstractListModel):
                 need_video_cache_dir,
                 camera_model,
                 camera_port,
+                is_mtp_device,
                 device.entire_video_required,
                 device.entire_photo_required,
             )

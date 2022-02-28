@@ -1,8 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.30 (2022-02-2x)
--------------------
+0.9.30b1 (2022-02-28)
+---------------------
+
+ - Fix bug [#59](https://github.com/damonlynch/rapid-photo-downloader/issues/59):
+   Handle cameras that nest dual card slots in subfolders like the Fujifilm 
+   X-T3.
 
  - Fix bug [#67](https://github.com/damonlynch/rapid-photo-downloader/issues/67):
    Crash when determining user interface size. 

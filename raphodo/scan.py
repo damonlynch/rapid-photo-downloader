@@ -263,8 +263,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
         if self.download_from_filesystem:
             self.scan_file_system(scan_arguments)
         elif self.download_from_camera_fuse:
-            # In future, if cameras generally can be downloaded using FUSE, remove this
-            # assertion:
+            # In the future, if cameras generally can be downloaded using FUSE, remove
+            # this assertion:
             assert self.device.is_apple_mobile
 
             udid = self.device.idevice_udid
@@ -519,6 +519,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self.camera = Camera(
                     model=scan_arguments.device.camera_model,
                     port=scan_arguments.device.camera_port,
+                    is_mtp_device=scan_arguments.device.is_mtp_device,
                     raise_errors=True,
                     specific_folders=specific_folder_prefs,
                 )

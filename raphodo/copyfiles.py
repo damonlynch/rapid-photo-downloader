@@ -406,8 +406,9 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             # Initialize camera
             try:
                 self.camera = Camera(
-                    args.device.camera_model,
-                    args.device.camera_port,
+                    model=args.device.camera_model,
+                    port=args.device.camera_port,
+                    is_mtp_device=args.device.is_mtp_device,
                     raise_errors=True,
                     specific_folders=prefs.folders_to_scan,
                 )

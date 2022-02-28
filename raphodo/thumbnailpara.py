@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -32,7 +32,7 @@ the metadata time is not already found in the rpd_file.
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
+__copyright__ = "Copyright 2011-2022, Damon Lynch"
 
 try:
     using_injected = "profile" in dict(__builtins__)
@@ -550,6 +550,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             self.camera = Camera(
                 model=arguments.camera,
                 port=arguments.port,
+                is_mtp_device=arguments.is_mtp_device,
                 specific_folders=self.prefs.folders_to_scan,
             )
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
+__copyright__ = "Copyright 2015-2022, Damon Lynch"
 
 import pickle
 from typing import Optional
@@ -138,6 +138,7 @@ class Thumbnailer(QObject):
         need_video_cache_dir: bool,
         camera_model: Optional[str] == None,
         camera_port: Optional[str] = None,
+        is_mtp_device: Optional[bool] = None,
         entire_video_required: Optional[bool] = None,
         entire_photo_required: Optional[bool] = None,
     ) -> None:
@@ -182,6 +183,7 @@ class Thumbnailer(QObject):
                     log_gphoto2=self.log_gphoto2,
                     camera=camera_model,
                     port=camera_port,
+                    is_mtp_device=is_mtp_device,
                     entire_video_required=entire_video_required,
                     entire_photo_required=entire_photo_required,
                 ),

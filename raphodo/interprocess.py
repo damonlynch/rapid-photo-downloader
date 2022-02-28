@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,7 +22,7 @@ Handle interprocess communication using 0MQ
 
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
+__copyright__ = "Copyright 2015-2022, Damon Lynch"
 
 import argparse
 import sys
@@ -1610,6 +1610,7 @@ class GenerateThumbnailsArguments:
         log_gphoto2: bool,
         camera: Optional[str] = None,
         port: Optional[str] = None,
+        is_mtp_device: Optional[bool] = None,
         entire_video_required: Optional[bool] = None,
         entire_photo_required: Optional[bool] = None,
     ) -> None:
@@ -1654,6 +1655,7 @@ class GenerateThumbnailsArguments:
             assert entire_video_required is not None
         self.camera = camera
         self.port = port
+        self.is_mtp_device = is_mtp_device
         self.log_gphoto2 = log_gphoto2
         self.entire_video_required = entire_video_required
         self.entire_photo_required = entire_photo_required
