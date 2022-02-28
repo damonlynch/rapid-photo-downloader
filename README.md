@@ -116,7 +116,7 @@ Or to uninstall both the program and its Python package dependencies:
  - Debian 9 or newer, unstable or testing
  - Fedora 34 or newer
  - openSUSE Leap 15.3 or newer
- - CentOS 7 or 8
+ - CentOS 8
  - CentOS Stream 8 (but not CentOS Stream 9)
  - Any distribution meeting the software requirements below
 
@@ -130,7 +130,7 @@ Or to uninstall both the program and its Python package dependencies:
  - Qt5 plugin for rendering SVG
  - [setuptools](https://pypi.org/project/setuptools/)
  - [python-gphoto2 1.4.0](https://github.com/jim-easterbrook/python-gphoto2) or newer
- - [show-in-file-manager 1.1.1](https://github.com/damonlynch/showinfilemanager) or newer
+ - [show-in-file-manager 1.1.2](https://github.com/damonlynch/showinfilemanager) or newer
  - [importlib_metadata](https://github.com/python/importlib_metadata) on Python versions older than 3.8
  - [pyzmq](https://github.com/zeromq/pyzmq)
  - [tornado](http://www.tornadoweb.org/)
