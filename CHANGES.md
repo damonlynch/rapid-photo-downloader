@@ -6,6 +6,8 @@ Changelog for Rapid Photo Downloader
 
  - Fix bug [#68](https://github.com/damonlynch/rapid-photo-downloader/issues/68):
    Devices part of user interface does not resize when a device is removed.
+
+ - Update Dutch translation.
  
 0.9.30b1 (2022-02-28)
 ---------------------
