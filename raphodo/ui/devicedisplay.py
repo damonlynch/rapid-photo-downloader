@@ -1238,7 +1238,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
                 x1 = x - self.dc.padding
                 y = y - self.dc.padding + self.dc.device_name_strip_height - 1
                 x2 = x1 + percent_complete * width
-                painter.drawLine(x1, y, x2, y)
+                painter.drawLine(QPointF(x1, y), QPointF(x2, y))
 
             painter.setPen(Qt.SolidLine)
             painter.setPen(standard_pen_color)

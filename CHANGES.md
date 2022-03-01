@@ -10,6 +10,9 @@ Changelog for Rapid Photo Downloader
  - Fix bug [#68](https://github.com/damonlynch/rapid-photo-downloader/issues/68):
    Devices part of user interface does not resize when a device is removed.
 
+ - Fix bug when rendering device download progress bar when multiple devices 
+   are used under Python 3.10. 
+
  - Update Dutch and Spanish translations.
  
 0.9.30b1 (2022-02-28)
