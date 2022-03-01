@@ -4,6 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.30 (2022-03-xx)
 -------------------
 
+ - Fix bug [#69](https://github.com/damonlynch/rapid-photo-downloader/issues/69):
+   Exception when prompting for survey when locale is not English.
+
  - Fix bug [#68](https://github.com/damonlynch/rapid-photo-downloader/issues/68):
    Devices part of user interface does not resize when a device is removed.
 

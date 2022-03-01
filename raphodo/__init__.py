@@ -104,14 +104,15 @@ if localedir is not None and os.path.isfile(
     if not lang:
         lang, encoding = locale.getdefaultlocale()
 
-    if lang:
-        lang = [lang]
-
     try:
-        lang = gettext.translation(i18n_domain, localedir=localedir, languages=lang)
-        lang.install()
+        gnulang = gettext.translation(
+            i18n_domain, localedir=localedir, languages=[lang]
+        )
+        gnulang.install()
         lang_installed = True
     except FileNotFoundError:
+        pass
+    except Exception:
         pass
 
 if not lang_installed:
