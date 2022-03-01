@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2022-02-28 21:49+0000\n"
-"PO-Revision-Date: 2022-02-21 17:12+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"POT-Creation-Date: 2022-03-01 18:05+0000\n"
+"PO-Revision-Date: 2022-03-01 19:36+0000\n"
+"Last-Translator: Jose Luis Tirado <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2022-03-01 17:56+0000\n"
+"X-Launchpad-Export-Date: 2022-03-01 20:32+0000\n"
 "X-Generator: Launchpad (build 61f4697954ab70d633d14d8ceecff69a20b08a6b)\n"
 "Language: es\n"
 
@@ -407,6 +407,8 @@ msgid ""
 "You must add {path} to your computer's $PATH variable to run the program "
 "from the command line."
 msgstr ""
+"Debe añadir {path} a la variable $PATH de su equipo para ejecutar el "
+"programa desde la línea de órdenes."
 
 #: ../install.py:3949
 #, python-brace-format
@@ -595,20 +597,20 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr "Falló la actualización. Pulse Cerrar para salir."
 
-#: ../upgrade.py:11320
+#: ../upgrade.py:11323
 #, python-format
 msgid "Upgrading %s..."
 msgstr "Actualizando %s..."
 
-#: ../upgrade.py:11322
+#: ../upgrade.py:11325
 msgid "Press any key to continue..."
 msgstr "Pulse cualquier tecla para continuar..."
 
-#: ../upgrade.py:11335
+#: ../upgrade.py:11338
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr "Falló la actualización de Rapid Photo Downloader"
 
-#: ../upgrade.py:11337
+#: ../upgrade.py:11340
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."
@@ -836,11 +838,11 @@ msgstr "Configurar creación de subcarpetas de vídeos"
 
 #: ../raphodo/ui/destinationpanel.py:90
 msgid "Projected Storage Use"
-msgstr ""
+msgstr "Uso proyectado del almacenamiento"
 
 #: ../raphodo/ui/destinationpanel.py:113 ../raphodo/ui/destinationpanel.py:125
 msgid "Select a destination folder"
-msgstr ""
+msgstr "Seleccione una carpeta de destino"
 
 #: ../raphodo/ui/devicedisplay.py:1294
 msgid "Probing device..."
@@ -5204,7 +5206,7 @@ msgstr ""
 
 #: ../raphodo/rapid.py:7245
 msgid "Use the system Qt theme instead of the built-in theme"
-msgstr ""
+msgstr "Usar el tema del sistema Qt en lugar del tema incorporado"
 
 #: ../raphodo/rapid.py:7255
 msgid "Run this program in wayland or regular X11"
