@@ -5432,7 +5432,7 @@ Do you want to proceed with the download?"""
 
     def updateDeviceWidgetGeometry(self, device_type: DeviceType):
         if device_type != DeviceType.path:
-            self.deviceToggleView.updateGeometry()
+            self.deviceView.updateGeometry()
         if device_type == DeviceType.path:
             self.thisComputerView.updateGeometry()
 
