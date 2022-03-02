@@ -37,7 +37,7 @@ __summary__ = (
 )
 __uri__ = "https://damonlynch.net/rapid"
 
-__version__ = "0.9.30b1"
+__version__ = "0.9.30"
 
 __author__ = "Damon Lynch"
 __email__ = "damonlynch@gmail.com"

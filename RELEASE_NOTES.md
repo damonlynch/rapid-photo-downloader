@@ -1,5 +1,5 @@
-Release Notes for Rapid Photo Downloader 0.9.30b1
-=================================================
+Release Notes for Rapid Photo Downloader 0.9.30
+===============================================
 
  - To run Rapid Photo Downloader under WSLg on Windows 11, using the 
    [Windows Subsystem for Linux Preview](https://aka.ms/wslstorepage) from 
@@ -11,7 +11,7 @@ Release Notes for Rapid Photo Downloader 0.9.30b1
 
  - Rapid Photo Downloader 0.9.27b2 is the minimum version required to work with 
    Python 3.10. Earlier versions will not run properly, or more commonly will 
-   not run at all.
+   not run at all. Using 0.9.30 is strongly recommended. 
 
  - PyQt5 5.15.6 is the minimum version required to work with Python 3.10. If 
    an older version is installed, Rapid Photo Downloader will run, but 
