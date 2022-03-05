@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2022-03-02 02:51+0000\n"
+"POT-Creation-Date: 2022-03-02 13:05+0000\n"
 "PO-Revision-Date: 2022-02-04 19:54+0000\n"
 "Last-Translator: Adolfo Jayme <fitoschido@gmail.com>\n"
 "Language-Team: Catalan <ca@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2022-03-02 12:48+0000\n"
+"X-Launchpad-Export-Date: 2022-03-05 16:16+0000\n"
 "X-Generator: Launchpad (build 61f4697954ab70d633d14d8ceecff69a20b08a6b)\n"
 "Language: ca\n"
 
@@ -512,20 +512,20 @@ msgstr ""
 msgid "Upgrade failed. Click Close to exit."
 msgstr "Ha fallat l’actualització. Feu clic a Tanca per a sortir."
 
-#: ../upgrade.py:11325
+#: ../upgrade.py:11330
 #, python-format
 msgid "Upgrading %s..."
 msgstr ""
 
-#: ../upgrade.py:11327
+#: ../upgrade.py:11332
 msgid "Press any key to continue..."
 msgstr ""
 
-#: ../upgrade.py:11340
+#: ../upgrade.py:11345
 msgid "Rapid Photo Downloader upgrade failed"
 msgstr ""
 
-#: ../upgrade.py:11342
+#: ../upgrade.py:11347
 #, python-format
 msgid ""
 "The python package %s could not be updated. The upgrade cannot continue."

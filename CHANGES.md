@@ -4,7 +4,7 @@ Changelog for Rapid Photo Downloader
 0.9.31 (2022-03-xx)
 -------------------
 
- - Update Hungarian and Russian translations.
+ - Update Hungarian, Japanese and Russian translations.
 
 0.9.30 (2022-03-01)
 -------------------
