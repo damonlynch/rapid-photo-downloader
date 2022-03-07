@@ -91,7 +91,7 @@ from raphodo.utilities import (
     thousands,
 )
 from raphodo.ui.viewutils import darkModePixmap
-from raphodo.fileformats import (
+from raphodo.metadata.fileformats import (
     PHOTO_EXTENSIONS,
     AUDIO_EXTENSIONS,
     VIDEO_EXTENSIONS,

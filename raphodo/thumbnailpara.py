@@ -87,7 +87,7 @@ from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge
 from raphodo.utilities import GenerateRandomFileName, create_temp_dir, CacheDirs
 from raphodo.prefs.preferences import Preferences
 from raphodo.rescan import RescanCamera
-from raphodo.fileformats import use_exiftool_on_photo
+from raphodo.metadata.fileformats import use_exiftool_on_photo
 from raphodo.heif import have_heif_module
 
 

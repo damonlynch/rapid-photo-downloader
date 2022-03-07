@@ -42,7 +42,7 @@ from PyQt5.QtGui import QImage
 from raphodo.utilities import format_size_for_user
 from raphodo.metadata.metadataphoto import MetaData, photo_date_time
 from raphodo.metadata.metadataexiftool import MetadataExiftool
-from raphodo.fileformats import FileType
+from raphodo.metadata.fileformats import FileType
 
 
 vmtouch_cmd = 'vmtouch -v "{}"'

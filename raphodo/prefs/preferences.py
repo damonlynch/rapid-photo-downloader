@@ -23,15 +23,12 @@ __copyright__ = "Copyright 2011-2022, Damon Lynch"
 
 import datetime
 import logging
-import os
 from pathlib import Path
 import pkg_resources
 import re
-from typing import List, Tuple, Optional, NamedTuple
+from typing import List, NamedTuple
 
 from PyQt5.QtCore import QSettings, QTime, Qt
-from showinfm import linux_desktop, LinuxDesktop
-
 
 from raphodo.storage.storage import (
     platform_photos_directory,
@@ -45,7 +42,7 @@ import raphodo.constants as constants
 from raphodo.constants import PresetPrefType, FileType
 from raphodo.utilities import available_cpu_count, make_internationalized_list
 import raphodo.__about__
-from raphodo.fileformats import ALL_KNOWN_EXTENSIONS
+from raphodo.metadata.fileformats import ALL_KNOWN_EXTENSIONS
 
 
 class ScanPreferences:

@@ -57,7 +57,7 @@ from raphodo.utilities import (
     datetime_roughly_equal,
 )
 from raphodo.problemnotification import Problem, make_href
-import raphodo.fileformats as fileformats
+import raphodo.metadata.fileformats as fileformats
 
 
 def get_sort_priority(

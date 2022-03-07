@@ -76,7 +76,7 @@ from PyQt5.QtGui import (
 from showinfm import show_in_file_manager
 
 from raphodo.rpdfile import RPDFile, FileTypeCounter
-from raphodo.fileformats import ALL_USER_VISIBLE_EXTENSIONS
+from raphodo.metadata.fileformats import ALL_USER_VISIBLE_EXTENSIONS
 from raphodo.interprocess import (
     Device,
 )

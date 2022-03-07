@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -25,7 +25,7 @@ Some version checks are also in the module thumbnailextractor
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
+__copyright__ = "Copyright 2015-2022, Damon Lynch"
 
 import re
 import subprocess
@@ -52,7 +52,7 @@ def exiv2_version() -> Optional[str]:
     :return: version number of exiv2, if available, else None
     """
 
-    # exiv2 outputs a verbose version string, e.g. the first line is
+    # exiv2 outputs a verbose version string, e.g. the first line can be
     # 'exiv2 0.24 001800 (64 bit build)'
     # followed by the copyright & GPL
     try:

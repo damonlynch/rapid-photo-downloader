@@ -108,7 +108,12 @@ from raphodo.problemnotification import (
     FsMetadataReadProblem,
     FileZeroLengthProblem,
 )
-from raphodo.storage.storage import get_uri, CameraDetails, gvfs_gphoto2_path, StorageSpace
+from raphodo.storage.storage import (
+    get_uri,
+    CameraDetails,
+    gvfs_gphoto2_path,
+    StorageSpace,
+)
 from raphodo.storage.storageidevice import (
     idevice_do_mount,
     idevice_validate_pairing,
@@ -116,7 +121,7 @@ from raphodo.storage.storageidevice import (
     idevice_pair,
     idevice_get_name,
 )
-import raphodo.fileformats as fileformats
+import raphodo.metadata.fileformats as fileformats
 
 
 FileInfo = namedtuple(

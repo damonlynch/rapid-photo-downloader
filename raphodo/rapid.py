@@ -271,7 +271,7 @@ from raphodo.rpdfile import (
     Photo,
     FileSizeSum,
 )
-import raphodo.fileformats as fileformats
+import raphodo.metadata.fileformats as fileformats
 import raphodo.downloadtracker as downloadtracker
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.programversions import gexiv2_version, exiv2_version, EXIFTOOL_VERSION

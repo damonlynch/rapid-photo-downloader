@@ -71,7 +71,7 @@ from raphodo.metadata.exiftool import ExifTool
 from raphodo.metadata.analysis.videoattributes import VideoAttributes
 from raphodo.utilities import format_size_for_user
 import raphodo.metadata.metadataphoto as mp
-from raphodo.fileformats import (
+from raphodo.metadata.fileformats import (
     RAW_EXTENSIONS,
     JPEG_TYPE_EXTENSIONS,
     VIDEO_EXTENSIONS,
