@@ -11,7 +11,7 @@ Release Notes for Rapid Photo Downloader 0.9.32
 
  - Rapid Photo Downloader 0.9.27b2 is the minimum version required to work with 
    Python 3.10. Earlier versions will not run properly, or more commonly will 
-   not run at all. Using 0.9.30 is strongly recommended. 
+   not run at all. Using 0.9.30 or newer is strongly recommended. 
 
  - PyQt5 5.15.6 is the minimum version required to work with Python 3.10. If 
    an older version is installed, Rapid Photo Downloader will run, but 
