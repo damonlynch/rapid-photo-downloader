@@ -11,6 +11,12 @@ Changelog for Rapid Photo Downloader
    Use `exiv2` to read CR3 metadata when available. Please note: `exiv2` must be 
    built with CR3 support, which is currently 
    [not the default](https://github.com/Exiv2/exiv2/issues/1679#issuecomment-846389046).
+   To determine if your Linux distribution has enabled CR3 support, with Rapid 
+   Photo Downloader 0.9.32 or newer, run from the command line:
+   
+   ```bash
+   rapid-photo-downloader --detailed-version
+   ```
 
 0.9.31 (2022-03-05)
 -------------------

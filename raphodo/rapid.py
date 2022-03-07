@@ -6880,42 +6880,41 @@ def get_versions(
     rpd_pip_install = installed_using_pip("rapid-photo-downloader")
 
     versions = [
-        "Rapid Photo Downloader: {}".format(__about__.__version__),
-        "Platform: {}".format(platform.platform()),
-        "Memory: {} used of {}".format(used, total),
+        f"Rapid Photo Downloader: {__about__.__version__}",
+        f"Platform: {platform.platform()}",
+        f"Memory: {used} used of {total}",
         "Confinement: {}".format("snap" if is_snap() else "none"),
         "Installed using pip: {}".format("yes" if rpd_pip_install else "no"),
-        "Python: {}".format(platform.python_version()),
-        "Python executable: {}".format(sys.executable),
-        "Qt: {}".format(QtCore.QT_VERSION_STR),
-        "PyQt: {} {}".format(QtCore.PYQT_VERSION_STR, python_package_source("PyQt5")),
-        "SIP: {}".format(sip.SIP_VERSION_STR),
-        "ZeroMQ: {}".format(zmq.zmq_version()),
-        "Python ZeroMQ: {} ({} backend)".format(zmq.pyzmq_version(), pyzmq_backend),
-        "gPhoto2: {}".format(gphoto2_version()),
-        "Python gPhoto2: {} {}".format(
-            python_gphoto2_version(), python_package_source("gphoto2")
-        ),
-        "ExifTool: {}".format(EXIFTOOL_VERSION),
-        "pymediainfo: {}".format(pymedia_version_info()),
-        "GExiv2: {}".format(gexiv2_version()),
-        "Gstreamer: {}".format(gst_version()),
-        "PyGObject: {}".format(".".join(map(str, gi.version_info))),
-        "psutil: {}".format(".".join(map(str, psutil.version_info))),
+        f"Python: {platform.python_version()}",
+        f"Python executable: {sys.executable}",
+        f"Qt: {QtCore.QT_VERSION_STR}",
+        f"PyQt: {QtCore.PYQT_VERSION_STR} {python_package_source('PyQt5')}",
+        f"SIP: {sip.SIP_VERSION_STR}",
+        f"ZeroMQ: {zmq.zmq_version()}",
+        f"Python ZeroMQ: {zmq.pyzmq_version()} ({pyzmq_backend} backend)",
+        f"gPhoto2: {gphoto2_version()}",
+        f"Python gPhoto2: {python_gphoto2_version()} {python_package_source('gphoto2')}",
+        f"ExifTool: {EXIFTOOL_VERSION}",
+        f"pymediainfo: {pymedia_version_info()}",
+        f"GExiv2: {gexiv2_version()}",
+        f"Gstreamer: {gst_version()}",
+        f"PyGObject: {'.'.join(map(str, gi.version_info))}",
+        f"psutil: {'.'.join(map(str, psutil.version_info))}",
         f'Show in File Manager: {importlib_metadata.version("show-in-file-manager")}',
     ]
     v = exiv2_version()
     if v:
-        versions.append("Exiv2: {}".format(v))
+        cr3 = 'CR3 support enabled' if fileformats.exiv2_cr3() else 'no CR3 support'
+        versions.append(f"Exiv2: {v} ({cr3})")
     try:
         versions.append("{}: {}".format(*platform.libc_ver()))
     except:
         pass
     try:
         versions.append(
-            "Arrow: {} {}".format(arrow.__version__, python_package_source("arrow"))
+           f"Arrow: {arrow.__version__} {python_package_source('arrow')}"
         )
-        versions.append("dateutil: {}".format(dateutil.__version__))
+        versions.append(f"dateutil: {dateutil.__version__}")
     except AttributeError:
         pass
     try:
