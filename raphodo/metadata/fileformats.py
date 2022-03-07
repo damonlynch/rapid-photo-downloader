@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,10 +17,11 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
+__copyright__ = "Copyright 2011-2022, Damon Lynch"
 
 
 import logging
+import subprocess
 from typing import Optional, Tuple
 import os
 from pkg_resources import parse_version
@@ -53,10 +54,13 @@ _exiftool_cr3, _exiftool_heif = exiftool_capabilities()
 def exiv2_cr3() -> bool:
     """
     Determine if exiv2 can be used to read cr3 files.
-    Unknown if 0.28 will definitely support CR3.
     """
 
-    return False
+    try:
+        v = subprocess.check_output(["exiv2", "-V", "-v"]).strip().decode()
+        return v.find("enable_bmff=1\n") >= 0
+    except (OSError, subprocess.CalledProcessError):
+        return False
 
 
 _exiv2_cr3 = exiv2_cr3()

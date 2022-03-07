@@ -4,8 +4,13 @@ Changelog for Rapid Photo Downloader
 0.9.32 (2022-03-07)
 -------------------
 
- - Fix visual bug where right side panels were not properly framed when first 
-   shown.
+ - Fix visual bug where right side user interface panels were not properly 
+   framed when first shown.
+
+ - Fix bug [#54](https://github.com/damonlynch/rapid-photo-downloader/issues/54):
+   Use `exiv2` to read CR3 metadata when available. Please note: `exiv2` must be 
+   built with CR3 support, which is currently 
+   [not the default](https://github.com/Exiv2/exiv2/issues/1679#issuecomment-846389046).
 
 0.9.31 (2022-03-05)
 -------------------
@@ -281,13 +286,11 @@ Changelog for Rapid Photo Downloader
 
    - libimobiledevice-utils
    - ifuse
-   - fuse
 
    openSUSE:
 
     - imobiledevice-tools
     - ifuse
-    - fuse
 
  - Python 3.6 is now the minimum Python version.
 
