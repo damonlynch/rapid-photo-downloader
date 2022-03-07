@@ -294,9 +294,11 @@ class FramedScrollBar(QScrollBar):
 
     scrollBarVisible = pyqtSignal(bool)
 
-    def __init__(self, orientation, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, orientation, name: str, parent: Optional[QWidget] = None) -> None:
         super().__init__(orientation=orientation, parent=parent)
         self.frame_width = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        orientation = "Vertical" if orientation == Qt.Vertical else "Horizontal"
+        self.setObjectName(f"{name}{orientation}ScrollBar")
         self.midPen = paletteMidPen()
 
         self.rangeChanged.connect(self.scrollBarChange)
@@ -312,8 +314,8 @@ class FramedScrollBar(QScrollBar):
     def showEvent(self, event: QShowEvent) -> None:
         super().showEvent(event)
         if not self.visible_state:
-            self.visible_state = True
-            self.scrollBarVisible.emit(True)
+            self.visible_state = self.maximum() != 0
+            self.scrollBarVisible.emit(self.visible_state)
 
     def sizeHint(self) -> QSize:
         """
@@ -413,8 +415,8 @@ class FramedScrollBar(QScrollBar):
 
 
 class TopFramedVerticalScrollBar(FramedScrollBar):
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(orientation=Qt.Vertical, parent=parent)
+    def __init__(self, name: str, parent: Optional[QWidget] = None) -> None:
+        super().__init__(orientation=Qt.Vertical, name=name, parent=parent)
 
     def sizeHint(self) -> QSize:
         """
@@ -443,11 +445,11 @@ class ScrollAreaNoFrame(QScrollArea):
     horizontalScrollBarVisible = pyqtSignal(bool)
     verticalScrollBarVisible = pyqtSignal(bool)
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, name: str, parent: QWidget) -> None:
         super().__init__(parent=parent)
         self.setFrameShape(QFrame.NoFrame)
-        sbv = FramedScrollBar(orientation=Qt.Vertical)
-        sbh = FramedScrollBar(orientation=Qt.Horizontal)
+        sbv = FramedScrollBar(orientation=Qt.Vertical, name=name)
+        sbh = FramedScrollBar(orientation=Qt.Horizontal, name=name)
         self.setVerticalScrollBar(sbv)
         self.setHorizontalScrollBar(sbh)
         sbv.scrollBarVisible.connect(self.verticalScrollBarVisible)

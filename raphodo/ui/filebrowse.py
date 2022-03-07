@@ -188,7 +188,7 @@ class FileSystemView(QTreeView):
         )
         self.contextMenu.addAction(self.showSystemFoldersAct)
 
-        self.setVerticalScrollBar(TopFramedVerticalScrollBar())
+        self.setVerticalScrollBar(TopFramedVerticalScrollBar(name="fileSystemView"))
 
     def hideColumns(self) -> None:
         """

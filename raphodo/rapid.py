@@ -304,7 +304,7 @@ from raphodo.ui.menubutton import MenuButton
 from raphodo.ui.destinationpanel import DestinationPanel
 from raphodo.ui.sourcepanel import SourcePanel, LeftPanelContainer
 from raphodo.ui.renamepanel import RenamePanel
-from raphodo.jobcodepanel import JobCodePanel
+from raphodo.ui.jobcodepanel import JobCodePanel
 from raphodo.ui.backuppanel import BackupPanel
 import raphodo
 import raphodo.metadata.exiftool as exiftool

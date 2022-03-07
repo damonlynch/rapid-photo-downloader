@@ -374,7 +374,7 @@ class BackupDeviceView(DeviceView):
         super().__init__(rapidApp, parent)
         self.setMouseTracking(False)
         self.entered.disconnect()
-        #TODO sizeHint() ?
+        # TODO sizeHint() ?
 
 
 class BackupDeviceDelegate(QStyledItemDelegate):
@@ -733,7 +733,7 @@ class BackupPanel(ScrollAreaNoFrame):
     """
 
     def __init__(self, parent) -> None:
-        super().__init__(parent)
+        super().__init__(name="backupPanel", parent=parent)
 
         assert parent is not None
         self.rapidApp = parent

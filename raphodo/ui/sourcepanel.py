@@ -39,7 +39,7 @@ class SourcePanel(ScrollAreaNoFrame):
     """
 
     def __init__(self, rapidApp) -> None:
-        super().__init__()
+        super().__init__(name="sourcePanel", parent=rapidApp)
         assert rapidApp is not None
         self.rapidApp = rapidApp
         self.prefs = self.rapidApp.prefs

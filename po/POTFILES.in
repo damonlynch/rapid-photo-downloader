@@ -16,7 +16,7 @@ raphodo/ui/filebrowse.py
 raphodo/foldercombo.py
 raphodo/generatenameconfig.py
 raphodo/generatename.py
-raphodo/jobcodepanel.py
+raphodo/ui/jobcodepanel.py
 raphodo/ui/messagewidget.py
 raphodo/ui/nameeditor.py
 raphodo/newversion.py

@@ -475,7 +475,8 @@ class RenamePanel(ScrollAreaNoFrame):
     """
 
     def __init__(self, parent) -> None:
-        super().__init__(parent)
+        super().__init__(name="renamePanel", parent=parent)
+        assert parent is not None
         self.rapidApp = parent
         self.prefs = self.rapidApp.prefs
         self.setObjectName("renamePanelScrollArea")
@@ -484,6 +485,7 @@ class RenamePanel(ScrollAreaNoFrame):
             label=_("Photo Renaming"),
         )
         self.photoRenamePanel.setObjectName("photoRenamePanelView")
+
         self.videoRenamePanel = QPanelView(
             label=_("Video Renaming"),
         )
@@ -492,6 +494,7 @@ class RenamePanel(ScrollAreaNoFrame):
             label=_("Renaming Options"),
         )
         self.renameOptionsPanel.setObjectName("renameOptionsPanelView")
+
         self.photoRenameWidget = RenameWidget(
             preset_type=PresetPrefType.preset_photo_rename,
             prefs=self.prefs,
@@ -499,6 +502,7 @@ class RenamePanel(ScrollAreaNoFrame):
             exiftool_process=self.rapidApp.exiftool_process,
         )
         self.photoRenameWidget.setObjectName("photoRenameWidget")
+
         self.videoRenameWidget = RenameWidget(
             preset_type=PresetPrefType.preset_video_rename,
             prefs=self.prefs,
@@ -506,6 +510,7 @@ class RenamePanel(ScrollAreaNoFrame):
             exiftool_process=self.rapidApp.exiftool_process,
         )
         self.videoRenameWidget.setObjectName("videoRenameWidget")
+
         self.renameOptions = RenameOptionsWidget(
             prefs=self.prefs,
             parent=self,

@@ -42,7 +42,7 @@ from raphodo.ui.viewutils import ScrollAreaNoFrame
 
 class DestinationPanel(ScrollAreaNoFrame):
     def __init__(self, parent) -> None:
-        super().__init__(parent)
+        super().__init__(name="destinationPanel", parent=parent)
         assert parent is not None
         self.rapidApp = parent
         self.prefs = self.rapidApp.prefs

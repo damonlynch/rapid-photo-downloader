@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.32 (2022-03-07)
+-------------------
+
+ - Fix visual bug where right side panels were not properly framed when first 
+   shown.
+
 0.9.31 (2022-03-05)
 -------------------
 

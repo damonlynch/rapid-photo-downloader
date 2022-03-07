@@ -569,7 +569,8 @@ class JobCodePanel(ScrollAreaNoFrame):
     """
 
     def __init__(self, parent) -> None:
-        super().__init__(parent)
+        super().__init__(name="jobCodePanel", parent=parent)
+        assert parent is not None
         self.rapidApp = parent
         self.prefs = self.rapidApp.prefs
         self.setObjectName("jobCodePanelScrollArea")
@@ -600,13 +601,12 @@ class JobCodePanel(ScrollAreaNoFrame):
         self.setWidgetResizable(True)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
 
-        if parent is not None:
-            self.rapidApp.thumbnailView.selectionModel().selectionChanged.connect(
-                self.jobCodeOptions.setWidgetStates
-            )
-            self.rapidApp.thumbnailModel.selectionReset.connect(
-                self.jobCodeOptions.setWidgetStates
-            )
+        self.rapidApp.thumbnailView.selectionModel().selectionChanged.connect(
+            self.jobCodeOptions.setWidgetStates
+        )
+        self.rapidApp.thumbnailModel.selectionReset.connect(
+            self.jobCodeOptions.setWidgetStates
+        )
 
     def needToPromptForJobCode(self) -> bool:
         return (
