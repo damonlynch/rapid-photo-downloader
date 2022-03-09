@@ -80,7 +80,7 @@ except ImportError:
     sys.exit(1)
 
 
-__version__ = "0.3.19"
+__version__ = "0.3.20"
 __title__ = _("Rapid Photo Downloader installer")
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
@@ -1086,7 +1086,7 @@ def make_pip_command(
     else:
         disable = ""
 
-    cmd_line = "{} -m pip {} {}".format(sys.executable, args, disable)
+    cmd_line = f"{sys.executable} -m pip {args} {disable}"
     if split:
         return shlex.split(cmd_line)
     else:
@@ -1268,10 +1268,15 @@ def install_pyheif_from_pip() -> int:
     :return: return code from pip
     """
 
+    current_version = python_package_version("pyheif")
+    if current_version:
+        if pkg_resources.parse_version(current_version) >= pkg_resources.parse_version(
+            "0.7.0"
+        ):
+            return 0
+
     print("Installing Python support for HEIF / HEIC...")
-    cmd = make_pip_command(
-        "install {} -U --disable-pip-version-check pyheif".format(pip_user)
-    )
+    cmd = make_pip_command(f"install {pip_user} -U pyheif")
     return popen_capture_output(cmd)
 
 
@@ -2092,39 +2097,6 @@ def opensuse_package_version(package: str) -> Optional[str]:
     return None
 
 
-def distro_has_heif_support(distro: Distro) -> bool:
-    """
-    Determine if this distro has HEIF / HEIC image library support installed
-
-    :param distro: Linux Distribution
-    :return: whether the packages are already installed
-    """
-
-    if distro == Distro.raspbian:
-        return False
-
-    if distro in fedora_like:
-        return True
-    if distro in debian_like:
-        if have_apt:
-            cache = apt.Cache()
-            for package in debian_heif_packages:
-                if package not in cache:
-                    return False
-                else:
-                    p = cache[package]
-                    if not p.is_installed:
-                        return False
-            return True
-        else:
-            for package in debian_heif_packages:
-                if not debian_package_installed(package):
-                    return False
-            return True
-
-    return False
-
-
 def package_in_pip_output(package: str, output: str) -> bool:
     """
     Determine if a package is found in the output of packages installed by pip
@@ -2485,7 +2457,7 @@ def install_required_distro_packages(
         optional_packages = [
             "libmediainfo0v5",
             "gir1.2-unity-5.0",
-        ] + debian_heif_packages
+        ]
         if have_apt:
             for p in optional_packages:
                 if p in cache:
@@ -2577,7 +2549,7 @@ def install_required_distro_packages(
             "gstreamer1-plugins-good "
             "zeromq-devel exiv2 perl-Image-ExifTool gcc-c++ "
             "rpm-build intltool libmediainfo python3-wheel zenity "
-            "libheif-devel libde265-devel x265-devel gstreamer1-libav "
+            "gstreamer1-libav "
         )
 
         # CentOS does not include ifuse
@@ -2733,7 +2705,7 @@ def install_required_distro_packages(
 
         packages = (
             "zeromq-devel exiv2 exiftool python3-devel "
-            "libraw-devel gcc-c++ rpm-build intltool zenity "
+            "gcc-c++ rpm-build intltool zenity "
             "ifuse imobiledevice-tools "
         )
 
@@ -3680,8 +3652,8 @@ def do_install(
         )
 
     print()
-    if distro_has_heif_support(distro=distro_details.distro):
-        i = install_pyheif_from_pip()
+    i = install_pyheif_from_pip()
+    if i != 0:
         check_install_status(
             i=i,
             installer_to_delete_on_error=installer_to_delete_on_error,
@@ -3689,7 +3661,6 @@ def do_install(
             warning_only=True,
             package_name="pyheif",
         )
-    else:
         print(_("System support for generating HEIF / HEIC thumbnails is unavailable"))
 
     remove_rawkit()
@@ -3814,7 +3785,7 @@ def do_install(
 
     system_man_dir = "/usr/local/share/man/man1"
 
-    manpages = ("rapid-photo-downloader.1", "analyze-pv-structure.1")
+    manpages = ("rapid-photo-downloader.1",)
 
     if venv:
         # Keep man pages in install location only

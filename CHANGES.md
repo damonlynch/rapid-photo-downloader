@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.33 (2022-03-xx)
+-------------------
+
+ - Enhance `install.py` script to not install unnecessary H.265 dependencies 
+   now that [pyheif](https://github.com/carsales/pyheif) includes them itself.
+
 0.9.32 (2022-03-07)
 -------------------
 
