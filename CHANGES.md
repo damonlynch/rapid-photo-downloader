@@ -7,6 +7,10 @@ Changelog for Rapid Photo Downloader
  - Enhance `install.py` script to not install unnecessary H.265 dependencies 
    now that [pyheif](https://github.com/carsales/pyheif) includes them itself.
 
+ - Fix implementation of bug fix [#59](https://github.com/damonlynch/rapid-photo-downloader/issues/59):
+   Handle cameras that nest dual card slots in subfolders like the Fujifilm
+   X-T3.
+
 0.9.32 (2022-03-07)
 -------------------
 

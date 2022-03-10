@@ -148,10 +148,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
         # full_file_name (path+name):timestamp
         self.file_mdatatime = {}  # type: Dict[str, float]
 
-        self.sample_exif_bytes = None  # type: bytes
-        self.sample_exif_source = None  # type: ExifSource
-        self.sample_photo = None  # type: rpdfile.Photo
-        self.sample_video = None  # type: rpdfile.Video
+        self.sample_exif_bytes = None  # type: Optional[bytes]
+        self.sample_exif_source = None  # type: Optional[ExifSource]
+        self.sample_photo = None  # type: Optional[rpdfile.Photo]
+        self.sample_video = None  # type: Optional[rpdfile.Video]
         self.sample_photo_source_is_extract = None  # type: Optional[bool]
         self.sample_photo_extract_full_file_name = None  # type: Optional[str]
         self.sample_video_extract_full_file_name = None  # type: Optional[str]
@@ -592,7 +592,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
             if self.camera.dual_slots_active:
                 # This camera has dual memory cards in use.
-                # Give each folder an numeric identifier that will be
+                # Give each folder a numeric identifier that will be
                 # used to identify which card a given file comes from
                 for idx, folders in enumerate(specific_folders):
                     for folder in folders:

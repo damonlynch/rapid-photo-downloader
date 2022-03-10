@@ -22,9 +22,9 @@
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2015-2022, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
 
+import io
 import logging
 import os
-import io
 import re
 from typing import Optional, List, Tuple, Union
 
@@ -263,6 +263,11 @@ class Camera:
         cameras that have more than one storage (memory card / internal memory)
         slot.
 
+        Returns a list of lists:
+        1. Top level list is length 2 if camera has two memory card slots and
+           they are both have a DCIM folder
+        2. Else top level will be length 1 (or 0 if empty)
+
         No error checking: exceptions must be caught by the caller
 
         :param path: the root folder to start scanning in
@@ -293,7 +298,12 @@ class Camera:
                 )
                 if ff:
                     found_folders.append(ff)
-                else:
+                elif not self.is_mtp_device:
+                    # look at subfolders of subfolders, e.g. Fujifilm dual slot cameras
+                    # which use "SLOT 1" and "SLOT 2":
+                    # /store_10000001/SLOT 1/DCIM
+                    # /store_10000001/SLOT 2/DCIM
+                    found_subfolders = []
                     for nested_subfolder in subfolders:
                         nested_subpath = os.path.join(subpath, nested_subfolder)
                         nested_subfolders = dict(
@@ -307,7 +317,9 @@ class Camera:
                             specific_folders=specific_folders,
                         )
                         if ff:
-                            found_folders.append(ff)
+                            found_subfolders.extend(ff)
+                    if found_subfolders:
+                        found_folders.append(found_subfolders)
 
         self._dual_slots_active = len(found_folders) > 1
 
