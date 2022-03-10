@@ -869,8 +869,7 @@ class Camera:
     def _get_storage_info(self, refresh: bool):
         """
         Load the gphoto2 storage information
-        :param refresh: if True, refresh the storage information, i.e.
-         load it
+        :param refresh: if True, refresh the storage information, i.e. load it
         """
         if not self.storage_info or refresh:
             try:
@@ -998,7 +997,13 @@ if __name__ == "__main__":
             camera = name
             port = value
             # print(port)
-            c = Camera(model=camera, port=port, specific_folders=["DCIM", "MISC"])
+            is_mtp_device = camera_is_mtp_device(camera_port=port)
+            c = Camera(
+                model=camera,
+                port=port,
+                is_mtp_device=is_mtp_device,
+                specific_folders=["DCIM", "MISC"],
+            )
             # c = Camera(model=camera, port=port)
             print(c.no_storage_media(), c.dual_slots_active, c.specific_folders)
 
