@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.33 (2022-03-xx)
+0.9.33 (2022-03-11)
 -------------------
 
  - Enhance `install.py` script to not install unnecessary H.265 dependencies 
