@@ -1,15 +1,16 @@
 # Italian translation for rapid
 # Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
 # This file is distributed under the same license as the rapid package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009
+# Albano Battistella <albano_battistella@hotmail.com>, 2022.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2022-03-02 13:05+0000\n"
-"PO-Revision-Date: 2022-02-21 17:12+0000\n"
-"Last-Translator: Phil Clifford <philip.clifford@gmail.com>\n"
+"PO-Revision-Date: 2022-06-04 15:12+0100\n"
+"Last-Translator: Albano Battistella <albano_battistella@hotmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -40,6 +41,9 @@ msgid ""
 "enable generating thumbnails for a wider range of video formats, and (2) "
 "enable support for the HEIC / HEIF image format."
 msgstr ""
+"Il repository software RPM Fusion Free è stato aggiunto al tuo sistema e (1) "
+"abilita la generazione di miniature per una gamma più ampia di formati video e (2) "
+"abilita il supporto per il formato immagine HEIC/HEIF."
 
 #: ../install.py:642 ../install.py:4330
 msgid "Installer not found:"
@@ -56,7 +60,7 @@ msgstr "In chiusura..."
 
 #: ../install.py:979
 msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
-msgstr ""
+msgstr "La versione PyQt5 specificata non esiste. Le versioni valide sono: {}."
 
 #: ../install.py:1065
 msgid "{} will be upgraded from version {} to version {}"
@@ -68,6 +72,8 @@ msgid ""
 "These Python3 packages will be upgraded for your user (i.e. not system-"
 "wide): {}"
 msgstr ""
+"Questi pacchetti Python3 verranno aggiornati per il tuo utente (cioè non a livello-"
+"di sistema): {}"
 
 #: ../install.py:1467
 #, python-brace-format
@@ -175,7 +181,7 @@ msgstr ""
 
 #: ../install.py:2852
 msgid "Query to confirm action at each step."
-msgstr ""
+msgstr "Interroga per confermare l'azione in ogni passaggio."
 
 #: ../install.py:2862
 msgid ""
@@ -190,6 +196,8 @@ msgid ""
 "Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
 "the latest version is downloaded from the Internet."
 msgstr ""
+"Archivio opzionale del programma di installazione di tar.gz Rapid Photo Downloader. Se non specificato, "
+"l'ultima versione viene scaricata da Internet."
 
 #: ../install.py:2923
 msgid ""
@@ -197,6 +205,9 @@ msgid ""
 "archive if it is newer than this version ({}). The default is to run "
 "whichever installer is newer."
 msgstr ""
+"Non eseguire il programma di installazione nel programma di installazione di tar.gz Rapid Photo Downloader "
+"archive se è più recente di questa versione ({}). L'impostazione predefinita è eseguire "
+"qualunque sia il programma di installazione più recente."
 
 #: ../install.py:2931
 msgid ""
@@ -256,12 +267,15 @@ msgstr ""
 msgid ""
 "Specific version of PyQt5 to install (default is the most recent version{})."
 msgstr ""
+"Versione specifica di PyQt5 da installare (l'impostazione predefinita è la versione più recente{})."
 
 #: ../install.py:3011
 msgid ""
 "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
-"Uninstalls any PyPi versions already installed."
+"Uninstalls any PyPi versions already installed.
 msgstr ""
+"Invece di usare PyQt5 da PyPi, usa la versione della tua distribuzione Linux."
+"Disinstalla tutte le versioni PyPi già installate.
 
 #: ../install.py:3048
 msgid "Failed to download versions file."
@@ -289,6 +303,8 @@ msgid ""
 "Package {} failed to install but Rapid Photo Downloader installation will "
 "continue."
 msgstr ""
+"Impossibile installare il pacchetto {} ma l'installazione di Rapid Photo Downloader "
+"continuerà."
 
 #: ../install.py:3330
 msgid "Received error code"
@@ -308,7 +324,7 @@ msgstr "Requisiti dell'applicazione in installazione..."
 
 #: ../install.py:3693
 msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
-msgstr ""
+msgstr "Il supporto del sistema per la generazione di miniature HEIF/HEIC non è disponibile"
 
 #: ../install.py:3710
 msgid "Installing application..."
@@ -316,15 +332,15 @@ msgstr "Applicazione in installazione..."
 
 #: ../install.py:3797
 msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
-msgstr ""
+msgstr "Vuoi che Rapid Photo Downloader appaia nel menu di Windows?"
 
 #: ../install.py:3803
 msgid "Adding Rapid Photo Downloader to the Windows menu"
-msgstr ""
+msgstr "Aggiunta di Rapid Photo Downloader al menu di Windows"
 
 #: ../install.py:3813
 msgid "Failed to copy application launcher."
-msgstr ""
+msgstr "Impossibile copiare il launcher dell'applicazione."
 
 #: ../install.py:3824
 msgid "Man pages can be found in {}/share/man/man1"
@@ -382,6 +398,8 @@ msgid ""
 "You may have to restart WSL to be able to run the program from the command "
 "line."
 msgstr ""
+"Potrebbe essere necessario riavviare WSL per poter eseguire il programma dal "
+"terminale."
 
 #: ../install.py:3944
 #, python-brace-format
@@ -389,6 +407,8 @@ msgid ""
 "You must add {path} to your computer's $PATH variable to run the program "
 "from the command line."
 msgstr ""
+"Devi aggiungere {path} alla variabile $PATH del tuo computer per eseguire il programma "
+"dalla riga di comando."
 
 #: ../install.py:3949
 #, python-brace-format
@@ -396,6 +416,9 @@ msgid ""
 "You must add {path} to your computer's $PATH variable to run the program "
 "from the command line or application launcher."
 msgstr ""
+"Devi aggiungere {path} alla variabile $PATH del tuo computer per eseguire il programma "
+"dalla riga di comando o dal programma di avvio dell'applicazione."
+
 
 #: ../install.py:3971
 msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
@@ -427,18 +450,20 @@ msgstr ""
 #. Translators: do not translate the terms --PyQt5-version or --use-system-PyQt5
 #: ../install.py:4055
 msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
-msgstr ""
+msgstr "Specificare solo uno tra --versionePyQt5 o --usa-sistema-PyQt5."
 
 #: ../install.py:4067
 msgid ""
 "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
 "on an Intel or AMD 64 bit platform."
 msgstr ""
+"Spiacenti, specificare una versione specifica di PyQt5 richiede Python 3.5 o versioni successive "
+"su una piattaforma Intel o AMD a 64 bit."
 
 #. Translators: do not translate the term PyQt5
 #: ../install.py:4081
 msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
-msgstr ""
+msgstr "Specificare una versione PyQt5 nel formato X.X o X.X.X"
 
 #: ../install.py:4097
 msgid ""
@@ -602,7 +627,7 @@ msgstr "Riconoscimenti"
 
 #: ../raphodo/ui/aboutdialog.py:339
 msgid "Translators"
-msgstr ""
+msgstr "Traduttori"
 
 #: ../raphodo/ui/backuppanel.py:280
 msgid "Backups are not configured"
@@ -814,11 +839,11 @@ msgstr "Configura la creazione delle sottocartelle per i video"
 
 #: ../raphodo/ui/destinationpanel.py:90
 msgid "Projected Storage Use"
-msgstr ""
+msgstr "Uso di archiviazione previsto"
 
 #: ../raphodo/ui/destinationpanel.py:113 ../raphodo/ui/destinationpanel.py:125
 msgid "Select a destination folder"
-msgstr ""
+msgstr "Seleziona una cartella di destinazione"
 
 #: ../raphodo/ui/devicedisplay.py:1294
 msgid "Probing device..."
@@ -1050,6 +1075,10 @@ msgid ""
 "select time periods. When a time range is selected, the Timeline button on "
 "the left side of the main window will be highlighted."
 msgstr ""
+"Per visualizzare foto e video per un determinato intervallo di tempo, usa il mouse "
+"(opzionalmente in combinazione con i tasti <tt>Maiusc</tt> o <tt>Ctrl</tt>) su "
+"seleziona periodi di tempo. Quando un intervallo di tempo è selezionato, il pulsante Timeline su "
+"verrà evidenziato il lato sinistro della finestra principale."
 
 #: ../raphodo/ui/didyouknow.py:140
 msgid ""
@@ -1198,6 +1227,20 @@ msgid ""
 "(those colored black).</li>\n"
 "</ol>"
 msgstr ""
+"\n"
+"Quando possibile, il programma visualizza in anteprima le sottocartelle di download delle foto "
+"e video in \n"
+"download:\n"
+"<ol>\n"
+"<li>L'albero delle cartelle di destinazione mostra le sottocartelle di download già attivate "
+"nel tuo computer \n"
+"(quelli in un carattere normale, non corsivo) e le sottocartelle che saranno "
+"create \n"
+"durante il download (quelli i cui nomi sono in corsivo).</li>\n"
+"<li>L'albero delle cartelle mostra anche in quali sottocartelle saranno scaricati "
+"i file \n"
+"(quelli colorati di nero).</li>\n"
+"</ol>"
 
 #: ../raphodo/ui/didyouknow.py:235
 msgid ""
@@ -1232,6 +1275,11 @@ msgid ""
 "custom \n"
 "preset. Click on the gear icon to bring up a drop-down menu:"
 msgstr ""
+"\n"
+"Per creare automaticamente le sottocartelle di download durante lo scaricamento, \n"
+"puoi utilizzare uno dei predefiniti integrati di Rapid Photo Downloader o crearne di "
+"personalizzate \n"
+"o preimpostate. Fare clic sull'icona a forma di ingranaggio per visualizzare un menu a discesa:"
 
 #: ../raphodo/ui/didyouknow.py:261
 msgid ""
@@ -1263,6 +1311,8 @@ msgid ""
 "This illustration shows a saved custom preset named &quot;My custom "
 "preset&quot;."
 msgstr ""
+"Questa illustrazione mostra un preset personalizzato salvato denominato &quot;
+"Il mio preimpostato personalizzato&quot;."
 
 #: ../raphodo/ui/didyouknow.py:282
 msgid ""
@@ -1273,6 +1323,12 @@ msgid ""
 "were taken \n"
 "and a Job Code:"
 msgstr ""
+"\n"
+"Non è necessario creare sottocartelle di download nidificate. Questa illustrazione "
+"mostra \n"
+"la generazione di sottocartelle di download che contengono solo la data delle foto "
+"dove sono state scattate \n"
+"e un codice di lavoro:"
 
 #: ../raphodo/ui/didyouknow.py:291
 msgid ""
@@ -1287,6 +1343,16 @@ msgid ""
 "like this \n"
 "(note the red circle around the hyphen):"
 msgstr ""
+"\n"
+"Sebbene ci siano molte opzioni di denominazione di data/ora integrate, potresti scoprire che "
+"tu \n"
+"hai bisogno di qualcosa di diverso. Non è un problema crearne uno tuo. Puoi "
+"combinare data/ora \n"
+"scelte per generare nuove combinazioni. Supponendo di volere un formato data "
+"che unisce \n"
+"anno (AAAA), un trattino e un mese (MM) per formare AAAA-MM. Puoi crearlo "
+"come questo \n"
+"(notare il cerchio rosso attorno al trattino):"
 
 #: ../raphodo/ui/didyouknow.py:300
 msgid ""
@@ -1316,6 +1382,14 @@ msgid ""
 "about to \n"
 "get the Job Code &quot;Green Bazaar&quot;:"
 msgstr ""
+"\n"
+"<b>I codici lavoro</b> ti consentono di inserire facilmente un testo che descriva serie di foto e "
+"video. \n"
+"Puoi usarli in sottocartelle e nomi di file. In questa illustrazione, alcuni "
+"file hanno avuto \n"
+"il codice lavoro &quot;Street&quot; applicato a loro e i file selezionati sono "
+"in procinto di \n"
+"ottenere il codice lavoro &quot;Green Bazaar&quot;:"
 
 #: ../raphodo/ui/didyouknow.py:317
 msgid ""
@@ -1326,16 +1400,24 @@ msgid ""
 "you'll be \n"
 "prompted to enter a Job Code for them before the download begins."
 msgstr ""
+"\n"
+"Puoi applicare codici lavoro nuovi o esistenti prima di iniziare un download. Se "
+"ci sono \n"
+"file nel download a cui non è stato ancora applicato un codice lavoro, "
+"sarà \n"
+"chiesto loro di inserire un codice lavoro prima dell'inizio del download."
 
 #: ../raphodo/ui/didyouknow.py:324
 msgid "Look for hints to guide you when working with Job Codes:"
-msgstr ""
+msgstr "Cerca suggerimenti che ti guidino quando lavori con i codici lavoro:"
 
 #: ../raphodo/ui/didyouknow.py:327
 msgid ""
 "Hints will vary depending on the context, such as when the mouse is hovering "
 "over a button."
 msgstr ""
+"I suggerimenti variano a seconda del contesto, ad esempio quando il mouse passa "
+"sopra un pulsante."
 
 #: ../raphodo/ui/didyouknow.py:333
 msgid ""
@@ -1420,6 +1502,8 @@ msgid ""
 "In this example, the drive <b>photobackup</b> does not contain a folder "
 "named <tt>Videos</tt>, so videos will not be backed up to it."
 msgstr ""
+"In questo esempio, l'unità <b>photobackup</b> non contiene una cartella "
+"nominata <tt>Video</tt>, quindi non verrà eseguito il backup dei video."
 
 #: ../raphodo/ui/didyouknow.py:391
 msgid ""
@@ -1430,6 +1514,12 @@ msgid ""
 "reset to \n"
 "their default state, and caches and remembered files cleared."
 msgstr ""
+"\n"
+"Diverse preferenze del programma possono essere impostate dalla riga di comando,"
+"incluso \n"
+"lo scaricamento sorgenti, destinazioni e backup. Inoltre, le impostazioni possono essere "
+"reimpostate su \n"
+"il loro stato predefinito e le cache e i file cancellati."
 
 #: ../raphodo/ui/didyouknow.py:396
 msgid "You can also import program preferences from the older 0.4 version."
@@ -1547,7 +1637,7 @@ msgstr "%d minuti e un secondo"
 #: ../raphodo/downloadtracker.py:852
 #, python-format
 msgid "%(minutes)d minutes, %(seconds)d seconds"
-msgstr ""
+msgstr "%(minutes)d minuti, %(seconds)d secondi"
 
 #: ../raphodo/downloadtracker.py:884
 msgid "1 hour, 1 minute"
@@ -1566,7 +1656,7 @@ msgstr "%d ore e un minuto"
 #: ../raphodo/downloadtracker.py:891
 #, python-format
 msgid "%(hours)d hours, %(minutes)d minutes"
-msgstr ""
+msgstr "%(hours)d ore, %(minutes)d minuti"
 
 #: ../raphodo/downloadtracker.py:918
 msgid "1 day, 1 hour"
@@ -1585,7 +1675,7 @@ msgstr "%d giorni e un'ora"
 #: ../raphodo/downloadtracker.py:925
 #, python-format
 msgid "%(days)d days, %(hours)d hours"
-msgstr ""
+msgstr "%(days)d giorni, %(hours)d ore"
 
 #: ../raphodo/errorlog.py:80
 msgid "Find"
@@ -1640,7 +1730,7 @@ msgstr "%s di %s corrispondenze"
 #: ../raphodo/errorlog.py:234
 #, python-format
 msgid "%(matchnumber)s of %(total)s matches"
-msgstr ""
+msgstr "%(matchnumber)s di %(total)s corrispondenze"
 
 #: ../raphodo/errorlog.py:256
 msgid "Clear"
@@ -1659,6 +1749,8 @@ msgid ""
 "The number of new entries added to the Error Report since it was last open. "
 "Click to open the Error Report."
 msgstr ""
+"Il numero di nuove voci aggiunte al rapporto errori dall'ultima apertura. "
+"Fai clic per aprire il rapporto di errore."
 
 #: ../raphodo/excepthook.py:50
 #, python-brace-format
@@ -1668,10 +1760,14 @@ msgid ""
 "happening.<br><br>The bug report must also include the program settings and "
 "log files. To create a file with this additional information, click Save."
 msgstr ""
+"Segnala il problema su <a href=\"{website}\">{website}</a>.<br><br>Nella "
+"tua segnalazione di bug descrivi cosa ti aspettavi che accadesse e cosa hai osservato che "
+"è successo.<br><br>La segnalazione del bug deve includere anche le impostazioni del programma e "
+"il file di registro. Per creare un file con queste informazioni aggiuntive, fare clic su Salva."
 
 #: ../raphodo/excepthook.py:57
 msgid "Additional Information Saved"
-msgstr ""
+msgstr "Ulteriori informazioni salvate"
 
 #: ../raphodo/excepthook.py:62
 #, python-brace-format
@@ -1681,16 +1777,22 @@ msgid ""
 "report yourself. It will not be automatically attached.<br><br>Click <a "
 "href=\"{uri}\">here</a> to see the file in your file manager."
 msgstr ""
+"Le informazioni aggiuntive sulla segnalazione di bug sono state create nella tua home directory in "
+"un file tar: <pre>{tarfile}</pre>Devi allegare questo file al bug "
+"segnala da te. Non verrà automaticamente allegato.<br><br>Fai clic su <a "
+"href=\"{uri}\">qui</a> per vedere il file nel tuo file manager."
 
 #: ../raphodo/excepthook.py:69
 msgid "Error Creating Additional Information"
-msgstr ""
+msgstr "Errore durante la creazione di informazioni aggiuntive"
 
 #: ../raphodo/excepthook.py:72
 msgid ""
 "The additional bug report information was not created. Please file a bug "
 "report anyway."
 msgstr ""
+"Le informazioni aggiuntive sulla segnalazione di bug non sono state create. Segnala un bug "
+"comunque."
 
 #: ../raphodo/excepthook.py:79
 #, python-brace-format
@@ -1702,6 +1804,12 @@ msgid ""
 "open the log directory, and <a href=\"{config_path}\">here</a> to open the "
 "configuration directory."
 msgstr ""
+"Includi nella tua segnalazione di bug i file di registro del programma. La segnalazione di bug deve "
+"include <i>{log_file}</i>, ma allegare gli altri file di registro è spesso "
+"utile.<br><br>Se possibile, includi anche il file di configurazione del "
+"programma <i>{config_file}</i>.<br><br>Fai clic <a href=\"{log_path}\">qui</a> per "
+"aprire la directory del registro e <a href=\"{config_path}\">qui</a> per aprire "
+"la directory di configurazione."
 
 #: ../raphodo/excepthook.py:88
 #, python-brace-format
@@ -1709,6 +1817,8 @@ msgid ""
 "Upgrading to the <a href=\"{website}\">latest version</a> will allow you to "
 "determine if the problem you encountered has already been fixed."
 msgstr ""
+L'aggiornamento all'<a href=\"{website}\">versione più recente</a> ti consentirà di "
+"determinare se il problema che hai riscontrato è già stato risolto."
 
 #: ../raphodo/excepthook.py:182
 msgid "Problem in Rapid Photo Downloader"
@@ -1716,13 +1826,15 @@ msgstr "Problema in Rapid Photo Downloader"
 
 #: ../raphodo/excepthook.py:186
 msgid "A problem occurred in Rapid Photo Downloader"
-msgstr ""
+msgstr "Si è verificato un problema in Rapid Photo Downloader"
 
 #: ../raphodo/excepthook.py:189
 msgid ""
 "If the same problem occurs again before the program exits, this is the only "
 "notification about it."
 msgstr ""
+"Se lo stesso problema si ripresenta prima della chiusura del programma, questo è l'unica "
+"notifica a riguardo."
 
 #: ../raphodo/excepthook.py:216
 msgid "A problem occurred in Rapid Photo Downloader\n"
@@ -1735,19 +1847,22 @@ msgid ""
 "Attach the log file to your bug report, found at {log_path}\n"
 "\n"
 msgstr ""
+"Segnala il problema su {sito web}\n"
+"Allega il file di registro alla tua segnalazione di bug, che si trova in {log_path}\n"
+"\n"
 
 #: ../raphodo/ui/filebrowse.py:173 ../raphodo/thumbnaildisplay.py:2254
 msgid "Open in File Browser..."
-msgstr ""
+msgstr "Apri nel File Browser..."
 
 #. type: Optional[QModelIndex]
 #: ../raphodo/ui/filebrowse.py:179
 msgid "Reset"
-msgstr ""
+msgstr "Ripristina"
 
 #: ../raphodo/ui/filebrowse.py:183
 msgid "Show System Folders"
-msgstr ""
+msgstr "Mostra cartelle di sistema"
 
 #: ../raphodo/foldercombo.py:140
 msgid "File System"
@@ -2231,7 +2346,7 @@ msgstr "Data e Codice di Lavoro"
 
 #: ../raphodo/generatenameconfig.py:418
 msgid "YYYYMM_Job Code"
-msgstr ""
+msgstr "AAAAMM_Codice lavoro"
 
 #: ../raphodo/generatenameconfig.py:419
 msgid "Date and Job Code Subfolder"
@@ -2253,15 +2368,15 @@ msgstr "Nome originale del file"
 
 #: ../raphodo/generatenameconfig.py:508 ../raphodo/generatenameconfig.py:695
 msgid "Date-Time and Downloads today"
-msgstr ""
+msgstr "Data-ora e download di oggi"
 
 #: ../raphodo/generatenameconfig.py:508 ../raphodo/generatenameconfig.py:695
 msgid "YYYYMMDD-HHMM-1"
-msgstr ""
+msgstr "YYYYMMDD-HHMM-1"
 
 #: ../raphodo/generatenameconfig.py:509 ../raphodo/generatenameconfig.py:696
 msgid "Date and Downloads today"
-msgstr ""
+msgstr "Data e download di oggi"
 
 #: ../raphodo/generatenameconfig.py:509 ../raphodo/generatenameconfig.py:696
 msgid "YYYYMMDD-1"
@@ -2269,7 +2384,7 @@ msgstr "YYYYMMDD-1"
 
 #: ../raphodo/generatenameconfig.py:510
 msgid "Date-Time and Image number"
-msgstr ""
+msgstr "Data-Ora e Numero immagine"
 
 #: ../raphodo/generatenameconfig.py:510
 msgid "YYYYMMDD-1234"
@@ -2281,19 +2396,19 @@ msgstr "Data-Ora e Codice di Lavoro"
 
 #: ../raphodo/generatenameconfig.py:511 ../raphodo/generatenameconfig.py:698
 msgid "YYYYMMDD-HHMM-Job Code-1"
-msgstr ""
+msgstr "YYYMMDD-HHMM-Codice lavoro-1"
 
 #: ../raphodo/generatenameconfig.py:512 ../raphodo/generatenameconfig.py:699
 msgid "YYYYMMDD-Job Code-1"
-msgstr ""
+msgstr "YYYYMMDD-Codice lavoro-1"
 
 #: ../raphodo/generatenameconfig.py:697
 msgid "Date-Time and Video number"
-msgstr ""
+msgstr "Data-ora e numero video"
 
 #: ../raphodo/generatenameconfig.py:697
 msgid "YYYYMMDD_1234"
-msgstr ""
+msgstr "YYYYMMDD_1234"
 
 #: ../raphodo/generatenameconfig.py:700
 msgid "Resolution"
@@ -2323,7 +2438,7 @@ msgstr ""
 
 #: ../raphodo/jobcodepanel.py:121
 msgid "Apply Job Code to Download"
-msgstr ""
+msgstr "Applicare il codice lavoro per il download"
 
 #: ../raphodo/jobcodepanel.py:123
 msgid "Enter a new Job Code"
@@ -2334,23 +2449,25 @@ msgid ""
 "<b>Hint:</b> Select photos or videos before entering a new Job Code to have "
 "the Job Code applied to them."
 msgstr ""
+"<b>Suggerimento:</b> seleziona foto o video prima di inserire un nuovo codice lavoro per avere "
+"il codice lavoro applicato a loro."
 
 #: ../raphodo/jobcodepanel.py:144
 #, python-format
 msgid "The new Job Code will be applied to %s."
-msgstr ""
+msgstr "Il nuovo codice lavoro verrà applicato a %s."
 
 #: ../raphodo/jobcodepanel.py:148
 msgid "New Job Code"
-msgstr ""
+msgstr "Nuovo codice lavoro"
 
 #: ../raphodo/jobcodepanel.py:186
 msgid "&Job Code:"
-msgstr ""
+msgstr "&Codice lavoro:"
 
 #: ../raphodo/jobcodepanel.py:190
 msgid "&Remember this Job Code"
-msgstr ""
+msgstr "&Ricorda questo codice lavoro"
 
 #: ../raphodo/jobcodepanel.py:251
 msgid ""
