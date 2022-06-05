@@ -272,10 +272,10 @@ msgstr ""
 #: ../install.py:3011
 msgid ""
 "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
-"Uninstalls any PyPi versions already installed.
+"Uninstalls any PyPi versions already installed."
 msgstr ""
 "Invece di usare PyQt5 da PyPi, usa la versione della tua distribuzione Linux."
-"Disinstalla tutte le versioni PyPi già installate.
+"Disinstalla tutte le versioni PyPi già installate."
 
 #: ../install.py:3048
 msgid "Failed to download versions file."
@@ -1311,7 +1311,7 @@ msgid ""
 "This illustration shows a saved custom preset named &quot;My custom "
 "preset&quot;."
 msgstr ""
-"Questa illustrazione mostra un preset personalizzato salvato denominato &quot;
+"Questa illustrazione mostra un preset personalizzato salvato denominato &quot;"
 "Il mio preimpostato personalizzato&quot;."
 
 #: ../raphodo/ui/didyouknow.py:282
@@ -1817,7 +1817,7 @@ msgid ""
 "Upgrading to the <a href=\"{website}\">latest version</a> will allow you to "
 "determine if the problem you encountered has already been fixed."
 msgstr ""
-L'aggiornamento all'<a href=\"{website}\">versione più recente</a> ti consentirà di "
+"L'aggiornamento all'<a href=\"{website}\">versione più recente</a> ti consentirà di "
 "determinare se il problema che hai riscontrato è già stato risolto."
 
 #: ../raphodo/excepthook.py:182
