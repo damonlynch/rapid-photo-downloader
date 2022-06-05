@@ -234,6 +234,7 @@ class AboutDialog(QDialog):
         András Lőrincz <level.andrasnak@gmail.com>
 
         <b>Italian</b>
+        Albano Battistella <albano_battistella@hotmail.com>
         Matteo Carotta <matteo.carotta@gmail.com>
         Milo Casagrande <milo.casagrande@gmail.com>
 

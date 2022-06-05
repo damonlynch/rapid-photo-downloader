@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.34 (2022-xx-xx)
+-------------------
+
+ - Update Italian translation. Thanks to Albano Battistella for the update.
+
 0.9.33 (2022-03-11)
 -------------------
 
