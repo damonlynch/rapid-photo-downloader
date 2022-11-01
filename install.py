@@ -37,6 +37,7 @@ import filecmp
 import locale
 import os
 import hashlib
+import importlib.util
 import math
 import platform
 import random
@@ -54,6 +55,7 @@ import tempfile
 import textwrap
 import threading
 import time
+import traceback
 from typing import Optional, List, Tuple, Union, NamedTuple, Dict
 
 # Use the default locale as defined by the LANG variable
@@ -79,14 +81,12 @@ except ImportError:
     )
     sys.exit(1)
 
-
-__version__ = "0.3.21"
+__version__ = "0.3.22"
 __title__ = _("Rapid Photo Downloader installer")
 __description__ = _("Download and install latest version of Rapid Photo Downloader.")
 
 i18n_domain = "rapid-photo-downloader"
 locale_tmpdir = None
-
 
 minimum_packaging_tool_versions = dict(
     pip="19.3.1",
@@ -143,7 +143,6 @@ class Version:
 
 
 class StrictVersion(Version):
-
     """Version numbering for anal retentives and software idealists.
     Implements the standard interface for version number classes as
     described above.  A version number consists of two or three
@@ -250,7 +249,6 @@ class StrictVersion(Version):
 
 
 class LooseVersion(Version):
-
     """Version numbering for anarchists and software realists.
     Implements the standard interface for version number classes as
     described above.  A version number consists of a series of numbers,
@@ -322,6 +320,30 @@ class LooseVersion(Version):
             return 1
 
 
+def python_package_version(package: str) -> str:
+    """
+    Determine the version of an installed Python package
+
+    :param package: package name
+    :return: version number, if could be determined, else ''
+    """
+
+    try:
+        return pkg_resources.get_distribution(package).version
+    except pkg_resources.DistributionNotFound:
+        return ""
+
+
+def python_package_can_import(package: str) -> bool:
+    """
+    Determine if package can be imported, without importing it
+    :param package: package name
+    :return: True if can import, else False
+    """
+
+    return importlib.util.find_spec("pip") is not None
+
+
 if sys.version_info < (3, 10):
     minimum_preferred_pyqt5 = LooseVersion("5.14")
 else:
@@ -356,13 +378,10 @@ try:
 except:
     need_wheel = True
 
-try:
-    import pip
-
-    have_pip = True
-    pip_version = StrictVersion(pip.__version__)
-except ImportError:
-    have_pip = False
+have_pip = python_package_can_import("pip")
+if have_pip:
+    pip_version = python_package_version("pip")
+else:
     pip_version = None
 
 try:
@@ -372,14 +391,12 @@ try:
 except ImportError:
     have_pyprind_progressbar = False
 
-
 try:
     import gi
 
     have_gi = True
 except ImportError:
     have_gi = False
-
 
 unknown_version = LooseVersion("0.0")
 
@@ -413,6 +430,7 @@ rpmfusion_message = "{}\n{}{}".format(
 debian_heif_packages = ["libheif-dev", "libde265-dev", "libx265-dev"]
 
 display_rpmfusion_message = False
+
 
 # Sync with value in raphodo/constants.py
 class Distro(Enum):
@@ -475,7 +493,6 @@ debian_like = (
     Distro.raspbian,
 )
 
-
 centos_family = (
     Distro.centos8,
     Distro.centos_stream8,
@@ -485,7 +502,6 @@ centos_family_active = (Distro.centos8, Distro.centos_stream8, Distro.centos_str
 fedora_like = (Distro.fedora, Distro.fedora_derivative) + centos_family
 fedora_like_active = (Distro.fedora, Distro.fedora_derivative) + centos_family_active
 arch_like = (Distro.arch, Distro.manjaro)
-
 
 installer_cmds = {
     Distro.fedora: "dnf",
@@ -672,19 +688,8 @@ def system_python_packaging_tools_required(distro: Distro, venv: bool) -> List[s
 
     if not have_pip:
         packages.append(f"{python3_version(distro)}-pip")
-    try:
-        import setuptools
-    except ImportError:
-        # system setuptools works in a venv
+    if not python_package_can_import("setuptools"):
         packages.append(f"{python3_version(distro)}-setuptools")
-    except AssertionError:
-        print(
-            f"Uninstalling setuptools {python_package_version('setuptools')} because "
-            f"this version is incompatible with this system"
-        )
-        uninstall_pip_package(package="setuptools", no_deps_only=False)
-        restart_script()
-
     if need_wheel and not venv:
         packages.append(f"{python3_version(distro)}-wheel")
 
@@ -787,9 +792,7 @@ def pip_packages_required(distro: Distro) -> Tuple[List[str], bool]:
         packages.append("{}-pip".format(python3_version(distro)))
         local_pip = False
 
-    try:
-        import setuptools
-    except ImportError:
+    if not python_package_can_import("setuptools"):
         packages.append(pip_package("setuptools", local_pip, distro))
 
     if need_wheel:
@@ -1207,20 +1210,6 @@ def user_pip() -> bool:
         return False
 
 
-def python_package_version(package: str) -> str:
-    """
-    Determine the version of an installed Python package
-
-    :param package: package name
-    :return: version number, if could be determined, else ''
-    """
-
-    try:
-        return pkg_resources.get_distribution(package).version
-    except pkg_resources.DistributionNotFound:
-        return ""
-
-
 def popen_capture_output(cmd: str) -> int:
     """
     Run popen and get the command's return code
@@ -1364,14 +1353,9 @@ def update_pip_setuptools_wheel(interactive: bool, packages: List[str]) -> None:
     )
 
     package_listing = " ".join(packages)
-    if "setuptools" in package_listing:
-        if sys.version_info < (3, 7):
-            version = "59.6"
-        else:
-            version = "59.8"
-        package_listing = package_listing.replace(
-            "setuptools", f"setuptools=={version}"
-        )
+    if "setuptools" in package_listing and sys.version_info < (3, 7):
+        # Do not install incompatible version of setuptools on old Python
+        package_listing = package_listing.replace("setuptools", "setuptools==59.6")
 
     command_line = make_pip_command(
         "install {} --upgrade {}".format(pip_user, package_listing),
@@ -2558,7 +2542,7 @@ def install_required_distro_packages(
 
         if install_pyqt5:
             packages = (
-                f"{packages } qt5-qtimageformats python3-qt5 qt5-qtsvg qt5-qtwayland"
+                f"{packages} qt5-qtimageformats python3-qt5 qt5-qtsvg qt5-qtwayland"
             )
 
         if distro in (Distro.fedora, Distro.centos_stream9):

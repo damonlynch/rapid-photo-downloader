@@ -1,8 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.34 (2022-xx-xx)
+0.9.34 (2022-11-xx)
 -------------------
+
+ - Fix bug [#91](https://github.com/damonlynch/rapid-photo-downloader/issues/91):
+   Avoid infinite loop when detecting setuptools install status in 
+   `install.py` script.  
 
  - Update Italian translation. Thanks to Albano Battistella for the update.
 
