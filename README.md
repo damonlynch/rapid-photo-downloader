@@ -9,6 +9,13 @@ professional and amateur photographers.
 
 ![Main window screenshot](.github/mainwindow.png)
 
+## Personal Note From the Developer
+
+This project has only ever had one software developer. I developed a hand 
+injury from typing while working on the code in early 2022. As such code
+development is suspended until I recover, which will not be until 2023 or
+perhaps even 2024; the only exception is emergency patches.
+
 ## User Survey 
 
 If you have any experience with Rapid Photo Downloader at all, including if 
