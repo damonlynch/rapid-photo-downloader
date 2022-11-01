@@ -8,7 +8,8 @@ Changelog for Rapid Photo Downloader
    Avoid infinite loop when detecting setuptools install status in 
    `install.py` script.  
 
- - Update Italian translation. Thanks to Albano Battistella for the update.
+ - Update Dutch, Italian and Turkish translations. Thanks to Albano Battistella 
+   for the update to Italian.
 
 0.9.33 (2022-03-11)
 -------------------
