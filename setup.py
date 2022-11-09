@@ -30,9 +30,9 @@ __copyright__ = (
 
 import os
 from glob import glob
-from distutils.command.build import build
 from setuptools import setup, Command
 from setuptools.command.sdist import sdist
+from distutils.command.build import build
 
 
 here = os.path.abspath(os.path.dirname(__file__))
