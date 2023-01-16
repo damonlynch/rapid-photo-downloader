@@ -1363,7 +1363,9 @@ class TemporalProximityModel(QAbstractTableModel):
                     proximity_row = self.groups[row]  # type: ProximityRow
                     self.groups[row] = proximity_row._replace(new_file=False)
                     rows_to_update.append(row)
-                    logging.debug("Row %s will be updated to show it has no new files")
+                    logging.debug(
+                        "Row %s will be updated to show it has no new files", row
+                    )
 
         if rows_to_update:
             for first, last in runs(rows_to_update):
