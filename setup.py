@@ -328,7 +328,7 @@ setup(
         "raphodo.metadata.analysis",
         "raphodo.prefs",
     ],
-    python_requires=">=3.6.*, <4",
+    python_requires=">=3.6, <4",
     entry_points={
         "gui_scripts": ["rapid-photo-downloader=raphodo.rapid:main"],
     },
