@@ -13,8 +13,16 @@ professional and amateur photographers.
 
 This project has only ever had one software developer. I developed a hand 
 injury from typing while working on the code in early 2022. As such code
-development is suspended until I recover, which will not be until 2023 or
-perhaps even 2024; the only exception is emergency patches.
+development is suspended until I recover, which will not be until 2024; the 
+only exception is emergency patches.
+
+## Depreciation of the Install Script
+
+I cannot maintain the `install.py` script due to my hand injury (see above)
+&mdash; testing the script in the variety of Linux distributions it supports
+requires a lot of typing. The script is therefore depreciated and I do not 
+recommend its use, especially on recent Linux distributions.
+
 
 ## User Survey 
 
