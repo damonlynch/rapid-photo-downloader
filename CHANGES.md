@@ -4,8 +4,11 @@ Changelog for Rapid Photo Downloader
 0.9.35 (2023-xx-xx)
 -------------------
 
+ - Depreciate use of the `install.py` script. Using it is no longer recommended.
+
  - Conform version indentifier in `setup.py` to PEP 440 which is enforced with
-   setuptools >= 66.0.0
+   setuptools >= 66.0.0. Thanks to stratakis for the fix.
+
 
 0.9.34 (2022-11-02)
 -------------------
