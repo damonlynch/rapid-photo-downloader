@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.35 (2023-xx-xx)
+-------------------
+
+ - Conform version indentifier in `setup.py` to PEP 440 which is enforced with
+   setuptools >= 66.0.0
+
 0.9.34 (2022-11-02)
 -------------------
 
