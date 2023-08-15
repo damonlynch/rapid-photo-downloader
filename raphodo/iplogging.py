@@ -71,7 +71,7 @@ class RotatingGzipFileHandler(RotatingFileHandler):
         with open(source, "rb") as sf:
             with gzip.open(dest, "wb") as df:
                 df.writelines(sf)
-                os.remove(source)
+        os.remove(source)
 
 
 def full_log_file_path():
