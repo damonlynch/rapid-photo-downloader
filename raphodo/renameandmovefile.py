@@ -190,6 +190,7 @@ def load_metadata(
     rpd_file: Union[Photo, Video],
     et_process: exiftool.ExifTool,
     problems: RenamingProblems,
+    force_exiftool: bool,
 ) -> bool:
     """
     Loads the metadata for the file.
@@ -197,11 +198,15 @@ def load_metadata(
     :param rpd_file: photo or video
     :param et_process: the daemon ExifTool process
     :param problems: problems encountered renaming the file
+    :param force_exiftool: whether to force the use of ExifTool to read the file
+     metadata
     :return True if operation succeeded, false otherwise
     """
     if rpd_file.metadata is None:
         if not rpd_file.load_metadata(
-            full_file_name=rpd_file.temp_full_file_name, et_process=et_process
+            full_file_name=rpd_file.temp_full_file_name,
+            et_process=et_process,
+            force_exiftool=force_exiftool,
         ):
             # Error in reading metadata
 
@@ -219,6 +224,7 @@ def _generate_name(
     rpd_file: Union[Photo, Video],
     et_process: exiftool.ExifTool,
     problems: RenamingProblems,
+    force_exiftool: bool,
 ) -> str:
     """
     Generate a subfolder or file name.
@@ -227,9 +233,17 @@ def _generate_name(
      for the file type (photo or video)
     :param rpd_file: file to work on
     :param et_process:  the daemon ExifTool process
+    :param problems: problems encountered renaming the file
+    :param force_exiftool: whether to force the use of ExifTool to read the file
+     metadata
     :return: the name in string format, emptry string if error
     """
-    do_generation = load_metadata(rpd_file, et_process, problems)
+    do_generation = load_metadata(
+        rpd_file=rpd_file,
+        et_process=et_process,
+        problems=problems,
+        force_exiftool=force_exiftool,
+    )
 
     if do_generation:
         value = generator.generate_name(rpd_file)
@@ -245,6 +259,7 @@ def generate_subfolder(
     rpd_file: Union[Photo, Video],
     et_process: exiftool.ExifTool,
     problems: RenamingProblems,
+    force_exiftool: bool,
 ) -> None:
     """
     Generate subfolder names e.g. 2015/201512
@@ -252,6 +267,8 @@ def generate_subfolder(
     :param rpd_file: file to work on
     :param et_process:  the daemon ExifTool process
     :param problems: problems encountered renaming the file
+    :param force_exiftool: whether to force the use of ExifTool to read the file
+     metadata
     """
 
     if rpd_file.file_type == FileType.photo:
@@ -260,7 +277,11 @@ def generate_subfolder(
         generator = gn.VideoSubfolder(rpd_file.subfolder_pref_list, problems=problems)
 
     rpd_file.download_subfolder = _generate_name(
-        generator, rpd_file, et_process, problems
+        generator=generator,
+        rpd_file=rpd_file,
+        et_process=et_process,
+        problems=problems,
+        force_exiftool=force_exiftool,
     )
 
 
@@ -268,6 +289,7 @@ def generate_name(
     rpd_file: Union[Photo, Video],
     et_process: exiftool.ExifTool,
     problems: RenamingProblems,
+    force_exiftool: bool,
 ) -> None:
     """
     Generate file names e.g. 20150607-1.cr2
@@ -275,6 +297,8 @@ def generate_name(
     :param rpd_file: file to work on
     :param et_process:  the daemon ExifTool process
     :param problems: problems encountered renaming the file
+    :param force_exiftool: whether to force the use of ExifTool to read the file
+     metadata
     """
 
     if rpd_file.file_type == FileType.photo:
@@ -282,7 +306,13 @@ def generate_name(
     else:
         generator = gn.VideoName(pref_list=rpd_file.name_pref_list, problems=problems)
 
-    rpd_file.download_name = _generate_name(generator, rpd_file, et_process, problems)
+    rpd_file.download_name = _generate_name(
+        generator=generator,
+        rpd_file=rpd_file,
+        et_process=et_process,
+        problems=problems,
+        force_exiftool=force_exiftool,
+    )
 
 
 class RenameMoveFileWorker(DaemonProcess):
@@ -684,7 +714,12 @@ class RenameMoveFileWorker(DaemonProcess):
         failed = False
         sequence_to_use = None
         photo_name, photo_ext = os.path.splitext(rpd_file.name)
-        if not load_metadata(rpd_file, self.exiftool_process, self.problems):
+        if not load_metadata(
+            rpd_file=rpd_file,
+            et_process=self.exiftool_process,
+            problems=self.problems,
+            force_exiftool=self.prefs.force_exiftool,
+        ):
             failed = True
             rpd_file.status = DownloadStatus.download_failed
             self.check_for_fatal_name_generation_errors(rpd_file)
@@ -759,7 +794,12 @@ class RenameMoveFileWorker(DaemonProcess):
 
         rpd_file.strip_characters = self.prefs.strip_characters
 
-        generate_subfolder(rpd_file, self.exiftool_process, self.problems)
+        generate_subfolder(
+            rpd_file=rpd_file,
+            et_process=self.exiftool_process,
+            problems=self.problems,
+            force_exiftool=self.prefs.force_exiftool,
+        )
 
         if rpd_file.download_subfolder:
             logging.debug(
@@ -775,7 +815,12 @@ class RenameMoveFileWorker(DaemonProcess):
             rpd_file.sequences = self.sequences
 
             # generate the file name
-            generate_name(rpd_file, self.exiftool_process, self.problems)
+            generate_name(
+                rpd_file=rpd_file,
+                et_process=self.exiftool_process,
+                problems=self.problems,
+                force_exiftool=self.prefs.force_exiftool,
+            )
 
             if rpd_file.name_generation_problem:
                 logging.warning(

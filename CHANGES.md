@@ -6,6 +6,9 @@ Changelog for Rapid Photo Downloader
 
  - Depreciate use of the `install.py` script. Using it is no longer recommended.
 
+ -  Fix bug [#110](https://github.com/damonlynch/rapid-photo-downloader/issues/110):
+    ExifTool not called during rename process.
+
  - Conform version indentifier in `setup.py` to PEP 440 which is enforced with
    setuptools >= 66.0.0. Thanks to stratakis for the fix.
 
