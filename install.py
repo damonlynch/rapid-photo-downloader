@@ -2533,7 +2533,7 @@ def install_required_distro_packages(
             "gstreamer1-plugins-good "
             "zeromq-devel exiv2 perl-Image-ExifTool gcc-c++ "
             "rpm-build intltool libmediainfo python3-wheel zenity "
-            "gstreamer1-libav "
+            "gstreamer1-plugin-libav "
         )
 
         # CentOS does not include ifuse
