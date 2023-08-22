@@ -6,6 +6,8 @@ Changelog for Rapid Photo Downloader
 
  - Depreciate use of the `install.py` script. Using it is no longer recommended.
 
+ - Add new option "Read video metadata using only ExifTool".
+
  -  Fix bug [#110](https://github.com/damonlynch/rapid-photo-downloader/issues/110):
     ExifTool not called during rename process.
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Dialog window to show and manipulate selected user preferences
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2022, Damon Lynch"
+__copyright__ = "Copyright 2017-2023, Damon Lynch"
 
 import webbrowser
 from typing import List
@@ -1019,15 +1019,32 @@ class PreferencesDialog(QDialog):
 
         self.forceExiftool.setToolTip(tip)
 
+        self.forceExiftoolVideo = QCheckBox(
+            _("Read video metadata using only ExifTool")
+        )
+        tip = _(
+            "<p>Use ExifTool instead of MediaInfo and Gstreamer to read video metadata "
+            "and extract thumbnails.</p>"
+            "<p>The default is to use MediaInfo and Gstreamer, with three "
+            "exceptions:</p>"
+            "<ol><li>ExifTool reports a time zone and MediaInfo does not.</li>"
+            "<li>ExifTool provides more reliable data than MediaInfo for some file "
+            "formats.</li>"
+            "<li>Gstreamer is unable to extract thumbnails.</li></ol>"
+        )
+        self.forceExiftoolVideo.setToolTip(tip)
+
         self.setMetdataValues()
         self.ignoreMdatatimeMtpDng.stateChanged.connect(
             self.ignoreMdatatimeMtpDngChanged
         )
         self.forceExiftool.stateChanged.connect(self.forceExiftoolChanged)
+        self.forceExiftoolVideo.stateChanged.connect(self.forceExiftoolVideoChanged)
 
         metadataLayout = QVBoxLayout()
         metadataLayout.addWidget(self.ignoreMdatatimeMtpDng)
         metadataLayout.addWidget(self.forceExiftool)
+        metadataLayout.addWidget(self.forceExiftoolVideo)
         self.metadataBox.setLayout(metadataLayout)
 
         if not consolidation_implemented:
@@ -1373,6 +1390,7 @@ class PreferencesDialog(QDialog):
     def setMetdataValues(self) -> None:
         self.ignoreMdatatimeMtpDng.setChecked(self.prefs.ignore_mdatatime_for_mtp_dng)
         self.forceExiftool.setChecked(self.prefs.force_exiftool)
+        self.forceExiftoolVideo.setChecked(self.prefs.force_exiftool_video)
 
     def setCompletedDownloadsValues(self) -> None:
         s = self.prefs.completed_downloads
@@ -1737,6 +1755,10 @@ class PreferencesDialog(QDialog):
     def forceExiftoolChanged(self, state: int) -> None:
         self.prefs.force_exiftool = state == Qt.Checked
 
+    @pyqtSlot(int)
+    def forceExiftoolVideoChanged(self, state: int) -> None:
+        self.prefs.force_exiftool_video = state == Qt.Checked
+
     @pyqtSlot(QAbstractButton)
     def noConsolidationGroupClicked(self, button: QRadioButton) -> None:
         if button == self.keepCompletedDownloads:
@@ -1825,6 +1847,7 @@ class PreferencesDialog(QDialog):
                 "include_development_release",
                 "ignore_mdatatime_for_mtp_dng",
                 "force_exiftool",
+                "force_exiftool_video",
             ):
                 self.prefs.restore(value)
             if not consolidation_implemented:

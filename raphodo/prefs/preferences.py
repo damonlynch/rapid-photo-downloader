@@ -395,6 +395,7 @@ class Preferences:
     restart_directives = dict(purge_thumbnails=False, optimize_thumbnail_db=False)
     metadata_defaults = dict(
         force_exiftool=False,
+        force_exiftool_video=False,  # new in 0.9.35
         ignore_time_zone_changes=True,  # new in 0.9.29a1
         time_zone_offset_resolution=60,  # new in 0.9.29a1
     )
@@ -1190,7 +1191,7 @@ class Preferences:
         for path, name in (
             (self.photo_download_folder, "Photo download folder"),
             (self.video_download_folder, "Video download folder"),
-            (self.this_computer_path, "This computer path")
+            (self.this_computer_path, "This computer path"),
         ):
             parts = Path(path).resolve().parts
             if path and (
