@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -29,7 +29,7 @@ Project line length: 88 characters (i.e. word wrap at 88)
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2022, Damon Lynch"
+__copyright__ = "Copyright 2011-2023, Damon Lynch"
 
 import sys
 import logging
@@ -2120,8 +2120,7 @@ difference to the program's future.</p>"""
         self.preferencesAct.triggered.connect(self.doPreferencesAction)
 
         self.quitAct = QAction(_("&Quit"), self)
-        if not self.is_wsl2:
-            self.quitAct.setShortcut("Ctrl+Q")
+        self.quitAct.setShortcut("Ctrl+Q")
         self.quitAct.triggered.connect(self.close)
 
         if self.is_wsl2:

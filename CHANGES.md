@@ -8,6 +8,8 @@ Changelog for Rapid Photo Downloader
 
  - Add new option "Read video metadata using only ExifTool".
 
+ - Re-enabled Ctrl-Q shortcut key for quiting when running under WSL. 
+
  -  Fix bug [#110](https://github.com/damonlynch/rapid-photo-downloader/issues/110):
     ExifTool not called during rename process.
 
