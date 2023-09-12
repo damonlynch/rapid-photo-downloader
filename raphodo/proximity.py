@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2022, Damon Lynch"
+__copyright__ = "Copyright 2015-2023, Damon Lynch"
 
 from collections import namedtuple, defaultdict, deque, Counter
 from operator import attrgetter
@@ -30,7 +30,11 @@ from typing import Dict, List, Tuple, Set, Optional, DefaultDict, Generator
 import arrow.arrow
 from arrow.arrow import Arrow
 
-from PyQt5.Qt import QWIDGETSIZE_MAX
+try:
+    from PyQt5.Qt import QWIDGETSIZE_MAX
+except ImportError:
+    from PyQt5.QtWidgets import QWIDGETSIZE_MAX
+
 from PyQt5.QtCore import (
     QAbstractTableModel,
     QModelIndex,

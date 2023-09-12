@@ -10,8 +10,11 @@ Changelog for Rapid Photo Downloader
 
  - Re-enabled Ctrl-Q shortcut key for quiting when running under WSL. 
 
- -  Fix bug [#110](https://github.com/damonlynch/rapid-photo-downloader/issues/110):
-    ExifTool not called during rename process.
+ - Fix bug [#110](https://github.com/damonlynch/rapid-photo-downloader/issues/110):
+   ExifTool not called during rename process.
+
+ - Fix bug [#112](https://github.com/damonlynch/rapid-photo-downloader/issues/112):
+   QWIDGETSIZE_MAX import error.
 
  - Conform version indentifier in `setup.py` to PEP 440 which is enforced with
    setuptools >= 66.0.0. Thanks to stratakis for the fix.
