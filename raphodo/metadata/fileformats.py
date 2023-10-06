@@ -136,6 +136,7 @@ AUDIO_EXTENSIONS = ["wav", "mp3"]
 VIDEO_EXTENSIONS = [
     "3gp",
     "avi",
+    "lrv",
     "m2t",
     "m2ts",
     "mov",
