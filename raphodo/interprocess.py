@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,7 +22,7 @@ Handle interprocess communication using 0MQ
 
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2022, Damon Lynch"
+__copyright__ = "Copyright 2015-2023, Damon Lynch"
 
 import argparse
 import sys
@@ -1460,6 +1460,7 @@ class ThumbnailDaemonData:
         backup_full_file_names: Optional[List[str]] = None,
         fdo_name: Optional[str] = None,
         force_exiftool: Optional[bool] = None,
+        force_exiftool_video: Optional[bool] = None,
     ) -> None:
         self.frontend_port = frontend_port
         self.rpd_file = rpd_file
@@ -1468,6 +1469,7 @@ class ThumbnailDaemonData:
         self.backup_full_file_names = backup_full_file_names
         self.fdo_name = fdo_name
         self.force_exiftool = force_exiftool
+        self.force_exiftool_video = force_exiftool_video
 
 
 class RenameAndMoveFileData:
@@ -1693,6 +1695,7 @@ class ThumbnailExtractorArgument:
         write_fdo_thumbnail: bool,
         send_thumb_to_main: bool,
         force_exiftool: bool,
+        force_exiftool_video: bool,
     ) -> None:
         self.rpd_file = rpd_file
         self.task = task
@@ -1706,6 +1709,7 @@ class ThumbnailExtractorArgument:
         self.write_fdo_thumbnail = write_fdo_thumbnail
         self.send_thumb_to_main = send_thumb_to_main
         self.force_exiftool = force_exiftool
+        self.force_exiftool_video = force_exiftool_video
 
 
 class RenameMoveFileManager(PushPullDaemonManager):

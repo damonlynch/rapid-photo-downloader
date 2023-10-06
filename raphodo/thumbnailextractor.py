@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
+__copyright__ = "Copyright 2015-2023, Damon Lynch"
 
 import sys
 import logging
@@ -57,6 +57,7 @@ from raphodo.utilities import stdchannel_redirected, show_errors, image_large_en
 from raphodo.ui.filmstrip import add_filmstrip
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge, FdoCacheNormal
 import raphodo.metadata.exiftool as exiftool
+from raphodo.metadata.fileformats import use_exiftool_on_video, extract_extension
 from raphodo.heif import have_heif_module, load_heif
 
 
@@ -386,7 +387,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
             )
         else:
             self.assign_video_mdatatime(
-                rpd_file=rpd_file, full_file_name=full_file_name
+                rpd_file=rpd_file,
+                full_file_name=full_file_name,
+                force_exiftool=force_exiftool,
             )
 
     def assign_photo_mdatatime(
@@ -436,14 +439,21 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 force_exiftool=force_exiftool,
             )
 
-    def assign_video_mdatatime(self, rpd_file: Video, full_file_name: str) -> None:
+    def assign_video_mdatatime(
+        self,
+        rpd_file: Video,
+        full_file_name: str,
+        force_exiftool: bool,
+    ) -> None:
         """
         Load the video's metadata and assign the metadata time to the rpd file
         """
 
         if rpd_file.metadata is None:
             rpd_file.load_metadata(
-                full_file_name=full_file_name, et_process=self.exiftool_process
+                full_file_name=full_file_name,
+                et_process=self.exiftool_process,
+                force_exiftool=force_exiftool,
             )
         if rpd_file.date_time() is None:
             rpd_file.mdatatime = 0.0
@@ -491,6 +501,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
         """
 
         orientation = None
+        thumbnail = None
 
         if task == ExtractionTask.load_from_exif:
             thumbnail_details = self.get_disk_photo_thumb(
@@ -616,30 +627,42 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
                 if ExtractionTask.extract_from_file_and_load_metadata:
                     self.assign_video_mdatatime(
-                        rpd_file=rpd_file, full_file_name=data.full_file_name_to_work_on
+                        rpd_file=rpd_file,
+                        full_file_name=data.full_file_name_to_work_on,
+                        force_exiftool=data.force_exiftool_video,
                     )
-                if not have_gst:
-                    thumbnail = None
+
+                try:
+                    use_exiftool = not have_gst or use_exiftool_on_video(
+                        rpd_file.extension
+                    )
+                except Exception:
+                    use_exiftool = False
+
+                if use_exiftool:
+                    preview = (
+                        rpd_file.metadata.get_small_thumbnail_or_first_indexed_preview()
+                    )
                 else:
-                    png = get_video_frame(data.full_file_name_to_work_on, 1.0)
-                    if not png:
+                    preview = get_video_frame(data.full_file_name_to_work_on, 1.0)
+                if not preview:
+                    thumbnail = None
+                    logging.warning(
+                        "Could not extract video thumbnail from %s",
+                        data.rpd_file.get_display_full_name(),
+                    )
+                else:
+                    thumbnail = QImage.fromData(preview)
+                    if thumbnail.isNull():
                         thumbnail = None
-                        logging.warning(
-                            "Could not extract video thumbnail from %s",
-                            data.rpd_file.get_display_full_name(),
-                        )
                     else:
-                        thumbnail = QImage.fromData(png)
-                        if thumbnail.isNull():
-                            thumbnail = None
-                        else:
-                            processing.add(ExtractionProcessing.add_film_strip)
-                            orientation = self.get_video_rotation(
-                                rpd_file, data.full_file_name_to_work_on
-                            )
-                            if orientation is not None:
-                                processing.add(ExtractionProcessing.orient)
-                            processing.add(ExtractionProcessing.resize)
+                        processing.add(ExtractionProcessing.add_film_strip)
+                        orientation = self.get_video_rotation(
+                            rpd_file, data.full_file_name_to_work_on
+                        )
+                        if orientation is not None:
+                            processing.add(ExtractionProcessing.orient)
+                        processing.add(ExtractionProcessing.resize)
 
         return thumbnail, orientation
 

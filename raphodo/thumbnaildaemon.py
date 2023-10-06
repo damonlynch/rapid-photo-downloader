@@ -216,6 +216,7 @@ class DameonThumbnailWorker(DaemonProcess):
                                 write_fdo_thumbnail=data.write_fdo_thumbnail,
                                 send_thumb_to_main=True,
                                 force_exiftool=data.force_exiftool,
+                                force_exiftool_video=data.force_exiftool_video,
                             ),
                             pickle.HIGHEST_PROTOCOL,
                         )

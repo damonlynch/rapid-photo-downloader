@@ -492,6 +492,10 @@ class RapidWindow(QMainWindow):
 
         if self.prefs.force_exiftool:
             logging.debug("ExifTool and not Exiv2 will be used to read photo metadata")
+        if self.prefs.force_exiftool_video:
+            logging.debug(
+                "ExifTool and not MediaInfo will be used to read video metadata"
+            )
 
         # track devices on which there was an error setting a file's filesystem metadata
         self.copy_metadata_errors = FSMetadataErrors()
@@ -3925,6 +3929,7 @@ Do you want to proceed with the download?"""
                         write_fdo_thumbnail=self.prefs.save_fdo_thumbnails,
                         use_thumbnail_cache=self.prefs.use_thumbnail_cache,
                         force_exiftool=self.prefs.force_exiftool,
+                        force_exiftool_video=self.prefs.force_exiftool_video,
                     ),
                 )
             else:
@@ -3998,6 +4003,7 @@ Do you want to proceed with the download?"""
                         backup_full_file_names=self.backup_fdo_thumbnail_cache[uid],
                         fdo_name=rpd_file.fdo_thumbnail_128_name,
                         force_exiftool=self.prefs.force_exiftool,
+                        force_exiftool_video=self.prefs.force_exiftool_video,
                     ),
                 )
                 del self.backup_fdo_thumbnail_cache[uid]
@@ -4193,6 +4199,8 @@ Do you want to proceed with the download?"""
                     backup_full_file_names=[backup_full_file_name],
                     fdo_name=self.generated_fdo_thumbnails[uid],
                     force_exiftool=self.prefs.force_exiftool,
+                    force_exiftool_video=self.prefs.force_exiftool_video,
+
                 ),
             )
 
@@ -6903,16 +6911,14 @@ def get_versions(
     ]
     v = exiv2_version()
     if v:
-        cr3 = 'CR3 support enabled' if fileformats.exiv2_cr3() else 'no CR3 support'
+        cr3 = "CR3 support enabled" if fileformats.exiv2_cr3() else "no CR3 support"
         versions.append(f"Exiv2: {v} ({cr3})")
     try:
         versions.append("{}: {}".format(*platform.libc_ver()))
     except:
         pass
     try:
-        versions.append(
-           f"Arrow: {arrow.__version__} {python_package_source('arrow')}"
-        )
+        versions.append(f"Arrow: {arrow.__version__} {python_package_source('arrow')}")
         versions.append(f"dateutil: {dateutil.__version__}")
     except AttributeError:
         pass

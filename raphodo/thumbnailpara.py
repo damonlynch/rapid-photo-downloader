@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -32,7 +32,7 @@ the metadata time is not already found in the rpd_file.
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2022, Damon Lynch"
+__copyright__ = "Copyright 2011-2023, Damon Lynch"
 
 try:
     using_injected = "profile" in dict(__builtins__)
@@ -503,8 +503,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         self.prefs = Preferences()
 
-        # Whether we must use ExifTool to read photo metadata
+        # Whether we must use ExifTool to read photo and video metadata
         force_exiftool = self.prefs.force_exiftool
+        force_exiftool_video = self.prefs.force_exiftool_video
 
         # If the entire photo or video is required to extract the thumbnail, which is
         # determined when extracting sample metadata from a photo or video during the
@@ -521,6 +522,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         photo_cache_dir = video_cache_dir = None
         cache_file_from_camera = force_exiftool
+        # TODO Account for video as well?
 
         rpd_files = arguments.rpd_files
 
@@ -885,6 +887,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                         write_fdo_thumbnail=False,
                         send_thumb_to_main=True,
                         force_exiftool=force_exiftool,
+                        force_exiftool_video=force_exiftool_video,
                     ),
                     pickle.HIGHEST_PROTOCOL,
                 )

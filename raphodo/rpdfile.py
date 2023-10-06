@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
+__copyright__ = "Copyright 2011-2023, Damon Lynch"
 
 import os
 import time
@@ -916,13 +916,18 @@ class Video(RPDFile):
         self.file_type = FileType.video
 
     def load_metadata(
-        self, full_file_name: Optional[str] = None, et_process: exiftool.ExifTool = None
+        self,
+        full_file_name: Optional[str] = None,
+        et_process: exiftool.ExifTool = None,
+        force_exiftool: Optional[bool] = False,
     ) -> bool:
         """
         Use ExifTool to read the video's metadata
         :param full_file_name: full path of file from which file to read
          the metadata.
         :param et_process: optional deamon exiftool process
+        :param force_exiftool: whether ExifTool must be used to load the
+         metadata
         :return: Always returns True. Return value is needed to keep
          consistency with class Photo, where the value actually makes sense.
         """
@@ -933,8 +938,16 @@ class Video(RPDFile):
                 full_file_name = self.cache_full_file_name
             else:
                 full_file_name = self.full_file_name
-        self.metadata = metadatavideo.MetaData(full_file_name, et_process)
-        return True
+        if force_exiftool or fileformats.use_exiftool_on_video(self.extension):
+            self.metadata = metadataexiftool.MetadataExiftool(
+                full_file_name=full_file_name,
+                et_process=et_process,
+                file_type=self.file_type,
+            )
+            return True
+        else:
+            self.metadata = metadatavideo.MetaData(full_file_name, et_process)
+            return True
 
 
 class SamplePhoto(Photo):

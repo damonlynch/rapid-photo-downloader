@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,7 +17,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2022, Damon Lynch"
+__copyright__ = "Copyright 2011-2023, Damon Lynch"
 
 
 import logging
@@ -109,7 +109,7 @@ if cr3_capable():
 
 RAW_EXTENSIONS.sort()
 
-EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS = ["mos", "mrw", "x3f"]
+EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS = ["mos", "mrw", "x3f", "nev"]
 
 if not _exiv2_cr3 and _exiftool_cr3:
     EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS.append("cr3")
@@ -145,6 +145,7 @@ VIDEO_EXTENSIONS = [
     "mod",
     "tod",
     "mts",
+    "nev",
 ]
 
 VIDEO_EXTENSIONS.sort()
@@ -177,6 +178,16 @@ def use_exiftool_on_photo(extension: str, preview_extraction_irrelevant: bool) -
         # load HEIF / HEIC files directly
         return preview_extraction_irrelevant
 
+    return extension in EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS
+
+
+def use_exiftool_on_video(extension: str) -> bool:
+    """
+    Determine if the file extension indicates its exif information
+    must be extracted using ExifTool and not mediainfo.
+
+    :param extension: lower case, no leading period
+    """
     return extension in EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS
 
 

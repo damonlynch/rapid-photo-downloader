@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -24,7 +24,7 @@ Read photo and video metadata using ExifTool daemon process.
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2021, Damon Lynch"
+__copyright__ = "Copyright 2007-2023, Damon Lynch"
 
 import datetime
 import re
@@ -124,6 +124,7 @@ class MetadataExiftool:
                 2,
                 3,
             ),  # along with DNG quite possibly the most inconsistent format
+            nev=(0,),
             nrw=(0, 1),
             orf=(0,),
             pef=(0,),

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -34,7 +34,7 @@ device, there are two aspects to metadata that are in fact needed:
 
 2. The device's time zone must be determined, as cameras handle their time
    zone setting differently from phones, and results can be unpredictable.
-   Therefore need to analyze the created date time metadata of a file the
+   Therefore, need to analyze the created date time metadata of a file the
    device and compare it against the file modification time on the file system
    or more importantly, gphoto2. It's not an exact science and there are
    problems, but doing this is better than not doing it at all.
@@ -43,7 +43,7 @@ A sample photo or video for (1) can be used for (2)
 
 """
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2022, Damon Lynch"
+__copyright__ = "Copyright 2011-2023, Damon Lynch"
 
 import os
 import sys
@@ -1420,6 +1420,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
         elif ext_type == FileExtension.video:
             determined_by = "video"
             save_chunk = True
+            use_exiftool_video = (
+                self.prefs.force_exiftool_video
+                or fileformats.use_exiftool_on_video(extension)
+            )
         elif ext_type == FileExtension.heif:
             determined_by = "HEIF / HEIC"
             exif_extract = True
@@ -1475,7 +1479,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 assert save_chunk
                 offset = all_tags_offset_exiftool.get(extension)
                 if offset is None:
-                    max_size = 1024 ** 2 * 2  # approx 2 MB
+                    max_size = 1024**2 * 2  # approx 2 MB
                     offset = min(size, max_size)
                 self.entire_photo_required, dt = self.download_chunk_from_camera(
                     offset=offset,
@@ -1534,7 +1538,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # video
             offset = all_tags_offset_exiftool.get(extension)
             if offset is None:
-                max_size = 1024 ** 2 * 20  # approx 21 MB
+                max_size = 1024**2 * 20  # approx 21 MB
                 offset = min(size, max_size)
             self.entire_video_required, dt = self.download_chunk_from_camera(
                 offset=offset,

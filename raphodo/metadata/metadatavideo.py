@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
+__copyright__ = "Copyright 2011-2023, Damon Lynch"
 
 import datetime
 import logging
@@ -30,6 +30,7 @@ from arrow.arrow import Arrow
 
 from raphodo.programversions import EXIFTOOL_VERSION
 import raphodo.metadata.exiftool as exiftool
+from raphodo.metadata.fileformats import use_exiftool_on_video
 import raphodo.metadata.metadataexiftool as metadataexiftool
 from raphodo.utilities import datetime_roughly_equal, arrow_shift_support
 from raphodo.constants import FileType
@@ -125,7 +126,9 @@ class MetaData(metadataexiftool.MetadataExiftool):
         recorded, else missing
         """
 
-        if have_pymediainfo:
+        if not have_pymediainfo or use_exiftool_on_video(self.ext):
+            return super().date_time(missing)
+        else:
             try:
                 d = self.media_info.to_data()["tracks"][0]["encoded_date"]  # type: str
             except KeyError:
@@ -235,8 +238,6 @@ class MetaData(metadataexiftool.MetadataExiftool):
                 else:
                     return dt
 
-        else:
-            return super().date_time(missing)
 
 
 class DummyMetaData:
