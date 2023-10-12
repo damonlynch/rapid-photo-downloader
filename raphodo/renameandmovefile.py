@@ -901,6 +901,8 @@ class RenameMoveFileWorker(DaemonProcess):
                 if inst.errno == errno.EXDEV:
                     logging.debug("....invalid cross-device link detected, falling back to full copy operation")
                     shutil.move(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
+                else:
+                    raise inst
             logging.debug("....successfully renamed file")
             move_succeeded = True
             if rpd_file.status != DownloadStatus.downloaded_with_warning:
