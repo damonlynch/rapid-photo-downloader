@@ -38,6 +38,7 @@ import sys
 from typing import Union, Tuple, Dict, Optional
 import sqlite3
 import locale
+import shutil
 
 try:
     # Use the default locale as defined by the LANG variable
@@ -894,7 +895,12 @@ class RenameMoveFileWorker(DaemonProcess):
                 rpd_file.temp_full_file_name,
                 rpd_file.download_full_file_name,
             )
-            os.rename(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
+            try:
+                os.rename(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
+            except Exception as inst:
+                if inst.errno == errno.EXDEV:
+                    logging.debug("....invalid cross-device link detected, falling back to full copy operation")
+                    shutil.move(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
             logging.debug("....successfully renamed file")
             move_succeeded = True
             if rpd_file.status != DownloadStatus.downloaded_with_warning:
