@@ -897,7 +897,7 @@ class RenameMoveFileWorker(DaemonProcess):
             )
             try:
                 os.rename(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
-            except Exception as inst:
+            except OSError as inst:
                 if inst.errno == errno.EXDEV:
                     logging.debug("....invalid cross-device link detected, falling back to full copy operation")
                     shutil.move(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
