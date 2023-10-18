@@ -13,8 +13,14 @@ professional and amateur photographers.
 
 This project has only ever had one software developer. I developed a hand 
 injury from typing while working on the code in early 2022. As such code
-development is suspended until I recover, which will not be until 2024; the 
-only exception is emergency patches.
+development has slowed considerably as I seek to recover from this serious 
+injury. To work around the injury, I am using the JetBrains editor PyCharm 
+in conjunction with the voice recognition tools Talon and Dragon 
+NaturallySpeaking on Windows / WSL2. While this  notably restricts my 
+ability to test the code, at least I can write it.
+
+I want to thank JetBrains for allowing me to use PyCharm Professional For 
+free under their [open source developer program](https://www.jetbrains.com/community/opensource/#support). 
 
 ## Depreciation of the Install Script
 
