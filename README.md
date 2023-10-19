@@ -12,12 +12,12 @@ professional and amateur photographers.
 ## Personal Note From the Developer
 
 This project has only ever had one software developer. I developed a hand 
-injury from typing while working on the code in early 2022. As such code
-development has slowed considerably as I seek to recover from this serious 
-injury. To work around the injury, I am using the JetBrains editor PyCharm 
-in conjunction with the voice recognition tools Talon and Dragon 
-NaturallySpeaking on Windows / WSL2. While this  notably restricts my 
-ability to test the code, at least I can write it.
+injury from typing while working on the code in early 2022. Code development 
+has slowed considerably as I seek to recover from this serious injury. To 
+work around the injury, fortunately I am able to use the JetBrains editor 
+PyCharm in conjunction with the voice recognition tools Talon and Dragon 
+NaturallySpeaking on Windows / WSL2. While my ability to test the code 
+remains limited, at least I can write it.
 
 I want to thank JetBrains for allowing me to use PyCharm Professional For 
 free under their [open source developer program](https://www.jetbrains.com/community/opensource/#support). 
@@ -92,55 +92,19 @@ Get support at the [Pixls.us discussion forum](https://discuss.pixls.us/).
 
 ## Installation
 
-Rapid Photo Downloader is packaged by all major Linux distributions.
+An `install.py` script has been available for the past six years to install 
+the latest version of the program. As discussed above, unfortunately I can no 
+longer maintain this script.
 
-If you want the latest version, or prefer it run with all its features enabled 
-(like [heif](https://en.wikipedia.org/wiki/High_Efficiency_Image_File_Format)
-support), you can run the `install.py` script, which downloads and installs the
-latest version. 
+The script is therefore depreciated and I do not recommend its use on 
+anything but old Linux distributions.
 
-To use the script to install Rapid Photo Downloader, run as your regular user 
-(i.e. without sudo):
+Instead of using the depreciated `install.py` script, I recommend installing 
+the program using your Linux distribution's standard repositories.
 
-```bash
-  python3 install.py
-```
-
-This script will install packages from your Linux distribution and from the 
-[Python Package Index (PyPi)](https://pypi.org/).
-The program sudo may prompt for your administrator (root) password during 
-the install process, if required.
-
-For a list of optional commands you can give the installer, run:
-
-```bash
-  python3 install.py --help
-```
-
-Finally, to uninstall:
-
-```bash
-  python3 install.py --uninstall
-```
-
-Or to uninstall both the program and its Python package dependencies:
-
-```bash
-  python3 install.py --uninstall-including-pip-dependencies
-```
-
-
-### Supported Linux Versions
-
- - Ubuntu 18.04 or newer
- - LinuxMint 19 or newer
- - Debian 9 or newer, unstable or testing
- - Fedora 34 or newer
- - openSUSE Leap 15.3 or newer
- - CentOS 8
- - CentOS Stream 8 (but not CentOS Stream 9)
- - Any distribution meeting the software requirements below
-
+To consult the legacy instructions for using the depreciated `install.py` 
+script, see the 
+[documentation at the program's website](https://damonlynch.net/rapid/documentation/#installation).
 
 ### Software Requirements
 
@@ -188,54 +152,6 @@ Highly recommended, optional dependencies:
    running the program analyze_pv_structure.
  - [pyheif](https://github.com/david-poirier-csn/pyheif): open HEIF / HEIC files
  - [pillow](https://github.com/python-pillow/Pillow): work with HEIF / HEIC files
-
-
-### Installation into a Python Virtual Environment
-
-Rapid Photo Downloader can be installed into a virtual environment,
-allowing you to isolate the Python packages it needs from other programs
-on your system.
-
-Virtual environments created with the `--system-site-packages` option are
-not supported. An Intel or AMD 64 bit platform is required.
-
-To install Rapid Photo Downloader into a Python virtual environment,
-create the virtual environment (naming it whatever you like):
-
-```bash
-  python3 -m venv myenv
-```
-
-Activate the virtual environment:
-
-```bash
-  source myenv/bin/activate
-```
-
-Then run the installer, passing the command line option telling the
-script to install Rapid Photo Downloader into the virtual environment:
-
-```bash
-  python install.py --virtual-env
-```
-
-Once installed, you can then deactivate the virtual
-environment with the deactivate command:
-
-```bash
-  deactivate
-```
-
-Rapid Photo Downloader can be started without activating the virtual
-environment by running
-
-```bash
-  myenv/bin/rapid-photo-downloader
-```
-
-To uninstall from the virtual environment, simply delete the virtual
-environment\'s directory.
-
 
 ## License
 
