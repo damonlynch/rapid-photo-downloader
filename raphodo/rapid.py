@@ -50,7 +50,7 @@ import platform
 import argparse
 from typing import Dict, Set, Any, DefaultDict
 import faulthandler
-import pkg_resources as pkgr
+from packaging.version import parse as parse_version
 import webbrowser
 import time
 import shlex
@@ -647,8 +647,8 @@ class RapidWindow(QMainWindow):
             if not len(previous_version):
                 logging.debug("Initial program run detected")
             else:
-                pv = pkgr.parse_version(previous_version)
-                rv = pkgr.parse_version(__about__.__version__)
+                pv = parse_version(previous_version)
+                rv = parse_version(__about__.__version__)
                 if pv < rv:
                     logging.info(
                         "Version upgrade detected, from %s to %s",
@@ -662,11 +662,11 @@ class RapidWindow(QMainWindow):
                         previous_version,
                         __about__.__version__,
                     )
-                if pv < pkgr.parse_version("0.9.7b1"):
+                if pv < parse_version("0.9.7b1"):
                     # Remove any duplicate subfolder generation or file renaming custom
                     # presets
                     self.prefs.filter_duplicate_generation_prefs()
-                if pv < pkgr.parse_version("0.9.29a1"):
+                if pv < parse_version("0.9.29a1"):
                     # clear window and panel size, so they can be regenerated
                     logging.debug(
                         "Resetting window size, and left and central splitter sizes"
@@ -1638,7 +1638,7 @@ class RapidWindow(QMainWindow):
 
         if success:
             self.latest_version = None
-            current_version = pkgr.parse_version(__about__.__version__)
+            current_version = parse_version(__about__.__version__)
 
             check_dev_version = (
                 current_version.is_prerelease or self.prefs.include_development_release
@@ -6895,16 +6895,14 @@ def get_versions(
     ]
     v = exiv2_version()
     if v:
-        cr3 = 'CR3 support enabled' if fileformats.exiv2_cr3() else 'no CR3 support'
+        cr3 = "CR3 support enabled" if fileformats.exiv2_cr3() else "no CR3 support"
         versions.append(f"Exiv2: {v} ({cr3})")
     try:
         versions.append("{}: {}".format(*platform.libc_ver()))
     except:
         pass
     try:
-        versions.append(
-           f"Arrow: {arrow.__version__} {python_package_source('arrow')}"
-        )
+        versions.append(f"Arrow: {arrow.__version__} {python_package_source('arrow')}")
         versions.append(f"dateutil: {dateutil.__version__}")
     except AttributeError:
         pass
@@ -7493,7 +7491,7 @@ def main():
                 "set: {}".format(", ".join(scaling_variables))
             )
             scaling_action = ScalingAction.turned_on
-            if pkgr.parse_version(QtCore.QT_VERSION_STR) >= pkgr.parse_version("5.6.0"):
+            if parse_version(QtCore.QT_VERSION_STR) >= parse_version("5.6.0"):
                 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
             else:
                 os.environ[qt5_variable] = "1"
@@ -7511,9 +7509,7 @@ def main():
             # Enable fractional scaling support on Qt 5.14 or above
             # Doesn't seem to be working on Gnome X11, however :-/
             # Works on KDE Neon
-            if pkgr.parse_version(QtCore.QT_VERSION_STR) >= pkgr.parse_version(
-                "5.14.0"
-            ):
+            if parse_version(QtCore.QT_VERSION_STR) >= parse_version("5.14.0"):
                 QApplication.setHighDpiScaleFactorRoundingPolicy(
                     Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
                 )

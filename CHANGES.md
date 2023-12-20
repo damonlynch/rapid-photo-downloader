@@ -4,7 +4,11 @@ Changelog for Rapid Photo Downloader
 0.9.35 (2023-xx-xx)
 -------------------
 
- - Depreciate use of the `install.py` script. Using it is no longer recommended.
+ - Depreciate use of the `install.py` script. Using it is no longer recommended. 
+
+ - New python packet requirement: packaging
+
+ - Eliminate use of depreciated pkg_resources. 
 
  - Add new option "Read video metadata using only ExifTool".
 
