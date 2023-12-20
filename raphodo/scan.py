@@ -360,7 +360,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self.scan_camera(scan_arguments)
                 # Sanity check: ensure file contents are still accessible
                 try:
-                    self.camera.camera.folder_list_files("/", self.camera.context)
+                    self.camera.camera.folder_list_files("/")
                 except gp.GPhoto2Error as e:
                     raise CameraError(CameraErrorCode.inaccessible)
                 else:
@@ -684,9 +684,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         files_in_folder = []
         names = []
         try:
-            files_in_folder = self.camera.camera.folder_list_files(
-                path, self.camera.context
-            )
+            files_in_folder = self.camera.camera.folder_list_files(path)
         except gp.GPhoto2Error as e:
             logging.error(
                 "Unable to scan files on %s: %s",
@@ -831,9 +829,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         self.problems.append(UnhandledFileProblem(name=name, uri=uri))
         folders = []
         try:
-            for name, value in self.camera.camera.folder_list_folders(
-                path, self.camera.context
-            ):
+            for name, value in self.camera.camera.folder_list_folders(path):
                 if self.scan_preferences.scan_this_path(os.path.join(path, name)):
                     folders.append(name)
         except gp.GPhoto2Error as e:
@@ -1475,7 +1471,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 assert save_chunk
                 offset = all_tags_offset_exiftool.get(extension)
                 if offset is None:
-                    max_size = 1024 ** 2 * 2  # approx 2 MB
+                    max_size = 1024**2 * 2  # approx 2 MB
                     offset = min(size, max_size)
                 self.entire_photo_required, dt = self.download_chunk_from_camera(
                     offset=offset,
@@ -1534,7 +1530,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # video
             offset = all_tags_offset_exiftool.get(extension)
             if offset is None:
-                max_size = 1024 ** 2 * 20  # approx 21 MB
+                max_size = 1024**2 * 20  # approx 21 MB
                 offset = min(size, max_size)
             self.entire_video_required, dt = self.download_chunk_from_camera(
                 offset=offset,

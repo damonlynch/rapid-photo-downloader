@@ -124,9 +124,7 @@ class RescanCamera:
         files_in_folder = []
 
         try:
-            files_in_folder = self.camera.camera.folder_list_files(
-                path, self.camera.context
-            )
+            files_in_folder = self.camera.camera.folder_list_files(path)
         except gp.GPhoto2Error as e:
             logging.error("Unable to scan files on camera: error %s", e.code)
 
@@ -170,9 +168,7 @@ class RescanCamera:
         # Recurse over subfolders in which we should
         folders = []
         try:
-            for name, value in self.camera.camera.folder_list_folders(
-                path, self.camera.context
-            ):
+            for name, value in self.camera.camera.folder_list_folders(path):
                 if self.scan_preferences.scan_this_path(os.path.join(path, name)):
                     folders.append(name)
         except gp.GPhoto2Error as e:
