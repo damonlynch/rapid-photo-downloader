@@ -113,8 +113,7 @@ if __name__ == '__main__':
     else:
         testdata = args.data
         if testdata == 'thumbnail_data_camera':
-            gp_context = gp.Context()
-            cameras = autodetect_cameras(gp_context)
+            cameras = autodetect_cameras()
             camera_model, camera_port = cameras[0]
 
     no_workers = 4
@@ -129,6 +128,3 @@ if __name__ == '__main__':
         app.setActiveWindow(tt)
         code = app.exec_()
     sys.exit(code)
-
-
-

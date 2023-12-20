@@ -875,14 +875,6 @@ class RapidWindow(QMainWindow):
 
         logging.debug("Locale directory: %s", raphodo.localedir)
 
-        # Initialise use of libgphoto2
-        logging.debug("Getting gphoto2 context")
-        try:
-            self.gp_context = gp.Context()
-        except:
-            logging.critical("Error getting gphoto2 context")
-            self.gp_context = None
-
         logging.debug("Probing for valid mounts")
         self.validMounts = ValidMounts(
             only_external_mounts=self.prefs.only_external_mounts
@@ -5458,7 +5450,7 @@ Do you want to proceed with the download?"""
         """
 
         logging.debug("Examining system for removed camera")
-        sc = autodetect_cameras(self.gp_context)
+        sc = autodetect_cameras()
         system_cameras = (
             (model, port) for model, port in sc if not port.startswith("disk:")
         )
@@ -5638,7 +5630,7 @@ Do you want to proceed with the download?"""
 
         logging.debug("Searching for cameras")
         if self.prefs.device_autodetection:
-            cameras = autodetect_cameras(self.gp_context)
+            cameras = autodetect_cameras()
             for model, port in cameras:
                 if port in self.devices.cameras_to_gvfs_unmount_for_scan:
                     assert self.devices.cameras_to_gvfs_unmount_for_scan[port] == model

@@ -262,7 +262,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.display_name = scan_arguments.device.display_name
 
         self.files_scanned = 0
-        self.camera = None
+        self.camera = None  # type: Optional[Camera]
         terminated = False
 
         if self.download_from_filesystem:

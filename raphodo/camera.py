@@ -58,21 +58,15 @@ def gphoto2_python_logging():
     return gp.use_python_logging() or True
 
 
-def autodetect_cameras(
-    context: gp.Context, suppress_errors: bool = True
-) -> Union[gp.CameraList, List]:
+def autodetect_cameras(suppress_errors: bool = True) -> Union[gp.CameraList, List]:
     """
     Do camera auto detection for multiple versions of gphoto2-python
-
-    Version 2.2.0 of gphoto2 introduces a COMPATIBILITY CHANGE:
-    Removed Context.camera_autodetect method.
-    Was quickly reintroduced in 2.2.1, but is due for removal.
 
     :return: CameraList of model and port
     """
 
     try:
-        return gp.check_result(gp.gp_camera_autodetect(context))
+        return gp.check_result(gp.gp_camera_autodetect())
     except Exception:
         if not suppress_errors:
             raise
@@ -133,7 +127,6 @@ class Camera:
         is_mtp_device: bool,
         get_folders: bool = True,
         raise_errors: bool = False,
-        context: gp.Context = None,
         specific_folders: Optional[List[str]] = None,
     ) -> None:
         """
@@ -160,11 +153,6 @@ class Camera:
         self.display_name = model
         self.camera_config = None
 
-        if context is None:
-            self.context = gp.Context()
-        else:
-            self.context = context
-
         self._select_camera(model, port)
 
         self.specific_folders = None  # type: Optional[List[str]]
@@ -175,7 +163,7 @@ class Camera:
 
         self.camera_initialized = False
         try:
-            self.camera.init(self.context)
+            self.camera.init()
             self.camera_initialized = True
         except gp.GPhoto2Error as e:
             if e.code == gp.GP_ERROR_IO_USB_CLAIM:
@@ -278,7 +266,7 @@ class Camera:
 
         # turn list of two items into a dictionary, for easier access
         # no error checking as exceptions are caught by the caller
-        folders = dict(self.camera.folder_list_folders(path, self.context))
+        folders = dict(self.camera.folder_list_folders(path))
 
         if specific_folders is None:
             found_folders = [[path + folder] for folder in folders]
@@ -288,9 +276,7 @@ class Camera:
             # it is at this level that specific folders like DCIM will be found
             for subfolder in folders:
                 subpath = os.path.join(path, subfolder)
-                subfolders = dict(
-                    self.camera.folder_list_folders(subpath, self.context)
-                )
+                subfolders = dict(self.camera.folder_list_folders(subpath))
                 ff = self._locate_specific_subfolders(
                     subfolders=subfolders,
                     subpath=subpath,
@@ -307,9 +293,7 @@ class Camera:
                     for nested_subfolder in subfolders:
                         nested_subpath = os.path.join(subpath, nested_subfolder)
                         nested_subfolders = dict(
-                            self.camera.folder_list_folders(
-                                nested_subpath, self.context
-                            )
+                            self.camera.folder_list_folders(nested_subpath)
                         )
                         ff = self._locate_specific_subfolders(
                             subfolders=nested_subfolders,
@@ -335,7 +319,7 @@ class Camera:
         :param file_name:
         :return: tuple of modification time and file size
         """
-        info = self.camera.file_get_info(folder, file_name, self.context)
+        info = self.camera.file_get_info(folder, file_name)
         modification_time = info.file.mtime
         size = info.file.size
         return modification_time, size
@@ -359,9 +343,7 @@ class Camera:
 
         buffer = bytearray(size_in_bytes)
         try:
-            self.camera.file_read(
-                folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, buffer, self.context
-            )
+            self.camera.file_read(folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, buffer)
         except gp.GPhoto2Error as e:
             logging.error(
                 "Unable to extract portion of file from camera %s: %s",
@@ -437,7 +419,7 @@ class Camera:
         try:
             bytes_read = gp.check_result(
                 self.camera.file_read(
-                    folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, view, self.context
+                    folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, view
                 )
             )
         except gp.GPhoto2Error as ex:
@@ -475,7 +457,6 @@ class Camera:
                         gp.GP_FILE_TYPE_NORMAL,
                         read0_size,
                         app0_view,
-                        self.context,
                     )
                 )
             except gp.GPhoto2Error as ex:
@@ -513,7 +494,6 @@ class Camera:
                     gp.GP_FILE_TYPE_NORMAL,
                     offset,
                     view,
-                    self.context,
                 )
             )
         except gp.GPhoto2Error as ex:
@@ -535,9 +515,7 @@ class Camera:
 
         try:
             camera_file = gp.check_result(
-                gp.gp_camera_file_get(
-                    self.camera, dir_name, file_name, file_type, self.context
-                )
+                gp.gp_camera_file_get(self.camera, dir_name, file_name, file_type)
             )
         except gp.GPhoto2Error as ex:
             logging.error(
@@ -660,7 +638,6 @@ class Camera:
                         gp.GP_FILE_TYPE_NORMAL,
                         offset,
                         view[offset:stop],
-                        self.context,
                     )
                 )
                 amount_downloaded += bytes_read
@@ -770,7 +747,7 @@ class Camera:
         self.camera = gp.Camera()
         # search abilities for camera model
         abilities_list = gp.CameraAbilitiesList()
-        abilities_list.load(self.context)
+        abilities_list.load()
         idx = abilities_list.lookup_model(str(model))
         self.camera.set_abilities(abilities_list[idx])
         # search ports for camera port name
@@ -784,7 +761,7 @@ class Camera:
         Disconnects the camera in gphoto2.
         """
         if self.camera_initialized:
-            self.camera.exit(self.context)
+            self.camera.exit()
             self.camera_initialized = False
 
     def _concise_model_name(self) -> str:
@@ -799,7 +776,7 @@ class Camera:
         """
         if self.camera_config is None:
             try:
-                self.camera_config = self.camera.get_config(self.context)
+                self.camera_config = self.camera.get_config()
             except gp.GPhoto2Error as e:
                 if e.code == gp.GP_ERROR_NOT_SUPPORTED:
                     logging.error(
@@ -885,7 +862,7 @@ class Camera:
         """
         if not self.storage_info or refresh:
             try:
-                self.storage_info = self.camera.get_storageinfo(self.context)
+                self.storage_info = self.camera.get_storageinfo()
             except gp.GPhoto2Error as e:
                 logging.error(
                     "Unable to determine storage info for camera %s: %s",
@@ -924,7 +901,7 @@ class Camera:
         :return: True if unlocked, else False
         """
         try:
-            self.camera.folder_list_folders("/", self.context)
+            self.camera.folder_list_folders("/")
         except gp.GPhoto2Error as e:
             logging.error(
                 "Unable to access camera %s: %s. Is it locked?",
@@ -939,15 +916,13 @@ class Camera:
 def dump_camera_details() -> None:
     import itertools
 
-    context = gp.Context()
-    cameras = autodetect_cameras(context)
+    cameras = autodetect_cameras()
     for model, port in cameras:
         is_mtp_device = camera_is_mtp_device(camera_port=port)
         c = Camera(
             model=model,
             port=port,
             is_mtp_device=is_mtp_device,
-            context=context,
         )
         if not c.camera_initialized:
             logging.error("Camera %s could not be initialized", model)
@@ -1001,10 +976,8 @@ if __name__ == "__main__":
 
     if True:
 
-        # Test stub
-        gp_context = gp.Context()
         # Assume gphoto2 version 2.5 or greater
-        cameras = autodetect_cameras(gp_context)
+        cameras = autodetect_cameras()
         for name, value in cameras:
             camera = name
             port = value
@@ -1019,7 +992,7 @@ if __name__ == "__main__":
             # c = Camera(model=camera, port=port)
             print(c.no_storage_media(), c.dual_slots_active, c.specific_folders)
 
-            for name, value in c.camera.folder_list_files("/", c.context):
+            for name, value in c.camera.folder_list_files("/"):
                 print(name, value)
 
             c.free_camera()
