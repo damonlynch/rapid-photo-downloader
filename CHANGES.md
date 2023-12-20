@@ -19,6 +19,9 @@ Changelog for Rapid Photo Downloader
  - Conform version indentifier in `setup.py` to PEP 440 which is enforced with
    setuptools >= 66.0.0. Thanks to stratakis for the fix.
 
+ - Conform to python-gphoto2 by 2.5.0 by removing gphoto2 context from 
+   python-gphoto2 function calls.
+
 
 0.9.34 (2022-11-02)
 -------------------
