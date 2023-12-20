@@ -2,4 +2,4 @@ build/
 .idea
 venv/
 __pycache__/
-
+tasks/copycode.py
