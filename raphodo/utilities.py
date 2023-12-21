@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,14 +18,16 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2022, Damon Lynch"
+__copyright__ = "Copyright 2007-2023, Damon Lynch"
 
 import contextlib
 import site
+import importlib.metadata
 import locale
 import logging
 import os
 from pathlib import Path
+from packaging.version import parse as parse_version
 import random
 import re
 import string
@@ -44,8 +46,6 @@ import signal
 import warnings
 import babel
 from glob import glob
-from pkg_resources import parse_version
-import pkg_resources
 
 import arrow
 import psutil
@@ -1112,19 +1112,6 @@ def is_venv():
     )
 
 
-def python_package_version(package: str) -> str:
-    """
-    Determine the version of an installed Python package
-    :param package: package name
-    :return: version number, if could be determined, else ''
-    """
-
-    try:
-        return pkg_resources.get_distribution(package).version
-    except pkg_resources.DistributionNotFound:
-        return ""
-
-
 def is_snap() -> bool:
     """
     Determine if program is running in a snap environment
@@ -1260,15 +1247,9 @@ def installed_using_pip(package: str, suppress_errors: bool = True) -> bool:
     :return: True if installed via pip, else False
     """
 
-    # pkg_resources.get_distribution(package).get_metadata('INSTALLER') output seems
-    # to be unreliable
-    # newer way is importlib.metadata.distribution('pip').read_text('INSTALLER') but
-    # it has the same problem
-
     try:
-        pkg = pkg_resources.get_distribution(package)
-        location = pkg.location
-        return not location.startswith("/usr") or location.find("local") > 0
+        d = importlib.metadata.distribution(package)
+        return d.read_text("INSTALLER").strip().lower() == 'pip'
     except Exception:
         if not suppress_errors:
             raise

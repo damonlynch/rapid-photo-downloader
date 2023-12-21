@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2020-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2020-2021, Damon Lynch"
+__copyright__ = "Copyright 2020-2023, Damon Lynch"
 
 import logging
 from typing import Optional
@@ -34,7 +34,7 @@ try:
 except ImportError:
     have_heif_module = False
 
-from raphodo.utilities import python_package_version
+import importlib.metadata
 
 _error_logged = False
 
@@ -46,7 +46,7 @@ def pyheif_version() -> str:
     try:
         return pyheif.__version__
     except AttributeError:
-        return python_package_version("pyheif")
+        return importlib.metadata.version("pyheif")
 
 
 def libheif_version() -> str:

@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,14 +17,14 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2022, Damon Lynch"
+__copyright__ = "Copyright 2011-2023, Damon Lynch"
 
 
 import logging
 import subprocess
 from typing import Optional, Tuple
 import os
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 
 import raphodo.programversions as programversions
 from raphodo.constants import thumbnail_offset, FileType, FileExtension

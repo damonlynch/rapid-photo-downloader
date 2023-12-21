@@ -8,8 +8,6 @@ Changelog for Rapid Photo Downloader
 
  - New python packet requirement: packaging
 
- - Eliminate use of depreciated pkg_resources. 
-
  - Add new option "Read video metadata using only ExifTool".
 
  - Re-enabled Ctrl-Q shortcut key for quiting when running under WSL. 
@@ -22,6 +20,8 @@ Changelog for Rapid Photo Downloader
 
  - Conform version indentifier in `setup.py` to PEP 440 which is enforced with
    setuptools >= 66.0.0. Thanks to stratakis for the fix.
+
+ - Eliminate use of depreciated pkg_resources. 
 
  - Conform to changes in package python-gphoto2 2.5.0.
 
