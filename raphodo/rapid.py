@@ -137,7 +137,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 # PyQt 5.11 introduces from PyQt5 import sip i.e. from a 'private' sip, unique
-# to PyQt5. However we cannot assume that distros will follow this mechanism.
+# to PyQt5. However, we cannot assume that distros will follow this mechanism.
 # So as a defensive measure, merely import sip, doing this only after Qt has
 # already been imported. See:
 # http://pyqt.sourceforge.net/Docs/PyQt5/incompatibilities.html#importing-the-sip-module
