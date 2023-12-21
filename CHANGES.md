@@ -6,7 +6,7 @@ Changelog for Rapid Photo Downloader
 
  - Depreciate use of the `install.py` script. Using it is no longer recommended. 
 
- - New python packet requirement: packaging
+ - New python packet requirement: packaging.
 
  - Add new option "Read video metadata using only ExifTool".
 
