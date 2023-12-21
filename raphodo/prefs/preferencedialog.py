@@ -84,7 +84,6 @@ from raphodo.constants import ConflictResolution
 from raphodo.utilities import (
     current_version_is_dev_version,
     make_internationalized_list,
-    version_check_disabled,
     available_languages,
     available_cpu_count,
     format_size_for_user,
@@ -964,33 +963,6 @@ class PreferencesDialog(QDialog):
             self.treatRawJpegGroup.buttonClicked.connect(self.treatRawJpegGroupClicked)
             self.markRawJpegGroup.buttonClicked.connect(self.markRawJpegGroupClicked)
 
-        if not version_check_disabled():
-            self.newVersionBox = QGroupBox(_("Version Check"))
-            self.checkNewVersion = QCheckBox(_("Check for new version at startup"))
-            self.checkNewVersion.setToolTip(
-                _(
-                    "Check for a new version of the program each time the program "
-                    "starts."
-                )
-            )
-            self.includeDevRelease = QCheckBox(_("Include development releases"))
-            tip = _(
-                "Include alpha, beta and other development releases when checking for "
-                "a new version of the program.\n\n"
-                "If you are currently running a development version, the check will "
-                "always occur."
-            )
-            self.includeDevRelease.setToolTip(tip)
-            self.setVersionCheckValues()
-            self.checkNewVersion.stateChanged.connect(self.checkNewVersionChanged)
-            self.includeDevRelease.stateChanged.connect(self.includeDevReleaseChanged)
-
-            newVersionLayout = QGridLayout()
-            newVersionLayout.addWidget(self.checkNewVersion, 0, 0, 1, 2)
-            newVersionLayout.addWidget(self.includeDevRelease, 1, 1, 1, 1)
-            newVersionLayout.setColumnMinimumWidth(0, checkbox_width)
-            self.newVersionBox.setLayout(newVersionLayout)
-
         self.metadataBox = QGroupBox(_("Metadata"))
         self.ignoreMdatatimeMtpDng = QCheckBox(
             _("Ignore DNG date/time metadata on MTP devices")
@@ -1059,8 +1031,6 @@ class PreferencesDialog(QDialog):
 
         self.miscWidget = QWidget()
         miscLayout = QVBoxLayout()
-        if not version_check_disabled():
-            miscLayout.addWidget(self.newVersionBox)
         miscLayout.addWidget(self.metadataBox)
         if not consolidation_implemented:
             miscLayout.addWidget(self.completedDownloadsBox)
@@ -1841,8 +1811,6 @@ class PreferencesDialog(QDialog):
         elif (row == 8 and consolidation_implemented) or (
             row == 7 and not consolidation_implemented
         ):
-            if not version_check_disabled():
-                self.prefs.restore("check_for_new_versions")
             for value in (
                 "include_development_release",
                 "ignore_mdatatime_for_mtp_dng",
@@ -1852,8 +1820,6 @@ class PreferencesDialog(QDialog):
                 self.prefs.restore(value)
             if not consolidation_implemented:
                 self.prefs.restore("completed_downloads")
-            if not version_check_disabled():
-                self.setVersionCheckValues()
             self.setMetdataValues()
             if not consolidation_implemented:
                 self.setCompletedDownloadsValues()

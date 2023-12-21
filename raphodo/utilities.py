@@ -52,7 +52,6 @@ import psutil
 from PyQt5.QtCore import QSize, QLocale, QTranslator, QLibraryInfo, QStandardPaths
 
 import raphodo.__about__ as __about__
-from raphodo.constants import disable_version_check
 from raphodo import localedir, i18n_domain
 
 
@@ -876,35 +875,6 @@ def log_os_release() -> None:
         have_logged_os_release = True
 
 
-def extract_file_from_tar(full_tar_path, member_filename) -> bool:
-    """
-    Extracts a file from a tar.gz and places it beside the tar file
-    :param full_tar_path: path and filename of the tar.gz file
-    :param member_filename: file wanted
-    :return: True if successful, False otherwise
-    """
-
-    tar_dir, tar_name = os.path.split(full_tar_path)
-    tar_name = tar_name[: len(".tar.gz") * -1]
-    member = os.path.join(tar_name, member_filename)
-    try:
-        with tarfile.open(full_tar_path) as tar:
-            tar.extractall(members=(tar.getmember(member),), path=tar_dir)
-    except Exception:
-        logging.error("Unable to extract %s from tarfile", member_filename)
-        return False
-    else:
-        try:
-            src = os.path.join(tar_dir, tar_name, member_filename)
-            dst = os.path.join(tar_dir, member_filename)
-            os.rename(src, dst)
-            os.rmdir(os.path.join(tar_dir, tar_name))
-            return True
-        except OSError:
-            logging.error("Unable to move %s to new location", member_filename)
-            return False
-
-
 def bug_report_full_tar_path() -> str:
     """
     Generate a full path for a compressed bug report tar file.
@@ -1163,15 +1133,6 @@ def is_snap() -> bool:
 
     snap_name = os.getenv("SNAP_NAME", "")
     return snap_name.find("rapid-photo-downloader") >= 0
-
-
-def version_check_disabled():
-    """
-    Determine if version checking should be disabled or not
-    :return: True if it should be False otherwise
-    """
-
-    return disable_version_check or is_snap()
 
 
 def available_lang_codes() -> List[str]:

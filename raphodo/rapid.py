@@ -216,8 +216,6 @@ from raphodo.constants import (
     DownloadingFileTypes,
     RememberThisMessage,
     RightSideButton,
-    CheckNewVersionDialogState,
-    CheckNewVersionDialogResult,
     RememberThisButtons,
     BackupStatus,
     CompletedDownloads,
@@ -252,10 +250,8 @@ from raphodo.utilities import (
     make_html_path_non_breaking,
     prefs_list_from_gconftool2_string,
     pref_bool_from_gconftool2_string,
-    extract_file_from_tar,
     format_size_for_user,
     is_snap,
-    version_check_disabled,
     installed_using_pip,
     getQtSystemTranslation,
     process_running,
@@ -308,12 +304,6 @@ from raphodo.ui.jobcodepanel import JobCodePanel
 from raphodo.ui.backuppanel import BackupPanel
 import raphodo
 import raphodo.metadata.exiftool as exiftool
-from raphodo.newversion import (
-    NewVersion,
-    NewVersionCheckDialog,
-    version_details,
-    DownloadNewVersionDialog,
-)
 from raphodo.ui.chevroncombo import ChevronCombo
 from raphodo.prefs.preferencedialog import PreferencesDialog
 from raphodo.errorlog import ErrorReport, SpeechBubble
@@ -919,33 +909,6 @@ class RapidWindow(QMainWindow):
         self.createLayoutAndButtons(centralWidget)
 
         self.startMountMonitor()
-
-        if version_check_disabled():
-            logging.debug("Version check disabled")
-        else:
-            logging.debug("Starting version check")
-            self.newVersion = NewVersion(self)
-            self.newVersionThread = QThread()
-            self.newVersionThread.started.connect(self.newVersion.start)
-            self.newVersion.checkMade.connect(self.newVersionCheckMade)
-            self.newVersion.bytesDownloaded.connect(self.newVersionBytesDownloaded)
-            self.newVersion.fileDownloaded.connect(self.newVersionDownloaded)
-            self.reverifyDownloadedTar.connect(self.newVersion.reVerifyDownload)
-            self.newVersion.downloadSize.connect(self.newVersionDownloadSize)
-            self.newVersion.reverified.connect(self.installNewVersion)
-            self.newVersion.moveToThread(self.newVersionThread)
-
-            QTimer.singleShot(0, self.newVersionThread.start)
-
-            self.newVersionCheckDialog = NewVersionCheckDialog(self)
-            self.newVersionCheckDialog.finished.connect(
-                self.newVersionCheckDialogFinished
-            )
-
-            # if values set, indicates the latest version of the program, and the main
-            # download page on the Rapid Photo Downloader website
-            self.latest_version = None  # type: version_details
-            self.latest_version_download_page = None  # type: str
 
         # Track the creation of temporary directories
         self.temp_dirs_by_scan_id = {}
@@ -1606,242 +1569,6 @@ class RapidWindow(QMainWindow):
         delegate = self.thumbnailView.itemDelegate()  # type: ThumbnailDelegate
         delegate.applyJobCode(job_code=job_code)
 
-    @pyqtSlot(bool, version_details, version_details, str, bool, bool, bool)
-    def newVersionCheckMade(
-        self,
-        success: bool,
-        stable_version: version_details,
-        dev_version: version_details,
-        download_page: str,
-        no_upgrade: bool,
-        pip_install: bool,
-        is_venv: bool,
-    ) -> None:
-        """
-        Respond to a version check, either initiated at program startup, or from the
-        application's main menu.
-
-        If the check was initiated at program startup, then the new version dialog box
-        will not be showing.
-
-        :param success: whether the version check was successful or not
-        :param stable_version: latest stable version
-        :param dev_version: latest development version
-        :param download_page: url of the download page on the Rapid
-         Photo Downloader website
-        :param no_upgrade: if True, don't offer to do an inplace upgrade
-        :param pip_install: whether pip was used to install this
-         program version
-        :param is_venv: whether the program is running in a python virtual
-         environment
-        """
-
-        if success:
-            self.latest_version = None
-            current_version = parse_version(__about__.__version__)
-
-            check_dev_version = (
-                current_version.is_prerelease or self.prefs.include_development_release
-            )
-
-            if current_version < stable_version.version:
-                self.latest_version = stable_version
-
-            if check_dev_version and (
-                current_version < dev_version.version
-                or current_version < stable_version.version
-            ):
-                if dev_version.version > stable_version.version:
-                    self.latest_version = dev_version
-                else:
-                    self.latest_version = stable_version
-
-            if (
-                self.latest_version is not None
-                and str(self.latest_version.version) not in self.prefs.ignore_versions
-            ):
-
-                version = str(self.latest_version.version)
-                changelog_url = self.latest_version.changelog_url
-
-                if pip_install:
-                    logging.debug("Installation performed via pip")
-                    if is_venv:
-                        logging.info(
-                            "Cannot use in-program update to upgrade program from "
-                            "within virtual environment"
-                        )
-                        state = CheckNewVersionDialogState.open_website
-                    elif no_upgrade:
-                        logging.info("Cannot perform in-place upgrade to this version")
-                        state = CheckNewVersionDialogState.open_website
-                    else:
-                        download_page = None
-                        state = CheckNewVersionDialogState.prompt_for_download
-                else:
-                    logging.debug("Installation not performed via pip")
-                    state = CheckNewVersionDialogState.open_website
-
-                self.latest_version_download_page = download_page
-
-                self.newVersionCheckDialog.displayUserMessage(
-                    new_state=state,
-                    version=version,
-                    download_page=download_page,
-                    changelog_url=changelog_url,
-                )
-                if not self.newVersionCheckDialog.isVisible():
-                    self.newVersionCheckDialog.show()
-
-            elif self.newVersionCheckDialog.isVisible():
-                self.newVersionCheckDialog.displayUserMessage(
-                    CheckNewVersionDialogState.have_latest_version
-                )
-
-        elif self.newVersionCheckDialog.isVisible():
-            # Failed to reach update server
-            self.newVersionCheckDialog.displayUserMessage(
-                CheckNewVersionDialogState.failed_to_contact
-            )
-
-    @pyqtSlot(int)
-    def newVersionCheckDialogFinished(self, result: int) -> None:
-        current_state = self.newVersionCheckDialog.current_state
-        if current_state in (
-            CheckNewVersionDialogState.prompt_for_download,
-            CheckNewVersionDialogState.open_website,
-        ):
-            if (
-                self.newVersionCheckDialog.dialog_detailed_result
-                == CheckNewVersionDialogResult.skip
-            ):
-                version = str(self.latest_version.version)
-                logging.info(
-                    "Adding version %s to the list of program versions to ignore",
-                    version,
-                )
-                self.prefs.add_list_value(key="ignore_versions", value=version)
-            elif (
-                self.newVersionCheckDialog.dialog_detailed_result
-                == CheckNewVersionDialogResult.open_website
-            ):
-                webbrowser.open_new_tab(self.latest_version_download_page)
-            elif (
-                self.newVersionCheckDialog.dialog_detailed_result
-                == CheckNewVersionDialogResult.download
-            ):
-                url = self.latest_version.url
-                md5 = self.latest_version.md5
-                self.downloadNewVersionRequest.emit(url, md5)
-                self.downloadNewVersionDialog = DownloadNewVersionDialog(parent=self)
-                self.downloadNewVersionDialog.rejected.connect(
-                    self.newVersionDownloadCancelled
-                )
-                self.downloadNewVersionDialog.show()
-
-    @pyqtSlot("PyQt_PyObject")
-    def newVersionBytesDownloaded(self, bytes_downloaded: int) -> None:
-        if self.downloadNewVersionDialog.isVisible():
-            self.downloadNewVersionDialog.updateProgress(bytes_downloaded)
-
-    @pyqtSlot("PyQt_PyObject")
-    def newVersionDownloadSize(self, download_size: int) -> None:
-        if self.downloadNewVersionDialog.isVisible():
-            self.downloadNewVersionDialog.setDownloadSize(download_size)
-
-    @pyqtSlot(str, bool)
-    def newVersionDownloaded(self, path: str, download_cancelled: bool) -> None:
-        self.downloadNewVersionDialog.accept()
-        if not path and not download_cancelled:
-            msgBox = QMessageBox(parent=self)
-            msgBox.setIcon(QMessageBox.Warning)
-            msgBox.setWindowTitle(_("Download failed"))
-            msgBox.setText(
-                _(
-                    "Sorry, the download of the new version of Rapid Photo Downloader "
-                    "failed."
-                )
-            )
-            msgBox.exec_()
-        elif path:
-            logging.info("New program version downloaded to %s", path)
-
-            message = _(
-                "The new version was successfully downloaded. Do you want to "
-                "close Rapid Photo Downloader and install it now?"
-            )
-            msgBox = QMessageBox(parent=self)
-            msgBox.setWindowTitle(_("Update Rapid Photo Downloader"))
-            msgBox.setText(message)
-            msgBox.setIcon(QMessageBox.Question)
-            msgBox.setStandardButtons(QMessageBox.Cancel)
-            installButton = msgBox.addButton(_("Install"), QMessageBox.AcceptRole)
-            msgBox.setDefaultButton(installButton)
-            if msgBox.exec_() == QMessageBox.AcceptRole:
-                self.reverifyDownloadedTar.emit(path)
-            else:
-                # extract the install.py script and move it to the correct location
-                # for testing:
-                # path = '/home/damon/rapid090a7/dist/rapid-photo-downloader-0.9.0a7.tar.gz'
-                extract_file_from_tar(full_tar_path=path, member_filename="install.py")
-                installer_dir = os.path.dirname(path)
-                if self.file_manager:
-                    uri = pathname2url(path)
-                    cmd = "{} {}".format(self.file_manager, uri)
-                    logging.debug("Launching: %s", cmd)
-                    args = shlex.split(cmd)
-                    subprocess.Popen(args)
-                else:
-                    msgBox = QMessageBox(parent=self)
-                    msgBox.setWindowTitle(_("New version saved"))
-                    message = (
-                        _("The tar file and installer script are saved at:\n\n %s")
-                        % installer_dir
-                    )
-                    msgBox.setText(message)
-                    msgBox.setIcon(QMessageBox.Information)
-                    msgBox.exec_()
-
-    @pyqtSlot(bool, str)
-    def installNewVersion(self, reverified: bool, full_tar_path: str) -> None:
-        """
-        Launch script to install new version of Rapid Photo Downloader
-        via upgrade.py.
-        :param reverified: whether file has been reverified or not
-        :param full_tar_path: path to the tarball
-        """
-        if not reverified:
-            msgBox = QMessageBox(parent=self)
-            msgBox.setIcon(QMessageBox.Warning)
-            msgBox.setWindowTitle(_("Upgrade failed"))
-            msgBox.setText(
-                _(
-                    "Sorry, upgrading Rapid Photo Downloader failed because there was "
-                    "an error opening the installer."
-                )
-            )
-            msgBox.exec_()
-        else:
-            # for testing:
-            # full_tar_path = '/home/damon/rapid090a7/dist/rapid-photo-downloader-0.9.0a7.tar.gz'
-            upgrade_py = "upgrade.py"
-            installer_dir = os.path.dirname(full_tar_path)
-            if extract_file_from_tar(full_tar_path, upgrade_py):
-                upgrade_script = os.path.join(installer_dir, upgrade_py)
-                cmd = shlex.split(
-                    "{} {} {}".format(sys.executable, upgrade_script, full_tar_path)
-                )
-                subprocess.Popen(cmd)
-                self.quit()
-
-    @pyqtSlot()
-    def newVersionDownloadCancelled(self) -> None:
-        logging.info("Download of new program version cancelled")
-        self.new_version_controller.send(b"STOP")
-
-    def newVersionCheckVisible(self) -> bool:
-        return not disable_version_check and self.newVersionCheckDialog.isVisible()
-
     def anyMainWindowDialogVisible(self) -> bool:
         """
         :return: True if any dialog window is currently being displayed from the main
@@ -2148,9 +1875,6 @@ difference to the program's future.</p>"""
 
         self.aboutAct = QAction(_("&About..."), self)
         self.aboutAct.triggered.connect(self.doAboutAction)
-
-        self.newVersionAct = QAction(_("Check for Updates..."), self)
-        self.newVersionAct.triggered.connect(self.doCheckForNewVersion)
 
     def createLayoutAndButtons(self, centralWidget) -> None:
         """
@@ -2919,8 +2643,6 @@ difference to the program's future.</p>"""
         self.menu.addSeparator()
         self.menu.addAction(self.helpAct)
         self.menu.addAction(self.didYouKnowAct)
-        if not version_check_disabled():
-            self.menu.addAction(self.newVersionAct)
         self.menu.addAction(self.reportProblemAct)
         self.menu.addAction(self.makeDonationAct)
         self.menu.addAction(self.translateApplicationAct)
@@ -2928,13 +2650,6 @@ difference to the program's future.</p>"""
         self.menu.addAction(self.quitAct)
 
         self.menuButton = MenuButton(icon=":/icons/menu.svg", menu=self.menu)
-
-    def doCheckForNewVersion(self) -> None:
-        """Check online for a new program version"""
-        if not version_check_disabled():
-            self.newVersionCheckDialog.reset()
-            self.newVersionCheckDialog.show()
-            self.checkForNewVersionRequest.emit()
 
     def doSourceAction(self) -> None:
         self.sourceButton.animateClick()
@@ -5358,10 +5073,6 @@ Do you want to proceed with the download?"""
             # QTimer.singleShot(0, self.wslDriveMonitor.stopMonitor)
             self.wslDriveMonitorThread.quit()
             self.wslDriveMonitorThread.wait()
-
-        if not version_check_disabled():
-            self.newVersionThread.quit()
-            self.newVersionThread.wait(100)
 
         self.sendStopToThread(self.thumbnail_deamon_controller)
         self.thumbnaildaemonmqThread.quit()

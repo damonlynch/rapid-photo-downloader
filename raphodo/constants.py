@@ -18,7 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2022, Damon Lynch"
+__copyright__ = "Copyright 2007-2023, Damon Lynch"
 
 from enum import Enum, IntEnum, auto
 from PyQt5.QtCore import Qt
@@ -27,26 +27,10 @@ from PyQt5.QtGui import QFont, QFontMetrics, QColor
 PROGRAM_NAME = "Rapid Photo Downloader"
 logfile_name = "rapid-photo-downloader.log"
 
-remote_versions_file = "https://damonlynch.net/rapid/version.json"
 
 # If set to True, the ability to check for a new version will be removed
 # from the user interface and disabled in program logic.
 disable_version_check = False
-
-
-class CheckNewVersionDialogResult(IntEnum):
-    download = 1
-    do_not_download = 2
-    skip = 3
-    open_website = 4
-
-
-class CheckNewVersionDialogState(IntEnum):
-    check = 1
-    prompt_for_download = 2
-    open_website = 3
-    failed_to_contact = 4
-    have_latest_version = 5
 
 
 class ConflictResolution(IntEnum):
