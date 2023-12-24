@@ -1575,8 +1575,7 @@ class RapidWindow(QMainWindow):
         window
         """
         return (
-            self.newVersionCheckVisible()
-            or self.prefs_dialog_active
+            self.prefs_dialog_active
             or self.prompting_for_user_action
             or self.tip.isVisible()
         )
