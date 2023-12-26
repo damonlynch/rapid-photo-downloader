@@ -4,13 +4,19 @@ Changelog for Rapid Photo Downloader
 0.9.35 (2023-xx-xx)
 -------------------
 
- - Depreciate use of the `install.py` script. Using it is no longer recommended. 
+ - Depreciate use of the `install.py` script. Using it is no longer recommended.
+
+ - Python 3.10 or newer is now required.
 
  - New python packet requirement: packaging.
 
  - Fix bug [#85](https://github.com/damonlynch/rapid-photo-downloader/issues/85):
    Exception while selecting generation scheme from download subfolder menu 
    with more than five custom presets.
+
+ - Fix bug [#50](https://github.com/damonlynch/rapid-photo-downloader/issues/50):
+   Confirm before removing all presets for custom renaming or subfolder 
+   generation.
 
  - Add new option "Read video metadata using only ExifTool".
 

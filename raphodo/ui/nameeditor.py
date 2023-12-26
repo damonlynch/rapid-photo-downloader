@@ -880,36 +880,42 @@ class PrefDialog(QDialog):
         self.setModal(True)
 
         self.generation_type = generation_type
-        if generation_type == NameGenerationType.photo_subfolder:
-            self.setWindowTitle(_("Photo Subfolder Generation Editor"))
-            self.preset_type = PresetPrefType.preset_photo_subfolder
-            self.builtin_pref_lists = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV
-            self.builtin_pref_names = [
-                make_subfolder_menu_entry(pref)
-                for pref in PHOTO_SUBFOLDER_MENU_DEFAULTS
-            ]
-        elif generation_type == NameGenerationType.video_subfolder:
-            self.setWindowTitle(_("Video Subfolder Generation Editor"))
-            self.preset_type = PresetPrefType.preset_video_subfolder
-            self.builtin_pref_lists = VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV
-            self.builtin_pref_names = [
-                make_subfolder_menu_entry(pref)
-                for pref in VIDEO_SUBFOLDER_MENU_DEFAULTS
-            ]
-        elif generation_type == NameGenerationType.photo_name:
-            self.setWindowTitle(_("Photo Renaming Editor"))
-            self.preset_type = PresetPrefType.preset_photo_rename
-            self.builtin_pref_lists = PHOTO_RENAME_MENU_DEFAULTS_CONV
-            self.builtin_pref_names = [
-                make_rename_menu_entry(pref) for pref in PHOTO_RENAME_MENU_DEFAULTS
-            ]
-        else:
-            self.setWindowTitle(_("Video Renaming Editor"))
-            self.preset_type = PresetPrefType.preset_video_rename
-            self.builtin_pref_lists = VIDEO_RENAME_MENU_DEFAULTS_CONV
-            self.builtin_pref_names = [
-                make_rename_menu_entry(pref) for pref in VIDEO_RENAME_MENU_DEFAULTS
-            ]
+
+        match generation_type:
+            case NameGenerationType.photo_subfolder:
+                self.setWindowTitle(_("Photo Subfolder Generation Editor"))
+                self.preset_type = PresetPrefType.preset_photo_subfolder
+                self.builtin_pref_lists = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV
+                self.builtin_pref_names = [
+                    make_subfolder_menu_entry(pref)
+                    for pref in PHOTO_SUBFOLDER_MENU_DEFAULTS
+                ]
+                self.preset_type_hr = _("photo subfolder generation")
+            case NameGenerationType.video_subfolder:
+                self.setWindowTitle(_("Video Subfolder Generation Editor"))
+                self.preset_type = PresetPrefType.preset_video_subfolder
+                self.builtin_pref_lists = VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV
+                self.builtin_pref_names = [
+                    make_subfolder_menu_entry(pref)
+                    for pref in VIDEO_SUBFOLDER_MENU_DEFAULTS
+                ]
+                self.preset_type_hr = _("video subfolder generation")
+            case NameGenerationType.photo_name:
+                self.setWindowTitle(_("Photo Renaming Editor"))
+                self.preset_type = PresetPrefType.preset_photo_rename
+                self.builtin_pref_lists = PHOTO_RENAME_MENU_DEFAULTS_CONV
+                self.builtin_pref_names = [
+                    make_rename_menu_entry(pref) for pref in PHOTO_RENAME_MENU_DEFAULTS
+                ]
+                self.preset_type_hr = _("photo renaming")
+            case _:
+                self.setWindowTitle(_("Video Renaming Editor"))
+                self.preset_type = PresetPrefType.preset_video_rename
+                self.builtin_pref_lists = VIDEO_RENAME_MENU_DEFAULTS_CONV
+                self.builtin_pref_names = [
+                    make_rename_menu_entry(pref) for pref in VIDEO_RENAME_MENU_DEFAULTS
+                ]
+                self.preset_type_hr = _("video renaming")
 
         self.prefs = prefs
         self.max_entries = max_entries
@@ -1385,9 +1391,19 @@ class PrefDialog(QDialog):
             if index >= len(self.builtin_pref_names):
                 self.movePresetToFront(index=len(self.builtin_pref_names) - index)
         elif preset_class == PresetClass.remove_all:
-            self.preset.removeAllCustomPresets(no_presets=len(self.preset_names))
-            self.clearCustomPresets()
-            self.preset.setRemoveAllCustomEnabled(False)
+            message = _(
+                "<b>Remove All Custom Presets</b><br><br>Are you sure you want to "
+                "remove all %(preset_type)s presets?"
+            ) % dict(preset_type=self.preset_type_hr)
+            msgbox = standardMessageBox(
+                message=message,
+                rich_text=True,
+                standardButtons=QMessageBox.Yes | QMessageBox.No,
+            )
+            if msgbox.exec() == QMessageBox.Yes:
+                self.preset.removeAllCustomPresets(no_presets=len(self.preset_names))
+                self.clearCustomPresets()
+                self.preset.setRemoveAllCustomEnabled(False)
             self.updateComboBoxCurrentIndex()
         elif preset_class == PresetClass.update_preset:
             self.updateExistingPreset()
