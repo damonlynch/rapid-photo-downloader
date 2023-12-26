@@ -8,6 +8,10 @@ Changelog for Rapid Photo Downloader
 
  - New python packet requirement: packaging.
 
+ - Fix bug [#85](https://github.com/damonlynch/rapid-photo-downloader/issues/85):
+   Exception while selecting generation scheme from download subfolder menu 
+   with more than five custom presets.
+
  - Add new option "Read video metadata using only ExifTool".
 
  - Re-enabled Ctrl-Q shortcut key for quiting when running under WSL. 
