@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Display file renaming preferences, including sequence numbers
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2022, Damon Lynch"
+__copyright__ = "Copyright 2016-2023, Damon Lynch"
 
 from typing import Union
 import logging
@@ -222,7 +222,7 @@ class RenameWidget(FlexiFrame):
         Get the custom presets from the user preferences and store them in lists
         """
 
-        self.preset_names, self.preset_pref_lists = self.prefs.get_preset(
+        self.preset_names, self.preset_pref_lists = self.prefs.get_custom_presets(
             preset_type=self.preset_type
         )
         self.combined_pref_lists = self.pref_conv + tuple(self.preset_pref_lists)

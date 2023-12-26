@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -23,7 +23,7 @@
 # these prefs to the user, and dictionaries are unsorted.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2020, Damon Lynch"
+__copyright__ = "Copyright 2007-2023, Damon Lynch"
 
 import os
 from collections import OrderedDict
@@ -503,6 +503,12 @@ PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV = (
     ],
 )
 
+assert len(PHOTO_SUBFOLDER_MENU_DEFAULTS)  == len(PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV)
+
+CustomPresetSubfolderNames = tuple[tuple[str,...]]
+CustomPresetSubfolderLists = tuple[list[str,...]]
+
+
 PHOTO_RENAME_MENU_DEFAULTS = (
     (_("Original Filename"), "IMG_1234"),
     (_("Date-Time and Downloads today"), _("YYYYMMDD-HHMM-1")),
@@ -689,6 +695,17 @@ VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV = (
         "",
     ],
 )
+
+assert len(VIDEO_SUBFOLDER_MENU_DEFAULTS) == len(VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV)
+
+NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS = len(VIDEO_SUBFOLDER_MENU_DEFAULTS)
+# Make download subfolder menu entries include user presets
+# (equal to the number of built-in presets), plus a menu item labelled Custom,
+# which appears at the bottom of the menu.
+NUM_DOWNLOAD_SUBFOLDER_MENU_CUSTOM_PRESETS = NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS
+MAX_DOWNLOAD_SUBFOLDER_MENU_PRESETS = NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS + NUM_DOWNLOAD_SUBFOLDER_MENU_CUSTOM_PRESETS
+CUSTOM_SUBFOLDER_MENU_ENTRY_POSITION=MAX_DOWNLOAD_SUBFOLDER_MENU_PRESETS
+MAX_DOWNLOAD_SUBFOLDER_MENU_ENTRIES = MAX_DOWNLOAD_SUBFOLDER_MENU_PRESETS + 1
 
 VIDEO_RENAME_MENU_DEFAULTS = (
     (_("Original Filename"), "MVI_1234"),

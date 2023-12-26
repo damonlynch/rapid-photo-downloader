@@ -335,6 +335,15 @@ sys.excepthook = excepthook.excepthook
 
 is_devel_env = os.getenv("RPD_DEVEL_DEFAULTS") is not None
 
+try:
+    from icecream import install
+    install()
+
+except ImportError:  # Graceful fallback if IceCream isn't installed.
+    ic = lambda *a: None if not a else (a[0] if len(a) == 1 else a)  # noqa
+    builtins = __import__('builtins')
+    setattr(builtins, 'ic', ic)
+
 
 class RapidWindow(QMainWindow):
     """

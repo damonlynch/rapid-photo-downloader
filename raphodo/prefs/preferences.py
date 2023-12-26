@@ -506,7 +506,7 @@ class Preferences:
     def restore(self, key: str) -> None:
         self[key] = self.defaults[key]
 
-    def get_preset(
+    def get_custom_presets(
         self, preset_type: PresetPrefType
     ) -> Tuple[List[str], List[List[str]]]:
         """
@@ -536,7 +536,7 @@ class Preferences:
 
         return preset_names, preset_pref_lists
 
-    def set_preset(
+    def set_custom_presets(
         self,
         preset_type: PresetPrefType,
         preset_names: List[str],
@@ -755,7 +755,7 @@ class Preferences:
         return valid, msg
 
     def _filter_duplicate_generation_prefs(self, preset_type: PresetPrefType) -> None:
-        preset_names, preset_pref_lists = self.get_preset(preset_type=preset_type)
+        preset_names, preset_pref_lists = self.get_custom_presets(preset_type=preset_type)
         seen = set()
         filtered_names = []
         filtered_pref_lists = []
@@ -777,7 +777,7 @@ class Preferences:
                 human_readable,
                 make_internationalized_list(duplicates),
             )
-            self.set_preset(
+            self.set_custom_presets(
                 preset_type=preset_type,
                 preset_names=filtered_names,
                 preset_pref_lists=filtered_pref_lists,

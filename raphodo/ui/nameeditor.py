@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2023 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,7 +22,7 @@ Dialog for editing download subfolder structure and file renaming
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2021, Damon Lynch"
+__copyright__ = "Copyright 2016-2023, Damon Lynch"
 
 from typing import Dict, Union, Sequence
 import webbrowser
@@ -1411,7 +1411,7 @@ class PrefDialog(QDialog):
             self.movePresetToFront(index=index)
         else:
             self._updateCombinedPrefs()
-            self.prefs.set_preset(
+            self.prefs.set_custom_presets(
                 preset_type=self.preset_type,
                 preset_names=self.preset_names,
                 preset_pref_lists=self.preset_pref_lists,
@@ -1437,7 +1437,7 @@ class PrefDialog(QDialog):
         self.preset_names.insert(0, preset_name)
         self.preset_pref_lists.insert(0, pref_list)
         self._updateCombinedPrefs()
-        self.prefs.set_preset(
+        self.prefs.set_custom_presets(
             preset_type=self.preset_type,
             preset_names=self.preset_names,
             preset_pref_lists=self.preset_pref_lists,
@@ -1459,7 +1459,7 @@ class PrefDialog(QDialog):
         self.preset_names.insert(0, preset_name)
         self.preset_pref_lists.insert(0, user_pref_list)
         self._updateCombinedPrefs()
-        self.prefs.set_preset(
+        self.prefs.set_custom_presets(
             preset_type=self.preset_type,
             preset_names=self.preset_names,
             preset_pref_lists=self.preset_pref_lists,
@@ -1477,14 +1477,14 @@ class PrefDialog(QDialog):
         self.preset_pref_lists = []
         self.current_custom_name = None
         self._updateCombinedPrefs()
-        self.prefs.set_preset(
+        self.prefs.set_custom_presets(
             preset_type=self.preset_type,
             preset_names=self.preset_names,
             preset_pref_lists=self.preset_pref_lists,
         )
 
     def updateCachedPrefLists(self) -> None:
-        self.preset_names, self.preset_pref_lists = self.prefs.get_preset(
+        self.preset_names, self.preset_pref_lists = self.prefs.get_custom_presets(
             preset_type=self.preset_type
         )
         self._updateCombinedPrefs()
