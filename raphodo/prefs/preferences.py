@@ -755,7 +755,9 @@ class Preferences:
         return valid, msg
 
     def _filter_duplicate_generation_prefs(self, preset_type: PresetPrefType) -> None:
-        preset_names, preset_pref_lists = self.get_custom_presets(preset_type=preset_type)
+        preset_names, preset_pref_lists = self.get_custom_presets(
+            preset_type=preset_type
+        )
         seen = set()
         filtered_names = []
         filtered_pref_lists = []
@@ -915,38 +917,6 @@ class Preferences:
             return missing
         else:
             return ""
-
-    def photo_subfolder_index(self, preset_pref_lists: List[List[str]]) -> int:
-        """
-        Matches the photo pref list with program subfolder generation
-        defaults and the user's presets.
-
-        :param preset_pref_lists: list of custom presets
-        :return: -1 if no match (i.e. custom), or the index into
-         PHOTO_SUBFOLDER_MENU_DEFAULTS + photo subfolder presets if it matches
-        """
-
-        subfolders = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV + tuple(preset_pref_lists)
-        try:
-            return subfolders.index(self.photo_subfolder)
-        except ValueError:
-            return -1
-
-    def video_subfolder_index(self, preset_pref_lists: List[List[str]]) -> int:
-        """
-        Matches the photo pref list with program subfolder generation
-        defaults and the user's presets.
-
-        :param preset_pref_lists: list of custom presets
-        :return: -1 if no match (i.e. custom), or the index into
-         VIDEO_SUBFOLDER_MENU_DEFAULTS + video subfolder presets if it matches
-        """
-
-        subfolders = VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV + tuple(preset_pref_lists)
-        try:
-            return subfolders.index(self.video_subfolder)
-        except ValueError:
-            return -1
 
     def photo_rename_index(self, preset_pref_lists: List[List[str]]) -> int:
         """
