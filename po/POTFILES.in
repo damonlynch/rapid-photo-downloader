@@ -1,5 +1,4 @@
 install.py
-upgrade.py
 raphodo/ui/aboutdialog.py
 raphodo/backupfile.py
 raphodo/ui/backuppanel.py
@@ -19,7 +18,6 @@ raphodo/generatename.py
 raphodo/ui/jobcodepanel.py
 raphodo/ui/messagewidget.py
 raphodo/ui/nameeditor.py
-raphodo/newversion.py
 raphodo/prefs/preferencedialog.py
 raphodo/prefs/preferences.py
 raphodo/ui/primarybutton.py

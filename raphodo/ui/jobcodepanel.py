@@ -134,7 +134,6 @@ class JobCodeDialog(QDialog):
                     + "</i>"
                 )
 
-                _("")
             else:
                 details = file_types.file_types_present_details(title_case=False)
                 # Translators: the value substituted will be something like
