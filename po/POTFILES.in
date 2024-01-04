@@ -1,4 +1,3 @@
-install.py
 raphodo/ui/aboutdialog.py
 raphodo/backupfile.py
 raphodo/ui/backuppanel.py

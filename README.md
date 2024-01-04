@@ -108,15 +108,15 @@ script, see the
 
 ### Software Requirements
 
- - Python 3.6 or newer, and its development headers
+ - Python 3.10 or newer, and its development headers
  - [PyQt 5](https://riverbankcomputing.com/software/pyqt/intro)
  - [Qt 5](https://www.qt.io/)
  - [Qt5 plugin for reading TIFF images](http://doc.qt.io/qt-5/qtimageformats-index.html)
  - Qt5 plugin for rendering SVG
  - [setuptools](https://pypi.org/project/setuptools/)
- - [python-gphoto2 1.4.0](https://github.com/jim-easterbrook/python-gphoto2) or newer
+ - [python-gphoto2 1.8.0](https://github.com/jim-easterbrook/python-gphoto2) or newer
  - [show-in-file-manager 1.1.2](https://github.com/damonlynch/showinfilemanager) or newer
- - [importlib_metadata](https://github.com/python/importlib_metadata) on Python versions older than 3.8
+ - [packaging](https://packaging.pypa.io/en/stable/)
  - [pyzmq](https://github.com/zeromq/pyzmq)
  - [tornado](http://www.tornadoweb.org/)
  - [psutil](https://github.com/giampaolo/psutil) 3.4.2 or newer
