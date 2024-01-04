@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2023 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2023, Damon Lynch"
+__copyright__ = "Copyright 2007-2024, Damon Lynch"
 
 import contextlib
 import site
@@ -138,6 +138,11 @@ def available_cpu_count(physical_only=False) -> int:
         return max(c, 1)
     else:
         return 1
+
+
+def default_thumbnail_process_count() -> int:
+    num_system_cores=max(available_cpu_count(physical_only=True), 2)
+    return min(num_system_cores, 8)
 
 
 def confirm(prompt: Optional[str] = None, resp: Optional[bool] = False) -> bool:

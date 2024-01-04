@@ -25,6 +25,11 @@ Changelog for Rapid Photo Downloader
 
  - Re-enabled Ctrl-Q shortcut key for quiting when running under WSL. 
 
+ - Limit default number cores used to generate thumbnails to 8 (or the
+   number of physical CPU cores if lower). Previously the limit was the
+   number of physical CPU cores, which is nonsensical on high core 
+   count systems.
+
  - Fix bug [#110](https://github.com/damonlynch/rapid-photo-downloader/issues/110):
    ExifTool not called during rename process.
 

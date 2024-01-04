@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2023 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2023, Damon Lynch"
+__copyright__ = "Copyright 2011-2024, Damon Lynch"
 
 import datetime
 import logging
@@ -40,7 +40,7 @@ from raphodo.storage.storage import (
 from raphodo.generatenameconfig import *
 import raphodo.constants as constants
 from raphodo.constants import PresetPrefType, FileType
-from raphodo.utilities import available_cpu_count, make_internationalized_list
+from raphodo.utilities import default_thumbnail_process_count, make_internationalized_list
 import raphodo.__about__
 from raphodo.metadata.fileformats import ALL_KNOWN_EXTENSIONS
 
@@ -379,7 +379,7 @@ class Preferences:
         generate_thumbnails=True,
         use_thumbnail_cache=True,
         save_fdo_thumbnails=True,
-        max_cpu_cores=max(available_cpu_count(physical_only=True), 2),
+        max_cpu_cores=default_thumbnail_process_count(),
         keep_thumbnails_days=30,
     )
     error_defaults = dict(
