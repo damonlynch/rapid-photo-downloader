@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rapid Photo Downloader 0.9.2\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2023-12-27 12:53+1300\n"
+"POT-Creation-Date: 2024-01-04 16:18+1300\n"
 "PO-Revision-Date: 2022-03-02 10:07+0100\n"
 "Last-Translator: csola48 <csola48@gmail.com>\n"
 "Language-Team: magyar\n"
@@ -18,531 +18,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2022-03-02 09:00+0000\n"
 "X-Generator: Poedit 2.0.6\n"
-
-#: ../install.py:78
-msgid ""
-"To continue, please first install the python3 package setuptools using your "
-"system's package manager."
-msgstr ""
-"A folytatáshoz először telepítse a python3 setuptools csomagot a rendszer "
-"csomagkezelőjével."
-
-#: ../install.py:85
-msgid "Rapid Photo Downloader installer"
-msgstr "Rapid Photo Downloader telepítő"
-
-#: ../install.py:86
-msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr ""
-"A Rapid Photo Downloader legfrissebb verziójának letöltése és telepítése."
-
-#: ../install.py:423
-msgid ""
-"The software repository RPM Fusion Free was added to your system to (1) "
-"enable generating thumbnails for a wider range of video formats, and (2) "
-"enable support for the HEIC / HEIF image format."
-msgstr ""
-"Az RPM Fusion Free szoftvertárolót hozzáadták a rendszeréhez, hogy (1) "
-"lehetővé tegye a miniatűrök generálását a videoformátumok szélesebb köre "
-"számára, és (2) lehetővé tegye a HEIC / HEIF képformátum támogatását."
-
-#: ../install.py:658 ../install.py:4285
-msgid "Installer not found:"
-msgstr "Telepítő nem található:"
-
-#. Translators: do not translate the term tar.gz
-#: ../install.py:662 ../install.py:4289
-msgid "Installer not in tar.gz format:"
-msgstr "A telepítő nem tar.gz típusú:"
-
-#: ../install.py:733 ../install.py:762 ../install.py:4165 ../install.py:4170
-msgid "Exiting..."
-msgstr "Kilépés…"
-
-#: ../install.py:982
-msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
-msgstr "A megadott PyQt5 verzió nem létezik. Érvényes verziók: {}."
-
-#: ../install.py:1068
-msgid "{} will be upgraded from version {} to version {}"
-msgstr "{} frissítésre kerül a {} verzióról a {} verzióra"
-
-#. Translators: "not system-wide" in this context means "not for the entire system"
-#: ../install.py:1351 ../install.py:4245
-msgid ""
-"These Python3 packages will be upgraded for your user (i.e. not system-"
-"wide): {}"
-msgstr ""
-"Ezek a Python3 csomagok frissítésre kerülnek a felhasználó számára (azaz nem "
-"a rendszer egészére): {}"
-
-#: ../install.py:1456
-#, python-brace-format
-msgid ""
-"Incorrect folder ownership detected. Changing ownership of and resetting "
-"permissions for {file_system_path}."
-msgstr ""
-"Helytelen mappa tulajdonjogot észleltünk. A(z) {file_system_path} "
-"tulajdonjogának megváltoztatása és engedélyek visszaállítása."
-
-#: ../install.py:1599
-msgid "The following command will be run:"
-msgstr "A következő parancs fog futni:"
-
-#. Translators: do not translate the term sudo
-#: ../install.py:1603 ../install.py:3789 ../install.py:3796
-msgid "sudo may prompt you for the sudo password."
-msgstr "a sudo parancs lehet, hogy bekéri a sudohoz a jelszót."
-
-#: ../install.py:1607
-msgid "Would you like to run the command now?"
-msgstr "Szeretné most futtatni a pancsot?"
-
-#: ../install.py:1609
-msgid "Answer is not yes, exiting."
-msgstr "Kilépés, mert nincs \"igen\" válasz."
-
-#: ../install.py:1620 ../install.py:2215 ../install.py:2274 ../install.py:2749
-msgid "Command failed"
-msgstr "Sikertelen parancs"
-
-#: ../install.py:1622 ../install.py:2216 ../install.py:2275 ../install.py:2750
-msgid "Exiting"
-msgstr "Kilépés"
-
-#: ../install.py:1650
-msgid "The Universe repository must be enabled."
-msgstr "Engedélyezve kell lennie az Universe tárolónak."
-
-#. Translators: do not translate the term EPEL
-#: ../install.py:1690
-msgid "The EPEL repository must be enabled."
-msgstr "Az EPEL szoftvertárolót engedélyezni kell."
-
-#. Translators: do not translate the term RPM Fusion Free
-#: ../install.py:1738
-msgid "The RPM Fusion Free repository must be enabled."
-msgstr "Az RPM Fusion Free tárolót engedélyezni kell."
-
-#: ../install.py:1779
-msgid ""
-"Do you want to to uninstall the previous version of Rapid Photo Downloader?"
-msgstr "Akarja az előző verziójú  Rapid Photo Downloader eltávolítását?"
-
-#: ../install.py:2193 ../install.py:2223 ../install.py:2255
-msgid ""
-"Querying package system to see if an older version of Rapid Photo Downloader "
-"is installed (this may take a while)..."
-msgstr ""
-"A csomagkezelő lekérdezése, van-e régebbi verziójú Rapid Photo Downloader "
-"telepítve (eltarthat egy ideig)..."
-
-#: ../install.py:2208
-msgid "Uninstalling system package"
-msgstr "A rendszercsomag eltávolítása"
-
-#: ../install.py:2233
-msgid ""
-"Unable to query package system. Please check your Internet connection and "
-"try again."
-msgstr ""
-"A csomagkezelőt nem tudtam lekérdezni. Kérem ellenőrizze az Internet "
-"kapcsolatodat és próbálja újra."
-
-#. Translators: do not translate the term pip
-#: ../install.py:2280
-msgid "Checking if previous version installed with pip..."
-msgstr "Ellenőrizze, hogy az előző verzió pip-el lett-e telepítve ..."
-
-#: ../install.py:2433 ../install.py:2490 ../install.py:2606
-msgid "The following package is unknown on your system: {}\n"
-msgstr "A következő csomagok ismeretlenek a rendszerében: {}\n"
-
-#: ../install.py:2504 ../install.py:2662 ../install.py:2759
-msgid ""
-"To continue, some packages required to run the application will be installed."
-msgstr ""
-"Az alkalmazás telepítésének folytatáshoz további csomagok telepítése "
-"szükséges."
-
-#: ../install.py:2598 ../install.py:2619
-msgid "Querying installed and available packages (this may take a while)"
-msgstr ""
-"Telepített és rendelkezésre álló csomagok lekérdezése (ez eltarthat egy "
-"ideig)"
-
-#: ../install.py:2741
-msgid ""
-"Querying zypper to see if any required packages are already installed (this "
-"may take a while)... "
-msgstr ""
-"A csomagkezelő lekérdezi, hogy a szükséges csomagok telepítve vannak-e (ez "
-"eltarthat egy ideig) "
-
-#: ../install.py:2808
-msgid "Query to confirm action at each step."
-msgstr "Lépésenkénti megerősítés."
-
-#: ../install.py:2818
-msgid ""
-"When downloading the latest version, install the development version if it "
-"is newer than the stable version."
-msgstr ""
-"A legfrissebb verzió letöltésekor telepítse a fejlesztői verziót, ha az "
-"újabb, mint a stabil változat."
-
-#: ../install.py:2829
-msgid ""
-"Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
-"the latest version is downloaded from the Internet."
-msgstr ""
-"Opcionális tar.gz Rapid Photo Downloader telepítő archívuma. Ha nincs "
-"megadva, a legfrissebb verzió letöltődik az internetről."
-
-#: ../install.py:2879
-msgid ""
-"Do not run the installer in the tar.gz Rapid Photo Downloader installer "
-"archive if it is newer than this version ({}). The default is to run "
-"whichever installer is newer."
-msgstr ""
-"Ne futtassa a telepítőt a tar.gz Rapid Photo Downloader telepítő "
-"archívumában, ha az újabb, mint ez a verzió  ({}). Az alapértelmezés az, "
-"hogy a legújabb telepítőt futtassa."
-
-#: ../install.py:2887
-msgid ""
-"Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
-"dependencies."
-msgstr ""
-"Távolítsa el a Rapid Photo Downloader-t, amelyet pip-el telepített és tartja "
-"a függőségét."
-
-#: ../install.py:2893
-msgid ""
-"Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
-"installation, and Rapid Photo Downloader itself, then exit."
-msgstr ""
-"Távolítsa el a pip segítségével telepített függőségeket a Rapid Photo "
-"Downloader telepítésénél és magát a Rapid Photo Downloader programot, majd "
-"lépjen ki."
-
-#: ../install.py:2898
-msgid ""
-"Note: this will not uninstall any version of Rapid Photo Downloader "
-"installed by your Linux distribution's package manager."
-msgstr ""
-"Megjegyzés: Ez nem fogja eltávolítani a Linux disztribúció csomagkezelője "
-"által telepített Rapid Photo Downloader-t."
-
-#: ../install.py:2906
-msgid ""
-"Dependencies will only be removed if they are not required by other programs."
-msgstr "A függőségek csak akkor távolíthatóak el, ha más program nem igényli."
-
-#: ../install.py:2914
-msgid ""
-"Note: this option will remove the dependencies regardless of whether they "
-"are required by another program pip has installed. Upgrade to pip 9.0 or "
-"above if you want to avoid this behavior. You can do so using the command "
-"'python3 -m pip install pip -U --user'. Also note that any version of Rapid "
-"Photo Downloader installed by your Linux distribution's package manager will "
-"not be uninstalled."
-msgstr ""
-"Megjegyzés: ez az opció eltávolítja a függőséget, függetlenül attól, hogy "
-"egy másik program pip telepítve van-e. Frissítse a pip-et  9.0 vagy újabb "
-"verzióra, ha el akarja kerülni ezt a viselkedést. Ezt a \"python3 -m pip "
-"install pip -U - felhasználó\" paranccsal teheti meg. Ezenkívül vegye "
-"figyelembe, hogy a Linux disztribúció csomagkezelője által telepített Rapid "
-"Photo Downloader bármely verzióját nem távolítják el."
-
-#: ../install.py:2938
-msgid ""
-"Install in current Python virtual environment. Virtual environments created "
-"with the --system-site-packages option are not supported."
-msgstr ""
-"Telepítse a jelenlegi Python virtuális környezetbe. A --system-site-package "
-"opcióval létrehozott virtuális környezetek nem támogatottak."
-
-#: ../install.py:2956
-msgid ""
-"Specific version of PyQt5 to install (default is the most recent version{})."
-msgstr ""
-"A telepítendő PyQt5 speciális verziója (az alapértelmezés a {} legfrissebb "
-"verziója)."
-
-#: ../install.py:2967
-msgid ""
-"Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
-"Uninstalls any PyPi versions already installed."
-msgstr ""
-"A PyPt-ből származó PyQt5 használata helyett használja a Linux disztribúció "
-"verzióját. Eltávolítja a már telepített PyPi verziókat."
-
-#: ../install.py:3004
-msgid "Failed to download versions file."
-msgstr "Nem sikerült letölteni a verziók fájlját."
-
-#: ../install.py:3009
-msgid "Got error code {} while accessing versions file"
-msgstr "A verziófájl elérése közben kapott hibakód {}"
-
-#: ../install.py:3126
-msgid ""
-"Sorry, could not locate installer. Please check your Internet connection and "
-"verify if you can reach https://www.damonlynch.net\n"
-"\n"
-"Exiting.\n"
-msgstr ""
-"Sajnáljuk, a telepítő nem található. Ellenőrizze az internetkapcsolatot és "
-"ellenőrizze, hogy elérheti-e a\n"
-"https://www.damonlynch.net címet\n"
-"\n"
-"Kilépés\n"
-
-#: ../install.py:3280
-msgid ""
-"Package {} failed to install but Rapid Photo Downloader installation will "
-"continue."
-msgstr ""
-"A(z) {} csomag telepítése nem sikerült, de a Rapid Photo Downloader "
-"telepítése folytatódni fog."
-
-#: ../install.py:3286
-msgid "Received error code"
-msgstr "Fogadott hibakód"
-
-#: ../install.py:3288
-msgid "Failed to install application requirements: exiting."
-msgstr ""
-"Sikertelen az alkalmazáshoz szükséges követelmények telepítése: kilépés."
-
-#: ../install.py:3290
-msgid "Failed to install application: exiting..."
-msgstr "Sikertelen az alkalmazás telepítése: kilépés..."
-
-#: ../install.py:3614
-msgid "Installing application requirements..."
-msgstr "Az alkalmazáshoz szükséges követelmények telepítése ..."
-
-#: ../install.py:3648
-msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
-msgstr ""
-"A HEIF / HEIC miniatűrök létrehozására szolgáló rendszer támogatás nem "
-"érhető el"
-
-#: ../install.py:3665
-msgid "Installing application..."
-msgstr "Alkalmazás telepítése..."
-
-#: ../install.py:3752
-msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
-msgstr "Szeretné, hogy a Rapid Photo Downloader megjelenjen a Windows menüben?"
-
-#: ../install.py:3758
-msgid "Adding Rapid Photo Downloader to the Windows menu"
-msgstr "A Rapid Photo Downloader hozzáadása a Windows menühöz"
-
-#: ../install.py:3768
-msgid "Failed to copy application launcher."
-msgstr "Nem sikerült másolni az alkalmazásindítót."
-
-#: ../install.py:3779
-msgid "Man pages can be found in {}/share/man/man1"
-msgstr "Az oldalak a {}/share/man/man1 oldalon találhatók"
-
-#: ../install.py:3784
-msgid "Do you want to install the application's man pages?"
-msgstr "Akarja az alkalmazáshoz tartozó kézikönyv (man) lapokat telepíteni?"
-
-#: ../install.py:3785
-msgid "They will be installed into {}"
-msgstr "Ide lesznek telepítve {}"
-
-#: ../install.py:3787 ../install.py:3794
-msgid "If you uninstall the application, remove these manpages yourself."
-msgstr ""
-"Ha eltávolítja az alkalmazást, a hozzá tartozó kézikönyv (man) oldalakat "
-"önmagának kell eltávolítania."
-
-#: ../install.py:3790
-msgid "Do want to install the man pages?"
-msgstr "Akarja telepíteni a kézikönyv (man) oldalakat?"
-
-#: ../install.py:3792
-msgid "Installing man pages into {}"
-msgstr "A kézikönyv (man) oldalak telepítése ide {}"
-
-#: ../install.py:3810
-msgid "Failed to create man page directory: exiting."
-msgstr ""
-"Nem sikerült létrehozni a mappát a kézikönyv (man) oldalak számára: kilépés."
-
-#: ../install.py:3831
-msgid "Failed to copy man page."
-msgstr "Sikertelen a kézikönyv (man) oldalak másolása."
-
-#: ../install.py:3870
-msgid ""
-"Rapid Photo Downloader can be started without activating the virtual "
-"environment by running {}/bin/rapid-photo-downloader"
-msgstr ""
-"A Rapid Photo Downloader a virtuális környezet aktiválása nélkül indítható a "
-"{} / bin / quick-photo-downloader futtatásával"
-
-#: ../install.py:3883
-msgid ""
-"You may have to restart the computer to be able to run the program from the "
-"command line or application launcher."
-msgstr ""
-"Lehetséges, hogy újra kell indítania a számítógépet, hogy parancssorból vagy "
-"grafikus felületről elindíthassa a programot."
-
-#: ../install.py:3889
-msgid ""
-"You may have to restart WSL to be able to run the program from the command "
-"line."
-msgstr ""
-"Előfordulhat, hogy újra kell indítania a WSL-t, hogy a programot "
-"parancssorból futtathassa."
-
-#: ../install.py:3899
-#, python-brace-format
-msgid ""
-"You must add {path} to your computer's $PATH variable to run the program "
-"from the command line."
-msgstr ""
-"A program parancssorból történő futtatásához hozzá kell adnia a következőt: "
-"{path} a számítógép $PATH változójához."
-
-#: ../install.py:3904
-#, python-brace-format
-msgid ""
-"You must add {path} to your computer's $PATH variable to run the program "
-"from the command line or application launcher."
-msgstr ""
-"A program futtatásához a parancssorból vagy az alkalmazásindítóból hozzá "
-"kell adnia a {path} -ot a számítógép $PATH változójához."
-
-#: ../install.py:3926
-msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
-msgstr "(Ha a szegmentálási hiba kilép, akkor figyelmen kívül hagyhatja ...)"
-
-#: ../install.py:3928
-msgid "Done."
-msgstr "Kész."
-
-#: ../install.py:3942
-msgid ""
-"The python3 tool pip is required to uninstall a version of Rapid Photo "
-"Downloader that was installed with pip.\n"
-"Cannot continue. Exiting."
-msgstr ""
-"A python3 segédprogram eltávolítása szükséges a pipen telepített Rapid Photo "
-"Downloader verziójának eltávolításához.\n"
-"Nem folytatható. Kilépés."
-
-#: ../install.py:3998
-msgid ""
-"Do not run this installer script as sudo / root user.\n"
-"Run it using the user who will run the program.\n"
-msgstr ""
-"Ne futtassa a telepítő szkriptet root / sudo felhasználóként.\n"
-"Azzal a felhasználóval futtassa aki használni fogja a programot.\n"
-
-#. Translators: do not translate the terms --PyQt5-version or --use-system-PyQt5
-#: ../install.py:4010
-msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
-msgstr ""
-"Csak az egyiket adja meg a --PyQt5-verzió vagy a --rendszer által használt--"
-"PyQt5 közül."
-
-#: ../install.py:4022
-msgid ""
-"Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
-"on an Intel or AMD 64 bit platform."
-msgstr ""
-"Sajnáljuk, de a PyQt5 adott verziójának meghatározásához a Python 3.5 vagy "
-"újabb verzióra van szükség az Intel vagy az AMD 64 bites platformon."
-
-#. Translators: do not translate the term PyQt5
-#: ../install.py:4036
-msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
-msgstr "Kérjük, adja meg a PyQt5 verziót X.X vagy X.X.X formátumban"
-
-#: ../install.py:4052
-msgid ""
-"Do you want to install Rapid Photo Downloader into the current virtual "
-"environment?"
-msgstr ""
-"Szeretné telepíteni a Rapid Photo Downloadert a jelenlegi virtuális "
-"környezetbe?"
-
-#: ../install.py:4066
-msgid ""
-"Sorry, installing Rapid Photo Downloader into a Python virtual environment "
-"requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
-msgstr ""
-"Sajnáljuk, a Rapid Photo Downloader Python virtuális környezetbe történő "
-"telepítéséhez Python 3.5 vagy újabb verzióra van szükség egy Intel vagy AMD "
-"64 bites platformon."
-
-#: ../install.py:4079
-msgid ""
-"To install Rapid Photo Downloader into a Python virtual environment, create "
-"and activate the virtual environment before starting this script."
-msgstr ""
-"A Rapid Photo Downloader Python virtuális környezetbe történő telepítéséhez "
-"hozza létre és aktiválja a virtuális környezetet, mielőtt elindítaná ezt a "
-"parancsfájlt."
-
-#: ../install.py:4089
-msgid "Using virtual environment for installation using pip."
-msgstr "A virtuális környezet használata a pip használatához."
-
-#: ../install.py:4094 ../install.py:4108
-msgid "Do not include any other command line arguments when specifying"
-msgstr "Ne adjon meg más parancssori argumentumokat a specifikáció során"
-
-#: ../install.py:4127
-msgid ""
-"Sorry, this installer does not support a custom python installation.\n"
-"Exiting..."
-msgstr ""
-"Sajnáljuk, ez a telepítő nem támogatja az egyéni python telepítést.\n"
-"Kilépés ..."
-
-#: ../install.py:4135
-msgid "Restarting script using system python..."
-msgstr "A szkript újraindítása a python rendszer használatával ..."
-
-#: ../install.py:4148
-msgid "Detected Linux distribution {} {}"
-msgstr "Felismert Linux-disztribúció {} {}"
-
-#: ../install.py:4186
-msgid "To continue, the package python3-apt must be installed."
-msgstr "A folytatáshoz python3-apt -nek telepítve kell lennie."
-
-#: ../install.py:4218
-msgid ""
-"Install the following packages using your Linux distribution's standard "
-"package manager, and then rerun this installer:"
-msgstr ""
-"Az alábbi csomagokat telepítse a Linux disztribúció szabványos "
-"csomagkezelőjével, majd telepítse újra ezt a telepítőt:"
-
-#: ../install.py:4230
-msgid ""
-"To run this program, programs to assist Python 3 and its package management "
-"must be installed."
-msgstr ""
-"A program futtatásához programokat kell telepíteni a python3 és a "
-"csomagkezelés támogatására."
-
-#. Translators: do not translate the term python or requests
-#: ../install.py:4279
-msgid "Installing python requests"
-msgstr "Pythonhoz szükséges dolgok telepítése"
 
 #: ../raphodo/ui/aboutdialog.py:335
 msgid "Credits"
@@ -5675,6 +5150,445 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Fotók és videók letöltése a Rapid Photo Downloader alkalmazással"
+
+#~ msgid ""
+#~ "To continue, please first install the python3 package setuptools using "
+#~ "your system's package manager."
+#~ msgstr ""
+#~ "A folytatáshoz először telepítse a python3 setuptools csomagot a rendszer "
+#~ "csomagkezelőjével."
+
+#~ msgid "Rapid Photo Downloader installer"
+#~ msgstr "Rapid Photo Downloader telepítő"
+
+#~ msgid "Download and install latest version of Rapid Photo Downloader."
+#~ msgstr ""
+#~ "A Rapid Photo Downloader legfrissebb verziójának letöltése és telepítése."
+
+#~ msgid ""
+#~ "The software repository RPM Fusion Free was added to your system to (1) "
+#~ "enable generating thumbnails for a wider range of video formats, and (2) "
+#~ "enable support for the HEIC / HEIF image format."
+#~ msgstr ""
+#~ "Az RPM Fusion Free szoftvertárolót hozzáadták a rendszeréhez, hogy (1) "
+#~ "lehetővé tegye a miniatűrök generálását a videoformátumok szélesebb köre "
+#~ "számára, és (2) lehetővé tegye a HEIC / HEIF képformátum támogatását."
+
+#~ msgid "Installer not found:"
+#~ msgstr "Telepítő nem található:"
+
+#~ msgid "Installer not in tar.gz format:"
+#~ msgstr "A telepítő nem tar.gz típusú:"
+
+#~ msgid "Exiting..."
+#~ msgstr "Kilépés…"
+
+#~ msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
+#~ msgstr "A megadott PyQt5 verzió nem létezik. Érvényes verziók: {}."
+
+#~ msgid "{} will be upgraded from version {} to version {}"
+#~ msgstr "{} frissítésre kerül a {} verzióról a {} verzióra"
+
+#~ msgid ""
+#~ "These Python3 packages will be upgraded for your user (i.e. not system-"
+#~ "wide): {}"
+#~ msgstr ""
+#~ "Ezek a Python3 csomagok frissítésre kerülnek a felhasználó számára (azaz "
+#~ "nem a rendszer egészére): {}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "Incorrect folder ownership detected. Changing ownership of and resetting "
+#~ "permissions for {file_system_path}."
+#~ msgstr ""
+#~ "Helytelen mappa tulajdonjogot észleltünk. A(z) {file_system_path} "
+#~ "tulajdonjogának megváltoztatása és engedélyek visszaállítása."
+
+#~ msgid "The following command will be run:"
+#~ msgstr "A következő parancs fog futni:"
+
+#~ msgid "sudo may prompt you for the sudo password."
+#~ msgstr "a sudo parancs lehet, hogy bekéri a sudohoz a jelszót."
+
+#~ msgid "Would you like to run the command now?"
+#~ msgstr "Szeretné most futtatni a pancsot?"
+
+#~ msgid "Answer is not yes, exiting."
+#~ msgstr "Kilépés, mert nincs \"igen\" válasz."
+
+#~ msgid "Command failed"
+#~ msgstr "Sikertelen parancs"
+
+#~ msgid "Exiting"
+#~ msgstr "Kilépés"
+
+#~ msgid "The Universe repository must be enabled."
+#~ msgstr "Engedélyezve kell lennie az Universe tárolónak."
+
+#~ msgid "The EPEL repository must be enabled."
+#~ msgstr "Az EPEL szoftvertárolót engedélyezni kell."
+
+#~ msgid "The RPM Fusion Free repository must be enabled."
+#~ msgstr "Az RPM Fusion Free tárolót engedélyezni kell."
+
+#~ msgid ""
+#~ "Do you want to to uninstall the previous version of Rapid Photo "
+#~ "Downloader?"
+#~ msgstr "Akarja az előző verziójú  Rapid Photo Downloader eltávolítását?"
+
+#~ msgid ""
+#~ "Querying package system to see if an older version of Rapid Photo "
+#~ "Downloader is installed (this may take a while)..."
+#~ msgstr ""
+#~ "A csomagkezelő lekérdezése, van-e régebbi verziójú Rapid Photo Downloader "
+#~ "telepítve (eltarthat egy ideig)..."
+
+#~ msgid "Uninstalling system package"
+#~ msgstr "A rendszercsomag eltávolítása"
+
+#~ msgid ""
+#~ "Unable to query package system. Please check your Internet connection and "
+#~ "try again."
+#~ msgstr ""
+#~ "A csomagkezelőt nem tudtam lekérdezni. Kérem ellenőrizze az Internet "
+#~ "kapcsolatodat és próbálja újra."
+
+#~ msgid "Checking if previous version installed with pip..."
+#~ msgstr "Ellenőrizze, hogy az előző verzió pip-el lett-e telepítve ..."
+
+#~ msgid "The following package is unknown on your system: {}\n"
+#~ msgstr "A következő csomagok ismeretlenek a rendszerében: {}\n"
+
+#~ msgid ""
+#~ "To continue, some packages required to run the application will be "
+#~ "installed."
+#~ msgstr ""
+#~ "Az alkalmazás telepítésének folytatáshoz további csomagok telepítése "
+#~ "szükséges."
+
+#~ msgid "Querying installed and available packages (this may take a while)"
+#~ msgstr ""
+#~ "Telepített és rendelkezésre álló csomagok lekérdezése (ez eltarthat egy "
+#~ "ideig)"
+
+#~ msgid ""
+#~ "Querying zypper to see if any required packages are already installed "
+#~ "(this may take a while)... "
+#~ msgstr ""
+#~ "A csomagkezelő lekérdezi, hogy a szükséges csomagok telepítve vannak-e "
+#~ "(ez eltarthat egy ideig) "
+
+#~ msgid "Query to confirm action at each step."
+#~ msgstr "Lépésenkénti megerősítés."
+
+#~ msgid ""
+#~ "When downloading the latest version, install the development version if "
+#~ "it is newer than the stable version."
+#~ msgstr ""
+#~ "A legfrissebb verzió letöltésekor telepítse a fejlesztői verziót, ha az "
+#~ "újabb, mint a stabil változat."
+
+#~ msgid ""
+#~ "Optional tar.gz Rapid Photo Downloader installer archive. If not "
+#~ "specified, the latest version is downloaded from the Internet."
+#~ msgstr ""
+#~ "Opcionális tar.gz Rapid Photo Downloader telepítő archívuma. Ha nincs "
+#~ "megadva, a legfrissebb verzió letöltődik az internetről."
+
+#~ msgid ""
+#~ "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
+#~ "archive if it is newer than this version ({}). The default is to run "
+#~ "whichever installer is newer."
+#~ msgstr ""
+#~ "Ne futtassa a telepítőt a tar.gz Rapid Photo Downloader telepítő "
+#~ "archívumában, ha az újabb, mint ez a verzió  ({}). Az alapértelmezés az, "
+#~ "hogy a legújabb telepítőt futtassa."
+
+#~ msgid ""
+#~ "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
+#~ "dependencies."
+#~ msgstr ""
+#~ "Távolítsa el a Rapid Photo Downloader-t, amelyet pip-el telepített és "
+#~ "tartja a függőségét."
+
+#~ msgid ""
+#~ "Uninstall the dependencies installed by pip during Rapid Photo "
+#~ "Downloader's installation, and Rapid Photo Downloader itself, then exit."
+#~ msgstr ""
+#~ "Távolítsa el a pip segítségével telepített függőségeket a Rapid Photo "
+#~ "Downloader telepítésénél és magát a Rapid Photo Downloader programot, "
+#~ "majd lépjen ki."
+
+#~ msgid ""
+#~ "Note: this will not uninstall any version of Rapid Photo Downloader "
+#~ "installed by your Linux distribution's package manager."
+#~ msgstr ""
+#~ "Megjegyzés: Ez nem fogja eltávolítani a Linux disztribúció csomagkezelője "
+#~ "által telepített Rapid Photo Downloader-t."
+
+#~ msgid ""
+#~ "Dependencies will only be removed if they are not required by other "
+#~ "programs."
+#~ msgstr ""
+#~ "A függőségek csak akkor távolíthatóak el, ha más program nem igényli."
+
+#~ msgid ""
+#~ "Note: this option will remove the dependencies regardless of whether they "
+#~ "are required by another program pip has installed. Upgrade to pip 9.0 or "
+#~ "above if you want to avoid this behavior. You can do so using the command "
+#~ "'python3 -m pip install pip -U --user'. Also note that any version of "
+#~ "Rapid Photo Downloader installed by your Linux distribution's package "
+#~ "manager will not be uninstalled."
+#~ msgstr ""
+#~ "Megjegyzés: ez az opció eltávolítja a függőséget, függetlenül attól, hogy "
+#~ "egy másik program pip telepítve van-e. Frissítse a pip-et  9.0 vagy újabb "
+#~ "verzióra, ha el akarja kerülni ezt a viselkedést. Ezt a \"python3 -m pip "
+#~ "install pip -U - felhasználó\" paranccsal teheti meg. Ezenkívül vegye "
+#~ "figyelembe, hogy a Linux disztribúció csomagkezelője által telepített "
+#~ "Rapid Photo Downloader bármely verzióját nem távolítják el."
+
+#~ msgid ""
+#~ "Install in current Python virtual environment. Virtual environments "
+#~ "created with the --system-site-packages option are not supported."
+#~ msgstr ""
+#~ "Telepítse a jelenlegi Python virtuális környezetbe. A --system-site-"
+#~ "package opcióval létrehozott virtuális környezetek nem támogatottak."
+
+#~ msgid ""
+#~ "Specific version of PyQt5 to install (default is the most recent "
+#~ "version{})."
+#~ msgstr ""
+#~ "A telepítendő PyQt5 speciális verziója (az alapértelmezés a {} "
+#~ "legfrissebb verziója)."
+
+#~ msgid ""
+#~ "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
+#~ "Uninstalls any PyPi versions already installed."
+#~ msgstr ""
+#~ "A PyPt-ből származó PyQt5 használata helyett használja a Linux "
+#~ "disztribúció verzióját. Eltávolítja a már telepített PyPi verziókat."
+
+#~ msgid "Failed to download versions file."
+#~ msgstr "Nem sikerült letölteni a verziók fájlját."
+
+#~ msgid "Got error code {} while accessing versions file"
+#~ msgstr "A verziófájl elérése közben kapott hibakód {}"
+
+#~ msgid ""
+#~ "Sorry, could not locate installer. Please check your Internet connection "
+#~ "and verify if you can reach https://www.damonlynch.net\n"
+#~ "\n"
+#~ "Exiting.\n"
+#~ msgstr ""
+#~ "Sajnáljuk, a telepítő nem található. Ellenőrizze az internetkapcsolatot "
+#~ "és ellenőrizze, hogy elérheti-e a\n"
+#~ "https://www.damonlynch.net címet\n"
+#~ "\n"
+#~ "Kilépés\n"
+
+#~ msgid ""
+#~ "Package {} failed to install but Rapid Photo Downloader installation will "
+#~ "continue."
+#~ msgstr ""
+#~ "A(z) {} csomag telepítése nem sikerült, de a Rapid Photo Downloader "
+#~ "telepítése folytatódni fog."
+
+#~ msgid "Received error code"
+#~ msgstr "Fogadott hibakód"
+
+#~ msgid "Failed to install application requirements: exiting."
+#~ msgstr ""
+#~ "Sikertelen az alkalmazáshoz szükséges követelmények telepítése: kilépés."
+
+#~ msgid "Failed to install application: exiting..."
+#~ msgstr "Sikertelen az alkalmazás telepítése: kilépés..."
+
+#~ msgid "Installing application requirements..."
+#~ msgstr "Az alkalmazáshoz szükséges követelmények telepítése ..."
+
+#~ msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
+#~ msgstr ""
+#~ "A HEIF / HEIC miniatűrök létrehozására szolgáló rendszer támogatás nem "
+#~ "érhető el"
+
+#~ msgid "Installing application..."
+#~ msgstr "Alkalmazás telepítése..."
+
+#~ msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
+#~ msgstr ""
+#~ "Szeretné, hogy a Rapid Photo Downloader megjelenjen a Windows menüben?"
+
+#~ msgid "Adding Rapid Photo Downloader to the Windows menu"
+#~ msgstr "A Rapid Photo Downloader hozzáadása a Windows menühöz"
+
+#~ msgid "Failed to copy application launcher."
+#~ msgstr "Nem sikerült másolni az alkalmazásindítót."
+
+#~ msgid "Man pages can be found in {}/share/man/man1"
+#~ msgstr "Az oldalak a {}/share/man/man1 oldalon találhatók"
+
+#~ msgid "Do you want to install the application's man pages?"
+#~ msgstr "Akarja az alkalmazáshoz tartozó kézikönyv (man) lapokat telepíteni?"
+
+#~ msgid "They will be installed into {}"
+#~ msgstr "Ide lesznek telepítve {}"
+
+#~ msgid "If you uninstall the application, remove these manpages yourself."
+#~ msgstr ""
+#~ "Ha eltávolítja az alkalmazást, a hozzá tartozó kézikönyv (man) oldalakat "
+#~ "önmagának kell eltávolítania."
+
+#~ msgid "Do want to install the man pages?"
+#~ msgstr "Akarja telepíteni a kézikönyv (man) oldalakat?"
+
+#~ msgid "Installing man pages into {}"
+#~ msgstr "A kézikönyv (man) oldalak telepítése ide {}"
+
+#~ msgid "Failed to create man page directory: exiting."
+#~ msgstr ""
+#~ "Nem sikerült létrehozni a mappát a kézikönyv (man) oldalak számára: "
+#~ "kilépés."
+
+#~ msgid "Failed to copy man page."
+#~ msgstr "Sikertelen a kézikönyv (man) oldalak másolása."
+
+#~ msgid ""
+#~ "Rapid Photo Downloader can be started without activating the virtual "
+#~ "environment by running {}/bin/rapid-photo-downloader"
+#~ msgstr ""
+#~ "A Rapid Photo Downloader a virtuális környezet aktiválása nélkül "
+#~ "indítható a {} / bin / quick-photo-downloader futtatásával"
+
+#~ msgid ""
+#~ "You may have to restart the computer to be able to run the program from "
+#~ "the command line or application launcher."
+#~ msgstr ""
+#~ "Lehetséges, hogy újra kell indítania a számítógépet, hogy parancssorból "
+#~ "vagy grafikus felületről elindíthassa a programot."
+
+#~ msgid ""
+#~ "You may have to restart WSL to be able to run the program from the "
+#~ "command line."
+#~ msgstr ""
+#~ "Előfordulhat, hogy újra kell indítania a WSL-t, hogy a programot "
+#~ "parancssorból futtathassa."
+
+#, python-brace-format
+#~ msgid ""
+#~ "You must add {path} to your computer's $PATH variable to run the program "
+#~ "from the command line."
+#~ msgstr ""
+#~ "A program parancssorból történő futtatásához hozzá kell adnia a "
+#~ "következőt: {path} a számítógép $PATH változójához."
+
+#, python-brace-format
+#~ msgid ""
+#~ "You must add {path} to your computer's $PATH variable to run the program "
+#~ "from the command line or application launcher."
+#~ msgstr ""
+#~ "A program futtatásához a parancssorból vagy az alkalmazásindítóból hozzá "
+#~ "kell adnia a {path} -ot a számítógép $PATH változójához."
+
+#~ msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
+#~ msgstr ""
+#~ "(Ha a szegmentálási hiba kilép, akkor figyelmen kívül hagyhatja ...)"
+
+#~ msgid "Done."
+#~ msgstr "Kész."
+
+#~ msgid ""
+#~ "The python3 tool pip is required to uninstall a version of Rapid Photo "
+#~ "Downloader that was installed with pip.\n"
+#~ "Cannot continue. Exiting."
+#~ msgstr ""
+#~ "A python3 segédprogram eltávolítása szükséges a pipen telepített Rapid "
+#~ "Photo Downloader verziójának eltávolításához.\n"
+#~ "Nem folytatható. Kilépés."
+
+#~ msgid ""
+#~ "Do not run this installer script as sudo / root user.\n"
+#~ "Run it using the user who will run the program.\n"
+#~ msgstr ""
+#~ "Ne futtassa a telepítő szkriptet root / sudo felhasználóként.\n"
+#~ "Azzal a felhasználóval futtassa aki használni fogja a programot.\n"
+
+#~ msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
+#~ msgstr ""
+#~ "Csak az egyiket adja meg a --PyQt5-verzió vagy a --rendszer által "
+#~ "használt--PyQt5 közül."
+
+#~ msgid ""
+#~ "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or "
+#~ "newer on an Intel or AMD 64 bit platform."
+#~ msgstr ""
+#~ "Sajnáljuk, de a PyQt5 adott verziójának meghatározásához a Python 3.5 "
+#~ "vagy újabb verzióra van szükség az Intel vagy az AMD 64 bites platformon."
+
+#~ msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
+#~ msgstr "Kérjük, adja meg a PyQt5 verziót X.X vagy X.X.X formátumban"
+
+#~ msgid ""
+#~ "Do you want to install Rapid Photo Downloader into the current virtual "
+#~ "environment?"
+#~ msgstr ""
+#~ "Szeretné telepíteni a Rapid Photo Downloadert a jelenlegi virtuális "
+#~ "környezetbe?"
+
+#~ msgid ""
+#~ "Sorry, installing Rapid Photo Downloader into a Python virtual "
+#~ "environment requires Python 3.5 or newer on an Intel or AMD 64 bit "
+#~ "platform."
+#~ msgstr ""
+#~ "Sajnáljuk, a Rapid Photo Downloader Python virtuális környezetbe történő "
+#~ "telepítéséhez Python 3.5 vagy újabb verzióra van szükség egy Intel vagy "
+#~ "AMD 64 bites platformon."
+
+#~ msgid ""
+#~ "To install Rapid Photo Downloader into a Python virtual environment, "
+#~ "create and activate the virtual environment before starting this script."
+#~ msgstr ""
+#~ "A Rapid Photo Downloader Python virtuális környezetbe történő "
+#~ "telepítéséhez hozza létre és aktiválja a virtuális környezetet, mielőtt "
+#~ "elindítaná ezt a parancsfájlt."
+
+#~ msgid "Using virtual environment for installation using pip."
+#~ msgstr "A virtuális környezet használata a pip használatához."
+
+#~ msgid "Do not include any other command line arguments when specifying"
+#~ msgstr "Ne adjon meg más parancssori argumentumokat a specifikáció során"
+
+#~ msgid ""
+#~ "Sorry, this installer does not support a custom python installation.\n"
+#~ "Exiting..."
+#~ msgstr ""
+#~ "Sajnáljuk, ez a telepítő nem támogatja az egyéni python telepítést.\n"
+#~ "Kilépés ..."
+
+#~ msgid "Restarting script using system python..."
+#~ msgstr "A szkript újraindítása a python rendszer használatával ..."
+
+#~ msgid "Detected Linux distribution {} {}"
+#~ msgstr "Felismert Linux-disztribúció {} {}"
+
+#~ msgid "To continue, the package python3-apt must be installed."
+#~ msgstr "A folytatáshoz python3-apt -nek telepítve kell lennie."
+
+#~ msgid ""
+#~ "Install the following packages using your Linux distribution's standard "
+#~ "package manager, and then rerun this installer:"
+#~ msgstr ""
+#~ "Az alábbi csomagokat telepítse a Linux disztribúció szabványos "
+#~ "csomagkezelőjével, majd telepítse újra ezt a telepítőt:"
+
+#~ msgid ""
+#~ "To run this program, programs to assist Python 3 and its package "
+#~ "management must be installed."
+#~ msgstr ""
+#~ "A program futtatásához programokat kell telepíteni a python3 és a "
+#~ "csomagkezelés támogatására."
+
+#~ msgid "Installing python requests"
+#~ msgstr "Pythonhoz szükséges dolgok telepítése"
 
 #~ msgid "Upgrade Rapid Photo Downloader"
 #~ msgstr "A Rapid Photo Downloader frissítése"

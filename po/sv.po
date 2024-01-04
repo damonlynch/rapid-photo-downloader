@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2023-12-27 12:53+1300\n"
+"POT-Creation-Date: 2024-01-04 16:18+1300\n"
 "PO-Revision-Date: 2022-02-21 17:12+0000\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -17,500 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2023-12-26 23:20+0000\n"
 "X-Generator: Launchpad (build e1eeab5b20e19239bd7d5f36676f7a52988db88b)\n"
-
-#: ../install.py:78
-msgid ""
-"To continue, please first install the python3 package setuptools using your "
-"system's package manager."
-msgstr ""
-"Innan du kan fortsätta måste du installera python3-paketet setuptools med "
-"hjälp av pakethanteraren på ditt system."
-
-#: ../install.py:85
-msgid "Rapid Photo Downloader installer"
-msgstr "Rapid Photo Downloader installerare"
-
-#: ../install.py:86
-msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr "Hämta och installera den senaste versionen av Rapid Photo Downloader."
-
-#: ../install.py:423
-msgid ""
-"The software repository RPM Fusion Free was added to your system to (1) "
-"enable generating thumbnails for a wider range of video formats, and (2) "
-"enable support for the HEIC / HEIF image format."
-msgstr ""
-"Programförrådet RPM Fusion Free har lagts till för att (1) kunna skapa "
-"förhandsvisningar av fler olika filmformat, samt (2) lägga till stöd för "
-"bildformatet HEIC / HEIC."
-
-#: ../install.py:658 ../install.py:4285
-msgid "Installer not found:"
-msgstr "Installationsprogrammet hittades inte"
-
-#. Translators: do not translate the term tar.gz
-#: ../install.py:662 ../install.py:4289
-msgid "Installer not in tar.gz format:"
-msgstr "Installationsprogrammet är inte i  tar.gz-format:"
-
-#: ../install.py:733 ../install.py:762 ../install.py:4165 ../install.py:4170
-msgid "Exiting..."
-msgstr "Avslutar..."
-
-#: ../install.py:982
-msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
-msgstr "Den nödvändiga versionen av PyQt5 saknas. Giltiga versioner är: {}."
-
-#: ../install.py:1068
-msgid "{} will be upgraded from version {} to version {}"
-msgstr "{} kommer att uppgraderas från version {} till version {}"
-
-#. Translators: "not system-wide" in this context means "not for the entire system"
-#: ../install.py:1351 ../install.py:4245
-msgid ""
-"These Python3 packages will be upgraded for your user (i.e. not system-"
-"wide): {}"
-msgstr ""
-"Dessa Python3-paket kommer att uppdateras för din användare (inte för hela "
-"systemet): {}"
-
-#: ../install.py:1456
-#, python-brace-format
-msgid ""
-"Incorrect folder ownership detected. Changing ownership of and resetting "
-"permissions for {file_system_path}."
-msgstr ""
-"Ogiltig ägare för mappen. Ändrar ägare och återställer behörigheter för "
-"{file_system_path}."
-
-#: ../install.py:1599
-msgid "The following command will be run:"
-msgstr "Följande kommando kommer att köras:"
-
-#. Translators: do not translate the term sudo
-#: ../install.py:1603 ../install.py:3789 ../install.py:3796
-msgid "sudo may prompt you for the sudo password."
-msgstr "sudo kan komma att fråga efter sudo-lösenord."
-
-#: ../install.py:1607
-msgid "Would you like to run the command now?"
-msgstr "Vill du köra kommandot nu?"
-
-#: ../install.py:1609
-msgid "Answer is not yes, exiting."
-msgstr "Svaret är inte ja. Avslutar."
-
-#: ../install.py:1620 ../install.py:2215 ../install.py:2274 ../install.py:2749
-msgid "Command failed"
-msgstr "Kommandot misslyckades"
-
-#: ../install.py:1622 ../install.py:2216 ../install.py:2275 ../install.py:2750
-msgid "Exiting"
-msgstr "Avslutar"
-
-#: ../install.py:1650
-msgid "The Universe repository must be enabled."
-msgstr "Förrådet Universe måste aktiveras"
-
-#. Translators: do not translate the term EPEL
-#: ../install.py:1690
-msgid "The EPEL repository must be enabled."
-msgstr "Förrådet EPEL måste aktiveras"
-
-#. Translators: do not translate the term RPM Fusion Free
-#: ../install.py:1738
-msgid "The RPM Fusion Free repository must be enabled."
-msgstr "Förrådet RPM Fusion Free måste aktiveras"
-
-#: ../install.py:1779
-msgid ""
-"Do you want to to uninstall the previous version of Rapid Photo Downloader?"
-msgstr "Vill du avinstallera den tidigare versionen av Rapid Photo Downloader?"
-
-#: ../install.py:2193 ../install.py:2223 ../install.py:2255
-msgid ""
-"Querying package system to see if an older version of Rapid Photo Downloader "
-"is installed (this may take a while)..."
-msgstr ""
-"Undersöker paketsystemet för att hitta tidigare installerade versioner av "
-"Rapid Photo Downloader. Detta kan ta en stund..."
-
-#: ../install.py:2208
-msgid "Uninstalling system package"
-msgstr "Avinstallerar systempaket"
-
-#: ../install.py:2233
-msgid ""
-"Unable to query package system. Please check your Internet connection and "
-"try again."
-msgstr ""
-"Det går inte att söka paketsystemet. Kontrollera din internetanslutning och "
-"försök igen."
-
-#. Translators: do not translate the term pip
-#: ../install.py:2280
-msgid "Checking if previous version installed with pip..."
-msgstr "Kontrollerar om tidigare versioner installerats med hjälp av pip ..."
-
-#: ../install.py:2433 ../install.py:2490 ../install.py:2606
-msgid "The following package is unknown on your system: {}\n"
-msgstr "Följande paket är okända för ditt system: {}\n"
-
-#: ../install.py:2504 ../install.py:2662 ../install.py:2759
-msgid ""
-"To continue, some packages required to run the application will be installed."
-msgstr ""
-"För att kunna fortsätta installationen kommer ytterligare paket att "
-"installeras."
-
-#: ../install.py:2598 ../install.py:2619
-msgid "Querying installed and available packages (this may take a while)"
-msgstr ""
-"Undersöker installerade och tillgängliga paket. Detta kan ta en stund ..."
-
-#: ../install.py:2741
-msgid ""
-"Querying zypper to see if any required packages are already installed (this "
-"may take a while)... "
-msgstr ""
-"Undersöker zypper för att se om några nödvändiga paket redan är "
-"installerade. Detta kan ta en stund ... "
-
-#: ../install.py:2808
-msgid "Query to confirm action at each step."
-msgstr "Bekräfta varje steg"
-
-#: ../install.py:2818
-msgid ""
-"When downloading the latest version, install the development version if it "
-"is newer than the stable version."
-msgstr ""
-"När du laddar ner den senaste versionen, välj utvecklarversionen om den är "
-"nyare än den senaste stabila versionen."
-
-#: ../install.py:2829
-msgid ""
-"Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
-"the latest version is downloaded from the Internet."
-msgstr ""
-"Valfritt tar.gz-installationsarkiv för Rapid Photo Downloader. Om inte annat "
-"anges laddas den senaste versionen ner från internet."
-
-#: ../install.py:2879
-msgid ""
-"Do not run the installer in the tar.gz Rapid Photo Downloader installer "
-"archive if it is newer than this version ({}). The default is to run "
-"whichever installer is newer."
-msgstr ""
-"Använd inte installeraren i tar.gz-installationsarkivet för Rapid Photo "
-"Downloader om den är nyare än version ({}). Grundinställningen är att köra "
-"den som är nyast."
-
-#: ../install.py:2887
-msgid ""
-"Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
-"dependencies."
-msgstr ""
-"Avinstallera Rapid Photo Downloader som tidigare installerats med pip, men "
-"behåll beroendefiler."
-
-#: ../install.py:2893
-msgid ""
-"Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
-"installation, and Rapid Photo Downloader itself, then exit."
-msgstr ""
-"Avinstallera beroendefiler som tidigare installerats med pip, och Rapid "
-"Photo Downloader. Avsluta sedan."
-
-#: ../install.py:2898
-msgid ""
-"Note: this will not uninstall any version of Rapid Photo Downloader "
-"installed by your Linux distribution's package manager."
-msgstr ""
-"Observera: Detta kommer inte att avinstallera Rapid Photo Downloader som "
-"installerats med din pakethanterare."
-
-#: ../install.py:2906
-msgid ""
-"Dependencies will only be removed if they are not required by other programs."
-msgstr ""
-"Beroendefiler kommer bara att tas bort om de inte används av andra program."
-
-#: ../install.py:2914
-msgid ""
-"Note: this option will remove the dependencies regardless of whether they "
-"are required by another program pip has installed. Upgrade to pip 9.0 or "
-"above if you want to avoid this behavior. You can do so using the command "
-"'python3 -m pip install pip -U --user'. Also note that any version of Rapid "
-"Photo Downloader installed by your Linux distribution's package manager will "
-"not be uninstalled."
-msgstr ""
-"Obeservera: Det här kommer att ta bort filberoenden oavsett om de behövs av "
-"andra program som installerats med pip. Uppgradera till pip 9.0 eller senare "
-"om du vill undvika detta. Använd kommandot 'python3 -m pip install pip -U --"
-"user'.  Observera dessutom att detta kommer inte att avinstallera Rapid "
-"Photo Downloader som installerats med din pakethanterare."
-
-#: ../install.py:2938
-msgid ""
-"Install in current Python virtual environment. Virtual environments created "
-"with the --system-site-packages option are not supported."
-msgstr ""
-
-#: ../install.py:2956
-msgid ""
-"Specific version of PyQt5 to install (default is the most recent version{})."
-msgstr ""
-
-#: ../install.py:2967
-msgid ""
-"Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
-"Uninstalls any PyPi versions already installed."
-msgstr ""
-
-#: ../install.py:3004
-msgid "Failed to download versions file."
-msgstr "Misslyckades med att skapa nedladdningmappen."
-
-#: ../install.py:3009
-msgid "Got error code {} while accessing versions file"
-msgstr ""
-
-#: ../install.py:3126
-msgid ""
-"Sorry, could not locate installer. Please check your Internet connection and "
-"verify if you can reach https://www.damonlynch.net\n"
-"\n"
-"Exiting.\n"
-msgstr ""
-"Tyvärr hittades inte installeraren. Kontrollera din internetuppkoppling och "
-"se till att du når https://www.damonlynch.net\n"
-"\n"
-"Avslutar.\n"
-
-#: ../install.py:3280
-msgid ""
-"Package {} failed to install but Rapid Photo Downloader installation will "
-"continue."
-msgstr ""
-
-#: ../install.py:3286
-msgid "Received error code"
-msgstr ""
-
-#: ../install.py:3288
-msgid "Failed to install application requirements: exiting."
-msgstr ""
-
-#: ../install.py:3290
-msgid "Failed to install application: exiting..."
-msgstr ""
-
-#: ../install.py:3614
-msgid "Installing application requirements..."
-msgstr ""
-
-#: ../install.py:3648
-msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
-msgstr "Systemet saknar stöd för att generera HEIF- och HEIC-förhandsvisningar"
-
-#: ../install.py:3665
-msgid "Installing application..."
-msgstr "Installerar programmet ..."
-
-#: ../install.py:3752
-msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
-msgstr ""
-
-#: ../install.py:3758
-msgid "Adding Rapid Photo Downloader to the Windows menu"
-msgstr ""
-
-#: ../install.py:3768
-msgid "Failed to copy application launcher."
-msgstr ""
-
-#: ../install.py:3779
-msgid "Man pages can be found in {}/share/man/man1"
-msgstr "Manualsidorna hittar du i {}/share/man/man1"
-
-#: ../install.py:3784
-msgid "Do you want to install the application's man pages?"
-msgstr "Vill du installera programmets manualsidor?"
-
-#: ../install.py:3785
-msgid "They will be installed into {}"
-msgstr "De installeras i {}"
-
-#: ../install.py:3787 ../install.py:3794
-msgid "If you uninstall the application, remove these manpages yourself."
-msgstr ""
-"Manualsidorna tas inte bort när du avinstallerar programmet. Ta bort dessa "
-"på egen hand."
-
-#: ../install.py:3790
-msgid "Do want to install the man pages?"
-msgstr "Vill du installera manualsidorna?"
-
-#: ../install.py:3792
-msgid "Installing man pages into {}"
-msgstr "Installerar manualsidorna i {}"
-
-#: ../install.py:3810
-msgid "Failed to create man page directory: exiting."
-msgstr "Misslyckades med att skapa mappen för manualsidorna. Avslutar."
-
-#: ../install.py:3831
-msgid "Failed to copy man page."
-msgstr "Det gick inte att kopiera manualsidan."
-
-#: ../install.py:3870
-msgid ""
-"Rapid Photo Downloader can be started without activating the virtual "
-"environment by running {}/bin/rapid-photo-downloader"
-msgstr ""
-"Rapid Photo Downloader kan startas utan att aktivera den virtuella miljön "
-"genom att köra kommandot {}/bin/rapid-photo-downloader"
-
-#: ../install.py:3883
-msgid ""
-"You may have to restart the computer to be able to run the program from the "
-"command line or application launcher."
-msgstr ""
-"Du kan behöva starta om datorn innan du kan köra programmet från "
-"kommandoraden eller programstartaren."
-
-#: ../install.py:3889
-msgid ""
-"You may have to restart WSL to be able to run the program from the command "
-"line."
-msgstr ""
-
-#: ../install.py:3899
-#, python-brace-format
-msgid ""
-"You must add {path} to your computer's $PATH variable to run the program "
-"from the command line."
-msgstr ""
-
-#: ../install.py:3904
-#, python-brace-format
-msgid ""
-"You must add {path} to your computer's $PATH variable to run the program "
-"from the command line or application launcher."
-msgstr ""
-"Du måste lägga till {path} till datorns $PATH variabel för att köra "
-"programmet från kommandoraden eller programstartaren."
-
-#: ../install.py:3926
-msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
-msgstr ""
-"(Om ett segmenteringsfel uppstår när du avslutar programmet kan du lugnt "
-"ignorera det)"
-
-#: ../install.py:3928
-msgid "Done."
-msgstr "Klart."
-
-#: ../install.py:3942
-msgid ""
-"The python3 tool pip is required to uninstall a version of Rapid Photo "
-"Downloader that was installed with pip.\n"
-"Cannot continue. Exiting."
-msgstr ""
-"Python3-verktyget \"pip\"  krävs för att avinstallera Rapid Photo Downloader "
-"som installerats med pip.\n"
-"Kan inte fortsätta. Avslutar."
-
-#: ../install.py:3998
-msgid ""
-"Do not run this installer script as sudo / root user.\n"
-"Run it using the user who will run the program.\n"
-msgstr ""
-"Kör inte installations-skriptet som  sudo- eller root-användare.\n"
-"Kör det som den användare som ska använda programmet.\n"
-
-#. Translators: do not translate the terms --PyQt5-version or --use-system-PyQt5
-#: ../install.py:4010
-msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
-msgstr "Specificera enbart en --PyQt5-version eller --use-system-PyQt5."
-
-#: ../install.py:4022
-msgid ""
-"Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
-"on an Intel or AMD 64 bit platform."
-msgstr ""
-"Tyvärr, för att ange en specifik PyQt5-version krävs Python 3.5 eller senare "
-"för Intel eller AMD 64 bit-plattformar."
-
-#. Translators: do not translate the term PyQt5
-#: ../install.py:4036
-msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
-msgstr "Ange PyQt5-versionen i form av X.X eller X.X.X"
-
-#: ../install.py:4052
-msgid ""
-"Do you want to install Rapid Photo Downloader into the current virtual "
-"environment?"
-msgstr ""
-"Vill du installera Rapid Photo Downloader i den nuvarande virtuella miljön?"
-
-#: ../install.py:4066
-msgid ""
-"Sorry, installing Rapid Photo Downloader into a Python virtual environment "
-"requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
-msgstr ""
-"Tyvärr, för att installera Rapid Photo Downloader i en virtuell Python-miljö "
-"krävs Python 3.5 eller senare för Intel eller AMD 64 bit-plattformar."
-
-#: ../install.py:4079
-msgid ""
-"To install Rapid Photo Downloader into a Python virtual environment, create "
-"and activate the virtual environment before starting this script."
-msgstr ""
-
-#: ../install.py:4089
-msgid "Using virtual environment for installation using pip."
-msgstr ""
-
-#: ../install.py:4094 ../install.py:4108
-msgid "Do not include any other command line arguments when specifying"
-msgstr ""
-
-#: ../install.py:4127
-msgid ""
-"Sorry, this installer does not support a custom python installation.\n"
-"Exiting..."
-msgstr ""
-
-#: ../install.py:4135
-msgid "Restarting script using system python..."
-msgstr ""
-
-#: ../install.py:4148
-msgid "Detected Linux distribution {} {}"
-msgstr ""
-
-#: ../install.py:4186
-msgid "To continue, the package python3-apt must be installed."
-msgstr ""
-
-#: ../install.py:4218
-msgid ""
-"Install the following packages using your Linux distribution's standard "
-"package manager, and then rerun this installer:"
-msgstr ""
-
-#: ../install.py:4230
-msgid ""
-"To run this program, programs to assist Python 3 and its package management "
-"must be installed."
-msgstr ""
-
-#. Translators: do not translate the term python or requests
-#: ../install.py:4279
-msgid "Installing python requests"
-msgstr "Installerar python requests"
 
 #: ../raphodo/ui/aboutdialog.py:335
 msgid "Credits"
@@ -4988,6 +4494,328 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr ""
+
+#~ msgid ""
+#~ "To continue, please first install the python3 package setuptools using "
+#~ "your system's package manager."
+#~ msgstr ""
+#~ "Innan du kan fortsätta måste du installera python3-paketet setuptools med "
+#~ "hjälp av pakethanteraren på ditt system."
+
+#~ msgid "Rapid Photo Downloader installer"
+#~ msgstr "Rapid Photo Downloader installerare"
+
+#~ msgid "Download and install latest version of Rapid Photo Downloader."
+#~ msgstr ""
+#~ "Hämta och installera den senaste versionen av Rapid Photo Downloader."
+
+#~ msgid ""
+#~ "The software repository RPM Fusion Free was added to your system to (1) "
+#~ "enable generating thumbnails for a wider range of video formats, and (2) "
+#~ "enable support for the HEIC / HEIF image format."
+#~ msgstr ""
+#~ "Programförrådet RPM Fusion Free har lagts till för att (1) kunna skapa "
+#~ "förhandsvisningar av fler olika filmformat, samt (2) lägga till stöd för "
+#~ "bildformatet HEIC / HEIC."
+
+#~ msgid "Installer not found:"
+#~ msgstr "Installationsprogrammet hittades inte"
+
+#~ msgid "Installer not in tar.gz format:"
+#~ msgstr "Installationsprogrammet är inte i  tar.gz-format:"
+
+#~ msgid "Exiting..."
+#~ msgstr "Avslutar..."
+
+#~ msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
+#~ msgstr "Den nödvändiga versionen av PyQt5 saknas. Giltiga versioner är: {}."
+
+#~ msgid "{} will be upgraded from version {} to version {}"
+#~ msgstr "{} kommer att uppgraderas från version {} till version {}"
+
+#~ msgid ""
+#~ "These Python3 packages will be upgraded for your user (i.e. not system-"
+#~ "wide): {}"
+#~ msgstr ""
+#~ "Dessa Python3-paket kommer att uppdateras för din användare (inte för "
+#~ "hela systemet): {}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "Incorrect folder ownership detected. Changing ownership of and resetting "
+#~ "permissions for {file_system_path}."
+#~ msgstr ""
+#~ "Ogiltig ägare för mappen. Ändrar ägare och återställer behörigheter för "
+#~ "{file_system_path}."
+
+#~ msgid "The following command will be run:"
+#~ msgstr "Följande kommando kommer att köras:"
+
+#~ msgid "sudo may prompt you for the sudo password."
+#~ msgstr "sudo kan komma att fråga efter sudo-lösenord."
+
+#~ msgid "Would you like to run the command now?"
+#~ msgstr "Vill du köra kommandot nu?"
+
+#~ msgid "Answer is not yes, exiting."
+#~ msgstr "Svaret är inte ja. Avslutar."
+
+#~ msgid "Command failed"
+#~ msgstr "Kommandot misslyckades"
+
+#~ msgid "Exiting"
+#~ msgstr "Avslutar"
+
+#~ msgid "The Universe repository must be enabled."
+#~ msgstr "Förrådet Universe måste aktiveras"
+
+#~ msgid "The EPEL repository must be enabled."
+#~ msgstr "Förrådet EPEL måste aktiveras"
+
+#~ msgid "The RPM Fusion Free repository must be enabled."
+#~ msgstr "Förrådet RPM Fusion Free måste aktiveras"
+
+#~ msgid ""
+#~ "Do you want to to uninstall the previous version of Rapid Photo "
+#~ "Downloader?"
+#~ msgstr ""
+#~ "Vill du avinstallera den tidigare versionen av Rapid Photo Downloader?"
+
+#~ msgid ""
+#~ "Querying package system to see if an older version of Rapid Photo "
+#~ "Downloader is installed (this may take a while)..."
+#~ msgstr ""
+#~ "Undersöker paketsystemet för att hitta tidigare installerade versioner av "
+#~ "Rapid Photo Downloader. Detta kan ta en stund..."
+
+#~ msgid "Uninstalling system package"
+#~ msgstr "Avinstallerar systempaket"
+
+#~ msgid ""
+#~ "Unable to query package system. Please check your Internet connection and "
+#~ "try again."
+#~ msgstr ""
+#~ "Det går inte att söka paketsystemet. Kontrollera din internetanslutning "
+#~ "och försök igen."
+
+#~ msgid "Checking if previous version installed with pip..."
+#~ msgstr ""
+#~ "Kontrollerar om tidigare versioner installerats med hjälp av pip ..."
+
+#~ msgid "The following package is unknown on your system: {}\n"
+#~ msgstr "Följande paket är okända för ditt system: {}\n"
+
+#~ msgid ""
+#~ "To continue, some packages required to run the application will be "
+#~ "installed."
+#~ msgstr ""
+#~ "För att kunna fortsätta installationen kommer ytterligare paket att "
+#~ "installeras."
+
+#~ msgid "Querying installed and available packages (this may take a while)"
+#~ msgstr ""
+#~ "Undersöker installerade och tillgängliga paket. Detta kan ta en stund ..."
+
+#~ msgid ""
+#~ "Querying zypper to see if any required packages are already installed "
+#~ "(this may take a while)... "
+#~ msgstr ""
+#~ "Undersöker zypper för att se om några nödvändiga paket redan är "
+#~ "installerade. Detta kan ta en stund ... "
+
+#~ msgid "Query to confirm action at each step."
+#~ msgstr "Bekräfta varje steg"
+
+#~ msgid ""
+#~ "When downloading the latest version, install the development version if "
+#~ "it is newer than the stable version."
+#~ msgstr ""
+#~ "När du laddar ner den senaste versionen, välj utvecklarversionen om den "
+#~ "är nyare än den senaste stabila versionen."
+
+#~ msgid ""
+#~ "Optional tar.gz Rapid Photo Downloader installer archive. If not "
+#~ "specified, the latest version is downloaded from the Internet."
+#~ msgstr ""
+#~ "Valfritt tar.gz-installationsarkiv för Rapid Photo Downloader. Om inte "
+#~ "annat anges laddas den senaste versionen ner från internet."
+
+#~ msgid ""
+#~ "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
+#~ "archive if it is newer than this version ({}). The default is to run "
+#~ "whichever installer is newer."
+#~ msgstr ""
+#~ "Använd inte installeraren i tar.gz-installationsarkivet för Rapid Photo "
+#~ "Downloader om den är nyare än version ({}). Grundinställningen är att "
+#~ "köra den som är nyast."
+
+#~ msgid ""
+#~ "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
+#~ "dependencies."
+#~ msgstr ""
+#~ "Avinstallera Rapid Photo Downloader som tidigare installerats med pip, "
+#~ "men behåll beroendefiler."
+
+#~ msgid ""
+#~ "Uninstall the dependencies installed by pip during Rapid Photo "
+#~ "Downloader's installation, and Rapid Photo Downloader itself, then exit."
+#~ msgstr ""
+#~ "Avinstallera beroendefiler som tidigare installerats med pip, och Rapid "
+#~ "Photo Downloader. Avsluta sedan."
+
+#~ msgid ""
+#~ "Note: this will not uninstall any version of Rapid Photo Downloader "
+#~ "installed by your Linux distribution's package manager."
+#~ msgstr ""
+#~ "Observera: Detta kommer inte att avinstallera Rapid Photo Downloader som "
+#~ "installerats med din pakethanterare."
+
+#~ msgid ""
+#~ "Dependencies will only be removed if they are not required by other "
+#~ "programs."
+#~ msgstr ""
+#~ "Beroendefiler kommer bara att tas bort om de inte används av andra "
+#~ "program."
+
+#~ msgid ""
+#~ "Note: this option will remove the dependencies regardless of whether they "
+#~ "are required by another program pip has installed. Upgrade to pip 9.0 or "
+#~ "above if you want to avoid this behavior. You can do so using the command "
+#~ "'python3 -m pip install pip -U --user'. Also note that any version of "
+#~ "Rapid Photo Downloader installed by your Linux distribution's package "
+#~ "manager will not be uninstalled."
+#~ msgstr ""
+#~ "Obeservera: Det här kommer att ta bort filberoenden oavsett om de behövs "
+#~ "av andra program som installerats med pip. Uppgradera till pip 9.0 eller "
+#~ "senare om du vill undvika detta. Använd kommandot 'python3 -m pip install "
+#~ "pip -U --user'.  Observera dessutom att detta kommer inte att "
+#~ "avinstallera Rapid Photo Downloader som installerats med din "
+#~ "pakethanterare."
+
+#~ msgid "Failed to download versions file."
+#~ msgstr "Misslyckades med att skapa nedladdningmappen."
+
+#~ msgid ""
+#~ "Sorry, could not locate installer. Please check your Internet connection "
+#~ "and verify if you can reach https://www.damonlynch.net\n"
+#~ "\n"
+#~ "Exiting.\n"
+#~ msgstr ""
+#~ "Tyvärr hittades inte installeraren. Kontrollera din internetuppkoppling "
+#~ "och se till att du når https://www.damonlynch.net\n"
+#~ "\n"
+#~ "Avslutar.\n"
+
+#~ msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
+#~ msgstr ""
+#~ "Systemet saknar stöd för att generera HEIF- och HEIC-förhandsvisningar"
+
+#~ msgid "Installing application..."
+#~ msgstr "Installerar programmet ..."
+
+#~ msgid "Man pages can be found in {}/share/man/man1"
+#~ msgstr "Manualsidorna hittar du i {}/share/man/man1"
+
+#~ msgid "Do you want to install the application's man pages?"
+#~ msgstr "Vill du installera programmets manualsidor?"
+
+#~ msgid "They will be installed into {}"
+#~ msgstr "De installeras i {}"
+
+#~ msgid "If you uninstall the application, remove these manpages yourself."
+#~ msgstr ""
+#~ "Manualsidorna tas inte bort när du avinstallerar programmet. Ta bort "
+#~ "dessa på egen hand."
+
+#~ msgid "Do want to install the man pages?"
+#~ msgstr "Vill du installera manualsidorna?"
+
+#~ msgid "Installing man pages into {}"
+#~ msgstr "Installerar manualsidorna i {}"
+
+#~ msgid "Failed to create man page directory: exiting."
+#~ msgstr "Misslyckades med att skapa mappen för manualsidorna. Avslutar."
+
+#~ msgid "Failed to copy man page."
+#~ msgstr "Det gick inte att kopiera manualsidan."
+
+#~ msgid ""
+#~ "Rapid Photo Downloader can be started without activating the virtual "
+#~ "environment by running {}/bin/rapid-photo-downloader"
+#~ msgstr ""
+#~ "Rapid Photo Downloader kan startas utan att aktivera den virtuella miljön "
+#~ "genom att köra kommandot {}/bin/rapid-photo-downloader"
+
+#~ msgid ""
+#~ "You may have to restart the computer to be able to run the program from "
+#~ "the command line or application launcher."
+#~ msgstr ""
+#~ "Du kan behöva starta om datorn innan du kan köra programmet från "
+#~ "kommandoraden eller programstartaren."
+
+#, python-brace-format
+#~ msgid ""
+#~ "You must add {path} to your computer's $PATH variable to run the program "
+#~ "from the command line or application launcher."
+#~ msgstr ""
+#~ "Du måste lägga till {path} till datorns $PATH variabel för att köra "
+#~ "programmet från kommandoraden eller programstartaren."
+
+#~ msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
+#~ msgstr ""
+#~ "(Om ett segmenteringsfel uppstår när du avslutar programmet kan du lugnt "
+#~ "ignorera det)"
+
+#~ msgid "Done."
+#~ msgstr "Klart."
+
+#~ msgid ""
+#~ "The python3 tool pip is required to uninstall a version of Rapid Photo "
+#~ "Downloader that was installed with pip.\n"
+#~ "Cannot continue. Exiting."
+#~ msgstr ""
+#~ "Python3-verktyget \"pip\"  krävs för att avinstallera Rapid Photo "
+#~ "Downloader som installerats med pip.\n"
+#~ "Kan inte fortsätta. Avslutar."
+
+#~ msgid ""
+#~ "Do not run this installer script as sudo / root user.\n"
+#~ "Run it using the user who will run the program.\n"
+#~ msgstr ""
+#~ "Kör inte installations-skriptet som  sudo- eller root-användare.\n"
+#~ "Kör det som den användare som ska använda programmet.\n"
+
+#~ msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
+#~ msgstr "Specificera enbart en --PyQt5-version eller --use-system-PyQt5."
+
+#~ msgid ""
+#~ "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or "
+#~ "newer on an Intel or AMD 64 bit platform."
+#~ msgstr ""
+#~ "Tyvärr, för att ange en specifik PyQt5-version krävs Python 3.5 eller "
+#~ "senare för Intel eller AMD 64 bit-plattformar."
+
+#~ msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
+#~ msgstr "Ange PyQt5-versionen i form av X.X eller X.X.X"
+
+#~ msgid ""
+#~ "Do you want to install Rapid Photo Downloader into the current virtual "
+#~ "environment?"
+#~ msgstr ""
+#~ "Vill du installera Rapid Photo Downloader i den nuvarande virtuella "
+#~ "miljön?"
+
+#~ msgid ""
+#~ "Sorry, installing Rapid Photo Downloader into a Python virtual "
+#~ "environment requires Python 3.5 or newer on an Intel or AMD 64 bit "
+#~ "platform."
+#~ msgstr ""
+#~ "Tyvärr, för att installera Rapid Photo Downloader i en virtuell Python-"
+#~ "miljö krävs Python 3.5 eller senare för Intel eller AMD 64 bit-"
+#~ "plattformar."
+
+#~ msgid "Installing python requests"
+#~ msgstr "Installerar python requests"
 
 #~ msgid "Upgrade Rapid Photo Downloader"
 #~ msgstr "Uppgradera Rapid Photo Downloader"

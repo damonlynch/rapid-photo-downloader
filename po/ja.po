@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2023-12-27 12:53+1300\n"
+"POT-Creation-Date: 2024-01-04 16:18+1300\n"
 "PO-Revision-Date: 2022-03-05 12:37+0000\n"
 "Last-Translator: Koji <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -17,523 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2023-12-26 23:20+0000\n"
 "X-Generator: Launchpad (build e1eeab5b20e19239bd7d5f36676f7a52988db88b)\n"
-
-#: ../install.py:78
-msgid ""
-"To continue, please first install the python3 package setuptools using your "
-"system's package manager."
-msgstr ""
-"先に進むには，お使いのシステムのパッケージマネージャを使って，python3パッケー"
-"ジのsetuptoolsをまず導入してください．"
-
-#: ../install.py:85
-msgid "Rapid Photo Downloader installer"
-msgstr "高速写真ダウンローダ・インストーラ"
-
-#: ../install.py:86
-msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr "高速写真ダウンローダの最新版をダウンロードして導入します．"
-
-#: ../install.py:423
-msgid ""
-"The software repository RPM Fusion Free was added to your system to (1) "
-"enable generating thumbnails for a wider range of video formats, and (2) "
-"enable support for the HEIC / HEIF image format."
-msgstr ""
-"ソフトウェアリポジトリのRPM Fusion Freeがシステムに追加されました．これによ"
-"り，(1)さらに多くの動画形式に対して，サムネイルを生成することが可能になり，"
-"(2) HEIC / HEIF画像形式のサポートが可能となりました．"
-
-#: ../install.py:658 ../install.py:4285
-msgid "Installer not found:"
-msgstr "インストーラが見つかりません："
-
-#. Translators: do not translate the term tar.gz
-#: ../install.py:662 ../install.py:4289
-msgid "Installer not in tar.gz format:"
-msgstr "インストーラがtar.gz形式になっていません："
-
-#: ../install.py:733 ../install.py:762 ../install.py:4165 ../install.py:4170
-msgid "Exiting..."
-msgstr "終了します..."
-
-#: ../install.py:982
-msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
-msgstr "指定されたPyQt5のバージョンが存在しません．有効なバージョンは{}です．"
-
-#: ../install.py:1068
-msgid "{} will be upgraded from version {} to version {}"
-msgstr "{}はバージョン{}から{}にアップグレードされます"
-
-#. Translators: "not system-wide" in this context means "not for the entire system"
-#: ../install.py:1351 ../install.py:4245
-msgid ""
-"These Python3 packages will be upgraded for your user (i.e. not system-"
-"wide): {}"
-msgstr ""
-"以下のPython3パッケージがユーザー向けに更新されます（システムの全ユーザー向け"
-"ではありません）：{}"
-
-#: ../install.py:1456
-#, python-brace-format
-msgid ""
-"Incorrect folder ownership detected. Changing ownership of and resetting "
-"permissions for {file_system_path}."
-msgstr ""
-"フォルダ所有者が正しくないことが検出されました。{file_system_path}の所有者を"
-"変更して、パーミッションを初期化します。"
-
-#: ../install.py:1599
-msgid "The following command will be run:"
-msgstr "次のコマンドが実行されます："
-
-#. Translators: do not translate the term sudo
-#: ../install.py:1603 ../install.py:3789 ../install.py:3796
-msgid "sudo may prompt you for the sudo password."
-msgstr "sudoがsudoパスワードを尋ねるかもしれません．"
-
-#: ../install.py:1607
-msgid "Would you like to run the command now?"
-msgstr "このコマンドをいま実行しますか？"
-
-#: ../install.py:1609
-msgid "Answer is not yes, exiting."
-msgstr "回答が「はい」ではありませんでしたので終了します．"
-
-#: ../install.py:1620 ../install.py:2215 ../install.py:2274 ../install.py:2749
-msgid "Command failed"
-msgstr "コマンド失敗"
-
-#: ../install.py:1622 ../install.py:2216 ../install.py:2275 ../install.py:2750
-msgid "Exiting"
-msgstr "終了します"
-
-#: ../install.py:1650
-msgid "The Universe repository must be enabled."
-msgstr "Universeリポジトリを有効にしなくてはなりません．"
-
-#. Translators: do not translate the term EPEL
-#: ../install.py:1690
-msgid "The EPEL repository must be enabled."
-msgstr "EPELリポジトリを有効にしなくてはなりません．"
-
-#. Translators: do not translate the term RPM Fusion Free
-#: ../install.py:1738
-msgid "The RPM Fusion Free repository must be enabled."
-msgstr "RPM Fusion Freeリポジトリを有効にしなくてはなりません．"
-
-#: ../install.py:1779
-msgid ""
-"Do you want to to uninstall the previous version of Rapid Photo Downloader?"
-msgstr "古いバージョンのRapid Photo Downloaderをアンインストールしますか？"
-
-#: ../install.py:2193 ../install.py:2223 ../install.py:2255
-msgid ""
-"Querying package system to see if an older version of Rapid Photo Downloader "
-"is installed (this may take a while)..."
-msgstr ""
-"旧版の高速写真ダウンローダが導入済みかパッケージシステムに問い合わせています"
-"（これには時間を要することがあります）…"
-
-#: ../install.py:2208
-msgid "Uninstalling system package"
-msgstr "システムパッケージをアンインストールしています"
-
-#: ../install.py:2233
-msgid ""
-"Unable to query package system. Please check your Internet connection and "
-"try again."
-msgstr ""
-"パッケージシステムに問い合わせることができませんでした。インターネット接続を"
-"確認して、再度実行してください。"
-
-#. Translators: do not translate the term pip
-#: ../install.py:2280
-msgid "Checking if previous version installed with pip..."
-msgstr "旧版が導入済みかpipで確認しています…"
-
-#: ../install.py:2433 ../install.py:2490 ../install.py:2606
-msgid "The following package is unknown on your system: {}\n"
-msgstr "次のパッケージはシステム上で既知ではありません：{}\n"
-
-#: ../install.py:2504 ../install.py:2662 ../install.py:2759
-msgid ""
-"To continue, some packages required to run the application will be installed."
-msgstr ""
-"続けると，アプリケーションを実行するのに必要なパッケージが導入されます．"
-
-#: ../install.py:2598 ../install.py:2619
-msgid "Querying installed and available packages (this may take a while)"
-msgstr ""
-"導入済みで利用できるパッケージを問い合わせています（これには時間を要すること"
-"があります）"
-
-#: ../install.py:2741
-msgid ""
-"Querying zypper to see if any required packages are already installed (this "
-"may take a while)... "
-msgstr ""
-"必要なパッケージが導入済みかzypperに問い合わせています（これには時間を要する"
-"ことがあります）… "
-
-#: ../install.py:2808
-msgid "Query to confirm action at each step."
-msgstr "各段階での操作確認を求める"
-
-#: ../install.py:2818
-msgid ""
-"When downloading the latest version, install the development version if it "
-"is newer than the stable version."
-msgstr ""
-"最新版をダウンロードする際，開発版が安定版よりも新しければ，そちらをインス"
-"トールする"
-
-#: ../install.py:2829
-msgid ""
-"Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
-"the latest version is downloaded from the Internet."
-msgstr ""
-"オプションの高速写真ダウンローダのインストーラのtar.gz版アーカイブ．これを指"
-"定しない場合は，最新版がインターネットからダウンロードされます．"
-
-#: ../install.py:2879
-msgid ""
-"Do not run the installer in the tar.gz Rapid Photo Downloader installer "
-"archive if it is newer than this version ({}). The default is to run "
-"whichever installer is newer."
-msgstr ""
-"高速写真ダウンローダのインストーラのtar.gz版アーカイブが，このバージョン"
-"（{}）よりも新しいときでも，アーカイブ内のインストーラは実行しない．既定値で"
-"は，新しい方のインストーラを実行します．"
-
-#: ../install.py:2887
-msgid ""
-"Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
-"dependencies."
-msgstr ""
-"pipでインストールした高速写真ダウンローダを，依存プログラムは保持したまま，ア"
-"ンインストールします．"
-
-#: ../install.py:2893
-msgid ""
-"Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
-"installation, and Rapid Photo Downloader itself, then exit."
-msgstr ""
-"高速写真ダウンローダをpipでインストール中にインストールした依存プログラムをア"
-"ンインストールし，高速写真ダウンローダ自身もアンインストールして，終了しま"
-"す．"
-
-#: ../install.py:2898
-msgid ""
-"Note: this will not uninstall any version of Rapid Photo Downloader "
-"installed by your Linux distribution's package manager."
-msgstr ""
-"【註】この操作では，Linux頒布版のパッケージマネージャがインストールした高速写"
-"真ダウンローダは，アンインストールされません．"
-
-#: ../install.py:2906
-msgid ""
-"Dependencies will only be removed if they are not required by other programs."
-msgstr ""
-"依存プログラムは，他のプログラムによって必要とされていない場合にのみ削除され"
-"ます．"
-
-#: ../install.py:2914
-msgid ""
-"Note: this option will remove the dependencies regardless of whether they "
-"are required by another program pip has installed. Upgrade to pip 9.0 or "
-"above if you want to avoid this behavior. You can do so using the command "
-"'python3 -m pip install pip -U --user'. Also note that any version of Rapid "
-"Photo Downloader installed by your Linux distribution's package manager will "
-"not be uninstalled."
-msgstr ""
-"【註】このオプションは，pipがインストールした他のプログラムに必要とされている"
-"か否かに関わらず，依存プログラムを削除します．この挙動を回避したい場合には，"
-"pip 9.0以上にアップグレードしてください．コマンド「python3 -m pip install "
-"pip -U --user」でアップグレードできます．また，Linux頒布版のパッケージマネー"
-"ジャがインストールした高速写真ダウンローダは，アンインストールされないことに"
-"注意してください．"
-
-#: ../install.py:2938
-msgid ""
-"Install in current Python virtual environment. Virtual environments created "
-"with the --system-site-packages option are not supported."
-msgstr ""
-"現在のPythonバーチャル環境にインストールしてください。--system-site-packages"
-"オプションを付けて生成されたバーチャル環境はサポートされません。"
-
-#: ../install.py:2956
-msgid ""
-"Specific version of PyQt5 to install (default is the most recent version{})."
-msgstr "インストールするPyQt5の特定バージョン（既定では最新版{}）です。"
-
-#: ../install.py:2967
-msgid ""
-"Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
-"Uninstalls any PyPi versions already installed."
-msgstr ""
-"PyPiからPyQt5を使用する代わりに、お使いのLinux頒布のバージョンを使用します。"
-"既に導入済みのPyPiバージョンは全てアンインストールされます。"
-
-#: ../install.py:3004
-msgid "Failed to download versions file."
-msgstr "バージョンファイルをダウンロードするのに失敗しました。"
-
-#: ../install.py:3009
-msgid "Got error code {} while accessing versions file"
-msgstr "バージョンファイルへのアクセス中に，エラーコード{}を受け取りました．"
-
-#: ../install.py:3126
-msgid ""
-"Sorry, could not locate installer. Please check your Internet connection and "
-"verify if you can reach https://www.damonlynch.net\n"
-"\n"
-"Exiting.\n"
-msgstr ""
-"ごめんなさい．インストーラが見つかりませんでした．インターネット接続を確認し"
-"て，https://www.damonlynch.netにたどり着けることを確かめてください．\n"
-"\n"
-"終了します．\n"
-
-#: ../install.py:3280
-msgid ""
-"Package {} failed to install but Rapid Photo Downloader installation will "
-"continue."
-msgstr ""
-"パッケージ{}のインストールに失敗しましたが、Rapid Photo Downloaderのインス"
-"トールは続けます。"
-
-#: ../install.py:3286
-msgid "Received error code"
-msgstr "エラーコードを受け取りました"
-
-#: ../install.py:3288
-msgid "Failed to install application requirements: exiting."
-msgstr "アプリケーションに必要なもののインストールに失敗しました．終了します．"
-
-#: ../install.py:3290
-msgid "Failed to install application: exiting..."
-msgstr "アプリケーションの導入に失敗しました：終了します…"
-
-#: ../install.py:3614
-msgid "Installing application requirements..."
-msgstr "アプリケーションの必要物を導入しています…"
-
-#: ../install.py:3648
-msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
-msgstr ""
-"HEIF / HEICサムネールを生成するためのサポートをシステムが提供していません．"
-
-#: ../install.py:3665
-msgid "Installing application..."
-msgstr "アプリケーションを導入しています…"
-
-#: ../install.py:3752
-msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
-msgstr "Rapid Photo DownloaderがWindowsメニューに表示されるようにしますか？"
-
-#: ../install.py:3758
-msgid "Adding Rapid Photo Downloader to the Windows menu"
-msgstr "Rapid Photo DownloaderをWindowsメニューに追加"
-
-#: ../install.py:3768
-msgid "Failed to copy application launcher."
-msgstr "アプリケーションロンチャーのコピーに失敗しました"
-
-#: ../install.py:3779
-msgid "Man pages can be found in {}/share/man/man1"
-msgstr "Manページは{}/share/man/man1にあります"
-
-#: ../install.py:3784
-msgid "Do you want to install the application's man pages?"
-msgstr "アプリケーションのmanページを導入しますか？"
-
-#: ../install.py:3785
-msgid "They will be installed into {}"
-msgstr "これらは{}に導入されます"
-
-#: ../install.py:3787 ../install.py:3794
-msgid "If you uninstall the application, remove these manpages yourself."
-msgstr ""
-"アプリケーションをアンインストールした場合には，これらのmanページをご自身で削"
-"除してください．"
-
-#: ../install.py:3790
-msgid "Do want to install the man pages?"
-msgstr "manページもインストールしますか？"
-
-#: ../install.py:3792
-msgid "Installing man pages into {}"
-msgstr "manページを{}にインストールしています"
-
-#: ../install.py:3810
-msgid "Failed to create man page directory: exiting."
-msgstr "manページ用ディレクトリを作成できませんでした．終了します．"
-
-#: ../install.py:3831
-msgid "Failed to copy man page."
-msgstr "manページをコピーできませんでした"
-
-#: ../install.py:3870
-msgid ""
-"Rapid Photo Downloader can be started without activating the virtual "
-"environment by running {}/bin/rapid-photo-downloader"
-msgstr ""
-"Rapid Photo Downloaderは{}/bin/rapid-photo-downloaderを実行すれば、バーチャル"
-"環境を有効化せずに起動することができます"
-
-#: ../install.py:3883
-msgid ""
-"You may have to restart the computer to be able to run the program from the "
-"command line or application launcher."
-msgstr ""
-"プログラムをコマンドラインやアプリケーション・ロンチャーから起動するために"
-"は，コンピュータを再起動する必要があるかもしれません．"
-
-#: ../install.py:3889
-msgid ""
-"You may have to restart WSL to be able to run the program from the command "
-"line."
-msgstr ""
-"コマンドラインからこのプログラムを実行できるようにするためには、WSLを再起動す"
-"る必要があります。"
-
-#: ../install.py:3899
-#, python-brace-format
-msgid ""
-"You must add {path} to your computer's $PATH variable to run the program "
-"from the command line."
-msgstr ""
-"コマンドラインからプログラムを実行するには、{path}をパソコンの$PATH環境変数に"
-"加えなくてはなりません。"
-
-#: ../install.py:3904
-#, python-brace-format
-msgid ""
-"You must add {path} to your computer's $PATH variable to run the program "
-"from the command line or application launcher."
-msgstr ""
-"プログラムをコマンドラインやアプリケーション・ロンチャーから実行するために"
-"は，{path}をお使いのコンピューターの$PATH変数に追加しなくてはなりません．"
-
-#: ../install.py:3926
-msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
-msgstr ""
-"（終了時にセグメンテーションフォルトが起きたとしても，無視して構いません…）"
-
-#: ../install.py:3928
-msgid "Done."
-msgstr "完了しました。"
-
-#: ../install.py:3942
-msgid ""
-"The python3 tool pip is required to uninstall a version of Rapid Photo "
-"Downloader that was installed with pip.\n"
-"Cannot continue. Exiting."
-msgstr ""
-"pipでインストールした高速写真ダウンローダをアンインストールするには，python3"
-"ツールのpipが必要です．\n"
-"先に進めません．終了します．"
-
-#: ../install.py:3998
-msgid ""
-"Do not run this installer script as sudo / root user.\n"
-"Run it using the user who will run the program.\n"
-msgstr ""
-"このインストールスクリプトをsudoもしくはrootユーザとして実行してはいけませ"
-"ん．\n"
-"このプログラムを実行するユーザとして実行してください．\n"
-
-#. Translators: do not translate the terms --PyQt5-version or --use-system-PyQt5
-#: ../install.py:4010
-msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
-msgstr ""
-"--PyQt5-versionまたは--use-system-PyQt5のいずれか一つを指定してください。"
-
-#: ../install.py:4022
-msgid ""
-"Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
-"on an Intel or AMD 64 bit platform."
-msgstr ""
-"申し訳ありません。PyQt5の特定バージョンを指定するには、IntelまたはAMDの64ビッ"
-"トプラットフォーム上で、Python 3.5以降が必要です。"
-
-#. Translators: do not translate the term PyQt5
-#: ../install.py:4036
-msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
-msgstr "PyQt5のバージョンをX.XあるいはX.X.Xの書式で入力してください"
-
-#: ../install.py:4052
-msgid ""
-"Do you want to install Rapid Photo Downloader into the current virtual "
-"environment?"
-msgstr "Rapid Photo Downloaderを現行のバーチャル環境にインストールしますか？"
-
-#: ../install.py:4066
-msgid ""
-"Sorry, installing Rapid Photo Downloader into a Python virtual environment "
-"requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
-msgstr ""
-"申し訳ありません。Rapid Photo DownloaderをPyrhonバーチャル環境に導入するに"
-"は、IntelもしくはAMDの64ビットプラットフォーム上のPython3.5以降が必要です。"
-
-#: ../install.py:4079
-msgid ""
-"To install Rapid Photo Downloader into a Python virtual environment, create "
-"and activate the virtual environment before starting this script."
-msgstr ""
-"Rapid Photo DownloaderをPythonバーチャル環境に導入するには、このスクリプトを"
-"起動する前にバーチャル環境を生成し、かつ有効にしてください。"
-
-#: ../install.py:4089
-msgid "Using virtual environment for installation using pip."
-msgstr "pipを使った導入にバーチャル環境を使用しています。"
-
-#: ../install.py:4094 ../install.py:4108
-msgid "Do not include any other command line arguments when specifying"
-msgstr "指定時に他のコマンドライン引数を入れないでください"
-
-#: ../install.py:4127
-msgid ""
-"Sorry, this installer does not support a custom python installation.\n"
-"Exiting..."
-msgstr ""
-"ごめんなさい，このインストーラはカスタムpythonインストールはサポートしていま"
-"せん．\n"
-"終了します…"
-
-#: ../install.py:4135
-msgid "Restarting script using system python..."
-msgstr "システムpythonを使用してスクリプトを再開します…"
-
-#: ../install.py:4148
-msgid "Detected Linux distribution {} {}"
-msgstr "Linux頒布版{}{}を検出しました"
-
-#: ../install.py:4186
-msgid "To continue, the package python3-apt must be installed."
-msgstr "続けるには，python3-aptパッケージが導入済みでなくてはなりません．"
-
-#: ../install.py:4218
-msgid ""
-"Install the following packages using your Linux distribution's standard "
-"package manager, and then rerun this installer:"
-msgstr ""
-"以下のパッケージをLinuxの標準パッケージマネジャーを使ってインストールした後、"
-"このインストーラーを再度実行してください："
-
-#: ../install.py:4230
-msgid ""
-"To run this program, programs to assist Python 3 and its package management "
-"must be installed."
-msgstr ""
-"このプログラムを実行するには，Python3とそのパッケージ管理を行うプログラムが導"
-"入済みでなくてはなりません．"
-
-#. Translators: do not translate the term python or requests
-#: ../install.py:4279
-msgid "Installing python requests"
-msgstr "python requestsを導入しています"
 
 #: ../raphodo/ui/aboutdialog.py:335
 msgid "Credits"
@@ -5555,6 +5038,440 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "写真と動画を高速写真ダウンローダでダウンロードする"
+
+#~ msgid ""
+#~ "To continue, please first install the python3 package setuptools using "
+#~ "your system's package manager."
+#~ msgstr ""
+#~ "先に進むには，お使いのシステムのパッケージマネージャを使って，python3パッ"
+#~ "ケージのsetuptoolsをまず導入してください．"
+
+#~ msgid "Rapid Photo Downloader installer"
+#~ msgstr "高速写真ダウンローダ・インストーラ"
+
+#~ msgid "Download and install latest version of Rapid Photo Downloader."
+#~ msgstr "高速写真ダウンローダの最新版をダウンロードして導入します．"
+
+#~ msgid ""
+#~ "The software repository RPM Fusion Free was added to your system to (1) "
+#~ "enable generating thumbnails for a wider range of video formats, and (2) "
+#~ "enable support for the HEIC / HEIF image format."
+#~ msgstr ""
+#~ "ソフトウェアリポジトリのRPM Fusion Freeがシステムに追加されました．これに"
+#~ "より，(1)さらに多くの動画形式に対して，サムネイルを生成することが可能にな"
+#~ "り，(2) HEIC / HEIF画像形式のサポートが可能となりました．"
+
+#~ msgid "Installer not found:"
+#~ msgstr "インストーラが見つかりません："
+
+#~ msgid "Installer not in tar.gz format:"
+#~ msgstr "インストーラがtar.gz形式になっていません："
+
+#~ msgid "Exiting..."
+#~ msgstr "終了します..."
+
+#~ msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
+#~ msgstr ""
+#~ "指定されたPyQt5のバージョンが存在しません．有効なバージョンは{}です．"
+
+#~ msgid "{} will be upgraded from version {} to version {}"
+#~ msgstr "{}はバージョン{}から{}にアップグレードされます"
+
+#~ msgid ""
+#~ "These Python3 packages will be upgraded for your user (i.e. not system-"
+#~ "wide): {}"
+#~ msgstr ""
+#~ "以下のPython3パッケージがユーザー向けに更新されます（システムの全ユーザー"
+#~ "向けではありません）：{}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "Incorrect folder ownership detected. Changing ownership of and resetting "
+#~ "permissions for {file_system_path}."
+#~ msgstr ""
+#~ "フォルダ所有者が正しくないことが検出されました。{file_system_path}の所有者"
+#~ "を変更して、パーミッションを初期化します。"
+
+#~ msgid "The following command will be run:"
+#~ msgstr "次のコマンドが実行されます："
+
+#~ msgid "sudo may prompt you for the sudo password."
+#~ msgstr "sudoがsudoパスワードを尋ねるかもしれません．"
+
+#~ msgid "Would you like to run the command now?"
+#~ msgstr "このコマンドをいま実行しますか？"
+
+#~ msgid "Answer is not yes, exiting."
+#~ msgstr "回答が「はい」ではありませんでしたので終了します．"
+
+#~ msgid "Command failed"
+#~ msgstr "コマンド失敗"
+
+#~ msgid "Exiting"
+#~ msgstr "終了します"
+
+#~ msgid "The Universe repository must be enabled."
+#~ msgstr "Universeリポジトリを有効にしなくてはなりません．"
+
+#~ msgid "The EPEL repository must be enabled."
+#~ msgstr "EPELリポジトリを有効にしなくてはなりません．"
+
+#~ msgid "The RPM Fusion Free repository must be enabled."
+#~ msgstr "RPM Fusion Freeリポジトリを有効にしなくてはなりません．"
+
+#~ msgid ""
+#~ "Do you want to to uninstall the previous version of Rapid Photo "
+#~ "Downloader?"
+#~ msgstr "古いバージョンのRapid Photo Downloaderをアンインストールしますか？"
+
+#~ msgid ""
+#~ "Querying package system to see if an older version of Rapid Photo "
+#~ "Downloader is installed (this may take a while)..."
+#~ msgstr ""
+#~ "旧版の高速写真ダウンローダが導入済みかパッケージシステムに問い合わせていま"
+#~ "す（これには時間を要することがあります）…"
+
+#~ msgid "Uninstalling system package"
+#~ msgstr "システムパッケージをアンインストールしています"
+
+#~ msgid ""
+#~ "Unable to query package system. Please check your Internet connection and "
+#~ "try again."
+#~ msgstr ""
+#~ "パッケージシステムに問い合わせることができませんでした。インターネット接続"
+#~ "を確認して、再度実行してください。"
+
+#~ msgid "Checking if previous version installed with pip..."
+#~ msgstr "旧版が導入済みかpipで確認しています…"
+
+#~ msgid "The following package is unknown on your system: {}\n"
+#~ msgstr "次のパッケージはシステム上で既知ではありません：{}\n"
+
+#~ msgid ""
+#~ "To continue, some packages required to run the application will be "
+#~ "installed."
+#~ msgstr ""
+#~ "続けると，アプリケーションを実行するのに必要なパッケージが導入されます．"
+
+#~ msgid "Querying installed and available packages (this may take a while)"
+#~ msgstr ""
+#~ "導入済みで利用できるパッケージを問い合わせています（これには時間を要するこ"
+#~ "とがあります）"
+
+#~ msgid ""
+#~ "Querying zypper to see if any required packages are already installed "
+#~ "(this may take a while)... "
+#~ msgstr ""
+#~ "必要なパッケージが導入済みかzypperに問い合わせています（これには時間を要す"
+#~ "ることがあります）… "
+
+#~ msgid "Query to confirm action at each step."
+#~ msgstr "各段階での操作確認を求める"
+
+#~ msgid ""
+#~ "When downloading the latest version, install the development version if "
+#~ "it is newer than the stable version."
+#~ msgstr ""
+#~ "最新版をダウンロードする際，開発版が安定版よりも新しければ，そちらをインス"
+#~ "トールする"
+
+#~ msgid ""
+#~ "Optional tar.gz Rapid Photo Downloader installer archive. If not "
+#~ "specified, the latest version is downloaded from the Internet."
+#~ msgstr ""
+#~ "オプションの高速写真ダウンローダのインストーラのtar.gz版アーカイブ．これを"
+#~ "指定しない場合は，最新版がインターネットからダウンロードされます．"
+
+#~ msgid ""
+#~ "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
+#~ "archive if it is newer than this version ({}). The default is to run "
+#~ "whichever installer is newer."
+#~ msgstr ""
+#~ "高速写真ダウンローダのインストーラのtar.gz版アーカイブが，このバージョン"
+#~ "（{}）よりも新しいときでも，アーカイブ内のインストーラは実行しない．既定値"
+#~ "では，新しい方のインストーラを実行します．"
+
+#~ msgid ""
+#~ "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
+#~ "dependencies."
+#~ msgstr ""
+#~ "pipでインストールした高速写真ダウンローダを，依存プログラムは保持したま"
+#~ "ま，アンインストールします．"
+
+#~ msgid ""
+#~ "Uninstall the dependencies installed by pip during Rapid Photo "
+#~ "Downloader's installation, and Rapid Photo Downloader itself, then exit."
+#~ msgstr ""
+#~ "高速写真ダウンローダをpipでインストール中にインストールした依存プログラム"
+#~ "をアンインストールし，高速写真ダウンローダ自身もアンインストールして，終了"
+#~ "します．"
+
+#~ msgid ""
+#~ "Note: this will not uninstall any version of Rapid Photo Downloader "
+#~ "installed by your Linux distribution's package manager."
+#~ msgstr ""
+#~ "【註】この操作では，Linux頒布版のパッケージマネージャがインストールした高"
+#~ "速写真ダウンローダは，アンインストールされません．"
+
+#~ msgid ""
+#~ "Dependencies will only be removed if they are not required by other "
+#~ "programs."
+#~ msgstr ""
+#~ "依存プログラムは，他のプログラムによって必要とされていない場合にのみ削除さ"
+#~ "れます．"
+
+#~ msgid ""
+#~ "Note: this option will remove the dependencies regardless of whether they "
+#~ "are required by another program pip has installed. Upgrade to pip 9.0 or "
+#~ "above if you want to avoid this behavior. You can do so using the command "
+#~ "'python3 -m pip install pip -U --user'. Also note that any version of "
+#~ "Rapid Photo Downloader installed by your Linux distribution's package "
+#~ "manager will not be uninstalled."
+#~ msgstr ""
+#~ "【註】このオプションは，pipがインストールした他のプログラムに必要とされて"
+#~ "いるか否かに関わらず，依存プログラムを削除します．この挙動を回避したい場合"
+#~ "には，pip 9.0以上にアップグレードしてください．コマンド「python3 -m pip "
+#~ "install pip -U --user」でアップグレードできます．また，Linux頒布版のパッ"
+#~ "ケージマネージャがインストールした高速写真ダウンローダは，アンインストール"
+#~ "されないことに注意してください．"
+
+#~ msgid ""
+#~ "Install in current Python virtual environment. Virtual environments "
+#~ "created with the --system-site-packages option are not supported."
+#~ msgstr ""
+#~ "現在のPythonバーチャル環境にインストールしてください。--system-site-"
+#~ "packagesオプションを付けて生成されたバーチャル環境はサポートされません。"
+
+#~ msgid ""
+#~ "Specific version of PyQt5 to install (default is the most recent "
+#~ "version{})."
+#~ msgstr "インストールするPyQt5の特定バージョン（既定では最新版{}）です。"
+
+#~ msgid ""
+#~ "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
+#~ "Uninstalls any PyPi versions already installed."
+#~ msgstr ""
+#~ "PyPiからPyQt5を使用する代わりに、お使いのLinux頒布のバージョンを使用しま"
+#~ "す。既に導入済みのPyPiバージョンは全てアンインストールされます。"
+
+#~ msgid "Failed to download versions file."
+#~ msgstr "バージョンファイルをダウンロードするのに失敗しました。"
+
+#~ msgid "Got error code {} while accessing versions file"
+#~ msgstr ""
+#~ "バージョンファイルへのアクセス中に，エラーコード{}を受け取りました．"
+
+#~ msgid ""
+#~ "Sorry, could not locate installer. Please check your Internet connection "
+#~ "and verify if you can reach https://www.damonlynch.net\n"
+#~ "\n"
+#~ "Exiting.\n"
+#~ msgstr ""
+#~ "ごめんなさい．インストーラが見つかりませんでした．インターネット接続を確認"
+#~ "して，https://www.damonlynch.netにたどり着けることを確かめてください．\n"
+#~ "\n"
+#~ "終了します．\n"
+
+#~ msgid ""
+#~ "Package {} failed to install but Rapid Photo Downloader installation will "
+#~ "continue."
+#~ msgstr ""
+#~ "パッケージ{}のインストールに失敗しましたが、Rapid Photo Downloaderのインス"
+#~ "トールは続けます。"
+
+#~ msgid "Received error code"
+#~ msgstr "エラーコードを受け取りました"
+
+#~ msgid "Failed to install application requirements: exiting."
+#~ msgstr ""
+#~ "アプリケーションに必要なもののインストールに失敗しました．終了します．"
+
+#~ msgid "Failed to install application: exiting..."
+#~ msgstr "アプリケーションの導入に失敗しました：終了します…"
+
+#~ msgid "Installing application requirements..."
+#~ msgstr "アプリケーションの必要物を導入しています…"
+
+#~ msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
+#~ msgstr ""
+#~ "HEIF / HEICサムネールを生成するためのサポートをシステムが提供していませ"
+#~ "ん．"
+
+#~ msgid "Installing application..."
+#~ msgstr "アプリケーションを導入しています…"
+
+#~ msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
+#~ msgstr "Rapid Photo DownloaderがWindowsメニューに表示されるようにしますか？"
+
+#~ msgid "Adding Rapid Photo Downloader to the Windows menu"
+#~ msgstr "Rapid Photo DownloaderをWindowsメニューに追加"
+
+#~ msgid "Failed to copy application launcher."
+#~ msgstr "アプリケーションロンチャーのコピーに失敗しました"
+
+#~ msgid "Man pages can be found in {}/share/man/man1"
+#~ msgstr "Manページは{}/share/man/man1にあります"
+
+#~ msgid "Do you want to install the application's man pages?"
+#~ msgstr "アプリケーションのmanページを導入しますか？"
+
+#~ msgid "They will be installed into {}"
+#~ msgstr "これらは{}に導入されます"
+
+#~ msgid "If you uninstall the application, remove these manpages yourself."
+#~ msgstr ""
+#~ "アプリケーションをアンインストールした場合には，これらのmanページをご自身"
+#~ "で削除してください．"
+
+#~ msgid "Do want to install the man pages?"
+#~ msgstr "manページもインストールしますか？"
+
+#~ msgid "Installing man pages into {}"
+#~ msgstr "manページを{}にインストールしています"
+
+#~ msgid "Failed to create man page directory: exiting."
+#~ msgstr "manページ用ディレクトリを作成できませんでした．終了します．"
+
+#~ msgid "Failed to copy man page."
+#~ msgstr "manページをコピーできませんでした"
+
+#~ msgid ""
+#~ "Rapid Photo Downloader can be started without activating the virtual "
+#~ "environment by running {}/bin/rapid-photo-downloader"
+#~ msgstr ""
+#~ "Rapid Photo Downloaderは{}/bin/rapid-photo-downloaderを実行すれば、バー"
+#~ "チャル環境を有効化せずに起動することができます"
+
+#~ msgid ""
+#~ "You may have to restart the computer to be able to run the program from "
+#~ "the command line or application launcher."
+#~ msgstr ""
+#~ "プログラムをコマンドラインやアプリケーション・ロンチャーから起動するために"
+#~ "は，コンピュータを再起動する必要があるかもしれません．"
+
+#~ msgid ""
+#~ "You may have to restart WSL to be able to run the program from the "
+#~ "command line."
+#~ msgstr ""
+#~ "コマンドラインからこのプログラムを実行できるようにするためには、WSLを再起"
+#~ "動する必要があります。"
+
+#, python-brace-format
+#~ msgid ""
+#~ "You must add {path} to your computer's $PATH variable to run the program "
+#~ "from the command line."
+#~ msgstr ""
+#~ "コマンドラインからプログラムを実行するには、{path}をパソコンの$PATH環境変"
+#~ "数に加えなくてはなりません。"
+
+#, python-brace-format
+#~ msgid ""
+#~ "You must add {path} to your computer's $PATH variable to run the program "
+#~ "from the command line or application launcher."
+#~ msgstr ""
+#~ "プログラムをコマンドラインやアプリケーション・ロンチャーから実行するために"
+#~ "は，{path}をお使いのコンピューターの$PATH変数に追加しなくてはなりません．"
+
+#~ msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
+#~ msgstr ""
+#~ "（終了時にセグメンテーションフォルトが起きたとしても，無視して構いませ"
+#~ "ん…）"
+
+#~ msgid "Done."
+#~ msgstr "完了しました。"
+
+#~ msgid ""
+#~ "The python3 tool pip is required to uninstall a version of Rapid Photo "
+#~ "Downloader that was installed with pip.\n"
+#~ "Cannot continue. Exiting."
+#~ msgstr ""
+#~ "pipでインストールした高速写真ダウンローダをアンインストールするには，"
+#~ "python3ツールのpipが必要です．\n"
+#~ "先に進めません．終了します．"
+
+#~ msgid ""
+#~ "Do not run this installer script as sudo / root user.\n"
+#~ "Run it using the user who will run the program.\n"
+#~ msgstr ""
+#~ "このインストールスクリプトをsudoもしくはrootユーザとして実行してはいけませ"
+#~ "ん．\n"
+#~ "このプログラムを実行するユーザとして実行してください．\n"
+
+#~ msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
+#~ msgstr ""
+#~ "--PyQt5-versionまたは--use-system-PyQt5のいずれか一つを指定してください。"
+
+#~ msgid ""
+#~ "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or "
+#~ "newer on an Intel or AMD 64 bit platform."
+#~ msgstr ""
+#~ "申し訳ありません。PyQt5の特定バージョンを指定するには、IntelまたはAMDの64"
+#~ "ビットプラットフォーム上で、Python 3.5以降が必要です。"
+
+#~ msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
+#~ msgstr "PyQt5のバージョンをX.XあるいはX.X.Xの書式で入力してください"
+
+#~ msgid ""
+#~ "Do you want to install Rapid Photo Downloader into the current virtual "
+#~ "environment?"
+#~ msgstr ""
+#~ "Rapid Photo Downloaderを現行のバーチャル環境にインストールしますか？"
+
+#~ msgid ""
+#~ "Sorry, installing Rapid Photo Downloader into a Python virtual "
+#~ "environment requires Python 3.5 or newer on an Intel or AMD 64 bit "
+#~ "platform."
+#~ msgstr ""
+#~ "申し訳ありません。Rapid Photo DownloaderをPyrhonバーチャル環境に導入するに"
+#~ "は、IntelもしくはAMDの64ビットプラットフォーム上のPython3.5以降が必要で"
+#~ "す。"
+
+#~ msgid ""
+#~ "To install Rapid Photo Downloader into a Python virtual environment, "
+#~ "create and activate the virtual environment before starting this script."
+#~ msgstr ""
+#~ "Rapid Photo DownloaderをPythonバーチャル環境に導入するには、このスクリプト"
+#~ "を起動する前にバーチャル環境を生成し、かつ有効にしてください。"
+
+#~ msgid "Using virtual environment for installation using pip."
+#~ msgstr "pipを使った導入にバーチャル環境を使用しています。"
+
+#~ msgid "Do not include any other command line arguments when specifying"
+#~ msgstr "指定時に他のコマンドライン引数を入れないでください"
+
+#~ msgid ""
+#~ "Sorry, this installer does not support a custom python installation.\n"
+#~ "Exiting..."
+#~ msgstr ""
+#~ "ごめんなさい，このインストーラはカスタムpythonインストールはサポートしてい"
+#~ "ません．\n"
+#~ "終了します…"
+
+#~ msgid "Restarting script using system python..."
+#~ msgstr "システムpythonを使用してスクリプトを再開します…"
+
+#~ msgid "Detected Linux distribution {} {}"
+#~ msgstr "Linux頒布版{}{}を検出しました"
+
+#~ msgid "To continue, the package python3-apt must be installed."
+#~ msgstr "続けるには，python3-aptパッケージが導入済みでなくてはなりません．"
+
+#~ msgid ""
+#~ "Install the following packages using your Linux distribution's standard "
+#~ "package manager, and then rerun this installer:"
+#~ msgstr ""
+#~ "以下のパッケージをLinuxの標準パッケージマネジャーを使ってインストールした"
+#~ "後、このインストーラーを再度実行してください："
+
+#~ msgid ""
+#~ "To run this program, programs to assist Python 3 and its package "
+#~ "management must be installed."
+#~ msgstr ""
+#~ "このプログラムを実行するには，Python3とそのパッケージ管理を行うプログラム"
+#~ "が導入済みでなくてはなりません．"
+
+#~ msgid "Installing python requests"
+#~ msgstr "python requestsを導入しています"
 
 #~ msgid "Upgrade Rapid Photo Downloader"
 #~ msgstr "高速写真ダウンローダを更新"

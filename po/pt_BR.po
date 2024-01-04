@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2023-12-27 12:53+1300\n"
+"POT-Creation-Date: 2024-01-04 16:18+1300\n"
 "PO-Revision-Date: 2022-02-21 17:13+0000\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -17,515 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2023-12-26 23:20+0000\n"
 "X-Generator: Launchpad (build e1eeab5b20e19239bd7d5f36676f7a52988db88b)\n"
-
-#: ../install.py:78
-msgid ""
-"To continue, please first install the python3 package setuptools using your "
-"system's package manager."
-msgstr ""
-"Para continuar você precisa instalar o pacote python3 setuptools utilizando "
-"o gerenciador de pacotes do seu sistema."
-
-#: ../install.py:85
-msgid "Rapid Photo Downloader installer"
-msgstr "Instalador do Rapid Photo Downloader"
-
-#: ../install.py:86
-msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr "Baixe e instale a última versão do Rapid Photo Downloader."
-
-#: ../install.py:423
-msgid ""
-"The software repository RPM Fusion Free was added to your system to (1) "
-"enable generating thumbnails for a wider range of video formats, and (2) "
-"enable support for the HEIC / HEIF image format."
-msgstr ""
-"O repositório de software RPM Fusion Free foi adicionado ao seu sistema para "
-"(1) permitir a geração de miniaturas para uma ampla gama de formatos de "
-"vídeo e (2) permitir o suporte para o formato de imagem HEIC / HEIF."
-
-#: ../install.py:658 ../install.py:4285
-msgid "Installer not found:"
-msgstr "Instalador não encontrado:"
-
-#. Translators: do not translate the term tar.gz
-#: ../install.py:662 ../install.py:4289
-msgid "Installer not in tar.gz format:"
-msgstr "Instalador não está no formato tar.gz:"
-
-#: ../install.py:733 ../install.py:762 ../install.py:4165 ../install.py:4170
-msgid "Exiting..."
-msgstr "Saindo..."
-
-#: ../install.py:982
-msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
-msgstr "Esta versão específica do PyQt5 não existe. As versões válidas são: {}"
-
-#: ../install.py:1068
-msgid "{} will be upgraded from version {} to version {}"
-msgstr "{} será atualizado para da versão {} para a versão {}"
-
-#. Translators: "not system-wide" in this context means "not for the entire system"
-#: ../install.py:1351 ../install.py:4245
-msgid ""
-"These Python3 packages will be upgraded for your user (i.e. not system-"
-"wide): {}"
-msgstr ""
-"Este pacote de Python3 será atualizado pra seu usuário apenas, porém não "
-"para outros usuários: {}"
-
-#: ../install.py:1456
-#, python-brace-format
-msgid ""
-"Incorrect folder ownership detected. Changing ownership of and resetting "
-"permissions for {file_system_path}."
-msgstr ""
-"Detectado dono de pasta incorreto. Mudando o dono e reconfigurando as "
-"permissões para {file_system_path}."
-
-#: ../install.py:1599
-msgid "The following command will be run:"
-msgstr "O seguinte comando será executado:"
-
-#. Translators: do not translate the term sudo
-#: ../install.py:1603 ../install.py:3789 ../install.py:3796
-msgid "sudo may prompt you for the sudo password."
-msgstr "sudo pode solicitar sua senha de usuário."
-
-#: ../install.py:1607
-msgid "Would you like to run the command now?"
-msgstr "Você gostaria de executar o comando agora?"
-
-#: ../install.py:1609
-msgid "Answer is not yes, exiting."
-msgstr "A resposta não é sim, terminando."
-
-#: ../install.py:1620 ../install.py:2215 ../install.py:2274 ../install.py:2749
-msgid "Command failed"
-msgstr "Falha ao executar o comando"
-
-#: ../install.py:1622 ../install.py:2216 ../install.py:2275 ../install.py:2750
-msgid "Exiting"
-msgstr "Saindo"
-
-#: ../install.py:1650
-msgid "The Universe repository must be enabled."
-msgstr "O repositório Universe deve ser habilitado."
-
-#. Translators: do not translate the term EPEL
-#: ../install.py:1690
-msgid "The EPEL repository must be enabled."
-msgstr "O repositório EPEL deve ser habilitado."
-
-#. Translators: do not translate the term RPM Fusion Free
-#: ../install.py:1738
-msgid "The RPM Fusion Free repository must be enabled."
-msgstr "O repositório RPM Fusion Free deve ser habilitado."
-
-#: ../install.py:1779
-msgid ""
-"Do you want to to uninstall the previous version of Rapid Photo Downloader?"
-msgstr "Você deseja desentalar a versão anterior do Rapid Photo Downloader?"
-
-#: ../install.py:2193 ../install.py:2223 ../install.py:2255
-msgid ""
-"Querying package system to see if an older version of Rapid Photo Downloader "
-"is installed (this may take a while)..."
-msgstr ""
-"Consultando no sistema de pacotes se uma versão antiga do Rapid Photo "
-"Downloader está instalada  (pode levar um tempo)..."
-
-#: ../install.py:2208
-msgid "Uninstalling system package"
-msgstr "Desinstalando pacotes do sistema"
-
-#: ../install.py:2233
-msgid ""
-"Unable to query package system. Please check your Internet connection and "
-"try again."
-msgstr ""
-"Não foi possível pesquisar o sistema de pacotes. Por favor verifique sua "
-"conexão com a internet e tente novamente."
-
-#. Translators: do not translate the term pip
-#: ../install.py:2280
-msgid "Checking if previous version installed with pip..."
-msgstr "Checando se a versão anterior foi instalada com pip..."
-
-#: ../install.py:2433 ../install.py:2490 ../install.py:2606
-msgid "The following package is unknown on your system: {}\n"
-msgstr "O seguinte pacote é desconhecido no seu sistema: {}\n"
-
-#: ../install.py:2504 ../install.py:2662 ../install.py:2759
-msgid ""
-"To continue, some packages required to run the application will be installed."
-msgstr ""
-"Para continuar, alguns pacotes requeridos para rodar a aplicação serão "
-"instalados."
-
-#: ../install.py:2598 ../install.py:2619
-msgid "Querying installed and available packages (this may take a while)"
-msgstr ""
-"Pesquisando pacotes disponíveis e instalados (Isso pode levar algum tempo)"
-
-#: ../install.py:2741
-msgid ""
-"Querying zypper to see if any required packages are already installed (this "
-"may take a while)... "
-msgstr ""
-"Verificando zypper para ver se algum pacote requerido já está instalado "
-"(isso pode levar um tempo)... "
-
-#: ../install.py:2808
-msgid "Query to confirm action at each step."
-msgstr "Consulta para confirmar ação a cada etapa."
-
-#: ../install.py:2818
-msgid ""
-"When downloading the latest version, install the development version if it "
-"is newer than the stable version."
-msgstr ""
-"Enquanto baixa a última versão, instalar a versão de desenvolvimento se ela "
-"for mais recente que a versão estável."
-
-#: ../install.py:2829
-msgid ""
-"Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
-"the latest version is downloaded from the Internet."
-msgstr ""
-"Arquivo tar.gz opcional do instalador Rapid Photo Downloader. Se não "
-"especificado, a última versão é baixada da Internet."
-
-#: ../install.py:2879
-msgid ""
-"Do not run the installer in the tar.gz Rapid Photo Downloader installer "
-"archive if it is newer than this version ({}). The default is to run "
-"whichever installer is newer."
-msgstr ""
-"Não executar o instalador dentro do tar.gz do arquivo de instalação do Rapid "
-"Photo Downloader se ele é mais novo que esta versão ({}). O padrão é "
-"executar o instalador mais novo."
-
-#: ../install.py:2887
-msgid ""
-"Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
-"dependencies."
-msgstr ""
-"Desinstalar o Rapid Photo Downloader que estava instalado com pip, mantendo "
-"suas dependências."
-
-#: ../install.py:2893
-msgid ""
-"Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
-"installation, and Rapid Photo Downloader itself, then exit."
-msgstr ""
-"Desinstalar o Rapid Photo Downloader e também as suas dependências "
-"instaladas pelo pip e então sair."
-
-#: ../install.py:2898
-msgid ""
-"Note: this will not uninstall any version of Rapid Photo Downloader "
-"installed by your Linux distribution's package manager."
-msgstr ""
-"Nota: isso não desinstalará nenhuma versão do Rapid Photo Downloader "
-"instalado pelo seu gerenciador de pacote da sua distribuição Linux."
-
-#: ../install.py:2906
-msgid ""
-"Dependencies will only be removed if they are not required by other programs."
-msgstr ""
-"Dependências somente serão removidas se elas não forem requeridas por outros "
-"programas."
-
-#: ../install.py:2914
-msgid ""
-"Note: this option will remove the dependencies regardless of whether they "
-"are required by another program pip has installed. Upgrade to pip 9.0 or "
-"above if you want to avoid this behavior. You can do so using the command "
-"'python3 -m pip install pip -U --user'. Also note that any version of Rapid "
-"Photo Downloader installed by your Linux distribution's package manager will "
-"not be uninstalled."
-msgstr ""
-"Nota: essa opção removerá as dependências mesmo se elas são requeridas por "
-"outros programas que o pip instalou. Atualize para o pip 9.0 ou acima se "
-"você quer evitar este comportamento. Você poderá fazê-lo usando o comando "
-"'python3 -m pip install pip -U --user'. Veja também que qualquer versão do "
-"Rapid Photo Downloader instalada pelo gerenciador de pacotes da sua "
-"distribuição Linux não será desinstalada."
-
-#: ../install.py:2938
-msgid ""
-"Install in current Python virtual environment. Virtual environments created "
-"with the --system-site-packages option are not supported."
-msgstr ""
-"Instale no ambiente virtual atual do Python. Os ambientes virtuais criados "
-"com a opção --system-site-packages não são suportados."
-
-#: ../install.py:2956
-msgid ""
-"Specific version of PyQt5 to install (default is the most recent version{})."
-msgstr ""
-"Versão específica do PyQt5 será instalada (o padrão é a versão mais recente "
-"{})."
-
-#: ../install.py:2967
-msgid ""
-"Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
-"Uninstalls any PyPi versions already installed."
-msgstr ""
-"Em vez de usar o PyQt5 do PyPi, use a versão da sua distribuição Linux. "
-"Desinstale qualquer versão do PyPi já instalada."
-
-#: ../install.py:3004
-msgid "Failed to download versions file."
-msgstr "Falha ao baixar as versões dos arquivos."
-
-#: ../install.py:3009
-msgid "Got error code {} while accessing versions file"
-msgstr "Mensagem de erro recebida {} durante o acesso as versões do arquivo"
-
-#: ../install.py:3126
-msgid ""
-"Sorry, could not locate installer. Please check your Internet connection and "
-"verify if you can reach https://www.damonlynch.net\n"
-"\n"
-"Exiting.\n"
-msgstr ""
-"Desculpe, não foi possível localizar o instalador. Favor verifique sua "
-"conexão de Internet e verifique se você pode acessar https://www.damonlynch."
-"net\n"
-"\n"
-"Saindo.\n"
-
-#: ../install.py:3280
-msgid ""
-"Package {} failed to install but Rapid Photo Downloader installation will "
-"continue."
-msgstr ""
-"Pacote {} falhou ao ser instalado, porém, a instalação do Rapid Photo "
-"Downloader continuará."
-
-#: ../install.py:3286
-msgid "Received error code"
-msgstr "Código de erro recebido"
-
-#: ../install.py:3288
-msgid "Failed to install application requirements: exiting."
-msgstr "Falha ao instalar os requerimentos da aplicação: saindo."
-
-#: ../install.py:3290
-msgid "Failed to install application: exiting..."
-msgstr "Falha ao instalar a aplicação: saindo..."
-
-#: ../install.py:3614
-msgid "Installing application requirements..."
-msgstr "Instalando os requerimentos da aplicação..."
-
-#: ../install.py:3648
-msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
-msgstr "Não há suporte neste sistema para geração de miniaturas de HEIF / HEIC"
-
-#: ../install.py:3665
-msgid "Installing application..."
-msgstr "Instalando a aplicação..."
-
-#: ../install.py:3752
-msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
-msgstr ""
-
-#: ../install.py:3758
-msgid "Adding Rapid Photo Downloader to the Windows menu"
-msgstr ""
-
-#: ../install.py:3768
-msgid "Failed to copy application launcher."
-msgstr ""
-
-#: ../install.py:3779
-msgid "Man pages can be found in {}/share/man/man1"
-msgstr "Páginas de manual podem ser encontrandas em {}/share/man/man1"
-
-#: ../install.py:3784
-msgid "Do you want to install the application's man pages?"
-msgstr "Você quer instalar o manual do aplicativo no man?"
-
-#: ../install.py:3785
-msgid "They will be installed into {}"
-msgstr "Eles serão instalados em {}"
-
-#: ../install.py:3787 ../install.py:3794
-msgid "If you uninstall the application, remove these manpages yourself."
-msgstr ""
-"Se você desinstalar a aplicação, remova você mesmo estes manuais do man."
-
-#: ../install.py:3790
-msgid "Do want to install the man pages?"
-msgstr "Você quer instalar os manuais do man?"
-
-#: ../install.py:3792
-msgid "Installing man pages into {}"
-msgstr "Instalando os manuais do man em {}"
-
-#: ../install.py:3810
-msgid "Failed to create man page directory: exiting."
-msgstr "Falha ao criar o diretório dos manuais man: saindo."
-
-#: ../install.py:3831
-msgid "Failed to copy man page."
-msgstr "Falha ao copiar os manuais man."
-
-#: ../install.py:3870
-msgid ""
-"Rapid Photo Downloader can be started without activating the virtual "
-"environment by running {}/bin/rapid-photo-downloader"
-msgstr ""
-"O Rapid Photo Downloader pode ser iniciado sem ativar o ambiente virtual "
-"executando {}/bin/rapid-photo-downloader"
-
-#: ../install.py:3883
-msgid ""
-"You may have to restart the computer to be able to run the program from the "
-"command line or application launcher."
-msgstr ""
-"Você pode ter que reiniciar o computador para conseguir executar o programa "
-"pela linha de comando ou iniciador de aplicativos."
-
-#: ../install.py:3889
-msgid ""
-"You may have to restart WSL to be able to run the program from the command "
-"line."
-msgstr ""
-
-#: ../install.py:3899
-#, python-brace-format
-msgid ""
-"You must add {path} to your computer's $PATH variable to run the program "
-"from the command line."
-msgstr ""
-
-#: ../install.py:3904
-#, python-brace-format
-msgid ""
-"You must add {path} to your computer's $PATH variable to run the program "
-"from the command line or application launcher."
-msgstr ""
-"Você deve adicionar {path} à variável $PATH do seu computador para executar "
-"o programa a partir da linha de comando ou do lançador de aplicativo."
-
-#: ../install.py:3926
-msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
-msgstr "(Se uma falha de segmentação ocorrer ao sair, você pode ignorá-la...)"
-
-#: ../install.py:3928
-msgid "Done."
-msgstr ""
-
-#: ../install.py:3942
-msgid ""
-"The python3 tool pip is required to uninstall a version of Rapid Photo "
-"Downloader that was installed with pip.\n"
-"Cannot continue. Exiting."
-msgstr ""
-"A ferramenta Python3 pip é requerida para desinstalar a versão do Rapid "
-"Photo Downloader que foi instalada com pip.\n"
-"Não é possível continuar. Saindo."
-
-#: ../install.py:3998
-msgid ""
-"Do not run this installer script as sudo / root user.\n"
-"Run it using the user who will run the program.\n"
-msgstr ""
-"Não execute este script de instalação como usuário sudo / root.\n"
-"Execute-o usando o usuário que irá rodar o programa.\n"
-
-#. Translators: do not translate the terms --PyQt5-version or --use-system-PyQt5
-#: ../install.py:4010
-msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
-msgstr "Especifique apenas um entre --PyQt5-version ou --use-system-PyQt5."
-
-#: ../install.py:4022
-msgid ""
-"Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
-"on an Intel or AMD 64 bit platform."
-msgstr ""
-"A versão específica do PyQt5 requer o Python 3.5 ou mais recente na "
-"plataforma Intel, ou AMD de 64 bits."
-
-#. Translators: do not translate the term PyQt5
-#: ../install.py:4036
-msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
-msgstr "Especifique uma versão do PyQt5 no formato X.X ou X.X.X"
-
-#: ../install.py:4052
-msgid ""
-"Do you want to install Rapid Photo Downloader into the current virtual "
-"environment?"
-msgstr "Deseja instalar o Rapid Photo Downloader no ambiente virtual atual?"
-
-#: ../install.py:4066
-msgid ""
-"Sorry, installing Rapid Photo Downloader into a Python virtual environment "
-"requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
-msgstr ""
-"Desculpe, instalar o Rapid Photo Downloader em um ambiente virtual Python "
-"requer Python 3.5 ou mais recente em uma plataforma Intel ou AMD de 64 bits."
-
-#: ../install.py:4079
-msgid ""
-"To install Rapid Photo Downloader into a Python virtual environment, create "
-"and activate the virtual environment before starting this script."
-msgstr ""
-"Para instalar o Rapid Photo Downloader em um ambiente virtual Python, crie e "
-"ative o ambiente virtual antes de iniciar este script."
-
-#: ../install.py:4089
-msgid "Using virtual environment for installation using pip."
-msgstr "Usando ambiente virtual para instalar usando pip."
-
-#: ../install.py:4094 ../install.py:4108
-msgid "Do not include any other command line arguments when specifying"
-msgstr "Não inclua qualquer argumento de linha de comando quando especificado"
-
-#: ../install.py:4127
-msgid ""
-"Sorry, this installer does not support a custom python installation.\n"
-"Exiting..."
-msgstr ""
-"Desculpe, este instalador não suporta uma instalação customizada do python.\n"
-"Saindo..."
-
-#: ../install.py:4135
-msgid "Restarting script using system python..."
-msgstr "Reiniciando o script usando o sistema python..."
-
-#: ../install.py:4148
-msgid "Detected Linux distribution {} {}"
-msgstr "Distribuição Linux detectada {} {}"
-
-#: ../install.py:4186
-msgid "To continue, the package python3-apt must be installed."
-msgstr "Para continuar, o pacote python3-apt precisa ser instalado."
-
-#: ../install.py:4218
-msgid ""
-"Install the following packages using your Linux distribution's standard "
-"package manager, and then rerun this installer:"
-msgstr ""
-"Instale os seguintes pacotes usando seu gerenciador de pacotes do Linux e "
-"execute novamente este instalador:"
-
-#: ../install.py:4230
-msgid ""
-"To run this program, programs to assist Python 3 and its package management "
-"must be installed."
-msgstr ""
-"Para executar este programa, Python3 e seus pacotes de gerenciamento "
-"precisam estar instalados."
-
-#. Translators: do not translate the term python or requests
-#: ../install.py:4279
-msgid "Installing python requests"
-msgstr "Instalando python requests"
 
 #: ../raphodo/ui/aboutdialog.py:335
 msgid "Credits"
@@ -5638,6 +5129,409 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Baixe fotos e vídeos com Rapid Photo Downloader"
+
+#~ msgid ""
+#~ "To continue, please first install the python3 package setuptools using "
+#~ "your system's package manager."
+#~ msgstr ""
+#~ "Para continuar você precisa instalar o pacote python3 setuptools "
+#~ "utilizando o gerenciador de pacotes do seu sistema."
+
+#~ msgid "Rapid Photo Downloader installer"
+#~ msgstr "Instalador do Rapid Photo Downloader"
+
+#~ msgid "Download and install latest version of Rapid Photo Downloader."
+#~ msgstr "Baixe e instale a última versão do Rapid Photo Downloader."
+
+#~ msgid ""
+#~ "The software repository RPM Fusion Free was added to your system to (1) "
+#~ "enable generating thumbnails for a wider range of video formats, and (2) "
+#~ "enable support for the HEIC / HEIF image format."
+#~ msgstr ""
+#~ "O repositório de software RPM Fusion Free foi adicionado ao seu sistema "
+#~ "para (1) permitir a geração de miniaturas para uma ampla gama de formatos "
+#~ "de vídeo e (2) permitir o suporte para o formato de imagem HEIC / HEIF."
+
+#~ msgid "Installer not found:"
+#~ msgstr "Instalador não encontrado:"
+
+#~ msgid "Installer not in tar.gz format:"
+#~ msgstr "Instalador não está no formato tar.gz:"
+
+#~ msgid "Exiting..."
+#~ msgstr "Saindo..."
+
+#~ msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
+#~ msgstr ""
+#~ "Esta versão específica do PyQt5 não existe. As versões válidas são: {}"
+
+#~ msgid "{} will be upgraded from version {} to version {}"
+#~ msgstr "{} será atualizado para da versão {} para a versão {}"
+
+#~ msgid ""
+#~ "These Python3 packages will be upgraded for your user (i.e. not system-"
+#~ "wide): {}"
+#~ msgstr ""
+#~ "Este pacote de Python3 será atualizado pra seu usuário apenas, porém não "
+#~ "para outros usuários: {}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "Incorrect folder ownership detected. Changing ownership of and resetting "
+#~ "permissions for {file_system_path}."
+#~ msgstr ""
+#~ "Detectado dono de pasta incorreto. Mudando o dono e reconfigurando as "
+#~ "permissões para {file_system_path}."
+
+#~ msgid "The following command will be run:"
+#~ msgstr "O seguinte comando será executado:"
+
+#~ msgid "sudo may prompt you for the sudo password."
+#~ msgstr "sudo pode solicitar sua senha de usuário."
+
+#~ msgid "Would you like to run the command now?"
+#~ msgstr "Você gostaria de executar o comando agora?"
+
+#~ msgid "Answer is not yes, exiting."
+#~ msgstr "A resposta não é sim, terminando."
+
+#~ msgid "Command failed"
+#~ msgstr "Falha ao executar o comando"
+
+#~ msgid "Exiting"
+#~ msgstr "Saindo"
+
+#~ msgid "The Universe repository must be enabled."
+#~ msgstr "O repositório Universe deve ser habilitado."
+
+#~ msgid "The EPEL repository must be enabled."
+#~ msgstr "O repositório EPEL deve ser habilitado."
+
+#~ msgid "The RPM Fusion Free repository must be enabled."
+#~ msgstr "O repositório RPM Fusion Free deve ser habilitado."
+
+#~ msgid ""
+#~ "Do you want to to uninstall the previous version of Rapid Photo "
+#~ "Downloader?"
+#~ msgstr "Você deseja desentalar a versão anterior do Rapid Photo Downloader?"
+
+#~ msgid ""
+#~ "Querying package system to see if an older version of Rapid Photo "
+#~ "Downloader is installed (this may take a while)..."
+#~ msgstr ""
+#~ "Consultando no sistema de pacotes se uma versão antiga do Rapid Photo "
+#~ "Downloader está instalada  (pode levar um tempo)..."
+
+#~ msgid "Uninstalling system package"
+#~ msgstr "Desinstalando pacotes do sistema"
+
+#~ msgid ""
+#~ "Unable to query package system. Please check your Internet connection and "
+#~ "try again."
+#~ msgstr ""
+#~ "Não foi possível pesquisar o sistema de pacotes. Por favor verifique sua "
+#~ "conexão com a internet e tente novamente."
+
+#~ msgid "Checking if previous version installed with pip..."
+#~ msgstr "Checando se a versão anterior foi instalada com pip..."
+
+#~ msgid "The following package is unknown on your system: {}\n"
+#~ msgstr "O seguinte pacote é desconhecido no seu sistema: {}\n"
+
+#~ msgid ""
+#~ "To continue, some packages required to run the application will be "
+#~ "installed."
+#~ msgstr ""
+#~ "Para continuar, alguns pacotes requeridos para rodar a aplicação serão "
+#~ "instalados."
+
+#~ msgid "Querying installed and available packages (this may take a while)"
+#~ msgstr ""
+#~ "Pesquisando pacotes disponíveis e instalados (Isso pode levar algum tempo)"
+
+#~ msgid ""
+#~ "Querying zypper to see if any required packages are already installed "
+#~ "(this may take a while)... "
+#~ msgstr ""
+#~ "Verificando zypper para ver se algum pacote requerido já está instalado "
+#~ "(isso pode levar um tempo)... "
+
+#~ msgid "Query to confirm action at each step."
+#~ msgstr "Consulta para confirmar ação a cada etapa."
+
+#~ msgid ""
+#~ "When downloading the latest version, install the development version if "
+#~ "it is newer than the stable version."
+#~ msgstr ""
+#~ "Enquanto baixa a última versão, instalar a versão de desenvolvimento se "
+#~ "ela for mais recente que a versão estável."
+
+#~ msgid ""
+#~ "Optional tar.gz Rapid Photo Downloader installer archive. If not "
+#~ "specified, the latest version is downloaded from the Internet."
+#~ msgstr ""
+#~ "Arquivo tar.gz opcional do instalador Rapid Photo Downloader. Se não "
+#~ "especificado, a última versão é baixada da Internet."
+
+#~ msgid ""
+#~ "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
+#~ "archive if it is newer than this version ({}). The default is to run "
+#~ "whichever installer is newer."
+#~ msgstr ""
+#~ "Não executar o instalador dentro do tar.gz do arquivo de instalação do "
+#~ "Rapid Photo Downloader se ele é mais novo que esta versão ({}). O padrão "
+#~ "é executar o instalador mais novo."
+
+#~ msgid ""
+#~ "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
+#~ "dependencies."
+#~ msgstr ""
+#~ "Desinstalar o Rapid Photo Downloader que estava instalado com pip, "
+#~ "mantendo suas dependências."
+
+#~ msgid ""
+#~ "Uninstall the dependencies installed by pip during Rapid Photo "
+#~ "Downloader's installation, and Rapid Photo Downloader itself, then exit."
+#~ msgstr ""
+#~ "Desinstalar o Rapid Photo Downloader e também as suas dependências "
+#~ "instaladas pelo pip e então sair."
+
+#~ msgid ""
+#~ "Note: this will not uninstall any version of Rapid Photo Downloader "
+#~ "installed by your Linux distribution's package manager."
+#~ msgstr ""
+#~ "Nota: isso não desinstalará nenhuma versão do Rapid Photo Downloader "
+#~ "instalado pelo seu gerenciador de pacote da sua distribuição Linux."
+
+#~ msgid ""
+#~ "Dependencies will only be removed if they are not required by other "
+#~ "programs."
+#~ msgstr ""
+#~ "Dependências somente serão removidas se elas não forem requeridas por "
+#~ "outros programas."
+
+#~ msgid ""
+#~ "Note: this option will remove the dependencies regardless of whether they "
+#~ "are required by another program pip has installed. Upgrade to pip 9.0 or "
+#~ "above if you want to avoid this behavior. You can do so using the command "
+#~ "'python3 -m pip install pip -U --user'. Also note that any version of "
+#~ "Rapid Photo Downloader installed by your Linux distribution's package "
+#~ "manager will not be uninstalled."
+#~ msgstr ""
+#~ "Nota: essa opção removerá as dependências mesmo se elas são requeridas "
+#~ "por outros programas que o pip instalou. Atualize para o pip 9.0 ou acima "
+#~ "se você quer evitar este comportamento. Você poderá fazê-lo usando o "
+#~ "comando 'python3 -m pip install pip -U --user'. Veja também que qualquer "
+#~ "versão do Rapid Photo Downloader instalada pelo gerenciador de pacotes da "
+#~ "sua distribuição Linux não será desinstalada."
+
+#~ msgid ""
+#~ "Install in current Python virtual environment. Virtual environments "
+#~ "created with the --system-site-packages option are not supported."
+#~ msgstr ""
+#~ "Instale no ambiente virtual atual do Python. Os ambientes virtuais "
+#~ "criados com a opção --system-site-packages não são suportados."
+
+#~ msgid ""
+#~ "Specific version of PyQt5 to install (default is the most recent "
+#~ "version{})."
+#~ msgstr ""
+#~ "Versão específica do PyQt5 será instalada (o padrão é a versão mais "
+#~ "recente {})."
+
+#~ msgid ""
+#~ "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
+#~ "Uninstalls any PyPi versions already installed."
+#~ msgstr ""
+#~ "Em vez de usar o PyQt5 do PyPi, use a versão da sua distribuição Linux. "
+#~ "Desinstale qualquer versão do PyPi já instalada."
+
+#~ msgid "Failed to download versions file."
+#~ msgstr "Falha ao baixar as versões dos arquivos."
+
+#~ msgid "Got error code {} while accessing versions file"
+#~ msgstr "Mensagem de erro recebida {} durante o acesso as versões do arquivo"
+
+#~ msgid ""
+#~ "Sorry, could not locate installer. Please check your Internet connection "
+#~ "and verify if you can reach https://www.damonlynch.net\n"
+#~ "\n"
+#~ "Exiting.\n"
+#~ msgstr ""
+#~ "Desculpe, não foi possível localizar o instalador. Favor verifique sua "
+#~ "conexão de Internet e verifique se você pode acessar https://www."
+#~ "damonlynch.net\n"
+#~ "\n"
+#~ "Saindo.\n"
+
+#~ msgid ""
+#~ "Package {} failed to install but Rapid Photo Downloader installation will "
+#~ "continue."
+#~ msgstr ""
+#~ "Pacote {} falhou ao ser instalado, porém, a instalação do Rapid Photo "
+#~ "Downloader continuará."
+
+#~ msgid "Received error code"
+#~ msgstr "Código de erro recebido"
+
+#~ msgid "Failed to install application requirements: exiting."
+#~ msgstr "Falha ao instalar os requerimentos da aplicação: saindo."
+
+#~ msgid "Failed to install application: exiting..."
+#~ msgstr "Falha ao instalar a aplicação: saindo..."
+
+#~ msgid "Installing application requirements..."
+#~ msgstr "Instalando os requerimentos da aplicação..."
+
+#~ msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
+#~ msgstr ""
+#~ "Não há suporte neste sistema para geração de miniaturas de HEIF / HEIC"
+
+#~ msgid "Installing application..."
+#~ msgstr "Instalando a aplicação..."
+
+#~ msgid "Man pages can be found in {}/share/man/man1"
+#~ msgstr "Páginas de manual podem ser encontrandas em {}/share/man/man1"
+
+#~ msgid "Do you want to install the application's man pages?"
+#~ msgstr "Você quer instalar o manual do aplicativo no man?"
+
+#~ msgid "They will be installed into {}"
+#~ msgstr "Eles serão instalados em {}"
+
+#~ msgid "If you uninstall the application, remove these manpages yourself."
+#~ msgstr ""
+#~ "Se você desinstalar a aplicação, remova você mesmo estes manuais do man."
+
+#~ msgid "Do want to install the man pages?"
+#~ msgstr "Você quer instalar os manuais do man?"
+
+#~ msgid "Installing man pages into {}"
+#~ msgstr "Instalando os manuais do man em {}"
+
+#~ msgid "Failed to create man page directory: exiting."
+#~ msgstr "Falha ao criar o diretório dos manuais man: saindo."
+
+#~ msgid "Failed to copy man page."
+#~ msgstr "Falha ao copiar os manuais man."
+
+#~ msgid ""
+#~ "Rapid Photo Downloader can be started without activating the virtual "
+#~ "environment by running {}/bin/rapid-photo-downloader"
+#~ msgstr ""
+#~ "O Rapid Photo Downloader pode ser iniciado sem ativar o ambiente virtual "
+#~ "executando {}/bin/rapid-photo-downloader"
+
+#~ msgid ""
+#~ "You may have to restart the computer to be able to run the program from "
+#~ "the command line or application launcher."
+#~ msgstr ""
+#~ "Você pode ter que reiniciar o computador para conseguir executar o "
+#~ "programa pela linha de comando ou iniciador de aplicativos."
+
+#, python-brace-format
+#~ msgid ""
+#~ "You must add {path} to your computer's $PATH variable to run the program "
+#~ "from the command line or application launcher."
+#~ msgstr ""
+#~ "Você deve adicionar {path} à variável $PATH do seu computador para "
+#~ "executar o programa a partir da linha de comando ou do lançador de "
+#~ "aplicativo."
+
+#~ msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
+#~ msgstr ""
+#~ "(Se uma falha de segmentação ocorrer ao sair, você pode ignorá-la...)"
+
+#~ msgid ""
+#~ "The python3 tool pip is required to uninstall a version of Rapid Photo "
+#~ "Downloader that was installed with pip.\n"
+#~ "Cannot continue. Exiting."
+#~ msgstr ""
+#~ "A ferramenta Python3 pip é requerida para desinstalar a versão do Rapid "
+#~ "Photo Downloader que foi instalada com pip.\n"
+#~ "Não é possível continuar. Saindo."
+
+#~ msgid ""
+#~ "Do not run this installer script as sudo / root user.\n"
+#~ "Run it using the user who will run the program.\n"
+#~ msgstr ""
+#~ "Não execute este script de instalação como usuário sudo / root.\n"
+#~ "Execute-o usando o usuário que irá rodar o programa.\n"
+
+#~ msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
+#~ msgstr "Especifique apenas um entre --PyQt5-version ou --use-system-PyQt5."
+
+#~ msgid ""
+#~ "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or "
+#~ "newer on an Intel or AMD 64 bit platform."
+#~ msgstr ""
+#~ "A versão específica do PyQt5 requer o Python 3.5 ou mais recente na "
+#~ "plataforma Intel, ou AMD de 64 bits."
+
+#~ msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
+#~ msgstr "Especifique uma versão do PyQt5 no formato X.X ou X.X.X"
+
+#~ msgid ""
+#~ "Do you want to install Rapid Photo Downloader into the current virtual "
+#~ "environment?"
+#~ msgstr "Deseja instalar o Rapid Photo Downloader no ambiente virtual atual?"
+
+#~ msgid ""
+#~ "Sorry, installing Rapid Photo Downloader into a Python virtual "
+#~ "environment requires Python 3.5 or newer on an Intel or AMD 64 bit "
+#~ "platform."
+#~ msgstr ""
+#~ "Desculpe, instalar o Rapid Photo Downloader em um ambiente virtual Python "
+#~ "requer Python 3.5 ou mais recente em uma plataforma Intel ou AMD de 64 "
+#~ "bits."
+
+#~ msgid ""
+#~ "To install Rapid Photo Downloader into a Python virtual environment, "
+#~ "create and activate the virtual environment before starting this script."
+#~ msgstr ""
+#~ "Para instalar o Rapid Photo Downloader em um ambiente virtual Python, "
+#~ "crie e ative o ambiente virtual antes de iniciar este script."
+
+#~ msgid "Using virtual environment for installation using pip."
+#~ msgstr "Usando ambiente virtual para instalar usando pip."
+
+#~ msgid "Do not include any other command line arguments when specifying"
+#~ msgstr ""
+#~ "Não inclua qualquer argumento de linha de comando quando especificado"
+
+#~ msgid ""
+#~ "Sorry, this installer does not support a custom python installation.\n"
+#~ "Exiting..."
+#~ msgstr ""
+#~ "Desculpe, este instalador não suporta uma instalação customizada do "
+#~ "python.\n"
+#~ "Saindo..."
+
+#~ msgid "Restarting script using system python..."
+#~ msgstr "Reiniciando o script usando o sistema python..."
+
+#~ msgid "Detected Linux distribution {} {}"
+#~ msgstr "Distribuição Linux detectada {} {}"
+
+#~ msgid "To continue, the package python3-apt must be installed."
+#~ msgstr "Para continuar, o pacote python3-apt precisa ser instalado."
+
+#~ msgid ""
+#~ "Install the following packages using your Linux distribution's standard "
+#~ "package manager, and then rerun this installer:"
+#~ msgstr ""
+#~ "Instale os seguintes pacotes usando seu gerenciador de pacotes do Linux e "
+#~ "execute novamente este instalador:"
+
+#~ msgid ""
+#~ "To run this program, programs to assist Python 3 and its package "
+#~ "management must be installed."
+#~ msgstr ""
+#~ "Para executar este programa, Python3 e seus pacotes de gerenciamento "
+#~ "precisam estar instalados."
+
+#~ msgid "Installing python requests"
+#~ msgstr "Instalando python requests"
 
 #~ msgid "Upgrade Rapid Photo Downloader"
 #~ msgstr "Atualizar Rapid Photo Downloader"

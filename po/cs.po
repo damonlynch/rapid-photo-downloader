@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2023-12-27 12:53+1300\n"
+"POT-Creation-Date: 2024-01-04 16:18+1300\n"
 "PO-Revision-Date: 2022-02-21 17:12+0000\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
@@ -17,529 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2023-12-26 23:20+0000\n"
 "X-Generator: Launchpad (build e1eeab5b20e19239bd7d5f36676f7a52988db88b)\n"
-
-#: ../install.py:78
-msgid ""
-"To continue, please first install the python3 package setuptools using your "
-"system's package manager."
-msgstr ""
-"Aby bylo možné pokračovat, nejdříve nainstalujte python3 balíček setuptools "
-"a to pomocí systémové správy balíčků."
-
-#: ../install.py:85
-msgid "Rapid Photo Downloader installer"
-msgstr "Instalátor aplikace Rapid Photo Downloader"
-
-#: ../install.py:86
-msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr ""
-"Stáhnout a nainstalovat nejnovější verzi aplikace Rapid Photo Downloader."
-
-#: ../install.py:423
-msgid ""
-"The software repository RPM Fusion Free was added to your system to (1) "
-"enable generating thumbnails for a wider range of video formats, and (2) "
-"enable support for the HEIC / HEIF image format."
-msgstr ""
-"Do systému byl přidán repozitář software RPM Fusion Free a to z důvodu aby "
-"bylo možné (1) vytvářet náhledy pro větší množství videoformátů, a (2) "
-"pracovat s obrázky ve formátu HEIC / HEIF."
-
-#: ../install.py:658 ../install.py:4285
-msgid "Installer not found:"
-msgstr "Instalátor nenalezen:"
-
-#. Translators: do not translate the term tar.gz
-#: ../install.py:662 ../install.py:4289
-msgid "Installer not in tar.gz format:"
-msgstr "Instalátor není ve formátu tar.gz:"
-
-#: ../install.py:733 ../install.py:762 ../install.py:4165 ../install.py:4170
-msgid "Exiting..."
-msgstr "Ukončování..."
-
-#: ../install.py:982
-msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
-msgstr "Zadaná verze PyQt5 neexistuje. Platné verze jsou: {}."
-
-#: ../install.py:1068
-msgid "{} will be upgraded from version {} to version {}"
-msgstr "{} bude aktualizováno z verze {} na verzi {}"
-
-#. Translators: "not system-wide" in this context means "not for the entire system"
-#: ../install.py:1351 ../install.py:4245
-msgid ""
-"These Python3 packages will be upgraded for your user (i.e. not system-"
-"wide): {}"
-msgstr ""
-"Budou nainstalovány novější verze těchto balíčky Python3 a to jen pro tento "
-"uživatelský účet (tj. ne pro celý systém): {}"
-
-#: ../install.py:1456
-#, python-brace-format
-msgid ""
-"Incorrect folder ownership detected. Changing ownership of and resetting "
-"permissions for {file_system_path}."
-msgstr ""
-"Zjištěno nesprávné vlastnictví složky. Vlastnictví bude změněno a přístupová "
-"práva resetována pro {file_system_path}."
-
-#: ../install.py:1599
-msgid "The following command will be run:"
-msgstr "Bude spuštěn následující příkaz:"
-
-#. Translators: do not translate the term sudo
-#: ../install.py:1603 ../install.py:3789 ../install.py:3796
-msgid "sudo may prompt you for the sudo password."
-msgstr ""
-"sudo vás může vyzvat k zadání hesla k účtu, oprávněného k jeho použití."
-
-#: ../install.py:1607
-msgid "Would you like to run the command now?"
-msgstr "Chcete spustit příkaz nyní?"
-
-#: ../install.py:1609
-msgid "Answer is not yes, exiting."
-msgstr "Odpověď není ano – ukončuje se."
-
-#: ../install.py:1620 ../install.py:2215 ../install.py:2274 ../install.py:2749
-msgid "Command failed"
-msgstr "Vykonávání příkazu se nezdařilo"
-
-#: ../install.py:1622 ../install.py:2216 ../install.py:2275 ../install.py:2750
-msgid "Exiting"
-msgstr "Ukončování"
-
-#: ../install.py:1650
-msgid "The Universe repository must be enabled."
-msgstr "Je třeba zapnout používání repozitáře Universe."
-
-#. Translators: do not translate the term EPEL
-#: ../install.py:1690
-msgid "The EPEL repository must be enabled."
-msgstr "Je třeba, aby byl povolen repozitář EPEL."
-
-#. Translators: do not translate the term RPM Fusion Free
-#: ../install.py:1738
-msgid "The RPM Fusion Free repository must be enabled."
-msgstr "Je třeba, aby byl povolen repozitář RPM Fusion Free."
-
-#: ../install.py:1779
-msgid ""
-"Do you want to to uninstall the previous version of Rapid Photo Downloader?"
-msgstr "Chcete odinstalovat předchozí verzi Rapid Photo Downloader?"
-
-#: ../install.py:2193 ../install.py:2223 ../install.py:2255
-msgid ""
-"Querying package system to see if an older version of Rapid Photo Downloader "
-"is installed (this may take a while)..."
-msgstr ""
-"Dotazování systému správy balíčků zda je nainstalovaná starší verze Rapid "
-"Photo Downloader (může to chvíli trvat)…"
-
-#: ../install.py:2208
-msgid "Uninstalling system package"
-msgstr "Odinstalovává se balíček, poskytovaný systémem"
-
-#: ../install.py:2233
-msgid ""
-"Unable to query package system. Please check your Internet connection and "
-"try again."
-msgstr ""
-"Nedaří se dotázat systému správy balíčků. Zkontrolujte připojení k Internetu "
-"a zkuste to znovu."
-
-#. Translators: do not translate the term pip
-#: ../install.py:2280
-msgid "Checking if previous version installed with pip..."
-msgstr "Zjišťování zda předchozí verze byla nainstalovaná pomocí nástroje pip…"
-
-#: ../install.py:2433 ../install.py:2490 ../install.py:2606
-msgid "The following package is unknown on your system: {}\n"
-msgstr "Následující balíček je systému neznámý: {}\n"
-
-#: ../install.py:2504 ../install.py:2662 ../install.py:2759
-msgid ""
-"To continue, some packages required to run the application will be installed."
-msgstr ""
-"Aby bylo možné pokračovat, budou nainstalovány balíčky potřebné pro provoz "
-"aplikace."
-
-#: ../install.py:2598 ../install.py:2619
-msgid "Querying installed and available packages (this may take a while)"
-msgstr "Zjišťování nainstalovaných a dostupných balíčků (může chvíli trvat)"
-
-#: ../install.py:2741
-msgid ""
-"Querying zypper to see if any required packages are already installed (this "
-"may take a while)... "
-msgstr ""
-"Dotazování správce balíčků zypper zda a případně které potřebné balíčky už "
-"jsou nainstalované (může chvíli trvat)… "
-
-#: ../install.py:2808
-msgid "Query to confirm action at each step."
-msgstr "Dotázat se na potvrzení při každém z kroků."
-
-#: ../install.py:2818
-msgid ""
-"When downloading the latest version, install the development version if it "
-"is newer than the stable version."
-msgstr ""
-"Při stahování nejnovější verze, nainstalovat vývojovou verzi pokud je "
-"novější, než ta stabilní."
-
-#: ../install.py:2829
-msgid ""
-"Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
-"the latest version is downloaded from the Internet."
-msgstr ""
-"Volitelný tar.gz archiv instalátoru Rapid Photo Downloader. Pokud není "
-"zadán, bude z Internetu stažena nejnovější verze."
-
-#: ../install.py:2879
-msgid ""
-"Do not run the installer in the tar.gz Rapid Photo Downloader installer "
-"archive if it is newer than this version ({}). The default is to run "
-"whichever installer is newer."
-msgstr ""
-"Nespouštět instalátor z tar.gz instalačního archivu Rapid Photo Downloader "
-"pokud je novější než tato verze ({}). Výchozím chováním je spustit kterýkoli "
-"novější instalátor."
-
-#: ../install.py:2887
-msgid ""
-"Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
-"dependencies."
-msgstr ""
-"Odinstalovat Rapid Photo Downloader který byl nainstalován pomocí pip s tím, "
-"že zůstanou zachované ostatní součásti, na kterých aplikace závisela."
-
-#: ../install.py:2893
-msgid ""
-"Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
-"installation, and Rapid Photo Downloader itself, then exit."
-msgstr ""
-"Odinstalovat ostatní součásti, na kterých aplikace závisela (nainstalované "
-"pomocí pip), následně aplikaci samotnou a pak skončit."
-
-#: ../install.py:2898
-msgid ""
-"Note: this will not uninstall any version of Rapid Photo Downloader "
-"installed by your Linux distribution's package manager."
-msgstr ""
-"Pozn.: toto nikdy neodebere instalaci Rapid Photo Downloader nainstalovanou "
-"prostřednictvím správy balíčků vámi používané Linuxové distribuce."
-
-#: ../install.py:2906
-msgid ""
-"Dependencies will only be removed if they are not required by other programs."
-msgstr ""
-"Součásti, na kterých aplikace závisela budou odebrány pouze tehdy, pokud "
-"nejsou potřebné pro žádné další programy."
-
-#: ../install.py:2914
-msgid ""
-"Note: this option will remove the dependencies regardless of whether they "
-"are required by another program pip has installed. Upgrade to pip 9.0 or "
-"above if you want to avoid this behavior. You can do so using the command "
-"'python3 -m pip install pip -U --user'. Also note that any version of Rapid "
-"Photo Downloader installed by your Linux distribution's package manager will "
-"not be uninstalled."
-msgstr ""
-"Pozn.: tato předvolba odebere součásti, na kterých aplikace závisela bez "
-"ohledu na to zda jsou potřebné pro další programy které byly nainstalované "
-"pomocí pip. Pokud chcete tomuto chování zamezit, přejděte na verzi pip 9.0 a "
-"novější. Můžete to provést příkazem „python3 -m pip install pip -U --user“. "
-"Také poznamenejme, že nikdy neodebere instalaci Rapid Photo Downloader "
-"nainstalovanou prostřednictvím správy balíčků vámi používané Linuxové "
-"distribuce."
-
-#: ../install.py:2938
-msgid ""
-"Install in current Python virtual environment. Virtual environments created "
-"with the --system-site-packages option are not supported."
-msgstr ""
-"Nainstalovat do stávajícího Python virtuálního prostředí. Prostředí, "
-"vytvořená s použitím volby --system-site-packages nejsou podporována."
-
-#: ../install.py:2956
-msgid ""
-"Specific version of PyQt5 to install (default is the most recent version{})."
-msgstr "Konkrétní verze PyQt5 k instalaci(výchozí je nejnovější version{})."
-
-#: ../install.py:2967
-msgid ""
-"Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
-"Uninstalls any PyPi versions already installed."
-msgstr ""
-"Namísto použití PyQt5 z PyPi, použít verzi z vámi využívané linuxové "
-"distribuce. Odinstaluje jakékoli PyPi verze, které už jsou nainstalované."
-
-#: ../install.py:3004
-msgid "Failed to download versions file."
-msgstr "Nepodařilo se stáhnout soubor s verzemi."
-
-#: ../install.py:3009
-msgid "Got error code {} while accessing versions file"
-msgstr "Při přístupu k souboru s verzemi obdržen chybový kód {}"
-
-#: ../install.py:3126
-msgid ""
-"Sorry, could not locate installer. Please check your Internet connection and "
-"verify if you can reach https://www.damonlynch.net\n"
-"\n"
-"Exiting.\n"
-msgstr ""
-"Je nám líto, nepodařilo se najít instalátor. Zkontrolujte připojení k "
-"Internetu a ověřte, že je dosažitelný web https://www.damonlynch.net\n"
-"\n"
-"Ukončuje se.\n"
-
-#: ../install.py:3280
-msgid ""
-"Package {} failed to install but Rapid Photo Downloader installation will "
-"continue."
-msgstr ""
-"Balíček {} se sice nepodařilo nainstalovat, ale instalace Rapid Photo "
-"Downloader bude pokračovat i tak."
-
-#: ../install.py:3286
-msgid "Received error code"
-msgstr "Obdržen chybový kód"
-
-#: ../install.py:3288
-msgid "Failed to install application requirements: exiting."
-msgstr ""
-"Nepodařilo se nainstalovat ostatní součásti, které aplikace potřebuje: "
-"ukončuje se."
-
-#: ../install.py:3290
-msgid "Failed to install application: exiting..."
-msgstr "Aplikaci se nepodařilo nainstalovat: ukončování…"
-
-#: ../install.py:3614
-msgid "Installing application requirements..."
-msgstr "Instalace ostatních součástí potřebných pro aplikaci…"
-
-#: ../install.py:3648
-msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
-msgstr ""
-"Podpora pro vytváření náhledů z formátu HEIF / HEIC není v systému k "
-"dispozici"
-
-#: ../install.py:3665
-msgid "Installing application..."
-msgstr "Instalace aplikace…"
-
-#: ../install.py:3752
-msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
-msgstr "Chcete aby se Rapid Photo Downloader objevoval v nabídce ve Windows?"
-
-#: ../install.py:3758
-msgid "Adding Rapid Photo Downloader to the Windows menu"
-msgstr "Přidávání Rapid Photo Downloader do nabídky ve Windows"
-
-#: ../install.py:3768
-msgid "Failed to copy application launcher."
-msgstr "Nepodařilo se zkopírovat spouštěč aplikace."
-
-#: ../install.py:3779
-msgid "Man pages can be found in {}/share/man/man1"
-msgstr "Manuálové stránky jsou k dispozici v {}/share/man/man1"
-
-#: ../install.py:3784
-msgid "Do you want to install the application's man pages?"
-msgstr "Přejete si nainstalovat manuálové stránky aplikace?"
-
-#: ../install.py:3785
-msgid "They will be installed into {}"
-msgstr "Budou nainstalovány do {}"
-
-#: ../install.py:3787 ../install.py:3794
-msgid "If you uninstall the application, remove these manpages yourself."
-msgstr "Pokud aplikaci odinstalujete, tyto manuálové stránky potom odeberte."
-
-#: ../install.py:3790
-msgid "Do want to install the man pages?"
-msgstr "Chcete nainstalovat manuálové stránky?"
-
-#: ../install.py:3792
-msgid "Installing man pages into {}"
-msgstr "Instalace manuálových stránek do {}"
-
-#: ../install.py:3810
-msgid "Failed to create man page directory: exiting."
-msgstr "Nepodařilo se vytvořit složku pro manuálovou stránku: ukončuje se."
-
-#: ../install.py:3831
-msgid "Failed to copy man page."
-msgstr "Nepodařilo se zkopírovat manuálovou stránku."
-
-#: ../install.py:3870
-msgid ""
-"Rapid Photo Downloader can be started without activating the virtual "
-"environment by running {}/bin/rapid-photo-downloader"
-msgstr ""
-"Rapid Photo Downloader je možné spustit bez aktivace virtuálního prostředí "
-"spuštěním {}/bin/rapid-photo-downloader"
-
-#: ../install.py:3883
-msgid ""
-"You may have to restart the computer to be able to run the program from the "
-"command line or application launcher."
-msgstr ""
-"Aby bylo možné aplikaci spustit (z příkazového řádku nebo kliknutím na "
-"zástupce), může být třeba restartovat počítač."
-
-#: ../install.py:3889
-msgid ""
-"You may have to restart WSL to be able to run the program from the command "
-"line."
-msgstr ""
-"Abyste mohly program spouštět z příkazového řádku, může být nutné "
-"restartovat WSL."
-
-#: ../install.py:3899
-#, python-brace-format
-msgid ""
-"You must add {path} to your computer's $PATH variable to run the program "
-"from the command line."
-msgstr ""
-
-#: ../install.py:3904
-#, python-brace-format
-msgid ""
-"You must add {path} to your computer's $PATH variable to run the program "
-"from the command line or application launcher."
-msgstr ""
-"Pro spouštění programu (z příkazového řádku či spouštěče) je třeba přidat si "
-"{path} do proměnné $PATH."
-
-#: ../install.py:3926
-msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
-msgstr ""
-"(Pokud při ukončování dojde k Porušení ochrany paměti (segmentation fault), "
-"nemusíte tomu věnovat pozornost…)"
-
-#: ../install.py:3928
-msgid "Done."
-msgstr "Hotovo."
-
-#: ../install.py:3942
-msgid ""
-"The python3 tool pip is required to uninstall a version of Rapid Photo "
-"Downloader that was installed with pip.\n"
-"Cannot continue. Exiting."
-msgstr ""
-"Pro odebrání instalace Rapid Photo Downloader provedené prostřednictvím "
-"python3 nástroje pip je třeba,\n"
-"aby tento nástroj byl přítomen. Protože tomu tak není, nelze pokračovat a "
-"ukončuje se."
-
-#: ../install.py:3998
-msgid ""
-"Do not run this installer script as sudo / root user.\n"
-"Run it using the user who will run the program.\n"
-msgstr ""
-"Nespouštějte tento instalační skript s právy správy systému (sudo/root).\n"
-"Spusťte ho jako uživatel který bude aplikaci používat.\n"
-
-#. Translators: do not translate the terms --PyQt5-version or --use-system-PyQt5
-#: ../install.py:4010
-msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
-msgstr ""
-"Zadejte jen jedno z --PyQt5-version nebo --use-system-PyQt5 – ne obojí naráz."
-
-#: ../install.py:4022
-msgid ""
-"Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
-"on an Intel or AMD 64 bit platform."
-msgstr ""
-"Je nám líto, ale pro platformu Intel / AMD 64 bit zadání konkrétní verze "
-"PyQt5 vyžaduje Python 3.5 a novější."
-
-#. Translators: do not translate the term PyQt5
-#: ../install.py:4036
-msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
-msgstr "Zadejte verzi PyQt5 v podobě X.X nebo X.X.X"
-
-#: ../install.py:4052
-msgid ""
-"Do you want to install Rapid Photo Downloader into the current virtual "
-"environment?"
-msgstr ""
-"Chcete Rapid Photo Downloader nainstalovat do stávajícího virtuálního "
-"prostředí?"
-
-#: ../install.py:4066
-msgid ""
-"Sorry, installing Rapid Photo Downloader into a Python virtual environment "
-"requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
-msgstr ""
-"Je nám líto, ale instalace Rapid Photo Downloader do Python virtuálního "
-"prostředí vyžaduje Python verze 3.5 a novější a 64 bit Intel nebo AMD "
-"platformu."
-
-#: ../install.py:4079
-msgid ""
-"To install Rapid Photo Downloader into a Python virtual environment, create "
-"and activate the virtual environment before starting this script."
-msgstr ""
-"Pro instalaci Rapid Photo Downloader do Python virtuálního prostředí, "
-"vytvořte a aktivujte takové, než tento skript spustíte."
-
-#: ../install.py:4089
-msgid "Using virtual environment for installation using pip."
-msgstr "Použitím virtuálnímo prostředí pro instalaci pomocí pip."
-
-#: ../install.py:4094 ../install.py:4108
-msgid "Do not include any other command line arguments when specifying"
-msgstr ""
-"Pokud použijete tento, nezadávejte už žádné další argumenty příkazového řádku"
-
-#: ../install.py:4127
-msgid ""
-"Sorry, this installer does not support a custom python installation.\n"
-"Exiting..."
-msgstr ""
-"Je nám líto, ale tento instalátor nepodporuje vlastní instalace python.\n"
-"Ukončuje se…"
-
-#: ../install.py:4135
-msgid "Restarting script using system python..."
-msgstr "Restartování skriptu pomocí systémové instance interpreteru python…"
-
-#: ../install.py:4148
-msgid "Detected Linux distribution {} {}"
-msgstr "Zjištěná linuxová distribuce {} {}"
-
-#: ../install.py:4186
-msgid "To continue, the package python3-apt must be installed."
-msgstr ""
-"Aby bylo možné pokračovat, je třeba, aby byl nainstalovaný balíček python3-"
-"apt."
-
-#: ../install.py:4218
-msgid ""
-"Install the following packages using your Linux distribution's standard "
-"package manager, and then rerun this installer:"
-msgstr ""
-"Prostřednictvím správy balíčků vámi používané Linuxové distribuce "
-"nainstalujte následující balíčky a spusťte tento instalátor znovu:"
-
-#: ../install.py:4230
-msgid ""
-"To run this program, programs to assist Python 3 and its package management "
-"must be installed."
-msgstr ""
-"Pro spuštění této aplikace je třeba, aby byly nainstalované programy které "
-"asistují Python 3 a jeho správa balíčků."
-
-#. Translators: do not translate the term python or requests
-#: ../install.py:4279
-msgid "Installing python requests"
-msgstr "Instalace python requests"
 
 #: ../raphodo/ui/aboutdialog.py:335
 msgid "Credits"
@@ -5612,6 +5089,439 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Stáhnout fotografie a videa pomocí aplikace Rapid Photo Downloader"
+
+#~ msgid ""
+#~ "To continue, please first install the python3 package setuptools using "
+#~ "your system's package manager."
+#~ msgstr ""
+#~ "Aby bylo možné pokračovat, nejdříve nainstalujte python3 balíček "
+#~ "setuptools a to pomocí systémové správy balíčků."
+
+#~ msgid "Rapid Photo Downloader installer"
+#~ msgstr "Instalátor aplikace Rapid Photo Downloader"
+
+#~ msgid "Download and install latest version of Rapid Photo Downloader."
+#~ msgstr ""
+#~ "Stáhnout a nainstalovat nejnovější verzi aplikace Rapid Photo Downloader."
+
+#~ msgid ""
+#~ "The software repository RPM Fusion Free was added to your system to (1) "
+#~ "enable generating thumbnails for a wider range of video formats, and (2) "
+#~ "enable support for the HEIC / HEIF image format."
+#~ msgstr ""
+#~ "Do systému byl přidán repozitář software RPM Fusion Free a to z důvodu "
+#~ "aby bylo možné (1) vytvářet náhledy pro větší množství videoformátů, a "
+#~ "(2) pracovat s obrázky ve formátu HEIC / HEIF."
+
+#~ msgid "Installer not found:"
+#~ msgstr "Instalátor nenalezen:"
+
+#~ msgid "Installer not in tar.gz format:"
+#~ msgstr "Instalátor není ve formátu tar.gz:"
+
+#~ msgid "Exiting..."
+#~ msgstr "Ukončování..."
+
+#~ msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
+#~ msgstr "Zadaná verze PyQt5 neexistuje. Platné verze jsou: {}."
+
+#~ msgid "{} will be upgraded from version {} to version {}"
+#~ msgstr "{} bude aktualizováno z verze {} na verzi {}"
+
+#~ msgid ""
+#~ "These Python3 packages will be upgraded for your user (i.e. not system-"
+#~ "wide): {}"
+#~ msgstr ""
+#~ "Budou nainstalovány novější verze těchto balíčky Python3 a to jen pro "
+#~ "tento uživatelský účet (tj. ne pro celý systém): {}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "Incorrect folder ownership detected. Changing ownership of and resetting "
+#~ "permissions for {file_system_path}."
+#~ msgstr ""
+#~ "Zjištěno nesprávné vlastnictví složky. Vlastnictví bude změněno a "
+#~ "přístupová práva resetována pro {file_system_path}."
+
+#~ msgid "The following command will be run:"
+#~ msgstr "Bude spuštěn následující příkaz:"
+
+#~ msgid "sudo may prompt you for the sudo password."
+#~ msgstr ""
+#~ "sudo vás může vyzvat k zadání hesla k účtu, oprávněného k jeho použití."
+
+#~ msgid "Would you like to run the command now?"
+#~ msgstr "Chcete spustit příkaz nyní?"
+
+#~ msgid "Answer is not yes, exiting."
+#~ msgstr "Odpověď není ano – ukončuje se."
+
+#~ msgid "Command failed"
+#~ msgstr "Vykonávání příkazu se nezdařilo"
+
+#~ msgid "Exiting"
+#~ msgstr "Ukončování"
+
+#~ msgid "The Universe repository must be enabled."
+#~ msgstr "Je třeba zapnout používání repozitáře Universe."
+
+#~ msgid "The EPEL repository must be enabled."
+#~ msgstr "Je třeba, aby byl povolen repozitář EPEL."
+
+#~ msgid "The RPM Fusion Free repository must be enabled."
+#~ msgstr "Je třeba, aby byl povolen repozitář RPM Fusion Free."
+
+#~ msgid ""
+#~ "Do you want to to uninstall the previous version of Rapid Photo "
+#~ "Downloader?"
+#~ msgstr "Chcete odinstalovat předchozí verzi Rapid Photo Downloader?"
+
+#~ msgid ""
+#~ "Querying package system to see if an older version of Rapid Photo "
+#~ "Downloader is installed (this may take a while)..."
+#~ msgstr ""
+#~ "Dotazování systému správy balíčků zda je nainstalovaná starší verze Rapid "
+#~ "Photo Downloader (může to chvíli trvat)…"
+
+#~ msgid "Uninstalling system package"
+#~ msgstr "Odinstalovává se balíček, poskytovaný systémem"
+
+#~ msgid ""
+#~ "Unable to query package system. Please check your Internet connection and "
+#~ "try again."
+#~ msgstr ""
+#~ "Nedaří se dotázat systému správy balíčků. Zkontrolujte připojení k "
+#~ "Internetu a zkuste to znovu."
+
+#~ msgid "Checking if previous version installed with pip..."
+#~ msgstr ""
+#~ "Zjišťování zda předchozí verze byla nainstalovaná pomocí nástroje pip…"
+
+#~ msgid "The following package is unknown on your system: {}\n"
+#~ msgstr "Následující balíček je systému neznámý: {}\n"
+
+#~ msgid ""
+#~ "To continue, some packages required to run the application will be "
+#~ "installed."
+#~ msgstr ""
+#~ "Aby bylo možné pokračovat, budou nainstalovány balíčky potřebné pro "
+#~ "provoz aplikace."
+
+#~ msgid "Querying installed and available packages (this may take a while)"
+#~ msgstr "Zjišťování nainstalovaných a dostupných balíčků (může chvíli trvat)"
+
+#~ msgid ""
+#~ "Querying zypper to see if any required packages are already installed "
+#~ "(this may take a while)... "
+#~ msgstr ""
+#~ "Dotazování správce balíčků zypper zda a případně které potřebné balíčky "
+#~ "už jsou nainstalované (může chvíli trvat)… "
+
+#~ msgid "Query to confirm action at each step."
+#~ msgstr "Dotázat se na potvrzení při každém z kroků."
+
+#~ msgid ""
+#~ "When downloading the latest version, install the development version if "
+#~ "it is newer than the stable version."
+#~ msgstr ""
+#~ "Při stahování nejnovější verze, nainstalovat vývojovou verzi pokud je "
+#~ "novější, než ta stabilní."
+
+#~ msgid ""
+#~ "Optional tar.gz Rapid Photo Downloader installer archive. If not "
+#~ "specified, the latest version is downloaded from the Internet."
+#~ msgstr ""
+#~ "Volitelný tar.gz archiv instalátoru Rapid Photo Downloader. Pokud není "
+#~ "zadán, bude z Internetu stažena nejnovější verze."
+
+#~ msgid ""
+#~ "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
+#~ "archive if it is newer than this version ({}). The default is to run "
+#~ "whichever installer is newer."
+#~ msgstr ""
+#~ "Nespouštět instalátor z tar.gz instalačního archivu Rapid Photo "
+#~ "Downloader pokud je novější než tato verze ({}). Výchozím chováním je "
+#~ "spustit kterýkoli novější instalátor."
+
+#~ msgid ""
+#~ "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
+#~ "dependencies."
+#~ msgstr ""
+#~ "Odinstalovat Rapid Photo Downloader který byl nainstalován pomocí pip s "
+#~ "tím, že zůstanou zachované ostatní součásti, na kterých aplikace závisela."
+
+#~ msgid ""
+#~ "Uninstall the dependencies installed by pip during Rapid Photo "
+#~ "Downloader's installation, and Rapid Photo Downloader itself, then exit."
+#~ msgstr ""
+#~ "Odinstalovat ostatní součásti, na kterých aplikace závisela "
+#~ "(nainstalované pomocí pip), následně aplikaci samotnou a pak skončit."
+
+#~ msgid ""
+#~ "Note: this will not uninstall any version of Rapid Photo Downloader "
+#~ "installed by your Linux distribution's package manager."
+#~ msgstr ""
+#~ "Pozn.: toto nikdy neodebere instalaci Rapid Photo Downloader "
+#~ "nainstalovanou prostřednictvím správy balíčků vámi používané Linuxové "
+#~ "distribuce."
+
+#~ msgid ""
+#~ "Dependencies will only be removed if they are not required by other "
+#~ "programs."
+#~ msgstr ""
+#~ "Součásti, na kterých aplikace závisela budou odebrány pouze tehdy, pokud "
+#~ "nejsou potřebné pro žádné další programy."
+
+#~ msgid ""
+#~ "Note: this option will remove the dependencies regardless of whether they "
+#~ "are required by another program pip has installed. Upgrade to pip 9.0 or "
+#~ "above if you want to avoid this behavior. You can do so using the command "
+#~ "'python3 -m pip install pip -U --user'. Also note that any version of "
+#~ "Rapid Photo Downloader installed by your Linux distribution's package "
+#~ "manager will not be uninstalled."
+#~ msgstr ""
+#~ "Pozn.: tato předvolba odebere součásti, na kterých aplikace závisela bez "
+#~ "ohledu na to zda jsou potřebné pro další programy které byly "
+#~ "nainstalované pomocí pip. Pokud chcete tomuto chování zamezit, přejděte "
+#~ "na verzi pip 9.0 a novější. Můžete to provést příkazem „python3 -m pip "
+#~ "install pip -U --user“. Také poznamenejme, že nikdy neodebere instalaci "
+#~ "Rapid Photo Downloader nainstalovanou prostřednictvím správy balíčků vámi "
+#~ "používané Linuxové distribuce."
+
+#~ msgid ""
+#~ "Install in current Python virtual environment. Virtual environments "
+#~ "created with the --system-site-packages option are not supported."
+#~ msgstr ""
+#~ "Nainstalovat do stávajícího Python virtuálního prostředí. Prostředí, "
+#~ "vytvořená s použitím volby --system-site-packages nejsou podporována."
+
+#~ msgid ""
+#~ "Specific version of PyQt5 to install (default is the most recent "
+#~ "version{})."
+#~ msgstr "Konkrétní verze PyQt5 k instalaci(výchozí je nejnovější version{})."
+
+#~ msgid ""
+#~ "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
+#~ "Uninstalls any PyPi versions already installed."
+#~ msgstr ""
+#~ "Namísto použití PyQt5 z PyPi, použít verzi z vámi využívané linuxové "
+#~ "distribuce. Odinstaluje jakékoli PyPi verze, které už jsou nainstalované."
+
+#~ msgid "Failed to download versions file."
+#~ msgstr "Nepodařilo se stáhnout soubor s verzemi."
+
+#~ msgid "Got error code {} while accessing versions file"
+#~ msgstr "Při přístupu k souboru s verzemi obdržen chybový kód {}"
+
+#~ msgid ""
+#~ "Sorry, could not locate installer. Please check your Internet connection "
+#~ "and verify if you can reach https://www.damonlynch.net\n"
+#~ "\n"
+#~ "Exiting.\n"
+#~ msgstr ""
+#~ "Je nám líto, nepodařilo se najít instalátor. Zkontrolujte připojení k "
+#~ "Internetu a ověřte, že je dosažitelný web https://www.damonlynch.net\n"
+#~ "\n"
+#~ "Ukončuje se.\n"
+
+#~ msgid ""
+#~ "Package {} failed to install but Rapid Photo Downloader installation will "
+#~ "continue."
+#~ msgstr ""
+#~ "Balíček {} se sice nepodařilo nainstalovat, ale instalace Rapid Photo "
+#~ "Downloader bude pokračovat i tak."
+
+#~ msgid "Received error code"
+#~ msgstr "Obdržen chybový kód"
+
+#~ msgid "Failed to install application requirements: exiting."
+#~ msgstr ""
+#~ "Nepodařilo se nainstalovat ostatní součásti, které aplikace potřebuje: "
+#~ "ukončuje se."
+
+#~ msgid "Failed to install application: exiting..."
+#~ msgstr "Aplikaci se nepodařilo nainstalovat: ukončování…"
+
+#~ msgid "Installing application requirements..."
+#~ msgstr "Instalace ostatních součástí potřebných pro aplikaci…"
+
+#~ msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
+#~ msgstr ""
+#~ "Podpora pro vytváření náhledů z formátu HEIF / HEIC není v systému k "
+#~ "dispozici"
+
+#~ msgid "Installing application..."
+#~ msgstr "Instalace aplikace…"
+
+#~ msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
+#~ msgstr ""
+#~ "Chcete aby se Rapid Photo Downloader objevoval v nabídce ve Windows?"
+
+#~ msgid "Adding Rapid Photo Downloader to the Windows menu"
+#~ msgstr "Přidávání Rapid Photo Downloader do nabídky ve Windows"
+
+#~ msgid "Failed to copy application launcher."
+#~ msgstr "Nepodařilo se zkopírovat spouštěč aplikace."
+
+#~ msgid "Man pages can be found in {}/share/man/man1"
+#~ msgstr "Manuálové stránky jsou k dispozici v {}/share/man/man1"
+
+#~ msgid "Do you want to install the application's man pages?"
+#~ msgstr "Přejete si nainstalovat manuálové stránky aplikace?"
+
+#~ msgid "They will be installed into {}"
+#~ msgstr "Budou nainstalovány do {}"
+
+#~ msgid "If you uninstall the application, remove these manpages yourself."
+#~ msgstr ""
+#~ "Pokud aplikaci odinstalujete, tyto manuálové stránky potom odeberte."
+
+#~ msgid "Do want to install the man pages?"
+#~ msgstr "Chcete nainstalovat manuálové stránky?"
+
+#~ msgid "Installing man pages into {}"
+#~ msgstr "Instalace manuálových stránek do {}"
+
+#~ msgid "Failed to create man page directory: exiting."
+#~ msgstr "Nepodařilo se vytvořit složku pro manuálovou stránku: ukončuje se."
+
+#~ msgid "Failed to copy man page."
+#~ msgstr "Nepodařilo se zkopírovat manuálovou stránku."
+
+#~ msgid ""
+#~ "Rapid Photo Downloader can be started without activating the virtual "
+#~ "environment by running {}/bin/rapid-photo-downloader"
+#~ msgstr ""
+#~ "Rapid Photo Downloader je možné spustit bez aktivace virtuálního "
+#~ "prostředí spuštěním {}/bin/rapid-photo-downloader"
+
+#~ msgid ""
+#~ "You may have to restart the computer to be able to run the program from "
+#~ "the command line or application launcher."
+#~ msgstr ""
+#~ "Aby bylo možné aplikaci spustit (z příkazového řádku nebo kliknutím na "
+#~ "zástupce), může být třeba restartovat počítač."
+
+#~ msgid ""
+#~ "You may have to restart WSL to be able to run the program from the "
+#~ "command line."
+#~ msgstr ""
+#~ "Abyste mohly program spouštět z příkazového řádku, může být nutné "
+#~ "restartovat WSL."
+
+#, python-brace-format
+#~ msgid ""
+#~ "You must add {path} to your computer's $PATH variable to run the program "
+#~ "from the command line or application launcher."
+#~ msgstr ""
+#~ "Pro spouštění programu (z příkazového řádku či spouštěče) je třeba přidat "
+#~ "si {path} do proměnné $PATH."
+
+#~ msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
+#~ msgstr ""
+#~ "(Pokud při ukončování dojde k Porušení ochrany paměti (segmentation "
+#~ "fault), nemusíte tomu věnovat pozornost…)"
+
+#~ msgid "Done."
+#~ msgstr "Hotovo."
+
+#~ msgid ""
+#~ "The python3 tool pip is required to uninstall a version of Rapid Photo "
+#~ "Downloader that was installed with pip.\n"
+#~ "Cannot continue. Exiting."
+#~ msgstr ""
+#~ "Pro odebrání instalace Rapid Photo Downloader provedené prostřednictvím "
+#~ "python3 nástroje pip je třeba,\n"
+#~ "aby tento nástroj byl přítomen. Protože tomu tak není, nelze pokračovat a "
+#~ "ukončuje se."
+
+#~ msgid ""
+#~ "Do not run this installer script as sudo / root user.\n"
+#~ "Run it using the user who will run the program.\n"
+#~ msgstr ""
+#~ "Nespouštějte tento instalační skript s právy správy systému (sudo/root).\n"
+#~ "Spusťte ho jako uživatel který bude aplikaci používat.\n"
+
+#~ msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
+#~ msgstr ""
+#~ "Zadejte jen jedno z --PyQt5-version nebo --use-system-PyQt5 – ne obojí "
+#~ "naráz."
+
+#~ msgid ""
+#~ "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or "
+#~ "newer on an Intel or AMD 64 bit platform."
+#~ msgstr ""
+#~ "Je nám líto, ale pro platformu Intel / AMD 64 bit zadání konkrétní verze "
+#~ "PyQt5 vyžaduje Python 3.5 a novější."
+
+#~ msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
+#~ msgstr "Zadejte verzi PyQt5 v podobě X.X nebo X.X.X"
+
+#~ msgid ""
+#~ "Do you want to install Rapid Photo Downloader into the current virtual "
+#~ "environment?"
+#~ msgstr ""
+#~ "Chcete Rapid Photo Downloader nainstalovat do stávajícího virtuálního "
+#~ "prostředí?"
+
+#~ msgid ""
+#~ "Sorry, installing Rapid Photo Downloader into a Python virtual "
+#~ "environment requires Python 3.5 or newer on an Intel or AMD 64 bit "
+#~ "platform."
+#~ msgstr ""
+#~ "Je nám líto, ale instalace Rapid Photo Downloader do Python virtuálního "
+#~ "prostředí vyžaduje Python verze 3.5 a novější a 64 bit Intel nebo AMD "
+#~ "platformu."
+
+#~ msgid ""
+#~ "To install Rapid Photo Downloader into a Python virtual environment, "
+#~ "create and activate the virtual environment before starting this script."
+#~ msgstr ""
+#~ "Pro instalaci Rapid Photo Downloader do Python virtuálního prostředí, "
+#~ "vytvořte a aktivujte takové, než tento skript spustíte."
+
+#~ msgid "Using virtual environment for installation using pip."
+#~ msgstr "Použitím virtuálnímo prostředí pro instalaci pomocí pip."
+
+#~ msgid "Do not include any other command line arguments when specifying"
+#~ msgstr ""
+#~ "Pokud použijete tento, nezadávejte už žádné další argumenty příkazového "
+#~ "řádku"
+
+#~ msgid ""
+#~ "Sorry, this installer does not support a custom python installation.\n"
+#~ "Exiting..."
+#~ msgstr ""
+#~ "Je nám líto, ale tento instalátor nepodporuje vlastní instalace python.\n"
+#~ "Ukončuje se…"
+
+#~ msgid "Restarting script using system python..."
+#~ msgstr "Restartování skriptu pomocí systémové instance interpreteru python…"
+
+#~ msgid "Detected Linux distribution {} {}"
+#~ msgstr "Zjištěná linuxová distribuce {} {}"
+
+#~ msgid "To continue, the package python3-apt must be installed."
+#~ msgstr ""
+#~ "Aby bylo možné pokračovat, je třeba, aby byl nainstalovaný balíček "
+#~ "python3-apt."
+
+#~ msgid ""
+#~ "Install the following packages using your Linux distribution's standard "
+#~ "package manager, and then rerun this installer:"
+#~ msgstr ""
+#~ "Prostřednictvím správy balíčků vámi používané Linuxové distribuce "
+#~ "nainstalujte následující balíčky a spusťte tento instalátor znovu:"
+
+#~ msgid ""
+#~ "To run this program, programs to assist Python 3 and its package "
+#~ "management must be installed."
+#~ msgstr ""
+#~ "Pro spuštění této aplikace je třeba, aby byly nainstalované programy "
+#~ "které asistují Python 3 a jeho správa balíčků."
+
+#~ msgid "Installing python requests"
+#~ msgstr "Instalace python requests"
 
 #~ msgid "Upgrade Rapid Photo Downloader"
 #~ msgstr "Přejít na novější verzi Rapid Photo Downloader"

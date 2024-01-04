@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2023-12-27 12:53+1300\n"
+"POT-Creation-Date: 2024-01-04 16:18+1300\n"
 "PO-Revision-Date: 2022-02-21 17:12+0000\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
@@ -16,514 +16,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2023-12-26 23:20+0000\n"
 "X-Generator: Launchpad (build e1eeab5b20e19239bd7d5f36676f7a52988db88b)\n"
-
-#: ../install.py:78
-msgid ""
-"To continue, please first install the python3 package setuptools using your "
-"system's package manager."
-msgstr ""
-"Да наставите, прво инсталирајте алате подешавања пакета „python3“ користећи "
-"управника пакета вашег система."
-
-#: ../install.py:85
-msgid "Rapid Photo Downloader installer"
-msgstr "Инсталер Брзог преносиоца фотографија"
-
-#: ../install.py:86
-msgid "Download and install latest version of Rapid Photo Downloader."
-msgstr ""
-"Преузмите и инсталирајте најновије издање Брзог преносиоца фотографија."
-
-#: ../install.py:423
-msgid ""
-"The software repository RPM Fusion Free was added to your system to (1) "
-"enable generating thumbnails for a wider range of video formats, and (2) "
-"enable support for the HEIC / HEIF image format."
-msgstr ""
-"Ризница софтвера „RPM Fusion Free“ је додата вашем систему да се (1) укључи "
-"стварање сличица за широки опсег видео формата, (2) да се укључи подршка за "
-"„HEIC / HEIF“ формат слике."
-
-#: ../install.py:658 ../install.py:4285
-msgid "Installer not found:"
-msgstr "Нисам нашао инсталера:"
-
-#. Translators: do not translate the term tar.gz
-#: ../install.py:662 ../install.py:4289
-msgid "Installer not in tar.gz format:"
-msgstr "Инсталер није у „tar.gz“ запису:"
-
-#: ../install.py:733 ../install.py:762 ../install.py:4165 ../install.py:4170
-msgid "Exiting..."
-msgstr "Излазим..."
-
-#: ../install.py:982
-msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
-msgstr "Наведено „PyQt5“ издање не постоји. Исправна издања су: {}."
-
-#: ../install.py:1068
-msgid "{} will be upgraded from version {} to version {}"
-msgstr "{} биће надограђено са издања {} на издање {}"
-
-#. Translators: "not system-wide" in this context means "not for the entire system"
-#: ../install.py:1351 ../install.py:4245
-msgid ""
-"These Python3 packages will be upgraded for your user (i.e. not system-"
-"wide): {}"
-msgstr ""
-"Пакети Питона3 биће надограђени за вашег корисника (тј. нису свеопште "
-"системски): {}"
-
-#: ../install.py:1456
-#, python-brace-format
-msgid ""
-"Incorrect folder ownership detected. Changing ownership of and resetting "
-"permissions for {file_system_path}."
-msgstr ""
-"Откривено је погрешно власништво фасцикле. Мењам власништво и враћам "
-"овлашћења за „{file_system_path}“."
-
-#: ../install.py:1599
-msgid "The following command will be run:"
-msgstr "Биће покренута следећа наредба:"
-
-#. Translators: do not translate the term sudo
-#: ../install.py:1603 ../install.py:3789 ../install.py:3796
-msgid "sudo may prompt you for the sudo password."
-msgstr "„sudo“ вам може поставити упит за судо лозинку."
-
-#: ../install.py:1607
-msgid "Would you like to run the command now?"
-msgstr "Да ли желите сада да покренете наредбу?"
-
-#: ../install.py:1609
-msgid "Answer is not yes, exiting."
-msgstr "Одговор није позитиван, излазим."
-
-#: ../install.py:1620 ../install.py:2215 ../install.py:2274 ../install.py:2749
-msgid "Command failed"
-msgstr "Наредба није успела"
-
-#: ../install.py:1622 ../install.py:2216 ../install.py:2275 ../install.py:2750
-msgid "Exiting"
-msgstr "Излазим"
-
-#: ../install.py:1650
-msgid "The Universe repository must be enabled."
-msgstr "Ризница универзума мора бити укључена."
-
-#. Translators: do not translate the term EPEL
-#: ../install.py:1690
-msgid "The EPEL repository must be enabled."
-msgstr "Ризница „EPEL“ мора бити укључена."
-
-#. Translators: do not translate the term RPM Fusion Free
-#: ../install.py:1738
-msgid "The RPM Fusion Free repository must be enabled."
-msgstr "Ризница „RPM Fusion Free“ мора бити укључена."
-
-#: ../install.py:1779
-msgid ""
-"Do you want to to uninstall the previous version of Rapid Photo Downloader?"
-msgstr ""
-"Да ли желите да дизинсталирате претходно издање Брзог преносиоца фотографија?"
-
-#: ../install.py:2193 ../install.py:2223 ../install.py:2255
-msgid ""
-"Querying package system to see if an older version of Rapid Photo Downloader "
-"is installed (this may take a while)..."
-msgstr ""
-"Пропитујем систем пакета да видим да ли је инсталирано старије издање Брзог "
-"преносиоца фотографија (ово може потрајати)..."
-
-#: ../install.py:2208
-msgid "Uninstalling system package"
-msgstr "Уклањам системски пакет"
-
-#: ../install.py:2233
-msgid ""
-"Unable to query package system. Please check your Internet connection and "
-"try again."
-msgstr ""
-"Не могу да пропитам систем пакета. Проверите вашу Интернет везу и покушајте "
-"поново."
-
-#. Translators: do not translate the term pip
-#: ../install.py:2280
-msgid "Checking if previous version installed with pip..."
-msgstr "Проверавам да ли је претходно издање инсталирано „pip“-ом..."
-
-#: ../install.py:2433 ../install.py:2490 ../install.py:2606
-msgid "The following package is unknown on your system: {}\n"
-msgstr "Следећи пакет није познат на вашем систему: {}\n"
-
-#: ../install.py:2504 ../install.py:2662 ../install.py:2759
-msgid ""
-"To continue, some packages required to run the application will be installed."
-msgstr ""
-"За наставак, неки пакети потребни за покретање програма биће инсталирани."
-
-#: ../install.py:2598 ../install.py:2619
-msgid "Querying installed and available packages (this may take a while)"
-msgstr "Пропитујем инсталиране и доступне пакете (ово може потрајати)"
-
-#: ../install.py:2741
-msgid ""
-"Querying zypper to see if any required packages are already installed (this "
-"may take a while)... "
-msgstr ""
-"Пропитујем „zypper“ да видим да ли је неки од потребних пакета већ "
-"инсталиран (ово може да потраје)... "
-
-#: ../install.py:2808
-msgid "Query to confirm action at each step."
-msgstr "Пропитај за потврђивање радње при сваком кораку."
-
-#: ../install.py:2818
-msgid ""
-"When downloading the latest version, install the development version if it "
-"is newer than the stable version."
-msgstr ""
-"Приликом преузимања последњег издања, инсталирај развојно издање ако је "
-"новије од стабилног издања."
-
-#: ../install.py:2829
-msgid ""
-"Optional tar.gz Rapid Photo Downloader installer archive. If not specified, "
-"the latest version is downloaded from the Internet."
-msgstr ""
-"Опционална „tar.gz“ архива инсталера Брзог преносника фотографија. Ако није "
-"наведено, последње издање се преузима са Интернета."
-
-#: ../install.py:2879
-msgid ""
-"Do not run the installer in the tar.gz Rapid Photo Downloader installer "
-"archive if it is newer than this version ({}). The default is to run "
-"whichever installer is newer."
-msgstr ""
-"Не покрећи инсталера у „tar.gz“ архиви инсталера Брзог преносника "
-"фотографија ако је новије од тог издања ({}). Подразумева се покретање "
-"новијег инсталера."
-
-#: ../install.py:2887
-msgid ""
-"Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
-"dependencies."
-msgstr ""
-"Уклони Брзог преносника фотографија који је инсталиран пип-ом, задржавајући "
-"његове зависности."
-
-#: ../install.py:2893
-msgid ""
-"Uninstall the dependencies installed by pip during Rapid Photo Downloader's "
-"installation, and Rapid Photo Downloader itself, then exit."
-msgstr ""
-"Уклони зависности инсталиране пип-ом приликом инсталације Брзог преносника "
-"фотографија, и њега самог, затим изађи."
-
-#: ../install.py:2898
-msgid ""
-"Note: this will not uninstall any version of Rapid Photo Downloader "
-"installed by your Linux distribution's package manager."
-msgstr ""
-"Напомена: ово неће уклонити ниједно издање Брзог преносника фотографија "
-"инсталираног управником пакета ваше Линукс дистрибуције."
-
-#: ../install.py:2906
-msgid ""
-"Dependencies will only be removed if they are not required by other programs."
-msgstr "Зависности ће бити уклоњене само ако их други програми не захтевају."
-
-#: ../install.py:2914
-msgid ""
-"Note: this option will remove the dependencies regardless of whether they "
-"are required by another program pip has installed. Upgrade to pip 9.0 or "
-"above if you want to avoid this behavior. You can do so using the command "
-"'python3 -m pip install pip -U --user'. Also note that any version of Rapid "
-"Photo Downloader installed by your Linux distribution's package manager will "
-"not be uninstalled."
-msgstr ""
-"Напомена: ова опција ће уклонити зависности без обзира да ли их захтева неки "
-"други програм инсталиран пип-ом. Надоградите на „pip 9.0“ или новије ако "
-"желите да избегнете ово понашање. То можете урадити помоћу наредбе „python3 -"
-"m pip install pip -U --user“. Знајте такође да било које издање Брзог "
-"преносника фотографија које је инсталирао управник пакета ваше Линукс "
-"дистрибуције неће бити уклоњено."
-
-#: ../install.py:2938
-msgid ""
-"Install in current Python virtual environment. Virtual environments created "
-"with the --system-site-packages option are not supported."
-msgstr ""
-"Инсталира текуће виртуелно окружење Питона. Виртуелна окружења створена "
-"опцијом „--system-site-packages“ нису подржана."
-
-#: ../install.py:2956
-msgid ""
-"Specific version of PyQt5 to install (default is the most recent version{})."
-msgstr ""
-"Специфично издање „PyQt5“ за инсталирање (подразумева се најновије издање{})."
-
-#: ../install.py:2967
-msgid ""
-"Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
-"Uninstalls any PyPi versions already installed."
-msgstr ""
-"Уместо да користи „PyQt5“ из „PyPi“-ја, користи издање ваше Линукс "
-"дистрибуције. Уклања сва „PyPi“ издања већ инсталирана."
-
-#: ../install.py:3004
-msgid "Failed to download versions file."
-msgstr "Нисам успео да преузмем датотеку издања."
-
-#: ../install.py:3009
-msgid "Got error code {} while accessing versions file"
-msgstr "Добих код грешке {} приликом приступа датотеци издања"
-
-#: ../install.py:3126
-msgid ""
-"Sorry, could not locate installer. Please check your Internet connection and "
-"verify if you can reach https://www.damonlynch.net\n"
-"\n"
-"Exiting.\n"
-msgstr ""
-"Извините, не могу да нађем инсталера. Проверите вашу Интернет везу и да ли "
-"можете отворити страницу „https://www.damonlynch.net“\n"
-"\n"
-"Излазим.\n"
-
-#: ../install.py:3280
-msgid ""
-"Package {} failed to install but Rapid Photo Downloader installation will "
-"continue."
-msgstr ""
-"Пакет „{}“ није успео да се инсталира али ће се инсталација програма "
-"наставити."
-
-#: ../install.py:3286
-msgid "Received error code"
-msgstr "Примих код грешке"
-
-#: ../install.py:3288
-msgid "Failed to install application requirements: exiting."
-msgstr "Нисам успео да инсталирам потрепштине програма: излазим."
-
-#: ../install.py:3290
-msgid "Failed to install application: exiting..."
-msgstr "Нисам успео да инсталирам програм: излазим..."
-
-#: ../install.py:3614
-msgid "Installing application requirements..."
-msgstr "Инсталирам потрепштине програма..."
-
-#: ../install.py:3648
-msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
-msgstr "Подршка система за стварање „HEIF / HEIC“ сличица није доступно"
-
-#: ../install.py:3665
-msgid "Installing application..."
-msgstr "Инсталирам програм..."
-
-#: ../install.py:3752
-msgid "Do you want Rapid Photo Downloader to appear in the Windows menu?"
-msgstr ""
-
-#: ../install.py:3758
-msgid "Adding Rapid Photo Downloader to the Windows menu"
-msgstr ""
-
-#: ../install.py:3768
-msgid "Failed to copy application launcher."
-msgstr ""
-
-#: ../install.py:3779
-msgid "Man pages can be found in {}/share/man/man1"
-msgstr "Странице упутства можете наћи у „{}/share/man/man1“"
-
-#: ../install.py:3784
-msgid "Do you want to install the application's man pages?"
-msgstr "Да ли желите да инсталирате странице упутства програма?"
-
-#: ../install.py:3785
-msgid "They will be installed into {}"
-msgstr "Биће инсталиране у „{}“"
-
-#: ../install.py:3787 ../install.py:3794
-msgid "If you uninstall the application, remove these manpages yourself."
-msgstr "Ако дизинсталирате програм, сами уклоните ове странице упутства."
-
-#: ../install.py:3790
-msgid "Do want to install the man pages?"
-msgstr "Да ли желите да инсталирате упутство?"
-
-#: ../install.py:3792
-msgid "Installing man pages into {}"
-msgstr "Инсталирам странице упутства у „{}“"
-
-#: ../install.py:3810
-msgid "Failed to create man page directory: exiting."
-msgstr "Нисам успео да направим директоријум странице упутства: одлазим."
-
-#: ../install.py:3831
-msgid "Failed to copy man page."
-msgstr "Нисам успео да умножим страницу упутства."
-
-#: ../install.py:3870
-msgid ""
-"Rapid Photo Downloader can be started without activating the virtual "
-"environment by running {}/bin/rapid-photo-downloader"
-msgstr ""
-"Брзи преносник фотографија се може покренути без активирања виртуелног "
-"окружења покретањем наредбе „{}/bin/rapid-photo-downloader“"
-
-#: ../install.py:3883
-msgid ""
-"You may have to restart the computer to be able to run the program from the "
-"command line or application launcher."
-msgstr ""
-"Можда ћете морати поново да покренете рачунар да бисте били у могућности да "
-"покренете програм из линије наредби или из покретача програма."
-
-#: ../install.py:3889
-msgid ""
-"You may have to restart WSL to be able to run the program from the command "
-"line."
-msgstr ""
-
-#: ../install.py:3899
-#, python-brace-format
-msgid ""
-"You must add {path} to your computer's $PATH variable to run the program "
-"from the command line."
-msgstr ""
-
-#: ../install.py:3904
-#, python-brace-format
-msgid ""
-"You must add {path} to your computer's $PATH variable to run the program "
-"from the command line or application launcher."
-msgstr ""
-"Морате да додате „{path}“ променљивој „$PATH“ вашег рачунара да бисте "
-"покренули програм из линије наредби или из покретача програма."
-
-#: ../install.py:3926
-msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
-msgstr ""
-"(Ако дође до неуспеха сегментације на изласку, можете је занемарити...)"
-
-#: ../install.py:3928
-msgid "Done."
-msgstr ""
-
-#: ../install.py:3942
-msgid ""
-"The python3 tool pip is required to uninstall a version of Rapid Photo "
-"Downloader that was installed with pip.\n"
-"Cannot continue. Exiting."
-msgstr ""
-"Потребан је „python3 tool pip“ за уклањање издања Брзог преносника "
-"фотографија који је инсталиран пип-ом.\n"
-"Не могу да наставим. Излазим."
-
-#: ../install.py:3998
-msgid ""
-"Do not run this installer script as sudo / root user.\n"
-"Run it using the user who will run the program.\n"
-msgstr ""
-"Не покрећите ову скрипту инсталера као администратор.\n"
-"Покрените је као корисник који ће покретати програм.\n"
-
-#. Translators: do not translate the terms --PyQt5-version or --use-system-PyQt5
-#: ../install.py:4010
-msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
-msgstr "Наведите само „--PyQt5-version“ или „--use-system-PyQt5“."
-
-#: ../install.py:4022
-msgid ""
-"Sorry, specifying a specific version of PyQt5 requires Python 3.5 or newer "
-"on an Intel or AMD 64 bit platform."
-msgstr ""
-"Извините, навођење специфичног издања „PyQt5“ захтева „Python 3.5“ или "
-"новије на Интеловој или АМД 64-битној платформи."
-
-#. Translators: do not translate the term PyQt5
-#: ../install.py:4036
-msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
-msgstr "Наведите „PyQt5“ издање у облику „X.X“ или „X.X.X“"
-
-#: ../install.py:4052
-msgid ""
-"Do you want to install Rapid Photo Downloader into the current virtual "
-"environment?"
-msgstr ""
-"Да ли желите да инсталирате Брзог преносника фотографија у текуће виртуелно "
-"окружење?"
-
-#: ../install.py:4066
-msgid ""
-"Sorry, installing Rapid Photo Downloader into a Python virtual environment "
-"requires Python 3.5 or newer on an Intel or AMD 64 bit platform."
-msgstr ""
-"Извините, инсталирање Брзог преносника фотографија у Питоновим виртуелном "
-"окружењу захтева „Python 3.5“ или новије на Интеловој или АМД 64-битној "
-"платформи."
-
-#: ../install.py:4079
-msgid ""
-"To install Rapid Photo Downloader into a Python virtual environment, create "
-"and activate the virtual environment before starting this script."
-msgstr ""
-"Да инсталирате Брзог преносника фотографија у Питоново виртуелно окружење, "
-"направите и активирајте виртуелно окружење пре покретања ове скрипте."
-
-#: ../install.py:4089
-msgid "Using virtual environment for installation using pip."
-msgstr "Користим виртуелно окружење за инсталацију коришћењем пип-а."
-
-#: ../install.py:4094 ../install.py:4108
-msgid "Do not include any other command line arguments when specifying"
-msgstr "Не укључује никакве друге аргументе линијенаредби приликом навођења"
-
-#: ../install.py:4127
-msgid ""
-"Sorry, this installer does not support a custom python installation.\n"
-"Exiting..."
-msgstr ""
-"Извините, овај инсталер не подржава произвољну инсталацију питона.\n"
-"Излазим..."
-
-#: ../install.py:4135
-msgid "Restarting script using system python..."
-msgstr "Поново покрећем скрипту користећи питона система..."
-
-#: ../install.py:4148
-msgid "Detected Linux distribution {} {}"
-msgstr "Откривена Линукс дистрибуција је „{} {}“"
-
-#: ../install.py:4186
-msgid "To continue, the package python3-apt must be installed."
-msgstr "За наставак, пакет „python3-apt“ мора бити инсталиран."
-
-#: ../install.py:4218
-msgid ""
-"Install the following packages using your Linux distribution's standard "
-"package manager, and then rerun this installer:"
-msgstr ""
-"Инсталирајте следеће пакете користећи стандардног управника пакета ваше "
-"Линукс дистрибуције, и онда поново покрените овај инсталер:"
-
-#: ../install.py:4230
-msgid ""
-"To run this program, programs to assist Python 3 and its package management "
-"must be installed."
-msgstr ""
-"Да покренете овај програм, програми за испомоћ Питону 3 и његовом управнику "
-"пакета морају бити инсталирани."
-
-#. Translators: do not translate the term python or requests
-#: ../install.py:4279
-msgid "Installing python requests"
-msgstr "Инсталирам „python requests“"
 
 #: ../raphodo/ui/aboutdialog.py:335
 msgid "Credits"
@@ -5606,6 +5098,405 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Преузмите фотографије и снимке са Брзим преносиоцем фотографија"
+
+#~ msgid ""
+#~ "To continue, please first install the python3 package setuptools using "
+#~ "your system's package manager."
+#~ msgstr ""
+#~ "Да наставите, прво инсталирајте алате подешавања пакета „python3“ "
+#~ "користећи управника пакета вашег система."
+
+#~ msgid "Rapid Photo Downloader installer"
+#~ msgstr "Инсталер Брзог преносиоца фотографија"
+
+#~ msgid "Download and install latest version of Rapid Photo Downloader."
+#~ msgstr ""
+#~ "Преузмите и инсталирајте најновије издање Брзог преносиоца фотографија."
+
+#~ msgid ""
+#~ "The software repository RPM Fusion Free was added to your system to (1) "
+#~ "enable generating thumbnails for a wider range of video formats, and (2) "
+#~ "enable support for the HEIC / HEIF image format."
+#~ msgstr ""
+#~ "Ризница софтвера „RPM Fusion Free“ је додата вашем систему да се (1) "
+#~ "укључи стварање сличица за широки опсег видео формата, (2) да се укључи "
+#~ "подршка за „HEIC / HEIF“ формат слике."
+
+#~ msgid "Installer not found:"
+#~ msgstr "Нисам нашао инсталера:"
+
+#~ msgid "Installer not in tar.gz format:"
+#~ msgstr "Инсталер није у „tar.gz“ запису:"
+
+#~ msgid "Exiting..."
+#~ msgstr "Излазим..."
+
+#~ msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
+#~ msgstr "Наведено „PyQt5“ издање не постоји. Исправна издања су: {}."
+
+#~ msgid "{} will be upgraded from version {} to version {}"
+#~ msgstr "{} биће надограђено са издања {} на издање {}"
+
+#~ msgid ""
+#~ "These Python3 packages will be upgraded for your user (i.e. not system-"
+#~ "wide): {}"
+#~ msgstr ""
+#~ "Пакети Питона3 биће надограђени за вашег корисника (тј. нису свеопште "
+#~ "системски): {}"
+
+#, python-brace-format
+#~ msgid ""
+#~ "Incorrect folder ownership detected. Changing ownership of and resetting "
+#~ "permissions for {file_system_path}."
+#~ msgstr ""
+#~ "Откривено је погрешно власништво фасцикле. Мењам власништво и враћам "
+#~ "овлашћења за „{file_system_path}“."
+
+#~ msgid "The following command will be run:"
+#~ msgstr "Биће покренута следећа наредба:"
+
+#~ msgid "sudo may prompt you for the sudo password."
+#~ msgstr "„sudo“ вам може поставити упит за судо лозинку."
+
+#~ msgid "Would you like to run the command now?"
+#~ msgstr "Да ли желите сада да покренете наредбу?"
+
+#~ msgid "Answer is not yes, exiting."
+#~ msgstr "Одговор није позитиван, излазим."
+
+#~ msgid "Command failed"
+#~ msgstr "Наредба није успела"
+
+#~ msgid "Exiting"
+#~ msgstr "Излазим"
+
+#~ msgid "The Universe repository must be enabled."
+#~ msgstr "Ризница универзума мора бити укључена."
+
+#~ msgid "The EPEL repository must be enabled."
+#~ msgstr "Ризница „EPEL“ мора бити укључена."
+
+#~ msgid "The RPM Fusion Free repository must be enabled."
+#~ msgstr "Ризница „RPM Fusion Free“ мора бити укључена."
+
+#~ msgid ""
+#~ "Do you want to to uninstall the previous version of Rapid Photo "
+#~ "Downloader?"
+#~ msgstr ""
+#~ "Да ли желите да дизинсталирате претходно издање Брзог преносиоца "
+#~ "фотографија?"
+
+#~ msgid ""
+#~ "Querying package system to see if an older version of Rapid Photo "
+#~ "Downloader is installed (this may take a while)..."
+#~ msgstr ""
+#~ "Пропитујем систем пакета да видим да ли је инсталирано старије издање "
+#~ "Брзог преносиоца фотографија (ово може потрајати)..."
+
+#~ msgid "Uninstalling system package"
+#~ msgstr "Уклањам системски пакет"
+
+#~ msgid ""
+#~ "Unable to query package system. Please check your Internet connection and "
+#~ "try again."
+#~ msgstr ""
+#~ "Не могу да пропитам систем пакета. Проверите вашу Интернет везу и "
+#~ "покушајте поново."
+
+#~ msgid "Checking if previous version installed with pip..."
+#~ msgstr "Проверавам да ли је претходно издање инсталирано „pip“-ом..."
+
+#~ msgid "The following package is unknown on your system: {}\n"
+#~ msgstr "Следећи пакет није познат на вашем систему: {}\n"
+
+#~ msgid ""
+#~ "To continue, some packages required to run the application will be "
+#~ "installed."
+#~ msgstr ""
+#~ "За наставак, неки пакети потребни за покретање програма биће инсталирани."
+
+#~ msgid "Querying installed and available packages (this may take a while)"
+#~ msgstr "Пропитујем инсталиране и доступне пакете (ово може потрајати)"
+
+#~ msgid ""
+#~ "Querying zypper to see if any required packages are already installed "
+#~ "(this may take a while)... "
+#~ msgstr ""
+#~ "Пропитујем „zypper“ да видим да ли је неки од потребних пакета већ "
+#~ "инсталиран (ово може да потраје)... "
+
+#~ msgid "Query to confirm action at each step."
+#~ msgstr "Пропитај за потврђивање радње при сваком кораку."
+
+#~ msgid ""
+#~ "When downloading the latest version, install the development version if "
+#~ "it is newer than the stable version."
+#~ msgstr ""
+#~ "Приликом преузимања последњег издања, инсталирај развојно издање ако је "
+#~ "новије од стабилног издања."
+
+#~ msgid ""
+#~ "Optional tar.gz Rapid Photo Downloader installer archive. If not "
+#~ "specified, the latest version is downloaded from the Internet."
+#~ msgstr ""
+#~ "Опционална „tar.gz“ архива инсталера Брзог преносника фотографија. Ако "
+#~ "није наведено, последње издање се преузима са Интернета."
+
+#~ msgid ""
+#~ "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
+#~ "archive if it is newer than this version ({}). The default is to run "
+#~ "whichever installer is newer."
+#~ msgstr ""
+#~ "Не покрећи инсталера у „tar.gz“ архиви инсталера Брзог преносника "
+#~ "фотографија ако је новије од тог издања ({}). Подразумева се покретање "
+#~ "новијег инсталера."
+
+#~ msgid ""
+#~ "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
+#~ "dependencies."
+#~ msgstr ""
+#~ "Уклони Брзог преносника фотографија који је инсталиран пип-ом, "
+#~ "задржавајући његове зависности."
+
+#~ msgid ""
+#~ "Uninstall the dependencies installed by pip during Rapid Photo "
+#~ "Downloader's installation, and Rapid Photo Downloader itself, then exit."
+#~ msgstr ""
+#~ "Уклони зависности инсталиране пип-ом приликом инсталације Брзог "
+#~ "преносника фотографија, и њега самог, затим изађи."
+
+#~ msgid ""
+#~ "Note: this will not uninstall any version of Rapid Photo Downloader "
+#~ "installed by your Linux distribution's package manager."
+#~ msgstr ""
+#~ "Напомена: ово неће уклонити ниједно издање Брзог преносника фотографија "
+#~ "инсталираног управником пакета ваше Линукс дистрибуције."
+
+#~ msgid ""
+#~ "Dependencies will only be removed if they are not required by other "
+#~ "programs."
+#~ msgstr ""
+#~ "Зависности ће бити уклоњене само ако их други програми не захтевају."
+
+#~ msgid ""
+#~ "Note: this option will remove the dependencies regardless of whether they "
+#~ "are required by another program pip has installed. Upgrade to pip 9.0 or "
+#~ "above if you want to avoid this behavior. You can do so using the command "
+#~ "'python3 -m pip install pip -U --user'. Also note that any version of "
+#~ "Rapid Photo Downloader installed by your Linux distribution's package "
+#~ "manager will not be uninstalled."
+#~ msgstr ""
+#~ "Напомена: ова опција ће уклонити зависности без обзира да ли их захтева "
+#~ "неки други програм инсталиран пип-ом. Надоградите на „pip 9.0“ или новије "
+#~ "ако желите да избегнете ово понашање. То можете урадити помоћу наредбе "
+#~ "„python3 -m pip install pip -U --user“. Знајте такође да било које издање "
+#~ "Брзог преносника фотографија које је инсталирао управник пакета ваше "
+#~ "Линукс дистрибуције неће бити уклоњено."
+
+#~ msgid ""
+#~ "Install in current Python virtual environment. Virtual environments "
+#~ "created with the --system-site-packages option are not supported."
+#~ msgstr ""
+#~ "Инсталира текуће виртуелно окружење Питона. Виртуелна окружења створена "
+#~ "опцијом „--system-site-packages“ нису подржана."
+
+#~ msgid ""
+#~ "Specific version of PyQt5 to install (default is the most recent "
+#~ "version{})."
+#~ msgstr ""
+#~ "Специфично издање „PyQt5“ за инсталирање (подразумева се најновије "
+#~ "издање{})."
+
+#~ msgid ""
+#~ "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
+#~ "Uninstalls any PyPi versions already installed."
+#~ msgstr ""
+#~ "Уместо да користи „PyQt5“ из „PyPi“-ја, користи издање ваше Линукс "
+#~ "дистрибуције. Уклања сва „PyPi“ издања већ инсталирана."
+
+#~ msgid "Failed to download versions file."
+#~ msgstr "Нисам успео да преузмем датотеку издања."
+
+#~ msgid "Got error code {} while accessing versions file"
+#~ msgstr "Добих код грешке {} приликом приступа датотеци издања"
+
+#~ msgid ""
+#~ "Sorry, could not locate installer. Please check your Internet connection "
+#~ "and verify if you can reach https://www.damonlynch.net\n"
+#~ "\n"
+#~ "Exiting.\n"
+#~ msgstr ""
+#~ "Извините, не могу да нађем инсталера. Проверите вашу Интернет везу и да "
+#~ "ли можете отворити страницу „https://www.damonlynch.net“\n"
+#~ "\n"
+#~ "Излазим.\n"
+
+#~ msgid ""
+#~ "Package {} failed to install but Rapid Photo Downloader installation will "
+#~ "continue."
+#~ msgstr ""
+#~ "Пакет „{}“ није успео да се инсталира али ће се инсталација програма "
+#~ "наставити."
+
+#~ msgid "Received error code"
+#~ msgstr "Примих код грешке"
+
+#~ msgid "Failed to install application requirements: exiting."
+#~ msgstr "Нисам успео да инсталирам потрепштине програма: излазим."
+
+#~ msgid "Failed to install application: exiting..."
+#~ msgstr "Нисам успео да инсталирам програм: излазим..."
+
+#~ msgid "Installing application requirements..."
+#~ msgstr "Инсталирам потрепштине програма..."
+
+#~ msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
+#~ msgstr "Подршка система за стварање „HEIF / HEIC“ сличица није доступно"
+
+#~ msgid "Installing application..."
+#~ msgstr "Инсталирам програм..."
+
+#~ msgid "Man pages can be found in {}/share/man/man1"
+#~ msgstr "Странице упутства можете наћи у „{}/share/man/man1“"
+
+#~ msgid "Do you want to install the application's man pages?"
+#~ msgstr "Да ли желите да инсталирате странице упутства програма?"
+
+#~ msgid "They will be installed into {}"
+#~ msgstr "Биће инсталиране у „{}“"
+
+#~ msgid "If you uninstall the application, remove these manpages yourself."
+#~ msgstr "Ако дизинсталирате програм, сами уклоните ове странице упутства."
+
+#~ msgid "Do want to install the man pages?"
+#~ msgstr "Да ли желите да инсталирате упутство?"
+
+#~ msgid "Installing man pages into {}"
+#~ msgstr "Инсталирам странице упутства у „{}“"
+
+#~ msgid "Failed to create man page directory: exiting."
+#~ msgstr "Нисам успео да направим директоријум странице упутства: одлазим."
+
+#~ msgid "Failed to copy man page."
+#~ msgstr "Нисам успео да умножим страницу упутства."
+
+#~ msgid ""
+#~ "Rapid Photo Downloader can be started without activating the virtual "
+#~ "environment by running {}/bin/rapid-photo-downloader"
+#~ msgstr ""
+#~ "Брзи преносник фотографија се може покренути без активирања виртуелног "
+#~ "окружења покретањем наредбе „{}/bin/rapid-photo-downloader“"
+
+#~ msgid ""
+#~ "You may have to restart the computer to be able to run the program from "
+#~ "the command line or application launcher."
+#~ msgstr ""
+#~ "Можда ћете морати поново да покренете рачунар да бисте били у могућности "
+#~ "да покренете програм из линије наредби или из покретача програма."
+
+#, python-brace-format
+#~ msgid ""
+#~ "You must add {path} to your computer's $PATH variable to run the program "
+#~ "from the command line or application launcher."
+#~ msgstr ""
+#~ "Морате да додате „{path}“ променљивој „$PATH“ вашег рачунара да бисте "
+#~ "покренули програм из линије наредби или из покретача програма."
+
+#~ msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
+#~ msgstr ""
+#~ "(Ако дође до неуспеха сегментације на изласку, можете је занемарити...)"
+
+#~ msgid ""
+#~ "The python3 tool pip is required to uninstall a version of Rapid Photo "
+#~ "Downloader that was installed with pip.\n"
+#~ "Cannot continue. Exiting."
+#~ msgstr ""
+#~ "Потребан је „python3 tool pip“ за уклањање издања Брзог преносника "
+#~ "фотографија који је инсталиран пип-ом.\n"
+#~ "Не могу да наставим. Излазим."
+
+#~ msgid ""
+#~ "Do not run this installer script as sudo / root user.\n"
+#~ "Run it using the user who will run the program.\n"
+#~ msgstr ""
+#~ "Не покрећите ову скрипту инсталера као администратор.\n"
+#~ "Покрените је као корисник који ће покретати програм.\n"
+
+#~ msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
+#~ msgstr "Наведите само „--PyQt5-version“ или „--use-system-PyQt5“."
+
+#~ msgid ""
+#~ "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or "
+#~ "newer on an Intel or AMD 64 bit platform."
+#~ msgstr ""
+#~ "Извините, навођење специфичног издања „PyQt5“ захтева „Python 3.5“ или "
+#~ "новије на Интеловој или АМД 64-битној платформи."
+
+#~ msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
+#~ msgstr "Наведите „PyQt5“ издање у облику „X.X“ или „X.X.X“"
+
+#~ msgid ""
+#~ "Do you want to install Rapid Photo Downloader into the current virtual "
+#~ "environment?"
+#~ msgstr ""
+#~ "Да ли желите да инсталирате Брзог преносника фотографија у текуће "
+#~ "виртуелно окружење?"
+
+#~ msgid ""
+#~ "Sorry, installing Rapid Photo Downloader into a Python virtual "
+#~ "environment requires Python 3.5 or newer on an Intel or AMD 64 bit "
+#~ "platform."
+#~ msgstr ""
+#~ "Извините, инсталирање Брзог преносника фотографија у Питоновим виртуелном "
+#~ "окружењу захтева „Python 3.5“ или новије на Интеловој или АМД 64-битној "
+#~ "платформи."
+
+#~ msgid ""
+#~ "To install Rapid Photo Downloader into a Python virtual environment, "
+#~ "create and activate the virtual environment before starting this script."
+#~ msgstr ""
+#~ "Да инсталирате Брзог преносника фотографија у Питоново виртуелно "
+#~ "окружење, направите и активирајте виртуелно окружење пре покретања ове "
+#~ "скрипте."
+
+#~ msgid "Using virtual environment for installation using pip."
+#~ msgstr "Користим виртуелно окружење за инсталацију коришћењем пип-а."
+
+#~ msgid "Do not include any other command line arguments when specifying"
+#~ msgstr "Не укључује никакве друге аргументе линијенаредби приликом навођења"
+
+#~ msgid ""
+#~ "Sorry, this installer does not support a custom python installation.\n"
+#~ "Exiting..."
+#~ msgstr ""
+#~ "Извините, овај инсталер не подржава произвољну инсталацију питона.\n"
+#~ "Излазим..."
+
+#~ msgid "Restarting script using system python..."
+#~ msgstr "Поново покрећем скрипту користећи питона система..."
+
+#~ msgid "Detected Linux distribution {} {}"
+#~ msgstr "Откривена Линукс дистрибуција је „{} {}“"
+
+#~ msgid "To continue, the package python3-apt must be installed."
+#~ msgstr "За наставак, пакет „python3-apt“ мора бити инсталиран."
+
+#~ msgid ""
+#~ "Install the following packages using your Linux distribution's standard "
+#~ "package manager, and then rerun this installer:"
+#~ msgstr ""
+#~ "Инсталирајте следеће пакете користећи стандардног управника пакета ваше "
+#~ "Линукс дистрибуције, и онда поново покрените овај инсталер:"
+
+#~ msgid ""
+#~ "To run this program, programs to assist Python 3 and its package "
+#~ "management must be installed."
+#~ msgstr ""
+#~ "Да покренете овај програм, програми за испомоћ Питону 3 и његовом "
+#~ "управнику пакета морају бити инсталирани."
+
+#~ msgid "Installing python requests"
+#~ msgstr "Инсталирам „python requests“"
 
 #~ msgid "Upgrade Rapid Photo Downloader"
 #~ msgstr "Надоградите Брзог преносиоца фотографија"
