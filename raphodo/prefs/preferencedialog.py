@@ -106,8 +106,8 @@ class ClickableLabel(QLabel):
         self.clicked.emit()
 
 
-consolidation_implemented = False
-# consolidation_implemented = True
+CONSOLIDATION_IMPLEMENTED = False
+FORCE_EXIFTOOL_VIDEO_IMPLEMENTED = False
 
 system_language = "SYSTEM"
 
@@ -150,7 +150,7 @@ class PreferencesDialog(QDialog):
         palette = QPalette()
         selectedColour = palette.color(palette.HighlightedText)
 
-        if consolidation_implemented:
+        if CONSOLIDATION_IMPLEMENTED:
             self.chooser_items = (
                 _("Devices"),
                 _("Language"),
@@ -816,7 +816,7 @@ class PreferencesDialog(QDialog):
         warningLayout.addStretch()
         warningLayout.setContentsMargins(0, 0, 0, 0)
 
-        if consolidation_implemented:
+        if CONSOLIDATION_IMPLEMENTED:
             self.consolidationBox = QGroupBox(_("Photo and Video Consolidation"))
 
             self.consolidateIdentical = QCheckBox(
@@ -922,7 +922,7 @@ class PreferencesDialog(QDialog):
         )
         self.promptCompletedDownloads.setToolTip(tip)
 
-        if consolidation_implemented:
+        if CONSOLIDATION_IMPLEMENTED:
             consolidationBoxLayout = QGridLayout()
             consolidationBoxLayout.addWidget(self.consolidateIdentical, 0, 0, 1, 3)
 
@@ -1016,10 +1016,11 @@ class PreferencesDialog(QDialog):
         metadataLayout = QVBoxLayout()
         metadataLayout.addWidget(self.ignoreMdatatimeMtpDng)
         metadataLayout.addWidget(self.forceExiftool)
-        metadataLayout.addWidget(self.forceExiftoolVideo)
+        if FORCE_EXIFTOOL_VIDEO_IMPLEMENTED:
+            metadataLayout.addWidget(self.forceExiftoolVideo)
         self.metadataBox.setLayout(metadataLayout)
 
-        if not consolidation_implemented:
+        if not CONSOLIDATION_IMPLEMENTED:
             self.completedDownloadsBox = QGroupBox(_("Completed Downloads"))
             completedDownloadsLayout = QVBoxLayout()
             completedDownloadsLayout.addWidget(self.noconsolidationLabel)
@@ -1032,7 +1033,7 @@ class PreferencesDialog(QDialog):
         self.miscWidget = QWidget()
         miscLayout = QVBoxLayout()
         miscLayout.addWidget(self.metadataBox)
-        if not consolidation_implemented:
+        if not CONSOLIDATION_IMPLEMENTED:
             miscLayout.addWidget(self.completedDownloadsBox)
         miscLayout.addStretch()
         miscLayout.setContentsMargins(0, 0, 0, 0)
@@ -1046,7 +1047,7 @@ class PreferencesDialog(QDialog):
         self.panels.addWidget(self.timeZone)
         self.panels.addWidget(self.errorWidget)
         self.panels.addWidget(self.warnings)
-        if consolidation_implemented:
+        if CONSOLIDATION_IMPLEMENTED:
             self.panels.addWidget(self.consolidation)
         self.panels.addWidget(self.miscWidget)
 
@@ -1798,7 +1799,7 @@ class PreferencesDialog(QDialog):
             ):
                 self.prefs.restore(value)
             self.setWarningValues()
-        elif row == 7 and consolidation_implemented:
+        elif row == 7 and CONSOLIDATION_IMPLEMENTED:
             for value in (
                 "completed_downloads",
                 "consolidate_identical",
@@ -1808,8 +1809,8 @@ class PreferencesDialog(QDialog):
             ):
                 self.prefs.restore(value)
             self.setConsolidatedValues()
-        elif (row == 8 and consolidation_implemented) or (
-            row == 7 and not consolidation_implemented
+        elif (row == 8 and CONSOLIDATION_IMPLEMENTED) or (
+            row == 7 and not CONSOLIDATION_IMPLEMENTED
         ):
             for value in (
                 "include_development_release",
@@ -1818,10 +1819,10 @@ class PreferencesDialog(QDialog):
                 "force_exiftool_video",
             ):
                 self.prefs.restore(value)
-            if not consolidation_implemented:
+            if not CONSOLIDATION_IMPLEMENTED:
                 self.prefs.restore("completed_downloads")
             self.setMetdataValues()
-            if not consolidation_implemented:
+            if not CONSOLIDATION_IMPLEMENTED:
                 self.setCompletedDownloadsValues()
 
     @pyqtSlot()
@@ -1842,7 +1843,7 @@ class PreferencesDialog(QDialog):
         elif row == 6:
             location = "#warningpreferences"
         elif row == 7:
-            if consolidation_implemented:
+            if CONSOLIDATION_IMPLEMENTED:
                 location = "#consolidationpreferences"
             else:
                 location = "#miscellaneousnpreferences"
