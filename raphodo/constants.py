@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2023, Damon Lynch"
+__copyright__ = "Copyright 2007-2024, Damon Lynch"
 
 from enum import Enum, IntEnum, auto
 from PyQt5.QtCore import Qt
@@ -52,13 +52,14 @@ class PresetPrefType(Enum):
 
 
 class PresetClass(Enum):
-    builtin = 1
-    custom = 2
-    new_preset = 3
-    remove_all = 4
-    update_preset = 5
-    edited = 6
-    start_editor = 7
+    builtin = auto()
+    custom = auto()
+    new_preset = auto()
+    remove_all = auto()
+    update_preset = auto()
+    delete_preset = auto()
+    edited = auto()
+    start_editor = auto()
 
 
 class DownloadStatus(Enum):

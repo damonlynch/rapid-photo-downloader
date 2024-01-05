@@ -24,11 +24,12 @@ Dialog for editing download subfolder structure and file renaming
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2023, Damon Lynch"
 
-from typing import Dict, Union, Sequence
-import webbrowser
-import datetime
+from collections import OrderedDict
 import copy
+import datetime
 import logging
+from typing import Union, Sequence
+import webbrowser
 
 
 from PyQt5.QtWidgets import (
@@ -105,8 +106,8 @@ class PrefEditor(QTextEdit):
         super().__init__(parent)
         self.subfolder = subfolder
 
-        self.user_pref_list = []  # type: List[str]
-        self.user_pref_colors = []  # type: List[str]
+        self.user_pref_list = []  # type: list[str]
+        self.user_pref_colors = []  # type: list[str]
 
         self.heightMin = 0
         self.heightMax = 65000
@@ -242,7 +243,7 @@ class PrefEditor(QTextEdit):
 
         super().keyPressEvent(event)
 
-    def locatePrefValue(self, position: int) -> Tuple[PrefPosition, int, int, int, int]:
+    def locatePrefValue(self, position: int) -> tuple[PrefPosition, int, int, int, int]:
         """
         Determine where pref values are relative to the position passed.
 
@@ -327,7 +328,7 @@ class PrefEditor(QTextEdit):
         self.highlighter.blockHighlighted.connect(self.generatePrefList)
 
     def setPrefMapper(
-        self, pref_mapper: Dict[Tuple[str, str, str], str], pref_color: Dict[str, str]
+        self, pref_mapper: dict[tuple[str, str, str], str], pref_color: dict[str, str]
     ) -> None:
         self.pref_mapper = pref_mapper
         self.string_to_pref_mapper = {value: key for key, value in pref_mapper.items()}
@@ -362,8 +363,8 @@ class PrefEditor(QTextEdit):
         text = self.document().toPlainText()
         b = self.highlighter.boundaries
 
-        self.user_pref_list = pl = []  # type: List[str]
-        self.user_pref_colors = []  # type: List[str]
+        self.user_pref_list = pl = []  # type: list[str]
+        self.user_pref_colors = []  # type: list[str]
 
         # Handle any text at the very beginning
         if b and b[0][0] > 0:
@@ -411,8 +412,8 @@ class PrefHighlighter(QSyntaxHighlighter):
 
     def __init__(
         self,
-        pref_defn_strings: List[str],
-        pref_color: Dict[str, str],
+        pref_defn_strings: list[str],
+        pref_color: dict[str, str],
         document: QTextDocument,
     ) -> None:
         super().__init__(document)
@@ -460,7 +461,7 @@ class PrefHighlighter(QSyntaxHighlighter):
         self.blockHighlighted.emit()
 
 
-def make_subfolder_menu_entry(prefs: Tuple[str]) -> str:
+def make_subfolder_menu_entry(prefs: tuple[str]) -> str:
     """
     Create the text for a menu / combobox item
 
@@ -480,7 +481,7 @@ def make_subfolder_menu_entry(prefs: Tuple[str]) -> str:
     )
 
 
-def make_rename_menu_entry(prefs: Tuple[str]) -> str:
+def make_rename_menu_entry(prefs: tuple[str]) -> str:
     """
     Create the text for a menu / combobox item
 
@@ -505,14 +506,14 @@ class PresetComboBox(QComboBox):
     Combox box displaying built-in presets, custom presets,
     and some commands relating to preset management.
 
-    Used in in dialog window used to edit name generation and
+    Used in dialog window used to edit name generation and
     also in the rename files panel.
     """
 
     def __init__(
         self,
         prefs: Preferences,
-        preset_names: List[str],
+        preset_names: list[str],
         preset_type: PresetPrefType,
         edit_mode: bool,
         parent=None,
@@ -549,7 +550,7 @@ class PresetComboBox(QComboBox):
 
         self._setup_entries(preset_names)
 
-    def _setup_entries(self, preset_names: List[str]) -> None:
+    def _setup_entries(self, preset_names: list[str]) -> None:
 
         idx = 0
 
@@ -581,12 +582,15 @@ class PresetComboBox(QComboBox):
 
         if self.edit_mode:
             self.addItem(_("Save New Custom Preset..."), PresetClass.new_preset)
+            if False:
+                self.addItem(_("Remove Custom Preset..."), PresetClass.delete_preset)
+                sample = _('Remove Custom Preset "%s"...') % "New Preset"
             self.addItem(_("Remove All Custom Presets..."), PresetClass.remove_all)
             self.setRemoveAllCustomEnabled(bool(len(preset_names)))
         else:
             self.addItem(_("Custom..."), PresetClass.start_editor)
 
-    def resetEntries(self, preset_names: List[str]) -> None:
+    def resetEntries(self, preset_names: list[str]) -> None:
         assert not self.edit_mode
         self.clear()
         self._setup_entries(preset_names)
@@ -733,7 +737,7 @@ class CreatePreset(QDialog):
     preset name or is empty.
     """
 
-    def __init__(self, existing_custom_names: List[str], parent=None) -> None:
+    def __init__(self, existing_custom_names: list[str], parent=None) -> None:
         super().__init__(parent)
 
         self.existing_custom_names = existing_custom_names
@@ -849,7 +853,7 @@ class PrefDialog(QDialog):
     def __init__(
         self,
         pref_defn: OrderedDict,
-        user_pref_list: List[str],
+        user_pref_list: list[str],
         generation_type: NameGenerationType,
         prefs: Preferences,
         sample_rpd_file: Optional[Union[Photo, Video]] = None,
@@ -1041,9 +1045,9 @@ class PrefDialog(QDialog):
         self.pushButtonSizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         self.mapper = QSignalMapper(self)
-        self.widget_mapper = dict()  # type: Dict[str, Union[QComboBox, QLabel]]
-        self.pref_mapper = dict()  # type: Dict[Tuple[str, str, str], str]
-        self.pref_color = dict()  # type: Dict[str, str]
+        self.widget_mapper = dict()  # type: dict[str, Union[QComboBox, QLabel]]
+        self.pref_mapper = dict()  # type: dict[tuple[str, str, str], str]
+        self.pref_color = dict()  # type: dict[str, str]
 
         titles = [title for title in pref_defn if title not in (TEXT, SEPARATOR)]
         pref_colors = {title: color.value for title, color in zip(titles, CustomColors)}
@@ -1353,7 +1357,7 @@ class PrefDialog(QDialog):
             self.showExample()
         super().resizeEvent(event)
 
-    def getPrefList(self) -> List[str]:
+    def getPrefList(self) -> list[str]:
         """
         :return: the pref list the user has specified
         """
@@ -1393,7 +1397,7 @@ class PrefDialog(QDialog):
         elif preset_class == PresetClass.remove_all:
             message = _(
                 "<b>Remove All Custom Presets</b><br><br>Are you sure you want to "
-                "remove all %(preset_type)s presets?"
+                "remove all %(preset_type)s custom presets?"
             ) % dict(preset_type=self.preset_type_hr)
             msgbox = standardMessageBox(
                 message=message,
@@ -1483,7 +1487,7 @@ class PrefDialog(QDialog):
 
     def clearCustomPresets(self) -> None:
         """
-        Deletes all of the custom presets.
+        Deletes all the custom presets.
 
         Assumes cached self.preset_names and self.preset_pref_lists represent
         current save preferences. Will update these and overwrite the relevant
@@ -1511,10 +1515,10 @@ class PrefDialog(QDialog):
             self.preset_pref_lists
         )
 
-    def getPresetMatch(self) -> Tuple[int, int]:
+    def getPresetMatch(self) -> tuple[int, int]:
         """
-        :return: Tuple of the Preset combobox index and the combined pref/name list index,
-        if the current user pref list matches an entry in it. Else Tuple of (-1, -1).
+        :return: tuple of the Preset combobox index and the combined pref/name list index,
+        if the current user pref list matches an entry in it. Else tuple of (-1, -1).
         """
 
         index = match_pref_list(

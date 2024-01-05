@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2024-01-04 16:18+1300\n"
+"POT-Creation-Date: 2024-01-06 10:13+1300\n"
 "PO-Revision-Date: 2022-03-02 08:30+0000\n"
 "Last-Translator: Evgeny Kozlov <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -78,7 +78,7 @@ msgstr "Имя папки для фото:"
 msgid "Video folder name:"
 msgstr "Имя папки для видео:"
 
-#: ../raphodo/ui/backuppanel.py:510 ../raphodo/ui/nameeditor.py:1006
+#: ../raphodo/ui/backuppanel.py:510 ../raphodo/ui/nameeditor.py:1010
 #: ../raphodo/ui/renamepanel.py:141
 msgid "Example:"
 msgstr "Пример:"
@@ -221,7 +221,7 @@ msgstr "Использование хранилища после загрузк�
 
 #. Translators: Custom refers to the user choosing a non-default value that
 #. they customize themselves
-#: ../raphodo/ui/destinationdisplay.py:325 ../raphodo/ui/nameeditor.py:587
+#: ../raphodo/ui/destinationdisplay.py:325 ../raphodo/ui/nameeditor.py:591
 msgid "Custom..."
 msgstr "Свой..."
 
@@ -1836,7 +1836,7 @@ msgid "YYYYMM"
 msgstr "ГГГГММ"
 
 #: ../raphodo/generatenameconfig.py:419 ../raphodo/ui/jobcodepanel.py:278
-#: ../raphodo/ui/nameeditor.py:932 ../raphodo/rapid.py:1984
+#: ../raphodo/ui/nameeditor.py:936 ../raphodo/rapid.py:1984
 #: ../raphodo/ui/renamepanel.py:93 ../raphodo/ui/renamepanel.py:275
 msgid "Job Code"
 msgstr "Метка"
@@ -2036,78 +2036,88 @@ msgstr "<i><b>Подсказка:</b> %(message)s</i>"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/ui/nameeditor.py:478 ../raphodo/ui/nameeditor.py:498
+#: ../raphodo/ui/nameeditor.py:479 ../raphodo/ui/nameeditor.py:499
 #, python-format
 msgid "%(description)s - %(elements)s"
 msgstr "%(description)s - %(elements)s"
 
-#: ../raphodo/ui/nameeditor.py:583
+#: ../raphodo/ui/nameeditor.py:584
 msgid "Save New Custom Preset..."
 msgstr "Сохранить новую предустановку..."
 
-#: ../raphodo/ui/nameeditor.py:584
+#: ../raphodo/ui/nameeditor.py:586
+#, fuzzy
+msgid "Remove Custom Preset..."
+msgstr "Удалить все предустановки..."
+
+#: ../raphodo/ui/nameeditor.py:587
+#, fuzzy, python-format
+msgid "Remove Custom Preset \"%s\"..."
+msgstr "Удалить все предустановки..."
+
+#: ../raphodo/ui/nameeditor.py:588
 msgid "Remove All Custom Presets..."
 msgstr "Удалить все предустановки..."
 
-#: ../raphodo/ui/nameeditor.py:630
+#: ../raphodo/ui/nameeditor.py:634
 msgid "(New Custom Preset)"
 msgstr "(Новая предустановка)"
 
-#: ../raphodo/ui/nameeditor.py:647
+#: ../raphodo/ui/nameeditor.py:651
 #, python-format
 msgid "%s (edited)"
 msgstr "%s (изменена)"
 
-#: ../raphodo/ui/nameeditor.py:650 ../raphodo/ui/nameeditor.py:1574
+#: ../raphodo/ui/nameeditor.py:654 ../raphodo/ui/nameeditor.py:1578
 #, python-format
 msgid "Update Custom Preset \"%s\""
 msgstr "Обновить предустановку \"%s\""
 
-#: ../raphodo/ui/nameeditor.py:743
+#: ../raphodo/ui/nameeditor.py:747
 msgid "Save New Custom Preset - Rapid Photo Downloader"
 msgstr "Сохранить новую предустановку - Rapid Photo Downloader"
 
-#: ../raphodo/ui/nameeditor.py:751
+#: ../raphodo/ui/nameeditor.py:755
 msgid "Preset Name:"
 msgstr "Имя предустановки:"
 
-#: ../raphodo/ui/nameeditor.py:886
+#: ../raphodo/ui/nameeditor.py:890
 msgid "Photo Subfolder Generation Editor"
 msgstr "Редактор создания подпапок фото"
 
-#: ../raphodo/ui/nameeditor.py:893
+#: ../raphodo/ui/nameeditor.py:897
 #, fuzzy
 msgid "photo subfolder generation"
 msgstr "Редактор создания подпапок фото"
 
-#: ../raphodo/ui/nameeditor.py:895
+#: ../raphodo/ui/nameeditor.py:899
 msgid "Video Subfolder Generation Editor"
 msgstr "Редактор создания подпапок видео"
 
-#: ../raphodo/ui/nameeditor.py:902
+#: ../raphodo/ui/nameeditor.py:906
 #, fuzzy
 msgid "video subfolder generation"
 msgstr "Редактор создания подпапок видео"
 
-#: ../raphodo/ui/nameeditor.py:904
+#: ../raphodo/ui/nameeditor.py:908
 msgid "Photo Renaming Editor"
 msgstr "Редактор переименования фото"
 
-#: ../raphodo/ui/nameeditor.py:910
+#: ../raphodo/ui/nameeditor.py:914
 #, fuzzy
 msgid "photo renaming"
 msgstr "Переименование фото"
 
-#: ../raphodo/ui/nameeditor.py:912
+#: ../raphodo/ui/nameeditor.py:916
 msgid "Video Renaming Editor"
 msgstr "Редактор переименования видео"
 
-#: ../raphodo/ui/nameeditor.py:918
+#: ../raphodo/ui/nameeditor.py:922
 #, fuzzy
 msgid "video renaming"
 msgstr "Переименование видео"
 
-#: ../raphodo/ui/nameeditor.py:942
+#: ../raphodo/ui/nameeditor.py:946
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>There is insufficient data to "
 "fully generate the name. Please use other renaming options.</i>"
@@ -2116,12 +2126,12 @@ msgstr ""
 "полного создания имени. Пожалуйста используйте другие настройки "
 "переименования.</i>"
 
-#: ../raphodo/ui/nameeditor.py:960
+#: ../raphodo/ui/nameeditor.py:964
 #, python-format
 msgid "The character</i> %(separator)s <i>creates a new subfolder level."
 msgstr "Символ</i> %(separator)s <i>создает новый уровень подпапок."
 
-#: ../raphodo/ui/nameeditor.py:970
+#: ../raphodo/ui/nameeditor.py:974
 #, python-format
 msgid ""
 "There is no need start or end with the folder separator </i> "
@@ -2130,7 +2140,7 @@ msgstr ""
 "Нет необходимости начинать с символа разделителя папок </i> %(separator)s<i> "
 "или заканчивать им, потому что он добавляется автомвтически."
 
-#: ../raphodo/ui/nameeditor.py:978
+#: ../raphodo/ui/nameeditor.py:982
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>Unique filenames may not be "
 "generated. Make filenames unique by using Sequence values.</i>"
@@ -2138,39 +2148,39 @@ msgstr ""
 "<b><font color=\"red\">Внимание:</font></b> <i>Уникальные имена файлов не "
 "будут созданы. Сделайте имена файлов уникальными, используя Нумерацию.</i>"
 
-#: ../raphodo/ui/nameeditor.py:1005 ../raphodo/ui/renamepanel.py:139
+#: ../raphodo/ui/nameeditor.py:1009 ../raphodo/ui/renamepanel.py:139
 msgid "Preset:"
 msgstr "Предустановка:"
 
 #. Translators: appears in a combobox, e.g. Image Date (YYYY)
-#: ../raphodo/ui/nameeditor.py:1088 ../raphodo/ui/nameeditor.py:1111
+#: ../raphodo/ui/nameeditor.py:1092 ../raphodo/ui/nameeditor.py:1115
 #, python-brace-format
 msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
-#: ../raphodo/ui/nameeditor.py:1140 ../raphodo/prefs/preferencedialog.py:1070
+#: ../raphodo/ui/nameeditor.py:1144 ../raphodo/prefs/preferencedialog.py:1071
 #: ../raphodo/wsl.py:648
 msgid "Get help online..."
 msgstr "Помощь онлайн..."
 
-#: ../raphodo/ui/nameeditor.py:1167
+#: ../raphodo/ui/nameeditor.py:1171
 msgid "Insert"
 msgstr "Вставить"
 
-#: ../raphodo/ui/nameeditor.py:1395
+#: ../raphodo/ui/nameeditor.py:1399
 #, fuzzy, python-format
 msgid ""
 "<b>Remove All Custom Presets</b><br><br>Are you sure you want to remove all "
-"%(preset_type)s presets?"
+"%(preset_type)s custom presets?"
 msgstr ""
 "<b>Подтвердите Место загрузки</b><br><br>Вы уверены, что хотите установить "
 "место хранения %(file_type)s в %(path)s?"
 
-#: ../raphodo/ui/nameeditor.py:1539
+#: ../raphodo/ui/nameeditor.py:1543
 msgid "Save Preset - Rapid Photo Downloader"
 msgstr "Сохранить предустановку - Rapid Photo Downloader"
 
-#: ../raphodo/ui/nameeditor.py:1543
+#: ../raphodo/ui/nameeditor.py:1547
 msgid ""
 "<b>Do you want to save the changes in a new custom preset?</"
 "b><br><br>Creating a custom preset is not required, but can help you keep "
@@ -2182,7 +2192,7 @@ msgstr ""
 "порядок.<br><br>Изменения в настройках все равно будут применены, независимо "
 "от того, создадите ли вы свою предустановку или нет."
 
-#: ../raphodo/ui/nameeditor.py:1564
+#: ../raphodo/ui/nameeditor.py:1568
 msgid ""
 "<b>Do you want to save the changes in a custom preset?</b><br><br>If you "
 "like, you can create a new custom preset or update the existing custom "
@@ -2194,7 +2204,7 @@ msgstr ""
 "<br><br>Изменения в настройках все равно будут применены, независимо от "
 "того, создадите ли вы свою предустановку или нет."
 
-#: ../raphodo/ui/nameeditor.py:1578
+#: ../raphodo/ui/nameeditor.py:1582
 msgid "Save New Custom Preset"
 msgstr "Сохранить новую предустановку"
 
@@ -2943,7 +2953,7 @@ msgid ""
 "ol>"
 msgstr ""
 
-#: ../raphodo/prefs/preferencedialog.py:1023
+#: ../raphodo/prefs/preferencedialog.py:1024
 msgid "Completed Downloads"
 msgstr "Завершенные загрузки"
 
@@ -2953,16 +2963,16 @@ msgstr "Завершенные загрузки"
 #. simply to set this choice apart from all the other choices in the drop down
 #. list. You can keep the < > if you like, or replace them with whatever you
 #. typically use in your language.
-#: ../raphodo/prefs/preferencedialog.py:1127
+#: ../raphodo/prefs/preferencedialog.py:1128
 msgid "<System Language>"
 msgstr "<Язык системы>"
 
-#: ../raphodo/prefs/preferencedialog.py:1411
+#: ../raphodo/prefs/preferencedialog.py:1412
 #, python-format
 msgid "Restores default %s preference values"
 msgstr "Сбросить настройки %s на значения по умолчанию"
 
-#: ../raphodo/prefs/preferencedialog.py:1573
+#: ../raphodo/prefs/preferencedialog.py:1574
 msgid ""
 "Do you want to purge the thumbnail cache? The cache will be purged when the "
 "program is next started."
@@ -2970,11 +2980,11 @@ msgstr ""
 "Вы хотите очистить кэш миниатюр? Кэш будет очищен при следующем запуске "
 "программы."
 
-#: ../raphodo/prefs/preferencedialog.py:1578
+#: ../raphodo/prefs/preferencedialog.py:1579
 msgid "Purge Thumbnail Cache"
 msgstr "Очистить кэш миниатюр"
 
-#: ../raphodo/prefs/preferencedialog.py:1593
+#: ../raphodo/prefs/preferencedialog.py:1594
 msgid ""
 "Do you want to optimize the thumbnail cache? The cache will be optimized "
 "when the program is next started."
@@ -2982,52 +2992,52 @@ msgstr ""
 "Вы хотите оптимизировать кэш миниатюр? Кэш будет соптимизирован при "
 "следующем запуске программы."
 
-#: ../raphodo/prefs/preferencedialog.py:1598
+#: ../raphodo/prefs/preferencedialog.py:1599
 msgid "Optimize Thumbnail Cache"
 msgstr "Оптимизировать кэш миниатюр"
 
-#: ../raphodo/prefs/preferencedialog.py:1918
+#: ../raphodo/prefs/preferencedialog.py:1919
 msgid "Enter a Folder to Scan"
 msgstr "Укажите папку для сканирования"
 
-#: ../raphodo/prefs/preferencedialog.py:1920
+#: ../raphodo/prefs/preferencedialog.py:1921
 msgid "Specify a folder that will be scanned for photos and videos"
 msgstr "Укажите папку для сканирования на наличие фото и видео"
 
-#: ../raphodo/prefs/preferencedialog.py:1922
+#: ../raphodo/prefs/preferencedialog.py:1923
 msgid "Folder:"
 msgstr "Папка:"
 
-#: ../raphodo/prefs/preferencedialog.py:1936
+#: ../raphodo/prefs/preferencedialog.py:1937
 msgid "Enter a Path to Ignore"
 msgstr "Введите путь, который хотите игнорировать"
 
-#: ../raphodo/prefs/preferencedialog.py:1938
+#: ../raphodo/prefs/preferencedialog.py:1939
 msgid "Specify a path that will never be scanned for photos or videos"
 msgstr ""
 "Задайте путь, который никогда не будет проверяться на наличие фото и видео"
 
-#: ../raphodo/prefs/preferencedialog.py:1940
+#: ../raphodo/prefs/preferencedialog.py:1941
 msgid "Path:"
 msgstr "Путь:"
 
-#: ../raphodo/prefs/preferencedialog.py:1954
+#: ../raphodo/prefs/preferencedialog.py:1955
 msgid "Enter a File Extension"
 msgstr "Введите расширение файла"
 
-#: ../raphodo/prefs/preferencedialog.py:1955
+#: ../raphodo/prefs/preferencedialog.py:1956
 msgid "Specify a file extension (without the leading dot)"
 msgstr "Задайте расширение файла (без предшествующей точки)"
 
-#: ../raphodo/prefs/preferencedialog.py:1956 ../raphodo/ui/renamepanel.py:140
+#: ../raphodo/prefs/preferencedialog.py:1957 ../raphodo/ui/renamepanel.py:140
 msgid "Extension:"
 msgstr "Расширение:"
 
-#: ../raphodo/prefs/preferencedialog.py:1971
+#: ../raphodo/prefs/preferencedialog.py:1972
 msgid "Invalid File Extension"
 msgstr "Неверное расширение файла"
 
-#: ../raphodo/prefs/preferencedialog.py:1976
+#: ../raphodo/prefs/preferencedialog.py:1977
 #, python-format
 msgid ""
 "The file extension <b>%s</b> is recognized by Rapid Photo Downloader, so it "
@@ -3036,7 +3046,7 @@ msgstr ""
 "Расширение файлов <b>%s</b> известно Rapid Photo Downloader, поэтому нет "
 "необходимости предупреждать об их наличии."
 
-#: ../raphodo/prefs/preferencedialog.py:1985
+#: ../raphodo/prefs/preferencedialog.py:1986
 #, python-format
 msgid ""
 "Recognized file types:\n"
@@ -4729,39 +4739,39 @@ msgstr "Отметить файл как загруженный"
 msgid "Mark Files as Downloaded"
 msgstr "Отметить файлы как загруженные"
 
-#: ../raphodo/utilities.py:214
+#: ../raphodo/utilities.py:219
 msgid "B"
 msgstr "Б"
 
-#: ../raphodo/utilities.py:215
+#: ../raphodo/utilities.py:220
 msgid "KB"
 msgstr "кБ"
 
-#: ../raphodo/utilities.py:216
+#: ../raphodo/utilities.py:221
 msgid "MB"
 msgstr "МБ"
 
-#: ../raphodo/utilities.py:217
+#: ../raphodo/utilities.py:222
 msgid "GB"
 msgstr "ГБ"
 
-#: ../raphodo/utilities.py:218
+#: ../raphodo/utilities.py:223
 msgid "TB"
 msgstr "ТБ"
 
-#: ../raphodo/utilities.py:219
+#: ../raphodo/utilities.py:224
 msgid "PB"
 msgstr "ПБ"
 
-#: ../raphodo/utilities.py:220
+#: ../raphodo/utilities.py:225
 msgid "EB"
 msgstr "ЭБ"
 
-#: ../raphodo/utilities.py:221
+#: ../raphodo/utilities.py:226
 msgid "ZB"
 msgstr "ЗБ"
 
-#: ../raphodo/utilities.py:222
+#: ../raphodo/utilities.py:227
 msgid "YB"
 msgstr "ЙБ"
 
@@ -4769,88 +4779,88 @@ msgstr "ЙБ"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/utilities.py:485
+#: ../raphodo/utilities.py:490
 #, python-format
 msgid "%(first_item)s and %(last_item)s"
 msgstr "%(first_item)s и %(last_item)s"
 
-#: ../raphodo/utilities.py:569
+#: ../raphodo/utilities.py:574
 msgid "one"
 msgstr "1"
 
-#: ../raphodo/utilities.py:570
+#: ../raphodo/utilities.py:575
 msgid "two"
 msgstr "2"
 
-#: ../raphodo/utilities.py:571
+#: ../raphodo/utilities.py:576
 msgid "three"
 msgstr "3"
 
-#: ../raphodo/utilities.py:572
+#: ../raphodo/utilities.py:577
 msgid "four"
 msgstr "4"
 
-#: ../raphodo/utilities.py:573
+#: ../raphodo/utilities.py:578
 msgid "five"
 msgstr "5"
 
-#: ../raphodo/utilities.py:574
+#: ../raphodo/utilities.py:579
 msgid "six"
 msgstr "6"
 
-#: ../raphodo/utilities.py:575
+#: ../raphodo/utilities.py:580
 msgid "seven"
 msgstr "7"
 
-#: ../raphodo/utilities.py:576
+#: ../raphodo/utilities.py:581
 msgid "eight"
 msgstr "8"
 
-#: ../raphodo/utilities.py:577
+#: ../raphodo/utilities.py:582
 msgid "nine"
 msgstr "9"
 
-#: ../raphodo/utilities.py:578
+#: ../raphodo/utilities.py:583
 msgid "ten"
 msgstr "10"
 
-#: ../raphodo/utilities.py:579
+#: ../raphodo/utilities.py:584
 msgid "eleven"
 msgstr "11"
 
-#: ../raphodo/utilities.py:580
+#: ../raphodo/utilities.py:585
 msgid "twelve"
 msgstr "12"
 
-#: ../raphodo/utilities.py:581
+#: ../raphodo/utilities.py:586
 msgid "thirteen"
 msgstr "13"
 
-#: ../raphodo/utilities.py:582
+#: ../raphodo/utilities.py:587
 msgid "fourteen"
 msgstr "14"
 
-#: ../raphodo/utilities.py:583
+#: ../raphodo/utilities.py:588
 msgid "fifteen"
 msgstr "15"
 
-#: ../raphodo/utilities.py:584
+#: ../raphodo/utilities.py:589
 msgid "sixteen"
 msgstr "16"
 
-#: ../raphodo/utilities.py:585
+#: ../raphodo/utilities.py:590
 msgid "seventeen"
 msgstr "17"
 
-#: ../raphodo/utilities.py:586
+#: ../raphodo/utilities.py:591
 msgid "eighteen"
 msgstr "18"
 
-#: ../raphodo/utilities.py:587
+#: ../raphodo/utilities.py:592
 msgid "ninenteen"
 msgstr "19"
 
-#: ../raphodo/utilities.py:588
+#: ../raphodo/utilities.py:593
 msgid "twenty"
 msgstr "20"
 
