@@ -40,7 +40,11 @@ from raphodo.storage.storage import (
 from raphodo.generatenameconfig import *
 import raphodo.constants as constants
 from raphodo.constants import PresetPrefType, FileType
-from raphodo.utilities import default_thumbnail_process_count, make_internationalized_list
+from raphodo.utilities import (
+    default_thumbnail_process_count,
+    make_internationalized_list,
+    available_cpu_count,
+)
 import raphodo.__about__
 from raphodo.metadata.fileformats import ALL_KNOWN_EXTENSIONS
 
