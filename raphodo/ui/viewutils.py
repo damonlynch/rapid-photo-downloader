@@ -712,7 +712,7 @@ def translateMessageBoxButtons(messageBox: QMessageBox) -> None:
 def standardMessageBox(
     message: str,
     rich_text: bool,
-    standardButtons: QMessageBox.StandardButton,
+    standardButtons: QMessageBox.StandardButton| QMessageBox.StandardButtons,
     defaultButton: Optional[QMessageBox.StandardButton] = None,
     parent=None,
     title: Optional[str] = None,

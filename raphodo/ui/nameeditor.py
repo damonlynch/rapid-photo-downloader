@@ -27,8 +27,9 @@ __copyright__ = "Copyright 2016-2023, Damon Lynch"
 from collections import OrderedDict
 import copy
 import datetime
+from enum import IntEnum, auto
 import logging
-from typing import Union, Sequence
+from typing import Sequence
 import webbrowser
 
 
@@ -81,7 +82,11 @@ from raphodo.constants import (
     PresetClass,
 )
 from raphodo.rpdfile import SamplePhoto, SampleVideo, Photo, Video, FileType
-from raphodo.prefs.preferences import DownloadsTodayTracker, Preferences, match_pref_list
+from raphodo.prefs.preferences import (
+    DownloadsTodayTracker,
+    Preferences,
+    match_pref_list,
+)
 from raphodo.utilities import remove_last_char_from_list_str
 from raphodo.ui.messagewidget import MessageWidget
 from raphodo.ui.viewutils import (
@@ -448,7 +453,6 @@ class PrefHighlighter(QSyntaxHighlighter):
             start += len(pref_defn)
 
     def highlightBlock(self, text: str) -> None:
-
         # Recreate the preference value from scratch
         self.boundaries = SortedList()
 
@@ -501,6 +505,12 @@ def make_rename_menu_entry(prefs: tuple[str]) -> str:
     )
 
 
+class PresetComboBoxNegativeOffset(IntEnum):
+    REMOVE_ALL_CUSTOM = auto()
+    REMOVE_CUSTOM = auto()
+    SAVE_NEW_CUSTOM = auto()
+
+
 class PresetComboBox(QComboBox):
     """
     Combox box displaying built-in presets, custom presets,
@@ -551,7 +561,6 @@ class PresetComboBox(QComboBox):
         self._setup_entries(preset_names)
 
     def _setup_entries(self, preset_names: list[str]) -> None:
-
         idx = 0
 
         if self.edit_mode:
@@ -582,10 +591,15 @@ class PresetComboBox(QComboBox):
 
         if self.edit_mode:
             self.addItem(_("Save New Custom Preset..."), PresetClass.new_preset)
-            if False:
-                self.addItem(_("Remove Custom Preset..."), PresetClass.delete_preset)
-                sample = _('Remove Custom Preset "%s"...') % "New Preset"
+            self.remove_custom_preset_generic_title = _("Remove Custom Preset...")
+            self.remove_custom_preset_title = _(
+                'Remove Custom Preset "%(preset_name)s"...'
+            )
+            self.addItem(
+                self.remove_custom_preset_generic_title, PresetClass.remove_preset
+            )
             self.addItem(_("Remove All Custom Presets..."), PresetClass.remove_all)
+            self.setRemoveCustomEnabled(enabled=False)
             self.setRemoveAllCustomEnabled(bool(len(preset_names)))
         else:
             self.addItem(_("Custom..."), PresetClass.start_editor)
@@ -673,26 +687,46 @@ class PresetComboBox(QComboBox):
             self.removeItem(index)
         self.preset_edited = self.new_preset = False
 
-    def _setRowEnabled(self, enabled: bool, offset: int) -> None:
+    def _getRowItem(self, offset: int) -> QStandardItem:
         assert self.edit_mode
-        # Our big assumption here is that the model is a QStandardItemModel
+        # Model is a QStandardItemModel
         model = self.model()
         count = self.count()
         if self.preset_edited:
             row = count - offset - 1
         else:
             row = count - offset
-        item = model.item(row, 0)  # type: QStandardItem
+        return model.item(row, 0)
+
+    def _setRowEnabled(self, enabled: bool, offset: int) -> None:
+        item = self._getRowItem(offset=offset)
         if not enabled:
             item.setFlags(Qt.NoItemFlags)
         else:
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
 
     def setRemoveAllCustomEnabled(self, enabled: bool) -> None:
-        self._setRowEnabled(enabled=enabled, offset=1)
+        self._setRowEnabled(
+            enabled=enabled, offset=PresetComboBoxNegativeOffset.REMOVE_ALL_CUSTOM
+        )
+
+    def setRemoveCustomEnabled(self, enabled: bool) -> None:
+        self._setRowEnabled(
+            enabled=enabled, offset=PresetComboBoxNegativeOffset.REMOVE_CUSTOM
+        )
+
+    def updateRemoveCustomName(self, name: str) -> None:
+        item = self._getRowItem(offset=PresetComboBoxNegativeOffset.REMOVE_CUSTOM)
+        if name:
+            text = self.remove_custom_preset_title % dict(preset_name=name)
+        else:
+            text = self.remove_custom_preset_generic_title
+        item.setText(text)
 
     def setSaveNewCustomPresetEnabled(self, enabled: bool) -> None:
-        self._setRowEnabled(enabled=enabled, offset=2)
+        self._setRowEnabled(
+            enabled=enabled, offset=PresetComboBoxNegativeOffset.SAVE_NEW_CUSTOM
+        )
 
     def getComboBoxIndex(self, preset_index: int) -> int:
         """
@@ -789,8 +823,8 @@ def make_sample_rpd_file(
     sample_job_code: str,
     prefs: Preferences,
     generation_type: NameGenerationType,
-    sample_rpd_file: Optional[Union[Photo, Video]] = None,
-) -> Union[Photo, Video]:
+    sample_rpd_file: Photo | Video | None = None,
+) -> Photo | Video:
     """
     Create a sample_rpd_file used for displaying to the user an example of their
     file renaming preference in action on a sample file.
@@ -856,7 +890,7 @@ class PrefDialog(QDialog):
         user_pref_list: list[str],
         generation_type: NameGenerationType,
         prefs: Preferences,
-        sample_rpd_file: Optional[Union[Photo, Video]] = None,
+        sample_rpd_file: Photo | Video | None = None,
         max_entries=0,
         parent=None,
     ) -> None:
@@ -944,7 +978,7 @@ class PrefDialog(QDialog):
         # <b>. These are used to format the text the users sees
         warning_msg = _(
             '<b><font color="red">Warning:</font></b> <i>There is insufficient data to '
-            'fully generate the name. Please use other renaming options.</i>'
+            "fully generate the name. Please use other renaming options.</i>"
         )
 
         self.is_subfolder = generation_type in (
@@ -980,7 +1014,7 @@ class PrefDialog(QDialog):
             # <i> and <b>. These are used to format the text the users sees
             unique_msg = _(
                 '<b><font color="red">Warning:</font></b> <i>Unique filenames may not '
-                'be generated. Make filenames unique by using Sequence values.</i>'
+                "be generated. Make filenames unique by using Sequence values.</i>"
             )
             messages = (warning_msg, unique_msg)
 
@@ -1045,7 +1079,7 @@ class PrefDialog(QDialog):
         self.pushButtonSizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         self.mapper = QSignalMapper(self)
-        self.widget_mapper = dict()  # type: dict[str, Union[QComboBox, QLabel]]
+        self.widget_mapper = dict()  # type: dict[str, QComboBox| QLabel]
         self.pref_mapper = dict()  # type: dict[tuple[str, str, str], str]
         self.pref_color = dict()  # type: dict[str, str]
 
@@ -1222,7 +1256,6 @@ class PrefDialog(QDialog):
         return colorLabel
 
     def updateExampleFilename(self) -> None:
-
         user_pref_list = self.editor.user_pref_list
         self.user_pref_colors = self.editor.user_pref_colors
 
@@ -1393,7 +1426,32 @@ class PrefDialog(QDialog):
             pref_list = self.combined_pref_lists[index]
             self.editor.displayPrefList(pref_list=pref_list)
             if index >= len(self.builtin_pref_names):
+                assert preset_class == PresetClass.custom
                 self.movePresetToFront(index=len(self.builtin_pref_names) - index)
+                self.preset.updateRemoveCustomName(name=self.current_custom_name)
+                self.preset.setRemoveCustomEnabled(enabled=True)
+            else:
+                assert preset_class == PresetClass.builtin
+                self.preset.updateRemoveCustomName(name="")
+                self.preset.setRemoveCustomEnabled(enabled=False)
+
+        elif preset_class == PresetClass.remove_preset:
+            message = _(
+                "<b>Remove Custom Preset</b><br><br>Are you sure you want to "
+                'remove the custom preset "%(preset_name)s"?'
+            ) % dict(preset_name=self.current_custom_name)
+            msgbox = standardMessageBox(
+                message=message,
+                rich_text=True,
+                standardButtons=QMessageBox.Yes | QMessageBox.No,
+            )
+            if msgbox.exec() == QMessageBox.Yes:
+                #TODO actually remove the preset
+                # self.preset.removeAllCustomPresets(no_presets=len(self.preset_names))
+                # self.clearCustomPresets()
+                self.preset.updateRemoveCustomName(name="")
+                self.preset.setRemoveCustomEnabled(enabled=False)
+            self.updateComboBoxCurrentIndex()
         elif preset_class == PresetClass.remove_all:
             message = _(
                 "<b>Remove All Custom Presets</b><br><br>Are you sure you want to "
@@ -1542,7 +1600,6 @@ class PrefDialog(QDialog):
         if self.preset.preset_edited or self.preset.new_preset:
             title = _("Save Preset - Rapid Photo Downloader")
             if self.preset.new_preset:
-
                 message = _(
                     "<b>Do you want to save the changes in a new custom preset?</b>"
                     "<br><br>"
@@ -1614,6 +1671,15 @@ class PrefDialog(QDialog):
 
 
 if __name__ == "__main__":
+    try:
+        from icecream import install
+
+        install()
+
+    except ImportError:  # Graceful fallback if IceCream isn't installed.
+        ic = lambda *a: None if not a else (a[0] if len(a) == 1 else a)  # noqa
+        builtins = __import__("builtins")
+        setattr(builtins, "ic", ic)
 
     # Application development test code:
 

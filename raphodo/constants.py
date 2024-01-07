@@ -57,7 +57,7 @@ class PresetClass(Enum):
     new_preset = auto()
     remove_all = auto()
     update_preset = auto()
-    delete_preset = auto()
+    remove_preset = auto()
     edited = auto()
     start_editor = auto()
 
