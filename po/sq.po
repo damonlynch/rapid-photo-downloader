@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2024-01-07 14:42+1300\n"
+"POT-Creation-Date: 2024-01-07 17:22+1300\n"
 "PO-Revision-Date: 2022-02-28 09:52+0000\n"
 "Last-Translator: Algent Albrahimi <algent@protonmail.com>\n"
 "Language-Team: Albanian <sq@li.org>\n"
@@ -78,7 +78,7 @@ msgstr "Emri i dosjes të fotove:"
 msgid "Video folder name:"
 msgstr "Emri i dosjes të videove:"
 
-#: ../raphodo/ui/backuppanel.py:510 ../raphodo/ui/nameeditor.py:1044
+#: ../raphodo/ui/backuppanel.py:510 ../raphodo/ui/nameeditor.py:1052
 #: ../raphodo/ui/renamepanel.py:141
 msgid "Example:"
 msgstr "Shembull:"
@@ -1858,7 +1858,7 @@ msgid "YYYYMM"
 msgstr "VVVVMM"
 
 #: ../raphodo/generatenameconfig.py:419 ../raphodo/ui/jobcodepanel.py:278
-#: ../raphodo/ui/nameeditor.py:970 ../raphodo/rapid.py:1984
+#: ../raphodo/ui/nameeditor.py:976 ../raphodo/rapid.py:1984
 #: ../raphodo/ui/renamepanel.py:93 ../raphodo/ui/renamepanel.py:275
 msgid "Job Code"
 msgstr "Kod Pune"
@@ -2084,66 +2084,66 @@ msgstr "Hiq të gjitha Paravendosjet e personalizuara..."
 msgid "Remove All Custom Presets..."
 msgstr "Hiq të gjitha Paravendosjet e personalizuara..."
 
-#: ../raphodo/ui/nameeditor.py:648
+#: ../raphodo/ui/nameeditor.py:654
 msgid "(New Custom Preset)"
 msgstr "(Paravendosja e re e personalizuar)"
 
-#: ../raphodo/ui/nameeditor.py:665
+#: ../raphodo/ui/nameeditor.py:671
 #, python-format
 msgid "%s (edited)"
 msgstr "%s (redaktuar)"
 
-#: ../raphodo/ui/nameeditor.py:668 ../raphodo/ui/nameeditor.py:1635
+#: ../raphodo/ui/nameeditor.py:674 ../raphodo/ui/nameeditor.py:1669
 #, python-format
 msgid "Update Custom Preset \"%s\""
 msgstr "Përditëso Paravendosjen e Personalizuar \"%s\""
 
-#: ../raphodo/ui/nameeditor.py:781
+#: ../raphodo/ui/nameeditor.py:787
 msgid "Save New Custom Preset - Rapid Photo Downloader"
 msgstr ""
 "Ruaj Paravendosjen e Re të Personalizuar - Shkarkues i Shpejtë i Fotove"
 
-#: ../raphodo/ui/nameeditor.py:789
+#: ../raphodo/ui/nameeditor.py:795
 msgid "Preset Name:"
 msgstr "Emri Paravendosur:"
 
-#: ../raphodo/ui/nameeditor.py:924
+#: ../raphodo/ui/nameeditor.py:930
 msgid "Photo Subfolder Generation Editor"
 msgstr "Redaktori i Gjenerimit të Nën-dosjeve të fotove"
 
-#: ../raphodo/ui/nameeditor.py:931
+#: ../raphodo/ui/nameeditor.py:937
 #, fuzzy
 msgid "photo subfolder generation"
 msgstr "Redaktori i Gjenerimit të Nën-dosjeve të fotove"
 
-#: ../raphodo/ui/nameeditor.py:933
+#: ../raphodo/ui/nameeditor.py:939
 msgid "Video Subfolder Generation Editor"
 msgstr "Redaktori i Gjenerimit të Nën-dosjeve të videove"
 
-#: ../raphodo/ui/nameeditor.py:940
+#: ../raphodo/ui/nameeditor.py:946
 #, fuzzy
 msgid "video subfolder generation"
 msgstr "Redaktori i Gjenerimit të Nën-dosjeve të videove"
 
-#: ../raphodo/ui/nameeditor.py:942
+#: ../raphodo/ui/nameeditor.py:948
 msgid "Photo Renaming Editor"
 msgstr "Redaktori i Riemërtimit të Fotove"
 
-#: ../raphodo/ui/nameeditor.py:948
+#: ../raphodo/ui/nameeditor.py:954
 #, fuzzy
 msgid "photo renaming"
 msgstr "Riemërtimi i Fotove"
 
-#: ../raphodo/ui/nameeditor.py:950
+#: ../raphodo/ui/nameeditor.py:956
 msgid "Video Renaming Editor"
 msgstr "Redaktori i Riemërtimit të Videove"
 
-#: ../raphodo/ui/nameeditor.py:956
+#: ../raphodo/ui/nameeditor.py:962
 #, fuzzy
 msgid "video renaming"
 msgstr "Riemërtimi i Videove"
 
-#: ../raphodo/ui/nameeditor.py:980
+#: ../raphodo/ui/nameeditor.py:986
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>There is insufficient data to "
 "fully generate the name. Please use other renaming options.</i>"
@@ -2152,12 +2152,12 @@ msgstr ""
 "mjaftueshme për të gjeneruar plotësisht emrin. Ju lutemi përdorni opsione të "
 "tjera të riemërtimit.</i>"
 
-#: ../raphodo/ui/nameeditor.py:998
+#: ../raphodo/ui/nameeditor.py:1004
 #, python-format
 msgid "The character</i> %(separator)s <i>creates a new subfolder level."
 msgstr "Karakteri</i>%(separator)s <i>krijon një nivel të ri të nën-dosjeje."
 
-#: ../raphodo/ui/nameeditor.py:1008
+#: ../raphodo/ui/nameeditor.py:1014
 #, python-format
 msgid ""
 "There is no need start or end with the folder separator </i> "
@@ -2166,7 +2166,7 @@ msgstr ""
 "Nuk ka nevojë të filloni ose të mbaroni me ndarësin e dosjeve </i> "
 "%(separator)s<i>, sepse do të shtohet automatikisht."
 
-#: ../raphodo/ui/nameeditor.py:1016
+#: ../raphodo/ui/nameeditor.py:1022
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>Unique filenames may not be "
 "generated. Make filenames unique by using Sequence values.</i>"
@@ -2175,26 +2175,26 @@ msgstr ""
 "mund të mos krijohen. Bëni emrat e skedarëve unik duke përdorur vlerat e "
 "Sekuencës.</i>"
 
-#: ../raphodo/ui/nameeditor.py:1043 ../raphodo/ui/renamepanel.py:139
+#: ../raphodo/ui/nameeditor.py:1051 ../raphodo/ui/renamepanel.py:139
 msgid "Preset:"
 msgstr "Paravendosur:"
 
 #. Translators: appears in a combobox, e.g. Image Date (YYYY)
-#: ../raphodo/ui/nameeditor.py:1126 ../raphodo/ui/nameeditor.py:1149
+#: ../raphodo/ui/nameeditor.py:1134 ../raphodo/ui/nameeditor.py:1157
 #, python-brace-format
 msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
-#: ../raphodo/ui/nameeditor.py:1178 ../raphodo/prefs/preferencedialog.py:1071
+#: ../raphodo/ui/nameeditor.py:1186 ../raphodo/prefs/preferencedialog.py:1071
 #: ../raphodo/wsl.py:648
 msgid "Get help online..."
 msgstr "Merrni ndihmë në internet..."
 
-#: ../raphodo/ui/nameeditor.py:1205
+#: ../raphodo/ui/nameeditor.py:1213
 msgid "Insert"
 msgstr "Vendos"
 
-#: ../raphodo/ui/nameeditor.py:1440
+#: ../raphodo/ui/nameeditor.py:1457
 #, fuzzy, python-format
 msgid ""
 "<b>Remove Custom Preset</b><br><br>Are you sure you want to remove the "
@@ -2204,7 +2204,7 @@ msgstr ""
 "dëshironi të vendosni destinacionin e shkarkimit të %(file_type)s në "
 "%(path)s?"
 
-#: ../raphodo/ui/nameeditor.py:1457
+#: ../raphodo/ui/nameeditor.py:1475
 #, fuzzy, python-format
 msgid ""
 "<b>Remove All Custom Presets</b><br><br>Are you sure you want to remove all "
@@ -2214,11 +2214,11 @@ msgstr ""
 "dëshironi të vendosni destinacionin e shkarkimit të %(file_type)s në "
 "%(path)s?"
 
-#: ../raphodo/ui/nameeditor.py:1601
+#: ../raphodo/ui/nameeditor.py:1635
 msgid "Save Preset - Rapid Photo Downloader"
 msgstr "Ruaj Paravendosjen - Shkarkues i Shpejtë i Fotove"
 
-#: ../raphodo/ui/nameeditor.py:1604
+#: ../raphodo/ui/nameeditor.py:1638
 msgid ""
 "<b>Do you want to save the changes in a new custom preset?</"
 "b><br><br>Creating a custom preset is not required, but can help you keep "
@@ -2231,7 +2231,7 @@ msgstr ""
 "do të zbatohen përsëri pavarësisht nëse krijoni një paravendosje të re të "
 "personalizuar apo jo."
 
-#: ../raphodo/ui/nameeditor.py:1625
+#: ../raphodo/ui/nameeditor.py:1659
 msgid ""
 "<b>Do you want to save the changes in a custom preset?</b><br><br>If you "
 "like, you can create a new custom preset or update the existing custom "
@@ -2244,7 +2244,7 @@ msgstr ""
 "<br><br>Ndryshimet në preferencat do të zbatohen përsëri, pavarësisht nëse "
 "ruani një paravendosje të personalizuar apo jo."
 
-#: ../raphodo/ui/nameeditor.py:1639
+#: ../raphodo/ui/nameeditor.py:1673
 msgid "Save New Custom Preset"
 msgstr "Ruaj Paravendosjen e Re të Personalizuar"
 

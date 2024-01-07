@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2024-01-07 14:42+1300\n"
+"POT-Creation-Date: 2024-01-07 17:22+1300\n"
 "PO-Revision-Date: 2022-06-05 23:45+0000\n"
 "Last-Translator: albano <albano_battistella@hotmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
@@ -79,7 +79,7 @@ msgstr "Nome cartella foto:"
 msgid "Video folder name:"
 msgstr "Nome cartella video:"
 
-#: ../raphodo/ui/backuppanel.py:510 ../raphodo/ui/nameeditor.py:1044
+#: ../raphodo/ui/backuppanel.py:510 ../raphodo/ui/nameeditor.py:1052
 #: ../raphodo/ui/renamepanel.py:141
 msgid "Example:"
 msgstr "Esempio:"
@@ -1755,7 +1755,7 @@ msgid "YYYYMM"
 msgstr "YYYYMM"
 
 #: ../raphodo/generatenameconfig.py:419 ../raphodo/ui/jobcodepanel.py:278
-#: ../raphodo/ui/nameeditor.py:970 ../raphodo/rapid.py:1984
+#: ../raphodo/ui/nameeditor.py:976 ../raphodo/rapid.py:1984
 #: ../raphodo/ui/renamepanel.py:93 ../raphodo/ui/renamepanel.py:275
 msgid "Job Code"
 msgstr "Codice lavoro"
@@ -1973,126 +1973,126 @@ msgstr ""
 msgid "Remove All Custom Presets..."
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:648
+#: ../raphodo/ui/nameeditor.py:654
 msgid "(New Custom Preset)"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:665
+#: ../raphodo/ui/nameeditor.py:671
 #, python-format
 msgid "%s (edited)"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:668 ../raphodo/ui/nameeditor.py:1635
+#: ../raphodo/ui/nameeditor.py:674 ../raphodo/ui/nameeditor.py:1669
 #, python-format
 msgid "Update Custom Preset \"%s\""
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:781
+#: ../raphodo/ui/nameeditor.py:787
 msgid "Save New Custom Preset - Rapid Photo Downloader"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:789
+#: ../raphodo/ui/nameeditor.py:795
 msgid "Preset Name:"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:924
+#: ../raphodo/ui/nameeditor.py:930
 msgid "Photo Subfolder Generation Editor"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:931
+#: ../raphodo/ui/nameeditor.py:937
 #, fuzzy
 msgid "photo subfolder generation"
 msgstr "Configura la creazione delle sottocartelle per le foto"
 
-#: ../raphodo/ui/nameeditor.py:933
+#: ../raphodo/ui/nameeditor.py:939
 msgid "Video Subfolder Generation Editor"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:940
+#: ../raphodo/ui/nameeditor.py:946
 #, fuzzy
 msgid "video subfolder generation"
 msgstr "Configura la creazione delle sottocartelle per i video"
 
-#: ../raphodo/ui/nameeditor.py:942
+#: ../raphodo/ui/nameeditor.py:948
 msgid "Photo Renaming Editor"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:948
+#: ../raphodo/ui/nameeditor.py:954
 #, fuzzy
 msgid "photo renaming"
 msgstr "Rinomina foto"
 
-#: ../raphodo/ui/nameeditor.py:950
+#: ../raphodo/ui/nameeditor.py:956
 msgid "Video Renaming Editor"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:956
+#: ../raphodo/ui/nameeditor.py:962
 #, fuzzy
 msgid "video renaming"
 msgstr "Rinomina video"
 
-#: ../raphodo/ui/nameeditor.py:980
+#: ../raphodo/ui/nameeditor.py:986
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>There is insufficient data to "
 "fully generate the name. Please use other renaming options.</i>"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:998
+#: ../raphodo/ui/nameeditor.py:1004
 #, python-format
 msgid "The character</i> %(separator)s <i>creates a new subfolder level."
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:1008
+#: ../raphodo/ui/nameeditor.py:1014
 #, python-format
 msgid ""
 "There is no need start or end with the folder separator </i> "
 "%(separator)s<i>, because it is added automatically."
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:1016
+#: ../raphodo/ui/nameeditor.py:1022
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>Unique filenames may not be "
 "generated. Make filenames unique by using Sequence values.</i>"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:1043 ../raphodo/ui/renamepanel.py:139
+#: ../raphodo/ui/nameeditor.py:1051 ../raphodo/ui/renamepanel.py:139
 msgid "Preset:"
 msgstr ""
 
 #. Translators: appears in a combobox, e.g. Image Date (YYYY)
-#: ../raphodo/ui/nameeditor.py:1126 ../raphodo/ui/nameeditor.py:1149
+#: ../raphodo/ui/nameeditor.py:1134 ../raphodo/ui/nameeditor.py:1157
 #, python-brace-format
 msgid "{choice} ({variant})"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:1178 ../raphodo/prefs/preferencedialog.py:1071
+#: ../raphodo/ui/nameeditor.py:1186 ../raphodo/prefs/preferencedialog.py:1071
 #: ../raphodo/wsl.py:648
 msgid "Get help online..."
 msgstr "Chiedi aiuto online..."
 
-#: ../raphodo/ui/nameeditor.py:1205
+#: ../raphodo/ui/nameeditor.py:1213
 msgid "Insert"
 msgstr "Inserisci"
 
-#: ../raphodo/ui/nameeditor.py:1440
+#: ../raphodo/ui/nameeditor.py:1457
 #, python-format
 msgid ""
 "<b>Remove Custom Preset</b><br><br>Are you sure you want to remove the "
 "custom preset \"%(preset_name)s\"?"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:1457
+#: ../raphodo/ui/nameeditor.py:1475
 #, python-format
 msgid ""
 "<b>Remove All Custom Presets</b><br><br>Are you sure you want to remove all "
 "%(preset_type)s custom presets?"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:1601
+#: ../raphodo/ui/nameeditor.py:1635
 msgid "Save Preset - Rapid Photo Downloader"
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:1604
+#: ../raphodo/ui/nameeditor.py:1638
 msgid ""
 "<b>Do you want to save the changes in a new custom preset?</"
 "b><br><br>Creating a custom preset is not required, but can help you keep "
@@ -2100,7 +2100,7 @@ msgid ""
 "regardless of whether you create a new custom preset or not."
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:1625
+#: ../raphodo/ui/nameeditor.py:1659
 msgid ""
 "<b>Do you want to save the changes in a custom preset?</b><br><br>If you "
 "like, you can create a new custom preset or update the existing custom "
@@ -2108,7 +2108,7 @@ msgid ""
 "regardless of whether you save a custom preset or not."
 msgstr ""
 
-#: ../raphodo/ui/nameeditor.py:1639
+#: ../raphodo/ui/nameeditor.py:1673
 msgid "Save New Custom Preset"
 msgstr ""
 
