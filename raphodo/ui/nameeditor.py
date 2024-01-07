@@ -640,6 +640,12 @@ class PresetComboBox(QComboBox):
             self.removeItem(row)
         self.preset_separator = False
 
+    def removeCustomPreset(self, name: str) -> None:
+        assert self.edit_mode
+        assert self.preset_separator
+        row = self.findText(name)
+        self.removeItem(row)
+
     def setPresetNew(self) -> None:
         assert self.edit_mode
         assert not self.preset_edited
@@ -1025,7 +1031,9 @@ class PrefDialog(QDialog):
         sizePolicy.setVerticalStretch(1)
         self.editor.setSizePolicy(sizePolicy)
 
-        self.editor.prefListGenerated.connect(self.updateExampleFilename)
+        self.editor.prefListGenerated.connect(
+            self.updateExampleFilenameAndComboBoxIndex
+        )
 
         # Generated subfolder / file name example
         self.example = QLabel()
@@ -1255,7 +1263,7 @@ class PrefDialog(QDialog):
         colorLabel.setFixedSize(QSize(size, size))
         return colorLabel
 
-    def updateExampleFilename(self) -> None:
+    def updateExampleFilenameAndComboBoxIndex(self) -> None:
         user_pref_list = self.editor.user_pref_list
         self.user_pref_colors = self.editor.user_pref_colors
 
@@ -1325,16 +1333,28 @@ class PrefDialog(QDialog):
                 self.preset.setSaveNewCustomPresetEnabled(enabled=False)
             if pref_list_index >= len(self.builtin_pref_names):
                 self.current_custom_name = self.preset.currentText()
+                self._setRemoveCustomPresetMenuState(enabled=True)
             else:
                 self.current_custom_name = None
+                self._setRemoveCustomPresetMenuState(enabled=False)
         elif not (self.preset.new_preset or self.preset.preset_edited):
             if self.current_custom_name is None:
                 self.preset.setPresetNew()
             else:
                 self.preset.setPresetEdited(self.current_custom_name)
             self.preset.setSaveNewCustomPresetEnabled(enabled=True)
+            self._setRemoveCustomPresetMenuState(enabled=False)
         else:
             self.preset.setCurrentIndex(0)
+            self._setRemoveCustomPresetMenuState(enabled=False)
+
+    def _setRemoveCustomPresetMenuState(self, enabled: bool) -> None:
+        if enabled:
+            self.preset.updateRemoveCustomName(name=self.current_custom_name)
+            self.preset.setRemoveCustomEnabled(enabled=True)
+        else:
+            self.preset.updateRemoveCustomName(name="")
+            self.preset.setRemoveCustomEnabled(enabled=False)
 
     def showExample(self) -> None:
         """
@@ -1418,9 +1438,8 @@ class PrefDialog(QDialog):
                 if len(self.preset_names) == 1:
                     self.preset.setRemoveAllCustomEnabled(True)
                 self.preset.setSaveNewCustomPresetEnabled(enabled=False)
-            else:
-                # User cancelled creating a new preset
-                self.updateComboBoxCurrentIndex()
+            self.updateComboBoxCurrentIndex()
+
         elif preset_class in (PresetClass.builtin, PresetClass.custom):
             index = self.combined_pref_names.index(self.preset.currentText())
             pref_list = self.combined_pref_lists[index]
@@ -1428,12 +1447,10 @@ class PrefDialog(QDialog):
             if index >= len(self.builtin_pref_names):
                 assert preset_class == PresetClass.custom
                 self.movePresetToFront(index=len(self.builtin_pref_names) - index)
-                self.preset.updateRemoveCustomName(name=self.current_custom_name)
-                self.preset.setRemoveCustomEnabled(enabled=True)
+                self._setRemoveCustomPresetMenuState(enabled=True)
             else:
                 assert preset_class == PresetClass.builtin
-                self.preset.updateRemoveCustomName(name="")
-                self.preset.setRemoveCustomEnabled(enabled=False)
+                self._setRemoveCustomPresetMenuState(enabled=False)
 
         elif preset_class == PresetClass.remove_preset:
             message = _(
@@ -1446,12 +1463,13 @@ class PrefDialog(QDialog):
                 standardButtons=QMessageBox.Yes | QMessageBox.No,
             )
             if msgbox.exec() == QMessageBox.Yes:
-                #TODO actually remove the preset
-                # self.preset.removeAllCustomPresets(no_presets=len(self.preset_names))
-                # self.clearCustomPresets()
-                self.preset.updateRemoveCustomName(name="")
-                self.preset.setRemoveCustomEnabled(enabled=False)
+                if len(self.preset_names) > 1:
+                    self.preset.removeCustomPreset(name=self.current_custom_name)
+                    self.removeCustomPreset()
+                else:
+                    self._removeAllCustomPresets()
             self.updateComboBoxCurrentIndex()
+
         elif preset_class == PresetClass.remove_all:
             message = _(
                 "<b>Remove All Custom Presets</b><br><br>Are you sure you want to "
@@ -1463,13 +1481,16 @@ class PrefDialog(QDialog):
                 standardButtons=QMessageBox.Yes | QMessageBox.No,
             )
             if msgbox.exec() == QMessageBox.Yes:
-                self.preset.removeAllCustomPresets(no_presets=len(self.preset_names))
-                self.clearCustomPresets()
-                self.preset.setRemoveAllCustomEnabled(False)
+                self._removeAllCustomPresets()
             self.updateComboBoxCurrentIndex()
         elif preset_class == PresetClass.update_preset:
             self.updateExistingPreset()
             self.updateComboBoxCurrentIndex()
+
+    def _removeAllCustomPresets(self) -> None:
+        self.preset.removeAllCustomPresets(no_presets=len(self.preset_names))
+        self.clearCustomPresets()
+        self.preset.setRemoveAllCustomEnabled(False)
 
     def updateExistingPreset(self) -> None:
         """
@@ -1536,6 +1557,19 @@ class PrefDialog(QDialog):
         user_pref_list = self.editor.user_pref_list
         self.preset_names.insert(0, preset_name)
         self.preset_pref_lists.insert(0, user_pref_list)
+        self._updateCombinedPrefs()
+        self.prefs.set_custom_presets(
+            preset_type=self.preset_type,
+            preset_names=self.preset_names,
+            preset_pref_lists=self.preset_pref_lists,
+        )
+
+    def removeCustomPreset(self) -> None:
+        user_pref_list = self.editor.user_pref_list
+        index = self.preset_pref_lists.index(user_pref_list)
+        self.preset_names.pop(index)
+        self.preset_pref_lists.pop(index)
+        self.current_custom_name = None
         self._updateCombinedPrefs()
         self.prefs.set_custom_presets(
             preset_type=self.preset_type,

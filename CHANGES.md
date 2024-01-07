@@ -11,7 +11,7 @@ Changelog for Rapid Photo Downloader
 
  - Python 3.10 or newer is now required.
 
- - New python packet requirement: packaging.
+ - New Python packet requirement: packaging.
 
  - Fix bug [#85](https://github.com/damonlynch/rapid-photo-downloader/issues/85):
    Exception while selecting generation scheme from download subfolder menu 
@@ -21,7 +21,9 @@ Changelog for Rapid Photo Downloader
    Confirm before removing all presets for custom renaming or subfolder 
    generation.
 
- - Add new option "Read video metadata using only ExifTool".
+ - Fix bug [#49](https://github.com/damonlynch/rapid-photo-downloader/issues/49):
+   Enable deletion of individual custom renaming and subfolder generation 
+   preset.
 
  - Re-enabled Ctrl-Q shortcut key for quiting when running under WSL. 
 
