@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2016-2023 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,7 +22,7 @@ Dialog for editing download subfolder structure and file renaming
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2023, Damon Lynch"
+__copyright__ = "Copyright 2016-2024, Damon Lynch"
 
 from collections import OrderedDict
 import copy
