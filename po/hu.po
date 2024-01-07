@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rapid Photo Downloader 0.9.2\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2024-01-06 10:13+1300\n"
+"POT-Creation-Date: 2024-01-07 14:42+1300\n"
 "PO-Revision-Date: 2022-03-02 10:07+0100\n"
 "Last-Translator: csola48 <csola48@gmail.com>\n"
 "Language-Team: magyar\n"
@@ -79,7 +79,7 @@ msgstr "Fénykép mappa neve:"
 msgid "Video folder name:"
 msgstr "Videó mappa neve:"
 
-#: ../raphodo/ui/backuppanel.py:510 ../raphodo/ui/nameeditor.py:1010
+#: ../raphodo/ui/backuppanel.py:510 ../raphodo/ui/nameeditor.py:1044
 #: ../raphodo/ui/renamepanel.py:141
 msgid "Example:"
 msgstr "Példa:"
@@ -222,7 +222,7 @@ msgstr "A tervezett tárolás letöltés után"
 
 #. Translators: Custom refers to the user choosing a non-default value that
 #. they customize themselves
-#: ../raphodo/ui/destinationdisplay.py:325 ../raphodo/ui/nameeditor.py:591
+#: ../raphodo/ui/destinationdisplay.py:325 ../raphodo/ui/nameeditor.py:605
 msgid "Custom..."
 msgstr "Egyéni…"
 
@@ -1833,7 +1833,7 @@ msgid "YYYYMM"
 msgstr "ÉÉÉÉHH"
 
 #: ../raphodo/generatenameconfig.py:419 ../raphodo/ui/jobcodepanel.py:278
-#: ../raphodo/ui/nameeditor.py:936 ../raphodo/rapid.py:1984
+#: ../raphodo/ui/nameeditor.py:970 ../raphodo/rapid.py:1984
 #: ../raphodo/ui/renamepanel.py:93 ../raphodo/ui/renamepanel.py:275
 msgid "Job Code"
 msgstr "Munka-kód"
@@ -2039,88 +2039,88 @@ msgstr "<i><b>Tipp:</b> %(message)s</i>"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/ui/nameeditor.py:479 ../raphodo/ui/nameeditor.py:499
+#: ../raphodo/ui/nameeditor.py:483 ../raphodo/ui/nameeditor.py:503
 #, python-format
 msgid "%(description)s - %(elements)s"
 msgstr "%(description)s - %(elements)s"
 
-#: ../raphodo/ui/nameeditor.py:584
+#: ../raphodo/ui/nameeditor.py:593
 msgid "Save New Custom Preset..."
 msgstr "Az új egyéni előbeállítások mentése ..."
 
-#: ../raphodo/ui/nameeditor.py:586
+#: ../raphodo/ui/nameeditor.py:594
 #, fuzzy
 msgid "Remove Custom Preset..."
 msgstr "Összes egyéni előbeállítás eltávolítása ..."
 
-#: ../raphodo/ui/nameeditor.py:587
+#: ../raphodo/ui/nameeditor.py:596
 #, fuzzy, python-format
-msgid "Remove Custom Preset \"%s\"..."
+msgid "Remove Custom Preset \"%(preset_name)s\"..."
 msgstr "Összes egyéni előbeállítás eltávolítása ..."
 
-#: ../raphodo/ui/nameeditor.py:588
+#: ../raphodo/ui/nameeditor.py:601
 msgid "Remove All Custom Presets..."
 msgstr "Összes egyéni előbeállítás eltávolítása ..."
 
-#: ../raphodo/ui/nameeditor.py:634
+#: ../raphodo/ui/nameeditor.py:648
 msgid "(New Custom Preset)"
 msgstr "(Új egyéni beállítás)"
 
-#: ../raphodo/ui/nameeditor.py:651
+#: ../raphodo/ui/nameeditor.py:665
 #, python-format
 msgid "%s (edited)"
 msgstr "%s (edited)"
 
-#: ../raphodo/ui/nameeditor.py:654 ../raphodo/ui/nameeditor.py:1578
+#: ../raphodo/ui/nameeditor.py:668 ../raphodo/ui/nameeditor.py:1635
 #, python-format
 msgid "Update Custom Preset \"%s\""
 msgstr "Egyéni beállítások frissítése \"%s\""
 
-#: ../raphodo/ui/nameeditor.py:747
+#: ../raphodo/ui/nameeditor.py:781
 msgid "Save New Custom Preset - Rapid Photo Downloader"
 msgstr "Mentse az új egyéni beállításokat - Rapid Photo Downloader"
 
-#: ../raphodo/ui/nameeditor.py:755
+#: ../raphodo/ui/nameeditor.py:789
 msgid "Preset Name:"
 msgstr "Előre beállított név:"
 
-#: ../raphodo/ui/nameeditor.py:890
+#: ../raphodo/ui/nameeditor.py:924
 msgid "Photo Subfolder Generation Editor"
 msgstr "Fénykép alkönyvtár generációs szerkesztő"
 
-#: ../raphodo/ui/nameeditor.py:897
+#: ../raphodo/ui/nameeditor.py:931
 #, fuzzy
 msgid "photo subfolder generation"
 msgstr "Fénykép alkönyvtár generációs szerkesztő"
 
-#: ../raphodo/ui/nameeditor.py:899
+#: ../raphodo/ui/nameeditor.py:933
 msgid "Video Subfolder Generation Editor"
 msgstr "Videó alkönyvtár generációs szerkesztő"
 
-#: ../raphodo/ui/nameeditor.py:906
+#: ../raphodo/ui/nameeditor.py:940
 #, fuzzy
 msgid "video subfolder generation"
 msgstr "Videó alkönyvtár generációs szerkesztő"
 
-#: ../raphodo/ui/nameeditor.py:908
+#: ../raphodo/ui/nameeditor.py:942
 msgid "Photo Renaming Editor"
 msgstr "Fénykép átnevezés szerkesztő"
 
-#: ../raphodo/ui/nameeditor.py:914
+#: ../raphodo/ui/nameeditor.py:948
 #, fuzzy
 msgid "photo renaming"
 msgstr "Fotó átnevezése"
 
-#: ../raphodo/ui/nameeditor.py:916
+#: ../raphodo/ui/nameeditor.py:950
 msgid "Video Renaming Editor"
 msgstr "Videó átnevezés szerkesztő"
 
-#: ../raphodo/ui/nameeditor.py:922
+#: ../raphodo/ui/nameeditor.py:956
 #, fuzzy
 msgid "video renaming"
 msgstr "Videó átnevezése"
 
-#: ../raphodo/ui/nameeditor.py:946
+#: ../raphodo/ui/nameeditor.py:980
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>There is insufficient data to "
 "fully generate the name. Please use other renaming options.</i>"
@@ -2129,12 +2129,12 @@ msgstr ""
 "név teljes generálásához. Kérjük, használjon más átnevezési beállításokat. </"
 "i>"
 
-#: ../raphodo/ui/nameeditor.py:964
+#: ../raphodo/ui/nameeditor.py:998
 #, python-format
 msgid "The character</i> %(separator)s <i>creates a new subfolder level."
 msgstr "A karakter <i> %(separator)s </i> új almappát állít elő."
 
-#: ../raphodo/ui/nameeditor.py:974
+#: ../raphodo/ui/nameeditor.py:1008
 #, python-format
 msgid ""
 "There is no need start or end with the folder separator </i> "
@@ -2143,7 +2143,7 @@ msgstr ""
 "Nincs szükség a szeparátor <i> %(separator)s </i> elindítására vagy "
 "befejezésére, mert automatikusan hozzáadódik."
 
-#: ../raphodo/ui/nameeditor.py:982
+#: ../raphodo/ui/nameeditor.py:1016
 msgid ""
 "<b><font color=\"red\">Warning:</font></b> <i>Unique filenames may not be "
 "generated. Make filenames unique by using Sequence values.</i>"
@@ -2152,26 +2152,35 @@ msgstr ""
 "létre egyedi fájlnevek.  A szekvenciaértékek használatával egyedi "
 "fájlneveket hozhat létre. </i>"
 
-#: ../raphodo/ui/nameeditor.py:1009 ../raphodo/ui/renamepanel.py:139
+#: ../raphodo/ui/nameeditor.py:1043 ../raphodo/ui/renamepanel.py:139
 msgid "Preset:"
 msgstr "Előbeállítás:"
 
 #. Translators: appears in a combobox, e.g. Image Date (YYYY)
-#: ../raphodo/ui/nameeditor.py:1092 ../raphodo/ui/nameeditor.py:1115
+#: ../raphodo/ui/nameeditor.py:1126 ../raphodo/ui/nameeditor.py:1149
 #, python-brace-format
 msgid "{choice} ({variant})"
 msgstr "{choice} ({variant})"
 
-#: ../raphodo/ui/nameeditor.py:1144 ../raphodo/prefs/preferencedialog.py:1071
+#: ../raphodo/ui/nameeditor.py:1178 ../raphodo/prefs/preferencedialog.py:1071
 #: ../raphodo/wsl.py:648
 msgid "Get help online..."
 msgstr "Online segítség kérése ..."
 
-#: ../raphodo/ui/nameeditor.py:1171
+#: ../raphodo/ui/nameeditor.py:1205
 msgid "Insert"
 msgstr "Beszúrás"
 
-#: ../raphodo/ui/nameeditor.py:1399
+#: ../raphodo/ui/nameeditor.py:1440
+#, fuzzy, python-format
+msgid ""
+"<b>Remove Custom Preset</b><br><br>Are you sure you want to remove the "
+"custom preset \"%(preset_name)s\"?"
+msgstr ""
+"<b> A letöltési cél jóváhagyása </b> <br> <br> Biztosan megadja a(z) "
+"%(file_type)s letöltési célállomását %(path)s számára?"
+
+#: ../raphodo/ui/nameeditor.py:1457
 #, fuzzy, python-format
 msgid ""
 "<b>Remove All Custom Presets</b><br><br>Are you sure you want to remove all "
@@ -2180,11 +2189,11 @@ msgstr ""
 "<b> A letöltési cél jóváhagyása </b> <br> <br> Biztosan megadja a(z) "
 "%(file_type)s letöltési célállomását %(path)s számára?"
 
-#: ../raphodo/ui/nameeditor.py:1543
+#: ../raphodo/ui/nameeditor.py:1601
 msgid "Save Preset - Rapid Photo Downloader"
 msgstr "Előbeállítás mentése - Rapid Photo Downloader"
 
-#: ../raphodo/ui/nameeditor.py:1547
+#: ../raphodo/ui/nameeditor.py:1604
 msgid ""
 "<b>Do you want to save the changes in a new custom preset?</"
 "b><br><br>Creating a custom preset is not required, but can help you keep "
@@ -2196,7 +2205,7 @@ msgstr ""
 "szervezettség megőrzésében. A preferenciák továbbra is alkalmazásra kerülnek "
 "függetlenül attól, hogy létrehozott-e egy új egyéni beállítást vagy sem."
 
-#: ../raphodo/ui/nameeditor.py:1568
+#: ../raphodo/ui/nameeditor.py:1625
 msgid ""
 "<b>Do you want to save the changes in a custom preset?</b><br><br>If you "
 "like, you can create a new custom preset or update the existing custom "
@@ -2208,7 +2217,7 @@ msgstr ""
 "beállításokat. A preferenciák módosításai továbbra is alkalmazásra kerülnek, "
 "függetlenül attól, hogy egyéni beállításokat mentett-e vagy sem."
 
-#: ../raphodo/ui/nameeditor.py:1582
+#: ../raphodo/ui/nameeditor.py:1639
 msgid "Save New Custom Preset"
 msgstr "Új egyéni beállítás mentése"
 
