@@ -24,7 +24,7 @@ Capture screenshots of Rapid Photo Downloader.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2020, Damon Lynch"
+__copyright__ = "Copyright 2020-24, Damon Lynch"
 __title__ = __file__
 __description__ = 'Capture screenshots of Rapid Photo Downloader.'
 
@@ -41,6 +41,8 @@ from typing import Tuple
 
 from PyQt5.QtGui import QImage, QColor, QGuiApplication, QPainter, QPen
 from PyQt5.QtCore import QRect, Qt
+
+import icecream
 
 # Position of window
 main_window_x = 920
@@ -283,6 +285,8 @@ def add_transparency(qimage: QImage) -> QImage:
 
 
 if __name__ == '__main__':
+    icecream.install()
+
     check_requirements()
 
     parser = parser_options()
@@ -303,6 +307,8 @@ if __name__ == '__main__':
     if parserargs.home is not None or parserargs.features is not None:
 
         window_x, window_y, width, height = get_window_details(program_name)
+        ic(window_x, window_y, width, height)
+
         restore_x, restore_y, restore_width, restore_height = window_x, window_y, width, height
 
         if parserargs.home:
@@ -337,6 +343,8 @@ if __name__ == '__main__':
             width=width - 2, height=height - titlebar_height - 1,
             program=wmctrl, program_name=program_name
         )
+
+        ic(resize)
 
         restore = resize_command.format(
             x=restore_x - 15, y=restore_y - titlebar_height * 2 - 1,
@@ -390,10 +398,3 @@ if __name__ == '__main__':
     cmd = '/usr/bin/eog {}'.format(image)
     args = shlex.split(cmd)
     subprocess.run(args)
-
-
-
-
-
-
-

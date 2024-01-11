@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2020-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2020-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -24,7 +24,7 @@ Extract Rapid Photo Downloader log files
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2020-2022, Damon Lynch"
+__copyright__ = "Copyright 2020-2024, Damon Lynch"
 __title__ = __file__
 __description__ = 'Extract and give nice names to Rapid Photo Downloader log files'
 
@@ -37,6 +37,7 @@ import argparse
 import tarfile
 import datetime
 
+import icecream
 
 def parser_options(formatter_class=argparse.HelpFormatter):
     parser = argparse.ArgumentParser(
@@ -53,6 +54,9 @@ def parser_options(formatter_class=argparse.HelpFormatter):
 
 
 if __name__ == '__main__':
+
+    icecream.install()
+
     parser = parser_options()
     args = parser.parse_args()
 
