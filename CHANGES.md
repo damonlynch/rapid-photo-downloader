@@ -45,7 +45,7 @@ Changelog for Rapid Photo Downloader
 
  - Conform to changes in package python-gphoto2 2.5.0.
 
- - Update Polish translation.
+ - Update Hungarian and Polish translations.
 
 0.9.34 (2022-11-02)
 -------------------
