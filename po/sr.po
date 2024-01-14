@@ -7,15 +7,15 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2024-01-07 17:22+1300\n"
-"PO-Revision-Date: 2022-02-21 17:12+0000\n"
+"PO-Revision-Date: 2024-01-07 02:22+0000\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
-"Language: sr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2023-12-26 23:20+0000\n"
+"X-Launchpad-Export-Date: 2024-01-14 06:36+0000\n"
 "X-Generator: Launchpad (build e1eeab5b20e19239bd7d5f36676f7a52988db88b)\n"
+"Language: sr\n"
 
 #: ../raphodo/ui/aboutdialog.py:335
 msgid "Credits"
@@ -55,8 +55,8 @@ msgstr "Сам пронађи уређаје за резерве"
 
 #: ../raphodo/ui/backuppanel.py:485
 msgid ""
-"Specify the folder in which backups are stored on the device."
-"<br><br><i>Note: the presence of a folder with this name is used to "
+"Specify the folder in which backups are stored on the "
+"device.<br><br><i>Note: the presence of a folder with this name is used to "
 "determine if the device is used for backups. For each device you wish to use "
 "for backing up to, create a folder in it with one of these folder names. By "
 "adding both folders, the same device can be used to back up both photos and "
@@ -66,8 +66,8 @@ msgstr ""
 "присуство фасцикле са овим називом се користи да одреди да ли се уређај "
 "користи за резерве. За сваки уређај који желите да користите за резерве, "
 "направите фасциклу на њему са једним од ових назива фасцикли. Додавањем обе "
-"фасцикле, исти уређај се може користити за резерве и фотографија и снимака.</"
-"i>"
+"фасцикле, исти уређај се може користити за резерве и фотографија и "
+"снимака.</i>"
 
 #: ../raphodo/ui/backuppanel.py:500
 msgid "Photo folder name:"
@@ -83,7 +83,8 @@ msgid "Example:"
 msgstr "Пример:"
 
 #: ../raphodo/ui/backuppanel.py:521
-msgid "If you disable automatic detection, choose the exact backup locations."
+msgid ""
+"If you disable automatic detection, choose the exact backup locations."
 msgstr ""
 "Ако искључите аутоматско налажење уређаја, изаберите тачна места за резерве."
 
@@ -494,8 +495,8 @@ msgid ""
 "<ol>\n"
 "<li><b>Modification Time:</b> when the file was last modified, according to "
 "its \n"
-"metadata (where available) or according to the filesystem (as a fallback).</"
-"li>\n"
+"metadata (where available) or according to the filesystem (as a "
+"fallback).</li>\n"
 "<li><b>Checked State:</b> whether the file is marked for download.</li>\n"
 "<li><b>Filename:</b> the full filename, including extension.</li>\n"
 "<li><b>Extension:</b> the filename's extension. You can use this to group "
@@ -513,15 +514,15 @@ msgstr ""
 "<li><b>Време измене:</b> када је датотека последњи пут измењена, у складу са "
 "њеним мета подацима (када су \n"
 " доступни) или у складу са системом датотека (као резерва).</li>\n"
-"<li><b>Стање изабраности:</b> да ли је датотека означена за преузимање.</"
-"li>\n"
+"<li><b>Стање изабраности:</b> да ли је датотека означена за "
+"преузимање.</li>\n"
 "<li><b>Назив датотеке:</b> пун назив датотеке, укључујући наставак.</li>\n"
 "<li><b>Наставак:</b> наставак назива датотеке. Можете користити ово за "
 "груписање јпег и сирових слика, на \n"
 "пример.</li>\n"
 "<li><b>Врста датотеке:</b> фотографија или снимак.</li>\n"
-"<li><b>Уређај:</b> назив уређаја са кога су преузете фотографије и снимци.</"
-"li>\n"
+"<li><b>Уређај:</b> назив уређаја са кога су преузете фотографије и "
+"снимци.</li>\n"
 "</ol>"
 
 #: ../raphodo/ui/didyouknow.py:172
@@ -551,8 +552,8 @@ msgid ""
 "different types\n"
 "of directory:\n"
 "<ol>\n"
-"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, &quot;"
-"Photos&quot;, or\n"
+"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, "
+"&quot;Photos&quot;, or\n"
 "&quot;Videos&quot;. This directory should already exist on your computer. In "
 "the \n"
 "illustration below, the destination folders are &quot;Pictures&quot; and \n"
@@ -565,8 +566,8 @@ msgid ""
 "automatically \n"
 "generated by Rapid Photo Downloader. They need not already exist on your "
 "computer, but \n"
-"it's okay if they do. They will be generated under the destination folder.</"
-"li>\n"
+"it's okay if they do. They will be generated under the destination "
+"folder.</li>\n"
 "</ol>"
 msgstr ""
 "\n"
@@ -686,8 +687,8 @@ msgstr ""
 "<li><b>Шифра посла</b>, је слободан текст који наводите у време преузимања, "
 "као што је\n"
 "назив догађаја или место.</li>\n"
-"<li><b>Текст</b> који желите да се увек појави, као што је цртица или размак."
-"</li>\n"
+"<li><b>Текст</b> који желите да се увек појави, као што је цртица или "
+"размак.</li>\n"
 "</ol>\n"
 "Именовање подфасцикли годином, месецом и на крају даном у бројевном облику "
 "чини лаким \n"
@@ -753,8 +754,8 @@ msgstr ""
 "\n"
 "Не морате да направите угнеждене подфасцикле преузимања. Ова илустрација "
 "показује \n"
-"стварање подфасцикли преузимања које садрже само датум снимања фотографија "
-"и \n"
+"стварање подфасцикли преузимања које садрже само датум снимања фотографија и "
+"\n"
 "шифру посла:"
 
 #: ../raphodo/ui/didyouknow.py:291
@@ -786,15 +787,16 @@ msgid ""
 "Read more about all the ways you can generate download subfolder names and "
 "file names \n"
 "in the \n"
-"<a href=\"http://damonlynch.net/rapid/documentation/"
-"#renamedateandtime\">online \n"
+"<a "
+"href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime\">online "
+"\n"
 "documentation</a>."
 msgstr ""
 "\n"
 "Прочитајте више о свим начинима на које можете створити назив подфасцикле "
 "преузимања и називе датотека у <a \n"
-"href=\"http://damonlynch.net/rapid/documentation/"
-"#renamedateandtime\">документацији на мрежи</a>."
+"href=\"http://damonlynch.net/rapid/documentation/#renamedateandtime\">докумен"
+"тацији на мрежи</a>."
 
 #: ../raphodo/ui/didyouknow.py:309
 msgid ""
@@ -866,8 +868,8 @@ msgid ""
 "names to your \n"
 "photos and videos:\n"
 "<ol>\n"
-"<li><b>Downloads today</b>: tracks downloads completed during that day.</"
-"li>\n"
+"<li><b>Downloads today</b>: tracks downloads completed during that "
+"day.</li>\n"
 "<li><b>Stored number</b>: similar to Downloads today, but it is remembered "
 "from the \n"
 "last time the program was run.</li>\n"
@@ -884,19 +886,19 @@ msgstr ""
 "јединствене називе вашим фотографијама и \n"
 "снимцима:\n"
 "<ol>\n"
-"<li><b>Данашња преузимања</b>: прати преузимања обављена током тог дана.</"
-"li>\n"
+"<li><b>Данашња преузимања</b>: прати преузимања обављена током тог "
+"дана.</li>\n"
 "<li><b>Сачувани број</b>: слично као данашња преузимања, али се памти из "
 "последњег покретања \n"
 "програма.</li>\n"
-"<li><b>Број сесије</b>: поништава се приликом сваког покретања програма.</"
-"li>\n"
+"<li><b>Број сесије</b>: поништава се приликом сваког покретања "
+"програма.</li>\n"
 "<li><b>Слово низа</b>: као бројеви низа, али користи слова.</li>\n"
 "</ol></p>\n"
 "<p>\n"
 "Прочитајте више о бројевима низа у <a \n"
-"href=\"http://damonlynch.net/rapid/documentation/"
-"#sequencenumbers\">документацији на мрежи</a>.</p>"
+"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers\">документа"
+"цији на мрежи</a>.</p>"
 
 #: ../raphodo/ui/didyouknow.py:358
 msgid ""
@@ -976,8 +978,8 @@ msgid ""
 "their default state, and caches and remembered files cleared."
 msgstr ""
 "\n"
-"Некe поставке програма се могу подесити са линије наредби, укључујући "
-"изворе \n"
+"Некe поставке програма се могу подесити са линије наредби, укључујући изворе "
+"\n"
 "преузимања, одредишта и резерве. Осим тога, подешавања се могу вратити на "
 "њихова \n"
 "подразумевана стања, а остава и запамћене датотеке очишћене."
@@ -996,8 +998,8 @@ msgid ""
 "your cameras, memory cards, and other devices.</li>\n"
 "<li>A <b>temporary cache</b> of files downloaded from a camera, one for "
 "photos and \n"
-"another for videos. They are located in temporary subfolders in the "
-"download \n"
+"another for videos. They are located in temporary subfolders in the download "
+"\n"
 "destination.</li>\n"
 "<li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo Downloader "
 "stores \n"
@@ -1957,7 +1959,8 @@ msgstr ""
 "или постојећу шифру посла на њих."
 
 #: ../raphodo/ui/jobcodepanel.py:254
-msgid "The new Job Code will be applied to all selected photos and/or videos."
+msgid ""
+"The new Job Code will be applied to all selected photos and/or videos."
 msgstr ""
 "Нова шифра посла биће примењена на све изабране фотографије и/или снимке."
 
@@ -2052,14 +2055,13 @@ msgid "Save New Custom Preset..."
 msgstr "Сачувај нову произвољну подешеност..."
 
 #: ../raphodo/ui/nameeditor.py:594
-#, fuzzy
 msgid "Remove Custom Preset..."
-msgstr "Уклони све произвољне подешености..."
+msgstr ""
 
 #: ../raphodo/ui/nameeditor.py:596
-#, fuzzy, python-format
+#, python-format
 msgid "Remove Custom Preset \"%(preset_name)s\"..."
-msgstr "Уклони све произвољне подешености..."
+msgstr ""
 
 #: ../raphodo/ui/nameeditor.py:601
 msgid "Remove All Custom Presets..."
@@ -2092,36 +2094,32 @@ msgid "Photo Subfolder Generation Editor"
 msgstr "Уређивач творца подфасцикле фотографија"
 
 #: ../raphodo/ui/nameeditor.py:937
-#, fuzzy
 msgid "photo subfolder generation"
-msgstr "Уређивач творца подфасцикле фотографија"
+msgstr ""
 
 #: ../raphodo/ui/nameeditor.py:939
 msgid "Video Subfolder Generation Editor"
 msgstr "Уређивач творца подфасцикле снимака"
 
 #: ../raphodo/ui/nameeditor.py:946
-#, fuzzy
 msgid "video subfolder generation"
-msgstr "Уређивач творца подфасцикле снимака"
+msgstr ""
 
 #: ../raphodo/ui/nameeditor.py:948
 msgid "Photo Renaming Editor"
 msgstr "Уређивач преименовања фотографија"
 
 #: ../raphodo/ui/nameeditor.py:954
-#, fuzzy
 msgid "photo renaming"
-msgstr "Преименовање фотографија"
+msgstr ""
 
 #: ../raphodo/ui/nameeditor.py:956
 msgid "Video Renaming Editor"
 msgstr "Уређивач преименовања снимака"
 
 #: ../raphodo/ui/nameeditor.py:962
-#, fuzzy
 msgid "video renaming"
-msgstr "Преименовање снимака"
+msgstr ""
 
 #: ../raphodo/ui/nameeditor.py:986
 msgid ""
@@ -2174,22 +2172,18 @@ msgid "Insert"
 msgstr "Уметни"
 
 #: ../raphodo/ui/nameeditor.py:1457
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<b>Remove Custom Preset</b><br><br>Are you sure you want to remove the "
 "custom preset \"%(preset_name)s\"?"
 msgstr ""
-"<b>Потврди одредиште преузимања</b><br><br>Да ли сигурно желите да подесите "
-"одредиште преузимања „%(file_type)s“ у „%(path)s“?"
 
 #: ../raphodo/ui/nameeditor.py:1475
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<b>Remove All Custom Presets</b><br><br>Are you sure you want to remove all "
 "%(preset_type)s custom presets?"
 msgstr ""
-"<b>Потврди одредиште преузимања</b><br><br>Да ли сигурно желите да подесите "
-"одредиште преузимања „%(file_type)s“ у „%(path)s“?"
 
 #: ../raphodo/ui/nameeditor.py:1635
 msgid "Save Preset - Rapid Photo Downloader"
@@ -2197,15 +2191,16 @@ msgstr "Сачувајте подешеност — Брзи преносила�
 
 #: ../raphodo/ui/nameeditor.py:1638
 msgid ""
-"<b>Do you want to save the changes in a new custom preset?</"
-"b><br><br>Creating a custom preset is not required, but can help you keep "
-"organized.<br><br>The changes to the preferences will still be applied "
-"regardless of whether you create a new custom preset or not."
+"<b>Do you want to save the changes in a new custom "
+"preset?</b><br><br>Creating a custom preset is not required, but can help "
+"you keep organized.<br><br>The changes to the preferences will still be "
+"applied regardless of whether you create a new custom preset or not."
 msgstr ""
-"<b>Да ли желите да сачувате измене у новој произвољној подешености?</"
-"b><br><br>Прављење произвољне подешености није потребно, али вам може помоћи "
-"да будете организовани.<br><br>Измене у поставкама ће и даље бити примењене "
-"без обзира на то да ли сте направили нову произвољну подешеност или не."
+"<b>Да ли желите да сачувате измене у новој произвољној "
+"подешености?</b><br><br>Прављење произвољне подешености није потребно, али "
+"вам може помоћи да будете организовани.<br><br>Измене у поставкама ће и даље "
+"бити примењене без обзира на то да ли сте направили нову произвољну "
+"подешеност или не."
 
 #: ../raphodo/ui/nameeditor.py:1659
 msgid ""
@@ -2684,7 +2679,8 @@ msgid "Backup destinations are missing"
 msgstr "Недостају одредишта резерве"
 
 #: ../raphodo/prefs/preferencedialog.py:735
-msgid "Warn before starting a download if it is not possible to back up files."
+msgid ""
+"Warn before starting a download if it is not possible to back up files."
 msgstr ""
 "Упозорава пре почетка преузимања ако није могуће направити резерву датотека."
 
@@ -2961,8 +2957,8 @@ msgid ""
 "and extract thumbnails.</p><p>The default is to use MediaInfo and Gstreamer, "
 "with three exceptions:</p><ol><li>ExifTool reports a time zone and MediaInfo "
 "does not.</li><li>ExifTool provides more reliable data than MediaInfo for "
-"some file formats.</li><li>Gstreamer is unable to extract thumbnails.</li></"
-"ol>"
+"some file formats.</li><li>Gstreamer is unable to extract "
+"thumbnails.</li></ol>"
 msgstr ""
 
 #: ../raphodo/prefs/preferencedialog.py:1024
@@ -3110,7 +3106,8 @@ msgstr "Поставке садржане фасцикле не треба да 
 #: ../raphodo/prefs/preferences.py:745
 #, python-format
 msgid "Subfolder preferences should not contain two %s one after the other"
-msgstr "Поставке садржане фасцикле не треба да садрже два „%s“ један за другим"
+msgstr ""
+"Поставке садржане фасцикле не треба да садрже два „%s“ један за другим"
 
 #: ../raphodo/ui/primarybutton.py:124
 msgid "Download 8 Photos and 10 Videos"
@@ -3326,8 +3323,8 @@ msgid ""
 "The filename %(destination)s was not fully generated for %(filetype)s "
 "%(source)s."
 msgstr ""
-"Назив датотеке „%(destination)s“ није потпуно направљен за "
-"„%(filetype)s“ „%(source)s“."
+"Назив датотеке „%(destination)s“ није потпуно направљен за „%(filetype)s“ "
+"„%(source)s“."
 
 #. Translators: %(variable)s represents Python code, not a plural of
 #. the term variable. You must keep the %(variable)s untranslated, or
@@ -3641,8 +3638,9 @@ msgid ""
 "<b>Cannot download from Apple devices</b><br><br>To download from "
 "%(device)s, this program requires additional software be installed that "
 "interacts with Apple devices.<br><br>Missing applications: "
-"%(applications)s<br><br><a href=\"https://damonlynch.net/rapid/documentation/"
-"#iosdevicesupport\">Learn more</a> about which software to install."
+"%(applications)s<br><br><a "
+"href=\"https://damonlynch.net/rapid/documentation/#iosdevicesupport\">Learn "
+"more</a> about which software to install."
 msgstr ""
 
 #: ../raphodo/rapid.py:1600
@@ -3651,8 +3649,8 @@ msgid ""
 "<p>Rapid Photo Downloader is made for you. You can help improve it by "
 "participating in a\n"
 "web survey.</p>\n"
-"<p>Because this program does not collect analytics, the survey makes a "
-"real \n"
+"<p>Because this program does not collect analytics, the survey makes a real "
+"\n"
 "difference to the program's future.</p>"
 msgstr ""
 
@@ -3939,8 +3937,8 @@ msgid ""
 "<b>The %(filetype)s backup destination does not exist or cannot be written "
 "to.</b><br><br>Do you still want to start the download?"
 msgstr ""
-"<b>Одредиште резерви „%(filetype)s“ не постоји или се не може писати у њега."
-"</b><br><br>Да ли још увек желите да започнете преузимање?"
+"<b>Одредиште резерви „%(filetype)s“ не постоји или се не може писати у "
+"њега.</b><br><br>Да ли још увек желите да започнете преузимање?"
 
 #: ../raphodo/rapid.py:3306 ../raphodo/rpdfile.py:181 ../raphodo/rpdfile.py:850
 msgid "photo"
@@ -4062,35 +4060,38 @@ msgid ""
 "or not configured for file transfers using USB. You can unlock it and try "
 "again.<br><br>On some models you also need to change the setting to allow "
 "the use of USB for <i>File Transfer</i>.<br><br>Learn more about <a "
-"href=\"https://damonlynch.net/rapid/documentation/"
-"#downloadingfromcameras\">downloading from cameras</a> and <a href=\"https://"
-"damonlynch.net/rapid/documentation/#downloadingfromphones\">enabling "
-"downloading from phones</a>. <br><br>Alternatively, you can ignore the "
-"%(camera)s."
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">d"
+"ownloading from cameras</a> and <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">en"
+"abling downloading from phones</a>. <br><br>Alternatively, you can ignore "
+"the %(camera)s."
 msgstr ""
 "<b>Све датотека на „%(camera)s“ су неприступачне</b>.<br><br>Можда је "
 "закључан или није подешен за пренос датотека помоћу УСБ-а. Можете да га "
 "откључате и да покушате поново.<br><br>На неким моделима треба такође да "
-"измените подешавање да омогућите коришћење УСБ-а за <i>Пренос датотека</i>."
-"<br><br>Сазнајте више о <a href=\"https://damonlynch.net/rapid/documentation/"
-"#downloadingfromcameras\">преузимању са фото-апарат</a> и <a href=\"https://"
-"damonlynch.net/rapid/documentation/#downloadingfromphones\">омогућавању "
-"преузимања са телефона</a>. <br><br>Или једноставно, занемарите „%(camera)s“."
+"измените подешавање да омогућите коришћење УСБ-а за <i>Пренос "
+"датотека</i>.<br><br>Сазнајте више о <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">п"
+"реузимању са фото-апарат</a> и <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">ом"
+"огућавању преузимања са телефона</a>. <br><br>Или једноставно, занемарите "
+"„%(camera)s“."
 
 #: ../raphodo/rapid.py:4619
 #, python-format
 msgid ""
-"<b>The %(camera)s appears to be in use by another application.</"
-"b><br><br>Rapid Photo Downloader cannnot access a phone or camera that is "
-"being used by another program like a file manager.<br><br>If the device is "
-"mounted in your file manager, you must first &quot;eject&quot; it from the "
-"other program while keeping the %(camera)s plugged in.<br><br>If that does "
-"not work, unplug the %(camera)s from the computer and plug it in again."
-"<br><br>Learn more about <a href=\"https://damonlynch.net/rapid/"
-"documentation/#downloadingfromcameras\">downloading from cameras</a> and <a "
-"href=\"https://damonlynch.net/rapid/documentation/"
-"#downloadingfromphones\">enabling downloading from phones</a>. "
-"<br><br>Alternatively, you can ignore the %(camera)s."
+"<b>The %(camera)s appears to be in use by another "
+"application.</b><br><br>Rapid Photo Downloader cannnot access a phone or "
+"camera that is being used by another program like a file manager.<br><br>If "
+"the device is mounted in your file manager, you must first &quot;eject&quot; "
+"it from the other program while keeping the %(camera)s plugged in.<br><br>If "
+"that does not work, unplug the %(camera)s from the computer and plug it in "
+"again.<br><br>Learn more about <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">d"
+"ownloading from cameras</a> and <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">en"
+"abling downloading from phones</a>. <br><br>Alternatively, you can ignore "
+"the %(camera)s."
 msgstr ""
 "<b>Изгледа да се „%(camera)s“ користи у другом програму.</b><br><br>Брзи "
 "преносилац фотографија не може да приступи телефону или фото-апарату који се "
@@ -4098,10 +4099,11 @@ msgstr ""
 "прикачен у вашем управнику датотека, морате прво да га „избаците“ из другог "
 "програма док је „%(camera)s“ прикључен.<br><br>Ако ово не делује, искључите "
 "„%(camera)s“ из рачунара и поново га прикључите.<br><br>Сазнајте више о <a "
-"href=\"https://damonlynch.net/rapid/documentation/"
-"#downloadingfromcameras\">преузимању са фото-апарата</a> и <a href=\"https://"
-"damonlynch.net/rapid/documentation/#downloadingfromphones\">омогућавању "
-"преузимања са телефона</a>. <br><br>Или једноставно занемарите „%(camera)s“."
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromcameras\">п"
+"реузимању са фото-апарата</a> и <a "
+"href=\"https://damonlynch.net/rapid/documentation/#downloadingfromphones\">ом"
+"огућавању преузимања са телефона</a>. <br><br>Или једноставно занемарите "
+"„%(camera)s“."
 
 #: ../raphodo/rapid.py:4639
 msgid "Enable access to the iOS Device"
@@ -4118,7 +4120,8 @@ msgstr "&Занемари овај уређај"
 #: ../raphodo/rapid.py:4743
 #, python-format
 msgid "Sorry, an unexpected problem occurred while scanning %s."
-msgstr "Извините, дошло је до неочекиваног проблема приликом прегледања „%s“."
+msgstr ""
+"Извините, дошло је до неочекиваног проблема приликом прегледања „%s“."
 
 #: ../raphodo/rapid.py:4746
 msgid "Unfortunately you cannot download from this device."
@@ -4139,30 +4142,30 @@ msgstr "Преглед уређаја није успео"
 #: ../raphodo/rapid.py:5288
 #, python-format
 msgid ""
-"<b>The %(camera)s cannot be scanned because it cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again."
+"<b>The %(camera)s cannot be scanned because it cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again."
 msgstr ""
-"<b>„%(camera)s“ не може бити прегледан јер не може бити откачен.</"
-"b><br><br>Можете затворити све друге програме (као што је прегледник "
-"датотека) који га користе и покушате опет. Ако ово не делује, откачите "
-"„%(camera)s“ са рачунара и поново га прикачите."
+"<b>„%(camera)s“ не може бити прегледан јер не може бити "
+"откачен.</b><br><br>Можете затворити све друге програме (као што је "
+"прегледник датотека) који га користе и покушате опет. Ако ово не делује, "
+"откачите „%(camera)s“ са рачунара и поново га прикачите."
 
 #: ../raphodo/rapid.py:5323
 #, python-format
 msgid ""
-"<b>The download cannot start because the %(camera)s cannot be unmounted.</"
-"b><br><br>You can close any other application (such as a file browser) that "
-"is using it and try again. If that does not work, unplug the %(camera)s from "
-"the computer and plug it in again, and choose which files you want to "
-"download from it."
+"<b>The download cannot start because the %(camera)s cannot be "
+"unmounted.</b><br><br>You can close any other application (such as a file "
+"browser) that is using it and try again. If that does not work, unplug the "
+"%(camera)s from the computer and plug it in again, and choose which files "
+"you want to download from it."
 msgstr ""
-"<b>Преузимање не може започети јер „%(camera)s“ не може бити откачен.</"
-"b><br><br>Можете затворити све друге програме (као што је прегледник "
-"датотека) који га користе и покушате опет. Ако ово не делује, откачите "
-"„%(camera)s“ са рачунара и поново га прикачите, и изаберите које датотеке "
-"желите да преузмете."
+"<b>Преузимање не може започети јер „%(camera)s“ не може бити "
+"откачен.</b><br><br>Можете затворити све друге програме (као што је "
+"прегледник датотека) који га користе и покушате опет. Ако ово не делује, "
+"откачите „%(camera)s“ са рачунара и поново га прикачите, и изаберите које "
+"датотеке желите да преузмете."
 
 #: ../raphodo/rapid.py:5485
 msgid "Completed Downloads Present"
@@ -4195,8 +4198,8 @@ msgstr "Да ли желите да очистите завршено преуз
 msgid ""
 "Do you want to download photos and videos from the device <i>%(device)s</i>?"
 msgstr ""
-"Да ли желите да преузмете фотографије и снимке са уређаја „<i>%(device)s</"
-"i>“?"
+"Да ли желите да преузмете фотографије и снимке са уређаја "
+"„<i>%(device)s</i>“?"
 
 #: ../raphodo/rapid.py:5922
 #, python-format
@@ -4216,8 +4219,8 @@ msgstr ""
 msgid ""
 "<b>Do you want to ignore the device %s whenever this program is run?</b>"
 msgstr ""
-"<b>Да ли желите да занемарите уређај „%s“ приликом сваког покретања програма?"
-"</b>"
+"<b>Да ли желите да занемарите уређај „%s“ приликом сваког покретања "
+"програма?</b>"
 
 #: ../raphodo/rapid.py:5936
 msgid "Any device with the same name will be ignored."
@@ -4372,13 +4375,15 @@ msgid "Ignore photos with the following extensions: %s"
 msgstr "Занемари фотографије са следећим наставцима: %s"
 
 #: ../raphodo/rapid.py:6884
-msgid "Turn on or off starting downloads as soon as the program itself starts."
+msgid ""
+"Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 "Укључите или искључите започињање преузимања по самом покретању програма."
 
 #: ../raphodo/rapid.py:6891
 msgid "Turn on or off starting downloads as soon as a device is inserted."
-msgstr "Укључите или искључите започињање преузимања по самом уметању уређаја."
+msgstr ""
+"Укључите или искључите започињање преузимања по самом уметању уређаја."
 
 #: ../raphodo/rapid.py:6898
 msgid ""
@@ -4456,7 +4461,8 @@ msgstr "Увозим поставке из Брзог преносиоца фо�
 
 #: ../raphodo/rapid.py:7144
 #, python-format
-msgid "Do you want to copy the stored sequence number, which has the value %d?"
+msgid ""
+"Do you want to copy the stored sequence number, which has the value %d?"
 msgstr "Да ли желите да умножите сачувани број низа, који има вредност %d?"
 
 #: ../raphodo/rapid.py:7159
@@ -4714,7 +4720,8 @@ msgstr "Преузето као:"
 #: ../raphodo/thumbnaildisplay.py:682
 #, python-format
 msgid "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
-msgstr "<br><br>Претходно преузимање:<br>%(filename)s<br>%(path)s<br>%(date)s"
+msgstr ""
+"<br><br>Претходно преузимање:<br>%(filename)s<br>%(path)s<br>%(date)s"
 
 #: ../raphodo/thumbnaildisplay.py:691
 #, python-format
@@ -5108,580 +5115,15 @@ msgstr "Преносилац фотографија"
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:5
 msgid ""
-"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
-"memory;card;"
+"photo;download;photography;import;video;RAW;camera;phone;ingest;backup;memory"
+";card;"
 msgstr ""
-"фотографија;преузми;увези;снимак;фото-апарат;телефон;резерва;меморија;"
-"картица;"
+"фотографија;преузми;увези;снимак;фото-"
+"апарат;телефон;резерва;меморија;картица;"
 
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Преузмите фотографије и снимке са Брзим преносиоцем фотографија"
-
-#~ msgid ""
-#~ "To continue, please first install the python3 package setuptools using "
-#~ "your system's package manager."
-#~ msgstr ""
-#~ "Да наставите, прво инсталирајте алате подешавања пакета „python3“ "
-#~ "користећи управника пакета вашег система."
-
-#~ msgid "Rapid Photo Downloader installer"
-#~ msgstr "Инсталер Брзог преносиоца фотографија"
-
-#~ msgid "Download and install latest version of Rapid Photo Downloader."
-#~ msgstr ""
-#~ "Преузмите и инсталирајте најновије издање Брзог преносиоца фотографија."
-
-#~ msgid ""
-#~ "The software repository RPM Fusion Free was added to your system to (1) "
-#~ "enable generating thumbnails for a wider range of video formats, and (2) "
-#~ "enable support for the HEIC / HEIF image format."
-#~ msgstr ""
-#~ "Ризница софтвера „RPM Fusion Free“ је додата вашем систему да се (1) "
-#~ "укључи стварање сличица за широки опсег видео формата, (2) да се укључи "
-#~ "подршка за „HEIC / HEIF“ формат слике."
-
-#~ msgid "Installer not found:"
-#~ msgstr "Нисам нашао инсталера:"
-
-#~ msgid "Installer not in tar.gz format:"
-#~ msgstr "Инсталер није у „tar.gz“ запису:"
-
-#~ msgid "Exiting..."
-#~ msgstr "Излазим..."
-
-#~ msgid "The specified PyQt5 version does not exist. Valid versions are: {}."
-#~ msgstr "Наведено „PyQt5“ издање не постоји. Исправна издања су: {}."
-
-#~ msgid "{} will be upgraded from version {} to version {}"
-#~ msgstr "{} биће надограђено са издања {} на издање {}"
-
-#~ msgid ""
-#~ "These Python3 packages will be upgraded for your user (i.e. not system-"
-#~ "wide): {}"
-#~ msgstr ""
-#~ "Пакети Питона3 биће надограђени за вашег корисника (тј. нису свеопште "
-#~ "системски): {}"
-
-#, python-brace-format
-#~ msgid ""
-#~ "Incorrect folder ownership detected. Changing ownership of and resetting "
-#~ "permissions for {file_system_path}."
-#~ msgstr ""
-#~ "Откривено је погрешно власништво фасцикле. Мењам власништво и враћам "
-#~ "овлашћења за „{file_system_path}“."
-
-#~ msgid "The following command will be run:"
-#~ msgstr "Биће покренута следећа наредба:"
-
-#~ msgid "sudo may prompt you for the sudo password."
-#~ msgstr "„sudo“ вам може поставити упит за судо лозинку."
-
-#~ msgid "Would you like to run the command now?"
-#~ msgstr "Да ли желите сада да покренете наредбу?"
-
-#~ msgid "Answer is not yes, exiting."
-#~ msgstr "Одговор није позитиван, излазим."
-
-#~ msgid "Command failed"
-#~ msgstr "Наредба није успела"
-
-#~ msgid "Exiting"
-#~ msgstr "Излазим"
-
-#~ msgid "The Universe repository must be enabled."
-#~ msgstr "Ризница универзума мора бити укључена."
-
-#~ msgid "The EPEL repository must be enabled."
-#~ msgstr "Ризница „EPEL“ мора бити укључена."
-
-#~ msgid "The RPM Fusion Free repository must be enabled."
-#~ msgstr "Ризница „RPM Fusion Free“ мора бити укључена."
-
-#~ msgid ""
-#~ "Do you want to to uninstall the previous version of Rapid Photo "
-#~ "Downloader?"
-#~ msgstr ""
-#~ "Да ли желите да дизинсталирате претходно издање Брзог преносиоца "
-#~ "фотографија?"
-
-#~ msgid ""
-#~ "Querying package system to see if an older version of Rapid Photo "
-#~ "Downloader is installed (this may take a while)..."
-#~ msgstr ""
-#~ "Пропитујем систем пакета да видим да ли је инсталирано старије издање "
-#~ "Брзог преносиоца фотографија (ово може потрајати)..."
-
-#~ msgid "Uninstalling system package"
-#~ msgstr "Уклањам системски пакет"
-
-#~ msgid ""
-#~ "Unable to query package system. Please check your Internet connection and "
-#~ "try again."
-#~ msgstr ""
-#~ "Не могу да пропитам систем пакета. Проверите вашу Интернет везу и "
-#~ "покушајте поново."
-
-#~ msgid "Checking if previous version installed with pip..."
-#~ msgstr "Проверавам да ли је претходно издање инсталирано „pip“-ом..."
-
-#~ msgid "The following package is unknown on your system: {}\n"
-#~ msgstr "Следећи пакет није познат на вашем систему: {}\n"
-
-#~ msgid ""
-#~ "To continue, some packages required to run the application will be "
-#~ "installed."
-#~ msgstr ""
-#~ "За наставак, неки пакети потребни за покретање програма биће инсталирани."
-
-#~ msgid "Querying installed and available packages (this may take a while)"
-#~ msgstr "Пропитујем инсталиране и доступне пакете (ово може потрајати)"
-
-#~ msgid ""
-#~ "Querying zypper to see if any required packages are already installed "
-#~ "(this may take a while)... "
-#~ msgstr ""
-#~ "Пропитујем „zypper“ да видим да ли је неки од потребних пакета већ "
-#~ "инсталиран (ово може да потраје)... "
-
-#~ msgid "Query to confirm action at each step."
-#~ msgstr "Пропитај за потврђивање радње при сваком кораку."
-
-#~ msgid ""
-#~ "When downloading the latest version, install the development version if "
-#~ "it is newer than the stable version."
-#~ msgstr ""
-#~ "Приликом преузимања последњег издања, инсталирај развојно издање ако је "
-#~ "новије од стабилног издања."
-
-#~ msgid ""
-#~ "Optional tar.gz Rapid Photo Downloader installer archive. If not "
-#~ "specified, the latest version is downloaded from the Internet."
-#~ msgstr ""
-#~ "Опционална „tar.gz“ архива инсталера Брзог преносника фотографија. Ако "
-#~ "није наведено, последње издање се преузима са Интернета."
-
-#~ msgid ""
-#~ "Do not run the installer in the tar.gz Rapid Photo Downloader installer "
-#~ "archive if it is newer than this version ({}). The default is to run "
-#~ "whichever installer is newer."
-#~ msgstr ""
-#~ "Не покрећи инсталера у „tar.gz“ архиви инсталера Брзог преносника "
-#~ "фотографија ако је новије од тог издања ({}). Подразумева се покретање "
-#~ "новијег инсталера."
-
-#~ msgid ""
-#~ "Uninstall Rapid Photo Downloader that was installed with pip, keeping its "
-#~ "dependencies."
-#~ msgstr ""
-#~ "Уклони Брзог преносника фотографија који је инсталиран пип-ом, "
-#~ "задржавајући његове зависности."
-
-#~ msgid ""
-#~ "Uninstall the dependencies installed by pip during Rapid Photo "
-#~ "Downloader's installation, and Rapid Photo Downloader itself, then exit."
-#~ msgstr ""
-#~ "Уклони зависности инсталиране пип-ом приликом инсталације Брзог "
-#~ "преносника фотографија, и њега самог, затим изађи."
-
-#~ msgid ""
-#~ "Note: this will not uninstall any version of Rapid Photo Downloader "
-#~ "installed by your Linux distribution's package manager."
-#~ msgstr ""
-#~ "Напомена: ово неће уклонити ниједно издање Брзог преносника фотографија "
-#~ "инсталираног управником пакета ваше Линукс дистрибуције."
-
-#~ msgid ""
-#~ "Dependencies will only be removed if they are not required by other "
-#~ "programs."
-#~ msgstr ""
-#~ "Зависности ће бити уклоњене само ако их други програми не захтевају."
-
-#~ msgid ""
-#~ "Note: this option will remove the dependencies regardless of whether they "
-#~ "are required by another program pip has installed. Upgrade to pip 9.0 or "
-#~ "above if you want to avoid this behavior. You can do so using the command "
-#~ "'python3 -m pip install pip -U --user'. Also note that any version of "
-#~ "Rapid Photo Downloader installed by your Linux distribution's package "
-#~ "manager will not be uninstalled."
-#~ msgstr ""
-#~ "Напомена: ова опција ће уклонити зависности без обзира да ли их захтева "
-#~ "неки други програм инсталиран пип-ом. Надоградите на „pip 9.0“ или новије "
-#~ "ако желите да избегнете ово понашање. То можете урадити помоћу наредбе "
-#~ "„python3 -m pip install pip -U --user“. Знајте такође да било које издање "
-#~ "Брзог преносника фотографија које је инсталирао управник пакета ваше "
-#~ "Линукс дистрибуције неће бити уклоњено."
-
-#~ msgid ""
-#~ "Install in current Python virtual environment. Virtual environments "
-#~ "created with the --system-site-packages option are not supported."
-#~ msgstr ""
-#~ "Инсталира текуће виртуелно окружење Питона. Виртуелна окружења створена "
-#~ "опцијом „--system-site-packages“ нису подржана."
-
-#~ msgid ""
-#~ "Specific version of PyQt5 to install (default is the most recent "
-#~ "version{})."
-#~ msgstr ""
-#~ "Специфично издање „PyQt5“ за инсталирање (подразумева се најновије "
-#~ "издање{})."
-
-#~ msgid ""
-#~ "Instead of using PyQt5 from PyPi, use your Linux distribution's version. "
-#~ "Uninstalls any PyPi versions already installed."
-#~ msgstr ""
-#~ "Уместо да користи „PyQt5“ из „PyPi“-ја, користи издање ваше Линукс "
-#~ "дистрибуције. Уклања сва „PyPi“ издања већ инсталирана."
-
-#~ msgid "Failed to download versions file."
-#~ msgstr "Нисам успео да преузмем датотеку издања."
-
-#~ msgid "Got error code {} while accessing versions file"
-#~ msgstr "Добих код грешке {} приликом приступа датотеци издања"
-
-#~ msgid ""
-#~ "Sorry, could not locate installer. Please check your Internet connection "
-#~ "and verify if you can reach https://www.damonlynch.net\n"
-#~ "\n"
-#~ "Exiting.\n"
-#~ msgstr ""
-#~ "Извините, не могу да нађем инсталера. Проверите вашу Интернет везу и да "
-#~ "ли можете отворити страницу „https://www.damonlynch.net“\n"
-#~ "\n"
-#~ "Излазим.\n"
-
-#~ msgid ""
-#~ "Package {} failed to install but Rapid Photo Downloader installation will "
-#~ "continue."
-#~ msgstr ""
-#~ "Пакет „{}“ није успео да се инсталира али ће се инсталација програма "
-#~ "наставити."
-
-#~ msgid "Received error code"
-#~ msgstr "Примих код грешке"
-
-#~ msgid "Failed to install application requirements: exiting."
-#~ msgstr "Нисам успео да инсталирам потрепштине програма: излазим."
-
-#~ msgid "Failed to install application: exiting..."
-#~ msgstr "Нисам успео да инсталирам програм: излазим..."
-
-#~ msgid "Installing application requirements..."
-#~ msgstr "Инсталирам потрепштине програма..."
-
-#~ msgid "System support for generating HEIF / HEIC thumbnails is unavailable"
-#~ msgstr "Подршка система за стварање „HEIF / HEIC“ сличица није доступно"
-
-#~ msgid "Installing application..."
-#~ msgstr "Инсталирам програм..."
-
-#~ msgid "Man pages can be found in {}/share/man/man1"
-#~ msgstr "Странице упутства можете наћи у „{}/share/man/man1“"
-
-#~ msgid "Do you want to install the application's man pages?"
-#~ msgstr "Да ли желите да инсталирате странице упутства програма?"
-
-#~ msgid "They will be installed into {}"
-#~ msgstr "Биће инсталиране у „{}“"
-
-#~ msgid "If you uninstall the application, remove these manpages yourself."
-#~ msgstr "Ако дизинсталирате програм, сами уклоните ове странице упутства."
-
-#~ msgid "Do want to install the man pages?"
-#~ msgstr "Да ли желите да инсталирате упутство?"
-
-#~ msgid "Installing man pages into {}"
-#~ msgstr "Инсталирам странице упутства у „{}“"
-
-#~ msgid "Failed to create man page directory: exiting."
-#~ msgstr "Нисам успео да направим директоријум странице упутства: одлазим."
-
-#~ msgid "Failed to copy man page."
-#~ msgstr "Нисам успео да умножим страницу упутства."
-
-#~ msgid ""
-#~ "Rapid Photo Downloader can be started without activating the virtual "
-#~ "environment by running {}/bin/rapid-photo-downloader"
-#~ msgstr ""
-#~ "Брзи преносник фотографија се може покренути без активирања виртуелног "
-#~ "окружења покретањем наредбе „{}/bin/rapid-photo-downloader“"
-
-#~ msgid ""
-#~ "You may have to restart the computer to be able to run the program from "
-#~ "the command line or application launcher."
-#~ msgstr ""
-#~ "Можда ћете морати поново да покренете рачунар да бисте били у могућности "
-#~ "да покренете програм из линије наредби или из покретача програма."
-
-#, python-brace-format
-#~ msgid ""
-#~ "You must add {path} to your computer's $PATH variable to run the program "
-#~ "from the command line or application launcher."
-#~ msgstr ""
-#~ "Морате да додате „{path}“ променљивој „$PATH“ вашег рачунара да бисте "
-#~ "покренули програм из линије наредби или из покретача програма."
-
-#~ msgid "(If a segmentation fault occurs at exit, you can ignore it...)"
-#~ msgstr ""
-#~ "(Ако дође до неуспеха сегментације на изласку, можете је занемарити...)"
-
-#~ msgid ""
-#~ "The python3 tool pip is required to uninstall a version of Rapid Photo "
-#~ "Downloader that was installed with pip.\n"
-#~ "Cannot continue. Exiting."
-#~ msgstr ""
-#~ "Потребан је „python3 tool pip“ за уклањање издања Брзог преносника "
-#~ "фотографија који је инсталиран пип-ом.\n"
-#~ "Не могу да наставим. Излазим."
-
-#~ msgid ""
-#~ "Do not run this installer script as sudo / root user.\n"
-#~ "Run it using the user who will run the program.\n"
-#~ msgstr ""
-#~ "Не покрећите ову скрипту инсталера као администратор.\n"
-#~ "Покрените је као корисник који ће покретати програм.\n"
-
-#~ msgid "Specify only one of --PyQt5-version or --use-system-PyQt5."
-#~ msgstr "Наведите само „--PyQt5-version“ или „--use-system-PyQt5“."
-
-#~ msgid ""
-#~ "Sorry, specifying a specific version of PyQt5 requires Python 3.5 or "
-#~ "newer on an Intel or AMD 64 bit platform."
-#~ msgstr ""
-#~ "Извините, навођење специфичног издања „PyQt5“ захтева „Python 3.5“ или "
-#~ "новије на Интеловој или АМД 64-битној платформи."
-
-#~ msgid "Please specify a PyQt5 version in the format X.X or X.X.X"
-#~ msgstr "Наведите „PyQt5“ издање у облику „X.X“ или „X.X.X“"
-
-#~ msgid ""
-#~ "Do you want to install Rapid Photo Downloader into the current virtual "
-#~ "environment?"
-#~ msgstr ""
-#~ "Да ли желите да инсталирате Брзог преносника фотографија у текуће "
-#~ "виртуелно окружење?"
-
-#~ msgid ""
-#~ "Sorry, installing Rapid Photo Downloader into a Python virtual "
-#~ "environment requires Python 3.5 or newer on an Intel or AMD 64 bit "
-#~ "platform."
-#~ msgstr ""
-#~ "Извините, инсталирање Брзог преносника фотографија у Питоновим виртуелном "
-#~ "окружењу захтева „Python 3.5“ или новије на Интеловој или АМД 64-битној "
-#~ "платформи."
-
-#~ msgid ""
-#~ "To install Rapid Photo Downloader into a Python virtual environment, "
-#~ "create and activate the virtual environment before starting this script."
-#~ msgstr ""
-#~ "Да инсталирате Брзог преносника фотографија у Питоново виртуелно "
-#~ "окружење, направите и активирајте виртуелно окружење пре покретања ове "
-#~ "скрипте."
-
-#~ msgid "Using virtual environment for installation using pip."
-#~ msgstr "Користим виртуелно окружење за инсталацију коришћењем пип-а."
-
-#~ msgid "Do not include any other command line arguments when specifying"
-#~ msgstr "Не укључује никакве друге аргументе линијенаредби приликом навођења"
-
-#~ msgid ""
-#~ "Sorry, this installer does not support a custom python installation.\n"
-#~ "Exiting..."
-#~ msgstr ""
-#~ "Извините, овај инсталер не подржава произвољну инсталацију питона.\n"
-#~ "Излазим..."
-
-#~ msgid "Restarting script using system python..."
-#~ msgstr "Поново покрећем скрипту користећи питона система..."
-
-#~ msgid "Detected Linux distribution {} {}"
-#~ msgstr "Откривена Линукс дистрибуција је „{} {}“"
-
-#~ msgid "To continue, the package python3-apt must be installed."
-#~ msgstr "За наставак, пакет „python3-apt“ мора бити инсталиран."
-
-#~ msgid ""
-#~ "Install the following packages using your Linux distribution's standard "
-#~ "package manager, and then rerun this installer:"
-#~ msgstr ""
-#~ "Инсталирајте следеће пакете користећи стандардног управника пакета ваше "
-#~ "Линукс дистрибуције, и онда поново покрените овај инсталер:"
-
-#~ msgid ""
-#~ "To run this program, programs to assist Python 3 and its package "
-#~ "management must be installed."
-#~ msgstr ""
-#~ "Да покренете овај програм, програми за испомоћ Питону 3 и његовом "
-#~ "управнику пакета морају бити инсталирани."
-
-#~ msgid "Installing python requests"
-#~ msgstr "Инсталирам „python requests“"
-
-#~ msgid "Upgrade Rapid Photo Downloader"
-#~ msgstr "Надоградите Брзог преносиоца фотографија"
-
-#~ msgid "&Upgrade"
-#~ msgstr "&Надогради"
-
-#, python-format
-#~ msgid "Click the Upgrade button to upgrade to version %s."
-#~ msgstr "Кликните на дугме „Надогради“ да надоградите на издање %s."
-
-#~ msgid "Click the Upgrade button to start the upgrade."
-#~ msgstr "Кликните на дугме „Надогради“ да започнете са надоградњом."
-
-#~ msgid "&Run"
-#~ msgstr "&Покрени"
-
-#~ msgid "Close Rapid Photo Downloader before running this upgrade."
-#~ msgstr ""
-#~ "Затворите Брзог преносника фотографија пре покретања ове надоградње."
-
-#~ msgid "Upgrade running..."
-#~ msgstr "Надоградња је у току..."
-
-#, python-format
-#~ msgid ""
-#~ "Successfully upgraded to %s. Click Close to exit, or Run to start the "
-#~ "program."
-#~ msgstr ""
-#~ "Надоградња на „%s“ је успела. Кликните „Затвори“ да изађете, или "
-#~ "„Покрени“ да покренете програм."
-
-#~ msgid ""
-#~ "Upgrade finished successfully. Click Close to exit, or Run to start the "
-#~ "program."
-#~ msgstr ""
-#~ "Надоградња је успешно завршена. Кликните „Затвори“ да изађете, или "
-#~ "„Покрени“ да покренете програм."
-
-#~ msgid "Upgrade failed. Click Close to exit."
-#~ msgstr "Надоградња није успела. Кликните „Затвори“ да изађете."
-
-#, python-format
-#~ msgid "Upgrading %s..."
-#~ msgstr "Надограђујем „%s“..."
-
-#~ msgid "Press any key to continue..."
-#~ msgstr "Притисните неки тастер да наставите..."
-
-#~ msgid "Rapid Photo Downloader upgrade failed"
-#~ msgstr "Надоградња Брзог преносиоца фотографија није успела"
-
-#, python-format
-#~ msgid ""
-#~ "The python package %s could not be updated. The upgrade cannot continue."
-#~ msgstr ""
-#~ "Пакет Питона „%s“ се не може освежити. Надоградња се не може наставити."
-
-#~ msgid "Checking for new version..."
-#~ msgstr "Тражим ново издање..."
-
-#~ msgid "You are running the latest version."
-#~ msgstr "Радите са најновијим издањем."
-
-#~ msgid "Failed to contact the update server."
-#~ msgstr "Нисам успео да ступим у везу са сервером за освежавања."
-
-#, python-format
-#~ msgid "A new version of Rapid Photo Downloader (%s) is available."
-#~ msgstr "Ново издање Брзог преносиоца фотографија (%s) је доступно."
-
-#~ msgid "Do you want to download the new version?"
-#~ msgstr "Да ли желите да преузмете ново издање?"
-
-#, python-format
-#~ msgid "Changes in the new release can be viewed <a href=\"%s\">here</a>."
-#~ msgstr "Измене у новом издању можете видети <a href=\"%s\">овде</a>."
-
-#~ msgid "&Skip this release"
-#~ msgstr "&Прескочи ово издање"
-
-#~ msgid "&Open Download Page"
-#~ msgstr "&Отвори страницу преузимања"
-
-#~ msgid "Rapid Photo Downloader updates"
-#~ msgstr "Освежења Брзог преносиоца фотографија"
-
-#, python-format
-#~ msgid "%(downloaded)s of %(total)s"
-#~ msgstr "%(downloaded)s од %(total)s"
-
-#~ msgid "Downloading..."
-#~ msgstr "Преузимам..."
-
-#~ msgid "Version Check"
-#~ msgstr "Провера издања"
-
-#~ msgid "Check for new version at startup"
-#~ msgstr "Провери има ли новог издања при покретању"
-
-#~ msgid "Check for a new version of the program each time the program starts."
-#~ msgstr ""
-#~ "Проверите има ли новог издања програма приликом сваког покретања програма."
-
-#~ msgid "Include development releases"
-#~ msgstr "Укључи развојна издања"
-
-#~ msgid ""
-#~ "Include alpha, beta and other development releases when checking for a "
-#~ "new version of the program.\n"
-#~ "\n"
-#~ "If you are currently running a development version, the check will always "
-#~ "occur."
-#~ msgstr ""
-#~ "Укључите алфа, бета и друга развојна издања када вршите проверу за новим "
-#~ "издањима програма.\n"
-#~ "\n"
-#~ "Ако тренутно користите развојно издање, провера ће се увек вршити."
-
-#~ msgid "Download failed"
-#~ msgstr "Преузимање није успело"
-
-#~ msgid ""
-#~ "Sorry, the download of the new version of Rapid Photo Downloader failed."
-#~ msgstr ""
-#~ "Извините, преузимање новог издања Брзог преносиоца фотографија није "
-#~ "успело."
-
-#~ msgid ""
-#~ "The new version was successfully downloaded. Do you want to close Rapid "
-#~ "Photo Downloader and install it now?"
-#~ msgstr ""
-#~ "Ново издање је успешно преузето. Да ли желите да затворите програм и да "
-#~ "га инсталирате?"
-
-#~ msgid "Update Rapid Photo Downloader"
-#~ msgstr "Освежите Брзог преносиоца фотографија"
-
-#~ msgid "Install"
-#~ msgstr "Инсталирај"
-
-#~ msgid "New version saved"
-#~ msgstr "Ново издање је сачувано"
-
-#, python-format
-#~ msgid ""
-#~ "The tar file and installer script are saved at:\n"
-#~ "\n"
-#~ " %s"
-#~ msgstr ""
-#~ "Тар датотека и скрипта инсталера су сачувани у:\n"
-#~ "\n"
-#~ " %s"
-
-#~ msgid "Upgrade failed"
-#~ msgstr "Надоградња није успела"
-
-#~ msgid ""
-#~ "Sorry, upgrading Rapid Photo Downloader failed because there was an error "
-#~ "opening the installer."
-#~ msgstr ""
-#~ "Извините, надоградња Брзог преносиоца фотографија није успела због грешке "
-#~ "отварања инсталера."
-
-#~ msgid "Check for Updates..."
-#~ msgstr "Потражи освежења..."
 
 #~ msgid "Berlin"
 #~ msgstr "Берлин"
@@ -5789,8 +5231,7 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ msgstr "Сам пронађи преносне меморијске уређаје"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Опције за преименовање</span>"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Опције за преименовање</span>"
 
 #~ msgid "Device Detected"
 #~ msgstr "Пронађен је нови уређај"
@@ -6014,8 +5455,7 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ "The filename, extension and Exif information indicate it has already been "
 #~ "downloaded."
 #~ msgstr ""
-#~ "Назив датотеке, проширење и Ексиф подаци указују да је датотека већ "
-#~ "преузета."
+#~ "Назив датотеке, проширење и Ексиф подаци указују да је датотека већ преузета."
 
 #~ msgid "Errors occurred when backing up on the following backup devices: "
 #~ msgstr "Грешка приликом прављења резерве на следећим уређајима: "
@@ -6054,12 +5494,11 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ "If you enable automatic detection of Portable Storage Devices, the entire "
 #~ "device will be scanned. On large devices, this could take some time.\n"
 #~ "\n"
-#~ "When this option is enabled, and a potential device is detected, you will "
-#~ "be prompted to determine if it should be scanned or not."
+#~ "When this option is enabled, and a potential device is detected, you will be "
+#~ "prompted to determine if it should be scanned or not."
 #~ msgstr ""
-#~ "Уколико омогућите аутоматско налажење преносних уређаја, то може да "
-#~ "потраје када је преносни уређај велики јер ће бити претражен у "
-#~ "потпуности.\n"
+#~ "Уколико омогућите аутоматско налажење преносних уређаја, то може да потраје "
+#~ "када је преносни уређај велики јер ће бити претражен у потпуности.\n"
 #~ "\n"
 #~ "При налажењу одговарајућег уређаја бићете упитани да ли желите да га "
 #~ "претражите или не."
@@ -6123,11 +5562,11 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 
 #, python-format
 #~ msgid ""
-#~ "File verification failed on %(volume)s. The backed up version is "
-#~ "different from the downloaded version."
+#~ "File verification failed on %(volume)s. The backed up version is different "
+#~ "from the downloaded version."
 #~ msgstr ""
-#~ "Провера датотеке на „%(volume)s“ није успела. Издање резерве се разликује "
-#~ "од преузетог издања."
+#~ "Провера датотеке на „%(volume)s“ није успела. Издање резерве се разликује од "
+#~ "преузетог издања."
 
 #~ msgid "File verification failed on these devices: "
 #~ msgstr "Провера датотеке није успела на овим уређајима: "
@@ -6213,8 +5652,7 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 
 #~ msgid "list photo and video file extensions the program recognizes and exit"
 #~ msgstr ""
-#~ "исписује проширења подржаних слика и снимака које програм препознаје и "
-#~ "излази"
+#~ "исписује проширења подржаних слика и снимака које програм препознаје и излази"
 
 #~ msgid ""
 #~ "automatically detect devices from which to download, overwriting existing "
@@ -6224,8 +5662,8 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ "програма"
 
 #~ msgid ""
-#~ "manually specify the PATH of the device from which to download, "
-#~ "overwriting existing program preferences"
+#~ "manually specify the PATH of the device from which to download, overwriting "
+#~ "existing program preferences"
 #~ msgstr ""
 #~ "ручно наводи ПУТАЊУ уређаја са ког ће преузети, преписујући постојеће "
 #~ "поставке програма"
@@ -6237,8 +5675,8 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ "Error: specify device auto-detection or manually specify a device's path "
 #~ "from which to download, but do not do both."
 #~ msgstr ""
-#~ "Грешка: наведите само-откривање уређаја или ручно наведите путању уређаја "
-#~ "са којих се преузима, али не оба истовремено."
+#~ "Грешка: наведите само-откривање уређаја или ручно наведите путању уређаја са "
+#~ "којих се преузима, али не оба истовремено."
 
 #~ msgid "All settings and preferences have been reset"
 #~ msgstr "Сва подешавања и поставке су враћене на основне вредности"
@@ -6294,8 +5732,8 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
 #~ "name. Please use other renaming options.</i>"
 #~ msgstr ""
-#~ "<i><b>Упозорење:</b> Нема довољно метаподатака за образовање пуног "
-#~ "назива. Искористите друге опције за преименовање.</i>"
+#~ "<i><b>Упозорење:</b> Нема довољно метаподатака за образовање пуног назива. "
+#~ "Искористите друге опције за преименовање.</i>"
 
 #~ msgid ""
 #~ "<i><b>Warning:</b> There is insufficient metadata to fully generate "
@@ -6325,8 +5763,8 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 
 #, python-format
 #~ msgid ""
-#~ "This regular expression is invalid, and will be removed unless you "
-#~ "correct it:\n"
+#~ "This regular expression is invalid, and will be removed unless you correct "
+#~ "it:\n"
 #~ " %s"
 #~ msgstr ""
 #~ "Следећи израз је неисправан и биће уклоњен уколико га не исправите:\n"
@@ -6391,8 +5829,8 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 
 #, python-format
 #~ msgid ""
-#~ "The existing %(filetype)s was last modified on %(date)s at %(time)s. "
-#~ "Unique identifier '%(identifier)s' added."
+#~ "The existing %(filetype)s was last modified on %(date)s at %(time)s. Unique "
+#~ "identifier '%(identifier)s' added."
 #~ msgstr ""
 #~ "Постојећи „%(filetype)s“ је измењен %(date)s у %(time)s. Додат је "
 #~ "јединствени одредник „%(identifier)s“."
@@ -6421,8 +5859,8 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ "Photos detected with the same filenames, but taken at different times: "
 #~ "%(details)s"
 #~ msgstr ""
-#~ "Откривене су фотографије са истим називом датотека, али сликане у "
-#~ "различито време: %(details)s"
+#~ "Откривене су фотографије са истим називом датотека, али сликане у различито "
+#~ "време: %(details)s"
 
 #, python-format
 #~ msgid "An error occurred when backing up on %(volume)s: %(inst)s."
@@ -6456,8 +5894,7 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ msgstr "Грешка приликом стварања директоријума на „%(volume)s“: %(inst)s."
 
 #~ msgid ""
-#~ "Errors occurred when creating directories on the following backup "
-#~ "devices: "
+#~ "Errors occurred when creating directories on the following backup devices: "
 #~ msgstr "Грешка приликом стварања директоријума на следећим уређајима: "
 
 #, python-format
@@ -6473,8 +5910,7 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ msgstr " Такође, дошло је и до „%(problem)s“."
 
 #, python-format
-#~ msgid ""
-#~ "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
+#~ msgid "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
 #~ msgstr ""
 #~ "„%(missing_metadata_elements)s“ и „%(final_missing_metadata_element)s“."
 
@@ -6497,17 +5933,14 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ msgstr "Већ постоји „%(filetype)s“, али је направљена резерва"
 
 #, python-format
-#~ msgid ""
-#~ "An error occurred when copying the %(filetype)s, but it was backed up"
+#~ msgid "An error occurred when copying the %(filetype)s, but it was backed up"
 #~ msgstr ""
 #~ "Дошло је до грешке приликом умножавања „%(filetype)s“, али је направљена "
 #~ "резерва"
 
-#~ msgid ""
-#~ "Photos detected with the same filenames, but taken at different times"
+#~ msgid "Photos detected with the same filenames, but taken at different times"
 #~ msgstr ""
-#~ "Откривене су фотографије са истим називом, које су сликане у различито "
-#~ "време"
+#~ "Откривене су фотографије са истим називом, које су сликане у различито време"
 
 #, python-format
 #~ msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
@@ -6548,8 +5981,8 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
 #~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Фасцикле за преузете фотографије</"
-#~ "span>"
+#~ "<span weight=\"bold\" size=\"x-large\">Фасцикле за преузете "
+#~ "фотографије</span>"
 
 #~ msgid "<i>Example: /home/user/Pictures</i>"
 #~ msgstr "<i>Пример: „/home/user/Фотографије“</i>"
@@ -6564,8 +5997,8 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ "Choose the download folder. Subfolders for the downloaded photos will be "
 #~ "automatically created in this folder using the structure specified below."
 #~ msgstr ""
-#~ "Изаберите фасциклу за чување преузетих фотографија. Садржане фасцикле "
-#~ "биће направљене на основу задатог редоследа."
+#~ "Изаберите фасциклу за чување преузетих фотографија. Садржане фасцикле биће "
+#~ "направљене на основу задатог редоследа."
 
 #~ msgid "<b>Download Folder</b>"
 #~ msgstr "<b>Фасцикла за преузимања</b>"
@@ -6581,27 +6014,26 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ "<span weight=\"bold\" size=\"x-large\">Фасцикла за преузете снимке</span>"
 
 #~ msgid ""
-#~ "Sorry, video downloading functionality disabled. To download videos, "
-#~ "please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> "
-#~ "packages for python, or <i>exiftool</i>."
+#~ "Sorry, video downloading functionality disabled. To download videos, please "
+#~ "install either the <i>hachoir metadata</i> and <i>kaa metadata</i> packages "
+#~ "for python, or <i>exiftool</i>."
 #~ msgstr ""
 #~ "Извините, преузимање снимака је искључено. За преузимање снимака "
-#~ "инсталирајте „<i>hachoir metadata</i>“ и „<i>kaa metadata</i>“ за Питон, "
-#~ "или „<i>exiftool</i>“."
+#~ "инсталирајте „<i>hachoir metadata</i>“ и „<i>kaa metadata</i>“ за Питон, или "
+#~ "„<i>exiftool</i>“."
 
 #~ msgid ""
 #~ "Choose the download folder. Subfolders for the downloaded videos will be "
 #~ "automatically created in this folder using the structure specified below."
 #~ msgstr ""
-#~ "Изаберите фасциклу за чување снимака. Садржане фасцикле биће направљене "
-#~ "на основу задатог редоследа."
+#~ "Изаберите фасциклу за чување снимака. Садржане фасцикле биће направљене на "
+#~ "основу задатог редоследа."
 
 #~ msgid "Video Folders"
 #~ msgstr "Фасцикле снимака"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
-#~ msgstr ""
-#~ "<span weight=\"bold\" size=\"x-large\">Преименовање снимака</span>\t"
+#~ msgstr "<span weight=\"bold\" size=\"x-large\">Преименовање снимака</span>\t"
 
 #~ msgid "Video Rename"
 #~ msgstr "Преименовање снимака"
@@ -6633,13 +6065,13 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ "Devices are from where to download photos and videos, such as cameras, "
 #~ "memory cards or Portable Storage Devices.\n"
 #~ "\n"
-#~ "You can download from multiple devices simultaneously, or you can specify "
-#~ "a location on your hard drive.\n"
+#~ "You can download from multiple devices simultaneously, or you can specify a "
+#~ "location on your hard drive.\n"
 #~ "\n"
-#~ "<i>Downloading directly from cameras is currently an experimental "
-#~ "feature. If downloading directly from your camera works poorly or not at "
-#~ "all, try setting it to PTP mode. If that is not possible, a card reader "
-#~ "must be used.</i>"
+#~ "<i>Downloading directly from cameras is currently an experimental feature. "
+#~ "If downloading directly from your camera works poorly or not at all, try "
+#~ "setting it to PTP mode. If that is not possible, a card reader must be "
+#~ "used.</i>"
 #~ msgstr ""
 #~ "Уређаји са којих се преузимају слике или снимци, као што су фото-апарати, "
 #~ "меморијске картице или преносна складишта.\n"
@@ -6647,32 +6079,32 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ "Можете преузимати податке са више уређаја у исто време или уместо уређаја "
 #~ "изабрати одређено место са вашег диска.\n"
 #~ "\n"
-#~ "<i>Директно преузимање са фото-апарата је још увек у развојној фази. "
-#~ "Уколико приметите да је брзина преузимања мала, или да преузимање уопште "
-#~ "не ради, поставите апарат у ПТП режим или купите читач картица.</i>"
+#~ "<i>Директно преузимање са фото-апарата је још увек у развојној фази. Уколико "
+#~ "приметите да је брзина преузимања мала, или да преузимање уопште не ради, "
+#~ "поставите апарат у ПТП режим или купите читач картица.</i>"
 
 #~ msgid "Location:"
 #~ msgstr "Путања:"
 
 #~ msgid ""
-#~ "If you disable automatic detection, choose the exact location of the "
-#~ "photos and videos."
+#~ "If you disable automatic detection, choose the exact location of the photos "
+#~ "and videos."
 #~ msgstr ""
 #~ "Уколико искључите аутоматско налажење уређаја, изаберите место до "
 #~ "фотографија и снимака."
 
 #~ msgid ""
-#~ "Remembered paths are those associated with devices that you have chosen "
-#~ "to always scan or ignore when automatic detection of Portable Storage "
-#~ "Devices is enabled."
+#~ "Remembered paths are those associated with devices that you have chosen to "
+#~ "always scan or ignore when automatic detection of Portable Storage Devices "
+#~ "is enabled."
 #~ msgstr ""
-#~ "Запамћене путање су оне придружене уређајима које желите увек да "
-#~ "претражите или занемарите при самосталном тражењу уређаја."
+#~ "Запамћене путање су оне придружене уређајима које желите увек да претражите "
+#~ "или занемарите при самосталном тражењу уређаја."
 
 #~ msgid ""
 #~ "Specify the ending portion of any paths you want ignored when scanning "
-#~ "devices for photos or videos. Any path ending with the values below will "
-#~ "not be scanned."
+#~ "devices for photos or videos. Any path ending with the values below will not "
+#~ "be scanned."
 #~ msgstr ""
 #~ "Унесите део назива путања које желите да занемарите приликом претраживања "
 #~ "уређаја. Све путање које се завршавају овим називом биће занемарене."
@@ -6684,8 +6116,8 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ "Specify the folder in which backups are stored on the device.  \n"
 #~ "\n"
 #~ "<i>Note: this will also be used to determine whether or not the device is "
-#~ "used for backups. For each device you wish to use for backing up to, "
-#~ "create a folder in it with one of these names.</i>"
+#~ "used for backups. For each device you wish to use for backing up to, create "
+#~ "a folder in it with one of these names.</i>"
 #~ msgstr ""
 #~ "Наведите фасциклу на уређају у којој се чувају резерве.  \n"
 #~ "\n"
@@ -6718,20 +6150,19 @@ msgstr "Преузмите фотографије и снимке са Брзи�
 #~ msgstr "<b>Сукоби назива снимака и фотографија</b>"
 
 #~ msgid ""
-#~ "When a photo or video of the same name has already been downloaded, "
-#~ "choose whether to skip downloading the file, or to add a unique "
-#~ "indentifier."
+#~ "When a photo or video of the same name has already been downloaded, choose "
+#~ "whether to skip downloading the file, or to add a unique indentifier."
 #~ msgstr ""
-#~ "Када је већ преузета фотографија или снимак са истим називом, изаберите "
-#~ "или да је прескочите или да јој додате јединствену ознаку."
+#~ "Када је већ преузета фотографија или снимак са истим називом, изаберите или "
+#~ "да је прескочите или да јој додате јединствену ознаку."
 
 #~ msgid ""
 #~ "When backing up, choose whether to overwrite a file on the backup device "
 #~ "that has the same name, or skip backing it up."
 #~ msgstr ""
-#~ "Приликом прављења резерве, изаберите да ли ће датотека са истим називом "
-#~ "бити преписана на уређају резерве или ће бити прескочена приликом "
-#~ "прављења резерве."
+#~ "Приликом прављења резерве, изаберите да ли ће датотека са истим називом бити "
+#~ "преписана на уређају резерве или ће бити прескочена приликом прављења "
+#~ "резерве."
 
 #~ msgid "Import your photos and videos efficiently and reliably"
 #~ msgstr "Увезите ваше фотографије и снимке брзо и поуздано"
