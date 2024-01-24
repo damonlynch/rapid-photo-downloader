@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (C) 2009-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2009-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,9 +18,10 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-# Copyright 2009-2022 Damon Lynch
+# Copyright 2009-2024 Damon Lynch
 # Contains portions Copyright 2014 Donald Stufft
-# Contains portions Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, Canonical Ltd
+# Contains portions Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
+# Canonical Ltd
 
 __author__ = "Damon Lynch"
 __copyright__ = (
@@ -29,11 +30,11 @@ __copyright__ = (
 )
 
 import os
-from glob import glob
-from setuptools import setup, Command
-from setuptools.command.sdist import sdist
 from distutils.command.build import build
+from glob import glob
 
+from setuptools import Command, setup
+from setuptools.command.sdist import sdist
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -123,7 +124,7 @@ class build_translations(Command):
         max_po_mtime = 0
         for po_file in glob("%s/*.po" % self.po_dir):
             lang = os.path.basename(po_file[:-3])
-            if selected_languages and not lang in selected_languages:
+            if selected_languages and lang not in selected_languages:
                 continue
             mo_dir = os.path.join("build", "mo", lang, "LC_MESSAGES")
             mo_file = os.path.join(mo_dir, "%s.mo" % self.domain)
@@ -196,8 +197,8 @@ class build_icons(Command):
                 if icons:
                     data_files.append(
                         (
-                            "share/icons/hicolor/%s/%s"
-                            % (os.path.basename(size), os.path.basename(category)),
+                            f"share/icons/hicolor/{os.path.basename(size)}/"
+                            f"{os.path.basename(category)}",
                             icons,
                         )
                     )
@@ -232,7 +233,7 @@ class build_man_page(Command):
                     "--section=1",
                     "--release={}".format(about["__version__"]),
                     "--center=General Commands Manual",
-                    '--name="{}"'.format(name),
+                    f'--name="{name}"',
                     pod_file,
                     build_path,
                 ]
@@ -283,6 +284,7 @@ setup(
         "python-dateutil",
         "colour",
         "easygui",
+        "packaging",
         "pymediainfo",
         "sortedcontainers",
         "tornado",
@@ -291,7 +293,6 @@ setup(
         "babel",
         "setuptools",
         "show-in-file-manager",
-        'importlib_metadata;python_version<"3.8"',
     ],
     extras_require={
         "color_ouput": [
@@ -328,7 +329,7 @@ setup(
         "raphodo.metadata.analysis",
         "raphodo.prefs",
     ],
-    python_requires=">=3.6, <4",
+    python_requires=">=3.10, <4",
     entry_points={
         "gui_scripts": ["rapid-photo-downloader=raphodo.rapid:main"],
     },
@@ -339,11 +340,10 @@ setup(
         "Intended Audience :: End Users/Desktop",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Multimedia :: Graphics",
         "Topic :: Multimedia :: Video",
     ],
