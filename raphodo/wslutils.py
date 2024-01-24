@@ -5,12 +5,11 @@ import re
 import shlex
 import subprocess
 from pathlib import Path
-from typing import Set
 
 from showinfm.system.linux import translate_wsl_path
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def wsl_env_variable(variable: str) -> str:
     """
     Return Windows environment variable within WSL
@@ -19,12 +18,12 @@ def wsl_env_variable(variable: str) -> str:
     assert variable
     return subprocess.run(
         shlex.split(f"wslvar {variable}"),
-        universal_newlines=True,
+        text=True,
         stdout=subprocess.PIPE,
     ).stdout.strip()
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def wsl_home() -> Path:
     """
     Return user's Windows home directory within WSL
@@ -35,7 +34,7 @@ def wsl_home() -> Path:
     )
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def _wsl_reg_query_standard_folder(folder: str) -> str:
     """
     Use reg query on Windows to query the user's Pictures and Videos folder.
@@ -47,11 +46,14 @@ def _wsl_reg_query_standard_folder(folder: str) -> str:
     """
 
     assert folder in ("My Pictures", "My Video")
-    query = fr"reg.exe query 'HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders\' /v '{folder}'"
+    query = (
+        r"reg.exe query 'HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion"
+        rf"\Explorer\User Shell Folders\' /v '{folder}'"
+    )
     output = subprocess.run(
         shlex.split(query),
         stdout=subprocess.PIPE,
-        universal_newlines=True,
+        text=True,
     ).stdout
     regex = rf"{folder}\s+REG_EXPAND_SZ\s+(.+)\n\n$"
     p = re.search(regex, output).group(1)
@@ -63,7 +65,7 @@ def _wsl_reg_query_standard_folder(folder: str) -> str:
     return p
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def wsl_pictures_folder() -> str:
     """
     Query the Windows registry for the location of the user's Pictures folder
@@ -75,7 +77,7 @@ def wsl_pictures_folder() -> str:
     )
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def wsl_videos_folder() -> str:
     """
     Query the Windows registry for the location of the user's Videos folder
@@ -87,18 +89,23 @@ def wsl_videos_folder() -> str:
     )
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def wsl_conf_mnt_location() -> str:
     """
-    Determine location of WSL mount points using /etc/wsl.conf
+    Determine the location of WSL mount points using /etc/wsl.conf
     :return: mount point if specified, else "/mnt"
     """
 
+    if not Path("/etc/wsl.conf").is_file():
+        logging.debug("No wsl.conf")
+        return "/mnt"
+
     config = configparser.ConfigParser()
     try:
-        config.read_file(open("/etc/wsl.conf"))
+        with open("/etc/wsl.conf") as configfile:
+            config.read_file(configfile)
     except Exception:
-        logging.debug("Could not load wsl.conf")
+        logging.error("Could not load wsl.conf")
     else:
         if config.has_option("automount", "root"):
             mount_dir = config.get("automount", "root")
@@ -109,10 +116,10 @@ def wsl_conf_mnt_location() -> str:
     return "/mnt"
 
 
-def wsl_filter_directories() -> Set[str]:
+def wsl_filter_directories() -> set[str]:
     """
     :return: Set of full paths of WSL system directories to not show in file browser
     """
 
     mnt_location = Path(wsl_conf_mnt_location())
-    return {str(mnt_location / d) for d in ('wsl', 'wslg')}
+    return {str(mnt_location / d) for d in ("wsl", "wslg")}

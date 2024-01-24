@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2018 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -34,49 +34,47 @@ Two goals:
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2018, Damon Lynch"
+__copyright__ = "Copyright 2015-2024, Damon Lynch"
 
-import sys
-import os
+# ruff: noqa: E402
 
-if sys.version_info < (3, 5):
-    import scandir
-
-    walk = scandir.walk
-else:
-    walk = os.walk
-import textwrap
-import subprocess
 import argparse
-import shutil
+import os
 import pickle
 import shlex
-from collections import defaultdict, Counter
-import time
+import shutil
+import subprocess
+import sys
+import textwrap
 import threading
-from typing import List, Tuple
+import time
+from collections import Counter, defaultdict
 
 import gi
 
 gi.require_version("GExiv2", "0.10")
 
+import raphodo.metadata.metadataphoto as mp
 from raphodo.metadata.analysis.photoattributes import (
+    ExifToolPhotoAttributes,
     PhotoAttributes,
     vmtouch_output,
-    ExifToolPhotoAttributes,
 )
-from raphodo.utilities import stdchannel_redirected, show_errors, confirm
-from raphodo.rpdsql import FileFormatSQL
-from raphodo.metadata.exiftool import ExifTool
 from raphodo.metadata.analysis.videoattributes import VideoAttributes
-from raphodo.utilities import format_size_for_user
-import raphodo.metadata.metadataphoto as mp
+from raphodo.metadata.exiftool import ExifTool
 from raphodo.metadata.fileformats import (
-    RAW_EXTENSIONS,
     JPEG_TYPE_EXTENSIONS,
+    RAW_EXTENSIONS,
     VIDEO_EXTENSIONS,
     extract_extension,
     use_exiftool_on_photo,
+)
+from raphodo.rpdsql import FileFormatSQL
+from raphodo.utilities import (
+    confirm,
+    format_size_for_user,
+    show_errors,
+    stdchannel_redirected,
 )
 
 try:
@@ -98,7 +96,7 @@ class progress_bar_scanning(threading.Thread):
     def run(self):
         print("Scanning....  ", end="", flush=True)
         i = 0
-        while stop != True:
+        while stop is not True:
             if (i % 4) == 0:
                 sys.stdout.write("\b/")
             elif (i % 4) == 1:
@@ -112,7 +110,7 @@ class progress_bar_scanning(threading.Thread):
             time.sleep(0.2)
             i += 1
 
-        if kill == True:
+        if kill is True:
             print("\b\b\b\b ABORT!", flush=True)
         else:
             print("\b\b done!", flush=True)
@@ -121,13 +119,12 @@ class progress_bar_scanning(threading.Thread):
 def scan(
     folder: str,
     disk_cach_cleared: bool,
-    scan_types: List[str],
+    scan_types: list[str],
     errors: bool,
     outfile: str,
     keep_file_names: bool,
     analyze_previews: bool,
-) -> Tuple[List[PhotoAttributes], List[VideoAttributes]]:
-
+) -> tuple[list[PhotoAttributes], list[VideoAttributes]]:
     global stop
     global kill
 
@@ -146,7 +143,7 @@ def scan(
     if analyze_previews:
         disk_cach_cleared = True
 
-    for dir_name, subdirs, filenames in walk(folder):
+    for dir_name, subdirs, filenames in os.walk(folder):
         for filename in filenames:
             if filename not in problematic_files:
                 ext = extract_extension(filename)
@@ -169,22 +166,22 @@ def scan(
         print()
         if len(not_tested) > 20:
             for line in textwrap.wrap(
-                "WARNING: {:,} files will not be analyzed because they are already in the "
-                "kernel disk cache.".format(len(not_tested)),
+                "WARNING: {:,} files will not be analyzed because they are already in "
+                "the kernel disk cache.".format(len(not_tested)),
                 width=80,
             ):
                 print(line)
         else:
             print(
-                "WARNING: these files will not be analyzed because they are already in the "
-                "kernel disk cache:"
+                "WARNING: these files will not be analyzed because they are already in "
+                "the kernel disk cache:"
             )
             for name in not_tested:
                 print(name)
         print()
         for line in textwrap.wrap(
-            "Run this script as super user and use command line option -c or --clear to safely "
-            "clear the disk cache.",
+            "Run this script as super user and use command line "
+            "option -c or --clear to safely clear the disk cache.",
             width=80,
         ):
             print(line)
@@ -196,7 +193,7 @@ def scan(
     videos = []
 
     if test_files:
-        print("\nAnalyzing {:,} files:".format(len(test_files)))
+        print(f"\nAnalyzing {len(test_files):,} files:")
         if have_progressbar and not errors:
             bar = pyprind.ProgBar(
                 iterations=len(test_files), stream=1, track_time=False, width=80
@@ -207,53 +204,49 @@ def scan(
     # Phase 2
     # Get info from files
 
-    if errors:
-        context = show_errors()
-    else:
-        # Redirect stderr, hiding error output from exiv2
-        context = stdchannel_redirected(sys.stderr, os.devnull)
+    # If suppressing errors, redirect stderr, hiding error output from exiv2
+    context = show_errors() if errors else stdchannel_redirected(sys.stderr, os.devnull)
 
     metadata_fail = []
 
-    with context:
-        with ExifTool() as exiftool_process:
-            for full_file_name, ext in test_files:
-                if ext.lower() in VIDEO_EXTENSIONS:
-                    va = VideoAttributes(full_file_name, ext, exiftool_process)
-                    videos.append(va)
+    with context, ExifTool() as exiftool_process:
+        for full_file_name, ext in test_files:
+            if ext.lower() in VIDEO_EXTENSIONS:
+                va = VideoAttributes(full_file_name, ext, exiftool_process)
+                videos.append(va)
+            else:
+                # TODO think about how to handle HEIF files!
+                if use_exiftool_on_photo(
+                    ext.lower(), preview_extraction_irrelevant=False
+                ):
+                    pa = ExifToolPhotoAttributes(
+                        full_file_name, ext, exiftool_process, analyze_previews
+                    )
+                    pa.process(analyze_previews)
+                    photos.append(pa)
                 else:
-                    # TODO think about how to handle HEIF files!
-                    if use_exiftool_on_photo(
-                        ext.lower(), preview_extraction_irrelevant=False
-                    ):
-                        pa = ExifToolPhotoAttributes(
+                    try:
+                        metadata = mp.MetaData(
+                            full_file_name=full_file_name,
+                            et_process=exiftool_process,
+                        )
+                    except Exception:
+                        metadata_fail.append(full_file_name)
+                    else:
+                        pa = PhotoAttributes(
                             full_file_name, ext, exiftool_process, analyze_previews
                         )
+                        pa.metadata = metadata
                         pa.process(analyze_previews)
                         photos.append(pa)
-                    else:
-                        try:
-                            metadata = mp.MetaData(
-                                full_file_name=full_file_name,
-                                et_process=exiftool_process,
-                            )
-                        except:
-                            metadata_fail.append(full_file_name)
-                        else:
-                            pa = PhotoAttributes(
-                                full_file_name, ext, exiftool_process, analyze_previews
-                            )
-                            pa.metadata = metadata
-                            pa.process(analyze_previews)
-                            photos.append(pa)
 
-                if have_progressbar and not errors:
-                    bar.update()
+            if have_progressbar and not errors:
+                bar.update()
 
     if metadata_fail:
         print()
         for full_file_name in metadata_fail:
-            print("Could not read metadata from {}".format(full_file_name))
+            print(f"Could not read metadata from {full_file_name}")
 
     if outfile is not None:
         if not keep_file_names:
@@ -269,9 +262,8 @@ def scan(
 
 
 def analyze_photos(
-    photos: List[PhotoAttributes], verbose: bool, analyze_previews: bool
+    photos: list[PhotoAttributes], verbose: bool, analyze_previews: bool
 ) -> None:
-
     if analyze_previews:
         previews_by_extension = defaultdict(list)
         for pa in photos:  # type: PhotoAttributes
@@ -324,9 +316,7 @@ def analyze_photos(
         max_bytes = round(int(m) * 1.2)
         print(
             ext,
-            "max ({}) + 20%: {} {}".format(
-                m, max_bytes, format_size_for_user(max_bytes)
-            ),
+            f"max ({m}) + 20%: {max_bytes} {format_size_for_user(max_bytes)}",
         )
 
     exts = list(orientation_read.keys())
@@ -359,7 +349,7 @@ def analyze_photos(
         file_formats.add_format(pa)
 
 
-def analyze_videos(videos: List[VideoAttributes], verbose: bool) -> None:
+def analyze_videos(videos: list[VideoAttributes], verbose: bool) -> None:
     size_by_extension = defaultdict(list)
     datetime_read = defaultdict(list)
     thumbnail_extract = defaultdict(list)
@@ -369,7 +359,6 @@ def analyze_videos(videos: List[VideoAttributes], verbose: bool) -> None:
     for va in videos:
         print("%s" % va)
         size_by_extension[va.ext].append(va.bytes_cached)
-        total = format_size_for_user(va.file_size)
         if va.minimum_read_size_in_bytes_datetime is not None:
             # size = format_size_for_user(va.minimum_read_size_in_bytes_datetime)
             # datetime_read[va.ext].append('{} of {}'.format(size, total))
@@ -417,13 +406,14 @@ def analyze_videos(videos: List[VideoAttributes], verbose: bool) -> None:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Analyze the location of metadata in a variety of RAW, jpeg and video files."
+        description="Analyze the location of metadata in a variety of RAW, jpeg and "
+        "video files."
     )
     parser.add_argument(
         "source",
         action="store",
-        help="Folder in which to recursively scan for photos and videos, or a previously saved "
-        "outfile.",
+        help="Folder in which to recursively scan for photos and videos, or a "
+        "previously saved outfile.",
     )
     parser.add_argument(
         "outfile", nargs="?", help="Optional file in which to save the analysis"
@@ -432,11 +422,12 @@ def main():
         "--clear",
         "-c",
         action="store_true",
-        help="To work, this program requires that the scanned photos and videos not be in the "
-        "Linux kernel's disk cache. This command instructs the kernel to sync and then drop "
-        "clean caches, as well as reclaimable slab objects like dentries and inodes. This is "
-        "a non-destructive operation and will not free any dirty objects. See "
-        "https://www.kernel.org/doc/Documentation/sysctl/vm.txt",
+        help="To work, this program requires that the scanned photos and videos not be "
+        "in the Linux kernel's disk cache. This command instructs the kernel to "
+        "sync and then drop clean caches, as well as reclaimable slab objects "
+        "like dentries and inodes. This is a non-destructive operation and will "
+        "not free any dirty objects. "
+        "See https://www.kernel.org/doc/Documentation/sysctl/vm.txt",
     )
     parser.add_argument(
         "--verbose",
@@ -457,9 +448,9 @@ def main():
         "-k",
         dest="keep",
         action="store_true",
-        help="If saving the analysis to file, don't first remove the file names and paths from the "
-        "analysis. Don't specify this option if you want to keep this information private "
-        "when sharing the analysis with others.",
+        help="If saving the analysis to file, don't first remove the file names and "
+        "paths from the analysis. Don't specify this option if you want to keep "
+        "this information private when sharing the analysis with others.",
     )
     parser.add_argument(
         "--no-dng", "-d", dest="dng", action="store_true", help="Don't scan DNG files"
@@ -487,8 +478,9 @@ def main():
         "-e",
         dest="errors",
         action="store_true",
-        help="Don't show progress bar while scanning, and instead show all errors output by exiv2 "
-        "(useful if exiv2 crashes, which takes down this script too)",
+        help="Don't show progress bar while scanning, and instead show all errors "
+        "output by exiv2 (useful if exiv2 crashes, which takes down this script "
+        "too)",
     )
     parser.add_argument(
         "--analyze-previews",
@@ -535,8 +527,8 @@ def main():
             cmd = shlex.split(command_line)
             try:
                 print(
-                    "Super user permission is needed to drop caches.\nYou may be required to enter "
-                    "the super user's password."
+                    "Super user permission is needed to drop caches.\nYou may be "
+                    "required to enter the super user's password."
                 )
                 subprocess.check_call(cmd)
             except subprocess.CalledProcessError:
@@ -546,7 +538,6 @@ def main():
         if args.only_video:
             scan_types = VIDEO_EXTENSIONS
         else:
-
             if args.dng:
                 RAW_EXTENSIONS.remove("dng")
                 PHOTO_EXTENSIONS.remove("dng")

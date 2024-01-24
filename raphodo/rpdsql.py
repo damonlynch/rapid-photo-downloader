@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,23 +19,26 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2022, Damon Lynch"
+__copyright__ = "Copyright 2015-2024, Damon Lynch"
 
-import sqlite3
-import os
 import datetime
-from collections import namedtuple
-from typing import Optional, List, Tuple, Any, Sequence, NamedTuple, Dict
 import logging
+import os
+import sqlite3
+from collections import namedtuple
+from collections.abc import Sequence
+from typing import Any, NamedTuple
 
 from PyQt5.QtCore import Qt
 from tenacity import retry, stop_after_attempt
 
-from raphodo.storage.storage import get_program_data_directory, get_program_cache_directory
-from raphodo.utilities import divide_list_on_length
+from raphodo.constants import FileType, Show, Sort
 from raphodo.metadata.analysis.photoattributes import PhotoAttributes
-from raphodo.constants import FileType, Sort, Show
-from raphodo.utilities import runs
+from raphodo.storage.storage import (
+    get_program_cache_directory,
+    get_program_data_directory,
+)
+from raphodo.utilities import divide_list_on_length, runs
 
 
 class FileDownloaded(NamedTuple):
@@ -63,7 +66,7 @@ sqlite3_retry_attempts = 5
 
 class ThumbnailRowsSQL:
     """
-    In memory database of thumbnail rows displayed in main window.
+    In-memory database of thumbnail rows displayed in the main window.
     """
 
     def __init__(self) -> None:
@@ -83,8 +86,11 @@ class ThumbnailRowsSQL:
         self.conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
 
         self.conn.execute(
-            """CREATE TABLE devices (scan_id INTEGER NOT NULL, device_name TEXT NOT NULL,
-            PRIMARY KEY (scan_id) )"""
+            """CREATE TABLE devices 
+            (
+                scan_id INTEGER NOT NULL, device_name TEXT NOT NULL, 
+                PRIMARY KEY (scan_id) 
+            )"""
         )
 
         self.conn.execute(
@@ -148,21 +154,21 @@ class ThumbnailRowsSQL:
 
         self.conn.commit()
 
-    def get_all_devices(self) -> List[int]:
+    def get_all_devices(self) -> list[int]:
         query = "SELECT scan_id FROM devices"
         rows = self.conn.execute(query).fetchall()
         return [row[0] for row in rows]
 
     def add_thumbnail_rows(self, thumbnail_rows: Sequence[ThumbnailRow]) -> None:
         """
-        Add a list of rows to database of thumbnail rows
+        Add a list of rows to the database of thumbnail rows
         """
 
         logging.debug("Adding %s rows to db", len(thumbnail_rows))
         self.conn.executemany(
             r"""INSERT INTO files (uid, scan_id, mtime, marked, file_name,
-            extension, file_type, downloaded, previously_downloaded, job_code, proximity_col1,
-            proximity_col2)
+            extension, file_type, downloaded, previously_downloaded, job_code, 
+            proximity_col1, proximity_col2)
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
             thumbnail_rows,
         )
@@ -171,20 +177,19 @@ class ThumbnailRowsSQL:
 
     def _build_where(
         self,
-        scan_id: Optional[int] = None,
-        show: Optional[Show] = None,
-        previously_downloaded: Optional[bool] = None,
-        downloaded: Optional[bool] = None,
-        job_code: Optional[bool] = None,
-        file_type: Optional[FileType] = None,
-        marked: Optional[bool] = None,
-        extensions: Optional[List[str]] = None,
-        proximity_col1: Optional[List[int]] = None,
-        proximity_col2: Optional[List[int]] = None,
-        exclude_scan_ids: Optional[List[int]] = None,
-        uids: Optional[List[bytes]] = None,
-    ) -> Tuple[str, List[Any]]:
-
+        scan_id: int | None = None,
+        show: Show | None = None,
+        previously_downloaded: bool | None = None,
+        downloaded: bool | None = None,
+        job_code: bool | None = None,
+        file_type: FileType | None = None,
+        marked: bool | None = None,
+        extensions: list[str] | None = None,
+        proximity_col1: list[int] | None = None,
+        proximity_col2: list[int] | None = None,
+        exclude_scan_ids: list[int] | None = None,
+        uids: list[bytes] | None = None,
+    ) -> tuple[str, list[Any]]:
         where_clauses = []
         where_values = []
 
@@ -237,7 +242,7 @@ class ThumbnailRowsSQL:
 
         if exclude_scan_ids is not None:
             if len(exclude_scan_ids) == 1:
-                where_clauses.append(("scan_id!=?"))
+                where_clauses.append("scan_id!=?")
                 where_values.append(exclude_scan_ids[0])
             else:
                 where_clauses.append(
@@ -252,19 +257,17 @@ class ThumbnailRowsSQL:
             if not p:
                 continue
             if len(p) == 1:
-                where_clauses.append("{}=?".format(col_name))
+                where_clauses.append(f"{col_name}=?")
                 where_values.append(p[0])
             else:
                 p.sort()
                 or_clauses = []
                 for first, last in runs(p):
                     if first == last:
-                        or_clauses.append("{}=?".format(col_name))
+                        or_clauses.append(f"{col_name}=?")
                         where_values.append(first)
                     else:
-                        or_clauses.append(
-                            "({} BETWEEN ? AND ?)".format(col_name, first, last)
-                        )
+                        or_clauses.append(f"({col_name} BETWEEN ? AND ?)")
                         where_values.extend((first, last))
                 where_clauses.append("({})".format(" OR ".join(or_clauses)))
 
@@ -273,7 +276,7 @@ class ThumbnailRowsSQL:
 
     def _build_sort(self, sort_by: Sort, sort_order: Qt.SortOrder) -> str:
         if sort_by == Sort.modification_time:
-            sort = "ORDER BY mtime {}".format(self.sort_order_map[sort_order])
+            sort = f"ORDER BY mtime {self.sort_order_map[sort_order]}"
         else:
             sort = "ORDER BY {0} {1}, mtime {1}".format(
                 self.sort_map[sort_by], self.sort_order_map[sort_order]
@@ -285,10 +288,9 @@ class ThumbnailRowsSQL:
         sort_by: Sort,
         sort_order: Qt.SortOrder,
         show: Show,
-        proximity_col1: Optional[List[int]] = None,
-        proximity_col2: Optional[List[int]] = None,
-    ) -> List[Tuple[bytes, bool]]:
-
+        proximity_col1: list[int] | None = None,
+        proximity_col2: list[int] | None = None,
+    ) -> list[tuple[bytes, bool]]:
         where, where_values = self._build_where(
             show=show, proximity_col1=proximity_col1, proximity_col2=proximity_col2
         )
@@ -298,12 +300,12 @@ class ThumbnailRowsSQL:
         query = "SELECT uid, marked FROM files"
 
         if sort_by == Sort.device:
-            query = "{} NATURAL JOIN devices".format(query)
+            query = f"{query} NATURAL JOIN devices"
 
         if where:
-            query = "{} WHERE {}".format(query, where)
+            query = f"{query} WHERE {where}"
 
-        query = "{} {}".format(query, sort)
+        query = f"{query} {sort}"
 
         if where:
             logging.debug("%s %s", query, where_values)
@@ -317,10 +319,10 @@ class ThumbnailRowsSQL:
         sort_by: Sort,
         sort_order: Qt.SortOrder,
         show: Show,
-        uids: List[bytes],
-        proximity_col1: Optional[List[int]] = None,
-        proximity_col2: Optional[List[int]] = None,
-    ) -> Optional[bytes]:
+        uids: list[bytes],
+        proximity_col1: list[int] | None = None,
+        proximity_col2: list[int] | None = None,
+    ) -> bytes | None:
         """
         Given a list of uids, and sort and filtering criteria, return the first
         uid that the user will have displayed -- if any are displayed.
@@ -338,11 +340,11 @@ class ThumbnailRowsSQL:
         query = "SELECT uid FROM files"
 
         if sort_by == Sort.device:
-            query = "{} NATURAL JOIN devices".format(query)
+            query = f"{query} NATURAL JOIN devices"
 
-        query = "{} WHERE {}".format(query, where)
+        query = f"{query} WHERE {where}"
 
-        query = "{} {}".format(query, sort)
+        query = f"{query} {sort}"
 
         logging.debug("%s (using %s where values)", query, len(where_values))
         row = self.conn.execute(query, tuple(where_values)).fetchone()
@@ -352,19 +354,18 @@ class ThumbnailRowsSQL:
 
     def get_uids(
         self,
-        scan_id: Optional[int] = None,
-        show: Optional[Show] = None,
-        previously_downloaded: Optional[bool] = None,
-        downloaded: Optional[bool] = None,
-        job_code: Optional[bool] = None,
-        file_type: Optional[FileType] = None,
-        marked: Optional[bool] = None,
-        proximity_col1: Optional[List[int]] = None,
-        proximity_col2: Optional[List[int]] = None,
-        exclude_scan_ids: Optional[List[int]] = None,
+        scan_id: int | None = None,
+        show: Show | None = None,
+        previously_downloaded: bool | None = None,
+        downloaded: bool | None = None,
+        job_code: bool | None = None,
+        file_type: FileType | None = None,
+        marked: bool | None = None,
+        proximity_col1: list[int] | None = None,
+        proximity_col2: list[int] | None = None,
+        exclude_scan_ids: list[int] | None = None,
         return_file_name=False,
-    ) -> List[bytes]:
-
+    ) -> list[bytes]:
         where, where_values = self._build_where(
             scan_id=scan_id,
             show=show,
@@ -384,7 +385,7 @@ class ThumbnailRowsSQL:
             query = "SELECT uid FROM files"
 
         if where:
-            query = "{} WHERE {}".format(query, where)
+            query = f"{query} WHERE {where}"
 
         if where_values:
             logging.debug("%s %s", query, where_values)
@@ -396,17 +397,16 @@ class ThumbnailRowsSQL:
 
     def get_count(
         self,
-        scan_id: Optional[int] = None,
-        show: Optional[Show] = None,
-        previously_downloaded: Optional[bool] = None,
-        downloaded: Optional[bool] = None,
-        job_code: Optional[bool] = None,
-        file_type: Optional[FileType] = None,
-        marked: Optional[bool] = None,
-        proximity_col1: Optional[List[int]] = None,
-        proximity_col2: Optional[List[int]] = None,
+        scan_id: int | None = None,
+        show: Show | None = None,
+        previously_downloaded: bool | None = None,
+        downloaded: bool | None = None,
+        job_code: bool | None = None,
+        file_type: FileType | None = None,
+        marked: bool | None = None,
+        proximity_col1: list[int] | None = None,
+        proximity_col2: list[int] | None = None,
     ) -> int:
-
         where, where_values = self._build_where(
             scan_id=scan_id,
             show=show,
@@ -422,10 +422,9 @@ class ThumbnailRowsSQL:
         query = "SELECT COUNT(*) FROM files"
 
         if where:
-            query = "{} WHERE {}".format(query, where)
+            query = f"{query} WHERE {where}"
 
         if where_values:
-            # logging.debug('%s %s', query, where_values)
             rows = self.conn.execute(query, tuple(where_values)).fetchone()
         else:
             # logging.debug('%s', query)
@@ -454,13 +453,13 @@ class ThumbnailRowsSQL:
             self.conn.execute(query, (scan_id,))
         self.conn.commit()
 
-    def _update_marked(self, uids: List[bytes], marked: bool) -> None:
+    def _update_marked(self, uids: list[bytes], marked: bool) -> None:
         query = "UPDATE files SET marked=? WHERE uid IN ({})"
         logging.debug("%s (%s on %s uids)", query, marked, len(uids))
         self.conn.execute(query.format(",".join("?" * len(uids))), [marked] + uids)
 
     def _update_previously_downloaded(
-        self, uids: List[bytes], previously_downloaded: bool
+        self, uids: list[bytes], previously_downloaded: bool
     ) -> None:
         query = "UPDATE files SET previously_downloaded=? WHERE uid IN ({})"
         logging.debug("%s (%s on %s uids)", query, previously_downloaded, len(uids))
@@ -468,7 +467,7 @@ class ThumbnailRowsSQL:
             query.format(",".join("?" * len(uids))), [previously_downloaded] + uids
         )
 
-    def _set_list_values(self, uids: List[bytes], update_value, value) -> None:
+    def _set_list_values(self, uids: list[bytes], update_value, value) -> None:
         if len(uids) == 0:
             return
 
@@ -482,11 +481,11 @@ class ThumbnailRowsSQL:
             update_value(uids, value)
         self.conn.commit()
 
-    def set_list_marked(self, uids: List[bytes], marked: bool) -> None:
+    def set_list_marked(self, uids: list[bytes], marked: bool) -> None:
         self._set_list_values(uids=uids, update_value=self._update_marked, value=marked)
 
     def set_list_previously_downloaded(
-        self, uids: List[bytes], previously_downloaded: bool
+        self, uids: list[bytes], previously_downloaded: bool
     ) -> None:
         self._set_list_values(
             uids=uids,
@@ -500,7 +499,7 @@ class ThumbnailRowsSQL:
         self.conn.execute(query, (downloaded, uid))
         self.conn.commit()
 
-    def set_job_code_assigned(self, uids: List[bytes], job_code: bool) -> None:
+    def set_job_code_assigned(self, uids: list[bytes], job_code: bool) -> None:
         if len(uids) == 1:
             query = "UPDATE files SET job_code=? WHERE uid=?"
             # logging.debug('%s (%s, <uid>)', query, job_code)
@@ -516,24 +515,24 @@ class ThumbnailRowsSQL:
                 self._mass_set_job_code_assigned(uids, job_code)
         self.conn.commit()
 
-    def _mass_set_job_code_assigned(self, uids: List[bytes], job_code: bool) -> None:
+    def _mass_set_job_code_assigned(self, uids: list[bytes], job_code: bool) -> None:
         query = "UPDATE files SET job_code=? WHERE uid IN ({})"
         logging.debug("%s (%s files)", query, len(uids))
         self.conn.execute(query.format(",".join("?" * len(uids))), [job_code] + uids)
 
-    def assign_proximity_groups(self, groups: Sequence[Tuple[int, int, bytes]]) -> None:
+    def assign_proximity_groups(self, groups: Sequence[tuple[int, int, bytes]]) -> None:
         query = "UPDATE files SET proximity_col1=?, proximity_col2=? WHERE uid=?"
         logging.debug("%s (%s operations)", query, len(groups))
         self.conn.executemany(query, groups)
         self.conn.commit()
 
-    def get_uids_for_device(self, scan_id: int) -> List[int]:
+    def get_uids_for_device(self, scan_id: int) -> list[int]:
         query = "SELECT uid FROM files WHERE scan_id=?"
         logging.debug("%s (%s, )", query, scan_id)
         rows = self.conn.execute(query, (scan_id,)).fetchall()
         return [row[0] for row in rows]
 
-    def any_files_marked(self, scan_id: Optional[int] = None) -> bool:
+    def any_files_marked(self, scan_id: int | None = None) -> bool:
         if scan_id is None:
             row = self.conn.execute(
                 "SELECT uid FROM files WHERE marked=1 LIMIT 1"
@@ -544,7 +543,7 @@ class ThumbnailRowsSQL:
             ).fetchone()
         return row is not None
 
-    def any_files_to_download(self, scan_id: Optional[int] = None) -> bool:
+    def any_files_to_download(self, scan_id: int | None = None) -> bool:
         if scan_id is not None:
             row = self.conn.execute(
                 "SELECT uid FROM files WHERE downloaded=0 AND scan_id=? LIMIT 1",
@@ -562,7 +561,7 @@ class ThumbnailRowsSQL:
         ).fetchone()
         return row is not None
 
-    def any_files(self, scan_id: Optional[int] = None) -> bool:
+    def any_files(self, scan_id: int | None = None) -> bool:
         """
         Determine if there are any files associated with this scan_id, of if no scan_id
         is specified, any file at all
@@ -579,12 +578,12 @@ class ThumbnailRowsSQL:
             row = self.conn.execute("SELECT uid FROM files LIMIT 1").fetchone()
         return row is not None
 
-    def any_files_with_extensions(self, scan_id: int, extensions: List[str]) -> bool:
+    def any_files_with_extensions(self, scan_id: int, extensions: list[str]) -> bool:
         where, where_values = self._build_where(scan_id=scan_id, extensions=extensions)
         query = "SELECT uid FROM files"
 
         if where:
-            query = "{} WHERE {}".format(query, where)
+            query = f"{query} WHERE {where}"
 
         if where_values:
             logging.debug("%s %s", query, where_values)
@@ -598,7 +597,7 @@ class ThumbnailRowsSQL:
         where, where_values = self._build_where(scan_id=scan_id, file_type=file_type)
         query = "SELECT uid FROM files"
         if where:
-            query = "{} WHERE {}".format(query, where)
+            query = f"{query} WHERE {where}"
 
         if where_values:
             logging.debug("%s %s", query, where_values)
@@ -611,10 +610,10 @@ class ThumbnailRowsSQL:
     def get_single_file_of_type(
         self,
         file_type: FileType,
-        downloaded: Optional[bool] = None,
-        scan_id: Optional[int] = None,
-        exclude_scan_ids: Optional[List[int]] = None,
-    ) -> Optional[bytes]:
+        downloaded: bool | None = None,
+        scan_id: int | None = None,
+        exclude_scan_ids: list[int] | None = None,
+    ) -> bytes | None:
         where, where_values = self._build_where(
             scan_id=scan_id,
             downloaded=downloaded,
@@ -624,7 +623,7 @@ class ThumbnailRowsSQL:
         query = "SELECT uid FROM files"
 
         if where:
-            query = "{} WHERE {}".format(query, where)
+            query = f"{query} WHERE {where}"
 
         if where_values:
             logging.debug("%s %s", query, where_values)
@@ -643,15 +642,18 @@ class ThumbnailRowsSQL:
         ).fetchone()
         return row is not None
 
-    def _any_not_previously_downloaded(self, uids: List[bytes]) -> bool:
-        query = "SELECT uid FROM files WHERE uid IN ({}) AND previously_downloaded=0 LIMIT 1"
+    def _any_not_previously_downloaded(self, uids: list[bytes]) -> bool:
+        query = (
+            "SELECT uid FROM files WHERE uid IN ({}) "
+            "AND previously_downloaded=0 LIMIT 1"
+        )
         logging.debug("%s (%s files)", query, len(uids))
         row = self.conn.execute(
             query.format(",".join("?" * len(uids))), uids
         ).fetchone()
         return row is not None
 
-    def any_not_previously_downloaded(self, uids: List[bytes]) -> bool:
+    def any_not_previously_downloaded(self, uids: list[bytes]) -> bool:
         """
 
         :param uids: list of UIDs to check
@@ -667,12 +669,12 @@ class ThumbnailRowsSQL:
         else:
             return self._any_not_previously_downloaded(uids=uids)
 
-    def _delete_uids(self, uids: List[bytes]) -> None:
+    def _delete_uids(self, uids: list[bytes]) -> None:
         query = "DELETE FROM files WHERE uid IN ({})"
         logging.debug("%s (%s files)", query, len(uids))
         self.conn.execute(query.format(",".join("?" * len(uids))), uids)
 
-    def delete_uids(self, uids: List[bytes]) -> None:
+    def delete_uids(self, uids: list[bytes]) -> None:
         """
         Deletes thumbnails from SQL cache
         :param uids: list of uids to delete
@@ -692,11 +694,11 @@ class ThumbnailRowsSQL:
         self.conn.commit()
 
     def delete_files_by_scan_id(
-        self, scan_id: int, downloaded: Optional[bool] = None
+        self, scan_id: int, downloaded: bool | None = None
     ) -> None:
         query = "DELETE FROM files"
         where, where_values = self._build_where(scan_id=scan_id, downloaded=downloaded)
-        query = "{} WHERE {}".format(query, where)
+        query = f"{query} WHERE {where}"
         logging.debug("%s (%s)", query, where_values)
         self.conn.execute(query, where_values)
         self.conn.commit()
@@ -731,7 +733,7 @@ class DownloadedSQL:
         self.update_table()
 
         # Generate values to calculate shifts in time zones /
-        self.time_zone_offsets = {}  # type: Dict[int, Tuple[int]]
+        self.time_zone_offsets = {}  # type: dict[int, tuple[int]]
         for time_zone_offset_resolution in (60, 30, 15):  # minutes
             positive = range(
                 time_zone_offset_resolution * 60,  # seconds
@@ -763,30 +765,26 @@ class DownloadedSQL:
         conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
 
         if reset:
-            conn.execute(r"""DROP TABLE IF EXISTS {tn}""".format(tn=self.table_name))
+            conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
             conn.execute("VACUUM")
 
         conn.execute(
-            """CREATE TABLE IF NOT EXISTS {tn} (
+            f"""CREATE TABLE IF NOT EXISTS {self.table_name} (
             file_name TEXT NOT NULL,
             mtime REAL NOT NULL,
             size INTEGER NOT NULL,
             download_name TEXT NOT NULL,
             download_datetime timestamp,
             PRIMARY KEY (file_name, mtime, size)
-            )""".format(
-                tn=self.table_name
-            )
+            )"""
         )
 
         # Use the character . to for download_name and path to indicate the user
         # manually marked a file as previously downloaded
 
         conn.execute(
-            """CREATE INDEX IF NOT EXISTS download_datetime_idx ON
-            {tn} (download_name)""".format(
-                tn=self.table_name
-            )
+            f"""CREATE INDEX IF NOT EXISTS download_datetime_idx ON
+            {self.table_name} (download_name)"""
         )
 
         conn.commit()
@@ -815,10 +813,8 @@ class DownloadedSQL:
 
         try:
             conn.execute(
-                r"""INSERT OR REPLACE INTO {tn} (file_name, size, mtime,
-                download_name, download_datetime) VALUES (?,?,?,?,?)""".format(
-                    tn=self.table_name
-                ),
+                rf"""INSERT OR REPLACE INTO {self.table_name} (file_name, size, mtime,
+                download_name, download_datetime) VALUES (?,?,?,?,?)""",
                 (
                     name,
                     size,
@@ -844,8 +840,8 @@ class DownloadedSQL:
         name: str,
         size: int,
         modification_time: float,
-        time_zone_offset_resolution: Optional[int] = None,
-    ) -> Optional[FileDownloaded]:
+        time_zone_offset_resolution: int | None = None,
+    ) -> FileDownloaded | None:
         """
         Returns download path and filename if a file with matching
         name, modification time and size has previously been downloaded
@@ -859,9 +855,7 @@ class DownloadedSQL:
         c = conn.cursor()
         c.execute(
             """SELECT download_name, download_datetime as [timestamp] FROM {tn} 
-            WHERE file_name=? AND size=? AND mtime=?""".format(
-                tn=self.table_name
-            ),
+            WHERE file_name=? AND size=? AND mtime=?""".format(tn=self.table_name),
             (name, size, modification_time),
         )
         row = c.fetchone()
@@ -874,9 +868,7 @@ class DownloadedSQL:
         if self.found_offset:
             c.execute(
                 """SELECT download_name, download_datetime as [timestamp] FROM {tn} 
-                WHERE file_name=? AND size=? AND mtime=?""".format(
-                    tn=self.table_name
-                ),
+                WHERE file_name=? AND size=? AND mtime=?""".format(tn=self.table_name),
                 (name, size, modification_time - self.found_offset),
             )
             row = c.fetchone()
@@ -893,10 +885,9 @@ class DownloadedSQL:
         # For why 24 hours, see this map:
         # https://en.wikipedia.org/wiki/Time_zone#/media/File:World_Time_Zones_Map.png
         c.execute(
-            """SELECT download_name, download_datetime as [timestamp], mtime FROM {tn} 
-            WHERE file_name=? AND size=? AND mtime<=? AND mtime >=?""".format(
-                tn=self.table_name
-            ),
+            f"""SELECT download_name, download_datetime as [timestamp], mtime 
+            FROM {self.table_name} 
+            WHERE file_name=? AND size=? AND mtime<=? AND mtime >=?""",
             (name, size, modification_time + 86400, modification_time - 86400),
         )
         row = c.fetchone()
@@ -936,9 +927,8 @@ class CacheSQL:
     def cache_exists(self) -> bool:
         conn = sqlite3.connect(self.db)
         row = conn.execute(
-            """SELECT name FROM sqlite_master WHERE type='table' AND name='{}'""".format(
-                self.table_name
-            )
+            "SELECT name FROM sqlite_master WHERE type='table' "
+            f"AND name='{self.table_name}'"
         ).fetchone()
         conn.close()
         return row is not None
@@ -952,11 +942,11 @@ class CacheSQL:
         conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
 
         if reset:
-            conn.execute(r"""DROP TABLE IF EXISTS {tn}""".format(tn=self.table_name))
+            conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
             conn.execute("VACUUM")
 
         conn.execute(
-            """CREATE TABLE IF NOT EXISTS {tn} (
+            f"""CREATE TABLE IF NOT EXISTS {self.table_name} (
             uri TEXT NOT NULL,
             mtime REAL NOT NULL,
             mdatatime REAL,
@@ -965,16 +955,11 @@ class CacheSQL:
             orientation_unknown BOOLEAN NOT NULL,
             failure BOOLEAN NOT NULL,
             PRIMARY KEY (uri, mtime, size)
-            )""".format(
-                tn=self.table_name
-            )
+            )"""
         )
 
         conn.execute(
-            """CREATE INDEX IF NOT EXISTS md5_name_idx ON
-        {tn} (md5_name)""".format(
-                tn=self.table_name
-            )
+            f"CREATE INDEX IF NOT EXISTS md5_name_idx ON {self.table_name} (md5_name)"
         )
 
         conn.commit()
@@ -1008,10 +993,9 @@ class CacheSQL:
 
         try:
             conn.execute(
-                r"""INSERT OR REPLACE INTO {tn} (uri, size, mtime, mdatatime,
-                md5_name, orientation_unknown, failure) VALUES (?,?,?,?,?,?,?)""".format(
-                    tn=self.table_name
-                ),
+                rf"""INSERT OR REPLACE INTO {self.table_name} 
+                (uri, size, mtime, mdatatime, md5_name, orientation_unknown, failure) 
+                VALUES (?,?,?,?,?,?,?)""",
                 (uri, size, mtime, mdatatime, md5_name, orientation_unknown, failure),
             )
         except sqlite3.OperationalError as e:
@@ -1025,7 +1009,7 @@ class CacheSQL:
             conn.close()
 
     @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
-    def have_thumbnail(self, uri: str, size: int, mtime: float) -> Optional[InCache]:
+    def have_thumbnail(self, uri: str, size: int, mtime: float) -> InCache | None:
         """
         Returns download path and filename if a file with matching
         name, modification time and size has previously been downloaded
@@ -1042,10 +1026,8 @@ class CacheSQL:
         try:
             c = conn.cursor()
             c.execute(
-                """SELECT md5_name, mdatatime, orientation_unknown, failure FROM {tn} WHERE
-                uri=? AND size=? AND mtime=?""".format(
-                    tn=self.table_name
-                ),
+                f"""SELECT md5_name, mdatatime, orientation_unknown, failure 
+                FROM {self.table_name} WHERE uri=? AND size=? AND mtime=?""",
                 (uri, size, mtime),
             )
             row = c.fetchone()
@@ -1062,7 +1044,7 @@ class CacheSQL:
             return None
 
     @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
-    def _delete(self, names: List[str], conn):
+    def _delete(self, names: list[str], conn):
         conn.execute(
             """DELETE FROM {tn} WHERE md5_name IN ({values})""".format(
                 tn=self.table_name, values=",".join("?" * len(names))
@@ -1070,7 +1052,7 @@ class CacheSQL:
             names,
         )
 
-    def delete_thumbnails(self, md5_names: List[str]) -> None:
+    def delete_thumbnails(self, md5_names: list[str]) -> None:
         """
         Deletes thumbnails from SQL cache
         :param md5_names: list of names, without path
@@ -1104,14 +1086,14 @@ class CacheSQL:
 
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
-        c.execute("SELECT COUNT(*) FROM {tn}".format(tn=self.table_name))
+        c.execute(f"SELECT COUNT(*) FROM {self.table_name}")
         count = c.fetchall()
         return count[0][0]
 
-    def md5_names(self) -> List[Tuple[str]]:
+    def md5_names(self) -> list[tuple[str]]:
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
-        c.execute("SELECT md5_name FROM {tn}".format(tn=self.table_name))
+        c.execute(f"SELECT md5_name FROM {self.table_name}")
         rows = c.fetchall()
         return rows
 
@@ -1144,11 +1126,11 @@ class FileFormatSQL:
         conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
 
         if reset:
-            conn.execute(r"""DROP TABLE IF EXISTS {tn}""".format(tn=self.table_name))
+            conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
             conn.execute("VACUUM")
 
         conn.execute(
-            """CREATE TABLE IF NOT EXISTS {tn} (
+            f"""CREATE TABLE IF NOT EXISTS {self.table_name} (
             id INTEGER PRIMARY KEY,
             extension TEXT NOT NULL,
             camera TEXT NOT NULL,
@@ -1162,22 +1144,14 @@ class FileFormatSQL:
             thumbnail_preview_same INTEGER,
             preview_source TEXT,
             previews TEXT
-            )""".format(
-                tn=self.table_name
-            )
+            )"""
         )
 
         conn.execute(
-            """CREATE INDEX IF NOT EXISTS extension_idx ON
-        {tn} (extension)""".format(
-                tn=self.table_name
-            )
+            f"CREATE INDEX IF NOT EXISTS extension_idx ON {self.table_name} (extension)"
         )
         conn.execute(
-            """CREATE INDEX IF NOT EXISTS camera_idx ON
-        {tn} (camera)""".format(
-                tn=self.table_name
-            )
+            f"CREATE INDEX IF NOT EXISTS camera_idx ON {self.table_name} (camera)"
         )
 
         conn.commit()
@@ -1187,7 +1161,7 @@ class FileFormatSQL:
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         c.execute(
-            """INSERT OR IGNORE INTO {tn} (
+            f"""INSERT OR IGNORE INTO {self.table_name} (
                 extension, 
                 camera, 
                 size, 
@@ -1201,9 +1175,7 @@ class FileFormatSQL:
                 preview_source, 
                 previews
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""".format(
-                tn=self.table_name
-            ),
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 pa.ext,
                 pa.model,
@@ -1223,13 +1195,12 @@ class FileFormatSQL:
         conn.commit()
         conn.close()
 
-    def get_orientation_bytes(self, extension: str) -> Optional[int]:
+    def get_orientation_bytes(self, extension: str) -> int | None:
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         c.execute(
-            """SELECT max(orientation_offset) FROM {tn} WHERE extension=(?)""".format(
-                tn=self.table_name
-            ),
+            f"SELECT max(orientation_offset) FROM {self.table_name} "
+            "WHERE extension=(?)",
             (extension,),
         )
         row = c.fetchone()
@@ -1237,13 +1208,11 @@ class FileFormatSQL:
             return row[0]
         return None
 
-    def get_datetime_bytes(self, extension: str) -> Optional[int]:
+    def get_datetime_bytes(self, extension: str) -> int | None:
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         c.execute(
-            """SELECT max(datetime_offset) FROM {tn} WHERE extension=(?)""".format(
-                tn=self.table_name
-            ),
+            f"SELECT max(datetime_offset) FROM {self.table_name} WHERE extension=(?)",
             (extension,),
         )
         row = c.fetchone()

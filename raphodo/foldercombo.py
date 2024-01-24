@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,27 +21,26 @@ Combobox widget to easily choose file locations
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2020, Damon Lynch"
+__copyright__ = "Copyright 2017-2024, Damon Lynch"
 
-from typing import Optional, Tuple, List
-import os
 import logging
+import os
 
-from PyQt5.QtCore import pyqtSlot, pyqtSignal
-from PyQt5.QtWidgets import QComboBox, QFileDialog
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QComboBox, QFileDialog
 
 from raphodo.constants import (
-    StandardFileLocations,
     FileType,
+    StandardFileLocations,
     max_remembered_destinations,
 )
 from raphodo.prefs.preferences import Preferences
 from raphodo.storage.storage import (
+    ValidMounts,
     platform_desktop_directory,
     platform_photos_directory,
     platform_videos_directory,
-    ValidMounts,
 )
 from raphodo.utilities import make_path_end_snippets_unique
 
@@ -60,7 +59,7 @@ class FolderCombo(QComboBox):
         prefs: Preferences,
         file_type: FileType,
         file_chooser_title: str,
-        special_dirs: Optional[Tuple[StandardFileLocations]] = None,
+        special_dirs: tuple[StandardFileLocations] | None = None,
         valid_mounts: ValidMounts = None,
     ) -> None:
         super().__init__(parent)
@@ -105,18 +104,14 @@ class FolderCombo(QComboBox):
         if not self.is_wsl2:
             if self.valid_mounts is not None:
                 mounts = tuple(
-                    (
-                        (mount.name(), mount.rootPath())
-                        for mount in self.valid_mounts.mountedValidMountPoints()
-                    )
+                    (mount.name(), mount.rootPath())
+                    for mount in self.valid_mounts.mountedValidMountPoints()
                 )
         else:
             if self.valid_mounts is not None:
                 mounts = tuple(
-                    (
-                        (self.wslDrives.displayName(mount.rootPath()), mount.rootPath())
-                        for mount in self.valid_mounts.mountedValidMountPoints()
-                    )
+                    (self.wslDrives.displayName(mount.rootPath()), mount.rootPath())
+                    for mount in self.valid_mounts.mountedValidMountPoints()
                 )
 
         # Pictures and Videos directories, if required and if they exist
@@ -162,10 +157,7 @@ class FolderCombo(QComboBox):
         # Remembered paths / destinations
         dests = self._get_dests()
         valid_dests = [dest for dest in dests if dest and os.path.isdir(dest)]
-        if valid_dests:
-            valid_names = make_path_end_snippets_unique(*valid_dests)
-        else:
-            valid_names = []
+        valid_names = make_path_end_snippets_unique(*valid_dests) if valid_dests else []
 
         if valid_names:
             folder_icon = QIcon(":/icons/folder.svg")
@@ -221,10 +213,7 @@ class FolderCombo(QComboBox):
         else:
             default_end = self.destinations_start
 
-        if self.invalid_path:
-            default_start = 2
-        else:
-            default_start = 0
+        default_start = 2 if self.invalid_path else 0
 
         for i in range(default_start, default_end):
             if self.itemData(i) == path:
@@ -293,7 +282,7 @@ class FolderCombo(QComboBox):
                 self.setCurrentIndex(j)
                 break
 
-    def _get_dests(self) -> List[str]:
+    def _get_dests(self) -> list[str]:
         if self.file_type == FileType.photo:
             return self.prefs.photo_backup_destinations
         else:

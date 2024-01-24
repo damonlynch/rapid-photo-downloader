@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,59 +21,59 @@ Display backup preferences
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2022, Damon Lynch"
+__copyright__ = "Copyright 2017-2024, Damon Lynch"
 
-from typing import Dict, Tuple, Set, List, DefaultDict, NamedTuple
 import logging
 import os
 from collections import defaultdict
+from typing import NamedTuple
 
 from PyQt5.QtCore import (
-    Qt,
-    pyqtSlot,
-    pyqtSignal,
     QAbstractListModel,
     QModelIndex,
     QSize,
     QStorageInfo,
+    Qt,
+    pyqtSignal,
+    pyqtSlot,
 )
+from PyQt5.QtGui import QIcon, QPainter, QPalette
 from PyQt5.QtWidgets import (
-    QWidget,
-    QSizePolicy,
-    QVBoxLayout,
-    QLabel,
-    QLineEdit,
     QCheckBox,
-    QStyledItemDelegate,
-    QStyleOptionViewItem,
-    QStyle,
+    QGridLayout,
     QGroupBox,
     QHBoxLayout,
-    QGridLayout,
+    QLabel,
+    QLineEdit,
+    QSizePolicy,
     QSplitter,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
+    QVBoxLayout,
+    QWidget,
 )
-from PyQt5.QtGui import QPainter, QPalette, QIcon
 
 from raphodo.constants import (
-    StandardFileLocations,
+    BackupLocationType,
     FileType,
     Roles,
+    StandardFileLocations,
     ViewRowType,
-    BackupLocationType,
 )
+from raphodo.devices import BackupDeviceCollection, BackupVolumeDetails  # noqa: F401
+from raphodo.foldercombo import FolderCombo
+from raphodo.prefs.preferences import Preferences
+from raphodo.rpdfile import FileTypeCounter
+from raphodo.storage.storage import ValidMounts, get_media_dir, get_mount_size
+from raphodo.ui.destinationdisplay import adjusted_download_size, make_body_details
+from raphodo.ui.devicedisplay import DeviceDisplay, DeviceView, icon_size
+from raphodo.ui.panelview import QPanelView
 from raphodo.ui.viewutils import (
     FlexiFrame,
     RowTracker,
     ScrollAreaNoFrame,
 )
-from raphodo.rpdfile import FileTypeCounter
-from raphodo.ui.panelview import QPanelView
-from raphodo.prefs.preferences import Preferences
-from raphodo.foldercombo import FolderCombo
-from raphodo.devices import BackupDeviceCollection, BackupVolumeDetails
-from raphodo.ui.devicedisplay import DeviceDisplay, icon_size, DeviceView
-from raphodo.ui.destinationdisplay import make_body_details, adjusted_download_size
-from raphodo.storage.storage import get_mount_size, ValidMounts, get_media_dir
 
 
 class BackupVolumeUse(NamedTuple):
@@ -98,7 +98,7 @@ class BackupDeviceModel(QAbstractListModel):
 
     Want to display:
     (1) destination on local files systems
-    (2) external devices, e.g. external hard drives
+    (2) external devices, e.g., external hard drives
 
     Need to account for when download destination is same file system
     as backup destination.
@@ -117,24 +117,24 @@ class BackupDeviceModel(QAbstractListModel):
         self.rows = RowTracker()  # type: RowTracker
         self.row_id_counter = 0  # type: int
         # {row_id}
-        self.headers = set()  # type: Set[int]
+        self.headers = set()  # type: set[int]
         # path: BackupViewRow
-        self.backup_devices = dict()  # type: Dict[str, BackupViewRow]
-        self.path_to_row_ids = defaultdict(list)  # type: Dict[str, List[int]]
-        self.row_id_to_path = dict()  # type: Dict[int, str]
+        self.backup_devices = dict()  # type: dict[str, BackupViewRow]
+        self.path_to_row_ids = defaultdict(list)  # type: dict[str, list[int]]
+        self.row_id_to_path = dict()  # type: dict[int, str]
 
         self.marked = FileTypeCounter()
         self.photos_size_to_download = self.videos_size_to_download = 0
 
-        # os_stat_device: Set[FileType]
-        self._downloading_to = defaultdict(set)  # type: DefaultDict[int, Set[FileType]]
+        # os_stat_device: set[FileType]
+        self._downloading_to = defaultdict(set)  # type: defaultdict[int, set[FileType]]
 
     @property
     def downloading_to(self):
         return self._downloading_to
 
     @downloading_to.setter
-    def downloading_to(self, downloading_to: DefaultDict[int, Set[FileType]]):
+    def downloading_to(self, downloading_to: defaultdict[int, set[FileType]]):
         self._downloading_to = downloading_to
         self.downloadSizeChanged()
 
@@ -160,7 +160,6 @@ class BackupDeviceModel(QAbstractListModel):
         return True
 
     def addBackupVolume(self, mount_details: BackupVolumeDetails) -> None:
-
         mount = mount_details.mount
         display_name = mount_details.name
         path = mount_details.path
@@ -249,7 +248,7 @@ class BackupDeviceModel(QAbstractListModel):
 
     def _download_size_by_backup_type(
         self, backup_type: BackupLocationType
-    ) -> Tuple[int, int]:
+    ) -> tuple[int, int]:
         """
         Include photos or videos in download size only if those file types
         are being backed up to this backup device
@@ -265,7 +264,6 @@ class BackupDeviceModel(QAbstractListModel):
         return photos_size_to_download, videos_size_to_download
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
-
         if not index.isValid():
             return None
 
@@ -445,7 +443,7 @@ class BackupOptionsWidget(FlexiFrame):
     Display backup options, such as automatic backup detection
     """
 
-    def __init__(self, prefs: Preferences, parent, rapidApp: "RapidWindow") -> None:
+    def __init__(self, prefs: Preferences, parent, rapidApp: "RapidWindow") -> None:  # noqa: F821
         super().__init__(parent=parent)
 
         self.rapidApp = rapidApp
@@ -880,5 +878,5 @@ class BackupPanel(ScrollAreaNoFrame):
         else:
             return True
 
-    def setDownloadingTo(self, downloading_to: DefaultDict[int, Set[FileType]]) -> None:
+    def setDownloadingTo(self, downloading_to: defaultdict[int, set[FileType]]) -> None:
         self.backupDevices.downloading_to = downloading_to

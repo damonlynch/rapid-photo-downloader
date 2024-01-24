@@ -21,8 +21,9 @@ __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2007-2024, Damon Lynch"
 
 from enum import Enum, IntEnum, auto
+
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QFontMetrics, QColor
+from PyQt5.QtGui import QColor, QFont, QFontMetrics
 
 PROGRAM_NAME = "Rapid Photo Downloader"
 logfile_name = "rapid-photo-downloader.log"

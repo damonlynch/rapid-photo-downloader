@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,45 +19,38 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
+__copyright__ = "Copyright 2011-2024, Damon Lynch"
 
-import pickle
-import os
+import contextlib
 import errno
 import hashlib
-from datetime import datetime
-import shutil
-import logging
 import locale
+import logging
+import os
+import pickle
+import shutil
+from datetime import datetime
 
-try:
+with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
-except locale.Error:
-    pass
-
-from typing import Optional, Tuple
 
 
+from raphodo.cache import FdoCacheLarge, FdoCacheNormal
+from raphodo.constants import BackupStatus, DownloadStatus
+from raphodo.copyfiles import FileCopy, copy_file_metadata
 from raphodo.interprocess import (
     BackupFileData,
     BackupResults,
-    BackupArguments,
     WorkerInPublishPullPipeline,
 )
-from raphodo.copyfiles import FileCopy
-from raphodo.constants import FileType, DownloadStatus, BackupStatus
-from raphodo.rpdfile import RPDFile
-from raphodo.cache import FdoCacheNormal, FdoCacheLarge
-
-from raphodo.copyfiles import copy_file_metadata
 from raphodo.problemnotification import (
     BackingUpProblems,
-    BackupSubfolderCreationProblem,
-    make_href,
-    BackupOverwrittenProblem,
     BackupAlreadyExistsProblem,
+    BackupOverwrittenProblem,
+    BackupSubfolderCreationProblem,
     FileWriteProblem,
+    make_href,
 )
 from raphodo.storage.storage import get_uri
 
@@ -225,9 +218,10 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     source, destination, rpd_file
                 )
                 if backup_succeeded and self.verify_file:
-                    md5 = hashlib.md5(open(backup_full_file_name).read()).hexdigest()
-                    if md5 != rpd_file.md5:
-                        pass
+                    with open(backup_full_file_name, "rb") as f:
+                        md5 = hashlib.md5(f.read()).hexdigest()
+                        if md5 != rpd_file.md5:
+                            pass
                 if backup_succeeded:
                     logging.debug(
                         "...backing up file %s on device %s succeeded",
@@ -311,7 +305,6 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         self.send_problems()
 
     def do_work(self):
-
         backup_arguments = pickle.loads(self.content)
         self.path = backup_arguments.path
         self.device_name = backup_arguments.device_name

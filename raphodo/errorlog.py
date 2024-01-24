@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2017-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -23,50 +23,56 @@ Error log window for Rapid Photo Downloader
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2021, Damon Lynch"
+__copyright__ = "Copyright 2017-2024, Damon Lynch"
 
 import math
+import re
 from collections import deque
 
-import re
-
-from PyQt5.QtWidgets import (
-    QTextEdit,
-    QDialog,
-    QDialogButtonBox,
-    QLineEdit,
-    QVBoxLayout,
-    QHBoxLayout,
-    QApplication,
-    QPushButton,
-    QLabel,
-    QTextBrowser,
-    QStyle,
+from PyQt5.QtCore import (
+    QEvent,
+    QRect,  # noqa: F401
+    QSize,
+    Qt,
+    QTimer,
+    QUrl,
+    pyqtSignal,
+    pyqtSlot,
 )
 from PyQt5.QtGui import (
-    QPalette,
-    QIcon,
-    QFontMetrics,
-    QFont,
     QColor,
+    QFont,
+    QFontMetrics,
+    QIcon,
     QKeyEvent,
     QKeySequence,
-    QTextDocument,
-    QTextCursor,
-    QPaintEvent,
-    QPainter,
-    QPen,
     QMouseEvent,
+    QPainter,
+    QPaintEvent,
+    QPalette,
+    QPen,
     QShowEvent,
+    QTextCursor,
+    QTextDocument,
 )
-from PyQt5.QtCore import Qt, pyqtSlot, QSize, QUrl, QTimer, QRect, pyqtSignal, QEvent
+from PyQt5.QtWidgets import (
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QStyle,
+    QTextBrowser,
+    QTextEdit,
+    QVBoxLayout,
+)
+from showinfm import show_in_file_manager
 
 from raphodo.constants import ErrorType
 from raphodo.problemnotification import Problem, Problems
-from raphodo.ui.viewutils import translateDialogBoxButtons, darkModeIcon
-from showinfm import show_in_file_manager
-
-# ErrorLogMessage = namedtuple('ErrorLogMessage', 'title body name uri')
+from raphodo.ui.viewutils import darkModeIcon, translateDialogBoxButtons
 
 
 class QFindLineEdit(QLineEdit):
@@ -122,7 +128,7 @@ class ErrorReport(QDialog):
     """
     Display error messages from the download in a dialog.
 
-    Search/find feature is live, like Firefox. However it's pretty slow
+    Search/find feature is live, like Firefox. However, it's pretty slow
     with a large amount of data, so don't initiate a new search each
     and every time data is appended to the log window. Instead, if a search
     is active, wait for one second after text has been appended before
@@ -252,9 +258,7 @@ class ErrorReport(QDialog):
 
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
         translateDialogBoxButtons(buttons)
-        self.clear = buttons.addButton(
-            _("Clear"), QDialogButtonBox.ActionRole
-        )  # type: QPushButton
+        self.clear = buttons.addButton(_("Clear"), QDialogButtonBox.ActionRole)  # type: QPushButton
         buttons.rejected.connect(self.reject)
         self.clear.clicked.connect(self.clearClicked)
         self.clear.setEnabled(False)
@@ -278,7 +282,7 @@ class ErrorReport(QDialog):
     def textChanged(self) -> None:
         self.clear.setEnabled(bool(self.log.document().characterCount()))
 
-    def _makeFind(self, back: bool = False) -> int:
+    def _makeFind(self, back: bool = False) -> QTextDocument.FindFlags:
         flags = QTextDocument.FindFlags()
         if self.matchCase.isChecked():
             flags |= QTextDocument.FindCaseSensitively
@@ -474,10 +478,10 @@ class ErrorReport(QDialog):
         line = self._saveUrls(problem.body)
 
         if len(problem.details) == 1:
-            line = "{}<br><i>{}</i>".format(line, self._saveUrls(problem.details[0]))
+            line = f"{line}<br><i>{self._saveUrls(problem.details[0])}</i>"
         elif len(problem.details) > 1:
             for detail in problem.details:
-                line = "{}<br><i>{}</i>".format(line, self._saveUrls(detail))
+                line = f"{line}<br><i>{self._saveUrls(detail)}</i>"
 
         return line
 
@@ -487,19 +491,19 @@ class ErrorReport(QDialog):
         """
 
         title = self._saveUrls(problems.title)
-        html = "<h1>{}</h1><p></p>".format(title)
-        html = "{}<table>".format(html)
+        html = f"<h1>{title}</h1><p></p>"
+        html = f"{html}<table>"
         for problem in problems:
             line = self._getBody(problem=problem)
             icon = self.icon_lookup[problem.severity]
-            icon = '<img src="{}" height=16 width=16>'.format(icon)
+            icon = f'<img src="{icon}" height=16 width=16>'
             html = (
-                '{}<tr><td width=32 align=center>{}</td><td style="padding-bottom: 6px;">'
-                "{}</td></tr>".format(html, icon, line)
+                f"{html}<tr><td width=32 align=center>{icon}</td>"
+                f'<td style="padding-bottom: 6px;">{line}</td></tr>'
             )
-        html = "{}</table>".format(html)
+        html = f"{html}</table>"
 
-        html = "{}<p></p><p></p>".format(html)
+        html = f"{html}<p></p><p></p>"
         self.log.append(html)
 
     def addProblems(self, problems: Problems) -> None:
@@ -540,7 +544,6 @@ class ErrorReport(QDialog):
 
 
 class SpeechBubble(QLabel):
-
     """
     Display a speech bubble with a counter in it, that when clicked
     emits a signal and resets.
@@ -585,7 +588,6 @@ class SpeechBubble(QLabel):
         self.update()
 
     def paintEvent(self, event: QPaintEvent):
-
         painter = QPainter()
         painter.begin(self)
 
@@ -598,10 +600,7 @@ class SpeechBubble(QLabel):
             painter.drawPixmap(0, 0, height, height, self.image.pixmap(height, height))
             painter.setFont(self.counterFont)
             painter.setPen(self.counterPen)
-            if self._count > 9:
-                value = "9+"
-            else:
-                value = str(self._count)
+            value = "9+" if self._count > 9 else str(self._count)
             painter.drawText(rect, Qt.AlignCenter, value)
         painter.end()
 
@@ -619,7 +618,6 @@ class SpeechBubble(QLabel):
 
 
 if __name__ == "__main__":
-
     # Application development test code:
 
     app = QApplication([])

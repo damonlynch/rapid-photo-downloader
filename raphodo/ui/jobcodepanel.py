@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,52 +21,50 @@ Display, edit and apply Job Codes.
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2022, Damon Lynch"
+__copyright__ = "Copyright 2017-2024, Damon Lynch"
 
-from typing import Optional, List
 import logging
 
-from PyQt5.QtCore import Qt, pyqtSlot, QRegularExpression
+from PyQt5.QtCore import QRegularExpression, Qt, pyqtSlot
+from PyQt5.QtGui import (
+    QFont,  # noqa: F401
+    QIcon,
+    QPalette,
+    QRegularExpressionValidator,
+)
 from PyQt5.QtWidgets import (
-    QWidget,
-    QSizePolicy,
-    QMessageBox,
-    QVBoxLayout,
-    QLabel,
-    QGridLayout,
     QAbstractItemView,
-    QListWidgetItem,
-    QHBoxLayout,
-    QDialog,
-    QDialogButtonBox,
     QCheckBox,
     QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QListWidgetItem,
+    QMessageBox,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
 )
-from PyQt5.QtGui import (
-    QPalette,
-    QFont,
-    QRegularExpressionValidator,
-    QIcon,
-)
-
 
 from raphodo.constants import JobCodeSort
+from raphodo.prefs.preferences import Preferences
+from raphodo.ui.chevroncombo import ChevronCombo
+from raphodo.ui.messagewidget import MessageButton, MessageWidget
+from raphodo.ui.panelview import QPanelView
 from raphodo.ui.viewutils import (
     FlexiFrame,
     QNarrowListWidget,
-    standardIconSize,
-    translateDialogBoxButtons,
-    standardMessageBox,
     ScrollAreaNoFrame,
+    standardIconSize,
+    standardMessageBox,
+    translateDialogBoxButtons,
 )
-from raphodo.ui.panelview import QPanelView
-from raphodo.prefs.preferences import Preferences
-from raphodo.ui.messagewidget import MessageWidget, MessageButton
-from raphodo.ui.chevroncombo import ChevronCombo
 
 
 class JobCodeDialog(QDialog):
-    def __init__(self, parent, on_download: bool, job_codes: List[str]) -> None:
+    def __init__(self, parent, on_download: bool, job_codes: list[str]) -> None:
         """
         Prompt user to enter a Job Code, either at the time a download starts,
         or to zero or more selected files before the download begins.
@@ -84,7 +82,7 @@ class JobCodeDialog(QDialog):
 
         # Whether the user has opened this dialog before a download starts without
         # having selected any files first
-        no_selection_made = None  # type: Optional[bool]
+        no_selection_made = None  # type: bool|None
 
         if on_download:
             directive = _("Enter a new Job Code, or select a previous one")
@@ -116,7 +114,7 @@ class JobCodeDialog(QDialog):
                 "photos or videos and apply a new or existing Job Code to them via the "
                 "Job Code panel."
             )
-            file_details = "{}<br><br><i>{}</i>".format(file_details, hint)
+            file_details = f"{file_details}<br><br><i>{hint}</i>"
 
             title = _("Apply Job Code to Download")
         else:
@@ -146,17 +144,14 @@ class JobCodeDialog(QDialog):
 
             title = _("New Job Code")
 
-        instructionLabel = QLabel("<b>%s</b><br><br>%s<br>" % (directive, file_details))
+        instructionLabel = QLabel(f"<b>{directive}</b><br><br>{file_details}<br>")
         instructionLabel.setWordWrap(True)
 
         self.jobCodeComboBox = QComboBox()
         self.jobCodeComboBox.addItems(job_codes)
         self.jobCodeComboBox.setEditable(True)
 
-        if not self.prefs.strip_characters:
-            exp = "[^/\\0]+"
-        else:
-            exp = '[^\\:\*\?"<>|\\0/]+'
+        exp = "[^/\\0]+" if not self.prefs.strip_characters else '[^\\:\\*\\?"<>|\\0/]+'
 
         self.jobCodeExp = QRegularExpression()
         self.jobCodeExp.setPattern(exp)
@@ -247,8 +242,8 @@ class JobCodeOptionsWidget(FlexiFrame):
         self.messageWidget = MessageWidget(
             (
                 _(
-                    "Select photos and videos to be able to apply a new or existing Job "
-                    "Code to them."
+                    "Select photos and videos to be able to apply a new or existing "
+                    "Job Code to them."
                 ),
                 _(
                     "The new Job Code will be applied to all selected photos and/or "
@@ -342,7 +337,7 @@ class JobCodeOptionsWidget(FlexiFrame):
     def _sort_index_valid(self, index: int) -> bool:
         return index in (0, 1)
 
-    def _jobCodes(self) -> List[str]:
+    def _jobCodes(self) -> list[str]:
         """
         :return: list of job codes sorted according to user-specified
          criteria
@@ -474,7 +469,7 @@ class JobCodeOptionsWidget(FlexiFrame):
 
         try:
             job_code = self.jobCodesWidget.item(row).text()
-        except:
+        except Exception:
             logging.exception(
                 "Job Code did not exist when obtaining its value from the list widget"
             )

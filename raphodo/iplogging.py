@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -24,14 +24,13 @@ Log messages at user specified level to console
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2021, Damon Lynch"
+__copyright__ = "Copyright 2016-2024, Damon Lynch"
 
-import logging
-from logging.handlers import QueueHandler, RotatingFileHandler
-import pickle
 import gzip
+import logging
 import os
-from typing import Optional
+import pickle
+from logging.handlers import QueueHandler, RotatingFileHandler
 
 try:
     import colorlog
@@ -68,9 +67,8 @@ class RotatingGzipFileHandler(RotatingFileHandler):
         return name + ".gz"
 
     def rotate(self, source, dest):
-        with open(source, "rb") as sf:
-            with gzip.open(dest, "wb") as df:
-                df.writelines(sf)
+        with open(source, "rb") as sf, gzip.open(dest, "wb") as df:
+            df.writelines(sf)
         os.remove(source)
 
 

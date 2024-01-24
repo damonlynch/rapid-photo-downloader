@@ -25,20 +25,19 @@ __copyright__ = "Copyright 2016-2024, Damon Lynch"
 
 import re
 
-from PyQt5.QtCore import Qt, pyqtSlot, QSize
-from PyQt5.QtGui import QPixmap, QFont
-
+from PyQt5.QtCore import QSize, Qt, pyqtSlot
+from PyQt5.QtGui import QFont, QPixmap  # noqa: F401
 from PyQt5.QtWidgets import (
     QDialog,
-    QLabel,
-    QVBoxLayout,
     QDialogButtonBox,
-    QSizePolicy,
     QHBoxLayout,
-    QStackedWidget,
-    QWidget,
+    QLabel,
+    QPushButton,  # noqa: F401
     QScrollArea,
-    QPushButton,
+    QSizePolicy,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
 )
 
 import raphodo.__about__ as __about__
@@ -66,7 +65,7 @@ class AboutDialog(QDialog):
             ratio = pixmap.devicePixelRatio()
 
         if ratio > 1.0:
-            size = QSize(pixmap.width() / ratio, pixmap.height() / ratio)
+            size = QSize(round(pixmap.width() / ratio), round(pixmap.height() / ratio))
         else:
             size = pixmap.size()
 
@@ -82,29 +81,27 @@ class AboutDialog(QDialog):
 
         # Standard About view
 
-        msg = """Copyright &copy; 2007-2024 Damon Lynch.<br><br>
-        <a href="https://damonlynch.net/rapid" %(link_style)s>
+        link_style = 'style="color: white;"'
+
+        msg = f"""Copyright &copy; 2007-2024 Damon Lynch.<br><br>
+        <a href="https://damonlynch.net/rapid" {link_style}>
         damonlynch.net/rapid</a><br><br>
         This program comes with absolutely no warranty.<br>
-        See the <a href="http://www.gnu.org/copyleft/gpl.html" %(link_style)s>GNU 
+        See the <a href="http://www.gnu.org/copyleft/gpl.html" {link_style}>GNU 
         General Public License, version 3 or later</a> for details.
-        """ % dict(
-            link_style='style="color: white;"'
-        )
+        """
 
         details = QLabel(msg)
 
-        details_style_sheet = """QLabel {
+        details_style_sheet = f"""QLabel {{
         color: white;
-        background-color: %(transparency)s;
+        background-color: {transparency};
         margin-left: 0px;
-        padding-left: %(left_margin)dpx;
+        padding-left: {left_margin}px;
         padding-top: 6px;
         padding-right: 6px;
         padding-bottom: 6px;
-        }""" % dict(
-            left_margin=left_margin, transparency=transparency
-        )
+        }}"""
 
         details.setStyleSheet(details_style_sheet)
         details.setOpenExternalLinks(True)
@@ -129,7 +126,32 @@ class AboutDialog(QDialog):
 
         # Credits view
 
-        credits_text = """
+        photolink = (
+            '<a href="https://www.flickr.com/photos/damonlynch/13598615933/" '
+            f"{link_style}>Afghan Men Pulling Heavy Load</a>"
+        )
+        artlink1 = (
+            f'<a href="http://www.webalys.com" {link_style}">Vincent Le Moign</a>'
+        )
+        artlink2 = (
+            '<a href="https://www.iconfinder.com/bluewolfski" '
+            f"{link_style}>The Pictographers</a>"
+        )
+        artlink3 = (
+            '<a href="https://www.iconfinder.com/Enesdal" ' f"{link_style}>Enes Dal</a>"
+        )
+        artlink4 = f'<a href="http://www.iconsolid.com/" {link_style}>Icons Solid</a>'
+        artlink5 = f'<a href="https://sellfy.com/designcoon" {link_style}>Icon Coon</a>'
+        artlink6 = (
+            f'<a href="https://www.iconfinder.com/buninux" {link_style}>'
+            "Dmitriy Bunin</a>"
+        )
+        artlink7 = (
+            f'<a href="https://www.flaticon.com/authors/pixel-perfect" {link_style}>'
+            f"Pixel perfect</a>"
+        )
+
+        credits_text = f"""
         Copyright © 2007-2024 Damon Lynch.
         Portions copyright © 2008-2015 Canonical Ltd.
         Portions copyright © 2013 Bernard Baeyens.
@@ -137,44 +159,26 @@ class AboutDialog(QDialog):
         Portions copyright © 2012 Sven Marnach.
         Portions copyright © 2015 Dmitry Shachnev.
 
-        Photo %(photolink)s copyright © 2014-2018 Damon Lynch, all rights reserved.
-        Camera icon courtesy %(artlink1)s.
-        Video camera icon courtesy %(artlink2)s.
-        Home icon courtesy %(artlink3)s.
-        Speech bubble courtesy %(artlink4)s.
-        Lightbulb icon courtesy %(artlink5)s.
-        Double arrow icon courtesy %(artlink6)s.
-        Clock icon courtesy %(artlink7)s.
+        Photo {photolink} copyright © 2014-2018 Damon Lynch, all rights reserved.
+        Camera icon courtesy {artlink1}.
+        Video camera icon courtesy {artlink2}.
+        Home icon courtesy {artlink3}.
+        Speech bubble courtesy {artlink4}.
+        Lightbulb icon courtesy {artlink5}.
+        Double arrow icon courtesy {artlink6}.
+        Clock icon courtesy {artlink7}.
         """
 
         credits_text = credits_text.replace("\n", "<br>\n")
 
-        credits_text = credits_text % dict(
-            photolink="""<a href="https://500px.com/photo/246096445/afghan-men-pulling-heavy-load-
-            by-damon-lynch" style="color: white;">Afghan Men Pulling Heavy Load</a>""",
-            artlink1='<a href="http://www.webalys.com" style="color: white;">Vincent Le Moign</a>',
-            artlink2="""<a href="https://www.iconfinder.com/bluewolfski" style="color: white;">The
-                 Pictographers</a>""",
-            artlink3='<a href="https://www.iconfinder.com/Enesdal" style="color: white;">Enes'
-            " Dal</a>",
-            artlink4='<a href="http://www.iconsolid.com/" style="color: white;">Icons Solid</a>',
-            artlink5='<a href="https://sellfy.com/designcoon" style="color: white;">Icon Coon</a>',
-            artlink6='<a href="https://www.iconfinder.com/buninux" style="color: '
-            'white;"> Dmitriy Bunin</a>',
-            artlink7='<a href="https://www.flaticon.com/authors/pixel-perfect" style="color: '
-            'white;">Pixel perfect</a>',
-        )
-
-        label_style_sheet = """QLabel {
+        label_style_sheet = f"""QLabel {{
         background-color: rgba(0, 0, 0, 0);
         color: white;
-        padding-left: %(left_margin)dpx;
+        padding-left: {left_margin}px;
         padding-top: 6px;
         padding-right: 6px;
         padding-bottom: 6px;
-        }""" % dict(
-            left_margin=left_margin
-        )
+        }}"""
 
         creditsLabel = QLabel(credits_text)
         creditsLabel.setFont(font)
@@ -183,13 +187,11 @@ class AboutDialog(QDialog):
 
         credits = QScrollArea()
         credits.setWidget(creditsLabel)
-        scroll_area_style_sheet = """QScrollArea {
-        background-color: %(transparency)s;
+        scroll_area_style_sheet = f"""QScrollArea {{
+        background-color: {transparency};
         border: 0px;
-        }
-        """ % dict(
-            transparency=transparency
-        )
+        }}
+        """
         credits.setStyleSheet(scroll_area_style_sheet)
 
         # Translators view
@@ -357,9 +359,7 @@ class AboutDialog(QDialog):
 
         version_style_sheet = """QLabel {
         padding-left: %(left_margin)dpx;
-        }""" % dict(
-            left_margin=left_margin
-        )
+        }""" % dict(left_margin=left_margin)
 
         version.setStyleSheet(version_style_sheet)
 

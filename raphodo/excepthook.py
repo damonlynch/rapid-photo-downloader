@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,28 +18,29 @@
 
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2022, Damon Lynch"
+__copyright__ = "Copyright 2016-2024, Damon Lynch"
 
 
-import logging
-import traceback
 import io
+import logging
 import os
-from PyQt5.QtWidgets import QMessageBox, QApplication
+import traceback
+
+from PyQt5.QtWidgets import QApplication, QMessageBox
 
 try:
     from easygui import codebox
 
     have_easygui = True
-except:
+except Exception:
     # if import failed for any reason, ignore it
     have_easygui = False
 
 from raphodo.iplogging import full_log_file_path
-from raphodo.storage.storage import get_uri
 from raphodo.prefs.preferences import Preferences
-from raphodo.utilities import create_bugreport_tar, bug_report_full_tar_path
+from raphodo.storage.storage import get_uri
 from raphodo.ui.viewutils import standardMessageBox
+from raphodo.utilities import bug_report_full_tar_path, create_bugreport_tar
 
 message_box_displayed = False
 exceptions_notified = set()
@@ -132,9 +133,7 @@ def save_bug_report_tar(config_file: str, full_log_file_path: str) -> None:
             config_path=config_uri,
             config_file=config_file,
         )
-        message = "<b>{header}</b><br><br>{body}".format(
-            header=tar_error_header, body=body
-        )
+        message = f"<b>{tar_error_header}</b><br><br>{body}"
         messageBox = standardMessageBox(
             message=message,
             rich_text=True,
@@ -159,7 +158,7 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
     else:
         lineno = -1
         filename = "unknown"
-    key = "{}{}".format(filename, lineno)
+    key = f"{filename}{lineno}"
 
     global message_box_displayed
 
@@ -194,9 +193,7 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
                 website="https://bugs.rapidphotodownloader.com"
             )
 
-            message = "<b>{}</b><br><br>{}<br><br>{}".format(
-                header, body, only_notification
-            )
+            message = f"<b>{header}</b><br><br>{body}<br><br>{only_notification}"
 
             errorbox = standardMessageBox(
                 message=message,

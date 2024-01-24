@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2023 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2020-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,17 +18,17 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2020-2023, Damon Lynch"
+__copyright__ = "Copyright 2020-2024, Damon Lynch"
 
+import ctypes
+import ctypes.util
 import logging
-from typing import Optional
-import ctypes, ctypes.util
 
 from PyQt5.QtGui import QImage
 
 try:
     import pyheif
-    from PIL import ImageQt, Image
+    from PIL import Image, ImageQt
 
     have_heif_module = True
 except ImportError:
@@ -76,7 +76,7 @@ def load_heif(
     """
     Load HEIF file and convert it to a QImage using Pillow
     :param full_file_name: image to load
-    :return: ImageQt (subclass of QImage). Must keep this in memory for duration of
+    :return: ImageQt (subclass of QImage). Must keep this in memory for the duration of
      operations on it
     """
     global _error_logged
@@ -85,10 +85,7 @@ def load_heif(
         image = pyheif.read_heif(full_file_name)
     except pyheif.error.HeifError:
         if not _error_logged:
-            if process_name:
-                process_id = "the %s" % process_name
-            else:
-                process_id = "this"
+            process_id = "the %s" % process_name if process_name else "this"
             logging.error(
                 "Error using pyheif to load HEIF file %s. "
                 "If encountered on another file, this error message will only be "
@@ -102,10 +99,7 @@ def load_heif(
         return None
     except FileNotFoundError:
         if not _error_logged:
-            if process_name:
-                process_id = "the %s" % process_name
-            else:
-                process_id = "this"
+            process_id = "the %s" % process_name if process_name else "this"
             logging.error(
                 "FileNotFoundError using pyheif to load HEIF file %s ."
                 "If encountered on another file, this error message will only be "
@@ -138,8 +132,9 @@ if __name__ == "__main__":
         file = sys.argv[1]
 
         import os
-        from PyQt5.QtWidgets import QLabel, QWidget, QApplication
+
         from PyQt5.QtGui import QPixmap
+        from PyQt5.QtWidgets import QApplication, QLabel, QWidget
 
         app = QApplication(sys.argv)
         image = None

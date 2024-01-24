@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,16 +21,16 @@ Display photo and video sources -- Devices and This Computer, as well as the Tim
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2022, Damon Lynch"
+__copyright__ = "Copyright 2017-2024, Damon Lynch"
 
 import logging
 
-from PyQt5.QtCore import Qt, QSettings, pyqtSlot, QPoint
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QSizePolicy, QApplication, QStyle
+from PyQt5.QtCore import QPoint, QSettings, Qt, pyqtSlot
+from PyQt5.QtWidgets import QApplication, QSizePolicy, QStyle, QVBoxLayout, QWidget
 
-from raphodo.ui.viewutils import ScrollAreaNoFrame, SourceSplitter
-from raphodo.proximity import TemporalProximityControls
 from raphodo.constants import TemporalProximityState
+from raphodo.proximity import TemporalProximityControls
+from raphodo.ui.viewutils import ScrollAreaNoFrame, SourceSplitter
 
 
 class SourcePanel(ScrollAreaNoFrame):
@@ -171,17 +171,17 @@ class SourcePanel(ScrollAreaNoFrame):
             self.splitter.setVisible(True)
 
             splitterSetting = self.settings.value("leftPanelSplitterSizes")
-            if splitterSetting is not None:
-                if not self.splitter.restoreState(splitterSetting):
-                    logging.debug(
-                        "Did not restore left splitter sizing because it is no "
-                        "longer valid"
-                    )
+            if splitterSetting is not None and not self.splitter.restoreState(
+                splitterSetting
+            ):
+                logging.debug(
+                    "Did not restore left splitter sizing because it is no "
+                    "longer valid"
+                )
 
         self.setThisComputerToggleViewSizePolicy()
 
     def setThisComputerToggleViewSizePolicy(self) -> None:
-
         if self.thisComputerToggleView.on():
             if self.temporalProximityIsChecked():
                 self.thisComputerToggleView.setSizePolicy(
@@ -205,19 +205,18 @@ class SourcePanel(ScrollAreaNoFrame):
         self.deviceToggleView.setVisible(visible)
         self.thisComputerToggleView.setVisible(visible)
         self.splitter.setVisible(self.needSplitter())
-        if visible:
+        if visible and self.verticalScrollBar().isVisible():
             # scroll up to make Devices and This Computer, if necessary
-            if self.verticalScrollBar().isVisible():
-                auto_scroll = self.prefs.auto_scroll
-                if auto_scroll:
-                    self.rapidApp.temporalProximityControls.setTimelineThumbnailAutoScroll(
-                        on=False
-                    )
-                self.verticalScrollBar().setValue(self.verticalScrollBar().minimum())
-                if auto_scroll:
-                    self.rapidApp.temporalProximityControls.setTimelineThumbnailAutoScroll(
-                        on=True
-                    )
+            auto_scroll = self.prefs.auto_scroll
+            if auto_scroll:
+                self.rapidApp.temporalProximityControls.setTimelineThumbnailAutoScroll(
+                    on=False
+                )
+            self.verticalScrollBar().setValue(self.verticalScrollBar().minimum())
+            if auto_scroll:
+                self.rapidApp.temporalProximityControls.setTimelineThumbnailAutoScroll(
+                    on=True
+                )
 
     def setThisComputerBottomFrame(self, temporalProximityVisible: bool) -> None:
         """
@@ -254,7 +253,7 @@ class SourcePanel(ScrollAreaNoFrame):
                     )
                 )
             if self.thisComputerAltBottomFrameConnection is None:
-                self.thisComputerAltBottomFrameConnection = self.horizontalScrollBarVisible.connect(
+                self.thisComputerAltBottomFrameConnection = self.horizontalScrollBarVisible.connect(  # noqa: E501
                     self.thisComputerToggleView.alternateWidget.containerHorizontalScrollBar
                 )
             self.thisComputer.containerHorizontalScrollBar(
@@ -291,7 +290,9 @@ class SourcePanel(ScrollAreaNoFrame):
             if self.temporalProximity.state == TemporalProximityState.empty:
                 self.temporalProximity.explanation.setChildPositions(fixed=True)
             height = max(self.splitter.height(), self.height())
-            self.splitter.setFixedHeight(height + stackedWidget.minimumSizeHint().height())
+            self.splitter.setFixedHeight(
+                height + stackedWidget.minimumSizeHint().height()
+            )
         self.handle.moveSplitter(y)
 
     @pyqtSlot()
@@ -301,7 +302,9 @@ class SourcePanel(ScrollAreaNoFrame):
             self.temporalProximity.setProximityHeight()
         else:
             self.temporalProximity.explanation.setChildPositions(fixed=False)
-            self.temporalProximity.stackedWidget.onCurrentChanged(self.temporalProximity.state)
+            self.temporalProximity.stackedWidget.onCurrentChanged(
+                self.temporalProximity.state
+            )
         self.setSplitterSize()
         self.handle.moveSplitter(y)
 
@@ -313,7 +316,7 @@ class SourcePanel(ScrollAreaNoFrame):
 
             if self.temporalProximity.state == TemporalProximityState.generated:
                 self.splitter.setFixedHeight(
-                    + self.splitter.sizes()[0]  # handle position
+                    self.splitter.sizes()[0]  # handle position
                     + self.splitter.handleWidth()
                     + self.frame_width
                     + self.temporalProximity.temporalProximityView.contentHeight()

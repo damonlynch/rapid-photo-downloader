@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,14 +17,14 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2022, Damon Lynch"
+__copyright__ = "Copyright 2016-2024, Damon Lynch"
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QColor, QIcon
 from PyQt5.QtWidgets import QMenu, QToolButton
 
-from raphodo.ui.viewutils import darkModePixmap, menuHoverColor
 from raphodo.ui.primarybutton import DownloadButtonHeight
+from raphodo.ui.viewutils import darkModePixmap, menuHoverColor
 
 
 class MenuButton(QToolButton):
@@ -45,7 +45,7 @@ class MenuButton(QToolButton):
             scaling = self.devicePixelRatio()
 
         # Derive icon size from download button size
-        height = round(DownloadButtonHeight()[0] * (2/3) * scaling)
+        height = round(DownloadButtonHeight()[0] * (2 / 3) * scaling)
         size = QSize(height, height)
 
         self.setIcon(QIcon(darkModePixmap(path=icon, size=size)))

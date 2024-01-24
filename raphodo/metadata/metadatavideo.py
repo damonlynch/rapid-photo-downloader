@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,20 +19,18 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
+__copyright__ = "Copyright 2011-2024, Damon Lynch"
 
 import datetime
 import logging
-from typing import Optional
 
 import arrow.arrow
-from arrow.arrow import Arrow
 
-from raphodo.programversions import EXIFTOOL_VERSION
 import raphodo.metadata.exiftool as exiftool
 import raphodo.metadata.metadataexiftool as metadataexiftool
-from raphodo.utilities import datetime_roughly_equal, arrow_shift_support
 from raphodo.constants import FileType
+from raphodo.programversions import EXIFTOOL_VERSION
+from raphodo.utilities import arrow_shift_support, datetime_roughly_equal
 
 try:
     import pymediainfo
@@ -70,12 +68,12 @@ if have_pymediainfo:
             pymedia_library_file = None
 
 
-def pymedia_version_info() -> Optional[str]:
+def pymedia_version_info() -> str | None:
     if have_pymediainfo:
         if pymedia_library_file == "libmediainfo.so.0":
             return pymediainfo.__version__
         else:
-            return "{} (using {})".format(pymediainfo.__version__, pymedia_library_file)
+            return f"{pymediainfo.__version__} (using {pymedia_library_file})"
     else:
         return None
 
@@ -85,7 +83,7 @@ class MetaData(metadataexiftool.MetadataExiftool):
         self,
         full_file_name: str,
         et_process: exiftool.ExifTool,
-        file_type: Optional[FileType] = FileType.video,
+        file_type: FileType | None = FileType.video,
     ):
         """
         Get video metadata using Exiftool or pymediainfo
@@ -105,14 +103,12 @@ class MetaData(metadataexiftool.MetadataExiftool):
                     filename=full_file_name, library_file=pymedia_library_file
                 )  # type: pymediainfo.MediaInfo
             else:
-                self.media_info = pymediainfo.MediaInfo.parse(
-                    filename=full_file_name
-                )  # type: pymediainfo.MediaInfo
+                self.media_info = pymediainfo.MediaInfo.parse(filename=full_file_name)  # type: pymediainfo.MediaInfo
         else:
             self.media_info = None
 
     def date_time(
-        self, missing: Optional[str] = "", ignore_file_modify_date: bool = False
+        self, missing: str | None = "", ignore_file_modify_date: bool = False
     ) -> datetime.datetime:
         """
         Use pymediainfo (if present) to extract file encoding date.
@@ -143,7 +139,7 @@ class MetaData(metadataexiftool.MetadataExiftool):
                 try:
                     if d.startswith("UTC"):
                         u = d[4:]
-                        a = arrow.get(u, "YYYY-MM-DD HH:mm:ss")  # type: Arrow
+                        a = arrow.get(u, "YYYY-MM-DD HH:mm:ss")  # type: arrow.Arrow
                         dt_mi = a.to("local")
                         dt = dt_mi.datetime  # type: datetime.datetime
 
@@ -224,7 +220,7 @@ class MetaData(metadataexiftool.MetadataExiftool):
                         e,
                     )
                     return super().date_time(missing)
-                except:
+                except Exception:
                     logging.error(
                         "Unknown error parsing date time metadata %s for video %s. "
                         "Will try ExifTool.",
@@ -285,7 +281,7 @@ if __name__ == "__main__":
             m = MetaData(file, et_process)
             dt = m.date_time()
             print(dt)
-            print("%sx%s" % (m.width(), m.height()))
+            print(f"{m.width()}x{m.height()}")
             print("Length:", m.length())
             print("FPS: ", m.frames_per_second())
             print("Codec:", m.codec())

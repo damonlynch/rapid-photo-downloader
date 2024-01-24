@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -25,16 +25,15 @@ Some version checks are also in the module thumbnailextractor
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2022, Damon Lynch"
+__copyright__ = "Copyright 2015-2024, Damon Lynch"
 
 import re
 import subprocess
-from typing import Optional
 
 import gi
 
 gi.require_version("GExiv2", "0.10")
-from gi.repository import GExiv2
+from gi.repository import GExiv2  # noqa: E402
 
 
 def gexiv2_version() -> str:
@@ -43,17 +42,17 @@ def gexiv2_version() -> str:
     """
     # GExiv2.get_version() returns an integer XXYYZZ, where XX is the
     # major version, YY is the minor version, and ZZ is the micro version
-    v = "{0:06d}".format(GExiv2.get_version())
-    return "{}.{}.{}".format(v[0:2], v[2:4], v[4:6]).replace("00", "0")
+    v = f"{GExiv2.get_version():06d}"
+    return f"{v[0:2]}.{v[2:4]}.{v[4:6]}".replace("00", "0")
 
 
-def exiv2_version() -> Optional[str]:
+def exiv2_version() -> str | None:
     """
     :return: version number of exiv2, if available, else None
     """
 
-    # exiv2 outputs a verbose version string, e.g. the first line can be
-    # 'exiv2 0.24 001800 (64 bit build)'
+    # exiv2 outputs a verbose version string, e.g., the first line can be
+    # 'exiv2 0.24 001800 (64-bit build)'
     # followed by the copyright & GPL
     try:
         v = subprocess.check_output(["exiv2", "-V", "-v"]).strip().decode()

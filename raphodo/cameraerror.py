@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,9 +21,8 @@ Class to handle exceptions related to camera access via gPhoto2 and libimobilede
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch."
+__copyright__ = "Copyright 2015-2024, Damon Lynch."
 
-from typing import Optional
 
 import gphoto2 as gp
 
@@ -50,8 +49,8 @@ class CameraProblemEx(CameraError):
     def __init__(
         self,
         code: CameraErrorCode,
-        gp_exception: Optional[gp.GPhoto2Error] = None,
-        py_exception: Optional[Exception] = None,
+        gp_exception: gp.GPhoto2Error|None = None,
+        py_exception: Exception|None = None,
     ) -> None:
         super().__init__(code)
         if gp_exception is not None:
@@ -102,7 +101,7 @@ class iOSDeviceError(CameraError):
             CameraErrorCode.devicename,
         ):
             message = self.imobile_error_output.replace(
-                self.udid, "'{}'".format(self.display_name)
+                self.udid, f"'{self.display_name}'"
             )
             if message.startswith("ERROR: "):
                 message = message[7:]

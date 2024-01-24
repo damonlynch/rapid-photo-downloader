@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,72 +17,70 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2022, Damon Lynch"
+__copyright__ = "Copyright 2015-2024, Damon Lynch"
 
 import functools
-import logging
-from typing import List, Dict, Tuple, Optional, Union
-from collections import namedtuple
-from pkg_resources import parse_version
 import sys
+from collections import namedtuple
 
-from PyQt5.QtWidgets import (
-    QStyle,
-    QStylePainter,
-    QWidget,
-    QListWidget,
-    QProxyStyle,
-    QStyleOption,
-    QDialogButtonBox,
-    QMessageBox,
-    QItemDelegate,
-    QStyleOptionButton,
-    QApplication,
-    QStyleOptionViewItem,
-    QScrollArea,
-    QFrame,
-    QListView,
-    QVBoxLayout,
-    QScrollBar,
-    QSplitter,
-    QSplitterHandle,
-    QStyleOptionSlider,
-    QLabel,
+from pkg_resources import parse_version
+from PyQt5.QtCore import (
+    QT_VERSION_STR,
+    QAbstractItemModel,
+    QBuffer,
+    QEvent,
+    QIODevice,
+    QModelIndex,
+    QPoint,
+    QRect,
+    QSize,
+    Qt,
+    pyqtSignal,
+    pyqtSlot,
 )
 from PyQt5.QtGui import (
-    QFontMetrics,
-    QFont,
-    QPainter,
-    QPixmap,
-    QIcon,
-    QGuiApplication,
-    QPalette,
     QColor,
-    QPaintEvent,
-    QPen,
+    QFont,
+    QFontMetrics,
+    QGuiApplication,
+    QIcon,
     QMouseEvent,
+    QPainter,
+    QPaintEvent,
+    QPalette,
+    QPen,
+    QPixmap,
     QResizeEvent,
     QShowEvent,
 )
-from PyQt5.QtCore import (
-    QSize,
-    Qt,
-    QT_VERSION_STR,
-    QPoint,
-    QEvent,
-    QModelIndex,
-    QRect,
-    QAbstractItemModel,
-    pyqtSlot,
-    pyqtSignal,
-    QBuffer,
-    QIODevice,
+from PyQt5.QtWidgets import (
+    QApplication,
+    QDialogButtonBox,
+    QFrame,
+    QItemDelegate,
+    QLabel,
+    QListView,
+    QListWidget,
+    QMessageBox,
+    QProxyStyle,
+    QScrollArea,
+    QScrollBar,
+    QSplitter,
+    QSplitterHandle,
+    QStyle,
+    QStyleOption,
+    QStyleOptionButton,
+    QStyleOptionSlider,
+    QStyleOptionViewItem,
+    QStylePainter,
+    QVBoxLayout,
+    QWidget,
 )
 
-QT5_VERSION = parse_version(QT_VERSION_STR)
-
-from raphodo.constants import ScalingDetected, HeaderBackgroundName
 import raphodo.xsettings as xsettings
+from raphodo.constants import HeaderBackgroundName, ScalingDetected
+
+QT5_VERSION = parse_version(QT_VERSION_STR)
 
 
 class RowTracker:
@@ -131,8 +129,8 @@ class RowTracker:
     """
 
     def __init__(self) -> None:
-        self.row_to_id = {}  # type: Dict[int, int]
-        self.id_to_row = {}  # type: Dict[int, int]
+        self.row_to_id = {}  # type: dict[int, int]
+        self.id_to_row = {}  # type: dict[int, int]
 
     def __getitem__(self, row) -> int:
         return self.row_to_id[row]
@@ -153,10 +151,10 @@ class RowTracker:
         del self.id_to_row[id_value]
 
     def __repr__(self) -> str:
-        return "%r %r" % (self.row_to_id, self.id_to_row)
+        return f"{self.row_to_id!r} {self.id_to_row!r}"
 
     def __str__(self) -> str:
-        return "Row to id: %r\nId to row: %r" % (self.row_to_id, self.id_to_row)
+        return f"Row to id: {self.row_to_id!r}\nId to row: {self.id_to_row!r}"
 
     def row(self, id_value) -> int:
         """
@@ -183,7 +181,7 @@ class RowTracker:
         self.row_to_id = dict(enumerate(ids))
         self.id_to_row = dict(((y, x) for x, y in list(enumerate(ids))))
 
-    def remove_rows(self, position: int, rows=1) -> List[int]:
+    def remove_rows(self, position: int, rows=1) -> list[int]:
         """
         :param position: the position of the first row to remove
         :param rows: how many rows to remove
@@ -218,10 +216,9 @@ def paletteMidPen() -> QPen:
 
 
 class MainWindowSplitter(QSplitter):
-
     heightChanged = pyqtSignal(int)
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent=parent)
         self.previous_height = 0
         self.setObjectName("mainWindowHorizontalSplitter")
@@ -272,7 +269,7 @@ class ScrollBarEmitsVisible(QScrollBar):
 
     scrollBarVisible = pyqtSignal(bool)
 
-    def __init__(self, orientation, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, orientation, parent: QWidget | None = None) -> None:
         super().__init__(orientation=orientation, parent=parent)
         self.rangeChanged.connect(self.scrollBarChange)
         self.visible_state = None
@@ -294,7 +291,7 @@ class FramedScrollBar(QScrollBar):
 
     scrollBarVisible = pyqtSignal(bool)
 
-    def __init__(self, orientation, name: str, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, orientation, name: str, parent: QWidget | None = None) -> None:
         super().__init__(orientation=orientation, parent=parent)
         self.frame_width = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
         orientation = "Vertical" if orientation == Qt.Vertical else "Horizontal"
@@ -415,7 +412,7 @@ class FramedScrollBar(QScrollBar):
 
 
 class TopFramedVerticalScrollBar(FramedScrollBar):
-    def __init__(self, name: str, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, name: str, parent: QWidget | None = None) -> None:
         super().__init__(orientation=Qt.Vertical, name=name, parent=parent)
 
     def sizeHint(self) -> QSize:
@@ -486,7 +483,7 @@ class FlexiFrameObject:
 
 class FlexiFrame(QWidget, FlexiFrameObject):
     def __init__(
-        self, render_top_edge: bool = False, parent: Optional[QWidget] = None
+        self, render_top_edge: bool = False, parent: QWidget | None = None
     ) -> None:
         super().__init__(parent=parent)
         self.render_top_edge = render_top_edge
@@ -516,7 +513,7 @@ class FlexiFrame(QWidget, FlexiFrameObject):
 
 class TightFlexiFrame(FlexiFrame):
     def __init__(
-        self, render_top_edge: bool = False, parent: Optional[QWidget] = None
+        self, render_top_edge: bool = False, parent: QWidget | None = None
     ) -> None:
         super().__init__(render_top_edge=render_top_edge, parent=parent)
         top_margin = self.frame_width if render_top_edge else 0
@@ -545,7 +542,7 @@ class TightFlexiFrame(FlexiFrame):
 
 class ListViewFlexiFrame(QListView, FlexiFrameObject):
     def __init__(
-        self, frame_enabled: Optional[bool] = True, parent: Optional[QWidget] = None
+        self, frame_enabled: bool | None = True, parent: QWidget | None = None
     ) -> None:
         super().__init__(parent)
         self.setFrameShape(QFrame.NoFrame)
@@ -605,14 +602,13 @@ class ProxyStyleNoFocusRectangle(QProxyStyle):
         painter: QPainter,
         widget: QWidget,
     ) -> None:
-
         if QStyle.PE_FrameFocusRect == element:
             pass
         else:
             super().drawPrimitive(element, option, painter, widget)
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def is_dark_mode() -> bool:
     text_hsv_value = QApplication.palette().color(QPalette.WindowText).value()
     bg_hsv_value = QApplication.palette().color(QPalette.Background).value()
@@ -712,13 +708,13 @@ def translateMessageBoxButtons(messageBox: QMessageBox) -> None:
 def standardMessageBox(
     message: str,
     rich_text: bool,
-    standardButtons: QMessageBox.StandardButton| QMessageBox.StandardButtons,
-    defaultButton: Optional[QMessageBox.StandardButton] = None,
+    standardButtons: QMessageBox.StandardButton | QMessageBox.StandardButtons,
+    defaultButton: QMessageBox.StandardButton | None = None,
     parent=None,
-    title: Optional[str] = None,
-    icon: Optional[QIcon] = None,
-    iconPixmap: Optional[QPixmap] = None,
-    iconType: Optional[QMessageBox.Icon] = None,
+    title: str | None = None,
+    icon: QIcon | None = None,
+    iconPixmap: QPixmap | None = None,
+    iconType: QMessageBox.Icon | None = None,
 ) -> QMessageBox:
     """
     Create a QMessageBox to be displayed to the user.
@@ -753,9 +749,8 @@ def standardMessageBox(
         msgBox.setDefaultButton(defaultButton)
     translateMessageBoxButtons(messageBox=msgBox)
 
-    if iconType is None:
-        if standardButtons == QMessageBox.Yes | QMessageBox.No:
-            iconType = QMessageBox.Question
+    if iconType is None and standardButtons == QMessageBox.Yes | QMessageBox.No:
+        iconType = QMessageBox.Question
 
     if iconType:
         msgBox.setIcon(iconType)
@@ -782,13 +777,13 @@ def qt5_screen_scale_environment_variable() -> str:
     :return: correct variable
     """
 
-    if QT5_VERSION < parse_version("5.14.0"):
+    if parse_version("5.14.0") > QT5_VERSION:
         return "QT_AUTO_SCREEN_SCALE_FACTOR"
     else:
         return "QT_ENABLE_HIGHDPI_SCALING"
 
 
-def validateWindowSizeLimit(available: QSize, desired: QSize) -> Tuple[bool, QSize]:
+def validateWindowSizeLimit(available: QSize, desired: QSize) -> tuple[bool, QSize]:
     """
     Validate the window size to ensure it fits within the available screen size.
 
@@ -813,7 +808,7 @@ def validateWindowSizeLimit(available: QSize, desired: QSize) -> Tuple[bool, QSi
 
 def validateWindowPosition(
     pos: QPoint, available: QSize, size: QSize
-) -> Tuple[bool, QPoint]:
+) -> tuple[bool, QPoint]:
     """
     Validate the window position to ensure it will be displayed in the screen.
 
@@ -854,7 +849,7 @@ def standard_font_size(shrink_on_odd: bool = True) -> int:
     return h
 
 
-def scaledIcon(path: str, size: Optional[QSize] = None) -> QIcon:
+def scaledIcon(path: str, size: QSize | None = None) -> QIcon:
     """
     Create a QIcon that scales well
     Uses .addFile()
@@ -873,18 +868,15 @@ def scaledIcon(path: str, size: Optional[QSize] = None) -> QIcon:
 
 
 def coloredPixmap(
-    color: Union[str, QColor],
-    path: Optional[str] = None,
-    pixmap: Optional[QPixmap] = None,
-    size: Optional[QSize] = None,
+    color: str | QColor,
+    path: str | None = None,
+    pixmap: QPixmap | None = None,
+    size: QSize | None = None,
 ) -> QPixmap:
     if isinstance(color, str):
         color = QColor(color)
     if path is not None:
-        if size:
-            pixmap = QIcon(path).pixmap(size)
-        else:
-            pixmap = QPixmap(path)
+        pixmap = QIcon(path).pixmap(size) if size else QPixmap(path)
     else:
         assert pixmap is not None
 
@@ -896,10 +888,10 @@ def coloredPixmap(
 
 
 def darkModePixmap(
-    path: Optional[str] = None,
-    pixmap: Optional[QPixmap] = None,
-    size: Optional[QSize] = None,
-    soften_regular_mode_color: Optional[bool] = False,
+    path: str | None = None,
+    pixmap: QPixmap | None = None,
+    size: QSize | None = None,
+    soften_regular_mode_color: bool | None = False,
 ) -> QPixmap:
     if is_dark_mode():
         color = QApplication.palette().windowText().color()
@@ -917,10 +909,10 @@ def darkModePixmap(
 
 
 def darkModeIcon(
-    icon: Optional[QIcon] = None,
-    path: Optional[str] = None,
-    size: Optional[QSize] = None,
-    soften_regular_mode_color: Optional[bool] = False,
+    icon: QIcon | None = None,
+    path: str | None = None,
+    size: QSize | None = None,
+    soften_regular_mode_color: bool | None = False,
 ) -> QIcon:
     if is_dark_mode() or soften_regular_mode_color:
         if is_dark_mode():
@@ -979,7 +971,7 @@ def any_screen_scaled_qt() -> bool:
     return ratio > 1.0
 
 
-def any_screen_scaled() -> Tuple[ScalingDetected, bool]:
+def any_screen_scaled() -> tuple[ScalingDetected, bool]:
     """
     Detect if any of the screens on this system have scaling enabled.
 
@@ -992,7 +984,7 @@ def any_screen_scaled() -> Tuple[ScalingDetected, bool]:
     try:
         xsettings_detected_scaling = screen_scaled_xsettings()
         xsettings_running = True
-    except:
+    except Exception:
         xsettings_detected_scaling = False
         xsettings_running = False
 
@@ -1023,7 +1015,7 @@ class CheckBoxDelegate(QItemDelegate):
 
     def createEditor(
         self, parent, option: QStyleOptionViewItem, indexindex: QModelIndex
-    ) -> Optional[QWidget]:
+    ) -> QWidget | None:
         """
         Important, otherwise an editor is created if the user clicks in this cell.
         """

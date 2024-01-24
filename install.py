@@ -375,7 +375,7 @@ try:
     import wheel
 
     need_wheel = False
-except:
+except Exception:
     need_wheel = True
 
 have_pip = python_package_can_import("pip")
@@ -528,10 +528,10 @@ def run_command_c_lang(cmd: str) -> str:
     ).decode()
 
 
-def parse_os_release() -> Dict[str, str]:
+def parse_os_release() -> dict[str, str]:
     d = {}
     if os.path.isfile("/etc/os-release"):
-        with open("/etc/os-release", "r") as f:
+        with open("/etc/os-release") as f:
             for line in f:
                 line = line.strip()
                 if line:
@@ -541,7 +541,7 @@ def parse_os_release() -> Dict[str, str]:
     return d
 
 
-def parse_distro_details(os_release: Dict[str, str]) -> DistroDetails:
+def parse_distro_details(os_release: dict[str, str]) -> DistroDetails:
     """
     Determine the Linux distribution using /etc/os-release
     :param os_release: parsed /etc/os-release file
@@ -675,7 +675,7 @@ def cleanup_on_exit(installer_to_delete_on_error: str) -> None:
     clean_locale_tmpdir()
 
 
-def user_installed_packaging_tools() -> List[str]:
+def user_installed_packaging_tools() -> list[str]:
     return [
         package
         for package in "pip setuptools wheel".split()
@@ -683,7 +683,7 @@ def user_installed_packaging_tools() -> List[str]:
     ]
 
 
-def system_python_packaging_tools_required(distro: Distro, venv: bool) -> List[str]:
+def system_python_packaging_tools_required(distro: Distro, venv: bool) -> list[str]:
     packages = []
 
     if not have_pip:
@@ -696,7 +696,7 @@ def system_python_packaging_tools_required(distro: Distro, venv: bool) -> List[s
     return packages
 
 
-def packaging_tools_out_of_date() -> List[str]:
+def packaging_tools_out_of_date() -> list[str]:
     packages = []
     for tool, min_version in minimum_packaging_tool_versions.items():
         current_version = python_package_version(tool)
@@ -714,7 +714,7 @@ def packaging_tools_out_of_date() -> List[str]:
 
 
 def remove_unneeded_user_installed_tools(
-    tools: List[str], distro: DistroDetails, distro_family: Distro
+    tools: list[str], distro: DistroDetails, distro_family: Distro
 ) -> None:
     """
     Remove pip, setuptools or wheel if they are installed via pip and the system
@@ -777,7 +777,7 @@ def remove_unneeded_user_installed_tools(
         restart_script(restart_args="--do-not-upgrade-pip")
 
 
-def pip_packages_required(distro: Distro) -> Tuple[List[str], bool]:
+def pip_packages_required(distro: Distro) -> tuple[list[str], bool]:
     """
     Determine which packages are required to ensure all of pip, setuptools
     and wheel are installed. Determines if pip is installed locally.
@@ -801,7 +801,7 @@ def pip_packages_required(distro: Distro) -> Tuple[List[str], bool]:
     return packages, local_pip
 
 
-def extract_mo_files() -> Optional[str]:
+def extract_mo_files() -> str|None:
     """
     Extract mo files from zip file encoded in this script and write it to a temp dir.
 
@@ -917,7 +917,7 @@ def should_use_system_pyqt5(
     return use_system_pyqt5
 
 
-def pypi_versions(package_name: str, timeout: int = 5) -> List[str]:
+def pypi_versions(package_name: str, timeout: int = 5) -> list[str]:
     """
     Get an unsorted list of versions available for a PyPi package
     :param package_name: name of package to get from PyPi
@@ -948,7 +948,7 @@ def max_pypi_version(package_name: str, version_ceiling: str, timeout: int = 5) 
             return str(v)
 
 
-def pypi_versions_hr(package_name: str, timeout: int = 5) -> List[str]:
+def pypi_versions_hr(package_name: str, timeout: int = 5) -> list[str]:
     """
     Determine list of versions available for a package on PyPi.
     No error checking.
@@ -1012,9 +1012,9 @@ def latest_pypi_version(
 
 def is_recent_pypi_package(
     package_name: str,
-    show_message: Optional[bool] = True,
-    ignore_prerelease: Optional[bool] = True,
-    minimum_version: Optional[str] = None,
+    show_message: bool|None = True,
+    ignore_prerelease: bool|None = True,
+    minimum_version: str|None = None,
 ) -> bool:
     """
     Determine if Python package is recent.
@@ -1075,7 +1075,7 @@ def is_recent_pypi_package(
 
 def make_pip_command(
     args: str, split: bool = True, disable_version_check: bool = True
-) -> Union[List[str], str]:
+) -> Union[list[str], str]:
     """
     Construct a call to python's pip
     :param args: arguments to pass to the command
@@ -1175,7 +1175,7 @@ def is_venv() -> bool:
     )
 
 
-def valid_system_python() -> Optional[str]:
+def valid_system_python() -> str|None:
     """
     :return: full path of python executable if a python at /usr/bin/python3 or /usr/bin/python is
     available that is version 3.6 or newer, else None if not found
@@ -1283,7 +1283,7 @@ def remove_rawkit() -> None:
         uninstall_pip_package(package=package, no_deps_only=True)
 
 
-def update_pyqt5_and_sip(version: Optional[str]) -> int:
+def update_pyqt5_and_sip(version: str|None) -> int:
     """
     Update PyQt5 and sip from pypi, if the system is capable
     of running PyQt5 from pypi
@@ -1332,7 +1332,7 @@ def update_pyqt5_and_sip(version: Optional[str]) -> int:
     return 0
 
 
-def update_pip_setuptools_wheel(interactive: bool, packages: List[str]) -> None:
+def update_pip_setuptools_wheel(interactive: bool, packages: list[str]) -> None:
     """
     Update pip, setuptools and wheel to the latest versions, if necessary.
 
@@ -1783,7 +1783,7 @@ def query_uninstall(interactive: bool) -> bool:
     return get_yes_no(answer)
 
 
-def debian_known_packages(packages: str) -> List[str]:
+def debian_known_packages(packages: str) -> list[str]:
     """
     Return which of the packages listed are able
     to be installed on this instance.
@@ -1813,7 +1813,7 @@ def debian_known_packages(packages: str) -> List[str]:
     return known
 
 
-def debian_unknown_packages(packages: str) -> List[str]:
+def debian_unknown_packages(packages: str) -> list[str]:
     """
     Return which of the packages listed are unable to be installed on this instance
     because the system does not know about them.
@@ -1854,7 +1854,7 @@ def debian_package_installed(package: str) -> bool:
         return False
 
 
-def fedora_known_packages(packages: str) -> List[str]:
+def fedora_known_packages(packages: str) -> list[str]:
     """
     Return which of the packages listed are able
     to be installed on this instance.
@@ -1881,7 +1881,7 @@ def fedora_known_packages(packages: str) -> List[str]:
     return known
 
 
-def fedora_unknown_packages(packages: str) -> List[str]:
+def fedora_unknown_packages(packages: str) -> list[str]:
     """
     Return which of the packages listed are unable
     to be installed on this instance because the system does not know about them.
@@ -2005,7 +2005,7 @@ def opensuse_package_search(packages: str) -> str:
     return subprocess.check_output(args, universal_newlines=True)
 
 
-def opensuse_known_packages(packages: str) -> List[str]:
+def opensuse_known_packages(packages: str) -> list[str]:
     """
     Return which of the packages listed are able
     to be installed on this instance openSUSE.
@@ -2028,7 +2028,7 @@ def opensuse_known_packages(packages: str) -> List[str]:
     ]
 
 
-def opensuse_missing_packages(packages: str) -> List[str]:
+def opensuse_missing_packages(packages: str) -> list[str]:
     """
     Return which of the packages have not already been installed on openSUSE.
 
@@ -2059,7 +2059,7 @@ def opensuse_package_installed(package: str) -> bool:
     return not opensuse_missing_packages(package)
 
 
-def opensuse_package_version(package: str) -> Optional[str]:
+def opensuse_package_version(package: str) -> str|None:
     """
     Use zypper to query openSUSE package information
     :param package: package to check
@@ -2995,7 +2995,7 @@ def verify_download(downloaded_tar: str, md5_url: str) -> bool:
     return m.hexdigest() == remote_md5
 
 
-def get_installer_url_md5(devel: bool) -> Tuple[str, str]:
+def get_installer_url_md5(devel: bool) -> tuple[str, str]:
     remote_versions_file = "https://www.damonlynch.net/rapid/version.json"
 
     try:
@@ -3011,7 +3011,7 @@ def get_installer_url_md5(devel: bool) -> Tuple[str, str]:
         else:
             try:
                 version = r.json()
-            except:
+            except Exception:
                 print("Error %d accessing versions JSON file")
             else:
                 stable = version["stable"]
@@ -3195,7 +3195,7 @@ def tarfile_content_name(installer: str, file_name: str) -> str:
     return os.path.join(name, file_name)
 
 
-def append_locale_cmdline_option(new_args: List[str]) -> None:
+def append_locale_cmdline_option(new_args: list[str]) -> None:
     """
     Append the location of the locale to the command line options
 
@@ -3462,7 +3462,7 @@ def distro_bin_dir(distro_family: Distro, interactive: bool) -> DistroBinDir:
 
 
 def man_pages_already_installed(
-    manpages: Tuple[str, str], system_man_dir: str, local_man_dir: str
+    manpages: tuple[str, str], system_man_dir: str, local_man_dir: str
 ) -> bool:
     """
     Determine if the same man pages already exist in the system directory that we would
@@ -3496,7 +3496,7 @@ def icon_present() -> bool:
         icon_theme = Gtk.IconTheme.get_default()
         icon = icon_theme.lookup_icon(icon_name, 48, 0)
         return not not icon
-    except:
+    except Exception:
         return False
 
 
@@ -3510,7 +3510,7 @@ def do_install(
     delete_tar_and_dir: bool,
     force_this_version: bool,
     venv: bool,
-    pyqt5_version: Optional[str],
+    pyqt5_version: str|None,
     use_system_pyqt5: bool,
     is_wsl2: bool,
 ) -> None:

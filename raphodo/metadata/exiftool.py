@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # PyExifTool <http://github.com/smarnach/pyexiftool>
 # Copyright 2012 Sven Marnach
 
@@ -59,16 +58,16 @@ The function set_pdeathsig is used to automatically terminate the process when t
 program exits.
 Added call to exiftool_version_info()
 Added execute_binary()
+Update to Python 3.10 conventions.
 """
 
-from __future__ import unicode_literals
 
-import sys
-import subprocess
-import os
-import json
-import warnings
 import codecs
+import json
+import os
+import subprocess
+import sys
+import warnings
 
 from raphodo.programversions import exiftool_version_info
 from raphodo.utilities import set_pdeathsig
@@ -90,6 +89,7 @@ sentinel = b"{ready}"
 # should be fine, though other values might give better performance in
 # some cases.
 block_size = 4096
+
 
 # This code has been adapted from Lib/os.py in the Python source tree
 # (sha1 265e36e277f3)
@@ -122,7 +122,7 @@ fsencode = _fscodec()
 del _fscodec
 
 
-class ExifTool(object):
+class ExifTool:
     """Run the `exiftool` command-line tool and communicate to it.
 
     You can pass the file name of the ``exiftool`` executable as an

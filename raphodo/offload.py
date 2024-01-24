@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -20,23 +20,23 @@
 
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
+__copyright__ = "Copyright 2015-2024, Damon Lynch"
 
+import contextlib
+import locale
+import logging
 import pickle
 import sys
-import logging
-import locale
 
-try:
+with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
-except locale.Error:
-    pass
 
 from PyQt5.QtGui import QGuiApplication
+
 from raphodo.interprocess import (
     DaemonProcess,
-    OffloadData,
+    OffloadData,  # noqa: F401
     OffloadResults,
 )
 from raphodo.proximity import TemporalProximityGroups
@@ -81,7 +81,7 @@ class OffloadWorker(DaemonProcess):
             )
             logging.exception("Traceback:")
         except SystemExit as e:
-            sys.exit(e)
+            sys.exit(e.code)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,18 +17,17 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
+__copyright__ = "Copyright 2011-2024, Damon Lynch"
 
-from collections import defaultdict
-import time
-import math
-import locale
+import locale  # noqa: F401
 import logging
-from typing import Optional, Dict, List, Tuple, Set
+import math
+import time
+from collections import defaultdict
 
-from raphodo.constants import DownloadStatus, FileType, DownloadUpdateSeconds
-from raphodo.thumbnaildisplay import DownloadStats
+from raphodo.constants import DownloadStatus, DownloadUpdateSeconds, FileType
 from raphodo.rpdfile import RPDFile
+from raphodo.thumbnaildisplay import DownloadStats
 
 try:
     Infinity = math.inf
@@ -45,7 +44,7 @@ class DownloadTracker:
     # contemplate using settrs
 
     def __init__(self):
-        self.file_types_present_by_scan_id = dict()  # type: Dict[int, str]
+        self.file_types_present_by_scan_id = dict()  # type: dict[int, str]
         self._refresh_values()
 
     def _refresh_values(self):
@@ -53,33 +52,31 @@ class DownloadTracker:
         Reset values when a download is completed
         """
 
-        self.size_of_download_in_bytes_by_scan_id = dict()  # type: Dict[int, int]
-        self.total_bytes_backed_up_by_scan_id = dict()  # type: Dict[int, int]
-        self.size_of_photo_backup_in_bytes_by_scan_id = dict()  # type: Dict[int, int]
-        self.size_of_video_backup_in_bytes_by_scan_id = dict()  # type: Dict[int, int]
-        self.raw_size_of_download_in_bytes_by_scan_id = dict()  # type: Dict[int, int]
-        self.total_bytes_copied_by_scan_id = dict()  # type: Dict[int, int]
-        self.total_bytes_video_backed_up_by_scan_id = dict()  # type: Dict[int, int]
-        self.no_files_in_download_by_scan_id = dict()  # type: Dict[int, int]
-        self.no_photos_in_download_by_scan_id = dict()  # type: Dict[int, int]
-        self.no_videos_in_download_by_scan_id = dict()  # type: Dict[int, int]
-        self.no_post_download_thumb_generation_by_scan_id = (
-            dict()
-        )  # type: Dict[int, int]
+        self.size_of_download_in_bytes_by_scan_id = dict()  # type: dict[int, int]
+        self.total_bytes_backed_up_by_scan_id = dict()  # type: dict[int, int]
+        self.size_of_photo_backup_in_bytes_by_scan_id = dict()  # type: dict[int, int]
+        self.size_of_video_backup_in_bytes_by_scan_id = dict()  # type: dict[int, int]
+        self.raw_size_of_download_in_bytes_by_scan_id = dict()  # type: dict[int, int]
+        self.total_bytes_copied_by_scan_id = dict()  # type: dict[int, int]
+        self.total_bytes_video_backed_up_by_scan_id = dict()  # type: dict[int, int]
+        self.no_files_in_download_by_scan_id = dict()  # type: dict[int, int]
+        self.no_photos_in_download_by_scan_id = dict()  # type: dict[int, int]
+        self.no_videos_in_download_by_scan_id = dict()  # type: dict[int, int]
+        self.no_post_download_thumb_generation_by_scan_id = dict()  # type: dict[int, int]
 
         # 'Download count' tracks the index of the file being downloaded
         # into the list of files that need to be downloaded -- much like
         # a counter in a for loop, e.g. 'for i in list', where i is the counter
-        self.download_count_for_file_by_uid = dict()  # type: Dict[bytes, int]
-        self.download_count_by_scan_id = dict()  # type: Dict[int, int]
-        self.rename_chunk = dict()  # type: Dict[int, int]
-        self.files_downloaded = dict()  # type: Dict[int, int]
-        self.photos_downloaded = dict()  # type: Dict[int, int]
-        self.videos_downloaded = dict()  # type: Dict[int, int]
-        self.photo_failures = dict()  # type: Dict[int, int]
-        self.video_failures = dict()  # type: Dict[int, int]
-        self.warnings = dict()  # type: Dict[int, int]
-        self.post_download_thumb_generation = dict()  # type: Dict[int, int]
+        self.download_count_for_file_by_uid = dict()  # type: dict[bytes, int]
+        self.download_count_by_scan_id = dict()  # type: dict[int, int]
+        self.rename_chunk = dict()  # type: dict[int, int]
+        self.files_downloaded = dict()  # type: dict[int, int]
+        self.photos_downloaded = dict()  # type: dict[int, int]
+        self.videos_downloaded = dict()  # type: dict[int, int]
+        self.photo_failures = dict()  # type: dict[int, int]
+        self.video_failures = dict()  # type: dict[int, int]
+        self.warnings = dict()  # type: dict[int, int]
+        self.post_download_thumb_generation = dict()  # type: dict[int, int]
         self.total_photos_downloaded = 0  # type: int
         self.total_photo_failures = 0  # type: int
         self.total_videos_downloaded = 0  # type: int
@@ -87,15 +84,11 @@ class DownloadTracker:
         self.total_warnings = 0  # type: int
         self.total_bytes_to_download = 0  # type: int
         self.total_bytes_to_backup = 0  # type: int
-        self.backups_performed_by_uid = defaultdict(
-            int
-        )  # type: Dict[bytes, List[int,...]]
-        self.backups_performed_by_scan_id = defaultdict(
-            int
-        )  # type: Dict[int, List[int,...]]
-        self.no_backups_to_perform_by_scan_id = dict()  # type: Dict[int, int]
+        self.backups_performed_by_uid = defaultdict(int)  # type: defaultdict[bytes, list[int,...]]
+        self.backups_performed_by_scan_id = defaultdict(int)  # type: defaultdict[int, list[int,...]]
+        self.no_backups_to_perform_by_scan_id = dict()  # type: dict[int, int]
         self.auto_delete = defaultdict(list)
-        self._devices_removed_mid_download = set()  # type: Set[int]
+        self._devices_removed_mid_download = set()  # type: set[int]
 
     def set_no_backup_devices(
         self, no_photo_backup_devices: int, no_video_backup_devices: int
@@ -177,7 +170,7 @@ class DownloadTracker:
     def add_to_auto_delete(self, rpd_file: RPDFile) -> None:
         self.auto_delete[rpd_file.scan_id].append(rpd_file.full_file_name)
 
-    def get_files_to_auto_delete(self, scan_id: int) -> List[int]:
+    def get_files_to_auto_delete(self, scan_id: int) -> list[int]:
         return self.auto_delete[scan_id]
 
     def clear_auto_delete(self, scan_id: int) -> None:
@@ -197,7 +190,6 @@ class DownloadTracker:
         self.post_download_thumb_generation[scan_id] += 1
 
     def file_backed_up(self, scan_id: int, uid: bytes) -> None:
-
         if scan_id in self._devices_removed_mid_download:
             return
 
@@ -227,7 +219,7 @@ class DownloadTracker:
             logging.critical("Unexpected uid in self.backups_performed_by_uid")
             return True
 
-    def all_files_backed_up(self, scan_id: Optional[int] = None) -> bool:
+    def all_files_backed_up(self, scan_id: int | None = None) -> bool:
         """
         Determine if all backups have finished in the download
         :param scan_id: scan id of the download. If None, then all
@@ -254,7 +246,6 @@ class DownloadTracker:
     def file_downloaded_increment(
         self, scan_id: int, file_type: FileType, status: DownloadStatus
     ) -> None:
-
         if scan_id in self._devices_removed_mid_download:
             return
 
@@ -388,7 +379,6 @@ class DownloadTracker:
         self.total_bytes_copied_by_scan_id[scan_id] = total_bytes
 
     def increment_bytes_backed_up(self, scan_id: int, chunk_downloaded: int) -> None:
-
         if scan_id in self._devices_removed_mid_download:
             return
 
@@ -459,7 +449,7 @@ class TimeCheck:
         self.total_downloaded_so_far = 0
         self.total_download_size = 0
         self.size_mark = 0
-        self.smoothed_speed = None  # type: Optional[float]
+        self.smoothed_speed = None  # type: float|None
 
     def increment(self, bytes_downloaded):
         self.total_downloaded_so_far += bytes_downloaded
@@ -472,7 +462,7 @@ class TimeCheck:
     def pause(self):
         self.mark_set = False
 
-    def update_download_speed(self) -> Tuple[bool, str]:
+    def update_download_speed(self) -> tuple[bool, str]:
         now = time.time()
         updated = now > (self.time_gap + self.time_mark)
 
@@ -487,7 +477,7 @@ class TimeCheck:
             else:
                 # smooth speed across fifteen readings
                 self.smoothed_speed = (self.smoothed_speed * 14 + speed) / 15
-            download_speed = "%1.1f %s" % (self.smoothed_speed, self.mpbs)
+            download_speed = f"{self.smoothed_speed:1.1f} {self.mpbs}"
         else:
             download_speed = None
 
@@ -501,10 +491,10 @@ class TimeForDownload:
         self.total_downloaded_so_far = 0  # type: int
         self.total_download_size = size  # type: int
         self.size_mark = 0  # type: int
-        self.smoothed_speed = None  # type: Optional[float]
+        self.smoothed_speed = None  # type: float|None
 
         self.time_mark = time.time()  # type: float
-        self.smoothed_speed = None  # type: Optional[float]
+        self.smoothed_speed = None  # type: float|None
 
 
 class TimeRemaining:
@@ -525,8 +515,7 @@ class TimeRemaining:
         self.times[scan_id] = t
 
     def update(self, scan_id, bytes_downloaded) -> None:
-
-        if not scan_id in self.times:
+        if scan_id not in self.times:
             return
 
         t = self.times[scan_id]  # type: TimeForDownload
@@ -537,7 +526,6 @@ class TimeRemaining:
         amt_time = now - tm
 
         if amt_time > DownloadUpdateSeconds:
-
             amt_downloaded = t.total_downloaded_so_far - t.size_mark
             t.size_mark = t.total_downloaded_so_far
             t.time_mark = now
@@ -563,7 +551,7 @@ class TimeRemaining:
                 else:
                     t.time_remaining = get_time_left(time_remaining, t.time_remaining)
 
-    def time_remaining(self, detailed_time_remaining: bool) -> Optional[str]:
+    def time_remaining(self, detailed_time_remaining: bool) -> str | None:
         """
         Return the time remaining to download by taking the largest
         value of all the devices being downloaded from.
@@ -599,7 +587,7 @@ class TimeRemaining:
         del self.times[scan_id]
 
 
-def get_time_left(aSeconds: float, aLastSec: Optional[float] = None) -> float:
+def get_time_left(aSeconds: float, aLastSec: float | None = None) -> float:
     """
     Generate a "time left" string given an estimate on the time left and the
     last time. The extra time is used to give a better estimate on the time to

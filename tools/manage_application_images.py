@@ -167,7 +167,7 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
     return parser
 
 
-def extract_code_graphic_resoucres() -> Set[str]:
+def extract_code_graphic_resoucres() -> set[str]:
     resources = set()
     for script in glob.glob(os.path.join(code_directory, '*.py')):
         with open(script) as s:
@@ -186,7 +186,7 @@ def is_qt_scaled_resource(resource: str) -> bool:
     return False
 
 
-def extract_qrc_resources() -> Set[str]:
+def extract_qrc_resources() -> set[str]:
     parser = etree.XMLParser(remove_blank_text=True)
     tree = etree.parse(resources_input, parser)
     root = tree.getroot()
@@ -211,8 +211,8 @@ def set_scaling(fractional_scaling: bool) -> None:
         output_sizes_qt = round_output_sizes_qt
 
 
-def full_file_name_from_partial(partial: str, add_ext: Optional[str]='svg',
-                                directory: Optional[str]=None) -> Tuple[str, str]:
+def full_file_name_from_partial(partial: str, add_ext: str|None='svg',
+                                directory: str|None=None) -> tuple[str, str]:
     basename, ext = os.path.splitext(partial)
     if not ext:
         partial = '{}.{}'.format(partial, add_ext)
@@ -229,7 +229,7 @@ def get_sort_key(element) -> str:
     return element.get('alias')
 
 
-def generate_png_file_names(basename: str, sizes: List[int]) -> Tuple[List[str], ...]:
+def generate_png_file_names(basename: str, sizes: list[int]) -> tuple[list[str], ...]:
 
     fs = '{basename}{size}.png'
     aliases = [
@@ -242,7 +242,7 @@ def generate_png_file_names(basename: str, sizes: List[int]) -> Tuple[List[str],
 
 
 def generate_xml(basename: str, svg: str, remove_svg: bool, skip_backup: bool,
-                 sizes: List[int]):
+                 sizes: list[int]):
     # Remove existing formatting from the XML when opening it
     parser = etree.XMLParser(remove_blank_text=True)
     tree = etree.parse(resources_input, parser)
@@ -354,7 +354,7 @@ def svg_height_inkscape(image: str) -> float:
     return inkscape_query(image, '-H')
 
 
-def svg_size_data(full_file_name: str) -> Tuple[str, float, float, bool]:
+def svg_size_data(full_file_name: str) -> tuple[str, float, float, bool]:
     name = os.path.split(full_file_name)[1]
 
     parser = etree.XMLParser()
@@ -396,7 +396,7 @@ def is_svg(full_file_name: str) -> bool:
     return get_extension(full_file_name) == 'svg'
 
 
-def export_files(full_file_name: Optional[str]=None) -> None:
+def export_files(full_file_name: str|None=None) -> None:
     if full_file_name is not None:
         bar = None
         svg_files = [full_file_name]
@@ -427,7 +427,7 @@ def export_files(full_file_name: Optional[str]=None) -> None:
     run_pyrcc()
 
 
-def check_svg_validity(full_file_name: Optional[str]=None) -> None:
+def check_svg_validity(full_file_name: str|None=None) -> None:
 
     if full_file_name is not None:
         bar = None
@@ -502,7 +502,7 @@ def check_resources_match_code():
 
 
 def check_resources_validity(check_resources: bool, check_svg: bool,
-                             full_file_name: Optional[str]=None) -> None:
+                             full_file_name: str|None=None) -> None:
 
     if check_svg:
         check_svg_validity(full_file_name)
@@ -603,4 +603,3 @@ if __name__ == '__main__':
             check_svg=check_svg,
             full_file_name=full_file_name
         )
-

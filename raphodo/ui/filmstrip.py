@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -24,7 +24,7 @@ same
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
+__copyright__ = "Copyright 2011-2024, Damon Lynch"
 
 from PyQt5.QtGui import QImage, QPainter
 
@@ -80,7 +80,6 @@ def add_filmstrip(thumbnail: QImage) -> QImage:
     :return a copy of the thumbnail
 
     """
-    format = thumbnail.format()
 
     filmstrip = QImage(xpm_data)
     filmstrip_width = filmstrip.width()

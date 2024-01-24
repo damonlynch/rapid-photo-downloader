@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2023 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,81 +21,79 @@ Dialog window to show and manipulate selected user preferences
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2023, Damon Lynch"
+__copyright__ = "Copyright 2017-2024, Damon Lynch"
 
-import webbrowser
-from typing import List
 import logging
+import webbrowser
 
-
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QObject, QThread, QTimer, QSize
-from PyQt5.QtWidgets import (
-    QWidget,
-    QSizePolicy,
-    QComboBox,
-    QVBoxLayout,
-    QLabel,
-    QLineEdit,
-    QSpinBox,
-    QGridLayout,
-    QAbstractItemView,
-    QListWidgetItem,
-    QHBoxLayout,
-    QDialog,
-    QDialogButtonBox,
-    QCheckBox,
-    QStyle,
-    QStackedWidget,
-    QApplication,
-    QPushButton,
-    QGroupBox,
-    QFormLayout,
-    QMessageBox,
-    QButtonGroup,
-    QRadioButton,
-    QAbstractButton,
-)
+from PyQt5.QtCore import QObject, QSize, Qt, QThread, QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import (
-    QShowEvent,
     QCloseEvent,
-    QMouseEvent,
-    QIcon,
     QFont,
     QFontMetrics,
-    QPixmap,
+    QIcon,
+    QMouseEvent,
     QPalette,
+    QPixmap,
+    QShowEvent,
+)
+from PyQt5.QtWidgets import (
+    QAbstractButton,
+    QAbstractItemView,
+    QApplication,
+    QButtonGroup,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidgetItem,
+    QMessageBox,
+    QPushButton,
+    QRadioButton,
+    QSizePolicy,
+    QSpinBox,
+    QStackedWidget,
+    QStyle,
+    QVBoxLayout,
+    QWidget,
 )
 
-from raphodo.prefs.preferences import Preferences
-from raphodo.constants import (
-    KnownDeviceType,
-    CompletedDownloads,
-    TreatRawJpeg,
-    MarkRawJpeg,
-)
-from raphodo.ui.viewutils import (
-    QNarrowListWidget,
-    translateDialogBoxButtons,
-    standardMessageBox,
-    StyledLinkLabel,
-)
 from raphodo.cache import ThumbnailCacheSql
-from raphodo.constants import ConflictResolution
-from raphodo.utilities import (
-    current_version_is_dev_version,
-    make_internationalized_list,
-    available_languages,
-    available_cpu_count,
-    format_size_for_user,
-    thousands,
+from raphodo.constants import (
+    CompletedDownloads,
+    ConflictResolution,
+    KnownDeviceType,
+    MarkRawJpeg,
+    TreatRawJpeg,
 )
-from raphodo.ui.viewutils import darkModePixmap
 from raphodo.metadata.fileformats import (
-    PHOTO_EXTENSIONS,
+    ALL_KNOWN_EXTENSIONS,
     AUDIO_EXTENSIONS,
+    PHOTO_EXTENSIONS,
     VIDEO_EXTENSIONS,
     VIDEO_THUMBNAIL_EXTENSIONS,
-    ALL_KNOWN_EXTENSIONS,
+)
+from raphodo.prefs.preferences import Preferences
+from raphodo.ui.viewutils import (
+    QNarrowListWidget,
+    StyledLinkLabel,
+    darkModePixmap,
+    standardMessageBox,
+    translateDialogBoxButtons,
+)
+from raphodo.utilities import (
+    available_cpu_count,
+    available_languages,
+    current_version_is_dev_version,
+    format_size_for_user,
+    make_internationalized_list,
+    thousands,
 )
 
 
@@ -333,7 +331,8 @@ class PreferencesDialog(QDialog):
         self.ignoredPathsRe = QCheckBox()
         self.ignorePathsReLabel = ClickableLabel(
             # Translators: you must include {link} exactly as it is below.
-            # Do not translate the term link. Be sure to include the <a> and </a> as well.
+            # Do not translate the term link. Be sure to include the <a> and </a> as
+            # well.
             _("Use python-style <a {link}>regular expressions</a>").format(
                 link='style="text-decoration:none; color: palette(highlight);"'
                 'href="http://damonlynch.net/rapid/documentation/#regularexpressions"'
@@ -415,9 +414,9 @@ class PreferencesDialog(QDialog):
         self.automationBox = QGroupBox(_("Program Automation"))
         self.autoMount = QCheckBox(_("Mount devices not already automatically mounted"))
         tooltip = _(
-            # Translators: This next sentence is used in a tool tip. Feel free to place the
-            # carriage return where you think it makes sense so that the tool tip does not
-            # stretch too far horizontally across the screen.
+            # Translators: This next sentence is used in a tool tip. Feel free to place
+            # the carriage return where you think it makes sense so that the tool tip
+            # does not stretch too far horizontally across the screen.
             "Mount devices like memory cards or external drives when\n"
             "the operating system does not automatically mount them"
         )
@@ -1062,9 +1061,7 @@ class PreferencesDialog(QDialog):
             | QDialogButtonBox.Help
         )
         translateDialogBoxButtons(buttons)
-        self.restoreButton = buttons.button(
-            QDialogButtonBox.RestoreDefaults
-        )  # type: QPushButton
+        self.restoreButton = buttons.button(QDialogButtonBox.RestoreDefaults)  # type: QPushButton
         self.restoreButton.clicked.connect(self.restoreDefaultsClicked)
         self.helpButton = buttons.button(QDialogButtonBox.Help)  # type: QPushButton
         self.helpButton.clicked.connect(self.helpButtonClicked)
@@ -1853,7 +1850,7 @@ class PreferencesDialog(QDialog):
             location = ""
 
         webbrowser.open_new_tab(
-            "https://www.damonlynch.net/rapid/documentation/{}".format(location)
+            f"https://www.damonlynch.net/rapid/documentation/{location}"
         )
 
     def closeEvent(self, event: QCloseEvent) -> None:
@@ -1959,7 +1956,7 @@ class ExceptFileExtDialog(PreferenceAddDialog):
             parent=parent,
         )
 
-    def exts(self, exts: List[str]) -> str:
+    def exts(self, exts: list[str]) -> str:
         return make_internationalized_list([ext.upper() for ext in exts])
 
     def accept(self):
@@ -2023,7 +2020,6 @@ class CacheSize(QObject):
 
 
 if __name__ == "__main__":
-
     # Application development test code:
 
     app = QApplication([])

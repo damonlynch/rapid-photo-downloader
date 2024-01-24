@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,18 +19,18 @@
 # A few utility functions relating to time conversion and internationalization
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
+__copyright__ = "Copyright 2015-2024, Damon Lynch"
 
 import locale
-from datetime import datetime
 import re
+from datetime import datetime
 
 from arrow.arrow import Arrow
 
 
 def twelve_hour_clock() -> bool:
     """
-    Determine if a twelve hour clock is being used in the current locale
+    Determine if a twelve-hour clock is being used in the current locale
 
     :return: True if so, else False
     """
@@ -103,7 +103,7 @@ def strip_pm(t: str) -> str:
 
 
 def make_long_date_format(arrowtime: Arrow) -> str:
-    # Translators: for example Nov 3 or Dec 31
+    # Translators: for example, Nov 3 or Dec 31
     # Translators: %(variable)s represents Python code, not a plural of the term
     # variable. You must keep the %(variable)s untranslated, or the program will
     # crash.
@@ -111,7 +111,7 @@ def make_long_date_format(arrowtime: Arrow) -> str:
         "month": arrowtime.datetime.strftime("%b"),
         "numeric_day": arrowtime.format("D"),
     }
-    # Translators: for example Nov 15 2015
+    # Translators: for example, Nov 15 2015
     # Translators: %(variable)s represents Python code, not a plural of the term
     # variable. You must keep the %(variable)s untranslated, or the program will
     # crash.

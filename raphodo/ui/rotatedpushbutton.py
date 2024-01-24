@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,19 +17,18 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2022, Damon Lynch"
+__copyright__ = "Copyright 2015-2024, Damon Lynch"
 
 from enum import IntEnum
 
 from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtWidgets import (
     QPushButton,
-    QStylePainter,
+    QSizePolicy,
     QStyle,
     QStyleOptionButton,
-    QSizePolicy,
+    QStylePainter,
 )
-
 
 from raphodo.ui.viewutils import is_dark_mode, menuHoverColor
 
@@ -41,10 +40,10 @@ class VerticalRotation(IntEnum):
 
 class FlatButton:
     _padding = (
-        "padding-left: {padding_side}px; padding-right: {padding_side}px; padding-top: "
-        "{padding_top}px; padding-bottom: {padding_bottom}px;".format(
-            padding_top=6, padding_side=7, padding_bottom=6
-        )
+        "padding-left: 7px; "
+        "padding-right: 7px; "
+        "padding-top: 6px; "
+        "padding-bottom: 6px; "
     )
 
     def setFlatStyle(
@@ -73,28 +72,30 @@ class FlatButton:
             padding = self._padding
 
         if text_color is not None:
-            text = "color: {};".format(text_color.name(QColor.HexRgb))
+            text = f"color: {text_color.name(QColor.HexRgb)};"
         else:
             text = ""
 
         # outline:none is used to remove the rectangle that appears on a
         # button when the button has focus
         # http://stackoverflow.com/questions/17280056/qt-css-decoration-on-focus
-        stylesheet = """
-        QPushButton { background-color: %s;
-                      border: 0px;
-                      outline: none;
-                      %s
-                      %s}
-        QPushButton:checked { background-color: %s; border: none; }
-        QPushButton:hover{ background-color: %s; border-style: inset; }
-        """ % (
-            default_color,
-            padding,
-            text,
-            checked_color,
-            hover_color,
-        )  #
+        stylesheet = f"""
+        QPushButton {{
+            background-color: {default_color};
+            border: 0px;
+            outline: none;
+            {padding}
+            {text}
+        }}
+        QPushButton:checked {{
+            background-color: {checked_color};
+            border: none;
+        }}
+        QPushButton:hover {{
+            background-color: {hover_color};
+            border-style: inset; 
+        }}
+        """
 
         button.setStyleSheet(stylesheet)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -24,20 +24,19 @@ Read photo and video metadata using ExifTool daemon process.
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2021, Damon Lynch"
+__copyright__ = "Copyright 2007-2024, Damon Lynch"
 
 import datetime
-import re
 import logging
-from typing import Optional, Union, Any, Tuple, List
+import re
 from collections import OrderedDict
+from typing import Any
 
 import raphodo.metadata.exiftool as exiftool
-from raphodo.utilities import flexible_date_time_parser
-from raphodo.constants import FileType
-import raphodo.programversions as programversions
 import raphodo.metadata.fileformats as fileformats
-
+import raphodo.programversions as programversions
+from raphodo.constants import FileType
+from raphodo.utilities import flexible_date_time_parser
 
 # Turned into an OrderedDict below
 _index_preview = {
@@ -49,6 +48,128 @@ _index_preview = {
 }
 
 
+def generate_short_camera_model(
+    model_name: str, include_characters: str = "", missing: str = ""
+) -> str:
+    """
+    Returns a shortened form of the camera model used to record the image.
+
+    Returns missing if the metadata value is not present.
+
+    The short format is determined by the first occurrence of a digit in
+    the camera model, including all alphaNumeric characters before and after
+    that digit up till a non-alphanumeric character, but with these
+    interventions:
+
+    1. Canon "Mark" designations are shortened prior to conversion.
+    2. Names like "Canon EOS DIGITAL REBEL XSi" do not have a number and
+       must be treated differently (see below)
+
+    The optional includeCharacters allows additional characters to appear
+    before and after the digits.
+    Note: special includeCharacters MUST be escaped as per syntax of a
+    regular expressions (see documentation for module re)
+
+    If a digit is not found in the camera model, the last word is returned.
+
+    Note: assume exif values are in ENGLISH, regardless of current platform
+
+    TODO make this work for all of the test suite below
+    TODO ensure the test suite uses info from Exif metadata
+
+    >>> generate_short_camera_model("Nikon Zf")
+    'Zf'
+    >>> generate_short_camera_model("Sony a9 III")
+    'a9III'
+    >>> generate_short_camera_model("Fujifilm X-S20")
+    'S20'
+    >>> generate_short_camera_model("Fujifilm X-S20", "\-")
+    'X-S20'
+    >>> generate_short_camera_model("Sony a7C II")
+    ''
+    >>> generate_short_camera_model("Nikon Z8")
+    'Z8'
+    >>> generate_short_camera_model("Canon EOS R50")
+    'R50'
+    >>> generate_short_camera_model("Panasonic Lumix DC-G9 II")
+    ''
+    >>> generate_short_camera_model("Fujifilm GFX 100 II")
+    ''
+    >>> generate_short_camera_model("Fujifilm GFX 100")
+    ''
+    >>> generate_short_camera_model("GoPro Hero12 Black")
+    ''
+    >>> generate_short_camera_model("Sony ZV-1 Mark II")
+    ''
+    >>> generate_short_camera_model("Canon EOS 300D DIGITAL")
+    '300D'
+    >>> generate_short_camera_model("Canon EOS 5D")
+    '5D'
+    >>> generate_short_camera_model("Canon EOS 5D Mark II")
+    '5DMkII'
+    >>> generate_short_camera_model("NIKON D2X")
+    'D2X'
+    >>> generate_short_camera_model("NIKON D70")
+    'D70'
+    >>> generate_short_camera_model("X100,D540Z,C310Z")
+    'X100'
+    >>> generate_short_camera_model("Canon EOS DIGITAL REBEL XSi")
+    'XSi'
+    >>> generate_short_camera_model("Canon EOS Digital Rebel XS")
+    'XS'
+    >>> generate_short_camera_model("Canon EOS Digital Rebel XTi")
+    'XTi'
+    >>> generate_short_camera_model("Canon EOS Kiss Digital X")
+    'X'
+    >>> generate_short_camera_model("Canon EOS Digital Rebel XT")
+    'XT'
+    >>> generate_short_camera_model("EOS Kiss Digital")
+    'Digital'
+    >>> generate_short_camera_model("Canon Digital IXUS Wireless")
+    'Wireless'
+    >>> generate_short_camera_model("Canon Digital IXUS i zoom")
+    'zoom'
+    >>> generate_short_camera_model("Canon EOS Kiss Digital N")
+    'N'
+    >>> generate_short_camera_model("Canon Digital IXUS IIs")
+    'IIs'
+    >>> generate_short_camera_model("IXY Digital L")
+    'L'
+    >>> generate_short_camera_model("Digital IXUS i")
+    'i'
+    >>> generate_short_camera_model("IXY Digital")
+    'Digital'
+    >>> generate_short_camera_model("Digital IXUS")
+    'IXUS'
+    >>> generate_short_camera_model("DSC-P92")
+    'P92'
+    >>> generate_short_camera_model("DSC-P92", "\-")
+    'DSC-P92'
+
+    :param model_name:
+    :param include_characters:
+    :param missing:
+    :return:
+    """
+
+    m = model_name
+    m = m.replace(" Mark ", "Mk")
+    if m:
+        s = (
+            rf"(?:[^a-zA-Z0-9{include_characters}]?)"
+            rf"(?P<model>[a-zA-Z0-9{include_characters}]*"
+            rf"\d+[a-zA-Z0-9{include_characters}]*)"
+        )
+        r = re.search(s, m)
+        if r:
+            return r.group("model")
+        else:
+            head, space, model = m.strip().rpartition(" ")
+            return model
+    else:
+        return missing
+
+
 class MetadataExiftool:
     """
     Read photo and video metadata using exiftool daemon process.
@@ -58,7 +179,7 @@ class MetadataExiftool:
         self,
         full_file_name: str,
         et_process: exiftool.ExifTool,
-        file_type: Optional[FileType] = None,
+        file_type: FileType | None = None,
     ) -> None:
         """
         Get photo and video metadata using Exiftool
@@ -151,7 +272,7 @@ class MetadataExiftool:
                     return missing
             try:
                 return self.metadata_string_format[0][key]
-            except:
+            except Exception:
                 return missing
 
         elif not self.metadata:
@@ -163,8 +284,8 @@ class MetadataExiftool:
         return self.metadata.get(key, missing)
 
     def date_time(
-        self, missing: Optional[str] = "", ignore_file_modify_date: bool = False
-    ) -> Union[datetime.datetime, Any]:
+        self, missing: str | None = "", ignore_file_modify_date: bool = False
+    ) -> datetime.datetime | Any:
         """
         Tries to get value from key "DateTimeOriginal"
         If that fails, tries "CreateDate", and then finally
@@ -221,7 +342,7 @@ class MetadataExiftool:
         else:
             return missing
 
-    def timestamp(self, missing="") -> Union[float, Any]:
+    def timestamp(self, missing="") -> float | Any:
         """
         Photo and Video
         :return: a float value representing the time stamp, if it exists
@@ -232,13 +353,13 @@ class MetadataExiftool:
             try:
                 ts = dt.timestamp()
                 ts = float(ts)
-            except:
+            except Exception:
                 ts = missing
         else:
             ts = missing
         return ts
 
-    def file_number(self, missing="") -> Union[str, Any]:
+    def file_number(self, missing="") -> str | Any:
         """
         Photo and video
         :return: a string value representing the File number, if it exists
@@ -250,21 +371,21 @@ class MetadataExiftool:
         else:
             return missing
 
-    def width(self, missing="") -> Union[str, Any]:
+    def width(self, missing="") -> str | Any:
         v = self._get("ImageWidth", None)
         if v is not None:
             return str(v)
         else:
             return missing
 
-    def height(self, missing="") -> Union[str, Any]:
+    def height(self, missing="") -> str | Any:
         v = self._get("ImageHeight", None)
         if v is not None:
             return str(v)
         else:
             return missing
 
-    def length(self, missing="") -> Union[str, Any]:
+    def length(self, missing="") -> str | Any:
         """
         return the duration (length) of the video, rounded to the nearest second, in
         string format
@@ -274,13 +395,13 @@ class MetadataExiftool:
             try:
                 v = float(v)
                 v = "%0.f" % v
-            except:
+            except Exception:
                 return missing
             return v
         else:
             return missing
 
-    def frames_per_second(self, missing="") -> Union[str, Any]:
+    def frames_per_second(self, missing="") -> str | Any:
         v = self._get("FrameRate", None)
         if v is None:
             v = self._get("VideoFrameRate", None)
@@ -289,11 +410,11 @@ class MetadataExiftool:
             return missing
         try:
             v = "%.0f" % v
-        except:
+        except Exception:
             return missing
         return v
 
-    def codec(self, missing="") -> Union[str, Any]:
+    def codec(self, missing="") -> str | Any:
         v = self._get("VideoStreamType", None)
         if v is None:
             v = self._get("VideoCodec", None)
@@ -301,16 +422,16 @@ class MetadataExiftool:
             return v
         return missing
 
-    def fourcc(self, missing="") -> Union[str, Any]:
+    def fourcc(self, missing="") -> str | Any:
         return self._get("CompressorID", missing)
 
-    def rotation(self, missing=0) -> Union[int, Any]:
+    def rotation(self, missing=0) -> int | Any:
         v = self._get("Rotation", None)
         if v is not None:
             return v
         return missing
 
-    def aperture(self, missing="") -> Union[str, Any]:
+    def aperture(self, missing="") -> str | Any:
         """
         Returns in string format the floating point value of the image's
         aperture.
@@ -324,10 +445,10 @@ class MetadataExiftool:
             return missing
 
         if v is not None:
-            return "{:.1f}".format(v)
+            return f"{v:.1f}"
         return missing
 
-    def iso(self, missing="") -> Union[str, Any]:
+    def iso(self, missing="") -> str | Any:
         """
         Returns in string format the integer value of the image's ISO.
 
@@ -338,7 +459,7 @@ class MetadataExiftool:
             return str(v)
         return missing
 
-    def _exposure_time_rational(self, missing=None) -> Tuple[Any, Any]:
+    def _exposure_time_rational(self, missing=None) -> tuple[Any, Any]:
         """
         Split exposure time value into fraction for further processing
         :param missing:
@@ -362,7 +483,7 @@ class MetadataExiftool:
         # already in floating point format
         return v, 1
 
-    def exposure_time(self, alternativeFormat=False, missing="") -> Union[str, Any]:
+    def exposure_time(self, alternative_format=False, missing="") -> str | Any:
         """
         Returns in string format the exposure time of the image.
 
@@ -390,12 +511,11 @@ class MetadataExiftool:
         e0, e1 = self._exposure_time_rational()
 
         if e0 is not None and e1 is not None:
-
             if str(e0).find(".") > 0:
                 try:
                     assert e1 == 1
                 except AssertionError as e:
-                    logging.exception("{}: {}, {}".format(self.full_file_name, e0, e1))
+                    logging.exception(f"{self.full_file_name}: {e0}, {e1}")
                     raise AssertionError from e
                 e0 = float(e0)
             else:
@@ -403,20 +523,20 @@ class MetadataExiftool:
                     e0 = int(e0)
                     e1 = int(e1)
                 except ValueError as e:
-                    logging.exception("{}: {}, {}".format(self.full_file_name, e0, e1))
+                    logging.exception(f"{self.full_file_name}: {e0}, {e1}")
                     raise ValueError from e
 
             if e1 > e0:
-                if alternativeFormat:
+                if alternative_format:
                     if e0 == 1:
                         return str(e1)
                     else:
                         return str(e0)
                 else:
-                    return "%s/%s" % (e0, e1)
+                    return f"{e0}/{e1}"
             elif e0 > e1:
                 e = float(e0) / e1
-                if alternativeFormat:
+                if alternative_format:
                     return "%.0fs" % e
                 else:
                     return "%.0f" % e
@@ -425,104 +545,36 @@ class MetadataExiftool:
         else:
             return missing
 
-    def focal_length(self, missing="") -> Union[str, Any]:
+    def focal_length(self, missing="") -> str | Any:
         v = self._get("FocalLength", None)
         if v is not None:
             return str(v)
         return missing
 
-    def camera_make(self, missing="") -> Union[str, Any]:
+    def camera_make(self, missing="") -> str | Any:
         v = self._get("Make", None)
         if v is not None:
             return str(v)
         return missing
 
-    def camera_model(self, missing="") -> Union[str, Any]:
+    def camera_model(self, missing="") -> str | Any:
         v = self._get("Model", None)
         if v is not None:
             return str(v)
         return missing
 
-    def short_camera_model(self, includeCharacters="", missing=""):
-        """
-        Returns in shorterned string format the camera model used to record
-        the image.
-
-        Returns missing if the metadata value is not present.
-
-        The short format is determined by the first occurrence of a digit in
-        the
-        camera model, including all alphaNumeric characters before and after
-        that digit up till a non-alphanumeric character, but with these
-        interventions:
-
-        1. Canon "Mark" designations are shortened prior to conversion.
-        2. Names like "Canon EOS DIGITAL REBEL XSi" do not have a number and
-        must
-            and treated differently (see below)
-
-        Examples:
-        Canon EOS 300D DIGITAL -> 300D
-        Canon EOS 5D -> 5D
-        Canon EOS 5D Mark II -> 5DMkII
-        NIKON D2X -> D2X
-        NIKON D70 -> D70
-        X100,D540Z,C310Z -> X100
-        Canon EOS DIGITAL REBEL XSi -> XSi
-        Canon EOS Digital Rebel XS -> XS
-        Canon EOS Digital Rebel XTi -> XTi
-        Canon EOS Kiss Digital X -> Digital
-        Canon EOS Digital Rebel XT -> XT
-        EOS Kiss Digital -> Digital
-        Canon Digital IXUS Wireless -> Wireless
-        Canon Digital IXUS i zoom -> zoom
-        Canon EOS Kiss Digital N -> N
-        Canon Digital IXUS IIs -> IIs
-        IXY Digital L -> L
-        Digital IXUS i -> i
-        IXY Digital -> Digital
-        Digital IXUS -> IXUS
-
-        The optional includeCharacters allows additional characters to appear
-        before and after the digits.
-        Note: special includeCharacters MUST be escaped as per syntax of a
-        regular expressions (see documentation for module re)
-
-        Examples:
-
-        includeCharacters = '':
-        DSC-P92 -> P92
-        includeCharacters = '\-':
-        DSC-P92 -> DSC-P92
-
-        If a digit is not found in the camera model, the last word is returned.
-
-        Note: assume exif values are in ENGLISH, regardless of current platform
-        """
+    def short_camera_model(self, include_characters="", missing=""):
+        """ """
         m = self.camera_model()
-        m = m.replace(" Mark ", "Mk")
-        if m:
-            s = r"(?:[^a-zA-Z0-9%s]?)(?P<model>[a-zA-Z0-9%s]*\d+[" r"a-zA-Z0-9%s]*)" % (
-                includeCharacters,
-                includeCharacters,
-                includeCharacters,
-            )
-            r = re.search(s, m)
-            if r:
-                return r.group("model")
-            else:
-                head, space, model = m.strip().rpartition(" ")
-                return model
-        else:
-            return missing
+        return generate_short_camera_model(m, include_characters, missing)
 
-    def camera_serial(self, missing="") -> Union[str, Any]:
+    def camera_serial(self, missing="") -> str | Any:
         v = self._get("SerialNumber", None)
         if v is not None:
             return str(v)
         return missing
 
-    def shutter_count(self, missing="") -> Union[str, Any]:
+    def shutter_count(self, missing="") -> str | Any:
         v = self._get("ShutterCount", None)
         if v is None:
             v = self._get("ImageNumber", None)
@@ -531,15 +583,14 @@ class MetadataExiftool:
             return str(v)
         return missing
 
-    def owner_name(self, missing="") -> Union[str, Any]:
-
+    def owner_name(self, missing="") -> str | Any:
         # distinct from CopyrightOwnerName
         v = self._get("OwnerName", None)
         if v is not None:
             return str(v)
         return missing
 
-    def copyright(self, missing="") -> Union[str, Any]:
+    def copyright(self, missing="") -> str | Any:
         v = self._get("Copyright", None)
         if v is not None:
             return str(v)
@@ -551,22 +602,22 @@ class MetadataExiftool:
             return str(v)
         return missing
 
-    def sub_seconds(self, missing="00") -> Union[str, Any]:
+    def sub_seconds(self, missing="00") -> str | Any:
         v = self._get("SubSecTime", None)
         if v is not None:
             return str(v)
         return missing
 
-    def orientation(self, missing="") -> Union[str, Any]:
+    def orientation(self, missing="") -> str | Any:
         v = self._get("Orientation", None)
         if v is not None:
             return str(v)
         return missing
 
-    def _get_binary(self, key: str) -> Optional[bytes]:
-        return self.et_process.execute_binary("-{}".format(key), self.full_file_name)
+    def _get_binary(self, key: str) -> bytes | None:
+        return self.et_process.execute_binary(f"-{key}", self.full_file_name)
 
-    def get_small_thumbnail(self) -> Optional[bytes]:
+    def get_small_thumbnail(self) -> bytes | None:
         """
         Get the small thumbnail image (if it exists)
         :return: thumbnail image in raw bytes
@@ -576,14 +627,14 @@ class MetadataExiftool:
 
     def get_indexed_preview(
         self, preview_number: int = 0, force: bool = False
-    ) -> Optional[bytes]:
+    ) -> bytes | None:
         """
         Extract preview image from the metadata
         If initial preview number does not work, tries others
 
         :param preview_number: which preview to get
-        :param force: if True, get only that preview. Otherwise, take a flexible approach
-         where every preview is tried image, in order found in index_preview
+        :param force: if True, get only that preview. Otherwise, take a flexible
+         approach where every preview is tried image, in order found in index_preview
         :return: preview image in raw bytes, if found, else None
         """
 
@@ -603,7 +654,7 @@ class MetadataExiftool:
 
         assert not force
         untried_indexes = (
-            index for index in self.index_preview.keys() if index != preview_number
+            index for index in self.index_preview if index != preview_number
         )
 
         valid_untried_indexes = [
@@ -631,7 +682,7 @@ class MetadataExiftool:
         )
         return None
 
-    def get_small_thumbnail_or_first_indexed_preview(self) -> Optional[bytes]:
+    def get_small_thumbnail_or_first_indexed_preview(self) -> bytes | None:
         """
         First attempt to get the small thumbnail image. If it does not exist,
         extract the smallest preview image from the metadata
@@ -655,7 +706,7 @@ class MetadataExiftool:
         # If that fails, take a flexible approach
         return self.get_indexed_preview(force=False)
 
-    def get_preview_256(self) -> Optional[bytes]:
+    def get_preview_256(self) -> bytes | None:
         """
         :return: if possible, return a preview image that is preferably larger than 256
         pixels, else the smallest preview if it exists
@@ -671,7 +722,7 @@ class MetadataExiftool:
         # If that fails, take a flexible approach
         return self.get_indexed_preview(force=False)
 
-    def preview_names(self) -> Optional[List[str]]:
+    def preview_names(self) -> list[str] | None:
         """
         Names of preview image located in the file, excluding the tag ThumbnailImage
 
@@ -708,7 +759,7 @@ if __name__ == "__main__":
             print("f" + m.aperture("missing "))
             print("ISO " + m.iso("missing "))
             print(m.exposure_time(missing="missing ") + " sec")
-            print(m.exposure_time(alternativeFormat=True, missing="missing "))
+            print(m.exposure_time(alternative_format=True, missing="missing "))
             print(m.focal_length("missing ") + "mm")
             print(m.camera_make())
             print(m.camera_model())
@@ -724,7 +775,7 @@ if __name__ == "__main__":
 
             thumb = m.get_small_thumbnail()
             if thumb:
-                print("Thumbnail size: {} bytes".format(len(thumb)))
+                print(f"Thumbnail size: {len(thumb)} bytes")
             else:
                 print("No thumbnail detected")
 

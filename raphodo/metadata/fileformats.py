@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2023 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,20 +17,20 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2023, Damon Lynch"
+__copyright__ = "Copyright 2011-2024, Damon Lynch"
 
 
 import logging
-import subprocess
-from typing import Optional, Tuple
 import os
+import subprocess
+
 from packaging.version import parse as parse_version
 
 import raphodo.programversions as programversions
-from raphodo.constants import thumbnail_offset, FileType, FileExtension
+from raphodo.constants import FileExtension, FileType, thumbnail_offset
 
 
-def exiftool_capabilities() -> Tuple[bool, bool]:
+def exiftool_capabilities() -> tuple[bool, bool]:
     """
     Determine if ExifTool can be used to read cr3 and heif/heic files
     """
@@ -43,7 +43,7 @@ def exiftool_capabilities() -> Tuple[bool, bool]:
             heif = v >= parse_version("10.63")
             return cr3, heif
         return False, False
-    except:
+    except Exception:
         logging.error("Unable to compare ExifTool version number: %s", v)
         return False, False
 
@@ -181,7 +181,7 @@ def use_exiftool_on_photo(extension: str, preview_extraction_irrelevant: bool) -
     return extension in EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS
 
 
-def extract_extension(file_name) -> Optional[str]:
+def extract_extension(file_name) -> str | None:
     r"""
     Extract the file extension in the format the rest of the code expects:
     no leading period, lower case
@@ -201,9 +201,9 @@ def extract_extension(file_name) -> Optional[str]:
     return os.path.splitext(file_name)[1][1:].lower()
 
 
-def file_type(file_extension: str) -> Optional[FileType]:
+def file_type(file_extension: str) -> FileType | None:
     r"""
-    Check file extension to determine if photo or video
+    Check the file extension to determine if it is a photo or video
 
     :param file_extension: file extension in all lower case without leading period
     :return: file type (photo/video), or None if it's neither.
@@ -228,8 +228,8 @@ def file_type(file_extension: str) -> Optional[FileType]:
 
 
 def file_type_from_splitext(
-    file_extension: Optional[str] = None, file_name: Optional[str] = None
-) -> Optional[FileType]:
+    file_extension: str | None = None, file_name: str | None = None
+) -> FileType | None:
     r"""
     Check file extension to determine if photo or video.
 

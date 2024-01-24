@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -17,21 +17,20 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2022, Damon Lynch"
+__copyright__ = "Copyright 2015-2024, Damon Lynch"
 
-import pickle
-from typing import Optional
 import logging
+import pickle
 
 import zmq
-from PyQt5.QtCore import QThread, QTimer, pyqtSignal, pyqtBoundSignal, pyqtSlot, QObject
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtCore import QObject, QThread, QTimer, pyqtBoundSignal, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QImage, QPixmap
 
 from raphodo.interprocess import (
+    GenerateThumbnailsArguments,
+    GenerateThumbnailsResults,  # noqa: F401
     LoadBalancerManager,
     PublishPullPipelineManager,
-    GenerateThumbnailsArguments,
-    GenerateThumbnailsResults,
     ThreadNames,
     create_inproc_msg,
 )
@@ -115,7 +114,7 @@ class Thumbnailer(QObject):
         super().__init__(parent)
         self.context = zmq.Context.instance()
         self.log_gphoto2 = log_gphoto2
-        self._frontend_port = None  # type: int
+        self._frontend_port = None  # type: int | None
         self.no_workers = no_workers
         self.logging_port = logging_port
 
@@ -136,11 +135,11 @@ class Thumbnailer(QObject):
         cache_dirs: CacheDirs,
         need_photo_cache_dir: bool,
         need_video_cache_dir: bool,
-        camera_model: Optional[str] == None,
-        camera_port: Optional[str] = None,
-        is_mtp_device: Optional[bool] = None,
-        entire_video_required: Optional[bool] = None,
-        entire_photo_required: Optional[bool] = None,
+        camera_model: str | None = None,
+        camera_port: str | None = None,
+        is_mtp_device: bool | None = None,
+        entire_video_required: bool | None = None,
+        entire_photo_required: bool | None = None,
     ) -> None:
         """
         Initiates thumbnail generation.
@@ -260,7 +259,6 @@ class Thumbnailer(QObject):
         self.frontend_port.emit(frontend_port)
 
     def stop(self) -> None:
-
         self.thumbnailer_controller.send_multipart(create_inproc_msg(b"STOP"))
         self.load_balancer_controller.send_multipart(create_inproc_msg(b"STOP"))
         self.thumbnail_manager_thread.quit()

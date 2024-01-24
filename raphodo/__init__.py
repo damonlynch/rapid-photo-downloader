@@ -23,11 +23,11 @@ Initialize gettext translations.
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2024, Damon Lynch"
 
-import os
+import builtins
 import gettext
 import locale
+import os
 from pathlib import Path
-import builtins
 
 from PyQt5.QtCore import QSettings, QStandardPaths
 
@@ -71,9 +71,12 @@ def locale_directory() -> str | None:
     for path in (data_home, "/usr/share"):
         locale_path = os.path.join(path, "locale")
         sample_path = os.path.join(locale_path, sample_lang_path)
-        if os.path.isfile(sample_path) and os.access(sample_path, os.R_OK):
-            if os.path.getmtime(sample_path) > locale_mtime:
-                locale_dir = locale_path
+        if (
+            os.path.isfile(sample_path)
+            and os.access(sample_path, os.R_OK)
+            and os.path.getmtime(sample_path) > locale_mtime
+        ):
+            locale_dir = locale_path
     return locale_dir
 
 

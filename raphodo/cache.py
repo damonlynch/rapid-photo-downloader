@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -47,30 +47,28 @@ http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
+__copyright__ = "Copyright 2015-2024, Damon Lynch"
 
-import os
-import sys
-import logging
 import hashlib
-from urllib.request import pathname2url
-import time
+import logging
+import os
 import shutil
-from collections import namedtuple
-from typing import Optional, Tuple, Union
 import sqlite3
+import sys
+import time
+from collections import namedtuple
+from urllib.request import pathname2url
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QImage
 
-from raphodo.storage.storage import (
-    get_program_cache_directory,
-    get_fdo_cache_thumb_base_directory,
-)
-from raphodo.utilities import GenerateRandomFileName, format_size_for_user
 from raphodo.constants import ThumbnailCacheDiskStatus
 from raphodo.rpdsql import CacheSQL
-
+from raphodo.storage.storage import (
+    get_fdo_cache_thumb_base_directory,
+    get_program_cache_directory,
+)
+from raphodo.utilities import GenerateRandomFileName
 
 GetThumbnail = namedtuple("GetThumbnail", "disk_status, thumbnail, path")
 GetThumbnailPath = namedtuple(
@@ -84,7 +82,7 @@ class MD5Name:
     def __init__(self) -> None:
         self.fs_encoding = sys.getfilesystemencoding()
 
-    def get_uri(self, full_file_name: str, camera_model: Optional[str] = None) -> str:
+    def get_uri(self, full_file_name: str, camera_model: str | None = None) -> str:
         """
         :param full_file_name: path and file name of the file
         :param camera_model: if file is on a camera, the model of the
@@ -98,16 +96,16 @@ class MD5Name:
             # This is not a system standard: I'm using this for my own
             # purposes (the port is not included, because it could easily vary)
             prefix = "gphoto2://"
-            path = "{}/{}".format(camera_model, full_file_name)
+            path = f"{camera_model}/{full_file_name}"
 
-        return "{}{}".format(prefix, pathname2url(path))
+        return f"{prefix}{pathname2url(path)}"
 
     def md5_hash_name(
         self,
         full_file_name: str,
         camera_model: str = None,
-        extension: Optional[str] = "png",
-    ) -> Tuple[str, str]:
+        extension: str | None = "png",
+    ) -> tuple[str, str]:
         """
         Generate MD5 hash for the file name.
 
@@ -121,10 +119,7 @@ class MD5Name:
         """
         uri = self.get_uri(full_file_name, camera_model)
         return (
-            "{md5}.{extension}".format(
-                md5=hashlib.md5(uri.encode(self.fs_encoding)).hexdigest(),
-                extension=extension,
-            ),
+            f"{hashlib.md5(uri.encode(self.fs_encoding)).hexdigest()}.{extension}",
             uri,
         )
 
@@ -135,7 +130,7 @@ class Cache:
     Create cache if it doesn't exist; checks validity.
     """
 
-    def __init__(self, cache_dir: str, failure_dir: Optional[str]) -> None:
+    def __init__(self, cache_dir: str, failure_dir: str | None) -> None:
         """
         Create cache if it doesn't exist; checks validity.
 
@@ -183,12 +178,12 @@ class Cache:
         self,
         full_file_name: str,
         size: int,
-        modification_time: Union[float, int],
+        modification_time: float | int,
         generation_failed: bool,
         thumbnail: QImage,
         camera_model: str = None,
         free_desktop_org: bool = True,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Save a thumbnail in the thumbnail cache.
 
@@ -242,9 +237,8 @@ class Cache:
         thumbnail.setText("Thumb::MTime", str(float(modification_time)))
         thumbnail.setText("Thumb::Size", str(size))
 
-        if free_desktop_org and not generation_failed:
-            if thumbnail.depth() != 8:
-                thumbnail = thumbnail.convertToFormat(QImage.Format_Indexed8)
+        if free_desktop_org and not generation_failed and thumbnail.depth() != 8:
+            thumbnail = thumbnail.convertToFormat(QImage.Format_Indexed8)
 
         temp_path = os.path.join(save_dir, self.random_filename.name(extension="png"))
         if thumbnail.save(temp_path):
@@ -262,7 +256,7 @@ class Cache:
 
     def _get_thumbnail(
         self, path: str, modification_time: float, size: int
-    ) -> Optional[bytes]:
+    ) -> QImage | None:
         if os.path.exists(path):
             png = QImage(path)
             if not png.isNull():
@@ -276,7 +270,7 @@ class Cache:
         return None
 
     def get_thumbnail_md5_name(
-        self, full_file_name: str, camera_model: Optional[str] = None
+        self, full_file_name: str, camera_model: str | None = None
     ) -> str:
         """
         Returns the md5 name for the photo or video. Does not check if the file exists
@@ -299,7 +293,7 @@ class Cache:
         full_file_name: str,
         modification_time,
         size: int,
-        camera_model: Optional[str] = None,
+        camera_model: str | None = None,
     ) -> GetThumbnail:
         """
         Attempt to retrieve a thumbnail from the thumbnail cache.
@@ -340,7 +334,7 @@ class Cache:
         modification_time,
         size: int,
         error_on_missing_thumbnail: bool,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
 
         :param existing_cache_thumbnail: the md5 name of the cache thumbnail,
@@ -404,7 +398,6 @@ class FdoCacheLarge(Cache):
 
 
 class ThumbnailCacheSql:
-
     not_found = GetThumbnailPath(ThumbnailCacheDiskStatus.not_found, None, None, None)
 
     def __init__(self, create_table_if_not_exists: bool) -> None:
@@ -424,7 +417,7 @@ class ThumbnailCacheSql:
                 logging.warning("Removed file %s", self.cache_dir)
                 os.makedirs(self.cache_dir, 0o700)
                 logging.debug("Created thumbnails cache %s", self.cache_dir)
-        except:
+        except Exception:
             logging.error(
                 "Failed to create Rapid Photo Downloader Thumbnail Cache at %s",
                 self.cache_dir,
@@ -446,9 +439,9 @@ class ThumbnailCacheSql:
         mdatatime: float,
         generation_failed: bool,
         orientation_unknown: bool,
-        thumbnail: Optional[QImage],
-        camera_model: Optional[str] = None,
-    ) -> Optional[str]:
+        thumbnail: QImage | None,
+        camera_model: str | None = None,
+    ) -> str | None:
         """
         Save in the thumbnail cache using jpeg 75% compression.
 
@@ -572,7 +565,6 @@ class ThumbnailCacheSql:
         """
         time_period = 60 * 60 * 24 * days
         if self.valid:
-            i = 0
             now = time.time()
             deleted_thumbnails = []
             for name in os.listdir(self.cache_dir):
@@ -587,8 +579,8 @@ class ThumbnailCacheSql:
                 if self.thumb_db.cache_exists():
                     self.thumb_db.delete_thumbnails(deleted_thumbnails)
                 logging.debug(
-                    "Deleted {} thumbnail files that had not been accessed for {} "
-                    "or more days".format(len(deleted_thumbnails), days)
+                    f"Deleted {len(deleted_thumbnails)} thumbnail files that had not "
+                    f"been accessed for {days} or more days"
                 )
 
     def purge_cache(self) -> None:
@@ -596,10 +588,9 @@ class ThumbnailCacheSql:
         Delete the entire cache of all contents and remove the
         directory
         """
-        if self.valid:
-            if self.cache_dir is not None and os.path.isdir(self.cache_dir):
-                # Delete the sqlite3 database too
-                shutil.rmtree(self.cache_dir)
+        if self.valid and self.cache_dir is not None and os.path.isdir(self.cache_dir):
+            # Delete the sqlite3 database too
+            shutil.rmtree(self.cache_dir)
 
     def no_thumbnails(self) -> int:
         """
@@ -632,7 +623,7 @@ class ThumbnailCacheSql:
             return 0
         return os.path.getsize(self.thumb_db.db)
 
-    def optimize(self) -> Tuple[int, int, int]:
+    def optimize(self) -> tuple[int, int, int]:
         """
         Check for any thumbnails in the db that are not in the file system
         Check for any thumbnails exist on the file system that are not in the db

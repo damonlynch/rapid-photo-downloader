@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -25,17 +25,16 @@ similar to the GtkExpander', Copyright 2012 Canonical Ltd
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2022, Damon Lynch"
+__copyright__ = "Copyright 2016-2024, Damon Lynch"
 
-from typing import Optional
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, QSize
+from PyQt5.QtCore import QSize, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QWidget, QLayout
+from PyQt5.QtWidgets import QLayout, QWidget  # noqa: F401
 
-from raphodo.ui.toggleswitch import QToggleSwitch
+from raphodo.constants import DarkModeHeaderBackgroundName, HeaderBackgroundName
 from raphodo.ui.panelview import QPanelView
+from raphodo.ui.toggleswitch import QToggleSwitch
 from raphodo.ui.viewutils import BlankWidget, is_dark_mode
-from raphodo.constants import HeaderBackgroundName, DarkModeHeaderBackgroundName
 
 
 class QToggleView(QPanelView):
@@ -50,9 +49,9 @@ class QToggleView(QPanelView):
         label: str,
         display_alternate: bool,
         object_name: str,
-        toggleToolTip: Optional[str],
-        headerColor: Optional[QColor] = None,
-        headerFontColor: Optional[QColor] = None,
+        toggleToolTip: str | None,
+        headerColor: QColor | None = None,
+        headerFontColor: QColor | None = None,
         on: bool = True,
         parent: QWidget = None,
     ) -> None:

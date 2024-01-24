@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2021-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,50 +18,53 @@
 
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2021, Damon Lynch."
+__copyright__ = "Copyright 2021-2024, Damon Lynch."
 
-from collections import OrderedDict, defaultdict
 import enum
-from pathlib import Path, PurePosixPath
 import logging
 import os
 import re
 import shlex
 import subprocess
-from typing import NamedTuple, Optional, Tuple, Set, List, Dict, DefaultDict
 import webbrowser
+from collections import OrderedDict, defaultdict
+from pathlib import Path, PurePosixPath
+from typing import NamedTuple
 
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer, Qt, QSize
-from PyQt5.QtGui import QTextDocument, QShowEvent
+from PyQt5.QtCore import QObject, QSize, Qt, QTimer, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import (
+    QShowEvent,
+    QTextDocument,  # noqa: F401
+)
 from PyQt5.QtWidgets import (
-    QSizePolicy,
+    QAbstractButton,
+    QAbstractScrollArea,
+    QButtonGroup,
+    QCheckBox,
     QDialog,
-    QVBoxLayout,
-    QWidget,
+    QDialogButtonBox,
     QGridLayout,
+    QLabel,
+    QMessageBox,
+    QPushButton,  # noqa: F401
+    QRadioButton,
+    QSizePolicy,
     QStyle,
     QTableWidget,
     QTableWidgetItem,
-    QAbstractScrollArea,
-    QDialogButtonBox,
-    QPushButton,
-    QCheckBox,
-    QRadioButton,
-    QButtonGroup,
-    QAbstractButton,
     QTextBrowser,
-    QLabel,
-    QMessageBox,
+    QVBoxLayout,
+    QWidget,
 )
 
 from raphodo.constants import WindowsDriveType
 from raphodo.prefs.preferences import Preferences, WSLWindowsDrivePrefs
+from raphodo.sudocommand import SudoException, SudoExceptionCode, run_commands_as_sudo
 from raphodo.ui.viewutils import (
-    translateDialogBoxButtons,
     CheckBoxDelegate,
     standardMessageBox,
+    translateDialogBoxButtons,
 )
-from raphodo.sudocommand import run_commands_as_sudo, SudoException, SudoExceptionCode
 from raphodo.utilities import make_internationalized_list
 from raphodo.wslutils import wsl_conf_mnt_location
 
@@ -135,8 +138,8 @@ def make_mount_op_cmd(
     task: MountTask,
     drive_letter: str,
     path: Path,
-    uid: Optional[int] = None,
-    gid: Optional[int] = None,
+    uid: int | None = None,
+    gid: int | None = None,
 ) -> str:
     """
     Create command to be via subprocess.Popen() call.
@@ -153,7 +156,10 @@ def make_mount_op_cmd(
         if has_fstab_entry(drive_letter=drive_letter, mount_point=str(path)):
             return f"mount {path}"
         else:
-            return rf"mount -t drvfs -o uid={uid},gid={gid},noatime {drive_letter.upper()}:\\ {path}"
+            return (
+                f"mount -t drvfs -o uid={uid},gid={gid},"
+                rf"noatime {drive_letter.upper()}:\\ {path}"
+            )
     elif task == MountTask.unmount_drive:
         return f"umount {path}"
     elif task == MountTask.create_directory:
@@ -185,7 +191,7 @@ def determine_mount_ops(
     mount_point: str,
     uid: int,
     gid: int,
-) -> List[MountOp]:
+) -> list[MountOp]:
     """
     Generator sequence of operations to mount or unmount a Windows drive
 
@@ -197,7 +203,7 @@ def determine_mount_ops(
     :return: List of operations required to mount or unmount the windows drive
     """
 
-    tasks = []  # type: List[MountOp]
+    tasks = []  # type: list[MountOp]
     assert mount_point
     if do_mount:
         mp = Path(mount_point)
@@ -249,7 +255,7 @@ def determine_mount_ops(
     return tasks
 
 
-def make_hr_drive_list(drives: List[WindowsDriveMount]) -> str:
+def make_hr_drive_list(drives: list[WindowsDriveMount]) -> str:
     """
     Make a human readable list of drives for use in dialog windows, etc.
     :param drives: the list of drives
@@ -261,7 +267,7 @@ def make_hr_drive_list(drives: List[WindowsDriveMount]) -> str:
     return make_internationalized_list(drive_names)
 
 
-def make_hr_drive_letter_list(drives: List[WindowsDriveMount]) -> str:
+def make_hr_drive_letter_list(drives: list[WindowsDriveMount]) -> str:
     """
     Return a comma seperated human readable list of drive letters for use in logging,
     etc.
@@ -273,13 +279,13 @@ def make_hr_drive_letter_list(drives: List[WindowsDriveMount]) -> str:
 
 class DoMountOpResult(NamedTuple):
     cancelled: bool
-    successes: List[WindowsDriveMount]
-    failures: List[WindowsDriveMount]
-    no_op: List[WindowsDriveMount]
+    successes: list[WindowsDriveMount]
+    failures: list[WindowsDriveMount]
+    no_op: list[WindowsDriveMount]
 
 
 def do_mount_drives_op(
-    drives: List[WindowsDriveMount], pending_ops: OrderedDict, parent, is_do_mount: bool
+    drives: list[WindowsDriveMount], pending_ops: OrderedDict, parent, is_do_mount: bool
 ) -> DoMountOpResult:
     """
     Mount or unmount the Windows drives, prompting the user for the sudo password if
@@ -515,11 +521,11 @@ class WslMountDriveDialog(QDialog):
 
     def __init__(
         self,
-        drives: List[WindowsDriveMount],
+        drives: list[WindowsDriveMount],
         prefs: Preferences,
         windrive_prefs: WSLWindowsDrivePrefsInterface,
         wsl_mount_root: Path,
-        parent: "RapidWindow" = None,
+        parent: "RapidWindow" = None,  # noqa: F821
     ) -> None:
         """
         Open the dialog window to show Windows drive mounts
@@ -541,11 +547,11 @@ class WslMountDriveDialog(QDialog):
 
         # drives where the user should be prompted whether to mount these drives
         # after the dialog is closed
-        self.prompt_to_mount_drives = []  # type: List[WindowsDriveMount]
+        self.prompt_to_mount_drives = []  # type: list[WindowsDriveMount]
 
-        self.driveTable = None  # type: Optional[QTableWidget]
+        self.driveTable = None  # type: QTableWidget | None
 
-        #  OrderedDict[drive: List[MountOp]]
+        #  OrderedDict[drive: list[MountOp]]
         self.pending_mount_ops = OrderedDict()
         self.pending_unmount_ops = OrderedDict()
 
@@ -839,9 +845,7 @@ class WslMountDriveDialog(QDialog):
             self.autoUnmountCol,
         ):
             row = item.row()
-            drive = self.driveTable.item(row, self.userMountCol).data(
-                Qt.UserRole
-            )  # type: WindowsDriveMount
+            drive = self.driveTable.item(row, self.userMountCol).data(Qt.UserRole)  # type: WindowsDriveMount
             if column == self.autoUnmountCol:
                 auto_mount = (
                     self.driveTable.item(row, self.autoMountCol).checkState()
@@ -973,9 +977,7 @@ class WslMountDriveDialog(QDialog):
          mounted, else False
         """
 
-        drive = self.driveTable.item(row, self.userMountCol).data(
-            Qt.UserRole
-        )  # type: WindowsDriveMount
+        drive = self.driveTable.item(row, self.userMountCol).data(Qt.UserRole)  # type: WindowsDriveMount
 
         auto_mount = False
 
@@ -1160,18 +1162,16 @@ class WslDrives(QObject):
     driveMounted = pyqtSignal("PyQt_PyObject")
     driveUnmounted = pyqtSignal("PyQt_PyObject")
 
-    def __init__(self, rapidApp: "RapidWindow") -> None:
+    def __init__(self, rapidApp: "RapidWindow") -> None:  # noqa: F821
         super().__init__(parent=rapidApp)
 
-        self.drives = []  # type: List[WindowsDriveMount]
-        self.mount_points = defaultdict(
-            list
-        )  # type: DefaultDict[str, List[WindowsDriveMount]]
+        self.drives = []  # type: list[WindowsDriveMount]
+        self.mount_points = defaultdict(list)  # type: defaultdict[str, list[WindowsDriveMount]]
         self.make_mount_drive_attempt = False
         self.rapidApp = rapidApp
         self.prefs = self.rapidApp.prefs
         self.windrive_prefs = WSLWindowsDrivePrefsInterface(prefs=self.prefs)
-        self.mountDrivesDialog = None  # type: Optional[WslMountDriveDialog]
+        self.mountDrivesDialog = None  # type: WslMountDriveDialog | None
         self.uid = os.getuid()
         self.gid = os.getgid()
         self.wsl_mount_root = Path(wsl_conf_mnt_location())
@@ -1241,7 +1241,7 @@ class WslDrives(QObject):
         else:
             return f"{Path(mount_point).name.upper()}:"
 
-    def driveProperties(self, mount_point: str) -> Tuple[List[str], bool]:
+    def driveProperties(self, mount_point: str) -> tuple[list[str], bool]:
         assert mount_point != ""
         drive = self.mount_points[mount_point][0]
         return (
@@ -1250,7 +1250,7 @@ class WslDrives(QObject):
         )
 
     @staticmethod
-    def iconNames(drive_type: WindowsDriveType) -> List[str]:
+    def iconNames(drive_type: WindowsDriveType) -> list[str]:
         """
         Return a list of icons that match the drive type
         :param drive_type:
@@ -1313,7 +1313,7 @@ class WslDrives(QObject):
         self.make_mount_drive_attempt = False
 
     def unmountDrives(
-        self, at_exit: Optional[bool] = False, mount_point: Optional[str] = ""
+        self, at_exit: bool | None = False, mount_point: str | None = ""
     ) -> bool:
         """
         Unmount drives that should be automatically unmounted at program exit, or when
@@ -1327,16 +1327,19 @@ class WslDrives(QObject):
         enter a password
         """
 
-        auto_unmount_drives = []  # type: List[WindowsDriveMount]
+        auto_unmount_drives = []  # type: list[WindowsDriveMount]
         if at_exit:
             if self.prefs.wsl_automount_removable_drives:
                 for drive in self.drives:
-                    if drive.mount_point and not drive.system_mounted:
-                        if (
+                    if (
+                        drive.mount_point
+                        and not drive.system_mounted
+                        and (
                             self.prefs.wsl_automount_all_removable_drives
                             or self.windrive_prefs.drive_prefs(drive=drive).auto_unmount
-                        ):
-                            auto_unmount_drives.append(drive)
+                        )
+                    ):
+                        auto_unmount_drives.append(drive)
         else:
             assert mount_point
             auto_unmount_drives.append(self.mount_points[mount_point][0])
@@ -1372,10 +1375,8 @@ class WslDrives(QObject):
         examining /proc/mounts
         """
 
-        valdiated_drives = []  # type: List[WindowsDriveMount]
-        valdiated_mount_points = defaultdict(
-            list
-        )  # type: DefaultDict[str, List[WindowsDriveMount]]
+        valdiated_drives = []  # type: list[WindowsDriveMount]
+        valdiated_mount_points = defaultdict(list)  # type: defaultdict[str, list[WindowsDriveMount]]
         difference_found = False
         for drive in self.drives:
             mount_point = wsl_mount_point(drive_letter=drive.drive_letter)
@@ -1474,7 +1475,7 @@ class WslDrives(QObject):
                     logging.debug("User chose not mount %s", drives_list_hr)
             self.mountDrivesDialog = None
 
-    def doMountDrives(self, drives: List[WindowsDriveMount]) -> None:
+    def doMountDrives(self, drives: list[WindowsDriveMount]) -> None:
         """
         Mount the list of drives that should be automatically mounted
 
@@ -1512,7 +1513,7 @@ class WslDrives(QObject):
         self.logDrives()
 
     def updateDriveStatePostMount(
-        self, mounted: List[WindowsDriveMount], mount_points: Dict[str, str]
+        self, mounted: list[WindowsDriveMount], mount_points: dict[str, str]
     ):
         notify_via_signal = []
         for drive in mounted:
@@ -1524,7 +1525,7 @@ class WslDrives(QObject):
             notify_via_signal.append(new_drive)
         self.driveMounted.emit(notify_via_signal)
 
-    def updateDriveStatePostUnmount(self, unmounted: List[WindowsDriveMount]) -> None:
+    def updateDriveStatePostUnmount(self, unmounted: list[WindowsDriveMount]) -> None:
         notify_via_signal = []
         for drive in unmounted:
             new_drive = drive._replace(mount_point="")
@@ -1550,10 +1551,10 @@ class WslWindowsRemovableDriveMonitor(QObject):
 
     def __init__(self) -> None:
         super().__init__()
-        self.known_drives = set()  # type: Set[WindowsDrive]
-        self.invalid_drives = set()  # type: Set[WindowsDrive]
+        self.known_drives = set()  # type: set[WindowsDrive]
+        self.invalid_drives = set()  # type: set[WindowsDrive]
         # dict key is drive letter
-        self.detected_drives = dict()  # type: Dict[str, WindowsDriveMount]
+        self.detected_drives = dict()  # type: dict[str, WindowsDriveMount]
 
     @pyqtSlot()
     def startMonitor(self) -> None:
@@ -1665,7 +1666,7 @@ def wsl_mount_point(drive_letter: str) -> str:
     with open("/proc/mounts") as m:
         mounts = m.read()
 
-    regex = fr"^drvfs (.+?) 9p .+?path={drive_letter}:\\?;"
+    regex = rf"^drvfs (.+?) 9p .+?path={drive_letter}:\\?;"
     mnt = re.search(regex, mounts, re.MULTILINE | re.IGNORECASE)
     if mnt is not None:
         return mnt.group(1)
@@ -1695,8 +1696,8 @@ def wsl_drive_valid(drive_letter: str) -> bool:
 
 
 def wsl_windows_drives(
-    drive_type_filter: Optional[Tuple[WindowsDriveType, ...]] = None,
-) -> Set[WindowsDrive]:
+    drive_type_filter: tuple[WindowsDriveType, ...] | None = None,
+) -> set[WindowsDrive]:
     """
     Get Windows to report its drives and their types
     :param drive_type_filter: the type of drives to search for
@@ -1706,9 +1707,8 @@ def wsl_windows_drives(
     try:
         output = subprocess.run(
             shlex.split("wmic.exe logicaldisk get deviceid, volumename, drivetype"),
-            universal_newlines=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            text=True,
+            capture_output=True,
         ).stdout.strip()
     except Exception as e:
         logging.error("Call to wmic.exe failed: %s", str(e))
@@ -1732,10 +1732,7 @@ def wsl_windows_drives(
                 drive_type = WindowsDriveType(drive_type)
                 if drive_type_filter is None or drive_type in drive_type_filter:
                     drive_letter = components[0][0]
-                    if len(components) == 3:
-                        label = components[2].strip()
-                    else:
-                        label = ""
+                    label = components[2].strip() if len(components) == 3 else ""
                     drives.add(
                         WindowsDrive(
                             drive_letter=drive_letter,

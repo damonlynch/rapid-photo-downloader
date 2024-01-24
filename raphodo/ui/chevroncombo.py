@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,11 +21,11 @@ Combo box with a chevron selector
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2022, Damon Lynch"
+__copyright__ = "Copyright 2011-2024, Damon Lynch"
 
+from PyQt5.QtCore import QPointF, QSize, Qt
+from PyQt5.QtGui import QFont, QFontMetrics, QPainter
 from PyQt5.QtWidgets import QComboBox, QLabel, QSizePolicy
-from PyQt5.QtGui import QFontMetrics, QFont, QPainter
-from PyQt5.QtCore import Qt, QSize, QPointF
 
 from raphodo.ui.viewutils import darkModePixmap
 

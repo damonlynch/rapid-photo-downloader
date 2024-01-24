@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,29 +21,29 @@ Show 'Did you know?' dialog at start up
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2022, Damon Lynch"
+__copyright__ = "Copyright 2017-2024, Damon Lynch"
 
 
-from PyQt5.QtCore import pyqtSlot, QSize, Qt, QSettings
+from PyQt5.QtCore import QSettings, QSize, Qt, pyqtSlot
 from PyQt5.QtGui import (
-    QPixmap,
-    QIcon,
-    QFontMetrics,
-    QFont,
     QCloseEvent,
+    QFont,
+    QFontMetrics,
+    QIcon,
+    QPixmap,  # noqa: F401
     QShowEvent,
     QTextCursor,
 )
 from PyQt5.QtWidgets import (
-    QDialog,
-    QCheckBox,
-    QLabel,
-    QVBoxLayout,
-    QPushButton,
-    QHBoxLayout,
     QApplication,
+    QCheckBox,
+    QDialog,
     QDialogButtonBox,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
     QTextBrowser,
+    QVBoxLayout,
 )
 
 from raphodo.prefs.preferences import Preferences
@@ -363,10 +363,10 @@ you can choose from among existing renaming presets or define your own."""
         _(
             """
 <p>The <b>Synchronize RAW + JPEG</b> option is useful if you use the RAW + JPEG feature 
-on your camera and you use sequence numbers in your photo renaming. Enabling this option 
-will cause the program to detect matching pairs of RAW and JPEG photos, and when they 
-are detected, the same sequence numbers will be applied to both photo names. F
-urthermore, sequences will be updated as if the photos were one.</p>
+on your camera and you use sequence numbers in your photo renaming. Enabling this 
+option will cause the program to detect matching pairs of RAW and JPEG photos, and 
+when they are detected, the same sequence numbers will be applied to both photo names. 
+Furthermore, sequences will be updated as if the photos were one.</p>
 <p>
 Read more about file renaming in the <a 
 href="http://damonlynch.net/rapid/documentation/#rename">online documentation</a>.</p>
@@ -438,11 +438,11 @@ class Tips:
         for idx, value in enumerate(tip):
             if idx % 2 == 0:
                 if not value.startswith("<p>"):
-                    text = "{}<p>{}</p><p></p>".format(text, value)
+                    text = f"{text}<p>{value}</p><p></p>"
                 else:
-                    text = "{}{}<p></p>".format(text, value)
+                    text = f"{text}{value}<p></p>"
             else:
-                text = '{}<img src="{}">'.format(text, value)
+                text = f'{text}<img src="{value}">'
         return text
 
     def __len__(self):

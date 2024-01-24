@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,51 +21,49 @@ Display file system folders and allow the user to select one
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2021, Damon Lynch"
+__copyright__ = "Copyright 2016-2024, Damon Lynch"
 
+import logging
 import os
 import pathlib
-from typing import List, Set, Optional
-import logging
 import re
 
 from PyQt5.QtCore import (
     QDir,
-    Qt,
-    QModelIndex,
     QItemSelectionModel,
-    QSortFilterProxyModel,
+    QModelIndex,
     QPoint,
+    QSize,
+    QSortFilterProxyModel,
+    Qt,
     pyqtSignal,
     pyqtSlot,
-    QSize,
 )
+from PyQt5.QtGui import QFont, QPainter
 from PyQt5.QtWidgets import (
-    QTreeView,
     QAbstractItemView,
+    QAction,
     QFileSystemModel,
+    QMenu,
     QSizePolicy,
     QStyledItemDelegate,
     QStyleOptionViewItem,
-    QMenu,
-    QAction,
+    QTreeView,
 )
-
-from PyQt5.QtGui import QPainter, QFont
 from showinfm import show_in_file_manager
 
 from raphodo.constants import (
-    minPanelWidth,
-    minFileSystemViewHeight,
     Roles,
     filtered_file_browser_directories,
+    minFileSystemViewHeight,
+    minPanelWidth,
     non_system_root_folders,
 )
-from raphodo.storage.storage import gvfs_gphoto2_path, get_media_dir
+from raphodo.storage.storage import get_media_dir, gvfs_gphoto2_path
 from raphodo.ui.viewutils import (
     TopFramedVerticalScrollBar,
-    standard_font_size,
     darkModeIcon,
+    standard_font_size,
 )
 from raphodo.wslutils import wsl_filter_directories
 
@@ -102,13 +100,13 @@ class FileSystemModel(QFileSystemModel):
 
         # First value: subfolders we've created to demonstrate to the user
         # where their files will be downloaded to
-        self.preview_subfolders = set()  # type: Set[str]
+        self.preview_subfolders = set()  # type: set[str]
         # Second value: subfolders that already existed, but that we still
         # want to indicate to the user where their files will be downloaded to
-        self.download_subfolders = set()  # type: Set[str]
+        self.download_subfolders = set()  # type: set[str]
 
         # Folders that were actually used to download files into
-        self.subfolders_downloaded_into = set()  # type: Set[str]
+        self.subfolders_downloaded_into = set()  # type: set[str]
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
         if role == Qt.DecorationRole:
@@ -144,7 +142,7 @@ class FileSystemModel(QFileSystemModel):
             pl_download_folder = pathlib.Path(download_folder)
 
             for subfolder in pl_subfolders.parents:
-                if not pl_download_folder in subfolder.parents:
+                if pl_download_folder not in subfolder.parents:
                     break
                 self.subfolders_downloaded_into.add(str(subfolder))
             return True
@@ -174,7 +172,7 @@ class FileSystemView(QTreeView):
         )
         self.openInFileBrowserAct.triggered.connect(self.doOpenInFileBrowserAct)
         self.openInFileBrowserAct.setEnabled(self.rapidApp.file_manager is not None)
-        self.clickedIndex = None  # type: Optional[QModelIndex]
+        self.clickedIndex = None  # type: QModelIndex | None
 
         self.resetSelectionAct = self.contextMenu.addAction(_("Reset"))
         self.resetSelectionAct.triggered.connect(self.doResetSelectionAct)
@@ -283,7 +281,7 @@ class FileSystemFilter(QSortFilterProxyModel):
 
     filterInvalidated = pyqtSignal()
 
-    def __init__(self, parent: "RapidWindow" = None):
+    def __init__(self, parent: "RapidWindow" = None):  # noqa: F821
         super().__init__(parent)
         self.is_wsl2 = parent.is_wsl2
         self.prefs = parent.prefs
@@ -298,7 +296,7 @@ class FileSystemFilter(QSortFilterProxyModel):
         if get_media_dir().startswith("/run"):
             self.non_system_root_folders.append("/run")
 
-    def setTempDirs(self, dirs: List[str]) -> None:
+    def setTempDirs(self, dirs: list[str]) -> None:
         filters = [os.path.basename(path) for path in dirs]
         self.filtered_dir_names = self.filtered_dir_names | set(filters)
         self.invalidateFilter()

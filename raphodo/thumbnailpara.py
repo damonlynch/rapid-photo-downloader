@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -32,63 +32,62 @@ the metadata time is not already found in the rpd_file.
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2022, Damon Lynch"
+__copyright__ = "Copyright 2011-2024, Damon Lynch"
 
-try:
-    using_injected = "profile" in dict(__builtins__)
-except:
-    using_injected = False
-finally:
-    if not using_injected:
-        # use of line_profiler not detected
-        def profile(func):
-            def inner(*args, **kwargs):
-                return func(*args, **kwargs)
+# try:
+#     using_injected = "profile" in dict(__builtins__)
+# except Exception:
+#     using_injected = False
+# finally:
+#     if not using_injected:
+#         # use of line_profiler not detected
+#         def profile(func):
+#             def inner(*args, **kwargs):
+#                 return func(*args, **kwargs)
+#
+#             return inner
 
-            return inner
 
-
-import os
-import sys
 import logging
+import os
 import pickle
+import sys
 from collections import deque
 from operator import attrgetter
-from typing import Optional, Tuple, Set
 
-import zmq
-from PyQt5.QtGui import QImage
-from PyQt5.QtCore import QSize
 import psutil
+import zmq
+from PyQt5.QtCore import QSize
+from PyQt5.QtGui import QImage  # noqa: F401
 
-from raphodo.rpdfile import RPDFile
-from raphodo.interprocess import (
-    WorkerInPublishPullPipeline,
-    GenerateThumbnailsArguments,
-    GenerateThumbnailsResults,
-    ThumbnailExtractorArgument,
-)
+from raphodo.cache import FdoCacheLarge, ThumbnailCacheSql
+from raphodo.camera import Camera, CameraProblemEx, gphoto2_python_logging
 from raphodo.constants import (
-    FileType,
-    ThumbnailSize,
-    ThumbnailCacheStatus,
-    ThumbnailCacheDiskStatus,
-    ExtractionTask,
     ExtractionProcessing,
-    orientation_offset,
-    thumbnail_offset,
+    ExtractionTask,
+    FileType,
+    ThumbnailCacheDiskStatus,
     ThumbnailCacheOrigin,
+    ThumbnailCacheStatus,
+    ThumbnailSize,
     datetime_offset,
     datetime_offset_exiftool,
+    orientation_offset,
+    thumbnail_offset,
     thumbnail_offset_exiftool,
 )
-from raphodo.camera import Camera, CameraProblemEx, gphoto2_python_logging
-from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge
-from raphodo.utilities import GenerateRandomFileName, create_temp_dir, CacheDirs
+from raphodo.heif import have_heif_module
+from raphodo.interprocess import (
+    GenerateThumbnailsArguments,  # noqa: F401
+    GenerateThumbnailsResults,
+    ThumbnailExtractorArgument,
+    WorkerInPublishPullPipeline,
+)
+from raphodo.metadata.fileformats import use_exiftool_on_photo
 from raphodo.prefs.preferences import Preferences
 from raphodo.rescan import RescanCamera
-from raphodo.metadata.fileformats import use_exiftool_on_photo
-from raphodo.heif import have_heif_module
+from raphodo.rpdfile import RPDFile
+from raphodo.utilities import CacheDirs, GenerateRandomFileName, create_temp_dir
 
 
 def cache_dir_name(device_name: str) -> str:
@@ -118,15 +117,15 @@ def split_indexes(length: int):
     of the remaining two parts of the list, and so forth.
 
     Perhaps this algorithm could be optimized, as I did it myself. But
-    hey it works and for now that's the main thing.
+    it works, and for now that's the main thing.
 
-    :param length: the length of the list i.e. the number of indexes
+    :param length: The length of the list i.e., the number of indexes
      to be created
     :return: the list of indexes
     """
-    l = list(range(length))
+
     n = []
-    master = deque([l])
+    master = deque([list(range(length))])
     while master:
         l1, l2 = split_list(master.popleft())
         if l2:
@@ -149,10 +148,10 @@ def get_temporal_gaps_and_sequences(rpd_files, temporal_span):
 
     For instance, you have 1000 photos from a day's photography. You
     sort them into a list ordered by time, earliest to latest. You then
-    get all the photos that were take more than an hour after the
+    get all the photos that were taken more than an hour after the
     previous photo, and those that were taken within an hour of the
     previous photo.
-    .
+
     :param rpd_files: the sorted list of rpd_files, earliest first
     :param temporal_span: the time span that triggers a gap
     :return: the rpd_files that signify gaps, and all the rest of the
@@ -179,7 +178,6 @@ class GetThumbnailFromCache:
     """
 
     def __init__(self, use_thumbnail_cache: bool) -> None:
-
         if use_thumbnail_cache:
             self.thumbnail_cache = ThumbnailCacheSql(create_table_if_not_exists=False)
         else:
@@ -199,7 +197,7 @@ class GetThumbnailFromCache:
 
     def get_from_cache(
         self, rpd_file: RPDFile, use_thumbnail_cache: bool = True
-    ) -> Tuple[ExtractionTask, bytes, str, ThumbnailCacheOrigin]:
+    ) -> tuple[ExtractionTask, bytes, str, ThumbnailCacheOrigin]:
         """
         Attempt to get a thumbnail for the file from the Rapid Photo Downloader
         thumbnail cache or from the FreeDesktop.org 256x256 thumbnail cache.
@@ -212,7 +210,7 @@ class GetThumbnailFromCache:
         task = ExtractionTask.undetermined
         thumbnail_bytes = None
         full_file_name_to_work_on = ""
-        origin = None  # type: Optional[ThumbnailCacheOrigin]
+        origin = None  # type: ThumbnailCacheOrigin | None
 
         # Attempt to get thumbnail from Thumbnail Cache
         # (see cache.py for definitions of various caches)
@@ -255,12 +253,11 @@ class GetThumbnailFromCache:
             if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
                 rpd_file.fdo_thumbnail_256_name = get_thumbnail.path
                 thumb = get_thumbnail.thumbnail  # type: QImage
-                if thumb is not None:
-                    if self.image_large_enough(thumb.size()):
-                        task = ExtractionTask.load_file_directly
-                        full_file_name_to_work_on = get_thumbnail.path
-                        origin = ThumbnailCacheOrigin.fdo_cache
-                        rpd_file.thumbnail_status = ThumbnailCacheStatus.fdo_256_ready
+                if thumb is not None and self.image_large_enough(thumb.size()):
+                    task = ExtractionTask.load_file_directly
+                    full_file_name_to_work_on = get_thumbnail.path
+                    origin = ThumbnailCacheOrigin.fdo_cache
+                    rpd_file.thumbnail_status = ThumbnailCacheStatus.fdo_256_ready
 
         return task, thumbnail_bytes, full_file_name_to_work_on, origin
 
@@ -271,7 +268,7 @@ cached_read = dict(cr2=260 * 1024, dng=504 * 1024, nef=400 * 1024)
 
 
 def preprocess_thumbnail_from_disk(
-    rpd_file: RPDFile, processing: Set[ExtractionProcessing]
+    rpd_file: RPDFile, processing: set[ExtractionProcessing]
 ) -> ExtractionTask:
     """
     Determine how to get a thumbnail from a photo or video that is not on a camera
@@ -325,17 +322,16 @@ def preprocess_thumbnail_from_disk(
             processing.add(ExtractionProcessing.orient)
             bytes_to_read = cached_read.get(rpd_file.extension, 400 * 1024)
 
-        if bytes_to_read:
-            if not rpd_file.download_full_file_name:
-                try:
-                    with open(rpd_file.full_file_name, "rb") as photo:
-                        # Bring the file into the operating system's disk cache
-                        photo.read(bytes_to_read)
-                except FileNotFoundError:
-                    logging.error(
-                        "The download file %s does not exist",
-                        rpd_file.download_full_file_name,
-                    )
+        if bytes_to_read and not rpd_file.download_full_file_name:
+            try:
+                with open(rpd_file.full_file_name, "rb") as photo:
+                    # Bring the file into the operating system's disk cache
+                    photo.read(bytes_to_read)
+            except FileNotFoundError:
+                logging.error(
+                    "The download file %s does not exist",
+                    rpd_file.download_full_file_name,
+                )
     else:
         # video
         if rpd_file.thm_full_name is not None:
@@ -384,7 +380,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 check_for_command=self.check_for_controller_directive,
                 return_file_bytes=False,
             )
-        except CameraProblemEx as e:
+        except CameraProblemEx:
             # TODO report error
             return False
         else:
@@ -408,7 +404,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             )
             rpd_file.temp_cache_full_file_chunk = cache_full_file_name
             return True
-        except CameraProblemEx as e:
+        except CameraProblemEx:
             # TODO problem reporting
             return False
 
@@ -418,7 +414,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         entire_file_required: bool,
         full_file_name_to_work_on,
         using_exiftool: bool,
-    ) -> Tuple[ExtractionTask, str, bool]:
+    ) -> tuple[ExtractionTask, str, bool]:
         """
         Extract part of a photo of video to be able to get the orientation
         and date time metadata, if and only if we know how much of the file
@@ -499,7 +495,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             self.gphoto2_logging = gphoto2_python_logging()
 
         self.frontend = self.context.socket(zmq.PUSH)
-        self.frontend.connect("tcp://localhost:{}".format(arguments.frontend_port))
+        self.frontend.connect(f"tcp://localhost:{arguments.frontend_port}")
 
         self.prefs = Preferences()
 
@@ -527,8 +523,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         # with open('tests/thumbnail_data_medium_no_tiff', 'wb') as f:
         #     pickle.dump(rpd_files, f)
 
-        # Must sort files by modification time prior to temporal analysis needed to figure out
-        # which thumbnails to prioritize
+        # Must sort files by modification time prior to temporal analysis needed to
+        # figure out which thumbnails to prioritize
         rpd_files = sorted(rpd_files, key=attrgetter("modification_time"))
 
         time_span = arguments.proximity_seconds
@@ -639,7 +635,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             exif_buffer = None
             file_to_work_on_is_temporary = False
             secondary_full_file_name = ""
-            processing = set()  # type: Set[ExtractionProcessing]
+            processing = set()  # type: set[ExtractionProcessing]
 
             # Attempt to get thumbnail from Thumbnail Cache
             # (see cache.py for definitions of various caches)
@@ -686,8 +682,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                 full_file_name_to_work_on = (
                                     rpd_file.cache_full_file_name
                                 )
-                                # For now, do not orient, as it seems pyheif or libheif does
-                                # that automatically.
+                                # For now, do not orient, as it seems pyheif or
+                                # libheif does that automatically.
                                 # processing.add(ExtractionProcessing.orient)
 
                         elif self.camera.can_fetch_thumbnails:
@@ -698,11 +694,10 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                     thumbnail_bytes = self.camera.get_thumbnail(
                                         rpd_file.path, rpd_file.name
                                     )
-                                except CameraProblemEx as e:
+                                except CameraProblemEx:
                                     # TODO handle error?
                                     thumbnail_bytes = None
                             else:
-
                                 if force_exiftool or use_exiftool_on_photo(
                                     rpd_file.extension,
                                     preview_extraction_irrelevant=False,
@@ -719,7 +714,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                     )
                                     if (
                                         task
-                                        == ExtractionTask.load_from_bytes_metadata_from_temp_extract
+                                        == ExtractionTask.load_from_bytes_metadata_from_temp_extract  # noqa: E501
                                     ):
                                         secondary_full_file_name = (
                                             full_file_name_to_work_on
@@ -748,7 +743,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                     thumbnail_bytes = self.camera.get_thumbnail(
                                         rpd_file.path, rpd_file.name
                                     )
-                                except CameraProblemEx as e:
+                                except CameraProblemEx:
                                     # TODO report error
                                     thumbnail_bytes = None
                             processing.add(ExtractionProcessing.strip_bars_photo)
@@ -811,9 +806,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             if rpd_file.mdatatime or not offset:
                                 task = ExtractionTask.load_from_bytes
                             elif self.cache_file_chunk_from_camera(rpd_file, offset):
-                                task = (
-                                    ExtractionTask.load_from_bytes_metadata_from_temp_extract
-                                )
+                                task = ExtractionTask.load_from_bytes_metadata_from_temp_extract  # noqa: E501
                                 secondary_full_file_name = (
                                     rpd_file.temp_cache_full_file_chunk
                                 )
@@ -826,7 +819,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                 thumbnail_bytes = self.camera.get_THM_file(
                                     rpd_file.thm_full_name
                                 )
-                            except CameraProblemEx as e:
+                            except CameraProblemEx:
                                 # TODO report error
                                 thumbnail_bytes = None
                             processing.add(ExtractionProcessing.strip_bars_video)
@@ -852,7 +845,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             full_file_name_to_work_on = rpd_file.thm_full_name
                             if (
                                 task
-                                == ExtractionTask.load_file_directly_metadata_from_secondary
+                                == ExtractionTask.load_file_directly_metadata_from_secondary  # noqa: E501
                             ):
                                 secondary_full_file_name = rpd_file.full_file_name
                         else:
@@ -893,12 +886,10 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         if arguments.camera:
             self.camera.free_camera()
             # Delete our temporary cache directories if they are empty
-            if photo_cache_dir is not None:
-                if not os.listdir(self.photo_cache_dir):
-                    os.rmdir(self.photo_cache_dir)
-            if video_cache_dir is not None:
-                if not os.listdir(self.video_cache_dir):
-                    os.rmdir(self.video_cache_dir)
+            if photo_cache_dir is not None and not os.listdir(self.photo_cache_dir):
+                os.rmdir(self.photo_cache_dir)
+            if video_cache_dir is not None and not os.listdir(self.video_cache_dir):
+                os.rmdir(self.video_cache_dir)
 
         logging.debug(
             "Finished phase 1 of thumbnail generation for %s", self.device_name

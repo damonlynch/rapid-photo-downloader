@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2021-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,27 +18,27 @@
 
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2021, Damon Lynch."
+__copyright__ = "Copyright 2021-2024, Damon Lynch."
 
-from getpass import getuser
 import logging
 import shlex
 import subprocess
-from enum import IntEnum
 import textwrap
-from typing import List, NamedTuple, Optional
 import webbrowser
+from enum import IntEnum
+from getpass import getuser
+from typing import NamedTuple
 
+from PyQt5.QtCore import QSize, Qt, pyqtSlot
+from PyQt5.QtGui import QFont, QFontMetrics, QIcon
 from PyQt5.QtWidgets import (
     QDialog,
-    QVBoxLayout,
     QDialogButtonBox,
-    QLabel,
     QHBoxLayout,
+    QLabel,
     QSizePolicy,
+    QVBoxLayout,
 )
-from PyQt5.QtCore import Qt, QSize, pyqtSlot
-from PyQt5.QtGui import QIcon, QFontMetrics, QFont
 
 from raphodo.ui.password import PasswordEdit
 from raphodo.ui.viewutils import translateDialogBoxButtons
@@ -47,12 +47,12 @@ from raphodo.ui.viewutils import translateDialogBoxButtons
 class SudoCommand(QDialog):
     def __init__(
         self,
-        msg: Optional[str] = None,
-        hint: Optional[str] = None,
-        title: Optional[str] = None,
+        msg: str | None = None,
+        hint: str | None = None,
+        title: str | None = None,
         password_incorrect: bool = False,
-        icon: Optional[str] = None,
-        help_url: Optional[str] = None,
+        icon: str | None = None,
+        help_url: str | None = None,
         parent=None,
     ) -> None:
         super().__init__(parent=parent)
@@ -61,10 +61,7 @@ class SudoCommand(QDialog):
 
         if title:
             titleHLayout = QHBoxLayout()
-            if icon:
-                i = QIcon(icon)
-            else:
-                i = QIcon(":/rapid-photo-downloader.svg")
+            i = QIcon(icon) if icon else QIcon(":/rapid-photo-downloader.svg")
             size = QFontMetrics(QFont()).height()
             pixmap = i.pixmap(QSize(size, size))
             titleIcon = QLabel()
@@ -186,7 +183,7 @@ class SudoCommandResult(NamedTuple):
 
 
 def run_command_as_sudo_with_password(
-    cmd: str, password: str, user: Optional[str] = None, timeout=10
+    cmd: str, password: str, user: str | None = None, timeout=10
 ) -> SudoCommandResult:
     """
     Run a single command via sudo, allowing for sudo to prompt for the password
@@ -195,7 +192,7 @@ def run_command_as_sudo_with_password(
 
     :param cmd: command to run
     :param password: the password to pass to sudo
-    :param user: username sudo will ask for. If not specified will get it via
+    :param user: the username sudo will ask for. If not specified will get it via the
      Python standard library.
     :param timeout: timeout for subprocess.Popen call
     :return: return codes, stdout and stderr
@@ -283,14 +280,14 @@ def _log_result(cmd: str, result: SudoCommandResult) -> None:
 
 
 def run_commands_as_sudo(
-    cmds: List[str],
+    cmds: list[str],
     parent,
-    msg: Optional[str] = None,
+    msg: str | None = None,
     timeout=10,
-    title: Optional[str] = None,
-    icon: Optional[str] = None,
-    help_url: Optional[str] = None,
-) -> List[SudoCommandResult]:
+    title: str | None = None,
+    icon: str | None = None,
+    help_url: str | None = None,
+) -> list[SudoCommandResult, ...]:
     """
     Run a list of commands. If necessary, prompt for the sudo password using a dialog.
 
@@ -308,7 +305,7 @@ def run_commands_as_sudo(
     :return: list of return codes, stdout and stderr
     """
 
-    results = []  # type: List[SudoCommandResult, ...]
+    results = []  # type: list[SudoCommandResult, ...]
     for cmd in cmds:
         try:
             result = run_command_as_sudo_without_password(cmd=cmd, timeout=timeout)

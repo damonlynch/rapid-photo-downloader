@@ -168,7 +168,7 @@ def get_program_name() -> str:
     sys.exit(1)
 
 
-def get_window_details(window_title: str) -> Tuple[int, int, int, int]:
+def get_window_details(window_title: str) -> tuple[int, int, int, int]:
     """
     Get details of window using wmctrl
 

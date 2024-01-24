@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -25,18 +25,17 @@ similar to the GtkExpander', Copyright 2012 Canonical Ltd
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2022, Damon Lynch"
+__copyright__ = "Copyright 2016-2024, Damon Lynch"
 
-from typing import Optional
 
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QColor, QFontMetrics, QFont, QPalette
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import QColor, QFont, QFontMetrics, QPalette
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from raphodo.constants import (
-    minPanelWidth,
-    HeaderBackgroundName,
     DarkModeHeaderBackgroundName,
+    HeaderBackgroundName,
+    minPanelWidth,
 )
 from raphodo.ui.viewutils import is_dark_mode
 
@@ -50,8 +49,8 @@ class QPanelView(QWidget):
     def __init__(
         self,
         label: str,
-        headerColor: Optional[QColor] = None,
-        headerFontColor: Optional[QColor] = None,
+        headerColor: QColor | None = None,
+        headerFontColor: QColor | None = None,
         parent: QWidget = None,
     ) -> None:
         super().__init__(parent=parent)
@@ -128,7 +127,7 @@ class QPanelView(QWidget):
 
     def minimumSize(self) -> QSize:
         if self.content is None:
-            font_height = QFontMetrics(QFont).height()
+            font_height = QFontMetrics(QFont()).height()
             width = minPanelWidth()
             height = font_height * 2
         else:

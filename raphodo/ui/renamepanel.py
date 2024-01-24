@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2023 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,38 +21,44 @@ Display file renaming preferences, including sequence numbers
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2023, Damon Lynch"
+__copyright__ = "Copyright 2016-2024, Damon Lynch"
 
-from typing import Union
 import logging
 
-from PyQt5.QtCore import Qt, pyqtSlot, QTime
+from PyQt5.QtCore import Qt, QTime, pyqtSlot
+from PyQt5.QtGui import QPalette
 from PyQt5.QtWidgets import (
-    QWidget,
-    QSizePolicy,
+    QCheckBox,
     QComboBox,
     QFormLayout,
-    QVBoxLayout,
-    QLabel,
-    QSpinBox,
-    QTimeEdit,
-    QCheckBox,
     QGroupBox,
+    QLabel,
+    QSizePolicy,
+    QSpinBox,
     QSplitter,
+    QTimeEdit,
+    QVBoxLayout,
+    QWidget,
 )
-from PyQt5.QtGui import QPalette
 
-
-from raphodo.constants import PresetPrefType, NameGenerationType, PresetClass, FileType
-from raphodo.utilities import platform_c_maxint
-from raphodo.rpdfile import Photo, Video
-from raphodo.ui.nameeditor import PrefDialog, make_sample_rpd_file, PresetComboBox
-import raphodo.metadata.exiftool as exiftool
 import raphodo.generatename as gn
-from raphodo.generatenameconfig import *
-from raphodo.ui.viewutils import FlexiFrame, ScrollAreaNoFrame
+import raphodo.metadata.exiftool as exiftool
+from raphodo.constants import FileType, NameGenerationType, PresetClass, PresetPrefType
+from raphodo.generatenameconfig import (
+    DICT_IMAGE_RENAME_L0,
+    DICT_VIDEO_RENAME_L0,
+    LOWERCASE,
+    ORIGINAL_CASE,
+    PHOTO_RENAME_MENU_DEFAULTS_CONV,
+    UPPERCASE,
+    VIDEO_RENAME_MENU_DEFAULTS_CONV,
+)
+from raphodo.prefs.preferences import DownloadsTodayTracker, Preferences
+from raphodo.rpdfile import Photo, Video
+from raphodo.ui.nameeditor import PrefDialog, PresetComboBox, make_sample_rpd_file
 from raphodo.ui.panelview import QPanelView
-from raphodo.prefs.preferences import Preferences, DownloadsTodayTracker
+from raphodo.ui.viewutils import FlexiFrame, ScrollAreaNoFrame
+from raphodo.utilities import platform_c_maxint
 
 
 class RenameWidget(FlexiFrame):
@@ -155,7 +161,7 @@ class RenameWidget(FlexiFrame):
             # Set to the "Custom..." value
             cb_index = self.renameCombo.count() - 1
         else:
-            # Set to appropriate combobox idex, allowing for possible separator
+            # Set to the appropriate combobox index, allowing for possible separator
             cb_index = self.renameCombo.getComboBoxIndex(index)
         logging.debug(
             "Setting %s combobox chosen value to %s",
@@ -164,7 +170,7 @@ class RenameWidget(FlexiFrame):
         )
         self.renameCombo.setCurrentIndex(cb_index)
 
-    def pref_list(self) -> List[str]:
+    def pref_list(self) -> list[str]:
         """
         :return: the user's file naming preference according to whether
          this widget is handling photos or videos
@@ -186,7 +192,6 @@ class RenameWidget(FlexiFrame):
 
         preset_class = self.renameCombo.currentData()
         if preset_class == PresetClass.start_editor:
-
             prefDialog = PrefDialog(
                 self.pref_defn,
                 self.pref_list(),
@@ -200,8 +205,8 @@ class RenameWidget(FlexiFrame):
                 if not user_pref_list:
                     user_pref_list = None
 
-            # Regardless of whether the user clicked OK or cancel, refresh the rename combo
-            # box entries
+            # Regardless of whether the user clicked OK or cancel, refresh the rename
+            # combo box entries
             self.getCustomPresets()
             self.renameCombo.resetEntries(self.preset_names)
             self.setUserPrefList(user_pref_list=user_pref_list)
@@ -227,7 +232,7 @@ class RenameWidget(FlexiFrame):
         )
         self.combined_pref_lists = self.pref_conv + tuple(self.preset_pref_lists)
 
-    def setUserPrefList(self, user_pref_list: List[str]) -> None:
+    def setUserPrefList(self, user_pref_list: list[str]) -> None:
         """
         Update the user preferences with a new preference value
         :param user_pref_list: the photo or video rename preference list
@@ -242,8 +247,8 @@ class RenameWidget(FlexiFrame):
 
     def updateExampleFilename(
         self,
-        downloads_today: Optional[List[str]] = None,
-        stored_sequence_no: Optional[int] = None,
+        downloads_today: list[str] | None = None,
+        stored_sequence_no: int | None = None,
     ) -> None:
         """
         Update filename shown to user that serves as an example of the
@@ -269,7 +274,7 @@ class RenameWidget(FlexiFrame):
 
         self.example.setText(self.name_generator.generate_name(self.sample_rpd_file))
 
-    def updateSampleFile(self, sample_rpd_file: Union[Photo, Video]) -> None:
+    def updateSampleFile(self, sample_rpd_file: Photo | Video) -> None:
         self.sample_rpd_file = make_sample_rpd_file(
             sample_rpd_file=sample_rpd_file,
             sample_job_code=self.prefs.most_recent_job_code(missing=_("Job Code")),
@@ -360,7 +365,8 @@ class RenameOptionsWidget(FlexiFrame):
         self.storedNumber.valueChanged.connect(self.storedNumberChanged)
 
         tip = _(
-            "The time at which the <i>Downloads today</i> sequence number should be reset"
+            "The time at which the <i>Downloads today</i> sequence number should be "
+            "reset"
         )
         self.dayStartLabel = QLabel(_("Day start:"))
         self.dayStartLabel.setToolTip(tip)
@@ -432,7 +438,7 @@ class RenameOptionsWidget(FlexiFrame):
     def timeChanged(self, time: QTime) -> None:
         hour = time.hour()
         minute = time.minute()
-        self.prefs.day_start = "{}:{}".format(hour, minute)
+        self.prefs.day_start = f"{hour}:{minute}"
         logging.debug("Setting day start to %s", self.prefs.day_start)
         self.downloads_today_tracker.set_day_start(hour=hour, minute=minute)
 
@@ -548,7 +554,7 @@ class RenamePanel(ScrollAreaNoFrame):
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
 
     def updateSequences(
-        self, downloads_today: List[str], stored_sequence_no: int
+        self, downloads_today: list[str], stored_sequence_no: int
     ) -> None:
         """
         Update the value displayed in the display to reflect any values changed after

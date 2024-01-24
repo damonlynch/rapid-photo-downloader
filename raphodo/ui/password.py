@@ -1,24 +1,21 @@
-
 # Copyright (C) 2020 Martin Fitzpatrick
 # Source:
 # https://github.com/pythonguis/python-qtwidgets/blob/master/qtwidgets/passwordedit/password.py
 # License: MIT/BSDv2
 
 # Edited Damon Lynch 2021 to change resource import
+# Edited Damon Lynch 2024 to optimize imports
 
-import sys
+from PyQt5 import QtGui, QtWidgets
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import pyqtSignal as Signal
-
-import raphodo.qrc_resources as qrc_resources
+import raphodo.qrc_resources as qrc_resources  # noqa: F401
 
 
 class PasswordEdit(QtWidgets.QLineEdit):
     """
     Password LineEdit with icons to show/hide password entries.
-    Based on this example https://kushaldas.in/posts/creating-password-input-widget-in-pyqt.html by Kushal Das.
+    Based on this example by Kushal Das:
+    https://kushaldas.in/posts/creating-password-input-widget-in-pyqt.html
     """
 
     def __init__(self, show_visibility=True, *args, **kwargs):
@@ -32,8 +29,7 @@ class PasswordEdit(QtWidgets.QLineEdit):
         if show_visibility:
             # Add the password hide/shown toggle at the end of the edit box.
             self.togglepasswordAction = self.addAction(
-                self.visibleIcon,
-                QtWidgets.QLineEdit.TrailingPosition
+                self.visibleIcon, QtWidgets.QLineEdit.TrailingPosition
             )
             self.togglepasswordAction.triggered.connect(self.on_toggle_password_Action)
 

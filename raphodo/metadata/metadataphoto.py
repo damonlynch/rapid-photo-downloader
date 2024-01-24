@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2007-2021 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -20,11 +20,13 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2021, Damon Lynch"
+__copyright__ = "Copyright 2007-2024, Damon Lynch"
+
+# ruff: noqa: E402
 
 import datetime
-from typing import Optional, Union, Any, Tuple
 import logging
+from typing import Any
 
 import gi
 
@@ -34,9 +36,8 @@ from PyQt5.QtCore import QSize
 
 import raphodo.metadata.exiftool as exiftool
 import raphodo.metadata.metadataexiftool as metadataexiftool
-from raphodo.utilities import flexible_date_time_parser, image_large_enough_fdo
 from raphodo.constants import FileType
-
+from raphodo.utilities import flexible_date_time_parser, image_large_enough_fdo
 
 VENDOR_SERIAL_CODES = (
     "Exif.Photo.BodySerialNumber",
@@ -59,9 +60,9 @@ VENDOR_SHUTTER_COUNT = (
 
 def photo_date_time(
     metadata: GExiv2.Metadata,
-    full_file_name: Optional[str] = None,
-    file_type: Optional[FileType] = None,
-) -> Union[datetime.datetime, Any]:
+    full_file_name: str | None = None,
+    file_type: FileType | None = None,
+) -> datetime.datetime | Any:
     """
     Returns in python datetime format the date and time the image was
     recorded.
@@ -174,9 +175,9 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
     def __init__(
         self,
         et_process: exiftool.ExifTool,
-        full_file_name: Optional[str] = None,
-        raw_bytes: Optional[bytearray] = None,
-        app1_segment: Optional[bytearray] = None,
+        full_file_name: str | None = None,
+        raw_bytes: bytearray | None = None,
+        app1_segment: bytearray | None = None,
     ) -> None:
         """
         Use GExiv2 to read the photograph's metadata.
@@ -203,7 +204,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
                 assert app1_segment is not None
                 self.from_app1_segment(app1_segment)
 
-    def _get_rational_components(self, tag: str) -> Optional[Tuple[Any, Any]]:
+    def _get_rational_components(self, tag: str) -> tuple[Any, Any] | None:
         try:
             x = self.get_exif_tag_rational(tag)
         except Exception:
@@ -217,12 +218,12 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
             except Exception:
                 return None, None
 
-    def _get_rational(self, tag: str) -> Optional[float]:
+    def _get_rational(self, tag: str) -> float | None:
         x, y = self._get_rational_components(tag)
         if x is not None and y is not None:
             return float(x) / float(y)
 
-    def aperture(self, missing="") -> Union[str, Any]:
+    def aperture(self, missing="") -> str | Any:
         """
         Returns in string format the floating point value of the image's
         aperture.
@@ -232,12 +233,9 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
 
         a = self._get_rational("Exif.Photo.FNumber")
 
-        if a is None:
-            return missing
-        else:
-            return "{:.1f}".format(a)
+        return missing if a is None else f"{a:.1f}"
 
-    def iso(self, missing="") -> Union[str, Any]:
+    def iso(self, missing="") -> str | Any:
         """
         Returns in string format the integer value of the image's ISO.
 
@@ -253,7 +251,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         except (KeyError, AttributeError):
             return missing
 
-    def _exposure_time_rational(self) -> Tuple[Any, Any]:
+    def _exposure_time_rational(self) -> tuple[Any, Any]:
         return self._get_rational_components("Exif.Photo.ExposureTime")
 
     def focal_length(self, missing=""):
@@ -359,9 +357,9 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
 
     def date_time(
         self,
-        missing: Optional[str] = "",
-        ignore_file_modify_date: Optional[bool] = False,
-    ) -> Union[datetime.datetime, Any]:
+        missing: str | None = "",
+        ignore_file_modify_date: bool | None = False,
+    ) -> datetime.datetime | Any:
         """
         Returns in python datetime format the date and time the image was
         recorded.
@@ -383,7 +381,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         else:
             return dt
 
-    def sub_seconds(self, missing="00") -> Union[str, Any]:
+    def sub_seconds(self, missing="00") -> str | Any:
         """
         Returns the subsecond the image was taken, as recorded by the
         camera
@@ -394,7 +392,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         except (KeyError, AttributeError):
             return missing
 
-    def orientation(self, missing="") -> Union[str, Any]:
+    def orientation(self, missing="") -> str | Any:
         """
         Returns the orientation of the image, as recorded by the camera
         Return type int
@@ -413,7 +411,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
 
         return self.get_exif_thumbnail()
 
-    def get_indexed_preview(self) -> Optional[bytes]:
+    def get_indexed_preview(self) -> bytes | None:
         """
         Extract preview image from the metadata
 
@@ -431,7 +429,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         logging.warning("Photo %s has no image previews", self.full_file_name)
         return None
 
-    def get_small_thumbnail_or_first_indexed_preview(self) -> Optional[bytes]:
+    def get_small_thumbnail_or_first_indexed_preview(self) -> bytes | None:
         """
         First attempt to get the small thumbnail image. If it does not exist,
         extract the smallest preview image from the metadata
@@ -448,7 +446,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         # Otherwise look for the smallest preview image for this format
         return self.get_indexed_preview()
 
-    def get_preview_256(self) -> Optional[bytes]:
+    def get_preview_256(self) -> bytes | None:
         """
         :return: if possible, return a preview image that is preferrably larger than
          256 pixels, else the smallest preview if it exists
@@ -459,12 +457,13 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
             return None
 
         for preview in previews:
-            if image_large_enough_fdo(QSize(preview.get_width(), preview.get_height())):
-                if not (
-                    self.ext in self.ignore_tiff_preview_256
-                    and preview.get_mime_type() == "image/tiff"
-                ):
-                    break
+            if image_large_enough_fdo(
+                QSize(preview.get_width(), preview.get_height())
+            ) and not (
+                self.ext in self.ignore_tiff_preview_256
+                and preview.get_mime_type() == "image/tiff"
+            ):
+                break
 
         # At this point we have a preview that may or may not be bigger than 160x120.
         # On older RAW files, no. On newer RAW files, yes.
@@ -493,8 +492,8 @@ class DummyMetaData(MetaData):
     def iso(self, missing=""):
         return "100"
 
-    def exposure_time(self, alternativeFormat=False, missing=""):
-        if alternativeFormat:
+    def exposure_time(self, alternative_format=False, missing=""):
+        if alternative_format:
             return "4000"
         else:
             return "1/4000"
@@ -508,7 +507,7 @@ class DummyMetaData(MetaData):
     def camera_model(self, missing=""):
         return "Canon EOS 5D"
 
-    def short_camera_model(self, includeCharacters="", missing=""):
+    def short_camera_model(self, include_characters="", missing=""):
         return "5D"
 
     def camera_serial(self, missing=""):
@@ -548,12 +547,12 @@ if __name__ == "__main__":
     print("f" + m.aperture("missing "))
     print("ISO " + m.iso("missing "))
     print(m.exposure_time(missing="missing ") + " sec")
-    print(m.exposure_time(alternativeFormat=True, missing="missing "))
+    print(m.exposure_time(alternative_format=True, missing="missing "))
     print(m.focal_length("missing ") + "mm")
     print(m.camera_make())
     print(m.camera_model())
     print(m.short_camera_model())
-    print(m.short_camera_model(includeCharacters="\-"))
+    print(m.short_camera_model(include_characters="\-"))
     print(m.date_time())
     print(m.orientation())
     print("Serial number:", m.camera_serial(missing="missing"))

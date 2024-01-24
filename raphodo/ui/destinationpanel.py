@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2017-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,22 +21,22 @@ Display photo and video destinations
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2022, Damon Lynch"
+__copyright__ = "Copyright 2017-2024, Damon Lynch"
 
+from collections import defaultdict
 
-from typing import DefaultDict, Optional, Set
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QWidget
 
+from raphodo.rpdfile import FileType
+from raphodo.thumbnaildisplay import MarkedSummary
 from raphodo.ui.computerview import ComputerWidget
 from raphodo.ui.destinationdisplay import (
     DestinationDisplay,
-    DisplayingFilesOfType,
     DestinationDisplayType,
+    DisplayingFilesOfType,
 )
 from raphodo.ui.panelview import QPanelView
-from raphodo.rpdfile import FileType
-from raphodo.thumbnaildisplay import MarkedSummary
 from raphodo.ui.viewutils import ScrollAreaNoFrame
 
 
@@ -128,7 +128,11 @@ class DestinationPanel(ScrollAreaNoFrame):
         self.photoDestination.addWidget(self.photoDestinationWidget)
         self.videoDestination.addWidget(self.videoDestinationWidget)
 
-        for widget in (self.photoDestinationWidget, self.videoDestinationWidget, self.combinedDestinationDisplay):
+        for widget in (
+            self.photoDestinationWidget,
+            self.videoDestinationWidget,
+            self.combinedDestinationDisplay,
+        ):
             self.verticalScrollBarVisible.connect(widget.containerVerticalScrollBar)
         self.horizontalScrollBarVisible.connect(
             self.videoDestinationWidget.containerHorizontalScrollBar
@@ -149,7 +153,7 @@ class DestinationPanel(ScrollAreaNoFrame):
         same_dev: bool,
         merge: bool,
         marked_summary: MarkedSummary,
-        downloading_to: Optional[DefaultDict[int, Set[FileType]]] = None,
+        downloading_to: defaultdict[int, set[FileType]] | None = None,
     ) -> bool:
         """
         Updates the header bar and storage space view for the
