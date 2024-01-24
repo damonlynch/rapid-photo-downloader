@@ -14,8 +14,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2024-01-14 06:36+0000\n"
-"X-Generator: Launchpad (build e1eeab5b20e19239bd7d5f36676f7a52988db88b)\n"
+"X-Launchpad-Export-Date: 2024-01-24 00:24+0000\n"
+"X-Generator: Launchpad (build ff54b7050d99a0d84ff58e179f1b8e071713b594)\n"
 "Language: el\n"
 
 #: ../raphodo/ui/aboutdialog.py:335
