@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2024-01-24 13:29+1300\n"
-"PO-Revision-Date: 2024-01-07 02:21+0000\n"
+"POT-Creation-Date: 2024-01-25 15:24+1300\n"
+"PO-Revision-Date: 2024-01-26 10:44+1300\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "Language: sk\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2024-01-24 00:24+0000\n"
-"X-Generator: Launchpad (build ff54b7050d99a0d84ff58e179f1b8e071713b594)\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: ../raphodo/ui/aboutdialog.py:338
 msgid "Credits"
@@ -376,25 +376,19 @@ msgstr ""
 
 #: ../raphodo/ui/didyouknow.py:91
 msgid ""
-"\n"
 "In case of any problems, a red icon will appear at the bottom of the window "
-"indicating \n"
-"how many error reports there are. Clicking on it opens the Error Report "
-"window."
+"indicating how many error reports there are. Clicking on it opens the Error "
+"Report window."
 msgstr ""
 
 #: ../raphodo/ui/didyouknow.py:97
 msgid ""
-"\n"
 "The Error Report window lists any problems encountered before, during or "
-"after the \n"
-"download. An orange triangle represents a warning, a red circle indicates a "
-"failure, \n"
-"and a black circle indicates more serious failures. You can click on the "
-"hyperlinks to \n"
-"open its file or device in a file manager. You can also search the reports "
-"using the \n"
-"search box in the lower left of the Error Report window."
+"after the download. An orange triangle represents a warning, a red circle "
+"indicates a failure, and a black circle indicates more serious failures. You "
+"can click on the hyperlinks to open its file or device in a file manager. "
+"You can also search the reports using the search box in the lower left of "
+"the Error Report window."
 msgstr ""
 
 #: ../raphodo/ui/didyouknow.py:108
@@ -418,16 +412,13 @@ msgstr ""
 
 #: ../raphodo/ui/didyouknow.py:123
 msgid ""
-"\n"
 "<p>In the illustration above, the first row of the Timeline is black because "
-"all the \n"
-"files on that date had been previously downloaded.</p>\n"
-"<p>The Timeline's slider adjusts the time elapsed between consecutive shots "
-"that is \n"
+"all the files on that date had been previously downloaded.</p><p>The "
+"Timeline's slider adjusts the time elapsed between consecutive shots that is "
 "used to build the Timeline:</p>"
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:133
+#: ../raphodo/ui/didyouknow.py:132
 msgid ""
 "To view photos and videos for a particular time range, use the mouse "
 "(optionally in combination with the <tt>Shift</tt> or <tt>Ctrl</tt> keys) to "
@@ -439,372 +430,276 @@ msgstr ""
 "<tt>Shift</tt> alebo <tt>Ctrl</tt>) Po výbere časového úseku bude tlačidlo "
 "Časová os v ľavej časti okna zvýraznené."
 
-#: ../raphodo/ui/didyouknow.py:140
+#: ../raphodo/ui/didyouknow.py:139
 msgid ""
 "A download always includes all files that are marked for download, including "
 "those that are not currently displayed because the Timeline is being used."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:147
+#: ../raphodo/ui/didyouknow.py:146
 msgid ""
 "You can hide or display the download sources by clicking on the name of the "
 "device you're downloading from at the top left of the program window."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:154
+#: ../raphodo/ui/didyouknow.py:153
 msgid ""
-"\n"
-"Thumbnails can be sorted using a variety of criteria:\n"
-"<ol>\n"
-"<li><b>Modification Time:</b> when the file was last modified, according to "
-"its \n"
-"metadata (where available) or according to the filesystem (as a fallback).</"
-"li>\n"
-"<li><b>Checked State:</b> whether the file is marked for download.</li>\n"
-"<li><b>Filename:</b> the full filename, including extension.</li>\n"
-"<li><b>Extension:</b> the filename's extension. You can use this to group "
-"jpeg and \n"
-"raw images, for instance.</li>\n"
-"<li><b>File Type:</b> photo or video.</li>\n"
-"<li><b>Device:</b> name of the device the photos and videos are being "
-"downloaded \n"
-"from.</li>\n"
-"</ol>"
+"Thumbnails can be sorted using a variety of criteria:<ol><li><b>Modification "
+"Time:</b> when the file was last modified, according to its metadata (where "
+"available) or according to the filesystem (as a fallback).</"
+"li><li><b>Checked State:</b> whether the file is marked for download.</"
+"li><li><b>Filename:</b> the full filename, including extension.</"
+"li><li><b>Extension:</b> the filename's extension. You can use this to group "
+"jpeg and raw images, for instance.</li><li><b>File Type:</b> photo or video."
+"</li><li><b>Device:</b> name of the device the photos and videos are being "
+"downloaded from.</li></ol>"
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:172
+#: ../raphodo/ui/didyouknow.py:171
 msgid ""
 "One of Rapid Photo Downloader's most useful features is its ability to "
 "automatically generate download subfolders and rename files as it downloads, "
 "using a scheme of your choosing."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:178
+#: ../raphodo/ui/didyouknow.py:177
 msgid ""
 "To specify where you want your files downloaded and how you want them named, "
 "open the appropriate panel on the right-side of the application window: "
 "<b>Destination</b>, <b>Rename</b>, or <b>Job Code</b>."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:185
+#: ../raphodo/ui/didyouknow.py:184
 msgid ""
-"\n"
 "When thinking about your download directory structure, keep in mind two "
-"different types\n"
-"of directory:\n"
-"<ol>\n"
-"<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, &quot;"
-"Photos&quot;, or\n"
-"&quot;Videos&quot;. This directory should already exist on your computer. In "
-"the \n"
-"illustration below, the destination folders are &quot;Pictures&quot; and \n"
-"&quot;Videos&quot;. The name of the destination folder is displayed in the "
-"grey bar \n"
-"directly above the folder tree, with a folder icon to its left and a gear "
-"icon to \n"
-"its far right.</li>\n"
-"<li>The <b>download subfolders</b>, which are directories that will be "
-"automatically \n"
-"generated by Rapid Photo Downloader. They need not already exist on your "
-"computer, but \n"
-"it's okay if they do. They will be generated under the destination folder.</"
-"li>\n"
-"</ol>"
+"different types of directory:<ol><li>The <b>destination folder</b>, e.g. "
+"&quot;Pictures&quot;, &quot;Photos&quot;, or &quot;Videos&quot;. This "
+"directory should already exist on your computer. In the illustration below, "
+"the destination folders are &quot;Pictures&quot; and &quot;Videos&quot;. The "
+"name of the destination folder is displayed in the grey bar directly above "
+"the folder tree, with a folder icon to its left and a gear icon to its far "
+"right.</li><li>The <b>download subfolders</b>, which are directories that "
+"will be automatically generated by Rapid Photo Downloader. They need not "
+"already exist on your computer, but it's okay if they do. They will be "
+"generated under the destination folder.</li></ol>"
 msgstr ""
 
 #: ../raphodo/ui/didyouknow.py:202
 msgid ""
-"\n"
 "You can download photos and videos to the same destination folder, or "
-"specify a \n"
-"different destination folder for each. The same applies to the download "
-"subfolders for \n"
-"photos and videos&mdash;download photos and videos to the same subfolders, "
-"or use a \n"
-"different scheme for each type."
+"specify a different destination folder for each. The same applies to the "
+"download subfolders for photos and videos&mdash;download photos and videos "
+"to the same subfolders, or use a different scheme for each type."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:211
+#: ../raphodo/ui/didyouknow.py:210
 msgid ""
 "Automatically generated download subfolders can contain further "
 "automatically generated subfolders if need be. A common scheme is to create "
 "a year subfolder and then a series of year-month-day subfolders within it."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:220
+#: ../raphodo/ui/didyouknow.py:219
 msgid ""
-"\n"
 "Whenever possible, the program previews the download subfolders of photos "
-"and videos to \n"
-"download:\n"
-"<ol>\n"
-"<li>The destination folder tree shows the download subfolders already on "
-"your computer \n"
-"(those in a regular, non-italicized font), and the subfolders that will be "
-"created \n"
-"during the download (those whose names are italicized).</li>\n"
-"<li>The folder tree also shows into which subfolders the files will be "
-"downloaded  \n"
-"(those colored black).</li>\n"
-"</ol>"
+"and videos to download:<ol><li>The destination folder tree shows the "
+"download subfolders already on your computer (those in a regular, non-"
+"italicized font), and the subfolders that will be created during the "
+"download (those whose names are italicized).</li><li>The folder tree also "
+"shows into which subfolders the files will be downloaded (those colored "
+"black).</li></ol>"
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:235
+#: ../raphodo/ui/didyouknow.py:234
 msgid ""
-"\n"
 "Download subfolder names are typically generated using some or all of the "
-"following \n"
-"elements:\n"
-"<ol>\n"
-"<li><b>File metadata</b>, very often including the date the photo or video "
-"was created, \n"
-"but might also include the camera model name, camera serial number, or file "
-"extension \n"
-"e.g. JPG or CR2.</li>\n"
-"<li>A <b>Job Code</b>, which is free text you specify at the time the "
-"download occurs, \n"
-"such as the name of an event or location.</li>\n"
-"<li><b>Text</b> which you want to appear every time, such as a hyphen or a "
-"space.</li>\n"
-"</ol>\n"
-"Naming subfolders with the year, followed by the month and finally the day "
-"in numeric \n"
-"format makes it easy to keep them sorted in a file manager, which is why "
-"it's the \n"
-"default option:"
+"following elements:<ol><li><b>File metadata</b>, very often including the "
+"date the photo or video was created, but might also include the camera model "
+"name, camera serial number, or file extension e.g. JPG or CR2.</li><li>A "
+"<b>Job Code</b>, which is free text you specify at the time the download "
+"occurs, such as the name of an event or location.</li><li><b>Text</b> which "
+"you want to appear every time, such as a hyphen or a space.</li></ol>Naming "
+"subfolders with the year, followed by the month and finally the day in "
+"numeric format makes it easy to keep them sorted in a file manager, which is "
+"why it's the default option:"
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:254
+#: ../raphodo/ui/didyouknow.py:253
 msgid ""
-"\n"
-"To automatically create download subfolders as you download, \n"
-"you can use one of Rapid Photo Downloader's built-in presets, or create a "
-"custom \n"
-"preset. Click on the gear icon to bring up a drop-down menu:"
+"To automatically create download subfolders as you download, you can use one "
+"of Rapid Photo Downloader's built-in presets, or create a custom preset. "
+"Click on the gear icon to bring up a drop-down menu:"
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:261
+#: ../raphodo/ui/didyouknow.py:259
 msgid ""
-"\n"
 "Using the drop-down menu, select a built-in preset or click on <b>Custom</b> "
-"to \n"
-"configure your own scheme. You create your own schemes using the Photo or "
-"Video \n"
-"Subfolder Generation Editor:"
+"to configure your own scheme. You create your own schemes using the Photo or "
+"Video Subfolder Generation Editor:"
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:270
+#: ../raphodo/ui/didyouknow.py:267
 msgid ""
 "It's easy to download raw images into one folder, and jpeg images into "
 "another. Simply use the <b>Filename Extension</b> as part of your download "
 "subfolder generation scheme:"
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:276
+#: ../raphodo/ui/didyouknow.py:273
 msgid ""
 "This illustration shows a saved custom preset named &quot;My custom "
 "preset&quot;."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:282
+#: ../raphodo/ui/didyouknow.py:279
 msgid ""
-"\n"
 "You do not have to create nested download subfolders. This illustration "
-"shows \n"
-"the generation of download subfolders that contain only the date the photos "
-"were taken \n"
-"and a Job Code:"
+"shows the generation of download subfolders that contain only the date the "
+"photos were taken and a Job Code:"
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:291
+#: ../raphodo/ui/didyouknow.py:287
 msgid ""
-"\n"
 "Although there are many built-in date/time naming options, you may find that "
-"you \n"
-"need something different. It's no problem to create your own. You can "
-"combine date/time \n"
-"choices to generate new combinations. Supposing you wanted a date format "
-"that combines \n"
-"year (YYYY), a hyphen, and month (MM) to form YYYY-MM. You can create it "
-"like this \n"
-"(note the red circle around the hyphen):"
+"you need something different. It's no problem to create your own. You can "
+"combine date/time choices to generate new combinations. Supposing you wanted "
+"a date format that combines year (YYYY), a hyphen, and month (MM) to form "
+"YYYY-MM. You can create it like this (note the red circle around the hyphen):"
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:300
+#: ../raphodo/ui/didyouknow.py:296
 msgid ""
-"\n"
 "Read more about all the ways you can generate download subfolder names and "
-"file names \n"
-"in the \n"
-"<a href=\"http://damonlynch.net/rapid/documentation/"
-"#renamedateandtime\">online \n"
-"documentation</a>."
+"file names in the <a href=\"http://damonlynch.net/rapid/documentation/"
+"#renamedateandtime\">online documentation</a>."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:309
+#: ../raphodo/ui/didyouknow.py:304
 msgid ""
-"\n"
 "<b>Job Codes</b> let you easily enter text that describes sets of photos and "
-"videos. \n"
-"You can use them in subfolder and file names. In this illustration, some "
-"files have had \n"
-"the Job Code &quot;Street&quot; applied to them, and the selected files are "
-"about to \n"
-"get the Job Code &quot;Green Bazaar&quot;:"
+"videos. You can use them in subfolder and file names. In this illustration, "
+"some files have had the Job Code &quot;Street&quot; applied to them, and the "
+"selected files are about to get the Job Code &quot;Green Bazaar&quot;:"
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:317
+#: ../raphodo/ui/didyouknow.py:312
 msgid ""
-"\n"
 "You can apply new or existing Job Codes before you start a download. If "
-"there are any \n"
-"files in the download that have not yet had a Job Code applied to them, "
-"you'll be \n"
-"prompted to enter a Job Code for them before the download begins."
+"there are any files in the download that have not yet had a Job Code applied "
+"to them, you'll be prompted to enter a Job Code for them before the download "
+"begins."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:324
+#: ../raphodo/ui/didyouknow.py:319
 msgid "Look for hints to guide you when working with Job Codes:"
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:327
+#: ../raphodo/ui/didyouknow.py:322
 msgid ""
 "Hints will vary depending on the context, such as when the mouse is hovering "
 "over a button."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:333
+#: ../raphodo/ui/didyouknow.py:328
 msgid ""
-"\n"
 "When you give your photos and videos unique filenames, you'll never be "
-"confused as to \n"
-"which file is which. Using <b>sequence numbers</b> to make filenames unique "
-"is highly \n"
-"recommended!"
+"confused as to which file is which. Using <b>sequence numbers</b> to make "
+"filenames unique is highly recommended!"
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:340
+#: ../raphodo/ui/didyouknow.py:334
 msgid ""
-"\n"
 "<p>Four types of sequence values are available to help you assign unique "
-"names to your \n"
-"photos and videos:\n"
-"<ol>\n"
-"<li><b>Downloads today</b>: tracks downloads completed during that day.</"
-"li>\n"
-"<li><b>Stored number</b>: similar to Downloads today, but it is remembered "
-"from the \n"
-"last time the program was run.</li>\n"
-"<li><b>Session number</b>: reset each time the program is run.</li>\n"
-"<li><b>Sequence letter</b>: like session numbers, but uses letters.</li>\n"
-"</ol></p>\n"
-"<p>\n"
-"Read more about sequence numbers in the <a \n"
-"href=\"http://damonlynch.net/rapid/documentation/#sequencenumbers\">online \n"
-"documentation</a>.</p>"
+"names to your photos and videos:<ol><li><b>Downloads today</b>: tracks "
+"downloads completed during that day.</li><li><b>Stored number</b>: similar "
+"to Downloads today, but it is remembered from the last time the program was "
+"run.</li><li><b>Session number</b>: reset each time the program is run.</"
+"li><li><b>Sequence letter</b>: like session numbers, but uses letters.</li></"
+"ol></p><p>Read more about sequence numbers in the <a href=\"http://"
+"damonlynch.net/rapid/documentation/#sequencenumbers\">online documentation</"
+"a>.</p>"
+msgstr ""
+
+#: ../raphodo/ui/didyouknow.py:352
+msgid ""
+"The <b>Rename</b> panel allows you to configure file renaming. To rename "
+"your files, you can choose from among existing renaming presets or define "
+"your own."
 msgstr ""
 
 #: ../raphodo/ui/didyouknow.py:358
 msgid ""
-"\n"
-"The <b>Rename</b> panel allows you to configure file renaming. To rename "
-"your files, \n"
-"you can choose from among existing renaming presets or define your own."
+"<p>The <b>Synchronize RAW + JPEG</b> option is useful if you use the RAW + "
+"JPEG feature on your camera and you use sequence numbers in your photo "
+"renaming. Enabling this option will cause the program to detect matching "
+"pairs of RAW and JPEG photos, and when they are detected, the same sequence "
+"numbers will be applied to both photo names. Furthermore, sequences will be "
+"updated as if the photos were one.</p><p>Read more about file renaming in "
+"the <a href=\"http://damonlynch.net/rapid/documentation/#rename\">online "
+"documentation</a>.</p>"
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:364
+#: ../raphodo/ui/didyouknow.py:371
+#, fuzzy
 msgid ""
-"\n"
-"<p>The <b>Synchronize RAW + JPEG</b> option is useful if you use the RAW + "
-"JPEG feature \n"
-"on your camera and you use sequence numbers in your photo renaming. Enabling "
-"this \n"
-"option will cause the program to detect matching pairs of RAW and JPEG "
-"photos, and \n"
-"when they are detected, the same sequence numbers will be applied to both "
-"photo names. \n"
-"Furthermore, sequences will be updated as if the photos were one.</p>\n"
-"<p>\n"
-"Read more about file renaming in the <a \n"
-"href=\"http://damonlynch.net/rapid/documentation/#rename\">online "
-"documentation</a>.</p>\n"
+"You can have your photos and videos backed up to multiple locations as they "
+"are downloaded, such as external hard drives or network shares. Backup "
+"devices can be automatically detected, or exact backup locations specified."
 msgstr ""
+"Svoje fotografie a videá môžete popri sťahovaní zálohovať na rôzne "
+"zariadenia, napr. externé disky."
 
 #: ../raphodo/ui/didyouknow.py:378
-msgid ""
-"\n"
-"You can have your photos and videos backed up to multiple locations as they "
-"are \n"
-"downloaded, such as external hard drives or network shares. Backup devices "
-"can be \n"
-"automatically detected, or exact backup locations specified."
-msgstr ""
-
-#: ../raphodo/ui/didyouknow.py:385
 msgid ""
 "In this example, the drive <b>photobackup</b> does not contain a folder "
 "named <tt>Videos</tt>, so videos will not be backed up to it."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:391
+#: ../raphodo/ui/didyouknow.py:384
 msgid ""
-"\n"
 "Several of the program's preferences can be set from the command line, "
-"including \n"
-"download sources, destinations, and backups. Additionally, settings can be "
-"reset to \n"
-"their default state, and caches and remembered files cleared."
+"including download sources, destinations, and backups. Additionally, "
+"settings can be reset to their default state, and caches and remembered "
+"files cleared."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:396
+#: ../raphodo/ui/didyouknow.py:389
 msgid "You can also import program preferences from the older 0.4 version."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:401
+#: ../raphodo/ui/didyouknow.py:394
 msgid ""
-"\n"
-"Rapid Photo Downloader deals with three types of cache:\n"
-"<ol>\n"
-"<li>A <b>thumbnail cache</b> whose sole purpose is to store thumbnails of "
-"files from \n"
-"your cameras, memory cards, and other devices.</li>\n"
-"<li>A <b>temporary cache</b> of files downloaded from a camera, one for "
-"photos and \n"
-"another for videos. They are located in temporary subfolders in the "
-"download \n"
-"destination.</li>\n"
-"<li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo Downloader "
-"stores \n"
-"thumbnails of RAW and TIFF photos once they have been downloaded. File "
-"browsers like \n"
-"Gnome Files use this cache as well, meaning they too will display thumbnails "
-"for those \n"
-"files. \n"
-"</li>\n"
-"</ol>\n"
-"Read more about these caches and their effect on download performance in the "
-"<a \n"
+"Rapid Photo Downloader deals with three types of cache:<ol><li>A "
+"<b>thumbnail cache</b> whose sole purpose is to store thumbnails of files "
+"from your cameras, memory cards, and other devices.</li><li>A <b>temporary "
+"cache</b> of files downloaded from a camera, one for photos and another for "
+"videos. They are located in temporary subfolders in the download destination."
+"</li><li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo "
+"Downloader stores thumbnails of RAW and TIFF photos once they have been "
+"downloaded. File browsers like Gnome Files use this cache as well, meaning "
+"they too will display thumbnails for those files. </li></ol>Read more about "
+"these caches and their effect on download performance in the <a "
 "href=\"http://damonlynch.net/rapid/documentation/#caches\">online "
 "documentation</a>."
 msgstr ""
 
-#: ../raphodo/ui/didyouknow.py:459
+#: ../raphodo/ui/didyouknow.py:450
 msgid "Tip of the Day"
 msgstr "Tip dňa"
 
-#: ../raphodo/ui/didyouknow.py:467
+#: ../raphodo/ui/didyouknow.py:458
 msgid "Did you know...?"
 msgstr "Vedeli ste...?"
 
-#: ../raphodo/ui/didyouknow.py:498
+#: ../raphodo/ui/didyouknow.py:487
 msgid "Show tips on startup"
 msgstr "Zobraziť tipy pri spustení"
 
-#: ../raphodo/ui/didyouknow.py:502
+#: ../raphodo/ui/didyouknow.py:491
 msgid "&Next"
 msgstr "Ď&alší"
 
-#: ../raphodo/ui/didyouknow.py:503
+#: ../raphodo/ui/didyouknow.py:492
 msgid "&Previous"
 msgstr "&Späť"
 
@@ -4208,9 +4103,9 @@ msgstr ""
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
 #: ../raphodo/utilities.py:492
-#, fuzzy, python-format
+#, python-format
 msgid "%(first_items)s, %(last_items)s"
-msgstr "%(free)s %(file_type)s"
+msgstr ""
 
 #. Translators: the end of a list of things
 #. Translators: %(variable)s represents Python code, not a plural of the term
