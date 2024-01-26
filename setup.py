@@ -25,15 +25,15 @@
 
 __author__ = "Damon Lynch"
 __copyright__ = (
-    "Copyright 2009-2022, Damon Lynch. Copyright 2004-2012 Canonical Ltd. "
+    "Copyright 2009-2024, Damon Lynch. Copyright 2004-2012 Canonical Ltd. "
     "Copyright 2014 Donald Stufft."
 )
 
 import os
-from distutils.command.build import build
 from glob import glob
 
 from setuptools import Command, setup
+from setuptools.command.build import build
 from setuptools.command.sdist import sdist
 
 here = os.path.abspath(os.path.dirname(__file__))
