@@ -485,14 +485,18 @@ def make_internationalized_list(items: list[str]) -> str:
     if len(items) > 2:
         s = items[0]
         for item in items[1:-1]:
-            # Translators: the middle of a list of things
+            # Translators: the middle of a list of things,
+            # e.g, 'camera, memory card'
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
             # crash.
             s = _("%(first_items)s, %(last_items)s") % dict(
                 first_items=s, last_items=item
             )
-        # Translators: the end of a list of things
+        # Translators: the end of a list of things,
+        # e.g, 'camera, memory card and external drive'
+        # where 'camera, memory card' are represented by start_items in the code
+        # and 'external drive' is represented by last_item in the code
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.

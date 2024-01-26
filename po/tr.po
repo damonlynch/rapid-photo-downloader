@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2024-01-25 15:24+1300\n"
+"POT-Creation-Date: 2024-01-26 15:01+1300\n"
 "PO-Revision-Date: 2024-01-26 11:11+1300\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -4610,101 +4610,105 @@ msgstr "YB"
 msgid "%(first_item)s and %(last_item)s"
 msgstr "%(first_item)s ve %(last_item)s"
 
-#. Translators: the middle of a list of things
+#. Translators: the middle of a list of things,
+#. e.g, 'camera, memory card'
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/utilities.py:492
+#: ../raphodo/utilities.py:493
 #, python-format
 msgid "%(first_items)s, %(last_items)s"
 msgstr ""
 
-#. Translators: the end of a list of things
+#. Translators: the end of a list of things,
+#. e.g, 'camera, memory card and external drive'
+#. where 'camera, memory card' are represented by start_items in the code
+#. and 'external drive' is represented by last_item in the code
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/utilities.py:499
+#: ../raphodo/utilities.py:503
 #, python-format
 msgid "%(start_items)s and %(last_item)s"
 msgstr ""
 
-#: ../raphodo/utilities.py:570
+#: ../raphodo/utilities.py:574
 msgid "one"
 msgstr "bir"
 
-#: ../raphodo/utilities.py:571
+#: ../raphodo/utilities.py:575
 msgid "two"
 msgstr "iki"
 
-#: ../raphodo/utilities.py:572
+#: ../raphodo/utilities.py:576
 msgid "three"
 msgstr "üç"
 
-#: ../raphodo/utilities.py:573
+#: ../raphodo/utilities.py:577
 msgid "four"
 msgstr "dört"
 
-#: ../raphodo/utilities.py:574
+#: ../raphodo/utilities.py:578
 msgid "five"
 msgstr "beş"
 
-#: ../raphodo/utilities.py:575
+#: ../raphodo/utilities.py:579
 msgid "six"
 msgstr "altı"
 
-#: ../raphodo/utilities.py:576
+#: ../raphodo/utilities.py:580
 msgid "seven"
 msgstr "yedi"
 
-#: ../raphodo/utilities.py:577
+#: ../raphodo/utilities.py:581
 msgid "eight"
 msgstr "sekiz"
 
-#: ../raphodo/utilities.py:578
+#: ../raphodo/utilities.py:582
 msgid "nine"
 msgstr "dokuz"
 
-#: ../raphodo/utilities.py:579
+#: ../raphodo/utilities.py:583
 msgid "ten"
 msgstr "on"
 
-#: ../raphodo/utilities.py:580
+#: ../raphodo/utilities.py:584
 msgid "eleven"
 msgstr "on bir"
 
-#: ../raphodo/utilities.py:581
+#: ../raphodo/utilities.py:585
 msgid "twelve"
 msgstr "on iki"
 
-#: ../raphodo/utilities.py:582
+#: ../raphodo/utilities.py:586
 msgid "thirteen"
 msgstr "on üç"
 
-#: ../raphodo/utilities.py:583
+#: ../raphodo/utilities.py:587
 msgid "fourteen"
 msgstr "on dört"
 
-#: ../raphodo/utilities.py:584
+#: ../raphodo/utilities.py:588
 msgid "fifteen"
 msgstr "on beş"
 
-#: ../raphodo/utilities.py:585
+#: ../raphodo/utilities.py:589
 msgid "sixteen"
 msgstr "on altı"
 
-#: ../raphodo/utilities.py:586
+#: ../raphodo/utilities.py:590
 msgid "seventeen"
 msgstr "on yedi"
 
-#: ../raphodo/utilities.py:587
+#: ../raphodo/utilities.py:591
 msgid "eighteen"
 msgstr "on sekiz"
 
-#: ../raphodo/utilities.py:588
+#: ../raphodo/utilities.py:592
 msgid "ninenteen"
 msgstr "on dokuz"
 
-#: ../raphodo/utilities.py:589
+#: ../raphodo/utilities.py:593
 msgid "twenty"
 msgstr "yirmi"
 
