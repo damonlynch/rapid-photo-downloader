@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2010-2022 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2010-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -27,27 +27,28 @@ Not included in program tarball distributed to end users.
 """
 
 __author__ = "Damon Lynch"
-__copyright__ = "Copyright 2010-2022, Damon Lynch"
+__copyright__ = "Copyright 2010-2024, Damon Lynch"
 
 
+import argparse
+import glob
+import os
+import pickle
+import re
 import tarfile
 import tempfile
-import os
-import glob
-import polib
-import arrow
-import re
-import argparse
-import pickle
-from collections import namedtuple
-from pkg_resources import parse_version
 import warnings
+from collections import namedtuple
+
+import arrow
+import polib
 import sortedcontainers
 from launchpadlib.launchpad import Launchpad
+from packaging.version import parse
 
-arrow_version = parse_version(arrow.__version__)
+arrow_version = parse(arrow.__version__)
 # Suppress parsing warnings for 0.14.3 <= Arrow version < 0.15
-if arrow_version >= parse_version("0.14.3") and arrow_version < parse_version("0.15.0"):
+if arrow_version >= parse("0.14.3") and arrow_version < parse("0.15.0"):
     from arrow.factory import ArrowParseWarning
 
     warnings.simplefilter("ignore", ArrowParseWarning)
@@ -152,15 +153,15 @@ def get_latest_release_date():
     print("Accessing project...")
     p = launchpad.projects["rapid"]
     print("Finding releases...")
-    r = p.releases
+    releases = p.releases
 
     stable_releases = sortedcontainers.SortedDict()
     dev_releases = sortedcontainers.SortedDict()
 
-    for l in r:
-        if str(l) not in cache:
-            release_date = arrow.get(l.date_released)
-            for t in l.files:
+    for lang in releases:
+        if str(lang) not in cache:
+            release_date = arrow.get(lang.date_released)
+            for t in lang.files:
                 # print(t.lp_attributes)
                 # print(t.lp_entries)
                 if str(t).find("tar.gz") >= 0:
@@ -179,7 +180,7 @@ def get_latest_release_date():
                     if first_digit.start():
                         version_raw = parsed_version[first_digit.start() :]
                         version_number = version_raw.replace("~", "")
-                        version = parse_version(version_number)
+                        version = parse(version_number)
                         bare_link = (
                             "https://launchpad.net/" + t_name[i:j] + "+download/"
                         )
@@ -192,7 +193,7 @@ def get_latest_release_date():
                         else:
                             stable_releases[version] = detail
 
-                        cache[str(l)] = (
+                        cache[str(lang)] = (
                             str(version),
                             str(release_date),
                             link,
@@ -200,8 +201,8 @@ def get_latest_release_date():
                         )
                         break
         else:
-            version_number, release_date, link, bare_link = cache[str(l)]
-            version = parse_version(version_number)
+            version_number, release_date, link, bare_link = cache[str(lang)]
+            version = parse(version_number)
             release_date = arrow.get(release_date)
             detail = details(release_date, link, bare_link)
             if version.is_prerelease:
@@ -220,7 +221,6 @@ def get_latest_release_date():
         message = (
             "Development version is latest release. Use development "
             "instead of stable release date? [y/N]"
-            or "n"
         )
         use_devel = input(message).lower()[0] == "y"
 
@@ -263,7 +263,7 @@ po_destination_dir = os.path.abspath(
 )
 print("\nInstalling po files into", po_destination_dir)
 
-po_backup_dir = "{}/backup.po".format(home)
+po_backup_dir = f"{home}/backup.po"
 if not os.path.isdir(po_backup_dir):
     os.mkdir(po_backup_dir)
 
@@ -292,7 +292,7 @@ for pofile in glob.iglob(os.path.join(source_po_dir, "*.po")):
     elif lang in whitelist:
         known_langs.append(pofile)
 
-print("Working with {} translations\n".format(len(whitelist)))
+print(f"Working with {len(whitelist)} translations\n")
 
 if unknown_langs:
     print("WARNING: unrecognized languages are", unknown_langs)
@@ -317,7 +317,7 @@ else:
                 lang_english = "Serbian"
             elif lang_english == "magyar":
                 lang_english = "Hungarian"
-            dest_pofile = "{}.po".format(os.path.join(po_destination_dir, lang))
+            dest_pofile = f"{os.path.join(po_destination_dir, lang)}.po"
             if not os.path.exists(dest_pofile):
                 print("Added ", lang_english)
                 os.rename(pofile, dest_pofile)
@@ -340,9 +340,7 @@ else:
                         updated_langs.append(lang_english)
                     else:
                         print(
-                            "{:21}: updating local copy from launchpad".format(
-                                lang_english
-                            )
+                            f"{lang_english:21}: updating local copy from launchpad"
                         )
                     if not dry_run:
                         backupfile = os.path.join(po_backup_dir, "%s.po" % lang)
@@ -351,7 +349,7 @@ else:
                         os.rename(dest_pofile, backupfile)
                         os.rename(pofile, dest_pofile)
                 else:
-                    print("{:21}: no change".format(lang_english))
+                    print(f"{lang_english:21}: no change")
 
     print()
     if updated_langs:
@@ -361,9 +359,9 @@ else:
             updated_langs_english = (
                 updated_langs_english + " and %s" % updated_langs[-1]
             )
-            print("Update {} translations\n".format(updated_langs_english))
+            print(f"Update {updated_langs_english} translations\n")
         else:
-            print("Update {} translation\n".format(updated_langs[0]))
+            print(f"Update {updated_langs[0]} translation\n")
     else:
         print("No language updates")
 
@@ -371,7 +369,7 @@ else:
         print("WARNING: unrecognized languages are", unknown_langs)
 
     if not dry_run:
-        print("Backing up translations tar %s to %s" % (translations_tar, backup_tar))
+        print(f"Backing up translations tar {translations_tar} to {backup_tar}")
         os.rename(translations_tar, backup_tar)
 
 
