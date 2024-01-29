@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
 "POT-Creation-Date: 2024-01-26 15:01+1300\n"
-"PO-Revision-Date: 2024-01-25 23:16+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"PO-Revision-Date: 2024-01-29 20:40+0000\n"
+"Last-Translator: Evgeny Kozlov <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2024-01-28 18:52+0000\n"
+"X-Launchpad-Export-Date: 2024-01-29 20:52+0000\n"
 "X-Generator: Launchpad (build 666c6bd52ccc7c38c7d6806b807b117caa7d8b6e)\n"
 "Language: ru\n"
 
@@ -4079,7 +4079,7 @@ msgstr ""
 #: ../raphodo/rapid.py:6387
 #, python-format
 msgid "%(downloading_from)s — download paused"
-msgstr ""
+msgstr "%(downloading_from)s — загрузка приостановлена"
 
 #: ../raphodo/rapid.py:6399
 #, python-format
@@ -4642,7 +4642,7 @@ msgstr "%(first_item)s и %(last_item)s"
 #: ../raphodo/utilities.py:493
 #, python-format
 msgid "%(first_items)s, %(last_items)s"
-msgstr ""
+msgstr "%(first_items)s, %(last_items)s"
 
 #. Translators: the end of a list of things,
 #. e.g, 'camera, memory card and external drive'
@@ -4654,7 +4654,7 @@ msgstr ""
 #: ../raphodo/utilities.py:503
 #, python-format
 msgid "%(start_items)s and %(last_item)s"
-msgstr ""
+msgstr "%(start_items)s и %(last_item)s"
 
 #: ../raphodo/utilities.py:574
 msgid "one"
