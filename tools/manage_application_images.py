@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2020-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -33,34 +33,34 @@ Generates scaled PNG files from SVG, with option to scale at
 1x and 2x, or  1x, 1.25x, 1.5x, 1.75x, and 2x.
 """
 
-__author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2020, Damon Lynch"
+__author__ = "Damon Lynch"
+__copyright__ = "Copyright 2020-2024, Damon Lynch"
 __title__ = __file__
-__description__ = 'Manage PyQt5 application SVG and PNG image assets.'
+__description__ = "Manage PyQt5 application SVG and PNG image assets."
 
 import argparse
-import os
-import sys
-import shutil
-import shlex
-import subprocess
 import datetime
 import filecmp
 import glob
+import os
 import re
-from typing import List, Tuple, Optional, Set
+import shlex
+import shutil
+import subprocess
+import sys
 import traceback
+
 try:
     from lxml import etree
 except ImportError:
-    print('Run:\nsudo apt -y install python3-lxml')
+    print("Run:\nsudo apt -y install python3-lxml")
     sys.exit(1)
 
 import pyprind
 
 rename = {
-    'folder-symbolic': 'folder',
-    'drive-removable-media-symbolic': 'drive-removable-media',
+    "folder-symbolic": "folder",
+    "drive-removable-media-symbolic": "drive-removable-media",
 }
 
 fractional_scaling_support = False
@@ -68,39 +68,44 @@ fractional_scaling_support = False
 fractional_output_sizes = [1, 1.25, 1.5, 1.75, 2]
 round_output_sizes = [1, 2]
 
-fractional_output_sizes_qt = [''] + ['@{}x'.format(s) for s in fractional_output_sizes if s > 1]
-round_output_sizes_qt = [''] + ['@{}x'.format(s) for s in round_output_sizes if s > 1]
+fractional_output_sizes_qt = [""] + [f"@{s}x" for s in fractional_output_sizes if s > 1]
+round_output_sizes_qt = [""] + [f"@{s}x" for s in round_output_sizes if s > 1]
 
 output_sizes = []
 output_sizes_qt = []
 
 base_directory = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-code_directory = os.path.join(base_directory, 'raphodo')
-images_directory = os.path.join(base_directory, 'images')
-source_images_directory = os.path.join(base_directory, 'sourceimages')
-resources_qrc = 'resources.qrc'
+code_directory = os.path.join(base_directory, "raphodo")
+images_directory = os.path.join(base_directory, "images")
+source_images_directory = os.path.join(base_directory, "sourceimages")
+resources_qrc = "resources.qrc"
 resources_input = os.path.join(code_directory, resources_qrc)
-resources_output = os.path.join(code_directory, 'qrc_resources.py')
-backup_resources_qrc = os.path.join(os.path.expanduser('~'), 'backup.resources_qrc')
+resources_output = os.path.join(code_directory, "qrc_resources.py")
+backup_resources_qrc = os.path.join(os.path.expanduser("~"), "backup.resources_qrc")
 
-inkscape_bin = shutil.which('inkscape')
+inkscape_bin = shutil.which("inkscape")
 
-inkscape_generate_png_cmd = \
-    "{inkscape} --without-gui --file={svg} --export-png={png} --export-width={width} " \
+inkscape_generate_png_cmd = (
+    "{inkscape} --without-gui --file={svg} --export-png={png} --export-width={width} "
     "--export-height={height} --export-area-page"
+)
 
-inkscape_export_svg_cmd = "{inkscape} --without-gui --file={svg} --export-plain-svg={output_svg}"
+inkscape_export_svg_cmd = (
+    "{inkscape} --without-gui --file={svg} --export-plain-svg={output_svg}"
+)
 
 inkscape_query_cmd_line = "{inkscape} {query} {file}"
 
 pyrcc_cmd_line = "{pyrcc} {input} -o {output}"
 
 file_header = "File"
-width_header =  "| Width    "
+width_header = "| Width    "
 height_header = "| Height   "
-valid_header =  "| Valid  "
+valid_header = "| Valid  "
 
-table_row = '{file:{file_len}}{width:>{width_len}}{height:>{height_len}}{valid:>{valid_len}}'
+table_row = (
+    "{file:{file_len}}{width:>{width_len}}{height:>{height_len}}{valid:>{valid_len}}"
+)
 
 resource_re = re.compile(r"""[\"'(]:/(.+?\.[a-z]{3})[\"')]""")
 
@@ -116,52 +121,66 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
     )
 
     parser.add_argument(
-        '--fractional-scaling', action='store_true', default=False,
-        help="Output fractionally scaled PNGs"
+        "--fractional-scaling",
+        action="store_true",
+        default=False,
+        help="Output fractionally scaled PNGs",
     )
 
     subparsers = parser.add_subparsers()
-    parser_generate = subparsers.add_parser('generate')
+    parser_generate = subparsers.add_parser("generate")
 
-    parser_check = subparsers.add_parser('check')
+    parser_check = subparsers.add_parser("check")
     check_all = parser_check.add_mutually_exclusive_group()
     check_single = parser_check.add_mutually_exclusive_group()
 
-    parser_export = subparsers.add_parser('export')
+    parser_export = subparsers.add_parser("export")
     export_all = parser_export.add_mutually_exclusive_group()
     export_single = parser_export.add_mutually_exclusive_group()
 
-    parser_generate.add_argument('SVG',  action='store', help="SVG input file")
-    parser_generate.add_argument('--size', type=int, default=16, action='store', help="output base size")
+    parser_generate.add_argument("SVG", action="store", help="SVG input file")
     parser_generate.add_argument(
-        '-sp', '--skip-png', action='store_true', default=False, help="Skip PNG file generation"
+        "--size", type=int, default=16, action="store", help="output base size"
     )
     parser_generate.add_argument(
-        '--keep-svg', action='store_true', default=False,
-        help="Keep SVG entry in resources.qrc file"
+        "-sp",
+        "--skip-png",
+        action="store_true",
+        default=False,
+        help="Skip PNG file generation",
     )
     parser_generate.add_argument(
-        '--skip-backup', action='store_true', default=False,
-        help="Do not backup resources.qrc file"
+        "--keep-svg",
+        action="store_true",
+        default=False,
+        help="Keep SVG entry in resources.qrc file",
+    )
+    parser_generate.add_argument(
+        "--skip-backup",
+        action="store_true",
+        default=False,
+        help="Do not backup resources.qrc file",
     )
 
     parser_check.add_argument(
-        '--resources', action='store_true', default=False,
-        help="check resources.qrc matches resource use in python scripts"
+        "--resources",
+        action="store_true",
+        default=False,
+        help="check resources.qrc matches resource use in python scripts",
     )
 
     check_single.add_argument(
-        '--file', dest='check_file', action='store',  help="file to check"
+        "--file", dest="check_file", action="store", help="file to check"
     )
     check_all.add_argument(
-        '--all', dest='check_all', action='store_true', help='check all images'
+        "--all", dest="check_all", action="store_true", help="check all images"
     )
 
     export_single.add_argument(
-        '--file', dest='export_file', action='store',  help="file to export"
+        "--file", dest="export_file", action="store", help="file to export"
     )
     export_all.add_argument(
-        '--all', dest='export_all', action='store_true', help='export all images'
+        "--all", dest="export_all", action="store_true", help="export all images"
     )
 
     return parser
@@ -169,7 +188,7 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
 
 def extract_code_graphic_resoucres() -> set[str]:
     resources = set()
-    for script in glob.glob(os.path.join(code_directory, '*.py')):
+    for script in glob.glob(os.path.join(code_directory, "*.py")):
         with open(script) as s:
             code = s.read()
             r = set(resource_re.findall(code))
@@ -180,10 +199,7 @@ def extract_code_graphic_resoucres() -> set[str]:
 
 
 def is_qt_scaled_resource(resource: str) -> bool:
-    for scalar in output_sizes_qt[1:]:
-        if resource.find('{}.'.format(scalar)) > 0:
-            return True
-    return False
+    return any(resource.find(f"{scalar}.") > 0 for scalar in output_sizes_qt[1:])
 
 
 def extract_qrc_resources() -> set[str]:
@@ -193,7 +209,7 @@ def extract_qrc_resources() -> set[str]:
     qresource = root[0]
     resources = set()
     for child in qresource:
-        alias = child.attrib['alias']
+        alias = child.attrib["alias"]
         if not is_qt_scaled_resource(alias):
             resources.add(alias)
     return resources
@@ -211,27 +227,24 @@ def set_scaling(fractional_scaling: bool) -> None:
         output_sizes_qt = round_output_sizes_qt
 
 
-def full_file_name_from_partial(partial: str, add_ext: str|None='svg',
-                                directory: str|None=None) -> tuple[str, str]:
+def full_file_name_from_partial(
+    partial: str, add_ext: str | None = "svg", directory: str | None = None
+) -> tuple[str, str]:
     basename, ext = os.path.splitext(partial)
     if not ext:
-        partial = '{}.{}'.format(partial, add_ext)
+        partial = f"{partial}.{add_ext}"
 
-    if directory is None:
-        d = images_directory
-    else:
-        d = directory
+    d = images_directory if directory is None else directory
 
     return basename, os.path.join(d, partial)
 
 
 def get_sort_key(element) -> str:
-    return element.get('alias')
+    return element.get("alias")
 
 
 def generate_png_file_names(basename: str, sizes: list[int]) -> tuple[list[str], ...]:
-
-    fs = '{basename}{size}.png'
+    fs = "{basename}{size}.png"
     aliases = [
         fs.format(basename=rename.get(basename, basename), size=size_qt)
         for size_qt in output_sizes_qt
@@ -241,8 +254,9 @@ def generate_png_file_names(basename: str, sizes: list[int]) -> tuple[list[str],
     return aliases, pngs
 
 
-def generate_xml(basename: str, svg: str, remove_svg: bool, skip_backup: bool,
-                 sizes: list[int]):
+def generate_xml(
+    basename: str, svg: str, remove_svg: bool, skip_backup: bool, sizes: list[int]
+):
     # Remove existing formatting from the XML when opening it
     parser = etree.XMLParser(remove_blank_text=True)
     tree = etree.parse(resources_input, parser)
@@ -255,12 +269,12 @@ def generate_xml(basename: str, svg: str, remove_svg: bool, skip_backup: bool,
     filesys_prefix = None
     # Identify alias prefix and file system path prefix
     for name in (svg, pngs[0]):
-        search = ".//file[contains(text(), '{}{}')]".format(os.path.sep, name)
+        search = f".//file[contains(text(), '{os.path.sep}{name}')]"
         elements = qresource.xpath(search)
         if elements:
             assert len(elements) == 1
             element = elements[0]
-            alias_prefix = os.path.split(element.get('alias'))[0]
+            alias_prefix = os.path.split(element.get("alias"))[0]
             filesys_prefix = os.path.split(element.text)[0]
             break
 
@@ -268,31 +282,29 @@ def generate_xml(basename: str, svg: str, remove_svg: bool, skip_backup: bool,
     assert filesys_prefix is not None
 
     print(
-        'SVG:               {}\n'
-        'Alias prefix:      {}\n'
-        'Filesystem prefix: {}\n'.format(
-            svg, alias_prefix, filesys_prefix
-        )
+        f"SVG:               {svg}\n"
+        f"Alias prefix:      {alias_prefix}\n"
+        f"Filesystem prefix: {filesys_prefix}\n"
     )
 
     # Remove SVG entry from XML
     if remove_svg:
-        search = ".//file[contains(text(), '{}{}')]".format(os.path.sep, svg)
+        search = f".//file[contains(text(), '{os.path.sep}{svg}')]"
         elements = qresource.xpath(search)
         if not elements:
-            print("Did not remove {} from XML as it did not exist".format(svg))
+            print(f"Did not remove {svg} from XML as it did not exist")
         else:
-            print("Removing {} from XML".format(svg))
+            print(f"Removing {svg} from XML")
             assert len(elements) == 1
             element = elements[0]
             qresource.remove(element)
 
     # Remove all existing PNG entries for this size
     for alias, png in zip(aliases, pngs):
-        search = ".//file[contains(text(), '{}{}')]".format(os.path.sep, png)
+        search = f".//file[contains(text(), '{os.path.sep}{png}')]"
         elements = qresource.xpath(search)
         if elements:
-            print("Removing {} from XML".format(png))
+            print(f"Removing {png} from XML")
             assert len(elements) == 1
             element = elements[0]
             qresource.remove(element)
@@ -301,24 +313,24 @@ def generate_xml(basename: str, svg: str, remove_svg: bool, skip_backup: bool,
     for alias, png in zip(aliases, pngs):
         alias = os.path.join(alias_prefix, alias)
         png = os.path.join(filesys_prefix, png)
-        print("Adding {} to XML".format(png))
-        element = etree.Element('file')
-        element.set('alias', alias)
+        print(f"Adding {png} to XML")
+        element = etree.Element("file")
+        element.set("alias", alias)
         element.text = png
         qresource.append(element)
 
     # Sort by alias attribute
-    for parent in tree.xpath('//*[./*]'):  # Search for parent elements
+    for parent in tree.xpath("//*[./*]"):  # Search for parent elements
         parent[:] = sorted(parent, key=get_sort_key)
 
     if not skip_backup:
-        dt_backup_file = '{}-{}'.format(
-            datetime.datetime.now().strftime('%Y%m%d-%H%M'), resources_qrc
+        dt_backup_file = "{}-{}".format(
+            datetime.datetime.now().strftime("%Y%m%d-%H%M"), resources_qrc
         )
         dt_backup = os.path.join(backup_resources_qrc, dt_backup_file)
         backup = os.path.join(backup_resources_qrc, resources_qrc)
         if not filecmp.cmp(resources_input, backup):
-            print("\nBacking up resources.qrc to {}".format(dt_backup_file))
+            print(f"\nBacking up resources.qrc to {dt_backup_file}")
             shutil.copy2(resources_input, dt_backup)
             shutil.copy2(resources_input, backup)
 
@@ -327,16 +339,20 @@ def generate_xml(basename: str, svg: str, remove_svg: bool, skip_backup: bool,
 
 
 def generate_png(svg: str, png: str, width: int, height: int):
-
-    cmd = inkscape_generate_png_cmd.format(inkscape=inkscape_bin, svg=svg, png=png, width=width, height=height)
+    cmd = inkscape_generate_png_cmd.format(
+        inkscape=inkscape_bin, svg=svg, png=png, width=width, height=height
+    )
     args = shlex.split(cmd)
     subprocess.run(args)
 
 
 def inkscape_export_svg(image: str, export_image: str) -> None:
-    cmd = inkscape_export_svg_cmd.format(inkscape=inkscape_bin, svg=image, output_svg=export_image)
+    cmd = inkscape_export_svg_cmd.format(
+        inkscape=inkscape_bin, svg=image, output_svg=export_image
+    )
     args = shlex.split(cmd)
     subprocess.run(args)
+
 
 def inkscape_query(image: str, query: str) -> float:
     cmd = inkscape_query_cmd_line.format(inkscape=inkscape_bin, query=query, file=image)
@@ -347,11 +363,11 @@ def inkscape_query(image: str, query: str) -> float:
 
 
 def svg_width_inkscape(image: str) -> float:
-    return inkscape_query(image, '-W')
+    return inkscape_query(image, "-W")
 
 
 def svg_height_inkscape(image: str) -> float:
-    return inkscape_query(image, '-H')
+    return inkscape_query(image, "-H")
 
 
 def svg_size_data(full_file_name: str) -> tuple[str, float, float, bool]:
@@ -361,14 +377,14 @@ def svg_size_data(full_file_name: str) -> tuple[str, float, float, bool]:
     tree = etree.parse(full_file_name, parser)
     root = tree.getroot()
     try:
-        x, y, w, h = root.attrib['viewBox'].split()
+        x, y, w, h = root.attrib["viewBox"].split()
     except KeyError:
         try:
-            w = root.attrib['width']
-            if w.endswith('px'):
+            w = root.attrib["width"]
+            if w.endswith("px"):
                 w = w[:-2]
-            h = root.attrib['height']
-            if h.endswith('px'):
+            h = root.attrib["height"]
+            if h.endswith("px"):
                 h = h[:-2]
         except KeyError:
             print("\n\nUnable to determine width and height for", name)
@@ -393,10 +409,10 @@ def get_extension(full_file_name: str) -> str:
 
 
 def is_svg(full_file_name: str) -> bool:
-    return get_extension(full_file_name) == 'svg'
+    return get_extension(full_file_name) == "svg"
 
 
-def export_files(full_file_name: str|None=None) -> None:
+def export_files(full_file_name: str | None = None) -> None:
     if full_file_name is not None:
         bar = None
         svg_files = [full_file_name]
@@ -409,13 +425,15 @@ def export_files(full_file_name: str|None=None) -> None:
                 if is_svg(full_file_name):
                     svg_files.append(full_file_name)
 
-        bar = pyprind.ProgBar(iterations=len(svg_files), stream=1, track_time=True, width=80)
+        bar = pyprind.ProgBar(
+            iterations=len(svg_files), stream=1, track_time=True, width=80
+        )
 
     for full_file_name in svg_files:
         source_path, name = os.path.split(full_file_name)
         if len(source_path) > len(source_images_directory):
             dest_path = os.path.join(
-                images_directory, source_path[len(source_images_directory) + 1:]
+                images_directory, source_path[len(source_images_directory) + 1 :]
             )
         else:
             dest_path = images_directory
@@ -427,8 +445,7 @@ def export_files(full_file_name: str|None=None) -> None:
     run_pyrcc()
 
 
-def check_svg_validity(full_file_name: str|None=None) -> None:
-
+def check_svg_validity(full_file_name: str | None = None) -> None:
     if full_file_name is not None:
         bar = None
         svg_files = [full_file_name]
@@ -441,7 +458,9 @@ def check_svg_validity(full_file_name: str|None=None) -> None:
                 if is_svg(full_file_name):
                     svg_files.append(full_file_name)
 
-        bar = pyprind.ProgBar(iterations=len(svg_files), stream=1, track_time=True, width=80)
+        bar = pyprind.ProgBar(
+            iterations=len(svg_files), stream=1, track_time=True, width=80
+        )
     rows = []
 
     for full_file_name in svg_files:
@@ -449,40 +468,45 @@ def check_svg_validity(full_file_name: str|None=None) -> None:
         if bar:
             bar.update()
 
-    file_len = max((len(row[0]) for row in rows)) + 2
+    file_len = max(len(row[0]) for row in rows) + 2
     row_len = file_len + len(width_header) + len(height_header) + len(valid_header)
     print(
         table_row.format(
-            file=file_header, file_len=file_len,
-            width=width_header, width_len=len(width_header),
-            height=height_header, height_len=len(height_header),
-            valid=valid_header, valid_len=len(valid_header)
+            file=file_header,
+            file_len=file_len,
+            width=width_header,
+            width_len=len(width_header),
+            height=height_header,
+            height_len=len(height_header),
+            valid=valid_header,
+            valid_len=len(valid_header),
         )
     )
-    print('-' * row_len)
+    print("-" * row_len)
 
     for row in rows:
-        width = '{:.1f}'.format(row[1])
-        height = '{:.1f}'.format(row[2])
-        if row[3]:
-            valid = ""
-        else:
-            valid = "false"
+        width = f"{row[1]:.1f}"
+        height = f"{row[2]:.1f}"
+        valid = "" if row[3] else "false"
         print(
             table_row.format(
-                file=row[0], file_len=file_len,
-                width=width, width_len=len(width_header),
-                height=height, height_len=len(height_header),
-                valid=valid, valid_len=len(valid_header)
+                file=row[0],
+                file_len=file_len,
+                width=width,
+                width_len=len(width_header),
+                height=height,
+                height_len=len(height_header),
+                valid=valid,
+                valid_len=len(valid_header),
             )
         )
 
 
 def check_resources_match_code():
     code_resources = extract_code_graphic_resoucres()
-    print(len(code_resources), 'resources found in code')
+    print(len(code_resources), "resources found in code")
     qrc_resources = extract_qrc_resources()
-    print(len(qrc_resources), 'resources found in qrc file')
+    print(len(qrc_resources), "resources found in qrc file")
 
     only_in_code = code_resources - qrc_resources
     if only_in_code:
@@ -501,9 +525,9 @@ def check_resources_match_code():
             print(e)
 
 
-def check_resources_validity(check_resources: bool, check_svg: bool,
-                             full_file_name: str|None=None) -> None:
-
+def check_resources_validity(
+    check_resources: bool, check_svg: bool, full_file_name: str | None = None
+) -> None:
     if check_svg:
         check_svg_validity(full_file_name)
 
@@ -514,27 +538,28 @@ def check_resources_validity(check_resources: bool, check_svg: bool,
 def run_pyrcc():
     print("\nGenerating resource file")
 
-    pyrcc = shutil.which('pyrcc5')
-    cmd = pyrcc_cmd_line.format(pyrcc=pyrcc, input=resources_input, output=resources_output)
+    pyrcc = shutil.which("pyrcc5")
+    cmd = pyrcc_cmd_line.format(
+        pyrcc=pyrcc, input=resources_input, output=resources_output
+    )
     args = shlex.split(cmd)
     subprocess.run(args)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = parser_options()
 
     args = parser.parse_args()
 
     set_scaling(args.fractional_scaling)
 
-    if 'SVG' in args:
-
+    if "SVG" in args:
         svg = args.SVG
 
         basename, svg_full_name = full_file_name_from_partial(partial=svg)
 
         if not os.path.isfile(svg_full_name):
-            print("Input file {} does not exist".format(svg_full_name))
+            print(f"Input file {svg_full_name} does not exist")
             sys.exit(1)
 
         if not svg_size_data(svg_full_name)[2]:
@@ -545,18 +570,19 @@ if __name__ == '__main__':
 
         if not args.skip_png:
             for size in sizes:
-                png = os.path.join(
-                    images_directory, '{basename}{size}.png'.format(basename=basename, size=size)
-                )
+                png = os.path.join(images_directory, f"{basename}{size}.png")
                 generate_png(svg=svg_full_name, png=png, width=size, height=size)
 
         generate_xml(
-            basename=basename, svg=svg, remove_svg=not args.keep_svg, skip_backup=args.skip_backup,
-            sizes=sizes
+            basename=basename,
+            svg=svg,
+            remove_svg=not args.keep_svg,
+            skip_backup=args.skip_backup,
+            sizes=sizes,
         )
         run_pyrcc()
 
-    elif 'export_file' in args:
+    elif "export_file" in args:
         if args.export_file is not None:
             export_file = args.export_file
             basename, full_file_name = full_file_name_from_partial(
@@ -564,7 +590,7 @@ if __name__ == '__main__':
             )
 
             if not os.path.isfile(full_file_name):
-                print("Input file {} does not exist".format(full_file_name))
+                print(f"Input file {full_file_name} does not exist")
                 sys.exit(1)
 
         elif args.export_all:
@@ -579,8 +605,7 @@ if __name__ == '__main__':
             print()
             check_svg_validity(full_file_name)
 
-    elif 'check_file' in args:
-
+    elif "check_file" in args:
         check_resources = args.resources
         check_svg = args.check_file is not None or args.check_all
 
@@ -591,7 +616,7 @@ if __name__ == '__main__':
             basename, full_file_name = full_file_name_from_partial(partial=check_file)
 
             if not os.path.isfile(full_file_name):
-                print("Input file {} does not exist".format(full_file_name))
+                print(f"Input file {full_file_name} does not exist")
                 sys.exit(1)
 
         elif not check_resources and not args.check_all:
@@ -601,5 +626,5 @@ if __name__ == '__main__':
         check_resources_validity(
             check_resources=check_resources,
             check_svg=check_svg,
-            full_file_name=full_file_name
+            full_file_name=full_file_name,
         )

@@ -1,5 +1,6 @@
 import os
 import stat
+
 path = os.path.join(os.path.expanduser('~'), 'DigitalOcean/src_damonlynch.net')
 
 for dirpath, dirnames, filenames in os.walk(path):

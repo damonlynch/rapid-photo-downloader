@@ -23,26 +23,24 @@
 Capture screenshots of Rapid Photo Downloader.
 """
 
-__author__ = 'Damon Lynch'
+__author__ = "Damon Lynch"
 __copyright__ = "Copyright 2020-24, Damon Lynch"
 __title__ = __file__
-__description__ = 'Capture screenshots of Rapid Photo Downloader.'
+__description__ = "Capture screenshots of Rapid Photo Downloader."
 
-import subprocess
 import argparse
-import os
-import shutil
-import sys
-import shlex
 import glob
+import os
 import re
+import shlex
+import shutil
+import subprocess
+import sys
 import time
-from typing import Tuple
-
-from PyQt5.QtGui import QImage, QColor, QGuiApplication, QPainter, QPen
-from PyQt5.QtCore import QRect, Qt
 
 import icecream
+from PyQt5.QtCore import QRect, Qt
+from PyQt5.QtGui import QColor, QGuiApplication, QImage, QPainter, QPen
 
 # Position of window
 main_window_x = 920
@@ -63,12 +61,12 @@ features_main_window_height = 880
 top_border_color = QColor(163, 160, 158, 255)
 left_border_color = QColor(159, 156, 154, 255)
 
-wmctrl = shutil.which('wmctrl')
-gm = shutil.which('gm')
-gnome_screenshot = shutil.which('gnome-screenshot')
+wmctrl = shutil.which("wmctrl")
+gm = shutil.which("gm")
+gnome_screenshot = shutil.which("gnome-screenshot")
 
 
-pictures_directory = os.path.join(os.path.expanduser('~'), 'Pictures')
+pictures_directory = os.path.join(os.path.expanduser("~"), "Pictures")
 
 
 def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentParser:
@@ -82,26 +80,36 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
         prog=__title__, formatter_class=formatter_class, description=__description__
     )
 
-    parser.add_argument('file', help='Name of screenshot')
+    parser.add_argument("file", help="Name of screenshot")
     parser.add_argument(
-        '--screenshot', action='store_true', default=False,
-        help="Screenshot from another tool that needs to be cropped. If does not exist in Pictures folder, "
-             "will open the tool to create a new screenshot."
+        "--screenshot",
+        action="store_true",
+        default=False,
+        help="Screenshot from another tool that needs to be cropped. If does not "
+        "exist in Pictures folder, will open the tool to create a new screenshot.",
     )
 
-    parser.add_argument('--name', help="Window name if not main window")
+    parser.add_argument("--name", help="Window name if not main window")
 
     parser.add_argument(
-        '--home', action='store_true', default=False, help="Size width / height ratio for home screen slideshow"
+        "--home",
+        action="store_true",
+        default=False,
+        help="Size width / height ratio for home screen slideshow",
     )
 
     parser.add_argument(
-        '--features', action='store_true', default=False, help="Size for display on features page"
+        "--features",
+        action="store_true",
+        default=False,
+        help="Size for display on features page",
     )
 
     parser.add_argument(
-        '--sixteen-by-nine', action='store_true', default=False,
-        help="Create 16:9 screenshot of main window"
+        "--sixteen-by-nine",
+        action="store_true",
+        default=False,
+        help="Create 16:9 screenshot of main window",
     )
 
     return parser
@@ -116,17 +124,20 @@ def check_requirements() -> None:
     global gm
     global gnome_screenshot
 
-    for program, package in ((wmctrl, 'wmctrl'), (gm, 'graphicsmagick'),
-                             (gnome_screenshot, 'gnome-screenshot')):
+    for program, package in (
+        (wmctrl, "wmctrl"),
+        (gm, "graphicsmagick"),
+        (gnome_screenshot, "gnome-screenshot"),
+    ):
         if program is None:
-            print("Installing {}".format(package))
-            cmd = 'sudo apt -y install {}'.format(package)
+            print(f"Installing {package}")
+            cmd = f"sudo apt -y install {package}"
             args = shlex.split(cmd)
             subprocess.run(args)
 
-    wmctrl = shutil.which('wmctrl')
-    gm = shutil.which('gm')
-    gnome_screenshot = shutil.which('gnome-screenshot')
+    wmctrl = shutil.which("wmctrl")
+    gm = shutil.which("gm")
+    gnome_screenshot = shutil.which("gnome-screenshot")
 
 
 def get_program_name() -> str:
@@ -138,9 +149,9 @@ def get_program_name() -> str:
     :return: name in title bar of Rapid Photo Downloader
     """
 
-    cmd = '{wmctrl} -l'.format(wmctrl=wmctrl)
+    cmd = f"{wmctrl} -l"
     args = shlex.split(cmd)
-    result = subprocess.run(args, stdout=subprocess.PIPE, universal_newlines=True)
+    result = subprocess.run(args, stdout=subprocess.PIPE, text=True)
     if result.returncode == 0:
         window_list = result.stdout
     else:
@@ -151,10 +162,10 @@ def get_program_name() -> str:
         return "Rapid Photo Downloader"
 
     names = (
-        'Rapid foto allalaadija',
-        'Gyors Fotó Letöltő',
-        '高速写真ダウンローダ',
-        'Rapid-Fotoübertragung',
+        "Rapid foto allalaadija",
+        "Gyors Fotó Letöltő",
+        "高速写真ダウンローダ",
+        "Rapid-Fotoübertragung",
     )
 
     for title in names:
@@ -176,26 +187,38 @@ def get_window_details(window_title: str) -> tuple[int, int, int, int]:
     :return: x, y, width, height
     """
 
-    cmd = '{wmctrl} -l -G'.format(wmctrl=wmctrl)
+    cmd = f"{wmctrl} -l -G"
     args = shlex.split(cmd)
-    result = subprocess.run(args, stdout=subprocess.PIPE, universal_newlines=True)
+    result = subprocess.run(args, stdout=subprocess.PIPE, text=True)
     if result.returncode == 0:
         window_list = result.stdout
     else:
         print("Could not get window list")
         sys.exit(1)
 
-    pattern = r"^0x[\da-f]+\s+\d\s+(?P<x>\d+)\s+(?P<y>\d+)\s+(?P<width>\d+)\s+(?P<height>\d+)\s+[\w]+\s+{}$"
-    match = re.search(pattern.format(window_title), window_list, re.MULTILINE, )
+    pattern = (
+        r"^0x[\da-f]+\s+\d\s+(?P<x>\d+)\s+(?P<y>\d+)\s+"
+        r"(?P<width>\d+)\s+(?P<height>\d+)\s+[\w]+\s+{}$"
+    )
+    match = re.search(
+        pattern.format(window_title),
+        window_list,
+        re.MULTILINE,
+    )
     if match is None:
         print("Could not get window details")
         sys.exit(1)
 
-    return int(match.group('x')), int(match.group('y')), int(match.group('width')), int(match.group('height'))
+    return (
+        int(match.group("x")),
+        int(match.group("y")),
+        int(match.group("width")),
+        int(match.group("height")),
+    )
 
 
 def extract_image(image: str, width: int, height: int) -> QImage:
-    """"
+    """ "
     Get the program window from the screenshot by detecting its borders
     and knowing its size ahead of time
     """
@@ -214,7 +237,7 @@ def extract_image(image: str, width: int, height: int) -> QImage:
             break
 
     if left < 0:
-        sys.stderr.write('Could not locate left window border\n')
+        sys.stderr.write("Could not locate left window border\n")
         sys.exit(1)
 
     x = qimage.width() // 2
@@ -226,7 +249,7 @@ def extract_image(image: str, width: int, height: int) -> QImage:
             break
 
     if top < 0:
-        sys.stderr.write('Could not locate top window border\n')
+        sys.stderr.write("Could not locate top window border\n")
         sys.exit(1)
 
     return qimage.copy(QRect(left, top, width, height))
@@ -247,7 +270,7 @@ def add_border(image: str) -> QImage:
     pen.setWidth(1)
     pen.setStyle(Qt.SolidLine)
     pen.setJoinStyle(Qt.MiterJoin)
-    rect = QRect(0, 0, qimage.width()-1, qimage.height()-1)
+    rect = QRect(0, 0, qimage.width() - 1, qimage.height() - 1)
     painter.setPen(pen)
     painter.drawRect(rect)
     painter.end()
@@ -284,7 +307,7 @@ def add_transparency(qimage: QImage) -> QImage:
     return qimage
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     icecream.install()
 
     check_requirements()
@@ -292,24 +315,25 @@ if __name__ == '__main__':
     parser = parser_options()
     parserargs = parser.parse_args()
 
-    app = QGuiApplication(sys.argv + ['-platform',  'offscreen'])
+    app = QGuiApplication(sys.argv + ["-platform", "offscreen"])
 
-    filename = "{}.png".format(parserargs.file)
+    filename = f"{parserargs.file}.png"
 
     image = os.path.join(pictures_directory, filename)
     window_title = parserargs.name
 
-    if not window_title:
-        program_name = get_program_name()
-    else:
-        program_name = window_title
+    program_name = window_title or get_program_name()
 
     if parserargs.home is not None or parserargs.features is not None:
-
         window_x, window_y, width, height = get_window_details(program_name)
         ic(window_x, window_y, width, height)
 
-        restore_x, restore_y, restore_width, restore_height = window_x, window_y, width, height
+        restore_x, restore_y, restore_width, restore_height = (
+            window_x,
+            window_y,
+            width,
+            height,
+        )
 
         if parserargs.home:
             height = int(width / home_page_ratio)
@@ -334,35 +358,42 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if not parserargs.screenshot:
-
         resize_command = "{program} -r '{program_name}' -e 0,{x},{y},{width},{height}"
 
         # Adjust width and height allowing for 1px border round outside of window
         resize = resize_command.format(
-            x=window_x + 1, y=window_y + 1,
-            width=width - 2, height=height - titlebar_height - 1,
-            program=wmctrl, program_name=program_name
+            x=window_x + 1,
+            y=window_y + 1,
+            width=width - 2,
+            height=height - titlebar_height - 1,
+            program=wmctrl,
+            program_name=program_name,
         )
 
         ic(resize)
 
         restore = resize_command.format(
-            x=restore_x - 15, y=restore_y - titlebar_height * 2 - 1,
-            width=restore_width, height=restore_height,
-            program=wmctrl, program_name=program_name
+            x=restore_x - 15,
+            y=restore_y - titlebar_height * 2 - 1,
+            width=restore_width,
+            height=restore_height,
+            program=wmctrl,
+            program_name=program_name,
         )
 
-        capture = "{program} import -window root -crop {width}x{height}+{x}+{y} -quality 90 " \
-                  "{file}".format(
-            x=window_x, y=window_y, width=width,
-            height=height, file=image,
-            program=gm
+        capture = (
+            "{program} import -window root -crop {width}x{height}+{x}+{y} -quality 90 "
+            "{file}".format(
+                x=window_x,
+                y=window_y,
+                width=width,
+                height=height,
+                file=image,
+                program=gm,
+            )
         )
 
-        remove_offset = "{program} convert +page {file} {file}".format(
-            file=image, program=gm
-
-        )
+        remove_offset = f"{gm} convert +page {image} {image}"
 
         if restore_height:
             cmds = (resize, capture, remove_offset, restore)
@@ -379,12 +410,11 @@ if __name__ == '__main__':
         qimage = add_border(image)
 
     else:
-
         screenshot = glob.glob(os.path.join(pictures_directory, "Screenshot*.png"))
         if len(screenshot) == 1:
             os.rename(screenshot[0], image)
         else:
-            cmd = "{program} -a -f {path}".format(program=gnome_screenshot, path=image)
+            cmd = f"{gnome_screenshot} -a -f {image}"
             args = shlex.split(cmd)
             if subprocess.run(args).returncode != 0:
                 print("Failed to capture screenshot")
@@ -394,7 +424,7 @@ if __name__ == '__main__':
 
     qimage = add_transparency(qimage)
     qimage.save(image)
-    
-    cmd = '/usr/bin/eog {}'.format(image)
+
+    cmd = f"/usr/bin/eog {image}"
     args = shlex.split(cmd)
     subprocess.run(args)

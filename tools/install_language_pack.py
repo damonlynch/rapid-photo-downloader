@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2020 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2020-2024 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -25,12 +25,12 @@ language packs needed to test Rapid Photo Downloader translations
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2020, Damon Lynch"
+__copyright__ = "Copyright 2020-2024, Damon Lynch"
 __title__ = __file__
 __description__ = 'Install language packs for Rapid Photo Downloader testing.'
 
-import os
 import glob
+import os
 
 import apt
 
@@ -83,8 +83,8 @@ for pofile in glob.iglob(os.path.join(po_dir, '*.po')):
     elif lang in whitelist:
         lp = lang_pack_convert.get(lang, lang)
         if lp:
-            for l in lp.split():
-                package = 'language-pack-{}'.format(l)
+            for i in lp.split():
+                package = f'language-pack-{i}'
                 if package in apt_cache:
                     install_lang_pack.append(package)
                 else:
@@ -92,7 +92,7 @@ for pofile in glob.iglob(os.path.join(po_dir, '*.po')):
 
         h = hunspell_convert.get(lang, lang)
         if h:
-            package = 'hunspell-{}'.format(h)
+            package = f'hunspell-{h}'
             if package in apt_cache:
                 install_hunspell.append(package)
             else:
@@ -111,5 +111,5 @@ elif wrong_package_name:
 else:
     print('#!/bin/sh')
     for package_list in (language_packs, hunspell_packs):
-        command = 'sudo apt -y install {}'.format(package_list)
+        command = f'sudo apt -y install {package_list}'
         print(command)

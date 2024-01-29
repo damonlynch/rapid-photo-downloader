@@ -19,7 +19,8 @@
 # see <http://www.gnu.org/licenses/>.
 
 """
-Capture screenshots of Rapid Photo Downloader when running Wayland, assuming XWayland is displaying the program.
+Capture screenshots of Rapid Photo Downloader when running Wayland, assuming
+XWayland is displaying the program.
 """
 
 __author__ = "Damon Lynch"
@@ -27,17 +28,16 @@ __copyright__ = "Copyright 2020-24, Damon Lynch"
 __title__ = __file__
 __description__ = "Capture screenshots of Rapid Photo Downloader when running Wayland."
 
-from pathlib import Path
-import subprocess
-import shutil
-import sys
-import shlex
 import re
-
-from PyQt6.QtGui import QImage, QGuiApplication
-from PyQt6.QtCore import QStandardPaths
+import shlex
+import shutil
+import subprocess
+import sys
+from pathlib import Path
 
 import icecream
+from PyQt6.QtCore import QStandardPaths
+from PyQt6.QtGui import QGuiApplication, QImage
 
 apply_offset = True
 
@@ -79,8 +79,8 @@ def check_requirements() -> None:
         (gnome_screenshot, "gnome-screenshot"),
     ):
         if program is None:
-            print("Installing {}".format(package))
-            cmd = "sudo apt -y install {}".format(package)
+            print(f"Installing {package}")
+            cmd = f"sudo apt -y install {package}"
             args = shlex.split(cmd)
             subprocess.run(args)
 
@@ -117,16 +117,19 @@ def get_window_details() -> tuple[int, int, int, int]:
     :return: x, y, width, height
     """
 
-    cmd = "{wmctrl} -l -G".format(wmctrl=wmctrl)
+    cmd = f"{wmctrl} -l -G"
     args = shlex.split(cmd)
-    result = subprocess.run(args, stdout=subprocess.PIPE, universal_newlines=True)
+    result = subprocess.run(args, stdout=subprocess.PIPE, text=True)
     if result.returncode == 0:
         window_list = result.stdout
     else:
         print("Could not get window list")
         sys.exit(1)
 
-    pattern = r"^0x[\da-f]+\s+\d\s+(?P<x>\d+)\s+(?P<y>\d+)\s+(?P<width>\d+)\s+(?P<height>\d+)\s+[\w]+\s+{}$"
+    pattern = (
+        r"^0x[\da-f]+\s+\d\s+(?P<x>\d+)\s+(?P<y>\d+)\s+"
+        r"(?P<width>\d+)\s+(?P<height>\d+)\s+[\w]+\s+{}$"
+    )
 
     for window_title in window_titles:
         match = re.search(

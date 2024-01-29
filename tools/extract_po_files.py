@@ -165,7 +165,6 @@ def get_latest_release_date():
                 # print(t.lp_attributes)
                 # print(t.lp_entries)
                 if str(t).find("tar.gz") >= 0:
-
                     t_name = str(t)
                     # t: e.g. https://api.edge.launchpad.net/beta/rapid/0.1.0/0.0.8beta2/+file/rapid-photo-downloader-0.0.8~b2.tar.gz
                     # want: <a href="http://launchpad.net/rapid/0.1.0/0.0.8beta2/+download/rapid-photo-downloader-0.0.8~b2.tar.gz">
@@ -339,9 +338,7 @@ else:
                         )
                         updated_langs.append(lang_english)
                     else:
-                        print(
-                            f"{lang_english:21}: updating local copy from launchpad"
-                        )
+                        print(f"{lang_english:21}: updating local copy from launchpad")
                     if not dry_run:
                         backupfile = os.path.join(po_backup_dir, "%s.po" % lang)
                         if os.path.exists(backupfile):
