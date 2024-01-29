@@ -24,9 +24,10 @@ free under their [open source developer program](https://www.jetbrains.com/commu
 
 ## Removal of the Install Script
 
-I cannot maintain the `install.py` script due to my hand injury (see above)
-&mdash; testing the script in the variety of Linux distributions it supports
-requires a lot of typing. The script is therefore removed.
+Due to my hand injury (see above), I cannot maintain a custom `install.py` 
+script that I used to provide &mdash; testing the script in the variety of 
+Linux distributions it supports requires a lot of typing. The script is 
+therefore removed.
 
 
 ## User Survey 
@@ -91,19 +92,16 @@ Get support at the [Pixls.us discussion forum](https://discuss.pixls.us/).
 
 ## Installation
 
-An `install.py` script has been available for the past six years to install 
-the latest version of the program. As discussed above, unfortunately I can no 
-longer maintain this script.
+Install the program using your Linux distribution's standard tools,
+e.g., apt, dnf, or zypper.
 
-The script is therefore depreciated and I do not recommend its use on 
-anything but old Linux distributions.
+The program is currently not available as a Snap or flatpak because to
+interact with cameras it requires being able to break out of the 
+confinement Snap and flatpak enforce. This may change in future if 
+there are workarounds for this confinement.
 
-Instead of using the depreciated `install.py` script, I recommend installing 
-the program using your Linux distribution's standard repositories.
-
-To consult the legacy instructions for using the depreciated `install.py` 
-script, see the 
-[documentation at the program's website](https://damonlynch.net/rapid/documentation/#installation).
+Advanced users may install the program using pip. Please note doing so
+requires satisfying dependencies that cannot be satisfied with pip alone.
 
 ### Software Requirements
 

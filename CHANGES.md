@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.35 (2024-01-xx)
+0.9.35 (2024-01-30)
 -------------------
 
  - Remove `install.py` script, built-in updater and new version check.

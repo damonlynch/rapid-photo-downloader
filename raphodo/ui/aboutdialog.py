@@ -204,7 +204,6 @@ class AboutDialog(QDialog):
         Ilya Tsimokhin <ilya@tsimokhin.com>
 
         <b>Brazilian Portuguese</b>
-        Ney Walens de Mesquita <walens@gmail.com>
         Rubens Stuginski Jr <rubens.stuginski@gmail.com>
 
         <b>Catalan</b>
@@ -232,8 +231,7 @@ class AboutDialog(QDialog):
         Dimitris Xenakis <dx@nkdx.gr>
 
         <b>Hungarian</b>
-        László <csola48@gmail.com>
-        András Lőrincz <level.andrasnak@gmail.com>
+        László <mail@csordaslaszlo.hu>
 
         <b>Italian</b>
         Albano Battistella <albano_battistella@hotmail.com>
@@ -288,6 +286,7 @@ class AboutDialog(QDialog):
         Sergiy Gavrylov <sergiovana@bigmir.net>
         Emanuele Grande <caccolangrifata@gmail.com>
         Toni Lähdekorpi <toni@lygon.net>
+        András Lőrincz <level.andrasnak@gmail.com>
         Miroslav Matejaš <silverspace@ubuntu-hr.org>
         Erik M
         Frederik Müller <spheniscus@freenet.de>
@@ -304,6 +303,7 @@ class AboutDialog(QDialog):
         Marco Solari <marcosolari@gmail.com>
         Ulf Urdén <ulf.urden@purplescout.com>
         Julien Valroff <julien@kirya.net>
+        Ney Walens de Mesquita <walens@gmail.com>        
         Aron Xu <happyaron.xu@gmail.com>
         Nicolás M. Zahlut <nzahlut@live.com>
         梁其学 <yalongbay@gmail.com>
