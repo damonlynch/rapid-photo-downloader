@@ -511,7 +511,6 @@ def standardProgressBarWidth() -> int:
     return int(QFontMetrics(QFont()).height() * 20)
 
 
-# Sync with value in install.py
 class Distro(Enum):
     debian = auto()
     ubuntu = auto()

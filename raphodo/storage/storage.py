@@ -136,10 +136,6 @@ def guess_distro() -> Distro:
 
 
 def parse_os_release() -> dict[str, str]:
-    """
-    Sync with code in install.py
-    """
-
     d = {}
     if os.path.isfile("/etc/os-release"):
         with open("/etc/os-release") as f:
@@ -150,9 +146,6 @@ def parse_os_release() -> dict[str, str]:
                     v = v.strip("'\"")
                     d[k] = v
     return d
-
-
-# Keep up to date with parse_distro_details() with code in install.py
 
 
 def get_distro() -> Distro:

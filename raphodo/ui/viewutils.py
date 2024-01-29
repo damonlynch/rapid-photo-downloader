@@ -23,7 +23,7 @@ import functools
 import sys
 from collections import namedtuple
 
-from pkg_resources import parse_version
+from packaging.version import parse
 from PyQt5.QtCore import (
     QT_VERSION_STR,
     QAbstractItemModel,
@@ -80,7 +80,7 @@ from PyQt5.QtWidgets import (
 import raphodo.xsettings as xsettings
 from raphodo.constants import HeaderBackgroundName, ScalingDetected
 
-QT5_VERSION = parse_version(QT_VERSION_STR)
+QT5_VERSION = parse(QT_VERSION_STR)
 
 
 class RowTracker:
@@ -777,7 +777,7 @@ def qt5_screen_scale_environment_variable() -> str:
     :return: correct variable
     """
 
-    if parse_version("5.14.0") > QT5_VERSION:
+    if parse("5.14.0") > QT5_VERSION:
         return "QT_AUTO_SCREEN_SCALE_FACTOR"
     else:
         return "QT_ENABLE_HIGHDPI_SCALING"

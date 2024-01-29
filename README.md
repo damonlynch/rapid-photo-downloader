@@ -22,12 +22,11 @@ remains limited, at least I can write it.
 I want to thank JetBrains for allowing me to use PyCharm Professional For 
 free under their [open source developer program](https://www.jetbrains.com/community/opensource/#support). 
 
-## Depreciation of the Install Script
+## Removal of the Install Script
 
 I cannot maintain the `install.py` script due to my hand injury (see above)
 &mdash; testing the script in the variety of Linux distributions it supports
-requires a lot of typing. The script is therefore depreciated and I do not 
-recommend its use, especially on recent Linux distributions.
+requires a lot of typing. The script is therefore removed.
 
 
 ## User Survey 

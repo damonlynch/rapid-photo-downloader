@@ -60,7 +60,7 @@ from typing import Any
 
 import dateutil
 import gi
-from packaging.version import parse as parse_version
+from packaging.version import parse
 
 gi.require_version("Notify", "0.7")
 from gi.repository import Notify
@@ -305,7 +305,6 @@ from raphodo.utilities import (
     format_size_for_user,
     getQtSystemTranslation,
     installed_using_pip,
-    is_snap,
     log_os_release,
     make_html_path_non_breaking,
     make_internationalized_list,
@@ -449,9 +448,6 @@ class RapidWindow(QMainWindow):
 
         if disable_version_check:
             logging.debug("Version checking disabled via code")
-
-        if is_snap():
-            logging.debug("Version checking disabled because running in a snap")
 
         if EXIFTOOL_VERSION is None:
             logging.error("ExifTool is either missing or has a problem")
@@ -641,8 +637,8 @@ class RapidWindow(QMainWindow):
             if not len(previous_version):
                 logging.debug("Initial program run detected")
             else:
-                pv = parse_version(previous_version)
-                rv = parse_version(__about__.__version__)
+                pv = parse(previous_version)
+                rv = parse(__about__.__version__)
                 if pv < rv:
                     logging.info(
                         "Version upgrade detected, from %s to %s",
@@ -656,11 +652,11 @@ class RapidWindow(QMainWindow):
                         previous_version,
                         __about__.__version__,
                     )
-                if pv < parse_version("0.9.7b1"):
+                if pv < parse("0.9.7b1"):
                     # Remove any duplicate subfolder generation or file renaming custom
                     # presets
                     self.prefs.filter_duplicate_generation_prefs()
-                if pv < parse_version("0.9.29a1"):
+                if pv < parse("0.9.29a1"):
                     # clear window and panel size, so they can be regenerated
                     logging.debug(
                         "Resetting window size, and left and central splitter sizes"
@@ -6574,7 +6570,6 @@ def get_versions(
         f"Rapid Photo Downloader: {__about__.__version__}",
         f"Platform: {platform.platform()}",
         f"Memory: {used} used of {total}",
-        "Confinement: {}".format("snap" if is_snap() else "none"),
         "Installed using pip: {}".format("yes" if rpd_pip_install else "no"),
         f"Python: {platform.python_version()}",
         f"Python executable: {sys.executable}",
@@ -7179,7 +7174,7 @@ def main():
                 "set: {}".format(", ".join(scaling_variables))
             )
             scaling_action = ScalingAction.turned_on
-            if parse_version(QtCore.QT_VERSION_STR) >= parse_version("5.6.0"):
+            if parse(QtCore.QT_VERSION_STR) >= parse("5.6.0"):
                 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
             else:
                 os.environ[qt5_variable] = "1"
@@ -7197,7 +7192,7 @@ def main():
             # Enable fractional scaling support on Qt 5.14 or above
             # Doesn't seem to be working on Gnome X11, however :-/
             # Works on KDE Neon
-            if parse_version(QtCore.QT_VERSION_STR) >= parse_version("5.14.0"):
+            if parse(QtCore.QT_VERSION_STR) >= parse("5.14.0"):
                 QApplication.setHighDpiScaleFactorRoundingPolicy(
                     Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
                 )

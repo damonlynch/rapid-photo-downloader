@@ -1119,16 +1119,6 @@ def is_venv():
     )
 
 
-def is_snap() -> bool:
-    """
-    Determine if program is running in a snap environment
-    :return: True if it is False otherwise
-    """
-
-    snap_name = os.getenv("SNAP_NAME", "")
-    return snap_name.find("rapid-photo-downloader") >= 0
-
-
 def available_lang_codes() -> list[str]:
     """
     Detect translations that exist for Rapid Photo Downloader

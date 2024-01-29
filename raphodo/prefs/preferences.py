@@ -28,7 +28,7 @@ import re
 from pathlib import Path
 from typing import NamedTuple
 
-from packaging.version import parse as parse_version
+from packaging.version import Version, parse
 from PyQt5.QtCore import QSettings, Qt, QTime
 
 import raphodo.__about__
@@ -1022,15 +1022,15 @@ class Preferences:
         self.settings.clear()
         self.program_version = raphodo.__about__.__version__
 
-    def upgrade_prefs(self, previous_version) -> None:
+    def upgrade_prefs(self, previous_version: Version) -> None:
         """
         Upgrade the user's preferences if needed.
 
-        :param previous_version: previous version as returned by
-         pkg_resources.parse_version
+        :param previous_version: previous version of
+        Rapid Photo Downloader
         """
 
-        photo_video_rename_change = parse_version("0.9.0a4")
+        photo_video_rename_change = parse("0.9.0a4")
         if previous_version < photo_video_rename_change:
             for key in ("photo_rename", "video_rename"):
                 pref_list, case = upgrade_pre090a4_rename_pref(self[key])
@@ -1043,7 +1043,7 @@ class Preferences:
                     else:
                         self.video_extension = case
 
-        v090a5 = parse_version("0.9.0a5")
+        v090a5 = parse("0.9.0a5")
         if previous_version < v090a5:
             # Versions prior to 0.9.0a5 incorrectly set the conflict resolution value
             # when importing preferences from 0.4.11 or earlier
@@ -1068,7 +1068,7 @@ class Preferences:
                 logging.warning("Unknown error removing %s preference value", key)
             self.settings.endGroup()
 
-        v090b6 = parse_version("0.9.0b6")
+        v090b6 = parse("0.9.0b6")
         key = "warn_broken_or_missing_libraries"
         group = "Display"
         if previous_version < v090b6 and not self.value_is_set(key, group):
@@ -1092,7 +1092,7 @@ class Preferences:
                     "warn_broken_or_missing_libraries because it doesn't exist"
                 )
 
-        v093a1 = parse_version("0.9.3a1")
+        v093a1 = parse("0.9.3a1")
         key = "scan_specific_folders"
         group = "Device"
         if previous_version < v093a1 and not self.value_is_set(key, group):
@@ -1119,7 +1119,7 @@ class Preferences:
                     "because it doesn't exist"
                 )
 
-        v0919b2 = parse_version("0.9.19b2")
+        v0919b2 = parse("0.9.19b2")
         key = "ignored_paths"
         group = "Device"
         if previous_version < v0919b2 and self.value_is_set(key, group):
@@ -1132,7 +1132,7 @@ class Preferences:
                 logging.info("Adding folder '%s' to list of ignored paths" % value)
                 self.add_list_value(key=key, value=value)
 
-        v0927a3 = parse_version("0.9.27a3")
+        v0927a3 = parse("0.9.27a3")
         if previous_version < v0927a3 and self.value_is_set(key, group):
             # Versions prior to 0.9.27a3 did not include all the ignored paths
             # included in that version

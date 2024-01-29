@@ -4,10 +4,7 @@ Changelog for Rapid Photo Downloader
 0.9.35 (2024-01-xx)
 -------------------
 
- - Depreciate use of the `install.py` script. Using it is no longer 
-   recommended. It is no longer included in the tarball. 
-
- - Remove built-in updater and new version check.
+ - Remove `install.py` script, built-in updater and new version check.
 
  - Python 3.10 or newer is now required.
 
