@@ -245,6 +245,7 @@ from raphodo.storage.storage import (
     StorageSpace,
     UDisks2Monitor,
     ValidMounts,
+    ValidatedFolder,
     WatchDownloadDirs,
     get_desktop_environment,
     get_fdo_cache_thumb_base_directory,
@@ -2872,6 +2873,41 @@ difference to the program's future.</p>"""
             self.thisComputer.setViewVisible(True)
             self.setupManualPath()
 
+    def displayInvalidDestinationMsgBox(
+        self, validation: ValidatedFolder, file_type: FileType
+    ) -> None:
+        """
+        Display a message box to the user indicating an error
+        :param validation:  destination directory validation results
+        :param file_type: whether photo or video
+        """
+
+        file_type_hr = _("photo") if file_type == FileType.photo else _("video")
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
+        title = _("Invalid %(filetype)s download destination") % {
+            "filetype": file_type_hr
+        }
+        if validation.absolute_path:
+            details = _(
+                "Files cannot be written to the download directory. "
+                "Ensure permissions are correctly set. "
+                "If the destination is on the network, ensure the network share is "
+                "correctly configured."
+            )
+        else:
+            details = _("The download directory does not exist.")
+        message = f"<b>{title}</b><br><br>{details}"
+        msgBox = standardMessageBox(
+            message=message,
+            rich_text=True,
+            standardButtons=QMessageBox.Ok,
+            iconType=QMessageBox.Warning,
+            parent=self,
+        )
+        msgBox.exec()
+
     @pyqtSlot(QModelIndex)
     def photoDestinationPathChosen(self, index: QModelIndex) -> None:
         """
@@ -2889,7 +2925,8 @@ difference to the program's future.</p>"""
         if not self.checkChosenDownloadDestination(path, FileType.photo):
             return
 
-        if validate_download_folder(path).valid:
+        validation = validate_download_folder(path, write_on_waccesss_failure=True)
+        if validation.valid:
             if path != self.prefs.photo_download_folder:
                 self.prefs.photo_download_folder = path
                 self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
@@ -2898,6 +2935,9 @@ difference to the program's future.</p>"""
                 self.setDownloadCapabilities()
         else:
             logging.error("Invalid photo download destination chosen: %s", path)
+            self.displayInvalidDestinationMsgBox(
+                validation=validation, file_type=FileType.photo
+            )
             self.resetDownloadDestination(file_type=FileType.photo)
 
     def photoDestinationReset(self) -> None:
@@ -3006,7 +3046,8 @@ difference to the program's future.</p>"""
         if not self.checkChosenDownloadDestination(path, FileType.video):
             return
 
-        if validate_download_folder(path).valid:
+        validation = validate_download_folder(path, write_on_waccesss_failure=True)
+        if validation.valid:
             if path != self.prefs.video_download_folder:
                 self.prefs.video_download_folder = path
                 self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
@@ -3015,6 +3056,9 @@ difference to the program's future.</p>"""
                 self.setDownloadCapabilities()
         else:
             logging.error("Invalid video download destination chosen: %s", path)
+            self.displayInvalidDestinationMsgBox(
+                validation=validation, file_type=FileType.video
+            )
             self.resetDownloadDestination(file_type=FileType.video)
 
     @pyqtSlot()

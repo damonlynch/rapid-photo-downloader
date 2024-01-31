@@ -62,6 +62,7 @@ import time
 from collections import namedtuple
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import NamedTuple
 from urllib.parse import quote
 from urllib.request import pathname2url
 
@@ -788,7 +789,9 @@ def get_uri(
     return uri
 
 
-ValidatedFolder = namedtuple("ValidatedFolder", "valid, absolute_path")
+class ValidatedFolder(NamedTuple):
+    valid: bool
+    absolute_path: str
 
 
 def validate_download_folder(
@@ -813,7 +816,7 @@ def validate_download_folder(
     """
 
     if not path:
-        return ValidatedFolder(False, "")
+        return ValidatedFolder(valid=False, absolute_path="")
     absolute_path = os.path.abspath(path)
     valid = os.path.isdir(path) and os.access(path, os.W_OK)
     if not valid and write_on_waccesss_failure and os.path.isdir(path):
@@ -828,7 +831,7 @@ def validate_download_folder(
                 path,
             )
 
-    return ValidatedFolder(valid, absolute_path)
+    return ValidatedFolder(valid=valid, absolute_path=absolute_path)
 
 
 def validate_source_folder(path: str | None) -> ValidatedFolder:
@@ -849,10 +852,10 @@ def validate_source_folder(path: str | None) -> ValidatedFolder:
     """
 
     if not path:
-        return ValidatedFolder(False, "")
+        return ValidatedFolder(valid=False, absolute_path="")
     absolute_path = os.path.abspath(path)
     valid = os.path.isdir(path) and os.access(path, os.R_OK)
-    return ValidatedFolder(valid, absolute_path)
+    return ValidatedFolder(valid=valid, absolute_path=absolute_path)
 
 
 def udev_attributes(devname: str) -> UdevAttr | None:

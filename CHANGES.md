@@ -1,6 +1,12 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.36 (2024-02-xx)
+-------------------
+
+ - Fix bug [#121](https://github.com/damonlynch/rapid-photo-downloader/issues/121):
+   No feedback provided when invalid destination chosen in download panel.
+
 0.9.35 (2024-01-30)
 -------------------
 
