@@ -51,9 +51,24 @@ class FlatButton:
         button: QPushButton,
         darker_if_checked: bool = True,
         padding: str = "",
-        color: QColor = None,
-        text_color: QColor = None,
+        color: QColor | None = None,
+        checkedHoverColor: QColor | None = None,
+        text_color: QColor | None = None,
     ) -> None:
+        """
+        Apply styling to top left device(s) button, as well as left and
+        right panel buttons.
+
+        :param button: QPushButton to apply styling to
+        :param darker_if_checked: True if appearance darkens when the button
+         is checked
+        :param padding: padding around the button
+        :param color: button color
+        :param checkedHoverColor: color to apply when the button is both checked
+         and on hover
+        :param text_color: button text color
+        """
+
         if color is None:
             color = QPalette().color(QPalette.Window)
         default_color = color.name(QColor.HexRgb)
@@ -96,6 +111,13 @@ class FlatButton:
             border-style: inset; 
         }}
         """
+        if checkedHoverColor is not None:
+            stylesheet = f"""
+            {stylesheet}
+            QPushButton:checked:hover {{
+                background-color: {checkedHoverColor.name(QColor.HexRgb)};
+            }}
+            """
 
         button.setStyleSheet(stylesheet)
 
@@ -104,7 +126,11 @@ class FlatButton:
         color = palette.color(palette.Highlight)
         text_color = palette.color(palette.HighlightedText)
         self.setFlatStyle(
-            button, color=color, text_color=text_color, darker_if_checked=False
+            button,
+            color=color,
+            text_color=text_color,
+            darker_if_checked=False,
+            checkedHoverColor=color.darker(106),
         )
 
 
