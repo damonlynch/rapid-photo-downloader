@@ -1958,7 +1958,7 @@ difference to the program's future.</p>"""
         leftBar = QVBoxLayout()
         leftBar.setContentsMargins(0, 0, 0, 0)
 
-        self.proximityButton = RotatedButton(_("Timeline"), RotatedButton.leftSide)
+        self.proximityButton = RotatedButton(_("Timeline"), RotatedButton.left_side)
         self.proximityButton.clicked.connect(self.proximityButtonClicked)
         leftBar.addWidget(self.proximityButton, 1)
         leftBar.addStretch(100)
@@ -1966,11 +1966,11 @@ difference to the program's future.</p>"""
 
     def createRightButtons(self) -> None:
         self.destinationButton = RotatedButton(
-            _("Destination"), RotatedButton.rightSide
+            _("Destination"), RotatedButton.right_side
         )
-        self.renameButton = RotatedButton(_("Rename"), RotatedButton.rightSide)
-        self.jobcodeButton = RotatedButton(_("Job Code"), RotatedButton.rightSide)
-        self.backupButton = RotatedButton(_("Back Up"), RotatedButton.rightSide)
+        self.renameButton = RotatedButton(_("Rename"), RotatedButton.right_side)
+        self.jobcodeButton = RotatedButton(_("Job Code"), RotatedButton.right_side)
+        self.backupButton = RotatedButton(_("Back Up"), RotatedButton.right_side)
 
         self.destinationButton.clicked.connect(self.destinationButtonClicked)
         self.renameButton.clicked.connect(self.renameButtonClicked)

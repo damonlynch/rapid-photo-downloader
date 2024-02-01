@@ -109,41 +109,29 @@ class FlatButton:
 
 
 class RotatedButton(QPushButton, FlatButton):
-    leftSide = 270.0
-    rightSide = 90.0
+    left_side = 270.0
+    right_side = 90.0
 
     def __init__(
         self,
         text: str,
         rotation: float,
-        flat: bool = True,
-        use_highlight_color=False,
-        checkable: bool = True,
         parent=None,
     ) -> None:
         """
         A push button to show in the left or right side of a window
         :param text: text to display
         :param rotation: whether on the left or right side of the window
-        :param flat: if True, set style to flat style
-        :param use_highlight_color: if True, the button's color should be the palette's
-         color for highlighting selected items. Takes effect only when using a flat is
-         also True.
-        :param checkable: if the button is checkable or not
         :param parent: optional parent widget
         """
 
         super().__init__(text, parent)
         self.buttonRotation = rotation
-        if flat:
-            # Use only the stylesheet to give the appearance of being flat.
-            # Don't mix and match stylesheet and non-stylesheet options for widgets.
-            # http://stackoverflow.com/questions/34654545/qt-flat-qpushbutton-background-color-doesnt-work
-            if use_highlight_color:
-                self.setHighlightedFlatStyle(self)
-            else:
-                self.setFlatStyle(self)
-        self.setCheckable(checkable)
+        # Use only the stylesheet to give the appearance of being flat.
+        # Don't mix and match stylesheet and non-stylesheet options for widgets.
+        # http://stackoverflow.com/questions/34654545/qt-flat-qpushbutton-background-color-doesnt-work
+        self.setFlatStyle(self)
+        self.setCheckable(True)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
 
     def paintEvent(self, event):
