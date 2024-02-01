@@ -184,6 +184,12 @@ class RotatedButton(QPushButton, FlatButton):
         return options
 
     def setHighlighted(self, highlighted: bool) -> None:
+        """
+        Change the button appearance to highlight the button using
+        the theme's highlight color
+        :param highlighted: if True the button will be highlighted
+        """
+
         if highlighted:
             self.setHighlightedFlatStyle(self)
         else:
