@@ -4,6 +4,8 @@ Changelog for Rapid Photo Downloader
 0.9.36 (2024-02-xx)
 -------------------
 
+ - Highlight Timeline cell when the mouse is hovering over it.
+
  - Fix bug [#121](https://github.com/damonlynch/rapid-photo-downloader/issues/121):
    No feedback provided when invalid destination chosen in download panel.
 

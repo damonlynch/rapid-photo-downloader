@@ -641,6 +641,8 @@ class ProximityDisplayValues:
     def assign_color(self, dominant_file_type: FileType) -> None:
         self.tableColor = fileTypeColor(dominant_file_type)
         self.tableColorDarker = self.tableColor.darker(110)
+        self.tableColorMouseover = self.tableColor.lighter(115)
+        self.tableColorMouseoverDarker = self.tableColorMouseover.darker(112)
 
 
 class MetaUid:
@@ -1392,7 +1394,8 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
         self.darkGray = QColor(DarkGray)
         self.darkerGray = self.darkGray.darker(140)
-        # self.darkerGray = QColor(DoubleDarkGray)
+        self.darkGrayMouseover = self.darkGray.lighter(120)
+        self.darkerGrayMouseover = self.darkerGray.lighter(120)
         self.midGray = QColor(MediumGray)
 
         # column 2 cell color is assigned in ProximityDisplayValues
@@ -1400,6 +1403,9 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         palette = QGuiApplication.instance().palette()
         self.highlight = palette.highlight().color()
         self.darkerHighlight = self.highlight.darker(110)
+        self.highlightMouseover = self.highlight.lighter(120)
+        self.darkerHighlightMouseover = self.darkerHighlight.lighter(120)
+
         self.highlightText = palette.highlightedText().color()
 
         self.newFileColor = QColor(CustomColors.color7.value)
@@ -1419,13 +1425,22 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 painter.save()
 
                 if option.state & QStyle.State_Selected:
-                    color = self.highlight
+                    if option.state & QStyle.State_MouseOver:
+                        color = self.highlightMouseover
+                        barColor = self.darkerHighlightMouseover
+                    else:
+                        color = self.highlight
+                        barColor = self.darkerHighlight
                     textColor = self.highlightText
-                    barColor = self.darkerHighlight
                 else:
-                    color = self.darkGray
+                    if option.state & QStyle.State_MouseOver:
+                        color = self.darkGrayMouseover
+                        barColor = self.darkerGrayMouseover
+                    else:
+                        color = self.darkGray
+                        barColor = self.darkerGray
                     textColor = self.dv.tableColor
-                    barColor = self.darkerGray
+
                 painter.fillRect(optionRectF, color)
                 painter.setPen(textColor)
 
@@ -1460,15 +1475,23 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 painter.save()
 
                 if option.state & QStyle.State_Selected:
-                    color = self.highlight
+                    if option.state & QStyle.State_MouseOver:
+                        color = self.highlightMouseover
+                        barColor = self.darkerHighlightMouseover
+                    else:
+                        color = self.highlight
+                        barColor = self.darkerHighlight
                     weekdayColor = self.highlightText
                     dayColor = self.highlightText
-                    barColor = self.darkerHighlight
                 else:
-                    color = self.darkGray
+                    if option.state & QStyle.State_MouseOver:
+                        color = self.darkGrayMouseover
+                        barColor = self.darkerGrayMouseover
+                    else:
+                        color = self.darkGray
+                        barColor = self.darkerGray
                     weekdayColor = QColor(221, 221, 221)
                     dayColor = QColor(Qt.white)
-                    barColor = self.darkerGray
 
                 painter.fillRect(optionRectF, color)
                 weekday, day = index.data()
@@ -1514,11 +1537,17 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                     color = self.darkGray
                     textColor = QColor(Qt.white)
                 elif option.state & QStyle.State_Selected:
-                    color = self.highlight
+                    if option.state & QStyle.State_MouseOver:
+                        color = self.highlightMouseover
+                    else:
+                        color = self.highlight
                     # TODO take into account dark themes
                     textColor = self.highlightText if new_file else self.darkGray
                 else:
-                    color = self.dv.tableColor
+                    if option.state & QStyle.State_MouseOver:
+                        color = self.dv.tableColorMouseover
+                    else:
+                        color = self.dv.tableColor
                     textColor = QColor(Qt.white) if new_file else self.darkGray
 
                 painter.fillRect(optionRectF, color)
@@ -1602,9 +1631,15 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
                 if row in self.dv.c2_end_of_day:
                     if option.state & QStyle.State_Selected:
-                        painter.setPen(self.darkerHighlight)
+                        if option.state & QStyle.State_MouseOver:
+                            painter.setPen(self.darkerHighlightMouseover)
+                        else:
+                            painter.setPen(self.darkerHighlight)
                     else:
-                        painter.setPen(self.dv.tableColorDarker)
+                        if option.state & QStyle.State_MouseOver:
+                            painter.setPen(self.dv.tableColorMouseoverDarker)
+                        else:
+                            painter.setPen(self.dv.tableColorDarker)
                     painter.translate(optionRectF.x(), optionRectF.y())
                     painter.drawLine(
                         QLineF(
@@ -1640,6 +1675,7 @@ class TemporalProximityView(QTableView):
         self.setShowGrid(False)
         self.setFrameShape(QFrame.NoFrame)
         self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        self.viewport().setAttribute(Qt.WA_Hover)  # Enable mouse over tracking
 
     def contentHeight(self) -> int:
         return self.verticalHeader().length()
