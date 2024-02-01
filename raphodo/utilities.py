@@ -44,7 +44,7 @@ from pathlib import Path
 import arrow
 import babel
 import psutil
-from packaging.version import parse as parse_version
+from packaging.version import parse
 from PyQt5.QtCore import QLibraryInfo, QSize, QStandardPaths, QTranslator
 
 import raphodo.__about__ as __about__
@@ -55,12 +55,12 @@ from raphodo import i18n_domain, localedir
 # deprecating using replace() to do the work of the new shift()
 # Arrow 0.14.5 removed the deprecated shift functionality from the replace()
 try:
-    arrow_version = parse_version(arrow.__version__)
+    arrow_version = parse(arrow.__version__)
 except AttributeError:
     arrow_version = None
 
 if arrow_version is not None:
-    arrow_shift_support = arrow_version >= parse_version("0.9.0")
+    arrow_shift_support = arrow_version >= parse("0.9.0")
 else:
     try:
         now = arrow.now()
@@ -71,7 +71,7 @@ else:
 
 
 # Suppress parsing warnings for 0.14.3 <= Arrow version < 0.15
-if arrow_version >= parse_version("0.14.3") and arrow_version < parse_version("0.15.0"):
+if arrow_version >= parse("0.14.3") and arrow_version < parse("0.15.0"):
     from arrow.factory import ArrowParseWarning
 
     warnings.simplefilter("ignore", ArrowParseWarning)
@@ -969,7 +969,7 @@ def create_bugreport_tar(
 
 def current_version_is_dev_version(current_version=None) -> bool:
     if current_version is None:
-        current_version = parse_version(__about__.__version__)
+        current_version = parse(__about__.__version__)
     return current_version.is_prerelease
 
 
