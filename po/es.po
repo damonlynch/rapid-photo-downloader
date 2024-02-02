@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2024-02-01 11:02+1300\n"
+"POT-Creation-Date: 2024-02-03 07:38+1300\n"
 "PO-Revision-Date: 2024-01-27 19:18+0000\n"
 "Last-Translator: Jose Luis Tirado <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -3308,7 +3308,7 @@ msgstr "%(starttime)s - %(endtime)s"
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
 #: ../raphodo/proximity.py:293 ../raphodo/proximity.py:299
-#: ../raphodo/proximity.py:1118 ../raphodo/timeutils.py:110
+#: ../raphodo/proximity.py:1120 ../raphodo/timeutils.py:110
 #, python-format
 msgid "%(month)s %(numeric_day)s"
 msgstr "%(month)s %(numeric_day)s"
@@ -3326,7 +3326,7 @@ msgstr "%(month)s %(numeric_day)s"
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
 #: ../raphodo/proximity.py:308 ../raphodo/proximity.py:312
-#: ../raphodo/proximity.py:1125 ../raphodo/timeutils.py:118
+#: ../raphodo/proximity.py:1127 ../raphodo/timeutils.py:118
 #, python-format
 msgid "%(date)s %(year)s"
 msgstr "%(date)s %(year)s"
@@ -3368,12 +3368,12 @@ msgstr "%(month)s  %(year)s"
 #. Translators: %(variable)s represents Python code, not a plural of the term
 #. variable. You must keep the %(variable)s untranslated, or the program will
 #. crash.
-#: ../raphodo/proximity.py:1130
+#: ../raphodo/proximity.py:1132
 #, python-format
 msgid "%(month)s %(year)s"
 msgstr "%(month)s %(year)s"
 
-#: ../raphodo/proximity.py:1899
+#: ../raphodo/proximity.py:1935
 msgid ""
 "The time elapsed between consecutive photos and videos that is used to build "
 "the Timeline"
@@ -3385,14 +3385,14 @@ msgstr ""
 #. Replace the very last character (after the d) with the correct
 #. localized value, keeping everything else. In other words, change
 #. only the m character.
-#: ../raphodo/proximity.py:1956
+#: ../raphodo/proximity.py:1992
 #, python-format
 msgid "%(minutes)dm"
 msgstr "%(minutes)dm"
 
 #. Translators: i.e. "1.5h", which is short for 1.5 hours.
 #. Replace the entire string with the correct localized value
-#: ../raphodo/proximity.py:1960
+#: ../raphodo/proximity.py:1996
 msgid "1.5h"
 msgstr "1.5h"
 
@@ -3400,12 +3400,12 @@ msgstr "1.5h"
 #. Replace the very last character (after the d) with the correct localized
 #. value, keeping everything else. In other words, change only the h
 #. character.
-#: ../raphodo/proximity.py:1966
+#: ../raphodo/proximity.py:2002
 #, python-format
 msgid "%(hours)dh"
 msgstr "%(hours)dh"
 
-#: ../raphodo/proximity.py:2105
+#: ../raphodo/proximity.py:2141
 msgid ""
 "The Timeline groups photos and videos based on how much time elapsed between "
 "consecutive shots. Use it to identify photos and videos taken at different "
@@ -3415,7 +3415,7 @@ msgstr ""
 "entre disparos consecutivos. Úselo para identificar fotos y vídeos tomados "
 "en diferentes períodos en un solo día o en varios días consecutivos."
 
-#: ../raphodo/proximity.py:2110
+#: ../raphodo/proximity.py:2146
 msgid ""
 "Use the slider (below) to adjust the time elapsed between consecutive shots "
 "that is used to build the Timeline."
@@ -3423,15 +3423,15 @@ msgstr ""
 "Use el deslizador (abajo) para ajustar el tiempo transcurrido entre disparos "
 "consecutivos que se usa para construir la línea de tiempo."
 
-#: ../raphodo/proximity.py:2113
+#: ../raphodo/proximity.py:2149
 msgid "Timeline build pending..."
 msgstr "Construcción de línea de tiempo pendiente..."
 
-#: ../raphodo/proximity.py:2114
+#: ../raphodo/proximity.py:2150
 msgid "Timeline is building..."
 msgstr "La línea de tiempo se está construyendo..."
 
-#: ../raphodo/proximity.py:2116
+#: ../raphodo/proximity.py:2152
 msgid ""
 "The Timeline needs to be rebuilt because the file modification time does not "
 "match the time a shot was taken for one or more shots.<br><br>The Timeline "
@@ -3452,7 +3452,7 @@ msgstr ""
 "que se realizó el disparo. La hora de disparo se confirma cuando se generan "
 "las miniaturas o se realiza la descarga, que es cuando se leen los metadatos."
 
-#: ../raphodo/proximity.py:2576
+#: ../raphodo/proximity.py:2612
 msgid "Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)"
 msgstr ""
 "Conmutar sincronizando Línea de tiempo y desplazamiento de miniaturas (Ctrl-"
@@ -3738,9 +3738,9 @@ msgstr "%(file_type)s directorio de descarga es incorrecto"
 
 #: ../raphodo/rapid.py:2894
 msgid ""
-"Files cannot be written to the download directory. Ensure permissions are "
-"correctly set. If the destination is on the network, ensure the network "
-"share is correctly configured."
+"The download directory is not writable. Ensure permissions are correctly "
+"set. If the destination is on the network, ensure the network share is "
+"correctly configured."
 msgstr ""
 
 #: ../raphodo/rapid.py:2900

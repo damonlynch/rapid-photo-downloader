@@ -2891,7 +2891,7 @@ difference to the program's future.</p>"""
         }
         if validation.absolute_path:
             details = _(
-                "Files cannot be written to the download directory. "
+                "The download directory is not writable. "
                 "Ensure permissions are correctly set. "
                 "If the destination is on the network, ensure the network share is "
                 "correctly configured."
