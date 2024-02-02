@@ -102,16 +102,12 @@ from PyQt5.QtCore import (
     pyqtSlot,
 )
 from PyQt5.QtGui import (
-    QBrush,
     QCloseEvent,
-    QColor,
     QDesktopServices,
     QFont,
     QFontMetrics,
     QIcon,
     QMoveEvent,
-    QPainter,
-    QPen,
     QPixmap,
     QScreen,  # noqa: F401
     QShowEvent,
@@ -128,7 +124,6 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QProgressBar,
     QSizePolicy,
-    QSplashScreen,
     QStackedWidget,
     QStyle,
     QVBoxLayout,
@@ -290,6 +285,7 @@ from raphodo.ui.rememberthisdialog import RememberThisDialog
 from raphodo.ui.renamepanel import RenamePanel
 from raphodo.ui.rotatedpushbutton import RotatedButton
 from raphodo.ui.sourcepanel import LeftPanelContainer, SourcePanel
+from raphodo.ui.splashscreen import SplashScreen
 from raphodo.ui.toggleview import QToggleView
 from raphodo.ui.viewutils import (
     MainWindowSplitter,
@@ -6598,37 +6594,6 @@ def get_versions(
     versions.append(f"Default file manager: {file_manager_details}")
 
     return versions
-
-
-class SplashScreen(QSplashScreen):
-    def __init__(self, pixmap: QPixmap, flags) -> None:
-        super().__init__(pixmap, flags)
-        self.progress = 0
-        try:
-            self.image_width = pixmap.width() / pixmap.devicePixelRatioF()
-        except AttributeError:
-            self.image_width = pixmap.width() / pixmap.devicePixelRatio()
-
-        self.progressBarPen = QPen(QBrush(QColor(Qt.white)), 2.0)
-
-    def drawContents(self, painter: QPainter):
-        painter.save()
-        painter.setPen(QColor(Qt.black))
-        painter.drawText(18, 64, __about__.__version__)
-        if self.progress:
-            painter.setPen(self.progressBarPen)
-            x = int(self.progress / 100 * self.image_width)
-            painter.drawLine(0, 360, x, 360)
-        painter.restore()
-
-    def setProgress(self, value: int) -> None:
-        """
-        Update splash screen progress bar
-        :param value: percent done, between 0 and 100
-        """
-
-        self.progress = value
-        self.repaint()
 
 
 def parser_options(formatter_class=argparse.HelpFormatter):
