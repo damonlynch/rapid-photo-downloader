@@ -183,6 +183,7 @@ from raphodo.devices import (
     BackupDeviceCollection,
     Device,
     DeviceCollection,
+    DownloadingTo,
     FSMetadataErrors,
 )
 from raphodo.errorlog import ErrorReport, SpeechBubble
@@ -2508,7 +2509,7 @@ difference to the program's future.</p>"""
     def updateDestinationViews(
         self,
         marked_summary: MarkedSummary,
-        downloading_to: defaultdict[int, set[FileType]] | None = None,
+        downloading_to: DownloadingTo | None = None,
     ) -> bool:
         """
         Updates the header bar and storage space view for the

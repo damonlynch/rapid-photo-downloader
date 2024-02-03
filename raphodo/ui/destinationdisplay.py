@@ -59,6 +59,7 @@ from raphodo.constants import (
     NameGenerationType,
     PresetPrefType,
 )
+from raphodo.devices import DownloadingTo
 from raphodo.generatenameconfig import (
     CUSTOM_SUBFOLDER_MENU_ENTRY_POSITION,
     DICT_SUBFOLDER_L0,
@@ -297,18 +298,20 @@ class DestinationDisplay(QWidget):
         self.sample_rpd_file = None  # type: Photo| Video|None
 
         self.os_stat_device = 0  # type: int
-        self._downloading_to = defaultdict(set)  # type: defaultdict[int, set[FileType]]
+        self._downloading_to = defaultdict(set)  # type: DownloadingTo
 
         self.midPen = paletteMidPen()
         self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
         self.container_vertical_scrollbar_visible = None
 
+        self.valid=True
+
     @property
-    def downloading_to(self) -> defaultdict[int, set[FileType]]:
+    def downloading_to(self) -> DownloadingTo:
         return self._downloading_to
 
     @downloading_to.setter
-    def downloading_to(self, downloading_to) -> None:
+    def downloading_to(self, downloading_to: DownloadingTo) -> None:
         if downloading_to is not None:
             self._downloading_to = downloading_to
             # TODO determine if this is always needed here

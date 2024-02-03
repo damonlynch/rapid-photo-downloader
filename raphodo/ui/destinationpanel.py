@@ -28,6 +28,7 @@ from collections import defaultdict
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QWidget
 
+from raphodo.devices import DownloadingTo
 from raphodo.rpdfile import FileType
 from raphodo.thumbnaildisplay import MarkedSummary
 from raphodo.ui.computerview import ComputerWidget
@@ -153,7 +154,7 @@ class DestinationPanel(ScrollAreaNoFrame):
         same_dev: bool,
         merge: bool,
         marked_summary: MarkedSummary,
-        downloading_to: defaultdict[int, set[FileType]] | None = None,
+        downloading_to: DownloadingTo | None = None,
     ) -> bool:
         """
         Updates the header bar and storage space view for the

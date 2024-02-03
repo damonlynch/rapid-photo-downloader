@@ -76,6 +76,10 @@ from raphodo.utilities import (
     stdchannel_redirected,
 )
 
+
+DownloadingTo = defaultdict[int, set[FileType]]
+
+
 display_devices = (DeviceType.volume, DeviceType.camera, DeviceType.camera_fuse)
 camera_devices = (DeviceType.camera, DeviceType.camera_fuse)
 
@@ -1520,7 +1524,7 @@ class BackupDeviceCollection:
 
     def get_download_backup_device_overlap(
         self, photo_download_folder: str, video_download_folder: str
-    ) -> defaultdict[int, set[FileType]]:
+    ) -> DownloadingTo:
         """
         Determine if the photo/video download locations and the backup locations
         are going to the same partitions.
@@ -1540,7 +1544,7 @@ class BackupDeviceCollection:
         except Exception:
             video_device = 0
 
-        downloading_to = defaultdict(set)  # type: defaultdict[int, set[FileType]]
+        downloading_to = defaultdict(set)  # type: DownloadingTo
 
         if photo_device != video_device:
             download_dests = (photo_device, video_device)

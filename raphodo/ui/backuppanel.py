@@ -61,7 +61,11 @@ from raphodo.constants import (
     StandardFileLocations,
     ViewRowType,
 )
-from raphodo.devices import BackupDeviceCollection, BackupVolumeDetails  # noqa: F401
+from raphodo.devices import (
+    BackupDeviceCollection,  # noqa: F401
+    BackupVolumeDetails,
+    DownloadingTo,
+)
 from raphodo.foldercombo import FolderCombo
 from raphodo.prefs.preferences import Preferences
 from raphodo.rpdfile import FileTypeCounter
@@ -127,14 +131,14 @@ class BackupDeviceModel(QAbstractListModel):
         self.photos_size_to_download = self.videos_size_to_download = 0
 
         # os_stat_device: set[FileType]
-        self._downloading_to = defaultdict(set)  # type: defaultdict[int, set[FileType]]
+        self._downloading_to = defaultdict(set)  # type: DownloadingTo
 
     @property
-    def downloading_to(self):
+    def downloading_to(self) -> DownloadingTo:
         return self._downloading_to
 
     @downloading_to.setter
-    def downloading_to(self, downloading_to: defaultdict[int, set[FileType]]):
+    def downloading_to(self, downloading_to: DownloadingTo) -> None:
         self._downloading_to = downloading_to
         self.downloadSizeChanged()
 
@@ -878,5 +882,5 @@ class BackupPanel(ScrollAreaNoFrame):
         else:
             return True
 
-    def setDownloadingTo(self, downloading_to: defaultdict[int, set[FileType]]) -> None:
+    def setDownloadingTo(self, downloading_to: DownloadingTo) -> None:
         self.backupDevices.downloading_to = downloading_to
