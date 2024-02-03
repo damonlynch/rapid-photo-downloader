@@ -285,8 +285,8 @@ class DestinationDisplay(QWidget):
         self.deviceDisplay = DeviceDisplay(parent=self, menuButtonIcon=menuIcon)
         self.deviceDisplay.widthChanged.connect(self.widthChanged)
         size = icon_size()
-        self.icon = QIcon(":/icons/folder.svg").pixmap(QSize(size, size))  # type: QPixmap
-        self.icon = darkModePixmap(self.icon)
+        self.pixmap = QIcon(":/icons/folder.svg").pixmap(QSize(size, size))  # type: QPixmap
+        self.pixmap = darkModePixmap(pixmap=self.pixmap)
         self.display_name = ""
         self.photos_size_to_download = self.videos_size_to_download = 0
         self.files_to_display = None  # type: DisplayingFilesOfType|None
@@ -629,7 +629,7 @@ class DestinationDisplay(QWidget):
                 y=y,
                 width=width,
                 display_name=self.display_name,
-                icon=self.icon,
+                icon=self.pixmap,
                 highlight_menu=highlight_menu,
             )
             y = y + self.deviceDisplay.dc.device_name_height
