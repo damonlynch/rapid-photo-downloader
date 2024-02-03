@@ -4466,27 +4466,20 @@ Do you want to proceed with the download?"""
 
         invalid_dirs = []
 
-        # sadly this causes an exception on python 3.4:
-        # downloading.photos or downloading.photos_and_videos
-
-        if (
-            downloading
-            in (
-                DownloadingFileTypes.photos,
-                DownloadingFileTypes.photos_and_videos,
-            )
-            and not validate_download_folder(self.prefs.photo_download_folder).valid
+        for destination, file_type in (
+            (
+                self.prefs.photo_download_folder,
+                self.prefs.video_download_folder,
+            ),
+            (DownloadingFileTypes.photos, DownloadingFileTypes.videos),
         ):
-            invalid_dirs.append(self.prefs.photo_download_folder)
-        if (
-            downloading
-            in (
-                DownloadingFileTypes.videos,
-                DownloadingFileTypes.photos_and_videos,
-            )
-            and not validate_download_folder(self.prefs.video_download_folder).valid
-        ):
-            invalid_dirs.append(self.prefs.video_download_folder)
+            if (
+                downloading in (file_type, DownloadingFileTypes.photos_and_videos)
+                and not validate_download_folder(
+                    destination, write_on_waccesss_failure=True
+                ).valid
+            ):
+                invalid_dirs.append(destination)
         return invalid_dirs
 
     def notifyPrefsAreInvalid(self, details: str) -> None:
