@@ -81,7 +81,10 @@ class FlatButton:
         else:
             checked_color = default_color
 
-        hover_color = menuHoverColor().name(QColor.HexRgb)
+        if checkedHoverColor is None:
+            hover_color = menuHoverColor().name(QColor.HexRgb)
+        else:
+            hover_color = checkedHoverColor.name(QColor.HexRgb)
 
         if not padding:
             padding = self._padding
@@ -111,13 +114,6 @@ class FlatButton:
             border-style: inset; 
         }}
         """
-        if checkedHoverColor is not None:
-            stylesheet = f"""
-            {stylesheet}
-            QPushButton:checked:hover {{
-                background-color: {checkedHoverColor.name(QColor.HexRgb)};
-            }}
-            """
 
         button.setStyleSheet(stylesheet)
 
