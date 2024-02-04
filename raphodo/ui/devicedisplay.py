@@ -633,7 +633,7 @@ class DeviceComponent(QObject):
             sample_comp3
         ).width()
 
-        # Height of the details about the storage e.g. number of photos
+        # Height of the details about the storage e.g., number of photos,
         # videos, etc.
         self.details_height = self.deviceFontMetrics.height() * 2 + 2
         self.details_vertical_bar_width = 10
@@ -744,7 +744,7 @@ class DeviceDisplay(QObject):
         Render the header portion, which contains the device / folder name, icon, and
         for download sources, a spinner or checkbox.
 
-        If needed, draw a pixmap for for a drop-down menu.
+        If needed, draw a pixmap for a drop-down menu.
         """
 
         painter.setRenderHint(QPainter.Antialiasing, True)
@@ -866,7 +866,7 @@ class DeviceDisplay(QObject):
         # ==========================================================================
 
         # Devices may not have photos or videos
-        # Fill in storage bar with size of photos
+        # Fill in storage bar with the size of the photos
         if comp1_file_size_sum and d.bytes_total:
             photos_g_rect = QRectF(
                 photos_g_x, g_y, photos_g_width, self.dc.storage_use_bar_height
@@ -890,7 +890,7 @@ class DeviceDisplay(QObject):
         else:
             videos_g_width = 0
 
-        # Fill in storage bar with size of other files
+        # Fill in the storage bar with size of other files
         if comp3_file_size_sum and d.bytes_total:
             other_g_width = comp3_file_size_sum / d.bytes_total * width
             other_g_x = videos_g_x + videos_g_width
@@ -1308,7 +1308,7 @@ class DeviceDelegate(QStyledItemDelegate):
         self.blacklistDeviceAct.triggered.connect(self.blacklistDevice)
         self.rescanDeviceAct = self.contextMenu.addAction(_("Rescan"))
         self.rescanDeviceAct.triggered.connect(self.rescanDevice)
-        # store the index in which the user right clicked
+        # store the index in which the user right-clicked
         self.clickedIndex = None  # type: QModelIndex | None
 
     @pyqtSlot()
@@ -1489,7 +1489,7 @@ class DeviceDelegate(QStyledItemDelegate):
         """
         Change the data in the model and the state of the checkbox
         if the user presses the left mousebutton or presses
-        Key_Space or Key_Select and this cell is editable. Otherwise do nothing.
+        Key_Space or Key_Select and this cell is editable. Otherwise, do nothing.
         """
 
         if (
@@ -1497,7 +1497,7 @@ class DeviceDelegate(QStyledItemDelegate):
             or event.type() == QEvent.MouseButtonDblClick
         ):
             if event.button() == Qt.RightButton:
-                # Disable ignore and blacklist menus if the device is a This Computer
+                # Disable ignore and blacklist menus if the device is a "This Computer"
                 # path
 
                 self.clickedIndex = index
