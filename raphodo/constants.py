@@ -369,9 +369,11 @@ class NameGenerationType(Enum):
     video_subfolder = 4
 
 
+COLOR_RED_HTML = "#cb493f"
+
 class CustomColors(Enum):
     color1 = "#7a9c38"  # green
-    color2 = "#cb493f"  # red
+    color2 = COLOR_RED_HTML  # red
     color3 = "#d17109"  # orange
     color4 = "#4D8CDC"  # blue
     color5 = "#5f6bfe"  # purple

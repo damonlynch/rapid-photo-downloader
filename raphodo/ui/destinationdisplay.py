@@ -50,6 +50,7 @@ from PyQt5.QtWidgets import (
 )
 
 from raphodo.constants import (
+    COLOR_RED_HTML,
     CustomColors,
     DestinationDisplayMousePos,
     DestinationDisplayTooltipState,
@@ -111,6 +112,7 @@ def make_body_details(
     photos = videos = photos_size = videos_size = ""
 
     if files_to_display != DisplayingFilesOfType.videos:
+        # Translators: no_photos refers to the number of photos
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
@@ -119,6 +121,7 @@ def make_body_details(
         }
         photos_size = format_size_for_user(photos_size_to_download)
     if files_to_display != DisplayingFilesOfType.photos:
+        # Translators: no_videos refers to the number of videos
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
@@ -304,7 +307,8 @@ class DestinationDisplay(QWidget):
         self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
         self.container_vertical_scrollbar_visible = None
 
-        self.valid=True
+        self.valid = True
+        self.invalidColor = QColor(COLOR_RED_HTML)
 
     @property
     def downloading_to(self) -> DownloadingTo:
