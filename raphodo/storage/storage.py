@@ -143,9 +143,11 @@ def parse_os_release() -> dict[str, str]:
             for line in f:
                 line = line.strip()
                 if line:
-                    k, v = line.split("=", maxsplit=1)
-                    v = v.strip("'\"")
-                    d[k] = v
+                    kv = line.split("=", maxsplit=1)
+                    if len(kv) == 2:
+                        k, v = kv
+                        v = v.strip("'\"")
+                        d[k] = v
     return d
 
 
