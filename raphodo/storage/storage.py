@@ -142,7 +142,7 @@ def parse_os_release() -> dict[str, str]:
         with open("/etc/os-release") as f:
             for line in f:
                 line = line.strip()
-                if line  and not line.startswith("#"):
+                if line and not line.startswith("#"):
                     kv = line.split("=", maxsplit=1)
                     if len(kv) == 2:
                         k, v = kv
