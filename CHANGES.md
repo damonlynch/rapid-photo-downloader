@@ -4,6 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.36 (2024-02-xx)
 -------------------
 
+ - Display a warning message window when the user selects an invalid download 
+   destination.
+
  - Highlight Timeline cell when the mouse is hovering over it.
 
  - Fix bug [#121](https://github.com/damonlynch/rapid-photo-downloader/issues/121):
@@ -35,7 +38,7 @@ Changelog for Rapid Photo Downloader
 
  - Re-enabled Ctrl-Q shortcut key for quiting when running under WSL. 
 
- - Limit default number cores used to generate thumbnails to 8 (or the
+ - Limit the default number cores used to generate thumbnails to 8 (or the
    number of physical CPU cores if lower). Previously the limit was the
    number of physical CPU cores, which is nonsensical on high core 
    count systems.
