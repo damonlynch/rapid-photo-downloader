@@ -309,6 +309,13 @@ class DestinationDisplay(QWidget):
 
         self.valid = True
         self.invalidColor = QColor(COLOR_RED_HTML)
+        # Translators: the lack of a period at the end is deliberate
+        _("Unwritable destination")
+        # Translators: the lack of a period at the end is deliberate
+        _("Folder does not exist")
+        # Translators: the lack of a period at the end is deliberate
+        _("Insufficient storage space")
+
 
     @property
     def downloading_to(self) -> DownloadingTo:
