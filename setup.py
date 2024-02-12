@@ -33,7 +33,12 @@ import os
 from glob import glob
 
 from setuptools import Command, setup
-from setuptools.command.build import build
+
+try:
+    from setuptools.command.build import build
+except ModuleNotFoundError:
+    # Needed for older versions of setuptools
+    from distutils.command.build import build
 from setuptools.command.sdist import sdist
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -110,7 +115,8 @@ class build_translations(Command):
         selected_languages = None
         linguas_file = os.path.join(self.po_dir, "LINGUAS")
         if os.path.isfile(linguas_file):
-            selected_languages = open(linguas_file).read().split()
+            with open(linguas_file) as lf:
+                selected_languages = lf.read().split()
         if "LINGUAS" in os.environ:
             selected_languages = os.environ["LINGUAS"].split()
 
@@ -142,8 +148,8 @@ class build_translations(Command):
             data_files.append((targetpath, (mo_file,)))
 
         # merge .in with translation
-        for (file_set, switch) in ((self.xml_files, "-x"), (self.desktop_files, "-d")):
-            for (target, files) in file_set:
+        for file_set, switch in ((self.xml_files, "-x"), (self.desktop_files, "-d")):
+            for target, files in file_set:
                 build_target = os.path.join("build", target)
                 if not os.path.exists(build_target):
                     os.makedirs(build_target)
