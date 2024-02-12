@@ -907,13 +907,18 @@ class Video(RPDFile):
         self.file_type = FileType.video
 
     def load_metadata(
-        self, full_file_name: str | None = None, et_process: exiftool.ExifTool = None
+        self,
+        full_file_name: str | None = None,
+        et_process: exiftool.ExifTool = None,
+        force_exiftool: bool | None = False,
     ) -> bool:
         """
         Use ExifTool to read the video's metadata
         :param full_file_name: full path of file from which file to read
          the metadata.
         :param et_process: optional deamon exiftool process
+        :param force_exiftool: whether ExifTool must be used to load the
+         metadata
         :return: Always returns True. Return value is needed to keep
          consistency with class Photo, where the value actually makes sense.
         """
