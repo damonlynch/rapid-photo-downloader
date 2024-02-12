@@ -4468,11 +4468,8 @@ Do you want to proceed with the download?"""
         invalid_dirs = []
 
         for destination, file_type in (
-            (
-                self.prefs.photo_download_folder,
-                self.prefs.video_download_folder,
-            ),
-            (DownloadingFileTypes.photos, DownloadingFileTypes.videos),
+            (self.prefs.photo_download_folder, DownloadingFileTypes.photos),
+            (self.prefs.video_download_folder, DownloadingFileTypes.videos),
         ):
             if (
                 downloading in (file_type, DownloadingFileTypes.photos_and_videos)
