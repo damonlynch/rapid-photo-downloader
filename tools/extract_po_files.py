@@ -104,6 +104,13 @@ whitelist = [
     "sq",
 ]
 
+language_name_substitutions = dict(
+    Français="French",
+    српски="Serbian",
+    magyar="Hungarian",
+)
+language_name_substitutions["Norwegian Bokmal"] = "Norwegian Bokmål"
+
 
 class bcolors:
     HEADER = "\033[95m"
@@ -307,15 +314,10 @@ else:
         last_modified_by_lp = (
             last_modified_by.find("Launchpad Translations Administrators") >= 0
         )
-        match = lang_english_re.search(po.metadata["Language-Team"])
-        if match:
-            lang_english = match.group(1).strip()
-            if lang_english == "Français":
-                lang_english = "French"
-            elif lang_english == "српски":
-                lang_english = "Serbian"
-            elif lang_english == "magyar":
-                lang_english = "Hungarian"
+        re_match = lang_english_re.search(po.metadata["Language-Team"])
+        if re_match:
+            lang_english = re_match.group(1).strip()
+            lang_english = language_name_substitutions.get(lang_english) or lang_english
             dest_pofile = f"{os.path.join(po_destination_dir, lang)}.po"
             if not os.path.exists(dest_pofile):
                 print("Added ", lang_english)
