@@ -77,6 +77,7 @@ from PyQt5.QtCore import (
     pyqtSlot,
 )
 from showinfm import LinuxDesktop, linux_desktop, valid_file_manager
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from raphodo.wslutils import (
     wsl_conf_mnt_location,
@@ -1415,6 +1416,25 @@ class UDisks2Monitor(QObject):
 
 if have_gio:
 
+    @retry(stop=stop_after_attempt(5), wait=wait_fixed(1))
+    def mount_finish(result: Gio.AsyncResult, volume: Gio.Volume) -> bool:
+        try:
+            return volume.mount_finish(result)
+        except gi.repository.GLib.GError as inst:
+            logging.warning(
+                "Exception occurred unmounting %s: %s",
+                volume.get_name() or "",
+                str(inst),
+            )
+            raise
+        except Exception as inst:
+            logging.error(
+                "Unknown exception occurred unmounting %s: %s",
+                volume.get_name() or "",
+                str(inst),
+            )
+            raise
+
     class GVolumeMonitor(QObject):
         r"""
         Monitor the mounting or unmounting of cameras or partitions
@@ -1690,7 +1710,8 @@ if have_gio:
             self, source_object, result: Gio.AsyncResult, volume: Gio.Volume
         ) -> None:
             self.manually_mounted_volumes.remove(volume)
-            if volume.mount_finish(result):
+
+            if mount_finish(result, volume):
                 logging.debug("%s was successfully manually mounted", volume.get_name())
                 self.mountAdded(self.vm, volume.get_mount())
             else:

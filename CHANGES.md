@@ -15,6 +15,9 @@ Changelog for Rapid Photo Downloader
  - Fix bug [#122](https://github.com/damonlynch/rapid-photo-downloader/issues/122):
    Thanks to Bozhin Karaivanov for the fix. 
 
+ - Catch GLib errors like g-io-error-quark when checking the results of
+   mount operations.
+
 0.9.35 (2024-01-30)
 -------------------
 
