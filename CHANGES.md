@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.36 (2024-02-xx)
+0.9.36 (2024-02-13)
 -------------------
 
  - Display a warning message window when the user selects an invalid download 
@@ -13,7 +13,8 @@ Changelog for Rapid Photo Downloader
    No feedback provided when invalid destination chosen in download panel.
    
  - Fix bug [#122](https://github.com/damonlynch/rapid-photo-downloader/issues/122):
-   Thanks to Bozhin Karaivanov for the fix. 
+   Application crashes on start on openSUSE Tumbleweed. Thanks to Bozhin 
+   Karaivanov for the fix. 
 
  - Catch GLib errors like g-io-error-quark when checking the results of
    mount operations.
