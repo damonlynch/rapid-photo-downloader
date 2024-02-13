@@ -4,9 +4,6 @@ Changelog for Rapid Photo Downloader
 0.9.36 (2024-02-13)
 -------------------
 
- - Display a warning message window when the user selects an invalid download 
-   destination.
-
  - Highlight Timeline cell when the mouse is hovering over it.
 
  - Fix bug [#121](https://github.com/damonlynch/rapid-photo-downloader/issues/121):
