@@ -20,7 +20,7 @@
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2007-2024, Damon Lynch"
 
-from enum import Enum, IntEnum, auto
+from enum import Enum, Flag, IntEnum, auto
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFont, QFontMetrics
@@ -153,7 +153,11 @@ class DisplayingFilesOfType(Enum):
 
 BackupLocationType = DisplayingFilesOfType
 BackupFailureType = DisplayingFilesOfType
-DownloadingFileTypes = DisplayingFilesOfType
+
+
+class FileTypeFlag(Flag):
+    PHOTOS = auto()
+    VIDEOS = auto()
 
 
 class WindowsDriveType(IntEnum):
@@ -370,6 +374,7 @@ class NameGenerationType(Enum):
 
 
 COLOR_RED_HTML = "#cb493f"
+
 
 class CustomColors(Enum):
     color1 = "#7a9c38"  # green

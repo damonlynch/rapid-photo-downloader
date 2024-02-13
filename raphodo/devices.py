@@ -47,10 +47,10 @@ from raphodo.constants import (
     BackupLocationType,
     DeviceState,
     DeviceType,
-    DownloadingFileTypes,
     DownloadStatus,  # noqa: F401
     ExifSource,
     FileType,
+    FileTypeFlag,
 )
 from raphodo.problemnotification import FsMetadataWriteProblem
 from raphodo.rpdfile import FileSizeSum, FileTypeCounter, Photo, RPDFile, Video
@@ -75,7 +75,6 @@ from raphodo.utilities import (
     same_device,
     stdchannel_redirected,
 )
-
 
 DownloadingTo = defaultdict[int, set[FileType]]
 
@@ -1782,7 +1781,7 @@ class BackupDeviceCollection:
         return sorted(paths)
 
     def backup_destinations_missing(
-        self, downloading: DownloadingFileTypes
+        self, downloading: FileTypeFlag
     ) -> BackupFailureType | None:
         """
         Checks if there are backup destinations matching the files
@@ -1792,14 +1791,8 @@ class BackupDeviceCollection:
         """
         prefs = self.rapidApp.prefs
         if prefs.backup_files:
-            photos = downloading in (
-                DownloadingFileTypes.photos,
-                DownloadingFileTypes.photos_and_videos,
-            )
-            videos = downloading in (
-                DownloadingFileTypes.videos,
-                DownloadingFileTypes.photos_and_videos,
-            )
+            photos = downloading in FileTypeFlag.PHOTOS
+            videos = downloading in FileTypeFlag.VIDEOS
 
             if prefs.backup_device_autodetection:
                 photo_backup_problem = photos and not self.backup_possible(

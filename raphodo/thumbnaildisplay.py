@@ -82,11 +82,11 @@ from raphodo.constants import (
     DeviceType,
     DoubleDarkGray,
     Downloaded,
-    DownloadingFileTypes,
     DownloadStatus,
     FadeMilliseconds,
     FadeSteps,
     FileType,
+    FileTypeFlag,
     PaleGray,
     Plural,
     Roles,
@@ -139,7 +139,7 @@ class DownloadStats:
 
 class DownloadFiles(NamedTuple):
     files: defaultdict[int, list[RPDFile]]
-    download_types: DownloadingFileTypes
+    download_types: FileTypeFlag
     download_stats: defaultdict[int, DownloadStats]
     camera_access_needed: defaultdict[int, bool]
 
@@ -1333,15 +1333,11 @@ class ThumbnailListModel(QAbstractListModel):
                 download_stats[scan_id].post_download_thumb_generation += 1
 
         # self.validateModelConsistency()
+        download_types = FileTypeFlag(0)
         if download_photos:
-            if download_videos:
-                download_types = DownloadingFileTypes.photos_and_videos
-            else:
-                download_types = DownloadingFileTypes.photos
-        elif download_videos:
-            download_types = DownloadingFileTypes.videos
-        else:
-            download_types = None
+            download_types = FileTypeFlag.PHOTOS
+        if download_videos:
+            download_types = FileTypeFlag.VIDEOS
 
         return DownloadFiles(
             files=files,

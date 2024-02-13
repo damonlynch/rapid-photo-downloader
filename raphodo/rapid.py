@@ -164,8 +164,8 @@ from raphodo.constants import (
     CompletedDownloads,
     DeviceState,
     DeviceType,
-    DownloadingFileTypes,
     FileType,
+    FileTypeFlag,
     PostCameraUnmountAction,
     RememberThisButtons,
     RememberThisMessage,
@@ -3785,7 +3785,7 @@ Do you want to proceed with the download?"""
                 backup_type = self.backup_devices[path].backup_type
                 if (
                     backup_type == BackupLocationType.photos_and_videos
-                    or download_types == DownloadingFileTypes.photos_and_videos
+                    or download_types == FileTypeFlag.PHOTOS | FileTypeFlag.VIDEOS
                 ) or backup_type == download_types:
                     device_id = self.backup_devices.device_id(path)
                     data = BackupFileData(message=message)
@@ -4457,7 +4457,7 @@ Do you want to proceed with the download?"""
         logging.info("%s", downloaded)
         self.statusBar().showMessage(downloaded)
 
-    def invalidDownloadFolders(self, downloading: DownloadingFileTypes) -> list[str]:
+    def invalidDownloadFolders(self, downloading: FileTypeFlag) -> list[str]:
         """
         Checks validity of download folders based on the file types the
         user is attempting to download.
@@ -4467,12 +4467,12 @@ Do you want to proceed with the download?"""
 
         invalid_dirs = []
 
-        for destination, file_type in (
-            (self.prefs.photo_download_folder, DownloadingFileTypes.photos),
-            (self.prefs.video_download_folder, DownloadingFileTypes.videos),
+        for destination, file_type_flag in (
+            (self.prefs.photo_download_folder, FileTypeFlag.PHOTOS),
+            (self.prefs.video_download_folder, FileTypeFlag.VIDEOS),
         ):
             if (
-                downloading in (file_type, DownloadingFileTypes.photos_and_videos)
+                downloading in file_type_flag
                 and not validate_download_folder(
                     destination, write_on_waccesss_failure=True
                 ).valid
