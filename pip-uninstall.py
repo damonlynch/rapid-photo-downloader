@@ -275,10 +275,10 @@ def main():
             print("Which do you prefer:")
             print("1. Uninstall only Rapid Photo Downloader")
             print("2. Uninstall Rapid Photo Downloader and its dependencies")
-            resp = input("Enter choice [1/2]: ")
+            resp = input("Enter choice [1/2] (default: 2): ")
             if resp == "1":
                 rpd_only = True
-            elif resp == "2":
+            elif resp in ("2", ""):
                 with_deps = True
             else:
                 print("Invalid choice. Please try again with either 1 or 2.")
