@@ -231,8 +231,11 @@ def pip_needed_to_uninstall():
 
 def main():
     print(
-        "This program uninstalls copies of Rapid Photo Downloader that were \n"
-        "installed using the old install.py script."
+        "\nThis program uninstalls a copy of Rapid Photo Downloader that was \n"
+        "installed using the old install.py script.\n\n"
+        "If you installed Rapid Photo Downloader using the old install.py script,\n"
+        "you need to uninstall that copy before reinstalling it using your Linux\n"
+        "system's standard package management tools.\n"
     )
 
 
@@ -265,7 +268,7 @@ def main():
             print("Which do you prefer:")
             print("1. Uninstall only Rapid Photo Downloader")
             print("2. Uninstall Rapid Photo Downloader and its dependencies")
-            resp = input("Enter choice [1/2]")
+            resp = input("Enter choice [1/2]: ")
             if resp == "1":
                 uninstall_pip_package("rapid-photo-downloader", no_deps_only=False)
             elif resp == "2":
