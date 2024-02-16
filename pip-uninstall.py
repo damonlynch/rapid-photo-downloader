@@ -177,6 +177,7 @@ def uninstall_with_deps() -> bool:
             something_done = True
     return something_done
 
+
 def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentParser:
     """
     Construct the command line arguments for the script
@@ -288,7 +289,7 @@ def main():
     elif rpd_only and not uninstall_pip_package(
         "rapid-photo-downloader", no_deps_only=False
     ):
-        print("\nThe program did not need to be uninstalled.")
+        print("\nThe program was not installed.")
 
 
 if __name__ == "__main__":
