@@ -55,8 +55,8 @@ def python_package_can_import(package: str) -> bool:
 
 
 def make_pip_command(
-        args: str,
-        split: bool = True,
+    args: str,
+    split: bool = True,
 ) -> Union[list[str], str]:  # noqa: UP007
     """
     Construct a call to python's pip
@@ -106,7 +106,7 @@ def dir_accessible(path: str) -> bool:
     return os.path.isdir(path) and os.access(path, os.W_OK)
 
 
-def uninstall_pip_package(package: str, no_deps_only: bool) -> None:
+def uninstall_pip_package(package: str, no_deps_only: bool) -> bool:
     """
     Uninstall a package from the local user using pip.
 
@@ -116,7 +116,10 @@ def uninstall_pip_package(package: str, no_deps_only: bool) -> None:
     :param package: package to remove
     :param no_deps_only: if True, remove a package only if no other package
      depends on it
+    :return: True if the package was uninstalled, False otherwise
     """
+
+    uninstalled = False
 
     l_command_line = "list"
 
@@ -134,6 +137,7 @@ def uninstall_pip_package(package: str, no_deps_only: bool) -> None:
             if package_in_pip_output(package, output) and installed_using_pip(package):
                 try:
                     subprocess.check_call(u_args)
+                    uninstalled = True
                 except subprocess.CalledProcessError as e:
                     print(f"Encountered an error uninstalling {package}:")
                     print(str(e))
@@ -151,13 +155,14 @@ def uninstall_pip_package(package: str, no_deps_only: bool) -> None:
             for executable in ("rapid-photo-downloader", "analyze-pv-structure"):
                 symlink = os.path.join(home_bin, executable)
                 if os.path.islink(symlink) and os.readlink(symlink) == os.path.join(
-                        install_path, executable
+                    install_path, executable
                 ):
                     print(f"Removing symlink {symlink}")
                     os.remove(symlink)
+    return uninstalled
 
 
-def uninstall_with_deps() -> None:
+def uninstall_with_deps() -> bool:
     uninstall_pip_package("rapid-photo-downloader", no_deps_only=False)
 
     packages = (
@@ -166,9 +171,11 @@ def uninstall_with_deps() -> None:
         "show-in-file-manager PyQt5 PyQt5_sip"
     )
 
+    something_done = False
     for package in packages.split():
-        uninstall_pip_package(package, no_deps_only=True)
-
+        if uninstall_pip_package(package, no_deps_only=True):
+            something_done = True
+    return something_done
 
 def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentParser:
     """
@@ -238,10 +245,8 @@ def main():
         "system's standard package management tools.\n"
     )
 
-
     if not python_package_can_import("pip"):
         pip_needed_to_uninstall()
-
 
     if os.getuid() == 0:
         sys.stderr.write(
@@ -250,16 +255,17 @@ def main():
         )
         sys.exit(1)
 
-
     parser = parser_options()
 
     args = parser.parse_args()
+    with_deps = False
+    rpd_only = False
 
     if args.uninstall_with_deps:
-        uninstall_with_deps()
+        with_deps = True
 
     elif args.uninstall:
-        uninstall_pip_package("rapid-photo-downloader", no_deps_only=False)
+        rpd_only = True
     else:
         if input("Do you want to continue? [Y/n] ").lower() in ("y", ""):
             print("\nYou have the option of uninstalling only Rapid Photo Downloader, ")
@@ -270,11 +276,20 @@ def main():
             print("2. Uninstall Rapid Photo Downloader and its dependencies")
             resp = input("Enter choice [1/2]: ")
             if resp == "1":
-                uninstall_pip_package("rapid-photo-downloader", no_deps_only=False)
+                rpd_only = True
             elif resp == "2":
-                uninstall_with_deps()
+                with_deps = True
             else:
                 print("Invalid choice. Please try again with either 1 or 2.")
+
+    if with_deps:
+        if not uninstall_with_deps():
+            print("\nNothing needed to be uninstalled.")
+    elif rpd_only and not uninstall_pip_package(
+        "rapid-photo-downloader", no_deps_only=False
+    ):
+        print("\nThe program did not need to be uninstalled.")
+
 
 if __name__ == "__main__":
     main()
