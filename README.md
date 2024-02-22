@@ -19,7 +19,7 @@ PyCharm in conjunction with the voice recognition tools Talon and Dragon
 NaturallySpeaking on Windows / WSL2. While my ability to test the code 
 remains limited, at least I can write it.
 
-I want to thank JetBrains for allowing me to use PyCharm Professional For 
+I want to thank JetBrains for allowing me to use PyCharm Professional for 
 free under their [open source developer program](https://www.jetbrains.com/community/opensource/#support). 
 
 ## Removal of the Install Script
