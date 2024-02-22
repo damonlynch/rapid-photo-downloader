@@ -34,7 +34,6 @@ import struct
 import sys
 import tarfile
 import tempfile
-import warnings
 from collections import defaultdict, namedtuple
 from datetime import datetime
 from glob import glob
@@ -49,33 +48,6 @@ from PyQt5.QtCore import QLibraryInfo, QSize, QStandardPaths, QTranslator
 
 import raphodo.__about__ as __about__
 from raphodo import i18n_domain, localedir
-
-# TODO check which version of Arrow is used in distros these days
-# Arrow 0.9.0 separated the replace and shift functions into separate calls,
-# deprecating using replace() to do the work of the new shift()
-# Arrow 0.14.5 removed the deprecated shift functionality from the replace()
-try:
-    arrow_version = parse(arrow.__version__)
-except AttributeError:
-    arrow_version = None
-
-if arrow_version is not None:
-    arrow_shift_support = arrow_version >= parse("0.9.0")
-else:
-    try:
-        now = arrow.now()
-        now.shift(seconds=1)
-        arrow_shift_support = True
-    except AttributeError:
-        arrow_shift_support = False
-
-
-# Suppress parsing warnings for 0.14.3 <= Arrow version < 0.15
-if arrow_version >= parse("0.14.3") and arrow_version < parse("0.15.0"):
-    from arrow.factory import ArrowParseWarning
-
-    warnings.simplefilter("ignore", ArrowParseWarning)
-
 
 # Linux specific code to ensure child processes exit when parent dies
 # See http://stackoverflow.com/questions/19447603/
@@ -569,7 +541,6 @@ def runs(iterable):
 
 numbers = namedtuple("numbers", "number, plural")
 
-
 long_numbers = {
     1: _("one"),
     2: _("two"),
@@ -649,10 +620,7 @@ def datetime_roughly_equal(
     # arrow.get from time stamp gives UTC time
     at1 = arrow.get(dt1)
     at2 = arrow.get(dt2)
-    if arrow_shift_support:
-        return at1.shift(seconds=-seconds) < at2 < at1.shift(seconds=+seconds)
-    else:
-        return at1.replace(seconds=-seconds) < at2 < at1.replace(seconds=+seconds)
+    return at1.shift(seconds=-seconds) < at2 < at1.shift(seconds=+seconds)
 
 
 def process_running(process_name: str, partial_name: bool = True) -> bool:
