@@ -30,7 +30,7 @@ import raphodo.metadata.exiftool as exiftool
 import raphodo.metadata.metadataexiftool as metadataexiftool
 from raphodo.constants import FileType
 from raphodo.programversions import EXIFTOOL_VERSION
-from raphodo.utilities import arrow_shift_support, datetime_roughly_equal
+from raphodo.utilities import datetime_roughly_equal
 
 try:
     import pymediainfo
@@ -161,14 +161,9 @@ class MetaData(metadataexiftool.MetadataExiftool):
                             if dt_et is not None:
                                 hour = tz // 60 * -1
                                 minute = tz % 60 * -1
-                                if arrow_shift_support:
-                                    adjusted_dt_mi = dt_mi.shift(
-                                        hours=hour, minutes=minute
-                                    ).naive
-                                else:
-                                    adjusted_dt_mi = dt_mi.replace(
-                                        hours=hour, minutes=minute
-                                    ).naive
+                                adjusted_dt_mi = dt_mi.shift(
+                                    hours=hour, minutes=minute
+                                ).naive
                                 if datetime_roughly_equal(adjusted_dt_mi, dt_et):
                                     logging.debug(
                                         "Favoring ExifTool datetime metadata (%s) "
