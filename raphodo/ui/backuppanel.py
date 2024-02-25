@@ -66,12 +66,12 @@ from raphodo.devices import (
     BackupVolumeDetails,
     DownloadingTo,
 )
-from raphodo.foldercombo import FolderCombo
 from raphodo.prefs.preferences import Preferences
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.storage.storage import ValidMounts, get_media_dir, get_mount_size
 from raphodo.ui.destinationdisplay import adjusted_download_size, make_body_details
 from raphodo.ui.devicedisplay import DeviceDisplay, DeviceView, icon_size
+from raphodo.ui.foldercombo import FolderCombo
 from raphodo.ui.panelview import QPanelView
 from raphodo.ui.viewutils import (
     FlexiFrame,
