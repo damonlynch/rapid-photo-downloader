@@ -66,7 +66,7 @@ from raphodo.ui.viewutils import (
     translateDialogBoxButtons,
 )
 from raphodo.utilities import make_internationalized_list
-from raphodo.wslutils import wsl_conf_mnt_location
+from raphodo.wsl.wslutils import wsl_conf_mnt_location
 
 
 class WindowsDrive(NamedTuple):
