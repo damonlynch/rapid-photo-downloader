@@ -42,7 +42,7 @@ from raphodo.storage.storage import (
     platform_photos_directory,
     platform_videos_directory,
 )
-from raphodo.utilities import make_path_end_snippets_unique
+from raphodo.tools.utilities import make_path_end_snippets_unique
 
 
 class FolderCombo(QComboBox):
