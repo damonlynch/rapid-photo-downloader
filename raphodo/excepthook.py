@@ -173,10 +173,10 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
     if not message_box_displayed and key not in exceptions_notified:
         message_box_displayed = True
         exceptions_notified.add(key)
-
         prefs = Preferences()
 
         title = _("Problem in Rapid Photo Downloader")
+
         if QApplication.instance():
 
             header = _("A problem occurred in Rapid Photo Downloader")
