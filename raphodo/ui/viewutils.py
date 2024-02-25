@@ -77,7 +77,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-import raphodo.xsettings as xsettings
+import raphodo.tools.xsettings as xsettings
 from raphodo.constants import HeaderBackgroundName, ScalingDetected
 
 QT5_VERSION = parse(QT_VERSION_STR)

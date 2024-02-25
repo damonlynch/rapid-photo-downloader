@@ -146,7 +146,7 @@ import raphodo.metadata.exiftool as exiftool
 import raphodo.metadata.fileformats as fileformats
 import raphodo.storage.storageidevice as storageidevice
 import raphodo.ui.didyouknow as didyouknow
-import raphodo.utilities
+import raphodo.tools.utilities
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.camera import (
     autodetect_cameras,
@@ -297,7 +297,7 @@ from raphodo.ui.viewutils import (
     validateWindowPosition,
     validateWindowSizeLimit,
 )
-from raphodo.utilities import (
+from raphodo.tools.utilities import (
     addPushButtonLabelSpacer,
     format_size_for_user,
     getQtSystemTranslation,
@@ -6923,7 +6923,7 @@ def import_prefs() -> None:
 
     prefs = Preferences()
 
-    with raphodo.utilities.stdchannel_redirected(sys.stderr, os.devnull):
+    with raphodo.tools.utilities.stdchannel_redirected(sys.stderr, os.devnull):
         value = run_cmd("program_version")
         if not value:
             print(_("No prior program preferences detected: exiting."))
@@ -6991,7 +6991,7 @@ def import_prefs() -> None:
                             setattr(prefs, new_key, new_value)
 
     key = "stored_sequence_no"
-    with raphodo.utilities.stdchannel_redirected(sys.stderr, os.devnull):
+    with raphodo.tools.utilities.stdchannel_redirected(sys.stderr, os.devnull):
         value = run_cmd(key)
     if value:
         try:
@@ -7001,7 +7001,7 @@ def import_prefs() -> None:
         except ValueError:
             print("Skipping malformed value for key stored_sequence_no")
         else:
-            if new_value and raphodo.utilities.confirm(
+            if new_value and raphodo.tools.utilities.confirm(
                 "\n"
                 + _(
                     "Do you want to copy the stored sequence number, which has the "

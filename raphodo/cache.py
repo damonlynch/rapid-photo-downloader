@@ -68,7 +68,7 @@ from raphodo.storage.storage import (
     get_fdo_cache_thumb_base_directory,
     get_program_cache_directory,
 )
-from raphodo.utilities import GenerateRandomFileName
+from raphodo.tools.utilities import GenerateRandomFileName
 
 GetThumbnail = namedtuple("GetThumbnail", "disk_status, thumbnail, path")
 GetThumbnailPath = namedtuple(

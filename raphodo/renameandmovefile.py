@@ -74,7 +74,7 @@ from raphodo.problemnotification import (
 from raphodo.rpdfile import Photo, RPDFile, Video
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.storage.storage import get_uri
-from raphodo.utilities import (
+from raphodo.tools.utilities import (
     datetime_roughly_equal,
     platform_c_maxint,
     stdchannel_redirected,

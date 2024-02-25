@@ -30,7 +30,7 @@ import raphodo.metadata.exiftool as exiftool
 import raphodo.metadata.metadataexiftool as metadataexiftool
 from raphodo.constants import FileType
 from raphodo.programversions import EXIFTOOL_VERSION
-from raphodo.utilities import datetime_roughly_equal
+from raphodo.tools.utilities import datetime_roughly_equal
 
 try:
     import pymediainfo

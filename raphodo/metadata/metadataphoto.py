@@ -37,7 +37,7 @@ from PyQt5.QtCore import QSize
 import raphodo.metadata.exiftool as exiftool
 import raphodo.metadata.metadataexiftool as metadataexiftool
 from raphodo.constants import FileType
-from raphodo.utilities import flexible_date_time_parser, image_large_enough_fdo
+from raphodo.tools.utilities import flexible_date_time_parser, image_large_enough_fdo
 
 VENDOR_SERIAL_CODES = (
     "Exif.Photo.BodySerialNumber",

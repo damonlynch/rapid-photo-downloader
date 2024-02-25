@@ -78,10 +78,10 @@ from raphodo.generatenameconfig import (
 )
 from raphodo.rpdfile import FileTypeCounter, Photo, Video  # noqa: F401
 from raphodo.storage.storage import StorageSpace, get_mount_size, get_path_display_name
+from raphodo.tools.utilities import format_size_for_user, thousands
 from raphodo.ui.devicedisplay import BodyDetails, DeviceDisplay, icon_size
 from raphodo.ui.nameeditor import PrefDialog, make_subfolder_menu_entry
 from raphodo.ui.viewutils import darkModePixmap, paletteMidPen
-from raphodo.utilities import format_size_for_user, thousands
 
 
 def make_body_details(
@@ -315,7 +315,6 @@ class DestinationDisplay(QWidget):
         _("Folder does not exist")
         # Translators: the lack of a period at the end is deliberate
         _("Insufficient storage space")
-
 
     @property
     def downloading_to(self) -> DownloadingTo:

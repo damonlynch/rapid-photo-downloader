@@ -69,7 +69,7 @@ from raphodo.storage.storageidevice import (
     idevice_serial_to_udid,
     utilities_present,
 )
-from raphodo.utilities import (
+from raphodo.tools.utilities import (
     make_internationalized_list,
     number,
     same_device,

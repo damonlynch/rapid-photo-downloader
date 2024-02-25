@@ -45,7 +45,7 @@ from PyQt5.QtGui import QImage
 from raphodo.metadata.fileformats import FileType
 from raphodo.metadata.metadataexiftool import MetadataExiftool
 from raphodo.metadata.metadataphoto import MetaData, photo_date_time
-from raphodo.utilities import format_size_for_user
+from raphodo.tools.utilities import format_size_for_user
 
 vmtouch_cmd = 'vmtouch -v "{}"'
 page_size = resource.getpagesize()

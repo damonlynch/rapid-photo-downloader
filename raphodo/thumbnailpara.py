@@ -87,7 +87,7 @@ from raphodo.metadata.fileformats import use_exiftool_on_photo
 from raphodo.prefs.preferences import Preferences
 from raphodo.rescan import RescanCamera
 from raphodo.rpdfile import RPDFile
-from raphodo.utilities import CacheDirs, GenerateRandomFileName, create_temp_dir
+from raphodo.tools.utilities import CacheDirs, GenerateRandomFileName, create_temp_dir
 
 
 def cache_dir_name(device_name: str) -> str:

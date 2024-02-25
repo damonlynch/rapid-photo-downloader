@@ -34,7 +34,7 @@ from raphodo.constants import FileType
 from raphodo.metadata.analysis.photoattributes import ExifToolMixin, vmtouch_output
 from raphodo.metadata.metadatavideo import MetaData
 from raphodo.thumbnailextractor import get_video_frame
-from raphodo.utilities import datetime_roughly_equal, format_size_for_user
+from raphodo.tools.utilities import datetime_roughly_equal, format_size_for_user
 
 
 class VideoAttributes(ExifToolMixin):

@@ -98,13 +98,14 @@ from raphodo.constants import (
 )
 from raphodo.prefs.preferences import Preferences
 from raphodo.rpdfile import FileTypeCounter
-from raphodo.timeutils import (
+from raphodo.tools.timeutils import (
     locale_time,
     make_long_date_format,
     strip_am,
     strip_pm,
     strip_zero,
 )
+from raphodo.tools.utilities import runs
 from raphodo.ui.viewutils import (
     ThumbnailDataForProximity,
     TightFlexiFrame,
@@ -113,7 +114,6 @@ from raphodo.ui.viewutils import (
     darkModePixmap,
     is_dark_mode,
 )
-from raphodo.utilities import runs
 
 ProximityRow = namedtuple(
     "ProximityRow",

@@ -115,7 +115,7 @@ from raphodo.storage.storageidevice import (
     idevice_pair,
     idevice_validate_pairing,
 )
-from raphodo.utilities import (
+from raphodo.tools.utilities import (
     GenerateRandomFileName,
     datetime_roughly_equal,
     format_size_for_user,
