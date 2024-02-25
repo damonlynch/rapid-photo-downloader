@@ -65,7 +65,7 @@ from raphodo.ui.viewutils import (
     darkModeIcon,
     standard_font_size,
 )
-from raphodo.wslutils import wsl_filter_directories
+from raphodo.wsl.wslutils import wsl_filter_directories
 
 
 class FileSystemModel(QFileSystemModel):
@@ -304,9 +304,7 @@ class FileSystemFilter(QSortFilterProxyModel):
     def filterAcceptsRow(
         self, sourceRow: int, sourceParent: QModelIndex = None
     ) -> bool:
-        index = self.sourceModel().index(
-            sourceRow, 0, sourceParent
-        )  # type: QModelIndex
+        index = self.sourceModel().index(sourceRow, 0, sourceParent)  # type: QModelIndex
         path = index.data(QFileSystemModel.FilePathRole)  # type: str
 
         if not self.prefs.show_system_folders and path != "/":

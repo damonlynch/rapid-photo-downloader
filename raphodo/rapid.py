@@ -311,7 +311,7 @@ from raphodo.utilities import (
     same_device,
     thousands,
 )
-from raphodo.wsl import (
+from raphodo.wsl.wsl import (
     WindowsDriveMount,
     WslDrives,
     WslWindowsRemovableDriveMonitor,

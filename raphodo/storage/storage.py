@@ -79,7 +79,7 @@ from PyQt5.QtCore import (
 from showinfm import LinuxDesktop, linux_desktop, valid_file_manager
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from raphodo.wslutils import (
+from raphodo.wsl.wslutils import (
     wsl_conf_mnt_location,
     wsl_filter_directories,
     wsl_home,
