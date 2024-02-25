@@ -102,6 +102,7 @@ from raphodo.constants import (
 from raphodo.devices import Device
 from raphodo.rpdfile import make_key
 from raphodo.storage.storage import StorageSpace  # noqa: F401
+from raphodo.tools.utilities import format_size_for_user, thousands
 from raphodo.ui.viewutils import (
     ListViewFlexiFrame,
     RowTracker,
@@ -111,7 +112,6 @@ from raphodo.ui.viewutils import (
     scaledIcon,
     standard_font_size,
 )
-from raphodo.utilities import format_size_for_user, thousands
 
 
 def icon_size() -> int:

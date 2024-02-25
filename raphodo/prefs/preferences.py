@@ -66,7 +66,7 @@ from raphodo.storage.storage import (
     platform_videos_directory,
     platform_videos_identifier,
 )
-from raphodo.utilities import (
+from raphodo.tools.utilities import (
     available_cpu_count,
     default_thumbnail_process_count,
     make_internationalized_list,

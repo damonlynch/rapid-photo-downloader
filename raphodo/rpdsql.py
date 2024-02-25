@@ -38,7 +38,7 @@ from raphodo.storage.storage import (
     get_program_cache_directory,
     get_program_data_directory,
 )
-from raphodo.utilities import divide_list_on_length, runs
+from raphodo.tools.utilities import divide_list_on_length, runs
 
 
 class FileDownloaded(NamedTuple):

@@ -21,18 +21,16 @@ __author__ = 'Damon Lynch'
 
 import sys
 import os
-import shutil
 import pickle
 import tempfile
 import argparse
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import (QApplication, QTextEdit)
-from PyQt5.QtGui import (QPixmap, QImage)
+from PyQt5.QtGui import (QPixmap)
 from xdg import BaseDirectory
-import gphoto2 as gp
 
-from raphodo.utilities import CacheDirs
+from raphodo.tools.utilities import CacheDirs
 
 from raphodo.thumbnailer import Thumbnailer
 from raphodo.rpdfile import RPDFile

@@ -80,20 +80,20 @@ from raphodo.metadata.fileformats import (
     VIDEO_THUMBNAIL_EXTENSIONS,
 )
 from raphodo.prefs.preferences import Preferences
-from raphodo.ui.viewutils import (
-    QNarrowListWidget,
-    StyledLinkLabel,
-    darkModePixmap,
-    standardMessageBox,
-    translateDialogBoxButtons,
-)
-from raphodo.utilities import (
+from raphodo.tools.utilities import (
     available_cpu_count,
     available_languages,
     current_version_is_dev_version,
     format_size_for_user,
     make_internationalized_list,
     thousands,
+)
+from raphodo.ui.viewutils import (
+    QNarrowListWidget,
+    StyledLinkLabel,
+    darkModePixmap,
+    standardMessageBox,
+    translateDialogBoxButtons,
 )
 
 

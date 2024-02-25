@@ -34,7 +34,7 @@ import subprocess
 
 from raphodo.cameraerror import iOSDeviceError
 from raphodo.constants import CameraErrorCode
-from raphodo.utilities import create_temp_dir
+from raphodo.tools.utilities import create_temp_dir
 
 # Utilities for identifying, pairing, and mounting iOS devices
 # Called every time on import into a new process, but not much we can do about that

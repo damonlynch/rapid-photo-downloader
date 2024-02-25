@@ -31,7 +31,7 @@ import gphoto2 as gp
 from raphodo.cameraerror import CameraProblemEx
 from raphodo.constants import CameraErrorCode
 from raphodo.storage.storage import StorageSpace, udev_attributes
-from raphodo.utilities import format_size_for_user
+from raphodo.tools.utilities import format_size_for_user
 
 
 def python_gphoto2_version():

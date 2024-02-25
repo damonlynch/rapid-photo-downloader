@@ -99,7 +99,7 @@ from raphodo.problemnotification import (
 )
 from raphodo.rpdfile import RPDFile
 from raphodo.storage.storage import get_uri
-from raphodo.utilities import letters
+from raphodo.tools.utilities import letters
 
 MatchedSequences = namedtuple(
     "MatchedSequences",

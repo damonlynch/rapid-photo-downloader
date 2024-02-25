@@ -45,7 +45,7 @@ from html import escape
 
 from raphodo.camera import gphoto2_named_error
 from raphodo.constants import ErrorType
-from raphodo.utilities import make_internationalized_list
+from raphodo.tools.utilities import make_internationalized_list
 
 
 def make_href(name: str, uri: str) -> str:

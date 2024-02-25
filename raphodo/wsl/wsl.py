@@ -60,12 +60,12 @@ from PyQt5.QtWidgets import (
 from raphodo.constants import WindowsDriveType
 from raphodo.prefs.preferences import Preferences, WSLWindowsDrivePrefs
 from raphodo.sudocommand import SudoException, SudoExceptionCode, run_commands_as_sudo
+from raphodo.tools.utilities import make_internationalized_list
 from raphodo.ui.viewutils import (
     CheckBoxDelegate,
     standardMessageBox,
     translateDialogBoxButtons,
 )
-from raphodo.utilities import make_internationalized_list
 from raphodo.wsl.wslutils import wsl_conf_mnt_location
 
 

@@ -53,7 +53,7 @@ from raphodo.constants import (
 )
 from raphodo.problemnotification import Problem, make_href
 from raphodo.storage.storage import CameraDetails, get_uri
-from raphodo.utilities import (
+from raphodo.tools.utilities import (
     datetime_roughly_equal,
     make_internationalized_list,
     thousands,

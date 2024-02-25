@@ -94,7 +94,7 @@ gi.require_version("GLib", "2.0")
 from gi.repository import GLib, GUdev, UDisks
 
 from raphodo.constants import Distro, PostCameraUnmountAction
-from raphodo.utilities import (
+from raphodo.tools.utilities import (
     log_os_release,
     remove_topmost_directory_from_path,
 )

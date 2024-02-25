@@ -55,8 +55,12 @@ from raphodo.interprocess import (
     ThumbnailExtractorArgument,
 )
 from raphodo.rpdfile import Photo, RPDFile, Video
+from raphodo.tools.utilities import (
+    image_large_enough_fdo,
+    show_errors,
+    stdchannel_redirected,
+)
 from raphodo.ui.filmstrip import add_filmstrip
-from raphodo.utilities import image_large_enough_fdo, show_errors, stdchannel_redirected
 
 have_gst = Gst.init_check(None)
 

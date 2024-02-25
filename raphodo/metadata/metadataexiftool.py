@@ -36,7 +36,7 @@ import raphodo.metadata.exiftool as exiftool
 import raphodo.metadata.fileformats as fileformats
 import raphodo.programversions as programversions
 from raphodo.constants import FileType
-from raphodo.utilities import flexible_date_time_parser
+from raphodo.tools.utilities import flexible_date_time_parser
 
 # Turned into an OrderedDict below
 _index_preview = {

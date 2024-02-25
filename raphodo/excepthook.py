@@ -20,7 +20,6 @@
 __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2024, Damon Lynch"
 
-
 import io
 import logging
 import os
@@ -39,8 +38,8 @@ except Exception:
 from raphodo.iplogging import full_log_file_path
 from raphodo.prefs.preferences import Preferences
 from raphodo.storage.storage import get_uri
+from raphodo.tools.utilities import bug_report_full_tar_path, create_bugreport_tar
 from raphodo.ui.viewutils import standardMessageBox
-from raphodo.utilities import bug_report_full_tar_path, create_bugreport_tar
 
 message_box_displayed = False
 exceptions_notified = set()
@@ -109,7 +108,6 @@ def save_bug_report_tar(config_file: str, full_log_file_path: str) -> None:
         log_path=log_path,
         full_config_file=config_file,
     ):
-
         body = tar_created_body.format(
             tarfile=os.path.split(bug_report_full_tar)[1],
             uri=get_uri(full_file_name=bug_report_full_tar),
@@ -177,7 +175,6 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
         exceptions_notified.add(key)
 
         prefs = Preferences()
-
         title = _("Problem in Rapid Photo Downloader")
 
         if QApplication.instance():

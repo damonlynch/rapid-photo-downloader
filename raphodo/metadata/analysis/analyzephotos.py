@@ -70,7 +70,7 @@ from raphodo.metadata.fileformats import (
     use_exiftool_on_photo,
 )
 from raphodo.rpdsql import FileFormatSQL
-from raphodo.utilities import (
+from raphodo.tools.utilities import (
     confirm,
     format_size_for_user,
     show_errors,

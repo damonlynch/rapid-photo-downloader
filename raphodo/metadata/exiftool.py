@@ -70,7 +70,7 @@ import sys
 import warnings
 
 from raphodo.programversions import exiftool_version_info
-from raphodo.utilities import set_pdeathsig
+from raphodo.tools.utilities import set_pdeathsig
 
 basestring = (bytes, str)
 

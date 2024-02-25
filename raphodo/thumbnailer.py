@@ -35,7 +35,7 @@ from raphodo.interprocess import (
     create_inproc_msg,
 )
 from raphodo.rpdfile import RPDFile
-from raphodo.utilities import CacheDirs
+from raphodo.tools.utilities import CacheDirs
 
 
 class ThumbnailManagerPara(PublishPullPipelineManager):

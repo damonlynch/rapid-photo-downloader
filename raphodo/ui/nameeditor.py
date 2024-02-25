@@ -103,13 +103,13 @@ from raphodo.prefs.preferences import (
     match_pref_list,
 )
 from raphodo.rpdfile import FileType, Photo, SamplePhoto, SampleVideo, Video
+from raphodo.tools.utilities import remove_last_char_from_list_str
 from raphodo.ui.messagewidget import MessageWidget
 from raphodo.ui.viewutils import (
     standardMessageBox,
     translateDialogBoxButtons,
     translateMessageBoxButtons,
 )
-from raphodo.utilities import remove_last_char_from_list_str
 
 
 class PrefEditor(QTextEdit):

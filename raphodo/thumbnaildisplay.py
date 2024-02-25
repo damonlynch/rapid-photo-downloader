@@ -113,18 +113,18 @@ from raphodo.storage.storage import (
     validate_download_folder,
 )
 from raphodo.thumbnailer import Thumbnailer
-from raphodo.ui.viewutils import (
-    ScrollBarEmitsVisible,
-    ThumbnailDataForProximity,
-    is_dark_mode,
-    scaledIcon,
-)
-from raphodo.utilities import (
+from raphodo.tools.utilities import (
     CacheDirs,
     arrow_locale,
     format_size_for_user,
     make_internationalized_list,
     runs,
+)
+from raphodo.ui.viewutils import (
+    ScrollBarEmitsVisible,
+    ThumbnailDataForProximity,
+    is_dark_mode,
+    scaledIcon,
 )
 
 
@@ -245,8 +245,8 @@ class ThumbnailListModel(QAbstractListModel):
         self.add_buffer = AddBuffer()
 
         # Proximity filtering
-        self.proximity_col1 = []  #  type: list[int, ...]
-        self.proximity_col2 = []  #  type: list[int, ...]
+        self.proximity_col1 = []  # type: list[int, ...]
+        self.proximity_col2 = []  # type: list[int, ...]
 
         # scan_id
         self.removed_devices = set()  # type: set[int]

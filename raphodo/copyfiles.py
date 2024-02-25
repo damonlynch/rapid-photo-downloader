@@ -61,7 +61,11 @@ from raphodo.problemnotification import (
 from raphodo.rescan import RescanCamera
 from raphodo.rpdfile import RPDFile
 from raphodo.storage.storage import get_uri
-from raphodo.utilities import GenerateRandomFileName, create_temp_dirs, same_device
+from raphodo.tools.utilities import (
+    GenerateRandomFileName,
+    create_temp_dirs,
+    same_device,
+)
 
 
 def copy_file_metadata(src: str, dst: str) -> tuple | None:
