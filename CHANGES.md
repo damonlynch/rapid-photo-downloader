@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.37 (2024-03-xx)
+-------------------
+
+ - Fix invalid escape characters. Thanks to Tino Mettler for the heads-up.
+
 0.9.36 (2024-02-13)
 -------------------
 

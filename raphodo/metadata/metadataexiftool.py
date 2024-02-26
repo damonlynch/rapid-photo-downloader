@@ -83,7 +83,7 @@ def generate_short_camera_model(
     'a9III'
     >>> generate_short_camera_model("Fujifilm X-S20")
     'S20'
-    >>> generate_short_camera_model("Fujifilm X-S20", "\-")
+    >>> generate_short_camera_model("Fujifilm X-S20", r"\-")
     'X-S20'
     >>> generate_short_camera_model("Sony a7C II")
     ''

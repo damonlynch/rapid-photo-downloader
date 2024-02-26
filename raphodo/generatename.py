@@ -379,7 +379,7 @@ class NameGeneration:
         elif self.L1 == SHORT_CAMERA_MODEL:
             v = self.rpd_file.metadata.short_camera_model()
         elif self.L1 == SHORT_CAMERA_MODEL_HYPHEN:
-            v = self.rpd_file.metadata.short_camera_model(include_characters="\-")
+            v = self.rpd_file.metadata.short_camera_model(include_characters=r"\-")
         elif self.L1 == SERIAL_NUMBER:
             v = self.rpd_file.metadata.camera_serial()
         elif self.L1 == SHUTTER_COUNT:
