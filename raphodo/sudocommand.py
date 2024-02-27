@@ -40,6 +40,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
+from raphodo.tools.utilities import data_file_path
 from raphodo.ui.password import PasswordEdit
 from raphodo.ui.viewutils import translateDialogBoxButtons
 
@@ -61,7 +62,11 @@ class SudoCommand(QDialog):
 
         if title:
             titleHLayout = QHBoxLayout()
-            i = QIcon(icon) if icon else QIcon(":/rapid-photo-downloader.svg")
+            i = (
+                QIcon(data_file_path(icon))
+                if icon
+                else QIcon(data_file_path("rapid-photo-downloader.svg"))
+            )
             size = QFontMetrics(QFont()).height()
             pixmap = i.pixmap(QSize(size, size))
             titleIcon = QLabel()
@@ -354,9 +359,9 @@ if __name__ == "__main__":
 
     cmds = ["echo OK"]
 
-    title = "Unmount drives EOS_DIGITAL (G:) and EOS_DIGITAL (J:)"
+    # title = "Unmount drives EOS_DIGITAL (G:) and EOS_DIGITAL (J:)"
     title = "Unmount drives EOS_DIGITAL (G:)"
-    icon = ":/icons/drive-removable-media.svg"
+    icon = "icons/drive-removable-media.svg"
 
     results = run_commands_as_sudo(
         cmds=cmds,

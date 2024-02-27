@@ -70,6 +70,7 @@ from raphodo.storage.storageidevice import (
     utilities_present,
 )
 from raphodo.tools.utilities import (
+    data_file_path,
     make_internationalized_list,
     number,
     same_device,
@@ -379,17 +380,17 @@ class Device:
 
         # TODO consider scaledIcon() here
         if self.device_type == DeviceType.volume:
-            return QIcon(":/icons/drive-removable-media.svg")
+            return QIcon(data_file_path("icons/drive-removable-media.svg"))
         elif self.device_type == DeviceType.path:
-            return QIcon(":/icons/folder.svg")
+            return QIcon(data_file_path("icons/folder.svg"))
         else:
             assert self.device_type in camera_devices
             if self.is_mtp_device or self.is_apple_mobile:
                 if self.camera_model.lower().find("tablet") >= 0:
                     # TODO use tablet icon
                     pass
-                return QIcon(":/icons/smartphone.svg")
-            return QIcon(":/icons/camera.svg")
+                return QIcon(data_file_path("icons/smartphone.svg"))
+            return QIcon(data_file_path("icons/camera.svg"))
 
     def get_pixmap(
         self, size: QSize = QSize(30, 30), device_pixel_ratio: float | None = None
@@ -1213,7 +1214,7 @@ class DeviceCollection:
         """
 
         if not len(self):
-            return _("Select Source"), QIcon(":/icons/computer.svg")
+            return _("Select Source"), QIcon(data_file_path("icons/computer.svg"))
         elif len(self) == 1:
             # includes case where path is the only device
             device = list(self.devices.values())[0]
@@ -1246,7 +1247,7 @@ class DeviceCollection:
                 assert len(self.this_computer) < 2
                 assert len(self.this_computer) > 0
 
-                icon = QIcon(":/icons/computer.svg")
+                icon = QIcon(data_file_path("icons/computer.svg"))
                 devices = list(self.volumes_and_cameras)
                 computer_display_name = self.devices[
                     list(self.this_computer)[0]
@@ -1289,7 +1290,7 @@ class DeviceCollection:
                             "device2": devices[1].display_name,
                         }
                         if device_type in camera_devices and len(mtp_devices) != 2:
-                            return text, QIcon(":/icons/camera.svg")
+                            return text, QIcon(data_file_path("icons/camera.svg"))
                         return text, devices[0].get_icon()
                     try:
                         text_number = number(
@@ -1305,7 +1306,7 @@ class DeviceCollection:
                         text = _("%(no_cameras)s Cameras") % {"no_cameras": text_number}
                         if len(mtp_devices) == len(self.volumes_and_cameras):
                             return text, non_pc_devices[0].get_icon()
-                        return text, QIcon(":/icons/camera.svg")
+                        return text, QIcon(data_file_path("icons/camera.svg"))
                     elif device_type == DeviceType.volume:
                         # Translators: %(variable)s represents Python code, not a plural
                         # of the term variable. You must keep the %(variable)s
@@ -1313,10 +1314,10 @@ class DeviceCollection:
                         text = _("%(no_devices)s Devices") % dict(
                             no_devices=text_number
                         )
-                        return text, QIcon(":/icons/drive-removable-media.svg")
+                        return text, QIcon(data_file_path("icons/drive-removable-media.svg"))
                 else:
                     device_display_name = self._mixed_devices(device_type_text)
-                    icon = QIcon(":/icons/computer.svg")
+                    icon = QIcon(data_file_path("icons/computer.svg"))
                     return device_display_name, icon
 
 

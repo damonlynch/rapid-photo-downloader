@@ -29,8 +29,8 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QLabel
 
 from raphodo.constants import RememberThisButtons, RememberThisMessage
+from raphodo.tools.utilities import data_file_path
 from raphodo.ui.viewutils import standardIconSize, translateDialogBoxButtons
-
 
 class RememberThisDialog(QDialog):
 
@@ -66,7 +66,7 @@ class RememberThisDialog(QDialog):
 
         iconLabel = QLabel()
         if isinstance(icon, str):
-            iconLabel.setPixmap(QIcon(icon).pixmap(standardIconSize()))
+            iconLabel.setPixmap(QIcon(data_file_path(icon)).pixmap(standardIconSize()))
         else:
             iconLabel.setPixmap(icon)
 

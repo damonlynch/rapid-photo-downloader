@@ -116,6 +116,7 @@ from raphodo.thumbnailer import Thumbnailer
 from raphodo.tools.utilities import (
     CacheDirs,
     arrow_locale,
+    data_file_path,
     format_size_for_user,
     make_internationalized_list,
     runs,
@@ -269,8 +270,8 @@ class ThumbnailListModel(QAbstractListModel):
         self.uid_to_row = {}  # type: dict[bytes, int]
 
         size = QSize(106, 106)
-        self.photo_icon = scaledIcon(":/thumbnail/photo.svg").pixmap(size)
-        self.video_icon = scaledIcon(":/thumbnail/video.svg").pixmap(size)
+        self.photo_icon = scaledIcon(data_file_path("thumbnail/photo.svg")).pixmap(size)
+        self.video_icon = scaledIcon(data_file_path("thumbnail/video.svg")).pixmap(size)
 
         self.total_thumbs_to_generate = 0
         self.thumbnails_generated = 0
@@ -2173,16 +2174,20 @@ class ThumbnailDelegate(QStyledItemDelegate):
         size16 = QSize(16, 16)
         size24 = QSize(24, 24)
         self.downloadPendingPixmap = scaledIcon(
-            ":/thumbnail/download-pending.svg"
+            data_file_path("thumbnail/download-pending.svg")
         ).pixmap(size16)
-        self.downloadedPixmap = scaledIcon(":/thumbnail/downloaded.svg").pixmap(size16)
+        self.downloadedPixmap = scaledIcon(
+            data_file_path("thumbnail/downloaded.svg")
+        ).pixmap(size16)
         self.downloadedWarningPixmap = scaledIcon(
-            ":/thumbnail/downloaded-with-warning.svg"
+            data_file_path("thumbnail/downloaded-with-warning.svg")
         ).pixmap(size16)
         self.downloadedErrorPixmap = scaledIcon(
-            ":/thumbnail/downloaded-with-error.svg"
+            data_file_path("thumbnail/downloaded-with-error.svg")
         ).pixmap(size16)
-        self.audioIcon = scaledIcon(":/thumbnail/audio.svg", size24).pixmap(size24)
+        self.audioIcon = scaledIcon(
+            data_file_path("thumbnail/audio.svg"), size24
+        ).pixmap(size24)
 
         # Determine pixel scaling for SVG files
         # Applies to all SVG files delegate will load

@@ -28,7 +28,6 @@ exclude = [
     "snap",
     "po",
     "tests",
-    "qrc_resources.py",
 ]
 
 # Same as Black.

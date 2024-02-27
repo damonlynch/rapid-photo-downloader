@@ -37,6 +37,7 @@ import tempfile
 from collections import defaultdict, namedtuple
 from datetime import datetime
 from glob import glob
+from importlib.resources import files
 from itertools import groupby
 from pathlib import Path
 
@@ -60,6 +61,16 @@ def set_pdeathsig(sig=signal.SIGTERM):
         return libc.prctl(1, sig)
 
     return callable
+
+
+def data_file_path(data_file: str) -> str:
+    """
+    Returns the location on the file system of a data file
+    :param data_file: relative path to a file found within the data directory
+    :return: the absolute path to the data file
+    """
+
+    return str((files("raphodo") / "data").joinpath(data_file))
 
 
 def available_cpu_count(physical_only=False) -> int:

@@ -4,6 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.37 (2024-03-xx)
 -------------------
 
+ - Purge use of the Qt resource system for images, instead storing images in a 
+   new data directory and loading them using Python resource system.
+
  - Fix invalid escape characters. Thanks to Tino Mettler for the heads-up.
 
 0.9.36 (2024-02-13)

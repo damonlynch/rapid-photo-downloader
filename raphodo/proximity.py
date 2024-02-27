@@ -2576,25 +2576,25 @@ class SyncButton(QPushButton):
             scaling = float(self.devicePixelRatio())
 
         self.activeIcon = SyncIcon(
-            path=":/icons/sync.svg",
+            path="icons/sync.svg",
             state=SyncButtonState.active,
             scaling=scaling,
             on_hover=False,
         )
         self.inactiveIcon = SyncIcon(
-            path=":/icons/sync.svg",
+            path="icons/sync.svg",
             state=SyncButtonState.inactive,
             scaling=scaling,
             on_hover=False,
         )
         self.regularIcon = SyncIcon(
-            path=":/icons/sync.svg",
+            path="icons/sync.svg",
             state=SyncButtonState.regular,
             scaling=scaling,
             on_hover=False,
         )
         self.regularIconHover = SyncIcon(
-            path=":/icons/sync.svg",
+            path="icons/sync.svg",
             state=SyncButtonState.regular,
             scaling=scaling,
             on_hover=True,

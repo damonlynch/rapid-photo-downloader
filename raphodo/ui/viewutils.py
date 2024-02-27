@@ -79,6 +79,7 @@ from PyQt5.QtWidgets import (
 
 import raphodo.tools.xsettings as xsettings
 from raphodo.constants import HeaderBackgroundName, ScalingDetected
+from raphodo.tools.utilities import data_file_path
 
 QT5_VERSION = parse(QT_VERSION_STR)
 
@@ -759,7 +760,7 @@ def standardMessageBox(
             if icon:
                 iconPixmap = icon.pixmap(standardIconSize())
             else:
-                iconPixmap = QIcon(":/rapid-photo-downloader.svg").pixmap(
+                iconPixmap = QIcon(data_file_path("rapid-photo-downloader.svg")).pixmap(
                     standardIconSize()
                 )
         msgBox.setIconPixmap(iconPixmap)
@@ -876,7 +877,11 @@ def coloredPixmap(
     if isinstance(color, str):
         color = QColor(color)
     if path is not None:
-        pixmap = QIcon(path).pixmap(size) if size else QPixmap(path)
+        pixmap = (
+            QIcon(data_file_path(path)).pixmap(size)
+            if size
+            else QPixmap(data_file_path(path))
+        )
     else:
         assert pixmap is not None
 
@@ -903,9 +908,9 @@ def darkModePixmap(
         if pixmap:
             return pixmap
         if size:
-            return QIcon(path).pixmap(size)
+            return QIcon(data_file_path(path)).pixmap(size)
         else:
-            return QPixmap(path)
+            return QPixmap(data_file_path(path))
 
 
 def darkModeIcon(
@@ -932,7 +937,7 @@ def darkModeIcon(
         if icon:
             return icon
         else:
-            return QIcon(path)
+            return QIcon(data_file_path(path))
 
 
 def menuHoverColor() -> QColor:

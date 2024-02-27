@@ -84,6 +84,7 @@ from raphodo.tools.utilities import (
     available_cpu_count,
     available_languages,
     current_version_is_dev_version,
+    data_file_path,
     format_size_for_user,
     make_internationalized_list,
     thousands,
@@ -161,15 +162,15 @@ class PreferencesDialog(QDialog):
                 _("Miscellaneous"),
             )
             icons = (
-                ":/prefs/devices.svg",
-                ":/prefs/language.svg",
-                ":/prefs/automation.svg",
-                ":/prefs/thumbnails.svg",
-                ":/prefs/timezone.svg",
-                ":/prefs/error-handling.svg",
-                ":/prefs/warnings.svg",
-                ":/prefs/consolidation.svg",
-                ":/prefs/miscellaneous.svg",
+                "prefs/bw/devices.svg",
+                "prefs/bw/language.svg",
+                "prefs/bw/automation.svg",
+                "prefs/bw/thumbnails.svg",
+                "prefs/bw/timezone.svg",
+                "prefs/bw/error-handling.svg",
+                "prefs/bw/warnings.svg",
+                "prefs/bw/consolidation.svg",
+                "prefs/bw/miscellaneous.svg",
             )
         else:
             self.chooser_items = (
@@ -183,20 +184,20 @@ class PreferencesDialog(QDialog):
                 _("Miscellaneous"),
             )
             icons = (
-                ":/prefs/devices.svg",
-                ":/prefs/language.svg",
-                ":/prefs/automation.svg",
-                ":/prefs/thumbnails.svg",
-                ":/prefs/timezone.svg",
-                ":/prefs/error-handling.svg",
-                ":/prefs/warnings.svg",
-                ":/prefs/miscellaneous.svg",
+                "prefs/bw/devices.svg",
+                "prefs/bw/language.svg",
+                "prefs/bw/automation.svg",
+                "prefs/bw/thumbnails.svg",
+                "prefs/bw/timezone.svg",
+                "prefs/bw/error-handling.svg",
+                "prefs/bw/warnings.svg",
+                "prefs/bw/miscellaneous.svg",
             )
 
         for prefIcon, label in zip(icons, self.chooser_items):
             # make the selected icons be the same colour as the selected text
             icon = QIcon()
-            pixmap = QPixmap(prefIcon)
+            pixmap = QPixmap(data_file_path(prefIcon))
             selected = QPixmap(pixmap.size())
             selected.fill(selectedColour)
             selected.setMask(pixmap.createMaskFromColor(Qt.transparent))

@@ -24,6 +24,7 @@ __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2016-2024, Damon Lynch"
 
 import re
+from pathlib import Path
 
 from PyQt5.QtCore import QSize, Qt, pyqtSlot
 from PyQt5.QtGui import QFont, QPixmap  # noqa: F401
@@ -41,6 +42,7 @@ from PyQt5.QtWidgets import (
 )
 
 import raphodo.__about__ as __about__
+from raphodo.tools.utilities import data_file_path
 from raphodo.ui.viewutils import translateDialogBoxButtons
 
 
@@ -55,10 +57,13 @@ class AboutDialog(QDialog):
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
 
         self.setObjectName("AboutDialog")
+        png = data_file_path("splashscreen.png")
+        url = Path(png).as_posix()
         self.setStyleSheet(
-            "QDialog#AboutDialog {background-image: url(:/splashscreen.png);}"
+            f"QDialog#AboutDialog {{background-image: url({url});}}"
         )
-        pixmap = QPixmap(":/splashscreen.png")
+
+        pixmap = QPixmap(png)
         try:
             ratio = pixmap.devicePixelRatioF()
         except AttributeError:
