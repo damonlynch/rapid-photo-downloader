@@ -237,10 +237,6 @@ class ErrorReport(QDialog):
             .width()
             + spacing
         )
-        # Translators: match number of total matches in a search, e.g. 1 of 10 matches
-        _("%(matchnumber)s of %(total)s matches")
-
-        # TODO implement this once translations done
 
         findLayout = QHBoxLayout()
         findLayout.setSpacing(0)
@@ -373,8 +369,9 @@ class ErrorReport(QDialog):
             self.current_find_index = index
             self.log.setTextCursor(cursor)
             self.findResults.setText(
-                _("%(num)s of %(count)s matches")
-                % dict(num=index + 1, count=len(self.find_cursors))
+                # Translators: match number of total matches in a search, e.g. 1 of 10 matches
+                _("%(matchnumber)s of %(total)s matches")
+                % dict(matchnumber=index + 1, total=len(self.find_cursors))
             )
             self.findResults.setPalette(self.foundPalette)
 
