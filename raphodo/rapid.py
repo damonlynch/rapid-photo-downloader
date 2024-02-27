@@ -7418,9 +7418,14 @@ def main():
 
         if args.forget_files:
             d = DownloadedSQL()
-            d.update_table(reset=True)
-            print(_("Remembered files have been forgotten."))
-            logging.debug("Remembered files have been forgotten")
+            count = d.no_downloaded()
+            if count:
+                d.update_table(reset=True)
+            print(
+                _("%(count)s remembered files have been forgotten.")
+                % dict(count=count)
+            )
+            logging.debug("%s remembered files have been forgotten", count)
 
         if args.import_prefs:
             import_prefs()

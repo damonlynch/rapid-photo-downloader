@@ -755,6 +755,17 @@ class DownloadedSQL:
         # h:mm. Set to actual offset when one is found. Can be negative.
         self.found_offset_hr = ""
 
+    def no_downloaded(self)-> None:
+        """
+        :return: how many downloaded files are in the db
+        """
+
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        c.execute(f"SELECT COUNT(*) FROM {self.table_name}")
+        count = c.fetchall()
+        return count[0][0]
+
     def update_table(self, reset: bool = False) -> None:
         """
         Create or update the database table
