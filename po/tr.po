@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2024-02-28 10:35+1300\n"
+"POT-Creation-Date: 2024-02-28 11:26+1300\n"
 "PO-Revision-Date: 2024-01-25 23:17+0000\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -1033,30 +1033,25 @@ msgstr "Yalnız tam kelimelerle ara"
 msgid "%s of %s matches"
 msgstr "%s / %s kadarı eşleşiyor"
 
+#: ../raphodo/errorlog.py:258
+msgid "Clear"
+msgstr "Temizle"
+
+#: ../raphodo/errorlog.py:358
+msgid "Phrase not found"
+msgstr "İfade bulunamadı"
+
 #. Translators: match number of total matches in a search, e.g. 1 of 10 matches
-#: ../raphodo/errorlog.py:241
+#: ../raphodo/errorlog.py:373
 #, python-format
 msgid "%(matchnumber)s of %(total)s matches"
 msgstr "toplam %(total)s adedin %(matchnumber)s adedi eşleşiyor"
 
-#: ../raphodo/errorlog.py:262
-msgid "Clear"
-msgstr "Temizle"
-
-#: ../raphodo/errorlog.py:362
-msgid "Phrase not found"
-msgstr "İfade bulunamadı"
-
-#: ../raphodo/errorlog.py:376
-#, fuzzy, python-format
-msgid "%(num)s of %(count)s matches"
-msgstr "toplam %(total)s adedin %(matchnumber)s adedi eşleşiyor"
-
-#: ../raphodo/errorlog.py:522
+#: ../raphodo/errorlog.py:519
 msgid "Search pending..."
 msgstr "Arama beklemede..."
 
-#: ../raphodo/errorlog.py:572
+#: ../raphodo/errorlog.py:569
 msgid ""
 "The number of new entries added to the Error Report since it was last open. "
 "Click to open the Error Report."
@@ -5017,6 +5012,10 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader ile Fotoğraf ve Video İndirin"
+
+#, fuzzy, python-format
+#~ msgid "%(num)s of %(count)s matches"
+#~ msgstr "toplam %(total)s adedin %(matchnumber)s adedi eşleşiyor"
 
 #~ msgid "Paris"
 #~ msgstr "Paris"

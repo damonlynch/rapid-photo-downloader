@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2024-02-28 10:35+1300\n"
+"POT-Creation-Date: 2024-02-28 11:26+1300\n"
 "PO-Revision-Date: 2024-01-25 23:17+0000\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -1010,30 +1010,25 @@ msgstr "単語全体のみを検索"
 msgid "%s of %s matches"
 msgstr "%s (%s 一致中)"
 
+#: ../raphodo/errorlog.py:258
+msgid "Clear"
+msgstr "消去"
+
+#: ../raphodo/errorlog.py:358
+msgid "Phrase not found"
+msgstr "語句が見つかりませんでした"
+
 #. Translators: match number of total matches in a search, e.g. 1 of 10 matches
-#: ../raphodo/errorlog.py:241
+#: ../raphodo/errorlog.py:373
 #, python-format
 msgid "%(matchnumber)s of %(total)s matches"
 msgstr "全 %(total)s 個のうち %(matchnumber)s 個が一致しました"
 
-#: ../raphodo/errorlog.py:262
-msgid "Clear"
-msgstr "消去"
-
-#: ../raphodo/errorlog.py:362
-msgid "Phrase not found"
-msgstr "語句が見つかりませんでした"
-
-#: ../raphodo/errorlog.py:376
-#, fuzzy, python-format
-msgid "%(num)s of %(count)s matches"
-msgstr "全 %(total)s 個のうち %(matchnumber)s 個が一致しました"
-
-#: ../raphodo/errorlog.py:522
+#: ../raphodo/errorlog.py:519
 msgid "Search pending..."
 msgstr "検索停止..."
 
-#: ../raphodo/errorlog.py:572
+#: ../raphodo/errorlog.py:569
 msgid ""
 "The number of new entries added to the Error Report since it was last open. "
 "Click to open the Error Report."
@@ -4963,6 +4958,10 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "写真と動画を高速写真ダウンローダでダウンロードする"
+
+#, fuzzy, python-format
+#~ msgid "%(num)s of %(count)s matches"
+#~ msgstr "全 %(total)s 個のうち %(matchnumber)s 個が一致しました"
 
 #~ msgid "Berlin"
 #~ msgstr "ベルリン"

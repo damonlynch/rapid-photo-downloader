@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2024-02-28 10:35+1300\n"
+"POT-Creation-Date: 2024-02-28 11:26+1300\n"
 "PO-Revision-Date: 2024-01-09 16:56+0000\n"
 "Last-Translator: Torben Gundtofte-Bruun <torben@g-b.dk>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -853,30 +853,25 @@ msgstr "Søg kun hele ord"
 msgid "%s of %s matches"
 msgstr "%s af %s træffere"
 
+#: ../raphodo/errorlog.py:258
+msgid "Clear"
+msgstr "Ryd"
+
+#: ../raphodo/errorlog.py:358
+msgid "Phrase not found"
+msgstr "Tekst ikke fundet"
+
 #. Translators: match number of total matches in a search, e.g. 1 of 10 matches
-#: ../raphodo/errorlog.py:241
+#: ../raphodo/errorlog.py:373
 #, python-format
 msgid "%(matchnumber)s of %(total)s matches"
 msgstr ""
 
-#: ../raphodo/errorlog.py:262
-msgid "Clear"
-msgstr "Ryd"
-
-#: ../raphodo/errorlog.py:362
-msgid "Phrase not found"
-msgstr "Tekst ikke fundet"
-
-#: ../raphodo/errorlog.py:376
-#, fuzzy, python-format
-msgid "%(num)s of %(count)s matches"
-msgstr "%s af %s træffere"
-
-#: ../raphodo/errorlog.py:522
+#: ../raphodo/errorlog.py:519
 msgid "Search pending..."
 msgstr ""
 
-#: ../raphodo/errorlog.py:572
+#: ../raphodo/errorlog.py:569
 msgid ""
 "The number of new entries added to the Error Report since it was last open. "
 "Click to open the Error Report."
@@ -4486,6 +4481,10 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Hent fotos og videoer med Rapid Photo Downloader"
+
+#, fuzzy, python-format
+#~ msgid "%(num)s of %(count)s matches"
+#~ msgstr "%s af %s træffere"
 
 #, python-format
 #~ msgid "%(device)s did not unmount"

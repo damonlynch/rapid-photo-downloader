@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2024-02-28 10:35+1300\n"
+"POT-Creation-Date: 2024-02-28 11:26+1300\n"
 "PO-Revision-Date: 2024-01-25 23:16+0000\n"
 "Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
@@ -1023,30 +1023,25 @@ msgstr "Тражите само целе речи"
 msgid "%s of %s matches"
 msgstr "%s од %s поклапања"
 
+#: ../raphodo/errorlog.py:258
+msgid "Clear"
+msgstr "Очисти"
+
+#: ../raphodo/errorlog.py:358
+msgid "Phrase not found"
+msgstr "Нисам нашао израз"
+
 #. Translators: match number of total matches in a search, e.g. 1 of 10 matches
-#: ../raphodo/errorlog.py:241
+#: ../raphodo/errorlog.py:373
 #, python-format
 msgid "%(matchnumber)s of %(total)s matches"
 msgstr "%(matchnumber)s од %(total)s поклапања"
 
-#: ../raphodo/errorlog.py:262
-msgid "Clear"
-msgstr "Очисти"
-
-#: ../raphodo/errorlog.py:362
-msgid "Phrase not found"
-msgstr "Нисам нашао израз"
-
-#: ../raphodo/errorlog.py:376
-#, fuzzy, python-format
-msgid "%(num)s of %(count)s matches"
-msgstr "%(matchnumber)s од %(total)s поклапања"
-
-#: ../raphodo/errorlog.py:522
+#: ../raphodo/errorlog.py:519
 msgid "Search pending..."
 msgstr "Претрага је на чекању..."
 
-#: ../raphodo/errorlog.py:572
+#: ../raphodo/errorlog.py:569
 msgid ""
 "The number of new entries added to the Error Report since it was last open. "
 "Click to open the Error Report."
@@ -4992,6 +4987,10 @@ msgstr ""
 #: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr "Преузмите фотографије и снимке са Брзим преносиоцем фотографија"
+
+#, fuzzy, python-format
+#~ msgid "%(num)s of %(count)s matches"
+#~ msgstr "%(matchnumber)s од %(total)s поклапања"
 
 #~ msgid "Berlin"
 #~ msgstr "Берлин"
