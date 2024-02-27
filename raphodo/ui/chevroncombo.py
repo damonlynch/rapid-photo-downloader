@@ -48,7 +48,7 @@ class ChevronCombo(QComboBox):
         # Draw chevron (down arrow)
         width = int(QFontMetrics(QFont()).height() * (2 / 3))
         size = QSize(width, width)
-        pixmap = darkModePixmap(path=":/icons/chevron-down.svg", size=size)
+        pixmap = darkModePixmap(path="icons/chevron-down.svg", size=size)
         x = self.rect().width() - width - 6
         y = self.rect().center().y() - width / 2
         p = QPointF(x, y)

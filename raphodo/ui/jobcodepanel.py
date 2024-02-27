@@ -50,6 +50,7 @@ from PyQt5.QtWidgets import (
 
 from raphodo.constants import JobCodeSort
 from raphodo.prefs.preferences import Preferences
+from raphodo.tools.utilities import data_file_path
 from raphodo.ui.chevroncombo import ChevronCombo
 from raphodo.ui.messagewidget import MessageButton, MessageWidget
 from raphodo.ui.panelview import QPanelView
@@ -171,7 +172,9 @@ class JobCodeDialog(QDialog):
         else:
             self.jobCodeComboBox.setInsertPolicy(QComboBox.InsertAlphabetically)
 
-        icon = QIcon(":/rapid-photo-downloader.svg").pixmap(standardIconSize())
+        icon = QIcon(data_file_path("rapid-photo-downloader.svg")).pixmap(
+            standardIconSize()
+        )
         iconLabel = QLabel()
         iconLabel.setPixmap(icon)
         iconLabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)

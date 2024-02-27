@@ -42,7 +42,7 @@ from raphodo.storage.storage import (
     platform_photos_directory,
     platform_videos_directory,
 )
-from raphodo.tools.utilities import make_path_end_snippets_unique
+from raphodo.tools.utilities import data_file_path, make_path_end_snippets_unique
 
 
 class FolderCombo(QComboBox):
@@ -127,17 +127,23 @@ class FolderCombo(QComboBox):
                     if videos_dir is not None and os.path.isdir(videos_dir):
                         videos_label = os.path.basename(videos_dir)
 
-        self.addItem(QIcon(":/icons/home.svg"), home_label, home_dir)
+        self.addItem(QIcon(data_file_path("icons/home.svg")), home_label, home_dir)
         idx = 1
         if desktop_label:
-            self.addItem(QIcon(":/icons/desktop.svg"), desktop_label, desktop_dir)
+            self.addItem(
+                QIcon(data_file_path("icons/desktop.svg")), desktop_label, desktop_dir
+            )
             idx += 1
-        self.addItem(QIcon(":/icons/drive-harddisk.svg"), _("File System"), "/")
+        self.addItem(
+            QIcon(data_file_path("icons/drive-harddisk.svg")), _("File System"), "/"
+        )
         idx += 1
 
         if mounts:
             for name, path in mounts:
-                self.addItem(QIcon(":icons/drive-removable-media.svg"), name, path)
+                self.addItem(
+                    QIcon(data_file_path("icons/drive-removable-media.svg")), name, path
+                )
                 idx += 1
 
         if pictures_label is not None or videos_label is not None:
@@ -145,12 +151,16 @@ class FolderCombo(QComboBox):
             idx += 1
             if pictures_label is not None:
                 self.addItem(
-                    QIcon(":/icons/pictures-folder.svg"), pictures_label, pictures_dir
+                    QIcon(data_file_path("icons/pictures-folder.svg")),
+                    pictures_label,
+                    pictures_dir,
                 )
                 idx += 1
             if videos_label is not None:
                 self.addItem(
-                    QIcon(":/icons/videos-folder.svg"), videos_label, videos_dir
+                    QIcon(data_file_path("icons/videos-folder.svg")),
+                    videos_label,
+                    videos_dir,
                 )
                 idx += 1
 
@@ -160,7 +170,7 @@ class FolderCombo(QComboBox):
         valid_names = make_path_end_snippets_unique(*valid_dests) if valid_dests else []
 
         if valid_names:
-            folder_icon = QIcon(":/icons/folder.svg")
+            folder_icon = QIcon(data_file_path("icons/folder.svg"))
             self.insertSeparator(idx)
             idx += 1
             self.destinations_start = idx
@@ -257,7 +267,7 @@ class FolderCombo(QComboBox):
                 # Translators: indicate in combobox that a path does not exist
                 self.insertItem(
                     0,
-                    QIcon(":/icons/error.svg"),
+                    QIcon(data_file_path("icons/error.svg")),
                     _("%s (location does not exist)") % os.path.basename(path),
                     path,
                 )
@@ -265,7 +275,7 @@ class FolderCombo(QComboBox):
                 if self.destinations_start != -1:
                     self.destinations_start += 1
 
-        self.invalid_path = invalid
+                self.invalid_path = invalid
 
     def _make_dest_active(self, path: str, dest_len: int) -> None:
         """

@@ -102,7 +102,7 @@ from raphodo.constants import (
 from raphodo.devices import Device
 from raphodo.rpdfile import make_key
 from raphodo.storage.storage import StorageSpace  # noqa: F401
-from raphodo.tools.utilities import format_size_for_user, thousands
+from raphodo.tools.utilities import data_file_path, format_size_for_user, thousands
 from raphodo.ui.viewutils import (
     ListViewFlexiFrame,
     RowTracker,
@@ -1133,11 +1133,13 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         self.dc.icon_x_offset = self.dc.icon_size + self.dc.header_horizontal_padding
 
         self.downloaded_icon_size = 16
-        self.downloadedIcon = scaledIcon(":/thumbnail/downloaded.svg")
+        self.downloadedIcon = scaledIcon(data_file_path("thumbnail/downloaded.svg"))
         self.downloadedWarningIcon = scaledIcon(
-            ":/thumbnail/downloaded-with-warning.svg"
+            data_file_path("thumbnail/downloaded-with-warning.svg")
         )
-        self.downloadedErrorIcon = scaledIcon(":/thumbnail/downloaded-with-error.svg")
+        self.downloadedErrorIcon = scaledIcon(
+            data_file_path("thumbnail/downloaded-with-error.svg")
+        )
         self.downloaded_icon_y = self.v_align_header_pixmap(
             0, self.downloaded_icon_size
         )

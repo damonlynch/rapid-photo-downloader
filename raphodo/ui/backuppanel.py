@@ -69,6 +69,7 @@ from raphodo.devices import (
 from raphodo.prefs.preferences import Preferences
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.storage.storage import ValidMounts, get_media_dir, get_mount_size
+from raphodo.tools.utilities import data_file_path
 from raphodo.ui.destinationdisplay import adjusted_download_size, make_body_details
 from raphodo.ui.devicedisplay import DeviceDisplay, DeviceView, icon_size
 from raphodo.ui.foldercombo import FolderCombo
@@ -113,8 +114,10 @@ class BackupDeviceModel(QAbstractListModel):
         self.raidApp = parent.rapidApp
         self.prefs = parent.prefs
         size = icon_size()
-        self.removableIcon = QIcon(":icons/drive-removable-media.svg").pixmap(size)
-        self.folderIcon = QIcon(":/icons/folder.svg").pixmap(size)
+        self.removableIcon = QIcon(
+            data_file_path("icons/drive-removable-media.svg")
+        ).pixmap(size)
+        self.folderIcon = QIcon(data_file_path("icons/folder.svg")).pixmap(size)
         self._initValues()
 
     def _initValues(self):

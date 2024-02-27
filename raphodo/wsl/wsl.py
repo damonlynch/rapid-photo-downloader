@@ -60,7 +60,7 @@ from PyQt5.QtWidgets import (
 from raphodo.constants import WindowsDriveType
 from raphodo.prefs.preferences import Preferences, WSLWindowsDrivePrefs
 from raphodo.sudocommand import SudoException, SudoExceptionCode, run_commands_as_sudo
-from raphodo.tools.utilities import make_internationalized_list
+from raphodo.tools.utilities import data_file_path, make_internationalized_list
 from raphodo.ui.viewutils import (
     CheckBoxDelegate,
     standardMessageBox,
@@ -333,7 +333,7 @@ def do_mount_drives_op(
             title = _("Unmount drive %s") % info_list
     logging.info("%sing drives %s", op_cap, info_list)
 
-    icon = ":/icons/drive-removable-media.svg"
+    icon = "icons/drive-removable-media.svg"
 
     no_op = drives.copy()
     failed_drives = []

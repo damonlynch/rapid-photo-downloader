@@ -72,6 +72,7 @@ from showinfm import show_in_file_manager
 
 from raphodo.constants import ErrorType
 from raphodo.problemnotification import Problem, Problems
+from raphodo.tools.utilities import data_file_path
 from raphodo.ui.viewutils import darkModeIcon, translateDialogBoxButtons
 
 
@@ -206,12 +207,12 @@ class ErrorReport(QDialog):
         size = QSize(font_height, font_height)
 
         self.up = QPushButton()
-        self.up.setIcon(darkModeIcon(path=":/icons/up.svg", size=QSize(100, 100)))
+        self.up.setIcon(darkModeIcon(path="icons/up.svg", size=QSize(100, 100)))
         self.up.setIconSize(size)
         self.up.clicked.connect(self.upClicked)
         self.up.setToolTip(_("Find the previous occurrence of the phrase"))
         self.down = QPushButton()
-        self.down.setIcon(darkModeIcon(path=":/icons/down.svg", size=QSize(100, 100)))
+        self.down.setIcon(darkModeIcon(path="icons/down.svg", size=QSize(100, 100)))
         self.down.setIconSize(size)
         self.down.clicked.connect(self.downClicked)
         self.down.setToolTip(_("Find the next occurrence of the phrase"))
@@ -273,9 +274,9 @@ class ErrorReport(QDialog):
         self.onFindChanged("")
 
         self.icon_lookup = {
-            ErrorType.warning: ":/report/warning.svg",
-            ErrorType.serious_error: ":/report/error.svg",
-            ErrorType.critical_error: ":/report/critical.svg",
+            ErrorType.warning: "report/warning.svg",
+            ErrorType.serious_error: "report/error.svg",
+            ErrorType.critical_error: "report/critical.svg",
         }
 
     @pyqtSlot()
@@ -495,7 +496,7 @@ class ErrorReport(QDialog):
         html = f"{html}<table>"
         for problem in problems:
             line = self._getBody(problem=problem)
-            icon = self.icon_lookup[problem.severity]
+            icon = data_file_path(self.icon_lookup[problem.severity])
             icon = f'<img src="{icon}" height=16 width=16>'
             html = (
                 f"{html}<tr><td width=32 align=center>{icon}</td>"
@@ -556,7 +557,7 @@ class SpeechBubble(QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.rapidApp = parent
-        self.image = QIcon(":/speech-bubble.svg")
+        self.image = QIcon(data_file_path("speech-bubble.svg"))
         self._count = 0
         self.fillColor = QPalette().color(QPalette.Window)
         self.counterFont = QFont()

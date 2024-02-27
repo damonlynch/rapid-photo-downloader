@@ -32,7 +32,7 @@ class MenuButton(QToolButton):
     Button that provides access to a drop-down menu
     """
 
-    def __init__(self, icon: str, menu: QMenu) -> None:
+    def __init__(self, path: str, menu: QMenu) -> None:
         super().__init__()
 
         self.setPopupMode(QToolButton.InstantPopup)
@@ -48,7 +48,7 @@ class MenuButton(QToolButton):
         height = round(DownloadButtonHeight()[0] * (2 / 3) * scaling)
         size = QSize(height, height)
 
-        self.setIcon(QIcon(darkModePixmap(path=icon, size=size)))
+        self.setIcon(QIcon(darkModePixmap(path=path, size=size)))
         self.setStyleSheet(
             """
             QToolButton {border: none;}

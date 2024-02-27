@@ -78,7 +78,7 @@ from raphodo.generatenameconfig import (
 )
 from raphodo.rpdfile import FileTypeCounter, Photo, Video  # noqa: F401
 from raphodo.storage.storage import StorageSpace, get_mount_size, get_path_display_name
-from raphodo.tools.utilities import format_size_for_user, thousands
+from raphodo.tools.utilities import data_file_path, format_size_for_user, thousands
 from raphodo.ui.devicedisplay import BodyDetails, DeviceDisplay, icon_size
 from raphodo.ui.nameeditor import PrefDialog, make_subfolder_menu_entry
 from raphodo.ui.viewutils import darkModePixmap, paletteMidPen
@@ -271,7 +271,7 @@ class DestinationDisplay(QWidget):
         self.menu_actions = []  # type: list[QAction]
         if menu:
             pixmap = darkModePixmap(
-                path=":/icons/settings.svg",
+                path="icons/settings.svg",
                 size=QSize(100, 100),
                 soften_regular_mode_color=True,
             )
@@ -289,7 +289,9 @@ class DestinationDisplay(QWidget):
         self.deviceDisplay = DeviceDisplay(parent=self, menuButtonIcon=menuIcon)
         self.deviceDisplay.widthChanged.connect(self.widthChanged)
         size = icon_size()
-        self.pixmap = QIcon(":/icons/folder.svg").pixmap(QSize(size, size))  # type: QPixmap
+        self.pixmap = QIcon(data_file_path("icons/folder.svg")).pixmap(
+            QSize(size, size)
+        )  # type: QPixmap
         self.pixmap = darkModePixmap(pixmap=self.pixmap)
         self.display_name = ""
         self.photos_size_to_download = self.videos_size_to_download = 0

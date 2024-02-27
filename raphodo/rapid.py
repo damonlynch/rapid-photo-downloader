@@ -299,6 +299,7 @@ from raphodo.ui.viewutils import (
 )
 from raphodo.tools.utilities import (
     addPushButtonLabelSpacer,
+    data_file_path,
     format_size_for_user,
     getQtSystemTranslation,
     installed_using_pip,
@@ -1111,7 +1112,7 @@ class RapidWindow(QMainWindow):
             )
             warning = RememberThisDialog(
                 message=message,
-                icon=":/rapid-photo-downloader.svg",
+                icon="rapid-photo-downloader.svg",
                 remember=RememberThisMessage.do_not_warn_again_about_missing_libraries,
                 parent=self,
                 buttons=RememberThisButtons.ok,
@@ -1132,7 +1133,7 @@ class RapidWindow(QMainWindow):
 
             warning = RememberThisDialog(
                 message=message,
-                icon=":/rapid-photo-downloader.svg",
+                icon="rapid-photo-downloader.svg",
                 remember=RememberThisMessage.do_not_warn_again_about_missing_libraries,
                 parent=self,
                 buttons=RememberThisButtons.ok,
@@ -2631,7 +2632,7 @@ difference to the program's future.</p>"""
         self.menu.addAction(self.aboutAct)
         self.menu.addAction(self.quitAct)
 
-        self.menuButton = MenuButton(icon=":/icons/menu.svg", menu=self.menu)
+        self.menuButton = MenuButton(path="icons/menu.svg", menu=self.menu)
 
     def doSourceAction(self) -> None:
         self.sourceButton.animateClick()
@@ -3082,7 +3083,7 @@ Do you want to proceed with the download?"""
 
                     warning = RememberThisDialog(
                         message=message,
-                        icon=":/rapid-photo-downloader.svg",
+                        icon="rapid-photo-downloader.svg",
                         remember=RememberThisMessage.do_not_ask_again,
                         parent=self,
                     )
@@ -3343,7 +3344,7 @@ Do you want to proceed with the download?"""
                 if self.prefs.warn_backup_problem:
                     warning = RememberThisDialog(
                         message=msg,
-                        icon=":/rapid-photo-downloader.svg",
+                        icon="rapid-photo-downloader.svg",
                         remember=RememberThisMessage.do_not_ask_again,
                         parent=self,
                         title=_("Backup problem"),
@@ -5506,7 +5507,7 @@ Do you want to proceed with the download?"""
 
                 questionDialog = RememberThisDialog(
                     message=message,
-                    icon=":/rapid-photo-downloader.svg",
+                    icon="rapid-photo-downloader.svg",
                     remember=RememberThisMessage.do_not_ask_again,
                     parent=self,
                 )
@@ -7368,7 +7369,7 @@ def main():
     app.setOrganizationName("Rapid Photo Downloader")
     app.setOrganizationDomain("damonlynch.net")
     app.setApplicationName("Rapid Photo Downloader")
-    app.setWindowIcon(QIcon(":/rapid-photo-downloader.svg"))
+    app.setWindowIcon(QIcon(data_file_path("rapid-photo-downloader.svg")))
     if not args.force_system_theme:
         app.setStyle("Fusion")
 
@@ -7428,9 +7429,9 @@ def main():
         )
         sys.exit(0)
 
-    # Use QIcon to render so we get the high DPI version automatically
+    # Use QIcon to render to get the high DPI version automatically
     size = QSize(600, 400)
-    pixmap = scaledIcon(":/splashscreen.png", size).pixmap(size)
+    pixmap = scaledIcon(data_file_path("splashscreen.png"), size).pixmap(size)
 
     splash = SplashScreen(pixmap, Qt.WindowStaysOnTopHint)
     splash.show()

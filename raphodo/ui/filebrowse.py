@@ -60,6 +60,7 @@ from raphodo.constants import (
     non_system_root_folders,
 )
 from raphodo.storage.storage import get_media_dir, gvfs_gphoto2_path
+from raphodo.tools.utilities import data_file_path
 from raphodo.ui.viewutils import (
     TopFramedVerticalScrollBar,
     darkModeIcon,
@@ -86,10 +87,10 @@ class FileSystemModel(QFileSystemModel):
         size = QSize(s, s)
 
         self.folder_icon = darkModeIcon(
-            path=":/icons/folder.svg", size=size, soften_regular_mode_color=True
+            path="icons/folder.svg", size=size, soften_regular_mode_color=True
         )
         self.download_folder_icon = darkModeIcon(
-            path=":/icons/folder-filled.svg", size=size, soften_regular_mode_color=True
+            path="icons/folder-filled.svg", size=size, soften_regular_mode_color=True
         )
 
         self.setRootPath("/")
