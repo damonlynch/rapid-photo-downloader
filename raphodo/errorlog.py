@@ -373,7 +373,8 @@ class ErrorReport(QDialog):
             self.current_find_index = index
             self.log.setTextCursor(cursor)
             self.findResults.setText(
-                _("%s of %s matches") % (index + 1, len(self.find_cursors))
+                _("%(num)s of %(count)s matches")
+                % dict(num=index + 1, count=len(self.find_cursors))
             )
             self.findResults.setPalette(self.foundPalette)
 
