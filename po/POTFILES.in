@@ -1,4 +1,5 @@
 raphodo/ui/aboutdialog.py
+raphodo/argumentsparse.py
 raphodo/backupfile.py
 raphodo/ui/backuppanel.py
 raphodo/copyfiles.py
