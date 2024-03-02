@@ -39,6 +39,8 @@ try:
 except ModuleNotFoundError:
     # Needed for older versions of setuptools
     from distutils.command.build import build
+from build_manpages.build_manpages import build_manpages, get_install_cmd
+from setuptools.command.install import install
 from setuptools.command.sdist import sdist
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -210,47 +212,11 @@ class build_icons(Command):
                     )
 
 
-class build_man_page(Command):
-    """
-    Based on code in the Canonical project 'germinate'
-    """
-
-    description = "build POD manual pages"
-
-    user_options = [("pod-files=", None, "POD files to build")]
-
-    def initialize_options(self):
-        self.pod_files = []
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        if not os.path.isdir("build"):
-            os.mkdir("build")
-        for pod_file in glob("doc/*.1.pod"):
-            name = os.path.basename(pod_file)[:-6].upper()
-            build_path = os.path.join("build", os.path.splitext(pod_file)[0])
-            if not os.path.isdir(os.path.join("build", "doc")):
-                os.mkdir(os.path.join("build", "doc"))
-            self.spawn(
-                [
-                    "pod2man",
-                    "--section=1",
-                    "--release={}".format(about["__version__"]),
-                    "--center=General Commands Manual",
-                    f'--name="{name}"',
-                    pod_file,
-                    build_path,
-                ]
-            )
-
-
 class raphodo_build(build):
     sub_commands = build.sub_commands + [
-        ("build_man_page", None),
         ("build_icons", None),
         ("build_translations", None),
+        ("build_manpages", None)
     ]
 
     def run(self):
@@ -261,15 +227,14 @@ class raphodo_build(build):
 
 class raphodo_sdist(sdist):
     def run(self):
-        self.run_command("build_man_page")
         self.run_command("build_icons")
         self.run_command("build_translations")
+        self.run_command("build_manpages")
         sdist.run(self)
 
 
 with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
-
 
 setup(
     name=about["__title__"],
@@ -311,10 +276,6 @@ setup(
     include_package_data=False,
     data_files=[
         (
-            "share/man/man1",
-            ["build/doc/rapid-photo-downloader.1"],
-        ),
-        (
             "share/applications",
             ["build/share/applications/net.damonlynch.rapid_photo_downloader.desktop"],
         ),
@@ -329,11 +290,13 @@ setup(
     ],
     packages=[
         "raphodo",
-        "raphodo.ui",
-        "raphodo.storage",
         "raphodo.metadata",
         "raphodo.metadata.analysis",
         "raphodo.prefs",
+        "raphodo.storage",
+        "raphodo.tools",
+        "raphodo.ui",
+        "raphodo.wsl"
     ],
     python_requires=">=3.10, <4",
     entry_points={
@@ -360,10 +323,11 @@ setup(
         "Source": "https://github.com/damonlynch/rapid-photo-downloader",
     },
     cmdclass={
-        "build_man_page": build_man_page,
         "build_icons": build_icons,
         "build_translations": build_translations,
+        "build_manpages": build_manpages,
         "build": raphodo_build,
         "sdist": raphodo_sdist,
+        "install": get_install_cmd(install),
     },
 )

@@ -1,3 +1,19 @@
+[build-system]
+requires = ["argparse-manpage[setuptools]"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.cmdclass]
+build_py = "build_manpages.build_py"
+install = "build_manpages.install"
+build_manpages = "build_manpages.build_manpages"
+
+[tool.build_manpages]
+manpages = [
+    "man/rapid-photo-downloader.1:function=get_parser:pyfile=raphodo/argumentsparse.py",
+]
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
 exclude = [
     ".bzr",
     ".direnv",
@@ -25,7 +41,6 @@ exclude = [
     "node_modules",
     "site-packages",
     "venv",
-    "snap",
     "po",
     "tests",
 ]
@@ -39,7 +54,7 @@ target-version = "py310"
 
 builtins = ["ic", "_"]
 
-[lint]
+[tool.ruff.lint]
 select = [
     # pycodestyle
     "E",
