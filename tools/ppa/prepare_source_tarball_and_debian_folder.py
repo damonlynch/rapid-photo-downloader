@@ -40,6 +40,7 @@ __author__ = "Damon Lynch"
 __copyright__ = "Copyright 2024, Damon Lynch"
 
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -48,13 +49,16 @@ import tarfile
 import tempfile
 from pathlib import Path
 
+from argumentsparse import get_parser
 from buildconfig import (
     code_build_folder,
     debian_folder_git,
+    determine_current_version_in_code,
+    full_distro_package_name,
+    local_package_name,
     package_ext,
     packaging_staging,
     signature_ext,
-    ubuntu_package_name,
 )
 from console import console
 from git import Head, Repo
@@ -70,24 +74,32 @@ def reset_packaging_staging() -> None:
 
 
 def extract_version(package_name: str) -> str:
-    return package_name[len(ubuntu_package_name) + 1 :]
+    """
+    Extract the version number from a package string
+
+    >>> extract_version("show-in-file-manager-1.1.5")
+    '1.1.5'
+    >>> extract_version("rapid-photo-downloader-0.9.35")
+    '0.9.35'
+    """
+    r = re.search(r"(?P<version>\d{1,3}\.\d{1,3}(\.\d{1,3})?$)", package_name)
+    try:
+        return r.group("version")
+    except AttributeError:
+        console.print(f"Package {package_name} does not have a version number")
+        raise f"Package {package_name} does not have a version number"
 
 
-def determine_current_version_in_code() -> str:
-    here = Path(__file__).parent.parent.parent.absolute()
-    with open(here / "raphodo" / "__about__.py") as f:
-        about = {}
-        exec(f.read(), about)
-        return about["__version__"]
-
-
-def get_build_tarball_and_signature() -> tuple[Path, Path]:
-    tarballs = list(code_build_folder.glob("*.tar.gz"))
+def get_dist_tarball_and_signature(
+    distro_package: str, local_package: str
+) -> tuple[Path, Path]:
+    dist_folder = code_build_folder(package=distro_package)
+    tarballs = list(dist_folder.glob(f"{local_package}*.tar.gz"))
     try:
         assert len(tarballs) == 1
     except AssertionError:
         console.print(
-            "Unexpected number of tarballs in the build directory", style="fail"
+            "Unexpected number of tarballs in the dist directory", style="fail"
         )
         sys.exit(1)
 
@@ -103,7 +115,7 @@ def get_build_tarball_and_signature() -> tuple[Path, Path]:
     return tarball, signature
 
 
-def validate_versions(expected_version: str) -> str:
+def validate_versions(expected_version: str, tarball: Path) -> str:
     full_base_name = Path(str(tarball)[: -len(package_ext)])
     name = full_base_name.name
 
@@ -118,29 +130,33 @@ def validate_versions(expected_version: str) -> str:
     return version
 
 
-def copy_sources(version: str) -> Path:
-    ubuntu_package_tarball = f"{ubuntu_package_name}_{version}.orig.tar.gz"
-    ubuntu_package_signature = f"{ubuntu_package_tarball}{signature_ext}"
-    ubuntu_package_tarball = packaging_staging / ubuntu_package_tarball
-    ubuntu_package_signature = packaging_staging / ubuntu_package_signature
+def copy_sources(
+    local_package: str, version: str, tarball: Path, signature: Path
+) -> Path:
+    ppa_package_tarball = f"{local_package}_{version}.orig.tar.gz"
+    ppa_package_signature = f"{ppa_package_tarball}{signature_ext}"
+    ppa_package_tarball = packaging_staging / ppa_package_tarball
+    ppa_package_signature = packaging_staging / ppa_package_signature
 
-    # Copy the built tarball and rename it, as well as the signature
+    # Copy the dist tarball and rename it, as well as the signature
     do_source_copy = True
-    if ubuntu_package_tarball.exists() or ubuntu_package_signature.exists():
-        console.print("Ubuntu tarball and/or signature already exists", style="warning")
+    if ppa_package_tarball.exists() or ppa_package_signature.exists():
+        console.print("PPA tarball and/or signature already exists", style="warning")
         do_source_copy = Confirm.ask(
             "Overwrite existing tarball and signature?", default=True
         )
 
     if do_source_copy:
         console.print("Copying source tarball and signature...")
-        shutil.copy(tarball, ubuntu_package_tarball)
-        shutil.copy(signature, ubuntu_package_signature)
-    return ubuntu_package_tarball
+        shutil.copy(tarball, ppa_package_tarball)
+        shutil.copy(signature, ppa_package_signature)
+    return ppa_package_tarball
 
 
-def extract_built_tarball(ubuntu_package_tarball: Path) -> None:
-    ppa_folder = packaging_staging / f"{ubuntu_package_name}-{version}"
+def extract_dist_tarball(
+    local_package: str, version: str, ppa_package_tarball: Path
+) -> None:
+    ppa_folder = packaging_staging / f"{local_package}-{version}"
     do_tarball_extract = True
     if ppa_folder.is_dir():
         console.print(f"Folder already exists for release {version}", style="warning")
@@ -155,11 +171,13 @@ def extract_built_tarball(ubuntu_package_tarball: Path) -> None:
 
     if do_tarball_extract:
         console.print("Extracting source tarball...")
-        with tarfile.open(ubuntu_package_tarball, "r:gz") as tar:
+        with tarfile.open(ppa_package_tarball, "r:gz") as tar:
             tar.extractall(packaging_staging)
 
 
-def pull_official_ubuntu_tarball(version: str) -> str:
+def pull_official_ubuntu_tarball(
+    distro_package: str, local_package: str, version: str
+) -> str:
     pull_version = ""
 
     # Pull the latest package from Ubuntu into a temporary directory
@@ -168,7 +186,7 @@ def pull_official_ubuntu_tarball(version: str) -> str:
         f"Pull package from launchpad into {packaging_staging}?", default=True
     )
     if do_launchpad_pull:
-        cmd = f"pull-lp-source {ubuntu_package_name}"
+        cmd = f"pull-lp-source {distro_package}"
         with tempfile.TemporaryDirectory() as tmpdir:
             os.chdir(tmpdir)
             try:
@@ -177,7 +195,7 @@ def pull_official_ubuntu_tarball(version: str) -> str:
                 console.print(f"Encountered error while running {cmd}", style="fail")
                 console.print(inst)
                 sys.exit(1)
-            dirs = list(Path(tmpdir).glob(f"rapid-photo-downloader-*{os.sep}"))
+            dirs = list(Path(tmpdir).glob(f"{local_package}-*{os.sep}"))
             try:
                 assert len(dirs) == 1
             except AssertionError:
@@ -200,8 +218,23 @@ def pull_official_ubuntu_tarball(version: str) -> str:
 
 
 class DebianRepo:
-    def __init__(self, path: str) -> None:
-        self.repo = Repo(path)
+    def __init__(self, path: Path, local_package: Path) -> None:
+        self.path = path
+        self.local_package = local_package
+        if not path.is_dir():
+            self.initialise_repo()
+        else:
+            self.repo = Repo(str(path))
+
+    def initialise_repo(self) -> None:
+        console.print(f"Initialising repo {self.path}", style="info")
+        self.path.mkdir()
+
+        self.repo = Repo.init(str(self.path))
+        console.print(
+            f"Copy Debian directory to repo {self.path} and commit it", style="info"
+        )
+        sys.exit(0)
 
     def is_clean(self) -> bool:
         if self.repo.untracked_files:
@@ -229,7 +262,9 @@ class DebianRepo:
         head = self.get_head(name)
         head.checkout()
 
-    def create_version_branch_with_debian_folder_contents(self, pull_version):
+    def create_version_branch_with_debian_folder_contents(
+        self, pull_version: str
+    ) -> None:
         try:
             head = self.get_head(pull_version)
             console.print(f"Branch {pull_version} already exists", style="info")
@@ -244,10 +279,10 @@ class DebianRepo:
             console.print(f"Could not switch branch: {inst}", style="fail")
         else:
             console.print(f"Copying Debian folder to branch {pull_version}")
-            shutil.rmtree(debian_folder_git / "debian")
+            shutil.rmtree(self.path / "debian")
             shutil.copytree(
-                packaging_staging / f"rapid-photo-downloader-{pull_version}" / "debian",
-                debian_folder_git / "debian",
+                packaging_staging / f"{self.local_package}-{pull_version}" / "debian",
+                self.path / "debian",
             )
             if self.repo.untracked_files or self.repo.is_dirty():
                 self.repo.git.add(A=True)
@@ -259,17 +294,27 @@ class DebianRepo:
                 console.print(f"No changes on branch {pull_version}")
 
 
-if __name__ == "__main__":
-    repo = DebianRepo(debian_folder_git)
+def main() -> None:
+    parser = get_parser()
+    args = parser.parse_args()
+    distro_package = full_distro_package_name(abbreviation=args.package)
+    local_package = local_package_name(distro_package=distro_package)
+    console.print(f"Packaging {distro_package} using {local_package}", style="info")
+    debian_folder = debian_folder_git(package=distro_package)
+    repo = DebianRepo(debian_folder, Path(local_package))
     if not repo.is_clean():
         sys.exit(1)
-    expected_version = determine_current_version_in_code()
-    tarball, signature = get_build_tarball_and_signature()
-    version = validate_versions(expected_version)
-    console.print(f"Working with version {version}", style="info")
+    expected_version = determine_current_version_in_code(distro_package)
+    tarball, signature = get_dist_tarball_and_signature(distro_package, local_package)
+    version = validate_versions(expected_version, tarball)
+    console.print(f"Working with version {version} using {debian_folder}", style="info")
     reset_packaging_staging()
-    ubuntu_package_tarball = copy_sources(version)
-    extract_built_tarball(ubuntu_package_tarball)
-    pull_version = pull_official_ubuntu_tarball(version)
+    ppa_package_tarball = copy_sources(local_package, version, tarball, signature)
+    extract_dist_tarball(distro_package, version, ppa_package_tarball)
+    pull_version = pull_official_ubuntu_tarball(distro_package, local_package, version)
     if pull_version:
         repo.create_version_branch_with_debian_folder_contents(pull_version)
+
+
+if __name__ == "__main__":
+    main()
