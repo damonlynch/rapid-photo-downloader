@@ -1,0 +1,13 @@
+[rapid-photo-downloader]
+abbreviation = "rpd"
+local_package_name = "rapid-photo-downloader"
+code_dist_folder = "build_rapid/dist"
+debian_folder_git = "ppa-rpd-debian-git"
+version_path = "rapid-photo-downloader/raphodo/__about__.py"
+
+[python3-showinfilemanager]
+abbreviation = "sifm"
+local_package_name = "show-in-file-manager"
+code_dist_folder = 'D:\Python\showinfilemanager\dist'
+debian_folder_git = "ppa-showinfm-debian-git"
+version_path = 'D:\Python\showinfilemanager\pyproject.toml'
