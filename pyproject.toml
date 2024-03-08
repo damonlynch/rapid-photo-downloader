@@ -1,5 +1,8 @@
 [build-system]
-requires = ["argparse-manpage[setuptools]"]
+requires = [
+    "argparse-manpage[setuptools]",
+    "setuptools>=61.2"
+]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.cmdclass]
@@ -11,6 +14,99 @@ build_manpages = "build_manpages.build_manpages"
 manpages = [
     "man/rapid-photo-downloader.1:function=get_parser:pyfile=raphodo/argumentsparse.py",
 ]
+
+[project]
+name = "rapid-photo-downloader"
+dynamic = ["version"]
+version = "0.9.37a1"
+authors = [{name = "Damon Lynch", email = "damonlynch@gmail.com"}]
+license = {text = "GPL 3+"}
+description = "Downloads, renames and backs up photos and videos from cameras, phones, memory cards and other devices."
+keywords = [
+    "photo",
+    "video",
+    "download",
+    "ingest",
+    "import",
+    "camera",
+    "phone",
+    "backup",
+    "rename",
+    "photography",
+    "photographer",
+    "transfer",
+    "copy",
+    "raw",
+    "cr2",
+    "cr3",
+    "nef",
+    "arw",
+    "dng",
+]
+readme = "README.md"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: X11 Applications :: Qt",
+    "Operating System :: POSIX :: Linux",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Multimedia :: Video",
+]
+requires-python = ">=3.10, <4"
+dependencies = [
+    "gphoto2",
+    "pyzmq",
+    "psutil",
+    "pyxdg",
+    "arrow",
+    "python-dateutil",
+    "colour",
+    "easygui",
+    "packaging",
+    "pymediainfo",
+    "sortedcontainers",
+    "tornado",
+    "PyGObject",
+    "PyQt5",
+    "babel",
+    "setuptools",
+    "show-in-file-manager",
+]
+
+[project.urls]
+Homepage = "https://damonlynch.net/rapid"
+"Bug Reports" = "https://bugs.rapidphotodownloader.com"
+Source = "https://github.com/damonlynch/rapid-photo-downloader"
+
+[project.optional-dependencies]
+color_ouput = ["colorlog"]
+progress_bar = ["pyprind"]
+
+[project.gui-scripts]
+rapid-photo-downloader = "raphodo.rapid:main"
+
+[tool.setuptools]
+packages = [
+    "raphodo",
+    "raphodo.metadata",
+    "raphodo.metadata.analysis",
+    "raphodo.prefs",
+    "raphodo.storage",
+    "raphodo.tools",
+    "raphodo.ui",
+    "raphodo.wsl",
+]
+zip-safe = false
+include-package-data = false
+
+[tool.setuptools.dynamic]
+version = {attr = "raphodo.__about__.__version__"}
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -44,7 +140,6 @@ exclude = [
     "po",
     "tests",
 ]
-
 # Same as Black.
 line-length = 88
 indent-width = 4
