@@ -4,6 +4,8 @@ Changelog for Rapid Photo Downloader
 0.9.37 (2024-03-xx)
 -------------------
 
+ - Convert project configuration and build to use pyproject.toml.
+
  - Purge use of the Qt resource system for images, instead storing images in a 
    new data directory and loading them using the Python resource system.
 
