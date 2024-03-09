@@ -1,52 +1,41 @@
 [build-system]
-requires = [
-    "argparse-manpage[setuptools]",
-    "setuptools>=61.2"
-]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools.cmdclass]
-build_py = "build_manpages.build_py"
-install = "build_manpages.install"
-build_manpages = "build_manpages.build_manpages"
-
-[tool.build_manpages]
-manpages = [
-    "man/rapid-photo-downloader.1:function=get_parser:pyfile=raphodo/argumentsparse.py",
-]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "rapid-photo-downloader"
 dynamic = ["version"]
-authors = [{name = "Damon Lynch", email = "damonlynch@gmail.com"}]
-license = {text = "GPL 3+"}
 description = "Downloads, renames and backs up photos and videos from cameras, phones, memory cards and other devices."
+readme = "README.md"
+license = "GPL 3+"
+requires-python = ">=3.10, <4"
+authors = [
+    { name = "Damon Lynch", email = "damonlynch@gmail.com" },
+]
 keywords = [
-    "photo",
-    "video",
-    "download",
-    "ingest",
-    "import",
-    "camera",
-    "phone",
+    "arw",
     "backup",
-    "rename",
-    "photography",
-    "photographer",
-    "transfer",
+    "camera",
     "copy",
-    "raw",
     "cr2",
     "cr3",
-    "nef",
-    "arw",
     "dng",
+    "download",
+    "import",
+    "ingest",
+    "nef",
+    "phone",
+    "photo",
+    "photographer",
+    "photography",
+    "raw",
+    "rename",
+    "transfer",
+    "video",
 ]
-readme = "README.md"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: X11 Applications :: Qt",
-    "Operating System :: POSIX :: Linux",
     "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: POSIX :: Linux",
@@ -57,31 +46,54 @@ classifiers = [
     "Topic :: Multimedia :: Graphics",
     "Topic :: Multimedia :: Video",
 ]
-requires-python = ">=3.10, <4"
 dependencies = [
-    "gphoto2",
-    "pyzmq",
-    "psutil",
-    "pyxdg",
     "arrow",
-    "python-dateutil",
+    "babel",
     "colour",
     "easygui",
+    "gphoto2",
     "packaging",
-    "pymediainfo",
-    "sortedcontainers",
-    "tornado",
+    "psutil",
     "PyGObject",
+    "pymediainfo",
     "PyQt5",
-    "babel",
+    "python-dateutil",
+    "pyxdg",
+    "pyzmq",
     "setuptools",
     "show-in-file-manager",
+    "sortedcontainers",
+    "tornado",
 ]
 
+[project.optional-dependencies]
+color_ouput = [
+    "colorlog",
+]
+progress_bar = [
+    "pyprind",
+]
+
+[project.gui-scripts]
+rapid-photo-downloader = "raphodo.rapid:main"
+
 [project.urls]
+Issues = "https://bugs.rapidphotodownloader.com"
 Homepage = "https://damonlynch.net/rapid"
-"Bug Reports" = "https://bugs.rapidphotodownloader.com"
 Source = "https://github.com/damonlynch/rapid-photo-downloader"
+
+[tool.hatch.version]
+path = "raphodo/__init__.py"
+
+[tool.hatch.build.targets.wheel.shared-data]
+"build/share/applications" = "share/applications"
+"build/share/solid/actions" = "share/solid/actions"
+"build/share/metainfo" = "share/metainfo"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/raphodo",
+]
 
 [project.optional-dependencies]
 color_ouput = ["colorlog"]
@@ -90,19 +102,6 @@ progress_bar = ["pyprind"]
 [project.gui-scripts]
 rapid-photo-downloader = "raphodo.rapid:main"
 
-[tool.setuptools]
-packages = [
-    "raphodo",
-    "raphodo.metadata",
-    "raphodo.metadata.analysis",
-    "raphodo.prefs",
-    "raphodo.storage",
-    "raphodo.tools",
-    "raphodo.ui",
-    "raphodo.wsl",
-]
-zip-safe = false
-include-package-data = false
 
 [tool.setuptools.dynamic]
 version = {attr = "raphodo.__about__.__version__"}
