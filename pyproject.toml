@@ -18,7 +18,6 @@ manpages = [
 [project]
 name = "rapid-photo-downloader"
 dynamic = ["version"]
-version = "0.9.37a1"
 authors = [{name = "Damon Lynch", email = "damonlynch@gmail.com"}]
 license = {text = "GPL 3+"}
 description = "Downloads, renames and backs up photos and videos from cameras, phones, memory cards and other devices."
