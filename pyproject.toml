@@ -5,6 +5,9 @@ build-backend = "hatchling.build"
 [project]
 name = "rapid-photo-downloader"
 description = "Downloads, renames and backs up photos and videos from cameras, phones, memory cards and other devices."
+dynamic = [
+ "version",
+]
 readme = "README.md"
 license = "GPL 3+"
 requires-python = ">=3.10, <4"
@@ -78,7 +81,7 @@ Homepage = "https://damonlynch.net/rapid"
 Source = "https://github.com/damonlynch/rapid-photo-downloader"
 
 [tool.hatch.version]
-path = "raphodo.__about__.py"
+path = "raphodo/__about__.py"
 
 [tool.hatch.build.targets.wheel.shared-data]
 "build/share/applications" = "share/applications"
