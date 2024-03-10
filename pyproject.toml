@@ -9,7 +9,7 @@ dynamic = [
  "version",
 ]
 readme = "README.md"
-license = "GPL 3+"
+license = "GPL-3.0-or-later"
 requires-python = ">=3.10, <4"
 authors = [
     { name = "Damon Lynch", email = "damonlynch@gmail.com" },
@@ -82,6 +82,9 @@ Source = "https://github.com/damonlynch/rapid-photo-downloader"
 
 [tool.hatch.version]
 path = "raphodo/__about__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["raphodo"]
 
 [tool.hatch.build.targets.wheel.shared-data]
 "build/share/applications" = "share/applications"
