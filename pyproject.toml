@@ -4,8 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rapid-photo-downloader"
-dynamic = ["version"]
 description = "Downloads, renames and backs up photos and videos from cameras, phones, memory cards and other devices."
+dynamic = [
+ "version",
+]
 readme = "README.md"
 license = "GPL 3+"
 requires-python = ">=3.10, <4"
@@ -67,12 +69,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-color_ouput = [
-    "colorlog",
-]
-progress_bar = [
-    "pyprind",
-]
+color_ouput = ["colorlog"]
+progress_bar = ["pyprind"]
 
 [project.gui-scripts]
 rapid-photo-downloader = "raphodo.rapid:main"
@@ -83,7 +81,7 @@ Homepage = "https://damonlynch.net/rapid"
 Source = "https://github.com/damonlynch/rapid-photo-downloader"
 
 [tool.hatch.version]
-path = "raphodo/__init__.py"
+path = "raphodo/__about__.py"
 
 [tool.hatch.build.targets.wheel.shared-data]
 "build/share/applications" = "share/applications"
@@ -92,19 +90,9 @@ path = "raphodo/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/raphodo",
+    "raphodo",
 ]
 
-[project.optional-dependencies]
-color_ouput = ["colorlog"]
-progress_bar = ["pyprind"]
-
-[project.gui-scripts]
-rapid-photo-downloader = "raphodo.rapid:main"
-
-
-[tool.setuptools.dynamic]
-version = {attr = "raphodo.__about__.__version__"}
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
