@@ -52,6 +52,7 @@ dependencies = [
     "easygui",
     "gphoto2",
     "packaging",
+    "pillow",
     "psutil",
     "PyGObject",
     "pymediainfo",
@@ -62,6 +63,7 @@ dependencies = [
     "setuptools",
     "show-in-file-manager",
     "sortedcontainers",
+    "tenacity",
     "tornado",
 ]
 
