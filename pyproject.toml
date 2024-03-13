@@ -5,12 +5,9 @@ build-backend = "hatchling.build"
 [project]
 name = "rapid-photo-downloader"
 description = "Downloads, renames and backs up photos and videos from cameras, phones, memory cards and other devices."
-dynamic = [
- "version",
-]
+dynamic = ["version"]
 readme = "README.md"
-license = "GPL 3+"
-requires-python = ">=3.10, <4"
+requires-python = ">=3.10"
 authors = [
     { name = "Damon Lynch", email = "damonlynch@gmail.com" },
 ]
@@ -83,15 +80,25 @@ Source = "https://github.com/damonlynch/rapid-photo-downloader"
 [tool.hatch.version]
 path = "raphodo/__about__.py"
 
-[tool.hatch.build.targets.wheel.shared-data]
-"build/share/applications" = "share/applications"
-"build/share/solid/actions" = "share/solid/actions"
-"build/share/metainfo" = "share/metainfo"
+[tool.hatch.build]
+artifacts = ['raphodo/locale/*/LC_MESSAGES/*.mo', 'share/*']
+
+[tool.hatch.build.targets.wheel]
+packages = ["raphodo"]
 
 [tool.hatch.build.targets.sdist]
-include = [
-    "raphodo",
-]
+include = ["raphodo"]
+
+[tool.hatch.build.hooks.custom]
+dependencies = ["tomli"]
+
+[tool.gettextbuild]
+po_directory = "po"
+
+[tool.gettextbuild.files]
+"share/applications" = ["data/net.damonlynch.rapid_photo_downloader.desktop.in"]
+"share/solid/actions" = ["data/kde/net.damonlynch.rapid_photo_downloader.desktop.in"]
+"share/metainfo" = ["data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in"]
 
 
 [tool.ruff]
