@@ -1,7 +1,8 @@
 # Copyright (C) 2020 Martin Fitzpatrick
+# SPDX-License-Identifier: MIT OR BSD-2-Clause
+
 # Source:
 # https://github.com/pythonguis/python-qtwidgets/blob/master/qtwidgets/passwordedit/password.py
-# License: MIT/BSDv2
 
 # Edited Damon Lynch 2024 to remove resource import
 # Edited Damon Lynch 2024 to optimize imports

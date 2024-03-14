@@ -1,29 +1,7 @@
 #!/usr/bin/env python3
 
 # Copyright (C) 2007-2023 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-
-# Special key in each dictionary which specifies the order of elements.
-# It is very important to have a consistent and rational order when displaying
-# these prefs to the user, and dictionaries are unsorted.
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2024, Damon Lynch"
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
 from collections import OrderedDict
