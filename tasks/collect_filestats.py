@@ -1,32 +1,8 @@
 # Copyright (C) 2017-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+"""Gather the file stats for all the files in a directory"""
 
-
-# Gather the file stats for all the files in a directory
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2024, Damon Lynch"
-__title__ = "Collect File Stats"
-__description__ = (
-    "Gather the file stats for all the files in a directory, and use them to apply "
-    "their mtime and atime to the same tree of files on another computer"
-)
 
 import argparse
 import contextlib
@@ -45,7 +21,12 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
     """
 
     parser = argparse.ArgumentParser(
-        prog=__title__, formatter_class=formatter_class, description=__description__
+        formatter_class=formatter_class,
+        description= (
+            "Gather the file stats for all the files in a directory, and use them to "
+            "apply their mtime and atime to the same tree of files on another "
+            "computer"
+        )
     )
     group = parser.add_mutually_exclusive_group()
 
