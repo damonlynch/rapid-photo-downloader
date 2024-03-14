@@ -16,66 +16,48 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-# Inspired by Christian Buhtz's tech demo, but rewritten to fit Hatch tooling, as well
-# as due to missing copyright attribution:
-# https://codeberg.org/buhtz/tech-demo-python-packaging/src/branch/main/03b_i18n_hatch/hatch_build.py
 
 import functools
 import shutil
-import subprocess
 from pathlib import Path
 from typing import Any
 
+from hatch.utils.platform import Platform
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 
 class GettextBuildHook(BuildHookInterface):
     """
-    Compile the GNU gettext translation files from their po-format into
-    their binary representating mo-format using 'msgfmt'.
-    """
+    Compile GNU gettext translation files from po-format into
+    mo-format using the GNU gettext utility msgfmt, and optionally translate files
+    using the GNU gettext utility intltool-merge.
 
-    # Command used to compile po into mo files.
-    COMPILE_COMMAND = "msgfmt"
+    Cleans up any files that it creates, and any resulting directories, but
+    only if the directories are empty.
+    """
 
     GETTEXT_SWITCHES = {
         ".xml": "-x",
         ".desktop": "-d",
     }
 
-    def _check_compile_command(self) -> None:
-        """
-        Check if "msgfmt" is available.
-        """
-
-        if not shutil.which(self.COMPILE_COMMAND):
-            raise OSError(
-                f'Executable "{self.COMPILE_COMMAND}" (from GNU gettext tools) is not '
-                "available. Please install it via a package manager of "
-                f'your trust. In most cases "{self.COMPILE_COMMAND}" is part of '
-                f'"gettext".'
-            )
-
     def _compile_po_to_mo(self, po_file: Path, mo_file: Path) -> None:
         """
-        Compile po-file to mo-file using "msgfmt".
+        Compile po-file to mo-file using the GNU gettext utility msgfmt
 
-        As an alternative, the "polib" package is also able to do this in
-        pure Python.
+        :param po_file: the full path to the po file
+        :param mo_file: the full path to the mo file
         """
 
-        cmd = [self.COMPILE_COMMAND, f"--output-file={mo_file}", po_file]
-        rc = subprocess.run(cmd, check=False, text=True, capture_output=True)
-
-        # Validate output
-        if rc.stderr:
-            raise RuntimeError(rc.stderr)
+        cmd = f"msgfmt --output-file={mo_file} {po_file}"
+        self.platform.check_command(cmd, text=True, capture_output=True)
 
     def _translate_file(
         self, po_dir: Path, in_file: Path, translated_file: Path
     ) -> None:
         """
-        Translate a .desktop or .xml file using intltool-merge
+        Translate a .desktop or .xml file using the GNU gettext utility intltool-merge
+
         :param po_dir: directory containing the po files
         :param in_file: the full path to the .desktop.in or .xml.in file
         :param translated_file: the full path to the output .desktop or .xml file
@@ -83,12 +65,8 @@ class GettextBuildHook(BuildHookInterface):
 
         file_extension = in_file.suffixes[-2]
         switch = self.GETTEXT_SWITCHES[file_extension]
-        cmd = ["intltool-merge", switch, po_dir, in_file, translated_file]
-        rc = subprocess.run(cmd, check=False, text=True, capture_output=True)
-
-        # Validate output
-        if rc.stderr:
-            raise RuntimeError(rc.stderr)
+        cmd = f"intltool-merge {switch} {po_dir} {in_file} {translated_file}"
+        self.platform.check_command(cmd, text=True, capture_output=True)
 
     def _clean_files(self, relative_file_paths: list[str]) -> None:
         project_root = Path(self.root)
@@ -101,15 +79,17 @@ class GettextBuildHook(BuildHookInterface):
     def _has_only_subdirectories(self, path: Path) -> bool:
         """
         Checks if a directory has only subdirectories and no files.
+
+        :param path: the full path to the directory to check
+        :return: True if the directory has only subdirectories and no files
         """
 
         for entry in path.iterdir():
             if entry.is_file():
                 return False
-            if entry.is_dir():
-                # Recursively check subdirectories
-                if not self._has_only_subdirectories(entry):
-                    return False
+            # Recursively check subdirectories
+            if entry.is_dir() and not self._has_only_subdirectories(entry):
+                return False
         return True
 
     def _clean_directory_tree_only_if_has_empty_subdirectories(
@@ -118,6 +98,7 @@ class GettextBuildHook(BuildHookInterface):
         """
         Removes a directory tree only if it contains no files and any of its
         subdirectories in its tree likewise contain no files
+
         :param folder:  full path of the directory
         """
 
@@ -128,8 +109,10 @@ class GettextBuildHook(BuildHookInterface):
     def clean(self, versions: list[str]) -> None:
         """
         Remove all files created by this plug-in, if they exist.
+
         Remove all their directories only they contain no other files,
-        with the same being true of their subdirectories
+        with the same being true of their subdirectories.
+
         :param versions: see Hatch documentation for details
         """
 
@@ -265,7 +248,6 @@ class GettextBuildHook(BuildHookInterface):
         Compile .po files into .mo files using msgfmt
         """
 
-        self._check_compile_command()
         project_root = Path(self.root)
 
         for po_file, m in self.po_mo_pairs():
@@ -290,6 +272,7 @@ class GettextBuildHook(BuildHookInterface):
         if self.target_name not in ["wheel", "sdist"]:
             return
 
+        self.platform = Platform()
         self.load_gettextbuild_config()
 
         build_data["artifacts"].extend(self.mo_files_to_build)
