@@ -957,11 +957,12 @@ class TemporalProximityGroups:
             # For any proximity groups that span more than one Timeline row because
             # they span more than one calendar day, add the day to the Timeline, with
             # blank values for the proximity group (column 2).
-            for i, y_m_d, day in enumerate(
-                uids_by_day_in_proximity_group[group_no][1:]
-            ):
+            i = 0
+            for y_m_d, day in uids_by_day_in_proximity_group[group_no][1:]:
+                i += 1  # noqa: SIM113
+
                 timeline_row += 1
-                thumbnail_index += len(uids_by_day_in_proximity_group[group_no][i + 1])
+                thumbnail_index += len(uids_by_day_in_proximity_group[group_no][i])
                 atime = arrow.get(*y_m_d)
 
                 self.rows.append(
