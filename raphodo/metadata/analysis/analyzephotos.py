@@ -65,7 +65,6 @@ try:
 except ImportError:
     have_progressbar = False
 
-
 JPEG_EXTENSIONS = JPEG_TYPE_EXTENSIONS
 
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + JPEG_EXTENSIONS
@@ -147,8 +146,8 @@ def scan(
         print()
         if len(not_tested) > 20:
             for line in textwrap.wrap(
-                "WARNING: {:,} files will not be analyzed because they are already in "
-                "the kernel disk cache.".format(len(not_tested)),
+                f"WARNING: {len(not_tested):,} files will not be analyzed because "
+                f"they are already in the kernel disk cache.",
                 width=80,
             ):
                 print(line)

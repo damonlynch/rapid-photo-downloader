@@ -15,7 +15,8 @@ from raphodo.constants import FileType
 from raphodo.metadata.analysis.photoattributes import ExifToolMixin, vmtouch_output
 from raphodo.metadata.metadatavideo import MetaData
 from raphodo.thumbnailextractor import get_video_frame
-from raphodo.tools.utilities import datetime_roughly_equal, format_size_for_user
+from raphodo.tools.utilities import datetime_roughly_equal
+from raphodo.tools.utilities import format_size_for_user as format_size
 
 
 class VideoAttributes(ExifToolMixin):
@@ -170,18 +171,21 @@ class VideoAttributes(ExifToolMixin):
 
         s += f"Disk cache after metadata read:\n[{self.in_memory}]\n"
         if self.minimum_read_size_in_bytes_datetime is not None:
-            s += "Minimum read size to extract datetime: {} of {}\n".format(
-                format_size_for_user(self.minimum_read_size_in_bytes_datetime),
-                format_size_for_user(self.file_size),
+            s += (
+                "Minimum read size to extract datetime: "
+                f"{format_size(self.minimum_read_size_in_bytes_datetime)} of "
+                f"{format_size(self.file_size)}\n"
             )
         if self.minimum_read_size_in_bytes_thumbnail:
-            s += "Minimum read size to extract thumbnail: {} of {}\n".format(
-                format_size_for_user(self.minimum_read_size_in_bytes_thumbnail),
-                format_size_for_user(self.file_size),
+            s += (
+                "Minimum read size to extract thumbnail: "
+                f"{format_size(self.minimum_read_size_in_bytes_thumbnail)} of "
+                f"{format_size(self.file_size)}\n"
             )
         if self.minimum_metadata_read_size_in_bytes_all is not None:
-            s += "Minimum read size to extract variety of tags: {}\n".format(
-                format_size_for_user(self.minimum_metadata_read_size_in_bytes_all)
+            s += (
+                f"Minimum read size to extract variety of tags: "
+                f"{format_size(self.minimum_metadata_read_size_in_bytes_all)}\n"
             )
         else:
             s += "Could not extract variety of tags with minimal read\n"

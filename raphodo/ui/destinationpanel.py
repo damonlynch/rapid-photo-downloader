@@ -5,8 +5,6 @@
 Display photo and video destinations
 """
 
-from collections import defaultdict
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QWidget
 

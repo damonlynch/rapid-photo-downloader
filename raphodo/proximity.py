@@ -959,7 +959,7 @@ class TemporalProximityGroups:
             # blank values for the proximity group (column 2).
             i = 0
             for y_m_d, day in uids_by_day_in_proximity_group[group_no][1:]:
-                i += 1
+                i += 1  # noqa: SIM113
 
                 timeline_row += 1
                 thumbnail_index += len(uids_by_day_in_proximity_group[group_no][i])
@@ -989,9 +989,9 @@ class TemporalProximityGroups:
                     if row_count > 1:
                         self.spans.append((column, start_row, row_count))
                     start_row = timeline_row_index
-                self.row_span_for_column_starts_at_row[
-                    (timeline_row_index, column)
-                ] = start_row
+                self.row_span_for_column_starts_at_row[(timeline_row_index, column)] = (
+                    start_row
+                )
 
             if start_row != len(self.rows) - 1:
                 self.spans.append((column, start_row, len(self.rows) - start_row))
@@ -1012,9 +1012,9 @@ class TemporalProximityGroups:
 
         uid_rows_c1 = {}
         for proximity_view_cell_id, timeline_row_index in enumerate(self.uids.uids(1)):
-            self.proximity_view_cell_id_col1[
-                timeline_row_index
-            ] = proximity_view_cell_id
+            self.proximity_view_cell_id_col1[timeline_row_index] = (
+                proximity_view_cell_id
+            )
             uids = self.uids.uids(1)[timeline_row_index]
             for uid in uids:
                 uid_rows_c1[uid] = proximity_view_cell_id
@@ -1022,9 +1022,9 @@ class TemporalProximityGroups:
         uid_rows_c2 = {}
 
         for proximity_view_cell_id, timeline_row_index in enumerate(self.uids.uids(2)):
-            self.proximity_view_cell_id_col2[
-                timeline_row_index
-            ] = proximity_view_cell_id
+            self.proximity_view_cell_id_col2[timeline_row_index] = (
+                proximity_view_cell_id
+            )
             uids = self.uids.uids(2)[timeline_row_index]
             for uid in uids:
                 uid_rows_c2[uid] = proximity_view_cell_id
@@ -1078,10 +1078,10 @@ class TemporalProximityGroups:
             year = atime.year
             uids = self.month_groups[atime_month]
             slice_end = thumbnail_index + len(uids)
-            self.file_types_in_cell[
-                (timeline_row, 0)
-            ] = self.make_file_types_in_cell_text(
-                slice_start=thumbnail_index, slice_end=slice_end
+            self.file_types_in_cell[(timeline_row, 0)] = (
+                self.make_file_types_in_cell_text(
+                    slice_start=thumbnail_index, slice_end=slice_end
+                )
             )
             self.uids[(timeline_row, 0)] = uids
         else:

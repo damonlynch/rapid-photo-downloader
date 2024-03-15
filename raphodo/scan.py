@@ -44,7 +44,6 @@ with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
 
-
 import gphoto2 as gp
 from PyQt5.QtCore import QStorageInfo
 
@@ -1956,14 +1955,8 @@ def trace_calls(frame, event, arg):
     else:
         caller_line_no = caller_filename = ""
     print(
-        "{: } Call to {} on line {} of {} from line {} of {}".format(
-            datetime.now().ctime(),
-            func_name,
-            func_line_no,
-            func_filename,
-            caller_line_no,
-            caller_filename,
-        )
+        f"{datetime.now().ctime(): } Call to {func_name} on line {func_line_no} of "
+        f"{func_filename} from line {caller_line_no} of {caller_filename}"
     )
 
     for f in (

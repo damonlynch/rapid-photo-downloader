@@ -41,7 +41,7 @@ from PyQt5.QtWidgets import (
 from raphodo.constants import WindowsDriveType
 from raphodo.prefs.preferences import Preferences, WSLWindowsDrivePrefs
 from raphodo.sudocommand import SudoException, SudoExceptionCode, run_commands_as_sudo
-from raphodo.tools.utilities import data_file_path, make_internationalized_list
+from raphodo.tools.utilities import make_internationalized_list
 from raphodo.ui.viewutils import (
     CheckBoxDelegate,
     standardMessageBox,
@@ -609,10 +609,8 @@ class WslMountDriveDialog(QDialog):
             self.driveTable.setItemDelegateForColumn(col, delegate)
 
         self.driveTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-        row = 0
-        for drive in drives:
+        for row, drive in enumerate(drives):
             self.addDriveAtRow(row, drive)
-            row += 1
 
         self.setAllDriveAutoMountColStates()
         self.driveTable.resizeColumnsToContents()

@@ -922,11 +922,9 @@ def dump_camera_details() -> None:
                     print("\n{}\n{}".format(title, "-" * len(title)))
                     for ss in sc:
                         print(
-                            "\nPath: {}\nCapacity: {}\nFree {}".format(
-                                ss.path,
-                                format_size_for_user(ss.bytes_total),
-                                format_size_for_user(ss.bytes_free),
-                            )
+                            f"\nPath: {ss.path}\n"
+                            f"Capacity: {format_size_for_user(ss.bytes_total)}\n"
+                            f"Free {format_size_for_user(ss.bytes_free)}"
                         )
                 sd = c.get_storage_descriptions()
                 if not sd:

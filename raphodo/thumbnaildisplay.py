@@ -589,8 +589,9 @@ class ThumbnailListModel(QAbstractListModel):
             if not device_name:
                 msg = f"<b>{rpd_file.name}</b><br>{humanized_file_time}<br>{size}"
             else:
-                msg = "<b>{}</b><br>{}<br>{}<br>{}".format(
-                    rpd_file.name, device_name, humanized_file_time, size
+                msg = (
+                    f"<b>{rpd_file.name}</b><br>{device_name}"
+                    f"<br>{humanized_file_time}<br>{size}"
                 )
 
             if rpd_file.camera_memory_card_identifiers:

@@ -311,12 +311,8 @@ else:
                     if date_p > latest_release_date:
                         # This po file contains real changes since the last release
                         print(
-                            "{}{:21}: modified {}{}".format(
-                                bcolors.OKGREEN,
-                                lang_english,
-                                date_p.humanize(),
-                                bcolors.ENDC,
-                            )
+                            f"{bcolors.OKGREEN}{lang_english:21}: modified "
+                            f"{date_p.humanize()}{bcolors.ENDC}"
                         )
                         updated_langs.append(lang_english)
                     else:
@@ -350,7 +346,6 @@ else:
     if not dry_run:
         print(f"Backing up translations tar {translations_tar} to {backup_tar}")
         os.rename(translations_tar, backup_tar)
-
 
 for f in os.listdir(source_po_dir):
     os.unlink(os.path.join(source_po_dir, f))

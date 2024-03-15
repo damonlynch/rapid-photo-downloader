@@ -159,8 +159,8 @@ class ProcessManager:
         Implement in subclass
         """
         return ""
-    def add_worker(self, worker_id: int) -> None:
 
+    def add_worker(self, worker_id: int) -> None:
         command_line = self._get_command_line(worker_id)
         args = shlex.split(command_line)
 
@@ -256,8 +256,8 @@ class PullPipelineManager(ProcessManager, QObject):
 
     def __init__(self, logging_port: int, thread_name: str) -> None:
         super().__init__(logging_port=logging_port, thread_name=thread_name)
-    def _start_sockets(self) -> None:
 
+    def _start_sockets(self) -> None:
         context = zmq.Context.instance()
 
         # Subclasses must define the type of port they need to send messages
@@ -451,8 +451,9 @@ class LoadBalancerWorkerManager(ProcessManager):
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
 
-        return "{} --request {} --send {} --identity {} --logging {}".format(
-            cmd, self.backend_port, self.sink_port, worker_id, self.logging_port
+        return (
+            f"{cmd} --request {self.backend_port} --send {self.sink_port} "
+            f"--identity {worker_id} --logging {self.logging_port}"
         )
 
     def start_workers(self) -> None:
@@ -663,12 +664,9 @@ class LoadBalancerManager(ProcessManager, QObject):
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
 
-        return "{} --receive {} --send {} --controller {} --logging {}".format(
-            cmd,
-            self.requester_port,
-            self.sink_port,
-            self.controller_port,
-            self.logging_port,
+        return (
+            f"{cmd} --receive {self.requester_port} --send {self.sink_port} "
+            f"--controller {self.controller_port} --logging {self.logging_port}"
         )
 
 
@@ -684,8 +682,8 @@ class PushPullDaemonManager(PullPipelineManager):
     Because this is a single daemon process, a Push-Pull model is most
     suitable for sending the data.
     """
-    def _start_sockets(self) -> None:
 
+    def _start_sockets(self) -> None:
         super()._start_sockets()
 
         context = zmq.Context.instance()
@@ -719,8 +717,9 @@ class PushPullDaemonManager(PullPipelineManager):
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
 
-        return "{} --receive {} --send {} --logging {}".format(
-            cmd, self.ventilator_port, self.receiver_port, self.logging_port
+        return (
+            f"{cmd} --receive {self.ventilator_port} --send {self.receiver_port} "
+            f"--logging {self.logging_port}"
         )
 
     def _get_ventilator_start_message(self, worker_id: int) -> list[bytes]:
@@ -740,8 +739,8 @@ class PublishPullPipelineManager(PullPipelineManager):
     Because there are multiple worker process, a Publish-Subscribe model is
     most suitable for sending data to workers.
     """
-    def _start_sockets(self) -> None:
 
+    def _start_sockets(self) -> None:
         super()._start_sockets()
 
         context = zmq.Context.instance()
@@ -794,8 +793,8 @@ class PublishPullPipelineManager(PullPipelineManager):
             self.controller_socket.send_multipart(message)
             message = [worker_id, b"cmd", b"STOP"]
             self.ventilator_socket.send_multipart(message)
-    def start_worker(self, worker_id: bytes, data: bytes) -> None:
 
+    def start_worker(self, worker_id: bytes, data: bytes) -> None:
         self.add_worker(int(worker_id))
 
         # Send START commands until scan worker indicates it is ready to
@@ -823,17 +822,13 @@ class PublishPullPipelineManager(PullPipelineManager):
         cmd = self._get_cmd()
 
         return (
-            "{} --receive {} --send {} --controller {} --syncclient {} "
-            "--filter {} --logging "
-            "{}".format(
-                cmd,
-                self.ventilator_port,
-                self.receiver_port,
-                self.controller_port,
-                self.sync_service_port,
-                worker_id,
-                self.logging_port,
-            )
+            f"{cmd} "
+            f"--receive {self.ventilator_port} "
+            f"--send {self.receiver_port} "
+            f"--controller {self.controller_port} "
+            f"--syncclient {self.sync_service_port} "
+            f"--filter {worker_id} "
+            f"--logging {self.logging_port}"
         )
 
     def __len__(self) -> int:
@@ -862,8 +857,8 @@ class ProcessLoggerPublisher:
     Two tasks: set up the PUB socket, and then tell the main process
     what port we're using via a second socket, and when we're closing it.
     """
-    def __init__(self, context: zmq.Context, name: str, notification_port: int) -> None:
 
+    def __init__(self, context: zmq.Context, name: str, notification_port: int) -> None:
         self.logger_pub = context.socket(zmq.PUB)
         self.logger_pub_port = self.logger_pub.bind_to_random_port("tcp://*")
         self.handler = ZeroMQSocketHandler(self.logger_pub)
@@ -919,8 +914,8 @@ class WorkerProcess:
         self.logger_publisher = ProcessLoggerPublisher(
             context=self.context, name=name, notification_port=notification_port
         )
-    def send_message_to_sink(self) -> None:
 
+    def send_message_to_sink(self) -> None:
         self.sender.send_multipart([self.worker_id, b"data", self.content])
 
     def initialise_process(self) -> None:
@@ -1018,8 +1013,8 @@ class WorkerInPublishPullPipeline(WorkerProcess):
         self.parser.add_argument("--filter", required=True)
         self.parser.add_argument("--syncclient", required=True)
         self.parser.add_argument("--controller", required=True)
-    def setup_sockets(self, args, subscription_filter: bytes) -> None:
 
+    def setup_sockets(self, args, subscription_filter: bytes) -> None:
         # Socket to send messages along the pipe to
         self.sender = self.context.socket(zmq.PUSH)
         self.sender.set_hwm(10)

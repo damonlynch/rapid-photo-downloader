@@ -42,7 +42,6 @@ from raphodo.constants import (
     non_system_root_folders,
 )
 from raphodo.storage.storage import get_media_dir, gvfs_gphoto2_path
-from raphodo.tools.utilities import data_file_path
 from raphodo.ui.viewutils import (
     TopFramedVerticalScrollBar,
     darkModeIcon,

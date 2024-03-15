@@ -44,7 +44,6 @@ wmctrl = shutil.which("wmctrl")
 gm = shutil.which("gm")
 gnome_screenshot = shutil.which("gnome-screenshot")
 
-
 pictures_directory = os.path.join(os.path.expanduser("~"), "Pictures")
 
 
@@ -57,7 +56,7 @@ def parser_options(formatter_class=argparse.HelpFormatter) -> argparse.ArgumentP
 
     parser = argparse.ArgumentParser(
         formatter_class=formatter_class,
-        description="Capture screenshots of Rapid Photo Downloader."
+        description="Capture screenshots of Rapid Photo Downloader.",
     )
 
     parser.add_argument("file", help="Name of screenshot")
@@ -362,15 +361,8 @@ if __name__ == "__main__":
         )
 
         capture = (
-            "{program} import -window root -crop {width}x{height}+{x}+{y} -quality 90 "
-            "{file}".format(
-                x=window_x,
-                y=window_y,
-                width=width,
-                height=height,
-                file=image,
-                program=gm,
-            )
+            f"{gm} import -window root -crop {width}x{height}+{window_x}+{window_y} "
+            f"-quality 90 {image}"
         )
 
         remove_offset = f"{gm} convert +page {image} {image}"

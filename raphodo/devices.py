@@ -61,7 +61,6 @@ from raphodo.tools.utilities import (
 
 DownloadingTo = defaultdict[int, set[FileType]]
 
-
 display_devices = (DeviceType.volume, DeviceType.camera, DeviceType.camera_fuse)
 camera_devices = (DeviceType.camera, DeviceType.camera_fuse)
 
@@ -164,25 +163,27 @@ class Device:
             return "%r" % self.path
 
     def __str__(self):
-        if self.device_type == DeviceType.camera:
-            return (
-                f"{self.camera_model} on port {self.camera_port}. "
-                f"Udev: {self.udev_name}; "
-                f"Display name: {self.display_name} "
-                f"(optimal: {self.have_optimal_display_name}); "
-                f"MTP: {self.is_mtp_device}"
-            )
-        elif self.device_type == DeviceType.camera_fuse:
-            return "{} on port {}. Mount point: {}; Display name: {}".format(
-                self.camera_model, self.camera_port, self.display_name, self.path
-            )
-        elif self.device_type == DeviceType.volume:
-            if self.path != self.display_name:
-                return f"{self.path} ({self.display_name})"
-            else:
-                return "%s" % self.path
-        else:
-            return "%s" % self.path
+        match self.device_type:
+            case DeviceType.camera:
+                return (
+                    f"{self.camera_model} on port {self.camera_port}. "
+                    f"Udev: {self.udev_name}; "
+                    f"Display name: {self.display_name} "
+                    f"(optimal: {self.have_optimal_display_name}); "
+                    f"MTP: {self.is_mtp_device}"
+                )
+            case DeviceType.camera_fuse:
+                return (
+                    f"{self.camera_model} on port {self.camera_port}. "
+                    f"Mount point: {self.display_name}; Display name: {self.path}"
+                )
+            case DeviceType.volume:
+                if self.path != self.display_name:
+                    return f"{self.path} ({self.display_name})"
+                else:
+                    return f"{self.path}"
+            case _:
+                return f"{self.path}"
 
     def __eq__(self, other):
         for attr in ("device_type", "camera_model", "camera_port", "path"):
@@ -1296,7 +1297,9 @@ class DeviceCollection:
                         text = _("%(no_devices)s Devices") % dict(
                             no_devices=text_number
                         )
-                        return text, QIcon(data_file_path("icons/drive-removable-media.svg"))
+                        return text, QIcon(
+                            data_file_path("icons/drive-removable-media.svg")
+                        )
                 else:
                     device_display_name = self._mixed_devices(device_type_text)
                     icon = QIcon(data_file_path("icons/computer.svg"))
