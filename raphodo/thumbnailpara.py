@@ -29,7 +29,6 @@ the metadata time is not already found in the rpd_file.
 #
 #             return inner
 
-
 import logging
 import os
 import pickle
@@ -878,15 +877,13 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         )
         if from_thumb_cache:
             logging.info(
-                "{} of {} thumbnails for {} came from thumbnail cache".format(
-                    from_thumb_cache, len(rpd_files), self.device_name
-                )
+                f"{from_thumb_cache} of {len(rpd_files)} thumbnails for "
+                f"{self.device_name} came from thumbnail cache"
             )
         if from_fdo_cache:
             logging.info(
-                "{} of {} thumbnails of for {} came from Free Desktop cache".format(
-                    from_fdo_cache, len(rpd_files), self.device_name
-                )
+                f"{from_fdo_cache} of {len(rpd_files)} thumbnails of for "
+                f"{self.device_name} came from Free Desktop cache"
             )
 
         self.disconnect_logging()

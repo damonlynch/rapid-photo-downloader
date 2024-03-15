@@ -261,8 +261,9 @@ class ThumbnailRowsSQL:
         if sort_by == Sort.modification_time:
             sort = f"ORDER BY mtime {self.sort_order_map[sort_order]}"
         else:
-            sort = "ORDER BY {0} {1}, mtime {1}".format(
-                self.sort_map[sort_by], self.sort_order_map[sort_order]
+            sort = (
+                f"ORDER BY {self.sort_map[sort_by]} {self.sort_order_map[sort_order]}, "
+                f"mtime {self.sort_order_map[sort_order]}"
             )
         return sort
 
@@ -738,7 +739,7 @@ class DownloadedSQL:
         # h:mm. Set to actual offset when one is found. Can be negative.
         self.found_offset_hr = ""
 
-    def no_downloaded(self)-> None:
+    def no_downloaded(self) -> None:
         """
         :return: how many downloaded files are in the db
         """
@@ -848,8 +849,9 @@ class DownloadedSQL:
         conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
         c = conn.cursor()
         c.execute(
-            """SELECT download_name, download_datetime as [timestamp] FROM {tn} 
-            WHERE file_name=? AND size=? AND mtime=?""".format(tn=self.table_name),
+            "SELECT download_name, download_datetime as [timestamp] FROM "
+            f"{self.table_name} "
+            "WHERE file_name=? AND size=? AND mtime=?",
             (name, size, modification_time),
         )
         row = c.fetchone()
@@ -861,8 +863,9 @@ class DownloadedSQL:
 
         if self.found_offset:
             c.execute(
-                """SELECT download_name, download_datetime as [timestamp] FROM {tn} 
-                WHERE file_name=? AND size=? AND mtime=?""".format(tn=self.table_name),
+                "SELECT download_name, download_datetime as [timestamp] "
+                f"FROM {self.table_name} "
+                "WHERE file_name=? AND size=? AND mtime=?",
                 (name, size, modification_time - self.found_offset),
             )
             row = c.fetchone()

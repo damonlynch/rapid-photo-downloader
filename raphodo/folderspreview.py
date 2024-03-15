@@ -90,9 +90,10 @@ class FoldersPreview:
         self.dirty = False
 
     def __repr__(self):
-        return "FoldersPreview({} photo dirs, {} video dirs)".format(
-            len(self._flatten_set(self.created_photo_subfolders)),
-            len(self._flatten_set(self.created_video_subfolders)),
+        return (
+            "FoldersPreview("
+            f"{len(self._flatten_set(self.created_photo_subfolders))} photo dirs, "
+            f"{len(self._flatten_set(self.created_video_subfolders))} video dirs)"
         )
 
     def dump(self) -> None:

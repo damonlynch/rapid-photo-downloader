@@ -14,8 +14,8 @@ from raphodo.constants import RememberThisButtons, RememberThisMessage
 from raphodo.tools.utilities import data_file_path
 from raphodo.ui.viewutils import standardIconSize, translateDialogBoxButtons
 
-class RememberThisDialog(QDialog):
 
+class RememberThisDialog(QDialog):
     """
     A small dialog window that prompts the user if they want to
     do something or not.

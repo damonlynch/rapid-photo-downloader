@@ -172,11 +172,11 @@ class DeviceModel(QAbstractListModel):
         no_rows = no_storage + 1
 
         if len(device.storage_space):
-            i = 0
             start_row_id = self.row_id_counter + 1
-            for row_id in range(start_row_id, start_row_id + len(device.storage_space)):
+            for i, row_id in enumerate(
+                range(start_row_id, start_row_id + len(device.storage_space))
+            ):
                 self.storage[row_id] = device.storage_space[i]
-                i += 1
         else:
             self.storage[self.row_id_counter + 1] = None
 

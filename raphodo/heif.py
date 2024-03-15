@@ -41,10 +41,10 @@ def libheif_version() -> str:
         try:
             library_name = ctypes.util.find_library("heif")
             h = ctypes.cdll.LoadLibrary(library_name)
-            return "{}.{}.{}".format(
-                h.heif_get_version_number_major(),
-                h.heif_get_version_number_minor(),
-                h.heif_get_version_number_maintenance(),
+            return (
+                f"{h.heif_get_version_number_major()}."
+                f"{h.heif_get_version_number_minor()}."
+                f"{h.heif_get_version_number_maintenance()}"
             )
         except Exception:
             logging.debug("Error determining libheif version")

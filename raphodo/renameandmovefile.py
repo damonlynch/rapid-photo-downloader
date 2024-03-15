@@ -25,7 +25,6 @@ with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
 
-
 import raphodo.generatename as gn
 import raphodo.metadata.exiftool as exiftool
 from raphodo.constants import (
@@ -396,8 +395,9 @@ class RenameMoveFileWorker(DaemonProcess):
         rpd_file.status = DownloadStatus.download_failed
 
         try:
-            msg = "Failed to create file {}: {} {}".format(
-                rpd_file.download_full_file_name, inst.errno, inst.strerror
+            msg = (
+                f"Failed to create file {rpd_file.download_full_file_name}: "
+                f"{inst.errno} {inst.strerror}"
             )
             logging.error(msg)
         except AttributeError:
@@ -999,9 +999,10 @@ class RenameMoveFileWorker(DaemonProcess):
             self.downloads_today_tracker, self.prefs.stored_sequence_no
         )
 
-        with stdchannel_redirected(
-            sys.stderr, os.devnull
-        ), exiftool.ExifTool() as self.exiftool_process:
+        with (
+            stdchannel_redirected(sys.stderr, os.devnull),
+            exiftool.ExifTool() as self.exiftool_process,
+        ):
             while True:
                 if i:
                     logging.debug("Finished %s. Getting next task.", i)

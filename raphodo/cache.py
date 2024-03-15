@@ -228,9 +228,8 @@ class Cache:
             os.chmod(path, 0o600)
             if generation_failed:
                 logging.debug(
-                    "Wrote {}x{} thumbnail {} for {}".format(
-                        thumbnail.width(), thumbnail.height(), path, uri
-                    )
+                    f"Wrote {thumbnail.width()}x{thumbnail.height()} thumbnail "
+                    f"{path} for {uri}"
                 )
             return md5_name
         else:

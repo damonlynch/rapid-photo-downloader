@@ -351,7 +351,8 @@ class ErrorReport(QDialog):
             self.current_find_index = index
             self.log.setTextCursor(cursor)
             self.findResults.setText(
-                # Translators: match number of total matches in a search, e.g. 1 of 10 matches
+                # Translators: match number of total matches in a search,
+                # e.g. 1 of 10 matches
                 _("%(matchnumber)s of %(total)s matches")
                 % dict(matchnumber=index + 1, total=len(self.find_cursors))
             )
@@ -443,8 +444,9 @@ class ErrorReport(QDialog):
                 extra_text = text[end + 4 : next_start]
             else:
                 extra_text = text[end + 4 :]
-            new_text = '{}<a href="file:///{}">{}</a>{}'.format(
-                new_text, len(self.uris), text[href_end + 2 : end], extra_text
+            new_text = (
+                f'{new_text}<a href="file:///{len(self.uris)}">'
+                f"{text[href_end + 2: end]}</a>{extra_text}"
             )
             self.uris.append(href)
             start = next_start
