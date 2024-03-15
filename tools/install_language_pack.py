@@ -5,7 +5,9 @@
 
 """
 Utility to generate command line to install on a Debian like system all
-language packs needed to test Rapid Photo Downloader translations
+language packs needed to test Rapid Photo Downloader translations.
+
+Does not do the installation itself.
 """
 
 __title__ = __file__
