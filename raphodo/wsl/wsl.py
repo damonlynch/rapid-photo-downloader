@@ -102,9 +102,9 @@ class MountOpHumanReadable:
 
     def mount_task_human_readable(self, op: MountOp) -> str:
         """
-        Create human readable versions of mount operations
+        Create human-readable versions of mount operations
         :param op: operation to perform and its parameters
-        :return: operation in human readable form
+        :return: operation in human-readable form
         """
 
         task_hr = self.human_hr[op.task]
@@ -184,7 +184,7 @@ def determine_mount_ops(
     :return: List of operations required to mount or unmount the windows drive
     """
 
-    tasks = []  # type: list[MountOp]
+    tasks: list[MountOp] = []
     assert mount_point
     if do_mount:
         mp = Path(mount_point)
@@ -238,7 +238,7 @@ def determine_mount_ops(
 
 def make_hr_drive_list(drives: list[WindowsDriveMount]) -> str:
     """
-    Make a human readable list of drives for use in dialog windows, etc.
+    Make a human-readable list of drives for use in dialog windows, etc.
     :param drives: the list of drives
     :return: internationalized string
     """
@@ -250,7 +250,7 @@ def make_hr_drive_list(drives: list[WindowsDriveMount]) -> str:
 
 def make_hr_drive_letter_list(drives: list[WindowsDriveMount]) -> str:
     """
-    Return a comma seperated human readable list of drive letters for use in logging,
+    Return a comma-separated human-readable list of drive letters for use in logging,
     etc.
     :param drives: the list of drives
     :return: simple comma seperated string
@@ -485,7 +485,7 @@ class PendingOpsBox(QTextBrowser):
             color: gray;
         }
         """
-        document = self.document()  # type: QTextDocument
+        document: QTextDocument = self.document()
         document.setDefaultStyleSheet(sheet)
 
     def sizeHint(self) -> QSize:
@@ -528,9 +528,9 @@ class WslMountDriveDialog(QDialog):
 
         # drives where the user should be prompted whether to mount these drives
         # after the dialog is closed
-        self.prompt_to_mount_drives = []  # type: list[WindowsDriveMount]
+        self.prompt_to_mount_drives: list[WindowsDriveMount] = []
 
-        self.driveTable = None  # type: QTableWidget | None
+        self.driveTable: QTableWidget | None = None
 
         #  OrderedDict[drive: list[MountOp]]
         self.pending_mount_ops = OrderedDict()
@@ -683,7 +683,7 @@ class WslMountDriveDialog(QDialog):
 
         for row in range(self.driveTable.rowCount()):
             item = self.driveTable.item(row, self.userMountCol)
-            drive = item.data(Qt.UserRole)  # type: WindowsDriveMount
+            drive: WindowsDriveMount = item.data(Qt.UserRole)
             if drive.drive_letter == drive_letter:
                 item.setCheckState(check_state)
                 break
@@ -696,7 +696,7 @@ class WslMountDriveDialog(QDialog):
 
         for row in range(self.driveTable.rowCount()):
             item = self.driveTable.item(row, self.userMountCol)
-            drive = item.data(Qt.UserRole)  # type: WindowsDriveMount
+            drive: WindowsDriveMount = item.data(Qt.UserRole)
             if drive.drive_letter == new_drive.drive_letter:
                 item.setData(Qt.UserRole, new_drive)
                 break
@@ -704,7 +704,7 @@ class WslMountDriveDialog(QDialog):
     @pyqtSlot()
     def applyButtonClicked(self) -> None:
         """ "
-        Initiate mount or unmount operations after the user clicked the apply button
+        Initiate mount or unmount operations after the user clicked the Apply button
         """
 
         logging.debug("Applying WSL mount ops")
@@ -790,7 +790,7 @@ class WslMountDriveDialog(QDialog):
 
         column = item.column()
         if column == self.userMountCol:
-            drive = item.data(Qt.UserRole)  # type: WindowsDriveMount
+            drive: WindowsDriveMount = item.data(Qt.UserRole)
             do_mount = item.checkState() == Qt.Checked
             if do_mount:
                 assert drive.mount_point == ""
@@ -824,7 +824,9 @@ class WslMountDriveDialog(QDialog):
             self.autoUnmountCol,
         ):
             row = item.row()
-            drive = self.driveTable.item(row, self.userMountCol).data(Qt.UserRole)  # type: WindowsDriveMount
+            drive: WindowsDriveMount = self.driveTable.item(
+                row, self.userMountCol
+            ).data(Qt.UserRole)
             if column == self.autoUnmountCol:
                 auto_mount = (
                     self.driveTable.item(row, self.autoMountCol).checkState()
@@ -956,7 +958,9 @@ class WslMountDriveDialog(QDialog):
          mounted, else False
         """
 
-        drive = self.driveTable.item(row, self.userMountCol).data(Qt.UserRole)  # type: WindowsDriveMount
+        drive: WindowsDriveMount = self.driveTable.item(row, self.userMountCol).data(
+            Qt.UserRole
+        )
 
         auto_mount = False
 
@@ -1012,7 +1016,7 @@ class WslMountDriveDialog(QDialog):
 
     def addDriveAtRow(self, row: int, drive: WindowsDriveMount):
         """
-        Add new windows mount drive to the drive table at the row indicated
+        Add new Windows mount drive to the drive table at the row indicated
 
         :param row: row to add the drive to
         :param drive: the drive to add
@@ -1144,13 +1148,13 @@ class WslDrives(QObject):
     def __init__(self, rapidApp: "RapidWindow") -> None:  # noqa: F821
         super().__init__(parent=rapidApp)
 
-        self.drives = []  # type: list[WindowsDriveMount]
-        self.mount_points = defaultdict(list)  # type: defaultdict[str, list[WindowsDriveMount]]
+        self.drives: list[WindowsDriveMount] = []
+        self.mount_points: defaultdict[str, list[WindowsDriveMount]] = defaultdict(list)
         self.make_mount_drive_attempt = False
         self.rapidApp = rapidApp
         self.prefs = self.rapidApp.prefs
         self.windrive_prefs = WSLWindowsDrivePrefsInterface(prefs=self.prefs)
-        self.mountDrivesDialog = None  # type: WslMountDriveDialog | None
+        self.mountDrivesDialog: WslMountDriveDialog | None = None
         self.uid = os.getuid()
         self.gid = os.getgid()
         self.wsl_mount_root = Path(wsl_conf_mnt_location())
@@ -1171,7 +1175,7 @@ class WslDrives(QObject):
 
     def removeDrive(self, drive: WindowsDriveMount) -> None:
         """
-        Remove a windows drive
+        Remove a Windows drive
 
         :param drive: the drive to remove
         """
@@ -1306,7 +1310,7 @@ class WslDrives(QObject):
         enter a password
         """
 
-        auto_unmount_drives = []  # type: list[WindowsDriveMount]
+        auto_unmount_drives: list[WindowsDriveMount] = []
         if at_exit:
             if self.prefs.wsl_automount_removable_drives:
                 for drive in self.drives:
@@ -1354,8 +1358,10 @@ class WslDrives(QObject):
         examining /proc/mounts
         """
 
-        valdiated_drives = []  # type: list[WindowsDriveMount]
-        valdiated_mount_points = defaultdict(list)  # type: defaultdict[str, list[WindowsDriveMount]]
+        valdiated_drives: list[WindowsDriveMount] = []
+        valdiated_mount_points: defaultdict[str, list[WindowsDriveMount]] = defaultdict(
+            list
+        )
         difference_found = False
         for drive in self.drives:
             mount_point = wsl_mount_point(drive_letter=drive.drive_letter)
@@ -1530,10 +1536,10 @@ class WslWindowsRemovableDriveMonitor(QObject):
 
     def __init__(self) -> None:
         super().__init__()
-        self.known_drives = set()  # type: set[WindowsDrive]
-        self.invalid_drives = set()  # type: set[WindowsDrive]
+        self.known_drives: set[WindowsDrive] = set()
+        self.invalid_drives: set[WindowsDrive] = set()
         # dict key is drive letter
-        self.detected_drives = dict()  # type: dict[str, WindowsDriveMount]
+        self.detected_drives: dict[str, WindowsDriveMount] = dict()
 
     @pyqtSlot()
     def startMonitor(self) -> None:
@@ -1645,12 +1651,17 @@ def wsl_mount_point(drive_letter: str) -> str:
     with open("/proc/mounts") as m:
         mounts = m.read()
 
-    regex = rf"^drvfs (.+?) 9p .+?path={drive_letter}:\\?;"
-    mnt = re.search(regex, mounts, re.MULTILINE | re.IGNORECASE)
-    if mnt is not None:
-        return mnt.group(1)
-    else:
-        return ""
+    for regex in (
+        rf"^drvfs (.+?) 9p .+?path={drive_letter}:\\?;",
+        (
+            rf"{drive_letter}:\\\d\d\d (/[/a-zA-Z]+/{drive_letter.lower()}) "
+            "9p .+?aname=drvfs"
+        ),
+    ):
+        mnt = re.search(regex, mounts, re.MULTILINE | re.IGNORECASE)
+        if mnt is not None:
+            return mnt.group(1)
+    return ""
 
 
 def wsl_drive_valid(drive_letter: str) -> bool:
