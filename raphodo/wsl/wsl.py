@@ -1654,7 +1654,7 @@ def wsl_mount_point(drive_letter: str) -> str:
     for regex in (
         rf"^drvfs (.+?) 9p .+?path={drive_letter}:\\?;",
         (
-            rf"{drive_letter}:\\\d\d\d (/[/a-zA-Z]+/{drive_letter.lower()}) "
+            rf"{drive_letter}:\\\d{{1,4}} (/[/a-zA-Z]+/{drive_letter.lower()}) "
             "9p .+?aname=drvfs"
         ),
     ):
