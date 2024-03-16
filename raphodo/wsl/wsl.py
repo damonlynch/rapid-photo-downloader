@@ -1651,12 +1651,17 @@ def wsl_mount_point(drive_letter: str) -> str:
     with open("/proc/mounts") as m:
         mounts = m.read()
 
-    regex = rf"^drvfs (.+?) 9p .+?path={drive_letter}:\\?;"
-    mnt = re.search(regex, mounts, re.MULTILINE | re.IGNORECASE)
-    if mnt is not None:
-        return mnt.group(1)
-    else:
-        return ""
+    for regex in (
+        rf"^drvfs (.+?) 9p .+?path={drive_letter}:\\?;",
+        (
+            rf"{drive_letter}:\\\d\d\d (/[/a-zA-Z]+/{drive_letter.lower()}) "
+            "9p .+?aname=drvfs"
+        ),
+    ):
+        mnt = re.search(regex, mounts, re.MULTILINE | re.IGNORECASE)
+        if mnt is not None:
+            return mnt.group(1)
+    return ""
 
 
 def wsl_drive_valid(drive_letter: str) -> bool:
