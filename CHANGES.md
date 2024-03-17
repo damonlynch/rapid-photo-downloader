@@ -12,9 +12,6 @@ Changelog for Rapid Photo Downloader
  - Fix bug [#154](https://github.com/damonlynch/rapid-photo-downloader/issues/154):
    System-mounted Windows drives not detected as mounted under WSL.
 
- - Purge use of the Qt resource system for images, instead storing images in a 
-   new data directory and loading them using the Python resource system.
-
  - Fix invalid escape characters. Thanks to Tino Mettler for the heads-up.
 
 0.9.36 (2024-02-13)
