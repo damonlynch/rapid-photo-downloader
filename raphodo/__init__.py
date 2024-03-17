@@ -11,7 +11,7 @@ import locale
 import os
 from pathlib import Path
 
-from PyQt5.QtCore import QSettings, QStandardPaths
+from PyQt5.QtCore import QSettings
 
 
 def sample_translation() -> str:
@@ -21,45 +21,6 @@ def sample_translation() -> str:
 
     mo_file = f"{i18n_domain}.mo"
     return os.path.join("es", "LC_MESSAGES", mo_file)
-
-
-def locale_directory() -> str | None:
-    """
-    Locate locale directory. Prioritizes whatever is newer, comparing the locale
-    directory at xdg_data_home and the one in /usr/share/
-
-    If running in a snap, use the snap locale directory.
-
-    :return: the locale directory with the most recent messages for Rapid Photo
-    Downloader, if found, else None.
-    """
-
-    snap_name = os.getenv("SNAP_NAME", "")
-    if snap_name.find("rapid-photo-downloader") >= 0:
-        snap_dir = os.getenv("SNAP", "")
-        return os.path.join(snap_dir, "/usr/lib/locale")
-
-    locale_dir = os.getenv("RPD_I18N_DIR")
-    if locale_dir is not None and os.path.isdir(locale_dir):
-        return locale_dir
-
-    sample_lang_path = sample_translation()
-    locale_mtime = 0.0
-    locale_dir = None
-
-    data_home = QStandardPaths.writableLocation(QStandardPaths.GenericDataLocation)
-    assert Path(data_home).is_dir()
-
-    for path in (data_home, "/usr/share"):
-        locale_path = os.path.join(path, "locale")
-        sample_path = os.path.join(locale_path, sample_lang_path)
-        if (
-            os.path.isfile(sample_path)
-            and os.access(sample_path, os.R_OK)
-            and os.path.getmtime(sample_path) > locale_mtime
-        ):
-            locale_dir = locale_path
-    return locale_dir
 
 
 def no_translation_performed(s: str) -> str:
@@ -76,7 +37,7 @@ def no_translation_performed(s: str) -> str:
 
 
 i18n_domain = "rapid-photo-downloader"
-localedir = locale_directory()
+localedir = Path(__file__).parent / "locale"
 
 lang = None
 lang_installed = False

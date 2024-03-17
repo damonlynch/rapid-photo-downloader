@@ -1,6 +1,18 @@
 Release Notes for Rapid Photo Downloader 0.9.36
 ===============================================
 
+ - Rapid Photo Downloader 0.9.37 switches from `setuptools` and an old-school
+   `setup.py` to using [Hatch](https://github.com/pypa/hatch).
+   As part of this switch, localisation files are generated differently:
+   - `.desktop` and `metainfo.xml` files are now generated at build time into 
+     subfolders within the `share` folder.
+   - `.mo` files are now generated within the folder `raphodo/locale`; they
+      should not be copied to `/usr/share/locale`. Any 
+     `rapid-photo-downloader.mo` files in `/usr/share/locale` should be 
+     deleted. 
+
+ - Rapid Photo Downloader 0.9.35 requires Python 3.10 or newer.
+
  - To run Rapid Photo Downloader under WSLg on Windows 11, using the 
    [Windows Subsystem for Linux Preview](https://aka.ms/wslstorepage) from 
    the Microsoft Store is *strongly recommended*. Using the version of WSL that
@@ -8,16 +20,6 @@ Release Notes for Rapid Photo Downloader 0.9.36
    running programs like Rapid Photo Downloader. Read the documentation on Rapid
    Photo Downloader and WSL on the
    [program website](https://https://damonlynch.net/rapid/documentation/#wsl).
-
- - Rapid Photo Downloader 0.9.35 requires Python 3.10 or newer.
-
- - Rapid Photo Downloader 0.9.19 introduced support for HEIF / HEIC files. The 
-   [documentation](https://damonlynch.net/rapid/documentation/#heifheic) 
-   goes into details.
-
- - Version 0.9.19 also introduced much improved support for high-resolution
-   displays. Consult the [documentation](https://damonlynch.net/rapid/documentation/#highdpi)
-   to learn more.
 
  - If thumbnailing fails to finish but no error is reported, that could indicate
    Exiv2 has crashed. See the 
