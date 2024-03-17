@@ -6,7 +6,7 @@ Changelog for Rapid Photo Downloader
 
  - Convert project configuration and build to use 
    [Hatch](https://github.com/pypa/hatch), 
-   which has resulted in changes to program configuration. Linux distribution
+   which has resulted in changes to the build process. Linux distribution
    packagers should consult the release notes for details.
 
  - Fix bug [#154](https://github.com/damonlynch/rapid-photo-downloader/issues/154):
