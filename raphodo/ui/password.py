@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Martin Fitzpatrick
+# SPDX-FileCopyrightText: Copyright 2020 Martin Fitzpatrick
 # SPDX-License-Identifier: MIT OR BSD-2-Clause
 
 # Source:
