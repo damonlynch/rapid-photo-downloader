@@ -94,9 +94,9 @@ class DownloadTracker:
             + stats.no_videos * self.no_video_backup_devices
         )
         total_bytes = stats.photos_size_in_bytes + stats.videos_size_in_bytes
-        self.no_post_download_thumb_generation_by_scan_id[
-            scan_id
-        ] = stats.post_download_thumb_generation
+        self.no_post_download_thumb_generation_by_scan_id[scan_id] = (
+            stats.post_download_thumb_generation
+        )
 
         # rename_chunk is used to account for the time it takes to rename a
         # file, and potentially to generate thumbnails after it has renamed.
@@ -291,9 +291,9 @@ class DownloadTracker:
         ]
         self.files_downloaded[scan_id] = self.no_files_in_download_by_scan_id[scan_id]
 
-        self.total_bytes_copied_by_scan_id[
-            scan_id
-        ] = self.size_of_download_in_bytes_by_scan_id[scan_id]
+        self.total_bytes_copied_by_scan_id[scan_id] = (
+            self.size_of_download_in_bytes_by_scan_id[scan_id]
+        )
 
         self.total_bytes_backed_up_by_scan_id[scan_id] = (
             self.size_of_photo_backup_in_bytes_by_scan_id[scan_id]

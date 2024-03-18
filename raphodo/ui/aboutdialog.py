@@ -41,9 +41,7 @@ class AboutDialog(QDialog):
         self.setObjectName("AboutDialog")
         png = data_file_path("splashscreen.png")
         url = Path(png).as_posix()
-        self.setStyleSheet(
-            f"QDialog#AboutDialog {{background-image: url({url});}}"
-        )
+        self.setStyleSheet(f"QDialog#AboutDialog {{background-image: url({url});}}")
 
         pixmap = QPixmap(png)
         try:

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # SPDX-FileCopyrightText: Copyright 2011-2024 Damon Lynch <damonlynch@gmail.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -138,9 +136,10 @@ class FileCopy:
     ) -> bool:
         src_chunks = []
         try:
-            with open(destination, "wb", self.io_buffer) as self.dest, open(
-                source, "rb", self.io_buffer
-            ) as self.src:
+            with (
+                open(destination, "wb", self.io_buffer) as self.dest,
+                open(source, "rb", self.io_buffer) as self.src,
+            ):
                 total = rpd_file.size
                 amount_downloaded = 0
 

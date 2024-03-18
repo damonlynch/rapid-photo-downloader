@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # SPDX-FileCopyrightText: Copyright 2011-2024 Damon Lynch <damonlynch@gmail.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -3570,9 +3568,9 @@ Do you want to proceed with the download?"""
         self.download_tracker.set_total_bytes_copied(scan_id, total_downloaded)
         if len(self.devices.have_downloaded_from) > 1:
             model = self.mapModel(scan_id)
-            model.percent_complete[
-                scan_id
-            ] = self.download_tracker.get_percent_complete(scan_id)
+            model.percent_complete[scan_id] = (
+                self.download_tracker.get_percent_complete(scan_id)
+            )
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
         self.updateFileDownloadDeviceProgress()

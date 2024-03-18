@@ -22,7 +22,6 @@ from raphodo.ui.viewutils import is_dark_mode
 
 
 class QPanelView(QWidget):
-
     """
     A header bar with a child widget.
     """

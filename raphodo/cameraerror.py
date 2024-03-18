@@ -30,8 +30,8 @@ class CameraProblemEx(CameraError):
     def __init__(
         self,
         code: CameraErrorCode,
-        gp_exception: gp.GPhoto2Error|None = None,
-        py_exception: Exception|None = None,
+        gp_exception: gp.GPhoto2Error | None = None,
+        py_exception: Exception | None = None,
     ) -> None:
         super().__init__(code)
         if gp_exception is not None:
@@ -75,7 +75,6 @@ class iOSDeviceError(CameraError):
         self.display_name = display_name
 
     def __str__(self) -> str:
-
         if self.code in (
             CameraErrorCode.pair,
             CameraErrorCode.mount,

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # SPDX-FileCopyrightText: Copyright 2015-2024 Damon Lynch <damonlynch@gmail.com>
 # SPDX-FileCopyrightText: Copyright 2012-2015 Jim Easterbrook <jim@jim-easterbrook.me.uk>
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -98,7 +96,6 @@ def camera_is_mtp_device(camera_port: str) -> bool:
 
 
 class Camera:
-
     """Access a camera via libgphoto2."""
 
     def __init__(

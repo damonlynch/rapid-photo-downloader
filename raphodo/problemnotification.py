@@ -15,7 +15,7 @@ Group problems into tasks:
   4. backing up - per backup device
 
 Present messages in a human-readable manner.
-Multiple metadata problems can occur: group them. 
+Multiple metadata problems can occur: group them.
 Distinguish error severity
 
 """

@@ -159,7 +159,6 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
         title = _("Problem in Rapid Photo Downloader")
 
         if QApplication.instance():
-
             header = _("A problem occurred in Rapid Photo Downloader")
 
             only_notification = _(
