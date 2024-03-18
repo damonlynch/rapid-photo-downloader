@@ -1,6 +1,6 @@
-# Copyright (C) 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# Copyright (C) 2008-2015 Canonical Ltd.
-# Copyright (C) 2013 Bernard Baeyens
+# SPDX-FileCopyrightText: Copyright 2015-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: Copyright 2008-2015 Canonical Ltd.
+# SPDX-FileCopyrightText: Copyright 2013 Bernard Baeyens
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 """

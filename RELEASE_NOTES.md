@@ -15,6 +15,7 @@ Release Notes for Rapid Photo Downloader 0.9.36
    - `pyrcc` is no longer used to generate images for the Qt resource system.
      Instead, images are stored in a new `raphodo/data` directory and loaded 
      using the Python resource system.
+   - All source code now uses SPDX identifiers for copyright and licensing.  
 
  - Rapid Photo Downloader 0.9.35 requires Python 3.10 or newer.
 

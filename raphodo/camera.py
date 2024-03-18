@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# Copyright (C) 2012-2015 Jim Easterbrook <jim@jim-easterbrook.me.uk>
+# SPDX-FileCopyrightText: Copyright 2015-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: Copyright 2012-2015 Jim Easterbrook <jim@jim-easterbrook.me.uk>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging

@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: Copyright 2016-2024 Damon Lynch <damonlynch@gmail.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from PyQt5.QtCore import Qt
