@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # SPDX-FileCopyrightText: Copyright 2007-2023 Damon Lynch <damonlynch@gmail.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -1098,7 +1096,7 @@ VIDEO_RENAME_SIMPLE = [
 JOB_CODE_RENAME_TEST = ["Job code", "", "", "Sequences", "Downloads today", "One digit"]
 
 
-def upgrade_pre090a4_rename_pref(pref_list: PrefList) -> tuple[PrefList, str |None]:
+def upgrade_pre090a4_rename_pref(pref_list: PrefList) -> tuple[PrefList, str | None]:
     r"""
     Upgrade photo and video rename preference list
 
@@ -1153,7 +1151,7 @@ class PrefError(Exception):
         self.msg = ""
 
     @staticmethod
-    def unpackList(pref_list: PrefList)-> str:
+    def unpackList(pref_list: PrefList) -> str:
         """
         Make the preferences presentable to the user
         """

@@ -29,7 +29,6 @@ regarding mount points and XDG related functionality.
 
 # ruff: noqa: E402
 
-
 import functools
 import logging
 import os

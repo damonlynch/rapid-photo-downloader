@@ -63,7 +63,6 @@ Added execute_binary()
 Update to Python 3.10 conventions.
 """
 
-
 import codecs
 import json
 import os

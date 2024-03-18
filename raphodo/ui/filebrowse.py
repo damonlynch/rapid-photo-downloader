@@ -130,8 +130,8 @@ class FileSystemModel(QFileSystemModel):
             return True
         return False
 
-class FileSystemView(QTreeView):
 
+class FileSystemView(QTreeView):
     showSystemFolders = pyqtSignal(bool)
     filePathReset = pyqtSignal()
 
