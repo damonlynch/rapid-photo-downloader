@@ -273,7 +273,7 @@ def run_commands_as_sudo(
     title: str | None = None,
     icon: str | None = None,
     help_url: str | None = None,
-) -> list[SudoCommandResult, ...]:
+) -> list[SudoCommandResult]:
     """
     Run a list of commands. If necessary, prompt for the sudo password using a dialog.
 
@@ -291,7 +291,7 @@ def run_commands_as_sudo(
     :return: list of return codes, stdout and stderr
     """
 
-    results: list[SudoCommandResult, ...] = []
+    results: list[SudoCommandResult] = []
     for cmd in cmds:
         try:
             result = run_command_as_sudo_without_password(cmd=cmd, timeout=timeout)
