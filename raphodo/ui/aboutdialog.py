@@ -91,7 +91,7 @@ class AboutDialog(QDialog):
         details.setStyleSheet(details_style_sheet)
         details.setOpenExternalLinks(True)
         details.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        font = self.font()  # type: QFont
+        font: QFont = self.font()
         font_size = font.pointSize() - 2
         font.setPointSize(font_size)
         details.setFont(font)
@@ -317,16 +317,16 @@ class AboutDialog(QDialog):
         self.stack.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         buttonBox = QDialogButtonBox()
-        closeButton = buttonBox.addButton(QDialogButtonBox.Close)  # type: QPushButton
+        closeButton: QPushButton = buttonBox.addButton(QDialogButtonBox.Close)
         translateDialogBoxButtons(buttonBox)
-        self.creditsButton = buttonBox.addButton(
+        self.creditsButton: QPushButton = buttonBox.addButton(
             _("Credits"), QDialogButtonBox.HelpRole
-        )  # type: QPushButton
+        )
         self.creditsButton.setDefault(False)
         self.creditsButton.setCheckable(True)
-        self.translatorsButton = buttonBox.addButton(
+        self.translatorsButton: QPushButton = buttonBox.addButton(
             _("Translators"), QDialogButtonBox.ResetRole
-        )  # type: QPushButton
+        )
         self.translatorsButton.setDefault(False)
         self.translatorsButton.setCheckable(True)
         closeButton.setDefault(True)

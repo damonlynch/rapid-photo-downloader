@@ -138,13 +138,13 @@ class ProcessManager:
 
         self.logging_port = logging_port
 
-        self.processes = {}  # type: dict[int, psutil.Process]
+        self.processes: dict[int, psutil.Process] = {}
         self._process_to_run = ""  # Implement in subclass
 
         self.thread_name = thread_name
 
         # Monitor which workers we have running
-        self.workers = []  # type: list[int]
+        self.workers: list[int] = []
 
     def _get_cmd(self) -> str:
         return "{} {}".format(
@@ -188,12 +188,12 @@ class ProcessManager:
         Forcefully terminate any running child processes.
         """
 
-        zombie_processes = [
+        zombie_processes: list[psutil.Process] = [
             p
             for p in self.processes.values()
             if p.is_running() and p.status() == psutil.STATUS_ZOMBIE
         ]
-        running_processes = [
+        running_processes: list[psutil.Process] = [
             p
             for p in self.processes.values()
             if p.is_running() and p.status() != psutil.STATUS_ZOMBIE
@@ -206,13 +206,13 @@ class ProcessManager:
                 len(running_processes),
             )
 
-        for p in zombie_processes:  # type: psutil.Process
+        for p in zombie_processes:
             try:
                 logging.debug("Killing zombie process %s with pid %s", p.name(), p.pid)
                 p.kill()
             except Exception:
                 logging.error("Failed to kill process with pid %s", p.pid)
-        for p in running_processes:  # type: psutil.Process
+        for p in running_processes:
             try:
                 logging.debug("Terminating process %s with pid %s", p.name(), p.pid)
                 p.terminate()
@@ -483,8 +483,8 @@ class LRUQueue:
         self.process_manager = process_manager
         self.workers = deque()
         self.terminating = False
-        self.terminating_workers = set()  # type: set[bytes]
-        self.stopped_workers = set()  # type: set[int]
+        self.terminating_workers: set[bytes] = set()
+        self.stopped_workers: set[int] = set()
 
         self.backend = ZMQStream(backend_socket)
         self.frontend = ZMQStream(frontend_socket)
@@ -530,7 +530,7 @@ class LRUQueue:
             self.terminating_workers.remove(worker_identity)
             if len(self.terminating_workers) == 0:
                 for worker_id in self.stopped_workers:
-                    p = self.process_manager.processes[worker_id]  # type: psutil.Process
+                    p: psutil.Process = self.process_manager.processes[worker_id]
                     if p.is_running():
                         pid = p.pid
                         if p.status() != psutil.STATUS_SLEEPING:
@@ -1667,7 +1667,7 @@ class RenameMoveFileManager(PushPullDaemonManager):
         self._process_to_run = "renameandmovefile.py"
 
     def process_sink_data(self):
-        data = pickle.loads(self.content)  # type: RenameAndMoveFileResults
+        data: RenameAndMoveFileResults = pickle.loads(self.content)
         if data.move_succeeded is not None:
             self.message.emit(data.move_succeeded, data.rpd_file, data.download_count)
 
@@ -1699,7 +1699,7 @@ class ThumbnailDaemonManager(PushPullDaemonManager):
         self._process_to_run = "thumbnaildaemon.py"
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)  # type: GenerateThumbnailsResults
+        data: GenerateThumbnailsResults = pickle.loads(self.content)
         if data.thumbnail_bytes is None:
             thumbnail = QPixmap()
         else:
@@ -1725,7 +1725,7 @@ class OffloadManager(PushPullDaemonManager):
         self._process_to_run = "offload.py"
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)  # type: OffloadResults
+        data: OffloadResults = pickle.loads(self.content)
         if data.proximity_groups is not None:
             self.message.emit(data.proximity_groups)
         elif data.folders_preview is not None:
@@ -1753,7 +1753,7 @@ class ScanManager(PublishPullPipelineManager):
         self._process_to_run = "scan.py"
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)  # type: ScanResults
+        data: ScanResults = pickle.loads(self.content)
         if data.rpd_files is not None:
             assert data.file_type_counter
             assert data.file_size_sum
@@ -1812,7 +1812,7 @@ class BackupManager(PublishPullPipelineManager):
         self._process_to_run = "backupfile.py"
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)  # type: BackupResults
+        data: BackupResults = pickle.loads(self.content)
         if data.total_downloaded is not None:
             assert data.scan_id is not None
             assert data.chunk_downloaded >= 0
@@ -1852,7 +1852,7 @@ class CopyFilesManager(PublishPullPipelineManager):
         self._process_to_run = "copyfiles.py"
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)  # type: CopyFilesResults
+        data: CopyFilesResults = pickle.loads(self.content)
         if data.total_downloaded is not None:
             assert data.scan_id is not None
             if data.chunk_downloaded < 0:

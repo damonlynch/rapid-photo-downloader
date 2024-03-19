@@ -41,11 +41,11 @@ class RescanCamera:
                 camera.display_name,
             )
         # Relocated RPD files
-        self.rpd_files = []  # type: list[RPDFile]
+        self.rpd_files: list[RPDFile] = []
         # Missing RPD files
-        self.missing_rpd_files = []  # type: list[RPDFile]
+        self.missing_rpd_files: list[RPDFile] = []
         self.prefs = prefs
-        self.scan_preferences = None  # type: ScanPreferences | None
+        self.scan_preferences: ScanPreferences | None = None
 
     def rescan_camera(self, rpd_files: list[RPDFile]) -> None:
         """
@@ -77,7 +77,7 @@ class RescanCamera:
             return
 
         # filename: RPDFile
-        self.prev_scanned_files = defaultdict(list)  # type: defaultdict[str, list[RPDFile]]
+        self.prev_scanned_files: defaultdict[str, list[RPDFile]] = defaultdict(list)
         self.scan_preferences = ScanPreferences(self.prefs.ignored_paths)
 
         for rpd_file in rpd_files:
@@ -109,7 +109,7 @@ class RescanCamera:
             if name in self.prev_scanned_files:
                 prev_rpd_files = self.prev_scanned_files[name]
                 if len(prev_rpd_files) > 1:
-                    rpd_file = None  # type: RPDFile | None
+                    rpd_file: RPDFile | None = None
                     # more than one file with the same filename is found on the camera
                     # compare match by modification time and size check
                     for prev_rpd_file in prev_rpd_files:

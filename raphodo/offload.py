@@ -32,7 +32,7 @@ class OffloadWorker(DaemonProcess):
 
                 self.check_for_command(directive, content)
 
-                data = pickle.loads(content)  # type: OffloadData
+                data: OffloadData = pickle.loads(content)
                 if data.thumbnail_rows:
                     groups = TemporalProximityGroups(
                         thumbnail_rows=data.thumbnail_rows,

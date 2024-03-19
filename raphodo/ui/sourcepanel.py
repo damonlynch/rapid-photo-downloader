@@ -101,7 +101,7 @@ class SourcePanel(ScrollAreaNoFrame):
             QSizePolicy.Preferred, QSizePolicy.MinimumExpanding
         )
 
-        layout = self.sourcePanelWidget.layout()  # type: QVBoxLayout
+        layout: QVBoxLayout = self.sourcePanelWidget.layout()
         layout.addWidget(self.deviceToggleView, 0)
 
         for widget in (
@@ -130,7 +130,7 @@ class SourcePanel(ScrollAreaNoFrame):
         #   if TC on, TC and TL in splitter, splitter showing
         #   if TC off, TC and TL in panel, splitter hidden
 
-        layout = self.sourcePanelWidget.layout()  # type: QVBoxLayout
+        layout: QVBoxLayout = self.sourcePanelWidget.layout()
         if not self.needSplitter():
             if self.splitter.isVisible():
                 self.settings.setValue(

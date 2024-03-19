@@ -62,15 +62,15 @@ class QToggleSwitch(QSlider):
 
     def stylesheet(self, background: QColor | None) -> str:
         shading_intensity = 104
-        windowColor = QPalette().color(QPalette().Window)  # type: QColor
+        windowColor: QColor = QPalette().color(QPalette().Window)
 
         if background is None:
             backgroundName = windowColor.name()
         else:
             backgroundName = QColor(background).name()
 
-        handleLightName = (QPalette().color(QPalette().Light)).name()  # type: str
-        handleDarkName = (QPalette().color(QPalette().Dark)).name()  # type: str
+        handleLightName: str = (QPalette().color(QPalette().Light)).name()
+        handleDarkName: str = (QPalette().color(QPalette().Dark)).name()
         handleHoverLightName = (
             (QPalette().color(QPalette().Light)).lighter(shading_intensity).name()
         )
@@ -81,7 +81,7 @@ class QToggleSwitch(QSlider):
         insetDarkName = windowColor.darker(108).name()
         insetLightName = windowColor.darker(102).name()
 
-        highlightColor = QPalette().color(QPalette().Highlight)  # type: QColor
+        highlightColor: QColor = QPalette().color(QPalette().Highlight)
         highlightLightName = highlightColor.lighter(110).name()
         highlightDarkName = highlightColor.darker(130).name()
 

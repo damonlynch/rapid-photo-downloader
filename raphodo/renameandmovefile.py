@@ -82,7 +82,7 @@ class SyncRawJpeg:
     """
 
     def __init__(self):
-        self.photos = {}  # type: dict[str, SyncRawJpegRecord]
+        self.photos: dict[str, SyncRawJpegRecord] = {}
 
     def add_download(
         self,
@@ -691,9 +691,9 @@ class RenameMoveFileWorker(DaemonProcess):
                 rpd_file.status = DownloadStatus.download_failed
                 self.check_for_fatal_name_generation_errors(rpd_file)
             else:
-                matching_pair = self.sync_raw_jpeg.matching_pair(
+                matching_pair: SyncRawJpegMatch = self.sync_raw_jpeg.matching_pair(
                     name=photo_name, extension=photo_ext, date_time=date_time
-                )  # type: SyncRawJpegMatch
+                )
                 sequence_to_use = matching_pair.sequence_number
                 if matching_pair.status == SyncRawJpegStatus.error_already_downloaded:
                     # this exact file has already been
@@ -1010,7 +1010,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
                 self.check_for_command(directive, content)
 
-                data = pickle.loads(content)  # type: RenameAndMoveFileData
+                data: RenameAndMoveFileData = pickle.loads(content)
                 if data.message == RenameAndMoveStatus.download_started:
                     # reinitialize downloads today and stored sequence number
                     # in case the user has updated them via the user interface

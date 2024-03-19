@@ -1044,12 +1044,14 @@ class PreferencesDialog(QDialog):
             | QDialogButtonBox.Help
         )
         translateDialogBoxButtons(buttons)
-        self.restoreButton = buttons.button(QDialogButtonBox.RestoreDefaults)  # type: QPushButton
+        self.restoreButton: QPushButton = buttons.button(
+            QDialogButtonBox.RestoreDefaults
+        )
         self.restoreButton.clicked.connect(self.restoreDefaultsClicked)
-        self.helpButton = buttons.button(QDialogButtonBox.Help)  # type: QPushButton
+        self.helpButton: QPushButton = buttons.button(QDialogButtonBox.Help)
         self.helpButton.clicked.connect(self.helpButtonClicked)
         self.helpButton.setToolTip(_("Get help online..."))
-        self.closeButton = buttons.button(QDialogButtonBox.Close)  # type: QPushButton
+        self.closeButton: QPushButton = buttons.button(QDialogButtonBox.Close)
         self.closeButton.clicked.connect(self.close)
 
         controlsLayout = QHBoxLayout()
@@ -1395,7 +1397,7 @@ class PreferencesDialog(QDialog):
     @pyqtSlot()
     def removeDeviceClicked(self) -> None:
         row = self.knownDevices.currentRow()
-        item = self.knownDevices.takeItem(row)  # type: QListWidgetItem
+        item: QListWidgetItem = self.knownDevices.takeItem(row)
         known_device_type = item.type()
         if known_device_type == KnownDeviceType.volume_whitelist:
             self.prefs.del_list_value("volume_whitelist", item.text())

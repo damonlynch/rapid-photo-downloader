@@ -146,7 +146,7 @@ class ErrorReport(QDialog):
         }
         """
 
-        document = self.log.document()  # type: QTextDocument
+        document: QTextDocument = self.log.document()
         document.setDefaultStyleSheet(sheet)
         # document.setIndentWidth(QFontMetrics(QFont()).boundingRect('200').width())
 
@@ -174,7 +174,7 @@ class ErrorReport(QDialog):
         message = _("Find in reports")
         self.find = QFindLineEdit(find_text=message)
         self.find.textEdited.connect(self.onFindChanged)
-        style = self.find.style()  # type: QStyle
+        style: QStyle = self.find.style()
         frame_width = style.pixelMetric(QStyle.PM_DefaultFrameWidth)
         button_margin = style.pixelMetric(QStyle.PM_ButtonMargin)
         spacing = (frame_width + button_margin) * 2 + 8
@@ -235,7 +235,9 @@ class ErrorReport(QDialog):
 
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
         translateDialogBoxButtons(buttons)
-        self.clear = buttons.addButton(_("Clear"), QDialogButtonBox.ActionRole)  # type: QPushButton
+        self.clear: QPushButton = buttons.addButton(
+            _("Clear"), QDialogButtonBox.ActionRole
+        )
         buttons.rejected.connect(self.reject)
         self.clear.clicked.connect(self.clearClicked)
         self.clear.setEnabled(False)
@@ -270,7 +272,7 @@ class ErrorReport(QDialog):
         return flags
 
     def _clearSearch(self) -> None:
-        cursor = self.log.textCursor()  # type: QTextCursor
+        cursor: QTextCursor = self.log.textCursor()
         if cursor.hasSelection():
             cursor.clearSelection()
             self.log.setTextCursor(cursor)
@@ -291,7 +293,7 @@ class ErrorReport(QDialog):
             QTimer.singleShot(1000, self._doFind)
             return
 
-        cursor = self.log.textCursor()  # type: QTextCursor
+        cursor: QTextCursor = self.log.textCursor()
         text = self.find.getText()
         highlight = self.highlightAll.isChecked()
 
@@ -300,7 +302,7 @@ class ErrorReport(QDialog):
             self.findResults.setText("")
             return
 
-        initial_position = cursor.selectionStart()  # type: int
+        initial_position: int = cursor.selectionStart()
 
         self.log.moveCursor(QTextCursor.Start)
 
@@ -312,7 +314,7 @@ class ErrorReport(QDialog):
         self.find_cursors = []
 
         while self.log.find(text, flags):
-            cursor = self.log.textCursor()  # type: QTextCursor
+            cursor: QTextCursor = self.log.textCursor()
             self.find_cursors.append(cursor)
 
             if index is None and cursor.selectionStart() >= initial_position:
@@ -574,7 +576,7 @@ class SpeechBubble(QLabel):
 
         height = self.height()
 
-        rect = self.rect()  # type: QRect
+        rect: QRect = self.rect()
         if not self._count:
             painter.fillRect(rect, self.fillColor)
         else:

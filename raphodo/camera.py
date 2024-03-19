@@ -133,7 +133,7 @@ class Camera:
 
         self._select_camera(model, port)
 
-        self.specific_folders = None  # type: list[str]|None
+        self.specific_folders: list[str] | None = None
         self.specific_folder_located = False
         self._dual_slots_active = False
 

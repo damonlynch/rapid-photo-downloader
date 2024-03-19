@@ -428,7 +428,7 @@ class RPDFile:
         self.size = size
 
         # Cached version of call to metadata.date_time()
-        self._datetime = None  # type: datetime | None
+        self._datetime: datetime | None = None
 
         ############################
         # self._no_datetime_metadata
@@ -437,7 +437,7 @@ class RPDFile:
         # If None, haven't tried yet
         # If False, no problems encountered, got it (or it was assigned from mtime
         # when never_read_mdatatime is True)
-        self._no_datetime_metadata = None  # type: bool|None
+        self._no_datetime_metadata: bool | None = None
 
         self.never_read_mdatatime = never_read_mdatatime
         if never_read_mdatatime:
@@ -508,11 +508,11 @@ class RPDFile:
 
         # freedesktop.org cache thumbnails
         # http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
-        self.thumbnail_status = ThumbnailCacheStatus.not_ready  # type: ThumbnailCacheStatus
+        self.thumbnail_status: ThumbnailCacheStatus = ThumbnailCacheStatus.not_ready
         self.fdo_thumbnail_128_name = ""
         self.fdo_thumbnail_256_name = ""
         # PNG data > 128x128 <= 256x256
-        self.fdo_thumbnail_256 = None  # type: bytes|None
+        self.fdo_thumbnail_256: bytes | None = None
 
         # Thee status of the file in the Rapid Photo Downloader thumbnail cache
         self.thumbnail_cache_status = thumbnail_cache_status
@@ -521,7 +521,7 @@ class RPDFile:
 
         self.cache_full_file_name = ""
         # temporary file used only for video metadata extraction:
-        self.temp_sample_full_file_name = None  # type: str|None
+        self.temp_sample_full_file_name: str | None = None
         # if True, the file is a complete copy of the original
         self.temp_sample_is_complete_file = False
         self.temp_full_file_name = ""
@@ -551,13 +551,18 @@ class RPDFile:
         self.xmp_extension = ""
         self.log_extension = ""
 
-        self.metadata = None  # type: metadataphoto.MetaData | metadatavideo.MetaData | metadataexiftool.MetadataExiftool | None
-        self.metadata_failure = False  # type: bool
+        self.metadata: (
+            metadataphoto.MetaData
+            | metadatavideo.MetaData
+            | metadataexiftool.MetadataExiftool
+            | None
+        ) = None
+        self.metadata_failure: bool = False
 
         # User preference values used for name generation
-        self.subfolder_pref_list = []  # type: list[str]
-        self.name_pref_list = []  # type: list[str]
-        self.generate_extension_case = ""  # type: str
+        self.subfolder_pref_list: list[str] = []
+        self.name_pref_list: list[str] = []
+        self.generate_extension_case: str = ""
 
         self.modified_via_daemon_process = False
 

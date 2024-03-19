@@ -82,17 +82,17 @@ class FileSystemModel(QFileSystemModel):
 
         # First value: subfolders we've created to demonstrate to the user
         # where their files will be downloaded to
-        self.preview_subfolders = set()  # type: set[str]
+        self.preview_subfolders: set[str] = set()
         # Second value: subfolders that already existed, but that we still
         # want to indicate to the user where their files will be downloaded to
-        self.download_subfolders = set()  # type: set[str]
+        self.download_subfolders: set[str] = set()
 
         # Folders that were actually used to download files into
-        self.subfolders_downloaded_into = set()  # type: set[str]
+        self.subfolders_downloaded_into: set[str] = set()
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
         if role == Qt.DecorationRole:
-            path = index.data(QFileSystemModel.FilePathRole)  # type: str
+            path: str = index.data(QFileSystemModel.FilePathRole)
             if (
                 path in self.download_subfolders
                 or path in self.subfolders_downloaded_into
@@ -153,7 +153,7 @@ class FileSystemView(QTreeView):
         )
         self.openInFileBrowserAct.triggered.connect(self.doOpenInFileBrowserAct)
         self.openInFileBrowserAct.setEnabled(self.rapidApp.file_manager is not None)
-        self.clickedIndex = None  # type: QModelIndex | None
+        self.clickedIndex: QModelIndex | None = None
 
         self.resetSelectionAct = self.contextMenu.addAction(_("Reset"))
         self.resetSelectionAct.triggered.connect(self.doResetSelectionAct)
@@ -285,8 +285,8 @@ class FileSystemFilter(QSortFilterProxyModel):
     def filterAcceptsRow(
         self, sourceRow: int, sourceParent: QModelIndex = None
     ) -> bool:
-        index = self.sourceModel().index(sourceRow, 0, sourceParent)  # type: QModelIndex
-        path = index.data(QFileSystemModel.FilePathRole)  # type: str
+        index: QModelIndex = self.sourceModel().index(sourceRow, 0, sourceParent)
+        path: str = index.data(QFileSystemModel.FilePathRole)
 
         if not self.prefs.show_system_folders and path != "/":
             path_ok = False

@@ -476,7 +476,7 @@ class FilenameNotFullyGeneratedProblem(Problem):
         self.destination = ""
         self.source = ""
         self.bad_converstion_date_time = False
-        self.bad_conversion_exception = None  # type: Exception|None
+        self.bad_conversion_exception: Exception | None = None
         self.invalid_date_time = False
         self.missing_extension = False
         self.missing_image_no = False

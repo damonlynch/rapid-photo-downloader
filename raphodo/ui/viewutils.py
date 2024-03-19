@@ -112,8 +112,8 @@ class RowTracker:
     """
 
     def __init__(self) -> None:
-        self.row_to_id = {}  # type: dict[int, int]
-        self.id_to_row = {}  # type: dict[int, int]
+        self.row_to_id: dict[int, int] = {}
+        self.id_to_row: dict[int, int] = {}
 
     def __getitem__(self, row) -> int:
         return self.row_to_id[row]

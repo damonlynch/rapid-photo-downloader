@@ -353,7 +353,7 @@ def dayFont() -> QFont:
 
 
 def proximityFont() -> QFont:
-    font = QFont()  # type: QFont
+    font: QFont = QFont()
     font.setPointSize(font.pointSize() - 2)
     return font
 
@@ -373,15 +373,15 @@ class ProximityDisplayValues:
 
     def __init__(self):
         self.depth = None
-        self.row_heights = []  # type: list[int]
-        self.col_widths = None  # type: tuple[int] | None
+        self.row_heights: list[int] = []
+        self.col_widths: tuple[int] | None = None
 
         # row : (width, height)
-        self.col0_sizes = {}  # type: dict[int, tuple[int, int]]
-        self.c2_alignment = {}  # type: dict[int, Align]
-        self.c2_end_of_day = set()  # type: set[int]
-        self.c2_end_of_month = set()  # type: set[int]
-        self.c1_end_of_month = set()  # type: set[int]
+        self.col0_sizes: dict[int, tuple[int, int]] = {}
+        self.c2_alignment: dict[int, Align] = {}
+        self.c2_end_of_day: set[int] = set()
+        self.c2_end_of_month: set[int] = set()
+        self.c1_end_of_month: set[int] = set()
 
         self.assign_fonts()
 
@@ -446,7 +446,7 @@ class ProximityDisplayValues:
         self.invalidRowFont = self.invalidRowFontMetrics = None
 
     def get_month_size(self, month: str) -> QSizeF:
-        boundingRect = self.monthMetrics.boundingRect(month)  # type: QRectF
+        boundingRect: QRectF = self.monthMetrics.boundingRect(month)
         height = boundingRect.height()
         width = boundingRect.width() * self.month_kerning
         size = QSizeF(width, height)
@@ -513,7 +513,7 @@ class ProximityDisplayValues:
         text = text.split("\n")
         width = height = 0
         for t in text:
-            boundingRect = self.proximityMetrics.boundingRect(t)  # type: QRectF
+            boundingRect: QRectF = self.proximityMetrics.boundingRect(t)
             width = max(width, boundingRect.width())
             height += boundingRect.height()
         size = QSizeF(
@@ -545,7 +545,7 @@ class ProximityDisplayValues:
         spans_dict = {(row, column): row_span for column, row, row_span in spans}
         next_span_start_c0 = next_span_start_c1 = 0
 
-        sizes = []  # type: list[tuple[QSize, list[list[int]]]]
+        sizes: list[tuple[QSize, list[list[int]]]] = []
         for row, value in enumerate(rows):
             if next_span_start_c0 == row:
                 c0_size = self.column0Size(value.year, value.month)
@@ -598,9 +598,9 @@ class ProximityDisplayValues:
                 extra = max(self.col1_height - c1_children_height, 0) / 2
 
                 # Assign in c1's v_padding to first and last child, and any extra
-                c2 = c1_children[0]  # type: QSizeF
+                c2: QSizeF = c1_children[0]
                 c2.setHeight(c2.height() + self.col1_v_padding_top + extra)
-                c2 = c1_children[-1]  # type: QSizeF
+                c2: QSizeF = c1_children[-1]
                 c2.setHeight(c2.height() + self.col1_v_padding_bot + extra)
 
                 c1_children_height += (
@@ -610,9 +610,9 @@ class ProximityDisplayValues:
 
             extra = max(c0_height - c0_children_height, 0) / 2
             if extra:
-                c2 = c0_children[0][0]  # type: QSizeF
+                c2: QSizeF = c0_children[0][0]
                 c2.setHeight(c2.height() + extra)
-                c2 = c0_children[-1][-1]  # type: QSizeF
+                c2: QSizeF = c0_children[-1][-1]
                 c2.setHeight(c2.height() + extra)
 
             heights = [c2.height() for c1_children in c0_children for c2 in c1_children]
@@ -652,9 +652,11 @@ class MetaUid:
     """
 
     def __init__(self):
-        self._uids = tuple({} for i in (0, 1, 2))  # type: tuple[dict[int, list[bytes, ...]], ...]
-        self._no_uids = tuple({} for i in (0, 1, 2))  # type: tuple[dict[int, int], ...]
-        self._col2_row_index = dict()  # type: dict[bytes, int]
+        self._uids: tuple[dict[int, list[bytes, ...]], ...] = tuple(
+            {} for i in (0, 1, 2)
+        )
+        self._no_uids: tuple[dict[int, int], ...] = tuple({} for i in (0, 1, 2))
+        self._col2_row_index: dict[bytes, int] = dict()
 
     def __repr__(self):
         return f"MetaUid({self._no_uids!r} {self._uids!r})"
@@ -744,46 +746,50 @@ class TemporalProximityGroups:
     def __init__(
         self, thumbnail_rows: list[ThumbnailDataForProximity], temporal_span: int = 3600
     ):
-        self.rows = []  # type: list[ProximityRow]
+        self.rows: list[ProximityRow] = []
 
-        self.invalid_rows = tuple()  # type: tuple[int]
+        self.invalid_rows: tuple[int] = tuple()
 
         # Store uids for each table cell
         self.uids = MetaUid()
 
-        self.file_types_in_cell = dict()  # type: dict[tuple[int, int], str]
-        times_by_proximity = defaultdict(list)  # type: defaultdict[int, Arrow]
+        self.file_types_in_cell: dict[tuple[int, int], str] = dict()
+        times_by_proximity: defaultdict[int, Arrow] = defaultdict(list)
 
         # The rows the user sees in column 2 can span more than one row of the Timeline.
         # Each day always spans at least one row in the Timeline, possibly more.
 
         # group_no: no days spanned
-        day_spans_by_proximity = dict()  # type: dict[int, int]
+        day_spans_by_proximity: dict[int, int] = dict()
         # group_no: (
-        uids_by_day_in_proximity_group = dict()  # type: dict[int, tuple[tuple[int, int, int], list[bytes]]]
+        uids_by_day_in_proximity_group: dict[
+            int, tuple[tuple[int, int, int], list[bytes]]
+        ] = dict()
 
         # uid: (year, month, day)
-        year_month_day = dict()  # type: dict[bytes, tuple[int, int, int]]
+        year_month_day: dict[bytes, tuple[int, int, int]] = dict()
 
         # group_no: list[uid]
-        uids_by_proximity = defaultdict(list)  # type: dict[int, list[bytes, ...]]
+        uids_by_proximity: dict[int, list[bytes, ...]] = defaultdict(list)
         # Determine if proximity group contains any files have not been previously
         # downloaded
-        new_files_by_proximity = defaultdict(set)  # type: dict[int, set[bool]]
+        new_files_by_proximity: dict[int, set[bool]] = defaultdict(set)
 
         # Text that will appear in column 2 -- they proximity groups
         text_by_proximity = deque()
 
         # (year, month, day): [uid, uid, ...]
-        self.day_groups = defaultdict(list)  # type: defaultdict[tuple[int, int, int], list[bytes]]
+        self.day_groups: defaultdict[tuple[int, int, int], list[bytes]] = defaultdict(
+            list
+        )
         # (year, month): [uid, uid, ...]
-        self.month_groups = defaultdict(list)  # type: defaultdict[tuple[int, int], list[bytes]]
+        self.month_groups: defaultdict[tuple[int, int], list[bytes]] = defaultdict(list)
         # year: [uid, uid, ...]
-        self.year_groups = defaultdict(list)  # type: defaultdict[int, list[bytes]]
+        self.year_groups: defaultdict[int, list[bytes]] = defaultdict(list)
 
         # How many columns the Timeline will display - don't display year when the only
         # dates are from this year, for instance.
-        self._depth = None  # type: int|None
+        self._depth: int | None = None
         # Compared to right now, does the Timeline contain an entry from the previous
         # year?
         self._previous_year = False
@@ -792,16 +798,16 @@ class TemporalProximityGroups:
         self._previous_month = False
 
         # Tuple of (column, row, row_span):
-        self.spans = []  # type: list[tuple[int, int, int]]
-        self.row_span_for_column_starts_at_row = {}  # type: dict[tuple[int, int], int]
+        self.spans: list[tuple[int, int, int]] = []
+        self.row_span_for_column_starts_at_row: dict[tuple[int, int], int] = {}
 
         # Associate Timeline cells with uids
         # Timeline row: id
-        self.proximity_view_cell_id_col1 = {}  # type: dict[int, int]
+        self.proximity_view_cell_id_col1: dict[int, int] = {}
         # Timeline row: id
-        self.proximity_view_cell_id_col2 = {}  # type: dict[int, int]
+        self.proximity_view_cell_id_col2: dict[int, int] = {}
         # col1, col2, uid
-        self.col1_col2_uid = []  # type: list[tuple[int, int, bytes]]
+        self.col1_col2_uid: list[tuple[int, int, bytes]] = []
 
         if len(thumbnail_rows) == 0:
             return
@@ -832,7 +838,7 @@ class TemporalProximityGroups:
 
         # Phase 1: Associate unique ids with their year, month and day
         for x in uid_times:
-            t = x.arrowtime  # type: Arrow
+            t: Arrow = x.arrowtime
             year = t.year
             month = t.month
             day = t.day
@@ -879,8 +885,8 @@ class TemporalProximityGroups:
         # The iteration order doesn't really matter here, so can get away with the
         # potentially unsorted output of dict.items()
         for group_no, group in times_by_proximity.items():
-            start = group[0]  # type: Arrow
-            end = group[-1]  # type: Arrow
+            start: Arrow = group[0]
+            end: Arrow = group[-1]
 
             # Generate the text
             short_form = humanize_time_span(start, end, insert_cr_on_long_line=True)
@@ -924,8 +930,8 @@ class TemporalProximityGroups:
             timeline_row += 1
 
             proximity_group_times = times_by_proximity[group_no]
-            atime = proximity_group_times[0]  # type: Arrow
-            uid = uids_by_proximity[group_no][0]  # type: bytes
+            atime: Arrow = proximity_group_times[0]
+            uid: bytes = uids_by_proximity[group_no][0]
             y_m_d = year_month_day[uid]
 
             col2_text, tooltip_col2_text = text_by_proximity.popleft()
@@ -1244,7 +1250,7 @@ class TemporalProximityModel(QAbstractTableModel):
             self.debugDumpState()
             return None
 
-        pixmap = thumbnails[uids[0]]  # type: QPixmap
+        pixmap: QPixmap = thumbnails[uids[0]]
 
         image = base64_thumbnail(pixmap, self.tooltip_image_size)
         html_image1 = f'<img src="data:image/png;base64,{image}">'
@@ -1252,7 +1258,7 @@ class TemporalProximityModel(QAbstractTableModel):
         if length == 1:
             center = html_image2 = ""
         else:
-            pixmap = thumbnails[uids[-1]]  # type: QPixmap
+            pixmap: QPixmap = thumbnails[uids[-1]]
             image = base64_thumbnail(pixmap, self.tooltip_image_size)
             center = "&nbsp;" if length == 2 else "&nbsp;&hellip;&nbsp;"
             html_image2 = f'<img src="data:image/png;base64,{image}">'
@@ -1271,7 +1277,7 @@ class TemporalProximityModel(QAbstractTableModel):
         column = index.column()
         if column < 0 or column > 3:
             return None
-        proximity_row = self.groups[row]  # type: ProximityRow
+        proximity_row: ProximityRow = self.groups[row]
 
         match role:
             case Qt.DisplayRole:
@@ -1331,7 +1337,7 @@ class TemporalProximityModel(QAbstractTableModel):
         downloaded
         """
 
-        processed_rows = set()  # type: set[int]
+        processed_rows: set[int] = set()
         rows_to_update = []
         for uid in uids:
             row = self.groups.uid_to_row(uid=uid)
@@ -1346,7 +1352,7 @@ class TemporalProximityModel(QAbstractTableModel):
                 if not self.rapidApp.thumbnailModel.anyFileNotPreviouslyDownloaded(
                     uids=row_uids
                 ):
-                    proximity_row = self.groups[row]  # type: ProximityRow
+                    proximity_row: ProximityRow = self.groups[row]
                     self.groups[row] = proximity_row._replace(new_file=False)
                     rows_to_update.append(row)
                     logging.debug(
@@ -1392,7 +1398,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
         self.newFileColor = QColor(CustomColors.color7.value)
 
-        self.dv = None  # type: ProximityDisplayValues | None
+        self.dv: ProximityDisplayValues | None = None
 
     def paint(
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
@@ -1762,7 +1768,7 @@ class TemporalProximityView(QTableView):
 
         self.selectionModel().blockSignals(True)
 
-        model = self.model()  # type: TemporalProximityModel
+        model: TemporalProximityModel = self.model()
         examined = set()
 
         for i in self.selectedIndexes():
@@ -1811,7 +1817,7 @@ class TemporalProximityView(QTableView):
 
         do_selection = True
         do_selection_confirmed = False
-        index = self.indexAt(event.pos())  # type: QModelIndex
+        index: QModelIndex = self.indexAt(event.pos())
         if index in self.selectedIndexes():
             clicked_column = index.column()
             clicked_row = index.row()
@@ -1870,7 +1876,7 @@ class TemporalProximityView(QTableView):
         y = abs(point.y())
         # the y + 1 ensures the correct row is chosen when the row is exactly aligned
         # with the top of the viewport:
-        index = self.indexAt(QPoint(x, y + 1))  # type: QModelIndex
+        index: QModelIndex = self.indexAt(QPoint(x, y + 1))
         if index.isValid():
             # It's now possible to scroll the Timeline, and there will be
             # no matching thumbnails to which to scroll to in the display,
@@ -1931,7 +1937,7 @@ class TemporalValuePicker(QWidget):
         width = 0
         labelMetrics = QFontMetricsF(QFont())
         for m in range(len(proximity_time_steps)):
-            boundingRect = labelMetrics.boundingRect(self.displayString(m))  # type: QRect
+            boundingRect: QRect = labelMetrics.boundingRect(self.displayString(m))
             width = max(width, boundingRect.width())
 
         self.display.setFixedWidth(round(width) + 6)
@@ -2100,11 +2106,11 @@ class TemporalProximity(QWidget):
 
         self.state = TemporalProximityState.empty
 
-        self.uids_manually_set_previously_downloaded = []  # type: list[bytes]
+        self.uids_manually_set_previously_downloaded: list[bytes] = []
 
         # Track which uid to make visible in the Timeline when it has been
         # regenerated due to a value change using the slider
-        self.uid_to_scroll_to_post_value_change = None  # type: bytes|None
+        self.uid_to_scroll_to_post_value_change: bytes | None = None
 
         self.temporalProximityView = TemporalProximityView(self, rapidApp=rapidApp)
         self.temporalProximityModel = TemporalProximityModel(rapidApp=rapidApp)

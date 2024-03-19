@@ -143,7 +143,7 @@ class NameGeneration:
         self.no_metadata = False
 
         self.problems = problems
-        self.problem = abstract_attribute()  # type: GenerationErrors
+        self.problem: GenerationErrors = abstract_attribute()
 
         self.strip_forward_slash = abstract_attribute()
         self.add_extension = abstract_attribute()

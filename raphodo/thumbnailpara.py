@@ -189,7 +189,7 @@ class GetThumbnailFromCache:
         task = ExtractionTask.undetermined
         thumbnail_bytes = None
         full_file_name_to_work_on = ""
-        origin = None  # type: ThumbnailCacheOrigin | None
+        origin: ThumbnailCacheOrigin | None = None
 
         # Attempt to get thumbnail from Thumbnail Cache
         # (see cache.py for definitions of various caches)
@@ -231,7 +231,7 @@ class GetThumbnailFromCache:
             )
             if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
                 rpd_file.fdo_thumbnail_256_name = get_thumbnail.path
-                thumb = get_thumbnail.thumbnail  # type: QImage
+                thumb: QImage = get_thumbnail.thumbnail
                 if thumb is not None and self.image_large_enough(thumb.size()):
                     task = ExtractionTask.load_file_directly
                     full_file_name_to_work_on = get_thumbnail.path
@@ -464,8 +464,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             logging.exception("Traceback:")
 
     def generate_thumbnails(self) -> None:
-        self.camera = None
-        arguments = pickle.loads(self.content)  # type: GenerateThumbnailsArguments
+        self.camera: Camera | None = None
+        arguments: GenerateThumbnailsArguments = pickle.loads(self.content)
         self.device_name = arguments.name
         logging.info(
             "Generating %s thumbnails for %s", len(arguments.rpd_files), arguments.name
@@ -598,7 +598,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     len(rescan.missing_rpd_files),
                     self.camera.display_name,
                 )
-                for rpd_file in rescan.missing_rpd_files:  # type: RPDFile
+                for rpd_file in rescan.missing_rpd_files:
                     self.content = pickle.dumps(
                         GenerateThumbnailsResults(
                             rpd_file=rpd_file, thumbnail_bytes=None
@@ -607,14 +607,14 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     )
                     self.send_message_to_sink()
 
-        for rpd_file in rpd_files:  # type: RPDFile
+        for rpd_file in rpd_files:
             # Check to see if the process has received a command
             self.check_for_controller_directive()
 
             exif_buffer = None
             file_to_work_on_is_temporary = False
             secondary_full_file_name = ""
-            processing = set()  # type: set[ExtractionProcessing]
+            processing: set[ExtractionProcessing] = set()
 
             # Attempt to get thumbnail from Thumbnail Cache
             # (see cache.py for definitions of various caches)
@@ -648,7 +648,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                         )
             if task == ExtractionTask.undetermined:
                 # Thumbnail was not found in any cache: extract it
-                if self.camera:  # type: Camera
+                if self.camera:
                     if rpd_file.file_type == FileType.photo:
                         if rpd_file.is_heif():
                             # Load HEIF / HEIC using entire file.

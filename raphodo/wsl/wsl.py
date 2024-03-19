@@ -628,10 +628,10 @@ class WslMountDriveDialog(QDialog):
         )
         translateDialogBoxButtons(buttonBox)
         buttonBox.rejected.connect(self.reject)
-        self.helpButton = buttonBox.button(QDialogButtonBox.Help)  # type: QPushButton
+        self.helpButton: QPushButton = buttonBox.button(QDialogButtonBox.Help)
         self.helpButton.clicked.connect(self.helpButtonClicked)
         self.helpButton.setToolTip(_("Get help online..."))
-        self.applyButton = buttonBox.button(QDialogButtonBox.Apply)  # type: QPushButton
+        self.applyButton: QPushButton = buttonBox.button(QDialogButtonBox.Apply)
         self.applyButton.clicked.connect(self.applyButtonClicked)
         # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
         self.applyButton.setText(_("&Apply Pending Operations"))

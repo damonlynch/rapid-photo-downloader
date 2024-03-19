@@ -9,7 +9,7 @@ import logging
 
 from PyQt5.QtCore import QRegularExpression, Qt, pyqtSlot
 from PyQt5.QtGui import (
-    QFont,  # noqa: F401
+    QFont,
     QIcon,
     QPalette,
     QRegularExpressionValidator,
@@ -59,13 +59,13 @@ class JobCodeDialog(QDialog):
         """
 
         super().__init__(parent)
-        self.rapidApp = parent  # type: 'RapidWindow'
-        self.prefs = self.rapidApp.prefs  # type: Preferences
+        self.rapidApp = parent
+        self.prefs: Preferences = self.rapidApp.prefs
         thumbnailModel = self.rapidApp.thumbnailModel
 
         # Whether the user has opened this dialog before a download starts without
         # having selected any files first
-        no_selection_made = None  # type: bool|None
+        no_selection_made: bool | None = None
 
         if on_download:
             directive = _("Enter a new Job Code, or select a previous one")
@@ -268,7 +268,7 @@ class JobCodeOptionsWidget(FlexiFrame):
             self.sortOrder.setCurrentIndex(self.prefs.job_code_sort_order)
         self.sortOrder.currentIndexChanged.connect(self.sortOrderChanged)
 
-        font = self.font()  # type: QFont
+        font: QFont = self.font()
         font.setPointSize(font.pointSize() - 2)
         for widget in (self.sortLabel, self.sortCombo, self.sortOrder):
             widget.setFont(font)
@@ -478,7 +478,7 @@ class JobCodeOptionsWidget(FlexiFrame):
     @pyqtSlot()
     def removeButtonClicked(self) -> None:
         row = self.jobCodesWidget.currentRow()
-        item = self.jobCodesWidget.takeItem(row)  # type: QListWidgetItem
+        item: QListWidgetItem = self.jobCodesWidget.takeItem(row)
         try:
             self.prefs.del_list_value(key="job_codes", value=item.text())
         except KeyError:

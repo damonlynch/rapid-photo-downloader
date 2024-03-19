@@ -470,7 +470,7 @@ class TimeCheck:
 
 class TimeForDownload:
     def __init__(self, size: int) -> None:
-        self.time_remaining: float = Infinity
+        self.time_remaining: float = math.inf
 
         self.total_downloaded_so_far: int = 0
         self.total_download_size: int = size

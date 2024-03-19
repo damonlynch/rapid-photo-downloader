@@ -17,17 +17,17 @@ class QtSingleApplication(QApplication):
     def __init__(self, programId: str, *argv) -> None:
         super().__init__(*argv)
         self._id = programId
-        self._activationWindow = None  # type: QMainWindow|None
-        self._activateOnMessage = False  # type: bool
+        self._activationWindow: QMainWindow | None = None
+        self._activateOnMessage: bool = False
 
         # Is there another instance running?
-        self._outSocket = QLocalSocket()  # type: QLocalSocket
+        self._outSocket: QLocalSocket = QLocalSocket()
         self._outSocket.connectToServer(self._id)
-        self._isRunning = self._outSocket.waitForConnected()  # type: bool
+        self._isRunning: bool = self._outSocket.waitForConnected()
 
-        self._outStream = None  # type: QTextStream|None
+        self._outStream: QTextStream | None = None
         self._inSocket = None
-        self._inStream = None  # type: QTextStream|None
+        self._inStream: QTextStream | None = None
         self._server = None
 
         if self._isRunning:

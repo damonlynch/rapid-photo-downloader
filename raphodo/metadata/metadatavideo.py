@@ -79,11 +79,13 @@ class MetaData(metadataexiftool.MetadataExiftool):
         )
         if have_pymediainfo:
             if pymedia_library_file is not None:
-                self.media_info = pymediainfo.MediaInfo.parse(
+                self.media_info: pymediainfo.MediaInfo = pymediainfo.MediaInfo.parse(
                     filename=full_file_name, library_file=pymedia_library_file
-                )  # type: pymediainfo.MediaInfo
+                )
             else:
-                self.media_info = pymediainfo.MediaInfo.parse(filename=full_file_name)  # type: pymediainfo.MediaInfo
+                self.media_info: pymediainfo.MediaInfo = pymediainfo.MediaInfo.parse(
+                    filename=full_file_name
+                )
         else:
             self.media_info = None
 
@@ -103,7 +105,7 @@ class MetaData(metadataexiftool.MetadataExiftool):
 
         if have_pymediainfo:
             try:
-                d = self.media_info.to_data()["tracks"][0]["encoded_date"]  # type: str
+                d: str = self.media_info.to_data()["tracks"][0]["encoded_date"]
             except KeyError:
                 logging.debug(
                     "Failed to extract date time from %s using pymediainfo: trying "
@@ -119,9 +121,9 @@ class MetaData(metadataexiftool.MetadataExiftool):
                 try:
                     if d.startswith("UTC"):
                         u = d[4:]
-                        a = arrow.get(u, "YYYY-MM-DD HH:mm:ss")  # type: arrow.Arrow
+                        a: arrow.Arrow = arrow.get(u, "YYYY-MM-DD HH:mm:ss")
                         dt_mi = a.to("local")
-                        dt = dt_mi.datetime  # type: datetime.datetime
+                        dt: datetime.datetime = dt_mi.datetime
 
                         # Compare the value returned by mediainfo against that
                         # returned by ExifTool, if and only if there is a time zone
