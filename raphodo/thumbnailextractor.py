@@ -552,6 +552,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
             thumbnail = load_heif(
                 data.full_file_name_to_work_on, process_name=self.identity.decode()
             )
+            #TODO display heif image load problems to user
 
             if task == ExtractionTask.load_heif_and_exif_directly:
                 self.assign_photo_mdatatime(
