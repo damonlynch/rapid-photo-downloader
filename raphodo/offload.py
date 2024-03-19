@@ -15,7 +15,7 @@ from PyQt5.QtGui import QGuiApplication
 
 from raphodo.interprocess import (
     DaemonProcess,
-    OffloadData,  # noqa: F401
+    OffloadData,
     OffloadResults,
 )
 from raphodo.proximity import TemporalProximityGroups

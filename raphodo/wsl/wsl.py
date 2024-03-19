@@ -15,7 +15,7 @@ from typing import NamedTuple
 from PyQt5.QtCore import QObject, QSize, Qt, QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import (
     QShowEvent,
-    QTextDocument,  # noqa: F401
+    QTextDocument,
 )
 from PyQt5.QtWidgets import (
     QAbstractButton,
@@ -27,7 +27,7 @@ from PyQt5.QtWidgets import (
     QGridLayout,
     QLabel,
     QMessageBox,
-    QPushButton,  # noqa: F401
+    QPushButton,
     QRadioButton,
     QSizePolicy,
     QStyle,

@@ -37,7 +37,7 @@ from operator import attrgetter
 import psutil
 import zmq
 from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QImage  # noqa: F401
+from PyQt5.QtGui import QImage
 
 from raphodo.cache import FdoCacheLarge, ThumbnailCacheSql
 from raphodo.camera import Camera, CameraProblemEx, gphoto2_python_logging
@@ -57,7 +57,7 @@ from raphodo.constants import (
 )
 from raphodo.heif import have_heif_module
 from raphodo.interprocess import (
-    GenerateThumbnailsArguments,  # noqa: F401
+    GenerateThumbnailsArguments,
     GenerateThumbnailsResults,
     ThumbnailExtractorArgument,
     WorkerInPublishPullPipeline,

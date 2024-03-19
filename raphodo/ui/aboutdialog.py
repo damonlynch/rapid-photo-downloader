@@ -9,13 +9,13 @@ import re
 from pathlib import Path
 
 from PyQt5.QtCore import QSize, Qt, pyqtSlot
-from PyQt5.QtGui import QFont, QPixmap  # noqa: F401
+from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QHBoxLayout,
     QLabel,
-    QPushButton,  # noqa: F401
+    QPushButton,
     QScrollArea,
     QSizePolicy,
     QStackedWidget,

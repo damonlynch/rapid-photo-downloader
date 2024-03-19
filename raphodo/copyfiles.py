@@ -24,7 +24,7 @@ import gphoto2 as gp
 from raphodo.camera import Camera, CameraProblemEx, gphoto2_python_logging
 from raphodo.constants import CameraErrorCode, DownloadStatus, FileType
 from raphodo.interprocess import (
-    CopyFilesArguments,  # noqa: F401
+    CopyFilesArguments,
     CopyFilesResults,
     WorkerInPublishPullPipeline,
 )
