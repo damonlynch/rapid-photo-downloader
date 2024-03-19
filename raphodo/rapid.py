@@ -300,7 +300,7 @@ from raphodo.wsl.wsl import (
 
 # Avoid segfaults at exit:
 # http://pyqt.sourceforge.net/Docs/PyQt5/gotchas.html#crashes-on-exit
-app = None  # type: 'QtSingleApplication' | None
+app: "QtSingleApplication" | None = None
 
 faulthandler.enable()
 logger = None
@@ -374,7 +374,7 @@ class RapidWindow(QMainWindow):
 
         self.splash = splash
         if splash.isVisible():
-            self.screen = splash.windowHandle().screen()  # type: QScreen
+            self.screen: QScreen = splash.windowHandle().screen()
         else:
             self.screen = None
 
@@ -385,7 +385,7 @@ class RapidWindow(QMainWindow):
         app.processEvents()
 
         # Three values to handle window position quirks under X11:
-        self.window_show_requested_time = None  # type: datetime.datetime|None
+        self.window_show_requested_time: datetime.datetime | None = None
         self.window_move_triggered_count = 0
         self.windowPositionDelta = QPoint(0, 0)
 
@@ -393,7 +393,7 @@ class RapidWindow(QMainWindow):
 
         self.ignore_other_photo_types = ignore_other_photo_types
         self.application_state = ApplicationState.normal
-        self.prompting_for_user_action = {}  # type: dict[Device, QMessageBox]
+        self.prompting_for_user_action: dict[Device, QMessageBox] = {}
         self.prefs_dialog_active = False
 
         self.close_event_run = False
@@ -892,9 +892,9 @@ class RapidWindow(QMainWindow):
         self.temp_dirs_by_scan_id = {}
 
         # Track the time a download commences - used in file renaming
-        self.download_start_datetime = None  # type: datetime.datetime|None
+        self.download_start_datetime: datetime.datetime | None = None
         # The timestamp for when a download started / resumed after a pause
-        self.download_start_time = None  # type: float|None
+        self.download_start_time: float | None = None
 
         logging.debug("Starting download tracker")
         self.download_tracker = downloadtracker.DownloadTracker()
@@ -1171,7 +1171,7 @@ class RapidWindow(QMainWindow):
         :return:
         """
 
-        self.mountMonitorTimer = None  # type: QTimer|None
+        self.mountMonitorTimer: QTimer | None = None
         self.valid_mount_count = 0
 
         if self.is_wsl2:
@@ -1261,7 +1261,7 @@ class RapidWindow(QMainWindow):
         """
 
         # Track device names
-        self.ios_issue_message_queue = set()  # type: set[str]
+        self.ios_issue_message_queue: set[str] = set()
 
     def iOSIssueErrorMessage(self, display_name: str | None = None) -> None:
         """
@@ -1370,12 +1370,12 @@ class RapidWindow(QMainWindow):
 
             assert self.isVisible()
 
-            self.screen = self.windowHandle().screen()  # type: QScreen
+            self.screen: QScreen = self.windowHandle().screen()
 
         assert self.screen is not None
 
-        available = self.screen.availableGeometry()  # type: QRect
-        display = self.screen.size()  # type: QSize
+        available: QRect = self.screen.availableGeometry()
+        display: QSize = self.screen.size()
 
         logging.debug(
             "Available screen geometry: %sx%s on %sx%s display.",
@@ -1544,7 +1544,7 @@ class RapidWindow(QMainWindow):
         :param job_code: job code to apply
         """
 
-        delegate = self.thumbnailView.itemDelegate()  # type: ThumbnailDelegate
+        delegate: ThumbnailDelegate = self.thumbnailView.itemDelegate()
         delegate.applyJobCode(job_code=job_code)
 
     def anyMainWindowDialogVisible(self) -> bool:
@@ -1695,7 +1695,7 @@ difference to the program's future.</p>"""
         pressed. We allow no button to be pressed.
         """
 
-        widget = self.rightSideButtonMapper[buttonPressed]  # type: RotatedButton
+        widget: RotatedButton = self.rightSideButtonMapper[buttonPressed]
 
         if widget.isChecked():
             self.rightPanels.setVisible(True)
@@ -2280,7 +2280,7 @@ difference to the program's future.</p>"""
         layout.setSpacing(self.standard_spacing)
         self.thumbnailControl.setLayout(layout)
 
-        font = self.font()  # type: QFont
+        font: QFont = self.font()
         font.setPointSize(font.pointSize() - 2)
 
         self.showCombo = ChevronCombo()
@@ -2394,7 +2394,7 @@ difference to the program's future.</p>"""
         scroll bar, and show up to 3 columns of thumbnails
         """
 
-        available = self.screen.availableGeometry()  # type: QRect
+        available: QRect = self.screen.availableGeometry()
         available_width = available.width()
 
         frame_width = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
@@ -2402,7 +2402,9 @@ difference to the program's future.</p>"""
             self.style().pixelMetric(QStyle.PM_ScrollBarExtent) + frame_width
         )
         spacing = self.layout().spacing()
-        deviceComponent = self.deviceView.itemDelegate().deviceDisplay.dc  # type: DeviceComponent
+        deviceComponent: DeviceComponent = (
+            self.deviceView.itemDelegate().deviceDisplay.dc
+        )
         # Minimum width will be updated as a scan occurs
         panel_width = max(
             deviceComponent.sample_width(), deviceComponent.minimum_width()
@@ -2572,7 +2574,7 @@ difference to the program's future.</p>"""
                 # Translators: %(variable)s represents Python code, not a plural of the
                 # term variable. You must keep the %(variable)s untranslated, or the
                 # program will crash.
-                text = _("Download %(files)s") % dict(files=files)  # type: str
+                text: str = _("Download %(files)s") % dict(files=files)
                 self.downloadButton.setText(text)
             else:
                 self.downloadButton.setText(self.downloadAct.text())
@@ -3143,7 +3145,7 @@ Do you want to proceed with the download?"""
         self.download_files = self.thumbnailModel.getFilesMarkedForDownload(scan_id)
 
         # model, port
-        camera_unmounts_called = set()  # type: set[tuple[str, str]]
+        camera_unmounts_called: set[tuple[str, str]] = set()
         stop_thumbnailing_cmd_issued = False
 
         stop_thumbnailing = [
@@ -3879,8 +3881,8 @@ Do you want to proceed with the download?"""
         """
 
         # indexed by uid, deque of full backup paths
-        self.generated_fdo_thumbnails = dict()  # type: dict[str]
-        self.backup_fdo_thumbnail_cache = defaultdict(list)  # type: defaultdict[list[str]]
+        self.generated_fdo_thumbnails: dict[str] = dict()
+        self.backup_fdo_thumbnail_cache: defaultdict[list[str]] = defaultdict(list)
 
     def backupGenerateFdoThumbnail(
         self, rpd_file: RPDFile, backup_full_file_name: str
@@ -4182,7 +4184,7 @@ Do you want to proceed with the download?"""
         :param scan_id: the scan id of the device to be umounted
         """
 
-        device = self.devices[scan_id]  # type: Device
+        device: Device = self.devices[scan_id]
 
         if device.device_type == DeviceType.volume:
             if self.is_wsl2:
@@ -4523,7 +4525,7 @@ Do you want to proceed with the download?"""
                 "Updating example file name using sample photo from %s",
                 device.display_name,
             )
-            self.devices.sample_photo = sample_photo  # type: Photo
+            self.devices.sample_photo: Photo = sample_photo
             self.renamePanel.setSamplePhoto(self.devices.sample_photo)
             # sample required for editing download subfolder generation
             self.destinationPanel.photoDestinationDisplay.sample_rpd_file = (
@@ -4535,7 +4537,7 @@ Do you want to proceed with the download?"""
                 "Updating example file name using sample video from %s",
                 device.display_name,
             )
-            self.devices.sample_video = sample_video  # type: Video
+            self.devices.sample_video: Video = sample_video
             self.renamePanel.setSampleVideo(self.devices.sample_video)
             # sample required for editing download subfolder generation
             self.destinationPanel.videoDestinationDisplay.sample_rpd_file = (
@@ -6062,7 +6064,7 @@ Do you want to proceed with the download?"""
                     "Manual probe indicates %s is not yet used as a device",
                     mount.displayName(),
                 )
-                device = mount.device()  # type: QByteArray
+                device: QByteArray = mount.device()
                 device_path = device.data().decode()
                 self.udisks2Monitor.add_device(
                     device_path=device_path, mount_point=path
@@ -6087,7 +6089,7 @@ Do you want to proceed with the download?"""
 
         logging.debug("Setting up non-camera devices")
 
-        mounts = []  # type: list[QStorageInfo]
+        mounts: list[QStorageInfo] = []
         validMounts = self.validMounts.mountedValidMountPoints()
         self.valid_mount_count = len(validMounts)
 

@@ -103,20 +103,20 @@ class BackupDeviceModel(QAbstractListModel):
         self._initValues()
 
     def _initValues(self):
-        self.rows = RowTracker()  # type: RowTracker
-        self.row_id_counter = 0  # type: int
+        self.rows: RowTracker = RowTracker()
+        self.row_id_counter: int = 0
         # {row_id}
-        self.headers = set()  # type: set[int]
+        self.headers: set[int] = set()
         # path: BackupViewRow
-        self.backup_devices = dict()  # type: dict[str, BackupViewRow]
-        self.path_to_row_ids = defaultdict(list)  # type: dict[str, list[int]]
-        self.row_id_to_path = dict()  # type: dict[int, str]
+        self.backup_devices: dict[str, BackupViewRow] = dict()
+        self.path_to_row_ids: dict[str, list[int]] = defaultdict(list)
+        self.row_id_to_path: dict[int, str] = dict()
 
         self.marked = FileTypeCounter()
         self.photos_size_to_download = self.videos_size_to_download = 0
 
         # os_stat_device: set[FileType]
-        self._downloading_to = defaultdict(set)  # type: DownloadingTo
+        self._downloading_to: DownloadingTo = defaultdict(set)
 
     @property
     def downloading_to(self) -> DownloadingTo:
@@ -382,7 +382,7 @@ class BackupDeviceDelegate(QStyledItemDelegate):
         y = option.rect.y()
         width = option.rect.width()
 
-        view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
+        view_type: ViewRowType = index.data(Qt.DisplayRole)
         if view_type == ViewRowType.header:
             display_name, icon = index.data(Roles.device_details)
 
@@ -397,7 +397,7 @@ class BackupDeviceDelegate(QStyledItemDelegate):
         else:
             assert view_type == ViewRowType.content
 
-            data = index.data(Roles.storage)  # type: BackupVolumeUse
+            data: BackupVolumeUse = index.data(Roles.storage)
             details = make_body_details(
                 bytes_total=data.bytes_total,
                 bytes_free=data.bytes_free,
@@ -414,7 +414,7 @@ class BackupDeviceDelegate(QStyledItemDelegate):
         painter.restore()
 
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
-        view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
+        view_type: ViewRowType = index.data(Qt.DisplayRole)
         if view_type == ViewRowType.header:
             height = self.deviceDisplay.dc.device_name_height
         else:
@@ -724,7 +724,7 @@ class BackupPanel(ScrollAreaNoFrame):
 
         assert parent is not None
         self.rapidApp = parent
-        self.prefs = self.rapidApp.prefs  # type: Preferences
+        self.prefs: Preferences = self.rapidApp.prefs
         self.setObjectName("backupPanelScrollArea")
 
         self.backupDevices = BackupDeviceModel(parent=self)
@@ -815,7 +815,7 @@ class BackupPanel(ScrollAreaNoFrame):
             logging.debug("No backups configured: no backup destinations to display")
             return
 
-        backup_devices = self.rapidApp.backup_devices  # type: BackupDeviceCollection
+        backup_devices: BackupDeviceCollection = self.rapidApp.backup_devices
         if self.prefs.backup_device_autodetection:
             for path in backup_devices:
                 self.backupDevices.addBackupVolume(

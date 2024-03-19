@@ -356,7 +356,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
     def do_work(self):
         self.problems = CopyingProblems()
-        args = pickle.loads(self.content)  # type: CopyFilesArguments
+        args: CopyFilesArguments = pickle.loads(self.content)
 
         if args.log_gphoto2:
             self.gphoto2_logging = gphoto2_python_logging()
@@ -414,7 +414,9 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
         random_filename = GenerateRandomFileName()
 
-        rpd_cache_same_device = defaultdict(lambda: None)  # type: defaultdict[FileType, bool|None]
+        rpd_cache_same_device: defaultdict[FileType, bool | None] = defaultdict(
+            lambda: None
+        )
 
         photo_temp_dir, video_temp_dir = create_temp_dirs(
             args.photo_download_folder, args.video_download_folder

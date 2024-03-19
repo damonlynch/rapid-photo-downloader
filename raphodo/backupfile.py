@@ -298,7 +298,7 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
             self.check_for_command(directive, content)
 
-            data = pickle.loads(content)  # type: BackupFileData
+            data: BackupFileData = pickle.loads(content)
             if data.message == BackupStatus.backup_started:
                 self.reset_problems()
             elif data.message == BackupStatus.backup_completed:

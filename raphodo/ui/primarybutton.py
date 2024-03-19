@@ -32,7 +32,7 @@ class TopPushButton(QPushButton, FlatButton):
         self.setCheckable(True)
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 
-        font = self.font()  # type: QFont
+        font: QFont = self.font()
         top_row_font_size = font.pointSize() + 8
         self.top_row_icon_size = top_row_font_size + 10
         font.setPointSize(top_row_font_size)

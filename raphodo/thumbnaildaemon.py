@@ -66,7 +66,7 @@ class DameonThumbnailWorker(DaemonProcess):
 
         self.check_for_command(directive, content)
 
-        data = pickle.loads(content)  # type: ThumbnailDaemonData
+        data: ThumbnailDaemonData = pickle.loads(content)
         assert data.frontend_port is not None
         self.frontend.connect(f"tcp://localhost:{data.frontend_port}")
 
@@ -79,7 +79,7 @@ class DameonThumbnailWorker(DaemonProcess):
 
             self.check_for_command(directive, content)
 
-            data = pickle.loads(content)  # type: ThumbnailDaemonData
+            data: ThumbnailDaemonData = pickle.loads(content)
             rpd_file = data.rpd_file
             if data.backup_full_file_names is not None:
                 # File has been backed up, and an extractor has already generated a FDO
@@ -141,7 +141,7 @@ class DameonThumbnailWorker(DaemonProcess):
                         full_file_name_to_work_on,
                         origin,
                     ) = cache_search
-                    processing = set()  # type: set[ExtractionProcessing]
+                    processing: set[ExtractionProcessing] = set()
 
                     if task == ExtractionTask.undetermined:
                         # Thumbnail was not found in any cache: extract it

@@ -40,7 +40,7 @@ class ThumbnailManagerPara(PublishPullPipelineManager):
         self._worker_id = 0
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)  # type: GenerateThumbnailsResults
+        data: GenerateThumbnailsResults = pickle.loads(self.content)
         if data.rpd_file is not None:
             if data.thumbnail_bytes is None:
                 thumbnail = QPixmap()
@@ -96,7 +96,7 @@ class Thumbnailer(QObject):
         super().__init__(parent)
         self.context = zmq.Context.instance()
         self.log_gphoto2 = log_gphoto2
-        self._frontend_port = None  # type: int | None
+        self._frontend_port: int | None = None
         self.no_workers = no_workers
         self.logging_port = logging_port
 

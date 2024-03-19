@@ -108,8 +108,8 @@ class PrefEditor(QTextEdit):
         super().__init__(parent)
         self.subfolder = subfolder
 
-        self.user_pref_list = []  # type: list[str]
-        self.user_pref_colors = []  # type: list[str]
+        self.user_pref_list: list[str] = []
+        self.user_pref_colors: list[str] = []
 
         self.heightMin = 0
         self.heightMax = 65000
@@ -167,7 +167,7 @@ class PrefEditor(QTextEdit):
         if key in (Qt.Key_Enter, Qt.Key_Return, Qt.Key_Tab):
             return
 
-        cursor = self.textCursor()  # type: QTextCursor
+        cursor: QTextCursor = self.textCursor()
 
         if cursor.hasSelection() and key in (Qt.Key_Left, Qt.Key_Right):
             # Pass the key press on and let the selection deselect
@@ -313,11 +313,11 @@ class PrefEditor(QTextEdit):
             values.append(value)
 
         self.document().clear()
-        cursor = self.textCursor()  # type: QTextCursor
+        cursor: QTextCursor = self.textCursor()
         cursor.insertText("".join(values))
 
     def insertPrefValue(self, pref_value: str) -> None:
-        cursor = self.textCursor()  # type: QTextCursor
+        cursor: QTextCursor = self.textCursor()
         cursor.insertText(f"<{pref_value}>")
 
     def _setHighlighter(self) -> None:
@@ -365,8 +365,9 @@ class PrefEditor(QTextEdit):
         text = self.document().toPlainText()
         b = self.highlighter.boundaries
 
-        self.user_pref_list = pl = []  # type: list[str]
-        self.user_pref_colors = []  # type: list[str]
+        self.user_pref_list: list[str] = []
+        pl = self.user_pref_list
+        self.user_pref_colors: list[str] = []
 
         # Handle any text at the very beginning
         if b and b[0][0] > 0:
@@ -789,8 +790,8 @@ class CreatePreset(QDialog):
         flayout.addRow(_("Preset Name:"), self.name)
 
         buttonBox = QDialogButtonBox()
-        buttonBox.addButton(QDialogButtonBox.Cancel)  # type: QPushButton
-        self.saveButton = buttonBox.addButton(QDialogButtonBox.Save)  # type: QPushButton
+        buttonBox.addButton(QDialogButtonBox.Cancel)
+        self.saveButton: QPushButton = buttonBox.addButton(QDialogButtonBox.Save)
         self.saveButton.setEnabled(False)
         translateDialogBoxButtons(buttonBox)
         buttonBox.rejected.connect(self.reject)
@@ -1079,9 +1080,9 @@ class PrefDialog(QDialog):
         self.pushButtonSizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         self.mapper = QSignalMapper(self)
-        self.widget_mapper = dict()  # type: dict[str, QComboBox| QLabel]
-        self.pref_mapper = dict()  # type: dict[tuple[str, str, str], str]
-        self.pref_color = dict()  # type: dict[str, str]
+        self.widget_mapper: dict[str, QComboBox | QLabel] = dict()
+        self.pref_mapper: dict[tuple[str, str, str], str] = dict()
+        self.pref_color: dict[str, str] = dict()
 
         titles = [title for title in pref_defn if title not in (TEXT, SEPARATOR)]
         pref_colors = {title: color.value for title, color in zip(titles, CustomColors)}
@@ -1173,7 +1174,7 @@ class PrefDialog(QDialog):
         buttonBox = QDialogButtonBox(
             QDialogButtonBox.Cancel | QDialogButtonBox.Ok | QDialogButtonBox.Help
         )
-        self.helpButton = buttonBox.button(QDialogButtonBox.Help)  # type: QPushButton
+        self.helpButton: QPushButton = buttonBox.button(QDialogButtonBox.Help)
         self.helpButton.clicked.connect(self.helpButtonClicked)
         self.helpButton.setToolTip(_("Get help online..."))
         translateDialogBoxButtons(buttonBox)
@@ -1234,7 +1235,7 @@ class PrefDialog(QDialog):
         if widget == JOB_CODE:
             pref_value = _(JOB_CODE)
         else:
-            combobox = self.widget_mapper[widget]  # type: QComboBox
+            combobox: QComboBox = self.widget_mapper[widget]
             pref_value = combobox.currentText()
 
         self.editor.insertPrefValue(pref_value)

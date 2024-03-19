@@ -123,27 +123,27 @@ class DeviceModel(QAbstractListModel):
         self.rapidApp = parent
         self.device_display_type = device_display_type
         # scan_id: Device
-        self.devices = {}  # type: dict[int, Device]
+        self.devices: dict[int, Device] = {}
         # scan_id: DeviceState
-        self.spinner_state = {}  # type: dict[int, DeviceState]
+        self.spinner_state: dict[int, DeviceState] = {}
         # scan_id: bool
-        self.checked = defaultdict(lambda: Qt.Checked)  # type: dict[int, Qt.CheckState]
-        self.icons = {}  # type: dict[int, QPixmap]
-        self.rows = RowTracker()  # type: RowTracker
-        self.row_id_counter = 0  # type: int
-        self.row_id_to_scan_id = dict()  # type: dict[int, int]
-        self.scan_id_to_row_ids = defaultdict(list)  # type: dict[int, list[int]]
-        self.storage = dict()  # type: dict[int, StorageSpace | None]
-        self.headers = set()  # type: set[int]
+        self.checked: dict[int, Qt.CheckState] = defaultdict(lambda: Qt.Checked)
+        self.icons: dict[int, QPixmap] = {}
+        self.rows: RowTracker = RowTracker()
+        self.row_id_counter: int = 0
+        self.row_id_to_scan_id: dict[int, int] = dict()
+        self.scan_id_to_row_ids: dict[int, list[int]] = defaultdict(list)
+        self.storage: dict[int, StorageSpace | None] = dict()
+        self.headers: set[int] = set()
 
         self.icon_size = icon_size()
 
-        self.row_ids_active = []  # type: list[int]
+        self.row_ids_active: list[int] = []
 
         # scan_id: 0.0-1.0
-        self.percent_complete = defaultdict(float)  # type: dict[int, float]
+        self.percent_complete: dict[int, float] = defaultdict(float)
 
-        self._rotation_position = 0  # type: int
+        self._rotation_position: int = 0
         self._timer = QTimer(self)
         self._timer.setInterval(
             round(1000 / (number_spinner_lines * revolutions_per_second))
@@ -333,7 +333,7 @@ class DeviceModel(QAbstractListModel):
         elif role == Roles.scan_id:
             return scan_id
         else:
-            device = self.devices[scan_id]  # type: Device
+            device: Device = self.devices[scan_id]
             if role == Qt.ToolTipRole:
                 if device.device_type in (DeviceType.path, DeviceType.volume):
                     return device.path
@@ -481,7 +481,7 @@ class DeviceView(ListViewFlexiFrame):
         return QSize(self.view_width, height)
 
     def minimumHeight(self) -> int:
-        model = self.model()  # type: DeviceModel
+        model: DeviceModel = self.model()
         if model.rowCount() > 0:
             height = 0
             for row in range(self.model().rowCount()):
@@ -552,7 +552,7 @@ class EmulatedHeaderRow(QWidget):
     def paintEvent(self, event: QPaintEvent) -> None:
         painter = QPainter()
         painter.begin(self)
-        rect = self.rect()  # type: QRect
+        rect: QRect = self.rect()
         rect.setHeight(device_name_height())
         painter.fillRect(rect, device_name_highlight_color())
         rect.adjust(DeviceDisplayPadding, 0, 0, 0)
@@ -1095,9 +1095,9 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         self.rendering_destination = False
 
         self.checkboxStyleOption = QStyleOptionButton()
-        self.checkboxRect = QApplication.style().subElementRect(
+        self.checkboxRect: QRect = QApplication.style().subElementRect(
             QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None
-        )  # type: QRect
+        )
         self.checkbox_right = self.checkboxRect.right()
         self.checkbox_y_offset = (
             self.dc.device_name_strip_height - self.checkboxRect.height()
@@ -1293,13 +1293,13 @@ class DeviceDelegate(QStyledItemDelegate):
         self.rescanDeviceAct = self.contextMenu.addAction(_("Rescan"))
         self.rescanDeviceAct.triggered.connect(self.rescanDevice)
         # store the index in which the user right-clicked
-        self.clickedIndex = None  # type: QModelIndex | None
+        self.clickedIndex: QModelIndex | None = None
 
     @pyqtSlot()
     def ignoreDevice(self) -> None:
         index = self.clickedIndex
         if index:
-            scan_id = index.data(Roles.scan_id)  # type: int
+            scan_id: int = index.data(Roles.scan_id)
             self.rapidApp.removeDevice(
                 scan_id=scan_id, ignore_in_this_program_instantiation=True
             )
@@ -1309,7 +1309,7 @@ class DeviceDelegate(QStyledItemDelegate):
     def blacklistDevice(self) -> None:
         index = self.clickedIndex
         if index:
-            scan_id = index.data(Roles.scan_id)  # type: int
+            scan_id: int = index.data(Roles.scan_id)
             self.rapidApp.blacklistDevice(scan_id=scan_id)
             self.clickedIndex = None
 
@@ -1317,7 +1317,7 @@ class DeviceDelegate(QStyledItemDelegate):
     def rescanDevice(self) -> None:
         index = self.clickedIndex
         if index:
-            scan_id = index.data(Roles.scan_id)  # type: int
+            scan_id: int = index.data(Roles.scan_id)
             self.rapidApp.rescanDevice(scan_id=scan_id)
             self.clickedIndex = None
 
@@ -1330,13 +1330,15 @@ class DeviceDelegate(QStyledItemDelegate):
         y = option.rect.y()
         width = option.rect.width()
 
-        view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
+        view_type: ViewRowType = index.data(Qt.DisplayRole)
         if view_type == ViewRowType.header:
             display_name, icon, device_state, rotation, percent_complete = index.data(
                 Roles.device_details
             )
             if device_state == DeviceState.finished:
-                download_statuses = index.data(Roles.download_statuses)  # type: set[DownloadStatus]
+                download_statuses: set[DownloadStatus] = index.data(
+                    Roles.download_statuses
+                )
             else:
                 download_statuses = set()
 
@@ -1362,7 +1364,9 @@ class DeviceDelegate(QStyledItemDelegate):
         else:
             assert view_type == ViewRowType.content
 
-            device, storage_space = index.data(Roles.storage)  # type: Device, StorageSpace
+            device: Device
+            storage_space: StorageSpace
+            device, storage_space = index.data(Roles.storage)
 
             if storage_space is not None:
                 if device.device_type == DeviceType.camera:
@@ -1451,7 +1455,7 @@ class DeviceDelegate(QStyledItemDelegate):
         painter.restore()
 
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
-        view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
+        view_type: ViewRowType = index.data(Qt.DisplayRole)
         if view_type == ViewRowType.header:
             height = self.deviceDisplay.dc.device_name_height
         else:

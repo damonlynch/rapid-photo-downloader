@@ -248,9 +248,9 @@ class DestinationDisplay(QWidget):
         else:
             self.prefs = None
 
-        self.storage_space = None  # type: StorageSpace|None
+        self.storage_space: StorageSpace | None = None
 
-        self.menu_actions = []  # type: list[QAction]
+        self.menu_actions: list[QAction] = []
         if menu:
             pixmap = darkModePixmap(
                 path="icons/settings.svg",
@@ -271,21 +271,21 @@ class DestinationDisplay(QWidget):
         self.deviceDisplay = DeviceDisplay(parent=self, menuButtonIcon=menuIcon)
         self.deviceDisplay.widthChanged.connect(self.widthChanged)
         size = icon_size()
-        self.pixmap = QIcon(data_file_path("icons/folder.svg")).pixmap(
+        self.pixmap: QPixmap = QIcon(data_file_path("icons/folder.svg")).pixmap(
             QSize(size, size)
-        )  # type: QPixmap
+        )
         self.pixmap = darkModePixmap(pixmap=self.pixmap)
         self.display_name = ""
         self.photos_size_to_download = self.videos_size_to_download = 0
-        self.files_to_display = None  # type: DisplayingFilesOfType|None
+        self.files_to_display: DisplayingFilesOfType | None = None
         self.marked = FileTypeCounter()
-        self.display_type = None  # type: DestinationDisplayType|None
+        self.display_type: DestinationDisplayType | None = None
         self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
 
-        self.sample_rpd_file = None  # type: Photo| Video|None
+        self.sample_rpd_file: Photo | Video | None = None
 
-        self.os_stat_device = 0  # type: int
-        self._downloading_to = defaultdict(set)  # type: DownloadingTo
+        self.os_stat_device: int = 0
+        self._downloading_to: DownloadingTo = defaultdict(set)
 
         self.midPen = paletteMidPen()
         self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
@@ -409,7 +409,7 @@ class DestinationDisplay(QWidget):
         index, preset_names, preset_pref_lists = self.getPresetIndex()
         assert index < MAX_DOWNLOAD_SUBFOLDER_MENU_ENTRIES
 
-        action = self.menu_actions[index]  # type: QAction
+        action: QAction = self.menu_actions[index]
         action.setChecked(True)
 
         # Set visibility of custom presets menu items to match how many we are
@@ -586,7 +586,7 @@ class DestinationDisplay(QWidget):
         y = 0
         width = self.width()
 
-        rect = self.rect()  # type: QRect
+        rect: QRect = self.rect()
         palette = QPalette()
         backgroundColor = palette.base().color()
 

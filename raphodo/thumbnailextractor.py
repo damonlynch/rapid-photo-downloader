@@ -627,7 +627,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
             if self.check_for_stop(directive, content):
                 break
 
-            data = pickle.loads(content)  # type: ThumbnailExtractorArgument
+            data: ThumbnailExtractorArgument = pickle.loads(content)
 
             thumbnail_256 = png_data = None
             task = data.task

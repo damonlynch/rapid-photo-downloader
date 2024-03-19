@@ -291,7 +291,7 @@ def run_commands_as_sudo(
     :return: list of return codes, stdout and stderr
     """
 
-    results = []  # type: list[SudoCommandResult, ...]
+    results: list[SudoCommandResult, ...] = []
     for cmd in cmds:
         try:
             result = run_command_as_sudo_without_password(cmd=cmd, timeout=timeout)

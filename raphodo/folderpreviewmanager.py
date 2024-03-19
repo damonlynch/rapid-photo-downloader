@@ -57,10 +57,10 @@ class FolderPreviewManager(QObject):
 
         super().__init__()
 
-        self.rpd_files_queue = []  # type: list[RPDFile]
-        self.clean_for_scan_id_queue = []  # type: list[int]
-        self.change_destination_queued = False  # type: bool
-        self.subfolder_rebuild_queued = False  # type: bool
+        self.rpd_files_queue: list[RPDFile] = []
+        self.clean_for_scan_id_queue: list[int] = []
+        self.change_destination_queued: bool = False
+        self.subfolder_rebuild_queued: bool = False
 
         self.offloaded = False
         self.process_destination = False
@@ -92,7 +92,7 @@ class FolderPreviewManager(QObject):
         else:
             if self.rpd_files_queue:
                 rpd_files = rpd_files + self.rpd_files_queue
-                self.rpd_files_queue = []  # type: list[RPDFile]
+                self.rpd_files_queue: list[RPDFile] = []
             self._generate_folders(rpd_files=rpd_files)
 
     def _generate_folders(self, rpd_files: list[RPDFile]) -> None:
@@ -164,7 +164,7 @@ class FolderPreviewManager(QObject):
                 dirty = True
                 self._remove_provisional_folders_for_device(scan_id=scan_id)
 
-            self.clean_for_scan_id_queue = []  # type: list[int]
+            self.clean_for_scan_id_queue: list[int] = []
 
             if self.change_destination_queued:
                 self.change_destination_queued = False
@@ -190,7 +190,7 @@ class FolderPreviewManager(QObject):
                 "Assigning queued provisional download folders to be generated"
             )
             self._generate_folders(rpd_files=self.rpd_files_queue)
-            self.rpd_files_queue = []  # type: list[RPDFile]
+            self.rpd_files_queue: list[RPDFile] = []
 
         # self.folders_preview.dump()
 
@@ -251,7 +251,7 @@ class FolderPreviewManager(QObject):
 
         for scan_id in self.clean_for_scan_id_queue:
             self._remove_provisional_folders_for_device(scan_id=scan_id)
-        self.clean_for_scan_id_queue = []  # type: list[int]
+        self.clean_for_scan_id_queue: list[int] = []
         self._update_model_and_views()
 
     def _remove_provisional_folders_for_device(self, scan_id: int) -> None:

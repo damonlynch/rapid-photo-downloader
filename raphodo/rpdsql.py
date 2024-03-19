@@ -715,7 +715,7 @@ class DownloadedSQL:
         self.update_table()
 
         # Generate values to calculate shifts in time zones /
-        self.time_zone_offsets = {}  # type: dict[int, tuple[int]]
+        self.time_zone_offsets: dict[int, tuple[int]] = {}
         for time_zone_offset_resolution in (60, 30, 15):  # minutes
             positive = range(
                 time_zone_offset_resolution * 60,  # seconds
@@ -888,7 +888,7 @@ class DownloadedSQL:
         row = c.fetchone()
         if row is not None:
             # we now have a time within 24 hours in either direction of the mtime
-            mtime = row[2]  # type: float
+            mtime: float = row[2]
             for offset in self.time_zone_offsets[time_zone_offset_resolution]:
                 if mtime + offset == modification_time:
                     self.found_offset = offset
