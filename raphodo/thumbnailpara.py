@@ -33,6 +33,7 @@ import pickle
 import sys
 from collections import Counter, deque
 from operator import attrgetter
+from typing import NamedTuple
 
 import psutil
 import zmq
@@ -67,6 +68,13 @@ from raphodo.prefs.preferences import Preferences
 from raphodo.rescan import RescanCamera
 from raphodo.rpdfile import RPDFile
 from raphodo.tools.utilities import CacheDirs, GenerateRandomFileName, create_temp_dir
+
+
+class ThumbnailCacheSearch(NamedTuple):
+    task: ExtractionTask
+    thumbnail_bytes: bytes
+    full_file_name_to_work_on: str
+    origin: ThumbnailCacheOrigin
 
 
 def cache_dir_name(device_name: str) -> str:
@@ -176,18 +184,14 @@ class GetThumbnailFromCache:
 
     def get_from_cache(
         self, rpd_file: RPDFile, use_thumbnail_cache: bool = True
-    ) -> tuple[ExtractionTask, bytes, str, ThumbnailCacheOrigin]:
+    ) -> ThumbnailCacheSearch:
         """
         Attempt to get a thumbnail for the file from the Rapid Photo Downloader
         thumbnail cache or from the FreeDesktop.org 256x256 thumbnail cache.
-
-        :param rpd_file:
-        :param use_thumbnail_cache: whether to use the
-        :return:
         """
 
         task = ExtractionTask.undetermined
-        thumbnail_bytes = None
+        thumbnail_bytes: bytes | None = None
         full_file_name_to_work_on = ""
         origin: ThumbnailCacheOrigin | None = None
 
@@ -238,7 +242,12 @@ class GetThumbnailFromCache:
                     origin = ThumbnailCacheOrigin.fdo_cache
                     rpd_file.thumbnail_status = ThumbnailCacheStatus.fdo_256_ready
 
-        return task, thumbnail_bytes, full_file_name_to_work_on, origin
+        return ThumbnailCacheSearch(
+            task=task,
+            thumbnail_bytes=thumbnail_bytes,
+            full_file_name_to_work_on=full_file_name_to_work_on,
+            origin=origin,
+        )
 
 
 # How much of the file should be read in from local disk and thus cached
@@ -653,6 +662,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
             cache_search = thumbnail_caches.get_from_cache(rpd_file)
             task, thumbnail_bytes, full_file_name_to_work_on, origin = cache_search
+
             if task != ExtractionTask.undetermined:
                 if origin == ThumbnailCacheOrigin.thumbnail_cache:
                     self.counter["thumb_cache"] += 1
@@ -678,6 +688,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             "file time recorded in metadata from %s",
                             secondary_full_file_name,
                         )
+
             if task == ExtractionTask.undetermined:
                 # Thumbnail was not found in any cache: extract it
                 if self.camera:
