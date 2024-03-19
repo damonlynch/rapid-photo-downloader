@@ -268,8 +268,7 @@ def divide_list(source: list, no_pieces: int) -> list:
 
 
 def divide_list_on_length(
-    source: list[int, ...], length: int
-) -> list[list[int, ...], ...]:
+    source: list[int], length: int) -> list[list[int]]:
     r"""
     Break a list into lists no longer than length.
 

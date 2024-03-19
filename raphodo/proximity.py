@@ -652,9 +652,7 @@ class MetaUid:
     """
 
     def __init__(self):
-        self._uids: tuple[dict[int, list[bytes, ...]], ...] = tuple(
-            {} for i in (0, 1, 2)
-        )
+        self._uids: tuple[dict[int, list[bytes]], ...] = tuple({} for i in (0, 1, 2))
         self._no_uids: tuple[dict[int, int], ...] = tuple({} for i in (0, 1, 2))
         self._col2_row_index: dict[bytes, int] = dict()
 
@@ -770,7 +768,7 @@ class TemporalProximityGroups:
         year_month_day: dict[bytes, tuple[int, int, int]] = dict()
 
         # group_no: list[uid]
-        uids_by_proximity: dict[int, list[bytes, ...]] = defaultdict(list)
+        uids_by_proximity: dict[int, list[bytes]] = defaultdict(list)
         # Determine if proximity group contains any files have not been previously
         # downloaded
         new_files_by_proximity: dict[int, set[bool]] = defaultdict(set)

@@ -5,8 +5,8 @@ import os
 from collections import OrderedDict
 
 PrefList = list[str]
-CustomPresetSubfolderNames = tuple[tuple[str, ...]]
-CustomPresetSubfolderLists = tuple[list[str, ...]]
+CustomPresetSubfolderNames = tuple[tuple[str]]
+CustomPresetSubfolderLists = tuple[list[str]]
 
 # The following strings must not be translated here, because they are configuration
 # values.
