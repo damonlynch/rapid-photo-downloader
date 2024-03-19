@@ -31,7 +31,7 @@ import logging
 import os
 import pickle
 import sys
-from collections import deque
+from collections import Counter, deque
 from operator import attrgetter
 
 import psutil
@@ -334,6 +334,8 @@ def preprocess_thumbnail_from_disk(
 class GenerateThumbnails(WorkerInPublishPullPipeline):
     def __init__(self) -> None:
         self.random_file_name = GenerateRandomFileName()
+        self.counter = Counter()
+
         super().__init__("Thumbnails")
 
     def cache_full_size_file_from_camera(self, rpd_file: RPDFile) -> bool:
@@ -571,9 +573,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             )
             for rpd_file in rescan.missing_rpd_files:
                 self.content = pickle.dumps(
-                    GenerateThumbnailsResults(
-                        rpd_file=rpd_file, thumbnail_bytes=None
-                    ),
+                    GenerateThumbnailsResults(rpd_file=rpd_file, thumbnail_bytes=None),
                     pickle.HIGHEST_PROTOCOL,
                 )
                 self.send_message_to_sink()
@@ -631,14 +631,13 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         rpd_files = self.prioritise_thumbnail_order(arguments=arguments)
 
         if arguments.camera is not None:
-            rpd_files=self.initialise_camera(
+            rpd_files = self.initialise_camera(
                 arguments=arguments,
                 cache_file_from_camera=cache_file_from_camera,
                 rpd_files=rpd_files,
             )
 
-        from_thumb_cache = 0
-        from_fdo_cache = 0
+        self.counter.clear()
 
         for rpd_file in rpd_files:
             # Check to see if the process has received a command
@@ -656,14 +655,14 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             task, thumbnail_bytes, full_file_name_to_work_on, origin = cache_search
             if task != ExtractionTask.undetermined:
                 if origin == ThumbnailCacheOrigin.thumbnail_cache:
-                    from_thumb_cache += 1
+                    self.counter["thumb_cache"] += 1
                 else:
                     assert origin == ThumbnailCacheOrigin.fdo_cache
                     logging.debug(
                         "Thumbnail for %s found in large FDO cache",
                         rpd_file.full_file_name,
                     )
-                    from_fdo_cache += 1
+                    self.counter["fdo_cache"] += 1
                     processing.add(ExtractionProcessing.resize)
                     if not rpd_file.mdatatime:
                         # Since we're extracting the thumbnail from the FDO cache,
@@ -726,7 +725,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                     )
                                     if (
                                         task
-                                        == ExtractionTask.load_from_bytes_metadata_from_temp_extract  # noqa: E501
+                                        == ExtractionTask.load_from_bytes_metadata_from_temp_extract
+                                        # noqa: E501
                                     ):
                                         secondary_full_file_name = (
                                             full_file_name_to_work_on
@@ -857,7 +857,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             full_file_name_to_work_on = rpd_file.thm_full_name
                             if (
                                 task
-                                == ExtractionTask.load_file_directly_metadata_from_secondary  # noqa: E501
+                                == ExtractionTask.load_file_directly_metadata_from_secondary
+                                # noqa: E501
                             ):
                                 secondary_full_file_name = rpd_file.full_file_name
                         else:
@@ -906,14 +907,14 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         logging.debug(
             "Finished phase 1 of thumbnail generation for %s", self.device_name
         )
-        if from_thumb_cache:
+        if self.counter["thumb_cache"]:
             logging.info(
-                f"{from_thumb_cache} of {len(rpd_files)} thumbnails for "
+                f"{self.counter['thumb_cache']} of {len(rpd_files)} thumbnails for "
                 f"{self.device_name} came from thumbnail cache"
             )
-        if from_fdo_cache:
+        if self.counter["fdo_cache"]:
             logging.info(
-                f"{from_fdo_cache} of {len(rpd_files)} thumbnails of for "
+                f"{self.counter['fdo_cache']} of {len(rpd_files)} thumbnails of for "
                 f"{self.device_name} came from Free Desktop cache"
             )
 
