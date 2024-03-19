@@ -483,7 +483,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         assert len(rpd_files) == len(rpd_files2)
         return rpd_files2
 
-    def initialise_camera(
+    def prepare_for_camera_thumbnail_extraction(
         self,
         arguments: GenerateThumbnailsArguments,
         cache_file_from_camera: bool,
@@ -631,7 +631,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         rpd_files = self.prioritise_thumbnail_order(arguments=arguments)
 
         if arguments.camera is not None:
-            rpd_files = self.initialise_camera(
+            rpd_files = self.prepare_for_camera_thumbnail_extraction(
                 arguments=arguments,
                 cache_file_from_camera=cache_file_from_camera,
                 rpd_files=rpd_files,
