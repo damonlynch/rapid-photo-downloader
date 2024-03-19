@@ -10,7 +10,7 @@ from PyQt5.QtGui import QImage, QPixmap
 
 from raphodo.interprocess import (
     GenerateThumbnailsArguments,
-    GenerateThumbnailsResults,  # noqa: F401
+    GenerateThumbnailsResults,
     LoadBalancerManager,
     PublishPullPipelineManager,
     ThreadNames,

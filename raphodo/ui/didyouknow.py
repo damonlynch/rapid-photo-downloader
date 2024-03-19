@@ -11,7 +11,7 @@ from PyQt5.QtGui import (
     QFont,
     QFontMetrics,
     QIcon,
-    QPixmap,  # noqa: F401
+    QPixmap,
     QShowEvent,
     QTextCursor,
 )

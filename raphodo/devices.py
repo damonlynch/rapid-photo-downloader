@@ -29,7 +29,7 @@ from raphodo.constants import (
     BackupLocationType,
     DeviceState,
     DeviceType,
-    DownloadStatus,  # noqa: F401
+    DownloadStatus,
     ExifSource,
     FileType,
     FileTypeFlag,

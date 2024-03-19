@@ -63,14 +63,14 @@ import psutil
 # already been imported. See:
 # http://pyqt.sourceforge.net/Docs/PyQt5/incompatibilities.html#importing-the-sip-module
 import zmq
-from PyQt5 import QtCore  # noqa: I001
+from PyQt5 import QtCore
 import sip
 from PyQt5.QtCore import (
-    QByteArray,  # noqa: F401
+    QByteArray,
     QLocale,
     QModelIndex,
     QPoint,
-    QRect,  # noqa: F401
+    QRect,
     QSettings,
     QSize,
     QStorageInfo,
@@ -88,7 +88,7 @@ from PyQt5.QtGui import (
     QIcon,
     QMoveEvent,
     QPixmap,
-    QScreen,  # noqa: F401
+    QScreen,
     QShowEvent,
 )
 from PyQt5.QtWidgets import (
@@ -208,9 +208,9 @@ from raphodo.qtsingleapplication import QtSingleApplication
 from raphodo.rpdfile import (
     FileSizeSum,
     FileTypeCounter,
-    Photo,  # noqa: F401
+    Photo,
     RPDFile,
-    Video,  # noqa: F401
+    Video,
     file_types_by_number,
 )
 from raphodo.rpdsql import DownloadedSQL
@@ -249,6 +249,7 @@ from raphodo.ui.chevroncombo import ChevronCombo
 from raphodo.ui.computerview import ComputerWidget
 from raphodo.ui.destinationpanel import DestinationPanel
 from raphodo.ui.devicedisplay import (
+    DeviceComponent,
     DeviceDelegate,
     DeviceModel,
     DeviceView,

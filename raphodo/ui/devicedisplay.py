@@ -83,7 +83,7 @@ from raphodo.constants import (
 )
 from raphodo.devices import Device
 from raphodo.rpdfile import make_key
-from raphodo.storage.storage import StorageSpace  # noqa: F401
+from raphodo.storage.storage import StorageSpace
 from raphodo.tools.utilities import data_file_path, format_size_for_user, thousands
 from raphodo.ui.viewutils import (
     ListViewFlexiFrame,

@@ -44,7 +44,7 @@ from raphodo.constants import (
     ViewRowType,
 )
 from raphodo.devices import (
-    BackupDeviceCollection,  # noqa: F401
+    BackupDeviceCollection,
     BackupVolumeDetails,
     DownloadingTo,
 )

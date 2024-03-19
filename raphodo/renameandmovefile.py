@@ -33,7 +33,7 @@ from raphodo.constants import (
 )
 from raphodo.interprocess import (
     DaemonProcess,
-    RenameAndMoveFileData,  # noqa: F401
+    RenameAndMoveFileData,
     RenameAndMoveFileResults,
 )
 from raphodo.prefs.preferences import DownloadsTodayTracker, Preferences

@@ -11,7 +11,7 @@ from collections import deque
 
 from PyQt5.QtCore import (
     QEvent,
-    QRect,  # noqa: F401
+    QRect,
     QSize,
     Qt,
     QTimer,

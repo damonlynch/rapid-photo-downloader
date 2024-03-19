@@ -5,7 +5,7 @@ import math
 
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import (
-    QFont,  # noqa: F401
+    QFont,
     QFontMetrics,
     QGuiApplication,
     QIcon,

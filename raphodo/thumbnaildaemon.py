@@ -26,13 +26,13 @@ import zmq
 
 from raphodo.cache import FdoCacheLarge, FdoCacheNormal
 from raphodo.constants import (
-    ExtractionProcessing,  # noqa: F401
+    ExtractionProcessing,
     ExtractionTask,
 )
 from raphodo.interprocess import (
     DaemonProcess,
     GenerateThumbnailsResults,
-    ThumbnailDaemonData,  # noqa: F401
+    ThumbnailDaemonData,
     ThumbnailExtractorArgument,
 )
 from raphodo.thumbnailpara import GetThumbnailFromCache, preprocess_thumbnail_from_disk

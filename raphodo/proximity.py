@@ -26,7 +26,7 @@ from PyQt5.QtCore import (
     QModelIndex,
     QObject,
     QPoint,
-    QRect,  # noqa: F401
+    QRect,
     QRectF,
     QSize,
     QSizeF,
@@ -43,7 +43,7 @@ from PyQt5.QtGui import (
     QMouseEvent,
     QPainter,
     QPalette,
-    QPixmap,  # noqa: F401
+    QPixmap,
     QShowEvent,
 )
 from PyQt5.QtWidgets import (
