@@ -1,4 +1,4 @@
-Release Notes for Rapid Photo Downloader 0.9.36
+Release Notes for Rapid Photo Downloader 0.9.37
 ===============================================
 
  - Rapid Photo Downloader 0.9.37 switches from `setuptools` and an old-school
@@ -6,8 +6,8 @@ Release Notes for Rapid Photo Downloader 0.9.36
    As part of this switch, localisation files are generated differently:
    - `.desktop` and `metainfo.xml` files are now generated at build time into 
      subfolders within the `share` folder.
-   - `.mo` files are now generated within the folder `raphodo/locale`; they
-      should not be copied to `/usr/share/locale`. Any 
+   - `.mo` files are now generated within a new folder `raphodo/locale`; they
+      should *not* be copied to `/usr/share/locale`. Any 
      `rapid-photo-downloader.mo` files in `/usr/share/locale` should be 
      deleted. 
 
@@ -15,7 +15,8 @@ Release Notes for Rapid Photo Downloader 0.9.36
    - `pyrcc` is no longer used to generate images for the Qt resource system.
      Instead, images are stored in a new `raphodo/data` directory and loaded 
      using the Python resource system.
-   - All source code now uses SPDX identifiers for copyright and licensing.  
+   - All source code now uses [SPDX](https://spdx.org/) identifiers for 
+     copyright and licensing.  
 
  - Rapid Photo Downloader 0.9.35 requires Python 3.10 or newer.
 
