@@ -216,7 +216,9 @@ def run_command_as_sudo_with_password(
     )
 
 
-def run_command_as_sudo_without_password(cmd: str, timeout=10) -> SudoCommandResult:
+def run_command_as_sudo_without_password(
+    cmd: str, timeout: int = 10
+) -> SudoCommandResult:
     """
     Run a single command via sudo instructing sudo to not prompt for the password
 
@@ -269,7 +271,7 @@ def run_commands_as_sudo(
     cmds: list[str],
     parent,
     msg: str | None = None,
-    timeout=10,
+    timeout: int = 10,
     title: str | None = None,
     icon: str | None = None,
     help_url: str | None = None,
