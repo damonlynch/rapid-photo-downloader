@@ -304,7 +304,7 @@ class Camera:
     def get_exif_extract(
         self, folder: str, file_name: str, size_in_bytes: int = 200
     ) -> bytearray:
-        """ "
+        """
         Attempt to read only the exif portion of the file.
 
         Assumes exif is located at the beginning of the file.
