@@ -11,11 +11,6 @@ from raphodo.constants import DownloadStatus, DownloadUpdateSeconds, FileType
 from raphodo.rpdfile import RPDFile
 from raphodo.thumbnaildisplay import DownloadStats
 
-try:
-    Infinity = math.inf
-except AttributeError:
-    Infinity = float("inf")
-
 
 class DownloadTracker:
     """
@@ -523,7 +518,7 @@ class TimeRemaining:
             amt_to_download = t.total_download_size - t.total_downloaded_so_far
 
             if not t.smoothed_speed:
-                t.time_remaining = Infinity
+                t.time_remaining = math.inf
             else:
                 time_remaining = amt_to_download / t.smoothed_speed
                 # Use the previous value to help determine the current value,
@@ -585,7 +580,7 @@ def get_time_left(aSeconds: float, aLastSec: float | None = None) -> float:
     """
 
     if aLastSec is None:
-        aLastSec = Infinity
+        aLastSec = math.inf
 
     if aSeconds < 0:
         return aLastSec
