@@ -18,6 +18,7 @@ except ImportError:
 import importlib.metadata
 
 _error_logged = False
+_attribute_error_logged = False
 
 
 def pyheif_version() -> str:
@@ -61,12 +62,13 @@ def load_heif(
      operations on it
     """
     global _error_logged
+    global _attribute_error_logged
 
     try:
         image = pyheif.read_heif(full_file_name)
     except pyheif.error.HeifError:
         if not _error_logged:
-            process_id = "the %s" % process_name if process_name else "this"
+            process_id = f"the {process_name if process_name else 'this'}"
             logging.error(
                 "Error using pyheif to load HEIF file %s. "
                 "If encountered on another file, this error message will only be "
@@ -97,7 +99,24 @@ def load_heif(
     if pillow_image.mode not in ("RGB", "RGBA", "1", "L", "P"):
         pillow_image = pillow_image.convert("RGBA")
 
-    imageqt = ImageQt.ImageQt(pillow_image)
+    try:
+        imageqt = ImageQt.ImageQt(pillow_image)
+    except AttributeError:
+        if not _attribute_error_logged:
+            process_id = f"the {process_name if process_name else 'this'}"
+            logging.error(
+                "Error using pyheif to load HEIF file %s. "
+                "The Python package Pillow was unable to load Qt. "
+                "If encountered on another file, this error message will only be "
+                "repeated once for %s process.",
+                full_file_name,
+                process_id,
+            )
+            _attribute_error_logged = True
+        if not catch_pyheif_exceptions:
+            raise
+        imageqt = None
+
     if imageqt is not None and not imageqt.isNull():
         return imageqt
     return None
