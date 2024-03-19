@@ -31,8 +31,9 @@ import logging
 import os
 import pickle
 import sys
-from collections import deque
+from collections import Counter, deque
 from operator import attrgetter
+from typing import NamedTuple
 
 import psutil
 import zmq
@@ -67,6 +68,13 @@ from raphodo.prefs.preferences import Preferences
 from raphodo.rescan import RescanCamera
 from raphodo.rpdfile import RPDFile
 from raphodo.tools.utilities import CacheDirs, GenerateRandomFileName, create_temp_dir
+
+
+class ThumbnailCacheSearch(NamedTuple):
+    task: ExtractionTask
+    thumbnail_bytes: bytes
+    full_file_name_to_work_on: str
+    origin: ThumbnailCacheOrigin
 
 
 def cache_dir_name(device_name: str) -> str:
@@ -176,18 +184,14 @@ class GetThumbnailFromCache:
 
     def get_from_cache(
         self, rpd_file: RPDFile, use_thumbnail_cache: bool = True
-    ) -> tuple[ExtractionTask, bytes, str, ThumbnailCacheOrigin]:
+    ) -> ThumbnailCacheSearch:
         """
         Attempt to get a thumbnail for the file from the Rapid Photo Downloader
         thumbnail cache or from the FreeDesktop.org 256x256 thumbnail cache.
-
-        :param rpd_file:
-        :param use_thumbnail_cache: whether to use the
-        :return:
         """
 
         task = ExtractionTask.undetermined
-        thumbnail_bytes = None
+        thumbnail_bytes: bytes | None = None
         full_file_name_to_work_on = ""
         origin: ThumbnailCacheOrigin | None = None
 
@@ -238,7 +242,12 @@ class GetThumbnailFromCache:
                     origin = ThumbnailCacheOrigin.fdo_cache
                     rpd_file.thumbnail_status = ThumbnailCacheStatus.fdo_256_ready
 
-        return task, thumbnail_bytes, full_file_name_to_work_on, origin
+        return ThumbnailCacheSearch(
+            task=task,
+            thumbnail_bytes=thumbnail_bytes,
+            full_file_name_to_work_on=full_file_name_to_work_on,
+            origin=origin,
+        )
 
 
 # How much of the file should be read in from local disk and thus cached
@@ -334,6 +343,8 @@ def preprocess_thumbnail_from_disk(
 class GenerateThumbnails(WorkerInPublishPullPipeline):
     def __init__(self) -> None:
         self.random_file_name = GenerateRandomFileName()
+        self.counter = Counter()
+
         super().__init__("Thumbnails")
 
     def cache_full_size_file_from_camera(self, rpd_file: RPDFile) -> bool:
@@ -449,11 +460,140 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         return task, full_file_name_to_work_on, file_to_work_on_is_temporary
 
+    def prioritise_thumbnail_order(
+        self, arguments: GenerateThumbnailsArguments
+    ) -> list[RPDFile]:
+        """
+        Determine files to prioritise generating thumbnails for based on the time they
+        were taken
+
+        :param arguments: the arguments passed to this process
+        :return: list of RPDFile sorted by priority to generate thumbnails
+        """
+
+        rpd_files = arguments.rpd_files
+
+        # Must sort files by modification time prior to temporal analysis needed to
+        # figure out which thumbnails to prioritize
+        rpd_files = sorted(rpd_files, key=attrgetter("modification_time"))
+
+        time_span = arguments.proximity_seconds
+
+        rpd_files2 = []
+
+        if rpd_files:
+            gaps, sequences = get_temporal_gaps_and_sequences(rpd_files, time_span)
+
+            rpd_files2.extend(gaps)
+
+            indexes = split_indexes(len(sequences))
+            rpd_files2.extend([sequences[idx] for idx in indexes])
+
+        assert len(rpd_files) == len(rpd_files2)
+        return rpd_files2
+
+    def prepare_for_camera_thumbnail_extraction(
+        self,
+        arguments: GenerateThumbnailsArguments,
+        cache_file_from_camera: bool,
+        rpd_files: list[RPDFile],
+    ) -> list[RPDFile]:
+        """
+        Prepare the camera for thumbnail extraction
+
+        :param arguments: the arguments passed to this process
+        :param cache_file_from_camera: Whether to cache files from camera  on the
+         file system
+        :param rpd_files: the list of RPDFiles to generate thumbnails for, already
+         sorted by priority
+        :return: list of RPDFiles to generate thumbnails for
+        """
+
+        self.camera = Camera(
+            model=arguments.camera,
+            port=arguments.port,
+            is_mtp_device=arguments.is_mtp_device,
+            specific_folders=self.prefs.folders_to_scan,
+        )
+
+        if not self.camera.camera_initialized:
+            # There is nothing to do here: exit!
+            logging.debug(
+                "Prematurely exiting thumbnail generation due to lack of access to "
+                "camera %s",
+                arguments.camera,
+            )
+            self.content = pickle.dumps(
+                GenerateThumbnailsResults(
+                    scan_id=arguments.scan_id,
+                    camera_removed=True,
+                ),
+                pickle.HIGHEST_PROTOCOL,
+            )
+            self.send_message_to_sink()
+            self.disconnect_logging()
+            self.send_finished_command()
+            sys.exit(0)
+
+        if not cache_file_from_camera:
+            for rpd_file in rpd_files:
+                if use_exiftool_on_photo(
+                    rpd_file.extension, preview_extraction_irrelevant=False
+                ):
+                    cache_file_from_camera = True
+                    break
+
+        must_make_cache_dirs = (
+            not self.camera.can_fetch_thumbnails or cache_file_from_camera
+        )
+
+        if (
+            must_make_cache_dirs
+            or arguments.need_video_cache_dir
+            or arguments.need_photo_cache_dir
+        ):
+            # If downloading complete copy of the files to
+            # generate previews, then may as well cache them to speed up
+            # the download process
+            self.photo_cache_dir = create_temp_dir(
+                folder=arguments.cache_dirs.photo_cache_dir,
+                prefix=cache_dir_name(self.device_name),
+            )
+            self.video_cache_dir = create_temp_dir(
+                folder=arguments.cache_dirs.video_cache_dir,
+                prefix=cache_dir_name(self.device_name),
+            )
+            cache_dirs = CacheDirs(self.photo_cache_dir, self.video_cache_dir)
+            self.content = pickle.dumps(
+                GenerateThumbnailsResults(
+                    scan_id=arguments.scan_id, cache_dirs=cache_dirs
+                ),
+                pickle.HIGHEST_PROTOCOL,
+            )
+            self.send_message_to_sink()
+
+        rescan = RescanCamera(camera=self.camera, prefs=self.prefs)
+        rescan.rescan_camera(rpd_files)
+        if rescan.missing_rpd_files:
+            logging.error(
+                "%s files could not be relocated on %s",
+                len(rescan.missing_rpd_files),
+                self.camera.display_name,
+            )
+            for rpd_file in rescan.missing_rpd_files:
+                self.content = pickle.dumps(
+                    GenerateThumbnailsResults(rpd_file=rpd_file, thumbnail_bytes=None),
+                    pickle.HIGHEST_PROTOCOL,
+                )
+                self.send_message_to_sink()
+
+        return rescan.rpd_files
+
     def do_work(self) -> None:
         try:
             self.generate_thumbnails()
         except SystemExit as e:
-            sys.exit(e)
+            sys.exit(e.code)
         except Exception:
             if hasattr(self, "device_name"):
                 logging.error(
@@ -497,115 +637,16 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         photo_cache_dir = video_cache_dir = None
         cache_file_from_camera = force_exiftool
 
-        rpd_files = arguments.rpd_files
-
-        # with open('tests/thumbnail_data_medium_no_tiff', 'wb') as f:
-        #     pickle.dump(rpd_files, f)
-
-        # Must sort files by modification time prior to temporal analysis needed to
-        # figure out which thumbnails to prioritize
-        rpd_files = sorted(rpd_files, key=attrgetter("modification_time"))
-
-        time_span = arguments.proximity_seconds
-
-        rpd_files2 = []
-
-        if rpd_files:
-            gaps, sequences = get_temporal_gaps_and_sequences(rpd_files, time_span)
-
-            rpd_files2.extend(gaps)
-
-            indexes = split_indexes(len(sequences))
-            rpd_files2.extend([sequences[idx] for idx in indexes])
-
-        assert len(rpd_files) == len(rpd_files2)
-        rpd_files = rpd_files2
+        rpd_files = self.prioritise_thumbnail_order(arguments=arguments)
 
         if arguments.camera is not None:
-            self.camera = Camera(
-                model=arguments.camera,
-                port=arguments.port,
-                is_mtp_device=arguments.is_mtp_device,
-                specific_folders=self.prefs.folders_to_scan,
+            rpd_files = self.prepare_for_camera_thumbnail_extraction(
+                arguments=arguments,
+                cache_file_from_camera=cache_file_from_camera,
+                rpd_files=rpd_files,
             )
 
-            if not self.camera.camera_initialized:
-                # There is nothing to do here: exit!
-                logging.debug(
-                    "Prematurely exiting thumbnail generation due to lack of access to "
-                    "camera %s",
-                    arguments.camera,
-                )
-                self.content = pickle.dumps(
-                    GenerateThumbnailsResults(
-                        scan_id=arguments.scan_id,
-                        camera_removed=True,
-                    ),
-                    pickle.HIGHEST_PROTOCOL,
-                )
-                self.send_message_to_sink()
-                self.disconnect_logging()
-                self.send_finished_command()
-                sys.exit(0)
-
-            if not cache_file_from_camera:
-                for rpd_file in rpd_files:
-                    if use_exiftool_on_photo(
-                        rpd_file.extension, preview_extraction_irrelevant=False
-                    ):
-                        cache_file_from_camera = True
-                        break
-
-            must_make_cache_dirs = (
-                not self.camera.can_fetch_thumbnails or cache_file_from_camera
-            )
-
-            if (
-                must_make_cache_dirs
-                or arguments.need_video_cache_dir
-                or arguments.need_photo_cache_dir
-            ):
-                # If downloading complete copy of the files to
-                # generate previews, then may as well cache them to speed up
-                # the download process
-                self.photo_cache_dir = create_temp_dir(
-                    folder=arguments.cache_dirs.photo_cache_dir,
-                    prefix=cache_dir_name(self.device_name),
-                )
-                self.video_cache_dir = create_temp_dir(
-                    folder=arguments.cache_dirs.video_cache_dir,
-                    prefix=cache_dir_name(self.device_name),
-                )
-                cache_dirs = CacheDirs(self.photo_cache_dir, self.video_cache_dir)
-                self.content = pickle.dumps(
-                    GenerateThumbnailsResults(
-                        scan_id=arguments.scan_id, cache_dirs=cache_dirs
-                    ),
-                    pickle.HIGHEST_PROTOCOL,
-                )
-                self.send_message_to_sink()
-
-        from_thumb_cache = 0
-        from_fdo_cache = 0
-
-        if self.camera:
-            rescan = RescanCamera(camera=self.camera, prefs=self.prefs)
-            rescan.rescan_camera(rpd_files)
-            rpd_files = rescan.rpd_files
-            if rescan.missing_rpd_files:
-                logging.error(
-                    "%s files could not be relocated on %s",
-                    len(rescan.missing_rpd_files),
-                    self.camera.display_name,
-                )
-                for rpd_file in rescan.missing_rpd_files:
-                    self.content = pickle.dumps(
-                        GenerateThumbnailsResults(
-                            rpd_file=rpd_file, thumbnail_bytes=None
-                        ),
-                        pickle.HIGHEST_PROTOCOL,
-                    )
-                    self.send_message_to_sink()
+        self.counter.clear()
 
         for rpd_file in rpd_files:
             # Check to see if the process has received a command
@@ -621,16 +662,17 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
             cache_search = thumbnail_caches.get_from_cache(rpd_file)
             task, thumbnail_bytes, full_file_name_to_work_on, origin = cache_search
+
             if task != ExtractionTask.undetermined:
                 if origin == ThumbnailCacheOrigin.thumbnail_cache:
-                    from_thumb_cache += 1
+                    self.counter["thumb_cache"] += 1
                 else:
                     assert origin == ThumbnailCacheOrigin.fdo_cache
                     logging.debug(
                         "Thumbnail for %s found in large FDO cache",
                         rpd_file.full_file_name,
                     )
-                    from_fdo_cache += 1
+                    self.counter["fdo_cache"] += 1
                     processing.add(ExtractionProcessing.resize)
                     if not rpd_file.mdatatime:
                         # Since we're extracting the thumbnail from the FDO cache,
@@ -646,6 +688,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             "file time recorded in metadata from %s",
                             secondary_full_file_name,
                         )
+
             if task == ExtractionTask.undetermined:
                 # Thumbnail was not found in any cache: extract it
                 if self.camera:
@@ -693,7 +736,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                     )
                                     if (
                                         task
-                                        == ExtractionTask.load_from_bytes_metadata_from_temp_extract  # noqa: E501
+                                        == ExtractionTask.load_from_bytes_metadata_from_temp_extract
+                                        # noqa: E501
                                     ):
                                         secondary_full_file_name = (
                                             full_file_name_to_work_on
@@ -824,7 +868,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             full_file_name_to_work_on = rpd_file.thm_full_name
                             if (
                                 task
-                                == ExtractionTask.load_file_directly_metadata_from_secondary  # noqa: E501
+                                == ExtractionTask.load_file_directly_metadata_from_secondary
+                                # noqa: E501
                             ):
                                 secondary_full_file_name = rpd_file.full_file_name
                         else:
@@ -873,14 +918,14 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         logging.debug(
             "Finished phase 1 of thumbnail generation for %s", self.device_name
         )
-        if from_thumb_cache:
+        if self.counter["thumb_cache"]:
             logging.info(
-                f"{from_thumb_cache} of {len(rpd_files)} thumbnails for "
+                f"{self.counter['thumb_cache']} of {len(rpd_files)} thumbnails for "
                 f"{self.device_name} came from thumbnail cache"
             )
-        if from_fdo_cache:
+        if self.counter["fdo_cache"]:
             logging.info(
-                f"{from_fdo_cache} of {len(rpd_files)} thumbnails of for "
+                f"{self.counter['fdo_cache']} of {len(rpd_files)} thumbnails of for "
                 f"{self.device_name} came from Free Desktop cache"
             )
 
