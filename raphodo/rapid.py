@@ -300,7 +300,7 @@ from raphodo.wsl.wsl import (
 
 # Avoid segfaults at exit:
 # http://pyqt.sourceforge.net/Docs/PyQt5/gotchas.html#crashes-on-exit
-app: "QtSingleApplication" | None = None
+app: QtSingleApplication | None = None
 
 faulthandler.enable()
 logger = None
