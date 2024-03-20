@@ -325,8 +325,8 @@ def preprocess_thumbnail_from_disk(
         if rpd_file.thm_full_name is not None:
             if not rpd_file.mdatatime:
                 task = ExtractionTask.load_file_directly_metadata_from_secondary
-                # It's the responsibility of the calling code to assign the
-                # secondary_full_file_name
+                # It's the responsibility of the calling code to assign to
+                # self.secondary_full_file_name
             else:
                 task = ExtractionTask.load_file_directly
             processing.add(ExtractionProcessing.strip_bars_video)
@@ -345,26 +345,48 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         self.random_file_name = GenerateRandomFileName()
         self.counter = Counter()
 
+        self.camera: Camera | None = None
+
+        self.exif_buffer: bytearray | None = None
+        self.file_to_work_on_is_temporary: bool = False
+        self.secondary_full_file_name: str = ""
+        self.processing: set[ExtractionProcessing] = set()
+
+        self.task: ExtractionTask | None = None
+        self.thumbnail_bytes: bytes | None = None
+        self.full_file_name_to_work_on: str = ""
+        self.origin: ThumbnailCacheOrigin | None = None
+
+        self.rpd_file: RPDFile | None = None
+
+        self.force_exiftool: bool = False
+
+        self.entire_photo_required: bool | None = None
+        self.entire_video_required: bool | None = None
+
+        self.photo_cache_dir: str | None = None
+        self.video_cache_dir: str | None = None
+
         super().__init__("Thumbnails")
 
-    def cache_full_size_file_from_camera(self, rpd_file: RPDFile) -> bool:
+    def cache_full_size_file_from_camera(self) -> bool:
         """
         Get the file from the camera chunk by chunk and cache it.
 
         :return: True if operation succeeded, False otherwise
         """
-        if rpd_file.file_type == FileType.photo:
+        if self.rpd_file.file_type == FileType.photo:
             cache_dir = self.photo_cache_dir
         else:
             cache_dir = self.video_cache_dir
         cache_full_file_name = os.path.join(
-            cache_dir, self.random_file_name.name(extension=rpd_file.extension)
+            cache_dir, self.random_file_name.name(extension=self.rpd_file.extension)
         )
         try:
             self.camera.save_file_by_chunks(
-                dir_name=rpd_file.path,
-                file_name=rpd_file.name,
-                size=rpd_file.size,
+                dir_name=self.rpd_file.path,
+                file_name=self.rpd_file.name,
+                size=self.rpd_file.size,
                 dest_full_filename=cache_full_file_name,
                 progress_callback=None,
                 check_for_command=self.check_for_controller_directive,
@@ -374,37 +396,56 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             # TODO report error
             return False
         else:
-            rpd_file.cache_full_file_name = cache_full_file_name
+            self.rpd_file.cache_full_file_name = cache_full_file_name
             return True
 
-    def cache_file_chunk_from_camera(self, rpd_file: RPDFile, offset: int) -> bool:
-        if rpd_file.file_type == FileType.photo:
+    def cache_file_chunk_from_camera(self, offset: int) -> bool:
+        if self.rpd_file.file_type == FileType.photo:
             cache_dir = self.photo_cache_dir
         else:
             cache_dir = self.video_cache_dir
         cache_full_file_name = os.path.join(
-            cache_dir, self.random_file_name.name(extension=rpd_file.extension)
+            cache_dir, self.random_file_name.name(extension=self.rpd_file.extension)
         )
         try:
             self.camera.save_file_chunk(
-                dir_name=rpd_file.path,
-                file_name=rpd_file.name,
-                chunk_size_in_bytes=min(offset, rpd_file.size),
+                dir_name=self.rpd_file.path,
+                file_name=self.rpd_file.name,
+                chunk_size_in_bytes=min(offset, self.rpd_file.size),
                 dest_full_filename=cache_full_file_name,
             )
-            rpd_file.temp_cache_full_file_chunk = cache_full_file_name
+            self.rpd_file.temp_cache_full_file_chunk = cache_full_file_name
             return True
         except CameraProblemEx:
             # TODO problem reporting
             return False
 
+    def extract_photo_video_from_camera_partial(self, using_exiftool: bool) -> None:
+        # For many photos videos, extract a small part of the file and use
+        # that to get the metadata
+        if using_exiftool:
+            offset = thumbnail_offset_exiftool.get(self.rpd_file.extension)
+        else:
+            offset = thumbnail_offset.get(self.rpd_file.extension)
+        if offset:
+            if using_exiftool:
+                offset = max(
+                    offset, datetime_offset_exiftool.get(self.rpd_file.extension)
+                )
+            else:
+                offset = max(offset, datetime_offset.get(self.rpd_file.extension))
+
+        if offset and self.cache_file_chunk_from_camera(offset):
+            if self.rpd_file.file_type == FileType.photo:
+                self.task = ExtractionTask.load_from_bytes_metadata_from_temp_extract
+            else:
+                self.task = ExtractionTask.extract_from_file_and_load_metadata
+                self.file_to_work_on_is_temporary = True
+            self.full_file_name_to_work_on = self.rpd_file.temp_cache_full_file_chunk
+
     def extract_photo_video_from_camera(
-        self,
-        rpd_file: RPDFile,
-        entire_file_required: bool,
-        full_file_name_to_work_on,
-        using_exiftool: bool,
-    ) -> tuple[ExtractionTask, str, bool]:
+        self, entire_file_required: bool, using_exiftool: bool
+    ) -> None:
         """
         Extract part of a photo of video to be able to get the orientation
         and date time metadata, if and only if we know how much of the file
@@ -413,52 +454,27 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         Otherwise, download the entire photo or video from the camera to be able
         to generate the thumbnail and cache it.
 
-        :param rpd_file: photo or video
         :param entire_file_required: whether we already know (from scanning) that
          the entire file is required
-        :param full_file_name_to_work_on: file name and path of the photo or video
         :param using_exiftool: if all the metadata extraction is done using ExifTool
-        :return: extraction task, full file name, and whether the full file name
-         refers to a temporary file that should be deleted
         """
 
-        task = ExtractionTask.undetermined
-        file_to_work_on_is_temporary = False
+        self.task = ExtractionTask.undetermined
+        self.file_to_work_on_is_temporary = False
 
-        if rpd_file.is_mtp_device and rpd_file.file_type == FileType.video:
+        if self.rpd_file.is_mtp_device and self.rpd_file.file_type == FileType.video:
             entire_file_required = True
 
         if not entire_file_required:
-            # For many photos videos, extract a small part of the file and use
-            # that to get the metadata
-            if using_exiftool:
-                offset = thumbnail_offset_exiftool.get(rpd_file.extension)
-            else:
-                offset = thumbnail_offset.get(rpd_file.extension)
-            if offset:
-                if using_exiftool:
-                    offset = max(
-                        offset, datetime_offset_exiftool.get(rpd_file.extension)
-                    )
-                else:
-                    offset = max(offset, datetime_offset.get(rpd_file.extension))
+            self.extract_photo_video_from_camera_partial(using_exiftool=using_exiftool)
 
-            if offset and self.cache_file_chunk_from_camera(rpd_file, offset):
-                if rpd_file.file_type == FileType.photo:
-                    task = ExtractionTask.load_from_bytes_metadata_from_temp_extract
-                else:
-                    task = ExtractionTask.extract_from_file_and_load_metadata
-                    file_to_work_on_is_temporary = True
-                full_file_name_to_work_on = rpd_file.temp_cache_full_file_chunk
-        if task == ExtractionTask.undetermined:
-            if self.cache_full_size_file_from_camera(rpd_file):
-                task = ExtractionTask.extract_from_file_and_load_metadata
-                full_file_name_to_work_on = rpd_file.cache_full_file_name
+        if self.task == ExtractionTask.undetermined:
+            if self.cache_full_size_file_from_camera():
+                self.task = ExtractionTask.extract_from_file_and_load_metadata
+                self.full_file_name_to_work_on = self.rpd_file.cache_full_file_name
             else:
                 # Failed to generate thumbnail
-                task = ExtractionTask.bypass
-
-        return task, full_file_name_to_work_on, file_to_work_on_is_temporary
+                self.task = ExtractionTask.bypass
 
     def prioritise_thumbnail_order(
         self, arguments: GenerateThumbnailsArguments
@@ -589,6 +605,211 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         return rescan.rpd_files
 
+    def task_cache_extract(self) -> None:
+        if self.origin == ThumbnailCacheOrigin.thumbnail_cache:
+            self.counter["thumb_cache"] += 1
+        else:
+            assert self.origin == ThumbnailCacheOrigin.fdo_cache
+            logging.debug(
+                "Thumbnail for %s found in large FDO cache",
+                self.rpd_file.full_file_name,
+            )
+            self.counter["fdo_cache"] += 1
+            self.processing.add(ExtractionProcessing.resize)
+            if not self.rpd_file.mdatatime:
+                # Since we're extracting the thumbnail from the FDO cache,
+                # need to grab its metadata too.
+                # Reassign the task
+                self.task = ExtractionTask.load_file_directly_metadata_from_secondary
+                # It's not being downloaded from a camera, so nothing
+                # special to do except assign the name of the file from which
+                # to extract the metadata
+                self.secondary_full_file_name = self.rpd_file.full_file_name
+                logging.debug(
+                    "Although thumbnail found in the cache, tasked to extract "
+                    "file time recorded in metadata from %s",
+                    self.secondary_full_file_name,
+                )
+
+    def task_camera_extract_photo_heif(self) -> None:
+        # Load HEIF / HEIC using the entire file.
+        # We are assuming that there is no tool to extract a
+        # preview image from an HEIF / HEIC, or the file simply
+        # does not have one to extract.
+        if self.cache_full_size_file_from_camera():
+            self.task = ExtractionTask.load_heif_and_exif_directly
+            self.processing.add(ExtractionProcessing.resize)
+            self.full_file_name_to_work_on = self.rpd_file.cache_full_file_name
+
+            # For now, do not orient, as pyheif or libheif do that automatically.
+
+    def task_camera_extract_photo_fetch_thumbnail_jpeg(self) -> None:
+        # gPhoto2 knows how to get jpeg thumbnails
+        try:
+            self.thumbnail_bytes = self.camera.get_thumbnail(
+                self.rpd_file.path, self.rpd_file.name
+            )
+        except CameraProblemEx:
+            # TODO handle error?
+            self.thumbnail_bytes = None
+
+    def task_camera_extract_photo_fetch_thumbnail_non_jpeg(self) -> None:
+        if self.force_exiftool or use_exiftool_on_photo(
+            self.rpd_file.extension,
+            preview_extraction_irrelevant=False,
+        ):
+            self.extract_photo_video_from_camera(
+                entire_file_required=self.entire_photo_required,
+                using_exiftool=True,
+            )
+            if self.task == ExtractionTask.load_from_bytes_metadata_from_temp_extract:
+                self.secondary_full_file_name = self.full_file_name_to_work_on
+                self.file_to_work_on_is_temporary = False
+
+        else:
+            # gPhoto2 does not know how to get RAW thumbnails,
+            # so we do that part ourselves
+            if self.rpd_file.extension == "crw":
+                # Could cache this file, since reading its
+                # entirety But does anyone download a CRW file
+                # from the camera these days?!
+                bytes_to_read = self.rpd_file.size
+            else:
+                bytes_to_read = min(
+                    self.rpd_file.size,
+                    orientation_offset.get(self.rpd_file.extension, 500),
+                )
+            self.exif_buffer = self.camera.get_exif_extract(
+                self.rpd_file.path, self.rpd_file.name, bytes_to_read
+            )
+        try:
+            self.thumbnail_bytes = self.camera.get_thumbnail(
+                self.rpd_file.path, self.rpd_file.name
+            )
+        except CameraProblemEx:
+            # TODO report error
+            self.thumbnail_bytes = None
+
+    def task_camera_extract_photo_fetch_thumbnail(self):
+        self.task = ExtractionTask.load_from_bytes
+        if self.rpd_file.is_jpeg_type():
+            self.task_camera_extract_photo_fetch_thumbnail_jpeg()
+        else:
+            self.task_camera_extract_photo_fetch_thumbnail_non_jpeg()
+
+        self.processing.add(ExtractionProcessing.strip_bars_photo)
+        self.processing.add(ExtractionProcessing.orient)
+
+    def task_camera_extract_photo(self):
+        if self.rpd_file.is_heif():
+            self.task_camera_extract_photo_heif()
+            return
+
+        if self.camera.can_fetch_thumbnails:
+            self.task_camera_extract_photo_fetch_thumbnail()
+            return
+
+        # Many (all?) jpegs from phones don't include jpeg previews,
+        # so need to render from the entire jpeg itself. Slow!
+
+        # For raw, extract merely a part of phone's raw format, and
+        # try to extract the jpeg preview from it (which probably
+        # doesn't exist!). This is fast.
+
+        if not self.rpd_file.is_jpeg():
+            bytes_to_read = thumbnail_offset.get(self.rpd_file.extension)
+            if bytes_to_read:
+                self.exif_buffer = self.camera.get_exif_extract(
+                    self.rpd_file.path, self.rpd_file.name, bytes_to_read
+                )
+                self.task = ExtractionTask.load_from_exif_buffer
+                self.processing.add(ExtractionProcessing.orient)
+        if (
+            self.task == ExtractionTask.undetermined
+            and self.cache_full_size_file_from_camera()
+        ):
+            if self.rpd_file.is_jpeg():
+                self.task = ExtractionTask.load_file_and_exif_directly
+                self.processing.add(ExtractionProcessing.resize)
+                self.processing.add(ExtractionProcessing.orient)
+            else:
+                self.task = ExtractionTask.load_from_exif
+                self.processing.add(ExtractionProcessing.resize)
+                self.processing.add(ExtractionProcessing.orient)
+            self.full_file_name_to_work_on = self.rpd_file.cache_full_file_name
+        else:
+            # Failed to generate thumbnail
+            self.task = ExtractionTask.bypass
+
+    def task_camera_extract_video_have_thm(self) -> None:
+        # Fortunately, we have a special video thumbnail file
+        # Still need to get metadata time, however.
+
+        if self.entire_video_required:
+            offset = self.rpd_file.size
+        else:
+            offset = datetime_offset.get(self.rpd_file.extension)
+            # If there is no offset, there is no point trying to
+            # extract the metadata time from part of the video. It's
+            # not ideal, but if this is from a camera on which there
+            # were any other files we can assume we've got a
+            # somewhat accurate date time for it from the
+            # modification time. The only exception is if the video
+            # file is not that big, in which case it's worth reading
+            # in its entirety:
+            if offset is None and self.rpd_file.size < 4000000:
+                offset = self.rpd_file.size
+
+        if self.rpd_file.mdatatime or not offset:
+            self.task = ExtractionTask.load_from_bytes
+        elif self.cache_file_chunk_from_camera(offset):
+            self.task = ExtractionTask.load_from_bytes_metadata_from_temp_extract
+            self.secondary_full_file_name = self.rpd_file.temp_cache_full_file_chunk
+        else:
+            # For some reason was unable to download part of the
+            # video file
+            self.task = ExtractionTask.load_from_bytes
+
+        try:
+            self.thumbnail_bytes = self.camera.get_THM_file(self.rpd_file.thm_full_name)
+        except CameraProblemEx:
+            # TODO report error
+            self.thumbnail_bytes = None
+        self.processing.add(ExtractionProcessing.strip_bars_video)
+        self.processing.add(ExtractionProcessing.add_film_strip)
+
+    def task_camera_extract_video(self) -> None:
+        if self.rpd_file.thm_full_name is not None:
+            self.task_camera_extract_video_have_thm()
+        else:
+            self.extract_photo_video_from_camera(
+                entire_file_required=self.entire_video_required,
+                using_exiftool=False,
+            )
+
+    def task_camera_extract(self) -> None:
+        assert self.camera
+        if self.rpd_file.file_type == FileType.photo:
+            self.task_camera_extract_photo()
+        else:
+            self.task_camera_extract_video()
+
+    def task_disk_extract_have_thm(self) -> None:
+        self.full_file_name_to_work_on = self.rpd_file.thm_full_name
+        if self.task == ExtractionTask.load_file_directly_metadata_from_secondary:
+            self.secondary_full_file_name = self.rpd_file.full_file_name
+
+    def task_disk_extract(self) -> None:
+        assert self.camera is None
+        self.task = preprocess_thumbnail_from_disk(
+            rpd_file=self.rpd_file, processing=self.processing
+        )
+        if self.task != ExtractionTask.bypass:
+            if self.rpd_file.thm_full_name is not None:
+                self.task_disk_extract_have_thm()
+            else:
+                self.full_file_name_to_work_on = self.rpd_file.full_file_name
+
     def do_work(self) -> None:
         try:
             self.generate_thumbnails()
@@ -619,13 +840,13 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         self.prefs = Preferences()
 
         # Whether we must use ExifTool to read photo metadata
-        force_exiftool = self.prefs.force_exiftool
+        self.force_exiftool = self.prefs.force_exiftool
 
         # If the entire photo or video is required to extract the thumbnail, which is
         # determined when extracting sample metadata from a photo or video during the
         # device scan
-        entire_photo_required = arguments.entire_photo_required
-        entire_video_required = arguments.entire_video_required
+        self.entire_photo_required = arguments.entire_photo_required
+        self.entire_video_required = arguments.entire_video_required
 
         # Access and generate Rapid Photo Downloader thumbnail cache
         use_thumbnail_cache = self.prefs.use_thumbnail_cache
@@ -634,8 +855,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             use_thumbnail_cache=use_thumbnail_cache
         )
 
-        photo_cache_dir = video_cache_dir = None
-        cache_file_from_camera = force_exiftool
+        self.photo_cache_dir = None
+        self.video_cache_dir = None
+        cache_file_from_camera = self.force_exiftool
 
         rpd_files = self.prioritise_thumbnail_order(arguments=arguments)
 
@@ -645,274 +867,81 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 cache_file_from_camera=cache_file_from_camera,
                 rpd_files=rpd_files,
             )
+        else:
+            self.camera = None
 
         self.counter.clear()
 
-        for rpd_file in rpd_files:
+        for self.rpd_file in rpd_files:
             # Check to see if the process has received a command
             self.check_for_controller_directive()
 
-            exif_buffer = None
-            file_to_work_on_is_temporary = False
-            secondary_full_file_name = ""
-            processing: set[ExtractionProcessing] = set()
+            self.exif_buffer = None
+            self.file_to_work_on_is_temporary = False
+            self.secondary_full_file_name = ""
+            self.processing = set()
 
             # Attempt to get thumbnail from Thumbnail Cache
             # (see cache.py for definitions of various caches)
 
-            cache_search = thumbnail_caches.get_from_cache(rpd_file)
-            task, thumbnail_bytes, full_file_name_to_work_on, origin = cache_search
+            cache_search = thumbnail_caches.get_from_cache(self.rpd_file)
+            self.task = cache_search.task
+            self.thumbnail_bytes = cache_search.thumbnail_bytes
+            self.full_file_name_to_work_on = cache_search.full_file_name_to_work_on
+            self.origin = cache_search.origin
 
-            if task != ExtractionTask.undetermined:
-                if origin == ThumbnailCacheOrigin.thumbnail_cache:
-                    self.counter["thumb_cache"] += 1
-                else:
-                    assert origin == ThumbnailCacheOrigin.fdo_cache
-                    logging.debug(
-                        "Thumbnail for %s found in large FDO cache",
-                        rpd_file.full_file_name,
-                    )
-                    self.counter["fdo_cache"] += 1
-                    processing.add(ExtractionProcessing.resize)
-                    if not rpd_file.mdatatime:
-                        # Since we're extracting the thumbnail from the FDO cache,
-                        # need to grab its metadata too.
-                        # Reassign the task
-                        task = ExtractionTask.load_file_directly_metadata_from_secondary
-                        # It's not being downloaded from a camera, so nothing
-                        # special to do except assign the name of the file from which
-                        # to extract the metadata
-                        secondary_full_file_name = rpd_file.full_file_name
-                        logging.debug(
-                            "Although thumbnail found in the cache, tasked to extract "
-                            "file time recorded in metadata from %s",
-                            secondary_full_file_name,
-                        )
+            if self.task != ExtractionTask.undetermined:
+                self.task_cache_extract()
 
-            if task == ExtractionTask.undetermined:
+            if self.task == ExtractionTask.undetermined:
                 # Thumbnail was not found in any cache: extract it
                 if self.camera:
-                    if rpd_file.file_type == FileType.photo:
-                        if rpd_file.is_heif():
-                            # Load HEIF / HEIC using entire file.
-                            # We are assuming that there is no tool to extract a
-                            # preview image from an HEIF / HEIC, or the file simply
-                            # does not have one to extract.
-                            if self.cache_full_size_file_from_camera(rpd_file):
-                                task = ExtractionTask.load_heif_and_exif_directly
-                                processing.add(ExtractionProcessing.resize)
-                                full_file_name_to_work_on = (
-                                    rpd_file.cache_full_file_name
-                                )
-                                # For now, do not orient, as it seems pyheif or
-                                # libheif does that automatically.
-                                # processing.add(ExtractionProcessing.orient)
-
-                        elif self.camera.can_fetch_thumbnails:
-                            task = ExtractionTask.load_from_bytes
-                            if rpd_file.is_jpeg_type():
-                                # gPhoto2 knows how to get jpeg thumbnails
-                                try:
-                                    thumbnail_bytes = self.camera.get_thumbnail(
-                                        rpd_file.path, rpd_file.name
-                                    )
-                                except CameraProblemEx:
-                                    # TODO handle error?
-                                    thumbnail_bytes = None
-                            else:
-                                if force_exiftool or use_exiftool_on_photo(
-                                    rpd_file.extension,
-                                    preview_extraction_irrelevant=False,
-                                ):
-                                    (
-                                        task,
-                                        full_file_name_to_work_on,
-                                        file_to_work_on_is_temporary,
-                                    ) = self.extract_photo_video_from_camera(
-                                        rpd_file,
-                                        entire_photo_required,
-                                        full_file_name_to_work_on,
-                                        True,
-                                    )
-                                    if (
-                                        task
-                                        == ExtractionTask.load_from_bytes_metadata_from_temp_extract
-                                        # noqa: E501
-                                    ):
-                                        secondary_full_file_name = (
-                                            full_file_name_to_work_on
-                                        )
-                                        file_to_work_on_is_temporary = False
-
-                                else:
-                                    # gPhoto2 does not know how to get RAW thumbnails,
-                                    # so we do that part ourselves
-                                    if rpd_file.extension == "crw":
-                                        # Could cache this file, since reading its
-                                        # entirety But does anyone download a CRW file
-                                        # from the camera these days?!
-                                        bytes_to_read = rpd_file.size
-                                    else:
-                                        bytes_to_read = min(
-                                            rpd_file.size,
-                                            orientation_offset.get(
-                                                rpd_file.extension, 500
-                                            ),
-                                        )
-                                    exif_buffer = self.camera.get_exif_extract(
-                                        rpd_file.path, rpd_file.name, bytes_to_read
-                                    )
-                                try:
-                                    thumbnail_bytes = self.camera.get_thumbnail(
-                                        rpd_file.path, rpd_file.name
-                                    )
-                                except CameraProblemEx:
-                                    # TODO report error
-                                    thumbnail_bytes = None
-                            processing.add(ExtractionProcessing.strip_bars_photo)
-                            processing.add(ExtractionProcessing.orient)
-                        else:
-                            # Many (all?) jpegs from phones don't include jpeg previews,
-                            # so need to render from the entire jpeg itself. Slow!
-
-                            # For raw, extract merely a part of phone's raw format, and
-                            # try to extract the jpeg preview from it (which probably
-                            # doesn't exist!). This is fast.
-
-                            if not rpd_file.is_jpeg():
-                                bytes_to_read = thumbnail_offset.get(rpd_file.extension)
-                                if bytes_to_read:
-                                    exif_buffer = self.camera.get_exif_extract(
-                                        rpd_file.path, rpd_file.name, bytes_to_read
-                                    )
-                                    task = ExtractionTask.load_from_exif_buffer
-                                    processing.add(ExtractionProcessing.orient)
-                            if (
-                                task == ExtractionTask.undetermined
-                                and self.cache_full_size_file_from_camera(rpd_file)
-                            ):
-                                if rpd_file.is_jpeg():
-                                    task = ExtractionTask.load_file_and_exif_directly
-                                    processing.add(ExtractionProcessing.resize)
-                                    processing.add(ExtractionProcessing.orient)
-                                else:
-                                    task = ExtractionTask.load_from_exif
-                                    processing.add(ExtractionProcessing.resize)
-                                    processing.add(ExtractionProcessing.orient)
-                                full_file_name_to_work_on = (
-                                    rpd_file.cache_full_file_name
-                                )
-                            else:
-                                # Failed to generate thumbnail
-                                task = ExtractionTask.bypass
-                    else:
-                        # video from camera
-                        if rpd_file.thm_full_name is not None:
-                            # Fortunately, we have a special video thumbnail file
-                            # Still need to get metadata time, however.
-
-                            if entire_video_required:
-                                offset = rpd_file.size
-                            else:
-                                offset = datetime_offset.get(rpd_file.extension)
-                                # If there is no offset, there is no point trying to
-                                # extract the metadata time from part of the video. It's
-                                # not ideal, but if this is from a camera on which there
-                                # were any other files we can assume we've got a
-                                # somewhat accurate date time for it from the
-                                # modification time. The only exception is if the video
-                                # file is not that big, in which case it's worth reading
-                                # in its entirety:
-                                if offset is None and rpd_file.size < 4000000:
-                                    offset = rpd_file.size
-
-                            if rpd_file.mdatatime or not offset:
-                                task = ExtractionTask.load_from_bytes
-                            elif self.cache_file_chunk_from_camera(rpd_file, offset):
-                                task = ExtractionTask.load_from_bytes_metadata_from_temp_extract  # noqa: E501
-                                secondary_full_file_name = (
-                                    rpd_file.temp_cache_full_file_chunk
-                                )
-                            else:
-                                # For some reason was unable to download part of the
-                                # video file
-                                task = ExtractionTask.load_from_bytes
-
-                            try:
-                                thumbnail_bytes = self.camera.get_THM_file(
-                                    rpd_file.thm_full_name
-                                )
-                            except CameraProblemEx:
-                                # TODO report error
-                                thumbnail_bytes = None
-                            processing.add(ExtractionProcessing.strip_bars_video)
-                            processing.add(ExtractionProcessing.add_film_strip)
-                        else:
-                            (
-                                task,
-                                full_file_name_to_work_on,
-                                file_to_work_on_is_temporary,
-                            ) = self.extract_photo_video_from_camera(
-                                rpd_file,
-                                entire_video_required,
-                                full_file_name_to_work_on,
-                                False,
-                            )
+                    self.task_camera_extract()
                 else:
-                    # File is not on a camera
-                    task = preprocess_thumbnail_from_disk(
-                        rpd_file=rpd_file, processing=processing
-                    )
-                    if task != ExtractionTask.bypass:
-                        if rpd_file.thm_full_name is not None:
-                            full_file_name_to_work_on = rpd_file.thm_full_name
-                            if (
-                                task
-                                == ExtractionTask.load_file_directly_metadata_from_secondary
-                                # noqa: E501
-                            ):
-                                secondary_full_file_name = rpd_file.full_file_name
-                        else:
-                            full_file_name_to_work_on = rpd_file.full_file_name
+                    self.task_disk_extract()
 
-            if task == ExtractionTask.bypass:
+            if self.task == ExtractionTask.bypass:
                 self.content = pickle.dumps(
                     GenerateThumbnailsResults(
-                        rpd_file=rpd_file, thumbnail_bytes=thumbnail_bytes
+                        rpd_file=self.rpd_file, thumbnail_bytes=self.thumbnail_bytes
                     ),
                     pickle.HIGHEST_PROTOCOL,
                 )
                 self.send_message_to_sink()
 
-            elif task != ExtractionTask.undetermined:
+            elif self.task != ExtractionTask.undetermined:
                 # Send data to load balancer, which will send to one of its
                 # workers
 
                 self.content = pickle.dumps(
                     ThumbnailExtractorArgument(
-                        rpd_file=rpd_file,
-                        task=task,
-                        processing=processing,
-                        full_file_name_to_work_on=full_file_name_to_work_on,
-                        secondary_full_file_name=secondary_full_file_name,
-                        exif_buffer=exif_buffer,
-                        thumbnail_bytes=thumbnail_bytes,
+                        rpd_file=self.rpd_file,
+                        task=self.task,
+                        processing=self.processing,
+                        full_file_name_to_work_on=self.full_file_name_to_work_on,
+                        secondary_full_file_name=self.secondary_full_file_name,
+                        exif_buffer=self.exif_buffer,
+                        thumbnail_bytes=self.thumbnail_bytes,
                         use_thumbnail_cache=use_thumbnail_cache,
-                        file_to_work_on_is_temporary=file_to_work_on_is_temporary,
+                        file_to_work_on_is_temporary=self.file_to_work_on_is_temporary,
                         write_fdo_thumbnail=False,
                         send_thumb_to_main=True,
-                        force_exiftool=force_exiftool,
+                        force_exiftool=self.force_exiftool,
                     ),
                     pickle.HIGHEST_PROTOCOL,
                 )
                 self.frontend.send_multipart([b"data", self.content])
 
-        if arguments.camera:
+        if self.camera:
             self.camera.free_camera()
             # Delete our temporary cache directories if they are empty
-            if photo_cache_dir is not None and not os.listdir(self.photo_cache_dir):
+            if self.photo_cache_dir is not None and not os.listdir(
+                self.photo_cache_dir
+            ):
                 os.rmdir(self.photo_cache_dir)
-            if video_cache_dir is not None and not os.listdir(self.video_cache_dir):
+            if self.video_cache_dir is not None and not os.listdir(
+                self.video_cache_dir
+            ):
                 os.rmdir(self.video_cache_dir)
 
         logging.debug(
