@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-gettext"]
 build-backend = "hatchling.build"
 
 [project]
@@ -90,15 +90,10 @@ packages = ["raphodo"]
 [tool.hatch.build.targets.sdist]
 include = ["raphodo"]
 
-[tool.hatch.build.hooks.custom]
-dependencies = ["hatch"]
-
-[tool.gettextbuild]
-# i18n_name = ""  # default is the project name
-# po_directory = "" # default is "po"
+[tool.hatch.build.hooks.gettext]
 locale_directory = "raphodo/locale"
 
-[tool.gettextbuild.files]
+[tool.hatch.build.hooks.gettext.files]
 "share/applications" = ["data/net.damonlynch.rapid_photo_downloader.desktop.in"]
 "share/solid/actions" = ["data/kde/net.damonlynch.rapid_photo_downloader.desktop.in"]
 "share/metainfo" = ["data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in"]
