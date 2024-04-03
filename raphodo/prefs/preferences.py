@@ -38,7 +38,9 @@ from raphodo.generatenameconfig import (
     check_pref_valid,
     upgrade_pre090a4_rename_pref,
 )
-from raphodo.metadata.fileformats import ALL_KNOWN_EXTENSIONS
+from raphodo.internationalisation.install import install_gettext
+from raphodo.internationalisation.utilities import make_internationalized_list
+from raphodo.metadata.fileextensions import ALL_KNOWN_EXTENSIONS
 from raphodo.storage.storage import (
     get_media_dir,
     platform_photos_directory,
@@ -49,8 +51,9 @@ from raphodo.storage.storage import (
 from raphodo.tools.utilities import (
     available_cpu_count,
     default_thumbnail_process_count,
-    make_internationalized_list,
 )
+
+install_gettext()
 
 
 class ScanPreferences:

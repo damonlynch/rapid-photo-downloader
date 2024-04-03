@@ -51,9 +51,12 @@ from PyQt5.QtWidgets import (
 from showinfm import show_in_file_manager
 
 from raphodo.constants import ErrorType
+from raphodo.internationalisation.install import install_gettext
 from raphodo.problemnotification import Problem, Problems
 from raphodo.tools.utilities import data_file_path
 from raphodo.ui.viewutils import darkModeIcon, translateDialogBoxButtons
+
+install_gettext()
 
 
 class QFindLineEdit(QLineEdit):

@@ -13,7 +13,6 @@ with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
 
-
 from raphodo.generatenameconfig import (
     APERTURE,
     ARTIST,
@@ -69,6 +68,7 @@ from raphodo.generatenameconfig import (
     YESTERDAY,
     PrefValueInvalidError,
 )
+from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import DownloadsTodayTracker
 from raphodo.problemnotification import (
     FilenameNotFullyGeneratedProblem,
@@ -79,6 +79,8 @@ from raphodo.problemnotification import (
 from raphodo.rpdfile import RPDFile
 from raphodo.storage.storage import get_uri
 from raphodo.tools.utilities import letters
+
+install_gettext()
 
 MatchedSequences = namedtuple(
     "MatchedSequences",

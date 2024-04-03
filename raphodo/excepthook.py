@@ -16,11 +16,14 @@ except Exception:
     # if import failed for any reason, ignore it
     have_easygui = False
 
+from raphodo.internationalisation.install import install_gettext
 from raphodo.iplogging import full_log_file_path
 from raphodo.prefs.preferences import Preferences
 from raphodo.storage.storage import get_uri
 from raphodo.tools.utilities import bug_report_full_tar_path, create_bugreport_tar
 from raphodo.ui.viewutils import standardMessageBox
+
+install_gettext()
 
 message_box_displayed = False
 exceptions_notified = set()

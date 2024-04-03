@@ -21,9 +21,12 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
+from raphodo.internationalisation.install import install_gettext
 from raphodo.tools.utilities import data_file_path
 from raphodo.ui.password import PasswordEdit
 from raphodo.ui.viewutils import translateDialogBoxButtons
+
+install_gettext()
 
 
 class SudoCommand(QDialog):

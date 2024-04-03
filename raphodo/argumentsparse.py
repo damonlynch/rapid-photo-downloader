@@ -9,8 +9,11 @@ import platform
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 from raphodo import __about__ as __about__
-from raphodo.metadata import fileformats as fileformats
-from raphodo.tools.utilities import make_internationalized_list
+from raphodo.internationalisation.install import install_gettext
+from raphodo.internationalisation.utilities import make_internationalized_list
+from raphodo.metadata.fileextensions import OTHER_PHOTO_EXTENSIONS
+
+install_gettext()
 
 
 def get_parser(formatter_class=RawDescriptionHelpFormatter) -> ArgumentParser:
@@ -162,9 +165,7 @@ def get_parser(formatter_class=RawDescriptionHelpFormatter) -> ArgumentParser:
         action="store_true",
         dest="ignore_other",
         help=_("Ignore photos with the following extensions: %s")
-        % make_internationalized_list(
-            [s.upper() for s in fileformats.OTHER_PHOTO_EXTENSIONS]
-        ),
+        % make_internationalized_list([s.upper() for s in OTHER_PHOTO_EXTENSIONS]),
     )
     parser.add_argument(
         "--auto-download-startup",

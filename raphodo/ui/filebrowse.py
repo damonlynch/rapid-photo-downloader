@@ -41,6 +41,7 @@ from raphodo.constants import (
     minPanelWidth,
     non_system_root_folders,
 )
+from raphodo.internationalisation.install import install_gettext
 from raphodo.storage.storage import get_media_dir, gvfs_gphoto2_path
 from raphodo.ui.viewutils import (
     TopFramedVerticalScrollBar,
@@ -48,6 +49,8 @@ from raphodo.ui.viewutils import (
     standard_font_size,
 )
 from raphodo.wsl.wslutils import wsl_filter_directories
+
+install_gettext()
 
 
 class FileSystemModel(QFileSystemModel):

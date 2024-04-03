@@ -11,8 +11,11 @@ from PyQt5.QtCore import QPoint, QSettings, Qt, pyqtSlot
 from PyQt5.QtWidgets import QApplication, QSizePolicy, QStyle, QVBoxLayout, QWidget
 
 from raphodo.constants import TemporalProximityState
+from raphodo.internationalisation.install import install_gettext
 from raphodo.proximity import TemporalProximityControls
 from raphodo.ui.viewutils import ScrollAreaNoFrame, SourceSplitter
+
+install_gettext()
 
 
 class SourcePanel(ScrollAreaNoFrame):

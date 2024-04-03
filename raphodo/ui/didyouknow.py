@@ -27,9 +27,12 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
+from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import Preferences
 from raphodo.tools.utilities import data_file_path
 from raphodo.ui.viewutils import translateDialogBoxButtons
+
+install_gettext()
 
 tips = (
     (

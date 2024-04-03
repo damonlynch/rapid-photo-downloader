@@ -24,8 +24,11 @@ from PyQt5.QtWidgets import (
 )
 
 import raphodo.__about__ as __about__
+from raphodo.internationalisation.install import install_gettext
 from raphodo.tools.utilities import data_file_path
 from raphodo.ui.viewutils import translateDialogBoxButtons
+
+install_gettext()
 
 
 class AboutDialog(QDialog):

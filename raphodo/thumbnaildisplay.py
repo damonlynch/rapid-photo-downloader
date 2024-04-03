@@ -81,10 +81,12 @@ from raphodo.constants import (
     manually_marked_previously_downloaded,
     thumbnail_margin,
 )
+from raphodo.internationalisation.install import install_gettext
+from raphodo.internationalisation.utilities import make_internationalized_list
 from raphodo.interprocess import (
     Device,
 )
-from raphodo.metadata.fileformats import ALL_USER_VISIBLE_EXTENSIONS
+from raphodo.metadata.fileextensions import ALL_USER_VISIBLE_EXTENSIONS
 from raphodo.prefs.preferences import Preferences  # noqa: F401
 from raphodo.proximity import TemporalProximityState
 from raphodo.rpdfile import FileTypeCounter, RPDFile
@@ -100,7 +102,6 @@ from raphodo.tools.utilities import (
     arrow_locale,
     data_file_path,
     format_size_for_user,
-    make_internationalized_list,
     runs,
 )
 from raphodo.ui.viewutils import (
@@ -109,6 +110,8 @@ from raphodo.ui.viewutils import (
     is_dark_mode,
     scaledIcon,
 )
+
+install_gettext()
 
 
 class DownloadStats:

@@ -18,7 +18,10 @@ from raphodo.constants import (
     HeaderBackgroundName,
     minPanelWidth,
 )
+from raphodo.internationalisation.install import install_gettext
 from raphodo.ui.viewutils import is_dark_mode
+
+install_gettext()
 
 
 class QPanelView(QWidget):

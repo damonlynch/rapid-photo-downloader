@@ -38,6 +38,8 @@ from collections import defaultdict, deque, namedtuple
 from collections.abc import Iterator
 from datetime import datetime
 
+import raphodo.metadata.fileextensions
+
 with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
@@ -208,8 +210,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.gphoto2_logging = gphoto2_python_logging()
 
         if scan_arguments.ignore_other_types:
-            fileformats.PHOTO_EXTENSIONS_SCAN = (
-                fileformats.PHOTO_EXTENSIONS_WITHOUT_OTHER
+            raphodo.metadata.fileextensions.PHOTO_EXTENSIONS_SCAN = (
+                raphodo.metadata.fileextensions.PHOTO_EXTENSIONS_WITHOUT_OTHER
             )
 
         self.device = scan_arguments.device
@@ -783,9 +785,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         )
             else:
                 # this file on the camera is not a photo or video
-                if ext_lower in fileformats.AUDIO_EXTENSIONS:
+                if ext_lower in raphodo.metadata.fileextensions.AUDIO_EXTENSIONS:
                     self._camera_audio_files[base_name].append((path, ext))
-                elif ext_lower in fileformats.VIDEO_THUMBNAIL_EXTENSIONS:
+                elif (
+                    ext_lower
+                    in raphodo.metadata.fileextensions.VIDEO_THUMBNAIL_EXTENSIONS
+                ):
                     self._camera_video_thumbnails[base_name].append((path, ext))
                 elif ext_lower == "xmp":
                     self._camera_xmp_files[base_name].append((path, ext))
@@ -1821,7 +1826,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             )
         else:
             return self._get_associate_file(
-                base_name, fileformats.VIDEO_THUMBNAIL_EXTENSIONS
+                base_name, raphodo.metadata.fileextensions.VIDEO_THUMBNAIL_EXTENSIONS
             )
 
     def get_audio_file(self, base_name: str, camera_file: CameraFile) -> str | None:
@@ -1838,7 +1843,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 base_name, self._camera_audio_files, camera_file
             )
         else:
-            return self._get_associate_file(base_name, fileformats.AUDIO_EXTENSIONS)
+            return self._get_associate_file(
+                base_name, raphodo.metadata.fileextensions.AUDIO_EXTENSIONS
+            )
 
     def get_log_file(self, base_name: str, camera_file: CameraFile) -> str | None:
         """

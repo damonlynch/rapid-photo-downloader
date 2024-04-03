@@ -82,9 +82,11 @@ from raphodo.constants import (
     ViewRowType,
 )
 from raphodo.devices import Device
+from raphodo.internationalisation.install import install_gettext
+from raphodo.internationalisation.utilities import thousands
 from raphodo.rpdfile import make_key
 from raphodo.storage.storage import StorageSpace
-from raphodo.tools.utilities import data_file_path, format_size_for_user, thousands
+from raphodo.tools.utilities import data_file_path, format_size_for_user
 from raphodo.ui.viewutils import (
     ListViewFlexiFrame,
     RowTracker,
@@ -94,6 +96,8 @@ from raphodo.ui.viewutils import (
     scaledIcon,
     standard_font_size,
 )
+
+install_gettext()
 
 
 def icon_size() -> int:

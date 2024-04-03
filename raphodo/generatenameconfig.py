@@ -4,6 +4,10 @@
 import os
 from collections import OrderedDict
 
+from raphodo.internationalisation.install import install_gettext
+
+install_gettext()
+
 PrefList = list[str]
 CustomPresetSubfolderNames = tuple[tuple[str]]
 CustomPresetSubfolderLists = tuple[list[str]]

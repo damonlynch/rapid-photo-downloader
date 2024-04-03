@@ -41,10 +41,12 @@ from raphodo.metadata.analysis.photoattributes import (
 )
 from raphodo.metadata.analysis.videoattributes import VideoAttributes
 from raphodo.metadata.exiftool import ExifTool
-from raphodo.metadata.fileformats import (
+from raphodo.metadata.fileextensions import (
     JPEG_TYPE_EXTENSIONS,
     RAW_EXTENSIONS,
     VIDEO_EXTENSIONS,
+)
+from raphodo.metadata.fileformats import (
     extract_extension,
     use_exiftool_on_photo,
 )

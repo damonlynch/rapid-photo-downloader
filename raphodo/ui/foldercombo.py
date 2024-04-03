@@ -17,6 +17,7 @@ from raphodo.constants import (
     StandardFileLocations,
     max_remembered_destinations,
 )
+from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import Preferences
 from raphodo.storage.storage import (
     ValidMounts,
@@ -25,6 +26,8 @@ from raphodo.storage.storage import (
     platform_videos_directory,
 )
 from raphodo.tools.utilities import data_file_path, make_path_end_snippets_unique
+
+install_gettext()
 
 
 class FolderCombo(QComboBox):
