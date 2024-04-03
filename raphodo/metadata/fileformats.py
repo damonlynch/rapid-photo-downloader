@@ -8,7 +8,17 @@ import subprocess
 from packaging.version import parse as parse_version
 
 import raphodo.programversions as programversions
-from raphodo.constants import FileExtension, FileType, thumbnail_offset
+from raphodo.constants import FileExtension, FileType
+from raphodo.metadata.fileextensions import (
+    AUDIO_EXTENSIONS,
+    EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS,
+    HEIF_EXTENTIONS,
+    JPEG_EXTENSIONS,
+    OTHER_PHOTO_EXTENSIONS,
+    PHOTO_EXTENSIONS_SCAN,
+    RAW_EXTENSIONS,
+    VIDEO_EXTENSIONS,
+)
 
 
 def exiftool_capabilities() -> tuple[bool, bool]:
@@ -58,90 +68,18 @@ def heif_capable() -> bool:
     return _exiftool_heif
 
 
-RAW_EXTENSIONS = [
-    "3fr",
-    "arw",
-    "dcr",
-    "cr2",
-    "crw",
-    "dng",
-    "fff",
-    "iiq",
-    "mos",
-    "mef",
-    "mrw",
-    "nef",
-    "nrw",
-    "orf",
-    "ori",
-    "pef",
-    "raf",
-    "raw",
-    "rw2",
-    "sr2",
-    "srw",
-    "x3f",
-]
-
-HEIF_EXTENTIONS = ["heif", "heic", "hif"]
-
 if cr3_capable():
     RAW_EXTENSIONS.append("cr3")
 
 RAW_EXTENSIONS.sort()
 
-EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS = ["mos", "mrw", "x3f"]
-
 if not _exiv2_cr3 and _exiftool_cr3:
     EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS.append("cr3")
-
-JPEG_EXTENSIONS = ["jpg", "jpe", "jpeg"]
-
-JPEG_TYPE_EXTENSIONS = ["jpg", "jpe", "jpeg", "mpo"]
-
-OTHER_PHOTO_EXTENSIONS = ["tif", "tiff", "mpo"]
 
 if heif_capable():
     OTHER_PHOTO_EXTENSIONS.extend(HEIF_EXTENTIONS)
 
-NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + OTHER_PHOTO_EXTENSIONS
-
-PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
-
-PHOTO_EXTENSIONS_WITHOUT_OTHER = RAW_EXTENSIONS + JPEG_EXTENSIONS
-
-PHOTO_EXTENSIONS_SCAN = PHOTO_EXTENSIONS
-
-AUDIO_EXTENSIONS = ["wav", "mp3"]
-
-VIDEO_EXTENSIONS = [
-    "3gp",
-    "avi",
-    "lrv",
-    "m2t",
-    "m2ts",
-    "mov",
-    "mp4",
-    "mpeg",
-    "mpg",
-    "mod",
-    "tod",
-    "mts",
-]
-
 VIDEO_EXTENSIONS.sort()
-
-VIDEO_THUMBNAIL_EXTENSIONS = ["thm"]
-
-ALL_USER_VISIBLE_EXTENSIONS = PHOTO_EXTENSIONS + VIDEO_EXTENSIONS + ["xmp", "log"]
-
-ALL_KNOWN_EXTENSIONS = (
-    ALL_USER_VISIBLE_EXTENSIONS + AUDIO_EXTENSIONS + VIDEO_THUMBNAIL_EXTENSIONS
-)
-
-MUST_CACHE_VIDEOS = [
-    video for video in VIDEO_EXTENSIONS if thumbnail_offset.get(video) is None
-]
 
 
 def use_exiftool_on_photo(extension: str, preview_extraction_irrelevant: bool) -> bool:

@@ -78,6 +78,7 @@ from raphodo.generatenameconfig import (
     VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV,
     filter_subfolder_prefs,
 )
+from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import (
     DownloadsTodayTracker,
     Preferences,
@@ -91,6 +92,8 @@ from raphodo.ui.viewutils import (
     translateDialogBoxButtons,
     translateMessageBoxButtons,
 )
+
+install_gettext()
 
 
 class PrefEditor(QTextEdit):

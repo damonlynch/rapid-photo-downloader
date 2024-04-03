@@ -31,6 +31,7 @@ from raphodo.constants import (
     FileType,
     RenameAndMoveStatus,
 )
+from raphodo.internationalisation.install import install_gettext
 from raphodo.interprocess import (
     DaemonProcess,
     RenameAndMoveFileData,
@@ -58,6 +59,8 @@ from raphodo.tools.utilities import (
     platform_c_maxint,
     stdchannel_redirected,
 )
+
+install_gettext()
 
 
 class SyncRawJpegStatus(Enum):

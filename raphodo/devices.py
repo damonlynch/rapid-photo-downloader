@@ -34,6 +34,8 @@ from raphodo.constants import (
     FileType,
     FileTypeFlag,
 )
+from raphodo.internationalisation.install import install_gettext
+from raphodo.internationalisation.utilities import make_internationalized_list
 from raphodo.problemnotification import FsMetadataWriteProblem
 from raphodo.rpdfile import FileSizeSum, FileTypeCounter, Photo, RPDFile, Video
 from raphodo.storage.storage import (
@@ -53,11 +55,12 @@ from raphodo.storage.storageidevice import (
 )
 from raphodo.tools.utilities import (
     data_file_path,
-    make_internationalized_list,
     number,
     same_device,
     stdchannel_redirected,
 )
+
+install_gettext()
 
 DownloadingTo = defaultdict[int, set[FileType]]
 

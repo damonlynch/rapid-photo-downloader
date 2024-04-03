@@ -58,9 +58,10 @@ from raphodo.generatenameconfig import (
     CustomPresetSubfolderLists,
     CustomPresetSubfolderNames,
 )
+from raphodo.internationalisation.utilities import thousands
 from raphodo.rpdfile import FileTypeCounter, Photo, Video
 from raphodo.storage.storage import StorageSpace, get_mount_size, get_path_display_name
-from raphodo.tools.utilities import data_file_path, format_size_for_user, thousands
+from raphodo.tools.utilities import data_file_path, format_size_for_user
 from raphodo.ui.devicedisplay import BodyDetails, DeviceDisplay, icon_size
 from raphodo.ui.nameeditor import PrefDialog, make_subfolder_menu_entry
 from raphodo.ui.viewutils import darkModePixmap, paletteMidPen

@@ -31,6 +31,7 @@ from PyQt5.QtWidgets import (
 )
 
 from raphodo.constants import JobCodeSort
+from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import Preferences
 from raphodo.tools.utilities import data_file_path
 from raphodo.ui.chevroncombo import ChevronCombo
@@ -44,6 +45,8 @@ from raphodo.ui.viewutils import (
     standardMessageBox,
     translateDialogBoxButtons,
 )
+
+install_gettext()
 
 
 class JobCodeDialog(QDialog):

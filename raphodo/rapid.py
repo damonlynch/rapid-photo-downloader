@@ -167,6 +167,7 @@ from raphodo.devices import (
     FSMetadataErrors,
 )
 from raphodo.errorlog import ErrorReport, SpeechBubble
+from raphodo.metadata.fileextensions import PHOTO_EXTENSIONS, VIDEO_EXTENSIONS
 from raphodo.filesystemurl import FileSystemUrlHandler
 from raphodo.folderpreviewmanager import FolderPreviewManager
 from raphodo.generatenameconfig import (
@@ -175,6 +176,11 @@ from raphodo.generatenameconfig import (
     upgrade_pre090a4_rename_pref,
 )
 from raphodo.heif import have_heif_module, libheif_version, pyheif_version
+from raphodo.internationalisation.install import install_gettext, localedir
+from raphodo.internationalisation.utilities import (
+    make_internationalized_list,
+    thousands,
+)
 from raphodo.interprocess import (
     BackupArguments,
     BackupFileData,
@@ -286,18 +292,18 @@ from raphodo.tools.utilities import (
     installed_using_pip,
     log_os_release,
     make_html_path_non_breaking,
-    make_internationalized_list,
     pref_bool_from_gconftool2_string,
     prefs_list_from_gconftool2_string,
     process_running,
     same_device,
-    thousands,
 )
 from raphodo.wsl.wsl import (
     WindowsDriveMount,
     WslDrives,
     WslWindowsRemovableDriveMonitor,
 )
+
+install_gettext()
 
 # Avoid segfaults at exit:
 # http://pyqt.sourceforge.net/Docs/PyQt5/gotchas.html#crashes-on-exit
@@ -842,7 +848,7 @@ class RapidWindow(QMainWindow):
                 logging.error("Notification intialization problem")
                 self.have_libnotify = False
 
-        logging.debug("Locale directory: %s", raphodo.localedir)
+        logging.debug("Locale directory: %s", localedir)
 
         logging.debug("Probing for valid mounts")
         self.validMounts = ValidMounts(
@@ -6894,8 +6900,8 @@ def main():
         sys.exit(0)
 
     if args.extensions:
-        photos = list(ext.upper() for ext in fileformats.PHOTO_EXTENSIONS)
-        videos = list(ext.upper() for ext in fileformats.VIDEO_EXTENSIONS)
+        photos = list(ext.upper() for ext in PHOTO_EXTENSIONS)
+        videos = list(ext.upper() for ext in VIDEO_EXTENSIONS)
         extensions = ((photos, _("Photos")), (videos, _("Videos")))
         for exts, file_type in extensions:
             extensions = make_internationalized_list(exts)

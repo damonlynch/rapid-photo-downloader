@@ -9,6 +9,10 @@ from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QFocusEvent, QMouseEvent
 from PyQt5.QtWidgets import QLabel, QPushButton, QSizePolicy, QStackedWidget
 
+from raphodo.internationalisation.install import install_gettext
+
+install_gettext()
+
 
 class MessageWidget(QStackedWidget):
     """

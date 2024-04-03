@@ -48,6 +48,7 @@ from raphodo.devices import (
     BackupVolumeDetails,
     DownloadingTo,
 )
+from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import Preferences
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.storage.storage import ValidMounts, get_media_dir, get_mount_size
@@ -61,6 +62,8 @@ from raphodo.ui.viewutils import (
     RowTracker,
     ScrollAreaNoFrame,
 )
+
+install_gettext()
 
 
 class BackupVolumeUse(NamedTuple):

@@ -78,6 +78,7 @@ from raphodo.constants import (
     fileTypeColor,
     proximity_time_steps,
 )
+from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import Preferences
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.tools.timeutils import (
@@ -96,6 +97,8 @@ from raphodo.ui.viewutils import (
     darkModePixmap,
     is_dark_mode,
 )
+
+install_gettext()
 
 ProximityRow = namedtuple(
     "ProximityRow",

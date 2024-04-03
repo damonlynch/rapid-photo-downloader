@@ -23,6 +23,7 @@ import gphoto2 as gp
 
 from raphodo.camera import Camera, CameraProblemEx, gphoto2_python_logging
 from raphodo.constants import CameraErrorCode, DownloadStatus, FileType
+from raphodo.internationalisation.install import install_gettext
 from raphodo.interprocess import (
     CopyFilesArguments,
     CopyFilesResults,
@@ -46,6 +47,8 @@ from raphodo.tools.utilities import (
     create_temp_dirs,
     same_device,
 )
+
+install_gettext()
 
 
 def copy_file_metadata(src: str, dst: str) -> tuple | None:

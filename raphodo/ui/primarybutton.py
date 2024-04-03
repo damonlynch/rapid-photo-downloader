@@ -14,8 +14,11 @@ from PyQt5.QtGui import (
 )
 from PyQt5.QtWidgets import QApplication, QPushButton, QSizePolicy
 
+from raphodo.internationalisation.install import install_gettext
 from raphodo.ui.rotatedpushbutton import FlatButton
 from raphodo.ui.viewutils import darkModeIcon, is_dark_mode
+
+install_gettext()
 
 
 class TopPushButton(QPushButton, FlatButton):

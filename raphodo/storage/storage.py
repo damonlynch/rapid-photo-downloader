@@ -45,6 +45,12 @@ from urllib.parse import quote
 from urllib.request import pathname2url
 
 import gi
+
+gi.require_version("GUdev", "1.0")
+gi.require_version("UDisks", "2.0")
+gi.require_version("GExiv2", "0.10")
+gi.require_version("GLib", "2.0")
+from gi.repository import GLib, GUdev, UDisks
 from PyQt5.QtCore import (
     QFileSystemWatcher,
     QObject,
@@ -57,6 +63,12 @@ from PyQt5.QtCore import (
 from showinfm import LinuxDesktop, linux_desktop, valid_file_manager
 from tenacity import retry, stop_after_attempt, wait_fixed
 
+from raphodo.constants import Distro, PostCameraUnmountAction
+from raphodo.internationalisation.install import install_gettext
+from raphodo.tools.utilities import (
+    log_os_release,
+    remove_topmost_directory_from_path,
+)
 from raphodo.wsl.wslutils import (
     wsl_conf_mnt_location,
     wsl_filter_directories,
@@ -65,17 +77,7 @@ from raphodo.wsl.wslutils import (
     wsl_videos_folder,
 )
 
-gi.require_version("GUdev", "1.0")
-gi.require_version("UDisks", "2.0")
-gi.require_version("GExiv2", "0.10")
-gi.require_version("GLib", "2.0")
-from gi.repository import GLib, GUdev, UDisks
-
-from raphodo.constants import Distro, PostCameraUnmountAction
-from raphodo.tools.utilities import (
-    log_os_release,
-    remove_topmost_directory_from_path,
-)
+install_gettext()
 
 logging_level = logging.DEBUG
 

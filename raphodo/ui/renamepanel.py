@@ -31,12 +31,15 @@ from raphodo.generatenameconfig import (
     UPPERCASE,
     VIDEO_RENAME_MENU_DEFAULTS_CONV,
 )
+from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import DownloadsTodayTracker, Preferences
 from raphodo.rpdfile import Photo, Video
 from raphodo.tools.utilities import platform_c_maxint
 from raphodo.ui.nameeditor import PrefDialog, PresetComboBox, make_sample_rpd_file
 from raphodo.ui.panelview import QPanelView
 from raphodo.ui.viewutils import FlexiFrame, ScrollAreaNoFrame
+
+install_gettext()
 
 
 class RenameWidget(FlexiFrame):

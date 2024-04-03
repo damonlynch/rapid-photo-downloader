@@ -18,6 +18,7 @@ gi.require_version("GLib", "2.0")
 from gi.repository import GLib
 
 import raphodo.metadata.exiftool as exiftool
+import raphodo.metadata.fileextensions
 import raphodo.metadata.fileformats as fileformats
 import raphodo.metadata.metadataexiftool as metadataexiftool
 import raphodo.metadata.metadataphoto as metadataphoto
@@ -33,13 +34,18 @@ from raphodo.constants import (
     ThumbnailCacheDiskStatus,
     ThumbnailCacheStatus,
 )
+from raphodo.internationalisation.install import install_gettext
+from raphodo.internationalisation.utilities import (
+    make_internationalized_list,
+    thousands,
+)
 from raphodo.problemnotification import Problem, make_href
 from raphodo.storage.storage import CameraDetails, get_uri
 from raphodo.tools.utilities import (
     datetime_roughly_equal,
-    make_internationalized_list,
-    thousands,
 )
+
+install_gettext()
 
 
 def get_sort_priority(
@@ -710,14 +716,14 @@ class RPDFile:
 
         :return: True if the image is a RAW file
         """
-        return self.extension in fileformats.RAW_EXTENSIONS
+        return self.extension in raphodo.metadata.fileextensions.RAW_EXTENSIONS
 
     def is_heif(self) -> bool:
         """
         Inspects file extension to determine if an HEIF / HEIC file
         :return:
         """
-        return self.extension in fileformats.HEIF_EXTENTIONS
+        return self.extension in raphodo.metadata.fileextensions.HEIF_EXTENTIONS
 
     def is_tiff(self) -> bool:
         """

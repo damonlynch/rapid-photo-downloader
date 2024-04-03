@@ -9,6 +9,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QWidget
 
 from raphodo.devices import DownloadingTo
+from raphodo.internationalisation.install import install_gettext
 from raphodo.rpdfile import FileType
 from raphodo.thumbnaildisplay import MarkedSummary
 from raphodo.ui.computerview import ComputerWidget
@@ -19,6 +20,8 @@ from raphodo.ui.destinationdisplay import (
 )
 from raphodo.ui.panelview import QPanelView
 from raphodo.ui.viewutils import ScrollAreaNoFrame
+
+install_gettext()
 
 
 class DestinationPanel(ScrollAreaNoFrame):
