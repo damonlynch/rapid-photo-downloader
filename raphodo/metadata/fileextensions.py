@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-from raphodo.constants import thumbnail_offset
-
 RAW_EXTENSIONS = [
     "3fr",
     "arw",
@@ -57,6 +55,3 @@ ALL_USER_VISIBLE_EXTENSIONS = PHOTO_EXTENSIONS + VIDEO_EXTENSIONS + ["xmp", "log
 ALL_KNOWN_EXTENSIONS = (
     ALL_USER_VISIBLE_EXTENSIONS + AUDIO_EXTENSIONS + VIDEO_THUMBNAIL_EXTENSIONS
 )
-MUST_CACHE_VIDEOS = [
-    video for video in VIDEO_EXTENSIONS if thumbnail_offset.get(video) is None
-]
