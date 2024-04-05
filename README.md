@@ -104,6 +104,9 @@ Get support at the [Pixls.us discussion forum](https://discuss.pixls.us/).
 Install the program using your Linux distribution's standard tools,
 e.g., apt, dnf, or zypper.
 
+Ubuntu users can install 
+[the latest version using the project PPA](https://damonlynch.net/rapid/download.html). 
+
 The program is currently not available as a Snap or flatpak because to
 interact with cameras it requires being able to break out of the 
 confinement Snap and flatpak enforce. This may change in future if 
