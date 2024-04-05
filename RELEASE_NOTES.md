@@ -15,8 +15,8 @@ Release Notes for Rapid Photo Downloader 0.9.37
  - To generate localization files and the manpage, two new Hatch plugins  
    are used, which are new build-time dependencies (these plugins can be 
    used with any Hatch project, not just Rapid Photo Downloader):
-   -  [hatch-gettext](https://github.com/damonlynch/hatch-gettext)
-   -  [hatch-argparse-manpage](https://github.com/damonlynch/hatch-argparse-manpage)
+   -  [Hatch-gettext](https://github.com/damonlynch/hatch-gettext)
+   -  [Hatch-argparse-manpage](https://github.com/damonlynch/hatch-argparse-manpage)
 
  - Further packaging changes include:
    - `pyrcc` is no longer used to generate images for the Qt resource system.
@@ -26,6 +26,13 @@ Release Notes for Rapid Photo Downloader 0.9.37
      copyright and licensing.  
 
  - Rapid Photo Downloader 0.9.35 requires Python 3.10 or newer.
+
+ - The Python package used to generate thumbnails from HEIF / HEIC 
+   images, [pyheif](https://github.com/carsales/pyheif), requires updating 
+   to work with recent versions of 
+   [libheif](https://github.com/strukturag/libheif). This means `pyheif` 
+   currently does not work, and therefore Rapid Photo Downloader cannot use it
+   to generate thumbnails from HEIF / HEIC images.
 
  - To run Rapid Photo Downloader under WSLg on Windows 11, using the 
    [Windows Subsystem for Linux Preview](https://aka.ms/wslstorepage) from 

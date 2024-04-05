@@ -24,7 +24,12 @@ NaturallySpeaking on Windows / WSL2. While my ability to test the code
 remains limited, at least I can write it.
 
 I want to thank JetBrains for allowing me to use PyCharm Professional for 
-free under their [open source developer program](https://www.jetbrains.com/community/opensource/#support). 
+free under their [open source developer program](https://www.jetbrains.com/community/opensource/#support).
+
+In 2023, my existing case of Long Covid worsened considerably to the point 
+that I could no longer work, to the extent I lost the ability to be 
+employable. In 2024, I am slowly recovering. Currently, I am able to work 
+part-time on the code (but remain unable to be employed). 
 
 ## Removal of the Install Script
 
@@ -104,55 +109,7 @@ interact with cameras it requires being able to break out of the
 confinement Snap and flatpak enforce. This may change in future if 
 there are workarounds for this confinement.
 
-Advanced users may install the program using pip. Please note doing so
-requires satisfying dependencies that cannot be satisfied with pip alone.
-
-### Software Requirements
-
- - Python 3.10 or newer, and its development headers
- - [PyQt 5](https://riverbankcomputing.com/software/pyqt/intro)
- - [Qt 5](https://www.qt.io/)
- - [Qt5 plugin for reading TIFF images](http://doc.qt.io/qt-5/qtimageformats-index.html)
- - Qt5 plugin for rendering SVG
- - [setuptools](https://pypi.org/project/setuptools/)
- - [python-gphoto2 1.8.0](https://github.com/jim-easterbrook/python-gphoto2) or newer
- - [show-in-file-manager 1.1.2](https://github.com/damonlynch/showinfilemanager) or newer
- - [packaging](https://packaging.pypa.io/en/stable/)
- - [pyzmq](https://github.com/zeromq/pyzmq)
- - [tornado](http://www.tornadoweb.org/)
- - [psutil](https://github.com/giampaolo/psutil) 3.4.2 or newer
- - [pyxdg](https://www.freedesktop.org/wiki/Software/pyxdg/)
- - [Arrow](https://github.com/crsmithdev/arrow)
- - [dateutil](https://labix.org/python-dateutil) 2.2 or newer
- - [exiv2](http://www.exiv2.org/)
- - [ExifTool](http://www.sno.phy.queensu.ca/~phil/exiftool/)
- - [EasyGUI](https://github.com/robertlugg/easygui)  
- - [Colour](https://github.com/vaab/colour)
- - [pymediainfo](https://github.com/sbraz/pymediainfo)
- - [SortedContainers](http://www.grantjenks.com/docs/sortedcontainers/)
- - [Requests](http://docs.python-requests.org/)
- - [Tenacity](https://github.com/jd/tenacity)
- - [intltool](https://freedesktop.org/wiki/Software/intltool/)
- - [Babel](http://babel.pocoo.org/en/latest/)
- - [fuse](https://www.kernel.org/doc/html/latest/filesystems/fuse.html)
- - [imobiledevice-tools](https://libimobiledevice.org/)
- - [ifuse](https://libimobiledevice.org/)
- - [Python gobject introspection modules](https://wiki.gnome.org/action/show/Projects/PyGObject):
-    - GUdev 1.0
-    - UDisks 2.0
-    - GLib 2.0
-    - GExiv2 0.10
-    - Gst 1.0
-    - Notify 0.7
-        
-Highly recommended, optional dependencies:
-
- - [colorlog](https://github.com/borntyping/python-colorlog): generates coloured program output when
-   running Rapid Photo Downloader from the terminal.
- - [pyprind](https://github.com/rasbt/pyprind): shows a progress bar on the command line while 
-   running the program analyze_pv_structure.
- - [pyheif](https://github.com/david-poirier-csn/pyheif): open HEIF / HEIC files
- - [pillow](https://github.com/python-pillow/Pillow): work with HEIF / HEIC files
+To install from source, consult [INSTALL.md](INSTALL.md).
 
 ## License
 
