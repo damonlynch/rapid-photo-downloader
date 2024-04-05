@@ -39,7 +39,6 @@ __help_epilog__ = (
     "program's default preferences will be set to those of a development "
     "environment.\n\n"
     "Report bugs to https://bugs.rapidphotodownloader.com/\n\n"
-    f"Written by {__author__} {__email__}.\n\n"
     f"{__copyright__}. {__licence_full__}\n\n"
     ""
 )

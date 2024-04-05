@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling", "hatch-gettext"]
+requires = ["hatchling", "hatch-gettext", "hatch-argparse-manpage"]
 build-backend = "hatchling.build"
 
 [project]
@@ -81,14 +81,17 @@ Source = "https://github.com/damonlynch/rapid-photo-downloader"
 [tool.hatch.version]
 path = "raphodo/__about__.py"
 
-[tool.hatch.build]
-artifacts = ['share/*']
-
 [tool.hatch.build.targets.wheel]
 packages = ["raphodo"]
 
 [tool.hatch.build.targets.sdist]
 include = ["raphodo"]
+
+[tool.hatch.build.hooks.argparse-manpage]
+include-url = false
+manpages = [
+    "man/rapid-photo-downloader.1:function=get_parser:pyfile=raphodo/argumentsparse.py:prog=rapid-photo-downloader:manual_title=General Commands Manual",
+]
 
 [tool.hatch.build.hooks.gettext]
 locale-directory = "raphodo/locale"
