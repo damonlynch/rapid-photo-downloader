@@ -3,13 +3,20 @@ Release Notes for Rapid Photo Downloader 0.9.37
 
  - Rapid Photo Downloader 0.9.37 switches from `setuptools` and an old-school
    `setup.py` to using [Hatch](https://github.com/pypa/hatch).
-   As part of this switch, localisation files are generated differently:
+   As part of this switch, build-time files are generated differently:
    - `.desktop` and `metainfo.xml` files are now generated at build time into 
      subfolders within the `share` folder.
    - `.mo` files are now generated within a new folder `raphodo/locale`; they
       should *not* be copied to `/usr/share/locale`. Any 
      `rapid-photo-downloader.mo` files in `/usr/share/locale` should be 
-     deleted. 
+     deleted.
+   - the manpage is output into man/rapid-photo-downloader.1
+
+ - To generate localization files and the manpage, two new Hatch plugins  
+   are used, which are new build-time dependencies (these plugins can be 
+   used with any Hatch project, not just Rapid Photo Downloader):
+   -  [hatch-gettext](https://github.com/damonlynch/hatch-gettext)
+   -  [hatch-argparse-manpage](https://github.com/damonlynch/hatch-argparse-manpage)
 
  - Further packaging changes include:
    - `pyrcc` is no longer used to generate images for the Qt resource system.
