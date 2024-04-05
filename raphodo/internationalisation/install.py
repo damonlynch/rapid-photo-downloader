@@ -21,8 +21,10 @@ except ImportError:
 
 i18n_domain = "rapid-photo-downloader"
 localedir = Path(__file__).parent.parent / "locale"
-if not Path(localedir).is_dir():
-    print(f"{localedir} does not exist", file=sys.stderr)
+# If PyQt is present, this code is unlikely to be running at build time
+# The locale directory is missing, which probably indicates an error
+if not Path(localedir).is_dir() and have_pyqt:
+    print(f"Localisation directory {localedir} does not exist", file=sys.stderr)
 
 
 def sample_translation() -> str:
