@@ -351,7 +351,7 @@ class RapidWindow(QMainWindow):
         photo_rename: bool | None = None,
         video_rename: bool | None = None,
         auto_detect: bool | None = None,
-        this_computer_source: str | None = None,
+        this_computer_source: bool | None = None,
         this_computer_location: str | None = None,
         photo_download_folder: str | None = None,
         video_download_folder: str | None = None,
@@ -6572,8 +6572,6 @@ def get_versions(
     return versions
 
 
-
-
 def critical_startup_error(message: str) -> None:
     errorapp = QApplication(sys.argv)
     msg = QMessageBox()
@@ -6592,6 +6590,9 @@ def main():
 
     parser = get_parser()
     args = parser.parse_args()
+
+    this_computer_source: bool | None = None
+    this_computer_location: str | None = None
 
     try:
         force_wayland = linux_desktop() == LinuxDesktop.wsl2
