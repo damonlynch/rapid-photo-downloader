@@ -206,15 +206,6 @@ def get_parser(formatter_class=RawDescriptionHelpFormatter) -> ArgumentParser:
         help=_("Forget which files have been previously downloaded, and exit."),
     )
     parser.add_argument(
-        "--import-old-version-preferences",
-        action="store_true",
-        dest="import_prefs",
-        help=_(
-            "Import preferences from an old program version and exit. Requires the "
-            "command line program gconftool-2."
-        ),
-    )
-    parser.add_argument(
         "--reset",
         action="store_true",
         dest="reset",

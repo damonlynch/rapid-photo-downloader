@@ -14,6 +14,9 @@ Changelog for Rapid Photo Downloader
 
  - Fix invalid escape characters. Thanks to Tino Mettler for the heads-up.
 
+ - Remove functionality to import preferences from program versions in the 0.4 
+   range (last released in 2015).
+
 0.9.36 (2024-02-13)
 -------------------
 
