@@ -3,7 +3,6 @@
 
 import contextlib
 import ctypes
-import importlib.metadata
 import locale
 import logging
 import os
@@ -1084,24 +1083,6 @@ def available_languages(display_locale_code: str = "") -> list[tuple[str, str]]:
     return langs
 
 
-def installed_using_pip(package: str, suppress_errors: bool = True) -> bool:
-    """
-    Determine if python package was installed in local directory using pip.
-
-    Determination is not 100% robust in all circumstances.
-
-    :param package: package name to search for
-    :param suppress_errors: if True, silently catch all exceptions and return False
-    :return: True if installed via pip, else False
-    """
-
-    try:
-        d = importlib.metadata.distribution(package)
-        return d.read_text("INSTALLER").strip().lower() == "pip"
-    except Exception:
-        if not suppress_errors:
-            raise
-        return False
 
 
 def getQtSystemTranslation(locale_name: str) -> QTranslator | None:

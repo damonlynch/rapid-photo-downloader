@@ -281,12 +281,12 @@ from raphodo.ui.viewutils import (
     validateWindowPosition,
     validateWindowSizeLimit,
 )
+from raphodo.tools.packageutils import installed_using_pip, python_package_source
 from raphodo.tools.utilities import (
     addPushButtonLabelSpacer,
     data_file_path,
     format_size_for_user,
     getQtSystemTranslation,
-    installed_using_pip,
     log_os_release,
     make_html_path_non_breaking,
     process_running,
@@ -6451,16 +6451,6 @@ Do you want to proceed with the download?"""
         self.statusBar().showMessage(msg)
 
 
-def python_package_source(package: str) -> str:
-    """
-    Return package installation source for Python package
-    :param package: package name
-    :return:
-    """
-
-    pip_install = "(installed using pip)"
-    system_package = "(system package)"
-    return pip_install if installed_using_pip(package) else system_package
 
 
 def get_versions(
