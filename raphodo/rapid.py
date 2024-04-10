@@ -30,8 +30,6 @@ import functools
 import importlib.metadata
 import inspect
 import platform
-import shlex
-import subprocess
 import time
 import webbrowser
 from collections import defaultdict
@@ -173,7 +171,6 @@ from raphodo.folderpreviewmanager import FolderPreviewManager
 from raphodo.generatenameconfig import (
     PHOTO_RENAME_SIMPLE,
     VIDEO_RENAME_SIMPLE,
-    upgrade_pre090a4_rename_pref,
 )
 from raphodo.heif import have_heif_module, libheif_version, pyheif_version
 from raphodo.internationalisation.install import install_gettext, localedir
@@ -292,8 +289,6 @@ from raphodo.tools.utilities import (
     installed_using_pip,
     log_os_release,
     make_html_path_non_breaking,
-    pref_bool_from_gconftool2_string,
-    prefs_list_from_gconftool2_string,
     process_running,
     same_device,
 )
