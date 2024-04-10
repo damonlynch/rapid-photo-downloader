@@ -582,44 +582,6 @@ def make_html_path_non_breaking(path: str) -> str:
     return path.replace(os.sep, f"{os.sep}&#8288;")
 
 
-def prefs_list_from_gconftool2_string(value: str) -> list[str]:
-    r"""
-    Take a raw string preference value as returned by gconftool-2
-    and convert it to a list of strings.
-
-    Handles escaped characters
-
-    :param value: the raw value as returned by gconftool-2
-    :return: the list of strings
-
-    >>> prefs_list_from_gconftool2_string( # doctest: +ELLIPSIS
-    ... '[Text,IMG_,,Sequences,Stored number,Four digits,Filename,Extension,UPPERCASE]')
-    ... # doctest: +NORMALIZE_WHITESPACE
-    ['Text', 'IMG_', '', 'Sequences', 'Stored number', 'Four digits', 'Filename',
-     'Extension', 'UPPERCASE']
-    >>> prefs_list_from_gconftool2_string('[Text,IMG_\,\\;+=|!@\,#^&*()$%/",,]')
-    ['Text', 'IMG_,\\;+=|!@,#^&*()$%/"', '', '']
-    >>> prefs_list_from_gconftool2_string('[Manila,Dubai,London]')
-    ['Manila', 'Dubai', 'London']
-    """
-    # Trim the left and right square brackets
-    value = value[1:-1]
-
-    # Split on the comma, but not commas that were escaped.
-    # Use a regex with a negative lookbehind assertion
-    splits = re.split(r"(?<!\\),", value)
-    # Replace the escaped commas with just plain commas
-    return [s.replace("\\,", ",") for s in splits]
-
-
-def pref_bool_from_gconftool2_string(value: str) -> bool:
-    if value == "true":
-        return True
-    elif value == "false":
-        return False
-    raise ValueError
-
-
 def remove_last_char_from_list_str(items: list[str]) -> list[str]:
     r"""
     Remove the last character from a list of strings, modifying the list in place,
