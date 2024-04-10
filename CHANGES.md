@@ -17,6 +17,8 @@ Changelog for Rapid Photo Downloader
  - Remove functionality to import preferences from program versions in the 0.4 
    range (last released in 2015).
 
+ - Remove legacy check for PyQt5 sip. 
+
 0.9.36 (2024-02-13)
 -------------------
 

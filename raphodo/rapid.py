@@ -16,26 +16,23 @@ Project line length: 88 characters (i.e., word wrap at 88)
 import contextlib
 import datetime
 import locale
-import logging
-import os
-import shutil
-import sys
 
 with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
-
 import faulthandler
 import functools
-import importlib.metadata
 import inspect
+import logging
+import os
 import platform
+import shutil
+import sys
 import time
 import webbrowser
 from collections import defaultdict
 from typing import Any
 
-import dateutil
 import gi
 from packaging.version import parse
 
@@ -52,17 +49,8 @@ try:
 except (ImportError, ValueError, gi.repository.GLib.GError):
     have_unity = False
 
-import arrow  # noqa: I001
-import psutil
-
-# PyQt 5.11 introduces from PyQt5 import sip i.e., from a 'private' sip, unique
-# to PyQt5. However, we cannot assume that distros will follow this mechanism.
-# So as a defensive measure, merely import sip, doing this only after Qt has
-# already been imported. See:
-# http://pyqt.sourceforge.net/Docs/PyQt5/incompatibilities.html#importing-the-sip-module
 import zmq
 from PyQt5 import QtCore
-import sip
 from PyQt5.QtCore import (
     QByteArray,
     QLocale,
@@ -109,7 +97,6 @@ from PyQt5.QtWidgets import (
 from showinfm import (
     LinuxDesktop,
     linux_desktop,
-    linux_desktop_humanize,
     valid_file_manager,
 )
 
@@ -120,18 +107,15 @@ import raphodo.downloadtracker as downloadtracker
 import raphodo.excepthook as excepthook
 import raphodo.iplogging as iplogging
 import raphodo.metadata.exiftool as exiftool
-import raphodo.metadata.fileformats as fileformats
 import raphodo.storage.storageidevice as storageidevice
-import raphodo.ui.didyouknow as didyouknow
 import raphodo.tools.utilities
+import raphodo.ui.didyouknow as didyouknow
 from raphodo.argumentsparse import get_parser
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.camera import (
     autodetect_cameras,
     dump_camera_details,
     gphoto2_python_logging,
-    gphoto2_version,
-    python_gphoto2_version,
 )
 from raphodo.constants import (
     ApplicationState,
@@ -165,14 +149,12 @@ from raphodo.devices import (
     FSMetadataErrors,
 )
 from raphodo.errorlog import ErrorReport, SpeechBubble
-from raphodo.metadata.fileextensions import PHOTO_EXTENSIONS, VIDEO_EXTENSIONS
 from raphodo.filesystemurl import FileSystemUrlHandler
 from raphodo.folderpreviewmanager import FolderPreviewManager
 from raphodo.generatenameconfig import (
     PHOTO_RENAME_SIMPLE,
     VIDEO_RENAME_SIMPLE,
 )
-from raphodo.heif import have_heif_module, libheif_version, pyheif_version
 from raphodo.internationalisation.install import install_gettext, localedir
 from raphodo.internationalisation.utilities import (
     make_internationalized_list,
@@ -197,11 +179,12 @@ from raphodo.interprocess import (
     create_inproc_msg,
     stop_process_logging_manager,
 )
+from raphodo.metadata.fileextensions import PHOTO_EXTENSIONS, VIDEO_EXTENSIONS
 from raphodo.metadata.metadatavideo import libmediainfo_missing, pymedia_version_info
 from raphodo.prefs.preferencedialog import PreferencesDialog
 from raphodo.prefs.preferences import Preferences
 from raphodo.problemnotification import BackingUpProblems, CopyingProblems, Problems
-from raphodo.programversions import EXIFTOOL_VERSION, exiv2_version, gexiv2_version
+from raphodo.programversions import EXIFTOOL_VERSION
 from raphodo.proximity import (
     TemporalProximity,
     TemporalProximityControls,
@@ -222,10 +205,9 @@ from raphodo.storage.storage import (
     GVolumeMonitor,
     StorageSpace,
     UDisks2Monitor,
-    ValidMounts,
     ValidatedFolder,
+    ValidMounts,
     WatchDownloadDirs,
-    get_desktop_environment,
     get_fdo_cache_thumb_base_directory,
     get_media_dir,
     gvfs_gphoto2_path,
@@ -244,7 +226,17 @@ from raphodo.thumbnaildisplay import (
     ThumbnailListModel,
     ThumbnailView,
 )
-from raphodo.thumbnailextractor import gst_version
+from raphodo.tools.libraryversions import get_versions
+from raphodo.tools.utilities import (
+    addPushButtonLabelSpacer,
+    data_file_path,
+    format_size_for_user,
+    getQtSystemTranslation,
+    log_os_release,
+    make_html_path_non_breaking,
+    process_running,
+    same_device,
+)
 from raphodo.ui import viewutils
 from raphodo.ui.aboutdialog import AboutDialog
 from raphodo.ui.backuppanel import BackupPanel
@@ -280,17 +272,6 @@ from raphodo.ui.viewutils import (
     standardMessageBox,
     validateWindowPosition,
     validateWindowSizeLimit,
-)
-from raphodo.tools.packageutils import installed_using_pip, python_package_source
-from raphodo.tools.utilities import (
-    addPushButtonLabelSpacer,
-    data_file_path,
-    format_size_for_user,
-    getQtSystemTranslation,
-    log_os_release,
-    make_html_path_non_breaking,
-    process_running,
-    same_device,
 )
 from raphodo.wsl.wsl import (
     WindowsDriveMount,
@@ -6449,117 +6430,6 @@ Do you want to proceed with the download?"""
             else:
                 msg = ""
         self.statusBar().showMessage(msg)
-
-
-
-
-def get_versions(
-    file_manager: str | None,
-    scaling_action: ScalingAction,
-    scaling_detected: ScalingDetected,
-    xsetting_running: bool,
-    force_wayland: bool,
-    platform_selected: str | None,
-) -> list[str]:
-    pyzmq_backend = "cython" if "cython" in zmq.zmq_version_info.__module__ else "cffi"
-    try:
-        ram = psutil.virtual_memory()
-        total = format_size_for_user(ram.total)
-        used = format_size_for_user(ram.used)
-    except Exception:
-        total = used = "unknown"
-
-    rpd_pip_install = installed_using_pip("rapid-photo-downloader")
-
-    versions = [
-        f"Rapid Photo Downloader: {__about__.__version__}",
-        f"Platform: {platform.platform()}",
-        f"Memory: {used} used of {total}",
-        "Installed using pip: {}".format("yes" if rpd_pip_install else "no"),
-        f"Python: {platform.python_version()}",
-        f"Python executable: {sys.executable}",
-        f"Qt: {QtCore.QT_VERSION_STR}",
-        f"PyQt: {QtCore.PYQT_VERSION_STR} {python_package_source('PyQt5')}",
-        f"SIP: {sip.SIP_VERSION_STR}",
-        f"ZeroMQ: {zmq.zmq_version()}",
-        f"Python ZeroMQ: {zmq.pyzmq_version()} ({pyzmq_backend} backend)",
-        f"gPhoto2: {gphoto2_version()}",
-        "Python gPhoto2: "
-        f"{python_gphoto2_version()} {python_package_source('gphoto2')}",
-        f"ExifTool: {EXIFTOOL_VERSION}",
-        f"pymediainfo: {pymedia_version_info()}",
-        f"GExiv2: {gexiv2_version()}",
-        f"Gstreamer: {gst_version()}",
-        f"PyGObject: {'.'.join(map(str, gi.version_info))}",
-        f"psutil: {'.'.join(map(str, psutil.version_info))}",
-        f'Show in File Manager: {importlib.metadata.version("show-in-file-manager")}',
-    ]
-    v = exiv2_version()
-    if v:
-        cr3 = "CR3 support enabled" if fileformats.exiv2_cr3() else "no CR3 support"
-        versions.append(f"Exiv2: {v} ({cr3})")
-    with contextlib.suppress(Exception):
-        versions.append("{}: {}".format(*platform.libc_ver()))
-    with contextlib.suppress(AttributeError):
-        versions.append(f"Arrow: {arrow.__version__} {python_package_source('arrow')}")
-        versions.append(f"dateutil: {dateutil.__version__}")
-    with contextlib.suppress(ImportError):
-        import tornado
-
-        versions.append(f"Tornado: {tornado.version}")
-    versions.append(
-        f"Can read HEIF/HEIC metadata: {'yes' if fileformats.heif_capable() else 'no'}"
-    )
-    if have_heif_module:
-        versions.append(f"Pyheif: {pyheif_version()}")
-        v = libheif_version()
-        if v:
-            versions.append(f"libheif: {v}")
-    versions.append(
-        "iOS support: {}".format("yes" if storageidevice.utilities_present() else "no")
-    )
-    for display in ("XDG_SESSION_TYPE", "WAYLAND_DISPLAY"):
-        session = os.getenv(display, "")
-        if session.find("wayland") >= 0:
-            wayland_platform = os.getenv("QT_QPA_PLATFORM", "")
-            if (
-                platform_selected == "wayland"
-                or (platform_selected != "xcb" and wayland_platform == "wayland")
-                or force_wayland
-            ):
-                session = "wayland desktop (with wayland enabled)"
-                break
-            elif platform_selected == "xcb" or wayland_platform == "xcb":
-                session = "wayland desktop (with XWayland)"
-                break
-            else:
-                session = "wayland desktop (XWayland use undetermined)"
-        elif session:
-            break
-    if session:
-        versions.append(f"Session: {session}")
-
-    versions.append("Desktop scaling: {}".format(scaling_action.name.replace("_", " ")))
-    versions.append(
-        "Desktop scaling detection: {}{}".format(
-            scaling_detected.name.replace("_", " "),
-            "" if xsetting_running else " (xsetting not running)",
-        )
-    )
-
-    try:
-        desktop = linux_desktop_humanize(linux_desktop())
-    except Exception:
-        desktop = "Unknown"
-
-    with contextlib.suppress(Exception):
-        versions.append(f"Desktop: {get_desktop_environment()} ({desktop})")
-
-    file_manager_details = f"{file_manager}" if file_manager else "Unknown"
-
-    versions.append(f"Default file manager: {file_manager_details}")
-
-    return versions
 
 
 def critical_startup_error(message: str) -> None:
