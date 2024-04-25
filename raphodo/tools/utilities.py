@@ -1083,8 +1083,6 @@ def available_languages(display_locale_code: str = "") -> list[tuple[str, str]]:
     return langs
 
 
-
-
 def getQtSystemTranslation(locale_name: str) -> QTranslator | None:
     """
     Attempt to install Qt base system translations (for QMessageBox and QDialogBox
