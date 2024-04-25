@@ -56,6 +56,7 @@ Recommended, optional dependencies:
  - [Hatch](https://github.com/pypa/hatch)
  - [Hatch-gettext](https://github.com/damonlynch/hatch-gettext)
  - [Hatch-argparse-manpage](https://github.com/damonlynch/hatch-argparse-manpage)
+ - `intltool`
 
 ## Building Rapid Photo Downloader
 
@@ -64,6 +65,5 @@ Run:
 hatch build -t sdist
 ```
 
-To run the program requires further configuration of the build. Running the 
-build creates desktop integration files in the `share` folder (localization 
-files do not need to be installed system-wide). 
+Running the build creates desktop integration files in the `share` folder 
+(localization files do not need to be installed system-wide).  
