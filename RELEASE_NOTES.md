@@ -10,7 +10,8 @@ Release Notes for Rapid Photo Downloader 0.9.37
       should *not* be copied to `/usr/share/locale`. Any 
      `rapid-photo-downloader.mo` files in `/usr/share/locale` should be 
      deleted.
-   - the manpage is output into man/rapid-photo-downloader.1
+   - The manpage is generated at build time, and is output into 
+     `man/rapid-photo-downloader.1`.
 
  - To generate localization files and the manpage, two new Hatch plugins  
    are used, which are new build-time dependencies (these plugins can be 
@@ -24,8 +25,6 @@ Release Notes for Rapid Photo Downloader 0.9.37
      using the Python resource system.
    - All source code now uses [SPDX](https://spdx.org/) identifiers for 
      copyright and licensing.  
-
- - Rapid Photo Downloader 0.9.35 requires Python 3.10 or newer.
 
  - The Python package used to generate thumbnails from HEIF / HEIC 
    images, [pyheif](https://github.com/carsales/pyheif), requires updating 

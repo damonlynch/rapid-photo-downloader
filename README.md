@@ -90,8 +90,11 @@ Historic issues are at the previous code repository,
 
 ## Releases
 
-All project releases are hosted on the 
+Project releases have been historically hosted on the 
 [project's Launchpad repository](https://launchpad.net/rapid/+download).
+
+Future releases are to be hosted on the project's 
+[GitHub repository](https://github.com/damonlynch/rapid-photo-downloader/releases). 
 
 
 ## Support

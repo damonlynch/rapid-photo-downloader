@@ -1,13 +1,13 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.37 (2024-03-xx)
--------------------
+0.9.37a1 (2024-04-25)
+---------------------
 
  - Convert project configuration and build to use 
    [Hatch](https://github.com/pypa/hatch), 
    which has resulted in changes to the build process. Linux distribution
-   packagers should consult the release notes for details.
+   packagers should consult the [release notes](RELEASE_NOTES.md) for details.
 
  - Fix bug [#154](https://github.com/damonlynch/rapid-photo-downloader/issues/154):
    System-mounted Windows drives not detected as mounted under WSL.
