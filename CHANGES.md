@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.37a2 (2024-04-25)
+---------------------
+
+ - Build fixes while generating man page.
+
 0.9.37a1 (2024-04-25)
 ---------------------
 
