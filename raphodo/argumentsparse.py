@@ -28,8 +28,15 @@ except ImportError:
 
     here = Path(__file__).parent
     with open(here / "__about__.py") as f:
-        __about__ = {}
-        exec(f.read(), __about__)
+        about = {}
+        exec(f.read(), about)
+
+    # Convert about dictionary to class
+    class About:
+        pass
+    __about__ = About()
+    __about__.__dict__.update(about)
+
     with open(here / "metadata/fileextensions.py") as f:
         file_extensions = {}
         exec(f.read(), file_extensions)
