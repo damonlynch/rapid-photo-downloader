@@ -5,15 +5,39 @@
 Commandline argument parser for Rapid Photo Downloader
 """
 
+import builtins
 import platform
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from pathlib import Path
 
-from raphodo import __about__ as __about__
-from raphodo.internationalisation.install import install_gettext
-from raphodo.internationalisation.utilities import make_internationalized_list
-from raphodo.metadata.fileextensions import OTHER_PHOTO_EXTENSIONS
+try:
+    from raphodo import __about__ as __about__
+    from raphodo.internationalisation.install import install_gettext
+    from raphodo.internationalisation.utilities import make_internationalized_list
+    from raphodo.metadata.fileextensions import OTHER_PHOTO_EXTENSIONS
 
-install_gettext()
+    install_gettext()
+except ImportError:
+    # The script is being run at build time
+    # Module imports are unavailable
+
+    def no_translation_performed(s: str) -> str:
+        return s
+
+    builtins.__dict__["_"] = no_translation_performed
+
+    here = Path(__file__).parent
+    with open(here / "__about__.py") as f:
+        about = {}
+        exec(f.read(), about)
+    with open(here / "metadata/fileextensions.py") as f:
+        file_extensions = {}
+        exec(f.read(), file_extensions)
+        OTHER_PHOTO_EXTENSIONS = file_extensions["OTHER_PHOTO_EXTENSIONS"]
+    with open(here / "internationalisation/utilities.py") as f:
+        utilities = {}
+        exec(f.read(), utilities)
+        make_internationalized_list = utilities["make_internationalized_list"]
 
 
 def get_parser(formatter_class=RawDescriptionHelpFormatter) -> ArgumentParser:
