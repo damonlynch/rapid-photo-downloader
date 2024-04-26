@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.37a5 (2024-04-xx)
+---------------------
+
+ - Purge use of Python package easygui.
+
 0.9.37a4 (2024-04-25)
 ---------------------
 

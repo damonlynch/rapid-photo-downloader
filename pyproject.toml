@@ -49,7 +49,6 @@ dependencies = [
     "arrow",
     "babel",
     "colour",
-    "easygui",
     "gphoto2",
     "packaging",
     "pillow",
