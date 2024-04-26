@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-25 15:55+1200\n"
+"POT-Creation-Date: 2024-04-26 18:33+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,70 +17,70 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../raphodo/argumentsparse.py:59
+#: ../raphodo/argumentsparse.py:66
 msgid "Show version numbers of program and its libraries and exit."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:66
+#: ../raphodo/argumentsparse.py:73
 msgid "Display program information when run from the command line."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:72
+#: ../raphodo/argumentsparse.py:79
 msgid "Display debugging information when run from the command line."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:79
+#: ../raphodo/argumentsparse.py:86
 msgid "List photo and video file extensions the program recognizes and exit."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:85
+#: ../raphodo/argumentsparse.py:92
 msgid "Turn on or off the the renaming of photos."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:91
+#: ../raphodo/argumentsparse.py:98
 msgid "Turn on or off the the renaming of videos."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:99
+#: ../raphodo/argumentsparse.py:106
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:107
+#: ../raphodo/argumentsparse.py:114
 msgid "Turn on or off downloading from this computer."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:112 ../raphodo/argumentsparse.py:119
-#: ../raphodo/argumentsparse.py:126 ../raphodo/argumentsparse.py:170
-#: ../raphodo/argumentsparse.py:180
+#: ../raphodo/argumentsparse.py:119 ../raphodo/argumentsparse.py:126
+#: ../raphodo/argumentsparse.py:133 ../raphodo/argumentsparse.py:177
+#: ../raphodo/argumentsparse.py:187
 msgid "PATH"
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:114
+#: ../raphodo/argumentsparse.py:121
 msgid "The PATH on this computer from which to download."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:121
+#: ../raphodo/argumentsparse.py:128
 msgid "The PATH where photos will be downloaded to."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:128
+#: ../raphodo/argumentsparse.py:135
 msgid "The PATH where videos will be downloaded to."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:135
+#: ../raphodo/argumentsparse.py:142
 msgid "Turn on or off the backing up of photos and videos while downloading."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:141
+#: ../raphodo/argumentsparse.py:148
 msgid "Turn on or off the automatic detection of backup devices."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:146 ../raphodo/argumentsparse.py:158
+#: ../raphodo/argumentsparse.py:153 ../raphodo/argumentsparse.py:165
 msgid "FOLDER"
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:149
+#: ../raphodo/argumentsparse.py:156
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected photo "
 "backup device, with the folder's name being used to identify whether or not "
@@ -88,7 +88,7 @@ msgid ""
 "photos up to, create a folder on it with this name."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:161
+#: ../raphodo/argumentsparse.py:168
 msgid ""
 "The FOLDER in which backups are stored on the automatically detected video "
 "backup device, with the folder's name being used to identify whether or not "
@@ -96,67 +96,67 @@ msgid ""
 "up videos to, create a folder on it with this name."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:173
+#: ../raphodo/argumentsparse.py:180
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:183
+#: ../raphodo/argumentsparse.py:190
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:191
+#: ../raphodo/argumentsparse.py:198
 #, python-format
 msgid "Ignore photos with the following extensions: %s"
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:199
+#: ../raphodo/argumentsparse.py:206
 msgid "Turn on or off starting downloads as soon as the program itself starts."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:206
+#: ../raphodo/argumentsparse.py:213
 msgid "Turn on or off starting downloads as soon as a device is inserted."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:213
+#: ../raphodo/argumentsparse.py:220
 msgid ""
 "Turn on or off use of the Rapid Photo Downloader Thumbnail Cache. Turning it "
 "off does not delete existing cache contents."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:222
+#: ../raphodo/argumentsparse.py:229
 msgid ""
 "Delete all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and "
 "exit."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:230
+#: ../raphodo/argumentsparse.py:237
 msgid "Forget which files have been previously downloaded, and exit."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:237
+#: ../raphodo/argumentsparse.py:244
 msgid ""
 "Reset all program settings to their default values, delete all thumbnails in "
 "the Thumbnail cache, forget which files have been previously downloaded, and "
 "exit."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:245
+#: ../raphodo/argumentsparse.py:252
 msgid "Include gphoto2 debugging information in log files."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:251
+#: ../raphodo/argumentsparse.py:258
 msgid "Print information to the terminal about attached cameras and exit."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:258
+#: ../raphodo/argumentsparse.py:265
 msgid "Use the system Qt theme instead of the built-in theme"
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:267
+#: ../raphodo/argumentsparse.py:274
 msgid ""
 "Optional value that when specified, is parsed to determine if it represents "
 "an automatically detected device or a path on this computer. If the PATH "
@@ -169,7 +169,7 @@ msgid ""
 "devices is turned off."
 msgstr ""
 
-#: ../raphodo/argumentsparse.py:285
+#: ../raphodo/argumentsparse.py:292
 msgid "Run this program in wayland or regular X11"
 msgstr ""
 
