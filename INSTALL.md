@@ -23,7 +23,6 @@ non-python programs to function. For example, `python-gphoto2` requires
  - [dateutil](https://labix.org/python-dateutil) 2.2 or newer
  - [exiv2](http://www.exiv2.org/)
  - [ExifTool](http://www.sno.phy.queensu.ca/~phil/exiftool/)
- - [EasyGUI](https://github.com/robertlugg/easygui)  
  - [Colour](https://github.com/vaab/colour)
  - [pymediainfo](https://github.com/sbraz/pymediainfo)
  - [SortedContainers](http://www.grantjenks.com/docs/sortedcontainers/)

@@ -8,14 +8,6 @@ import traceback
 
 from PyQt5.QtWidgets import QApplication, QMessageBox
 
-try:
-    from easygui import codebox
-
-    have_easygui = True
-except Exception:
-    # if import failed for any reason, ignore it
-    have_easygui = False
-
 from raphodo.internationalisation.install import install_gettext
 from raphodo.iplogging import full_log_file_path
 from raphodo.prefs.preferences import Preferences
@@ -188,16 +180,4 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
                     config_file=prefs.settings_path(),
                     full_log_file_path=full_log_file_path(),
                 )
-
-        elif have_easygui:
-            message = _("A problem occurred in Rapid Photo Downloader\n")
-            prefix = _(
-                "Please report the problem at {website}\n"
-                "Attach the log file to your bug report, found at {log_path}\n\n"
-            ).format(
-                website="https://bugs.rapidphotodownloader.com",
-                log_path=full_log_file_path(),
-            )
-            text = prefix + traceback_info
-            codebox(msg=message, title=title, text=text)
         message_box_displayed = False

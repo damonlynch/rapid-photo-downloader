@@ -24,7 +24,8 @@ Release Notes for Rapid Photo Downloader 0.9.37
      Instead, images are stored in a new `raphodo/data` directory and loaded 
      using the Python resource system.
    - All source code now uses [SPDX](https://spdx.org/) identifiers for 
-     copyright and licensing.  
+     copyright and licensing.
+   - The Python package easygui has been purged, and is no longer a dependency.
 
  - The Python package used to generate thumbnails from HEIF / HEIC 
    images, [pyheif](https://github.com/carsales/pyheif), requires updating 
