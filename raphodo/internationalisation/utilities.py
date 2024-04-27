@@ -3,6 +3,13 @@
 
 import locale
 
+try:
+    from PyQt5.QtCore import QSettings
+
+    have_pyqt = True
+except ImportError:
+    have_pyqt = False
+
 
 def make_internationalized_list(items: list[str]) -> str:
     r"""
@@ -73,3 +80,14 @@ def thousands(i: int) -> str:
         return locale.format_string("%d", i, grouping=True)
     except TypeError:
         return str(i)
+
+def current_locale() -> str:
+    assert have_pyqt
+    settings = QSettings("Rapid Photo Downloader", "Rapid Photo Downloader")
+    settings.beginGroup("Display")
+    lang = settings.value("language", "", str)
+    settings.endGroup()
+    if lang:
+        return lang
+    lang, encoding = locale.getdefaultlocale()
+    return lang
