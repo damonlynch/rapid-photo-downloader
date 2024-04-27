@@ -340,8 +340,9 @@ class Preferences:
         mark_raw_jpeg=3,
         # introduced in 0.9.6b1:
         auto_scroll=True,
-        # If you change the language setting update it in __init__.py too, where it is
-        # read directly without using this class.
+        # If you change the language key name (here), update it in
+        # internationalisation/install.py and internationalisation/utilities.py too,
+        # where it is read directly without using this class.
         language="",
         show_system_folders=False,  # Introduced in 0.9.27b2
         survey_countdown=10,  # Introduced in 0.9.29

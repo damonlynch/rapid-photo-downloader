@@ -159,6 +159,7 @@ from raphodo.internationalisation.install import install_gettext, localedir
 from raphodo.internationalisation.utilities import (
     make_internationalized_list,
     thousands,
+    current_locale,
 )
 from raphodo.interprocess import (
     BackupArguments,
@@ -1555,9 +1556,8 @@ web survey.</p>
 <p>Because this program does not collect analytics, the survey makes a real 
 difference to the program's future.</p>"""
             )
-            if raphodo.lang is not None and not any(
-                isinstance(i, str) and i.startswith("en") for i in raphodo.lang
-            ):
+            lang = current_locale()
+            if lang and not lang.startswith("en"):
                 english = _("The survey is in English.")
                 message = f"{message}<p>{english}</p>"
 
@@ -5082,6 +5082,8 @@ Do you want to proceed with the download?"""
         tc = ThumbnailCacheSql(create_table_if_not_exists=False)
         logging.debug("Cleaning up Thumbnail cache")
         tc.cleanup_cache(days=self.prefs.keep_thumbnails_days)
+
+        QDesktopServices.unsetUrlHandler("file")
 
         Notify.uninit()
 
