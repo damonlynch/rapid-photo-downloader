@@ -1,10 +1,13 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.37a5 (2024-04-xx)
+0.9.37a5 (2024-04-28)
 ---------------------
 
  - Purge use of Python package easygui.
+
+ - Fix bug where querying for locale while prompting for the survey
+   could cause an exception.
 
 0.9.37a4 (2024-04-25)
 ---------------------
