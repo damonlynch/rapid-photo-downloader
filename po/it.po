@@ -2,15 +2,15 @@
 # Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
 # This file is distributed under the same license as the rapid package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009
-# Albano Battistella <albano_battistella@hotmail.com>, 2022.
+# Albano Battistella <albanobattistella@gmail.com>, 2022,2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-04-12 09:19+1200\n"
-"PO-Revision-Date: 2024-01-25 23:16+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"PO-Revision-Date: 2024-04-28 11:16+0100\n"
+"Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -21,66 +21,67 @@ msgstr ""
 
 #: ../raphodo/argumentsparse.py:35
 msgid "Show version numbers of program and its libraries and exit."
-msgstr ""
+msgstr "Mostra i numeri di versione del programma e delle sue librerie ed esci."
 
 #: ../raphodo/argumentsparse.py:42
 msgid "Display program information when run from the command line."
-msgstr ""
+msgstr "Visualizza le informazioni sul programma quando viene eseguito dalla riga di comando."
 
 #: ../raphodo/argumentsparse.py:48
 msgid "Display debugging information when run from the command line."
-msgstr ""
+msgstr "Visualizza le informazioni di debug quando eseguito dalla riga di comando."
 
 #: ../raphodo/argumentsparse.py:55
 msgid "List photo and video file extensions the program recognizes and exit."
-msgstr ""
+msgstr "Elenca le estensioni di file di foto e video riconosciute dal programma ed esci."
 
 #: ../raphodo/argumentsparse.py:61
 msgid "Turn on or off the the renaming of photos."
-msgstr ""
+msgstr "Attiva o disattiva la ridenominazione delle foto."
 
 #: ../raphodo/argumentsparse.py:67
 msgid "Turn on or off the the renaming of videos."
-msgstr ""
+msgstr "Attiva o disattiva la ridenominazione dei video."
 
 #: ../raphodo/argumentsparse.py:75
 msgid ""
 "Turn on or off the automatic detection of devices from which to download."
 msgstr ""
+"Attiva o disattiva il rilevamento automatico dei dispositivi da cui effettuare il download."
 
 #: ../raphodo/argumentsparse.py:83
 msgid "Turn on or off downloading from this computer."
-msgstr ""
+msgstr "Attiva o disattiva il download da questo computer."
 
 #: ../raphodo/argumentsparse.py:88 ../raphodo/argumentsparse.py:95
 #: ../raphodo/argumentsparse.py:102 ../raphodo/argumentsparse.py:146
 #: ../raphodo/argumentsparse.py:156
 msgid "PATH"
-msgstr ""
+msgstr "PERCORSO"
 
 #: ../raphodo/argumentsparse.py:90
 msgid "The PATH on this computer from which to download."
-msgstr ""
+msgstr "Il PERCORSO del computer da cui effettuare il download."
 
 #: ../raphodo/argumentsparse.py:97
 msgid "The PATH where photos will be downloaded to."
-msgstr ""
+msgstr "Il PERCORSO in cui verranno scaricate le foto."
 
 #: ../raphodo/argumentsparse.py:104
 msgid "The PATH where videos will be downloaded to."
-msgstr ""
+msgstr "Il PERCORSO in cui verranno scaricati i video."
 
 #: ../raphodo/argumentsparse.py:111
 msgid "Turn on or off the backing up of photos and videos while downloading."
-msgstr ""
+msgstr "Attiva o disattiva il backup di foto e video durante il download."
 
 #: ../raphodo/argumentsparse.py:117
 msgid "Turn on or off the automatic detection of backup devices."
-msgstr ""
+msgstr "Attiva o disattiva il rilevamento automatico dei dispositivi di backup."
 
 #: ../raphodo/argumentsparse.py:122 ../raphodo/argumentsparse.py:134
 msgid "FOLDER"
-msgstr ""
+msgstr "CARTELLA"
 
 #: ../raphodo/argumentsparse.py:125
 msgid ""
@@ -89,6 +90,10 @@ msgid ""
 "the device is used for backups. For each device you wish to use for backing "
 "photos up to, create a folder on it with this name."
 msgstr ""
+"La CARTELLA in cui sono archiviati i backup della foto rilevata automaticamente del "
+"dispositivo di backup, con il nome della cartella utilizzato per identificare se "
+"il dispositivo viene utilizzato per i backup. Per ogni dispositivo che desideri utilizzare per il backup "
+"foto fino a, crea una cartella con questo nome."
 
 #: ../raphodo/argumentsparse.py:137
 msgid ""
@@ -97,47 +102,59 @@ msgid ""
 "the device is used for backups. For each device you wish to use for backing "
 "up videos to, create a folder on it with this name."
 msgstr ""
+"La CARTELLA in cui sono archiviati i backup del video rilevato automaticamente del "
+"dispositivo di backup, con il nome della cartella utilizzato per identificare se "
+"il dispositivo viene utilizzato per i backup. Per ogni dispositivo che desideri utilizzare per il backup "
+"video, crea una cartella con questo nome."
 
 #: ../raphodo/argumentsparse.py:149
 msgid ""
 "The PATH where photos will be backed up when automatic detection of backup "
 "devices is turned off."
 msgstr ""
+"Il PERCORSO in cui verrà eseguito il backup delle foto quando viene rilevato automaticamente il backup "
+"di dispositivi spenti."
 
 #: ../raphodo/argumentsparse.py:159
 msgid ""
 "The PATH where videos will be backed up when automatic detection of backup "
 "devices is turned off."
 msgstr ""
+"Il PERCORSO in cui verrà eseguito il backup dei video quando viene rilevato automaticamente il backup "
+"dei dispositivi spenti."
 
 #: ../raphodo/argumentsparse.py:167
 #, python-format
 msgid "Ignore photos with the following extensions: %s"
-msgstr ""
+msgstr "Ignora le foto con le seguenti estensioni: %s"
 
 #: ../raphodo/argumentsparse.py:175
 msgid "Turn on or off starting downloads as soon as the program itself starts."
-msgstr ""
+msgstr "Attiva o disattiva l'avvio dei download non appena viene avviato il programma stesso."
 
 #: ../raphodo/argumentsparse.py:182
 msgid "Turn on or off starting downloads as soon as a device is inserted."
-msgstr ""
+msgstr "Attiva o disattiva l'avvio dei download non appena viene inserito un dispositivo."
 
 #: ../raphodo/argumentsparse.py:189
 msgid ""
 "Turn on or off use of the Rapid Photo Downloader Thumbnail Cache. Turning it "
 "off does not delete existing cache contents."
 msgstr ""
+"Attiva o disattiva l'uso della cache delle miniature di Rapid Photo Downloader. Attivazione "
+"off non elimina il contenuto della cache esistente."
 
 #: ../raphodo/argumentsparse.py:198
 msgid ""
 "Delete all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and "
 "exit."
 msgstr ""
+"Elimina tutte le miniature nella cache delle miniature di Rapid Photo Downloader ed "
+"esci."
 
 #: ../raphodo/argumentsparse.py:206
 msgid "Forget which files have been previously downloaded, and exit."
-msgstr ""
+msgstr "Dimentica quali file sono stati scaricati in precedenza ed esci."
 
 #: ../raphodo/argumentsparse.py:213
 msgid ""
@@ -145,18 +162,21 @@ msgid ""
 "the Thumbnail cache, forget which files have been previously downloaded, and "
 "exit."
 msgstr ""
+"Ripristina tutte le impostazioni del programma ai valori predefiniti, elimina tutte le miniature "
+"nella cache delle miniature, dimentica quali file sono stati scaricati in precedenza ed "
+"esci."
 
 #: ../raphodo/argumentsparse.py:221
 msgid "Include gphoto2 debugging information in log files."
-msgstr ""
+msgstr "Includere informazioni di debug di gphoto2 nei file di registro."
 
 #: ../raphodo/argumentsparse.py:227
 msgid "Print information to the terminal about attached cameras and exit."
-msgstr ""
+msgstr "Stampa le informazioni sul terminale sulle fotocamere collegate ed esci."
 
 #: ../raphodo/argumentsparse.py:234
 msgid "Use the system Qt theme instead of the built-in theme"
-msgstr ""
+msgstr "Utilizza il tema Qt di sistema invece del tema integrato"
 
 #: ../raphodo/argumentsparse.py:243
 msgid ""
@@ -173,7 +193,7 @@ msgstr ""
 
 #: ../raphodo/argumentsparse.py:261
 msgid "Run this program in wayland or regular X11"
-msgstr ""
+msgstr "Esegui questo programma in Wayland o X11 normale"
 
 #: ../raphodo/copyfiles.py:589
 msgid "video THM"
@@ -531,6 +551,9 @@ msgid ""
 "Attach the log file to your bug report, found at {log_path}\n"
 "\n"
 msgstr ""
+"Si prega di segnalare il problema su {website}\n"
+"Allega il file log alla segnalazione di bug, trovato in {log_path}\n"
+"\n"
 
 #: ../raphodo/generatenameconfig.py:189
 msgid "Date time"
@@ -1102,7 +1125,7 @@ msgstr ""
 #: ../raphodo/internationalisation/utilities.py:57
 #, python-format
 msgid "%(start_items)s and %(last_item)s"
-msgstr ""
+msgstr "%(start_items)s e %(last_item)s"
 
 #: ../raphodo/prefs/preferencedialog.py:116
 msgid "Preferences"
@@ -1111,7 +1134,7 @@ msgstr "Preferenze"
 #: ../raphodo/prefs/preferencedialog.py:139
 #: ../raphodo/prefs/preferencedialog.py:162
 msgid "Language"
-msgstr ""
+msgstr "Lingua"
 
 #: ../raphodo/prefs/preferencedialog.py:140
 #: ../raphodo/prefs/preferencedialog.py:163
@@ -1128,7 +1151,7 @@ msgstr "Miniature"
 #: ../raphodo/prefs/preferencedialog.py:165
 #: ../raphodo/prefs/preferencedialog.py:568
 msgid "Time Zones"
-msgstr ""
+msgstr "Fusi orari"
 
 #: ../raphodo/prefs/preferencedialog.py:143
 #: ../raphodo/prefs/preferencedialog.py:166
@@ -1152,11 +1175,11 @@ msgstr "Varie"
 
 #: ../raphodo/prefs/preferencedialog.py:203
 msgid "Device Scanning"
-msgstr ""
+msgstr "Scansione del dispositivo"
 
 #: ../raphodo/prefs/preferencedialog.py:204
 msgid "Scan only external devices"
-msgstr ""
+msgstr "Esegui la scansione solo dei dispositivi esterni"
 
 #: ../raphodo/prefs/preferencedialog.py:207
 msgid ""
@@ -1164,10 +1187,13 @@ msgid ""
 "computer,\n"
 "including cameras, memory cards, external hard drives, and USB flash drives."
 msgstr ""
+"Esegui la scansione di foto e video solo su dispositivi esterni al "
+"computer,\n"
+"comprese fotocamere, schede di memoria, dischi rigidi esterni e unità flash USB."
 
 #: ../raphodo/prefs/preferencedialog.py:213
 msgid "Scan only specific folders on devices"
-msgstr "Sc ansiona solo specifiche cartelle sui dispositivi"
+msgstr "Scansiona solo specifiche cartelle sui dispositivi"
 
 #: ../raphodo/prefs/preferencedialog.py:215
 msgid ""
@@ -1177,6 +1203,11 @@ msgid ""
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Esegui la scansione di foto e video solo nelle cartelle specificate di seguito (eccetto "
+"percorsi\n"
+"specificati in Percorsi ignorati).\n"
+"\n"
+"La modifica di questa impostazione comporta una nuova scansione di tutti i dispositivi."
 
 #: ../raphodo/prefs/preferencedialog.py:222
 msgid "Folders to scan:"
@@ -1187,6 +1218,8 @@ msgid ""
 "Folders at the base level of device file systems that will be scanned\n"
 "for photos and videos."
 msgstr ""
+"Cartelle al livello base dei file system del dispositivo che verranno scansionati\n"
+"per foto e video."
 
 #: ../raphodo/prefs/preferencedialog.py:231
 #: ../raphodo/prefs/preferencedialog.py:292
@@ -1199,6 +1232,9 @@ msgid ""
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Aggiungi una cartella all'elenco delle cartelle in cui cercare foto e video.\n"
+"\n"
+"La modifica di questa impostazione comporta una nuova scansione di tutti i dispositivi."
 
 #: ../raphodo/prefs/preferencedialog.py:238
 #: ../raphodo/prefs/preferencedialog.py:268
@@ -1213,10 +1249,13 @@ msgid ""
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Rimuovere una cartella dall'elenco delle cartelle per cercare foto e video.\n"
+"\n"
+"La modifica di questa impostazione comporta una nuova scansione di tutti i dispositivi."
 
 #: ../raphodo/prefs/preferencedialog.py:260
 msgid "Devices that have been set to automatically ignore or download from."
-msgstr ""
+msgstr "Dispositivi che sono stati impostati per ignorare o scaricare automaticamente."
 
 #: ../raphodo/prefs/preferencedialog.py:261
 msgid "Remembered Devices"
@@ -1227,6 +1266,8 @@ msgid ""
 "Remove a device from the list of devices to automatically ignore or download "
 "from."
 msgstr ""
+"Rimuovi un dispositivo dall'elenco dei dispositivi da ignorare o scaricare automaticamente "
+"da."
 
 #: ../raphodo/prefs/preferencedialog.py:270
 #: ../raphodo/prefs/preferencedialog.py:306
@@ -1241,6 +1282,10 @@ msgid ""
 "\n"
 "Note: Changes take effect when the computer is next scanned for devices."
 msgstr ""
+"Cancella l'elenco dei dispositivi da cui ignorare o scaricare automaticamente "
+"da.\n"
+"\n"
+"Nota: le modifiche diventano effettive alla successiva scansione dei dispositivi sul computer."
 
 #: ../raphodo/prefs/preferencedialog.py:286
 msgid "Ignored Paths"
@@ -1250,6 +1295,7 @@ msgstr "Percorsi Ignorati"
 msgid ""
 "The end part of a path that should never be scanned for photos or videos."
 msgstr ""
+"La parte finale di un percorso che non dovrebbe mai essere scansionata per foto o video."
 
 #: ../raphodo/prefs/preferencedialog.py:295
 msgid ""
@@ -1257,6 +1303,9 @@ msgid ""
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Aggiungi un percorso all'elenco dei percorsi da ignorare.\n"
+"\n"
+"La modifica di questa impostazione comporta una nuova scansione di tutti i dispositivi."
 
 #: ../raphodo/prefs/preferencedialog.py:302
 msgid ""
@@ -1264,6 +1313,9 @@ msgid ""
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Rimuovi un percorso dall'elenco dei percorsi da ignorare.\n"
+"\n"
+"La modifica di questa impostazione comporta una nuova scansione di tutti i dispositivi."
 
 #: ../raphodo/prefs/preferencedialog.py:309
 msgid ""
@@ -1271,6 +1323,9 @@ msgid ""
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Cancella l'elenco dei percorsi da ignorare.\n"
+"\n"
+"La modifica di questa impostazione comporta una nuova scansione di tutti i dispositivi."
 
 #. Translators: you must include {link} exactly as it is below.
 #. Do not translate the term link. Be sure to include the <a> and </a> as
@@ -1278,7 +1333,7 @@ msgstr ""
 #: ../raphodo/prefs/preferencedialog.py:321
 #, python-brace-format
 msgid "Use python-style <a {link}>regular expressions</a>"
-msgstr ""
+msgstr "Utilizza <a {link}>espressioni regolari</a> in stile Python"
 
 #: ../raphodo/prefs/preferencedialog.py:328
 msgid ""
@@ -1286,10 +1341,13 @@ msgid ""
 "\n"
 "Changing this setting causes all devices to be scanned again."
 msgstr ""
+"Utilizza espressioni regolari nell'elenco dei percorsi ignorati.\n"
+"\n"
+"La modifica di questa impostazione comporta una nuova scansione di tutti i dispositivi."
 
 #: ../raphodo/prefs/preferencedialog.py:370
 msgid "Language: "
-msgstr ""
+msgstr "Lingua: "
 
 #. Translators: the * acts as an asterisk to denote a reference to an annotation
 #. such as '* Takes effect upon program restart'
@@ -1304,15 +1362,15 @@ msgstr "*"
 #: ../raphodo/prefs/preferencedialog.py:391
 #: ../raphodo/prefs/preferencedialog.py:558
 msgid "* Takes effect upon program restart"
-msgstr ""
+msgstr "* Ha effetto al riavvio del programma"
 
 #: ../raphodo/prefs/preferencedialog.py:399
 msgid "Program Automation"
-msgstr ""
+msgstr "Automazione del programma"
 
 #: ../raphodo/prefs/preferencedialog.py:400
 msgid "Mount devices not already automatically mounted"
-msgstr ""
+msgstr "Monta i dispositivi non già montati automaticamente"
 
 #. Translators: This next sentence is used in a tool tip. Feel free to place
 #. the carriage return where you think it makes sense so that the tool tip
@@ -1322,6 +1380,8 @@ msgid ""
 "Mount devices like memory cards or external drives when\n"
 "the operating system does not automatically mount them"
 msgstr ""
+"Monta dispositivi come schede di memoria o unità esterne quando\in"
+"il sistema operativo non li monta automaticamente"
 
 #: ../raphodo/prefs/preferencedialog.py:409
 msgid "Start downloading at program startup"
@@ -1355,17 +1415,19 @@ msgstr "Gednera miniature"
 
 #: ../raphodo/prefs/preferencedialog.py:451
 msgid "Generate thumbnails to show in the main program window"
-msgstr ""
+msgstr "Genera miniature da mostrare nella finestra principale del programma"
 
 #: ../raphodo/prefs/preferencedialog.py:453
 msgid "Cache thumbnails"
-msgstr ""
+msgstr "Miniature nella cache"
 
 #: ../raphodo/prefs/preferencedialog.py:456
 msgid ""
 "Save thumbnails shown in the main program window in a thumbnail cache unique "
 "to Rapid Photo Downloader"
 msgstr ""
+"Salva le miniature mostrate nella finestra principale del programma in una cache delle miniature unica "
+"a Rapid Photo Downloader"
 
 #: ../raphodo/prefs/preferencedialog.py:460
 msgid "Generate system thumbnails"
@@ -1376,14 +1438,16 @@ msgid ""
 "While downloading, save thumbnails that can be used by desktop file managers "
 "and other programs"
 msgstr ""
+"Durante il download, salva le miniature che possono essere utilizzate dai gestori di file desktop "
+"e altri programmi"
 
 #: ../raphodo/prefs/preferencedialog.py:472
 msgid "Number of CPU cores used to generate thumbnails."
-msgstr ""
+msgstr "Numero di core CPU utilizzati per generare miniature."
 
 #: ../raphodo/prefs/preferencedialog.py:473
 msgid "CPU cores:"
-msgstr ""
+msgstr "Core della CPU:"
 
 #: ../raphodo/prefs/preferencedialog.py:511
 msgid "Thumbnail Cache"
@@ -1407,7 +1471,7 @@ msgstr "Dimensione della cache:"
 
 #: ../raphodo/prefs/preferencedialog.py:529
 msgid "Number of thumbnails:"
-msgstr ""
+msgstr "Numero di miniature:"
 
 #: ../raphodo/prefs/preferencedialog.py:531
 msgid "Database size:"
@@ -1415,7 +1479,7 @@ msgstr "Dimensione del database:"
 
 #: ../raphodo/prefs/preferencedialog.py:533
 msgid "Cache unaccessed thumbnails for:"
-msgstr ""
+msgstr "Memorizza nella cache le miniature a cui non è stato effettuato l'accesso per:"
 
 #: ../raphodo/prefs/preferencedialog.py:542
 msgid "Purge Cache..."
