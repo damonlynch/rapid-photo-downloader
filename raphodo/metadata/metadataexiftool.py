@@ -122,7 +122,7 @@ def generate_short_camera_model(
     'IXUS'
     >>> generate_short_camera_model("DSC-P92")
     'P92'
-    >>> generate_short_camera_model("DSC-P92", "\-")
+    >>> generate_short_camera_model("DSC-P92", r"\-")
     'DSC-P92'
 
     :param model_name:
