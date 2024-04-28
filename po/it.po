@@ -1380,7 +1380,7 @@ msgid ""
 "Mount devices like memory cards or external drives when\n"
 "the operating system does not automatically mount them"
 msgstr ""
-"Monta dispositivi come schede di memoria o unità esterne quando\in"
+"Monta dispositivi come schede di memoria o unità esterne quando\n"
 "il sistema operativo non li monta automaticamente"
 
 #: ../raphodo/prefs/preferencedialog.py:409
