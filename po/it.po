@@ -551,7 +551,7 @@ msgid ""
 "Attach the log file to your bug report, found at {log_path}\n"
 "\n"
 msgstr ""
-Si prega di segnalare il problema su {website}\n"
+"Si prega di segnalare il problema su {website}\n"
 "Allega il file log alla segnalazione di bug, trovato in {log_path}\n"
 "\n"
 
