@@ -62,7 +62,7 @@ def generate_short_camera_model(
     'a9III'
     >>> generate_short_camera_model("Fujifilm X-S20")
     'S20'
-    >>> generate_short_camera_model("Fujifilm X-S20", r"\-")
+    >>> generate_short_camera_model("Fujifilm X-S20", "-")
     'X-S20'
     >>> generate_short_camera_model("Sony a7C II")
     ''
@@ -122,7 +122,7 @@ def generate_short_camera_model(
     'IXUS'
     >>> generate_short_camera_model("DSC-P92")
     'P92'
-    >>> generate_short_camera_model("DSC-P92", r"\-")
+    >>> generate_short_camera_model("DSC-P92", "-")
     'DSC-P92'
 
     :param model_name:
@@ -133,6 +133,8 @@ def generate_short_camera_model(
 
     m = model_name
     m = m.replace(" Mark ", "Mk")
+    if '-' in include_characters:
+        include_characters = include_characters.replace('-', '\\-')
     if m:
         s = (
             rf"(?:[^a-zA-Z0-9{include_characters}]?)"

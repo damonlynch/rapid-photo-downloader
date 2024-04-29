@@ -531,7 +531,7 @@ if __name__ == "__main__":
     print(m.camera_make())
     print(m.camera_model())
     print(m.short_camera_model())
-    print(m.short_camera_model(include_characters=r"\-"))
+    print(m.short_camera_model(include_characters="-"))
     print(m.date_time())
     print(m.orientation())
     print("Serial number:", m.camera_serial(missing="missing"))
