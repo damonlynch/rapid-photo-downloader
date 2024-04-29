@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.37a6 (2024-04-xx)
+---------------------
+
+ - Terminate WSL Drive Monitor thread during application exit, if necessary.
+
 0.9.37a5 (2024-04-28)
 ---------------------
 

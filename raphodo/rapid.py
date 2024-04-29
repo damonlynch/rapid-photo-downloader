@@ -5057,9 +5057,14 @@ Do you want to proceed with the download?"""
         elif self.gvfs_controls_mounts:
             del self.gvolumeMonitor
         elif self.wslDriveMonitor:
-            # QTimer.singleShot(0, self.wslDriveMonitor.stopMonitor)
             self.wslDriveMonitorThread.quit()
-            self.wslDriveMonitorThread.wait()
+            if not self.wslDriveMonitorThread.wait(1000):
+                logging.debug(
+                    "Terminating WSL Drive Monitor thread "
+                    "(probably due to unfinished wmic.exe call)"
+                )
+                self.wslDriveMonitorThread.terminate()
+                self.wslDriveMonitorThread.wait(1000)
 
         self.sendStopToThread(self.thumbnail_deamon_controller)
         self.thumbnaildaemonmqThread.quit()
