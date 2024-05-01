@@ -100,7 +100,6 @@ from showinfm import (
     valid_file_manager,
 )
 
-import raphodo
 import raphodo.__about__ as __about__
 import raphodo.constants as constants
 import raphodo.downloadtracker as downloadtracker
@@ -108,7 +107,6 @@ import raphodo.excepthook as excepthook
 import raphodo.iplogging as iplogging
 import raphodo.metadata.exiftool as exiftool
 import raphodo.storage.storageidevice as storageidevice
-import raphodo.tools.utilities
 import raphodo.ui.didyouknow as didyouknow
 from raphodo.argumentsparse import get_parser
 from raphodo.cache import ThumbnailCacheSql
@@ -287,7 +285,6 @@ install_gettext()
 app: QtSingleApplication | None = None
 
 faulthandler.enable()
-logger = None
 sys.excepthook = excepthook.excepthook
 
 is_devel_env = os.getenv("RPD_DEVEL_DEFAULTS") is not None
@@ -6444,7 +6441,7 @@ def critical_startup_error(message: str) -> None:
     msg = QMessageBox()
     msg.setWindowTitle(_("Rapid Photo Downloader"))
     msg.setIcon(QMessageBox.Critical)
-    msg.setText("<b>%s</b>" % message)
+    msg.setText(f"<b>{message}</b>")
     msg.setInformativeText(_("Program aborting."))
     msg.setStandardButtons(QMessageBox.Ok)
     msg.show()
