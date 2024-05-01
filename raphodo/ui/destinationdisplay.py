@@ -10,13 +10,18 @@ import math
 import os
 from collections import defaultdict
 
-from PyQt5.QtCore import QPoint, QRect, QSize, QStorageInfo, Qt, pyqtSlot
+from PyQt5.QtCore import QPoint, QRect, QRectF, QSize, QStorageInfo, Qt, pyqtSlot
 from PyQt5.QtGui import (
+    QBrush,
     QColor,
+    QFont,
+    QFontMetrics,
     QIcon,
     QMouseEvent,
+    QPainterPath,
     QPaintEvent,
     QPalette,
+    QPen,
     QPixmap,
 )
 from PyQt5.QtWidgets import (
@@ -32,11 +37,13 @@ from PyQt5.QtWidgets import (
 )
 
 from raphodo.constants import (
-    COLOR_RED_HTML,
+    COLOR_RED_WARNING_HTML,
     CustomColors,
     DestinationDisplayMousePos,
+    DestinationDisplayStatus,
     DestinationDisplayTooltipState,
     DestinationDisplayType,
+    DeviceDisplayPadding,
     DisplayingFilesOfType,
     FileType,
     NameGenerationType,
@@ -292,14 +299,8 @@ class DestinationDisplay(QWidget):
         self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
         self.container_vertical_scrollbar_visible = None
 
-        self.valid = True
-        self.invalidColor = QColor(COLOR_RED_HTML)
-        # Translators: the lack of a period at the end is deliberate
-        _("Unwritable destination")
-        # Translators: the lack of a period at the end is deliberate
-        _("Folder does not exist")
-        # Translators: the lack of a period at the end is deliberate
-        _("Insufficient storage space")
+        self.status = DestinationDisplayStatus.valid
+        self.invalidColor = QColor(COLOR_RED_WARNING_HTML)
 
     @property
     def downloading_to(self) -> DownloadingTo:
@@ -575,6 +576,10 @@ class DestinationDisplay(QWidget):
     def containerVerticalScrollBar(self, visible: bool) -> None:
         self.container_vertical_scrollbar_visible = visible
 
+    @staticmethod
+    def invalidStatusHeight() -> int:
+        return QFontMetrics(QFont()).height() + DeviceDisplayPadding * 3
+
     def paintEvent(self, event: QPaintEvent) -> None:
         """
         Render the custom widget
@@ -583,8 +588,8 @@ class DestinationDisplay(QWidget):
         painter = QStylePainter()
         painter.begin(self)
 
-        x = 0
-        y = 0
+        x: int = 0
+        y: int = 0
         width = self.width()
 
         rect: QRect = self.rect()
@@ -632,6 +637,76 @@ class DestinationDisplay(QWidget):
             )
             y = y + self.deviceDisplay.dc.device_name_height
 
+            if self.status != DestinationDisplayStatus.valid:
+                displayPen = painter.pen()
+                match self.status:
+                    case DestinationDisplayStatus.unwritable:
+                        # Translators: the lack of a period at the end is deliberate
+                        text = _("Unwritable destination")
+                    case DestinationDisplayStatus.does_not_exist:
+                        # Translators: the lack of a period at the end is deliberate
+                        text = _("Folder does not exist")
+                    case DestinationDisplayStatus.no_storage_space:
+                        # Translators: the lack of a period at the end is deliberate
+                        text = _("Insufficient storage space")
+                    case _:
+                        raise NotImplementedError(
+                            "Unhandled destination display status"
+                        )
+
+                status_height = self.invalidStatusHeight()
+                statusRect = QRect(x, y, width, status_height - DeviceDisplayPadding)
+                text_height = QFontMetrics(QFont()).height()
+                red = QColor(Qt.GlobalColor.red)
+                white = QColor(Qt.GlobalColor.white)
+                painter.fillRect(statusRect, self.invalidColor)
+
+                iconRect = QRectF(
+                    float(DeviceDisplayPadding),
+                    float(DeviceDisplayPadding + y),
+                    float(text_height),
+                    float(text_height),
+                )
+                exclamationRect = iconRect.adjusted(0.25, 1.0, 0.25, 1.0)
+                textRect = QRect(
+                    int(iconRect.right()) + DeviceDisplayPadding,
+                    int(iconRect.top()),
+                    width - int(iconRect.right()) - DeviceDisplayPadding,
+                    text_height,
+                )
+
+                displayFont = painter.font()
+                warningFont = QFont()
+                warningFont.setBold(True)
+                exclamationFont = QFont(warningFont)
+                exclamationFont.setPointSize(warningFont.pointSize() - 1)
+
+                painter.setFont(exclamationFont)
+                painter.setPen(QPen(white))
+
+                path = QPainterPath()
+                path.moveTo(iconRect.left() + (iconRect.width() / 2), iconRect.top())
+                path.lineTo(iconRect.bottomLeft())
+                path.lineTo(iconRect.bottomRight())
+                path.lineTo(iconRect.left() + (iconRect.width() / 2), iconRect.top())
+
+                painter.fillPath(path, QBrush(white))
+
+                painter.setPen(QPen(self.invalidColor))
+
+                painter.drawText(exclamationRect, Qt.AlignmentFlag.AlignCenter, "!")
+
+                painter.setFont(warningFont)
+                painter.setPen(QPen(white))
+                painter.drawText(
+                    textRect,
+                    Qt.TextFlag.TextSingleLine | Qt.AlignmentFlag.AlignVCenter,
+                    text,
+                )
+                painter.setPen(displayPen)
+                painter.setFont(displayFont)
+                y = y + status_height
+
         if self.display_type != DestinationDisplayType.folder_only:
             # Render the projected storage space
             if self.display_type == DestinationDisplayType.usage_only:
@@ -671,6 +746,8 @@ class DestinationDisplay(QWidget):
 
         if self.display_type != DestinationDisplayType.usage_only:
             height += self.deviceDisplay.dc.device_name_height
+            if self.status != DestinationDisplayStatus.valid:
+                height += self.invalidStatusHeight()
         if self.display_type != DestinationDisplayType.folder_only:
             height += self.deviceDisplay.dc.storage_height
 
