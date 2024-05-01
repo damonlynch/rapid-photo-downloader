@@ -578,7 +578,7 @@ class DestinationDisplay(QWidget):
 
     @staticmethod
     def invalidStatusHeight() -> int:
-        return QFontMetrics(QFont()).height() + DeviceDisplayPadding * 3
+        return QFontMetrics(QFont()).height() + DeviceDisplayPadding * 2
 
     def paintEvent(self, event: QPaintEvent) -> None:
         """
@@ -654,36 +654,32 @@ class DestinationDisplay(QWidget):
                             "Unhandled destination display status"
                         )
 
+                y = y - DeviceDisplayPadding  # remove the bottom padding
+
                 status_height = self.invalidStatusHeight()
-                statusRect = QRect(x, y, width, status_height - DeviceDisplayPadding)
-                text_height = QFontMetrics(QFont()).height()
-                red = QColor(Qt.GlobalColor.red)
-                white = QColor(Qt.GlobalColor.white)
+                statusRect = QRect(x, y, width, status_height)
                 painter.fillRect(statusRect, self.invalidColor)
+
+                text_height = QFontMetrics(QFont()).height()
+                white = QColor(Qt.GlobalColor.white)
 
                 iconRect = QRectF(
                     float(DeviceDisplayPadding),
-                    float(DeviceDisplayPadding + y),
+                    float(y + DeviceDisplayPadding),
                     float(text_height),
                     float(text_height),
                 )
                 exclamationRect = iconRect.adjusted(0.25, 1.0, 0.25, 1.0)
-                textRect = QRect(
-                    int(iconRect.right()) + DeviceDisplayPadding,
-                    int(iconRect.top()),
-                    width - int(iconRect.right()) - DeviceDisplayPadding,
-                    text_height,
+                textRect = QRectF(
+                    iconRect.right() + DeviceDisplayPadding,
+                    iconRect.top(),
+                    width - iconRect.right() - DeviceDisplayPadding,
+                    float(text_height),
                 )
 
-                displayFont = painter.font()
-                warningFont = QFont()
-                warningFont.setBold(True)
-                exclamationFont = QFont(warningFont)
-                exclamationFont.setPointSize(warningFont.pointSize() - 1)
-
-                painter.setFont(exclamationFont)
                 painter.setPen(QPen(white))
 
+                # Draw a triangle
                 path = QPainterPath()
                 path.moveTo(iconRect.left() + (iconRect.width() / 2), iconRect.top())
                 path.lineTo(iconRect.bottomLeft())
@@ -692,10 +688,18 @@ class DestinationDisplay(QWidget):
 
                 painter.fillPath(path, QBrush(white))
 
-                painter.setPen(QPen(self.invalidColor))
+                # Draw an exclamation point
+                displayFont = painter.font()
+                warningFont = QFont()
+                warningFont.setBold(True)
+                exclamationFont = QFont(warningFont)
+                exclamationFont.setPointSize(warningFont.pointSize() - 2)
 
+                painter.setFont(exclamationFont)
+                painter.setPen(QPen(self.invalidColor))
                 painter.drawText(exclamationRect, Qt.AlignmentFlag.AlignCenter, "!")
 
+                # Draw the warning
                 painter.setFont(warningFont)
                 painter.setPen(QPen(white))
                 painter.drawText(
