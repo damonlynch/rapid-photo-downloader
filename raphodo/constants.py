@@ -9,7 +9,6 @@ from PyQt5.QtGui import QColor, QFont, QFontMetrics
 PROGRAM_NAME = "Rapid Photo Downloader"
 logfile_name = "rapid-photo-downloader.log"
 
-
 # If set to True, the ability to check for a new version will be removed
 # from the user interface and disabled in program logic.
 disable_version_check = False
@@ -74,7 +73,6 @@ Downloaded = (
     DownloadStatus.backup_problem,
 )
 
-
 DownloadWarning = {
     DownloadStatus.downloaded_with_warning,
     DownloadStatus.backup_problem,
@@ -84,14 +82,12 @@ DownloadFailure = {
     DownloadStatus.download_failed,
 }
 
-
 download_status_error_severity = {
     DownloadStatus.downloaded_with_warning: ErrorType.warning,
     DownloadStatus.backup_problem: ErrorType.serious_error,
     DownloadStatus.download_and_backup_failed: ErrorType.serious_error,
     DownloadStatus.download_failed: ErrorType.serious_error,
 }
-
 
 DownloadUpdateMilliseconds = 1000
 DownloadUpdateSeconds = DownloadUpdateMilliseconds / 1000
@@ -148,9 +144,16 @@ class WindowsDriveType(IntEnum):
 
 
 class DestinationDisplayType(Enum):
-    folder_only = 1
-    usage_only = 2
-    folders_and_usage = 3
+    folder_only = 1  # folder icon, folder name, and the menu icon
+    usage_only = 2  # Projected Storage Use display
+    folders_and_usage = 3  # combines types one and two
+
+
+class DestinationDisplayStatus(IntEnum):
+    valid = auto()
+    unwritable = auto()
+    does_not_exist = auto()
+    no_storage_space = auto()
 
 
 class ExifSource(Enum):
@@ -354,12 +357,12 @@ class NameGenerationType(Enum):
     video_subfolder = 4
 
 
-COLOR_RED_HTML = "#cb493f"
+COLOR_RED_WARNING_HTML = "#c42f12"
 
 
 class CustomColors(Enum):
     color1 = "#7a9c38"  # green
-    color2 = COLOR_RED_HTML  # red
+    color2 = "#cb493f"  # red
     color3 = "#d17109"  # orange
     color4 = "#4D8CDC"  # blue
     color5 = "#5f6bfe"  # purple
@@ -369,14 +372,12 @@ class CustomColors(Enum):
 
 ButtonHoverIntensity = 110
 
-
 PaleGray = "#d7d6d5"
 DarkGray = "#35322f"
 MediumGray = "#5d5b59"
 DoubleDarkGray = "#1e1b18"
 
 DarkModeMediumGray = "#2b2b2b"
-
 
 ExtensionColorDict = {
     FileExtension.raw: CustomColors.color1,
@@ -461,7 +462,6 @@ DeviceShadingIntensity = 104
 # How many steps with which to highlight thumbnail cells
 FadeSteps = 20
 FadeMilliseconds = 700
-
 
 # horizontal and vertical margin for thumbnail rectangles
 thumbnail_margin = 10
@@ -771,7 +771,6 @@ filtered_file_browser_directories = {
     "System Volume Information",
     "msdownld.tmp",
 }
-
 
 non_system_root_folders = [
     "/home",
