@@ -3904,7 +3904,7 @@ Do you want to proceed with the download?"""
         self.prefs.downloads_today = downloads_today
         self.prefs.sync()
         logging.debug("Saved sequence values to preferences")
-        if self.application_state == ApplicationState.exiting:
+        if ApplicationState.exiting in self.application_state:
             self.close()
         else:
             self.renamePanel.updateSequences(
@@ -4974,8 +4974,8 @@ Do you want to proceed with the download?"""
             event.accept()
             return
 
-        if self.application_state == ApplicationState.normal:
-            self.application_state = ApplicationState.exiting
+        if ApplicationState.normal in self.application_state:
+            self.application_state ^= ApplicationState.normal | ApplicationState.exiting
             self.sendStopToThread(self.scan_controller)
             self.thumbnailModel.stopThumbnailer()
             self.sendStopToThread(self.copy_controller)
