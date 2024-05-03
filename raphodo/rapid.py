@@ -155,9 +155,9 @@ from raphodo.generatenameconfig import (
 )
 from raphodo.internationalisation.install import install_gettext, localedir
 from raphodo.internationalisation.utilities import (
+    current_locale,
     make_internationalized_list,
     thousands,
-    current_locale,
 )
 from raphodo.interprocess import (
     BackupArguments,
