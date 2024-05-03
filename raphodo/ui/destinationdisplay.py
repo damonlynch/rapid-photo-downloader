@@ -580,6 +580,10 @@ class DestinationDisplay(QWidget):
     def invalidStatusHeight() -> int:
         return QFontMetrics(QFont()).height() + DeviceDisplayPadding * 2
 
+    def setStatus(self, status: DestinationDisplayStatus)-> None:
+        self.status = status
+        self.update()
+
     def paintEvent(self, event: QPaintEvent) -> None:
         """
         Render the custom widget
