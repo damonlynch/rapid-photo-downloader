@@ -235,9 +235,10 @@ class ThumbnailSize(IntEnum):
     height = 120
 
 
-class ApplicationState(Enum):
-    normal = 1
-    exiting = 2
+class ApplicationState(Flag):
+    initialization = auto()
+    normal = auto()
+    exiting = auto()
 
 
 class PostCameraUnmountAction(Enum):
