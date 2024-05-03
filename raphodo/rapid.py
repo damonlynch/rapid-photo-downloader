@@ -136,7 +136,6 @@ from raphodo.constants import (
     Show,
     Sort,
     TemporalProximityState,
-    disable_version_check,
 )
 from raphodo.devices import (
     BackupDevice,
@@ -311,9 +310,6 @@ class RapidWindow(QMainWindow):
     thus kept in the device collection, self.devices
     """
 
-    checkForNewVersionRequest = pyqtSignal()
-    downloadNewVersionRequest = pyqtSignal(str, str)
-    reverifyDownloadedTar = pyqtSignal(str)
     udisks2Unmount = pyqtSignal(str)
 
     def __init__(
@@ -404,9 +400,6 @@ class RapidWindow(QMainWindow):
             platform_selected=platform_selected,
         ):
             logging.info("%s", version)
-
-        if disable_version_check:
-            logging.debug("Version checking disabled via code")
 
         if EXIFTOOL_VERSION is None:
             logging.error("ExifTool is either missing or has a problem")
@@ -1116,8 +1109,6 @@ class RapidWindow(QMainWindow):
             self.tip = didyouknow.DidYouKnowDialog(self.prefs, self)
             if self.prefs.did_you_know_on_startup:
                 self.tip.activate()
-
-            self.checkForNewVersionRequest.emit()
 
         # Setup survey prompt context
         self.prompt_for_survey_post_download = False
