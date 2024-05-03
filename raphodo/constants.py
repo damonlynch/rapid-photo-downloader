@@ -232,9 +232,14 @@ class ThumbnailSize(IntEnum):
 
 
 class ApplicationState(Flag):
-    initialization = auto()
+    startup = auto()
     normal = auto()
     exiting = auto()
+    timeline_generating = auto()
+    timeline_generated = auto()
+
+CORE_APPLICATION_STATE_MASK = ApplicationState.startup | ApplicationState.normal | ApplicationState.exiting
+TIMELINE_APPLICATION_STATE_MASK = ApplicationState.timeline_generating | ApplicationState.timeline_generated
 
 
 class PostCameraUnmountAction(Enum):

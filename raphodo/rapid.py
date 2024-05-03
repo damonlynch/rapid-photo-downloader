@@ -116,6 +116,8 @@ from raphodo.camera import (
     gphoto2_python_logging,
 )
 from raphodo.constants import (
+    CORE_APPLICATION_STATE_MASK,
+    TIMELINE_APPLICATION_STATE_MASK,
     ApplicationState,
     BackupFailureType,
     BackupLocationType,
@@ -345,9 +347,7 @@ class RapidWindow(QMainWindow):
         super().__init__()
         self.setObjectName("rapidMainWindow")
 
-        # Indicate not to show any dialogs to the user until the program has finished
-        # starting
-        self.on_startup = True
+        self.application_state = ApplicationState.startup
 
         self.splash = splash
         if splash.isVisible():
@@ -369,7 +369,6 @@ class RapidWindow(QMainWindow):
         self.setFocusPolicy(Qt.StrongFocus)
 
         self.ignore_other_photo_types = ignore_other_photo_types
-        self.application_state = ApplicationState.normal
         self.prompting_for_user_action: dict[Device, QMessageBox] = {}
         self.prefs_dialog_active = False
 
@@ -1098,7 +1097,8 @@ class RapidWindow(QMainWindow):
             if warning.remember:
                 self.prefs.warn_broken_or_missing_libraries = False
 
-        self.on_startup = False
+        self.setCoreState(ApplicationState.normal)
+
         self.iOSIssueErrorMessage()
         if self.is_wsl2:
             self.wslDrives.mountDrives()
@@ -1125,6 +1125,53 @@ class RapidWindow(QMainWindow):
                 QTimer.singleShot(delay, self.promptForSurvey)
 
         logging.debug("Completed stage 9 initializing main window")
+
+    def addState(self, state: ApplicationState) -> None:
+        logging.debug("Adding state %s", state._name_)
+        self.application_state |= state
+
+    def delState(self, state: ApplicationState) -> None:
+        logging.debug("Deleting state %s", state._name_)
+        self.application_state &= ~state
+
+    def setCoreState(self, state: ApplicationState) -> None:
+        assert state & CORE_APPLICATION_STATE_MASK
+        if not self.application_state & CORE_APPLICATION_STATE_MASK:
+            logging.critical("Core application flag not set")
+        else:
+            logging.debug(
+                "Core state: %s ➡ %s",
+                self._appState("core"),
+                self._appState("core", state),
+            )
+        # Clear existing state
+        self.application_state &= ~CORE_APPLICATION_STATE_MASK
+        # Add new state
+        self.application_state |= state
+
+    def _appState(self, category: str, state: ApplicationState | None = None) -> str:
+        if state is None:
+            state = self.application_state
+        match category.lower():
+            case "core":
+                s = state & CORE_APPLICATION_STATE_MASK
+            case "timeline":
+                s = state & TIMELINE_APPLICATION_STATE_MASK
+            case _:
+                raise ValueError("Unrecognised application state")
+
+        return s._name_
+
+    @property
+    def on_startup(self) -> bool:
+        return bool(ApplicationState.startup & self.application_state)
+
+    @property
+    def on_exit(self) -> bool:
+        return bool(ApplicationState.exiting & self.application_state)
+
+    def logApplicationState(self) -> None:
+        logging.debug("Core state: %s", self._appState("core"))
 
     def showMainWindow(self) -> None:
         if not self.isVisible():
@@ -4967,8 +5014,8 @@ Do you want to proceed with the download?"""
             event.accept()
             return
 
-        if ApplicationState.normal in self.application_state:
-            self.application_state ^= ApplicationState.normal | ApplicationState.exiting
+        if ApplicationState.normal & self.application_state:
+            self.setCoreState(ApplicationState.exiting)
             self.sendStopToThread(self.scan_controller)
             self.thumbnailModel.stopThumbnailer()
             self.sendStopToThread(self.copy_controller)
@@ -5582,6 +5629,10 @@ Do you want to proceed with the download?"""
 
     @pyqtSlot("PyQt_PyObject")
     def wslWindowsDriveAdded(self, drives: list[WindowsDriveMount]) -> None:
+        if self.on_exit:
+            logging.debug("Ignoring added WSL drives during exit")
+            return
+
         wsl_drive_previously_probed = self.wsl_drives_probed
         self.wsl_drives_probed = True
         for drive in drives:
@@ -5605,6 +5656,10 @@ Do you want to proceed with the download?"""
 
     @pyqtSlot("PyQt_PyObject")
     def wslWindowsDriveRemoved(self, drive: WindowsDriveMount) -> None:
+        if self.on_exit:
+            logging.debug("Ignoring removed WSL drives during exit")
+            return
+
         logging.info(
             "Detected removal of Windows drive %s: %s %s",
             drive.drive_letter,
@@ -5615,6 +5670,10 @@ Do you want to proceed with the download?"""
 
     @pyqtSlot("PyQt_PyObject")
     def wslWindowsDriveMounted(self, drives: list[WindowsDriveMount]) -> None:
+        if self.on_exit:
+            logging.debug("Ignoring mounted WSL drives during exit")
+            return
+
         for drive in drives:
             icon_names, can_eject = self.wslDrives.driveProperties(
                 mount_point=drive.mount_point
