@@ -2051,6 +2051,7 @@ difference to the program's future.</p>"""
             if photo_df.absolute_path != self.prefs.photo_download_folder:
                 self.prefs.photo_download_folder = photo_df.absolute_path
         else:
+            # TODO change behaviour
             if self.prefs.photo_download_folder:
                 logging.error(
                     "Ignoring invalid Photo Destination path: %s",
@@ -2063,6 +2064,7 @@ difference to the program's future.</p>"""
             if video_df.absolute_path != self.prefs.video_download_folder:
                 self.prefs.video_download_folder = video_df.absolute_path
         else:
+            # TODO change behaviour
             if self.prefs.video_download_folder:
                 logging.error(
                     "Ignoring invalid Video Destination path: %s",
