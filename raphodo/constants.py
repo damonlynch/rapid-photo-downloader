@@ -9,10 +9,6 @@ from PyQt5.QtGui import QColor, QFont, QFontMetrics
 PROGRAM_NAME = "Rapid Photo Downloader"
 logfile_name = "rapid-photo-downloader.log"
 
-# If set to True, the ability to check for a new version will be removed
-# from the user interface and disabled in program logic.
-disable_version_check = False
-
 
 class ConflictResolution(IntEnum):
     skip = 1
