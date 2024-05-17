@@ -2459,7 +2459,7 @@ difference to the program's future.</p>"""
             return
         if self.app_state.ui_state_change_pending_dest_preview_folders:
             # TODO this is a total hack, modify this to make it more robust
-            QTimer.singleShot(1000, self._updateDestUIPreviewFolders)
+            QTimer.singleShot(0, self._updateDestUIPreviewFolders)
 
     @pyqtSlot()
     def _updateDestUIPreviewFolders(self):
