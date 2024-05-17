@@ -1155,6 +1155,8 @@ class RapidWindow(QMainWindow):
     def setupRemainingSignalConnections(self) -> None:
         self.watchedDownloadDirs.directoryChanged.connect(self.watchedFolderChange)
         self.thumbnailModel.filesAdded.connect(self.setStateDestFilesToDownload)
+        self.thumbnailModel.markedFilesChanged.connect(self.setStateDestFilesToDownload)
+        self.thumbnailModel.markedFilesChanged.connect(self.displayMessageInStatusBar)
 
     def initializeScans(self) -> None:
         if not self.is_wsl2:
@@ -6560,6 +6562,7 @@ Do you want to proceed with the download?"""
 
         return self.prefs.device_autodetection and not self.prefs.scan_specific_folders
 
+    @pyqtSlot()
     def displayMessageInStatusBar(self) -> None:
         """
         Displays message on status bar.
@@ -6571,7 +6574,7 @@ Do you want to proceed with the download?"""
         2. total number files available
         3. how many not shown (user chose to show only new files)
         """
-
+        # TODO convert to use states
         if self.downloadIsRunning():
             if self.download_paused:
                 downloading = self.devices.downloading_from()

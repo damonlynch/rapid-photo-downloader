@@ -161,6 +161,7 @@ class AddBuffer:
 class ThumbnailListModel(QAbstractListModel):
     selectionReset = pyqtSignal()
     filesAdded = pyqtSignal()
+    markedFilesChanged = pyqtSignal()
 
     def __init__(self, parent, logging_port: int, log_gphoto2: bool) -> None:
         super().__init__(parent)
@@ -737,8 +738,7 @@ class ThumbnailListModel(QAbstractListModel):
             scan_ids = (scan_id for scan_id in self.rapidApp.devices)
         for scan_id in scan_ids:
             self.updateDeviceDisplayCheckMark(scan_id=scan_id)
-        self.rapidApp.displayMessageInStatusBar()
-        self.rapidApp.setDownloadCapabilities()
+        self.markedFilesChanged.emit()
 
     def removeRows(self, position, rows=1, index=QModelIndex()) -> bool:
         """
