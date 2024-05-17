@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 from packaging.version import Version, parse
-from PyQt5.QtCore import QSettings, Qt, QTime
+from PyQt5.QtCore import QObject, QSettings, Qt, QTime, pyqtSignal
 
 import raphodo.__about__
 import raphodo.constants as constants
@@ -1113,7 +1113,7 @@ class Preferences:
             # them here.
             for value in ("THMBNL", "__MACOSX"):
                 # If the value is not already in the list, add it
-                logging.info("Adding folder '%s' to list of ignored paths" % value)
+                logging.info("Adding folder '%s' to list of ignored paths", value)
                 self.add_list_value(key=key, value=value)
 
         v0927a3 = parse("0.9.27a3")
@@ -1160,7 +1160,7 @@ class Preferences:
             if path and (
                 len(parts) < 2 or f"/{parts[1]}" not in non_system_root_folders
             ):
-                logging.debug("'%s' %s is a system directory", name, path)
+                logging.debug("%s %s is a system directory", name, path)
                 system_dir_located = True
                 break
         return system_dir_located
@@ -1195,6 +1195,38 @@ class Preferences:
         :return: the full path of the settings file
         """
         return self.settings.fileName()
+
+    def download_folder(self, file_type: FileType) -> str:
+        """
+        Returns the full path of the appropriate download folder depending
+        on the file type
+        """
+
+        if file_type == FileType.photo:
+            return self.photo_download_folder
+        else:
+            return self.video_download_folder
+
+    def set_download_folder(self, path: str, file_type: FileType) -> None:
+        if file_type == FileType.photo:
+            self.photo_download_folder = path
+        else:
+            self.video_download_folder = path
+
+
+class QtPreferences(Preferences, QObject):
+    destinationChanged = pyqtSignal("PyQt_PyObject")
+
+    def __init__(self):
+        super().__init__()
+        QObject.__init__(self)
+
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value)
+        if key == "photo_download_folder":
+            self.destinationChanged.emit(FileType.photo)
+        elif key == "video_download_folder":
+            self.destinationChanged.emit(FileType.video)
 
 
 def match_pref_list(pref_lists: list[list[str]], user_pref_list: list[str]) -> int:

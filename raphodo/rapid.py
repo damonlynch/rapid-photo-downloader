@@ -31,6 +31,7 @@ import sys
 import time
 import webbrowser
 from collections import defaultdict
+from pathlib import Path
 from typing import Any
 
 import gi
@@ -116,16 +117,16 @@ from raphodo.camera import (
     gphoto2_python_logging,
 )
 from raphodo.constants import (
-    CORE_APPLICATION_STATE_MASK,
-    TIMELINE_APPLICATION_STATE_MASK,
-    ApplicationState,
+    MAP_FILE_TYPE_TO_DISPLAYING_FILES_OF_TYPE,
     BackupFailureType,
     BackupLocationType,
     BackupStatus,
     CameraErrorCode,
     CompletedDownloads,
+    DestDisplayStatus,
     DeviceState,
     DeviceType,
+    DisplayFileType,
     FileType,
     FileTypeFlag,
     PostCameraUnmountAction,
@@ -139,12 +140,19 @@ from raphodo.constants import (
     Sort,
     TemporalProximityState,
 )
+from raphodo.customtypes import (
+    DownloadFilesSizeAndNum,
+    DownloadStats,
+    MarkedSummary,
+    display_types_tuple,
+    file_types_tuple,
+)
+from raphodo.destinationspace import DestinationSpace
 from raphodo.devices import (
     BackupDevice,
     BackupDeviceCollection,
     Device,
     DeviceCollection,
-    DownloadingTo,
     FSMetadataErrors,
 )
 from raphodo.errorlog import ErrorReport, SpeechBubble
@@ -182,7 +190,7 @@ from raphodo.interprocess import (
 from raphodo.metadata.fileextensions import PHOTO_EXTENSIONS, VIDEO_EXTENSIONS
 from raphodo.metadata.metadatavideo import libmediainfo_missing, pymedia_version_info
 from raphodo.prefs.preferencedialog import PreferencesDialog
-from raphodo.prefs.preferences import Preferences
+from raphodo.prefs.preferences import QtPreferences
 from raphodo.problemnotification import BackingUpProblems, CopyingProblems, Problems
 from raphodo.programversions import EXIFTOOL_VERSION
 from raphodo.proximity import (
@@ -200,6 +208,14 @@ from raphodo.rpdfile import (
     file_types_by_number,
 )
 from raphodo.rpdsql import DownloadedSQL
+from raphodo.state import (
+    MAP_DEST_DIR_MASK,
+    MAP_DEST_DIR_NOT_EXIST,
+    MAP_DEST_DIR_NOT_SPECIFIED,
+    MAP_DEST_DIR_READ_ONLY,
+    AppState,
+    State,
+)
 from raphodo.storage.storage import (
     CameraHotplug,
     GVolumeMonitor,
@@ -208,6 +224,7 @@ from raphodo.storage.storage import (
     ValidatedFolder,
     ValidMounts,
     WatchDownloadDirs,
+    folder_writable,
     get_fdo_cache_thumb_base_directory,
     get_media_dir,
     gvfs_gphoto2_path,
@@ -220,8 +237,6 @@ from raphodo.storage.storage import (
     validate_source_folder,
 )
 from raphodo.thumbnaildisplay import (
-    DownloadStats,
-    MarkedSummary,
     ThumbnailDelegate,
     ThumbnailListModel,
     ThumbnailView,
@@ -307,6 +322,8 @@ class RapidWindow(QMainWindow):
 
     Such attributes unfortunately make it very complex.
 
+    TODO update this to reflect new use of state:
+
     For better or worse, Qt's state machine technology is not used.
     State indicating whether a download or scan is occurring is
     thus kept in the device collection, self.devices
@@ -347,7 +364,8 @@ class RapidWindow(QMainWindow):
         super().__init__()
         self.setObjectName("rapidMainWindow")
 
-        self.application_state = ApplicationState.startup
+        self.app_state = State()
+        self.dest_space = DestinationSpace()
 
         self.splash = splash
         if splash.isVisible():
@@ -414,7 +432,8 @@ class RapidWindow(QMainWindow):
         self.setWindowTitle(_("Rapid Photo Downloader"))
         # app is a module level global
         self.readWindowSettings(app)
-        self.prefs = Preferences()
+        self.prefs = QtPreferences()
+        self.prefs.destinationChanged.connect(self.destinationChanged)
         self.checkPrefsUpgrade()
         self.prefs.program_version = __about__.__version__
 
@@ -1038,20 +1057,29 @@ class RapidWindow(QMainWindow):
 
         settings.endGroup()
 
-        prefs_valid, msg = self.prefs.check_prefs_for_validity()
-
         self.setupErrorLogWindow(settings=settings)
+        logging.debug("Completed stage 9 initializing main window")
+        self.initializeUI()
 
-        self.setDownloadCapabilities()
-        if not self.is_wsl2:
-            self.searchForCameras()
-            self.setupNonCameraDevices()
+    def initializeUI(self) -> None:
+        self.app_state.set_core_state(AppState.INITIALIZE_UI)
+
         self.splash.setProgress(100)
+        # TODO separate UI state and scan initialisation
         self.setupManualPath()
         self.updateSourceButton()
         self.displayMessageInStatusBar()
 
+        self.setStateDestinationFolder()
+
+        self.setupRemainingSignalConnections()
+
+        self.initializeNormalUI()
+
+    def initializeNormalUI(self) -> None:
         self.showMainWindow()
+        self.app_state.set_core_state(AppState.NORMAL)
+        self.initializeScans()
 
         if self.mountMonitorTimer is not None:
             self.mountMonitorTimer.start()
@@ -1097,11 +1125,11 @@ class RapidWindow(QMainWindow):
             if warning.remember:
                 self.prefs.warn_broken_or_missing_libraries = False
 
-        self.setCoreState(ApplicationState.normal)
-
+        # TODO change the  start up status check for this
         self.iOSIssueErrorMessage()
-        if self.is_wsl2:
-            self.wslDrives.mountDrives()
+
+        # TODO move this check!
+        prefs_valid, msg = self.prefs.check_prefs_for_validity()
 
         if not prefs_valid:
             self.notifyPrefsAreInvalid(details=msg)
@@ -1124,54 +1152,16 @@ class RapidWindow(QMainWindow):
                 delay = 500 if force_survey else 10000
                 QTimer.singleShot(delay, self.promptForSurvey)
 
-        logging.debug("Completed stage 9 initializing main window")
+    def setupRemainingSignalConnections(self) -> None:
+        self.watchedDownloadDirs.directoryChanged.connect(self.watchedFolderChange)
+        self.thumbnailModel.filesAdded.connect(self.setStateDestFilesToDownload)
 
-    def addState(self, state: ApplicationState) -> None:
-        logging.debug("Adding state %s", state._name_)
-        self.application_state |= state
-
-    def delState(self, state: ApplicationState) -> None:
-        logging.debug("Deleting state %s", state._name_)
-        self.application_state &= ~state
-
-    def setCoreState(self, state: ApplicationState) -> None:
-        assert state & CORE_APPLICATION_STATE_MASK
-        if not self.application_state & CORE_APPLICATION_STATE_MASK:
-            logging.critical("Core application flag not set")
+    def initializeScans(self) -> None:
+        if not self.is_wsl2:
+            self.searchForCameras()
+            self.setupNonCameraDevices()
         else:
-            logging.debug(
-                "Core state: %s ➡ %s",
-                self._appState("core"),
-                self._appState("core", state),
-            )
-        # Clear existing state
-        self.application_state &= ~CORE_APPLICATION_STATE_MASK
-        # Add new state
-        self.application_state |= state
-
-    def _appState(self, category: str, state: ApplicationState | None = None) -> str:
-        if state is None:
-            state = self.application_state
-        match category.lower():
-            case "core":
-                s = state & CORE_APPLICATION_STATE_MASK
-            case "timeline":
-                s = state & TIMELINE_APPLICATION_STATE_MASK
-            case _:
-                raise ValueError("Unrecognised application state")
-
-        return s._name_
-
-    @property
-    def on_startup(self) -> bool:
-        return bool(ApplicationState.startup & self.application_state)
-
-    @property
-    def on_exit(self) -> bool:
-        return bool(ApplicationState.exiting & self.application_state)
-
-    def logApplicationState(self) -> None:
-        logging.debug("Core state: %s", self._appState("core"))
+            self.wslDrives.mountDrives()
 
     def showMainWindow(self) -> None:
         if not self.isVisible():
@@ -1294,14 +1284,14 @@ class RapidWindow(QMainWindow):
         :param display_name: device name
         """
 
-        if self.on_startup and display_name:
+        if self.app_state.on_startup and display_name:
             logging.debug(
                 "Queueing display of missing iOS helper application error message for "
                 "display after program startup"
             )
             display_name = f"'{display_name}'"
             self.ios_issue_message_queue.add(display_name)
-        elif not self.on_startup and (
+        elif not self.app_state.on_startup and (
             self.ios_issue_message_queue or display_name is not None
         ):
             if display_name is not None:
@@ -1747,7 +1737,7 @@ difference to the program's future.</p>"""
 
     @pyqtSlot()
     def sourceButtonClicked(self) -> None:
-        if not self.on_startup:
+        if not self.app_state.on_startup:
             self.sourcePanel.placeWidgets()
         self.sourcePanel.setSourcesVisible(self.sourceButton.isChecked())
         self.setLeftPanelVisibility()
@@ -2093,35 +2083,7 @@ difference to the program's future.</p>"""
             )
             self.prefs.this_computer_path = ""
 
-        photo_df = validate_download_folder(self.prefs.photo_download_folder)
-        if photo_df.valid:
-            if photo_df.absolute_path != self.prefs.photo_download_folder:
-                self.prefs.photo_download_folder = photo_df.absolute_path
-        else:
-            # TODO change behaviour
-            if self.prefs.photo_download_folder:
-                logging.error(
-                    "Ignoring invalid Photo Destination path: %s",
-                    self.prefs.photo_download_folder,
-                )
-            self.prefs.photo_download_folder = ""
-
-        video_df = validate_download_folder(self.prefs.video_download_folder)
-        if video_df.valid:
-            if video_df.absolute_path != self.prefs.video_download_folder:
-                self.prefs.video_download_folder = video_df.absolute_path
-        else:
-            # TODO change behaviour
-            if self.prefs.video_download_folder:
-                logging.error(
-                    "Ignoring invalid Video Destination path: %s",
-                    self.prefs.video_download_folder,
-                )
-            self.prefs.video_download_folder = ""
-
         self.watchedDownloadDirs = WatchDownloadDirs()
-        self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
-        self.watchedDownloadDirs.directoryChanged.connect(self.watchedFolderChange)
 
         self.fileSystemModel = FileSystemModel(parent=self)
         self.fileSystemFilter = FileSystemFilter(self)
@@ -2160,8 +2122,6 @@ difference to the program's future.</p>"""
         self.photoDestinationFSView.setItemDelegate(self.fileSystemDelegate)
         self.photoDestinationFSView.hideColumns()
         self.photoDestinationFSView.setRootIndex(index)
-        if photo_df.valid:
-            self.photoDestinationFSView.goToPath(self.prefs.photo_download_folder)
         self.photoDestinationFSView.activated.connect(self.photoDestinationPathChosen)
         self.photoDestinationFSView.clicked.connect(self.photoDestinationPathChosen)
         self.photoDestinationFSView.showSystemFolders.connect(
@@ -2178,14 +2138,17 @@ difference to the program's future.</p>"""
         self.videoDestinationFSView.setItemDelegate(self.fileSystemDelegate)
         self.videoDestinationFSView.hideColumns()
         self.videoDestinationFSView.setRootIndex(index)
-        if video_df.valid:
-            self.videoDestinationFSView.goToPath(self.prefs.video_download_folder)
         self.videoDestinationFSView.activated.connect(self.videoDestinationPathChosen)
         self.videoDestinationFSView.clicked.connect(self.videoDestinationPathChosen)
         self.videoDestinationFSView.showSystemFolders.connect(
             self.fileSystemFilter.setShowSystemFolders
         )
         self.videoDestinationFSView.filePathReset.connect(self.videoDestinationReset)
+
+        self.MAP_FILESYSTEM_VIEW = {
+            FileType.photo: self.photoDestinationFSView,
+            FileType.video: self.videoDestinationFSView,
+        }
 
     def createDeviceThisComputerViews(self) -> None:
         # Devices Header and View
@@ -2473,12 +2436,98 @@ difference to the program's future.</p>"""
         self.resize(QSize(preferred_width, preferred_height))
 
     def showEvent(self, event: QShowEvent) -> None:
-        if self.on_startup and (
+        if self.app_state.on_initialize_ui and (
             self.do_generate_default_window_size
             or self.do_generate_center_splitter_size
         ):
             self.setDefaultWindowSize()
         super().showEvent(event)
+
+    def updateDestUIWatch(self) -> None:
+        change_pending = self.app_state.ui_state_change_pending_dest_watch
+        if change_pending or self.app_state.on_initialize_ui:
+            self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
+            if change_pending:
+                self.app_state.unset_ui_state_change_pending_dest_watch()
+
+    def updateDestUIPreviewFolders(self) -> None:
+        # TODO Investigate handling preview folders in read-only folders
+        if self.app_state.on_initialize_ui:
+            self.folder_preview_manager.change_destination()
+            return
+        if self.app_state.ui_state_change_pending_dest_preview_folders:
+            # TODO this is a total hack, modify this to make it more robust
+            QTimer.singleShot(1000, self._updateDestUIPreviewFolders)
+
+    @pyqtSlot()
+    def _updateDestUIPreviewFolders(self):
+        if self.app_state.ui_state_change_pending_dest_preview_folders:
+            self.folder_preview_manager.change_destination()
+            self.app_state.unset_ui_state_change_pending_dest_preview_folders()
+
+    def updateDestUIElements(self) -> None:
+        if self.app_state.on_startup:
+            return
+
+        on_init = self.app_state.on_initialize_ui
+        logging.debug("Updating destination UI elements: %s", self.app_state.state)
+
+        # Set destination display visibility within the destination panel
+        if on_init or self.app_state.ui_state_change_pending_to_dest_same:
+            self.destinationPanel.setDestinationDisplayVisibilityAndType(
+                same_device=self.app_state.dest_same
+            )
+
+        # Update the combined destination display, possibly including its status message
+        if self.app_state.dest_same:
+            dt = DisplayFileType.photos_and_videos
+            # TODO optimise
+            if self.app_state.ui_element_change_pending_dest_space(
+                dt
+            ) or self.app_state.ui_element_change_pending_dest_status_no_space(dt):
+                self.destinationPanel.combinedDestinationDisplay.update()
+            if self.app_state.ui_element_change_pending_dest_status_no_space(dt):
+                self.app_state.set_ui_geometry_change_pending_dest(dt)
+
+        for ft in tuple(FileType):
+            display_type = MAP_FILE_TYPE_TO_DISPLAYING_FILES_OF_TYPE[ft]
+            if not self.app_state.ui_change_pending_destination_panel(ft, display_type):
+                continue
+
+            if on_init or self.app_state.ui_element_change_pending_dest_path(ft):
+                not_specified = self.app_state.dest_dir_not_specified(ft)
+                self.destinationPanel.setSelectDestinationFolderVisible(
+                    file_type=ft, visible=not_specified
+                )
+                if not not_specified:
+                    self.destinationPanel.setDestinationPath(
+                        file_type=ft, path=self.prefs.download_folder(ft)
+                    )
+
+            if self.app_state.ui_geometry_change_needed_dest(ft):
+                self.app_state.set_ui_geometry_change_pending_dest(display_type)
+
+            self.app_state.reset_ui_change_pending_destination_panel(ft, display_type)
+            self.destinationPanel.updateDestinationView(file_type=ft)
+
+        self.app_state.unset_app_state(AppState.UI_STATE_CHANGE_PENDING_DEST_SAME)
+
+        for dt in tuple(DisplayFileType):
+            if self.app_state.ui_geometry_change_pending_dest(dt):
+                self.destinationPanel.updateDestinationViewGeometry(dt)
+                self.app_state.unset_ui_geometry_change_pending_dest(dt)
+
+        logging.debug(
+            "Completed updating destination UI elements. Current state: %s",
+            self.app_state.state,
+        )
+
+    # TODO rename this method
+    def updateUI(self) -> None:
+        # TODO set button state based on more criteria
+        destinations_good = True
+        self.setDownloadActionState(destinations_good)
+        self.destinationButton.setHighlighted(not destinations_good)
 
     def setDownloadCapabilities(self) -> bool:
         """
@@ -2487,7 +2536,12 @@ difference to the program's future.</p>"""
         :return: True if download destinations are capable of having
         all marked files downloaded to them
         """
-        marked_summary = self.thumbnailModel.getMarkedSummary()
+        logging.error("Do not call setDownloadCapabilities")
+        return False
+
+        # TODO move this logic to a new UI set state method
+
+        marked_summary = self.thumbnailModel.getMarkedDownloadFilesSizeAndNum()
         if self.prefs.backup_files:
             downloading_to = self.backup_devices.get_download_backup_device_overlap(
                 photo_download_folder=self.prefs.photo_download_folder,
@@ -2499,9 +2553,7 @@ difference to the program's future.</p>"""
             backups_good = True
             downloading_to = defaultdict(set)
 
-        destinations_good = self.updateDestinationViews(
-            marked_summary=marked_summary, downloading_to=downloading_to
-        )
+        destinations_good = False
 
         download_good = destinations_good and backups_good
         self.setDownloadActionState(download_good)
@@ -2509,44 +2561,178 @@ difference to the program's future.</p>"""
         self.backupButton.setHighlighted(not backups_good)
         return download_good
 
-    def updateDestinationViews(
-        self,
-        marked_summary: MarkedSummary,
-        downloading_to: DownloadingTo | None = None,
-    ) -> bool:
-        """
-        Updates the header bar and storage space view for the
-        photo and video download destinations.
+    def _setStateDestFileTypesTuple(
+        self, file_type: FileType | None = None
+    ) -> tuple[FileType, ...]:
+        if self.app_state.ui_state_change_pending_to_dest_same:
+            return tuple(FileType)
+        else:
+            return file_types_tuple(file_type)
 
-        :return True if destinations required for the download exist,
-         and there is sufficient space on them, else False.
+    def setStateDestDirCharacteristics(self, file_type: FileType | None = None) -> None:
+        for ft in file_types_tuple(file_type):
+            download_folder = self.prefs.download_folder(ft)
+            mask = MAP_DEST_DIR_MASK[ft]
+            original = mask & self.app_state.state
+
+            if not download_folder:
+                state = MAP_DEST_DIR_NOT_SPECIFIED[ft]
+                status = DestDisplayStatus.unspecified
+            elif not Path(download_folder).is_dir():
+                state = MAP_DEST_DIR_NOT_EXIST[ft]
+                status = DestDisplayStatus.does_not_exist
+            elif not folder_writable(download_folder, write_on_waccesss_failure=True):
+                state = MAP_DEST_DIR_READ_ONLY[ft]
+                status = DestDisplayStatus.read_only
+            else:
+                state = AppState(0)
+                status = DestDisplayStatus.valid
+
+            if state:
+                self.app_state.set_dest_dir_state(state)
+            elif original:
+                self.app_state.reset_dest_dir_state(ft)
+
+            if original != state:
+                self.app_state.set_ui_element_change_pending_dest_status(ft)
+
+            self.destinationPanel.setDestinationDisplayStatus(ft, status)
+
+    def setStateDestSameDevice(self) -> None:
+        is_same = (
+            self.app_state.dest_dir_exists(FileType.photo)
+            and self.app_state.dest_dir_exists(FileType.video)
+            and same_device(
+                self.prefs.photo_download_folder, self.prefs.video_download_folder
+            )
+        )
+        if is_same:
+            logging.debug(
+                "Photos and videos are being downloaded to the same destination device"
+            )
+            changed = self.app_state.set_app_state(AppState.DEST_SAME)
+        else:
+            logging.debug("Photos and videos are being downloaded to different devices")
+            changed = self.app_state.unset_app_state(AppState.DEST_SAME)
+
+        if changed:
+            self.app_state.set_app_state(AppState.UI_STATE_CHANGE_PENDING_DEST_SAME)
+
+            for display_type in display_types_tuple(same_destination=is_same):
+                self.app_state.set_ui_element_change_pending_dest_space(display_type)
+
+    def setDestDeviceSpace(self, file_type: FileType | None = None) -> None:
+        if self.app_state.dest_same:
+            display_type = DisplayFileType.photos_and_videos
+            if self.dest_space.set_destination(
+                path=self.prefs.download_folder(FileType.photo),
+                display_type=DisplayFileType.photos_and_videos,
+            ):
+                self._setDestDeviceSpace(display_type=display_type)
+        else:
+            for ft in self._setStateDestFileTypesTuple(file_type):
+                display_type = MAP_FILE_TYPE_TO_DISPLAYING_FILES_OF_TYPE[ft]
+                if self.dest_space.set_destination(
+                    path=self.prefs.download_folder(ft), display_type=display_type
+                ):
+                    self._setDestDeviceSpace(display_type=display_type)
+
+    def _setDestDeviceSpace(self, display_type: DisplayFileType) -> None:
+        logging.info("Mount changed for %s", display_type)
+
+        storage_space = self.dest_space.dest[display_type].storage_space()
+        self.app_state.set_ui_element_change_pending_dest_space(display_type)
+        self.destinationPanel.setMountSpaceAttributes(display_type, storage_space)
+
+    def _destDeviceUsageCheckNeeded(self, display_type: DisplayFileType) -> bool:
+        return (
+            self.app_state.on_initialize_ui
+            or self.app_state.ui_element_change_pending_dest_space(display_type)
+        )
+
+    def setDestDeviceUsage(self) -> None:
+        """
+        Set state and status regarding whether there is enough space for a
+        download. Set values in destination displays, and update no space status.
         """
 
-        if self.unity_progress:
-            available = self.thumbnailModel.getNoFilesMarkedForDownload()
+        # TODO add check for backups:
+        # Special case of specific backup folder being on the same partition as the
+        # download destination
+        # TODO handle cases where a download is already occurring: merge should be true
+
+        logging.debug("Checking destination device usage")
+        merge = False  # merge = self.downloadIsRunning()
+        sizeAndNum: DownloadFilesSizeAndNum | None = None
+
+        for display_type in display_types_tuple(self.app_state.dest_same):
+            if not self._destDeviceUsageCheckNeeded(display_type):
+                logging.debug("Not checking %s because not needed", display_type)
+                continue
+            if sizeAndNum is None:
+                sizeAndNum = self.thumbnailModel.getMarkedDownloadFilesSizeAndNum()
+            size_marked = sizeAndNum.size_marked(display_type)
+            enough_space, changed = self._setStateDestSufficientSpaceCheck(
+                size_marked=size_marked,
+                display_type=display_type,
+            )
+            self.destinationPanel.setUsageAttributes(display_type, sizeAndNum, merge)
+            if changed:
+                self.app_state.set_ui_element_change_pending_dest_status_no_space(
+                    display_type
+                )
+                self.destinationPanel.setDestinationDisplayNoSpaceStatus(
+                    display_type, enough_space
+                )
+
+        if sizeAndNum is not None and self.unity_progress:
+            num_marked = sizeAndNum.sum_num_marked()
             for launcher in self.desktop_launchers:
-                if available:
-                    launcher.set_property("count", available)
+                if num_marked:
+                    launcher.set_property("count", num_marked)
                     launcher.set_property("count_visible", True)
                 else:
                     launcher.set_property("count_visible", False)
 
-        # Assume that invalid destination folders have already been reset to ''
-        if self.prefs.photo_download_folder and self.prefs.video_download_folder:
-            same_dev = same_device(
-                self.prefs.photo_download_folder, self.prefs.video_download_folder
+    def _setStateDestSufficientSpaceCheck(
+        self, size_marked: int, display_type: DisplayFileType
+    ) -> tuple[bool, bool]:
+        if not size_marked:
+            logging.debug(
+                "Enough space because no %s are being downloaded", display_type
             )
+            enough_space = True
+            changed = self.app_state.unset_dest_no_space(display_type)
+            return enough_space, changed
+
+        message = "%s space available for downloading %s"
+        enough_space = self.dest_space.space_is_available(size_marked, display_type)
+
+        if enough_space:
+            logging.debug(message, "Enough", display_type)
+            changed = self.app_state.unset_dest_no_space(display_type)
         else:
-            same_dev = False
+            logging.warning(message, "Not enough", display_type)
+            changed = self.app_state.set_dest_no_space(display_type)
 
-        merge = self.downloadIsRunning()
+        return enough_space, changed
 
-        return self.destinationPanel.updateDestinationPanelViews(
-            same_dev=same_dev,
-            merge=merge,
-            marked_summary=marked_summary,
-            downloading_to=downloading_to,
-        )
+    @pyqtSlot()
+    def setStateDestFilesToDownload(self):
+        display_types = display_types_tuple(self.app_state.dest_same)
+        for display_type in display_types:
+            self.app_state.set_ui_element_change_pending_dest_space(display_type)
+        self.setDestDeviceUsage()
+        self.updateDestUIElements()
+
+    def setStateDestinationFolder(self, file_type: FileType | None = None) -> None:
+        self.setStateDestDirCharacteristics(file_type)
+        self.setStateDestSameDevice()
+        self.setDestDeviceSpace(file_type)
+        self.setDestDeviceUsage()
+        self.updateDestUIPreviewFolders()
+        self.updateDestUIWatch()
+        self.updateDestUIElements()
 
     @pyqtSlot()
     def updateThumbnailModelAfterProximityChange(self) -> None:
@@ -2769,7 +2955,7 @@ difference to the program's future.</p>"""
             self.prefs.this_computer_path = ""
             self.thisComputerFSView.clearSelection()
 
-        if not self.on_startup:
+        if not self.app_state.on_startup:
             self.sourcePanel.setThisComputerState()
 
     @pyqtSlot()
@@ -2918,34 +3104,59 @@ difference to the program's future.</p>"""
         """
 
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
-        self.photoDestinationSetPath(path=path)
+        self.destinationSetPath(path, FileType.photo)
 
-    def photoDestinationSetPath(self, path: str) -> None:
-        if not self.checkChosenDownloadDestination(path, FileType.photo):
+    @pyqtSlot("PyQt_PyObject")
+    def destinationChanged(self, file_type: FileType) -> None:
+        """
+        Called when a change is made to the preference photo_download_folder or
+        video_download_folder.
+
+        :param file_type: whether photo or video
+        """
+
+        if self.app_state.on_startup:
+            logging.debug(
+                "Ignoring %s destination change during startup", file_type.name
+            )
             return
 
-        validation = validate_download_folder(path, write_on_waccesss_failure=True)
-        if validation.valid:
-            if path != self.prefs.photo_download_folder:
-                self.prefs.photo_download_folder = path
-                self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
-                self.folder_preview_manager.change_destination()
-                self.destinationPanel.photoDestinationDisplay.setDestination(path=path)
-                self.setDownloadCapabilities()
-        else:
-            logging.error("Invalid photo download destination chosen: %s", path)
-            self.displayInvalidDestinationMsgBox(
-                validation=validation, file_type=FileType.photo
+        logging.debug("%s destination preference changed", file_type.name.capitalize())
+        # TODO think about a more elegant way of handling this, perhaps
+        self.app_state.set_ui_element_change_pending_dest_path(file_type)
+        self.app_state.set_ui_state_change_pending_dest_watch()
+        self.app_state.set_ui_state_change_pending_dest_preview_folders()
+        self.setStateDestinationFolder(file_type)
+
+    def destinationSetPath(self, path: str, file_type: FileType) -> None:
+        logging.debug("Setting %s destination path to %s", file_type.name, path)
+        if self.destinationPathProblematic(path, file_type):
+            # TODO is this the correct place for this call?
+            if self.app_state.dest_dir_exists(file_type):
+                self.MAP_FILESYSTEM_VIEW[file_type].goToPath(
+                    self.prefs.download_folder(file_type)
+                )
+            return
+
+        if path == self.prefs.download_folder(file_type):
+            logging.debug(
+                "Not setting %s path because it has not changed", file_type.name
             )
-            self.resetDownloadDestination(file_type=FileType.photo)
+            return
 
+        self.prefs.set_download_folder(path, file_type)
+
+    @pyqtSlot()
     def photoDestinationReset(self) -> None:
-        self.photoDestinationSetPath(path=platform_photos_directory())
-        self.photoDestinationFSView.goToPath(self.prefs.photo_download_folder)
+        self.destinationSetPath(
+            path=platform_photos_directory(), file_type=FileType.photo
+        )
 
+    @pyqtSlot()
     def videoDestinationReset(self) -> None:
-        self.videoDestinationSetPath(path=platform_videos_directory())
-        self.videoDestinationFSView.goToPath(self.prefs.video_download_folder)
+        self.destinationSetPath(
+            path=platform_videos_directory(), file_type=FileType.video
+        )
 
     @pyqtSlot()
     def fileSystemFilterInvalidated(self) -> None:
@@ -2957,11 +3168,17 @@ difference to the program's future.</p>"""
             self.thisComputerFSView.selectionModel().clear()
             self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
 
-    def checkChosenDownloadDestination(self, path: str, file_type: FileType) -> bool:
+    def destinationPathProblematic(self, path: str, file_type: FileType) -> bool:
         """
-        Check the path the user has chosen to ensure it's not a provisional
-        download subfolder. If it is a download subfolder that already existed,
-        confirm with the user that they did in fact want to use that destination.
+        Evaluates whether the path the user has set using the UI is problematic.
+
+        Is problematic when:
+        1. A download is already running
+        2. A preview download subfolder is chosen
+
+        Additionally, if a download subfolder is chosen is a provisional download
+        folder, confirm with the user that they did in fact want to use that
+        destination.
 
         :param path: path chosen
         :param file_type: whether for photos or videos
@@ -2994,39 +3211,7 @@ difference to the program's future.</p>"""
             )
             problematic = msgbox.exec() == QMessageBox.No
 
-        if problematic:
-            if file_type == FileType.photo and self.prefs.photo_download_folder:
-                self.photoDestinationFSView.goToPath(self.prefs.photo_download_folder)
-            elif file_type == FileType.video and self.prefs.video_download_folder:
-                self.videoDestinationFSView.goToPath(self.prefs.video_download_folder)
-            return False
-
-        return True
-
-    def resetDownloadDestination(
-        self, file_type: FileType, do_update: bool = True
-    ) -> None:
-        """
-        Handle cases where user clicked on an invalid download directory,
-        or the directory simply having disappeared, or the user resets the destination
-
-        :param file_type: type of destination to work on
-        :param do_update: if True, update watched folders, provisional
-         download folders and update the UI to reflect new download
-         capabilities
-        """
-
-        if file_type == FileType.photo:
-            self.prefs.photo_download_folder = ""
-            self.destinationPanel.photoDestinationWidget.setViewVisible(False)
-        else:
-            self.prefs.video_download_folder = ""
-            self.destinationPanel.videoDestinationWidget.setViewVisible(False)
-
-        if do_update:
-            self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
-            self.folder_preview_manager.change_destination()
-            self.setDownloadCapabilities()
+        return problematic
 
     @pyqtSlot(QModelIndex)
     def videoDestinationPathChosen(self, index: QModelIndex) -> None:
@@ -3039,26 +3224,7 @@ difference to the program's future.</p>"""
         """
 
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
-        self.videoDestinationSetPath(path=path)
-
-    def videoDestinationSetPath(self, path: str) -> None:
-        if not self.checkChosenDownloadDestination(path, FileType.video):
-            return
-
-        validation = validate_download_folder(path, write_on_waccesss_failure=True)
-        if validation.valid:
-            if path != self.prefs.video_download_folder:
-                self.prefs.video_download_folder = path
-                self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
-                self.folder_preview_manager.change_destination()
-                self.destinationPanel.videoDestinationDisplay.setDestination(path=path)
-                self.setDownloadCapabilities()
-        else:
-            logging.error("Invalid video download destination chosen: %s", path)
-            self.displayInvalidDestinationMsgBox(
-                validation=validation, file_type=FileType.video
-            )
-            self.resetDownloadDestination(file_type=FileType.video)
+        self.destinationSetPath(path, FileType.video)
 
     @pyqtSlot()
     def downloadButtonClicked(self) -> None:
@@ -3141,6 +3307,7 @@ Do you want to proceed with the download?"""
         or backed up, else False
         """
 
+        # TODO convert to using state
         if not self.devices.downloading:
             if self.prefs.backup_files:
                 return not self.download_tracker.all_files_backed_up()
@@ -3944,7 +4111,7 @@ Do you want to proceed with the download?"""
         self.prefs.downloads_today = downloads_today
         self.prefs.sync()
         logging.debug("Saved sequence values to preferences")
-        if ApplicationState.exiting in self.application_state:
+        if self.app_state.on_exit:
             self.close()
         else:
             self.renamePanel.updateSequences(
@@ -4883,8 +5050,9 @@ Do you want to proceed with the download?"""
         self.download_tracker.set_file_types_present(scan_id, file_types_present)
         model = self.mapModel(scan_id)
         model.updateDeviceScan(scan_id)
-        destinations_good = self.setDownloadCapabilities()
-
+        # TODO update this to use state
+        # destinations_good = self.setDownloadCapabilities()
+        destinations_good = True
         self.logState()
 
         if len(self.devices.scanning) == 0:
@@ -5014,8 +5182,8 @@ Do you want to proceed with the download?"""
             event.accept()
             return
 
-        if ApplicationState.normal & self.application_state:
-            self.setCoreState(ApplicationState.exiting)
+        if self.app_state.on_normal:
+            self.app_state.set_core_state(AppState.EXITING)
             self.sendStopToThread(self.scan_controller)
             self.thumbnailModel.stopThumbnailer()
             self.sendStopToThread(self.copy_controller)
@@ -5475,7 +5643,9 @@ Do you want to proceed with the download?"""
         :param device: device to scan
         """
 
-        scan_id = self.devices.add_device(device=device, on_startup=self.on_startup)
+        scan_id = self.devices.add_device(
+            device=device, on_startup=self.app_state.on_startup
+        )
         logging.debug("Assigning scan id %s to %s", scan_id, device.name())
         self.thumbnailModel.addOrUpdateDevice(scan_id)
         self.addToDeviceDisplay(device, scan_id)
@@ -5489,11 +5659,15 @@ Do you want to proceed with the download?"""
             self.scan_controller, worker_id=scan_id, data=scan_arguments
         )
         self.devices.set_device_state(scan_id, DeviceState.scanning)
-        self.setDownloadCapabilities()
+        # TODO Determine if setting download capabilities is really needed here
+        # self.setDownloadCapabilities()
         self.updateProgressBarState()
         self.displayMessageInStatusBar()
 
-        if not self.on_startup and self.thumbnailModel.anyCompletedDownloads():
+        if (
+            not self.app_state.on_startup
+            and self.thumbnailModel.anyCompletedDownloads()
+        ):
             if self.prefs.completed_downloads == int(CompletedDownloads.prompt):
                 logging.info("Querying whether to clear completed downloads")
                 counter = self.thumbnailModel.getFileDownloadsCompleted()
@@ -5629,7 +5803,7 @@ Do you want to proceed with the download?"""
 
     @pyqtSlot("PyQt_PyObject")
     def wslWindowsDriveAdded(self, drives: list[WindowsDriveMount]) -> None:
-        if self.on_exit:
+        if self.app_state.on_exit:
             logging.debug("Ignoring added WSL drives during exit")
             return
 
@@ -5650,13 +5824,13 @@ Do you want to proceed with the download?"""
                 self.backupPanel.updateLocationCombos()
             if self.prefs.backup_files:
                 self.setupBackupDevices()
-        if not self.on_startup:
+        if not self.app_state.on_startup:
             self.wslDrives.mountDrives()
         self.setupNonCameraDevices()
 
     @pyqtSlot("PyQt_PyObject")
     def wslWindowsDriveRemoved(self, drive: WindowsDriveMount) -> None:
-        if self.on_exit:
+        if self.app_state.on_exit:
             logging.debug("Ignoring removed WSL drives during exit")
             return
 
@@ -5670,7 +5844,7 @@ Do you want to proceed with the download?"""
 
     @pyqtSlot("PyQt_PyObject")
     def wslWindowsDriveMounted(self, drives: list[WindowsDriveMount]) -> None:
-        if self.on_exit:
+        if self.app_state.on_exit:
             logging.debug("Ignoring mounted WSL drives during exit")
             return
 
@@ -6319,33 +6493,7 @@ Do you want to proceed with the download?"""
         logging.debug(
             "Change in watched folder %s; validating download destinations", path
         )
-        valid = True
-        if (
-            self.prefs.photo_download_folder
-            and not validate_download_folder(self.prefs.photo_download_folder).valid
-        ):
-            valid = False
-            logging.debug(
-                "Photo download destination %s is now invalid",
-                self.prefs.photo_download_folder,
-            )
-            self.resetDownloadDestination(file_type=FileType.photo, do_update=False)
-
-        if (
-            self.prefs.video_download_folder
-            and not validate_download_folder(self.prefs.video_download_folder).valid
-        ):
-            valid = False
-            logging.debug(
-                "Video download destination %s is now invalid",
-                self.prefs.video_download_folder,
-            )
-            self.resetDownloadDestination(file_type=FileType.video, do_update=False)
-
-        if not valid:
-            self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
-            self.folder_preview_manager.change_destination()
-            self.setDownloadCapabilities()
+        self.setStateDestinationFolder()
 
     def confirmManualDownloadLocation(self) -> bool:
         """
@@ -6875,7 +7023,7 @@ def main():
 
     # Resetting preferences must occur after QApplication is instantiated
     if args.reset:
-        prefs = Preferences()
+        prefs = QtPreferences()
         prefs.reset()
         prefs.sync()
         d = DownloadedSQL()

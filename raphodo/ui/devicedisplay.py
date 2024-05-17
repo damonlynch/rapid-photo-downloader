@@ -72,7 +72,7 @@ from raphodo.constants import (
     DeviceShadingIntensity,
     DeviceState,
     DeviceType,
-    DisplayingFilesOfType,
+    DisplayFileType,
     DownloadFailure,
     DownloadStatus,
     DownloadWarning,
@@ -831,8 +831,8 @@ class DeviceDisplay(QObject):
             color2 = d.color2
             color3 = d.color3
 
-        skip_comp1 = d.displaying_files_of_type == DisplayingFilesOfType.videos
-        skip_comp2 = d.displaying_files_of_type == DisplayingFilesOfType.photos
+        skip_comp1 = d.displaying_files_of_type == DisplayFileType.videos
+        skip_comp2 = d.displaying_files_of_type == DisplayFileType.photos
         skip_comp3 = d.comp3_size_text == 0
 
         photos_g_x = device_size_x
@@ -1441,7 +1441,7 @@ class DeviceDelegate(QStyledItemDelegate):
                     color1=QColor(CustomColors.color1.value),
                     color2=QColor(CustomColors.color2.value),
                     color3=QColor(CustomColors.color3.value),
-                    displaying_files_of_type=DisplayingFilesOfType.photos_and_videos,
+                    displaying_files_of_type=DisplayFileType.photos_and_videos,
                 )
                 self.deviceDisplay.paint_body(
                     painter=painter, x=x, y=y, width=width, details=details

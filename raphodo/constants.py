@@ -118,14 +118,17 @@ class ThumbnailCacheOrigin(Enum):
     fdo_cache = 2
 
 
-class DisplayingFilesOfType(Enum):
-    photos = 1
-    videos = 2
-    photos_and_videos = 3
+class DisplayFileType(Enum):
+    photos = auto()
+    videos = auto()
+    photos_and_videos = auto()
+
+    def __str__(self) -> str:
+        return f'{self.name.replace("_", " ")}'
 
 
-BackupLocationType = DisplayingFilesOfType
-BackupFailureType = DisplayingFilesOfType
+BackupLocationType = DisplayFileType
+BackupFailureType = DisplayFileType
 
 
 class FileTypeFlag(Flag):
@@ -139,17 +142,18 @@ class WindowsDriveType(IntEnum):
     network_drive = 4
 
 
-class DestinationDisplayType(Enum):
+class DestDisplayType(Enum):
     folder_only = 1  # folder icon, folder name, and the menu icon
     usage_only = 2  # Projected Storage Use display
     folders_and_usage = 3  # combines types one and two
 
 
-class DestinationDisplayStatus(IntEnum):
+class DestDisplayStatus(Enum):
     valid = auto()
-    unwritable = auto()
+    read_only = auto()
     does_not_exist = auto()
     no_storage_space = auto()
+    unspecified = auto()
 
 
 class ExifSource(Enum):
@@ -229,17 +233,6 @@ class BackupStatus(Enum):
 class ThumbnailSize(IntEnum):
     width = 160
     height = 120
-
-
-class ApplicationState(Flag):
-    startup = auto()
-    normal = auto()
-    exiting = auto()
-    timeline_generating = auto()
-    timeline_generated = auto()
-
-CORE_APPLICATION_STATE_MASK = ApplicationState.startup | ApplicationState.normal | ApplicationState.exiting
-TIMELINE_APPLICATION_STATE_MASK = ApplicationState.timeline_generating | ApplicationState.timeline_generated
 
 
 class PostCameraUnmountAction(Enum):
@@ -779,3 +772,14 @@ non_system_root_folders = [
     "/media",
     "/mnt",
 ]
+
+
+MAP_FILE_TYPE_TO_DISPLAYING_FILES_OF_TYPE = {
+    FileType.photo: DisplayFileType.photos,
+    FileType.video: DisplayFileType.videos,
+}
+
+
+MAP_DISPLAYING_FILES_OF_TYPE_TO_FILE_TYPE = {
+    value: key for key, value in MAP_FILE_TYPE_TO_DISPLAYING_FILES_OF_TYPE.items()
+}

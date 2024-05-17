@@ -60,7 +60,7 @@ class SourcePanel(ScrollAreaNoFrame):
         """
 
         return self.rapidApp.sourceButton.isChecked() or (
-            self.rapidApp.on_startup and self.rapidApp.sourceButtonSetting()
+            self.rapidApp.app_state.on_startup and self.rapidApp.sourceButtonSetting()
         )
 
     def temporalProximityIsChecked(self) -> bool:
@@ -70,7 +70,8 @@ class SourcePanel(ScrollAreaNoFrame):
         """
 
         return self.rapidApp.proximityButton.isChecked() or (
-            self.rapidApp.on_startup and self.rapidApp.proximityButtonSetting()
+            self.rapidApp.app_state.on_startup
+            and self.rapidApp.proximityButtonSetting()
         )
 
     def needSplitter(self) -> bool:

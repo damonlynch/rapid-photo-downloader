@@ -10,7 +10,7 @@ from collections import defaultdict
 from raphodo.constants import DownloadStatus, DownloadUpdateSeconds, FileType
 from raphodo.internationalisation.install import install_gettext
 from raphodo.rpdfile import RPDFile
-from raphodo.thumbnaildisplay import DownloadStats
+from raphodo.customtypes import DownloadStats
 
 install_gettext()
 

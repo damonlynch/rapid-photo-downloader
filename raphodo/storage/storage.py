@@ -88,7 +88,11 @@ try:
 except ImportError:
     have_gio = False
 
-StorageSpace = namedtuple("StorageSpace", "bytes_free, bytes_total, path")
+class StorageSpace(NamedTuple):
+    bytes_free: int
+    bytes_total: int
+    path: str
+
 CameraDetails = namedtuple(
     "CameraDetails", "model, port, display_name, is_mtp, storage_desc"
 )
@@ -816,6 +820,28 @@ def validate_download_folder(
 
     return ValidatedFolder(valid=valid, absolute_path=absolute_path)
 
+def folder_writable(path: str | Path, write_on_waccesss_failure: bool = False) -> bool:
+    """
+    Checks if a folder is writable. Assumes the path exists.
+
+    :param path: path to analyze
+    :param write_on_waccesss_failure: if os.access reports path is not writable, test
+     nonetheless to see if it's writable by writing and deleting a test file
+    :return:
+    """
+
+    if os.access(path, os.W_OK):
+        return True
+    if write_on_waccesss_failure:
+        try:
+            with NamedTemporaryFile(dir=path):
+                # the path is in fact writeable -- can happen with NFS
+                return True
+        except Exception:
+            logging.debug(
+                "While examining %s, failed to write a temporary file", path
+            )
+    return False
 
 def validate_source_folder(path: str | None) -> ValidatedFolder:
     r"""
@@ -1173,9 +1199,9 @@ class UDisks2Monitor(QObject):
             return None
 
     def _udisks_partition_added(self, obj, block, drive, path) -> None:
-        logging.debug("UDisks: partition added: %s" % path)
+        logging.debug("UDisks: partition added: %s", path)
         fstype = block.get_cached_property("IdType").get_string()
-        logging.debug("Udisks: id-type: %s" % fstype)
+        logging.debug("Udisks: id-type: %s", fstype)
 
         fs = obj.get_filesystem()
 
@@ -1957,13 +1983,13 @@ def get_mount_size(mount: QStorageInfo) -> tuple[int, int]:
     path is in.
 
     :param path: path located anywhere in the mount
-    :return: bytes_total, bytes_free
+    :return: tuple of bytes_total, bytes_free
     """
 
     bytes_free = mount.bytesAvailable()
     bytes_total = mount.bytesTotal()
 
-    if bytes_total or not have_gio:
+    if bytes_total > 0 or not have_gio:
         return bytes_total, bytes_free
 
     path = mount.rootPath()

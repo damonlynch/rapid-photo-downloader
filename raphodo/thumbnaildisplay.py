@@ -6,7 +6,6 @@ import logging
 import os
 from collections import defaultdict, deque
 from collections.abc import Sequence
-from typing import NamedTuple
 
 import arrow.arrow
 from colour import Color
@@ -81,13 +80,14 @@ from raphodo.constants import (
     manually_marked_previously_downloaded,
     thumbnail_margin,
 )
+from raphodo.customtypes import DownloadFiles, DownloadFilesSizeAndNum, DownloadStats
 from raphodo.internationalisation.install import install_gettext
 from raphodo.internationalisation.utilities import make_internationalized_list
 from raphodo.interprocess import (
     Device,
 )
 from raphodo.metadata.fileextensions import ALL_USER_VISIBLE_EXTENSIONS
-from raphodo.prefs.preferences import Preferences  # noqa: F401
+from raphodo.prefs.preferences import Preferences
 from raphodo.proximity import TemporalProximityState
 from raphodo.rpdfile import FileTypeCounter, RPDFile
 from raphodo.rpdsql import DownloadedSQL, ThumbnailRow, ThumbnailRowsSQL
@@ -112,28 +112,6 @@ from raphodo.ui.viewutils import (
 )
 
 install_gettext()
-
-
-class DownloadStats:
-    def __init__(self):
-        self.no_photos = 0
-        self.no_videos = 0
-        self.photos_size_in_bytes = 0
-        self.videos_size_in_bytes = 0
-        self.post_download_thumb_generation = 0
-
-
-class DownloadFiles(NamedTuple):
-    files: defaultdict[int, list[RPDFile]]
-    download_types: FileTypeFlag
-    download_stats: defaultdict[int, DownloadStats]
-    camera_access_needed: defaultdict[int, bool]
-
-
-class MarkedSummary(NamedTuple):
-    marked: FileTypeCounter
-    size_photos_marked: int
-    size_videos_marked: int
 
 
 class AddBuffer:
@@ -182,6 +160,7 @@ class AddBuffer:
 
 class ThumbnailListModel(QAbstractListModel):
     selectionReset = pyqtSignal()
+    filesAdded = pyqtSignal()
 
     def __init__(self, parent, logging_port: int, log_gphoto2: bool) -> None:
         super().__init__(parent)
@@ -819,19 +798,22 @@ class ThumbnailListModel(QAbstractListModel):
 
         if self.add_buffer.should_flush():
             self.flushAddBuffer()
-            marked_summary = self.getMarkedSummary()
-            destinations_good = self.rapidApp.updateDestinationViews(
-                marked_summary=marked_summary
-            )
-            self.rapidApp.destinationButton.setHighlighted(not destinations_good)
-            if self.prefs.backup_files:
-                backups_good = self.rapidApp.updateBackupView(
-                    marked_summary=marked_summary
-                )
-            else:
-                backups_good = True
-            self.rapidApp.destinationButton.setHighlighted(not destinations_good)
-            self.rapidApp.backupButton.setHighlighted(not backups_good)
+            return
+
+            # TODO totally revamp this to use the new set state logic
+
+            # destinations_good = self.rapidApp.updateDestinationViews(
+            #     marked_summary=marked_summary
+            # )
+            # self.rapidApp.destinationButton.setHighlighted(not destinations_good)
+            # if self.prefs.backup_files:
+            #     backups_good = self.rapidApp.updateBackupView(
+            #         marked_summary=marked_summary
+            #     )
+            # else:
+            #     backups_good = True
+            # self.rapidApp.destinationButton.setHighlighted(not destinations_good)
+            # self.rapidApp.backupButton.setHighlighted(not backups_good)
 
     def flushAddBuffer(self):
         if len(self.add_buffer):
@@ -848,18 +830,17 @@ class ThumbnailListModel(QAbstractListModel):
             self._resetHighlightingValues()
             self._resetRememberSelection()
 
-    def getMarkedSummary(self) -> MarkedSummary:
+            self.filesAdded.emit()
+
+    def getMarkedDownloadFilesSizeAndNum(self) -> DownloadFilesSizeAndNum:
         """
         :return: summary of files marked for download including sizes in bytes
         """
 
-        size_photos_marked = self.getSizeOfFilesMarkedForDownload(FileType.photo)
-        size_videos_marked = self.getSizeOfFilesMarkedForDownload(FileType.video)
-        marked = self.getNoFilesAndTypesMarkedForDownload()
-        return MarkedSummary(
-            marked=marked,
-            size_photos_marked=size_photos_marked,
-            size_videos_marked=size_videos_marked,
+        return DownloadFilesSizeAndNum(
+            marked=self.getNoFilesAndTypesMarkedForDownload(),
+            size_photos_marked=self.getSizeOfFilesMarkedForDownload(FileType.photo),
+            size_videos_marked=self.getSizeOfFilesMarkedForDownload(FileType.video),
         )
 
     def setFileSort(self, sort: Sort, order: Qt.SortOrder, show: Show) -> None:

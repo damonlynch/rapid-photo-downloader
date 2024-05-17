@@ -7,10 +7,17 @@ Display download destination details
 
 import logging
 import math
-import os
 from collections import defaultdict
 
-from PyQt5.QtCore import QPoint, QRect, QRectF, QSize, QStorageInfo, Qt, pyqtSlot
+from PyQt5.QtCore import (
+    QPoint,
+    QPointF,
+    QRect,
+    QRectF,
+    QSize,
+    Qt,
+    pyqtSlot,
+)
 from PyQt5.QtGui import (
     QBrush,
     QColor,
@@ -18,6 +25,7 @@ from PyQt5.QtGui import (
     QFontMetrics,
     QIcon,
     QMouseEvent,
+    QPainter,
     QPainterPath,
     QPaintEvent,
     QPalette,
@@ -39,16 +47,17 @@ from PyQt5.QtWidgets import (
 from raphodo.constants import (
     COLOR_RED_WARNING_HTML,
     CustomColors,
+    DestDisplayStatus,
+    DestDisplayType,
     DestinationDisplayMousePos,
-    DestinationDisplayStatus,
     DestinationDisplayTooltipState,
-    DestinationDisplayType,
     DeviceDisplayPadding,
-    DisplayingFilesOfType,
+    DisplayFileType,
     FileType,
     NameGenerationType,
     PresetPrefType,
 )
+from raphodo.customtypes import DownloadFilesSizeAndNum
 from raphodo.devices import DownloadingTo
 from raphodo.generatenameconfig import (
     CUSTOM_SUBFOLDER_MENU_ENTRY_POSITION,
@@ -67,7 +76,7 @@ from raphodo.generatenameconfig import (
 )
 from raphodo.internationalisation.utilities import thousands
 from raphodo.rpdfile import FileTypeCounter, Photo, Video
-from raphodo.storage.storage import StorageSpace, get_mount_size, get_path_display_name
+from raphodo.storage.storage import StorageSpace, get_path_display_name
 from raphodo.tools.utilities import data_file_path, format_size_for_user
 from raphodo.ui.devicedisplay import BodyDetails, DeviceDisplay, icon_size
 from raphodo.ui.nameeditor import PrefDialog, make_subfolder_menu_entry
@@ -77,7 +86,7 @@ from raphodo.ui.viewutils import darkModePixmap, paletteMidPen
 def make_body_details(
     bytes_total: int,
     bytes_free: int,
-    files_to_display: DisplayingFilesOfType,
+    files_to_display: DisplayFileType,
     marked: FileTypeCounter,
     photos_size_to_download: int,
     videos_size_to_download: int,
@@ -101,7 +110,7 @@ def make_body_details(
 
     photos = videos = photos_size = videos_size = ""
 
-    if files_to_display != DisplayingFilesOfType.videos:
+    if files_to_display != DisplayFileType.videos:
         # Translators: no_photos refers to the number of photos
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
@@ -110,7 +119,7 @@ def make_body_details(
             "no_photos": thousands(marked[FileType.photo])
         }
         photos_size = format_size_for_user(photos_size_to_download)
-    if files_to_display != DisplayingFilesOfType.photos:
+    if files_to_display != DisplayFileType.photos:
         # Translators: no_videos refers to the number of videos
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
@@ -210,6 +219,9 @@ def adjusted_download_size(
     return photos_size_to_download, videos_size_to_download
 
 
+# TODO fix tool tip when displaying an error message
+
+
 class DestinationDisplay(QWidget):
     """
     Custom widget handling the display of download destinations, not including the file
@@ -285,9 +297,9 @@ class DestinationDisplay(QWidget):
         self.pixmap = darkModePixmap(pixmap=self.pixmap)
         self.display_name = ""
         self.photos_size_to_download = self.videos_size_to_download = 0
-        self.files_to_display: DisplayingFilesOfType | None = None
+        self.files_to_display: DisplayFileType | None = None
         self.marked = FileTypeCounter()
-        self.display_type: DestinationDisplayType | None = None
+        self.dest_display_type: DestDisplayType | None = None
         self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
 
         self.sample_rpd_file: Photo | Video | None = None
@@ -299,8 +311,18 @@ class DestinationDisplay(QWidget):
         self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
         self.container_vertical_scrollbar_visible = None
 
-        self.status = DestinationDisplayStatus.valid
+        self.status = DestDisplayStatus.valid
+        self.enough_space: bool = True
         self.invalidColor = QColor(COLOR_RED_WARNING_HTML)
+
+        self.warning_text = {
+            # Translators: the lack of a period at the end is deliberate
+            DestDisplayStatus.read_only: _("Folder is read-only"),
+            # Translators: the lack of a period at the end is deliberate
+            DestDisplayStatus.does_not_exist: _("Folder does not exist"),
+            # Translators: the lack of a period at the end is deliberate
+            DestDisplayStatus.no_storage_space: _("Not enough space"),
+        }
 
     @property
     def downloading_to(self) -> DownloadingTo:
@@ -480,35 +502,49 @@ class DestinationDisplay(QWidget):
                 self.prefs.video_subfolder = user_pref_list
             self.rapidApp.folder_preview_manager.change_subfolder_structure()
 
-    def setDestination(self, path: str) -> None:
-        """
-        Set the downloaded destination path
-        :param path: valid path
-        """
-
+    def setPath(self, path: str) -> None:
         self.display_name, self.path = get_path_display_name(path)
-        try:
-            self.os_stat_device = os.stat(path).st_dev
-        except FileNotFoundError:
-            logging.error(
-                "Cannot set download destination display: %s does not exist", path
-            )
-            self.os_stat_device = 0
+        self.tool_tip = self.path  # TODO make this more sophisticated, see below
 
-        mount = QStorageInfo(path)
-        bytes_total, bytes_free = get_mount_size(mount=mount)
+    def setStorage(self, storage_space: StorageSpace) -> None:
+        self.storage_space = storage_space
 
-        self.storage_space = StorageSpace(
-            bytes_free=bytes_free, bytes_total=bytes_total, path=path
+    def setFilesToDownload(
+        self,
+        sizeAndNum: DownloadFilesSizeAndNum,
+        merge: bool,
+        display_type: DisplayFileType,
+    ) -> None:
+        photos_size = (
+            sizeAndNum.size_photos_marked
+            if display_type
+            in (DisplayFileType.photos_and_videos, DisplayFileType.photos)
+            else 0
+        )
+        videos_size = (
+            sizeAndNum.size_videos_marked
+            if display_type
+            in (DisplayFileType.photos_and_videos, DisplayFileType.videos)
+            else 0
         )
 
+        if not merge:
+            self.marked = sizeAndNum.marked
+            self.photos_size_to_download = photos_size
+            self.videos_size_to_download = videos_size
+        else:
+            self.marked.update(sizeAndNum.marked)
+            self.photos_size_to_download += photos_size
+            self.videos_size_to_download += videos_size
+
+    # TODO purge this, after dealing with tooltip
     def setDownloadAttributes(
         self,
         marked: FileTypeCounter,
         photos_size: int,
         videos_size: int,
-        files_to_display: DisplayingFilesOfType,
-        display_type: DestinationDisplayType,
+        files_to_display: DisplayFileType,
+        dest_display_type: DestDisplayType,
         merge: bool,
     ) -> None:
         """
@@ -519,7 +555,7 @@ class DestinationDisplay(QWidget):
         :param photos_size: size in bytes of photos marked for download
         :param videos_size: size in bytes of videos marked for download
         :param files_to_display: whether displaying photos or videos or both
-        :param display_type: whether showing only the header (folder only),
+        :param dest_display_type: whether showing only the header (folder only),
          usage only, or both
         :param merge: whether to replace or add to the current values
         """
@@ -535,9 +571,9 @@ class DestinationDisplay(QWidget):
 
         self.files_to_display = files_to_display
 
-        self.display_type = display_type
+        self.dest_display_type = dest_display_type
 
-        if self.display_type != DestinationDisplayType.usage_only:
+        if self.dest_display_type != DestDisplayType.usage_only:
             self.tool_tip = self.path
         else:
             self.tool_tip = self.projected_space_msg
@@ -580,9 +616,79 @@ class DestinationDisplay(QWidget):
     def invalidStatusHeight() -> int:
         return QFontMetrics(QFont()).height() + DeviceDisplayPadding * 2
 
-    def setStatus(self, status: DestinationDisplayStatus)-> None:
+    def setStatus(self, status: DestDisplayStatus) -> None:
         self.status = status
-        self.update()
+
+    def paintWarning(
+        self, painter: QPainter, x: int, y: int, width: int, text: str
+    ) -> None:
+        displayPen = painter.pen()
+
+        statusRect = QRect(x, y, width, self.invalidStatusHeight())
+        painter.fillRect(statusRect, self.invalidColor)
+
+        text_height = QFontMetrics(QFont()).height()
+        white = QColor(Qt.GlobalColor.white)
+
+        iconRect = QRectF(
+            float(DeviceDisplayPadding),
+            float(y + DeviceDisplayPadding),
+            float(text_height),
+            float(text_height),
+        )
+        # exclamationRect = iconRect.adjusted(0.25, 1.0, 0.25, 1.0)
+        textRect = QRectF(
+            iconRect.right() + DeviceDisplayPadding,
+            iconRect.top(),
+            width - iconRect.right() - DeviceDisplayPadding,
+            float(text_height),
+        )
+
+        painter.setPen(QPen(white))
+
+        # Draw a triangle
+        path = QPainterPath()
+        triangle_center = iconRect.left() + iconRect.width() / 2
+        path.moveTo(triangle_center, iconRect.top())
+        path.lineTo(iconRect.bottomLeft())
+        path.lineTo(iconRect.bottomRight())
+        path.lineTo(triangle_center, iconRect.top())
+
+        painter.fillPath(path, QBrush(white))
+
+        # Draw an exclamation point
+        pen = QPen(self.invalidColor)
+        pen.setWidthF(1.5)
+        painter.setPen(pen)
+
+        vertical_padding = iconRect.height() / 3
+        line_top = iconRect.top() + vertical_padding
+        line_bottom = iconRect.bottom() - vertical_padding
+
+        # Draw the top part of the exclamation point
+        painter.drawLine(
+            QPointF(triangle_center, line_top),
+            QPointF(triangle_center, line_bottom),
+        )
+        # Draw the dot
+        dot_y = vertical_padding / 2 + line_bottom
+        painter.drawLine(
+            QPointF(triangle_center, dot_y),
+            QPointF(triangle_center, dot_y),
+        )
+
+        # Draw the warning
+        displayFont = painter.font()
+        warningFont = QFont()
+        painter.setFont(warningFont)
+        painter.setPen(QPen(white))
+        painter.drawText(
+            textRect,
+            Qt.TextFlag.TextSingleLine | Qt.AlignmentFlag.AlignVCenter,
+            text,
+        )
+        painter.setPen(displayPen)
+        painter.setFont(displayFont)
 
     def paintEvent(self, event: QPaintEvent) -> None:
         """
@@ -601,7 +707,7 @@ class DestinationDisplay(QWidget):
         backgroundColor = palette.base().color()
 
         if (
-            self.display_type == DestinationDisplayType.usage_only
+            self.dest_display_type == DestDisplayType.usage_only
             and QSplitter().lineWidth()
         ):
             pen = painter.pen()
@@ -622,13 +728,19 @@ class DestinationDisplay(QWidget):
 
         painter.fillRect(rect, backgroundColor)
 
-        if self.storage_space is None:
+        if (
+            self.storage_space is None
+            and self.dest_display_type != DestDisplayType.folder_only
+        ):
+            logging.critical(
+                "Expected storage space to be set while rendering Display Destination"
+            )
             painter.end()
             return
 
         highlight_menu = self.mouse_pos == DestinationDisplayMousePos.menu
 
-        if self.display_type != DestinationDisplayType.usage_only:
+        if self.dest_display_type != DestDisplayType.usage_only:
             # Render the folder icon, folder name, and the menu icon
             self.deviceDisplay.paint_header(
                 painter=painter,
@@ -639,87 +751,27 @@ class DestinationDisplay(QWidget):
                 icon=self.pixmap,
                 highlight_menu=highlight_menu,
             )
-            y = y + self.deviceDisplay.dc.device_name_height
+            y += self.deviceDisplay.dc.device_name_height
 
-            if self.status != DestinationDisplayStatus.valid:
-                displayPen = painter.pen()
-                match self.status:
-                    case DestinationDisplayStatus.unwritable:
-                        # Translators: the lack of a period at the end is deliberate
-                        text = _("Unwritable destination")
-                    case DestinationDisplayStatus.does_not_exist:
-                        # Translators: the lack of a period at the end is deliberate
-                        text = _("Folder does not exist")
-                    case DestinationDisplayStatus.no_storage_space:
-                        # Translators: the lack of a period at the end is deliberate
-                        text = _("Insufficient storage space")
-                    case _:
-                        raise NotImplementedError(
-                            "Unhandled destination display status"
-                        )
+        if self.status != DestDisplayStatus.valid or not self.enough_space:
+            if self.files_to_display != DisplayFileType.photos_and_videos:
+                y -= DeviceDisplayPadding  # remove the bottom padding
+            if self.status != DestDisplayStatus.valid:
+                text = self.warning_text[self.status]
+                self.paintWarning(painter, x, y, width, text)
+                y += self.invalidStatusHeight()
+            if not self.enough_space:
+                text = self.warning_text[DestDisplayStatus.no_storage_space]
+                self.paintWarning(painter, x, y, width, text)
+                y += self.invalidStatusHeight()
+            if self.files_to_display != DisplayFileType.photos_and_videos:
+                y += DeviceDisplayPadding
 
-                y = y - DeviceDisplayPadding  # remove the bottom padding
-
-                status_height = self.invalidStatusHeight()
-                statusRect = QRect(x, y, width, status_height)
-                painter.fillRect(statusRect, self.invalidColor)
-
-                text_height = QFontMetrics(QFont()).height()
-                white = QColor(Qt.GlobalColor.white)
-
-                iconRect = QRectF(
-                    float(DeviceDisplayPadding),
-                    float(y + DeviceDisplayPadding),
-                    float(text_height),
-                    float(text_height),
-                )
-                exclamationRect = iconRect.adjusted(0.25, 1.0, 0.25, 1.0)
-                textRect = QRectF(
-                    iconRect.right() + DeviceDisplayPadding,
-                    iconRect.top(),
-                    width - iconRect.right() - DeviceDisplayPadding,
-                    float(text_height),
-                )
-
-                painter.setPen(QPen(white))
-
-                # Draw a triangle
-                path = QPainterPath()
-                path.moveTo(iconRect.left() + (iconRect.width() / 2), iconRect.top())
-                path.lineTo(iconRect.bottomLeft())
-                path.lineTo(iconRect.bottomRight())
-                path.lineTo(iconRect.left() + (iconRect.width() / 2), iconRect.top())
-
-                painter.fillPath(path, QBrush(white))
-
-                # Draw an exclamation point
-                displayFont = painter.font()
-                warningFont = QFont()
-                warningFont.setBold(True)
-                exclamationFont = QFont(warningFont)
-                exclamationFont.setPointSize(warningFont.pointSize() - 2)
-
-                painter.setFont(exclamationFont)
-                painter.setPen(QPen(self.invalidColor))
-                painter.drawText(exclamationRect, Qt.AlignmentFlag.AlignCenter, "!")
-
-                # Draw the warning
-                painter.setFont(warningFont)
-                painter.setPen(QPen(white))
-                painter.drawText(
-                    textRect,
-                    Qt.TextFlag.TextSingleLine | Qt.AlignmentFlag.AlignVCenter,
-                    text,
-                )
-                painter.setPen(displayPen)
-                painter.setFont(displayFont)
-                y = y + status_height
-
-        if self.display_type != DestinationDisplayType.folder_only:
-            # Render the projected storage space
-            if self.display_type == DestinationDisplayType.usage_only:
+        if self.renderProjectedStorageSpace():
+            if self.dest_display_type == DestDisplayType.usage_only:
                 y += self.deviceDisplay.dc.padding
 
+            # TODO incorporate this in size calculation
             photos_size_to_download, videos_size_to_download = adjusted_download_size(
                 photos_size_to_download=self.photos_size_to_download,
                 videos_size_to_download=self.videos_size_to_download,
@@ -746,19 +798,30 @@ class DestinationDisplay(QWidget):
     def widthChanged(self, width: int) -> None:
         self.updateGeometry()
 
+    def renderProjectedStorageSpace(self) -> bool:
+        return (
+            self.dest_display_type != DestDisplayType.folder_only
+            and self.status
+            not in (
+                DestDisplayStatus.does_not_exist,
+                DestDisplayStatus.unspecified,
+            )
+        )
+
     def sizeHint(self) -> QSize:
-        if self.display_type == DestinationDisplayType.usage_only:
+        if self.dest_display_type == DestDisplayType.usage_only:
             height = self.deviceDisplay.dc.padding
         else:
             height = 0
 
-        if self.display_type != DestinationDisplayType.usage_only:
+        if self.dest_display_type != DestDisplayType.usage_only:
             height += self.deviceDisplay.dc.device_name_height
-            if self.status != DestinationDisplayStatus.valid:
-                height += self.invalidStatusHeight()
-        if self.display_type != DestinationDisplayType.folder_only:
+        if self.status != DestDisplayStatus.valid:
+            height += self.invalidStatusHeight()
+        if not self.enough_space:
+            height += self.invalidStatusHeight()
+        if self.renderProjectedStorageSpace():
             height += self.deviceDisplay.dc.storage_height
-
         return QSize(self.deviceDisplay.width(), height)
 
     def minimumSize(self) -> QSize:
@@ -789,7 +852,7 @@ class DestinationDisplay(QWidget):
             # storage space display.
             return
 
-        if self.display_type == DestinationDisplayType.folders_and_usage:
+        if self.dest_display_type == DestDisplayType.folders_and_usage:
             # make tooltip different when hovering above storage space compared
             # to when hovering above the destination folder
 
