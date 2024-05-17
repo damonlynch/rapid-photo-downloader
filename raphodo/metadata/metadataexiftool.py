@@ -374,8 +374,7 @@ class MetadataExiftool:
         v = self._get("Duration", None)
         if v is not None:
             try:
-                v = float(v)
-                v = "%0.f" % v
+                v = f"{float(v):.0f}"
             except Exception:
                 return missing
             return v
@@ -390,7 +389,7 @@ class MetadataExiftool:
         if v is None:
             return missing
         try:
-            v = "%.0f" % v
+            v = f"{float(v):.0f}"
         except Exception:
             return missing
         return v
@@ -518,9 +517,9 @@ class MetadataExiftool:
             elif e0 > e1:
                 e = float(e0) / e1
                 if alternative_format:
-                    return "%.0fs" % e
+                    return f"{e:.0f}s"
                 else:
-                    return "%.0f" % e
+                    return f"{e:.0f}"
             else:
                 return "1s"
         else:

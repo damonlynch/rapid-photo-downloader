@@ -32,14 +32,13 @@ class MenuButton(QToolButton):
 
         self.setIcon(QIcon(darkModePixmap(path=path, size=size)))
         self.setStyleSheet(
-            """
-            QToolButton {border: none;}
-            QToolButton::menu-indicator { image: none; }
-            QToolButton::hover {
-                background-color: %s;
+            f"""
+            QToolButton {{border: none;}}
+            QToolButton::menu-indicator {{ image: none; }}
+            QToolButton::hover {{
+                background-color: {hover_color};
                 outline: none;
-            }
+            }}
             """
-            % hover_color
         )
         self.setMenu(menu)

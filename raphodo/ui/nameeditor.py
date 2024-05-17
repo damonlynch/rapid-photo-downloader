@@ -1254,7 +1254,7 @@ class PrefDialog(QDialog):
         """
 
         colorLabel = QLabel(" ")
-        colorLabel.setStyleSheet("QLabel {background-color: %s;}" % color)
+        colorLabel.setStyleSheet(f"QLabel {{background-color: {color};}}")
         size = QFontMetrics(QFont()).height()
         colorLabel.setFixedSize(QSize(size, size))
         return colorLabel

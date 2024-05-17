@@ -166,7 +166,7 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                             time=time,
                         )
                     )
-                    msg = "Overwriting backup file %s" % backup_full_file_name
+                    msg = f"Overwriting backup file {backup_full_file_name}"
                 else:
                     self.problems.append(
                         BackupAlreadyExistsProblem(
@@ -181,8 +181,8 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                         )
                     )
                     msg = (
-                        "Skipping backup of file %s because it already exists"
-                        % backup_full_file_name
+                        f"Skipping backup of file {backup_full_file_name} "
+                        "because it already exists"
                     )
                 logging.warning(msg)
 

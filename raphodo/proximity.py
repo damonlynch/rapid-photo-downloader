@@ -2606,15 +2606,15 @@ class SyncButton(QPushButton):
             color = QPalette().color(QPalette.Background)
             hoverColor = color.darker(110).name(QColor.HexRgb)
 
-        style = """
-            QPushButton {
+        style = f"""
+            QPushButton {{
                 padding: 2px;
                 border: none;
-            } 
-            QPushButton::hover {
-                background-color: %s;
-            }
-            """ % (hoverColor)
+            }} 
+            QPushButton::hover {{
+                background-color: {hoverColor};
+            }}
+            """
         self.setStyleSheet(style)
         self.installEventFilter(self)
 
