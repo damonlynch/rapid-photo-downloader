@@ -822,7 +822,6 @@ def validate_download_folder(
 
     return ValidatedFolder(valid=valid, absolute_path=absolute_path)
 
-
 def folder_writable(path: str | Path, write_on_waccesss_failure: bool = False) -> bool:
     """
     Checks if a folder is writable. Assumes the path exists.

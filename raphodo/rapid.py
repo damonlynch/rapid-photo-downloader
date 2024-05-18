@@ -210,6 +210,7 @@ from raphodo.rpdfile import (
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.state import (
     MAP_DEST_DIR_MASK,
+    MAP_DEST_DIR_NO_READ,
     MAP_DEST_DIR_NOT_EXIST,
     MAP_DEST_DIR_NOT_SPECIFIED,
     MAP_DEST_DIR_READ_ONLY,
@@ -2587,6 +2588,9 @@ difference to the program's future.</p>"""
             elif not Path(download_folder).is_dir():
                 state = MAP_DEST_DIR_NOT_EXIST[ft]
                 status = DestDisplayStatus.does_not_exist
+            elif not os.access(download_folder, os.R_OK):
+                state = MAP_DEST_DIR_NO_READ[ft]
+                status = DestDisplayStatus.cannot_read
             elif not folder_writable(download_folder, write_on_waccesss_failure=True):
                 state = MAP_DEST_DIR_READ_ONLY[ft]
                 status = DestDisplayStatus.read_only

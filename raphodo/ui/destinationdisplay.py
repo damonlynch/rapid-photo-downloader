@@ -308,6 +308,7 @@ class DestinationDisplay(QWidget):
         self.invalidColor = QColor(COLOR_RED_WARNING_HTML)
 
         self.warning_text = {
+            DestDisplayStatus.cannot_read: _("No permission to read folder"),
             # Translators: the lack of a period at the end is deliberate
             DestDisplayStatus.read_only: _("Folder is read-only"),
             # Translators: the lack of a period at the end is deliberate

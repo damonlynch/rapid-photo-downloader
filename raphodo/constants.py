@@ -150,6 +150,7 @@ class DestDisplayType(Enum):
 
 class DestDisplayStatus(Enum):
     valid = auto()
+    cannot_read =auto()
     read_only = auto()
     does_not_exist = auto()
     no_storage_space = auto()

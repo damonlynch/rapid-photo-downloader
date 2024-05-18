@@ -39,9 +39,11 @@ class AppState(Flag):
     TIMELINE_GENERATED = auto()
     # Destination directory characteristics
     DEST_PHOTO_DIR_NOT_SPECIFIED = auto()
+    DEST_PHOTO_DIR_NO_READ = auto()
     DEST_PHOTO_DIR_READ_ONLY = auto()
     DEST_PHOTO_DIR_NOT_EXIST = auto()
     DEST_VIDEO_DIR_NOT_SPECIFIED = auto()
+    DEST_VIDEO_DIR_NO_READ = auto()
     DEST_VIDEO_DIR_READ_ONLY = auto()
     DEST_VIDEO_DIR_NOT_EXIST = auto()
     # Destination device characteristics
@@ -67,11 +69,13 @@ TIMELINE_APPLICATION_STATE_MASK = (
 )
 DEST_PHOTO_DIR_MASK = (
     AppState.DEST_PHOTO_DIR_NOT_SPECIFIED
+    |AppState.DEST_PHOTO_DIR_NO_READ
     | AppState.DEST_PHOTO_DIR_READ_ONLY
     | AppState.DEST_PHOTO_DIR_NOT_EXIST
 )
 DEST_VIDEO_DIR_MASK = (
     AppState.DEST_VIDEO_DIR_NOT_SPECIFIED
+    |AppState.DEST_VIDEO_DIR_NO_READ
     | AppState.DEST_VIDEO_DIR_READ_ONLY
     | AppState.DEST_VIDEO_DIR_NOT_EXIST
 )
@@ -108,6 +112,10 @@ MAP_DEST_DIR_NOT_EXIST = {
 MAP_DEST_DIR_NOT_SPECIFIED = {
     FileType.photo: AppState.DEST_PHOTO_DIR_NOT_SPECIFIED,
     FileType.video: AppState.DEST_VIDEO_DIR_NOT_SPECIFIED,
+}
+MAP_DEST_DIR_NO_READ = {
+    FileType.photo: AppState.DEST_PHOTO_DIR_NO_READ,
+    FileType.video: AppState.DEST_VIDEO_DIR_NO_READ,
 }
 MAP_DEST_DIR_READ_ONLY = {
     FileType.photo: AppState.DEST_PHOTO_DIR_READ_ONLY,
