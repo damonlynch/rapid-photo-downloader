@@ -665,7 +665,7 @@ class ThumbnailListModel(QAbstractListModel):
             return True
         return False
 
-    def setDataRange(self, indexes: tuple[QModelIndex], value, role: int) -> bool:
+    def setDataRange(self, indexes: tuple[QModelIndex, ...], value, role: int) -> bool:
         """
         Modify a range of indexes simultaneously
         :param indexes: the indexes
@@ -1941,6 +1941,12 @@ class ThumbnailView(QListView):
         # QListView IconMode indexes are always set to column 0
         self.user_visible_columns = 0
 
+        self.thumbnailDelegate: ThumbnailDelegate | None = None
+
+    def setThumbnailDelegate(self, delegate: "ThumbnailDelegate") -> None:
+        self.thumbnailDelegate = delegate
+        self.setItemDelegate(delegate)
+
     def setScrollTogether(self, on: bool) -> None:
         """
         Turn on or off the linking of scrolling the Timeline with the Thumbnail display.
@@ -2119,7 +2125,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
     Render thumbnail cells
     """
 
-    # markedWithMouse = pyqtSignal()
+    markedAsDownloaded = pyqtSignal()
 
     def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent)
@@ -2321,7 +2327,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         )
         thumbnailModel: ThumbnailListModel = self.rapidApp.thumbnailModel
         thumbnailModel.setDataRange(not_downloaded, True, Roles.previously_downloaded)
-        self.rapidApp.setDownloadCapabilities()
+        self.markedAsDownloaded.emit()
 
     def paint(
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex

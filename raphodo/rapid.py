@@ -794,7 +794,7 @@ class RapidWindow(QMainWindow):
         )
 
         self.thumbnailView.setModel(self.thumbnailModel)
-        self.thumbnailView.setItemDelegate(ThumbnailDelegate(rapidApp=self))
+        self.thumbnailView.setThumbnailDelegate(ThumbnailDelegate(rapidApp=self))
 
     @pyqtSlot(int)
     def initStage4(self, frontend_port: int) -> None:
@@ -1156,7 +1156,9 @@ class RapidWindow(QMainWindow):
         self.watchedDownloadDirs.directoryChanged.connect(self.watchedFolderChange)
         self.thumbnailModel.filesAdded.connect(self.setStateDestFilesToDownload)
         self.thumbnailModel.markedFilesChanged.connect(self.setStateDestFilesToDownload)
-        self.thumbnailModel.markedFilesChanged.connect(self.displayMessageInStatusBar)
+        self.thumbnailView.thumbnailDelegate.markedAsDownloaded.connect(
+            self.setStateDestFilesToDownload
+        )
 
     def initializeScans(self) -> None:
         if not self.is_wsl2:
@@ -2524,6 +2526,8 @@ difference to the program's future.</p>"""
             self.app_state.state,
         )
 
+        # TODO updating the status bar, for which a new state is needed
+
     # TODO rename this method
     def updateUI(self) -> None:
         # TODO set button state based on more criteria
@@ -2726,6 +2730,7 @@ difference to the program's future.</p>"""
             self.app_state.set_ui_element_change_pending_dest_space(display_type)
         self.setDestDeviceUsage()
         self.updateDestUIElements()
+        self.displayMessageInStatusBar()
 
     def setStateDestinationFolder(self, file_type: FileType | None = None) -> None:
         self.setStateDestDirCharacteristics(file_type)
