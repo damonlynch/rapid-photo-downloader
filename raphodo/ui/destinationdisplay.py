@@ -79,6 +79,7 @@ from raphodo.rpdfile import FileTypeCounter, Photo, Video
 from raphodo.storage.storage import StorageSpace, get_path_display_name
 from raphodo.tools.utilities import data_file_path, format_size_for_user
 from raphodo.ui.devicedisplay import DeviceDisplay, icon_size
+from raphodo.ui.messages import DIR_PROBLEM_TEXT
 from raphodo.ui.nameeditor import PrefDialog, make_subfolder_menu_entry
 from raphodo.ui.viewutils import darkModePixmap, paletteMidPen
 
@@ -306,16 +307,6 @@ class DestinationDisplay(QWidget):
         self.status = DestDisplayStatus.valid
         self.enough_space: bool = True
         self.invalidColor = QColor(COLOR_RED_WARNING_HTML)
-
-        self.warning_text = {
-            DestDisplayStatus.cannot_read: _("No permission to read folder"),
-            # Translators: the lack of a period at the end is deliberate
-            DestDisplayStatus.read_only: _("Folder is read-only"),
-            # Translators: the lack of a period at the end is deliberate
-            DestDisplayStatus.does_not_exist: _("Folder does not exist"),
-            # Translators: the lack of a period at the end is deliberate
-            DestDisplayStatus.no_storage_space: _("Not enough space"),
-        }
 
     @property
     def downloading_to(self) -> DownloadingTo:
@@ -750,11 +741,11 @@ class DestinationDisplay(QWidget):
             if self.display_type != DisplayFileType.photos_and_videos:
                 y -= DeviceDisplayPadding  # remove the bottom padding
             if self.status != DestDisplayStatus.valid:
-                text = self.warning_text[self.status]
+                text = DIR_PROBLEM_TEXT[self.status]
                 self.paintWarning(painter, x, y, width, text)
                 y += self.invalidStatusHeight()
             if not self.enough_space:
-                text = self.warning_text[DestDisplayStatus.no_storage_space]
+                text = DIR_PROBLEM_TEXT[DestDisplayStatus.no_storage_space]
                 self.paintWarning(painter, x, y, width, text)
                 y += self.invalidStatusHeight()
             if self.display_type != DisplayFileType.photos_and_videos:
