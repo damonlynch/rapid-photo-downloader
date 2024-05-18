@@ -5,6 +5,8 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import NamedTuple
 
+from PyQt5.QtGui import QColor
+
 from raphodo.constants import DisplayFileType, FileType, FileTypeFlag
 from raphodo.rpdfile import FileTypeCounter, RPDFile
 
@@ -29,6 +31,29 @@ class MarkedSummary(NamedTuple):
     marked: FileTypeCounter
     size_photos_marked: int
     size_videos_marked: int
+
+
+class BodyDetails(NamedTuple):
+    bytes_total_text: str
+    bytes_total: int
+    percent_used_text: str
+    bytes_free_of_total: str  # e.g. 123 MB free of 2 TB
+    comp1_file_size_sum: int
+    comp2_file_size_sum: int
+    comp3_file_size_sum: int
+    comp4_file_size_sum: int
+    comp1_text: str
+    comp2_text: str
+    comp3_text: str
+    comp4_text: str
+    comp1_size_text: str
+    comp2_size_text: str
+    comp3_size_text: str
+    comp4_size_text: str
+    color1: QColor
+    color2: QColor
+    color3: QColor
+    display_type: DisplayFileType
 
 
 @dataclass

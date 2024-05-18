@@ -71,12 +71,12 @@ class DestinationPanel(ScrollAreaNoFrame):
         self.combinedDestinationDisplay = DestinationDisplay(
             parent=self, rapidApp=self.rapidApp
         )
-        self.combinedDestinationDisplay.files_to_display = (
+        self.combinedDestinationDisplay.display_type = (
             DisplayFileType.photos_and_videos
         )
         # Unlike with the individual photo and video destination displays, this will
         # never change:
-        self.combinedDestinationDisplay.display_type = DestDisplayType.usage_only
+        self.combinedDestinationDisplay.dest_display_type = DestDisplayType.usage_only
 
         self.combinedDestinationDisplayContainer = QPanelView(
             _("Projected Storage Use"),
@@ -96,7 +96,7 @@ class DestinationPanel(ScrollAreaNoFrame):
         self.photoDestinationDisplay = DestinationDisplay(
             menu=True, file_type=FileType.photo, parent=self, rapidApp=self.rapidApp
         )
-        self.photoDestinationDisplay.files_to_display = DisplayFileType.photos
+        self.photoDestinationDisplay.display_type = DisplayFileType.photos
         self.photoDestinationDisplay.setObjectName("photoDestinationDisplay")
         self.photoDestinationWidget = ComputerWidget(
             objectName="photoDestination",
@@ -108,7 +108,7 @@ class DestinationPanel(ScrollAreaNoFrame):
         self.videoDestinationDisplay = DestinationDisplay(
             menu=True, file_type=FileType.video, parent=self, rapidApp=self.rapidApp
         )
-        self.videoDestinationDisplay.files_to_display = DisplayFileType.videos
+        self.videoDestinationDisplay.display_type = DisplayFileType.videos
         self.videoDestinationDisplay.setObjectName("videoDestinationDisplay")
         self.videoDestinationWidget = ComputerWidget(
             objectName="videoDestination",
@@ -156,13 +156,13 @@ class DestinationPanel(ScrollAreaNoFrame):
 
     def setDestinationDisplayVisibilityAndType(self, same_device: bool) -> None:
         self.combinedDestinationDisplayContainer.setVisible(same_device)
-        display_type = (
+        dest_display_type = (
             DestDisplayType.folder_only
             if same_device
             else DestDisplayType.folders_and_usage
         )
-        self.photoDestinationDisplay.display_type = display_type
-        self.videoDestinationDisplay.display_type = display_type
+        self.photoDestinationDisplay.dest_display_type = dest_display_type
+        self.videoDestinationDisplay.dest_display_type = dest_display_type
 
     def setMountSpaceAttributes(
         self, display_type: DisplayFileType, storage_space: StorageSpace

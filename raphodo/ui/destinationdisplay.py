@@ -57,7 +57,7 @@ from raphodo.constants import (
     NameGenerationType,
     PresetPrefType,
 )
-from raphodo.customtypes import DownloadFilesSizeAndNum
+from raphodo.customtypes import BodyDetails, DownloadFilesSizeAndNum
 from raphodo.devices import DownloadingTo
 from raphodo.generatenameconfig import (
     CUSTOM_SUBFOLDER_MENU_ENTRY_POSITION,
@@ -78,7 +78,7 @@ from raphodo.internationalisation.utilities import thousands
 from raphodo.rpdfile import FileTypeCounter, Photo, Video
 from raphodo.storage.storage import StorageSpace, get_path_display_name
 from raphodo.tools.utilities import data_file_path, format_size_for_user
-from raphodo.ui.devicedisplay import BodyDetails, DeviceDisplay, icon_size
+from raphodo.ui.devicedisplay import DeviceDisplay, icon_size
 from raphodo.ui.nameeditor import PrefDialog, make_subfolder_menu_entry
 from raphodo.ui.viewutils import darkModePixmap, paletteMidPen
 
@@ -86,7 +86,7 @@ from raphodo.ui.viewutils import darkModePixmap, paletteMidPen
 def make_body_details(
     bytes_total: int,
     bytes_free: int,
-    files_to_display: DisplayFileType,
+    display_type: DisplayFileType,
     marked: FileTypeCounter,
     photos_size_to_download: int,
     videos_size_to_download: int,
@@ -94,14 +94,6 @@ def make_body_details(
     """
     Gather the details to render for destination storage usage
     for photo and video downloads, and their backups.
-
-    :param bytes_total:
-    :param bytes_free:
-    :param files_to_display:
-    :param marked:
-    :param photos_size_to_download:
-    :param videos_size_to_download:
-    :return:
     """
 
     bytes_total_text = format_size_for_user(bytes_total, no_decimals=0)
@@ -110,7 +102,7 @@ def make_body_details(
 
     photos = videos = photos_size = videos_size = ""
 
-    if files_to_display != DisplayFileType.videos:
+    if display_type != DisplayFileType.videos:
         # Translators: no_photos refers to the number of photos
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
@@ -119,7 +111,7 @@ def make_body_details(
             "no_photos": thousands(marked[FileType.photo])
         }
         photos_size = format_size_for_user(photos_size_to_download)
-    if files_to_display != DisplayFileType.photos:
+    if display_type != DisplayFileType.photos:
         # Translators: no_videos refers to the number of videos
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
@@ -193,7 +185,7 @@ def make_body_details(
         color1=QColor(CustomColors.color1.value),
         color2=QColor(CustomColors.color2.value),
         color3=QColor(CustomColors.color3.value),
-        displaying_files_of_type=files_to_display,
+        display_type=display_type,
     )
 
 
@@ -297,7 +289,7 @@ class DestinationDisplay(QWidget):
         self.pixmap = darkModePixmap(pixmap=self.pixmap)
         self.display_name = ""
         self.photos_size_to_download = self.videos_size_to_download = 0
-        self.files_to_display: DisplayFileType | None = None
+        self.display_type: DisplayFileType | None = None
         self.marked = FileTypeCounter()
         self.dest_display_type: DestDisplayType | None = None
         self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
@@ -569,7 +561,7 @@ class DestinationDisplay(QWidget):
             self.photos_size_to_download += photos_size
             self.videos_size_to_download += videos_size
 
-        self.files_to_display = files_to_display
+        self.display_type = files_to_display
 
         self.dest_display_type = dest_display_type
 
@@ -754,7 +746,7 @@ class DestinationDisplay(QWidget):
             y += self.deviceDisplay.dc.device_name_height
 
         if self.status != DestDisplayStatus.valid or not self.enough_space:
-            if self.files_to_display != DisplayFileType.photos_and_videos:
+            if self.display_type != DisplayFileType.photos_and_videos:
                 y -= DeviceDisplayPadding  # remove the bottom padding
             if self.status != DestDisplayStatus.valid:
                 text = self.warning_text[self.status]
@@ -764,7 +756,7 @@ class DestinationDisplay(QWidget):
                 text = self.warning_text[DestDisplayStatus.no_storage_space]
                 self.paintWarning(painter, x, y, width, text)
                 y += self.invalidStatusHeight()
-            if self.files_to_display != DisplayFileType.photos_and_videos:
+            if self.display_type != DisplayFileType.photos_and_videos:
                 y += DeviceDisplayPadding
 
         if self.renderProjectedStorageSpace():
@@ -782,7 +774,7 @@ class DestinationDisplay(QWidget):
             details = make_body_details(
                 bytes_total=self.storage_space.bytes_total,
                 bytes_free=self.storage_space.bytes_free,
-                files_to_display=self.files_to_display,
+                display_type=self.display_type,
                 marked=self.marked,
                 photos_size_to_download=photos_size_to_download,
                 videos_size_to_download=videos_size_to_download,

@@ -22,7 +22,7 @@ Copyright notice from QtWaitingSpinner source:
 
 import logging
 import math
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 
 from PyQt5.QtCore import (
     QAbstractItemModel,
@@ -81,6 +81,7 @@ from raphodo.constants import (
     Roles,
     ViewRowType,
 )
+from raphodo.customtypes import BodyDetails
 from raphodo.devices import Device
 from raphodo.internationalisation.install import install_gettext
 from raphodo.internationalisation.utilities import thousands
@@ -505,22 +506,6 @@ class DeviceView(ListViewFlexiFrame):
             self.rapidApp.thumbnailModel.highlightDeviceThumbs(scan_id=scan_id)
 
 
-BodyDetails = namedtuple(
-    "BodyDetails",
-    "bytes_total_text, bytes_total, "
-    "percent_used_text, "
-    "bytes_free_of_total, "
-    "comp1_file_size_sum, comp2_file_size_sum, "
-    "comp3_file_size_sum, comp4_file_size_sum, "
-    "comp1_text, comp2_text, comp3_text, "
-    "comp4_text, "
-    "comp1_size_text, comp2_size_text, "
-    "comp3_size_text, comp4_size_text, "
-    "color1, color2, color3,"
-    "displaying_files_of_type",
-)
-
-
 def standard_height():
     return QFontMetrics(QFont()).height()
 
@@ -831,8 +816,8 @@ class DeviceDisplay(QObject):
             color2 = d.color2
             color3 = d.color3
 
-        skip_comp1 = d.displaying_files_of_type == DisplayFileType.videos
-        skip_comp2 = d.displaying_files_of_type == DisplayFileType.photos
+        skip_comp1 = d.display_type == DisplayFileType.videos
+        skip_comp2 = d.display_type == DisplayFileType.photos
         skip_comp3 = d.comp3_size_text == 0
 
         photos_g_x = device_size_x
@@ -1441,7 +1426,7 @@ class DeviceDelegate(QStyledItemDelegate):
                     color1=QColor(CustomColors.color1.value),
                     color2=QColor(CustomColors.color2.value),
                     color3=QColor(CustomColors.color3.value),
-                    displaying_files_of_type=DisplayFileType.photos_and_videos,
+                    display_type=DisplayFileType.photos_and_videos,
                 )
                 self.deviceDisplay.paint_body(
                     painter=painter, x=x, y=y, width=width, details=details

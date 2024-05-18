@@ -404,7 +404,7 @@ class BackupDeviceDelegate(QStyledItemDelegate):
             details = make_body_details(
                 bytes_total=data.bytes_total,
                 bytes_free=data.bytes_free,
-                files_to_display=data.backup_type,
+                display_type=data.backup_type,
                 marked=data.marked,
                 photos_size_to_download=data.photos_size_to_download,
                 videos_size_to_download=data.videos_size_to_download,
