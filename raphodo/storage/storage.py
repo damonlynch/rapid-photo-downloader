@@ -88,10 +88,12 @@ try:
 except ImportError:
     have_gio = False
 
+
 class StorageSpace(NamedTuple):
     bytes_free: int
     bytes_total: int
     path: str
+
 
 CameraDetails = namedtuple(
     "CameraDetails", "model, port, display_name, is_mtp, storage_desc"
@@ -820,6 +822,7 @@ def validate_download_folder(
 
     return ValidatedFolder(valid=valid, absolute_path=absolute_path)
 
+
 def folder_writable(path: str | Path, write_on_waccesss_failure: bool = False) -> bool:
     """
     Checks if a folder is writable. Assumes the path exists.
@@ -838,10 +841,9 @@ def folder_writable(path: str | Path, write_on_waccesss_failure: bool = False) -
                 # the path is in fact writeable -- can happen with NFS
                 return True
         except Exception:
-            logging.debug(
-                "While examining %s, failed to write a temporary file", path
-            )
+            logging.debug("While examining %s, failed to write a temporary file", path)
     return False
+
 
 def validate_source_folder(path: str | None) -> ValidatedFolder:
     r"""

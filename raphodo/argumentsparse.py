@@ -34,6 +34,7 @@ except ImportError:
     # Convert about dictionary to class
     class About:
         pass
+
     __about__ = About()
     __about__.__dict__.update(about)
 

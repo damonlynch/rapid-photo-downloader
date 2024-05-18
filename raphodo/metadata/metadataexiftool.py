@@ -133,8 +133,8 @@ def generate_short_camera_model(
 
     m = model_name
     m = m.replace(" Mark ", "Mk")
-    if '-' in include_characters:
-        include_characters = include_characters.replace('-', '\\-')
+    if "-" in include_characters:
+        include_characters = include_characters.replace("-", "\\-")
     if m:
         s = (
             rf"(?:[^a-zA-Z0-9{include_characters}]?)"

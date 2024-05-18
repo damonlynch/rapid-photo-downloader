@@ -71,9 +71,7 @@ class DestinationPanel(ScrollAreaNoFrame):
         self.combinedDestinationDisplay = DestinationDisplay(
             parent=self, rapidApp=self.rapidApp
         )
-        self.combinedDestinationDisplay.display_type = (
-            DisplayFileType.photos_and_videos
-        )
+        self.combinedDestinationDisplay.display_type = DisplayFileType.photos_and_videos
         # Unlike with the individual photo and video destination displays, this will
         # never change:
         self.combinedDestinationDisplay.dest_display_type = DestDisplayType.usage_only

@@ -81,6 +81,7 @@ def thousands(i: int) -> str:
     except TypeError:
         return str(i)
 
+
 def current_locale() -> str:
     assert have_pyqt
     settings = QSettings("Rapid Photo Downloader", "Rapid Photo Downloader")
