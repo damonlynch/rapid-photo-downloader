@@ -608,7 +608,7 @@ class BackupOptionsWidget(FlexiFrame):
         self.prefs.backup_files = backup
         self.setBackupButtonHighlight()
         self.enableControlsByBackupType()
-        self.rapidApp.resetupBackupDevices()
+        self.rapidApp.reconfigureBackupDevices()
 
     @pyqtSlot(int)
     def autoBackupChanged(self, state: int) -> None:
@@ -617,21 +617,21 @@ class BackupOptionsWidget(FlexiFrame):
         self.prefs.backup_device_autodetection = autoBackup
         self.setBackupButtonHighlight()
         self.enableControlsByBackupType()
-        self.rapidApp.resetupBackupDevices()
+        self.rapidApp.reconfigureBackupDevices()
 
     @pyqtSlot(str)
     def photoPathChosen(self, path: str) -> None:
         logging.info("Setting backup photo location to %s", path)
         self.prefs.backup_photo_location = path
         self.setBackupButtonHighlight()
-        self.rapidApp.resetupBackupDevices()
+        self.rapidApp.reconfigureBackupDevices()
 
     @pyqtSlot(str)
     def videoPathChosen(self, path: str) -> None:
         logging.info("Setting backup video location to %s", path)
         self.prefs.backup_video_location = path
         self.setBackupButtonHighlight()
-        self.rapidApp.resetupBackupDevices()
+        self.rapidApp.reconfigureBackupDevices()
 
     @pyqtSlot()
     def photoFolderIdentifierChanged(self) -> None:
@@ -639,7 +639,7 @@ class BackupOptionsWidget(FlexiFrame):
         logging.info("Setting backup photo folder name to %s", name)
         self.prefs.photo_backup_identifier = name
         self.setBackupButtonHighlight()
-        self.rapidApp.resetupBackupDevices()
+        self.rapidApp.reconfigureBackupDevices()
 
     @pyqtSlot()
     def videoFolderIdentifierChanged(self) -> None:
@@ -647,7 +647,7 @@ class BackupOptionsWidget(FlexiFrame):
         logging.info("Setting backup video folder name to %s", name)
         self.prefs.video_backup_identifier = name
         self.setBackupButtonHighlight()
-        self.rapidApp.resetupBackupDevices()
+        self.rapidApp.reconfigureBackupDevices()
 
     def updateExample(self) -> None:
         """

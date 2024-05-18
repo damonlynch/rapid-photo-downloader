@@ -2536,6 +2536,7 @@ difference to the program's future.</p>"""
         self.setDownloadActionState(destinations_good)
         self.destinationButton.setHighlighted(not destinations_good)
 
+    # TODO purge this once backup logic and button state checks changes done
     def setDownloadCapabilities(self) -> bool:
         """
         Update the destination displays and download button
@@ -2560,7 +2561,7 @@ difference to the program's future.</p>"""
             backups_good = True
             downloading_to = defaultdict(set)
 
-        destinations_good = False
+        destinations_good = False # was self.updateDestinationViews()
 
         download_good = destinations_good and backups_good
         self.setDownloadActionState(download_good)
@@ -2734,7 +2735,12 @@ difference to the program's future.</p>"""
             self.app_state.set_ui_element_change_pending_dest_space(display_type)
         self.setDestDeviceUsage()
         self.updateDestUIElements()
+        # TODO consider what status bar message to display when a download finishes
         self.displayMessageInStatusBar()
+
+    def setStateBackupDevices(self) -> None:
+        # TODO checks space requirements when doing backups
+        logging.critical("implement setStateBackupDevices")
 
     def setStateDestinationFolder(self, file_type: FileType | None = None) -> None:
         self.setStateDestDirCharacteristics(file_type)
@@ -4298,7 +4304,7 @@ Do you want to proceed with the download?"""
             self.download_tracker.purge_all()
 
             self.setDownloadActionLabel()
-            self.setDownloadCapabilities()
+            self.setStateDestFilesToDownload()
 
             self.download_start_datetime = None
             self.download_start_time = None
@@ -5393,7 +5399,7 @@ Do you want to proceed with the download?"""
                 self.removeDevice(scan_id=scan_id, show_warning=show_warning)
 
         if removed_cameras:
-            self.setDownloadCapabilities()
+            self.setStateDestFilesToDownload()
 
     @pyqtSlot()
     def noGVFSAutoMount(self) -> None:
@@ -5967,7 +5973,7 @@ Do you want to proceed with the download?"""
                     logging.warning("Unexpected valid mount count")
                 else:
                     self.valid_mount_count -= 1
-            self.setDownloadCapabilities()
+            self.setStateDestFilesToDownload()
 
     def removeDevice(
         self,
@@ -6048,7 +6054,7 @@ Do you want to proceed with the download?"""
                 self.thisComputer.setViewVisible(False)
 
             self.updateSourceButton()
-            self.setDownloadCapabilities()
+            self.setStateDestFilesToDownload()
 
             if adjust_temporal_proximity:
                 state = self.proximityStatePostDeviceRemoval()
@@ -6214,7 +6220,7 @@ Do you want to proceed with the download?"""
         self.sendStopWorkerToThread(self.backup_controller, worker_id=device_id)
         del self.backup_devices[path]
 
-    def resetupBackupDevices(self) -> None:
+    def reconfigureBackupDevices(self) -> None:
         """
         Change backup preferences in response to preference change.
 
@@ -6237,7 +6243,7 @@ Do you want to proceed with the download?"""
         self.backupPanel.resetBackupDisplay()
 
         self.setupBackupDevices()
-        self.setDownloadCapabilities()
+        self.setStateBackupDevices()
         logging.info("...backup devices configuration is reset")
 
     @pyqtSlot()
