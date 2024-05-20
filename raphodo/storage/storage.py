@@ -844,28 +844,6 @@ def folder_writable(path: str | Path, write_on_waccesss_failure: bool = False) -
     return False
 
 
-def validate_source_folder(path: str | None) -> ValidatedFolder:
-    r"""
-    Check if folder exists and is readable.
-
-    Accepts None as a folder, which will always be invalid.
-
-    :param path: path to analyze
-    :return: Tuple indicating validity and path made absolute
-
-    >>> validate_source_folder('/some/bogus/and/ridiculous/path')
-    ValidatedFolder(valid=False, absolute_path='/some/bogus/and/ridiculous/path')
-    >>> validate_source_folder(None)
-    ValidatedFolder(valid=False, absolute_path='')
-    >>> validate_source_folder('')
-    ValidatedFolder(valid=False, absolute_path='')
-    """
-
-    if not path:
-        return ValidatedFolder(valid=False, absolute_path="")
-    absolute_path = os.path.abspath(path)
-    valid = os.path.isdir(path) and os.access(path, os.R_OK)
-    return ValidatedFolder(valid=valid, absolute_path=absolute_path)
 
 
 def udev_attributes(devname: str) -> UdevAttr | None:

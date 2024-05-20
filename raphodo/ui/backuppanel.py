@@ -90,7 +90,7 @@ class BackupDeviceModel(QAbstractListModel):
     (1) destination on local files systems
     (2) external devices, e.g., external hard drives
 
-    Need to account for when download destination is same file system
+    Need to account for when download destination is the same file system
     as backup destination.
     """
 
@@ -364,7 +364,6 @@ class BackupDeviceView(DeviceView):
         super().__init__(rapidApp, parent)
         self.setMouseTracking(False)
         self.entered.disconnect()
-        # TODO sizeHint() ?
 
 
 class BackupDeviceDelegate(QStyledItemDelegate):
@@ -386,33 +385,40 @@ class BackupDeviceDelegate(QStyledItemDelegate):
         width = option.rect.width()
 
         view_type: ViewRowType = index.data(Qt.DisplayRole)
-        if view_type == ViewRowType.header:
-            display_name, icon = index.data(Roles.device_details)
+        match view_type:
+            case ViewRowType.header:
+                display_name, icon = index.data(Roles.device_details)
 
-            self.deviceDisplay.paint_header(
-                painter=painter,
-                x=x,
-                y=y,
-                width=width,
-                icon=icon,
-                display_name=display_name,
-            )
-        else:
-            assert view_type == ViewRowType.content
+                self.deviceDisplay.paint_header(
+                    painter=painter,
+                    x=x,
+                    y=y,
+                    width=width,
+                    icon=icon,
+                    display_name=display_name,
+                )
+            case ViewRowType.content:
+                assert view_type == ViewRowType.content
 
-            data: BackupVolumeUse = index.data(Roles.storage)
-            details = make_body_details(
-                bytes_total=data.bytes_total,
-                bytes_free=data.bytes_free,
-                display_type=data.backup_type,
-                marked=data.marked,
-                photos_size_to_download=data.photos_size_to_download,
-                videos_size_to_download=data.videos_size_to_download,
-            )
+                data: BackupVolumeUse = index.data(Roles.storage)
+                details = make_body_details(
+                    bytes_total=data.bytes_total,
+                    bytes_free=data.bytes_free,
+                    display_type=data.backup_type,
+                    marked=data.marked,
+                    photos_size_to_download=data.photos_size_to_download,
+                    videos_size_to_download=data.videos_size_to_download,
+                )
+                self.deviceDisplay.paint_body(
+                    painter=painter, x=x, y=y, width=width, details=details
+                )
+            case ViewRowType.warning:
+                message = index.data(Roles.warning)
 
-            self.deviceDisplay.paint_body(
-                painter=painter, x=x, y=y, width=width, details=details
-            )
+            case ViewRowType.no_space:
+                message = index.data(Roles.no_space)
+
+
 
         painter.restore()
 

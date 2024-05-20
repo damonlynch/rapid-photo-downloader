@@ -16,6 +16,7 @@ class AppState(Flag):
     NORMAL = auto()
     EXITING = auto()
     DOWNLOADING = auto()
+    DOWNLOAD_RUNNING = auto()
     DOWNLOAD_PAUSED = auto()
     GENERATING_THUMBNAILS = auto()
     SCANNING = auto()
@@ -52,6 +53,10 @@ class AppState(Flag):
     DEST_PHOTO_NO_SPACE = auto()
     DEST_VIDEO_NO_SPACE = auto()
     DEST_SAME_NO_SPACE = auto()
+    # This Computer directory characteristics
+    THIS_COMP_DIR_NOT_SPECIFIED = auto()
+    THIS_COMP_DIR_NO_READ = auto()
+    THIS_COMP_NOT_EXIST = auto()
 
     def state_str(self, mask: "AppState") -> str:
         return (self & mask)._name_ or self.not_set_str()
@@ -69,13 +74,13 @@ TIMELINE_APPLICATION_STATE_MASK = (
 )
 DEST_PHOTO_DIR_MASK = (
     AppState.DEST_PHOTO_DIR_NOT_SPECIFIED
-    |AppState.DEST_PHOTO_DIR_NO_READ
+    | AppState.DEST_PHOTO_DIR_NO_READ
     | AppState.DEST_PHOTO_DIR_READ_ONLY
     | AppState.DEST_PHOTO_DIR_NOT_EXIST
 )
 DEST_VIDEO_DIR_MASK = (
     AppState.DEST_VIDEO_DIR_NOT_SPECIFIED
-    |AppState.DEST_VIDEO_DIR_NO_READ
+    | AppState.DEST_VIDEO_DIR_NO_READ
     | AppState.DEST_VIDEO_DIR_READ_ONLY
     | AppState.DEST_VIDEO_DIR_NOT_EXIST
 )
@@ -83,6 +88,11 @@ DEST_NO_SPACE_MASK = (
     AppState.DEST_PHOTO_NO_SPACE
     | AppState.DEST_VIDEO_NO_SPACE
     | AppState.DEST_SAME_NO_SPACE
+)
+THIS_COMP_DIR_MASK = (
+    AppState.THIS_COMP_DIR_NOT_SPECIFIED
+    | AppState.THIS_COMP_DIR_NO_READ
+    | AppState.THIS_COMP_NOT_EXIST
 )
 UI_GEOMETRY_CHANGE_NEEDED_DEST_PHOTO = (
     AppState.UI_ELEMENT_CHANGE_PENDING_DEST_PHOTO_STATUS
@@ -232,6 +242,19 @@ class State:
         self._unset_exclusive_state(
             mask=MAP_DEST_DIR_MASK[file_type],
             log_message=f"{file_type.name.capitalize()} destination directory",
+        )
+
+    def set_this_comp_dir_state(self, state: AppState) -> None:
+        self._set_exclusive_state(
+            state=state,
+            mask=THIS_COMP_DIR_MASK,
+            log_message="This Computer directory",
+        )
+
+    def reset_this_comp_dir_state(self) -> None:
+        self._unset_exclusive_state(
+            mask=THIS_COMP_DIR_MASK,
+            log_message="This Computer destination directory",
         )
 
     @property

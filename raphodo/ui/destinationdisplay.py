@@ -11,25 +11,17 @@ from collections import defaultdict
 
 from PyQt5.QtCore import (
     QPoint,
-    QPointF,
     QRect,
-    QRectF,
     QSize,
     Qt,
     pyqtSlot,
 )
 from PyQt5.QtGui import (
-    QBrush,
     QColor,
-    QFont,
-    QFontMetrics,
     QIcon,
     QMouseEvent,
-    QPainter,
-    QPainterPath,
     QPaintEvent,
     QPalette,
-    QPen,
     QPixmap,
 )
 from PyQt5.QtWidgets import (
@@ -308,6 +300,7 @@ class DestinationDisplay(QWidget):
         self.enough_space: bool = True
         self.invalidColor = QColor(COLOR_RED_WARNING_HTML)
 
+    # TODO is this still used?
     @property
     def downloading_to(self) -> DownloadingTo:
         return self._downloading_to
@@ -566,113 +559,12 @@ class DestinationDisplay(QWidget):
         self.update()
         self.updateGeometry()
 
-    def sufficientSpaceAvailable(self) -> bool:
-        """
-        Check to see that there is sufficient space with which to perform a download.
-
-        :return: True or False value if sufficient space. Will always return False if
-         the download destination is not yet set.
-        """
-
-        if self.storage_space is None:
-            return False
-
-        # allow for destinations that don't properly report their size
-        if self.storage_space.bytes_total == 0:
-            return True
-
-        photos_size_to_download, videos_size_to_download = adjusted_download_size(
-            photos_size_to_download=self.photos_size_to_download,
-            videos_size_to_download=self.videos_size_to_download,
-            os_stat_device=self.os_stat_device,
-            downloading_to=self._downloading_to,
-        )
-        return (
-            photos_size_to_download + videos_size_to_download
-            < self.storage_space.bytes_free
-        )
-
     @pyqtSlot(bool)
     def containerVerticalScrollBar(self, visible: bool) -> None:
         self.container_vertical_scrollbar_visible = visible
 
-    @staticmethod
-    def invalidStatusHeight() -> int:
-        return QFontMetrics(QFont()).height() + DeviceDisplayPadding * 2
-
     def setStatus(self, status: DestDisplayStatus) -> None:
         self.status = status
-
-    def paintWarning(
-        self, painter: QPainter, x: int, y: int, width: int, text: str
-    ) -> None:
-        displayPen = painter.pen()
-
-        statusRect = QRect(x, y, width, self.invalidStatusHeight())
-        painter.fillRect(statusRect, self.invalidColor)
-
-        text_height = QFontMetrics(QFont()).height()
-        white = QColor(Qt.GlobalColor.white)
-
-        iconRect = QRectF(
-            float(DeviceDisplayPadding),
-            float(y + DeviceDisplayPadding),
-            float(text_height),
-            float(text_height),
-        )
-        # exclamationRect = iconRect.adjusted(0.25, 1.0, 0.25, 1.0)
-        textRect = QRectF(
-            iconRect.right() + DeviceDisplayPadding,
-            iconRect.top(),
-            width - iconRect.right() - DeviceDisplayPadding,
-            float(text_height),
-        )
-
-        painter.setPen(QPen(white))
-
-        # Draw a triangle
-        path = QPainterPath()
-        triangle_center = iconRect.left() + iconRect.width() / 2
-        path.moveTo(triangle_center, iconRect.top())
-        path.lineTo(iconRect.bottomLeft())
-        path.lineTo(iconRect.bottomRight())
-        path.lineTo(triangle_center, iconRect.top())
-
-        painter.fillPath(path, QBrush(white))
-
-        # Draw an exclamation point
-        pen = QPen(self.invalidColor)
-        pen.setWidthF(1.5)
-        painter.setPen(pen)
-
-        vertical_padding = iconRect.height() / 3
-        line_top = iconRect.top() + vertical_padding
-        line_bottom = iconRect.bottom() - vertical_padding
-
-        # Draw the top part of the exclamation point
-        painter.drawLine(
-            QPointF(triangle_center, line_top),
-            QPointF(triangle_center, line_bottom),
-        )
-        # Draw the dot
-        dot_y = vertical_padding / 2 + line_bottom
-        painter.drawLine(
-            QPointF(triangle_center, dot_y),
-            QPointF(triangle_center, dot_y),
-        )
-
-        # Draw the warning
-        displayFont = painter.font()
-        warningFont = QFont()
-        painter.setFont(warningFont)
-        painter.setPen(QPen(white))
-        painter.drawText(
-            textRect,
-            Qt.TextFlag.TextSingleLine | Qt.AlignmentFlag.AlignVCenter,
-            text,
-        )
-        painter.setPen(displayPen)
-        painter.setFont(displayFont)
 
     def paintEvent(self, event: QPaintEvent) -> None:
         """
@@ -742,12 +634,12 @@ class DestinationDisplay(QWidget):
                 y -= DeviceDisplayPadding  # remove the bottom padding
             if self.status != DestDisplayStatus.valid:
                 text = DIR_PROBLEM_TEXT[self.status]
-                self.paintWarning(painter, x, y, width, text)
-                y += self.invalidStatusHeight()
+                self.deviceDisplay.paintWarning(painter, x, y, width, text)
+                y += self.deviceDisplay.dc.warning_status_height
             if not self.enough_space:
                 text = DIR_PROBLEM_TEXT[DestDisplayStatus.no_storage_space]
-                self.paintWarning(painter, x, y, width, text)
-                y += self.invalidStatusHeight()
+                self.deviceDisplay.paintWarning(painter, x, y, width, text)
+                y += self.deviceDisplay.dc.warning_status_height
             if self.display_type != DisplayFileType.photos_and_videos:
                 y += DeviceDisplayPadding
 
@@ -801,9 +693,9 @@ class DestinationDisplay(QWidget):
         if self.dest_display_type != DestDisplayType.usage_only:
             height += self.deviceDisplay.dc.device_name_height
         if self.status != DestDisplayStatus.valid:
-            height += self.invalidStatusHeight()
+            height += self.deviceDisplay.dc.warning_status_height
         if not self.enough_space:
-            height += self.invalidStatusHeight()
+            height += self.deviceDisplay.dc.warning_status_height
         if self.renderProjectedStorageSpace():
             height += self.deviceDisplay.dc.storage_height
         return QSize(self.deviceDisplay.width(), height)

@@ -53,6 +53,7 @@ from PyQt5.QtGui import (
     QPalette,
     QPen,
     QPixmap,
+QPainterPath,
 )
 from PyQt5.QtWidgets import (
     QAbstractItemView,
@@ -79,6 +80,7 @@ from raphodo.constants import (
     EmptyViewHeight,
     FileType,
     Roles,
+    COLOR_RED_WARNING_HTML,
     ViewRowType,
 )
 from raphodo.customtypes import BodyDetails
@@ -627,6 +629,8 @@ class DeviceComponent(QObject):
         # Track the width of the details components in real time
         self._live_width = 0
 
+        self.warning_status_height = QFontMetrics(QFont()).height() + self.padding * 2
+
     def sample_width(self) -> int:
         width = (
             self.sample_photos_width
@@ -689,6 +693,8 @@ class DeviceDisplay(QObject):
             self.menuHighlightColor = self.deviceNameHighlightColor.darker(115)
 
         self.emptySpaceColor = QColor("#f2f2f2")
+        self.invalidColor = QColor(COLOR_RED_WARNING_HTML)
+
 
     @pyqtSlot(int)
     def _widthChanged(self, width) -> None:
@@ -754,6 +760,78 @@ class DeviceDisplay(QObject):
         button_x = x + width - size - self.dc.padding
         button_y = y + self.dc.device_name_strip_height / 2 - size / 2
         return QRectF(button_x, button_y, size, size)
+
+    def paintWarning(
+        self, painter: QPainter, x: int, y: int, width: int, text: str
+    ) -> None:
+        displayPen = painter.pen()
+
+        statusRect = QRect(x, y, width, self.dc.warning_status_height)
+        painter.fillRect(statusRect, self.invalidColor)
+
+        text_height = QFontMetrics(QFont()).height()
+        white = QColor(Qt.GlobalColor.white)
+
+        iconRect = QRectF(
+            float(DeviceDisplayPadding),
+            float(y + DeviceDisplayPadding),
+            float(text_height),
+            float(text_height),
+        )
+        # exclamationRect = iconRect.adjusted(0.25, 1.0, 0.25, 1.0)
+        textRect = QRectF(
+            iconRect.right() + DeviceDisplayPadding,
+            iconRect.top(),
+            width - iconRect.right() - DeviceDisplayPadding,
+            float(text_height),
+        )
+
+        painter.setPen(QPen(white))
+
+        # Draw a triangle
+        path = QPainterPath()
+        triangle_center = iconRect.left() + iconRect.width() / 2
+        path.moveTo(triangle_center, iconRect.top())
+        path.lineTo(iconRect.bottomLeft())
+        path.lineTo(iconRect.bottomRight())
+        path.lineTo(triangle_center, iconRect.top())
+
+        painter.fillPath(path, QBrush(white))
+
+        # Draw an exclamation point
+        pen = QPen(self.invalidColor)
+        pen.setWidthF(1.5)
+        painter.setPen(pen)
+
+        vertical_padding = iconRect.height() / 3
+        line_top = iconRect.top() + vertical_padding
+        line_bottom = iconRect.bottom() - vertical_padding
+
+        # Draw the top part of the exclamation point
+        painter.drawLine(
+            QPointF(triangle_center, line_top),
+            QPointF(triangle_center, line_bottom),
+        )
+        # Draw the dot
+        dot_y = vertical_padding / 2 + line_bottom
+        painter.drawLine(
+            QPointF(triangle_center, dot_y),
+            QPointF(triangle_center, dot_y),
+        )
+
+        # Draw the warning
+        displayFont = painter.font()
+        warningFont = QFont()
+        painter.setFont(warningFont)
+        painter.setPen(QPen(white))
+        painter.drawText(
+            textRect,
+            Qt.TextFlag.TextSingleLine | Qt.AlignmentFlag.AlignVCenter,
+            text,
+        )
+        painter.setPen(displayPen)
+        painter.setFont(displayFont)
+
 
     def paint_body(
         self, painter: QPainter, x: int, y: int, width: int, details: BodyDetails

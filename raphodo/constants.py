@@ -150,10 +150,17 @@ class DestDisplayType(Enum):
 
 class DestDisplayStatus(Enum):
     valid = auto()
-    cannot_read =auto()
+    cannot_read = auto()
     read_only = auto()
     does_not_exist = auto()
     no_storage_space = auto()
+    unspecified = auto()
+
+
+class ThisCompDisplayStatus(Enum):
+    valid = auto()
+    cannot_read = auto()
+    does_not_exist = auto()
     unspecified = auto()
 
 
@@ -291,6 +298,8 @@ class Roles(IntEnum):
     download_statuses = Qt.UserRole + 20
     job_code = Qt.UserRole + 21
     uids = Qt.UserRole + 22
+    warning = Qt.UserRole + 23
+    no_space = Qt.UserRole + 24
 
 
 class ExtractionTask(Enum):
@@ -337,8 +346,10 @@ class CameraErrorCode(Enum):
 
 
 class ViewRowType(Enum):
-    header = 1
-    content = 2
+    header = auto()
+    warning = auto()
+    no_space = auto()
+    content = auto()
 
 
 class Align(Enum):
@@ -774,12 +785,10 @@ non_system_root_folders = [
     "/mnt",
 ]
 
-
 MAP_FILE_TYPE_TO_DISPLAYING_FILES_OF_TYPE = {
     FileType.photo: DisplayFileType.photos,
     FileType.video: DisplayFileType.videos,
 }
-
 
 MAP_DISPLAYING_FILES_OF_TYPE_TO_FILE_TYPE = {
     value: key for key, value in MAP_FILE_TYPE_TO_DISPLAYING_FILES_OF_TYPE.items()

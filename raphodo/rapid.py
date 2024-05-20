@@ -139,6 +139,7 @@ from raphodo.constants import (
     Show,
     Sort,
     TemporalProximityState,
+ThisCompDisplayStatus,
 )
 from raphodo.customtypes import (
     DownloadFilesSizeAndNum,
@@ -215,7 +216,7 @@ from raphodo.state import (
     MAP_DEST_DIR_NOT_SPECIFIED,
     MAP_DEST_DIR_READ_ONLY,
     AppState,
-    State,
+    State, THIS_COMP_DIR_MASK,
 )
 from raphodo.storage.storage import (
     CameraHotplug,
@@ -235,7 +236,6 @@ from raphodo.storage.storage import (
     platform_photos_directory,
     platform_videos_directory,
     validate_download_folder,
-    validate_source_folder,
 )
 from raphodo.thumbnaildisplay import (
     ThumbnailDelegate,
@@ -493,9 +493,11 @@ class RapidWindow(QMainWindow):
                     ", ".join(self.prefs.folders_to_scan),
                 )
 
+        # Whether "This Computer" is used as a download source
         if this_computer_source is not None:
             self.prefs.this_computer_source = this_computer_source
 
+        # The path for the "This Computer" download source
         if this_computer_location is not None:
             self.prefs.this_computer_path = this_computer_location
 
@@ -1071,6 +1073,7 @@ class RapidWindow(QMainWindow):
         self.updateSourceButton()
         self.displayMessageInStatusBar()
 
+        self.setStateThisComputer()
         self.setStateDestinationFolder()
 
         self.setupRemainingSignalConnections()
@@ -2073,21 +2076,6 @@ difference to the program's future.</p>"""
             DeviceType.camera_fuse: self.deviceView,
         }
 
-        # Be cautious: validate paths. The settings file can always be edited by hand,
-        # and the user can set it to whatever value they want using the command line
-        # options.
-        logging.debug("Checking path validity")
-        this_computer_sf = validate_source_folder(self.prefs.this_computer_path)
-        if this_computer_sf.valid:
-            if this_computer_sf.absolute_path != self.prefs.this_computer_path:
-                self.prefs.this_computer_path = this_computer_sf.absolute_path
-        elif self.prefs.this_computer_source and self.prefs.this_computer_path != "":
-            logging.warning(
-                "Ignoring invalid 'This Computer' path: %s",
-                self.prefs.this_computer_path,
-            )
-            self.prefs.this_computer_path = ""
-
         self.watchedDownloadDirs = WatchDownloadDirs()
 
         self.fileSystemModel = FileSystemModel(parent=self)
@@ -2109,8 +2097,7 @@ difference to the program's future.</p>"""
         self.thisComputerFSView.setItemDelegate(self.fileSystemDelegate)
         self.thisComputerFSView.hideColumns()
         self.thisComputerFSView.setRootIndex(index)
-        if this_computer_sf.valid:
-            self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
+
         self.thisComputerFSView.activated.connect(self.thisComputerPathChosen)
         self.thisComputerFSView.clicked.connect(self.thisComputerPathChosen)
         self.thisComputerFSView.showSystemFolders.connect(
@@ -2751,6 +2738,39 @@ difference to the program's future.</p>"""
         self.updateDestUIWatch()
         self.updateDestUIElements()
 
+    def setStateThisComputerDirCharacteristics(self)-> None:
+        folder = self.prefs.this_computer_path
+        mask = THIS_COMP_DIR_MASK
+        original = mask & self.app_state.state
+
+        if not folder:
+            state = AppState.THIS_COMP_DIR_NOT_SPECIFIED
+            status = ThisCompDisplayStatus.unspecified
+        elif not Path(folder).is_dir():
+            state=AppState.THIS_COMP_NOT_EXIST
+            status=ThisCompDisplayStatus.does_not_exist
+        elif not os.access(folder, os.R_OK):
+            state= AppState.THIS_COMP_DIR_NO_READ
+            status=ThisCompDisplayStatus.cannot_read
+        else:
+            state = AppState(0)
+            status = ThisCompDisplayStatus.valid
+
+        if state:
+            self.app_state.set_this_comp_dir_state(state)
+        elif original:
+            self.app_state.reset_this_comp_dir_state()
+
+        if original != state:
+            pass
+            #self.app_state.set_ui_element_change_pending_this_comp_status()
+
+        # TODO set the status
+        # self.thisComputerModel.setDisplayStatus(status)
+
+
+    def setStateThisComputer(self)-> None:
+        self.setStateThisComputerDirCharacteristics()
     @pyqtSlot()
     def updateThumbnailModelAfterProximityChange(self) -> None:
         """
@@ -2962,6 +2982,7 @@ difference to the program's future.</p>"""
         :param on: whether switch is on or off
         """
 
+        # TODO change this logic
         if on:
             self.thisComputer.setViewVisible(bool(self.prefs.this_computer_path))
         self.prefs.this_computer_source = on
