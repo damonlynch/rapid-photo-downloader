@@ -2382,7 +2382,7 @@ difference to the program's future.</p>"""
         )
         # Minimum width will be updated as a scan occurs
         panel_width = max(
-            deviceComponent.sample_width(), deviceComponent.minimum_width()
+            deviceComponent.sampleWidth(), deviceComponent.minimumWidth()
         )
         panel_width += scroll_bar_width + frame_width * 3
         left_panel = right_panel = panel_width

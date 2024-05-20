@@ -470,7 +470,7 @@ class DeviceView(ListViewFlexiFrame):
         self.rapidApp = rapidApp
         # Disallow the user from being able to select the table cells
         self.setSelectionMode(QAbstractItemView.NoSelection)
-        self.view_width = DeviceComponent().sample_width()
+        self.view_width = DeviceComponent().sampleWidth()
         # Assume view is always going to be placed into a container that can be scrolled
         # or a splitter
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -631,7 +631,7 @@ class DeviceComponent(QObject):
 
         self.warning_status_height = QFontMetrics(QFont()).height() + self.padding * 2
 
-    def sample_width(self) -> int:
+    def sampleWidth(self) -> int:
         width = (
             self.sample_photos_width
             + self.sample_videos_width
@@ -643,12 +643,12 @@ class DeviceComponent(QObject):
         )
         return width
 
-    def minimum_width(self) -> int:
+    def minimumWidth(self) -> int:
         if self.live_width:
             width = self.live_width + self.padding * 2
             return width
         else:
-            return self.sample_width()
+            return self.sampleWidth()
 
     @property
     def live_width(self) -> int:
@@ -659,7 +659,7 @@ class DeviceComponent(QObject):
         if width != self._live_width:
             self._live_width = width
             # print(f"self.minimum_width() {self.minimum_width()} width {width}")
-            self.widthChanged.emit(self.minimum_width())
+            self.widthChanged.emit(self.minimumWidth())
 
 
 class DeviceDisplay(QObject):
@@ -683,7 +683,7 @@ class DeviceDisplay(QObject):
         self.dc = DeviceComponent()
         self.dc.widthChanged.connect(self._widthChanged)
 
-        self.view_width = self.dc.sample_width()
+        self.view_width = self.dc.sampleWidth()
 
         self.deviceNameHighlightColor = device_name_highlight_color()
         self.storageBorderColor = QColor("#bcbcbc")
@@ -704,10 +704,10 @@ class DeviceDisplay(QObject):
     def width(self) -> int:
         return self.view_width
 
-    def v_align_header_pixmap(self, y: int, pixmap_height: int) -> float:
+    def vAlignHeaderPixmap(self, y: int, pixmap_height: int) -> float:
         return y + (self.dc.device_name_strip_height / 2 - pixmap_height / 2)
 
-    def paint_header(
+    def paintHeader(
         self,
         painter: QPainter,
         x: int,
@@ -730,7 +730,7 @@ class DeviceDisplay(QObject):
         painter.fillRect(deviceNameRect, self.deviceNameHighlightColor)
 
         icon_x = float(x + self.dc.padding + self.dc.icon_x_offset)
-        icon_y = self.v_align_header_pixmap(y, self.dc.icon_size)
+        icon_y = self.vAlignHeaderPixmap(y, self.dc.icon_size)
 
         icon = darkModePixmap(pixmap=icon, soften_regular_mode_color=True)
 
@@ -747,7 +747,7 @@ class DeviceDisplay(QObject):
 
         if self.menuButtonIcon:
             size = icon_size()
-            rect = self.menu_button_rect(x, y, width)
+            rect = self.menuButtonRect(x, y, width)
             if highlight_menu:
                 painter.fillRect(rect, self.menuHighlightColor)
             button_x = rect.x() + self.dc.menu_button_padding
@@ -755,7 +755,7 @@ class DeviceDisplay(QObject):
             pixmap = self.menuButtonIcon.pixmap(QSize(size, size))
             painter.drawPixmap(QPointF(button_x, button_y), pixmap)
 
-    def menu_button_rect(self, x: int, y: int, width: int) -> QRectF:
+    def menuButtonRect(self, x: int, y: int, width: int) -> QRectF:
         size = icon_size() + self.dc.menu_button_padding * 2
         button_x = x + width - size - self.dc.padding
         button_y = y + self.dc.device_name_strip_height / 2 - size / 2
@@ -833,7 +833,7 @@ class DeviceDisplay(QObject):
         painter.setFont(displayFont)
 
 
-    def paint_body(
+    def paintBody(
         self, painter: QPainter, x: int, y: int, width: int, details: BodyDetails
     ) -> None:
         """
@@ -1189,7 +1189,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         self.downloadedErrorIcon = scaledIcon(
             data_file_path("thumbnail/downloaded-with-error.svg")
         )
-        self.downloaded_icon_y = self.v_align_header_pixmap(
+        self.downloaded_icon_y = self.vAlignHeaderPixmap(
             0, self.downloaded_icon_size
         )
 
@@ -1197,7 +1197,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         color = palette.highlight().color()
         self.progressBarPen = QPen(QBrush(color), 2.0)
 
-    def paint_header(
+    def paintHeader(
         self,
         painter: QPainter,
         x: int,
@@ -1213,7 +1213,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
     ) -> None:
         standard_pen_color = painter.pen().color()
 
-        super().paint_header(
+        super().paintHeader(
             painter=painter, x=x, y=y, width=width, display_name=display_name, icon=icon
         )
 
@@ -1289,7 +1289,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
             painter.setPen(Qt.SolidLine)
             painter.setPen(standard_pen_color)
 
-    def paint_alternate(self, painter: QPainter, x: int, y: int, text: str) -> None:
+    def paintAlternate(self, painter: QPainter, x: int, y: int, text: str) -> None:
         standard_pen_color = painter.pen().color()
 
         painter.setPen(standard_pen_color)
@@ -1414,7 +1414,7 @@ class DeviceDelegate(QStyledItemDelegate):
             else:
                 checked = None
 
-            self.deviceDisplay.paint_header(
+            self.deviceDisplay.paintHeader(
                 painter=painter,
                 x=x,
                 y=y,
@@ -1506,7 +1506,7 @@ class DeviceDelegate(QStyledItemDelegate):
                     color3=QColor(CustomColors.color3.value),
                     display_type=DisplayFileType.photos_and_videos,
                 )
-                self.deviceDisplay.paint_body(
+                self.deviceDisplay.paintBody(
                     painter=painter, x=x, y=y, width=width, details=details
                 )
 
@@ -1515,7 +1515,7 @@ class DeviceDelegate(QStyledItemDelegate):
                 # Storage space not available, which for cameras means libgphoto2 is
                 # currently still trying to access the device
                 if device.device_type == DeviceType.camera:
-                    self.deviceDisplay.paint_alternate(
+                    self.deviceDisplay.paintAlternate(
                         painter=painter, x=x, y=y, text=self.probing_text
                     )
 

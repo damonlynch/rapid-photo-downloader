@@ -389,7 +389,7 @@ class BackupDeviceDelegate(QStyledItemDelegate):
             case ViewRowType.header:
                 display_name, icon = index.data(Roles.device_details)
 
-                self.deviceDisplay.paint_header(
+                self.deviceDisplay.paintHeader(
                     painter=painter,
                     x=x,
                     y=y,
@@ -409,7 +409,7 @@ class BackupDeviceDelegate(QStyledItemDelegate):
                     photos_size_to_download=data.photos_size_to_download,
                     videos_size_to_download=data.videos_size_to_download,
                 )
-                self.deviceDisplay.paint_body(
+                self.deviceDisplay.paintBody(
                     painter=painter, x=x, y=y, width=width, details=details
                 )
             case ViewRowType.warning:

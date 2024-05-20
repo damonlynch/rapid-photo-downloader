@@ -618,7 +618,7 @@ class DestinationDisplay(QWidget):
 
         if self.dest_display_type != DestDisplayType.usage_only:
             # Render the folder icon, folder name, and the menu icon
-            self.deviceDisplay.paint_header(
+            self.deviceDisplay.paintHeader(
                 painter=painter,
                 x=x,
                 y=y,
@@ -664,7 +664,7 @@ class DestinationDisplay(QWidget):
                 videos_size_to_download=videos_size_to_download,
             )
 
-            self.deviceDisplay.paint_body(
+            self.deviceDisplay.paintBody(
                 painter=painter, x=x, y=y, width=width, details=details
             )
 
@@ -708,7 +708,7 @@ class DestinationDisplay(QWidget):
         if self.menu is None:
             return
 
-        iconRect = self.deviceDisplay.menu_button_rect(0, 0, self.width())
+        iconRect = self.deviceDisplay.menuButtonRect(0, 0, self.width())
 
         if iconRect.contains(event.pos()) and event.button() == Qt.LeftButton:
             menuTopReal = iconRect.bottomLeft()
@@ -748,7 +748,7 @@ class DestinationDisplay(QWidget):
                     self.update()
                 return
 
-        iconRect = self.deviceDisplay.menu_button_rect(0, 0, self.width())
+        iconRect = self.deviceDisplay.menuButtonRect(0, 0, self.width())
         if iconRect.contains(event.pos()):
             if self.mouse_pos == DestinationDisplayMousePos.normal:
                 self.mouse_pos = DestinationDisplayMousePos.menu
