@@ -5,14 +5,17 @@
 Combines a deviceview and a file system view into one widget
 """
 
-from PyQt5.QtWidgets import QFrame, QSizePolicy, QSplitter, QWidget, QLabel, QVBoxLayout
+from PyQt5.QtWidgets import QFrame, QSizePolicy, QSplitter, QVBoxLayout, QWidget
 
-from raphodo.constants import DeviceDisplayStatus, minFileSystemViewHeight, DeviceDisplayPadding
+from raphodo.constants import (
+    DeviceDisplayPadding,
+    DeviceDisplayStatus,
+    minFileSystemViewHeight,
+)
 from raphodo.ui.destinationdisplay import DestinationDisplay
 from raphodo.ui.devicedisplay import (
+    DeviceHeaderRow,
     DeviceView,
-    EmulatedHeaderRow,
-    device_header_row_height,
 )
 from raphodo.ui.filebrowse import FileSystemView
 from raphodo.ui.stackedwidget import ResizableStackedWidget
@@ -50,9 +53,9 @@ class ComputerWidget(TightFlexiFrame):
         self.view = view
         self.view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
         self.fileSystemView = fileSystemView
-        self.emulatedHeader = EmulatedHeaderRow(select_text, self)
-        self.stackedWidget=ResizableStackedWidget(self)
-        self.stackedWidget.addWidget(self.emulatedHeader)
+        self.simpleDeviceHeader = DeviceHeaderRow(select_text, self)
+        self.stackedWidget = ResizableStackedWidget(self)
+        self.stackedWidget.addWidget(self.simpleDeviceHeader)
         self.stackedWidget.addWidget(self.view)
         layout.addWidget(self.stackedWidget)
         layout.addWidget(self.fileSystemView, 100)
@@ -66,10 +69,10 @@ class ComputerWidget(TightFlexiFrame):
             self.stackedWidget.setCurrentIndex(0)
 
     def setDeviceDisplayStatus(self, status: DeviceDisplayStatus) -> None:
-        self.emulatedHeader.setDeviceDisplayStatus(status)
+        self.simpleDeviceHeader.setDeviceDisplayStatus(status)
 
     def setDevicePath(self, path: str) -> None:
-        self.emulatedHeader.setPath(path)
+        self.simpleDeviceHeader.setPath(path)
 
     def height(self) -> int:
         return self.stackedWidget.height() + minFileSystemViewHeight()

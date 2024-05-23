@@ -620,10 +620,10 @@ class IconLabelWidget(QWidget):
         self.setLayout(layout)
 
 
-class EmulatedHeaderRow(QWidget):
+class DeviceHeaderRow(QWidget):
     """
-    When displaying a view of a destination or source folder, display an
-    empty colored strip with no icon when the folder is not yet valid.
+    Display the header component of a Device View, including its identifier
+    (name) and status.
     """
 
     def __init__(self, select_text: str, parent) -> None:
