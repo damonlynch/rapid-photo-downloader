@@ -49,27 +49,32 @@ from PyQt5.QtGui import (
     QIcon,
     QLinearGradient,
     QPainter,
-    QPaintEvent,
+    QPainterPath,
     QPalette,
     QPen,
     QPixmap,
-QPainterPath,
 )
 from PyQt5.QtWidgets import (
     QAbstractItemView,
     QApplication,
+    QHBoxLayout,
+    QLabel,
     QMenu,
+    QSizePolicy,
     QStyle,
     QStyledItemDelegate,
     QStyleOptionButton,
     QStyleOptionViewItem,
+    QVBoxLayout,
     QWidget,
 )
 
 from raphodo.constants import (
+    COLOR_RED_WARNING_HTML,
     Checked_Status,
     CustomColors,
     DeviceDisplayPadding,
+    DeviceDisplayStatus,
     DeviceShadingIntensity,
     DeviceState,
     DeviceType,
@@ -80,8 +85,13 @@ from raphodo.constants import (
     EmptyViewHeight,
     FileType,
     Roles,
-    COLOR_RED_WARNING_HTML,
     ViewRowType,
+)
+from raphodo.constants import (
+    DeviceDisplayPadding as hPadding,
+)
+from raphodo.constants import (
+    DeviceDisplayVPadding as vPadding,
 )
 from raphodo.customtypes import BodyDetails
 from raphodo.devices import Device
@@ -90,6 +100,8 @@ from raphodo.internationalisation.utilities import thousands
 from raphodo.rpdfile import make_key
 from raphodo.storage.storage import StorageSpace
 from raphodo.tools.utilities import data_file_path, format_size_for_user
+from raphodo.ui.messages import DIR_PROBLEM_TEXT
+from raphodo.ui.stackedwidget import ResizableStackedWidget
 from raphodo.ui.viewutils import (
     ListViewFlexiFrame,
     RowTracker,
@@ -330,34 +342,42 @@ class DeviceModel(QAbstractListModel):
         row_id = self.rows[row]
         scan_id = self.row_id_to_scan_id[row_id]
 
-        if role == Qt.DisplayRole:
-            if row_id in self.headers:
-                return ViewRowType.header
-            else:
-                return ViewRowType.content
-        elif role == Qt.CheckStateRole:
-            return self.checked[scan_id]
-        elif role == Roles.scan_id:
-            return scan_id
-        else:
-            device: Device = self.devices[scan_id]
-            if role == Qt.ToolTipRole:
-                if device.device_type in (DeviceType.path, DeviceType.volume):
-                    return device.path
-            elif role == Roles.device_details:
+        match role:
+            case Qt.DisplayRole:
                 return (
-                    device.display_name,
-                    self.icons[scan_id],
-                    self.spinner_state[scan_id],
-                    self._rotation_position,
-                    self.percent_complete[scan_id],
+                    ViewRowType.header
+                    if row_id in self.headers
+                    else ViewRowType.content
                 )
-            elif role == Roles.storage:
-                return device, self.storage[row_id]
-            elif role == Roles.device_type:
-                return device.device_type
-            elif role == Roles.download_statuses:
-                return device.download_statuses
+            case Qt.CheckStateRole:
+                return self.checked[scan_id]
+            case Roles.scan_id:
+                return scan_id
+            case Roles.device_status:
+                return self._dataDeviceStatus()
+            case _:
+                device: Device = self.devices[scan_id]
+                match role:
+                    case Qt.ToolTipRole:
+                        if device.device_type in (DeviceType.path, DeviceType.volume):
+                            return device.path
+                    case Roles.device_details:
+                        return (
+                            device.display_name,
+                            self.icons[scan_id],
+                            self.spinner_state[scan_id],
+                            self._rotation_position,
+                            self.percent_complete[scan_id],
+                        )
+                    case Roles.storage:
+                        return device, self.storage[row_id]
+                    case Roles.device_type:
+                        return device.device_type
+                    case Roles.download_statuses:
+                        return device.download_statuses
+        return None
+
+    def _dataDeviceStatus(self) -> DeviceState | None:
         return None
 
     def setData(self, index: QModelIndex, value, role: int) -> bool:
@@ -508,16 +528,96 @@ class DeviceView(ListViewFlexiFrame):
             self.rapidApp.thumbnailModel.highlightDeviceThumbs(scan_id=scan_id)
 
 
-def standard_height():
+def standard_height() -> int:
     return QFontMetrics(QFont()).height()
 
 
-def device_name_height():
+def device_name_height() -> int:
     return standard_height() + DeviceDisplayPadding * 3
 
 
 def device_header_row_height() -> int:
     return device_name_height() + DeviceDisplayPadding
+
+
+def warningPixmap() -> QPixmap:
+    width = QIcon(data_file_path("icons/folder.svg")).pixmap(icon_size()).width()
+    height = QFontMetrics(QFont()).height()
+    white = QColor(Qt.GlobalColor.white)
+
+    pixmap = QPixmap(width, height)
+    painter = QPainter()
+    painter.begin(pixmap)
+    painter.setRenderHint(QPainter.Antialiasing)
+    painter.setPen(QPen(white))
+
+    rect = QRectF(0.0, 0.0, float(width), float(height))
+
+    painter.fillRect(rect, QColor(COLOR_RED_WARNING_HTML))
+
+    # Draw a triangle
+    path = QPainterPath()
+    triangle_center = rect.left() + rect.width() / 2
+    path.moveTo(triangle_center, rect.top())
+    path.lineTo(rect.bottomLeft())
+    path.lineTo(rect.bottomRight())
+    path.lineTo(triangle_center, rect.top())
+
+    painter.fillPath(path, QBrush(white))
+
+    # Draw an exclamation point
+    pen = QPen(QColor(COLOR_RED_WARNING_HTML))
+    pen.setWidthF(1.5)
+    painter.setPen(pen)
+
+    vertical_padding = rect.height() / 3
+    line_top = rect.top() + vertical_padding
+    line_bottom = rect.bottom() - vertical_padding
+
+    # Draw the top part of the exclamation point
+    painter.drawLine(
+        QPointF(triangle_center, line_top),
+        QPointF(triangle_center, line_bottom),
+    )
+    # Draw the dot
+    dot_y = vertical_padding / 2 + line_bottom
+    painter.drawLine(
+        QPointF(triangle_center, dot_y),
+        QPointF(triangle_center, dot_y),
+    )
+    painter.end()
+    return pixmap
+
+
+class IconLabelWidget(QWidget):
+    def __init__(
+        self,
+        pixmap: QPixmap,
+        backgroundColor: QColor,
+        textColor: QColor | None = None,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self.pixmap = pixmap
+        self.iconLabel = QLabel()
+        self.iconLabel.setPixmap(self.pixmap)
+        self.iconLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.textLabel = QLabel()
+        self.setContentsMargins(0, 0, 0, 0)
+        palette = QPalette()
+        palette.setColor(QPalette.Window, backgroundColor)
+        if textColor is not None:
+            palette.setColor(QPalette.WindowText, textColor)
+        self.setAutoFillBackground(True)
+        self.setPalette(palette)
+        self.textLabel.setPalette(palette)
+        layout = QHBoxLayout()
+        layout.setSpacing(DeviceDisplayPadding)
+        layout.setContentsMargins(hPadding, vPadding, hPadding, vPadding)
+        layout.addWidget(self.iconLabel)
+        layout.addWidget(self.textLabel)
+        layout.addStretch()
+        self.setLayout(layout)
 
 
 class EmulatedHeaderRow(QWidget):
@@ -526,32 +626,70 @@ class EmulatedHeaderRow(QWidget):
     empty colored strip with no icon when the folder is not yet valid.
     """
 
-    def __init__(self, select_text: str) -> None:
+    def __init__(self, select_text: str, parent) -> None:
         """
 
         :param select_text: text to be displayed e.g. 'Select a destination folder'
         :return:
         """
-        super().__init__()
-        self.setMinimumSize(1, device_header_row_height())
-        self.select_text = select_text
-        palette = QPalette()
-        palette.setColor(QPalette.Window, palette.color(palette.Base))
-        self.setAutoFillBackground(True)
-        self.setPalette(palette)
+        super().__init__(parent)
 
-    def paintEvent(self, event: QPaintEvent) -> None:
-        painter = QPainter()
-        painter.begin(self)
-        rect: QRect = self.rect()
-        rect.setHeight(device_name_height())
-        painter.fillRect(rect, device_name_highlight_color())
-        rect.adjust(DeviceDisplayPadding, 0, 0, 0)
-        font = QFont()
+        self.device_status: DeviceDisplayStatus = DeviceDisplayStatus.valid
+        self.deviceDisplay = DeviceDisplay(parent=self)
+
+        self.selectLabel = QLabel(select_text)
+        font = self.selectLabel.font()
         font.setItalic(True)
-        painter.setFont(font)
-        painter.drawText(rect, Qt.AlignLeft | Qt.AlignVCenter, self.select_text)
-        painter.end()
+        self.selectLabel.setFont(font)
+        self.selectLabel.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Window, device_name_highlight_color())
+        self.selectLabel.setPalette(palette)
+        self.selectLabel.setContentsMargins(hPadding, vPadding, hPadding, vPadding)
+
+        self.pathWidget = IconLabelWidget(
+            pixmap=QIcon(data_file_path("icons/folder.svg")).pixmap(icon_size()),
+            backgroundColor=device_name_highlight_color(),
+            parent=self,
+        )
+        self.warningWidget = IconLabelWidget(
+            pixmap=warningPixmap(),
+            backgroundColor=QColor(COLOR_RED_WARNING_HTML),
+            textColor=QColor(Qt.GlobalColor.white),
+            parent=self,
+        )
+
+        problemLayout = QVBoxLayout()
+        problemLayout.setSpacing(0)
+        problemLayout.setContentsMargins(0, 0, 0, 0)
+        problemLayout.addWidget(self.pathWidget)
+        problemLayout.addWidget(self.warningWidget)
+
+        self.problemWidget = QWidget()
+        self.problemWidget.setLayout(problemLayout)
+
+        self.stackedWidget = ResizableStackedWidget()
+        self.stackedWidget.addWidget(self.selectLabel)
+        self.stackedWidget.addWidget(self.problemWidget)
+
+        layout = QVBoxLayout()
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.stackedWidget)
+        self.setLayout(layout)
+
+    def setDeviceDisplayStatus(self, status: DeviceDisplayStatus) -> None:
+        self.device_status = status
+        match status:
+            case DeviceDisplayStatus.unspecified:
+                self.stackedWidget.setCurrentIndex(0)
+
+            case _:
+                self.stackedWidget.setCurrentIndex(1)
+                self.warningWidget.textLabel.setText(DIR_PROBLEM_TEXT[status])
+
+    def setPath(self, path: str) -> None:
+        self.pathWidget.textLabel.setText(path)
 
 
 class DeviceComponent(QObject):
@@ -658,7 +796,6 @@ class DeviceComponent(QObject):
     def live_width(self, width: int):
         if width != self._live_width:
             self._live_width = width
-            # print(f"self.minimum_width() {self.minimum_width()} width {width}")
             self.widthChanged.emit(self.minimumWidth())
 
 
@@ -694,7 +831,6 @@ class DeviceDisplay(QObject):
 
         self.emptySpaceColor = QColor("#f2f2f2")
         self.invalidColor = QColor(COLOR_RED_WARNING_HTML)
-
 
     @pyqtSlot(int)
     def _widthChanged(self, width) -> None:
@@ -773,16 +909,16 @@ class DeviceDisplay(QObject):
         white = QColor(Qt.GlobalColor.white)
 
         iconRect = QRectF(
-            float(DeviceDisplayPadding),
-            float(y + DeviceDisplayPadding),
+            float(self.dc.padding),
+            float(y + self.dc.padding),
             float(text_height),
             float(text_height),
         )
         # exclamationRect = iconRect.adjusted(0.25, 1.0, 0.25, 1.0)
         textRect = QRectF(
-            iconRect.right() + DeviceDisplayPadding,
+            iconRect.right() + self.dc.padding,
             iconRect.top(),
-            width - iconRect.right() - DeviceDisplayPadding,
+            width - iconRect.right() - self.dc.padding,
             float(text_height),
         )
 
@@ -831,7 +967,6 @@ class DeviceDisplay(QObject):
         )
         painter.setPen(displayPen)
         painter.setFont(displayFont)
-
 
     def paintBody(
         self, painter: QPainter, x: int, y: int, width: int, details: BodyDetails
@@ -1189,9 +1324,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         self.downloadedErrorIcon = scaledIcon(
             data_file_path("thumbnail/downloaded-with-error.svg")
         )
-        self.downloaded_icon_y = self.vAlignHeaderPixmap(
-            0, self.downloaded_icon_size
-        )
+        self.downloaded_icon_y = self.vAlignHeaderPixmap(0, self.downloaded_icon_size)
 
         palette = QGuiApplication.instance().palette()
         color = palette.highlight().color()
@@ -1427,6 +1560,21 @@ class DeviceDelegate(QStyledItemDelegate):
                 download_statuses=download_statuses,
                 percent_complete=percent_complete,
             )
+            device_status = index.data(Roles.device_status)
+            if device_status is not None:
+                y_warning = (
+                    y
+                    - self.deviceDisplay.dc.padding
+                    + self.deviceDisplay.dc.device_name_height
+                )
+                if device_status != DeviceDisplayStatus.valid:
+                    self.deviceDisplay.paintWarning(
+                        painter=painter,
+                        x=x,
+                        y=y_warning,
+                        width=width,
+                        text=DIR_PROBLEM_TEXT[device_status],
+                    )
 
         else:
             assert view_type == ViewRowType.content
@@ -1525,6 +1673,9 @@ class DeviceDelegate(QStyledItemDelegate):
         view_type: ViewRowType = index.data(Qt.DisplayRole)
         if view_type == ViewRowType.header:
             height = self.deviceDisplay.dc.device_name_height
+            device_status = index.data(Roles.device_status)
+            if device_status is not None and device_status != DeviceDisplayStatus.valid:
+                height += self.deviceDisplay.dc.warning_status_height
         else:
             device, storage_space = index.data(Roles.storage)
 

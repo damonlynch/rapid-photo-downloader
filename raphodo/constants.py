@@ -148,19 +148,12 @@ class DestDisplayType(Enum):
     folders_and_usage = 3  # combines types one and two
 
 
-class DestDisplayStatus(Enum):
+class DeviceDisplayStatus(Enum):
     valid = auto()
     cannot_read = auto()
     read_only = auto()
     does_not_exist = auto()
     no_storage_space = auto()
-    unspecified = auto()
-
-
-class ThisCompDisplayStatus(Enum):
-    valid = auto()
-    cannot_read = auto()
-    does_not_exist = auto()
     unspecified = auto()
 
 
@@ -300,6 +293,7 @@ class Roles(IntEnum):
     uids = Qt.UserRole + 22
     warning = Qt.UserRole + 23
     no_space = Qt.UserRole + 24
+    device_status=Qt.UserRole + 25
 
 
 class ExtractionTask(Enum):
@@ -347,8 +341,6 @@ class CameraErrorCode(Enum):
 
 class ViewRowType(Enum):
     header = auto()
-    warning = auto()
-    no_space = auto()
     content = auto()
 
 
@@ -464,6 +456,7 @@ DarkModeHeaderBackgroundName = DarkModeThumbnailBackgroundName
 EmptyViewHeight = 20
 
 DeviceDisplayPadding = 6
+DeviceDisplayVPadding = DeviceDisplayPadding + DeviceDisplayPadding // 2
 DeviceShadingIntensity = 104
 
 # How many steps with which to highlight thumbnail cells

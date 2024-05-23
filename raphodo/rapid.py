@@ -123,7 +123,7 @@ from raphodo.constants import (
     BackupStatus,
     CameraErrorCode,
     CompletedDownloads,
-    DestDisplayStatus,
+    DeviceDisplayStatus,
     DeviceState,
     DeviceType,
     DisplayFileType,
@@ -139,7 +139,6 @@ from raphodo.constants import (
     Show,
     Sort,
     TemporalProximityState,
-ThisCompDisplayStatus,
 )
 from raphodo.customtypes import (
     DownloadFilesSizeAndNum,
@@ -215,8 +214,9 @@ from raphodo.state import (
     MAP_DEST_DIR_NOT_EXIST,
     MAP_DEST_DIR_NOT_SPECIFIED,
     MAP_DEST_DIR_READ_ONLY,
+    THIS_COMP_DIR_MASK,
     AppState,
-    State, THIS_COMP_DIR_MASK,
+    State,
 )
 from raphodo.storage.storage import (
     CameraHotplug,
@@ -1068,13 +1068,15 @@ class RapidWindow(QMainWindow):
         self.app_state.set_core_state(AppState.INITIALIZE_UI)
 
         self.splash.setProgress(100)
-        # TODO separate UI state and scan initialisation
-        self.setupManualPath()
-        self.updateSourceButton()
+        # TODO Potentially move or remove this status bar update
         self.displayMessageInStatusBar()
+
+        # self.prefs.this_computer_path = ""
 
         self.setStateThisComputer()
         self.setStateDestinationFolder()
+
+        self.updateSourceButton()
 
         self.setupRemainingSignalConnections()
 
@@ -1170,6 +1172,20 @@ class RapidWindow(QMainWindow):
             self.setupNonCameraDevices()
         else:
             self.wslDrives.mountDrives()
+
+        if self.prefs.this_computer_source:
+            path = self.prefs.this_computer_path
+            if self.app_state.this_computer_dir_valid:
+                logging.debug("Using This Computer path %s", path)
+                device = Device()
+                device.set_download_from_path(path)
+                self.startDeviceScan(device=device)
+            else:
+                logging.warning(
+                    "Not initiating This Computer device scan because %s is an "
+                    "invalid path",
+                    path,
+                )
 
     def showMainWindow(self) -> None:
         if not self.isVisible():
@@ -2183,8 +2199,9 @@ difference to the program's future.</p>"""
             fileSystemView=self.thisComputerFSView,
             select_text=_("Select a source folder"),
         )
-        if self.prefs.this_computer_source:
-            self.thisComputer.setViewVisible(self.prefs.this_computer_source)
+        # TODO determine if this is really needed:
+        # if self.prefs.this_computer_source:
+        #     self.thisComputer.setViewVisible(self.prefs.this_computer_source)
 
         self.thisComputerToggleView.addWidget(self.thisComputer)
 
@@ -2381,9 +2398,7 @@ difference to the program's future.</p>"""
             self.deviceView.itemDelegate().deviceDisplay.dc
         )
         # Minimum width will be updated as a scan occurs
-        panel_width = max(
-            deviceComponent.sampleWidth(), deviceComponent.minimumWidth()
-        )
+        panel_width = max(deviceComponent.sampleWidth(), deviceComponent.minimumWidth())
         panel_width += scroll_bar_width + frame_width * 3
         left_panel = right_panel = panel_width
 
@@ -2473,7 +2488,6 @@ difference to the program's future.</p>"""
         # Update the combined destination display, possibly including its status message
         if self.app_state.dest_same:
             dt = DisplayFileType.photos_and_videos
-            # TODO optimise
             if self.app_state.ui_element_change_pending_dest_space(
                 dt
             ) or self.app_state.ui_element_change_pending_dest_status_no_space(dt):
@@ -2487,11 +2501,11 @@ difference to the program's future.</p>"""
                 continue
 
             if on_init or self.app_state.ui_element_change_pending_dest_path(ft):
-                not_specified = self.app_state.dest_dir_not_specified(ft)
+                specified = not self.app_state.dest_dir_not_specified(ft)
                 self.destinationPanel.setSelectDestinationFolderVisible(
-                    file_type=ft, visible=not_specified
+                    file_type=ft, visible=specified
                 )
-                if not not_specified:
+                if specified:
                     self.destinationPanel.setDestinationPath(
                         file_type=ft, path=self.prefs.download_folder(ft)
                     )
@@ -2548,7 +2562,7 @@ difference to the program's future.</p>"""
             backups_good = True
             downloading_to = defaultdict(set)
 
-        destinations_good = False # was self.updateDestinationViews()
+        destinations_good = False  # was self.updateDestinationViews()
 
         download_good = destinations_good and backups_good
         self.setDownloadActionState(download_good)
@@ -2572,19 +2586,19 @@ difference to the program's future.</p>"""
 
             if not download_folder:
                 state = MAP_DEST_DIR_NOT_SPECIFIED[ft]
-                status = DestDisplayStatus.unspecified
+                status = DeviceDisplayStatus.unspecified
             elif not Path(download_folder).is_dir():
                 state = MAP_DEST_DIR_NOT_EXIST[ft]
-                status = DestDisplayStatus.does_not_exist
+                status = DeviceDisplayStatus.does_not_exist
             elif not os.access(download_folder, os.R_OK):
                 state = MAP_DEST_DIR_NO_READ[ft]
-                status = DestDisplayStatus.cannot_read
+                status = DeviceDisplayStatus.cannot_read
             elif not folder_writable(download_folder, write_on_waccesss_failure=True):
                 state = MAP_DEST_DIR_READ_ONLY[ft]
-                status = DestDisplayStatus.read_only
+                status = DeviceDisplayStatus.read_only
             else:
                 state = AppState(0)
-                status = DestDisplayStatus.valid
+                status = DeviceDisplayStatus.valid
 
             if state:
                 self.app_state.set_dest_dir_state(state)
@@ -2729,6 +2743,23 @@ difference to the program's future.</p>"""
         # TODO checks space requirements when doing backups
         logging.critical("implement setStateBackupDevices")
 
+    def updateSourceUIElements(self) -> None:
+        if self.app_state.on_startup:
+            return
+
+        on_init = self.app_state.on_initialize_ui
+        logging.debug("Updating source UI elements: %s", self.app_state.state)
+
+        if on_init or self.app_state.ui_element_change_pending_this_comp_source:
+            pass
+
+        if (
+            self.app_state.ui_element_change_pending_this_comp_status
+            or self.app_state.ui_element_change_pending_this_comp_path
+        ):
+            valid = self.app_state.this_computer_dir_valid
+            self.thisComputer.setViewVisible(visible=valid)
+
     def setStateDestinationFolder(self, file_type: FileType | None = None) -> None:
         self.setStateDestDirCharacteristics(file_type)
         self.setStateDestSameDevice()
@@ -2738,23 +2769,23 @@ difference to the program's future.</p>"""
         self.updateDestUIWatch()
         self.updateDestUIElements()
 
-    def setStateThisComputerDirCharacteristics(self)-> None:
+    def setStateThisComputerDirCharacteristics(self) -> None:
         folder = self.prefs.this_computer_path
         mask = THIS_COMP_DIR_MASK
         original = mask & self.app_state.state
 
         if not folder:
             state = AppState.THIS_COMP_DIR_NOT_SPECIFIED
-            status = ThisCompDisplayStatus.unspecified
+            status = DeviceDisplayStatus.unspecified
         elif not Path(folder).is_dir():
-            state=AppState.THIS_COMP_NOT_EXIST
-            status=ThisCompDisplayStatus.does_not_exist
+            state = AppState.THIS_COMP_NOT_EXIST
+            status = DeviceDisplayStatus.does_not_exist
         elif not os.access(folder, os.R_OK):
-            state= AppState.THIS_COMP_DIR_NO_READ
-            status=ThisCompDisplayStatus.cannot_read
+            state = AppState.THIS_COMP_DIR_NO_READ
+            status = DeviceDisplayStatus.cannot_read
         else:
             state = AppState(0)
-            status = ThisCompDisplayStatus.valid
+            status = DeviceDisplayStatus.valid
 
         if state:
             self.app_state.set_this_comp_dir_state(state)
@@ -2762,15 +2793,14 @@ difference to the program's future.</p>"""
             self.app_state.reset_this_comp_dir_state()
 
         if original != state:
-            pass
-            #self.app_state.set_ui_element_change_pending_this_comp_status()
+            self.app_state.set_ui_element_change_pending_this_comp_status()
+            self.thisComputer.setDeviceDisplayStatus(status)
 
-        # TODO set the status
-        # self.thisComputerModel.setDisplayStatus(status)
-
-
-    def setStateThisComputer(self)-> None:
+    def setStateThisComputer(self) -> None:
+        self.thisComputer.setDevicePath(Path(self.prefs.this_computer_path).name)
         self.setStateThisComputerDirCharacteristics()
+        self.updateSourceUIElements()
+
     @pyqtSlot()
     def updateThumbnailModelAfterProximityChange(self) -> None:
         """
@@ -2982,6 +3012,9 @@ difference to the program's future.</p>"""
         :param on: whether switch is on or off
         """
 
+        logging.critical("change thisComputerToggleValueChanged")
+        return
+
         # TODO change this logic
         if on:
             self.thisComputer.setViewVisible(bool(self.prefs.this_computer_path))
@@ -3052,6 +3085,10 @@ difference to the program's future.</p>"""
 
         :param index: cell clicked
         """
+
+        ic("thisComputerPathChosen")
+        self.thisComputer.setDeviceDisplayStatus(DeviceDisplayStatus.unspecified)
+        return
 
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
 
@@ -6388,11 +6425,14 @@ Do you want to proceed with the download?"""
 
         """
 
+        logging.critical("Do not use setupManualPath")
+        return
+
         if not self.prefs.this_computer_source:
             return
 
         if self.prefs.this_computer_path:
-            if not self.confirmManualDownloadLocation():
+            if not self.queryManualDownloadLocation():
                 logging.debug(
                     "This Computer path %s rejected as download source",
                     self.prefs.this_computer_path,
@@ -6533,7 +6573,7 @@ Do you want to proceed with the download?"""
         )
         self.setStateDestinationFolder()
 
-    def confirmManualDownloadLocation(self) -> bool:
+    def queryManualDownloadLocation(self) -> bool:
         """
         Queries the user to ask if they really want to download from locations
         that could take a very long time to scan. They can choose yes or no.

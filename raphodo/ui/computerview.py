@@ -5,9 +5,9 @@
 Combines a deviceview and a file system view into one widget
 """
 
-from PyQt5.QtWidgets import QFrame, QSizePolicy, QSplitter, QWidget
+from PyQt5.QtWidgets import QFrame, QSizePolicy, QSplitter, QWidget, QLabel, QVBoxLayout
 
-from raphodo.constants import minFileSystemViewHeight
+from raphodo.constants import DeviceDisplayStatus, minFileSystemViewHeight
 from raphodo.ui.destinationdisplay import DestinationDisplay
 from raphodo.ui.devicedisplay import (
     DeviceView,
@@ -38,7 +38,7 @@ class ComputerWidget(TightFlexiFrame):
     ) -> None:
         super().__init__(parent=parent)
         self.setObjectName(objectName)
-        layout = self.layout()
+        layout: QVBoxLayout = self.layout()
         border_width = QSplitter().lineWidth()
         layout.setContentsMargins(
             border_width, border_width, border_width, border_width
@@ -49,11 +49,7 @@ class ComputerWidget(TightFlexiFrame):
         self.view = view
         self.view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
         self.fileSystemView = fileSystemView
-        self.emulatedHeader = EmulatedHeaderRow(select_text)
-        self.emulatedHeader.setSizePolicy(
-            QSizePolicy.MinimumExpanding, QSizePolicy.Maximum
-        )
-
+        self.emulatedHeader = EmulatedHeaderRow(select_text, self)
         layout.addWidget(self.emulatedHeader)
         layout.addWidget(self.view)
         layout.addStretch()
@@ -66,12 +62,17 @@ class ComputerWidget(TightFlexiFrame):
     def setViewVisible(self, visible: bool) -> None:
         self.view.setVisible(visible)
         self.emulatedHeader.setVisible(not visible)
-        self.view.updateGeometry()
 
-    def minimumHeight(self) -> int:
+    def setDeviceDisplayStatus(self, status: DeviceDisplayStatus) -> None:
+        self.emulatedHeader.setDeviceDisplayStatus(status)
+
+    def setDevicePath(self, path: str) -> None:
+        self.emulatedHeader.setPath(path)
+
+    def height(self) -> int:
         if self.view.isVisible():
             height = self.view.minimumHeight()
         else:
-            height = device_header_row_height()
+            height = self.emulatedHeader.minimumHeight()
         height += minFileSystemViewHeight()
         return height

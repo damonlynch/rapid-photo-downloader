@@ -39,7 +39,7 @@ from PyQt5.QtWidgets import (
 from raphodo.constants import (
     COLOR_RED_WARNING_HTML,
     CustomColors,
-    DestDisplayStatus,
+    DeviceDisplayStatus,
     DestDisplayType,
     DestinationDisplayMousePos,
     DestinationDisplayTooltipState,
@@ -296,7 +296,7 @@ class DestinationDisplay(QWidget):
         self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
         self.container_vertical_scrollbar_visible = None
 
-        self.status = DestDisplayStatus.valid
+        self.status = DeviceDisplayStatus.valid
         self.enough_space: bool = True
         self.invalidColor = QColor(COLOR_RED_WARNING_HTML)
 
@@ -563,7 +563,7 @@ class DestinationDisplay(QWidget):
     def containerVerticalScrollBar(self, visible: bool) -> None:
         self.container_vertical_scrollbar_visible = visible
 
-    def setStatus(self, status: DestDisplayStatus) -> None:
+    def setStatus(self, status: DeviceDisplayStatus) -> None:
         self.status = status
 
     def paintEvent(self, event: QPaintEvent) -> None:
@@ -629,15 +629,15 @@ class DestinationDisplay(QWidget):
             )
             y += self.deviceDisplay.dc.device_name_height
 
-        if self.status != DestDisplayStatus.valid or not self.enough_space:
+        if self.status != DeviceDisplayStatus.valid or not self.enough_space:
             if self.display_type != DisplayFileType.photos_and_videos:
                 y -= DeviceDisplayPadding  # remove the bottom padding
-            if self.status != DestDisplayStatus.valid:
+            if self.status != DeviceDisplayStatus.valid:
                 text = DIR_PROBLEM_TEXT[self.status]
                 self.deviceDisplay.paintWarning(painter, x, y, width, text)
                 y += self.deviceDisplay.dc.warning_status_height
             if not self.enough_space:
-                text = DIR_PROBLEM_TEXT[DestDisplayStatus.no_storage_space]
+                text = DIR_PROBLEM_TEXT[DeviceDisplayStatus.no_storage_space]
                 self.deviceDisplay.paintWarning(painter, x, y, width, text)
                 y += self.deviceDisplay.dc.warning_status_height
             if self.display_type != DisplayFileType.photos_and_videos:
@@ -679,8 +679,8 @@ class DestinationDisplay(QWidget):
             self.dest_display_type != DestDisplayType.folder_only
             and self.status
             not in (
-                DestDisplayStatus.does_not_exist,
-                DestDisplayStatus.unspecified,
+                DeviceDisplayStatus.does_not_exist,
+                DeviceDisplayStatus.unspecified,
             )
         )
 
@@ -692,7 +692,7 @@ class DestinationDisplay(QWidget):
 
         if self.dest_display_type != DestDisplayType.usage_only:
             height += self.deviceDisplay.dc.device_name_height
-        if self.status != DestDisplayStatus.valid:
+        if self.status != DeviceDisplayStatus.valid:
             height += self.deviceDisplay.dc.warning_status_height
         if not self.enough_space:
             height += self.deviceDisplay.dc.warning_status_height

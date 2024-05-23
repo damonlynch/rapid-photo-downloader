@@ -8,7 +8,7 @@ Display photo and video destinations
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QWidget
 
-from raphodo.constants import DestDisplayStatus
+from raphodo.constants import DeviceDisplayStatus
 from raphodo.customtypes import DownloadFilesSizeAndNum
 from raphodo.internationalisation.install import install_gettext
 from raphodo.rpdfile import FileType
@@ -185,10 +185,10 @@ class DestinationPanel(ScrollAreaNoFrame):
     def setSelectDestinationFolderVisible(
         self, file_type: FileType, visible: bool
     ) -> None:
-        self.MAP_DESTINATION_WIDGET[file_type].setViewVisible(not visible)
+        self.MAP_DESTINATION_WIDGET[file_type].setViewVisible(visible)
 
     def setDestinationDisplayStatus(
-        self, file_type: FileType, status: DestDisplayStatus
+        self, file_type: FileType, status: DeviceDisplayStatus
     ) -> None:
         self.MAP_DESTINATION_DISPLAY[file_type].setStatus(status)
 

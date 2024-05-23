@@ -110,6 +110,8 @@ class BackupDeviceModel(QAbstractListModel):
         self.row_id_counter: int = 0
         # {row_id}
         self.headers: set[int] = set()
+        self.warnings: set[int] = set()
+        self.no_space: set[int] = set()
         # path: BackupViewRow
         self.backup_devices: dict[str, BackupViewRow] = dict()
         self.path_to_row_ids: dict[str, list[int]] = defaultdict(list)
@@ -276,7 +278,7 @@ class BackupDeviceModel(QAbstractListModel):
                         self.folderIcon,
                     )
 
-        # at least one device  / location is being used
+        # at least one device / location is being used
         if row >= len(self.rows) or row < 0:
             return None
         if row not in self.rows:
@@ -414,10 +416,15 @@ class BackupDeviceDelegate(QStyledItemDelegate):
                 )
             case ViewRowType.warning:
                 message = index.data(Roles.warning)
+                self.deviceDisplay.paintWarning(
+                    painter=painter, x=x, y=y, width=width, text=message
+                )
 
             case ViewRowType.no_space:
                 message = index.data(Roles.no_space)
-
+                self.deviceDisplay.paintWarning(
+                    painter=painter, x=x, y=y, width=width, text=message
+                )
 
 
         painter.restore()

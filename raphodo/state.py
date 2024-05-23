@@ -36,6 +36,9 @@ class AppState(Flag):
     UI_STATE_CHANGE_PENDING_DEST_SAME = auto()
     UI_STATE_CHANGE_PENDING_DEST_WATCH = auto()
     UI_STATE_CHANGE_PENDING_DEST_PREVIEW_FOLDERS = auto()
+    UI_ELEMENT_CHANGE_PENDING_THIS_COMP_SOURCE = auto()
+    UI_ELEMENT_CHANGE_PENDING_THIS_COMP_PATH = auto()
+    UI_ELEMENT_CHANGE_PENDING_THIS_COMP_STATUS = auto()
     TIMELINE_GENERATING = auto()
     TIMELINE_GENERATED = auto()
     # Destination directory characteristics
@@ -465,3 +468,53 @@ class State:
 
     def unset_dest_no_space(self, display_type: DisplayFileType) -> bool:
         return self.unset_app_state(state=MAP_DEST_NO_SPACE_MASK[display_type])
+
+    @property
+    def this_computer_dir_valid(self) -> bool:
+        return not bool(THIS_COMP_DIR_MASK & self.state)
+
+    def set_ui_element_change_pending_this_comp_status(self) -> bool:
+        return self.set_app_state(
+            state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_STATUS
+        )
+
+    @property
+    def ui_element_change_pending_this_comp_status(self) -> bool:
+        return bool(AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_STATUS & self.state)
+
+    def unset_ui_element_change_pending_this_comp_status(self) -> bool:
+        return self.unset_app_state(
+            state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_STATUS
+        )
+
+    def set_ui_element_change_pending_this_comp_source(self) -> bool:
+        return self.set_app_state(
+            state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_SOURCE
+        )
+
+    @property
+    def ui_element_change_pending_this_comp_source(self) -> bool:
+        return bool(AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_SOURCE & self.state)
+
+    def unset_ui_element_change_pending_this_comp_source(self) -> bool:
+        return self.unset_app_state(
+            state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_SOURCE
+        )
+
+    def set_ui_element_change_pending_this_comp_path(self) -> bool:
+        return self.set_app_state(
+            state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_PATH
+        )
+
+    @property
+    def ui_element_change_pending_this_comp_path(self) -> bool:
+        return bool(AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_PATH & self.state)
+
+    def unset_ui_element_change_pending_this_comp_path(self) -> bool:
+        return self.unset_app_state(
+            state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_PATH
+        )
+
+    @property
+    def this_comp_dir_not_specified(self) -> bool:
+        return bool(AppState.THIS_COMP_DIR_NOT_SPECIFIED & self.state)
