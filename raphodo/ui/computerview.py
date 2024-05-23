@@ -7,7 +7,7 @@ Combines a deviceview and a file system view into one widget
 
 from PyQt5.QtWidgets import QFrame, QSizePolicy, QSplitter, QWidget, QLabel, QVBoxLayout
 
-from raphodo.constants import DeviceDisplayStatus, minFileSystemViewHeight
+from raphodo.constants import DeviceDisplayStatus, minFileSystemViewHeight, DeviceDisplayPadding
 from raphodo.ui.destinationdisplay import DestinationDisplay
 from raphodo.ui.devicedisplay import (
     DeviceView,
@@ -15,6 +15,7 @@ from raphodo.ui.devicedisplay import (
     device_header_row_height,
 )
 from raphodo.ui.filebrowse import FileSystemView
+from raphodo.ui.stackedwidget import ResizableStackedWidget
 from raphodo.ui.viewutils import TightFlexiFrame
 
 
@@ -43,25 +44,26 @@ class ComputerWidget(TightFlexiFrame):
         layout.setContentsMargins(
             border_width, border_width, border_width, border_width
         )
-        layout.setSpacing(0)
+        layout.setSpacing(DeviceDisplayPadding)
         self.setLayout(layout)
 
         self.view = view
         self.view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
         self.fileSystemView = fileSystemView
         self.emulatedHeader = EmulatedHeaderRow(select_text, self)
-        layout.addWidget(self.emulatedHeader)
-        layout.addWidget(self.view)
-        layout.addStretch()
-        # the value 5 ensures there is a standard gap between the device view and the
-        # file system view
-        layout.addWidget(self.fileSystemView, 5)
+        self.stackedWidget=ResizableStackedWidget(self)
+        self.stackedWidget.addWidget(self.emulatedHeader)
+        self.stackedWidget.addWidget(self.view)
+        layout.addWidget(self.stackedWidget)
+        layout.addWidget(self.fileSystemView, 100)
         self.view.setStyleSheet("QListView {border: none;}")
         self.fileSystemView.setFrameShape(QFrame.NoFrame)
 
     def setViewVisible(self, visible: bool) -> None:
-        self.view.setVisible(visible)
-        self.emulatedHeader.setVisible(not visible)
+        if visible:
+            self.stackedWidget.setCurrentIndex(1)
+        else:
+            self.stackedWidget.setCurrentIndex(0)
 
     def setDeviceDisplayStatus(self, status: DeviceDisplayStatus) -> None:
         self.emulatedHeader.setDeviceDisplayStatus(status)
@@ -70,9 +72,4 @@ class ComputerWidget(TightFlexiFrame):
         self.emulatedHeader.setPath(path)
 
     def height(self) -> int:
-        if self.view.isVisible():
-            height = self.view.minimumHeight()
-        else:
-            height = self.emulatedHeader.minimumHeight()
-        height += minFileSystemViewHeight()
-        return height
+        return self.stackedWidget.height() + minFileSystemViewHeight()
