@@ -7,8 +7,8 @@ Display file system folders and allow the user to select one
 
 import logging
 import os
-import pathlib
 import re
+from pathlib import Path
 
 from PyQt5.QtCore import (
     QDir,
@@ -43,9 +43,11 @@ from raphodo.constants import (
 )
 from raphodo.internationalisation.install import install_gettext
 from raphodo.storage.storage import get_media_dir, gvfs_gphoto2_path
+from raphodo.tools.utilities import data_file_path
 from raphodo.ui.viewutils import (
     TopFramedVerticalScrollBar,
     darkModeIcon,
+    is_dark_mode,
     standard_font_size,
 )
 from raphodo.wsl.wslutils import wsl_filter_directories
@@ -123,8 +125,8 @@ class FileSystemModel(QFileSystemModel):
         if path not in self.subfolders_downloaded_into:
             self.subfolders_downloaded_into.add(path)
 
-            pl_subfolders = pathlib.Path(path)
-            pl_download_folder = pathlib.Path(download_folder)
+            pl_subfolders = Path(path)
+            pl_download_folder = Path(download_folder)
 
             for subfolder in pl_subfolders.parents:
                 if pl_download_folder not in subfolder.parents:
@@ -161,6 +163,44 @@ class FileSystemView(QTreeView):
         self.resetSelectionAct = self.contextMenu.addAction(_("Reset"))
         self.resetSelectionAct.triggered.connect(self.doResetSelectionAct)
 
+        if is_dark_mode():
+            right = data_file_path("icons/right_folder_indicator_dark.png")
+            right_hover = data_file_path("icons/right_folder_indicator_dark_hover.png")
+            down = data_file_path("icons/down_folder_indicator_dark.png")
+            down_hover = data_file_path("icons/down_folder_indicator_dark_hover.png")
+        else:
+            right = data_file_path("icons/right_folder_indicator.png")
+            right_hover = data_file_path("icons/right_folder_indicator_hover.png")
+            down = data_file_path("icons/down_folder_indicator.png")
+            down_hover = data_file_path("icons/down_folder_indicator_hover.png")
+        right = Path(right).as_posix()
+        down = Path(down).as_posix()
+
+        # TODO remove odd highlight background color around icon under KDE 6
+        self.setStyleSheet(
+            f"""
+            QTreeView::branch:has-children:!has-siblings:closed,
+            QTreeView::branch:closed:has-children:has-siblings {{
+            border-image: none;
+            image: url({right});
+            }}
+            QTreeView::branch:has-children:!has-siblings:closed::hover,
+            QTreeView::branch:closed:has-children:has-siblings::hover {{
+            border-image: none;
+            image: url({right_hover});
+            }}
+            QTreeView::branch:open:has-children:!has-siblings,
+            QTreeView::branch:open:has-children:has-siblings  {{
+            border-image: none;
+            image: url({down});
+            }}
+            QTreeView::branch:open:has-children:!has-siblings::hover,
+            QTreeView::branch:open:has-children:has-siblings::hover  {{
+            border-image: none;
+            image: url({down_hover});
+            }}
+            """
+        )
         self.showSystemFoldersAct = QAction(
             _("Show System Folders"),
             self,

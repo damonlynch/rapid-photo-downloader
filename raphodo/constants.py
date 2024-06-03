@@ -142,12 +142,6 @@ class WindowsDriveType(IntEnum):
     network_drive = 4
 
 
-class DestDisplayType(Enum):
-    folder_only = 1  # folder icon, folder name, and the menu icon
-    usage_only = 2  # Projected Storage Use display
-    folders_and_usage = 3  # combines types one and two
-
-
 class DeviceDisplayStatus(Enum):
     valid = auto()
     cannot_read = auto()
@@ -157,21 +151,22 @@ class DeviceDisplayStatus(Enum):
     unspecified = auto()
 
 
+class DeviceRowItem(Flag):
+    initial_header = auto()
+    header = auto()
+    icon = auto()
+    drop_down_menu = auto()
+    dir_invalid = auto()
+    no_storage_space = auto()
+    usage0 = auto()
+    usage1 = auto()
+    frame = auto()
+
+
 class ExifSource(Enum):
     raw_bytes = 1
     app1_segment = 2
     actual_file = 3
-
-
-class DestinationDisplayMousePos(Enum):
-    normal = 1
-    menu = 2
-
-
-class DestinationDisplayTooltipState(Enum):
-    menu = 1
-    path = 2
-    storage_space = 3
 
 
 class DeviceType(Enum):
@@ -293,7 +288,7 @@ class Roles(IntEnum):
     uids = Qt.UserRole + 22
     warning = Qt.UserRole + 23
     no_space = Qt.UserRole + 24
-    device_status=Qt.UserRole + 25
+    device_status = Qt.UserRole + 25
 
 
 class ExtractionTask(Enum):

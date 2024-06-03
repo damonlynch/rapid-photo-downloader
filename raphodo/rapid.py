@@ -257,13 +257,14 @@ from raphodo.ui import viewutils
 from raphodo.ui.aboutdialog import AboutDialog
 from raphodo.ui.backuppanel import BackupPanel
 from raphodo.ui.chevroncombo import ChevronCombo
-from raphodo.ui.computerview import ComputerWidget
+from raphodo.ui.computerview import ThisComputerWidget
 from raphodo.ui.destinationpanel import DestinationPanel
 from raphodo.ui.devicedisplay import (
     DeviceComponent,
     DeviceDelegate,
     DeviceModel,
     DeviceView,
+    ThisComputerSelectDeviceRows,
 )
 from raphodo.ui.filebrowse import (
     FileSystemDelegate,
@@ -1072,6 +1073,7 @@ class RapidWindow(QMainWindow):
         self.displayMessageInStatusBar()
 
         # self.prefs.this_computer_path = ""
+        # self.prefs.video_download_folder = ""
 
         self.setStateThisComputer()
         self.setStateDestinationFolder()
@@ -2192,12 +2194,11 @@ difference to the program's future.</p>"""
         self.thisComputerToggleView.valueChanged.connect(
             self.thisComputerToggleValueChanged
         )
-
-        self.thisComputer = ComputerWidget(
-            objectName="thisComputerWidget",
+        self.thisComputerSelectsOnlyDeviceRows = ThisComputerSelectDeviceRows()
+        self.thisComputer = ThisComputerWidget(
+            deviceRows=self.thisComputerSelectsOnlyDeviceRows,
             view=self.thisComputerView,
             fileSystemView=self.thisComputerFSView,
-            select_text=_("Select a source folder"),
         )
         # TODO determine if this is really needed:
         # if self.prefs.this_computer_source:
@@ -2488,12 +2489,11 @@ difference to the program's future.</p>"""
         # Update the combined destination display, possibly including its status message
         if self.app_state.dest_same:
             dt = DisplayFileType.photos_and_videos
-            if self.app_state.ui_element_change_pending_dest_space(
-                dt
-            ) or self.app_state.ui_element_change_pending_dest_status_no_space(dt):
-                self.destinationPanel.combinedDestinationDisplay.update()
-            if self.app_state.ui_element_change_pending_dest_status_no_space(dt):
-                self.app_state.set_ui_geometry_change_pending_dest(dt)
+            if self.app_state.ui_element_change_pending_dest_space(dt):
+                self.destinationPanel.updateDestinationDisplayUsage(dt)
+
+            # if self.app_state.ui_element_change_pending_dest_status_no_space(dt):
+            #     self.app_state.set_ui_geometry_change_pending_dest(dt)
 
         for ft in tuple(FileType):
             display_type = MAP_FILE_TYPE_TO_DISPLAYING_FILES_OF_TYPE[ft]
@@ -2501,26 +2501,24 @@ difference to the program's future.</p>"""
                 continue
 
             if on_init or self.app_state.ui_element_change_pending_dest_path(ft):
-                specified = not self.app_state.dest_dir_not_specified(ft)
-                self.destinationPanel.setSelectDestinationFolderVisible(
-                    file_type=ft, visible=specified
-                )
-                if specified:
+                if not self.app_state.dest_dir_not_specified(ft):
                     self.destinationPanel.setDestinationPath(
                         file_type=ft, path=self.prefs.download_folder(ft)
                     )
+            if on_init or self.app_state.ui_element_change_pending_dest_space(display_type):
+                self.destinationPanel.updateDestinationDisplayUsage(display_type)
 
-            if self.app_state.ui_geometry_change_needed_dest(ft):
-                self.app_state.set_ui_geometry_change_pending_dest(display_type)
+            # if self.app_state.ui_geometry_change_needed_dest(ft):
+            #     self.app_state.set_ui_geometry_change_pending_dest(display_type)
 
             self.app_state.reset_ui_change_pending_destination_panel(ft, display_type)
-            self.destinationPanel.updateDestinationView(file_type=ft)
+            # self.destinationPanel.updateDestinationView(file_type=ft)
 
         self.app_state.unset_app_state(AppState.UI_STATE_CHANGE_PENDING_DEST_SAME)
 
         for dt in tuple(DisplayFileType):
             if self.app_state.ui_geometry_change_pending_dest(dt):
-                self.destinationPanel.updateDestinationViewGeometry(dt)
+                # self.destinationPanel.updateDestinationViewGeometry(dt)
                 self.app_state.unset_ui_geometry_change_pending_dest(dt)
 
         logging.debug(
@@ -2688,13 +2686,15 @@ difference to the program's future.</p>"""
                 size_marked=size_marked,
                 display_type=display_type,
             )
+            # enough_space = False
+            # changed = True
             self.destinationPanel.setUsageAttributes(display_type, sizeAndNum, merge)
             if changed:
                 self.app_state.set_ui_element_change_pending_dest_status_no_space(
                     display_type
                 )
                 self.destinationPanel.setDestinationDisplayNoSpaceStatus(
-                    display_type, enough_space
+                    display_type, not enough_space
                 )
 
         if sizeAndNum is not None and self.unity_progress:

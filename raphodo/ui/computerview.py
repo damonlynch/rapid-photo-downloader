@@ -12,10 +12,11 @@ from raphodo.constants import (
     DeviceDisplayStatus,
     minFileSystemViewHeight,
 )
-from raphodo.ui.destinationdisplay import DestinationDisplay
 from raphodo.ui.devicedisplay import (
-    DeviceHeaderRow,
+    DeviceRows,
     DeviceView,
+    IndividualDestinationDeviceRows,
+    ThisComputerSelectDeviceRows,
 )
 from raphodo.ui.filebrowse import FileSystemView
 from raphodo.ui.stackedwidget import ResizableStackedWidget
@@ -34,33 +35,57 @@ class ComputerWidget(TightFlexiFrame):
 
     def __init__(
         self,
-        objectName: str,
-        view: DeviceView | DestinationDisplay,
+        object_name: str,
+        deviceRows: DeviceRows,
         fileSystemView: FileSystemView,
-        select_text: str,
         parent: QWidget = None,
     ) -> None:
         super().__init__(parent=parent)
-        self.setObjectName(objectName)
+        self.setObjectName(object_name)
         layout: QVBoxLayout = self.layout()
         border_width = QSplitter().lineWidth()
         layout.setContentsMargins(
             border_width, border_width, border_width, border_width
         )
         layout.setSpacing(DeviceDisplayPadding)
-        self.setLayout(layout)
+        self.fileSystemView = fileSystemView
+        self.deviceRows = deviceRows
 
+        layout.addWidget(self.fileSystemView, 100)
+        self.fileSystemView.setFrameShape(QFrame.NoFrame)
+
+    def setDeviceDisplayStatus(self, status: DeviceDisplayStatus) -> None:
+        self.deviceRows.setDeviceDisplayStatus(status)
+
+    def setDevicePath(self, path: str) -> None:
+        self.deviceRows.setHeaderText(path)
+
+    def height(self) -> int:
+        return self.layout().geometry().height() + minFileSystemViewHeight()
+
+
+class ThisComputerWidget(ComputerWidget):
+    def __init__(
+        self,
+        deviceRows: ThisComputerSelectDeviceRows,
+        fileSystemView: FileSystemView,
+        view: DeviceView | None = None,
+        parent: QWidget = None,
+    ) -> None:
+        super().__init__(
+            object_name="thisComputerWidget",
+            deviceRows=deviceRows,
+            fileSystemView=fileSystemView,
+            parent=parent,
+        )
         self.view = view
         self.view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
-        self.fileSystemView = fileSystemView
-        self.simpleDeviceHeader = DeviceHeaderRow(select_text, self)
-        self.stackedWidget = ResizableStackedWidget(self)
-        self.stackedWidget.addWidget(self.simpleDeviceHeader)
-        self.stackedWidget.addWidget(self.view)
-        layout.addWidget(self.stackedWidget)
-        layout.addWidget(self.fileSystemView, 100)
         self.view.setStyleSheet("QListView {border: none;}")
-        self.fileSystemView.setFrameShape(QFrame.NoFrame)
+        self.stackedWidget = ResizableStackedWidget(self)
+        self.stackedWidget.addWidget(self.deviceRows)
+        self.stackedWidget.addWidget(self.view)
+        layout: QVBoxLayout = self.layout()
+        layout.insertWidget(0, self.stackedWidget)
 
     def setViewVisible(self, visible: bool) -> None:
         if visible:
@@ -68,11 +93,20 @@ class ComputerWidget(TightFlexiFrame):
         else:
             self.stackedWidget.setCurrentIndex(0)
 
-    def setDeviceDisplayStatus(self, status: DeviceDisplayStatus) -> None:
-        self.simpleDeviceHeader.setDeviceDisplayStatus(status)
 
-    def setDevicePath(self, path: str) -> None:
-        self.simpleDeviceHeader.setPath(path)
-
-    def height(self) -> int:
-        return self.stackedWidget.height() + minFileSystemViewHeight()
+class DestComputerWidget(ComputerWidget):
+    def __init__(
+        self,
+        object_name: str,
+        deviceRows: IndividualDestinationDeviceRows,
+        fileSystemView: FileSystemView,
+        parent: QWidget = None,
+    ) -> None:
+        super().__init__(
+            object_name=object_name,
+            deviceRows=deviceRows,
+            fileSystemView=fileSystemView,
+            parent=parent,
+        )
+        layout: QVBoxLayout = self.layout()
+        layout.insertWidget(0, self.deviceRows)

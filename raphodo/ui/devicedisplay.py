@@ -48,8 +48,10 @@ from PyQt5.QtGui import (
     QGuiApplication,
     QIcon,
     QLinearGradient,
+    QMouseEvent,
     QPainter,
     QPainterPath,
+    QPaintEvent,
     QPalette,
     QPen,
     QPixmap,
@@ -65,8 +67,10 @@ from PyQt5.QtWidgets import (
     QStyledItemDelegate,
     QStyleOptionButton,
     QStyleOptionViewItem,
+    QToolButton,
     QVBoxLayout,
     QWidget,
+QSplitter,
 )
 
 from raphodo.constants import (
@@ -75,6 +79,8 @@ from raphodo.constants import (
     CustomColors,
     DeviceDisplayPadding,
     DeviceDisplayStatus,
+    DeviceDisplayVPadding,
+    DeviceRowItem,
     DeviceShadingIntensity,
     DeviceState,
     DeviceType,
@@ -86,12 +92,6 @@ from raphodo.constants import (
     FileType,
     Roles,
     ViewRowType,
-)
-from raphodo.constants import (
-    DeviceDisplayPadding as hPadding,
-)
-from raphodo.constants import (
-    DeviceDisplayVPadding as vPadding,
 )
 from raphodo.customtypes import BodyDetails
 from raphodo.devices import Device
@@ -110,8 +110,8 @@ from raphodo.ui.viewutils import (
     is_dark_mode,
     scaledIcon,
     standard_font_size,
+paletteMidPen
 )
-
 install_gettext()
 
 
@@ -540,18 +540,21 @@ def device_header_row_height() -> int:
     return device_name_height() + DeviceDisplayPadding
 
 
+def folder_icon_width() -> int:
+    return QIcon(data_file_path("icons/folder.svg")).pixmap(icon_size()).width()
+
+
 def warningPixmap() -> QPixmap:
-    width = QIcon(data_file_path("icons/folder.svg")).pixmap(icon_size()).width()
-    height = QFontMetrics(QFont()).height()
+    width = folder_icon_width()
     white = QColor(Qt.GlobalColor.white)
 
-    pixmap = QPixmap(width, height)
+    pixmap = QPixmap(width, width)
     painter = QPainter()
     painter.begin(pixmap)
     painter.setRenderHint(QPainter.Antialiasing)
     painter.setPen(QPen(white))
 
-    rect = QRectF(0.0, 0.0, float(width), float(height))
+    rect = QRectF(0.0, 0.0, float(width), float(width))
 
     painter.fillRect(rect, QColor(COLOR_RED_WARNING_HTML))
 
@@ -589,21 +592,46 @@ def warningPixmap() -> QPixmap:
     return pixmap
 
 
+class DropDownMenuButton(QToolButton):
+    mousePressed = pyqtSignal()
+
+    def __init__(self, parent: QWidget) -> None:
+        super().__init__(parent)
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        self.mousePressed.emit()
+        super().mousePressEvent(event)
+
+
 class IconLabelWidget(QWidget):
     def __init__(
         self,
-        pixmap: QPixmap,
-        backgroundColor: QColor,
-        textColor: QColor | None = None,
+        pixmap: QPixmap | None = None,
+        show_menu_button: bool = False,
+        warning: bool = False,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
+
+        gear_padding = 0
+
+        if warning:
+            pixmap = warningPixmap()
+            backgroundColor = QColor(COLOR_RED_WARNING_HTML)
+            textColor = QColor(Qt.GlobalColor.white)
+        else:
+            backgroundColor = device_name_highlight_color()
+            textColor = None
+
         self.pixmap = pixmap
-        self.iconLabel = QLabel()
-        self.iconLabel.setPixmap(self.pixmap)
-        self.iconLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        if pixmap is not None:
+            self.iconLabel = QLabel()
+            self.iconLabel.setPixmap(self.pixmap)
+            self.iconLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
         self.textLabel = QLabel()
-        self.setContentsMargins(0, 0, 0, 0)
+        self.textLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
         palette = QPalette()
         palette.setColor(QPalette.Window, backgroundColor)
         if textColor is not None:
@@ -611,85 +639,632 @@ class IconLabelWidget(QWidget):
         self.setAutoFillBackground(True)
         self.setPalette(palette)
         self.textLabel.setPalette(palette)
+
         layout = QHBoxLayout()
         layout.setSpacing(DeviceDisplayPadding)
-        layout.setContentsMargins(hPadding, vPadding, hPadding, vPadding)
-        layout.addWidget(self.iconLabel)
+
+        if warning:
+            # Warnings are kept in a container widget, such that if there is more than
+            # one warning, the vertical gap between them will be DeviceDisplayPadding
+            v = DeviceDisplayPadding // 2
+        else:
+            gear_padding = 2
+            v = (
+                DeviceDisplayVPadding - gear_padding * 2
+                if show_menu_button
+                else DeviceDisplayVPadding
+            )
+        layout.setContentsMargins(DeviceDisplayPadding, v, DeviceDisplayPadding, v)
+
+        if pixmap is not None:
+            layout.addWidget(self.iconLabel)
+        else:
+            layout.addSpacing(folder_icon_width() + DeviceDisplayPadding)
+
         layout.addWidget(self.textLabel)
         layout.addStretch()
+
+        if show_menu_button:
+            gearPixmap = darkModePixmap(
+                path="icons/settings.svg",
+                size=QSize(pixmap.width(), pixmap.height()),
+                soften_regular_mode_color=True,
+            )
+            self.button = DropDownMenuButton(self)
+            self.button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+            self.button.setIcon(QIcon(gearPixmap))
+            if is_dark_mode():
+                hover_color = QPalette().color(QPalette.Highlight)
+            else:
+                hover_color = device_name_highlight_color().darker(115)
+            self.button.setStyleSheet(
+                f"""
+                QToolButton {{
+                    border: 0px;
+                    padding: {gear_padding}px; 
+                }}
+                QToolButton:hover {{
+                    background-color: {hover_color.name()};
+                }}
+                QToolButton::menu-indicator {{
+                    image: none; 
+                }}
+                """
+            )
+            layout.addWidget(self.button, alignment=Qt.AlignRight)
         self.setLayout(layout)
 
 
-class DeviceHeaderRow(QWidget):
+class WarningWidget(QWidget):
     """
-    Display the header component of a Device View, including its identifier
-    (name) and status.
+    Contains either or both of the following:
+    1.  general status row, e.g. "Folder is read-only"
+    2.  no space row, e.g. "Not enough space"
+    If neither are visible, this widget makes itself invisible
     """
 
-    def __init__(self, select_text: str, parent) -> None:
-        """
-
-        :param select_text: text to be displayed e.g. 'Select a destination folder'
-        :return:
-        """
+    def __init__(self, device_row_item: DeviceRowItem, parent: QWidget) -> None:
         super().__init__(parent)
+        palette = QPalette()
+        palette.setColor(QPalette.Window, QColor(COLOR_RED_WARNING_HTML))
+        self.setAutoFillBackground(True)
+        self.setPalette(palette)
+        layout = QVBoxLayout()
+        padding = DeviceDisplayPadding
+        layout.setContentsMargins(0, padding, 0, padding)
+        layout.setSpacing(0)
+        self.setLayout(layout)
 
-        self.device_status: DeviceDisplayStatus = DeviceDisplayStatus.valid
-        self.deviceDisplay = DeviceDisplay(parent=self)
+        self.device_row_item = device_row_item
 
-        self.selectLabel = QLabel(select_text)
-        font = self.selectLabel.font()
+        if DeviceRowItem.dir_invalid & device_row_item:
+            self.statusRow = IconLabelWidget(warning=True, parent=self)
+            self.status = DeviceDisplayStatus.valid
+            layout.addWidget(self.statusRow)
+
+        if DeviceRowItem.no_storage_space & device_row_item:
+            self.noStorageSpaceRow = IconLabelWidget(warning=True, parent=self)
+            self.noStorageSpaceRow.textLabel.setText(
+                DIR_PROBLEM_TEXT[DeviceDisplayStatus.no_storage_space]
+            )
+            self.no_space = False
+            layout.addWidget(self.noStorageSpaceRow)
+
+    def setStatus(self, status: DeviceDisplayStatus) -> None:
+        assert bool(DeviceRowItem.dir_invalid & self.device_row_item)
+        self.status = status
+        if status != DeviceDisplayStatus.valid:
+            self.statusRow.textLabel.setText(DIR_PROBLEM_TEXT[status])
+        self._setVisibility()
+
+    def setNoSpace(self, no_space: bool) -> None:
+        assert bool(DeviceRowItem.no_storage_space & self.device_row_item)
+        self.no_space = no_space
+        self._setVisibility()
+
+    def _setVisibility(self) -> None:
+        status_visible = (
+            bool(DeviceRowItem.dir_invalid & self.device_row_item)
+            and self.status != DeviceDisplayStatus.valid
+        )
+        no_space_visible = (
+            bool(DeviceRowItem.no_storage_space & self.device_row_item)
+            and self.no_space
+        )
+
+        self.setVisible(status_visible or no_space_visible)
+        if DeviceRowItem.dir_invalid & self.device_row_item:
+            self.statusRow.setVisible(status_visible)
+        if DeviceRowItem.no_storage_space & self.device_row_item:
+            self.noStorageSpaceRow.setVisible(no_space_visible)
+
+
+class UsageWidget(QWidget):
+    """
+    Render the usage portion of a Device Row, which contains basic storage space
+    information, a colored bar with a gradient that visually represents allocation of
+    the storage space, and details about the size and number of photos / videos.
+
+    For download destinations, it also displays excess usage.
+    """
+
+    shading_intensity = DeviceShadingIntensity
+    storageBorderColor = QColor("#bcbcbc")
+    emptySpaceColor = QColor("#f2f2f2")
+    leftBottom = int(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)
+    rightBottom = int(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
+    leftTop = int(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+
+    def __init__(self, parent, frame: bool = False) -> None:
+        super().__init__(parent)
+        # TODO change this for sources, obviously
+        self.rendering_destination = True
+        # TODO move these out of the special class
+        self.dc = DeviceComponent(parent=self)
+        self.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Window, palette.color(palette.Base))
+        self.setPalette(palette)
+
+        self.details: BodyDetails | None = None
+
+        self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        self.frame = frame and self.frame_width
+
+        height = self.dc.storage_height
+        if self.frame:
+            self.midPen = paletteMidPen()
+            self.container_vertical_scrollbar_visible = None
+            height += self.frame_width * 2
+
+        self.setFixedHeight(height)
+        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+
+        # TODO confirm this is the correct minimum width
+        self.setMinimumWidth(self.dc.sampleWidth())
+
+    def paintEvent(self, event: QPaintEvent) -> None:
+        painter = QPainter()
+        painter.begin(self)
+
+        x = 0
+        y = 0
+        width = self.width()
+        width -= self.dc.padding * 2 + 1
+
+        standard_pen_color = painter.pen().color()
+
+        if self.frame:
+            rect = self.rect()
+            painter.setPen(self.midPen)
+            painter.drawLine(rect.bottomLeft(), rect.bottomRight())
+            painter.drawLine(rect.topLeft(), rect.bottomLeft())
+            if (
+                self.container_vertical_scrollbar_visible is None
+                or not self.container_vertical_scrollbar_visible
+            ):
+                painter.drawLine(rect.topRight(), rect.bottomRight())
+            painter.setPen(standard_pen_color)
+            x+= self.frame_width
+            y+= self.frame_width
+            width -= self.frame_width * 2
+
+
+        x += self.dc.padding
+        y += self.dc.vertical_padding
+        d = self.details
+        if d is None:
+            painter.end()
+            return
+
+        painter.setRenderHint(QPainter.Antialiasing, False)
+
+        painter.setFont(self.dc.deviceFont)
+
+
+        device_size_x = x
+        device_size_y = y + self.dc.standard_height - self.dc.padding
+
+        text_rect = QRect(
+            device_size_x, y - self.dc.padding, width, self.dc.standard_height
+        )
+
+        if self.rendering_destination:
+            # bytes free of total size e.g. 123 MB free of 2 TB
+            painter.drawText(text_rect, self.leftBottom, d.bytes_free_of_total)
+
+            # Render the used space in the gradient bar before rendering the space
+            # that will be taken by photos and videos
+            comp1_file_size_sum = d.comp3_file_size_sum
+            comp2_file_size_sum = d.comp1_file_size_sum
+            comp3_file_size_sum = d.comp2_file_size_sum
+            color1 = d.color3
+            color2 = d.color1
+            color3 = d.color2
+        else:
+            # Device size e.g. 32 GB
+            painter.drawText(text_rect, self.leftBottom, d.bytes_total_text)
+            # Percent used e.g. 79%
+            painter.drawText(text_rect, self.rightBottom, d.percent_used_text)
+
+            # Don't change the order
+            comp1_file_size_sum = d.comp1_file_size_sum
+            comp2_file_size_sum = d.comp2_file_size_sum
+            comp3_file_size_sum = d.comp3_file_size_sum
+            color1 = d.color1
+            color2 = d.color2
+            color3 = d.color3
+
+        skip_comp1 = d.display_type == DisplayFileType.videos
+        skip_comp2 = d.display_type == DisplayFileType.photos
+        skip_comp3 = d.comp3_size_text == 0
+
+        photos_g_x = device_size_x
+        g_y = device_size_y + self.dc.padding
+        if d.bytes_total:
+            photos_g_width = comp1_file_size_sum / d.bytes_total * width
+            linearGradient = QLinearGradient(
+                photos_g_x, g_y, photos_g_x, g_y + self.dc.storage_use_bar_height
+            )
+
+        rect = QRectF(photos_g_x, g_y, width, self.dc.storage_use_bar_height)
+        # Apply subtle shade to empty space
+        painter.fillRect(rect, self.emptySpaceColor)
+
+        # Storage Use Horizontal Bar
+        # Shows space used by Photos, Videos, Other, and (sometimes) Excess.
+        # ==========================================================================
+
+        # Devices may not have photos or videos
+        # Fill in storage bar with the size of the photos
+        if comp1_file_size_sum and d.bytes_total:
+            photos_g_rect = QRectF(
+                photos_g_x, g_y, photos_g_width, self.dc.storage_use_bar_height
+            )
+            linearGradient.setColorAt(0.2, color1.lighter(self.shading_intensity))
+            linearGradient.setColorAt(0.8, color1.darker(self.shading_intensity))
+            painter.fillRect(photos_g_rect, QBrush(linearGradient))
+        else:
+            photos_g_width = 0
+
+        # Fill in storage bar with size of videos
+        videos_g_x = photos_g_x + photos_g_width
+        if comp2_file_size_sum and d.bytes_total:
+            videos_g_width = comp2_file_size_sum / d.bytes_total * width
+            videos_g_rect = QRectF(
+                videos_g_x, g_y, videos_g_width, self.dc.storage_use_bar_height
+            )
+            linearGradient.setColorAt(0.2, color2.lighter(self.shading_intensity))
+            linearGradient.setColorAt(0.8, color2.darker(self.shading_intensity))
+            painter.fillRect(videos_g_rect, QBrush(linearGradient))
+        else:
+            videos_g_width = 0
+
+        # Fill in the storage bar with size of other files
+        if comp3_file_size_sum and d.bytes_total:
+            other_g_width = comp3_file_size_sum / d.bytes_total * width
+            other_g_x = videos_g_x + videos_g_width
+            other_g_rect = QRectF(
+                other_g_x, g_y, other_g_width, self.dc.storage_use_bar_height
+            )
+            linearGradient.setColorAt(0.2, color3.lighter(self.shading_intensity))
+            linearGradient.setColorAt(0.8, color3.darker(self.shading_intensity))
+            painter.fillRect(other_g_rect, QBrush(linearGradient))
+
+        if d.comp4_file_size_sum and d.bytes_total:
+            # Excess usage, only for download destinations
+            color4 = QColor(CustomColors.color6.value)
+            comp4_g_width = d.comp4_file_size_sum / d.bytes_total * width
+            comp4_g_x = x + width - comp4_g_width
+            comp4_g_rect = QRectF(
+                comp4_g_x, g_y, comp4_g_width, self.dc.storage_use_bar_height
+            )
+            linearGradient.setColorAt(0.2, color4.lighter(self.shading_intensity))
+            linearGradient.setColorAt(0.8, color4.darker(self.shading_intensity))
+            painter.fillRect(comp4_g_rect, QBrush(linearGradient))
+
+        # Rectangle around spatial representation of sizes
+        painter.setPen(self.storageBorderColor)
+        painter.drawRect(rect)
+        bottom = rect.bottom()
+
+        details_y = bottom + self.dc.vertical_padding
+
+        painter.setFont(self.dc.deviceFont)
+
+        # Component 4 details
+        # If excess is shown, it is shown first, before anything else.
+        # Excess usage, only displayed if the storage space is not sufficient.
+        # =====================================================================
+
+        if d.comp4_file_size_sum:
+            # Gradient
+            comp4_g2_x = x
+            comp4_g2_rect = QRectF(
+                comp4_g2_x,
+                details_y,
+                self.dc.details_vertical_bar_width,
+                self.dc.details_height,
+            )
+            linearGradient = QLinearGradient(
+                comp4_g2_x, details_y, comp4_g2_x, details_y + self.dc.details_height
+            )
+            linearGradient.setColorAt(0.2, color4.lighter(self.shading_intensity))
+            linearGradient.setColorAt(0.8, color4.darker(self.shading_intensity))
+            painter.fillRect(comp4_g2_rect, QBrush(linearGradient))
+            painter.setPen(self.storageBorderColor)
+            painter.drawRect(comp4_g2_rect)
+
+            # Text
+            comp4_x = comp4_g2_x + self.dc.details_vertical_bar_width + self.dc.spacer
+            comp4_no_width = self.dc.deviceFontMetrics.boundingRect(
+                d.comp4_text
+            ).width()
+            comp4_size_width = self.dc.deviceFontMetrics.boundingRect(
+                d.comp4_size_text
+            ).width()
+            comp4_width = max(
+                comp4_no_width,
+                comp4_size_width,
+                self.dc.sample_photos_width,
+            )
+            comp4_rect = QRectF(comp4_x, details_y, comp4_width, self.dc.details_height)
+
+            painter.setPen(standard_pen_color)
+            painter.drawText(comp4_rect, self.leftTop, d.comp4_text)
+            painter.drawText(comp4_rect, self.leftBottom, d.comp4_size_text)
+            photos_g2_x = comp4_rect.right() + 10
+        else:
+            photos_g2_x = x
+
+        # Component 1 details
+        # ===================
+
+        if not skip_comp1:
+            # Gradient
+            photos_g2_rect = QRectF(
+                photos_g2_x,
+                details_y,
+                self.dc.details_vertical_bar_width,
+                self.dc.details_height,
+            )
+            linearGradient = QLinearGradient(
+                photos_g2_x, details_y, photos_g2_x, details_y + self.dc.details_height
+            )
+            linearGradient.setColorAt(0.2, d.color1.lighter(self.shading_intensity))
+            linearGradient.setColorAt(0.8, d.color1.darker(self.shading_intensity))
+            painter.fillRect(photos_g2_rect, QBrush(linearGradient))
+            painter.setPen(self.storageBorderColor)
+            painter.drawRect(photos_g2_rect)
+
+            # Text
+            photos_x = photos_g2_x + self.dc.details_vertical_bar_width + self.dc.spacer
+            photos_no_width = self.dc.deviceFontMetrics.boundingRect(
+                d.comp1_text
+            ).width()
+            photos_size_width = self.dc.deviceFontMetrics.boundingRect(
+                d.comp1_size_text
+            ).width()
+            photos_width = max(
+                photos_no_width,
+                photos_size_width,
+                self.dc.sample_photos_width,
+            )
+            photos_rect = QRectF(
+                photos_x, details_y, photos_width, self.dc.details_height
+            )
+
+            painter.setPen(standard_pen_color)
+            painter.drawText(photos_rect, self.leftTop, d.comp1_text)
+            painter.drawText(photos_rect, self.leftBottom, d.comp1_size_text)
+            videos_g2_x = photos_rect.right() + self.dc.inter_device_padding
+
+        else:
+            videos_g2_x = photos_g2_x
+
+        # Component 2 details
+        # ===================
+
+        if not skip_comp2:
+            # Gradient
+            videos_g2_rect = QRectF(
+                videos_g2_x,
+                details_y,
+                self.dc.details_vertical_bar_width,
+                self.dc.details_height,
+            )
+            linearGradient.setColorAt(0.2, d.color2.lighter(self.shading_intensity))
+            linearGradient.setColorAt(0.8, d.color2.darker(self.shading_intensity))
+            painter.fillRect(videos_g2_rect, QBrush(linearGradient))
+            painter.setPen(self.storageBorderColor)
+            painter.drawRect(videos_g2_rect)
+
+            # Text
+            videos_x = videos_g2_x + self.dc.details_vertical_bar_width + self.dc.spacer
+            videos_no_width = self.dc.deviceFontMetrics.boundingRect(
+                d.comp2_text
+            ).width()
+            videos_size_width = self.dc.deviceFontMetrics.boundingRect(
+                d.comp2_size_text
+            ).width()
+            videos_width = max(
+                videos_no_width,
+                videos_size_width,
+                self.dc.sample_videos_width,
+            )
+            videos_rect = QRectF(
+                videos_x, details_y, videos_width, self.dc.details_height
+            )
+
+            painter.setPen(standard_pen_color)
+            painter.drawText(videos_rect, self.leftTop, d.comp2_text)
+            painter.drawText(videos_rect, self.leftBottom, d.comp2_size_text)
+
+            other_g2_x = videos_rect.right() + self.dc.inter_device_padding
+        else:
+            other_g2_x = videos_g2_x
+
+        if not skip_comp3 and (d.comp3_file_size_sum or self.rendering_destination):
+            # Other details
+            # =============
+
+            # Gradient
+
+            other_g2_rect = QRectF(
+                other_g2_x,
+                details_y,
+                self.dc.details_vertical_bar_width,
+                self.dc.details_height,
+            )
+            linearGradient.setColorAt(0.2, d.color3.lighter(self.shading_intensity))
+            linearGradient.setColorAt(0.8, d.color3.darker(self.shading_intensity))
+            painter.fillRect(other_g2_rect, QBrush(linearGradient))
+            painter.setPen(self.storageBorderColor)
+            painter.drawRect(other_g2_rect)
+
+            # Text
+            other_x = other_g2_x + self.dc.details_vertical_bar_width + self.dc.spacer
+            other_no_width = self.dc.deviceFontMetrics.boundingRect(
+                d.comp3_text
+            ).width()
+            other_size_width = self.dc.deviceFontMetrics.boundingRect(
+                d.comp3_size_text
+            ).width()
+            other_width = max(other_no_width, other_size_width)
+            other_rect = QRectF(other_x, details_y, other_width, self.dc.details_height)
+
+            painter.setPen(standard_pen_color)
+            painter.drawText(other_rect, self.leftTop, d.comp3_text)
+            painter.drawText(other_rect, self.leftBottom, d.comp3_size_text)
+
+            final_g2_x = other_rect.right()
+        else:
+            final_g2_x = other_g2_x
+
+        painter.end()
+        self.dc.live_width = round(final_g2_x)
+
+
+class InitialHeader(QLabel):
+    def __init__(self, message: str, parent) -> None:
+        super().__init__(parent)
+        self.setText(message)
+        font = self.font()
         font.setItalic(True)
-        self.selectLabel.setFont(font)
-        self.selectLabel.setAutoFillBackground(True)
+        self.setFont(font)
+        self.setAutoFillBackground(True)
         palette = QPalette()
         palette.setColor(QPalette.Window, device_name_highlight_color())
-        self.selectLabel.setPalette(palette)
-        self.selectLabel.setContentsMargins(hPadding, vPadding, hPadding, vPadding)
-
-        self.pathWidget = IconLabelWidget(
-            pixmap=QIcon(data_file_path("icons/folder.svg")).pixmap(icon_size()),
-            backgroundColor=device_name_highlight_color(),
-            parent=self,
-        )
-        self.warningWidget = IconLabelWidget(
-            pixmap=warningPixmap(),
-            backgroundColor=QColor(COLOR_RED_WARNING_HTML),
-            textColor=QColor(Qt.GlobalColor.white),
-            parent=self,
+        self.setPalette(palette)
+        self.setContentsMargins(
+            DeviceDisplayPadding,
+            DeviceDisplayVPadding,
+            DeviceDisplayPadding,
+            DeviceDisplayVPadding,
         )
 
-        problemLayout = QVBoxLayout()
-        problemLayout.setSpacing(0)
-        problemLayout.setContentsMargins(0, 0, 0, 0)
-        problemLayout.addWidget(self.pathWidget)
-        problemLayout.addWidget(self.warningWidget)
 
-        self.problemWidget = QWidget()
-        self.problemWidget.setLayout(problemLayout)
+class DeviceRows(QWidget):
+    def __init__(
+        self,
+        device_row_item: DeviceRowItem,
+        initial_header_message: str = "",
+    ) -> None:
+        super().__init__()
 
-        self.stackedWidget = ResizableStackedWidget()
-        self.stackedWidget.addWidget(self.selectLabel)
-        self.stackedWidget.addWidget(self.problemWidget)
+        self.device_row_item = device_row_item
 
-        layout = QVBoxLayout()
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.stackedWidget)
-        self.setLayout(layout)
+        if DeviceRowItem.initial_header & device_row_item:
+            self.initialHeader = InitialHeader(initial_header_message, self)
+
+        if DeviceRowItem.icon & device_row_item:
+            assert DeviceRowItem.header & device_row_item
+            pixmap = QIcon(data_file_path("icons/folder.svg")).pixmap(icon_size())
+        else:
+            pixmap = None
+
+        deviceLayout = QVBoxLayout()
+        deviceLayout.setSpacing(0)
+        deviceLayout.setContentsMargins(0, 0, 0, 0)
+
+        if DeviceRowItem.header & device_row_item:
+            self.headerWidget = IconLabelWidget(
+                pixmap=pixmap,
+                show_menu_button=bool(DeviceRowItem.drop_down_menu & device_row_item),
+                parent=self,
+            )
+            deviceLayout.addWidget(self.headerWidget)
+
+        self.warningWidget = WarningWidget(parent=self, device_row_item=device_row_item)
+
+        deviceLayout.addWidget(self.warningWidget)
+
+        if DeviceRowItem.usage0 & device_row_item:
+            self.usage0Widget = UsageWidget(
+                parent=self, frame=bool(DeviceRowItem.frame & device_row_item)
+            )
+            self.USEAGE_MAPPER = {0: self.usage0Widget}
+            deviceLayout.addWidget(self.usage0Widget)
+
+            if DeviceRowItem.usage1 & device_row_item:
+                self.usage1Widget = UsageWidget(parent=self)
+                self.USEAGE_MAPPER = {1: self.usage1Widget}
+                deviceLayout.addWidget(self.usage1Widget)
+
+        if DeviceRowItem.initial_header & device_row_item:
+            layout = QVBoxLayout()
+            layout.setSpacing(0)
+            layout.setContentsMargins(0, 0, 0, 0)
+            self.deviceWidget = QWidget()
+            self.deviceWidget.setLayout(deviceLayout)
+
+            self.stackedWidget = ResizableStackedWidget()
+            self.stackedWidget.addWidget(self.initialHeader)
+            self.stackedWidget.addWidget(self.deviceWidget)
+            layout.addWidget(self.stackedWidget)
+            self.setLayout(layout)
+        else:
+            self.setLayout(deviceLayout)
+
+        if DeviceRowItem.dir_invalid & device_row_item:
+            self.setDeviceDisplayStatus(DeviceDisplayStatus.valid)
+        if DeviceRowItem.no_storage_space & device_row_item:
+            self.setNoSpace(False)
+
+    def setHeaderText(self, text: str) -> None:
+        self.headerWidget.textLabel.setText(text)
+
+    def setHeaderToolTip(self, text: str) -> None:
+        self.headerWidget.setToolTip(text)
 
     def setDeviceDisplayStatus(self, status: DeviceDisplayStatus) -> None:
-        self.device_status = status
+        assert DeviceRowItem.initial_header & self.device_row_item
         match status:
             case DeviceDisplayStatus.unspecified:
                 self.stackedWidget.setCurrentIndex(0)
-
             case _:
                 self.stackedWidget.setCurrentIndex(1)
-                self.warningWidget.textLabel.setText(DIR_PROBLEM_TEXT[status])
+                self.warningWidget.setStatus(status)
 
-    def setPath(self, path: str) -> None:
-        self.pathWidget.textLabel.setText(path)
+    def setNoSpace(self, no_space: bool) -> None:
+        self.warningWidget.setNoSpace(no_space)
+
+    def setUsageVisible(self, visible: bool, usage_num: int = 0) -> None:
+        self.USEAGE_MAPPER[usage_num].setVisible(visible)
+
+    def setUsage(self, details: BodyDetails, usage_num: int = 0) -> None:
+        widget = self.USEAGE_MAPPER[usage_num]
+        widget.details = details
+        widget.update()
+
+    def menuButton(self) -> DropDownMenuButton:
+        assert DeviceRowItem.drop_down_menu & self.device_row_item
+        return self.headerWidget.button
+
+
+class ThisComputerSelectDeviceRows(DeviceRows):
+    def __init__(self) -> None:
+        super().__init__(
+            initial_header_message=_("Select a source folder"),
+            device_row_item=DeviceRowItem.initial_header
+            | DeviceRowItem.header
+            | DeviceRowItem.icon
+            | DeviceRowItem.dir_invalid,
+        )
+
+
+class IndividualDestinationDeviceRows(DeviceRows):
+    def __init__(self) -> None:
+        super().__init__(
+            initial_header_message=_("Select a destination folder"),
+            device_row_item=DeviceRowItem.initial_header
+            | DeviceRowItem.header
+            | DeviceRowItem.icon
+            | DeviceRowItem.dir_invalid
+            | DeviceRowItem.no_storage_space
+            | DeviceRowItem.drop_down_menu
+            | DeviceRowItem.usage0,
+        )
 
 
 class DeviceComponent(QObject):
@@ -879,7 +1454,9 @@ class DeviceDisplay(QObject):
 
         text_x = target.right() + self.dc.header_horizontal_padding
         deviceNameRect.setLeft(text_x)
-        painter.drawText(deviceNameRect, Qt.AlignLeft | Qt.AlignVCenter, display_name)
+        painter.drawText(
+            deviceNameRect, int(Qt.AlignLeft | Qt.AlignVCenter), display_name
+        )
 
         if self.menuButtonIcon:
             size = icon_size()

@@ -8,16 +8,15 @@ Display photo and video destinations
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QWidget
 
-from raphodo.constants import DeviceDisplayStatus
+from raphodo.constants import DeviceDisplayStatus, DisplayFileType
 from raphodo.customtypes import DownloadFilesSizeAndNum
 from raphodo.internationalisation.install import install_gettext
 from raphodo.rpdfile import FileType
 from raphodo.storage.storage import StorageSpace
-from raphodo.ui.computerview import ComputerWidget
+from raphodo.ui.computerview import DestComputerWidget
 from raphodo.ui.destinationdisplay import (
-    DestDisplayType,
-    DestinationDisplay,
-    DisplayFileType,
+    CombinedDestinationDisplay,
+    IndividualDestinationDisplay,
 )
 from raphodo.ui.panelview import QPanelView
 from raphodo.ui.viewutils import ScrollAreaNoFrame
@@ -68,18 +67,13 @@ class DestinationPanel(ScrollAreaNoFrame):
         # partition. That is, "combined" means not combined widgets, but combined
         # display of destination download stats the user sees
 
-        self.combinedDestinationDisplay = DestinationDisplay(
-            parent=self, rapidApp=self.rapidApp
+        self.combinedDestinationDisplay = CombinedDestinationDisplay(
+            rapidApp=self.rapidApp
         )
-        self.combinedDestinationDisplay.display_type = DisplayFileType.photos_and_videos
-        # Unlike with the individual photo and video destination displays, this will
-        # never change:
-        self.combinedDestinationDisplay.dest_display_type = DestDisplayType.usage_only
 
         self.combinedDestinationDisplayContainer = QPanelView(
             _("Projected Storage Use"),
         )
-        self.combinedDestinationDisplay.setObjectName("combinedDestinationDisplay")
         self.combinedDestinationDisplayContainer.addWidget(
             self.combinedDestinationDisplay
         )
@@ -91,28 +85,22 @@ class DestinationPanel(ScrollAreaNoFrame):
         # partitions.
         # Also display the file system folder chooser for both destinations.
 
-        self.photoDestinationDisplay = DestinationDisplay(
-            menu=True, file_type=FileType.photo, parent=self, rapidApp=self.rapidApp
+        self.photoDestinationDisplay = IndividualDestinationDisplay(
+            display_type=DisplayFileType.photos, rapidApp=self.rapidApp
         )
-        self.photoDestinationDisplay.display_type = DisplayFileType.photos
-        self.photoDestinationDisplay.setObjectName("photoDestinationDisplay")
-        self.photoDestinationWidget = ComputerWidget(
-            objectName="photoDestination",
-            view=self.photoDestinationDisplay,
+        self.photoDestinationWidget = DestComputerWidget(
+            object_name="photoDestination",
+            deviceRows=self.photoDestinationDisplay.deviceRows,
             fileSystemView=self.rapidApp.photoDestinationFSView,
-            select_text=_("Select a destination folder"),
         )
 
-        self.videoDestinationDisplay = DestinationDisplay(
-            menu=True, file_type=FileType.video, parent=self, rapidApp=self.rapidApp
+        self.videoDestinationDisplay = IndividualDestinationDisplay(
+            display_type=DisplayFileType.videos, rapidApp=self.rapidApp
         )
-        self.videoDestinationDisplay.display_type = DisplayFileType.videos
-        self.videoDestinationDisplay.setObjectName("videoDestinationDisplay")
-        self.videoDestinationWidget = ComputerWidget(
-            objectName="videoDestination",
-            view=self.videoDestinationDisplay,
+        self.videoDestinationWidget = DestComputerWidget(
+            object_name="videoDestination",
+            deviceRows=self.videoDestinationDisplay.deviceRows,
             fileSystemView=self.rapidApp.videoDestinationFSView,
-            select_text=_("Select a destination folder"),
         )
 
         self.MAP_DESTINATION_DISPLAY = {
@@ -154,13 +142,11 @@ class DestinationPanel(ScrollAreaNoFrame):
 
     def setDestinationDisplayVisibilityAndType(self, same_device: bool) -> None:
         self.combinedDestinationDisplayContainer.setVisible(same_device)
-        dest_display_type = (
-            DestDisplayType.folder_only
-            if same_device
-            else DestDisplayType.folders_and_usage
-        )
-        self.photoDestinationDisplay.dest_display_type = dest_display_type
-        self.videoDestinationDisplay.dest_display_type = dest_display_type
+        self.photoDestinationDisplay.deviceRows.setUsageVisible(not same_device)
+        self.videoDestinationDisplay.deviceRows.setUsageVisible(not same_device)
+        if same_device:
+            self.photoDestinationDisplay.setNoSpace(False)
+            self.videoDestinationDisplay.setNoSpace(False)
 
     def setMountSpaceAttributes(
         self, display_type: DisplayFileType, storage_space: StorageSpace
@@ -182,25 +168,15 @@ class DestinationPanel(ScrollAreaNoFrame):
     def setDestinationPath(self, file_type: FileType, path: str) -> None:
         self.MAP_DESTINATION_DISPLAY[file_type].setPath(path)
 
-    def setSelectDestinationFolderVisible(
-        self, file_type: FileType, visible: bool
-    ) -> None:
-        self.MAP_DESTINATION_WIDGET[file_type].setViewVisible(visible)
-
     def setDestinationDisplayStatus(
         self, file_type: FileType, status: DeviceDisplayStatus
     ) -> None:
         self.MAP_DESTINATION_DISPLAY[file_type].setStatus(status)
 
     def setDestinationDisplayNoSpaceStatus(
-        self, display_type: DisplayFileType, enough_space: bool
+        self, display_type: DisplayFileType, no_space: bool
     ) -> None:
-        self.MAP_DESTINATION_DISPLAY_BY_DISPLAY_TYPE[
-            display_type
-        ].enough_space = enough_space
+        self.MAP_DESTINATION_DISPLAY_BY_DISPLAY_TYPE[display_type].setNoSpace(no_space)
 
-    def updateDestinationView(self, file_type: FileType) -> None:
-        self.MAP_DESTINATION_DISPLAY[file_type].update()
-
-    def updateDestinationViewGeometry(self, display_type: DisplayFileType) -> None:
-        self.MAP_DESTINATION_DISPLAY_BY_DISPLAY_TYPE[display_type].updateGeometry()
+    def updateDestinationDisplayUsage(self, display_type: DisplayFileType)-> None:
+        self.MAP_DESTINATION_DISPLAY_BY_DISPLAY_TYPE[display_type].updateUsage()
