@@ -1159,7 +1159,9 @@ class DeviceRows(QWidget):
 
         if DeviceRowItem.icon & device_row_item:
             assert DeviceRowItem.header & device_row_item
-            pixmap = QIcon(data_file_path("icons/folder.svg")).pixmap(icon_size())
+            s = icon_size()
+            size = QSize(s, s)
+            pixmap = darkModePixmap(path="icons/folder.svg", size=size)
         else:
             pixmap = None
 
