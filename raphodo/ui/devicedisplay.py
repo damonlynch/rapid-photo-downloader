@@ -1244,7 +1244,7 @@ class DeviceRows(QWidget):
         return self.headerWidget.button
 
 
-class ThisComputerSelectDeviceRows(DeviceRows):
+class ThisComputerDeviceRows(DeviceRows):
     def __init__(self) -> None:
         super().__init__(
             initial_header_message=_("Select a source folder"),
@@ -1255,7 +1255,7 @@ class ThisComputerSelectDeviceRows(DeviceRows):
         )
 
 
-class IndividualDestinationDeviceRows(DeviceRows):
+class PhotoOrVideoDestDeviceRows(DeviceRows):
     def __init__(self) -> None:
         super().__init__(
             initial_header_message=_("Select a destination folder"),

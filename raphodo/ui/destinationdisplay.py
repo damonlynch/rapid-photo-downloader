@@ -62,7 +62,7 @@ from raphodo.storage.storage import StorageSpace, get_path_display_name
 from raphodo.tools.utilities import format_size_for_user
 from raphodo.ui.devicedisplay import (
     DeviceRows,
-    IndividualDestinationDeviceRows,
+    PhotoOrVideoDestDeviceRows,
 )
 from raphodo.ui.nameeditor import PrefDialog, make_subfolder_menu_entry
 
@@ -228,7 +228,7 @@ class DestinationDisplay(QWidget):
 
     def __init__(
         self,
-        deviceRows: IndividualDestinationDeviceRows | DeviceRows,
+        deviceRows: PhotoOrVideoDestDeviceRows | DeviceRows,
         rapidApp,
     ) -> None:
         super().__init__()
@@ -363,7 +363,7 @@ class IndividualDestinationDisplay(DestinationDisplay):
         rapidApp,
     ) -> None:
         super().__init__(
-            deviceRows=IndividualDestinationDeviceRows(),
+            deviceRows=PhotoOrVideoDestDeviceRows(),
             rapidApp=rapidApp,
         )
         if display_type == DisplayFileType.photos:

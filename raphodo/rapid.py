@@ -264,7 +264,7 @@ from raphodo.ui.devicedisplay import (
     DeviceDelegate,
     DeviceModel,
     DeviceView,
-    ThisComputerSelectDeviceRows,
+    ThisComputerDeviceRows,
 )
 from raphodo.ui.filebrowse import (
     FileSystemDelegate,
@@ -1167,6 +1167,9 @@ class RapidWindow(QMainWindow):
         self.thumbnailView.thumbnailDelegate.markedAsDownloaded.connect(
             self.setStateDestFilesToDownload
         )
+        self.thisComputerToggleView.valueChanged.connect(
+            self.thisComputerToggleValueChanged
+        )
 
     def initializeScans(self) -> None:
         if not self.is_wsl2:
@@ -1176,18 +1179,21 @@ class RapidWindow(QMainWindow):
             self.wslDrives.mountDrives()
 
         if self.prefs.this_computer_source:
-            path = self.prefs.this_computer_path
-            if self.app_state.this_computer_dir_valid:
-                logging.debug("Using This Computer path %s", path)
-                device = Device()
-                device.set_download_from_path(path)
-                self.startDeviceScan(device=device)
-            else:
-                logging.warning(
-                    "Not initiating This Computer device scan because %s is an "
-                    "invalid path",
-                    path,
-                )
+            self.initializeThisComputerScan()
+
+    def initializeThisComputerScan(self) -> None:
+        path = self.prefs.this_computer_path
+        if self.app_state.this_computer_dir_valid:
+            logging.debug("Using This Computer path %s", path)
+            device = Device()
+            device.set_download_from_path(path)
+            self.startDeviceScan(device=device)
+        else:
+            logging.warning(
+                "Not initiating This Computer device scan because %s is an "
+                "invalid path",
+                path,
+            )
 
     def showMainWindow(self) -> None:
         if not self.isVisible():
@@ -2191,12 +2197,9 @@ difference to the program's future.</p>"""
             on=bool(self.prefs.this_computer_source),
             object_name="thisComputerToggleView",
         )
-        self.thisComputerToggleView.valueChanged.connect(
-            self.thisComputerToggleValueChanged
-        )
-        self.thisComputerSelectsOnlyDeviceRows = ThisComputerSelectDeviceRows()
+        self.thisComputerDeviceRows = ThisComputerDeviceRows()
         self.thisComputer = ThisComputerWidget(
-            deviceRows=self.thisComputerSelectsOnlyDeviceRows,
+            deviceRows=self.thisComputerDeviceRows,
             view=self.thisComputerView,
             fileSystemView=self.thisComputerFSView,
         )
@@ -2753,12 +2756,16 @@ difference to the program's future.</p>"""
         if on_init or self.app_state.ui_element_change_pending_this_comp_source:
             pass
 
+        ic(self.app_state.state)
+
         if (
             self.app_state.ui_element_change_pending_this_comp_status
             or self.app_state.ui_element_change_pending_this_comp_path
         ):
             valid = self.app_state.this_computer_dir_valid
+            ic(valid)
             self.thisComputer.setViewVisible(visible=valid)
+            self.app_state.unset_ui_element_change_pending_this_comp_path()
 
     def setStateDestinationFolder(self, file_type: FileType | None = None) -> None:
         self.setStateDestDirCharacteristics(file_type)
@@ -3012,22 +3019,17 @@ difference to the program's future.</p>"""
         :param on: whether switch is on or off
         """
 
-        logging.critical("change thisComputerToggleValueChanged")
-        return
-
-        # TODO change this logic
-        if on:
-            self.thisComputer.setViewVisible(bool(self.prefs.this_computer_path))
         self.prefs.this_computer_source = on
-        if not on:
+        if on:
+            self.setStateThisComputer()
+            self.initializeThisComputerScan()
+        else:
             if len(self.devices.this_computer) > 0:
                 scan_id = list(self.devices.this_computer)[0]
                 self.removeDevice(scan_id=scan_id)
-            self.prefs.this_computer_path = ""
             self.thisComputerFSView.clearSelection()
 
-        if not self.app_state.on_startup:
-            self.sourcePanel.setThisComputerState()
+        self.sourcePanel.setThisComputerWidgetState()
 
     @pyqtSlot()
     def thisComputerFileBrowserReset(self) -> None:
@@ -3086,10 +3088,6 @@ difference to the program's future.</p>"""
         :param index: cell clicked
         """
 
-        ic("thisComputerPathChosen")
-        self.thisComputer.setDeviceDisplayStatus(DeviceDisplayStatus.unspecified)
-        return
-
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
 
         if self.downloadIsRunning() and self.prefs.this_computer_path:
@@ -3118,7 +3116,17 @@ difference to the program's future.</p>"""
                 self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
                 return
 
+
         if path != self.prefs.this_computer_path:
+            if not self.queryUserManualDownloadLocation(path):
+                logging.debug(
+                    "This Computer path %s rejected as download source",
+                    self.prefs.this_computer_path,
+                )
+                return
+
+
+            # TODO investigate use of state here
             if self.prefs.this_computer_path:
                 scan_id = self.devices.scan_id_from_path(
                     self.prefs.this_computer_path, DeviceType.path
@@ -3130,8 +3138,9 @@ difference to the program's future.</p>"""
                     )
                     self.removeDevice(scan_id=scan_id)
             self.prefs.this_computer_path = path
-            self.thisComputer.setViewVisible(True)
-            self.setupManualPath()
+            self.app_state.set_ui_element_change_pending_this_comp_path()
+            self.setStateThisComputer()
+            self.initializeThisComputerScan()
 
     def displayInvalidDestinationMsgBox(
         self, validation: ValidatedFolder, file_type: FileType
@@ -5125,6 +5134,7 @@ Do you want to proceed with the download?"""
         self.download_tracker.set_file_types_present(scan_id, file_types_present)
         model = self.mapModel(scan_id)
         model.updateDeviceScan(scan_id)
+        self.updateSourceUIElements()
         # TODO update this to use state
         # destinations_good = self.setDownloadCapabilities()
         destinations_good = True
@@ -5734,8 +5744,7 @@ Do you want to proceed with the download?"""
             self.scan_controller, worker_id=scan_id, data=scan_arguments
         )
         self.devices.set_device_state(scan_id, DeviceState.scanning)
-        # TODO Determine if setting download capabilities is really needed here
-        # self.setDownloadCapabilities()
+        self.updateSourceUIElements()
         self.updateProgressBarState()
         self.displayMessageInStatusBar()
 
@@ -6419,42 +6428,6 @@ Do you want to proceed with the download?"""
             )
             self.prepareNonCameraDeviceScan(device=device)
 
-    def setupManualPath(self) -> None:
-        """
-        Setup This Computer path from which to download and initiates scan.
-
-        """
-
-        logging.critical("Do not use setupManualPath")
-        return
-
-        if not self.prefs.this_computer_source:
-            return
-
-        if self.prefs.this_computer_path:
-            if not self.queryManualDownloadLocation():
-                logging.debug(
-                    "This Computer path %s rejected as download source",
-                    self.prefs.this_computer_path,
-                )
-                self.prefs.this_computer_path = ""
-                self.thisComputer.setViewVisible(False)
-                return
-
-            # user manually specified the path from which to download
-            path = self.prefs.this_computer_path
-
-            if path:
-                if os.path.isdir(path) and os.access(path, os.R_OK):
-                    logging.debug("Using This Computer path %s", path)
-                    device = Device()
-                    device.set_download_from_path(path)
-                    self.startDeviceScan(device=device)
-                else:
-                    logging.error("This Computer download path is invalid: %s", path)
-            else:
-                logging.warning("This Computer download path is not specified")
-
     def addDeviceToBackupManager(self, path: str) -> None:
         device_id = self.backup_devices.device_id(path)
         self.backup_controller.send_multipart(
@@ -6573,7 +6546,7 @@ Do you want to proceed with the download?"""
         )
         self.setStateDestinationFolder()
 
-    def queryManualDownloadLocation(self) -> bool:
+    def queryUserManualDownloadLocation(self, path:str) -> bool:
         """
         Queries the user to ask if they really want to download from locations
         that could take a very long time to scan. They can choose yes or no.
@@ -6582,8 +6555,12 @@ Do you want to proceed with the download?"""
         user said no.
         """
 
-        self.showMainWindow()
-        path = self.prefs.this_computer_path
+        try:
+            assert self.app_state.on_normal
+        except AttributeError:
+            logging.critical("Unexpected state during queryUserManualDownloadLocation: %s", self.app_state.state)
+            return True
+
         if path in (
             "/media",
             "/run",

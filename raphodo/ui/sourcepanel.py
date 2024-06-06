@@ -261,7 +261,7 @@ class SourcePanel(ScrollAreaNoFrame):
                 not temporalProximityVisible
             )
 
-    def setThisComputerState(self) -> None:
+    def setThisComputerWidgetState(self) -> None:
         self.placeWidgets()
         self.setThisComputerAltWidgetVisible(self.temporalProximityIsChecked())
         self.setThisComputerToggleViewSizePolicy()

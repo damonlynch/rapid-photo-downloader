@@ -15,8 +15,8 @@ from raphodo.constants import (
 from raphodo.ui.devicedisplay import (
     DeviceRows,
     DeviceView,
-    IndividualDestinationDeviceRows,
-    ThisComputerSelectDeviceRows,
+    PhotoOrVideoDestDeviceRows,
+    ThisComputerDeviceRows,
 )
 from raphodo.ui.filebrowse import FileSystemView
 from raphodo.ui.stackedwidget import ResizableStackedWidget
@@ -67,7 +67,7 @@ class ComputerWidget(TightFlexiFrame):
 class ThisComputerWidget(ComputerWidget):
     def __init__(
         self,
-        deviceRows: ThisComputerSelectDeviceRows,
+        deviceRows: ThisComputerDeviceRows,
         fileSystemView: FileSystemView,
         view: DeviceView | None = None,
         parent: QWidget = None,
@@ -89,6 +89,7 @@ class ThisComputerWidget(ComputerWidget):
 
     def setViewVisible(self, visible: bool) -> None:
         if visible:
+            ic("visible")
             self.stackedWidget.setCurrentIndex(1)
         else:
             self.stackedWidget.setCurrentIndex(0)
@@ -98,7 +99,7 @@ class DestComputerWidget(ComputerWidget):
     def __init__(
         self,
         object_name: str,
-        deviceRows: IndividualDestinationDeviceRows,
+        deviceRows: PhotoOrVideoDestDeviceRows,
         fileSystemView: FileSystemView,
         parent: QWidget = None,
     ) -> None:
