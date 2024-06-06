@@ -783,6 +783,18 @@ class ValidatedFolder(NamedTuple):
     absolute_path: str
 
 
+def is_dir(folder: str) -> bool:
+    """
+    Check for a directory's existence while catching OSError errors, including
+    [Errno 19] No such device
+    """
+    
+    try:
+        return Path(folder).is_dir()
+    except OSError:
+        logging.exception("Encountered error while checking for folder existence")
+        return False
+
 def validate_download_folder(
     path: str | None, write_on_waccesss_failure: bool = False
 ) -> ValidatedFolder:

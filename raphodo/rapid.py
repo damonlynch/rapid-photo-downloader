@@ -232,6 +232,7 @@ from raphodo.storage.storage import (
     gvfs_gphoto2_path,
     has_one_or_more_folders,
     have_gio,
+    is_dir,
     mountPaths,
     platform_photos_directory,
     platform_videos_directory,
@@ -2588,7 +2589,7 @@ difference to the program's future.</p>"""
             if not download_folder:
                 state = MAP_DEST_DIR_NOT_SPECIFIED[ft]
                 status = DeviceDisplayStatus.unspecified
-            elif not Path(download_folder).is_dir():
+            elif not is_dir(download_folder):
                 state = MAP_DEST_DIR_NOT_EXIST[ft]
                 status = DeviceDisplayStatus.does_not_exist
             elif not os.access(download_folder, os.R_OK):
@@ -2784,7 +2785,7 @@ difference to the program's future.</p>"""
         if not folder:
             state = AppState.THIS_COMP_DIR_NOT_SPECIFIED
             status = DeviceDisplayStatus.unspecified
-        elif not Path(folder).is_dir():
+        elif not is_dir(folder):
             state = AppState.THIS_COMP_NOT_EXIST
             status = DeviceDisplayStatus.does_not_exist
         elif not os.access(folder, os.R_OK):
