@@ -5,10 +5,13 @@
 Display photo and video destinations
 """
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QWidget
 
-from raphodo.constants import DeviceDisplayStatus, DisplayFileType
+from raphodo.constants import (
+    DeviceDisplayStatus,
+    DisplayFileType,
+)
 from raphodo.customtypes import DownloadFilesSizeAndNum
 from raphodo.internationalisation.install import install_gettext
 from raphodo.rpdfile import FileType
@@ -16,7 +19,7 @@ from raphodo.storage.storage import StorageSpace
 from raphodo.ui.computerview import DestComputerWidget
 from raphodo.ui.destinationdisplay import (
     CombinedDestinationDisplay,
-    IndividualDestinationDisplay,
+    PhotoOrVideoDestinationDisplay,
 )
 from raphodo.ui.panelview import QPanelView
 from raphodo.ui.viewutils import ScrollAreaNoFrame
@@ -25,6 +28,8 @@ install_gettext()
 
 
 class DestinationPanel(ScrollAreaNoFrame):
+    pathChosen = pyqtSignal(str, "PyQt_PyObject")
+
     def __init__(self, parent) -> None:
         super().__init__(name="destinationPanel", parent=parent)
         assert parent is not None
@@ -85,8 +90,12 @@ class DestinationPanel(ScrollAreaNoFrame):
         # partitions.
         # Also display the file system folder chooser for both destinations.
 
-        self.photoDestinationDisplay = IndividualDestinationDisplay(
+        self.photoDestinationDisplay = PhotoOrVideoDestinationDisplay(
             display_type=DisplayFileType.photos, rapidApp=self.rapidApp
+        )
+
+        self.photoDestinationDisplay.deviceRows.headerWidget.pathChanged.connect(
+            self.pathChosen
         )
         self.photoDestinationWidget = DestComputerWidget(
             object_name="photoDestination",
@@ -94,9 +103,13 @@ class DestinationPanel(ScrollAreaNoFrame):
             fileSystemView=self.rapidApp.photoDestinationFSView,
         )
 
-        self.videoDestinationDisplay = IndividualDestinationDisplay(
+        self.videoDestinationDisplay = PhotoOrVideoDestinationDisplay(
             display_type=DisplayFileType.videos, rapidApp=self.rapidApp
         )
+        self.videoDestinationDisplay.deviceRows.headerWidget.pathChanged.connect(
+            self.pathChosen
+        )
+
         self.videoDestinationWidget = DestComputerWidget(
             object_name="videoDestination",
             deviceRows=self.videoDestinationDisplay.deviceRows,
@@ -178,5 +191,5 @@ class DestinationPanel(ScrollAreaNoFrame):
     ) -> None:
         self.MAP_DESTINATION_DISPLAY_BY_DISPLAY_TYPE[display_type].setNoSpace(no_space)
 
-    def updateDestinationDisplayUsage(self, display_type: DisplayFileType)-> None:
+    def updateDestinationDisplayUsage(self, display_type: DisplayFileType) -> None:
         self.MAP_DESTINATION_DISPLAY_BY_DISPLAY_TYPE[display_type].updateUsage()

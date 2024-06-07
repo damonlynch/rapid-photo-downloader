@@ -9,29 +9,21 @@ import logging
 from collections import defaultdict
 
 from PyQt5.QtCore import (
-    QRect,
     pyqtSlot,
 )
-from PyQt5.QtGui import (
-    QColor,
-    QPaintEvent,
-    QPalette, QPainter
-)
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (
     QAction,
     QActionGroup,
     QMenu,
     QSizePolicy,
-    QSplitter,
-    QStylePainter,
     QVBoxLayout,
     QWidget,
 )
 
 from raphodo.constants import (
-    COLOR_RED_WARNING_HTML,
+    MAP_DISPLAYING_FILES_OF_TYPE_TO_FILE_TYPE,
     CustomColors,
-    DeviceDisplayPadding,
     DeviceDisplayStatus,
     DeviceRowItem,
     DisplayFileType,
@@ -58,7 +50,7 @@ from raphodo.generatenameconfig import (
 )
 from raphodo.internationalisation.utilities import thousands
 from raphodo.rpdfile import FileTypeCounter, Photo, Video
-from raphodo.storage.storage import StorageSpace, get_path_display_name
+from raphodo.storage.storage import StorageSpace
 from raphodo.tools.utilities import format_size_for_user
 from raphodo.ui.devicedisplay import (
     DeviceRows,
@@ -225,7 +217,6 @@ class DestinationDisplay(QWidget):
     videos = _("Videos")
     projected_space_msg = _("Projected storage use after download")
 
-
     def __init__(
         self,
         deviceRows: PhotoOrVideoDestDeviceRows | DeviceRows,
@@ -278,8 +269,7 @@ class DestinationDisplay(QWidget):
         self.deviceRows.setNoSpace(no_space)
 
     def setPath(self, path: str) -> None:
-        display_name, path = get_path_display_name(path)
-        self.deviceRows.setHeaderText(display_name)
+        self.deviceRows.setHeaderText(path)
         self.deviceRows.setHeaderToolTip(path)
 
     def setStorage(self, storage_space: StorageSpace) -> None:
@@ -345,7 +335,9 @@ class CombinedDestinationDisplay(DestinationDisplay):
     def __init__(self, rapidApp) -> None:
         super().__init__(
             deviceRows=DeviceRows(
-                device_row_item=DeviceRowItem.no_storage_space | DeviceRowItem.usage0 | DeviceRowItem.frame,
+                device_row_item=DeviceRowItem.no_storage_space
+                | DeviceRowItem.usage0
+                | DeviceRowItem.frame,
             ),
             rapidApp=rapidApp,
         )
@@ -356,14 +348,17 @@ class CombinedDestinationDisplay(DestinationDisplay):
     def containerVerticalScrollBar(self, visible: bool) -> None:
         self.deviceRows.usage0Widget.container_vertical_scrollbar_visible = visible
 
-class IndividualDestinationDisplay(DestinationDisplay):
+
+class PhotoOrVideoDestinationDisplay(DestinationDisplay):
     def __init__(
         self,
         display_type: DisplayFileType,
         rapidApp,
     ) -> None:
         super().__init__(
-            deviceRows=PhotoOrVideoDestDeviceRows(),
+            deviceRows=PhotoOrVideoDestDeviceRows(
+                file_type=MAP_DISPLAYING_FILES_OF_TYPE_TO_FILE_TYPE[display_type]
+            ),
             rapidApp=rapidApp,
         )
         if display_type == DisplayFileType.photos:

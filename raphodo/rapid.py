@@ -1171,6 +1171,7 @@ class RapidWindow(QMainWindow):
         self.thisComputerToggleView.valueChanged.connect(
             self.thisComputerToggleValueChanged
         )
+        self.destinationPanel.pathChosen.connect(self.destinationSetPath)
 
     def initializeScans(self) -> None:
         if not self.is_wsl2:
@@ -2139,8 +2140,8 @@ difference to the program's future.</p>"""
         self.photoDestinationFSView.setItemDelegate(self.fileSystemDelegate)
         self.photoDestinationFSView.hideColumns()
         self.photoDestinationFSView.setRootIndex(index)
-        self.photoDestinationFSView.activated.connect(self.photoDestinationPathChosen)
-        self.photoDestinationFSView.clicked.connect(self.photoDestinationPathChosen)
+        self.photoDestinationFSView.activated.connect(self.photoDestPathChosen)
+        self.photoDestinationFSView.clicked.connect(self.photoDestPathChosen)
         self.photoDestinationFSView.showSystemFolders.connect(
             self.fileSystemFilter.setShowSystemFolders
         )
@@ -2155,8 +2156,8 @@ difference to the program's future.</p>"""
         self.videoDestinationFSView.setItemDelegate(self.fileSystemDelegate)
         self.videoDestinationFSView.hideColumns()
         self.videoDestinationFSView.setRootIndex(index)
-        self.videoDestinationFSView.activated.connect(self.videoDestinationPathChosen)
-        self.videoDestinationFSView.clicked.connect(self.videoDestinationPathChosen)
+        self.videoDestinationFSView.activated.connect(self.videoDestPathChosen)
+        self.videoDestinationFSView.clicked.connect(self.videoDestPathChosen)
         self.videoDestinationFSView.showSystemFolders.connect(
             self.fileSystemFilter.setShowSystemFolders
         )
@@ -2280,13 +2281,13 @@ difference to the program's future.</p>"""
         font: QFont = self.font()
         font.setPointSize(font.pointSize() - 2)
 
-        self.showCombo = ChevronCombo()
+        self.showCombo = ChevronCombo(font)
         self.showCombo.addItem(_("All"), Show.all)
         self.showCombo.addItem(_("New"), Show.new_only)
         self.showCombo.currentIndexChanged.connect(self.showComboChanged)
         self.showLabel = self.showCombo.makeLabel(_("Show:"))
 
-        self.sortCombo = ChevronCombo()
+        self.sortCombo = ChevronCombo(font)
         self.sortCombo.addItem(_("Modification Time"), Sort.modification_time)
         self.sortCombo.addItem(_("Checked State"), Sort.checked_state)
         self.sortCombo.addItem(_("Filename"), Sort.filename)
@@ -2296,7 +2297,7 @@ difference to the program's future.</p>"""
         self.sortCombo.currentIndexChanged.connect(self.sortComboChanged)
         self.sortLabel = self.sortCombo.makeLabel(_("Sort:"))
 
-        self.sortOrder = ChevronCombo()
+        self.sortOrder = ChevronCombo(font)
         self.sortOrder.addItem(_("Ascending"), Qt.AscendingOrder)
         self.sortOrder.addItem(_("Descending"), Qt.DescendingOrder)
         self.sortOrder.currentIndexChanged.connect(self.sortOrderChanged)
@@ -2805,7 +2806,7 @@ difference to the program's future.</p>"""
             self.thisComputer.setDeviceDisplayStatus(status)
 
     def setStateThisComputer(self) -> None:
-        self.thisComputer.setDevicePath(Path(self.prefs.this_computer_path).name)
+        self.thisComputer.setDevicePath(self.prefs.this_computer_path)
         self.setStateThisComputerDirCharacteristics()
         self.updateSourceUIElements()
 
@@ -3179,7 +3180,7 @@ difference to the program's future.</p>"""
         msgBox.exec()
 
     @pyqtSlot(QModelIndex)
-    def photoDestinationPathChosen(self, index: QModelIndex) -> None:
+    def photoDestPathChosen(self, index: QModelIndex) -> None:
         """
         Handle user setting new photo download location
 
@@ -3213,6 +3214,7 @@ difference to the program's future.</p>"""
         self.app_state.set_ui_state_change_pending_dest_preview_folders()
         self.setStateDestinationFolder(file_type)
 
+    @pyqtSlot(str, "PyQt_PyObject")
     def destinationSetPath(self, path: str, file_type: FileType) -> None:
         logging.debug("Setting %s destination path to %s", file_type.name, path)
         if self.destinationPathProblematic(path, file_type):
@@ -3299,7 +3301,7 @@ difference to the program's future.</p>"""
         return problematic
 
     @pyqtSlot(QModelIndex)
-    def videoDestinationPathChosen(self, index: QModelIndex) -> None:
+    def videoDestPathChosen(self, index: QModelIndex) -> None:
         """
         Handle user setting new video download location
 

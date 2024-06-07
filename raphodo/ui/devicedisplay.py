@@ -59,6 +59,7 @@ from PyQt5.QtGui import (
 from PyQt5.QtWidgets import (
     QAbstractItemView,
     QApplication,
+    QComboBox,
     QHBoxLayout,
     QLabel,
     QMenu,
@@ -70,7 +71,6 @@ from PyQt5.QtWidgets import (
     QToolButton,
     QVBoxLayout,
     QWidget,
-QSplitter,
 )
 
 from raphodo.constants import (
@@ -98,8 +98,9 @@ from raphodo.devices import Device
 from raphodo.internationalisation.install import install_gettext
 from raphodo.internationalisation.utilities import thousands
 from raphodo.rpdfile import make_key
-from raphodo.storage.storage import StorageSpace
+from raphodo.storage.storage import StorageSpace, get_path_display_name
 from raphodo.tools.utilities import data_file_path, format_size_for_user
+from raphodo.ui.chevroncombo import HoverCombo
 from raphodo.ui.messages import DIR_PROBLEM_TEXT
 from raphodo.ui.stackedwidget import ResizableStackedWidget
 from raphodo.ui.viewutils import (
@@ -108,10 +109,11 @@ from raphodo.ui.viewutils import (
     darkModePixmap,
     device_name_highlight_color,
     is_dark_mode,
+    paletteMidPen,
     scaledIcon,
     standard_font_size,
-paletteMidPen
 )
+
 install_gettext()
 
 
@@ -604,15 +606,20 @@ class DropDownMenuButton(QToolButton):
 
 
 class IconLabelWidget(QWidget):
+    pathChanged = pyqtSignal(str, "PyQt_PyObject")
+
     def __init__(
         self,
         pixmap: QPixmap | None = None,
         show_menu_button: bool = False,
+        folder_combo: bool = False,
         warning: bool = False,
+        file_type:FileType|None = None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
-
+        self.is_folder_combo = folder_combo
+        self.file_type= file_type
         gear_padding = 0
 
         if warning:
@@ -629,19 +636,16 @@ class IconLabelWidget(QWidget):
             self.iconLabel.setPixmap(self.pixmap)
             self.iconLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        self.textLabel = QLabel()
-        self.textLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-
         palette = QPalette()
         palette.setColor(QPalette.Window, backgroundColor)
         if textColor is not None:
             palette.setColor(QPalette.WindowText, textColor)
         self.setAutoFillBackground(True)
         self.setPalette(palette)
-        self.textLabel.setPalette(palette)
 
         layout = QHBoxLayout()
-        layout.setSpacing(DeviceDisplayPadding)
+        spacing =0 if folder_combo else DeviceDisplayPadding
+        layout.setSpacing(spacing)
 
         if warning:
             # Warnings are kept in a container widget, such that if there is more than
@@ -661,10 +665,25 @@ class IconLabelWidget(QWidget):
         else:
             layout.addSpacing(folder_icon_width() + DeviceDisplayPadding)
 
-        layout.addWidget(self.textLabel)
+        if folder_combo:
+            self.folderCombo = HoverCombo(QFont())
+            self.folderCombo.setPalette(palette)
+            layout.addWidget(self.folderCombo)
+            self.folderCombo.setInsertPolicy(QComboBox.InsertPolicy.InsertAtTop)
+            self.folderCombo.currentIndexChanged.connect(self._indexChanged)
+        else:
+            self.textLabel = QLabel()
+            self.textLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            self.textLabel.setPalette(palette)
+            layout.addWidget(self.textLabel)
+
         layout.addStretch()
 
         if show_menu_button:
+            if is_dark_mode():
+                hoverColor = QPalette().color(QPalette.Highlight)
+            else:
+                hoverColor = device_name_highlight_color().darker(115)
             gearPixmap = darkModePixmap(
                 path="icons/settings.svg",
                 size=QSize(pixmap.width(), pixmap.height()),
@@ -673,10 +692,6 @@ class IconLabelWidget(QWidget):
             self.button = DropDownMenuButton(self)
             self.button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
             self.button.setIcon(QIcon(gearPixmap))
-            if is_dark_mode():
-                hover_color = QPalette().color(QPalette.Highlight)
-            else:
-                hover_color = device_name_highlight_color().darker(115)
             self.button.setStyleSheet(
                 f"""
                 QToolButton {{
@@ -684,7 +699,7 @@ class IconLabelWidget(QWidget):
                     padding: {gear_padding}px; 
                 }}
                 QToolButton:hover {{
-                    background-color: {hover_color.name()};
+                    background-color: {hoverColor.name()};
                 }}
                 QToolButton::menu-indicator {{
                     image: none; 
@@ -693,6 +708,21 @@ class IconLabelWidget(QWidget):
             )
             layout.addWidget(self.button, alignment=Qt.AlignRight)
         self.setLayout(layout)
+
+    def setPath(self, text: str) -> None:
+        if self.is_folder_combo:
+            display_name, path = get_path_display_name(text)
+            state = self.blockSignals(True)
+            self.folderCombo.addItem(display_name, text)
+            self.folderCombo.setCurrentText(text)
+            self.blockSignals(state)
+        else:
+            self.textLabel.setText(text)
+
+    @pyqtSlot(int)
+    def _indexChanged(self, index: int) -> None:
+        path = self.folderCombo.itemData(index)
+        self.pathChanged.emit(path,self.file_type)
 
 
 class WarningWidget(QWidget):
@@ -825,10 +855,9 @@ class UsageWidget(QWidget):
             ):
                 painter.drawLine(rect.topRight(), rect.bottomRight())
             painter.setPen(standard_pen_color)
-            x+= self.frame_width
-            y+= self.frame_width
+            x += self.frame_width
+            y += self.frame_width
             width -= self.frame_width * 2
-
 
         x += self.dc.padding
         y += self.dc.vertical_padding
@@ -840,7 +869,6 @@ class UsageWidget(QWidget):
         painter.setRenderHint(QPainter.Antialiasing, False)
 
         painter.setFont(self.dc.deviceFont)
-
 
         device_size_x = x
         device_size_y = y + self.dc.standard_height - self.dc.padding
@@ -1149,6 +1177,7 @@ class DeviceRows(QWidget):
         self,
         device_row_item: DeviceRowItem,
         initial_header_message: str = "",
+            file_type:FileType|None=None,
     ) -> None:
         super().__init__()
 
@@ -1173,6 +1202,8 @@ class DeviceRows(QWidget):
             self.headerWidget = IconLabelWidget(
                 pixmap=pixmap,
                 show_menu_button=bool(DeviceRowItem.drop_down_menu & device_row_item),
+                folder_combo=bool(DeviceRowItem.folder_combo & device_row_item),
+                file_type=file_type,
                 parent=self,
             )
             deviceLayout.addWidget(self.headerWidget)
@@ -1214,7 +1245,7 @@ class DeviceRows(QWidget):
             self.setNoSpace(False)
 
     def setHeaderText(self, text: str) -> None:
-        self.headerWidget.textLabel.setText(text)
+        self.headerWidget.setPath(text)
 
     def setHeaderToolTip(self, text: str) -> None:
         self.headerWidget.setToolTip(text)
@@ -1251,12 +1282,13 @@ class ThisComputerDeviceRows(DeviceRows):
             device_row_item=DeviceRowItem.initial_header
             | DeviceRowItem.header
             | DeviceRowItem.icon
-            | DeviceRowItem.dir_invalid,
+            | DeviceRowItem.dir_invalid
+            | DeviceRowItem.folder_combo,
         )
 
 
 class PhotoOrVideoDestDeviceRows(DeviceRows):
-    def __init__(self) -> None:
+    def __init__(self, file_type:FileType) -> None:
         super().__init__(
             initial_header_message=_("Select a destination folder"),
             device_row_item=DeviceRowItem.initial_header
@@ -1264,8 +1296,10 @@ class PhotoOrVideoDestDeviceRows(DeviceRows):
             | DeviceRowItem.icon
             | DeviceRowItem.dir_invalid
             | DeviceRowItem.no_storage_space
+            | DeviceRowItem.folder_combo
             | DeviceRowItem.drop_down_menu
             | DeviceRowItem.usage0,
+            file_type=file_type
         )
 
 

@@ -299,6 +299,9 @@ class Preferences:
     rename_defaults = dict(
         photo_download_folder=platform_photos_directory(),
         video_download_folder=platform_videos_directory(),
+        # following two values introduced in 0.9.37a6:
+        photo_download_folders = [""],
+        video_download_folders = [""],
         photo_subfolder=DEFAULT_SUBFOLDER_PREFS,
         video_subfolder=DEFAULT_VIDEO_SUBFOLDER_PREFS,
         photo_rename=DEFAULT_PHOTO_RENAME_PREFS,

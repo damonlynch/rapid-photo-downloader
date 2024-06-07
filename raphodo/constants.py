@@ -156,6 +156,7 @@ class DeviceRowItem(Flag):
     header = auto()
     icon = auto()
     drop_down_menu = auto()
+    folder_combo = auto()
     dir_invalid = auto()
     no_storage_space = auto()
     usage0 = auto()

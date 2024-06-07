@@ -788,7 +788,7 @@ def is_dir(folder: str) -> bool:
     Check for a directory's existence while catching OSError errors, including
     [Errno 19] No such device
     """
-    
+
     try:
         return Path(folder).is_dir()
     except OSError:
