@@ -100,7 +100,7 @@ from raphodo.internationalisation.utilities import thousands
 from raphodo.rpdfile import make_key
 from raphodo.storage.storage import StorageSpace, get_path_display_name
 from raphodo.tools.utilities import data_file_path, format_size_for_user
-from raphodo.ui.chevroncombo import HoverCombo
+from raphodo.ui.chevroncombo import ChevronComboSpaced
 from raphodo.ui.messages import DIR_PROBLEM_TEXT
 from raphodo.ui.stackedwidget import ResizableStackedWidget
 from raphodo.ui.viewutils import (
@@ -614,12 +614,12 @@ class IconLabelWidget(QWidget):
         show_menu_button: bool = False,
         folder_combo: bool = False,
         warning: bool = False,
-        file_type:FileType|None = None,
+        file_type: FileType | None = None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         self.is_folder_combo = folder_combo
-        self.file_type= file_type
+        self.file_type = file_type
         gear_padding = 0
 
         if warning:
@@ -644,7 +644,7 @@ class IconLabelWidget(QWidget):
         self.setPalette(palette)
 
         layout = QHBoxLayout()
-        spacing =0 if folder_combo else DeviceDisplayPadding
+        spacing = 0 if folder_combo else DeviceDisplayPadding
         layout.setSpacing(spacing)
 
         if warning:
@@ -666,7 +666,7 @@ class IconLabelWidget(QWidget):
             layout.addSpacing(folder_icon_width() + DeviceDisplayPadding)
 
         if folder_combo:
-            self.folderCombo = HoverCombo(QFont())
+            self.folderCombo = ChevronComboSpaced(QFont())
             self.folderCombo.setPalette(palette)
             layout.addWidget(self.folderCombo)
             self.folderCombo.setInsertPolicy(QComboBox.InsertPolicy.InsertAtTop)
@@ -713,8 +713,11 @@ class IconLabelWidget(QWidget):
         if self.is_folder_combo:
             display_name, path = get_path_display_name(text)
             state = self.blockSignals(True)
-            self.folderCombo.addItem(display_name, text)
-            self.folderCombo.setCurrentText(text)
+            index = self.folderCombo.findData(path)
+            if index >= 0:
+                self.folderCombo.removeItem(index)
+            self.folderCombo.insertItem(0, display_name, text)
+            self.folderCombo.setCurrentIndex(0)
             self.blockSignals(state)
         else:
             self.textLabel.setText(text)
@@ -722,7 +725,26 @@ class IconLabelWidget(QWidget):
     @pyqtSlot(int)
     def _indexChanged(self, index: int) -> None:
         path = self.folderCombo.itemData(index)
-        self.pathChanged.emit(path,self.file_type)
+        self.pathChanged.emit(path, self.file_type)
+
+    def insertPaths(self, paths: list[str]) -> None:
+        state = self.blockSignals(True)
+        for p in paths:
+            display_name, path = get_path_display_name(p)
+            self.folderCombo.addItem(display_name, path)
+        self.blockSignals(state)
+
+    def enterEvent(self, event: QEvent) -> None:
+        super().enterEvent(event)
+        if self.is_folder_combo:
+            self.folderCombo.hovered = True
+            self.folderCombo.update()
+
+    def leaveEvent(self, event: QEvent) -> None:
+        super().leaveEvent(event)
+        if self.is_folder_combo:
+            self.folderCombo.hovered = False
+            self.folderCombo.update()
 
 
 class WarningWidget(QWidget):
@@ -1177,7 +1199,7 @@ class DeviceRows(QWidget):
         self,
         device_row_item: DeviceRowItem,
         initial_header_message: str = "",
-            file_type:FileType|None=None,
+        file_type: FileType | None = None,
     ) -> None:
         super().__init__()
 
@@ -1288,7 +1310,7 @@ class ThisComputerDeviceRows(DeviceRows):
 
 
 class PhotoOrVideoDestDeviceRows(DeviceRows):
-    def __init__(self, file_type:FileType) -> None:
+    def __init__(self, file_type: FileType) -> None:
         super().__init__(
             initial_header_message=_("Select a destination folder"),
             device_row_item=DeviceRowItem.initial_header
@@ -1299,7 +1321,7 @@ class PhotoOrVideoDestDeviceRows(DeviceRows):
             | DeviceRowItem.folder_combo
             | DeviceRowItem.drop_down_menu
             | DeviceRowItem.usage0,
-            file_type=file_type
+            file_type=file_type,
         )
 
 

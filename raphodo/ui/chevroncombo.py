@@ -30,6 +30,8 @@ class ChevronCombo(QComboBox):
         size = QSize(self.chevron_width, self.chevron_width)
         self.chevron = darkModePixmap(path="icons/chevron-down.svg", size=size)
         self.text_x = 0
+        # Set self.hovered to True to show the chevron selector
+        self.hovered = True
 
     def paintEvent(self, event: QPaintEvent) -> None:
         painter = QPainter(self)
@@ -41,8 +43,11 @@ class ChevronCombo(QComboBox):
         rect = self.rect().adjusted(self.text_x, 0, -self.text_x, 0)
         painter.drawText(rect, int(Qt.AlignVCenter | Qt.AlignLeft), text)
 
+        if not self.hovered:
+            return
+
         # Draw chevron (down arrow)
-        x = text_width + 6 + self.text_x
+        x = text_width + DeviceDisplayPadding + self.text_x
         y = self.rect().center().y() - self.chevron_width / 3
         p = QPointF(x, y)
         painter.drawPixmap(p, self.chevron)
@@ -56,7 +61,7 @@ class ChevronCombo(QComboBox):
         label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
         return label
 
-class HoverCombo(ChevronCombo):
+class ChevronComboSpaced(ChevronCombo):
     """
     Combo box with a chevron selector
     """
@@ -64,3 +69,4 @@ class HoverCombo(ChevronCombo):
     def __init__(self, font: QFont, parent=None) -> None:
         super().__init__(font, parent)
         self.text_x = DeviceDisplayPadding
+        self.hovered = False

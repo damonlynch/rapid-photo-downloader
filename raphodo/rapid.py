@@ -31,7 +31,6 @@ import sys
 import time
 import webbrowser
 from collections import defaultdict
-from pathlib import Path
 from typing import Any
 
 import gi
@@ -190,7 +189,7 @@ from raphodo.interprocess import (
 from raphodo.metadata.fileextensions import PHOTO_EXTENSIONS, VIDEO_EXTENSIONS
 from raphodo.metadata.metadatavideo import libmediainfo_missing, pymedia_version_info
 from raphodo.prefs.preferencedialog import PreferencesDialog
-from raphodo.prefs.preferences import QtPreferences
+from raphodo.prefs.preferences import Preferences
 from raphodo.problemnotification import BackingUpProblems, CopyingProblems, Problems
 from raphodo.programversions import EXIFTOOL_VERSION
 from raphodo.proximity import (
@@ -435,8 +434,7 @@ class RapidWindow(QMainWindow):
         self.setWindowTitle(_("Rapid Photo Downloader"))
         # app is a module level global
         self.readWindowSettings(app)
-        self.prefs = QtPreferences()
-        self.prefs.destinationChanged.connect(self.destinationChanged)
+        self.prefs = Preferences()
         self.checkPrefsUpgrade()
         self.prefs.program_version = __about__.__version__
 
@@ -2497,34 +2495,32 @@ difference to the program's future.</p>"""
             if self.app_state.ui_element_change_pending_dest_space(dt):
                 self.destinationPanel.updateDestinationDisplayUsage(dt)
 
-            # if self.app_state.ui_element_change_pending_dest_status_no_space(dt):
-            #     self.app_state.set_ui_geometry_change_pending_dest(dt)
+        if on_init:
+            self.destinationPanel.insertDestinationPaths(
+                FileType.photo, self.prefs.photo_download_folders
+            )
+            self.destinationPanel.insertDestinationPaths(
+                FileType.video, self.prefs.video_download_folders
+            )
 
         for ft in tuple(FileType):
             display_type = MAP_FILE_TYPE_TO_DISPLAYING_FILES_OF_TYPE[ft]
             if not self.app_state.ui_change_pending_destination_panel(ft, display_type):
                 continue
 
-            if on_init or self.app_state.ui_element_change_pending_dest_path(ft):
+            if self.app_state.ui_element_change_pending_dest_path(ft):
                 if not self.app_state.dest_dir_not_specified(ft):
                     self.destinationPanel.setDestinationPath(
                         file_type=ft, path=self.prefs.download_folder(ft)
                     )
-            if on_init or self.app_state.ui_element_change_pending_dest_space(display_type):
+            if on_init or self.app_state.ui_element_change_pending_dest_space(
+                display_type
+            ):
                 self.destinationPanel.updateDestinationDisplayUsage(display_type)
 
-            # if self.app_state.ui_geometry_change_needed_dest(ft):
-            #     self.app_state.set_ui_geometry_change_pending_dest(display_type)
-
             self.app_state.reset_ui_change_pending_destination_panel(ft, display_type)
-            # self.destinationPanel.updateDestinationView(file_type=ft)
 
         self.app_state.unset_app_state(AppState.UI_STATE_CHANGE_PENDING_DEST_SAME)
-
-        for dt in tuple(DisplayFileType):
-            if self.app_state.ui_geometry_change_pending_dest(dt):
-                # self.destinationPanel.updateDestinationViewGeometry(dt)
-                self.app_state.unset_ui_geometry_change_pending_dest(dt)
 
         logging.debug(
             "Completed updating destination UI elements. Current state: %s",
@@ -3118,7 +3114,6 @@ difference to the program's future.</p>"""
                 self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
                 return
 
-
         if path != self.prefs.this_computer_path:
             if not self.queryUserManualDownloadLocation(path):
                 logging.debug(
@@ -3126,7 +3121,6 @@ difference to the program's future.</p>"""
                     self.prefs.this_computer_path,
                 )
                 return
-
 
             # TODO investigate use of state here
             if self.prefs.this_computer_path:
@@ -3192,7 +3186,6 @@ difference to the program's future.</p>"""
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
         self.destinationSetPath(path, FileType.photo)
 
-    @pyqtSlot("PyQt_PyObject")
     def destinationChanged(self, file_type: FileType) -> None:
         """
         Called when a change is made to the preference photo_download_folder or
@@ -3232,6 +3225,7 @@ difference to the program's future.</p>"""
             return
 
         self.prefs.set_download_folder(path, file_type)
+        self.destinationChanged(file_type)
 
     @pyqtSlot()
     def photoDestinationReset(self) -> None:
@@ -6549,7 +6543,7 @@ Do you want to proceed with the download?"""
         )
         self.setStateDestinationFolder()
 
-    def queryUserManualDownloadLocation(self, path:str) -> bool:
+    def queryUserManualDownloadLocation(self, path: str) -> bool:
         """
         Queries the user to ask if they really want to download from locations
         that could take a very long time to scan. They can choose yes or no.
@@ -6561,7 +6555,10 @@ Do you want to proceed with the download?"""
         try:
             assert self.app_state.on_normal
         except AttributeError:
-            logging.critical("Unexpected state during queryUserManualDownloadLocation: %s", self.app_state.state)
+            logging.critical(
+                "Unexpected state during queryUserManualDownloadLocation: %s",
+                self.app_state.state,
+            )
             return True
 
         if path in (

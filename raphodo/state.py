@@ -415,6 +415,7 @@ class State:
             state=AppState.UI_STATE_CHANGE_PENDING_DEST_PREVIEW_FOLDERS
         )
 
+    # TODO remove legacy geometry changing checks
     def set_ui_geometry_change_pending_dest(
         self, display_type: DisplayFileType
     ) -> bool:

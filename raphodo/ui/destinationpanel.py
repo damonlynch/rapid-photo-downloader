@@ -93,7 +93,6 @@ class DestinationPanel(ScrollAreaNoFrame):
         self.photoDestinationDisplay = PhotoOrVideoDestinationDisplay(
             display_type=DisplayFileType.photos, rapidApp=self.rapidApp
         )
-
         self.photoDestinationDisplay.deviceRows.headerWidget.pathChanged.connect(
             self.pathChosen
         )
@@ -177,6 +176,9 @@ class DestinationPanel(ScrollAreaNoFrame):
         self.MAP_DESTINATION_DISPLAY_BY_DISPLAY_TYPE[display_type].setFilesToDownload(
             sizeAndNum, merge, display_type
         )
+
+    def insertDestinationPaths(self, file_type: FileType, paths: list[str]):
+        self.MAP_DESTINATION_DISPLAY[file_type].insertPaths(paths)
 
     def setDestinationPath(self, file_type: FileType, path: str) -> None:
         self.MAP_DESTINATION_DISPLAY[file_type].setPath(path)

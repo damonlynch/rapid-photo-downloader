@@ -272,6 +272,10 @@ class DestinationDisplay(QWidget):
         self.deviceRows.setHeaderText(path)
         self.deviceRows.setHeaderToolTip(path)
 
+    def insertPaths(self, paths: list[str]) -> None:
+        self.deviceRows.headerWidget.insertPaths(paths)
+        self.deviceRows.setHeaderToolTip(paths[0])
+
     def setStorage(self, storage_space: StorageSpace) -> None:
         self.storage_space = storage_space
 
