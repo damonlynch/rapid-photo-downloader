@@ -94,6 +94,9 @@ class ThisComputerWidget(ComputerWidget):
         else:
             self.stackedWidget.setCurrentIndex(0)
 
+    def insertSourcePaths(self, paths: list[str]):
+        self.deviceRows.headerWidget.insertPaths(paths)
+        self.deviceRows.setHeaderToolTip(paths[0])
 
 class DestComputerWidget(ComputerWidget):
     def __init__(

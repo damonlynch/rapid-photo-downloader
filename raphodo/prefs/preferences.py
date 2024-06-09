@@ -359,7 +359,8 @@ class Preferences:
         only_external_mounts=True,
         device_autodetection=True,
         this_computer_source=False,
-        this_computer_path="",
+        # introduced in 0.9.37a6:
+        this_computer_paths=[""],
         scan_specific_folders=True,
         # pre 0.9.3a1 value: device_without_dcim_autodetection=False, is now replaced by
         # scan_specific_folders
@@ -490,7 +491,11 @@ class Preferences:
 
     def __setitem__(self, key, value):
         match key:
-            case "photo_download_folder" | "video_download_folder":
+            case (
+                "photo_download_folder"
+                | "video_download_folder"
+                | "this_computer_path"
+            ):
                 key = f"{key}s"
                 self.add_list_value(key, value, max_remembered_destinations)
             case _:
@@ -502,16 +507,19 @@ class Preferences:
     def __setattr__(self, key, value):
         self[key] = value
 
+    # Using a setter for photo_download_folder, video_download_folder, and
+    # this_computer_path does not work. __setitem__ overrides them.
     @property
     def photo_download_folder(self) -> str:
         return self.photo_download_folders[0]
 
-    # Using a setter for photo_download_folder or video_download_folder does not work.
-    # __setitem__ overrides it.
-
     @property
     def video_download_folder(self) -> str:
         return self.video_download_folders[0]
+
+    @property
+    def this_computer_path(self) -> str:
+        return self.this_computer_paths[0]
 
     def value_is_set(self, key, group: str | None = None) -> bool:
         if group is None:
@@ -1114,6 +1122,15 @@ class Preferences:
                     logging.debug("Setting %s to [%s]", key.replace("_", " "), value)
                     self.settings.setValue(new_key, [value])
                     self.settings.remove(key)
+            self.settings.endGroup()
+            group = "Device"
+            self.settings.beginGroup(group)
+            key = "this_computer_path"
+            new_key = f"{key}s"
+            value = self.settings.value(key, "", str)
+            logging.debug("Setting %s to [%s]", key.replace("_", " "), value)
+            self.settings.setValue(new_key, [value])
+            self.settings.remove(key)
             self.settings.endGroup()
 
         v093a1 = parse("0.9.3a1")

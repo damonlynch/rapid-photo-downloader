@@ -33,6 +33,7 @@ class ChevronCombo(QComboBox):
         # Set self.hovered to True to show the chevron selector
         self.hovered = True
 
+    # TODO elide lengthy text
     def paintEvent(self, event: QPaintEvent) -> None:
         painter = QPainter(self)
         text = self.currentText()

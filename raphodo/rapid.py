@@ -2754,7 +2754,8 @@ difference to the program's future.</p>"""
         if on_init or self.app_state.ui_element_change_pending_this_comp_source:
             pass
 
-        ic(self.app_state.state)
+        if on_init:
+            self.thisComputer.insertSourcePaths(self.prefs.this_computer_paths)
 
         if (
             self.app_state.ui_element_change_pending_this_comp_status
@@ -2802,7 +2803,6 @@ difference to the program's future.</p>"""
             self.thisComputer.setDeviceDisplayStatus(status)
 
     def setStateThisComputer(self) -> None:
-        self.thisComputer.setDevicePath(self.prefs.this_computer_path)
         self.setStateThisComputerDirCharacteristics()
         self.updateSourceUIElements()
 

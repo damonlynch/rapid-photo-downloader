@@ -177,7 +177,7 @@ class DestinationPanel(ScrollAreaNoFrame):
             sizeAndNum, merge, display_type
         )
 
-    def insertDestinationPaths(self, file_type: FileType, paths: list[str]):
+    def insertDestinationPaths(self, file_type: FileType, paths: list[str])-> None:
         self.MAP_DESTINATION_DISPLAY[file_type].insertPaths(paths)
 
     def setDestinationPath(self, file_type: FileType, path: str) -> None:
