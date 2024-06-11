@@ -137,6 +137,7 @@ from raphodo.constants import (
     ScalingDetected,
     Show,
     Sort,
+    SourceState,
     TemporalProximityState,
 )
 from raphodo.customtypes import (
@@ -257,7 +258,6 @@ from raphodo.ui import viewutils
 from raphodo.ui.aboutdialog import AboutDialog
 from raphodo.ui.backuppanel import BackupPanel
 from raphodo.ui.chevroncombo import ChevronCombo
-from raphodo.ui.computerview import ThisComputerWidget
 from raphodo.ui.destinationpanel import DestinationPanel
 from raphodo.ui.devicedisplay import (
     DeviceComponent,
@@ -279,7 +279,9 @@ from raphodo.ui.rememberthisdialog import RememberThisDialog
 from raphodo.ui.renamepanel import RenamePanel
 from raphodo.ui.rotatedpushbutton import RotatedButton
 from raphodo.ui.sourcepanel import LeftPanelContainer, SourcePanel
+from raphodo.ui.spinner import SpinnerController
 from raphodo.ui.splashscreen import SplashScreen
+from raphodo.ui.thiscomputer import ThisComputerWidget
 from raphodo.ui.toggleview import QToggleView
 from raphodo.ui.viewutils import (
     MainWindowSplitter,
@@ -876,10 +878,27 @@ class RapidWindow(QMainWindow):
             width=self.deviceView.sizeHint().width()
         )
 
+        self.spinner_controller = SpinnerController(self)
+
         self.createActions()
         logging.debug("Laying out main window")
         self.createMenus()
         self.createLayoutAndButtons(centralWidget)
+
+        # TODO move this
+        # Map different device types onto their appropriate view and model
+        self._mapModel = {
+            DeviceType.path: self.thisComputer,
+            DeviceType.camera: self.deviceModel,
+            DeviceType.volume: self.deviceModel,
+            DeviceType.camera_fuse: self.deviceModel,
+        }
+        self._mapView = {
+            DeviceType.path: self.thisComputerView,
+            DeviceType.camera: self.deviceView,
+            DeviceType.volume: self.deviceView,
+            DeviceType.camera_fuse: self.deviceView,
+        }
 
         self.startMountMonitor()
 
@@ -1170,6 +1189,7 @@ class RapidWindow(QMainWindow):
             self.thisComputerToggleValueChanged
         )
         self.destinationPanel.pathChosen.connect(self.destinationSetPath)
+        self.setThisComputerRotation(self.thisComputerToggleView.on())
 
     def initializeScans(self) -> None:
         if not self.is_wsl2:
@@ -1184,6 +1204,7 @@ class RapidWindow(QMainWindow):
     def initializeThisComputerScan(self) -> None:
         path = self.prefs.this_computer_path
         if self.app_state.this_computer_dir_valid:
+            self.app_state.set_this_comp_scan_pending()
             logging.debug("Using This Computer path %s", path)
             device = Device()
             device.set_download_from_path(path)
@@ -2086,20 +2107,6 @@ difference to the program's future.</p>"""
             self.thisComputerView.widthChanged
         )
 
-        # Map different device types onto their appropriate view and model
-        self._mapModel = {
-            DeviceType.path: self.thisComputerModel,
-            DeviceType.camera: self.deviceModel,
-            DeviceType.volume: self.deviceModel,
-            DeviceType.camera_fuse: self.deviceModel,
-        }
-        self._mapView = {
-            DeviceType.path: self.thisComputerView,
-            DeviceType.camera: self.deviceView,
-            DeviceType.volume: self.deviceView,
-            DeviceType.camera_fuse: self.deviceView,
-        }
-
         self.watchedDownloadDirs = WatchDownloadDirs()
 
         self.fileSystemModel = FileSystemModel(parent=self)
@@ -2200,13 +2207,8 @@ difference to the program's future.</p>"""
         self.thisComputerDeviceRows = ThisComputerDeviceRows()
         self.thisComputer = ThisComputerWidget(
             deviceRows=self.thisComputerDeviceRows,
-            view=self.thisComputerView,
             fileSystemView=self.thisComputerFSView,
         )
-        # TODO determine if this is really needed:
-        # if self.prefs.this_computer_source:
-        #     self.thisComputer.setViewVisible(self.prefs.this_computer_source)
-
         self.thisComputerToggleView.addWidget(self.thisComputer)
 
     def createDestinationPanel(self) -> None:
@@ -2508,11 +2510,12 @@ difference to the program's future.</p>"""
             if not self.app_state.ui_change_pending_destination_panel(ft, display_type):
                 continue
 
-            if self.app_state.ui_element_change_pending_dest_path(ft):
-                if not self.app_state.dest_dir_not_specified(ft):
-                    self.destinationPanel.setDestinationPath(
-                        file_type=ft, path=self.prefs.download_folder(ft)
-                    )
+            if self.app_state.ui_element_change_pending_dest_path(
+                ft
+            ) and not self.app_state.dest_dir_not_specified(ft):
+                self.destinationPanel.setDestinationPath(
+                    file_type=ft, path=self.prefs.download_folder(ft)
+                )
             if on_init or self.app_state.ui_element_change_pending_dest_space(
                 display_type
             ):
@@ -2751,19 +2754,18 @@ difference to the program's future.</p>"""
         on_init = self.app_state.on_initialize_ui
         logging.debug("Updating source UI elements: %s", self.app_state.state)
 
-        if on_init or self.app_state.ui_element_change_pending_this_comp_source:
-            pass
-
         if on_init:
             self.thisComputer.insertSourcePaths(self.prefs.this_computer_paths)
 
-        if (
-            self.app_state.ui_element_change_pending_this_comp_status
-            or self.app_state.ui_element_change_pending_this_comp_path
-        ):
-            valid = self.app_state.this_computer_dir_valid
-            ic(valid)
-            self.thisComputer.setViewVisible(visible=valid)
+        if self.app_state.this_comp_scan_pending:
+            self.thisComputer.setSourceWidget(SourceState.spinner)
+            self.app_state.unset_this_comp_scan_pending()
+        elif self.app_state.this_comp_scan_finished_pending:
+            self.thisComputer.setSourceWidget(SourceState.checkbox)
+            self.app_state.unset_this_comp_scan_finished_pending()
+
+        # TODO verify this state is actually needed
+        if self.app_state.ui_element_change_pending_this_comp_path:
             self.app_state.unset_ui_element_change_pending_this_comp_path()
 
     def setStateDestinationFolder(self, file_type: FileType | None = None) -> None:
@@ -3027,7 +3029,14 @@ difference to the program's future.</p>"""
                 self.removeDevice(scan_id=scan_id)
             self.thisComputerFSView.clearSelection()
 
+        self.setThisComputerRotation(on)
         self.sourcePanel.setThisComputerWidgetState()
+
+    def setThisComputerRotation(self, on: bool) -> None:
+        if on:
+            self.spinner_controller.spinner.rotate.connect(self.thisComputer.rotate)
+        else:
+            self.spinner_controller.spinner.rotate.disconnect(self.thisComputer.rotate)
 
     @pyqtSlot()
     def thisComputerFileBrowserReset(self) -> None:
@@ -5119,6 +5128,8 @@ Do you want to proceed with the download?"""
         if scan_id not in self.devices:
             return
         device = self.devices[scan_id]
+        if device.device_type == DeviceType.path:
+            self.app_state.set_this_comp_scan_finished_pending()
         self.devices.set_device_state(scan_id, DeviceState.idle)
         self.thumbnailModel.flushAddBuffer()
 
@@ -5149,6 +5160,7 @@ Do you want to proceed with the download?"""
         if not auto_start and self.prefs.generate_thumbnails:
             # Generate thumbnails for finished scan
             model.setSpinnerState(scan_id, DeviceState.idle)
+            self.spinner_controller.set_spinner_state(scan_id, DeviceState.idle)
             if scan_id in self.thumbnailModel.no_thumbnails_by_scan:
                 self.devices.set_device_state(scan_id, DeviceState.thumbnailing)
                 self.updateProgressBarState()
@@ -5159,6 +5171,7 @@ Do you want to proceed with the download?"""
             if self.jobCodePanel.needToPromptForJobCode():
                 self.showMainWindow()
                 model.setSpinnerState(scan_id, DeviceState.idle)
+                self.spinner_controller.set_spinner_state(scan_id, DeviceState.idle)
                 start_download = self.jobCodePanel.getJobCodeBeforeDownload()
                 if not start_download:
                     logging.debug(
@@ -5175,6 +5188,7 @@ Do you want to proceed with the download?"""
         else:
             # not generating thumbnails, and auto start is not on
             model.setSpinnerState(scan_id, DeviceState.idle)
+            self.spinner_controller.set_spinner_state(scan_id, DeviceState.idle)
             self.displayMessageInStatusBar()
 
     def autoStart(self, scan_id: int) -> bool:
@@ -5722,7 +5736,7 @@ Do you want to proceed with the download?"""
         """
         Initiate the scan of a device (camera, this computer path, or external device)
 
-        :param device: device to scan
+        :param device: The device to scan
         """
 
         scan_id = self.devices.add_device(
@@ -5731,6 +5745,7 @@ Do you want to proceed with the download?"""
         logging.debug("Assigning scan id %s to %s", scan_id, device.name())
         self.thumbnailModel.addOrUpdateDevice(scan_id)
         self.addToDeviceDisplay(device, scan_id)
+        self.spinner_controller.set_spinner_state(scan_id, DeviceState.scanning)
         self.updateSourceButton()
         scan_arguments = ScanArguments(
             device=device,
@@ -6114,9 +6129,6 @@ Do you want to proceed with the download?"""
             del self.devices[scan_id]
             self.updateDeviceWidgetGeometry(device_type=device.device_type)
 
-            if device.device_type == DeviceType.path:
-                self.thisComputer.setViewVisible(False)
-
             self.updateSourceButton()
             self.setStateDestFilesToDownload()
 
@@ -6154,8 +6166,9 @@ Do you want to proceed with the download?"""
         if device.device_type in (DeviceType.camera, DeviceType.camera_fuse):
             self.startCameraScan(device.camera_model, device.camera_port)
         else:
-            if device.device_type == DeviceType.path:
-                self.thisComputer.setViewVisible(True)
+            # TODO verify if this is still needed:
+            # if device.device_type == DeviceType.path:
+            #     self.thisComputer.setSourceVisible(True)
             self.startDeviceScan(device=device)
 
     def rescanDevicesAndComputer(self, ignore_cameras: bool, rescan_path: bool) -> None:
@@ -7079,7 +7092,7 @@ def main():
 
     # Resetting preferences must occur after QApplication is instantiated
     if args.reset:
-        prefs = QtPreferences()
+        prefs = Preferences()
         prefs.reset()
         prefs.sync()
         d = DownloadedSQL()

@@ -36,6 +36,7 @@ raphodo/ui/nameeditor.py
 raphodo/ui/primarybutton.py
 raphodo/ui/rememberthisdialog.py
 raphodo/ui/renamepanel.py
+raphodo/ui/source.py
 raphodo/ui/viewutils.py
 raphodo/wsl/wsl.py
 data/kde/net.damonlynch.rapid_photo_downloader.desktop.in

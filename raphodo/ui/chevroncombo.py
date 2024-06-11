@@ -5,8 +5,8 @@
 Combo box with a chevron selector
 """
 
-from PyQt5.QtCore import QPointF, QSize, Qt, QEvent, QRect, QSize
-from PyQt5.QtGui import QFont, QFontMetricsF, QPainter, QPaintEvent, QColor, QPixmap
+from PyQt5.QtCore import QPointF, QSize, Qt
+from PyQt5.QtGui import QFont, QFontMetricsF, QPainter, QPaintEvent
 from PyQt5.QtWidgets import QComboBox, QLabel, QSizePolicy
 
 from raphodo.constants import DeviceDisplayPadding
@@ -61,6 +61,7 @@ class ChevronCombo(QComboBox):
         label.setAlignment(Qt.AlignBottom)
         label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
         return label
+
 
 class ChevronComboSpaced(ChevronCombo):
     """

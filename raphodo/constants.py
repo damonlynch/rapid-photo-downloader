@@ -155,6 +155,7 @@ class DeviceRowItem(Flag):
     initial_header = auto()
     header = auto()
     icon = auto()
+    source = auto()  # checkbox, spinner, download complete icon
     drop_down_menu = auto()
     folder_combo = auto()
     dir_invalid = auto()
@@ -230,6 +231,14 @@ class BackupStatus(Enum):
 class ThumbnailSize(IntEnum):
     width = 160
     height = 120
+
+
+class SourceState(Enum):
+    checkbox = auto()
+    spinner = auto()
+    downloaded = auto()
+    downloaded_warning = auto()
+    downloaded_error = auto()
 
 
 class PostCameraUnmountAction(Enum):

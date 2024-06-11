@@ -54,9 +54,10 @@ from raphodo.rpdfile import FileTypeCounter
 from raphodo.storage.storage import ValidMounts, get_media_dir, get_mount_size
 from raphodo.tools.utilities import data_file_path
 from raphodo.ui.destinationdisplay import adjusted_download_size, make_body_details
-from raphodo.ui.devicedisplay import DeviceDisplay, DeviceView, icon_size
+from raphodo.ui.devicedisplay import DeviceDisplay, DeviceView
 from raphodo.ui.foldercombo import FolderCombo
 from raphodo.ui.panelview import QPanelView
+from raphodo.ui.viewconstants import icon_size
 from raphodo.ui.viewutils import (
     FlexiFrame,
     RowTracker,
@@ -425,7 +426,6 @@ class BackupDeviceDelegate(QStyledItemDelegate):
                 self.deviceDisplay.paintWarning(
                     painter=painter, x=x, y=y, width=width, text=message
                 )
-
 
         painter.restore()
 

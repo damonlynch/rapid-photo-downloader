@@ -5,7 +5,7 @@
 Combines a deviceview and a file system view into one widget
 """
 
-from PyQt5.QtWidgets import QFrame, QSizePolicy, QSplitter, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QFrame, QSplitter, QVBoxLayout, QWidget
 
 from raphodo.constants import (
     DeviceDisplayPadding,
@@ -14,12 +14,9 @@ from raphodo.constants import (
 )
 from raphodo.ui.devicedisplay import (
     DeviceRows,
-    DeviceView,
     PhotoOrVideoDestDeviceRows,
-    ThisComputerDeviceRows,
 )
 from raphodo.ui.filebrowse import FileSystemView
-from raphodo.ui.stackedwidget import ResizableStackedWidget
 from raphodo.ui.viewutils import TightFlexiFrame
 
 
@@ -63,40 +60,6 @@ class ComputerWidget(TightFlexiFrame):
     def height(self) -> int:
         return self.layout().geometry().height() + minFileSystemViewHeight()
 
-
-class ThisComputerWidget(ComputerWidget):
-    def __init__(
-        self,
-        deviceRows: ThisComputerDeviceRows,
-        fileSystemView: FileSystemView,
-        view: DeviceView | None = None,
-        parent: QWidget = None,
-    ) -> None:
-        super().__init__(
-            object_name="thisComputerWidget",
-            deviceRows=deviceRows,
-            fileSystemView=fileSystemView,
-            parent=parent,
-        )
-        self.view = view
-        self.view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
-        self.view.setStyleSheet("QListView {border: none;}")
-        self.stackedWidget = ResizableStackedWidget(self)
-        self.stackedWidget.addWidget(self.deviceRows)
-        self.stackedWidget.addWidget(self.view)
-        layout: QVBoxLayout = self.layout()
-        layout.insertWidget(0, self.stackedWidget)
-
-    def setViewVisible(self, visible: bool) -> None:
-        if visible:
-            ic("visible")
-            self.stackedWidget.setCurrentIndex(1)
-        else:
-            self.stackedWidget.setCurrentIndex(0)
-
-    def insertSourcePaths(self, paths: list[str]):
-        self.deviceRows.headerWidget.insertPaths(paths)
-        self.deviceRows.setHeaderToolTip(paths[0])
 
 class DestComputerWidget(ComputerWidget):
     def __init__(

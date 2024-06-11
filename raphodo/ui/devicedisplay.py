@@ -1,5 +1,4 @@
 # SPDX-FileCopyrightText: Copyright 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-FileCopyrightText: Copyright 2012-2014 Alexander Turkin
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 """
@@ -8,16 +7,6 @@ computer.
 
 See devices.py for an explanation of what "Device" means in the context of
 Rapid Photo Downloader.
-
-Spinner code is derived from QtWaitingSpinner source, which is under the
-MIT License:
-https://github.com/snowwlex/QtWaitingSpinner
-
-Copyright notice from QtWaitingSpinner source:
-    Original Work Copyright (c) 2012-2014 Alexander Turkin
-        Modified 2014 by William Hallatt
-        Modified 2015 by Jacob Dawid
-        Ported to Python3 2015 by Luca Weiss
 """
 
 import logging
@@ -59,11 +48,13 @@ from PyQt5.QtGui import (
 from PyQt5.QtWidgets import (
     QAbstractItemView,
     QApplication,
+    QCheckBox,
     QComboBox,
     QHBoxLayout,
     QLabel,
     QMenu,
     QSizePolicy,
+    QStackedWidget,
     QStyle,
     QStyledItemDelegate,
     QStyleOptionButton,
@@ -91,18 +82,25 @@ from raphodo.constants import (
     EmptyViewHeight,
     FileType,
     Roles,
+    SourceState,
     ViewRowType,
 )
-from raphodo.customtypes import BodyDetails
+from raphodo.customtypes import UsageDetails
 from raphodo.devices import Device
 from raphodo.internationalisation.install import install_gettext
 from raphodo.internationalisation.utilities import thousands
-from raphodo.rpdfile import make_key
 from raphodo.storage.storage import StorageSpace, get_path_display_name
 from raphodo.tools.utilities import data_file_path, format_size_for_user
 from raphodo.ui.chevroncombo import ChevronComboSpaced
 from raphodo.ui.messages import DIR_PROBLEM_TEXT
+from raphodo.ui.source import usage_details
+from raphodo.ui.spinnerwidget import (
+    SpinnerWidget,
+    number_spinner_lines,
+    revolutions_per_second,
+)
 from raphodo.ui.stackedwidget import ResizableStackedWidget
+from raphodo.ui.viewconstants import icon_size, iconQSize
 from raphodo.ui.viewutils import (
     ListViewFlexiFrame,
     RowTracker,
@@ -111,18 +109,9 @@ from raphodo.ui.viewutils import (
     is_dark_mode,
     paletteMidPen,
     scaledIcon,
-    standard_font_size,
 )
 
 install_gettext()
-
-
-def icon_size() -> int:
-    return standard_font_size(shrink_on_odd=False)
-
-
-number_spinner_lines = 10
-revolutions_per_second = 1
 
 
 class DeviceModel(QAbstractListModel):
@@ -611,6 +600,7 @@ class IconLabelWidget(QWidget):
     def __init__(
         self,
         pixmap: QPixmap | None = None,
+        source: bool = False,  # checkbox, spinner, download complete icon
         show_menu_button: bool = False,
         folder_combo: bool = False,
         warning: bool = False,
@@ -619,6 +609,7 @@ class IconLabelWidget(QWidget):
     ) -> None:
         super().__init__(parent)
         self.is_folder_combo = folder_combo
+        self.is_source = source
         self.file_type = file_type
         gear_padding = 0
 
@@ -629,6 +620,30 @@ class IconLabelWidget(QWidget):
         else:
             backgroundColor = device_name_highlight_color()
             textColor = None
+
+        if source:
+            self.checkbox = QCheckBox()
+            self.spinnerWidget = SpinnerWidget()
+            self.downloadCompleteLabel = QLabel()
+            self.stackedWidget = QStackedWidget(self)
+            self.stackedWidget.addWidget(self.checkbox)
+            self.stackedWidget.addWidget(self.spinnerWidget)
+            self.stackedWidget.addWidget(self.downloadCompleteLabel)
+            size = iconQSize()
+            self.downloadedPixmap = scaledIcon(
+                data_file_path("thumbnail/downloaded.svg")
+            ).pixmap(size)
+            self.downloadedWarningPixmap = scaledIcon(
+                data_file_path("thumbnail/downloaded-with-warning.svg")
+            ).pixmap(size)
+            self.downloadedErrorPixmap = scaledIcon(
+                data_file_path("thumbnail/downloaded-with-error.svg")
+            ).pixmap(size)
+            self.MAP_DOWNLOADED_STATE = {
+                SourceState.downloaded: self.downloadedPixmap,
+                SourceState.downloaded_warning: self.downloadedWarningPixmap,
+                SourceState.downloaded_error: self.downloadedErrorPixmap,
+            }
 
         self.pixmap = pixmap
         if pixmap is not None:
@@ -644,8 +659,7 @@ class IconLabelWidget(QWidget):
         self.setPalette(palette)
 
         layout = QHBoxLayout()
-        spacing = 0 if folder_combo else DeviceDisplayPadding
-        layout.setSpacing(spacing)
+        layout.setSpacing(0)
 
         if warning:
             # Warnings are kept in a container widget, such that if there is more than
@@ -660,8 +674,22 @@ class IconLabelWidget(QWidget):
             )
         layout.setContentsMargins(DeviceDisplayPadding, v, DeviceDisplayPadding, v)
 
+        if source:
+            self.sourceWidget = QWidget()
+            sourceLayout = QHBoxLayout()
+            sourceLayout.setSpacing(0)
+            sourceLayout.setContentsMargins(0, 0, DeviceDisplayPadding, 0)
+            sourceLayout.addWidget(
+                self.stackedWidget, alignment=Qt.AlignmentFlag.AlignCenter
+            )
+            self.sourceWidget.setLayout(sourceLayout)
+            layout.addWidget(self.sourceWidget)
+            self.sourceWidget.setVisible(False)
+
         if pixmap is not None:
             layout.addWidget(self.iconLabel)
+            if not folder_combo:
+                layout.addSpacing(DeviceDisplayPadding)
         else:
             layout.addSpacing(folder_icon_width() + DeviceDisplayPadding)
 
@@ -677,7 +705,7 @@ class IconLabelWidget(QWidget):
             self.textLabel.setPalette(palette)
             layout.addWidget(self.textLabel)
 
-        layout.addStretch()
+        layout.addStretch(100)
 
         if show_menu_button:
             if is_dark_mode():
@@ -745,6 +773,21 @@ class IconLabelWidget(QWidget):
         if self.is_folder_combo:
             self.folderCombo.hovered = False
             self.folderCombo.update()
+
+    def setSourceWidgetVisible(self, visible: bool) -> None:
+        self.sourceWidget.setVisible(visible)
+
+    def setSourceWidget(self, sourceState: SourceState) -> None:
+        match sourceState:
+            case SourceState.checkbox:
+                self.stackedWidget.setCurrentIndex(0)
+            case SourceState.spinner:
+                self.stackedWidget.setCurrentIndex(1)
+            case _:
+                self.stackedWidget.setCurrentIndex(2)
+                self.downloadCompleteLabel.setPixmap(
+                    self.MAP_DOWNLOADED_STATE[sourceState]
+                )
 
 
 class WarningWidget(QWidget):
@@ -827,10 +870,9 @@ class UsageWidget(QWidget):
     rightBottom = int(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
     leftTop = int(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
 
-    def __init__(self, parent, frame: bool = False) -> None:
+    def __init__(self, parent, is_source: bool, frame: bool = False) -> None:
         super().__init__(parent)
-        # TODO change this for sources, obviously
-        self.rendering_destination = True
+        self.rendering_destination = not is_source
         # TODO move these out of the special class
         self.dc = DeviceComponent(parent=self)
         self.setAutoFillBackground(True)
@@ -838,7 +880,7 @@ class UsageWidget(QWidget):
         palette.setColor(QPalette.Window, palette.color(palette.Base))
         self.setPalette(palette)
 
-        self.details: BodyDetails | None = None
+        self.details: UsageDetails | None = None
 
         self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
         self.frame = frame and self.frame_width
@@ -1210,8 +1252,7 @@ class DeviceRows(QWidget):
 
         if DeviceRowItem.icon & device_row_item:
             assert DeviceRowItem.header & device_row_item
-            s = icon_size()
-            size = QSize(s, s)
+            size = iconQSize()
             pixmap = darkModePixmap(path="icons/folder.svg", size=size)
         else:
             pixmap = None
@@ -1220,9 +1261,12 @@ class DeviceRows(QWidget):
         deviceLayout.setSpacing(0)
         deviceLayout.setContentsMargins(0, 0, 0, 0)
 
+        is_source = bool(DeviceRowItem.source & device_row_item)
+
         if DeviceRowItem.header & device_row_item:
             self.headerWidget = IconLabelWidget(
                 pixmap=pixmap,
+                source=is_source,
                 show_menu_button=bool(DeviceRowItem.drop_down_menu & device_row_item),
                 folder_combo=bool(DeviceRowItem.folder_combo & device_row_item),
                 file_type=file_type,
@@ -1236,13 +1280,15 @@ class DeviceRows(QWidget):
 
         if DeviceRowItem.usage0 & device_row_item:
             self.usage0Widget = UsageWidget(
-                parent=self, frame=bool(DeviceRowItem.frame & device_row_item)
+                parent=self,
+                is_source=is_source,
+                frame=bool(DeviceRowItem.frame & device_row_item),
             )
             self.USEAGE_MAPPER = {0: self.usage0Widget}
             deviceLayout.addWidget(self.usage0Widget)
 
             if DeviceRowItem.usage1 & device_row_item:
-                self.usage1Widget = UsageWidget(parent=self)
+                self.usage1Widget = UsageWidget(parent=self, is_source=is_source)
                 self.USEAGE_MAPPER = {1: self.usage1Widget}
                 deviceLayout.addWidget(self.usage1Widget)
 
@@ -1287,10 +1333,16 @@ class DeviceRows(QWidget):
     def setUsageVisible(self, visible: bool, usage_num: int = 0) -> None:
         self.USEAGE_MAPPER[usage_num].setVisible(visible)
 
-    def setUsage(self, details: BodyDetails, usage_num: int = 0) -> None:
+    def setUsage(self, details: UsageDetails, usage_num: int = 0) -> None:
         widget = self.USEAGE_MAPPER[usage_num]
         widget.details = details
         widget.update()
+
+    def setSourceWidgetVisible(self, visible: bool) -> None:
+        self.headerWidget.setSourceWidgetVisible(visible)
+
+    def setSourceWidget(self, sourceState: SourceState) -> None:
+        self.headerWidget.setSourceWidget(sourceState)
 
     def menuButton(self) -> DropDownMenuButton:
         assert DeviceRowItem.drop_down_menu & self.device_row_item
@@ -1303,9 +1355,11 @@ class ThisComputerDeviceRows(DeviceRows):
             initial_header_message=_("Select a source folder"),
             device_row_item=DeviceRowItem.initial_header
             | DeviceRowItem.header
+            | DeviceRowItem.source
             | DeviceRowItem.icon
             | DeviceRowItem.dir_invalid
-            | DeviceRowItem.folder_combo,
+            | DeviceRowItem.folder_combo
+            | DeviceRowItem.usage0,
         )
 
 
@@ -1604,7 +1658,7 @@ class DeviceDisplay(QObject):
         painter.setFont(displayFont)
 
     def paintBody(
-        self, painter: QPainter, x: int, y: int, width: int, details: BodyDetails
+        self, painter: QPainter, x: int, y: int, width: int, details: UsageDetails
     ) -> None:
         """
         Render the usage portion, which contains basic storage space information,
@@ -2219,76 +2273,7 @@ class DeviceDelegate(QStyledItemDelegate):
             device, storage_space = index.data(Roles.storage)
 
             if storage_space is not None:
-                if device.device_type == DeviceType.camera:
-                    photo_key = make_key(FileType.photo, storage_space.path)
-                    video_key = make_key(FileType.video, storage_space.path)
-                    sum_key = storage_space.path
-                else:
-                    photo_key = FileType.photo
-                    video_key = FileType.video
-                    sum_key = None
-
-                # Translators: %(variable)s represents Python code, not a plural of the
-                # term variable. You must keep the %(variable)s untranslated, or the
-                # program will crash.
-                photos = _("%(no_photos)s Photos") % {
-                    "no_photos": thousands(device.file_type_counter[photo_key])
-                }
-                # Translators: %(variable)s represents Python code, not a plural of the
-                # term variable. You must keep the %(variable)s untranslated, or the
-                # program will crash.
-                videos = _("%(no_videos)s Videos") % {
-                    "no_videos": thousands(device.file_type_counter[video_key])
-                }
-                photos_size = format_size_for_user(device.file_size_sum[photo_key])
-                videos_size = format_size_for_user(device.file_size_sum[video_key])
-
-                # Some devices do not report how many bytes total they have, e.g. some
-                # SMB shares
-                if storage_space.bytes_total:
-                    other_bytes = (
-                        storage_space.bytes_total
-                        - device.file_size_sum.sum(sum_key)
-                        - storage_space.bytes_free
-                    )
-                    other_size = format_size_for_user(other_bytes)
-                    bytes_total_text = format_size_for_user(
-                        storage_space.bytes_total, no_decimals=0
-                    )
-                    bytes_used = storage_space.bytes_total - storage_space.bytes_free
-                    percent_used = f"{bytes_used / storage_space.bytes_total:.0%}"
-                    # Translators: percentage full e.g. 75% full
-                    percent_used = _("%s full") % percent_used
-                    bytes_total = storage_space.bytes_total
-                else:
-                    percent_used = _("Device size unknown")
-                    bytes_total = device.file_size_sum.sum(sum_key)
-                    other_bytes = 0
-                    bytes_total_text = format_size_for_user(bytes_total, no_decimals=0)
-                    other_size = "0"
-
-                details = BodyDetails(
-                    bytes_total_text=bytes_total_text,
-                    bytes_total=bytes_total,
-                    percent_used_text=percent_used,
-                    bytes_free_of_total="",
-                    comp1_file_size_sum=device.file_size_sum[photo_key],
-                    comp2_file_size_sum=device.file_size_sum[video_key],
-                    comp3_file_size_sum=other_bytes,
-                    comp4_file_size_sum=0,
-                    comp1_text=photos,
-                    comp2_text=videos,
-                    comp3_text=_("Other"),
-                    comp4_text="",
-                    comp1_size_text=photos_size,
-                    comp2_size_text=videos_size,
-                    comp3_size_text=other_size,
-                    comp4_size_text="",
-                    color1=QColor(CustomColors.color1.value),
-                    color2=QColor(CustomColors.color2.value),
-                    color3=QColor(CustomColors.color3.value),
-                    display_type=DisplayFileType.photos_and_videos,
-                )
+                details = usage_details(device, storage_space)
                 self.deviceDisplay.paintBody(
                     painter=painter, x=x, y=y, width=width, details=details
                 )

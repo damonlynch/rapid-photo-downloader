@@ -44,11 +44,11 @@ from raphodo.constants import (
 from raphodo.internationalisation.install import install_gettext
 from raphodo.storage.storage import get_media_dir, gvfs_gphoto2_path
 from raphodo.tools.utilities import data_file_path
+from raphodo.ui.viewconstants import standard_font_size
 from raphodo.ui.viewutils import (
     TopFramedVerticalScrollBar,
     darkModeIcon,
     is_dark_mode,
-    standard_font_size,
 )
 from raphodo.wsl.wslutils import wsl_filter_directories
 

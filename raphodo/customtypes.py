@@ -33,7 +33,7 @@ class MarkedSummary(NamedTuple):
     size_videos_marked: int
 
 
-class BodyDetails(NamedTuple):
+class UsageDetails(NamedTuple):
     bytes_total_text: str
     bytes_total: int
     percent_used_text: str

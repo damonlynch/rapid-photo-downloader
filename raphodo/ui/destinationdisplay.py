@@ -31,7 +31,7 @@ from raphodo.constants import (
     NameGenerationType,
     PresetPrefType,
 )
-from raphodo.customtypes import BodyDetails, DownloadFilesSizeAndNum
+from raphodo.customtypes import DownloadFilesSizeAndNum, UsageDetails
 from raphodo.devices import DownloadingTo
 from raphodo.generatenameconfig import (
     CUSTOM_SUBFOLDER_MENU_ENTRY_POSITION,
@@ -66,7 +66,7 @@ def make_body_details(
     marked: FileTypeCounter,
     photos_size_to_download: int,
     videos_size_to_download: int,
-) -> BodyDetails:
+) -> UsageDetails:
     """
     Gather the details to render for destination storage usage
     for photo and video downloads, and their backups.
@@ -141,7 +141,7 @@ def make_body_details(
             size_total=bytes_total_text,
         )
 
-    return BodyDetails(
+    return UsageDetails(
         bytes_total_text=bytes_total_text,
         bytes_total=bytes_total,
         percent_used_text=percent_used,

@@ -20,6 +20,9 @@ class AppState(Flag):
     DOWNLOAD_PAUSED = auto()
     GENERATING_THUMBNAILS = auto()
     SCANNING = auto()
+    THIS_COMP_SCAN_PENDING = auto()
+    THIS_COMP_SCANNING = auto()
+    THIS_COMP_SCAN_FINISHED_PENDING = auto()
     UI_ELEMENT_CHANGE_PENDING_DEST_PHOTO_PATH = auto()
     UI_ELEMENT_CHANGE_PENDING_DEST_VIDEO_PATH = auto()
     UI_ELEMENT_CHANGE_PENDING_DEST_PHOTO_STATUS = auto()
@@ -519,3 +522,33 @@ class State:
     @property
     def this_comp_dir_not_specified(self) -> bool:
         return bool(AppState.THIS_COMP_DIR_NOT_SPECIFIED & self.state)
+
+    def set_this_comp_scan_pending(self) -> bool:
+        return self.set_app_state(state=AppState.THIS_COMP_SCAN_PENDING)
+
+    @property
+    def this_comp_scan_pending(self) -> bool:
+        return bool(AppState.THIS_COMP_SCAN_PENDING & self.state)
+
+    def unset_this_comp_scan_pending(self) -> bool:
+        return self.unset_app_state(state=AppState.THIS_COMP_SCAN_PENDING)
+
+    def set_this_comp_scanning(self) -> bool:
+        return self.set_app_state(state=AppState.THIS_COMP_SCANNING)
+
+    @property
+    def this_comp_scanning(self) -> bool:
+        return bool(AppState.THIS_COMP_SCANNING & self.state)
+
+    def unset_this_comp_scanning(self) -> bool:
+        return self.unset_app_state(state=AppState.THIS_COMP_SCANNING)
+
+    def set_this_comp_scan_finished_pending(self) -> bool:
+        return self.set_app_state(state=AppState.THIS_COMP_SCAN_FINISHED_PENDING)
+
+    @property
+    def this_comp_scan_finished_pending(self) -> bool:
+        return bool(AppState.THIS_COMP_SCAN_FINISHED_PENDING & self.state)
+
+    def unset_this_comp_scan_finished_pending(self) -> bool:
+        return self.unset_app_state(state=AppState.THIS_COMP_SCAN_FINISHED_PENDING)
