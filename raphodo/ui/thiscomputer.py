@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from collections import defaultdict
 
-from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
-from raphodo.constants import DeviceState, SourceState
+from raphodo.constants import DeviceDisplayStatus, DeviceState, SourceState
 from raphodo.devices import Device
 from raphodo.ui.computerview import ComputerWidget
 from raphodo.ui.devicedisplay import ThisComputerDeviceRows
@@ -14,6 +14,8 @@ from raphodo.ui.source import usage_details
 
 
 class ThisComputerWidget(ComputerWidget):
+    pathChosen = pyqtSignal(str, "PyQt_PyObject")
+
     def __init__(
         self,
         deviceRows: ThisComputerDeviceRows,
@@ -29,9 +31,19 @@ class ThisComputerWidget(ComputerWidget):
         layout: QVBoxLayout = self.layout()
         layout.insertWidget(0, self.deviceRows)
 
+        self.deviceRows.headerWidget.pathChanged.connect(self.pathChosen)
         self.device: Device | None = None
         # TODO may need to change this
         self.percent_complete: dict[int, float] = defaultdict(float)
+
+
+    def setDeviceDisplayStatus(self, status: DeviceDisplayStatus) -> None:
+        self.deviceRows.setDeviceDisplayStatus(status)
+
+    def setPath(self, path: str) -> None:
+        self.deviceRows.setHeaderText(path)
+        self.deviceRows.setHeaderToolTip(path)
+
 
     def insertSourcePaths(self, paths: list[str]):
         self.deviceRows.headerWidget.insertPaths(paths)
@@ -48,10 +60,12 @@ class ThisComputerWidget(ComputerWidget):
         self.deviceRows.setSourceWidgetVisible(True)
         self.deviceRows.setSourceWidget(SourceState.checkbox)
 
-    def removeDevice(self, scan_id: int) -> None:
+    def removeDevice(self, reset:bool) -> None:
         self.device = None
-        self.deviceRows.setUsageVisible(False)
-        self.deviceRows.setSourceWidgetVisible(False)
+        if reset:
+            self.deviceRows.setUsageVisible(False)
+            self.deviceRows.setSourceWidgetVisible(False)
+            self.deviceRows.setDeviceDisplayStatus(DeviceDisplayStatus.unspecified)
 
     def updateDeviceScan(self, scan_id: int) -> None:
         device = self.device
@@ -62,7 +76,7 @@ class ThisComputerWidget(ComputerWidget):
     def setSpinnerState(self, scan_id: int, state: DeviceState) -> None:
         pass
 
-    def setSourceWidget(self, sourceState: SourceState)-> None:
+    def setSourceWidget(self, sourceState: SourceState) -> None:
         self.deviceRows.setSourceWidget(sourceState)
 
     def setCheckedValue(

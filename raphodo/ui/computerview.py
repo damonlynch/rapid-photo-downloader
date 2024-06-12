@@ -51,12 +51,6 @@ class ComputerWidget(TightFlexiFrame):
         layout.addWidget(self.fileSystemView, 100)
         self.fileSystemView.setFrameShape(QFrame.NoFrame)
 
-    def setDeviceDisplayStatus(self, status: DeviceDisplayStatus) -> None:
-        self.deviceRows.setDeviceDisplayStatus(status)
-
-    def setDevicePath(self, path: str) -> None:
-        self.deviceRows.setHeaderText(path)
-
     def height(self) -> int:
         return self.layout().geometry().height() + minFileSystemViewHeight()
 

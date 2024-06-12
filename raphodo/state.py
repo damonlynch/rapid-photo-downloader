@@ -23,6 +23,11 @@ class AppState(Flag):
     THIS_COMP_SCAN_PENDING = auto()
     THIS_COMP_SCANNING = auto()
     THIS_COMP_SCAN_FINISHED_PENDING = auto()
+    THIS_COMP_SCAN_FINISHED = auto()
+    THIS_COMP_DOWNLOAD_PENDING = auto()
+    THIS_COMP_DOWNLOADING = auto()
+    THIS_COMP_DOWNLOAD_FINISHED_PENDING = auto()
+    THIS_COMP_DOWNLOAD_FINISHED = auto()
     UI_ELEMENT_CHANGE_PENDING_DEST_PHOTO_PATH = auto()
     UI_ELEMENT_CHANGE_PENDING_DEST_VIDEO_PATH = auto()
     UI_ELEMENT_CHANGE_PENDING_DEST_PHOTO_STATUS = auto()
@@ -99,6 +104,16 @@ THIS_COMP_DIR_MASK = (
     AppState.THIS_COMP_DIR_NOT_SPECIFIED
     | AppState.THIS_COMP_DIR_NO_READ
     | AppState.THIS_COMP_NOT_EXIST
+)
+THIS_COMP_ACTIVE_MASK = (
+    AppState.THIS_COMP_SCAN_PENDING
+    | AppState.THIS_COMP_SCANNING 
+    | AppState.THIS_COMP_SCAN_FINISHED_PENDING 
+    | AppState.THIS_COMP_SCAN_FINISHED 
+    | AppState.THIS_COMP_DOWNLOAD_PENDING 
+    | AppState.THIS_COMP_DOWNLOADING 
+    | AppState.THIS_COMP_DOWNLOAD_FINISHED_PENDING 
+    | AppState.THIS_COMP_DOWNLOAD_FINISHED 
 )
 UI_GEOMETRY_CHANGE_NEEDED_DEST_PHOTO = (
     AppState.UI_ELEMENT_CHANGE_PENDING_DEST_PHOTO_STATUS
@@ -552,3 +567,10 @@ class State:
 
     def unset_this_comp_scan_finished_pending(self) -> bool:
         return self.unset_app_state(state=AppState.THIS_COMP_SCAN_FINISHED_PENDING)
+
+    @property
+    def this_comp_active(self)-> bool:
+        return bool(THIS_COMP_ACTIVE_MASK & self.state)
+
+    def reset_this_comp_active(self) -> bool:
+        self.state &= ~THIS_COMP_ACTIVE_MASK

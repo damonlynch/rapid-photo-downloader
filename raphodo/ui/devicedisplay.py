@@ -740,10 +740,15 @@ class IconLabelWidget(QWidget):
     def setPath(self, text: str) -> None:
         if self.is_folder_combo:
             display_name, path = get_path_display_name(text)
-            state = self.blockSignals(True)
             index = self.folderCombo.findData(path)
-            if index >= 0:
-                self.folderCombo.removeItem(index)
+            match index:
+                case 0:
+                    return
+                case -1:
+                    state = self.blockSignals(True)
+                case _:
+                    state = self.blockSignals(True)
+                    self.folderCombo.removeItem(index)
             self.folderCombo.insertItem(0, display_name, text)
             self.folderCombo.setCurrentIndex(0)
             self.blockSignals(state)

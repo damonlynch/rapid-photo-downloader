@@ -1190,6 +1190,7 @@ class RapidWindow(QMainWindow):
         )
         self.destinationPanel.pathChosen.connect(self.destinationSetPath)
         self.setThisComputerRotation(self.thisComputerToggleView.on())
+        self.thisComputer.pathChosen.connect(self.thisComputerSetPath)
 
     def initializeScans(self) -> None:
         if not self.is_wsl2:
@@ -2134,7 +2135,7 @@ difference to the program's future.</p>"""
         self.thisComputerFSView.showSystemFolders.connect(
             self.fileSystemFilter.setShowSystemFolders
         )
-        self.thisComputerFSView.filePathReset.connect(self.thisComputerFileBrowserReset)
+        self.thisComputerFSView.filePathReset.connect(self.thisComputerReset)
 
         # Photos (destination)
         self.photoDestinationFSView = FileSystemView(
@@ -2757,6 +2758,12 @@ difference to the program's future.</p>"""
         if on_init:
             self.thisComputer.insertSourcePaths(self.prefs.this_computer_paths)
 
+        if self.
+
+        if self.app_state.ui_element_change_pending_this_comp_path:
+            self.thisComputer.setPath(self.prefs.this_computer_path)
+            self.app_state.unset_ui_element_change_pending_this_comp_path()
+
         if self.app_state.this_comp_scan_pending:
             self.thisComputer.setSourceWidget(SourceState.spinner)
             self.app_state.unset_this_comp_scan_pending()
@@ -2764,9 +2771,6 @@ difference to the program's future.</p>"""
             self.thisComputer.setSourceWidget(SourceState.checkbox)
             self.app_state.unset_this_comp_scan_finished_pending()
 
-        # TODO verify this state is actually needed
-        if self.app_state.ui_element_change_pending_this_comp_path:
-            self.app_state.unset_ui_element_change_pending_this_comp_path()
 
     def setStateDestinationFolder(self, file_type: FileType | None = None) -> None:
         self.setStateDestDirCharacteristics(file_type)
@@ -3024,11 +3028,7 @@ difference to the program's future.</p>"""
             self.setStateThisComputer()
             self.initializeThisComputerScan()
         else:
-            if len(self.devices.this_computer) > 0:
-                scan_id = list(self.devices.this_computer)[0]
-                self.removeDevice(scan_id=scan_id)
-            self.thisComputerFSView.clearSelection()
-
+            self.thisComputerReset()
         self.setThisComputerRotation(on)
         self.sourcePanel.setThisComputerWidgetState()
 
@@ -3039,11 +3039,15 @@ difference to the program's future.</p>"""
             self.spinner_controller.spinner.rotate.disconnect(self.thisComputer.rotate)
 
     @pyqtSlot()
-    def thisComputerFileBrowserReset(self) -> None:
-        if len(self.devices.this_computer) > 0:
+    def thisComputerReset(self) -> None:
+        if self.app_state.this_comp_active:
+            assert len(self.devices.this_computer) == 1
             scan_id = list(self.devices.this_computer)[0]
             self.removeDevice(scan_id=scan_id)
-        self.prefs.this_computer_path = ""
+        self.app_state.reset_this_comp_active()
+        self.updateSourceUIElements()
+        self.thisComputerFSView.clearSelection()
+
 
     @pyqtSlot(bool)
     def deviceToggleViewValueChange(self, on: bool) -> None:
@@ -3096,56 +3100,7 @@ difference to the program's future.</p>"""
         """
 
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
-
-        if self.downloadIsRunning() and self.prefs.this_computer_path:
-            # Translators: %(variable)s represents Python code, not a plural of the term
-            # variable. You must keep the %(variable)s untranslated, or the program will
-            # crash.
-            # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>,
-            # </b> etc.
-            message = _(
-                "<b>Changing This Computer source path</b><br><br>Do you really want "
-                "to change the source path to %(new_path)s?<br><br>You are currently "
-                "downloading from %(source_path)s.<br><br>"
-                "If you do change the path, the current download from This Computer "
-                "will be cancelled."
-            ) % dict(
-                new_path=make_html_path_non_breaking(path),
-                source_path=make_html_path_non_breaking(self.prefs.this_computer_path),
-            )
-
-            msgbox = standardMessageBox(
-                message=message,
-                rich_text=True,
-                standardButtons=QMessageBox.Yes | QMessageBox.No,
-            )
-            if msgbox.exec() == QMessageBox.No:
-                self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
-                return
-
-        if path != self.prefs.this_computer_path:
-            if not self.queryUserManualDownloadLocation(path):
-                logging.debug(
-                    "This Computer path %s rejected as download source",
-                    self.prefs.this_computer_path,
-                )
-                return
-
-            # TODO investigate use of state here
-            if self.prefs.this_computer_path:
-                scan_id = self.devices.scan_id_from_path(
-                    self.prefs.this_computer_path, DeviceType.path
-                )
-                if scan_id is not None:
-                    logging.debug(
-                        "Removing path from device view %s",
-                        self.prefs.this_computer_path,
-                    )
-                    self.removeDevice(scan_id=scan_id)
-            self.prefs.this_computer_path = path
-            self.app_state.set_ui_element_change_pending_this_comp_path()
-            self.setStateThisComputer()
-            self.initializeThisComputerScan()
+        self.thisComputerSetPath(path)
 
     def displayInvalidDestinationMsgBox(
         self, validation: ValidatedFolder, file_type: FileType
@@ -3215,6 +3170,61 @@ difference to the program's future.</p>"""
         self.app_state.set_ui_state_change_pending_dest_watch()
         self.app_state.set_ui_state_change_pending_dest_preview_folders()
         self.setStateDestinationFolder(file_type)
+
+    @pyqtSlot(str, "PyQt_PyObject")
+    def thisComputerSetPath(self, path: str, file_type: FileType | None=None) -> None:
+        logging.info("Setting This Computer path to %s", path)
+
+        # TODO use state here
+        if self.downloadIsRunning() and self.prefs.this_computer_path:
+            # Translators: %(variable)s represents Python code, not a plural of the term
+            # variable. You must keep the %(variable)s untranslated, or the program will
+            # crash.
+            # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>,
+            # </b> etc.
+            message = _(
+                "<b>Changing This Computer source path</b><br><br>Do you really want "
+                "to change the source path to %(new_path)s?<br><br>You are currently "
+                "downloading from %(source_path)s.<br><br>"
+                "If you do change the path, the current download from This Computer "
+                "will be cancelled."
+            ) % dict(
+                new_path=make_html_path_non_breaking(path),
+                source_path=make_html_path_non_breaking(self.prefs.this_computer_path),
+            )
+
+            msgbox = standardMessageBox(
+                message=message,
+                rich_text=True,
+                standardButtons=QMessageBox.Yes | QMessageBox.No,
+            )
+            if msgbox.exec() == QMessageBox.No:
+                self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
+                return
+
+        if path != self.prefs.this_computer_path:
+            if not self.queryUserManualDownloadLocation(path):
+                logging.debug(
+                    "This Computer path %s rejected as download source",
+                    self.prefs.this_computer_path,
+                )
+                return
+
+            # TODO investigate use of state here
+            if self.prefs.this_computer_path:
+                scan_id = self.devices.scan_id_from_path(
+                    self.prefs.this_computer_path, DeviceType.path
+                )
+                if scan_id is not None:
+                    logging.debug(
+                        "Removing path from device view %s",
+                        self.prefs.this_computer_path,
+                    )
+                    self.removeDevice(scan_id=scan_id)
+            self.prefs.this_computer_path = path
+            self.app_state.set_ui_element_change_pending_this_comp_path()
+            self.setStateThisComputer()
+            self.initializeThisComputerScan()
 
     @pyqtSlot(str, "PyQt_PyObject")
     def destinationSetPath(self, path: str, file_type: FileType) -> None:
@@ -6104,7 +6114,7 @@ Do you want to proceed with the download?"""
             files_removed = self.thumbnailModel.clearAll(
                 scan_id=scan_id, keep_downloaded_files=True
             )
-            self.mapModel(scan_id).removeDevice(scan_id)
+            self.removeDeviceFromSourcePanel(scan_id, device)
 
             was_downloading = self.downloadIsRunning()
 
@@ -6152,6 +6162,12 @@ Do you want to proceed with the download?"""
             # Reset Download button from "Pause" to "Download"
             if was_downloading and not self.downloadIsRunning():
                 self.setDownloadActionLabel()
+
+    def removeDeviceFromSourcePanel(self, scan_id: int, device:Device)-> None:
+        if device.device_type  == DeviceType.path:
+            self.thisComputer.removeDevice(reset=False)
+        else:
+            self.deviceModel.removeDevice(scan_id)
 
     def rescanDevice(self, scan_id: int) -> None:
         """
