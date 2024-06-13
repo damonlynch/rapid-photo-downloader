@@ -599,6 +599,7 @@ class IconLabelWidget(QWidget):
 
     def __init__(
         self,
+        initial_text: str = "",
         pixmap: QPixmap | None = None,
         source: bool = False,  # checkbox, spinner, download complete icon
         show_menu_button: bool = False,
@@ -625,7 +626,7 @@ class IconLabelWidget(QWidget):
             self.checkbox = QCheckBox()
             self.spinnerWidget = SpinnerWidget()
             self.downloadCompleteLabel = QLabel()
-            self.stackedWidget = QStackedWidget(self)
+            self.stackedWidget = QStackedWidget(parent=self)
             self.stackedWidget.addWidget(self.checkbox)
             self.stackedWidget.addWidget(self.spinnerWidget)
             self.stackedWidget.addWidget(self.downloadCompleteLabel)
@@ -694,18 +695,19 @@ class IconLabelWidget(QWidget):
             layout.addSpacing(folder_icon_width() + DeviceDisplayPadding)
 
         if folder_combo:
-            self.folderCombo = ChevronComboSpaced(QFont())
+            self.folderCombo = ChevronComboSpaced(QFont(), initial_text)
             self.folderCombo.setPalette(palette)
-            layout.addWidget(self.folderCombo)
+            layout.addWidget(self.folderCombo, 100)
             self.folderCombo.setInsertPolicy(QComboBox.InsertPolicy.InsertAtTop)
             self.folderCombo.currentIndexChanged.connect(self._indexChanged)
+            self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed)
         else:
             self.textLabel = QLabel()
             self.textLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             self.textLabel.setPalette(palette)
             layout.addWidget(self.textLabel)
 
-        layout.addStretch(100)
+        layout.addStretch()
 
         if show_menu_button:
             if is_dark_mode():
@@ -765,6 +767,7 @@ class IconLabelWidget(QWidget):
         for p in paths:
             display_name, path = get_path_display_name(p)
             self.folderCombo.addItem(display_name, path)
+        self.folderCombo.setCurrentIndex(0)
         self.blockSignals(state)
 
     def enterEvent(self, event: QEvent) -> None:
@@ -1270,6 +1273,7 @@ class DeviceRows(QWidget):
 
         if DeviceRowItem.header & device_row_item:
             self.headerWidget = IconLabelWidget(
+                initial_text=initial_header_message,
                 pixmap=pixmap,
                 source=is_source,
                 show_menu_button=bool(DeviceRowItem.drop_down_menu & device_row_item),
@@ -1323,14 +1327,34 @@ class DeviceRows(QWidget):
     def setHeaderToolTip(self, text: str) -> None:
         self.headerWidget.setToolTip(text)
 
+    def _emulateInitialState(self, emulate: bool) -> None:
+        state=self.blockSignals(True)
+        index = -1 if emulate else 0
+        self.headerWidget.folderCombo.setCurrentIndex(index)
+        ic(self.headerWidget.folderCombo.currentIndex())
+        self.blockSignals(state)
+        self.headerWidget.folderCombo.initial_state = emulate
+        self.headerWidget.iconLabel.setVisible(not emulate)
+        self.usage0Widget.setVisible(not emulate)
+        if DeviceRowItem.drop_down_menu & self.device_row_item:
+            self.headerWidget.button.setVisible(not emulate)
+
     def setDeviceDisplayStatus(self, status: DeviceDisplayStatus) -> None:
         assert DeviceRowItem.initial_header & self.device_row_item
         match status:
+            case DeviceDisplayStatus.unspecified_choices_available:
+                assert DeviceRowItem.folder_combo & self.device_row_item
+                self._emulateInitialState(True)
+                self.stackedWidget.setCurrentIndex(1)
             case DeviceDisplayStatus.unspecified:
+                ic(status)
                 self.stackedWidget.setCurrentIndex(0)
             case _:
+                if DeviceRowItem.folder_combo & self.device_row_item:
+                    self._emulateInitialState(False)
                 self.stackedWidget.setCurrentIndex(1)
                 self.warningWidget.setStatus(status)
+
 
     def setNoSpace(self, no_space: bool) -> None:
         self.warningWidget.setNoSpace(no_space)

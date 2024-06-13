@@ -149,6 +149,7 @@ class DeviceDisplayStatus(Enum):
     does_not_exist = auto()
     no_storage_space = auto()
     unspecified = auto()
+    unspecified_choices_available = auto()
 
 
 class DeviceRowItem(Flag):

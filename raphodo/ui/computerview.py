@@ -9,7 +9,6 @@ from PyQt5.QtWidgets import QFrame, QSplitter, QVBoxLayout, QWidget
 
 from raphodo.constants import (
     DeviceDisplayPadding,
-    DeviceDisplayStatus,
     minFileSystemViewHeight,
 )
 from raphodo.ui.devicedisplay import (

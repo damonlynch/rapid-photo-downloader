@@ -501,19 +501,27 @@ class RapidWindow(QMainWindow):
 
         # The path for the "This Computer" download source
         if this_computer_location is not None:
+            self.prefs.this_computer_path_specified=True
             self.prefs.this_computer_path = this_computer_location
 
         if self.prefs.this_computer_source:
-            if self.prefs.this_computer_path:
-                logging.info(
-                    "This Computer is set to be used as a download source, using: %s",
-                    self.prefs.this_computer_path,
-                )
-            else:
-                logging.info(
+            if not self.prefs.this_computer_path_specified:
+                logging.debug(
                     "This Computer is set to be used as a download source, but the "
                     "location is not yet set"
                 )
+            else:
+                if  self.prefs.this_computer_path:
+                    logging.info(
+                        "This Computer is set to be used as a download source, "
+                        "using: %s",
+                        self.prefs.this_computer_path,
+                    )
+                else:
+                    logging.error(
+                        "This Computer is set to be used as a download source, but the "
+                        "location is not yet set when it should be"
+                    )
         else:
             logging.info("This Computer is not used as a download source")
 
@@ -1205,11 +1213,16 @@ class RapidWindow(QMainWindow):
     def initializeThisComputerScan(self) -> None:
         path = self.prefs.this_computer_path
         if self.app_state.this_computer_dir_valid:
-            self.app_state.set_this_comp_scan_pending()
+            self.app_state.set_this_computer_state(AppState.THIS_COMP_SCAN_PENDING)
             logging.debug("Using This Computer path %s", path)
             device = Device()
             device.set_download_from_path(path)
             self.startDeviceScan(device=device)
+        elif self.app_state.this_comp_dir_not_specified:
+            logging.debug(
+                "Not initiating This Computer device scan because a path is not "
+                "specified"
+            )
         else:
             logging.warning(
                 "Not initiating This Computer device scan because %s is an "
@@ -2756,9 +2769,8 @@ difference to the program's future.</p>"""
         logging.debug("Updating source UI elements: %s", self.app_state.state)
 
         if on_init:
-            self.thisComputer.insertSourcePaths(self.prefs.this_computer_paths)
-
-        if self.
+            if self.prefs.this_computer_path:
+                self.thisComputer.insertSourcePaths(self.prefs.this_computer_paths)
 
         if self.app_state.ui_element_change_pending_this_comp_path:
             self.thisComputer.setPath(self.prefs.this_computer_path)
@@ -2766,11 +2778,14 @@ difference to the program's future.</p>"""
 
         if self.app_state.this_comp_scan_pending:
             self.thisComputer.setSourceWidget(SourceState.spinner)
-            self.app_state.unset_this_comp_scan_pending()
+            self.app_state.set_this_computer_state(AppState.THIS_COMP_SCANNING)
         elif self.app_state.this_comp_scan_finished_pending:
             self.thisComputer.setSourceWidget(SourceState.checkbox)
-            self.app_state.unset_this_comp_scan_finished_pending()
-
+            self.app_state.set_this_computer_state(AppState.THIS_COMP_SCAN_FINISHED)
+        elif self.app_state.this_comp_reset_pending:
+            self.thisComputer.setDeviceDisplayStatus(self.thisComputerStatusUnspecifiedType())
+            self.app_state.reset_this_computer_state()
+            self.app_state.unset_this_comp_reset_pending()
 
     def setStateDestinationFolder(self, file_type: FileType | None = None) -> None:
         self.setStateDestDirCharacteristics(file_type)
@@ -2781,14 +2796,19 @@ difference to the program's future.</p>"""
         self.updateDestUIWatch()
         self.updateDestUIElements()
 
+    def thisComputerStatusUnspecifiedType(self) -> DeviceDisplayStatus:
+        if self.prefs.this_computer_path:
+            return DeviceDisplayStatus.unspecified_choices_available
+        else:
+            return DeviceDisplayStatus.unspecified
     def setStateThisComputerDirCharacteristics(self) -> None:
         folder = self.prefs.this_computer_path
         mask = THIS_COMP_DIR_MASK
         original = mask & self.app_state.state
 
-        if not folder:
+        if not (self.prefs.this_computer_path_specified and folder):
             state = AppState.THIS_COMP_DIR_NOT_SPECIFIED
-            status = DeviceDisplayStatus.unspecified
+            status=self.thisComputerStatusUnspecifiedType()
         elif not is_dir(folder):
             state = AppState.THIS_COMP_NOT_EXIST
             status = DeviceDisplayStatus.does_not_exist
@@ -3035,19 +3055,21 @@ difference to the program's future.</p>"""
     def setThisComputerRotation(self, on: bool) -> None:
         if on:
             self.spinner_controller.spinner.rotate.connect(self.thisComputer.rotate)
-        else:
+            self.app_state.set_this_comp_spinner_connected()
+        elif self.app_state.this_comp_spinner_connected:
             self.spinner_controller.spinner.rotate.disconnect(self.thisComputer.rotate)
+            self.app_state.unset_this_comp_spinner_connected()
 
     @pyqtSlot()
     def thisComputerReset(self) -> None:
-        if self.app_state.this_comp_active:
-            assert len(self.devices.this_computer) == 1
+        if self.app_state.this_comp:
+            assert len(self.devices.this_computer) > 0
             scan_id = list(self.devices.this_computer)[0]
             self.removeDevice(scan_id=scan_id)
-        self.app_state.reset_this_comp_active()
+        self.app_state.set_this_comp_reset_pending()
+        self.prefs.this_computer_path_specified = False
         self.updateSourceUIElements()
         self.thisComputerFSView.clearSelection()
-
 
     @pyqtSlot(bool)
     def deviceToggleViewValueChange(self, on: bool) -> None:
@@ -3172,7 +3194,7 @@ difference to the program's future.</p>"""
         self.setStateDestinationFolder(file_type)
 
     @pyqtSlot(str, "PyQt_PyObject")
-    def thisComputerSetPath(self, path: str, file_type: FileType | None=None) -> None:
+    def thisComputerSetPath(self, path: str, file_type: FileType | None = None) -> None:
         logging.info("Setting This Computer path to %s", path)
 
         # TODO use state here
@@ -3202,7 +3224,14 @@ difference to the program's future.</p>"""
                 self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
                 return
 
-        if path != self.prefs.this_computer_path:
+        if path and self.app_state.this_comp_dir_not_specified:
+            assert not self.prefs.this_computer_path_specified
+            self.prefs.this_computer_path_specified = True
+
+        if path == self.prefs.this_computer_path:
+            logging.debug("This computer path has not changed: %s", path)
+        else:
+
             if not self.queryUserManualDownloadLocation(path):
                 logging.debug(
                     "This Computer path %s rejected as download source",
@@ -5139,7 +5168,9 @@ Do you want to proceed with the download?"""
             return
         device = self.devices[scan_id]
         if device.device_type == DeviceType.path:
-            self.app_state.set_this_comp_scan_finished_pending()
+            self.app_state.set_this_computer_state(
+                AppState.THIS_COMP_SCAN_FINISHED_PENDING
+            )
         self.devices.set_device_state(scan_id, DeviceState.idle)
         self.thumbnailModel.flushAddBuffer()
 
@@ -5152,6 +5183,7 @@ Do you want to proceed with the download?"""
         self.download_tracker.set_file_types_present(scan_id, file_types_present)
         model = self.mapModel(scan_id)
         model.updateDeviceScan(scan_id)
+        # TODO probably move this higher
         self.updateSourceUIElements()
         # TODO update this to use state
         # destinations_good = self.setDownloadCapabilities()
@@ -6163,8 +6195,8 @@ Do you want to proceed with the download?"""
             if was_downloading and not self.downloadIsRunning():
                 self.setDownloadActionLabel()
 
-    def removeDeviceFromSourcePanel(self, scan_id: int, device:Device)-> None:
-        if device.device_type  == DeviceType.path:
+    def removeDeviceFromSourcePanel(self, scan_id: int, device: Device) -> None:
+        if device.device_type == DeviceType.path:
             self.thisComputer.removeDevice(reset=False)
         else:
             self.deviceModel.removeDevice(scan_id)
@@ -6966,6 +6998,7 @@ def main():
             logging.info(
                 "This Computer path set from command line: %s", this_computer_location
             )
+            this_computer_source = True
         else:
             this_computer_location = None
 

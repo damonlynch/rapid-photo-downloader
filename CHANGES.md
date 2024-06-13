@@ -1,10 +1,14 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.37a6 (2024-04-xx)
+0.9.37a6 (2024-08-xx)
 ---------------------
 
  - Terminate WSL Drive Monitor thread during application exit, if necessary.
+
+ - If the command line is used to specify a location on This Computer from 
+   which to download, downloading from This Computer will be enabled even if
+   it was previously set to off.
 
 0.9.37a5 (2024-04-28)
 ---------------------

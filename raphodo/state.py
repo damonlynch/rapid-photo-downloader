@@ -28,6 +28,8 @@ class AppState(Flag):
     THIS_COMP_DOWNLOADING = auto()
     THIS_COMP_DOWNLOAD_FINISHED_PENDING = auto()
     THIS_COMP_DOWNLOAD_FINISHED = auto()
+    THIS_COMP_DOWNLOAD_RESET_PENDING = auto()
+    THIS_COMP_SPINNER_CONNECTED = auto()
     UI_ELEMENT_CHANGE_PENDING_DEST_PHOTO_PATH = auto()
     UI_ELEMENT_CHANGE_PENDING_DEST_VIDEO_PATH = auto()
     UI_ELEMENT_CHANGE_PENDING_DEST_PHOTO_STATUS = auto()
@@ -105,15 +107,15 @@ THIS_COMP_DIR_MASK = (
     | AppState.THIS_COMP_DIR_NO_READ
     | AppState.THIS_COMP_NOT_EXIST
 )
-THIS_COMP_ACTIVE_MASK = (
+THIS_COMP_MASK = (
     AppState.THIS_COMP_SCAN_PENDING
-    | AppState.THIS_COMP_SCANNING 
-    | AppState.THIS_COMP_SCAN_FINISHED_PENDING 
-    | AppState.THIS_COMP_SCAN_FINISHED 
-    | AppState.THIS_COMP_DOWNLOAD_PENDING 
-    | AppState.THIS_COMP_DOWNLOADING 
-    | AppState.THIS_COMP_DOWNLOAD_FINISHED_PENDING 
-    | AppState.THIS_COMP_DOWNLOAD_FINISHED 
+    | AppState.THIS_COMP_SCANNING
+    | AppState.THIS_COMP_SCAN_FINISHED_PENDING
+    | AppState.THIS_COMP_SCAN_FINISHED
+    | AppState.THIS_COMP_DOWNLOAD_PENDING
+    | AppState.THIS_COMP_DOWNLOADING
+    | AppState.THIS_COMP_DOWNLOAD_FINISHED_PENDING
+    | AppState.THIS_COMP_DOWNLOAD_FINISHED
 )
 UI_GEOMETRY_CHANGE_NEEDED_DEST_PHOTO = (
     AppState.UI_ELEMENT_CHANGE_PENDING_DEST_PHOTO_STATUS
@@ -233,7 +235,7 @@ class State:
     def _set_exclusive_state(
         self, state: AppState, mask: AppState, log_message: str
     ) -> None:
-        logging.debug(
+        logging.info(
             "%s state change: %s → %s",
             log_message,
             self.state.state_str(mask),
@@ -538,39 +540,51 @@ class State:
     def this_comp_dir_not_specified(self) -> bool:
         return bool(AppState.THIS_COMP_DIR_NOT_SPECIFIED & self.state)
 
-    def set_this_comp_scan_pending(self) -> bool:
-        return self.set_app_state(state=AppState.THIS_COMP_SCAN_PENDING)
+    def set_this_computer_state(self, state: AppState) -> None:
+        self._set_exclusive_state(
+            state=state,
+            mask=THIS_COMP_MASK,
+            log_message="This Computer",
+        )
+
+    def reset_this_computer_state(self) -> None:
+        self._unset_exclusive_state(
+            mask=THIS_COMP_MASK,
+            log_message="This Computer",
+        )
 
     @property
     def this_comp_scan_pending(self) -> bool:
         return bool(AppState.THIS_COMP_SCAN_PENDING & self.state)
 
-    def unset_this_comp_scan_pending(self) -> bool:
-        return self.unset_app_state(state=AppState.THIS_COMP_SCAN_PENDING)
-
-    def set_this_comp_scanning(self) -> bool:
-        return self.set_app_state(state=AppState.THIS_COMP_SCANNING)
-
     @property
     def this_comp_scanning(self) -> bool:
         return bool(AppState.THIS_COMP_SCANNING & self.state)
-
-    def unset_this_comp_scanning(self) -> bool:
-        return self.unset_app_state(state=AppState.THIS_COMP_SCANNING)
-
-    def set_this_comp_scan_finished_pending(self) -> bool:
-        return self.set_app_state(state=AppState.THIS_COMP_SCAN_FINISHED_PENDING)
 
     @property
     def this_comp_scan_finished_pending(self) -> bool:
         return bool(AppState.THIS_COMP_SCAN_FINISHED_PENDING & self.state)
 
-    def unset_this_comp_scan_finished_pending(self) -> bool:
-        return self.unset_app_state(state=AppState.THIS_COMP_SCAN_FINISHED_PENDING)
+    @property
+    def this_comp(self) -> bool:
+        return bool(THIS_COMP_MASK & self.state)
+
+    def set_this_comp_spinner_connected(self) -> bool:
+        return self.set_app_state(state=AppState.THIS_COMP_SPINNER_CONNECTED)
 
     @property
-    def this_comp_active(self)-> bool:
-        return bool(THIS_COMP_ACTIVE_MASK & self.state)
+    def this_comp_spinner_connected(self) -> bool:
+        return bool(AppState.THIS_COMP_SPINNER_CONNECTED & self.state)
 
-    def reset_this_comp_active(self) -> bool:
-        self.state &= ~THIS_COMP_ACTIVE_MASK
+    def unset_this_comp_spinner_connected(self) -> bool:
+        return self.unset_app_state(state=AppState.THIS_COMP_SPINNER_CONNECTED)
+
+    def set_this_comp_reset_pending(self) -> bool:
+        return bool(self.set_app_state(state=AppState.THIS_COMP_DOWNLOAD_RESET_PENDING))
+
+    @property
+    def this_comp_reset_pending(self) -> bool:
+        return bool(AppState.THIS_COMP_DOWNLOAD_RESET_PENDING & self.state)
+
+    def unset_this_comp_reset_pending(self) -> bool:
+        return self.unset_app_state(state=AppState.THIS_COMP_DOWNLOAD_RESET_PENDING)

@@ -62,10 +62,10 @@ class ThisComputerWidget(ComputerWidget):
 
     def removeDevice(self, reset:bool) -> None:
         self.device = None
+        # TODO is this reset logic in the correct location?
         if reset:
             self.deviceRows.setUsageVisible(False)
             self.deviceRows.setSourceWidgetVisible(False)
-            self.deviceRows.setDeviceDisplayStatus(DeviceDisplayStatus.unspecified)
 
     def updateDeviceScan(self, scan_id: int) -> None:
         device = self.device

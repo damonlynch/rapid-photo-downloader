@@ -352,13 +352,15 @@ class Preferences:
         language="",
         show_system_folders=False,  # Introduced in 0.9.27b2
         survey_countdown=10,  # Introduced in 0.9.29
-        survey_taken=2022 if is_devel_env else 0,  # Year. Introduced in 0.9.29
+        survey_taken=2024 if is_devel_env else 0,  # Year. Introduced in 0.9.29
         never_prompt_for_survey=False,  # Introduced in 0.9.29
     )
     device_defaults = dict(
         only_external_mounts=True,
         device_autodetection=True,
         this_computer_source=False,
+        # introduced in 0.9.37a6:
+        this_computer_path_specified=False,
         # introduced in 0.9.37a6:
         this_computer_paths=[""],
         scan_specific_folders=True,
@@ -496,8 +498,17 @@ class Preferences:
                 | "video_download_folder"
                 | "this_computer_path"
             ):
+                if not value:
+                    logging.error("%s should never be set to an empty string")
+                    return
                 key = f"{key}s"
-                self.add_list_value(key, value, max_remembered_destinations)
+                self.add_list_value(
+                    key,
+                    value,
+                    max_list_size=max_remembered_destinations,
+                    move_to_top_if_exists=True,
+                )
+
             case _:
                 group = self.groups.get(key, "General")
                 self.settings.beginGroup(group)
@@ -983,11 +994,15 @@ class Preferences:
 
         Values are added to the start of the list.
 
+        Empty values are not added.
+
         An empty list contains only one item: ['']
 
         :param key: the preference key
         :param value: the value to add
         :param max_list_size: if non-zero, the list's last value will be deleted
+        :param move_to_top_if_exists: whether to move an existing value to the first
+         position in the list
         """
 
         if len(self[key]) == 1 and self[key][0] == "":
