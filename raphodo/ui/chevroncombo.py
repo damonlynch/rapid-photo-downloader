@@ -40,9 +40,8 @@ class ChevronCombo(QComboBox):
         self._initial_state = False
         self.initial_text = ""
 
-
     @property
-    def initial_state(self)-> bool:
+    def initial_state(self) -> bool:
         return self._initial_state
 
     @initial_state.setter
@@ -63,8 +62,6 @@ class ChevronCombo(QComboBox):
             text = self.currentText()
             text_width = self.fm.boundingRect(text).width()
             font = self._font
-
-        # ic(self.rect().width(), text_width, text)
 
         # Draw text
         painter.setPen(self.palette().windowText().color())
@@ -99,7 +96,7 @@ class ChevronComboSpaced(ChevronCombo):
     Combo box with a chevron selector
     """
 
-    def __init__(self, font: QFont, initial_text:str, parent=None) -> None:
+    def __init__(self, font: QFont, initial_text: str, parent=None) -> None:
         super().__init__(font, parent)
         self.text_x = DeviceDisplayPadding
         self.hovered = False
@@ -107,7 +104,7 @@ class ChevronComboSpaced(ChevronCombo):
 
     def sizeHint(self) -> QSize:
         if not self.initial_state:
-            return  super().sizeHint()
+            return super().sizeHint()
 
         text_width = self.fmItalics.boundingRect(self.initial_text).width()
         width = DeviceDisplayPadding * 2 + text_width + self.chevron_width

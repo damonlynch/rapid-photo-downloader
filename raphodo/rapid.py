@@ -1098,9 +1098,6 @@ class RapidWindow(QMainWindow):
         # TODO Potentially move or remove this status bar update
         self.displayMessageInStatusBar()
 
-        # self.prefs.this_computer_path = ""
-        # self.prefs.video_download_folder = ""
-
         self.setStateThisComputer()
         self.setStateDestinationFolder()
 

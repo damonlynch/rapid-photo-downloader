@@ -499,7 +499,7 @@ class Preferences:
                 | "this_computer_path"
             ):
                 if not value:
-                    logging.error("%s should never be set to an empty string")
+                    logging.error("%s should never be set to an empty string", key)
                     return
                 key = f"{key}s"
                 self.add_list_value(

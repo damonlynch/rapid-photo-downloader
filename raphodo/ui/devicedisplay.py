@@ -1331,7 +1331,6 @@ class DeviceRows(QWidget):
         state=self.blockSignals(True)
         index = -1 if emulate else 0
         self.headerWidget.folderCombo.setCurrentIndex(index)
-        ic(self.headerWidget.folderCombo.currentIndex())
         self.blockSignals(state)
         self.headerWidget.folderCombo.initial_state = emulate
         self.headerWidget.iconLabel.setVisible(not emulate)
@@ -1347,7 +1346,6 @@ class DeviceRows(QWidget):
                 self._emulateInitialState(True)
                 self.stackedWidget.setCurrentIndex(1)
             case DeviceDisplayStatus.unspecified:
-                ic(status)
                 self.stackedWidget.setCurrentIndex(0)
             case _:
                 if DeviceRowItem.folder_combo & self.device_row_item:
