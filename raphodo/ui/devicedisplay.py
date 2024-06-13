@@ -700,7 +700,9 @@ class IconLabelWidget(QWidget):
             layout.addWidget(self.folderCombo, 100)
             self.folderCombo.setInsertPolicy(QComboBox.InsertPolicy.InsertAtTop)
             self.folderCombo.currentIndexChanged.connect(self._indexChanged)
-            self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed)
+            self.setSizePolicy(
+                QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed
+            )
         else:
             self.textLabel = QLabel()
             self.textLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -1328,7 +1330,7 @@ class DeviceRows(QWidget):
         self.headerWidget.setToolTip(text)
 
     def _emulateInitialState(self, emulate: bool) -> None:
-        state=self.blockSignals(True)
+        state = self.blockSignals(True)
         index = -1 if emulate else 0
         self.headerWidget.folderCombo.setCurrentIndex(index)
         self.blockSignals(state)
@@ -1352,7 +1354,6 @@ class DeviceRows(QWidget):
                     self._emulateInitialState(False)
                 self.stackedWidget.setCurrentIndex(1)
                 self.warningWidget.setStatus(status)
-
 
     def setNoSpace(self, no_space: bool) -> None:
         self.warningWidget.setNoSpace(no_space)

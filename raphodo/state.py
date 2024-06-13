@@ -411,29 +411,13 @@ class State:
             state=MAP_UI_ELEMENT_CHANGE_PENDING_DEST_SPACE[display_type]
         )
 
-    def set_ui_state_change_pending_dest_watch(self) -> bool:
-        return self.set_app_state(state=AppState.UI_STATE_CHANGE_PENDING_DEST_WATCH)
-
     @property
     def ui_state_change_pending_dest_watch(self) -> bool:
         return bool(AppState.UI_STATE_CHANGE_PENDING_DEST_WATCH & self.state)
 
-    def unset_ui_state_change_pending_dest_watch(self) -> bool:
-        return self.unset_app_state(state=AppState.UI_STATE_CHANGE_PENDING_DEST_WATCH)
-
-    def set_ui_state_change_pending_dest_preview_folders(self) -> bool:
-        return self.set_app_state(
-            state=AppState.UI_STATE_CHANGE_PENDING_DEST_PREVIEW_FOLDERS
-        )
-
     @property
     def ui_state_change_pending_dest_preview_folders(self) -> bool:
         return bool(AppState.UI_STATE_CHANGE_PENDING_DEST_PREVIEW_FOLDERS & self.state)
-
-    def unset_ui_state_change_pending_dest_preview_folders(self) -> bool:
-        return self.unset_app_state(
-            state=AppState.UI_STATE_CHANGE_PENDING_DEST_PREVIEW_FOLDERS
-        )
 
     # TODO remove legacy geometry changing checks
     def set_ui_geometry_change_pending_dest(
@@ -494,47 +478,17 @@ class State:
     def this_computer_dir_valid(self) -> bool:
         return not bool(THIS_COMP_DIR_MASK & self.state)
 
-    def set_ui_element_change_pending_this_comp_status(self) -> bool:
-        return self.set_app_state(
-            state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_STATUS
-        )
-
     @property
     def ui_element_change_pending_this_comp_status(self) -> bool:
         return bool(AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_STATUS & self.state)
-
-    def unset_ui_element_change_pending_this_comp_status(self) -> bool:
-        return self.unset_app_state(
-            state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_STATUS
-        )
-
-    def set_ui_element_change_pending_this_comp_source(self) -> bool:
-        return self.set_app_state(
-            state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_SOURCE
-        )
 
     @property
     def ui_element_change_pending_this_comp_source(self) -> bool:
         return bool(AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_SOURCE & self.state)
 
-    def unset_ui_element_change_pending_this_comp_source(self) -> bool:
-        return self.unset_app_state(
-            state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_SOURCE
-        )
-
-    def set_ui_element_change_pending_this_comp_path(self) -> bool:
-        return self.set_app_state(
-            state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_PATH
-        )
-
     @property
     def ui_element_change_pending_this_comp_path(self) -> bool:
         return bool(AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_PATH & self.state)
-
-    def unset_ui_element_change_pending_this_comp_path(self) -> bool:
-        return self.unset_app_state(
-            state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_PATH
-        )
 
     @property
     def this_comp_dir_not_specified(self) -> bool:
@@ -569,22 +523,10 @@ class State:
     def this_comp(self) -> bool:
         return bool(THIS_COMP_MASK & self.state)
 
-    def set_this_comp_spinner_connected(self) -> bool:
-        return self.set_app_state(state=AppState.THIS_COMP_SPINNER_CONNECTED)
-
     @property
     def this_comp_spinner_connected(self) -> bool:
         return bool(AppState.THIS_COMP_SPINNER_CONNECTED & self.state)
 
-    def unset_this_comp_spinner_connected(self) -> bool:
-        return self.unset_app_state(state=AppState.THIS_COMP_SPINNER_CONNECTED)
-
-    def set_this_comp_reset_pending(self) -> bool:
-        return bool(self.set_app_state(state=AppState.THIS_COMP_DOWNLOAD_RESET_PENDING))
-
     @property
     def this_comp_reset_pending(self) -> bool:
         return bool(AppState.THIS_COMP_DOWNLOAD_RESET_PENDING & self.state)
-
-    def unset_this_comp_reset_pending(self) -> bool:
-        return self.unset_app_state(state=AppState.THIS_COMP_DOWNLOAD_RESET_PENDING)

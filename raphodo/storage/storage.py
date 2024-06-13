@@ -795,6 +795,7 @@ def is_dir(folder: str) -> bool:
         logging.exception("Encountered error while checking for folder existence")
         return False
 
+
 def validate_download_folder(
     path: str | None, write_on_waccesss_failure: bool = False
 ) -> ValidatedFolder:
@@ -834,6 +835,7 @@ def validate_download_folder(
 
     return ValidatedFolder(valid=valid, absolute_path=absolute_path)
 
+
 def folder_writable(path: str | Path, write_on_waccesss_failure: bool = False) -> bool:
     """
     Checks if a folder is writable. Assumes the path exists.
@@ -854,8 +856,6 @@ def folder_writable(path: str | Path, write_on_waccesss_failure: bool = False) -
         except Exception:
             logging.debug("While examining %s, failed to write a temporary file", path)
     return False
-
-
 
 
 def udev_attributes(devname: str) -> UdevAttr | None:

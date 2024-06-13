@@ -273,7 +273,6 @@ class JobCodeOptionsWidget(FlexiFrame):
             self.sortOrder.setCurrentIndex(self.prefs.job_code_sort_order)
         self.sortOrder.currentIndexChanged.connect(self.sortOrderChanged)
 
-
         for widget in (self.sortLabel, self.sortCombo, self.sortOrder):
             widget.setFont(font)
 

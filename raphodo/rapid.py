@@ -501,7 +501,7 @@ class RapidWindow(QMainWindow):
 
         # The path for the "This Computer" download source
         if this_computer_location is not None:
-            self.prefs.this_computer_path_specified=True
+            self.prefs.this_computer_path_specified = True
             self.prefs.this_computer_path = this_computer_location
 
         if self.prefs.this_computer_source:
@@ -511,7 +511,7 @@ class RapidWindow(QMainWindow):
                     "location is not yet set"
                 )
             else:
-                if  self.prefs.this_computer_path:
+                if self.prefs.this_computer_path:
                     logging.info(
                         "This Computer is set to be used as a download source, "
                         "using: %s",
@@ -2472,7 +2472,9 @@ difference to the program's future.</p>"""
         if change_pending or self.app_state.on_initialize_ui:
             self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
             if change_pending:
-                self.app_state.unset_ui_state_change_pending_dest_watch()
+                self.app_state.unset_app_state(
+                    state=AppState.UI_STATE_CHANGE_PENDING_DEST_WATCH
+                )
 
     def updateDestUIPreviewFolders(self) -> None:
         # TODO Investigate handling preview folders in read-only folders
@@ -2487,7 +2489,9 @@ difference to the program's future.</p>"""
     def _updateDestUIPreviewFolders(self):
         if self.app_state.ui_state_change_pending_dest_preview_folders:
             self.folder_preview_manager.change_destination()
-            self.app_state.unset_ui_state_change_pending_dest_preview_folders()
+            self.app_state.unset_app_state(
+                state=AppState.UI_STATE_CHANGE_PENDING_DEST_PREVIEW_FOLDERS
+            )
 
     def updateDestUIElements(self) -> None:
         if self.app_state.on_startup:
@@ -2771,7 +2775,9 @@ difference to the program's future.</p>"""
 
         if self.app_state.ui_element_change_pending_this_comp_path:
             self.thisComputer.setPath(self.prefs.this_computer_path)
-            self.app_state.unset_ui_element_change_pending_this_comp_path()
+            self.app_state.unset_app_state(
+                state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_PATH
+            )
 
         if self.app_state.this_comp_scan_pending:
             self.thisComputer.setSourceWidget(SourceState.spinner)
@@ -2780,9 +2786,13 @@ difference to the program's future.</p>"""
             self.thisComputer.setSourceWidget(SourceState.checkbox)
             self.app_state.set_this_computer_state(AppState.THIS_COMP_SCAN_FINISHED)
         elif self.app_state.this_comp_reset_pending:
-            self.thisComputer.setDeviceDisplayStatus(self.thisComputerStatusUnspecifiedType())
+            self.thisComputer.setDeviceDisplayStatus(
+                self.thisComputerStatusUnspecifiedType()
+            )
             self.app_state.reset_this_computer_state()
-            self.app_state.unset_this_comp_reset_pending()
+            self.app_state.unset_app_state(
+                state=AppState.THIS_COMP_DOWNLOAD_RESET_PENDING
+            )
 
     def setStateDestinationFolder(self, file_type: FileType | None = None) -> None:
         self.setStateDestDirCharacteristics(file_type)
@@ -2798,6 +2808,7 @@ difference to the program's future.</p>"""
             return DeviceDisplayStatus.unspecified_choices_available
         else:
             return DeviceDisplayStatus.unspecified
+
     def setStateThisComputerDirCharacteristics(self) -> None:
         folder = self.prefs.this_computer_path
         mask = THIS_COMP_DIR_MASK
@@ -2805,7 +2816,7 @@ difference to the program's future.</p>"""
 
         if not (self.prefs.this_computer_path_specified and folder):
             state = AppState.THIS_COMP_DIR_NOT_SPECIFIED
-            status=self.thisComputerStatusUnspecifiedType()
+            status = self.thisComputerStatusUnspecifiedType()
         elif not is_dir(folder):
             state = AppState.THIS_COMP_NOT_EXIST
             status = DeviceDisplayStatus.does_not_exist
@@ -2822,7 +2833,10 @@ difference to the program's future.</p>"""
             self.app_state.reset_this_comp_dir_state()
 
         if original != state:
-            self.app_state.set_ui_element_change_pending_this_comp_status()
+            # TODO verify if this is needed:
+            # self.app_state.set_app_state(
+            #     state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_STATUS
+            # )
             self.thisComputer.setDeviceDisplayStatus(status)
 
     def setStateThisComputer(self) -> None:
@@ -3052,10 +3066,10 @@ difference to the program's future.</p>"""
     def setThisComputerRotation(self, on: bool) -> None:
         if on:
             self.spinner_controller.spinner.rotate.connect(self.thisComputer.rotate)
-            self.app_state.set_this_comp_spinner_connected()
+            self.app_state.set_app_state(state=AppState.THIS_COMP_SPINNER_CONNECTED)
         elif self.app_state.this_comp_spinner_connected:
             self.spinner_controller.spinner.rotate.disconnect(self.thisComputer.rotate)
-            self.app_state.unset_this_comp_spinner_connected()
+            self.app_state.unset_app_state(state=AppState.THIS_COMP_SPINNER_CONNECTED)
 
     @pyqtSlot()
     def thisComputerReset(self) -> None:
@@ -3063,7 +3077,7 @@ difference to the program's future.</p>"""
             assert len(self.devices.this_computer) > 0
             scan_id = list(self.devices.this_computer)[0]
             self.removeDevice(scan_id=scan_id)
-        self.app_state.set_this_comp_reset_pending()
+        self.app_state.set_app_state(state=AppState.THIS_COMP_DOWNLOAD_RESET_PENDING)
         self.prefs.this_computer_path_specified = False
         self.updateSourceUIElements()
         self.thisComputerFSView.clearSelection()
@@ -3186,8 +3200,10 @@ difference to the program's future.</p>"""
         logging.debug("%s destination preference changed", file_type.name.capitalize())
         # TODO think about a more elegant way of handling this, perhaps
         self.app_state.set_ui_element_change_pending_dest_path(file_type)
-        self.app_state.set_ui_state_change_pending_dest_watch()
-        self.app_state.set_ui_state_change_pending_dest_preview_folders()
+        self.app_state.set_app_state(state=AppState.UI_STATE_CHANGE_PENDING_DEST_WATCH)
+        self.app_state.set_app_state(
+            state=AppState.UI_STATE_CHANGE_PENDING_DEST_PREVIEW_FOLDERS
+        )
         self.setStateDestinationFolder(file_type)
 
     @pyqtSlot(str, "PyQt_PyObject")
@@ -3228,7 +3244,6 @@ difference to the program's future.</p>"""
         if path == self.prefs.this_computer_path:
             logging.debug("This computer path has not changed: %s", path)
         else:
-
             if not self.queryUserManualDownloadLocation(path):
                 logging.debug(
                     "This Computer path %s rejected as download source",
@@ -3248,7 +3263,9 @@ difference to the program's future.</p>"""
                     )
                     self.removeDevice(scan_id=scan_id)
             self.prefs.this_computer_path = path
-            self.app_state.set_ui_element_change_pending_this_comp_path()
+            self.app_state.set_app_state(
+                state=AppState.UI_ELEMENT_CHANGE_PENDING_THIS_COMP_PATH
+            )
             self.setStateThisComputer()
             self.initializeThisComputerScan()
 

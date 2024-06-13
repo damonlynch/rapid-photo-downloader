@@ -11,7 +11,11 @@ class ResizableStackedWidget(QStackedWidget):
     widget. This widget adjusts its size to the currently displayed widget.
     """
 
-    def __init__(self, growDirection: Qt.Orientation = Qt.Orientation.Vertical, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        growDirection: Qt.Orientation = Qt.Orientation.Vertical,
+        parent: QWidget | None = None,
+    ) -> None:
         super().__init__(parent=parent)
         self.growDirection = growDirection
         self.currentChanged.connect(self.onCurrentChanged)
@@ -24,7 +28,7 @@ class ResizableStackedWidget(QStackedWidget):
             else:
                 policy = QSizePolicy.Ignored
             widget = self.widget(i)
-            if self.growDirection  == Qt.Orientation.Vertical:
+            if self.growDirection == Qt.Orientation.Vertical:
                 widget.setSizePolicy(widget.sizePolicy().horizontalPolicy(), policy)
             else:
                 widget.setSizePolicy(policy, widget.sizePolicy().verticalPolicy())

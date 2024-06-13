@@ -36,14 +36,12 @@ class ThisComputerWidget(ComputerWidget):
         # TODO may need to change this
         self.percent_complete: dict[int, float] = defaultdict(float)
 
-
     def setDeviceDisplayStatus(self, status: DeviceDisplayStatus) -> None:
         self.deviceRows.setDeviceDisplayStatus(status)
 
     def setPath(self, path: str) -> None:
         self.deviceRows.setHeaderText(path)
         self.deviceRows.setHeaderToolTip(path)
-
 
     def insertSourcePaths(self, paths: list[str]):
         self.deviceRows.headerWidget.insertPaths(paths)
@@ -60,7 +58,7 @@ class ThisComputerWidget(ComputerWidget):
         self.deviceRows.setSourceWidgetVisible(True)
         self.deviceRows.setSourceWidget(SourceState.checkbox)
 
-    def removeDevice(self, reset:bool) -> None:
+    def removeDevice(self, reset: bool) -> None:
         self.device = None
         # TODO is this reset logic in the correct location?
         if reset:
