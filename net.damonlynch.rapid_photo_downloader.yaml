@@ -35,11 +35,41 @@ modules:
   - shared-modules/intltool/intltool-0.51.json
   - shared-modules/gudev/gudev.json
 
+  - name: python3-scikit_build_core
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\"
+        --prefix=${FLATPAK_DEST} \"scikit_build_core\" --no-build-isolation
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/08/aa/cc0199a5f0ad350994d660967a8efb233fe0416e4639146c089643407ce6/packaging-24.1-py3-none-any.whl
+        sha256: 5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124
+        x-checker-data:
+          type: pypi
+          name: packaging
+          packagetype: bdist_wheel
+
+      - type: file
+        url: https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
+        sha256: a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08
+        x-checker-data:
+          type: pypi
+          name: pathspec
+          packagetype: bdist_wheel
+
+      - type: file
+        url: https://files.pythonhosted.org/packages/20/f0/11b0f09173051647af2e140f68f3d94432c5b41a6ea0d45a43e38ab68192/scikit_build_core-0.10.5-py3-none-any.whl
+        sha256: f60f677b654e157aac21a56055d2e73dbdb7489886e052f4081195cfa12b8eb4
+        x-checker-data:
+          type: pypi
+          name: scikit_build_core
+          packagetype: bdist_wheel
+
   - name: python-pyzmq
     buildsystem: simple
     build-commands:
       - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
-        --prefix=${FLATPAK_DEST} "pyzmq==25.1.1" --no-build-isolation
+        --prefix=${FLATPAK_DEST} "pyzmq==26.2.0" --no-build-isolation
     sources:
       - type: file
         url: https://files.pythonhosted.org/packages/fd/05/bed626b9f7bb2322cdbbf7b4bd8f54b1b617b0d2ab2d3547d6e39428a48e/pyzmq-26.2.0.tar.gz
