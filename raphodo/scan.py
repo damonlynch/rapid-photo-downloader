@@ -1,22 +1,5 @@
-#!/usr/bin/env python3
-
-# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2011-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Scans directory looking for photos and videos, and any associated files
@@ -42,87 +25,84 @@ device, there are two aspects to metadata that are in fact needed:
 A sample photo or video for (1) can be used for (2)
 
 """
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2022, Damon Lynch"
 
-import os
-import sys
-import pickle
-import logging
-from collections import namedtuple, defaultdict, deque
-from datetime import datetime
-import tempfile
-import operator
+import contextlib
 import locale
+import logging
+import operator
+import os
+import pickle
+import sys
+import tempfile
+from collections import defaultdict, deque, namedtuple
+from collections.abc import Iterator
+from datetime import datetime
 
-try:
+import raphodo.metadata.fileextensions
+
+with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
-except locale.Error:
-    pass
-
-from typing import List, Dict, Union, Optional, Iterator, Tuple, DefaultDict
-
-from PyQt5.QtCore import QStorageInfo
 
 import gphoto2 as gp
+from PyQt5.QtCore import QStorageInfo
+
+import raphodo.metadata.fileformats as fileformats
+import raphodo.metadata.metadataexiftool as metadataexiftool
+import raphodo.metadata.metadataphoto as metadataphoto
+import raphodo.metadata.metadatavideo as metadatavideo
+import raphodo.rpdfile as rpdfile
+from raphodo.cache import ThumbnailCacheSql
+from raphodo.camera import Camera, gphoto2_named_error, gphoto2_python_logging
+from raphodo.cameraerror import CameraError, CameraProblemEx, iOSDeviceError
+from raphodo.constants import (
+    CameraErrorCode,
+    DeviceTimestampTZ,
+    DeviceType,
+    ExifSource,
+    FileExtension,
+    FileType,
+    ThumbnailCacheDiskStatus,
+    all_tags_offset,
+    all_tags_offset_exiftool,
+)
+from raphodo.interprocess import ScanArguments, ScanResults, WorkerInPublishPullPipeline
+from raphodo.metadata.exiftool import ExifTool
 
 # Instances of classes ScanArguments and ScanPreferences are passed via pickle
 # Thus do not remove these two imports
-from raphodo.prefs.preferences import ScanPreferences, Preferences
-from raphodo.interprocess import WorkerInPublishPullPipeline, ScanResults, ScanArguments
-from raphodo.camera import Camera, gphoto2_python_logging, gphoto2_named_error
-from raphodo.cameraerror import CameraError, CameraProblemEx, iOSDeviceError
-import raphodo.rpdfile as rpdfile
-from raphodo.constants import (
-    DeviceType,
-    FileType,
-    DeviceTimestampTZ,
-    CameraErrorCode,
-    FileExtension,
-    ThumbnailCacheDiskStatus,
-    all_tags_offset,
-    ExifSource,
-    all_tags_offset_exiftool,
-)
-from raphodo.rpdsql import DownloadedSQL
-from raphodo.cache import ThumbnailCacheSql
-from raphodo.utilities import (
-    stdchannel_redirected,
-    datetime_roughly_equal,
-    GenerateRandomFileName,
-    format_size_for_user,
-)
-from raphodo.metadata.exiftool import ExifTool
-import raphodo.metadata.metadatavideo as metadatavideo
-import raphodo.metadata.metadataphoto as metadataphoto
-import raphodo.metadata.metadataexiftool as metadataexiftool
+from raphodo.prefs.preferences import Preferences, ScanPreferences
 from raphodo.problemnotification import (
-    ScanProblems,
-    UnhandledFileProblem,
     CameraDirectoryReadProblem,
     CameraFileInfoProblem,
     CameraFileReadProblem,
     FileMetadataLoadProblem,
     FileWriteProblem,
-    FsMetadataReadProblem,
     FileZeroLengthProblem,
+    FsMetadataReadProblem,
+    ScanProblems,
+    UnhandledFileProblem,
 )
+from raphodo.rpdsql import DownloadedSQL
 from raphodo.storage.storage import (
-    get_uri,
     CameraDetails,
-    gvfs_gphoto2_path,
     StorageSpace,
+    get_uri,
+    gvfs_gphoto2_path,
 )
 from raphodo.storage.storageidevice import (
     idevice_do_mount,
-    idevice_validate_pairing,
+    idevice_get_name,
     idevice_in_pairing_list,
     idevice_pair,
-    idevice_get_name,
+    idevice_validate_pairing,
 )
-import raphodo.metadata.fileformats as fileformats
-
+from raphodo.tools.utilities import (
+    GenerateRandomFileName,
+    datetime_roughly_equal,
+    format_size_for_user,
+    stdchannel_redirected,
+)
 
 FileInfo = namedtuple(
     "FileInfo", "path modification_time size ext_lower base_name file_type"
@@ -146,19 +126,19 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.device_timestamp_type = DeviceTimestampTZ.undetermined
 
         # full_file_name (path+name):timestamp
-        self.file_mdatatime = {}  # type: Dict[str, float]
+        self.file_mdatatime: dict[str, float] = {}
 
-        self.sample_exif_bytes = None  # type: Optional[bytes]
-        self.sample_exif_source = None  # type: Optional[ExifSource]
-        self.sample_photo = None  # type: Optional[rpdfile.Photo]
-        self.sample_video = None  # type: Optional[rpdfile.Video]
-        self.sample_photo_source_is_extract = None  # type: Optional[bool]
-        self.sample_photo_extract_full_file_name = None  # type: Optional[str]
-        self.sample_video_extract_full_file_name = None  # type: Optional[str]
-        self.sample_photo_file_full_file_name = None  # type: Optional[str]
-        self.sample_photo_full_file_downloaded = None  # type: Optional[bool]
-        self.sample_video_file_full_file_name = None  # type: Optional[str]
-        self.sample_video_full_file_downloaded = None  # type: Optional[bool]
+        self.sample_exif_bytes: bytes | None = None
+        self.sample_exif_source: ExifSource | None = None
+        self.sample_photo: rpdfile.Photo | None = None
+        self.sample_video: rpdfile.Video | None = None
+        self.sample_photo_source_is_extract: bool | None = None
+        self.sample_photo_extract_full_file_name: str | None = None
+        self.sample_video_extract_full_file_name: str | None = None
+        self.sample_photo_file_full_file_name: str | None = None
+        self.sample_photo_full_file_downloaded: bool | None = None
+        self.sample_video_file_full_file_name: str | None = None
+        self.sample_video_full_file_downloaded: bool | None = None
         self.located_sample_photo = False
         self.located_sample_video = False
         self.prepared_sample_photo = False
@@ -178,16 +158,16 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         self.problems = ScanProblems()
 
-        self._camera_details = None  # type: Optional[CameraDetails]
+        self._camera_details: CameraDetails | None = None
 
-        self._et_process = None  # type: Optional[ExifTool]
+        self._et_process: ExifTool | None = None
 
         super().__init__("Scan")
 
     @property
     def et_process(self) -> ExifTool:
         """
-        Instead of using with statement, which starts a new instance of ExifTool every
+        Instead of using a with statement, which starts a new instance of ExifTool every
         time, start it once for this scan process, if needed
         :return: ExifTool process
         """
@@ -206,7 +186,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
     def do_work(self) -> None:
         try:
             self.do_scan()
-        except Exception as e:
+        except Exception:
             try:
                 device = self.display_name
             except AttributeError:
@@ -223,15 +203,15 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.send_finished_command()
 
     def do_scan(self) -> None:
-        logging.debug("Scan {} worker started".format(self.worker_id.decode()))
+        logging.debug(f"Scan {self.worker_id.decode()} worker started")
 
-        scan_arguments = pickle.loads(self.content)  # type: ScanArguments
+        scan_arguments: ScanArguments = pickle.loads(self.content)
         if scan_arguments.log_gphoto2:
             self.gphoto2_logging = gphoto2_python_logging()
 
         if scan_arguments.ignore_other_types:
-            fileformats.PHOTO_EXTENSIONS_SCAN = (
-                fileformats.PHOTO_EXTENSIONS_WITHOUT_OTHER
+            raphodo.metadata.fileextensions.PHOTO_EXTENSIONS_SCAN = (
+                raphodo.metadata.fileextensions.PHOTO_EXTENSIONS_WITHOUT_OTHER
             )
 
         self.device = scan_arguments.device
@@ -262,7 +242,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.display_name = scan_arguments.device.display_name
 
         self.files_scanned = 0
-        self.camera = None
+        self.camera: Camera | None = None
         terminated = False
 
         if self.download_from_filesystem:
@@ -360,8 +340,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self.scan_camera(scan_arguments)
                 # Sanity check: ensure file contents are still accessible
                 try:
-                    self.camera.camera.folder_list_files("/", self.camera.context)
-                except gp.GPhoto2Error as e:
+                    self.camera.camera.folder_list_files("/")
+                except gp.GPhoto2Error:
                     raise CameraError(CameraErrorCode.inaccessible)
                 else:
                     self.camera.free_camera()
@@ -406,9 +386,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.files_scanned == 0 and self.download_from_camera
         ):
             logging.info(
-                "{} total files scanned on {}".format(
-                    self.files_scanned, self.display_name
-                )
+                f"{self.files_scanned} total files scanned on {self.display_name}"
             )
 
         self.exit_exiftool()
@@ -423,7 +401,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             )
             self.send_message_to_sink()
 
-    def walk_file_system(self, path_to_walk: str) -> Iterator[Tuple[str, str]]:
+    def walk_file_system(self, path_to_walk: str) -> Iterator[tuple[str, str]]:
         """
         Return files on local file system, ignoring those in directories
         the user doesn't want scanned
@@ -484,7 +462,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             device_type = "iOS device"
         else:
             device_type = "This Computer path"
-        logging.info("Scanning {} {}".format(device_type, self.display_name))
+        logging.info(f"Scanning {device_type} {self.display_name}")
 
         self.problems.uri = get_uri(path=path)
         self.problems.name = self.display_name
@@ -499,7 +477,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         for path in paths:
             if scanning_specific_path:
-                logging.info("Scanning {} on {}".format(path, self.display_name))
+                logging.info(f"Scanning {path} on {self.display_name}")
             for dir_name, name in self.walk_file_system(path):
                 self.dir_name = dir_name
                 self.file_name = name
@@ -572,7 +550,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         # if that's what the user has specified. Otherwise, try to download from
         # everything we can find.
         if self.camera.camera_has_folders_to_scan():
-            logging.info("Scanning {}".format(self.display_name))
+            logging.info(f"Scanning {self.display_name}")
             self._camera_folders_and_files = []
             self._camera_file_names = defaultdict(list)
             self._camera_audio_files = defaultdict(list)
@@ -580,13 +558,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self._camera_xmp_files = defaultdict(list)
             self._camera_log_files = defaultdict(list)
             self._folder_identifiers = {}
-            self._folder_identifers_for_file = defaultdict(
+            self._folder_identifers_for_file: defaultdict[int, list[int]] = defaultdict(
                 list
-            )  # type: DefaultDict[int, List[int]]
+            )
             self._camera_directories_for_file = defaultdict(list)
-            self._camera_photos_videos_by_type = defaultdict(
-                list
-            )  # type: DefaultDict[FileExtension, List[CameraMetadataDetails]]
+            self._camera_photos_videos_by_type: defaultdict[
+                FileExtension, list[CameraMetadataDetails]
+            ] = defaultdict(list)
 
             specific_folders = self.camera.specific_folders
 
@@ -684,9 +662,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         files_in_folder = []
         names = []
         try:
-            files_in_folder = self.camera.camera.folder_list_files(
-                path, self.camera.context
-            )
+            files_in_folder = self.camera.camera.folder_list_files(path)
         except gp.GPhoto2Error as e:
             logging.error(
                 "Unable to scan files on %s: %s",
@@ -809,9 +785,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         )
             else:
                 # this file on the camera is not a photo or video
-                if ext_lower in fileformats.AUDIO_EXTENSIONS:
+                if ext_lower in raphodo.metadata.fileextensions.AUDIO_EXTENSIONS:
                     self._camera_audio_files[base_name].append((path, ext))
-                elif ext_lower in fileformats.VIDEO_THUMBNAIL_EXTENSIONS:
+                elif (
+                    ext_lower
+                    in raphodo.metadata.fileextensions.VIDEO_THUMBNAIL_EXTENSIONS
+                ):
                     self._camera_video_thumbnails[base_name].append((path, ext))
                 elif ext_lower == "xmp":
                     self._camera_xmp_files[base_name].append((path, ext))
@@ -831,9 +810,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         self.problems.append(UnhandledFileProblem(name=name, uri=uri))
         folders = []
         try:
-            for name, value in self.camera.camera.folder_list_folders(
-                path, self.camera.context
-            ):
+            for name, value in self.camera.camera.folder_list_folders(path):
                 if self.scan_preferences.scan_this_path(os.path.join(path, name)):
                     folders.append(name)
         except gp.GPhoto2Error as e:
@@ -903,9 +880,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         max_attempts = 5
         for ext_type in order:
-            for file in self._camera_photos_videos_by_type[ext_type][
-                :max_attempts
-            ]:  # type: CameraMetadataDetails
+            for file in self._camera_photos_videos_by_type[ext_type][:max_attempts]:
                 get_tz = (
                     self.device_timestamp_type == DeviceTimestampTZ.undetermined
                     and not (
@@ -952,12 +927,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         # do we have permission to read the file?
         if self.download_from_camera or os.access(file, os.R_OK):
-
             # count how many files of each type are included
             # i.e. how many photos and videos
             self.files_scanned += 1
             if not self.files_scanned % 10000:
-                logging.info("Scanned {} files".format(self.files_scanned))
+                logging.info(f"Scanned {self.files_scanned} files")
 
             if not self.download_from_camera:
                 base_name, ext = os.path.splitext(self.file_name)
@@ -1186,14 +1160,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.sample_video = None
 
     def send_message_to_sink(self) -> None:
-        try:
+        with contextlib.suppress(AttributeError):
             logging.debug(
                 "Sending %s scanned files from %s to sink",
                 len(self.file_batch),
                 self.display_name,
             )
-        except AttributeError:
-            pass
         super().send_message_to_sink()
 
     def ignore_mdatatime(self, ext: str) -> bool:
@@ -1208,7 +1180,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         file_type: FileType,
         mtime: float,
         ignore_mdatatime: bool,
-    ) -> Union[rpdfile.Photo, rpdfile.Video]:
+    ) -> rpdfile.Photo | rpdfile.Video:
         assert (
             self.sample_exif_source is not None
             and self.sample_photo_file_full_file_name
@@ -1279,8 +1251,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         path: str,
         name: str,
         file_type: FileType,
-    ) -> Tuple[bool, Optional[datetime]]:
-
+    ) -> tuple[bool, datetime | None]:
         dt = None
         entire_file_required = False
         # First try offset value, and if it fails, read the entire video
@@ -1454,7 +1425,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                             app1_segment=self.sample_exif_bytes,
                             et_process=self.et_process,
                         )
-                except:
+                except Exception:
                     logging.warning(
                         "Scanner failed to load metadata from %s on %s",
                         name,
@@ -1469,13 +1440,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 else:
                     self.sample_exif_source = ExifSource.app1_segment
                     self.sample_photo_file_full_file_name = os.path.join(path, name)
-                    dt = metadata.date_time(missing=None)  # type: datetime
+                    dt: datetime = metadata.date_time(missing=None)
         elif exif_extract:
             if use_exiftool:
                 assert save_chunk
                 offset = all_tags_offset_exiftool.get(extension)
                 if offset is None:
-                    max_size = 1024 ** 2 * 2  # approx 2 MB
+                    max_size = 1024**2 * 2  # approx 2 MB
                     offset = min(size, max_size)
                 self.entire_photo_required, dt = self.download_chunk_from_camera(
                     offset=offset,
@@ -1528,13 +1499,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         self.sample_exif_source = ExifSource.raw_bytes
                         self.sample_photo_file_full_file_name = os.path.join(path, name)
                         self.sample_photo_source_is_extract = False
-                        dt = metadata.date_time(missing=None)  # type: datetime
+                        dt: datetime = metadata.date_time(missing=None)
         else:
             assert save_chunk
             # video
             offset = all_tags_offset_exiftool.get(extension)
             if offset is None:
-                max_size = 1024 ** 2 * 20  # approx 21 MB
+                max_size = 1024**2 * 20  # approx 21 MB
                 offset = min(size, max_size)
             self.entire_video_required, dt = self.download_chunk_from_camera(
                 offset=offset,
@@ -1601,7 +1572,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
             if self.prefs.force_exiftool or fileformats.use_exiftool_on_photo(
                 extension, preview_extraction_irrelevant=True
             ):
-
                 metadata = metadataexiftool.MetadataExiftool(
                     full_file_name=full_file_name,
                     et_process=self.et_process,
@@ -1609,7 +1579,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 )
                 self.sample_exif_source = ExifSource.actual_file
                 self.sample_photo_file_full_file_name = os.path.join(path, name)
-                dt = metadata.date_time(missing=None)  # type: datetime
+                dt: datetime = metadata.date_time(missing=None)
             else:
                 try:
                     with stdchannel_redirected(sys.stderr, os.devnull):
@@ -1627,7 +1597,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 else:
                     self.sample_exif_source = ExifSource.actual_file
                     self.sample_photo_file_full_file_name = os.path.join(path, name)
-                    dt = metadata.date_time(missing=None)  # type: datetime
+                    dt: datetime = metadata.date_time(missing=None)
 
         if dt is None:
             logging.warning(
@@ -1764,7 +1734,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
     def determine_device_timestamp_tz(
         self,
         mdatatime: datetime,
-        modification_time: Union[int, float],
+        modification_time: int | float,
         determined_by: str,
     ) -> None:
         """
@@ -1834,16 +1804,14 @@ class ScanWorker(WorkerInPublishPullPipeline):
             return mtime
 
     def _get_associate_file_from_camera(
-        self, base_name: str, associate_files: DefaultDict, camera_file: CameraFile
-    ) -> Optional[str]:
+        self, base_name: str, associate_files: defaultdict, camera_file: CameraFile
+    ) -> str | None:
         for path, ext in associate_files[base_name]:
             if path in self._camera_directories_for_file[camera_file]:
-                return "{}.{}".format(os.path.join(path, base_name), ext)
+                return f"{os.path.join(path, base_name)}.{ext}"
         return None
 
-    def get_video_THM_file(
-        self, base_name: str, camera_file: CameraFile
-    ) -> Optional[str]:
+    def get_video_THM_file(self, base_name: str, camera_file: CameraFile) -> str | None:
         """
         Checks to see if a thumbnail file (THM) with the same base name
         is in the same directory as the file.
@@ -1858,10 +1826,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
             )
         else:
             return self._get_associate_file(
-                base_name, fileformats.VIDEO_THUMBNAIL_EXTENSIONS
+                base_name, raphodo.metadata.fileextensions.VIDEO_THUMBNAIL_EXTENSIONS
             )
 
-    def get_audio_file(self, base_name: str, camera_file: CameraFile) -> Optional[str]:
+    def get_audio_file(self, base_name: str, camera_file: CameraFile) -> str | None:
         """
         Checks to see if an audio file with the same base name
         is in the same directory as the file.
@@ -1875,9 +1843,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 base_name, self._camera_audio_files, camera_file
             )
         else:
-            return self._get_associate_file(base_name, fileformats.AUDIO_EXTENSIONS)
+            return self._get_associate_file(
+                base_name, raphodo.metadata.fileextensions.AUDIO_EXTENSIONS
+            )
 
-    def get_log_file(self, base_name: str, camera_file: CameraFile) -> Optional[str]:
+    def get_log_file(self, base_name: str, camera_file: CameraFile) -> str | None:
         """
         Checks to see if an XMP file with the same base name
         is in the same directory as the file.
@@ -1892,7 +1862,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         else:
             return self._get_associate_file(base_name, ["log"])
 
-    def get_xmp_file(self, base_name: str, camera_file: CameraFile) -> Optional[str]:
+    def get_xmp_file(self, base_name: str, camera_file: CameraFile) -> str | None:
         """
         Checks to see if an XMP file with the same base name
         is in the same directory as the file.
@@ -1908,8 +1878,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
             return self._get_associate_file(base_name, ["xmp"])
 
     def _get_associate_file(
-        self, base_name: str, extensions_to_check: List[str]
-    ) -> Optional[str]:
+        self, base_name: str, extensions_to_check: list[str]
+    ) -> str | None:
         """
         :param base_name: base name of file, without directory
         :param extensions_to_check: list of extensions in lower case without leading
@@ -1919,10 +1889,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         full_file_name_no_ext = os.path.join(self.dir_name, base_name)
         for e in extensions_to_check:
-            possible_file = "{}.{}".format(full_file_name_no_ext, e)
+            possible_file = f"{full_file_name_no_ext}.{e}"
             if os.path.exists(possible_file):
                 return possible_file
-            possible_file = "{}.{}".format(full_file_name_no_ext, e.upper())
+            possible_file = f"{full_file_name_no_ext}.{e.upper()}"
             if os.path.exists(possible_file):
                 return possible_file
         return None
@@ -1934,11 +1904,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.send_problems()
 
     @property
-    def camera_details(self) -> Optional[CameraDetails]:
+    def camera_details(self) -> CameraDetails | None:
         return self._camera_details
 
     @camera_details.setter
-    def camera_details(self, index: Optional[int]) -> None:
+    def camera_details(self, index: int | None) -> None:
         """
         :param index: index into the storage details, for cameras with more than one
          storage
@@ -1975,9 +1945,7 @@ def trace_lines(frame, event, arg):
     co = frame.f_code
     func_name = co.co_name
     line_no = frame.f_lineno
-    print(
-        "%s >>>>>>>>>>>>> At %s line %s" % (datetime.now().ctime(), func_name, line_no)
-    )
+    print(f"{datetime.now().ctime()} >>>>>>>>>>>>> At {func_name} line {line_no}")
 
 
 def trace_calls(frame, event, arg):
@@ -1996,15 +1964,8 @@ def trace_calls(frame, event, arg):
     else:
         caller_line_no = caller_filename = ""
     print(
-        "% s Call to %s on line %s of %s from line %s of %s"
-        % (
-            datetime.now().ctime(),
-            func_name,
-            func_line_no,
-            func_filename,
-            caller_line_no,
-            caller_filename,
-        )
+        f"{datetime.now().ctime(): } Call to {func_name} on line {func_line_no} of "
+        f"{func_filename} from line {caller_line_no} of {caller_filename}"
     )
 
     for f in (

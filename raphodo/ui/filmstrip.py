@@ -1,30 +1,10 @@
-#!/usr/bin/env python3
-
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2011-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Overlays a filmstrip onto QImage, keeping the image's dimensions the
 same
 """
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
 
 from PyQt5.QtGui import QImage, QPainter
 
@@ -80,7 +60,6 @@ def add_filmstrip(thumbnail: QImage) -> QImage:
     :return a copy of the thumbnail
 
     """
-    format = thumbnail.format()
 
     filmstrip = QImage(xpm_data)
     filmstrip_width = filmstrip.width()

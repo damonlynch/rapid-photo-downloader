@@ -1,38 +1,17 @@
-#!/usr/bin/env python3
+# SPDX-FileCopyrightText: Copyright 2015-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: Copyright 2012-2015 Jim Easterbrook <jim@jim-easterbrook.me.uk>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
-# Copyright (C) 2012-2015 Jim Easterbrook <jim@jim-easterbrook.me.uk>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2022, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
-
-import io
 import logging
 import os
 import re
-from typing import Optional, List, Tuple, Union
 
 import gphoto2 as gp
-from raphodo.storage.storage import StorageSpace, udev_attributes
+
+from raphodo.cameraerror import CameraProblemEx
 from raphodo.constants import CameraErrorCode
-from raphodo.utilities import format_size_for_user
-from raphodo.cameraerror import CameraError, CameraProblemEx
+from raphodo.storage.storage import StorageSpace, udev_attributes
+from raphodo.tools.utilities import format_size_for_user
 
 
 def python_gphoto2_version():
@@ -58,21 +37,15 @@ def gphoto2_python_logging():
     return gp.use_python_logging() or True
 
 
-def autodetect_cameras(
-    context: gp.Context, suppress_errors: bool = True
-) -> Union[gp.CameraList, List]:
+def autodetect_cameras(suppress_errors: bool = True) -> gp.CameraList | list:
     """
-    Do camera auto detection for multiple versions of gphoto2-python
-
-    Version 2.2.0 of gphoto2 introduces a COMPATIBILITY CHANGE:
-    Removed Context.camera_autodetect method.
-    Was quickly reintroduced in 2.2.1, but is due for removal.
+    Do camera auto-detection for multiple versions of gphoto2-python
 
     :return: CameraList of model and port
     """
 
     try:
-        return gp.check_result(gp.gp_camera_autodetect(context))
+        return gp.check_result(gp.gp_camera_autodetect())
     except Exception:
         if not suppress_errors:
             raise
@@ -83,7 +56,7 @@ def autodetect_cameras(
 gphoto2_error_codes = {
     code: name
     for code, name in (
-        ((getattr(gp, attr), attr) for attr in dir(gp) if attr.startswith("GP_ERROR"))
+        (getattr(gp, attr), attr) for attr in dir(gp) if attr.startswith("GP_ERROR")
     )
 }
 
@@ -92,7 +65,7 @@ def gphoto2_named_error(code: int) -> str:
     return gphoto2_error_codes.get(code, "Unknown gphoto2 error")
 
 
-def generate_devname(camera_port: str) -> Optional[str]:
+def generate_devname(camera_port: str) -> str | None:
     """
      Generate udev DEVNAME.
 
@@ -108,7 +81,7 @@ def generate_devname(camera_port: str) -> Optional[str]:
     match = re.match("usb:([0-9]+),([0-9]+)", camera_port)
     if match is not None:
         p1, p2 = match.groups()
-        return "/dev/bus/usb/{}/{}".format(p1, p2)
+        return f"/dev/bus/usb/{p1}/{p2}"
     return None
 
 
@@ -123,7 +96,6 @@ def camera_is_mtp_device(camera_port: str) -> bool:
 
 
 class Camera:
-
     """Access a camera via libgphoto2."""
 
     def __init__(
@@ -133,8 +105,7 @@ class Camera:
         is_mtp_device: bool,
         get_folders: bool = True,
         raise_errors: bool = False,
-        context: gp.Context = None,
-        specific_folders: Optional[List[str]] = None,
+        specific_folders: list[str] | None = None,
     ) -> None:
         """
         Initialize a camera via libgphoto2.
@@ -160,14 +131,9 @@ class Camera:
         self.display_name = model
         self.camera_config = None
 
-        if context is None:
-            self.context = gp.Context()
-        else:
-            self.context = context
-
         self._select_camera(model, port)
 
-        self.specific_folders = None  # type: Optional[List[str]]
+        self.specific_folders: list[str] | None = None
         self.specific_folder_located = False
         self._dual_slots_active = False
 
@@ -175,12 +141,12 @@ class Camera:
 
         self.camera_initialized = False
         try:
-            self.camera.init(self.context)
+            self.camera.init()
             self.camera_initialized = True
         except gp.GPhoto2Error as e:
             if e.code == gp.GP_ERROR_IO_USB_CLAIM:
                 error_code = CameraErrorCode.inaccessible
-                logging.error("{} is already mounted".format(model))
+                logging.error(f"{model} is already mounted")
             elif e.code == gp.GP_ERROR:
                 logging.error(
                     "An error occurred initializing the camera using libgphoto2"
@@ -213,9 +179,8 @@ class Camera:
                 )
             except gp.GPhoto2Error as e:
                 logging.error(
-                    "Unable to access camera %s: %s. Is it locked?",
-                    self.display_name,
-                    gphoto2_named_error(e.code),
+                    f"Unable to access camera {self.display_name}: "
+                    f"{gphoto2_named_error(e.code)}. Is it locked?"
                 )
                 if raise_errors:
                     self.free_camera()
@@ -248,8 +213,8 @@ class Camera:
         ]
 
     def _locate_specific_folders(
-        self, path: str, specific_folders: Optional[List[str]]
-    ) -> List[Optional[List[str]]]:
+        self, path: str, specific_folders: list[str] | None
+    ) -> list[list[str]]:
         """
         Scan camera looking for folders such as DCIM,  PRIVATE, and MP_ROOT.
 
@@ -278,7 +243,7 @@ class Camera:
 
         # turn list of two items into a dictionary, for easier access
         # no error checking as exceptions are caught by the caller
-        folders = dict(self.camera.folder_list_folders(path, self.context))
+        folders = dict(self.camera.folder_list_folders(path))
 
         if specific_folders is None:
             found_folders = [[path + folder] for folder in folders]
@@ -288,9 +253,7 @@ class Camera:
             # it is at this level that specific folders like DCIM will be found
             for subfolder in folders:
                 subpath = os.path.join(path, subfolder)
-                subfolders = dict(
-                    self.camera.folder_list_folders(subpath, self.context)
-                )
+                subfolders = dict(self.camera.folder_list_folders(subpath))
                 ff = self._locate_specific_subfolders(
                     subfolders=subfolders,
                     subpath=subpath,
@@ -307,9 +270,7 @@ class Camera:
                     for nested_subfolder in subfolders:
                         nested_subpath = os.path.join(subpath, nested_subfolder)
                         nested_subfolders = dict(
-                            self.camera.folder_list_folders(
-                                nested_subpath, self.context
-                            )
+                            self.camera.folder_list_folders(nested_subpath)
                         )
                         ff = self._locate_specific_subfolders(
                             subfolders=nested_subfolders,
@@ -325,7 +286,7 @@ class Camera:
 
         return found_folders
 
-    def get_file_info(self, folder, file_name) -> Tuple[int, int]:
+    def get_file_info(self, folder, file_name) -> tuple[int, int]:
         """
         Returns modification time and file size
 
@@ -335,7 +296,7 @@ class Camera:
         :param file_name:
         :return: tuple of modification time and file size
         """
-        info = self.camera.file_get_info(folder, file_name, self.context)
+        info = self.camera.file_get_info(folder, file_name)
         modification_time = info.file.mtime
         size = info.file.size
         return modification_time, size
@@ -343,7 +304,7 @@ class Camera:
     def get_exif_extract(
         self, folder: str, file_name: str, size_in_bytes: int = 200
     ) -> bytearray:
-        """ "
+        """
         Attempt to read only the exif portion of the file.
 
         Assumes exif is located at the beginning of the file.
@@ -359,9 +320,7 @@ class Camera:
 
         buffer = bytearray(size_in_bytes)
         try:
-            self.camera.file_read(
-                folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, buffer, self.context
-            )
+            self.camera.file_read(folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, buffer)
         except gp.GPhoto2Error as e:
             logging.error(
                 "Unable to extract portion of file from camera %s: %s",
@@ -404,7 +363,7 @@ class Camera:
 
     def get_exif_extract_from_jpeg_manual_parse(
         self, folder: str, file_name: str
-    ) -> Optional[bytes]:
+    ) -> bytes | None:
         """
         Extract exif section of a jpeg.
 
@@ -435,9 +394,9 @@ class Camera:
 
         view = memoryview(bytearray(read0_size))
         try:
-            bytes_read = gp.check_result(
+            gp.check_result(
                 self.camera.file_read(
-                    folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, view, self.context
+                    folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, view
                 )
             )
         except gp.GPhoto2Error as ex:
@@ -468,14 +427,13 @@ class Camera:
             read1_size = app0_data_length + 2
             app0_view = memoryview(bytearray(read1_size))
             try:
-                bytes_read = gp.check_result(
+                gp.check_result(
                     self.camera.file_read(
                         folder,
                         file_name,
                         gp.GP_FILE_TYPE_NORMAL,
                         read0_size,
                         app0_view,
-                        self.context,
                     )
                 )
             except gp.GPhoto2Error as ex:
@@ -506,14 +464,13 @@ class Camera:
         # Step 4: read APP1
         view = memoryview(bytearray(app1_data_length))
         try:
-            bytes_read = gp.check_result(
+            gp.check_result(
                 self.camera.file_read(
                     folder,
                     file_name,
                     gp.GP_FILE_TYPE_NORMAL,
                     offset,
                     view,
-                    self.context,
                 )
             )
         except gp.GPhoto2Error as ex:
@@ -529,15 +486,12 @@ class Camera:
         self,
         dir_name: str,
         file_name: str,
-        dest_full_filename: Optional[str] = None,
+        dest_full_filename: str | None = None,
         file_type: int = gp.GP_FILE_TYPE_NORMAL,
     ) -> gp.CameraFile:
-
         try:
             camera_file = gp.check_result(
-                gp.gp_camera_file_get(
-                    self.camera, dir_name, file_name, file_type, self.context
-                )
+                gp.gp_camera_file_get(self.camera, dir_name, file_name, file_type)
             )
         except gp.GPhoto2Error as ex:
             logging.error(
@@ -600,10 +554,9 @@ class Camera:
         view = memoryview(buffer)
         dest_file = None
         try:
-            dest_file = io.open(dest_full_filename, "wb")
-            src_bytes = view.tobytes()
-            dest_file.write(src_bytes)
-            dest_file.close()
+            with open(dest_full_filename, "wb") as dest_file:
+                src_bytes = view.tobytes()
+                dest_file.write(src_bytes)
             if mtime is not None:
                 os.utime(dest_full_filename, times=(mtime, mtime))
         except (OSError, PermissionError) as ex:
@@ -613,8 +566,6 @@ class Camera:
                 self.display_name,
                 gphoto2_named_error(ex.errno),
             )
-            if dest_file is not None:
-                dest_file.close()
             raise CameraProblemEx(code=CameraErrorCode.write, py_exception=ex)
 
     def save_file_by_chunks(
@@ -627,7 +578,7 @@ class Camera:
         check_for_command,
         return_file_bytes=False,
         chunk_size=1048576,
-    ) -> Optional[bytes]:
+    ) -> bytes | None:
         """
         :param dir_name: directory on the camera
         :param file_name: the photo or video
@@ -660,7 +611,6 @@ class Camera:
                         gp.GP_FILE_TYPE_NORMAL,
                         offset,
                         view[offset:stop],
-                        self.context,
                     )
                 )
                 amount_downloaded += bytes_read
@@ -679,10 +629,9 @@ class Camera:
 
         dest_file = None
         try:
-            dest_file = io.open(dest_full_filename, "wb")
-            src_bytes = view.tobytes()
-            dest_file.write(src_bytes)
-            dest_file.close()
+            with open(dest_full_filename, "wb") as dest_file:
+                src_bytes = view.tobytes()
+                dest_file.write(src_bytes)
         except (OSError, PermissionError) as ex:
             logging.error(
                 "Error saving file %s from camera %s. Error %s: %s",
@@ -691,8 +640,6 @@ class Camera:
                 ex.errno,
                 ex.strerror,
             )
-            if dest_file is not None:
-                dest_file.close()
             raise CameraProblemEx(code=CameraErrorCode.write, py_exception=ex)
 
         if return_file_bytes:
@@ -703,8 +650,8 @@ class Camera:
         dir_name: str,
         file_name: str,
         ignore_embedded_thumbnail=False,
-        cache_full_filename: Optional[str] = None,
-    ) -> Optional[bytes]:
+        cache_full_filename: str | None = None,
+    ) -> bytes | None:
         """
         :param dir_name: directory on the camera
         :param file_name: the photo or video
@@ -740,7 +687,7 @@ class Camera:
             data = memoryview(thumbnail_data)
             return data.tobytes()
 
-    def get_THM_file(self, full_THM_name: str) -> Optional[bytes]:
+    def get_THM_file(self, full_THM_name: str) -> bytes | None:
         """
         Get THM thumbnail from camera
 
@@ -770,7 +717,7 @@ class Camera:
         self.camera = gp.Camera()
         # search abilities for camera model
         abilities_list = gp.CameraAbilitiesList()
-        abilities_list.load(self.context)
+        abilities_list.load()
         idx = abilities_list.lookup_model(str(model))
         self.camera.set_abilities(abilities_list[idx])
         # search ports for camera port name
@@ -784,7 +731,7 @@ class Camera:
         Disconnects the camera in gphoto2.
         """
         if self.camera_initialized:
-            self.camera.exit(self.context)
+            self.camera.exit()
             self.camera_initialized = False
 
     def _concise_model_name(self) -> str:
@@ -799,7 +746,7 @@ class Camera:
         """
         if self.camera_config is None:
             try:
-                self.camera_config = self.camera.get_config(self.context)
+                self.camera_config = self.camera.get_config()
             except gp.GPhoto2Error as e:
                 if e.code == gp.GP_ERROR_NOT_SUPPORTED:
                     logging.error(
@@ -826,7 +773,7 @@ class Camera:
                         return child2.get_value()
         return ""
 
-    def get_storage_media_capacity(self, refresh: bool = False) -> List[StorageSpace]:
+    def get_storage_media_capacity(self, refresh: bool = False) -> list[StorageSpace]:
         """
         Determine the bytes free and bytes total (media capacity)
         :param refresh: if True, get updated instead of cached values
@@ -853,7 +800,7 @@ class Camera:
                 )
         return storage_capacity
 
-    def get_storage_descriptions(self, refresh: bool = False) -> List[str]:
+    def get_storage_descriptions(self, refresh: bool = False) -> list[str]:
         """
         Storage description is used in MTP path names by gvfs and KDE.
 
@@ -885,7 +832,7 @@ class Camera:
         """
         if not self.storage_info or refresh:
             try:
-                self.storage_info = self.camera.get_storageinfo(self.context)
+                self.storage_info = self.camera.get_storageinfo()
             except gp.GPhoto2Error as e:
                 logging.error(
                     "Unable to determine storage info for camera %s: %s",
@@ -924,7 +871,7 @@ class Camera:
         :return: True if unlocked, else False
         """
         try:
-            self.camera.folder_list_folders("/", self.context)
+            self.camera.folder_list_folders("/")
         except gp.GPhoto2Error as e:
             logging.error(
                 "Unable to access camera %s: %s. Is it locked?",
@@ -939,15 +886,13 @@ class Camera:
 def dump_camera_details() -> None:
     import itertools
 
-    context = gp.Context()
-    cameras = autodetect_cameras(context)
+    cameras = autodetect_cameras()
     for model, port in cameras:
         is_mtp_device = camera_is_mtp_device(camera_port=port)
         c = Camera(
             model=model,
             port=port,
             is_mtp_device=is_mtp_device,
-            context=context,
         )
         if not c.camera_initialized:
             logging.error("Camera %s could not be initialized", model)
@@ -974,11 +919,9 @@ def dump_camera_details() -> None:
                     print("\n{}\n{}".format(title, "-" * len(title)))
                     for ss in sc:
                         print(
-                            "\nPath: {}\nCapacity: {}\nFree {}".format(
-                                ss.path,
-                                format_size_for_user(ss.bytes_total),
-                                format_size_for_user(ss.bytes_free),
-                            )
+                            f"\nPath: {ss.path}\n"
+                            f"Capacity: {format_size_for_user(ss.bytes_total)}\n"
+                            f"Free {format_size_for_user(ss.bytes_free)}"
                         )
                 sd = c.get_storage_descriptions()
                 if not sd:
@@ -987,7 +930,7 @@ def dump_camera_details() -> None:
                     title = "Storage description(s)"
                     print("\n{}\n{}".format(title, "-" * len(title)))
                     for ss in sd:
-                        print("\n{}".format(ss))
+                        print(f"\n{ss}")
 
         c.free_camera()
 
@@ -1000,11 +943,8 @@ if __name__ == "__main__":
         dump_camera_details()
 
     if True:
-
-        # Test stub
-        gp_context = gp.Context()
         # Assume gphoto2 version 2.5 or greater
-        cameras = autodetect_cameras(gp_context)
+        cameras = autodetect_cameras()
         for name, value in cameras:
             camera = name
             port = value
@@ -1019,7 +959,7 @@ if __name__ == "__main__":
             # c = Camera(model=camera, port=port)
             print(c.no_storage_media(), c.dual_slots_active, c.specific_folders)
 
-            for name, value in c.camera.folder_list_files("/", c.context):
+            for name, value in c.camera.folder_list_files("/"):
                 print(name, value)
 
             c.free_camera()

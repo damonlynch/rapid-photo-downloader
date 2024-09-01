@@ -1,36 +1,27 @@
-# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2022, Damon Lynch"
-
+# SPDX-FileCopyrightText: Copyright 2011-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
-import subprocess
-from typing import Optional, Tuple
 import os
-from pkg_resources import parse_version
+import subprocess
+
+from packaging.version import parse as parse_version
 
 import raphodo.programversions as programversions
-from raphodo.constants import thumbnail_offset, FileType, FileExtension
+from raphodo.constants import FileExtension, FileType
+from raphodo.metadata.fileextensions import (
+    AUDIO_EXTENSIONS,
+    EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS,
+    HEIF_EXTENTIONS,
+    JPEG_EXTENSIONS,
+    OTHER_PHOTO_EXTENSIONS,
+    PHOTO_EXTENSIONS_SCAN,
+    RAW_EXTENSIONS,
+    VIDEO_EXTENSIONS,
+)
 
 
-def exiftool_capabilities() -> Tuple[bool, bool]:
+def exiftool_capabilities() -> tuple[bool, bool]:
     """
     Determine if ExifTool can be used to read cr3 and heif/heic files
     """
@@ -43,7 +34,7 @@ def exiftool_capabilities() -> Tuple[bool, bool]:
             heif = v >= parse_version("10.63")
             return cr3, heif
         return False, False
-    except:
+    except Exception:
         logging.error("Unable to compare ExifTool version number: %s", v)
         return False, False
 
@@ -77,89 +68,18 @@ def heif_capable() -> bool:
     return _exiftool_heif
 
 
-RAW_EXTENSIONS = [
-    "3fr",
-    "arw",
-    "dcr",
-    "cr2",
-    "crw",
-    "dng",
-    "fff",
-    "iiq",
-    "mos",
-    "mef",
-    "mrw",
-    "nef",
-    "nrw",
-    "orf",
-    "ori",
-    "pef",
-    "raf",
-    "raw",
-    "rw2",
-    "sr2",
-    "srw",
-    "x3f",
-]
-
-HEIF_EXTENTIONS = ["heif", "heic", "hif"]
-
 if cr3_capable():
     RAW_EXTENSIONS.append("cr3")
 
 RAW_EXTENSIONS.sort()
 
-EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS = ["mos", "mrw", "x3f"]
-
 if not _exiv2_cr3 and _exiftool_cr3:
     EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS.append("cr3")
-
-JPEG_EXTENSIONS = ["jpg", "jpe", "jpeg"]
-
-JPEG_TYPE_EXTENSIONS = ["jpg", "jpe", "jpeg", "mpo"]
-
-OTHER_PHOTO_EXTENSIONS = ["tif", "tiff", "mpo"]
 
 if heif_capable():
     OTHER_PHOTO_EXTENSIONS.extend(HEIF_EXTENTIONS)
 
-NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + OTHER_PHOTO_EXTENSIONS
-
-PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
-
-PHOTO_EXTENSIONS_WITHOUT_OTHER = RAW_EXTENSIONS + JPEG_EXTENSIONS
-
-PHOTO_EXTENSIONS_SCAN = PHOTO_EXTENSIONS
-
-AUDIO_EXTENSIONS = ["wav", "mp3"]
-
-VIDEO_EXTENSIONS = [
-    "3gp",
-    "avi",
-    "m2t",
-    "m2ts",
-    "mov",
-    "mp4",
-    "mpeg",
-    "mpg",
-    "mod",
-    "tod",
-    "mts",
-]
-
 VIDEO_EXTENSIONS.sort()
-
-VIDEO_THUMBNAIL_EXTENSIONS = ["thm"]
-
-ALL_USER_VISIBLE_EXTENSIONS = PHOTO_EXTENSIONS + VIDEO_EXTENSIONS + ["xmp", "log"]
-
-ALL_KNOWN_EXTENSIONS = (
-    ALL_USER_VISIBLE_EXTENSIONS + AUDIO_EXTENSIONS + VIDEO_THUMBNAIL_EXTENSIONS
-)
-
-MUST_CACHE_VIDEOS = [
-    video for video in VIDEO_EXTENSIONS if thumbnail_offset.get(video) is None
-]
 
 
 def use_exiftool_on_photo(extension: str, preview_extraction_irrelevant: bool) -> bool:
@@ -180,7 +100,7 @@ def use_exiftool_on_photo(extension: str, preview_extraction_irrelevant: bool) -
     return extension in EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS
 
 
-def extract_extension(file_name) -> Optional[str]:
+def extract_extension(file_name) -> str | None:
     r"""
     Extract the file extension in the format the rest of the code expects:
     no leading period, lower case
@@ -200,9 +120,9 @@ def extract_extension(file_name) -> Optional[str]:
     return os.path.splitext(file_name)[1][1:].lower()
 
 
-def file_type(file_extension: str) -> Optional[FileType]:
+def file_type(file_extension: str) -> FileType | None:
     r"""
-    Check file extension to determine if photo or video
+    Check the file extension to determine if it is a photo or video
 
     :param file_extension: file extension in all lower case without leading period
     :return: file type (photo/video), or None if it's neither.
@@ -227,8 +147,8 @@ def file_type(file_extension: str) -> Optional[FileType]:
 
 
 def file_type_from_splitext(
-    file_extension: Optional[str] = None, file_name: Optional[str] = None
-) -> Optional[FileType]:
+    file_extension: str | None = None, file_name: str | None = None
+) -> FileType | None:
     r"""
     Check file extension to determine if photo or video.
 

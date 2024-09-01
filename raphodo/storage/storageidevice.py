@@ -1,20 +1,5 @@
-# Copyright (C) 2022 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2022-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Utility functions that use subprocess to call primarily libimobiledevice utilities
@@ -24,20 +9,14 @@ There is a Python binding to libimobiledevice, but at the time of writing it is
 undocumented and very difficult to use.
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2022, Damon Lynch."
-
 import logging
 import os
 import shutil
-from typing import Optional
 import subprocess
-from typing import List, Tuple
 
 from raphodo.cameraerror import iOSDeviceError
 from raphodo.constants import CameraErrorCode
-from raphodo.utilities import create_temp_dir
-
+from raphodo.tools.utilities import create_temp_dir
 
 # Utilities for identifying, pairing, and mounting iOS devices
 # Called every time on import into a new process, but not much we can do about that
@@ -54,16 +33,15 @@ def utilities_present() -> bool:
     return None not in ios_helper_cmds
 
 
-def ios_missing_programs() -> List[str]:
+def ios_missing_programs() -> list[str]:
     """
     :return: a list of missing helper programs to allow iOS device access
     """
-    l = [
+    return [
         idevice_helper_apps[i]
         for i in range(len(ios_helper_cmds))
         if ios_helper_cmds[i] is None
     ]
-    return l
 
 
 def idevice_serial_to_udid(serial: str) -> str:
@@ -78,7 +56,7 @@ def idevice_serial_to_udid(serial: str) -> str:
     """
 
     if len(serial) == 24:
-        return "{}-{}".format(serial[:8], serial[8:])
+        return f"{serial[:8]}-{serial[8:]}"
     else:
         if len(serial) != 40:
             logging.warning(
@@ -90,19 +68,20 @@ def idevice_serial_to_udid(serial: str) -> str:
 def idevice_run_command(
     command: str,
     udid: str,
-    argument_before_option: Optional[str] = "",
-    argument: Optional[str] = "",
-    display_name: Optional[str] = "",
-    warning_only: Optional[bool] = False,
-    supply_udid_as_arg: Optional[bool] = True,
-    camera_error_code: Optional[CameraErrorCode] = CameraErrorCode.pair,
+    argument_before_option: str | None = "",
+    argument: str | None = "",
+    display_name: str | None = "",
+    warning_only: bool | None = False,
+    supply_udid_as_arg: bool | None = True,
+    camera_error_code: CameraErrorCode | None = CameraErrorCode.pair,
 ) -> str:
     """
     Run a command and raise an error if it fails
 
     :param command: command to run, e.g. idevicename_cmd
     :param udid: iOS device udid, used to perform operations on specific device
-    :param argument_before_option: argument to pass command before any '-u udid' argument
+    :param argument_before_option: argument to pass command before any '-u udid'
+     argument
     :param argument: argument to pass command after any '-u udid' argument
     :param display_name: iOS name for use in error messages
     :param warning_only: do not raise an error, but instead log a warning
@@ -263,26 +242,21 @@ def idevice_do_unmount(udid: str, display_name: str, mount_point: str):
     if os.path.isdir(mount_point):
         try:
             os.rmdir(mount_point)
-        except OSError as inst:
-            msg = "Failed to remove temporary directory %s: %s %s" % (
-                mount_point,
-                inst.errno,
-                inst.strerror,
-            )
-            logging.critical(msg)
+        except OSError:
+            logging.exception(f"Failed to remove temporary directory {mount_point}")
 
 
 def idevice_generate_mount_point(udid: str) -> str:
     """
     Create a temporary directory in which to mount iOS device using FUSE
-    :param udid: iOS device udid, used to perform operations on specific device
+    :param udid: iOS device udid, used to perform operations on a specific device
     :return: full path to the temp dir
     """
 
     # Make the temp directory have the iOS serial number so that when thumbnails are
     # saved by path, the path will be the same each time the device is inserted
 
-    temp_dir = create_temp_dir(temp_dir_name="rpd-tmp-{}".format(udid))
+    temp_dir = create_temp_dir(temp_dir_name=f"rpd-tmp-{udid}")
     assert temp_dir is not None
     logging.debug("Created temp mount point %s", temp_dir)
     return temp_dir

@@ -1,42 +1,23 @@
-# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: Copyright 2015-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2022, Damon Lynch"
-
-import pickle
-from typing import Optional
 import logging
+import pickle
 
 import zmq
-from PyQt5.QtCore import QThread, QTimer, pyqtSignal, pyqtBoundSignal, pyqtSlot, QObject
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtCore import QObject, QThread, QTimer, pyqtBoundSignal, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QImage, QPixmap
 
 from raphodo.interprocess import (
-    LoadBalancerManager,
-    PublishPullPipelineManager,
     GenerateThumbnailsArguments,
     GenerateThumbnailsResults,
+    LoadBalancerManager,
+    PublishPullPipelineManager,
     ThreadNames,
     create_inproc_msg,
 )
 from raphodo.rpdfile import RPDFile
-from raphodo.utilities import CacheDirs
+from raphodo.tools.utilities import CacheDirs
 
 
 class ThumbnailManagerPara(PublishPullPipelineManager):
@@ -59,7 +40,7 @@ class ThumbnailManagerPara(PublishPullPipelineManager):
         self._worker_id = 0
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)  # type: GenerateThumbnailsResults
+        data: GenerateThumbnailsResults = pickle.loads(self.content)
         if data.rpd_file is not None:
             if data.thumbnail_bytes is None:
                 thumbnail = QPixmap()
@@ -115,7 +96,7 @@ class Thumbnailer(QObject):
         super().__init__(parent)
         self.context = zmq.Context.instance()
         self.log_gphoto2 = log_gphoto2
-        self._frontend_port = None  # type: int
+        self._frontend_port: int | None = None
         self.no_workers = no_workers
         self.logging_port = logging_port
 
@@ -136,11 +117,11 @@ class Thumbnailer(QObject):
         cache_dirs: CacheDirs,
         need_photo_cache_dir: bool,
         need_video_cache_dir: bool,
-        camera_model: Optional[str] == None,
-        camera_port: Optional[str] = None,
-        is_mtp_device: Optional[bool] = None,
-        entire_video_required: Optional[bool] = None,
-        entire_photo_required: Optional[bool] = None,
+        camera_model: str | None = None,
+        camera_port: str | None = None,
+        is_mtp_device: bool | None = None,
+        entire_video_required: bool | None = None,
+        entire_photo_required: bool | None = None,
     ) -> None:
         """
         Initiates thumbnail generation.
@@ -260,7 +241,6 @@ class Thumbnailer(QObject):
         self.frontend_port.emit(frontend_port)
 
     def stop(self) -> None:
-
         self.thumbnailer_controller.send_multipart(create_inproc_msg(b"STOP"))
         self.load_balancer_controller.send_multipart(create_inproc_msg(b"STOP"))
         self.thumbnail_manager_thread.quit()

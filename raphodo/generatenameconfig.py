@@ -1,40 +1,24 @@
-#!/usr/bin/env python3
-
-# Copyright (C) 2007-2020 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-
-# Special key in each dictionary which specifies the order of elements.
-# It is very important to have a consistent and rational order when displaying
-# these prefs to the user, and dictionaries are unsorted.
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2020, Damon Lynch"
+# SPDX-FileCopyrightText: Copyright 2007-2023 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
 from collections import OrderedDict
-from typing import List, Optional, Tuple
 
+from raphodo.internationalisation.install import install_gettext
 
+install_gettext()
+
+PrefList = list[str]
+CustomPresetSubfolderNames = tuple[tuple[str]]
+CustomPresetSubfolderLists = tuple[list[str]]
+
+# The following strings must not be translated here, because they are configuration
+# values.
 # PLEASE NOTE: these values are duplicated in a dummy class whose function
 # is to have them put into the translation template. If you change the values below
-# then you MUST change the value in class i18TranslateMeThanks as well!!
+# then you MUST change the value in class I18TranslateMeThanks as well!!
 
-# *** Level 0, i.e. first column of values presented to user
+# *** Level 0, i.e., first column of values presented to user
 DATE_TIME = "Date time"
 TEXT = "Text"
 FILENAME = "Filename"
@@ -44,7 +28,7 @@ JOB_CODE = "Job code"
 
 SEPARATOR = os.sep
 
-# *** Level 1, i.e. second column of values presented to user
+# *** Level 1, i.e., second column of values presented to user
 
 # Date time
 IMAGE_DATE = "Image date"
@@ -61,9 +45,8 @@ VIDEO_NUMBER = "Video number"
 # pre 0.9.0a4 File name values: NAME_EXTENSION, EXTENSION
 NAME_EXTENSION = "Name + extension"
 
-# however extension is used for subfolder generation in all versions
+# However, extension is used for subfolder generation in all versions
 EXTENSION = "Extension"
-
 
 # Metadata
 APERTURE = "Aperture"
@@ -196,7 +179,7 @@ DEFAULT_PHOTO_RENAME_PREFS = [FILENAME, NAME, ORIGINAL_CASE]
 DEFAULT_VIDEO_RENAME_PREFS = [FILENAME, NAME, ORIGINAL_CASE]
 
 
-class i18TranslateMeThanks:
+class I18TranslateMeThanks:
     """this class is never used in actual running code
     Its purpose is to have these values inserted into the program's i18n template file
 
@@ -370,10 +353,10 @@ class i18TranslateMeThanks:
         _("DD")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _("Month (full)"),
+        _("Month (full)")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _("Month (abbreviated)"),
+        _("Month (abbreviated)")
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _("Weekday (full)")
@@ -502,6 +485,8 @@ PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV = (
         "",
     ],
 )
+
+assert len(PHOTO_SUBFOLDER_MENU_DEFAULTS) == len(PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV)
 
 PHOTO_RENAME_MENU_DEFAULTS = (
     (_("Original Filename"), "IMG_1234"),
@@ -689,6 +674,19 @@ VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV = (
         "",
     ],
 )
+
+assert len(VIDEO_SUBFOLDER_MENU_DEFAULTS) == len(VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV)
+
+NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS = len(VIDEO_SUBFOLDER_MENU_DEFAULTS)
+# Make download subfolder menu entries include user presets
+# (equal to the number of built-in presets), plus a menu item labelled Custom,
+# which appears at the bottom of the menu.
+NUM_DOWNLOAD_SUBFOLDER_MENU_CUSTOM_PRESETS = NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS
+MAX_DOWNLOAD_SUBFOLDER_MENU_PRESETS = (
+    NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS + NUM_DOWNLOAD_SUBFOLDER_MENU_CUSTOM_PRESETS
+)
+CUSTOM_SUBFOLDER_MENU_ENTRY_POSITION = MAX_DOWNLOAD_SUBFOLDER_MENU_PRESETS
+MAX_DOWNLOAD_SUBFOLDER_MENU_ENTRIES = MAX_DOWNLOAD_SUBFOLDER_MENU_PRESETS + 1
 
 VIDEO_RENAME_MENU_DEFAULTS = (
     (_("Original Filename"), "MVI_1234"),
@@ -1102,7 +1100,7 @@ VIDEO_RENAME_SIMPLE = [
 JOB_CODE_RENAME_TEST = ["Job code", "", "", "Sequences", "Downloads today", "One digit"]
 
 
-def upgrade_pre090a4_rename_pref(pref_list: List[str]) -> Tuple[List[str], str]:
+def upgrade_pre090a4_rename_pref(pref_list: PrefList) -> tuple[PrefList, str | None]:
     r"""
     Upgrade photo and video rename preference list
 
@@ -1112,14 +1110,16 @@ def upgrade_pre090a4_rename_pref(pref_list: List[str]) -> Tuple[List[str], str]:
 
     >>> upgrade_pre090a4_rename_pref([FILENAME, NAME_EXTENSION, ORIGINAL_CASE])
     (['Filename', 'Name', 'Original Case'], 'Original Case')
-    >>> upgrade_pre090a4_rename_pref(PHOTO_RENAME_SIMPLE + [FILENAME, EXTENSION, LOWERCASE])
+    >>> prefs = PHOTO_RENAME_SIMPLE + [FILENAME, EXTENSION, LOWERCASE]
+    >>> upgrade_pre090a4_rename_pref(prefs)
     ... # doctest: +NORMALIZE_WHITESPACE
     (['Date time', 'Image date', 'YYYYMMDD',
       'Text', '-', '',
       'Date time', 'Image date', 'HHMM',
       'Text', '-', '',
       'Sequences', 'Downloads today', 'One digit'], 'lowercase')
-    >>> upgrade_pre090a4_rename_pref(PHOTO_RENAME_COMPLEX + [FILENAME, EXTENSION, UPPERCASE])
+    >>> prefs = PHOTO_RENAME_COMPLEX + [FILENAME, EXTENSION, UPPERCASE]
+    >>> upgrade_pre090a4_rename_pref(prefs)
     ... # doctest: +NORMALIZE_WHITESPACE
     (['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '',
       'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences',
@@ -1132,13 +1132,10 @@ def upgrade_pre090a4_rename_pref(pref_list: List[str]) -> Tuple[List[str], str]:
 
     """
     if not pref_list:
-        return (pref_list, None)
+        return pref_list, None
 
     # get extension case from last value
-    if pref_list[-2] in (NAME_EXTENSION, EXTENSION):
-        case = pref_list[-1]
-    else:
-        case = None
+    case = pref_list[-1] if pref_list[-2] in (NAME_EXTENSION, EXTENSION) else None
 
     new_pref_list = []
     for idx in range(0, len(pref_list), 3):
@@ -1157,11 +1154,12 @@ class PrefError(Exception):
         super().__init__()
         self.msg = ""
 
-    def unpackList(self, l: List[str]):
+    @staticmethod
+    def unpackList(pref_list: PrefList) -> str:
         """
         Make the preferences presentable to the user
         """
-        return ", ".join("'{}'".format(i) for i in l)
+        return ", ".join(f"'{i}'" for i in pref_list)
 
     def __str__(self):
         return self.msg
@@ -1171,18 +1169,17 @@ class PrefKeyError(PrefError):
     def __init__(self, error):
         super().__init__()
         value = error[0]
-        expectedValues = self.unpackList(error[1])
-        self.msg = "Preference key '%(key)s' is invalid.\nExpected one of %(value)s" % {
-            "key": value,
-            "value": expectedValues,
-        }
+        expected_values = self.unpackList(error[1])
+        self.msg = (
+            f"Preference key '{value}' is invalid.\nExpected one of {expected_values}"
+        )
 
 
 class PrefValueInvalidError(PrefKeyError):
     def __init__(self, error):
         super().__init__(error)
         value = error[0]
-        self.msg = "Preference value '%(value)s' is invalid" % {"value": value}
+        self.msg = f"Preference value '{value}' is invalid"
 
 
 class PrefLengthError(PrefError):
@@ -1225,7 +1222,6 @@ def _check_pref_valid(pref_defn, prefs):
     value = prefs[1]
 
     if key in pref_defn:
-
         next_pref_defn = pref_defn[key]
 
         if value is None:
@@ -1255,8 +1251,8 @@ def _check_pref_valid(pref_defn, prefs):
 
 
 def filter_subfolder_prefs(
-    pref_list: List[str], pref_colors: Optional[List[str]] = None
-) -> Tuple[bool, List[str], Optional[List[str]]]:
+    pref_list: list[str], pref_colors: list[str] | None = None
+) -> tuple[bool, list[str], list[str] | None]:
     """
     Filters out extraneous preference choices.
 
@@ -1298,4 +1294,4 @@ def filter_subfolder_prefs(
                         pref_colors = pref_colors[: i // 3] + pref_colors[i // 3 + 1 :]
                     break
 
-    return (prefs_changed, pref_list, pref_colors)
+    return prefs_changed, pref_list, pref_colors

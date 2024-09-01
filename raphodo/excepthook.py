@@ -1,45 +1,21 @@
-# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: Copyright 2016-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader. If not,
-# see <http://www.gnu.org/licenses/>.
-
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2022, Damon Lynch"
-
-
-import logging
-import traceback
 import io
+import logging
 import os
-from PyQt5.QtWidgets import QMessageBox, QApplication
+import traceback
 
-try:
-    from easygui import codebox
+from PyQt5.QtWidgets import QApplication, QMessageBox
 
-    have_easygui = True
-except:
-    # if import failed for any reason, ignore it
-    have_easygui = False
-
+from raphodo.internationalisation.install import install_gettext
 from raphodo.iplogging import full_log_file_path
-from raphodo.storage.storage import get_uri
 from raphodo.prefs.preferences import Preferences
-from raphodo.utilities import create_bugreport_tar, bug_report_full_tar_path
+from raphodo.storage.storage import get_uri
+from raphodo.tools.utilities import bug_report_full_tar_path, create_bugreport_tar
 from raphodo.ui.viewutils import standardMessageBox
+
+install_gettext()
 
 message_box_displayed = False
 exceptions_notified = set()
@@ -108,7 +84,6 @@ def save_bug_report_tar(config_file: str, full_log_file_path: str) -> None:
         log_path=log_path,
         full_config_file=config_file,
     ):
-
         body = tar_created_body.format(
             tarfile=os.path.split(bug_report_full_tar)[1],
             uri=get_uri(full_file_name=bug_report_full_tar),
@@ -132,9 +107,7 @@ def save_bug_report_tar(config_file: str, full_log_file_path: str) -> None:
             config_path=config_uri,
             config_file=config_file,
         )
-        message = "<b>{header}</b><br><br>{body}".format(
-            header=tar_error_header, body=body
-        )
+        message = f"<b>{tar_error_header}</b><br><br>{body}"
         messageBox = standardMessageBox(
             message=message,
             rich_text=True,
@@ -159,7 +132,7 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
     else:
         lineno = -1
         filename = "unknown"
-    key = "{}{}".format(filename, lineno)
+    key = f"{filename}{lineno}"
 
     global message_box_displayed
 
@@ -176,13 +149,11 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
     if not message_box_displayed and key not in exceptions_notified:
         message_box_displayed = True
         exceptions_notified.add(key)
-
         prefs = Preferences()
 
         title = _("Problem in Rapid Photo Downloader")
 
         if QApplication.instance():
-
             header = _("A problem occurred in Rapid Photo Downloader")
 
             only_notification = _(
@@ -194,9 +165,7 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
                 website="https://bugs.rapidphotodownloader.com"
             )
 
-            message = "<b>{}</b><br><br>{}<br><br>{}".format(
-                header, body, only_notification
-            )
+            message = f"<b>{header}</b><br><br>{body}<br><br>{only_notification}"
 
             errorbox = standardMessageBox(
                 message=message,
@@ -211,16 +180,4 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
                     config_file=prefs.settings_path(),
                     full_log_file_path=full_log_file_path(),
                 )
-
-        elif have_easygui:
-            message = _("A problem occurred in Rapid Photo Downloader\n")
-            prefix = _(
-                "Please report the problem at {website}\n"
-                "Attach the log file to your bug report, found at {log_path}\n\n"
-            ).format(
-                website="https://bugs.rapidphotodownloader.com",
-                log_path=full_log_file_path(),
-            )
-            text = prefix + traceback_info
-            codebox(msg=message, title=title, text=text)
         message_box_displayed = False

@@ -1,73 +1,57 @@
-#!/usr/bin/env python3
+# SPDX-FileCopyrightText: Copyright 2011-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
-
-import os
-import sys
+import contextlib
 import errno
-import io
+import hashlib
+import locale
+import logging
+import os
+import pickle
 import shutil
 import stat
-import hashlib
-import logging
-import pickle
-from operator import attrgetter
-from itertools import chain
+import sys
 from collections import defaultdict
-from typing import Dict, Optional, Tuple
-import locale
+from itertools import chain
+from operator import attrgetter
 
-try:
+with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
-except locale.Error:
-    pass
 
 import gphoto2 as gp
 
 from raphodo.camera import Camera, CameraProblemEx, gphoto2_python_logging
+from raphodo.constants import CameraErrorCode, DownloadStatus, FileType
+from raphodo.internationalisation.install import install_gettext
 from raphodo.interprocess import (
-    WorkerInPublishPullPipeline,
     CopyFilesArguments,
     CopyFilesResults,
+    WorkerInPublishPullPipeline,
 )
-from raphodo.constants import FileType, DownloadStatus, CameraErrorCode
-from raphodo.utilities import GenerateRandomFileName, create_temp_dirs, same_device
-from raphodo.rpdfile import RPDFile
-from raphodo.problemnotification import (
-    CopyingProblems,
-    CameraFileReadProblem,
-    FileWriteProblem,
-    FileMoveProblem,
-    FileDeleteProblem,
-    FileCopyProblem,
-    CameraInitializationProblem,
-)
-from raphodo.storage.storage import get_uri
 from raphodo.prefs.preferences import Preferences
+from raphodo.problemnotification import (
+    CameraFileReadProblem,
+    CameraInitializationProblem,
+    CopyingProblems,
+    FileCopyProblem,
+    FileDeleteProblem,
+    FileMoveProblem,
+    FileWriteProblem,
+)
 from raphodo.rescan import RescanCamera
+from raphodo.rpdfile import RPDFile
+from raphodo.storage.storage import get_uri
+from raphodo.tools.utilities import (
+    GenerateRandomFileName,
+    create_temp_dirs,
+    same_device,
+)
+
+install_gettext()
 
 
-def copy_file_metadata(src: str, dst: str) -> Optional[Tuple]:
+def copy_file_metadata(src: str, dst: str) -> tuple | None:
     """
     Copy all stat info (mode bits, atime, mtime, flags) from src to
     dst.
@@ -115,7 +99,7 @@ def copy_file_metadata(src: str, dst: str) -> Optional[Tuple]:
     #     return inst,
 
 
-def copy_camera_file_metadata(mtime: float, dst: str) -> Optional[Tuple]:
+def copy_camera_file_metadata(mtime: float, dst: str) -> tuple | None:
     # test code:
     # try:
     #     os.chown('/', 1000, 1000)
@@ -155,26 +139,26 @@ class FileCopy:
     ) -> bool:
         src_chunks = []
         try:
-            self.dest = io.open(destination, "wb", self.io_buffer)
-            self.src = io.open(source, "rb", self.io_buffer)
-            total = rpd_file.size
-            amount_downloaded = 0
+            with (
+                open(destination, "wb", self.io_buffer) as self.dest,
+                open(source, "rb", self.io_buffer) as self.src,
+            ):
+                total = rpd_file.size
+                amount_downloaded = 0
 
-            while True:
-                # first check if process is being stopped or paused
-                self.check_for_controller_directive()
+                while True:
+                    # first check if process is being stopped or paused
+                    self.check_for_controller_directive()
 
-                chunk = self.src.read(self.io_buffer)
-                if chunk:
-                    self.dest.write(chunk)
-                    if self.verify_file:
-                        src_chunks.append(chunk)
-                    amount_downloaded += len(chunk)
-                    self.update_progress(amount_downloaded, total)
-                else:
-                    break
-            self.dest.close()
-            self.src.close()
+                    chunk = self.src.read(self.io_buffer)
+                    if chunk:
+                        self.dest.write(chunk)
+                        if self.verify_file:
+                            src_chunks.append(chunk)
+                        amount_downloaded += len(chunk)
+                        self.update_progress(amount_downloaded, total)
+                    else:
+                        break
 
             if self.verify_file:
                 src_bytes = b"".join(src_chunks)
@@ -190,7 +174,7 @@ class FileCopy:
                 )
             )
             try:
-                msg = "%s: %s" % (e.errno, e.strerror)
+                msg = f"{e.errno}: {e.strerror}"
             except AttributeError:
                 msg = str(e)
             logging.error("%s. Failed to copy %s to %s", msg, source, destination)
@@ -204,7 +188,7 @@ class FileCopy:
                 )
             )
             try:
-                msg = "%s: %s" % (e.errno, e.strerror)
+                msg = f"{e.errno}: {e.strerror}"
             except AttributeError:
                 msg = str(e)
             logging.error(
@@ -233,9 +217,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
     def cleanup_pre_stop(self) -> None:
         super().cleanup_pre_stop()
-        if self.camera is not None:
-            if self.camera.camera_initialized:
-                self.camera.free_camera()
+        if self.camera is not None and self.camera.camera_initialized:
+            self.camera.free_camera()
         self.send_problems()
 
     def send_problems(self) -> None:
@@ -279,7 +262,6 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             #     self.bytes_downloaded = 0
 
     def copy_from_camera(self, rpd_file: RPDFile) -> bool:
-
         try:
             src_bytes = self.camera.save_file_by_chunks(
                 dir_name=rpd_file.path,
@@ -318,10 +300,9 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         dest_dir: str,
         associate_file_fullname: str,
         file_type: str,
-    ) -> Optional[str]:
-
+    ) -> str | None:
         ext = os.path.splitext(associate_file_fullname)[1]
-        temp_ext = "{}{}".format(temp_name, ext)
+        temp_ext = f"{temp_name}{ext}"
         temp_full_name = os.path.join(dest_dir, temp_ext)
         if rpd_file.from_camera:
             dir_name, file_name = os.path.split(associate_file_fullname)
@@ -378,7 +359,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
     def do_work(self):
         self.problems = CopyingProblems()
-        args = pickle.loads(self.content)  # type: CopyFilesArguments
+        args: CopyFilesArguments = pickle.loads(self.content)
 
         if args.log_gphoto2:
             self.gphoto2_logging = gphoto2_python_logging()
@@ -436,9 +417,9 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
         random_filename = GenerateRandomFileName()
 
-        rpd_cache_same_device = defaultdict(
+        rpd_cache_same_device: defaultdict[FileType, bool | None] = defaultdict(
             lambda: None
-        )  # type: Dict[FileType, Optional[bool]]
+        )
 
         photo_temp_dir, video_temp_dir = create_temp_dirs(
             args.photo_download_folder, args.video_download_folder
@@ -463,7 +444,6 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         self.display_name = args.device.display_name
 
         for idx, rpd_file in enumerate(rpd_files):
-
             self.dest = self.src = None
 
             if rpd_file.file_type == FileType.photo:
@@ -514,9 +494,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                             )
                         )
                     if self.verify_file:
-                        rpd_file.md5 = hashlib.md5(
-                            open(temp_full_file_name, "rb").read()
-                        ).hexdigest()
+                        with open(temp_full_file_name, "rb") as f:
+                            rpd_file.md5 = hashlib.md5(f.read()).hexdigest()
                     self.update_progress(rpd_file.size, rpd_file.size)
                 else:
                     # The download folder changed since the scan occurred, and is now
@@ -553,7 +532,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 # different directories, and here we are copying the files into
                 # a single directory
                 temp_name = random_filename.name()
-                temp_name_ext = "{}.{}".format(temp_name, rpd_file.extension)
+                temp_name_ext = f"{temp_name}.{rpd_file.extension}"
                 temp_full_file_name = os.path.join(dest_dir, temp_name_ext)
 
             rpd_file.temp_full_file_name = temp_full_file_name

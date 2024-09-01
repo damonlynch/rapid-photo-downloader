@@ -1,21 +1,113 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.35 (2023-xx-xx)
+0.9.37a6 (2024-04-xx)
+---------------------
+
+ - Terminate WSL Drive Monitor thread during application exit, if necessary.
+
+0.9.37a5 (2024-04-28)
+---------------------
+
+ - Purge use of Python package easygui.
+
+ - Fix bug where querying for locale while prompting for the survey
+   could cause an exception.
+
+0.9.37a4 (2024-04-25)
+---------------------
+
+ - Additional build fix while generating man page.
+
+0.9.37a3 (2024-04-25)
+---------------------
+
+ - Additional build fix while generating man page.
+
+0.9.37a2 (2024-04-25)
+---------------------
+
+ - Build fixes while generating man page.
+
+0.9.37a1 (2024-04-25)
+---------------------
+
+ - Convert project configuration and build to use 
+   [Hatch](https://github.com/pypa/hatch), 
+   which has resulted in changes to the build process. Linux distribution
+   packagers should consult the [release notes](RELEASE_NOTES.md) for details.
+
+ - Fix bug [#154](https://github.com/damonlynch/rapid-photo-downloader/issues/154):
+   System-mounted Windows drives not detected as mounted under WSL.
+
+ - Fix invalid escape characters. Thanks to Tino Mettler for the heads-up.
+
+ - Remove functionality to import preferences from program versions in the 0.4 
+   range (last released in 2015).
+
+ - Remove legacy check for PyQt5 sip. 
+
+0.9.36 (2024-02-13)
 -------------------
 
- - Depreciate use of the `install.py` script. Using it is no longer recommended.
+ - Highlight Timeline cell when the mouse is hovering over it.
 
- - Add new option "Read video metadata using only ExifTool".
+ - Fix bug [#121](https://github.com/damonlynch/rapid-photo-downloader/issues/121):
+   No feedback provided when invalid destination chosen in download panel.
+   
+ - Fix bug [#122](https://github.com/damonlynch/rapid-photo-downloader/issues/122):
+   Application crashes on start on openSUSE Tumbleweed. Thanks to Bozhin 
+   Karaivanov for the fix. 
+
+ - Catch GLib errors like g-io-error-quark when checking the results of
+   mount operations.
+
+ - Update Albanian, Dutch, Hungarian, Norwegian Bokmål, Russian and Spanish 
+   translations.
+
+0.9.35 (2024-01-30)
+-------------------
+
+ - Remove `install.py` script, built-in updater and new version check.
+
+ - Python 3.10 or newer is now required.
+
+ - New Python packet requirement: packaging.
+
+ - Fix bug [#85](https://github.com/damonlynch/rapid-photo-downloader/issues/85):
+   Exception while selecting generation scheme from download subfolder menu 
+   with more than five custom presets.
+
+ - Fix bug [#50](https://github.com/damonlynch/rapid-photo-downloader/issues/50):
+   Confirm before removing all presets for custom renaming or subfolder 
+   generation.
+
+ - Fix bug [#49](https://github.com/damonlynch/rapid-photo-downloader/issues/49):
+   Enable deletion of individual custom renaming and subfolder generation 
+   preset.
 
  - Re-enabled Ctrl-Q shortcut key for quiting when running under WSL. 
 
- -  Fix bug [#110](https://github.com/damonlynch/rapid-photo-downloader/issues/110):
-    ExifTool not called during rename process.
+ - Limit the default number cores used to generate thumbnails to 8 (or the
+   number of physical CPU cores if lower). Previously the limit was the
+   number of physical CPU cores, which is nonsensical on high core 
+   count systems.
+
+ - Fix bug [#110](https://github.com/damonlynch/rapid-photo-downloader/issues/110):
+   ExifTool not called during rename process.
+
+ - Fix bug [#112](https://github.com/damonlynch/rapid-photo-downloader/issues/112):
+   QWIDGETSIZE_MAX import error.
 
  - Conform version indentifier in `setup.py` to PEP 440 which is enforced with
    setuptools >= 66.0.0. Thanks to stratakis for the fix.
 
+ - Eliminate use of depreciated pkg_resources. 
+
+ - Conform to changes in package python-gphoto2 2.5.0.
+
+ - Update Albanian, Brazilian Portuguese, Danish, Dutch, Hungarian, Japanese,
+   Polish, Russian, and Spanish translations.
 
 0.9.34 (2022-11-02)
 -------------------
@@ -354,7 +446,7 @@ Changelog for Rapid Photo Downloader
    associate recent translators with their language.
 
  - Update Brazilian Portuguese, Danish, Dutch, French, Japanese, Norwegian
-   Bokmal, Russian, Serbian, Spanish and Turkish translations. Thank you to new
+   Bokmål, Russian, Serbian, Spanish and Turkish translations. Thank you to new
    translator Rubens Stuginski Jr for the work done on the Brazilian Portuguese
    translation.
 
@@ -914,7 +1006,7 @@ Changelog for Rapid Photo Downloader
  - Fixed bug where session sequence values were being reset every time a
    download was initiated, not every time the program was started.
 
- - Updated German, Hungarian and Norwegian Bokmal translations.
+ - Updated German, Hungarian and Norwegian Bokmål translations.
 
 0.9.7b1 (2017-12-18)
 --------------------
@@ -1004,7 +1096,7 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug in upgrade script when reporting an operational failure.
 
- - Updated Chinese, Dutch, Italian, and Norwegian Bokmal translations.
+ - Updated Chinese, Dutch, Italian, and Norwegian Bokmål translations.
 
 0.9.4 (2017-09-30)
 ------------------
@@ -1135,7 +1227,7 @@ Changelog for Rapid Photo Downloader
    already been removed.
 
  - Updated Belarusian, Chinese (Simplified), Czech, Dutch, French, German,
-   Hungarian, Japanese, Norwegian Bokmal, Norwegian Nynorsk, Russian and
+   Hungarian, Japanese, Norwegian Bokmål, Norwegian Nynorsk, Russian and
    Spanish translations.
 
  - Applied a patch from Mikael Wiesel to fix a bug where several strings were
@@ -1192,7 +1284,7 @@ Changelog for Rapid Photo Downloader
 
  - Don't attempt to download photos or videos of zero bytes length.
 
- - Updated Czech, French, Norwegian Bokmal, Japanese, Polish, Serbian, and
+ - Updated Czech, French, Norwegian Bokmål, Japanese, Polish, Serbian, and
    Spanish translations.
 
 0.9.0b6 (2017-06-13)
@@ -1216,7 +1308,7 @@ Changelog for Rapid Photo Downloader
    a Snap / AppImage / Flatpak easier.
 
  - Updated Arabic, Brazilian Portuguese, Catalan, Chinese, Czech, Danish,
-   Dutch, French, Italian, Japanese, Kabyle, Norwegian Bokmal, Serbian,
+   Dutch, French, Italian, Japanese, Kabyle, Norwegian Bokmål, Serbian,
    Slovak, Spanish, Swedish, and Ukrainian translations.
 
 0.9.0b5 (2017-05-10)
@@ -1941,7 +2033,7 @@ Changelog for Rapid Photo Downloader
  - Fixed bug #996613: Updated Free Software Foundation address.
    
  - Added Estonian translation. Updated Brazilian, Dutch, French, German, 
-   Norwegian Bokmal, Polish, Spanish and Russian translations.
+   Norwegian Bokmål, Polish, Spanish and Russian translations.
 
 0.4.3 (2012-01-07)
 ------------------
@@ -2306,7 +2398,7 @@ Changelog for Rapid Photo Downloader
  - Fixed bug #685335: inaccurate description of python packages required for 
    downloading videos.
    
- - Added Croatian translation. Updated French, Norwegian Bokmal, Polish and 
+ - Added Croatian translation. Updated French, Norwegian Bokmål, Polish and 
    Russian translations.
 
 0.3.3 (2010-10-24)
@@ -2335,7 +2427,7 @@ Changelog for Rapid Photo Downloader
  - Added command line option to output to the terminal information useful for 
    debugging.
    
- - Added Norwegian Bokmal and Portuguese translations. Updated Brazilian 
+ - Added Norwegian Bokmål and Portuguese translations. Updated Brazilian 
    Portuguese, Dutch, Finnish, German, Hungarian, Italian, Norwegian Nynorsk, 
    Polish, Russian, Serbian, Slovak and Ukrainian translations.
 

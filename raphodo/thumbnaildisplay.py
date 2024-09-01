@@ -1,133 +1,117 @@
-# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: Copyright 2015-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2022, Damon Lynch"
-
-import os
 import datetime
-from collections import defaultdict, deque
 import logging
-from typing import Optional, Dict, List, Set, Tuple, Sequence, NamedTuple, DefaultDict
+import os
+from collections import defaultdict, deque
+from collections.abc import Sequence
+from typing import NamedTuple
 
 import arrow.arrow
-from dateutil.tz import tzlocal
 from colour import Color
-
+from dateutil.tz import tzlocal
 from PyQt5.QtCore import (
+    QAbstractItemModel,
     QAbstractListModel,
+    QEvent,
+    QItemSelection,
+    QItemSelectionModel,
     QModelIndex,
-    Qt,
-    pyqtSignal,
-    QSizeF,
-    QSize,
+    QPoint,
+    QPointF,
     QRect,
     QRectF,
-    QEvent,
-    QPoint,
-    QItemSelectionModel,
-    QAbstractItemModel,
-    pyqtSlot,
-    QItemSelection,
+    QSize,
+    QSizeF,
+    Qt,
     QTimeLine,
-    QPointF,
-)
-from PyQt5.QtWidgets import (
-    QListView,
-    QStyledItemDelegate,
-    QStyleOptionViewItem,
-    QApplication,
-    QStyle,
-    QStyleOptionButton,
-    QMenu,
-    QWidget,
-    QAbstractItemView,
-    QFrame,
+    pyqtSignal,
+    pyqtSlot,
 )
 from PyQt5.QtGui import (
-    QPixmap,
-    QPainter,
-    QColor,
     QBrush,
+    QColor,
+    QFont,
     QFontMetricsF,
     QGuiApplication,
-    QPen,
     QMouseEvent,
-    QFont,
+    QPainter,
     QPalette,
+    QPen,
+    QPixmap,
     QResizeEvent,
 )
-
+from PyQt5.QtWidgets import (
+    QAbstractItemView,
+    QApplication,
+    QFrame,
+    QListView,
+    QMenu,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionButton,
+    QStyleOptionViewItem,
+    QWidget,
+)
 from showinfm import show_in_file_manager
 
-from raphodo.rpdfile import RPDFile, FileTypeCounter
-from raphodo.metadata.fileformats import ALL_USER_VISIBLE_EXTENSIONS
-from raphodo.interprocess import (
-    Device,
-)
 from raphodo.constants import (
-    DownloadStatus,
-    Downloaded,
-    FileType,
-    DownloadingFileTypes,
-    ThumbnailSize,
-    ThumbnailCacheStatus,
-    Roles,
-    DeviceType,
     CustomColors,
+    DarkGray,
+    DarkModeThumbnailBackgroundName,
+    DeviceState,
+    DeviceType,
+    DoubleDarkGray,
+    Downloaded,
+    DownloadStatus,
+    FadeMilliseconds,
+    FadeSteps,
+    FileType,
+    FileTypeFlag,
+    PaleGray,
+    Plural,
+    Roles,
     Show,
     Sort,
     ThumbnailBackgroundName,
-    DeviceState,
+    ThumbnailCacheStatus,
+    ThumbnailSize,
     extensionColor,
-    FadeSteps,
-    FadeMilliseconds,
-    PaleGray,
-    DarkGray,
-    DoubleDarkGray,
-    Plural,
     manually_marked_previously_downloaded,
     thumbnail_margin,
-    DarkModeThumbnailBackgroundName,
 )
+from raphodo.internationalisation.install import install_gettext
+from raphodo.internationalisation.utilities import make_internationalized_list
+from raphodo.interprocess import (
+    Device,
+)
+from raphodo.metadata.fileextensions import ALL_USER_VISIBLE_EXTENSIONS
+from raphodo.prefs.preferences import Preferences  # noqa: F401
+from raphodo.proximity import TemporalProximityState
+from raphodo.rpdfile import FileTypeCounter, RPDFile
+from raphodo.rpdsql import DownloadedSQL, ThumbnailRow, ThumbnailRowsSQL
 from raphodo.storage.storage import (
     get_program_cache_directory,
-    validate_download_folder,
     kframework_file_managers,
-)
-from raphodo.utilities import (
-    CacheDirs,
-    make_internationalized_list,
-    format_size_for_user,
-    runs,
-    arrow_locale,
+    validate_download_folder,
 )
 from raphodo.thumbnailer import Thumbnailer
-from raphodo.rpdsql import ThumbnailRowsSQL, ThumbnailRow
-from raphodo.ui.viewutils import (
-    ThumbnailDataForProximity,
-    scaledIcon,
-    ScrollBarEmitsVisible,
-    is_dark_mode,
+from raphodo.tools.utilities import (
+    CacheDirs,
+    arrow_locale,
+    data_file_path,
+    format_size_for_user,
+    runs,
 )
-from raphodo.proximity import TemporalProximityState
-from raphodo.rpdsql import DownloadedSQL
-from raphodo.prefs.preferences import Preferences
+from raphodo.ui.viewutils import (
+    ScrollBarEmitsVisible,
+    ThumbnailDataForProximity,
+    is_dark_mode,
+    scaledIcon,
+)
+
+install_gettext()
 
 
 class DownloadStats:
@@ -140,10 +124,10 @@ class DownloadStats:
 
 
 class DownloadFiles(NamedTuple):
-    files: DefaultDict[int, List[RPDFile]]
-    download_types: DownloadingFileTypes
-    download_stats: DefaultDict[int, DownloadStats]
-    camera_access_needed: DefaultDict[int, bool]
+    files: defaultdict[int, list[RPDFile]]
+    download_types: FileTypeFlag
+    download_stats: defaultdict[int, DownloadStats]
+    camera_access_needed: defaultdict[int, bool]
 
 
 class MarkedSummary(NamedTuple):
@@ -167,7 +151,7 @@ class AddBuffer:
         self.buffer_length = self.min_buffer_length
 
     def initialize(self) -> None:
-        self.buffer = defaultdict(deque)  # type: Dict[int, deque]
+        self.buffer: dict[int, deque] = defaultdict(deque)
 
     def __len__(self):
         return sum(len(buffer) for buffer in self.buffer.values())
@@ -202,7 +186,7 @@ class ThumbnailListModel(QAbstractListModel):
     def __init__(self, parent, logging_port: int, log_gphoto2: bool) -> None:
         super().__init__(parent)
         self.rapidApp = parent
-        self.prefs = self.rapidApp.prefs  # type: Preferences
+        self.prefs: Preferences = self.rapidApp.prefs
 
         self.thumbnailer_ready = False
         self.thumbnailer_generation_queue = []
@@ -211,7 +195,7 @@ class ThumbnailListModel(QAbstractListModel):
         # see also DeviceCollection.thumbnailing
 
         # FIXME maybe this duplicated set is stupid
-        self.generating_thumbnails = set()  # type: Set[int]
+        self.generating_thumbnails: set[int] = set()
 
         # Sorting and filtering GUI defaults
         self.sort_by = Sort.modification_time
@@ -242,22 +226,22 @@ class ThumbnailListModel(QAbstractListModel):
 
     def initialize(self) -> None:
         # uid: QPixmap
-        self.thumbnails = {}  # type: Dict[bytes, QPixmap]
+        self.thumbnails: dict[bytes, QPixmap] = {}
 
         self.add_buffer = AddBuffer()
 
         # Proximity filtering
-        self.proximity_col1 = []  #  type: List[int, ...]
-        self.proximity_col2 = []  #  type: List[int, ...]
+        self.proximity_col1: list[int] = []
+        self.proximity_col2: list[int] = []
 
         # scan_id
-        self.removed_devices = set()  # type: Set[int]
+        self.removed_devices: set[int] = set()
 
         # Files are hidden when the combo box "Show" in the main window is set to
         # "New" instead of the default "All".
 
         # uid: RPDFile
-        self.rpd_files = {}  # type: Dict[bytes, RPDFile]
+        self.rpd_files: dict[bytes, RPDFile] = {}
 
         # In memory database to hold all thumbnail rows
         self.tsql = ThumbnailRowsSQL()
@@ -266,26 +250,26 @@ class ThumbnailListModel(QAbstractListModel):
         # Each list element corresponds to a row in the thumbnail view such that
         # index 0 in the list is row 0 in the view
         # [(uid, marked)]
-        self.rows = []  # type: List[Tuple[bytes, bool]]
+        self.rows: list[tuple[bytes, bool]] = []
         # {uid: row}
-        self.uid_to_row = {}  # type: Dict[bytes, int]
+        self.uid_to_row: dict[bytes, int] = {}
 
         size = QSize(106, 106)
-        self.photo_icon = scaledIcon(":/thumbnail/photo.svg").pixmap(size)
-        self.video_icon = scaledIcon(":/thumbnail/video.svg").pixmap(size)
+        self.photo_icon = scaledIcon(data_file_path("thumbnail/photo.svg")).pixmap(size)
+        self.video_icon = scaledIcon(data_file_path("thumbnail/video.svg")).pixmap(size)
 
         self.total_thumbs_to_generate = 0
         self.thumbnails_generated = 0
         self.no_thumbnails_by_scan = defaultdict(int)
 
         # scan_id
-        self.ctimes_differ = []  # type: List[int]
+        self.ctimes_differ: list[int] = []
 
-        # Highlight thumbnails when from particular device when there is more than one
+        # Highlight thumbnails when from a particular device when there is more than one
         # device.
         # Thumbnails to highlight by uid
-        self.currently_highlighting_scan_id = None  # type: Optional[int]
-        self.currently_highlighting_tp_row = None  # type: Optional[int]
+        self.currently_highlighting_scan_id: int | None = None
+        self.currently_highlighting_tp_row: int | None = None
         self._resetHighlightingValues()
         self.highlightingTimeline = QTimeLine(FadeMilliseconds // 2)
         self.highlightingTimeline.setCurveShape(QTimeLine.SineCurve)
@@ -368,9 +352,9 @@ class ThumbnailListModel(QAbstractListModel):
         for idx, row in enumerate(self.rows):
             uid = row[0]
             if self.rpd_files.get(uid) is None:
-                raise KeyError("Missing key in rpd files at row {}".format(idx))
+                raise KeyError(f"Missing key in rpd files at row {idx}")
             if self.thumbnails.get(uid) is None:
-                raise KeyError("Missing key in thumbnails at row {}".format(idx))
+                raise KeyError(f"Missing key in thumbnails at row {idx}")
 
         [self.tsql.validate_uid(uid=row[0]) for row in self.rows]
         for uid, row in self.uid_to_row.items():
@@ -416,7 +400,7 @@ class ThumbnailListModel(QAbstractListModel):
 
     def rememberSelection(self):
         selection = self._selectionModel()
-        selected = selection.selection()  # type: QItemSelection
+        selected: QItemSelection = selection.selection()
         self.remember_selection_all_selected = len(selected) == len(self.rows)
         if not self.remember_selection_all_selected:
             self.remember_selection_selected_uids = [
@@ -426,10 +410,10 @@ class ThumbnailListModel(QAbstractListModel):
 
     def reselect(self):
         if not self.remember_selection_all_selected:
-            selection = (
+            selection: QItemSelectionModel = (
                 self.rapidApp.thumbnailView.selectionModel()
-            )  # type: QItemSelectionModel
-            new_selection = QItemSelection()  # type: QItemSelection
+            )
+            new_selection: QItemSelection = QItemSelection()
             rows = [
                 self.uid_to_row[uid]
                 for uid in self.remember_selection_selected_uids
@@ -445,8 +429,8 @@ class ThumbnailListModel(QAbstractListModel):
                 self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
 
     def _resetRememberSelection(self):
-        self.remember_selection_all_selected = None  # type: Optional[bool]
-        self.remember_selection_selected_uids = []  # type: List[bytes]
+        self.remember_selection_all_selected: bool | None = None
+        self.remember_selection_selected_uids: list[bytes] = []
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return len(self.rows)
@@ -460,7 +444,7 @@ class ThumbnailListModel(QAbstractListModel):
             return Qt.NoItemFlags
 
         uid = self.rows[row][0]
-        rpd_file = self.rpd_files[uid]  # type: RPDFile
+        rpd_file: RPDFile = self.rpd_files[uid]
 
         if rpd_file.status == DownloadStatus.not_downloaded:
             return super().flags(index) | Qt.ItemIsEnabled | Qt.ItemIsSelectable
@@ -476,7 +460,7 @@ class ThumbnailListModel(QAbstractListModel):
             return None
 
         uid = self.rows[row][0]
-        rpd_file = self.rpd_files[uid]  # type: RPDFile
+        rpd_file: RPDFile = self.rpd_files[uid]
 
         if role == Qt.DisplayRole:
             # This is never displayed, but is (was?) used for filtering!
@@ -595,9 +579,7 @@ class ThumbnailListModel(QAbstractListModel):
                     date_time=mtime.to("local").naive.strftime("%c"),
                     human_readable=mtime_h,
                 )
-                humanized_file_time = "{}<br>{}".format(
-                    humanized_ctime, humanized_mtime
-                )
+                humanized_file_time = f"{humanized_ctime}<br>{humanized_mtime}"
             else:
                 # Translators: %(variable)s represents Python code, not a plural of the
                 # term variable. You must keep the %(variable)s untranslated, or the
@@ -610,18 +592,17 @@ class ThumbnailListModel(QAbstractListModel):
             humanized_file_time = humanized_file_time.replace(" ", "&nbsp;")
 
             if not device_name:
-                msg = "<b>{}</b><br>{}<br>{}".format(
-                    rpd_file.name, humanized_file_time, size
-                )
+                msg = f"<b>{rpd_file.name}</b><br>{humanized_file_time}<br>{size}"
             else:
-                msg = "<b>{}</b><br>{}<br>{}<br>{}".format(
-                    rpd_file.name, device_name, humanized_file_time, size
+                msg = (
+                    f"<b>{rpd_file.name}</b><br>{device_name}"
+                    f"<br>{humanized_file_time}<br>{size}"
                 )
 
             if rpd_file.camera_memory_card_identifiers:
                 if len(rpd_file.camera_memory_card_identifiers) > 1:
                     cards = _("Memory cards: %s") % make_internationalized_list(
-                        rpd_file.camera_memory_card_identifiers
+                        [str(i) for i in rpd_file.camera_memory_card_identifiers]
                     )
                 else:
                     cards = (
@@ -633,22 +614,12 @@ class ThumbnailListModel(QAbstractListModel):
             if rpd_file.status in Downloaded:
                 path = rpd_file.download_path + os.sep
                 downloaded_as = _("Downloaded as:")
-                # Translators: %(variable)s represents Python code, not a plural of the
-                # term variable. You must keep the %(variable)s untranslated, or the
-                # program will crash.
-                # Translators: please do not change HTML codes like <br>, <i>, </i>,
-                # or <b>, </b> etc.
                 msg += (
-                    "<br><br><i>%(downloaded_as)s</i><br>%(filename)s<br>%(path)s"
-                    % dict(
-                        filename=rpd_file.download_name,
-                        path=path,
-                        downloaded_as=downloaded_as,
-                    )
+                    f"<br><br><i>{downloaded_as}</i>"
+                    f"<br>{rpd_file.download_name}<br>{path}"
                 )
 
             if rpd_file.previously_downloaded:
-
                 prev_datetime = arrow.get(rpd_file.prev_datetime, tzlocal())
                 try:
                     prev_dt_h = prev_datetime.humanize(
@@ -679,7 +650,8 @@ class ThumbnailListModel(QAbstractListModel):
                     # Translators: please do not change HTML codes like <br>, <i>, </i>,
                     # or <b>, </b> etc.
                     msg += _(
-                        "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%(date)s"
+                        "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>"
+                        "%(date)s"
                     ) % dict(date=prev_date, filename=prev_file_name, path=path)
                 else:
                     # Translators: %(variable)s represents Python code, not a plural of
@@ -688,7 +660,8 @@ class ThumbnailListModel(QAbstractListModel):
                     # Translators: please do not change HTML codes like <br>, <i>, </i>,
                     # or <b>, </b> etc.
                     msg += _(
-                        "<br><br><i>Manually set as previously downloaded on %(date)s</i>"
+                        "<br><br>"
+                        "<i>Manually set as previously downloaded on %(date)s</i>"
                     ) % dict(date=prev_date)
             return msg
 
@@ -702,7 +675,7 @@ class ThumbnailListModel(QAbstractListModel):
         uid = self.rows[row][0]
         if role == Qt.CheckStateRole:
             self.tsql.set_marked(uid=uid, marked=value)
-            self.rows[row] = (uid, value == True)
+            self.rows[row] = (uid, value is True)
             self.dataChanged.emit(index, index)
             return True
         elif role == Roles.job_code:
@@ -712,7 +685,7 @@ class ThumbnailListModel(QAbstractListModel):
             return True
         return False
 
-    def setDataRange(self, indexes: Tuple[QModelIndex], value, role: int) -> bool:
+    def setDataRange(self, indexes: tuple[QModelIndex], value, role: int) -> bool:
         """
         Modify a range of indexes simultaneously
         :param indexes: the indexes
@@ -778,7 +751,7 @@ class ThumbnailListModel(QAbstractListModel):
                 self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
         self.tsql.set_job_code_assigned(uids=uids, job_code=True)
 
-    def updateDisplayPostDataChange(self, scan_id: Optional[int] = None):
+    def updateDisplayPostDataChange(self, scan_id: int | None = None):
         if scan_id is not None:
             scan_ids = [scan_id]
         else:
@@ -805,7 +778,7 @@ class ThumbnailListModel(QAbstractListModel):
         self.tsql.add_or_update_device(scan_id=scan_id, device_name=device_name)
 
     def addFiles(
-        self, scan_id: int, rpd_files: List[RPDFile], generate_thumbnail: bool
+        self, scan_id: int, rpd_files: list[RPDFile], generate_thumbnail: bool
     ) -> None:
         if not rpd_files:
             return
@@ -1060,7 +1033,7 @@ class ThumbnailListModel(QAbstractListModel):
             self.rapidApp.updateProgressBarState()
             cache_dirs = self.getCacheLocations()
             uids = self.tsql.get_uids_for_device(scan_id=scan_id)
-            rpd_files = list((self.rpd_files[uid] for uid in uids))
+            rpd_files = list(self.rpd_files[uid] for uid in uids)
 
             need_video_cache_dir = need_photo_cache_dir = False
             if device.device_type == DeviceType.camera:
@@ -1098,7 +1071,7 @@ class ThumbnailListModel(QAbstractListModel):
         self.thumbnails_generated = 0
         self.total_thumbs_to_generate = 0
 
-    def _deleteRows(self, uids: List[bytes]) -> None:
+    def _deleteRows(self, uids: list[bytes]) -> None:
         """
         Delete a list of thumbnails from the thumbnail display
 
@@ -1118,20 +1091,20 @@ class ThumbnailListModel(QAbstractListModel):
 
             self.uid_to_row = {row[0]: idx for idx, row in enumerate(self.rows)}
 
-    def purgeRpdFiles(self, uids: List[bytes]) -> None:
+    def purgeRpdFiles(self, uids: list[bytes]) -> None:
         for uid in uids:
             del self.thumbnails[uid]
             del self.rpd_files[uid]
 
     def clearAll(
-        self, scan_id: Optional[int] = None, keep_downloaded_files: bool = False
+        self, scan_id: int | None = None, keep_downloaded_files: bool = False
     ) -> bool:
         """
         Removes files from display and internal tracking.
 
         If scan_id is not None, then only files matching that scan_id
         will be removed. Otherwise, everything will be removed, regardless of
-        the keep_downloaded_files parameter..
+        the keep_downloaded_files parameter.
 
         If keep_downloaded_files is True, files will not be removed if
         they have been downloaded.
@@ -1230,7 +1203,7 @@ class ThumbnailListModel(QAbstractListModel):
         # Delete the files from the internal database that drives the display
         self.tsql.delete_uids(uids)
 
-    def filesAreMarkedForDownload(self, scan_id: Optional[int] = None) -> bool:
+    def filesAreMarkedForDownload(self, scan_id: int | None = None) -> bool:
         """
         Checks for the presence of checkmark besides any file that has
         not yet been downloaded.
@@ -1273,9 +1246,9 @@ class ThumbnailListModel(QAbstractListModel):
 
     def getNoFilesSelected(self) -> FileTypeCounter:
         selection = self._selectionModel()
-        selected = selection.selection()  # type: QItemSelection
+        selected: QItemSelection = selection.selection()
 
-        if not len(selected) == len(self.rows):
+        if len(selected) != len(self.rows):
             # not all files are selected
             selected_uids = [self.rows[index.row()][0] for index in selected.indexes()]
             return FileTypeCounter(
@@ -1287,11 +1260,11 @@ class ThumbnailListModel(QAbstractListModel):
     def getCountNotPreviouslyDownloadedAvailableForDownload(self) -> int:
         return self.tsql.get_count(previously_downloaded=False, downloaded=False)
 
-    def getAllDownloadableRPDFiles(self) -> List[RPDFile]:
+    def getAllDownloadableRPDFiles(self) -> list[RPDFile]:
         uids = self.tsql.get_uids(downloaded=False)
         return [self.rpd_files[uid] for uid in uids]
 
-    def getFilesMarkedForDownload(self, scan_id: Optional[int]) -> DownloadFiles:
+    def getFilesMarkedForDownload(self, scan_id: int | None) -> DownloadFiles:
         """
         Returns a dict of scan ids and associated files the user has
         indicated they want to download, and whether there are photos
@@ -1311,7 +1284,7 @@ class ThumbnailListModel(QAbstractListModel):
         else:
             exclude_scan_ids = None
 
-        files = defaultdict(list)  # type: DefaultDict[int, List[RPDFile]]
+        files: defaultdict[int, list[RPDFile]] = defaultdict(list)
         download_stats = defaultdict(DownloadStats)
         camera_access_needed = defaultdict(bool)
         download_photos = download_videos = False
@@ -1324,7 +1297,7 @@ class ThumbnailListModel(QAbstractListModel):
         )
 
         for uid in uids:
-            rpd_file = self.rpd_files[uid]  # type: RPDFile
+            rpd_file: RPDFile = self.rpd_files[uid]
 
             scan_id = rpd_file.scan_id
             files[scan_id].append(rpd_file)
@@ -1349,15 +1322,11 @@ class ThumbnailListModel(QAbstractListModel):
                 download_stats[scan_id].post_download_thumb_generation += 1
 
         # self.validateModelConsistency()
+        download_types = FileTypeFlag(0)
         if download_photos:
-            if download_videos:
-                download_types = DownloadingFileTypes.photos_and_videos
-            else:
-                download_types = DownloadingFileTypes.photos
-        elif download_videos:
-            download_types = DownloadingFileTypes.videos
-        else:
-            download_types = None
+            download_types = FileTypeFlag.PHOTOS
+        if download_videos:
+            download_types = FileTypeFlag.VIDEOS
 
         return DownloadFiles(
             files=files,
@@ -1381,7 +1350,7 @@ class ThumbnailListModel(QAbstractListModel):
             not in (ThumbnailCacheStatus.ready, ThumbnailCacheStatus.fdo_256_ready)
         )
 
-    def markDownloadPending(self, files: Dict[int, List[RPDFile]]) -> None:
+    def markDownloadPending(self, files: dict[int, list[RPDFile]]) -> None:
         """
         Sets status to download pending and updates thumbnails display.
 
@@ -1404,7 +1373,7 @@ class ThumbnailListModel(QAbstractListModel):
         for first, last in runs(rows):
             self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
 
-    def markThumbnailsNeeded(self, rpd_files: List[RPDFile]) -> bool:
+    def markThumbnailsNeeded(self, rpd_files: list[RPDFile]) -> bool:
         """
         Analyzes the files that will be downloaded, and sees if any of
         them still need to have their thumbnails generated.
@@ -1423,7 +1392,7 @@ class ThumbnailListModel(QAbstractListModel):
                 generation_needed = True
         return generation_needed
 
-    def getNoFilesRemaining(self, scan_id: Optional[int] = None) -> int:
+    def getNoFilesRemaining(self, scan_id: int | None = None) -> int:
         """
         :param scan_id: if None, returns files remaining to be
          downloaded for all scan_ids, else only for that scan_id.
@@ -1458,15 +1427,12 @@ class ThumbnailListModel(QAbstractListModel):
         if not uids:
             return
 
-        if select_all:
-            action = "Selecting all %s"
-        else:
-            action = "Deslecting all %ss"
+        action = "Selecting all %s" if select_all else "Deslecting all %ss"
 
         logging.debug(action, file_type.name)
 
         selection = self._selectionModel()
-        selected = selection.selection()  # type: QItemSelection
+        selected: QItemSelection = selection.selection()
 
         if select_all:
             # print("gathering unique ids")
@@ -1474,7 +1440,7 @@ class ThumbnailListModel(QAbstractListModel):
             # print(len(rows))
             # print('doing sort')
             rows.sort()
-            new_selection = QItemSelection()  # type: QItemSelection
+            new_selection: QItemSelection = QItemSelection()
             # print("creating new selection")
             for first, last in runs(rows):
                 new_selection.select(self.index(first, 0), self.index(last, 0))
@@ -1500,7 +1466,7 @@ class ThumbnailListModel(QAbstractListModel):
             # print(len(keep_rows), len(rows))
             # print("sorting rows to keep")
             keep_rows.sort()
-            new_selection = QItemSelection()  # type: QItemSelection
+            new_selection: QItemSelection = QItemSelection()
             # print("creating new selection")
             for first, last in runs(keep_rows):
                 new_selection.select(self.index(first, 0), self.index(last, 0))
@@ -1518,8 +1484,8 @@ class ThumbnailListModel(QAbstractListModel):
     def checkAll(
         self,
         check_all: bool,
-        file_type: Optional[FileType] = None,
-        scan_id: Optional[int] = None,
+        file_type: FileType | None = None,
+        scan_id: int | None = None,
     ) -> None:
         """
         Check or uncheck all visible files that are not downloaded.
@@ -1552,7 +1518,7 @@ class ThumbnailListModel(QAbstractListModel):
         self.rapidApp.setDownloadCapabilities()
 
     def getTypeCountForProximityCell(
-        self, col1id: Optional[int] = None, col2id: Optional[int] = None
+        self, col1id: int | None = None, col2id: int | None = None
     ) -> str:
         """
         Generates a string displaying how many photos and videos are
@@ -1563,8 +1529,8 @@ class ThumbnailListModel(QAbstractListModel):
         return FileTypeCounter(file_types).summarize_file_count()[0]
 
     def getTemporalProximityUids(
-        self, col1id: Optional[int] = None, col2id: Optional[int] = None
-    ) -> List[bytes]:
+        self, col1id: int | None = None, col2id: int | None = None
+    ) -> list[bytes]:
         assert not (col1id is None and col2id is None)
         if col2id is not None:
             col2id = [col2id]
@@ -1574,11 +1540,11 @@ class ThumbnailListModel(QAbstractListModel):
 
     def getDisplayedUids(
         self,
-        scan_id: Optional[int] = None,
-        marked: Optional[bool] = None,
-        file_type: Optional[FileType] = None,
-        downloaded: Optional[bool] = False,
-    ) -> List[bytes]:
+        scan_id: int | None = None,
+        marked: bool | None = None,
+        file_type: FileType | None = None,
+        downloaded: bool | None = False,
+    ) -> list[bytes]:
         return self.tsql.get_uids(
             scan_id=scan_id,
             downloaded=downloaded,
@@ -1589,7 +1555,7 @@ class ThumbnailListModel(QAbstractListModel):
             file_type=file_type,
         )
 
-    def getFirstUidFromUidList(self, uids: List[bytes]) -> Optional[bytes]:
+    def getFirstUidFromUidList(self, uids: list[bytes]) -> bytes | None:
         return self.tsql.get_first_uid_from_uid_list(
             sort_by=self.sort_by,
             sort_order=self.sort_order,
@@ -1600,7 +1566,7 @@ class ThumbnailListModel(QAbstractListModel):
         )
 
     def getDisplayedCount(
-        self, scan_id: Optional[int] = None, marked: Optional[bool] = None
+        self, scan_id: int | None = None, marked: bool | None = None
     ) -> int:
         return self.tsql.get_count(
             scan_id=scan_id,
@@ -1631,7 +1597,7 @@ class ThumbnailListModel(QAbstractListModel):
         f[FileType.video] = no_videos
         return f
 
-    def _getSampleFileNonCamera(self, file_type: FileType) -> Optional[RPDFile]:
+    def _getSampleFileNonCamera(self, file_type: FileType) -> RPDFile | None:
         """
         Attempt to return a sample file used to illustrate file renaming and subfolder
         generation, but only if it's not from a camera.
@@ -1657,7 +1623,7 @@ class ThumbnailListModel(QAbstractListModel):
 
     def getSampleFile(
         self, scan_id: int, device_type: DeviceType, file_type: FileType
-    ) -> Optional[RPDFile]:
+    ) -> RPDFile | None:
         """
         Attempt to return a sample file used to illustrate file renaming and subfolder
         generation.
@@ -1754,7 +1720,7 @@ class ThumbnailListModel(QAbstractListModel):
         self.highlightingTimeline.setDirection(QTimeLine.Forward)
         self.highlightingTimeline.start()
 
-    def highlightTemporalProximityThumbs(self, row: int, uids: List[bytes]) -> None:
+    def highlightTemporalProximityThumbs(self, row: int, uids: list[bytes]) -> None:
         """
         Currently unused. Highlights thumbnails from the selected column 2
         timeline row.
@@ -1774,7 +1740,7 @@ class ThumbnailListModel(QAbstractListModel):
         self.highlightingTimeline.setDirection(QTimeLine.Forward)
         self.highlightingTimeline.start()
 
-    def _generateHighlightingRows(self, rows: List[int]) -> None:
+    def _generateHighlightingRows(self, rows: list[int]) -> None:
         rows.sort()
         self.highlighting_rows = list(runs(rows))
 
@@ -1800,10 +1766,10 @@ class ThumbnailListModel(QAbstractListModel):
         self.currently_highlighting_tp_row = None
 
     def _resetHighlightingValues(self):
-        self.most_recent_highlighted_device = None  # type: Optional[int]
-        self.most_recent_highlighted_row = None  # type: Optional[int]
-        self.current_highlight_uids = []  # type: list[bytes]
-        self.highlighting_rows = []  # type: List[int]
+        self.most_recent_highlighted_device: int | None = None
+        self.most_recent_highlighted_row: int | None = None
+        self.current_highlight_uids: list[bytes] = []
+        self.highlighting_rows: list[int] = []
 
     def terminateThumbnailGeneration(self, scan_id: int) -> bool:
         """
@@ -1849,14 +1815,14 @@ class ThumbnailListModel(QAbstractListModel):
         if row is not None:
             self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
 
-    def filesRemainToDownload(self, scan_id: Optional[int] = None) -> bool:
+    def filesRemainToDownload(self, scan_id: int | None = None) -> bool:
         """
         :return True if any files remain that are not downloaded, else
          returns False
         """
         return self.tsql.any_files_to_download(scan_id)
 
-    def dataForProximityGeneration(self) -> List[ThumbnailDataForProximity]:
+    def dataForProximityGeneration(self) -> list[ThumbnailDataForProximity]:
         return [
             ThumbnailDataForProximity(
                 uid=rpd_file.uid,
@@ -1868,7 +1834,7 @@ class ThumbnailListModel(QAbstractListModel):
         ]
 
     def assignProximityGroups(
-        self, col1_col2_uid: List[Tuple[int, int, bytes]]
+        self, col1_col2_uid: list[tuple[int, int, bytes]]
     ) -> None:
         """
         For every uid, associates it with a cell in the temporal proximity view.
@@ -1879,7 +1845,7 @@ class ThumbnailListModel(QAbstractListModel):
         self.tsql.assign_proximity_groups(col1_col2_uid)
 
     def setProximityGroupFilter(
-        self, col1: Optional[Sequence[int]], col2: Optional[Sequence[int]]
+        self, col1: Sequence[int] | None, col2: Sequence[int] | None
     ) -> None:
         """
         Filter display of thumbnails based on what cells the user has clicked in the
@@ -1901,7 +1867,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         return self.tsql.get_count(marked=True) != self.getDisplayedCount(marked=True)
 
-    def anyFileNotPreviouslyDownloaded(self, uids: List[bytes]) -> bool:
+    def anyFileNotPreviouslyDownloaded(self, uids: list[bytes]) -> bool:
         return self.tsql.any_not_previously_downloaded(uids=uids)
 
     def getFileDownloadsCompleted(self) -> FileTypeCounter:
@@ -2009,7 +1975,7 @@ class ThumbnailView(QListView):
             self.verticalScrollBar().valueChanged.disconnect(self.scrollTimeline)
 
     def _scrollTemporalProximity(
-        self, row: Optional[int] = None, index: Optional[QModelIndex] = None
+        self, row: int | None = None, index: QModelIndex | None = None
     ) -> None:
         temporalProximity = self.rapidApp.temporalProximity
         temporalProximity.setScrollTogether(False)
@@ -2069,12 +2035,12 @@ class ThumbnailView(QListView):
             clicked_row = index.row()
 
             if clicked_row >= 0:
-                rect = self.visualRect(index)  # type: QRect
-                delegate = self.itemDelegate(index)  # type: ThumbnailDelegate
+                rect: QRect = self.visualRect(index)
+                delegate: ThumbnailDelegate = self.itemDelegate(index)
                 checkboxRect = delegate.getCheckBoxRect(rect)
                 checkbox_clicked = checkboxRect.contains(event.pos())
                 if checkbox_clicked:
-                    status = index.data(Roles.download_status)  # type: DownloadStatus
+                    status: DownloadStatus = index.data(Roles.download_status)
                     checkbox_clicked = status not in Downloaded
 
                 if not checkbox_clicked:
@@ -2084,11 +2050,9 @@ class ThumbnailView(QListView):
                     self.possiblyPreserveSelectionPostClick = True
             super().mousePressEvent(event)
 
-    def topRowIndex(self) -> Optional[QModelIndex]:
+    def topRowIndex(self) -> QModelIndex | None:
         # index of top left item
-        index = self.indexAt(
-            QPoint(self.spacing(), self.spacing())
-        )  # type: QModelIndex
+        index: QModelIndex = self.indexAt(QPoint(self.spacing(), self.spacing()))
 
         if index.isValid():
             # Determine index of item in user visible row with the earliest time
@@ -2107,7 +2071,7 @@ class ThumbnailView(QListView):
             return indicies[index_min]
         return None
 
-    def topRowUid(self) -> Optional[bytes]:
+    def topRowUid(self) -> bytes | None:
         index = self.topRowIndex()
         if index:
             row = index.row()
@@ -2144,7 +2108,7 @@ class ThumbnailView(QListView):
         view_width = self.viewport().contentsRect().width() - self.spacing() - 1
         self.user_visible_columns = view_width // item_width
 
-    def scrollToUids(self, uids: List[bytes]) -> None:
+    def scrollToUids(self, uids: list[bytes]) -> None:
         """
         Scroll the Thumbnail Display to the first visible uid from the list of uids.
 
@@ -2153,7 +2117,7 @@ class ThumbnailView(QListView):
 
         :param uids: list of uids to scroll to
         """
-        model = self.model()  # type: ThumbnailListModel
+        model: ThumbnailListModel = self.model()
         if self.rapidApp.showOnlyNewFiles():
             uid = model.getFirstUidFromUidList(uids=uids)
             if uid is None:
@@ -2198,16 +2162,20 @@ class ThumbnailDelegate(QStyledItemDelegate):
         size16 = QSize(16, 16)
         size24 = QSize(24, 24)
         self.downloadPendingPixmap = scaledIcon(
-            ":/thumbnail/download-pending.svg"
+            data_file_path("thumbnail/download-pending.svg")
         ).pixmap(size16)
-        self.downloadedPixmap = scaledIcon(":/thumbnail/downloaded.svg").pixmap(size16)
+        self.downloadedPixmap = scaledIcon(
+            data_file_path("thumbnail/downloaded.svg")
+        ).pixmap(size16)
         self.downloadedWarningPixmap = scaledIcon(
-            ":/thumbnail/downloaded-with-warning.svg"
+            data_file_path("thumbnail/downloaded-with-warning.svg")
         ).pixmap(size16)
         self.downloadedErrorPixmap = scaledIcon(
-            ":/thumbnail/downloaded-with-error.svg"
+            data_file_path("thumbnail/downloaded-with-error.svg")
         ).pixmap(size16)
-        self.audioIcon = scaledIcon(":/thumbnail/audio.svg", size24).pixmap(size24)
+        self.audioIcon = scaledIcon(
+            data_file_path("thumbnail/audio.svg"), size24
+        ).pixmap(size24)
 
         # Determine pixel scaling for SVG files
         # Applies to all SVG files delegate will load
@@ -2269,7 +2237,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         )
         self.markFilesDownloadedAct.triggered.connect(self.doMarkFileDownloadedAct)
         # store the index in which the user right clicked
-        self.clickedIndex = None  # type: Optional[QModelIndex]
+        self.clickedIndex: QModelIndex | None = None
 
         self.color3 = QColor(CustomColors.color3.value)
 
@@ -2277,7 +2245,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.darkGray = QColor(DarkGray)
 
         palette = QGuiApplication.palette()
-        self.highlight = palette.highlight().color()  # type: QColor
+        self.highlight: QColor = palette.highlight().color()
         self.highlight_size = 3
         self.highlight_offset = self.highlight_size / 2
         self.highlightPen = QPen()
@@ -2293,12 +2261,12 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # Determine the actual height of the largest extension, and the actual
         # width of all extensions.
         # For our purposes, this is more accurate than the generic metrics.height()
-        self.emblem_width = {}  # type: Dict[str, int]
+        self.emblem_width: dict[str, int] = {}
         height = 0
         # Include the emblems for which memory card on a camera the file came from
         for ext in ALL_USER_VISIBLE_EXTENSIONS + ["1", "2"]:
             ext = ext.upper()
-            tbr = metrics.tightBoundingRect(ext)  # type: QRectF
+            tbr: QRectF = metrics.tightBoundingRect(ext)
             self.emblem_width[ext] = tbr.width()
             height = max(height, tbr.height())
 
@@ -2322,7 +2290,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # alternative would be functools.lru_cache() decorator, but it
         # is required to be a function. It's easier to keep everything
         # in this class, especially regarding the default font
-        self.job_code_lru = dict()  # type: Dict[str, str]
+        self.job_code_lru: dict[str, str] = dict()
 
         # Generate the range of colors to be displayed when highlighting
         # files from a particular device
@@ -2365,12 +2333,12 @@ class ThumbnailDelegate(QStyledItemDelegate):
         selectedIndexes = self.selectedIndexes()
         if selectedIndexes is None:
             return
-        not_downloaded = tuple(
+        not_downloaded: tuple[QModelIndex, ...] = tuple(
             index
             for index in selectedIndexes
             if not index.data(Roles.previously_downloaded)
-        )  # type: Tuple[QModelIndex]
-        thumbnailModel = self.rapidApp.thumbnailModel  # type: ThumbnailListModel
+        )
+        thumbnailModel: ThumbnailListModel = self.rapidApp.thumbnailModel
         thumbnailModel.setDataRange(not_downloaded, True, Roles.previously_downloaded)
         self.rapidApp.setDownloadCapabilities()
 
@@ -2389,12 +2357,12 @@ class ThumbnailDelegate(QStyledItemDelegate):
         checked = index.data(Qt.CheckStateRole) == Qt.Checked
         previously_downloaded = index.data(Roles.previously_downloaded)
         extension, ext_type = index.data(Roles.extension)
-        download_status = index.data(Roles.download_status)  # type: DownloadStatus
+        download_status: DownloadStatus = index.data(Roles.download_status)
         has_audio = index.data(Roles.has_audio)
         secondary_attribute = index.data(Roles.secondary_attribute)
-        memory_cards = index.data(Roles.camera_memory_card)  # type: List[int]
+        memory_cards: list[int] = index.data(Roles.camera_memory_card)
         highlight = index.data(Roles.highlight)
-        job_code = index.data(Roles.job_code)  # type: Optional[str]
+        job_code: str | None = index.data(Roles.job_code)
 
         # job_code = 'An extremely long and complicated Job Code'
         # job_code = 'Job Code'
@@ -2430,7 +2398,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             painter.setPen(self.highlightPen)
             painter.drawRect(hightlightRect)
 
-        thumbnail = index.model().data(index, Qt.DecorationRole)  # type: QPixmap
+        thumbnail: QPixmap = index.model().data(index, Qt.DecorationRole)
 
         # If on high DPI screen, scale the thumbnail using a smooth transform
         if self.device_pixel_ratio > 1.0:
@@ -2539,9 +2507,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
         emblem_rect_x = self.width - self.horizontal_margin - emblem_width + x
         emblem_rect_y = self.image_frame_bottom + self.footer_padding + y - 1
 
-        emblemRect = QRectF(
+        emblemRect: QRectF = QRectF(
             emblem_rect_x, emblem_rect_y, emblem_width, self.emblem_height
-        )  # type: QRectF
+        )
 
         color = extensionColor(ext_type=ext_type)
 
@@ -2621,7 +2589,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         return self.fixedSizeHint
 
-    def oneOrMoreNotDownloaded(self) -> Tuple[int, Plural]:
+    def oneOrMoreNotDownloaded(self) -> tuple[int, Plural]:
         i = 0
         selectedIndexes = self.selectedIndexes()
         if selectedIndexes is None:
@@ -2662,7 +2630,6 @@ class ThumbnailDelegate(QStyledItemDelegate):
             event.type() == QEvent.MouseButtonRelease
             or event.type() == QEvent.MouseButtonDblClick
         ):
-
             if event.button() == Qt.RightButton:
                 self.clickedIndex = index
 
@@ -2745,13 +2712,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
     def setModelData(
         self, editor: QWidget, model: QAbstractItemModel, index: QModelIndex
     ) -> None:
-        newValue = not (index.data(Qt.CheckStateRole) == Qt.Checked)
-        thumbnailModel = self.rapidApp.thumbnailModel  # type: ThumbnailListModel
-        selection = (
-            self.rapidApp.thumbnailView.selectionModel()
-        )  # type: QItemSelectionModel
+        newValue = index.data(Qt.CheckStateRole) != Qt.Checked
+        thumbnailModel: ThumbnailListModel = self.rapidApp.thumbnailModel
+        selection: QItemSelectionModel = self.rapidApp.thumbnailView.selectionModel()
         if selection.hasSelection():
-            selected = selection.selection()  # type: QItemSelection
+            selected: QItemSelection = selection.selection()
             if index in selected.indexes():
                 for i in selected.indexes():
                     thumbnailModel.setData(i, newValue, Qt.CheckStateRole)
@@ -2780,7 +2745,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         )
 
     def applyJobCode(self, job_code: str) -> None:
-        thumbnailModel = self.rapidApp.thumbnailModel  # type: ThumbnailListModel
+        thumbnailModel: ThumbnailListModel = self.rapidApp.thumbnailModel
         selectedIndexes = self.selectedIndexes()
         if selectedIndexes is not None:
             logging.debug("Applying job code to %s files", len(selectedIndexes))
@@ -2789,11 +2754,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
         else:
             logging.debug("Not applying job code because no files selected")
 
-    def selectedIndexes(self) -> Optional[List[QModelIndex]]:
-        selection = (
-            self.rapidApp.thumbnailView.selectionModel()
-        )  # type: QItemSelectionModel
+    def selectedIndexes(self) -> list[QModelIndex] | None:
+        selection: QItemSelectionModel = self.rapidApp.thumbnailView.selectionModel()
         if selection.hasSelection():
-            selected = selection.selection()  # type: QItemSelection
+            selected: QItemSelection = selection.selection()
             return selected.indexes()
         return None

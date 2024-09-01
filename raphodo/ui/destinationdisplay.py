@@ -1,73 +1,77 @@
-# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2016-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Display download destination details
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2022, Damon Lynch"
-
-import math
-from typing import Dict, Union, DefaultDict, Set
 import logging
+import math
+import os
 from collections import defaultdict
 
-from PyQt5.QtCore import QSize, Qt, QStorageInfo, QRect, pyqtSlot, QPoint
+from PyQt5.QtCore import QPoint, QRect, QRectF, QSize, QStorageInfo, Qt, pyqtSlot
+from PyQt5.QtGui import (
+    QBrush,
+    QColor,
+    QFont,
+    QFontMetrics,
+    QIcon,
+    QMouseEvent,
+    QPainterPath,
+    QPaintEvent,
+    QPalette,
+    QPen,
+    QPixmap,
+)
 from PyQt5.QtWidgets import (
+    QAction,
+    QActionGroup,
+    QApplication,
+    QMenu,
+    QSizePolicy,
+    QSplitter,
     QStyle,
     QStylePainter,
     QWidget,
-    QSplitter,
-    QSizePolicy,
-    QAction,
-    QMenu,
-    QActionGroup,
-    QApplication,
-)
-from PyQt5.QtGui import (
-    QColor,
-    QPixmap,
-    QIcon,
-    QPaintEvent,
-    QPalette,
-    QMouseEvent,
 )
 
-
-from raphodo.ui.viewutils import paletteMidPen, darkModePixmap
-from raphodo.ui.devicedisplay import DeviceDisplay, BodyDetails, icon_size
-from raphodo.storage.storage import StorageSpace, get_path_display_name, get_mount_size
 from raphodo.constants import (
+    COLOR_RED_WARNING_HTML,
     CustomColors,
-    DestinationDisplayType,
-    DisplayingFilesOfType,
     DestinationDisplayMousePos,
-    PresetPrefType,
-    NameGenerationType,
+    DestinationDisplayStatus,
     DestinationDisplayTooltipState,
+    DestinationDisplayType,
+    DeviceDisplayPadding,
+    DisplayingFilesOfType,
     FileType,
+    NameGenerationType,
+    PresetPrefType,
 )
-from raphodo.utilities import thousands, format_size_for_user
+from raphodo.devices import DownloadingTo
+from raphodo.generatenameconfig import (
+    CUSTOM_SUBFOLDER_MENU_ENTRY_POSITION,
+    DICT_SUBFOLDER_L0,
+    DICT_VIDEO_SUBFOLDER_L0,
+    MAX_DOWNLOAD_SUBFOLDER_MENU_ENTRIES,
+    MAX_DOWNLOAD_SUBFOLDER_MENU_PRESETS,
+    NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS,
+    NUM_DOWNLOAD_SUBFOLDER_MENU_CUSTOM_PRESETS,
+    PHOTO_SUBFOLDER_MENU_DEFAULTS,
+    PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV,
+    VIDEO_SUBFOLDER_MENU_DEFAULTS,
+    VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV,
+    CustomPresetSubfolderLists,
+    CustomPresetSubfolderNames,
+)
+from raphodo.internationalisation.utilities import thousands
 from raphodo.rpdfile import FileTypeCounter, Photo, Video
+from raphodo.storage.storage import StorageSpace, get_mount_size, get_path_display_name
+from raphodo.tools.utilities import data_file_path, format_size_for_user
+from raphodo.ui.devicedisplay import BodyDetails, DeviceDisplay, icon_size
 from raphodo.ui.nameeditor import PrefDialog, make_subfolder_menu_entry
-import raphodo.generatenameconfig as gnc
-from raphodo.generatenameconfig import *
+from raphodo.ui.viewutils import darkModePixmap, paletteMidPen
 
 
 def make_body_details(
@@ -98,6 +102,7 @@ def make_body_details(
     photos = videos = photos_size = videos_size = ""
 
     if files_to_display != DisplayingFilesOfType.videos:
+        # Translators: no_photos refers to the number of photos
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
@@ -106,6 +111,7 @@ def make_body_details(
         }
         photos_size = format_size_for_user(photos_size_to_download)
     if files_to_display != DisplayingFilesOfType.photos:
+        # Translators: no_videos refers to the number of videos
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
@@ -187,7 +193,7 @@ def adjusted_download_size(
     videos_size_to_download: int,
     os_stat_device: int,
     downloading_to,
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """
     Adjust download size to account for situations where
     photos and videos are being backed up to the same
@@ -239,7 +245,7 @@ class DestinationDisplay(QWidget):
         rapidApp=None,
     ) -> None:
         """
-        :param menu: whether to render a drop down menu
+        :param menu: whether to render a drop-down menu
         :param file_type: whether for photos or videos. Relevant only for menu display.
         """
 
@@ -250,13 +256,12 @@ class DestinationDisplay(QWidget):
         else:
             self.prefs = None
 
-        self.storage_space = None  # type: Optional[StorageSpace]
+        self.storage_space: StorageSpace | None = None
 
-        self.map_action = dict()  # type: Dict[int, QAction]
-
+        self.menu_actions: list[QAction] = []
         if menu:
             pixmap = darkModePixmap(
-                path=":/icons/settings.svg",
+                path="icons/settings.svg",
                 size=QSize(100, 100),
                 soften_regular_mode_color=True,
             )
@@ -274,38 +279,35 @@ class DestinationDisplay(QWidget):
         self.deviceDisplay = DeviceDisplay(parent=self, menuButtonIcon=menuIcon)
         self.deviceDisplay.widthChanged.connect(self.widthChanged)
         size = icon_size()
-        self.icon = QIcon(":/icons/folder.svg").pixmap(
+        self.pixmap: QPixmap = QIcon(data_file_path("icons/folder.svg")).pixmap(
             QSize(size, size)
-        )  # type: QPixmap
-        self.icon = darkModePixmap(self.icon)
+        )
+        self.pixmap = darkModePixmap(pixmap=self.pixmap)
         self.display_name = ""
         self.photos_size_to_download = self.videos_size_to_download = 0
-        self.files_to_display = None  # type: Optional[DisplayingFilesOfType]
+        self.files_to_display: DisplayingFilesOfType | None = None
         self.marked = FileTypeCounter()
-        self.display_type = None  # type: Optional[DestinationDisplayType]
+        self.display_type: DestinationDisplayType | None = None
         self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
 
-        # default number of built-in subfolder generation defaults
-        self.no_builtin_defaults = 5
-        self.max_presets = 5
-        # maximum number of menu entries showing name generation presets
-        self.max_menu_entries = self.no_builtin_defaults + self.max_presets
+        self.sample_rpd_file: Photo | Video | None = None
 
-        self.sample_rpd_file = None  # type: Optional[Union[Photo, Video]]
-
-        self.os_stat_device = 0  # type: int
-        self._downloading_to = defaultdict(set)  # type: DefaultDict[int, Set[FileType]]
+        self.os_stat_device: int = 0
+        self._downloading_to: DownloadingTo = defaultdict(set)
 
         self.midPen = paletteMidPen()
         self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
         self.container_vertical_scrollbar_visible = None
 
+        self.status = DestinationDisplayStatus.valid
+        self.invalidColor = QColor(COLOR_RED_WARNING_HTML)
+
     @property
-    def downloading_to(self) -> DefaultDict[int, Set[FileType]]:
+    def downloading_to(self) -> DownloadingTo:
         return self._downloading_to
 
     @downloading_to.setter
-    def downloading_to(self, downloading_to) -> None:
+    def downloading_to(self, downloading_to: DownloadingTo) -> None:
         if downloading_to is not None:
             self._downloading_to = downloading_to
             # TODO determine if this is always needed here
@@ -316,167 +318,124 @@ class DestinationDisplay(QWidget):
         self.menu = QMenu()
 
         if self.file_type == FileType.photo:
-            defaults = gnc.PHOTO_SUBFOLDER_MENU_DEFAULTS
+            defaults = PHOTO_SUBFOLDER_MENU_DEFAULTS
         else:
-            defaults = gnc.VIDEO_SUBFOLDER_MENU_DEFAULTS
-
-        self.subfolder0Act = QAction(make_subfolder_menu_entry(defaults[0]), self)
-        self.subfolder0Act.setCheckable(True)
-        self.subfolder0Act.triggered.connect(self.doSubfolder0)
-        self.subfolder1Act = QAction(make_subfolder_menu_entry(defaults[1]), self)
-        self.subfolder1Act.setCheckable(True)
-        self.subfolder1Act.triggered.connect(self.doSubfolder1)
-        self.subfolder2Act = QAction(make_subfolder_menu_entry(defaults[2]), self)
-        self.subfolder2Act.setCheckable(True)
-        self.subfolder2Act.triggered.connect(self.doSubfolder2)
-        self.subfolder3Act = QAction(make_subfolder_menu_entry(defaults[3]), self)
-        self.subfolder3Act.setCheckable(True)
-        self.subfolder3Act.triggered.connect(self.doSubfolder3)
-        self.subfolder4Act = QAction(make_subfolder_menu_entry(defaults[4]), self)
-        self.subfolder4Act.setCheckable(True)
-        self.subfolder4Act.triggered.connect(self.doSubfolder4)
-        self.subfolder5Act = QAction("Preset 0", self)
-        self.subfolder5Act.setCheckable(True)
-        self.subfolder5Act.triggered.connect(self.doSubfolder5)
-        self.subfolder6Act = QAction("Preset 1", self)
-        self.subfolder6Act.setCheckable(True)
-        self.subfolder6Act.triggered.connect(self.doSubfolder6)
-        self.subfolder7Act = QAction("Preset 2", self)
-        self.subfolder7Act.setCheckable(True)
-        self.subfolder7Act.triggered.connect(self.doSubfolder7)
-        self.subfolder8Act = QAction("Preset 3", self)
-        self.subfolder8Act.setCheckable(True)
-        self.subfolder8Act.triggered.connect(self.doSubfolder8)
-        self.subfolder9Act = QAction("Preset 4", self)
-        self.subfolder9Act.setCheckable(True)
-        self.subfolder9Act.triggered.connect(self.doSubfolder9)
-        # Translators: Custom refers to the user choosing a non-default value that
-        # they customize themselves
-        self.subfolderCustomAct = QAction(_("Custom..."), self)
-        self.subfolderCustomAct.setCheckable(True)
-        self.subfolderCustomAct.triggered.connect(self.doSubfolderCustom)
+            defaults = VIDEO_SUBFOLDER_MENU_DEFAULTS
 
         self.subfolderGroup = QActionGroup(self)
 
-        self.subfolderGroup.addAction(self.subfolder0Act)
-        self.subfolderGroup.addAction(self.subfolder1Act)
-        self.subfolderGroup.addAction(self.subfolder2Act)
-        self.subfolderGroup.addAction(self.subfolder3Act)
-        self.subfolderGroup.addAction(self.subfolder4Act)
-        self.subfolderGroup.addAction(self.subfolder5Act)
-        self.subfolderGroup.addAction(self.subfolder6Act)
-        self.subfolderGroup.addAction(self.subfolder7Act)
-        self.subfolderGroup.addAction(self.subfolder8Act)
-        self.subfolderGroup.addAction(self.subfolder9Act)
-        self.subfolderGroup.addAction(self.subfolderCustomAct)
+        # Generate a list of actions with matching text entries, and place them in a
+        # menu
+        for index in range(MAX_DOWNLOAD_SUBFOLDER_MENU_ENTRIES):
+            if index < NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS:
+                menu_text = make_subfolder_menu_entry(defaults[index])
+            elif index == CUSTOM_SUBFOLDER_MENU_ENTRY_POSITION:
+                # Translators: Custom refers to the user choosing a non-default value
+                # that they customize themselves
+                menu_text = _("Custom...")
+            else:
+                menu_text = "Placeholder text"
 
-        self.menu.addAction(self.subfolder0Act)
-        self.menu.addAction(self.subfolder1Act)
-        self.menu.addAction(self.subfolder2Act)
-        self.menu.addAction(self.subfolder3Act)
-        self.menu.addAction(self.subfolder4Act)
-        self.menu.addSeparator()
-        self.menu.addAction(self.subfolder5Act)
-        self.menu.addAction(self.subfolder6Act)
-        self.menu.addAction(self.subfolder7Act)
-        self.menu.addAction(self.subfolder8Act)
-        self.menu.addAction(self.subfolder9Act)
-        self.menu.addAction(self.subfolderCustomAct)
+            action = QAction(menu_text, self)
+            action.setCheckable(True)
+            action.triggered.connect(
+                lambda checked, index=index: self.menuItemChosen(index)
+            )
 
-        self.map_action[0] = self.subfolder0Act
-        self.map_action[1] = self.subfolder1Act
-        self.map_action[2] = self.subfolder2Act
-        self.map_action[3] = self.subfolder3Act
-        self.map_action[4] = self.subfolder4Act
-        self.map_action[5] = self.subfolder5Act
-        self.map_action[6] = self.subfolder6Act
-        self.map_action[7] = self.subfolder7Act
-        self.map_action[8] = self.subfolder8Act
-        self.map_action[9] = self.subfolder9Act
-        self.map_action[-1] = self.subfolderCustomAct
+            self.subfolderGroup.addAction(action)
+            self.menu_actions.append(action)
 
-    def presetType(self) -> PresetPrefType:
+            if index == NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS:
+                self.menu.addSeparator()
+
+            self.menu.addAction(action)
+
+    def getPresetIndex(
+        self,
+    ) -> tuple[int, CustomPresetSubfolderNames, CustomPresetSubfolderLists]:
+        """
+        Returns the index of the user's download subfolder generation config in the
+        list of subfolder generation preferences, which is a combination of the built-in
+        defaults and the user's custom presets.
+
+        :return: index into the combined list of subfolder generation preferences, or -1
+         if it doesn't exist in the list, as well as the user's custom presets and their
+         names.
+        """
+
         if self.file_type == FileType.photo:
-            return PresetPrefType.preset_photo_subfolder
+            default_prefs_list = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV
+            prefs_subfolder_list = self.prefs.photo_subfolder
+            preset_type = PresetPrefType.preset_photo_subfolder
         else:
-            return PresetPrefType.preset_video_subfolder
+            default_prefs_list = VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV
+            prefs_subfolder_list = self.prefs.video_subfolder
+            preset_type = PresetPrefType.preset_video_subfolder
 
-    def _cacheCustomPresetValues(self) -> int:
-        """
-        Get custom photo or video presets, and assign them to class members
-        :return: index into the combo of default prefs + custom prefs
-        """
-        preset_type = self.presetType()
-        self.preset_names, self.preset_pref_lists = self.prefs.get_preset(
+        custom_preset_names, custom_preset_pref_lists = self.prefs.get_custom_presets(
             preset_type=preset_type
         )
 
-        if self.file_type == FileType.photo:
-            index = self.prefs.photo_subfolder_index(self.preset_pref_lists)
-        else:
-            index = self.prefs.video_subfolder_index(self.preset_pref_lists)
-        return index
+        try:
+            index = default_prefs_list.index(prefs_subfolder_list)
+        except ValueError:
+            try:
+                index = custom_preset_pref_lists.index(prefs_subfolder_list)
+            except ValueError:
+                index = -1
+            else:
+                if index >= NUM_DOWNLOAD_SUBFOLDER_MENU_CUSTOM_PRESETS:
+                    # A custom preset is in use, but due to the position of that custom
+                    # preset in the list of presets, it will not be shown in the menu
+                    # without being moved up in position.
+                    # Move it to the beginning.
+                    preset_name = custom_preset_names.pop(index)
+                    pref_list = custom_preset_pref_lists.pop(index)
+                    custom_preset_names.insert(0, preset_name)
+                    custom_preset_pref_lists.insert(0, pref_list)
+
+                    self.prefs.set_custom_presets(
+                        preset_type=preset_type,
+                        preset_names=custom_preset_names,
+                        preset_pref_lists=custom_preset_pref_lists,
+                    )
+                    index = NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS
+                else:
+                    # Return the index into taking into account
+                    # the length of the default presets.
+                    index += NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS
+
+        return index, custom_preset_names, custom_preset_pref_lists
 
     def setupMenuActions(self) -> None:
-        index = self._cacheCustomPresetValues()
+        index, preset_names, preset_pref_lists = self.getPresetIndex()
+        assert index < MAX_DOWNLOAD_SUBFOLDER_MENU_ENTRIES
 
-        action = self.map_action[index]  # type: QAction
+        action: QAction = self.menu_actions[index]
         action.setChecked(True)
 
         # Set visibility of custom presets menu items to match how many we are
         # displaying
-        for idx, text in enumerate(self.preset_names[: self.max_presets]):
-            action = self.map_action[self.no_builtin_defaults + idx]
-            action.setText(text)
-            action.setVisible(True)
 
-        for i in range(
-            self.max_presets - min(len(self.preset_names), self.max_presets)
-        ):
-            idx = len(self.preset_names) + self.no_builtin_defaults + i
-            action = self.map_action[idx]
-            action.setVisible(False)
+        for index in range(NUM_DOWNLOAD_SUBFOLDER_MENU_CUSTOM_PRESETS):
+            action = self.menu_actions[NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS + index]
+            if index < len(preset_names):
+                action.setText(preset_names[index])
+                action.setVisible(True)
+            else:
+                action.setVisible(False)
 
-    def doSubfolder0(self) -> None:
-        self.menuItemChosen(0)
+        # Save the custom preset list for access in self.menuItemChosen()
+        self.preset_pref_lists = preset_pref_lists
 
-    def doSubfolder1(self) -> None:
-        self.menuItemChosen(1)
-
-    def doSubfolder2(self) -> None:
-        self.menuItemChosen(2)
-
-    def doSubfolder3(self) -> None:
-        self.menuItemChosen(3)
-
-    def doSubfolder4(self) -> None:
-        self.menuItemChosen(4)
-
-    def doSubfolder5(self) -> None:
-        self.menuItemChosen(5)
-
-    def doSubfolder6(self) -> None:
-        self.menuItemChosen(6)
-
-    def doSubfolder7(self) -> None:
-        self.menuItemChosen(7)
-
-    def doSubfolder8(self) -> None:
-        self.menuItemChosen(8)
-
-    def doSubfolder9(self) -> None:
-        self.menuItemChosen(9)
-
-    def doSubfolderCustom(self):
-        self.menuItemChosen(-1)
-
+    @pyqtSlot(int)
     def menuItemChosen(self, index: int) -> None:
         self.mouse_pos = DestinationDisplayMousePos.normal
         self.update()
 
         user_pref_list = None
 
-        if index == -1:
+        if index == CUSTOM_SUBFOLDER_MENU_ENTRY_POSITION:
             if self.file_type == FileType.photo:
                 pref_defn = DICT_SUBFOLDER_L0
                 pref_list = self.prefs.photo_subfolder
@@ -492,22 +451,24 @@ class DestinationDisplay(QWidget):
                 generation_type=generation_type,
                 prefs=self.prefs,
                 sample_rpd_file=self.sample_rpd_file,
-                max_entries=self.max_menu_entries,
+                max_entries=MAX_DOWNLOAD_SUBFOLDER_MENU_PRESETS,
             )
             if prefDialog.exec():
                 user_pref_list = prefDialog.getPrefList()
                 if not user_pref_list:
                     user_pref_list = None
 
-        elif index >= self.no_builtin_defaults:
-            assert index < self.max_menu_entries
-            user_pref_list = self.preset_pref_lists[index - self.no_builtin_defaults]
+        elif index >= NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS:
+            assert index < CUSTOM_SUBFOLDER_MENU_ENTRY_POSITION
+            user_pref_list = self.preset_pref_lists[
+                index - NUM_DOWNLOAD_SUBFOLDER_BUILT_IN_PRESETS
+            ]
 
         else:
             if self.file_type == FileType.photo:
-                user_pref_list = gnc.PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[index]
+                user_pref_list = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[index]
             else:
-                user_pref_list = gnc.VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV[index]
+                user_pref_list = VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV[index]
 
         if user_pref_list is not None:
             logging.debug(
@@ -615,6 +576,14 @@ class DestinationDisplay(QWidget):
     def containerVerticalScrollBar(self, visible: bool) -> None:
         self.container_vertical_scrollbar_visible = visible
 
+    @staticmethod
+    def invalidStatusHeight() -> int:
+        return QFontMetrics(QFont()).height() + DeviceDisplayPadding * 2
+
+    def setStatus(self, status: DestinationDisplayStatus)-> None:
+        self.status = status
+        self.update()
+
     def paintEvent(self, event: QPaintEvent) -> None:
         """
         Render the custom widget
@@ -623,11 +592,11 @@ class DestinationDisplay(QWidget):
         painter = QStylePainter()
         painter.begin(self)
 
-        x = 0
-        y = 0
+        x: int = 0
+        y: int = 0
         width = self.width()
 
-        rect = self.rect()  # type: QRect
+        rect: QRect = self.rect()
         palette = QPalette()
         backgroundColor = palette.base().color()
 
@@ -667,10 +636,84 @@ class DestinationDisplay(QWidget):
                 y=y,
                 width=width,
                 display_name=self.display_name,
-                icon=self.icon,
+                icon=self.pixmap,
                 highlight_menu=highlight_menu,
             )
             y = y + self.deviceDisplay.dc.device_name_height
+
+            if self.status != DestinationDisplayStatus.valid:
+                displayPen = painter.pen()
+                match self.status:
+                    case DestinationDisplayStatus.unwritable:
+                        # Translators: the lack of a period at the end is deliberate
+                        text = _("Unwritable destination")
+                    case DestinationDisplayStatus.does_not_exist:
+                        # Translators: the lack of a period at the end is deliberate
+                        text = _("Folder does not exist")
+                    case DestinationDisplayStatus.no_storage_space:
+                        # Translators: the lack of a period at the end is deliberate
+                        text = _("Insufficient storage space")
+                    case _:
+                        raise NotImplementedError(
+                            "Unhandled destination display status"
+                        )
+
+                y = y - DeviceDisplayPadding  # remove the bottom padding
+
+                status_height = self.invalidStatusHeight()
+                statusRect = QRect(x, y, width, status_height)
+                painter.fillRect(statusRect, self.invalidColor)
+
+                text_height = QFontMetrics(QFont()).height()
+                white = QColor(Qt.GlobalColor.white)
+
+                iconRect = QRectF(
+                    float(DeviceDisplayPadding),
+                    float(y + DeviceDisplayPadding),
+                    float(text_height),
+                    float(text_height),
+                )
+                exclamationRect = iconRect.adjusted(0.25, 1.0, 0.25, 1.0)
+                textRect = QRectF(
+                    iconRect.right() + DeviceDisplayPadding,
+                    iconRect.top(),
+                    width - iconRect.right() - DeviceDisplayPadding,
+                    float(text_height),
+                )
+
+                painter.setPen(QPen(white))
+
+                # Draw a triangle
+                path = QPainterPath()
+                path.moveTo(iconRect.left() + (iconRect.width() / 2), iconRect.top())
+                path.lineTo(iconRect.bottomLeft())
+                path.lineTo(iconRect.bottomRight())
+                path.lineTo(iconRect.left() + (iconRect.width() / 2), iconRect.top())
+
+                painter.fillPath(path, QBrush(white))
+
+                # Draw an exclamation point
+                displayFont = painter.font()
+                warningFont = QFont()
+                warningFont.setBold(True)
+                exclamationFont = QFont(warningFont)
+                exclamationFont.setPointSize(warningFont.pointSize() - 2)
+
+                painter.setFont(exclamationFont)
+                painter.setPen(QPen(self.invalidColor))
+                painter.drawText(exclamationRect, Qt.AlignmentFlag.AlignCenter, "!")
+
+                # Draw the warning
+                painter.setFont(warningFont)
+                painter.setPen(QPen(white))
+                painter.drawText(
+                    textRect,
+                    Qt.TextFlag.TextSingleLine | Qt.AlignmentFlag.AlignVCenter,
+                    text,
+                )
+                painter.setPen(displayPen)
+                painter.setFont(displayFont)
+                y = y + status_height
 
         if self.display_type != DestinationDisplayType.folder_only:
             # Render the projected storage space
@@ -711,6 +754,8 @@ class DestinationDisplay(QWidget):
 
         if self.display_type != DestinationDisplayType.usage_only:
             height += self.deviceDisplay.dc.device_name_height
+            if self.status != DestinationDisplayStatus.valid:
+                height += self.invalidStatusHeight()
         if self.display_type != DestinationDisplayType.folder_only:
             height += self.deviceDisplay.dc.storage_height
 
@@ -726,13 +771,12 @@ class DestinationDisplay(QWidget):
 
         iconRect = self.deviceDisplay.menu_button_rect(0, 0, self.width())
 
-        if iconRect.contains(event.pos()):
-            if event.button() == Qt.LeftButton:
-                menuTopReal = iconRect.bottomLeft()
-                x = math.ceil(menuTopReal.x())
-                y = math.ceil(menuTopReal.y())
-                self.setupMenuActions()
-                self.menu.popup(self.mapToGlobal(QPoint(x, y)))
+        if iconRect.contains(event.pos()) and event.button() == Qt.LeftButton:
+            menuTopReal = iconRect.bottomLeft()
+            x = math.ceil(menuTopReal.x())
+            y = math.ceil(menuTopReal.y())
+            self.setupMenuActions()
+            self.menu.popup(self.mapToGlobal(QPoint(x, y)))
 
     @pyqtSlot(QMouseEvent)
     def mouseMoveEvent(self, event: QMouseEvent) -> None:

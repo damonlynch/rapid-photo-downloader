@@ -1,22 +1,7 @@
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
-# Copyright (C) 2008-2015 Canonical Ltd.
-# Copyright (C) 2013 Bernard Baeyens
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2015-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: Copyright 2008-2015 Canonical Ltd.
+# SPDX-FileCopyrightText: Copyright 2013 Bernard Baeyens
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 The primary task of this module is to handle addition and removal of
@@ -42,60 +27,57 @@ The secondary task of this module is to provide miscellaneous services
 regarding mount points and XDG related functionality.
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = (
-    "Copyright 2011-2021, Damon Lynch. Copyright 2008-2015 Canonical Ltd. Copyright"
-    " 2013 Bernard Baeyens."
-)
+# ruff: noqa: E402
 
 import functools
 import logging
 import os
+import pwd
 import re
+import shutil
 import sys
 import time
-import pwd
-from pathlib import Path
 from collections import namedtuple
-import shutil
-from typing import Optional, Tuple, List, Dict, Set
-from urllib.request import pathname2url
-from urllib.parse import quote
+from pathlib import Path
 from tempfile import NamedTemporaryFile
-
-from PyQt5.QtCore import (
-    QStorageInfo,
-    QObject,
-    pyqtSignal,
-    QFileSystemWatcher,
-    pyqtSlot,
-    QTimer,
-    QStandardPaths,
-)
-from showinfm import linux_desktop, LinuxDesktop, valid_file_manager
+from typing import NamedTuple
+from urllib.parse import quote
+from urllib.request import pathname2url
 
 import gi
-
-from raphodo.wslutils import (
-    wsl_home,
-    wsl_pictures_folder,
-    wsl_videos_folder,
-    wsl_conf_mnt_location,
-    wsl_filter_directories,
-)
 
 gi.require_version("GUdev", "1.0")
 gi.require_version("UDisks", "2.0")
 gi.require_version("GExiv2", "0.10")
 gi.require_version("GLib", "2.0")
-from gi.repository import GUdev, UDisks, GLib
-
+from gi.repository import GLib, GUdev, UDisks
+from PyQt5.QtCore import (
+    QFileSystemWatcher,
+    QObject,
+    QStandardPaths,
+    QStorageInfo,
+    QTimer,
+    pyqtSignal,
+    pyqtSlot,
+)
+from showinfm import LinuxDesktop, linux_desktop, valid_file_manager
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from raphodo.constants import Distro, PostCameraUnmountAction
-from raphodo.utilities import (
+from raphodo.internationalisation.install import install_gettext
+from raphodo.tools.utilities import (
     log_os_release,
     remove_topmost_directory_from_path,
 )
+from raphodo.wsl.wslutils import (
+    wsl_conf_mnt_location,
+    wsl_filter_directories,
+    wsl_home,
+    wsl_pictures_folder,
+    wsl_videos_folder,
+)
+
+install_gettext()
 
 logging_level = logging.DEBUG
 
@@ -135,24 +117,19 @@ def guess_distro() -> Distro:
     return Distro.unknown
 
 
-def parse_os_release() -> Dict[str, str]:
-    """
-    Sync with code in install.py
-    """
-
+def parse_os_release() -> dict[str, str]:
     d = {}
     if os.path.isfile("/etc/os-release"):
-        with open("/etc/os-release", "r") as f:
+        with open("/etc/os-release") as f:
             for line in f:
                 line = line.strip()
-                if line:
-                    k, v = line.split("=", maxsplit=1)
-                    v = v.strip("'\"")
-                    d[k] = v
+                if line and not line.startswith("#"):
+                    kv = line.split("=", maxsplit=1)
+                    if len(kv) == 2:
+                        k, v = kv
+                        v = v.strip("'\"")
+                        d[k] = v
     return d
-
-
-# Keep up to date with parse_distro_details() with code in install.py
 
 
 def get_distro() -> Distro:
@@ -173,10 +150,7 @@ def get_distro() -> Distro:
             distro = Distro.fedora
         if "CentOS Linux" in name:
             version_id = os_release.get("VERSION_ID")
-            if version_id == "7":
-                distro = Distro.centos7
-            else:
-                distro = Distro.centos8
+            distro = Distro.centos7 if version_id == "7" else Distro.centos8
         if "CentOS Stream" in name:
             version_id = os_release.get("VERSION_ID")
             if version_id == "8":
@@ -235,7 +209,7 @@ def get_user_name() -> str:
     return pwd.getpwuid(os.getuid())[0]
 
 
-def get_path_display_name(path: str) -> Tuple[str, str]:
+def get_path_display_name(path: str) -> tuple[str, str]:
     """
     Return a name for the path (path basename),
     removing a final '/' when it's not the root of the
@@ -247,14 +221,11 @@ def get_path_display_name(path: str) -> Tuple[str, str]:
     if path.endswith(os.sep) and path != os.sep:
         path = path[:-1]
 
-    if path == os.sep:
-        display_name = _("File system root")
-    else:
-        display_name = os.path.basename(path)
+    display_name = _("File system root") if path == os.sep else os.path.basename(path)
     return display_name, path
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def get_media_dir() -> str:
     """
     Returns the media directory, i.e. where external mounts are mounted.
@@ -267,7 +238,7 @@ def get_media_dir() -> str:
         if _linux_desktop == LinuxDesktop.wsl2:
             return wsl_conf_mnt_location()
 
-        media_dir = "/media/{}".format(get_user_name())
+        media_dir = f"/media/{get_user_name()}"
         run_media_dir = "/run/media"
         distro = get_distro()
         if os.path.isdir(run_media_dir) and distro not in (
@@ -335,7 +306,7 @@ class ValidMounts:
         :param only_external_mounts: if True, valid mounts must be under
         /media/<USER>, /run/media/<user>, or if WSL2 /mnt/
         """
-        self.validMountFolders = None  # type: Optional[Tuple[str]]
+        self.validMountFolders: tuple[str] | None = None
         self.only_external_mounts = only_external_mounts
         self.is_wsl2 = _linux_desktop == LinuxDesktop.wsl2
         self._setValidMountFolders()
@@ -355,10 +326,7 @@ class ValidMounts:
             for path in wsl_filter_directories():
                 if root_path.startswith(path):
                     return False
-        for m in self.validMountFolders:
-            if root_path.startswith(m):
-                return True
-        return False
+        return any(root_path.startswith(m) for m in self.validMountFolders)
 
     def pathIsValidMountPoint(self, path: str) -> bool:
         """
@@ -367,12 +335,9 @@ class ValidMounts:
         :param path: path to be tested
         :return:True if path is a mount under a valid mount, else False
         """
-        for m in self.validMountFolders:
-            if path.startswith(m):
-                return True
-        return False
+        return any(path.startswith(m) for m in self.validMountFolders)
 
-    def mountedValidMountPointPaths(self) -> Tuple[str]:
+    def mountedValidMountPointPaths(self) -> tuple[str]:
         """
         Return paths of all the currently mounted partitions that are
         valid
@@ -381,7 +346,7 @@ class ValidMounts:
 
         return tuple(filter(self.pathIsValidMountPoint, mountPaths()))
 
-    def mountedValidMountPoints(self) -> Tuple[QStorageInfo]:
+    def mountedValidMountPoints(self) -> tuple[QStorageInfo]:
         """
         Return mount points of all the currently mounted partitions
         that are valid
@@ -401,7 +366,7 @@ class ValidMounts:
         else:
             try:
                 media_dir = get_media_dir()
-            except:
+            except Exception:
                 logging.critical("Unable to determine username of this process")
                 media_dir = ""
             logging.debug("Media dir is %s", media_dir)
@@ -421,7 +386,6 @@ class ValidMounts:
         """
 
         with open("/etc/fstab") as f:
-            l = []
             for line in f:
                 # As per fstab specs: white space is either Tab or space
                 # Ignore comments, blank lines
@@ -443,14 +407,10 @@ class ValidMounts:
             if len(self.validMountFolders) > 2:
                 msg += "one of "
                 for p in self.validMountFolders[:-2]:
-                    msg += "{}, ".format(p)
-                msg += "{} or {}".format(
-                    self.validMountFolders[-2], self.validMountFolders[-1]
-                )
+                    msg += f"{p}, "
+                msg += f"{self.validMountFolders[-2]} or {self.validMountFolders[-1]}"
             elif len(self.validMountFolders) == 2:
-                msg += "{} or {}".format(
-                    self.validMountFolders[0], self.validMountFolders[1]
-                )
+                msg += f"{self.validMountFolders[0]} or {self.validMountFolders[1]}"
             else:
                 msg += self.validMountFolders[0]
             logging.debug(msg)
@@ -465,7 +425,7 @@ def mountPaths():
         yield m.rootPath()
 
 
-def has_one_or_more_folders(path: str, folders: List[str]) -> bool:
+def has_one_or_more_folders(path: str, folders: list[str]) -> bool:
     """
     Checks to see if directly below the path there is a folder
     from the list of specified folders, and if the folder is readable.
@@ -482,7 +442,7 @@ def has_one_or_more_folders(path: str, folders: List[str]) -> bool:
                     return True
     except (PermissionError, FileNotFoundError, OSError):
         return False
-    except:
+    except Exception:
         logging.error(
             "Unknown error occurred while probing potential source folder %s", path
         )
@@ -490,7 +450,7 @@ def has_one_or_more_folders(path: str, folders: List[str]) -> bool:
     return False
 
 
-def get_desktop_environment() -> Optional[str]:
+def get_desktop_environment() -> str | None:
     """
     Determine desktop environment using environment variable XDG_CURRENT_DESKTOP
 
@@ -502,7 +462,7 @@ def get_desktop_environment() -> Optional[str]:
 
 def _platform_special_dir(
     dir_type: QStandardPaths, home_on_failure: bool = True
-) -> Optional[str]:
+) -> str | None:
     """
     Use Qt to query the platforms standard paths
 
@@ -523,7 +483,7 @@ def _platform_special_dir(
     return None
 
 
-def platform_photos_directory(home_on_failure: bool = True) -> Optional[str]:
+def platform_photos_directory(home_on_failure: bool = True) -> str | None:
     """
     Get localized version of /home/<USER>/Pictures
 
@@ -580,7 +540,8 @@ def platform_desktop_directory(home_on_failure: bool = True) -> str:
 def platform_photos_identifier() -> str:
     """
     Get special subfoler indicated by the localized version of /home/<USER>/Pictures
-    :return: the subfolder name if it is specified, else the localized version of 'Pictures'
+    :return: the subfolder name if it is specified, else the localized version of
+    'Pictures'
     """
 
     path = _platform_special_dir(QStandardPaths.PicturesLocation, home_on_failure=False)
@@ -593,7 +554,8 @@ def platform_photos_identifier() -> str:
 def platform_videos_identifier() -> str:
     """
     Get special subfoler indicated by the localized version of /home/<USER>/Pictures
-    :return: the subfolder name if it is specified, else the localized version of 'Pictures'
+    :return: the subfolder name if it is specified, else the localized version of
+    'Pictures'
     """
 
     path = _platform_special_dir(QStandardPaths.MoviesLocation, home_on_failure=False)
@@ -622,7 +584,7 @@ def make_program_directory(path: str) -> str:
     return program_dir
 
 
-def get_program_cache_directory(create_if_not_exist: bool = False) -> Optional[str]:
+def get_program_cache_directory(create_if_not_exist: bool = False) -> str | None:
     """
     Get Rapid Photo Downloader cache directory.
 
@@ -647,7 +609,7 @@ def get_program_cache_directory(create_if_not_exist: bool = False) -> Optional[s
         return None
 
 
-def get_program_logging_directory(create_if_not_exist: bool = False) -> Optional[str]:
+def get_program_logging_directory(create_if_not_exist: bool = False) -> str | None:
     """
     Get directory in which to store program log files.
 
@@ -677,7 +639,7 @@ def get_program_logging_directory(create_if_not_exist: bool = False) -> Optional
     return None
 
 
-def get_program_data_directory(create_if_not_exist=False) -> Optional[str]:
+def get_program_data_directory(create_if_not_exist=False) -> str | None:
     """
     Get Rapid Photo Downloader data directory, which is assumed to be
     under $XDG_DATA_HOME or if that doesn't exist,  ~/.local/share
@@ -721,7 +683,7 @@ def get_fdo_cache_thumb_base_directory() -> str:
 # URIs
 _quoted_comma = quote(",")
 _valid_file_manager_probed = False
-_valid_file_manager = None  # type: Optional[str]
+_valid_file_manager: str | None = None
 
 gvfs_file_managers = (
     "nautilus",
@@ -739,9 +701,9 @@ kframework_file_managers = ("dolphin", "index", "krusader")
 
 
 def get_uri(
-    full_file_name: Optional[str] = None,
-    path: Optional[str] = None,
-    camera_details: Optional[CameraDetails] = None,
+    full_file_name: str | None = None,
+    path: str | None = None,
+    camera_details: CameraDetails | None = None,
 ) -> str:
     """
     Generate and return the URI for the file, which varies depending on
@@ -751,8 +713,8 @@ def get_uri(
     :param path: straight path when not passing a full_file_name
     :param camera_details: see named tuple CameraDetails for parameters
     :param desktop_environment: if True, will to generate a URI accepted
-     by Gnome, KDE and other desktops, which means adjusting the URI if it appears to be an
-     MTP mount. Includes the port too, for cameras. Takes into account
+     by Gnome, KDE and other desktops, which means adjusting the URI if it appears to
+     be an MTP mount. Includes the port too, for cameras. Takes into account
      file manager characteristics.
     :return: the URI
     """
@@ -776,13 +738,11 @@ def get_uri(
 
             if _valid_file_manager in gvfs_file_managers:
                 prefix = "mtp://" + pathname2url(
-                    "[{}]/{}".format(camera_details.port, camera_details.storage_desc)
+                    f"[{camera_details.port}]/{camera_details.storage_desc}"
                 )
             elif _valid_file_manager in kframework_file_managers:
                 prefix = "mtp:/" + pathname2url(
-                    "{}/{}".format(
-                        camera_details.display_name, camera_details.storage_desc
-                    )
+                    f"{camera_details.display_name}/{camera_details.storage_desc}"
                 )
             else:
                 logging.error(
@@ -790,29 +750,35 @@ def get_uri(
                 )
         else:
             if _valid_file_manager in kframework_file_managers:
-                prefix = f"camera:/{pathname2url(camera_details.display_name.replace('-', ' '))}@{camera_details.port}"
+                prefix = (
+                    "camera:/"
+                    f"{pathname2url(camera_details.display_name.replace('-', ' '))}"
+                    f"@{camera_details.port}"
+                )
             else:
-                prefix = "gphoto2://" + pathname2url("[{}]".format(camera_details.port))
+                prefix = "gphoto2://" + pathname2url(f"[{camera_details.port}]")
 
         if _valid_file_manager == "pcmanfm-qt":
             # pcmanfm-qt does not like the quoted form of the comma
             prefix = prefix.replace(_quoted_comma, ",")
             if full_file_name:
-                # pcmanfm-qt does not like the the filename as part of the path
+                # pcmanfm-qt does not like the filename as part of the path
                 full_file_name = os.path.dirname(full_file_name)
 
     if full_file_name or path:
-        uri = "{}{}".format(prefix, pathname2url(full_file_name or path))
+        uri = f"{prefix}{pathname2url(full_file_name or path)}"
     else:
         uri = prefix
     return uri
 
 
-ValidatedFolder = namedtuple("ValidatedFolder", "valid, absolute_path")
+class ValidatedFolder(NamedTuple):
+    valid: bool
+    absolute_path: str
 
 
 def validate_download_folder(
-    path: Optional[str], write_on_waccesss_failure: bool = False
+    path: str | None, write_on_waccesss_failure: bool = False
 ) -> ValidatedFolder:
     r"""
     Check if folder exists and is writeable.
@@ -833,7 +799,7 @@ def validate_download_folder(
     """
 
     if not path:
-        return ValidatedFolder(False, "")
+        return ValidatedFolder(valid=False, absolute_path="")
     absolute_path = os.path.abspath(path)
     valid = os.path.isdir(path) and os.access(path, os.W_OK)
     if not valid and write_on_waccesss_failure and os.path.isdir(path):
@@ -843,15 +809,15 @@ def validate_download_folder(
                 valid = True
         except Exception:
             logging.warning(
-                "While validating download / backup folder, failed to write a temporary file to "
-                "%s",
+                "While validating download / backup folder, failed to write a "
+                "temporary file to %s",
                 path,
             )
 
-    return ValidatedFolder(valid, absolute_path)
+    return ValidatedFolder(valid=valid, absolute_path=absolute_path)
 
 
-def validate_source_folder(path: Optional[str]) -> ValidatedFolder:
+def validate_source_folder(path: str | None) -> ValidatedFolder:
     r"""
     Check if folder exists and is readable.
 
@@ -869,15 +835,15 @@ def validate_source_folder(path: Optional[str]) -> ValidatedFolder:
     """
 
     if not path:
-        return ValidatedFolder(False, "")
+        return ValidatedFolder(valid=False, absolute_path="")
     absolute_path = os.path.abspath(path)
     valid = os.path.isdir(path) and os.access(path, os.R_OK)
-    return ValidatedFolder(valid, absolute_path)
+    return ValidatedFolder(valid=valid, absolute_path=absolute_path)
 
 
-def udev_attributes(devname: str) -> Optional[UdevAttr]:
+def udev_attributes(devname: str) -> UdevAttr | None:
     """
-    Query udev to see if device is an MTP device.
+    Query udev to see if a device is an MTP device.
 
     :param devname: udev DEVNAME e.g. '/dev/bus/usb/001/003'
     :return True if udev property ID_MTP_DEVICE == '1', else False
@@ -887,13 +853,13 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
     enumerator = GUdev.Enumerator.new(client)
     enumerator.add_match_property("DEVNAME", devname)
     for device in enumerator.execute():
-        model = device.get_property("ID_MODEL")  # type: str
+        model: str = device.get_property("ID_MODEL")
         if model is not None:
             is_mtp = (
                 device.get_property("ID_MTP_DEVICE") == "1"
                 or device.get_property("ID_MEDIA_PLAYER") == "1"
             )
-            vendor = device.get_property("ID_VENDOR")  # type: str
+            vendor: str = device.get_property("ID_VENDOR")
             model = model.replace("_", " ").strip()
             vendor = vendor.replace("_", " ").strip()
 
@@ -951,7 +917,7 @@ def udev_is_camera(devname: str) -> bool:
     return False
 
 
-def fs_device_details(path: str) -> Tuple:
+def fs_device_details(path: str) -> tuple[str, str, str, str]:
     """
     :return: device (volume) name, uri, root path and filesystem type
      of the mount the path is on
@@ -959,7 +925,7 @@ def fs_device_details(path: str) -> Tuple:
     qsInfo = QStorageInfo(path)
     name = qsInfo.displayName()
     root_path = qsInfo.rootPath()
-    uri = "file://{}".format(pathname2url(root_path))
+    uri = f"file://{pathname2url(root_path)}"
     fstype = qsInfo.fileSystemType()
     if isinstance(fstype, bytes):
         fstype = fstype.decode()
@@ -1060,7 +1026,6 @@ class CameraHotplug(QObject):
     def ueventCallback(
         self, client: GUdev.Client, action: str, device: GUdev.Device
     ) -> None:
-
         # for key in device.get_property_keys():
         #     print(key, device.get_property(key))
         if device.get_property("ID_GPHOTO2") == "1":
@@ -1115,8 +1080,8 @@ class CameraHotplug(QObject):
             # /sys/devices/pci0000:00/0000:00:1c.6/0000:0e:00.0/usb3/3-2
             # This unchanged path used to work, so test both the unchanged and modified
             # path
-            # Note enumerateCameras() above finds only the path as in the 2nd type, without the
-            # 3-2:1.0
+            # Note enumerateCameras() above finds only the path as in the 2nd type,
+            # without the 3-2:1.0
             split_path = os.path.split(path)[0]
 
             for p in (path, split_path):
@@ -1168,7 +1133,7 @@ class UDisks2Monitor(QObject):
 
         # Track the paths of the mount points, which is useful when unmounting
         # objects.
-        self.known_mounts = {}  # type: Dict[str, str]
+        self.known_mounts: dict[str, str] = {}
         for obj in self.manager.get_objects():
             path = obj.get_object_path()
             fs = obj.get_filesystem()
@@ -1197,11 +1162,10 @@ class UDisks2Monitor(QObject):
             path.startswith(self.loop_prefix)
             and not block.get_cached_property("ReadOnly").get_boolean()
         )
-        if not is_system or is_loop:
-            if part:
-                self._udisks_partition_added(obj, block, drive, path)
+        if (not is_system or is_loop) and part:
+            self._udisks_partition_added(obj, block, drive, path)
 
-    def _get_drive(self, block) -> Optional[UDisks.Drive]:
+    def _get_drive(self, block) -> UDisks.Drive | None:
         drive_name = block.get_cached_property("Drive").get_string()
         if drive_name != "/":
             return self.udisks.get_object(drive_name).get_drive()
@@ -1218,11 +1182,7 @@ class UDisks2Monitor(QObject):
         if fs:
             icon_names = self.get_icon_names(obj)
 
-            if drive is not None:
-                ejectable = drive.get_property("ejectable")
-            else:
-                ejectable = False
-            mount_point = ""
+            ejectable = drive.get_property("ejectable") if drive is not None else False
             if not self.prefs.auto_mount:
                 logging.debug(
                     "Not mounting device because auto mount preference is off: %s",
@@ -1282,14 +1242,14 @@ class UDisks2Monitor(QObject):
             try:
                 return fs.call_mount_sync(vparam, None)
             except GLib.GError as e:
-                if not "UDisks2.Error.DeviceBusy" in e.message:
+                if "UDisks2.Error.DeviceBusy" not in e.message:
                     raise
                 logging.debug("Udisks: Device busy.")
                 time.sleep(0.3)
                 timeout -= 1
         return ""
 
-    def get_icon_names(self, obj: UDisks.Object) -> List[str]:
+    def get_icon_names(self, obj: UDisks.Object) -> list[str]:
         # Get icon information, if possible
         icon_names = []
         if have_gio:
@@ -1330,7 +1290,7 @@ class UDisks2Monitor(QObject):
         """
         return f"/org/freedesktop/UDisks2/block_devices/{os.path.split(device_path)[1]}"
 
-    def get_device_props(self, device_path: str) -> Tuple[List[str], bool]:
+    def get_device_props(self, device_path: str) -> tuple[list[str], bool]:
         """
         Given a device, get the icon names suggested by udev, and
         determine whether the mount is ejectable or not.
@@ -1355,7 +1315,6 @@ class UDisks2Monitor(QObject):
 
     @pyqtSlot(str)
     def unmount_volume(self, mount_point: str) -> None:
-
         G_VARIANT_TYPE_VARDICT = GLib.VariantType.new("a{sv}")
         param_builder = GLib.VariantBuilder.new(G_VARIANT_TYPE_VARDICT)
 
@@ -1407,7 +1366,7 @@ class UDisks2Monitor(QObject):
         self,
         source_object: UDisks.FilesystemProxy,
         result: Gio.AsyncResult,
-        user_data: Tuple[str, UDisks.Filesystem],
+        user_data: tuple[str, UDisks.Filesystem],
     ) -> None:
         """
         Callback for asynchronous unmount operation.
@@ -1425,10 +1384,10 @@ class UDisks2Monitor(QObject):
             else:
                 # this is the result even when the unmount was unsuccessful
                 logging.debug("...possibly failed to unmount %s", mount_point)
-        except GLib.GError as e:
+        except GLib.GError:
             logging.error("Exception occurred unmounting %s", mount_point)
             logging.exception("Traceback:")
-        except:
+        except Exception:
             logging.error("Exception occurred unmounting %s", mount_point)
             logging.exception("Traceback:")
 
@@ -1436,6 +1395,25 @@ class UDisks2Monitor(QObject):
 
 
 if have_gio:
+
+    @retry(stop=stop_after_attempt(5), wait=wait_fixed(1))
+    def mount_finish(result: Gio.AsyncResult, volume: Gio.Volume) -> bool:
+        try:
+            return volume.mount_finish(result)
+        except gi.repository.GLib.GError as inst:
+            logging.warning(
+                "Exception occurred unmounting %s: %s",
+                volume.get_name() or "",
+                str(inst),
+            )
+            raise
+        except Exception as inst:
+            logging.error(
+                "Unknown exception occurred unmounting %s: %s",
+                volume.get_name() or "",
+                str(inst),
+            )
+            raise
 
     class GVolumeMonitor(QObject):
         r"""
@@ -1479,10 +1457,10 @@ if have_gio:
             self.possibleCamera = re.compile(r"/usb/([\d]+)/([\d]+)")
             self.validMounts = validMounts
             # device_path: volume_name
-            self.camera_volumes_added = dict()  # type: Dict[str, str]
-            self.camera_volumes_mounted = set()  # type: Set[str]
+            self.camera_volumes_added: dict[str, str] = dict()
+            self.camera_volumes_mounted: set[str] = set()
 
-            self.manually_mounted_volumes = set()  # type: Set[Gio.Volume]
+            self.manually_mounted_volumes: set[Gio.Volume] = set()
 
         @staticmethod
         def mountMightBeCamera(mount: Gio.Mount) -> bool:
@@ -1504,7 +1482,7 @@ if have_gio:
                 devname
             )
 
-        def ptpCameraMountPoint(self, model: str, port: str) -> Optional[Gio.Mount]:
+        def ptpCameraMountPoint(self, model: str, port: str) -> Gio.Mount | None:
             """
             :return: the mount point of the PTP / MTP camera, if it is mounted,
              else None. If camera is not mounted with PTP / MTP, None is
@@ -1515,7 +1493,7 @@ if have_gio:
             if p is not None:
                 p1 = p.group(1)
                 p2 = p.group(2)
-                device_path = "/dev/bus/usb/{}/{}".format(p1, p2)
+                device_path = f"/dev/bus/usb/{p1}/{p2}"
                 return self.cameraMountPointByUnixDevice(device_path=device_path)
             else:
                 p = self.scsiPortSearch.match(port)
@@ -1523,7 +1501,7 @@ if have_gio:
                     logging.error("Unknown camera mount method %s %s", model, port)
                 return None
 
-        def cameraMountPointByUnixDevice(self, device_path: str) -> Optional[Gio.Mount]:
+        def cameraMountPointByUnixDevice(self, device_path: str) -> Gio.Mount | None:
             """
             :return: the mount point of the PTP / MTP camera, if it is mounted,
              else None. If camera is not mounted with PTP / MTP, None is
@@ -1550,7 +1528,6 @@ if have_gio:
             post_unmount_action: PostCameraUnmountAction,
             attempt_no: int,
         ) -> None:
-
             logging.info(
                 "Attempt #%s to unmount camera %s on port %s",
                 attempt_no + 1,
@@ -1569,8 +1546,8 @@ if have_gio:
             model: str,
             port: str,
             post_unmount_action: PostCameraUnmountAction,
-            mount_point: Optional[Gio.Mount] = None,
-            attempt_no: Optional[int] = 0,
+            mount_point: Gio.Mount | None = None,
+            attempt_no: int | None = 0,
         ) -> bool:
             """
             Unmount camera mounted on gvfs mount point, if it is
@@ -1609,7 +1586,7 @@ if have_gio:
             self,
             mount: Gio.Mount,
             result: Gio.AsyncResult,
-            user_data: Tuple[str, str, PostCameraUnmountAction, bool],
+            user_data: tuple[str, str, PostCameraUnmountAction, bool],
         ) -> None:
             """
             Called by the asynchronous unmount operation.
@@ -1624,10 +1601,10 @@ if have_gio:
             model, port, post_unmount_action, attempt_no = user_data
             try:
                 if mount.unmount_with_operation_finish(result):
-                    logging.debug("...successfully unmounted {}".format(model))
+                    logging.debug(f"...successfully unmounted {model}")
                     self.cameraUnmounted.emit(True, model, port, post_unmount_action)
                 else:
-                    logging.debug("...failed to unmount {}".format(model))
+                    logging.debug(f"...failed to unmount {model}")
                     self.cameraUnmounted.emit(False, model, port, post_unmount_action)
             except GLib.GError as e:
                 if e.code == 26 and attempt_no < 10:
@@ -1639,7 +1616,7 @@ if have_gio:
                         ),
                     )
                 else:
-                    logging.error("Exception occurred unmounting {}".format(model))
+                    logging.error(f"Exception occurred unmounting {model}")
                     logging.exception("Traceback:")
                     self.cameraUnmounted.emit(False, model, port, post_unmount_action)
 
@@ -1666,7 +1643,6 @@ if have_gio:
         def unmountVolumeCallback(
             mount: Gio.Mount, result: Gio.AsyncResult, user_data: str
         ) -> None:
-
             """
             Called by the asynchronous unmount operation.
 
@@ -1688,8 +1664,8 @@ if have_gio:
                     logging.debug(
                         "...did not yet unmount volume %s because it is busy..."
                     )
-                    # TODO investigate if should try again to unmount the volume, similar to
-                    # unmountCameraCallback()
+                    # TODO investigate if should try again to unmount the volume,
+                    #  similar to unmountCameraCallback()
                 else:
                     logging.error("Exception occurred unmounting volume %s", path)
                     logging.exception("Traceback:")
@@ -1698,12 +1674,11 @@ if have_gio:
         def mountIsAppleFileConduit(mount: Gio.Mount, path: str) -> bool:
             if path:
                 logging.debug(
-                    "GIO: Looking for Apple File Conduit (AFC) at mount {}".format(path)
+                    f"GIO: Looking for Apple File Conduit (AFC) at mount {path}"
                 )
                 path, folder_name = os.path.split(path)
-                if folder_name:
-                    if folder_name.startswith("afc:host="):
-                        return True
+                if folder_name and folder_name.startswith("afc:host="):
+                    return True
             return False
 
         def mountVolume(self, volume: Gio.Volume) -> None:
@@ -1715,13 +1690,14 @@ if have_gio:
             self, source_object, result: Gio.AsyncResult, volume: Gio.Volume
         ) -> None:
             self.manually_mounted_volumes.remove(volume)
-            if volume.mount_finish(result):
+
+            if mount_finish(result, volume):
                 logging.debug("%s was successfully manually mounted", volume.get_name())
                 self.mountAdded(self.vm, volume.get_mount())
             else:
                 logging.debug("%s failed to mount", volume.get_name())
 
-        def mountIsCamera(self, mount: Gio.Mount, path: Optional[str] = None) -> bool:
+        def mountIsCamera(self, mount: Gio.Mount, path: str | None = None) -> bool:
             """
             Determine if the mount refers to a camera by checking the
             path to see if gphoto2 or mtp is in the last folder in the
@@ -1746,9 +1722,10 @@ if have_gio:
                     else:
                         path = root.get_path()
                 if path:
-                    logging.debug("GIO: Looking for camera at mount {}".format(path))
-                    # check last two levels of the path name, as it might be in a format like
-                    # /run/..../gvfs/gphoto2:host=Canon_Inc._Canon_Digital_Camera/store_00010001
+                    logging.debug(f"GIO: Looking for camera at mount {path}")
+                    # check last two levels of the path name, as it might be in a
+                    # format like
+                    # /run/..../gvfs/gphoto2:host=Canon_Inc._Canon_Digital_Camera/store_00010001 # noqa:E501
                     for i in (1, 2):
                         path, folder_name = os.path.split(path)
                         if folder_name:
@@ -1757,9 +1734,7 @@ if have_gio:
                                     return True
             return False
 
-        def mountIsPartition(
-            self, mount: Gio.Mount, path: Optional[str] = None
-        ) -> bool:
+        def mountIsPartition(self, mount: Gio.Mount, path: str | None = None) -> bool:
             """
             Determine if the mount point is that of a valid partition,
             i.e. is mounted in a valid location, which is under one of
@@ -1776,14 +1751,12 @@ if have_gio:
                 else:
                     path = root.get_path()
             if path:
-                logging.debug(
-                    "GIO: Looking for valid partition at mount {}".format(path)
-                )
+                logging.debug(f"GIO: Looking for valid partition at mount {path}")
                 if self.validMounts.pathIsValidMountPoint(path):
-                    logging.debug("GIO: partition found at {}".format(path))
+                    logging.debug(f"GIO: partition found at {path}")
                     return True
             if path is not None:
-                logging.debug("GIO: partition is not valid mount: {}".format(path))
+                logging.debug(f"GIO: partition is not valid mount: {path}")
             return False
 
         def mountAdded(self, volumeMonitor, mount: Gio.Mount) -> None:
@@ -1823,16 +1796,17 @@ if have_gio:
                 logging.warning("Unable to get mount path for %s", mount.get_name())
             else:
                 if self.mountIsAppleFileConduit(mount, path):
-                    # An example of an AFC volume is the "Documents" mount for an iPhone, which
-                    # in contrast to the gphoto2 mount for the same device
+                    # An example of an AFC volume is the "Documents" mount for an
+                    # iPhone, which in contrast to the gphoto2 mount for the same device
                     logging.debug("Apple File Conduit (AFC) mount detected at %s", path)
                     logging.info("Attempting to unmount %s...", path)
                     mount.unmount_with_operation(
                         0, None, None, self.unmountVolumeCallback, path
                     )
                 elif self.mountIsCamera(mount, path):
-                    # Can be called on startup if camera was already mounted in GIO before the program
-                    # started. In that case, previous check would not have detected the camera.
+                    # Can be called on startup if the camera was already mounted in GIO
+                    # before the program started. In that case, previous check would not
+                    # have detected the camera.
                     self.cameraMounted.emit()
                 elif self.mountIsPartition(mount, path):
                     icon_names = self.getIconNames(mount)
@@ -1841,10 +1815,9 @@ if have_gio:
                     )
 
         def mountRemoved(self, volumeMonitor, mount: Gio.Mount) -> None:
-            if not self.mountIsCamera(mount):
-                if self.mountIsPartition(mount):
-                    logging.debug("GIO: %s has been unmounted", mount.get_name())
-                    self.partitionUnmounted.emit(mount.get_root().get_path())
+            if not self.mountIsCamera(mount) and self.mountIsPartition(mount):
+                logging.debug("GIO: %s has been unmounted", mount.get_name())
+                self.partitionUnmounted.emit(mount.get_root().get_path())
 
         def volumeAdded(self, volumeMonitor, volume: Gio.Volume) -> None:
             volume_name = volume.get_name()
@@ -1919,11 +1892,8 @@ if have_gio:
 
         def deviceVolumeAddedCheckMount(self, volume: Gio.Volume) -> None:
             mount = volume.get_mount()
-            if mount is not None:
-                # Double check that it's in the list of mounts
-                mounted = mount in self.vm.get_mounts()
-            else:
-                mounted = False
+            # Double check that it's in the list of mounts
+            mounted = mount in self.vm.get_mounts() if mount is not None else False
 
             if not mounted:
                 logging.debug(
@@ -1941,7 +1911,7 @@ if have_gio:
                 self.cameraPossiblyRemoved.emit()
 
         @staticmethod
-        def getIconNames(mount: Gio.Mount) -> List[str]:
+        def getIconNames(mount: Gio.Mount) -> list[str]:
             """
             Get icons for the mount from theme
 
@@ -1955,7 +1925,7 @@ if have_gio:
 
             return icon_names
 
-        def getProps(self, path: str) -> Tuple[Optional[List[str]], Optional[bool]]:
+        def getProps(self, path: str) -> tuple[list[str] | None, bool | None]:
             """
             Given a mount's path, get the icon names suggested by the
             volume monitor, and determine whether the mount is
@@ -1981,7 +1951,7 @@ def _get_info_size_value(info: Gio.FileInfo, attr: str) -> int:
         return info.get_attribute_uint32(attr)
 
 
-def get_mount_size(mount: QStorageInfo) -> Tuple[int, int]:
+def get_mount_size(mount: QStorageInfo) -> tuple[int, int]:
     """
     Uses GIO to get bytes total and bytes free (available) for the mount that a
     path is in.

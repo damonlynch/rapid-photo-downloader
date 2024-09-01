@@ -1,20 +1,5 @@
-# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2016-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Widget containing header, which can have an optional widget
@@ -24,25 +9,22 @@ Portions modeled on Canonical's QExpander, which is an 'Expander widget
 similar to the GtkExpander', Copyright 2012 Canonical Ltd
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2022, Damon Lynch"
-
-from typing import Optional
-
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QColor, QFontMetrics, QFont, QPalette
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import QColor, QFont, QFontMetrics, QPalette
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from raphodo.constants import (
-    minPanelWidth,
-    HeaderBackgroundName,
     DarkModeHeaderBackgroundName,
+    HeaderBackgroundName,
+    minPanelWidth,
 )
+from raphodo.internationalisation.install import install_gettext
 from raphodo.ui.viewutils import is_dark_mode
+
+install_gettext()
 
 
 class QPanelView(QWidget):
-
     """
     A header bar with a child widget.
     """
@@ -50,8 +32,8 @@ class QPanelView(QWidget):
     def __init__(
         self,
         label: str,
-        headerColor: Optional[QColor] = None,
-        headerFontColor: Optional[QColor] = None,
+        headerColor: QColor | None = None,
+        headerFontColor: QColor | None = None,
         parent: QWidget = None,
     ) -> None:
         super().__init__(parent=parent)
@@ -128,7 +110,7 @@ class QPanelView(QWidget):
 
     def minimumSize(self) -> QSize:
         if self.content is None:
-            font_height = QFontMetrics(QFont).height()
+            font_height = QFontMetrics(QFont()).height()
             width = minPanelWidth()
             height = font_height * 2
         else:

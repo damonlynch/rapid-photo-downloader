@@ -1,20 +1,5 @@
-# Copyright (C) 2010-2021 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2010-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Notify user of problems when downloading: problems with subfolder and filename
@@ -29,23 +14,20 @@ Group problems into tasks:
   3. renaming (presented to user as finalizing file and download subfolder names)
   4. backing up - per backup device
 
-Present messages in human readable manner.
-Multiple metadata problems can occur: group them. 
+Present messages in a human-readable manner.
+Multiple metadata problems can occur: group them.
 Distinguish error severity
 
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2010-2021, Damon Lynch"
-
-from collections import deque
-from typing import Tuple, Optional, List, Union, Iterator
-from html import escape
 import logging
+from collections import deque
+from collections.abc import Iterator
+from html import escape
 
-from raphodo.utilities import make_internationalized_list
-from raphodo.constants import ErrorType
 from raphodo.camera import gphoto2_named_error
+from raphodo.constants import ErrorType
+from raphodo.internationalisation.utilities import make_internationalized_list
 
 
 def make_href(name: str, uri: str) -> str:
@@ -54,16 +36,16 @@ def make_href(name: str, uri: str) -> str:
     """
 
     # Note: keep consistent with ErrorReport._saveUrls()
-    return '<a href="{}">{}</a>'.format(uri, escape(name))
+    return f'<a href="{uri}">{escape(name)}</a>'
 
 
 class Problem:
     def __init__(
         self,
-        name: Optional[str] = None,
-        uri: Optional[str] = None,
-        exception: Optional[Exception] = None,
-        **attrs
+        name: str | None = None,
+        uri: str | None = None,
+        exception: Exception | None = None,
+        **attrs,
     ) -> None:
         for attr, value in attrs.items():
             setattr(self, attr, value)
@@ -86,7 +68,7 @@ class Problem:
         return "undefined"
 
     @property
-    def details(self) -> List[str]:
+    def details(self) -> list[str]:
         if self.exception is not None:
             try:
                 # Translators: %(variable)s represents Python code, not a plural of the
@@ -123,7 +105,7 @@ class SeriousProblem(Problem):
 
 class CameraGpProblem(SeriousProblem):
     @property
-    def details(self) -> List[str]:
+    def details(self) -> list[str]:
         try:
             return [
                 escape(_("GPhoto2 Error: %s"))
@@ -243,7 +225,7 @@ class FsMetadataWriteProblem(Problem):
         )
 
     @property
-    def details(self) -> List[str]:
+    def details(self) -> list[str]:
         return [
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
@@ -274,7 +256,7 @@ class FileAlreadyExistsProblem(SeriousProblem):
         ) % dict(filetype=escape(self.file_type_capitalized), destination=self.href)
 
     @property
-    def details(self) -> List[str]:
+    def details(self) -> list[str]:
         d = list()
         d.append(
             escape(
@@ -309,7 +291,7 @@ class FileAlreadyExistsProblem(SeriousProblem):
 
 class IdentifierAddedProblem(FileAlreadyExistsProblem):
     @property
-    def details(self) -> List[str]:
+    def details(self) -> list[str]:
         d = list()
         d.append(
             escape(
@@ -352,7 +334,7 @@ class IdentifierAddedProblem(FileAlreadyExistsProblem):
 
 class BackupAlreadyExistsProblem(FileAlreadyExistsProblem):
     @property
-    def details(self) -> List[str]:
+    def details(self) -> list[str]:
         d = list()
         d.append(
             escape(
@@ -387,7 +369,7 @@ class BackupAlreadyExistsProblem(FileAlreadyExistsProblem):
 
 class BackupOverwrittenProblem(BackupAlreadyExistsProblem):
     @property
-    def details(self) -> List[str]:
+    def details(self) -> list[str]:
         d = list()
         d.append(
             escape(
@@ -452,12 +434,12 @@ class SameNameDifferentExif(Problem):
         )
 
     @property
-    def details(self) -> List[str]:
+    def details(self) -> list[str]:
         return [
             escape(
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: %(variable)s represents Python code, not a plural of
+                # the term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 _(
                     "%(image1)s was taken on %(image1_date)s at %(image1_time)s, "
                     "and %(image2)s on %(image2_date)s at %(image2_time)s."
@@ -483,10 +465,10 @@ class RenamingAssociateFileProblem(SeriousProblem):
 class FilenameNotFullyGeneratedProblem(Problem):
     def __init__(
         self,
-        name: Optional[str] = None,
-        uri: Optional[str] = None,
-        exception: Optional[Exception] = None,
-        **attrs
+        name: str | None = None,
+        uri: str | None = None,
+        exception: Exception | None = None,
+        **attrs,
     ) -> None:
         super().__init__(name=name, uri=uri, exception=exception, **attrs)
         self.missing_metadata = []
@@ -494,7 +476,7 @@ class FilenameNotFullyGeneratedProblem(Problem):
         self.destination = ""
         self.source = ""
         self.bad_converstion_date_time = False
-        self.bad_conversion_exception = None  # type: Optional[Exception]
+        self.bad_conversion_exception: Exception | None = None
         self.invalid_date_time = False
         self.missing_extension = False
         self.missing_image_no = False
@@ -531,7 +513,7 @@ class FilenameNotFullyGeneratedProblem(Problem):
         )
 
     @property
-    def details(self) -> List[str]:
+    def details(self) -> list[str]:
         d = []
         if len(self.missing_metadata) == 1:
             d.append(
@@ -651,9 +633,9 @@ class BackupSubfolderCreationProblem(SubfolderCreationProblem):
 class Problems:
     def __init__(
         self,
-        name: Optional[str] = "",
-        uri: Optional[str] = "",
-        problem: Optional[Problem] = None,
+        name: str | None = "",
+        uri: str | None = "",
+        problem: Problem | None = None,
     ) -> None:
         self.problems = deque()
         self.name = name
@@ -685,7 +667,7 @@ class Problems:
         return "body"
 
     @property
-    def details(self) -> List[str]:
+    def details(self) -> list[str]:
         return []
 
     @property

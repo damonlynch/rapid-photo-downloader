@@ -1,64 +1,46 @@
-#!/usr/bin/env python3
+# SPDX-FileCopyrightText: Copyright 2015-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
+# ruff: noqa: E402
 
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
-
-import sys
+import contextlib
 import logging
-from urllib.request import pathname2url
-import pickle
 import os
+import pickle
+import sys
 from collections import namedtuple
-from typing import Optional, Set, Union, Tuple
+from urllib.request import pathname2url
 
 import gi
 
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst
-
+from PyQt5.QtCore import QBuffer, QIODevice, QSize, Qt
 from PyQt5.QtGui import QImage, QTransform
-from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
 
-
+import raphodo.metadata.exiftool as exiftool
+from raphodo.cache import FdoCacheLarge, FdoCacheNormal, ThumbnailCacheSql
+from raphodo.constants import (
+    ExtractionProcessing,
+    ExtractionTask,
+    FileType,
+    ThumbnailCacheDiskStatus,
+    ThumbnailCacheStatus,
+    ThumbnailSize,
+)
+from raphodo.heif import have_heif_module, load_heif
 from raphodo.interprocess import (
+    GenerateThumbnailsResults,
     LoadBalancerWorker,
     ThumbnailExtractorArgument,
-    GenerateThumbnailsResults,
 )
-
-from raphodo.constants import (
-    ThumbnailSize,
-    ExtractionTask,
-    ExtractionProcessing,
-    ThumbnailCacheStatus,
-    ThumbnailCacheDiskStatus,
+from raphodo.rpdfile import Photo, RPDFile, Video
+from raphodo.tools.utilities import (
+    image_large_enough_fdo,
+    show_errors,
+    stdchannel_redirected,
 )
-from raphodo.rpdfile import RPDFile, Video, Photo
-from raphodo.constants import FileType
-from raphodo.utilities import stdchannel_redirected, show_errors, image_large_enough_fdo
 from raphodo.ui.filmstrip import add_filmstrip
-from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge, FdoCacheNormal
-import raphodo.metadata.exiftool as exiftool
-from raphodo.heif import have_heif_module, load_heif
-
 
 have_gst = Gst.init_check(None)
 
@@ -78,9 +60,9 @@ def gst_version() -> str:
 
 def get_video_frame(
     full_file_name: str,
-    offset: Optional[float] = 5.0,
+    offset: float | None = 5.0,
     caps=Gst.Caps.from_string("image/png"),
-) -> Optional[bytes]:
+) -> bytes | None:
     """
     Source: https://gist.github.com/dplanella/5563018
 
@@ -92,9 +74,7 @@ def get_video_frame(
 
     logging.debug("Using gstreamer to generate thumbnail from %s", full_file_name)
     pipeline = Gst.parse_launch("playbin")
-    pipeline.props.uri = "file://{}".format(
-        pathname2url(os.path.abspath(full_file_name))
-    )
+    pipeline.props.uri = f"file://{pathname2url(os.path.abspath(full_file_name))}"
     pipeline.props.audio_sink = Gst.ElementFactory.make("fakesink", "fakeaudio")
     pipeline.props.video_sink = Gst.ElementFactory.make("fakesink", "fakevideo")
     pipeline.set_state(Gst.State.PAUSED)
@@ -168,7 +148,6 @@ def crop_160x120_thumbnail(thumbnail: QImage, vertical_space: int = 8) -> QImage
 
 
 class ThumbnailExtractor(LoadBalancerWorker):
-
     # Exif rotation constants
     rotate_0 = "1"
     rotate_90 = "6"
@@ -215,10 +194,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
     def _extract_256_thumb(
         self,
         rpd_file: RPDFile,
-        processing: Set[ExtractionProcessing],
-        orientation: Optional[str],
+        processing: set[ExtractionProcessing],
+        orientation: str | None,
     ) -> PhotoDetails:
-
         thumbnail = None
         data = rpd_file.metadata.get_preview_256()
         if isinstance(data, bytes):
@@ -232,14 +210,11 @@ class ThumbnailExtractor(LoadBalancerWorker):
         return PhotoDetails(thumbnail, orientation)
 
     def _extract_metadata(
-        self, rpd_file: RPDFile, processing: Set[ExtractionProcessing]
+        self, rpd_file: RPDFile, processing: set[ExtractionProcessing]
     ) -> PhotoDetails:
-
         thumbnail = orientation = None
-        try:
+        with contextlib.suppress(Exception):
             orientation = rpd_file.metadata.orientation()
-        except Exception:
-            pass
 
         rpd_file.mdatatime = rpd_file.metadata.timestamp(missing=0.0)
 
@@ -285,7 +260,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
         self,
         rpd_file: Photo,
         full_file_name: str,
-        processing: Set[ExtractionProcessing],
+        processing: set[ExtractionProcessing],
         force_exiftool: bool,
     ) -> PhotoDetails:
         """
@@ -308,7 +283,6 @@ class ThumbnailExtractor(LoadBalancerWorker):
             et_process=self.exiftool_process,
             force_exiftool=force_exiftool,
         ):
-
             photo_details = self._extract_metadata(rpd_file, processing)
             thumbnail = photo_details.thumbnail
 
@@ -323,9 +297,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
             if thumbnail.isNull():
                 thumbnail = None
                 logging.warning(
-                    "Unable to create a thumbnail out of the file: {}".format(
-                        full_file_name
-                    )
+                    f"Unable to create a thumbnail out of the file: {full_file_name}"
                 )
 
         return PhotoDetails(thumbnail, orientation)
@@ -334,7 +306,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
         self,
         rpd_file: Photo,
         raw_bytes: bytearray,
-        processing: Set[ExtractionProcessing],
+        processing: set[ExtractionProcessing],
     ) -> PhotoDetails:
         if not rpd_file.load_metadata(
             raw_bytes=raw_bytes, et_process=self.exiftool_process
@@ -347,10 +319,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
         self,
         rpd_file: Photo,
         force_exiftool: bool,
-        full_file_name: Optional[str] = None,
-        raw_bytes: Optional[bytearray] = None,
-    ) -> Optional[str]:
-
+        full_file_name: str | None = None,
+        raw_bytes: bytearray | None = None,
+    ) -> str | None:
         if rpd_file.metadata is None:
             self.load_photo_metadata(
                 rpd_file=rpd_file,
@@ -368,10 +339,10 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
     def assign_mdatatime(
         self,
-        rpd_file: Union[Photo, Video],
+        rpd_file: Photo | Video,
         force_exiftool: bool,
-        full_file_name: Optional[str] = None,
-        raw_bytes: Optional[bytearray] = None,
+        full_file_name: str | None = None,
+        raw_bytes: bytearray | None = None,
     ) -> None:
         """
         Load the file's metadata and assign the metadata time to the rpd file
@@ -393,8 +364,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
         self,
         rpd_file: Photo,
         force_exiftool: bool,
-        full_file_name: Optional[str] = None,
-        raw_bytes: Optional[bytearray] = None,
+        full_file_name: str | None = None,
+        raw_bytes: bytearray | None = None,
     ) -> None:
         """
         Load the photo's metadata and assign the metadata time to the rpd file
@@ -413,8 +384,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
         self,
         rpd_file: Photo,
         force_exiftool: bool,
-        full_file_name: Optional[str] = None,
-        raw_bytes: Optional[bytearray] = None,
+        full_file_name: str | None = None,
+        raw_bytes: bytearray | None = None,
     ) -> None:
         """
         Load the photo's metadata into the rpd file
@@ -448,7 +419,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
         if rpd_file.date_time() is None:
             rpd_file.mdatatime = 0.0
 
-    def get_video_rotation(self, rpd_file: Video, full_file_name: str) -> Optional[str]:
+    def get_video_rotation(self, rpd_file: Video, full_file_name: str) -> str | None:
         """
         Some videos have a rotation tag. If this video does, return it.
         """
@@ -458,12 +429,13 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 full_file_name=full_file_name, et_process=self.exiftool_process
             )
         orientation = rpd_file.metadata.rotation(missing=None)
-        if orientation == 180:
-            return self.rotate_180
-        elif orientation == 90:
-            return self.rotate_90
-        elif orientation == 270:
-            return self.rotate_270
+        match orientation:
+            case 180:
+                return self.rotate_180
+            case 90:
+                return self.rotate_90
+            case 270:
+                return self.rotate_270
         return None
 
     def check_for_stop(self, directive: bytes, content: bytes):
@@ -475,10 +447,10 @@ class ThumbnailExtractor(LoadBalancerWorker):
     def extract_thumbnail(
         self,
         task: ExtractionTask,
-        rpd_file: Union[Photo, Video],
-        processing: Set[ExtractionProcessing],
+        rpd_file: Photo | Video,
+        processing: set[ExtractionProcessing],
         data: ThumbnailExtractorArgument,
-    ) -> Tuple[Optional[QImage], Optional[str]]:
+    ) -> tuple[QImage | None, str | None]:
         """
         Extract the thumbnail using one of a variety of methods,
         depending on the file
@@ -580,6 +552,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
             thumbnail = load_heif(
                 data.full_file_name_to_work_on, process_name=self.identity.decode()
             )
+            # TODO display heif image load problems to user
 
             if task == ExtractionTask.load_heif_and_exif_directly:
                 self.assign_photo_mdatatime(
@@ -648,14 +621,14 @@ class ThumbnailExtractor(LoadBalancerWorker):
         Loop continuously processing photo and video thumbnails
         """
 
-        logging.debug("{} worker started".format(self.requester.identity.decode()))
+        logging.debug(f"{self.requester.identity.decode()} worker started")
 
         while True:
             directive, content = self.requester.recv_multipart()
             if self.check_for_stop(directive, content):
                 break
 
-            data = pickle.loads(content)  # type: ThumbnailExtractorArgument
+            data: ThumbnailExtractorArgument = pickle.loads(content)
 
             thumbnail_256 = png_data = None
             task = data.task
@@ -700,9 +673,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
                             if (
                                 orientation == "1" or orientation is None
                             ) and thumbnail.height() > thumbnail.width():
-
-                                # Special case: pictures from some cellphones have already
-                                # been rotated
+                                # Special case: pictures from some cellphones have
+                                # already been rotated
                                 thumbnail = thumbnail.scaled(
                                     self.maxStandardSize,
                                     Qt.KeepAspectRatio,
@@ -729,7 +701,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                 else:
                                     thumbnail = None
 
-                            if not thumbnail is None and thumbnail.isNull():
+                            if thumbnail is not None and thumbnail.isNull():
                                 thumbnail = None
 
                     if orientation is not None:
@@ -833,8 +805,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
             except SystemExit as e:
                 self.exiftool_process.terminate()
-                sys.exit(e)
-            except:
+                sys.exit(e.code)
+            except Exception:
                 logging.error("Exception working on file %s", rpd_file.full_file_name)
                 logging.error("Task: %s", task)
                 logging.error("Processing tasks: %s", processing)

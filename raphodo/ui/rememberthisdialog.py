@@ -1,40 +1,24 @@
-# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2016-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Yes/No dialog that displays a statement along with a "Remember this choice"
 or "Don't ask me about this again" checkbox.
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2022, Damon Lynch"
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtWidgets import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QLabel
 
-from typing import Optional, Union
-from PyQt5.QtCore import pyqtSlot, Qt
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QCheckBox, QLabel, QGridLayout
-
-from raphodo.constants import RememberThisMessage, RememberThisButtons
+from raphodo.constants import RememberThisButtons, RememberThisMessage
+from raphodo.internationalisation.install import install_gettext
+from raphodo.tools.utilities import data_file_path
 from raphodo.ui.viewutils import standardIconSize, translateDialogBoxButtons
+
+install_gettext()
 
 
 class RememberThisDialog(QDialog):
-
     """
     A small dialog window that prompts the user if they want to
     do something or not.
@@ -47,14 +31,13 @@ class RememberThisDialog(QDialog):
     def __init__(
         self,
         message: str,
-        icon: Union[QPixmap, str],
+        icon: QPixmap | str,
         remember: RememberThisMessage,
         parent,
         buttons: RememberThisButtons = RememberThisButtons.yes_no,
-        title: Optional[str] = None,
-        message_contains_link: Optional[bool] = False
+        title: str | None = None,
+        message_contains_link: bool | None = False,
     ) -> None:
-
         super().__init__(parent)
 
         self.remember = False
@@ -68,7 +51,7 @@ class RememberThisDialog(QDialog):
 
         iconLabel = QLabel()
         if isinstance(icon, str):
-            iconLabel.setPixmap(QIcon(icon).pixmap(standardIconSize()))
+            iconLabel.setPixmap(QIcon(data_file_path(icon)).pixmap(standardIconSize()))
         else:
             iconLabel.setPixmap(icon)
 

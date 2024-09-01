@@ -1,22 +1,5 @@
-#!/usr/bin/env python3
-
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2011-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Generates names for files and folders, and renames (moves) files.
@@ -24,63 +7,60 @@ Generates names for files and folders, and renames (moves) files.
 Runs as a daemon process.
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
-
+import contextlib
+import errno
+import locale
+import logging
 import os
+import pickle
+import sqlite3
+import sys
+from collections import namedtuple
 from datetime import datetime
 from enum import Enum
-from collections import namedtuple
-import errno
-import logging
-import pickle
-import sys
-from typing import Union, Tuple, Dict, Optional
-import sqlite3
-import locale
 
-try:
+with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
-except locale.Error:
-    pass
 
-
-import raphodo.metadata.exiftool as exiftool
 import raphodo.generatename as gn
-from raphodo.prefs.preferences import DownloadsTodayTracker, Preferences
+import raphodo.metadata.exiftool as exiftool
 from raphodo.constants import (
     ConflictResolution,
-    FileType,
     DownloadStatus,
+    FileType,
     RenameAndMoveStatus,
 )
+from raphodo.internationalisation.install import install_gettext
 from raphodo.interprocess import (
+    DaemonProcess,
     RenameAndMoveFileData,
     RenameAndMoveFileResults,
-    DaemonProcess,
 )
-from raphodo.rpdfile import RPDFile, Photo, Video
+from raphodo.prefs.preferences import DownloadsTodayTracker, Preferences
+from raphodo.problemnotification import (
+    DuplicateFileWhenSyncingProblem,
+    FileAlreadyExistsProblem,
+    FileMetadataLoadProblem,
+    IdentifierAddedProblem,
+    NoDataToNameProblem,
+    RenamingAssociateFileProblem,
+    RenamingFileProblem,
+    RenamingProblems,
+    SameNameDifferentExif,
+    SubfolderCreationProblem,
+    make_href,
+)
+from raphodo.rpdfile import Photo, RPDFile, Video
 from raphodo.rpdsql import DownloadedSQL
-from raphodo.utilities import (
-    stdchannel_redirected,
+from raphodo.storage.storage import get_uri
+from raphodo.tools.utilities import (
     datetime_roughly_equal,
     platform_c_maxint,
+    stdchannel_redirected,
 )
-from raphodo.problemnotification import (
-    FileAlreadyExistsProblem,
-    IdentifierAddedProblem,
-    RenamingProblems,
-    make_href,
-    RenamingFileProblem,
-    SubfolderCreationProblem,
-    DuplicateFileWhenSyncingProblem,
-    SameNameDifferentExif,
-    RenamingAssociateFileProblem,
-    FileMetadataLoadProblem,
-    NoDataToNameProblem,
-)
-from raphodo.storage.storage import get_uri
+
+install_gettext()
 
 
 class SyncRawJpegStatus(Enum):
@@ -101,11 +81,11 @@ SyncRawJpegRecord = namedtuple(
 
 class SyncRawJpeg:
     """
-    Match JPEG and RAW images so they have the same file names
+    Match JPEG and RAW images so that they have the same file names
     """
 
     def __init__(self):
-        self.photos = {}  # type: Dict[str, SyncRawJpegRecord]
+        self.photos: dict[str, SyncRawJpegRecord] = {}
 
     def add_download(
         self,
@@ -114,11 +94,10 @@ class SyncRawJpeg:
         date_time: datetime,
         sequence_number_used: gn.MatchedSequences,
     ) -> None:
-
         if not isinstance(date_time, datetime):
             logging.debug(
-                "Rejecting %s for sync RAW jpeg matching because its metadata date time "
-                "does not exist",
+                "Rejecting %s for sync RAW jpeg matching because its metadata "
+                "date time does not exist",
                 name,
             )
             return
@@ -177,7 +156,7 @@ class SyncRawJpeg:
                 return SyncRawJpegMatch(SyncRawJpegStatus.error_datetime_mismatch, None)
         return SyncRawJpegMatch(SyncRawJpegStatus.no_match, None)
 
-    def ext_exif_date_time(self, name) -> Tuple[str, datetime]:
+    def ext_exif_date_time(self, name) -> tuple[str, datetime]:
         """
         Returns first extension, and exif date time data for
         the already downloaded photo
@@ -187,7 +166,7 @@ class SyncRawJpeg:
 
 
 def load_metadata(
-    rpd_file: Union[Photo, Video],
+    rpd_file: Photo | Video,
     et_process: exiftool.ExifTool,
     problems: RenamingProblems,
     force_exiftool: bool,
@@ -202,26 +181,25 @@ def load_metadata(
      metadata
     :return True if operation succeeded, false otherwise
     """
-    if rpd_file.metadata is None:
-        if not rpd_file.load_metadata(
-            full_file_name=rpd_file.temp_full_file_name,
-            et_process=et_process,
-            force_exiftool=force_exiftool,
-        ):
-            # Error in reading metadata
+    if rpd_file.metadata is None and not rpd_file.load_metadata(
+        full_file_name=rpd_file.temp_full_file_name,
+        et_process=et_process,
+        force_exiftool=force_exiftool,
+    ):
+        # Error in reading metadata
 
-            problems.append(
-                FileMetadataLoadProblem(
-                    name=rpd_file.name, uri=rpd_file.get_uri(), file_type=rpd_file.title
-                )
+        problems.append(
+            FileMetadataLoadProblem(
+                name=rpd_file.name, uri=rpd_file.get_uri(), file_type=rpd_file.title
             )
-            return False
+        )
+        return False
     return True
 
 
 def _generate_name(
-    generator: Union[gn.PhotoName, gn.PhotoSubfolder, gn.VideoName, gn.VideoSubfolder],
-    rpd_file: Union[Photo, Video],
+    generator: gn.PhotoName | gn.PhotoSubfolder | gn.VideoName | gn.VideoSubfolder,
+    rpd_file: Photo | Video,
     et_process: exiftool.ExifTool,
     problems: RenamingProblems,
     force_exiftool: bool,
@@ -256,7 +234,7 @@ def _generate_name(
 
 
 def generate_subfolder(
-    rpd_file: Union[Photo, Video],
+    rpd_file: Photo | Video,
     et_process: exiftool.ExifTool,
     problems: RenamingProblems,
     force_exiftool: bool,
@@ -286,7 +264,7 @@ def generate_subfolder(
 
 
 def generate_name(
-    rpd_file: Union[Photo, Video],
+    rpd_file: Photo | Video,
     et_process: exiftool.ExifTool,
     problems: RenamingProblems,
     force_exiftool: bool,
@@ -339,7 +317,7 @@ class RenameMoveFileWorker(DaemonProcess):
         self.problems = RenamingProblems()
 
     def notify_file_already_exists(
-        self, rpd_file: Union[Photo, Video], identifier: Optional[str] = None
+        self, rpd_file: Photo | Video, identifier: str | None = None
     ) -> None:
         """
         Notify user that the download file already exists
@@ -393,7 +371,7 @@ class RenameMoveFileWorker(DaemonProcess):
         self.problems.append(problem)
 
     def notify_download_failure_file_error(
-        self, rpd_file: Union[Photo, Video], inst: Exception
+        self, rpd_file: Photo | Video, inst: Exception
     ) -> None:
         """
         Handle cases where file failed to download
@@ -418,8 +396,9 @@ class RenameMoveFileWorker(DaemonProcess):
         rpd_file.status = DownloadStatus.download_failed
 
         try:
-            msg = "Failed to create file {}: {} {}".format(
-                rpd_file.download_full_file_name, inst.errno, inst.strerror
+            msg = (
+                f"Failed to create file {rpd_file.download_full_file_name}: "
+                f"{inst.errno} {inst.strerror}"
             )
             logging.error(msg)
         except AttributeError:
@@ -429,7 +408,7 @@ class RenameMoveFileWorker(DaemonProcess):
                 str(inst),
             )
 
-    def download_file_exists(self, rpd_file: Union[Photo, Video]) -> bool:
+    def download_file_exists(self, rpd_file: Photo | Video) -> bool:
         """
         Check how to handle a download file already existing
         """
@@ -445,7 +424,7 @@ class RenameMoveFileWorker(DaemonProcess):
             return False
 
     def same_name_different_exif(
-        self, sync_photo_name: str, rpd_file: Union[Photo, Video]
+        self, sync_photo_name: str, rpd_file: Photo | Video
     ) -> None:
         """
         Notify the user that a file was already downloaded with the same
@@ -463,7 +442,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
         self.problems.append(
             SameNameDifferentExif(
-                image1="%s%s" % (sync_photo_name, i1_ext),
+                image1=f"{sync_photo_name}{i1_ext}",
                 image1_date=i1_date,
                 image1_time=i1_time,
                 image2=rpd_file.name,
@@ -492,16 +471,13 @@ class RenameMoveFileWorker(DaemonProcess):
 
         return download_full_name
 
-    def move_thm_file(self, rpd_file: Union[Photo, Video]) -> None:
+    def move_thm_file(self, rpd_file: Photo | Video) -> None:
         """
         Move (rename) the THM thumbnail file using the pre-generated name
         """
 
         try:
-            if rpd_file.thm_extension:
-                ext = rpd_file.thm_extension
-            else:
-                ext = ".THM"
+            ext = rpd_file.thm_extension if rpd_file.thm_extension else ".THM"
         except AttributeError:
             ext = ".THM"
 
@@ -529,17 +505,14 @@ class RenameMoveFileWorker(DaemonProcess):
                 "Failed to move video THM file %s", rpd_file.download_thm_full_name
             )
 
-    def move_audio_file(self, rpd_file: Union[Photo, Video]) -> None:
+    def move_audio_file(self, rpd_file: Photo | Video) -> None:
         """
         Move (rename) the associate audio file using the pre-generated
         name
         """
 
         try:
-            if rpd_file.audio_extension:
-                ext = rpd_file.audio_extension
-            else:
-                ext = ".WAV"
+            ext = rpd_file.audio_extension if rpd_file.audio_extension else ".WAV"
         except AttributeError:
             ext = ".WAV"
 
@@ -567,17 +540,14 @@ class RenameMoveFileWorker(DaemonProcess):
                 rpd_file.download_audio_full_name,
             )
 
-    def move_xmp_file(self, rpd_file: Union[Photo, Video]) -> None:
+    def move_xmp_file(self, rpd_file: Photo | Video) -> None:
         """
         Move (rename) the associate XMP file using the pre-generated
         name
         """
 
         try:
-            if rpd_file.xmp_extension:
-                ext = rpd_file.xmp_extension
-            else:
-                ext = ".XMP"
+            ext = rpd_file.xmp_extension if rpd_file.xmp_extension else ".XMP"
         except AttributeError:
             ext = ".XMP"
 
@@ -605,17 +575,14 @@ class RenameMoveFileWorker(DaemonProcess):
                 rpd_file.download_xmp_full_name,
             )
 
-    def move_log_file(self, rpd_file: Union[Photo, Video]) -> None:
+    def move_log_file(self, rpd_file: Photo | Video) -> None:
         """
         Move (rename) the associate XMP file using the pre-generated
         name
         """
 
         try:
-            if rpd_file.log_extension:
-                ext = rpd_file.log_extension
-            else:
-                ext = ".LOG"
+            ext = rpd_file.log_extension if rpd_file.log_extension else ".LOG"
         except AttributeError:
             ext = ".LOG"
 
@@ -643,9 +610,7 @@ class RenameMoveFileWorker(DaemonProcess):
                 rpd_file.download_log_full_name,
             )
 
-    def check_for_fatal_name_generation_errors(
-        self, rpd_file: Union[Photo, Video]
-    ) -> bool:
+    def check_for_fatal_name_generation_errors(self, rpd_file: Photo | Video) -> bool:
         """
         :return False if either the download subfolder or filename are
          blank, else returns True
@@ -672,7 +637,7 @@ class RenameMoveFileWorker(DaemonProcess):
         else:
             return True
 
-    def add_unique_identifier(self, rpd_file: Union[Photo, Video]) -> bool:
+    def add_unique_identifier(self, rpd_file: Photo | Video) -> bool:
         """
         Adds a unique identifier like _1 to a filename, in ever
         incrementing values, until a unique filename is generated.
@@ -687,7 +652,7 @@ class RenameMoveFileWorker(DaemonProcess):
         while True:
             self.duplicate_files[full_name] = self.duplicate_files.get(full_name, 0) + 1
             identifier = "_%s" % self.duplicate_files[full_name]
-            rpd_file.download_name = "{}{}{}".format(name[0], identifier, name[1])
+            rpd_file.download_name = f"{name[0]}{identifier}{name[1]}"
             rpd_file.download_full_file_name = os.path.join(
                 rpd_file.download_path, rpd_file.download_name
             )
@@ -709,8 +674,7 @@ class RenameMoveFileWorker(DaemonProcess):
                     self.notify_download_failure_file_error(rpd_file, inst)
                     return False
 
-    def sync_raw_jpg(self, rpd_file: Union[Photo, Video]) -> SyncRawJpegResult:
-
+    def sync_raw_jpg(self, rpd_file: Photo | Video) -> SyncRawJpegResult:
         failed = False
         sequence_to_use = None
         photo_name, photo_ext = os.path.splitext(rpd_file.name)
@@ -730,9 +694,9 @@ class RenameMoveFileWorker(DaemonProcess):
                 rpd_file.status = DownloadStatus.download_failed
                 self.check_for_fatal_name_generation_errors(rpd_file)
             else:
-                matching_pair = self.sync_raw_jpeg.matching_pair(
+                matching_pair: SyncRawJpegMatch = self.sync_raw_jpeg.matching_pair(
                     name=photo_name, extension=photo_ext, date_time=date_time
-                )  # type: SyncRawJpegMatch
+                )
                 sequence_to_use = matching_pair.sequence_number
                 if matching_pair.status == SyncRawJpegStatus.error_already_downloaded:
                     # this exact file has already been
@@ -765,7 +729,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
         return SyncRawJpegResult(sequence_to_use, failed, photo_name, photo_ext)
 
-    def prepare_rpd_file(self, rpd_file: Union[Photo, Video]) -> None:
+    def prepare_rpd_file(self, rpd_file: Photo | Video) -> None:
         """
         Populate the RPDFile with download values used in subfolder
         and filename generation
@@ -789,9 +753,8 @@ class RenameMoveFileWorker(DaemonProcess):
             )
 
     def generate_names(
-        self, rpd_file: Union[Photo, Video], synchronize_raw_jpg: bool
+        self, rpd_file: Photo | Video, synchronize_raw_jpg: bool
     ) -> bool:
-
         rpd_file.strip_characters = self.prefs.strip_characters
 
         generate_subfolder(
@@ -841,7 +804,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
         return self.check_for_fatal_name_generation_errors(rpd_file)
 
-    def move_file(self, rpd_file: Union[Photo, Video]) -> bool:
+    def move_file(self, rpd_file: Photo | Video) -> bool:
         """
         Having generated the file name and subfolder names, move
         the file
@@ -913,7 +876,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
         return move_succeeded
 
-    def process_file(self, rpd_file: Union[Photo, Video], download_count: int) -> bool:
+    def process_file(self, rpd_file: Photo | Video, download_count: int) -> bool:
         """
         Generate file & subfolder name, and move (rename) photo / video
         :param rpd_file: photo or video
@@ -958,7 +921,6 @@ class RenameMoveFileWorker(DaemonProcess):
             if not synchronize_raw_jpg or (
                 synchronize_raw_jpg and sync_result.sequence_to_use is None
             ):
-
                 if self.uses_sequence_session_no or self.uses_sequence_letter:
                     self.sequences.increment(
                         self.uses_sequence_session_no, self.uses_sequence_letter
@@ -1038,115 +1000,114 @@ class RenameMoveFileWorker(DaemonProcess):
             self.downloads_today_tracker, self.prefs.stored_sequence_no
         )
 
-        with stdchannel_redirected(sys.stderr, os.devnull):
-            with exiftool.ExifTool() as self.exiftool_process:
-                while True:
-                    if i:
-                        logging.debug("Finished %s. Getting next task.", i)
+        with (
+            stdchannel_redirected(sys.stderr, os.devnull),
+            exiftool.ExifTool() as self.exiftool_process,
+        ):
+            while True:
+                if i:
+                    logging.debug("Finished %s. Getting next task.", i)
 
-                    # rename file and move to generated subfolder
-                    directive, content = self.receiver.recv_multipart()
+                # rename file and move to generated subfolder
+                directive, content = self.receiver.recv_multipart()
 
-                    self.check_for_command(directive, content)
+                self.check_for_command(directive, content)
 
-                    data = pickle.loads(content)  # type: RenameAndMoveFileData
-                    if data.message == RenameAndMoveStatus.download_started:
+                data: RenameAndMoveFileData = pickle.loads(content)
+                if data.message == RenameAndMoveStatus.download_started:
+                    # reinitialize downloads today and stored sequence number
+                    # in case the user has updated them via the user interface
+                    self.initialise_downloads_today_stored_number()
+                    self.sequences.downloads_today_tracker = (
+                        self.downloads_today_tracker
+                    )
+                    self.sequences.stored_sequence_no = self.prefs.stored_sequence_no
 
-                        # reinitialize downloads today and stored sequence number
-                        # in case the user has updated them via the user interface
-                        self.initialise_downloads_today_stored_number()
-                        self.sequences.downloads_today_tracker = (
-                            self.downloads_today_tracker
-                        )
-                        self.sequences.stored_sequence_no = (
-                            self.prefs.stored_sequence_no
-                        )
+                    dl_today = (
+                        self.downloads_today_tracker.get_or_reset_downloads_today()
+                    )
+                    logging.debug("Completed downloads today: %s", dl_today)
 
-                        dl_today = (
-                            self.downloads_today_tracker.get_or_reset_downloads_today()
-                        )
-                        logging.debug("Completed downloads today: %s", dl_today)
+                    self.initialise_sequence_number_usage()
 
-                        self.initialise_sequence_number_usage()
+                    self.must_synchronize_raw_jpg = (
+                        self.prefs.must_synchronize_raw_jpg()
+                    )
 
-                        self.must_synchronize_raw_jpg = (
-                            self.prefs.must_synchronize_raw_jpg()
-                        )
+                    self.problems = RenamingProblems()
 
-                        self.problems = RenamingProblems()
-
-                    elif data.message == RenameAndMoveStatus.download_completed:
-                        if len(self.problems):
-                            self.content = pickle.dumps(
-                                RenameAndMoveFileResults(problems=self.problems),
-                                pickle.HIGHEST_PROTOCOL,
-                            )
-                            self.send_message_to_sink()
-
-                        # Ask main application process to update prefs with stored
-                        # sequence number and downloads today values. But first sync
-                        # the prefs here, to write out the dirty values so they are not
-                        # saved when a sync is done at download start, overwriting
-                        # the values that may have been changed in the main process
-                        logging.debug(
-                            "Rename and move process syncing preferences to the file "
-                            "system"
-                        )
-                        self.prefs.sync()
+                elif data.message == RenameAndMoveStatus.download_completed:
+                    if len(self.problems):
                         self.content = pickle.dumps(
-                            RenameAndMoveFileResults(
-                                stored_sequence_no=self.sequences.stored_sequence_no,
-                                downloads_today=self.downloads_today_tracker.downloads_today,
-                            ),
+                            RenameAndMoveFileResults(problems=self.problems),
                             pickle.HIGHEST_PROTOCOL,
                         )
-                        dl_today = (
-                            self.downloads_today_tracker.get_or_reset_downloads_today()
-                        )
-                        logging.debug("Downloads today: %s", dl_today)
                         self.send_message_to_sink()
-                    else:
-                        rpd_file = data.rpd_file
-                        download_count = data.download_count
 
-                        if data.download_succeeded:
-                            move_succeeded = self.process_file(rpd_file, download_count)
-                            if not move_succeeded:
-                                self.process_rename_failure(rpd_file)
-                            else:
-                                # Record file as downloaded in SQLite database
-                                try:
-                                    self.downloaded.add_downloaded_file(
-                                        name=rpd_file.name,
-                                        size=rpd_file.size,
-                                        modification_time=rpd_file.modification_time,
-                                        download_full_file_name=rpd_file.download_full_file_name,
-                                    )
-                                except sqlite3.OperationalError as e:
-                                    # This should never happen because this is the only
-                                    # process writing to the database..... but just in
-                                    # case
-                                    logging.error(
-                                        "Database error adding download file %s: %s. "
-                                        "Will not retry.",
-                                        rpd_file.download_full_file_name,
-                                        e,
-                                    )
+                    # Ask main application process to update prefs with stored
+                    # sequence number and downloads today values. But first sync
+                    # the prefs here, to write out the dirty values so they are not
+                    # saved when a sync is done at download start, overwriting
+                    # the values that may have been changed in the main process
+                    logging.debug(
+                        "Rename and move process syncing preferences to the file "
+                        "system"
+                    )
+                    self.prefs.sync()
+                    self.content = pickle.dumps(
+                        RenameAndMoveFileResults(
+                            stored_sequence_no=self.sequences.stored_sequence_no,
+                            downloads_today=self.downloads_today_tracker.downloads_today,
+                        ),
+                        pickle.HIGHEST_PROTOCOL,
+                    )
+                    dl_today = (
+                        self.downloads_today_tracker.get_or_reset_downloads_today()
+                    )
+                    logging.debug("Downloads today: %s", dl_today)
+                    self.send_message_to_sink()
+                else:
+                    rpd_file = data.rpd_file
+                    download_count = data.download_count
+
+                    if data.download_succeeded:
+                        move_succeeded = self.process_file(rpd_file, download_count)
+                        if not move_succeeded:
+                            self.process_rename_failure(rpd_file)
                         else:
-                            move_succeeded = False
+                            # Record file as downloaded in SQLite database
+                            try:
+                                self.downloaded.add_downloaded_file(
+                                    name=rpd_file.name,
+                                    size=rpd_file.size,
+                                    modification_time=rpd_file.modification_time,
+                                    download_full_file_name=rpd_file.download_full_file_name,
+                                )
+                            except sqlite3.OperationalError as e:
+                                # This should never happen because this is the only
+                                # process writing to the database..... but just in
+                                # case
+                                logging.error(
+                                    "Database error adding download file %s: %s. "
+                                    "Will not retry.",
+                                    rpd_file.download_full_file_name,
+                                    e,
+                                )
+                    else:
+                        move_succeeded = False
 
-                        rpd_file.metadata = None
-                        self.content = pickle.dumps(
-                            RenameAndMoveFileResults(
-                                move_succeeded=move_succeeded,
-                                rpd_file=rpd_file,
-                                download_count=download_count,
-                            ),
-                            pickle.HIGHEST_PROTOCOL,
-                        )
-                        self.send_message_to_sink()
+                    rpd_file.metadata = None
+                    self.content = pickle.dumps(
+                        RenameAndMoveFileResults(
+                            move_succeeded=move_succeeded,
+                            rpd_file=rpd_file,
+                            download_count=download_count,
+                        ),
+                        pickle.HIGHEST_PROTOCOL,
+                    )
+                    self.send_message_to_sink()
 
-                        i += 1
+                    i += 1
 
 
 if __name__ == "__main__":

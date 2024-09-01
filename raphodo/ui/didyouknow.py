@@ -1,58 +1,43 @@
-# Copyright (C) 2017-2022 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2017-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
-Show 'Did you know?' dialog at start up
+Show 'Did you know?' dialog at start-up
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2022, Damon Lynch"
-
-
-from PyQt5.QtCore import pyqtSlot, QSize, Qt, QSettings
+from PyQt5.QtCore import QSettings, QSize, Qt, pyqtSlot
 from PyQt5.QtGui import (
-    QPixmap,
-    QIcon,
-    QFontMetrics,
-    QFont,
     QCloseEvent,
+    QFont,
+    QFontMetrics,
+    QIcon,
+    QPixmap,
     QShowEvent,
     QTextCursor,
 )
 from PyQt5.QtWidgets import (
-    QDialog,
-    QCheckBox,
-    QLabel,
-    QVBoxLayout,
-    QPushButton,
-    QHBoxLayout,
     QApplication,
+    QCheckBox,
+    QDialog,
     QDialogButtonBox,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
     QTextBrowser,
+    QVBoxLayout,
 )
 
+from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import Preferences
+from raphodo.tools.utilities import data_file_path
 from raphodo.ui.viewutils import translateDialogBoxButtons
+
+install_gettext()
 
 tips = (
     (
         _("Click on a file's checkbox to mark or unmark it for download."),
-        ":/tips/marksingle.png",
+        "tips/marksingle.png",
     ),
     (
         _(
@@ -61,7 +46,7 @@ tips = (
             "unmarked by default, and their thumbnails are dimmed so you can "
             "differentiate them from files that are yet to be downloaded."
         ),
-        ":/tips/previouslydownloaded.png",
+        "tips/previouslydownloaded.png",
     ),
     (
         _(
@@ -69,14 +54,14 @@ tips = (
             "whose checkbox was clicked, regardless of whether they previously had a "
             "checkmark or not."
         ),
-        ":/tips/markmany.png",
+        "tips/markmany.png",
     ),
     (
         _(
             "Click on a device's checkbox to quickly mark or unmark all its files for "
             "downloading."
         ),
-        ":/tips/markall.png",
+        "tips/markall.png",
     ),
     (
         _(
@@ -84,24 +69,24 @@ tips = (
             "icon's color indicates whether the download was successful (green), had "
             "file renaming problems (yellow/orange), or failed (red)."
         ),
-        ":/tips/downloaded.png",
+        "tips/downloaded.png",
     ),
     (
         _(
-            """
-In case of any problems, a red icon will appear at the bottom of the window indicating 
-how many error reports there are. Clicking on it opens the Error Report window."""
+            "In case of any problems, a red icon will appear at the bottom of the "
+            "window indicating how many error reports there are. Clicking on it opens "
+            "the Error Report window."
         ),
-        ":/tips/errorreporticon.png",
+        "tips/errorreporticon.png",
         _(
-            """
-The Error Report window lists any problems encountered before, during or after the 
-download. An orange triangle represents a warning, a red circle indicates a failure, 
-and a black circle indicates more serious failures. You can click on the hyperlinks to 
-open its file or device in a file manager. You can also search the reports using the 
-search box in the lower left of the Error Report window."""
+            "The Error Report window lists any problems encountered before, during or "
+            "after the download. An orange triangle represents a warning, a red circle "
+            "indicates a failure, and a black circle indicates more serious failures. "
+            "You can click on the hyperlinks to open its file or device in a file "
+            "manager. You can also search the reports using the search box in the "
+            "lower left of the Error Report window."
         ),
-        ":/tips/errorreport.png",
+        "tips/errorreport.png",
     ),
     (
         _(
@@ -109,7 +94,7 @@ search box in the lower left of the Error Report window."""
             "memory cards, and hard drives&mdash;as many devices as your computer "
             "can handle at one time."
         ),
-        ":/tips/multipledevices.png",
+        "tips/multipledevices.png",
     ),
     (
         _(
@@ -118,15 +103,14 @@ search box in the lower left of the Error Report window."""
             "consecutive shots. Use it to identify photos and videos taken at "
             "different periods in a single day or over consecutive days."
         ),
-        ":/tips/timeline.png",
+        "tips/timeline.png",
         _(
-            """
-<p>In the illustration above, the first row of the Timeline is black because all the 
-files on that date had been previously downloaded.</p>
-<p>The Timeline's slider adjusts the time elapsed between consecutive shots that is 
-used to build the Timeline:</p>"""
+            "<p>In the illustration above, the first row of the Timeline is black "
+            "because all the files on that date had been previously downloaded.</p>"
+            "<p>The Timeline's slider adjusts the time elapsed between consecutive "
+            "shots that is used to build the Timeline:</p>"
         ),
-        ":/tips/timelineadjust.png",
+        "tips/timelineadjust.png",
     ),
     (
         _(
@@ -135,7 +119,7 @@ used to build the Timeline:</p>"""
             "keys) to select time periods. When a time range is selected, the "
             "Timeline button on the left side of the main window will be highlighted."
         ),
-        ":/tips/timelineselect.png",
+        "tips/timelineselect.png",
         _(
             "A download always includes all files that are marked for download, "
             "including those that are not currently displayed because the Timeline "
@@ -147,25 +131,25 @@ used to build the Timeline:</p>"""
             "You can hide or display the download sources by clicking on the name of "
             "the device you're downloading from at the top left of the program window."
         ),
-        ":/tips/deviceshidden.png",
+        "tips/deviceshidden.png",
     ),
     (
         _(
-            """
-Thumbnails can be sorted using a variety of criteria:
-<ol>
-<li><b>Modification Time:</b> when the file was last modified, according to its 
-metadata (where available) or according to the filesystem (as a fallback).</li>
-<li><b>Checked State:</b> whether the file is marked for download.</li>
-<li><b>Filename:</b> the full filename, including extension.</li>
-<li><b>Extension:</b> the filename's extension. You can use this to group jpeg and 
-raw images, for instance.</li>
-<li><b>File Type:</b> photo or video.</li>
-<li><b>Device:</b> name of the device the photos and videos are being downloaded 
-from.</li>
-</ol>"""
+            "Thumbnails can be sorted using a variety of criteria:"
+            "<ol>"
+            "<li><b>Modification Time:</b> when the file was last modified, according "
+            "to its metadata (where available) or according to the filesystem (as a "
+            "fallback).</li>"
+            "<li><b>Checked State:</b> whether the file is marked for download.</li>"
+            "<li><b>Filename:</b> the full filename, including extension.</li>"
+            "<li><b>Extension:</b> the filename's extension. You can use this to group "
+            "jpeg and raw images, for instance.</li>"
+            "<li><b>File Type:</b> photo or video.</li>"
+            "<li><b>Device:</b> name of the device the photos and videos are being "
+            "downloaded from.</li>"
+            "</ol>"
         ),
-        ":/tips/thumbnailsort.png",
+        "tips/thumbnailsort.png",
     ),
     (
         _(
@@ -173,7 +157,7 @@ from.</li>
             "automatically generate download subfolders and rename files as it "
             "downloads, using a scheme of your choosing."
         ),
-        ":/tips/downloadwhereandrename.png",
+        "tips/downloadwhereandrename.png",
         _(
             "To specify where you want your files downloaded and how you want them "
             "named, open the appropriate panel on the right-side of the application "
@@ -182,28 +166,28 @@ from.</li>
     ),
     (
         _(
-            """
-When thinking about your download directory structure, keep in mind two different types
-of directory:
-<ol>
-<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, &quot;Photos&quot;, or
-&quot;Videos&quot;. This directory should already exist on your computer. In the 
-illustration below, the destination folders are &quot;Pictures&quot; and 
-&quot;Videos&quot;. The name of the destination folder is displayed in the grey bar 
-directly above the folder tree, with a folder icon to its left and a gear icon to 
-its far right.</li>
-<li>The <b>download subfolders</b>, which are directories that will be automatically 
-generated by Rapid Photo Downloader. They need not already exist on your computer, but 
-it's okay if they do. They will be generated under the destination folder.</li>
-</ol>"""
+            "When thinking about your download directory structure, keep in mind two "
+            "different types of directory:"
+            "<ol>"
+            "<li>The <b>destination folder</b>, e.g. &quot;Pictures&quot;, "
+            "&quot;Photos&quot;, or &quot;Videos&quot;. This directory should already "
+            "exist on your computer. In the illustration below, the destination "
+            "folders are &quot;Pictures&quot; and &quot;Videos&quot;. The name of the "
+            "destination folder is displayed in the grey bar directly above the folder "
+            "tree, with a folder icon to its left and a gear icon to its far "
+            "right.</li>"
+            "<li>The <b>download subfolders</b>, which are directories that will be "
+            "automatically generated by Rapid Photo Downloader. They need not already "
+            "exist on your computer, but it's okay if they do. They will be generated "
+            "under the destination folder.</li>"
+            "</ol>"
         ),
-        ":/tips/defaultdownloaddirectory.png",
+        "tips/defaultdownloaddirectory.png",
         _(
-            """
-You can download photos and videos to the same destination folder, or specify a 
-different destination folder for each. The same applies to the download subfolders for 
-photos and videos&mdash;download photos and videos to the same subfolders, or use a 
-different scheme for each type."""
+            "You can download photos and videos to the same destination folder, or "
+            "specify a different destination folder for each. The same applies to the "
+            "download subfolders for photos and videos&mdash;download photos and "
+            "videos to the same subfolders, or use a different scheme for each type."
         ),
     ),
     (
@@ -213,57 +197,55 @@ different scheme for each type."""
             "create a year subfolder and then a series of year-month-day subfolders "
             "within it."
         ),
-        ":/tips/downloadsubfolders.png",
+        "tips/downloadsubfolders.png",
     ),
     (
         _(
-            """
-Whenever possible, the program previews the download subfolders of photos and videos to 
-download:
-<ol>
-<li>The destination folder tree shows the download subfolders already on your computer 
-(those in a regular, non-italicized font), and the subfolders that will be created 
-during the download (those whose names are italicized).</li>
-<li>The folder tree also shows into which subfolders the files will be downloaded  
-(those colored black).</li>
-</ol>"""
+            "Whenever possible, the program previews the download subfolders of photos "
+            "and videos to download:"
+            "<ol>"
+            "<li>The destination folder tree shows the download subfolders already on "
+            "your computer (those in a regular, non-italicized font), and the "
+            "subfolders that will be created during the download (those whose names "
+            "are italicized).</li>"
+            "<li>The folder tree also shows into which subfolders the files will be "
+            "downloaded (those colored black).</li>"
+            "</ol>"
         ),
-        ":/tips/downloadsubfolders.png",
+        "tips/downloadsubfolders.png",
     ),
     (
         _(
-            """
-Download subfolder names are typically generated using some or all of the following 
-elements:
-<ol>
-<li><b>File metadata</b>, very often including the date the photo or video was created, 
-but might also include the camera model name, camera serial number, or file extension 
-e.g. JPG or CR2.</li>
-<li>A <b>Job Code</b>, which is free text you specify at the time the download occurs, 
-such as the name of an event or location.</li>
-<li><b>Text</b> which you want to appear every time, such as a hyphen or a space.</li>
-</ol>
-Naming subfolders with the year, followed by the month and finally the day in numeric 
-format makes it easy to keep them sorted in a file manager, which is why it's the 
-default option:"""
+            "Download subfolder names are typically generated using some or all of the "
+            "following elements:"
+            "<ol>"
+            "<li><b>File metadata</b>, very often including the date the photo or "
+            "video was created, but might also include the camera model name, camera "
+            "serial number, or file extension e.g. JPG or CR2.</li>"
+            "<li>A <b>Job Code</b>, which is free text you specify at the time the "
+            "download occurs, such as the name of an event or location.</li>"
+            "<li><b>Text</b> which you want to appear every time, such as a hyphen "
+            "or a space.</li>"
+            "</ol>"
+            "Naming subfolders with the year, followed by the month and finally the "
+            "day in numeric format makes it easy to keep them sorted in a file "
+            "manager, which is why it's the default option:"
         ),
-        ":/tips/downloadsubfolders.png",
+        "tips/downloadsubfolders.png",
     ),
     (
         _(
-            """
-To automatically create download subfolders as you download, 
-you can use one of Rapid Photo Downloader's built-in presets, or create a custom 
-preset. Click on the gear icon to bring up a drop-down menu:"""
+            "To automatically create download subfolders as you download, you can use "
+            "one of Rapid Photo Downloader's built-in presets, or create a custom "
+            "preset. Click on the gear icon to bring up a drop-down menu:"
         ),
-        ":/tips/subfoldermenu.png",
+        "tips/subfoldermenu.png",
         _(
-            """
-Using the drop-down menu, select a built-in preset or click on <b>Custom</b> to 
-configure your own scheme. You create your own schemes using the Photo or Video 
-Subfolder Generation Editor:"""
+            "Using the drop-down menu, select a built-in preset or click on "
+            "<b>Custom</b> to configure your own scheme. You create your own schemes "
+            "using the Photo or Video Subfolder Generation Editor:"
         ),
-        ":/tips/subfoldergeneration.png",
+        "tips/subfoldergeneration.png",
     ),
     (
         _(
@@ -271,7 +253,7 @@ Subfolder Generation Editor:"""
             "another. Simply use the <b>Filename Extension</b> as part of your "
             "download subfolder generation scheme:"
         ),
-        ":/tips/subfoldergenerationext.png",
+        "tips/subfoldergenerationext.png",
         _(
             "This illustration shows a saved custom preset named &quot;My custom "
             "preset&quot;."
@@ -279,50 +261,48 @@ Subfolder Generation Editor:"""
     ),
     (
         _(
-            """
-You do not have to create nested download subfolders. This illustration shows 
-the generation of download subfolders that contain only the date the photos were taken 
-and a Job Code:"""
+            "You do not have to create nested download subfolders. This illustration "
+            "shows the generation of download subfolders that contain only the date "
+            "the photos were taken and a Job Code:"
         ),
-        ":/tips/subfoldergeneration.png",
+        "tips/subfoldergeneration.png",
     ),
     (
         _(
-            """
-Although there are many built-in date/time naming options, you may find that you 
-need something different. It's no problem to create your own. You can combine date/time 
-choices to generate new combinations. Supposing you wanted a date format that combines 
-year (YYYY), a hyphen, and month (MM) to form YYYY-MM. You can create it like this 
-(note the red circle around the hyphen):"""
+            "Although there are many built-in date/time naming options, you may find "
+            "that you need something different. It's no problem to create your own. "
+            "You can combine date/time choices to generate new combinations. "
+            "Supposing you wanted a date format that combines year (YYYY), a hyphen, "
+            "and month (MM) to form YYYY-MM. You can create it like this (note the "
+            "red circle around the hyphen):"
         ),
-        ":/tips/customdate.png",
+        "tips/customdate.png",
         _(
-            """
-Read more about all the ways you can generate download subfolder names and file names 
-in the 
-<a href="http://damonlynch.net/rapid/documentation/#renamedateandtime">online 
-documentation</a>."""
+            "Read more about all the ways you can generate download subfolder names "
+            "and file names in the "
+            '<a href="http://damonlynch.net/rapid/documentation/#renamedateandtime">'
+            "online documentation</a>."
         ),
     ),
     (
         _(
-            """
-<b>Job Codes</b> let you easily enter text that describes sets of photos and videos. 
-You can use them in subfolder and file names. In this illustration, some files have had 
-the Job Code &quot;Street&quot; applied to them, and the selected files are about to 
-get the Job Code &quot;Green Bazaar&quot;:"""
+            "<b>Job Codes</b> let you easily enter text that describes sets of photos "
+            "and videos. You can use them in subfolder and file names. In this "
+            "illustration, some files have had the Job Code &quot;Street&quot; "
+            "applied to them, and the selected files are about to get the Job Code "
+            "&quot;Green Bazaar&quot;:"
         ),
-        ":/tips/jobcodes.png",
+        "tips/jobcodes.png",
         _(
-            """
-You can apply new or existing Job Codes before you start a download. If there are any 
-files in the download that have not yet had a Job Code applied to them, you'll be 
-prompted to enter a Job Code for them before the download begins."""
+            "You can apply new or existing Job Codes before you start a download. If "
+            "there are any files in the download that have not yet had a Job Code "
+            "applied to them, you'll be prompted to enter a Job Code for them before "
+            "the download begins."
         ),
     ),
     (
         _("Look for hints to guide you when working with Job Codes:"),
-        ":/tips/jobcodehint.png",
+        "tips/jobcodehint.png",
         _(
             "Hints will vary depending on the context, such as when the mouse is "
             "hovering over a button."
@@ -330,57 +310,55 @@ prompted to enter a Job Code for them before the download begins."""
     ),
     (
         _(
-            """
-When you give your photos and videos unique filenames, you'll never be confused as to 
-which file is which. Using <b>sequence numbers</b> to make filenames unique is highly 
-recommended!"""
+            "When you give your photos and videos unique filenames, you'll never be "
+            "confused as to which file is which. Using <b>sequence numbers</b> to make "
+            "filenames unique is highly recommended!"
         ),
-        ":/tips/photoeditordefault.png",
+        "tips/photoeditordefault.png",
         _(
-            """
-<p>Four types of sequence values are available to help you assign unique names to your 
-photos and videos:
-<ol>
-<li><b>Downloads today</b>: tracks downloads completed during that day.</li>
-<li><b>Stored number</b>: similar to Downloads today, but it is remembered from the 
-last time the program was run.</li>
-<li><b>Session number</b>: reset each time the program is run.</li>
-<li><b>Sequence letter</b>: like session numbers, but uses letters.</li>
-</ol></p>
-<p>
-Read more about sequence numbers in the <a 
-href="http://damonlynch.net/rapid/documentation/#sequencenumbers">online 
-documentation</a>.</p>"""
+            "<p>Four types of sequence values are available to help you assign unique "
+            "names to your photos and videos:"
+            "<ol>"
+            "<li><b>Downloads today</b>: tracks downloads completed during that "
+            "day.</li>"
+            "<li><b>Stored number</b>: similar to Downloads today, but it is "
+            "remembered from the last time the program was run.</li>"
+            "<li><b>Session number</b>: reset each time the program is run.</li>"
+            "<li><b>Sequence letter</b>: like session numbers, but uses letters.</li>"
+            "</ol>"
+            "</p>"
+            "<p>Read more about sequence numbers in the <a "
+            'href="http://damonlynch.net/rapid/documentation/#sequencenumbers">'
+            "online documentation</a>.</p>"
         ),
     ),
     (
         _(
-            """
-The <b>Rename</b> panel allows you to configure file renaming. To rename your files, 
-you can choose from among existing renaming presets or define your own."""
+            "The <b>Rename</b> panel allows you to configure file renaming. To rename "
+            "your files, you can choose from among existing renaming presets or define "
+            "your own."
         ),
-        ":/tips/renameoptions.png",
+        "tips/renameoptions.png",
         _(
-            """
-<p>The <b>Synchronize RAW + JPEG</b> option is useful if you use the RAW + JPEG feature 
-on your camera and you use sequence numbers in your photo renaming. Enabling this option 
-will cause the program to detect matching pairs of RAW and JPEG photos, and when they 
-are detected, the same sequence numbers will be applied to both photo names. F
-urthermore, sequences will be updated as if the photos were one.</p>
-<p>
-Read more about file renaming in the <a 
-href="http://damonlynch.net/rapid/documentation/#rename">online documentation</a>.</p>
-"""
+            "<p>The <b>Synchronize RAW + JPEG</b> option is useful if you use the "
+            "RAW + JPEG feature on your camera and you use sequence numbers in your "
+            "photo renaming. Enabling this option will cause the program to detect "
+            "matching pairs of RAW and JPEG photos, and when they are detected, "
+            "the same sequence numbers will be applied to both photo names. "
+            "Furthermore, sequences will be updated as if the photos were one.</p>"
+            "<p>Read more about file renaming in the "
+            '<a href="http://damonlynch.net/rapid/documentation/#rename">'
+            "online documentation</a>.</p>"
         ),
     ),
     (
         _(
-            """
-You can have your photos and videos backed up to multiple locations as they are 
-downloaded, such as external hard drives or network shares. Backup devices can be 
-automatically detected, or exact backup locations specified."""
+            "You can have your photos and videos backed up to multiple locations as "
+            "they are downloaded, such as external hard drives or network shares. "
+            "Backup devices can be automatically detected, or exact backup locations "
+            "specified."
         ),
-        ":/tips/backup.png",
+        "tips/backup.png",
         _(
             "In this example, the drive <b>photobackup</b> does not contain a folder "
             "named <tt>Videos</tt>, so videos will not be backed up to it."
@@ -388,32 +366,31 @@ automatically detected, or exact backup locations specified."""
     ),
     (
         _(
-            """
-Several of the program's preferences can be set from the command line, including 
-download sources, destinations, and backups. Additionally, settings can be reset to 
-their default state, and caches and remembered files cleared."""
+            "Several of the program's preferences can be set from the command line, "
+            "including download sources, destinations, and backups. Additionally, "
+            "settings can be reset to their default state, and caches and remembered "
+            "files cleared."
         )
         + _("You can also import program preferences from the older 0.4 version."),
-        ":/tips/commandline.png",
+        "tips/commandline.png",
     ),
     (
         _(
-            """
-Rapid Photo Downloader deals with three types of cache:
-<ol>
-<li>A <b>thumbnail cache</b> whose sole purpose is to store thumbnails of files from 
-your cameras, memory cards, and other devices.</li>
-<li>A <b>temporary cache</b> of files downloaded from a camera, one for photos and 
-another for videos. They are located in temporary subfolders in the download 
-destination.</li>
-<li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo Downloader stores 
-thumbnails of RAW and TIFF photos once they have been downloaded. File browsers like 
-Gnome Files use this cache as well, meaning they too will display thumbnails for those 
-files. 
-</li>
-</ol>
-Read more about these caches and their effect on download performance in the <a 
-href="http://damonlynch.net/rapid/documentation/#caches">online documentation</a>."""
+            "Rapid Photo Downloader deals with three types of cache:"
+            "<ol>"
+            "<li>A <b>thumbnail cache</b> whose sole purpose is to store thumbnails of "
+            "files from your cameras, memory cards, and other devices.</li>"
+            "<li>A <b>temporary cache</b> of files downloaded from a camera, one for "
+            "photos and another for videos. They are located in temporary subfolders "
+            "in the download destination.</li>"
+            "<li>The <b>desktop's thumbnail cache</b>, in which Rapid Photo Downloader "
+            "stores thumbnails of RAW and TIFF photos once they have been downloaded. "
+            "File browsers like Gnome Files use this cache as well, meaning they too "
+            "will display thumbnails for those files. </li>"
+            "</ol>"
+            "Read more about these caches and their effect on download performance in "
+            'the <a href="http://damonlynch.net/rapid/documentation/#caches">online '
+            "documentation</a>."
         ),
     ),
 )
@@ -438,11 +415,11 @@ class Tips:
         for idx, value in enumerate(tip):
             if idx % 2 == 0:
                 if not value.startswith("<p>"):
-                    text = "{}<p>{}</p><p></p>".format(text, value)
+                    text = f"{text}<p>{value}</p><p></p>"
                 else:
-                    text = "{}{}<p></p>".format(text, value)
+                    text = f"{text}{value}<p></p>"
             else:
-                text = '{}<img src="{}">'.format(text, value)
+                text = f'{text}<img src="{data_file_path(value)}">'
         return text
 
     def __len__(self):
@@ -451,7 +428,6 @@ class Tips:
 
 class DidYouKnowDialog(QDialog):
     def __init__(self, prefs: Preferences, parent=None) -> None:
-
         super().__init__(parent)
         self.rapidApp = parent
         self.prefs = prefs
@@ -466,9 +442,9 @@ class DidYouKnowDialog(QDialog):
 
         title = QLabel(_("Did you know...?"))
         title.setFont(titleFont)
-        pixmap = QIcon(":/tips/did-you-know.svg").pixmap(
+        pixmap: QPixmap = QIcon(data_file_path("tips/did-you-know.svg")).pixmap(
             QSize(pixsize, pixsize)
-        )  # type: QPixmap
+        )
 
         icon = QLabel()
         icon.setPixmap(pixmap)
@@ -600,7 +576,6 @@ class DidYouKnowDialog(QDialog):
 
 
 if __name__ == "__main__":
-
     # Application development test code:
 
     app = QApplication([])

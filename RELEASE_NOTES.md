@@ -1,5 +1,38 @@
-Release Notes for Rapid Photo Downloader 0.9.34
+Release Notes for Rapid Photo Downloader 0.9.37
 ===============================================
+
+ - Rapid Photo Downloader 0.9.37 switches from `setuptools` and an old-school
+   `setup.py` to using [Hatch](https://github.com/pypa/hatch).
+   As part of this switch, build-time files are generated differently:
+   - `.desktop` and `metainfo.xml` files are now generated at build time into 
+     subfolders within the `share` folder.
+   - `.mo` files are now generated within a new folder `raphodo/locale`; they
+      should *not* be copied to `/usr/share/locale`. Any 
+     `rapid-photo-downloader.mo` files in `/usr/share/locale` should be 
+     deleted.
+   - The manpage is generated at build time, and is output into 
+     `man/rapid-photo-downloader.1`.
+
+ - To generate localization files and the manpage, two new Hatch plugins  
+   are used, which are new build-time dependencies (these plugins can be 
+   used with any Hatch project, not just Rapid Photo Downloader):
+   -  [Hatch-gettext](https://github.com/damonlynch/hatch-gettext)
+   -  [Hatch-argparse-manpage](https://github.com/damonlynch/hatch-argparse-manpage)
+
+ - Further packaging changes include:
+   - `pyrcc` is no longer used to generate images for the Qt resource system.
+     Instead, images are stored in a new `raphodo/data` directory and loaded 
+     using the Python resource system.
+   - All source code now uses [SPDX](https://spdx.org/) identifiers for 
+     copyright and licensing.
+   - The Python package easygui has been purged, and is no longer a dependency.
+
+ - The Python package used to generate thumbnails from HEIF / HEIC 
+   images, [pyheif](https://github.com/carsales/pyheif), requires updating 
+   to work with recent versions of 
+   [libheif](https://github.com/strukturag/libheif). This means `pyheif` 
+   currently does not work, and therefore Rapid Photo Downloader cannot use it
+   to generate thumbnails from HEIF / HEIC images.
 
  - To run Rapid Photo Downloader under WSLg on Windows 11, using the 
    [Windows Subsystem for Linux Preview](https://aka.ms/wslstorepage) from 
@@ -9,31 +42,10 @@ Release Notes for Rapid Photo Downloader 0.9.34
    Photo Downloader and WSL on the
    [program website](https://https://damonlynch.net/rapid/documentation/#wsl).
 
- - Rapid Photo Downloader 0.9.27b2 is the minimum version required to work with 
-   Python 3.10. Earlier versions will not run properly, or more commonly will 
-   not run at all. Using 0.9.30 or newer is strongly recommended. 
-
- - PyQt5 5.15.6 is the minimum version required to work with Python 3.10. If 
-   an older version is installed, Rapid Photo Downloader will run, but 
-   thumbnails will not be generated.
-
- - Rapid Photo Downloader 0.9.19 introduced support for HEIF / HEIC files. The 
-   [documentation](https://damonlynch.net/rapid/documentation/#heifheic) 
-   goes into details.
-
- - Version 0.9.19 also introduced much improved support for high resolution
-   displays. Consult the [documentation](https://damonlynch.net/rapid/documentation/#highdpi)
-   to learn more.
-
  - If thumbnailing fails to finish but no error is reported, that could indicate
    Exiv2 has crashed. See the 
    [documentation]( https://damonlynch.net/rapid/documentation/#miscellaneousnpreferences)
    for how to resolve the problem:
-
- - Canon's latest RAW file format CR3 is supported on systems that have
-   ExifTool 10.87 or newer. Some Linux distributions ship an older version
-   of ExifTool. If you need to, it is fortunately easy to
-   [install ExifTool yourself](https://www.sno.phy.queensu.ca/~phil/exiftool/install.html).
  
  - On some systems, Rapid Photo Downloader cannot use gstreamer to generate
    video thumbnails for all common video files. Install the good and libav

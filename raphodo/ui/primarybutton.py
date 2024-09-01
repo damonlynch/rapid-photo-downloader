@@ -1,40 +1,24 @@
-# Copyright (C) 2016-2022 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2022, Damon Lynch"
+# SPDX-FileCopyrightText: Copyright 2016-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import math
-from typing import Tuple
 
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import (
     QFont,
-    QIcon,
     QFontMetrics,
     QGuiApplication,
+    QIcon,
     QPainter,
     QPaintEvent,
 )
-from PyQt5.QtWidgets import QPushButton, QSizePolicy, QApplication
+from PyQt5.QtWidgets import QApplication, QPushButton, QSizePolicy
 
+from raphodo.internationalisation.install import install_gettext
 from raphodo.ui.rotatedpushbutton import FlatButton
-from raphodo.ui.viewutils import is_dark_mode, darkModeIcon
+from raphodo.ui.viewutils import darkModeIcon, is_dark_mode
+
+install_gettext()
 
 
 class TopPushButton(QPushButton, FlatButton):
@@ -51,7 +35,7 @@ class TopPushButton(QPushButton, FlatButton):
         self.setCheckable(True)
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 
-        font = self.font()  # type: QFont
+        font: QFont = self.font()
         top_row_font_size = font.pointSize() + 8
         self.top_row_icon_size = top_row_font_size + 10
         font.setPointSize(top_row_font_size)
@@ -65,12 +49,10 @@ class TopPushButton(QPushButton, FlatButton):
         self.non_elided_text = ""
 
         padding = (
-            "padding-left: {padding_side}px; padding-right: {padding_side}px; "
-            "padding-top: {padding_top}px; padding-bottom: {padding_bottom}px;".format(
-                padding_top=padding_top,
-                padding_side=self.padding_side,
-                padding_bottom=padding_bottom,
-            )
+            f"padding-left: {self.padding_side}px; "
+            f"padding-right: {self.padding_side}px; "
+            f"padding-top: {padding_top}px; "
+            f"padding-bottom: {padding_bottom}px; "
         )
         self.setFlatStyle(self, darker_if_checked=False, padding=padding)
 
@@ -118,11 +100,11 @@ class TopPushButton(QPushButton, FlatButton):
         super().paintEvent(event)
 
 
-def DownloadButtonHeight() -> Tuple[int, int]:
+def DownloadButtonHeight() -> tuple[int, int]:
     font_height = (
         QFontMetrics(QApplication.font())
-            .tightBoundingRect(_("Download 8 Photos and 10 Videos"))
-            .height()
+        .tightBoundingRect(_("Download 8 Photos and 10 Videos"))
+        .height()
     )
     padding = math.ceil(font_height * 1.7)
     height = font_height // 2 * 6
@@ -162,41 +144,29 @@ class DownloadButton(QPushButton):
         # outline:none is used to remove the rectangle that appears on a
         # button when the button has focus
         # http://stackoverflow.com/questions/17280056/qt-css-decoration-on-focus
+
         self.setStyleSheet(
-            """
-            QPushButton {
-            background-color: %(color)s;
+            f"""
+            QPushButton {{
+            background-color: {primaryColor.name()};
             outline: none;
-            padding-left: %(padding)dpx;
-            padding-right: %(padding)dpx;
-            border-radius: %(radius)dpx;
-            border: 1px solid %(borderColor)s;
-            height: %(height)dpx;
-            color: %(textcolor)s;
-            }
-            QPushButton:hover {
-            background-color: %(hoverColor)s;
-            border: 1px solid %(hoverBorderColor)s;
-            }
-            QPushButton:disabled {
-            background-color: %(disabledColor)s;
-            color: %(disabledTextColor)s;
-            border: 1px solid %(disabledBorderColor)s;
-            }
+            padding-left: {padding}px;
+            padding-right: {padding}px;
+            border-radius: {radius}px;
+            border: 1px solid {borderColor.name()};
+            height: {height}px;
+            color: {primaryTextColor.name()};
+            }}
+            QPushButton:hover {{
+            background-color: {hoverColor.name()};
+            border: 1px solid {hoverBorderColor.name()};
+            }}
+            QPushButton:disabled {{
+            background-color: {disabledColor.name()};
+            color: {disabledTextColor.name()};
+            border: 1px solid {disabledBorderColor.name()};
+            }}
             """
-            % dict(
-                color=primaryColor.name(),
-                padding=padding,
-                borderColor=borderColor.name(),
-                hoverColor=hoverColor.name(),
-                hoverBorderColor=hoverBorderColor.name(),
-                height=height,
-                radius=radius,
-                textcolor=primaryTextColor.name(),
-                disabledColor=disabledColor.name(),
-                disabledTextColor=disabledTextColor.name(),
-                disabledBorderColor=disabledBorderColor.name(),
-            )
         )
 
     def setText(self, text: str) -> None:

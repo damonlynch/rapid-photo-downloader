@@ -1,58 +1,43 @@
-# Copyright (C) 2021 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: Copyright 2021-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2021, Damon Lynch."
-
-from getpass import getuser
 import logging
 import shlex
 import subprocess
-from enum import IntEnum
 import textwrap
-from typing import List, NamedTuple, Optional
 import webbrowser
+from enum import IntEnum
+from getpass import getuser
+from typing import NamedTuple
 
+from PyQt5.QtCore import QSize, Qt, pyqtSlot
+from PyQt5.QtGui import QFont, QFontMetrics, QIcon
 from PyQt5.QtWidgets import (
     QDialog,
-    QVBoxLayout,
     QDialogButtonBox,
-    QLabel,
     QHBoxLayout,
+    QLabel,
     QSizePolicy,
+    QVBoxLayout,
 )
-from PyQt5.QtCore import Qt, QSize, pyqtSlot
-from PyQt5.QtGui import QIcon, QFontMetrics, QFont
 
+from raphodo.internationalisation.install import install_gettext
+from raphodo.tools.utilities import data_file_path
 from raphodo.ui.password import PasswordEdit
 from raphodo.ui.viewutils import translateDialogBoxButtons
+
+install_gettext()
 
 
 class SudoCommand(QDialog):
     def __init__(
         self,
-        msg: Optional[str] = None,
-        hint: Optional[str] = None,
-        title: Optional[str] = None,
+        msg: str | None = None,
+        hint: str | None = None,
+        title: str | None = None,
         password_incorrect: bool = False,
-        icon: Optional[str] = None,
-        help_url: Optional[str] = None,
+        icon: str | None = None,
+        help_url: str | None = None,
         parent=None,
     ) -> None:
         super().__init__(parent=parent)
@@ -61,10 +46,11 @@ class SudoCommand(QDialog):
 
         if title:
             titleHLayout = QHBoxLayout()
-            if icon:
-                i = QIcon(icon)
-            else:
-                i = QIcon(":/rapid-photo-downloader.svg")
+            i = (
+                QIcon(data_file_path(icon))
+                if icon
+                else QIcon(data_file_path("rapid-photo-downloader.svg"))
+            )
             size = QFontMetrics(QFont()).height()
             pixmap = i.pixmap(QSize(size, size))
             titleIcon = QLabel()
@@ -186,7 +172,7 @@ class SudoCommandResult(NamedTuple):
 
 
 def run_command_as_sudo_with_password(
-    cmd: str, password: str, user: Optional[str] = None, timeout=10
+    cmd: str, password: str, user: str | None = None, timeout=10
 ) -> SudoCommandResult:
     """
     Run a single command via sudo, allowing for sudo to prompt for the password
@@ -195,7 +181,7 @@ def run_command_as_sudo_with_password(
 
     :param cmd: command to run
     :param password: the password to pass to sudo
-    :param user: username sudo will ask for. If not specified will get it via
+    :param user: the username sudo will ask for. If not specified will get it via the
      Python standard library.
     :param timeout: timeout for subprocess.Popen call
     :return: return codes, stdout and stderr
@@ -233,7 +219,9 @@ def run_command_as_sudo_with_password(
     )
 
 
-def run_command_as_sudo_without_password(cmd: str, timeout=10) -> SudoCommandResult:
+def run_command_as_sudo_without_password(
+    cmd: str, timeout: int = 10
+) -> SudoCommandResult:
     """
     Run a single command via sudo instructing sudo to not prompt for the password
 
@@ -283,14 +271,14 @@ def _log_result(cmd: str, result: SudoCommandResult) -> None:
 
 
 def run_commands_as_sudo(
-    cmds: List[str],
+    cmds: list[str],
     parent,
-    msg: Optional[str] = None,
-    timeout=10,
-    title: Optional[str] = None,
-    icon: Optional[str] = None,
-    help_url: Optional[str] = None,
-) -> List[SudoCommandResult]:
+    msg: str | None = None,
+    timeout: int = 10,
+    title: str | None = None,
+    icon: str | None = None,
+    help_url: str | None = None,
+) -> list[SudoCommandResult]:
     """
     Run a list of commands. If necessary, prompt for the sudo password using a dialog.
 
@@ -308,7 +296,7 @@ def run_commands_as_sudo(
     :return: list of return codes, stdout and stderr
     """
 
-    results = []  # type: List[SudoCommandResult, ...]
+    results: list[SudoCommandResult] = []
     for cmd in cmds:
         try:
             result = run_command_as_sudo_without_password(cmd=cmd, timeout=timeout)
@@ -357,9 +345,9 @@ if __name__ == "__main__":
 
     cmds = ["echo OK"]
 
-    title = "Unmount drives EOS_DIGITAL (G:) and EOS_DIGITAL (J:)"
+    # title = "Unmount drives EOS_DIGITAL (G:) and EOS_DIGITAL (J:)"
     title = "Unmount drives EOS_DIGITAL (G:)"
-    icon = ":/icons/drive-removable-media.svg"
+    icon = "icons/drive-removable-media.svg"
 
     results = run_commands_as_sudo(
         cmds=cmds,

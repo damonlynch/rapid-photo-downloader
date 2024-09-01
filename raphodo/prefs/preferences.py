@@ -1,48 +1,59 @@
-#!/usr/bin/env python3
-
-# Copyright (C) 2011-2022 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2022, Damon Lynch"
+# SPDX-FileCopyrightText: Copyright 2011-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
 import logging
-from pathlib import Path
-import pkg_resources
+import os
 import re
-from typing import List, NamedTuple
+from pathlib import Path
+from typing import NamedTuple
 
-from PyQt5.QtCore import QSettings, QTime, Qt
+from packaging.version import Version, parse
+from PyQt5.QtCore import QSettings, Qt, QTime
 
-from raphodo.storage.storage import (
-    platform_photos_directory,
-    platform_videos_directory,
-    platform_photos_identifier,
-    platform_videos_identifier,
-    get_media_dir,
-)
-from raphodo.generatenameconfig import *
-import raphodo.constants as constants
-from raphodo.constants import PresetPrefType, FileType
-from raphodo.utilities import available_cpu_count, make_internationalized_list
 import raphodo.__about__
-from raphodo.metadata.fileformats import ALL_KNOWN_EXTENSIONS
+import raphodo.constants as constants
+from raphodo.constants import FileType, PresetPrefType
+from raphodo.generatenameconfig import (
+    DEFAULT_PHOTO_RENAME_PREFS,
+    DEFAULT_SUBFOLDER_PREFS,
+    DEFAULT_VIDEO_RENAME_PREFS,
+    DEFAULT_VIDEO_SUBFOLDER_PREFS,
+    DICT_IMAGE_RENAME_L0,
+    DICT_SUBFOLDER_L0,
+    DICT_VIDEO_RENAME_L0,
+    DICT_VIDEO_SUBFOLDER_L0,
+    DOWNLOAD_SEQ_NUMBER,
+    JOB_CODE,
+    LIST_SEQUENCE_L1,
+    LOWERCASE,
+    PHOTO_RENAME_MENU_DEFAULTS_CONV,
+    SEPARATOR,
+    SEQUENCE_LETTER,
+    SESSION_SEQ_NUMBER,
+    STORED_SEQ_NUMBER,
+    VIDEO_RENAME_MENU_DEFAULTS_CONV,
+    PrefError,
+    PrefValueKeyComboError,
+    check_pref_valid,
+    upgrade_pre090a4_rename_pref,
+)
+from raphodo.internationalisation.install import install_gettext
+from raphodo.internationalisation.utilities import make_internationalized_list
+from raphodo.metadata.fileextensions import ALL_KNOWN_EXTENSIONS
+from raphodo.storage.storage import (
+    get_media_dir,
+    platform_photos_directory,
+    platform_photos_identifier,
+    platform_videos_directory,
+    platform_videos_identifier,
+)
+from raphodo.tools.utilities import (
+    available_cpu_count,
+    default_thumbnail_process_count,
+)
+
+install_gettext()
 
 
 class ScanPreferences:
@@ -72,12 +83,9 @@ class ScanPreferences:
     False
     """
 
-    def __init__(self, ignored_paths, use_regular_expressions=False):
-        """
-        :type ignored_paths: List[str]
-        :type use_regular_expressions: bool
-        """
-
+    def __init__(
+        self, ignored_paths: list[str], use_regular_expressions: bool = False
+    ) -> None:
         self.ignored_paths = ignored_paths
         self.use_regular_expressions = use_regular_expressions
 
@@ -91,8 +99,6 @@ class ScanPreferences:
         """
         Returns true if the path should be included in the scan.
         Assumes path is a full path
-
-        :return: True|False
         """
 
         # see method list_not_empty() in Preferences class to see
@@ -122,9 +128,9 @@ class ScanPreferences:
             # check path for validity
             try:
                 re.match(path, "")
-                pattern += ".*{}s$|".format(path)
+                pattern += f".*{path}s$|"
             except re.error:
-                logging.error("Ignoring malformed regular expression: {}".format(path))
+                logging.error(f"Ignoring malformed regular expression: {path}")
                 error_encountered = True
 
         if pattern:
@@ -133,11 +139,11 @@ class ScanPreferences:
             try:
                 self.re_pattern = re.compile(pattern)
             except re.error:
-                logging.error("This regular expression is invalid: {}".format(pattern))
+                logging.error(f"This regular expression is invalid: {pattern}")
                 self.re_pattern = None
                 error_encountered = True
 
-        logging.debug("Ignored paths regular expression pattern: {}".format(pattern))
+        logging.debug(f"Ignored paths regular expression pattern: {pattern}")
 
         return not error_encountered
 
@@ -151,7 +157,7 @@ class DownloadsTodayTracker:
     http://damonlynch.net/rapid/documentation/#renameoptions
     """
 
-    def __init__(self, downloads_today: List[str], day_start: str) -> None:
+    def __init__(self, downloads_today: list[str], day_start: str) -> None:
         """
 
         :param downloads_today: list[str,str] containing date and the
@@ -188,9 +194,9 @@ class DownloadsTodayTracker:
         hour, minute = self.get_day_start()
         try:
             adjusted_today = datetime.datetime.strptime(
-                "%s %s:%s" % (self.downloads_today[0], hour, minute), "%Y-%m-%d %H:%M"
+                f"{self.downloads_today[0]} {hour}:{minute}", "%Y-%m-%d %H:%M"
             )
-        except:
+        except Exception:
             logging.critical(
                 "Failed to calculate date adjustment. Download today values "
                 "appear to be corrupted: %s %s:%s",
@@ -215,9 +221,9 @@ class DownloadsTodayTracker:
         else:
             return -1
 
-    def get_day_start(self) -> Tuple[int, int]:
+    def get_day_start(self) -> tuple[int, int]:
         """
-        :return: hour and minute components as Tuple of ints
+        :return: hour and minute components as tuple of ints
         """
         try:
             t1, t2 = self.day_start.split(":")
@@ -251,7 +257,7 @@ class DownloadsTodayTracker:
             date = today()
         else:
             d = datetime.datetime.today() + datetime.timedelta(days=1)
-            date = d.strftime(("%Y-%m-%d"))
+            date = d.strftime("%Y-%m-%d")
 
         self.set_downloads_today(date, value)
 
@@ -259,7 +265,7 @@ class DownloadsTodayTracker:
         self.downloads_today = [date, str(value)]
 
     def set_day_start(self, hour: int, minute: int) -> None:
-        self.day_start = "%s:%s" % (hour, minute)
+        self.day_start = f"{hour}:{minute}"
 
     def log_vals(self) -> None:
         logging.info(
@@ -323,7 +329,7 @@ class Preferences:
         ignore_unhandled_file_exts=["TMP", "DAT"],
         job_code_sort_key=0,
         job_code_sort_order=0,
-        did_you_know_on_startup=False if is_devel_env else True,
+        did_you_know_on_startup=not is_devel_env,
         did_you_know_index=0,
         # see constants.CompletedDownloads:
         completed_downloads=3,
@@ -334,8 +340,9 @@ class Preferences:
         mark_raw_jpeg=3,
         # introduced in 0.9.6b1:
         auto_scroll=True,
-        # If you change the language setting update it in __init__.py too, where it is
-        # read directly without using this class.
+        # If you change the language key name (here), update it in
+        # internationalisation/install.py and internationalisation/utilities.py too,
+        # where it is read directly without using this class.
         language="",
         show_system_folders=False,  # Introduced in 0.9.27b2
         survey_countdown=10,  # Introduced in 0.9.29
@@ -379,7 +386,7 @@ class Preferences:
         generate_thumbnails=True,
         use_thumbnail_cache=True,
         save_fdo_thumbnails=True,
-        max_cpu_cores=max(available_cpu_count(physical_only=True), 2),
+        max_cpu_cores=default_thumbnail_process_count(),
         keep_thumbnails_days=30,
     )
     error_defaults = dict(
@@ -456,10 +463,7 @@ class Preferences:
         self.__dict__["defaults"] = {}
         for d in dicts:
             for key, value in d.items():
-                if isinstance(value, list):
-                    t = type(value[0])
-                else:
-                    t = type(value)
+                t = type(value[0]) if isinstance(value, list) else type(value)
                 self.types[key] = t
                 self.defaults[key] = value
         # Create quick lookup table of the group each key is in
@@ -487,7 +491,7 @@ class Preferences:
     def __setattr__(self, key, value):
         self[key] = value
 
-    def value_is_set(self, key, group: Optional[str] = None) -> bool:
+    def value_is_set(self, key, group: str | None = None) -> bool:
         if group is None:
             group = "General"
 
@@ -506,15 +510,15 @@ class Preferences:
     def restore(self, key: str) -> None:
         self[key] = self.defaults[key]
 
-    def get_preset(
+    def get_custom_presets(
         self, preset_type: PresetPrefType
-    ) -> Tuple[List[str], List[List[str]]]:
+    ) -> tuple[list[str], list[list[str]]]:
         """
         Returns the custom presets for the particular type.
 
         :param preset_type: one of photo subfolder, video subfolder, photo
          rename, or video rename
-        :return: Tuple of list of present names and list of pref lists. Each
+        :return: tuple of list of present names and list of pref lists. Each
          item in the first list corresponds with the item of the same index in the
          second list.
         """
@@ -536,11 +540,11 @@ class Preferences:
 
         return preset_names, preset_pref_lists
 
-    def set_preset(
+    def set_custom_presets(
         self,
         preset_type: PresetPrefType,
-        preset_names: List[str],
-        preset_pref_lists: List[List[str]],
+        preset_names: list[str],
+        preset_pref_lists: list[list[str]],
     ) -> None:
         """
         Saves a list of custom presets in the user's preferences.
@@ -571,7 +575,7 @@ class Preferences:
 
         self.settings.endGroup()
 
-    def get_wsl_drives(self) -> List[WSLWindowsDrivePrefs]:
+    def get_wsl_drives(self) -> list[WSLWindowsDrivePrefs]:
         drives = []
         self.settings.beginGroup("WindowsSubsystemLinux")
         setting = "drives"
@@ -583,15 +587,15 @@ class Preferences:
                 WSLWindowsDrivePrefs(
                     drive_letter=drive[0],
                     label=drive[1],
-                    auto_mount=True if drive[2] == "true" else False,
-                    auto_unmount=True if drive[3] == "true" else False,
+                    auto_mount=drive[2] == "true",
+                    auto_unmount=drive[3] == "true",
                 )
             )
         self.settings.endArray()
         self.settings.endGroup()
         return drives
 
-    def set_wsl_drives(self, drives: List[WSLWindowsDrivePrefs]):
+    def set_wsl_drives(self, drives: list[WSLWindowsDrivePrefs]):
         self.settings.beginGroup("WindowsSubsystemLinux")
         setting = "drives"
         self.settings.remove(setting)
@@ -692,7 +696,7 @@ class Preferences:
         """
         return self._pref_list_uses_component(self.video_rename, STORED_SEQ_NUMBER)
 
-    def check_prefs_for_validity(self) -> Tuple[bool, str]:
+    def check_prefs_for_validity(self) -> tuple[bool, str]:
         """
         Checks photo & video rename, and subfolder generation
         preferences ensure they follow name generation rules. Moreover,
@@ -755,7 +759,9 @@ class Preferences:
         return valid, msg
 
     def _filter_duplicate_generation_prefs(self, preset_type: PresetPrefType) -> None:
-        preset_names, preset_pref_lists = self.get_preset(preset_type=preset_type)
+        preset_names, preset_pref_lists = self.get_custom_presets(
+            preset_type=preset_type
+        )
         seen = set()
         filtered_names = []
         filtered_pref_lists = []
@@ -777,7 +783,7 @@ class Preferences:
                 human_readable,
                 make_internationalized_list(duplicates),
             )
-            self.set_preset(
+            self.set_custom_presets(
                 preset_type=preset_type,
                 preset_names=filtered_names,
                 preset_pref_lists=filtered_pref_lists,
@@ -810,20 +816,17 @@ class Preferences:
 
         v = ""
         for i in range(0, len(pref_list), 3):
-            if pref_list[i + 1] or pref_list[i + 2]:
-                c = ":"
-            else:
-                c = ""
-            s = "%s%s " % (pref_list[i], c)
+            c = ":" if pref_list[i + 1] or pref_list[i + 2] else ""
+            s = f"{pref_list[i]}{c} "
 
             if pref_list[i + 1]:
-                s = "%s%s" % (s, pref_list[i + 1])
+                s = f"{s}{pref_list[i + 1]}"
             if pref_list[i + 2]:
-                s = "%s (%s)" % (s, pref_list[i + 2])
+                s = f"{s} ({pref_list[i + 2]})"
             v += s + "\n"
         return v
 
-    def get_pref_lists(self, file_name_only: bool) -> Tuple[List[str], ...]:
+    def get_pref_lists(self, file_name_only: bool) -> tuple[list[str], ...]:
         """
         :return: a tuple of the photo & video rename and subfolder
          generation preferences
@@ -871,12 +874,9 @@ class Preferences:
         else:
             return Qt.Unchecked
 
-    def pref_uses_job_code(self, pref_list: List[str]) -> bool:
+    def pref_uses_job_code(self, pref_list: list[str]) -> bool:
         """Returns True if the particular preference contains a job code"""
-        for i in range(0, len(pref_list), 3):
-            if pref_list[i] == JOB_CODE:
-                return True
-        return False
+        return any(pref_list[i] == JOB_CODE for i in range(0, len(pref_list), 3))
 
     def any_pref_uses_job_code(self) -> bool:
         """Returns True if any of the preferences contain a job code"""
@@ -896,12 +896,9 @@ class Preferences:
         else:
             pref_lists = self.video_rename, self.video_subfolder
 
-        for pref_list in pref_lists:
-            if self.pref_uses_job_code(pref_list):
-                return True
-        return False
+        return any(self.pref_uses_job_code(pref_list) for pref_list in pref_lists)
 
-    def most_recent_job_code(self, missing: Optional[str] = None) -> str:
+    def most_recent_job_code(self, missing: str | None = None) -> str:
         """
         Get the most recent Job Code used (which is assumed to be at the top).
         :param missing: If there is no Job Code, and return this default value
@@ -916,39 +913,7 @@ class Preferences:
         else:
             return ""
 
-    def photo_subfolder_index(self, preset_pref_lists: List[List[str]]) -> int:
-        """
-        Matches the photo pref list with program subfolder generation
-        defaults and the user's presets.
-
-        :param preset_pref_lists: list of custom presets
-        :return: -1 if no match (i.e. custom), or the index into
-         PHOTO_SUBFOLDER_MENU_DEFAULTS + photo subfolder presets if it matches
-        """
-
-        subfolders = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV + tuple(preset_pref_lists)
-        try:
-            return subfolders.index(self.photo_subfolder)
-        except ValueError:
-            return -1
-
-    def video_subfolder_index(self, preset_pref_lists: List[List[str]]) -> int:
-        """
-        Matches the photo pref list with program subfolder generation
-        defaults and the user's presets.
-
-        :param preset_pref_lists: list of custom presets
-        :return: -1 if no match (i.e. custom), or the index into
-         VIDEO_SUBFOLDER_MENU_DEFAULTS + video subfolder presets if it matches
-        """
-
-        subfolders = VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV + tuple(preset_pref_lists)
-        try:
-            return subfolders.index(self.video_subfolder)
-        except ValueError:
-            return -1
-
-    def photo_rename_index(self, preset_pref_lists: List[List[str]]) -> int:
+    def photo_rename_index(self, preset_pref_lists: list[list[str]]) -> int:
         """
         Matches the photo pref list with program filename generation
         defaults and the user's presets.
@@ -964,7 +929,7 @@ class Preferences:
         except ValueError:
             return -1
 
-    def video_rename_index(self, preset_pref_lists: List[List[str]]) -> int:
+    def video_rename_index(self, preset_pref_lists: list[list[str]]) -> int:
         """
         Matches the video pref list with program filename generation
         defaults and the user's presets.
@@ -1017,9 +982,9 @@ class Preferences:
 
         # Must remove the value like this, otherwise the preference value
         # will not be updated:
-        l = self[key]
-        l.remove(value)
-        self[key] = l
+        pref_value = self[key]
+        pref_value.remove(value)
+        self[key] = pref_value
 
         if len(self[key]) == 0:
             self[key] = [""]
@@ -1041,15 +1006,15 @@ class Preferences:
         self.settings.clear()
         self.program_version = raphodo.__about__.__version__
 
-    def upgrade_prefs(self, previous_version) -> None:
+    def upgrade_prefs(self, previous_version: Version) -> None:
         """
         Upgrade the user's preferences if needed.
 
-        :param previous_version: previous version as returned by
-         pkg_resources.parse_version
+        :param previous_version: previous version of
+        Rapid Photo Downloader
         """
 
-        photo_video_rename_change = pkg_resources.parse_version("0.9.0a4")
+        photo_video_rename_change = parse("0.9.0a4")
         if previous_version < photo_video_rename_change:
             for key in ("photo_rename", "video_rename"):
                 pref_list, case = upgrade_pre090a4_rename_pref(self[key])
@@ -1062,7 +1027,7 @@ class Preferences:
                     else:
                         self.video_extension = case
 
-        v090a5 = pkg_resources.parse_version("0.9.0a5")
+        v090a5 = parse("0.9.0a5")
         if previous_version < v090a5:
             # Versions prior to 0.9.0a5 incorrectly set the conflict resolution value
             # when importing preferences from 0.4.11 or earlier
@@ -1087,7 +1052,7 @@ class Preferences:
                 logging.warning("Unknown error removing %s preference value", key)
             self.settings.endGroup()
 
-        v090b6 = pkg_resources.parse_version("0.9.0b6")
+        v090b6 = parse("0.9.0b6")
         key = "warn_broken_or_missing_libraries"
         group = "Display"
         if previous_version < v090b6 and not self.value_is_set(key, group):
@@ -1096,7 +1061,7 @@ class Preferences:
             # 'broken_or_missing_libraries'
             if self.value_is_set("warn_no_libmediainfo", group):
                 self.settings.beginGroup(group)
-                v = self.settings.value("warn_no_libmediainfo", True, type(True))
+                v = self.settings.value("warn_no_libmediainfo", True, bool)
                 self.settings.remove("warn_no_libmediainfo")
                 self.settings.endGroup()
                 logging.debug(
@@ -1111,7 +1076,7 @@ class Preferences:
                     "warn_broken_or_missing_libraries because it doesn't exist"
                 )
 
-        v093a1 = pkg_resources.parse_version("0.9.3a1")
+        v093a1 = parse("0.9.3a1")
         key = "scan_specific_folders"
         group = "Device"
         if previous_version < v093a1 and not self.value_is_set(key, group):
@@ -1120,9 +1085,7 @@ class Preferences:
             # to 'scan_specific_folders'
             if self.value_is_set("device_without_dcim_autodetection"):
                 self.settings.beginGroup(group)
-                v = self.settings.value(
-                    "device_without_dcim_autodetection", True, type(True)
-                )
+                v = self.settings.value("device_without_dcim_autodetection", True, bool)
                 self.settings.remove("device_without_dcim_autodetection")
                 self.settings.endGroup()
                 self.settings.endGroup()
@@ -1140,7 +1103,7 @@ class Preferences:
                     "because it doesn't exist"
                 )
 
-        v0919b2 = pkg_resources.parse_version("0.9.19b2")
+        v0919b2 = parse("0.9.19b2")
         key = "ignored_paths"
         group = "Device"
         if previous_version < v0919b2 and self.value_is_set(key, group):
@@ -1153,7 +1116,7 @@ class Preferences:
                 logging.info("Adding folder '%s' to list of ignored paths" % value)
                 self.add_list_value(key=key, value=value)
 
-        v0927a3 = pkg_resources.parse_version("0.9.27a3")
+        v0927a3 = parse("0.9.27a3")
         if previous_version < v0927a3 and self.value_is_set(key, group):
             # Versions prior to 0.9.27a3 did not include all the ignored paths
             # included in that version
@@ -1180,7 +1143,7 @@ class Preferences:
 
     def source_or_destination_is_system_folder(self) -> bool:
         """
-        :return: True if the this computer, photo or video destination is
+        :return: True if the "This Computer", photo or video destination is
         on a system folder
         """
 
@@ -1234,7 +1197,7 @@ class Preferences:
         return self.settings.fileName()
 
 
-def match_pref_list(pref_lists: List[List[str]], user_pref_list: List[str]) -> int:
+def match_pref_list(pref_lists: list[list[str]], user_pref_list: list[str]) -> int:
     try:
         return pref_lists.index(user_pref_list)
     except ValueError:

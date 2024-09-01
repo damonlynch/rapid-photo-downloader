@@ -1,54 +1,86 @@
-#!/usr/bin/env python3
+# SPDX-FileCopyrightText: Copyright 2007-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-# Copyright (C) 2007-2021 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-### USA
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2021, Damon Lynch"
-
-import re
-from datetime import datetime, timedelta
-from collections import namedtuple
-import logging
-from typing import Union
+import contextlib
 import locale
+import logging
+import os
+import re
+from collections import namedtuple
+from datetime import datetime, timedelta
 
-try:
+with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
-except locale.Error:
-    pass
 
-
+from raphodo.generatenameconfig import (
+    APERTURE,
+    ARTIST,
+    CAMERA_MAKE,
+    CAMERA_MODEL,
+    CODEC,
+    COPYRIGHT,
+    DATE_TIME,
+    DATE_TIME_CONVERT,
+    DOWNLOAD_SEQ_NUMBER,
+    DOWNLOAD_TIME,
+    EXPOSURE_TIME,
+    EXTENSION,
+    FILE_NUMBER,
+    FILE_NUMBER_FOLDER,
+    FILENAME,
+    FOCAL_LENGTH,
+    FPS,
+    HEIGHT,
+    IMAGE_DATE,
+    IMAGE_NUMBER,
+    IMAGE_NUMBER_1,
+    IMAGE_NUMBER_2,
+    IMAGE_NUMBER_3,
+    IMAGE_NUMBER_4,
+    IMAGE_NUMBER_ALL,
+    ISO,
+    JOB_CODE,
+    LENGTH,
+    LIST_DATE_TIME_L2,
+    LIST_SEQUENCE_NUMBERS_L2,
+    LIST_SHUTTER_COUNT_L2,
+    LOWERCASE,
+    METADATA,
+    NAME,
+    OWNER_NAME,
+    SEPARATOR,
+    SEQUENCE_LETTER,
+    SEQUENCES,
+    SERIAL_NUMBER,
+    SESSION_SEQ_NUMBER,
+    SHORT_CAMERA_MODEL,
+    SHORT_CAMERA_MODEL_HYPHEN,
+    SHUTTER_COUNT,
+    STORED_SEQ_NUMBER,
+    SUBSECONDS,
+    TEXT,
+    TODAY,
+    UPPERCASE,
+    VIDEO_DATE,
+    VIDEO_NUMBER,
+    WIDTH,
+    YESTERDAY,
+    PrefValueInvalidError,
+)
+from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import DownloadsTodayTracker
 from raphodo.problemnotification import (
-    RenamingProblems,
     FilenameNotFullyGeneratedProblem,
-    make_href,
     FolderNotFullyGeneratedProblemProblem,
+    RenamingProblems,
+    make_href,
 )
 from raphodo.rpdfile import RPDFile
 from raphodo.storage.storage import get_uri
-from raphodo.utilities import letters
+from raphodo.tools.utilities import letters
 
-from raphodo.generatenameconfig import *
-
+install_gettext()
 
 MatchedSequences = namedtuple(
     "MatchedSequences",
@@ -85,19 +117,19 @@ class abstract_attribute:
                     this_obj = obj if obj else type
 
                     raise NotImplementedError(
-                        "%r does not have the attribute %r "
-                        "(abstract from class %r)" % (this_obj, name, cls.__name__)
+                        f"{this_obj!r} does not have the attribute {name!r} "
+                        f"(abstract from class {cls.__name__!r})"
                     )
 
         # we did not find a match, should be rare, but prepare for it
         raise NotImplementedError(
-            "%s does not set the abstract attribute <unknown>", type.__name__
+            f"{type.__name__} does not set the abstract attribute <unknown>"
         )
 
 
-GenerationErrors = Union[
-    FilenameNotFullyGeneratedProblem, FolderNotFullyGeneratedProblemProblem
-]
+GenerationErrors = (
+    FilenameNotFullyGeneratedProblem | FolderNotFullyGeneratedProblemProblem
+)
 
 
 class NameGeneration:
@@ -107,13 +139,13 @@ class NameGeneration:
     """
 
     def __init__(
-        self, pref_list: List[str], problems: Optional[RenamingProblems] = None
+        self, pref_list: list[str], problems: RenamingProblems | None = None
     ) -> None:
         self.pref_list = pref_list
         self.no_metadata = False
 
         self.problems = problems
-        self.problem = abstract_attribute()  # type: GenerationErrors
+        self.problem: GenerationErrors = abstract_attribute()
 
         self.strip_forward_slash = abstract_attribute()
         self.add_extension = abstract_attribute()
@@ -134,7 +166,7 @@ class NameGeneration:
         """
 
         # step 1: get the correct value from metadata
-        if self.L1 == self.L1_date_check:
+        if self.L1 == self.L1_date_check:  # noqa: SIM300
             if self.no_metadata:
                 if self.L2 == SUBSECONDS:
                     d = datetime.fromtimestamp(self.rpd_file.modification_time)
@@ -142,7 +174,7 @@ class NameGeneration:
                         d = "00"
                     try:
                         d = str(round(int(str(d.microsecond)[:3]) / 10))
-                    except:
+                    except Exception:
                         d = "00"
                     return d
                 d = datetime.fromtimestamp(self.rpd_file.ctime)
@@ -197,7 +229,7 @@ class NameGeneration:
 
         try:
             return d.strftime(convert_date_for_strftime(self.L2))
-        except:
+        except Exception:
             logging.error(
                 "Both file modification time and metadata date & time are invalid for "
                 "file %s",
@@ -318,7 +350,7 @@ class NameGeneration:
         elif self.L1 == ISO:
             v = self.rpd_file.metadata.iso()
         elif self.L1 == EXPOSURE_TIME:
-            v = self.rpd_file.metadata.exposure_time(alternativeFormat=True)
+            v = self.rpd_file.metadata.exposure_time(alternative_format=True)
         elif self.L1 == FOCAL_LENGTH:
             v = self.rpd_file.metadata.focal_length()
         elif self.L1 == CAMERA_MAKE:
@@ -328,7 +360,7 @@ class NameGeneration:
         elif self.L1 == SHORT_CAMERA_MODEL:
             v = self.rpd_file.metadata.short_camera_model()
         elif self.L1 == SHORT_CAMERA_MODEL_HYPHEN:
-            v = self.rpd_file.metadata.short_camera_model(includeCharacters="\-")
+            v = self.rpd_file.metadata.short_camera_model(include_characters="-")
         elif self.L1 == SERIAL_NUMBER:
             v = self.rpd_file.metadata.camera_serial()
         elif self.L1 == SHUTTER_COUNT:
@@ -368,7 +400,6 @@ class NameGeneration:
         return v
 
     def _calculate_letter_sequence(self, sequence):
-
         v = letters(sequence)
         if self.L2 == UPPERCASE:
             v = v.upper()
@@ -460,8 +491,8 @@ class NameGeneration:
         return name
 
     def generate_name(
-        self, rpd_file: RPDFile, parts: Optional[bool] = False
-    ) -> Union[str, List[str]]:
+        self, rpd_file: RPDFile, parts: bool | None = False
+    ) -> str | list[str]:
         """
         Generate subfolder name(s), and photo/video filenames
 
@@ -472,10 +503,7 @@ class NameGeneration:
 
         self.rpd_file = rpd_file
 
-        if parts:
-            name = []
-        else:
-            name = ""
+        name = [] if parts else ""
 
         for self.L0, self.L1, self.L2 in self._get_values_from_pref_list():
             v = self._get_component()
@@ -513,7 +541,6 @@ class NameGeneration:
         name = self._filter_name(name, parts)
 
         if self.problem.has_error():
-
             rpd_file.name_generation_problem = True
 
             if self.problems is not None:
@@ -533,7 +560,7 @@ class PhotoName(NameGeneration):
     """
 
     def __init__(
-        self, pref_list: List[str], problems: Optional[RenamingProblems] = None
+        self, pref_list: list[str], problems: RenamingProblems | None = None
     ) -> None:
         super().__init__(pref_list, problems)
 
@@ -563,9 +590,8 @@ class VideoName(PhotoName):
     """
 
     def __init__(
-        self, pref_list: List[str], problems: Optional[RenamingProblems] = None
+        self, pref_list: list[str], problems: RenamingProblems | None = None
     ) -> None:
-
         super().__init__(pref_list, problems)
 
         self.L1_date_check = VIDEO_DATE  # used in _get_date_component()
@@ -586,9 +612,9 @@ class PhotoSubfolder(NameGeneration):
 
     def __init__(
         self,
-        pref_list: List[str],
-        problems: Optional[RenamingProblems] = None,
-        no_metadata: Optional[bool] = False,
+        pref_list: list[str],
+        problems: RenamingProblems | None = None,
+        no_metadata: bool | None = False,
     ) -> None:
         """
         :param pref_list: subfolder generation preferences list
@@ -633,9 +659,8 @@ class PhotoSubfolder(NameGeneration):
         # subfolder value must never start with a separator, or else any
         # os.path.join function call will fail to join a subfolder to its
         # parent folder
-        if subfolders:
-            if subfolders[0] == os.sep:
-                subfolders = subfolders[1:]
+        if subfolders and subfolders[0] == os.sep:
+            subfolders = subfolders[1:]
 
         # remove any spaces before and after a directory name
         if subfolders and self.rpd_file.strip_characters:
@@ -659,8 +684,8 @@ class VideoSubfolder(PhotoSubfolder):
 
     def __init__(
         self,
-        pref_list: List[str],
-        problems: Optional[RenamingProblems] = None,
+        pref_list: list[str],
+        problems: RenamingProblems | None = None,
         no_metadata: bool = False,
     ) -> None:
         """
@@ -680,7 +705,7 @@ class VideoSubfolder(PhotoSubfolder):
         return get_video_metadata_component(self)
 
 
-def truncate_before_unwanted_subfolder_component(pref_list: List[str]) -> List[str]:
+def truncate_before_unwanted_subfolder_component(pref_list: list[str]) -> list[str]:
     r"""
     truncate the preferences list to remove any subfolder element that
     contains a metadata or a job code or sequence number
@@ -688,15 +713,26 @@ def truncate_before_unwanted_subfolder_component(pref_list: List[str]) -> List[s
     :param pref_list: subfolder prefs list
     :return: truncated list
 
-    >>> print(truncate_before_unwanted_subfolder_component(PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[0]))
-    ['Date time', 'Image date', 'YYYY', '/', '', '', 'Date time', 'Image date', 'YYYYMMDD']
-    >>> print(truncate_before_unwanted_subfolder_component(PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[1]))
-    ['Date time', 'Image date', 'YYYY', '/', '', '', 'Date time', 'Image date', 'YYYY-MM-DD']
-    >>> print(truncate_before_unwanted_subfolder_component(PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2]))
-    ['Date time', 'Image date', 'YYYY', '/', '', '', 'Date time', 'Image date', 'YYYY_MM_DD']
-    >>> print(truncate_before_unwanted_subfolder_component(PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[3]))
+    >>> pref_list = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[0]
+    >>> print(truncate_before_unwanted_subfolder_component(pref_list))
+    ... # doctest: +NORMALIZE_WHITESPACE
+    ['Date time', 'Image date', 'YYYY', '/', '', '', 'Date time', 'Image date',
+    'YYYYMMDD']
+    >>> pref_list = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[1]
+    >>> print(truncate_before_unwanted_subfolder_component(pref_list))
+    ... # doctest: +NORMALIZE_WHITESPACE
+    ['Date time', 'Image date', 'YYYY', '/', '', '', 'Date time', 'Image date',
+    'YYYY-MM-DD']
+    >>> pref_list = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2]
+    >>> print(truncate_before_unwanted_subfolder_component(pref_list))
+    ... # doctest: +NORMALIZE_WHITESPACE
+    ['Date time', 'Image date', 'YYYY', '/', '', '', 'Date time', 'Image date',
+    'YYYY_MM_DD']
+    >>> pref_list = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[3]
+    >>> print(truncate_before_unwanted_subfolder_component(pref_list))
     ['Date time', 'Image date', 'YYYY']
-    >>> print(truncate_before_unwanted_subfolder_component(PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[4]))
+    >>> pref_list = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[4])
+    >>> print(truncate_before_unwanted_subfolder_component(pref_list)
     ... # doctest: +NORMALIZE_WHITESPACE
     ['Date time', 'Image date', 'YYYY', '/', '', '', 'Date time', 'Image date', 'YYYY',
     'Date time', 'Image date', 'MM']
@@ -722,7 +758,7 @@ def truncate_before_unwanted_subfolder_component(pref_list: List[str]) -> List[s
     return []
 
 
-def get_video_metadata_component(video: Union[VideoSubfolder, VideoName]):
+def get_video_metadata_component(video: VideoSubfolder | VideoName):
     """
     Returns portion of video / subfolder name based on the metadata
 

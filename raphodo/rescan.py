@@ -1,22 +1,5 @@
-#!/usr/bin/env python3
-
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2011-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Given a collection of RPDFiles, rescans a camera to locate their 'new' location.
@@ -26,20 +9,16 @@ for photos / videos seemingly at random each time the device is initialized for 
 which is what a gphoto2 process does.
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
-
-from typing import List, DefaultDict, Optional
 import logging
-from collections import defaultdict
 import os
+from collections import defaultdict
 from itertools import chain
 
 import gphoto2 as gp
 
-from raphodo.rpdfile import RPDFile
 from raphodo.camera import Camera, CameraProblemEx
-from raphodo.prefs.preferences import ScanPreferences, Preferences
+from raphodo.prefs.preferences import Preferences, ScanPreferences
+from raphodo.rpdfile import RPDFile
 
 
 class RescanCamera:
@@ -62,13 +41,13 @@ class RescanCamera:
                 camera.display_name,
             )
         # Relocated RPD files
-        self.rpd_files = []  # type: List[RPDFile]
+        self.rpd_files: list[RPDFile] = []
         # Missing RPD files
-        self.missing_rpd_files = []  # type: List[RPDFile]
+        self.missing_rpd_files: list[RPDFile] = []
         self.prefs = prefs
-        self.scan_preferences = None  # type: Optional[ScanPreferences]
+        self.scan_preferences: ScanPreferences | None = None
 
-    def rescan_camera(self, rpd_files: List[RPDFile]) -> None:
+    def rescan_camera(self, rpd_files: list[RPDFile]) -> None:
         """
         Determine if the files are found in the same folders as when the camera was
         last initialized. Works around a crazy iOS bug.
@@ -84,23 +63,21 @@ class RescanCamera:
         rpd_file = rpd_files[0]
         try:
             self.camera.get_exif_extract(folder=rpd_file.path, file_name=rpd_file.name)
-        except CameraProblemEx as e:
+        except CameraProblemEx:
             logging.debug(
                 "Failed to read extract of sample file %s: rescanning %s",
                 rpd_file.name,
                 self.camera.display_name,
             )
         else:
-            # Apparently no problems accessing the first file, so let's assume the rest are
-            # fine. Let's hope that's a valid assumption.
+            # Apparently no problems accessing the first file, so let's assume the
+            # rest are fine. Let's hope that's a valid assumption.
             logging.debug("%s did not need to be rescanned", self.camera.display_name)
             self.rpd_files = rpd_files
             return
 
         # filename: RPDFile
-        self.prev_scanned_files = defaultdict(
-            list
-        )  # type: DefaultDict[str, List[RPDFile]]
+        self.prev_scanned_files: defaultdict[str, list[RPDFile]] = defaultdict(list)
         self.scan_preferences = ScanPreferences(self.prefs.ignored_paths)
 
         for rpd_file in rpd_files:
@@ -124,9 +101,7 @@ class RescanCamera:
         files_in_folder = []
 
         try:
-            files_in_folder = self.camera.camera.folder_list_files(
-                path, self.camera.context
-            )
+            files_in_folder = self.camera.camera.folder_list_files(path)
         except gp.GPhoto2Error as e:
             logging.error("Unable to scan files on camera: error %s", e.code)
 
@@ -134,7 +109,7 @@ class RescanCamera:
             if name in self.prev_scanned_files:
                 prev_rpd_files = self.prev_scanned_files[name]
                 if len(prev_rpd_files) > 1:
-                    rpd_file = None  # type: Optional[RPDFile]
+                    rpd_file: RPDFile | None = None
                     # more than one file with the same filename is found on the camera
                     # compare match by modification time and size check
                     for prev_rpd_file in prev_rpd_files:
@@ -170,9 +145,7 @@ class RescanCamera:
         # Recurse over subfolders in which we should
         folders = []
         try:
-            for name, value in self.camera.camera.folder_list_folders(
-                path, self.camera.context
-            ):
+            for name, value in self.camera.camera.folder_list_folders(path):
                 if self.scan_preferences.scan_this_path(os.path.join(path, name)):
                     folders.append(name)
         except gp.GPhoto2Error as e:

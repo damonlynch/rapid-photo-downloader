@@ -1,43 +1,27 @@
-# Copyright (C) 2017-2022 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2017-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Display photo and video destinations
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2022, Damon Lynch"
-
-
-from typing import DefaultDict, Optional, Set
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QSplitter, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QWidget
 
+from raphodo.devices import DownloadingTo
+from raphodo.internationalisation.install import install_gettext
+from raphodo.rpdfile import FileType
+from raphodo.thumbnaildisplay import MarkedSummary
 from raphodo.ui.computerview import ComputerWidget
 from raphodo.ui.destinationdisplay import (
     DestinationDisplay,
-    DisplayingFilesOfType,
     DestinationDisplayType,
+    DisplayingFilesOfType,
 )
 from raphodo.ui.panelview import QPanelView
-from raphodo.rpdfile import FileType
-from raphodo.thumbnaildisplay import MarkedSummary
 from raphodo.ui.viewutils import ScrollAreaNoFrame
+
+install_gettext()
 
 
 class DestinationPanel(ScrollAreaNoFrame):
@@ -128,7 +112,11 @@ class DestinationPanel(ScrollAreaNoFrame):
         self.photoDestination.addWidget(self.photoDestinationWidget)
         self.videoDestination.addWidget(self.videoDestinationWidget)
 
-        for widget in (self.photoDestinationWidget, self.videoDestinationWidget, self.combinedDestinationDisplay):
+        for widget in (
+            self.photoDestinationWidget,
+            self.videoDestinationWidget,
+            self.combinedDestinationDisplay,
+        ):
             self.verticalScrollBarVisible.connect(widget.containerVerticalScrollBar)
         self.horizontalScrollBarVisible.connect(
             self.videoDestinationWidget.containerHorizontalScrollBar
@@ -149,7 +137,7 @@ class DestinationPanel(ScrollAreaNoFrame):
         same_dev: bool,
         merge: bool,
         marked_summary: MarkedSummary,
-        downloading_to: Optional[DefaultDict[int, Set[FileType]]] = None,
+        downloading_to: DownloadingTo | None = None,
     ) -> bool:
         """
         Updates the header bar and storage space view for the

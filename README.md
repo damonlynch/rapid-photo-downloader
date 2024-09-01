@@ -1,6 +1,10 @@
 # Rapid Photo Downloader
 
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Hatch project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch)
+[![GitButler](https://img.shields.io/badge/GitButler-%23B9F4F2?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB3aWR0aD0iMzkiIGhlaWdodD0iMjgiIHZpZXdCb3g9IjAgMCAzOSAyOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTI1LjIxNDUgMTIuMTk5N0wyLjg3MTA3IDEuMzg5MTJDMS41NDI5NSAwLjc0NjUzMiAwIDEuNzE0MDYgMCAzLjE4OTQ3VjI0LjgxMDVDMCAyNi4yODU5IDEuNTQyOTUgMjcuMjUzNSAyLjg3MTA3IDI2LjYxMDlMMjUuMjE0NSAxNS44MDAzQzI2LjcxOTcgMTUuMDcyMSAyNi43MTk3IDEyLjkyNzkgMjUuMjE0NSAxMi4xOTk3WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEzLjc4NTUgMTIuMTk5N0wzNi4xMjg5IDEuMzg5MTJDMzcuNDU3MSAwLjc0NjUzMiAzOSAxLjcxNDA2IDM5IDMuMTg5NDdWMjQuODEwNUMzOSAyNi4yODU5IDM3LjQ1NzEgMjcuMjUzNSAzNi4xMjg5IDI2LjYxMDlMMTMuNzg1NSAxNS44MDAzQzEyLjI4MDMgMTUuMDcyMSAxMi4yODAzIDEyLjkyNzkgMTMuNzg1NSAxMi4xOTk3WiIgZmlsbD0idXJsKCNwYWludDBfcmFkaWFsXzMxMF8xMjkpIi8%2BCjxkZWZzPgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhaW50MF9yYWRpYWxfMzEwXzEyOSIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgxNi41NzAxIDE0KSBzY2FsZSgxOS44NjQxIDE5LjgzODMpIj4KPHN0b3Agb2Zmc2V0PSIwLjMwMTA1NiIgc3RvcC1vcGFjaXR5PSIwIi8%2BCjxzdG9wIG9mZnNldD0iMSIvPgo8L3JhZGlhbEdyYWRpZW50Pgo8L2RlZnM%2BCjwvc3ZnPgo%3D)](https://gitbutler.com/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/damonlynch?logo=GitHub%20Sponsors&style=social)](https://github.com/sponsors/damonlynch)
 
 Rapid Photo Downloader is a Linux desktop application that imports photos 
 and videos from cameras, phones, memory cards, and other devices at high 
@@ -12,16 +16,27 @@ professional and amateur photographers.
 ## Personal Note From the Developer
 
 This project has only ever had one software developer. I developed a hand 
-injury from typing while working on the code in early 2022. As such code
-development is suspended until I recover, which will not be until 2024; the 
-only exception is emergency patches.
+injury from typing while working on the code in early 2022. Code development 
+has slowed considerably as I seek to recover from this serious injury. To 
+work around the injury, fortunately I am able to use the JetBrains editor 
+PyCharm in conjunction with the voice recognition tools Talon and Dragon 
+NaturallySpeaking on Windows / WSL2. While my ability to test the code 
+remains limited, at least I can write it.
 
-## Depreciation of the Install Script
+I want to thank JetBrains for allowing me to use PyCharm Professional for 
+free under their [open source developer program](https://www.jetbrains.com/community/opensource/#support).
 
-I cannot maintain the `install.py` script due to my hand injury (see above)
-&mdash; testing the script in the variety of Linux distributions it supports
-requires a lot of typing. The script is therefore depreciated and I do not 
-recommend its use, especially on recent Linux distributions.
+In 2023, my existing case of Long Covid worsened considerably to the point 
+that I could no longer work, to the extent I lost the ability to be 
+employable. In 2024, I am slowly recovering. Currently, I am able to work 
+part-time on the code (but remain unable to be employed). 
+
+## Removal of the Install Script
+
+Due to my hand injury (see above), I cannot maintain a custom `install.py` 
+script that I used to provide &mdash; testing the script in the variety of 
+Linux distributions it supports requires a lot of typing. The script is 
+therefore removed.
 
 
 ## User Survey 
@@ -75,8 +90,11 @@ Historic issues are at the previous code repository,
 
 ## Releases
 
-All project releases are hosted on the 
+Project releases have been historically hosted on the 
 [project's Launchpad repository](https://launchpad.net/rapid/+download).
+
+Future releases are to be hosted on the project's 
+[GitHub repository](https://github.com/damonlynch/rapid-photo-downloader/releases). 
 
 
 ## Support
@@ -86,150 +104,18 @@ Get support at the [Pixls.us discussion forum](https://discuss.pixls.us/).
 
 ## Installation
 
-Rapid Photo Downloader is packaged by all major Linux distributions.
+Install the program using your Linux distribution's standard tools,
+e.g., apt, dnf, or zypper.
 
-If you want the latest version, or prefer it run with all its features enabled 
-(like [heif](https://en.wikipedia.org/wiki/High_Efficiency_Image_File_Format)
-support), you can run the `install.py` script, which downloads and installs the
-latest version. 
+Ubuntu users can install 
+[the latest version using the project PPA](https://damonlynch.net/rapid/download.html). 
 
-To use the script to install Rapid Photo Downloader, run as your regular user 
-(i.e. without sudo):
+The program is currently not available as a Snap or flatpak because to
+interact with cameras it requires being able to break out of the 
+confinement Snap and flatpak enforce. This may change in future if 
+there are workarounds for this confinement.
 
-```bash
-  python3 install.py
-```
-
-This script will install packages from your Linux distribution and from the 
-[Python Package Index (PyPi)](https://pypi.org/).
-The program sudo may prompt for your administrator (root) password during 
-the install process, if required.
-
-For a list of optional commands you can give the installer, run:
-
-```bash
-  python3 install.py --help
-```
-
-Finally, to uninstall:
-
-```bash
-  python3 install.py --uninstall
-```
-
-Or to uninstall both the program and its Python package dependencies:
-
-```bash
-  python3 install.py --uninstall-including-pip-dependencies
-```
-
-
-### Supported Linux Versions
-
- - Ubuntu 18.04 or newer
- - LinuxMint 19 or newer
- - Debian 9 or newer, unstable or testing
- - Fedora 34 or newer
- - openSUSE Leap 15.3 or newer
- - CentOS 8
- - CentOS Stream 8 (but not CentOS Stream 9)
- - Any distribution meeting the software requirements below
-
-
-### Software Requirements
-
- - Python 3.6 or newer, and its development headers
- - [PyQt 5](https://riverbankcomputing.com/software/pyqt/intro)
- - [Qt 5](https://www.qt.io/)
- - [Qt5 plugin for reading TIFF images](http://doc.qt.io/qt-5/qtimageformats-index.html)
- - Qt5 plugin for rendering SVG
- - [setuptools](https://pypi.org/project/setuptools/)
- - [python-gphoto2 1.4.0](https://github.com/jim-easterbrook/python-gphoto2) or newer
- - [show-in-file-manager 1.1.2](https://github.com/damonlynch/showinfilemanager) or newer
- - [importlib_metadata](https://github.com/python/importlib_metadata) on Python versions older than 3.8
- - [pyzmq](https://github.com/zeromq/pyzmq)
- - [tornado](http://www.tornadoweb.org/)
- - [psutil](https://github.com/giampaolo/psutil) 3.4.2 or newer
- - [pyxdg](https://www.freedesktop.org/wiki/Software/pyxdg/)
- - [Arrow](https://github.com/crsmithdev/arrow)
- - [dateutil](https://labix.org/python-dateutil) 2.2 or newer
- - [exiv2](http://www.exiv2.org/)
- - [ExifTool](http://www.sno.phy.queensu.ca/~phil/exiftool/)
- - [EasyGUI](https://github.com/robertlugg/easygui)  
- - [Colour](https://github.com/vaab/colour)
- - [pymediainfo](https://github.com/sbraz/pymediainfo)
- - [SortedContainers](http://www.grantjenks.com/docs/sortedcontainers/)
- - [Requests](http://docs.python-requests.org/)
- - [Tenacity](https://github.com/jd/tenacity)
- - [intltool](https://freedesktop.org/wiki/Software/intltool/)
- - [Babel](http://babel.pocoo.org/en/latest/)
- - [fuse](https://www.kernel.org/doc/html/latest/filesystems/fuse.html)
- - [imobiledevice-tools](https://libimobiledevice.org/)
- - [ifuse](https://libimobiledevice.org/)
- - [Python gobject introspection modules](https://wiki.gnome.org/action/show/Projects/PyGObject):
-    - GUdev 1.0
-    - UDisks 2.0
-    - GLib 2.0
-    - GExiv2 0.10
-    - Gst 1.0
-    - Notify 0.7
-        
-Highly recommended, optional dependencies:
-
- - [colorlog](https://github.com/borntyping/python-colorlog): generates coloured program output when
-   running Rapid Photo Downloader from the terminal.
- - [pyprind](https://github.com/rasbt/pyprind): shows a progress bar on the command line while 
-   running the program analyze_pv_structure.
- - [pyheif](https://github.com/david-poirier-csn/pyheif): open HEIF / HEIC files
- - [pillow](https://github.com/python-pillow/Pillow): work with HEIF / HEIC files
-
-
-### Installation into a Python Virtual Environment
-
-Rapid Photo Downloader can be installed into a virtual environment,
-allowing you to isolate the Python packages it needs from other programs
-on your system.
-
-Virtual environments created with the `--system-site-packages` option are
-not supported. An Intel or AMD 64 bit platform is required.
-
-To install Rapid Photo Downloader into a Python virtual environment,
-create the virtual environment (naming it whatever you like):
-
-```bash
-  python3 -m venv myenv
-```
-
-Activate the virtual environment:
-
-```bash
-  source myenv/bin/activate
-```
-
-Then run the installer, passing the command line option telling the
-script to install Rapid Photo Downloader into the virtual environment:
-
-```bash
-  python install.py --virtual-env
-```
-
-Once installed, you can then deactivate the virtual
-environment with the deactivate command:
-
-```bash
-  deactivate
-```
-
-Rapid Photo Downloader can be started without activating the virtual
-environment by running
-
-```bash
-  myenv/bin/rapid-photo-downloader
-```
-
-To uninstall from the virtual environment, simply delete the virtual
-environment\'s directory.
-
+To install from source, consult [INSTALL.md](INSTALL.md).
 
 ## License
 

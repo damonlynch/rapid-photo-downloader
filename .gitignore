@@ -3,3 +3,10 @@ build/
 venv/
 __pycache__/
 .flatpak-builder
+dist/
+sdist/
+raphodo/locale/
+tasks/copycode.py
+tools/remove_screenshot_border.py
+share/
+man/

@@ -1,22 +1,5 @@
-#!/usr/bin/env python3
-
-# Copyright (C) 2015-2020 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2015-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Generates thumbnails for files that have already been downloaded, and
@@ -25,45 +8,34 @@ e.g. RAW files
 
 See cache.py for definitions of various caches used by Rapid Photo Downloader.
 
-Runs as a single instance daemon process, i.e. for the lifetime of the program.
+Runs as a single instance daemon process, i.e., for the lifetime of the program.
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
-
+import contextlib
+import locale
 import logging
+import os
 import pickle
 import sys
-import os
-from typing import Set, Dict
-import locale
 
-try:
+with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
-except locale.Error:
-    pass
 
 import zmq
 
+from raphodo.cache import FdoCacheLarge, FdoCacheNormal
 from raphodo.constants import (
-    FileType,
-    ThumbnailSize,
-    ThumbnailCacheStatus,
-    ThumbnailCacheDiskStatus,
-    ExtractionTask,
     ExtractionProcessing,
-    ThumbnailCacheOrigin,
+    ExtractionTask,
 )
 from raphodo.interprocess import (
-    ThumbnailDaemonData,
-    GenerateThumbnailsResults,
     DaemonProcess,
+    GenerateThumbnailsResults,
+    ThumbnailDaemonData,
     ThumbnailExtractorArgument,
 )
-from raphodo.rpdfile import RPDFile
 from raphodo.thumbnailpara import GetThumbnailFromCache, preprocess_thumbnail_from_disk
-from raphodo.cache import FdoCacheLarge, FdoCacheNormal
 
 
 class DameonThumbnailWorker(DaemonProcess):
@@ -94,9 +66,9 @@ class DameonThumbnailWorker(DaemonProcess):
 
         self.check_for_command(directive, content)
 
-        data = pickle.loads(content)  # type: ThumbnailDaemonData
+        data: ThumbnailDaemonData = pickle.loads(content)
         assert data.frontend_port is not None
-        self.frontend.connect("tcp://localhost:{}".format(data.frontend_port))
+        self.frontend.connect(f"tcp://localhost:{data.frontend_port}")
 
         # handle freedesktop.org cache files directly
         fdo_cache_large = FdoCacheLarge()
@@ -107,7 +79,7 @@ class DameonThumbnailWorker(DaemonProcess):
 
             self.check_for_command(directive, content)
 
-            data = pickle.loads(content)  # type: ThumbnailDaemonData
+            data: ThumbnailDaemonData = pickle.loads(content)
             rpd_file = data.rpd_file
             if data.backup_full_file_names is not None:
                 # File has been backed up, and an extractor has already generated a FDO
@@ -118,7 +90,6 @@ class DameonThumbnailWorker(DaemonProcess):
                 assert md5_name
 
                 for backup_full_file_name in data.backup_full_file_names:
-
                     # Check to see if existing thumbnail in FDO cache can be
                     # modified and renamed to reflect new URI
                     try:
@@ -152,10 +123,9 @@ class DameonThumbnailWorker(DaemonProcess):
                             error_on_missing_thumbnail=False,
                         )
             else:
-                # file has just been downloaded and renamed
+                # The file has just been downloaded and renamed
                 rpd_file.modified_via_daemon_process = True
                 try:
-
                     # Check the download source to see if it's in the caches, not the
                     # file we've just downloaded
 
@@ -171,7 +141,7 @@ class DameonThumbnailWorker(DaemonProcess):
                         full_file_name_to_work_on,
                         origin,
                     ) = cache_search
-                    processing = set()  # type: Set[ExtractionProcessing]
+                    processing: set[ExtractionProcessing] = set()
 
                     if task == ExtractionTask.undetermined:
                         # Thumbnail was not found in any cache: extract it
@@ -221,8 +191,8 @@ class DameonThumbnailWorker(DaemonProcess):
                         )
                         self.frontend.send_multipart([b"data", self.content])
                 except SystemExit as e:
-                    sys.exit(e)
-                except:
+                    sys.exit(e.code)
+                except Exception:
                     logging.error(
                         "Exception working on file %s", rpd_file.full_file_name
                     )

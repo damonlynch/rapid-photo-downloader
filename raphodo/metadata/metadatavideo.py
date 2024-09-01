@@ -1,38 +1,16 @@
-#!/usr/bin/env python3
-
-# Copyright (C) 2011-2021 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2021, Damon Lynch"
+# SPDX-FileCopyrightText: Copyright 2011-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
 import logging
-from typing import Optional
 
 import arrow.arrow
-from arrow.arrow import Arrow
 
-from raphodo.programversions import EXIFTOOL_VERSION
 import raphodo.metadata.exiftool as exiftool
 import raphodo.metadata.metadataexiftool as metadataexiftool
-from raphodo.utilities import datetime_roughly_equal, arrow_shift_support
 from raphodo.constants import FileType
+from raphodo.programversions import EXIFTOOL_VERSION
+from raphodo.tools.utilities import datetime_roughly_equal
 
 try:
     import pymediainfo
@@ -70,12 +48,12 @@ if have_pymediainfo:
             pymedia_library_file = None
 
 
-def pymedia_version_info() -> Optional[str]:
+def pymedia_version_info() -> str | None:
     if have_pymediainfo:
         if pymedia_library_file == "libmediainfo.so.0":
             return pymediainfo.__version__
         else:
-            return "{} (using {})".format(pymediainfo.__version__, pymedia_library_file)
+            return f"{pymediainfo.__version__} (using {pymedia_library_file})"
     else:
         return None
 
@@ -85,7 +63,7 @@ class MetaData(metadataexiftool.MetadataExiftool):
         self,
         full_file_name: str,
         et_process: exiftool.ExifTool,
-        file_type: Optional[FileType] = FileType.video,
+        file_type: FileType | None = FileType.video,
     ):
         """
         Get video metadata using Exiftool or pymediainfo
@@ -101,18 +79,18 @@ class MetaData(metadataexiftool.MetadataExiftool):
         )
         if have_pymediainfo:
             if pymedia_library_file is not None:
-                self.media_info = pymediainfo.MediaInfo.parse(
+                self.media_info: pymediainfo.MediaInfo = pymediainfo.MediaInfo.parse(
                     filename=full_file_name, library_file=pymedia_library_file
-                )  # type: pymediainfo.MediaInfo
+                )
             else:
-                self.media_info = pymediainfo.MediaInfo.parse(
+                self.media_info: pymediainfo.MediaInfo = pymediainfo.MediaInfo.parse(
                     filename=full_file_name
-                )  # type: pymediainfo.MediaInfo
+                )
         else:
             self.media_info = None
 
     def date_time(
-        self, missing: Optional[str] = "", ignore_file_modify_date: bool = False
+        self, missing: str | None = "", ignore_file_modify_date: bool = False
     ) -> datetime.datetime:
         """
         Use pymediainfo (if present) to extract file encoding date.
@@ -127,7 +105,7 @@ class MetaData(metadataexiftool.MetadataExiftool):
 
         if have_pymediainfo:
             try:
-                d = self.media_info.to_data()["tracks"][0]["encoded_date"]  # type: str
+                d: str = self.media_info.to_data()["tracks"][0]["encoded_date"]
             except KeyError:
                 logging.debug(
                     "Failed to extract date time from %s using pymediainfo: trying "
@@ -143,9 +121,9 @@ class MetaData(metadataexiftool.MetadataExiftool):
                 try:
                     if d.startswith("UTC"):
                         u = d[4:]
-                        a = arrow.get(u, "YYYY-MM-DD HH:mm:ss")  # type: Arrow
+                        a: arrow.Arrow = arrow.get(u, "YYYY-MM-DD HH:mm:ss")
                         dt_mi = a.to("local")
-                        dt = dt_mi.datetime  # type: datetime.datetime
+                        dt: datetime.datetime = dt_mi.datetime
 
                         # Compare the value returned by mediainfo against that
                         # returned by ExifTool, if and only if there is a time zone
@@ -165,14 +143,9 @@ class MetaData(metadataexiftool.MetadataExiftool):
                             if dt_et is not None:
                                 hour = tz // 60 * -1
                                 minute = tz % 60 * -1
-                                if arrow_shift_support:
-                                    adjusted_dt_mi = dt_mi.shift(
-                                        hours=hour, minutes=minute
-                                    ).naive
-                                else:
-                                    adjusted_dt_mi = dt_mi.replace(
-                                        hours=hour, minutes=minute
-                                    ).naive
+                                adjusted_dt_mi = dt_mi.shift(
+                                    hours=hour, minutes=minute
+                                ).naive
                                 if datetime_roughly_equal(adjusted_dt_mi, dt_et):
                                     logging.debug(
                                         "Favoring ExifTool datetime metadata (%s) "
@@ -224,7 +197,7 @@ class MetaData(metadataexiftool.MetadataExiftool):
                         e,
                     )
                     return super().date_time(missing)
-                except:
+                except Exception:
                     logging.error(
                         "Unknown error parsing date time metadata %s for video %s. "
                         "Will try ExifTool.",
@@ -285,7 +258,7 @@ if __name__ == "__main__":
             m = MetaData(file, et_process)
             dt = m.date_time()
             print(dt)
-            print("%sx%s" % (m.width(), m.height()))
+            print(f"{m.width()}x{m.height()}")
             print("Length:", m.length())
             print("FPS: ", m.frames_per_second())
             print("Codec:", m.codec())

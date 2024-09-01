@@ -1,71 +1,40 @@
-#!/usr/bin/env python3
-
-# Copyright (C) 2011-2023 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader. If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2011-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Primary logic for Rapid Photo Downloader.
 
 Qt related class method and variable names use CamelCase.
 Everything else should follow PEP 8.
-Project line length: 88 characters (i.e. word wrap at 88)
+Project line length: 88 characters (i.e., word wrap at 88)
 
 "Hamburger" Menu Icon by Daniel Bruce -- www.entypo.com
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2011-2023, Damon Lynch"
+# ruff: noqa: E402
 
-import sys
-import logging
-
-import shutil
+import contextlib
 import datetime
 import locale
 
-try:
+with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
-except locale.Error:
-    pass
-
-from collections import defaultdict
-import functools
-import platform
-import argparse
-from typing import Dict, Set, Any, DefaultDict
 import faulthandler
-import pkg_resources as pkgr
-import webbrowser
-import time
-import shlex
-import subprocess
-from urllib.request import pathname2url
+import functools
 import inspect
-
-try:
-    import importlib.metadata as importlib_metadata
-except ImportError:
-    import importlib_metadata
-
-import dateutil
+import logging
+import os
+import platform
+import shutil
+import sys
+import time
+import webbrowser
+from collections import defaultdict
+from typing import Any
 
 import gi
+from packaging.version import parse
 
 gi.require_version("Notify", "0.7")
 from gi.repository import Notify
@@ -81,269 +50,255 @@ except (ImportError, ValueError, gi.repository.GLib.GError):
     have_unity = False
 
 import zmq
-import psutil
-import arrow
-import gphoto2 as gp
 from PyQt5 import QtCore
 from PyQt5.QtCore import (
-    QThread,
-    Qt,
-    QStorageInfo,
-    QSettings,
-    QPoint,
-    QSize,
-    QTimer,
-    QTextStream,
-    QModelIndex,
-    pyqtSlot,
-    QRect,
-    pyqtSignal,
-    QLocale,
     QByteArray,
+    QLocale,
+    QModelIndex,
+    QPoint,
+    QRect,
+    QSettings,
+    QSize,
+    QStorageInfo,
+    Qt,
+    QThread,
+    QTimer,
+    pyqtSignal,
+    pyqtSlot,
 )
 from PyQt5.QtGui import (
-    QIcon,
-    QPixmap,
-    QFontMetrics,
-    QFont,
-    QPainter,
-    QMoveEvent,
-    QBrush,
-    QPen,
-    QColor,
-    QScreen,
-    QDesktopServices,
-    QShowEvent,
     QCloseEvent,
+    QDesktopServices,
+    QFont,
+    QFontMetrics,
+    QIcon,
+    QMoveEvent,
+    QPixmap,
+    QScreen,
+    QShowEvent,
 )
 from PyQt5.QtWidgets import (
     QAction,
     QApplication,
+    QCheckBox,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
     QMainWindow,
     QMenu,
-    QWidget,
-    QProgressBar,
-    QHBoxLayout,
-    QVBoxLayout,
-    QGridLayout,
-    QLabel,
-    QCheckBox,
-    QSizePolicy,
     QMessageBox,
-    QSplashScreen,
+    QProgressBar,
+    QSizePolicy,
     QStackedWidget,
     QStyle,
+    QVBoxLayout,
+    QWidget,
 )
-from PyQt5.QtNetwork import QLocalSocket, QLocalServer
-
-# PyQt 5.11 introduces from PyQt5 import sip i.e. from a 'private' sip, unique
-# to PyQt5. However we cannot assume that distros will follow this mechanism.
-# So as a defensive measure, merely import sip, doing this only after Qt has
-# already been imported. See:
-# http://pyqt.sourceforge.net/Docs/PyQt5/incompatibilities.html#importing-the-sip-module
-import sip
 from showinfm import (
-    valid_file_manager,
-    linux_desktop,
-    linux_desktop_humanize,
     LinuxDesktop,
+    linux_desktop,
+    valid_file_manager,
 )
 
-from raphodo.folderpreviewmanager import FolderPreviewManager
-from raphodo.storage.storage import (
-    ValidMounts,
-    CameraHotplug,
-    UDisks2Monitor,
-    GVolumeMonitor,
-    have_gio,
-    has_one_or_more_folders,
-    mountPaths,
-    get_desktop_environment,
-    validate_download_folder,
-    validate_source_folder,
-    get_fdo_cache_thumb_base_directory,
-    WatchDownloadDirs,
-    get_media_dir,
-    StorageSpace,
-    gvfs_gphoto2_path,
-    platform_photos_directory,
-    platform_videos_directory,
-)
-from raphodo.wsl import (
-    WslWindowsRemovableDriveMonitor,
-    WslDrives,
-    WindowsDriveMount,
-)
-from raphodo.interprocess import (
-    ScanArguments,
-    CopyFilesArguments,
-    RenameAndMoveFileData,
-    BackupArguments,
-    BackupFileData,
-    OffloadData,
-    ProcessLoggingManager,
-    ThumbnailDaemonData,
-    ThreadNames,
-    OffloadManager,
-    CopyFilesManager,
-    ThumbnailDaemonManager,
-    ScanManager,
-    BackupManager,
-    stop_process_logging_manager,
-    RenameMoveFileManager,
-    create_inproc_msg,
-)
-from raphodo.devices import (
-    Device,
-    DeviceCollection,
-    BackupDevice,
-    BackupDeviceCollection,
-    FSMetadataErrors,
-)
-from raphodo.prefs.preferences import Preferences
-from raphodo.constants import (
-    BackupLocationType,
-    DeviceType,
-    FileType,
-    RenameAndMoveStatus,
-    ApplicationState,
-    CameraErrorCode,
-    TemporalProximityState,
-    BackupFailureType,
-    DeviceState,
-    Sort,
-    Show,
-    DownloadingFileTypes,
-    RememberThisMessage,
-    RightSideButton,
-    CheckNewVersionDialogState,
-    CheckNewVersionDialogResult,
-    RememberThisButtons,
-    BackupStatus,
-    CompletedDownloads,
-    disable_version_check,
-    ScalingAction,
-    ScalingDetected,
-    PostCameraUnmountAction,
-)
-from raphodo.thumbnaildisplay import (
-    ThumbnailView,
-    ThumbnailListModel,
-    ThumbnailDelegate,
-    DownloadStats,
-    MarkedSummary,
-)
-from raphodo.ui.devicedisplay import (
-    DeviceModel,
-    DeviceView,
-    DeviceDelegate,
-    DeviceComponent,
-)
-from raphodo.proximity import (
-    TemporalProximityGroups,
-    TemporalProximity,
-    TemporalProximityControls,
-)
-from raphodo.utilities import (
-    same_device,
-    make_internationalized_list,
-    thousands,
-    addPushButtonLabelSpacer,
-    make_html_path_non_breaking,
-    prefs_list_from_gconftool2_string,
-    pref_bool_from_gconftool2_string,
-    extract_file_from_tar,
-    format_size_for_user,
-    is_snap,
-    version_check_disabled,
-    installed_using_pip,
-    getQtSystemTranslation,
-    process_running,
-    log_os_release,
-)
-from raphodo.ui.rememberthisdialog import RememberThisDialog
-import raphodo.utilities
-from raphodo.rpdfile import (
-    RPDFile,
-    file_types_by_number,
-    FileTypeCounter,
-    Video,
-    Photo,
-    FileSizeSum,
-)
-import raphodo.metadata.fileformats as fileformats
+import raphodo.__about__ as __about__
+import raphodo.constants as constants
 import raphodo.downloadtracker as downloadtracker
+import raphodo.excepthook as excepthook
+import raphodo.iplogging as iplogging
+import raphodo.metadata.exiftool as exiftool
+import raphodo.storage.storageidevice as storageidevice
+import raphodo.ui.didyouknow as didyouknow
+from raphodo.argumentsparse import get_parser
 from raphodo.cache import ThumbnailCacheSql
-from raphodo.programversions import gexiv2_version, exiv2_version, EXIFTOOL_VERSION
-from raphodo.metadata.metadatavideo import pymedia_version_info, libmediainfo_missing
 from raphodo.camera import (
-    gphoto2_version,
-    python_gphoto2_version,
+    autodetect_cameras,
     dump_camera_details,
     gphoto2_python_logging,
-    autodetect_cameras,
+)
+from raphodo.constants import (
+    CORE_APPLICATION_STATE_MASK,
+    TIMELINE_APPLICATION_STATE_MASK,
+    ApplicationState,
+    BackupFailureType,
+    BackupLocationType,
+    BackupStatus,
+    CameraErrorCode,
+    CompletedDownloads,
+    DeviceState,
+    DeviceType,
+    FileType,
+    FileTypeFlag,
+    PostCameraUnmountAction,
+    RememberThisButtons,
+    RememberThisMessage,
+    RenameAndMoveStatus,
+    RightSideButton,
+    ScalingAction,
+    ScalingDetected,
+    Show,
+    Sort,
+    TemporalProximityState,
+)
+from raphodo.devices import (
+    BackupDevice,
+    BackupDeviceCollection,
+    Device,
+    DeviceCollection,
+    DownloadingTo,
+    FSMetadataErrors,
+)
+from raphodo.errorlog import ErrorReport, SpeechBubble
+from raphodo.filesystemurl import FileSystemUrlHandler
+from raphodo.folderpreviewmanager import FolderPreviewManager
+from raphodo.generatenameconfig import (
+    PHOTO_RENAME_SIMPLE,
+    VIDEO_RENAME_SIMPLE,
+)
+from raphodo.internationalisation.install import install_gettext, localedir
+from raphodo.internationalisation.utilities import (
+    current_locale,
+    make_internationalized_list,
+    thousands,
+)
+from raphodo.interprocess import (
+    BackupArguments,
+    BackupFileData,
+    BackupManager,
+    CopyFilesArguments,
+    CopyFilesManager,
+    OffloadData,
+    OffloadManager,
+    ProcessLoggingManager,
+    RenameAndMoveFileData,
+    RenameMoveFileManager,
+    ScanArguments,
+    ScanManager,
+    ThreadNames,
+    ThumbnailDaemonData,
+    ThumbnailDaemonManager,
+    create_inproc_msg,
+    stop_process_logging_manager,
+)
+from raphodo.metadata.fileextensions import PHOTO_EXTENSIONS, VIDEO_EXTENSIONS
+from raphodo.metadata.metadatavideo import libmediainfo_missing, pymedia_version_info
+from raphodo.prefs.preferencedialog import PreferencesDialog
+from raphodo.prefs.preferences import Preferences
+from raphodo.problemnotification import BackingUpProblems, CopyingProblems, Problems
+from raphodo.programversions import EXIFTOOL_VERSION
+from raphodo.proximity import (
+    TemporalProximity,
+    TemporalProximityControls,
+    TemporalProximityGroups,
+)
+from raphodo.qtsingleapplication import QtSingleApplication
+from raphodo.rpdfile import (
+    FileSizeSum,
+    FileTypeCounter,
+    Photo,
+    RPDFile,
+    Video,
+    file_types_by_number,
 )
 from raphodo.rpdsql import DownloadedSQL
-from raphodo.generatenameconfig import *
-from raphodo.ui.rotatedpushbutton import RotatedButton
-from raphodo.ui.primarybutton import TopPushButton, DownloadButton
-from raphodo.ui.filebrowse import (
-    FileSystemView,
-    FileSystemModel,
-    FileSystemFilter,
-    FileSystemDelegate,
+from raphodo.storage.storage import (
+    CameraHotplug,
+    GVolumeMonitor,
+    StorageSpace,
+    UDisks2Monitor,
+    ValidatedFolder,
+    ValidMounts,
+    WatchDownloadDirs,
+    get_fdo_cache_thumb_base_directory,
+    get_media_dir,
+    gvfs_gphoto2_path,
+    has_one_or_more_folders,
+    have_gio,
+    mountPaths,
+    platform_photos_directory,
+    platform_videos_directory,
+    validate_download_folder,
+    validate_source_folder,
 )
-from raphodo.ui.toggleview import QToggleView
-import raphodo.__about__ as __about__
-import raphodo.iplogging as iplogging
-import raphodo.excepthook as excepthook
-from raphodo.ui.computerview import ComputerWidget
-from raphodo.ui.aboutdialog import AboutDialog
-import raphodo.constants as constants
-from raphodo.ui.menubutton import MenuButton
-from raphodo.ui.destinationpanel import DestinationPanel
-from raphodo.ui.sourcepanel import SourcePanel, LeftPanelContainer
-from raphodo.ui.renamepanel import RenamePanel
-from raphodo.ui.jobcodepanel import JobCodePanel
-from raphodo.ui.backuppanel import BackupPanel
-import raphodo
-import raphodo.metadata.exiftool as exiftool
-from raphodo.newversion import (
-    NewVersion,
-    NewVersionCheckDialog,
-    version_details,
-    DownloadNewVersionDialog,
+from raphodo.thumbnaildisplay import (
+    DownloadStats,
+    MarkedSummary,
+    ThumbnailDelegate,
+    ThumbnailListModel,
+    ThumbnailView,
 )
-from raphodo.ui.chevroncombo import ChevronCombo
-from raphodo.prefs.preferencedialog import PreferencesDialog
-from raphodo.errorlog import ErrorReport, SpeechBubble
-from raphodo.problemnotification import Problems, CopyingProblems, BackingUpProblems
-from raphodo.ui.viewutils import (
-    qt5_screen_scale_environment_variable,
-    validateWindowSizeLimit,
-    validateWindowPosition,
-    scaledIcon,
-    any_screen_scaled,
-    standardMessageBox,
-    MainWindowSplitter,
+from raphodo.tools.libraryversions import get_versions
+from raphodo.tools.utilities import (
+    addPushButtonLabelSpacer,
+    data_file_path,
+    format_size_for_user,
+    getQtSystemTranslation,
+    log_os_release,
+    make_html_path_non_breaking,
+    process_running,
+    same_device,
 )
 from raphodo.ui import viewutils
-import raphodo.ui.didyouknow as didyouknow
-from raphodo.thumbnailextractor import gst_version
-from raphodo.heif import have_heif_module, pyheif_version, libheif_version
-from raphodo.filesystemurl import FileSystemUrlHandler
-import raphodo.storage.storageidevice as storageidevice
+from raphodo.ui.aboutdialog import AboutDialog
+from raphodo.ui.backuppanel import BackupPanel
+from raphodo.ui.chevroncombo import ChevronCombo
+from raphodo.ui.computerview import ComputerWidget
+from raphodo.ui.destinationpanel import DestinationPanel
+from raphodo.ui.devicedisplay import (
+    DeviceComponent,
+    DeviceDelegate,
+    DeviceModel,
+    DeviceView,
+)
+from raphodo.ui.filebrowse import (
+    FileSystemDelegate,
+    FileSystemFilter,
+    FileSystemModel,
+    FileSystemView,
+)
+from raphodo.ui.jobcodepanel import JobCodePanel
+from raphodo.ui.menubutton import MenuButton
+from raphodo.ui.primarybutton import DownloadButton, TopPushButton
+from raphodo.ui.rememberthisdialog import RememberThisDialog
+from raphodo.ui.renamepanel import RenamePanel
+from raphodo.ui.rotatedpushbutton import RotatedButton
+from raphodo.ui.sourcepanel import LeftPanelContainer, SourcePanel
+from raphodo.ui.splashscreen import SplashScreen
+from raphodo.ui.toggleview import QToggleView
+from raphodo.ui.viewutils import (
+    MainWindowSplitter,
+    any_screen_scaled,
+    qt5_screen_scale_environment_variable,
+    scaledIcon,
+    standardMessageBox,
+    validateWindowPosition,
+    validateWindowSizeLimit,
+)
+from raphodo.wsl.wsl import (
+    WindowsDriveMount,
+    WslDrives,
+    WslWindowsRemovableDriveMonitor,
+)
 
+install_gettext()
 
 # Avoid segfaults at exit:
 # http://pyqt.sourceforge.net/Docs/PyQt5/gotchas.html#crashes-on-exit
-app = None  # type: Optional['QtSingleApplication']
+app: QtSingleApplication | None = None
 
 faulthandler.enable()
-logger = None
 sys.excepthook = excepthook.excepthook
 
 is_devel_env = os.getenv("RPD_DEVEL_DEFAULTS") is not None
+
+try:
+    from icecream import install
+
+    install()
+
+except ImportError:  # Graceful fallback if IceCream isn't installed.
+    ic = lambda *a: None if not a else (a[0] if len(a) == 1 else a)  # noqa
+    builtins = __import__("builtins")
+    setattr(builtins, "ic", ic)
 
 
 class RapidWindow(QMainWindow):
@@ -357,9 +312,6 @@ class RapidWindow(QMainWindow):
     thus kept in the device collection, self.devices
     """
 
-    checkForNewVersionRequest = pyqtSignal()
-    downloadNewVersionRequest = pyqtSignal(str, str)
-    reverifyDownloadedTar = pyqtSignal(str)
     udisks2Unmount = pyqtSignal(str)
 
     def __init__(
@@ -372,37 +324,34 @@ class RapidWindow(QMainWindow):
         xsetting_running: bool,
         force_wayland: bool,
         display_height: int,
-        platform_selected: Optional[str],
-        photo_rename: Optional[bool] = None,
-        video_rename: Optional[bool] = None,
-        auto_detect: Optional[bool] = None,
-        this_computer_source: Optional[str] = None,
-        this_computer_location: Optional[str] = None,
-        photo_download_folder: Optional[str] = None,
-        video_download_folder: Optional[str] = None,
-        backup: Optional[bool] = None,
-        backup_auto_detect: Optional[bool] = None,
-        photo_backup_identifier: Optional[str] = None,
-        video_backup_identifier: Optional[str] = None,
-        photo_backup_location: Optional[str] = None,
-        video_backup_location: Optional[str] = None,
-        ignore_other_photo_types: Optional[bool] = None,
-        thumb_cache: Optional[bool] = None,
-        auto_download_startup: Optional[bool] = None,
-        auto_download_insertion: Optional[bool] = None,
-        log_gphoto2: Optional[bool] = None,
+        platform_selected: str | None,
+        photo_rename: bool | None = None,
+        video_rename: bool | None = None,
+        auto_detect: bool | None = None,
+        this_computer_source: bool | None = None,
+        this_computer_location: str | None = None,
+        photo_download_folder: str | None = None,
+        video_download_folder: str | None = None,
+        backup: bool | None = None,
+        backup_auto_detect: bool | None = None,
+        photo_backup_identifier: str | None = None,
+        video_backup_identifier: str | None = None,
+        photo_backup_location: str | None = None,
+        video_backup_location: str | None = None,
+        ignore_other_photo_types: bool | None = None,
+        thumb_cache: bool | None = None,
+        auto_download_startup: bool | None = None,
+        auto_download_insertion: bool | None = None,
+        log_gphoto2: bool | None = None,
     ) -> None:
-
         super().__init__()
         self.setObjectName("rapidMainWindow")
 
-        # Indicate not to show any dialogs to the user until the program has finished
-        # starting
-        self.on_startup = True
+        self.application_state = ApplicationState.startup
 
         self.splash = splash
         if splash.isVisible():
-            self.screen = splash.windowHandle().screen()  # type: QScreen
+            self.screen: QScreen = splash.windowHandle().screen()
         else:
             self.screen = None
 
@@ -413,15 +362,14 @@ class RapidWindow(QMainWindow):
         app.processEvents()
 
         # Three values to handle window position quirks under X11:
-        self.window_show_requested_time = None  # type: Optional[datetime.datetime]
+        self.window_show_requested_time: datetime.datetime | None = None
         self.window_move_triggered_count = 0
         self.windowPositionDelta = QPoint(0, 0)
 
         self.setFocusPolicy(Qt.StrongFocus)
 
         self.ignore_other_photo_types = ignore_other_photo_types
-        self.application_state = ApplicationState.normal
-        self.prompting_for_user_action = {}  # type: Dict[Device, QMessageBox]
+        self.prompting_for_user_action: dict[Device, QMessageBox] = {}
         self.prefs_dialog_active = False
 
         self.close_event_run = False
@@ -452,23 +400,16 @@ class RapidWindow(QMainWindow):
         ):
             logging.info("%s", version)
 
-        if disable_version_check:
-            logging.debug("Version checking disabled via code")
-
-        if is_snap():
-            logging.debug("Version checking disabled because running in a snap")
-
         if EXIFTOOL_VERSION is None:
             logging.error("ExifTool is either missing or has a problem")
 
-        if pymedia_version_info() is None:
-            if libmediainfo_missing:
-                logging.error(
-                    "pymediainfo is installed, but the library libmediainfo appears to "
-                    "be missing"
-                )
+        if pymedia_version_info() is None and libmediainfo_missing:
+            logging.error(
+                "pymediainfo is installed, but the library libmediainfo appears to "
+                "be missing"
+            )
 
-        self.log_gphoto2 = log_gphoto2 == True
+        self.log_gphoto2 = log_gphoto2 is True
 
         self.setWindowTitle(_("Rapid Photo Downloader"))
         # app is a module level global
@@ -647,8 +588,8 @@ class RapidWindow(QMainWindow):
             if not len(previous_version):
                 logging.debug("Initial program run detected")
             else:
-                pv = pkgr.parse_version(previous_version)
-                rv = pkgr.parse_version(__about__.__version__)
+                pv = parse(previous_version)
+                rv = parse(__about__.__version__)
                 if pv < rv:
                     logging.info(
                         "Version upgrade detected, from %s to %s",
@@ -662,11 +603,11 @@ class RapidWindow(QMainWindow):
                         previous_version,
                         __about__.__version__,
                     )
-                if pv < pkgr.parse_version("0.9.7b1"):
+                if pv < parse("0.9.7b1"):
                     # Remove any duplicate subfolder generation or file renaming custom
                     # presets
                     self.prefs.filter_duplicate_generation_prefs()
-                if pv < pkgr.parse_version("0.9.29a1"):
+                if pv < parse("0.9.29a1"):
                     # clear window and panel size, so they can be regenerated
                     logging.debug(
                         "Resetting window size, and left and central splitter sizes"
@@ -738,7 +679,7 @@ class RapidWindow(QMainWindow):
         )
 
     def sendResumeToThread(
-        self, socket: zmq.Socket, worker_id: Optional[int] = None
+        self, socket: zmq.Socket, worker_id: int | None = None
     ) -> None:
         socket.send_multipart(create_inproc_msg(b"RESUME", worker_id=worker_id))
 
@@ -746,7 +687,7 @@ class RapidWindow(QMainWindow):
         socket.send_multipart(create_inproc_msg(b"PAUSE"))
 
     def sendDataMessageToThread(
-        self, socket: zmq.Socket, data: Any, worker_id: Optional[int] = None
+        self, socket: zmq.Socket, data: Any, worker_id: int | None = None
     ) -> None:
         socket.send_multipart(
             create_inproc_msg(b"SEND_TO_WORKER", worker_id=worker_id, data=data)
@@ -802,7 +743,7 @@ class RapidWindow(QMainWindow):
             self.prefs.optimize_thumbnail_db = False
         else:
             # Recreate the cache on the file system
-            t = ThumbnailCacheSql(create_table_if_not_exists=True)
+            ThumbnailCacheSql(create_table_if_not_exists=True)
 
         # For meaning of 'Devices', see devices.py
         self.devices = DeviceCollection(self.exiftool_process, self)
@@ -869,19 +810,11 @@ class RapidWindow(QMainWindow):
         else:
             try:
                 self.have_libnotify = Notify.init(_("Rapid Photo Downloader"))
-            except:
+            except Exception:
                 logging.error("Notification intialization problem")
                 self.have_libnotify = False
 
-        logging.debug("Locale directory: %s", raphodo.localedir)
-
-        # Initialise use of libgphoto2
-        logging.debug("Getting gphoto2 context")
-        try:
-            self.gp_context = gp.Context()
-        except:
-            logging.critical("Error getting gphoto2 context")
-            self.gp_context = None
+        logging.debug("Locale directory: %s", localedir)
 
         logging.debug("Probing for valid mounts")
         self.validMounts = ValidMounts(
@@ -928,40 +861,13 @@ class RapidWindow(QMainWindow):
 
         self.startMountMonitor()
 
-        if version_check_disabled():
-            logging.debug("Version check disabled")
-        else:
-            logging.debug("Starting version check")
-            self.newVersion = NewVersion(self)
-            self.newVersionThread = QThread()
-            self.newVersionThread.started.connect(self.newVersion.start)
-            self.newVersion.checkMade.connect(self.newVersionCheckMade)
-            self.newVersion.bytesDownloaded.connect(self.newVersionBytesDownloaded)
-            self.newVersion.fileDownloaded.connect(self.newVersionDownloaded)
-            self.reverifyDownloadedTar.connect(self.newVersion.reVerifyDownload)
-            self.newVersion.downloadSize.connect(self.newVersionDownloadSize)
-            self.newVersion.reverified.connect(self.installNewVersion)
-            self.newVersion.moveToThread(self.newVersionThread)
-
-            QTimer.singleShot(0, self.newVersionThread.start)
-
-            self.newVersionCheckDialog = NewVersionCheckDialog(self)
-            self.newVersionCheckDialog.finished.connect(
-                self.newVersionCheckDialogFinished
-            )
-
-            # if values set, indicates the latest version of the program, and the main
-            # download page on the Rapid Photo Downloader website
-            self.latest_version = None  # type: version_details
-            self.latest_version_download_page = None  # type: str
-
         # Track the creation of temporary directories
         self.temp_dirs_by_scan_id = {}
 
         # Track the time a download commences - used in file renaming
-        self.download_start_datetime = None  # type: Optional[datetime.datetime]
+        self.download_start_datetime: datetime.datetime | None = None
         # The timestamp for when a download started / resumed after a pause
-        self.download_start_time = None  # type: Optional[float]
+        self.download_start_time: float | None = None
 
         logging.debug("Starting download tracker")
         self.download_tracker = downloadtracker.DownloadTracker()
@@ -1099,9 +1005,8 @@ class RapidWindow(QMainWindow):
         self.splash.setProgress(90)
 
         self.download_tracker.set_no_backup_devices(0, 0)
-        if self.prefs.backup_files:
-            if not self.is_wsl2 or self.wsl_drives_probed:
-                self.setupBackupDevices()
+        if self.prefs.backup_files and (not self.is_wsl2 or self.wsl_drives_probed):
+            self.setupBackupDevices()
 
         settings = QSettings()
         settings.beginGroup("MainWindow")
@@ -1160,7 +1065,7 @@ class RapidWindow(QMainWindow):
             )
             warning = RememberThisDialog(
                 message=message,
-                icon=":/rapid-photo-downloader.svg",
+                icon="rapid-photo-downloader.svg",
                 remember=RememberThisMessage.do_not_warn_again_about_missing_libraries,
                 parent=self,
                 buttons=RememberThisButtons.ok,
@@ -1181,7 +1086,7 @@ class RapidWindow(QMainWindow):
 
             warning = RememberThisDialog(
                 message=message,
-                icon=":/rapid-photo-downloader.svg",
+                icon="rapid-photo-downloader.svg",
                 remember=RememberThisMessage.do_not_warn_again_about_missing_libraries,
                 parent=self,
                 buttons=RememberThisButtons.ok,
@@ -1192,7 +1097,8 @@ class RapidWindow(QMainWindow):
             if warning.remember:
                 self.prefs.warn_broken_or_missing_libraries = False
 
-        self.on_startup = False
+        self.setCoreState(ApplicationState.normal)
+
         self.iOSIssueErrorMessage()
         if self.is_wsl2:
             self.wslDrives.mountDrives()
@@ -1203,8 +1109,6 @@ class RapidWindow(QMainWindow):
             self.tip = didyouknow.DidYouKnowDialog(self.prefs, self)
             if self.prefs.did_you_know_on_startup:
                 self.tip.activate()
-
-            self.checkForNewVersionRequest.emit()
 
         # Setup survey prompt context
         self.prompt_for_survey_post_download = False
@@ -1221,6 +1125,53 @@ class RapidWindow(QMainWindow):
                 QTimer.singleShot(delay, self.promptForSurvey)
 
         logging.debug("Completed stage 9 initializing main window")
+
+    def addState(self, state: ApplicationState) -> None:
+        logging.debug("Adding state %s", state._name_)
+        self.application_state |= state
+
+    def delState(self, state: ApplicationState) -> None:
+        logging.debug("Deleting state %s", state._name_)
+        self.application_state &= ~state
+
+    def setCoreState(self, state: ApplicationState) -> None:
+        assert state & CORE_APPLICATION_STATE_MASK
+        if not self.application_state & CORE_APPLICATION_STATE_MASK:
+            logging.critical("Core application flag not set")
+        else:
+            logging.debug(
+                "Core state: %s ➡ %s",
+                self._appState("core"),
+                self._appState("core", state),
+            )
+        # Clear existing state
+        self.application_state &= ~CORE_APPLICATION_STATE_MASK
+        # Add new state
+        self.application_state |= state
+
+    def _appState(self, category: str, state: ApplicationState | None = None) -> str:
+        if state is None:
+            state = self.application_state
+        match category.lower():
+            case "core":
+                s = state & CORE_APPLICATION_STATE_MASK
+            case "timeline":
+                s = state & TIMELINE_APPLICATION_STATE_MASK
+            case _:
+                raise ValueError("Unrecognised application state")
+
+        return s._name_
+
+    @property
+    def on_startup(self) -> bool:
+        return bool(ApplicationState.startup & self.application_state)
+
+    @property
+    def on_exit(self) -> bool:
+        return bool(ApplicationState.exiting & self.application_state)
+
+    def logApplicationState(self) -> None:
+        logging.debug("Core state: %s", self._appState("core"))
 
     def showMainWindow(self) -> None:
         if not self.isVisible():
@@ -1239,7 +1190,7 @@ class RapidWindow(QMainWindow):
         :return:
         """
 
-        self.mountMonitorTimer = None  # type: Optional[QTimer]
+        self.mountMonitorTimer: QTimer | None = None
         self.valid_mount_count = 0
 
         if self.is_wsl2:
@@ -1324,19 +1275,21 @@ class RapidWindow(QMainWindow):
 
     def iOSInitErrorMessaging(self) -> None:
         """
-        Initialize display of error message to the user about missing iOS support applications
+        Initialize display of error message to the user about missing iOS support
+        applications
         """
 
         # Track device names
-        self.ios_issue_message_queue = set()  # type: Set[str]
+        self.ios_issue_message_queue: set[str] = set()
 
-    def iOSIssueErrorMessage(self, display_name: Optional[str] = None) -> None:
+    def iOSIssueErrorMessage(self, display_name: str | None = None) -> None:
         """
-        If needed, warn the user about missing help applications to download from iOS devices.
+        If needed, warn the user about missing help applications to download from iOS
+        devices.
 
-        Does not display error message while program is starting up. Instead will queue the device
-        name to display it when the program has finished starting (call this function again with
-        a device name to display queued items).
+        Does not display error message while program is starting up. Instead will queue
+        the device name to display it when the program has finished starting (call this
+        function again with a device name to display queued items).
 
         :param display_name: device name
         """
@@ -1346,14 +1299,13 @@ class RapidWindow(QMainWindow):
                 "Queueing display of missing iOS helper application error message for "
                 "display after program startup"
             )
-            display_name = "'{}'".format(display_name)
+            display_name = f"'{display_name}'"
             self.ios_issue_message_queue.add(display_name)
         elif not self.on_startup and (
             self.ios_issue_message_queue or display_name is not None
         ):
-
             if display_name is not None:
-                devices = "'{}'".format(display_name)
+                devices = f"'{display_name}'"
             else:
                 devices = make_internationalized_list(
                     list(self.ios_issue_message_queue)
@@ -1437,12 +1389,12 @@ class RapidWindow(QMainWindow):
 
             assert self.isVisible()
 
-            self.screen = self.windowHandle().screen()  # type: QScreen
+            self.screen: QScreen = self.windowHandle().screen()
 
         assert self.screen is not None
 
-        available = self.screen.availableGeometry()  # type: QRect
-        display = self.screen.size()  # type: QSize
+        available: QRect = self.screen.availableGeometry()
+        display: QSize = self.screen.size()
 
         logging.debug(
             "Available screen geometry: %sx%s on %sx%s display.",
@@ -1611,244 +1563,8 @@ class RapidWindow(QMainWindow):
         :param job_code: job code to apply
         """
 
-        delegate = self.thumbnailView.itemDelegate()  # type: ThumbnailDelegate
+        delegate: ThumbnailDelegate = self.thumbnailView.itemDelegate()
         delegate.applyJobCode(job_code=job_code)
-
-    @pyqtSlot(bool, version_details, version_details, str, bool, bool, bool)
-    def newVersionCheckMade(
-        self,
-        success: bool,
-        stable_version: version_details,
-        dev_version: version_details,
-        download_page: str,
-        no_upgrade: bool,
-        pip_install: bool,
-        is_venv: bool,
-    ) -> None:
-        """
-        Respond to a version check, either initiated at program startup, or from the
-        application's main menu.
-
-        If the check was initiated at program startup, then the new version dialog box
-        will not be showing.
-
-        :param success: whether the version check was successful or not
-        :param stable_version: latest stable version
-        :param dev_version: latest development version
-        :param download_page: url of the download page on the Rapid
-         Photo Downloader website
-        :param no_upgrade: if True, don't offer to do an inplace upgrade
-        :param pip_install: whether pip was used to install this
-         program version
-        :param is_venv: whether the program is running in a python virtual
-         environment
-        """
-
-        if success:
-            self.latest_version = None
-            current_version = pkgr.parse_version(__about__.__version__)
-
-            check_dev_version = (
-                current_version.is_prerelease or self.prefs.include_development_release
-            )
-
-            if current_version < stable_version.version:
-                self.latest_version = stable_version
-
-            if check_dev_version and (
-                current_version < dev_version.version
-                or current_version < stable_version.version
-            ):
-                if dev_version.version > stable_version.version:
-                    self.latest_version = dev_version
-                else:
-                    self.latest_version = stable_version
-
-            if (
-                self.latest_version is not None
-                and str(self.latest_version.version) not in self.prefs.ignore_versions
-            ):
-
-                version = str(self.latest_version.version)
-                changelog_url = self.latest_version.changelog_url
-
-                if pip_install:
-                    logging.debug("Installation performed via pip")
-                    if is_venv:
-                        logging.info(
-                            "Cannot use in-program update to upgrade program from "
-                            "within virtual environment"
-                        )
-                        state = CheckNewVersionDialogState.open_website
-                    elif no_upgrade:
-                        logging.info("Cannot perform in-place upgrade to this version")
-                        state = CheckNewVersionDialogState.open_website
-                    else:
-                        download_page = None
-                        state = CheckNewVersionDialogState.prompt_for_download
-                else:
-                    logging.debug("Installation not performed via pip")
-                    state = CheckNewVersionDialogState.open_website
-
-                self.latest_version_download_page = download_page
-
-                self.newVersionCheckDialog.displayUserMessage(
-                    new_state=state,
-                    version=version,
-                    download_page=download_page,
-                    changelog_url=changelog_url,
-                )
-                if not self.newVersionCheckDialog.isVisible():
-                    self.newVersionCheckDialog.show()
-
-            elif self.newVersionCheckDialog.isVisible():
-                self.newVersionCheckDialog.displayUserMessage(
-                    CheckNewVersionDialogState.have_latest_version
-                )
-
-        elif self.newVersionCheckDialog.isVisible():
-            # Failed to reach update server
-            self.newVersionCheckDialog.displayUserMessage(
-                CheckNewVersionDialogState.failed_to_contact
-            )
-
-    @pyqtSlot(int)
-    def newVersionCheckDialogFinished(self, result: int) -> None:
-        current_state = self.newVersionCheckDialog.current_state
-        if current_state in (
-            CheckNewVersionDialogState.prompt_for_download,
-            CheckNewVersionDialogState.open_website,
-        ):
-            if (
-                self.newVersionCheckDialog.dialog_detailed_result
-                == CheckNewVersionDialogResult.skip
-            ):
-                version = str(self.latest_version.version)
-                logging.info(
-                    "Adding version %s to the list of program versions to ignore",
-                    version,
-                )
-                self.prefs.add_list_value(key="ignore_versions", value=version)
-            elif (
-                self.newVersionCheckDialog.dialog_detailed_result
-                == CheckNewVersionDialogResult.open_website
-            ):
-                webbrowser.open_new_tab(self.latest_version_download_page)
-            elif (
-                self.newVersionCheckDialog.dialog_detailed_result
-                == CheckNewVersionDialogResult.download
-            ):
-                url = self.latest_version.url
-                md5 = self.latest_version.md5
-                self.downloadNewVersionRequest.emit(url, md5)
-                self.downloadNewVersionDialog = DownloadNewVersionDialog(parent=self)
-                self.downloadNewVersionDialog.rejected.connect(
-                    self.newVersionDownloadCancelled
-                )
-                self.downloadNewVersionDialog.show()
-
-    @pyqtSlot("PyQt_PyObject")
-    def newVersionBytesDownloaded(self, bytes_downloaded: int) -> None:
-        if self.downloadNewVersionDialog.isVisible():
-            self.downloadNewVersionDialog.updateProgress(bytes_downloaded)
-
-    @pyqtSlot("PyQt_PyObject")
-    def newVersionDownloadSize(self, download_size: int) -> None:
-        if self.downloadNewVersionDialog.isVisible():
-            self.downloadNewVersionDialog.setDownloadSize(download_size)
-
-    @pyqtSlot(str, bool)
-    def newVersionDownloaded(self, path: str, download_cancelled: bool) -> None:
-        self.downloadNewVersionDialog.accept()
-        if not path and not download_cancelled:
-            msgBox = QMessageBox(parent=self)
-            msgBox.setIcon(QMessageBox.Warning)
-            msgBox.setWindowTitle(_("Download failed"))
-            msgBox.setText(
-                _(
-                    "Sorry, the download of the new version of Rapid Photo Downloader "
-                    "failed."
-                )
-            )
-            msgBox.exec_()
-        elif path:
-            logging.info("New program version downloaded to %s", path)
-
-            message = _(
-                "The new version was successfully downloaded. Do you want to "
-                "close Rapid Photo Downloader and install it now?"
-            )
-            msgBox = QMessageBox(parent=self)
-            msgBox.setWindowTitle(_("Update Rapid Photo Downloader"))
-            msgBox.setText(message)
-            msgBox.setIcon(QMessageBox.Question)
-            msgBox.setStandardButtons(QMessageBox.Cancel)
-            installButton = msgBox.addButton(_("Install"), QMessageBox.AcceptRole)
-            msgBox.setDefaultButton(installButton)
-            if msgBox.exec_() == QMessageBox.AcceptRole:
-                self.reverifyDownloadedTar.emit(path)
-            else:
-                # extract the install.py script and move it to the correct location
-                # for testing:
-                # path = '/home/damon/rapid090a7/dist/rapid-photo-downloader-0.9.0a7.tar.gz'
-                extract_file_from_tar(full_tar_path=path, member_filename="install.py")
-                installer_dir = os.path.dirname(path)
-                if self.file_manager:
-                    uri = pathname2url(path)
-                    cmd = "{} {}".format(self.file_manager, uri)
-                    logging.debug("Launching: %s", cmd)
-                    args = shlex.split(cmd)
-                    subprocess.Popen(args)
-                else:
-                    msgBox = QMessageBox(parent=self)
-                    msgBox.setWindowTitle(_("New version saved"))
-                    message = (
-                        _("The tar file and installer script are saved at:\n\n %s")
-                        % installer_dir
-                    )
-                    msgBox.setText(message)
-                    msgBox.setIcon(QMessageBox.Information)
-                    msgBox.exec_()
-
-    @pyqtSlot(bool, str)
-    def installNewVersion(self, reverified: bool, full_tar_path: str) -> None:
-        """
-        Launch script to install new version of Rapid Photo Downloader
-        via upgrade.py.
-        :param reverified: whether file has been reverified or not
-        :param full_tar_path: path to the tarball
-        """
-        if not reverified:
-            msgBox = QMessageBox(parent=self)
-            msgBox.setIcon(QMessageBox.Warning)
-            msgBox.setWindowTitle(_("Upgrade failed"))
-            msgBox.setText(
-                _(
-                    "Sorry, upgrading Rapid Photo Downloader failed because there was "
-                    "an error opening the installer."
-                )
-            )
-            msgBox.exec_()
-        else:
-            # for testing:
-            # full_tar_path = '/home/damon/rapid090a7/dist/rapid-photo-downloader-0.9.0a7.tar.gz'
-            upgrade_py = "upgrade.py"
-            installer_dir = os.path.dirname(full_tar_path)
-            if extract_file_from_tar(full_tar_path, upgrade_py):
-                upgrade_script = os.path.join(installer_dir, upgrade_py)
-                cmd = shlex.split(
-                    "{} {} {}".format(sys.executable, upgrade_script, full_tar_path)
-                )
-                subprocess.Popen(cmd)
-                self.quit()
-
-    @pyqtSlot()
-    def newVersionDownloadCancelled(self) -> None:
-        logging.info("Download of new program version cancelled")
-        self.new_version_controller.send(b"STOP")
-
-    def newVersionCheckVisible(self) -> bool:
-        return not disable_version_check and self.newVersionCheckDialog.isVisible()
 
     def anyMainWindowDialogVisible(self) -> bool:
         """
@@ -1856,8 +1572,7 @@ class RapidWindow(QMainWindow):
         window
         """
         return (
-            self.newVersionCheckVisible()
-            or self.prefs_dialog_active
+            self.prefs_dialog_active
             or self.prompting_for_user_action
             or self.tip.isVisible()
         )
@@ -1876,12 +1591,10 @@ web survey.</p>
 <p>Because this program does not collect analytics, the survey makes a real 
 difference to the program's future.</p>"""
             )
-            if raphodo.lang is not None:
-                if not any(
-                    isinstance(l, str) and l.startswith("en") for l in raphodo.lang
-                ):
-                    english = _("The survey is in English.")
-                    message = f"{message}<p>{english}</p>"
+            lang = current_locale()
+            if lang and not lang.startswith("en"):
+                english = _("The survey is in English.")
+                message = f"{message}<p>{english}</p>"
 
             logging.debug("Prompting about survey")
             messagebox = standardMessageBox(
@@ -1902,7 +1615,8 @@ difference to the program's future.</p>"""
                 QMessageBox.NoRole,
             )
             never = messagebox.addButton(
-                # Translators: "Never ask me about any survey" refers to now and in the future
+                # Translators: "Never ask me about any survey" refers to now and in
+                # the future
                 _("Never ask me about any survey"),
                 QMessageBox.DestructiveRole,
             )
@@ -1928,11 +1642,7 @@ difference to the program's future.</p>"""
 
         else:
             # A dialog window was open.
-            if os.getenv("RPDSURVEY"):
-                delay = 10000
-            else:
-                # Try again in 3 minutes:
-                delay = 3 * 60 * 1000
+            delay = 10000 if os.getenv("RPDSURVEY") else 3 * 60 * 1000
             logging.debug("Delaying survey prompt by %s seconds", delay / 1000)
             QTimer.singleShot(delay, self.promptForSurvey)
 
@@ -2003,7 +1713,7 @@ difference to the program's future.</p>"""
         pressed. We allow no button to be pressed.
         """
 
-        widget = self.rightSideButtonMapper[buttonPressed]  # type: RotatedButton
+        widget: RotatedButton = self.rightSideButtonMapper[buttonPressed]
 
         if widget.isChecked():
             self.rightPanels.setVisible(True)
@@ -2129,7 +1839,7 @@ difference to the program's future.</p>"""
             self.wslMountsAct.triggered.connect(self.doShowWslMountsAction)
 
         self.errorLogAct = QAction(_("Error &Reports"), self)
-        self.errorLogAct.setEnabled(True),
+        self.errorLogAct.setEnabled(True)
         self.errorLogAct.setCheckable(True)
         self.errorLogAct.triggered.connect(self.doErrorLogAction)
 
@@ -2156,9 +1866,6 @@ difference to the program's future.</p>"""
 
         self.aboutAct = QAction(_("&About..."), self)
         self.aboutAct.triggered.connect(self.doAboutAction)
-
-        self.newVersionAct = QAction(_("Check for Updates..."), self)
-        self.newVersionAct.triggered.connect(self.doCheckForNewVersion)
 
     def createLayoutAndButtons(self, centralWidget) -> None:
         """
@@ -2246,7 +1953,7 @@ difference to the program's future.</p>"""
         leftBar = QVBoxLayout()
         leftBar.setContentsMargins(0, 0, 0, 0)
 
-        self.proximityButton = RotatedButton(_("Timeline"), RotatedButton.leftSide)
+        self.proximityButton = RotatedButton(_("Timeline"), RotatedButton.left_side)
         self.proximityButton.clicked.connect(self.proximityButtonClicked)
         leftBar.addWidget(self.proximityButton, 1)
         leftBar.addStretch(100)
@@ -2254,11 +1961,11 @@ difference to the program's future.</p>"""
 
     def createRightButtons(self) -> None:
         self.destinationButton = RotatedButton(
-            _("Destination"), RotatedButton.rightSide
+            _("Destination"), RotatedButton.right_side
         )
-        self.renameButton = RotatedButton(_("Rename"), RotatedButton.rightSide)
-        self.jobcodeButton = RotatedButton(_("Job Code"), RotatedButton.rightSide)
-        self.backupButton = RotatedButton(_("Back Up"), RotatedButton.rightSide)
+        self.renameButton = RotatedButton(_("Rename"), RotatedButton.right_side)
+        self.jobcodeButton = RotatedButton(_("Job Code"), RotatedButton.right_side)
+        self.backupButton = RotatedButton(_("Back Up"), RotatedButton.right_side)
 
         self.destinationButton.clicked.connect(self.destinationButtonClicked)
         self.renameButton.clicked.connect(self.renameButtonClicked)
@@ -2282,8 +1989,8 @@ difference to the program's future.</p>"""
         self.createRightButtons()
         self.placeRightButtons(0)
 
-    @functools.lru_cache(maxsize=None)
-    def rightBarRequiredHeight(self) -> List[int]:
+    @functools.cache
+    def rightBarRequiredHeight(self) -> list[int]:
         spacing = self.rightBar.spacing()
         buttons = (
             self.destinationButton,
@@ -2391,6 +2098,7 @@ difference to the program's future.</p>"""
             if photo_df.absolute_path != self.prefs.photo_download_folder:
                 self.prefs.photo_download_folder = photo_df.absolute_path
         else:
+            # TODO change behaviour
             if self.prefs.photo_download_folder:
                 logging.error(
                     "Ignoring invalid Photo Destination path: %s",
@@ -2403,6 +2111,7 @@ difference to the program's future.</p>"""
             if video_df.absolute_path != self.prefs.video_download_folder:
                 self.prefs.video_download_folder = video_df.absolute_path
         else:
+            # TODO change behaviour
             if self.prefs.video_download_folder:
                 logging.error(
                     "Ignoring invalid Video Destination path: %s",
@@ -2479,7 +2188,6 @@ difference to the program's future.</p>"""
         self.videoDestinationFSView.filePathReset.connect(self.videoDestinationReset)
 
     def createDeviceThisComputerViews(self) -> None:
-
         # Devices Header and View
         tip = _(
             "Turn on or off the use of devices attached to this computer as download "
@@ -2592,7 +2300,7 @@ difference to the program's future.</p>"""
         layout.setSpacing(self.standard_spacing)
         self.thumbnailControl.setLayout(layout)
 
-        font = self.font()  # type: QFont
+        font: QFont = self.font()
         font.setPointSize(font.pointSize() - 2)
 
         self.showCombo = ChevronCombo()
@@ -2628,15 +2336,12 @@ difference to the program's future.</p>"""
         self.checkAllLabel = QLabel(_("Select All:"))
 
         # Remove the border when the widget is highlighted
-        style = """
-        QCheckBox {
+        style = f"""
+        QCheckBox {{
             border: none;
             outline: none;
-            spacing: %(spacing)d;
-        }
-        """ % dict(
-            spacing=self.standard_spacing // 2
-        )
+            spacing: {self.standard_spacing // 2};
+        }}"""
         self.selectAllPhotosCheckbox = QCheckBox(_("Photos") + " ")
         self.selectAllVideosCheckbox = QCheckBox(_("Videos"))
         self.selectAllPhotosCheckbox.setStyleSheet(style)
@@ -2709,7 +2414,7 @@ difference to the program's future.</p>"""
         scroll bar, and show up to 3 columns of thumbnails
         """
 
-        available = self.screen.availableGeometry()  # type: QRect
+        available: QRect = self.screen.availableGeometry()
         available_width = available.width()
 
         frame_width = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
@@ -2717,9 +2422,9 @@ difference to the program's future.</p>"""
             self.style().pixelMetric(QStyle.PM_ScrollBarExtent) + frame_width
         )
         spacing = self.layout().spacing()
-        deviceComponent = (
+        deviceComponent: DeviceComponent = (
             self.deviceView.itemDelegate().deviceDisplay.dc
-        )  # type: DeviceComponent
+        )
         # Minimum width will be updated as a scan occurs
         panel_width = max(
             deviceComponent.sample_width(), deviceComponent.minimum_width()
@@ -2768,12 +2473,11 @@ difference to the program's future.</p>"""
         self.resize(QSize(preferred_width, preferred_height))
 
     def showEvent(self, event: QShowEvent) -> None:
-        if self.on_startup:
-            if (
-                self.do_generate_default_window_size
-                or self.do_generate_center_splitter_size
-            ):
-                self.setDefaultWindowSize()
+        if self.on_startup and (
+            self.do_generate_default_window_size
+            or self.do_generate_center_splitter_size
+        ):
+            self.setDefaultWindowSize()
         super().showEvent(event)
 
     def setDownloadCapabilities(self) -> bool:
@@ -2808,7 +2512,7 @@ difference to the program's future.</p>"""
     def updateDestinationViews(
         self,
         marked_summary: MarkedSummary,
-        downloading_to: Optional[DefaultDict[int, Set[FileType]]] = None,
+        downloading_to: DownloadingTo | None = None,
     ) -> bool:
         """
         Updates the header bar and storage space view for the
@@ -2890,7 +2594,7 @@ difference to the program's future.</p>"""
                 # Translators: %(variable)s represents Python code, not a plural of the
                 # term variable. You must keep the %(variable)s untranslated, or the
                 # program will crash.
-                text = _("Download %(files)s") % dict(files=files)  # type: str
+                text: str = _("Download %(files)s") % dict(files=files)
                 self.downloadButton.setText(text)
             else:
                 self.downloadButton.setText(self.downloadAct.text())
@@ -2905,10 +2609,7 @@ difference to the program's future.</p>"""
         """
 
         if self.devices.downloading:
-            if self.download_paused:
-                text = _("Resume Download")
-            else:
-                text = _("Pause")
+            text = _("Resume Download") if self.download_paused else _("Pause")
         else:
             text = _("Download")
 
@@ -2927,22 +2628,13 @@ difference to the program's future.</p>"""
         self.menu.addSeparator()
         self.menu.addAction(self.helpAct)
         self.menu.addAction(self.didYouKnowAct)
-        if not version_check_disabled():
-            self.menu.addAction(self.newVersionAct)
         self.menu.addAction(self.reportProblemAct)
         self.menu.addAction(self.makeDonationAct)
         self.menu.addAction(self.translateApplicationAct)
         self.menu.addAction(self.aboutAct)
         self.menu.addAction(self.quitAct)
 
-        self.menuButton = MenuButton(icon=":/icons/menu.svg", menu=self.menu)
-
-    def doCheckForNewVersion(self) -> None:
-        """Check online for a new program version"""
-        if not version_check_disabled():
-            self.newVersionCheckDialog.reset()
-            self.newVersionCheckDialog.show()
-            self.checkForNewVersionRequest.emit()
+        self.menuButton = MenuButton(path="icons/menu.svg", menu=self.menu)
 
     def doSourceAction(self) -> None:
         self.sourceButton.animateClick()
@@ -3009,7 +2701,7 @@ difference to the program's future.</p>"""
         self.thumbnailModel.clearCompletedDownloads()
 
     def doHelpAction(self) -> None:
-        webbrowser.open_new_tab("http://www.damonlynch.net/rapid/help.html")
+        webbrowser.open_new_tab("https://damonlynch.net/rapid/help.html")
 
     def doDidYouKnowAction(self) -> None:
         try:
@@ -3018,7 +2710,7 @@ difference to the program's future.</p>"""
             self.tip = didyouknow.DidYouKnowDialog(self.prefs, self)
             self.tip.activate()
 
-    def makeProblemReportDialog(self, header: str, title: Optional[str] = None) -> None:
+    def makeProblemReportDialog(self, header: str, title: str | None = None) -> None:
         """
         Create the dialog window to guide the user in reporting a bug
         :param header: text at the top of the dialog window
@@ -3029,7 +2721,7 @@ difference to the program's future.</p>"""
             website="https://bugs.rapidphotodownloader.com"
         )
 
-        message = "{header}<br><br>{body}".format(header=header, body=body)
+        message = f"{header}<br><br>{body}"
 
         errorbox = standardMessageBox(
             message=message,
@@ -3046,14 +2738,14 @@ difference to the program's future.</p>"""
 
     def doReportProblemAction(self) -> None:
         header = _("Thank you for reporting a problem in Rapid Photo Downloader")
-        header = "<b>{}</b>".format(header)
+        header = f"<b>{header}</b>"
         self.makeProblemReportDialog(header)
 
     def doMakeDonationAction(self) -> None:
-        webbrowser.open_new_tab("http://www.damonlynch.net/rapid/donate.html")
+        webbrowser.open_new_tab("https://damonlynch.net/rapid/donate.html")
 
     def doTranslateApplicationAction(self) -> None:
-        webbrowser.open_new_tab("http://www.damonlynch.net/rapid/translate.html")
+        webbrowser.open_new_tab("https://damonlynch.net/rapid/translate.html")
 
     def doAboutAction(self) -> None:
         about = AboutDialog(self)
@@ -3180,6 +2872,41 @@ difference to the program's future.</p>"""
             self.thisComputer.setViewVisible(True)
             self.setupManualPath()
 
+    def displayInvalidDestinationMsgBox(
+        self, validation: ValidatedFolder, file_type: FileType
+    ) -> None:
+        """
+        Display a message box to the user indicating an error
+        :param validation:  destination directory validation results
+        :param file_type: whether photo or video
+        """
+
+        file_type_hr = _("photo") if file_type == FileType.photo else _("video")
+        # Translators: %(variable)s represents Python code, not a plural of the term
+        # variable. You must keep the %(variable)s untranslated, or the program will
+        # crash.
+        title = _("Invalid %(filetype)s download destination") % {
+            "filetype": file_type_hr
+        }
+        if validation.absolute_path:
+            details = _(
+                "The download directory is not writable. "
+                "Ensure permissions are correctly set. "
+                "If the destination is on the network, ensure the network share is "
+                "correctly configured."
+            )
+        else:
+            details = _("The download directory does not exist.")
+        message = f"<b>{title}</b><br><br>{details}"
+        msgBox = standardMessageBox(
+            message=message,
+            rich_text=True,
+            standardButtons=QMessageBox.Ok,
+            iconType=QMessageBox.Warning,
+            parent=self,
+        )
+        msgBox.exec()
+
     @pyqtSlot(QModelIndex)
     def photoDestinationPathChosen(self, index: QModelIndex) -> None:
         """
@@ -3194,11 +2921,11 @@ difference to the program's future.</p>"""
         self.photoDestinationSetPath(path=path)
 
     def photoDestinationSetPath(self, path: str) -> None:
-
         if not self.checkChosenDownloadDestination(path, FileType.photo):
             return
 
-        if validate_download_folder(path).valid:
+        validation = validate_download_folder(path, write_on_waccesss_failure=True)
+        if validation.valid:
             if path != self.prefs.photo_download_folder:
                 self.prefs.photo_download_folder = path
                 self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
@@ -3207,6 +2934,9 @@ difference to the program's future.</p>"""
                 self.setDownloadCapabilities()
         else:
             logging.error("Invalid photo download destination chosen: %s", path)
+            self.displayInvalidDestinationMsgBox(
+                validation=validation, file_type=FileType.photo
+            )
             self.resetDownloadDestination(file_type=FileType.photo)
 
     def photoDestinationReset(self) -> None:
@@ -3312,11 +3042,11 @@ difference to the program's future.</p>"""
         self.videoDestinationSetPath(path=path)
 
     def videoDestinationSetPath(self, path: str) -> None:
-
         if not self.checkChosenDownloadDestination(path, FileType.video):
             return
 
-        if validate_download_folder(path).valid:
+        validation = validate_download_folder(path, write_on_waccesss_failure=True)
+        if validation.valid:
             if path != self.prefs.video_download_folder:
                 self.prefs.video_download_folder = path
                 self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
@@ -3325,6 +3055,9 @@ difference to the program's future.</p>"""
                 self.setDownloadCapabilities()
         else:
             logging.error("Invalid video download destination chosen: %s", path)
+            self.displayInvalidDestinationMsgBox(
+                validation=validation, file_type=FileType.video
+            )
             self.resetDownloadDestination(file_type=FileType.video)
 
     @pyqtSlot()
@@ -3352,7 +3085,7 @@ Do you want to proceed with the download?"""
 
                     warning = RememberThisDialog(
                         message=message,
-                        icon=":/rapid-photo-downloader.svg",
+                        icon="rapid-photo-downloader.svg",
                         remember=RememberThisMessage.do_not_ask_again,
                         parent=self,
                     )
@@ -3432,7 +3165,7 @@ Do you want to proceed with the download?"""
         self.download_files = self.thumbnailModel.getFilesMarkedForDownload(scan_id)
 
         # model, port
-        camera_unmounts_called = set()  # type: Set[Tuple[str, str]]
+        camera_unmounts_called: set[tuple[str, str]] = set()
         stop_thumbnailing_cmd_issued = False
 
         stop_thumbnailing = [
@@ -3503,9 +3236,9 @@ Do you want to proceed with the download?"""
 
         if invalid_dirs:
             if len(invalid_dirs) > 1:
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 msg = _(
                     "These download folders are invalid:\n%(folder1)s\n%(folder2)s"
                 ) % {"folder1": invalid_dirs[0], "folder2": invalid_dirs[1]}
@@ -3538,10 +3271,11 @@ Do you want to proceed with the download?"""
                         )
                     elif missing_destinations == BackupFailureType.photos:
                         logging.warning("No backup device exists for backing up photos")
-                        # Translators: filetype will be replaced with 'photos' or 'videos'
-                        # Translators: %(variable)s represents Python code, not a plural of the term
-                        # variable. You must keep the %(variable)s untranslated, or the program will
-                        # crash.
+                        # Translators: filetype will be replaced with 'photos' or
+                        # 'videos'
+                        # Translators: %(variable)s represents Python code, not a plural
+                        # of the term variable. You must keep the %(variable)s
+                        # untranslated, or the program will crash.
                         msg = _(
                             "No backup device exists for backing up %(filetype)s. Do "
                             "you still want to start the download?"
@@ -3552,10 +3286,11 @@ Do you want to proceed with the download?"""
                             "No backup device contains a valid folder for backing up "
                             "videos"
                         )
-                        # Translators: filetype will be replaced with 'photos' or 'videos'
-                        # Translators: %(variable)s represents Python code, not a plural of the term
-                        # variable. You must keep the %(variable)s untranslated, or the program will
-                        # crash.
+                        # Translators: filetype will be replaced with 'photos' or
+                        # 'videos'
+                        # Translators: %(variable)s represents Python code, not a plural
+                        # of the term variable. You must keep the %(variable)s
+                        # untranslated, or the program will crash.
                         msg = _(
                             "No backup device exists for backing up %(filetype)s. Do "
                             "you still want to start the download?"
@@ -3566,24 +3301,25 @@ Do you want to proceed with the download?"""
                             "The manually specified photo and videos backup paths do "
                             "not exist or are not writable"
                         )
-                        # Translators: please do not change HTML codes like <br>, <i>, </i>, or
-                        # <b>, </b> etc.
+                        # Translators: please do not change HTML codes like <br>, <i>,
+                        # </i>, or <b>, </b> etc.
                         msg = _(
-                            "<b>The photo and video backup destinations do not exist or "
-                            "cannot be written to.</b><br><br>Do you still want to "
-                            "start the download?"
+                            "<b>The photo and video backup destinations do not exist "
+                            "or cannot be written to.</b><br><br>Do you still want "
+                            "to start the download?"
                         )
                     elif missing_destinations == BackupFailureType.photos:
                         logging.warning(
                             "The manually specified photo backup path does not exist "
                             "or is not writable"
                         )
-                        # Translators: filetype will be replaced by either 'photo' or 'video'
-                        # Translators: %(variable)s represents Python code, not a plural of the term
-                        # variable. You must keep the %(variable)s untranslated, or the program will
-                        # crash.
-                        # Translators: please do not change HTML codes like <br>, <i>, </i>, or
-                        # <b>, </b> etc.
+                        # Translators: filetype will be replaced by either 'photo' or
+                        # 'video'
+                        # Translators: %(variable)s represents Python code, not a plural
+                        # of the term variable. You must keep the %(variable)s
+                        # untranslated, or the program will crash.
+                        # Translators: please do not change HTML codes like <br>, <i>,
+                        # </i>, or <b>, </b> etc.
                         msg = _(
                             "<b>The %(filetype)s backup destination does not exist or "
                             "cannot be written to.</b><br><br>Do you still want to "
@@ -3594,12 +3330,13 @@ Do you want to proceed with the download?"""
                             "The manually specified video backup path does not exist "
                             "or is not writable"
                         )
-                        # Translators: filetype will be replaced by either 'photo' or 'video'
-                        # Translators: %(variable)s represents Python code, not a plural of the term
-                        # variable. You must keep the %(variable)s untranslated, or the program will
-                        # crash.
-                        # Translators: please do not change HTML codes like <br>, <i>, </i>, or
-                        # <b>, </b> etc.
+                        # Translators: filetype will be replaced by either 'photo' or
+                        # 'video'
+                        # Translators: %(variable)s represents Python code, not a plural
+                        # of the term variable. You must keep the %(variable)s
+                        # untranslated, or the program will crash.
+                        # Translators: please do not change HTML codes like <br>, <i>,
+                        # </i>, or <b>, </b> etc.
                         msg = _(
                             "<b>The %(filetype)s backup destination does not exist or "
                             "cannot be written to.</b><br><br>Do you still want to "
@@ -3609,7 +3346,7 @@ Do you want to proceed with the download?"""
                 if self.prefs.warn_backup_problem:
                     warning = RememberThisDialog(
                         message=msg,
-                        icon=":/rapid-photo-downloader.svg",
+                        icon="rapid-photo-downloader.svg",
                         remember=RememberThisMessage.do_not_ask_again,
                         parent=self,
                         title=_("Backup problem"),
@@ -3670,7 +3407,7 @@ Do you want to proceed with the download?"""
 
     def downloadFiles(
         self,
-        files: List[RPDFile],
+        files: list[RPDFile],
         scan_id: int,
         download_stats: DownloadStats,
         generate_thumbnails: bool,
@@ -3782,7 +3519,7 @@ Do you want to proceed with the download?"""
             if os.path.isdir(d):
                 try:
                     shutil.rmtree(d, ignore_errors=True)
-                except:
+                except Exception:
                     logging.error("Unknown error deleting temporary directory %s", d)
         if remove_entry:
             del self.temp_dirs_by_scan_id[scan_id]
@@ -3793,9 +3530,8 @@ Do you want to proceed with the download?"""
         download_succeeded: bool,
         rpd_file: RPDFile,
         download_count: int,
-        mdata_exceptions: Optional[Tuple[Exception]],
+        mdata_exceptions: tuple[Exception] | None,
     ) -> None:
-
         scan_id = rpd_file.scan_id
 
         if scan_id not in self.devices:
@@ -3854,9 +3590,9 @@ Do you want to proceed with the download?"""
         self.download_tracker.set_total_bytes_copied(scan_id, total_downloaded)
         if len(self.devices.have_downloaded_from) > 1:
             model = self.mapModel(scan_id)
-            model.percent_complete[
-                scan_id
-            ] = self.download_tracker.get_percent_complete(scan_id)
+            model.percent_complete[scan_id] = (
+                self.download_tracker.get_percent_complete(scan_id)
+            )
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
         self.updateFileDownloadDeviceProgress()
@@ -4052,7 +3788,7 @@ Do you want to proceed with the download?"""
                 backup_type = self.backup_devices[path].backup_type
                 if (
                     backup_type == BackupLocationType.photos_and_videos
-                    or download_types == DownloadingFileTypes.photos_and_videos
+                    or download_types == FileTypeFlag.PHOTOS | FileTypeFlag.VIDEOS
                 ) or backup_type == download_types:
                     device_id = self.backup_devices.device_id(path)
                     data = BackupFileData(message=message)
@@ -4121,9 +3857,8 @@ Do you want to proceed with the download?"""
         do_backup: bool,
         rpd_file: RPDFile,
         backup_full_file_name: str,
-        mdata_exceptions: Optional[Tuple[Exception]],
+        mdata_exceptions: tuple[Exception] | None,
     ) -> None:
-
         if do_backup:
             if (
                 self.prefs.generate_thumbnails
@@ -4166,8 +3901,8 @@ Do you want to proceed with the download?"""
         """
 
         # indexed by uid, deque of full backup paths
-        self.generated_fdo_thumbnails = dict()  # type: Dict[str]
-        self.backup_fdo_thumbnail_cache = defaultdict(list)  # type: Dict[List[str]]
+        self.generated_fdo_thumbnails: dict[str] = dict()
+        self.backup_fdo_thumbnail_cache: defaultdict[list[str]] = defaultdict(list)
 
     def backupGenerateFdoThumbnail(
         self, rpd_file: RPDFile, backup_full_file_name: str
@@ -4198,10 +3933,10 @@ Do you want to proceed with the download?"""
 
     @pyqtSlot(int, list)
     def updateSequences(
-        self, stored_sequence_no: int, downloads_today: List[str]
+        self, stored_sequence_no: int, downloads_today: list[str]
     ) -> None:
         """
-        Called at conclusion of a download, with values coming from
+        Called at conclusion of a download, with values coming from the
         renameandmovefile process
         """
 
@@ -4209,7 +3944,7 @@ Do you want to proceed with the download?"""
         self.prefs.downloads_today = downloads_today
         self.prefs.sync()
         logging.debug("Saved sequence values to preferences")
-        if self.application_state == ApplicationState.exiting:
+        if ApplicationState.exiting in self.application_state:
             self.close()
         else:
             self.renamePanel.updateSequences(
@@ -4221,7 +3956,7 @@ Do you want to proceed with the download?"""
         """Currently not called"""
         pass
 
-    def isDownloadCompleteForScan(self, scan_id: int) -> Tuple[bool, int]:
+    def isDownloadCompleteForScan(self, scan_id: int) -> tuple[bool, int]:
         """
         Determine if all files have been downloaded and backed up for a device
 
@@ -4306,7 +4041,6 @@ Do you want to proceed with the download?"""
     def fileDownloadCompleteFromDevice(
         self, scan_id: int, files_remaining: int
     ) -> None:
-
         device = self.devices[scan_id]
 
         device_finished = files_remaining == 0
@@ -4377,12 +4111,11 @@ Do you want to proceed with the download?"""
             )
 
             if (
-                self.prefs.auto_exit and self.download_tracker.no_errors_or_warnings()
-            ) or self.prefs.auto_exit_force:
-
-                if not self.thumbnailModel.filesRemainToDownload():
-                    logging.debug("Auto exit is initiated")
-                    self.close()
+                (self.prefs.auto_exit and self.download_tracker.no_errors_or_warnings())
+                or self.prefs.auto_exit_force
+            ) and not self.thumbnailModel.filesRemainToDownload():
+                logging.debug("Auto exit is initiated")
+                self.close()
 
             self.download_tracker.purge_all()
 
@@ -4398,7 +4131,6 @@ Do you want to proceed with the download?"""
 
     @pyqtSlot("PyQt_PyObject")
     def addErrorLogMessage(self, problems: Problems) -> None:
-
         self.errorLog.addProblems(problems)
         increment = len(problems)
         if not self.errorLog.isActiveWindow():
@@ -4424,7 +4156,6 @@ Do you want to proceed with the download?"""
 
         updated, download_speed = self.time_check.update_download_speed()
         if updated:
-
             downloading = self.devices.downloading_from()
 
             time_remaining = self.time_remaining.time_remaining(
@@ -4438,10 +4169,11 @@ Do you want to proceed with the download?"""
                 message = downloading
             else:
                 # Translators - in the middle is a unicode em dash - please retain it
-                # This string is displayed in the status bar when the download is running
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # This string is displayed in the status bar when the download is
+                # running.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 message = _(
                     "%(downloading_from)s — %(time_left)s left (%(speed)s)"
                 ) % dict(
@@ -4472,7 +4204,7 @@ Do you want to proceed with the download?"""
         :param scan_id: the scan id of the device to be umounted
         """
 
-        device = self.devices[scan_id]  # type: Device
+        device: Device = self.devices[scan_id]
 
         if device.device_type == DeviceType.volume:
             if self.is_wsl2:
@@ -4488,7 +4220,8 @@ Do you want to proceed with the download?"""
         """
         # TODO delete from cameras and from other devices
         # TODO should assign this to a process or a thread, and delete then
-        to_delete = self.download_tracker.get_files_to_auto_delete(scan_id)
+        # to_delete = self.download_tracker.get_files_to_auto_delete(scan_id)
+        pass
 
     def notifyDownloadedFromDevice(self, scan_id: int) -> None:
         """
@@ -4539,7 +4272,7 @@ Do you want to proceed with the download?"""
             }
 
         if no_warnings:
-            message = "%s\n%s " % (message, no_warnings) + _("warnings")
+            message = f"{message}\n{no_warnings} " + _("warnings")
 
         message_shown = False
         if self.have_libnotify:
@@ -4548,7 +4281,7 @@ Do you want to proceed with the download?"""
             )
             try:
                 message_shown = n.show()
-            except:
+            except Exception:
                 logging.error(
                     "Unable to display downloaded from device message using "
                     "notification system"
@@ -4558,7 +4291,7 @@ Do you want to proceed with the download?"""
                     "Unable to display downloaded from device message using "
                     "notification system"
                 )
-                logging.info("{}: {}".format(notification_name, message))
+                logging.info(f"{notification_name}: {message}")
 
     def notifyDownloadComplete(self) -> None:
         """
@@ -4586,9 +4319,9 @@ Do you want to proceed with the download?"""
             # crash.
             n_message += "\n" + _("%(number)s %(numberdownloaded)s") % dict(
                 number=thousands(photo_downloads),
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 numberdownloaded=_("%(filetype)s downloaded") % dict(filetype=filetype),
             )
 
@@ -4601,9 +4334,9 @@ Do you want to proceed with the download?"""
             # crash.
             n_message += "\n" + _("%(number)s %(numberdownloaded)s") % dict(
                 number=thousands(photo_failures),
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 numberdownloaded=_("%(filetype)s failed to download")
                 % dict(filetype=filetype),
             )
@@ -4617,9 +4350,9 @@ Do you want to proceed with the download?"""
             # crash.
             n_message += "\n" + _("%(number)s %(numberdownloaded)s") % dict(
                 number=thousands(video_downloads),
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 numberdownloaded=_("%(filetype)s downloaded") % dict(filetype=filetype),
             )
 
@@ -4632,9 +4365,9 @@ Do you want to proceed with the download?"""
             # crash.
             n_message += "\n" + _("%(number)s %(numberdownloaded)s") % dict(
                 number=thousands(video_failures),
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 numberdownloaded=_("%(filetype)s failed to download")
                 % dict(filetype=filetype),
             )
@@ -4685,7 +4418,7 @@ Do you want to proceed with the download?"""
             w = ""
 
         if f and w:
-            fw = make_internationalized_list((f, w))
+            fw = make_internationalized_list([f, w])
         elif f:
             fw = f
         elif w:
@@ -4701,16 +4434,16 @@ Do you want to proceed with the download?"""
             no_files_and_types = ftc.file_types_present_details().lower()
 
             if not fw:
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 downloaded = _(
                     "Downloaded %(no_files_and_types)s from %(devices)s"
                 ) % dict(no_files_and_types=no_files_and_types, devices=devices)
             else:
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 downloaded = _(
                     "Downloaded %(no_files_and_types)s from %(devices)s — %(failures)s"
                 ) % dict(
@@ -4718,16 +4451,16 @@ Do you want to proceed with the download?"""
                 )
         else:
             if fw:
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
                 downloaded = _("No files downloaded — %(failures)s") % dict(failures=fw)
             else:
                 downloaded = _("No files downloaded")
         logging.info("%s", downloaded)
         self.statusBar().showMessage(downloaded)
 
-    def invalidDownloadFolders(self, downloading: DownloadingFileTypes) -> List[str]:
+    def invalidDownloadFolders(self, downloading: FileTypeFlag) -> list[str]:
         """
         Checks validity of download folders based on the file types the
         user is attempting to download.
@@ -4737,21 +4470,17 @@ Do you want to proceed with the download?"""
 
         invalid_dirs = []
 
-        # sadly this causes an exception on python 3.4:
-        # downloading.photos or downloading.photos_and_videos
-
-        if downloading in (
-            DownloadingFileTypes.photos,
-            DownloadingFileTypes.photos_and_videos,
+        for destination, file_type_flag in (
+            (self.prefs.photo_download_folder, FileTypeFlag.PHOTOS),
+            (self.prefs.video_download_folder, FileTypeFlag.VIDEOS),
         ):
-            if not validate_download_folder(self.prefs.photo_download_folder).valid:
-                invalid_dirs.append(self.prefs.photo_download_folder)
-        if downloading in (
-            DownloadingFileTypes.videos,
-            DownloadingFileTypes.photos_and_videos,
-        ):
-            if not validate_download_folder(self.prefs.video_download_folder).valid:
-                invalid_dirs.append(self.prefs.video_download_folder)
+            if (
+                downloading in file_type_flag
+                and not validate_download_folder(
+                    destination, write_on_waccesss_failure=True
+                ).valid
+            ):
+                invalid_dirs.append(destination)
         return invalid_dirs
 
     def notifyPrefsAreInvalid(self, details: str) -> None:
@@ -4767,10 +4496,9 @@ Do you want to proceed with the download?"""
         # Translators: %(variable)s represents Python code, not a plural of the term
         # variable. You must keep the %(variable)s untranslated, or the program will
         # crash.
-        # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b> etc.
-        message = "<b>%(title)s</b><br><br>%(details)s" % dict(
-            title=title, details=details
-        )
+        # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>,
+        # </b> etc.
+        message = f"<b>{title}</b><br><br>{details}"
         msgBox = standardMessageBox(
             message=message,
             rich_text=True,
@@ -4794,12 +4522,12 @@ Do you want to proceed with the download?"""
     )
     def scanFilesReceived(
         self,
-        rpd_files: List[RPDFile],
-        sample_files: List[RPDFile],
+        rpd_files: list[RPDFile],
+        sample_files: list[RPDFile],
         file_type_counter: FileTypeCounter,
         file_size_sum: FileSizeSum,
-        entire_video_required: Optional[bool],
-        entire_photo_required: Optional[bool],
+        entire_video_required: bool | None,
+        entire_photo_required: bool | None,
     ) -> None:
         """
         Process scanned file information received from the scan process
@@ -4817,7 +4545,7 @@ Do you want to proceed with the download?"""
                 "Updating example file name using sample photo from %s",
                 device.display_name,
             )
-            self.devices.sample_photo = sample_photo  # type: Photo
+            self.devices.sample_photo: Photo = sample_photo
             self.renamePanel.setSamplePhoto(self.devices.sample_photo)
             # sample required for editing download subfolder generation
             self.destinationPanel.photoDestinationDisplay.sample_rpd_file = (
@@ -4829,7 +4557,7 @@ Do you want to proceed with the download?"""
                 "Updating example file name using sample video from %s",
                 device.display_name,
             )
-            self.devices.sample_video = sample_video  # type: Video
+            self.devices.sample_video: Video = sample_video
             self.renamePanel.setSampleVideo(self.devices.sample_video)
             # sample required for editing download subfolder generation
             self.destinationPanel.videoDestinationDisplay.sample_rpd_file = (
@@ -4880,7 +4608,8 @@ Do you want to proceed with the download?"""
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
             # crash.
-            # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b> etc.
+            # Translators: please do not change HTML codes like <br>, <i>, </i>, or
+            # <b>, </b> etc.
             message = _(
                 "<b>All files on the %(camera)s are inaccessible</b>.<br><br>It "
                 "may be locked or not configured for file transfers using USB. "
@@ -4899,7 +4628,8 @@ Do you want to proceed with the download?"""
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
             # crash.
-            # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b> etc.
+            # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>,
+            # </b> etc.
             message = _(
                 "<b>The %(camera)s appears to be in use by another "
                 "application.</b><br><br>Rapid Photo Downloader cannnot access a phone "
@@ -4922,7 +4652,7 @@ Do you want to proceed with the download?"""
             message = (
                 "<b>"
                 + _("Enable access to the iOS Device")
-                + "</b><br><br>{}".format(error_message)
+                + f"</b><br><br>{error_message}"
             )
         else:
             title = _("Rapid Photo Downloader")
@@ -4946,8 +4676,8 @@ Do you want to proceed with the download?"""
     def scanDeviceDetailsReceived(
         self,
         scan_id: int,
-        storage_space: List[StorageSpace],
-        storage_descriptions: List[str],
+        storage_space: list[StorageSpace],
+        storage_descriptions: list[str],
         optimal_display_name: str,
         mount_point: str,
         is_apple_mobile: bool,
@@ -5029,13 +4759,13 @@ Do you want to proceed with the download?"""
             % device.display_name
         )
         h2 = _("Unfortunately you cannot download from this device.")
-        header = "<b>{}</b><br><br>{}".format(h1, h2)
+        header = f"<b>{h1}</b><br><br>{h2}"
         if device.device_type == DeviceType.camera and not device.is_mtp_device:
             h3 = _(
                 "A possible workaround for the problem might be downloading from the "
                 "camera's memory card using a card reader."
             )
-            header = "{}<br><br><i>{}</i>".format(header, h3)
+            header = f"{header}<br><br><i>{h3}</i>"
 
         title = _("Device scan failed")
         self.makeProblemReportDialog(header=header, title=title)
@@ -5045,12 +4775,14 @@ Do you want to proceed with the download?"""
     @pyqtSlot(int)
     def cameraRemovedDuringScan(self, scan_id: int) -> None:
         """
-        Scenarios: a camera was physically removed, or file transfer was disabled on an MTP device.
+        Scenarios: a camera was physically removed, or file transfer was disabled on
+        an MTP device.
 
-        If disabled, a problem is that the device has not yet been removed from the system.
+        If disabled, a problem is that the device has not yet been removed from the
+        system.
 
-        But in any case, sometimes camera removal is not picked up by the system while it's being
-        accessed. So let's remove it ourselves.
+        But in any case, sometimes camera removal is not picked up by the system while
+        it's being accessed. So let's remove it ourselves.
 
         :param scan_id: device that was removed / disabled
         """
@@ -5069,12 +4801,14 @@ Do you want to proceed with the download?"""
     @pyqtSlot(int)
     def cameraRemovedWhileThumbnailing(self, scan_id: int) -> None:
         """
-        Scenarios: a camera was physically removed, or file transfer was disabled on an MTP device.
+        Scenarios: a camera was physically removed, or file transfer was disabled on an
+        MTP device.
 
-        If disabled, a problem is that the device has not yet been removed from the system.
+        If disabled, a problem is that the device has not yet been removed from the
+        system.
 
-        But in any case, sometimes camera removal is not picked up by the system while it's being
-        accessed. So let's remove it ourselves.
+        But in any case, sometimes camera removal is not picked up by the system while
+        it's being accessed. So let's remove it ourselves.
 
         :param scan_id: device that was removed / disabled
         """
@@ -5098,12 +4832,14 @@ Do you want to proceed with the download?"""
     @pyqtSlot(int)
     def cameraRemovedWhileCopyingFiles(self, scan_id: int) -> None:
         """
-        Scenarios: a camera was physically removed, or file transfer was disabled on an MTP device.
+        Scenarios: a camera was physically removed, or file transfer was disabled on an
+        MTP device.
 
-        If disabled, a problem is that the device has not yet been removed from the system.
+        If disabled, a problem is that the device has not yet been removed from the
+        system.
 
-        But in any case, sometimes camera removal is not picked up by the system while it's being
-        accessed. So let's remove it ourselves.
+        But in any case, sometimes camera removal is not picked up by the system while
+        it's being accessed. So let's remove it ourselves.
 
         :param scan_id: device that was removed / disabled
         """
@@ -5158,10 +4894,7 @@ Do you want to proceed with the download?"""
         else:
             self.temporalProximity.setState(TemporalProximityState.pending)
 
-        if not destinations_good:
-            auto_start = False
-        else:
-            auto_start = self.autoStart(scan_id)
+        auto_start = False if not destinations_good else self.autoStart(scan_id)
 
         if not auto_start and self.prefs.generate_thumbnails:
             # Generate thumbnails for finished scan
@@ -5198,7 +4931,7 @@ Do you want to proceed with the download?"""
         """
         Determine if the download for this device should start automatically
         :param scan_id: scan id of the device
-        :return: True if the should start automatically, else False,
+        :return: True if the download should start automatically, else False
         """
 
         prefs_valid, msg = self.prefs.check_prefs_for_validity()
@@ -5268,23 +5001,21 @@ Do you want to proceed with the download?"""
     def closeEvent(self, event: QCloseEvent) -> None:
         logging.debug("Close event activated")
 
-        if self.is_wsl2:
-            if not self.wslDrives.unmountDrives(at_exit=True):
-                logging.debug(
-                    "Ignoring close event because user cancelled unmount drives"
-                )
-                event.ignore()
-                return
+        if self.is_wsl2 and not self.wslDrives.unmountDrives(at_exit=True):
+            logging.debug("Ignoring close event because user cancelled unmount drives")
+            event.ignore()
+            return
 
-        # TODO test what happens when a download is running and is wsl2 with auto unmount
+        # TODO test what happens when a download is running and is wsl2 with auto
+        #  unmount
 
         if self.close_event_run:
             logging.debug("Close event already run: accepting close event")
             event.accept()
             return
 
-        if self.application_state == ApplicationState.normal:
-            self.application_state = ApplicationState.exiting
+        if ApplicationState.normal & self.application_state:
+            self.setCoreState(ApplicationState.exiting)
             self.sendStopToThread(self.scan_controller)
             self.thumbnailModel.stopThumbnailer()
             self.sendStopToThread(self.copy_controller)
@@ -5363,13 +5094,14 @@ Do you want to proceed with the download?"""
         elif self.gvfs_controls_mounts:
             del self.gvolumeMonitor
         elif self.wslDriveMonitor:
-            # QTimer.singleShot(0, self.wslDriveMonitor.stopMonitor)
             self.wslDriveMonitorThread.quit()
-            self.wslDriveMonitorThread.wait()
-
-        if not version_check_disabled():
-            self.newVersionThread.quit()
-            self.newVersionThread.wait(100)
+            if not self.wslDriveMonitorThread.wait(1000):
+                logging.debug(
+                    "Terminating WSL Drive Monitor thread "
+                    "(probably due to unfinished wmic.exe call)"
+                )
+                self.wslDriveMonitorThread.terminate()
+                self.wslDriveMonitorThread.wait(1000)
 
         self.sendStopToThread(self.thumbnail_deamon_controller)
         self.thumbnaildaemonmqThread.quit()
@@ -5393,6 +5125,8 @@ Do you want to proceed with the download?"""
         logging.debug("Cleaning up Thumbnail cache")
         tc.cleanup_cache(days=self.prefs.keep_thumbnails_days)
 
+        QDesktopServices.unsetUrlHandler("file")
+
         Notify.uninit()
 
         self.close_event_run = True
@@ -5402,13 +5136,12 @@ Do you want to proceed with the download?"""
 
     def getIconsAndEjectableForMount(
         self, mount: QStorageInfo
-    ) -> Tuple[List[str], bool]:
+    ) -> tuple[list[str], bool]:
         """
         Given a mount, get the icon names suggested by udev or
         GVFS, and  determine whether the mount is ejectable or not.
         :param mount:  the mount to check
         :return: icon names and eject boolean
-        :rtype Tuple[str, bool]
         """
 
         if self.is_wsl2:
@@ -5458,7 +5191,7 @@ Do you want to proceed with the download?"""
         """
 
         logging.debug("Examining system for removed camera")
-        sc = autodetect_cameras(self.gp_context)
+        sc = autodetect_cameras()
         system_cameras = (
             (model, port) for model, port in sc if not port.startswith("disk:")
         )
@@ -5477,7 +5210,7 @@ Do you want to proceed with the download?"""
                 device = self.devices[scan_id]
                 # Don't log a warning when the camera was removed while the user was
                 # being informed it was locked or inaccessible
-                show_warning = not device in self.prompting_for_user_action
+                show_warning = device not in self.prompting_for_user_action
                 self.removeDevice(scan_id=scan_id, show_warning=show_warning)
 
         if removed_cameras:
@@ -5568,11 +5301,11 @@ Do you want to proceed with the download?"""
                     camera.display_name,
                 )
 
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
-                # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b>
-                # etc.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
+                # Translators: please do not change HTML codes like <br>, <i>, </i>,
+                # or <b>, </b> etc.
                 message = _(
                     "<b>The %(camera)s cannot be scanned because it cannot be "
                     "unmounted.</b><br><br>You can close any other application (such "
@@ -5603,11 +5336,11 @@ Do you want to proceed with the download?"""
                 display_name = camera.display_name
 
                 title = _("Rapid Photo Downloader")
-                # Translators: %(variable)s represents Python code, not a plural of the term
-                # variable. You must keep the %(variable)s untranslated, or the program will
-                # crash.
-                # Translators: please do not change HTML codes like <br>, <i>, </i>, or <b>, </b>
-                # etc.
+                # Translators: %(variable)s represents Python code, not a plural of the
+                # term variable. You must keep the %(variable)s untranslated, or the
+                # program will crash.
+                # Translators: please do not change HTML codes like <br>, <i>, </i>,
+                # or <b>, </b> etc.
                 message = _(
                     "<b>The download cannot start because the %(camera)s cannot be "
                     "unmounted.</b><br><br>You can close any other application (such "
@@ -5638,7 +5371,7 @@ Do you want to proceed with the download?"""
 
         logging.debug("Searching for cameras")
         if self.prefs.device_autodetection:
-            cameras = autodetect_cameras(self.gp_context)
+            cameras = autodetect_cameras()
             for model, port in cameras:
                 if port in self.devices.cameras_to_gvfs_unmount_for_scan:
                     assert self.devices.cameras_to_gvfs_unmount_for_scan[port] == model
@@ -5761,7 +5494,6 @@ Do you want to proceed with the download?"""
         self.displayMessageInStatusBar()
 
         if not self.on_startup and self.thumbnailModel.anyCompletedDownloads():
-
             if self.prefs.completed_downloads == int(CompletedDownloads.prompt):
                 logging.info("Querying whether to clear completed downloads")
                 counter = self.thumbnailModel.getFileDownloadsCompleted()
@@ -5780,11 +5512,11 @@ Do you want to proceed with the download?"""
                     title = _("Completed Download Present")
                     body = _("%s whose download has completed is displayed.") % numbers
                     question = _("Do you want to clear the completed download?")
-                message = "<b>{}</b><br><br>{}<br><br>{}".format(title, body, question)
+                message = f"<b>{title}</b><br><br>{body}<br><br>{question}"
 
                 questionDialog = RememberThisDialog(
                     message=message,
-                    icon=":/rapid-photo-downloader.svg",
+                    icon="rapid-photo-downloader.svg",
                     remember=RememberThisMessage.do_not_ask_again,
                     parent=self,
                 )
@@ -5857,7 +5589,7 @@ Do you want to proceed with the download?"""
         if not self.devices.known_device(device):
             if (
                 self.scanEvenIfNoFoldersLikeDCIM()
-                and not device.display_name in self.prefs.volume_whitelist
+                and device.display_name not in self.prefs.volume_whitelist
             ):
                 logging.debug("Prompting whether to use device %s", device.display_name)
                 # prompt user to see if device should be used or not
@@ -5896,7 +5628,11 @@ Do you want to proceed with the download?"""
                 self.startDeviceScan(device=device)
 
     @pyqtSlot("PyQt_PyObject")
-    def wslWindowsDriveAdded(self, drives: List[WindowsDriveMount]) -> None:
+    def wslWindowsDriveAdded(self, drives: list[WindowsDriveMount]) -> None:
+        if self.on_exit:
+            logging.debug("Ignoring added WSL drives during exit")
+            return
+
         wsl_drive_previously_probed = self.wsl_drives_probed
         self.wsl_drives_probed = True
         for drive in drives:
@@ -5920,6 +5656,10 @@ Do you want to proceed with the download?"""
 
     @pyqtSlot("PyQt_PyObject")
     def wslWindowsDriveRemoved(self, drive: WindowsDriveMount) -> None:
+        if self.on_exit:
+            logging.debug("Ignoring removed WSL drives during exit")
+            return
+
         logging.info(
             "Detected removal of Windows drive %s: %s %s",
             drive.drive_letter,
@@ -5929,7 +5669,11 @@ Do you want to proceed with the download?"""
         self.wslDrives.removeDrive(drive)
 
     @pyqtSlot("PyQt_PyObject")
-    def wslWindowsDriveMounted(self, drives: List[WindowsDriveMount]) -> None:
+    def wslWindowsDriveMounted(self, drives: list[WindowsDriveMount]) -> None:
+        if self.on_exit:
+            logging.debug("Ignoring mounted WSL drives during exit")
+            return
+
         for drive in drives:
             icon_names, can_eject = self.wslDrives.driveProperties(
                 mount_point=drive.mount_point
@@ -5939,12 +5683,12 @@ Do you want to proceed with the download?"""
             )
 
     @pyqtSlot("PyQt_PyObject")
-    def wslWindowsDriveUnmounted(self, drives: List[WindowsDriveMount]) -> None:
+    def wslWindowsDriveUnmounted(self, drives: list[WindowsDriveMount]) -> None:
         for drive in drives:
             self.partitionUmounted(path=drive.mount_point)
 
     @pyqtSlot(str, "PyQt_PyObject", bool)
-    def partitionMounted(self, path: str, iconNames: List[str], canEject: bool) -> None:
+    def partitionMounted(self, path: str, iconNames: list[str], canEject: bool) -> None:
         """
         Setup devices from which to download from and backup to, and
         if relevant start scanning them
@@ -6177,9 +5921,9 @@ Do you want to proceed with the download?"""
         scan_ids = []
         for scan_id in self.devices:
             device = self.devices[scan_id]
-            if not ignore_cameras or device.device_type == DeviceType.volume:
-                scan_ids.append(scan_id)
-            elif rescan_path and device.device_type == DeviceType.path:
+            if (not ignore_cameras or device.device_type == DeviceType.volume) or (
+                rescan_path and device.device_type == DeviceType.path
+            ):
                 scan_ids.append(scan_id)
 
         for scan_id in scan_ids:
@@ -6359,7 +6103,7 @@ Do you want to proceed with the download?"""
                     "Manual probe indicates %s is not yet used as a device",
                     mount.displayName(),
                 )
-                device = mount.device()  # type: QByteArray
+                device: QByteArray = mount.device()
                 device_path = device.data().decode()
                 self.udisks2Monitor.add_device(
                     device_path=device_path, mount_point=path
@@ -6384,7 +6128,7 @@ Do you want to proceed with the download?"""
 
         logging.debug("Setting up non-camera devices")
 
-        mounts = []  # type: List[QStorageInfo]
+        mounts: list[QStorageInfo] = []
         validMounts = self.validMounts.mountedValidMountPoints()
         self.valid_mount_count = len(validMounts)
 
@@ -6510,7 +6254,7 @@ Do you want to proceed with the download?"""
 
             logging.info("Backing up photos and videos to %s", backup_photo_location)
 
-    def isBackupPath(self, path: str) -> Optional[BackupLocationType]:
+    def isBackupPath(self, path: str) -> BackupLocationType | bool | None:
         """
         Checks to see if backups are enabled and path represents a
         valid backup location. It must be writeable.
@@ -6524,7 +6268,7 @@ Do you want to proceed with the download?"""
         if self.prefs.backup_files:
             if self.prefs.backup_device_autodetection:
                 # Determine if the auto-detected backup device is
-                # to be used to backup only photos, or videos, or both.
+                # to be used to back up only photos, or videos, or both.
                 # Use the presence of a corresponding directory to
                 # determine this.
                 # The directory must be writable.
@@ -6635,7 +6379,6 @@ Do you want to proceed with the download?"""
             "/var",
             "/proc",
         ):
-
             # Translators: %(variable)s represents Python code, not a plural of the term
             # variable. You must keep the %(variable)s untranslated, or the program will
             # crash.
@@ -6689,7 +6432,7 @@ Do you want to proceed with the download?"""
                 # Translators: %(variable)s represents Python code, not a plural of the
                 # term variable. You must keep the %(variable)s untranslated, or the
                 # program will crash.
-                msg = "%(downloading_from)s — download paused" % dict(
+                msg = _("%(downloading_from)s — download paused") % dict(
                     downloading_from=downloading
                 )
             else:
@@ -6745,708 +6488,12 @@ Do you want to proceed with the download?"""
         self.statusBar().showMessage(msg)
 
 
-class QtSingleApplication(QApplication):
-    """
-    Taken from
-    http://stackoverflow.com/questions/12712360/qtsingleapplication
-    -for-pyside-or-pyqt
-    """
-
-    messageReceived = pyqtSignal(str)
-
-    def __init__(self, programId: str, *argv) -> None:
-        super().__init__(*argv)
-        self._id = programId
-        self._activationWindow = None  # type: Optional[RapidWindow]
-        self._activateOnMessage = False  # type: bool
-
-        # Is there another instance running?
-        self._outSocket = QLocalSocket()  # type: QLocalSocket
-        self._outSocket.connectToServer(self._id)
-        self._isRunning = self._outSocket.waitForConnected()  # type: bool
-
-        self._outStream = None  # type: Optional[QTextStream]
-        self._inSocket = None
-        self._inStream = None  # type: Optional[QTextStream]
-        self._server = None
-
-        if self._isRunning:
-            # Yes, there is.
-            self._outStream = QTextStream(self._outSocket)
-            self._outStream.setCodec("UTF-8")
-        else:
-            # No, there isn't, at least not properly.
-            # Cleanup any past, crashed server.
-            error = self._outSocket.error()
-            if error == QLocalSocket.ConnectionRefusedError:
-                self.close()
-                QLocalServer.removeServer(self._id)
-            self._outSocket = None
-            self._server = QLocalServer()
-            self._server.listen(self._id)
-            self._server.newConnection.connect(self._onNewConnection)
-
-    def close(self) -> None:
-        if self._inSocket:
-            self._inSocket.disconnectFromServer()
-        if self._outSocket:
-            self._outSocket.disconnectFromServer()
-        if self._server:
-            self._server.close()
-
-    def isRunning(self) -> bool:
-        return self._isRunning
-
-    def id(self) -> str:
-        return self._id
-
-    def activationWindow(self) -> RapidWindow:
-        return self._activationWindow
-
-    def setActivationWindow(
-        self, activationWindow: RapidWindow, activateOnMessage: bool = True
-    ) -> None:
-        self._activationWindow = activationWindow
-        self._activateOnMessage = activateOnMessage
-
-    def activateWindow(self) -> None:
-        if not self._activationWindow:
-            return
-        self._activationWindow.setWindowState(
-            self._activationWindow.windowState() & ~Qt.WindowMinimized
-        )
-        self._activationWindow.raise_()
-        self._activationWindow.activateWindow()
-
-    def sendMessage(self, msg) -> bool:
-        if not self._outStream:
-            return False
-        self._outStream << msg << "\n"
-        self._outStream.flush()
-        return self._outSocket.waitForBytesWritten()
-
-    def _onNewConnection(self) -> None:
-        if self._inSocket:
-            self._inSocket.readyRead.disconnect(self._onReadyRead)
-        self._inSocket = self._server.nextPendingConnection()
-        if not self._inSocket:
-            return
-        self._inStream = QTextStream(self._inSocket)
-        self._inStream.setCodec("UTF-8")
-        self._inSocket.readyRead.connect(self._onReadyRead)
-        if self._activateOnMessage:
-            self.activateWindow()
-
-    def _onReadyRead(self) -> None:
-        while True:
-            msg = self._inStream.readLine()
-            if not msg:
-                break
-            self.messageReceived.emit(msg)
-
-
-def python_package_source(package: str) -> str:
-    """
-    Return package installation source for Python package
-    :param package: package name
-    :return:
-    """
-
-    pip_install = "(installed using pip)"
-    system_package = "(system package)"
-    return pip_install if installed_using_pip(package) else system_package
-
-
-def get_versions(
-    file_manager: Optional[str],
-    scaling_action: ScalingAction,
-    scaling_detected: ScalingDetected,
-    xsetting_running: bool,
-    force_wayland: bool,
-    platform_selected: Optional[str],
-) -> List[str]:
-    if "cython" in zmq.zmq_version_info.__module__:
-        pyzmq_backend = "cython"
-    else:
-        pyzmq_backend = "cffi"
-    try:
-        ram = psutil.virtual_memory()
-        total = format_size_for_user(ram.total)
-        used = format_size_for_user(ram.used)
-    except Exception:
-        total = used = "unknown"
-
-    rpd_pip_install = installed_using_pip("rapid-photo-downloader")
-
-    versions = [
-        f"Rapid Photo Downloader: {__about__.__version__}",
-        f"Platform: {platform.platform()}",
-        f"Memory: {used} used of {total}",
-        "Confinement: {}".format("snap" if is_snap() else "none"),
-        "Installed using pip: {}".format("yes" if rpd_pip_install else "no"),
-        f"Python: {platform.python_version()}",
-        f"Python executable: {sys.executable}",
-        f"Qt: {QtCore.QT_VERSION_STR}",
-        f"PyQt: {QtCore.PYQT_VERSION_STR} {python_package_source('PyQt5')}",
-        f"SIP: {sip.SIP_VERSION_STR}",
-        f"ZeroMQ: {zmq.zmq_version()}",
-        f"Python ZeroMQ: {zmq.pyzmq_version()} ({pyzmq_backend} backend)",
-        f"gPhoto2: {gphoto2_version()}",
-        f"Python gPhoto2: {python_gphoto2_version()} {python_package_source('gphoto2')}",
-        f"ExifTool: {EXIFTOOL_VERSION}",
-        f"pymediainfo: {pymedia_version_info()}",
-        f"GExiv2: {gexiv2_version()}",
-        f"Gstreamer: {gst_version()}",
-        f"PyGObject: {'.'.join(map(str, gi.version_info))}",
-        f"psutil: {'.'.join(map(str, psutil.version_info))}",
-        f'Show in File Manager: {importlib_metadata.version("show-in-file-manager")}',
-    ]
-    v = exiv2_version()
-    if v:
-        cr3 = 'CR3 support enabled' if fileformats.exiv2_cr3() else 'no CR3 support'
-        versions.append(f"Exiv2: {v} ({cr3})")
-    try:
-        versions.append("{}: {}".format(*platform.libc_ver()))
-    except:
-        pass
-    try:
-        versions.append(
-           f"Arrow: {arrow.__version__} {python_package_source('arrow')}"
-        )
-        versions.append(f"dateutil: {dateutil.__version__}")
-    except AttributeError:
-        pass
-    try:
-        import tornado
-
-        versions.append("Tornado: {}".format(tornado.version))
-    except ImportError:
-        pass
-    versions.append(
-        "Can read HEIF/HEIC metadata: {}".format(
-            "yes" if fileformats.heif_capable() else "no"
-        )
-    )
-    if have_heif_module:
-        versions.append("Pyheif: {}".format(pyheif_version()))
-        v = libheif_version()
-        if v:
-            versions.append("libheif: {}".format(v))
-    versions.append(
-        "iOS support: {}".format("yes" if storageidevice.utilities_present() else "no")
-    )
-    for display in ("XDG_SESSION_TYPE", "WAYLAND_DISPLAY"):
-        session = os.getenv(display, "")
-        if session.find("wayland") >= 0:
-            wayland_platform = os.getenv("QT_QPA_PLATFORM", "")
-            if (
-                platform_selected == "wayland"
-                or (platform_selected != "xcb" and wayland_platform == "wayland")
-                or force_wayland
-            ):
-                session = "wayland desktop (with wayland enabled)"
-                break
-            elif platform_selected == "xcb" or wayland_platform == "xcb":
-                session = "wayland desktop (with XWayland)"
-                break
-            else:
-                session = "wayland desktop (XWayland use undetermined)"
-        elif session:
-            break
-    if session:
-        versions.append("Session: {}".format(session))
-
-    versions.append("Desktop scaling: {}".format(scaling_action.name.replace("_", " ")))
-    versions.append(
-        "Desktop scaling detection: {}{}".format(
-            scaling_detected.name.replace("_", " "),
-            "" if xsetting_running else " (xsetting not running)",
-        )
-    )
-
-    try:
-        desktop = linux_desktop_humanize(linux_desktop())
-    except:
-        desktop = "Unknown"
-
-    try:
-        versions.append("Desktop: {} ({})".format(get_desktop_environment(), desktop))
-    except Exception:
-        pass
-
-    if file_manager:
-        file_manager_details = f"{file_manager}"
-    else:
-        file_manager_details = "Unknown"
-
-    versions.append("Default file manager: {}".format(file_manager_details))
-
-    return versions
-
-
-class SplashScreen(QSplashScreen):
-    def __init__(self, pixmap: QPixmap, flags) -> None:
-        super().__init__(pixmap, flags)
-        self.progress = 0
-        try:
-            self.image_width = pixmap.width() / pixmap.devicePixelRatioF()
-        except AttributeError:
-            self.image_width = pixmap.width() / pixmap.devicePixelRatio()
-
-        self.progressBarPen = QPen(QBrush(QColor(Qt.white)), 2.0)
-
-    def drawContents(self, painter: QPainter):
-        painter.save()
-        painter.setPen(QColor(Qt.black))
-        painter.drawText(18, 64, __about__.__version__)
-        if self.progress:
-            painter.setPen(self.progressBarPen)
-            x = int(self.progress / 100 * self.image_width)
-            painter.drawLine(0, 360, x, 360)
-        painter.restore()
-
-    def setProgress(self, value: int) -> None:
-        """
-        Update splash screen progress bar
-        :param value: percent done, between 0 and 100
-        """
-
-        self.progress = value
-        self.repaint()
-
-
-def parser_options(formatter_class=argparse.HelpFormatter):
-    parser = argparse.ArgumentParser(
-        prog=__about__.__title__,
-        description=__about__.__summary__,
-        formatter_class=formatter_class,
-    )
-
-    parser.add_argument(
-        "--version",
-        action="version",
-        version="%(prog)s {}".format(__about__.__version__),
-    )
-    parser.add_argument(
-        "--detailed-version",
-        action="store_true",
-        help=_("Show version numbers of program and its libraries and exit."),
-    )
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        dest="verbose",
-        help=_("Display program information when run from the command line."),
-    )
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        dest="debug",
-        help=_("Display debugging information when run from the command line."),
-    )
-    parser.add_argument(
-        "-e",
-        "--extensions",
-        action="store_true",
-        dest="extensions",
-        help=_("List photo and video file extensions the program recognizes and exit."),
-    )
-    parser.add_argument(
-        "--photo-renaming",
-        choices=["on", "off"],
-        dest="photo_renaming",
-        help=_("Turn on or off the the renaming of photos."),
-    )
-    parser.add_argument(
-        "--video-renaming",
-        choices=["on", "off"],
-        dest="video_renaming",
-        help=_("Turn on or off the the renaming of videos."),
-    )
-    parser.add_argument(
-        "-a",
-        "--auto-detect",
-        choices=["on", "off"],
-        dest="auto_detect",
-        help=_(
-            "Turn on or off the automatic detection of devices from which to download."
-        ),
-    )
-    parser.add_argument(
-        "-t",
-        "--this-computer",
-        choices=["on", "off"],
-        dest="this_computer_source",
-        help=_("Turn on or off downloading from this computer."),
-    )
-    parser.add_argument(
-        "--this-computer-location",
-        type=str,
-        metavar=_("PATH"),
-        dest="this_computer_location",
-        help=_("The PATH on this computer from which to download."),
-    )
-    parser.add_argument(
-        "--photo-destination",
-        type=str,
-        metavar=_("PATH"),
-        dest="photo_location",
-        help=_("The PATH where photos will be downloaded to."),
-    )
-    parser.add_argument(
-        "--video-destination",
-        type=str,
-        metavar=_("PATH"),
-        dest="video_location",
-        help=_("The PATH where videos will be downloaded to."),
-    )
-    parser.add_argument(
-        "-b",
-        "--backup",
-        choices=["on", "off"],
-        dest="backup",
-        help=_("Turn on or off the backing up of photos and videos while downloading."),
-    )
-    parser.add_argument(
-        "--backup-auto-detect",
-        choices=["on", "off"],
-        dest="backup_auto_detect",
-        help=_("Turn on or off the automatic detection of backup devices."),
-    )
-    parser.add_argument(
-        "--photo-backup-identifier",
-        type=str,
-        metavar=_("FOLDER"),
-        dest="photo_backup_identifier",
-        help=_(
-            "The FOLDER in which backups are stored on the automatically detected "
-            "photo backup device, with the folder's name being used to identify "
-            "whether or not the device is used for backups. For each device you wish "
-            "to use for backing photos up to, create a folder on it with this name."
-        ),
-    )
-    parser.add_argument(
-        "--video-backup-identifier",
-        type=str,
-        metavar=_("FOLDER"),
-        dest="video_backup_identifier",
-        help=_(
-            "The FOLDER in which backups are stored on the automatically detected "
-            "video backup device, with the folder's name being used to identify "
-            "whether or not the device is used for backups. For each device you wish "
-            "to use for backing up videos to, create a folder on it with this name."
-        ),
-    )
-    parser.add_argument(
-        "--photo-backup-location",
-        type=str,
-        metavar=_("PATH"),
-        dest="photo_backup_location",
-        help=_(
-            "The PATH where photos will be backed up when automatic detection of "
-            "backup devices is turned off."
-        ),
-    )
-    parser.add_argument(
-        "--video-backup-location",
-        type=str,
-        metavar=_("PATH"),
-        dest="video_backup_location",
-        help=_(
-            "The PATH where videos will be backed up when automatic detection of "
-            "backup devices is turned off."
-        ),
-    )
-    parser.add_argument(
-        "--ignore-other-photo-file-types",
-        action="store_true",
-        dest="ignore_other",
-        help=_("Ignore photos with the following extensions: %s")
-        % make_internationalized_list(
-            [s.upper() for s in fileformats.OTHER_PHOTO_EXTENSIONS]
-        ),
-    )
-    parser.add_argument(
-        "--auto-download-startup",
-        dest="auto_download_startup",
-        choices=["on", "off"],
-        help=_(
-            "Turn on or off starting downloads as soon as the program itself starts."
-        ),
-    )
-    parser.add_argument(
-        "--auto-download-device-insertion",
-        dest="auto_download_insertion",
-        choices=["on", "off"],
-        help=_("Turn on or off starting downloads as soon as a device is inserted."),
-    )
-    parser.add_argument(
-        "--thumbnail-cache",
-        dest="thumb_cache",
-        choices=["on", "off"],
-        help=_(
-            "Turn on or off use of the Rapid Photo Downloader Thumbnail Cache. "
-            "Turning it off does not delete existing cache contents."
-        ),
-    )
-    parser.add_argument(
-        "--delete-thumbnail-cache",
-        dest="delete_thumb_cache",
-        action="store_true",
-        help=_(
-            "Delete all thumbnails in the Rapid Photo Downloader Thumbnail Cache, "
-            "and exit."
-        ),
-    )
-    parser.add_argument(
-        "--forget-remembered-files",
-        dest="forget_files",
-        action="store_true",
-        help=_("Forget which files have been previously downloaded, and exit."),
-    )
-    parser.add_argument(
-        "--import-old-version-preferences",
-        action="store_true",
-        dest="import_prefs",
-        help=_(
-            "Import preferences from an old program version and exit. Requires the "
-            "command line program gconftool-2."
-        ),
-    )
-    parser.add_argument(
-        "--reset",
-        action="store_true",
-        dest="reset",
-        help=_(
-            "Reset all program settings to their default values, delete all thumbnails "
-            "in the Thumbnail cache, forget which files have been previously "
-            "downloaded, and exit."
-        ),
-    )
-    parser.add_argument(
-        "--log-gphoto2",
-        action="store_true",
-        help=_("Include gphoto2 debugging information in log files."),
-    )
-
-    parser.add_argument(
-        "--camera-info",
-        action="store_true",
-        help=_("Print information to the terminal about attached cameras and exit."),
-    )
-
-    parser.add_argument(
-        "--force-system-theme",
-        action="store_true",
-        default=False,
-        help=_("Use the system Qt theme instead of the built-in theme"),
-    )
-
-    parser.add_argument("path", nargs="?")
-
-    if platform.system() == "Linux":
-        parser.add_argument(
-            "-platform",
-            type=str,
-            choices=["wayland", "xcb"],
-            help=_("Run this program in wayland or regular X11"),
-        )
-
-    return parser
-
-
-def import_prefs() -> None:
-    """
-    Import program preferences from the Gtk+ 2 version of the program.
-
-    Requires the command line program gconftool-2.
-    """
-
-    def run_cmd(k: str) -> str:
-        command_line = "{} --get /apps/rapid-photo-downloader/{}".format(cmd, k)
-        args = shlex.split(command_line)
-        try:
-            return subprocess.check_output(args=args).decode().strip()
-        except subprocess.SubprocessError:
-            return ""
-
-    cmd = shutil.which("gconftool-2")
-    keys = (
-        ("image_rename", "photo_rename", prefs_list_from_gconftool2_string),
-        ("video_rename", "video_rename", prefs_list_from_gconftool2_string),
-        ("subfolder", "photo_subfolder", prefs_list_from_gconftool2_string),
-        ("video_subfolder", "video_subfolder", prefs_list_from_gconftool2_string),
-        ("download_folder", "photo_download_folder", str),
-        ("video_download_folder", "video_download_folder", str),
-        (
-            "device_autodetection",
-            "device_autodetection",
-            pref_bool_from_gconftool2_string,
-        ),
-        ("device_location", "this_computer_path", str),
-        (
-            "device_autodetection_psd",
-            "scan_specific_folders",
-            pref_bool_from_gconftool2_string,
-        ),
-        ("ignored_paths", "ignored_paths", prefs_list_from_gconftool2_string),
-        (
-            "use_re_ignored_paths",
-            "use_re_ignored_paths",
-            pref_bool_from_gconftool2_string,
-        ),
-        ("backup_images", "backup_files", pref_bool_from_gconftool2_string),
-        (
-            "backup_device_autodetection",
-            "backup_device_autodetection",
-            pref_bool_from_gconftool2_string,
-        ),
-        ("backup_identifier", "photo_backup_identifier", str),
-        ("video_backup_identifier", "video_backup_identifier", str),
-        ("backup_location", "backup_photo_location", str),
-        ("backup_video_location", "backup_video_location", str),
-        ("strip_characters", "strip_characters", pref_bool_from_gconftool2_string),
-        (
-            "synchronize_raw_jpg",
-            "synchronize_raw_jpg",
-            pref_bool_from_gconftool2_string,
-        ),
-        (
-            "auto_download_at_startup",
-            "auto_download_at_startup",
-            pref_bool_from_gconftool2_string,
-        ),
-        (
-            "auto_download_upon_device_insertion",
-            "auto_download_upon_device_insertion",
-            pref_bool_from_gconftool2_string,
-        ),
-        ("auto_unmount", "auto_unmount", pref_bool_from_gconftool2_string),
-        ("auto_exit", "auto_exit", pref_bool_from_gconftool2_string),
-        ("auto_exit_force", "auto_exit_force", pref_bool_from_gconftool2_string),
-        ("verify_file", "verify_file", pref_bool_from_gconftool2_string),
-        ("job_codes", "job_codes", prefs_list_from_gconftool2_string),
-        (
-            "generate_thumbnails",
-            "generate_thumbnails",
-            pref_bool_from_gconftool2_string,
-        ),
-        ("download_conflict_resolution", "conflict_resolution", str),
-        (
-            "backup_duplicate_overwrite",
-            "backup_duplicate_overwrite",
-            pref_bool_from_gconftool2_string,
-        ),
-    )
-
-    if cmd is None:
-        print(
-            _(
-                "To import preferences from the old version of Rapid Photo Downloader, "
-                "you must install the program gconftool-2."
-            )
-        )
-        return
-
-    prefs = Preferences()
-
-    with raphodo.utilities.stdchannel_redirected(sys.stderr, os.devnull):
-        value = run_cmd("program_version")
-        if not value:
-            print(_("No prior program preferences detected: exiting."))
-            return
-        else:
-            print(
-                # Translators: %(variable)s represents Python code, not a plural of the
-                # term variable. You must keep the %(variable)s untranslated, or the
-                # program will crash.
-                _("Importing preferences from Rapid Photo Downloader %(version)s")
-                % dict(version=value)
-            )
-            print()
-
-        for key_triplet in keys:
-            key = key_triplet[0]
-            value = run_cmd(key)
-            if value:
-                try:
-                    new_value = key_triplet[2](value)
-                except:
-                    print("Skipping malformed value for key {}".format(key))
-                else:
-                    if key == "device_autodetection":
-                        if new_value:
-                            print("Setting device_autodetection to True")
-                            print("Setting this_computer_source to False")
-                            prefs.device_autodetection = True
-                            prefs.this_computer_source = False
-                        else:
-                            print("Setting device_autodetection to False")
-                            print("Setting this_computer_source to True")
-                            prefs.device_autodetection = False
-                            prefs.this_computer_source = True
-                    elif key == "device_autodetection_psd":
-                        print("Setting scan_specific_folders to", not new_value)
-                        prefs.scan_specific_folders = not new_value
-                    elif key == "device_location" and prefs.this_computer_source:
-                        print("Setting this_computer_path to", new_value)
-                        prefs.this_computer_path = new_value
-                    elif key == "download_conflict_resolution":
-                        if new_value == "skip download":
-                            prefs.conflict_resolution = int(
-                                constants.ConflictResolution.skip
-                            )
-                        else:
-                            prefs.conflict_resolution = int(
-                                constants.ConflictResolution.add_identifier
-                            )
-                    else:
-                        new_key = key_triplet[1]
-                        if new_key in ("photo_rename", "video_rename"):
-                            pref_list, case = upgrade_pre090a4_rename_pref(new_value)
-                            print("Setting", new_key, "to", pref_list)
-                            setattr(prefs, new_key, pref_list)
-                            if case is not None:
-                                if new_key == "photo_rename":
-                                    ext_key = "photo_extension"
-                                else:
-                                    ext_key = "video_extension"
-                                print("Setting", ext_key, "to", case)
-                                setattr(prefs, ext_key, case)
-                        else:
-                            print("Setting", new_key, "to", new_value)
-                            setattr(prefs, new_key, new_value)
-
-    key = "stored_sequence_no"
-    with raphodo.utilities.stdchannel_redirected(sys.stderr, os.devnull):
-        value = run_cmd(key)
-    if value:
-        try:
-            new_value = int(value)
-            # we need to add 1 to the number for historic reasons
-            new_value += 1
-        except ValueError:
-            print("Skipping malformed value for key stored_sequence_no")
-        else:
-            if new_value and raphodo.utilities.confirm(
-                "\n"
-                + _(
-                    "Do you want to copy the stored sequence number, which has the "
-                    "value %d?"
-                )
-                % new_value,
-                resp=False,
-            ):
-                prefs.stored_sequence_no = new_value
-
-
 def critical_startup_error(message: str) -> None:
     errorapp = QApplication(sys.argv)
     msg = QMessageBox()
     msg.setWindowTitle(_("Rapid Photo Downloader"))
     msg.setIcon(QMessageBox.Critical)
-    msg.setText("<b>%s</b>" % message)
+    msg.setText(f"<b>{message}</b>")
     msg.setInformativeText(_("Program aborting."))
     msg.setStandardButtons(QMessageBox.Ok)
     msg.show()
@@ -7454,11 +6501,14 @@ def critical_startup_error(message: str) -> None:
 
 
 def main():
-    # Must parse args before calling QApplication
+    # Must parse args before calling QApplication:
     # Calling QApplication.setAttribute below causes QApplication to parse sys.argv
 
-    parser = parser_options()
+    parser = get_parser()
     args = parser.parse_args()
+
+    this_computer_source: bool | None = None
+    this_computer_location: str | None = None
 
     try:
         force_wayland = linux_desktop() == LinuxDesktop.wsl2
@@ -7501,7 +6551,7 @@ def main():
                 "set: {}".format(", ".join(scaling_variables))
             )
             scaling_action = ScalingAction.turned_on
-            if pkgr.parse_version(QtCore.QT_VERSION_STR) >= pkgr.parse_version("5.6.0"):
+            if parse(QtCore.QT_VERSION_STR) >= parse("5.6.0"):
                 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
             else:
                 os.environ[qt5_variable] = "1"
@@ -7519,9 +6569,7 @@ def main():
             # Enable fractional scaling support on Qt 5.14 or above
             # Doesn't seem to be working on Gnome X11, however :-/
             # Works on KDE Neon
-            if pkgr.parse_version(QtCore.QT_VERSION_STR) >= pkgr.parse_version(
-                "5.14.0"
-            ):
+            if parse(QtCore.QT_VERSION_STR) >= parse("5.14.0"):
                 QApplication.setHighDpiScaleFactorRoundingPolicy(
                     Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
                 )
@@ -7581,12 +6629,12 @@ def main():
         sys.exit(0)
 
     if args.extensions:
-        photos = list((ext.upper() for ext in fileformats.PHOTO_EXTENSIONS))
-        videos = list((ext.upper() for ext in fileformats.VIDEO_EXTENSIONS))
+        photos = list(ext.upper() for ext in PHOTO_EXTENSIONS)
+        videos = list(ext.upper() for ext in VIDEO_EXTENSIONS)
         extensions = ((photos, _("Photos")), (videos, _("Videos")))
         for exts, file_type in extensions:
             extensions = make_internationalized_list(exts)
-            print("{}: {}".format(file_type, extensions))
+            print(f"{file_type}: {extensions}")
         sys.exit(0)
 
     if args.debug:
@@ -7754,10 +6802,7 @@ def main():
     else:
         video_backup_location = None
 
-    if args.thumb_cache:
-        thumb_cache = args.thumb_cache == "on"
-    else:
-        thumb_cache = None
+    thumb_cache = args.thumb_cache == "on" if args.thumb_cache else None
 
     if args.auto_download_startup:
         auto_download_startup = args.auto_download_startup == "on"
@@ -7782,7 +6827,7 @@ def main():
         auto_download_insertion = None
 
     if args.log_gphoto2:
-        gphoto_logging = gphoto2_python_logging()
+        gphoto_logging = gphoto2_python_logging()  # noqa: F841
 
     if args.camera_info:
         dump_camera_details()
@@ -7801,7 +6846,7 @@ def main():
     app.setOrganizationName("Rapid Photo Downloader")
     app.setOrganizationDomain("damonlynch.net")
     app.setApplicationName("Rapid Photo Downloader")
-    app.setWindowIcon(QIcon(":/rapid-photo-downloader.svg"))
+    app.setWindowIcon(QIcon(data_file_path("rapid-photo-downloader.svg")))
     if not args.force_system_theme:
         app.setStyle("Fusion")
 
@@ -7841,7 +6886,7 @@ def main():
         logging.debug("Exiting immediately after full reset")
         sys.exit(0)
 
-    if args.delete_thumb_cache or args.forget_files or args.import_prefs:
+    if args.delete_thumb_cache or args.forget_files:
         if args.delete_thumb_cache:
             cache = ThumbnailCacheSql(create_table_if_not_exists=False)
             cache.purge_cache()
@@ -7850,20 +6895,22 @@ def main():
 
         if args.forget_files:
             d = DownloadedSQL()
-            d.update_table(reset=True)
-            print(_("Remembered files have been forgotten."))
-            logging.debug("Remembered files have been forgotten")
+            count = d.no_downloaded()
+            if count:
+                d.update_table(reset=True)
+            print(
+                _("%(count)s remembered files have been forgotten.") % dict(count=count)
+            )
+            logging.debug("%s remembered files have been forgotten", count)
 
-        if args.import_prefs:
-            import_prefs()
         logging.debug(
             "Exiting immediately after thumbnail cache / remembered files reset"
         )
         sys.exit(0)
 
-    # Use QIcon to render so we get the high DPI version automatically
+    # Use QIcon to render to get the high DPI version automatically
     size = QSize(600, 400)
-    pixmap = scaledIcon(":/splashscreen.png", size).pixmap(size)
+    pixmap = scaledIcon(data_file_path("splashscreen.png"), size).pixmap(size)
 
     splash = SplashScreen(pixmap, Qt.WindowStaysOnTopHint)
     splash.show()

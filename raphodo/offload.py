@@ -1,39 +1,18 @@
-#!/usr/bin/env python3
+# SPDX-FileCopyrightText: Copyright 2015-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-# Copyright (C) 2015-2021 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
-
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2021, Damon Lynch"
-
+import contextlib
+import locale
+import logging
 import pickle
 import sys
-import logging
-import locale
 
-try:
+with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
-except locale.Error:
-    pass
 
 from PyQt5.QtGui import QGuiApplication
+
 from raphodo.interprocess import (
     DaemonProcess,
     OffloadData,
@@ -53,7 +32,7 @@ class OffloadWorker(DaemonProcess):
 
                 self.check_for_command(directive, content)
 
-                data = pickle.loads(content)  # type: OffloadData
+                data: OffloadData = pickle.loads(content)
                 if data.thumbnail_rows:
                     groups = TemporalProximityGroups(
                         thumbnail_rows=data.thumbnail_rows,
@@ -81,7 +60,7 @@ class OffloadWorker(DaemonProcess):
             )
             logging.exception("Traceback:")
         except SystemExit as e:
-            sys.exit(e)
+            sys.exit(e.code)
 
 
 if __name__ == "__main__":

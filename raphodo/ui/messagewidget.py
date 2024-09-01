@@ -1,34 +1,17 @@
-# Copyright (C) 2017-2021 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2017-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Display messages to the user in stacked widget
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2021, Damon Lynch"
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QFocusEvent, QMouseEvent
+from PyQt5.QtWidgets import QLabel, QPushButton, QSizePolicy, QStackedWidget
 
-from typing import Tuple
+from raphodo.internationalisation.install import install_gettext
 
-
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
-from PyQt5.QtWidgets import QSizePolicy, QStackedWidget, QPushButton, QLabel
-from PyQt5.QtGui import QMouseEvent, QFocusEvent
+install_gettext()
 
 
 class MessageWidget(QStackedWidget):
@@ -45,7 +28,7 @@ class MessageWidget(QStackedWidget):
     (with closing tags too, naturally).
     """
 
-    def __init__(self, messages: Tuple[str, ...], parent=None) -> None:
+    def __init__(self, messages: tuple[str, ...], parent=None) -> None:
         super().__init__(parent)
 
         # For some obscure reason, must set the label types for all labels in the

@@ -1,52 +1,13 @@
-# Copyright (C) 2007-2022 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: Copyright 2007-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+from enum import Enum, Flag, IntEnum, auto
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2007-2022, Damon Lynch"
-
-from enum import Enum, IntEnum, auto
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QFontMetrics, QColor
+from PyQt5.QtGui import QColor, QFont, QFontMetrics
 
 PROGRAM_NAME = "Rapid Photo Downloader"
 logfile_name = "rapid-photo-downloader.log"
-
-remote_versions_file = "https://damonlynch.net/rapid/version.json"
-
-# If set to True, the ability to check for a new version will be removed
-# from the user interface and disabled in program logic.
-disable_version_check = False
-
-
-class CheckNewVersionDialogResult(IntEnum):
-    download = 1
-    do_not_download = 2
-    skip = 3
-    open_website = 4
-
-
-class CheckNewVersionDialogState(IntEnum):
-    check = 1
-    prompt_for_download = 2
-    open_website = 3
-    failed_to_contact = 4
-    have_latest_version = 5
 
 
 class ConflictResolution(IntEnum):
@@ -68,13 +29,14 @@ class PresetPrefType(Enum):
 
 
 class PresetClass(Enum):
-    builtin = 1
-    custom = 2
-    new_preset = 3
-    remove_all = 4
-    update_preset = 5
-    edited = 6
-    start_editor = 7
+    builtin = auto()
+    custom = auto()
+    new_preset = auto()
+    remove_all = auto()
+    update_preset = auto()
+    remove_preset = auto()
+    edited = auto()
+    start_editor = auto()
 
 
 class DownloadStatus(Enum):
@@ -107,7 +69,6 @@ Downloaded = (
     DownloadStatus.backup_problem,
 )
 
-
 DownloadWarning = {
     DownloadStatus.downloaded_with_warning,
     DownloadStatus.backup_problem,
@@ -117,14 +78,12 @@ DownloadFailure = {
     DownloadStatus.download_failed,
 }
 
-
 download_status_error_severity = {
     DownloadStatus.downloaded_with_warning: ErrorType.warning,
     DownloadStatus.backup_problem: ErrorType.serious_error,
     DownloadStatus.download_and_backup_failed: ErrorType.serious_error,
     DownloadStatus.download_failed: ErrorType.serious_error,
 }
-
 
 DownloadUpdateMilliseconds = 1000
 DownloadUpdateSeconds = DownloadUpdateMilliseconds / 1000
@@ -167,7 +126,11 @@ class DisplayingFilesOfType(Enum):
 
 BackupLocationType = DisplayingFilesOfType
 BackupFailureType = DisplayingFilesOfType
-DownloadingFileTypes = DisplayingFilesOfType
+
+
+class FileTypeFlag(Flag):
+    PHOTOS = auto()
+    VIDEOS = auto()
 
 
 class WindowsDriveType(IntEnum):
@@ -177,9 +140,16 @@ class WindowsDriveType(IntEnum):
 
 
 class DestinationDisplayType(Enum):
-    folder_only = 1
-    usage_only = 2
-    folders_and_usage = 3
+    folder_only = 1  # folder icon, folder name, and the menu icon
+    usage_only = 2  # Projected Storage Use display
+    folders_and_usage = 3  # combines types one and two
+
+
+class DestinationDisplayStatus(IntEnum):
+    valid = auto()
+    unwritable = auto()
+    does_not_exist = auto()
+    no_storage_space = auto()
 
 
 class ExifSource(Enum):
@@ -261,9 +231,15 @@ class ThumbnailSize(IntEnum):
     height = 120
 
 
-class ApplicationState(Enum):
-    normal = 1
-    exiting = 2
+class ApplicationState(Flag):
+    startup = auto()
+    normal = auto()
+    exiting = auto()
+    timeline_generating = auto()
+    timeline_generated = auto()
+
+CORE_APPLICATION_STATE_MASK = ApplicationState.startup | ApplicationState.normal | ApplicationState.exiting
+TIMELINE_APPLICATION_STATE_MASK = ApplicationState.timeline_generating | ApplicationState.timeline_generated
 
 
 class PostCameraUnmountAction(Enum):
@@ -383,6 +359,9 @@ class NameGenerationType(Enum):
     video_subfolder = 4
 
 
+COLOR_RED_WARNING_HTML = "#c42f12"
+
+
 class CustomColors(Enum):
     color1 = "#7a9c38"  # green
     color2 = "#cb493f"  # red
@@ -395,14 +374,12 @@ class CustomColors(Enum):
 
 ButtonHoverIntensity = 110
 
-
 PaleGray = "#d7d6d5"
 DarkGray = "#35322f"
 MediumGray = "#5d5b59"
 DoubleDarkGray = "#1e1b18"
 
 DarkModeMediumGray = "#2b2b2b"
-
 
 ExtensionColorDict = {
     FileExtension.raw: CustomColors.color1,
@@ -488,7 +465,6 @@ DeviceShadingIntensity = 104
 FadeSteps = 20
 FadeMilliseconds = 700
 
-
 # horizontal and vertical margin for thumbnail rectangles
 thumbnail_margin = 10
 
@@ -525,7 +501,6 @@ def standardProgressBarWidth() -> int:
     return int(QFontMetrics(QFont()).height() * 20)
 
 
-# Sync with value in install.py
 class Distro(Enum):
     debian = auto()
     ubuntu = auto()
@@ -616,6 +591,7 @@ datetime_offset = dict(
     m2t=5000,
     m2ts=5000,
     mp4=50000,
+    lrv=50000,
     avi=50000,
     mov=250000,
 )
@@ -644,6 +620,7 @@ datetime_offset_exiftool = dict(
     m2t=5000,
     m2ts=5000,
     mp4=50000,
+    lrv=50000,
     avi=50000,
     mov=250000,
 )
@@ -688,6 +665,7 @@ all_tags_offset_exiftool = dict(
     srw=222418,
     x3f=7380128,
     mp4=130000,
+    lrv=130000,
     mts=1300000,
     mt2=1300000,
     m2ts=1300000,
@@ -704,6 +682,7 @@ thumbnail_offset = dict(
     mod=500000,
     mov=2000000,
     mp4=2000000,
+    lrv=2000000,
     mts=600000,
     m2t=600000,
     mpg=500000,
@@ -727,6 +706,7 @@ thumbnail_offset_exiftool = dict(
     mod=500000,
     mov=2000000,
     mp4=2000000,
+    lrv=2000000,
     mts=600000,
     m2t=600000,
     mpg=500000,
@@ -793,7 +773,6 @@ filtered_file_browser_directories = {
     "System Volume Information",
     "msdownld.tmp",
 }
-
 
 non_system_root_folders = [
     "/home",

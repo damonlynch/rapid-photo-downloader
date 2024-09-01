@@ -1,47 +1,26 @@
-# Copyright (C) 2015-2022 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2015-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Handle interprocess communication using 0MQ
 """
 
-
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2015-2022, Damon Lynch"
-
 import argparse
-import sys
 import logging
-import pickle
 import os
+import pickle
 import shlex
+import sys
 import time
 from collections import deque
-from typing import Optional, Set, List, Dict, Sequence, Any, Tuple, Union
-
+from collections.abc import Sequence
+from typing import Any
 
 import psutil
-
-from PyQt5.QtCore import pyqtSignal, QObject, pyqtSlot
-from PyQt5.QtGui import QPixmap, QImage
-
 import zmq
 import zmq.log.handlers
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QImage, QPixmap
 
 if zmq.pyzmq_version_info()[0] < 17:
     from zmq.eventloop import ioloop
@@ -53,32 +32,32 @@ else:
 
 from zmq.eventloop.zmqstream import ZMQStream
 
-from raphodo.rpdfile import RPDFile, FileTypeCounter, FileSizeSum, Photo, Video
-from raphodo.devices import Device
-from raphodo.utilities import CacheDirs, set_pdeathsig
 from raphodo.constants import (
-    RenameAndMoveStatus,
-    ExtractionTask,
-    ExtractionProcessing,
-    CameraErrorCode,
     BackupStatus,
+    CameraErrorCode,
+    ExtractionProcessing,
+    ExtractionTask,
+    RenameAndMoveStatus,
 )
-from raphodo.proximity import TemporalProximityGroups
-from raphodo.storage.storage import StorageSpace
-from raphodo.iplogging import ZeroMQSocketHandler
-from raphodo.ui.viewutils import ThumbnailDataForProximity
+from raphodo.devices import Device
 from raphodo.folderspreview import FoldersPreview
+from raphodo.iplogging import ZeroMQSocketHandler
 from raphodo.problemnotification import (
-    ScanProblems,
+    BackingUpProblems,
     CopyingProblems,
     RenamingProblems,
-    BackingUpProblems,
+    ScanProblems,
 )
+from raphodo.proximity import TemporalProximityGroups
+from raphodo.rpdfile import FileSizeSum, FileTypeCounter, Photo, RPDFile, Video
+from raphodo.storage.storage import StorageSpace
+from raphodo.tools.utilities import CacheDirs, set_pdeathsig
+from raphodo.ui.viewutils import ThumbnailDataForProximity
 
 logger = logging.getLogger()
 
 
-def make_filter_from_worker_id(worker_id: Union[int, str]) -> bytes:
+def make_filter_from_worker_id(worker_id: int | str) -> bytes:
     r"""
     Returns a python byte string from an integer or string
 
@@ -126,22 +105,16 @@ def get_worker_id_from_identity(identity: bytes) -> int:
 
 
 def create_inproc_msg(
-    cmd: bytes, worker_id: Optional[int] = None, data: Optional[Any] = None
-) -> List[bytes]:
+    cmd: bytes, worker_id: int | None = None, data: Any | None = None
+) -> list[bytes]:
     """
     Create a list of three values to be sent via a PAIR socket
     between main and child threads using 0MQ.
     """
 
-    if worker_id is not None:
-        worker_id = make_filter_from_worker_id(worker_id)
-    else:
-        worker_id = b""
+    worker_id = make_filter_from_worker_id(worker_id) if worker_id is not None else b""
 
-    if data is None:
-        data = b""
-    else:
-        data = pickle.dumps(data, pickle.HIGHEST_PROTOCOL)
+    data = b"" if data is None else pickle.dumps(data, pickle.HIGHEST_PROTOCOL)
 
     return [cmd, worker_id, data]
 
@@ -161,18 +134,17 @@ class ThreadNames:
 
 class ProcessManager:
     def __init__(self, logging_port: int, thread_name: str) -> None:
-
         super().__init__()
 
         self.logging_port = logging_port
 
-        self.processes = {}  # type: Dict[int, psutil.Process]
+        self.processes: dict[int, psutil.Process] = {}
         self._process_to_run = ""  # Implement in subclass
 
         self.thread_name = thread_name
 
         # Monitor which workers we have running
-        self.workers = []  # type: List[int]
+        self.workers: list[int] = []
 
     def _get_cmd(self) -> str:
         return "{} {}".format(
@@ -189,7 +161,6 @@ class ProcessManager:
         return ""
 
     def add_worker(self, worker_id: int) -> None:
-
         command_line = self._get_command_line(worker_id)
         args = shlex.split(command_line)
 
@@ -217,12 +188,12 @@ class ProcessManager:
         Forcefully terminate any running child processes.
         """
 
-        zombie_processes = [
+        zombie_processes: list[psutil.Process] = [
             p
             for p in self.processes.values()
             if p.is_running() and p.status() == psutil.STATUS_ZOMBIE
         ]
-        running_processes = [
+        running_processes: list[psutil.Process] = [
             p
             for p in self.processes.values()
             if p.is_running() and p.status() != psutil.STATUS_ZOMBIE
@@ -235,24 +206,24 @@ class ProcessManager:
                 len(running_processes),
             )
 
-        for p in zombie_processes:  # type: psutil.Process
+        for p in zombie_processes:
             try:
                 logging.debug("Killing zombie process %s with pid %s", p.name(), p.pid)
                 p.kill()
-            except:
+            except Exception:
                 logging.error("Failed to kill process with pid %s", p.pid)
-        for p in running_processes:  # type: psutil.Process
+        for p in running_processes:
             try:
                 logging.debug("Terminating process %s with pid %s", p.name(), p.pid)
                 p.terminate()
-            except:
+            except Exception:
                 logging.error("Terminating process with pid %s failed", p.pid)
         gone, alive = psutil.wait_procs(running_processes, timeout=2)
         for p in alive:
             try:
                 logging.debug("Killing zombie process %s with pid %s", p.name(), p.pid)
                 p.kill()
-            except:
+            except Exception:
                 logging.error("Failed to kill process with pid %s", p.pid)
 
     def process_alive(self, worker_id: int) -> bool:
@@ -287,7 +258,6 @@ class PullPipelineManager(ProcessManager, QObject):
         super().__init__(logging_port=logging_port, thread_name=thread_name)
 
     def _start_sockets(self) -> None:
-
         context = zmq.Context.instance()
 
         # Subclasses must define the type of port they need to send messages
@@ -300,11 +270,11 @@ class PullPipelineManager(ProcessManager, QObject):
 
         # Socket to communicate directly with the sink, bypassing the workers
         self.terminate_socket = context.socket(zmq.PUSH)
-        self.terminate_socket.connect("tcp://localhost:{}".format(self.receiver_port))
+        self.terminate_socket.connect(f"tcp://localhost:{self.receiver_port}")
 
-        # Socket to receive commands from main thread
+        # Socket to receive commands from the main thread
         self.thread_controller = context.socket(zmq.PAIR)
-        self.thread_controller.connect("inproc://{}".format(self.thread_name))
+        self.thread_controller.connect(f"inproc://{self.thread_name}")
 
         self.terminating = False
 
@@ -339,7 +309,7 @@ class PullPipelineManager(ProcessManager, QObject):
                         # incoming messages. This message is only sent
                         # from this manager to itself, using the
                         # self.terminate_socket
-                        logging.debug("{} is terminating".format(self._process_name))
+                        logging.debug(f"{self._process_name} is terminating")
                         break
                     # This worker is done; remove from monitored workers and
                     # continue
@@ -355,11 +325,9 @@ class PullPipelineManager(ProcessManager, QObject):
                     self.workers.remove(worker_id)
                     del self.processes[worker_id]
                     if not self.workers:
-                        logging.debug(
-                            "{} currently has no workers".format(self._process_name)
-                        )
+                        logging.debug(f"{self._process_name} currently has no workers")
                     if not self.workers and self.terminating:
-                        logging.debug("{} is exiting".format(self._process_name))
+                        logging.debug(f"{self._process_name} is exiting")
                         break
                 else:
                     assert directive == b"data"
@@ -433,14 +401,14 @@ class PullPipelineManager(ProcessManager, QObject):
             self._process_name,
         )
 
-    def resume(self, worker_id: Optional[bytes]) -> None:
+    def resume(self, worker_id: bytes | None) -> None:
         logging.critical(
             "Member function stop_worker() not implemented in child class of %s",
             self._process_name,
         )
 
     def send_message_to_worker(
-        self, data: bytes, worker_id: Optional[bytes] = None
+        self, data: bytes, worker_id: bytes | None = None
     ) -> None:
         if self.terminating:
             logging.debug(
@@ -457,10 +425,7 @@ class PullPipelineManager(ProcessManager, QObject):
 
         assert isinstance(data, bytes)
 
-        if worker_id:
-            message = [worker_id, b"data", data]
-        else:
-            message = [b"data", data]
+        message = [worker_id, b"data", data] if worker_id else [b"data", data]
         self.ventilator_socket.send_multipart(message)
 
     def forcefully_terminate(self) -> None:
@@ -486,15 +451,16 @@ class LoadBalancerWorkerManager(ProcessManager):
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
 
-        return "{} --request {} --send {} --identity {} --logging {}".format(
-            cmd, self.backend_port, self.sink_port, worker_id, self.logging_port
+        return (
+            f"{cmd} --request {self.backend_port} --send {self.sink_port} "
+            f"--identity {worker_id} --logging {self.logging_port}"
         )
 
     def start_workers(self) -> None:
         for worker_id in range(self.no_workers):
             self.add_worker(worker_id)
 
-    def zombie_workers(self) -> List[int]:
+    def zombie_workers(self) -> list[int]:
         return [
             worker_id
             for worker_id in self.workers
@@ -513,13 +479,12 @@ class LRUQueue:
         worker_type: str,
         process_manager: LoadBalancerWorkerManager,
     ) -> None:
-
         self.worker_type = worker_type
         self.process_manager = process_manager
         self.workers = deque()
         self.terminating = False
-        self.terminating_workers = set()  # type: Set[bytes]
-        self.stopped_workers = set()  # type: Set[int]
+        self.terminating_workers: set[bytes] = set()
+        self.stopped_workers: set[int] = set()
 
         self.backend = ZMQStream(backend_socket)
         self.frontend = ZMQStream(frontend_socket)
@@ -565,9 +530,7 @@ class LRUQueue:
             self.terminating_workers.remove(worker_identity)
             if len(self.terminating_workers) == 0:
                 for worker_id in self.stopped_workers:
-                    p = self.process_manager.processes[
-                        worker_id
-                    ]  # type: psutil.Process
+                    p: psutil.Process = self.process_manager.processes[worker_id]
                     if p.is_running():
                         pid = p.pid
                         if p.status() != psutil.STATUS_SLEEPING:
@@ -597,7 +560,6 @@ class LRUQueue:
 
 class LoadBalancer:
     def __init__(self, worker_type: str, process_manager) -> None:
-
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("--receive", required=True)
         self.parser.add_argument("--send", required=True)
@@ -615,10 +577,10 @@ class LoadBalancer:
         backend_port = backend.bind_to_random_port("tcp://*")
 
         reply = context.socket(zmq.REP)
-        reply.connect("tcp://localhost:{}".format(args.receive))
+        reply.connect(f"tcp://localhost:{args.receive}")
 
         controller = context.socket(zmq.PULL)
-        controller.connect("tcp://localhost:{}".format(self.controller_port))
+        controller.connect(f"tcp://localhost:{self.controller_port}")
 
         sink_port = args.send
         logging_port = args.logging
@@ -628,13 +590,11 @@ class LoadBalancer:
         )
 
         logging.debug(
-            "{} load balancer waiting to be notified how many workers to "
-            "initialize...".format(worker_type)
+            f"{worker_type} load balancer waiting to be notified how many workers to "
+            "initialize..."
         )
         no_workers = int(reply.recv())
-        logging.debug(
-            "...{} load balancer will use {} workers".format(worker_type, no_workers)
-        )
+        logging.debug(f"...{worker_type} load balancer will use {no_workers} workers")
         reply.send(str(frontend_port).encode())
 
         process_manager = process_manager(
@@ -643,7 +603,7 @@ class LoadBalancer:
         process_manager.start_workers()
 
         # create queue with the sockets
-        queue = LRUQueue(backend, frontend, controller, worker_type, process_manager)
+        queue = LRUQueue(backend, frontend, controller, worker_type, process_manager)  # noqa: F841
 
         # start reactor, which is an infinite loop
         ioloop.IOLoop.instance().start()
@@ -678,7 +638,6 @@ class LoadBalancerManager(ProcessManager, QObject):
 
     @pyqtSlot()
     def start_load_balancer(self) -> None:
-
         self.controller_socket = self.context.socket(zmq.PUSH)
         self.controller_port = self.controller_socket.bind_to_random_port("tcp://*")
 
@@ -686,7 +645,7 @@ class LoadBalancerManager(ProcessManager, QObject):
         self.requester_port = self.requester.bind_to_random_port("tcp://*")
 
         self.thread_controller = self.context.socket(zmq.PAIR)
-        self.thread_controller.connect("inproc://{}".format(self.thread_name))
+        self.thread_controller.connect(f"inproc://{self.thread_name}")
 
         worker_id = 0
         self.add_worker(worker_id)
@@ -705,12 +664,9 @@ class LoadBalancerManager(ProcessManager, QObject):
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
 
-        return "{} --receive {} --send {} --controller {} --logging {}".format(
-            cmd,
-            self.requester_port,
-            self.sink_port,
-            self.controller_port,
-            self.logging_port,
+        return (
+            f"{cmd} --receive {self.requester_port} --send {self.sink_port} "
+            f"--controller {self.controller_port} --logging {self.logging_port}"
         )
 
 
@@ -728,7 +684,6 @@ class PushPullDaemonManager(PullPipelineManager):
     """
 
     def _start_sockets(self) -> None:
-
         super()._start_sockets()
 
         context = zmq.Context.instance()
@@ -742,7 +697,7 @@ class PushPullDaemonManager(PullPipelineManager):
         Permanently stop the daemon process and terminate
         """
 
-        logging.debug("{} halting".format(self._process_name))
+        logging.debug(f"{self._process_name} halting")
         self.terminating = True
 
         # Only send stop command if the process is still running
@@ -762,11 +717,12 @@ class PushPullDaemonManager(PullPipelineManager):
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
 
-        return "{} --receive {} --send {} --logging {}".format(
-            cmd, self.ventilator_port, self.receiver_port, self.logging_port
+        return (
+            f"{cmd} --receive {self.ventilator_port} --send {self.receiver_port} "
+            f"--logging {self.logging_port}"
         )
 
-    def _get_ventilator_start_message(self, worker_id: int) -> List[bytes]:
+    def _get_ventilator_start_message(self, worker_id: int) -> list[bytes]:
         return [b"cmd", b"START"]
 
     def start(self) -> None:
@@ -785,7 +741,6 @@ class PublishPullPipelineManager(PullPipelineManager):
     """
 
     def _start_sockets(self) -> None:
-
         super()._start_sockets()
 
         context = zmq.Context.instance()
@@ -807,7 +762,7 @@ class PublishPullPipelineManager(PullPipelineManager):
         Permanently stop all the workers and terminate
         """
 
-        logging.debug("{} halting".format(self._process_name))
+        logging.debug(f"{self._process_name} halting")
         self.terminating = True
         if self.workers:
             # Signal workers they must immediately stop
@@ -816,7 +771,6 @@ class PublishPullPipelineManager(PullPipelineManager):
                 worker_id for worker_id in self.workers if self.process_alive(worker_id)
             ]
             for worker_id in alive_workers:
-
                 message = [make_filter_from_worker_id(worker_id), b"STOP"]
                 self.controller_socket.send_multipart(message)
 
@@ -841,7 +795,6 @@ class PublishPullPipelineManager(PullPipelineManager):
             self.ventilator_socket.send_multipart(message)
 
     def start_worker(self, worker_id: bytes, data: bytes) -> None:
-
         self.add_worker(int(worker_id))
 
         # Send START commands until scan worker indicates it is ready to
@@ -869,17 +822,13 @@ class PublishPullPipelineManager(PullPipelineManager):
         cmd = self._get_cmd()
 
         return (
-            "{} --receive {} --send {} --controller {} --syncclient {} "
-            "--filter {} --logging "
-            "{}".format(
-                cmd,
-                self.ventilator_port,
-                self.receiver_port,
-                self.controller_port,
-                self.sync_service_port,
-                worker_id,
-                self.logging_port,
-            )
+            f"{cmd} "
+            f"--receive {self.ventilator_port} "
+            f"--send {self.receiver_port} "
+            f"--controller {self.controller_port} "
+            f"--syncclient {self.sync_service_port} "
+            f"--filter {worker_id} "
+            f"--logging {self.logging_port}"
         )
 
     def __len__(self) -> int:
@@ -894,10 +843,7 @@ class PublishPullPipelineManager(PullPipelineManager):
             self.controller_socket.send_multipart(message)
 
     def resume(self, worker_id: bytes) -> None:
-        if worker_id:
-            workers = [int(worker_id)]
-        else:
-            workers = self.workers
+        workers = [int(worker_id)] if worker_id else self.workers
         for worker_id in workers:
             message = [make_filter_from_worker_id(worker_id), b"RESUME"]
             self.controller_socket.send_multipart(message)
@@ -913,7 +859,6 @@ class ProcessLoggerPublisher:
     """
 
     def __init__(self, context: zmq.Context, name: str, notification_port: int) -> None:
-
         self.logger_pub = context.socket(zmq.PUB)
         self.logger_pub_port = self.logger_pub.bind_to_random_port("tcp://*")
         self.handler = ZeroMQSocketHandler(self.logger_pub)
@@ -924,7 +869,7 @@ class ProcessLoggerPublisher:
         self.logger.addHandler(self.handler)
 
         self.logger_socket = context.socket(zmq.PUSH)
-        self.logger_socket.connect("tcp://localhost:{}".format(notification_port))
+        self.logger_socket.connect(f"tcp://localhost:{notification_port}")
         self.logger_socket.send_multipart(
             [b"CONNECT", str(self.logger_pub_port).encode()]
         )
@@ -965,13 +910,12 @@ class WorkerProcess:
         """
 
         if self.worker_id is not None:
-            name = "{}-{}".format(name, self.worker_id.decode())
+            name = f"{name}-{self.worker_id.decode()}"
         self.logger_publisher = ProcessLoggerPublisher(
             context=self.context, name=name, notification_port=notification_port
         )
 
     def send_message_to_sink(self) -> None:
-
         self.sender.send_multipart([self.worker_id, b"data", self.content])
 
     def initialise_process(self) -> None:
@@ -1015,10 +959,10 @@ class DaemonProcess(WorkerProcess):
         # Socket to send messages along the pipe to
         self.sender = self.context.socket(zmq.PUSH)
         self.sender.set_hwm(10)
-        self.sender.connect("tcp://localhost:{}".format(args.send))
+        self.sender.connect(f"tcp://localhost:{args.send}")
 
         self.receiver = self.context.socket(zmq.PULL)
-        self.receiver.connect("tcp://localhost:{}".format(args.receive))
+        self.receiver.connect(f"tcp://localhost:{args.receive}")
 
         self.worker_id = None
 
@@ -1071,25 +1015,24 @@ class WorkerInPublishPullPipeline(WorkerProcess):
         self.parser.add_argument("--controller", required=True)
 
     def setup_sockets(self, args, subscription_filter: bytes) -> None:
-
         # Socket to send messages along the pipe to
         self.sender = self.context.socket(zmq.PUSH)
         self.sender.set_hwm(10)
-        self.sender.connect("tcp://localhost:{}".format(args.send))
+        self.sender.connect(f"tcp://localhost:{args.send}")
 
         # Socket to receive messages from the pipe
         self.receiver = self.context.socket(zmq.SUB)
-        self.receiver.connect("tcp://localhost:{}".format(args.receive))
+        self.receiver.connect(f"tcp://localhost:{args.receive}")
         self.receiver.setsockopt(zmq.SUBSCRIBE, subscription_filter)
 
         # Socket to receive controller messages: stop, pause, resume
         self.controller = self.context.socket(zmq.SUB)
-        self.controller.connect("tcp://localhost:{}".format(args.controller))
+        self.controller.connect(f"tcp://localhost:{args.controller}")
         self.controller.setsockopt(zmq.SUBSCRIBE, subscription_filter)
 
         # Socket to synchronize the start of receiving data from upstream
         self.sync_client = self.context.socket(zmq.REQ)
-        self.sync_client.connect("tcp://localhost:{}".format(args.syncclient))
+        self.sync_client.connect(f"tcp://localhost:{args.syncclient}")
 
     def check_for_command(self, directive: bytes, content) -> None:
         if directive == b"cmd":
@@ -1108,8 +1051,8 @@ class WorkerInPublishPullPipeline(WorkerProcess):
 
     def check_for_controller_directive(self) -> None:
         try:
-            # Don't block if process is running regularly
-            # If there is no command,exception will occur
+            # Don't block if the process is running regularly
+            # If there is no command, an exception will occur
             worker_id, command = self.controller.recv_multipart(zmq.DONTWAIT)
             assert command in [b"PAUSE", b"STOP"]
             assert worker_id == self.worker_id
@@ -1160,12 +1103,12 @@ class LoadBalancerWorker:
         self.requester = self.context.socket(zmq.REQ)
         self.identity = create_identity(worker_type, args.identity)
         self.requester.identity = self.identity
-        self.requester.connect("tcp://localhost:{}".format(args.request))
+        self.requester.connect(f"tcp://localhost:{args.request}")
 
         # Sender is located in the main process. It is where output (messages)
-        # from this process are are sent to.
+        # from this process are sent to.
         self.sender = self.context.socket(zmq.PUSH)
-        self.sender.connect("tcp://localhost:{}".format(args.send))
+        self.sender.connect(f"tcp://localhost:{args.send}")
 
         self.logger_publisher = ProcessLoggerPublisher(
             context=self.context, name=worker_type, notification_port=args.logging
@@ -1181,7 +1124,7 @@ class LoadBalancerWorker:
 
     def cleanup_pre_stop(self) -> None:
         """
-        Operations to run if process is stopped.
+        Operations to run if the process is stopped.
 
         Implement in child class if needed.
         """
@@ -1263,7 +1206,7 @@ class ProcessLoggingManager(QObject):
             )
         else:
             logging.debug("Subscribing to logging on port %s", port)
-            self.receiver.connect("tcp://localhost:{}".format(port))
+            self.receiver.connect(f"tcp://localhost:{port}")
 
     def removeSubscription(self, port: bytes):
         try:
@@ -1274,7 +1217,7 @@ class ProcessLoggingManager(QObject):
             )
         else:
             logging.debug("Unsubscribing to logging on port %s", port)
-            self.receiver.disconnect("tcp://localhost:{}".format(port))
+            self.receiver.disconnect(f"tcp://localhost:{port}")
 
 
 def stop_process_logging_manager(info_port: int) -> None:
@@ -1286,7 +1229,7 @@ def stop_process_logging_manager(info_port: int) -> None:
 
     context = zmq.Context.instance()
     command = context.socket(zmq.PUSH)
-    command.connect("tcp://localhost:{}".format(info_port))
+    command.connect(f"tcp://localhost:{info_port}")
     command.send_multipart([b"STOP", b""])
 
 
@@ -1319,24 +1262,24 @@ class ScanResults:
 
     def __init__(
         self,
-        rpd_files: Optional[List[RPDFile]] = None,
-        file_type_counter: Optional[FileTypeCounter] = None,
-        file_size_sum: Optional[FileSizeSum] = None,
-        error_code: Optional[CameraErrorCode] = None,
-        error_message: Optional[str] = None,
-        scan_id: Optional[int] = None,
-        optimal_display_name: Optional[str] = None,
-        storage_space: Optional[List[StorageSpace]] = None,
-        storage_descriptions: Optional[List[str]] = None,
-        mount_point: Optional[str] = None,
-        is_apple_mobile: Optional[bool] = False,
-        sample_photo: Optional[Photo] = None,
-        sample_video: Optional[Video] = None,
-        problems: Optional[ScanProblems] = None,
-        fatal_error: Optional[bool] = None,
-        camera_removed: Optional[bool] = None,
-        entire_video_required: Optional[bool] = None,
-        entire_photo_required: Optional[bool] = None,
+        rpd_files: list[RPDFile] | None = None,
+        file_type_counter: FileTypeCounter | None = None,
+        file_size_sum: FileSizeSum | None = None,
+        error_code: CameraErrorCode | None = None,
+        error_message: str | None = None,
+        scan_id: int | None = None,
+        optimal_display_name: str | None = None,
+        storage_space: list[StorageSpace] | None = None,
+        storage_descriptions: list[str] | None = None,
+        mount_point: str | None = None,
+        is_apple_mobile: bool | None = False,
+        sample_photo: Photo | None = None,
+        sample_video: Video | None = None,
+        problems: ScanProblems | None = None,
+        fatal_error: bool | None = None,
+        camera_removed: bool | None = None,
+        entire_video_required: bool | None = None,
+        entire_photo_required: bool | None = None,
     ) -> None:
         self.rpd_files = rpd_files
         self.file_type_counter = file_type_counter
@@ -1372,7 +1315,7 @@ class CopyFilesArguments:
         device: Device,
         photo_download_folder: str,
         video_download_folder: str,
-        files: List[RPDFile],
+        files: list[RPDFile],
         verify_file: bool,
         generate_thumbnails: bool,
         log_gphoto2: bool,
@@ -1394,17 +1337,17 @@ class CopyFilesResults:
 
     def __init__(
         self,
-        scan_id: Optional[int] = None,
-        photo_temp_dir: Optional[str] = None,
-        video_temp_dir: Optional[str] = None,
-        total_downloaded: Optional[int] = None,
-        chunk_downloaded: Optional[int] = None,
-        copy_succeeded: Optional[bool] = None,
-        rpd_file: Optional[RPDFile] = None,
-        download_count: Optional[int] = None,
-        mdata_exceptions: Optional[Tuple] = None,
-        problems: Optional[CopyingProblems] = None,
-        camera_removed: Optional[bool] = None,
+        scan_id: int | None = None,
+        photo_temp_dir: str | None = None,
+        video_temp_dir: str | None = None,
+        total_downloaded: int | None = None,
+        chunk_downloaded: int | None = None,
+        copy_succeeded: bool | None = None,
+        rpd_file: RPDFile | None = None,
+        download_count: int | None = None,
+        mdata_exceptions: tuple | None = None,
+        problems: CopyingProblems | None = None,
+        camera_removed: bool | None = None,
     ) -> None:
         """
 
@@ -1453,13 +1396,13 @@ class ThumbnailDaemonData:
 
     def __init__(
         self,
-        frontend_port: Optional[int] = None,
-        rpd_file: Optional[RPDFile] = None,
-        write_fdo_thumbnail: Optional[bool] = None,
-        use_thumbnail_cache: Optional[bool] = None,
-        backup_full_file_names: Optional[List[str]] = None,
-        fdo_name: Optional[str] = None,
-        force_exiftool: Optional[bool] = None,
+        frontend_port: int | None = None,
+        rpd_file: RPDFile | None = None,
+        write_fdo_thumbnail: bool | None = None,
+        use_thumbnail_cache: bool | None = None,
+        backup_full_file_names: list[str] | None = None,
+        fdo_name: str | None = None,
+        force_exiftool: bool | None = None,
     ) -> None:
         self.frontend_port = frontend_port
         self.rpd_file = rpd_file
@@ -1495,8 +1438,8 @@ class RenameAndMoveFileResults:
         rpd_file: RPDFile = None,
         download_count: int = None,
         stored_sequence_no: int = None,
-        downloads_today: List[str] = None,
-        problems: Optional[RenamingProblems] = None,
+        downloads_today: list[str] = None,
+        problems: RenamingProblems | None = None,
     ) -> None:
         self.move_succeeded = move_succeeded
         self.rpd_file = rpd_file
@@ -1509,11 +1452,11 @@ class RenameAndMoveFileResults:
 class OffloadData:
     def __init__(
         self,
-        thumbnail_rows: Optional[Sequence[ThumbnailDataForProximity]] = None,
+        thumbnail_rows: Sequence[ThumbnailDataForProximity] | None = None,
         proximity_seconds: int = None,
-        rpd_files: Optional[Sequence[RPDFile]] = None,
-        strip_characters: Optional[bool] = None,
-        folders_preview: Optional[FoldersPreview] = None,
+        rpd_files: Sequence[RPDFile] | None = None,
+        strip_characters: bool | None = None,
+        folders_preview: FoldersPreview | None = None,
     ) -> None:
         self.thumbnail_rows = thumbnail_rows
         self.proximity_seconds = proximity_seconds
@@ -1525,8 +1468,8 @@ class OffloadData:
 class OffloadResults:
     def __init__(
         self,
-        proximity_groups: Optional[TemporalProximityGroups] = None,
-        folders_preview: Optional[FoldersPreview] = None,
+        proximity_groups: TemporalProximityGroups | None = None,
+        folders_preview: FoldersPreview | None = None,
     ) -> None:
         self.proximity_groups = proximity_groups
         self.folders_preview = folders_preview
@@ -1549,15 +1492,15 @@ class BackupFileData:
 
     def __init__(
         self,
-        rpd_file: Optional[RPDFile] = None,
-        move_succeeded: Optional[bool] = None,
-        do_backup: Optional[bool] = None,
-        path_suffix: Optional[str] = None,
-        backup_duplicate_overwrite: Optional[bool] = None,
-        verify_file: Optional[bool] = None,
-        download_count: Optional[int] = None,
-        save_fdo_thumbnail: Optional[int] = None,
-        message: Optional[BackupStatus] = None,
+        rpd_file: RPDFile | None = None,
+        move_succeeded: bool | None = None,
+        do_backup: bool | None = None,
+        path_suffix: str | None = None,
+        backup_duplicate_overwrite: bool | None = None,
+        verify_file: bool | None = None,
+        download_count: int | None = None,
+        save_fdo_thumbnail: int | None = None,
+        message: BackupStatus | None = None,
     ) -> None:
         self.rpd_file = rpd_file
         self.move_succeeded = move_succeeded
@@ -1575,14 +1518,14 @@ class BackupResults:
         self,
         scan_id: int,
         device_id: int,
-        total_downloaded: Optional[int] = None,
-        chunk_downloaded: Optional[int] = None,
-        backup_succeeded: Optional[bool] = None,
-        do_backup: Optional[bool] = None,
-        rpd_file: Optional[RPDFile] = None,
-        backup_full_file_name: Optional[str] = None,
-        mdata_exceptions: Optional[Tuple] = None,
-        problems: Optional[BackingUpProblems] = None,
+        total_downloaded: int | None = None,
+        chunk_downloaded: int | None = None,
+        backup_succeeded: bool | None = None,
+        do_backup: bool | None = None,
+        rpd_file: RPDFile | None = None,
+        backup_full_file_name: str | None = None,
+        mdata_exceptions: tuple | None = None,
+        problems: BackingUpProblems | None = None,
     ) -> None:
         self.scan_id = scan_id
         self.device_id = device_id
@@ -1600,7 +1543,7 @@ class GenerateThumbnailsArguments:
     def __init__(
         self,
         scan_id: int,
-        rpd_files: List[RPDFile],
+        rpd_files: list[RPDFile],
         name: str,
         proximity_seconds: int,
         cache_dirs: CacheDirs,
@@ -1608,11 +1551,11 @@ class GenerateThumbnailsArguments:
         need_video_cache_dir: bool,
         frontend_port: int,
         log_gphoto2: bool,
-        camera: Optional[str] = None,
-        port: Optional[str] = None,
-        is_mtp_device: Optional[bool] = None,
-        entire_video_required: Optional[bool] = None,
-        entire_photo_required: Optional[bool] = None,
+        camera: str | None = None,
+        port: str | None = None,
+        is_mtp_device: bool | None = None,
+        entire_video_required: bool | None = None,
+        entire_photo_required: bool | None = None,
     ) -> None:
         """
         List of files for which thumbnails are to be generated.
@@ -1664,11 +1607,11 @@ class GenerateThumbnailsArguments:
 class GenerateThumbnailsResults:
     def __init__(
         self,
-        rpd_file: Optional[RPDFile] = None,
-        thumbnail_bytes: Optional[bytes] = None,
-        scan_id: Optional[int] = None,
-        cache_dirs: Optional[CacheDirs] = None,
-        camera_removed: Optional[bool] = None,
+        rpd_file: RPDFile | None = None,
+        thumbnail_bytes: bytes | None = None,
+        scan_id: int | None = None,
+        cache_dirs: CacheDirs | None = None,
+        camera_removed: bool | None = None,
     ) -> None:
         self.rpd_file = rpd_file
         # If thumbnail_bytes is None, there is no thumbnail
@@ -1683,10 +1626,10 @@ class ThumbnailExtractorArgument:
         self,
         rpd_file: RPDFile,
         task: ExtractionTask,
-        processing: Set[ExtractionProcessing],
+        processing: set[ExtractionProcessing],
         full_file_name_to_work_on: str,
         secondary_full_file_name: str,
-        exif_buffer: Optional[bytearray],
+        exif_buffer: bytearray | None,
         thumbnail_bytes: bytes,
         use_thumbnail_cache: bool,
         file_to_work_on_is_temporary: bool,
@@ -1724,9 +1667,8 @@ class RenameMoveFileManager(PushPullDaemonManager):
         self._process_to_run = "renameandmovefile.py"
 
     def process_sink_data(self):
-        data = pickle.loads(self.content)  # type: RenameAndMoveFileResults
+        data: RenameAndMoveFileResults = pickle.loads(self.content)
         if data.move_succeeded is not None:
-
             self.message.emit(data.move_succeeded, data.rpd_file, data.download_count)
 
         elif data.problems is not None:
@@ -1757,7 +1699,7 @@ class ThumbnailDaemonManager(PushPullDaemonManager):
         self._process_to_run = "thumbnaildaemon.py"
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)  # type: GenerateThumbnailsResults
+        data: GenerateThumbnailsResults = pickle.loads(self.content)
         if data.thumbnail_bytes is None:
             thumbnail = QPixmap()
         else:
@@ -1783,7 +1725,7 @@ class OffloadManager(PushPullDaemonManager):
         self._process_to_run = "offload.py"
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)  # type: OffloadResults
+        data: OffloadResults = pickle.loads(self.content)
         if data.proximity_groups is not None:
             self.message.emit(data.proximity_groups)
         elif data.folders_preview is not None:
@@ -1811,7 +1753,7 @@ class ScanManager(PublishPullPipelineManager):
         self._process_to_run = "scan.py"
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)  # type: ScanResults
+        data: ScanResults = pickle.loads(self.content)
         if data.rpd_files is not None:
             assert data.file_type_counter
             assert data.file_size_sum
@@ -1870,7 +1812,7 @@ class BackupManager(PublishPullPipelineManager):
         self._process_to_run = "backupfile.py"
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)  # type: BackupResults
+        data: BackupResults = pickle.loads(self.content)
         if data.total_downloaded is not None:
             assert data.scan_id is not None
             assert data.chunk_downloaded >= 0
@@ -1910,7 +1852,7 @@ class CopyFilesManager(PublishPullPipelineManager):
         self._process_to_run = "copyfiles.py"
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)  # type: CopyFilesResults
+        data: CopyFilesResults = pickle.loads(self.content)
         if data.total_downloaded is not None:
             assert data.scan_id is not None
             if data.chunk_downloaded < 0:

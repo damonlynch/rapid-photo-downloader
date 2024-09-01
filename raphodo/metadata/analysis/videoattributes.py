@@ -1,39 +1,22 @@
-# Copyright (C) 2016-2021 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2016-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Collects attributes about varieties of video formats, including how much of the file
 has to be read in order to extract metadata information or generate a thumbnail.
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2016-2021, Damon Lynch"
-
-
-from tempfile import NamedTemporaryFile, TemporaryDirectory
+import datetime  # noqa: F401
 import os
-import datetime
+from tempfile import NamedTemporaryFile, TemporaryDirectory
+
 import raphodo.metadata.exiftool as exiftool
-from raphodo.metadata.metadatavideo import MetaData
-from raphodo.utilities import format_size_for_user, datetime_roughly_equal
-from raphodo.thumbnailextractor import get_video_frame
 from raphodo.constants import FileType
 from raphodo.metadata.analysis.photoattributes import ExifToolMixin, vmtouch_output
+from raphodo.metadata.metadatavideo import MetaData
+from raphodo.thumbnailextractor import get_video_frame
+from raphodo.tools.utilities import datetime_roughly_equal
+from raphodo.tools.utilities import format_size_for_user as format_size
 
 
 class VideoAttributes(ExifToolMixin):
@@ -52,13 +35,13 @@ class VideoAttributes(ExifToolMixin):
             all_metadata_tags,
             MetaData,
         )
-        self.datetime = None  # type: datetime.datetime
+        self.datetime = None  # type: datetime.datetime | None
         self.file_name = full_file_name
         self.ext = ext
         self.et_process = et_process
-        self.minimum_read_size_in_bytes_datetime = None  # type: int
-        self.minimum_read_size_in_bytes_thumbnail = None  # type: int
-        self.minimum_metadata_read_size_in_bytes_all = None  # type: int
+        self.minimum_read_size_in_bytes_datetime = None  # type: int | None
+        self.minimum_read_size_in_bytes_thumbnail = None  # type: int | None
+        self.minimum_metadata_read_size_in_bytes_all = None  # type: int | None
         self.thumbnail_offset = 0.0
 
         self.assign_video_attributes(et_process)
@@ -91,7 +74,7 @@ class VideoAttributes(ExifToolMixin):
 
     def minimum_extract_for_thumbnail(self):
         name = os.path.split(self.file_name)[1]
-        with TemporaryDirectory(dir="/tmp") as tmpdirname:
+        with TemporaryDirectory(dir="/tmp") as tmpdirname:  # noqa: SIM117
             with open(self.file_name, "rb") as video:
                 tempname = os.path.join(tmpdirname, name)
                 for size_in_bytes in thumbnail_scan_range(self.file_size):
@@ -127,8 +110,8 @@ class VideoAttributes(ExifToolMixin):
 
     def minimum_extract_for_all_tags(self):
         funcs = (
-            "date_time timestamp file_number width height length frames_per_second codec "
-            "fourcc rotation".split()
+            "date_time timestamp file_number width height length frames_per_second "
+            "codec fourcc rotation".split()
         )
 
         metadata = MetaData(self.file_name, self.et_process)
@@ -161,23 +144,20 @@ class VideoAttributes(ExifToolMixin):
                 os.remove(name)
 
     def __repr__(self):
-        if self.file_name:
-            s = os.path.split(self.file_name)[1]
-        else:
-            s = self.ext
+        s = os.path.split(self.file_name)[1] if self.file_name else self.ext
         if self.datetime:
-            s += " {}".format(self.datetime)
+            s += f" {self.datetime}"
         if self.minimum_read_size_in_bytes_datetime:
-            s += " {} (datetime)".format(self.minimum_read_size_in_bytes_datetime)
+            s += f" {self.minimum_read_size_in_bytes_datetime} (datetime)"
         if self.minimum_read_size_in_bytes_thumbnail:
-            s += " {} (thumb)".format(self.minimum_read_size_in_bytes_thumbnail)
+            s += f" {self.minimum_read_size_in_bytes_thumbnail} (thumb)"
         if self.minimum_metadata_read_size_in_bytes_all:
-            s += " {} (variety)".format(self.minimum_metadata_read_size_in_bytes_all)
+            s += f" {self.minimum_metadata_read_size_in_bytes_all} (variety)"
         return s
 
     def __str__(self):
         if self.file_name is not None:
-            s = "{}\n".format(os.path.split(self.file_name)[1])
+            s = f"{os.path.split(self.file_name)[1]}\n"
         else:
             s = self.ext
         if self.datetime:  # type: datetime.datetime
@@ -189,20 +169,23 @@ class VideoAttributes(ExifToolMixin):
         else:
             s += "Datetime on file system: {}\n".format(self.fs_datetime.strftime("%c"))
 
-        s += "Disk cache after metadata read:\n[{}]\n".format(self.in_memory)
+        s += f"Disk cache after metadata read:\n[{self.in_memory}]\n"
         if self.minimum_read_size_in_bytes_datetime is not None:
-            s += "Minimum read size to extract datetime: {} of {}\n".format(
-                format_size_for_user(self.minimum_read_size_in_bytes_datetime),
-                format_size_for_user(self.file_size),
+            s += (
+                "Minimum read size to extract datetime: "
+                f"{format_size(self.minimum_read_size_in_bytes_datetime)} of "
+                f"{format_size(self.file_size)}\n"
             )
         if self.minimum_read_size_in_bytes_thumbnail:
-            s += "Minimum read size to extract thumbnail: {} of {}\n".format(
-                format_size_for_user(self.minimum_read_size_in_bytes_thumbnail),
-                format_size_for_user(self.file_size),
+            s += (
+                "Minimum read size to extract thumbnail: "
+                f"{format_size(self.minimum_read_size_in_bytes_thumbnail)} of "
+                f"{format_size(self.file_size)}\n"
             )
         if self.minimum_metadata_read_size_in_bytes_all is not None:
-            s += "Minimum read size to extract variety of tags: {}\n".format(
-                format_size_for_user(self.minimum_metadata_read_size_in_bytes_all)
+            s += (
+                f"Minimum read size to extract variety of tags: "
+                f"{format_size(self.minimum_metadata_read_size_in_bytes_all)}\n"
             )
         else:
             s += "Could not extract variety of tags with minimal read\n"
@@ -224,8 +207,7 @@ def video_metadata_scan_range(size: int) -> iter:
     ):
         start = stop
         stop = start + step * iterations
-        for b in range(start, stop, step):
-            yield b
+        yield from range(start, stop, step)
     yield size
 
 
@@ -237,6 +219,5 @@ def thumbnail_scan_range(size: int) -> iter:
     ):
         start = stop
         stop = start + step * iterations
-        for b in range(start, stop, step):
-            yield b
+        yield from range(start, stop, step)
     yield size

@@ -1,72 +1,62 @@
-#!/usr/bin/env python3
-
-# Copyright (C) 2017-2021 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader. If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2017-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Error log window for Rapid Photo Downloader
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2021, Damon Lynch"
-
 import math
+import re
 from collections import deque
 
-import re
-
-from PyQt5.QtWidgets import (
-    QTextEdit,
-    QDialog,
-    QDialogButtonBox,
-    QLineEdit,
-    QVBoxLayout,
-    QHBoxLayout,
-    QApplication,
-    QPushButton,
-    QLabel,
-    QTextBrowser,
-    QStyle,
+from PyQt5.QtCore import (
+    QEvent,
+    QRect,
+    QSize,
+    Qt,
+    QTimer,
+    QUrl,
+    pyqtSignal,
+    pyqtSlot,
 )
 from PyQt5.QtGui import (
-    QPalette,
-    QIcon,
-    QFontMetrics,
-    QFont,
     QColor,
+    QFont,
+    QFontMetrics,
+    QIcon,
     QKeyEvent,
     QKeySequence,
-    QTextDocument,
-    QTextCursor,
-    QPaintEvent,
-    QPainter,
-    QPen,
     QMouseEvent,
+    QPainter,
+    QPaintEvent,
+    QPalette,
+    QPen,
     QShowEvent,
+    QTextCursor,
+    QTextDocument,
 )
-from PyQt5.QtCore import Qt, pyqtSlot, QSize, QUrl, QTimer, QRect, pyqtSignal, QEvent
-
-from raphodo.constants import ErrorType
-from raphodo.problemnotification import Problem, Problems
-from raphodo.ui.viewutils import translateDialogBoxButtons, darkModeIcon
+from PyQt5.QtWidgets import (
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QStyle,
+    QTextBrowser,
+    QTextEdit,
+    QVBoxLayout,
+)
 from showinfm import show_in_file_manager
 
-# ErrorLogMessage = namedtuple('ErrorLogMessage', 'title body name uri')
+from raphodo.constants import ErrorType
+from raphodo.internationalisation.install import install_gettext
+from raphodo.problemnotification import Problem, Problems
+from raphodo.tools.utilities import data_file_path
+from raphodo.ui.viewutils import darkModeIcon, translateDialogBoxButtons
+
+install_gettext()
 
 
 class QFindLineEdit(QLineEdit):
@@ -122,7 +112,7 @@ class ErrorReport(QDialog):
     """
     Display error messages from the download in a dialog.
 
-    Search/find feature is live, like Firefox. However it's pretty slow
+    Search/find feature is live, like Firefox. However, it's pretty slow
     with a large amount of data, so don't initiate a new search each
     and every time data is appended to the log window. Instead, if a search
     is active, wait for one second after text has been appended before
@@ -159,7 +149,7 @@ class ErrorReport(QDialog):
         }
         """
 
-        document = self.log.document()  # type: QTextDocument
+        document: QTextDocument = self.log.document()
         document.setDefaultStyleSheet(sheet)
         # document.setIndentWidth(QFontMetrics(QFont()).boundingRect('200').width())
 
@@ -187,7 +177,7 @@ class ErrorReport(QDialog):
         message = _("Find in reports")
         self.find = QFindLineEdit(find_text=message)
         self.find.textEdited.connect(self.onFindChanged)
-        style = self.find.style()  # type: QStyle
+        style: QStyle = self.find.style()
         frame_width = style.pixelMetric(QStyle.PM_DefaultFrameWidth)
         button_margin = style.pixelMetric(QStyle.PM_ButtonMargin)
         spacing = (frame_width + button_margin) * 2 + 8
@@ -200,12 +190,12 @@ class ErrorReport(QDialog):
         size = QSize(font_height, font_height)
 
         self.up = QPushButton()
-        self.up.setIcon(darkModeIcon(path=":/icons/up.svg", size=QSize(100, 100)))
+        self.up.setIcon(darkModeIcon(path="icons/up.svg", size=QSize(100, 100)))
         self.up.setIconSize(size)
         self.up.clicked.connect(self.upClicked)
         self.up.setToolTip(_("Find the previous occurrence of the phrase"))
         self.down = QPushButton()
-        self.down.setIcon(darkModeIcon(path=":/icons/down.svg", size=QSize(100, 100)))
+        self.down.setIcon(darkModeIcon(path="icons/down.svg", size=QSize(100, 100)))
         self.down.setIconSize(size)
         self.down.clicked.connect(self.downClicked)
         self.down.setToolTip(_("Find the next occurrence of the phrase"))
@@ -230,10 +220,6 @@ class ErrorReport(QDialog):
             .width()
             + spacing
         )
-        # Translators: match number of total matches in a search, e.g. 1 of 10 matches
-        _("%(matchnumber)s of %(total)s matches")
-
-        # TODO implement this once translations done
 
         findLayout = QHBoxLayout()
         findLayout.setSpacing(0)
@@ -252,9 +238,9 @@ class ErrorReport(QDialog):
 
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
         translateDialogBoxButtons(buttons)
-        self.clear = buttons.addButton(
+        self.clear: QPushButton = buttons.addButton(
             _("Clear"), QDialogButtonBox.ActionRole
-        )  # type: QPushButton
+        )
         buttons.rejected.connect(self.reject)
         self.clear.clicked.connect(self.clearClicked)
         self.clear.setEnabled(False)
@@ -269,16 +255,16 @@ class ErrorReport(QDialog):
         self.onFindChanged("")
 
         self.icon_lookup = {
-            ErrorType.warning: ":/report/warning.svg",
-            ErrorType.serious_error: ":/report/error.svg",
-            ErrorType.critical_error: ":/report/critical.svg",
+            ErrorType.warning: "report/warning.svg",
+            ErrorType.serious_error: "report/error.svg",
+            ErrorType.critical_error: "report/critical.svg",
         }
 
     @pyqtSlot()
     def textChanged(self) -> None:
         self.clear.setEnabled(bool(self.log.document().characterCount()))
 
-    def _makeFind(self, back: bool = False) -> int:
+    def _makeFind(self, back: bool = False) -> QTextDocument.FindFlags:
         flags = QTextDocument.FindFlags()
         if self.matchCase.isChecked():
             flags |= QTextDocument.FindCaseSensitively
@@ -289,7 +275,7 @@ class ErrorReport(QDialog):
         return flags
 
     def _clearSearch(self) -> None:
-        cursor = self.log.textCursor()  # type: QTextCursor
+        cursor: QTextCursor = self.log.textCursor()
         if cursor.hasSelection():
             cursor.clearSelection()
             self.log.setTextCursor(cursor)
@@ -310,7 +296,7 @@ class ErrorReport(QDialog):
             QTimer.singleShot(1000, self._doFind)
             return
 
-        cursor = self.log.textCursor()  # type: QTextCursor
+        cursor: QTextCursor = self.log.textCursor()
         text = self.find.getText()
         highlight = self.highlightAll.isChecked()
 
@@ -319,7 +305,7 @@ class ErrorReport(QDialog):
             self.findResults.setText("")
             return
 
-        initial_position = cursor.selectionStart()  # type: int
+        initial_position: int = cursor.selectionStart()
 
         self.log.moveCursor(QTextCursor.Start)
 
@@ -331,7 +317,7 @@ class ErrorReport(QDialog):
         self.find_cursors = []
 
         while self.log.find(text, flags):
-            cursor = self.log.textCursor()  # type: QTextCursor
+            cursor: QTextCursor = self.log.textCursor()
             self.find_cursors.append(cursor)
 
             if index is None and cursor.selectionStart() >= initial_position:
@@ -368,7 +354,10 @@ class ErrorReport(QDialog):
             self.current_find_index = index
             self.log.setTextCursor(cursor)
             self.findResults.setText(
-                _("%s of %s matches") % (index + 1, len(self.find_cursors))
+                # Translators: match number of total matches in a search,
+                # e.g. 1 of 10 matches
+                _("%(matchnumber)s of %(total)s matches")
+                % dict(matchnumber=index + 1, total=len(self.find_cursors))
             )
             self.findResults.setPalette(self.foundPalette)
 
@@ -458,8 +447,9 @@ class ErrorReport(QDialog):
                 extra_text = text[end + 4 : next_start]
             else:
                 extra_text = text[end + 4 :]
-            new_text = '{}<a href="file:///{}">{}</a>{}'.format(
-                new_text, len(self.uris), text[href_end + 2 : end], extra_text
+            new_text = (
+                f'{new_text}<a href="file:///{len(self.uris)}">'
+                f"{text[href_end + 2: end]}</a>{extra_text}"
             )
             self.uris.append(href)
             start = next_start
@@ -474,10 +464,10 @@ class ErrorReport(QDialog):
         line = self._saveUrls(problem.body)
 
         if len(problem.details) == 1:
-            line = "{}<br><i>{}</i>".format(line, self._saveUrls(problem.details[0]))
+            line = f"{line}<br><i>{self._saveUrls(problem.details[0])}</i>"
         elif len(problem.details) > 1:
             for detail in problem.details:
-                line = "{}<br><i>{}</i>".format(line, self._saveUrls(detail))
+                line = f"{line}<br><i>{self._saveUrls(detail)}</i>"
 
         return line
 
@@ -487,19 +477,19 @@ class ErrorReport(QDialog):
         """
 
         title = self._saveUrls(problems.title)
-        html = "<h1>{}</h1><p></p>".format(title)
-        html = "{}<table>".format(html)
+        html = f"<h1>{title}</h1><p></p>"
+        html = f"{html}<table>"
         for problem in problems:
             line = self._getBody(problem=problem)
-            icon = self.icon_lookup[problem.severity]
-            icon = '<img src="{}" height=16 width=16>'.format(icon)
+            icon = data_file_path(self.icon_lookup[problem.severity])
+            icon = f'<img src="{icon}" height=16 width=16>'
             html = (
-                '{}<tr><td width=32 align=center>{}</td><td style="padding-bottom: 6px;">'
-                "{}</td></tr>".format(html, icon, line)
+                f"{html}<tr><td width=32 align=center>{icon}</td>"
+                f'<td style="padding-bottom: 6px;">{line}</td></tr>'
             )
-        html = "{}</table>".format(html)
+        html = f"{html}</table>"
 
-        html = "{}<p></p><p></p>".format(html)
+        html = f"{html}<p></p><p></p>"
         self.log.append(html)
 
     def addProblems(self, problems: Problems) -> None:
@@ -540,7 +530,6 @@ class ErrorReport(QDialog):
 
 
 class SpeechBubble(QLabel):
-
     """
     Display a speech bubble with a counter in it, that when clicked
     emits a signal and resets.
@@ -553,7 +542,7 @@ class SpeechBubble(QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.rapidApp = parent
-        self.image = QIcon(":/speech-bubble.svg")
+        self.image = QIcon(data_file_path("speech-bubble.svg"))
         self._count = 0
         self.fillColor = QPalette().color(QPalette.Window)
         self.counterFont = QFont()
@@ -585,23 +574,19 @@ class SpeechBubble(QLabel):
         self.update()
 
     def paintEvent(self, event: QPaintEvent):
-
         painter = QPainter()
         painter.begin(self)
 
         height = self.height()
 
-        rect = self.rect()  # type: QRect
+        rect: QRect = self.rect()
         if not self._count:
             painter.fillRect(rect, self.fillColor)
         else:
             painter.drawPixmap(0, 0, height, height, self.image.pixmap(height, height))
             painter.setFont(self.counterFont)
             painter.setPen(self.counterPen)
-            if self._count > 9:
-                value = "9+"
-            else:
-                value = str(self._count)
+            value = "9+" if self._count > 9 else str(self._count)
             painter.drawText(rect, Qt.AlignCenter, value)
         painter.end()
 
@@ -619,7 +604,6 @@ class SpeechBubble(QLabel):
 
 
 if __name__ == "__main__":
-
     # Application development test code:
 
     app = QApplication([])

@@ -1,102 +1,84 @@
-# Copyright (C) 2017-2023 Damon Lynch <damonlynch@gmail.com>
-
-# This file is part of Rapid Photo Downloader.
-#
-# Rapid Photo Downloader is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Rapid Photo Downloader is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
-# see <http://www.gnu.org/licenses/>.
+# SPDX-FileCopyrightText: Copyright 2017-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Dialog window to show and manipulate selected user preferences
 """
 
-__author__ = "Damon Lynch"
-__copyright__ = "Copyright 2017-2023, Damon Lynch"
-
-import webbrowser
-from typing import List
 import logging
+import webbrowser
 
-
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QObject, QThread, QTimer, QSize
-from PyQt5.QtWidgets import (
-    QWidget,
-    QSizePolicy,
-    QComboBox,
-    QVBoxLayout,
-    QLabel,
-    QLineEdit,
-    QSpinBox,
-    QGridLayout,
-    QAbstractItemView,
-    QListWidgetItem,
-    QHBoxLayout,
-    QDialog,
-    QDialogButtonBox,
-    QCheckBox,
-    QStyle,
-    QStackedWidget,
-    QApplication,
-    QPushButton,
-    QGroupBox,
-    QFormLayout,
-    QMessageBox,
-    QButtonGroup,
-    QRadioButton,
-    QAbstractButton,
-)
+from PyQt5.QtCore import QObject, QSize, Qt, QThread, QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import (
-    QShowEvent,
     QCloseEvent,
-    QMouseEvent,
-    QIcon,
     QFont,
     QFontMetrics,
-    QPixmap,
+    QIcon,
+    QMouseEvent,
     QPalette,
+    QPixmap,
+    QShowEvent,
+)
+from PyQt5.QtWidgets import (
+    QAbstractButton,
+    QAbstractItemView,
+    QApplication,
+    QButtonGroup,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidgetItem,
+    QMessageBox,
+    QPushButton,
+    QRadioButton,
+    QSizePolicy,
+    QSpinBox,
+    QStackedWidget,
+    QStyle,
+    QVBoxLayout,
+    QWidget,
 )
 
-from raphodo.prefs.preferences import Preferences
+from raphodo.cache import ThumbnailCacheSql
 from raphodo.constants import (
-    KnownDeviceType,
     CompletedDownloads,
-    TreatRawJpeg,
+    ConflictResolution,
+    KnownDeviceType,
     MarkRawJpeg,
+    TreatRawJpeg,
+)
+from raphodo.internationalisation.utilities import (
+    make_internationalized_list,
+    thousands,
+)
+from raphodo.metadata.fileextensions import (
+    ALL_KNOWN_EXTENSIONS,
+    AUDIO_EXTENSIONS,
+    PHOTO_EXTENSIONS,
+    VIDEO_EXTENSIONS,
+    VIDEO_THUMBNAIL_EXTENSIONS,
+)
+from raphodo.prefs.preferences import Preferences
+from raphodo.tools.utilities import (
+    available_cpu_count,
+    available_languages,
+    current_version_is_dev_version,
+    data_file_path,
+    format_size_for_user,
 )
 from raphodo.ui.viewutils import (
     QNarrowListWidget,
-    translateDialogBoxButtons,
-    standardMessageBox,
     StyledLinkLabel,
-)
-from raphodo.cache import ThumbnailCacheSql
-from raphodo.constants import ConflictResolution
-from raphodo.utilities import (
-    current_version_is_dev_version,
-    make_internationalized_list,
-    version_check_disabled,
-    available_languages,
-    available_cpu_count,
-    format_size_for_user,
-    thousands,
-)
-from raphodo.ui.viewutils import darkModePixmap
-from raphodo.metadata.fileformats import (
-    PHOTO_EXTENSIONS,
-    AUDIO_EXTENSIONS,
-    VIDEO_EXTENSIONS,
-    VIDEO_THUMBNAIL_EXTENSIONS,
-    ALL_KNOWN_EXTENSIONS,
+    darkModePixmap,
+    standardMessageBox,
+    translateDialogBoxButtons,
 )
 
 
@@ -107,8 +89,8 @@ class ClickableLabel(QLabel):
         self.clicked.emit()
 
 
-consolidation_implemented = False
-# consolidation_implemented = True
+CONSOLIDATION_IMPLEMENTED = False
+FORCE_EXIFTOOL_VIDEO_IMPLEMENTED = False
 
 system_language = "SYSTEM"
 
@@ -151,7 +133,7 @@ class PreferencesDialog(QDialog):
         palette = QPalette()
         selectedColour = palette.color(palette.HighlightedText)
 
-        if consolidation_implemented:
+        if CONSOLIDATION_IMPLEMENTED:
             self.chooser_items = (
                 _("Devices"),
                 _("Language"),
@@ -164,15 +146,15 @@ class PreferencesDialog(QDialog):
                 _("Miscellaneous"),
             )
             icons = (
-                ":/prefs/devices.svg",
-                ":/prefs/language.svg",
-                ":/prefs/automation.svg",
-                ":/prefs/thumbnails.svg",
-                ":/prefs/timezone.svg",
-                ":/prefs/error-handling.svg",
-                ":/prefs/warnings.svg",
-                ":/prefs/consolidation.svg",
-                ":/prefs/miscellaneous.svg",
+                "prefs/bw/devices.svg",
+                "prefs/bw/language.svg",
+                "prefs/bw/automation.svg",
+                "prefs/bw/thumbnails.svg",
+                "prefs/bw/timezone.svg",
+                "prefs/bw/error-handling.svg",
+                "prefs/bw/warnings.svg",
+                "prefs/bw/consolidation.svg",
+                "prefs/bw/miscellaneous.svg",
             )
         else:
             self.chooser_items = (
@@ -186,20 +168,20 @@ class PreferencesDialog(QDialog):
                 _("Miscellaneous"),
             )
             icons = (
-                ":/prefs/devices.svg",
-                ":/prefs/language.svg",
-                ":/prefs/automation.svg",
-                ":/prefs/thumbnails.svg",
-                ":/prefs/timezone.svg",
-                ":/prefs/error-handling.svg",
-                ":/prefs/warnings.svg",
-                ":/prefs/miscellaneous.svg",
+                "prefs/bw/devices.svg",
+                "prefs/bw/language.svg",
+                "prefs/bw/automation.svg",
+                "prefs/bw/thumbnails.svg",
+                "prefs/bw/timezone.svg",
+                "prefs/bw/error-handling.svg",
+                "prefs/bw/warnings.svg",
+                "prefs/bw/miscellaneous.svg",
             )
 
         for prefIcon, label in zip(icons, self.chooser_items):
             # make the selected icons be the same colour as the selected text
             icon = QIcon()
-            pixmap = QPixmap(prefIcon)
+            pixmap = QPixmap(data_file_path(prefIcon))
             selected = QPixmap(pixmap.size())
             selected.fill(selectedColour)
             selected.setMask(pixmap.createMaskFromColor(Qt.transparent))
@@ -334,7 +316,8 @@ class PreferencesDialog(QDialog):
         self.ignoredPathsRe = QCheckBox()
         self.ignorePathsReLabel = ClickableLabel(
             # Translators: you must include {link} exactly as it is below.
-            # Do not translate the term link. Be sure to include the <a> and </a> as well.
+            # Do not translate the term link. Be sure to include the <a> and </a> as
+            # well.
             _("Use python-style <a {link}>regular expressions</a>").format(
                 link='style="text-decoration:none; color: palette(highlight);"'
                 'href="http://damonlynch.net/rapid/documentation/#regularexpressions"'
@@ -416,9 +399,9 @@ class PreferencesDialog(QDialog):
         self.automationBox = QGroupBox(_("Program Automation"))
         self.autoMount = QCheckBox(_("Mount devices not already automatically mounted"))
         tooltip = _(
-            # Translators: This next sentence is used in a tool tip. Feel free to place the
-            # carriage return where you think it makes sense so that the tool tip does not
-            # stretch too far horizontally across the screen.
+            # Translators: This next sentence is used in a tool tip. Feel free to place
+            # the carriage return where you think it makes sense so that the tool tip
+            # does not stretch too far horizontally across the screen.
             "Mount devices like memory cards or external drives when\n"
             "the operating system does not automatically mount them"
         )
@@ -817,7 +800,7 @@ class PreferencesDialog(QDialog):
         warningLayout.addStretch()
         warningLayout.setContentsMargins(0, 0, 0, 0)
 
-        if consolidation_implemented:
+        if CONSOLIDATION_IMPLEMENTED:
             self.consolidationBox = QGroupBox(_("Photo and Video Consolidation"))
 
             self.consolidateIdentical = QCheckBox(
@@ -923,7 +906,7 @@ class PreferencesDialog(QDialog):
         )
         self.promptCompletedDownloads.setToolTip(tip)
 
-        if consolidation_implemented:
+        if CONSOLIDATION_IMPLEMENTED:
             consolidationBoxLayout = QGridLayout()
             consolidationBoxLayout.addWidget(self.consolidateIdentical, 0, 0, 1, 3)
 
@@ -963,33 +946,6 @@ class PreferencesDialog(QDialog):
             )
             self.treatRawJpegGroup.buttonClicked.connect(self.treatRawJpegGroupClicked)
             self.markRawJpegGroup.buttonClicked.connect(self.markRawJpegGroupClicked)
-
-        if not version_check_disabled():
-            self.newVersionBox = QGroupBox(_("Version Check"))
-            self.checkNewVersion = QCheckBox(_("Check for new version at startup"))
-            self.checkNewVersion.setToolTip(
-                _(
-                    "Check for a new version of the program each time the program "
-                    "starts."
-                )
-            )
-            self.includeDevRelease = QCheckBox(_("Include development releases"))
-            tip = _(
-                "Include alpha, beta and other development releases when checking for "
-                "a new version of the program.\n\n"
-                "If you are currently running a development version, the check will "
-                "always occur."
-            )
-            self.includeDevRelease.setToolTip(tip)
-            self.setVersionCheckValues()
-            self.checkNewVersion.stateChanged.connect(self.checkNewVersionChanged)
-            self.includeDevRelease.stateChanged.connect(self.includeDevReleaseChanged)
-
-            newVersionLayout = QGridLayout()
-            newVersionLayout.addWidget(self.checkNewVersion, 0, 0, 1, 2)
-            newVersionLayout.addWidget(self.includeDevRelease, 1, 1, 1, 1)
-            newVersionLayout.setColumnMinimumWidth(0, checkbox_width)
-            self.newVersionBox.setLayout(newVersionLayout)
 
         self.metadataBox = QGroupBox(_("Metadata"))
         self.ignoreMdatatimeMtpDng = QCheckBox(
@@ -1044,10 +1000,11 @@ class PreferencesDialog(QDialog):
         metadataLayout = QVBoxLayout()
         metadataLayout.addWidget(self.ignoreMdatatimeMtpDng)
         metadataLayout.addWidget(self.forceExiftool)
-        metadataLayout.addWidget(self.forceExiftoolVideo)
+        if FORCE_EXIFTOOL_VIDEO_IMPLEMENTED:
+            metadataLayout.addWidget(self.forceExiftoolVideo)
         self.metadataBox.setLayout(metadataLayout)
 
-        if not consolidation_implemented:
+        if not CONSOLIDATION_IMPLEMENTED:
             self.completedDownloadsBox = QGroupBox(_("Completed Downloads"))
             completedDownloadsLayout = QVBoxLayout()
             completedDownloadsLayout.addWidget(self.noconsolidationLabel)
@@ -1059,10 +1016,8 @@ class PreferencesDialog(QDialog):
 
         self.miscWidget = QWidget()
         miscLayout = QVBoxLayout()
-        if not version_check_disabled():
-            miscLayout.addWidget(self.newVersionBox)
         miscLayout.addWidget(self.metadataBox)
-        if not consolidation_implemented:
+        if not CONSOLIDATION_IMPLEMENTED:
             miscLayout.addWidget(self.completedDownloadsBox)
         miscLayout.addStretch()
         miscLayout.setContentsMargins(0, 0, 0, 0)
@@ -1076,7 +1031,7 @@ class PreferencesDialog(QDialog):
         self.panels.addWidget(self.timeZone)
         self.panels.addWidget(self.errorWidget)
         self.panels.addWidget(self.warnings)
-        if consolidation_implemented:
+        if CONSOLIDATION_IMPLEMENTED:
             self.panels.addWidget(self.consolidation)
         self.panels.addWidget(self.miscWidget)
 
@@ -1091,14 +1046,14 @@ class PreferencesDialog(QDialog):
             | QDialogButtonBox.Help
         )
         translateDialogBoxButtons(buttons)
-        self.restoreButton = buttons.button(
+        self.restoreButton: QPushButton = buttons.button(
             QDialogButtonBox.RestoreDefaults
-        )  # type: QPushButton
+        )
         self.restoreButton.clicked.connect(self.restoreDefaultsClicked)
-        self.helpButton = buttons.button(QDialogButtonBox.Help)  # type: QPushButton
+        self.helpButton: QPushButton = buttons.button(QDialogButtonBox.Help)
         self.helpButton.clicked.connect(self.helpButtonClicked)
         self.helpButton.setToolTip(_("Get help online..."))
-        self.closeButton = buttons.button(QDialogButtonBox.Close)  # type: QPushButton
+        self.closeButton: QPushButton = buttons.button(QDialogButtonBox.Close)
         self.closeButton.clicked.connect(self.close)
 
         controlsLayout = QHBoxLayout()
@@ -1444,7 +1399,7 @@ class PreferencesDialog(QDialog):
     @pyqtSlot()
     def removeDeviceClicked(self) -> None:
         row = self.knownDevices.currentRow()
-        item = self.knownDevices.takeItem(row)  # type: QListWidgetItem
+        item: QListWidgetItem = self.knownDevices.takeItem(row)
         known_device_type = item.type()
         if known_device_type == KnownDeviceType.volume_whitelist:
             self.prefs.del_list_value("volume_whitelist", item.text())
@@ -1828,7 +1783,7 @@ class PreferencesDialog(QDialog):
             ):
                 self.prefs.restore(value)
             self.setWarningValues()
-        elif row == 7 and consolidation_implemented:
+        elif row == 7 and CONSOLIDATION_IMPLEMENTED:
             for value in (
                 "completed_downloads",
                 "consolidate_identical",
@@ -1838,11 +1793,9 @@ class PreferencesDialog(QDialog):
             ):
                 self.prefs.restore(value)
             self.setConsolidatedValues()
-        elif (row == 8 and consolidation_implemented) or (
-            row == 7 and not consolidation_implemented
+        elif (row == 8 and CONSOLIDATION_IMPLEMENTED) or (
+            row == 7 and not CONSOLIDATION_IMPLEMENTED
         ):
-            if not version_check_disabled():
-                self.prefs.restore("check_for_new_versions")
             for value in (
                 "include_development_release",
                 "ignore_mdatatime_for_mtp_dng",
@@ -1850,12 +1803,10 @@ class PreferencesDialog(QDialog):
                 "force_exiftool_video",
             ):
                 self.prefs.restore(value)
-            if not consolidation_implemented:
+            if not CONSOLIDATION_IMPLEMENTED:
                 self.prefs.restore("completed_downloads")
-            if not version_check_disabled():
-                self.setVersionCheckValues()
             self.setMetdataValues()
-            if not consolidation_implemented:
+            if not CONSOLIDATION_IMPLEMENTED:
                 self.setCompletedDownloadsValues()
 
     @pyqtSlot()
@@ -1876,7 +1827,7 @@ class PreferencesDialog(QDialog):
         elif row == 6:
             location = "#warningpreferences"
         elif row == 7:
-            if consolidation_implemented:
+            if CONSOLIDATION_IMPLEMENTED:
                 location = "#consolidationpreferences"
             else:
                 location = "#miscellaneousnpreferences"
@@ -1886,7 +1837,7 @@ class PreferencesDialog(QDialog):
             location = ""
 
         webbrowser.open_new_tab(
-            "https://www.damonlynch.net/rapid/documentation/{}".format(location)
+            f"https://www.damonlynch.net/rapid/documentation/{location}"
         )
 
     def closeEvent(self, event: QCloseEvent) -> None:
@@ -1992,7 +1943,7 @@ class ExceptFileExtDialog(PreferenceAddDialog):
             parent=parent,
         )
 
-    def exts(self, exts: List[str]) -> str:
+    def exts(self, exts: list[str]) -> str:
         return make_internationalized_list([ext.upper() for ext in exts])
 
     def accept(self):
@@ -2056,7 +2007,6 @@ class CacheSize(QObject):
 
 
 if __name__ == "__main__":
-
     # Application development test code:
 
     app = QApplication([])

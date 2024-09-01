@@ -1,0 +1,161 @@
+[build-system]
+requires = ["hatchling", "hatch-gettext", "hatch-argparse-manpage"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rapid-photo-downloader"
+description = "Downloads, renames and backs up photos and videos from cameras, phones, memory cards and other devices."
+dynamic = ["version"]
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Damon Lynch", email = "damonlynch@gmail.com" },
+]
+keywords = [
+    "arw",
+    "backup",
+    "camera",
+    "copy",
+    "cr2",
+    "cr3",
+    "dng",
+    "download",
+    "import",
+    "ingest",
+    "nef",
+    "phone",
+    "photo",
+    "photographer",
+    "photography",
+    "raw",
+    "rename",
+    "transfer",
+    "video",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: X11 Applications :: Qt",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Multimedia :: Video",
+]
+dependencies = [
+    "arrow",
+    "babel",
+    "colour",
+    "gphoto2",
+    "packaging",
+    "pillow",
+    "psutil",
+    "PyGObject",
+    "pymediainfo",
+    "PyQt5",
+    "python-dateutil",
+    "pyxdg",
+    "pyzmq",
+    "show-in-file-manager",
+    "sortedcontainers",
+    "tenacity",
+    "tornado",
+]
+
+[project.optional-dependencies]
+color_ouput = ["colorlog"]
+progress_bar = ["pyprind"]
+
+[project.gui-scripts]
+rapid-photo-downloader = "raphodo.rapid:main"
+
+[project.urls]
+Issues = "https://bugs.rapidphotodownloader.com"
+Homepage = "https://damonlynch.net/rapid"
+Source = "https://github.com/damonlynch/rapid-photo-downloader"
+
+[tool.hatch.version]
+path = "raphodo/__about__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["raphodo"]
+
+[tool.hatch.build.targets.sdist]
+include = ["raphodo"]
+exclude = ["pip-install.py"]
+
+[tool.hatch.build.hooks.argparse-manpage]
+include-url = false
+manpages = [
+    "man/rapid-photo-downloader.1:function=get_parser:pyfile=raphodo/argumentsparse.py:prog=rapid-photo-downloader:manual_title=General Commands Manual",
+]
+
+[tool.hatch.build.hooks.gettext]
+locale-directory = "raphodo/locale"
+identify-left-out = true
+regenerate-template = true
+show-report = false
+
+[tool.hatch.build.hooks.gettext.files]
+"share/applications" = ["data/net.damonlynch.rapid_photo_downloader.desktop.in"]
+"share/solid/actions" = ["data/kde/net.damonlynch.rapid_photo_downloader.desktop.in"]
+"share/metainfo" = ["data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in"]
+
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    "po",
+    "tests",
+]
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+# Assume Python 3.10
+target-version = "py310"
+
+builtins = ["ic", "_"]
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
