@@ -55,13 +55,15 @@ modules:
           name: psutil
           packagetype: sdist
 
-      # - type: file
-      #   url: https://files.pythonhosted.org/packages/54/ed/79a089b6be93607fa5cdaedf301d7dfb23af5f25c398d5ead2525b063e17/pyyaml-6.0.2.tar.gz
-      #   sha256: d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e
-      #   x-checker-data:
-      #     type: pypi
-      #     name: PyYAML
-      #     packagetype: sdist
+  - name: python3-gphoto2
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/d9/e0/03167246c2d32d2b646cbd7f1bf424e3e0b52c319d5cc2d72da3998ed141/gphoto2-2.5.0.tar.gz
+        sha256: 97d07a3c42067fcae4525600a4ecad5b6b3d3a181cc4c1d594381f411e599e80
+        x-checker-data:
+          type: pypi
+          name: gphoto2
+          packagetype: sdist
 
   - name: rapid-photo-downloader
     buildsystem: simple
