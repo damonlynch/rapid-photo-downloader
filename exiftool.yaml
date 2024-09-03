@@ -1,0 +1,77 @@
+name: exiftool
+build-commands: []
+buildsystem: simple
+modules:
+  - name: exiv2
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DEXIV2_BUILD_EXIV2_COMMAND=OFF
+      - -DEXIV2_ENABLE_INIH=OFF
+    sources:
+      - type: archive
+        url: https://github.com/Exiv2/exiv2/archive/refs/tags/v0.28.2.tar.gz
+        sha256: 543bead934135f20f438e0b6d8858c55c5fcb7ff80f5d1d55489965f1aad58b9
+
+  - name: exiftool
+    buildsystem: simple
+    build-commands:
+      - perl Makefile.PL
+      - make install
+    cleanup:
+      - "*.pod"
+    sources:
+      - type: git
+        url: https://github.com/exiftool/exiftool.git
+        tag: "12.92"
+        commit: 6700bc3f95ccf8ad36dcf791c196fc6090b7db4d
+        x-checker-data:
+          type: git
+          tag-pattern: ^(\d+\.\d+[02468])$
+    modules:
+      - name: perl
+        buildsystem: simple
+        build-commands:
+          - ./Configure -des -Dprefix=$FLATPAK_DEST -Dman1dir=none -Dman3dir=none
+          - make
+          - make install
+        post-install:
+          # Fix wrong permissions
+          - chmod -R u+w $FLATPAK_DEST/lib/perl5
+        cleanup:
+          - /bin/corelist
+          - /bin/cpan
+          - /bin/enc2xs
+          - /bin/encguess
+          - /bin/h2ph
+          - /bin/h2xs
+          - /bin/instmodsh
+          - /bin/json_pp
+          - /bin/libnetcfg
+          - /bin/perl5*
+          - /bin/perlbug
+          - /bin/perldoc
+          - /bin/perlivp
+          - /bin/perlthanks
+          - /bin/piconv
+          - /bin/pl2pm
+          - /bin/pod2html
+          - /bin/pod2man
+          - /bin/pod2text
+          - /bin/pod2usage
+          - /bin/podchecker
+          - /bin/prove
+          - /bin/ptar
+          - /bin/ptardiff
+          - /bin/ptargrep
+          - /bin/shasum
+          - /bin/splain
+          - /bin/streamzip
+          - /bin/xsubpp
+          - /bin/zipdetails
+          - "*.pod"
+        sources:
+          - type: git
+            url: https://github.com/Perl/perl5.git
+            tag: v5.38.2
+            commit: 55dd2f792ffc8cefe614350a411f785374281b24
+            disable-fsckobjects: true

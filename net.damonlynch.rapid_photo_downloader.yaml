@@ -215,55 +215,30 @@ modules:
   # stuck because of missing UDisks-2.0.typelib gir binding in kde runtime
   - udisk.yaml
 
-  # - name: exiftool
-  #   buildsystem: simple
-  #   build-commands:
-  #     - perl-libs/install.sh
-  #   cleanup:
-  #     - "/man"
-  #   post-install:
-  #     - "chmod -Rf u+w ${FLATPAK_DEST}/lib/perl5/site_perl"
-  #   sources:
-  #     - exiftool-sources.json
+  - exiftool.yaml
 
-  # - name: dbus-next
-  #   buildsystem: simple
-  #   build-commands:
-  #     - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
-  #       --prefix=${FLATPAK_DEST} "dbus-next" --no-build-isolation
-  #   sources:
-  #     - type: file
-  #       url: https://files.pythonhosted.org/packages/d2/fc/c0a3f4c4eaa5a22fbef91713474666e13d0ea2a69c84532579490a9f2cc8/dbus_next-0.2.3-py3-none-any.whl
-  #       sha256: 58948f9aff9db08316734c0be2a120f6dc502124d9642f55e90ac82ffb16a18b
-  #       x-checker-data:
-  #         type: pypi
-  #         name: dbus-next
-  #         packagetype: sdist
+  - name: libzen
+    buildsystem: simple
+    build-commands:
+      - cd Project/CMake && cmake -DCMAKE_INSTALL_PREFIX=/app -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release
+      - cd Project/CMake && make
+      - cd Project/CMake && make install
+    sources:
+      - type: git
+        url: https://github.com/MediaArea/ZenLib.git
+        tag: v0.4.39
 
-  # - name: inih
-  #   buildsystem: meson
-  #   builddir: true
-  #   config-opts:
-  #     - -Ddistro_install=true
-  #     - -Dwith_INIReader=true
-  #   sources:
-  #     - type: archive
-  #       url: https://github.com/benhoyt/inih/archive/refs/tags/r58.tar.gz
-  #       sha256: e79216260d5dffe809bda840be48ab0eec7737b2bb9f02d2275c1b46344ea7b7
-
-  # - name: python3-setuptools
-  #   buildsystem: simple
-  #   build-commands:
-  #     - pip3 install --verbose --ignore-installed --exists-action=i --no-index --find-links="file://${PWD}"
-  #       --prefix=${FLATPAK_DEST} "setuptools>=74.0.0" --no-build-isolation
-  #   sources:
-  #     - type: file
-  #       url: https://files.pythonhosted.org/packages/df/b5/168cec9a10bf93b60b8f9af7f4e61d526e31e1aad8b9be0e30837746d700/setuptools-74.0.0-py3-none-any.whl
-  #       sha256: 0274581a0037b638b9fc1c6883cc71c0210865aaa76073f7882376b641b84e8f
-  #       x-checker-data:
-  #         type: pypi
-  #         name: setuptools
-  #         packagetype: bdist_wheel
+  - name: libmediainfo
+    subdir: Project/CMake
+    buildsystem: simple
+    build-commands:
+      - cmake -DCMAKE_INSTALL_PREFIX=/app -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=On
+      - make
+      - make install
+    sources:
+      - type: git
+        url: https://github.com/MediaArea/MediaInfoLib.git
+        tag: v21.03
 
   - name: rapid-photo-downloader
     buildsystem: simple
@@ -278,3 +253,6 @@ modules:
 # flatpak-builder flatpakbuild net.damonlynch.rapid_photo_downloader.yaml --install-deps-from=flathub --force-clean
 # flatpak-builder --user --install flatpakbuild net.damonlynch.rapid_photo_downloader.yaml
 # flatpak run net.damonlynch.rapid_photo_downloader
+
+# ERROR:root:pymediainfo is installed, but the library libmediainfo appears to be missing
+# ERROR: pymediainfo is installed, but the library libmediainfo appears to be missing

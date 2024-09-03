@@ -2,27 +2,16 @@ name: udisk
 build-commands: []
 buildsystem: simple
 modules:
-  - name: duktape
-    buildsystem: "simple"
-    build-commands:
-      - mv Makefile.sharedlibrary Makefile
-      - sed 's#INSTALL_PREFIX = /usr/local#INSTALL_PREFIX = /app#g' -i Makefile
-      - CFLAGS='$CFLAGS -D DUK_USE_FASTINT -w' INSTALL_PREFIX=/app make
-      - CFLAGS='$CFLAGS -D DUK_USE_FASTINT -w' INSTALL_PREFIX=/app make install
-    sources:
-      - type: archive
-        url: >-
-          https://duktape.org/duktape-2.6.0.tar.xz
-        sha256: 96f4a05a6c84590e53b18c59bb776aaba80a205afbbd92b82be609ba7fe75fa7
-
   - name: polkit
     buildsystem: meson
     config-opts:
+      - -Dlibs-only=true
       - -Dman=false
       - -Dintrospection=false
       - -Dexamples=false
       - -Dgtk_doc=false
       - -Dauthfw=shadow
+      - -Dsystemdsystemunitdir=/app/lib/systemd/system
     cleanup:
       - /bin/*
       - /etc/pam.d
@@ -37,22 +26,20 @@ modules:
           type: anitya
           project-id: 3682
           url-template: >-
-            https://gitlab.freedesktop.org/polkit/polkit/-/archive/$version/polkit-$version.tar.gz
+            https://github.com/polkit-org/polkit/archive/refs/tags/$version.tar.gz
         type: archive
         url: >-
-          https://gitlab.freedesktop.org/polkit/polkit/-/archive/124/polkit-124.tar.gz
-        sha256: 72457d96a0538fd03a3ca96a6bf9b7faf82184d4d67c793eb759168e4fd49e20
-
-  - name: libblockdev
-    buildsystem: autotools
-    sources:
-      - type: archive
-        url: >-
-          https://github.com/storaged-project/libblockdev/releases/download/3.1.1-1/libblockdev-3.1.1.tar.gz
-        sha256: a5cb33a53ff5969067982704f45399d02555fdb2313ed0c56eac9555397dc2db
+          https://github.com/polkit-org/polkit/archive/refs/tags/125.tar.gz
+        sha256: ea5cd6e6e2afa6bad938ee770bf0c2cd9317910f37956faeba2869adcf3747d1
+      - type: patch
+        path: 0001-build-Don-t-install-daemon-files-when-building-libs-.patch
 
   - name: libudisk
     buildsystem: autotools
+    config-opts:
+      - --disable-gtk-doc
+      - --disable-daemon
+      - --enable-introspection=yes
     sources:
       - type: archive
         url: https://github.com/storaged-project/udisks/releases/download/udisks-2.10.1/udisks-2.10.1.tar.bz2
