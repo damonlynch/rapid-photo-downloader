@@ -1,0 +1,59 @@
+# Generated with flatpak-pip-generator --checker-data --yaml --runtime=org.gnome.Sdk//46 pygobject pycairo -o pip-resources.proton-vpn-gtk-app
+name: python-pygobject
+build-commands: []
+buildsystem: simple
+modules:
+  - name: pyproject-metadata
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "pyproject-metadata" --no-build-isolation
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/aa/5f/bb5970d3d04173b46c9037109f7f05fc8904ff5be073ee49bb6ff00301bc/pyproject_metadata-0.8.0-py3-none-any.whl
+        sha256: ad858d448e1d3a1fb408ac5bac9ea7743e7a8bbb472f2693aaa334d2db42f526
+        x-checker-data:
+          type: pypi
+          name: pyproject-metadata
+          packagetype: sdist
+
+  - name: meson-python
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "meson-python" --no-build-isolation
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/91/c0/104cb6244c83fe6bc3886f144cc433db0c0c78efac5dc00e409a5a08c87d/meson_python-0.16.0-py3-none-any.whl
+        sha256: 842dc9f5dc29e55fc769ff1b6fe328412fe6c870220fc321060a1d2d395e69e8
+        x-checker-data:
+          type: pypi
+          name: meson-python
+          packagetype: sdist
+
+  - name: python3-pycairo
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "pycairo" --no-build-isolation
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/19/4f/0d48a017090d4527e921d6892bc550ae869902e67859fc960f8fe63a9094/pycairo-1.26.1.tar.gz
+        sha256: a11b999ce55b798dbf13516ab038e0ce8b6ec299b208d7c4e767a6f7e68e8430
+        x-checker-data:
+          type: pypi
+          name: pycairo
+          packagetype: sdist
+
+  - name: python3-pygobject
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "pygobject" --no-build-isolation
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/f9/9e/6bab1ed3bd878f0912d9a0600c21f3d88bab0e8a8d4c3ce50f5cf336faaf/pygobject-3.48.2.tar.gz
+        sha256: c3c0a7afbe5b2c1c64dc0530109b4dd571085153dbedfbccb8ec7c5ad233f977
+        x-checker-data:
+          name: pygobject
+          type: pypi

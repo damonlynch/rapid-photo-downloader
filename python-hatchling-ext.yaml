@@ -1,0 +1,93 @@
+name: python-hatchling
+build-commands: []
+buildsystem: simple
+modules:
+  - name: python-mdurl
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "mdurl>=0.1.2" --no-build-isolation
+    cleanup: ["*"]
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl
+        sha256: 84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8
+        x-checker-data:
+          type: pypi
+          name: mdurl
+          packagetype: bdist_wheel
+
+  - name: python-markdown-it-py
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "markdown-it-py>=3.0.0" --no-build-isolation
+    cleanup: ["*"]
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/42/d7/1ec15b46af6af88f19b8e5ffea08fa375d433c998b8a7639e76935c14f1f/markdown_it_py-3.0.0-py3-none-any.whl
+        sha256: 355216845c60bd96232cd8d8c40e8f9765cc86f46880e43a8fd22dc1a1a8cab1
+        x-checker-data:
+          type: pypi
+          name: markdown-it-py
+          packagetype: bdist_wheel
+
+  - name: python-rich
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "rich>=13.8.0" --no-build-isolation
+    cleanup: ["*"]
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/c7/d9/c2a126eeae791e90ea099d05cb0515feea3688474b978343f3cdcfe04523/rich-13.8.0-py3-none-any.whl
+        sha256: 2e85306a063b9492dffc86278197a60cbece75bcb766022f3436f567cae11bdc
+        x-checker-data:
+          type: pypi
+          name: rich
+          packagetype: bdist_wheel
+
+  - name: hatch-gettext
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "hatch-gettext>=1.1.0" --no-build-isolation
+    cleanup: ["*"]
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/38/53/c6f3c7fcc2dc8aa93323ea546ae1e701301bdef5c93719e43ea953cfe4eb/hatch_gettext-1.1.0-py3-none-any.whl
+        sha256: 3356492a7f90a57a8ea1e0c4702ac62da3fd5f8e5e92790b5274d01e5f2420c6
+        x-checker-data:
+          type: pypi
+          name: hatch-gettext
+          packagetype: bdist_wheel
+
+  - name: argparse-manpage
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "argparse-manpage>=4.6" --no-build-isolation
+    cleanup: ["*"]
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/3d/b7/cacb63bd461c83050b3b0efffc9151077b69de900ef5559ffeee72fa825b/argparse-manpage-4.6.tar.gz
+        sha256: 0b659d70fd142876da41c2918bd6de4d027875720b0e4672d6443b51198dbb62
+        x-checker-data:
+          type: pypi
+          name: argparse-manpage
+          packagetype: sdist
+
+  - name: hatch-argparse-manpage
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "hatch-argparse-manpage>=1.0.0" --no-build-isolation
+    cleanup: ["*"]
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/a7/f4/e92049e7ec2eedf6ca1610e8755f032ed724f5e7df94afe9cc17a17bf845/hatch_argparse_manpage-1.0.0-py3-none-any.whl
+        sha256: 43798e418f5ca1b94c5d615af1860097b6dfb5cf0cdbfdb34674e767ea285d40
+        x-checker-data:
+          type: pypi
+          name: hatch-argparse-manpage
+          packagetype: bdist_wheel

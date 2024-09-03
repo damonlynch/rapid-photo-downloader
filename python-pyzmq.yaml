@@ -1,0 +1,50 @@
+name: python3-pyzmq
+build-commands: []
+buildsystem: simple
+modules:
+  - name: zeromq
+    buildsystem: cmake-ninja
+    builddir: true
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+    cleanup:
+      - /bin
+    sources:
+      - type: archive
+        url: https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz
+        sha256: 6653ef5910f17954861fe72332e68b03ca6e4d9c7160eb3a8de5a5a913bfab43
+
+  - name: swig
+    config-opts:
+      - --without-alllang
+      - --with-python=/usr/bin/python3
+      - --without-boost
+      - --without-pcre
+    cleanup:
+      - "*"
+    sources:
+      - type: archive
+        url: https://downloads.sourceforge.net/project/swig/swig/swig-4.0.2/swig-4.0.2.tar.gz
+        sha256: d53be9730d8d58a16bf0cbd1f8ac0c0c3e1090573168bfa151b01eb47fa906fc
+
+  - name: cppzmq
+    buildsystem: cmake-ninja
+    builddir: true
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCPPZMQ_BUILD_TESTS=OFF
+    sources:
+      - type: git
+        url: https://github.com/zeromq/cppzmq.git
+        commit: 76bf169fd67b8e99c1b0e6490029d9cd5ef97666
+        tag: v4.7.1
+
+  - name: pyzmq
+    buildsystem: simple
+    build-commands:
+      - python3 setup.py install --prefix=/app --root=/
+    sources:
+      - type: git
+        url: https://github.com/zeromq/pyzmq.git
+        commit: 8fb0f0f6e8fb7b0a0cfaf8d32d22960f70d3d4fa
+        tag: v19.0.2
