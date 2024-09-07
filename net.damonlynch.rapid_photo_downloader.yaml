@@ -147,8 +147,12 @@ modules:
         --prefix=${FLATPAK_DEST} "show-in-file-manager>=1.1.2" --no-build-isolation
     sources:
       - type: file
-        url: https://files.pythonhosted.org/packages/68/82/37f378b219d5700effecbf3b60316af3c770e6ea3de0a4c05feafa4c4317/show_in_file_manager-1.1.4-py3-none-any.whl
-        sha256: ccfbf212866b70f94e6e8bc1d7acf6bf0ad4447ff7dca50e7a64573b59e1a2c9
+        url: https://files.pythonhosted.org/packages/8e/2d/cbae20c55a7a5a327de940eb217a5572ff6473e04406e56ece28729e447a/show_in_file_manager-1.1.5-py3-none-any.whl
+        sha256: a92a9ab2cd20fca45db5a8b2d2136e4bec624b182f000900855b2d992abd0cbc
+        x-checker-data:
+          type: pypi
+          name: show-in-file-manager
+          packagetype: bdist_wheel
 
   # runtime deps
   - name: python3-sortedcontainers
@@ -160,6 +164,10 @@ modules:
       - type: file
         url: https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl
         sha256: a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0
+        x-checker-data:
+          type: pypi
+          name: sortedcontainers
+          packagetype: bdist_wheel
 
   # runtime dep
   - name: python3-tenacity
@@ -171,6 +179,10 @@ modules:
       - type: file
         url: https://files.pythonhosted.org/packages/b6/cb/b86984bed139586d01532a587464b5805f12e397594f19f931c4c2fbfa61/tenacity-9.0.0-py3-none-any.whl
         sha256: 93de0c98785b27fcf659856aa9f54bfbd399e29969b0621bc7f762bd441b4539
+        x-checker-data:
+          type: pypi
+          name: tenacity
+          packagetype: bdist_wheel
 
   # runtime dep
   - name: python3-tornado
@@ -180,8 +192,12 @@ modules:
         --prefix=${FLATPAK_DEST} "tornado" --no-build-isolation
     sources:
       - type: file
-        url: https://files.pythonhosted.org/packages/48/64/679260ca0c3742e2236c693dc6c34fb8b153c14c21d2aa2077c5a01924d6/tornado-6.3.3.tar.gz
-        sha256: e7d8db41c0181c80d76c982aacc442c0783a2c54d6400fe028954201a2e032fe
+        url: https://files.pythonhosted.org/packages/ee/66/398ac7167f1c7835406888a386f6d0d26ee5dbf197d8a571300be57662d3/tornado-6.4.1.tar.gz
+        sha256: 92d3ab53183d8c50f8204a51e6f91d18a15d5ef261e84d452800d4ff6fc504e9
+        x-checker-data:
+          type: pypi
+          name: tornado
+          packagetype: sdist
 
   # runtime depency to notify
   # Traceback (most recent call last):
