@@ -226,6 +226,9 @@ modules:
 
   - libmediainfo.yaml
 
+  # for apples devices
+  - ifuse.yaml
+
   - name: rapid-photo-downloader
     buildsystem: simple
     build-commands:
@@ -236,9 +239,11 @@ modules:
         url: https://github.com/damonlynch/rapid-photo-downloader
         tag: v0.9.37a5
         commit: 0790ca2f771da819d32ea2e9cae979bac9d0f490
+    x-checker-data:
+      type: git
+      tag-pattern: "^v([\\d.]+)$"
 # flatpak-builder flatpakbuild net.damonlynch.rapid_photo_downloader.yaml --install-deps-from=flathub --force-clean
 # flatpak-builder --user --install flatpakbuild net.damonlynch.rapid_photo_downloader.yaml
 # flatpak run net.damonlynch.rapid_photo_downloader
 
-# ERROR:root:pymediainfo is installed, but the library libmediainfo appears to be missing
-# ERROR: pymediainfo is installed, but the library libmediainfo appears to be missing
+# qt5-svg ? qt5-imageformats ?

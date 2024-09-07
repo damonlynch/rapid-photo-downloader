@@ -5,34 +5,32 @@ modules:
   - name: libzen
     buildsystem: simple
     build-commands:
-      - cd Project/CMake && cmake -DCMAKE_INSTALL_PREFIX=/app -DCMAKE_INSTALL_LIBDIR=lib
-        -DCMAKE_BUILD_TYPE=Release
+      - cd Project/CMake && cmake -DCMAKE_INSTALL_PREFIX=/app -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release
       - cd Project/CMake && make
       - cd Project/CMake && make install
     sources:
       - type: archive
-        url: https://codeload.github.com/MediaArea/ZenLib/tar.gz/refs/tags/v0.4.41
+        url: https://github.com/MediaArea/ZenLib/archive/refs/tags/v0.4.41.tar.gz
         sha256: 45d5173fa0278f5264daa6836ae297aa303984482227d00b35c4f03929494c8f
         x-checker-data:
           type: anitya
           project-id: 1810
           stable-only: true
-          url-template: https://codeload.github.com/MediaArea/ZenLib/tar.gz/refs/tags/v$version
+          url-template: https://github.com/MediaArea/ZenLib/archive/refs/tags/v$version
 
-  - name: libmediainfo
+  - name: MediaInfoLib
     subdir: Project/CMake
     buildsystem: simple
     build-commands:
-      - cmake -DCMAKE_INSTALL_PREFIX=/app -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release
-        -DBUILD_SHARED_LIBS=On
+      - cmake -DCMAKE_INSTALL_PREFIX=/app -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=On
       - make
       - make install
     sources:
       - type: archive
-        url: https://codeload.github.com/MediaArea/MediaInfoLib/tar.gz/refs/tags/v24.06
+        url: https://github.com/MediaArea/MediaInfoLib/archive/refs/tags/v24.06.tar.gz
         sha256: 2a569dca09d953a38bf4ba0f47ba5415183c79436babb09e1202ebc3a54aa046
         x-checker-data:
           type: anitya
           project-id: 16249
           stable-only: true
-          url-template: https://codeload.github.com/MediaArea/MediaInfoLib/tar.gz/refs/tags/v$version
+          url-template: https://github.com/MediaArea/MediaInfoLib/archive/refs/tags/v$version

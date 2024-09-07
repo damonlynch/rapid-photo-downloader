@@ -45,24 +45,20 @@ modules:
       - -DCPPZMQ_BUILD_TESTS=OFF
     sources:
       - type: archive
-        url: https://codeload.github.com/zeromq/cppzmq/tar.gz/refs/tags/v4.10.0
+        url: https://github.com/zeromq/cppzmq/archive/refs/tags/v4.10.0.tar.gz
         sha256: c81c81bba8a7644c84932225f018b5088743a22999c6d82a2b5f5cd1e6942b74
         x-checker-data:
           type: anitya
           project-id: 18648
           stable-only: true
-          url-template: https://codeload.github.com/zeromq/cppzmq/tar.gz/refs/tags/v$version
+          url-template: https://github.com/zeromq/cppzmq/archive/refs/tags/v$version
 
   - name: pyzmq
     buildsystem: simple
     build-commands:
-      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
-        --prefix=${FLATPAK_DEST} "pyzmq" --no-build-isolation
+      - python3 setup.py install --prefix=/app --root=/
     sources:
-      - type: file
-        url: https://files.pythonhosted.org/packages/fd/05/bed626b9f7bb2322cdbbf7b4bd8f54b1b617b0d2ab2d3547d6e39428a48e/pyzmq-26.2.0.tar.gz
-        sha256: 070672c258581c8e4f640b5159297580a9974b026043bd4ab0470be9ed324f1f
-        x-checker-data:
-          name: pyzmq
-          type: pypi
-          packagetype: sdist
+      - type: git
+        url: https://github.com/zeromq/pyzmq.git
+        commit: 8fb0f0f6e8fb7b0a0cfaf8d32d22960f70d3d4fa
+        tag: v19.0.2
