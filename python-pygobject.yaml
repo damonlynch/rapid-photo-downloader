@@ -57,3 +57,4 @@ modules:
         x-checker-data:
           name: pygobject
           type: pypi
+          packagetype: sdist

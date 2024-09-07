@@ -199,16 +199,7 @@ modules:
           name: tornado
           packagetype: sdist
 
-  # runtime depency to notify
-  # Traceback (most recent call last):
-  #   File "/app/bin/rapid-photo-downloader", line 5, in <module>
-  #     from raphodo.rapid import main
-  #   File "/app/lib/python3.11/site-packages/raphodo/rapid.py", line 39, in <module>
-  #     gi.require_version("Notify", "0.7")
-  #   File "/app/lib/python3.11/site-packages/gi/__init__.py", line 122, in require_version
-  #     raise ValueError('Namespace %s not available' % namespace)
-  # ValueError: Namespace Notify not available
-
+  # runtime dep for notifications
   - name: libnotify
     buildsystem: meson
     config-opts:
@@ -233,30 +224,7 @@ modules:
 
   - exiftool.yaml
 
-  - name: libzen
-    buildsystem: simple
-    build-commands:
-      - cd Project/CMake && cmake -DCMAKE_INSTALL_PREFIX=/app -DCMAKE_INSTALL_LIBDIR=lib
-        -DCMAKE_BUILD_TYPE=Release
-      - cd Project/CMake && make
-      - cd Project/CMake && make install
-    sources:
-      - type: git
-        url: https://github.com/MediaArea/ZenLib.git
-        tag: v0.4.39
-
-  - name: libmediainfo
-    subdir: Project/CMake
-    buildsystem: simple
-    build-commands:
-      - cmake -DCMAKE_INSTALL_PREFIX=/app -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release
-        -DBUILD_SHARED_LIBS=On
-      - make
-      - make install
-    sources:
-      - type: git
-        url: https://github.com/MediaArea/MediaInfoLib.git
-        tag: v21.03
+  - libmediainfo.yaml
 
   - name: rapid-photo-downloader
     buildsystem: simple

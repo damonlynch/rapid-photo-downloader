@@ -12,6 +12,7 @@ modules:
         dest-filename: autogen.sh
         commands:
           - autoreconf -ifv
+
   - name: python3-gphoto2
     buildsystem: simple
     build-commands:

@@ -24,6 +24,11 @@ modules:
       - "/binsortedcontainers/addmoddel"
       - "/bin/geotag"
       - "/bin/taglist"
+    x-checker-data:
+      type: "anitya"
+      project-id: 769
+      stable-only: true
+      url-template: "https://github.com/Exiv2/exiv2/archive/refs/tags/v$version.tar.gz"
 
   - name: gexiv2
     buildsystem: meson
@@ -41,3 +46,8 @@ modules:
       - /include
       - "/lib/*.a"
       - /lib/pkgconfig/
+    x-checker-data:
+      type: "anitya"
+      project-id: 1626
+      stable-only: true
+      url-template: "https://download.gnome.org/sources/gexiv2/$major.$minor/gexiv2-$version.tar.xz"
