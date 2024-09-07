@@ -44,10 +44,14 @@ modules:
       - -DCMAKE_BUILD_TYPE=Release
       - -DCPPZMQ_BUILD_TESTS=OFF
     sources:
-      - type: git
-        url: https://github.com/zeromq/cppzmq.git
-        commit: 76bf169fd67b8e99c1b0e6490029d9cd5ef97666
-        tag: v4.7.1
+      - type: archive
+        url: https://codeload.github.com/zeromq/cppzmq/tar.gz/refs/tags/v4.10.0
+        sha256: c81c81bba8a7644c84932225f018b5088743a22999c6d82a2b5f5cd1e6942b74
+        x-checker-data:
+          type: anitya
+          project-id: 18648
+          stable-only: true
+          url-template: https://codeload.github.com/zeromq/cppzmq/tar.gz/refs/tags/v$version
 
   - name: pyzmq
     buildsystem: simple
