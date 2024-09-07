@@ -10,8 +10,8 @@ modules:
         --prefix=${FLATPAK_DEST} "pyproject-metadata" --no-build-isolation
     sources:
       - type: file
-        url: https://files.pythonhosted.org/packages/aa/5f/bb5970d3d04173b46c9037109f7f05fc8904ff5be073ee49bb6ff00301bc/pyproject_metadata-0.8.0-py3-none-any.whl
-        sha256: ad858d448e1d3a1fb408ac5bac9ea7743e7a8bbb472f2693aaa334d2db42f526
+        url: https://files.pythonhosted.org/packages/cf/cc/428b057f8c229b7c374efe9d6a6a35e693f79e071e25846ab0c55e59d337/pyproject_metadata-0.8.0.tar.gz
+        sha256: 376d5a00764ac29440a54579f88e66b7d9cb7e629d35c35a1c7248bfebc9b455
         x-checker-data:
           type: pypi
           name: pyproject-metadata
@@ -24,8 +24,8 @@ modules:
         --prefix=${FLATPAK_DEST} "meson-python" --no-build-isolation
     sources:
       - type: file
-        url: https://files.pythonhosted.org/packages/91/c0/104cb6244c83fe6bc3886f144cc433db0c0c78efac5dc00e409a5a08c87d/meson_python-0.16.0-py3-none-any.whl
-        sha256: 842dc9f5dc29e55fc769ff1b6fe328412fe6c870220fc321060a1d2d395e69e8
+        url: https://files.pythonhosted.org/packages/1a/3f/b19e9354c358f5acf322dd1f81ed9f0c633ba4bcccfd32e9c3740c43c9e5/meson_python-0.16.0.tar.gz
+        sha256: 9068c17e36c89d6c7ff709fffb2a8a9925e8cd0b02629728e5ceaf2ec505cb5f
         x-checker-data:
           type: pypi
           name: meson-python
@@ -38,8 +38,8 @@ modules:
         --prefix=${FLATPAK_DEST} "pycairo" --no-build-isolation
     sources:
       - type: file
-        url: https://files.pythonhosted.org/packages/19/4f/0d48a017090d4527e921d6892bc550ae869902e67859fc960f8fe63a9094/pycairo-1.26.1.tar.gz
-        sha256: a11b999ce55b798dbf13516ab038e0ce8b6ec299b208d7c4e767a6f7e68e8430
+        url: https://files.pythonhosted.org/packages/07/4a/42b26390181a7517718600fa7d98b951da20be982a50cd4afb3d46c2e603/pycairo-1.27.0.tar.gz
+        sha256: 5cb21e7a00a2afcafea7f14390235be33497a2cce53a98a19389492a60628430
         x-checker-data:
           type: pypi
           name: pycairo

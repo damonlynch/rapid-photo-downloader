@@ -9,8 +9,8 @@ modules:
         --prefix=${FLATPAK_DEST} "arrow>=0.9.0" --no-build-isolation
     sources:
       - type: file
-        url: https://files.pythonhosted.org/packages/45/ba/2a4750156272f180f8209f87656ae92e0aeb14f9864976aa90cbd9f21eda/types_python_dateutil-2.9.0.20240821-py3-none-any.whl
-        sha256: f5889fcb4e63ed4aaa379b44f93c32593d50b9a94c9a60a0c854d8cc3511cd57
+        url: https://files.pythonhosted.org/packages/aa/4c/5c684b333135a6fb085bb5a5bdfd962937f80bec06745a88fd551e29f4d9/types_python_dateutil-2.9.0.20240906-py3-none-any.whl
+        sha256: 27c8cc2d058ccb14946eebcaaa503088f4f6dbc4fb6093d3d456a49aef2753f6
         x-checker-data:
           type: pypi
           name: types-python-dateutil

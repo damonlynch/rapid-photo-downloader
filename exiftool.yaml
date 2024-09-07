@@ -18,12 +18,12 @@ modules:
       - perl Makefile.PL
       - make install
     cleanup:
-      - "*.pod"
+      - '*.pod'
     sources:
       - type: git
         url: https://github.com/exiftool/exiftool.git
-        tag: "12.92"
-        commit: 6700bc3f95ccf8ad36dcf791c196fc6090b7db4d
+        tag: '12.96'
+        commit: 0f63a780906abcccba796761fc2e66a0737e2f16
         x-checker-data:
           type: git
           tag-pattern: ^(\d+\.\d+[02468])$
@@ -68,7 +68,7 @@ modules:
           - /bin/streamzip
           - /bin/xsubpp
           - /bin/zipdetails
-          - "*.pod"
+          - '*.pod'
         sources:
           - type: git
             url: https://github.com/Perl/perl5.git
