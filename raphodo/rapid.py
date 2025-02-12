@@ -6514,6 +6514,10 @@ def main():
         force_wayland = linux_desktop() == LinuxDesktop.wsl2
     except Exception:
         force_wayland = False
+
+    if not os.getenv('QT_QPA_PLATFORM'):
+        force_wayland = False
+
     platform_cmd_line_overruled = False
     if force_wayland:
         qt_app_args = []
