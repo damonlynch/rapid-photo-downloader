@@ -1063,6 +1063,10 @@ def available_languages(display_locale_code: str = "") -> list[tuple[str, str]]:
         locale_code = display_locale_code
 
     # Determine if this locale makes its language names lower case
+    try:
+        babel_sample = babel.Locale.parse("en").get_display_name(locale_code)
+    except babel.core.UnknownLocaleError:
+        locale_code = "en_US"
     babel_sample = babel.Locale.parse("en").get_display_name(locale_code)
     make_missing_lower = babel_sample.islower()
 
