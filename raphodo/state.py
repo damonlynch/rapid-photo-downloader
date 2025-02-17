@@ -4,9 +4,36 @@
 import logging
 from enum import Flag, auto
 
-from raphodo.constants import (
-    DisplayFileType,
-    FileType,
+from raphodo.constants import DisplayFileType, FileType
+from raphodo.tools.stateutils import chain_flags
+
+
+class DeviceState(Flag):
+    MOUNTED_INACCESSIBLE = auto()  # cameras / phones
+    UNMOUNT_PENDING = auto()  # cameras / phones
+    LOCKED = auto()  # phones
+    SCAN_PENDING = auto()
+    SCANNING = auto()
+    SCAN_FINISHED_PENDING = auto()
+    READY_FOR_DOWNLOAD = auto()
+    DOWNLOAD_PENDING = auto()
+    DOWNLOADING = auto()
+    DOWNLOADING_FINISHED_PENDING = auto()
+    DOWNLOAD_COMPLETE = auto()
+    THUMBNAILING_PENDING = auto()
+    THUMBNAILING = auto()
+    THUMBNAILING_FINISHED_PENDING = auto()
+
+
+NEXT_DEVICE_STATE = chain_flags(flag=DeviceState, stop=11)
+NEXT_DEVICE_STATE |= chain_flags(flag=DeviceState, start=11)
+NEXT_DEVICE_STATE[DeviceState.DOWNLOADING_FINISHED_PENDING] |= (
+    DeviceState.READY_FOR_DOWNLOAD
+)
+NEXT_DEVICE_STATE[DeviceState.UNMOUNT_PENDING] |= DeviceState.SCAN_PENDING
+NEXT_DEVICE_STATE[DeviceState.READY_FOR_DOWNLOAD] |= DeviceState.THUMBNAILING_PENDING
+NEXT_DEVICE_STATE[DeviceState.THUMBNAILING_FINISHED_PENDING] = (
+    DeviceState.READY_FOR_DOWNLOAD
 )
 
 
@@ -192,6 +219,32 @@ def file_type_from_dest_dir_state(state: AppState) -> FileType:
 class State:
     def __init__(self) -> None:
         self.state = AppState.STARTUP
+        self.devices: dict[int, DeviceState] = {}
+
+    def add_device(self, scan_id: int, initial_state: DeviceState) -> None:
+        logging.debug(
+            "Initiating device %s with state %s", scan_id, initial_state._name_
+        )
+        self.devices[scan_id] = initial_state
+
+    def set_device_state(self, scan_id: int, state: DeviceState) -> None:
+        current_state = self.devices[scan_id]
+        try:
+            assert state & NEXT_DEVICE_STATE[current_state]
+        except AssertionError:
+            logging.critical(
+                "Cannot set invalid state %s for device %s with state",
+                state._name_,
+                scan_id,
+                current_state._name_,
+            )
+            raise
+        logging.debug(
+            "Setting device %s state %s → %s",
+            scan_id,
+            self.devices[scan_id]._name_,
+            state._name_,
+        )
 
     def set_app_state(self, state: AppState, log_only_if_changed: bool = True) -> bool:
         changed = not (self.state & state)
@@ -530,3 +583,9 @@ class State:
     @property
     def this_comp_reset_pending(self) -> bool:
         return bool(AppState.THIS_COMP_DOWNLOAD_RESET_PENDING & self.state)
+
+
+if __name__ == "__main__":
+    from pprint import pprint
+
+    pprint(NEXT_DEVICE_STATE)
