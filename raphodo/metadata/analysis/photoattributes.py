@@ -418,7 +418,7 @@ class PhotoAttributes:
             jpeg_header = jpeg.read(read0_size)
 
             if jpeg_header[0:2] != b"\xff\xd8":
-                print(f"{self.file_name} not a jpeg image: no SOI marker")
+                print("%s not a jpeg image: no SOI marker" % self.file_name)
                 return None
 
             app_marker = jpeg_header[2:4]
@@ -445,10 +445,10 @@ class PhotoAttributes:
 
             # Step 3: process exif header
             if app_marker != b"\xff\xe1":
-                print(f"Could not locate APP1 marker in {self.file_name}")
+                print("Could not locate APP1 marker in %s" % self.file_name)
                 return None
             if exif_header[2:6] != b"Exif" or exif_header[6:8] != b"\x00\x00":
-                print(f"APP1 is malformed in {self.file_name}")
+                print("APP1 is malformed in %s" % self.file_name)
                 return None
             app1_data_length = exif_header[0] * 256 + exif_header[1]
 

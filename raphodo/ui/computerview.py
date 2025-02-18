@@ -5,15 +5,14 @@
 Combines a deviceview and a file system view into one widget
 """
 
-from PyQt5.QtWidgets import QFrame, QSplitter, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QFrame, QSizePolicy, QSplitter, QWidget
 
-from raphodo.constants import (
-    DeviceDisplayPadding,
-    minFileSystemViewHeight,
-)
+from raphodo.constants import minFileSystemViewHeight
+from raphodo.ui.destinationdisplay import DestinationDisplay
 from raphodo.ui.devicedisplay import (
-    DeviceRows,
-    PhotoOrVideoDestDeviceRows,
+    DeviceView,
+    EmulatedHeaderRow,
+    device_header_row_height,
 )
 from raphodo.ui.filebrowse import FileSystemView
 from raphodo.ui.viewutils import TightFlexiFrame
@@ -31,42 +30,48 @@ class ComputerWidget(TightFlexiFrame):
 
     def __init__(
         self,
-        object_name: str,
-        deviceRows: DeviceRows,
+        objectName: str,
+        view: DeviceView | DestinationDisplay,
         fileSystemView: FileSystemView,
+        select_text: str,
         parent: QWidget = None,
     ) -> None:
         super().__init__(parent=parent)
-        self.setObjectName(object_name)
-        layout: QVBoxLayout = self.layout()
+        self.setObjectName(objectName)
+        layout = self.layout()
         border_width = QSplitter().lineWidth()
         layout.setContentsMargins(
             border_width, border_width, border_width, border_width
         )
-        layout.setSpacing(DeviceDisplayPadding)
-        self.fileSystemView = fileSystemView
-        self.deviceRows = deviceRows
+        layout.setSpacing(0)
+        self.setLayout(layout)
 
-        layout.addWidget(self.fileSystemView, 100)
+        self.view = view
+        self.view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        self.fileSystemView = fileSystemView
+        self.emulatedHeader = EmulatedHeaderRow(select_text)
+        self.emulatedHeader.setSizePolicy(
+            QSizePolicy.MinimumExpanding, QSizePolicy.Maximum
+        )
+
+        layout.addWidget(self.emulatedHeader)
+        layout.addWidget(self.view)
+        layout.addStretch()
+        # the value 5 ensures there is a standard gap between the device view and the
+        # file system view
+        layout.addWidget(self.fileSystemView, 5)
+        self.view.setStyleSheet("QListView {border: none;}")
         self.fileSystemView.setFrameShape(QFrame.NoFrame)
 
-    def height(self) -> int:
-        return self.layout().geometry().height() + minFileSystemViewHeight()
+    def setViewVisible(self, visible: bool) -> None:
+        self.view.setVisible(visible)
+        self.emulatedHeader.setVisible(not visible)
+        self.view.updateGeometry()
 
-
-class DestComputerWidget(ComputerWidget):
-    def __init__(
-        self,
-        object_name: str,
-        deviceRows: PhotoOrVideoDestDeviceRows,
-        fileSystemView: FileSystemView,
-        parent: QWidget = None,
-    ) -> None:
-        super().__init__(
-            object_name=object_name,
-            deviceRows=deviceRows,
-            fileSystemView=fileSystemView,
-            parent=parent,
-        )
-        layout: QVBoxLayout = self.layout()
-        layout.insertWidget(0, self.deviceRows)
+    def minimumHeight(self) -> int:
+        if self.view.isVisible():
+            height = self.view.minimumHeight()
+        else:
+            height = device_header_row_height()
+        height += minFileSystemViewHeight()
+        return height

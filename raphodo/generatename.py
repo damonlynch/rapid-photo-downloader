@@ -633,7 +633,7 @@ class PhotoSubfolder(NameGeneration):
 
         self.problem = FolderNotFullyGeneratedProblemProblem()
 
-        self.strip_extraneous_white_space = re.compile(rf"\s*{os.sep}\s*")
+        self.strip_extraneous_white_space = re.compile(r"\s*%s\s*" % os.sep)
         self.strip_forward_slash = False
         self.add_extension = False
         self.L1_date_check = IMAGE_DATE  # used in _get_date_component()

@@ -74,13 +74,12 @@ def thousands(i: int) -> str:
     integer. Assumes the module level locale setting has already been
     set.
     :param i: the integer e.g., 1000
-    :return: string with separators e.g. '1,000'
+    :return: string with seperators e.g. '1,000'
     """
     try:
         return locale.format_string("%d", i, grouping=True)
     except TypeError:
         return str(i)
-
 
 def current_locale() -> str:
     assert have_pyqt

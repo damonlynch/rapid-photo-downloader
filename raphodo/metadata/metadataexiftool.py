@@ -133,8 +133,8 @@ def generate_short_camera_model(
 
     m = model_name
     m = m.replace(" Mark ", "Mk")
-    if "-" in include_characters:
-        include_characters = include_characters.replace("-", "\\-")
+    if '-' in include_characters:
+        include_characters = include_characters.replace('-', '\\-')
     if m:
         s = (
             rf"(?:[^a-zA-Z0-9{include_characters}]?)"
@@ -374,7 +374,8 @@ class MetadataExiftool:
         v = self._get("Duration", None)
         if v is not None:
             try:
-                v = f"{float(v):.0f}"
+                v = float(v)
+                v = "%0.f" % v
             except Exception:
                 return missing
             return v
@@ -389,7 +390,7 @@ class MetadataExiftool:
         if v is None:
             return missing
         try:
-            v = f"{float(v):.0f}"
+            v = "%.0f" % v
         except Exception:
             return missing
         return v
@@ -517,9 +518,9 @@ class MetadataExiftool:
             elif e0 > e1:
                 e = float(e0) / e1
                 if alternative_format:
-                    return f"{e:.0f}s"
+                    return "%.0fs" % e
                 else:
-                    return f"{e:.0f}"
+                    return "%.0f" % e
             else:
                 return "1s"
         else:

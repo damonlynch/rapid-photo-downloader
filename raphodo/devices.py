@@ -154,16 +154,16 @@ class Device:
 
     def __repr__(self):
         if self.device_type == DeviceType.camera:
-            return f"{repr(self.camera_model)}:{repr(self.camera_port)}"
+            return f"{self.camera_model!r}:{self.camera_port!r}"
         elif self.device_type == DeviceType.camera_fuse:
             return (
-                f"{repr(self.camera_model)}:{repr(self.camera_port)}:"
-                f"{repr(self.display_name)}:{repr(self.path)}"
+                f"{self.camera_model!r}:{self.camera_port!r}:"
+                f"{self.display_name!r}:{self.path!r}"
             )
         elif self.device_type == DeviceType.volume:
-            return f"{repr(self.display_name)}:{repr(self.path)}"
+            return f"{self.display_name!r}:{self.path!r}"
         else:
-            return repr(self.path)
+            return "%r" % self.path
 
     def __str__(self):
         match self.device_type:
@@ -649,21 +649,21 @@ class DeviceCollection:
             ),
         )
         if len(self.scanning):
-            scanning = ", ".join(
+            scanning = "%s" % ", ".join(
                 self[scan_id].display_name for scan_id in self.scanning
             )
             logging.debug("Scanning: %s", scanning)
         else:
             logging.debug("No devices scanning")
         if len(self.downloading):
-            downloading = ", ".join(
+            downloading = "%s" % ", ".join(
                 self[scan_id].display_name for scan_id in self.downloading
             )
             logging.debug("Downloading: %s", downloading)
         else:
             logging.debug("No devices downloading")
         if len(self.thumbnailing):
-            thumbnailing = ", ".join(
+            thumbnailing = "%s" % ", ".join(
                 self[scan_id].display_name for scan_id in self.thumbnailing
             )
             logging.debug("Thumbnailing: %s", thumbnailing)

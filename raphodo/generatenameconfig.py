@@ -1185,7 +1185,9 @@ class PrefValueInvalidError(PrefKeyError):
 class PrefLengthError(PrefError):
     def __init__(self, error):
         super().__init__()
-        self.msg = f"These preferences are not well formed:\n{self.unpackList(error)}"
+        self.msg = "These preferences are not well formed:" + "\n %s" % self.unpackList(
+            error
+        )
 
 
 class PrefValueKeyComboError(PrefError):
