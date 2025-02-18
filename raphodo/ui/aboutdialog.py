@@ -345,11 +345,7 @@ class AboutDialog(QDialog):
         version = QLabel(__about__.__version__)
         version.setFixedHeight(white_box_height - title_bottom)
 
-        # Set the font color to black to allow for the dark theme, where it would
-        # otherwise be white
-        version_style_sheet = """
-        QLabel {
-        color: black;
+        version_style_sheet = """QLabel {
         padding-left: %(left_margin)dpx;
         }""" % dict(left_margin=left_margin)
 

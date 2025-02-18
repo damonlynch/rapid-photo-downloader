@@ -337,7 +337,7 @@ def analyze_videos(videos: list[VideoAttributes], verbose: bool) -> None:
     variety_read_raw = defaultdict(list)
 
     for va in videos:
-        print(str(va))
+        print("%s" % va)
         size_by_extension[va.ext].append(va.bytes_cached)
         if va.minimum_read_size_in_bytes_datetime is not None:
             # size = format_size_for_user(va.minimum_read_size_in_bytes_datetime)

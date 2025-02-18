@@ -651,7 +651,7 @@ class RenameMoveFileWorker(DaemonProcess):
         full_name = rpd_file.download_full_file_name
         while True:
             self.duplicate_files[full_name] = self.duplicate_files.get(full_name, 0) + 1
-            identifier = f"_{self.duplicate_files[full_name]}"
+            identifier = "_%s" % self.duplicate_files[full_name]
             rpd_file.download_name = f"{name[0]}{identifier}{name[1]}"
             rpd_file.download_full_file_name = os.path.join(
                 rpd_file.download_path, rpd_file.download_name
@@ -661,7 +661,7 @@ class RenameMoveFileWorker(DaemonProcess):
                 if os.path.exists(rpd_file.download_full_file_name):
                     raise OSError(
                         errno.EEXIST,
-                        f"File exists: {rpd_file.download_full_file_name}",
+                        "File exists: %s" % rpd_file.download_full_file_name,
                     )
                 os.rename(
                     rpd_file.temp_full_file_name, rpd_file.download_full_file_name
@@ -850,7 +850,7 @@ class RenameMoveFileWorker(DaemonProcess):
         try:
             if os.path.exists(rpd_file.download_full_file_name):
                 raise OSError(
-                    errno.EEXIST, f"File exists: {rpd_file.download_full_file_name}"
+                    errno.EEXIST, "File exists: %s" % rpd_file.download_full_file_name
                 )
             logging.debug(
                 "Renaming %s to %s .....",

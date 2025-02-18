@@ -13,7 +13,7 @@ from PyQt5.QtCore import QSettings, Qt, QTime
 
 import raphodo.__about__
 import raphodo.constants as constants
-from raphodo.constants import FileType, PresetPrefType, max_remembered_destinations
+from raphodo.constants import FileType, PresetPrefType
 from raphodo.generatenameconfig import (
     DEFAULT_PHOTO_RENAME_PREFS,
     DEFAULT_SUBFOLDER_PREFS,
@@ -289,11 +289,6 @@ class WSLWindowsDrivePrefs(NamedTuple):
 
 is_devel_env = os.getenv("RPD_DEVEL_DEFAULTS") is not None
 
-FILE_TYPE_TO_DOWNLOAD_DEST = {
-    FileType.photo: "photo_download_folders",
-    FileType.video: "video_download_folders",
-}
-
 
 class Preferences:
     """
@@ -302,9 +297,8 @@ class Preferences:
 
     program_defaults = dict(program_version="")
     rename_defaults = dict(
-        # following two values introduced in 0.9.37a6:
-        photo_download_folders=[platform_photos_directory()],
-        video_download_folders=[platform_videos_directory()],
+        photo_download_folder=platform_photos_directory(),
+        video_download_folder=platform_videos_directory(),
         photo_subfolder=DEFAULT_SUBFOLDER_PREFS,
         video_subfolder=DEFAULT_VIDEO_SUBFOLDER_PREFS,
         photo_rename=DEFAULT_PHOTO_RENAME_PREFS,
@@ -352,17 +346,14 @@ class Preferences:
         language="",
         show_system_folders=False,  # Introduced in 0.9.27b2
         survey_countdown=10,  # Introduced in 0.9.29
-        survey_taken=2024 if is_devel_env else 0,  # Year. Introduced in 0.9.29
+        survey_taken=2022 if is_devel_env else 0,  # Year. Introduced in 0.9.29
         never_prompt_for_survey=False,  # Introduced in 0.9.29
     )
     device_defaults = dict(
         only_external_mounts=True,
         device_autodetection=True,
         this_computer_source=False,
-        # introduced in 0.9.37a6:
-        this_computer_path_specified=False,
-        # introduced in 0.9.37a6:
-        this_computer_paths=[""],
+        this_computer_path="",
         scan_specific_folders=True,
         # pre 0.9.3a1 value: device_without_dcim_autodetection=False, is now replaced by
         # scan_specific_folders
@@ -492,45 +483,13 @@ class Preferences:
         return self[key]
 
     def __setitem__(self, key, value):
-        match key:
-            case (
-                "photo_download_folder"
-                | "video_download_folder"
-                | "this_computer_path"
-            ):
-                if not value:
-                    logging.error("%s should never be set to an empty string", key)
-                    return
-                key = f"{key}s"
-                self.add_list_value(
-                    key,
-                    value,
-                    max_list_size=max_remembered_destinations,
-                    move_to_top_if_exists=True,
-                )
-
-            case _:
-                group = self.groups.get(key, "General")
-                self.settings.beginGroup(group)
-                self.settings.setValue(key, value)
-                self.settings.endGroup()
+        group = self.groups.get(key, "General")
+        self.settings.beginGroup(group)
+        self.settings.setValue(key, value)
+        self.settings.endGroup()
 
     def __setattr__(self, key, value):
         self[key] = value
-
-    # Using a setter for photo_download_folder, video_download_folder, and
-    # this_computer_path does not work. __setitem__ overrides them.
-    @property
-    def photo_download_folder(self) -> str:
-        return self.photo_download_folders[0]
-
-    @property
-    def video_download_folder(self) -> str:
-        return self.video_download_folders[0]
-
-    @property
-    def this_computer_path(self) -> str:
-        return self.this_computer_paths[0]
 
     def value_is_set(self, key, group: str | None = None) -> bool:
         if group is None:
@@ -986,23 +945,17 @@ class Preferences:
         except ValueError:
             return -1
 
-    def add_list_value(
-        self, key, value, max_list_size=0, move_to_top_if_exists=False
-    ) -> None:
+    def add_list_value(self, key, value, max_list_size=0) -> None:
         """
         Add value to pref list if it doesn't already exist.
 
         Values are added to the start of the list.
-
-        Empty values are not added.
 
         An empty list contains only one item: ['']
 
         :param key: the preference key
         :param value: the value to add
         :param max_list_size: if non-zero, the list's last value will be deleted
-        :param move_to_top_if_exists: whether to move an existing value to the first
-         position in the list
         """
 
         if len(self[key]) == 1 and self[key][0] == "":
@@ -1014,9 +967,6 @@ class Preferences:
                 self[key] = [value] + self[key][: max_list_size - 1]
             else:
                 self[key] = [value] + self[key]
-        elif move_to_top_if_exists:
-            self.del_list_value(key, value)
-            self[key] = [value] + self[key]
 
     def del_list_value(self, key: str, value) -> None:
         """
@@ -1126,28 +1076,6 @@ class Preferences:
                     "warn_broken_or_missing_libraries because it doesn't exist"
                 )
 
-        v0936a6 = parse("0.9.36a6")
-        if previous_version < v0936a6:
-            group = "Rename"
-            self.settings.beginGroup(group)
-            for key in ("photo_download_folder", "video_download_folder"):
-                if self.settings.contains(key):
-                    new_key = f"{key}s"
-                    value = self.settings.value(key, "", str)
-                    logging.debug("Setting %s to [%s]", key.replace("_", " "), value)
-                    self.settings.setValue(new_key, [value])
-                    self.settings.remove(key)
-            self.settings.endGroup()
-            group = "Device"
-            self.settings.beginGroup(group)
-            key = "this_computer_path"
-            new_key = f"{key}s"
-            value = self.settings.value(key, "", str)
-            logging.debug("Setting %s to [%s]", key.replace("_", " "), value)
-            self.settings.setValue(new_key, [value])
-            self.settings.remove(key)
-            self.settings.endGroup()
-
         v093a1 = parse("0.9.3a1")
         key = "scan_specific_folders"
         group = "Device"
@@ -1159,6 +1087,7 @@ class Preferences:
                 self.settings.beginGroup(group)
                 v = self.settings.value("device_without_dcim_autodetection", True, bool)
                 self.settings.remove("device_without_dcim_autodetection")
+                self.settings.endGroup()
                 self.settings.endGroup()
                 logging.debug(
                     "Transferring preference value %s for "
@@ -1184,7 +1113,7 @@ class Preferences:
             # them here.
             for value in ("THMBNL", "__MACOSX"):
                 # If the value is not already in the list, add it
-                logging.info("Adding folder '%s' to list of ignored paths", value)
+                logging.info("Adding folder '%s' to list of ignored paths" % value)
                 self.add_list_value(key=key, value=value)
 
         v0927a3 = parse("0.9.27a3")
@@ -1231,7 +1160,7 @@ class Preferences:
             if path and (
                 len(parts) < 2 or f"/{parts[1]}" not in non_system_root_folders
             ):
-                logging.debug("%s %s is a system directory", name, path)
+                logging.debug("'%s' %s is a system directory", name, path)
                 system_dir_located = True
                 break
         return system_dir_located
@@ -1266,25 +1195,6 @@ class Preferences:
         :return: the full path of the settings file
         """
         return self.settings.fileName()
-
-    def download_folder(self, file_type: FileType) -> str:
-        """
-        Returns the full path of the appropriate download folder depending
-        on the file type
-        """
-
-        if file_type == FileType.photo:
-            return self.photo_download_folder
-        else:
-            return self.video_download_folder
-
-    def set_download_folder(self, path: str, file_type: FileType) -> None:
-        self.add_list_value(
-            key=FILE_TYPE_TO_DOWNLOAD_DEST[file_type],
-            value=path,
-            max_list_size=max_remembered_destinations,
-            move_to_top_if_exists=True,
-        )
 
 
 def match_pref_list(pref_lists: list[list[str]], user_pref_list: list[str]) -> int:

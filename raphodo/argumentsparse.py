@@ -34,7 +34,6 @@ except ImportError:
     # Convert about dictionary to class
     class About:
         pass
-
     __about__ = About()
     __about__.__dict__.update(about)
 
@@ -119,10 +118,7 @@ def get_parser(formatter_class=RawDescriptionHelpFormatter) -> ArgumentParser:
         type=str,
         metavar=_("PATH"),
         dest="this_computer_location",
-        help=_(
-            "The PATH on this computer from which to download. If specified, turns on "
-            "downloading from this computer"
-        ),
+        help=_("The PATH on this computer from which to download."),
     )
     parser.add_argument(
         "--photo-destination",

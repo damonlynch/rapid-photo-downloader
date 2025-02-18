@@ -88,13 +88,7 @@ try:
 except ImportError:
     have_gio = False
 
-
-class StorageSpace(NamedTuple):
-    bytes_free: int
-    bytes_total: int
-    path: str
-
-
+StorageSpace = namedtuple("StorageSpace", "bytes_free, bytes_total, path")
 CameraDetails = namedtuple(
     "CameraDetails", "model, port, display_name, is_mtp, storage_desc"
 )
@@ -783,19 +777,6 @@ class ValidatedFolder(NamedTuple):
     absolute_path: str
 
 
-def is_dir(folder: str) -> bool:
-    """
-    Check for a directory's existence while catching OSError errors, including
-    [Errno 19] No such device
-    """
-
-    try:
-        return Path(folder).is_dir()
-    except OSError:
-        logging.exception("Encountered error while checking for folder existence")
-        return False
-
-
 def validate_download_folder(
     path: str | None, write_on_waccesss_failure: bool = False
 ) -> ValidatedFolder:
@@ -836,26 +817,28 @@ def validate_download_folder(
     return ValidatedFolder(valid=valid, absolute_path=absolute_path)
 
 
-def folder_writable(path: str | Path, write_on_waccesss_failure: bool = False) -> bool:
-    """
-    Checks if a folder is writable. Assumes the path exists.
+def validate_source_folder(path: str | None) -> ValidatedFolder:
+    r"""
+    Check if folder exists and is readable.
+
+    Accepts None as a folder, which will always be invalid.
 
     :param path: path to analyze
-    :param write_on_waccesss_failure: if os.access reports path is not writable, test
-     nonetheless to see if it's writable by writing and deleting a test file
-    :return:
+    :return: Tuple indicating validity and path made absolute
+
+    >>> validate_source_folder('/some/bogus/and/ridiculous/path')
+    ValidatedFolder(valid=False, absolute_path='/some/bogus/and/ridiculous/path')
+    >>> validate_source_folder(None)
+    ValidatedFolder(valid=False, absolute_path='')
+    >>> validate_source_folder('')
+    ValidatedFolder(valid=False, absolute_path='')
     """
 
-    if os.access(path, os.W_OK):
-        return True
-    if write_on_waccesss_failure:
-        try:
-            with NamedTemporaryFile(dir=path):
-                # the path is in fact writeable -- can happen with NFS
-                return True
-        except Exception:
-            logging.debug("While examining %s, failed to write a temporary file", path)
-    return False
+    if not path:
+        return ValidatedFolder(valid=False, absolute_path="")
+    absolute_path = os.path.abspath(path)
+    valid = os.path.isdir(path) and os.access(path, os.R_OK)
+    return ValidatedFolder(valid=valid, absolute_path=absolute_path)
 
 
 def udev_attributes(devname: str) -> UdevAttr | None:
@@ -1190,9 +1173,9 @@ class UDisks2Monitor(QObject):
             return None
 
     def _udisks_partition_added(self, obj, block, drive, path) -> None:
-        logging.debug("UDisks: partition added: %s", path)
+        logging.debug("UDisks: partition added: %s" % path)
         fstype = block.get_cached_property("IdType").get_string()
-        logging.debug("Udisks: id-type: %s", fstype)
+        logging.debug("Udisks: id-type: %s" % fstype)
 
         fs = obj.get_filesystem()
 
@@ -1974,13 +1957,13 @@ def get_mount_size(mount: QStorageInfo) -> tuple[int, int]:
     path is in.
 
     :param path: path located anywhere in the mount
-    :return: tuple of bytes_total, bytes_free
+    :return: bytes_total, bytes_free
     """
 
     bytes_free = mount.bytesAvailable()
     bytes_total = mount.bytesTotal()
 
-    if bytes_total > 0 or not have_gio:
+    if bytes_total or not have_gio:
         return bytes_total, bytes_free
 
     path = mount.rootPath()

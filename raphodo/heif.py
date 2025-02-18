@@ -82,8 +82,7 @@ def load_heif(
         return None
     except FileNotFoundError:
         if not _error_logged:
-            name = process_name if process_name else "this"
-            process_id = f"the {name}"
+            process_id = "the %s" % process_name if process_name else "this"
             logging.error(
                 "FileNotFoundError using pyheif to load HEIF file %s ."
                 "If encountered on another file, this error message will only be "

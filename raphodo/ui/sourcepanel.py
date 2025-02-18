@@ -60,7 +60,7 @@ class SourcePanel(ScrollAreaNoFrame):
         """
 
         return self.rapidApp.sourceButton.isChecked() or (
-            self.rapidApp.app_state.on_startup and self.rapidApp.sourceButtonSetting()
+            self.rapidApp.on_startup and self.rapidApp.sourceButtonSetting()
         )
 
     def temporalProximityIsChecked(self) -> bool:
@@ -70,8 +70,7 @@ class SourcePanel(ScrollAreaNoFrame):
         """
 
         return self.rapidApp.proximityButton.isChecked() or (
-            self.rapidApp.app_state.on_startup
-            and self.rapidApp.proximityButtonSetting()
+            self.rapidApp.on_startup and self.rapidApp.proximityButtonSetting()
         )
 
     def needSplitter(self) -> bool:
@@ -261,7 +260,7 @@ class SourcePanel(ScrollAreaNoFrame):
                 not temporalProximityVisible
             )
 
-    def setThisComputerWidgetState(self) -> None:
+    def setThisComputerState(self) -> None:
         self.placeWidgets()
         self.setThisComputerAltWidgetVisible(self.temporalProximityIsChecked())
         self.setThisComputerToggleViewSizePolicy()
