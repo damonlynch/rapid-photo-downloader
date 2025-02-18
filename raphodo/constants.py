@@ -118,14 +118,17 @@ class ThumbnailCacheOrigin(Enum):
     fdo_cache = 2
 
 
-class DisplayingFilesOfType(Enum):
-    photos = 1
-    videos = 2
-    photos_and_videos = 3
+class DisplayFileType(Enum):
+    photos = auto()
+    videos = auto()
+    photos_and_videos = auto()
+
+    def __str__(self) -> str:
+        return f'{self.name.replace("_", " ")}'
 
 
-BackupLocationType = DisplayingFilesOfType
-BackupFailureType = DisplayingFilesOfType
+BackupLocationType = DisplayFileType
+BackupFailureType = DisplayFileType
 
 
 class FileTypeFlag(Flag):
@@ -139,34 +142,34 @@ class WindowsDriveType(IntEnum):
     network_drive = 4
 
 
-class DestinationDisplayType(Enum):
-    folder_only = 1  # folder icon, folder name, and the menu icon
-    usage_only = 2  # Projected Storage Use display
-    folders_and_usage = 3  # combines types one and two
-
-
-class DestinationDisplayStatus(IntEnum):
+class DeviceDisplayStatus(Enum):
     valid = auto()
-    unwritable = auto()
+    cannot_read = auto()
+    read_only = auto()
     does_not_exist = auto()
     no_storage_space = auto()
+    unspecified = auto()
+    unspecified_choices_available = auto()
+
+
+class DeviceRowItem(Flag):
+    initial_header = auto()
+    header = auto()
+    icon = auto()
+    source = auto()  # checkbox, spinner, download complete icon
+    drop_down_menu = auto()
+    folder_combo = auto()
+    dir_invalid = auto()
+    no_storage_space = auto()
+    usage0 = auto()
+    usage1 = auto()
+    frame = auto()
 
 
 class ExifSource(Enum):
     raw_bytes = 1
     app1_segment = 2
     actual_file = 3
-
-
-class DestinationDisplayMousePos(Enum):
-    normal = 1
-    menu = 2
-
-
-class DestinationDisplayTooltipState(Enum):
-    menu = 1
-    path = 2
-    storage_space = 3
 
 
 class DeviceType(Enum):
@@ -231,15 +234,12 @@ class ThumbnailSize(IntEnum):
     height = 120
 
 
-class ApplicationState(Flag):
-    startup = auto()
-    normal = auto()
-    exiting = auto()
-    timeline_generating = auto()
-    timeline_generated = auto()
-
-CORE_APPLICATION_STATE_MASK = ApplicationState.startup | ApplicationState.normal | ApplicationState.exiting
-TIMELINE_APPLICATION_STATE_MASK = ApplicationState.timeline_generating | ApplicationState.timeline_generated
+class SourceState(Enum):
+    checkbox = auto()
+    spinner = auto()
+    downloaded = auto()
+    downloaded_warning = auto()
+    downloaded_error = auto()
 
 
 class PostCameraUnmountAction(Enum):
@@ -297,6 +297,9 @@ class Roles(IntEnum):
     download_statuses = Qt.UserRole + 20
     job_code = Qt.UserRole + 21
     uids = Qt.UserRole + 22
+    warning = Qt.UserRole + 23
+    no_space = Qt.UserRole + 24
+    device_status = Qt.UserRole + 25
 
 
 class ExtractionTask(Enum):
@@ -343,8 +346,8 @@ class CameraErrorCode(Enum):
 
 
 class ViewRowType(Enum):
-    header = 1
-    content = 2
+    header = auto()
+    content = auto()
 
 
 class Align(Enum):
@@ -459,6 +462,7 @@ DarkModeHeaderBackgroundName = DarkModeThumbnailBackgroundName
 EmptyViewHeight = 20
 
 DeviceDisplayPadding = 6
+DeviceDisplayVPadding = DeviceDisplayPadding + DeviceDisplayPadding // 2
 DeviceShadingIntensity = 104
 
 # How many steps with which to highlight thumbnail cells
@@ -779,3 +783,12 @@ non_system_root_folders = [
     "/media",
     "/mnt",
 ]
+
+MAP_FILE_TYPE_TO_DISPLAYING_FILES_OF_TYPE = {
+    FileType.photo: DisplayFileType.photos,
+    FileType.video: DisplayFileType.videos,
+}
+
+MAP_DISPLAYING_FILES_OF_TYPE_TO_FILE_TYPE = {
+    value: key for key, value in MAP_FILE_TYPE_TO_DISPLAYING_FILES_OF_TYPE.items()
+}

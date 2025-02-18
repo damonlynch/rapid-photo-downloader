@@ -243,7 +243,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
 
         f = self._get_rational("Exif.Photo.FocalLength")
         if f is not None:
-            return "%.0f" % f
+            return f"{f:.0f}"
         else:
             return missing
 

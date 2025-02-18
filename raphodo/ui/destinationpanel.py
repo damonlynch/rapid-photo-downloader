@@ -5,18 +5,21 @@
 Display photo and video destinations
 """
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QWidget
 
-from raphodo.devices import DownloadingTo
+from raphodo.constants import (
+    DeviceDisplayStatus,
+    DisplayFileType,
+)
+from raphodo.customtypes import DownloadFilesSizeAndNum
 from raphodo.internationalisation.install import install_gettext
 from raphodo.rpdfile import FileType
-from raphodo.thumbnaildisplay import MarkedSummary
-from raphodo.ui.computerview import ComputerWidget
+from raphodo.storage.storage import StorageSpace
+from raphodo.ui.computerview import DestComputerWidget
 from raphodo.ui.destinationdisplay import (
-    DestinationDisplay,
-    DestinationDisplayType,
-    DisplayingFilesOfType,
+    CombinedDestinationDisplay,
+    PhotoOrVideoDestinationDisplay,
 )
 from raphodo.ui.panelview import QPanelView
 from raphodo.ui.viewutils import ScrollAreaNoFrame
@@ -25,6 +28,8 @@ install_gettext()
 
 
 class DestinationPanel(ScrollAreaNoFrame):
+    pathChosen = pyqtSignal(str, "PyQt_PyObject")
+
     def __init__(self, parent) -> None:
         super().__init__(name="destinationPanel", parent=parent)
         assert parent is not None
@@ -67,13 +72,13 @@ class DestinationPanel(ScrollAreaNoFrame):
         # partition. That is, "combined" means not combined widgets, but combined
         # display of destination download stats the user sees
 
-        self.combinedDestinationDisplay = DestinationDisplay(
-            parent=self, rapidApp=self.rapidApp
+        self.combinedDestinationDisplay = CombinedDestinationDisplay(
+            rapidApp=self.rapidApp
         )
+
         self.combinedDestinationDisplayContainer = QPanelView(
             _("Projected Storage Use"),
         )
-        self.combinedDestinationDisplay.setObjectName("combinedDestinationDisplay")
         self.combinedDestinationDisplayContainer.addWidget(
             self.combinedDestinationDisplay
         )
@@ -85,29 +90,44 @@ class DestinationPanel(ScrollAreaNoFrame):
         # partitions.
         # Also display the file system folder chooser for both destinations.
 
-        self.photoDestinationDisplay = DestinationDisplay(
-            menu=True, file_type=FileType.photo, parent=self, rapidApp=self.rapidApp
+        self.photoDestinationDisplay = PhotoOrVideoDestinationDisplay(
+            display_type=DisplayFileType.photos, rapidApp=self.rapidApp
         )
-        self.photoDestinationDisplay.setDestination(self.prefs.photo_download_folder)
-        self.photoDestinationDisplay.setObjectName("photoDestinationDisplay")
-        self.photoDestinationWidget = ComputerWidget(
-            objectName="photoDestination",
-            view=self.photoDestinationDisplay,
+        self.photoDestinationDisplay.deviceRows.headerWidget.pathChanged.connect(
+            self.pathChosen
+        )
+        self.photoDestinationWidget = DestComputerWidget(
+            object_name="photoDestination",
+            deviceRows=self.photoDestinationDisplay.deviceRows,
             fileSystemView=self.rapidApp.photoDestinationFSView,
-            select_text=_("Select a destination folder"),
         )
 
-        self.videoDestinationDisplay = DestinationDisplay(
-            menu=True, file_type=FileType.video, parent=self, rapidApp=self.rapidApp
+        self.videoDestinationDisplay = PhotoOrVideoDestinationDisplay(
+            display_type=DisplayFileType.videos, rapidApp=self.rapidApp
         )
-        self.videoDestinationDisplay.setObjectName("videoDestinationDisplay")
-        self.videoDestinationDisplay.setDestination(self.prefs.video_download_folder)
-        self.videoDestinationWidget = ComputerWidget(
-            objectName="videoDestination",
-            view=self.videoDestinationDisplay,
+        self.videoDestinationDisplay.deviceRows.headerWidget.pathChanged.connect(
+            self.pathChosen
+        )
+
+        self.videoDestinationWidget = DestComputerWidget(
+            object_name="videoDestination",
+            deviceRows=self.videoDestinationDisplay.deviceRows,
             fileSystemView=self.rapidApp.videoDestinationFSView,
-            select_text=_("Select a destination folder"),
         )
+
+        self.MAP_DESTINATION_DISPLAY = {
+            FileType.photo: self.photoDestinationDisplay,
+            FileType.video: self.videoDestinationDisplay,
+        }
+        self.MAP_DESTINATION_WIDGET = {
+            FileType.photo: self.photoDestinationWidget,
+            FileType.video: self.videoDestinationWidget,
+        }
+        self.MAP_DESTINATION_DISPLAY_BY_DISPLAY_TYPE = {
+            DisplayFileType.photos_and_videos: self.combinedDestinationDisplay,
+            DisplayFileType.photos: self.photoDestinationDisplay,
+            DisplayFileType.videos: self.videoDestinationDisplay,
+        }
 
         self.photoDestination.addWidget(self.photoDestinationWidget)
         self.videoDestination.addWidget(self.videoDestinationWidget)
@@ -132,94 +152,46 @@ class DestinationPanel(ScrollAreaNoFrame):
         self.photoDestinationContainer.setObjectName("photoDestinationContainer")
         self.photoDestinationContainer.setLayout(layout)
 
-    def updateDestinationPanelViews(
+    def setDestinationDisplayVisibilityAndType(self, same_device: bool) -> None:
+        self.combinedDestinationDisplayContainer.setVisible(same_device)
+        self.photoDestinationDisplay.deviceRows.setUsageVisible(not same_device)
+        self.videoDestinationDisplay.deviceRows.setUsageVisible(not same_device)
+        if same_device:
+            self.photoDestinationDisplay.setNoSpace(False)
+            self.videoDestinationDisplay.setNoSpace(False)
+
+    def setMountSpaceAttributes(
+        self, display_type: DisplayFileType, storage_space: StorageSpace
+    ) -> None:
+        self.MAP_DESTINATION_DISPLAY_BY_DISPLAY_TYPE[display_type].setStorage(
+            storage_space
+        )
+
+    def setUsageAttributes(
         self,
-        same_dev: bool,
+        display_type: DisplayFileType,
+        sizeAndNum: DownloadFilesSizeAndNum,
         merge: bool,
-        marked_summary: MarkedSummary,
-        downloading_to: DownloadingTo | None = None,
-    ) -> bool:
-        """
-        Updates the header bar and storage space view for the
-        photo and video download destinations.
+    ) -> None:
+        self.MAP_DESTINATION_DISPLAY_BY_DISPLAY_TYPE[display_type].setFilesToDownload(
+            sizeAndNum, merge, display_type
+        )
 
-        :return True if destinations required for the download exist,
-         and there is sufficient space on them, else False.
-        """
+    def insertDestinationPaths(self, file_type: FileType, paths: list[str]) -> None:
+        self.MAP_DESTINATION_DISPLAY[file_type].insertPaths(paths)
 
-        size_photos_marked = marked_summary.size_photos_marked
-        size_videos_marked = marked_summary.size_videos_marked
-        marked = marked_summary.marked
+    def setDestinationPath(self, file_type: FileType, path: str) -> None:
+        self.MAP_DESTINATION_DISPLAY[file_type].setPath(path)
 
-        destinations_good = True
+    def setDestinationDisplayStatus(
+        self, file_type: FileType, status: DeviceDisplayStatus
+    ) -> None:
+        self.MAP_DESTINATION_DISPLAY[file_type].setStatus(status)
 
-        if same_dev:
-            files_to_display = DisplayingFilesOfType.photos_and_videos
-            self.combinedDestinationDisplay.downloading_to = downloading_to
-            self.combinedDestinationDisplay.setDestination(
-                self.prefs.photo_download_folder
-            )
-            self.combinedDestinationDisplay.setDownloadAttributes(
-                marked=marked,
-                photos_size=size_photos_marked,
-                videos_size=size_videos_marked,
-                files_to_display=files_to_display,
-                display_type=DestinationDisplayType.usage_only,
-                merge=merge,
-            )
-            display_type = DestinationDisplayType.folder_only
-            self.combinedDestinationDisplayContainer.setVisible(True)
-            destinations_good = (
-                self.combinedDestinationDisplay.sufficientSpaceAvailable()
-            )
-        else:
-            files_to_display = DisplayingFilesOfType.photos
-            display_type = DestinationDisplayType.folders_and_usage
-            self.combinedDestinationDisplayContainer.setVisible(False)
+    def setDestinationDisplayNoSpaceStatus(
+        self, display_type: DisplayFileType, no_space: bool
+    ) -> None:
+        self.MAP_DESTINATION_DISPLAY_BY_DISPLAY_TYPE[display_type].setNoSpace(no_space)
 
-        if self.prefs.photo_download_folder:
-            self.photoDestinationDisplay.downloading_to = downloading_to
-            self.photoDestinationDisplay.setDownloadAttributes(
-                marked=marked,
-                photos_size=size_photos_marked,
-                videos_size=0,
-                files_to_display=files_to_display,
-                display_type=display_type,
-                merge=merge,
-            )
-            self.photoDestinationWidget.setViewVisible(True)
-            if display_type == DestinationDisplayType.folders_and_usage:
-                destinations_good = (
-                    self.photoDestinationDisplay.sufficientSpaceAvailable()
-                )
-        else:
-            # Photo download folder was invalid or simply not yet set
-            self.photoDestinationWidget.setViewVisible(False)
-            if size_photos_marked:
-                destinations_good = False
-
-        if not same_dev:
-            files_to_display = DisplayingFilesOfType.videos
-        if self.prefs.video_download_folder:
-            self.videoDestinationDisplay.downloading_to = downloading_to
-            self.videoDestinationDisplay.setDownloadAttributes(
-                marked=marked,
-                photos_size=0,
-                videos_size=size_videos_marked,
-                files_to_display=files_to_display,
-                display_type=display_type,
-                merge=merge,
-            )
-            self.videoDestinationWidget.setViewVisible(True)
-            if display_type == DestinationDisplayType.folders_and_usage:
-                destinations_good = (
-                    self.videoDestinationDisplay.sufficientSpaceAvailable()
-                    and destinations_good
-                )
-        else:
-            # Video download folder was invalid or simply not yet set
-            self.videoDestinationWidget.setViewVisible(False)
-            if size_videos_marked:
-                destinations_good = False
-
-        return destinations_good
+    def updateDestinationDisplayUsage(self, display_type: DisplayFileType) -> None:
+        self.MAP_DESTINATION_DISPLAY_BY_DISPLAY_TYPE[display_type].updateUsage()

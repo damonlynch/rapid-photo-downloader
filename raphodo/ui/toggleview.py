@@ -53,7 +53,7 @@ class QToggleView(QPanelView):
         self.setObjectName(object_name)
 
         if display_alternate:
-            self.alternateWidget = BlankWidget()
+            self.alternateWidget = BlankWidget(parent=self)
             layout = self.layout()  # type: QLayout
             layout.addWidget(self.alternateWidget)
         else:

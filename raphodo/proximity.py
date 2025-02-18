@@ -57,7 +57,6 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
     QSlider,
     QSplitter,
-    QStackedWidget,
     QStyle,
     QStyledItemDelegate,
     QStyleOptionViewItem,
@@ -89,6 +88,7 @@ from raphodo.tools.timeutils import (
     strip_zero,
 )
 from raphodo.tools.utilities import runs
+from raphodo.ui.stackedwidget import ResizableStackedWidget
 from raphodo.ui.viewutils import (
     ThumbnailDataForProximity,
     TightFlexiFrame,
@@ -1991,36 +1991,6 @@ class TemporalValuePicker(QWidget):
             return _("%(hours)dh") % dict(hours=minutes // 60)
 
 
-class ResizableStackedWidget(QStackedWidget):
-    """
-    Default of QStackedWidget is not to resize itself to the currently displayed
-    widget. That's a problem when dealing with a widget as potentially tall as the
-    Timeline.
-    """
-
-    def __init__(self, parent: QWidget | None = None) -> None:
-        super().__init__(parent=parent)
-        self.currentChanged.connect(self.onCurrentChanged)
-
-    @pyqtSlot(int)
-    def onCurrentChanged(self, index: int) -> None:
-        for i in range(self.count()):
-            if i == index:
-                verticalPolicy = QSizePolicy.MinimumExpanding
-            else:
-                verticalPolicy = QSizePolicy.Ignored
-            widget = self.widget(i)
-            widget.setSizePolicy(widget.sizePolicy().horizontalPolicy(), verticalPolicy)
-            widget.adjustSize()
-        self.adjustSize()
-
-    def minimumSizeHint(self) -> QSize:
-        return self.sizeHint()
-
-    def sizeHint(self) -> QSize:
-        return self.currentWidget().sizeHint()
-
-
 class TemporalProximityExplanation(QWidget):
     """
     Widget to that contains an explanation of the Timeline, with the explanation broken
@@ -2606,15 +2576,15 @@ class SyncButton(QPushButton):
             color = QPalette().color(QPalette.Background)
             hoverColor = color.darker(110).name(QColor.HexRgb)
 
-        style = """
-            QPushButton {
+        style = f"""
+            QPushButton {{
                 padding: 2px;
                 border: none;
-            } 
-            QPushButton::hover {
-                background-color: %s;
-            }
-            """ % (hoverColor)
+            }} 
+            QPushButton::hover {{
+                background-color: {hoverColor};
+            }}
+            """
         self.setStyleSheet(style)
         self.installEventFilter(self)
 

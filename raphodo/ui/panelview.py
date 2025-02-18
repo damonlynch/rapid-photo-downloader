@@ -66,7 +66,7 @@ class QPanelView(QWidget):
 
         self.headerWidget = None
 
-        self.content = None
+        self.content: QWidget | None = None
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)

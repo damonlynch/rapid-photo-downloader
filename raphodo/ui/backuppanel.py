@@ -54,9 +54,10 @@ from raphodo.rpdfile import FileTypeCounter
 from raphodo.storage.storage import ValidMounts, get_media_dir, get_mount_size
 from raphodo.tools.utilities import data_file_path
 from raphodo.ui.destinationdisplay import adjusted_download_size, make_body_details
-from raphodo.ui.devicedisplay import DeviceDisplay, DeviceView, icon_size
+from raphodo.ui.devicedisplay import DeviceDisplay, DeviceView
 from raphodo.ui.foldercombo import FolderCombo
 from raphodo.ui.panelview import QPanelView
+from raphodo.ui.viewconstants import icon_size
 from raphodo.ui.viewutils import (
     FlexiFrame,
     RowTracker,
@@ -90,7 +91,7 @@ class BackupDeviceModel(QAbstractListModel):
     (1) destination on local files systems
     (2) external devices, e.g., external hard drives
 
-    Need to account for when download destination is same file system
+    Need to account for when download destination is the same file system
     as backup destination.
     """
 
@@ -110,6 +111,8 @@ class BackupDeviceModel(QAbstractListModel):
         self.row_id_counter: int = 0
         # {row_id}
         self.headers: set[int] = set()
+        self.warnings: set[int] = set()
+        self.no_space: set[int] = set()
         # path: BackupViewRow
         self.backup_devices: dict[str, BackupViewRow] = dict()
         self.path_to_row_ids: dict[str, list[int]] = defaultdict(list)
@@ -276,7 +279,7 @@ class BackupDeviceModel(QAbstractListModel):
                         self.folderIcon,
                     )
 
-        # at least one device  / location is being used
+        # at least one device / location is being used
         if row >= len(self.rows) or row < 0:
             return None
         if row not in self.rows:
@@ -364,7 +367,6 @@ class BackupDeviceView(DeviceView):
         super().__init__(rapidApp, parent)
         self.setMouseTracking(False)
         self.entered.disconnect()
-        # TODO sizeHint() ?
 
 
 class BackupDeviceDelegate(QStyledItemDelegate):
@@ -386,33 +388,44 @@ class BackupDeviceDelegate(QStyledItemDelegate):
         width = option.rect.width()
 
         view_type: ViewRowType = index.data(Qt.DisplayRole)
-        if view_type == ViewRowType.header:
-            display_name, icon = index.data(Roles.device_details)
+        match view_type:
+            case ViewRowType.header:
+                display_name, icon = index.data(Roles.device_details)
 
-            self.deviceDisplay.paint_header(
-                painter=painter,
-                x=x,
-                y=y,
-                width=width,
-                icon=icon,
-                display_name=display_name,
-            )
-        else:
-            assert view_type == ViewRowType.content
+                self.deviceDisplay.paintHeader(
+                    painter=painter,
+                    x=x,
+                    y=y,
+                    width=width,
+                    icon=icon,
+                    display_name=display_name,
+                )
+            case ViewRowType.content:
+                assert view_type == ViewRowType.content
 
-            data: BackupVolumeUse = index.data(Roles.storage)
-            details = make_body_details(
-                bytes_total=data.bytes_total,
-                bytes_free=data.bytes_free,
-                files_to_display=data.backup_type,
-                marked=data.marked,
-                photos_size_to_download=data.photos_size_to_download,
-                videos_size_to_download=data.videos_size_to_download,
-            )
+                data: BackupVolumeUse = index.data(Roles.storage)
+                details = make_body_details(
+                    bytes_total=data.bytes_total,
+                    bytes_free=data.bytes_free,
+                    display_type=data.backup_type,
+                    marked=data.marked,
+                    photos_size_to_download=data.photos_size_to_download,
+                    videos_size_to_download=data.videos_size_to_download,
+                )
+                self.deviceDisplay.paintBody(
+                    painter=painter, x=x, y=y, width=width, details=details
+                )
+            case ViewRowType.warning:
+                message = index.data(Roles.warning)
+                self.deviceDisplay.paintWarning(
+                    painter=painter, x=x, y=y, width=width, text=message
+                )
 
-            self.deviceDisplay.paint_body(
-                painter=painter, x=x, y=y, width=width, details=details
-            )
+            case ViewRowType.no_space:
+                message = index.data(Roles.no_space)
+                self.deviceDisplay.paintWarning(
+                    painter=painter, x=x, y=y, width=width, text=message
+                )
 
         painter.restore()
 
@@ -608,7 +621,7 @@ class BackupOptionsWidget(FlexiFrame):
         self.prefs.backup_files = backup
         self.setBackupButtonHighlight()
         self.enableControlsByBackupType()
-        self.rapidApp.resetupBackupDevices()
+        self.rapidApp.reconfigureBackupDevices()
 
     @pyqtSlot(int)
     def autoBackupChanged(self, state: int) -> None:
@@ -617,21 +630,21 @@ class BackupOptionsWidget(FlexiFrame):
         self.prefs.backup_device_autodetection = autoBackup
         self.setBackupButtonHighlight()
         self.enableControlsByBackupType()
-        self.rapidApp.resetupBackupDevices()
+        self.rapidApp.reconfigureBackupDevices()
 
     @pyqtSlot(str)
     def photoPathChosen(self, path: str) -> None:
         logging.info("Setting backup photo location to %s", path)
         self.prefs.backup_photo_location = path
         self.setBackupButtonHighlight()
-        self.rapidApp.resetupBackupDevices()
+        self.rapidApp.reconfigureBackupDevices()
 
     @pyqtSlot(str)
     def videoPathChosen(self, path: str) -> None:
         logging.info("Setting backup video location to %s", path)
         self.prefs.backup_video_location = path
         self.setBackupButtonHighlight()
-        self.rapidApp.resetupBackupDevices()
+        self.rapidApp.reconfigureBackupDevices()
 
     @pyqtSlot()
     def photoFolderIdentifierChanged(self) -> None:
@@ -639,7 +652,7 @@ class BackupOptionsWidget(FlexiFrame):
         logging.info("Setting backup photo folder name to %s", name)
         self.prefs.photo_backup_identifier = name
         self.setBackupButtonHighlight()
-        self.rapidApp.resetupBackupDevices()
+        self.rapidApp.reconfigureBackupDevices()
 
     @pyqtSlot()
     def videoFolderIdentifierChanged(self) -> None:
@@ -647,7 +660,7 @@ class BackupOptionsWidget(FlexiFrame):
         logging.info("Setting backup video folder name to %s", name)
         self.prefs.video_backup_identifier = name
         self.setBackupButtonHighlight()
-        self.rapidApp.resetupBackupDevices()
+        self.rapidApp.reconfigureBackupDevices()
 
     def updateExample(self) -> None:
         """

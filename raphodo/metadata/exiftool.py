@@ -1,7 +1,7 @@
-# PyExifTool <http://github.com/smarnach/pyexiftool>
 # SPDX-FileCopyrightText: Copyright 2012 Sven Marnach
 # SPDX-License-Identifier: GPL-3.0-or-later OR BSD-3-Clause
 
+# PyExifTool <http://github.com/smarnach/pyexiftool>
 # This file is part of PyExifTool.
 #
 # PyExifTool is free software: you can redistribute it and/or modify

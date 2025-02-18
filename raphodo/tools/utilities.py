@@ -976,7 +976,7 @@ def available_lang_codes() -> list[str]:
     """
 
     if localedir is not None:
-        files = glob(os.path.join(localedir, "*", "LC_MESSAGES", "%s.mo" % i18n_domain))
+        files = glob(os.path.join(localedir, "*", "LC_MESSAGES", f"{i18n_domain}.mo"))
         langs = [file.split(os.path.sep)[-3] for file in files]
         langs.append("en")
         return langs

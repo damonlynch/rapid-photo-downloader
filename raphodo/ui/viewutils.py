@@ -63,6 +63,7 @@ import raphodo.tools.xsettings as xsettings
 from raphodo.constants import HeaderBackgroundName, ScalingDetected
 from raphodo.internationalisation.install import install_gettext
 from raphodo.tools.utilities import data_file_path
+from raphodo.ui.viewconstants import standard_font_size
 
 install_gettext()
 
@@ -823,16 +824,6 @@ def scaledPixmap(path: str, scale: float) -> QPixmap:
         pixmap = pixmap.scaledToWidth(pixmap.width() * scale, Qt.SmoothTransformation)
         pixmap.setDevicePixelRatio(scale)
     return pixmap
-
-
-def standard_font_size(shrink_on_odd: bool = True) -> int:
-    h = QFontMetrics(QFont()).height()
-    if h % 2 == 1:
-        if shrink_on_odd:
-            h -= 1
-        else:
-            h += 1
-    return h
 
 
 def scaledIcon(path: str, size: QSize | None = None) -> QIcon:

@@ -255,8 +255,10 @@ class JobCodeOptionsWidget(FlexiFrame):
         )
 
         self.setDefaultMessage()
+        font: QFont = self.font()
+        font.setPointSize(font.pointSize() - 2)
 
-        self.sortCombo = ChevronCombo(in_panel=True)
+        self.sortCombo = ChevronCombo(font)
         self.sortCombo.addItem(_("Last Used"), JobCodeSort.last_used)
         self.sortCombo.addItem(_("Job Code"), JobCodeSort.code)
         if self._sort_index_valid(self.prefs.job_code_sort_key):
@@ -264,15 +266,13 @@ class JobCodeOptionsWidget(FlexiFrame):
         self.sortCombo.currentIndexChanged.connect(self.sortComboChanged)
         self.sortLabel = self.sortCombo.makeLabel(_("Job Code Sort:"))
 
-        self.sortOrder = ChevronCombo(in_panel=True)
+        self.sortOrder = ChevronCombo(font)
         self.sortOrder.addItem(_("Ascending"), Qt.AscendingOrder)
         self.sortOrder.addItem(_("Descending"), Qt.DescendingOrder)
         if self._sort_index_valid(self.prefs.job_code_sort_order):
             self.sortOrder.setCurrentIndex(self.prefs.job_code_sort_order)
         self.sortOrder.currentIndexChanged.connect(self.sortOrderChanged)
 
-        font: QFont = self.font()
-        font.setPointSize(font.pointSize() - 2)
         for widget in (self.sortLabel, self.sortCombo, self.sortOrder):
             widget.setFont(font)
 

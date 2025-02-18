@@ -7,6 +7,7 @@ raphodo/errorlog.py
 raphodo/excepthook.py
 raphodo/generatename.py
 raphodo/generatenameconfig.py
+raphodo/internationalisation/strings.py
 raphodo/internationalisation/utilities.py
 raphodo/prefs/preferencedialog.py
 raphodo/prefs/preferences.py
@@ -35,6 +36,7 @@ raphodo/ui/nameeditor.py
 raphodo/ui/primarybutton.py
 raphodo/ui/rememberthisdialog.py
 raphodo/ui/renamepanel.py
+raphodo/ui/source.py
 raphodo/ui/viewutils.py
 raphodo/wsl/wsl.py
 data/kde/net.damonlynch.rapid_photo_downloader.desktop.in
