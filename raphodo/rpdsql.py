@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright 2015-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: Copyright 2015-2026 Damon Lynch <damonlynch@gmail.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -8,6 +8,7 @@ import os
 import sqlite3
 from collections import namedtuple
 from collections.abc import Sequence
+from contextlib import closing
 from typing import Any, NamedTuple
 
 from PyQt5.QtCore import Qt
@@ -742,11 +743,11 @@ class DownloadedSQL:
         :return: how many downloaded files are in the db
         """
 
-        conn = sqlite3.connect(self.db)
-        c = conn.cursor()
-        c.execute(f"SELECT COUNT(*) FROM {self.table_name}")
-        count = c.fetchall()
-        return count[0][0]
+        with closing(sqlite3.connect(self.db)) as conn:
+            c = conn.cursor()
+            c.execute(f"SELECT COUNT(*) FROM {self.table_name}")
+            count = c.fetchall()
+            return count[0][0]
 
     def update_table(self, reset: bool = False) -> None:
         """
@@ -755,33 +756,33 @@ class DownloadedSQL:
          build it
         """
 
-        conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
+        with closing(
+            sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
+        ) as conn:
+            if reset:
+                conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
+                conn.execute("VACUUM")
 
-        if reset:
-            conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
-            conn.execute("VACUUM")
+            conn.execute(
+                f"""CREATE TABLE IF NOT EXISTS {self.table_name} (
+                file_name TEXT NOT NULL,
+                mtime REAL NOT NULL,
+                size INTEGER NOT NULL,
+                download_name TEXT NOT NULL,
+                download_datetime timestamp,
+                PRIMARY KEY (file_name, mtime, size)
+                )"""
+            )
 
-        conn.execute(
-            f"""CREATE TABLE IF NOT EXISTS {self.table_name} (
-            file_name TEXT NOT NULL,
-            mtime REAL NOT NULL,
-            size INTEGER NOT NULL,
-            download_name TEXT NOT NULL,
-            download_datetime timestamp,
-            PRIMARY KEY (file_name, mtime, size)
-            )"""
-        )
+            # Use the character . to for download_name and path to indicate the user
+            # manually marked a file as previously downloaded
 
-        # Use the character . to for download_name and path to indicate the user
-        # manually marked a file as previously downloaded
+            conn.execute(
+                f"""CREATE INDEX IF NOT EXISTS download_datetime_idx ON
+                {self.table_name} (download_name)"""
+            )
 
-        conn.execute(
-            f"""CREATE INDEX IF NOT EXISTS download_datetime_idx ON
-            {self.table_name} (download_name)"""
-        )
-
-        conn.commit()
-        conn.close()
+            conn.commit()
 
     @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
     def add_downloaded_file(
@@ -800,33 +801,30 @@ class DownloadedSQL:
          or the character . that the user manually marked the file
          as previously downloaded
         """
-        conn = sqlite3.connect(self.db, timeout=sqlite3_timeout)
+        with closing(sqlite3.connect(self.db, timeout=sqlite3_timeout)) as conn:
+            logging.debug("Adding %s to downloaded files", name)
 
-        logging.debug("Adding %s to downloaded files", name)
-
-        try:
-            conn.execute(
-                rf"""INSERT OR REPLACE INTO {self.table_name} (file_name, size, mtime,
-                download_name, download_datetime) VALUES (?,?,?,?,?)""",
-                (
-                    name,
-                    size,
-                    modification_time,
+            try:
+                conn.execute(
+                    rf"""INSERT OR REPLACE INTO {self.table_name} (file_name, size, mtime,
+                    download_name, download_datetime) VALUES (?,?,?,?,?)""",
+                    (
+                        name,
+                        size,
+                        modification_time,
+                        download_full_file_name,
+                        datetime.datetime.now(),
+                    ),
+                )
+            except sqlite3.OperationalError as e:
+                logging.warning(
+                    "Database error adding download file %s: %s. May retry.",
                     download_full_file_name,
-                    datetime.datetime.now(),
-                ),
-            )
-        except sqlite3.OperationalError as e:
-            logging.warning(
-                "Database error adding download file %s: %s. May retry.",
-                download_full_file_name,
-                e,
-            )
-            conn.close()
-            raise sqlite3.OperationalError from e
-        else:
-            conn.commit()
-            conn.close()
+                    e,
+                )
+                raise sqlite3.OperationalError from e
+            else:
+                conn.commit()
 
     def file_downloaded(
         self,
@@ -844,60 +842,64 @@ class DownloadedSQL:
         :return: download name (including path) and when it was
          downloaded, else None if never downloaded
         """
-        conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
-        c = conn.cursor()
-        c.execute(
-            "SELECT download_name, download_datetime as [timestamp] FROM "
-            f"{self.table_name} "
-            "WHERE file_name=? AND size=? AND mtime=?",
-            (name, size, modification_time),
-        )
-        row = c.fetchone()
-        if row is not None:
-            return FileDownloaded._make(row)
-
-        if time_zone_offset_resolution is None:
-            return None
-
-        if self.found_offset:
+        with closing(
+            sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
+        ) as conn:
+            c = conn.cursor()
             c.execute(
-                "SELECT download_name, download_datetime as [timestamp] "
-                f"FROM {self.table_name} "
+                "SELECT download_name, download_datetime as [timestamp] FROM "
+                f"{self.table_name} "
                 "WHERE file_name=? AND size=? AND mtime=?",
-                (name, size, modification_time - self.found_offset),
+                (name, size, modification_time),
             )
             row = c.fetchone()
             if row is not None:
-                logging.debug("Reused time zone offset %s", self.found_offset_hr)
                 return FileDownloaded._make(row)
-            else:
-                logging.info(
-                    "Using time zone offset unsuccessful %s", self.found_offset_hr
-                )
 
-        # Determine if there is a file with the same time and date within +- 24 hours
-        # i.e. 3600 seconds * 24 = 86400
-        # For why 24 hours, see this map:
-        # https://en.wikipedia.org/wiki/Time_zone#/media/File:World_Time_Zones_Map.png
-        c.execute(
-            f"""SELECT download_name, download_datetime as [timestamp], mtime 
-            FROM {self.table_name} 
-            WHERE file_name=? AND size=? AND mtime<=? AND mtime >=?""",
-            (name, size, modification_time + 86400, modification_time - 86400),
-        )
-        row = c.fetchone()
-        if row is not None:
-            # we now have a time within 24 hours in either direction of the mtime
-            mtime: float = row[2]
-            for offset in self.time_zone_offsets[time_zone_offset_resolution]:
-                if mtime + offset == modification_time:
-                    self.found_offset = offset
-                    m, s = divmod(offset, 60)
-                    h, m = divmod(m, 60)
-                    self.found_offset_hr = f"{h:d}:{m:02d}"
-                    logging.info("Time zone offset is %s", self.found_offset_hr)
-                    return FileDownloaded(download_name=name, download_datetime=row[1])
-        return None
+            if time_zone_offset_resolution is None:
+                return None
+
+            if self.found_offset:
+                c.execute(
+                    "SELECT download_name, download_datetime as [timestamp] "
+                    f"FROM {self.table_name} "
+                    "WHERE file_name=? AND size=? AND mtime=?",
+                    (name, size, modification_time - self.found_offset),
+                )
+                row = c.fetchone()
+                if row is not None:
+                    logging.debug("Reused time zone offset %s", self.found_offset_hr)
+                    return FileDownloaded._make(row)
+                else:
+                    logging.info(
+                        "Using time zone offset unsuccessful %s", self.found_offset_hr
+                    )
+
+            # Determine if there is a file with the same time and date within +- 24 hours
+            # i.e. 3600 seconds * 24 = 86400
+            # For why 24 hours, see this map:
+            # https://en.wikipedia.org/wiki/Time_zone#/media/File:World_Time_Zones_Map.png
+            c.execute(
+                f"""SELECT download_name, download_datetime as [timestamp], mtime 
+                FROM {self.table_name} 
+                WHERE file_name=? AND size=? AND mtime<=? AND mtime >=?""",
+                (name, size, modification_time + 86400, modification_time - 86400),
+            )
+            row = c.fetchone()
+            if row is not None:
+                # we now have a time within 24 hours in either direction of the mtime
+                mtime: float = row[2]
+                for offset in self.time_zone_offsets[time_zone_offset_resolution]:
+                    if mtime + offset == modification_time:
+                        self.found_offset = offset
+                        m, s = divmod(offset, 60)
+                        h, m = divmod(m, 60)
+                        self.found_offset_hr = f"{h:d}:{m:02d}"
+                        logging.info("Time zone offset is %s", self.found_offset_hr)
+                        return FileDownloaded(
+                            download_name=name, download_datetime=row[1]
+                        )
+            return None
 
 
 class CacheSQL:
@@ -920,13 +922,12 @@ class CacheSQL:
         return "thumbnail_cache.sqlite"
 
     def cache_exists(self) -> bool:
-        conn = sqlite3.connect(self.db)
-        row = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' "
-            f"AND name='{self.table_name}'"
-        ).fetchone()
-        conn.close()
-        return row is not None
+        with closing(sqlite3.connect(self.db)) as conn:
+            row = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' "
+                f"AND name='{self.table_name}'"
+            ).fetchone()
+            return row is not None
 
     def update_table(self, reset: bool = False) -> None:
         """
@@ -934,31 +935,31 @@ class CacheSQL:
         :param reset: if True, delete the contents of the table and
          build it
         """
-        conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
+        with closing(
+            sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
+        ) as conn:
+            if reset:
+                conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
+                conn.execute("VACUUM")
 
-        if reset:
-            conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
-            conn.execute("VACUUM")
+            conn.execute(
+                f"""CREATE TABLE IF NOT EXISTS {self.table_name} (
+                uri TEXT NOT NULL,
+                mtime REAL NOT NULL,
+                mdatatime REAL,
+                size INTEGER NOT NULL,
+                md5_name TEXT NOT NULL,
+                orientation_unknown BOOLEAN NOT NULL,
+                failure BOOLEAN NOT NULL,
+                PRIMARY KEY (uri, mtime, size)
+                )"""
+            )
 
-        conn.execute(
-            f"""CREATE TABLE IF NOT EXISTS {self.table_name} (
-            uri TEXT NOT NULL,
-            mtime REAL NOT NULL,
-            mdatatime REAL,
-            size INTEGER NOT NULL,
-            md5_name TEXT NOT NULL,
-            orientation_unknown BOOLEAN NOT NULL,
-            failure BOOLEAN NOT NULL,
-            PRIMARY KEY (uri, mtime, size)
-            )"""
-        )
+            conn.execute(
+                f"CREATE INDEX IF NOT EXISTS md5_name_idx ON {self.table_name} (md5_name)"
+            )
 
-        conn.execute(
-            f"CREATE INDEX IF NOT EXISTS md5_name_idx ON {self.table_name} (md5_name)"
-        )
-
-        conn.commit()
-        conn.close()
+            conn.commit()
 
     @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
     def add_thumbnail(
@@ -984,24 +985,29 @@ class CacheSQL:
          generated, otherwise False
         """
 
-        conn = sqlite3.connect(self.db, timeout=sqlite3_timeout)
-
-        try:
-            conn.execute(
-                rf"""INSERT OR REPLACE INTO {self.table_name} 
-                (uri, size, mtime, mdatatime, md5_name, orientation_unknown, failure) 
-                VALUES (?,?,?,?,?,?,?)""",
-                (uri, size, mtime, mdatatime, md5_name, orientation_unknown, failure),
-            )
-        except sqlite3.OperationalError as e:
-            logging.warning(
-                "Database error adding thumbnail for %s: %s. May retry.", uri, e
-            )
-            conn.close()
-            raise sqlite3.OperationalError from e
-        else:
-            conn.commit()
-            conn.close()
+        with closing(sqlite3.connect(self.db, timeout=sqlite3_timeout)) as conn:
+            try:
+                conn.execute(
+                    rf"""INSERT OR REPLACE INTO {self.table_name} 
+                    (uri, size, mtime, mdatatime, md5_name, orientation_unknown, failure) 
+                    VALUES (?,?,?,?,?,?,?)""",
+                    (
+                        uri,
+                        size,
+                        mtime,
+                        mdatatime,
+                        md5_name,
+                        orientation_unknown,
+                        failure,
+                    ),
+                )
+            except sqlite3.OperationalError as e:
+                logging.warning(
+                    "Database error adding thumbnail for %s: %s. May retry.", uri, e
+                )
+                raise sqlite3.OperationalError from e
+            else:
+                conn.commit()
 
     @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
     def have_thumbnail(self, uri: str, size: int, mtime: float) -> InCache | None:
@@ -1016,27 +1022,25 @@ class CacheSQL:
          present
         """
 
-        conn = sqlite3.connect(self.db, timeout=sqlite3_timeout)
+        with closing(sqlite3.connect(self.db, timeout=sqlite3_timeout)) as conn:
+            try:
+                c = conn.cursor()
+                c.execute(
+                    f"""SELECT md5_name, mdatatime, orientation_unknown, failure 
+                    FROM {self.table_name} WHERE uri=? AND size=? AND mtime=?""",
+                    (uri, size, mtime),
+                )
+                row = c.fetchone()
+            except sqlite3.OperationalError as e:
+                logging.warning(
+                    "Database error reading thumbnail for %s: %s. May retry.", uri, e
+                )
+                raise sqlite3.OperationalError from e
 
-        try:
-            c = conn.cursor()
-            c.execute(
-                f"""SELECT md5_name, mdatatime, orientation_unknown, failure 
-                FROM {self.table_name} WHERE uri=? AND size=? AND mtime=?""",
-                (uri, size, mtime),
-            )
-            row = c.fetchone()
-        except sqlite3.OperationalError as e:
-            logging.warning(
-                "Database error reading thumbnail for %s: %s. May retry.", uri, e
-            )
-            conn.close()
-            raise sqlite3.OperationalError from e
-
-        if row is not None:
-            return InCache._make(row)
-        else:
-            return None
+            if row is not None:
+                return InCache._make(row)
+            else:
+                return None
 
     @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
     def _delete(self, names: list[str], conn):
@@ -1056,46 +1060,44 @@ class CacheSQL:
         if len(md5_names) == 0:
             return
 
-        conn = sqlite3.connect(self.db)
-        # Limit to number of parameters: 900
-        # See https://www.sqlite.org/limits.html
-        try:
-            if len(md5_names) > 900:
-                name_chunks = divide_list_on_length(md5_names, 900)
-                for chunk in name_chunks:
-                    self._delete(chunk, conn)
+        with closing(sqlite3.connect(self.db)) as conn:
+            # Limit to number of parameters: 900
+            # See https://www.sqlite.org/limits.html
+            try:
+                if len(md5_names) > 900:
+                    name_chunks = divide_list_on_length(md5_names, 900)
+                    for chunk in name_chunks:
+                        self._delete(chunk, conn)
+                else:
+                    self._delete(md5_names, conn)
+            except sqlite3.OperationalError as e:
+                logging.error(
+                    "Database error while deleting %s thumbnails: %s", len(md5_names), e
+                )
             else:
-                self._delete(md5_names, conn)
-        except sqlite3.OperationalError as e:
-            logging.error(
-                "Database error while deleting %s thumbnails: %s", len(md5_names), e
-            )
-        else:
-            conn.commit()
-        conn.close()
+                conn.commit()
 
     def no_thumbnails(self) -> int:
         """
         :return: how many thumbnails are in the db
         """
 
-        conn = sqlite3.connect(self.db)
-        c = conn.cursor()
-        c.execute(f"SELECT COUNT(*) FROM {self.table_name}")
-        count = c.fetchall()
-        return count[0][0]
+        with closing(sqlite3.connect(self.db)) as conn:
+            c = conn.cursor()
+            c.execute(f"SELECT COUNT(*) FROM {self.table_name}")
+            count = c.fetchall()
+            return count[0][0]
 
     def md5_names(self) -> list[tuple[str]]:
-        conn = sqlite3.connect(self.db)
-        c = conn.cursor()
-        c.execute(f"SELECT md5_name FROM {self.table_name}")
-        rows = c.fetchall()
-        return rows
+        with closing(sqlite3.connect(self.db)) as conn:
+            c = conn.cursor()
+            c.execute(f"SELECT md5_name FROM {self.table_name}")
+            rows = c.fetchall()
+            return rows
 
     def vacuum(self) -> None:
-        conn = sqlite3.connect(self.db)
-        conn.execute("VACUUM")
-        conn.close()
+        with closing(sqlite3.connect(self.db)) as conn:
+            conn.execute("VACUUM")
 
 
 class FileFormatSQL:
@@ -1118,102 +1120,101 @@ class FileFormatSQL:
          build it
         """
 
-        conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
+        with closing(
+            sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
+        ) as conn:
+            if reset:
+                conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
+                conn.execute("VACUUM")
 
-        if reset:
-            conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
-            conn.execute("VACUUM")
+            conn.execute(
+                f"""CREATE TABLE IF NOT EXISTS {self.table_name} (
+                id INTEGER PRIMARY KEY,
+                extension TEXT NOT NULL,
+                camera TEXT NOT NULL,
+                size INTEGER NOT NULL,
+                orientation_offset INTEGER,
+                datetime_offset INTEGER,
+                cache INTEGER NOT NULL,
+                app0 INTEGER,
+                orientation TEXT,
+                exif_thumbnail TEXT,
+                thumbnail_preview_same INTEGER,
+                preview_source TEXT,
+                previews TEXT
+                )"""
+            )
 
-        conn.execute(
-            f"""CREATE TABLE IF NOT EXISTS {self.table_name} (
-            id INTEGER PRIMARY KEY,
-            extension TEXT NOT NULL,
-            camera TEXT NOT NULL,
-            size INTEGER NOT NULL,
-            orientation_offset INTEGER,
-            datetime_offset INTEGER,
-            cache INTEGER NOT NULL,
-            app0 INTEGER,
-            orientation TEXT,
-            exif_thumbnail TEXT,
-            thumbnail_preview_same INTEGER,
-            preview_source TEXT,
-            previews TEXT
-            )"""
-        )
+            conn.execute(
+                f"CREATE INDEX IF NOT EXISTS extension_idx ON {self.table_name} (extension)"
+            )
+            conn.execute(
+                f"CREATE INDEX IF NOT EXISTS camera_idx ON {self.table_name} (camera)"
+            )
 
-        conn.execute(
-            f"CREATE INDEX IF NOT EXISTS extension_idx ON {self.table_name} (extension)"
-        )
-        conn.execute(
-            f"CREATE INDEX IF NOT EXISTS camera_idx ON {self.table_name} (camera)"
-        )
-
-        conn.commit()
-        conn.close()
+            conn.commit()
 
     def add_format(self, pa: PhotoAttributes) -> None:
-        conn = sqlite3.connect(self.db)
-        c = conn.cursor()
-        c.execute(
-            f"""INSERT OR IGNORE INTO {self.table_name} (
-                extension, 
-                camera, 
-                size, 
-                orientation_offset,
-                datetime_offset, 
-                cache, 
-                app0, 
-                orientation, 
-                exif_thumbnail, 
-                thumbnail_preview_same,
-                preview_source, 
-                previews
+        with closing(sqlite3.connect(self.db)) as conn:
+            c = conn.cursor()
+            c.execute(
+                f"""INSERT OR IGNORE INTO {self.table_name} (
+                    extension, 
+                    camera, 
+                    size, 
+                    orientation_offset,
+                    datetime_offset, 
+                    cache, 
+                    app0, 
+                    orientation, 
+                    exif_thumbnail, 
+                    thumbnail_preview_same,
+                    preview_source, 
+                    previews
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    pa.ext,
+                    pa.model,
+                    pa.total,
+                    pa.minimum_exif_read_size_in_bytes_orientation,
+                    pa.minimum_exif_read_size_in_bytes_datetime,
+                    pa.bytes_cached_post_thumb,
+                    pa.has_app0,
+                    pa.orientation,
+                    pa.exif_thumbnail_details,
+                    pa.exif_thumbnail_and_preview_identical,
+                    pa.preview_source,
+                    pa.preview_size_and_types,
+                ),
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (
-                pa.ext,
-                pa.model,
-                pa.total,
-                pa.minimum_exif_read_size_in_bytes_orientation,
-                pa.minimum_exif_read_size_in_bytes_datetime,
-                pa.bytes_cached_post_thumb,
-                pa.has_app0,
-                pa.orientation,
-                pa.exif_thumbnail_details,
-                pa.exif_thumbnail_and_preview_identical,
-                pa.preview_source,
-                pa.preview_size_and_types,
-            ),
-        )
 
-        conn.commit()
-        conn.close()
+            conn.commit()
 
     def get_orientation_bytes(self, extension: str) -> int | None:
-        conn = sqlite3.connect(self.db)
-        c = conn.cursor()
-        c.execute(
-            f"SELECT max(orientation_offset) FROM {self.table_name} "
-            "WHERE extension=(?)",
-            (extension,),
-        )
-        row = c.fetchone()
-        if row is not None:
-            return row[0]
-        return None
+        with closing(sqlite3.connect(self.db)) as conn:
+            c = conn.cursor()
+            c.execute(
+                f"SELECT max(orientation_offset) FROM {self.table_name} "
+                "WHERE extension=(?)",
+                (extension,),
+            )
+            row = c.fetchone()
+            if row is not None:
+                return row[0]
+            return None
 
     def get_datetime_bytes(self, extension: str) -> int | None:
-        conn = sqlite3.connect(self.db)
-        c = conn.cursor()
-        c.execute(
-            f"SELECT max(datetime_offset) FROM {self.table_name} WHERE extension=(?)",
-            (extension,),
-        )
-        row = c.fetchone()
-        if row is not None:
-            return row[0]
-        return None
+        with closing(sqlite3.connect(self.db)) as conn:
+            c = conn.cursor()
+            c.execute(
+                f"SELECT max(datetime_offset) FROM {self.table_name} WHERE extension=(?)",
+                (extension,),
+            )
+            row = c.fetchone()
+            if row is not None:
+                return row[0]
+            return None
 
 
 if __name__ == "__main__":
