@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 
 import datetime
@@ -15,7 +15,6 @@ from PyQt5.QtCore import Qt
 from tenacity import retry, stop_after_attempt
 
 from raphodo.constants import FileType, Show, Sort
-from raphodo.metadata.analysis.photoattributes import PhotoAttributes
 from raphodo.storage.storage import (
     get_program_cache_directory,
     get_program_data_directory,
@@ -1098,123 +1097,6 @@ class CacheSQL:
     def vacuum(self) -> None:
         with closing(sqlite3.connect(self.db)) as conn:
             conn.execute("VACUUM")
-
-
-class FileFormatSQL:
-    def __init__(self, data_dir: str = None) -> None:
-        """
-        :param data_dir: where the database is saved. If None, use
-         default
-        """
-        if data_dir is None:
-            data_dir = get_program_data_directory(create_if_not_exist=True)
-
-        self.db = os.path.join(data_dir, "file_formats.sqlite")
-        self.table_name = "formats"
-        self.update_table()
-
-    def update_table(self, reset: bool = False) -> None:
-        """
-        Create or update the database table
-        :param reset: if True, delete the contents of the table and
-         build it
-        """
-
-        with closing(
-            sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
-        ) as conn:
-            if reset:
-                conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
-                conn.execute("VACUUM")
-
-            conn.execute(
-                f"""CREATE TABLE IF NOT EXISTS {self.table_name} (
-                id INTEGER PRIMARY KEY,
-                extension TEXT NOT NULL,
-                camera TEXT NOT NULL,
-                size INTEGER NOT NULL,
-                orientation_offset INTEGER,
-                datetime_offset INTEGER,
-                cache INTEGER NOT NULL,
-                app0 INTEGER,
-                orientation TEXT,
-                exif_thumbnail TEXT,
-                thumbnail_preview_same INTEGER,
-                preview_source TEXT,
-                previews TEXT
-                )"""
-            )
-
-            conn.execute(
-                f"CREATE INDEX IF NOT EXISTS extension_idx ON {self.table_name} (extension)"
-            )
-            conn.execute(
-                f"CREATE INDEX IF NOT EXISTS camera_idx ON {self.table_name} (camera)"
-            )
-
-            conn.commit()
-
-    def add_format(self, pa: PhotoAttributes) -> None:
-        with closing(sqlite3.connect(self.db)) as conn:
-            c = conn.cursor()
-            c.execute(
-                f"""INSERT OR IGNORE INTO {self.table_name} (
-                    extension, 
-                    camera, 
-                    size, 
-                    orientation_offset,
-                    datetime_offset, 
-                    cache, 
-                    app0, 
-                    orientation, 
-                    exif_thumbnail, 
-                    thumbnail_preview_same,
-                    preview_source, 
-                    previews
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    pa.ext,
-                    pa.model,
-                    pa.total,
-                    pa.minimum_exif_read_size_in_bytes_orientation,
-                    pa.minimum_exif_read_size_in_bytes_datetime,
-                    pa.bytes_cached_post_thumb,
-                    pa.has_app0,
-                    pa.orientation,
-                    pa.exif_thumbnail_details,
-                    pa.exif_thumbnail_and_preview_identical,
-                    pa.preview_source,
-                    pa.preview_size_and_types,
-                ),
-            )
-
-            conn.commit()
-
-    def get_orientation_bytes(self, extension: str) -> int | None:
-        with closing(sqlite3.connect(self.db)) as conn:
-            c = conn.cursor()
-            c.execute(
-                f"SELECT max(orientation_offset) FROM {self.table_name} "
-                "WHERE extension=(?)",
-                (extension,),
-            )
-            row = c.fetchone()
-            if row is not None:
-                return row[0]
-            return None
-
-    def get_datetime_bytes(self, extension: str) -> int | None:
-        with closing(sqlite3.connect(self.db)) as conn:
-            c = conn.cursor()
-            c.execute(
-                f"SELECT max(datetime_offset) FROM {self.table_name} WHERE extension=(?)",
-                (extension,),
-            )
-            row = c.fetchone()
-            if row is not None:
-                return row[0]
-            return None
 
 
 if __name__ == "__main__":
