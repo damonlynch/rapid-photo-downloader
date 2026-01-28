@@ -10,6 +10,9 @@ Changelog for Rapid Photo Downloader
   sqlite3.OperationalError: unable to open database file
   (downloaded_files.sqlite). Thanks to paolodepetrillo for the fix.
 
+- Fix a crash when the system locale is set to C. Thanks to oipocorp for the
+  fix.
+
 0.9.37a5 (2024-04-28)
 ---------------------
 
