@@ -6,12 +6,16 @@ Changelog for Rapid Photo Downloader
 
 - Terminate WSL Drive Monitor thread during application exit, if necessary.
 
-- Fix bug [#261](https://github.com/damonlynch/rapid-photo-downloader/issues)
+- Fix bug [#261](https://github.com/damonlynch/rapid-photo-downloader/issues):
   sqlite3.OperationalError: unable to open database file
   (downloaded_files.sqlite). Thanks to paolodepetrillo for the fix.
 
 - Fix a crash when the system locale is set to C. Thanks to oipocorp for the
   fix.
+
+- Fix bug [#264](https://github.com/damonlynch/rapid-photo-downloader/issues/264):
+  CR3 files not recognized after refactoring in commit e00e7de. Thanks to 
+  sheepherder for diagnosing the problem.
 
 0.9.37a5 (2024-04-28)
 ---------------------

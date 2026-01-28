@@ -58,7 +58,7 @@ from raphodo.internationalisation.utilities import (
     make_internationalized_list,
     thousands,
 )
-from raphodo.metadata.fileextensions import (
+from raphodo.metadata.fileformats import (
     ALL_KNOWN_EXTENSIONS,
     AUDIO_EXTENSIONS,
     PHOTO_EXTENSIONS,
