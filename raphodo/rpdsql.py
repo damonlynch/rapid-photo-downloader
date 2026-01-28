@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright 2015-2026 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 

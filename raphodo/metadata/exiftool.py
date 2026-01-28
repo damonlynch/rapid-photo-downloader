@@ -1,7 +1,7 @@
-# PyExifTool <http://github.com/smarnach/pyexiftool>
-# SPDX-FileCopyrightText: Copyright 2012 Sven Marnach
+# SPDX-FileCopyrightText: 2012 Sven Marnach
 # SPDX-License-Identifier: GPL-3.0-or-later OR BSD-3-Clause
 
+# PyExifTool <http://github.com/smarnach/pyexiftool>
 # This file is part of PyExifTool.
 #
 # PyExifTool is free software: you can redistribute it and/or modify
@@ -332,11 +332,9 @@ class ExifTool:
         # Explicitly ruling out strings here because passing in a
         # string would lead to strange and hard-to-find errors
         if isinstance(tags, basestring):
-            raise TypeError("The argument 'tags' must be " "an iterable of strings")
+            raise TypeError("The argument 'tags' must be an iterable of strings")
         if isinstance(filenames, basestring):
-            raise TypeError(
-                "The argument 'filenames' must be " "an iterable of strings"
-            )
+            raise TypeError("The argument 'filenames' must be an iterable of strings")
         params = ["-" + t for t in tags]
         params.extend(filenames)
         return self.execute_json(*params)
