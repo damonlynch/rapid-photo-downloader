@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# SPDX-FileCopyrightText: Copyright 2007-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: 2007-2024 Damon Lynch <damonlynch@gmail.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
