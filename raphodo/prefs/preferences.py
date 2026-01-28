@@ -40,7 +40,7 @@ from raphodo.generatenameconfig import (
 )
 from raphodo.internationalisation.install import install_gettext
 from raphodo.internationalisation.utilities import make_internationalized_list
-from raphodo.metadata.fileextensions import ALL_KNOWN_EXTENSIONS
+from raphodo.metadata.fileformats import ALL_KNOWN_EXTENSIONS
 from raphodo.storage.storage import (
     get_media_dir,
     platform_photos_directory,

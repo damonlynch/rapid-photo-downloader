@@ -179,7 +179,7 @@ from raphodo.interprocess import (
     create_inproc_msg,
     stop_process_logging_manager,
 )
-from raphodo.metadata.fileextensions import PHOTO_EXTENSIONS, VIDEO_EXTENSIONS
+from raphodo.metadata.fileformats import PHOTO_EXTENSIONS, VIDEO_EXTENSIONS
 from raphodo.metadata.metadatavideo import libmediainfo_missing, pymedia_version_info
 from raphodo.prefs.preferencedialog import PreferencesDialog
 from raphodo.prefs.preferences import Preferences

@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2011-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2011-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 # ruff: noqa: E402
 
@@ -18,7 +18,6 @@ gi.require_version("GLib", "2.0")
 from gi.repository import GLib
 
 import raphodo.metadata.exiftool as exiftool
-import raphodo.metadata.fileextensions
 import raphodo.metadata.fileformats as fileformats
 import raphodo.metadata.metadataexiftool as metadataexiftool
 import raphodo.metadata.metadataphoto as metadataphoto
@@ -716,14 +715,14 @@ class RPDFile:
 
         :return: True if the image is a RAW file
         """
-        return self.extension in raphodo.metadata.fileextensions.RAW_EXTENSIONS
+        return self.extension in fileformats.RAW_EXTENSIONS
 
     def is_heif(self) -> bool:
         """
         Inspects file extension to determine if an HEIF / HEIC file
         :return:
         """
-        return self.extension in raphodo.metadata.fileextensions.HEIF_EXTENTIONS
+        return self.extension in fileformats.HEIF_EXTENTIONS
 
     def is_tiff(self) -> bool:
         """
