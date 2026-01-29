@@ -4,7 +4,7 @@ Changelog for Rapid Photo Downloader
 0.9.37a6 (2026-0x-xx)
 ---------------------
 
-- Fix bug [#261](https://github.com/damonlynch/rapid-photo-downloader/issues):
+- Fix bug [#261](https://github.com/damonlynch/rapid-photo-downloader/issues/261):
   sqlite3.OperationalError: unable to open database file
   (downloaded_files.sqlite). This fix is essential under Python 3.14. Thanks to 
   paolodepetrillo for the fix.
