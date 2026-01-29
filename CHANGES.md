@@ -4,11 +4,12 @@ Changelog for Rapid Photo Downloader
 0.9.37a6 (2026-0x-xx)
 ---------------------
 
-- Terminate WSL Drive Monitor thread during application exit, if necessary.
-
 - Fix bug [#261](https://github.com/damonlynch/rapid-photo-downloader/issues):
   sqlite3.OperationalError: unable to open database file
-  (downloaded_files.sqlite). Thanks to paolodepetrillo for the fix.
+  (downloaded_files.sqlite). This fix is essential under Python 3.14. Thanks to 
+  paolodepetrillo for the fix.
+
+- Terminate WSL Drive Monitor thread during application exit, if necessary.
 
 - Fix a crash when the system locale is set to C. Thanks to oipocorp for the
   fix.
