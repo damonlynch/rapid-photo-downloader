@@ -13,6 +13,9 @@ Changelog for Rapid Photo Downloader
 - Fix a crash when the system locale is set to C. Thanks to oipocorp for the
   fix.
 
+- Fix a crash when QT_QPA_PLATFORM is not set under WSL2. Thanks to oipocorp for
+  the fix.
+
 - Fix bug [#264](https://github.com/damonlynch/rapid-photo-downloader/issues/264):
   CR3 files not recognized after refactoring in commit e00e7de. Thanks to 
   sheepherder for diagnosing the problem.

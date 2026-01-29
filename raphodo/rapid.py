@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2011-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2011-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Primary logic for Rapid Photo Downloader.
@@ -6511,11 +6511,11 @@ def main():
     this_computer_location: str | None = None
 
     try:
-        force_wayland = linux_desktop() == LinuxDesktop.wsl2
+        if not os.getenv('QT_QPA_PLATFORM'):
+            force_wayland = False
+        else:
+            force_wayland = linux_desktop() == LinuxDesktop.wsl2
     except Exception:
-        force_wayland = False
-
-    if not os.getenv('QT_QPA_PLATFORM'):
         force_wayland = False
 
     platform_cmd_line_overruled = False
