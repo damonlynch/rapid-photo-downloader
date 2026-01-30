@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2007-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2007-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import contextlib
 import ctypes
@@ -229,7 +229,8 @@ def format_size_for_user(
 
     if no_decimals:
         s = (
-            "{:.{prec}f}".format(size_in_bytes, prec=no_decimals)
+            "{:.{prec}f}"
+            .format(size_in_bytes, prec=no_decimals)
             .rstrip("0")
             .rstrip(".")
         )
@@ -1132,3 +1133,10 @@ def existing_parent_for_new_dir(path: Path) -> Path:
     for parent in path.parents:
         if parent.is_dir():
             return parent
+
+
+def pyqt_api() -> bool:
+    """
+    Whether PyQt or PySide is being used
+    """
+    return True
