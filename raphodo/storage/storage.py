@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
 # SPDX-FileCopyrightText: 2008-2015 Canonical Ltd.
 # SPDX-FileCopyrightText: 2013 Bernard Baeyens
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -82,10 +82,11 @@ install_gettext()
 logging_level = logging.DEBUG
 
 try:
+    gi.require_version("Gio", "2.0")
     from gi.repository import Gio
 
     have_gio = True
-except ImportError:
+except Exception:
     have_gio = False
 
 StorageSpace = namedtuple("StorageSpace", "bytes_free, bytes_total, path")
@@ -1971,9 +1972,10 @@ def get_mount_size(mount: QStorageInfo) -> tuple[int, int]:
     logging.debug("Using GIO to query file system attributes for %s...", path)
     p = Gio.File.new_for_path(os.path.abspath(path))
     info = p.query_filesystem_info(
-        ",".join(
-            (Gio.FILE_ATTRIBUTE_FILESYSTEM_SIZE, Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
-        )
+        ",".join((
+            Gio.FILE_ATTRIBUTE_FILESYSTEM_SIZE,
+            Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE,
+        ))
     )
     logging.debug("...query of file system attributes for %s completed", path)
     bytes_total = _get_info_size_value(info, Gio.FILE_ATTRIBUTE_FILESYSTEM_SIZE)
