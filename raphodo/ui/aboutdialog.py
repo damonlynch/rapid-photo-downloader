@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Display an About window
@@ -8,7 +8,7 @@ Display an About window
 import re
 from pathlib import Path
 
-from PyQt5.QtCore import QSize, Qt, pyqtSlot
+from PyQt5.QtCore import PYQT_VERSION_STR, QT_VERSION_STR, QSize, Qt, pyqtSlot
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtWidgets import (
     QDialog,
@@ -25,7 +25,7 @@ from PyQt5.QtWidgets import (
 
 import raphodo.__about__ as __about__
 from raphodo.internationalisation.install import install_gettext
-from raphodo.tools.utilities import data_file_path
+from raphodo.tools.utilities import data_file_path, pyqt_api
 from raphodo.ui.viewutils import translateDialogBoxButtons
 
 install_gettext()
@@ -71,11 +71,14 @@ class AboutDialog(QDialog):
 
         link_style = 'style="color: white;"'
 
+        gpl3link = "https://www.gnu.org/licenses/gpl-3.0.html"
+        lgpl3link = "https://www.gnu.org/licenses/lgpl-3.0.html"
+
         msg = f"""Copyright &copy; 2007-2024 Damon Lynch.<br><br>
         <a href="https://damonlynch.net/rapid" {link_style}>
         damonlynch.net/rapid</a><br><br>
         This program comes with absolutely no warranty.<br>
-        See the <a href="http://www.gnu.org/copyleft/gpl.html" {link_style}>GNU 
+        See the <a href="{gpl3link}" {link_style}>GNU 
         General Public License, version 3 or later</a> for details.
         """
 
@@ -126,7 +129,7 @@ class AboutDialog(QDialog):
             f"{link_style}>The Pictographers</a>"
         )
         artlink3 = (
-            '<a href="https://www.iconfinder.com/Enesdal" ' f"{link_style}>Enes Dal</a>"
+            f'<a href="https://www.iconfinder.com/Enesdal" {link_style}>Enes Dal</a>'
         )
         artlink4 = f'<a href="http://www.iconsolid.com/" {link_style}>Icons Solid</a>'
         artlink5 = f'<a href="https://sellfy.com/designcoon" {link_style}>Icon Coon</a>'
@@ -139,8 +142,20 @@ class AboutDialog(QDialog):
             f"Pixel perfect</a>"
         )
 
+        gpl3desc = f', licensed under the <a href="{gpl3link}" {link_style}>GNU General Public License, version 3</a>'
+        lgpl3desc = f', licensed under the <a href="{lgpl3link}" {link_style}>GNU Lesser General Public License, version 3</a>'
+
+        if pyqt_api():
+            api_version = PYQT_VERSION_STR
+            api_name = "PyQt"
+            qt_licence = gpl3desc
+        else:
+            api_version = ""
+            api_name = "PySide"
+            qt_licence = lgpl3desc
+
         credits_text = f"""
-        Copyright © 2007-2024 Damon Lynch.
+        Copyright © 2007-2026 Damon Lynch.
         Portions copyright © 2008-2015 Canonical Ltd.
         Portions copyright © 2013 Bernard Baeyens.
         Portions copyright © 2012-2015 Jim Easterbrook.
@@ -155,6 +170,9 @@ class AboutDialog(QDialog):
         Lightbulb icon courtesy {artlink5}.
         Double arrow icon courtesy {artlink6}.
         Clock icon courtesy {artlink7}.
+        
+        Uses {api_name} {api_version}{qt_licence}.
+        Uses Qt {QT_VERSION_STR}{lgpl3desc}.
         """
 
         credits_text = credits_text.replace("\n", "<br>\n")
