@@ -2457,9 +2457,11 @@ difference to the program's future.</p>"""
             if preferred_width < available_width - 4:
                 break
 
-        self.centerSplitter.setSizes(
-            [left_panel, thumbnails_width + wiggle_room, right_panel]
-        )
+        self.centerSplitter.setSizes([
+            left_panel,
+            thumbnails_width + wiggle_room,
+            right_panel,
+        ])
 
         preferred_height = min(int(preferred_width / 1.5), available.height() - 4)
         logging.info(
@@ -4428,9 +4430,10 @@ Do you want to proceed with the download?"""
 
         devices = self.devices.reset_and_return_have_downloaded_from()
         if photo_downloads + video_downloads:
-            ftc = FileTypeCounter(
-                {FileType.photo: photo_downloads, FileType.video: video_downloads}
-            )
+            ftc = FileTypeCounter({
+                FileType.photo: photo_downloads,
+                FileType.video: video_downloads,
+            })
             no_files_and_types = ftc.file_types_present_details().lower()
 
             if not fw:
@@ -6511,7 +6514,7 @@ def main():
     this_computer_location: str | None = None
 
     try:
-        if not os.getenv('QT_QPA_PLATFORM'):
+        if not os.getenv("QT_QPA_PLATFORM"):
             force_wayland = False
         else:
             force_wayland = linux_desktop() == LinuxDesktop.wsl2
