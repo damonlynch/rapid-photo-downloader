@@ -21,6 +21,10 @@ Changelog for Rapid Photo Downloader
   CR3 files not recognized after refactoring in commit e00e7de. Thanks to 
   sheepherder for diagnosing the problem.
 
+- Using the Fusion theme is no longer the default when KDE is detected. This 
+  avoids invisible unchecked checkboxes when Dark Mode is activated under 
+  some desktops, e.g. KDE Neon.
+
 0.9.37a5 (2024-04-28)
 ---------------------
 

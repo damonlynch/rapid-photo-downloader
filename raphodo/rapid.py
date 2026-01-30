@@ -6854,8 +6854,16 @@ def main():
     app.setOrganizationDomain("damonlynch.net")
     app.setApplicationName("Rapid Photo Downloader")
     app.setWindowIcon(QIcon(data_file_path("rapid-photo-downloader.svg")))
-    if not args.force_system_theme:
+
+    try:
+        is_kde = linux_desktop() == LinuxDesktop.kde
+    except KeyError:
+        is_kde = False
+
+    if not (is_kde or args.force_system_theme):
         app.setStyle("Fusion")
+    else:
+        logging.debug("Not setting Fusion theme. KDE detected: %s", is_kde)
 
     # Determine the system locale as reported by Qt. Use it to
     # see if Qt has a base translation available, which allows
