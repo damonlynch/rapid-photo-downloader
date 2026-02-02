@@ -36,7 +36,7 @@ import sys
 import tempfile
 from collections import defaultdict, deque, namedtuple
 from collections.abc import Iterator
-from datetime import datetime
+from datetime import UTC, datetime
 
 with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
@@ -1702,9 +1702,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         return
                 else:
                     if len(jpegs_heifs_and_videos[ext_type]) < max_attempts:
-                        jpegs_heifs_and_videos[ext_type].append(
-                            (dir_name, name, full_file_name, extension)
-                        )
+                        jpegs_heifs_and_videos[ext_type].append((
+                            dir_name,
+                            name,
+                            full_file_name,
+                            extension,
+                        ))
 
                     if len(jpegs_heifs_and_videos[FileExtension.jpeg]) == max_attempts:
                         break
@@ -1756,7 +1759,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # between when a file was saved to the flash memory and when it was created
             # in the camera's memory. Allow for two minutes, to be safe.
             if datetime_roughly_equal(
-                dt1=datetime.utcfromtimestamp(modification_time), dt2=mdatatime
+                dt1=datetime.fromtimestamp(timestamp=modification_time, tz=UTC),
+                dt2=mdatatime,
             ):
                 logging.info(
                     "Device timezone setting for %s is UTC, as indicated by %s file",
@@ -1794,7 +1798,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         """
 
         if self.device_timestamp_type == DeviceTimestampTZ.is_utc:
-            return datetime.utcfromtimestamp(mtime).timestamp()
+            return datetime.fromtimestamp(timestamp=mtime, tz=UTC).timestamp()
         else:
             return mtime
 

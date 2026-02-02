@@ -9,7 +9,7 @@ import os
 import time
 import uuid
 from collections import Counter, UserDict
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 import gi
@@ -468,9 +468,10 @@ class RPDFile:
         # I'm in the timezone UTC + 5, and I take a photo at 5pm, then the time stamp on
         # the memory card shows the photo being taken at 10pm when I look at it on the
         # computer. The timestamp written to the memory card should with this camera be
-        # read as datetime.utcfromtimestamp(mtime), which would return a time zone naive
-        # value of 5pm. In other words, the timestamp on the memory card is written as
-        # if it were always in UTC, regardless of which timezone the photo was taken in.
+        # read as datetime.fromtimestamp(mtime, UTC), which would return a time zone
+        # naive value of 5pm. In other words, the timestamp on the memory card is
+        # written as if it were always in UTC, regardless of which timezone the photo
+        # was taken in.
         #
         # Yet this is not the case with a cellphone, where the file modification time
         # knows nothing about UTC and just saves it as a naive local time.
@@ -595,7 +596,7 @@ class RPDFile:
         if not isinstance(value, float):
             value = float(value)
         if self.device_timestamp_type == DeviceTimestampTZ.is_utc:
-            self._mtime = datetime.utcfromtimestamp(value).timestamp()
+            self._mtime = datetime.fromtimestamp(timestamp=value, tz=UTC).timestamp()
         else:
             self._mtime = value
         self._raw_mtime = value
