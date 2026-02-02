@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2011-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2011-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 
 import contextlib
@@ -36,6 +36,7 @@ def get_versions(
     scaling_detected: ScalingDetected,
     xsetting_running: bool,
     force_wayland: bool,
+    app_style: str | None,
     platform_selected: str | None,
 ) -> list[str]:
     pyzmq_backend = "cython" if "cython" in zmq.zmq_version_info.__module__ else "cffi"
@@ -69,7 +70,7 @@ def get_versions(
         f"Gstreamer: {gst_version()}",
         f"PyGObject: {'.'.join(map(str, gi.version_info))}",
         f"psutil: {'.'.join(map(str, psutil.version_info))}",
-        f'Show in File Manager: {importlib.metadata.version("show-in-file-manager")}',
+        f"Show in File Manager: {importlib.metadata.version('show-in-file-manager')}",
     ]
     v = exiv2_version()
     if v:
@@ -131,6 +132,8 @@ def get_versions(
 
     with contextlib.suppress(Exception):
         versions.append(f"Desktop: {get_desktop_environment()} ({desktop})")
+    if app_style:
+        versions.append(f"Application style: {app_style}")
 
     file_manager_details = f"{file_manager}" if file_manager else "Unknown"
 
