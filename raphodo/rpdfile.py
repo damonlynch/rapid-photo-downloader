@@ -596,7 +596,13 @@ class RPDFile:
         if not isinstance(value, float):
             value = float(value)
         if self.device_timestamp_type == DeviceTimestampTZ.is_utc:
-            self._mtime = datetime.fromtimestamp(timestamp=value, tz=UTC).timestamp()
+            # Removing the time zone from the datetime is critical
+            self._mtime = (
+                datetime
+                .fromtimestamp(timestamp=value, tz=UTC)
+                .replace(tzinfo=None)
+                .timestamp()
+            )
         else:
             self._mtime = value
         self._raw_mtime = value

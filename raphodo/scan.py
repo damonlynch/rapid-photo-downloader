@@ -1758,8 +1758,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # Must not compare exact times, as there can be a few seconds difference
             # between when a file was saved to the flash memory and when it was created
             # in the camera's memory. Allow for two minutes, to be safe.
+
+            # Removing the time zone from the datetime is critical
             if datetime_roughly_equal(
-                dt1=datetime.fromtimestamp(timestamp=modification_time, tz=UTC),
+                dt1=datetime.fromtimestamp(timestamp=modification_time, tz=UTC).replace(
+                    tzinfo=None
+                ),
                 dt2=mdatatime,
             ):
                 logging.info(
