@@ -1180,9 +1180,10 @@ class AdvancedDeviceDisplay(DeviceDisplay):
 
             checkboxStyleOption.rect = self.getCheckBoxRect(x, y)
 
-            QApplication.style().drawControl(
-                QStyle.CE_CheckBox, checkboxStyleOption, painter
-            )
+            style = QApplication.style()
+            style.setOverride(override=True)
+            style.drawControl(QStyle.CE_CheckBox, checkboxStyleOption, painter)
+            style.setOverride(override=False)
 
         else:
             x = x + self.dc.padding

@@ -5,7 +5,6 @@ __pycache__/
 dist/
 sdist/
 raphodo/locale/
-tasks/copycode.py
-tools/remove_screenshot_border.py
+raphodo/ui/dumppalette.py
 share/
 man/

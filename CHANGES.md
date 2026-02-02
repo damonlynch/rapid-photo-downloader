@@ -21,9 +21,16 @@ Changelog for Rapid Photo Downloader
   CR3 files not recognized after refactoring in commit e00e7de. Thanks to 
   sheepherder for diagnosing the problem.
 
-- Using the Fusion theme is no longer the default when KDE is detected. This 
-  avoids invisible unchecked checkboxes when Dark Mode is activated under 
-  some desktops, e.g. KDE Neon.
+- Using the Fusion theme is no longer the default when KDE is detected. 
+  Instead, the KDE system theme for Qt 5 is used. 
+
+- When running under Gnome, use the Gnome accent color to set the 
+  application accent color (works for the most common accents and 
+  themes, but not all).
+
+- When running under Gnome in dark mode, a dark palette is applied.
+
+- Checkboxes are no longer invisible under the Qt Fusion theme in dark mode.
 
 0.9.37a5 (2024-04-28)
 ---------------------

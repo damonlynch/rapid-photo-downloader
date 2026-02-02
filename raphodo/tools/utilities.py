@@ -716,7 +716,7 @@ have_logged_os_release = False
 
 def log_os_release() -> None:
     """
-    Log the entired contents of /etc/os-release, but only if
+    Log the entire contents of /etc/os-release, but only if
     we didn't do so already.
     """
 

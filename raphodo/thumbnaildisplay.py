@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
 import logging
@@ -601,9 +601,9 @@ class ThumbnailListModel(QAbstractListModel):
 
             if rpd_file.camera_memory_card_identifiers:
                 if len(rpd_file.camera_memory_card_identifiers) > 1:
-                    cards = _("Memory cards: %s") % make_internationalized_list(
-                        [str(i) for i in rpd_file.camera_memory_card_identifiers]
-                    )
+                    cards = _("Memory cards: %s") % make_internationalized_list([
+                        str(i) for i in rpd_file.camera_memory_card_identifiers
+                    ])
                 else:
                     cards = (
                         _("Memory card: %s")
@@ -874,9 +874,10 @@ class ThumbnailListModel(QAbstractListModel):
 
     @pyqtSlot(int, CacheDirs)
     def cacheDirsReceived(self, scan_id: int, cache_dirs: CacheDirs) -> None:
-        self.rapidApp.fileSystemFilter.setTempDirs(
-            [cache_dirs.photo_cache_dir, cache_dirs.video_cache_dir]
-        )
+        self.rapidApp.fileSystemFilter.setTempDirs([
+            cache_dirs.photo_cache_dir,
+            cache_dirs.video_cache_dir,
+        ])
         if scan_id in self.rapidApp.devices:
             self.rapidApp.devices[scan_id].photo_cache_dir = cache_dirs.photo_cache_dir
             self.rapidApp.devices[scan_id].video_cache_dir = cache_dirs.video_cache_dir
@@ -1876,16 +1877,14 @@ class ThumbnailListModel(QAbstractListModel):
          whether successfully or not
         """
 
-        return FileTypeCounter(
-            {
-                FileType.photo: self.tsql.get_count(
-                    downloaded=True, file_type=FileType.photo
-                ),
-                FileType.video: self.tsql.get_count(
-                    downloaded=True, file_type=FileType.video
-                ),
-            }
-        )
+        return FileTypeCounter({
+            FileType.photo: self.tsql.get_count(
+                downloaded=True, file_type=FileType.photo
+            ),
+            FileType.video: self.tsql.get_count(
+                downloaded=True, file_type=FileType.video
+            ),
+        })
 
     def anyCompletedDownloads(self) -> bool:
         """
@@ -2558,9 +2557,10 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 checkboxStyleOption.state |= QStyle.State_Off
             checkboxStyleOption.state |= QStyle.State_Enabled
             checkboxStyleOption.rect = self.getCheckBoxRect(option.rect).toRect()
-            QApplication.style().drawControl(
-                QStyle.CE_CheckBox, checkboxStyleOption, painter
-            )
+            style = QApplication.style()
+            style.setOverride(override=True)
+            style.drawControl(QStyle.CE_CheckBox, checkboxStyleOption, painter)
+            style.setOverride(override=False)
         else:
             if download_status == DownloadStatus.download_pending:
                 pixmap = self.downloadPendingPixmap

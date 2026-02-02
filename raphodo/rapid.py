@@ -126,6 +126,7 @@ from raphodo.constants import (
     CompletedDownloads,
     DeviceState,
     DeviceType,
+    Distro,
     FileType,
     FileTypeFlag,
     PostCameraUnmountAction,
@@ -208,6 +209,7 @@ from raphodo.storage.storage import (
     ValidatedFolder,
     ValidMounts,
     WatchDownloadDirs,
+    get_distro,
     get_fdo_cache_thumb_base_directory,
     get_media_dir,
     gvfs_gphoto2_path,
@@ -226,6 +228,7 @@ from raphodo.thumbnaildisplay import (
     ThumbnailListModel,
     ThumbnailView,
 )
+from raphodo.tools.gnomeplatform import gnome_accent_color, gnome_prefer_dark
 from raphodo.tools.libraryversions import get_versions
 from raphodo.tools.utilities import (
     addPushButtonLabelSpacer,
@@ -242,6 +245,7 @@ from raphodo.ui.aboutdialog import AboutDialog
 from raphodo.ui.backuppanel import BackupPanel
 from raphodo.ui.chevroncombo import ChevronCombo
 from raphodo.ui.computerview import ComputerWidget
+from raphodo.ui.darkfusion import DarkModeQuirkCheckBoxStyle
 from raphodo.ui.destinationpanel import DestinationPanel
 from raphodo.ui.devicedisplay import (
     DeviceComponent,
@@ -254,6 +258,11 @@ from raphodo.ui.filebrowse import (
     FileSystemFilter,
     FileSystemModel,
     FileSystemView,
+)
+from raphodo.ui.gnomepalette import (
+    accentPalette,
+    darkPalette,
+    standardPalette,
 )
 from raphodo.ui.jobcodepanel import JobCodePanel
 from raphodo.ui.menubutton import MenuButton
@@ -396,6 +405,7 @@ class RapidWindow(QMainWindow):
             scaling_detected=scaling_detected,
             xsetting_running=xsetting_running,
             force_wayland=force_wayland,
+            app_style=QApplication.style().objectName(),
             platform_selected=platform_selected,
         ):
             logging.info("%s", version)
@@ -6629,6 +6639,7 @@ def main():
                     scaling_detected=scaling_detected,
                     xsetting_running=xsetting_running,
                     force_wayland=force_wayland,
+                    app_style=None,
                     platform_selected=args.platform,
                 )
             )
@@ -6860,10 +6871,30 @@ def main():
     except KeyError:
         is_kde = False
 
+    dark_mode_quirk = False
     if not (is_kde or args.force_system_theme):
         app.setStyle("Fusion")
-    else:
-        logging.debug("Not setting Fusion theme. KDE detected: %s", is_kde)
+        if linux_desktop() in (LinuxDesktop.gnome, LinuxDesktop.ubuntugnome):
+            accent_color = gnome_accent_color()
+            prefer_dark = gnome_prefer_dark()
+            if prefer_dark:
+                palette = darkPalette(accent_color=accent_color)
+                dark_mode_quirk = True
+            elif get_distro() == Distro.fedora:
+                palette = standardPalette(accent_color=accent_color)
+            else:
+                palette = accentPalette(accent_color=accent_color)
+            app.setPalette(palette)
+
+    # Apply a proxy style that accounts for quirks when rendering the Fusion style
+    # in dark mode.
+    # When not running Fusion dark mode, disable the proxy.
+    appStyle = app.style()
+    darkModeStyle = DarkModeQuirkCheckBoxStyle(
+        style=appStyle, proxy_enabled=dark_mode_quirk
+    )
+    darkModeStyle.setBaseStyle(appStyle)
+    app.setStyle(darkModeStyle)
 
     # Determine the system locale as reported by Qt. Use it to
     # see if Qt has a base translation available, which allows
