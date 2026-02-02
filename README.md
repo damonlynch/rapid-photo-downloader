@@ -15,28 +15,10 @@ professional and amateur photographers.
 
 ## Personal Note From the Developer
 
-This project has only ever had one software developer. I developed a hand 
-injury from typing while working on the code in early 2022. Code development 
-has slowed considerably as I seek to recover from this serious injury. To 
-work around the injury, fortunately I am able to use the JetBrains editor 
-PyCharm in conjunction with the voice recognition tools Talon and Dragon 
-NaturallySpeaking on Windows / WSL2. While my ability to test the code 
-remains limited, at least I can write it.
-
-I want to thank JetBrains for allowing me to use PyCharm Professional for 
-free under their [open source developer program](https://www.jetbrains.com/community/opensource/#support).
-
-In 2023, my existing case of Long Covid worsened considerably to the point 
-that I could no longer work, to the extent I lost the ability to be 
-employable. In 2024, I am slowly recovering. Currently, I am able to work 
-part-time on the code (but remain unable to be employed). 
-
-## Removal of the Install Script
-
-Due to my hand injury (see above), I cannot maintain a custom `install.py` 
-script that I used to provide &mdash; testing the script in the variety of 
-Linux distributions it supports requires a lot of typing. The script is 
-therefore removed.
+This project has only ever had one software developer. My ability to work on 
+the project is affected by my having Long Covid. If you notice slow 
+progress in responding to pull requests and issues,  my health is 
+the most likely reason. Sorry about that.
 
 
 ## User Survey 
