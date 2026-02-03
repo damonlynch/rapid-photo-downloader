@@ -32,6 +32,8 @@ Changelog for Rapid Photo Downloader
 
 - Checkboxes are no longer invisible under the Qt Fusion theme in dark mode.
 
+- Handle python-gphoto2 API change in CameraList iterators.
+
 0.9.37a5 (2024-04-28)
 ---------------------
 

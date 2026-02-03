@@ -5,8 +5,10 @@
 import logging
 import os
 import re
+from collections.abc import Iterator
 
 import gphoto2 as gp
+from packaging.version import parse
 
 from raphodo.cameraerror import CameraProblemEx
 from raphodo.constants import CameraErrorCode
@@ -50,6 +52,28 @@ def autodetect_cameras(suppress_errors: bool = True) -> gp.CameraList | list:
         if not suppress_errors:
             raise
         return []
+
+
+# python-gphoto2 API change:
+# Removed CameraList.__iter__, use CameraList.items() instead.
+
+
+def pre260_camera_list_iterator(
+    camera_list: gp.CameraList | list,
+) -> Iterator[tuple[str, str]]:
+    yield from camera_list
+
+
+def post260_camera_list_iterator(
+    camera_list: gp.CameraList | list,
+) -> Iterator[tuple[str, str]]:
+    yield from camera_list.items()
+
+
+if parse(gp.__version__) >= parse("2.6.0"):
+    camera_list_iterator = post260_camera_list_iterator
+else:
+    camera_list_iterator = pre260_camera_list_iterator
 
 
 # convert error codes to error names
@@ -243,7 +267,7 @@ class Camera:
 
         # turn list of two items into a dictionary, for easier access
         # no error checking as exceptions are caught by the caller
-        folders = dict(self.camera.folder_list_folders(path))
+        folders = dict(camera_list_iterator(self.camera.folder_list_folders(path)))
 
         if specific_folders is None:
             found_folders = [[path + folder] for folder in folders]
@@ -253,7 +277,9 @@ class Camera:
             # it is at this level that specific folders like DCIM will be found
             for subfolder in folders:
                 subpath = os.path.join(path, subfolder)
-                subfolders = dict(self.camera.folder_list_folders(subpath))
+                subfolders = dict(
+                    camera_list_iterator(self.camera.folder_list_folders(subpath))
+                )
                 ff = self._locate_specific_subfolders(
                     subfolders=subfolders,
                     subpath=subpath,
@@ -270,7 +296,9 @@ class Camera:
                     for nested_subfolder in subfolders:
                         nested_subpath = os.path.join(subpath, nested_subfolder)
                         nested_subfolders = dict(
-                            self.camera.folder_list_folders(nested_subpath)
+                            camera_list_iterator(
+                                self.camera.folder_list_folders(nested_subpath)
+                            )
                         )
                         ff = self._locate_specific_subfolders(
                             subfolders=nested_subfolders,
@@ -887,7 +915,7 @@ def dump_camera_details() -> None:
     import itertools
 
     cameras = autodetect_cameras()
-    for model, port in cameras:
+    for model, port in camera_list_iterator(cameras):
         is_mtp_device = camera_is_mtp_device(camera_port=port)
         c = Camera(
             model=model,
@@ -945,7 +973,7 @@ if __name__ == "__main__":
     if True:
         # Assume gphoto2 version 2.5 or greater
         cameras = autodetect_cameras()
-        for name, value in cameras:
+        for name, value in camera_list_iterator(cameras):
             camera = name
             port = value
             # print(port)
@@ -956,10 +984,10 @@ if __name__ == "__main__":
                 is_mtp_device=is_mtp_device,
                 specific_folders=["DCIM", "MISC"],
             )
-            # c = Camera(model=camera, port=port)
+
             print(c.no_storage_media(), c.dual_slots_active, c.specific_folders)
 
-            for name, value in c.camera.folder_list_files("/"):
+            for name, value in camera_list_iterator(c.camera.folder_list_files("/")):
                 print(name, value)
 
             c.free_camera()

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import sys
 import os
@@ -19,7 +19,7 @@ from raphodo.tools.utilities import CacheDirs
 from raphodo.thumbnailer import Thumbnailer
 from raphodo.rpdfile import RPDFile
 from raphodo.cache import ThumbnailCacheSql
-from raphodo.camera import autodetect_cameras
+from raphodo.camera import autodetect_cameras, camera_list_iterator
 
 
 class TestThumbnail(QTextEdit):
@@ -96,7 +96,7 @@ if __name__ == '__main__':
         testdata = args.data
         if testdata == 'thumbnail_data_camera':
             cameras = autodetect_cameras()
-            camera_model, camera_port = cameras[0]
+            camera_model, camera_port = list(camera_list_iterator(cameras))[0]
 
     no_workers = 4
 

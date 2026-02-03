@@ -112,6 +112,7 @@ from raphodo.argumentsparse import get_parser
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.camera import (
     autodetect_cameras,
+    camera_list_iterator,
     dump_camera_details,
     gphoto2_python_logging,
 )
@@ -5206,7 +5207,9 @@ Do you want to proceed with the download?"""
         logging.debug("Examining system for removed camera")
         sc = autodetect_cameras()
         system_cameras = (
-            (model, port) for model, port in sc if not port.startswith("disk:")
+            (model, port)
+            for model, port in camera_list_iterator(sc)
+            if not port.startswith("disk:")
         )
         kc = self.devices.cameras.items()
         known_cameras = ((model, port) for port, model in kc)
@@ -5385,7 +5388,7 @@ Do you want to proceed with the download?"""
         logging.debug("Searching for cameras")
         if self.prefs.device_autodetection:
             cameras = autodetect_cameras()
-            for model, port in cameras:
+            for model, port in camera_list_iterator(cameras):
                 if port in self.devices.cameras_to_gvfs_unmount_for_scan:
                     assert self.devices.cameras_to_gvfs_unmount_for_scan[port] == model
                     logging.debug("Already unmounting %s", model)
