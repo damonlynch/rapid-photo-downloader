@@ -58,23 +58,22 @@ def autodetect_cameras(suppress_errors: bool = True) -> gp.CameraList | list:
 # Removed CameraList.__iter__, use CameraList.items() instead.
 
 
-def pre260_camera_list_iterator(
-    camera_list: gp.CameraList | list,
+def pre240_camera_list_iterator(
+        camera_list: gp.CameraList | list,
 ) -> Iterator[tuple[str, str]]:
     yield from camera_list
 
 
-def post260_camera_list_iterator(
-    camera_list: gp.CameraList | list,
+def post240_camera_list_iterator(
+        camera_list: gp.CameraList | list,
 ) -> Iterator[tuple[str, str]]:
     yield from camera_list.items()
 
 
-if parse(gp.__version__) >= parse("2.6.0"):
-    camera_list_iterator = post260_camera_list_iterator
+if parse(gp.__version__) >= parse("2.4.0"):
+    camera_list_iterator = post240_camera_list_iterator
 else:
-    camera_list_iterator = pre260_camera_list_iterator
-
+    camera_list_iterator = pre240_camera_list_iterator
 
 # convert error codes to error names
 gphoto2_error_codes = {
@@ -123,13 +122,13 @@ class Camera:
     """Access a camera via libgphoto2."""
 
     def __init__(
-        self,
-        model: str,
-        port: str,
-        is_mtp_device: bool,
-        get_folders: bool = True,
-        raise_errors: bool = False,
-        specific_folders: list[str] | None = None,
+            self,
+            model: str,
+            port: str,
+            is_mtp_device: bool,
+            get_folders: bool = True,
+            raise_errors: bool = False,
+            specific_folders: list[str] | None = None,
     ) -> None:
         """
         Initialize a camera via libgphoto2.
@@ -215,7 +214,7 @@ class Camera:
         self.video_thumbnails = []
         abilities = self.camera.get_abilities()
         self.can_fetch_thumbnails = (
-            abilities.file_operations & gp.GP_FILE_OPERATION_PREVIEW != 0
+                abilities.file_operations & gp.GP_FILE_OPERATION_PREVIEW != 0
         )
 
     def camera_has_folders_to_scan(self) -> bool:
@@ -237,7 +236,7 @@ class Camera:
         ]
 
     def _locate_specific_folders(
-        self, path: str, specific_folders: list[str] | None
+            self, path: str, specific_folders: list[str] | None
     ) -> list[list[str]]:
         """
         Scan camera looking for folders such as DCIM,  PRIVATE, and MP_ROOT.
@@ -330,7 +329,7 @@ class Camera:
         return modification_time, size
 
     def get_exif_extract(
-        self, folder: str, file_name: str, size_in_bytes: int = 200
+            self, folder: str, file_name: str, size_in_bytes: int = 200
     ) -> bytearray:
         """
         Attempt to read only the exif portion of the file.
@@ -390,7 +389,7 @@ class Camera:
         return bytearray(exif_data)
 
     def get_exif_extract_from_jpeg_manual_parse(
-        self, folder: str, file_name: str
+            self, folder: str, file_name: str
     ) -> bytes | None:
         """
         Extract exif section of a jpeg.
@@ -472,12 +471,12 @@ class Camera:
                 )
             app0 = app0_view.tobytes()
             app0_view.release()
-            app_marker = app0[(exif_header_length + 2) * -1 : exif_header_length * -1]
-            exif_header = app0[exif_header_length * -1 :]
+            app_marker = app0[(exif_header_length + 2) * -1: exif_header_length * -1]
+            exif_header = app0[exif_header_length * -1:]
             jpeg_header = jpeg_header + app0
             offset = read0_size + read1_size
         else:
-            exif_header = jpeg_header[exif_header_length * -1 :]
+            exif_header = jpeg_header[exif_header_length * -1:]
             offset = read0_size
 
         # Step 3: process exif header
@@ -511,11 +510,11 @@ class Camera:
         return jpeg_header + view.tobytes()
 
     def _get_file(
-        self,
-        dir_name: str,
-        file_name: str,
-        dest_full_filename: str | None = None,
-        file_type: int = gp.GP_FILE_TYPE_NORMAL,
+            self,
+            dir_name: str,
+            file_name: str,
+            dest_full_filename: str | None = None,
+            file_type: int = gp.GP_FILE_TYPE_NORMAL,
     ) -> gp.CameraFile:
         try:
             camera_file = gp.check_result(
@@ -557,12 +556,12 @@ class Camera:
         self._get_file(dir_name, file_name, dest_full_filename)
 
     def save_file_chunk(
-        self,
-        dir_name: str,
-        file_name: str,
-        chunk_size_in_bytes: int,
-        dest_full_filename: str,
-        mtime: int = None,
+            self,
+            dir_name: str,
+            file_name: str,
+            chunk_size_in_bytes: int,
+            dest_full_filename: str,
+            mtime: int = None,
     ) -> None:
         """
         Save the file from the camera to a local destination.
@@ -597,15 +596,15 @@ class Camera:
             raise CameraProblemEx(code=CameraErrorCode.write, py_exception=ex)
 
     def save_file_by_chunks(
-        self,
-        dir_name: str,
-        file_name: str,
-        size: int,
-        dest_full_filename: str,
-        progress_callback,
-        check_for_command,
-        return_file_bytes=False,
-        chunk_size=1048576,
+            self,
+            dir_name: str,
+            file_name: str,
+            size: int,
+            dest_full_filename: str,
+            progress_callback,
+            check_for_command,
+            return_file_bytes=False,
+            chunk_size=1048576,
     ) -> bytes | None:
         """
         :param dir_name: directory on the camera
@@ -674,11 +673,11 @@ class Camera:
             return src_bytes
 
     def get_thumbnail(
-        self,
-        dir_name: str,
-        file_name: str,
-        ignore_embedded_thumbnail=False,
-        cache_full_filename: str | None = None,
+            self,
+            dir_name: str,
+            file_name: str,
+            ignore_embedded_thumbnail=False,
+            cache_full_filename: str | None = None,
     ) -> bytes | None:
         """
         :param dir_name: directory on the camera
@@ -814,8 +813,8 @@ class Camera:
         for media_index in range(len(self.storage_info)):
             info = self.storage_info[media_index]
             if not (
-                info.fields & gp.GP_STORAGEINFO_MAXCAPACITY
-                and info.fields & gp.GP_STORAGEINFO_FREESPACEKBYTES
+                    info.fields & gp.GP_STORAGEINFO_MAXCAPACITY
+                    and info.fields & gp.GP_STORAGEINFO_FREESPACEKBYTES
             ):
                 logging.error("Could not locate storage on %s", self.display_name)
             else:
